@@ -28,7 +28,7 @@ export { noop, debounce, throttle } from './fn';
 export type { WrDebouncedFn, WrThrottledFn } from './fn';
 
 // Keyboard
-export { KEYS, hasModifier, isPrintableKey } from './keyboard';
+export { KEYS, hasModifier, isComposing, isPrintableKey } from './keyboard';
 export type { WrKey } from './keyboard';
 
 // Log

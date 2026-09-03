@@ -4,7 +4,10 @@ import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
+import { provideWrDateAdapter } from 'ngwr/date';
 import { provideWrDateFnsAdapter } from 'ngwr/date/adapters/fns';
+import { type WrI18nCatalog, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { wrEn } from 'ngwr/i18n/en';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrCalendar } from './calendar';
@@ -479,5 +482,134 @@ describe('WrCalendar under dir="rtl"', () => {
     const label = root().querySelector<HTMLElement>('.wr-calendar__label')!;
     expect(label.classList.contains('wr-calendar__nav')).toBe(false);
     expect(label.textContent.trim().length).toBeGreaterThan(0);
+  });
+});
+
+/**
+ * The header and the day cells, as translatable units.
+ *
+ * Two defects with one shape. The header was `${month} ${year}` and the year
+ * view `${first} – ${last}`, both assembled in TypeScript: English word order
+ * and an English separator, frozen where no catalog reaches. ja-JP writes
+ * 2026年3月, which is not a translation of any word in "March 2026" but a
+ * different ARRANGEMENT of the same two values — so the arrangement has to be
+ * the thing a catalog owns.
+ *
+ * And a day cell had no accessible name at all: `role="gridcell"` inherits none
+ * from the grid or the column header above it, so every date announced as a
+ * bare number, with the month, the year and the weekday all on screen and none
+ * of them reachable.
+ */
+describe('WrCalendar — header and cell names', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const header = (): string => root().querySelector('.wr-calendar__label')!.textContent.trim();
+  const days = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-calendar__day')];
+
+  const mount = async (catalog?: WrI18nCatalog): Promise<void> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        // The NATIVE adapter here, not the date-fns one the specs above use:
+        // `longDate` is `Intl` with `{ year, month: 'long', day }`, where
+        // date-fns's `PPP` writes an ordinal ("January 15th, 2026"). Both are
+        // correct for their adapter; this file needs one exact string.
+        provideWrDateAdapter(),
+        ...(catalog
+          ? [
+              provideWrI18n({ defaultLocale: 'xx', availableLocales: ['xx'] }),
+              provideWrI18nStaticLoader({ xx: catalog }),
+            ]
+          : []),
+      ],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    await Promise.resolve();
+    await Promise.resolve();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('renders the shipped English arrangement', async () => {
+    await mount(wrEn);
+
+    expect(header()).toBe('January 2026');
+  });
+
+  it('lets a catalog put the year first and drop the space — the ja-JP shape', async () => {
+    await mount({ calendar: { header: '{{year}}年{{month}}' } });
+
+    expect(header()).toBe('2026年January');
+  });
+
+  it('hands the year range separator to the catalog too', async () => {
+    await mount({ calendar: { yearRange: '{{from}}年〜{{to}}年' } });
+
+    // day → month → year.
+    root().querySelector<HTMLButtonElement>('.wr-calendar__label')!.click();
+    fixture.detectChanges();
+    root().querySelector<HTMLButtonElement>('.wr-calendar__label')!.click();
+    fixture.detectChanges();
+
+    expect(header()).toBe('2016年〜2027年');
+  });
+
+  it('names every day cell with its weekday and full date', async () => {
+    await mount(wrEn);
+
+    // 15 January 2026 is a Thursday. The date half is the adapter's `longDate`,
+    // so its field order and punctuation are `Intl`'s, not this component's.
+    const fifteenth = days().find(
+      d => d.textContent.trim() === '15' && !d.classList.contains('wr-calendar__day--out-of-month')
+    );
+
+    expect(fifteenth!.getAttribute('aria-label')).toBe('Thursday, January 15, 2026');
+    // Every cell in the grid, not just the selected one — six weeks of them.
+    expect(days()).toHaveLength(42);
+    expect(days().every(d => (d.getAttribute('aria-label') ?? '').length > 0)).toBe(true);
+  });
+
+  it('picks the weekday by calendar day, not by column index', async () => {
+    // `getDayOfWeekNames` returns COLUMN order — index 0 is the locale's first
+    // day of the week, which date-fns's default en-US makes Sunday and most
+    // locales make Monday. Indexing it with `getDayOfWeek()` (0 = Sunday)
+    // directly is off by one in every Monday-first locale, and reads plausibly
+    // in en-US, which is where it would have been checked.
+    await mount(wrEn);
+
+    const named = days().map(d => (d.getAttribute('aria-label') ?? '').split(',')[0]);
+    // Seven columns, so every cell in a column carries the same weekday name…
+    for (let col = 0; col < 7; col++) {
+      const column = new Set(named.filter((_, i) => i % 7 === col));
+      expect(column.size, `column ${col}`).toBe(1);
+    }
+    // …and the seven names are seven different days, in the header strip's order.
+    const strip = [...root().querySelectorAll('.wr-calendar__weekday')].map(w => w.textContent.trim());
+    expect(named.slice(0, 7).map(n => n.slice(0, 2))).toEqual(strip.map(s => s.slice(0, 2)));
+  });
+
+  it('lets a catalog move the weekday to the other side of the date', async () => {
+    await mount({ calendar: { dayLabel: '{{date}} ({{weekday}})' } });
+
+    const fifteenth = days().find(
+      d => d.textContent.trim() === '15' && !d.classList.contains('wr-calendar__day--out-of-month')
+    );
+
+    expect(fifteenth!.getAttribute('aria-label')).toBe('January 15, 2026 (Thursday)');
+  });
+
+  it('names its cells with no i18n provider at all', async () => {
+    await mount();
+
+    const fifteenth = days().find(
+      d => d.textContent.trim() === '15' && !d.classList.contains('wr-calendar__day--out-of-month')
+    );
+
+    expect(header()).toBe('January 2026');
+    expect(fifteenth!.getAttribute('aria-label')).toBe('Thursday, January 15, 2026');
   });
 });

@@ -116,7 +116,13 @@ protected readonly launchDate = new Date(Date.now() + 1000 * 60 * 60 * 36);`;
     },
     { name: 'duration', description: 'Count-up duration in ms.', type: 'number', default: '700', sub: true },
     { name: 'delta', description: 'Change vs previous period.', type: 'number | null', default: 'null', sub: true },
-    { name: 'deltaSuffix', description: 'Unit appended to the delta.', type: 'string', default: "'%'", sub: true },
+    {
+      name: 'deltaSuffix',
+      description: 'Unit appended to the delta. Falls back to the `statistic.deltaSuffix` catalog key.',
+      type: 'string | null',
+      default: 'null',
+      sub: true,
+    },
     {
       name: '<wr-statistic-group>',
       description: 'Responsive dashboard grid — reflows on its own width, not the viewport.',

@@ -1657,9 +1657,11 @@ export class MyWidgetHarness extends ComponentHarness {
       default: '\u2014',
     },
     {
-      name: 'Day: getText() / getDayOfMonth() / isSelected() / isDisabled() / isToday() / isOutOfMonth() / isInRange() / isActive() / click()',
+      name: 'Day: getText() / getAccessibleName() / getDayOfMonth() / isSelected() / isDisabled() / isToday() / isOutOfMonth() / isInRange() / isActive() / click()',
       description:
-        '`WrCalendarDayHarness` — the same class `ngwr/date-picker/testing` exports as `WrDatePickerDayHarness`.',
+        '`WrCalendarDayHarness` — the same class `ngwr/date-picker/testing` exports as `WrDatePickerDayHarness`. ' +
+        '`getText()` is the drawn number and `getAccessibleName()` is what a screen reader says; they are two ' +
+        'questions, and before v14 the second had no answer.',
       type: 'Promise<\u2026>',
       default: '\u2014',
     },

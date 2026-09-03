@@ -82,6 +82,7 @@
                 [class.wr-calendar__day--focused]="isFocused(day)"
                 [disabled]="isDisabled(day)"
                 [attr.tabindex]="isFocused(day) ? 0 : -1"
+                [attr.aria-label]="dayLabel(day)"
                 [attr.aria-selected]="isSelected(day)"
                 [attr.aria-disabled]="isDisabled(day)"
                 (click)="onCellClick(day)"

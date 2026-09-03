@@ -239,13 +239,13 @@ describe('WrPaginationHarness', () => {
 
   it('reads the total label as rendered, and follows it across the pages', async () => {
     const pager = await loader.getHarness(WrPaginationHarness);
-    expect(await pager.getTotalText()).toBe('1-10 of 95');
+    expect(await pager.getTotalText()).toBe('1–10 of 95');
 
     await pager.goToLast();
 
     // 95 over 10 is 9.5 pages: the last page holds five records, and a floor
     // somewhere in the arithmetic loses them with nothing on screen to say so.
-    expect(await pager.getTotalText()).toBe('91-95 of 95');
+    expect(await pager.getTotalText()).toBe('91–95 of 95');
   });
 
   it('refuses the total when the pager renders none', async () => {
@@ -488,7 +488,7 @@ describe('WrPaginationHarness — localized', () => {
 
   it('reads the localized total and picks a localized size', async () => {
     const pager = await loader.getHarness(WrPaginationHarness);
-    expect(await pager.getTotalText()).toBe('1-10 из 95');
+    expect(await pager.getTotalText()).toBe('1–10 из 95');
 
     // The option reads "20 / стр." here — the digits are the only part of that
     // label a harness can match on.

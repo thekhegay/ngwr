@@ -19,6 +19,7 @@ import {
 } from '@angular/core';
 
 import { WrCountUp } from 'ngwr/counter';
+import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
@@ -140,8 +141,13 @@ export class WrStatistic {
     },
   });
 
-  /** Unit appended to the delta value. @default '%' */
-  readonly deltaSuffix = input<string>('%');
+  // The default moved from the literal `'%'` to `null` so the catalog gets a
+  // say. `%` is a string the LIBRARY owns and no locale could reach: a locale
+  // that writes it differently — or writes it as a word — had nowhere to put
+  // that but a per-instance binding on every `<wr-statistic>` on the page. A
+  // bound value still wins, exactly as before, which is what makes this safe.
+  /** Unit appended to the delta value. Falls back to `statistic.deltaSuffix`, then `'%'`. */
+  readonly deltaSuffix = input<string | null>(null);
 
   protected readonly hasDelta = computed(() => this.delta() !== null);
 
@@ -151,10 +157,37 @@ export class WrStatistic {
     return d > 0 ? 'up' : 'down';
   });
 
+  protected readonly resolvedDeltaSuffix = useI18nText(this.deltaSuffix, 'statistic.deltaSuffix', '%');
+
+  /** `{{value}}{{suffix}}` — the join, so a locale owns the space before the unit. */
+  private readonly deltaFormat = useI18nFormatter('statistic.delta', '{{value}}{{suffix}}');
+
+  /**
+   * The delta chip, e.g. `+12.4%`.
+   *
+   * It was `` `${sign}${d}${suffix}` ``, printed one line under a value that
+   * goes through `Intl.NumberFormat` — so the two disagreed inside one
+   * component: ar-SA showed `١٬٢٣٤٬٥٦٧٫٨٩` above a Latin `12.4%`, and de-DE
+   * `1.234.567,89` above `+12.4%`. The sign comes from `signDisplay`, which also
+   * fixes the RTL half of it: `+` written by hand is a neutral character that
+   * the BiDi algorithm moves to the other end of the number.
+   *
+   * The digit count is taken from the number rather than from `precision()`,
+   * which describes the VALUE and not the delta — so what renders is the same
+   * digits as before, in the locale's own numerals. One exception, and it is an
+   * improvement rather than a regression: a magnitude JavaScript prints in
+   * exponent notation (`1e-7`, `1e+21`) used to reach the DOM that way and is
+   * now formatted as a number.
+   */
   protected readonly deltaText = computed(() => {
     const d = this.delta();
     if (d === null) return '';
-    const sign = d > 0 ? '+' : '';
-    return `${sign}${d}${this.deltaSuffix()}`;
+    const decimals = Math.min(20, (String(Math.abs(d)).split('.')[1] ?? '').length);
+    const value = new Intl.NumberFormat(this.locale, {
+      signDisplay: 'exceptZero',
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    }).format(d);
+    return this.deltaFormat({ value, suffix: this.resolvedDeltaSuffix() });
   });
 }

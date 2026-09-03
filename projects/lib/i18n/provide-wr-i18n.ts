@@ -8,7 +8,13 @@
 import { type EnvironmentProviders, type Provider, makeEnvironmentProviders } from '@angular/core';
 
 import { WR_I18N_BASE_CATALOGS, type WrI18nBaseCatalogs } from './i18n-base-catalogs';
-import { DEFAULT_WR_I18N_CONFIG, WR_I18N_CONFIG, type WrI18nConfig, type WrI18nConfigResolved } from './i18n-config';
+import {
+  DEFAULT_WR_I18N_CONFIG,
+  WR_I18N_CONFIG,
+  type WrI18nConfig,
+  type WrI18nConfigResolved,
+  resolveWrI18nLocales,
+} from './i18n-config';
 import { WR_I18N_LOADER, type WrI18nLoader } from './i18n-loader';
 import { WrI18nHttpLoader, type WrI18nHttpLoaderConfig } from './loaders/http-loader';
 import {
@@ -28,9 +34,19 @@ export interface ProvideWrI18nOptions extends WrI18nConfig {
 
 export function provideWrI18n(options: ProvideWrI18nOptions = {}): EnvironmentProviders {
   const { loader, ...config } = options;
-  const merged: WrI18nConfigResolved = { ...DEFAULT_WR_I18N_CONFIG, ...config };
 
-  const providers: Provider[] = [{ provide: WR_I18N_CONFIG, useValue: merged }];
+  const providers: Provider[] = [
+    {
+      provide: WR_I18N_CONFIG,
+      // A factory rather than a value: `defaultLocale` falls back to `LOCALE_ID`,
+      // which only an injection context can read.
+      useFactory: (): WrI18nConfigResolved => ({
+        ...DEFAULT_WR_I18N_CONFIG,
+        ...config,
+        ...resolveWrI18nLocales(config),
+      }),
+    },
+  ];
   if (loader) providers.push({ provide: WR_I18N_LOADER, useValue: loader });
 
   return makeEnvironmentProviders(providers);

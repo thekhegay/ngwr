@@ -395,3 +395,93 @@ describe('WrInputOtp names', () => {
     expect(groupName(mount(LabelledHost))).toBe('Код подтверждения');
   });
 });
+
+@Component({
+  imports: [WrInputOtp],
+  template: `<wr-input-otp [(value)]="code" [length]="4" mode="text" />`,
+})
+class ImeHost {
+  readonly code = signal('');
+}
+
+/**
+ * jsdom runs no input method. Every event below is hand-built with the flags a
+ * real one sets — `isComposing` on the `input` and `keydown` events an open
+ * candidate window owns, and a `compositionend` to end it — and the assertion is
+ * that the strip did nothing until the character was real.
+ *
+ * A faithful test of the guard and no more: it does not run kotoeri or Pinyin,
+ * and it must not be read as saying the strip has been driven by a real IME.
+ *
+ * `mode="text"` throughout, so the character a conversion produces survives
+ * `sanitiseChar` and the test can see where it landed. Whether a full-width digit
+ * should survive `mode="numeric"` is a separate question this file does not ask.
+ */
+describe('WrInputOtp under an IME', () => {
+  let fixture: ComponentFixture<ImeHost>;
+
+  const boxes = (): HTMLInputElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>('input'),
+  ];
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(ImeHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('leaves the half-built reading in the box it is being composed in', () => {
+    // The defect: the sanitiser ran on the intermediate text and wrote the result
+    // straight back into the field, which aborts the conversion outright.
+    const box = boxes()[0];
+    box.focus();
+    box.value = 'ｋ';
+    box.dispatchEvent(new InputEvent('input', { bubbles: true, isComposing: true }));
+    fixture.detectChanges();
+
+    expect(box.value, 'the field the IME is composing in was rewritten').toBe('ｋ');
+    expect(fixture.componentInstance.code()).toBe('');
+    expect(document.activeElement, 'focus advanced mid-conversion').toBe(box);
+  });
+
+  it('takes the character the conversion finally produced', () => {
+    const box = boxes()[0];
+    box.focus();
+    box.value = 'ｋ';
+    box.dispatchEvent(new InputEvent('input', { bubbles: true, isComposing: true }));
+    box.value = 'か';
+    box.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: 'か' }));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.code()).toBe('か');
+    expect(document.activeElement, 'the strip should walk on once a character lands').toBe(boxes()[1]);
+  });
+
+  it('does not walk out of the composing box on an arrow or a Backspace', () => {
+    // Both keys belong to the candidate window while a conversion is open, and
+    // moving focus out of the box discards the composition.
+    const box = boxes()[1];
+    for (const key of ['ArrowLeft', 'ArrowRight', 'Backspace']) {
+      box.focus();
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, isComposing: true });
+      box.dispatchEvent(event);
+      fixture.detectChanges();
+      expect(event.defaultPrevented, `${key} was taken from the IME`).toBe(false);
+      expect(document.activeElement, `${key} moved focus off the composing box`).toBe(box);
+    }
+  });
+
+  it("recognises Safari's committing keystroke, which carries only keyCode 229", () => {
+    const box = boxes()[1];
+    box.focus();
+    const event = new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true, keyCode: 229 });
+    box.dispatchEvent(event);
+    fixture.detectChanges();
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(box);
+  });
+});

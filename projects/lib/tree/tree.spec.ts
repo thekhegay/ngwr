@@ -803,3 +803,66 @@ describe('WrTree teardown while windowed', () => {
     expect(live, 'one observer leaked per mount destroyed before its first render').toBe(0);
   });
 });
+
+@Component({
+  imports: [WrTree],
+  template: `
+    <wr-tree
+      openOn="overlay"
+      selectionMode="multi"
+      [nodes]="nodes"
+      [maxTagCount]="1"
+      [selected]="['a', 'b', 'c']"
+      placeholder="Pick"
+    />
+  `,
+})
+class OverflowHost {
+  readonly nodes: readonly WrTreeNode[] = [
+    { id: 'a', label: 'Draft' },
+    { id: 'b', label: 'Sent' },
+    { id: 'c', label: 'Spam' },
+  ];
+}
+
+/**
+ * The overflow chip, which `wr-select` had in the catalog and this component
+ * did not.
+ *
+ * `+{{ extra }} more` was a template literal here while the identical chip on
+ * `wr-select` read `select.more` — so the same string was translatable in one
+ * component and not in its neighbour, and a Russian tree rendered
+ * `["Черновик", "+2 more"]`. The two now share a shape as well as a string.
+ */
+describe('WrTree — the overflow chip is localizable', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<OverflowHost>>;
+
+  const more = (): string =>
+    (fixture.nativeElement as HTMLElement).querySelector('.wr-tree__chip--more')!.textContent.trim();
+
+  const mount = (providers: unknown[]): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay(), ...providers] as never });
+    fixture = TestBed.createComponent(OverflowHost);
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps the English text when nothing is configured', () => {
+    mount([]);
+
+    expect(more()).toBe('+2 more');
+  });
+
+  it('reads tree.more from the catalog, count and all', async () => {
+    mount([provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }), provideWrI18nStaticLoader({ ru: wrRu })]);
+    // The static loader resolves through a promise even for an in-memory catalog.
+    await Promise.resolve();
+    await Promise.resolve();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(more()).toBe('ещё 2');
+  });
+});

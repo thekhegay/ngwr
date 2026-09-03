@@ -33,7 +33,7 @@
           [value]="query()"
           (input)="onQueryInput($event)"
         />
-        <kbd class="wr-command-palette__hint">esc</kbd>
+        <kbd class="wr-command-palette__hint">{{ resolvedEscHint() }}</kbd>
       </div>
 
       <!-- The empty row sits OUTSIDE the listbox below, and is a live region.

@@ -2,6 +2,7 @@ import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrCommandPalette } from './command-palette';
@@ -311,6 +312,65 @@ describe('WrCommandPalette', () => {
     expect(input().value).toBe('');
     expect(labels()).toEqual(['Open file', 'Save file', 'Undo']);
   });
+
+  /**
+   * jsdom runs no input method, so every event below is hand-built with the flags
+   * a real one sets: `isComposing` while a candidate window is open, and the
+   * legacy `keyCode: 229` that Safari leaves on the keystroke which commits a
+   * candidate (it fires `compositionend` first, so `isComposing` has already gone
+   * false there). The assertion is that the handler did NOTHING.
+   *
+   * That is a faithful test of the guard and of nothing more. It does not run
+   * kotoeri, Pinyin or Google Japanese Input, and it must not be read as saying
+   * the palette has been tried under a real IME — only that a keydown wearing an
+   * IME's flags is left alone.
+   */
+  describe('IME composition', () => {
+    const compose = (key: string): KeyboardEvent => {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, isComposing: true });
+      input().dispatchEvent(event);
+      fixture.detectChanges();
+      return event;
+    };
+
+    it('leaves the arrows to the candidate list', () => {
+      const event = compose('ArrowDown');
+      expect(event.defaultPrevented, 'the IME needs the key to walk its candidates').toBe(false);
+      expect(activeIndex()).toBe(0);
+    });
+
+    it('does not run a command on the Enter that accepts a candidate', () => {
+      type('save');
+      const event = compose('Enter');
+      expect(event.defaultPrevented).toBe(false);
+      expect(fixture.componentInstance.picked).toEqual([]);
+      expect(fixture.componentInstance.open()).toBe(true);
+    });
+
+    it('stays open on the Escape that cancels a conversion, query intact', () => {
+      // The reproduced blocker: Escape means "undo this reading" to the IME, and
+      // the palette took it as "close", discarding everything typed so far.
+      type('こうかい');
+      const event = compose('Escape');
+      expect(event.defaultPrevented).toBe(false);
+      expect(fixture.componentInstance.open()).toBe(true);
+      expect(input().value).toBe('こうかい');
+    });
+
+    it("recognises Safari's committing keystroke, which carries only keyCode 229", () => {
+      const event = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true, keyCode: 229 });
+      input().dispatchEvent(event);
+      fixture.detectChanges();
+      expect(fixture.componentInstance.open()).toBe(true);
+    });
+
+    it('acts on the same keys again once the composition is over', () => {
+      press('ArrowDown');
+      expect(activeIndex()).toBe(1);
+      press('Escape');
+      expect(fixture.componentInstance.open()).toBe(false);
+    });
+  });
 });
 
 /**
@@ -366,5 +426,51 @@ describe('WrCommandPalette teardown', () => {
 
     expect(create, 'a trap was built after teardown, so nothing is left to destroy it').not.toHaveBeenCalled();
     expect(destroy).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * The key-cap chip beside the search field.
+ *
+ * `<kbd>esc</kbd>` was a literal in the template, and the one string on this
+ * component no catalog could reach: under the audit's pseudo-locale everything
+ * around it resolved to a key and this stayed Latin — a Russian palette with a
+ * Russian placeholder, a Russian accessible name and an English hint.
+ */
+describe('WrCommandPalette — the esc hint is localizable', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const hint = (): string =>
+    (fixture.nativeElement as HTMLElement).querySelector('.wr-command-palette__hint')!.textContent.trim();
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps its English key name when nothing is configured', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [] });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+
+    expect(hint()).toBe('esc');
+  });
+
+  it('takes the label from the catalog', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'xx', availableLocales: ['xx'] }),
+        provideWrI18nStaticLoader({ xx: { commandPalette: { escHint: 'Esc-Taste' } } }),
+      ],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    // The static loader resolves through a promise even for an in-memory catalog,
+    // which is why this reads a signal rather than a string fixed at construction.
+    await Promise.resolve();
+    await Promise.resolve();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(hint()).toBe('Esc-Taste');
   });
 });

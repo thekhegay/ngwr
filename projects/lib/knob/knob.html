@@ -45,7 +45,21 @@
     />
   </svg>
   @if (showValue()) {
-    <div class="wr-knob__text">
+    <!--
+      `dir="auto"` because this is a number and a unit read as one phrase, and
+      the browser is the only thing that knows which way that phrase runs. In an
+      RTL paragraph the Unicode BiDi algorithm treats a digit run as neutral
+      against the letters beside it, so `40 dB` was drawn `dB 40` — and `-5 dB`
+      as `dB 5-`, with the sign on the wrong end of the number. `dir="auto"`
+      picks the direction from the first strong character in the composed text,
+      so a Latin `suffix` keeps the number first and an Arabic one reads
+      right-to-left, which is correct for both.
+
+      `unicode-bidi: isolate` does NOT fix this and was measured doing nothing:
+      isolation seals the element off from its SURROUNDINGS, and the flip
+      happens inside it.
+    -->
+    <div class="wr-knob__text" dir="auto">
       {{ value() }}<span class="wr-knob__suffix">{{ suffix() }}</span>
     </div>
   }

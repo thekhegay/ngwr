@@ -339,6 +339,101 @@ describe('WrMention', () => {
       expect(pane().parentElement!.classList.contains('cdk-overlay-connected-position-bounding-box')).toBe(true);
     });
   });
+
+  /**
+   * jsdom runs no input method. Every event here is hand-built with the flags a
+   * real one sets — `isComposing` on the keys an open candidate window owns, and
+   * the `compositionstart` / `compositionend` pair around them — and the
+   * assertion is that the directive did nothing until the text was real.
+   *
+   * A faithful test of the guard and no more: nothing below exercises kotoeri or
+   * Pinyin, and it should not be read as saying the mention picker has been
+   * driven by a real IME.
+   */
+  describe('IME composition', () => {
+    const composeStart = (): void => {
+      field().dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
+      fixture.detectChanges();
+    };
+
+    const composeEnd = (): void => {
+      field().dispatchEvent(new CompositionEvent('compositionend', { bubbles: true }));
+      fixture.detectChanges();
+    };
+
+    /** Type the way an IME does: the field fills with a half-built reading. */
+    const composeType = (text: string): void => {
+      const el = field();
+      el.value = text;
+      el.selectionStart = el.selectionEnd = text.length;
+      el.dispatchEvent(new InputEvent('input', { bubbles: true, isComposing: true }));
+      fixture.detectChanges();
+    };
+
+    const composeKey = (key: string): KeyboardEvent => {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, isComposing: true });
+      field().dispatchEvent(event);
+      fixture.detectChanges();
+      return event;
+    };
+
+    it('does not open the panel on the half-built text of a conversion', () => {
+      composeStart();
+      // `Al` here is a reading on its way somewhere else; it happens to match two
+      // people, which is the point — the old code opened on it.
+      composeType('@Al');
+      expect(listbox()).toBeNull();
+    });
+
+    it('opens on the text the conversion finally produced', () => {
+      composeStart();
+      composeType('@Ada');
+      expect(listbox()).toBeNull();
+      composeEnd();
+      expect(optionLabels()).toEqual(['Ada Lovelace']);
+    });
+
+    it('closes a panel that was already open when a conversion starts', () => {
+      type('@a');
+      expect(listbox()).not.toBeNull();
+      composeStart();
+      expect(listbox(), 'an open panel would take the arrows from the candidate window').toBeNull();
+    });
+
+    it('leaves the first keystroke of a conversion to the input method', () => {
+      // Chrome fires the 229 `keydown` BEFORE `compositionstart`, so the panel
+      // from the previous word is still open when it arrives — the one moment the
+      // keydown guard is load-bearing and `compositionstart` has not helped yet.
+      type('@a');
+      const first = activeOption()?.textContent?.trim();
+
+      for (const key of ['ArrowDown', 'Escape']) {
+        expect(composeKey(key).defaultPrevented, `${key} was taken from the IME`).toBe(false);
+      }
+      expect(listbox(), 'Escape closed the panel instead of cancelling the reading').not.toBeNull();
+      expect(activeOption()?.textContent?.trim(), 'ArrowDown moved the panel, not the candidates').toBe(first);
+
+      expect(composeKey('Enter').defaultPrevented).toBe(false);
+      expect(fixture.componentInstance.committed(), 'a candidate Enter inserted a mention').toBeNull();
+    });
+
+    it("recognises Safari's committing keystroke, which carries only keyCode 229", () => {
+      type('@a');
+      // Safari fires `compositionend` before this keydown, so the directive's own
+      // flag is already false and 229 is the only thing left to read.
+      const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true, keyCode: 229 });
+      field().dispatchEvent(event);
+      fixture.detectChanges();
+      expect(event.defaultPrevented).toBe(false);
+      expect(fixture.componentInstance.committed()).toBeNull();
+    });
+
+    it('commits normally once the composition is over', () => {
+      type('@a');
+      press('Enter');
+      expect(fixture.componentInstance.committed()?.item['id']).toBe('ada');
+    });
+  });
 });
 
 /** A mention field living inside a dialog — the shape a comment box usually has. */

@@ -28,6 +28,7 @@
       [attr.aria-label]="resolvedSearchLabel()"
       [value]="query()"
       (input)="onSearchInput($event)"
+      (keydown)="onSearchKeydown($event)"
     />
 
     <div class="wr-table-filter__list">

@@ -17,6 +17,7 @@
     [attr.aria-describedby]="fieldAria.describedBy()"
     (input)="onInput($event, $index)"
     (keydown)="onKeyDown($event, $index)"
+    (compositionend)="onCompositionEnd($event, $index)"
     (paste)="onPaste($event)"
     (blur)="onBlur()"
   />

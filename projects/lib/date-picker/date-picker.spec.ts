@@ -828,3 +828,116 @@ describe('WrDatePicker under a localized catalog', () => {
     fixture.destroy();
   });
 });
+
+/**
+ * The audit's blocker (findings 1 and 1b): the field could not read what it had just
+ * printed. A named format went to `Intl` on the way out and to `new Date(raw)` on the way
+ * back, and `new Date` understands only Anglo-American forms — so retyping a de-DE date
+ * committed 1 January 2001 on the FIRST keystroke and refused every one after it, and
+ * `mode="time"` collapsed to midnight in every locale, en-US included.
+ *
+ * These cases drive the field the way a person does — select all, delete, type the
+ * characters back one at a time, leave — because that sequence is what made the defect
+ * visible and a single `type(whole)` call would have passed throughout.
+ */
+describe('WrDatePicker retyping its own value', () => {
+  const retype = (fixture: ReturnType<typeof TestBed.createComponent<Host>>, text: string): void => {
+    const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input.wr-input')!;
+    input.value = '';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+
+    for (let i = 1; i <= text.length; i++) {
+      input.value = text.slice(0, i);
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      fixture.detectChanges();
+    }
+
+    input.dispatchEvent(new Event('blur', { bubbles: true }));
+    fixture.detectChanges();
+  };
+
+  const mount = (
+    locale: string,
+    mode: 'date' | 'time' | 'datetime',
+    value: Date
+  ): ReturnType<typeof TestBed.createComponent<Host>> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale })] });
+    const fixture = TestBed.createComponent(Host);
+    // `null` is the case that broke: the picker then derives a NAMED format from the mode.
+    fixture.componentInstance.format.set(null);
+    fixture.componentInstance.mode.set(mode);
+    fixture.componentInstance.picked.set(value);
+    fixture.detectChanges();
+    return fixture;
+  };
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  for (const locale of ['de-DE', 'ru-RU', 'fi-FI', 'en-US', 'ja-JP']) {
+    it(`keeps the date when it is retyped verbatim in ${locale}`, () => {
+      const fixture = mount(locale, 'date', new Date(2026, 2, 15));
+      const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input.wr-input')!;
+      const printed = input.value;
+
+      retype(fixture, printed);
+
+      expect(input.value, `printed ${printed}`).toBe(printed);
+      const picked = fixture.componentInstance.picked()!;
+      expect([picked.getFullYear(), picked.getMonth(), picked.getDate()], `printed ${printed}`).toEqual([2026, 2, 15]);
+      fixture.destroy();
+    });
+
+    it(`keeps the time when it is retyped verbatim in ${locale}`, () => {
+      const fixture = mount(locale, 'time', new Date(2026, 2, 15, 14, 30));
+      const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input.wr-input')!;
+      const printed = input.value;
+
+      retype(fixture, printed);
+
+      expect(input.value, `printed ${printed}`).toBe(printed);
+      const picked = fixture.componentInstance.picked()!;
+      expect([picked.getHours(), picked.getMinutes()], `printed ${printed}`).toEqual([14, 30]);
+      fixture.destroy();
+    });
+  }
+
+  it('leaves the committed value alone when the text cannot be read', () => {
+    // The contract `wr-input-number` follows: refusing is correct, committing a guess is
+    // the defect. `3/15/2026` in a `d.M.y` locale is unreadable, not 3 January.
+    const fixture = mount('de-DE', 'date', new Date(2026, 2, 15));
+    const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input.wr-input')!;
+
+    input.value = '3/15/2026';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    // A pass between the two events, the way the browser runs them: without it the
+    // binding never sees the intermediate text and the repaint has nothing to undo.
+    fixture.detectChanges();
+    input.dispatchEvent(new Event('blur', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.picked()!.getDate()).toBe(15);
+    expect(input.value).toBe('15.3.2026');
+    fixture.destroy();
+  });
+
+  it('edits the clock without moving the day', () => {
+    // `time` carries no date, so the adapter has to fill one in — and the date already in
+    // the model is the right one. The time PANEL has always kept its `basis`; the text
+    // field used to hand back today.
+    const fixture = mount('en-US', 'time', new Date(2026, 2, 15, 14, 30));
+    const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input.wr-input')!;
+
+    input.value = input.value.replace('02', '03');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    input.dispatchEvent(new Event('blur', { bubbles: true }));
+    fixture.detectChanges();
+
+    const picked = fixture.componentInstance.picked()!;
+    expect([picked.getFullYear(), picked.getMonth(), picked.getDate()]).toEqual([2026, 2, 15]);
+    expect([picked.getHours(), picked.getMinutes()]).toEqual([15, 30]);
+    fixture.destroy();
+  });
+});

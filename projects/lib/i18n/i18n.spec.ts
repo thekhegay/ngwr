@@ -1,14 +1,16 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
+import { LOCALE_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { wrEn } from 'ngwr/i18n/en';
 import { wrRu } from 'ngwr/i18n/ru';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrI18n, wrInterpolate } from './i18n';
-import { provideWrI18n, provideWrI18nStaticLoader } from './provide-wr-i18n';
+import type { WrI18nCatalog } from './i18n-config';
+import { provideWrI18n, provideWrI18nBaseCatalogs, provideWrI18nStaticLoader } from './provide-wr-i18n';
 
 describe('wrInterpolate', () => {
   it('substitutes named placeholders, whitespace and all', () => {
@@ -157,6 +159,187 @@ describe('WrI18n', () => {
 });
 
 /**
+ * Which locale wins.
+ *
+ * The library had three inputs and no stated order between them — `LOCALE_ID`,
+ * `WR_DATE_LOCALE` and this service's own signal — and an audit found all three
+ * disagreeing on one screen. The rule now: a subsystem's explicit option beats
+ * the runtime locale beats `LOCALE_ID`, and `navigator.language` is not
+ * consulted at all. These pin the two halves this service owns.
+ */
+describe('WrI18n locale precedence', () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => TestBed.resetTestingModule());
+
+  const settle = async (): Promise<void> => {
+    TestBed.tick();
+    await Promise.resolve();
+    await Promise.resolve();
+    TestBed.tick();
+  };
+
+  it('seeds the default locale from LOCALE_ID when the app states no other', async () => {
+    // The whole point: an app that has told Angular what locale it is should not
+    // have to tell ngwr a second time, in a second vocabulary.
+    TestBed.configureTestingModule({
+      providers: [{ provide: LOCALE_ID, useValue: 'de-DE' }, provideWrI18n()],
+    });
+    const i18n = TestBed.inject(WrI18n);
+    await settle();
+    expect(i18n.locale()).toBe('de-DE');
+  });
+
+  it('lets an explicit defaultLocale beat LOCALE_ID', async () => {
+    TestBed.configureTestingModule({
+      providers: [{ provide: LOCALE_ID, useValue: 'de-DE' }, provideWrI18n({ defaultLocale: 'ru' })],
+    });
+    const i18n = TestBed.inject(WrI18n);
+    await settle();
+    expect(i18n.locale()).toBe('ru');
+  });
+
+  it('whitelists the default locale when no list was given', async () => {
+    // `availableLocales` used to be a hardcoded `['en']`, so a service configured
+    // with `defaultLocale: 'ru'` refused `use('ru')` — its own starting locale
+    // was not one it would switch to.
+    TestBed.configureTestingModule({
+      providers: [provideWrI18n({ defaultLocale: 'ru' })],
+    });
+    const i18n = TestBed.inject(WrI18n);
+    await settle();
+    expect(i18n.available()).toEqual(['ru']);
+
+    i18n.use('ru');
+    expect(i18n.locale()).toBe('ru');
+  });
+});
+
+/**
+ * A catalog keyed by language answers an app running a full tag. Without this,
+ * `ru` and `ru-RU` are unrelated strings and the miss is silent: `t()` returns
+ * the key, `useI18nText` reads that as "missing", and a fully translated app
+ * renders English fallbacks with nothing logged.
+ */
+describe('WrI18n locale chain', () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => TestBed.resetTestingModule());
+
+  const settle = async (): Promise<void> => {
+    TestBed.tick();
+    await Promise.resolve();
+    await Promise.resolve();
+    TestBed.tick();
+  };
+
+  const mount = async (locale: string, catalogs: Record<string, WrI18nCatalog>): Promise<WrI18n> => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: locale, availableLocales: [locale] }),
+        provideWrI18nStaticLoader(catalogs),
+      ],
+    });
+    const i18n = TestBed.inject(WrI18n);
+    await settle();
+    return i18n;
+  };
+
+  it('falls back from the region to the language', async () => {
+    const i18n = await mount('ru-RU', { ru: { greeting: 'Привет' } });
+    expect(i18n.t('greeting')).toBe('Привет');
+  });
+
+  it('prefers the region catalog over the language one', async () => {
+    const i18n = await mount('pt-BR', { 'pt-BR': { greeting: 'Oi' }, pt: { greeting: 'Olá' } });
+    expect(i18n.t('greeting')).toBe('Oi');
+  });
+
+  it('fills a gap in the region catalog from the language one', async () => {
+    const i18n = await mount('pt-BR', { 'pt-BR': { greeting: 'Oi' }, pt: { bye: 'Tchau' } });
+    expect(i18n.t('bye')).toBe('Tchau');
+  });
+
+  it('does NOT extend a language into a region', async () => {
+    // Truncation only. `en` reaching an `en-US` catalog would be a guess about
+    // which region an unqualified language means, and there is no right answer.
+    const i18n = await mount('ru', { 'ru-RU': { greeting: 'Привет' } });
+    expect(i18n.t('greeting')).toBe('greeting');
+  });
+
+  it("chains the base catalogs too, which is how ngwr's own strings are found", async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'ru-RU', availableLocales: ['ru-RU'] }),
+        provideWrI18nBaseCatalogs({ ru: wrRu }),
+      ],
+    });
+    const i18n = TestBed.inject(WrI18n);
+    await settle();
+    expect(i18n.t('select.noResults')).toBe('Ничего не найдено');
+  });
+});
+
+/**
+ * `use()` moves text and nothing else — `LOCALE_ID` is a constant and
+ * `WR_DATE_LOCALE` resolves once at bootstrap. That limit is real and cannot be
+ * fixed from inside this service; what it CAN do is stop being silent about it.
+ * The failure it replaces is a screen of German labels beside `3/15/2026`.
+ */
+describe('WrI18n runtime-switch warning', () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => {
+    TestBed.resetTestingModule();
+    vi.restoreAllMocks();
+  });
+
+  const mount = async (localeId: string): Promise<WrI18n> => {
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: LOCALE_ID, useValue: localeId },
+        provideWrI18n({ defaultLocale: 'en', availableLocales: ['en', 'de-DE'] }),
+      ],
+    });
+    const i18n = TestBed.inject(WrI18n);
+    TestBed.tick();
+    await Promise.resolve();
+    return i18n;
+  };
+
+  it('names what a runtime switch cannot reach', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const i18n = await mount('en-US');
+
+    i18n.use('de-DE');
+
+    expect(warn).toHaveBeenCalledTimes(1);
+    const message = String(warn.mock.calls[0][0]);
+    expect(message).toContain('de-DE');
+    expect(message).toContain('en-US');
+    expect(message).toContain('LOCALE_ID');
+  });
+
+  it('says it once, not on every switch', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const i18n = await mount('en-US');
+
+    i18n.use('de-DE');
+    i18n.use('en');
+    i18n.use('de-DE');
+
+    expect(warn).toHaveBeenCalledTimes(1);
+  });
+
+  it('stays quiet when the switch lands back on LOCALE_ID', async () => {
+    // Nothing is out of step there, so there is nothing to report — and a
+    // warning that fires when everything agrees is one people learn to ignore.
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const i18n = await mount('de-DE');
+
+    i18n.use('de-DE');
+    expect(warn).not.toHaveBeenCalled();
+  });
+});
+
+/**
  * The two shipped catalogs have to describe the same keys. A key added to `wrEn`
  * alone is invisible: `useI18nText` treats "translation === key" as missing and
  * quietly substitutes the component's English default, so a Russian app renders
@@ -217,7 +400,15 @@ describe('the shipped catalogs', () => {
         if (entry.isDirectory()) {
           if (entry.name !== 'i18n' && entry.name !== 'node_modules') walk(full);
         } else if (entry.name.endsWith('.ts') && !entry.name.includes('.spec.')) {
-          sources.push(readFileSync(full, 'utf8'));
+          // Comments blanked, newlines kept so nothing shifts line for line. A
+          // JSDoc `@example` spells calls that no code makes: `wr-meta`'s block
+          // shows `i18n.t('home.title')`, and read raw that is a key the library
+          // asks for and the catalog does not have — a red gate pointing at an
+          // illustration. Same reason the api-docs extractor blanks before it
+          // scans.
+          sources.push(
+            readFileSync(full, 'utf8').replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, c => c.replace(/[^\n]/g, ' '))
+          );
         }
       }
     };
@@ -236,6 +427,10 @@ describe('the shipped catalogs', () => {
     };
 
     const asked = new Set<string>();
+    // Prefixes reached by a template literal — `t(`validation.${key}`)` — where
+    // the leaf is a runtime value and no literal key exists to find. The subtree
+    // under one of these counts as read.
+    const askedPrefixes = new Set<string>();
     let calls = 0;
     let keyless = 0;
     for (const text of sources) {
@@ -245,6 +440,12 @@ describe('the shipped catalogs', () => {
         if (key) asked.add(key[1]);
         else keyless++;
       }
+      // A direct `i18n.t('some.key')`, which the three helpers above are built
+      // on and which four components call straight. Not counted toward `calls`:
+      // `.t(` also matches unrelated members, so a miss here is not evidence of
+      // a call shape going unread the way it is for the helpers.
+      for (const m of text.matchAll(/\.t\s*\(\s*'(\w+(?:\.\w+)+)'/g)) asked.add(m[1]);
+      for (const m of text.matchAll(/`(\w+(?:\.\w+)*\.)\$\{/g)) askedPrefixes.add(m[1]);
     }
 
     // Every call must have produced a key. A call shape this cannot read is the
@@ -259,6 +460,73 @@ describe('the shipped catalogs', () => {
 
     const have = new Set(keysOf(wrEn));
     expect([...asked].filter(key => !have.has(key)).sort()).toEqual([]);
+
+    // And the inverse, which is the half that was missing. A shipped key nothing
+    // reads is not a translation — it is a promise to a consumer that their
+    // override will do something, and it will not. The v14 pagination work left
+    // `pagination.of` exactly there: the component stopped assembling the range
+    // around it and read one whole `pagination.range` template instead, so every
+    // consumer catalog that had translated `of` silently reverted to English
+    // with nothing said. Same reasoning as `check:tokens` for a `--wr-*` nobody
+    // paints with, and the same escape hatch: a key kept on purpose goes in the
+    // list below WITH the reason, so the decision is made out loud rather than
+    // by omission.
+    // A catalog key is public API in its own right — a consumer may write
+    // `{{ 'common.save' | wrT }}` for a string the library itself never renders
+    // — so "unread" is not automatically a defect. What is a defect is a key the
+    // library USED to read and quietly stopped, because the consumer override
+    // that used to work now does nothing and nothing says so.
+    //
+    // Every entry below was checked against `git log -S`: all of them have been
+    // unread since `ngwr/i18n` first shipped, so none is an abandonment. They
+    // are the vocabulary half, and they stay.
+    const KEPT_UNREAD: ReadonlyMap<string, string> = new Map<string, string>([
+      ['common.add', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.back', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.cancel', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.clear', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.close', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.confirm', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.delete', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.edit', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.loading', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.next', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.of', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.ok', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.previous', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.remove', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.save', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.search', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.select', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.today', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.tomorrow', 'shared vocabulary offered to consumers; no component renders it'],
+      ['common.yesterday', 'shared vocabulary offered to consumers; no component renders it'],
+      ['date.months.jan', 'adapters take month names from Intl; kept for a consumer rendering its own calendar'],
+      ['date.months.feb', 'adapters take month names from Intl; kept for a consumer rendering its own calendar'],
+      ['date.months.mar', 'adapters take month names from Intl; kept for a consumer rendering its own calendar'],
+      ['date.months.apr', 'adapters take month names from Intl; kept for a consumer rendering its own calendar'],
+      ['date.months.may', 'adapters take month names from Intl; kept for a consumer rendering its own calendar'],
+      ['date.months.jun', 'adapters take month names from Intl; kept for a consumer rendering its own calendar'],
+      ['date.months.jul', 'adapters take month names from Intl; kept for a consumer rendering its own calendar'],
+      ['date.months.aug', 'adapters take month names from Intl; kept for a consumer rendering its own calendar'],
+      ['date.months.sep', 'adapters take month names from Intl; kept for a consumer rendering its own calendar'],
+      ['date.months.oct', 'adapters take month names from Intl; kept for a consumer rendering its own calendar'],
+      ['date.months.nov', 'adapters take month names from Intl; kept for a consumer rendering its own calendar'],
+      ['date.months.dec', 'adapters take month names from Intl; kept for a consumer rendering its own calendar'],
+      ['fileUpload.invalid', 'validation copy a host supplies its own message for'],
+      ['fileUpload.tooBig', 'validation copy a host supplies its own message for'],
+      ['select.empty', 'the empty state is projected content; this is a default a host can reach for'],
+      [
+        'pagination.pageOf',
+        'compact mode renders `pagination.compact`; this long form has been unread since it shipped',
+      ],
+    ]);
+
+    const reached = (key: string): boolean =>
+      asked.has(key) || [...askedPrefixes].some(prefix => key.startsWith(prefix));
+
+    const unread = [...have].filter(key => !reached(key) && !KEPT_UNREAD.has(key)).sort();
+    expect(unread, 'catalog keys nothing in the library reads').toEqual([]);
   });
 
   it('leave no value empty, in either locale', () => {

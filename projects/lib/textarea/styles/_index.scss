@@ -94,12 +94,13 @@
   // cursor follow the `resize` direction.
   &__resize {
     position: absolute;
-    // `textarea.ts` starts the drag from `event.clientX` and applies
-    // `startWidth + (clientX - startX)`, so the grip has to sit on the physical
-    // side a growing width extends toward. Flip it only together with that sign,
-    // once the drag maths itself reads `Directionality`.
-    // rtl-ok: paired with the physical clientX drag maths in textarea.ts
-    right: 0.25rem;
+    // Logical now, and the drag maths moved with it: `onResize` reads
+    // `Directionality` and negates the `clientX` delta under `dir="rtl"`, because
+    // a block-level box is anchored at its inline START and grows toward its
+    // inline END — physically right in LTR, physically left in RTL. The grip has
+    // to sit on the corner the box actually extends toward, so the two halves
+    // must be changed together or not at all.
+    inset-inline-end: 0.25rem;
     bottom: 0.25rem;
     display: inline-flex;
     color: var(--wr-color-text-faint);
@@ -113,7 +114,14 @@
       cursor: ew-resize;
     }
     &--both {
+      // The diagonal cursor names two physical corners, so it is the one cue here
+      // that has no logical spelling: at the bottom-LEFT corner an RTL field grows
+      // along the north-east / south-west diagonal instead.
       cursor: nwse-resize;
+
+      [dir='rtl'] & {
+        cursor: nesw-resize;
+      }
     }
 
     .wr-icon__svg {

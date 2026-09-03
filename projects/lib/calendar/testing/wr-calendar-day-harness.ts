@@ -49,6 +49,22 @@ export class WrCalendarDayHarness extends ComponentHarness {
     return Number(await this.getText());
   }
 
+  /**
+   * What a screen reader announces for this cell — "Thursday, January 15, 2026".
+   *
+   * A SECOND question from {@link getText}, and the reason this method exists:
+   * until v14 the cell had no name at all, so the two answers were "15" and
+   * nothing. A spec that reads only the drawn number passes on a grid that
+   * announces bare integers with no month, year or weekday anywhere in it.
+   *
+   * The string is `calendar.dayLabel` interpolated with the adapter's
+   * `longDate`, so it moves with the locale AND with the adapter — assert
+   * against the pair your spec provides, not against an English literal.
+   */
+  async getAccessibleName(): Promise<string | null> {
+    return (await this.host()).getAttribute('aria-label');
+  }
+
   /** `'gridcell'` — the cell is a button, and the grid semantics are what a spec should assert. */
   async getRole(): Promise<string | null> {
     return (await this.host()).getAttribute('role');

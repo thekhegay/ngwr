@@ -1,5 +1,11 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
+import { Subject } from 'rxjs';
 
 import { provideWrConfig } from 'ngwr/config';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -216,6 +222,111 @@ describe('WrTextarea', () => {
     fixture.componentInstance.rows.set(Number.NaN);
     fixture.detectChanges();
     expect(native().rows).toBe(3);
+  });
+});
+
+/**
+ * The horizontal half of the resize drag, under both reading directions.
+ *
+ * `Directionality` resolves the document's direction when it is constructed, so
+ * the honest way to test the other one is to provide a fake — writing
+ * `document.dir` mid-file would leak into whatever runs after it.
+ *
+ * **What the spec has to stub, and why it cannot be avoided.** jsdom lays nothing
+ * out, so `offsetWidth` is 0 on the host and `clientWidth` is 0 on its parent —
+ * which makes the width ceiling 0 and every drag resolve to `min(0, …)`. Both are
+ * declared here, so the numbers below are the component's arithmetic and nothing
+ * else. What is NOT stubbed is the sign, which is the whole point: the same
+ * pointer delta has to widen the field in one direction and narrow it in the
+ * other, because the grip sits at the field's inline end and a block box grows
+ * toward its inline end — physically right in LTR, physically left in RTL.
+ */
+describe('WrTextarea resizing under a reading direction', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-textarea')!;
+  const grip = (): HTMLElement => root().querySelector<HTMLElement>('.wr-textarea__resize')!;
+
+  /** A pointer event jsdom does not implement, with the fields the component reads. */
+  const pointer = (type: string, clientX: number): Event => {
+    const event = new Event(type, { bubbles: true, cancelable: true });
+    Object.assign(event, { pointerId: 1, button: 0, isPrimary: true, clientX, clientY: 0 });
+    return event;
+  };
+
+  const mount = (dir: Direction): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: Directionality,
+          useValue: { value: dir, valueSignal: signal(dir), change: new Subject<Direction>() },
+        },
+      ],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.resize.set('horizontal');
+    fixture.detectChanges();
+
+    // A 200px field in a 1000px column — see the docblock.
+    Object.defineProperty(host(), 'offsetWidth', { value: 200, configurable: true });
+    Object.defineProperty(host().parentElement!, 'clientWidth', { value: 1000, configurable: true });
+    grip().setPointerCapture = (): void => undefined;
+    grip().releasePointerCapture = (): void => undefined;
+  };
+
+  /** Grab the grip at x=100 and drag it 40px to the physical right. */
+  const dragRight = (): void => {
+    grip().dispatchEvent(pointer('pointerdown', 100));
+    grip().dispatchEvent(pointer('pointermove', 140));
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('widens the field when the grip is dragged to the physical right in LTR', () => {
+    mount('ltr');
+    dragRight();
+
+    expect(host().style.width).toBe('240px');
+  });
+
+  it('narrows it on the same drag in RTL, where the grip is on the other corner', () => {
+    // The contradicting half of the pair: under `dir="rtl"` the grip sits at the
+    // bottom-LEFT, so dragging the pointer to the right is dragging it INTO the
+    // field. Reading the raw `clientX` delta in both directions meant the grip
+    // sat on the corner the box does not extend toward and outward dragging
+    // shrank it.
+    mount('rtl');
+    dragRight();
+
+    expect(host().style.width).toBe('160px');
+  });
+
+  /**
+   * ⚠️ The CSS half of the same fix, guarded as a RULE.
+   *
+   * The grip's corner and the sign above are one decision: put the grip on the
+   * physical side the box does NOT grow toward and outward dragging shrinks the
+   * field. `check:rtl` cannot catch a regression here — it fires on a physical
+   * property with no reason, and `right: 0.25rem` with an `rtl-ok:` marker is
+   * exactly what this used to be. Measured in Chromium: the grip sits at 0.970
+   * of the field's width in LTR and 0.030 in RTL, and the diagonal cursor goes
+   * from `nwse-resize` to `nesw-resize`.
+   */
+  describe('the grip, as the stylesheet declares it', () => {
+    const sheet = readFileSync(join(process.cwd(), 'projects/lib/textarea/styles/_index.scss'), 'utf8');
+    const rule = sheet.slice(sheet.indexOf('  &__resize {'), sheet.indexOf('    .wr-icon__svg'));
+
+    it('sits at the inline end, the corner the box actually extends toward', () => {
+      expect(rule).toMatch(/inset-inline-end:\s*0\.25rem/);
+      expect(rule).not.toMatch(/^\s*right:/m);
+    });
+
+    it('turns the diagonal cursor over with it', () => {
+      expect(rule).toMatch(/\[dir='rtl'\] & \{[^}]*cursor:\s*nesw-resize/);
+    });
   });
 });
 

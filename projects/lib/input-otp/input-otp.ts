@@ -26,6 +26,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { useConfigValue } from 'ngwr/config';
 import { useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { isComposing } from 'ngwr/utils';
 
 import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
 
@@ -183,7 +184,20 @@ export class WrInputOtp implements FormValueControl<string> {
   // Template handlers
 
   protected onInput(event: Event, index: number): void {
-    const target = event.target as HTMLInputElement;
+    // An input method leaves its half-built reading in the box and only replaces
+    // it on `compositionend`. Sanitising that intermediate text writes `''` back
+    // into the field the IME is still composing in, which aborts the conversion
+    // outright — so the box is left alone until the text is real.
+    if ((event as InputEvent).isComposing) return;
+    this.commitCell(event.target as HTMLInputElement, index);
+  }
+
+  /** @see onInput — this is where an IME's text finally arrives. */
+  protected onCompositionEnd(event: CompositionEvent, index: number): void {
+    this.commitCell(event.target as HTMLInputElement, index);
+  }
+
+  private commitCell(target: HTMLInputElement, index: number): void {
     if (this.readonly()) {
       // A read-only input refuses typed characters on its own; this covers the
       // synthetic writes a script (or a spec) can still make.
@@ -197,6 +211,11 @@ export class WrInputOtp implements FormValueControl<string> {
   }
 
   protected onKeyDown(event: KeyboardEvent, index: number): void {
+    // Backspace and the arrows move the caret between boxes; while a conversion
+    // is open they belong to the candidate window, and moving focus out of the
+    // composing box discards it.
+    if (isComposing(event)) return;
+
     const target = event.target as HTMLInputElement;
     switch (this.inlineKey(event.key)) {
       case 'Backspace':

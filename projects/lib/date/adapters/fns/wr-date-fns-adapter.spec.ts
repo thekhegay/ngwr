@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { setDefaultOptions } from 'date-fns';
 import { enGB } from 'date-fns/locale/en-GB';
+import { ru } from 'date-fns/locale/ru';
 import { WrDateAdapter } from 'ngwr/date';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -343,24 +344,76 @@ describe('WrDateFnsAdapter', () => {
       expect(adapter.format(d, 'mediumDateTime')).toBe('Aug 11, 2025 1:45 PM');
     });
 
-    it('KNOWN GAP: named formats ignore WR_DATE_LOCALE and always render en-US', () => {
+    it('a TAG alone still cannot reach a date-fns pattern, and that is why the object exists', () => {
       // Every expectation above was produced under `locale: 'en-GB'`, where a short date is
       // `11/08/2025` and there is no `11th`. date-fns resolves `P`/`PP`/`PPP`/`p` against a
-      // date-fns `Locale` OBJECT, which the adapter never passes, so it silently falls back
-      // to enUS — while `getMonthNames` / `getDayOfWeekNames` below DO honour the locale
-      // through `Intl`. The luxon adapter forwards its locale; this one cannot without a new
-      // provider option, because date-fns locales are separate modules and importing them all
-      // would defeat tree-shaking.
+      // date-fns `Locale` OBJECT, and no amount of tag can produce one: the objects are
+      // separate modules, so mapping a tag onto one would mean importing all of them and
+      // defeating the tree-shaking that makes this an opt-in entry point.
       //
-      // Pinned deliberately, not endorsed: the day the adapter learns to take a locale, this
-      // case goes red and the change is a decision instead of an accident. The parsing side
-      // of the same gap is the dangerous one — see 'reads a named format in US field order'.
+      // So this case pins the LIMIT rather than a defect — `dateFnsLocale` below is the
+      // way across it, and the adapter warns in dev mode when a non-English tag arrives
+      // without one. The parsing side is the dangerous half: see 'reads a named format in
+      // US field order'.
       const gb = adapter.format(d, 'shortDate');
-      const ru = withLocale('ru-RU').format(d, 'longDate');
+      const tagOnly = withLocale('ru-RU').format(d, 'longDate');
 
       expect(gb).toBe('08/11/2025');
       expect(gb).not.toBe('11/08/2025');
-      expect(ru).toBe('August 11th, 2025');
+      expect(tagOnly).toBe('August 11th, 2025');
+    });
+
+    /**
+     * The audit's finding 27: a provider that accepts `locale: 'ru-RU'` and localizes the
+     * calendar headings while the field beside them reads `03/15/2026`. One popup, two
+     * languages.
+     */
+    describe('with a date-fns Locale object', () => {
+      const withObject = (options: { locale?: string; dateFnsLocale?: typeof ru }): WrDateFnsAdapter => {
+        TestBed.resetTestingModule();
+        TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter(options)] });
+        return TestBed.inject(WrDateAdapter) as WrDateFnsAdapter;
+      };
+
+      it('formats and parses in the locale it was handed', () => {
+        const rus = withObject({ dateFnsLocale: ru });
+
+        expect(rus.format(d, 'shortDate')).toBe('11.08.2025');
+        expect(rus.format(d, 'mediumDate')).toBe('11 авг. 2025 г.');
+        expect(iso(rus.parse('11.08.2025', 'shortDate')!)).toBe('2025-08-11');
+      });
+
+      it('reads back what it wrote, which a tag alone could not', () => {
+        const rus = withObject({ dateFnsLocale: ru });
+
+        for (const key of ['shortDate', 'mediumDate', 'longDate', 'shortDateTime'] as const) {
+          const printed = rus.format(d, key);
+          expect(iso(rus.parse(printed, key)!), `${key} printed ${printed}`).toBe('2025-08-11');
+        }
+      });
+
+      it('takes its BCP 47 tag from the object when none was given', () => {
+        // One import is enough for a fully localized picker: the names go through `Intl`
+        // with the object's own `code`, so they cannot disagree with the strings.
+        const rus = withObject({ dateFnsLocale: ru });
+
+        expect(rus.getMonthNames('long')[0]).toBe('январь');
+        expect(rus.getFirstDayOfWeek()).toBe(1);
+      });
+
+      it('lets an explicit tag win over the object code', () => {
+        const mixed = withObject({ locale: 'en-GB', dateFnsLocale: ru });
+
+        expect(mixed.getMonthNames('long')[0]).toBe('January');
+        expect(mixed.format(d, 'shortDate')).toBe('11.08.2025');
+      });
+
+      it('takes the week start from the object rather than from Intl', () => {
+        // The object is what `format` and `parse` compute with, so a grid starting on a
+        // different day from the strings beside it would be the same half-localisation
+        // this option exists to end.
+        expect(withObject({ dateFnsLocale: enGB }).getFirstDayOfWeek()).toBe(1);
+      });
     });
 
     it("leaves date-fns's own default-locale hook working, which is the consumer's only lever", () => {

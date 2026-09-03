@@ -1,6 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrFileUpload } from './file-upload';
@@ -196,5 +198,98 @@ describe('WrFileUpload', () => {
 
   it('carries the public BEM classes', () => {
     expect(root().querySelector('wr-file-upload')!.className).toContain('wr-file-upload');
+  });
+});
+
+@Component({
+  imports: [WrFileUpload],
+  template: `<wr-file-upload multiple [value]="files()" />`,
+})
+class SizeHost {
+  readonly files = signal<readonly File[]>([]);
+}
+
+/**
+ * The file size, which was English three times over.
+ *
+ * `['B','KB','MB','GB','TB']` was a module constant with no catalog key and no
+ * input, and the number went through `toFixed()`, which writes an ASCII decimal
+ * point whatever `LOCALE_ID` says. So a Russian page read "Нажмите, чтобы
+ * выбрать" over `3.4 KB`: the drop-zone copy proved the catalog was working, and
+ * the one string beside it could not use it.
+ */
+describe('WrFileUpload — the size is localizable', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<SizeHost>>;
+
+  const sized = (bytes: number): File => {
+    const f = new File(['x'], 'report.pdf', { type: 'application/pdf' });
+    Object.defineProperty(f, 'size', { value: bytes });
+    return f;
+  };
+
+  const sizeText = (): string =>
+    (fixture.nativeElement as HTMLElement).querySelector('.wr-file-upload__size')!.textContent.trim();
+
+  const mount = async (providers: unknown[], bytes: number): Promise<void> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: providers as never });
+    fixture = TestBed.createComponent(SizeHost);
+    fixture.componentInstance.files.set([sized(bytes)]);
+    fixture.detectChanges();
+    await Promise.resolve();
+    await Promise.resolve();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps the shipped English units and the en-US separator', async () => {
+    // 3500 / 1024 = 3.417…, one decimal below 100 — the same rounding as before.
+    await mount([], 3500);
+
+    expect(sizeText()).toBe('3.4 KB');
+  });
+
+  it('takes the unit and the join from the catalog', async () => {
+    await mount(
+      [provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }), provideWrI18nStaticLoader({ ru: wrRu })],
+      3500
+    );
+
+    expect(sizeText()).toBe('3.4 КБ');
+  });
+
+  it('lets a catalog close the gap before the unit', async () => {
+    // `{{value}} {{unit}}` is a template, not a `join(' ')` — ja-JP writes no
+    // space between a number and its unit, and there was nowhere to say so.
+    await mount(
+      [
+        provideWrI18n({ defaultLocale: 'ja', availableLocales: ['ja'] }),
+        provideWrI18nStaticLoader({ ja: { fileUpload: { size: '{{value}}{{unit}}' } } }),
+      ],
+      3500
+    );
+
+    expect(sizeText()).toBe('3.4KB');
+  });
+
+  it('walks the unit table, and stops at the largest it has', async () => {
+    await mount([], 0);
+    expect(sizeText()).toBe('0 B');
+
+    for (const [bytes, expected] of [
+      [900, '900 B'],
+      [1024 ** 2 * 2.5, '2.5 MB'],
+      [1024 ** 3 * 150, '150 GB'],
+      // Past TB the index is clamped, so a petabyte reads as 1,024 TB rather
+      // than falling off the end of the table — grouped, because the number now
+      // goes through `Intl.NumberFormat` and `toFixed()` never grouped anything.
+      [1024 ** 5, '1,024 TB'],
+    ] as const) {
+      fixture.componentInstance.files.set([sized(bytes)]);
+      fixture.detectChanges();
+      expect(sizeText(), `${bytes} bytes`).toBe(expected);
+    }
   });
 });

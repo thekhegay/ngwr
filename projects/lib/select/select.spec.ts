@@ -4,7 +4,7 @@ import { FormField, form, required } from '@angular/forms/signals';
 
 import { provideWrConfig } from 'ngwr/config';
 import { WrFormField } from 'ngwr/form';
-import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { WrTPipe, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -276,6 +276,46 @@ class RoundedAttrHost {}
 })
 class GroupedVirtualHost {
   readonly size = signal<unknown>(null);
+}
+
+@Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select ariaLabel="Size" [(value)]="size">
+      <wr-option value="sm">{{ text() }}</wr-option>
+      <wr-option value="md">Medium</wr-option>
+    </wr-select>
+  `,
+})
+class RelabelHost {
+  readonly size = signal<unknown>('sm');
+  readonly text = signal('Small');
+}
+
+@Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select mode="multi" ariaLabel="Sizes" [(value)]="sizes">
+      <wr-option value="sm">{{ text() }}</wr-option>
+      <wr-option value="md">Medium</wr-option>
+    </wr-select>
+  `,
+})
+class RelabelMultiHost {
+  readonly sizes = signal<unknown>(['sm']);
+  readonly text = signal('Small');
+}
+
+@Component({
+  imports: [WrSelect, WrOption, WrTPipe],
+  template: `
+    <wr-select ariaLabel="Size" [(value)]="size">
+      <wr-option value="sm">{{ 'select.noResults' | wrT }}</wr-option>
+    </wr-select>
+  `,
+})
+class CatalogLabelHost {
+  readonly size = signal<unknown>('sm');
 }
 
 describe('WrSelect', () => {
@@ -620,6 +660,68 @@ describe('WrSelect in search mode', () => {
 
   it('carries the search modifier class', () => {
     expect(root().querySelector('wr-select')!.className).toContain('wr-select--search');
+  });
+
+  /**
+   * jsdom runs no input method. The events below are hand-built with the flags a
+   * real one sets, and the assertion is that the listbox did nothing. A faithful
+   * test of the guard and no more — nothing here exercises kotoeri or Pinyin, and
+   * it must not be read as saying the select has been driven by a real IME.
+   *
+   * Escape reaches the panel through CDK's overlay keyboard dispatcher, one
+   * listener on `<body>`, so the guard has to STOP the event at the field rather
+   * than merely decline to act on it. The last test is the other half: an
+   * ordinary Escape must still close.
+   */
+  describe('IME composition', () => {
+    const compose = (key: string, init: KeyboardEventInit = { isComposing: true }): KeyboardEvent => {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init });
+      field().dispatchEvent(event);
+      fixture.detectChanges();
+      return event;
+    };
+
+    const openWithQuery = (): void => {
+      field().click();
+      fixture.detectChanges();
+      type('la');
+      expect(document.querySelector('[role="listbox"]')).not.toBeNull();
+    };
+
+    it('keeps the panel and the query on the Escape that cancels a conversion', () => {
+      openWithQuery();
+      const event = compose('Escape');
+      expect(event.defaultPrevented).toBe(false);
+      expect(
+        document.querySelector('[role="listbox"]'),
+        'the reading was cancelled and the panel went too'
+      ).not.toBeNull();
+      expect(field().value).toBe('la');
+    });
+
+    it('leaves the arrows and Enter to the candidate window', () => {
+      openWithQuery();
+      const active = (): string | null => field().getAttribute('aria-activedescendant');
+      const before = active();
+
+      expect(compose('ArrowDown').defaultPrevented).toBe(false);
+      expect(active(), 'ArrowDown walked the listbox instead of the candidates').toBe(before);
+
+      expect(compose('Enter').defaultPrevented).toBe(false);
+      expect(document.querySelector('[role="listbox"]'), 'Enter picked an option mid-conversion').not.toBeNull();
+    });
+
+    it("recognises Safari's committing keystroke, which carries only keyCode 229", () => {
+      openWithQuery();
+      compose('Escape', { keyCode: 229 });
+      expect(document.querySelector('[role="listbox"]')).not.toBeNull();
+    });
+
+    it('still closes on a plain Escape', () => {
+      openWithQuery();
+      compose('Escape', {});
+      expect(document.querySelector('[role="listbox"]'), 'the guard swallowed an ordinary Escape').toBeNull();
+    });
   });
 });
 
@@ -1687,5 +1789,83 @@ describe('WrSelect overflow chip', () => {
 
     expect(/\p{Script=Cyrillic}/u.test(chip(fixture)), `"${chip(fixture)}" is still English`).toBe(true);
     expect(chip(fixture)).toContain('2');
+  });
+});
+
+/**
+ * The trigger label is PROJECTED CONTENT, so nothing about it is a signal: an
+ * `<wr-option>` renders whatever its host template put inside it, and the parent
+ * reads that back off the DOM. Read once and cached, that is wrong the moment
+ * the text changes under it — which is the ordinary case, not an edge one,
+ * because `WrI18n` writes every loader-backed catalog a microtask AFTER the
+ * first change-detection pass. The options repaint; a cached trigger does not.
+ */
+describe('WrSelect trigger label vs. option text that changes', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  const triggerLabel = (fixture: { nativeElement: unknown }): string =>
+    (fixture.nativeElement as HTMLElement).querySelector('.wr-select__value')!.textContent.trim();
+
+  it('re-reads the selected option label when the option re-renders', async () => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    const fixture = TestBed.createComponent(RelabelHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(triggerLabel(fixture)).toBe('Small');
+
+    fixture.componentInstance.text.set('Klein');
+    fixture.detectChanges();
+    // The option reads its own projected text back off the DOM through a
+    // `MutationObserver`, so the label lands a microtask after the render that
+    // moved it — one more pass, not a second render cycle in the app.
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(triggerLabel(fixture)).toBe('Klein');
+  });
+
+  it('re-reads it in multi mode too, where the label rides a chip', async () => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    const fixture = TestBed.createComponent(RelabelMultiHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const chip = (): string =>
+      (fixture.nativeElement as HTMLElement).querySelector('.wr-select__chip')!.textContent.trim();
+    expect(chip()).toContain('Small');
+
+    fixture.componentInstance.text.set('Klein');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(chip()).toContain('Klein');
+  });
+
+  it('follows a catalog that lands after the first pass, the way pagination’s size changer does', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrOverlay(),
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+      ],
+    });
+    const fixture = TestBed.createComponent(CatalogLabelHost);
+    fixture.detectChanges();
+    // Two rounds, and the second is the point rather than an accident of the
+    // runner. The first settles the catalog — `WrI18n` resolves every loader
+    // from a promise, so the option repaints one pass after mounting. The
+    // observer that notices the option's text moved then delivers on the
+    // microtask after THAT pass. Both are asynchronous in a real app too; what
+    // is being asserted is that the trigger ends up on the same string as the
+    // option, not how many frames it took.
+    await fixture.whenStable();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const text = triggerLabel(fixture);
+    expect(/\p{Script=Cyrillic}/u.test(text), `trigger is still "${text}"`).toBe(true);
   });
 });

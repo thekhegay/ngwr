@@ -1,6 +1,13 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { Subject } from 'rxjs';
+
+import { type WrI18nCatalog, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrColorPicker } from './color-picker';
@@ -60,9 +67,18 @@ describe('WrColorPicker', () => {
     return event;
   };
 
-  /** Give a surface a 200×100 box at the origin, so a fraction is a coordinate. */
+  /**
+   * Give a surface a 200×100 box at the origin, so a fraction is a coordinate.
+   *
+   * `right` and `bottom` are declared as well as `left` / `top`: a real `DOMRect`
+   * derives them, a literal does not, and the RTL branch of the drag measures
+   * from `rect.right`. Left off, it reads `undefined` and every RTL fraction
+   * comes back `NaN` — which `clamp` turns into a plausible-looking number rather
+   * than an error.
+   */
   const place = (el: HTMLElement): HTMLElement => {
-    el.getBoundingClientRect = (): DOMRect => ({ left: 0, top: 0, width: 200, height: 100 }) as DOMRect;
+    el.getBoundingClientRect = (): DOMRect =>
+      ({ left: 0, top: 0, right: 200, bottom: 100, width: 200, height: 100 }) as DOMRect;
     el.setPointerCapture = (): void => undefined;
     el.releasePointerCapture = (): void => undefined;
     return el;
@@ -494,5 +510,267 @@ describe('WrColorPicker', () => {
 
       expect(fixture.componentInstance.touched).toBe(1);
     });
+  });
+});
+
+/**
+ * The format strip and the channel captions.
+ *
+ * A `colorPicker` catalog section already existed and held the slider names, so
+ * these nine were not a section nobody had written — they were strings that had
+ * simply not been put in the one beside them. Three lived in a TypeScript array
+ * (`{ value: 'hex', label: 'HEX' }`) and the rest as literals in the template.
+ *
+ * Each caption is inside the `<label>` that names its number input, so this is
+ * accessible-name coverage and not decoration — and `A%` / `S%` / `L%` are one
+ * string each, sign included, because a locale that spaces the sign differently
+ * has to move the letter with it.
+ */
+describe('WrColorPicker — channel captions are localizable', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const captions = (): string[] =>
+    [...root().querySelectorAll('.wr-color-picker__field-label')].map(el => el.textContent.trim());
+  const tabs = (): string[] => [...root().querySelectorAll('.wr-segmented__option')].map(el => el.textContent.trim());
+
+  /** By POSITION, since the labels under test are the thing being changed. */
+  const openTab = (index: number): void => {
+    [...root().querySelectorAll<HTMLElement>('.wr-color-picker__tabs button')][index].click();
+    fixture.detectChanges();
+  };
+
+  const mount = async (catalog?: WrI18nCatalog): Promise<void> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: catalog
+        ? [provideWrI18n({ defaultLocale: 'xx', availableLocales: ['xx'] }), provideWrI18nStaticLoader({ xx: catalog })]
+        : [],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    await Promise.resolve();
+    await Promise.resolve();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps the shipped abbreviations when nothing is configured', async () => {
+    await mount();
+
+    expect(tabs()).toEqual(['HEX', 'RGB', 'HSL']);
+    expect(captions()).toEqual(['HEX']);
+  });
+
+  it('reads every RGB caption from the catalog, sign and all', async () => {
+    await mount({
+      colorPicker: {
+        channelRed: 'Кр',
+        channelGreen: 'Зл',
+        channelBlue: 'Си',
+        channelAlpha: 'Пр %',
+      },
+    });
+    openTab(1);
+
+    expect(captions()).toEqual(['Кр', 'Зл', 'Си', 'Пр %']);
+  });
+
+  it('reads every HSL caption from the catalog', async () => {
+    await mount({
+      colorPicker: {
+        channelHue: 'Т',
+        channelSaturation: 'Н %',
+        channelLightness: 'Я %',
+        channelAlpha: 'Пр %',
+      },
+    });
+    openTab(2);
+
+    expect(captions()).toEqual(['Т', 'Н %', 'Я %', 'Пр %']);
+  });
+
+  it('renames the format strip too', async () => {
+    // `tabOptions` had to become a `computed` for this: `WrSegmentedOption.label`
+    // is a plain string, so a constant array can never follow a catalog that
+    // lands after the first change-detection pass, let alone a locale switch.
+    await mount({ colorPicker: { formatHex: '16', formatRgb: 'КЗС', formatHsl: 'ТНЯ' } });
+
+    expect(tabs()).toEqual(['16', 'КЗС', 'ТНЯ']);
+  });
+});
+
+/**
+ * Reading direction.
+ *
+ * The picker holds two kinds of surface and they answer this question
+ * differently on purpose, so every case below is a PAIR: the hue and alpha bars
+ * are one-value tracks with `role="slider"` and mirror, the SV canvas is a
+ * two-axis picture with `role="group"` and does not. An RTL assertion on its own
+ * cannot tell "mirrors correctly" from "always goes the same way", so each
+ * direction states the outcome the other contradicts.
+ *
+ * `Directionality` resolves the document's direction when it is constructed, so
+ * the honest way to test the other one is to provide a fake — writing
+ * `document.dir` mid-file would leak into whatever runs after it.
+ */
+describe('WrColorPicker under a reading direction', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const sv = (): HTMLElement => root().querySelector<HTMLElement>('.wr-color-picker__sv')!;
+  const hue = (): HTMLElement => root().querySelector<HTMLElement>('.wr-color-picker__slider--hue')!;
+  const alphaBar = (): HTMLElement => root().querySelector<HTMLElement>('.wr-color-picker__slider--alpha')!;
+
+  const pointer = (type: string, clientX: number, clientY = 0): Event => {
+    const event = new Event(type, { bubbles: true, cancelable: true });
+    Object.assign(event, { pointerId: 1, button: 0, isPrimary: true, clientX, clientY });
+    return event;
+  };
+
+  /** A 200×100 box at the origin, `right` included — the RTL branch measures from it. */
+  const place = (el: HTMLElement): HTMLElement => {
+    el.getBoundingClientRect = (): DOMRect =>
+      ({ left: 0, top: 0, right: 200, bottom: 100, width: 200, height: 100 }) as DOMRect;
+    el.setPointerCapture = (): void => undefined;
+    el.releasePointerCapture = (): void => undefined;
+    return el;
+  };
+
+  const mount = (dir: Direction): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: Directionality,
+          useValue: { value: dir, valueSignal: signal(dir), change: new Subject<Direction>() },
+        },
+      ],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  };
+
+  const drag = (el: HTMLElement, x: number, y = 0): void => {
+    place(el).dispatchEvent(pointer('pointerdown', x, y));
+    fixture.detectChanges();
+  };
+
+  const key = (el: HTMLElement, name: string): void => {
+    el.dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  /** Where a thumb declares itself along its own track, whichever inset carries it. */
+  const at = (el: HTMLElement): string =>
+    el.querySelector<HTMLElement>('.wr-color-picker__thumb')!.getAttribute('style') ?? '';
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it('measures the hue track from its left edge in LTR', () => {
+    mount('ltr');
+    drag(hue(), 50);
+
+    // A quarter across a 200px track is 90° of hue.
+    expect(hue().getAttribute('aria-valuenow')).toBe('90');
+  });
+
+  it('measures it from the right edge in RTL, where the track starts', () => {
+    mount('rtl');
+    drag(hue(), 50);
+
+    // The same physical pixel is three quarters along a mirrored track.
+    expect(hue().getAttribute('aria-valuenow')).toBe('270');
+  });
+
+  it('puts full opacity at the reader’s end of the alpha track in both directions', () => {
+    // Measured in a browser before the fix: opacity 100% sat at the physical
+    // right edge under `dir="rtl"` — the reader's START — while the format strip
+    // beside it mirrored correctly. The fraction is direction free; what mirrors
+    // is the inset that carries it, and the stylesheet flips the gradient to
+    // match.
+    mount('ltr');
+    drag(alphaBar(), 200);
+    expect(at(alphaBar())).toContain('inset-inline-start: 100%');
+
+    mount('rtl');
+    drag(alphaBar(), 0);
+    expect(at(alphaBar())).toContain('inset-inline-start: 100%');
+  });
+
+  it('does not mirror the SV canvas, which is a picture rather than a track', () => {
+    // A colour field has no start and no end, so there is nothing to mirror —
+    // and the component says so itself by giving it `role="group"`, because it
+    // carries two values and a slider has one.
+    mount('ltr');
+    drag(sv(), 50, 50);
+    expect(at(sv())).toContain('left: 25%');
+
+    mount('rtl');
+    drag(sv(), 50, 50);
+    expect(at(sv())).toContain('left: 25%');
+  });
+
+  it('steps hue up on ArrowRight in LTR and down on the same key in RTL', () => {
+    mount('ltr');
+    key(hue(), 'ArrowRight');
+    expect(hue().getAttribute('aria-valuenow')).toBe('33');
+
+    mount('rtl');
+    key(hue(), 'ArrowRight');
+    expect(hue().getAttribute('aria-valuenow')).toBe('31');
+  });
+
+  it('leaves the vertical arrows alone, which name a value and not a side', () => {
+    mount('rtl');
+    key(hue(), 'ArrowUp');
+
+    expect(hue().getAttribute('aria-valuenow')).toBe('33');
+  });
+});
+
+/**
+ * ⚠️ The CSS half of the mirroring, guarded as a RULE.
+ *
+ * A gradient has no logical direction keyword, so both tracks are painted
+ * physically and flipped by hand — and jsdom loads no stylesheets, so the source
+ * is the only place a spec can see it. Left unflipped they contradict the drag:
+ * the pointer would be measured from the right edge while red still sat there.
+ *
+ * Measured in Chromium against the compiled `ngwr/color-picker` sheet: the hue
+ * thumb goes from 0.583 of the track to 0.417, the alpha thumb at 100% from
+ * 1.000 to 0.000, and the SV thumb stays at 1.000 in both — which is the
+ * distinction this component is built on.
+ */
+describe('the two tracks, as the stylesheet declares them', () => {
+  const sheet = readFileSync(join(process.cwd(), 'projects/lib/color-picker/styles/_index.scss'), 'utf8');
+  const rule = (name: string): string => {
+    const at = sheet.indexOf(`  &__${name} {`);
+    expect(at, `no \`&__${name}\` rule in the colour-picker stylesheet`).toBeGreaterThan(-1);
+    return sheet.slice(at, sheet.indexOf('\n  }', at));
+  };
+
+  it('flips both gradients under dir="rtl"', () => {
+    expect(rule('slider--hue')).toMatch(/\[dir='rtl'\] & \{[\s\S]*linear-gradient\(\s*to left/);
+    expect(rule('slider--alpha')).toMatch(/\[dir='rtl'\] & \{[\s\S]*linear-gradient\(\s*to left/);
+  });
+
+  it('places a slider thumb on the inline axis and mirrors its centring transform', () => {
+    // `left: auto` first: the shared thumb rule declares `left: 0` for the SV
+    // canvas, and leaving it standing beside the RTL `right` the template writes
+    // would over-constrain the box.
+    expect(rule('thumb--slider')).toMatch(/left:\s*auto/);
+    expect(rule('thumb--slider')).toMatch(/inset-inline-start:\s*0/);
+    expect(rule('thumb--slider')).toMatch(/\[dir='rtl'\] & \{[^}]*transform:\s*translate\(50%, -50%\)/);
+  });
+
+  it('leaves the SV canvas physical, with the reason still on it', () => {
+    expect(rule('thumb')).toMatch(/rtl-ok:/);
+    expect(rule('thumb')).toMatch(/^\s*left:\s*0;/m);
   });
 });

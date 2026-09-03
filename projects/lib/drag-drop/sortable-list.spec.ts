@@ -1,8 +1,11 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import type { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { CdkDropList } from '@angular/cdk/drag-drop';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+
+import { Subject } from 'rxjs';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -273,6 +276,91 @@ describe('WrSortableList', () => {
 
     expect(dropList().orientation).toBe('horizontal');
     expect(dropList().disabled).toBe(true);
+  });
+});
+
+/**
+ * Reading direction, for the horizontal keyboard path.
+ *
+ * `Directionality` resolves the document's direction when it is constructed, so
+ * the honest way to test the other one is to provide a fake — writing
+ * `document.dir` mid-file would leak into whatever runs after it.
+ *
+ * Every case is a PAIR. On its own an RTL assertion cannot tell "mirrors
+ * correctly" from "always moves the same way", so each direction states the
+ * outcome the other one contradicts — and the vertical case is here for the
+ * opposite reason, to pin that a column does NOT mirror.
+ */
+describe('WrSortableList under a reading direction', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const rowEls = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-sortable-list__item')];
+  const labels = (): string[] => fixture.componentInstance.items().map(r => r.label);
+
+  const mount = (dir: Direction, orientation: 'vertical' | 'horizontal'): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: Directionality,
+          useValue: { value: dir, valueSignal: signal(dir), change: new Subject<Direction>() },
+        },
+      ],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.orientation.set(orientation);
+    fixture.detectChanges();
+  };
+
+  const key = (index: number, k: string): void => {
+    rowEls()[index].dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('moves the held row toward the higher index on ArrowRight in LTR', async () => {
+    mount('ltr', 'horizontal');
+    key(0, ' ');
+    key(0, 'ArrowRight');
+    await fixture.whenStable();
+
+    expect(labels()).toEqual(['Two', 'One', 'Three']);
+  });
+
+  it('moves it toward the higher index on ArrowLeft in RTL, because index 0 paints on the right', async () => {
+    // The visual order under `dir="rtl"` is Three Two One, so the key that walks
+    // the row toward the RIGHT of the screen is the one that LOWERS the index.
+    // Raising it on ArrowRight regardless — which is what this used to do — sent
+    // the item away from the arrow the user pressed.
+    mount('rtl', 'horizontal');
+    key(0, ' ');
+    key(0, 'ArrowLeft');
+    await fixture.whenStable();
+
+    expect(labels()).toEqual(['Two', 'One', 'Three']);
+  });
+
+  it('leaves the row where it is on the mirrored arrow at the end of the list', async () => {
+    // The contradicting half of the pair above: in RTL, ArrowRight on the item at
+    // index 0 now asks for index −1, which the move refuses. Under the old code
+    // this same press reordered the list.
+    mount('rtl', 'horizontal');
+    key(0, ' ');
+    key(0, 'ArrowRight');
+    await fixture.whenStable();
+
+    expect(labels()).toEqual(['One', 'Two', 'Three']);
+  });
+
+  it('does not mirror a vertical list — a column has no reading direction', async () => {
+    mount('rtl', 'vertical');
+    key(0, ' ');
+    key(0, 'ArrowDown');
+    await fixture.whenStable();
+
+    expect(labels()).toEqual(['Two', 'One', 'Three']);
   });
 });
 

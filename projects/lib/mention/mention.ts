@@ -29,6 +29,7 @@ import {
 
 import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
 import { WR_OVERLAY } from 'ngwr/overlay';
+import { isComposing } from 'ngwr/utils';
 
 import { getCaretCoordinates } from './caret';
 import type { WrMentionCommit, WrMentionItem } from './interfaces';
@@ -90,6 +91,14 @@ const CARET_POSITIONS: ConnectedPosition[] = [
     '(keyup)': 'onCaretMove($event)',
     '(keydown)': 'onKeydown($event)',
     '(blur)': 'onBlur()',
+
+    // The IME pair. `isComposing` on a `keydown` answers "did the input method
+    // take this key", which is a different question from "is a conversion open
+    // right now" — on the committing keystroke the two disagree by design — and
+    // detection runs from `input` and `keyup`, where there is no such flag to
+    // read. So the state is tracked here and the detector consults it.
+    '(compositionstart)': 'onCompositionStart()',
+    '(compositionend)': 'onCompositionEnd()',
 
     // The host keeps its implicit `role="textbox"`. It is NOT a combobox: this
     // field holds prose and the mention is one fragment inside it, not the
@@ -229,8 +238,35 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
 
   // Host listeners
 
+  /**
+   * True between `compositionstart` and `compositionend`.
+   *
+   * Detection must not run on the half-built text an IME leaves in the field:
+   * `@やま` is a reading on its way to `@山田`, and matching the reading opens a
+   * panel that then eats the Enter meant to accept the conversion. So the field
+   * is read once, on `compositionend`, when the text is real.
+   */
+  private composing = false;
+
+  /** @internal */
+  protected onCompositionStart(): void {
+    this.composing = true;
+    // A panel opened before the conversion started would take the arrows and the
+    // Enter that now belong to the candidate window.
+    this.close();
+  }
+
+  /** @internal */
+  protected onCompositionEnd(): void {
+    this.composing = false;
+    // The committed text is only in the field now, so this is the first honest
+    // read of it.
+    this.detect();
+  }
+
   /** @internal */
   protected onInput(): void {
+    if (this.composing) return;
     this.detect();
   }
 
@@ -241,6 +277,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
 
   /** @internal */
   protected onCaretMove(event: KeyboardEvent): void {
+    if (this.composing || isComposing(event)) return;
     // Every key `onKeydown` already consumed, Escape included: its keyup would
     // re-detect at a caret that is still sitting inside the mention and reopen the
     // panel Escape had just dismissed. A synthetic keydown-only Escape hides that
@@ -259,6 +296,12 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
 
   /** @internal */
   protected onKeydown(event: KeyboardEvent): void {
+    // The key is the input method's while a conversion is open — Enter accepts a
+    // candidate, Escape cancels the reading, the arrows walk the candidate list.
+    // `this.composing` is deliberately not consulted: on Safari's committing
+    // keystroke it has already gone false, and `isComposing` covers that case
+    // through the 229 sentinel.
+    if (isComposing(event)) return;
     if (!this.state) return;
     const list = this.filteredItems();
     switch (event.key) {

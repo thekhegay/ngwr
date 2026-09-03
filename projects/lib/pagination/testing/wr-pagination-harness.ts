@@ -314,14 +314,15 @@ export class WrPaginationHarness extends ComponentHarness {
   }
 
   /**
-   * The total label exactly as rendered, e.g. `1-10 of 95`.
+   * The total label exactly as rendered, e.g. `1–10 of 95`.
    *
-   * Both halves are localizable — the word between range and total comes from
-   * `ofLabel` or the `pagination.of` catalog entry — so a spec asserting the whole
-   * string should own the copy it asserts.
+   * The WHOLE string is one catalog entry (`pagination.range`) and the three
+   * numbers in it are formatted per `LOCALE_ID`, so a spec asserting the literal
+   * owns both the copy and the locale it asserts under. Note the range separator
+   * is an en dash, not the ASCII hyphen this used to print.
    *
    * Throws when the label is not rendered, which is a `showTotal` that was never
-   * set rather than a total of zero (a zero total still renders `0-0 of 0`).
+   * set rather than a total of zero (a zero total still renders `0–0 of 0`).
    */
   async getTotalText(): Promise<string> {
     const label = await this.totalLabel();

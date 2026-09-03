@@ -9,9 +9,11 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import {
   Component,
   type ElementRef,
+  LOCALE_ID,
   ViewEncapsulation,
   computed,
   effect,
+  inject,
   input,
   model,
   output,
@@ -22,18 +24,9 @@ import {
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
-import { useI18nText } from 'ngwr/i18n';
+import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 
 import type { WrFileUploadRejection, WrFileUploadRejectionReason } from './interfaces';
-
-/** Human-readable byte size (e.g. `1.2 MB`). */
-function formatBytes(bytes: number): string {
-  if (!Number.isFinite(bytes) || bytes <= 0) return '0 B';
-  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
-  const v = bytes / 1024 ** i;
-  return `${v.toFixed(v >= 100 || i === 0 ? 0 : 1)} ${units[i]}`;
-}
 
 /** Does `file` match the `accept` attribute (extensions or MIME globs)? */
 function matchesAccept(file: File, accept: string): boolean {
@@ -171,7 +164,60 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
     return parts.join(' ');
   });
 
-  protected readonly formatBytes = formatBytes;
+  /**
+   * Human-readable file size (e.g. `1.2 MB`).
+   *
+   * Every piece of this used to be English and unreachable: a module-level unit
+   * table with no catalog key, and `toFixed()`, which writes an ASCII decimal
+   * point whatever `LOCALE_ID` says. A Russian page showed translated drop-zone
+   * copy above `3.4 KB`. The number now goes through `Intl.NumberFormat` and the
+   * unit through the catalog, joined by a template the catalog also owns — so a
+   * locale controls the separator, the digits and whether a space sits before
+   * the unit.
+   *
+   * Not a `computed`: it is called per file, with the file's size as its
+   * argument. It still re-runs on a locale switch, because the formatters it
+   * calls are signals read during the same change detection that renders the row.
+   */
+  protected formatBytes(bytes: number): string {
+    if (!Number.isFinite(bytes) || bytes <= 0) {
+      return this.sizeText({ value: this.number(0, 0), unit: this.unitTexts[0]() });
+    }
+    const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), this.unitTexts.length - 1);
+    const v = bytes / 1024 ** i;
+    const digits = v >= 100 || i === 0 ? 0 : 1;
+    return this.sizeText({ value: this.number(v, digits), unit: this.unitTexts[i]() });
+  }
+
+  /** `{{value}} {{unit}}` — the join, so a locale owns the space too. */
+  private readonly sizeText = useI18nFormatter('fileUpload.size', '{{value}} {{unit}}');
+
+  /**
+   * One resolved signal per binary unit, indexed by the power of 1024 the
+   * arithmetic lands on.
+   *
+   * Spelled out rather than built from a key list: `i18n.spec.ts` reads every
+   * catalog key the library asks for out of the SOURCE, by matching a quoted
+   * dotted string inside the call, so a key built by interpolation is invisible
+   * to it. That spec fails rather than passing quietly, but either way the key
+   * would stop being checked.
+   */
+  private readonly unitTexts = [
+    readI18nText('fileUpload.unitByte', 'B'),
+    readI18nText('fileUpload.unitKb', 'KB'),
+    readI18nText('fileUpload.unitMb', 'MB'),
+    readI18nText('fileUpload.unitGb', 'GB'),
+    readI18nText('fileUpload.unitTb', 'TB'),
+  ] as const;
+
+  private readonly locale = inject(LOCALE_ID);
+
+  private number(value: number, digits: number): string {
+    return new Intl.NumberFormat(this.locale, {
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+    }).format(value);
+  }
 
   constructor() {
     // Rebuild the internal file list from an external `value` write (mirrors the

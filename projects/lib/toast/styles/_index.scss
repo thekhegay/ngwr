@@ -209,14 +209,22 @@ $toast-colors: (
     inset-inline-start: 0;
     height: 2px;
     width: 100%;
-    // `transform-origin` has no logical keyword, and the drain is a physical
-    // `scaleX`. Flipping the bar to drain from the reader's start needs a
-    // direction-aware rule, not a property rename.
-    // rtl-ok: origin is one half of a physical scaleX pair
+    // `transform-origin` has no logical keyword and the drain is a physical
+    // `scaleX`, so the anchor cannot be renamed into a logical property — it has
+    // to be swapped by a direction-aware rule. The bar drains toward the reader's
+    // end, which means it stays anchored at the reader's START: physically left
+    // in LTR, physically right in RTL. Leaving it at `left` in both pinned the
+    // remaining time to the side an RTL reader's eye leaves from.
+    // rtl-ok: origin is one half of a physical scaleX pair, mirrored below
     transform-origin: left;
     background: var(--wr-toast-accent);
     animation: wr-toast-progress linear forwards;
     animation-duration: var(--wr-toast-duration, 4000ms);
+
+    [dir='rtl'] & {
+      // rtl-ok: the mirrored half of the pair above
+      transform-origin: right;
+    }
   }
 
   &:hover &__progress {

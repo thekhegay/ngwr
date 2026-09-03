@@ -82,13 +82,25 @@ export abstract class WrDateAdapter<TDate = Date> {
    * adapter resolves locale-aware) or a raw format string (`'dd.MM.yyyy'`).
    *
    * Supported tokens for raw strings: `yyyy`, `yy`, `MMMM`, `MMM`, `MM`, `M`,
-   * `dd`, `d`, `HH`, `H`, `hh`, `h`, `mm`, `ss`, `a` (am / pm).
+   * `dd`, `d`, `HH`, `H`, `hh`, `h`, `mm`, `ss`, `a` (the locale's day-period
+   * marker — `PM`, `م`, `午後`).
+   *
+   * `MMMM` / `MMM` take the form the language uses in the position the pattern
+   * puts them: beside a day token a case language declines the month (ru writes
+   * `15 марта`, not `15 март`), and on their own they stay nominative, which is
+   * what a calendar heading wants.
    */
   abstract format(date: TDate, formatKeyOrString: WrDateFormat | (string & {})): string;
 
   /**
    * Parse a string into a date. Returns `null` when parsing fails. Accepts
    * the same `formatKeyOrString` set as {@link format}.
+   *
+   * **The round trip is a contract, not an aspiration**: whatever {@link format}
+   * writes for a given key, `parse` reads back to the same date. A caller relies
+   * on it every keystroke — the picker re-parses what it printed — and returning
+   * `null` is how an adapter refuses, which leaves the caller's committed value
+   * exactly as it was.
    */
   abstract parse(value: string, formatKeyOrString: WrDateFormat | (string & {})): TDate | null;
 

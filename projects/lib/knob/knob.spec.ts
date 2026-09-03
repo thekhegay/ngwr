@@ -216,6 +216,30 @@ describe('WrKnob', () => {
     expect(root().querySelector('.wr-knob__text')).toBeNull();
   });
 
+  it('lets the browser decide which way the value and its unit read', () => {
+    // ⚠️ This one guards the MECHANISM, not the rendering. jsdom runs no BiDi
+    // algorithm, so the reordering itself is unassertable here and the attribute
+    // is the whole of the fix.
+    //
+    // Measured in Chromium instead, inside an `dir="rtl"` paragraph, by walking
+    // the rendered glyph boxes left to right: `40 dB` was drawn `dB 40` and
+    // `-5 dB` as `dB 5-`, with the minus sign on the wrong end of the number. A
+    // digit run is neutral against the letters beside it, so the algorithm splits
+    // the phrase and reverses the halves. With `dir="auto"` both come back in
+    // order, and an Arabic unit still reads right-to-left — which is correct for
+    // Arabic, and is why this is not a hard `dir="ltr"`.
+    //
+    // `unicode-bidi: isolate` was measured doing nothing at all: it seals the
+    // element off from its SURROUNDINGS, and the flip happens inside it.
+    fixture.componentInstance.volume.set(40);
+    fixture.componentInstance.suffix.set(' dB');
+    fixture.detectChanges();
+
+    const label = root().querySelector<HTMLElement>('.wr-knob__text')!;
+    expect(label.getAttribute('dir')).toBe('auto');
+    expect(label.textContent?.trim()).toBe('40 dB');
+  });
+
   it('goes inert and announces it when disabled', () => {
     fixture.componentInstance.disabled.set(true);
     fixture.detectChanges();

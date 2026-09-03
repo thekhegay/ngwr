@@ -6,7 +6,18 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, DestroyRef, ElementRef, ViewEncapsulation, computed, effect, inject, input } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  type Signal,
+  ViewEncapsulation,
+  afterEveryRender,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 
 import { WR_SELECT } from './tokens';
 
@@ -51,6 +62,31 @@ export class WrOption {
   private readonly parent = inject(WR_SELECT, { optional: true });
 
   /**
+   * The option's own text, as a signal — the parent's trigger label and the
+   * client-side filter both read it from here.
+   *
+   * It has to be a signal, and a plain `textContent` read cannot be one. The
+   * label is PROJECTED content: the host template decides it, and the ordinary
+   * way it changes is that a `WrI18n` catalog lands a microtask after the first
+   * change-detection pass (`i18n/i18n.ts` writes every loader-backed catalog
+   * from `firstValueFrom(...).then(...)`). Read once and cached, a trigger sat
+   * on the English fallback while the open panel beside it showed the
+   * translation — visible in `wr-pagination`'s size changer, which prints
+   * `pagination.perPage` into each `<wr-option>`.
+   *
+   * Kept in step the way `wr-divider` keeps its own projected label: an
+   * `effect` and an `afterEveryRender`, and both are needed. The render hook is
+   * a hard no-op under SSR, so on its own the server would emit a trigger with
+   * no label at all; the effect is not gated that way and runs after the
+   * content has been projected. The effect on its own cannot follow text that
+   * moves later, because it reads nothing reactive to be re-run by.
+   *
+   * @internal
+   */
+  private readonly labelText = signal('');
+  private readonly label: Signal<string> = this.labelText.asReadonly();
+
+  /**
    * @internal — true when this option is currently selected. Works for
    * both single and multi-select parents via `WrSelectContext.isSelected`.
    */
@@ -76,8 +112,7 @@ export class WrOption {
     if (!parent?.isSearchable() || !parent.clientFilter()) return false;
     const q = parent.searchQuery().trim().toLowerCase();
     if (!q) return false;
-    const label = (this.host.nativeElement.textContent ?? '').trim().toLowerCase();
-    return !label.includes(q);
+    return !this.label().toLowerCase().includes(q);
   });
 
   protected readonly classes = computed(() => {
@@ -93,18 +128,30 @@ export class WrOption {
     if (this.parent) {
       const parent = this.parent;
       // Re-register when disabled or value changes so the parent has fresh metadata.
+      // The label is seeded here as well, which is the read the server takes.
       effect(onCleanup => {
+        this.syncLabel();
         const unreg = parent.registerOption({
           id: this.id,
           value: this.value(),
           disabled: this.disabled(),
-          getLabel: () => this.host.nativeElement.textContent?.trim() ?? '',
+          label: this.label,
           host: this.host.nativeElement,
         });
         onCleanup(() => unreg());
       });
-      inject(DestroyRef);
+
+      afterEveryRender(() => this.syncLabel());
     }
+  }
+
+  /**
+   * Read the projected text back off the DOM. Setting the same string again is
+   * a signal no-op, so the render hook costs a `textContent` read and nothing
+   * else on the passes where nothing moved.
+   */
+  private syncLabel(): void {
+    this.labelText.set(this.host.nativeElement.textContent?.trim() ?? '');
   }
 
   protected onClick(): void {

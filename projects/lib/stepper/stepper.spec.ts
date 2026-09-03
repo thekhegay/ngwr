@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -284,5 +287,53 @@ describe('WrStepper optional badge', () => {
     fixture.detectChanges();
 
     expect(badge(fixture)).toBe('optional');
+  });
+});
+
+/**
+ * ⚠️ This one guards the RULE, not the behaviour.
+ *
+ * jsdom has no layout and loads no stylesheets, so a spec here cannot see a row
+ * overflow — which is why the defect survived a full suite. Measured in Chromium
+ * instead, against the compiled `ngwr/stepper` sheet, three steps at a 375px
+ * viewport:
+ *
+ * ```
+ *   de  Übersichtsdarstellung / Grundeinstellungen / Rechnungsstellung
+ *       document 423px against a 375px client  ->  +48px, page scrolls sideways
+ *   fi  Yleiskatsaus / Perusasetukset / Laskutustiedot          ->  +16px
+ *   ja  概要と全体像の確認 / 基本設定の入力 / 請求先情報の登録        ->  +40px
+ *   en  Overview / Details / Billing                            ->    0px
+ * ```
+ *
+ * English is why nobody found it: the row only overflows once a label is longer
+ * than the column, which is what a translation is. With the two declarations
+ * below all four sets measure 0 at 320 and 375, and the row's height at 768 and
+ * 1200 is byte-identical to before — the fix is inert until the row cannot fit.
+ *
+ * The `<li>` already carried `min-width: 0`, so this reads as already handled;
+ * it bought nothing, because the BUTTON inside it was `flex: 0 0 auto` and
+ * simply overflowed the row that shrank.
+ */
+describe('the horizontal row, as the stylesheet declares it', () => {
+  const sheet = readFileSync(join(process.cwd(), 'projects/lib/stepper/styles/_index.scss'), 'utf8');
+
+  const rule = (name: string): string => {
+    const at = sheet.indexOf(`  &__${name} {`);
+    expect(at, `no \`&__${name}\` rule in the stepper stylesheet`).toBeGreaterThan(-1);
+    return sheet.slice(at, sheet.indexOf('\n  }', at));
+  };
+
+  it('lets the header button give, rather than freezing it at its label’s width', () => {
+    expect(rule('header-button')).toMatch(/flex:\s*0 1 auto/);
+    expect(rule('header-button')).toMatch(/min-width:\s*0/);
+  });
+
+  it('lets the label itself break, because a compound noun is one unbreakable word', () => {
+    // A flex item's automatic minimum size is its min-content width, and for
+    // `Rechnungsstellung` that IS the whole word — so the button would shrink and
+    // the label would not.
+    expect(rule('label')).toMatch(/min-width:\s*0/);
+    expect(rule('label')).toMatch(/overflow-wrap:\s*break-word/);
   });
 });

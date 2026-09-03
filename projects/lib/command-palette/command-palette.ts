@@ -26,9 +26,10 @@ import {
 } from '@angular/core';
 
 import { WrHotkey, type WrHotkeyHandle, type WrHotkeySpec } from 'ngwr/hotkey';
-import { useI18nText } from 'ngwr/i18n';
+import { readI18nText, useI18nText } from 'ngwr/i18n';
 import { WrIcon } from 'ngwr/icon';
 import { WR_RESPONSIVE_OVERLAYS, wrPresentAsSheet } from 'ngwr/overlay';
+import { isComposing } from 'ngwr/utils';
 
 import type { WrCommandItem } from './interfaces';
 
@@ -109,6 +110,13 @@ export class WrCommandPalette {
     'Type a command or search…'
   );
   protected readonly resolvedEmpty = useI18nText(this.emptyText, 'commandPalette.noResults', 'No results');
+
+  /**
+   * The key-cap chip beside the search field. It was the literal `esc` in the
+   * template — the one string on this component no catalog could reach, so a
+   * fully Russian palette still hinted in English.
+   */
+  protected readonly resolvedEscHint = readI18nText('commandPalette.escHint', 'esc');
 
   /** Auto-close on `(picked)`. Set false to keep open. @default true */
   readonly closeOnPick = input(true, { transform: coerceBooleanProperty });
@@ -288,6 +296,12 @@ export class WrCommandPalette {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
+    // Every key below belongs to the input method while it is converting: Enter
+    // accepts a candidate, Escape cancels the conversion, the arrows walk the
+    // candidate list. Acting on them closed the palette — and threw the query
+    // away — the first time a Japanese user pressed Escape to undo a reading.
+    if (isComposing(event)) return;
+
     const list = this.filtered();
     switch (event.key) {
       case 'ArrowDown':

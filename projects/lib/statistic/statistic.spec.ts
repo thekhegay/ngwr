@@ -1,6 +1,7 @@
-import { Component, PLATFORM_ID, signal } from '@angular/core';
+import { Component, LOCALE_ID, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { WrPlatform } from 'ngwr/platform';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -29,7 +30,10 @@ class Host {
   readonly suffix = signal('');
   readonly precision = signal(0);
   readonly delta = signal<number | null>(null);
-  readonly deltaSuffix = signal('%');
+  // `null`, the input's own default: the unit falls back to the catalog, then to
+  // `'%'`. A host that binds `'%'` here would be an override, and would hide
+  // every spec below that checks the fallback.
+  readonly deltaSuffix = signal<string | null>(null);
   readonly animate = signal(false);
 }
 
@@ -235,5 +239,102 @@ describe('WrStatisticGroup', () => {
 
   it('projects its cards into the grid', () => {
     expect(group().querySelector('.wr-statistic-group__grid')!.textContent).toContain('card');
+  });
+});
+
+/**
+ * The delta, printed one line under a value that goes through `Intl`.
+ *
+ * `` `${sign}${d}${suffix}` `` put two number systems inside one component:
+ * ar-SA rendered the value as `١٬٢٣٤٬٥٦٧٫٨٩` and the delta beside it as a Latin
+ * `12.4%`, and de-DE `1.234.567,89` above `+12.4%`. The sign is `signDisplay`
+ * rather than a hand-written `+` for the RTL half of the same defect — a bare
+ * `+` is a neutral character the BiDi algorithm moves to the other end of the
+ * number, which is why the screenshot in the audit reads `12.4%+`.
+ */
+describe('WrStatistic — the delta is localized', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const delta = (): string =>
+    (fixture.nativeElement as HTMLElement).querySelector('.wr-statistic__delta')!.textContent.trim();
+
+  const mount = async (providers: unknown[]): Promise<void> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: providers as never });
+    fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.delta.set(12.4);
+    fixture.detectChanges();
+    await Promise.resolve();
+    await Promise.resolve();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('formats the number per LOCALE_ID, the way the value above it already did', async () => {
+    await mount([{ provide: LOCALE_ID, useValue: 'de-DE' }]);
+
+    fixture.componentInstance.value.set(1234567.89);
+    fixture.componentInstance.precision.set(2);
+    fixture.detectChanges();
+
+    // A comma, because de-DE says so — not because anything about the delta
+    // changed. The pair is the point: the value and the delta agree now.
+    expect(delta()).toBe('+12,4%');
+    expect((fixture.nativeElement as HTMLElement).querySelector('.wr-statistic__number')!.textContent.trim()).toBe(
+      '1.234.567,89'
+    );
+  });
+
+  it('writes the digits in the locale numbering system', async () => {
+    await mount([{ provide: LOCALE_ID, useValue: 'ar-EG' }]);
+
+    // Asserted as a PROPERTY rather than as a literal: `Intl` also emits an
+    // Arabic letter mark around the sign here, and pinning the exact codepoints
+    // would be pinning this Node's ICU rather than the component. What matters
+    // is that no ASCII digit and no ASCII decimal point survives.
+    expect(delta()).not.toMatch(/[0-9]/);
+    expect(delta()).toMatch(/[٠-٩]/);
+  });
+
+  it('keeps every digit the consumer passed, not `precision()`', async () => {
+    // `precision` describes the VALUE. A delta of 0.125 with `precision=2` must
+    // not lose its third decimal to a rounding rule meant for the number above.
+    await mount([]);
+    fixture.componentInstance.precision.set(2);
+    fixture.componentInstance.delta.set(0.125);
+    fixture.detectChanges();
+
+    expect(delta()).toBe('+0.125%');
+  });
+
+  it('takes its unit from the catalog when the consumer binds none', async () => {
+    await mount([
+      provideWrI18n({ defaultLocale: 'xx', availableLocales: ['xx'] }),
+      provideWrI18nStaticLoader({ xx: { statistic: { deltaSuffix: ' п.п.' } } }),
+    ]);
+
+    expect(delta()).toBe('+12.4 п.п.');
+  });
+
+  it('lets a catalog put a space between the number and the unit', async () => {
+    await mount([
+      provideWrI18n({ defaultLocale: 'xx', availableLocales: ['xx'] }),
+      provideWrI18nStaticLoader({ xx: { statistic: { delta: '{{value}} {{suffix}}' } } }),
+    ]);
+
+    expect(delta()).toBe('+12.4 %');
+  });
+
+  it('still lets a bound deltaSuffix win over the catalog', async () => {
+    await mount([
+      provideWrI18n({ defaultLocale: 'xx', availableLocales: ['xx'] }),
+      provideWrI18nStaticLoader({ xx: { statistic: { deltaSuffix: ' п.п.' } } }),
+    ]);
+    fixture.componentInstance.deltaSuffix.set(' pts');
+    fixture.detectChanges();
+
+    expect(delta()).toBe('+12.4 pts');
   });
 });

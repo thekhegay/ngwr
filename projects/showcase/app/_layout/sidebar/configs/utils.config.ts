@@ -19,6 +19,7 @@ export const UTILS_GROUP: SidebarGroup = {
     { title: 'getFocusableElements', url: ['/reference/utils', 'get-focusable-elements'] },
     { title: 'getRootFontSize', url: ['/reference/utils', 'get-root-font-size'] },
     { title: 'hasModifier', url: ['/reference/utils', 'has-modifier'] },
+    { title: 'isComposing', url: ['/reference/utils', 'is-composing'] },
     { title: 'isDefined', url: ['/reference/utils', 'is-defined'] },
     { title: 'isNonEmptyArray', url: ['/reference/utils', 'is-non-empty-array'] },
     { title: 'isObservable', url: ['/reference/utils', 'is-observable'] },

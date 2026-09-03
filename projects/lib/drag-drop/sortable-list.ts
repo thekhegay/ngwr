@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { CdkDrag, type CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
@@ -45,6 +46,10 @@ let sortableListUid = 0;
  * Space or Enter drops it and Escape puts it back. CDK's `cdkDrag` ships no key
  * handling of its own, so without this the component's only function was
  * unreachable from a keyboard.
+ *
+ * Reading direction: a `horizontal` list follows the VISUAL order, so under
+ * `dir="rtl"` ArrowLeft moves the held row toward the higher index — the same
+ * rule `wr-slider` applies to its track. A vertical list never mirrors.
  *
  * What that does NOT answer is WCAG 2.5.7, which asks for a POINTER alternative
  * to the drag. Click-to-pick-up is the obvious candidate and is not safe here:
@@ -108,6 +113,22 @@ export class WrSortableList<T = unknown> {
 
   private readonly injector = inject(Injector);
 
+  /**
+   * Ambient reading direction, for the horizontal keyboard path only.
+   *
+   * Optional so a bare `TestBed` — or any consumer that never set a direction —
+   * needs no provider; `Directionality` is root-provided, so `null` only ever
+   * means "nobody asked", which is LTR. Nothing caches a direction-derived
+   * value: `isRtl()` is read inside the key handler, so a runtime flip needs no
+   * subscription to `Directionality.change`.
+   *
+   * The POINTER path already mirrors without this — `cdkDropList` injects
+   * `Directionality` itself and feeds it to `DropListRef.withDirection`, so a
+   * horizontal drag has always followed the visual order. The keyboard path was
+   * the half that did not, which is why the two disagreed.
+   */
+  private readonly dir = inject(Directionality, { optional: true });
+
   private readonly rowEls = viewChildren<ElementRef<HTMLElement>>('row');
 
   /** Index of the row the keyboard is holding, or `null` when nothing is held. */
@@ -163,8 +184,16 @@ export class WrSortableList<T = unknown> {
 
     const grabbed = this.grabbedIndex();
     const horizontal = this.orientation() === 'horizontal';
-    const forward = horizontal ? 'ArrowRight' : 'ArrowDown';
-    const back = horizontal ? 'ArrowLeft' : 'ArrowUp';
+    // The horizontal arrows name a SIDE of the row, so they follow the reading
+    // direction: a horizontal list under `dir="rtl"` paints index 0 at the right,
+    // so the key that raises the index is ArrowLeft. Raising it on ArrowRight
+    // regardless moved the held item away from the arrow the user pressed — the
+    // one failure in this set a user cannot rationalise, because it inverts their
+    // model of the list silently. The block arrows name a value's direction in a
+    // column and never mirror, which is why only the horizontal pair is swapped.
+    const rtl = horizontal && this.dir?.value === 'rtl';
+    const forward = horizontal ? (rtl ? 'ArrowLeft' : 'ArrowRight') : 'ArrowDown';
+    const back = horizontal ? (rtl ? 'ArrowRight' : 'ArrowLeft') : 'ArrowUp';
 
     if (event.key === ' ' || event.key === 'Enter') {
       event.preventDefault();
