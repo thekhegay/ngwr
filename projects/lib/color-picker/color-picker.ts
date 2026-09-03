@@ -5,9 +5,10 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { DecimalPipe } from '@angular/common';
-import { Component, ViewEncapsulation, computed, effect, input, model, output, signal } from '@angular/core';
+import { Component, ViewEncapsulation, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
@@ -147,6 +148,19 @@ export class WrColorPicker implements FormValueControl<string> {
     return `${r}, ${g}, ${b}`;
   });
 
+  /**
+   * Ambient reading direction, for the two SLIDERS only — see `updateFromEvent`
+   * for why the SV canvas is not in that set.
+   *
+   * Optional so a bare `TestBed` — or any consumer that never set a direction —
+   * needs no provider; `Directionality` is root-provided, so `null` only ever
+   * means "nobody asked", which is LTR. Read inside the handlers rather than
+   * cached: the thumbs are placed with `inset-inline-start`, so the tracks mirror
+   * from CSS alone and a runtime flip needs no subscription to
+   * `Directionality.change`.
+   */
+  private readonly dir = inject(Directionality, { optional: true });
+
   /** Thumb positions in % for each surface. */
   protected readonly svThumbX = computed(() => this.s() * 100);
   protected readonly svThumbY = computed(() => (1 - this.v()) * 100);
@@ -181,11 +195,39 @@ export class WrColorPicker implements FormValueControl<string> {
   protected readonly resolvedHueLabel = readI18nText('colorPicker.hue', 'Hue');
   protected readonly resolvedAlphaLabel = readI18nText('colorPicker.alpha', 'Opacity');
 
-  protected readonly tabOptions: readonly WrSegmentedOption<Tab>[] = [
-    { value: 'hex', label: 'HEX' },
-    { value: 'rgb', label: 'RGB' },
-    { value: 'hsl', label: 'HSL' },
-  ];
+  /**
+   * Every visible word in this component that is not a slider name.
+   *
+   * The format strip and the nine channel captions were literals — three in
+   * TypeScript, the rest in the template — beside a `colorPicker` catalog
+   * section that already existed and held the slider names. So the section was
+   * there and these had simply not been put in it, which is why a fully Russian
+   * picker still read `HEX RGB HSL` over `R G B`. Each caption is one string
+   * INCLUDING its `%`, because a locale that spaces the sign differently has to
+   * move the letter and the sign together.
+   *
+   * Signals, not strings: they follow a locale switch, and a catalog that lands
+   * a microtask after the first change-detection pass.
+   */
+  protected readonly channelHexLabel = readI18nText('colorPicker.channelHex', 'HEX');
+  protected readonly channelRedLabel = readI18nText('colorPicker.channelRed', 'R');
+  protected readonly channelGreenLabel = readI18nText('colorPicker.channelGreen', 'G');
+  protected readonly channelBlueLabel = readI18nText('colorPicker.channelBlue', 'B');
+  protected readonly channelHueLabel = readI18nText('colorPicker.channelHue', 'H');
+  protected readonly channelSaturationLabel = readI18nText('colorPicker.channelSaturation', 'S%');
+  protected readonly channelLightnessLabel = readI18nText('colorPicker.channelLightness', 'L%');
+  protected readonly channelAlphaLabel = readI18nText('colorPicker.channelAlpha', 'A%');
+
+  private readonly formatHexLabel = readI18nText('colorPicker.formatHex', 'HEX');
+  private readonly formatRgbLabel = readI18nText('colorPicker.formatRgb', 'RGB');
+  private readonly formatHslLabel = readI18nText('colorPicker.formatHsl', 'HSL');
+
+  /** A `computed`, because `WrSegmentedOption.label` is a plain string. */
+  protected readonly tabOptions = computed<readonly WrSegmentedOption<Tab>[]>(() => [
+    { value: 'hex', label: this.formatHexLabel() },
+    { value: 'rgb', label: this.formatRgbLabel() },
+    { value: 'hsl', label: this.formatHslLabel() },
+  ]);
 
   protected readonly classes = computed(() => {
     const parts = ['wr-color-picker'];
@@ -271,19 +313,28 @@ export class WrColorPicker implements FormValueControl<string> {
   /**
    * Hue and alpha are real one-value sliders, so they take the APG slider keys —
    * the same set `wr-knob` and `wr-slider` implement, including Home / End.
+   *
+   * The horizontal arrows name a SIDE of the track and so follow the reading
+   * direction, exactly as `wr-slider`'s do; the vertical pair names a value's
+   * direction and never mirrors.
    */
   protected onSliderKeydown(event: KeyboardEvent, surface: 'hue' | 'alpha'): void {
     if (this.disabled() || this.readonly()) return;
     const step = event.shiftKey ? KEY_STEP_COARSE : KEY_STEP;
+    const inline = this.dir?.value === 'rtl' ? -step : step;
     const max = surface === 'hue' ? 360 : 100;
     const current = surface === 'hue' ? this.h() : this.a() * 100;
     let next: number;
     switch (event.key) {
       case 'ArrowRight':
+        next = current + inline;
+        break;
       case 'ArrowUp':
         next = current + step;
         break;
       case 'ArrowLeft':
+        next = current - inline;
+        break;
       case 'ArrowDown':
         next = current - step;
         break;
@@ -307,6 +358,10 @@ export class WrColorPicker implements FormValueControl<string> {
    * The SV canvas is two axes at once, so the keys follow the picture: left and
    * right run along saturation, up and down along brightness — the directions
    * the thumb visibly moves. Shift takes ten percent at a time.
+   *
+   * Not mirrored under `dir="rtl"`, unlike the two sliders above, and for the
+   * reason given on `fraction()`: the canvas is a picture rather than a track, so
+   * its gradient does not flip and neither may the keys that walk it.
    */
   protected onAreaKeydown(event: KeyboardEvent): void {
     if (this.disabled() || this.readonly()) return;
@@ -336,9 +391,36 @@ export class WrColorPicker implements FormValueControl<string> {
     this.touch.emit();
   }
 
+  /**
+   * The pointer's position along a surface, as a 0–1 fraction.
+   *
+   * Measured from whichever edge the surface STARTS at, and the two surfaces do
+   * not agree on what that means — deliberately.
+   *
+   * The hue and alpha bars are one-value tracks with `role="slider"`, the same
+   * widget `wr-slider` is, so they mirror: their thumbs are placed with
+   * `inset-inline-start` and their gradients are flipped by a `[dir='rtl']` rule,
+   * which makes the reader's start the physical right edge under `dir="rtl"`.
+   * Opacity 100% used to sit at the physical right in both directions, i.e. at
+   * the reader's START in RTL, while the format strip in the same panel mirrored
+   * correctly.
+   *
+   * The SV canvas does NOT mirror, and stays measured from `rect.left`. It is a
+   * two-axis colour FIELD, not a track — the component says so itself by giving
+   * it `role="group"` rather than `role="slider"`, because it carries two values
+   * and a slider has one. A picture with no start and no end has nothing to
+   * mirror, and flipping it would only move white to the other side of an image
+   * every colour picker in the world draws the same way.
+   */
+  private fraction(event: PointerEvent, rect: DOMRect, surface: Edges): number {
+    const offset =
+      surface !== 'sv' && this.dir?.value === 'rtl' ? rect.right - event.clientX : event.clientX - rect.left;
+    return clamp(offset / rect.width, 0, 1);
+  }
+
   private updateFromEvent(event: PointerEvent, target: HTMLElement, surface: Edges): void {
     const rect = target.getBoundingClientRect();
-    const x = clamp((event.clientX - rect.left) / rect.width, 0, 1);
+    const x = this.fraction(event, rect, surface);
 
     if (surface === 'sv') {
       const y = clamp((event.clientY - rect.top) / rect.height, 0, 1);

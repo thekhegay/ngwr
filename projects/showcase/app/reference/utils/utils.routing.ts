@@ -24,6 +24,7 @@ export default [
   { path: utils.isObservable, loadComponent: () => import('./is-observable/is-observable') },
   { path: utils.keys, loadComponent: () => import('./keys/keys') },
   { path: utils.hasModifier, loadComponent: () => import('./has-modifier/has-modifier') },
+  { path: utils.isComposing, loadComponent: () => import('./is-composing/is-composing') },
   { path: utils.isPrintableKey, loadComponent: () => import('./is-printable-key/is-printable-key') },
   { path: utils.noop, loadComponent: () => import('./noop/noop') },
   { path: utils.badgeLog, loadComponent: () => import('./badge-log/badge-log') },

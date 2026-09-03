@@ -78,7 +78,36 @@ export default class MigrationPageComponent {
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
 # v12 moves the three date import paths; the run also applies any pending
 # v7–v9 migrations. v10 and v11 ship none, so there is nothing to skip.
-ng update ngwr@12`,
+# v14 rewrites nothing — it reports, and you act on what it names.
+ng update ngwr@14`,
+
+    v13: `<!-- The size input matches the other twenty-three components. -->
+- <input wrInput wrSize="lg" />
++ <input wrInput size="lg" />
+
+<!-- [id] no longer lands on the host, so a host selector stops matching. -->
+  <wr-checkbox id="agree">I agree</wr-checkbox>
+- ::ng-deep wr-checkbox#agree { … }
++ ::ng-deep #agree { … }        <!-- resolves to the inner input, as documented -->`,
+
+    v14: `// The loading bar no longer subscribes to the router on its own.
+// Without this it still works for start() / complete() and never moves
+// for navigation — nothing throws, which is what makes it worth checking.
+providers: [
+  provideRouter(routes),
+  provideWrLoadingBarRouter(),   // from 'ngwr/loading-bar/router'
+]
+
+// A tab carrying routerLink needs the adapter on the strip.
+// This half DOES throw, so your build finds it for you.
+- imports: [WrTabs, WrTab]
++ imports: [WrTabs, WrTab, WrTabsRouting]   // from 'ngwr/tabs/router'
+- <wr-tabs>
++ <wr-tabs wrTabsRouting>
+
+// The pagination range is one template now, not a word in the middle.
+- pagination: { of: 'von' }
++ pagination: { range: '{{from}}–{{to}} von {{total}}' }`,
 
     checkbox: `<!-- Inside <wr-checkbox-group>: the identity input was renamed. -->
 - <wr-checkbox value="autosave">Autosave</wr-checkbox>

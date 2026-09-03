@@ -32,14 +32,24 @@ class FieldHarness extends ComponentHarness {
   }
 }
 
-/** The `left: <n>%` / `top: <n>%` a thumb carries, out of its inline `style`. */
+/**
+ * The percentage a thumb carries, out of its inline `style`.
+ *
+ * Three properties and not two, because the surfaces do not agree on the inline
+ * axis and that disagreement is the contract: the SV canvas is a picture and
+ * keeps a physical `left`, while the hue and alpha tracks are one-value sliders
+ * that mirror under `dir="rtl"` and so are placed with `inset-inline-start`.
+ * Reading `left` off a slider thumb therefore finds nothing, which is exactly
+ * what should happen if one of them ever regresses to the physical property.
+ */
 const THUMB_POS = {
   left: /(?:^|;)\s*left\s*:\s*([\d.]+)%/,
   top: /(?:^|;)\s*top\s*:\s*([\d.]+)%/,
+  'inset-inline-start': /(?:^|;)\s*inset-inline-start\s*:\s*([\d.]+)%/,
 } as const;
 
 /** One thumb's declared offset. See {@link WrColorPickerHarness.getThumbs} for why this is not `getCssValue()`. */
-async function percent(thumb: TestElement, side: 'left' | 'top', surface: string): Promise<number> {
+async function percent(thumb: TestElement, side: keyof typeof THUMB_POS, surface: string): Promise<number> {
   const style = await thumb.getAttribute('style');
   const match = THUMB_POS[side].exec(style ?? '');
 
@@ -287,10 +297,16 @@ export class WrColorPickerHarness extends ComponentHarness {
   /**
    * Where the three thumbs sit, in percent along their surfaces.
    *
-   * The component writes these as inline `left` / `top` percentages, so they are
-   * readable with no layout at all — which makes them the only evidence a spec has
-   * that the surfaces followed a colour set through the fields. A measured position
-   * would be zero for all three.
+   * The component writes these as inline percentages, so they are readable with no
+   * layout at all — which makes them the only evidence a spec has that the surfaces
+   * followed a colour set through the fields. A measured position would be zero for
+   * all three.
+   *
+   * The number is always "along the surface from its own start", so it is direction
+   * free: the SV canvas reports a physical `left` because it does not mirror, and
+   * the two tracks report `inset-inline-start` because they do. An RTL spec reads
+   * the same value as an LTR one, which is the point — what mirrors is where that
+   * fraction lands on screen, not the fraction.
    *
    * Read off the `style` ATTRIBUTE rather than through `getCssValue()`, and the
    * difference is not cosmetic: `getCssValue()` is `getComputedStyle()`, and `left` /
@@ -307,8 +323,8 @@ export class WrColorPickerHarness extends ComponentHarness {
 
     return {
       sv: { x: await percent(sv, 'left', 'SV'), y: await percent(sv, 'top', 'SV') },
-      hue: await percent(hue, 'left', 'hue'),
-      alpha: alpha ? await percent(alpha, 'left', 'alpha') : null,
+      hue: await percent(hue, 'inset-inline-start', 'hue'),
+      alpha: alpha ? await percent(alpha, 'inset-inline-start', 'alpha') : null,
     };
   }
 

@@ -5,8 +5,9 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Service, inject } from '@angular/core';
+import { Service, inject, isDevMode } from '@angular/core';
 
+import type { Locale } from 'date-fns';
 import {
   addDays as dfAddDays,
   addMonths as dfAddMonths,
@@ -30,6 +31,8 @@ import {
 } from 'date-fns';
 import { WrDateAdapter, WR_DATE_LOCALE, type WrDateFormat, isNamedFormat } from 'ngwr/date';
 
+import { WR_DATE_FNS_LOCALE } from './tokens';
+
 const NAMED_PATTERNS: Readonly<Record<WrDateFormat, string>> = {
   shortDate: 'P',
   mediumDate: 'PP',
@@ -45,32 +48,28 @@ const NAMED_PATTERNS: Readonly<Record<WrDateFormat, string>> = {
  * pick this when you want its long patterns (`P`, `PP`, `PPP`, `p`) without
  * writing them by hand.
  *
- * **{@link WR_DATE_LOCALE} does not reach `format` or `parse`, and that is not
- * an oversight.** date-fns resolves those patterns against a date-fns `Locale`
- * OBJECT rather than a BCP 47 tag, and the objects are separate modules —
- * mapping a tag onto one would mean importing all of them, which defeats the
- * tree-shaking that is the reason this is an opt-in entry point. So the named
- * formats render AND read in en-US whatever the tag says, while
- * `getFirstDayOfWeek`, `getDayOfWeekNames` and `getMonthNames` go through `Intl`
- * and do honour it: a calendar heads its columns `пн вт ср` beside a trigger
- * reading `08/11/2025`. Reading is the sharper edge — `11/08/2025` typed by a
- * user in a dd/MM locale parses as 8 November, valid and wrong.
+ * **Localising it takes TWO settings, and that is a property of date-fns rather
+ * than a wart here.** `WR_DATE_LOCALE` is a BCP 47 tag; date-fns resolves its
+ * patterns against a `Locale` OBJECT, and the objects are separate modules, so
+ * mapping a tag onto one would mean importing all of them and defeating the
+ * tree-shaking that is the reason this is an opt-in entry point. Pass the object
+ * as `dateFnsLocale` and it reaches `format` and `parse`; leave it out and they
+ * stay on date-fns's own module default, which is what keeps
+ * `setDefaultOptions({ locale })` working for apps that already use it.
  *
- * The lever is date-fns's own module default, and the adapter passing no locale
- * is precisely what keeps it working. Set it once at bootstrap, or take
- * `provideWrLuxonAdapter()`, which forwards the tag itself:
- *
- * ```ts
- * import { setDefaultOptions } from 'date-fns';
- * import { ru } from 'date-fns/locale';
- *
- * setDefaultOptions({ locale: ru });
- * ```
+ * Half-localising is the failure mode this is designed to make loud: with only a
+ * tag, `getFirstDayOfWeek`, `getDayOfWeekNames` and `getMonthNames` go through
+ * `Intl` and answer in the locale while the trigger beside them reads
+ * `08/11/2025`, and READING is the sharper edge — `11/08/2025` typed by a user in
+ * a dd/MM locale parses as 8 November, valid and wrong. A non-English tag with no
+ * object warns once in dev mode for exactly that reason.
  *
  * @example
  * ```ts
+ * import { ru } from 'date-fns/locale/ru';
+ *
  * bootstrapApplication(AppComponent, {
- *   providers: [provideWrDateFnsAdapter()],
+ *   providers: [provideWrDateFnsAdapter({ locale: 'ru-RU', dateFnsLocale: ru })],
  * });
  * ```
  *
@@ -79,6 +78,25 @@ const NAMED_PATTERNS: Readonly<Record<WrDateFormat, string>> = {
 @Service()
 export class WrDateFnsAdapter extends WrDateAdapter<Date> {
   private readonly locale = inject(WR_DATE_LOCALE);
+  private readonly dateFnsLocale = inject(WR_DATE_FNS_LOCALE);
+
+  constructor() {
+    super();
+    if (isDevMode() && !this.dateFnsLocale && !this.locale.toLowerCase().startsWith('en')) {
+      // eslint-disable-next-line no-console -- dev-mode validation
+      console.warn(
+        `[NGWR] provideWrDateFnsAdapter({ locale: '${this.locale}' }) localises the calendar ` +
+          `headings but not the field: date-fns needs its own Locale OBJECT. Pass one — ` +
+          `provideWrDateFnsAdapter({ locale: '${this.locale}', dateFnsLocale: <import from ` +
+          `'date-fns/locale/…'> }) — or set date-fns's module default with setDefaultOptions().`
+      );
+    }
+  }
+
+  /** What date-fns is handed. `{}` leaves its module default in charge. */
+  private get options(): { locale?: Locale } {
+    return this.dateFnsLocale ? { locale: this.dateFnsLocale } : {};
+  }
 
   // Construction & identity
 
@@ -158,20 +176,28 @@ export class WrDateFnsAdapter extends WrDateAdapter<Date> {
 
   format(date: Date, formatKeyOrString: WrDateFormat | (string & {})): string {
     const pattern = isNamedFormat(formatKeyOrString) ? NAMED_PATTERNS[formatKeyOrString] : formatKeyOrString;
-    return dfFormat(date, pattern);
+    return dfFormat(date, pattern, this.options);
   }
 
   parse(value: string, formatKeyOrString: WrDateFormat | (string & {})): Date | null {
     const raw = value?.trim();
     if (!raw) return null;
     const pattern = isNamedFormat(formatKeyOrString) ? NAMED_PATTERNS[formatKeyOrString] : formatKeyOrString;
-    const result = dfParse(raw, pattern, new Date());
+    // The same options as `format`, so whatever the one wrote the other reads — the
+    // pattern `P` means `MM/dd/y` in enUS and `dd.MM.y` in ru, and a picker that writes
+    // one and reads the other is the native adapter's blocker wearing another hat.
+    const result = dfParse(raw, pattern, new Date(), this.options);
     return isValid(result) ? result : null;
   }
 
   // Locale info
 
   getFirstDayOfWeek(): number {
+    // The object wins where there is one: it is what `format` and `parse` compute with,
+    // and a grid starting on a different day from the strings beside it is the same
+    // half-localisation this adapter is trying to stop shipping.
+    const fromLocale = this.dateFnsLocale?.options?.weekStartsOn;
+    if (typeof fromLocale === 'number') return fromLocale;
     try {
       const locale = new Intl.Locale(this.locale) as unknown as { getWeekInfo?: () => { firstDay: number } };
       const info = locale.getWeekInfo?.();

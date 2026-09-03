@@ -32,7 +32,8 @@ export const wrRu: WrI18nCatalog = {
     goToPage: 'Перейти на страницу {{page}}',
     label: 'Пагинация',
     pageOf: 'Страница {{current}} из {{total}}',
-    of: 'из',
+    range: '{{from}}–{{to}} из {{total}}',
+    compact: '{{current}} / {{total}}',
   },
   table: {
     empty: 'Нет данных',
@@ -126,11 +127,13 @@ export const wrRu: WrI18nCatalog = {
     placeholder: 'Выберите…',
     clearSelection: 'Очистить выбор',
     removeItem: 'Удалить {{label}}',
+    more: 'ещё {{count}}',
   },
   commandPalette: {
     label: 'Палитра команд',
     placeholder: 'Введите команду или поиск…',
     noResults: 'Ничего не найдено',
+    escHint: 'esc',
   },
   empty: {
     noData: 'Нет данных',
@@ -142,6 +145,12 @@ export const wrRu: WrI18nCatalog = {
     removeFile: 'Удалить файл',
     invalid: 'Неподдерживаемый тип файла',
     tooBig: 'Файл слишком большой',
+    size: '{{value}} {{unit}}',
+    unitByte: 'Б',
+    unitKb: 'КБ',
+    unitMb: 'МБ',
+    unitGb: 'ГБ',
+    unitTb: 'ТБ',
   },
   popconfirm: {
     label: 'Подтверждение действия',
@@ -190,6 +199,9 @@ export const wrRu: WrI18nCatalog = {
     nextYear: 'Следующий год',
     prevYears: 'Предыдущие 12 лет',
     nextYears: 'Следующие 12 лет',
+    header: '{{month}} {{year}}',
+    yearRange: '{{from}} – {{to}}',
+    dayLabel: '{{weekday}}, {{date}}',
   },
   imageCropper: {
     empty: 'Нет изображения',
@@ -211,6 +223,17 @@ export const wrRu: WrI18nCatalog = {
     area: 'Насыщенность и яркость, {{saturation}}% и {{brightness}}%',
     hue: 'Оттенок',
     alpha: 'Непрозрачность',
+    formatHex: 'HEX',
+    formatRgb: 'RGB',
+    formatHsl: 'HSL',
+    channelHex: 'HEX',
+    channelRed: 'R',
+    channelGreen: 'G',
+    channelBlue: 'B',
+    channelHue: 'H',
+    channelSaturation: 'S%',
+    channelLightness: 'L%',
+    channelAlpha: 'A%',
   },
   calendarHeatmap: {
     label: 'Календарная тепловая карта',
@@ -345,6 +368,10 @@ export const wrRu: WrI18nCatalog = {
   },
   speedDial: {
     label: 'Действия',
+  },
+  statistic: {
+    delta: '{{value}}{{suffix}}',
+    deltaSuffix: '%',
   },
   result: {
     notFound: 'Извините, страница не найдена.',

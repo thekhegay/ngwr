@@ -47,7 +47,7 @@
             </span>
           }
           @if (hiddenChipCount(); as extra) {
-            <span class="wr-tree__chip wr-tree__chip--more">+{{ extra }} more</span>
+            <span class="wr-tree__chip wr-tree__chip--more">{{ chipMoreLabel({ count: extra }) }}</span>
           }
         </span>
       } @else {

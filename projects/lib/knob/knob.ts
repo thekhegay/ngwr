@@ -213,6 +213,24 @@ export class WrKnob implements FormValueControl<number> {
     this.touch.emit();
   }
 
+  /**
+   * The APG slider keys, and they do NOT mirror under `dir="rtl"` — which is a
+   * decision, not an oversight, and the one place it is written down.
+   *
+   * `wr-slider` swaps ArrowLeft and ArrowRight in RTL because its TRACK mirrors:
+   * the thumb is placed with `inset-inline-start`, so the visual maximum moves to
+   * the left and a key naming a side has to move with it. This dial does not
+   * mirror. It is an SVG gauge drawn in a fixed 100×100 viewBox, and SVG content
+   * is not reordered by the reading direction — the arc sweeps clockwise from 7
+   * o'clock to 5 o'clock in every locale, the same way a clock face or a car's
+   * rev counter does. So ArrowRight still moves the handle toward the visually
+   * right-hand side of the arc in RTL, and swapping the keys would be the thing
+   * that broke the mapping.
+   *
+   * That is why nothing here injects `Directionality`, and why the stylesheet
+   * carries no `rtl-ok:` marker: there is no physical CSS in the value path at
+   * all, only fixed SVG geometry.
+   */
   protected onKeydown(event: KeyboardEvent): void {
     if (!this.interactive()) return;
     const step = event.shiftKey ? this.step() * 10 : this.step();

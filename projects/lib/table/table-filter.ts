@@ -9,6 +9,7 @@ import { Component, ViewEncapsulation, computed, input, output, signal } from '@
 
 import { WrDropdown, WrDropdownMenu } from 'ngwr/dropdown';
 import { useI18nText } from 'ngwr/i18n';
+import { isComposing } from 'ngwr/utils';
 
 import type { WrTableFilterItem } from './interfaces';
 
@@ -88,6 +89,20 @@ export class WrTableFilter {
 
   protected onSearchInput(event: Event): void {
     this.query.set((event.target as HTMLInputElement).value);
+  }
+
+  /**
+   * Hands every key back to the input method while a conversion is open.
+   *
+   * The dropdown this panel lives in closes on Escape, and it hears the key from
+   * CDK's overlay keyboard dispatcher — one listener on `<body>`, in the bubble
+   * phase. So not acting is not enough: the event has to be stopped here, at the
+   * field that owns the composition, or Escape cancels the reading AND takes the
+   * whole filter panel with it. Nothing else in this component reads a key, so
+   * stopping all of them during a conversion costs nothing.
+   */
+  protected onSearchKeydown(event: KeyboardEvent): void {
+    if (isComposing(event)) event.stopPropagation();
   }
 
   protected onToggle(item: WrTableFilterItem): void {

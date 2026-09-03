@@ -95,7 +95,17 @@ $header-padding-block: 0.25rem;
     color: var(--wr-color-on-surface);
     cursor: pointer;
     text-align: start;
-    flex: 0 0 auto;
+    // Shrinkable, with a floor of nothing. `flex: 0 0 auto` froze the button at
+    // its max-content width, so the `<li>`'s own `min-width: 0` bought nothing:
+    // the row shrank and the button overflowed it. English hid this — the defect
+    // needs a label the row cannot fit, which is what a translation is. Measured
+    // in Chromium at a 375px viewport, three steps: `Übersichtsdarstellung /
+    // Grundeinstellungen / Rechnungsstellung` pushed the DOCUMENT to 423px, so
+    // the whole page scrolled sideways and the last label ran off the screen; the
+    // Finnish and Japanese sets did the same by 16px. A horizontal stepper is a
+    // full-width row of unbounded strings — it has to be able to give.
+    flex: 0 1 auto;
+    min-width: 0;
 
     &:disabled {
       cursor: not-allowed;
@@ -145,6 +155,14 @@ $header-padding-block: 0.25rem;
     font-size: var(--wr-text-sm);
     font-weight: 500;
     line-height: $label-line-height;
+    // The other half of the shrink above: a flex item's automatic minimum size
+    // is its min-content width, and for a German compound noun that IS the whole
+    // word, so the button would shrink and the label would not. `break-word`
+    // only splits a word that cannot fit a line of its own, so nothing changes
+    // until the row is genuinely too narrow — and nothing changes at all in
+    // English or above 768px, measured.
+    min-width: 0;
+    overflow-wrap: break-word;
     // Centre the label's FIRST LINE on the indicator, now that both are anchored
     // to the button's block start. Half the difference between the circle and one
     // line box — derived, not typed, because `--wr-stepper-indicator-size` is a

@@ -13,10 +13,12 @@ export interface WrSelectOptionRegistration {
   readonly value: unknown;
   readonly disabled: boolean;
   /**
-   * Lazy label reader. Options render text via `<ng-content>`, so we
-   * read it at call time once Angular has settled the projected content.
+   * The option's text, as a signal. Options render it via `<ng-content>`, so it
+   * is read back off the DOM — and it has to be reactive, because the ordinary
+   * way it changes is a translation catalog landing after the first pass. A
+   * plain reader let the trigger cache the English fallback forever.
    */
-  readonly getLabel: () => string;
+  readonly label: Signal<string>;
   /**
    * The option's own element, when it has one. The keyboard cursor walks the
    * registry, and registration order is CREATION order — projected children are
@@ -65,8 +67,8 @@ export interface WrSelectContext {
   /** Is the given option value currently selected? Handles both single and multi. */
   isSelected(value: unknown): boolean;
   /**
-   * Called when a child option is clicked. The label is read lazily
-   * via {@link WrSelectOptionRegistration.getLabel}, so callers don't
+   * Called when a child option is clicked. The label rides along on the
+   * registration ({@link WrSelectOptionRegistration.label}), so callers don't
    * need to thread it through.
    */
   selectOption(value: unknown): void;

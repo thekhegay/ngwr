@@ -37,7 +37,12 @@
   (keydown)="onSliderKeydown($event, 'hue')"
   (blur)="onSurfaceBlur()"
 >
-  <span class="wr-color-picker__thumb wr-color-picker__thumb--slider" [style.left.%]="hueThumbX()"></span>
+  <!--
+    `inset-inline-start`, not `left`: this is a one-value track, so it mirrors
+    under `dir="rtl"` the way `wr-slider` does. The SV thumb above keeps `left` —
+    the canvas is a picture and does not flip.
+  -->
+  <span class="wr-color-picker__thumb wr-color-picker__thumb--slider" [style.inset-inline-start.%]="hueThumbX()"></span>
 </div>
 
 @if (alpha()) {
@@ -58,7 +63,10 @@
     (keydown)="onSliderKeydown($event, 'alpha')"
     (blur)="onSurfaceBlur()"
   >
-    <span class="wr-color-picker__thumb wr-color-picker__thumb--slider" [style.left.%]="alphaThumbX()"></span>
+    <span
+      class="wr-color-picker__thumb wr-color-picker__thumb--slider"
+      [style.inset-inline-start.%]="alphaThumbX()"
+    ></span>
   </div>
 }
 
@@ -66,7 +74,7 @@
   <span class="wr-color-picker__preview" [style.background]="hex()"></span>
   <wr-segmented
     class="wr-color-picker__tabs"
-    [options]="tabOptions"
+    [options]="tabOptions()"
     [value]="activeTab()"
     (valueChange)="onTabChange($event)"
   />
@@ -86,7 +94,7 @@
           (input)="onHexInput($event)"
           (blur)="onHexBlur()"
         />
-        <span class="wr-color-picker__field-label">HEX</span>
+        <span class="wr-color-picker__field-label">{{ channelHexLabel() }}</span>
       </label>
     </div>
   }
@@ -102,7 +110,7 @@
           [readonly]="readonly()"
           (input)="onRgbChannel('r', $event)"
         />
-        <span class="wr-color-picker__field-label">R</span>
+        <span class="wr-color-picker__field-label">{{ channelRedLabel() }}</span>
       </label>
       <label class="wr-color-picker__field">
         <input
@@ -114,7 +122,7 @@
           [readonly]="readonly()"
           (input)="onRgbChannel('g', $event)"
         />
-        <span class="wr-color-picker__field-label">G</span>
+        <span class="wr-color-picker__field-label">{{ channelGreenLabel() }}</span>
       </label>
       <label class="wr-color-picker__field">
         <input
@@ -126,7 +134,7 @@
           [readonly]="readonly()"
           (input)="onRgbChannel('b', $event)"
         />
-        <span class="wr-color-picker__field-label">B</span>
+        <span class="wr-color-picker__field-label">{{ channelBlueLabel() }}</span>
       </label>
       @if (alpha()) {
         <label class="wr-color-picker__field">
@@ -139,7 +147,7 @@
             [readonly]="readonly()"
             (input)="onAlphaPercent($event)"
           />
-          <span class="wr-color-picker__field-label">A%</span>
+          <span class="wr-color-picker__field-label">{{ channelAlphaLabel() }}</span>
         </label>
       }
     </div>
@@ -156,7 +164,7 @@
           [readonly]="readonly()"
           (input)="onHslChannel('h', $event)"
         />
-        <span class="wr-color-picker__field-label">H</span>
+        <span class="wr-color-picker__field-label">{{ channelHueLabel() }}</span>
       </label>
       <label class="wr-color-picker__field">
         <input
@@ -168,7 +176,7 @@
           [readonly]="readonly()"
           (input)="onHslChannel('s', $event)"
         />
-        <span class="wr-color-picker__field-label">S%</span>
+        <span class="wr-color-picker__field-label">{{ channelSaturationLabel() }}</span>
       </label>
       <label class="wr-color-picker__field">
         <input
@@ -180,7 +188,7 @@
           [readonly]="readonly()"
           (input)="onHslChannel('l', $event)"
         />
-        <span class="wr-color-picker__field-label">L%</span>
+        <span class="wr-color-picker__field-label">{{ channelLightnessLabel() }}</span>
       </label>
       @if (alpha()) {
         <label class="wr-color-picker__field">
@@ -193,7 +201,7 @@
             [readonly]="readonly()"
             (input)="onAlphaPercent($event)"
           />
-          <span class="wr-color-picker__field-label">A%</span>
+          <span class="wr-color-picker__field-label">{{ channelAlphaLabel() }}</span>
         </label>
       }
     </div>

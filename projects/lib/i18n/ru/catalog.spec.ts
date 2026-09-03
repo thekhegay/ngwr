@@ -38,10 +38,27 @@ describe('wrRu', () => {
   const entries = Object.entries(ru);
 
   /**
-   * The two values that are correctly identical in both catalogs: an initialism Russian
-   * spells the same way, and a bare numeric ratio with no words in it.
+   * The values that are correctly identical in both catalogs: initialisms and key caps
+   * Russian spells the same way, single-letter colour channels (`R` `G` `B`, `H` `S` `L`
+   * — the same letters in a Russian colour picker), and a bare numeric ratio with no
+   * words in it.
    */
-  const SHARED_WITH_ENGLISH = new Set(['common.ok', 'transfer.count']);
+  const SHARED_WITH_ENGLISH = new Set([
+    'common.ok',
+    'transfer.count',
+    'commandPalette.escHint',
+    'colorPicker.formatHex',
+    'colorPicker.formatRgb',
+    'colorPicker.formatHsl',
+    'colorPicker.channelHex',
+    'colorPicker.channelRed',
+    'colorPicker.channelGreen',
+    'colorPicker.channelBlue',
+    'colorPicker.channelHue',
+    'colorPicker.channelSaturation',
+    'colorPicker.channelLightness',
+    'colorPicker.channelAlpha',
+  ]);
 
   it('is a nested object of plain strings, all the way down', () => {
     for (const [key, value] of entries) {
@@ -72,10 +89,13 @@ describe('wrRu', () => {
     }
   });
 
-  it('is actually in Russian, apart from the two strings that are not words', () => {
+  it('is actually in Russian, apart from the strings that are not words', () => {
     for (const [key, value] of entries) {
       if (SHARED_WITH_ENGLISH.has(key)) continue;
-      if (!/\p{Script=Latin}/u.test(value)) continue;
+      // A placeholder NAME is source code, not prose: `'{{from}}–{{to}} из {{total}}'`
+      // carries three Latin runs no translator wrote. Judge the words around them.
+      const prose = value.replace(/\{\{[^}]*\}\}/g, '');
+      if (!/\p{Script=Latin}/u.test(prose)) continue;
 
       expect(/\p{Script=Cyrillic}/u.test(value), `${key} looks like it was left in English`).toBe(true);
     }

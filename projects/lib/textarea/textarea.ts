@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
@@ -151,6 +152,16 @@ export class WrTextarea implements FormValueControl<string> {
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   private readonly hostEl = inject<ElementRef<HTMLElement>>(ElementRef);
 
+  /**
+   * Ambient reading direction, read by the horizontal half of the resize drag.
+   *
+   * Optional so a bare `TestBed` — or any consumer that never set a direction —
+   * needs no provider; `Directionality` is root-provided, so `null` only ever
+   * means "nobody asked", which is LTR. Read inside the handler rather than
+   * cached, so a runtime flip needs no subscription to `Directionality.change`.
+   */
+  private readonly dir = inject(Directionality, { optional: true });
+
   // Custom resize-grip drag state (replaces the native corner handle).
   private resizing = false;
   private resizeStartY = 0;
@@ -222,10 +233,16 @@ export class WrTextarea implements FormValueControl<string> {
       el.style.height = `${h}px`;
     }
     if (dir === 'horizontal' || dir === 'both') {
-      const w = Math.min(
-        this.resizeMaxWidth,
-        Math.max(64, this.resizeStartWidth + (event.clientX - this.resizeStartX))
-      );
+      // The grip sits at the field's INLINE END — physically bottom-right in LTR,
+      // bottom-left in RTL, where a block-level box grows because it is anchored
+      // at the right edge of its containing block. So the pointer's physical
+      // delta means "wider" in one direction and "narrower" in the other, and the
+      // sign has to follow the reading direction. It did not, so under `dir="rtl"`
+      // the grip sat on the corner the box does NOT extend toward and dragging it
+      // outward shrank the field.
+      const dx = event.clientX - this.resizeStartX;
+      const inline = this.dir?.value === 'rtl' ? -dx : dx;
+      const w = Math.min(this.resizeMaxWidth, Math.max(64, this.resizeStartWidth + inline));
       this.hostEl.nativeElement.style.width = `${w}px`;
     }
   }

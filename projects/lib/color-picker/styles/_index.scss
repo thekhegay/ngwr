@@ -65,6 +65,11 @@
     @include theme.touch-target($positioned: true);
   }
 
+  // A gradient has no logical direction keyword, so both tracks are painted
+  // physically and mirrored by hand. They are one-value sliders — the thumb runs
+  // on `inset-inline-start` and the drag is measured from the track's inline
+  // start — so 0° / transparent has to sit at the READER's start, which is the
+  // physical right edge under `dir="rtl"`.
   &__slider--hue {
     background: linear-gradient(
       to right,
@@ -76,6 +81,19 @@
       hsl(300, 100%, 50%),
       hsl(360, 100%, 50%)
     );
+
+    [dir='rtl'] & {
+      background: linear-gradient(
+        to left,
+        hsl(0, 100%, 50%),
+        hsl(60, 100%, 50%),
+        hsl(120, 100%, 50%),
+        hsl(180, 100%, 50%),
+        hsl(240, 100%, 50%),
+        hsl(300, 100%, 50%),
+        hsl(360, 100%, 50%)
+      );
+    }
   }
 
   &__slider--alpha {
@@ -85,6 +103,14 @@
     background-size:
       auto,
       8px 8px;
+
+    // Only the alpha ramp flips; the chequerboard behind it is a texture with no
+    // direction, and re-declaring it would be a second copy to keep in step.
+    [dir='rtl'] & {
+      background-image:
+        linear-gradient(to left, rgba(var(--wr-color-picker-rgb), 0), rgba(var(--wr-color-picker-rgb), 1)),
+        conic-gradient(#cdd2dd 25%, #fff 0 50%, #cdd2dd 0 75%, #fff 0);
+    }
   }
 
   // Thumb
@@ -94,10 +120,10 @@
     height: var(--wr-color-picker-thumb-size);
     transform: translate(-50%, -50%);
     top: 0;
-    // The template overrides this with `[style.left.%]`, computed in color-picker.ts
-    // from `(event.clientX - rect.left) / rect.width` — a physical-pixel measurement
-    // against the SV panel and the two gradient tracks, which are painted `to right`
-    // and do not flip.
+    // The SV thumb's own fallback: the template overrides it with `[style.left.%]`,
+    // computed from `(event.clientX - rect.left) / rect.width` against a canvas
+    // that is a picture rather than a track and so does not mirror. The two
+    // SLIDER thumbs take the logical inset below instead.
     // rtl-ok: canvas geometry in physical pixels, centred by the physical translate
     left: 0;
     border-radius: 50%;
@@ -109,9 +135,21 @@
     background: transparent;
   }
 
-  // Sliders position their thumb at vertical centre.
+  // Sliders position their thumb at vertical centre — and on the INLINE axis,
+  // because a one-value track mirrors. `left: auto` first: the shared rule above
+  // sets `left: 0` for the SV thumb, and leaving it standing beside the RTL
+  // `right` the template writes would over-constrain the box.
   &__thumb--slider {
     top: 50%;
+    left: auto;
+    inset-inline-start: 0;
+
+    // The inline half of the centring pair follows the inset it centres — the
+    // same rule `wr-slider`'s thumb states at length. The block half is
+    // symmetric and stays put.
+    [dir='rtl'] & {
+      transform: translate(50%, -50%);
+    }
   }
 
   // Preview tile

@@ -25,7 +25,7 @@
 
 export const QUALITY = {
   /** The published version, read from `projects/lib/package.json` — cross-checked against the `NGWR_VERSION` constant, which is a separate copy. */
-  version: "13.0.0",
+  version: "13.0.1",
 
   /** Secondary entry points — `ngwr/button`, `ngwr/select`, … Counted by `ng-package.json`, the way ng-packagr counts them, so `styles/` and `schematics/` are correctly absent. Excludes the primary `ngwr`. */
   entryPoints: 204,
@@ -43,19 +43,19 @@ export const QUALITY = {
   directives: 37,
 
   /** `*.spec.ts` files under `projects/lib`, harness specs included. They sit beside the code they cover, and `tsconfig.lib.json` excludes them from the package. */
-  specFiles: 244,
+  specFiles: 247,
 
   /** Test cases those files DECLARE — `it(…)` / `test(…)` call sites, counted after comments and string bodies are stripped. */
-  testCases: 4203,
+  testCases: 4338,
 
   /** Whether `testCases` is a total or a floor. A parameterised form (`it.each`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page says "at least" rather than failing a documentation build over a legal spec. */
-  testCasesAreExact: true,
+  testCasesAreExact: false,
 
   /** Entry points owning at least one spec file. Compare against `entryPoints`: the claim is coverage of the catalog, not of every branch in it. */
   entryPointsWithSpecs: 204,
 
   /** Documentation pages the showcase's route tables declare — routes with a `loadComponent`, minus the layout shell (it has `children`) and the `**` 404, neither of which is a page. NOT the prerendered-route count either: `app.routes.server.ts` sends the raw-SVG icon galleries and the legacy redirects to the client. */
-  docRoutes: 216,
+  docRoutes: 217,
 
   /** Runtime dependencies of the published package, from `projects/lib/package.json`. Peer dependencies are the consumer's Angular; this is what npm installs on top of it. */
   runtimeDependencies: ["tslib"],

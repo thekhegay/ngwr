@@ -23,7 +23,7 @@ import {
 } from '@angular/core';
 
 import { WrDateAdapter } from 'ngwr/date';
-import { useI18nText } from 'ngwr/i18n';
+import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 
 import type { WrCalendarMode, WrCalendarRange } from './interfaces';
 
@@ -182,21 +182,69 @@ export class WrCalendar {
     return Array.from({ length: 12 }, (_, i) => start + i);
   });
 
+  /**
+   * The header above the grid.
+   *
+   * Both templated strings used to be assembled here: `${month} ${year}` and
+   * `${first} – ${last}`. That is English word order with an English separator
+   * baked into TypeScript, and no catalog could move either — ja-JP writes
+   * 2026年3月, which is not a translation of any word in `March 2026` but a
+   * different arrangement of the same two values. So the arrangement is the
+   * translatable unit, and `calendar.header` / `calendar.yearRange` are it.
+   */
   protected readonly headerLabel = computed(() => {
     const v = this.viewDate();
     switch (this.viewMode()) {
       case 'day': {
         const monthNames = this.adapter.getMonthNames('long');
-        return `${monthNames[this.adapter.getMonth(v)]} ${this.adapter.getYear(v)}`;
+        return this.headerText({
+          month: monthNames[this.adapter.getMonth(v)],
+          year: this.adapter.getYear(v),
+        });
       }
       case 'month':
         return `${this.adapter.getYear(v)}`;
       case 'year': {
         const years = this.yearsView();
-        return `${years[0]} – ${years[years.length - 1]}`;
+        return this.yearRangeText({ from: years[0], to: years[years.length - 1] });
       }
     }
   });
+
+  private readonly headerText = useI18nFormatter('calendar.header', '{{month}} {{year}}');
+  private readonly yearRangeText = useI18nFormatter('calendar.yearRange', '{{from}} – {{to}}');
+  private readonly dayLabelText = useI18nFormatter('calendar.dayLabel', '{{weekday}}, {{date}}');
+
+  /**
+   * Long weekday names for the cell names.
+   *
+   * `getDayOfWeekNames` returns them in COLUMN order — index 0 is
+   * `getFirstDayOfWeek()`, not Sunday — which is what the header strip wants and
+   * what a `getDayOfWeek()` result (0 = Sunday) must be rotated into. Indexing
+   * it directly reads Monday's name for a Sunday in every locale that starts its
+   * week on Monday, which is most of them.
+   */
+  private readonly longWeekdays = computed(() => this.adapter.getDayOfWeekNames('long'));
+
+  /**
+   * A day cell's accessible name — "Sunday, March 15, 2026".
+   *
+   * The cell had none. Its only content is the day NUMBER, and `role="gridcell"`
+   * does not inherit a name from the grid's header or from the column header
+   * above it, so every date in the month announced as a bare number: the month,
+   * the year and the weekday were all on screen and none of them reachable.
+   *
+   * `{{date}}` is the adapter's `longDate`, so its field order, its separators
+   * and its digits are `Intl`'s — the catalog decides only where the weekday
+   * goes. Building it from `getMonthNames('long')` instead would have hard-coded
+   * the nominative month, which Russian and Finnish inflect inside a date.
+   */
+  protected dayLabel(date: Date): string {
+    return this.dayLabelText({
+      weekday: this.longWeekdays()[(this.adapter.getDayOfWeek(date) - this.adapter.getFirstDayOfWeek() + 7) % 7],
+      date: this.adapter.format(date, 'longDate'),
+    });
+  }
 
   /** 6×7 day grid covering the current month plus spillover. */
   protected readonly weeks = computed<readonly (readonly Date[])[]>(() => {

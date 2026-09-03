@@ -50,6 +50,7 @@ import { useConfigValue } from 'ngwr/config';
 import { WR_FORM_FIELD } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrPresentAsSheet } from 'ngwr/overlay';
+import { isComposing } from 'ngwr/utils';
 
 import type { WrSelectMode, WrSelectSearchLoader, WrSelectTagValidator, WrSelectSize } from './interfaces';
 import { WrOption } from './option';
@@ -575,7 +576,29 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   });
 
   protected readonly open = signal(false);
-  protected readonly selectedLabel = signal<string | null>(null);
+
+  /**
+   * Trigger label for single mode. Multi reads `selectedChips` instead.
+   *
+   * A `computed`, and that is the whole point. It used to be a `signal` written
+   * from an effect keyed on `value` / `registry` / `isMulti` / `displayWith` —
+   * not one of which moves when the OPTION'S OWN TEXT does, and that text is
+   * projected content whose ordinary way of changing is a translation catalog
+   * landing a microtask after the first pass. The trigger kept the English
+   * fallback while the open panel beside it showed the translation. The
+   * registration now carries the label as a signal, so a late catalog and a
+   * runtime locale switch both repaint the trigger with the panel.
+   */
+  protected readonly selectedLabel = computed<string | null>(() => {
+    const v = this.value();
+    if (this.isMulti()) return null;
+    const match = this.registry().find(o => o.value === v);
+    if (match) return match.label();
+    // Search mode: a value picked from a virtualized (or since-unmounted) row
+    // has no registered `<wr-option>`, so derive its label from `displayWith`
+    // — the same function that rendered the row.
+    return v != null && this.isSearchable() ? this.displayWith()(v) : null;
+  });
 
   /**
    * Selected chips (multi + tag modes). Multi reads labels from the
@@ -595,7 +618,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       // directly: a searchable multi fed from `[options]` has no registered
       // `<wr-option>` for a virtualized or unmounted row, and object items
       // would otherwise render as "[object Object]".
-      return { value: v, label: found?.getLabel() ?? this.displayWith()(v) };
+      return { value: v, label: found?.label() ?? this.displayWith()(v) };
     });
   });
 
@@ -778,7 +801,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     if (!q) return list.length;
     let count = 0;
     for (const o of list) {
-      if (o.getLabel().toLowerCase().includes(q)) count++;
+      if (o.label().toLowerCase().includes(q)) count++;
     }
     return count;
   });
@@ -834,8 +857,25 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   }
 
   protected onChipsKeydown(event: KeyboardEvent): void {
+    if (this.imeOwnsKey(event)) return;
     if (this.hasChipSearch()) this.onSearchKey(event);
     else this.onTagKeydown(event);
+  }
+
+  /**
+   * True when the key belongs to an open IME conversion — and, when it does,
+   * stops the event on its way out.
+   *
+   * Not acting is not enough here. The panel closes on Escape from CDK's overlay
+   * keyboard dispatcher, one listener on `<body>` in the bubble phase, so a
+   * handler that merely returns still loses the panel: the Japanese user meant
+   * to cancel a reading and lost the query with it. Stopping the event at the
+   * field that owns the composition is the only place that reaches both.
+   */
+  private imeOwnsKey(event: KeyboardEvent): boolean {
+    if (!isComposing(event)) return false;
+    event.stopPropagation();
+    return true;
   }
 
   protected onChipsFocus(): void {
@@ -899,6 +939,10 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   }
 
   protected onSearchKey(event: KeyboardEvent): void {
+    // Enter accepts an IME candidate, Escape cancels the reading, the arrows walk
+    // the candidate list — none of it is the listbox's while a conversion is open.
+    if (this.imeOwnsKey(event)) return;
+
     // freeText: Enter on an unmatched query commits the typed string
     // as the value. Skips when an active option is highlighted (the
     // normal Enter-selects behaviour wins).
@@ -908,7 +952,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       const list = this.orderedRegistry();
       const hasActive = this.virtualActive()
         ? idx >= 0 && idx < this.filteredDynamicOptions().length
-        : idx >= 0 && idx < list.length && !list[idx].disabled && !this.isOptionHidden(list[idx].getLabel());
+        : idx >= 0 && idx < list.length && !list[idx].disabled && !this.isOptionHidden(list[idx].label());
       if (!hasActive && q) {
         event.preventDefault();
         this.value.set(q);
@@ -1093,27 +1137,6 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(items => this.loadedOptions.set(items));
-
-    // Resolve the single-mode trigger label whenever the value or
-    // options change. Multi mode reads `selectedChips` instead and
-    // doesn't need this.
-    effect(() => {
-      const v = this.value();
-      const list = this.registry();
-      if (this.isMulti()) {
-        this.selectedLabel.set(null);
-        return;
-      }
-      const match = list.find(o => o.value === v);
-      if (match) {
-        this.selectedLabel.set(match.getLabel());
-        return;
-      }
-      // Search mode: a value picked from a virtualized (or since-unmounted) row
-      // has no registered `<wr-option>`, so derive its label from `displayWith`
-      // — the same function that rendered the row.
-      this.selectedLabel.set(v != null && this.isSearchable() ? this.displayWith()(v) : null);
-    });
 
     // Wire the virtual scroll listener + viewport/row measurement while the panel
     // is open and virtualized. Re-runs when the panel opens/closes or the virtual
@@ -1410,7 +1433,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
         // Filtered-out options stay registered (they only self-hide via CSS), so
         // the hidden check is load-bearing: without it Enter can commit a row
         // that is not on screen.
-        if (idx >= 0 && idx < list.length && !list[idx].disabled && !this.isOptionHidden(list[idx].getLabel())) {
+        if (idx >= 0 && idx < list.length && !list[idx].disabled && !this.isOptionHidden(list[idx].label())) {
           const id = list[idx].id;
           const el = this.overlayRef?.overlayElement.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
           el?.click();
@@ -1459,7 +1482,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     while (attempts-- > 0) {
       i = (i + delta + list.length) % list.length;
       const o = list[i];
-      if (!o.disabled && !this.isOptionHidden(o.getLabel())) {
+      if (!o.disabled && !this.isOptionHidden(o.label())) {
         this.activeIndex.set(i);
         return;
       }
@@ -1481,7 +1504,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
    */
   private firstEnabled(): number {
     if (this.virtualActive()) return this.filteredDynamicOptions().length > 0 ? 0 : -1;
-    return this.orderedRegistry().findIndex(o => !o.disabled && !this.isOptionHidden(o.getLabel()));
+    return this.orderedRegistry().findIndex(o => !o.disabled && !this.isOptionHidden(o.label()));
   }
 
   private lastEnabled(): number {
@@ -1489,7 +1512,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     const list = this.orderedRegistry();
     let found = -1;
     list.forEach((o, i) => {
-      if (!o.disabled && !this.isOptionHidden(o.getLabel())) found = i;
+      if (!o.disabled && !this.isOptionHidden(o.label())) found = i;
     });
     return found;
   }

@@ -242,6 +242,228 @@ describe('WrNativeDateAdapter', () => {
     });
   });
 
+  /**
+   * The blocker this suite exists to keep closed: a named format has to READ BACK what
+   * it PRINTED. It used to delegate to `new Date(raw)`, which understands only
+   * Anglo-American forms — `new Date('15.3.2026')` and `new Date('14:30')` are both
+   * `Invalid Date`, and `new Date('1')` is 1 January 2001 — so retyping a de-DE date
+   * committed 2001 on the first keystroke, and `mode="time"` collapsed to midnight in
+   * every locale including en-US.
+   */
+  describe('named formats round-trip', () => {
+    const named = ['shortDate', 'mediumDate', 'longDate', 'shortDateTime', 'mediumDateTime'] as const;
+    // Every shape the fix has to survive: field order, a declining month name, a
+    // 12-hour clock, a non-Latin numbering system with bidi marks in its separators,
+    // and a locale that writes the year first.
+    const locales = ['en-US', 'en-GB', 'de-DE', 'fi-FI', 'ru-RU', 'ja-JP', 'ar-SA', 'fr-FR', 'cs-CZ'];
+
+    const adapterFor = (locale: string): WrNativeDateAdapter => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale })] });
+      return TestBed.inject(WrDateAdapter) as WrNativeDateAdapter;
+    };
+
+    for (const locale of locales) {
+      it(`reads back every named format it wrote in ${locale}`, () => {
+        const local = adapterFor(locale);
+        const source = at(2026, 2, 15, 14, 30);
+
+        for (const key of named) {
+          const printed = local.format(source, key);
+          const parsed = local.parse(printed, key);
+
+          expect(parsed, `${locale} ${key} printed ${printed}`).not.toBeNull();
+          expect(
+            [parsed!.getFullYear(), parsed!.getMonth(), parsed!.getDate()],
+            `${locale} ${key} printed ${printed}`
+          ).toEqual([2026, 2, 15]);
+          if (key.endsWith('DateTime')) {
+            expect([parsed!.getHours(), parsed!.getMinutes()], `${locale} ${key}`).toEqual([14, 30]);
+          }
+        }
+      });
+
+      it(`reads back the time it wrote in ${locale}`, () => {
+        const local = adapterFor(locale);
+        const printed = local.format(at(2026, 2, 15, 14, 30), 'time');
+        const parsed = local.parse(printed, 'time');
+
+        expect(parsed, `${locale} printed ${printed}`).not.toBeNull();
+        expect([parsed!.getHours(), parsed!.getMinutes()], `${locale} printed ${printed}`).toEqual([14, 30]);
+      });
+    }
+
+    it('does not commit a partial value on the way to a whole one', () => {
+      // The defect was not that `15.3.2026` failed — it is that `1` SUCCEEDED, as the
+      // year 2001, and the picker committed it. Every prefix must refuse.
+      const de = adapterFor('de-DE');
+      const whole = de.format(at(2026, 2, 15), 'shortDate');
+      expect(whole).toBe('15.3.2026');
+
+      for (const prefix of ['1', '15', '15.', '15.3', '15.3.', '15.3.2', '15.3.202']) {
+        expect(de.parse(prefix, 'shortDate'), `prefix ${prefix}`).toBeNull();
+      }
+      expect(de.parse(whole, 'shortDate')).not.toBeNull();
+
+      // One prefix does parse, and it is the one that is genuinely a date: a two-digit
+      // year is a year — `1/5/25` cleaning up to 2025 is documented picker behaviour —
+      // so `15.3.20` reads as 2020 on the way past and the next keystroke replaces it.
+      // What can no longer happen is the FIRST keystroke committing a year.
+      expect(de.parse('15.3.20', 'shortDate')!.getFullYear()).toBe(2020);
+    });
+
+    it('refuses a string in another locale rather than guessing at it', () => {
+      const de = adapterFor('de-DE');
+      // Unambiguously American, and read in a d.M.y locale: refusing leaves the
+      // committed value alone, which is the contract. Silently reading it as
+      // 3 January would be the worse answer.
+      expect(de.parse('3/15/2026', 'shortDate')).toBeNull();
+      expect(de.parse('nonsense', 'shortDate')).toBeNull();
+      expect(de.parse('15.13.2026', 'shortDate')).toBeNull();
+      expect(de.parse('30.2.2026', 'shortDate')).toBeNull();
+    });
+
+    it('reads a twelve-hour clock back with its own day period', () => {
+      const us = adapterFor('en-US');
+      expect(us.parse(us.format(at(2026, 2, 15, 2, 30), 'time'), 'time')!.getHours()).toBe(2);
+      expect(us.parse(us.format(at(2026, 2, 15, 14, 30), 'time'), 'time')!.getHours()).toBe(14);
+      expect(us.parse(us.format(at(2026, 2, 15, 0, 5), 'time'), 'time')!.getHours()).toBe(0);
+      expect(us.parse(us.format(at(2026, 2, 15, 12, 5), 'time'), 'time')!.getHours()).toBe(12);
+      // ICU writes a NARROW NO-BREAK SPACE before `PM`; a keyboard writes a plain one,
+      // and typing it must not be the difference between a date and midnight.
+      expect(us.parse('02:30 PM', 'time')!.getHours()).toBe(14);
+      expect(us.parse('2:30 pm', 'time')!.getHours()).toBe(14);
+    });
+
+    it('reads its own non-Latin digits, and ASCII ones typed on a Latin keyboard', () => {
+      const ar = adapterFor('ar-SA');
+      const printed = ar.format(at(2026, 2, 15), 'shortDate');
+      // Arabic-Indic digits, and U+200F around the separators.
+      expect(printed).toMatch(/[\u0660-\u0669]/);
+
+      const parsed = ar.parse(printed, 'shortDate');
+      expect(parsed).not.toBeNull();
+      expect([parsed!.getFullYear(), parsed!.getMonth(), parsed!.getDate()]).toEqual([2026, 2, 15]);
+
+      // Same string with every bidi mark removed — what lands in the field after a
+      // select-all and retype.
+      const typed = printed.replace(/[\u200e\u200f\u061c]/g, '');
+      expect(ar.parse(typed, 'shortDate')!.getDate()).toBe(15);
+    });
+
+    it('keeps a locale on its own calendar out of a Gregorian field', () => {
+      // `fa-IR` resolves to the Persian calendar and `th-TH` to the Buddhist one, so the
+      // field printed a year the Gregorian grid beside it could never show — and nothing
+      // could read it back into the `Date` it came from. Every `Intl` call now pins
+      // `gregory`, which is what the rest of this class computes in.
+      for (const locale of ['fa-IR', 'th-TH']) {
+        const local = adapterFor(locale);
+        const printed = local.format(at(2026, 2, 15), 'shortDate');
+        const parsed = local.parse(printed, 'shortDate');
+
+        expect(parsed, `${locale} printed ${printed}`).not.toBeNull();
+        expect([parsed!.getFullYear(), parsed!.getMonth(), parsed!.getDate()]).toEqual([2026, 2, 15]);
+      }
+    });
+
+    it('fills a time-only format from today, not from New Year', () => {
+      // `time` carries no date. Defaulting to 1 January made reading a clock move the
+      // model back to New Year's Day as a side effect.
+      const us = adapterFor('en-US');
+      const parsed = us.parse('02:30 PM', 'time')!;
+      const today = new Date();
+
+      expect([parsed.getFullYear(), parsed.getMonth(), parsed.getDate()]).toEqual([
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate(),
+      ]);
+    });
+
+    it('reads a two-digit year as this century, and a padded one as itself', () => {
+      const us = adapterFor('en-US');
+      expect(us.parse('1/5/25', 'shortDate')!.getFullYear()).toBe(2025);
+      expect(us.parse('1/5/2025', 'shortDate')!.getFullYear()).toBe(2025);
+      // A year under 100 written in full: the native constructor maps it onto 1900 + year
+      // unless it is written back explicitly.
+      expect(us.parse('1/5/0025', 'shortDate')!.getFullYear()).toBe(25);
+    });
+  });
+
+  /**
+   * `MMMM` beside a day number takes the form the language uses THERE, which in a case
+   * language is not the nominative one a calendar heading wants.
+   */
+  describe('the month token declines beside a day', () => {
+    const adapterFor = (locale: string): WrNativeDateAdapter => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale })] });
+      return TestBed.inject(WrDateAdapter) as WrNativeDateAdapter;
+    };
+
+    it('writes the genitive in Russian and the partitive in Finnish', () => {
+      expect(adapterFor('ru-RU').format(at(2026, 2, 15), 'dd MMMM yyyy')).toBe('15 марта 2026');
+      expect(adapterFor('fi-FI').format(at(2026, 2, 15), 'dd MMMM yyyy')).toBe('15 maaliskuuta 2026');
+    });
+
+    it('keeps the nominative where no day is written', () => {
+      // A month-and-year heading is exactly the standalone position, and
+      // `getMonthNames` — what the calendar heading reads — is untouched.
+      expect(adapterFor('ru-RU').format(at(2026, 2, 15), 'MMMM yyyy')).toBe('март 2026');
+      expect(adapterFor('ru-RU').getMonthNames('long')[2]).toBe('март');
+    });
+
+    it('keeps the name where the locale would write a number instead', () => {
+      // `{ day, month: 'long' }` gives ja the bare `3` with `月` as a separate literal,
+      // and fi the bare `3` for its abbreviation. Taking that would render `15 3 2026`.
+      expect(adapterFor('ja-JP').format(at(2026, 2, 15), 'dd MMMM yyyy')).toBe('15 3月 2026');
+      expect(adapterFor('fi-FI').format(at(2026, 2, 15), 'dd MMM yyyy')).toBe('15 maalis 2026');
+    });
+
+    it('reads both forms back', () => {
+      const ru = adapterFor('ru-RU');
+      expect(ru.parse('15 марта 2026', 'dd MMMM yyyy')!.getMonth()).toBe(2);
+      expect(ru.parse('15 март 2026', 'dd MMMM yyyy')!.getMonth()).toBe(2);
+      expect(ru.parse('15 Frobuary 2026', 'dd MMMM yyyy')).toBeNull();
+    });
+  });
+
+  describe('the meridiem token and non-Latin digits', () => {
+    const adapterFor = (locale: string): WrNativeDateAdapter => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale })] });
+      return TestBed.inject(WrDateAdapter) as WrNativeDateAdapter;
+    };
+
+    it('writes the marker the locale uses, not a hard-coded English one', () => {
+      // `a` used to return a lowercase `pm` byte for byte in every locale — the one token
+      // in the pattern language that could not be localised at all.
+      expect(adapterFor('en-US').format(at(2026, 2, 15, 14, 30), 'hh:mm a')).toBe('02:30 PM');
+      expect(adapterFor('ar-SA').format(at(2026, 2, 15, 14, 30), 'hh:mm a')).toBe('02:30 \u0645');
+      expect(adapterFor('ja-JP').format(at(2026, 2, 15, 9, 30), 'hh:mm a')).toBe('09:30 \u5348\u524d');
+    });
+
+    it('reads its own marker back, and the English one either way', () => {
+      const ar = adapterFor('ar-SA');
+      expect(ar.parse('02:30 \u0645', 'hh:mm a')!.getHours()).toBe(14);
+      expect(ar.parse('02:30 \u0635', 'hh:mm a')!.getHours()).toBe(2);
+      // The ASCII pair stays readable everywhere: it is what older stored strings hold.
+      expect(ar.parse('02:30 pm', 'hh:mm a')!.getHours()).toBe(14);
+    });
+
+    it('accepts a token pattern typed in the locale digits', () => {
+      // The token formatter WRITES ASCII, so the round trip never needed this — but an
+      // Arabic keyboard sends `١٥.٠٣.٢٠٢٦`, and `\\d` refused it with no feedback.
+      const ar = adapterFor('ar-SA');
+      const typed = ar.parse('\u0661\u0665.\u0660\u0663.\u0662\u0660\u0662\u0666', 'dd.MM.yyyy');
+
+      expect(typed).not.toBeNull();
+      expect([typed!.getFullYear(), typed!.getMonth(), typed!.getDate()]).toEqual([2026, 2, 15]);
+      // ASCII on the same field still works — one keyboard does not exclude the other.
+      expect(ar.parse('15.03.2026', 'dd.MM.yyyy')!.getDate()).toBe(15);
+    });
+  });
+
   describe('under a different locale', () => {
     it('follows the locale it was given', () => {
       TestBed.resetTestingModule();

@@ -113,6 +113,47 @@ describe('WrTableFilter', () => {
     expect(badge()).toBeNull();
     expect(fixture.componentInstance.emitted()).toEqual([]);
   });
+
+  /**
+   * jsdom runs no input method: the events below are hand-built with the flags a
+   * real one sets, and the assertion is that the panel survived. A faithful test
+   * of the guard and no more — nothing here exercises kotoeri or Pinyin.
+   *
+   * The panel closes on Escape from CDK's overlay keyboard dispatcher, a single
+   * listener on `<body>`, so the guard has to STOP the event at the search field
+   * rather than merely decline to act on it. Both halves are asserted: the key is
+   * swallowed while a conversion is open, and it still closes the panel when one
+   * is not.
+   */
+  describe('IME composition in the search box', () => {
+    const search = (): HTMLInputElement => document.querySelector<HTMLInputElement>('.wr-table-filter__search')!;
+    const panel = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-table-filter__panel');
+
+    const escape = (init: KeyboardEventInit): void => {
+      search().focus();
+      search().dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true, ...init }));
+      fixture.detectChanges();
+    };
+
+    it('keeps the panel open on the Escape that cancels a conversion', () => {
+      open();
+      expect(panel()).not.toBeNull();
+      escape({ isComposing: true });
+      expect(panel(), 'the user cancelled a reading and lost the whole filter').not.toBeNull();
+    });
+
+    it("recognises Safari's committing keystroke, which carries only keyCode 229", () => {
+      open();
+      escape({ keyCode: 229 });
+      expect(panel()).not.toBeNull();
+    });
+
+    it('still closes on a plain Escape', () => {
+      open();
+      escape({});
+      expect(panel(), 'the guard swallowed an ordinary Escape').toBeNull();
+    });
+  });
 });
 
 /**

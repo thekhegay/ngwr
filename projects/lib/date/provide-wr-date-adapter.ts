@@ -16,12 +16,16 @@ import { WrNativeDateAdapter } from './wr-native-date-adapter';
  * Register the date adapter and locale used by the calendar / date picker /
  * time picker. Call once at bootstrap.
  *
+ * Omit `locale` and dates follow Angular's `LOCALE_ID`, which is what the app
+ * already says it is. Pass one only to pin dates to something else — see
+ * {@link WR_DATE_LOCALE}, and `WrI18n` for how the three locale inputs rank.
+ *
  * @example
  * ```ts
  * bootstrapApplication(AppComponent, {
  *   providers: [
- *     provideWrDateAdapter(),                 // native, browser locale
- *     // provideWrDateAdapter({ locale: 'ru-RU' }),
+ *     provideWrDateAdapter(),                 // native adapter, LOCALE_ID
+ *     // provideWrDateAdapter({ locale: 'ru-RU' }),        // pin the dates
  *     // provideWrDateAdapter({ adapter: MyDateFnsAdapter, locale: 'fr' }),
  *   ],
  * });

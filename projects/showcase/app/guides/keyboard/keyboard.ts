@@ -56,9 +56,13 @@ constructor() {
   <wr-kbd>K</wr-kbd>
 </button>`,
 
-    keys: `import { KEYS, hasModifier, isPrintableKey } from 'ngwr/utils';
+    keys: `import { KEYS, hasModifier, isComposing, isPrintableKey } from 'ngwr/utils';
 
 protected onKeydown(event: KeyboardEvent): void {
+  // First, always: while an IME is converting, Enter, Escape and the arrows
+  // belong to its candidate window, not to you.
+  if (isComposing(event)) return;
+
   // Compare against the constant, not the magic string — it is searchable.
   if (event.key === KEYS.ESCAPE) return this.close();
 
@@ -138,6 +142,12 @@ protected onKeydown(event: KeyboardEvent): void {
       title: 'isPrintableKey',
       url: ['/reference/utils', 'is-printable-key'],
       description: 'Did the key produce a character? The type-ahead predicate.',
+    },
+    {
+      kind: 'Util',
+      title: 'isComposing',
+      url: ['/reference/utils', 'is-composing'],
+      description: 'Is an input method still converting? Return early before you read a key.',
     },
   ];
 }

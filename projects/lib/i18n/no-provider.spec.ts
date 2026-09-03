@@ -26,9 +26,14 @@ describe('ngwr with no i18n provider at all', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Something happened');
   });
 
-  it('constructs the service and reports the default locale', () => {
+  it('constructs the service and reports LOCALE_ID as its locale', () => {
+    // `'en-US'` is Angular's own `LOCALE_ID` default, and that is deliberately
+    // where an unconfigured `WrI18n` starts: the library used to answer `'en'`
+    // here while `ngwr/date` answered `navigator.language`, which is two
+    // different guesses at the same question. Catalogs registered under `en`
+    // still resolve — the lookup truncates the region.
     const i18n = TestBed.inject(WrI18n);
-    expect(i18n.locale()).toBe('en');
+    expect(i18n.locale()).toBe('en-US');
   });
 
   it('misses every key, which is what makes the component fallbacks fire', () => {

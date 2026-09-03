@@ -1,0 +1,33 @@
+<ngwr-doc-page
+  title="isComposing"
+  description="Predicate that returns true while an input method is composing — the guard that keeps Enter, Escape and the arrows with the IME's candidate window instead of your component."
+  [keywords]="['isComposing', 'IME', 'composition', 'keyboard', 'utils']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="A Japanese or Chinese user reaches every character through a conversion. Between `compositionstart` and `compositionend` a candidate window is open, and Enter accepts a candidate, Escape cancels the reading back to kana, and the arrows walk the candidate list. A handler that acts on those keys anyway takes them from the input method mid-word."
+  >
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="`event.isComposing` alone is the guard everyone writes, and it has a hole. Safari fires `compositionend` before the `keydown` of the keystroke that commits a candidate, so the one press that most needs guarding arrives with the flag already false — carrying only the legacy `keyCode` of 229, the sentinel every engine sets on a key it handed to the input method."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Knowing the state between events"
+    description="This predicate is scoped to `keydown`. It does not answer “is a composition in progress” for an `input` or `blur` handler — on the committing keystroke the key flag and the composition state disagree by design. A component that needs the state between events tracks the `compositionstart` / `compositionend` pair, which is what `wr-mention` and `wr-input-otp` do."
+  >
+    <ngwr-doc-code [code]="stateSnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

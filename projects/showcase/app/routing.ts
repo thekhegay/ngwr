@@ -241,6 +241,7 @@ export const routes = {
     // Keyboard
     keys: 'keys',
     hasModifier: 'has-modifier',
+    isComposing: 'is-composing',
     isPrintableKey: 'is-printable-key',
     // Functional primitives
     noop: 'noop',

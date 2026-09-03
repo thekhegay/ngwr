@@ -82,6 +82,22 @@ describe('WrCalendarHarness', () => {
     expect(await harness.getGridRole()).toBe('grid');
   });
 
+  it('reads the drawn number and the announced name as two different questions', async () => {
+    // They ARE two questions, and until v14 the second had no answer: the cell
+    // carried no `aria-label`, no `title` and no `aria-describedby`, so a screen
+    // reader said "fifteen" with the month, the year and the weekday all on
+    // screen beside it. A spec reading only `getText()` cannot tell that apart
+    // from a working grid, which is why the harness offers both.
+    //
+    // date-fns writes `PPP` here — an ordinal day — so this pins the harness and
+    // the arrangement, not `Intl`'s field order.
+    const harness = await calendar();
+    const fifteenth = await harness.getDay(15);
+
+    expect(await fifteenth.getText()).toBe('15');
+    expect(await fifteenth.getAccessibleName()).toBe('Sunday, March 15th, 2026');
+  });
+
   it('addresses a day of THIS month, skipping the spill days', async () => {
     const harness = await calendar();
 

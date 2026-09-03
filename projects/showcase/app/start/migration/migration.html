@@ -11,6 +11,25 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="v13 → v14"
+    description="Router integration became opt-in, and dates learned to read what they print. `ng update ngwr@14` REPORTS rather than rewrites: every change here needs a decision a codemod cannot make, so it names the files and leaves them to you. Read its output before touching anything."
+  >
+    <ngwr-doc-code [code]="snippets.v14" language="diff" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v13 → v14 — the two silent ones"
+    description="Most of v14 fails loudly. These two do not, which makes them the only entries here worth checking even if your build is green. **`<wr-loading-bar>` no longer follows the router by itself** — add `provideWrLoadingBarRouter()` or the bar simply never moves; this project's own site shipped an empty bar for a release by missing it. **A translated `pagination.of` stops being read** — the range is one `pagination.range` template now, so a catalog that keeps the old key reverts that line to English with nothing said."
+  />
+
+  <ngwr-doc-section
+    title="v12 → v13"
+    description="Two changes reach templates. `[wrInput]`'s size input is `size`, matching the other twenty-three components — `wrSize` was the lone outlier, named to dodge the native `<input size>` attribute that `.wr-input`'s `width: 100%` already overrides. And `[id]` on checkbox, radio and switch no longer lands on the host element, so a selector written as `wr-checkbox#id` stops matching; `document.getElementById` now returns the inner input, which is what the input always documented."
+  >
+    <ngwr-doc-code [code]="snippets.v13" language="diff" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="v11 → v12"
     description="Two breaking changes, and they need opposite treatment. The entry-point move is pure import paths, so `ng update ngwr@12` rewrites all of it. The i18n helper is a type change, which no codemod should guess at — but the compiler points at every call site, so it is a mechanical fix you can trust your build to find."
   >

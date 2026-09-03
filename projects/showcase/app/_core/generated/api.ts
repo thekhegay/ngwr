@@ -809,7 +809,6 @@ export const API = {
     { name: "shape", description: "Cell corner treatment.", type: "WrPaginationShape", default: "'rounded'" },
     { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
     { name: "responsive", description: "Collapse to a compact `‹ page / total ›` pager when the control's own box is too narrow for the full numbered strip (a container query on its own width, not the viewport).", type: "boolean", default: "false" },
-    { name: "ofLabel", description: "Localised text between range and total (\"X–Y of Z\"). Falls back to `pagination.of` then `'of'`.", type: "string | null", default: "null" },
     { name: "prevLabel", description: "Previous-page button aria-label. Falls back to `pagination.prev`.", type: "string | null", default: "null" },
     { name: "nextLabel", description: "Next-page button aria-label. Falls back to `pagination.next`.", type: "string | null", default: "null" },
     { name: "itemsPerPageLabel", description: "\"Items per page\" label. Falls back to `pagination.itemsPerPage`.", type: "string | null", default: "null" },
@@ -1131,7 +1130,7 @@ export const API = {
     { name: "animate", description: "Count up to a new numeric `value` instead of swapping instantly. Always off for string values or under `prefers-reduced-motion`.", type: "boolean", default: "true" },
     { name: "duration", description: "Count-up duration (ms).", type: "number", default: "700" },
     { name: "delta", description: "Optional delta vs previous period — shown as `+x.x%` (or `-x.x%`). Use `deltaSuffix` to change the trailing unit.", type: "number | null", default: "null" },
-    { name: "deltaSuffix", description: "Unit appended to the delta value.", type: "string", default: "'%'" },
+    { name: "deltaSuffix", description: "Unit appended to the delta value. Falls back to `statistic.deltaSuffix`, then `'%'`.", type: "string | null", default: "null" },
   ],
   // <wr-statistic-countdown>
   WrStatisticCountdown: [

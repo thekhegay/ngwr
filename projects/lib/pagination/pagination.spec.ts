@@ -1,6 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { type WrI18nCatalog, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { wrEn } from 'ngwr/i18n/en';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -205,7 +207,7 @@ describe('WrPagination', () => {
     fixture.componentInstance.page.set(0);
     fixture.detectChanges();
 
-    expect(root().querySelector('.wr-pagination__total')!.textContent.trim()).toBe('1-10 of 95');
+    expect(root().querySelector('.wr-pagination__total')!.textContent.trim()).toBe('1–10 of 95');
     expect(isOff(labelled('prev')!)).toBe(true);
   });
 
@@ -482,7 +484,7 @@ describe('WrPagination past the end of a settled empty total', () => {
 
     expect(host().page()).toBe(1);
     expect(host().navigations).toEqual([1]);
-    expect(root().querySelector('.wr-pagination__total')!.textContent.trim()).toBe('0-0 of 0');
+    expect(root().querySelector('.wr-pagination__total')!.textContent.trim()).toBe('0–0 of 0');
     expect(root().querySelector('.wr-pagination__current')!.textContent.trim()).toBe('1 / 1');
   });
 });
@@ -579,5 +581,102 @@ describe('WrPagination size changer', () => {
     expect(host().resizes).toEqual([25]);
     expect(host().navigations).toEqual([5]);
     expect(host().page()).toBe(5);
+  });
+});
+
+/**
+ * The range line and the compact pager, as translatable UNITS.
+ *
+ * Both used to be assembled in code around one catalog word — `${start}-${end}
+ * ${of} ${total}` and `{{ currentPage() }} / {{ totalPages() }}` — so a locale
+ * could change "of" and nothing else: not the ASCII hyphen between the bounds,
+ * not the operand order, not the separator in the compact pager. Under the
+ * audit's pseudo-locale the defect is literal, `1-10 ⟦pagination.of⟧ 235`.
+ *
+ * These specs assert the property that fixes it: one key per line, with named
+ * placeholders, so a catalog can move the pieces. A catalog whose template puts
+ * the total FIRST is the sharpest form of that — no amount of translating a
+ * middle word gets there.
+ */
+describe('WrPagination — the range is one catalog template', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const text = (selector: string): string =>
+    (fixture.nativeElement as HTMLElement).querySelector(selector)!.textContent.trim();
+
+  const mount = async (catalog: WrI18nCatalog): Promise<void> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrOverlay(),
+        provideWrI18n({ defaultLocale: 'xx', availableLocales: ['xx'] }),
+        provideWrI18nStaticLoader({ xx: catalog }),
+      ],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.showTotal.set(true);
+    fixture.detectChanges();
+    // The static loader resolves through a promise even for a catalog already
+    // in memory, so the first pass reads an empty one.
+    await Promise.resolve();
+    await Promise.resolve();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('renders the shipped English template, en dash and all', async () => {
+    await mount({ ...wrEn });
+
+    expect(text('.wr-pagination__total')).toBe('1–10 of 95');
+    expect(text('.wr-pagination__current')).toBe('1 / 10');
+  });
+
+  it('lets a catalog reorder the operands and repunctuate them', async () => {
+    // The whole point. `of` could never have produced this line, in any
+    // language, because the pieces it joins were fixed in TypeScript.
+    await mount({
+      pagination: { range: 'всего {{total}}: показаны {{from}}—{{to}}', compact: '{{total}} ← {{current}}' },
+    });
+
+    expect(text('.wr-pagination__total')).toBe('всего 95: показаны 1—10');
+    expect(text('.wr-pagination__current')).toBe('10 ← 1');
+  });
+
+  it('formats all three numbers per LOCALE_ID, not just the words around them', async () => {
+    // `LOCALE_ID` is `en-US` in TestBed, where grouping is a comma — so a
+    // five-figure total is the one place this shows without a second provider.
+    // The digits and the separator both follow it; a de-DE app reads `1.234`.
+    await mount({ ...wrEn });
+    fixture.componentInstance.total.set(1234);
+    fixture.detectChanges();
+
+    expect(text('.wr-pagination__total')).toBe('1–10 of 1,234');
+  });
+
+  it('leaves a page NUMBER ungrouped on its button', async () => {
+    // Deliberate asymmetry, pinned so it is a decision rather than an oversight:
+    // a total is a quantity and a page number is an identifier, and `1,024` on a
+    // button reads as two of them.
+    await mount({ ...wrEn });
+    fixture.componentInstance.total.set(20_000);
+    fixture.componentInstance.page.set(1024);
+    fixture.detectChanges();
+
+    const current = [...(fixture.nativeElement as HTMLElement).querySelectorAll('.wr-pagination__page')].find(
+      b => b.getAttribute('aria-current') === 'page'
+    );
+    expect(current!.textContent.trim()).toBe('1024');
+  });
+
+  it('falls back to the English template with no catalog at all', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.showTotal.set(true);
+    fixture.detectChanges();
+
+    expect(text('.wr-pagination__total')).toBe('1–10 of 95');
   });
 });

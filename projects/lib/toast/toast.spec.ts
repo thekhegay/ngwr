@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { type EnvironmentProviders } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -562,5 +565,32 @@ describe('WrToast labels', () => {
 
     expect(host()?.getAttribute('aria-label')).toBe('Notifications');
     expect(actions(items()[0]).map(b => b.getAttribute('aria-label'))).toEqual(['Close']);
+  });
+});
+
+/**
+ * ⚠️ This one guards the RULE, not the behaviour.
+ *
+ * The auto-close bar drains with a physical `scaleX`, and `transform-origin` has
+ * no logical keyword — so the anchor cannot be renamed into a logical property,
+ * it has to be swapped by a direction-aware rule. jsdom loads no stylesheets, so
+ * the source is the only place a spec can see it.
+ *
+ * Measured in Chromium against the compiled `ngwr/toast` sheet, a 400px toast:
+ * the origin was `0px 1px` in BOTH directions before, and is `0px 1px` in LTR
+ * and `396px 1px` in RTL after — the bar now stays anchored at the reader's
+ * start and drains toward the side their eye leaves from, in either direction.
+ */
+describe('the auto-close bar, as the stylesheet declares it', () => {
+  const sheet = readFileSync(join(process.cwd(), 'projects/lib/toast/styles/_index.scss'), 'utf8');
+  const rule = sheet.slice(sheet.indexOf('  &__progress {'), sheet.indexOf('  &:hover &__progress'));
+
+  it('anchors the drain at the reader’s start in each direction', () => {
+    expect(rule).toMatch(/transform-origin:\s*left/);
+    expect(rule).toMatch(/\[dir='rtl'\] & \{[^}]*transform-origin:\s*right/);
+  });
+
+  it('keeps a reason on both halves of the physical pair, for check:rtl and for the reader', () => {
+    expect(rule.match(/rtl-ok:/g) ?? []).toHaveLength(2);
   });
 });

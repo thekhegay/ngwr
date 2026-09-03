@@ -99,3 +99,69 @@ describe('WrTimePanel accessible names', () => {
     ]);
   });
 });
+
+/** A two-way host: the panel's `value` is a `model()`, and a one-way binding never
+ * hears what it emits. */
+@Component({
+  imports: [WrTimePanel],
+  template: `<wr-time-picker format="24h" [(value)]="value" />`,
+})
+class TwoWayHost {
+  readonly value = signal<Date | null>(new Date(2025, 0, 15, 14, 30, 5));
+}
+
+/**
+ * The panel's NUMBERS, which the audit found disagreeing with the field two inches above
+ * them (finding 5) and with the locale's own separator (finding 13a): a field printing
+ * `١٥/٣/٢٠٢٦` over a panel printing `02 : 30`, and a Finnish field printing `14.30` over
+ * a panel printing `14 : 30`.
+ */
+describe('WrTimePanel numerals and separator', () => {
+  const mount = (locale: string): ReturnType<typeof TestBed.createComponent<Host>> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale })] });
+    const fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.value.set(new Date(2025, 0, 15, 14, 30, 5));
+    fixture.detectChanges();
+    return fixture;
+  };
+
+  const boxes = (fixture: { nativeElement: HTMLElement }): string[] =>
+    [...fixture.nativeElement.querySelectorAll<HTMLInputElement>('.wr-time-picker__input')].map(el => el.value);
+
+  const separators = (fixture: { nativeElement: HTMLElement }): string[] =>
+    [...fixture.nativeElement.querySelectorAll('.wr-time-picker__sep')].map(el => el.textContent?.trim() ?? '');
+
+  it('writes the hours in the locale numbering system', () => {
+    // The host pins `24h`, so the reference 14:30:05 stays on a 24-hour clock.
+    expect(boxes(mount('en-US'))).toEqual(['14', '30', '05']);
+    // Arabic-Indic, the same digits `Intl` gives the field beside this panel.
+    expect(boxes(mount('ar-SA'))).toEqual(['\u0661\u0664', '\u0663\u0660', '\u0660\u0665']);
+  });
+
+  it('separates the columns the way the locale does', () => {
+    expect(separators(mount('de-DE'))).toEqual([':', ':']);
+    // Finnish writes `14.30`, and the colon was a literal in the template.
+    expect(separators(mount('fi-FI'))).toEqual(['.', '.']);
+  });
+
+  it('reads a typed number in either the locale digits or ASCII', () => {
+    // An Arabic keyboard sends `٠٩`, which `Number()` reads as NaN — the handler used to
+    // drop it silently. A Latin keyboard on the same page sends `09`.
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'ar-SA' })] });
+    const fixture = TestBed.createComponent(TwoWayHost);
+    fixture.detectChanges();
+    const hours = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('.wr-time-picker__input')!;
+
+    hours.value = '\u0660\u0669';
+    hours.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.value()!.getHours()).toBe(9);
+
+    hours.value = '07';
+    hours.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.value()!.getHours()).toBe(7);
+  });
+});

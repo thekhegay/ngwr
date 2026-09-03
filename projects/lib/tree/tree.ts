@@ -275,6 +275,14 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   protected readonly collapseLabel = readI18nText('tree.collapse', 'Collapse');
   protected readonly chipRemoveLabel = useI18nFormatter('tree.removeItem', 'Remove {{label}}');
 
+  /**
+   * The overflow chip past `maxTagCount`. It was the literal `+{{ extra }} more`
+   * in the template while `wr-select` — the same chip, the same string — read
+   * `select.more` from the catalog, so a Russian tree rendered
+   * `["Черновик", "+2 more"]`.
+   */
+  protected readonly chipMoreLabel = useI18nFormatter('tree.more', '+{{count}} more');
+
   /** Flattened list of currently visible nodes — what the template renders. */
   protected readonly flat = computed<readonly FlatNode<TId>[]>(() => {
     const expanded = new Set(this.expanded());

@@ -44,7 +44,15 @@ export const wrEn: WrI18nCatalog = {
     goToPage: 'Go to page {{page}}',
     label: 'Pagination',
     pageOf: 'Page {{current}} of {{total}}',
-    of: 'of',
+    // The whole "1–10 of 235" line, as ONE template. It used to be assembled in
+    // TypeScript around `of` above, which localised the word in the middle and
+    // froze everything else: an ASCII hyphen between the bounds, and an operand
+    // order many languages do not use. `of` stays because removing a shipped key
+    // breaks catalogs that override it; nothing in the library reads it now.
+    range: '{{from}}–{{to}} of {{total}}',
+    // The compact pager's own text, for the same reason: it was
+    // `{{ currentPage() }} / {{ totalPages() }}` in the template.
+    compact: '{{current}} / {{total}}',
   },
   table: {
     empty: 'No data',
@@ -145,11 +153,18 @@ export const wrEn: WrI18nCatalog = {
     placeholder: 'Select…',
     clearSelection: 'Clear selection',
     removeItem: 'Remove {{label}}',
+    // Same string and same shape as `select.more` — the two components render
+    // the identical overflow chip, and only one of them could be translated.
+    more: '+{{count}} more',
   },
   commandPalette: {
     label: 'Command palette',
     placeholder: 'Type a command or search…',
     noResults: 'No results',
+    // The key-cap chip in the search row. A key NAME rather than prose, so most
+    // locales will leave it alone — but a keyboard whose key is not labelled
+    // "esc" had no way to say so.
+    escHint: 'esc',
   },
   empty: {
     noData: 'No data',
@@ -161,6 +176,16 @@ export const wrEn: WrI18nCatalog = {
     removeFile: 'Remove file',
     invalid: 'Unsupported file type',
     tooBig: 'File too large',
+    // File size, as a template plus a unit table. The number itself goes through
+    // `Intl.NumberFormat`, so the decimal separator follows `LOCALE_ID`; what a
+    // catalog owns here is the unit abbreviation and whether a space sits before
+    // it. Binary units (1024), which is what the component counts in.
+    size: '{{value}} {{unit}}',
+    unitByte: 'B',
+    unitKb: 'KB',
+    unitMb: 'MB',
+    unitGb: 'GB',
+    unitTb: 'TB',
   },
   popconfirm: {
     label: 'Confirm action',
@@ -212,6 +237,16 @@ export const wrEn: WrI18nCatalog = {
     nextYear: 'Next year',
     prevYears: 'Previous 12 years',
     nextYears: 'Next 12 years',
+    // The header above the grid, as ONE template. It was `${month} ${year}` in
+    // TypeScript, which is English word order with an English separator: ja-JP
+    // writes 2026年3月 and cannot get there by translating a word.
+    header: '{{month}} {{year}}',
+    // The year view's header, same reason — the en dash was hardcoded too.
+    yearRange: '{{from}} – {{to}}',
+    // A day cell's accessible name. `{{date}}` is the adapter's `longDate`, so
+    // the date itself is `Intl`-ordered and `Intl`-punctuated; the catalog owns
+    // only where the weekday goes relative to it.
+    dayLabel: '{{weekday}}, {{date}}',
   },
   imageCropper: {
     empty: 'No image',
@@ -235,6 +270,24 @@ export const wrEn: WrI18nCatalog = {
     area: 'Saturation and brightness, {{saturation}}% and {{brightness}}%',
     hue: 'Hue',
     alpha: 'Opacity',
+    // The format strip. Three initialisms most locales keep as they are — which
+    // is the reason they were left as literals, and not a reason a locale should
+    // be unable to change them.
+    formatHex: 'HEX',
+    formatRgb: 'RGB',
+    formatHsl: 'HSL',
+    // Channel field labels. Each `<span>` is inside the `<label>` that names its
+    // number input, so these are accessible names, not decoration. The `%` is
+    // part of the string on purpose: a locale that spaces it differently, or
+    // spells the channel with a different letter, needs to move both together.
+    channelHex: 'HEX',
+    channelRed: 'R',
+    channelGreen: 'G',
+    channelBlue: 'B',
+    channelHue: 'H',
+    channelSaturation: 'S%',
+    channelLightness: 'L%',
+    channelAlpha: 'A%',
   },
   calendarHeatmap: {
     label: 'Calendar heatmap',
@@ -376,6 +429,15 @@ export const wrEn: WrI18nCatalog = {
   },
   speedDial: {
     label: 'Actions',
+  },
+  statistic: {
+    // The delta chip, e.g. `+12.4%`. The number is formatted through
+    // `Intl.NumberFormat` (so its sign, digits and decimal separator follow
+    // `LOCALE_ID`, matching the value above it), and this template owns whether
+    // a space sits between it and the unit.
+    delta: '{{value}}{{suffix}}',
+    // The unit the component appends when the consumer binds no `deltaSuffix`.
+    deltaSuffix: '%',
   },
   result: {
     notFound: 'Sorry, the page you visited does not exist.',

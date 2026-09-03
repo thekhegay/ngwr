@@ -26,8 +26,80 @@ import { WrDateAdapter, WR_DATE_LOCALE } from 'ngwr/date';
 import { readI18nText } from 'ngwr/i18n';
 import { clamp } from 'ngwr/utils';
 
-function pad(n: number): string {
-  return String(n).padStart(2, '0');
+/**
+ * Two digits, in the locale's own numbering system.
+ *
+ * The field beside this panel prints `٠٢:٣٠` through `Intl`, and the panel used to print
+ * `02:30` beside it — the same clock in two numbering systems, one popup apart. The pair
+ * below is a copy of the arithmetic `WrNativeDateAdapter` does for its own parser and
+ * deliberately stays a copy: sharing it would mean adding a numeral helper to `ngwr/date`'s
+ * public API, which is a wide promise to make for twenty lines of `Intl`.
+ */
+function padLocale(n: number, locale: string): string {
+  try {
+    return new Intl.NumberFormat(locale, { minimumIntegerDigits: 2, useGrouping: false }).format(n);
+  } catch {
+    return String(n).padStart(2, '0');
+  }
+}
+
+/**
+ * The character the locale puts between an hour and a minute.
+ *
+ * Finnish writes `14.30`, so a hard-coded colon put two different separators on one
+ * screen — the field printed `14.30` through `Intl` and the panel under it `14 : 30`.
+ * `formatToParts` is the only place that answer lives; a colon is the fallback for a
+ * locale whose separator is whitespace or missing.
+ */
+function timeSeparatorFor(locale: string): string {
+  try {
+    const parts = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }).formatToParts(
+      new Date(2024, 0, 15, 13, 45)
+    );
+    const afterHour = parts[parts.findIndex(part => part.type === 'hour') + 1];
+    const text = afterHour?.type === 'literal' ? afterHour.value.replace(/[\u200e\u200f\u061c]/g, '').trim() : '';
+    if (text) return text;
+  } catch {
+    // No `Intl` for this locale — the colon stays.
+  }
+  return ':';
+}
+
+/** The ten digits `locale` writes, index 0 to 9 — empty when the system is algorithmic. */
+function numeralsFor(locale: string): readonly string[] {
+  try {
+    const formatter = new Intl.NumberFormat(locale, { useGrouping: false });
+    const digits: string[] = [];
+    for (let i = 0; i < 10; i++) {
+      const digit = formatter.format(i);
+      if ([...digit].length !== 1 || digits.includes(digit)) return [];
+      digits.push(digit);
+    }
+    return digits;
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Read a typed number in either the locale's digits or ASCII ones.
+ *
+ * Both halves are needed and for different reasons: an Arabic keyboard sends `٠٢`, which
+ * `Number()` reads as `NaN` and the handler then dropped on the floor, and a Latin
+ * keyboard sends `02` into a field that displays `٠٢`.
+ */
+function readNumber(raw: string, numerals: readonly string[]): number {
+  let out = '';
+  for (const ch of raw.trim()) {
+    if (ch >= '0' && ch <= '9') {
+      out += ch;
+      continue;
+    }
+    const index = numerals.indexOf(ch);
+    if (index < 0) return Number.NaN;
+    out += String(index);
+  }
+  return out ? Number(out) : Number.NaN;
 }
 
 /** Wraps a value into `[0, modulus)` so steppers cycle nicely. */
@@ -82,6 +154,10 @@ export class WrTimePanel implements FormValueControl<Date | null> {
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly locale = inject(WR_DATE_LOCALE);
+  private readonly numerals = numeralsFor(this.locale);
+
+  /** Hour / minute separator, read off the locale rather than written into the template. */
+  protected readonly separator = timeSeparatorFor(this.locale);
 
   /**
    * Form value — the selected time as a `Date` (its date portion is preserved).
@@ -175,9 +251,9 @@ export class WrTimePanel implements FormValueControl<Date | null> {
 
   protected readonly amPmLabel = computed(() => (this.isPm() ? this.pmLabel() : this.amLabel()));
 
-  protected readonly hoursDisplay = computed(() => pad(this.displayHours()));
-  protected readonly minutesDisplay = computed(() => pad(this.minutes()));
-  protected readonly secondsDisplay = computed(() => pad(this.seconds()));
+  protected readonly hoursDisplay = computed(() => padLocale(this.displayHours(), this.locale));
+  protected readonly minutesDisplay = computed(() => padLocale(this.minutes(), this.locale));
+  protected readonly secondsDisplay = computed(() => padLocale(this.seconds(), this.locale));
 
   protected readonly classes = computed(() => {
     const parts = ['wr-time-picker'];
@@ -197,7 +273,7 @@ export class WrTimePanel implements FormValueControl<Date | null> {
     // An emptied box is someone mid-retype, not a request for zero: `Number('')`
     // is 0, so committing here rewrote the field they had just cleared.
     if (!raw.trim()) return;
-    const n = Number(raw);
+    const n = readNumber(raw, this.numerals);
     if (Number.isNaN(n)) return;
     if (this.is12h()) {
       const h12 = clamp(Math.trunc(n), 1, 12) % 12;
@@ -213,7 +289,7 @@ export class WrTimePanel implements FormValueControl<Date | null> {
     // An emptied box is someone mid-retype, not a request for zero: `Number('')`
     // is 0, so committing here rewrote the field they had just cleared.
     if (!raw.trim()) return;
-    const n = Number(raw);
+    const n = readNumber(raw, this.numerals);
     if (Number.isNaN(n)) return;
     this.minutes.set(clamp(Math.trunc(n), 0, 59));
     this.emit();
@@ -224,7 +300,7 @@ export class WrTimePanel implements FormValueControl<Date | null> {
     // An emptied box is someone mid-retype, not a request for zero: `Number('')`
     // is 0, so committing here rewrote the field they had just cleared.
     if (!raw.trim()) return;
-    const n = Number(raw);
+    const n = readNumber(raw, this.numerals);
     if (Number.isNaN(n)) return;
     this.seconds.set(clamp(Math.trunc(n), 0, 59));
     this.emit();

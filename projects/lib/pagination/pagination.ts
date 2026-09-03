@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, effect, input, model } from '@angular/core';
+import { Component, LOCALE_ID, ViewEncapsulation, computed, effect, inject, input, model } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
@@ -81,9 +81,6 @@ export class WrPagination {
    */
   readonly responsive = input(false, { transform: coerceBooleanProperty });
 
-  /** Localised text between range and total ("X–Y of Z"). Falls back to `pagination.of` then `'of'`. */
-  readonly ofLabel = input<string | null>(null);
-
   /** Previous-page button aria-label. Falls back to `pagination.prev`. */
   readonly prevLabel = input<string | null>(null);
 
@@ -97,7 +94,6 @@ export class WrPagination {
   readonly label = input<string | null>(null);
 
   /** Resolved labels. */
-  protected readonly resolvedOf = useI18nText(this.ofLabel, 'pagination.of', 'of');
   protected readonly resolvedPrev = useI18nText(this.prevLabel, 'pagination.prev', 'Previous page');
   protected readonly resolvedNext = useI18nText(this.nextLabel, 'pagination.next', 'Next page');
   protected readonly resolvedItemsPerPage = useI18nText(
@@ -134,12 +130,48 @@ export class WrPagination {
    */
   protected readonly prevPage = computed(() => Math.min(this.currentPage() - 1, this.totalPages()));
 
-  /** Internal: "X–Y of Z" string. */
+  /**
+   * Internal: the "1–10 of 235" line, as ONE catalog template.
+   *
+   * It used to be `` `${start}-${end} ${of} ${total}` ``, which localised the
+   * word in the middle and nothing else: the ASCII hyphen between the bounds and
+   * the operand order were both frozen in TypeScript, so ja-JP and ar-SA got
+   * English word order and no language could change the range separator. The
+   * three numbers go through `Intl.NumberFormat` for the same reason the total
+   * beside them does — a five-figure total needs the locale's grouping, and
+   * ar-SA needs its own digits.
+   *
+   * The `ofLabel` input is gone with it: an input for the middle word is the
+   * concatenation, re-offered as API.
+   */
   protected readonly rangeLabel = computed(() => {
     const start = this.total() === 0 ? 0 : (this.currentPage() - 1) * this.pageSize() + 1;
     const end = Math.min(this.currentPage() * this.pageSize(), this.total());
-    return `${start}-${end} ${this.resolvedOf()} ${this.total()}`;
+    return this.rangeText({
+      from: this.number(start),
+      to: this.number(end),
+      total: this.number(this.total()),
+    });
   });
+
+  /** Internal: the compact pager's `1 / 24`, likewise a catalog template. */
+  protected readonly compactLabel = computed(() =>
+    this.compactText({ current: this.number(this.currentPage()), total: this.number(this.totalPages()) })
+  );
+
+  private readonly rangeText = useI18nFormatter('pagination.range', '{{from}}–{{to}} of {{total}}');
+  private readonly compactText = useI18nFormatter('pagination.compact', '{{current}} / {{total}}');
+
+  private readonly locale = inject(LOCALE_ID);
+
+  /**
+   * Grouped per `LOCALE_ID`. Only the range and the compact pager go through
+   * this — a page NUMBER on a button is an identifier, and `1,024` on a button
+   * reads as two things.
+   */
+  private number(value: number): string {
+    return new Intl.NumberFormat(this.locale).format(value);
+  }
 
   /**
    * Internal: page list with ellipses. Window of 7 visible page slots.

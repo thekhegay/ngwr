@@ -349,8 +349,26 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     }
     const parsed = this.adapter.parse(raw, this.resolvedFormat());
     if (parsed && this.adapter.isValid(parsed) && !this.isOutOfBounds(parsed)) {
-      this.commitValue(parsed);
+      this.commitValue(this.withKeptDate(parsed));
     }
+  }
+
+  /**
+   * In `time` mode the typed string carries no date, so the adapter fills one in — and
+   * the date already in the model is the better answer than whatever default it picks.
+   * The time PANEL has always worked this way (it keeps a `basis` date across edits);
+   * the text field silently moved the value to another day.
+   */
+  private withKeptDate(parsed: Date): Date {
+    if (this.mode() !== 'time') return parsed;
+    const current = this.value();
+    if (!current || !this.adapter.isValid(current)) return parsed;
+    return this.adapter.setTime(
+      current,
+      this.adapter.getHours(parsed),
+      this.adapter.getMinutes(parsed),
+      this.adapter.getSeconds(parsed)
+    );
   }
 
   protected onBlur(): void {
