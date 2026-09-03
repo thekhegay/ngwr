@@ -26,23 +26,33 @@ import { resolve } from 'node:path';
 import { ROOT_PATH } from '../paths/root';
 
 const SECURITY = resolve(ROOT_PATH, 'SECURITY.md');
-const START = '| Version | Supported |';
+/**
+ * The header row, matched by SHAPE rather than by an exact string.
+ *
+ * It was an exact string, and that broke a release: a later edit ran the file
+ * through prettier, which pads every cell to its column width, and
+ * `| Version | Supported |` stopped existing. The script threw at the one moment
+ * nobody wants a surprise. Markdown formatting is not gated in this repository,
+ * so both spellings are legal and the matcher has to accept either.
+ */
+const HEADER_RE = /^\|\s*Version\s*\|\s*Supported\s*\|\s*$/m;
 
 export function writeSupportTable(version: string): boolean {
   const major = Number(version.split('.')[0]);
   if (!Number.isFinite(major)) throw new Error(`Cannot read a major out of "${version}"`);
 
   const table = [
-    START,
-    '|---------|-----------|',
+    '| Version | Supported |',
+    '| ------- | --------- |',
     `| ${major}.x    | \u2705 Full — all security fixes |`,
     `| ${major - 1}.x    | \u26a0\ufe0f Limited — mechanical fixes only, until the next major |`,
-    `| < ${major - 1}.0   | \u274c Unsupported |`,
+    `| < ${major - 1}.0  | \u274c Unsupported |`,
   ].join('\n');
 
   const src = readFileSync(SECURITY, 'utf8');
-  const from = src.indexOf(START);
-  if (from < 0) throw new Error(`SECURITY.md no longer contains the support table header`);
+  const header = HEADER_RE.exec(src);
+  if (!header) throw new Error('SECURITY.md no longer contains a `| Version | Supported |` header row');
+  const from = header.index;
 
   // The table ends at the blank line after it; anything else would swallow the
   // reporting section below.
