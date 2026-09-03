@@ -102,6 +102,29 @@ export class WrDialog {
     const portal = new ComponentPortal(component, null, injector);
     dialogRef.componentRef = overlayRef.attach(portal);
 
+    // Wired BEFORE the panel is decorated, and the order is the fix: everything
+    // below attaches attributes, a ✕ and a focus trap to an overlay that is
+    // already on screen, so anything that throws in there used to leave an
+    // `aria-modal` panel with no dismissal path at all — no ✕, no backdrop
+    // handler, no Escape — over the whole application, and no ref for the caller
+    // to close it with. A dialog that fails to finish opening must still be one
+    // the user can get rid of. Overlay subscriptions complete when the overlay is
+    // disposed, so no explicit teardown is required.
+    if (options.closeOnBackdropClick !== false) {
+      overlayRef.backdropClick().subscribe(() => dialogRef.close());
+    }
+    if (options.closeOnEscape !== false) {
+      overlayRef.keydownEvents().subscribe(event => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          dialogRef.close();
+        }
+      });
+    }
+    if (options.closeOnNavigation !== false) {
+      this.watchNavigation(overlayRef, dialogRef);
+    }
+
     if (this.isBrowser) {
       const host = overlayRef.overlayElement;
       host.setAttribute('role', 'dialog');
@@ -139,23 +162,6 @@ export class WrDialog {
       const trap = this.focusTrapFactory.create(host);
       dialogRef.focusTrap = trap;
       void trap.focusInitialElementWhenReady();
-    }
-
-    // Overlay subscriptions complete when the overlay is disposed, so no
-    // explicit teardown is required.
-    if (options.closeOnBackdropClick !== false) {
-      overlayRef.backdropClick().subscribe(() => dialogRef.close());
-    }
-    if (options.closeOnEscape !== false) {
-      overlayRef.keydownEvents().subscribe(event => {
-        if (event.key === 'Escape') {
-          event.preventDefault();
-          dialogRef.close();
-        }
-      });
-    }
-    if (options.closeOnNavigation !== false) {
-      this.watchNavigation(overlayRef, dialogRef);
     }
 
     return dialogRef;

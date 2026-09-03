@@ -15,7 +15,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-import { numAttr } from 'ngwr/utils';
+import { isSafeCssValue, numAttr } from 'ngwr/utils';
 
 import type { WrGradientTextDirection } from './interfaces';
 
@@ -78,7 +78,14 @@ export class WrGradientText {
   readonly yoyo = input(true, { transform: coerceBooleanProperty });
 
   protected readonly gradient = computed(() => {
-    const cols = this.colors().length > 0 ? this.colors() : DEFAULT_COLORS;
+    // The stops are JOINED into the gradient below and published as
+    // `--wr-gradient-text-image`, which the stylesheet substitutes into
+    // `background-image`. An entry that closes the library's own paren escapes
+    // into a sibling background layer, so one unsafe stop discards the palette
+    // rather than being repaired in place — a half-validated gradient is worse
+    // to look at than the default one.
+    const raw = this.colors();
+    const cols = raw.length > 0 && raw.every(color => isSafeCssValue(color)) ? raw : DEFAULT_COLORS;
     // Duplicate the first colour at the end for seamless looping.
     const stops = [...cols, cols[0]].join(', ');
     const angle = this.directionAngle();

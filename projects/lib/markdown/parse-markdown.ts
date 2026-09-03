@@ -557,11 +557,44 @@ const ESCAPABLE = /[!-/:-@[-`{-~]/;
 const SCHEME_RE = /^([a-z][a-z0-9+.-]*):/i;
 const ALLOWED_SCHEMES = new Set(['http', 'https', 'mailto', 'tel', 'ftp']);
 const DATA_IMAGE_RE = /^data:image\/(?:png|jpe?g|gif|webp|avif);base64,[a-z0-9+/=]+$/i;
-const AUTOLINK_RE = /^<((?:https?|mailto|tel):[^>\s]+)>/i;
+// `[^<>\s]` and not `[^>\s]`: CommonMark defines autolink content as
+// `[^<>\x00-\x20]*`, so `<` ends it by spec — and admitting it is what made this
+// quadratic. On `<http://a<http://a<…` the scheme matches, the class swallows the
+// rest of the document looking for `>`, then backtracks a character at a time, once
+// per `<`. 160 KB took 1.7 s. `ANGLE_DEST_RE` and `EMAIL_AUTOLINK_RE` beside it
+// already exclude `<`; this one was the outlier. The only input that now parses
+// differently is `<http://a<b>`, which no other parser reads as a link either.
+const AUTOLINK_RE = /^<((?:https?|mailto|tel):[^<>\s]+)>/i;
 /** `<destination>` — markdown's way of putting a space in a URL. */
 const ANGLE_DEST_RE = /^<([^<>]*)>(?:\s+["'(](.*)["')])?$/;
 /** CommonMark's own cap on a link label, which is also what bounds the scan. */
 const MAX_LABEL_LENGTH = 999;
+/**
+ * How deep parentheses may nest inside `[a](…)` before the destination is refused
+ * outright — counted from the `(` that opens it, so 31 nested pairs inside.
+ *
+ * This is a bound on WORK, not on taste, and it is the only thing standing
+ * between a paragraph and a frozen tab. The destination scan walks forward for a
+ * balancing `)`, and an unclosed destination sends it to the end of the line; one
+ * `[a](x` costs nothing, but `'[a](x'.repeat(16384)` — 80 KB on a single line —
+ * makes every one of the 16384 openers walk the whole remainder, which measured
+ * 936 ms at 80 KB and 3.9 s at 160 KB, synchronously inside a `computed` during
+ * change detection. A `~4x` cost per doubling of the input: quadratic, on a
+ * component whose documented input is a comment or a model's output.
+ *
+ * The cap fixes it because a scan can only keep going by NOT finding its closer,
+ * and every later `[…](` it walks past contributes an unmatched `(` of its own —
+ * so after 32 of them the scan stops, no opener's walk can cover more than the
+ * next 32 openers, and the total is linear in the document. (A `)` that would
+ * bring the count back down is the closer, and ends the scan anyway.) The number
+ * is cmark's: `manual_scan_link_url` refuses at the same depth, for the same
+ * reason.
+ *
+ * What it costs: a destination with 32 or more nested `(` is no longer a link and
+ * renders as text. No URL looks like that — the deep end of the real world is a
+ * Wikipedia `..._(disambiguation)`, which is one pair.
+ */
+const MAX_DESTINATION_NESTING = 32;
 const BARE_URL_RE = /^https?:\/\/[^\s<>[\]()]*(?:\([^\s<>()]*\)[^\s<>[\]()]*)*/i;
 const EMAIL_AUTOLINK_RE = /^<([^\s@<>]+@[^\s@<>.]+\.[^\s@<>]+)>/;
 
@@ -650,13 +683,26 @@ function inlines(source: string, depth: number, outer: ParseContext): readonly W
     }
 
     if (char === '\n') {
-      // Two trailing spaces are markdown's hard break. `endsWith`, not
-      // `/[ ]{2,}$/.test(text)`: that regex has no start anchor, so it retries
-      // from every position of the accumulated paragraph, which made paragraph
-      // parsing quadratic. On a 161 KB document a CPU profile put 3306 ms of 3378
-      // ms of total self-time in that one test — and it is re-paid on every
-      // streamed chunk.
-      const hard = text.endsWith('  ');
+      // Two trailing spaces are markdown's hard break, and the question is asked
+      // of the SOURCE rather than of `text` — twice now, this one line has been
+      // where paragraph parsing went quadratic.
+      //
+      // `/[ ]{2,}$/.test(text)` was the first version: no start anchor, so it
+      // retries from every position of the accumulated paragraph. A CPU profile
+      // of a 161 KB document put 3306 ms of 3378 ms of total self-time in it.
+      // `text.endsWith('  ')` replaced it and is quadratic for a different
+      // reason: `text` is built by `+=`, so it is a rope, and every read of its
+      // tail flattens the whole thing — 160,000 short lines cost 1980 ms of
+      // copying against 7 ms for the same loop without the test. Ordinary prose
+      // reaches that shape; nothing has to be malformed.
+      //
+      // Reading `source` instead answers the same question in constant time, and
+      // it IS the same question: while `text` is non-empty its last character is
+      // always `source[i - 1]` (every branch that appends appends exactly the
+      // character it consumed), and when it is empty the preceding characters
+      // belong to a construct that just closed — none of which can end in a
+      // space, since a closing fence, `)`, `>` or emphasis marker is never one.
+      const hard = source[i - 1] === ' ' && source[i - 2] === ' ';
       if (hard) {
         text = text.replace(/[ ]+$/, '');
         flush();
@@ -807,12 +853,13 @@ interface LinkMatch {
 /**
  * `[label](href "title")` starting at `source[at] === '['`.
  *
- * Two bounds, both load-bearing. The label scan stops at
+ * Three bounds, all load-bearing. The label scan stops at
  * {@link MAX_LABEL_LENGTH}, which is CommonMark's own limit, and a scan that
  * reaches the end of the source without meeting a single `]` records the fact in
  * the context — from then on every later `[` answers in constant time. Without
  * that, `'['.repeat(100000)` spent 8 seconds on the main thread, inside a
- * `computed`.
+ * `computed`. The third is {@link MAX_DESTINATION_NESTING}, on the destination
+ * scan, and it is the one that makes the whole function linear.
  */
 function matchLink(source: string, at: number, ctx: ParseContext): LinkMatch | null {
   if (at >= ctx.noBracket.from) return null;
@@ -871,7 +918,12 @@ function matchLink(source: string, at: number, ctx: ParseContext): LinkMatch | n
       i++;
       continue;
     }
-    if (char === '(') parens++;
+    if (char === '(') {
+      parens++;
+      // Giving up HERE is what makes the scan linear rather than quadratic — see
+      // {@link MAX_DESTINATION_NESTING}.
+      if (parens > MAX_DESTINATION_NESTING) return null;
+    }
     if (char === ')') {
       parens--;
       if (parens === 0) {

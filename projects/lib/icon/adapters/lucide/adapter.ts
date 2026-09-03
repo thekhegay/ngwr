@@ -77,10 +77,32 @@ function lucideIcons(icons: Record<string, LucideIconNode>): WrIconDef[] {
   return Object.entries(icons).map(([name, node]) => lucide(name, node));
 }
 
+/**
+ * A tag or attribute name that can only ever be a name.
+ *
+ * `renderChild` builds markup by concatenation, so a name carrying a quote, a
+ * space or an `=` does not become a strangely-named attribute — it closes the
+ * one being written and opens whatever comes next, which is how
+ * `{ 'href': 'x" onerror="…' }`'s sibling, a hostile KEY, injects a handler
+ * through an API whose signature says `Record<string, string | number>`.
+ * Escaping cannot help a name: `onerror` is a perfectly valid name and the only
+ * honest serialisation of it is `onerror="…"`. So names are constrained and
+ * values are escaped, and it is {@link sanitizeIcon} at the render sink that
+ * refuses `onerror` itself.
+ */
+const NAME_RE = /^[A-Za-z_][\w.:-]*$/;
+
+/** The four characters that can leave an attribute value or a tag body. */
+function escapeAttribute(value: string | number): string {
+  return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 function renderChild([tag, attrs]: readonly [string, Record<string, string | number | undefined>]): string {
+  if (!NAME_RE.test(tag)) return '';
+
   const rendered = Object.entries(attrs)
-    .filter((entry): entry is [string, string | number] => entry[1] !== undefined)
-    .map(([key, value]) => `${key}="${value}"`)
+    .filter((entry): entry is [string, string | number] => entry[1] !== undefined && NAME_RE.test(entry[0]))
+    .map(([key, value]) => `${key}="${escapeAttribute(value)}"`)
     .join(' ');
   return `<${tag} ${rendered}/>`;
 }

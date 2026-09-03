@@ -131,6 +131,21 @@ describe('WrIcon and its registry', () => {
     });
   });
 
+  describe('data with no <svg> root', () => {
+    it('renders nothing and says so, rather than half a glyph', () => {
+      // Inner markup on its own never rendered: `innerHTML` put a `<circle>` in
+      // the XHTML namespace — an unknown HTML element that paints nothing — and
+      // the aria-hidden pass found no `<svg>` to mark. `<wr-icon>` rebuilds the
+      // first `<svg>` root, so the same data now produces the same empty box
+      // with a console error naming the icon instead of in silence.
+      const fixture = render([provideWrIcons([svgIcon('check', '<circle cx="8" cy="8" r="6"/>')])]);
+
+      expect(svgOf(fixture)).toBeNull();
+      expect((fixture.nativeElement as HTMLElement).querySelector('circle')).toBeNull();
+      expect(errors.join(' ')).toContain('check');
+    });
+  });
+
   describe('registration levels', () => {
     it('merges a component-level registration with an ancestor one', () => {
       TestBed.resetTestingModule();

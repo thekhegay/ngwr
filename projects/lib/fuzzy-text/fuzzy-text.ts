@@ -59,14 +59,32 @@ import type { WrFuzzyTextDirection } from './interfaces';
   // and `wr-decrypt-text` carry. Hidden inline rather than through a class: this
   // entry point ships no stylesheet, and a consumer who imported none would
   // otherwise see the text twice.
+  //
+  // BOUND, not a static `style="…"` attribute. A real attribute is refused under
+  // `style-src 'self'`, and what is lost there is not a colour: the span drops
+  // every visual-hiding declaration and the word renders on screen beside the
+  // canvas that already draws it. A binding goes through `style.setProperty`,
+  // which is CSSOM and outside CSP's reach.
   template:
-    '<span class="wr-fuzzy-text__sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;' +
-    'clip-path:inset(50%);white-space:nowrap">{{ text() }}</span>' +
+    '<span class="wr-fuzzy-text__sr-only" [style]="srOnly">{{ text() }}</span>' +
     '<canvas #canvas aria-hidden="true"></canvas>',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-fuzzy-text', style: 'color: var(--wr-color-dark)' },
+  host: { class: 'wr-fuzzy-text', '[style.color]': "'var(--wr-color-dark)'" },
 })
 export class WrFuzzyText {
+  /**
+   * Visual-hiding declarations for the screen-reader copy of the text. A stable
+   * object literal, so the binding is written once rather than on every pass.
+   */
+  protected readonly srOnly: Readonly<Record<string, string>> = {
+    position: 'absolute',
+    width: '1px',
+    height: '1px',
+    overflow: 'hidden',
+    'clip-path': 'inset(50%)',
+    'white-space': 'nowrap',
+  };
+
   /** Text to render. */
   readonly text = input.required<string>();
 

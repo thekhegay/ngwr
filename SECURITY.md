@@ -5,11 +5,19 @@
 We patch security issues on the latest stable major. Older majors receive fixes
 only when the change is mechanical (no breaking surface).
 
-| Version | Supported |
-|---------|-----------|
-| 13.x    | ✅ Full — all security fixes |
+| Version | Supported                                                |
+| ------- | -------------------------------------------------------- |
+| 13.x    | ✅ Full — all security fixes                             |
 | 12.x    | ⚠️ Limited — mechanical fixes only, until the next major |
-| < 12.0   | ❌ Unsupported |
+| < 12.0  | ❌ Unsupported                                           |
+
+Where the only correct fix on an older major is **not** mechanical — a sanitizer
+that changes what already-accepted input renders, a narrowed input type — the
+answer is to upgrade, and the advisory will say so rather than leave a backport
+implied.
+
+Report against any version you can reproduce on. Establishing which majors are
+affected is triage's job, not the reporter's.
 
 ## Reporting a vulnerability
 
@@ -29,11 +37,11 @@ Include:
 
 ## What to expect
 
-| Step | Target |
-|---|---|
-| Acknowledgement | within 72 hours |
-| Initial triage  | within 7 days |
-| Fix or workaround | within 30 days for high / critical |
+| Step              | Target                                         |
+| ----------------- | ---------------------------------------------- |
+| Acknowledgement   | within 72 hours                                |
+| Initial triage    | within 7 days                                  |
+| Fix or workaround | within 30 days for high / critical             |
 | Public disclosure | coordinated, after a patched version is on npm |
 
 Reporters will be credited in the release notes and the GitHub Security

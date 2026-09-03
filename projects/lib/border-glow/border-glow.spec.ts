@@ -8,7 +8,13 @@ import { WrBorderGlow } from './border-glow';
 @Component({
   imports: [WrBorderGlow],
   template: `
-    <wr-border-glow [borderRadius]="borderRadius()" [glowRadius]="glowRadius()" [coneSpread]="coneSpread()">
+    <wr-border-glow
+      [borderRadius]="borderRadius()"
+      [glowRadius]="glowRadius()"
+      [coneSpread]="coneSpread()"
+      [colors]="colors()"
+      [backgroundColor]="backgroundColor()"
+    >
       <span class="body">Card</span>
     </wr-border-glow>
   `,
@@ -17,6 +23,8 @@ class Host {
   readonly borderRadius = signal(28);
   readonly glowRadius = signal(40);
   readonly coneSpread = signal(25);
+  readonly colors = signal<readonly string[] | null>(null);
+  readonly backgroundColor = signal<string | null>(null);
 }
 
 /**
@@ -102,5 +110,26 @@ describe('WrBorderGlow', () => {
 
   it('projects its content', () => {
     expect(host().querySelector('.body')!.textContent).toBe('Card');
+  });
+
+  it('refuses colours that would escape the gradients they are composed into', () => {
+    // Verbatim from a security audit of 13.0.0. Each entry lands inside
+    // `radial-gradient(at <pos>, <colour> 0px, transparent 50%)`, and the
+    // background var inside a `linear-gradient()` and a `background` shorthand —
+    // so a value balancing the parens around it adds a `url()` the browser
+    // fetches. The audit recorded a real request for both.
+    fixture.componentInstance.colors.set([
+      'red), url("https://beacon.example/borderglow-colors"), radial-gradient(circle at 0% 0%, red',
+    ]);
+    fixture.componentInstance.backgroundColor.set('url("https://beacon.example/borderglow-bg")');
+    fixture.detectChanges();
+
+    expect(prop('--wr-border-glow-gradient-1')).not.toContain('beacon.example');
+    expect(prop('--wr-border-glow-bg')).toBe('');
+
+    // A real colour still lands, so the guard costs nothing legitimate.
+    fixture.componentInstance.backgroundColor.set('oklch(0.7 0.1 200)');
+    fixture.detectChanges();
+    expect(prop('--wr-border-glow-bg')).toBe('oklch(0.7 0.1 200)');
   });
 });

@@ -74,7 +74,11 @@ describe('WrEmpty', () => {
   });
 
   it('renders a named icon instead of the built-in glyph', () => {
-    mount([provideWrIcons([svgIcon('search', '<circle cx="11" cy="11" r="8" />')])]);
+    // A whole `<svg>`, not the inner markup: `<wr-icon>` rebuilds the first
+    // `<svg>` root out of registered data, and root-less markup never rendered
+    // anyway — `innerHTML` put a `<circle>` in the XHTML namespace, which is an
+    // unknown HTML element that paints nothing.
+    mount([provideWrIcons([svgIcon('search', '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /></svg>')])]);
     fixture.componentInstance.iconName.set('search');
     fixture.detectChanges();
 

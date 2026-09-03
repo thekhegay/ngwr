@@ -11,11 +11,21 @@ const VIEW_BOX_RE = /<svg\b[^>]*\bviewBox\s*=/i;
 const SVG_ROOT_RE = /<svg\b/i;
 
 /**
- * Dev-mode sanity check for a registered icon.
+ * Dev-mode sanity check for a registered icon — a **rendering** check, and
+ * explicitly not a security control.
  *
- * Warns about issues that prevent correct rendering — most importantly,
- * a missing `viewBox`, which causes the SVG not to scale to the icon
- * host's size.
+ * It warns about the two things that make an icon come out wrong: no `<svg>`
+ * root, and no `viewBox`, which stops the glyph scaling to the host. It reads
+ * the string with two regexes and cannot tell a shape from a script — every
+ * payload in the icon corpus passes it, because each one does carry an `<svg>`
+ * root with a `viewBox`. It also runs only under `isDevMode()`, so it is absent
+ * from the build an attacker would meet.
+ *
+ * What actually keeps hostile markup out of the DOM is {@link sanitizeIcon},
+ * which runs on every render in every build: `<wr-icon>` rebuilds the glyph
+ * from an allowlist instead of assigning to `innerHTML`. Anything this function
+ * would have to reject is already gone by then, and the component says so in
+ * dev mode when it drops something.
  *
  * Production builds drop the call entirely via `isDevMode()` tree-shaking.
  *

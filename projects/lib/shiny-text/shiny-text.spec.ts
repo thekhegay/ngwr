@@ -19,6 +19,7 @@ import { WrShinyText } from './shiny-text';
       [yoyo]="yoyo()"
       [direction]="direction()"
       [pauseOnHover]="pauseOnHover()"
+      [shineColor]="shineColor()"
     />
   `,
 })
@@ -30,6 +31,7 @@ class Host {
   readonly yoyo = signal(false);
   readonly direction = signal<'left' | 'right'>('left');
   readonly pauseOnHover = signal(false);
+  readonly shineColor = signal<string | null>(null);
 }
 
 /**
@@ -79,6 +81,23 @@ describe('WrShinyText', () => {
     for (const modifier of ['paused', 'yoyo', 'pause-on-hover', 'reverse']) {
       expect(host().className, modifier).toContain(`wr-shiny-text--${modifier}`);
     }
+  });
+
+  it('refuses a shine colour that would escape the gradient slot', () => {
+    // Verbatim from a security audit of 13.0.0: the value is concatenated into a
+    // `linear-gradient()` colour slot on the host's `background-image`, so this
+    // closes the gradient, adds a fetched `url()` layer, and reopens one so the
+    // declaration still parses.
+    fixture.componentInstance.shineColor.set(
+      'red), url("https://beacon.example/shiny-shineColor"), linear-gradient(red'
+    );
+    fixture.detectChanges();
+
+    expect(host().style.getPropertyValue('background-image')).not.toContain('beacon.example');
+
+    fixture.componentInstance.shineColor.set('color-mix(in oklab, red, blue)');
+    fixture.detectChanges();
+    expect(host().style.getPropertyValue('background-image')).toContain('color-mix(in oklab, red, blue)');
   });
 });
 

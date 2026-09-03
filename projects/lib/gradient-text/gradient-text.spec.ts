@@ -104,4 +104,22 @@ describe('WrGradientText', () => {
   it('projects its text', () => {
     expect(host().textContent.trim()).toBe('Shiny');
   });
+
+  it('refuses a colour that would escape the gradient it is composed into', () => {
+    // Verbatim from a security audit of 13.0.0: each entry is interpolated into
+    // `linear-gradient(<dir>, …)`, so a value that balances the parens around it
+    // closes the gradient, adds a `url()` layer the browser fetches, and reopens
+    // one so the declaration still parses. The audit recorded the request.
+    fixture.componentInstance.colors.set([
+      'red), url("https://beacon.example/gradient-colors"), linear-gradient(red, red',
+      'red',
+    ]);
+    fixture.detectChanges();
+
+    expect(prop('--wr-gradient-text-image')).not.toContain('beacon.example');
+    // One bad entry discards the whole palette rather than being dropped from it:
+    // a gradient missing one stop is a silent design change, and the default is
+    // the honest fallback.
+    expect(prop('--wr-gradient-text-image')).toBe('linear-gradient(to right, #5227FF, #FF9FFC, #B497CF, #5227FF)');
+  });
 });

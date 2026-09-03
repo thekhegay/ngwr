@@ -10,6 +10,9 @@ export { clamp, round } from './math';
 // Coercion
 export { numAttr } from './coercion';
 
+// CSS value
+export { isSafeCssValue } from './css-value';
+
 // CSS size
 export { resolveCssSize } from './css-size';
 export type { ResolveCssSizeOptions, ResolvedCssSize } from './css-size';

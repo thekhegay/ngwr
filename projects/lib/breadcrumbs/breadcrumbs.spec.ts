@@ -124,6 +124,28 @@ describe('WrBreadcrumbs', () => {
     // text that navigates nowhere. Both forms have to produce a link.
     expect(crumbs()[0].getAttribute('href')).toBe('/');
   });
+
+  it('escapes a separator that would close the CSS string it is wrapped in', () => {
+    // Verbatim from a security audit of 13.0.0. The glyph is wrapped in quotes
+    // here and unwrapped by `content:` in the stylesheet, so an unescaped `"`
+    // ends the library's own string and the rest is parsed as CSS —
+    // `content: "/" url("…") ""`, an image the browser fetches.
+    fixture.componentInstance.separator.set('/" url("https://beacon.example/breadcrumbs-separator") "');
+    fixture.detectChanges();
+
+    const host = root().querySelector<HTMLElement>('wr-breadcrumbs')!;
+    const value = host.style.getPropertyValue('--wr-breadcrumbs-separator');
+
+    // The payload survives as TEXT — escaping is lossless, so a separator that is
+    // itself a quote still renders — but every `"` inside it is escaped, so the
+    // value is one CSS string and no `url()` is ever parsed out of it.
+    expect(value.startsWith('"') && value.endsWith('"')).toBe(true);
+    // Every inner `"` carries a backslash, so none of them can end the string.
+    // Dropping the escaped pairs must leave no quote behind — that is the whole
+    // property, and it is what a `.not.toContain('"')` on the raw text gets wrong.
+    expect(value.slice(1, -1).replace(/\\"/g, '')).not.toContain('"');
+    expect(value).toContain('\\"');
+  });
 });
 
 describe('WrBreadcrumbs with router links', () => {

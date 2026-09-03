@@ -38,6 +38,17 @@ const SVG_ATTRS = [
  *
  * provideWrIcons([feather('plus', featherIcons.plus)]);
  * ```
+ *
+ * `innerSvg` is **markup**, not text — that is the shape upstream ships and the
+ * reason this adapter exists — so it is interpolated into the envelope
+ * verbatim. There is no escaping to add here: escaped markup is not markup.
+ * A `</svg>` in that input therefore closes the envelope early, and everything
+ * after it is a sibling of the icon rather than a child. Nothing executes
+ * regardless, because `<wr-icon>` never assigns the result to `innerHTML` — it
+ * rebuilds the first `<svg>` root from an allowlist and drops the rest. Feed
+ * this a map fetched at runtime and the sanitizer is what stands between it and
+ * the app's origin; feed it the `icons.json` from your own node_modules and
+ * neither matters.
  */
 function feather(name: string, innerSvg: string): WrIconDef {
   return { name, data: `<svg ${SVG_ATTRS}>${innerSvg}</svg>` };
