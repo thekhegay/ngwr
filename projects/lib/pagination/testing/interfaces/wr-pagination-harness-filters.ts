@@ -18,11 +18,11 @@ export interface WrPaginationHarnessFilters extends BaseHarnessFilters {
   readonly label?: string | RegExp;
   /**
    * Match the page the pager announces as current via `aria-current="page"`. A
-   * pager announcing none — `currentPage` set below 1 — matches no value here
+   * pager announcing none — `page` set below 1 — matches no value here
    * rather than throwing, so one broken pager cannot fail a query for its
    * neighbour.
    */
-  readonly currentPage?: number;
+  readonly page?: number;
   /** Match only enabled (`false`) or only disabled (`true`) pagers. */
   readonly disabled?: boolean;
 }

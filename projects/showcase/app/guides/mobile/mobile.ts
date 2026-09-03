@@ -31,7 +31,7 @@ this.dialog.open(EditProfile, { responsive: true });`,
 <wr-stepper responsive>…</wr-stepper>
 <wr-page-header responsive title="Settings">…</wr-page-header>
 <wr-toolbar responsive>…</wr-toolbar>
-<wr-pagination responsive [(currentPage)]="page" [total]="200" />
+<wr-pagination responsive [(page)]="page" [total]="200" />
 <wr-table responsive [columns]="cols" [items]="rows" />`,
     density: `import { provideWrDensity } from 'ngwr/density';
 

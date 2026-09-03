@@ -65,6 +65,7 @@ let popoverUid = 0;
 
 @Directive({
   selector: '[wrPopover]',
+  exportAs: 'wrPopover',
   host: {
     // Marks the trigger the way `[wrDropdown]` marks its own. Popover-mode
     // content is a `TemplateRef`, so it is always bound as `[wrPopover]="…"`,

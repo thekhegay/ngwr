@@ -114,6 +114,13 @@ export class MyComponent {}`,
     <span class="my-kbd">⌘V</span>
   </wr-context-menu-item>
 </wr-context-menu>`,
+    exportAs: `<div [wrContextMenu]="menu" #area="wrContextMenuTrigger">Right-click me</div>
+<wr-context-menu #menu>
+  <wr-context-menu-item>Copy</wr-context-menu-item>
+</wr-context-menu>
+
+<!-- Anywhere else in the same template -->
+<wr-btn (click)="area.close()">Dismiss the menu</wr-btn>`,
   };
 
   protected readonly directiveApi: readonly DocApiRow[] = [

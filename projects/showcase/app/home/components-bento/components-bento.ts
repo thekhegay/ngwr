@@ -96,7 +96,7 @@ export class ComponentsBento {
   protected readonly activeTab = signal<string>('overview');
 
   // Pagination (tile 10)
-  protected readonly currentPage = signal(2);
+  protected readonly page = signal(2);
 
   // Profile validation (tile 11)
   protected readonly username = signal('alice_kim');

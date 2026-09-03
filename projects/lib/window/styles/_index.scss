@@ -69,7 +69,7 @@
 
   // Compact title bar — useful for utility / docked panels where every
   // pixel of vertical space matters.
-  &--chrome-compact {
+  &--chrome-sm {
     --wr-window-chrome-height: 1.625rem;
     --wr-window-title-size: var(--wr-text-xs);
     --wr-window-action-size: 1.125rem;

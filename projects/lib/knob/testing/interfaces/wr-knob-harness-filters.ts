@@ -7,6 +7,13 @@
 
 import type { BaseHarnessFilters } from '@angular/cdk/testing';
 
+/**
+ * An arrow key, by the direction a user would say out loud — the parameter type
+ * of `WrKnobHarness.pressArrow`, exported so a consumer's own test helper can name
+ * what it forwards.
+ */
+export type WrKnobArrowKey = 'left' | 'right' | 'up' | 'down';
+
 /** Narrows which `<wr-knob>` a harness query matches. */
 export interface WrKnobHarnessFilters extends BaseHarnessFilters {
   /** Match the dial's accessible name — a string is an exact match, a RegExp is tested. */

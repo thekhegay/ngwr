@@ -45,6 +45,13 @@ export class MyComponent {}`,
 </wr-tabs>
 <router-outlet />`,
     disabled: `<wr-tab title="WIP" disabled>…</wr-tab>`,
+    exportAs: `<wr-tabs wrTabsRouting #routing="wrTabsRouting">
+  <wr-tab title="Overview" routerLink="overview" />
+  <wr-tab title="Details" routerLink="details" />
+</wr-tabs>
+
+<!-- Anywhere else in the same template -->
+<a [href]="routing.href('overview')">Permalink to the first tab</a>`,
   };
 
   protected readonly tabsApi: readonly DocApiRow[] = [

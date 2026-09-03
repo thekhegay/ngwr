@@ -132,7 +132,7 @@ export default class ${pascalName} {
   <wr-table [columns]="columns" [items]="rows()" />
 
   <wr-pagination
-    [(currentPage)]="page"
+    [(page)]="page"
     [(pageSize)]="pageSize"
     [total]="total()"
   />

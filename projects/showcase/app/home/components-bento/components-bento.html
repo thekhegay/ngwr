@@ -197,8 +197,8 @@
           <p wrTypography variant="caption" tone="medium">Pagination</p>
         </header>
         <div class="ngwr-cbento__tile-body ngwr-cbento__pager">
-          <wr-pagination [(currentPage)]="currentPage" [pageSize]="10" [total]="80" />
-          <p wrTypography variant="caption" tone="medium">Showing page {{ currentPage() }} of 8</p>
+          <wr-pagination [(page)]="page" [pageSize]="10" [total]="80" />
+          <p wrTypography variant="caption" tone="medium">Showing page {{ page() }} of 8</p>
         </div>
       </article>
 

@@ -1,4 +1,5 @@
 export type {
+  WrCalendarArrowKey,
   WrCalendarChip,
   WrCalendarDayHarnessFilters,
   WrCalendarHarnessFilters,

@@ -5,6 +5,8 @@ export { DocCodeComponent } from './doc-code/doc-code';
 export type { DocCodeFile } from './doc-code/types';
 export { DocApiComponent } from './doc-api/doc-api';
 export type { DocApiRow } from './doc-api/types';
+export { DocCssVarsComponent } from './doc-css-vars/doc-css-vars';
+export type { DocCssVarRow } from './doc-css-vars/types';
 export { DocPlaygroundComponent } from './doc-playground/doc-playground';
 export type {
   DocColorControl,

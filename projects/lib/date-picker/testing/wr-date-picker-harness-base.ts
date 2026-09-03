@@ -27,8 +27,16 @@ async function byText(elements: TestElement[], text: string): Promise<TestElemen
  * their popup's id through the trigger's `aria-controls`, so the scoping story is
  * shared too.
  *
- * Not exported from the entry point — a consumer works with one of the two
- * concrete harnesses.
+ * **Deliberately not exported, and `WrAnyDatePickerHarness` is what replaces it.**
+ * The reason a consumer wanted this name was to write a helper taking "either
+ * picker", which the union in `interfaces/` says directly and without publishing
+ * anything else. Exporting the class instead would publish the `protected` members
+ * below as a subclassing contract — including `timePanels()`, which hands back the
+ * harness for `<wr-time-panel>`, a component this package does not ship as public
+ * API. A type-only re-export is not the middle ground it looks like: the base is a
+ * value in two `extends` clauses, so d.ts flattening promotes `export type` back to
+ * a value export while the FESM bundle exports nothing — an import that type-checks
+ * and is `undefined` at runtime.
  *
  * @internal
  */

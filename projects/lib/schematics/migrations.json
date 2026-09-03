@@ -23,7 +23,7 @@
     },
     "migration-v14": {
       "version": "14.0.0",
-      "description": "Router integration is opt-in: <wr-loading-bar> needs provideWrLoadingBarRouter() from ngwr/loading-bar/router, and <wr-tab routerLink> needs wrTabsRouting on the strip plus WrTabsRouting in imports. Reports the affected files rather than rewriting \u2014 both changes need a decision a codemod cannot make.",
+      "description": "Rewrites five renames: on <wr-alert> from closeable to closable; on <wr-table> from totalItems to total; on <wr-pagination> from currentPage to page (and from currentPageChange to pageChange); from isDisabledWhenLoading to disabledWhenLoading; and the window chromeSize scale from compact/normal to sm/md, including the .wr-window--chrome-compact class. Reports what a codemod cannot decide: router integration is now opt-in (<wr-loading-bar> needs provideWrLoadingBarRouter() from ngwr/loading-bar/router, <wr-tab routerLink> needs wrTabsRouting on the strip plus WrTabsRouting in imports), the locale defaults now follow LOCALE_ID, and <wr-pagination ofLabel> is gone. Touches .ts, .html, .scss and .css files.",
       "factory": "./migrations/v14/index#default"
     }
   }

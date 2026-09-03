@@ -51,6 +51,11 @@ export class MyComponent {}`,
 >
   Hover
 </wr-btn>`,
+    exportAs: `<wr-btn [wrPopover]="card" #details="wrPopover">Details</wr-btn>
+
+<!-- Anywhere else in the same template -->
+<wr-btn (click)="details.toggle()">Toggle from here</wr-btn>
+<wr-btn [disabled]="!details.isOpen()" (click)="details.close()">Close</wr-btn>`,
   };
 
   protected readonly api = API.WrPopover;

@@ -1,1 +1,1 @@
-export type { WrKnobHarnessFilters } from './wr-knob-harness-filters';
+export type { WrKnobArrowKey, WrKnobHarnessFilters } from './wr-knob-harness-filters';

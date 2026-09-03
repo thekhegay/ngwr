@@ -7,7 +7,7 @@
 
 import { ContentContainerComponentHarness, HarnessPredicate, TestKey, type TestElement } from '@angular/cdk/testing';
 
-import type { WrWindowState } from 'ngwr/window';
+import type { WrWindowChromeSize, WrWindowState } from 'ngwr/window';
 
 import type { WrWindowBox, WrWindowHarnessFilters } from './interfaces';
 
@@ -109,9 +109,17 @@ export class WrWindowHarness extends ContentContainerComponentHarness {
     throw new Error('WrWindowHarness.getOs(): this window carries no `wr-window--os-<name>` class.');
   }
 
-  /** The title-bar density — `normal` or `compact`. */
-  async getChromeSize(): Promise<string> {
-    return (await (await this.host()).hasClass('wr-window--chrome-compact')) ? 'compact' : 'normal';
+  /**
+   * The title-bar density — `sm` or `md`.
+   *
+   * Typed as the union rather than `string`, so a value added to
+   * `WrWindowChromeSize` fails this method's compile instead of quietly
+   * answering `md` for it. Only `sm` carries a modifier class: `md` is the
+   * default and paints from the base block, so its answer is the absence of
+   * the other one.
+   */
+  async getChromeSize(): Promise<WrWindowChromeSize> {
+    return (await (await this.host()).hasClass('wr-window--chrome-sm')) ? 'sm' : 'md';
   }
 
   /**

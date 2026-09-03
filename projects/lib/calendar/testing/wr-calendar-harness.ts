@@ -10,6 +10,7 @@ import { ComponentHarness, HarnessPredicate, TestKey, type TestElement } from '@
 import type { WrCalendarMode } from 'ngwr/calendar';
 
 import type {
+  WrCalendarArrowKey,
   WrCalendarChip,
   WrCalendarDayHarnessFilters,
   WrCalendarHarnessFilters,
@@ -17,10 +18,7 @@ import type {
 } from './interfaces';
 import { WrCalendarDayHarness } from './wr-calendar-day-harness';
 
-/** The arrow keys, by the direction a user would say out loud. */
-type Arrow = 'left' | 'right' | 'up' | 'down';
-
-const ARROWS: Record<Arrow, TestKey> = {
+const ARROWS: Record<WrCalendarArrowKey, TestKey> = {
   left: TestKey.LEFT_ARROW,
   right: TestKey.RIGHT_ARROW,
   up: TestKey.UP_ARROW,
@@ -252,7 +250,7 @@ export class WrCalendarHarness extends ComponentHarness {
    * having managed to focus a cell. Under `dir="rtl"` the horizontal pair mirrors:
    * ArrowRight goes back a day, because the grid itself is mirrored.
    */
-  async pressArrow(arrow: Arrow): Promise<void> {
+  async pressArrow(arrow: WrCalendarArrowKey): Promise<void> {
     await (await this.host()).sendKeys(ARROWS[arrow]);
   }
 

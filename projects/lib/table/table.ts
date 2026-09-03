@@ -329,8 +329,16 @@ export class WrTable {
    * Total row count for server-side pagination — when set, the table
    * shows the pager but does NOT slice `items` (you provide the current
    * page's slice yourself and react to `(page)` changes).
+   *
+   * Spelled `total` / `page` to match `<wr-pagination>`, which is the control
+   * this input renders. The two used to disagree about both words — `totalItems`
+   * / `page` here against `total` / `currentPage` there — which is a real cost
+   * for two components designed to sit on one screen. `null` rather than `0` is
+   * the difference that remains, and it carries meaning: it is the OFF switch
+   * for server mode, where the pager's own `total` is a count and `0` means an
+   * empty list.
    */
-  readonly totalItems = input<number | null>(null);
+  readonly total = input<number | null>(null);
 
   /**
    * Window the `<tbody>` so a table of thousands of rows keeps only ~one
@@ -340,7 +348,7 @@ export class WrTable {
    * Engages ONLY on the flat, fixed-height tier: it silently falls back to the
    * full render whenever a variable-height layout is active — `groupBy`, a
    * `[wrTableExpand]` template, `responsive` card mode, or a visible pager
-   * (`pageSize > 0` / `totalItems`). While on, it forces fixed layout for
+   * (`pageSize > 0` / `total`). While on, it forces fixed layout for
    * stable column widths and assumes a uniform row height (see `rowHeight`).
    *
    * Intended as static config. Give columns an explicit `width` so the frozen
@@ -374,7 +382,7 @@ export class WrTable {
 
   /** Total row count derived for the pager (server-mode wins). */
   protected readonly resolvedTotal = computed<number>(() => {
-    const server = this.totalItems();
+    const server = this.total();
     if (server !== null) return server;
     return this.rows()?.length ?? 0;
   });
@@ -384,7 +392,7 @@ export class WrTable {
     const items = this.rows();
     if (!items) return items;
     const size = this.pageSize();
-    if (size <= 0 || this.totalItems() !== null) return items;
+    if (size <= 0 || this.total() !== null) return items;
     // Clamped at BOTH ends, because `page` is a model the host owns (a `model()`
     // takes no transform) and the data can shrink under it — a filter or a delete
     // used to leave the table showing an empty slice with no way back except
@@ -715,7 +723,7 @@ export class WrTable {
       !this.expandable() && // an injected detail <tr> desyncs uniform offsets
       !this.responsive() && // card mode has no uniform row height
       this.pageSize() === 0 && // a visible pager owns chunking — the pager wins
-      this.totalItems() === null &&
+      this.total() === null &&
       !!this.visibleItems()
   );
 
@@ -1168,7 +1176,7 @@ export class WrTable {
    * titles, then one row per item in the current column order. Values are taken
    * from the row data, not from custom `[wrTableCell]` templates.
    *
-   * Covers the current `items`, so in server-side mode (`totalItems` set) it
+   * Covers the current `items`, so in server-side mode (`total` set) it
    * exports the current page, while client-side pagination exports every page.
    *
    * Returns the string; use `exportCsv()` when you want it downloaded as a file.

@@ -30,7 +30,7 @@ export default class PaginationComponent {
   /**
    * The size-changer demo is the one pager at `[total]="320"`, so it needs its
    * own page — and it needs it MORE now, not less. `WrPagination` clamps a
-   * host-written `currentPage` at both ends since the fourth sweep, so a shared
+   * host-written `page` at both ends since the fourth sweep, so a shared
    * signal on page 13 would be yanked back to 12 by the 120-item pagers the
    * moment they saw it. Before the clamp the same sharing left them with no
    * current page and two inert arrows; either way the demos need separate state.
@@ -68,15 +68,15 @@ export default class PaginationComponent {
 
 @Component({ imports: [WrPagination] })
 export class MyComponent {}`,
-    basic: `<wr-pagination [total]="120" [(currentPage)]="page" />`,
-    sizes: `<wr-pagination [total]="120" [(currentPage)]="page" size="sm" />
-<wr-pagination [total]="120" [(currentPage)]="page" size="md" />
-<wr-pagination [total]="120" [(currentPage)]="page" size="lg" />`,
-    shapes: `<wr-pagination [total]="120" [(currentPage)]="page" shape="rounded" />
-<wr-pagination [total]="120" [(currentPage)]="page" shape="square" />`,
+    basic: `<wr-pagination [total]="120" [(page)]="page" />`,
+    sizes: `<wr-pagination [total]="120" [(page)]="page" size="sm" />
+<wr-pagination [total]="120" [(page)]="page" size="md" />
+<wr-pagination [total]="120" [(page)]="page" size="lg" />`,
+    shapes: `<wr-pagination [total]="120" [(page)]="page" shape="rounded" />
+<wr-pagination [total]="120" [(page)]="page" shape="square" />`,
     full: `<wr-pagination
   [total]="320"
-  [(currentPage)]="page"
+  [(page)]="page"
   [(pageSize)]="size"
   showTotal
   showSizeChanger
@@ -84,8 +84,8 @@ export class MyComponent {}`,
 />`,
     serverHtml: `<wr-pagination
   [total]="total()"
-  [currentPage]="page()"
-  (currentPageChange)="page.set($event)"
+  [page]="page()"
+  (pageChange)="page.set($event)"
 />`,
     serverTs: `private readonly http = inject(HttpClient);
 
@@ -106,8 +106,8 @@ readonly total = computed(() => this.result.value()?.total ?? 0);`,
     sizeHtml: `<wr-pagination
   showSizeChanger
   [total]="total()"
-  [currentPage]="page()"
-  (currentPageChange)="page.set($event)"
+  [page]="page()"
+  (pageChange)="page.set($event)"
   [pageSize]="size()"
   (pageSizeChange)="onSizeChange($event)"
 />`,

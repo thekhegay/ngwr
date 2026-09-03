@@ -12,7 +12,7 @@ import { WrPagination } from './pagination';
   imports: [WrPagination],
   template: `
     <wr-pagination
-      [(currentPage)]="page"
+      [(page)]="page"
       [(pageSize)]="pageSize"
       [total]="total()"
       [disabled]="disabled()"
@@ -177,7 +177,7 @@ describe('WrPagination', () => {
   });
 
   it('pulls a host write back into range, at both ends', () => {
-    // `currentPage` is a `model`, so the host can write anything into it. The
+    // `page` is a `model`, so the host can write anything into it. The
     // clamp used to sit inside `untracked()` and pull downwards only, so it
     // reacted to a shrinking `total` and never to the host: 95 items over 10 is
     // ten pages, and both writes below stayed exactly where the host put them.
@@ -193,7 +193,7 @@ describe('WrPagination', () => {
   it('leaves nothing inert behind an out-of-range host write', () => {
     // What the unclamped page actually cost: no cell carried `aria-current`, so
     // the strip was a row of indistinguishable numbers; Next stayed enabled
-    // because `currentPage() === totalPages()` was false, and clicking it did
+    // because `page() === totalPages()` was false, and clicking it did
     // nothing since `goTo` refuses page 14; and the range label counted
     // backwards from a page below the first.
     fixture.componentInstance.showTotal.set(true);
@@ -328,15 +328,13 @@ describe('WrPagination', () => {
  */
 @Component({
   imports: [WrPagination],
-  template: `
-    <wr-pagination [total]="total()" [currentPage]="page()" [pageSize]="10" (currentPageChange)="goTo($event)" />
-  `,
+  template: ` <wr-pagination [total]="total()" [page]="page()" [pageSize]="10" (pageChange)="goTo($event)" /> `,
 })
 class ServerHost {
   readonly page = signal(1);
   readonly total = signal(51);
 
-  /** Every `currentPageChange`, in order — the count is the point, not the last value. */
+  /** Every `pageChange`, in order — the count is the point, not the last value. */
   readonly navigations: number[] = [];
 
   goTo(next: number): void {
@@ -380,7 +378,7 @@ describe('WrPagination against a server-side total', () => {
 
   it('stays on the page the user picked while the request is in flight', () => {
     // The guard clamped against the in-flight 0: `totalPages()` was 1, page 2
-    // was pulled back and `currentPageChange(1)` went out on top of the click,
+    // was pulled back and `pageChange(1)` went out on top of the click,
     // so the host re-requested page 1 and the pager could never leave it.
     // Asserting the final page alone would pass on that — it corrected back to
     // a plausible number — so the event log is what this spec is really for.
@@ -409,21 +407,14 @@ describe('WrPagination against a server-side total', () => {
 @Component({
   imports: [WrPagination],
   template: `
-    <wr-pagination
-      showTotal
-      responsive
-      [total]="total()"
-      [currentPage]="page()"
-      [pageSize]="10"
-      (currentPageChange)="goTo($event)"
-    />
+    <wr-pagination showTotal responsive [total]="total()" [page]="page()" [pageSize]="10" (pageChange)="goTo($event)" />
   `,
 })
 class EmptyTotalHost {
   readonly page = signal(5);
   readonly total = signal(0);
 
-  /** Every `currentPageChange`, in order. */
+  /** Every `pageChange`, in order. */
   readonly navigations: number[] = [];
 
   goTo(next: number): void {
@@ -467,7 +458,7 @@ describe('WrPagination past the end of a settled empty total', () => {
 
   it('disables the next arrow, which has nowhere to go', () => {
     // The arrows report the RANGE, not equality with its end: at page 5 of one
-    // page `currentPage() === totalPages()` is false, so next rendered enabled
+    // page `page() === totalPages()` is false, so next rendered enabled
     // and did nothing. Prev stays enabled in the same state because it does
     // have somewhere to go — the two are asserted together on purpose.
     expect(isOff(labelled('next'))).toBe(true);
@@ -500,10 +491,10 @@ describe('WrPagination past the end of a settled empty total', () => {
     <wr-pagination
       showSizeChanger
       [total]="total()"
-      [currentPage]="page()"
+      [page]="page()"
       [pageSize]="size()"
       [pageSizeOptions]="[10, 25]"
-      (currentPageChange)="goTo($event)"
+      (pageChange)="goTo($event)"
       (pageSizeChange)="resize($event)"
     />
   `,
@@ -559,7 +550,7 @@ describe('WrPagination size changer', () => {
     // `pageSize.set` emits synchronously, so the host has already reset to page
     // 1 by the next statement — and that write reaches the model only on the
     // following binding pass. Clamping there read the pre-change page 6 and
-    // emitted `currentPageChange(5)` over the reset, which the host cannot tell
+    // emitted `pageChange(5)` over the reset, which the host cannot tell
     // from a navigation: page 3 on screen and two requests for one choice.
     chooseSize('25 / page');
 
@@ -588,7 +579,7 @@ describe('WrPagination size changer', () => {
  * The range line and the compact pager, as translatable UNITS.
  *
  * Both used to be assembled in code around one catalog word — `${start}-${end}
- * ${of} ${total}` and `{{ currentPage() }} / {{ totalPages() }}` — so a locale
+ * ${of} ${total}` and `{{ page() }} / {{ totalPages() }}` — so a locale
  * could change "of" and nothing else: not the ASCII hyphen between the bounds,
  * not the operand order, not the separator in the compact pager. Under the
  * audit's pseudo-locale the defect is literal, `1-10 ⟦pagination.of⟧ 235`.

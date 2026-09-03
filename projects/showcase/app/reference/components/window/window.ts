@@ -55,7 +55,7 @@ export default class WindowPageComponent {
     this.manager.open(WindowDemoBodyComponent, {
       title: 'Compact',
       size: 'sm',
-      chromeSize: 'compact',
+      chromeSize: 'sm',
       data: { message: 'Tight title bar — good for utility panels.' },
     });
   }
@@ -228,9 +228,9 @@ ref.close(savedDocId);`,
     {
       name: 'chromeSize',
       sub: true,
-      description: 'Title-bar density. `compact` shrinks the bar + action dots for utility panels.',
-      type: "'normal' | 'compact'",
-      default: "'normal'",
+      description: 'Title-bar density. `sm` shrinks the bar + action dots for utility panels.',
+      type: "'sm' | 'md'",
+      default: "'md'",
     },
     {
       name: 'x / y / width / height',

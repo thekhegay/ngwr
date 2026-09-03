@@ -194,6 +194,13 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Template reference"
+    description="The directive exports itself as `wrSquircle`. Its state is modelled rather than input-only, so a reference can flip the shape off — or thicken its ring — from outside the element."
+  >
+    <ngwr-doc-code [code]="snippets.exportAs" language="angular-html" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API" description="Inputs on the [wrSquircle] directive (wr-squircle is the host element).">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

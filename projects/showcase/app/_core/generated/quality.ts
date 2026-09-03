@@ -43,10 +43,10 @@ export const QUALITY = {
   directives: 37,
 
   /** `*.spec.ts` files under `projects/lib`, harness specs included. They sit beside the code they cover, and `tsconfig.lib.json` excludes them from the package. */
-  specFiles: 247,
+  specFiles: 248,
 
   /** Test cases those files DECLARE — `it(…)` / `test(…)` call sites, counted after comments and string bodies are stripped. */
-  testCases: 4338,
+  testCases: 4356,
 
   /** Whether `testCases` is a total or a floor. A parameterised form (`it.each`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page says "at least" rather than failing a documentation build over a legal spec. */
   testCasesAreExact: false,
@@ -77,15 +77,16 @@ export const QUALITY = {
     { name: "test:coverage", command: "ng test lib --coverage --coverage-reporters lcovonly text-summary" },
     { name: "check:api-docs", command: "tsx scripts/gen-api-docs.ts --check" },
     { name: "check:llms", command: "tsx scripts/gen-ai-assets.ts --check" },
+    { name: "check:css-vars", command: "tsx scripts/gen-css-vars.ts --check" },
     { name: "build:lib", command: "ng build lib && tsx scripts/gen-ai-assets.ts && tsx scripts/copy-dist-assets.ts && tsx scripts/gen-i18n-json.ts && tsx scripts/build-schematics.ts && tsx scripts/build-mcp.ts" },
-    { name: "build:showcase", command: "tsx scripts/gen-selectors.ts && tsx scripts/gen-quality.ts && tsx scripts/gen-ai-assets.ts && tsx scripts/build-showcase.ts && tsx scripts/gen-sitemap.ts && tsx scripts/gen-md-docs.ts" },
+    { name: "build:showcase", command: "tsx scripts/gen-selectors.ts && tsx scripts/gen-css-vars.ts && tsx scripts/gen-quality.ts && tsx scripts/gen-ai-assets.ts && tsx scripts/build-showcase.ts && tsx scripts/gen-sitemap.ts && tsx scripts/gen-md-docs.ts" },
     { name: "check:theme", command: "tsx scripts/check-theme-parity.ts" },
     { name: "check:a11y", command: "tsx scripts/check-a11y.ts" },
   ],
 
   /** The same, from `.github/workflows/nightly.yml`. `build:showcase` is on the list because the workflow runs it: all three checks read `dist/showcase` and cannot start without it. They each need a real browser and hundreds of page loads, which is what keeps them off the PR path — so a green PR says nothing about painted contrast or RTL overflow. */
   nightlyGates: [
-    { name: "build:showcase", command: "tsx scripts/gen-selectors.ts && tsx scripts/gen-quality.ts && tsx scripts/gen-ai-assets.ts && tsx scripts/build-showcase.ts && tsx scripts/gen-sitemap.ts && tsx scripts/gen-md-docs.ts" },
+    { name: "build:showcase", command: "tsx scripts/gen-selectors.ts && tsx scripts/gen-css-vars.ts && tsx scripts/gen-quality.ts && tsx scripts/gen-ai-assets.ts && tsx scripts/build-showcase.ts && tsx scripts/gen-sitemap.ts && tsx scripts/gen-md-docs.ts" },
     { name: "check:contrast", command: "tsx scripts/check-contrast.ts" },
     { name: "check:state-a11y", command: "tsx scripts/check-state-a11y.ts" },
     { name: "check:rtl-layout", command: "tsx scripts/check-rtl-layout.ts" },

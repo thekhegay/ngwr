@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrOverlay } from 'ngwr/overlay';
@@ -115,5 +115,32 @@ describe('[wrColorPickerTrigger] focus', () => {
     // non-modal, and the anchors would be the tell that it is not.
     expect(document.querySelectorAll('.cdk-focus-trap-anchor')).toHaveLength(0);
     expect(elsewhere().getAttribute('aria-hidden')).toBeNull();
+  });
+});
+
+/**
+ * `exportAs` is what lets a template drive the trigger from somewhere else on the
+ * page — `#swatch="wrColorPickerTrigger"` then `(click)="swatch.open()"`. Without
+ * it the reference is a compile error, so mounting the host is half the assertion.
+ */
+describe('WrColorPickerTrigger template reference', () => {
+  @Component({
+    imports: [WrColorPickerTrigger],
+    template: `<button type="button" wrColorPickerTrigger #ref="wrColorPickerTrigger">Colour</button>`,
+  })
+  class ExportHost {
+    readonly trigger = viewChild.required<WrColorPickerTrigger>('ref');
+  }
+
+  it('publishes the instance as `wrColorPickerTrigger`', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+
+    const fixture = TestBed.createComponent(ExportHost);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.trigger()).toBeInstanceOf(WrColorPickerTrigger);
+
+    fixture.destroy();
   });
 });

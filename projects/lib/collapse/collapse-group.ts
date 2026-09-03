@@ -8,12 +8,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, forwardRef, input } from '@angular/core';
 
-import { WR_COLLAPSE_GROUP, type WrCollapseGroupContext } from './tokens';
-
-interface Member {
-  close(): void;
-  readonly id: object;
-}
+import { WR_COLLAPSE_GROUP, type WrCollapseGroupContext, type WrCollapseGroupMember } from './tokens';
 
 /**
  * Visual + behavioral grouping of `<wr-collapse>` children. When
@@ -38,9 +33,9 @@ export class WrCollapseGroup implements WrCollapseGroupContext {
   /** When true, only one child may be open at a time. @default false */
   readonly accordion = input(false, { transform: coerceBooleanProperty });
 
-  private readonly members = new Map<object, Member>();
+  private readonly members = new Map<object, WrCollapseGroupMember>();
 
-  register(member: Member): void {
+  register(member: WrCollapseGroupMember): void {
     this.members.set(member.id, member);
   }
 

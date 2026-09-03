@@ -39,7 +39,7 @@ export class MyComponent {}`,
     noTitle: `<wr-alert message="Your changes are live." type="success" />
 <wr-alert message="Connection lost." type="offline" />`,
     customIcon: `<wr-alert iconName="sparkles" title="What's new" message="Smarter search just landed." />`,
-    closeable: `<wr-alert title="Saved" type="success" closeable (closed)="onClose()" />`,
+    closable: `<wr-alert title="Saved" type="success" closable (closed)="onClose()" />`,
     noIcon: `<wr-alert title="Plain" message="No leading icon." [icon]="false" />`,
   };
 

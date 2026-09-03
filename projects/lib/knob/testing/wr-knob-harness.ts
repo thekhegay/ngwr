@@ -7,12 +7,9 @@
 
 import { ComponentHarness, HarnessPredicate, TestKey } from '@angular/cdk/testing';
 
-import type { WrKnobHarnessFilters } from './interfaces';
+import type { WrKnobArrowKey, WrKnobHarnessFilters } from './interfaces';
 
-/** The two arrow keys that raise the value, and the two that lower it. */
-type Arrow = 'left' | 'right' | 'up' | 'down';
-
-const ARROWS: Record<Arrow, TestKey> = {
+const ARROWS: Record<WrKnobArrowKey, TestKey> = {
   left: TestKey.LEFT_ARROW,
   right: TestKey.RIGHT_ARROW,
   up: TestKey.UP_ARROW,
@@ -148,7 +145,7 @@ export class WrKnobHarness extends ComponentHarness {
    * component, which has one axis and no mirroring to do. `shift` multiplies the step
    * by ten.
    */
-  async pressArrow(arrow: Arrow, options: { shift?: boolean } = {}): Promise<void> {
+  async pressArrow(arrow: WrKnobArrowKey, options: { shift?: boolean } = {}): Promise<void> {
     const surface = await this.surface();
     await (options.shift ? surface.sendKeys({ shift: true }, ARROWS[arrow]) : surface.sendKeys(ARROWS[arrow]));
   }

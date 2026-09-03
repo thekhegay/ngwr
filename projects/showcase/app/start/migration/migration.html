@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Migration guide"
-  description="How to move between major versions of ngwr. A major whose breaking changes are in CODE ships an `ng update` codemod that rewrites them for you — v7, v8, v9 and v12 all do; the tables below document what changes if you'd rather do it by hand. v10 and v11 deliberately ship none, because their breaking changes were painted COLOUR — contrast on `--wr-color-*-contrast`, table header casing and tooltip theming in v10, five deepened intents in v11 — and no codemod can repair a screenshot. An empty one would only have told you your visual regressions were handled when they were not."
+  description="How to move between major versions of ngwr. A major whose breaking changes are in CODE ships an `ng update` codemod that rewrites them for you — v7, v8, v9, v12 and v14 all do; the tables below document what changes if you'd rather do it by hand. v10 and v11 deliberately ship none, because their breaking changes were painted COLOUR — contrast on `--wr-color-*-contrast`, table header casing and tooltip theming in v10, five deepened intents in v11 — and no codemod can repair a screenshot. An empty one would only have told you your visual regressions were handled when they were not."
   [keywords]="['migration', 'ng update', 'upgrade', 'breaking changes', 'codemod', 'schematics']"
 >
   <ngwr-doc-section
@@ -11,8 +11,24 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="v14 — the five renames"
+    description="Five names moved, and `ng update ngwr@14` rewrites every one of them: a rename is exactly what a codemod does well, since the new name means what the old one meant on the same element. `<wr-alert closeable>` becomes `closable`, matching the three places that already spelled it that way — and note that neither spelling ever raised a template error, because a bare attribute matching no input is just an attribute. `<wr-table [totalItems]>` and `<wr-pagination [(currentPage)]>` become `[total]` and `[(page)]`, so two components built to sit on the same screen stop using two words for each of the two concepts they share. `isDisabledWhenLoading` loses its prefix, leaving the library with no `is*` boolean at all. And the window's `chromeSize` moves from `compact`/`normal` to `sm`/`md` — the vocabulary v8 renamed everywhere else three majors ago."
+  >
+    <ngwr-doc-code [code]="snippets.v14Renames" language="diff" />
+    <p wrTypography variant="small" tone="medium">
+      Two things the codemod cannot reach. A component class reading one of these off a
+      <code>viewChild()</code> reference is a type error on upgrade, which is the loud failure and needs no help. The
+      quiet one is a test: <code>WrWindowHarness.getChromeSize()</code> answers <code>'sm'</code> /
+      <code>'md'</code> now, so an assertion on <code>'compact'</code> fails as a wrong value rather than as a wrong
+      type. The pagination harness filter moved with its input —
+      <code>WrPaginationHarness.with(&#123; currentPage: 3 &#125;)</code> becomes <code>&#123; page: 3 &#125;</code> —
+      and that one the codemod does rewrite.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="v13 → v14"
-    description="Router integration became opt-in, and dates learned to read what they print. `ng update ngwr@14` REPORTS rather than rewrites: every change here needs a decision a codemod cannot make, so it names the files and leaves them to you. Read its output before touching anything."
+    description="Router integration became opt-in, and dates learned to read what they print. Beyond the renames above, `ng update ngwr@14` REPORTS rather than rewrites: each of these needs a decision a codemod cannot make, so it names the files and leaves them to you. Read its output before touching anything."
   >
     <ngwr-doc-code [code]="snippets.v14" language="diff" />
   </ngwr-doc-section>

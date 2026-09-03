@@ -21,13 +21,13 @@ type PageEntry = number | typeof ELLIPSIS;
 /**
  * Numbered page navigator with optional total / page-size controls.
  *
- * Two-way binds `currentPage` and `pageSize` via signal `model()` inputs.
+ * Two-way binds `page` and `pageSize` via signal `model()` inputs.
  *
  * @example
  * ```html
  * <wr-pagination
  *   [total]="120"
- *   [(currentPage)]="page"
+ *   [(page)]="page"
  *   [(pageSize)]="size"
  *   showTotal
  *   showSizeChanger
@@ -44,8 +44,16 @@ type PageEntry = number | typeof ELLIPSIS;
   imports: [WrButton, WrSelect, WrOption],
 })
 export class WrPagination {
-  /** Currently displayed page (1-based). Two-way bindable. */
-  readonly currentPage = model<number>(1);
+  /**
+   * Currently displayed page (1-based). Two-way bindable.
+   *
+   * `page` rather than `currentPage` since v14, so this and `<wr-table>` — which
+   * renders one of these in its own footer — spell the two concepts they share
+   * one way each. It also names the output: a `model()` called `X` forces
+   * `(XChange)`, so the old name produced `(currentPageChange)` against the
+   * table's `(pageChange)`.
+   */
+  readonly page = model<number>(1);
 
   /** Items per page. Two-way bindable. */
   readonly pageSize = model<number>(10);
@@ -120,7 +128,7 @@ export class WrPagination {
 
   /**
    * Internal: where the previous arrow goes. Clamped to the end of the valid
-   * range rather than being a plain `currentPage() - 1`, because the page can
+   * range rather than being a plain `page() - 1`, because the page can
    * legitimately sit past that end while `total` is 0 (see the guard effect).
    * From page 5 of one page, `goTo(4)` is refused as out of range, so the arrow
    * was enabled and did nothing — and under `responsive` on a narrow box the
@@ -128,7 +136,7 @@ export class WrPagination {
    * all. `Math.min` only ever moves the target INWARD, so `goTo`'s own
    * past-the-end refusal keeps working as the backstop it is.
    */
-  protected readonly prevPage = computed(() => Math.min(this.currentPage() - 1, this.totalPages()));
+  protected readonly prevPage = computed(() => Math.min(this.page() - 1, this.totalPages()));
 
   /**
    * Internal: the "1–10 of 235" line, as ONE catalog template.
@@ -145,8 +153,8 @@ export class WrPagination {
    * concatenation, re-offered as API.
    */
   protected readonly rangeLabel = computed(() => {
-    const start = this.total() === 0 ? 0 : (this.currentPage() - 1) * this.pageSize() + 1;
-    const end = Math.min(this.currentPage() * this.pageSize(), this.total());
+    const start = this.total() === 0 ? 0 : (this.page() - 1) * this.pageSize() + 1;
+    const end = Math.min(this.page() * this.pageSize(), this.total());
     return this.rangeText({
       from: this.number(start),
       to: this.number(end),
@@ -156,7 +164,7 @@ export class WrPagination {
 
   /** Internal: the compact pager's `1 / 24`, likewise a catalog template. */
   protected readonly compactLabel = computed(() =>
-    this.compactText({ current: this.number(this.currentPage()), total: this.number(this.totalPages()) })
+    this.compactText({ current: this.number(this.page()), total: this.number(this.totalPages()) })
   );
 
   private readonly rangeText = useI18nFormatter('pagination.range', '{{from}}–{{to}} of {{total}}');
@@ -180,7 +188,7 @@ export class WrPagination {
    */
   protected readonly pages = computed<readonly PageEntry[]>(() => {
     const total = this.totalPages();
-    const current = this.currentPage();
+    const current = this.page();
 
     if (total <= 7) {
       return Array.from({ length: total }, (_, i) => i + 1);
@@ -224,13 +232,13 @@ export class WrPagination {
   });
 
   protected isCurrent(page: number): boolean {
-    return this.currentPage() === page;
+    return this.page() === page;
   }
 
   protected goTo(page: number | typeof ELLIPSIS): void {
     if (typeof page !== 'number') return;
-    if (this.disabled() || page < 1 || page > this.totalPages() || page === this.currentPage()) return;
-    this.currentPage.set(page);
+    if (this.disabled() || page < 1 || page > this.totalPages() || page === this.page()) return;
+    this.page.set(page);
   }
 
   /**
@@ -239,8 +247,8 @@ export class WrPagination {
    * `[ngModel]`, which hid the coercion rather than removing the need for it.
    */
   constructor() {
-    // `currentPage` is a plain `model` — a `model()` takes no transform — so a
-    // shrinking `total` and a host `[(currentPage)]` write both land in it
+    // `page` is a plain `model` — a `model()` takes no transform — so a
+    // shrinking `total` and a host `[(page)]` write both land in it
     // unchecked. The guard used to read and write the page inside `untracked()`
     // and pull DOWNWARDS only, so it fired when `total` / `pageSize` moved and
     // never when the host wrote: past the end no cell carries `aria-current`,
@@ -257,7 +265,7 @@ export class WrPagination {
     // value whenever the params change, and a params function returning an
     // object literal is never reference-equal, so `total` reads 0 between the
     // click and the response. `totalPages()` is 1 there, so the guard pulled
-    // every page above the first back to 1 and emitted a `currentPageChange`
+    // every page above the first back to 1 and emitted a `pageChange`
     // the host could not tell from a click: the pager could not leave page 1,
     // and each click cost two events. A negative `total` is folded into the
     // same branch because it is as meaningless as a zero one.
@@ -267,7 +275,7 @@ export class WrPagination {
     // and while it was skipped a host write of -3 survived — `rangeLabel()`
     // guards `start` for an empty total and not `end`, so it read "0--30 of 0",
     // and the compact pager read "-3 / 1". It is written as one expression
-    // rather than an early return so the effect depends on `currentPage()` and
+    // rather than an early return so the effect depends on `page()` and
     // `total()` on every run, whichever branch decides the result.
     //
     // What IS still given up while `total` is 0 and the held page is past the
@@ -280,10 +288,10 @@ export class WrPagination {
     // the "enabled and inert" behaviour described above, which this component
     // used to accept at both ends.
     effect(() => {
-      const page = this.currentPage();
+      const page = this.page();
       const floored = Math.max(1, page);
       const clamped = this.total() <= 0 ? floored : Math.min(floored, this.totalPages());
-      if (clamped !== page) this.currentPage.set(clamped);
+      if (clamped !== page) this.page.set(clamped);
     });
   }
 
@@ -297,7 +305,7 @@ export class WrPagination {
     // that write has not reached the model yet, it arrives on the next binding
     // pass. So the clamp computed a cap from the PRE-change page and wrote the
     // result over the host's decision: from page 6 at size 10, choosing 25
-    // emitted `currentPageChange(5)` on top of the host's reset to 1, which the
+    // emitted `pageChange(5)` on top of the host's reset to 1, which the
     // host cannot tell from a navigation, and a second request went out. The
     // guard effect in the constructor takes it over and runs once the bindings
     // have settled, so it clamps the page the host actually wants.

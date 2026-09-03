@@ -43,7 +43,7 @@ export const API = {
     { name: "iconName", description: "Override the default per-type icon with any ngwr icon name.", type: "WrIconName | null", default: "null" },
     { name: "message", description: "Optional secondary message rendered below the title.", type: "string | null", default: "null" },
     { name: "icon", description: "When `true`, renders a leading status icon matching the `type`. Pass `false` to hide. Ignored when `iconName` is set.", type: "boolean", default: "true" },
-    { name: "closeable", description: "When `true`, renders a close button.", type: "boolean", default: "false" },
+    { name: "closable", description: "When `true`, renders a close button.", type: "boolean", default: "false" },
     { name: "(closed)", description: "Emitted when the user dismisses the alert via the close button.", type: "void" },
   ],
   // <wr-anchor>
@@ -151,7 +151,7 @@ export const API = {
     { name: "outlined", description: "Outlined variant — colored text and border on a transparent background.", type: "boolean", default: "false" },
     { name: "block", description: "Stretch the button to fill its parent's width.", type: "boolean", default: "false" },
     { name: "loading", description: "Show a spinner overlaying the label. Layout is preserved.", type: "boolean", default: "false" },
-    { name: "isDisabledWhenLoading", description: "When `loading` is `true` and this is also `true`, pointer events are suppressed and the button reports as disabled to assistive tech.", type: "boolean", default: "true" },
+    { name: "disabledWhenLoading", description: "When `loading` is `true` and this is also `true`, pointer events are suppressed and the button reports as disabled to assistive tech.", type: "boolean", default: "true" },
   ],
   // <wr-btn-group>
   WrButtonGroup: [
@@ -798,7 +798,7 @@ export const API = {
   ],
   // <wr-pagination>
   WrPagination: [
-    { name: "currentPage", description: "Currently displayed page (1-based). Two-way bindable.", type: "number", default: "1" },
+    { name: "page", description: "Currently displayed page (1-based). Two-way bindable. `page` rather than `currentPage` since v14, so this and `<wr-table>` — which renders one of these in its own footer — spell the two concepts they share one way each. It also names the output: a `model()` called `X` forces `(XChange)`, so the old name produced `(currentPageChange)` against the table's `(pageChange)`.", type: "number", default: "1" },
     { name: "pageSize", description: "Items per page. Two-way bindable.", type: "number", default: "10" },
     { name: "total", description: "Total item count across all pages.", type: "number", default: "0" },
     { name: "pageSizeOptions", description: "Options shown in the page-size dropdown.", type: "readonly number[]", default: "[10, 20, 50, 100]" },
@@ -1209,8 +1209,8 @@ export const API = {
     { name: "(filterChange)", description: "Fires whenever a column's filter selection changes.", type: "WrTableFilterChange" },
     { name: "pageSize", description: "Rows per page. Set to `0` (default) to disable client-side pagination and render every row at once.", type: "number", default: "0" },
     { name: "page", description: "Two-way bindable 1-based current page.", type: "number", default: "1" },
-    { name: "totalItems", description: "Total row count for server-side pagination — when set, the table shows the pager but does NOT slice `items` (you provide the current page's slice yourself and react to `(page)` changes).", type: "number | null", default: "null" },
-    { name: "virtualScroll", description: "Window the `<tbody>` so a table of thousands of rows keeps only ~one viewport of `<tr>`s in the DOM. Opt-in and OFF by default — a table without it renders byte-identically to today. Engages ONLY on the flat, fixed-height tier: it silently falls back to the full render whenever a variable-height layout is active — `groupBy`, a `[wrTableExpand]` template, `responsive` card mode, or a visible pager (`pageSize > 0` / `totalItems`). While on, it forces fixed layout for stable column widths and assumes a uniform row height (see `rowHeight`). Intended as static config. Give columns an explicit `width` so the frozen layout is exact (a virtualized table always renders fixed-layout); toggling it off at runtime leaves the frozen widths in place as column minimums.", type: "boolean", default: "false" },
+    { name: "total", description: "Total row count for server-side pagination — when set, the table shows the pager but does NOT slice `items` (you provide the current page's slice yourself and react to `(page)` changes). Spelled `total` / `page` to match `<wr-pagination>`, which is the control this input renders. The two used to disagree about both words — `totalItems` / `page` here against `total` / `currentPage` there — which is a real cost for two components designed to sit on one screen. `null` rather than `0` is the difference that remains, and it carries meaning: it is the OFF switch for server mode, where the pager's own `total` is a count and `0` means an empty list.", type: "number | null", default: "null" },
+    { name: "virtualScroll", description: "Window the `<tbody>` so a table of thousands of rows keeps only ~one viewport of `<tr>`s in the DOM. Opt-in and OFF by default — a table without it renders byte-identically to today. Engages ONLY on the flat, fixed-height tier: it silently falls back to the full render whenever a variable-height layout is active — `groupBy`, a `[wrTableExpand]` template, `responsive` card mode, or a visible pager (`pageSize > 0` / `total`). While on, it forces fixed layout for stable column widths and assumes a uniform row height (see `rowHeight`). Intended as static config. Give columns an explicit `width` so the frozen layout is exact (a virtualized table always renders fixed-layout); toggling it off at runtime leaves the frozen widths in place as column minimums.", type: "boolean", default: "false" },
     { name: "rowHeight", description: "Uniform body-row height in px used to map scroll offset to row index. `0` (default) measures the first rendered row once — matching the density at that point — and reuses it; pass an explicit value to remove the post-hydration measure and make SSR pixel-exact (recommended if the density can change at runtime). Read only when `virtualScroll` is on. Keep virtualized cells single-line and no taller than this — a taller custom `[wrTableCell]` template drifts the window.", type: "number", default: "0" },
     { name: "viewportHeight", description: "Height of the scroll viewport when `virtualScroll` is on — a number (px) or any CSS length (`'70vh'`). Applied as `max-height` on `.wr-table__scroll` (a short table shrinks to fit; a long one caps and scrolls). A numeric px value lets the server prerender the exact first window.", type: "number | string", default: "480" },
     { name: "overscan", description: "Extra rows kept rendered above and below the viewport as scroll headroom.", type: "number", default: "6" },
@@ -1388,7 +1388,7 @@ export const API = {
     { name: "initialWidth", description: "Initial / forced size in pixels. Wins over `[size]` when set.", type: "number | null", default: "null" },
     { name: "initialHeight", description: "—", type: "number | null", default: "null" },
     { name: "os", description: "OS chrome style. `'auto'` reads `navigator.userAgentData.platform` / `navigator.platform` and picks the matching preset (SSR-safe; unknown platforms fall back to `windows`).", type: "WrWindowOs", default: "'auto'" },
-    { name: "chromeSize", description: "Title-bar density.", type: "WrWindowChromeSize", default: "'normal'" },
+    { name: "chromeSize", description: "Title-bar density.", type: "WrWindowChromeSize", default: "'md'" },
     { name: "animations", description: "Enter / leave animations. Set to `false` to disable the open-fade and the minimize / maximize transitions. Honoured automatically when `prefers-reduced-motion: reduce`.", type: "boolean", default: "true" },
     { name: "minWidth", description: "—", type: "number", default: "220" },
     { name: "minHeight", description: "—", type: "number", default: "140" },

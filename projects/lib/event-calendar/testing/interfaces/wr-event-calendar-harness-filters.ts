@@ -9,6 +9,14 @@ import type { BaseHarnessFilters } from '@angular/cdk/testing';
 
 import type { WrCalendarView } from 'ngwr/event-calendar';
 
+/**
+ * An arrow key, by the direction a user would say out loud — the parameter type
+ * shared by `WrEventCalendarHarness.pressArrow` and the chip harness's `move`,
+ * `resize` and `pressArrow`, exported so a consumer's own test helper can name
+ * what it forwards.
+ */
+export type WrEventCalendarArrowKey = 'left' | 'right' | 'up' | 'down';
+
 /** Narrows which `<wr-event-calendar>` a harness query matches. */
 export interface WrEventCalendarHarnessFilters extends BaseHarnessFilters {
   /** Match the header title as printed — a string is an exact match, a RegExp is tested. */

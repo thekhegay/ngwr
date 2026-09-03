@@ -79,7 +79,7 @@ describe('WrButtonHarness', () => {
   });
 
   it('counts a loading button as disabled, because it refuses clicks', async () => {
-    // Not a quirk of the harness: `isDisabledWhenLoading` defaults to on, so the
+    // Not a quirk of the harness: `disabledWhenLoading` defaults to on, so the
     // button really is inert while it spins.
     const sync = await loader.getHarness(WrButtonHarness.with({ text: 'Sync' }));
     expect(await sync.isDisabled()).toBe(true);

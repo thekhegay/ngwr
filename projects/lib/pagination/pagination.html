@@ -25,7 +25,7 @@
       [size]="size()"
       outlined
       [attr.aria-label]="resolvedPrev()"
-      [disabled]="disabled() || currentPage() <= 1"
+      [disabled]="disabled() || page() <= 1"
       (click)="goTo(prevPage())"
     >
       <svg
@@ -71,8 +71,8 @@
       [size]="size()"
       outlined
       [attr.aria-label]="resolvedNext()"
-      [disabled]="disabled() || currentPage() >= totalPages()"
-      (click)="goTo(currentPage() + 1)"
+      [disabled]="disabled() || page() >= totalPages()"
+      (click)="goTo(page() + 1)"
     >
       <svg
         class="wr-icon__svg"

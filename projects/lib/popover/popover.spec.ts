@@ -1,5 +1,5 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, signal } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
@@ -797,5 +797,38 @@ describe('WrPopover placement fallbacks', () => {
         expect(resolved[index]).toEqual({ ...WR_POPOVER_POSITIONS[link], panelClass: `wr-popover-overlay--${link}` });
       });
     }
+  });
+});
+
+/**
+ * `exportAs` is the only way a template can reach the directive at all — without
+ * it `#p="wrPopover"` is a compile error, not a silent `undefined`, so mounting
+ * the host IS half the assertion. The other half is that the reference resolves
+ * to the directive rather than to the element it sits on.
+ */
+describe('WrPopover template reference', () => {
+  @Component({
+    imports: [WrPopover],
+    template: `
+      <button type="button" [wrPopover]="panel" #ref="wrPopover">Details</button>
+      <ng-template #panel>Body</ng-template>
+    `,
+  })
+  class ExportHost {
+    readonly popover = viewChild.required<WrPopover>('ref');
+  }
+
+  it('publishes the instance as `wrPopover`', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+
+    const fixture = TestBed.createComponent(ExportHost);
+    fixture.detectChanges();
+
+    const popover = fixture.componentInstance.popover();
+    expect(popover).toBeInstanceOf(WrPopover);
+    expect(popover.isOpen()).toBe(false);
+
+    fixture.destroy();
   });
 });

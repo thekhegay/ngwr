@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
@@ -207,6 +207,35 @@ describe('WrPopconfirm under a localized catalog', () => {
 
     const labels = [...document.querySelectorAll('.wr-popconfirm wr-btn')].map(el => el.textContent.trim());
     expect(labels).toEqual(['Отмена', 'Подтвердить']);
+
+    fixture.destroy();
+  });
+});
+
+/**
+ * `exportAs` is what makes `#confirm="wrPopconfirm"` legal — without it the
+ * template does not compile at all, so mounting the host is half the assertion and
+ * the reference resolving to the directive is the other half.
+ */
+describe('WrPopconfirm template reference', () => {
+  @Component({
+    imports: [WrPopconfirm],
+    template: `<button type="button" wrPopconfirm="Delete this?" #ref="wrPopconfirm">Delete</button>`,
+  })
+  class ExportHost {
+    readonly popconfirm = viewChild.required<WrPopconfirm>('ref');
+  }
+
+  it('publishes the instance as `wrPopconfirm`', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+
+    const fixture = TestBed.createComponent(ExportHost);
+    fixture.detectChanges();
+
+    const popconfirm = fixture.componentInstance.popconfirm();
+    expect(popconfirm).toBeInstanceOf(WrPopconfirm);
+    expect(popconfirm.isOpen()).toBe(false);
 
     fixture.destroy();
   });

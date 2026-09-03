@@ -7,6 +7,14 @@
 
 import type { BaseHarnessFilters } from '@angular/cdk/testing';
 
+/**
+ * An arrow key, by the direction a user would say out loud — the parameter type
+ * of `WrSplitterHarness.pressArrow`, exported so a consumer's own test helper can
+ * name what it forwards. Arrows follow the VISUAL axis, so `left` shrinks the
+ * position in LTR and grows it in RTL.
+ */
+export type WrSplitterArrowKey = 'left' | 'right' | 'up' | 'down';
+
 /** Narrows which `<wr-splitter>` a harness query matches. */
 export interface WrSplitterHarnessFilters extends BaseHarnessFilters {
   /**

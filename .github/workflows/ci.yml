@@ -63,6 +63,12 @@ jobs:
       # in CI looks at it. The floors are set AT the current catalog size.
       - run: pnpm check:llms
 
+      # And the same again for the per-component `--wr-*` catalogue. The docs
+      # build regenerates it, so the PAGE cannot go stale — this is what keeps
+      # the COMMITTED file honest, so a clean checkout type-checks against the
+      # hooks the library actually publishes.
+      - run: pnpm check:css-vars
+
       - run: pnpm build:lib
 
       - run: pnpm build:showcase

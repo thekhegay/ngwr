@@ -35,7 +35,7 @@ export interface WrTableColumn {
   /**
    * Footer aggregate for this column — renders a summary row when any column
    * sets it. Computed over the current `items`, so in server-side mode
-   * (`totalItems` set) it reflects the current page, not the whole dataset.
+   * (`total` set) it reflects the current page, not the whole dataset.
    */
   readonly summary?: WrTableSummary;
 }

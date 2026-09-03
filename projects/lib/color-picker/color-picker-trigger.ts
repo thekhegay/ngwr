@@ -52,6 +52,7 @@ let triggerUid = 0;
  */
 @Directive({
   selector: '[wrColorPickerTrigger]',
+  exportAs: 'wrColorPickerTrigger',
   host: {
     '(click)': 'toggle()',
     // The same two attributes `<wr-popover>`'s trigger carries: without them the
