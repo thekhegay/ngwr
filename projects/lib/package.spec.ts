@@ -73,6 +73,36 @@ function importedPackages(): Map<string, string[]> {
   return found;
 }
 
+describe('the release tooling can still find what it rewrites', () => {
+  // `release:prepare` regenerates SECURITY.md's support table from the version
+  // being cut, because maintained by hand it went two majors stale. It located
+  // the table by an exact string, a later edit ran the file through prettier —
+  // which pads every cell to its column width — and the release died on
+  // "SECURITY.md no longer contains the support table header".
+  //
+  // The matcher is shape-based now, and this is the assertion that was missing:
+  // the failure belongs in `pnpm test`, where an edit to the document is made,
+  // not at the one moment nobody wants a surprise. Markdown formatting is not
+  // gated in this repository, so both the padded and the bare spelling are legal
+  // and both have to keep working.
+  const security = readFileSync(join(process.cwd(), 'SECURITY.md'), 'utf8');
+
+  it('still holds a support table the generator can locate', () => {
+    expect(security).toMatch(/^\|\s*Version\s*\|\s*Supported\s*\|\s*$/m);
+  });
+
+  it('follows that header with a row per supported major, then a blank line', () => {
+    const from = security.search(/^\|\s*Version\s*\|\s*Supported\s*\|\s*$/m);
+    const block = security.slice(from, security.indexOf('\n\n', from));
+
+    // Header, separator and three majors — the shape `writeSupportTable` emits.
+    expect(block.split('\n')).toHaveLength(5);
+    // And the blank line it stops at exists, or the rewrite would swallow the
+    // prose underneath.
+    expect(security.indexOf('\n\n', from)).toBeGreaterThan(from);
+  });
+});
+
 describe('the published manifest', () => {
   const manifest = JSON.parse(readFileSync(join(LIB, 'package.json'), 'utf8')) as {
     peerDependencies: Record<string, string>;
