@@ -624,15 +624,32 @@ describe('parseMarkdown — regressions', () => {
     //
     // The bound is loose for the same reason as the spec above: it asserts "not
     // quadratic". These four sum to ~4.3 seconds unfixed and ~25 ms fixed.
-    const started = performance.now();
+    // Measured as a RATIO, not a budget. An absolute millisecond bound measures
+    // the runner, not the complexity: this assertion shipped at 1500 ms, passed
+    // on a laptop at ~25 ms, and failed CI at 1622 ms — a flake that says nothing
+    // about the parser. Doubling the input is the thing under test, so compare
+    // the two: quadratic multiplies the time by ~4, linear by ~2.
+    const time = (source: string): number => {
+      const from = performance.now();
+      parseMarkdown(source);
+      return performance.now() - from;
+    };
 
+    const half = time('[a](x'.repeat(8192));
+    const full = time('[a](x'.repeat(16384));
+
+    // The floor keeps the ratio meaningful when both runs are near zero, where
+    // scheduling noise alone can double a 1 ms sample.
+    expect(full).toBeLessThan(Math.max(50, half * 3));
+
+    // The other three shapes, and streaming, only have to finish — the ratio
+    // above is what proves the bound holds.
     const openDestination = parseMarkdown('[a](x'.repeat(16384));
     parseMarkdown('see [1](ref '.repeat(8192));
     parseMarkdown('![a](x'.repeat(13653));
     parseMarkdown('[a]((x)'.repeat(11703));
     parseMarkdown('[a](x'.repeat(16384), { streaming: true });
 
-    expect(performance.now() - started).toBeLessThan(1500);
     // And it still renders as what it is: inert paragraph text, no link, nothing
     // dropped. The fix is a bound on work, not a change of meaning.
     expect(openDestination).toHaveLength(1);
@@ -653,12 +670,22 @@ describe('parseMarkdown — regressions', () => {
     // correctness repair rather than a budget: `<` was never legal autolink
     // content. `<a:b` was always fast, which is why the shape reads as harmless in
     // a small test — a one-character scheme fails the alternation immediately.
-    const started = performance.now();
+    // A ratio for the same reason as the destination scan above: an absolute
+    // bound measures the runner. Quadratic multiplies by ~4 per doubling.
+    const time = (source: string): number => {
+      const from = performance.now();
+      parseMarkdown(source);
+      return performance.now() - from;
+    };
+
+    const half = time('<http://a'.repeat(9102));
+    const full = time('<http://a'.repeat(18204));
+
+    expect(full).toBeLessThan(Math.max(50, half * 3));
 
     const openAutolink = parseMarkdown('<http://a'.repeat(18204));
     parseMarkdown('<mailto:a'.repeat(18204));
 
-    expect(performance.now() - started).toBeLessThan(1000);
     // Still one paragraph, and nothing is dropped: the bare-URL linkifier picks
     // each `http://a` up as a link with the `<` left as text beside it, which is
     // what the unfixed parser produced for this input too.
