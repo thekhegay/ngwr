@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="WrLoadingBar"
-  description="Top-of-page progress bar driven by router navigations out of the box, plus a manual `start()` / `complete()` slot API for HTTP interceptors or any long-running task."
+  description="Top-of-page progress bar with a `start()` / `complete()` slot API for HTTP interceptors or any long-running task. Add `provideWrLoadingBarRouter()` and router navigations drive it as well — an opt-in, because that subscription is what would otherwise pull `@angular/router` into an app that never routes."
   [keywords]="['loading bar', 'progress', 'nprogress', 'wr-loading-bar', 'service']"
   [labels]="['Service']"
 >
@@ -10,7 +10,7 @@
 
   <ngwr-doc-section
     title="Live demo"
-    description="Click below — the bar at the top of this page ticks. Every navigation in the docs also drives it, so it's already in flight when you change page."
+    description="Click below — the bar at the top of this page ticks. This site adds `provideWrLoadingBarRouter()`, so changing page drives it too."
   >
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start">

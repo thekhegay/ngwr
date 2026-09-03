@@ -121,9 +121,21 @@ export class WrBlurText {
    */
   private observer: IntersectionObserver | null = null;
 
+  /**
+   * The effect below reaches `startObserver()` through a `queueMicrotask`, so
+   * the component can be destroyed between the two. The destroy hook runs first
+   * and disconnects whatever exists at that moment — then the continuation
+   * builds a FRESH observer on a host Angular has already detached, and nothing
+   * is left to disconnect it. Same hazard, and same flag, as `wr-split-text`.
+   */
+  private destroyed = false;
+
   constructor() {
     if (!this.isBrowser) return;
-    this.destroyRef.onDestroy(() => this.observer?.disconnect());
+    this.destroyRef.onDestroy(() => {
+      this.destroyed = true;
+      this.observer?.disconnect();
+    });
     afterNextRender(() => this.startObserver());
     effect(() => {
       this.text();
@@ -134,7 +146,7 @@ export class WrBlurText {
   }
 
   private startObserver(): void {
-    if (this.hasAnimated) return;
+    if (this.destroyed || this.hasAnimated) return;
     const host = this.host.nativeElement;
     this.observer?.disconnect();
     const io = new IntersectionObserver(

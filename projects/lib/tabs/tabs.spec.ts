@@ -10,6 +10,7 @@ import { Subject } from 'rxjs';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { WrTabsRouting } from './router/tabs-routing';
 import { WrTab } from './tab';
 import { WrTabs } from './tabs';
 
@@ -35,11 +36,17 @@ class Host {
   readonly active = signal<string | null>(null);
 }
 
-/** Router mode: the ROUTE selects a tab, so nothing ever moves `active`. */
+/**
+ * Router mode: the ROUTE selects a tab, so nothing ever moves `active`.
+ *
+ * `WrTabsRouting` is the opt-in from `ngwr/tabs/router`: the symbol in `imports`
+ * and the attribute on the element. `ngwr/tabs` itself names no
+ * `@angular/router` symbol, which is what keeps a content strip free of it.
+ */
 @Component({
-  imports: [WrTabs, WrTab],
+  imports: [WrTabs, WrTab, WrTabsRouting],
   template: `
-    <wr-tabs>
+    <wr-tabs wrTabsRouting>
       <wr-tab title="One" key="one" routerLink="/one" />
       <wr-tab title="Two" key="two" routerLink="/two" />
       <wr-tab title="Three" key="three" routerLink="/three" />
@@ -447,9 +454,9 @@ class Page {}
 
 /** The same strip with real routes behind it, because the ROUTE is the selection here. */
 @Component({
-  imports: [RouterOutlet, WrTabs, WrTab],
+  imports: [RouterOutlet, WrTabs, WrTab, WrTabsRouting],
   template: `
-    <wr-tabs>
+    <wr-tabs wrTabsRouting>
       <wr-tab title="One" key="one" routerLink="/one" />
       <wr-tab title="Two" key="two" routerLink="/two" />
     </wr-tabs>
@@ -496,7 +503,7 @@ describe('WrTabs selection in router mode', () => {
 
     // The `--active` class is paint and nothing else reads it; the strip used to
     // ship as a `role="tablist"` in which no tab was ever selected. Both readings
-    // come off the one `routerLinkActive`, so they cannot drift apart.
+    // come off the one `routerActive()`, so they cannot drift apart.
     expect(headers()[1].classList.contains('wr-tabs__tab--active')).toBe(true);
     expect(headers()[1].getAttribute('aria-selected')).toBe('true');
     expect(headers()[0].getAttribute('aria-selected')).toBe('false');
@@ -508,6 +515,41 @@ describe('WrTabs selection in router mode', () => {
 
     expect(headers()[0].getAttribute('aria-selected')).toBe('true');
     expect(headers()[1].getAttribute('aria-selected')).toBe('false');
+  });
+});
+
+/**
+ * `ngwr/tabs` names no `@angular/router` symbol, so a strip that carries a
+ * `routerLink` and nothing to serve it has to say so. The alternative — falling
+ * back to the content branch — renders buttons that navigate nowhere over an
+ * empty panel, which looks like a working strip and names nothing.
+ *
+ * The host below is the likelier half of the mistake: the attribute is on the
+ * element and the symbol is missing from `imports`, so nothing matches it and
+ * `wrTabsRouting` is an inert DOM attribute.
+ */
+@Component({
+  imports: [WrTabs, WrTab],
+  template: `
+    <wr-tabs wrTabsRouting>
+      <wr-tab title="One" key="one" routerLink="/one" />
+    </wr-tabs>
+  `,
+})
+class UnroutedHost {}
+
+describe('WrTabs in router mode with no routing adapter', () => {
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+  });
+
+  it('names the import it is missing rather than degrading', () => {
+    const fixture = TestBed.createComponent(UnroutedHost);
+
+    // `provideRouter` is present above and deliberately does not help: what is
+    // missing is the directive in `imports`, and the message has to say which.
+    expect(() => fixture.detectChanges()).toThrowError(/ngwr\/tabs\/router/);
   });
 });
 

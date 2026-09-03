@@ -519,6 +519,12 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       let raf = 0;
       let ro: ResizeObserver | null = null;
       let el: HTMLElement | null = null;
+      // `onCleanup` can run BEFORE the microtask below — the effect re-runs, or
+      // the component is destroyed, in the same task that scheduled it. It would
+      // then tear down nothing (`el` and `ro` are still null) and the
+      // continuation would go on to attach a scroll listener and a
+      // `ResizeObserver` that nothing is left to remove.
+      let cancelled = false;
       const onScroll = (): void => {
         if (raf) return;
         raf = requestAnimationFrame(() => {
@@ -527,6 +533,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
         });
       };
       queueMicrotask(() => {
+        if (cancelled) return;
         el = this.listElement;
         if (!el) return;
         // The overlay `<ul>` is destroyed + recreated on each open, but the
@@ -548,6 +555,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
         }
       });
       onCleanup(() => {
+        cancelled = true;
         if (raf) cancelAnimationFrame(raf);
         if (el) el.removeEventListener('scroll', onScroll);
         ro?.disconnect();

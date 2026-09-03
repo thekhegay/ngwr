@@ -1,7 +1,7 @@
 # ngwr
 
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
-> 202 secondary entry points, 187 component and directive classes, built on
+> 204 secondary entry points, 187 component and directive classes, built on
 > `@angular/cdk` primitives. The only runtime dependency is `tslib`. Docs and
 > live demos: https://ngwr.dev — source: https://github.com/thekhegay/ngwr
 

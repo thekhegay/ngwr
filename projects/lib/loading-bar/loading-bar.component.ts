@@ -12,9 +12,15 @@ import { WrLoadingBar } from './services/loading-bar';
 /**
  * Thin progress bar fixed to the top of the viewport.
  *
- * Drop one at the root of your shell. Reads the singleton {@link WrLoadingBar}
- * — every router navigation drives it automatically; HTTP interceptors
- * can call `start()` / `complete()` to add their own slots.
+ * Drop one at the root of your shell. Reads the singleton {@link WrLoadingBar},
+ * which is driven manually by `start()` / `complete()` — an HTTP interceptor, a
+ * long save, anything with a beginning and an end.
+ *
+ * Router navigations drive it too, but only once you add
+ * `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`. That is an opt-in
+ * because the subscription is what pulls `@angular/router` into the bundle: this
+ * component is 2.4 kB of its own code and used to carry 66 kB of router into
+ * apps that never routed.
  *
  * @example
  * ```html

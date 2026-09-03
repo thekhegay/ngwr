@@ -16,7 +16,7 @@
 > every call site. v11's own break was painted colour (five intents deepened so
 > their labels could go white), which is why it shipped no codemod at all.
 >
-> The catalog is **202 secondary entry points / 187 component and
+> The catalog is **204 secondary entry points / 187 component and
 > directive classes**, seventy of those entry points being the `<name>/testing`
 > CDK harnesses — A2 closed with the animation set, and what it learned lives in
 > [AGENTS.md](AGENTS.md) under "Writing a HARNESS".
@@ -76,7 +76,7 @@ Two notes on the order, then it stands as written:
 
 ## A — Trust & hardening
 
-The catalog is 202 entry points. Lint, unit tests, both builds, the a11y sweep,
+The catalog is 204 entry points. Lint, unit tests, both builds, the a11y sweep,
 the API-drift check and the llms floor gate it today. The hole is the SHAPE of
 the suite, not its absence: every entry point that carries behaviour has a spec,
 but a spec on `wr-table` says nothing about tree rows unless it exercises them.

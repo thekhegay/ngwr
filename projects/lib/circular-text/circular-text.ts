@@ -97,6 +97,16 @@ export class WrCircularText {
   private rotation: Animation | null = null;
   private hovered = false;
 
+  /**
+   * The effect below reaches `startOrSwap()` through a `queueMicrotask`, so the
+   * ring can be destroyed between the two. Without this flag the continuation
+   * then starts an infinite Web Animation on a host Angular has already
+   * detached — and an animation keeps its target alive, so the whole `#spin`
+   * subtree is retained for the life of the page. Same hazard, and same flag, as
+   * `wr-split-text` and `wr-fuzzy-text`.
+   */
+  private destroyed = false;
+
   /** Active spin duration in seconds — base, or hover-modified. */
   private effectiveDuration(): number | 'pause' {
     const base = this.spinDuration();
@@ -118,6 +128,16 @@ export class WrCircularText {
   constructor() {
     if (!this.isBrowser) return;
 
+    // Component-scoped, NOT inside the render hook below: `startOrSwap()` is
+    // reachable from the effect's microtask, which can create the animation
+    // before that hook has run — and a cleanup registered inside a callback that
+    // never ran is not registered at all. The listeners stay paired with the
+    // element they are added to.
+    this.destroyRef.onDestroy(() => {
+      this.destroyed = true;
+      this.rotation?.cancel();
+    });
+
     afterNextRender(() => {
       this.startOrSwap();
 
@@ -135,7 +155,6 @@ export class WrCircularText {
       this.destroyRef.onDestroy(() => {
         host.removeEventListener('mouseenter', onEnter);
         host.removeEventListener('mouseleave', onLeave);
-        this.rotation?.cancel();
       });
     });
 
@@ -154,6 +173,7 @@ export class WrCircularText {
    * current angle. If the new mode is `pause`, just pause the animation.
    */
   private startOrSwap(): void {
+    if (this.destroyed) return;
     if (!this.spinEl()) return;
 
     // Reduced motion: hold the ring still — the circular layout is the

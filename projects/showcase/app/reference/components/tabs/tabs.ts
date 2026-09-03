@@ -37,7 +37,8 @@ export class MyComponent {}`,
   <wr-tab key="details"  title="Details">Details content…</wr-tab>
   <wr-tab key="logs"     title="Logs">Logs content…</wr-tab>
 </wr-tabs>`,
-    router: `<wr-tabs>
+    router: `<!-- imports: [WrTabs, WrTab, WrTabsRouting] from 'ngwr/tabs' + 'ngwr/tabs/router' -->
+<wr-tabs wrTabsRouting>
   <wr-tab title="Overview" routerLink="overview" />
   <wr-tab title="Details"  routerLink="details" />
   <wr-tab title="Logs"     routerLink="logs" />

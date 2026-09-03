@@ -162,6 +162,26 @@ describe('WrBlurText', () => {
     expect(live).toBe(0);
   });
 
+  /**
+   * The sibling case of the test above, one tick earlier: destroyed before it
+   * has painted — an `@if` that flips on and off inside one tick, or a list
+   * replaced before render. The destroy hook runs first and disconnects
+   * whatever exists at that moment, and the effect's microtask lands after it;
+   * a continuation that does not check for the teardown builds a FRESH
+   * observer, which nothing is left to disconnect.
+   */
+  it('leaves no observer connected when it is destroyed in the task that created it', async () => {
+    fixture.destroy();
+    expect(live).toBe(0);
+
+    const cycled = TestBed.createComponent(Host);
+    cycled.detectChanges();
+    cycled.destroy();
+    await Promise.resolve();
+
+    expect(live, 'one observer leaked per mount destroyed before its first render').toBe(0);
+  });
+
   it('renders the text plainly on the server', async () => {
     await mount([{ provide: PLATFORM_ID, useValue: 'server' }]);
 

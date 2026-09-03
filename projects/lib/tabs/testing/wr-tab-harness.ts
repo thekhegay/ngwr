@@ -77,7 +77,7 @@ export class WrTabHarness extends ContentContainerComponentHarness {
    *
    * `aria-selected` first, because that is the state a screen reader acts on and
    * the `--active` class is only what it looks like. Both shapes carry it now — a
-   * router tab publishes it off the same `routerLinkActive` that paints the class —
+   * router tab publishes it off the same `routerActive()` that paints the class —
    * so the class is a fallback for a tab that has neither yet, not a second reading
    * of the same thing. The order is not interchangeable: reading the class first
    * would report a tab as selected while `aria-selected="false"` told assistive tech
@@ -194,11 +194,11 @@ export class WrTabHarness extends ContentContainerComponentHarness {
    * Activate this tab the way a pointer does.
    *
    * A disabled CONTENT tab is left alone: it is a real `<button disabled>`, which
-   * fires no click at all. A disabled ROUTER tab is NOT — the anchor carries
-   * `aria-disabled="true"` and `tabindex="-1"`, and nothing cancels its
-   * `routerLink`, so a click on it still navigates. That is a gap in the component
-   * rather than in this harness, and it is why a router strip's expectations belong
-   * on the resolved route rather than on the click.
+   * fires no click at all. A disabled ROUTER tab is an `<a>`, where `disabled` is
+   * not a thing — it carries `aria-disabled="true"` and `tabindex="-1"` to stay off
+   * the keyboard path, renders NO href, and the component drops the click rather
+   * than routing it. So the click lands and nothing moves, which is why a router
+   * strip's expectations belong on the resolved route rather than on the click.
    */
   async click(): Promise<void> {
     return (await this.host()).click();

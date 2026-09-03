@@ -12,6 +12,7 @@ import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrEn } from 'ngwr/i18n/en';
 import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrIcons } from 'ngwr/icon';
+import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router';
 import { provideWrMarkdownHighlighter } from 'ngwr/markdown';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { provideWrTheme } from 'ngwr/theme';
@@ -45,6 +46,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routing, withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' })),
     // ngwr
     provideWrOverlay(),
+    provideWrLoadingBarRouter(),
     // Default icon registry — names every showcase page can reference
     // without re-registering. Page-level `provideWrIcons(...)` adds on
     // top (the lib merges root + element-level multi-providers).

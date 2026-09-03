@@ -9,6 +9,7 @@ import { Subject } from 'rxjs';
 import { WrButton } from 'ngwr/button';
 import { WrButtonHarness } from 'ngwr/button/testing';
 import { WrTab, WrTabs } from 'ngwr/tabs';
+import { WrTabsRouting } from 'ngwr/tabs/router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrTabHarness } from './wr-tab-harness';
@@ -47,9 +48,9 @@ class Page {}
  * panel, and hands the selection to the router.
  */
 @Component({
-  imports: [RouterOutlet, WrTab, WrTabs],
+  imports: [RouterOutlet, WrTab, WrTabs, WrTabsRouting],
   template: `
-    <wr-tabs>
+    <wr-tabs wrTabsRouting>
       <wr-tab key="overview" title="Overview" routerLink="/overview" />
       <wr-tab key="details" title="Details" routerLink="/details" />
       <wr-tab key="locked" title="Locked" routerLink="/locked" [disabled]="true" />
@@ -473,7 +474,7 @@ describe('WrTabsHarness — a router strip', () => {
     expect(await loader.getAllHarnesses(WrTabsHarness.with({ selectedLabel: 'Details' }))).toHaveLength(1);
 
     // What `isSelected()` read here: the router tab publishes `aria-selected` off the
-    // same `routerLinkActive` that paints `--active`, so the announced selection and
+    // same `routerActive()` that paints `--active`, so the announced selection and
     // the painted one are one reading. It used to paint the class and say nothing.
     const anchor = (fixture.nativeElement as HTMLElement).querySelectorAll('[role="tab"]')[1];
     expect(anchor.getAttribute('aria-selected')).toBe('true');
@@ -515,7 +516,7 @@ describe('WrTabsHarness — a router strip', () => {
 
     // A click on a link selects nothing by itself, but the harness stabilizes the
     // pending navigation before it re-reads the strip, so the route has landed and
-    // `routerLinkActive` has painted it: `select()` resolves here rather than throwing.
+    // `routerActive()` has painted it: `select()` resolves here rather than throwing.
     await tabs.select({ label: 'Details' });
     expect(router.url).toBe('/details');
     expect(await tabs.getSelectedLabel()).toBe('Details');

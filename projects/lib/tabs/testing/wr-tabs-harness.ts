@@ -29,7 +29,7 @@ import { WrTabHarness } from './wr-tab-harness';
  *   renders exactly one panel: the selected tab's.
  * - **Router** — one `routerLink` on any child switches the whole strip over. The
  *   tabs become `<a role="tab">`s whose `aria-selected` follows the resolved route
- *   (the same `routerLinkActive` that paints `--active`), the strip renders NO
+ *   (the same `routerActive()` that paints `--active`), the strip renders NO
  *   panel, and it stops being one tab stop — every enabled tab is a Tab stop of its
  *   own. The arrow keys still move focus, but they select nothing: the route does
  *   that.
@@ -183,9 +183,11 @@ export class WrTabsHarness extends ComponentHarness {
    *
    * A router strip is otherwise fine here: the click starts a route change, the
    * harness stabilizes the pending navigation before it re-reads the strip, and
-   * `routerLinkActive` has painted the selection by then — so this resolves. It is a
-   * guard, a redirect or an unmatched path that leaves the tab unselected. Note that
-   * `disabled` does not stop a router tab at all; see {@link WrTabHarness.click}.
+   * `routerActive()` has painted the selection by then — so this resolves. It is a
+   * guard, a redirect or an unmatched path that leaves the tab unselected. A
+   * DISABLED router tab is a different shape and no longer navigates: it renders
+   * no href and the component drops the click, so the click lands and nothing
+   * moves — see {@link WrTabHarness.click}.
    */
   async select(filters: WrTabHarnessFilters): Promise<void> {
     const [tab] = await this.getTabs(filters);
@@ -370,7 +372,7 @@ export class WrTabsHarness extends ComponentHarness {
       `WrTabsHarness.${method}(): "${await tab.getLabel()}" is still unselected after being clicked — ` +
         'either it is a content tab carrying `disabled`, which fires no click at all, or this is a router ' +
         'strip whose navigation did not land on this tab: a guard, a redirect or an unmatched path leaves ' +
-        '`routerLinkActive` painting some other one.'
+        '`routerActive()` painting some other one.'
     );
   }
 

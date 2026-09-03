@@ -168,6 +168,15 @@ export class WrCommandPalette {
   private focusTrap: ConfigurableFocusTrap | null = null;
   private previouslyFocused: HTMLElement | null = null;
 
+  /**
+   * The open branch below builds the trap inside a `queueMicrotask`, so a
+   * palette destroyed while open — in the same task that opened it — runs its
+   * destroy hook first and then constructs a fresh trap nothing will ever
+   * destroy. A `ConfigurableFocusTrap` plants two anchor elements in the panel
+   * and holds it, so that is retained DOM, not just a stray object.
+   */
+  private destroyed = false;
+
   /** Grouped view — what the template renders. */
   protected readonly buckets = computed<readonly Bucket[]>(() =>
     bucketize(this.items().filter(item => matches(item, this.query())))
@@ -228,6 +237,7 @@ export class WrCommandPalette {
         const active = document.activeElement;
         this.previouslyFocused = active instanceof HTMLElement ? active : null;
         queueMicrotask(() => {
+          if (this.destroyed) return;
           const host = this.panelEl()?.nativeElement;
           if (!host) return;
           this.focusTrap?.destroy();
@@ -260,6 +270,7 @@ export class WrCommandPalette {
     });
 
     this.destroyRef.onDestroy(() => {
+      this.destroyed = true;
       this.bindingHandle?.unbind();
       // The trap is torn down in the close branch of the effect above, which never
       // runs when the component itself goes away while still open — leaving a live

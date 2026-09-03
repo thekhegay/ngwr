@@ -74,7 +74,17 @@ export class WrBackTop {
       if (should !== this.visible()) this.zone.run(() => this.visible.set(should));
     };
     this.zone.runOutsideAngular(() => window.addEventListener('scroll', handler, { passive: true }));
-    // Initial check (page might already be scrolled).
+    // Initial check (page might already be scrolled), and it is SYNCHRONOUS on
+    // purpose. `window.scrollY` forces a style + layout flush, which is what
+    // makes constructing N of these quadratic — 1000 instances cost 90ms and
+    // 5000 cost 1640ms, of which ~95% is the flush: replacing `scrollY` with a
+    // plain property drops 5000 to 83ms with all 5000 scroll listeners still
+    // registered, so the per-instance listener is not the cost it looks like.
+    // The bulk figure is nobody's bill — a page has one back-to-top button, and
+    // one instance measures 0.03ms over an equivalent component. Deferring to
+    // `afterNextRender` would land the signal a change-detection pass later, so
+    // a page restored part way down would fade the button in from `opacity: 0`
+    // instead of painting it in place. That first paint is the contract.
     handler();
     this.destroyRef.onDestroy(() => window.removeEventListener('scroll', handler));
   }

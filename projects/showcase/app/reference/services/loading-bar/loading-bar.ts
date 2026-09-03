@@ -54,7 +54,8 @@ export default class LoadingBarServicePage {
   imports: [WrLoadingBarComponent, RouterOutlet],
 })
 export class AppShell {
-  // Inject once at the shell so the router subscription kicks in.
+  // Inject once at the shell so the singleton exists before the first
+  // navigation. The subscription itself comes from provideWrLoadingBarRouter().
   constructor() {
     inject(WrLoadingBar);
   }

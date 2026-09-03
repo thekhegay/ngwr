@@ -7,7 +7,7 @@ import { Subject } from 'rxjs';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { WrTreeNode, WrTreeSelectionMode } from './interfaces';
 import { WrTree } from './tree';
@@ -760,5 +760,46 @@ describe('WrTree placeholder', () => {
     expect((host.nativeElement as HTMLElement).querySelector('.wr-tree__placeholder')?.textContent?.trim()).toBe(
       'Pick a folder'
     );
+  });
+});
+
+/**
+ * An inline virtualized tree wires its scroll listener and its `ResizeObserver`
+ * from inside a `queueMicrotask`, so the effect's `onCleanup` can run BEFORE the
+ * callback it is meant to clean up after. Destroyed in the task that created it
+ * — an `@if` that flips on and off inside one tick, or a list replaced before it
+ * paints — the cleanup tears down nothing, and the continuation then observes a
+ * list Angular has already detached.
+ */
+describe('WrTree teardown while windowed', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    TestBed.resetTestingModule();
+  });
+
+  it('leaves no observer watching when it is destroyed in the task that created it', async () => {
+    /** Observers currently connected — `observe()` minus `disconnect()`. */
+    let live = 0;
+    class StubObserver {
+      private connected = false;
+      observe(): void {
+        this.connected = true;
+        live++;
+      }
+      disconnect(): void {
+        if (this.connected) live--;
+        this.connected = false;
+      }
+    }
+    vi.stubGlobal('ResizeObserver', StubObserver);
+
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    const fixture = TestBed.createComponent(DirHost);
+    fixture.componentInstance.virtual.set(true);
+    fixture.detectChanges();
+    fixture.destroy();
+    await Promise.resolve();
+
+    expect(live, 'one observer leaked per mount destroyed before its first render').toBe(0);
   });
 });
