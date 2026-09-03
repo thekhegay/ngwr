@@ -1,5 +1,12 @@
 # Changelog
 
+## [13.0.1](https://github.com/thekhegay/ngwr/compare/v13.0.0...v13.0.1) (2026-09-03)
+
+### Bug Fixes
+
+* **lib:** icon svg is rebuilt from an allowlist, and two scans lose their quadratic ([cac3f98](https://github.com/thekhegay/ngwr/commit/cac3f98934df377d72cad3ec4dd323c747231ae0))
+* **release:** the support table is found by shape, and a spec says so before a release does ([2a6a3a2](https://github.com/thekhegay/ngwr/commit/2a6a3a288b20f8492d8fd062d94ee05df0d979ea))
+
 ## [13.0.0](https://github.com/thekhegay/ngwr/compare/v12.2.0...v13.0.0) (2026-09-02)
 
 ### ⚠ BREAKING CHANGES
