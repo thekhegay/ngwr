@@ -39,6 +39,7 @@ let popconfirmUid = 0;
 
 @Directive({
   selector: '[wrPopconfirm]',
+  exportAs: 'wrPopconfirm',
   host: {
     // Marks the trigger the way `[wrPopover]` and `[wrDropdown]` mark theirs. The
     // question is normally BOUND (`[wrPopconfirm]="question"`), which leaves no

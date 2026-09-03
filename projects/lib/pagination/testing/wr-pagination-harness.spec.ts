@@ -18,7 +18,7 @@ import { WrPaginationHarness } from './wr-pagination-harness';
     <wr-pagination
       label="Results"
       [total]="total()"
-      [(currentPage)]="page"
+      [(page)]="page"
       [(pageSize)]="pageSize"
       [size]="size()"
       [showTotal]="showTotal()"
@@ -44,7 +44,7 @@ class Host {
 /** Twenty pages, parked in the middle — the only shape with a gap at BOTH ends. */
 @Component({
   imports: [WrPagination],
-  template: '<wr-pagination label="Rows" [total]="200" [(currentPage)]="page" />',
+  template: '<wr-pagination label="Rows" [total]="200" [(page)]="page" />',
 })
 class WideHost {
   readonly page = signal(10);
@@ -54,8 +54,8 @@ class WideHost {
 @Component({
   imports: [WrPagination],
   template: `
-    <wr-pagination label="Products" [total]="30" [(currentPage)]="products" />
-    <wr-pagination label="Orders" [total]="95" [(currentPage)]="orders" />
+    <wr-pagination label="Products" [total]="30" [(page)]="products" />
+    <wr-pagination label="Orders" [total]="95" [(page)]="orders" />
   `,
 })
 class TwoHost {
@@ -66,7 +66,7 @@ class TwoHost {
 /** No `label`, no `prevLabel` — every string comes from the catalog. */
 @Component({
   imports: [WrPagination],
-  template: '<wr-pagination [total]="95" [(currentPage)]="page" [(pageSize)]="pageSize" showTotal showSizeChanger />',
+  template: '<wr-pagination [total]="95" [(page)]="page" [(pageSize)]="pageSize" showTotal showSizeChanger />',
 })
 class LocalizedHost {
   readonly page = signal(1);
@@ -180,7 +180,7 @@ describe('WrPaginationHarness', () => {
 
     expect(cells()[0].getAttribute('aria-current')).toBe('page');
     expect(await pager.getCurrentPage()).toBe(1);
-    expect(await loader.getAllHarnesses(WrPaginationHarness.with({ currentPage: 1 }))).toHaveLength(1);
+    expect(await loader.getAllHarnesses(WrPaginationHarness.with({ page: 1 }))).toHaveLength(1);
   });
 
   it('offers the window, not the whole page list', async () => {
@@ -337,12 +337,12 @@ describe('WrPaginationHarness', () => {
   });
 
   it('narrows by the announced page and by the disabled state', async () => {
-    expect(await loader.getAllHarnesses(WrPaginationHarness.with({ currentPage: 3 }))).toEqual([]);
+    expect(await loader.getAllHarnesses(WrPaginationHarness.with({ page: 3 }))).toEqual([]);
 
-    const pager = await loader.getHarness(WrPaginationHarness.with({ currentPage: 1 }));
+    const pager = await loader.getHarness(WrPaginationHarness.with({ page: 1 }));
     await pager.goToPage(3);
 
-    expect(await (await loader.getHarness(WrPaginationHarness.with({ currentPage: 3 }))).getLabel()).toBe('Results');
+    expect(await (await loader.getHarness(WrPaginationHarness.with({ page: 3 }))).getLabel()).toBe('Results');
     expect(await loader.getAllHarnesses(WrPaginationHarness.with({ disabled: true }))).toEqual([]);
 
     fixture.componentInstance.disabled.set(true);
@@ -365,7 +365,7 @@ describe('WrPaginationHarness', () => {
     // The strip is still readable, and the filter answers "not this one" instead of
     // rejecting — one broken pager must not fail a query for its neighbours.
     expect(await pager.getPages()).toEqual([1, 2, 3, 4, 5, 10]);
-    expect(await loader.getAllHarnesses(WrPaginationHarness.with({ currentPage: 1 }))).toEqual([]);
+    expect(await loader.getAllHarnesses(WrPaginationHarness.with({ page: 1 }))).toEqual([]);
   });
 });
 

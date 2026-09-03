@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { Component, signal } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrOverlay } from 'ngwr/overlay';
@@ -475,5 +475,40 @@ describe('the dropdown item stylesheet', () => {
   it('stops a pointer reaching a disabled item at all', () => {
     const rule = /&--disabled\s*\{([\s\S]*?)\n {2}\}/.exec(code)?.[1] ?? '';
     expect(rule).toMatch(/pointer-events:\s*none/);
+  });
+});
+
+/**
+ * Without `exportAs` a template cannot reach the trigger at all — `#d="wrDropdown"`
+ * fails to compile rather than resolving to nothing — so mounting the host is half
+ * the assertion, and the other half is that the reference is the directive and not
+ * the button it sits on. The name is the trigger's; the PANEL keeps `wrDropdownMenu`.
+ */
+describe('WrDropdown template reference', () => {
+  @Component({
+    imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
+    template: `
+      <button type="button" [wrDropdown]="menu" #ref="wrDropdown">Actions</button>
+      <wr-dropdown-menu #menu>
+        <wr-dropdown-item>Copy</wr-dropdown-item>
+      </wr-dropdown-menu>
+    `,
+  })
+  class ExportHost {
+    readonly dropdown = viewChild.required<WrDropdown>('ref');
+  }
+
+  it('publishes the instance as `wrDropdown`', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+
+    const fixture = TestBed.createComponent(ExportHost);
+    fixture.detectChanges();
+
+    const dropdown = fixture.componentInstance.dropdown();
+    expect(dropdown).toBeInstanceOf(WrDropdown);
+    expect(dropdown.isOpen()).toBe(false);
+
+    fixture.destroy();
   });
 });

@@ -84,6 +84,12 @@ function pointerOrigin(pageX: number, pageY: number): FlexibleConnectedPositionS
  */
 @Directive({
   selector: '[wrContextMenu]',
+  // `wrContextMenuTrigger`, not `wrContextMenu`: the PANEL component already
+  // exports itself under the plain name, which is what `<wr-context-menu #menu>`
+  // hands to `[wrContextMenu]="menu"`. Two directives may share an `exportAs`
+  // without a compile error — the reference resolves per element — so the clash
+  // would only surface as the wrong instance on an element carrying both.
+  exportAs: 'wrContextMenuTrigger',
   host: {
     class: 'wr-context-menu-host',
     '[attr.aria-controls]': 'openMenuId()',

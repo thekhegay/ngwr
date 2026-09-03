@@ -39,6 +39,11 @@ export default class SquirclePageComponent {
 <button wr-btn wrSquircle [radius]="16">Save</button>
 <wr-tag wrSquircle>v2.0</wr-tag>
 <img wrSquircle [radius]="32" src="avatar.jpg" alt="" />`,
+    exportAs: `<div wrSquircle [radius]="20" #shape="wrSquircle">Card</div>
+
+<!-- Anywhere else in the same template -->
+<wr-btn (click)="shape.enabled.set(!shape.enabled())">Toggle the squircle</wr-btn>
+<wr-btn (click)="shape.borderWidth.set(2)">Add a ring</wr-btn>`,
   };
 
   protected readonly api = API.WrSquircle;

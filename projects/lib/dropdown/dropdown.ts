@@ -47,6 +47,7 @@ let triggerUid = 0;
 
 @Directive({
   selector: '[wrDropdown]',
+  exportAs: 'wrDropdown',
   host: {
     class: 'wr-dropdown-trigger',
     '[attr.id]': 'triggerId',

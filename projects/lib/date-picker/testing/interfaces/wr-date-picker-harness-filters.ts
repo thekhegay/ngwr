@@ -7,6 +7,26 @@
 
 import type { BaseHarnessFilters } from '@angular/cdk/testing';
 
+import type { WrDatePickerHarness } from '../wr-date-picker-harness';
+import type { WrDateRangePickerHarness } from '../wr-date-range-picker-harness';
+
+/**
+ * Either picker harness, for a consumer's own helper that does not care which —
+ * `async function pickToday(picker: WrAnyDatePickerHarness)`. Both classes extend
+ * one abstract base, but that base is not exported and is not going to be: it
+ * would publish its `protected` plumbing, and a `<wr-time-panel>` harness for a
+ * component this package keeps internal, as a subclassing contract. A union says
+ * the only part anyone asked for.
+ */
+export type WrAnyDatePickerHarness = WrDatePickerHarness | WrDateRangePickerHarness;
+
+/**
+ * Which end of a range a `WrDateRangePickerHarness` call applies to. Every call
+ * that could mean either field takes one, and it is exported so a consumer's own
+ * helper can forward it rather than re-declaring the union.
+ */
+export type WrDateRangePickerEnd = 'start' | 'end';
+
 /** Narrows which `<wr-date-picker>` a harness query matches. */
 export interface WrDatePickerHarnessFilters extends BaseHarnessFilters {
   /**

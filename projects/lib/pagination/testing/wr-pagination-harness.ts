@@ -75,7 +75,7 @@ export class WrPaginationHarness extends ComponentHarness {
   static with(options: WrPaginationHarnessFilters = {}): HarnessPredicate<WrPaginationHarness> {
     return new HarnessPredicate(WrPaginationHarness, options)
       .addOption('label', options.label, (harness, label) => HarnessPredicate.stringMatches(harness.getLabel(), label))
-      .addOption('currentPage', options.currentPage, async (harness, page) => {
+      .addOption('page', options.page, async (harness, page) => {
         // The nullable read on purpose: the throwing getter would reject the whole
         // query over one pager that announces no current page, taking its
         // well-behaved neighbours down with it.
@@ -214,7 +214,7 @@ export class WrPaginationHarness extends ComponentHarness {
    * The page the pager announces as current, from `aria-current="page"`.
    *
    * Throws when no cell claims it. The window always keeps the current page on the
-   * strip, so getting here means `currentPage` is not one of the pages at all. The
+   * strip, so getting here means `page` is not one of the pages at all. The
    * component clamps a host write into `1..totalPages`, which leaves one survivor:
    * a fractional page, which is in range and matches no cell — and which leaves
    * every cell looking equally inactive to an assistive tech user.
@@ -224,7 +224,7 @@ export class WrPaginationHarness extends ComponentHarness {
     if (page === null) {
       throw new Error(
         'WrPaginationHarness.getCurrentPage(): no cell carries `aria-current="page"`. The visible window ' +
-          `always includes the current page, so \`currentPage\` is not a whole number — the component ` +
+          `always includes the current page, so \`page\` is not a whole number — the component ` +
           `clamps it into 1..${await this.getTotalPages()} but does not round it.`
       );
     }
@@ -237,7 +237,7 @@ export class WrPaginationHarness extends ComponentHarness {
    * Throws when that page is not on the strip — a seven-slot window over twenty
    * pages simply has no cell for page 15, and a silent no-op there reads as
    * "navigation is broken" three assertions later. Step with {@link next} /
-   * {@link previous}, or move the host's own `currentPage` model.
+   * {@link previous}, or move the host's own `page` model.
    *
    * A disabled pager is still clicked; the component's own guard is what refuses
    * the move, so assert the page rather than assume it. Clicking the CURRENT page
@@ -390,7 +390,7 @@ export class WrPaginationHarness extends ComponentHarness {
    * {@link getPageSize} reads them: `20 / page` and `20 / стр.` are the same option.
    * Throws when no option offers that size, naming what is on offer.
    *
-   * Changing the size can move the page — the component pulls `currentPage` back
+   * Changing the size can move the page — the component pulls `page` back
    * when the new size leaves it past the end — so re-read {@link getCurrentPage}
    * afterwards rather than assuming it held.
    */

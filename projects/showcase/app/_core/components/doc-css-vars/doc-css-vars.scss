@@ -1,0 +1,88 @@
+:host {
+  display: block;
+  border: 1px solid var(--wr-color-light);
+  border-radius: var(--wr-border-radius-base);
+  overflow: hidden;
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+// Declared rather than left to `auto`, for the reason `doc-api.scss` records at
+// length: under `auto` one column's content volume decides another's width, and
+// the widest chip here is a `var(--wr-color-primary-soft-contrast)` default that
+// would otherwise take the table. Names and defaults both hold long unbreakable
+// tokens, so they split the width evenly and the selector column — short, and
+// the least read of the three — takes what is left.
+.col-name {
+  width: 34%;
+}
+
+.col-default {
+  width: 38%;
+}
+
+.table {
+  width: 100%;
+  // Below this the three columns stop holding one chip each; `.scroll` above is
+  // what the table overflows into instead of crushing them.
+  min-width: 40rem;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+
+  th,
+  td {
+    padding: 0.625rem 0.875rem;
+    // Logical, so the columns and their text mirror together under RTL.
+    text-align: start;
+    vertical-align: top;
+  }
+
+  th {
+    background: rgba(var(--wr-color-light-rgb), 0.25);
+    color: var(--wr-color-on-surface-muted);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    font-size: 0.6875rem;
+  }
+
+  td {
+    color: var(--wr-color-dark);
+    border-top: 1px solid var(--wr-color-light);
+  }
+
+  code {
+    display: inline-block;
+    // A custom property name has no break point in it, so an atomic inline
+    // pushes the table sideways rather than wrapping. Cap it and break inside.
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    padding: 0.125rem 0.3125rem;
+    border-radius: var(--wr-border-radius-sm);
+    background: rgba(var(--wr-color-light-rgb), 0.35);
+    color: var(--wr-color-dark);
+    line-height: 1.25;
+    font-family: var(--wr-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+    font-size: 0.75rem;
+  }
+}
+
+// The qualifier under a value — how many variants retune it, or that the value
+// exists only inside one branch. Muted and on its own line: it annotates the
+// chip above it rather than competing with it.
+.note {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--wr-color-on-surface-muted);
+  font-size: 0.6875rem;
+  line-height: 1rem;
+
+  code {
+    padding: 0 0.1875rem;
+    font-size: 0.6875rem;
+  }
+}

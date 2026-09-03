@@ -78,7 +78,7 @@ export default class MigrationPageComponent {
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
 # v12 moves the three date import paths; the run also applies any pending
 # v7–v9 migrations. v10 and v11 ship none, so there is nothing to skip.
-# v14 rewrites nothing — it reports, and you act on what it names.
+# v14 rewrites its five renames and REPORTS the rest — read the output.
 ng update ngwr@14`,
 
     v13: `<!-- The size input matches the other twenty-three components. -->
@@ -89,6 +89,29 @@ ng update ngwr@14`,
   <wr-checkbox id="agree">I agree</wr-checkbox>
 - ::ng-deep wr-checkbox#agree { … }
 + ::ng-deep #agree { … }        <!-- resolves to the inner input, as documented -->`,
+
+    v14Renames: `<!-- One dismiss spelling. wr-drawer, WrDrawerOptions and -->
+<!-- WrDialogOptions already said closable; wr-alert was the outlier. -->
+- <wr-alert type="danger" closeable />
++ <wr-alert type="danger" closable />
+
+<!-- Table and pagination now use one word per concept. -->
+- <wr-table [totalItems]="count" [(page)]="page" />
++ <wr-table [total]="count" [(page)]="page" />
+- <wr-pagination [total]="count" [(currentPage)]="page" />
++ <wr-pagination [total]="count" [(page)]="page" />
+- <wr-pagination [currentPage]="p()" (currentPageChange)="p.set($event)" />
++ <wr-pagination [page]="p()" (pageChange)="p.set($event)" />
+
+<!-- The only is-prefixed boolean in the library, against thirty-nine bare ones. -->
+- <button wr-btn loading [isDisabledWhenLoading]="false">Save</button>
++ <button wr-btn loading [disabledWhenLoading]="false">Save</button>
+
+// The window chrome finishes the density rename v8 started.
+- manager.open(PanelComponent, { chromeSize: 'compact' })
++ manager.open(PanelComponent, { chromeSize: 'sm' })
+- .wr-window--chrome-compact { … }
++ .wr-window--chrome-sm { … }`,
 
     v14: `// The loading bar no longer subscribes to the router on its own.
 // Without this it still works for start() / complete() and never moves

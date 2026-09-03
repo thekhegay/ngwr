@@ -41,6 +41,12 @@ export class MyComponent {}`,
   (confirmed)="remove()"
   (cancelled)="onCancel()"
 >Delete</wr-btn>`,
+    exportAs: `<wr-btn wrPopconfirm="Delete this file?" #ask="wrPopconfirm" (confirmed)="remove()">
+  Delete
+</wr-btn>
+
+<!-- Anywhere else in the same template -->
+<wr-btn [disabled]="ask.isOpen()" (click)="ask.open()">Ask again</wr-btn>`,
   };
 
   protected readonly api = API.WrPopconfirm;

@@ -57,6 +57,16 @@ export class MyComponent {}`,
     positions: `<button wr-btn [wrDropdown]="menu" position="top-start">Top start</button>`,
     hover: `<button wr-btn [wrDropdown]="menu" trigger="hover">Hover me</button>`,
     disabled: `<wr-dropdown-item icon="cog" disabled>Disabled item</wr-dropdown-item>`,
+    exportAs: `<wr-btn [wrDropdown]="menu" #actions="wrDropdown">Actions</wr-btn>
+<wr-dropdown-menu #menu>
+  <wr-dropdown-item>Copy</wr-dropdown-item>
+</wr-dropdown-menu>
+
+<!-- Anywhere else in the same template -->
+<wr-btn (click)="actions.toggle()">Toggle from here</wr-btn>
+@if (actions.isOpen()) {
+  <span>The menu is up.</span>
+}`,
   };
 
   protected readonly api = API.WrDropdown;

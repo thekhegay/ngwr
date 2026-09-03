@@ -125,7 +125,7 @@ Inline status banner. Use for feedback messages — saved/failed/notice etc.
 - \`iconName\`: string | null default null — Override the default per-type icon with any ngwr icon name.
 - \`message\`: string | null default null — Optional secondary message rendered below the title.
 - \`icon\`: boolean default true — When \`true\`, renders a leading status icon matching the \`type\`. Pass \`false\` to hide. Ignored when \`iconName\` is set.
-- \`closeable\`: boolean default false — When \`true\`, renders a close button.
+- \`closable\`: boolean default false — When \`true\`, renders a close button.
 
 ## outputs
 - \`closed\`: void — Emitted when the user dismisses the alert via the close button.
@@ -133,7 +133,7 @@ Inline status banner. Use for feedback messages — saved/failed/notice etc.
 ## Example
 \`\`\`html
 <wr-alert title="Saved" message="Your changes are live." type="success" />
-<wr-alert title="Failed" type="danger" closeable (closed)="onClose()" />
+<wr-alert title="Failed" type="danger" closable (closed)="onClose()" />
 \`\`\`
 Docs: https://ngwr.dev/reference/components/alert`,
 

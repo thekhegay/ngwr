@@ -71,6 +71,7 @@ const MATCH: IsActiveMatchOptions = {
  */
 @Directive({
   selector: '[wrTabsRouting]',
+  exportAs: 'wrTabsRouting',
   providers: [
     {
       provide: WR_TABS_ROUTING,

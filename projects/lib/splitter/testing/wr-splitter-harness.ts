@@ -7,12 +7,9 @@
 
 import { ComponentHarness, HarnessPredicate, TestKey } from '@angular/cdk/testing';
 
-import type { WrSplitterHarnessFilters, WrSplitterPaneSizes } from './interfaces';
+import type { WrSplitterArrowKey, WrSplitterHarnessFilters, WrSplitterPaneSizes } from './interfaces';
 
-/** The four arrow keys, by the direction a user would say out loud. */
-type Arrow = 'left' | 'right' | 'up' | 'down';
-
-const ARROWS: Record<Arrow, TestKey> = {
+const ARROWS: Record<WrSplitterArrowKey, TestKey> = {
   left: TestKey.LEFT_ARROW,
   right: TestKey.RIGHT_ARROW,
   up: TestKey.UP_ARROW,
@@ -176,7 +173,7 @@ export class WrSplitterHarness extends ComponentHarness {
    *
    * `shift` is the coarse step: 10 instead of 1.
    */
-  async pressArrow(arrow: Arrow, options: { shift?: boolean } = {}): Promise<void> {
+  async pressArrow(arrow: WrSplitterArrowKey, options: { shift?: boolean } = {}): Promise<void> {
     const divider = await this.divider();
     await (options.shift ? divider.sendKeys({ shift: true }, ARROWS[arrow]) : divider.sendKeys(ARROWS[arrow]));
   }
@@ -219,7 +216,7 @@ export class WrSplitterHarness extends ComponentHarness {
     await this.focusDivider();
     // The block axis never mirrors, so only the horizontal splitter needs the probe.
     const vertical = (await this.getOrientation()) === 'vertical';
-    const [grow, shrink]: [Arrow, Arrow] = vertical
+    const [grow, shrink]: [WrSplitterArrowKey, WrSplitterArrowKey] = vertical
       ? ['down', 'up']
       : (await this.growsWithRight())
         ? ['right', 'left']
@@ -268,7 +265,7 @@ export class WrSplitterHarness extends ComponentHarness {
   private async growsWithRight(): Promise<boolean> {
     const before = await this.getPosition();
     const atCeiling = before >= (await this.getMaxPosition());
-    const [probe, undo]: [Arrow, Arrow] = atCeiling ? ['left', 'right'] : ['right', 'left'];
+    const [probe, undo]: [WrSplitterArrowKey, WrSplitterArrowKey] = atCeiling ? ['left', 'right'] : ['right', 'left'];
 
     await this.pressArrow(probe);
     const after = await this.getPosition();

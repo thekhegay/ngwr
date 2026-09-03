@@ -209,8 +209,8 @@ export class WrWindow {
   protected readonly minimizeVisible = computed(() => this.showMinimize() ?? this.resolvedOs() !== 'linux');
   protected readonly maximizeVisible = computed(() => this.showMaximize() ?? this.resolvedOs() !== 'linux');
 
-  /** Title-bar density. @default 'normal' */
-  readonly chromeSize = input<WrWindowChromeSize>('normal');
+  /** Title-bar density. @default 'md' */
+  readonly chromeSize = input<WrWindowChromeSize>('md');
 
   /**
    * Enter / leave animations. Set to `false` to disable the open-fade

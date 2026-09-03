@@ -56,6 +56,7 @@ function maskToRadii(mask: WrSquircleCornerMask, r: number): WrSquircleCorners {
  */
 @Directive({
   selector: '[wrSquircle]',
+  exportAs: 'wrSquircle',
   host: { '[class.wr-squircle--bordered]': 'borderWidth() > 0 && enabled()' },
 })
 export class WrSquircle {

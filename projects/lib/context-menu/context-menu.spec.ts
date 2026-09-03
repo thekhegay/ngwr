@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, signal } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
@@ -704,5 +704,40 @@ describe('the context-menu stylesheet', () => {
     // Measured in Chromium: the focused row went from no ring at all to a solid
     // 2px stroke on all four sides, while the hovered row beside it kept none.
     expect(code).toMatch(/\n {2}&:focus-visible \{\s*@include theme\.focus-ring;/);
+  });
+});
+
+/**
+ * The trigger exports itself as `wrContextMenuTrigger`, NOT `wrContextMenu`: the
+ * panel component already owns the plain name, which is what `<wr-context-menu #menu>`
+ * hands back. This pins the two apart — a shared `exportAs` compiles, and would only
+ * misfire on an element carrying both.
+ */
+describe('WrContextMenu template reference', () => {
+  @Component({
+    imports: [WrContextMenu, WrContextMenuPanel, WrContextMenuItem],
+    template: `
+      <div [wrContextMenu]="menu" #trigger="wrContextMenuTrigger">Right-click</div>
+      <wr-context-menu #menu="wrContextMenu">
+        <wr-context-menu-item>Copy</wr-context-menu-item>
+      </wr-context-menu>
+    `,
+  })
+  class ExportHost {
+    readonly trigger = viewChild.required<WrContextMenu>('trigger');
+    readonly panel = viewChild.required<WrContextMenuPanel>('menu');
+  }
+
+  it('publishes the trigger and the panel under different names', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+
+    const fixture = TestBed.createComponent(ExportHost);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.trigger()).toBeInstanceOf(WrContextMenu);
+    expect(fixture.componentInstance.panel()).toBeInstanceOf(WrContextMenuPanel);
+
+    fixture.destroy();
   });
 });

@@ -7,12 +7,7 @@
 
 import { Component, ViewEncapsulation, forwardRef, signal } from '@angular/core';
 
-import { WR_COLLAPSE_GROUP, type WrCollapseGroupContext } from './tokens';
-
-interface Member {
-  close(): void;
-  readonly id: object;
-}
+import { WR_COLLAPSE_GROUP, type WrCollapseGroupContext, type WrCollapseGroupMember } from './tokens';
 
 /**
  * Accordion — a `<wr-collapse>` container that enforces single-open
@@ -49,9 +44,9 @@ export class WrAccordion implements WrCollapseGroupContext {
   /** Always behaves as an accordion. Provided for context-interface symmetry. */
   readonly accordion = signal(true).asReadonly();
 
-  private readonly members = new Map<object, Member>();
+  private readonly members = new Map<object, WrCollapseGroupMember>();
 
-  register(member: Member): void {
+  register(member: WrCollapseGroupMember): void {
     this.members.set(member.id, member);
   }
 

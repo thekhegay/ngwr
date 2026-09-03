@@ -1,1 +1,1 @@
-export type { WrSplitterHarnessFilters, WrSplitterPaneSizes } from './wr-splitter-harness-filters';
+export type { WrSplitterArrowKey, WrSplitterHarnessFilters, WrSplitterPaneSizes } from './wr-splitter-harness-filters';

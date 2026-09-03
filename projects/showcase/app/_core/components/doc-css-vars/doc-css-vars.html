@@ -1,0 +1,39 @@
+<div class="scroll">
+  <table class="table">
+    <colgroup>
+      <col class="col-name" />
+      <col class="col-default" />
+      <col class="col-scope" />
+    </colgroup>
+    <thead>
+      <tr>
+        <th scope="col">Variable</th>
+        <th scope="col">Default</th>
+        <th scope="col">Declared on</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows(); track row.name) {
+        <tr>
+          <td>
+            <code>{{ row.name }}</code>
+          </td>
+          <td>
+            <code>{{ row.default }}</code>
+            @if (row.base === false) {
+              <span class="note">
+                only under <code>{{ row.scope }}</code> — unset elsewhere</span
+              >
+            }
+          </td>
+          <td>
+            <code>{{ row.scope }}</code>
+            @if (row.overrides; as n) {
+              <span class="note"> +{{ n }} variant {{ n === 1 ? 'override' : 'overrides' }}</span>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

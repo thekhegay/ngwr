@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Pagination"
-  description="Numbered page navigator. Two-way binds currentPage and pageSize via signal models."
+  description="Numbered page navigator. Two-way binds page and pageSize via signal models."
   [keywords]="['pagination', 'wr-pagination']"
   [labels]="['Component', 'Standalone']"
 >
@@ -11,7 +11,7 @@
   <ngwr-doc-section title="Basic usage">
     <ngwr-doc-snippet [code]="snippets.basic">
       <div style="width: 100%">
-        <wr-pagination [total]="120" [(currentPage)]="page" />
+        <wr-pagination [total]="120" [(page)]="page" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -19,9 +19,9 @@
   <ngwr-doc-section title="Sizes" description="Three steps — `sm` / `md` / `lg`.">
     <ngwr-doc-snippet [code]="snippets.sizes">
       <div style="width: 100%; display: flex; flex-direction: column; gap: 1rem">
-        <wr-pagination [total]="120" [(currentPage)]="page" size="sm" />
-        <wr-pagination [total]="120" [(currentPage)]="page" size="md" />
-        <wr-pagination [total]="120" [(currentPage)]="page" size="lg" />
+        <wr-pagination [total]="120" [(page)]="page" size="sm" />
+        <wr-pagination [total]="120" [(page)]="page" size="md" />
+        <wr-pagination [total]="120" [(page)]="page" size="lg" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -32,8 +32,8 @@
   >
     <ngwr-doc-snippet [code]="snippets.shapes">
       <div style="width: 100%; display: flex; flex-direction: column; gap: 1rem">
-        <wr-pagination [total]="120" [(currentPage)]="page" shape="rounded" />
-        <wr-pagination [total]="120" [(currentPage)]="page" shape="square" />
+        <wr-pagination [total]="120" [(page)]="page" shape="rounded" />
+        <wr-pagination [total]="120" [(page)]="page" shape="square" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -44,14 +44,7 @@
   >
     <ngwr-doc-snippet [code]="snippets.full">
       <div style="width: 100%">
-        <wr-pagination
-          [total]="320"
-          [(currentPage)]="fullPage"
-          [(pageSize)]="size"
-          showTotal
-          showSizeChanger
-          align="end"
-        />
+        <wr-pagination [total]="320" [(page)]="fullPage" [(pageSize)]="size" showTotal showSizeChanger align="end" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -60,29 +53,23 @@
     title="Narrow container (container query)"
     description="With `responsive`, the numbered strip collapses to a compact `‹ page / total ›` pager when the control's own box is too narrow — a container query on its own width, not the viewport. The box below is fixed at 260px."
   >
-    <ngwr-doc-snippet
-      code='<div style="width: 260px"><wr-pagination responsive [total]="120" [(currentPage)]="page" /></div>'
-    >
+    <ngwr-doc-snippet code='<div style="width: 260px"><wr-pagination responsive [total]="120" [(page)]="page" /></div>'>
       <div style="width: 260px; max-width: 100%">
-        <wr-pagination responsive [total]="120" [(currentPage)]="page" />
+        <wr-pagination responsive [total]="120" [(page)]="page" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Server-side paging"
-    description="`total` has no companion `loading` input, so `0` is ambiguous between an empty list and a request in flight — and the second is the ordinary state of a server-paged host. While `total` is at or below 0 the pager holds the page it was given: it does not pull it DOWN into range, and emits no `currentPageChange` for it. Clamping resumes once the total settles. The lower bound is the exception and is never conditional — a page below 1 is floored, and that one does emit."
+    description="`total` has no companion `loading` input, so `0` is ambiguous between an empty list and a request in flight — and the second is the ordinary state of a server-paged host. While `total` is at or below 0 the pager holds the page it was given: it does not pull it DOWN into range, and emits no `pageChange` for it. Clamping resumes once the total settles. The lower bound is the exception and is never conditional — a page below 1 is floored, and that one does emit."
   >
     <ngwr-doc-snippet [code]="snippets.serverHtml">
       <div style="width: 100%; display: flex; flex-direction: column; gap: 0.5rem">
         <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
           page {{ serverPage() }} — total {{ serverTotal() }}{{ serverTotal() === 0 ? ' (request in flight)' : '' }}
         </span>
-        <wr-pagination
-          [total]="serverTotal()"
-          [currentPage]="serverPage()"
-          (currentPageChange)="onServerPage($event)"
-        />
+        <wr-pagination [total]="serverTotal()" [page]="serverPage()" (pageChange)="onServerPage($event)" />
       </div>
     </ngwr-doc-snippet>
     <ngwr-doc-code [code]="snippets.serverTs" language="typescript" />
@@ -91,8 +78,8 @@
       <code>params</code> function returning an object literal is never reference-equal to its predecessor, so the
       resource discards the previous payload the instant the page changes. The demo above stands in for the round trip —
       clicking a page drops <code>total</code> to 0 for 900&nbsp;ms. The page you picked is kept and reported once;
-      before this contract the pager clamped back to 1 and emitted a second <code>currentPageChange</code> the host
-      could not tell from a click.
+      before this contract the pager clamped back to 1 and emitted a second <code>pageChange</code> the host could not
+      tell from a click.
     </p>
     <p>
       What that state costs is the strip: with <code>total</code> at 0 there is one page to render, so a host holding
@@ -102,7 +89,7 @@
       0&rdquo;, which is wrong about a list of 51 but not backwards, as it was before this contract. The arrows stay
       usable throughout, because they compare against the range rather than for equality with its ends: past the end
       next renders disabled, and previous stays enabled and steps back <em>into</em> range rather than to
-      <code>currentPage() - 1</code>.
+      <code>page() - 1</code>.
     </p>
     <p>
       The lower bound is not conditional. No value of <code>total</code> makes page 0 correct, so a page below 1 is

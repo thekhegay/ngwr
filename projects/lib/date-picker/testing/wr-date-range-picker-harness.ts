@@ -7,12 +7,9 @@
 
 import { HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
-import type { WrDatePickerTimeFields, WrDateRangePickerHarnessFilters } from './interfaces';
+import type { WrDatePickerTimeFields, WrDateRangePickerEnd, WrDateRangePickerHarnessFilters } from './interfaces';
 import { WrDatePickerHarnessBase } from './wr-date-picker-harness-base';
 import type { WrTimePanelHarness } from './wr-time-panel-harness';
-
-/** Which end of the range a call applies to. */
-type End = 'start' | 'end';
 
 /**
  * Test harness for `<wr-date-range-picker>` — two text fields over one range
@@ -82,7 +79,7 @@ export class WrDateRangePickerHarness extends WrDatePickerHarnessBase {
   }
 
   /** The placeholder of one field. */
-  async getPlaceholder(end: End): Promise<string> {
+  async getPlaceholder(end: WrDateRangePickerEnd): Promise<string> {
     return (await this.field(end)).getProperty<string>('placeholder');
   }
 
@@ -124,7 +121,7 @@ export class WrDateRangePickerHarness extends WrDatePickerHarnessBase {
   }
 
   /** Move focus to one field. */
-  async focus(end: End): Promise<void> {
+  async focus(end: WrDateRangePickerEnd): Promise<void> {
     return (await this.field(end)).focus();
   }
 
@@ -133,12 +130,12 @@ export class WrDateRangePickerHarness extends WrDatePickerHarnessBase {
    * order, and — when focus leaves the control rather than hopping to the other
    * end — the moment `touch` is emitted.
    */
-  async blur(end: End): Promise<void> {
+  async blur(end: WrDateRangePickerEnd): Promise<void> {
     return (await this.field(end)).blur();
   }
 
   /** Whether one field currently has focus. */
-  async isFocused(end: End): Promise<boolean> {
+  async isFocused(end: WrDateRangePickerEnd): Promise<boolean> {
     return (await this.field(end)).isFocused();
   }
 
@@ -146,26 +143,26 @@ export class WrDateRangePickerHarness extends WrDatePickerHarnessBase {
    * One end's time stepper as `HH:MM`, plus `:SS` when `showSeconds` is on and
    * ` AM`/` PM` in 12-hour mode. `datetime` mode only.
    */
-  async getTime(end: End): Promise<string> {
+  async getTime(end: WrDateRangePickerEnd): Promise<string> {
     return (await this.timePanel(end)).getTimeText();
   }
 
   /** Type into one end's time stepper. Omitted fields are left alone. */
-  async setTime(end: End, fields: WrDatePickerTimeFields): Promise<void> {
+  async setTime(end: WrDateRangePickerEnd, fields: WrDatePickerTimeFields): Promise<void> {
     await (await this.timePanel(end)).setFields(fields);
   }
 
   /** Click one of an end's ▲ / ▼ buttons. Minutes and seconds move by `step`. */
-  async stepTime(end: End, unit: 'hours' | 'minutes' | 'seconds', direction: 1 | -1): Promise<void> {
+  async stepTime(end: WrDateRangePickerEnd, unit: 'hours' | 'minutes' | 'seconds', direction: 1 | -1): Promise<void> {
     await (await this.timePanel(end)).step(unit, direction);
   }
 
   /** Flip one end between AM and PM. Throws in 24-hour mode, which has no such control. */
-  async toggleMeridiem(end: End): Promise<void> {
+  async toggleMeridiem(end: WrDateRangePickerEnd): Promise<void> {
     await (await this.timePanel(end)).toggleMeridiem();
   }
 
-  private async type(end: End, text: string): Promise<void> {
+  private async type(end: WrDateRangePickerEnd, text: string): Promise<void> {
     const field = await this.field(end);
     await field.clear();
     // `sendKeys()` with an empty string throws — clearing was the whole request.
@@ -173,7 +170,7 @@ export class WrDateRangePickerHarness extends WrDatePickerHarnessBase {
   }
 
   /** The two fields are addressed by position, which is the order they render in. */
-  private async field(end: End): Promise<TestElement> {
+  private async field(end: WrDateRangePickerEnd): Promise<TestElement> {
     const fields = await this.locatorForAll('.wr-date-range-picker__input')();
     const field = fields[end === 'start' ? 0 : 1];
     if (!field) {
@@ -187,7 +184,7 @@ export class WrDateRangePickerHarness extends WrDatePickerHarnessBase {
    * One end's stepper. Both are mounted together in `datetime` mode, start first —
    * the group labels are localized, so position is the addressable thing.
    */
-  private async timePanel(end: End): Promise<WrTimePanelHarness> {
+  private async timePanel(end: WrDateRangePickerEnd): Promise<WrTimePanelHarness> {
     const panels = await this.timePanels();
     if (panels.length === 0) {
       throw new Error(

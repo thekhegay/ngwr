@@ -9,6 +9,13 @@ import type { BaseHarnessFilters } from '@angular/cdk/testing';
 
 import type { WrCalendarMode } from 'ngwr/calendar';
 
+/**
+ * An arrow key, by the direction a user would say out loud — the parameter type
+ * of `WrCalendarHarness.pressArrow`, exported so a consumer's own test helper can
+ * name what it forwards.
+ */
+export type WrCalendarArrowKey = 'left' | 'right' | 'up' | 'down';
+
 /** Which of the three sub-views the calendar is showing. */
 export type WrCalendarView = 'day' | 'month' | 'year';
 

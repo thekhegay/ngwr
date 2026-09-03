@@ -75,6 +75,13 @@ export class MyComponent {
 const rgb = parseHex('#3969e2');        // { r: 57, g: 105, b: 226, a: 1 }
 const hsl = rgbToHsl(rgb!);             // { h: 220, s: 0.74, l: 0.55, a: 1 }
 const back = toHex(rgb!, true);         // '#3969e2ff'`,
+    exportAs: `<button type="button" wrColorPickerTrigger [(value)]="brand" #swatch="wrColorPickerTrigger">
+  Brand colour
+</button>
+
+<!-- Anywhere else in the same template -->
+<wr-btn (click)="swatch.open()">Pick a colour</wr-btn>
+<span [style.color]="swatch.value()">{{ swatch.value() }}</span>`,
   };
 
   protected readonly pickerApi: readonly DocApiRow[] = [

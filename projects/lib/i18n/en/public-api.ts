@@ -51,7 +51,7 @@ export const wrEn: WrI18nCatalog = {
     // breaks catalogs that override it; nothing in the library reads it now.
     range: '{{from}}–{{to}} of {{total}}',
     // The compact pager's own text, for the same reason: it was
-    // `{{ currentPage() }} / {{ totalPages() }}` in the template.
+    // `{{ page() }} / {{ totalPages() }}` in the template.
     compact: '{{current}} / {{total}}',
   },
   table: {

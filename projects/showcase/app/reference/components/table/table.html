@@ -68,7 +68,7 @@
 
   <ngwr-doc-section
     title="Pagination"
-    description="Set `[pageSize]` for client-side pagination — the table slices rows automatically and renders a `<wr-pagination>` footer. Pass `[totalItems]` to switch to server-side mode (you handle slicing)."
+    description="Set `[pageSize]` for client-side pagination — the table slices rows automatically and renders a `<wr-pagination>` footer. Pass `[total]` to switch to server-side mode (you handle slicing)."
   >
     <ngwr-doc-snippet [code]="snippets.paginated">
       <div style="width: 100%">
@@ -189,7 +189,7 @@
 
   <ngwr-doc-section
     title="CSV export"
-    description="Call `exportCsv()` on the table (via a template ref) to download its rows — headers from the column titles, values from the row data, in the current column order. It covers the current `items`, so in server-side mode (`totalItems` set) that's the current page. `{ selectedOnly: true }` exports just the selected rows; `toCsv()` returns the string instead of downloading."
+    description="Call `exportCsv()` on the table (via a template ref) to download its rows — headers from the column titles, values from the row data, in the current column order. It covers the current `items`, so in server-side mode (`total` set) that's the current page. `{ selectedOnly: true }` exports just the selected rows; `toCsv()` returns the string instead of downloading."
   >
     <ngwr-doc-code [code]="snippets.csv" language="angular-html" />
     <ngwr-doc-snippet code="">

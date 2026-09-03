@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Component } from '@angular/core';
+import { Component, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, RouterOutlet, provideRouter, withHashLocation } from '@angular/router';
 
@@ -277,5 +277,42 @@ describe('WrTabsRouting under a hash location', () => {
     );
 
     expect(hrefs).toEqual(['#/one', '#/two', null]);
+  });
+});
+
+/**
+ * `exportAs` is what lets a template reach the adapter — `#r="wrTabsRouting"` then
+ * `[href]="r.href(['/one'])"` — and without it the reference is a compile error
+ * rather than a silent `undefined`, so mounting the host is half the assertion.
+ * The other half is that the reference resolves to the directive and not to
+ * `<wr-tabs>`, which sits on the very same element.
+ */
+describe('WrTabsRouting template reference', () => {
+  @Component({
+    imports: [WrTabs, WrTab, WrTabsRouting],
+    template: `
+      <wr-tabs wrTabsRouting #ref="wrTabsRouting">
+        <wr-tab title="One" key="one" routerLink="/one" />
+      </wr-tabs>
+    `,
+  })
+  class ExportHost {
+    readonly routing = viewChild.required<WrTabsRouting>('ref');
+  }
+
+  it('publishes the instance as `wrTabsRouting`', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideRouter([{ path: 'one', component: Page }])] });
+    await TestBed.inject(Router).navigateByUrl('/one');
+
+    const fixture = TestBed.createComponent(ExportHost);
+    fixture.detectChanges();
+
+    const routing = fixture.componentInstance.routing();
+    expect(routing).toBeInstanceOf(WrTabsRouting);
+    expect(routing.href('/one')).toBe('/one');
+    expect(routing.isActive('/one')).toBe(true);
+
+    fixture.destroy();
   });
 });

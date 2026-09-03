@@ -7,12 +7,9 @@
 
 import { ComponentHarness, HarnessPredicate, TestKey } from '@angular/cdk/testing';
 
-import type { WrEventCalendarChipHarnessFilters } from './interfaces';
+import type { WrEventCalendarArrowKey, WrEventCalendarChipHarnessFilters } from './interfaces';
 
-/** The arrow keys, by the direction a user would say out loud. */
-type Arrow = 'left' | 'right' | 'up' | 'down';
-
-const ARROWS: Record<Arrow, TestKey> = {
+const ARROWS: Record<WrEventCalendarArrowKey, TestKey> = {
   left: TestKey.LEFT_ARROW,
   right: TestKey.RIGHT_ARROW,
   up: TestKey.UP_ARROW,
@@ -149,7 +146,7 @@ export class WrEventCalendarChipHarness extends ComponentHarness {
    * calendar without `editable` ignores the keys entirely — the same gate the pointer
    * path uses.
    */
-  async move(arrow: Arrow): Promise<void> {
+  async move(arrow: WrEventCalendarArrowKey): Promise<void> {
     await (await this.host()).sendKeys({ alt: true }, ARROWS[arrow]);
   }
 
@@ -159,12 +156,12 @@ export class WrEventCalendarChipHarness extends ComponentHarness {
    * A resize that would end at or before the start emits nothing rather than
    * inverting the event, which is the pointer path's rule too.
    */
-  async resize(arrow: Arrow): Promise<void> {
+  async resize(arrow: WrEventCalendarArrowKey): Promise<void> {
     await (await this.host()).sendKeys({ alt: true, shift: true }, ARROWS[arrow]);
   }
 
   /** Press a bare arrow — which the chip ignores, letting the grid's own navigation run. */
-  async pressArrow(arrow: Arrow): Promise<void> {
+  async pressArrow(arrow: WrEventCalendarArrowKey): Promise<void> {
     await (await this.host()).sendKeys(ARROWS[arrow]);
   }
 

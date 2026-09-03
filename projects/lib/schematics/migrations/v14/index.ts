@@ -8,13 +8,20 @@
 import type { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 
 /**
- * v13 to v14 migration.
+ * v13 to v14 migration. Two halves, and the split is deliberate.
  *
- * Router integration became opt-in for two components, and this migration
- * REPORTS rather than rewrites. That is the point of it: both halves need a
- * decision a codemod cannot make correctly, and v10/v11 already establish the
- * rule here — a migration that pretends to have handled something it has not is
- * worse than none, because the silence reads as "nothing to do".
+ * **It REWRITES the five renames**: on `<wr-alert>` from `closeable` to
+ * `closable`, on `<wr-table>` from `[totalItems]` to `[total]`, on
+ * `<wr-pagination>` from `[(currentPage)]` to `[(page)]`, from
+ * `isDisabledWhenLoading` to `disabledWhenLoading`, and the window
+ * `chromeSize` scale from `'compact' | 'normal'` to `'sm' | 'md'`. A rename is
+ * exactly what a codemod does well: the new name means what the old one meant,
+ * on the same element, and nothing about the app has to be understood to move it.
+ *
+ * **It REPORTS everything else.** Those need a decision a codemod cannot make
+ * correctly, and v10/v11 already establish the rule here — a migration that
+ * pretends to have handled something it has not is worse than none, because the
+ * silence reads as "nothing to do".
  *
  * **`wr-loading-bar`** no longer subscribes to the router on its own. Add
  * `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router` to your
@@ -66,6 +73,25 @@ import type { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
  * so a non-English locale sees its own digits, sign and decimal separator
  * there — matching the value printed above it, which always did.
  *
+ * **The five renames**, and why each one moved. `wr-alert` spelled its dismiss
+ * toggle `closeable` while `wr-drawer`, `WrDrawerOptions` and `WrDialogOptions`
+ * all spelled the same idea `closable` — and a bare attribute that matches no
+ * input raises no template error, so `<wr-alert closable>` and
+ * `<wr-drawer closeable>` both compiled to nothing at all. `wr-table` and
+ * `wr-pagination` disagreed about the two concepts they share: `totalItems` /
+ * `page` against `total` / `currentPage`, two components designed to sit on the
+ * same screen. `isDisabledWhenLoading` was the only `is`-prefixed input in the
+ * library, against thirty-nine plainly-named `disabled` inputs and no
+ * `isDisabled` anywhere; dropping the prefix leaves none at all. And
+ * `WrWindowChromeSize` was still `'compact' | 'normal'` — the exact vocabulary
+ * v8's density migration exists to retire, three majors after it landed.
+ *
+ * What the rename rules will NOT catch, because no regex can: a component class
+ * reading one of these off a `viewChild()` reference. Those are type errors on
+ * upgrade, which is the loud failure and needs no help. One quiet case is worth
+ * naming: `WrWindowHarness.getChromeSize()` now answers `'sm'` / `'md'`, so a
+ * test asserting `'compact'` fails as a wrong value rather than as a wrong type.
+ *
  * Why the split happened at all: the subscription and the link directives are
  * what pull `@angular/router` into the bundle. Measured on 13.0.0, in an app
  * declaring no routes, `ngwr/loading-bar` cost 100.1 kB of which 67.9 kB was the
@@ -74,6 +100,99 @@ import type { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
  */
 
 const IGNORE_DIRS = new Set(['node_modules', 'dist', '.git', '.cache', '.angular', 'coverage', '.next', '.nuxt']);
+
+interface Transform {
+  readonly pattern: RegExp;
+  readonly replacement: string;
+}
+
+/**
+ * An open tag, up to and including the whitespace before some attribute.
+ * `[^>]*?` cannot cross a `>`, so a rename can never escape the element it is
+ * scoped to, however the tag wraps across lines.
+ *
+ * The anchor is `(?![-\w])` and NOT `\b`: a word boundary still matches at the
+ * front of a longer element name, which is how a v9-shaped rule would have
+ * renamed an attribute on `<wr-table-filter>` while claiming to touch only
+ * `<wr-table>`. Every one of these four has such a neighbour — `wr-table-filter`
+ * and `wr-table-sort`, `wr-window-container` and `wr-window-taskbar` — or would
+ * acquire one the moment the catalog grows.
+ *
+ * Quoted values are stepped over rather than excluded, and that is the half a
+ * plain `[^>]*?` gets wrong: a `>` inside a binding expression looks like the end
+ * of the tag, so `<wr-alert [type]="n > 0 ? 'a' : 'b'" closeable>` left
+ * `closeable` behind while the same attributes in the other order moved. The
+ * leftover is SILENT — a static `closeable` / `totalItems="42"` that matches no
+ * input is an ordinary DOM attribute and `strictTemplates` says nothing, so the
+ * alert quietly loses its dismiss button. (Bracketed forms are loud: NG8002.)
+ * `migration-v9` carries the same anchoring and the same hole.
+ */
+const openTag = (name: string): string => String.raw`<${name}(?![-\w])(?:"[^"]*"|'[^']*'|[^>])*?\s`;
+
+const ALERT = openTag('wr-alert');
+const TABLE = openTag('wr-table');
+const PAGER = openTag('wr-pagination');
+const WINDOW = openTag('wr-window');
+
+/**
+ * Template renames. Run over `.html` AND `.ts`, because an inline template is
+ * a string in a component file and is otherwise invisible to this.
+ */
+const HTML_TRANSFORMS: readonly Transform[] = [
+  // <wr-alert closeable>, to closable. The bracketed form first: after it runs
+  // the bare rule cannot see what it rewrote, and the bare rule's lookahead
+  // (`[\s/>=]`) is what keeps it from matching the inside of a longer word.
+  { pattern: new RegExp(`(${ALERT})\\[closeable\\]`, 'g'), replacement: '$1[closable]' },
+  { pattern: new RegExp(`(${ALERT})closeable(?=[\\s/>=])`, 'g'), replacement: '$1closable' },
+
+  // <wr-table>, from [totalItems] to [total]
+  { pattern: new RegExp(`(${TABLE})\\[totalItems\\]`, 'g'), replacement: '$1[total]' },
+  { pattern: new RegExp(`(${TABLE})totalItems=`, 'g'), replacement: '$1total=' },
+
+  // <wr-pagination>, from [(currentPage)] to [(page)], and the one-way pair with it.
+  { pattern: new RegExp(`(${PAGER})\\[\\(currentPage\\)\\]`, 'g'), replacement: '$1[(page)]' },
+  { pattern: new RegExp(`(${PAGER})\\(currentPageChange\\)`, 'g'), replacement: '$1(pageChange)' },
+  { pattern: new RegExp(`(${PAGER})\\[currentPage\\]`, 'g'), replacement: '$1[page]' },
+  { pattern: new RegExp(`(${PAGER})currentPage=`, 'g'), replacement: '$1page=' },
+
+  // <wr-window>, from chromeSize="compact" to "sm", bound literal included.
+  { pattern: new RegExp(`(${WINDOW}chromeSize=")compact(")`, 'g'), replacement: '$1sm$2' },
+  { pattern: new RegExp(`(${WINDOW}chromeSize=")normal(")`, 'g'), replacement: '$1md$2' },
+  { pattern: new RegExp(`(${WINDOW}\\[chromeSize\\]=")'compact'(")`, 'g'), replacement: "$1'sm'$2" },
+  { pattern: new RegExp(`(${WINDOW}\\[chromeSize\\]=")'normal'(")`, 'g'), replacement: "$1'md'$2" },
+];
+
+/** `.ts` only — object keys and a harness filter, neither of which is markup. */
+const TS_TRANSFORMS: readonly Transform[] = [
+  // WrWindowManager.open(Cmp, { chromeSize: 'compact' }) — the primary form,
+  // since a window is always a service call. Keyed on the property name rather
+  // than the element: there is no element in a `.ts` object literal to scope to,
+  // and `chromeSize` carrying one of exactly these two values is not a shape
+  // another library hands you by accident.
+  { pattern: /(\bchromeSize\s*:\s*['"])compact(['"])/g, replacement: '$1sm$2' },
+  { pattern: /(\bchromeSize\s*:\s*['"])normal(['"])/g, replacement: '$1md$2' },
+  // WrPaginationHarness.with({ currentPage: 3 }), to { page: 3 }. The filter is
+  // named after the input, so it moved with it. Scoped to the `with(` call —
+  // `currentPage` is far too ordinary a property name to rename on sight.
+  { pattern: /(WrPaginationHarness\.with\(\s*\{[^}]*?\b)currentPage(\s*:)/g, replacement: '$1page$2' },
+];
+
+/**
+ * Renames safe ANYWHERE, in markup, TypeScript and stylesheets alike, because
+ * the string itself is unambiguous. `isDisabledWhenLoading` was the library's
+ * only `is`-prefixed input and appears nowhere else; `wr-window--chrome-compact`
+ * is a BEM class, which is public API here, so a consumer stylesheet overriding
+ * it has to move with the component.
+ */
+const GLOBAL_TRANSFORMS: readonly Transform[] = [
+  { pattern: /\bisDisabledWhenLoading\b/g, replacement: 'disabledWhenLoading' },
+  { pattern: /\bwr-window--chrome-compact\b/g, replacement: 'wr-window--chrome-sm' },
+  // `--chrome-normal` too, even though the library never styled it: the class is
+  // emitted as `wr-window--chrome-${chromeSize()}`, so every default window in
+  // v13 carried it, BEM classes are public API here, and a consumer override
+  // keyed on it stops matching with no error — CSS does not have one.
+  { pattern: /\bwr-window--chrome-normal\b/g, replacement: 'wr-window--chrome-md' },
+];
 
 /** `<wr-tab …>` carrying a `routerLink`, however the tag is wrapped across lines. */
 const ROUTER_TAB = /<wr-tab\b[^>]*\brouterLink\b/;
@@ -111,13 +230,36 @@ function ngUpdateV14(): Rule {
     const defaultConfigs: string[] = [];
     const ofLabels: string[] = [];
     const staleCatalogs: string[] = [];
+    let rewritten = 0;
 
     visit(tree, '/', filePath => {
       const lower = filePath.toLowerCase();
-      // Inline templates live in `.ts`, external ones in `.html`.
-      if (!lower.endsWith('.ts') && !lower.endsWith('.html') && !lower.endsWith('.json')) return;
+      const isTs = lower.endsWith('.ts');
+      const isHtml = lower.endsWith('.html');
+      const isStyle = lower.endsWith('.scss') || lower.endsWith('.css');
 
+      // Inline templates live in `.ts`, external ones in `.html`; the renames
+      // reach stylesheets too, because one of them is a BEM class.
+      if (!isTs && !isHtml && !isStyle && !lower.endsWith('.json')) return;
+
+      // Read ONCE. Every detector below then answers about the file the user
+      // wrote, not about the file a transform left behind — none of the five
+      // renames touches a reported token today, and relying on that is exactly
+      // the coupling that breaks the next time one is added.
       const content = tree.readText(filePath);
+
+      if (isTs || isHtml || isStyle) {
+        const next = apply(content, [
+          ...(isTs || isHtml ? HTML_TRANSFORMS : []),
+          ...(isTs ? TS_TRANSFORMS : []),
+          ...GLOBAL_TRANSFORMS,
+        ]);
+        if (next !== content) {
+          tree.overwrite(filePath, next);
+          rewritten += 1;
+        }
+      }
+
       if (ROUTER_TAB.test(content)) routerTabs.push(filePath);
       if (LOADING_BAR.test(content)) loadingBars.push(filePath);
       if (DATE_ADAPTER_NO_LOCALE.test(content)) dateAdapters.push(filePath);
@@ -131,6 +273,17 @@ function ngUpdateV14(): Rule {
         staleCatalogs.push(filePath);
       }
     });
+
+    if (rewritten > 0) {
+      context.logger.info(
+        `ngwr v14 migration: rewrote ${rewritten} file(s) for the renames: on <wr-alert> from ` +
+          'closeable to closable, on <wr-table> from totalItems to total, on <wr-pagination> from ' +
+          'currentPage to page (and from currentPageChange to pageChange), from isDisabledWhenLoading ' +
+          'to disabledWhenLoading, and the window chromeSize scale from compact/normal to sm/md ' +
+          '(class .wr-window--chrome-compact to --chrome-sm).'
+      );
+      context.logger.info('Verify the result with `git diff` — a few edge cases may need manual touch-up.');
+    }
 
     if (staleCatalogs.length > 0) {
       context.logger.warn(
@@ -202,18 +355,28 @@ function ngUpdateV14(): Rule {
     }
 
     if (
+      rewritten === 0 &&
       loadingBars.length === 0 &&
       routerTabs.length === 0 &&
       dateAdapters.length === 0 &&
       i18nProviders.length === 0 &&
       defaultConfigs.length === 0 &&
-      ofLabels.length === 0
+      ofLabels.length === 0 &&
+      staleCatalogs.length === 0
     ) {
       context.logger.info('ngwr v14 migration: nothing to do — no affected usage found.');
     }
 
     return tree;
   };
+}
+
+function apply(content: string, transforms: readonly Transform[]): string {
+  let next = content;
+  for (const { pattern, replacement } of transforms) {
+    next = next.replace(pattern, replacement);
+  }
+  return next;
 }
 
 function visit(tree: Tree, path: string, visitor: (filePath: string) => void): void {

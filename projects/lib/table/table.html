@@ -368,6 +368,6 @@
 
 @if (showPager()) {
   <div class="wr-table__pager">
-    <wr-pagination [(currentPage)]="page" [pageSize]="pageSize()" [total]="resolvedTotal()" />
+    <wr-pagination [(page)]="page" [pageSize]="pageSize()" [total]="resolvedTotal()" />
   </div>
 }

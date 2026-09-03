@@ -19,7 +19,7 @@ import type { WrAlertType } from './interfaces';
  * @example
  * ```html
  * <wr-alert title="Saved" message="Your changes are live." type="success" />
- * <wr-alert title="Failed" type="danger" closeable (closed)="onClose()" />
+ * <wr-alert title="Failed" type="danger" closable (closed)="onClose()" />
  * ```
  *
  * @see https://ngwr.dev/reference/components/alert
@@ -82,7 +82,7 @@ export class WrAlert {
    *
    * @default false
    */
-  readonly closeable = input(false, { transform: coerceBooleanProperty });
+  readonly closable = input(false, { transform: coerceBooleanProperty });
 
   /**
    * Emitted when the user dismisses the alert via the close button.

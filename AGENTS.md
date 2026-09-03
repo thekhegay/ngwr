@@ -272,6 +272,7 @@ with **no `var()` reader anywhere in the library**.
 | API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
 | llms-full.txt     | `pnpm check:llms` (entry-point coverage floors for the generated AI asset)                           |
 | Selector map      | `pnpm gen:selectors` (every `@Component` / `@Directive` selector → symbol + subpath, for the sandbox) |
+| Component hooks   | `pnpm gen:css-vars` (the `--wr-<name>-*` each component publishes → the docs' CSS-variables tables); `check:css-vars` gates the committed copy |
 | Quality numbers   | `pnpm gen:quality` (entry points, harnesses, specs, gates — what `/start/quality` binds to)          |
 | Unit tests        | `pnpm test` (`ng test lib` — vitest via `@angular/build:unit-test`); `pnpm test:watch` |
 
@@ -436,8 +437,8 @@ ORDER and a different alias with identical arms are admitted deliberately: both
 are value-set identities, and no binding changes.
 
 **CI gates on `pnpm lint` + `pnpm test` + `pnpm check:api-docs` +
-`pnpm check:llms` + `pnpm build:lib` +
-`pnpm build:showcase` + `pnpm check:theme` + `pnpm check:a11y`** — all eight must
+`pnpm check:llms` + `pnpm check:css-vars` + `pnpm build:lib` +
+`pnpm build:showcase` + `pnpm check:theme` + `pnpm check:a11y`** — all nine must
 be green (a silently
 failed lint stage once slipped past and blocked a publish). The last two need the
 prerendered site, which is why they sit after `build:showcase` rather than in the
@@ -481,6 +482,29 @@ role aliases (`--wr-color-{surface,on-surface,on-surface-muted,outline}`); plus
 `--wr-duration-*`, `--wr-ease-*`. Pull mixins and tokens from `ngwr/theme`.
 The TS `WR_COLORS` list and the SCSS `$base-colors` map must stay in sync —
 `scripts/check-color-parity.ts` (in `pnpm lint`) fails the build if they drift.
+
+**The 379 COMPONENT-scoped hooks are catalogued by `gen:css-vars`, and the
+catalogue is the gate `check:tokens` deliberately is not.** `check:tokens` reads
+`theme/styles/` only, calling a component's own `--wr-<name>-*` "a component's
+private surface" — true of the DECISION and not of the audience, since a
+consumer restyles a component through exactly those. They were documented
+nowhere until v14: the sanctioned, non-breaking route meant opening
+`node_modules/ngwr/<name>/styles/_index.scss`, and a consumer who cannot find a
+hook overrides the internal BEM class instead — against a class-name stability
+statement that never meant to cover it. `scripts/lib/build-css-var-map.ts` reads
+the stylesheets and `<ngwr-doc-page>` renders the section itself, keyed by route,
+so a component that grows a hook cannot ship without the row. Three rules earned
+while writing it: **declaring a hook is not owning one** (twenty-four
+declarations are one component setting another's — `--wr-icon-size` inside its
+own `<wr-icon>` — and belong on the owner's page); **a read may live in
+TypeScript** (`wr-circular-text` writes `var(--wr-circular-text-radius)` into a
+transform and `wr-aurora` reads three hooks through `getPropertyValue`, so a
+stylesheet-only scan called all four dead) but never in a spec or a harness; and
+**the default is the BASE declaration**, outside any at-rule and on a selector
+with no modifier, because a hook is typically re-declared by every variant.
+Exactly two hooks are declared and never read — `--wr-density-text` and
+`--wr-density-gap`, published for consumers' own `calc()` — and the generator
+prints them rather than listing them.
 
 **A token nobody paints with is not a token, and `check:tokens` is a "say why"
 gate rather than a "don't" gate.** `--wr-*` properties are public API, so a token
@@ -1119,7 +1143,7 @@ because it is guidance rather than a plan.
   below 0, and emits nothing for it — there is no `loading` input, so 0 is
   ambiguous with "still in flight", which is where a server-paged host sits
   between the click and the response. Clamping there pulled every page back to 1
-  and emitted a `currentPageChange` the host could not tell from a click. The
+  and emitted a `pageChange` the host could not tell from a click. The
   LOWER bound stays unconditional, and that one does write back.
 - The date adapter emits single-quoted runs verbatim and treats unquoted
   letters as tokens, the way `DatePipe` and LDML do. `addDays` moves the

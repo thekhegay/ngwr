@@ -117,7 +117,7 @@ export class WrButton {
    *
    * @default true
    */
-  readonly isDisabledWhenLoading = input(true, { transform: coerceBooleanProperty });
+  readonly disabledWhenLoading = input(true, { transform: coerceBooleanProperty });
 
   private readonly group = inject(WR_BUTTON_GROUP, { optional: true });
 
@@ -154,7 +154,7 @@ export class WrButton {
    */
   private readonly isCustomHost = this.hostEl.nativeElement.tagName === 'WR-BTN';
 
-  private readonly isOff = computed(() => this.disabled() || (this.loading() && this.isDisabledWhenLoading()));
+  private readonly isOff = computed(() => this.disabled() || (this.loading() && this.disabledWhenLoading()));
 
   protected readonly nativeDisabled = computed<'' | null>(() => (this.isOff() ? '' : null));
 

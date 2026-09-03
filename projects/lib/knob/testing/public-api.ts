@@ -1,2 +1,2 @@
 export { WrKnobHarness } from './wr-knob-harness';
-export type { WrKnobHarnessFilters } from './interfaces';
+export type { WrKnobArrowKey, WrKnobHarnessFilters } from './interfaces';

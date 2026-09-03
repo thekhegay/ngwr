@@ -16,4 +16,16 @@
 
 <div class="content">
   <ng-content />
+
+  <!--
+    Last section on the page, and rendered by the shell rather than by the page:
+    the catalogue is generated, so a component that grows a hook gets the row
+    without anyone remembering to ask for it. `null` for every route that
+    documents no entry point, which is most of `/guides` and `/start`.
+  -->
+  @if (cssVars(); as vars) {
+    <ngwr-doc-section title="CSS variables" [description]="cssVarsDescription(vars.subpath)">
+      <ngwr-doc-css-vars [rows]="vars.vars" />
+    </ngwr-doc-section>
+  }
 </div>

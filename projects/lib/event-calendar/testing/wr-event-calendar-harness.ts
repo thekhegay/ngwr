@@ -10,13 +10,14 @@ import { ComponentHarness, HarnessPredicate, TestKey, type TestElement } from '@
 import { WrButtonHarness } from 'ngwr/button/testing';
 import type { WrCalendarView } from 'ngwr/event-calendar';
 
-import type { WrEventCalendarChipHarnessFilters, WrEventCalendarHarnessFilters } from './interfaces';
+import type {
+  WrEventCalendarArrowKey,
+  WrEventCalendarChipHarnessFilters,
+  WrEventCalendarHarnessFilters,
+} from './interfaces';
 import { WrEventCalendarChipHarness } from './wr-event-calendar-chip-harness';
 
-/** The arrow keys, by the direction a user would say out loud. */
-type Arrow = 'left' | 'right' | 'up' | 'down';
-
-const ARROWS: Record<Arrow, TestKey> = {
+const ARROWS: Record<WrEventCalendarArrowKey, TestKey> = {
   left: TestKey.LEFT_ARROW,
   right: TestKey.RIGHT_ARROW,
   up: TestKey.UP_ARROW,
@@ -276,7 +277,7 @@ export class WrEventCalendarHarness extends ComponentHarness {
    * — the element carrying the keyboard should be the one that holds focus — and
    * anything originating inside a chip is deliberately let through untouched.
    */
-  async pressArrow(arrow: Arrow): Promise<void> {
+  async pressArrow(arrow: WrEventCalendarArrowKey): Promise<void> {
     await (await this.cursorCell('pressArrow')).sendKeys(ARROWS[arrow]);
   }
 

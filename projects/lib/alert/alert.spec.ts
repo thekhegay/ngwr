@@ -14,7 +14,7 @@ import type { WrAlertType } from './interfaces';
       [type]="type()"
       [title]="title()"
       [message]="message()"
-      [closeable]="closeable()"
+      [closable]="closable()"
       [closeLabel]="closeLabel()"
       (closed)="closes.set(closes() + 1)"
     />
@@ -24,7 +24,7 @@ class Host {
   readonly type = signal<WrAlertType>('info');
   readonly title = signal<string | null>(null);
   readonly message = signal<string | null>(null);
-  readonly closeable = signal(false);
+  readonly closable = signal(false);
   readonly closeLabel = signal<string | null>(null);
   readonly closes = signal(0);
 }
@@ -102,13 +102,13 @@ describe('WrAlert', () => {
   it('offers no dismiss button unless asked', () => {
     expect(closeButton()).toBeNull();
 
-    fixture.componentInstance.closeable.set(true);
+    fixture.componentInstance.closable.set(true);
     fixture.detectChanges();
     expect(closeButton()).not.toBeNull();
   });
 
   it('names the dismiss button in plain English with no i18n configured', () => {
-    fixture.componentInstance.closeable.set(true);
+    fixture.componentInstance.closable.set(true);
     fixture.detectChanges();
 
     // `t()` returns the KEY on a miss and `WrI18n` ships an empty catalog by
@@ -118,7 +118,7 @@ describe('WrAlert', () => {
   });
 
   it('lets the host override the dismiss label', () => {
-    fixture.componentInstance.closeable.set(true);
+    fixture.componentInstance.closable.set(true);
     fixture.componentInstance.closeLabel.set('Dismiss this warning');
     fixture.detectChanges();
 
@@ -126,7 +126,7 @@ describe('WrAlert', () => {
   });
 
   it('removes itself on dismiss, and says so once', () => {
-    fixture.componentInstance.closeable.set(true);
+    fixture.componentInstance.closable.set(true);
     fixture.detectChanges();
 
     closeButton()!.click();
@@ -151,7 +151,7 @@ describe('WrAlert', () => {
 describe('WrAlert with a catalog', () => {
   @Component({
     imports: [WrAlert],
-    template: `<wr-alert closeable>Body</wr-alert>`,
+    template: `<wr-alert closable>Body</wr-alert>`,
   })
   class CatalogHost {}
 
