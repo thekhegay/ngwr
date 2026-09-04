@@ -5,7 +5,7 @@ description: Build Angular UIs with the ngwr component library (standalone, sign
 
 # ngwr
 
-An Angular 22 UI library: 202 tree-shakable entry points, 110 of them shipping a selector.
+An Angular 22 UI library: 204 tree-shakable entry points, 111 of them shipping a selector.
 Standalone, signals-first, zoneless, `ViewEncapsulation.None`. One runtime
 dependency (`tslib`).
 
@@ -92,6 +92,9 @@ cause.
 - `provideWrDateFnsAdapter() // from 'ngwr/date/adapters/fns'`
   — every date mode goes through an adapter; there is no built-in default
   — needed by: `WrDatePicker`, `WrCalendar`, `WrEventCalendar`
+- `provideWrLoadingBarRouter() // from 'ngwr/loading-bar/router'`
+  — without it the bar never responds to navigation; it only moves for manual start() / complete()
+  — needed by: `WrLoadingBar`
 - `provideWrI18n() + provideWrI18nStaticLoader({ en: wrEn }) // from 'ngwr/i18n' + 'ngwr/i18n/en'`
   — the pipe and directive read from a catalog you provide
   — needed by: `WrTPipe`, `WrTDirective`, `WrI18n`

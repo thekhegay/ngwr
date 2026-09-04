@@ -114,6 +114,7 @@ root barrel for components.
 | `ngwr/line-chart/testing` | `import { WrLineChartHarness } from 'ngwr/line-chart/testing'` | — |
 | `ngwr/list` | `import { WrList } from 'ngwr/list'` | `wr-list-item` `wr-list` |
 | `ngwr/loading-bar` | `import { WrLoadingBar } from 'ngwr/loading-bar'` | `wr-loading-bar` |
+| `ngwr/loading-bar/router` | `import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router'` | — |
 | `ngwr/markdown` | `import { WrMarkdown } from 'ngwr/markdown'` | `wr-markdown` |
 | `ngwr/markdown/testing` | `import { WrMarkdownCodeBlockHarness } from 'ngwr/markdown/testing'` | — |
 | `ngwr/marquee` | `import { WrMarquee } from 'ngwr/marquee'` | `wr-marquee` |
@@ -180,6 +181,7 @@ root barrel for components.
 | `ngwr/table` | `import { WrTable } from 'ngwr/table'` | `[wrTableCell]` `ng-template[wrTableExpand]` `wr-table-filter` `ng-template[wrTableGroupHeader]` `wr-table-sort` `wr-table` |
 | `ngwr/table/testing` | `import { WrTableCellHarness } from 'ngwr/table/testing'` | — |
 | `ngwr/tabs` | `import { WrTabs } from 'ngwr/tabs'` | `wr-tab` `wr-tabs` |
+| `ngwr/tabs/router` | `import { WrTabsRouting } from 'ngwr/tabs/router'` | `[wrTabsRouting]` |
 | `ngwr/tabs/testing` | `import { WrTabHarness } from 'ngwr/tabs/testing'` | — |
 | `ngwr/textarea` | `import { WrTextarea } from 'ngwr/textarea'` | `wr-textarea` |
 | `ngwr/textarea/testing` | `import { WrTextareaHarness } from 'ngwr/textarea/testing'` | — |

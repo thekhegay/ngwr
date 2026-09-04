@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Schematics"
-  description="Angular CLI tooling shipped with ngwr — `ng add`, five generators, and one `ng update` migration per major that needs code rewritten (v7, v8, v9)."
+  description="Angular CLI tooling shipped with ngwr — `ng add`, five generators, and an `ng update` migration for every major that needs one: v7, v8, v9, v12, v13 and v14. v10 and v11 ship none on purpose, because their breaks were painted colour and an empty codemod would say they were handled."
   [keywords]="['schematics', 'ng-add', 'ng-generate', 'ng-update', 'cli']"
   [labels]="['Getting started', 'CLI']"
 >
@@ -64,8 +64,8 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="ng update ngwr@7"
-    description="Auto-rewrites the v6 entry-points that v7 consolidated. Touches every `.html`, `.ts`, and `.scss` file in the workspace (excluding `node_modules`, `dist`, etc). Regex-based — verify with `git diff` afterwards."
+    title="ng update"
+    description="Runs the migration matched to the major you land on, and any you skipped, in order. Each one touches every `.html`, `.ts` and `.scss` in the workspace (excluding `node_modules`, `dist`, and the rest). Regex-based — verify with `git diff` afterwards. Some migrations only REPORT: where a fix needs a decision a codemod cannot make, it names the files and leaves them to you rather than guessing."
   >
     <ngwr-doc-code [code]="snippets.update" language="bash" />
   </ngwr-doc-section>

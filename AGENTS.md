@@ -1094,8 +1094,12 @@ cannot say two different things in two files. The skill ships inside the npm
 tarball (copied by `copy-dist-assets.ts`) and is served at `/skills/ngwr/SKILL.md`;
 its provider table is imported from `projects/lib/mcp/providers.ts`, which the MCP
 server's `get_ngwr_setup` reads too. `check:llms` gates the skill as OUTPUT — no
-frontmatter, or a catalog table with only a header, fails the build. Both are
-gitignored and hand-editing either is pointless; `sitemap.xml` and the per-page **markdown twins**
+frontmatter, or a catalog table with only a header, fails the build. Hand-editing
+either is pointless, but only `llms-full.txt` is gitignored — `skills/ngwr/**` is
+TRACKED, so a build regenerates it into the working tree and the diff has to be
+committed like any other. Nothing gates that it was: the skill sat two entry
+points stale through a whole cycle because every check reads the freshly built
+copy, never the committed one; `sitemap.xml` and the per-page **markdown twins**
 regenerate from the prerendered route list after `build:showcase`
 (`scripts/gen-sitemap.ts`, `scripts/gen-md-docs.ts`) — so a new entry point or
 route is picked up automatically. The twins are what `/reference/components/select.md`

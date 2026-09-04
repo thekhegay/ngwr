@@ -56,6 +56,10 @@ Icons resolve by name from a registry you populate. Needed by `WrIcon`.
 
 Every date mode goes through an adapter; there is no built-in default. Needed by `WrDatePicker`, `WrCalendar`, `WrEventCalendar`.
 
+### `provideWrLoadingBarRouter() // from 'ngwr/loading-bar/router'`
+
+Without it the bar never responds to navigation; it only moves for manual start() / complete(). Needed by `WrLoadingBar`.
+
 ### `provideWrI18n() + provideWrI18nStaticLoader({ en: wrEn }) // from 'ngwr/i18n' + 'ngwr/i18n/en'`
 
 The pipe and directive read from a catalog you provide. Needed by `WrTPipe`, `WrTDirective`, `WrI18n`.
