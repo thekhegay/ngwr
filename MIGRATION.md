@@ -8,12 +8,70 @@ carry no codemod, as its section below explains.
 
 ```bash
 # Runs the version-matched migration for the major you land on.
-ng update ngwr@10
+ng update ngwr@14
 ```
 
 Sections are newest-first. If you are skipping a major, run each migration
 in order (`ngwr@7`, then `ngwr@8`, then `ngwr@9`, …) rather than jumping straight to the
 latest.
+
+**The full guide lives at [ngwr.dev/start/migration](https://ngwr.dev/start/migration)**, with a
+runnable diff per change. This file carries the same breaks in short form, newest first, so the
+history is readable without leaving the repository.
+
+---
+
+## v13 to v14
+
+The largest release so far. Six renames, all rewritten by `ng update ngwr@14` — `wr-alert`'s
+`closeable` to `closable`, `wr-table`'s `totalItems` to `total`, `wr-pagination`'s `currentPage`
+to `page` (and `currentPageChange` to `pageChange`), `isDisabledWhenLoading` to
+`disabledWhenLoading`, `wr-window`'s `chromeSize` from `compact`/`normal` to `sm`/`md`, and
+`[wrInput]`'s `wrSize` to plain `size`. That last one was announced by v13's release notes and
+never made; it lands here.
+
+**Three changes fail silently, and they are the reason to read rather than skim.** `wr-loading-bar`
+no longer follows the router by itself — add `provideWrLoadingBarRouter()` from
+`ngwr/loading-bar/router`, or the bar simply never moves. A translated `pagination.of` stops being
+read, because the range is one `pagination.range` template now, so a catalog keeping the old key
+reverts that line to English. And a named date format (`shortDate`, `time`, …) now refuses input it
+cannot parse instead of committing whatever `new Date()` made of it — a German field printing
+`15.3.2026` used to read its own output back as 1 January 2001.
+
+`<wr-pagination ofLabel>` is gone with the catalog key — the whole range is one template, rather
+than a word translated in the middle of an order many languages do not use. Router tabs need
+`wrTabsRouting` on the strip and `WrTabsRouting` in `imports`; that one throws, so the build finds
+it. Locale for dates and catalogs now resolves from Angular's `LOCALE_ID` rather
+than the browser. The codemod reports every one of these by file.
+
+---
+
+## v12 to v13
+
+`[id]` on `wr-checkbox`, `wr-radio` and `wr-switch` no longer lands on the host element, so
+`document.getElementById` returns the inner `<input>` — the association the input always
+documented. A CSS or E2E selector written as `wr-checkbox#agree` stops matching; `#agree` alone
+still works. No codemod: which of the two elements a selector meant is not derivable from the
+source.
+
+---
+
+## v11 to v12
+
+Two breaking changes needing opposite treatment. The three date entry points moved —
+`ngwr/date-adapter` to `ngwr/date`, and the two adapters under `ngwr/date/adapters/*` — which is
+pure import paths, so `ng update ngwr@12` rewrites all of it. And `readI18nText()` returns
+`Signal<string>` instead of `string`, so every call site needs a `()`. That one is deliberately not
+codemodded: adding parentheses means knowing which identifiers hold the result, and a wrong guess
+is a silent behaviour change, whereas the type error names every site for you.
+
+---
+
+## v10 to v11
+
+Five intents deepened so their labels can be white — `secondary`, `success`, `danger`, `info` and
+`medium`. Painted colour, like v10, so there is no codemod for the same reason: an empty one would
+tell you your regressions were handled when they were not. Check the pages, not the logs.
 
 ---
 

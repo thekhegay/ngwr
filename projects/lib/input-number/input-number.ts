@@ -109,7 +109,7 @@ export class WrInputNumber implements FormValueControl<number | null> {
   });
 
   /**
-   * `size`, then the app config, then `md` — bound to the field's `[wrSize]`.
+   * `size`, then the app config, then `md` — bound to the field's `[size]`.
    *
    * The chrome this control is built from resolves the same pair for itself, so
    * the config lookup falls through to `input.*` rather than stopping at

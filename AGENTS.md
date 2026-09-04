@@ -14,8 +14,10 @@ A pnpm + Angular CLI monorepo with two projects:
   a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **204**
   of them (`ngwr/button`, `ngwr/select`, `ngwr/overlay`, …). Counted by
   `ng-package.json`, not by directory: `styles/` and `schematics/` are not entry
-  points, and seventy-four are nested — `ngwr/i18n/{en,ru}`,
-  `ngwr/icon/adapters/{lucide,feather}` and the CDK test harnesses, which now cover
+  points, and **seventy-eight** are nested — `ngwr/i18n/{en,ru}`,
+  `ngwr/icon/adapters/{lucide,feather}`, `ngwr/date/adapters/{fns,luxon}`, the two
+  opt-in router adapters `ngwr/loading-bar/router` and `ngwr/tabs/router` that v14
+  added, and the CDK test harnesses, which now cover
   **seventy** entry points: the form controls (`button`, `input`, `textarea`,
   `checkbox`, `switch`, `radio`, `select`, `input-number`, `input-otp`, `slider`,
   `rating`, `file-upload`, `color-picker`, `knob`, `form`, `segmented`), the overlays
@@ -101,7 +103,12 @@ one component folder. Reach for them instead of hand-rolling:
   folder.
 - **i18n** (`ngwr/i18n`) — the `wrT` pipe + `[wrT]` directive, `WrI18n` service,
   `provideWrI18n()` + `provideWrI18nStaticLoader()`; ngwr's own catalogs at
-  `ngwr/i18n/{ru,en}`.
+  `ngwr/i18n/{ru,en}`. **Since v14 there is ONE locale source and it is Angular's
+  `LOCALE_ID`** — `WrI18n`'s `defaultLocale` and `availableLocales`, and
+  `WR_DATE_LOCALE` on the date side, all resolve through it rather than through
+  `navigator.language` or a literal `'en'`, so an app that sets `LOCALE_ID`
+  correctly stops formatting dates in whatever language the visitor's browser
+  happens to be. Reach for `navigator.language` only by writing it explicitly.
 - **Component defaults** (`ngwr/config`) — `provideWrConfig({ button: { size: 'sm' } })`
   sets what a component falls back to when a template says nothing. A bound value
   always WINS (config is a default, never an override — the NG-ZORRO
@@ -163,6 +170,18 @@ one component folder. Reach for them instead of hand-rolling:
   `ng g ngwr:use lucideIcons` had always answered "unknown symbol" and the date
   adapters were reachable only by the accident of being flat. It recurses now and
   skips `<name>/testing`: a harness is public but never belongs in `imports: []`.
+- **Router integration is OPT-IN since v14, and lives in two nested entry
+  points** — `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`, and
+  `WrTabsRouting` (the `[wrTabsRouting]` attribute on the strip) from
+  `ngwr/tabs/router`. `WrLoadingBar` and `WrTabs` used to inject `Router`
+  themselves, which put 66–76 kB of `@angular/router` into every app whether it
+  routed or not. The two fail in opposite ways and only one is safe: the tab
+  strip THROWS when a tab carries a `routerLink` and no adapter is present,
+  while the loading bar keeps working for manual `start()` / `complete()` and
+  simply never moves for navigation — nothing throws, and this project's own
+  site shipped a permanently-empty bar for the length of a release by missing
+  exactly that. When you add a component that would inject `Router`, split it
+  the same way rather than paying the dependency for everyone.
 - **Shared code — don't reinvent these.** `ngwr/utils` (`coercion` incl.
   `numAttr` for input transforms; plus `dom`, `guards`, `id`, `keyboard`,
   `css-size`, `fn`, `math`, `log`), `ngwr/pipes` (`wrDate`, `wrBytes`,
@@ -287,8 +306,10 @@ Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
 (`ngwr/form`), most of the service layer (`ngwr/hotkey`, `ngwr/i18n`,
 `ngwr/media`, `ngwr/platform`, `ngwr/storage`, `ngwr/overlay`, `ngwr/density`,
 `WrWindowManager`, `ngwr/scroll`) and EVERY component with a
-page under `reference/components` — 227 spec files, ~3750 specs, and **every entry
-point now has one**. What is still uncovered is no longer whole
+page under `reference/components` — 248 spec files, at least 4358 specs, and
+**every entry point now has one**. (Both numbers are re-counted by
+`pnpm gen:quality` into `#core/generated/quality`; the spec figure is a FLOOR,
+since one `it.each` site stands for an unknown number of cases.) What is still uncovered is no longer whole
 components but what a spec can reach: jsdom has no drawing context, so the canvas
 and WebGL components can never assert anything painted. All six now install a
 recording context — a WebGL2 stub for `aurora` and `splash-cursor`, a 2D one for
@@ -309,7 +330,8 @@ vitest's `-t`, so `--filter dialog` silently runs the handful of tests whose
 NAMES contain "dialog" and reports green. To run one file, pass its path to the
 builder's `include`; to be sure of a change, run the whole suite — it is
 seconds. **`pnpm lint`, `pnpm test`, the two builds, `check:api-docs`,
-`check:llms` and `check:a11y` are the gates**, and a green run still does not mean
+`check:llms`, `check:css-vars`, `check:theme` and `check:a11y` are the nine
+gates**, and a green run still does not mean
 a component behaves — the suite is broad now but shallow in places (see above).
 
 **Deferred DOM work needs `afterNextRender`, not `queueMicrotask`.** Under
@@ -678,7 +700,9 @@ smallest diff that satisfies the request. Concretely:
 `--provenance`), and a poisoned cache would hand it to attacker-controlled
 code. Don't re-add the cache.
 
-**v12 carries two BREAKING changes, and they are the reason it is a major.**
+**v12 carried two BREAKING changes, and they are the reason it was a major.**
+Kept here as history, because both still shape the catalog a reader sees today;
+for what breaks on the CURRENT upgrade, read the Versioning section below.
 
 **One — the date entry points moved.** `ngwr/date-adapter` → `ngwr/date`,
 `ngwr/date-adapter-fns` → `ngwr/date/adapters/fns`, `ngwr/date-adapter-luxon` →
@@ -701,27 +725,79 @@ NOT codemodded: adding `()` means knowing which identifiers hold the result, and
 a wrong guess is a silent behaviour change — whereas the type error names every
 site. `useI18nText`, the `wrT` pipe and the `[wrT]` directive are untouched.
 
-Both are on the user-facing migration guide at `/start/migration`; the
-`ng update ngwr@12` section there is what a consumer actually follows.
+Both are still on the user-facing migration guide at `/start/migration`, which
+carries every step back to v6. **`ng update ngwr@14` is the section a consumer
+follows today** — the guide is ordered newest-first for that reason.
 
-**Versioning.** **v12 is the current major line.** `projects/lib/package.json`
-and the `NGWR_VERSION` constant are written by `release:prepare`, so read the
-version from there rather than from this file. v10's three breaking changes were
-all CSS/token-level — WCAG contrast on `--wr-color-*-contrast`, table header
-casing, tooltip theming — so there is deliberately **no `migration-v10`**: an
-empty codemod would tell consumers their visual regressions were handled when
-they were not. v11's breaking change was the same shape (five intents deepened so
-their labels can be white — see Styling), so `schematics/migrations/` skipped v10
-and v11 on purpose. It resumes at **v12**, and the difference is the whole rule:
-v10 and v11 changed painted colour, which no codemod can repair, while v12 moves
-three import paths, which is exactly what one can. v12 also carries the largest defect sweep the
-library has had: 257 confirmed and fixed across six passes — five reading code
-(SSR, teardown, zoneless, cross-component consistency, hard-coded strings,
-untrusted input, harnesses, config, package surface, edge inputs, performance,
-APG and WCAG criterion by criterion) and one measuring PIXELS in a real browser,
-which found 58 on its own and is the lens the other five could not apply. Don't bump
-the version by hand — releases are cut from Actions ("Release PR" → `bump`),
-which runs `release:prepare` / `release:body` and opens a `chore(release)` PR.
+**Versioning.** **v14 is the current major line.** `projects/lib/package.json`,
+the `NGWR_VERSION` constant, the `SECURITY.md` support table and
+`CHANGELOG.md` are written by `release:prepare`, so read the version from there
+rather than from this file, and never hand-edit any of the four. Don't bump the
+version by hand either — releases are cut from Actions, by running the "Release
+PR" workflow with its `bump` input, which runs `release:prepare` /
+`release:body` and opens a `chore(release)` PR.
+
+**Whether a major ships a codemod is decided by one rule, and the rule is about
+the SHAPE of the break rather than its size: a codemod runs when the new form
+means what the old one meant in the same place — a name, a path — and is refused
+when repairing the break needs a value only the app knows.**
+`schematics/migrations/` holds **v7, v8, v9, v12, v13 and v14**, and every gap in
+that sequence is a position rather than an oversight:
+
+- **v10 and v11 ship none, and must not.** v10's three breaks were all
+  CSS/token-level — WCAG contrast on `--wr-color-*-contrast`, table header
+  casing, tooltip theming — and v11's was the same shape: five intents deepened
+  so their labels can be white (see Styling). Painted colour is not something a
+  codemod can repair, and an empty `migration-v10` would tell consumers their
+  visual regressions were handled when they were not.
+- **v12 resumed the sequence**, and the contrast with v10 / v11 is the whole
+  rule: it moved three import paths, which is exactly what a codemod moves
+  without reading the code around it. v12 also carries the largest defect sweep
+  the library has had: 257 confirmed and fixed across six passes — five reading
+  code (SSR, teardown, zoneless, cross-component consistency, hard-coded strings,
+  untrusted input, harnesses, config, package surface, edge inputs, performance,
+  APG and WCAG criterion by criterion) and one measuring PIXELS in a real
+  browser, which found 58 on its own and is the lens the other five could not
+  apply.
+- **v13 ships `migration-v13`, and it rewrites nothing on purpose.** Its one
+  breaking change stopped `[id]` landing on the HOST of `<wr-checkbox>` /
+  `<wr-radio>` / `<wr-switch>` — the id goes to the inner `<input>`, where the
+  input was always documented to put it, and where `<label for>` can reach a
+  labelable element again. A codemod can FIND every `wr-checkbox#agree`, and
+  deliberately rewrites none: whether that selector should become `#agree` (the
+  tick), `wr-checkbox:has(#agree)` (the row) or a class is a decision only the
+  author can make, and a selector that stops matching is silent in CSS, in
+  `querySelector` and in a test locator alike. So it reports — the same half of
+  the rule `migration-v14` uses.
+- **The v13 commit subject and CHANGELOG entry are WRONG about a second break,
+  and nothing should be built on them.** `feat!: readonly and invalid reach
+  every control, and input size loses its prefix` announces a rename of
+  `[wrInput]`'s `wrSize` input to `size`. **That rename was never made** —
+  `projects/lib/input/directives/wr-input.ts` declares `readonly wrSize` at
+  v12.2.0, v13.0.0, v13.0.1 and HEAD alike, and `WrInput` has no `size` input at
+  all. Do not "restore" a rename that never happened, and do not act on a
+  migration diff that rewrites `wrSize="lg"` to `size="lg"`: a static `size` on
+  that directive is an unknown attribute `strictTemplates` says nothing about,
+  so the control silently falls back to `md`. The published changelog cannot be
+  edited; correcting the docs that repeat it can.
+- **v14 ships `migration-v14`, split down the middle of the rule**, and that
+  split is the thing to copy. It REWRITES the five renames — on `<wr-alert>`
+  from `closeable` to `closable`, on `<wr-table>` from `totalItems` to `total`,
+  on `<wr-pagination>` from `currentPage` to `page` (and from
+  `currentPageChange` to `pageChange`), from `isDisabledWhenLoading` to
+  `disabledWhenLoading`, and the window `chromeSize` scale from
+  `'compact' | 'normal'` to `'sm' | 'md'`, the
+  `.wr-window--chrome-compact` class included. It REPORTS the rest, naming files
+  rather than touching them: router integration is now opt-in
+  (`<wr-loading-bar>` needs `provideWrLoadingBarRouter()` from
+  `ngwr/loading-bar/router`, a `<wr-tab routerLink>` needs `wrTabsRouting` on
+  the strip plus `WrTabsRouting` in `imports`), `WR_DATE_LOCALE` and `WrI18n`'s
+  `defaultLocale` / `availableLocales` now resolve from Angular's `LOCALE_ID`
+  instead of the browser, a named date format refuses input it cannot read
+  rather than committing a wrong date, and `<wr-pagination ofLabel>` is gone
+  with the `pagination.of` key — the range is one `pagination.range` template.
+  A migration that pretended to have handled any of those would be worse than
+  none, because the silence reads as "nothing to do".
 
 **Dependencies.** Check with `pnpm outdated` (one shot — don't query packages
 one by one). Angular **tooling** (`@angular/cli`, `@angular/build`,
@@ -1070,9 +1146,13 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
   per-component `@use` / starter pages.
 - `ng update ngwr@N` — migrations, one dir per major under
   `schematics/migrations/` (v7 tag rewrites, v8 density/pagination renames,
-  **v9 `<wr-checkbox>` `value` → `checkboxValue`**, **v12
-  `ngwr/date-adapter*` → `ngwr/date/adapters/*`**), registered in
-  `schematics/migrations.json`.
+  **v9 `<wr-checkbox>` from `value` to `checkboxValue`**, **v12 from
+  `ngwr/date-adapter*` to `ngwr/date/adapters/*`**, **v14 the five vocabulary
+  renames, plus a report for the router / locale / `ofLabel` changes no codemod
+  should guess at**), plus **v13, which reports every host-`id` selector on
+  `<wr-checkbox>` / `<wr-radio>` / `<wr-switch>` and rewrites nothing** — all
+  registered in `schematics/migrations.json`. There is deliberately no
+  `migration-v10` or `-v11`; see Versioning for the rule that decides it.
 
 ## Gotchas
 
@@ -1098,7 +1178,7 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
 
 ## Contracts that look like bugs
 
-Seventeen behaviours that read as defects until you know why they are that way.
+Eighteen behaviours that read as defects until you know why they are that way.
 Each was questioned at least once, each has a spec pinning it, and each would
 be "fixed" by someone reading only the symptom. This list used to live in
 ROADMAP.md; it moved here when that file was cut back to remaining work,
@@ -1151,6 +1231,18 @@ because it is guidance rather than a plan.
   version repeats a day and loses one. No test here can hold that: the runner
   inherits the machine's zone, which is `Asia/Almaty` and has no DST, so the
   reason lives in the method and the spec's docblock.
+- **A named format REFUSES input it cannot read, and returning nothing is the
+  fix rather than the defect** (v14). `shortDate` / `time` and friends used to
+  parse through `new Date()`, which understands only Anglo-American forms — a
+  German field printing `15.3.2026` read its own output back as 1 January 2001,
+  because `new Date('1')` is that date and the first keystroke committed it.
+  Parsing is now built from the same `Intl` formatter that PRINTED the string,
+  so it round-trips; where it cannot read the input it returns `null` and leaves
+  the committed value alone, which is the rule `wr-input-number` and
+  `wr-date-picker` already followed for a partial entry. A host that relied on
+  `new Date()`'s leniency passes an explicit token `[format]`. Pinned by
+  `date/wr-native-date-adapter.spec.ts` ("refuses a string in another locale
+  rather than guessing at it") and the two library adapters' equivalents.
 - `wr-calendar-heatmap` leaves four of its seven weekday rows blank on
   purpose — seven labels do not fit.
 - Every animation component honours `prefers-reduced-motion`; the one with no

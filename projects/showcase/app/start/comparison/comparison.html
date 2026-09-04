@@ -27,8 +27,8 @@
       <strong>The bus factor is one</strong>: 1,409 of 1,480 commits are by one person under four author identities, the
       next human contributor has 13 and the two bots have 29 each, from the first commit on 2022-08-22 — four years, one
       pair of hands. <strong>There is no vendor</strong> — no paid support, no SLA, no consulting arm, nobody to
-      escalate to; an issue tracker is the whole of it. <strong>Majors move fast</strong>: six between 2026-06-12 and
-      2026-08-20, v7 through v12, four of them carrying an <code>ng update</code> codemod and two deliberately not.
+      escalate to; an issue tracker is the whole of it. <strong>Majors move fast</strong>: eight since 2026-06-12, v7
+      through v14, five of them carrying an <code>ng update</code> codemod and three deliberately not.
       <strong>Two locale catalogs ship in the box</strong>, English and Russian.
       <strong>And almost nobody uses it</strong> — ~150 weekly npm downloads and 3 GitHub stars, read on 2026-08-20. A
       reader who leaves in ten seconds because this page told them the truth is a better outcome than one who adopts and
@@ -357,10 +357,13 @@
 
     <p wrTypography>
       <strong>Moving between majors.</strong> <code>ng update ngwr&#64;N</code>, with one migration per major that can
-      honestly be codemodded — v12 rewrites the date-adapter import paths, and its other breaking change is a return
+      honestly be codemodded — v14 rewrites five renames and <em>reports</em> the three changes that need a decision
+      instead of a substitution; v12 rewrote the date-adapter import paths, and its other breaking change was a return
       type that changed, which the compiler names at every call site. v10 and v11 ship no migration on purpose: their
       breaking changes were painted colour, and an empty codemod would tell you your visual regressions were handled
-      when they were not. The <a routerLink="/start/migration">migration guide</a> lists all of it.
+      when they were not. v13 ships none either, and that one is worth reading the guide for — a renamed
+      <code>[wrInput]</code> size and an <code>[id]</code> that stopped landing on the host are both silent in a
+      template. The <a routerLink="/start/migration">migration guide</a> lists all of it.
     </p>
 
     <p wrTypography variant="small" tone="medium">

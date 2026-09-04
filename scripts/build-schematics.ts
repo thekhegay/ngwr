@@ -19,7 +19,10 @@
  *     index.js                  component-style, page
  *     schema.json
  *   use/symbol-map.json       — generated from a public-api scan
- *   migrations/v7 … v9/       — one dir per `ng update` migration
+ *   migrations/vN/            — one dir per `ng update` migration, whichever
+ *                               majors `migrations.json` registers; `tsc -p`
+ *                               compiles the whole tree, so a new one needs no
+ *                               edit here
  *
  * Wired into `build:lib` so local builds and CI ship the same artifact.
  *

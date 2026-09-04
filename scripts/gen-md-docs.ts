@@ -55,10 +55,13 @@ const ROUTES_JSON = join(DIST, 'prerendered-routes.json');
  * much. The routes in {@link NO_TWIN} are outside the count by design and
  * always were, and so is `/` — the home page is not an `<ngwr-doc-page>`.
  *
- * 209 is 201 plus the eight `/reference` catalog roots, which used to redirect
- * and so exported a meta-refresh stub instead of a page.
+ * 209 was 201 plus the eight `/reference` catalog roots, which used to redirect
+ * and so exported a meta-refresh stub instead of a page. 210 is that plus
+ * `/reference/utils/is-composing`, added in v14 — the third time the floor was
+ * left behind by the export it guards, and the reason this paragraph now names
+ * every increment.
  */
-const MIN_PAGES = 209;
+const MIN_PAGES = 210;
 
 /**
  * Doc pages that will never have a twin, named so the decision is on the record.

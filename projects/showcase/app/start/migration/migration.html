@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Migration guide"
-  description="How to move between major versions of ngwr. A major whose breaking changes are in CODE ships an `ng update` codemod that rewrites them for you — v7, v8, v9, v12 and v14 all do; the tables below document what changes if you'd rather do it by hand. v10 and v11 deliberately ship none, because their breaking changes were painted COLOUR — contrast on `--wr-color-*-contrast`, table header casing and tooltip theming in v10, five deepened intents in v11 — and no codemod can repair a screenshot. An empty one would only have told you your visual regressions were handled when they were not."
+  description="How to move between major versions of ngwr. Each major does one of three things here, and which one depends on what it broke. **v7, v8, v9, v12 and v14 REWRITE**: their breaking changes are in code, so `ng update` edits your templates, TypeScript and stylesheets in place — the tables below document what moved if you'd rather do it by hand. **v13 REPORTS**: its one breaking change is a selector that stops matching, which no codemod can fix for you (only you know which element you meant) but which is worth a file list, because nothing anywhere errors. **v10 and v11 ship neither**, deliberately: they broke painted COLOUR — contrast on `--wr-color-*-contrast`, table header casing and tooltip theming in v10, five deepened intents in v11 — and no codemod can repair a screenshot. An empty one would only have told you your visual regressions were handled when they were not."
   [keywords]="['migration', 'ng update', 'upgrade', 'breaking changes', 'codemod', 'schematics']"
 >
   <ngwr-doc-section
@@ -11,8 +11,37 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="v14 — the five renames"
-    description="Five names moved, and `ng update ngwr@14` rewrites every one of them: a rename is exactly what a codemod does well, since the new name means what the old one meant on the same element. `<wr-alert closeable>` becomes `closable`, matching the three places that already spelled it that way — and note that neither spelling ever raised a template error, because a bare attribute matching no input is just an attribute. `<wr-table [totalItems]>` and `<wr-pagination [(currentPage)]>` become `[total]` and `[(page)]`, so two components built to sit on the same screen stop using two words for each of the two concepts they share. `isDisabledWhenLoading` loses its prefix, leaving the library with no `is*` boolean at all. And the window's `chromeSize` moves from `compact`/`normal` to `sm`/`md` — the vocabulary v8 renamed everywhere else three majors ago."
+    title="v13 to v14 — the three that fail silently"
+    description="Read this section even if your build is green, because these are the three changes nothing will tell you about. Everything else in v14 is either rewritten for you or caught by the compiler; these three compile, run, and quietly do something other than what they did in v13."
+  >
+    <p wrTypography variant="small" tone="medium">
+      <strong><code>&lt;wr-loading-bar&gt;</code> no longer follows the router.</strong> The subscription is opt-in now
+      — add <code>provideWrLoadingBarRouter()</code> from <code>ngwr/loading-bar/router</code> to your application
+      providers. Without it the bar still works for manual <code>start()</code> / <code>complete()</code> and simply
+      never moves for a navigation. Nothing throws, nothing warns, and the bar renders exactly as it did before: it just
+      stays at 0%. This project's own site shipped an empty bar for the length of a release by missing precisely this.
+      <code>ng update</code> lists every file that renders one.
+    </p>
+    <p wrTypography variant="small" tone="medium">
+      <strong>A translated <code>pagination.of</code> stops being read.</strong> The whole “1–10 of 235” line is one
+      <code>pagination.range</code> template now, so a catalog that still defines <code>of</code> keeps a key nothing
+      looks up — and that one line reverts to English while every other string in the same catalog goes on working,
+      which is the version of this bug that survives a review. Replace it with <code>pagination.range</code> and
+      <code>pagination.compact</code>, whose shapes are in the diff below. <code>common.of</code> is a different key and
+      is untouched — it is still shipped, and still unread.
+    </p>
+    <p wrTypography variant="small" tone="medium">
+      <strong>A date the field cannot parse now returns null instead of a wrong date.</strong> The one change here with
+      no codemod entry at all, because there is no token to detect. It turns a wrong answer into no answer, so a host
+      that relied on <code>new Date()</code>'s leniency sees the committed value stay put where it used to change — and
+      a value that stays put looks like a user who has not finished typing. Its own section below has the detail; read
+      it if any date in your app is typed rather than picked.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v13 to v14 — the six renames"
+    description="Five names moved, and `ng update ngwr@14` rewrites every one of them: a rename is exactly what a codemod does well, since the new name means what the old one meant on the same element. `<wr-alert closeable>` becomes `closable`, matching the three places that already spelled it that way — and note that neither spelling ever raised a template error, because a bare attribute matching no input is just an attribute. `<wr-table [totalItems]>` and `<wr-pagination [(currentPage)]>` become `[total]` and `[(page)]`, so two components built to sit on the same screen stop using two words for each of the two concepts they share. `isDisabledWhenLoading` loses its prefix, leaving the library with no `is*` boolean at all. And the window's `chromeSize` moves from `compact`/`normal` to `sm`/`md` — the vocabulary v8 renamed everywhere else three majors ago. Sixth: `[wrInput]`'s size input is now plain `size`, like the other twenty-three components. It was spelled with a prefix to dodge the native `<input size>` attribute, which measures the field in characters and which `.wr-input`'s `width: 100%` has always overridden — so the clash it guarded against was never observable, and the cost of dropping it is that a native `size` on an ngwr input, which already did nothing, now does nothing under a different name."
   >
     <ngwr-doc-code [code]="snippets.v14Renames" language="diff" />
     <p wrTypography variant="small" tone="medium">
@@ -24,42 +53,45 @@
       <code>WrPaginationHarness.with(&#123; currentPage: 3 &#125;)</code> becomes <code>&#123; page: 3 &#125;</code> —
       and that one the codemod does rewrite.
     </p>
+    <p wrTypography variant="small" tone="medium">
+      One correction, because the release notes said otherwise:
+      <strong>v13 announced this rename and did not make it</strong> — its subject line reads &ldquo;input size loses
+      its prefix&rdquo; while <code>wrSize</code> shipped unchanged in 13.0.0 and 13.0.1. It lands here, in v14. If you
+      already followed that note and wrote <code>size</code> on a v13 input, nothing broke loudly: <code>size</code> is
+      a legal native attribute, so the template compiled and the control quietly fell back to <code>md</code>. On v14
+      the same markup means what it says.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="v13 → v14"
-    description="Router integration became opt-in, and dates learned to read what they print. Beyond the renames above, `ng update ngwr@14` REPORTS rather than rewrites: each of these needs a decision a codemod cannot make, so it names the files and leaves them to you. Read its output before touching anything."
+    title="v13 to v14 — routing is opt-in"
+    description="Router integration became opt-in, which is what buys back the 66–76 kB of `@angular/router` every app was paying for whether it routed or not. Beyond the renames above, `ng update ngwr@14` REPORTS rather than rewrites: each of these needs a decision a codemod cannot make — the provider belongs in a bootstrap file it cannot identify, and the tab adapter has to reach an `imports` array it would have to match to a template by convention — so it names the files and leaves them to you. One half of this fails loudly and one silently, and the diff says which."
   >
     <ngwr-doc-code [code]="snippets.v14" language="diff" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="v13 → v14 — the two silent ones"
-    description="Most of v14 fails loudly. These two do not, which makes them the only entries here worth checking even if your build is green. **`<wr-loading-bar>` no longer follows the router by itself** — add `provideWrLoadingBarRouter()` or the bar simply never moves; this project's own site shipped an empty bar for a release by missing it. **A translated `pagination.of` stops being read** — the range is one `pagination.range` template now, so a catalog that keeps the old key reverts that line to English with nothing said."
-  />
-
-  <ngwr-doc-section
-    title="v13 → v14 — dates now refuse what they cannot read"
-    description="The one change here with no codemod entry, because there is no token to detect — and the one most likely to surprise you, because it turns a wrong answer into no answer. A NAMED format (`shortDate`, `time`, …) used to parse through `new Date()`, which understands only Anglo-American forms: a German field printing `15.3.2026` read its own output back as **1 January 2001**, because `new Date('1')` is that date and the first keystroke committed. Parsing is now built from the same `Intl` formatter that printed the string, so it round-trips — and where it cannot read the input it returns null and LEAVES the committed value alone, the rule `wr-input-number` already followed. If your host relied on `new Date()`'s leniency (an ISO string in a `d.M.y` app, say), pass an explicit token `[format]`."
+    title="v13 to v14 — dates now refuse what they cannot read"
+    description="The third of the silent three, in full. A NAMED format (`shortDate`, `time`, …) used to parse through `new Date()`, which understands only Anglo-American forms: a German field printing `15.3.2026` read its own output back as **1 January 2001**, because `new Date('1')` is that date and the first keystroke committed. Parsing is now built from the same `Intl` formatter that printed the string, so it round-trips — and where it cannot read the input it returns null and LEAVES the committed value alone, the rule `wr-input-number` already followed. If your host relied on `new Date()`'s leniency (an ISO string in a `d.M.y` app, say), pass an explicit token `[format]`."
   >
     <ngwr-doc-code [code]="snippets.v14Dates" language="diff" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="v13 → v14 — locale comes from LOCALE_ID, and one input is gone"
+    title="v13 to v14 — locale comes from LOCALE_ID, and one input is gone"
     description="`WR_DATE_LOCALE`, `WrI18n`'s `defaultLocale` and `availableLocales` now resolve from Angular's `LOCALE_ID` instead of the browser, so an app that sets `LOCALE_ID` correctly stops formatting dates in whatever language the visitor's browser happens to be; `DEFAULT_WR_I18N_CONFIG` lost the two fields that encoded the old default. And `<wr-pagination ofLabel>` is gone — the range is one `pagination.range` template rather than a word assembled in the middle of it. The codemod reports every one of these, including the static `ofLabel` form, which is the silent one."
   />
 
   <ngwr-doc-section
-    title="v12 → v13"
-    description="Two changes reach templates. `[wrInput]`'s size input is `size`, matching the other twenty-three components — `wrSize` was the lone outlier, named to dodge the native `<input size>` attribute that `.wr-input`'s `width: 100%` already overrides. And `[id]` on checkbox, radio and switch no longer lands on the host element, so a selector written as `wr-checkbox#id` stops matching; `document.getElementById` now returns the inner input, which is what the input always documented."
+    title="v12 to v13 — the host id"
+    description="One change reaches templates, and it is the kind that says nothing. `[id]` on `<wr-checkbox>`, `<wr-radio>` and `<wr-switch>` no longer lands on the HOST element — it goes to the inner `<input>`, which is where the input was always documented to put it. It only ever reached the host by accident: a static `id` was written there as a plain attribute AS WELL as fed to the input, so two elements carried the same id, `<label for>` resolved through `getElementById` to the unlabelable host (`input.labels` went from 1 to 0) and `document.getElementById` returned the wrong node. So a `<label for>` pointing at one of these got BETTER; what breaks is a selector anchored to the host, and CSS has no error for a selector that stops matching. The v13 migration rewrites nothing and lists every file holding one — whether `wr-checkbox#agree` should become `#agree` (the 16px tick) or `wr-checkbox:has(#agree)` (the whole row) is a decision only you can make. `<wr-checkbox-group>` and `<wr-radio-group>` keep their host id and are not affected. v13's other half — `readonly` and `invalid` reaching every control — is additive."
   >
     <ngwr-doc-code [code]="snippets.v13" language="diff" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="v11 → v12"
-    description="Two breaking changes, and they need opposite treatment. The entry-point move is pure import paths, so `ng update ngwr@12` rewrites all of it. The i18n helper is a type change, which no codemod should guess at — but the compiler points at every call site, so it is a mechanical fix you can trust your build to find."
+    title="v11 to v12"
+    description="Two breaking changes, and they need opposite treatment. The entry-point move is pure import paths, so the v12 migration rewrites all of it. The i18n helper is a type change, which no codemod should guess at — but the compiler points at every call site, so it is a mechanical fix you can trust your build to find."
   >
     <p wrTypography variant="small" tone="medium">
       <strong>The date entry points nest under `ngwr/date`.</strong> `ngwr/icon` has always nested its implementations
@@ -84,7 +116,7 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="v8 → v9"
+    title="v8 to v9"
     description="Three breaking changes. The codemod auto-fixes the checkbox rename; the other two are one-line manual edits — and both of those fail SILENTLY, so check them even if your build is green."
   >
     <p wrTypography variant="small" tone="medium">
@@ -113,7 +145,7 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="v7 → v8"
+    title="v7 to v8"
     description="Three breaking changes. The codemod auto-fixes density + pagination and warns (with file paths) about the removed components, which have no automatic replacement."
   >
     <p wrTypography variant="small" tone="medium">
@@ -140,8 +172,8 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="v6 → v7"
-    description="v7 consolidated ten standalone entry-points into shared components. Run `ng update ngwr@7`; it rewrites the tags, TypeScript imports and SCSS `@use` paths."
+    title="v6 to v7"
+    description="v7 consolidated ten standalone entry-points into shared components. The v7 migration rewrites the tags, TypeScript imports and SCSS `@use` paths — and it runs as the first step of `ng update ngwr@14`, so a v6 app does not climb the ladder one major at a time."
   >
     <p wrTypography variant="small" tone="medium">
       Key renames: `wr-autocomplete` / `wr-chips-input` → `wr-select` (with `mode`); `wr-time-picker` /

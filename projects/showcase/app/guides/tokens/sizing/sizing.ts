@@ -67,13 +67,13 @@ export default class TokensSizingPage {
 }`,
 
     size: `<!-- One size scale everywhere — sm · md (default) · lg. The attribute
-     name differs on the input directive: it is \`wrSize\`, so it cannot clash
+     name differs on the input directive: it is \`size\`, so it cannot clash
      with the native \`<input size>\`. -->
 <button wr-btn size="sm">Small</button>
 <button wr-btn size="md">Medium</button>
 <button wr-btn size="lg">Large</button>
 
-<input wrInput wrSize="sm" placeholder="Small" />
+<input wrInput size="sm" placeholder="Small" />
 <wr-select size="lg" placeholder="Large">…</wr-select>`,
 
     sizeType: `import { input } from '@angular/core';

@@ -186,6 +186,18 @@ export default class QualityPage {
    */
   protected readonly majorRows: readonly MajorRow[] = [
     {
+      version: 'v14',
+      broke:
+        'Five names moved to one word per concept — closeable to closable, totalItems to total, currentPage to page. Router integration became opt-in for wr-loading-bar and routed tabs. A named date format refuses input it cannot read, and wr-pagination ofLabel is gone.',
+      codemod: 'Partial',
+    },
+    {
+      version: 'v13',
+      broke:
+        'readonly and invalid reach every control. [wrInput]’s size input lost its wr prefix, and [id] on checkbox, radio and switch stopped landing on the host.',
+      codemod: 'None',
+    },
+    {
       version: 'v12',
       broke:
         'The three date entry points nested under ngwr/date. readI18nText() returns a Signal, so every read needs a call.',

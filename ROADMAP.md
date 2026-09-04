@@ -1,38 +1,49 @@
-# Roadmap — v11
+# Roadmap — v14
 
 > Living document, and it carries **only open work**. Shipped items are not kept
 > here: [CHANGELOG.md](CHANGELOG.md) is the record of what happened, git history
 > holds why, and the decisions worth obeying live in [AGENTS.md](AGENTS.md) —
-> including the sixteen "contracts that look like bugs" this file used to carry.
+> including the eighteen "contracts that look like bugs" this file used to carry.
 > Sizes: S / M / L / XL.
 >
-> **State (2026-08-20, v12):** **v12 is the current major line** (Angular 22 peer). It
-> is a major for two reasons, and they need opposite handling. The three date
-> entry points moved — `ngwr/date-adapter{,-fns,-luxon}` → `ngwr/date` and
-> `ngwr/date/adapters/{fns,luxon}` — so the catalog nests implementations under
-> their feature the way `ngwr/icon/adapters/*` always did; that is import paths
-> only, and `migration-v12` rewrites them. And `readI18nText()` now returns
-> `Signal<string>`, which no codemod should guess at but the compiler finds at
-> every call site. v11's own break was painted colour (five intents deepened so
-> their labels could go white), which is why it shipped no codemod at all.
+> **State (2026-09-04, v14):** **v14 is the current major line** (Angular 22
+> peer). Three breaking commits make it a major, and `migration-v14` splits them
+> the way this project always splits them. It REWRITES five renames — `<wr-alert>`
+> from `closeable` to `closable`, `<wr-table>` from `totalItems` to `total`,
+> `<wr-pagination>` from `currentPage` to `page`, `isDisabledWhenLoading` to
+> `disabledWhenLoading`, and the window `chromeSize` scale from
+> `compact`/`normal` to `sm`/`md`. It REPORTS what needs a decision it cannot
+> make: **router integration is now opt-in** (`provideWrLoadingBarRouter()` from
+> `ngwr/loading-bar/router`, `WrTabsRouting` from `ngwr/tabs/router` — together
+> they buy back the 66–76 kB of `@angular/router` every app was paying for,
+> routed or not), the locale now follows Angular's `LOCALE_ID` rather than the
+> browser, a named date format refuses input it cannot read instead of
+> committing a wrong date, and `<wr-pagination ofLabel>` is gone with the
+> `pagination.of` key. **v13's own codemod reports rather than rewrites**: its
+> break moved `[id]` off the checkbox / radio / switch host, and only the author
+> can decide what `wr-checkbox#agree` should become. Note that the v13 commit
+> subject and changelog entry also announce a `wrSize` to `size` rename on
+> `[wrInput]` **that was never made** — see AGENTS.md under Versioning before
+> acting on it.
 >
-> The catalog is **204 secondary entry points / 187 component and
+> The catalog is **204 secondary entry points / 174 component and
 > directive classes**, seventy of those entry points being the `<name>/testing`
 > CDK harnesses — A2 closed with the animation set, and what it learned lives in
 > [AGENTS.md](AGENTS.md) under "Writing a HARNESS".
-> **Eight gates run on every PR:** `pnpm lint` (multi-stage — the first stage
+> **Nine gates run on every PR:** `pnpm lint` (multi-stage — the first stage
 > prints `All files pass linting.` even when a later one fails, so trust the
-> exit code), `pnpm test` (**4060 specs across 238 files**), `check:api-docs`,
-> `check:llms`, `build:lib`, `build:showcase`, `check:theme` and `check:a11y`
-> (226 prerendered pages), the last two after the showcase build they read. `check:contrast`, `check:state-a11y` and `check:rtl-layout` need a
-> browser and run **nightly**. Docs are prerendered — **225 routes**, 202
-> canonical plus 23 redirect stubs, with 201 markdown twins beside them — and
-> past majors are archived under `/v7/` … `/v11/` (frozen by `publish.yml` on
-> every major release, and the version switcher derives the list rather than
-> hard-coding it). Three routes are new and aimed at people who have not
-> adopted yet — `/start/comparison`, `/start/quality` and `/start/playground` —
-> and their numbers bind to `#core/generated/quality` rather than being typed
-> in.
+> exit code), `pnpm test` (**at least 4358 specs across 248 files**),
+> `check:api-docs`, `check:llms`, `check:css-vars`, `build:lib`,
+> `build:showcase`, `check:theme` and `check:a11y`, the last two after the
+> showcase build they read. `check:contrast`, `check:state-a11y` and
+> `check:rtl-layout` need a browser and run **nightly**. Docs are prerendered —
+> **235 pages**, 211 of them canonical in `sitemap.xml`, with a markdown twin
+> beside all but one — and past majors are archived under `/v7/` … `/v13/`
+> (frozen by `publish.yml` on every major release, and the version switcher
+> derives the list rather than hard-coding it). Three routes are aimed at people
+> who have not adopted yet — `/start/comparison`, `/start/quality` and
+> `/start/playground` — and their numbers bind to `#core/generated/quality`
+> rather than being typed in.
 
 ## Order
 
@@ -69,23 +80,26 @@ Two notes on the order, then it stands as written:
   primitive, so in practice either B2 moves up or C3 moves down.
 - **A1 and A5 are deliberately not in the list** — they are continuous rather
   than sequenced, and they are where work lands between features. What used to
-  be the argument for keeping B2 back is now answered: 3699 specs assert
+  be the argument for keeping B2 back is now answered: the suite asserts
   rendered DOM, roles and `.wr-*` classes, which is exactly what B2 churns,
   seventy harnesses assert the same surface from the outside, and a third a11y
-  gate now drives 77 interactive states that no other gate can see.
+  gate now drives 78 interactive states that no other gate can see.
 
 ## A — Trust & hardening
 
 The catalog is 204 entry points. Lint, unit tests, both builds, the a11y sweep,
-the API-drift check and the llms floor gate it today. The hole is the SHAPE of
+the API-drift check, the theme-parity and CSS-hook checks and the llms floor
+gate it today — nine gates on every PR. The hole is the SHAPE of
 the suite, not its absence: every entry point that carries behaviour has a spec,
 but a spec on `wr-table` says nothing about tree rows unless it exercises them.
 
 - [ ] **A1. Test foundation** (XL) — **the suite exists and gates CI.**
       `pnpm test` is `ng test lib` (vitest through `@angular/build:unit-test`, no
       `vitest.config.ts`); specs sit next to the code they cover and
-      `tsconfig.lib.json` excludes them, so nothing ships to npm. **3652 specs
-      across 226 files**, and **every entry point has one** — the last five landed
+      `tsconfig.lib.json` excludes them, so nothing ships to npm. **At least 4358
+      specs across 248 files** (a floor: one `it.each` site stands for an unknown
+      number of cases, so `gen:quality` refuses to call it a total),
+      and **every entry point has one** — the last five landed
       with the animation pass. How to write one, and the traps that cost
       real time (`--filter` is a test-name regex, deferred DOM work needs
       `afterNextRender`, jsdom has no layout), are documented in
@@ -463,12 +477,13 @@ incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`)
       `llms.txt` / `llms-full.txt`, `AGENTS.md` and the `ng update` codemods
       already ship, and the docs are prerendered, so crawlers and agents get
       real HTML with section links and highlighted code. `llms-full.txt` is
-      accurate and gated by `pnpm check:llms` — **166 entry points, 118
-      described**; it had been reporting 123 of 127 (the nested ones were
-      invisible), shipping four descriptions scraped off the wrong element, and
-      naming a type or a token in six import lines.
+      accurate and gated by `pnpm check:llms`, whose floors now stand at **204
+      entry points, 118 of them described**; it had been reporting 123 of 127
+      (the nested ones were invisible), shipping four descriptions scraped off
+      the wrong element, and naming a type or a token in six import lines.
       **Per-component markdown export shipped:** every docs page also serves at
-      the same URL plus `.md` (**195 pages, 579 KB**), converted from the
+      the same URL plus `.md` (**234 pages, 830 KB**, against a floor of 210),
+      converted from the
       prerendered HTML by `scripts/gen-md-docs.ts` — so it cannot drift from what
       shipped, and a floor check fails the build if it thins out. Live demos are
       dropped and their source blocks kept; each HTML page advertises its twin as
@@ -520,7 +535,7 @@ incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`)
       `llms-full.txt`, shipped inside the npm tarball (so an agent in a repo that
       depends on ngwr reads it with no network and no configuration) and served at
       `/skills/ngwr/SKILL.md`. Progressive disclosure is the format's point, so
-      the catalog's 202 rows live in a reference file rather than in the always-in-context
+      the catalog's 204 rows live in a reference file rather than in the always-in-context
       one. Two details worth keeping: the provider table is IMPORTED from the MCP
       server's own (`projects/lib/mcp/providers.ts` — one list, two readers,
       instead of two lists that agree until someone edits one), and `check:llms`
@@ -638,8 +653,9 @@ what it cost are recorded under A5.
       `--wr-color-{white,dark,light}` or a derivative (`click-spark.ts`,
       `fuzzy-text.ts`, `calendar-heatmap.ts`, `gauge.ts`, `knob.ts`,
       `line-chart.html`, `markdown/styles/_index.scss`), plus dropping `light` /
-      `dark` from `WR_COLORS` / `WrColor`. Needs a `migration-v11` codemod.
-      (D2's remaining piece.)
+      `dark` from `WR_COLORS` / `WrColor`. A token rename is codemoddable, so
+      this owes a `migration-vN` in whichever major carries it — the name
+      follows the release, not this entry. (D2's remaining piece.)
 - [ ] **B2 internals swap** — DOM and BEM class changes from the Aria
       primitives. Public API by the project's own rules, so it needs a major.
 - [ ] **Angular 23 peer baseline** (~Nov 2026).
