@@ -224,8 +224,9 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   /**
    * Form value — the current selection as seen by a bound field. Bound by
    * `[formField]`, or two-way via `[(value)]`. Shape follows `selectionMode`:
-   * `TId | null` in single mode, `readonly TId[]` in multi mode. Meaningful in
-   * `overlay` mode; inline mode drives selection via `[(selected)]` instead.
+   * `TId | null` in single mode, `readonly TId[]` in multi mode. Works in both
+   * `openOn` modes; `[(selected)]` stays the inline-native API and always
+   * carries an array, whatever the selection mode.
    */
   readonly value = model<unknown>(undefined);
 
@@ -727,12 +728,18 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       this.selected.set([...set]);
     }
 
-    // Overlay mode: propagate to the bound value, close on single-mode pick.
-    if (this.isOverlay()) {
-      this.emit();
-      if (mode === 'single' && this.selected().length > 0) {
-        this.open.set(false);
-      }
+    // Propagate to the bound value — in BOTH modes. The inbound half of this
+    // bridge (the `value` -> `selected` effect above) was never gated, so
+    // gating the outbound half left an inline tree in a form accepting a
+    // programmatic write and never reporting the user's pick: `[formField]`
+    // compiled, rows announced `aria-selected`, and the control stayed at its
+    // initial value forever. One-way is worse than unsupported, because it
+    // looks wired up. `[(selected)]` remains the inline-native API; `value`
+    // simply stops lying. Closing on a single pick stays overlay-only — an
+    // inline tree has no panel to close.
+    this.emit();
+    if (this.isOverlay() && mode === 'single' && this.selected().length > 0) {
+      this.open.set(false);
     }
   }
 

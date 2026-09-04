@@ -11,7 +11,7 @@
     <wr-alert
       type="warning"
       title="On Angular 21 or 20 the install succeeds and the build is what fails."
-      message="npm, pnpm and yarn all treat an unsatisfied peer as a warning rather than an error, so adding ngwr to an Angular 21 project prints “Issues with peer dependencies found” and exits 0. The failure surfaces later, in the Angular linker, as “Unsupported enum value for [object Object]” pointing at a line inside one of the fesm2022 bundles — every partially-compiled declaration in the package carries minVersion 22.0.0, and a linker that predates that shape cannot read it. Read the peer warning at install time: the message you get at build time never mentions a version."
+      message="npm, pnpm and yarn all treat an unsatisfied peer as a warning rather than an error, so adding ngwr to an Angular 21 project prints “Issues with peer dependencies found” and exits 0. The failure surfaces later, in the Angular linker, as “Unsupported enum value for [object Object]” pointing at a line inside one of the fesm2022 bundles — 25 of the package’s 654 partially-compiled declarations carry minVersion 22.0.0 — the service ones, across 22 files — and a linker that predates that shape cannot read them. Read the peer warning at install time: the message you get at build time never mentions a version."
     />
 
     <p wrTypography variant="small" tone="medium">

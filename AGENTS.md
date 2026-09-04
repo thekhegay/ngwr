@@ -786,13 +786,17 @@ that sequence is a position rather than an oversight:
   rebind a character-width hint. The published v13 changelog cannot be edited;
   the docs that repeated it were corrected.
 - **v14 ships `migration-v14`, split down the middle of the rule**, and that
-  split is the thing to copy. It REWRITES the five renames — on `<wr-alert>`
+  split is the thing to copy. It REWRITES the six renames — on `<wr-alert>`
   from `closeable` to `closable`, on `<wr-table>` from `totalItems` to `total`,
   on `<wr-pagination>` from `currentPage` to `page` (and from
   `currentPageChange` to `pageChange`), from `isDisabledWhenLoading` to
-  `disabledWhenLoading`, and the window `chromeSize` scale from
-  `'compact' | 'normal'` to `'sm' | 'md'`, the
-  `.wr-window--chrome-compact` class included. It REPORTS the rest, naming files
+  `disabledWhenLoading`, the window `chromeSize` scale from
+  `'compact' | 'normal'` to `'sm' | 'md'` (the
+  `.wr-window--chrome-compact` class included), and `[wrInput]`'s `wrSize` to
+  `size` — the rename v13's own commit subject announced and never made, which
+  is why its rules are anchored on the DIRECTIVE rather than on the attribute
+  name: `size` on a bare `<input>` is a legal HTML attribute meaning something
+  else entirely. It REPORTS the rest, naming files
   rather than touching them: router integration is now opt-in
   (`<wr-loading-bar>` needs `provideWrLoadingBarRouter()` from
   `ngwr/loading-bar/router`, a `<wr-tab routerLink>` needs `wrTabsRouting` on
@@ -1156,7 +1160,7 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
 - `ng update ngwr@N` — migrations, one dir per major under
   `schematics/migrations/` (v7 tag rewrites, v8 density/pagination renames,
   **v9 `<wr-checkbox>` from `value` to `checkboxValue`**, **v12 from
-  `ngwr/date-adapter*` to `ngwr/date/adapters/*`**, **v14 the five vocabulary
+  `ngwr/date-adapter*` to `ngwr/date/adapters/*`**, **v14 the six vocabulary
   renames, plus a report for the router / locale / `ofLabel` changes no codemod
   should guess at**), plus **v13, which reports every host-`id` selector on
   `<wr-checkbox>` / `<wr-radio>` / `<wr-switch>` and rewrites nothing** — all
@@ -1217,8 +1221,14 @@ because it is guidance rather than a plan.
   than a choice — nothing commits on the way down unless `changeOnSelect`
   says so.
 - `wr-tree`: `openOn` defaults to `inline`, so there is no combobox trigger
-  unless you ask for one, and inline selection is `[(selected)]` while
-  `[(value)]` is meaningful in `overlay` mode only.
+  unless you ask for one, and `[(selected)]` is the inline-native API — it
+  always carries an ARRAY, where `value` follows `selectionMode`. `value`
+  itself works in both modes as of v14.0.1: it used to be written only under
+  `openOn="overlay"`, while the inbound half of the same bridge was never
+  gated, so an inline `<wr-tree [formField]>` accepted a programmatic write,
+  announced `aria-selected` on the row the user clicked, and left the control
+  at its initial value for the life of the form. A binding that carries one
+  direction is worse than one that is refused, because nothing looks wrong.
 - `wr-alert` does not use one live region: danger interrupts
   (`role="alert"` / assertive), warning is assertive without interrupting,
   the rest wait their turn — and all of it goes away on dismiss.

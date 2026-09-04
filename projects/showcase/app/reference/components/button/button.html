@@ -19,6 +19,13 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Inside a form"
+    description="`<wr-btn>` is a custom element with a `button` role, and no custom element submits a form — the platform submits for `<button>`, `<input type=submit>` and `<input type=image>` and nothing else. So it takes no `type` input, and Enter in a text field will not reach it either. A submit or reset button has to be the native form: `<button wr-btn type=submit>`. Where the element form is what you want, bind the click and call the handler yourself."
+  >
+    <ngwr-doc-code [code]="snippets.submit" language="html" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Colors">
     <ngwr-doc-snippet [code]="snippets.colors">
       @for (c of colors; track c) {
