@@ -80,6 +80,37 @@
   />
 
   <ngwr-doc-section
+    title="Every !important in the library"
+    description="Thirty-five declarations, and knowing where they are is the difference between an override that works and an afternoon. **Eighteen are the reduced-motion block above** and its per-component counterparts — `marquee`, `star-border`, `glitch-text`, `shiny-text`, `gradient-text`, `window`, and the `ngwr/animations` utility classes — where `!important` is structural: the theme layer loads before every component stylesheet, so an ordinary rule there loses to the animation it is trying to remove. **The other seventeen sit on six selectors, and fifteen of them are fighting an inline style rather than your CSS** — CDK's, written onto the pane after attach and re-written on every reposition, which no ordinary rule at any specificity can reach. The remaining two are `.wr-window--no-anim`, the window's own opt-out modifier, doing to its subtree what you would do by hand."
+  >
+    <ngwr-doc-code [code]="snippets.importantList" language="scss" />
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>Overriding the bottom sheet takes an <code>!important</code> of your own</strong>, in a stylesheet that
+      loads after ngwr's, at equal or higher specificity — that is the whole trick, and a rule on the BEM class without
+      it simply does nothing. Twelve of the seventeen are on <code>.wr-overlay-sheet</code>, the presentation dialog,
+      select, dropdown and popover share on small viewports: eight on the sheet itself (width, min / max width, the two
+      <code>max-height</code> declarations, the top-only radius, the keyboard lift and the slide-up animation) and four
+      stretching its direct children and squaring their bottom corners. Reach for the sheet's own tokens first —
+      <code>--wr-overlay-duration</code> and <code>--wr-overlay-ease</code> are read from <code>var()</code>, so a
+      custom property beats the declaration without any specificity fight at all.
+    </p>
+
+    <ngwr-doc-code [code]="snippets.importantOverride" language="scss" />
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>One of the twelve cannot be beaten by a plain rule at any specificity.</strong>
+      <code>margin-bottom</code> on the sheet is fighting an inline style: all four sheet users pin the pane with a CDK
+      <code>GlobalPositionStrategy</code>, whose <code>apply()</code> writes <code>margin-bottom: 0px</code> onto that
+      very element on every reposition. The same is true of the three <code>position</code> declarations —
+      <code>.wr-context-menu-overlay</code>, <code>.wr-dialog-panel</code> and <code>.wr-drawer__panel</code> each undo
+      an inline <code>position: static</code> that CDK re-applies after attach. If you need different geometry there,
+      change what the strategy is given rather than what the rule says: the panel width and the radius are ordinary
+      declarations you can win.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="What is stable, and what is not"
     description="Three layers, and they carry different promises. The **global tokens** (`--wr-color-*`, `--wr-border-radius-*`, `--wr-text-*`) and the **per-component tokens** (`--wr-btn-radius`, `--wr-tag-bg`) are public API: they are named deliberately and a rename is a breaking change with a migration note. The **BEM class names** (`.wr-checkbox__box`, `.wr-collapse__body`) are public too — components render with `ViewEncapsulation.None` precisely so you can reach them, and they are treated as API when the library changes: renaming or restructuring one is breaking, and the changelog says so. What is **not** stable is everything a class name does not cover — the element nesting inside a component, which element carries which class, and the presence of a wrapper. So a class NAME is safe to key on across a minor; a descendant selector that assumes a shape (`.wr-select__trigger > span > svg`) is not. **A stable name is not the same as a winning rule, and the difference bites 27 components** — `card`, `list`, `breadcrumbs`, `cascader`, `lightbox`, `loading-bar`, `virtual-scroll`, `drag-drop` and the nineteen animation and canvas ones each ship their own stylesheet, which Angular emits as a `<style>` block AFTER your linked `styles.css`. At equal specificity theirs wins, so `.wr-card { background: … }` in your global sheet does nothing while `.wr-btn { … }` works. Override those through their own token (`--wr-card-bg`), which is what the token catalogue on each component page is for, or raise specificity (`wr-card.wr-card`). Everything else in the catalog has no component stylesheet and takes a plain single-class rule. Anything you style should also be something you can see break: pin exact versions and keep a visual regression test, because a token change repaints without failing a build."
   />

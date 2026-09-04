@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { WrTheme, type WrThemeMode } from 'ngwr/theme';
+import { WrTypography } from 'ngwr/typography';
 
 import {
   DocCodeComponent,
@@ -17,6 +18,7 @@ import {
   templateUrl: './theming.html',
   imports: [
     WrButton,
+    WrTypography,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -198,6 +200,40 @@ provideWrTheme({ attribute: 'data-color-mode' })
   @include theme.dark {
     background: #0b1120;
   }
+}`,
+
+    importantList: `// Every !important outside the reduced-motion blocks — 17 declarations on
+// six selectors, and CDK's inline styles are what fifteen of them fight.
+
+.wr-overlay-sheet                             // 8 — the mobile bottom sheet
+.wr-overlay-sheet > *:not(.wr-dialog__close)  // 4 — its direct children
+.wr-context-menu-overlay { position: fixed }  // 1 — undoes inline position: static
+.wr-dialog-panel        { position: relative }// 1 — same, so the × can be parked
+.wr-drawer__panel       { position: relative }// 1 — same, service-opened drawers
+.wr-window--no-anim, .wr-window--no-anim *    // 2 — the component's own opt-out
+
+// And inside @media (prefers-reduced-motion: reduce), 18 more: the theme
+// layer's shared block plus marquee, star-border, glitch-text, shiny-text,
+// gradient-text, window and the ngwr/animations utilities.`,
+
+    importantOverride: `// styles.scss — after @use 'ngwr', so source order is already on your side.
+@use 'ngwr';
+
+// A plain rule loses. This is not a specificity problem; it is the !important.
+.wr-overlay-sheet {
+  max-height: 70dvh;              // ✗ never applies
+}
+
+// Match it. Equal specificity + !important + later in the cascade wins.
+.wr-overlay-sheet {
+  max-height: 70dvh !important;   // ✓
+  border-radius: 1.5rem 1.5rem 0 0 !important;
+}
+
+// Better where a token exists: var() resolves before the cascade cares.
+.wr-overlay-sheet {
+  --wr-overlay-duration: 0.32s;
+  --wr-overlay-ease: cubic-bezier(0.32, 0.72, 0, 1);
 }`,
 
     component: `/* Components also expose per-instance vars — override on the element.

@@ -87,5 +87,76 @@
     </p>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="What the components already do"
+    description="Every interactive component follows its WAI-ARIA APG pattern, and until now that was a claim rather than a contract you could write a test against. Here it is, one table per focused element, read off each component's own `keydown` handler. Nothing below needs configuring — it is what the component does out of the box."
+  >
+    <p wrTypography variant="small" tone="medium">
+      Two conventions run through all of it. <strong>Arrows that name a side of the screen mirror under</strong>
+      <code>dir="rtl"</code> — the tab strip, the calendar grid, the tree and a context menu's cascade all swap
+      ArrowLeft and ArrowRight, while <wr-kbd size="sm">Home</wr-kbd> and <wr-kbd size="sm">End</wr-kbd> name a position
+      and never do. And <strong>a composite widget is ONE tab stop</strong>: the arrows rove inside it, so tabbing
+      through a month does not mean tabbing through 42 cells. The exception is
+      <a routerLink="/reference/components/pagination">pagination</a>, and it is deliberate — a pager is a landmark of
+      independent destinations, not a composite.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      These tables are about KEYS. Where focus lands when an overlay opens, and where it goes back to for each of the
+      four ways of closing one, is the other half —
+      <a routerLink="/guides/overlay">the overlay guide</a> owns that, so the two are not maintained twice.
+    </p>
+
+    @for (table of contracts; track table.title) {
+      <h3 wrTypography variant="h6">{{ table.title }}</h3>
+      <div class="ngwr-keys">
+        <table>
+          <caption>
+            {{
+              table.caption
+            }}
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Key</th>
+              <th scope="col">Does</th>
+              <th scope="col">When</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of table.rows; track row.does + row.when) {
+              <tr>
+                <td>
+                  @for (key of row.keys; track key; let last = $last) {
+                    <wr-kbd size="sm">{{ key }}</wr-kbd>
+                    @if (!last) {
+                      <span class="ngwr-keys__or">/</span>
+                    }
+                  }
+                </td>
+                <td [innerHTML]="row.does | wrDocRich"></td>
+                <td>
+                  @if (row.when) {
+                    <span [innerHTML]="row.when | wrDocRich"></span>
+                  } @else {
+                    <span aria-hidden="true">—</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <p wrTypography variant="small" tone="medium">
+      Four more components document their own grid on their own page, because the keys mean something only next to the
+      thing they move: <a routerLink="/reference/components/calendar">calendar</a>,
+      <a routerLink="/reference/components/event-calendar">event calendar</a>,
+      <a routerLink="/reference/components/date-picker">date picker</a> (whose popup IS a calendar) and
+      <a routerLink="/reference/components/image-cropper">image cropper</a>.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-see-also [links]="related" />
 </ngwr-doc-page>

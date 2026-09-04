@@ -1,0 +1,113 @@
+<ngwr-doc-page
+  title="Server-side rendering"
+  description="ngwr renders on the server. It is standalone, zoneless and signals-only, no component touches the DOM in a constructor, and every one of this site's own routes is prerendered under `outputMode: 'static'` with the build failing on a prerender error — so SSR is a gate here, not an aspiration. What this page answers is the part an app still owns: what hydration needs from your markup, which APIs cannot answer truthfully without a browser, and which two calls are NOT no-ops on the server."
+  [keywords]="['ssr', 'hydration', 'prerender', 'server', 'universal', 'event replay']"
+  [labels]="['Core']"
+>
+  <ngwr-doc-section
+    title="Hydration and event replay"
+    description="Both are supported and neither needs anything from ngwr. The library contains no `ngSkipHydration` — not one component opts out — so `provideClientHydration()` reuses the prerendered DOM rather than throwing it away, and `withEventReplay()` replays the clicks that landed before the bundle booted."
+  >
+    <ngwr-doc-code [code]="snippets.hydration" language="angular-ts" />
+
+    <p wrTypography variant="small" tone="medium">
+      Hydration's one requirement is that the server and the client agree on the DOM, and every hydration error in an
+      ngwr app so far has come from the app's own markup rather than from a component. The two shapes below are the ones
+      worth knowing before you turn it on.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Write the `<tbody>` yourself"
+    description="Rows emitted straight into a `<table>` serialize exactly as written, and then the browser's HTML parser inserts an implicit `<tbody>` around them — so the live DOM no longer matches the server's. Hydration walks off the end of the table and throws: `NG0501` under `ng serve`, and a `nextSibling` TypeError in the optimized build, where it also costs the page its title."
+  >
+    <ngwr-doc-code [code]="snippets.tbody" language="angular-html" />
+
+    <p wrTypography variant="small" tone="medium">
+      This is not an ngwr rule — <code>&lt;wr-table&gt;</code> writes its own sections and is unaffected. It is here
+      because it is the failure this repository actually hit, on a docs page, with a table of four rows.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Reflow in CSS, not in a template branch"
+    description="`WrMedia` has no viewport to measure on the server, so a template that branches on it prerenders the narrow arm every time and swaps the subtree out after hydration — a visible relayout, and a hydration mismatch for anything structural. The `responsive` modifiers reflow through a container query instead: one DOM on both sides, resolved by the browser after the markup has already matched."
+  >
+    <ngwr-doc-code [code]="snippets.layout" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="What the server can answer"
+    description="Every browser-shaped API in the library has an explicit server branch, and this is what each one returns. Two of them do not have one, and that is the row to read twice."
+  >
+    <div class="ngwr-keys">
+      <table>
+        <caption>
+          ngwr APIs during a server render, and the same call after hydration.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">API</th>
+            <th scope="col">On the server</th>
+            <th scope="col">In the browser</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of answers; track row.api) {
+            <tr>
+              <td>
+                <code>{{ row.api }}</code>
+              </td>
+              <td>{{ row.server }}</td>
+              <td>{{ row.client }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Overlays are not no-ops on the server"
+    description="`WrTour.start()` returns early when there is no browser, and it is the only one of the three that does. `WrToast.show()` and `WrDialog.open()` attach a real overlay whichever platform they are called on — the toast markup is serialized into the response, and a dialog is attached without the decoration that makes it a dialog: no `role`, no `aria-modal`, no ✕, no focus trap, no focus to restore. On a cached or prerendered page that overlay ships to every visitor."
+  >
+    <ngwr-doc-code [code]="snippets.overlayGuard" language="angular-ts" />
+
+    <p wrTypography variant="small" tone="medium">
+      The same rule covers anything opened from a lifecycle hook that runs on both platforms.
+      <code>afterNextRender</code>
+      is the narrowest guard —
+      <a routerLink="/reference/services/platform">WrPlatform</a>'s <code>isBrowser</code> is the general one.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="A virtualized table on the server"
+    description="`<wr-table virtualScroll>` renders a fixed first window rather than the whole list, and the window is arithmetic you can predict: the server has no measured viewport and no scroll offset, so it starts at row 0 and renders `min(rows, ceil(viewportHeight / rowHeight) + 1 + overscan)` of them."
+  >
+    <p wrTypography variant="small" tone="medium">
+      Both inputs fall back when they cannot be read: a <code>viewportHeight</code> given as a CSS string (rather than a
+      number) counts as <code>480</code>, and an unset <code>rowHeight</code> counts as <code>40</code>, since the real
+      row height is measured in the browser. <code>overscan</code> defaults to <code>6</code>. So
+      <code>[viewportHeight]="400" [rowHeight]="40"</code> ships 17 body rows and a bottom spacer of
+      <code>(rows − 17) × 40</code> pixels; the browser then re-measures and the spacer moves by whatever the real row
+      height turned out to be. Pin <code>rowHeight</code> to the measured value if you need the two to agree exactly.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The theme flash"
+    description="A server has no `localStorage` and no `prefers-color-scheme`, so every prerendered page ships the same theme attribute — `light` under the default config — and a dark-mode visitor sees a white page until the bundle boots. No provider can close that window: by the time Angular runs, the browser has painted."
+  >
+    <ngwr-doc-code [code]="snippets.theme" language="angular-ts" />
+
+    <p wrTypography variant="small" tone="medium">
+      <code>wrThemePrePaintScript()</code> emits the blocking reader for <code>&lt;head&gt;</code>, spelling the
+      persisted mode exactly the way <code>WrTheme</code> and <code>WrStorage</code> agree to write it. The options, the
+      full output and the CSP note live on the <a routerLink="/reference/services/theme">WrTheme page</a> — this section
+      exists so you find it from here.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

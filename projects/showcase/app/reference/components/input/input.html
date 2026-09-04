@@ -113,6 +113,26 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="In a form, this is the one that behaves natively"
+    description="`[wrInput]` styles a real `<input>`, so its form semantics are Angular's own — and they differ from every ngwr **component** in the catalog. Worth knowing before you mix the two in one `FormGroup`."
+  >
+    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
+      A native <code>&lt;input&gt;</code> binds through the <code>DefaultValueAccessor</code> Angular ships. Every ngwr
+      value component — <code>&lt;wr-select&gt;</code>, <code>&lt;wr-input-number&gt;</code>,
+      <code>&lt;wr-checkbox&gt;</code> and the rest — binds through
+      <a routerLink="/guides/forms">Angular 22's forms bridge</a> instead, because the library ships no
+      <code>ControlValueAccessor</code> at all. Two consequences show up as soon as both are in the same form.
+      <strong
+        ><code>updateOn: 'blur'</code> and <code>'submit'</code> hold here and are ignored by the components</strong
+      >, and
+      <strong
+        >a <code>{{ '{' }} emitEvent: false {{ '}' }}</code> write repaints this field and not them.</strong
+      >
+      Neither is a bug in either half; the guide explains both and what to do about them.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="[wrInput] directive">
     <ngwr-doc-api [rows]="directiveApi" />
   </ngwr-doc-section>

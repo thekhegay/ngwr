@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 import { WrSlider } from 'ngwr/slider';
 
@@ -17,6 +18,7 @@ import { API } from '#core/generated/api';
   templateUrl: './slider.html',
   imports: [
     FormsModule,
+    RouterLink,
     WrSlider,
     DocPageComponent,
     DocSectionComponent,

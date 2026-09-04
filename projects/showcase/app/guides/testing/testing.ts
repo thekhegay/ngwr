@@ -28,6 +28,19 @@ import {
 })
 export default class TestingGuidePageComponent {
   protected readonly snippets = {
+    tableName: `<!-- <wr-table> renders no <caption> and takes no name input, so name the
+     REGION around it. The heading does double duty: visible on the page,
+     and the landmark's accessible name. -->
+<section role="region" aria-labelledby="open-orders-heading">
+  <h2 id="open-orders-heading">Open orders</h2>
+  <wr-table [columns]="cols" [items]="orders()" />
+</section>
+
+<!-- No visible heading to point at? Name the region directly. -->
+<section role="region" aria-label="Archived orders">
+  <wr-table [columns]="cols" [items]="archived()" />
+</section>`,
+
     install: `// The harnesses live beside the components they drive, one entry point each.
 // 70 so far, 104 harness classes: every form control, every overlay, both data
 // views, the whole navigation / disclosure set, every chart, eighteen of the

@@ -795,6 +795,104 @@
     <ngwr-doc-api [rows]="markdownApi" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Names, for the tests that are not harness tests"
+    description="A harness queries by class and by role, so it never has to know what a control is CALLED. An end-to-end test does — the accessible name IS the locator, `Go to page 2` and nothing else — and until you read the i18n catalog those strings are undiscoverable. These are the ones the library renders itself."
+  >
+    <div class="ngwr-keys">
+      <table>
+        <caption>
+          Built-in accessible names, and the two ways to change one.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Element</th>
+            <th scope="col">Default name</th>
+            <th scope="col">Override</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Pagination landmark</td>
+            <td><code>Pagination</code> (on <code>role="navigation"</code>)</td>
+            <td><code>[label]</code> · <code>pagination.label</code></td>
+          </tr>
+          <tr>
+            <td>Pagination page cell</td>
+            <td><code>Go to page 3</code></td>
+            <td><code>pagination.goToPage</code></td>
+          </tr>
+          <tr>
+            <td>Pagination previous / next</td>
+            <td><code>Previous page</code> · <code>Next page</code></td>
+            <td>
+              <code>[prevLabel]</code> / <code>[nextLabel]</code> · <code>pagination.prev</code> / <code>.next</code>
+            </td>
+          </tr>
+          <tr>
+            <td>Pagination size changer</td>
+            <td><code>Items per page</code></td>
+            <td><code>pagination.itemsPerPage</code></td>
+          </tr>
+          <tr>
+            <td>Table sort button</td>
+            <td><code>Sort column</code> — the same on EVERY sortable column</td>
+            <td><code>[sortLabel]</code> · <code>table.sort</code></td>
+          </tr>
+          <tr>
+            <td>Table row / all checkboxes</td>
+            <td><code>Select row</code> · <code>Select all rows</code></td>
+            <td><code>table.selectRow</code> / <code>.selectAll</code></td>
+          </tr>
+          <tr>
+            <td>Table loading overlay</td>
+            <td><code>Loading…</code> (on <code>role="status"</code>)</td>
+            <td><code>[loadingLabel]</code> · <code>table.loading</code></td>
+          </tr>
+          <tr>
+            <td>Dialog / drawer ✕</td>
+            <td><code>Close dialog</code></td>
+            <td><code>closeLabel</code> · <code>dialog.close</code></td>
+          </tr>
+          <tr>
+            <td>Select clear ✕</td>
+            <td><code>Clear selection</code></td>
+            <td><code>select.clearSelection</code></td>
+          </tr>
+          <tr>
+            <td>Select chip remove</td>
+            <td><code>Remove Berlin</code></td>
+            <td><code>select.removeItem</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p wrTypography variant="small" tone="medium">
+      Two of those are traps. <strong>Every sort button carries the same name</strong>, so a query for a button named
+      <code>Sort column</code> is ambiguous the moment a table has two sortable columns — scope the query to the header
+      cell, or use <code>WrTableHeaderCellHarness</code>, which addresses a column by its visible title. And an
+      <code>aria-label</code> written on a component's HOST names nothing: the host of
+      <code>&lt;wr-select&gt;</code> carries no role, and the <code>role="combobox"</code> lives on the trigger inside
+      it. That is why the components that need one expose an <code>ariaLabel</code> INPUT — bind that.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Naming a table"
+    description="`<wr-table>` renders no `<caption>` and takes no name input, so a screen reader announces it as “table” and a page with two of them offers no way to tell which is which. That is the current contract, not an oversight you can configure around — the `<table>` element is inside the component and out of reach."
+  >
+    <ngwr-doc-code [code]="snippets.tableName" language="angular-html" />
+
+    <p wrTypography variant="small" tone="medium">
+      Wrapping in a named <code>region</code> is the recipe, and it is worth doing even for one table: the name reaches
+      the landmark list, so a screen-reader user can jump to “Open orders” directly, and an end-to-end test gets a
+      stable scope — a <code>region</code> role with that accessible name — to run every other query inside. Use a real
+      heading as the label where the page already has one — a <code>&lt;caption&gt;</code>-shaped
+      <code>aria-label</code> that duplicates a visible <code>&lt;h2&gt;</code> is two names for one thing.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Writing one for your own component">
     <p wrTypography>
       The same base class is available to you. If your app wraps an ngwr control in something of its own, a harness for

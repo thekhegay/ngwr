@@ -97,6 +97,21 @@ export class ChatComponent {
 
 // The class token already types the generics — no cast, no WR_DRAWER_REF needed:
 private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WR_DRAWER_REF);`,
+    focus: `<!-- Say where focus starts and the two forms stop differing. The attribute
+     needs no import — the focus trap looks it up by name. -->
+<wr-drawer [(open)]="open" position="right">
+  <h2 wrDrawerTitle>Filters</h2>
+  <div wrDrawerContent>
+    <wr-form-field label="Search">
+      <input wrInput cdkFocusInitial [(value)]="query" />
+    </wr-form-field>
+  </div>
+</wr-drawer>
+
+<!-- Unmarked:
+       <wr-drawer>          -> the ✕, which its template renders first
+       WrDrawerManager.open -> the first control, since its ✕ is appended last
+     Either way, closing returns focus to whatever was focused when it opened. -->`,
   };
 
   protected readonly drawerApi: readonly DocApiRow[] = [

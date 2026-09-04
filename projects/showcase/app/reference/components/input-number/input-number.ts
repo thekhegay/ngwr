@@ -1,4 +1,5 @@
 import { Component, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { WrInputNumber } from 'ngwr/input-number';
 
@@ -15,6 +16,7 @@ import { API } from '#core/generated/api';
   selector: 'ngwr-input-number-page',
   templateUrl: './input-number.html',
   imports: [
+    RouterLink,
     WrInputNumber,
     DocPageComponent,
     DocSectionComponent,

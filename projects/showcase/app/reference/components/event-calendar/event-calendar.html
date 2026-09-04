@@ -92,20 +92,88 @@
 
   <ngwr-doc-section
     title="Keyboard"
-    description="The grid is a single tab stop with a roving cursor, so tabbing through a month does not mean tabbing through 42 cells."
+    description="The grid is a single tab stop with a roving cursor, so tabbing through a month does not mean tabbing through 42 cells. A chip is its own stop INSIDE that cell, which is why the two tables below are separate: the same arrow key means something different depending on which of the two has focus."
   >
-    <ul>
-      <li><strong>Arrow keys</strong> — move by a day left and right, by a week or a slot up and down.</li>
-      <li><strong>Home / End</strong> — first and last day of the row.</li>
-      <li>
-        <strong>Enter</strong> — on an empty cell emits `slotClick`; on a cell holding events focuses the first chip.
-      </li>
-      <li><strong>Escape</strong> — from a chip, back to its cell.</li>
-      <li>
-        <strong>Alt + arrows</strong> — on a focused chip, move the event. The keyboard equivalent of the drag, emitting
-        the same `eventChange`.
-      </li>
-    </ul>
+    <div class="ngwr-keys">
+      <table>
+        <caption>
+          The grid. Focus is on a cell — the cursor cell, not a chip inside it.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><wr-kbd size="sm">ArrowLeft</wr-kbd> <wr-kbd size="sm">ArrowRight</wr-kbd></td>
+            <td>Previous / next day, mirrored under <code>dir="rtl"</code>. Stops at the edges of the view.</td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">ArrowUp</wr-kbd> <wr-kbd size="sm">ArrowDown</wr-kbd></td>
+            <td>
+              One week in month view, one <code>slotMinutes</code> row in week and day view. Holds position at the first
+              and last row rather than wrapping sideways.
+            </td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Home</wr-kbd> <wr-kbd size="sm">End</wr-kbd></td>
+            <td>First / last day of the current week row.</td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Enter</wr-kbd> <wr-kbd size="sm">Space</wr-kbd></td>
+            <td>
+              On an empty cell, emits <code>slotClick</code> with the slot pointed at. On a cell holding events, focuses
+              the first chip instead.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ngwr-keys">
+      <table>
+        <caption>
+          A chip. Focus is on the event itself.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><wr-kbd size="sm">Escape</wr-kbd></td>
+            <td>Back to the cell the chip lives in.</td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Alt + arrows</wr-kbd></td>
+            <td>
+              MOVES the event — a day sideways, and a week (month view) or one <code>slotMinutes</code> step (week and
+              day view) vertically. Emits <code>eventChange</code> with <code>kind: 'move'</code>: the keyboard twin of
+              the drag, and like the drag it changes nothing until you apply it.
+            </td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Shift + Alt + arrows</wr-kbd></td>
+            <td>
+              RESIZES it, moving the end alone — <code>kind: 'resize'</code>. A resize that would end at or before the
+              start is refused rather than inverting the event. This exists because the pointer's resize grab area is
+              <code>aria-hidden</code> and unfocusable on purpose; without it, lengthening an event would be a
+              mouse-only operation.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p wrTypography variant="small" tone="medium">
+      Both chip gestures need <code>editable</code> on the calendar, and are refused for an individual event carrying
+      <code>editable: false</code> — the same pair of gates the pointer path checks, so the keyboard and the mouse allow
+      exactly the same set of edits.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

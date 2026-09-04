@@ -57,6 +57,34 @@ export class MyComponent {}`,
     positions: `<button wr-btn [wrDropdown]="menu" position="top-start">Top start</button>`,
     hover: `<button wr-btn [wrDropdown]="menu" trigger="hover">Hover me</button>`,
     disabled: `<wr-dropdown-item icon="cog" disabled>Disabled item</wr-dropdown-item>`,
+    triggerId: `<!-- Your id stays on the element; the menu points at it. -->
+<button wr-btn id="row-actions" [wrDropdown]="menu">Actions</button>
+<!-- => <button id="row-actions" aria-haspopup="menu" …>
+     <div role="menu" aria-labelledby="row-actions"> -->
+
+<!-- Bound and interpolated forms are honoured too. -->
+<button wr-btn [id]="'actions-' + row.id" [wrDropdown]="menu">Actions</button>
+
+<!-- No id of your own: the fallback is generated, and is not a stable
+     locator — it counts dropdown instances, so it differs between the
+     prerendered page and the hydrated one.
+     => <button id="wr-dropdown-trigger-3" …> -->
+<button wr-btn [wrDropdown]="menu">Actions</button>`,
+    scrollable: `import { CdkScrollable } from '@angular/cdk/scrolling';
+
+@Component({
+  imports: [CdkScrollable, WrDropdown, WrDropdownMenu, WrDropdownItem],
+  template: \`
+    <!-- Without \`cdkScrollable\` the menu is placed once and stays there while
+         this box scrolls — it ends up floating over, or away from, its own
+         trigger. The window itself is always tracked; a nested scroller is not
+         until it registers. -->
+    <div class="side-panel" cdkScrollable>
+      <button wr-btn [wrDropdown]="menu">Actions</button>
+    </div>
+  \`,
+})
+export class PanelComponent {}`,
     exportAs: `<wr-btn [wrDropdown]="menu" #actions="wrDropdown">Actions</wr-btn>
 <wr-dropdown-menu #menu>
   <wr-dropdown-item>Copy</wr-dropdown-item>

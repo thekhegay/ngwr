@@ -28,11 +28,32 @@ pnpm add ngwr @angular/cdk
 
 Requires Angular / CDK `>= 22.0.0` (peers: `@angular/cdk`, `@angular/common`,
 `@angular/core`, `@angular/platform-browser`, `rxjs ^7`; optional `date-fns` /
-`luxon` / `lucide`).
+`luxon` / `lucide`). On Angular 21 or older the INSTALL succeeds — every package
+manager treats an unmet peer as a warning — and the `ng build` fails instead, in
+the linker, with `Unsupported enum value for [object Object]`.
 
-Each component is a tree-shakable subpath import: `import { WrButton } from
-'ngwr/button'`. Styles: `@use 'ngwr'` (everything) or `@use 'ngwr/<name>'` (per
-component) in your global SCSS.
+**There is no root barrel: `import { X } from 'ngwr'` is always wrong.** The root
+entry point exports nothing, so an IDE auto-import from it gives `TS2305` and no
+hint. Every symbol comes from its entry point — `import { WrButton } from
+'ngwr/button'` — and the entry point is the last segment of the component's docs
+URL. Mind the ones that do not match the selector: `<wr-btn>` is `ngwr/button`,
+`<wr-tag>` is `ngwr/badge`, `<wr-option>` is `ngwr/select`, `<wr-accordion>` is
+`ngwr/collapse`, `<wr-form-field>` is `ngwr/form`, `<wr-sortable-list>` is
+`ngwr/drag-drop`, `<wr-kbd>` is `ngwr/keyboard`.
+
+Styles: `@use 'ngwr'` (everything — about 290 kB minified, 42 kB gzipped) or
+`@use 'ngwr/<name>'` per component in your global SCSS. **Per component, the
+theme tokens come with each entry but the other components it renders do not**,
+and nothing warns — the control just paints wrong. Always add `ngwr/icon` (the
+inline chevrons, carets and sort arrows are bare SVGs sized by `.wr-icon__svg`),
+`ngwr/density` (nothing else declares the `--wr-density-*` multipliers, so
+`provideWrDensity()` silently does nothing without it) and `ngwr/overlay` (the
+responsive bottom sheet). Then follow what a component renders:
+`ngwr/table` needs checkbox / dropdown / pagination / spinner, `ngwr/pagination`
+needs button / select, `ngwr/date-picker` needs calendar / input, and a service
+mounts a component no template names — `WrDialog.open()` needs `ngwr/dialog`,
+`WrToast.show()` needs `ngwr/toast`. Full table:
+https://ngwr.dev/start/installation
 
 ## Providers (main.ts)
 
@@ -44,7 +65,11 @@ Add from their entry points as needed:
   tracker mobile sheets need to clear the on-screen keyboard. Without it overlays
   still work, falling back to CDK's shared root container — but
   `--wr-keyboard-inset` stays 0 and sheets won't lift above the keyboard. Add
-  `provideWrResponsiveOverlays()` for mobile sheets.
+  `provideWrResponsiveOverlays()` for mobile sheets — both from `ngwr/overlay`,
+  not from the component's own entry point. Optional does not mean free: what it
+  references is CDK's overlay module, the heaviest dependency in the catalog, so
+  it is near-zero in an app with any overlay on screen and the whole of it in an
+  app with none.
 - `provideWrIcons(lucideIcons({ check: Check }))` — icon registry (`ngwr/icon`,
   adapters under `ngwr/icon/adapters/*`).
 - `provideWrTheme()` — `--wr-*` design tokens. `provideWrDensity()` — sizing.
@@ -188,7 +213,9 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-tree` and `wr-select` (search mode), alongside the standalone
   `wr-virtual-scroll` wrapper.
 - **Testing** — CDK component harnesses ship beside the components they drive, at
-  `ngwr/<name>/testing`. 70 entry points so far, 104 harness classes, covering the
+  `ngwr/<name>/testing`. 70 entry points so far, 104 exported harness names over
+  103 distinct classes — `WrCalendarDayHarness` ships under two, since a date
+  picker's popup IS a calendar — covering the
   form controls, the overlays, both data views, the navigation / disclosure set
   (`tabs`, `stepper`, `carousel`, `pagination`, `segmented`, `collapse`,
   `transfer`) and `markdown`: the form controls
@@ -283,4 +310,6 @@ can repair and a reported diagnosis for the rest, no commercial support.
 - All site URLs (for crawlers): https://ngwr.dev/sitemap.xml
 - Source, README, per-component `.d.ts` types: https://github.com/thekhegay/ngwr
   (installed at `node_modules/ngwr/types/ngwr-<name>.d.ts`; the package also
-  ships `README.md`, `llms.txt`, `llms-full.txt` and `skills/ngwr/`)
+  ships `README.md`, `llms.txt`, `llms-full.txt` and `skills/ngwr/` — and no
+  other markdown: there is no `CHANGELOG.md` in the tarball, and the docs'
+  markdown twins are served from ngwr.dev rather than copied into it)

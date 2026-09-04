@@ -74,6 +74,31 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="`required` is a marker, not a validator — and it is not automatic"
+    description="`<wr-form-field required>` draws the asterisk beside the label. It adds no validator, and no validator adds it: nothing on the FormControl reaches back to set it."
+  >
+    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
+      This is the one place the two halves of a field have to be kept in step by hand.
+      <code>Validators.required</code> on a <code>FormControl</code> reaches an ngwr control as nothing at all — not a
+      <code>required</code> attribute, and not <code>aria-required</code>. Angular 22's bridge does offer
+      <code>required</code> to a control, but it lands only where the control declares an input of that name, and an
+      ngwr control declares exactly two: <code>disabled</code> and <code>readonly</code>. So
+      <strong>write the validator and the marker together</strong>, or a screen reader is told the field is optional
+      while the form refuses to submit without it. The same is true of a signal-forms <code>required()</code> rule.
+    </p>
+
+    <ngwr-doc-code [code]="snippets.requiredPair" language="angular-html" />
+
+    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
+      The states that <em>do</em> reach the control, and the ones this component renders on their behalf, are listed on
+      <a routerLink="/guides/forms">the reactive-forms guide</a>. In short: this component reads <code>touched</code>,
+      <code>dirty</code> and <code>errors</code> off the projected <code>NgControl</code> and owns everything it draws
+      from them — the message, the <code>wr-form-field--invalid</code> class and the <code>aria-invalid</code> /
+      <code>aria-describedby</code> pair — because the control itself is never told about any of them.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Behavior notes">
     <ngwr-doc-code [code]="snippets.notes" language="html" />
   </ngwr-doc-section>

@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { WrCheckbox } from 'ngwr/checkbox';
 import { WrRating } from 'ngwr/rating';
 import { WrTypography } from 'ngwr/typography';
+import { NGWR_VERSION } from 'ngwr/version';
 
 import {
   DocCodeComponent,
@@ -97,7 +98,9 @@ export default class ComparisonPage {
    * hand-written cells eventually drifts into.
    */
   protected readonly libraries: readonly ComparisonLibrary[] = [
-    { key: 'ngwr', name: 'ngwr 12', self: true },
+    // Derived, never typed: this row was still labelled "ngwr 12" at 14.0.0,
+    // on the one page a prospective adopter reads to compare majors.
+    { key: 'ngwr', name: `ngwr ${NGWR_VERSION.split('.')[0]}`, self: true },
     { key: 'material', name: 'Angular Material 22' },
     { key: 'primeng', name: 'PrimeNG 22' },
     { key: 'zorro', name: 'NG-ZORRO 22' },

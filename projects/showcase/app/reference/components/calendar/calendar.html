@@ -35,6 +35,96 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Keyboard"
+    description="The grid is a SINGLE tab stop with a roving cursor — tabbing through a month is not 42 stops — so exactly one cell is tabbable at a time and the arrows move it. The header's `‹` / `›` buttons and the month/year label are separate, ordinary tab stops before it."
+  >
+    <div class="ngwr-keys">
+      <table>
+        <caption>
+          Day view. Focus is on the grid; the cursor is the cell with the ring.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><wr-kbd size="sm">ArrowLeft</wr-kbd> <wr-kbd size="sm">ArrowRight</wr-kbd></td>
+            <td>Previous / next day. The pair swaps under <code>dir="rtl"</code> — these name a side of the screen.</td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">ArrowUp</wr-kbd> <wr-kbd size="sm">ArrowDown</wr-kbd></td>
+            <td>Same weekday, one week back / forward.</td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Home</wr-kbd> <wr-kbd size="sm">End</wr-kbd></td>
+            <td>
+              First / last day of the current week — which respects the adapter's first day of the week, not Sunday.
+            </td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">PageUp</wr-kbd> <wr-kbd size="sm">PageDown</wr-kbd></td>
+            <td>Previous / next month, scrolling the view with it.</td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Shift + PageUp</wr-kbd> <wr-kbd size="sm">Shift + PageDown</wr-kbd></td>
+            <td>Previous / next year.</td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Enter</wr-kbd> <wr-kbd size="sm">Space</wr-kbd></td>
+            <td>Picks the day under the cursor — the same commit as a click, including the second click of a range.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ngwr-keys">
+      <table>
+        <caption>
+          Month and year quick-pick, reached by activating the header label.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><wr-kbd size="sm">ArrowLeft</wr-kbd> <wr-kbd size="sm">ArrowRight</wr-kbd></td>
+            <td>Previous / next chip, mirrored under <code>dir="rtl"</code>.</td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">ArrowUp</wr-kbd> <wr-kbd size="sm">ArrowDown</wr-kbd></td>
+            <td>One full row: three chips in the month view, four in the year view.</td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Home</wr-kbd> <wr-kbd size="sm">End</wr-kbd></td>
+            <td>
+              First / last chip on the page. The list does not wrap or spill into the next twelve — the header's
+              <code>‹</code> / <code>›</code> are what change which twelve.
+            </td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Enter</wr-kbd> <wr-kbd size="sm">Space</wr-kbd></td>
+            <td>Left to the browser: each chip is a real <code>&lt;button&gt;</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>A cursor never parks on a day it cannot pick.</strong> With <code>[min]</code>, <code>[max]</code> or
+      <code>[dateFilter]</code> in play, a keystroke that lands on a disabled cell keeps travelling in the direction it
+      was already going, and stops only when the run does. Not cosmetic: the cursor cell holds the grid's only
+      <code>tabindex="0"</code>, so parking it on a disabled button would leave the calendar with zero tabbable cells —
+      you could tab out of it and never tab back in.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

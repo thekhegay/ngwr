@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Date Picker"
-  description="Unified date / time / date-time picker. `<input>` + popover for every mode — overlay content swaps based on `[mode]`. Parses on every keystroke (silently — only emits when valid), reformats canonical on blur. Format driven by `WrDateAdapter`. A signal-forms native control — it implements `FormValueControl`, so `[formField]` binds straight to its `value` model. `[(value)]` works standalone, and `[(ngModel)]` / reactive forms keep working through Angular's bridge."
+  description="Unified date / time / date-time picker. `<input>` + popover for every mode — overlay content swaps based on `[mode]`. Parses on every keystroke (silently — only emits when valid), reformats canonical on blur. Format driven by `WrDateAdapter`. A signal-forms native control — it implements `FormValueControl`, so `[formField]` binds straight to its `value` model. `[(value)]` works standalone, and `[(ngModel)]` / reactive forms keep working through [Angular 22's forms bridge](/guides/forms)."
   [keywords]="['date', 'time', 'datetime', 'picker', 'wr-date-picker']"
   [labels]="['Signal Forms', 'CDK Overlay']"
 >
@@ -155,7 +155,7 @@
 
   <ngwr-doc-section
     title="Use it in a form"
-    description="Both pickers are signal-forms native controls, so `[formField]` binds their `value` model directly. Reactive forms and `[(ngModel)]` go through Angular 22's bridge, which binds a signal-forms control with no `ControlValueAccessor` involved — the library ships none, and `formControlName` still works. Submit empty to see the required error."
+    description="Both pickers are signal-forms native controls, so `[formField]` binds their `value` model directly. Reactive forms and `[(ngModel)]` go through [Angular 22's forms bridge](/guides/forms), which binds a signal-forms control with no `ControlValueAccessor` involved — the library ships none, and `formControlName` still works. Read the guide before relying on `updateOn` or on a `{ emitEvent: false }` write; neither behaves the way it does for a native `<input>`. Submit empty to see the required error."
   >
     <ngwr-doc-code [code]="snippets.forms" language="angular-html" />
     <ngwr-doc-code [code]="snippets.formsTs" language="angular-ts" />

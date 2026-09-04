@@ -51,6 +51,20 @@ export class MyComponent {}`,
 >
   Hover
 </wr-btn>`,
+    scrollable: `import { CdkScrollable } from '@angular/cdk/scrolling';
+
+@Component({
+  imports: [CdkScrollable, WrPopover],
+  template: \`
+    <!-- One attribute. Without it the panel is positioned when it opens and
+         never again for this box — the window is tracked automatically, a
+         nested scroller only once it registers itself. -->
+    <div class="side-panel" cdkScrollable>
+      <wr-btn [wrPopover]="info">Details</wr-btn>
+    </div>
+  \`,
+})
+export class PanelComponent {}`,
     exportAs: `<wr-btn [wrPopover]="card" #details="wrPopover">Details</wr-btn>
 
 <!-- Anywhere else in the same template -->

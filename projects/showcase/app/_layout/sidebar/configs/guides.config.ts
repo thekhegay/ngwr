@@ -44,6 +44,7 @@ export const GUIDES_SIDEBAR: readonly SidebarGroup[] = [
   },
   { title: 'Grid', url: ['/guides', 'grid'] },
   // Cross-cutting subsystems users typically meet later.
+  { title: 'Reactive forms', url: ['/guides', 'forms'] },
   { title: 'Overlay', url: ['/guides', 'overlay'] },
   { title: 'Mobile & responsive', url: ['/guides', 'mobile'] },
   {
@@ -60,6 +61,7 @@ export const GUIDES_SIDEBAR: readonly SidebarGroup[] = [
     ],
   },
   { title: 'Keyboard', url: ['/guides', 'keyboard'] },
+  { title: 'Server-side rendering', url: ['/guides', 'ssr'] },
   { title: 'Testing', url: ['/guides', 'testing'] },
   { title: 'MCP server', url: ['/guides', 'mcp'] },
   { title: 'Agent skill', url: ['/guides', 'agent-skill'] },

@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Select"
-  description="Native-like select built on CDK Overlay. A signal-forms native control — it implements `FormValueControl`, so `[formField]` binds straight to its `value` model. `[(value)]` works standalone, and `[(ngModel)]` / reactive forms keep working through Angular's bridge."
+  description="Native-like select built on CDK Overlay. A signal-forms native control — it implements `FormValueControl`, so `[formField]` binds straight to its `value` model. `[(value)]` works standalone, and `[(ngModel)]` / reactive forms keep working through [Angular 22's forms bridge](/guides/forms)."
   [keywords]="['select', 'wr-select', 'wr-option', 'overlay']"
   [labels]="['Component', 'Standalone', 'CDK Overlay']"
 >
@@ -210,7 +210,7 @@
 
   <ngwr-doc-section
     title="Use it in a form"
-    description="All three flavours bind the same `value` model. Signal forms is the native one — `[formField]` reaches it directly. Reactive forms and `[(ngModel)]` go through Angular 22's bridge, which binds a signal-forms control without a `ControlValueAccessor`: the library ships none, and `formControlName` still works. The demo is a reactive form — submit it empty to see the required error, then pick a value."
+    description="All three flavours bind the same `value` model. Signal forms is the native one — `[formField]` reaches it directly. Reactive forms and `[(ngModel)]` go through Angular 22's bridge, which binds a signal-forms control without a `ControlValueAccessor`: the library ships none, and `formControlName` still works. That bridge is not an accessor and does not behave like one — [the reactive-forms guide](/guides/forms) is what it carries, what it drops (`updateOn`, and a `{ emitEvent: false }` write), and what a host does about each. The demo is a reactive form — submit it empty to see the required error, then pick a value."
   >
     <ngwr-doc-code [code]="snippets.forms" language="angular-html" />
     <ngwr-doc-code [code]="snippets.formsTs" language="angular-ts" />
@@ -235,6 +235,33 @@
         </span>
       </form>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="How a value matches an option"
+    description="With `===`, against each `<wr-option [value]>`. There is no `compareWith` input and no identity key — so an object bound as the value has to be the *same reference* the option carries."
+  >
+    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
+      This is the one thing to get right before binding <code>&lt;wr-select&gt;</code> to server data.
+      <strong
+        >An object that arrives from a second request is structurally equal to the one in your options list and is not
+        the same reference</strong
+      >, so nothing matches: the trigger falls back to the placeholder while the form value stays exactly what you set,
+      and valid. A field that looks empty on a form that submits happily is a hard bug to read backwards, so the rule is
+      worth following by default — bind a primitive key.
+    </p>
+
+    <ngwr-doc-code [code]="snippets.identity" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.identityTs" language="typescript" />
+
+    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
+      If the value genuinely has to be the object, keep one canonical instance per id in whatever the options render
+      from, so the reference the form holds is the reference the option carries. In
+      <code>search</code> mode there is one softening worth knowing: a value with no rendered option falls back to
+      <code>displayWith(value)</code> for the trigger label, because a virtualized row may not exist yet — so a mismatch
+      there shows a label rather than the placeholder, and hides itself better.
+      <a routerLink="/guides/forms">The reactive-forms guide</a> covers this alongside the rest of the bridge.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Select API">

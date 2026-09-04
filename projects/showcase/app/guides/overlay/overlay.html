@@ -23,6 +23,83 @@
     description="CDK's own root `Overlay` and `OverlayContainer` are left untouched, so other libraries keep the container they already had — the isolation is NGWR moving out, not NGWR taking over. What the call does not do is isolate two OTHER libraries from each other. And it is not load-bearing: both tokens fall back to CDK's root instances, so overlays still open without it — they just land in the shared container, and the keyboard inset is never published."
   />
 
+  <ngwr-doc-section
+    title="Focus, on the way in"
+    description="A modal overlay — `WrDialog`, `<wr-drawer>` and `WrDrawerManager` — records `document.activeElement` before it attaches, installs a CDK focus trap once the content is in the DOM, and moves focus inside. What it moves focus TO is decided in this order."
+  >
+    <ol>
+      <li>
+        The element carrying <code>cdkFocusInitial</code>, if the content has one. It is a plain attribute — no import,
+        no directive — because the trap resolves it with <code>querySelector</code>. This is the answer to "focus has to
+        land on Cancel, not on Delete"; nothing needs to call <code>focus()</code> after <code>open()</code>.
+      </li>
+      <li>Otherwise the first tabbable element inside the overlay, in DOM order.</li>
+      <li>Otherwise nothing moves, and the trap still holds.</li>
+    </ol>
+
+    <p wrTypography variant="small" tone="medium">
+      Which means the two drawer forms differ, and the difference is DOM order rather than policy:
+      <code>&lt;wr-drawer&gt;</code> renders its ✕ in its own template, above the projected content, so the ✕ is the
+      first tabbable and takes focus; <code>WrDialog</code> and <code>WrDrawerManager</code> append the ✕ AFTER the
+      content portal — so it paints above the panel — and focus lands on the content's first control. Pin it with
+      <code>cdkFocusInitial</code> rather than relying on either.
+    </p>
+    <ngwr-doc-code [code]="snippets.focusInitial" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Focus, on the way out"
+    description="Every dismissal path funnels through one `close()`, and that one method destroys the trap, disposes the overlay and then restores focus to the element recorded on open. There is no path that skips it, and no option that turns it off."
+  >
+    <div class="ngwr-keys">
+      <table>
+        <caption>
+          The four ways a dialog closes, and where focus is afterwards.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Closed by</th>
+            <th scope="col">Focus goes to</th>
+            <th scope="col">Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><wr-kbd size="sm">Escape</wr-kbd></td>
+            <td>The opener</td>
+            <td>
+              Off with <code>closeOnEscape: false</code>. Focus need not be inside the overlay — the CDK keeps one
+              document listener and routes the key to the topmost overlay.
+            </td>
+          </tr>
+          <tr>
+            <td>The built-in ✕</td>
+            <td>The opener</td>
+            <td>Off with <code>closable: false</code>; renamed with <code>closeLabel</code>.</td>
+          </tr>
+          <tr>
+            <td><code>[wrDialogClose]</code> / <code>ref.close(result)</code></td>
+            <td>The opener</td>
+            <td>The same method the ✕ calls, so the result is the only difference.</td>
+          </tr>
+          <tr>
+            <td>Backdrop click</td>
+            <td>The opener</td>
+            <td>Off with <code>closeOnBackdropClick: false</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p wrTypography variant="small" tone="medium">
+      A fifth path is not a dismissal: with <code>closeOnNavigation</code> left on, a route change disposes the overlay
+      so a modal cannot outlive the page it was opened over. And
+      <strong>a dismissal is not distinguishable from</strong> <code>close(undefined)</code> — both resolve
+      <code>awaitClose()</code> with <code>undefined</code>, so a dialog that needs to tell "cancelled" from "saved
+      nothing" has to close with a value that says which.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Components that use the overlay">
     <ngwr-doc-code [code]="snippets.components" language="angular-ts" />
   </ngwr-doc-section>

@@ -37,6 +37,33 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Sorting is state, not a sort"
+    description="The header cycles asc → desc → off and writes the result into `[(sort)]`. That is all it does: the table never reorders `items`, in any mode — the same contract `groupBy` states about grouping. The rows in the demo above move because THIS page sorts them, and that comparator is the part a docs snippet usually leaves out, so it is spelled in full below. A table bound to a plain array with no comparator behind it shows the arrow flipping and the rows standing still, which reads as a broken control rather than as a contract."
+  >
+    <ngwr-doc-code [code]="snippets.sortState" language="angular-ts" />
+    <p>
+      <code>sort</code> is an <strong>array</strong>, not a single rule: each sortable header owns its own entry, a
+      second header appends rather than replaces, and array order is application order — first entry is the primary key.
+      A header cycled back to <em>off</em> drops its entry. That is why the comparator above loops instead of reading
+      <code>sort()[0]</code>.
+    </p>
+    <p>
+      The control is the arrow button, not the whole cell: <code>.wr-table__sort-btn</code>, a real
+      <code>&lt;button&gt;</code> named from <code>sortLabel</code> (or the <code>table.sort</code> catalog key).
+      Clicking the title text or the header padding does nothing, so an end-to-end test drives the button —
+      <code>getByRole('button', &#123; name: 'Sort column' &#125;)</code> — and reads the result off the header's
+      <code>aria-sort</code>, which is <code>ascending</code> / <code>descending</code> / <code>none</code> on every
+      sortable column and absent on the rest.
+    </p>
+    <p>
+      Sorting also never touches <code>page</code>. Clicking a header on page 3 leaves you on page 3, and in server-side
+      mode that means the next request goes out with the new order and the old offset. Resetting to page 1 on a sort
+      change is a policy, not a default — write it in the handler that reacts to the sort, the same place you build the
+      query.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="What a cell template can read"
     description='A `[wrTableCell]` template gets three context members, and only the value is implicit. The row itself is `let-row="item"` — a bare `let-row` binds the value a second time, which is the quiet way to get an undefined in a click handler.'
   >
@@ -78,6 +105,29 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Server-side paging — what to bind, what fires"
+    description="Setting `[total]` switches the footer pager to server mode: the table stops slicing and renders whatever `items` you hand it. `page` is a `model()`, so the event it publishes is `(pageChange)` — that is the output to listen to, and there is no separately named one. Bind it either way: `[(page)]` when the page number is your own signal, or `[page]` + `(pageChange)` when the click has to go through a handler that builds the request."
+  >
+    <ngwr-doc-code [code]="snippets.serverHtml" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.serverTs" language="typescript" />
+    <p>
+      <strong><code>[pageSize]</code> is still required in server mode.</strong> It no longer slices anything, but the
+      footer renders only while <code>pageSize &gt; 0</code> and <code>total</code> exceeds it — a table given
+      <code>[total]</code> alone shows no pager at all, which looks like the server contract being ignored. Pass the
+      same number you send as the request&#39;s limit.
+    </p>
+    <p>
+      The footer is a plain <code>&lt;wr-pagination&gt;</code> with the page, size and total wired through — nothing
+      else. It carries no <code>showTotal</code> range label and no page-size changer, and the table exposes no input to
+      turn either on. When you need those, leave <code>pageSize</code> at <code>0</code> so the table renders no footer
+      of its own and put your own <code>&lt;wr-pagination&gt;</code> underneath: it is the same component, with
+      <code>showTotal</code>, <code>showSizeChanger</code> and <code>[(pageSize)]</code> available. That page also
+      documents the two behaviours a server-paged host meets first — what happens while <code>total</code> is still 0
+      between requests, and who clamps the page after a size change.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Virtual scroll"
     description="Set `virtualScroll` with a fixed `viewportHeight` to window thousands of rows — only the visible slice is in the DOM. It forces fixed column layout, assumes a uniform `rowHeight` (auto-measured by default), and falls back to the full render while grouping, tree rows, expandable rows, responsive cards or a pager is active. The table below holds 10,000 rows."
   >
@@ -93,6 +143,17 @@
         />
       </div>
     </ngwr-doc-snippet>
+    <p>
+      <strong>The number to pass.</strong> A body row is one line of text plus the cell padding and the row rule —
+      <code>1.25rem</code> line-height, <code>0.625rem</code> of padding on each side multiplied by
+      <code>--wr-density-y</code>, and 1px of border. At a 16px root that is <strong>41px at <code>md</code></strong
+      >, and 32 / 48 / 55px at <code>sm</code> / <code>lg</code> / <code>touch</code>. Left at <code>0</code> the table
+      measures the first rendered row and uses that, so it is right without being told; the value matters when you pass
+      one, because the server has nothing to measure and falls back to a flat <strong>40</strong>. Passing 40 for an
+      <code>md</code> table is therefore off by a pixel per row — the prerendered window drifts a whole row every ~40 of
+      them, until the client measurement replaces it. A taller custom cell template moves these numbers, and the table
+      cannot know: measure once and pass what you measured.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section

@@ -361,9 +361,13 @@
       instead of a substitution; v12 rewrote the date-adapter import paths, and its other breaking change was a return
       type that changed, which the compiler names at every call site. v10 and v11 ship no migration on purpose: their
       breaking changes were painted colour, and an empty codemod would tell you your visual regressions were handled
-      when they were not. v13 ships none either, and that one is worth reading the guide for — a renamed
-      <code>[wrInput]</code> size and an <code>[id]</code> that stopped landing on the host are both silent in a
-      template. The <a routerLink="/start/migration">migration guide</a> lists all of it.
+      when they were not. v13's migration is the other shape: it runs, it FINDS every host-<code>id</code> selector on
+      <code>&lt;wr-checkbox&gt;</code> / <code>&lt;wr-radio&gt;</code> / <code>&lt;wr-switch&gt;</code> — the id moved
+      to the inner <code>&lt;input&gt;</code>, where <code>&lt;label for&gt;</code> can reach it — and rewrites none of
+      them, because whether <code>wr-checkbox#agree</code> should become <code>#agree</code>,
+      <code>wr-checkbox:has(#agree)</code> or a class is a decision only its author can make, and a selector that stops
+      matching is silent in CSS, in <code>querySelector</code> and in a test locator alike. The
+      <a routerLink="/start/migration">migration guide</a> lists all of it.
     </p>
 
     <p wrTypography variant="small" tone="medium">
@@ -372,7 +376,13 @@
       written against, and it is worse in a size comparison than anywhere else. What is structural and checkable
       instead: the package ships one FESM bundle per entry point, so an app pays for what it imports and nothing else,
       and there is no apples-to-apples third-party benchmark across these five libraries either. Measure the ones you
-      import, in your own build, against the alternative you are actually considering.
+      import, in your own build, against the alternative you are actually considering — the
+      <a routerLink="/start/installation">installation page</a> carries the two commands that answer it, plus the one
+      figure that is a property of the package rather than of your app: the umbrella stylesheet, which is every
+      component's CSS whether you render it or not. Two things worth knowing before you measure. An entry point's static
+      imports come with it whatever the template turns on, so a bare <code>&lt;wr-table&gt;</code> still bundles the
+      checkbox, the pager and CDK's drag-drop; and Angular's own “estimated transfer size” runs 10–20% under
+      <code>gzip -9</code>, so gzip the file yourself if you are checking against a budget.
     </p>
   </ngwr-doc-section>
 

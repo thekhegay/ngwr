@@ -57,4 +57,19 @@
   >
     <ngwr-doc-code [code]="snippets.media" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="On the server there is no viewport"
+    description="`WrMedia` is SSR-safe in the sense that it does not throw — not in the sense that it answers. There is no `matchMedia` to ask, so on the server `matches(q)` is always `false` and `current()` is always `'xs'`, and a template that branches on either prerenders the narrow arm for every visitor."
+  >
+    <ngwr-doc-code [code]="snippets.mediaSsr" language="angular-html" />
+
+    <p wrTypography variant="small" tone="medium">
+      Which is why the <code>responsive</code> modifier is the first thing to reach for and <code>WrMedia</code> the
+      second: a container query is CSS, so the markup is identical on both sides and the browser resolves the layout
+      after hydration has already matched. Where you do need the signal, treat the server's answer as the FIRST layout
+      rather than the wrong one — render the mobile arm, and let the wide one arrive. The full server/client table is on
+      the <a routerLink="/guides/ssr">server-side rendering guide</a>.
+    </p>
+  </ngwr-doc-section>
 </ngwr-doc-page>
