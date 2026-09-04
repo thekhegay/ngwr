@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { Component, type EnvironmentProviders } from '@angular/core';
+import { Component, EnvironmentInjector, type EnvironmentProviders, createEnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrDialog, WrDialogContent, type WrDialogRef } from 'ngwr/dialog';
@@ -772,5 +772,44 @@ describe('WrToast stacking', () => {
     await settle();
     expect(top()).not.toBeUndefined();
     expect(document.querySelector('.wr-toast-host')).toBeNull();
+  });
+});
+
+describe('provideWrToastConfig outside the root injector', () => {
+  afterEach(() => {
+    TestBed.resetTestingModule();
+    vi.restoreAllMocks();
+  });
+
+  it('warns when it lands somewhere WrToast will never read it', () => {
+    // The silent misconfiguration this exists to name: `WrToast` is
+    // root-provided, so it resolves WR_TOAST_CONFIG once from the root. A
+    // route-level `provideWrToastConfig({ position: 'bottom' })` therefore does
+    // nothing at all, and used to do it without a word — an adoption audit spent
+    // an hour finding out. `provideWrConfig()` IS read per route and
+    // `provideWrIcons()` chains, so the asymmetry is real and worth a warning
+    // rather than a paragraph nobody reaches.
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    const root = TestBed.inject(EnvironmentInjector);
+    // A child environment injector is what a lazy route creates.
+    // `createEnvironmentInjector` runs ENVIRONMENT_INITIALIZER itself.
+    const child = createEnvironmentInjector([provideWrToastConfig({ position: 'bottom' })], root);
+
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0]?.[0]).toContain('provideWrToastConfig()');
+    child.destroy();
+  });
+
+  it('says nothing when it is where it belongs', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    TestBed.configureTestingModule({
+      providers: [provideWrOverlay(), provideWrToastConfig({ position: 'bottom' })],
+    });
+    TestBed.inject(WrToast);
+
+    expect(warn).not.toHaveBeenCalled();
   });
 });
