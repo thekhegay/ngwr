@@ -1,5 +1,16 @@
 # Changelog
 
+## [14.1.0](https://github.com/thekhegay/ngwr/compare/v14.0.1...v14.1.0) (2026-09-04)
+
+### Features
+
+* **command-palette:** the palette can be backed by a server ([b411dd3](https://github.com/thekhegay/ngwr/commit/b411dd305fb37429e3b93f4540fd5bcd4d0c1ebd))
+* **showcase:** the docs site gets search, on the palette it just grew ([f1515c0](https://github.com/thekhegay/ngwr/commit/f1515c08689556fea82b5a59260c1d776d89b796))
+
+### Bug Fixes
+
+* **release:** an unknown flag is refused instead of silently ignored ([8016ebe](https://github.com/thekhegay/ngwr/commit/8016ebe7b6fc5cd567aafa29853d4c2ded69482f))
+
 ## [14.0.1](https://github.com/thekhegay/ngwr/compare/v14.0.0...v14.0.1) (2026-09-04)
 
 ### Bug Fixes
