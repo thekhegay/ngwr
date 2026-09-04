@@ -120,6 +120,22 @@
   // Sizes — share the `--wr-control-*` contract (22 / 30 / 36 px) so button,
   // input and select line up in a row. Buttons keep a slightly wider padding-x
   // (12 / 14 / 18) than input/select; gap + icon step with the size.
+  // `sm` is 22px tall (16 line-height + 2·2 padding + 2·1 border) and that is
+  // BELOW the 24×24 WCAG 2.2 asks of a target — deliberately, and it is the
+  // consumer's layout that decides whether it passes. 2.5.8 has a spacing
+  // exception: an undersized target is conforming when a 24px circle centred on
+  // it touches no other target's circle. So a lone `sm` button is fine, and a row
+  // of them packed edge to edge is not — an audit measuring `<a wr-btn size="sm">`
+  // Edit beside `<wr-btn size="sm">` Delete in a table row read 64.1×22 and
+  // reported `target-size` on every row.
+  //
+  // The `touch-target` mixin is NOT the fix here and was checked: it is gated on
+  // `@media (pointer: coarse)` while 2.5.8 applies to a mouse too, and its
+  // `::after` halo does not change the element's own client rects, which is what
+  // the rule measures. Growing `--wr-control-padding-y-sm` is not either — the
+  // three `--wr-control-*-sm` tokens are shared so button, input and select line
+  // up in a row, and 22px is the number `/guides/tokens/sizing` publishes.
+  // Space the targets, or use `md` where they sit together.
   &--sm {
     --wr-btn-radius: var(--wr-control-radius-sm);
     --wr-btn-gap: 0.25rem;

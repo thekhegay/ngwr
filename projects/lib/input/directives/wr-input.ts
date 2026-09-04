@@ -9,7 +9,7 @@ import { type BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion'
 import { Directive, ElementRef, computed, inject, input } from '@angular/core';
 
 import { useConfigValue } from 'ngwr/config';
-import { WR_FORM_FIELD } from 'ngwr/form';
+import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 
 import type { WrInputSize } from '../interfaces';
 
@@ -76,8 +76,14 @@ export class WrInput {
    * invisible to a screen reader, which never learns the field is invalid or
    * what the message says.
    */
-  protected readonly ariaInvalid = computed(() => (this.field?.describedBy() ? 'true' : null));
-  protected readonly describedBy = computed(() => this.field?.describedBy() ?? null);
+  // Through the shared helper, not a local pair: the hint is described by
+  // `hintId`, which only `useFormFieldAria()` composes, and `aria-invalid` keys
+  // on the error COUNT rather than on "something is described". Hand-rolled here,
+  // these three announced the error and never the hint — and `<input wrInput>` is
+  // the control the report was filed against.
+  private readonly fieldAria = useFormFieldAria();
+  protected readonly describedBy = this.fieldAria.describedBy;
+  protected readonly ariaInvalid = this.fieldAria.ariaInvalid;
 
   /**
    * Control size. Unset, it falls back to

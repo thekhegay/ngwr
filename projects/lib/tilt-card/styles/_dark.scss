@@ -1,0 +1,21 @@
+// Dark theme.
+//
+// Keyed on `theme.dark-selector()`, never on a literal `[data-theme='dark']`.
+// The attribute is renameable — `@use 'ngwr' with ($theme-attribute: '…')`
+// alongside `provideWrTheme({ attribute: '…' })` — and a hand-written literal
+// misses the rename in both directions: this block stops firing under the
+// configured name, and it keeps firing under `data-theme`, which is the
+// attribute a foreign design system owns and the rename exists to escape.
+//
+// It lives outside the `styleUrl` closure for the same reason. A component
+// stylesheet is compiled when the LIBRARY is built, where `$theme-attribute` can
+// only ever be the default, and Angular appends that copy after the app's linked
+// sheet — so an inlined literal would not merely be dead, it would outrank the
+// correctly-named rule beside it.
+@use '../../theme/styles' as theme;
+
+#{theme.dark-selector()} .wr-tilt-glare {
+  --wr-tilt-glare-color: rgb(255 255 255 / 25%);
+
+  mix-blend-mode: overlay;
+}

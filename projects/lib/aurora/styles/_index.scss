@@ -1,30 +1,11 @@
-// Aurora background (reactbits port). A WebGL2 canvas fills the nearest
-// positioned ancestor; all the visuals live in the fragment shader.
+// Public Sass entry for `@use 'ngwr/aurora'`.
+//
+// `aurora.scss` — the component's `styleUrl` — forwards `_rules` and nothing
+// else, so the compiled component styles carry this component's own CSS and no
+// second copy of the theme layer. `_dark.scss` is loaded from HERE rather than
+// from `_rules` because its selector is built out of `$theme-attribute`, which
+// only a stylesheet compiled by the consuming app can configure.
+@use '../../theme/styles';
 
-.wr-aurora {
-  // Theme-default colour stops (overridden by `[colorStops]`): vivid
-  // indigo → emerald on light surfaces; dark restores the neon
-  // reactbits palette below.
-  --wr-aurora-stop-1: #6366f1;
-  --wr-aurora-stop-2: #10b981;
-  --wr-aurora-stop-3: #6366f1;
-
-  position: absolute;
-  inset: 0;
-  display: block;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
-
-  &__canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-}
-
-[data-theme='dark'] .wr-aurora {
-  --wr-aurora-stop-1: #5227ff;
-  --wr-aurora-stop-2: #7cff67;
-  --wr-aurora-stop-3: #5227ff;
-}
+@forward 'rules';
+@forward 'dark';

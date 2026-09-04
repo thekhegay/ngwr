@@ -262,3 +262,183 @@ describe('WrButton config defaults', () => {
     expect(classesOf('wr-btn')).toEqual(['wr-btn']);
   });
 });
+
+@Component({
+  imports: [WrButton],
+  template: `
+    <button id="save" type="button" wr-btn [loading]="loading()">Save</button>
+    <wr-btn id="element" [loading]="loading()">Element</wr-btn>
+    <button id="nodisable" type="button" wr-btn [loading]="loading()" [disabledWhenLoading]="false">Go</button>
+    <input id="elsewhere" />
+  `,
+})
+class LoadingHost {
+  readonly loading = signal(false);
+}
+
+/**
+ * A button that goes `[loading]` takes `disabledWhenLoading` with it by default,
+ * and a disabled element cannot hold focus — the browser runs the unfocusing
+ * steps and, with nothing else nominated, the caret lands on `<body>`. So a
+ * keyboard user who pressed Enter on "Save" is left nowhere: the next Tab
+ * restarts from the top of the document, and a screen reader announces neither
+ * the wait nor its end, because the element they were on has left the a11y tree.
+ *
+ * **What these specs have to stub, and why.** jsdom does none of that: a
+ * disabled element keeps focus, and `blur()` on it is a no-op, because jsdom
+ * refuses to unfocus something it does not consider a focusable area. So
+ * `orphanFocus()` below moves the caret to `<body>` the way the browser would,
+ * through an element jsdom will let go of. Without it every assertion here would
+ * pass on a component that does nothing at all — focus would never have moved.
+ *
+ * Browsers also disagree about whether disabling fires `blur` on the way out, so
+ * both readings are covered: `orphanFocus()` alone is the silent browser, and
+ * the case that dispatches a `blur` first is the one that announces it.
+ */
+describe('WrButton focus across a loading cycle', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<LoadingHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const el = (id: string): HTMLElement => root().querySelector<HTMLElement>(`#${id}`)!;
+
+  const load = async (on: boolean): Promise<void> => {
+    fixture.componentInstance.loading.set(on);
+    await fixture.whenStable();
+  };
+
+  /**
+   * Leave the caret on `<body>`, the way a browser does when the element under
+   * it stops being focusable. Routed through a plain `<input>` because jsdom
+   * will not unfocus a disabled element — `blur()` on one does nothing at all,
+   * which is precisely the state these specs need to reproduce.
+   */
+  const orphanFocus = (): void => {
+    const proxy = el('elsewhere');
+    proxy.focus();
+    proxy.blur();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(LoadingHost);
+    // Attached, or `focus()` moves nothing: an element outside the document
+    // cannot be the active one, and every assertion here would read `<body>`.
+    document.body.appendChild(fixture.nativeElement as HTMLElement);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    (fixture.nativeElement as HTMLElement).remove();
+    fixture.destroy();
+  });
+
+  it('hands focus back to the native button when loading ends', async () => {
+    const button = el('save');
+    button.focus();
+    expect(document.activeElement).toBe(button);
+
+    await load(true);
+    expect(button.hasAttribute('disabled')).toBe(true);
+    orphanFocus();
+    expect(document.activeElement).toBe(document.body);
+
+    await load(false);
+
+    expect(document.activeElement).toBe(button);
+  });
+
+  it('hands it back on a browser that announces the blur', async () => {
+    // The other reading of the same moment: some browsers fire `blur` on the
+    // element as they unfocus it, and that blur must not be mistaken for the
+    // user walking away — it is the browser taking the caret, not them giving
+    // it up.
+    const button = el('save');
+    button.focus();
+
+    await load(true);
+    button.dispatchEvent(new FocusEvent('blur'));
+    orphanFocus();
+
+    await load(false);
+
+    expect(document.activeElement).toBe(button);
+  });
+
+  it('hands it back to the <wr-btn> element form too', async () => {
+    // The element form loses its `tabindex` rather than gaining `disabled`, and
+    // a focused element whose tab stop is removed is unfocused the same way.
+    const button = el('element');
+    button.focus();
+
+    await load(true);
+    expect(button.hasAttribute('tabindex')).toBe(false);
+    orphanFocus();
+
+    await load(false);
+
+    expect(document.activeElement).toBe(button);
+    expect(button.getAttribute('tabindex')).toBe('0');
+  });
+
+  it('leaves the caret where the user moved it during the request', async () => {
+    // The counterpart, and the reason this is not just an unconditional
+    // `focus()`: someone who tabbed on while the request was in flight must not
+    // be yanked back to a button they have finished with.
+    const button = el('save');
+    button.focus();
+
+    await load(true);
+    orphanFocus();
+    const elsewhere = el('elsewhere');
+    elsewhere.focus();
+
+    await load(false);
+
+    expect(document.activeElement).toBe(elsewhere);
+  });
+
+  it('does not hand it back on the NEXT cycle either, once it is someone else’s', async () => {
+    // The flag has to be given up, not merely skipped: a button that quietly
+    // kept "I had focus" would reclaim the caret from `<body>` on a later
+    // request the user was nowhere near.
+    const button = el('save');
+    const elsewhere = el('elsewhere');
+    button.focus();
+
+    await load(true);
+    orphanFocus();
+    elsewhere.focus();
+    await load(false);
+
+    elsewhere.blur();
+    expect(document.activeElement).toBe(document.body);
+    await load(true);
+    await load(false);
+
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  it('does not reach for focus it never had', async () => {
+    const elsewhere = el('elsewhere');
+    elsewhere.focus();
+
+    await load(true);
+    await load(false);
+
+    expect(document.activeElement).toBe(elsewhere);
+  });
+
+  it('stays put when loading is not what disables it', async () => {
+    // `[disabledWhenLoading]="false"` keeps the button enabled, so nothing
+    // blurs it and there is nothing to hand back — the workaround consumers
+    // reached for still behaves exactly as it did.
+    const button = el('nodisable');
+    button.focus();
+
+    await load(true);
+
+    expect(button.hasAttribute('disabled')).toBe(false);
+    expect(document.activeElement).toBe(button);
+  });
+});

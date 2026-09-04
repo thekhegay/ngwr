@@ -223,11 +223,23 @@ export default class TokensColorsPage {
   ];
 
   protected readonly snippets = {
-    focus: `/* Retheme the ring once and every control follows — the library's own
-   mixin reads nothing else. */
+    focus: `/* Retheme the ring once and every control that DRAWS one follows —
+   the library's own mixin reads nothing else. */
 :root {
   --wr-focus-ring-color: var(--wr-color-secondary);
   --wr-focus-ring-width: 3px;
+}
+
+/* The exception, and it is deliberate: a text field does not draw the ring.
+   It marks focus by raising its own border and halo to --wr-color-primary,
+   which is a field convention rather than an oversight — but it means these
+   tokens do not reach it. Retheme both, or give the field the ring: */
+.wr-input:focus,
+.wr-input-group:focus-within,
+.wr-textarea--focused {
+  --wr-input-border: var(--wr-focus-ring-color);
+  --wr-input-group-border: var(--wr-focus-ring-color);
+  --wr-textarea-border: var(--wr-focus-ring-color);
 }
 
 /* What the mixin emits. Override the offset AFTER an include when the

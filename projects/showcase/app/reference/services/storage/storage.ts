@@ -80,6 +80,19 @@ this.store.has('cart');                            // true → false after 60s
 
 const theme = this.store.watch<'light' | 'dark'>('theme', 'light');
 effect(() => console.log('theme is', theme()));`,
+    format: `import type { WrStorageEnvelope } from 'ngwr/storage';
+
+// provideWrStorage({ prefix: 'myapp:' })
+store.set('theme', 'dark');
+// localStorage['myapp:theme'] === '{"v":"dark"}'
+
+store.set('cart', [{ sku: 'a1' }], { ttl: 60_000 });
+// localStorage['myapp:cart'] === '{"v":[{"sku":"a1"}],"e":1767225600000}'
+
+// Reading the same key from outside Angular — a pre-paint script, a worker:
+const raw = localStorage.getItem('myapp:theme');
+const env = raw === null ? null : (JSON.parse(raw) as WrStorageEnvelope<string>);
+const value = env && (env.e === undefined || env.e >= Date.now()) ? env.v : null;`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -136,6 +149,13 @@ effect(() => console.log('theme is', theme()));`,
       name: 'createMemoryStorage()',
       description: 'Map-backed `Storage` shim. Useful for tests.',
       type: '() => Storage',
+      default: '—',
+    },
+    {
+      name: 'WrStorageEnvelope',
+      description:
+        'The on-disk format written while `json` is on — the value under `v`, plus an epoch-ms expiry `e` when a TTL applies.',
+      type: '{ readonly v: T; readonly e?: number }',
       default: '—',
     },
   ];

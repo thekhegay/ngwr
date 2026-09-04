@@ -6,7 +6,13 @@
   <div class="wr-select__trigger wr-select__trigger--search" (click)="focusSearchInput()">
     <!-- `id` / `aria-describedby` / `aria-invalid` come from a surrounding
          `<wr-form-field>` and are null without one — see `controlId` in the
-         component. They go on the tab stop, the only labelable element here. -->
+         component. They go on the tab stop, the only labelable element here.
+         `aria-label` is the trigger's name and belongs on the same element for
+         the same reason: this input carries `role="combobox"`, and the four
+         other trigger shapes all bind `resolvedAriaLabel()`. Without it a
+         search select with no placeholder rendered a combobox with no name at
+         all — the one shape where the documented `ariaLabel` input reached
+         nothing. -->
     <input
       #searchInput
       type="text"
@@ -15,6 +21,7 @@
       autocomplete="off"
       spellcheck="false"
       [attr.id]="controlId()"
+      [attr.aria-label]="resolvedAriaLabel()"
       [attr.aria-describedby]="describedBy()"
       [attr.aria-invalid]="ariaInvalid()"
       [disabled]="isDisabled()"

@@ -1,9 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { type EnvironmentProviders } from '@angular/core';
+import { Component, type EnvironmentProviders } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { WrDialog, WrDialogContent, type WrDialogRef } from 'ngwr/dialog';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
@@ -592,5 +593,184 @@ describe('the auto-close bar, as the stylesheet declares it', () => {
 
   it('keeps a reason on both halves of the physical pair, for check:rtl and for the reader', () => {
     expect(rule.match(/rtl-ok:/g) ?? []).toHaveLength(2);
+  });
+});
+
+/**
+ * The stacking contract: while a toast is on screen, its host is the topmost
+ * thing on the page.
+ *
+ * This is the one behaviour of the service that no amount of CSS can express,
+ * and the reason is worth stating before the assertions. CDK 22 promotes every
+ * overlay by calling `showPopover()` on its host element, and the browser's top
+ * layer is ordered by the MOMENT of promotion — later beats earlier, and neither
+ * z-index nor DOM order nor a containing block can reach across it. The toast
+ * host is created once and kept until the last toast leaves, so its position in
+ * that order is frozen at whenever the first toast of a run appeared, and every
+ * dialog opened afterwards sits above it. A toast under a modal's backdrop is
+ * not merely dim: the backdrop hit-tests over it, so its close button is
+ * unreachable and a click aimed at it closes the dialog instead — a
+ * `duration: 0` toast in that state can never be dismissed at all.
+ *
+ * jsdom has no top layer, so it is modelled: `showPopover` / `hidePopover` are
+ * stubbed on `HTMLElement.prototype` into an array that IS the ordering the
+ * browser keeps. Stubbing the prototype is also what makes CDK take the popover
+ * path at all — it decides once, per overlay, on `'showPopover' in document.body`.
+ * The array's LAST entry is what the user sees on top, and that is the only
+ * thing asserted; which internal path put it there is not this spec's business.
+ */
+@Component({
+  imports: [WrDialogContent],
+  template: `<div wrDialogContent>Modal content</div>`,
+})
+class StackProbe {}
+
+describe('WrToast stacking', () => {
+  let toast: WrToast;
+  let dialog: WrDialog;
+  let openDialogs: WrDialogRef<StackProbe>[] = [];
+
+  /** The modelled top layer: last entry paints over every earlier one. */
+  let topLayer: HTMLElement[] = [];
+
+  const descriptors = {
+    show: Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'showPopover'),
+    hide: Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'hidePopover'),
+  };
+
+  const tick = (): void => TestBed.tick();
+
+  /** MutationObserver records are delivered on a microtask, not a timer, so
+   * fake timers do not reach them — yield the queue instead. */
+  const settle = async (): Promise<void> => {
+    tick();
+    await Promise.resolve();
+    await Promise.resolve();
+    tick();
+  };
+
+  const toastHost = (): HTMLElement | null =>
+    document.querySelector<HTMLElement>('.wr-toast-host')?.closest<HTMLElement>('[popover]') ?? null;
+
+  const top = (): HTMLElement | undefined => topLayer.at(-1);
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    topLayer = [];
+    Object.defineProperty(HTMLElement.prototype, 'showPopover', {
+      configurable: true,
+      writable: true,
+      value(this: HTMLElement) {
+        // The real one throws when already showing; nothing here calls it twice.
+        topLayer = [...topLayer.filter(el => el !== this), this];
+      },
+    });
+    Object.defineProperty(HTMLElement.prototype, 'hidePopover', {
+      configurable: true,
+      writable: true,
+      value(this: HTMLElement) {
+        if (!topLayer.includes(this)) throw new DOMException('Not showing', 'InvalidStateError');
+        topLayer = topLayer.filter(el => el !== this);
+      },
+    });
+
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    toast = TestBed.inject(WrToast);
+    dialog = TestBed.inject(WrDialog);
+    openDialogs = [];
+  });
+
+  const openDialog = (): void => {
+    openDialogs = [...openDialogs, dialog.open<StackProbe>(StackProbe)];
+  };
+
+  afterEach(() => {
+    toast.dismissAll();
+    for (const ref of openDialogs) ref.close();
+    vi.useRealTimers();
+    for (const [key, descriptor] of [
+      ['showPopover', descriptors.show],
+      ['hidePopover', descriptors.hide],
+    ] as const) {
+      if (descriptor) Object.defineProperty(HTMLElement.prototype, key, descriptor);
+      else delete (HTMLElement.prototype as unknown as Record<string, unknown>)[key];
+    }
+  });
+
+  it('takes the popover path at all, which every assertion below rests on', () => {
+    toast.show({ message: 'Saved' });
+    tick();
+
+    expect(toastHost()).not.toBeNull();
+    expect(toastHost()?.getAttribute('popover')).toBe('manual');
+    expect(top()).toBe(toastHost());
+  });
+
+  it('puts a toast raised from inside an open dialog above the dialog', async () => {
+    // The host has to already exist — that is the whole defect. A run that opens
+    // its first toast from inside the dialog was always fine, because the host
+    // was promoted after it.
+    toast.show({ message: 'Saved', duration: 0 });
+    await settle();
+    const host = toastHost();
+
+    openDialog();
+    await settle();
+
+    toast.show({ type: 'danger', message: 'Network error', duration: 0 });
+    await settle();
+
+    expect(top()).toBe(host);
+  });
+
+  it('lifts a toast that was already on screen when the dialog opened', async () => {
+    // The mirror image, and the same defect from the other side: nothing else is
+    // coming to raise this one, so it would stay under the backdrop — visible,
+    // dimmed and unclickable — for the whole of its duration.
+    toast.show({ message: 'Saved', duration: 0 });
+    await settle();
+    const host = toastHost();
+
+    openDialog();
+    await settle();
+
+    expect(top()).toBe(host);
+  });
+
+  it('clears a popover the container never sees, which only `show()` can do', async () => {
+    // A native `<dialog>`, or another library's popover, promoted from outside
+    // the overlay container. Nothing observes it, so the host is raised only
+    // because a toast was raised — this is the `show()` half on its own.
+    toast.show({ message: 'Saved', duration: 0 });
+    await settle();
+    const host = toastHost();
+
+    const foreign = document.createElement('div');
+    document.body.appendChild(foreign);
+    foreign.showPopover();
+    await settle();
+    expect(top()).toBe(foreign);
+
+    toast.show({ message: 'Copied', duration: 0 });
+    await settle();
+
+    expect(top()).toBe(host);
+    foreign.remove();
+  });
+
+  it('stops watching once the last toast is gone', async () => {
+    toast.show({ message: 'Saved', duration: 0 });
+    await settle();
+    toast.dismissAll();
+    await settle();
+
+    // Host disposed, so nothing of ours is in the top layer and no observer is
+    // left holding the container after the run.
+    expect(toastHost()).toBeNull();
+
+    openDialog();
+    await settle();
+    expect(top()).not.toBeUndefined();
+    expect(document.querySelector('.wr-toast-host')).toBeNull();
   });
 });

@@ -21,5 +21,5 @@
     }
   </div>
 } @else if (hint()) {
-  <small class="wr-form-field__hint">{{ hint() }}</small>
+  <small class="wr-form-field__hint" [attr.id]="hintId()">{{ hint() }}</small>
 }

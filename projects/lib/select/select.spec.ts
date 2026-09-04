@@ -63,6 +63,25 @@ class SearchHost {
   readonly size = signal<unknown>(null);
 }
 
+/**
+ * Two search selects with no `ariaLabel` of their own — one with a placeholder
+ * to borrow, one with nothing at all. The second is the case axe reports as a
+ * `critical` unnamed control, and it is what a consumer gets the moment they
+ * stop passing a placeholder they never wanted.
+ */
+@Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select mode="search" placeholder="Find a size">
+      <wr-option value="sm">Small</wr-option>
+    </wr-select>
+    <wr-select mode="search">
+      <wr-option value="sm">Small</wr-option>
+    </wr-select>
+  `,
+})
+class UnlabelledSearchHost {}
+
 @Component({
   imports: [WrSelect, WrOption],
   template: `
@@ -608,6 +627,27 @@ describe('WrSelect in search mode', () => {
     // types into, not one they only open.
     expect(field()).not.toBeNull();
     expect(field().getAttribute('role')).toBe('combobox');
+  });
+
+  it('names the combobox from `ariaLabel`, over the placeholder', () => {
+    // The one trigger shape the documented `ariaLabel` never reached. The other
+    // four all bind `resolvedAriaLabel()`; this input bound the id and the error
+    // pair and not the name, so the component held the value and the DOM did
+    // not — which reads as "the input does nothing" rather than as a missing
+    // binding. With a placeholder set the field still had a name and the whole
+    // thing looked like a precedence quirk; without one, axe reported a
+    // `critical` unnamed control.
+    expect(field().getAttribute('aria-label')).toBe('Size');
+  });
+
+  it('falls back to the placeholder, then to the catalog, so it is never nameless', () => {
+    const bare = TestBed.createComponent(UnlabelledSearchHost);
+    bare.detectChanges();
+    const root = bare.nativeElement as HTMLElement;
+    const inputs = [...root.querySelectorAll<HTMLInputElement>('.wr-select__search-input')];
+
+    expect(inputs.map(i => i.getAttribute('aria-label'))).toEqual(['Find a size', 'Select']);
+    bare.destroy();
   });
 
   it('opens the panel as soon as typing starts', () => {
@@ -1605,6 +1645,16 @@ class SearchFieldHost {}
 })
 class TagFieldHost {}
 
+@Component({
+  imports: [WrFormField, WrSelect, WrOption],
+  template: `
+    <wr-form-field label="Country" hint="Where the invoice is issued">
+      <wr-select><wr-option value="kz">Kazakhstan</wr-option></wr-select>
+    </wr-form-field>
+  `,
+})
+class HintedFieldHost {}
+
 describe('WrSelect inside a form field', () => {
   afterEach(() => TestBed.resetTestingModule());
 
@@ -1678,6 +1728,21 @@ describe('WrSelect inside a form field', () => {
     const trigger = (build(FieldHost).nativeElement as HTMLElement).querySelector('.wr-select__trigger')!;
 
     expect(trigger.getAttribute('aria-label')).toBe('Select');
+  });
+
+  it('is described by the field’s hint, without reporting itself invalid', () => {
+    // The hint used to carry no id at all, so `aria-describedby` could only ever
+    // name the error block and the sentence explaining the field reached a
+    // screen-reader user through no path whatsoever. It is a separate signal
+    // from the invalid flag on purpose: keyed on "is anything describing me",
+    // every hinted field would announce itself as being in error.
+    const root = build(HintedFieldHost).nativeElement as HTMLElement;
+    const trigger = root.querySelector<HTMLElement>('.wr-select__trigger')!;
+    const describedBy = trigger.getAttribute('aria-describedby');
+
+    expect(describedBy).not.toBeNull();
+    expect(root.querySelector(`#${CSS.escape(describedBy!)}`)!.textContent?.trim()).toBe('Where the invoice is issued');
+    expect(trigger.hasAttribute('aria-invalid')).toBe(false);
   });
 
   it('stamps no id at all on a select standing on its own', () => {
@@ -1867,5 +1932,228 @@ describe('WrSelect trigger label vs. option text that changes', () => {
 
     const text = triggerLabel(fixture);
     expect(/\p{Script=Cyrillic}/u.test(text), `trigger is still "${text}"`).toBe(true);
+  });
+});
+
+/**
+ * A long, NON-virtual panel scrolls its keyboard cursor into view.
+ *
+ * The virtual panel always did, through index maths against a measured row
+ * height; the projected panel kept the ARIA and lost the scrolling, and the two
+ * halves fail in a way that looks like success. `aria-activedescendant` moves
+ * correctly, `wr-option--active` lands on the right row, the announcement is
+ * right — and the panel stays at `scrollTop` 0 with the cursor hundreds of
+ * pixels below the fold, so a sighted keyboard user drives an invisible cursor
+ * and Enter commits a row they never saw. Nothing else can move this panel: the
+ * rows never take DOM focus, which is the whole point of an
+ * `aria-activedescendant` listbox, so the browser never scrolls on anyone's
+ * behalf.
+ *
+ * ⚠️ Geometry is STUBBED, and it has to be. jsdom lays nothing out — every rect
+ * is 0×0 and every `clientHeight` is 0 — so on the real DOM the maths resolves
+ * to "already in view" for every row and would pass just as happily on the
+ * broken component. The stub is a uniform 20px row inside a 100px viewport,
+ * installed on `HTMLElement.prototype` so it survives the panel being disposed
+ * and rebuilt on each open. Row tops track the panel's live `scrollTop`, which
+ * is what makes a second key press compose with the first instead of measuring
+ * against a stale frame.
+ *
+ * What this cannot answer is whether the rows are 20px: real row geometry is
+ * read rather than assumed precisely because a projected `<wr-option>` with a
+ * description or a wrapped label is not the height of its neighbour.
+ */
+@Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select ariaLabel="Row" [(value)]="row">
+      @for (n of rows; track n) {
+        <wr-option [value]="n">Row {{ n }}</wr-option>
+      }
+    </wr-select>
+  `,
+})
+class LongHost {
+  readonly rows = Array.from({ length: 30 }, (_, i) => i);
+  readonly row = signal<unknown>(null);
+}
+
+describe('WrSelect panel scrolling', () => {
+  const ROW = 20;
+  const VIEWPORT = 100;
+
+  let fixture: ReturnType<typeof TestBed.createComponent<LongHost>>;
+
+  const rect = (top: number, height: number): DOMRect => ({
+    top,
+    height,
+    bottom: top + height,
+    left: 0,
+    right: 0,
+    width: 0,
+    x: 0,
+    y: top,
+    toJSON: () => ({}),
+  });
+
+  const saved = {
+    rect: Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'getBoundingClientRect'),
+    clientHeight: Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight'),
+  };
+
+  const panel = (): HTMLElement => document.querySelector<HTMLElement>('.wr-select-panel')!;
+  const trigger = (): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-select__trigger')!;
+  /** The keyboard path, which is the one that seeds a cursor at all — a click
+   * deliberately leaves the list cursor-less until a key is pressed. */
+  const openPanel = (): void => {
+    key('ArrowDown');
+  };
+  const key = (name: string, times = 1): void => {
+    for (let i = 0; i < times; i++) {
+      trigger().dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true }));
+    }
+    fixture.detectChanges();
+  };
+  /** Index the cursor is on, read the way a screen reader reads it. */
+  const activeRow = (): number => {
+    const id = trigger().getAttribute('aria-activedescendant');
+    const rows = [...panel().querySelectorAll<HTMLElement>('[role="option"]')];
+    return rows.findIndex(row => row.id === id);
+  };
+
+  beforeEach(() => {
+    Object.defineProperty(HTMLElement.prototype, 'getBoundingClientRect', {
+      configurable: true,
+      writable: true,
+      value(this: HTMLElement): DOMRect {
+        const open = document.querySelector<HTMLElement>('.wr-select-panel');
+        if (!open) return rect(0, 0);
+        if (this === open) return rect(0, VIEWPORT);
+        const rows = [...open.querySelectorAll<HTMLElement>('[role="option"]')];
+        const index = rows.indexOf(this);
+        return index >= 0 ? rect(index * ROW - open.scrollTop, ROW) : rect(0, 0);
+      },
+    });
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+      configurable: true,
+      get(this: HTMLElement): number {
+        return this.classList.contains('wr-select-panel') ? VIEWPORT : 0;
+      },
+    });
+
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(LongHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    for (const [key, descriptor] of [
+      ['getBoundingClientRect', saved.rect],
+      ['clientHeight', saved.clientHeight],
+    ] as const) {
+      if (descriptor) Object.defineProperty(HTMLElement.prototype, key, descriptor);
+      else delete (HTMLElement.prototype as unknown as Record<string, unknown>)[key];
+    }
+  });
+
+  it('opens at the top when nothing is selected', () => {
+    openPanel();
+    expect(panel().scrollTop).toBe(0);
+    expect(activeRow()).toBe(0);
+  });
+
+  it('opens cursor-less, and so unscrolled, for a pointer', () => {
+    // The existing contract, pinned because the seed added here sits right
+    // beside it: a mouse user gets no cursor until they press a key, so there is
+    // nothing to scroll to and the panel must not jump on its own.
+    fixture.componentInstance.row.set(25);
+    fixture.detectChanges();
+    trigger().click();
+    fixture.detectChanges();
+
+    expect(trigger().getAttribute('aria-activedescendant')).toBeNull();
+    expect(panel().scrollTop).toBe(0);
+  });
+
+  it('walks the rows in DOM order from the very first open', () => {
+    // The cursor order is decided by a `compareDocumentPosition` sort that the
+    // template reads on the first change detection — while the projected rows
+    // are still inside an un-instantiated `<ng-template>` and therefore not in
+    // the document. A UA may answer PRECEDING or FOLLOWING arbitrarily for
+    // disconnected nodes, and the result is cached for the life of the select,
+    // so trusting it put End on the FIRST row here. Both ends, because a
+    // reversed order satisfies neither and passes half of any single check.
+    openPanel();
+    const rows = [...panel().querySelectorAll<HTMLElement>('[role="option"]')];
+
+    key('End');
+    expect(trigger().getAttribute('aria-activedescendant')).toBe(rows.at(-1)!.id);
+
+    key('Home');
+    expect(trigger().getAttribute('aria-activedescendant')).toBe(rows[0].id);
+  });
+
+  it('brings the last row into view on End', () => {
+    openPanel();
+    key('End');
+
+    // Bottom-aligned: the last row's bottom edge sits on the viewport's.
+    expect(activeRow()).toBe(29);
+    expect(panel().scrollTop).toBe(29 * ROW + ROW - VIEWPORT);
+  });
+
+  it('comes back to the top on Home', () => {
+    openPanel();
+    key('End');
+    key('Home');
+
+    expect(activeRow()).toBe(0);
+    expect(panel().scrollTop).toBe(0);
+  });
+
+  it('follows the cursor down one row at a time, and only once it reaches the fold', () => {
+    openPanel();
+
+    // Rows 1–4 are already on screen — a panel that jumped on every press would
+    // make the list crawl under a still cursor.
+    key('ArrowDown', 4);
+    expect(activeRow()).toBe(4);
+    expect(panel().scrollTop).toBe(0);
+
+    // Row 5 is the first past the fold, and the panel moves exactly far enough.
+    key('ArrowDown');
+    expect(activeRow()).toBe(5);
+    expect(panel().scrollTop).toBe(ROW);
+  });
+
+  it('scrolls back up when the cursor walks off the top edge', () => {
+    openPanel();
+    key('End');
+    key('ArrowUp', 25);
+
+    // Top-aligned on the way up, where bottom-aligning would overshoot.
+    expect(activeRow()).toBe(4);
+    expect(panel().scrollTop).toBe(4 * ROW);
+  });
+
+  it('wraps to the top with the cursor, not just with the ARIA', () => {
+    openPanel();
+    key('End');
+    key('ArrowDown');
+
+    expect(activeRow()).toBe(0);
+    expect(panel().scrollTop).toBe(0);
+  });
+
+  it('opens onto the selected row rather than at the top', () => {
+    // The seed half. A select whose value is the 25th row opened showing rows
+    // 0–4 and a cursor nobody could see, before any key was pressed at all.
+    fixture.componentInstance.row.set(25);
+    fixture.detectChanges();
+    openPanel();
+
+    expect(activeRow()).toBe(25);
+    expect(panel().scrollTop).toBe(25 * ROW + ROW - VIEWPORT);
   });
 });

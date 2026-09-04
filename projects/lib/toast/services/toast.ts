@@ -55,6 +55,8 @@ export class WrToast {
 
   private overlayRef: OverlayRef | null = null;
   private hostRef: ComponentRef<WrToastHost> | null = null;
+  /** Watches the overlay container for overlays opened after the host. */
+  private containerObserver: MutationObserver | null = null;
   private currentPosition: WrToastPosition = this.config.position;
   private currentMode: 'stack' | 'list' = this.config.mode;
   private nextId = 1;
@@ -70,6 +72,10 @@ export class WrToast {
     const resolvedDuration = options.duration ?? this.config.duration;
 
     this.ensureHost(resolvedPosition);
+    // A toast raised now belongs above everything already on screen, and the host
+    // it goes into may be much older than the dialog it has to clear. See
+    // `raiseHost`.
+    this.raiseHost();
 
     const entry: ActiveEntry = {
       ...options,
@@ -178,6 +184,70 @@ export class WrToast {
       const entry = this.active.find(t => t.id === id);
       if (entry) this.startTimer(entry);
     });
+
+    this.watchForNewerOverlays();
+  }
+
+  /**
+   * Put the host back on top of the browser's top layer.
+   *
+   * The stacking rule here is not a z-index and cannot be fixed with one. CDK 22
+   * promotes every overlay by calling `showPopover()` on its host element, and
+   * the top layer is ordered by the MOMENT of promotion — a popover shown later
+   * paints over one shown earlier no matter what either element's z-index, DOM
+   * order or containing block says. The toast host is created once and kept
+   * alive until the last toast leaves, so its place in that order is frozen at
+   * whenever the first toast of the run appeared. Every dialog and drawer opened
+   * after that sits above it.
+   *
+   * The symptom was as bad as the mechanism is quiet: a toast raised from inside
+   * an open dialog rendered UNDER the dialog's backdrop, dimmed by it and
+   * hit-tested as it — so the close button was unreachable and clicking where it
+   * appeared closed the dialog instead. Nothing threw, and a toast with
+   * `duration: 0` never went away on its own.
+   *
+   * Hiding and re-showing moves the host to the end of the top layer. Both calls
+   * happen in one task, so there is no frame in which the host is `display:
+   * none` and nothing re-runs a toast's enter animation.
+   *
+   * Skipped while focus is inside the host: Chromium keeps focus across this
+   * pair, but the hide-popover algorithm is specified to restore focus to the
+   * previously focused element, and a host the user is already tabbing through
+   * is by definition reachable. In practice the two never coincide — a modal
+   * traps focus, so focus inside the host means nothing is above it to escape.
+   */
+  private raiseHost(): void {
+    const host = this.overlayRef?.hostElement;
+    // `usePopover` is off when the platform has no popover support (and on the
+    // server), and then there is no top layer to be at the wrong end of.
+    if (!host?.isConnected || !host.hasAttribute('popover')) return;
+    if (host.contains(host.ownerDocument.activeElement)) return;
+    try {
+      host.hidePopover();
+      host.showPopover();
+    } catch {
+      // `hidePopover` throws if the host is not showing — nothing to raise.
+    }
+  }
+
+  /**
+   * Re-raise the host whenever another overlay joins the container.
+   *
+   * `show()` covers the reported order (toast raised while a dialog is up). This
+   * covers the mirror image, which is the same defect seen from the other side:
+   * a toast already on screen when the dialog opens is left under it, unclickable
+   * for the rest of its duration, and no further `show()` is coming to fix it.
+   *
+   * Observing the host's own parent rather than a container resolved from the
+   * injector keeps this correct whether or not `provideWrOverlay()` is installed
+   * — the host is in whichever container it was actually appended to. Re-showing
+   * a popover moves nothing in the DOM, so this cannot re-trigger itself.
+   */
+  private watchForNewerOverlays(): void {
+    const parent = this.overlayRef?.hostElement.parentElement;
+    if (!parent || typeof MutationObserver === 'undefined') return;
+    this.containerObserver = new MutationObserver(() => this.raiseHost());
+    this.containerObserver.observe(parent, { childList: true });
   }
 
   /** Fill any free stack slots from the queue (FIFO), starting each promoted
@@ -198,6 +268,8 @@ export class WrToast {
   }
 
   private disposeHost(): void {
+    this.containerObserver?.disconnect();
+    this.containerObserver = null;
     if (this.overlayRef) {
       this.overlayRef.dispose();
       this.overlayRef = null;

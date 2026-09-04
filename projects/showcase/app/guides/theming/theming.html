@@ -48,14 +48,21 @@
 
   <ngwr-doc-section
     title="Rebrand — at compile time"
-    description="Pass your hex values to the SCSS palette module before `@use 'ngwr'`. NGWR re-derives all variants (dark, darker, light, lighter, contrast)."
+    description="Pass your hex values to the SCSS palette module before `@use 'ngwr'`. NGWR re-derives all variants (dark, darker, light, lighter, contrast) — **in the light theme, which is the whole of what `$base-colors` configures.** Dark mode does not follow, and that is a boundary rather than an oversight: the dark intents are hand-tuned for the dark canvas, not lightened from the light ones. `success` and `danger` are moved 33% and 21% so their labels can go white on a dark ground, `warning` is deliberately left where it is because white cannot reach it at any tone worth shipping, and `primary` is deepened for the same flip — a direction no formula would take on its own. Deriving dark from your seed would swap a visibly wrong colour for an invisible failing contrast ratio, so the library refuses to guess and hands you the same arithmetic instead: `theme.rebrand()`, wrapped in `theme.dark`. Pick the dark seed FOR the dark canvas — usually lighter than the light one — and measure it."
   >
     <ngwr-doc-code [code]="snippets.paletteScss" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Rebrand — one subtree"
+    description="Recolouring a section is `theme.rebrand()` on that selector, and hand-writing the three obvious properties is not enough — it leaves every derived token on the page's own hue, in two different ways. The four shades (`-dark`, `-darker`, `-light`, `-lighter`) are Sass arithmetic resolved at compile time, so no runtime value reaches them and a pink button turns blue on hover, which paints `-dark`. The tint and ink family (`-soft`, `-soft-border`, `-soft-contrast`, `-active`, `-ink`) IS written in terms of `var()` — but a custom property's references are substituted on the element that declares it, and those are declared on `:root`, so what inherits into your section is the substituted literal. An outlined button inside a pink `.marketing` drew a pink border around blue text. The mixin does both halves: it recomputes the shades and re-includes the composed tokens on your element, where they resolve against your base."
+  >
+    <ngwr-doc-code [code]="snippets.paletteScoped" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Rebrand — at runtime"
-    description="Override the CSS variables on `:root` (or any subtree). Set the base color, the `-rgb` channel — components use it for `rgba()` rings and tints — and the `-contrast`, which is the one the compile-time path derives for you and this one does not: it was baked from the old fill, so a runtime base change leaves the label behind. Re-pick it the way the theme does, by taking whichever of black or white scores higher against the new fill."
+    description="Override the CSS variables on `:root`. Set the base color, the `-rgb` channel — components use it for `rgba()` rings and tints — and the `-contrast`, which is the one the compile-time path derives for you and this one does not: it was baked from the old fill, so a runtime base change leaves the label behind. Re-pick it the way the theme does, by taking whichever of black or white scores higher against the new fill. On `:root` the tint and ink family re-resolves by itself, because it is declared on the same element you are overriding; the four shades still cannot, so set those too — or let `wrThemeTokens()` compute all seven from one hex, which is what it is for."
   >
     <ngwr-doc-code [code]="snippets.paletteRoot" language="scss" />
   </ngwr-doc-section>

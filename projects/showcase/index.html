@@ -16,7 +16,12 @@
 
       Mirrors `WrTheme` + `WrStorage` exactly: key `wr-theme` (empty prefix),
       value stored as a JSON envelope `{"v":"dark"}` with an optional `e`
-      expiry, default mode `auto`. Keep in sync if those defaults change.
+      expiry, default mode `auto`.
+
+      The library ships this recipe as `wrThemePrePaintScript()` from
+      `ngwr/theme`, and `theme/pre-paint.spec.ts` runs BOTH against the same
+      stored values and fails when they disagree — so this stays hand-written
+      (index.html cannot import) but it cannot drift.
     -->
     <script>
       (function () {

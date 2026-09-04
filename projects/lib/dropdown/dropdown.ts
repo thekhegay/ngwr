@@ -97,16 +97,33 @@ export class WrDropdown {
   /** @internal Public so host bindings can read it. */
   readonly isOpen = signal(false);
 
+  /** The id used only when the consumer's element carries none of its own. */
+  private readonly fallbackId = `wr-dropdown-trigger-${++triggerUid}`;
+
   /**
    * Id the menu names itself after. The trigger is the CONSUMER's own element, so
    * an `id` they already put there wins: overwriting it broke `<label for>`,
    * `document.getElementById` and any `aria-labelledby` aimed at that button from
    * elsewhere in their app. The generated one is only a fallback so the menu has
    * something to reference.
+   *
+   * A GETTER, read fresh by the host binding on every pass, rather than a field
+   * resolved in the constructor. A static `id="…"` is on the element before a
+   * directive is instantiated and so was already honoured; a BOUND `[id]` is
+   * not — it lands with the rest of the template's bindings, which run before
+   * host bindings but after construction, so the constructor read an empty
+   * string, fell through to the fallback, and the host binding then wrote that
+   * fallback over the value the template had just set. Everything bound was
+   * lost — `[id]`, `[attr.id]` and an interpolated `id="dd-{{ n }}"` alike —
+   * while the static form survived, which is the shape that makes it look like
+   * a naming convention rather than a defect.
+   *
+   * `.id` rather than `getAttribute`: it is always a string, and an empty one is
+   * no id at all, so it falls through to the fallback.
    */
-  // `.id` rather than `getAttribute`: it is always a string, and an empty one is no
-  // id at all, so it falls through to the generated fallback.
-  protected readonly triggerId = this.host.nativeElement.id || `wr-dropdown-trigger-${++triggerUid}`;
+  protected get triggerId(): string {
+    return this.host.nativeElement.id || this.fallbackId;
+  }
 
   private overlayRef: OverlayRef | null = null;
 

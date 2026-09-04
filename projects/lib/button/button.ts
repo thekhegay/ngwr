@@ -6,7 +6,17 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ElementRef, ViewEncapsulation, computed, inject, input } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  Injector,
+  ViewEncapsulation,
+  afterNextRender,
+  computed,
+  effect,
+  inject,
+  input,
+} from '@angular/core';
 
 import { useConfigValue } from 'ngwr/config';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
@@ -55,6 +65,8 @@ import { WR_BUTTON_GROUP } from './tokens';
     '[attr.tabindex]': 'hostTabIndex()',
     '[attr.aria-disabled]': 'hostAriaDisabled()',
     '(keydown)': 'onHostKeydown($event)',
+    '(focus)': 'onHostFocus()',
+    '(blur)': 'onHostBlur()',
   },
   imports: [WrIcon, WrSpinner],
 })
@@ -183,6 +195,76 @@ export class WrButton {
     event.preventDefault();
     if (this.isOff()) return;
     this.hostEl.nativeElement.click();
+  }
+
+  private readonly injector = inject(Injector);
+
+  /**
+   * Whether this button is the one the caret was on, so it can be handed back
+   * the focus that goes missing while it is off.
+   *
+   * A control that becomes `disabled` while focused stops being a focusable
+   * area, and the browser runs the unfocusing steps: nothing else is nominated,
+   * so the caret lands on `<body>`. With `disabledWhenLoading` on by default
+   * that happens on EVERY async button — a keyboard user presses Enter on
+   * "Save" and the next Tab restarts from the top of the document, while a
+   * screen-reader user is told neither that the wait began nor that it ended,
+   * because the element they were on has left the a11y tree. The `<wr-btn>`
+   * element form loses its `tabindex` instead of gaining `disabled` and is
+   * unfocused for the same reason.
+   *
+   * Deliberately NOT keyed on reading `activeElement` when `isOff()` flips: an
+   * effect in this component's own view runs AFTER the parent has applied this
+   * directive's host bindings, so by then the attribute has landed and the
+   * browser has already moved the caret — the read would answer `<body>` on
+   * every real browser and the button on jsdom, which is the worst of both.
+   *
+   * The flag is written by the focus listeners instead, and a `blur` fired
+   * WHILE off keeps it set rather than clearing it: that blur is the browser
+   * taking the caret away, not the user leaving. A browser that fires no blur
+   * on disable at all is covered too — the flag simply stays as `focus` left it,
+   * and the `<body>` test below is what decides whether the focus is orphaned.
+   */
+  private hadFocus = false;
+
+  /** @internal Host `focus` — see `hadFocus`. */
+  protected onHostFocus(): void {
+    this.hadFocus = true;
+  }
+
+  /** @internal Host `blur` — see `hadFocus`. */
+  protected onHostBlur(): void {
+    this.hadFocus = this.isOff();
+  }
+
+  constructor() {
+    effect(() => {
+      if (this.isOff()) return;
+      if (!this.hadFocus) return;
+      const el = this.hostEl.nativeElement;
+
+      // Deferred: the host binding that drops `disabled` (or restores the
+      // `tabindex`) has not necessarily run yet, and `focus()` on a still
+      // disabled element is a silent no-op — the exact failure this is here to
+      // fix.
+      afterNextRender(
+        () => {
+          if (!this.hadFocus || this.isOff()) return;
+          const doc = el.ownerDocument;
+          const active = doc?.activeElement ?? null;
+          // Still ours — nothing was ever taken away, so keep the flag for the
+          // cycle that does take it.
+          if (active === el) return;
+          // Someone else owns the caret now: a user who tabbed on while the
+          // request was in flight must not be yanked back to a button they have
+          // finished with.
+          this.hadFocus = false;
+          if (active && doc && active !== doc.body) return;
+          el.focus();
+        },
+        { injector: this.injector }
+      );
+    });
   }
 
   protected readonly classes = computed(() => {

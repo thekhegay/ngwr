@@ -95,17 +95,21 @@ describe('WrFormFieldHarness', () => {
     expect(await Promise.all(requiredFields.map(one => one.getLabel()))).toEqual(['Email']);
   });
 
-  it('shows the hint until an error takes its slot, and never announces it', async () => {
+  it('shows the hint until an error takes its slot', async () => {
     const emailField = await field('Email');
     expect(await emailField.getHint()).toBe("We'll never share it.");
 
-    // The hint is on screen and deliberately NOT described: the field points
-    // `aria-describedby` at the error block only, and the hint carries no id.
-    // Wiring it in is not a harness's call to make either — `[wrInput]` derives
-    // `aria-invalid` from that same signal, so a described hint would announce
-    // every hinted field as invalid.
-    expect(await emailField.getDescribedByIds()).toEqual([]);
-    expect(await emailField.getAnnouncedDescription()).toBeNull();
+    // The field publishes a hint id and the control names it, so a hinted field
+    // with no error announces the hint. Every control composes the pair through
+    // `useFormFieldAria()` now — `[wrInput]`, `wr-segmented` and `wr-slider` kept
+    // a hand-rolled copy that read `describedBy` alone, which announced the error
+    // and never the hint. The reading below belongs to the control, not the field.
+    // Matched by shape, not by the literal: the id carries a generated sequence
+    // number, so pinning it would make this fail from a test added above it.
+    const described = await emailField.getDescribedByIds();
+    expect(described).toHaveLength(1);
+    expect(described[0]).toMatch(/^wr-form-field-\d+-hint$/);
+    expect(await emailField.getAnnouncedDescription()).toBe("We'll never share it.");
 
     const byHint = await loader.getHarness(WrFormFieldHarness.with({ hint: /never share/ }));
     expect(await byHint.getLabel()).toBe('Email');

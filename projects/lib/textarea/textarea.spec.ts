@@ -8,6 +8,7 @@ import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 
 import { provideWrConfig } from 'ngwr/config';
+import { WrFormField } from 'ngwr/form';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrTextarea, type WrTextareaResize, type WrTextareaSize } from './textarea';
@@ -406,5 +407,98 @@ describe('WrTextarea defaults from provideWrConfig', () => {
     mount([provideWrConfig({ input: { size: 'sm' } })]);
 
     expect(at('Unbound').className).toBe('wr-textarea');
+  });
+});
+
+@Component({
+  imports: [WrFormField, WrTextarea],
+  template: `
+    <wr-form-field label="Description" [hint]="hint()">
+      <wr-textarea [placeholder]="placeholder()" />
+    </wr-form-field>
+  `,
+})
+class FieldHost {
+  readonly hint = signal('');
+  readonly placeholder = signal('');
+}
+
+/**
+ * `<wr-form-field>` renders its `<label for>` before it can see what was
+ * projected into it, so the id has to travel the other way and be adopted by the
+ * control. The textarea never did: `for` named an element that was nowhere in
+ * the document, clicking the label did nothing, and the field was — to a screen
+ * reader — an unlabelled block. `[wrInput]` and `wr-select` already adopted it,
+ * which is what made this look like a per-component omission rather than a rule.
+ *
+ * Every case resolves the id through the DOCUMENT rather than reading the
+ * attribute: an id that merely exists on some element is exactly what the bug
+ * looked like.
+ */
+describe('WrTextarea inside a form field', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<FieldHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const native = (): HTMLTextAreaElement => root().querySelector<HTMLTextAreaElement>('.wr-textarea__native')!;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(FieldHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('answers to the id the label points at', () => {
+    const label = root().querySelector<HTMLLabelElement>('label')!;
+    expect(label.htmlFor).not.toBe('');
+
+    // Labelable, so `for` actually names it — `<wr-textarea>` itself is not.
+    expect(root().querySelector(`#${CSS.escape(label.htmlFor)}`)).toBe(native());
+  });
+
+  it('stamps no id at all on a textarea standing on its own', () => {
+    // The field is what supplies the id; a bare textarea inventing one would put
+    // a document-global name on an element nothing points at.
+    const bare = TestBed.createComponent(Host);
+    bare.detectChanges();
+    const el = (bare.nativeElement as HTMLElement).querySelector('.wr-textarea__native')!;
+
+    expect(el.getAttribute('id')).toBeNull();
+    bare.destroy();
+  });
+
+  it('is described by the field’s hint, without claiming to be invalid', () => {
+    fixture.componentInstance.hint.set('Max 200 characters');
+    fixture.detectChanges();
+
+    const describedBy = native().getAttribute('aria-describedby');
+    expect(describedBy).not.toBeNull();
+    // Resolved through the document: an id on nothing is what a dangling
+    // `aria-describedby` looks like, and it announces the same as no hint.
+    expect(
+      root()
+        .querySelector(`#${CSS.escape(describedBy!)}`)!
+        .textContent?.trim()
+    ).toBe('Max 200 characters');
+    // A hint is help, not a failure. Keying `aria-invalid` on "something is
+    // describing me" would announce every hinted field as in error.
+    expect(native().hasAttribute('aria-invalid')).toBe(false);
+  });
+
+  it('says nothing when the field has neither hint nor error', () => {
+    expect(native().hasAttribute('aria-describedby')).toBe(false);
+    expect(native().hasAttribute('aria-invalid')).toBe(false);
+  });
+
+  it('keeps the placeholder as its name — an aria-label outranks a <label>', () => {
+    // Deliberate, and the same call `wr-select` and `wr-slider` make: the field
+    // renders a label only when its `label` input is set, so it cannot promise a
+    // name to fall back on. Set `[ariaLabel]` where the two should read alike.
+    fixture.componentInstance.placeholder.set('Describe the product');
+    fixture.detectChanges();
+
+    expect(native().getAttribute('aria-label')).toBe('Describe the product');
   });
 });

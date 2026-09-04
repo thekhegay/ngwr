@@ -1,6 +1,7 @@
 import { Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormField, form } from '@angular/forms/signals';
 
 import { Subject } from 'rxjs';
 
@@ -28,6 +29,21 @@ class Host {
   readonly readonly = signal(false);
   readonly disabled = signal(false);
   readonly ariaLabel = signal<string | null>(null);
+}
+
+/**
+ * The same control under a real signal-forms field, which is the only place the
+ * difference between "clamps the display" and "clamps the model" is observable:
+ * a write the component makes to `value` is indistinguishable, from the field's
+ * side, from the user moving the stars.
+ */
+@Component({
+  imports: [WrRating, FormField],
+  template: `<wr-rating [formField]="form.score" [count]="5" />`,
+})
+class FieldHost {
+  readonly model = signal<{ score: number | null }>({ score: 9 });
+  readonly form = form(this.model);
 }
 
 /**
@@ -107,19 +123,57 @@ describe('WrRating', () => {
     expect(slider().getAttribute('aria-valuenow')).toBe('3');
   });
 
-  it('clamps a value written from outside into the range', () => {
-    fixture.componentInstance.score.set(99);
-    fixture.detectChanges();
+  /**
+   * A form or an API can hand over anything, and the two halves of the answer
+   * pull in opposite directions.
+   *
+   * Left undrawn-clamped, the stars run past the end of the row and
+   * `aria-valuenow` exceeds its own `aria-valuemax`, which is an invalid slider.
+   * Written BACK, the clamp is worse: under `[formField]` that write is
+   * indistinguishable from the user moving the stars, so it deletes the
+   * out-of-range value a `max()` rule exists to report and marks a pristine form
+   * dirty before anything has been touched. So the display clamps and the model
+   * does not — the rule `wr-slider` and `wr-input-number` already follow.
+   */
+  describe('values it was handed but cannot represent', () => {
+    it('announces the clamp and leaves the model alone', () => {
+      fixture.componentInstance.score.set(9);
+      fixture.detectChanges();
 
-    // A form or an API can hand over anything. Left unclamped, the stars run
-    // past the end of the row and `aria-valuenow` exceeds its own
-    // `aria-valuemax`, which is an invalid slider.
-    expect(fixture.componentInstance.score()).toBe(5);
-    expect(slider().getAttribute('aria-valuenow')).toBe('5');
+      expect(slider().getAttribute('aria-valuenow')).toBe('5');
+      expect(score(), 'the rating rewrote data it only had to draw').toBe(9);
 
-    fixture.componentInstance.score.set(-3);
-    fixture.detectChanges();
-    expect(fixture.componentInstance.score()).toBe(0);
+      fixture.componentInstance.score.set(-3);
+      fixture.detectChanges();
+
+      expect(slider().getAttribute('aria-valuenow')).toBe('0');
+      expect(score()).toBe(-3);
+    });
+
+    it('draws no star past the end of the row', () => {
+      fixture.componentInstance.score.set(9);
+      fixture.detectChanges();
+
+      const fills = [...root().querySelectorAll<HTMLElement>('.wr-rating__slot')].map(el =>
+        el.style.getPropertyValue('--wr-rating-fill')
+      );
+
+      // Read off the style ATTRIBUTE the component wrote, not a computed value:
+      // jsdom would resolve the stylesheet's own default and answer plausibly at
+      // exactly the moment the binding is what broke.
+      expect(fills).toEqual(['1', '1', '1', '1', '1']);
+    });
+
+    it('reports an in-range number as soon as the user moves it', () => {
+      fixture.componentInstance.score.set(9);
+      fixture.detectChanges();
+
+      // Stepping from the committed 9 would land on 5 and look like a clamp;
+      // stepping from the star the user can SEE lands on 4.
+      press('ArrowLeft');
+
+      expect(score()).toBe(4);
+    });
   });
 
   it('steps up and down with the arrows', () => {
@@ -287,5 +341,45 @@ describe('WrRating', () => {
     fixture.componentInstance.ariaLabel.set('Rate this article');
     fixture.detectChanges();
     expect(slider().getAttribute('aria-label')).toBe('Rate this article');
+  });
+
+  /**
+   * The finding this control was reported for: a `FormControl(9)` on a
+   * five-star rating came back as 5, dirty, with an emission nobody asked for.
+   * A "discard changes?" guard fires on a form the user has not opened yet, and
+   * the value a `max()` rule exists to report is gone before the rule can see it.
+   */
+  describe('under a signal-forms field', () => {
+    let field: ReturnType<typeof TestBed.createComponent<FieldHost>>;
+
+    beforeEach(() => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({});
+      field = TestBed.createComponent(FieldHost);
+      field.detectChanges();
+    });
+
+    afterEach(() => field.destroy());
+
+    it('leaves a pristine field pristine, holding the value it was given', async () => {
+      await field.whenStable();
+      field.detectChanges();
+
+      const state = field.componentInstance.form.score();
+      expect([state.value(), state.dirty()], 'first paint edited the form').toEqual([9, false]);
+    });
+
+    it('goes dirty on the first real interaction, and not before', async () => {
+      await field.whenStable();
+      field.detectChanges();
+
+      const slider = (field.nativeElement as HTMLElement).querySelector<HTMLElement>('[role="slider"]')!;
+      slider.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true, cancelable: true }));
+      field.detectChanges();
+      await field.whenStable();
+
+      const state = field.componentInstance.form.score();
+      expect([state.value(), state.dirty()]).toEqual([0, true]);
+    });
   });
 });

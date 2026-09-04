@@ -1,9 +1,24 @@
 /// Event calendar — month / week / day.
 ///
+/// Pull the whole theme so a standalone `@use 'ngwr/event-calendar'` brings in
+/// every design token these rules reference. Sass deduplicates `@use` per
+/// compilation, so the umbrella sheet still emits the theme only once.
+///
+/// This entry point shipped WITHOUT the load until v14.1, and it was the only
+/// one of the 120-odd style entries that referenced tokens without pulling the
+/// layer that declares them: `@use 'ngwr/event-calendar'` on its own emitted
+/// 5.5 kB of rules carrying 57 unresolved `var(--wr-*)` references, so the grid
+/// lines (`box-shadow`, hence no fallback) vanished and the text fell back to
+/// black. The ten other entries that skip the load — `affix`, `density` and the
+/// eight canvas / text-animation ones — reference no token at all, which is why
+/// a sweep for "who is missing it" is not enough on its own.
+///
 /// Grid lines are `box-shadow: inset`, never borders. A border would take up
 /// layout space, and the whole chip model depends on cell boxes being exactly
 /// contiguous: a band's `calc(var(--span) * 100%)` is only the right width if
 /// one cell ends precisely where the next begins.
+@use '../../theme/styles';
+
 .wr-event-calendar {
   --wr-event-calendar-slot-height: 1.5rem;
   --wr-event-calendar-band-height: 1.25rem;

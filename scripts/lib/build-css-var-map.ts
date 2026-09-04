@@ -130,9 +130,25 @@ interface Frame {
   readonly conditional: boolean;
 }
 
+/**
+ * The one interpolation the library writes into a selector, and what it compiles
+ * to under the default configuration.
+ *
+ * `theme.dark-selector()` returns `[data-theme='dark']`, built from
+ * `$theme-attribute` so a consumer can rename the attribute. Nine component
+ * stylesheets key their dark block on it, and the scanner is a text scan: left
+ * as `#{…}` the selector carries neither the `[` nor the `--` that
+ * {@link isBaseSelector} looks for, so a dark override reads as the component's
+ * own base rule and its value is published as the DEFAULT — which is how
+ * `--wr-aurora-stop-1` briefly documented itself as the dark `#5227ff`.
+ * Substituting the default keeps the row identical to the one a hand-written
+ * literal produced, which is what a reader of the docs page wants either way.
+ */
+const DARK_SELECTOR = /#\{\s*(?:[\w-]+\.)?dark-selector\(\)\s*\}/g;
+
 /** `&--open` under `.wr-select` → `.wr-select--open`; `.a` under `.b` → `.b .a`. */
 function resolveSelector(parent: string, own: string): string {
-  const head = own.split(',')[0].trim();
+  const head = own.split(',')[0].trim().replace(DARK_SELECTOR, "[data-theme='dark']");
   if (!parent) return head.replaceAll('&', '').trim() || head;
   if (head.includes('&')) return head.replaceAll('&', parent);
   return `${parent} ${head}`;
@@ -241,7 +257,21 @@ function declarationsIn(file: string): { declarations: RawDeclaration[]; blocks:
 
     // `#{$name}` is an interpolation, not a block: its braces must not move the
     // nesting depth, and the whole run belongs to whatever statement holds it.
+    //
+    // The `#` is consumed BEFORE the depth loop starts, and that is the whole
+    // subtlety: the loop counts braces at the character it is looking at, so
+    // entering it on the `#` left `depth` at 0 and the `while` ended the run
+    // after one character. The `{` then reached the block branch below and
+    // opened a frame, the `}` closed it, and a rule whose selector STARTS with an
+    // interpolation — `#{theme.dark-selector()} .wr-aurora` — came out as a bare
+    // `.wr-aurora` at the top level. Nothing failed: the dark override read as
+    // the component's own base rule, and `--wr-aurora-stop-1` published the dark
+    // `#5227ff` as its documented default. Interpolation had until now only ever
+    // appeared mid-token (`--wr-color-#{$name}-dark`), where the resulting
+    // frame's declarations were rejected by the `--wr-*` name test anyway.
     if (ch === '#' && src[index + 1] === '{') {
+      buffer += ch;
+      index++;
       let depth = 0;
       do {
         if (src[index] === '{') depth++;

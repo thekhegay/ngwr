@@ -23,7 +23,7 @@ import {
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
-import { WR_FORM_FIELD } from 'ngwr/form';
+import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
 import { clamp, round } from 'ngwr/utils';
 
@@ -176,8 +176,14 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
    * showing something — announcing "invalid" while pointing at nothing is worse
    * than staying quiet.
    */
-  protected readonly describedBy = computed(() => this.field?.describedBy() ?? null);
-  protected readonly ariaInvalid = computed(() => (this.field?.describedBy() ? 'true' : null));
+  // Through the shared helper, not a local pair: the hint is described by
+  // `hintId`, which only `useFormFieldAria()` composes, and `aria-invalid` keys
+  // on the error COUNT rather than on "something is described". Hand-rolled here,
+  // these three announced the error and never the hint — and `<input wrInput>` is
+  // the control the report was filed against.
+  private readonly fieldAria = useFormFieldAria();
+  protected readonly describedBy = this.fieldAria.describedBy;
+  protected readonly ariaInvalid = this.fieldAria.ariaInvalid;
 
   /**
    * Current value. Bound by `[formField]`, or two-way via `[(value)]`. Shape

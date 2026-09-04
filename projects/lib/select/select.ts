@@ -13,10 +13,12 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  Injector,
   PLATFORM_ID,
   TemplateRef,
   ViewContainerRef,
   ViewEncapsulation,
+  afterNextRender,
   computed,
   contentChildren,
   effect,
@@ -47,7 +49,7 @@ import {
 } from 'rxjs';
 
 import { useConfigValue } from 'ngwr/config';
-import { WR_FORM_FIELD } from 'ngwr/form';
+import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrPresentAsSheet } from 'ngwr/overlay';
 import { isComposing } from 'ngwr/utils';
@@ -193,17 +195,19 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   protected readonly controlId = computed(() => this.field?.controlId() ?? null);
 
   /**
-   * The field's error message, wired to the same element.
+   * The field's error message — or, failing that, its hint — wired to the same
+   * element, plus the invalid flag.
    *
-   * Without it the messages `<wr-form-field>` renders are visible and nothing else:
-   * a screen reader on the trigger never learns the field is invalid, nor what the
-   * message says. `aria-invalid` is keyed on the message EXISTING rather than on
-   * `errorKeys()`, because the field only publishes an id once it is showing
-   * something — announcing "invalid" while pointing at nothing is worse than
-   * staying quiet.
+   * Without it the copy `<wr-form-field>` renders is visible and nothing else: a
+   * screen reader on the trigger never learns the field is invalid, nor what the
+   * message says. Composed by `useFormFieldAria()` rather than read off the field
+   * here, so the trigger picks up the hint the same way the other value controls
+   * do and `aria-invalid` stays keyed on the error rather than on "is anything
+   * describing me".
    */
-  protected readonly describedBy = computed(() => this.field?.describedBy() ?? null);
-  protected readonly ariaInvalid = computed(() => (this.field?.describedBy() ? 'true' : null));
+  private readonly fieldAria = useFormFieldAria();
+  protected readonly describedBy = this.fieldAria.describedBy;
+  protected readonly ariaInvalid = this.fieldAria.ariaInvalid;
 
   /**
    * Disable the select. Bound automatically from the field's disabled state
@@ -551,6 +555,20 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       // following and contained — so masking is the API's own idiom, not a
       // cleverness to be rewritten as a comparison.
       /* eslint-disable no-bitwise -- reading the flags of a DOM bitmask */
+      // DISCONNECTED is checked FIRST, and it is not defensive noise. Projected
+      // `<wr-option>` hosts live in an `<ng-template>` that only instantiates
+      // when the panel opens, so on the first change detection they are not in
+      // the document yet — and the template's own `aria-activedescendant`
+      // binding reads this computed on exactly that pass. For disconnected nodes
+      // the spec lets a UA answer PRECEDING or FOLLOWING arbitrarily, as long as
+      // it answers consistently; the answer means nothing, and the computed
+      // CACHES it until the registry itself changes, so one meaningless
+      // comparison decides the cursor order for the life of the select. Chromium
+      // happens to answer in tree order and jsdom happens to answer in reverse,
+      // which is the whole difference between a working component and one where
+      // End lands on the first option. Registration order is the honest fallback:
+      // the sort is stable, and it is already DOM order for a static list.
+      if (relation & Node.DOCUMENT_POSITION_DISCONNECTED) return 0;
       if (relation & Node.DOCUMENT_POSITION_FOLLOWING) return -1;
       if (relation & Node.DOCUMENT_POSITION_PRECEDING) return 1;
       /* eslint-enable no-bitwise */
@@ -773,9 +791,30 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     return this.overlayRef?.overlayElement.querySelector<HTMLElement>('.wr-select-panel__vlist') ?? null;
   }
 
-  /** Scroll filtered index `i` just into view (sets the `scrollTop` signal synchronously). */
+  /** The scrolling listbox inside the overlay panel, if attached. */
+  private get panelElement(): HTMLElement | null {
+    return this.overlayRef?.overlayElement.querySelector<HTMLElement>('.wr-select-panel') ?? null;
+  }
+
+  /**
+   * Scroll the ordered index `i` just into view. Two implementations, because the
+   * two panels scroll different elements and know the row geometry in different
+   * ways — the virtual list is index maths against a measured row height, the
+   * projected list has to read the row it is moving to.
+   *
+   * The non-virtual half is not an optimisation, it is the whole keyboard
+   * contract: `activeIndex` drives `aria-activedescendant`, and NOTHING else
+   * moves a projected panel, because the rows never take DOM focus. Without it
+   * End on a 250-option `mode="search"` panel announced Zimbabwe while the panel
+   * sat at `scrollTop` 0 with the cursor 9 218 px below the fold, and Enter then
+   * committed a row the user could not see.
+   */
   private ensureVisible(i: number): void {
-    if (!this.virtualActive() || i < 0) return;
+    if (i < 0) return;
+    if (!this.virtualActive()) {
+      this.ensureRowVisible(i);
+      return;
+    }
     const h = this.effRowH();
     const vp = this.viewportPx() || this.fallbackViewportPx();
     const top = i * h;
@@ -787,6 +826,44 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       this.scrollTop.set(next);
       this.vlistElement?.scrollTo({ top: next });
     }
+  }
+
+  /**
+   * Scroll the projected row at ordered index `i` just into view.
+   *
+   * Geometry is READ rather than computed: projected `<wr-option>` rows are
+   * consumer content, so they are not a uniform height the way a virtual row is
+   * — a row with a description, an icon or a wrapped label is taller than its
+   * neighbours, and index maths would land the panel next to the cursor instead
+   * of on it. The offset is taken relative to the panel's own scroll content
+   * (`rect.top` difference plus the current `scrollTop`) rather than from
+   * `offsetTop`, which is measured against whichever ancestor happens to be
+   * positioned.
+   *
+   * `scrollTop` is written directly instead of `scrollTo`, so the write is
+   * observable in a spec — jsdom implements the property and does not implement
+   * the method. It still reads as a no-op there, since every jsdom rect is 0×0:
+   * a spec asserting a scroll has to stub `getBoundingClientRect` and
+   * `clientHeight` on the panel and the row, which `select.spec.ts` does.
+   */
+  private ensureRowVisible(i: number): void {
+    const panel = this.panelElement;
+    if (!panel) return;
+    const list = this.orderedRegistry();
+    if (i >= list.length) return;
+    const row = panel.querySelector<HTMLElement>(`#${CSS.escape(list[i].id)}`);
+    if (!row) return;
+
+    const panelRect = panel.getBoundingClientRect();
+    const rowRect = row.getBoundingClientRect();
+    const cur = panel.scrollTop;
+    const top = rowRect.top - panelRect.top + cur;
+    const vp = panel.clientHeight;
+
+    let next = cur;
+    if (top < cur) next = top;
+    else if (top + rowRect.height > cur + vp) next = top + rowRect.height - vp;
+    if (next !== cur) panel.scrollTop = next;
   }
 
   /**
@@ -914,7 +991,18 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     if (this.virtualActive()) {
       this.scrollTop.set(0);
       this.vlistElement?.scrollTo({ top: 0 });
+      return;
     }
+    // The projected panel keeps whatever `scrollTop` the previous query left it
+    // at, so the re-seeded cursor lands off screen unless it is scrolled to —
+    // and this is the ONE cursor move that cannot be handled synchronously.
+    // Filtered-out options only self-hide via CSS, applied on the next pass, so
+    // a rect read on this line measures the panel as it was BEFORE the new query
+    // removed rows above the cursor. `afterNextRender`, not `queueMicrotask`:
+    // under zoneless CD the scheduler refreshes the view in a macrotask, and a
+    // microtask queued from this handler runs before the DOM reflects the query
+    // that caused it.
+    afterNextRender(() => this.ensureVisible(this.activeIndex()), { injector: this.injector });
   }
 
   protected onSearchFocus(): void {
@@ -1044,6 +1132,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly injector = inject(Injector);
   private overlayRef: OverlayRef | null = null;
 
   constructor() {
@@ -1484,6 +1573,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       const o = list[i];
       if (!o.disabled && !this.isOptionHidden(o.label())) {
         this.activeIndex.set(i);
+        this.ensureVisible(i);
         return;
       }
     }
@@ -1566,6 +1656,16 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);
     this.overlayRef.attach(portal);
+
+    // Seed the projected panel's scroll onto the cursor the same way the virtual
+    // one is seeded from its own effect: opening a select whose selected option
+    // is the 200th shows the cursor, not the top of the list. Synchronous is
+    // correct here and a deferral would not be — `attachTemplatePortal` appends
+    // the rows and calls `detectChanges()` before returning, and `activeIndex`
+    // was seeded before `open()` flipped, so the row is in the DOM and the panel
+    // is measurable on this line. The virtual path stays on its effect, which
+    // has to wait to MEASURE a row height this one never needs.
+    if (!this.virtualActive()) this.ensureVisible(this.activeIndex());
 
     if (asSheet) {
       this.overlayRef
