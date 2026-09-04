@@ -1,5 +1,36 @@
 # Changelog
 
+## [14.0.0](https://github.com/thekhegay/ngwr/compare/v13.0.1...v14.0.0) (2026-09-04)
+
+### ⚠ BREAKING CHANGES
+
+* **i18n:** a named date format now refuses input it cannot read
+  rather than committing a wrong date; MMMM declines beside a day token;
+  the `a` token emits the locale's marker; every Intl call pins
+* **lib:** wr-alert closeable is closable; wr-table totalItems is
+  total; wr-pagination currentPage is page (and currentPageChange is
+  pageChange); isDisabledWhenLoading is disabledWhenLoading; and
+  WrWindowChromeSize takes sm/md, finishing the vocabulary v8 started.
+  migration-v14 rewrites all of it.
+* **lib:** wr-loading-bar no longer subscribes to the router
+  on its own — add provideWrLoadingBarRouter() from
+  ngwr/loading-bar/router. A tab carrying routerLink needs
+  wrTabsRouting on the strip and WrTabsRouting in imports. Both buy
+  back the 66-76 kB of @angular/router every app was paying for,
+  routed or not. See migration-v14.
+
+### Features
+
+* **lib:** one word per concept across the catalog, and directives get a template name ([d6fd056](https://github.com/thekhegay/ngwr/commit/d6fd056c42977dcd315f3b0a5a7e4e66d9e840e3))
+
+### Bug Fixes
+
+* **i18n:** a named date format round-trips, and locale reaches the text it prints ([bcb778c](https://github.com/thekhegay/ngwr/commit/bcb778c351706539d6c2bb77aa19bdd6b9734b0e))
+
+### Performance Improvements
+
+* **lib:** routing is opt-in for tabs and the loading bar, and four teardowns stop leaking ([bd4e0a7](https://github.com/thekhegay/ngwr/commit/bd4e0a7cc83cfd52ff4d8ed27c6aeed45da33e68))
+
 ## [13.0.1](https://github.com/thekhegay/ngwr/compare/v13.0.0...v13.0.1) (2026-09-03)
 
 ### Bug Fixes
