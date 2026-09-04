@@ -81,6 +81,24 @@ export default class MigrationPageComponent {
 # v14 rewrites its five renames and REPORTS the rest — read the output.
 ng update ngwr@14`,
 
+    v14Dates: `// A named format round-trips now. Nothing to change if you only
+// bind [(value)] — this is about what happens when a user TYPES.
+
+  <wr-date-picker [(value)]="d" format="shortDate" />
+
+- // de-DE: field shows 15.3.2026, user retypes it, model becomes 1 Jan 2001
++ // de-DE: field shows 15.3.2026, user retypes it, model is 15 March 2026
+
+- // Unreadable input used to commit whatever new Date() made of it
++ // Unreadable input now returns null and leaves the committed value alone
+
+// If you relied on new Date()'s leniency, name the shape you accept:
++ <wr-date-picker [(value)]="d" format="yyyy-MM-dd" />
+
+// Also: MMMM declines beside a day token (ru "15 марта", not "15 март"),
+// the \`a\` token emits the locale's marker (ja 午後, ar م), and every Intl
+// call pins calendar: 'gregory' — so a th-TH app prints 2026, not 2569.`,
+
     v13: `<!-- The size input matches the other twenty-three components. -->
 - <input wrInput wrSize="lg" />
 + <input wrInput size="lg" />
