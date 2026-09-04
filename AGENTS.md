@@ -688,7 +688,11 @@ code, files): no `Co-Authored-By`, no "Generated with…". e.g.
 
 **Git flow.** **Never push to `main`.** Branch _before_ you start work (not
 after committing) → short commit → **push the feature branch** → open a PR; the
-maintainer squash-merges. After a merge, resync local main:
+maintainer merges. **Squash merging is disabled on the repository** — only
+merge and rebase are allowed, so `gh pr merge --squash` fails outright with
+`Squash merges are not allowed on this repository`; `--rebase` is the
+equivalent, and for the one-commit branch this flow produces it lands the same
+single linear commit. After a merge, resync local main:
 `git fetch --prune origin && git merge --ff-only origin/main`.
 
 **No assistant artifacts in the repo.** `.claude/` is gitignored; keep AI
