@@ -64,8 +64,7 @@ accessor for a signal-forms control — and every control is usable standalone
 through its two-way `[(value)]` / `[(checked)]` model.
 
 > **Status:** active development. v14 is the current major line (Angular 22 peer).
-> Public API is stable across patch releases and still evolving between majors.
-> Upgrading? `ng update ngwr@14` rewrites v14's five renames and reports the
+> Upgrading? `ng update ngwr@14` rewrites v14's six renames and reports the
 > changes no codemod should guess at — the
 > [migration guide](https://ngwr.dev/start/migration) walks every step.
 > [Open an issue](https://github.com/thekhegay/ngwr/issues/new)
@@ -87,9 +86,55 @@ through its two-way `[(value)]` / `[(checked)]` model.
 | `lucide` _(optional)_          | `>= 1.0.0`           |
 
 TypeScript `~6.0.x` (Angular 22's compiler declares `typescript >=6.0 <6.1`) and
-a Node version Angular 22 accepts — `^22.22.3 || ^24.15.0 || >=26`. Contributing
-to this repo needs the narrower `^24.16.0 || >=26` it pins (`.nvmrc` says 24),
-plus pnpm ≥ 11.10.
+a Node version Angular 22 accepts — `^22.22.3 || ^24.15.0 || >=26`. ngwr itself
+declares neither: no `engines` field and no TypeScript peer, because it ships
+pre-compiled bundles and `.d.ts` files, so the versions that bind are the ones
+your Angular names. Contributing to this repo needs the narrower
+`^24.16.0 || >=26` it pins (`.nvmrc` says 24), plus pnpm ≥ 11.10.
+
+**The floor is real; the missing ceiling promises nothing.** ngwr ships
+partially compiled, and the floor is enforced by the bundles rather than by the
+range — but by a minority of them, which is why the failure is confusing when it
+arrives. Of 654 declarations, **25 record `minVersion: "22.0.0"`** (the service
+declarations, across 22 files); the rest are older shapes an old linker reads
+fine. So the install succeeds — every package manager treats an unmet peer as a
+warning — and `ng build` then dies inside one `fesm2022` bundle with a message
+that names no version at all. Read the peer warning at install time. Above the
+floor, an open-ended range only means your package manager will not stop you
+installing next to an Angular this release was never built against.
+
+```sh
+grep -ho 'minVersion: *"[^"]*"' node_modules/ngwr/fesm2022/*.mjs | sort | uniq -c
+```
+
+## Versioning and support
+
+Semver, with the one rule that matters made mechanical: **a breaking change
+cannot ride a minor or a patch.** `release:prepare` refuses `--bump=minor` and
+`--bump=patch` when any commit since the last release tag carries a `!` type or
+a `BREAKING CHANGE:` footer — it prints the offending subjects and exits
+non-zero, and since a release is cut only by that workflow, the refusal is the
+release. It exists because the opposite shipped: 12.2.0 was a minor carrying a
+`BREAKING CHANGES` section, and `^12.1.0` picked it up silently. So a caret
+range on a major is a safe range now. It was not then. What the guard cannot see
+is a break nobody labelled as one — it reads commit metadata, which is what
+commitlint on every commit and PR title gives it to read.
+
+Public API is three surfaces, and all three move only in a major: the exported
+TypeScript, the `.wr-*` BEM class names (components ship
+`ViewEncapsulation.None`), and the `--wr-*` custom properties. Anything marked
+`@internal` is not API, and the marker survives into the shipped types —
+`grep -rn "@internal" node_modules/ngwr/types` is the whole check. A few helpers
+are exported, unmarked and undocumented; treat those as unsupported until a page
+describes them, and open an issue naming the one you need.
+
+Two lines are supported at a time: the current major in full, the one before it
+for mechanical security fixes only, and that second row ends when the next major
+ships. Read it against the cadence rather than a calendar — eight majors shipped
+between 2026-06-12 (v7.0.0) and 2026-09-04 (v14.0.0). Table, targets and the
+private reporting route: [SECURITY.md](SECURITY.md). Full policy, with the
+commands to check every claim in it against the installed package:
+<https://ngwr.dev/start/versioning>.
 
 ## Install
 

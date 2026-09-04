@@ -72,7 +72,7 @@
 
   <ngwr-doc-section
     title="Reduced motion"
-    description="The `.wr-animate-*` utilities drop to `animation: none`, and the components whose motion is decorative or looping — marquee, typewriter, the text effects, burger, markdown's streaming caret, plus popover / context-menu / command-palette — opt out for themselves. It is not blanket coverage: an overlay's open animation is not gated, so if your app treats the preference as absolute, kill the durations at the token layer, which is one rule for everything that reads them."
+    description="Three layers cover it. The `.wr-animate-*` utilities drop to `animation: none`; the components whose motion is decorative or looping — marquee, typewriter, the text effects, burger, markdown's streaming caret, plus popover / context-menu / command-palette — opt out for themselves; and the theme layer gates the always-on chrome nobody opted into, which is where every overlay enter animation is switched off and the spinner is slowed rather than frozen. What is left is deliberate: CSS *transitions* — hover, focus and state changes across the catalog — are untouched, and so is the toast progress bar, which is a countdown. If your app treats the preference as absolute, kill the durations at the token layer, which is one rule for everything that reads them."
   >
     <ngwr-doc-code [code]="snippets.reduced" language="scss" />
   </ngwr-doc-section>

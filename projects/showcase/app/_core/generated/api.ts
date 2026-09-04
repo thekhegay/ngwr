@@ -1324,7 +1324,7 @@ export const API = {
     { name: "rowHeight", description: "Uniform row height in px used to map scroll offset to node index. `0` (default) measures the first rendered row once and reuses it, so it adapts to the active density / touch target automatically. Read only when `virtualScroll` is on.", type: "number", default: "0" },
     { name: "viewportHeight", description: "Height of the scroll viewport when `virtualScroll` is on — a number (px) or any CSS length (`'60vh'`). A numeric px value lets the server prerender the exact first window.", type: "number | string", default: "288" },
     { name: "overscan", description: "Extra rows kept rendered above and below the viewport as scroll headroom.", type: "number", default: "6" },
-    { name: "value", description: "Form value — the current selection as seen by a bound field. Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `selectionMode`: `TId | null` in single mode, `readonly TId[]` in multi mode. Meaningful in `overlay` mode; inline mode drives selection via `[(selected)]` instead.", type: "unknown", default: "undefined" },
+    { name: "value", description: "Form value — the current selection as seen by a bound field. Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `selectionMode`: `TId | null` in single mode, `readonly TId[]` in multi mode. Works in both `openOn` modes; `[(selected)]` stays the inline-native API and always carries an array, whatever the selection mode.", type: "unknown", default: "undefined" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
   // <wr-typewriter>

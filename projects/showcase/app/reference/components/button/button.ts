@@ -44,6 +44,13 @@ export class MyComponent {}`,
     basic: `<wr-btn>Default</wr-btn>
 <button wr-btn>Native button</button>
 <a wr-btn>Anchor</a>`,
+    submit: `<form (ngSubmit)="save()">
+  <!-- Submits: a real <button>, with the type the platform reads. -->
+  <button wr-btn type="submit" color="primary">Save</button>
+
+  <!-- Does NOT submit: <wr-btn> is a custom element. Bind the click. -->
+  <wr-btn (click)="save()" color="primary">Save</wr-btn>
+</form>`,
     colors: `<wr-btn color="primary">Primary</wr-btn>
 <wr-btn color="success">Success</wr-btn>`,
     outlined: `<wr-btn color="primary" outlined>Outlined</wr-btn>`,

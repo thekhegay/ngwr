@@ -105,7 +105,7 @@
 
   <ngwr-doc-section
     title="The Angular range — a real floor and an open ceiling"
-    description="Every Angular peer is declared `>=22.0.0`, and the two halves of that range mean very different things. **The floor is real and it is enforced by the compiled output**, not by the range: every partially-compiled declaration in the package records `minVersion: 22.0.0`, so an older linker cannot read it. **The ceiling is absent, and absent is not a promise.** It means your package manager will not stop you from installing ngwr next to an Angular that did not exist when the release was cut — nothing more."
+    description="Every Angular peer is declared `>=22.0.0`, and the two halves of that range mean very different things. **The floor is real and it is enforced by the compiled output**, not by the range — though by a minority of it: of 654 partially-compiled declarations, 25 record `minVersion: 22.0.0` (the service declarations, spread across 22 files), and one unreadable declaration is enough to fail the build. **The ceiling is absent, and absent is not a promise.** It means your package manager will not stop you from installing ngwr next to an Angular that did not exist when the release was cut — nothing more."
   >
     <p wrTypography variant="small" tone="medium">
       <strong>Below the floor, the install succeeds and the build is what fails.</strong> npm, pnpm and yarn all treat

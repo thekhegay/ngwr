@@ -442,3 +442,70 @@ describe('WrButton focus across a loading cycle', () => {
     expect(document.activeElement).toBe(button);
   });
 });
+
+/**
+ * The one thing about this component that reads as a bug and is a platform
+ * rule: `<wr-btn>` does not submit a form. No custom element does — HTML submits
+ * for `<button>`, `<input type="submit">` and `<input type="image">`, and the
+ * element form is none of those. It carries `role="button"`, so it is a button
+ * to assistive tech and to a click handler, and still not a submit button, which
+ * is exactly the gap that lets a Save button ship doing nothing. There is no
+ * `type` input for the same reason: it would read as a fix.
+ */
+describe('WrButton and form submission', () => {
+  @Component({
+    imports: [WrButton],
+    template: `
+      <form (submit)="submits.set(submits() + 1); $event.preventDefault()">
+        <input name="q" />
+        <wr-btn id="element">Element</wr-btn>
+        <wr-btn id="typed" type="submit">Typed</wr-btn>
+        <button wr-btn id="native" type="submit">Native</button>
+      </form>
+    `,
+  })
+  class FormHost {
+    readonly submits = signal(0);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<FormHost>>;
+  const el = (id: string): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(`#${id}`)!;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(FormHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('does not submit from the custom-element form, however button-like it looks', () => {
+    expect(el('element').getAttribute('role')).toBe('button');
+
+    el('element').click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.submits()).toBe(0);
+  });
+
+  it('submits from the native form, which is what the docs send people to', () => {
+    el('native').click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.submits()).toBe(1);
+  });
+
+  it('is not rescued by a static `type="submit"`, which is the whole trap', () => {
+    // There is no `type` input, so this lands on the custom element as a plain
+    // DOM attribute: no template error, no console warning, and no submit. The
+    // attribute is right there in the inspector, which is what makes someone
+    // believe the button is wired and go looking at the handler instead.
+    const typed = el('typed');
+    expect(typed.getAttribute('type')).toBe('submit');
+
+    typed.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.submits()).toBe(0);
+  });
+});

@@ -49,6 +49,16 @@ import { WR_BUTTON_GROUP } from './tokens';
  * every child — child `[shape]` inputs are ignored so the group reads as
  * one coherent control.
  *
+ * **Inside a `<form>`, use the native form.** `<wr-btn>` is a custom element
+ * carrying `role="button"`, and no custom element submits a form — the platform
+ * submits for `<button>`, `<input type="submit">` and `<input type="image">`
+ * and nothing else. That is why there is no `type` input: it would look like it
+ * worked. Implicit submission (Enter in a text field) does not reach it either.
+ *
+ * ```html
+ * <button wr-btn type="submit" color="primary">Save</button>
+ * ```
+ *
  * @see https://ngwr.dev/reference/components/button
  */
 @Component({

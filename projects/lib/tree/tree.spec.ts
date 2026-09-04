@@ -51,8 +51,9 @@ const NODES: readonly WrTreeNode[] = [
 })
 class Host {
   readonly nodes = signal(NODES);
-  // Inline mode drives selection through `[(selected)]`; `[(value)]` is the
-  // form-control binding and is documented as meaningful in `overlay` mode.
+  // `[(selected)]` is the inline-native binding and always carries an array;
+  // `value` is the form-control one and follows `selectionMode`. Both work in
+  // both `openOn` modes — see the block at the bottom of this file.
   readonly picked = signal<readonly string[]>([]);
   readonly expanded = signal<readonly string[]>([]);
   readonly selectionMode = signal<WrTreeSelectionMode>('single');
@@ -864,5 +865,80 @@ describe('WrTree — the overflow chip is localizable', () => {
     fixture.detectChanges();
 
     expect(more()).toBe('ещё 2');
+  });
+});
+
+/**
+ * `value` is what a bound field reads, and for a while an inline tree only ever
+ * read it. The `value` -> `selected` effect was ungated, the `selected` ->
+ * `value` write was behind `isOverlay()`, and the asymmetry is the whole defect:
+ * `[formField]` on an inline `<wr-tree>` compiled, accepted `setValue`, moved
+ * `aria-selected` when the user clicked — and reported nothing back, for the
+ * life of the form. Nothing is visibly broken in that state, which is why it
+ * survived; a binding that refuses outright would have been found in a minute.
+ */
+describe('WrTree reports an inline pick to a bound field', () => {
+  @Component({
+    imports: [WrTree],
+    template: ` <wr-tree [nodes]="nodes()" [selectionMode]="selectionMode()" [(value)]="picked" /> `,
+  })
+  class ValueHost {
+    readonly nodes = signal(NODES);
+    readonly selectionMode = signal<WrTreeSelectionMode>('single');
+    readonly picked = signal<unknown>(undefined);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<ValueHost>>;
+
+  const rows = (): HTMLElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('[role="treeitem"]'),
+  ];
+
+  /** `additive` is Ctrl / Meta — a PLAIN click replaces, even in multi mode. */
+  const click = (index: number, additive = false): void => {
+    rows()[index].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey: additive }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(ValueHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('writes the picked id — single mode carries the bare id, not an array', () => {
+    click(1);
+    expect(fixture.componentInstance.picked()).toBe('readme');
+  });
+
+  it('writes an array in multi mode, and keeps writing as the set grows', () => {
+    fixture.componentInstance.selectionMode.set('multi');
+    fixture.detectChanges();
+
+    click(1);
+    expect(fixture.componentInstance.picked()).toEqual(['readme']);
+
+    click(0, true);
+    expect(fixture.componentInstance.picked()).toEqual(['readme', 'src']);
+  });
+
+  it('still accepts a write from the host, and does not echo it back as a pick', () => {
+    fixture.componentInstance.picked.set('readme');
+    fixture.detectChanges();
+
+    expect(rows()[1].getAttribute('aria-selected')).toBe('true');
+    expect(fixture.componentInstance.picked()).toBe('readme');
+  });
+
+  it('marks the field touched on the same pick, so validation can run', () => {
+    const touched: number[] = [];
+    const tree = fixture.debugElement.query(dl => dl.componentInstance instanceof WrTree);
+    (tree.componentInstance as WrTree).touch.subscribe(() => touched.push(1));
+
+    click(1);
+    expect(touched).toHaveLength(1);
   });
 });

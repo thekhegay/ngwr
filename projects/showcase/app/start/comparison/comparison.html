@@ -142,6 +142,18 @@
       <code>provideZonelessChangeDetection()</code> does not have to keep Zone.js loaded for its UI kit, and nothing in
       the library asks Angular to check a component that did not change. It does not make anything faster on its own.
     </p>
+
+    <p wrTypography>
+      <strong>The reverse direction is supported, and it is not an accident of the design.</strong> An app on
+      <code>provideZoneChangeDetection()</code> can install ngwr as it is: every component reads signals, which are
+      change-detected the same way under either scheduler, and the library registers its hot listeners — scroll, pointer
+      move, document click, the animation loops — inside <code>NgZone.runOutsideAngular()</code> in
+      <strong>nine</strong> files, so a zone app does not pay a change-detection cycle per frame for a spotlight
+      gradient or a scroll-driven back-to-top button. <code>OnPush</code> hosts are fine for the same reason: a signal
+      read in a template marks its own consumer dirty and does not depend on the host's strategy. What ngwr will not do
+      is <em>require</em> Zone.js — the library's own suite and the showcase both run zoneless, so that is the
+      configuration under continuous test, and a zone-specific regression would reach you before it reached us.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
