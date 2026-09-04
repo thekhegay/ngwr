@@ -237,6 +237,12 @@ export default class QualityPage {
   protected readonly related: readonly DocSeeAlsoLink[] = [
     {
       kind: 'Guide',
+      title: 'Versioning & support',
+      url: ['/start', 'versioning'],
+      description: 'The other half of trusting a release: semver, the support window, and the Angular range.',
+    },
+    {
+      kind: 'Guide',
       title: 'Testing',
       url: ['/guides', 'testing'],
       description: 'The CDK harnesses, and how to drive ngwr components from your own specs.',

@@ -26,6 +26,11 @@ import { API } from '#core/generated/api';
   ],
 })
 export default class PageHeaderPageComponent {
+  protected readonly install = `import { WrPageHeader } from 'ngwr/page-header';
+
+@Component({ imports: [WrPageHeader] })
+export class MyComponent {}`;
+
   protected readonly snippet = `<wr-page-header title="Settings" subtitle="Manage your workspace">
   <div wrPageHeaderActions>
     <wr-btn>Invite</wr-btn>

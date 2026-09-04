@@ -1,11 +1,17 @@
 import { Component } from '@angular/core';
 
-import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
+import {
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
+} from '#core/components';
 
 @Component({
   selector: 'ngwr-gs-configuration-page',
   templateUrl: './configuration.html',
-  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent],
+  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocSeeAlsoComponent],
 })
 export default class ConfigurationPage {
   protected readonly snippets = {
@@ -189,4 +195,28 @@ private readonly cookie = inject(WrCookie);`,
 // \`engine\` takes a Storage INSTANCE, or a factory called lazily.
 providers: [provideWrStorage({ engine: sessionStorage, prefix: 'app:' })],`,
   };
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Guide',
+      title: 'Server-side rendering',
+      url: ['/guides', 'ssr'],
+      description:
+        'What these providers do during a server render — including the two overlay calls that are not no-ops there, and the pre-paint script that closes the light-theme flash.',
+    },
+    {
+      kind: 'Guide',
+      title: 'Mobile & responsive',
+      url: ['/guides', 'mobile'],
+      description:
+        'The rest of the touch story behind `provideWrResponsiveOverlays()`: sheets, the keyboard inset, and the `touch` density preset.',
+    },
+    {
+      kind: 'Guide',
+      title: 'Reactive forms',
+      url: ['/guides', 'forms'],
+      description:
+        "What Angular 22's bridge carries and what it drops, once these providers are in place and you bind a control.",
+    },
+  ];
 }

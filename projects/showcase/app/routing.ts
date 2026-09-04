@@ -28,6 +28,7 @@ export const routes = {
     comparison: 'comparison',
     playground: 'playground',
     quality: 'quality',
+    versioning: 'versioning',
     installation: 'installation',
     configuration: 'configuration',
     schematics: 'schematics',

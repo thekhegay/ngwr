@@ -48,6 +48,33 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="One service per application, one attribute per document"
+    description="`WrTheme` is root-provided: one instance for the whole application, created by `provideWrTheme()`'s initializer at bootstrap. It reads `WR_THEME_CONFIG` once, from the root injector — so a `provideWrTheme()` in a lazy route's `providers` sets a token the service will never look at, and the route's `defaultMode` or `storageKey` is silently the bootstrap one. Configure it once, at bootstrap. `WrDensity`, `WrI18n`, `WrStorage` and `WrToast` follow the same rule for the same reason; `provideWrConfig()` and `provideWrIcons()` deliberately do not, because the things that read those resolve them from their own injector."
+  >
+    <p>
+      The document, though, has exactly one <code>&lt;html&gt;</code> — and that is what matters if you run
+      <strong>two Angular applications on one page</strong> (a micro-frontend shell plus a widget, or two mounted
+      bundles). Each gets its own <code>WrTheme</code>; both write the same attribute and both persist to the same
+      <code>localStorage</code> key. The attribute is last-writer-wins, and each service&#39;s
+      <code>resolved()</code> keeps reporting <em>its own</em> answer — so one of them can confidently report
+      <code>light</code> while the page is painted dark, and after a reload the theme is decided by whichever
+      application initialised last. Overlay containers do not collide this way; the theme does, because the thing being
+      shared is the document.
+    </p>
+    <ngwr-doc-code [code]="snippets.multiApp" language="typescript" />
+    <p>
+      Note that <em>writing</em> is not limited to <code>set()</code>: the service mirrors its resolved theme onto
+      <code>&lt;html&gt;</code> from an effect the moment it is constructed, so a second application becomes a writer
+      simply by injecting <code>WrTheme</code> to read the current value. The rule that follows is a short one —
+      <strong>exactly one application on the page calls <code>provideWrTheme()</code> or injects the service</strong>.
+      The others need nothing: the attribute and the whole <code>--wr-*</code> layer live on the document, so their
+      components are already themed, and a widget that must react in TypeScript can watch the attribute rather than own
+      it. Where a second instance is unavoidable, give it a distinct <code>storageKey</code> — or <code>null</code>,
+      which turns persistence off — so at least the two stop overwriting each other&#39;s choice.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Why ngwr provides this"
     description="Theme switching sounds like one line of CSS until you handle persistence, the `prefers-color-scheme` fallback, SSR (no `localStorage`), and flashing the wrong theme on first paint. `WrTheme` owns that lifecycle and exposes the result as signals."
   />

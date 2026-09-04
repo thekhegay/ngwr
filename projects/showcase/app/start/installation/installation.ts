@@ -290,6 +290,12 @@ export class App {}`,
   protected readonly seeAlso: readonly DocSeeAlsoLink[] = [
     {
       kind: 'Guide',
+      title: 'Versioning & support',
+      url: ['/start', 'versioning'],
+      description: 'What the peer range promises, how long a major is patched, and why a minor cannot break you.',
+    },
+    {
+      kind: 'Guide',
       title: 'Theming',
       url: ['/guides', 'theming'],
       description: 'Light / dark, the token layer, and rebranding at compile time or at runtime.',

@@ -281,7 +281,11 @@
       <wr-description-item label="Stability">
         The catalog moves. {{ majorLine }} is the current line, and the table above is the honest record of what each
         step cost. Pin the major, read the migration guide, and do not assume an upgrade is free because the gates are
-        green — each of the last three majors broke something no codemod could repair.
+        green — each of the last three majors broke something no codemod could repair. One thing has changed
+        structurally, and it is the one worth knowing before you write a range:
+        <strong>a breaking change can no longer ride a minor or a patch</strong> — the release script refuses the bump,
+        which it did not when 12.2.0 shipped one. <a routerLink="/start/versioning">Versioning &amp; support</a> has the
+        rule, the support window, and what the open-ended Angular peer range does and does not promise.
       </wr-description-item>
       <wr-description-item label="Design">
         One person's taste. The tokens are documented and all of them are overridable, but nothing here went through a

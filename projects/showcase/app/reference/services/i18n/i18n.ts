@@ -5,6 +5,7 @@ import { WrI18n, WrTDirective, WrTPipe } from 'ngwr/i18n';
 import {
   DocApiComponent,
   type DocApiRow,
+  DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSeeAlsoComponent,
@@ -23,6 +24,7 @@ import { API } from '#core/generated/api';
     DocSectionComponent,
     DocSnippetComponent,
     DocApiComponent,
+    DocCodeComponent,
     DocSeeAlsoComponent,
   ],
 })
@@ -36,6 +38,28 @@ export default class I18nServicePage {
   protected use(locale: string): void {
     this.i18n.use(locale);
   }
+
+  protected readonly snippets = {
+    injectionContext: `import { Component, inject } from '@angular/core';
+import { WrI18n, readI18nText } from 'ngwr/i18n';
+
+@Component({ /* … */ })
+export class InvoiceCard {
+  private readonly i18n = inject(WrI18n);
+
+  // Field initializer — an injection context. Fine.
+  protected readonly heading = readI18nText('invoice.heading', 'Invoice');
+
+  protected onCopy(): void {
+    // readI18nText('invoice.copied', 'Copied') here throws NG0203:
+    // a click handler is not an injection context.
+    this.toast.show(this.i18n.t('invoice.copied'));   // this is the way
+  }
+}
+
+// Outside a component altogether — a resolver, an interceptor, a helper:
+const label = runInInjectionContext(injector, () => readI18nText('x', 'X'));`,
+  };
 
   protected readonly api: readonly DocApiRow[] = [
     { name: 'WrI18n', description: 'Injectable service.', type: 'service', default: '—' },

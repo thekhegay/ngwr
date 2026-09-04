@@ -4,6 +4,10 @@
   [keywords]="['pull-to-refresh', 'pull to refresh', 'refresh', 'mobile', 'gesture']"
   [labels]="['Component']"
 >
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="install" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section
     title="Basic"
     description="Pull down from the very top on a touch device and release past the threshold to fire `refresh`; a light haptic tap marks the arming point. It's a controlled spinner — bind `refreshing` and clear it when the work settles. No touch device handy? The button drives the same `refreshing` state programmatically."

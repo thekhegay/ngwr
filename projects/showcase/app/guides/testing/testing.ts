@@ -28,6 +28,22 @@ import {
 })
 export default class TestingGuidePageComponent {
   protected readonly snippets = {
+    axeTriage: `// Gate on violations. \`incomplete\` is axe asking a human, not a finding.
+const results = await new AxeBuilder({ page }).analyze();
+expect(results.violations).toEqual([]);
+
+// If your gate DOES read \`incomplete\` — some do, and it is a defensible
+// choice — triage the rule rather than excluding the page or the component.
+// Every closed combobox trigger publishes aria-controls for a listbox that
+// does not exist until the panel opens, and axe cannot tell that apart from
+// a typo. Drop only those nodes; keep the rule on for every other node.
+const forReview = results.incomplete.filter(
+  r =>
+    r.id !== 'aria-valid-attr-value' ||
+    r.nodes.some(n => !/aria-controls/.test(n.html) || !/aria-expanded="false"/.test(n.html)),
+);
+expect(forReview).toEqual([]);`,
+
     tableName: `<!-- <wr-table> renders no <caption> and takes no name input, so name the
      REGION around it. The heading does double duty: visible on the page,
      and the landmark's accessible name. -->

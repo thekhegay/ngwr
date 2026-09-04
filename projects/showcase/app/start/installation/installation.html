@@ -13,6 +13,16 @@
       title="On Angular 21 or 20 the install succeeds and the build is what fails."
       message="npm, pnpm and yarn all treat an unsatisfied peer as a warning rather than an error, so adding ngwr to an Angular 21 project prints “Issues with peer dependencies found” and exits 0. The failure surfaces later, in the Angular linker, as “Unsupported enum value for [object Object]” pointing at a line inside one of the fesm2022 bundles — every partially-compiled declaration in the package carries minVersion 22.0.0, and a linker that predates that shape cannot read it. Read the peer warning at install time: the message you get at build time never mentions a version."
     />
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>The missing upper bound is not a promise, and the floor is not the only compatibility question.</strong>
+      An open-ended range means your package manager will not stop you installing ngwr beside an Angular that did not
+      exist when the release was cut — nothing more; and no TypeScript peer and no <code>engines</code> field are
+      declared here at all, because the package ships pre-compiled bundles and the versions that matter are the ones
+      your Angular names. <a routerLink="/start/versioning">Versioning &amp; support</a> covers all of it: what to do
+      the day a new Angular major lands, how long each line keeps getting security fixes, and the semver rule — a
+      breaking change can no longer ride a minor, because the release script refuses the bump.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -125,6 +135,16 @@
         <code wrTypography variant="code">{{ value }}</code>
       </ng-template>
     </wr-table>
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>The subpath is the API; a deeper path into the package is not.</strong>
+      <code>&#64;use 'ngwr/button'</code> resolves through the <code>sass</code> condition in the package's
+      <code>exports</code> map, and that map is what a major has to keep working. A deep path like
+      <code>&#64;use 'ngwr/button/styles/index'</code> happens to compile anyway — Angular's Sass integration resolves
+      files inside a package directly rather than through <code>exports</code> — and nothing is promised about it: the
+      file layout under an entry point is free to move in any release, and Node's own resolution would have refused it.
+      Write the subpath.
+    </p>
 
     <wr-alert
       type="info"

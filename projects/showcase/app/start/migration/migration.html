@@ -8,6 +8,23 @@
     description="`ng update` runs the version-matched migration: it rewrites templates, TypeScript and stylesheets in place. Commit first, run it, then review with `git diff`."
   >
     <ngwr-doc-code [code]="snippets.update" language="bash" />
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>Two things that stop the first run, and neither is ngwr.</strong> Under pnpm 11 a fresh install can exit 1
+      with <code>ERR_PNPM_IGNORED_BUILDS</code> — its default is to refuse dependency build scripts until the workspace
+      allows them — and a release published within the last day is held back by pnpm's minimum release age, so
+      <code>ng update ngwr&#64;14</code> can land on the previous patch and report nothing to do. Both are
+      package-manager policy: allow the builds, or wait out the age window, then re-run. The migration itself is
+      idempotent, so running it twice costs nothing.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>Upgrading is also the moment to read the range you pinned.</strong> A breaking change can no longer arrive
+      in a minor or a patch — the release script refuses that bump — so a caret range on a major is a safe range, which
+      it was not when 12.2.0 shipped one. <a routerLink="/start/versioning">Versioning &amp; support</a> has that rule,
+      how long the line you are leaving keeps getting security fixes, and what the open-ended Angular peer range does
+      and does not promise.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -41,7 +58,7 @@
 
   <ngwr-doc-section
     title="v13 to v14 — the six renames"
-    description="Five names moved, and `ng update ngwr@14` rewrites every one of them: a rename is exactly what a codemod does well, since the new name means what the old one meant on the same element. `<wr-alert closeable>` becomes `closable`, matching the three places that already spelled it that way — and note that neither spelling ever raised a template error, because a bare attribute matching no input is just an attribute. `<wr-table [totalItems]>` and `<wr-pagination [(currentPage)]>` become `[total]` and `[(page)]`, so two components built to sit on the same screen stop using two words for each of the two concepts they share. `isDisabledWhenLoading` loses its prefix, leaving the library with no `is*` boolean at all. And the window's `chromeSize` moves from `compact`/`normal` to `sm`/`md` — the vocabulary v8 renamed everywhere else three majors ago. Sixth: `[wrInput]`'s size input is now plain `size`, like the other twenty-three components. It was spelled with a prefix to dodge the native `<input size>` attribute, which measures the field in characters and which `.wr-input`'s `width: 100%` has always overridden — so the clash it guarded against was never observable, and the cost of dropping it is that a native `size` on an ngwr input, which already did nothing, now does nothing under a different name."
+    description="Six names moved, and `ng update ngwr@14` rewrites every one of them: a rename is exactly what a codemod does well, since the new name means what the old one meant on the same element. `<wr-alert closeable>` becomes `closable`, matching the three places that already spelled it that way — and note that neither spelling ever raised a template error, because a bare attribute matching no input is just an attribute. `<wr-table [totalItems]>` and `<wr-pagination [(currentPage)]>` become `[total]` and `[(page)]`, so two components built to sit on the same screen stop using two words for each of the two concepts they share. `isDisabledWhenLoading` loses its prefix, leaving the library with no `is*` boolean at all. And the window's `chromeSize` moves from `compact`/`normal` to `sm`/`md` — the vocabulary v8 renamed everywhere else three majors ago. Sixth: `[wrInput]`'s size input is now plain `size`, like the other twenty-three components. It was spelled with a prefix to dodge the native `<input size>` attribute, which measures the field in characters and which `.wr-input`'s `width: 100%` has always overridden — so the clash it guarded against was never observable, and the cost of dropping it is that a native `size` on an ngwr input, which already did nothing, now does nothing under a different name."
   >
     <ngwr-doc-code [code]="snippets.v14Renames" language="diff" />
     <p wrTypography variant="small" tone="medium">

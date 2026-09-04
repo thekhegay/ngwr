@@ -55,6 +55,27 @@ this.theme.toggle();
 
 protected readonly resolved = this.theme.resolved; // Signal<'light' | 'dark'>
 protected readonly mode = this.theme.mode;         // Signal<'light' | 'dark' | 'auto'>`,
+    multiApp: `// Shell — the one application that owns <html data-theme> and the storage key.
+bootstrapApplication(ShellComponent, {
+  providers: [provideWrTheme({ defaultMode: 'auto' })],
+});
+
+// Widget mounted on the same page — no provideWrTheme(), no inject(WrTheme).
+// Its ngwr components are themed already: the attribute and the tokens are on
+// the document, not on the injector.
+bootstrapApplication(WidgetComponent);
+
+// If the widget needs the value in TypeScript, observe the document instead of
+// constructing a second owner of it.
+const html = document.documentElement;
+const theme = signal(html.getAttribute('data-theme') ?? 'light');
+new MutationObserver(() => theme.set(html.getAttribute('data-theme') ?? 'light'))
+  .observe(html, { attributeFilter: ['data-theme'] });
+
+// Unavoidable second instance? At least stop the persisted choices colliding.
+bootstrapApplication(WidgetComponent, {
+  providers: [provideWrTheme({ storageKey: null })],
+});`,
     prePaintCustom: `import { wrThemePrePaintScript } from 'ngwr/theme';
 
 // Same script, for an app that renamed the attribute, the key or the prefix.

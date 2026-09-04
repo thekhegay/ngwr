@@ -357,7 +357,7 @@
 
     <p wrTypography>
       <strong>Moving between majors.</strong> <code>ng update ngwr&#64;N</code>, with one migration per major that can
-      honestly be codemodded — v14 rewrites five renames and <em>reports</em> the three changes that need a decision
+      honestly be codemodded — v14 rewrites six renames and <em>reports</em> the three changes that need a decision
       instead of a substitution; v12 rewrote the date-adapter import paths, and its other breaking change was a return
       type that changed, which the compiler names at every call site. v10 and v11 ship no migration on purpose: their
       breaking changes were painted colour, and an empty codemod would tell you your visual regressions were handled
@@ -368,6 +368,17 @@
       <code>wr-checkbox:has(#agree)</code> or a class is a decision only its author can make, and a selector that stops
       matching is silent in CSS, in <code>querySelector</code> and in a test locator alike. The
       <a routerLink="/start/migration">migration guide</a> lists all of it.
+    </p>
+
+    <p wrTypography>
+      <strong>How often that happens, and what the version number is worth.</strong> Eight majors shipped between
+      2026-06-12 and 2026-09-04 — the honest number, and the reason the row above calls the peer range a promise about
+      nothing. Two things bound it. A breaking change can no longer arrive in a minor or a patch: the release script
+      refuses that bump when any commit since the last tag is marked breaking, which is what 12.2.0 — a minor with a
+      <code>BREAKING CHANGES</code> heading — did not have. And the support window is written down rather than implied:
+      the current major in full, the one before it for mechanical security fixes only, and that row closes when the next
+      major ships. <a routerLink="/start/versioning">Versioning &amp; support</a> has the rule, the table and the
+      commands to check both against the package rather than against this page.
     </p>
 
     <p wrTypography variant="small" tone="medium">

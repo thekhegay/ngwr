@@ -8,13 +8,22 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
   DocSnippetComponent,
 } from '#core/components';
 
 @Component({
   selector: 'ngwr-svc-media-page',
   templateUrl: './media.html',
-  imports: [DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+    DocSeeAlsoComponent,
+  ],
 })
 export default class MediaServicePageComponent {
   private readonly mediaService = inject(WrMedia);
@@ -55,6 +64,30 @@ protected readonly current = this.media.current; // 'xs' | 'sm' | ...`,
       description: 'Override the breakpoint map. Partial — merged with defaults.',
       type: '(map?: Partial<WrBreakpointMap>) => EnvironmentProviders',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Guide',
+      title: 'Server-side rendering',
+      url: ['/guides', 'ssr'],
+      description:
+        '"SSR-safe" above means the calls do not throw, not that they answer. A server has no viewport, so `matches()` is `false` and `current()` is `xs` until hydration — the guide has the full table and the CSS reflow that avoids the swap.',
+    },
+    {
+      kind: 'Service',
+      title: 'WrPlatform',
+      url: ['/reference/services', 'platform'],
+      description:
+        '`isBrowser` / `isServer` — the guard for code that must not run before there is a viewport to measure.',
+    },
+    {
+      kind: 'Guide',
+      title: 'Mobile & responsive',
+      url: ['/guides', 'mobile'],
+      description:
+        'The `responsive` modifiers reflow through a container query, so they need no breakpoint signal at all.',
     },
   ];
 }

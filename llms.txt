@@ -30,7 +30,11 @@ Requires Angular / CDK `>= 22.0.0` (peers: `@angular/cdk`, `@angular/common`,
 `@angular/core`, `@angular/platform-browser`, `rxjs ^7`; optional `date-fns` /
 `luxon` / `lucide`). On Angular 21 or older the INSTALL succeeds — every package
 manager treats an unmet peer as a warning — and the `ng build` fails instead, in
-the linker, with `Unsupported enum value for [object Object]`.
+the linker, with `Unsupported enum value for [object Object]`. The floor is real
+and the ceiling is absent — an Angular newer than the release has not been built
+or tested against, and nothing warns. There is no `engines` field and no
+TypeScript peer either: both come from your Angular. What that range does and
+does not promise: https://ngwr.dev/start/versioning
 
 **There is no root barrel: `import { X } from 'ngwr'` is always wrong.** The root
 entry point exports nothing, so an IDE auto-import from it gives `TS2305` and no
@@ -105,9 +109,13 @@ one element at a time; a step whose target is missing is skipped, not floated.
 Run `ng update ngwr@14`. It rewrites the renames and REPORTS the rest — read its
 output, because the reported half is where the silent failures are.
 
-Rewritten for you (five renames, one word per concept):
+Rewritten for you (six renames, one word per concept):
 
 - `<wr-alert>` from `closeable` to `closable`.
+- `[wrInput]` from `wrSize` to `size`, like every other control. v13's release
+  note announced this rename and did NOT make it; it lands in v14. On v13 a
+  `size` written on an ngwr input compiled — it is a legal native attribute —
+  and the control quietly fell back to `md`.
 - `<wr-table>` from `[totalItems]` to `[total]`.
 - `<wr-pagination>` from `[(currentPage)]` to `[(page)]`, and from
   `(currentPageChange)` to `(pageChange)`.
@@ -187,7 +195,13 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   its own `value` model, and implements neither.
   Bind `[formField]="form.x"`, use the two-way model standalone (`[(value)]`, or
   `[(checked)]` on checkbox/switch), or classic `[(ngModel)]` / reactive forms
-  via Angular's bridge.
+  via Angular's bridge. **That bridge is not an accessor and does not behave like
+  one**, and the differences are silent: `updateOn: 'blur'` / `'submit'` do not
+  apply to an ngwr control while a native `<input>` in the same group still
+  honours them; a `{ emitEvent: false }` write moves the model and leaves the
+  control showing the old value; `<wr-select>` compares object values by `===`
+  with no `compareWith`. What the bridge carries, what it drops, and what a form
+  does about each: https://ngwr.dev/guides/forms
 - **Icons** — register via `provideWrIcons`, render `<wr-icon name="check" />`.
 - **Router** — nothing injects `@angular/router` unless you opt in. A
   `<wr-tab routerLink>` needs `wrTabsRouting` on the strip plus `WrTabsRouting`
@@ -206,6 +220,17 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   tint — which is exactly where outlined / ghost / tinted variants paint it, so use
   `-ink` there. For muted prose use `--wr-color-on-surface-muted`, not the `medium`
   intent.
+- **SSR** — everything renders on the server; the library contains no
+  `ngSkipHydration`, so `provideClientHydration()` and `withEventReplay()` need
+  nothing from it. Two calls are NOT no-ops there and ship an overlay into a
+  cached page: `WrToast.show()` and `WrDialog.open()` (`WrTour.start()` is the
+  one that returns early) — guard them with `afterNextRender` or `WrPlatform`'s
+  `isBrowser`. `WrMedia` has no viewport to measure, so `matches()` is `false`
+  and `current()` is `'xs'` until hydration: reflow with the `responsive`
+  container-query modifiers rather than a template branch. And a server has no
+  `localStorage`, so a dark-mode visitor sees a light page until the bundle
+  boots — `wrThemePrePaintScript()` (`ngwr/theme`) is the blocking `<head>`
+  reader that closes it: https://ngwr.dev/guides/ssr
 - **Mobile** — overlays collapse to sheets (`provideWrResponsiveOverlays()`), a
   `responsive` input reflows layout components, a `touch` density preset enlarges
   controls, and `WrHaptics` (ngwr/platform) fires vibration feedback.
@@ -253,7 +278,7 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
 
 ## Deciding whether to use it
 
-Three pages exist for the question before installation, and everything on them
+Four pages exist for the question before installation, and everything on them
 is meant to be checkable rather than taken on trust:
 
 - **Why ngwr, and when not to** — the wedge (nineteen value controls are Signal
@@ -266,10 +291,27 @@ is meant to be checkable rather than taken on trust:
   https://ngwr.dev/start/quality
 - **A live Signal Forms demo** you can read before installing anything:
   https://ngwr.dev/start/playground
+- **What a version number promises** — what a major is allowed to break, and the
+  one semver rule made mechanical: `release:prepare` refuses a minor or patch
+  bump when any commit since the last tag is marked breaking, so `^14.0.0` is a
+  safe range (12.2.0 was a minor carrying a breaking change, which is why the
+  guard exists). Also the support window — current major in full, previous major
+  mechanical security fixes only, ending when the next major ships — and the
+  actual cadence: https://ngwr.dev/start/versioning
 
 The honest shape of the project, since these pages say it too: one maintainer,
 MIT, eight majors shipped since 2026-06-12, a codemod for every break a codemod
 can repair and a reported diagnosis for the rest, no commercial support.
+
+Public API is three surfaces and all three move only in a major: the exported
+TypeScript, the `.wr-*` BEM class names (every component ships
+`ViewEncapsulation.None`), and the `--wr-*` custom properties. `@internal` in a
+TSDoc means not API and survives into the published types, so
+`grep -rn "@internal" node_modules/ngwr/types` answers it. A few helpers are
+exported, unmarked and undocumented — `wrAppendOverlayClose`, `wrMirrorOffsets`,
+`wrPresentAsSheet`, `WrOutsideClick`, `useConfigValue`, `useFormFieldAria`,
+`squirclePath`, `wrContrastFor`, `isSafeCssValue` — and carry no stability
+statement; do not build on them.
 
 ## Resources (machine-readable)
 
