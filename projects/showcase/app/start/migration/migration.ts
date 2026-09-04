@@ -76,9 +76,13 @@ export default class MigrationPageComponent {
 + <button [attr.aria-label]="label()">`,
 
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
-# v12 moves the three date import paths; the run also applies any pending
-# v7–v9 migrations. v10 and v11 ship none, so there is nothing to skip.
-# v14 rewrites its five renames and REPORTS the rest — read the output.
+# One command, whatever major you are on: ng update applies every migration
+# between your version and 14, in order. From v12 that is v13 then v14; from
+# v6 it is v7, v8, v9, v12, v13, v14. v10 and v11 ship none — nothing to skip.
+#
+# v14 rewrites its five renames and REPORTS the rest.
+# v13 only reports: it names the files, it edits nothing.
+# Read the output of both — the reports are the part that matters.
 ng update ngwr@14`,
 
     v14Dates: `// A named format round-trips now. Nothing to change if you only
@@ -99,16 +103,26 @@ ng update ngwr@14`,
 // the \`a\` token emits the locale's marker (ja 午後, ar م), and every Intl
 // call pins calendar: 'gregory' — so a th-TH app prints 2026, not 2569.`,
 
-    v13: `<!-- The size input matches the other twenty-three components. -->
+    v13: `<!-- The binding is unchanged — the id just lands somewhere else. -->
+  <wr-checkbox id="agree">I agree</wr-checkbox>
+
+<!-- A selector anchored to the HOST stops matching, and nothing says so. -->
+- ::ng-deep wr-checkbox#agree { margin: 0; }
++ ::ng-deep #agree { margin: 0; }              <!-- the inner input: the 16px tick -->
++ ::ng-deep wr-checkbox:has(#agree) { … }      <!-- …or the whole row, if that is what you meant -->
+
+// Same shape in TypeScript and in a test locator.
+- document.querySelector('wr-checkbox#agree')
++ document.getElementById('agree')   // the native input, as the input always documented
+
+<!-- The groups are NOT affected — they keep their host id. -->
+  wr-checkbox-group#filters { … }`,
+
+    v14Renames: `<!-- The size input matches the other twenty-three components. -->
 - <input wrInput wrSize="lg" />
 + <input wrInput size="lg" />
 
-<!-- [id] no longer lands on the host, so a host selector stops matching. -->
-  <wr-checkbox id="agree">I agree</wr-checkbox>
-- ::ng-deep wr-checkbox#agree { … }
-+ ::ng-deep #agree { … }        <!-- resolves to the inner input, as documented -->`,
-
-    v14Renames: `<!-- One dismiss spelling. wr-drawer, WrDrawerOptions and -->
+<!-- One dismiss spelling. wr-drawer, WrDrawerOptions and -->
 <!-- WrDialogOptions already said closable; wr-alert was the outlier. -->
 - <wr-alert type="danger" closeable />
 + <wr-alert type="danger" closable />

@@ -105,6 +105,41 @@ describe('ng update ngwr@14', () => {
     // to ignore it.
     const fine = "export const de = { common: { of: 'von' }, pagination: { range: '{{from}}–{{to}}' } };";
     expect(said(run({ '/i18n/de2.ts': fine }).logs, 'pagination.of')).toBe(false);
+
+    // The shape that actually occurs, and the one the detector used to miss: a
+    // catalog copied from ngwr's own, where `of` is the LAST key and
+    // `perPage: '{{size}} / page'` sits above it. Scanning to the first `}`
+    // stopped inside `{{size`, so the only shape that ever tripped the warning
+    // was the toy literal above. A placeholder in a value is the norm, not an
+    // edge case.
+    const shipped = `export const deWr = {
+  pagination: {
+    prev: 'Vorherige Seite',
+    perPage: '{{size}} / Seite',
+    pageOf: 'Seite {{current}} von {{total}}',
+    of: 'von',
+  },
+};`;
+    expect(said(run({ '/i18n/de3.ts': shipped }).logs, 'pagination.of')).toBe(true);
+
+    // `pageOf` above must not be read as `of` on its own, and a file holding
+    // several locales is scanned past the first block rather than at it.
+    const second = `export const wr = {
+  pagination: { perPage: '{{size}} / page', pageOf: 'Page {{current}} of {{total}}' },
+};
+export const wrRu = {
+  pagination: { perPage: '{{size}} / стр.', of: 'из' },
+};`;
+    expect(said(run({ '/i18n/multi.ts': second }).logs, 'pagination.of')).toBe(true);
+
+    const clean = `export const wr = {
+  pagination: {
+    perPage: '{{size}} / page',
+    pageOf: 'Page {{current}} of {{total}}',
+    range: '{{from}}–{{to}} of {{total}}',
+  },
+};`;
+    expect(said(run({ '/i18n/clean.ts': clean }).logs, 'pagination.of')).toBe(false);
   });
 
   it('names an ofLabel binding, which is the half markup can see', () => {
@@ -242,5 +277,32 @@ describe('ng update ngwr@14', () => {
     expect(out).toContain('.wr-window--chrome-md');
     expect(out).not.toContain('compact');
     expect(out).not.toContain('normal');
+  });
+
+  it('drops the wrInput size prefix, in either attribute order', () => {
+    const { read } = run({
+      '/a.html': '<input wrInput [wrSize]="s" />',
+      '/b.html': '<input [wrSize]="s" wrInput />',
+      '/c.html': '<textarea wrInput wrSize="lg"></textarea>',
+    });
+
+    expect(read('/a.html')).toBe('<input wrInput [size]="s" />');
+    expect(read('/b.html')).toBe('<input [size]="s" wrInput />');
+    expect(read('/c.html')).toBe('<textarea wrInput size="lg"></textarea>');
+  });
+
+  it("never touches a native size on an input that is not ngwr's", () => {
+    // The reason these rules anchor on `wrInput` rather than on the tag. `size`
+    // is a legal native attribute measuring the field in characters, so a rule
+    // that rewrote every `<input size>` would silently rebind unrelated markup —
+    // and silently is the operative word: nothing errors either way.
+    const untouched = {
+      '/d.html': '<input size="30" name="q" />',
+      '/e.html': '<input [wrSize]="s" />',
+      '/f.html': '<my-input wrInput wrSize="lg" />',
+    };
+    const { read } = run(untouched);
+
+    for (const [path, before] of Object.entries(untouched)) expect(read(path), path).toBe(before);
   });
 });

@@ -29,7 +29,7 @@ import { err } from './lib/log/err';
 import { info } from './lib/log/info';
 import { out } from './lib/log/out';
 import { parseReleaseType } from './lib/parse-release-type';
-import { breakingSince, lastReleaseTag } from './lib/version/breaking-since';
+import { breakingSince, lastReleaseTag, truncatedBreakingNotes } from './lib/version/breaking-since';
 import { nextVersion } from './lib/version/next';
 import { readCurrentVersion } from './lib/version/read-current';
 import { writeSupportTable } from './lib/version/support-table';
@@ -60,6 +60,17 @@ async function main(): Promise<void> {
       err('A `!` type or a `BREAKING CHANGE:` footer requires --bump=major.');
       exit(1);
     }
+  }
+
+  // A footer line that starts `word:` is a git trailer, and conventional-changelog
+  // ends the BREAKING CHANGE body there — silently. v14's date entry lost half its
+  // sentence and the whole `<wr-pagination ofLabel>` removal that way, because the
+  // note happened to wrap onto a line beginning `calendar: 'gregory'`. The release
+  // body is extracted from the same file, so the published note loses it too.
+  for (const subject of truncatedBreakingNotes()) {
+    err(`Warning: the BREAKING CHANGE note on "${subject}" will be cut short in CHANGELOG.md.`);
+    err('  A line in it begins `word:`, which conventional-changelog reads as a new trailer.');
+    err('  Check the generated section and fix it in the release PR.');
   }
 
   const next = nextVersion(current, type);

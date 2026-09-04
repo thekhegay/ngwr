@@ -24,6 +24,7 @@ import { Footer } from '../_layout/footer/footer';
 import { ComponentsBento } from './components-bento/components-bento';
 
 import { DocCodeComponent } from '#core/components';
+import { QUALITY } from '#core/generated/quality';
 import { BRAND_ICONS } from '#core/icons';
 import { MetaService } from '#core/services';
 import { routes } from '#routing';
@@ -81,6 +82,14 @@ export default class HomeComponent {
   protected readonly replayTick = signal(0);
 
   protected readonly routes = routes;
+
+  /**
+   * Counted by `pnpm gen:quality`, not typed here. The hero and the "Pay for
+   * what you import" tile both stated 202 while the package published 204 — a
+   * hand-written catalog size is stale one entry point after it is written, and
+   * this is the page most readers see first.
+   */
+  protected readonly entryPoints = QUALITY.entryPoints;
 
   /**
    * Sample sign-up card shown in the DX section — goes through Shiki.
@@ -182,8 +191,7 @@ export class SignupCard {
     {
       icon: 'folder',
       title: 'Pay for what you import',
-      description:
-        "202 entry points, each its own ng-packagr build. What you don't import never lands in your bundle — the SCSS opts in per component too.",
+      description: `${QUALITY.entryPoints} entry points, each its own ng-packagr build. What you don't import never lands in your bundle — the SCSS opts in per component too.`,
       accent: 'success',
       spotlight: 'rgba(var(--wr-color-success-rgb), 0.14)',
     },

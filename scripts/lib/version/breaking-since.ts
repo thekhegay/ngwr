@@ -42,3 +42,38 @@ export function lastReleaseTag(): string | null {
 
   return tags[0] ?? null;
 }
+
+/**
+ * Subjects of breaking commits whose note will be CUT SHORT in the changelog.
+ *
+ * `conventional-changelog` ends a `BREAKING CHANGE:` body at the first line that
+ * looks like another git trailer — `word:` — and says nothing about it. v14's
+ * date entry wrapped onto a line beginning `calendar: 'gregory'.` and lost both
+ * the rest of that sentence and the whole `<wr-pagination ofLabel>` removal; the
+ * GitHub release body is extracted from the same section, so the published note
+ * lost it too.
+ *
+ * A warning rather than a refusal: the commit is already written and pushed by
+ * the time anyone runs this, so the actionable fix is to correct the generated
+ * section in the release PR. Refusing would only block a release over a message
+ * nobody can now rewrite.
+ */
+export function truncatedBreakingNotes(): string[] {
+  const ref = lastReleaseTag();
+  if (!ref) return [];
+
+  const log = execFileSync('git', ['log', '-z', '--format=%s%n%b', `${ref}..HEAD`], { encoding: 'utf8' });
+
+  return log
+    .split('\0')
+    .map(c => c.trim())
+    .filter(Boolean)
+    .filter(commit => {
+      const from = commit.search(/^BREAKING[ -]CHANGE:/m);
+      if (from < 0) return false;
+      // Skip the `BREAKING CHANGE:` line itself; look at what follows it.
+      const body = commit.slice(from).split('\n').slice(1);
+      return body.some(line => /^[a-z][\w-]*:/i.test(line));
+    })
+    .map(commit => commit.split('\n')[0] ?? '');
+}

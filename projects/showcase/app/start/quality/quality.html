@@ -246,11 +246,13 @@
     </wr-table>
 
     <p wrTypography variant="small" tone="medium">
-      The partial is deliberate too. v12's other break — <code>readI18nText()</code> returning a
+      Both partials are deliberate. v12's other break — <code>readI18nText()</code> returning a
       <code>Signal&lt;string&gt;</code> — is not codemodded, because adding <code>()</code> means knowing which
       identifiers hold the result, and a wrong guess is a silent behaviour change. The type error names every call site
-      instead. The <a routerLink="/start/migration">migration guide</a> documents both halves, and every break back to
-      v7.
+      instead. v14 rewrites its five renames and only <em>reports</em> the rest: opting a loading bar or a routed tab
+      strip back into the router is a decision about a bundle, not a substitution, and the stricter date parsing has no
+      token to detect. The <a routerLink="/start/migration">migration guide</a> documents every half, and every break
+      back to v7.
     </p>
   </ngwr-doc-section>
 

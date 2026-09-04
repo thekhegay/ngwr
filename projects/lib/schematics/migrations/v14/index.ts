@@ -145,6 +145,29 @@ const HTML_TRANSFORMS: readonly Transform[] = [
   { pattern: new RegExp(`(${ALERT})\\[closeable\\]`, 'g'), replacement: '$1[closable]' },
   { pattern: new RegExp(`(${ALERT})closeable(?=[\\s/>=])`, 'g'), replacement: '$1closable' },
 
+  // `[wrInput]`'s size input drops its prefix. Anchored on the DIRECTIVE, not on
+  // an element, because it sits on a native `<input>` / `<textarea>` — and the
+  // anchor matters more here than anywhere else in this table: `size` is a legal
+  // native attribute, so rewriting one that was never ngwr's silently rebinds a
+  // character-width hint. The two orders are both real markup, hence two rules.
+  {
+    pattern: /(<(?:input|textarea)(?![-\w])(?:"[^"]*"|'[^']*'|[^>])*?\swrInput(?:"[^"]*"|'[^']*'|[^>])*?\s)\[wrSize\]/g,
+    replacement: '$1[size]',
+  },
+  {
+    pattern: /(<(?:input|textarea)(?![-\w])(?:"[^"]*"|'[^']*'|[^>])*?\swrInput(?:"[^"]*"|'[^']*'|[^>])*?\s)wrSize=/g,
+    replacement: '$1size=',
+  },
+  {
+    pattern:
+      /(<(?:input|textarea)(?![-\w])(?:"[^"]*"|'[^']*'|[^>])*?\s)\[wrSize\]((?:"[^"]*"|'[^']*'|[^>])*?\swrInput)/g,
+    replacement: '$1[size]$2',
+  },
+  {
+    pattern: /(<(?:input|textarea)(?![-\w])(?:"[^"]*"|'[^']*'|[^>])*?\s)wrSize=((?:"[^"]*"|'[^']*'|[^>])*?\swrInput)/g,
+    replacement: '$1size=$2',
+  },
+
   // <wr-table>, from [totalItems] to [total]
   { pattern: new RegExp(`(${TABLE})\\[totalItems\\]`, 'g'), replacement: '$1[total]' },
   { pattern: new RegExp(`(${TABLE})totalItems=`, 'g'), replacement: '$1total=' },
@@ -219,7 +242,59 @@ const OF_LABEL = /<wr-pagination\b[^>]*\[?ofLabel\]?\s*=/;
 // its translation with nothing said. Markup detection misses every one of them,
 // which is why this looks at the catalog instead.
 const REMOVED_KEY = /['"`]?\bof['"`]?\s*:\s*['"`]/;
-const PAGINATION_SCOPE = /\bpagination\s*:\s*\{/;
+const PAGINATION_SCOPE = /\bpagination\s*:\s*\{/g;
+
+/**
+ * Every `pagination: { … }` object literal in a file, brace-matched and
+ * QUOTE-AWARE — and it has to be both, because the first version was neither.
+ *
+ * It sliced to `content.indexOf('}')`, and the shipped catalog carries
+ * `perPage: '{{size}} / page'` two lines ABOVE `of`, so the slice ended inside
+ * `{{size` and the scan never reached the key it exists to find. The detector
+ * therefore answered "clean" for the one shape that actually occurs — a
+ * consumer catalog copied from ngwr's own — and green for the toy literal in
+ * its spec, `pagination: { of: 'von' }`, where `of` comes first and no
+ * placeholder precedes it. A warning that only fires on a shape nobody writes
+ * is the silent half of a silent change.
+ *
+ * All of them rather than the first, since one file commonly holds several
+ * locales.
+ */
+function paginationBlocks(content: string): string[] {
+  const blocks: string[] = [];
+  PAGINATION_SCOPE.lastIndex = 0;
+
+  for (let scope = PAGINATION_SCOPE.exec(content); scope; scope = PAGINATION_SCOPE.exec(content)) {
+    // The `{` the match ends on.
+    const start = scope.index + scope[0].length - 1;
+    let depth = 0;
+    let quote: string | null = null;
+
+    for (let i = start; i < content.length; i += 1) {
+      const char = content[i];
+
+      if (quote !== null) {
+        if (char === '\\') i += 1;
+        else if (char === quote) quote = null;
+        continue;
+      }
+
+      if (char === "'" || char === '"' || char === '`') {
+        quote = char;
+      } else if (char === '{') {
+        depth += 1;
+      } else if (char === '}') {
+        depth -= 1;
+        if (depth === 0) {
+          blocks.push(content.slice(start, i + 1));
+          break;
+        }
+      }
+    }
+  }
+
+  return blocks;
+}
 
 function ngUpdateV14(): Rule {
   return (tree: Tree, context: SchematicContext) => {
@@ -268,8 +343,7 @@ function ngUpdateV14(): Rule {
       if (OF_LABEL.test(content)) ofLabels.push(filePath);
       // Scoped to the `pagination:` block so a `common: { of: '…' }` — a key that
       // is still shipped and still unread — does not drag every catalog in.
-      const scope = PAGINATION_SCOPE.exec(content);
-      if (scope && REMOVED_KEY.test(content.slice(scope.index, content.indexOf('}', scope.index)))) {
+      if (paginationBlocks(content).some(block => REMOVED_KEY.test(block))) {
         staleCatalogs.push(filePath);
       }
     });

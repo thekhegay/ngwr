@@ -80,11 +80,18 @@ export class WrInput {
   protected readonly describedBy = computed(() => this.field?.describedBy() ?? null);
 
   /**
-   * Control size. Named `wrSize` (not `size`) so it never clashes with the
-   * native `<input size>` attribute. Unset, it falls back to
+   * Control size. Unset, it falls back to
    * `provideWrConfig({ input: { size } })`. @default 'md'
+   *
+   * Called `wrSize` until v14, to dodge the native `<input size>` attribute —
+   * which measures the field in characters and which `.wr-input`'s `width: 100%`
+   * has always overridden, so the clash it guarded against was never observable.
+   * It made this the one size input in the catalog spelled differently from the
+   * other twenty-three. The cost of the change is that a consumer who wanted the
+   * NATIVE `size` on an ngwr input can no longer have it — but `width: 100%`
+   * meant they never did.
    */
-  readonly wrSize = input<WrInputSize | null>(null);
+  readonly size = input<WrInputSize | null>(null);
 
   /**
    * Pill-shaped corners. Unset, it falls back to
@@ -103,7 +110,7 @@ export class WrInput {
   // there, "the template said nothing" and "the template said md" are the same value,
   // so no app-wide default could ever apply. The effective default is the last
   // argument below, which is where the old inline one moved to.
-  protected readonly resolvedSize = useConfigValue(this.wrSize, c => c.input?.size, 'md');
+  protected readonly resolvedSize = useConfigValue(this.size, c => c.input?.size, 'md');
   protected readonly resolvedRounded = useConfigValue(this.rounded, c => c.input?.rounded, false);
 
   protected readonly classes = computed(() => {

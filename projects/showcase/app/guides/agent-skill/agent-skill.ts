@@ -61,7 +61,7 @@ cat node_modules/ngwr/skills/ngwr/SKILL.md`,
       name: 'Setting a component up',
       type: 'section',
       description:
-        '`ng add ngwr`, `ng g ngwr:use` with `--path` as a NAMED option, and the four providers a component cannot work without — each one a case where it compiles, renders nothing useful, and gives no error naming the cause.',
+        '`ng add ngwr`, `ng g ngwr:use` with `--path` as a NAMED option, and the providers a component cannot work without — each one a case where it compiles, renders nothing useful, and gives no error naming the cause. `provideWrLoadingBarRouter()` joined that list in v14, when router integration became opt-in.',
       default: '—',
     },
     {

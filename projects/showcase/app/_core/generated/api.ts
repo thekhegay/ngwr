@@ -624,7 +624,7 @@ export const API = {
   ],
   // <input[wrInput], textarea[wrInput]>
   WrInput: [
-    { name: "wrSize", description: "Control size. Named `wrSize` (not `size`) so it never clashes with the native `<input size>` attribute. Unset, it falls back to `provideWrConfig({ input: { size } })`.", type: "WrInputSize | null", default: "'md'" },
+    { name: "size", description: "Control size. Unset, it falls back to `provideWrConfig({ input: { size } })`.", type: "WrInputSize | null", default: "'md'" },
     { name: "rounded", description: "Pill-shaped corners. Unset, it falls back to `provideWrConfig({ input: { rounded } })`; `[rounded]=\"false\"` turns a configured `true` back off.", type: "boolean | null", default: "false" },
   ],
   // <wr-input-group>

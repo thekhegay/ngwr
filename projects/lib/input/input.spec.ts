@@ -15,7 +15,7 @@ import { WrPasswordToggle } from './password-toggle';
   template: `
     <wr-input-group [rounded]="rounded()">
       <span wrInputPrefix>@</span>
-      <input wrInput [wrSize]="size()" [rounded]="rounded()" placeholder="Handle" />
+      <input wrInput [size]="size()" [rounded]="rounded()" placeholder="Handle" />
       <span wrInputSuffix>.dev</span>
     </wr-input-group>
 
@@ -179,7 +179,7 @@ describe('WrInput inside a form field', () => {
     <wr-input-group>
       <input wrInput placeholder="Unbound" />
     </wr-input-group>
-    <input wrInput [wrSize]="size()" [rounded]="rounded()" placeholder="Bound" />
+    <input wrInput [size]="size()" [rounded]="rounded()" placeholder="Bound" />
     <input wrInput rounded placeholder="Attribute" />
     <wr-input-group [rounded]="groupRounded()">
       <input wrInput placeholder="Bound group" />
@@ -281,7 +281,7 @@ describe('WrInput defaults from provideWrConfig', () => {
   });
 
   it('goes back to the config when a `rounded` binding is cleared', () => {
-    // `rounded`'s own clearing path, not `wrSize`'s: it is the one that goes through
+    // `rounded`'s own clearing path, not `size`'s: it is the one that goes through
     // the null-preserving transform, and a transform that folded `null` into `false`
     // would leave this field permanently square with no way to ask for the default
     // back. Every other case here still passes with that folding in place.

@@ -18,7 +18,7 @@ Other scripts:
 ```shell
 pnpm build:lib        # build the publishable library → dist/lib
 pnpm build:showcase   # build the docs site         → dist/showcase
-pnpm lint             # eslint (lib + showcase + scripts) + stylelint + colour parity
+pnpm lint             # eslint (lib + showcase + scripts) + stylelint + four repo checks
 pnpm icons:sets       # rebuild showcase icon catalogs (also runs on postinstall)
 ```
 
@@ -74,7 +74,8 @@ Scope is the component or area in kebab-case: `feat(button)`, `fix(select)`,
 
 1. Branch from `main`.
 2. Make focused changes — one PR per concern.
-3. Run `pnpm lint && pnpm build:lib && pnpm build:showcase` before pushing.
+3. Run `pnpm lint && pnpm test && pnpm build:lib && pnpm build:showcase` before
+   pushing.
 4. PR title must be a valid conventional commit (CI enforces this).
 5. Fill in the PR template — describe **what** changed and **why**.
 6. We use **squash merge** so the PR title becomes the commit on `main`.
@@ -113,6 +114,10 @@ Then:
    `projects/showcase/app/reference/components/components.routing.ts`.
 6. Add the sidebar entry to
    `projects/showcase/app/_layout/sidebar/configs/components.config.ts`.
+7. Add a `<name>.spec.ts` beside the component. Every entry point in the catalog
+   has one, and the specs assert the rendered DOM — roles, ARIA state and the
+   `.wr-*` classes — rather than component internals. Copy `projects/lib/tabs/`
+   for a plain component, or `projects/lib/select/` for one with an overlay.
 
 ## Style guide
 
@@ -128,11 +133,17 @@ Then:
   `Overlay`) so isolation works.
 - **CSS custom properties scoped per component.** Component styles read from
   `--wr-*` tokens; consumers can override per-instance.
-- **Verify lint by exit code.** `pnpm lint` is multi-stage (`ng lint` →
-  `eslint scripts` → stylelint → `check:colors`); the first stage prints
+- **Verify lint by exit code.** `pnpm lint` is a seven-stage `&&` chain:
+  `ng lint`, then `eslint scripts`, `lint:styles` (stylelint), `check:colors`,
+  `check:rtl`, `check:registry` and `check:tokens`. The first stage prints
   `All files pass linting.` even when a later stage fails, so run
-  `pnpm lint; echo $?`. CI gates on lint **plus** `pnpm build:lib` and
-  `pnpm build:showcase`.
+  `pnpm lint; echo $?` and trust the code, not the output. CI runs **nine
+  gates** on every PR: `lint`, `test:coverage`, `check:api-docs`, `check:llms`,
+  `check:css-vars`, `build:lib`, `build:showcase`, `check:theme` and
+  `check:a11y` — the last two need the prerendered site, which is why they sit
+  after the showcase build. `check:contrast`, `check:state-a11y` and
+  `check:rtl-layout` need a real browser and run nightly instead, so a green PR
+  says nothing about painted contrast or RTL overflow.
 
 ## Setting up your editor
 

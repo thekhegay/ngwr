@@ -13,7 +13,7 @@ body:
     attributes:
       label: NGWR version
       description: Output of `npm ls ngwr` or the value in your `package.json`.
-      placeholder: '10.0.0'
+      placeholder: '14.0.0'
     validations:
       required: true
 

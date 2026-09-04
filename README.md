@@ -19,7 +19,7 @@ value controls implement `FormValueControl` / `FormCheckboxControl` themselves,
 so `[formField]` writes the component's own `value` / `checked` model — there
 is not one `ControlValueAccessor` in the library. Zoneless by construction, not
 zoneless-compatible: signal inputs, signal state, `afterNextRender()` for DOM
-work, and no `@NgModule` or `@Input()` decorator anywhere in the source. 202
+work, and no `@NgModule` or `@Input()` decorator anywhere in the source. 204
 tree-shakable entry points, on `@angular/cdk` for overlay, portal and a11y
 primitives.
 
@@ -63,8 +63,11 @@ Classic `[(ngModel)]` and reactive forms still work — Angular 22 synthesises t
 accessor for a signal-forms control — and every control is usable standalone
 through its two-way `[(value)]` / `[(checked)]` model.
 
-> **Status:** active development. v12 is the current major line (Angular 22 peer).
+> **Status:** active development. v14 is the current major line (Angular 22 peer).
 > Public API is stable across patch releases and still evolving between majors.
+> Upgrading? `ng update ngwr@14` rewrites v14's five renames and reports the
+> changes no codemod should guess at — the
+> [migration guide](https://ngwr.dev/start/migration) walks every step.
 > [Open an issue](https://github.com/thekhegay/ngwr/issues/new)
 > if something breaks or feels wrong.
 
@@ -111,8 +114,12 @@ yarn add ngwr @angular/cdk
 
 Beyond Angular itself, `@angular/cdk` and `@angular/forms` are the required
 peers — forms because the value controls implement its Signal Forms interfaces.
-`@angular/router` is optional, needed only by the navigation components that
-take a `routerLink`. A stock `ng new` app already ships forms and router, so
+`@angular/router` is optional, and since v14 nothing pulls it in unless you ask:
+a `<wr-tab routerLink>` needs `WrTabsRouting` from `ngwr/tabs/router` on the
+strip, and `<wr-loading-bar>` follows navigation only once you add
+`provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`. Both used to be
+automatic, which cost every app 66–76 kB of router whether it routed or not.
+A stock `ng new` app already ships forms and router, so
 `@angular/cdk` is the only one you have to add — which is why it is on the
 install lines above. Add an icon set and a date library only if you use them —
 `lucide` (or `feather-icons`) for the icon adapters, and `date-fns` or `luxon`
@@ -345,7 +352,7 @@ pnpm dev            # ng serve --o (showcase)
 pnpm test           # ng test lib (vitest)
 pnpm build:lib      # ng build lib + ai assets + dist assets + i18n json + schematics + mcp server
 pnpm build:showcase # ai assets + showcase build + sitemap + markdown twins
-pnpm lint           # ng lint + eslint scripts + stylelint + colour parity + rtl
+pnpm lint           # ng lint + eslint scripts + stylelint + colour parity + rtl + registry + tokens
 ```
 
 ## Authors

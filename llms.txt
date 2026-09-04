@@ -1,7 +1,7 @@
 # ngwr
 
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
-> 204 secondary entry points, 187 component and directive classes, built on
+> 204 secondary entry points, 174 component and directive classes, built on
 > `@angular/cdk` primitives. The only runtime dependency is `tslib`. Docs and
 > live demos: https://ngwr.dev — source: https://github.com/thekhegay/ngwr
 
@@ -75,20 +75,44 @@ one element at a time; a step whose target is missing is skipped, not floated.
 - `ng g ngwr:page <form|table|dashboard>` — starter page wired with ngwr.
 - `ng update ngwr` — runs upgrade migrations.
 
-## Upgrading to v12
+## Upgrading to v14
 
-Two breaking changes, and only one is codemoddable.
+Run `ng update ngwr@14`. It rewrites the renames and REPORTS the rest — read its
+output, because the reported half is where the silent failures are.
 
-- **Date entry points nest under `ngwr/date`.** `ngwr/date-adapter` →
-  `ngwr/date`, `ngwr/date-adapter-fns` → `ngwr/date/adapters/fns`,
-  `ngwr/date-adapter-luxon` → `ngwr/date/adapters/luxon`. Import paths only —
-  every symbol keeps its name. `ng update ngwr@12` rewrites them.
-- **`readI18nText()` returns `Signal<string>`.** Add `()` at every read. No
-  codemod: adding the call means knowing which identifiers hold the result, and
-  the type error already names every site. `useI18nText`, the `wrT` pipe and the
-  `[wrT]` directive are unchanged.
+Rewritten for you (five renames, one word per concept):
 
-Full guide, with diffs: https://ngwr.dev/start/migration
+- `<wr-alert>` from `closeable` to `closable`.
+- `<wr-table>` from `[totalItems]` to `[total]`.
+- `<wr-pagination>` from `[(currentPage)]` to `[(page)]`, and from
+  `(currentPageChange)` to `(pageChange)`.
+- `isDisabledWhenLoading` to `disabledWhenLoading` (the library's last
+  `is`-prefixed boolean).
+- The window `chromeSize` scale from `'compact' | 'normal'` to `'sm' | 'md'`,
+  including the `.wr-window--chrome-compact` class.
+
+Reported, not rewritten — each needs a decision a codemod cannot make:
+
+- **Router integration is opt-in.** `<wr-loading-bar>` no longer follows the
+  router on its own: add `provideWrLoadingBarRouter()` from
+  `ngwr/loading-bar/router`. A `<wr-tab routerLink>` needs `wrTabsRouting` on the
+  strip and `WrTabsRouting` (from `ngwr/tabs/router`) in `imports`. The tab strip
+  throws without it; **the loading bar does not — it just never moves.**
+- **Locale comes from Angular's `LOCALE_ID`.** `WR_DATE_LOCALE` and `WrI18n`'s
+  `defaultLocale` / `availableLocales` used to read `navigator.language` or a
+  literal `'en'`. An app that really wants the browser's tag now writes
+  `provideWrDateAdapter({ locale: navigator.language })`.
+- **A named date format refuses input it cannot read.** `shortDate` / `time` and
+  friends parse through the same `Intl` formatter that printed the string, so
+  they round-trip; unreadable input returns null and leaves the committed value
+  alone instead of guessing. Pass an explicit token `[format]` if you relied on
+  `new Date()`'s leniency.
+- **`<wr-pagination ofLabel>` is gone**, and the `pagination.of` catalog key with
+  it. The range is one `pagination.range` template with `{{from}}` / `{{to}}` /
+  `{{total}}` placeholders — a catalog still carrying the old key reverts that
+  line to English silently.
+
+Earlier steps, with diffs, back to v6: https://ngwr.dev/start/migration
 
 ## Use ngwr — don't hand-roll
 
@@ -140,7 +164,14 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `[(checked)]` on checkbox/switch), or classic `[(ngModel)]` / reactive forms
   via Angular's bridge.
 - **Icons** — register via `provideWrIcons`, render `<wr-icon name="check" />`.
-- **i18n** — `{{ 'key' | wrT }}` (pipe from `ngwr/i18n`).
+- **Router** — nothing injects `@angular/router` unless you opt in. A
+  `<wr-tab routerLink>` needs `wrTabsRouting` on the strip plus `WrTabsRouting`
+  (`ngwr/tabs/router`) in `imports`, and it throws if you forget.
+  `<wr-loading-bar>` follows navigation only with
+  `provideWrLoadingBarRouter()` (`ngwr/loading-bar/router`), and it does NOT
+  throw — without the provider the bar simply never moves.
+- **i18n** — `{{ 'key' | wrT }}` (pipe from `ngwr/i18n`). The locale defaults to
+  Angular's `LOCALE_ID`, not the browser, for both copy and dates.
 - **Theme** — CSS custom properties `--wr-color-*`, `--wr-border-radius-*`, … set
   by `provideWrTheme()`. Two contrast tokens per intent, easy to confuse:
   `--wr-color-<intent>-contrast` is the label ON a filled intent;
@@ -202,7 +233,7 @@ is meant to be checkable rather than taken on trust:
   Forms controls; no `ControlValueAccessor` in the library), a comparison against
   Material / PrimeNG / NG-ZORRO / Taiga / Spartan, and a per-competitor "choose
   something else if" section: https://ngwr.dev/start/comparison
-- **What gates a change** — eight gates on every PR, three separate
+- **What gates a change** — nine gates on every PR, three separate
   accessibility sweeps and what each one cannot see, the two nightly baselines
   and what is accepted in them, plus what the test suite does NOT cover:
   https://ngwr.dev/start/quality
@@ -210,8 +241,8 @@ is meant to be checkable rather than taken on trust:
   https://ngwr.dev/start/playground
 
 The honest shape of the project, since these pages say it too: one maintainer,
-MIT, six majors shipped between 2026-06-12 and 2026-08-20, a codemod for every
-break a codemod can repair, no commercial support.
+MIT, eight majors shipped since 2026-06-12, a codemod for every break a codemod
+can repair and a reported diagnosis for the rest, no commercial support.
 
 ## Resources (machine-readable)
 
