@@ -4,7 +4,7 @@
   [attr.aria-label]="resolvedAriaLabel()"
   [attr.aria-valuemin]="0"
   [attr.aria-valuemax]="count()"
-  [attr.aria-valuenow]="value() ?? 0"
+  [attr.aria-valuenow]="announcedValue()"
   [attr.aria-readonly]="readonly() || null"
   [attr.aria-disabled]="disabled() || null"
   [attr.aria-invalid]="fieldAria.ariaInvalid()"

@@ -7,3 +7,4 @@ export {
   type WrStorageConfigResolved,
 } from './storage-config';
 export { WR_STORAGE_ENGINE, createMemoryStorage, type WrStorageEngine } from './storage-engine';
+export type { WrStorageEnvelope } from './interfaces';

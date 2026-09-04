@@ -159,9 +159,14 @@ describe('the published manifest', () => {
  *
  * So the invariant is about content, not about a file name: nothing a `styleUrl`
  * reaches may declare `:root` or the namespace reset. Those two, and not the dark
- * block — a component writes `[data-theme='dark'] .wr-star-border` for its own
- * variant, which is a legitimate scoped rule, and the theme's dark block opens with
- * a top-level `:root` anyway, so it is caught either way.
+ * block, which the theme's own `_dark.scss` opens with a top-level `:root` anyway
+ * — so it is caught either way. A COMPONENT'S dark block is a separate question
+ * and `theme/styles.spec.ts` owns it: seven of them wrote `[data-theme='dark']
+ * .wr-star-border` and were described here as a legitimate scoped rule, which
+ * they were not. Compiled at library build time, the attribute in one can only
+ * ever be the default, so it misses a rename and then outranks the correctly
+ * named rule beside it. They are keyed on `dark-selector()` now, and loaded from
+ * the public Sass entry rather than from the `styleUrl`.
  * `theme/styles/_focus.scss` passes and is deliberately still reachable — it emits
  * `.wr-*:focus-visible` rules rather than the global layer, and it is the only place
  * the shared ring mixin lives, so the five components that draw one take it from

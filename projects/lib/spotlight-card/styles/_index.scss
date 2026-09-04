@@ -11,5 +11,10 @@
 // box-sizing reset into the compiled component styles, which ng-packagr then
 // embeds in the FESM bundle as a string. `spotlight-card.scss` forwards `_rules`
 // instead, so it carries this component's own CSS and nothing else.
+//
+// `_dark` is loaded from HERE for a second reason: its selector is built out of
+// `$theme-attribute`, which only a stylesheet compiled by the consuming app can
+// configure, so a copy inside the bundle could only ever carry the default name.
 @use '../../theme/styles';
 @forward 'rules';
+@forward 'dark';

@@ -137,9 +137,14 @@ one component folder. Reach for them instead of hand-rolling:
   `--wr-theme-attribute` and `WrTheme` warns on a mismatch in dev mode; an ABSENT
   marker is silent on purpose, because it means "no ngwr stylesheet loaded",
   which is every consumer's unit-test run. Style your own dark overrides with the
-  `theme.dark` mixin rather than a hand-written `[data-theme='dark']` — seven
-  animation stylesheets still hardcode that literal and are wrong under a
-  renamed attribute.
+  `theme.dark` mixin (or `dark-selector()`) rather than a hand-written
+  `[data-theme='dark']`. Seven animation stylesheets hardcoded that literal until
+  v14.1 and were wrong under a renamed attribute; each now keys on
+  `dark-selector()` from its own `styles/_dark.scss`, which the public Sass entry
+  loads and the component's `styleUrl` does not — a `styleUrl` is compiled when
+  the LIBRARY is built, so the attribute in it can only ever be the default, and
+  Angular appends that copy after the app's linked sheet, where it would outrank
+  the correctly named rule. `theme/styles.spec.ts` gates both halves.
   **`wrThemeTokens()` is the palette recipe in TypeScript** — the same arithmetic
   as `_colors.scss`, for a theme chosen at RUNTIME (a builder, a tenant colour, a
   registry preset). It emits **seven tokens per intent, not twelve**: the tint and

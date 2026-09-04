@@ -46,6 +46,28 @@ class Host {
 })
 class UnnamedHost {}
 
+/**
+ * The two ways an `id` can arrive from a BINDING rather than as a literal
+ * attribute. A static `id=""` is on the element before a directive is even
+ * constructed; these are not, and the directive used to read the element in its
+ * constructor and then write its generated fallback over both. An interpolated
+ * `id="{{ … }}"` needs no third case — Angular compiles it to the property
+ * binding the first button already covers.
+ */
+@Component({
+  imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
+  template: `
+    <button type="button" [id]="name()" [wrDropdown]="menu">Property</button>
+    <button type="button" [attr.id]="name() + '-attr'" [wrDropdown]="menu">Attribute</button>
+    <wr-dropdown-menu #menu>
+      <wr-dropdown-item>Copy</wr-dropdown-item>
+    </wr-dropdown-menu>
+  `,
+})
+class BoundIdHost {
+  readonly name = signal('account-actions');
+}
+
 describe('WrDropdown', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
@@ -100,6 +122,43 @@ describe('WrDropdown', () => {
     const button = (bare.nativeElement as HTMLElement).querySelector('button')!;
     expect(button.getAttribute('id')).toMatch(/^wr-dropdown-trigger-\d+$/);
     bare.destroy();
+  });
+
+  it('leaves a BOUND id alone too, in both of its forms', () => {
+    // The half that was still overwritten. A static `id="…"` is on the element
+    // before a directive is constructed and so was already honoured; `[id]` and
+    // `[attr.id]` land with the rest of the template's bindings, which is after
+    // construction — so the constructor
+    // read an empty string, took the generated fallback, and the host binding
+    // then wrote that fallback over the value the template had just set. The
+    // static form surviving is what made it look like a naming convention.
+    const bound = TestBed.createComponent(BoundIdHost);
+    bound.detectChanges();
+    const root = bound.nativeElement as HTMLElement;
+
+    expect([...root.querySelectorAll('button')].map(b => b.getAttribute('id'))).toEqual([
+      'account-actions',
+      'account-actions-attr',
+    ]);
+    bound.destroy();
+  });
+
+  it('follows a bound id when it changes, and names the menu after it', () => {
+    // A generated fallback that had won once would stay won: the id has to be
+    // read on every pass, not decided once.
+    const bound = TestBed.createComponent(BoundIdHost);
+    bound.detectChanges();
+    const root = bound.nativeElement as HTMLElement;
+    const first = root.querySelector<HTMLButtonElement>('button')!;
+
+    bound.componentInstance.name.set('row-7');
+    bound.detectChanges();
+    expect(first.getAttribute('id')).toBe('row-7');
+
+    first.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+    bound.detectChanges();
+    expect(document.querySelector('.wr-dropdown-menu')!.getAttribute('aria-labelledby')).toBe('row-7');
+    bound.destroy();
   });
 
   it('opens on click and wires the menu to the trigger', () => {

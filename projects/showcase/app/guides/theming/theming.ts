@@ -60,6 +60,12 @@ bootstrapApplication(AppComponent, {
     paletteScss: `// Rebrand at compile time — configure the palette on the theme entry point.
 // NGWR re-derives -dark / -darker / -light / -lighter / -contrast variants.
 //
+// THIS IS THE LIGHT PALETTE. It does not reach dark mode: the dark intents are
+// hand-tuned for the dark canvas, not lightened from these, so seeding indigo
+// here gives indigo in light and the shipped blue in dark. Carry it across
+// yourself with \`rebrand()\` — the second block below — and pick the dark seed
+// for a dark ground rather than reusing the light one.
+//
 // The palette is ONE Sass map, and configuring a map REPLACES it — it is not
 // merged with the defaults. List every intent you want to exist: an omitted
 // key leaves \`--wr-color-<intent>\` undefined in light mode, which also breaks
@@ -77,9 +83,52 @@ bootstrapApplication(AppComponent, {
     dark: #0f172a,
   )
 );
-@use 'ngwr' as *;`,
+@use 'ngwr' as *;
 
-    paletteRoot: `/* Rebrand at runtime — override on \`:root\` or any subtree.
+// Carry the rebrand into dark mode. \`rebrand()\` is the same arithmetic the
+// light palette runs, on whatever element you include it on — and \`theme.dark\`
+// builds the selector from \`$theme-attribute\`, so it survives a renamed
+// attribute where a hand-written [data-theme='dark'] would not.
+@use 'ngwr/theme' as theme;
+
+@include theme.dark {
+  // Seeded FOR the dark canvas, and measured: \`-contrast\` PICKS black or
+  // white, so the fill decides its own label. #5b5bd6 takes white at 5.37:1
+  // (the shipped dark intents all do); indigo-400 #818cf8 would take black,
+  // which is a different design, not a lighter one.
+  @include theme.rebrand((primary: #5b5bd6));
+}`,
+
+    paletteScoped: `/* Recolour a SUBTREE — use \`rebrand()\`, not a hand-written triple.
+   It emits the whole family for each intent you name: the base, \`-rgb\` and
+   \`-contrast\`, the four shades \`-dark\` / \`-darker\` / \`-light\` / \`-lighter\`,
+   and a re-resolved \`-soft\` / \`-soft-border\` / \`-soft-contrast\` / \`-active\` /
+   \`-ink\`. */
+@use 'ngwr/theme' as theme;
+
+.marketing {
+  @include theme.rebrand((primary: #be123c));
+}
+
+/* Why not three properties by hand. Setting only the base, \`-rgb\` and
+   \`-contrast\` leaves the rest of the family on the page's own hue, and it fails
+   in two different ways at once:
+
+   - \`-dark\` / \`-darker\` / \`-light\` / \`-lighter\` are Sass arithmetic, resolved
+     when the stylesheet is COMPILED. No runtime value feeds them, so a pink
+     button turned blue on :hover, which paints \`-dark\`.
+   - \`-soft\`, \`-soft-border\`, \`-soft-contrast\`, \`-active\` and \`-ink\` are written
+     in terms of var(), which is what lets them re-derive — but a custom
+     property's references are substituted on the element that DECLARES it, and
+     these are declared on :root. What inherits into the subtree is the
+     substituted literal, so an outlined button inside \`.marketing\` drew a pink
+     border around blue text.
+
+   Both are why the mixin exists. It is compile-time, so the seed has to be known
+   when your stylesheet is built; for a colour chosen at runtime reach for
+   \`wrThemeTokens()\` from 'ngwr/theme' instead. */`,
+
+    paletteRoot: `/* Rebrand at runtime — override on \`:root\`.
    Set the base color, the rgb channel (\`-rgb\` powers rgba() rings) AND the
    contrast: \`-contrast\` was picked at SCSS compile time from the OLD fill, so
    it does not follow a value you set here. #4f46e5 takes white at 6.3:1. */
@@ -89,12 +138,17 @@ bootstrapApplication(AppComponent, {
   --wr-color-primary-contrast: #ffffff;
 }
 
-/* Scoped palette override on a section. This one inherits the white label
-   above, so the fill has to be deep enough to carry it — #be123c is 6.3:1;
-   a lighter rose like #f43f5e would leave it at 3.7:1, under AA. */
-.marketing {
-  --wr-color-primary: #be123c;
-  --wr-color-primary-rgb: 190, 18, 60;
+/* Two families do NOT follow, and this is the ceiling of the runtime path.
+   \`-soft\` / \`-soft-border\` / \`-soft-contrast\` / \`-active\` / \`-ink\` re-resolve
+   on their own, because they are declared on :root in terms of var() and this
+   override lands on the same element. The four SHADES are Sass arithmetic and
+   cannot: set them yourself, or use \`wrThemeTokens()\`, which computes all seven
+   from one hex. */
+:root {
+  --wr-color-primary-dark: #4338ca;
+  --wr-color-primary-darker: #3730a3;
+  --wr-color-primary-light: #6366f1;
+  --wr-color-primary-lighter: #818cf8;
 }`,
 
     darkMode: `import { inject } from '@angular/core';
@@ -106,10 +160,12 @@ theme.set('auto');         // follow prefers-color-scheme
 theme.toggle();            // flip light ↔ dark
 theme.resolved();          // 'light' | 'dark' — what the DOM has
 
-// Tune dark-mode tokens by overriding under [data-theme='dark']:
+// Tune dark-mode tokens with the theme.dark mixin, which builds the selector
+// from $theme-attribute — a hand-written [data-theme='dark'] stops matching the
+// moment anyone renames the attribute, silently.
 // There is no --wr-color-bg: in dark, --wr-color-white IS the canvas and
 // --wr-color-dark IS the ink — the two neutrals swap jobs.
-[data-theme='dark'] {
+@include theme.dark {
   --wr-color-white: #0c0d10;
   --wr-color-dark: #f5f6f8;
 }`,

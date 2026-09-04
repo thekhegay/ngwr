@@ -37,6 +37,21 @@ export interface WrFormFieldContext {
 
   /** Id of the element listing the visible messages, or `null` when there are none. */
   readonly describedBy: Signal<string | null>;
+
+  /**
+   * Id of the field's hint, or `null` when it is showing none — including while
+   * an error has replaced it, since the two never render together and an
+   * `aria-describedby` naming an absent element is an author error.
+   *
+   * Separate from {@link describedBy} rather than folded into it because the two
+   * carry different weight: a control keyed `aria-invalid` on "the field is
+   * describing me" would announce itself invalid for a plain hint. Compose the
+   * pair with `useFormFieldAria()` instead of reading either one directly.
+   *
+   * Optional so an app that provides its own `WR_FORM_FIELD` keeps compiling; a
+   * field without it simply describes nothing but its errors.
+   */
+  readonly hintId?: Signal<string | null>;
 }
 
 /** Present only inside a `<wr-form-field>`; inject with `{ optional: true }`. */

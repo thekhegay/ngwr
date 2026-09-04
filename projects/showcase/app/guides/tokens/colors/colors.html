@@ -191,7 +191,7 @@
 
   <ngwr-doc-section
     title="The focus ring"
-    description="One family for the keyboard indicator, so it is themable like everything else. It is an outline, and that is a decision rather than a default."
+    description="One family for the keyboard indicator, so it is themable like everything else. It is an outline, and that is a decision rather than a default. One thing it is NOT: universal. Every control that draws a ring reads these tokens and nothing else — buttons included since v14.1, and with them the pagination cells and the column-sort control, which had been left on the browser's own outline where no token reaches — but a **text field marks focus differently on purpose**, by raising its border and halo to `--wr-color-primary`, so these four do not recolour `wr-input`, `wr-textarea` or an input group. The snippet below shows both halves."
   >
     <ngwr-doc-api [rows]="focusTokens" />
 

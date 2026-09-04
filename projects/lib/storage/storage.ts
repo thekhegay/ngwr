@@ -8,16 +8,11 @@
 import { isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Service, PLATFORM_ID, type Signal, type WritableSignal, inject, signal } from '@angular/core';
 
+import type { WrStorageEnvelope } from './interfaces';
 import { WR_STORAGE_CONFIG } from './storage-config';
 import { WR_STORAGE_ENGINE } from './storage-engine';
 
-/** Envelope written when `json` mode is on. `e` is epoch-ms expiry. @internal */
-interface Envelope<T> {
-  readonly v: T;
-  readonly e?: number;
-}
-
-function isEnvelope(x: unknown): x is Envelope<unknown> {
+function isEnvelope(x: unknown): x is WrStorageEnvelope {
   return x !== null && typeof x === 'object' && 'v' in x;
 }
 
@@ -33,6 +28,9 @@ function isEnvelope(x: unknown): x is Envelope<unknown> {
  *   lazily on the next `get` / `watch` read.
  * - **Reactive watch** — `watch(key)` returns a `Signal` that updates on
  *   local writes and cross-tab `storage` events.
+ * - **On-disk format** — values are wrapped in a {@link WrStorageEnvelope}
+ *   (`{"v":…,"e":…}`) while `json` is on. Anything reading the same key from
+ *   outside Angular has to unwrap it.
  *
  * SSR-safe: the default engine factory returns an in-memory shim when
  * `localStorage` is unavailable, so reads always work.
@@ -110,6 +108,11 @@ export class WrStorage {
   /**
    * Write `value` at `key`. Per-call `ttl` (ms) overrides the config
    * default. JSON-serializable values only when `json` is on (the default).
+   *
+   * What lands in the engine is a {@link WrStorageEnvelope} —
+   * `{"v":<value>}`, plus `"e"` when a TTL applies — not the bare value. Code
+   * outside Angular that reads the same key has to unwrap it; see the envelope's
+   * own docs for the exact format.
    */
   set<T = unknown>(key: string, value: T, opts?: { ttl?: number }): void {
     const fk = this.fullKey(key);
@@ -117,7 +120,7 @@ export class WrStorage {
 
     if (this.config.json) {
       const ttl = opts?.ttl ?? this.config.ttl;
-      const env: Envelope<T> = ttl ? { v: value, e: Date.now() + ttl } : { v: value };
+      const env: WrStorageEnvelope<T> = ttl ? { v: value, e: Date.now() + ttl } : { v: value };
       try {
         serialized = JSON.stringify(env);
       } catch (err) {

@@ -39,9 +39,3 @@
   }
 }
 
-// Dark mode: `--wr-color-on-surface-rgb` already flips to a light value, so the
-// default tint above becomes a light beam on the navy surface — nudge the
-// alpha up a touch so it reads as bright as the classic spotlight.
-[data-theme='dark'] .wr-spotlight-card {
-  --wr-spotlight-color: rgba(var(--wr-color-on-surface-rgb), 0.22);
-}

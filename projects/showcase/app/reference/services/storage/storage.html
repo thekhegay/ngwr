@@ -16,6 +16,23 @@
     <ngwr-doc-code [code]="snippets.usage" language="angular-ts" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="What lands in storage"
+    description="`set()` writes an **envelope**, not the bare value: a JSON object with the value under `v`, plus an `e` expiry in epoch milliseconds when a TTL applies. That is a wire format rather than an implementation detail, because anything reading the same key from outside Angular has to unwrap it — a pre-paint theme script in `index.html`, a service worker, a native shell, a second framework on the same origin."
+  >
+    <ngwr-doc-code [code]="snippets.format" language="typescript" />
+    <p>
+      Three rules follow from it. A key holding anything else — a bare JSON value, or a string that is not JSON at all —
+      is returned as it stands, so keys written by non-ngwr code keep working. A value past its <code>e</code> reads as
+      absent and is removed on the next <code>get()</code>. And <code>prefix</code> is applied to the key on the way in,
+      so the raw key is <code>prefix + key</code> — an outside reader has to prepend it too.
+    </p>
+    <p>
+      Turning the envelope off with <code>json: false</code> stores <code>String(value)</code> verbatim, which is the
+      right choice when a key is shared with code you do not control — and gives up TTL and non-string values with it.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Live demo">
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">

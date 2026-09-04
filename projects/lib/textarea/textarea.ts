@@ -25,7 +25,7 @@ import {
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { useConfigValue } from 'ngwr/config';
-import { useFormFieldAria } from 'ngwr/form';
+import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 
 /**
  * Multi-line text input.
@@ -130,6 +130,28 @@ export class WrTextarea implements FormValueControl<string> {
 
   /** The surrounding `<wr-form-field>`'s error state. @internal */
   protected readonly fieldAria = useFormFieldAria();
+
+  private readonly field = inject(WR_FORM_FIELD, { optional: true });
+
+  /**
+   * Id the surrounding `<wr-form-field>`'s `<label for>` points at.
+   *
+   * The field renders its label before it can see what was projected into it, so
+   * the id travels the other way and the control adopts it, exactly as
+   * `[wrInput]` and `wr-select` do. Without it the `for` named an element that
+   * was nowhere in the document: clicking the label did nothing, and the field
+   * was, to a screen reader, an unlabelled block.
+   *
+   * It lands on the native `<textarea>` rather than on the host, because only a
+   * labelable element can be a label's target and `<wr-textarea>` is not one.
+   *
+   * What it does NOT change is the NAME: `aria-label` outranks a `<label>` in
+   * the accname order and `resolvedAriaLabel()` still wins, the same call
+   * `wr-select` and `wr-slider` make — the field renders a label only when its
+   * `label` input is set, so it cannot promise a name to fall back on. Set
+   * `[ariaLabel]` to the field's label where the two should read alike.
+   */
+  protected readonly controlId = computed(() => this.field?.controlId() ?? null);
 
   protected readonly classes = computed(() => {
     const parts = ['wr-textarea'];

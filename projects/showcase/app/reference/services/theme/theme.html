@@ -27,6 +27,27 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="SSR: no flash of the wrong theme"
+    description="A server has no `localStorage` and no `prefers-color-scheme`, so every server-rendered or prerendered page ships the same attribute — `light` under the default config. A visitor whose OS is dark, or who chose dark here, sees a white page until the client bundle boots and `WrTheme` corrects it: milliseconds on localhost, seconds on a slow connection. No provider can close that window, because by the time Angular runs the browser has already painted."
+  >
+    <p>
+      The fix is a blocking script in <code>&lt;head&gt;</code>, above every stylesheet, that resolves the theme before
+      first paint. <code>wrThemePrePaintScript()</code> emits one — reading the persisted mode exactly the way
+      <code>WrTheme</code> and <code>WrStorage</code> agree to write it — the JSON envelope, the key prefix and the TTL
+      — so nothing here has to be re-derived from the bundle or kept in step by hand. This page's own output, ready to
+      paste:
+    </p>
+    <ngwr-doc-code [code]="prePaint" language="html" />
+    <p>
+      It is plain ES5 with no dependency on the app bundle, and every step is wrapped: a blocked
+      <code>localStorage</code> (private mode, a sandboxed iframe) leaves the rendered default in place rather than
+      throwing before anything has rendered. The docs site you are reading runs this same script, and a spec in the
+      library pins the two to the same answers.
+    </p>
+    <ngwr-doc-code [code]="snippets.prePaintCustom" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Why ngwr provides this"
     description="Theme switching sounds like one line of CSS until you handle persistence, the `prefers-color-scheme` fallback, SSR (no `localStorage`), and flashing the wrong theme on first paint. `WrTheme` owns that lifecycle and exposes the result as signals."
   />

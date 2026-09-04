@@ -18,6 +18,35 @@
   box-shadow: 0 0 0 var(--wr-focus-ring-offset) var(--wr-focus-ring-halo);
 }
 
+// Button — `wr-btn`, `button[wr-btn]` and `a[wr-btn]` all carry `.wr-btn` on the
+// element that takes focus, so one rule covers all three forms, and with them
+// every control BUILT out of a button: the pagination page cells and its prev /
+// next arrows are `<wr-btn>` elements with a `.wr-pagination__*` class beside
+// this one.
+//
+// It was missing until v14.1, and the button is the widest hole that could have
+// been left: `--wr-focus-ring-*` is documented as "retheme the ring once and
+// every control follows", and rethemed the ring on nine components while the
+// most-used control in the catalog kept the UA outline — which no token
+// reaches, does not honour `--wr-focus-ring-width`, and renders differently in
+// every browser. The rule sits here rather than in `button/styles` because this
+// file IS the ring's home; a second hand-rolled copy is what the mixin exists to
+// prevent.
+//
+// Safe as an OUTSET ring: `.wr-btn` sets no `overflow`, and the one place
+// buttons are packed edge to edge — `.wr-btn-group` — already raises the focused
+// segment with `z-index: 1`, so the ring paints over its neighbours instead of
+// under them.
+.wr-btn:focus-visible {
+  @include focus-ring;
+}
+
+// Table column-sort control — a bare `<button>` inside `.wr-table__th-inner`,
+// with no focus style of its own.
+.wr-table__sort-btn:focus-visible {
+  @include focus-ring;
+}
+
 // Tabs — `.wr-tabs__strip` is `overflow-y: hidden` (to suppress a stray
 // vertical scrollbar) and its box is exactly the tab's height, so an outset
 // ring loses both horizontal strokes and renders as two disconnected bars.
@@ -102,7 +131,8 @@
   @include focus-ring;
 }
 
-// Pagination ellipsis is non-interactive; page buttons inherit wr-btn focus.
+// Pagination ellipsis is non-interactive; page buttons take the `.wr-btn` rule
+// at the top of this file, since that is what they are.
 
 // Dropdown menu items
 .wr-dropdown-item:focus-visible {

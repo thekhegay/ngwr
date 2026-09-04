@@ -229,6 +229,21 @@ export class WrFormField implements WrFormFieldContext {
   readonly describedBy = computed(() => (this.hasError() ? `${this.controlId()}-errors` : null));
 
   /**
+   * @internal Read by the projected control so the hint is announced with the field.
+   *
+   * The hint used to carry no id at all, so the only thing `aria-describedby`
+   * could ever name was the error block: the sentence explaining what to type was
+   * on screen and reached a screen-reader user through no path whatsoever, and
+   * the one gate that could have said so does not exist — axe has no rule that
+   * visible help text must be programmatically associated.
+   *
+   * `null` while an error is showing, because the template swaps the hint out for
+   * the message; publishing the id anyway would point every control at an element
+   * that had just left the document.
+   */
+  readonly hintId = computed(() => (!this.hasError() && this.hint() ? `${this.controlId()}-hint` : null));
+
+  /**
    * Render a catalog message for any error the markup does not already answer.
    *
    * On by default: a field with no `<wr-form-error>` at all is the common case,

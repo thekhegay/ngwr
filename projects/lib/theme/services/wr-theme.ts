@@ -34,6 +34,15 @@ function isThemeMode(v: unknown): v is WrThemeMode {
  * `@use 'ngwr' with ($theme-attribute: '...')`. In dev mode the service compares
  * the two and warns when they disagree.
  *
+ * **Under SSR or prerendering this service cannot prevent a flash of the wrong
+ * theme, and nothing inside the application can.** The server has no
+ * `localStorage` and no `prefers-color-scheme`, so every rendered page ships the
+ * same attribute (`light` under the default config); by the time the client
+ * bundle boots and the effect below corrects it, the browser has already
+ * painted. Closing that window takes a script that runs before first paint —
+ * {@link wrThemePrePaintScript} emits one that reads the persisted mode exactly
+ * the way this service does.
+ *
  * @example
  * ```ts
  * const theme = inject(WrTheme);

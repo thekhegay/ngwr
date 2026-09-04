@@ -8,6 +8,38 @@
 //   @use 'ngwr/theme/styles/colors' with (
 //     $base-colors: (primary: #...)
 //   );
+//
+// **This is the LIGHT palette, and configuring it does not reach the dark
+// theme.** `_dark.scss` re-tunes the intents by hand for the dark canvas and
+// hard-codes what it lands on, so an app that seeds an indigo `primary` here
+// gets indigo in light and the shipped `#3567ff` in dark, with nothing said
+// about it — which is exactly how it reads as a bug rather than a boundary.
+//
+// It is a boundary, and the deriving is what could not be shipped. The dark
+// intents are not the light ones lightened: `success` and `danger` are moved
+// 33% and 21% to clear the black/white flip point on a dark ground, `warning`
+// is deliberately left alone because white cannot reach it at any tone worth
+// shipping, and `primary` is deepened until its label can go white — a
+// direction no formula would take on its own. A `color.scale()` applied to an
+// arbitrary seed reproduces none of that; what it reproduces is the class of
+// failure the hand-tuning exists to prevent, silently, in the theme where
+// nobody looks first. Deriving the dark palette from the seed would trade a
+// visible wrong colour for an invisible failing contrast ratio, and that is
+// the worse of the two.
+//
+// So carry a rebrand across yourself, with the same arithmetic the light
+// palette uses. `rebrand()` below is that arithmetic:
+//
+//   @use 'ngwr/theme' as theme;
+//
+//   @include theme.dark {
+//     @include theme.rebrand((primary: #818cf8));
+//   }
+//
+// Pick the dark seed for the dark canvas rather than reusing the light one, and
+// measure it — `pnpm check:contrast` in this repo, axe or any contrast checker
+// in yours. `contrast()` is exported for the same reason: it tells you which
+// label a candidate fill will get before you ship it.
 
 // Five intents are deliberately deeper than their "brand" tone, and the reason is
 // arithmetic rather than taste. `_contrast()` picks whichever of black / white
@@ -317,6 +349,76 @@ $contrast-light: #ffffff !default;
   // instead of nine minus two.
   --wr-color-light-ink: var(--wr-color-on-surface);
   --wr-color-dark-ink: var(--wr-color-dark);
+}
+
+/// Re-emit an intent's WHOLE token set on the current selector, from one seed.
+///
+/// `$colors` is a map of intent name to base colour, keyed by the same nine
+/// names as `$base-colors`. Anything else is an `@error`: a typo would otherwise
+/// emit a family of `--wr-color-brnad-*` properties that resolve for nothing.
+///
+/// **This is the supported way to recolour a SUBTREE, and hand-writing the three
+/// obvious properties is not.** Setting `--wr-color-primary`, its `-rgb` and its
+/// `-contrast` on a `.marketing` wrapper looks like it should be enough, and the
+/// guide used to say so. It is not, for two separate reasons, and each hits a
+/// different half of the set:
+///
+/// - `-dark`, `-darker`, `-light` and `-lighter` are `color.adjust()` — Sass
+///   arithmetic, resolved when the stylesheet is COMPILED. No runtime value can
+///   feed them, so a pink subtree kept a blue `:hover`, which is `-dark`.
+/// - `-soft`, `-soft-border`, `-soft-contrast`, `-active` and `-ink` are written
+///   in terms of `var()`, which is the mechanism that lets them re-derive — but
+///   a custom property's references are substituted ON THE ELEMENT THAT DECLARES
+///   IT, and these are declared at `:root`. What inherits into the subtree is
+///   the substituted literal, so an outlined button inside a pink section drew a
+///   pink border around blue text: `-ink` had been frozen two levels up. It is
+///   the same trap `derived()` documents for a scoped dark block, arriving by a
+///   different door.
+///
+/// So the mixin does both halves: it recomputes the four shades and the contrast
+/// pick in Sass, then re-includes `derived()` so every composed token resolves
+/// against the bases on THIS element.
+///
+/// ```scss
+/// @use 'ngwr/theme' as theme;
+///
+/// .marketing {
+///   @include theme.rebrand((primary: #be123c));
+/// }
+/// ```
+///
+/// It is compile-time, so the seed has to be known when the app's stylesheet is
+/// built. For a colour chosen at runtime — a tenant, a builder, a preset picked
+/// from a registry — reach for `wrThemeTokens()` from `ngwr/theme` instead; it
+/// is the same recipe in TypeScript.
+///
+/// The dark theme needs the same treatment and does not get it for free: see the
+/// note on `$base-colors` for why compile-time configuration is light-only, and
+/// wrap this in `theme.dark` to carry a rebrand across.
+@mixin rebrand($colors) {
+  @each $name, $base in $colors {
+    @if not map.has-key($base-colors, $name) {
+      @error 'rebrand(): unknown intent `#{$name}`. Expected one of: #{map.keys($base-colors)}.';
+    }
+
+    --wr-color-#{$name}: #{$base};
+    --wr-color-#{$name}-rgb: #{_rgb-channels($base)};
+    --wr-color-#{$name}-contrast: #{_contrast($base)};
+    --wr-color-#{$name}-dark: #{color.adjust($base, $lightness: -5%)};
+    --wr-color-#{$name}-darker: #{color.adjust($base, $lightness: -10%)};
+    // unused-ok: `-light` and `-lighter`, for the reason their `:root` twins
+    // carry — hover and active DEEPEN an intent, so the catalog reads `-dark` /
+    // `-darker` and never these two, and a shade set with holes in it is worse
+    // than one half of which is for consumers. They are here rather than only
+    // there because a rebrand has to emit the SAME set the `:root` loop does: a
+    // subtree that redefines four shades out of six leaves a consumer's own
+    // `var(--wr-color-primary-lighter)` on the page palette, which is the
+    // half-recoloured subtree this mixin exists to end.
+    --wr-color-#{$name}-light: #{color.adjust($base, $lightness: 5%)};
+    --wr-color-#{$name}-lighter: #{color.adjust($base, $lightness: 10%)};
+  }
+
+  @include derived;
 }
 
 :root {

@@ -145,8 +145,9 @@ export class WrFormFieldHarness extends ContentContainerComponentHarness {
    *
    * `null` does not mean the consumer set no hint: the error block takes the
    * hint's slot outright, so a field with a visible message has no hint in the DOM
-   * at all. Note also that the hint carries no id and is NOT referenced by the
-   * control's `aria-describedby` — see {@link getAnnouncedDescription}.
+   * at all — which is also why the hint's id stops being published at the same
+   * moment. Whether the CONTROL announces it is a separate question, and one this
+   * harness answers through {@link getAnnouncedDescription}.
    */
   async getHint(): Promise<string | null> {
     const hint = await this.locatorForOptional(HINT)();
@@ -282,11 +283,16 @@ export class WrFormFieldHarness extends ContentContainerComponentHarness {
   /**
    * The ids the projected control names in `aria-describedby`, in order.
    *
-   * The field points this at the error block and nothing else — the hint has no
-   * id — so an empty list while a hint is showing is correct rather than a bug.
-   * That is not an oversight to fix from a harness either: `[wrInput]` derives
-   * `aria-invalid` from the same signal, so describing the hint would announce
-   * every hinted field as invalid.
+   * Which id that is depends on the CONTROL, not on the field, and the answer is
+   * worth knowing before reading a result. A control that composes the pair with
+   * `useFormFieldAria()` names the error block while one is showing and the hint
+   * otherwise. A control that reads the field's `describedBy` on its own — the
+   * `[wrInput]` directive, `wr-segmented` and `wr-slider` — names the error block
+   * and nothing else, so an empty list beside a visible hint is that control's
+   * answer rather than a broken field.
+   *
+   * The two are separate because folding the hint into the one signal announced
+   * every hinted field as invalid: those three derive `aria-invalid` from it.
    */
   async getDescribedByIds(): Promise<string[]> {
     const value = await (await this.control()).getAttribute('aria-describedby');
