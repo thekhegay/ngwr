@@ -243,6 +243,16 @@ export class WrCommandPalette {
   /** Whether this palette filters `items` itself. */
   protected readonly clientFilter = computed(() => !this.serverSearch());
 
+  /**
+   * Nothing has been asked yet, so there is nothing to report as missing.
+   *
+   * A client-filtered palette cannot reach this state — an empty query matches
+   * every item, so the list is never empty on open. A server-backed one opens
+   * with no items by construction, and saying "No results" before a single
+   * keystroke answers a question nobody asked.
+   */
+  protected readonly awaitingQuery = computed(() => this.serverSearch() && this.query().trim().length === 0);
+
   /** Grouped view — what the template renders. */
   protected readonly buckets = computed<readonly Bucket[]>(() =>
     bucketize(this.clientFilter() ? this.items().filter(item => matches(item, this.query())) : this.items())

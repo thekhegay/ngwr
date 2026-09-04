@@ -29,6 +29,15 @@
   <div class="ngwr-header__actions">
     <button
       type="button"
+      class="ngwr-header__action ngwr-header__action--search"
+      aria-label="Search the documentation"
+      (click)="searchOpen.set(true)"
+    >
+      <wr-icon name="search" />
+    </button>
+
+    <button
+      type="button"
       class="ngwr-header__action ngwr-header__version"
       [wrDropdown]="versionMenu"
       position="bottom-end"
@@ -164,3 +173,18 @@
     }
   </nav>
 </wr-drawer>
+
+<!-- Docs search. `serverSearch` because Algolia ranks and tolerates typos, so a
+     hit's label often does not contain the query at all — filtering the answer
+     again on the client would throw away exactly the results that make the
+     typo tolerance worth having. Navigation rides on each item's `action`. -->
+<wr-command-palette
+  [(open)]="searchOpen"
+  [(query)]="searchQuery"
+  [items]="searchResults()"
+  [loading]="searching()"
+  serverSearch
+  placeholder="Search the documentation…"
+  emptyText="Nothing matched"
+  (searchChange)="onSearch($event)"
+/>

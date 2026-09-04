@@ -3,8 +3,9 @@ import { isPlatformBrowser } from '@angular/common';
 import { Component, DOCUMENT, DestroyRef, ElementRef, PLATFORM_ID, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
-import { ChevronDown, Settings } from 'lucide';
+import { ChevronDown, Search, Settings } from 'lucide';
 import { WrBurger } from 'ngwr/burger';
+import { WrCommandPalette, type WrCommandItem } from 'ngwr/command-palette';
 import { WrDensity, type WrDensityValue } from 'ngwr/density';
 import { WrDrawer } from 'ngwr/drawer';
 import { WrDropdown, WrDropdownMenu } from 'ngwr/dropdown';
@@ -15,7 +16,7 @@ import { WrTheme, type WrThemeMode } from 'ngwr/theme';
 import { NGWR_VERSION_TOKEN } from 'ngwr/version';
 
 import { BRAND_ICONS } from '#core/icons';
-import { PrimaryColor } from '#core/services';
+import { DocsSearch, PrimaryColor } from '#core/services';
 import { routes } from '#routing';
 
 interface NavLink {
@@ -42,10 +43,64 @@ function archivedMajors(current: number): readonly number[] {
   selector: 'ngwr-header',
   templateUrl: './header.html',
   styleUrl: './header.scss',
-  imports: [RouterLink, RouterLinkActive, WrBurger, WrDrawer, WrIcon, WrDropdown, WrDropdownMenu, WrSegmented],
-  providers: [provideWrIcons([...BRAND_ICONS, ...lucideIcons({ settings: Settings, 'chevron-down': ChevronDown })])],
+  imports: [
+    RouterLink,
+    RouterLinkActive,
+    WrBurger,
+    WrCommandPalette,
+    WrDrawer,
+    WrIcon,
+    WrDropdown,
+    WrDropdownMenu,
+    WrSegmented,
+  ],
+  providers: [
+    provideWrIcons([
+      ...BRAND_ICONS,
+      ...lucideIcons({ settings: Settings, 'chevron-down': ChevronDown, search: Search }),
+    ]),
+  ],
 })
 export class Header {
+  private readonly docsSearch = inject(DocsSearch);
+
+  /** Palette state. Opens from the header button or the palette's own `mod+k`. */
+  protected readonly searchOpen = signal(false);
+  protected readonly searchQuery = signal('');
+  protected readonly searchResults = signal<readonly WrCommandItem[]>([]);
+  protected readonly searching = signal(false);
+
+  /**
+   * Which query owns the panel. The service already aborts the previous request,
+   * but an aborted `fetch` still settles — as an empty result — and it can do so
+   * AFTER a newer query has started, which would blank the panel and lower the
+   * spinner under the search that is actually running. The counter is what makes
+   * a late answer harmless rather than merely unlikely.
+   */
+  private searchSeq = 0;
+
+  /**
+   * Runs on `(searchChange)`, which the palette debounces — so this is one
+   * request per settled query rather than one per keystroke. That matters here
+   * beyond politeness: the search plan is metered per request.
+   */
+  protected async onSearch(query: string): Promise<void> {
+    const mine = ++this.searchSeq;
+
+    if (query.trim().length === 0) {
+      this.searchResults.set([]);
+      this.searching.set(false);
+      return;
+    }
+
+    this.searching.set(true);
+    const items = await this.docsSearch.search(query);
+    if (mine !== this.searchSeq) return;
+
+    this.searchResults.set(items);
+    this.searching.set(false);
+  }
+
   protected readonly theme = inject(WrTheme);
   protected readonly density = inject(WrDensity);
   protected readonly primary = inject(PrimaryColor);

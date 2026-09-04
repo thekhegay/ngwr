@@ -567,6 +567,9 @@ describe('WrCommandPalette backed by a server', () => {
     fixture.componentInstance.items.set([]);
     fixture.componentInstance.loading.set(true);
     fixture.detectChanges();
+    // A real query, so the silent "nothing asked yet" state is not what is
+    // under test here — this is about the row that shows once one has been.
+    type('zzzz');
 
     // The distinction is the point: an async palette that reports "No results"
     // between every keystroke and its answer states something that is not true
@@ -576,6 +579,19 @@ describe('WrCommandPalette backed by a server', () => {
 
     fixture.componentInstance.loading.set(false);
     fixture.detectChanges();
+    expect(status()!.textContent.trim()).toBe('No results');
+  });
+
+  it('reports nothing missing until something has been asked', () => {
+    fixture.componentInstance.items.set([]);
+    fixture.detectChanges();
+
+    // Open, empty, no items — and silent. The client-filtered palette cannot
+    // reach this state (an empty query matches everything), so the empty row was
+    // only ever written for a list that had been searched.
+    expect(status()).toBeNull();
+
+    type('zzzz');
     expect(status()!.textContent.trim()).toBe('No results');
   });
 
