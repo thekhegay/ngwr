@@ -19,7 +19,16 @@
       <code>loading-bar</code>, <code>virtual-scroll</code>, <code>drag-drop</code> and <code>breadcrumbs</code> —
       declare a <code>styleUrl</code> that re-exports the same <code>styles/_index.scss</code> you get from
       <code>&#64;use</code>. Angular injects that copy at runtime, and a strict <code>style-src</code> blocks the
-      injection. It does not matter, because the identical CSS is already in your linked stylesheet:
+      injection. It does not matter <em>for rendering</em>, because the identical CSS is already in your linked
+      stylesheet:
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      It does matter for one other thing, and only when the injection is <strong>not</strong> blocked: Angular appends
+      that copy after your <code>styles.css</code>, so for these twenty-seven a single-class override of your own loses
+      to it at equal specificity. Override them through their <a routerLink="/guides/theming">tokens</a> instead. A
+      strict <code>style-src</code> that drops the injection actually hands your rule the win — which is a coincidence,
+      not a strategy.
     </p>
 
     <ngwr-doc-code [code]="snippets.styles" language="scss" />
