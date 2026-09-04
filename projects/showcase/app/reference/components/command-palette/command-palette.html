@@ -51,6 +51,13 @@
     <ngwr-doc-code [code]="snippets.controlled" language="angular-html" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Backed by a server"
+    description="`[items]` does not have to be a fixed list. Bind `[(query)]` to read what the user typed, dispatch on `(searchChange)` — which fires once the query settles, not once per keystroke — and feed the answer back into `[items]`. Add `serverSearch` so the built-in substring filter steps aside: a backend that ranks or tolerates typos returns rows whose labels do not contain the query at all, and filtering them again on the client would throw away the good ones. `[loading]` swaps the empty row for “Searching…”, because a palette that reports “No results” between every keystroke and its answer is stating something that is not true yet."
+  >
+    <ngwr-doc-code [code]="snippets.server" language="angular-html" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

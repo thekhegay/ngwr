@@ -24,6 +24,9 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+
+import { debounce, skip, timer } from 'rxjs';
 
 import { WrHotkey, type WrHotkeyHandle, type WrHotkeySpec } from 'ngwr/hotkey';
 import { readI18nText, useI18nText } from 'ngwr/i18n';
@@ -104,12 +107,19 @@ export class WrCommandPalette {
   /** Text shown when no items match. Falls back to `commandPalette.noResults`. */
   readonly emptyText = input<string | null>(null);
 
+  /**
+   * Overrides the `commandPalette.loading` catalog string, shown instead of
+   * {@link emptyText} while {@link loading} is true.
+   */
+  readonly loadingText = input<string | null>(null);
+
   protected readonly resolvedPlaceholder = useI18nText(
     this.placeholder,
     'commandPalette.placeholder',
     'Type a command or search…'
   );
   protected readonly resolvedEmpty = useI18nText(this.emptyText, 'commandPalette.noResults', 'No results');
+  protected readonly resolvedLoading = useI18nText(this.loadingText, 'commandPalette.loading', 'Searching…');
 
   /**
    * The key-cap chip beside the search field. It was the literal `esc` in the
@@ -135,7 +145,52 @@ export class WrCommandPalette {
   /** Fires when the user commits an item (Enter / click). */
   readonly picked = output<WrCommandItem>();
 
-  protected readonly query = signal('');
+  /**
+   * The search text. Two-way, so a host can seed it, clear it, or read what the
+   * user is looking for — the palette used to keep this to itself, which is what
+   * made it impossible to back with anything but a static `items` array.
+   *
+   * Writing it does NOT re-run a host's search on its own: the debounced
+   * {@link searchChange} output is what fires, on exactly the cadence
+   * {@link debounceMs} sets.
+   */
+  readonly query = model('');
+
+  /**
+   * The item list is already scoped to the query upstream — skip the built-in
+   * client-side filter. Set it when `[items]` is fed from a server via the
+   * {@link searchChange} output.
+   *
+   * Without this, a backend that ranks or tolerates typos (returning rows whose
+   * labels do not literally contain the query) would have those rows hidden
+   * again on the client — the same rule `wr-select` follows, and the same
+   * reason. @default false
+   */
+  readonly serverSearch = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * A host-driven search is in flight. Swaps the empty row for
+   * {@link loadingText} — an async palette that says "No results" between every
+   * keystroke and its answer is stating something false. @default false
+   */
+  readonly loading = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * How long the query must settle before {@link searchChange} fires, in ms.
+   * A search request per keystroke is what exhausts a metered search backend:
+   * typing `select` is six requests at 0 and roughly one at 250. @default 250
+   */
+  readonly debounceMs = input(250, { transform: (v: unknown): number => Math.max(0, Number(v) || 0) });
+
+  /**
+   * The settled query. This is the hook for a server-backed palette: dispatch
+   * on it, then feed the result into `[items]` with `[serverSearch]` set.
+   *
+   * Fires on the {@link debounceMs} cadence, NOT per keystroke — `queryChange`
+   * is the per-keystroke signal if that is what you want.
+   */
+  readonly searchChange = output<string>();
+
   protected readonly activeIndex = signal(0);
 
   /** Whether the current opening is presented full-screen. Decided on open. */
@@ -185,9 +240,12 @@ export class WrCommandPalette {
    */
   private destroyed = false;
 
+  /** Whether this palette filters `items` itself. */
+  protected readonly clientFilter = computed(() => !this.serverSearch());
+
   /** Grouped view — what the template renders. */
   protected readonly buckets = computed<readonly Bucket[]>(() =>
-    bucketize(this.items().filter(item => matches(item, this.query())))
+    bucketize(this.clientFilter() ? this.items().filter(item => matches(item, this.query())) : this.items())
   );
 
   /**
@@ -203,6 +261,26 @@ export class WrCommandPalette {
   );
 
   constructor() {
+    // The settled query, for a host-driven search. `debounce(() => timer(...))`
+    // rather than `debounceTime(this.debounceMs())`: this runs in the
+    // constructor, where inputs are not bound yet, so reading the input eagerly
+    // would pin the delay to the default and ignore `[debounceMs]` for good.
+    //
+    // `skip(1)` sits BEFORE the debounce so it drops the mount-time replay of
+    // the empty query and nothing else. Downstream it would instead drop the
+    // first SETTLED emission — and when a fast typist's opening keystrokes
+    // coalesce with that initial `''`, the dropped emission is their query.
+    //
+    // Both rules are `wr-select`'s, arrived at there the hard way; this is the
+    // same pipeline minus the async loader, which the palette does not own.
+    toObservable(this.query)
+      .pipe(
+        skip(1),
+        debounce(() => timer(this.debounceMs())),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(query => this.searchChange.emit(query));
+
     // Bind / re-bind the global trigger whenever the spec changes.
     effect(() => {
       this.bindingHandle?.unbind();
