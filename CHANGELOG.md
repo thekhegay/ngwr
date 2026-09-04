@@ -7,6 +7,9 @@
 * **i18n:** a named date format now refuses input it cannot read
   rather than committing a wrong date; MMMM declines beside a day token;
   the `a` token emits the locale's marker; every Intl call pins
+  calendar: 'gregory'. `<wr-pagination ofLabel>` is gone and
+  `pagination.of` with it — the range is one `pagination.range`
+  template. See migration-v14.
 * **lib:** wr-alert closeable is closable; wr-table totalItems is
   total; wr-pagination currentPage is page (and currentPageChange is
   pageChange); isDisabledWhenLoading is disabledWhenLoading; and
