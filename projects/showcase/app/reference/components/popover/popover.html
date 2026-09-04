@@ -91,6 +91,13 @@
     <ngwr-doc-code [code]="snippets.exportAs" language="angular-html" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Scrolling containers"
+    description="The panel is anchored to the trigger and repositions while the page scrolls — but only for the window and for scroll containers the CDK has been told about. Inside your own `overflow: auto` box (a side panel, a scrollable card, a table body) the panel is placed once and then stays put, drifting away from its trigger as the box scrolls. Mark the container with `cdkScrollable` and it follows again. The same rule covers every anchored ngwr overlay: popover, tooltip mode, dropdown, popconfirm, select, cascader, tree and the date pickers, and equally the four that reposition without being listed here — mention, tour, the colour-picker trigger and a context-menu submenu."
+  >
+    <ngwr-doc-code [code]="snippets.scrollable" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

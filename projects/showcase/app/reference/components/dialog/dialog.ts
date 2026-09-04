@@ -115,6 +115,54 @@ export class MyComponent {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 ref.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(ok => { … });`,
+    focus: `<!-- Inside the opened component. Nothing to import: the focus trap looks
+     for the attribute by name, so a bare \`cdkFocusInitial\` is enough. -->
+<h2 wrDialogTitle>Rename project</h2>
+<div wrDialogContent>
+  <wr-form-field label="Name">
+    <input wrInput cdkFocusInitial [(value)]="name" />
+  </wr-form-field>
+</div>
+<div wrDialogFooter>
+  <wr-btn wrDialogClose>Cancel</wr-btn>
+  <wr-btn color="primary" [wrDialogClose]="name()">Save</wr-btn>
+</div>
+
+<!-- Without \`cdkFocusInitial\` the first tabbable element wins — here the same
+     input, since the ✕ is appended AFTER your content and comes last. A panel
+     of plain text focuses nothing; Escape still closes it. -->`,
+    topLayer: `// The overlay container is isolated, and that is what \`provideWrOverlay()\`
+// promises — not a place in your z-index scale. These do nothing:
+//
+//   .wr-overlay-container .cdk-overlay-pane { z-index: 1100; }
+//   header { z-index: 100000; }
+//
+// To opt the whole application out of the top layer and back into ordinary
+// stacking, configure the CDK itself at bootstrap:
+import { OVERLAY_DEFAULT_CONFIG } from '@angular/cdk/overlay';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    { provide: OVERLAY_DEFAULT_CONFIG, useValue: { usePopover: false } },
+  ],
+});
+
+// Opting out is a real trade: overlays go back to being clipped by an
+// ancestor's \`overflow\` and to competing on z-index with everything else.`,
+    nested: `// A dialog that owns a form: keep the backdrop, ignore its clicks.
+const ref = this.dialog.open(EditUserComponent, {
+  closeOnBackdropClick: false,   // a click beside an open select cannot lose the form
+  // closeOnEscape stays true — Escape closes the select first, the dialog next.
+});`,
+    refResult: `const ref = this.dialog.open<ConfirmComponent, 'saved' | 'discarded'>(ConfirmComponent);
+
+// \`undefined\` is every dismissal: ✕, Escape, backdrop, navigation, and a bare
+// [wrDialogClose]. Give the outcomes you care about their own values.
+const result = await ref.awaitClose();   // 'saved' | 'discarded' | undefined
+if (result === undefined) return;        // dismissed — leave the page as it was
+
+// Or subscribe, when the caller is not an async method:
+ref.closed.subscribe(result => { … });   // emits once, then completes`,
     responsive: `// Per dialog — slides up as a bottom-sheet on small screens.
 dialog.open(ConfirmComponent, { responsive: true });
 
@@ -129,6 +177,50 @@ provideWrResponsiveOverlays({ breakpoint: 768 });`,
       description: 'Opens a dialog. Returns a WrDialogRef.',
       type: '(component, WrDialogOptions) => WrDialogRef',
       default: '—',
+    },
+  ];
+
+  protected readonly refApi: readonly DocApiRow[] = [
+    {
+      name: 'WrDialogRef<C, R>',
+      description:
+        'Returned by `open()`, and provided inside the dialog’s own injector. `C` is the opened component, `R` the close result.',
+      type: 'class',
+    },
+    {
+      name: 'close(result?)',
+      description:
+        'Dismiss the dialog, optionally with a result. Idempotent — a second call is a no-op, so a save handler racing the ✕ cannot emit twice.',
+      type: '(result?: R) => void',
+      sub: true,
+    },
+    {
+      name: 'awaitClose()',
+      description:
+        'Resolves with the close result once the dialog is dismissed. A Promise, so `takeUntilDestroyed()` does not apply to it — see “Lifetime” above.',
+      type: '() => Promise<R | undefined>',
+      sub: true,
+    },
+    {
+      name: 'closed',
+      description:
+        'The same result as an Observable — emits once, then completes. A `ReplaySubject`, so subscribing after the dialog has already closed still gets the value rather than a bare completion.',
+      type: 'ReplaySubject<R | undefined>',
+      sub: true,
+    },
+    {
+      name: 'componentInstance',
+      description:
+        'The instantiated dialog component, for reading a signal on it or calling one of its methods. Throws while the dialog is still attaching — which is only reachable from the content’s own constructor.',
+      type: 'C',
+      sub: true,
+    },
+    {
+      name: 'overlayRef',
+      description:
+        'The underlying CDK `OverlayRef` — an escape hatch for the cases the options do not cover. Do not dispose it directly: that bypasses `closed`, leaves `awaitClose()` pending and never destroys the focus trap. Call `close()`.',
+      type: 'OverlayRef',
+      sub: true,
     },
   ];
 

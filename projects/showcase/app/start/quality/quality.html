@@ -216,11 +216,14 @@
       <strong>The third is classic-forms interop, and it is the one worth knowing about</strong> if you are weighing
       ngwr against a library that still ships a <code>ControlValueAccessor</code>. Angular 22 synthesises the accessor
       for a signal-forms control, so <code>[(ngModel)]</code> and <code>[formControl]</code> reach the same
-      <code>value</code> model — but in this suite that is doctrine more than coverage. <code>[(ngModel)]</code> is
-      bound to a real ngwr control in exactly one spec (<code>wr-textarea</code>), and
-      <strong>no spec binds <code>[formControl]</code> to one at all</strong> — the reactive-forms specs that exist
-      drive native <code>&lt;input&gt;</code>s through <code>WrValidators</code>. Angular's own tests cover the
-      synthesis; nothing here covers it per component.
+      <code>value</code> model — but in this suite that is doctrine more than coverage. Across nineteen value controls,
+      exactly <strong>two</strong> are bound through the classic forms API in a spec: <code>wr-segmented</code> (<code
+        >[formControl]</code
+      >
+      and <code>[(ngModel)]</code>) and <code>wr-textarea</code> (<code>[(ngModel)]</code>). The other reactive-forms
+      specs drive native <code>&lt;input&gt;</code>s through <code>WrValidators</code>. Angular's own tests cover the
+      synthesis; nothing here covers it per component, and <a routerLink="/guides/forms">the forms guide</a> is where
+      the bridge's actual semantics are written down.
     </p>
   </ngwr-doc-section>
 

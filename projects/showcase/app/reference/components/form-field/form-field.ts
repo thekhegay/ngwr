@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 import { WrButton } from 'ngwr/button';
 import { WrFormError, WrFormField } from 'ngwr/form';
@@ -21,6 +22,7 @@ import {
   templateUrl: './form-field.html',
   imports: [
     ReactiveFormsModule,
+    RouterLink,
     WrButton,
     WrFormError,
     WrFormField,
@@ -85,6 +87,17 @@ export class MyComponent {}`,
   <input wrInput [formControl]="bio" placeholder="A short tagline" />
 </wr-form-field>`,
 
+    requiredPair: `<!-- Both halves, every time. The validator refuses the submit;
+     the marker is what the reader (and the screen reader) is told. -->
+<wr-form-field label="Email" required>
+  <input wrInput formControlName="email" type="email" />
+</wr-form-field>
+
+<!-- If the asterisk must follow the validator rather than be repeated, drive it
+     off the control — nothing does that for you. -->
+<wr-form-field label="Email" [required]="form.controls.email.hasValidator(requiredValidator)">
+  <input wrInput formControlName="email" type="email" />
+</wr-form-field>`,
     notes: `<!-- Hint shows under the control. Hidden the moment an error becomes
      visible (the matching <wr-form-error> takes its slot). -->
 

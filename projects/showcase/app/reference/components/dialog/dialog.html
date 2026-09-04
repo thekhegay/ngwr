@@ -42,6 +42,64 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Where focus goes, and where it comes back"
+    description="On open, focus moves into the panel: to whatever carries `cdkFocusInitial` if anything does, and otherwise to the first tabbable element in DOM order. The built-in ✕ is appended after your content, so it is the LAST tabbable element rather than the first — a dialog whose content starts with a text field opens with the caret in that field. A panel with nothing tabbable in it takes no focus at all; Escape still closes it, because the key is handled by the overlay rather than by whatever is focused."
+  >
+    <ngwr-doc-code [code]="snippets.focus" language="angular-html" />
+    <p>
+      On close, focus returns to the element that was active when <code>open()</code> was called — captured then,
+      restored after the panel is disposed. All four dismissal paths go through the same
+      <code>WrDialogRef.close()</code>, so Escape, the ✕, a <code>[wrDialogClose]</code> button and a backdrop click all
+      restore it. The one case it cannot cover is a trigger that no longer exists: if the button that opened the dialog
+      has been removed from the DOM meanwhile, focus lands on <code>&lt;body&gt;</code> and the next Tab starts from the
+      top of the document. Move focus yourself after <code>awaitClose()</code> when the dialog&#39;s own result removes
+      its trigger.
+    </p>
+    <p>
+      Focus is trapped inside the panel while it is open, and the panel announces itself with
+      <code>role="dialog"</code> plus <code>aria-modal="true"</code>. The rest of the page is <em>not</em> marked
+      <code>inert</code> and carries no <code>aria-hidden</code> — the modality is the focus trap and the
+      <code>aria-modal</code> claim, which is what screen readers act on, and the backdrop, which takes every pointer
+      event aimed at the page. What is not covered is everything that ignores both — find-in-page, and a reading mode
+      that walks the DOM rather than the accessibility tree. If your app needs the harder guarantee, set
+      <code>inert</code> on your own root element for as long as the dialog is open; the library does not, because
+      choosing which subtree to freeze is not something it can know.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Overlays are in the top layer, so z-index cannot reach them"
+    description="CDK 22 promotes every overlay by calling `showPopover()` on its host, which puts the panel and its backdrop in the browser&#39;s top layer. The top layer is ordered by the moment of promotion and sits above the whole page — no `z-index`, stacking context or DOM order in your application can put anything over it. A sticky header at `z-index: 100000` still renders under a dialog backdrop, and a click where it appears goes to the backdrop and closes the dialog."
+  >
+    <ngwr-doc-code [code]="snippets.topLayer" language="typescript" />
+    <p>
+      Two consequences worth knowing before you spend an afternoon on CSS. Chrome that must stay above a dialog — a
+      cookie bar, a support widget — has to be in the top layer itself (its own <code>popover</code> or native
+      <code>&lt;dialog&gt;</code>), or you turn the mechanism off as shown above and go back to ordinary stacking, at
+      the cost of every overlay becoming clippable by an ancestor again.
+    </p>
+    <p>
+      And the mirror image: an ngwr overlay opened from inside a native
+      <code>&lt;dialog open&gt;</code> shown with <code>showModal()</code> is drawn correctly and is unreachable by the
+      mouse. The native dialog makes the rest of the document inert, and hit-testing stops at it — the panel is visible
+      above it, the keyboard still works, and every click passes through to the native dialog underneath. Nothing
+      throws. Use <code>WrDialog</code> rather than nesting inside a native modal.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="A select or popconfirm opened inside a dialog"
+    description="Panels anchored to a trigger — select, dropdown, popover, popconfirm, date-picker — carry no backdrop of their own; they close on the first click that lands outside them. Inside a dialog that click also lands on the dialog&#39;s backdrop, so one click away from an open select closes the select AND the dialog. Escape is different: it goes to the topmost overlay only, so it closes the panel and leaves the dialog up."
+  >
+    <ngwr-doc-code [code]="snippets.nested" language="typescript" />
+    <p>
+      That is why a dialog holding a form is usually opened with
+      <code>closeOnBackdropClick: false</code> — losing unsaved input to a mis-click beside a dropdown is the same
+      accident either way, and the ✕ and Escape both remain.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Responsive (bottom-sheet)"
     description="With `responsive: true` — or app-wide via `provideWrResponsiveOverlays()` — the dialog slides up as a full-width bottom-sheet on small viewports and stays a centred modal on larger ones. Open this on a phone (or narrow the window) to see it dock to the bottom."
   >
@@ -53,6 +111,14 @@
 
   <ngwr-doc-section title="Service API">
     <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="WrDialogRef"
+    description="What `open()` hands back — and what the content gets by injecting `WrDialogRef`. One thing it cannot tell you: a dismissal and a `close(undefined)` are the same event. `closed` emits `undefined` for the ✕, Escape, the backdrop, a navigation and a bare `[wrDialogClose]` alike, so a dialog that has to distinguish &ldquo;cancelled&rdquo; from &ldquo;saved nothing&rdquo; must close with a value of its own."
+  >
+    <ngwr-doc-api [rows]="refApi" />
+    <ngwr-doc-code [code]="snippets.refResult" language="typescript" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="WrDialogOptions">

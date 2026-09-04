@@ -185,3 +185,64 @@ samp {
   direction: ltr;
   unicode-bidi: isolate;
 }
+
+// Keyboard-contract tables: one row per key, on the guides and on the component
+// pages that document their own grid. Not `<ngwr-doc-api>` — that table is the
+// library's public API surface and `check:api-docs` compares every row in it
+// against the real members, so a row named `ArrowLeft` would be reported as an
+// input that does not exist. This is prose in a grid, and it says so.
+//
+// Scrolls inside its own box rather than widening the page: a three-column key
+// table with a long condition overflows on a phone, and the doc shell is not a
+// horizontal scroller.
+.ngwr-keys {
+  display: block;
+  overflow-x: auto;
+
+  table {
+    width: 100%;
+    min-width: 34rem;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  caption {
+    text-align: start;
+    padding-block-end: 0.5rem;
+    color: var(--wr-color-on-surface-muted);
+    font-size: 0.8125rem;
+  }
+
+  th,
+  td {
+    text-align: start;
+    vertical-align: top;
+    padding: 0.5rem 0.75rem 0.5rem 0;
+    border-block-end: 1px solid rgba(var(--wr-color-outline-rgb), 0.5);
+  }
+
+  thead th {
+    color: var(--wr-color-on-surface-muted);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  tbody tr:last-child td {
+    border-block-end: 0;
+  }
+
+  // First column holds the chord, so it should not wrap mid-key.
+  td:first-child {
+    white-space: nowrap;
+  }
+
+  // Separator between interchangeable chords. `aria-hidden` would be wrong —
+  // a screen reader reading "Enter Space" as one chord is exactly the confusion
+  // this character removes — so it is a real, muted glyph.
+  &__or {
+    margin: 0 0.25rem;
+    color: var(--wr-color-on-surface-muted);
+  }
+}

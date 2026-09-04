@@ -20,9 +20,11 @@ export default [
   // SCSS path that no longer resolves. The catalog page is the single copy.
   { path: guides.color, redirectTo: '/guides/tokens/colors' },
   { path: guides.grid, loadComponent: () => import('./grid/grid') },
+  { path: guides.forms, loadComponent: () => import('./forms/forms') },
   { path: guides.overlay, loadComponent: () => import('./overlay/overlay') },
   { path: guides.mobile, loadComponent: () => import('./mobile/mobile') },
   { path: guides.keyboard, loadComponent: () => import('./keyboard/keyboard') },
+  { path: guides.ssr, loadComponent: () => import('./ssr/ssr') },
   { path: guides.testing, loadComponent: () => import('./testing/testing') },
   { path: guides.mcp, loadComponent: () => import('./mcp/mcp') },
   { path: guides.agentSkill, loadComponent: () => import('./agent-skill/agent-skill') },

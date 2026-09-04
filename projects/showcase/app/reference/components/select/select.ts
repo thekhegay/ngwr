@@ -1,6 +1,7 @@
 import { JsonPipe } from '@angular/common';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 import { WrButton } from 'ngwr/button';
 import { WrFormError, WrFormField } from 'ngwr/form';
@@ -22,6 +23,7 @@ import { API } from '#core/generated/api';
   imports: [
     FormsModule,
     ReactiveFormsModule,
+    RouterLink,
     JsonPipe,
     WrSelect,
     WrOption,
@@ -197,6 +199,22 @@ onSearch(query: string): void {
   [options]="bigOptions"
   [(value)]="picked"
 />`,
+    identity: `<!-- Bind the key, not the object. -->
+<wr-select formControlName="categoryId" placeholder="Pick a category">
+  @for (cat of categories(); track cat.id) {
+    <wr-option [value]="cat.id">{{ cat.name }}</wr-option>
+  }
+</wr-select>`,
+    identityTs: `// The option matches when \`option.value === select.value\`, nothing more.
+
+// This never matches, and fails silently in both directions: the trigger shows
+// the placeholder, the form value stays {id: 2, …} and the form stays valid.
+const category = new FormControl<Category | null>(null);
+category.setValue({ id: 2, name: 'Laptops' });
+
+// This matches.
+const categoryId = new FormControl<number | null>(null);
+categoryId.setValue(2);`,
   };
 
   protected readonly countries = [

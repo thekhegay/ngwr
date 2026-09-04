@@ -91,6 +91,36 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Toasts, dialogs and the stacking order"
+    description="A toast raised from inside an open dialog is visible and clickable, and it takes deliberate machinery to keep it that way. There is one toast host overlay for the whole application: it is created with the first toast and disposed when the last one leaves, so its place in the browser&#39;s top layer would otherwise be frozen at whenever that first toast appeared — and the top layer is ordered by promotion time, not by `z-index`. Every dialog and drawer opened afterwards would paint over it, backdrop included."
+  >
+    <p>
+      So the host re-raises itself: on every <code>show()</code>, and again whenever another overlay joins the
+      container. Both directions are covered — a toast fired from a dialog&#39;s save handler, and a toast already on
+      screen when a dialog opens. Nothing to configure, and nothing to do from the calling side.
+    </p>
+    <p>
+      Two edges where it steps aside deliberately. It does not re-raise while focus is inside the toast host, because
+      re-showing a popover is specified to restore focus elsewhere — in practice the two never coincide, since a modal
+      traps focus. And on a platform with no top layer at all (and on the server) there is nothing to raise; the host
+      falls back to ordinary stacking within the overlay container.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Lifetime and scope"
+    description="`WrToast` is root-provided and its host is not attached to any component: a toast outlives the component that raised it, survives navigation, and dismisses itself on its own timer. That is deliberate — the point of a toast is to report on work whose screen may already be gone. `duration: 0` opts out, and then only a click or `dismiss()` removes it."
+  >
+    <ngwr-doc-code [code]="snippets.scope" language="typescript" />
+    <p>
+      Because the service is root-provided, so is its configuration:
+      <code>provideWrToastConfig()</code> in a lazy route&#39;s <code>providers</code> is <em>ignored</em> — the service
+      reads the root token, and a route-level one is simply never consulted. Nothing warns. Register it once at
+      bootstrap; to vary a value per feature, pass it per call, where every field of the config is also accepted.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Service API">
     <ngwr-doc-api [rows]="serviceApi" />
   </ngwr-doc-section>

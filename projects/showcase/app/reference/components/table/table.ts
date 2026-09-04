@@ -285,6 +285,50 @@ const columns: WrTableColumns = {
 }
 <wr-table [columns]="columns" [items]="rows()" [loading]="loading()" />`,
     paginated: `<wr-table [columns]="columns" [items]="rows" [pageSize]="5" [(page)]="page" />`,
+    sortState: `// The table writes \`sort\` and reads nothing back from your rows. Sorting
+// them is yours — this is the comparator the demo above runs.
+protected readonly sort = signal<readonly WrTableSortState[]>([]);
+
+protected readonly rows = computed(() => {
+  const rules = this.sort();
+  if (rules.length === 0) return this.source();
+
+  return [...this.source()].sort((a, b) => {
+    for (const { key, direction } of rules) {   // array order = application order
+      if (!direction) continue;                 // a header cycled back to "off"
+      const cmp = String(a[key] ?? '').localeCompare(String(b[key] ?? ''));
+      if (cmp !== 0) return direction === 'asc' ? cmp : -cmp;
+    }
+    return 0;
+  });
+});
+
+// Server-side, the same array becomes query parameters — still no client sort.
+effect(() => {
+  const [primary] = this.sort();
+  this.load({ sortBy: primary?.key, order: primary?.direction });
+});`,
+    serverHtml: `<!-- \`[total]\` switches the pager to server mode; \`[pageSize]\` still has to
+     be there or no pager renders at all. \`page\` is a model, so the output
+     it publishes is \`(pageChange)\`. -->
+<wr-table
+  [columns]="columns"
+  [items]="pageRows()"
+  [total]="total()"
+  [pageSize]="20"
+  [page]="page()"
+  (pageChange)="onPage($event)"
+  [(sort)]="sort"
+/>`,
+    serverTs: `// The handler. Nothing is sliced for you — you fetch the window you were asked for.
+protected onPage(page: number): void {
+  this.page.set(page);
+  this.load();                 // limit: 20, skip: (page - 1) * 20
+}
+
+// Two-way binding works just as well when the page number is your own state:
+//   <wr-table [total]="total()" [pageSize]="20" [(page)]="page" />
+// …with an effect on \`page\` issuing the request.`,
     pinned: `const columns: WrTableColumns = {
   name:   { title: 'Name', pin: 'left' },
   email:  { title: 'Email' },

@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 import { WrInput, WrInputGroup, WrInputPrefix, WrInputSuffix, WrPasswordToggle } from 'ngwr/input';
 import { NgxMaskDirective } from 'ngx-mask';
@@ -18,6 +19,7 @@ import {
   templateUrl: './input.html',
   imports: [
     FormsModule,
+    RouterLink,
     NgxMaskDirective,
     WrInput,
     WrInputGroup,

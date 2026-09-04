@@ -78,6 +78,25 @@
     <ngwr-doc-code [code]="snippets.exportAs" language="angular-html" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="The trigger keeps its own id"
+    description="The menu names itself after its trigger (`aria-labelledby`), so the trigger needs an id. Yours wins — static, bound or interpolated alike — and `<label for>`, `document.getElementById`, an `aria-labelledby` aimed at it from elsewhere and any test id keep working. Only an element with no id of its own gets the generated `wr-dropdown-trigger-N` fallback."
+  >
+    <ngwr-doc-code [code]="snippets.triggerId" language="angular-html" />
+    <p>
+      Do not write a test locator against the generated id. It is a per-application counter, so it depends on how many
+      dropdowns were constructed before this one — which differs between a prerendered page and the same page after
+      hydration, and between one route and another. Give the trigger an id when you need to address it.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Scrolling containers"
+    description="The menu is positioned against the trigger and repositions on scroll — but only for scroll containers the CDK knows about, plus the window. A panel anchored inside your own `overflow: auto` box stays where it was opened and drifts away from its trigger, because nothing told the CDK that box scrolls. The fix is one directive on the container, and it is the same rule for every anchored ngwr overlay: dropdown, popover, popconfirm, select, cascader, tree, the date pickers, and mention, tour, the colour-picker trigger and a context-menu submenu."
+  >
+    <ngwr-doc-code [code]="snippets.scrollable" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Directive API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

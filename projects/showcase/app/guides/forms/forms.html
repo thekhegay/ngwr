@@ -1,0 +1,259 @@
+<ngwr-doc-page
+  title="Reactive forms"
+  description="ngwr ships no `ControlValueAccessor`, and never will. `formControlName`, `[formControl]` and `[(ngModel)]` reach an ngwr control through the bridge Angular 22 added for signal-forms controls — which is not an accessor and does not behave like one. This page is what that bridge carries, what it drops, and what your form has to do about each."
+  [keywords]="[
+    'reactive forms',
+    'formControlName',
+    'formControl',
+    'ngModel',
+    'ControlValueAccessor',
+    'updateOn',
+    'emitEvent',
+    'FormArray',
+    'signal forms',
+  ]"
+  [labels]="['Core']"
+>
+  <ngwr-doc-section
+    title="What the bridge is"
+    description="Two contracts, three ways to bind them, and one thing worth knowing about which half of that is stable."
+  >
+    <p wrTypography variant="small" tone="medium">
+      Nineteen ngwr controls implement <code>FormValueControl&lt;T&gt;</code> or <code>FormCheckboxControl</code> from
+      <code>&#64;angular/forms/signals</code>. Both contracts are Angular public API, tagged
+      <code>&#64;publicApi 22.0</code>. A control that implements one exposes its value as a <code>model()</code> —
+      <code>value</code>, or <code>checked</code> for the two boolean controls — plus a <code>touch</code> output, a
+      <code>disabled</code> input and a <code>readonly</code> input. That is the whole surface, and everything below
+      follows from how small it is.
+    </p>
+
+    <ngwr-doc-code [code]="snippets.bridge" language="angular-html" />
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>Signal forms bind that contract directly.</strong> <code>[formField]</code> is the native path: it writes
+      the field's value into the <code>value</code> model and reads edits back out, and it carries the schema's
+      <code>disabled()</code>, <code>readonly()</code> and validation state with it.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      <strong
+        >Reactive and template-driven forms reach the same model through a bridge inside <code>NgControl</code></strong
+      >
+      — <code>ngControlCreate</code> and <code>ngControlUpdate</code>, driven by a template instruction that Angular
+      emits for any element carrying a control directive. It runs in three directions. <em>View to model:</em> the
+      control's <code>value</code> model emits, and the bridge calls <code>control.setValue()</code> and
+      <code>markAsDirty()</code>. <em>Model to view:</em> during the host template's change-detection pass, the bridge
+      writes <code>control.value</code> back onto the control's model input. <em>Touched:</em> the control's
+      <code>touch</code> output becomes <code>markAsTouched()</code>.
+    </p>
+
+    <wr-alert
+      type="info"
+      title="The contracts are stable. The bridge is an implementation detail."
+      message="FormValueControl and FormCheckboxControl are versioned public API. The bridge members on NgControl are protected and carry no stability tag — they are Angular's business, and their behaviour can move on an Angular minor with no ngwr release involved. If your app leans on any of the timings below, pin them with your own specs and re-run those when you bump Angular, not only when you bump ngwr."
+    />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="What the bridge carries, and what it drops"
+    description="The bridge offers each FormControl state to the control by writing an input of that name. It lands only where the control declares one — and an ngwr control declares exactly two, `disabled` and `readonly`. Everything else in this table is silently dropped, which is correct rather than unfinished: the states it drops are the ones `<wr-form-field>` renders."
+  >
+    <wr-table responsive [columns]="bridgeColumns" [items]="bridgeRows">
+      <ng-template wrTableCell="state" let-value>
+        <code wrTypography variant="code">{{ value }}</code>
+      </ng-template>
+      <ng-template wrTableCell="note" let-value>
+        <span [innerHTML]="value | wrDocRich"></span>
+      </ng-template>
+    </wr-table>
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>The one to act on is <code>required</code>.</strong> A <code>Validators.required</code> on the
+      <code>FormControl</code> reaches the control as nothing at all: no <code>required</code> attribute, no
+      <code>aria-required</code>. Marking the field is a separate, manual step —
+      <code>&lt;wr-form-field required&gt;</code> draws the asterisk beside the label. Wire both, or a screen reader is
+      told the field is optional while your validator refuses to submit it.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="`updateOn: 'blur'` and `'submit'` do not apply"
+    description="This is the difference that surprises a team migrating an existing form, because a native `<input>` in the same FormGroup keeps honouring the option."
+  >
+    <p wrTypography variant="small" tone="medium">
+      A <code>ControlValueAccessor</code> stages each edit as a pending value and commits it when
+      <code>updateOn</code> says so. The bridge has no pending stage: the moment an ngwr control's model emits, it calls
+      <code>setValue()</code> and <code>markAsDirty()</code>. So
+      <strong>the value commits, and every validator on it runs, on each keystroke or selection</strong> — whatever
+      <code>updateOn</code> was set to.
+    </p>
+
+    <ngwr-doc-code [code]="snippets.updateOn" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      Two consequences worth planning for. <strong>An expensive validator now runs per keystroke</strong>; if the cost
+      was what <code>updateOn: 'blur'</code> was buying you, move the work into an async validator and debounce it
+      yourself. And <strong>messages appear on the first edit</strong>: <code>&lt;wr-form-field&gt;</code> reveals an
+      error once the control is touched <em>or</em> dirty, and the bridge makes it dirty immediately. There is no input
+      that defers that, and no workaround that is only half a workaround — hiding the projected
+      <code>&lt;wr-form-error&gt;</code> behind an <code>&#64;if</code> hides the copy, while the field still carries
+      <code>wr-form-field--invalid</code> and the control still announces <code>aria-invalid</code>, because both are
+      keyed on the errors rather than on the message. Plan for the message arriving on keystroke one.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      What still lands on blur is <strong><code>touched</code></strong
+      >. That half never went through <code>updateOn</code>: each control emits <code>touch</code> when the user is
+      finished with it — a blur, or the commit that closes an overlay — and the bridge marks the control touched. So a
+      "touched" gate behaves exactly as it always did.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="A silent write does not reach the screen"
+    description="`setValue` / `patchValue` / `reset` with `{ emitEvent: false }` moves the model and leaves the control showing the old value. In a zoneless app that covers every HTTP callback, timer and websocket message — and the fix is one call."
+  >
+    <p wrTypography variant="small" tone="medium">
+      The model-to-view half of the bridge runs inside the host template's change-detection pass. The only thing that
+      asks for that pass is a <code>markForCheck()</code> the bridge subscribes to the control's
+      <code>valueChanges</code> and <code>statusChanges</code> — and
+      <code>&#123; emitEvent: false &#125;</code> suppresses both. Nothing schedules a pass, so nothing repaints. A
+      native <code>&lt;input wrInput&gt;</code> in the same form is unaffected: it is a real accessor, and
+      <code>writeValue</code> touches the DOM directly.
+    </p>
+
+    <ngwr-doc-snippet
+      title="Try it"
+      description="Both buttons write 300 ms after the click, so neither write rides the change-detection pass the click itself causes. The first repaints the fields; the second moves the model and leaves them showing the old values — until you press **Read the model**, whose click runs the pass they were waiting for."
+      [framable]="false"
+      [sandboxable]="false"
+    >
+      <form [formGroup]="form" style="display: flex; flex-direction: column; gap: 1rem; max-width: 24rem">
+        <wr-form-field label="Email">
+          <input wrInput formControlName="email" type="email" />
+          <wr-form-error key="email">That isn't a valid email.</wr-form-error>
+        </wr-form-field>
+
+        <wr-form-field label="Plan">
+          <wr-select formControlName="plan" placeholder="Pick a plan">
+            @for (plan of plans; track plan) {
+              <wr-option [value]="plan">{{ plan }}</wr-option>
+            }
+          </wr-select>
+        </wr-form-field>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+          <button wr-btn type="button" color="primary" (click)="loudWrite()">patchValue</button>
+          <button wr-btn type="button" outlined color="primary" (click)="silentWrite()">
+            patchValue, emitEvent: false
+          </button>
+          <button wr-btn type="button" outlined color="medium" (click)="readModel()">Read the model</button>
+        </div>
+
+        <p wrTypography variant="small" tone="medium" aria-live="polite">{{ lastWrite() }}</p>
+        <p wrTypography variant="small" tone="medium">
+          <code wrTypography variant="code">form.value</code> at the last read: {{ modelReadout() }}
+        </p>
+      </form>
+    </ngwr-doc-snippet>
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>Call <code>markForCheck()</code> after a silent write.</strong> That is the whole fix — one call on the
+      host component, covering every control in its template.
+    </p>
+
+    <ngwr-doc-code [code]="snippets.silent" language="angular-ts" />
+
+    <ngwr-doc-code [code]="snippets.silentAlt" language="typescript" />
+
+    <wr-alert
+      type="warning"
+      title="Writing from a click handler hides this."
+      message="A click has already marked the view dirty, so a silent write made from a template event handler repaints anyway. That is why a “fill the form from the server” bug reproduces in the app and not in the button you added to test it — reproduce it from a setTimeout or a real response."
+    />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="An out-of-range value is displayed, not rewritten"
+    description="Bounds like `[min]`, `[max]` and `[count]` govern what a control's own edits may produce. A value written in from a FormControl is drawn as best the control can and left in the model exactly as it stands."
+  >
+    <p wrTypography variant="small" tone="medium">
+      The rule is one decision applied five times, and the reasoning is worth having: a control that clamps on write
+      <strong>erases the error the validator exists to report</strong> — the out-of-range number a
+      <code>Validators.max</code> would have flagged is gone before anything reads it — and the write
+      <strong>marks a pristine form dirty on first paint</strong>, which trips unsaved-changes guards and opens every
+      other message on the page. So the model stays yours until the user touches the control.
+    </p>
+
+    <wr-table responsive [columns]="rangeColumns" [items]="rangeRows">
+      <ng-template wrTableCell="control" let-value>
+        <code wrTypography variant="code">{{ value }}</code>
+      </ng-template>
+      <ng-template wrTableCell="outOfRange" let-value>
+        <span [innerHTML]="value | wrDocRich"></span>
+      </ng-template>
+      <ng-template wrTableCell="empty" let-value>
+        <span [innerHTML]="value | wrDocRich"></span>
+      </ng-template>
+    </wr-table>
+
+    <p wrTypography variant="small" tone="medium">
+      The consequence to design around:
+      <strong>a field can look wrong while the form is perfectly consistent.</strong> If a control shows something other
+      than what you set, read <code>control.value</code> before suspecting the control — it is almost always holding
+      exactly what you gave it.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Object values in `<wr-select>`"
+    description="Identity is `===`, there is no `compareWith`, and this is the one gap in the list that fails silently in both directions at once."
+  >
+    <p wrTypography variant="small" tone="medium">
+      <code>&lt;wr-select&gt;</code> finds the selected option by comparing the bound value with each
+      <code>&lt;wr-option [value]&gt;</code> using <code>===</code>. There is no <code>compareWith</code> input and no
+      identity key. An object that came back from a second request is structurally equal to the one in your options list
+      and is not the same reference, so
+      <strong>no option matches, the trigger shows the placeholder, and the form value is unchanged and valid</strong> —
+      a field that looks empty on a form that will submit happily.
+    </p>
+
+    <ngwr-doc-code [code]="snippets.identity" language="typescript" />
+    <ngwr-doc-code [code]="snippets.identityTemplate" language="angular-html" />
+
+    <p wrTypography variant="small" tone="medium">
+      Bind a primitive key and resolve the object where you need it. If the value genuinely has to be the object, keep
+      one canonical instance per id in the store the options render from, so the reference the form holds is the
+      reference the option carries.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="FormArray, nested groups and child components"
+    description="Nothing special is required, because nothing about the bridge is structural: it works per control, and does not care how the directive found its FormControl."
+  >
+    <p wrTypography variant="small" tone="medium">
+      <code>formArrayName</code>, <code>formGroupName</code>, a <code>[formControl]</code> handed to a presentational
+      child, and a control resolved through <code>ControlContainer</code> in a child component all bind ngwr controls
+      the same way they bind native ones.
+    </p>
+
+    <ngwr-doc-code [code]="snippets.array" language="angular-html" />
+
+    <wr-alert
+      type="warning"
+      title="Track the group, not the index."
+      message="An @for over a FormArray tracked by $index does not re-bind [formGroupName] after removeAt(), so the row left behind keeps rendering the removed group's values. This is Angular's behaviour and it hits a native <input> identically — but it looks like a control bug, so it is worth naming here."
+    />
+
+    <p wrTypography variant="small" tone="medium">
+      One thing to own yourself:
+      <strong>the bridge's timings are not covered by ngwr's test suite per component.</strong> Angular tests the
+      synthesis; ngwr's specs prove the contracts. If your app depends on any behaviour on this page, write the spec for
+      it — the <a routerLink="/guides/testing">testing guide</a> covers the harnesses to drive the controls with, and
+      <a routerLink="/start/quality">quality</a> is honest about where that coverage stops.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

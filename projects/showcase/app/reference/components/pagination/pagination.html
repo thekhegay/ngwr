@@ -128,6 +128,25 @@
     </p>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Keyboard, roles and accessible names"
+    description='Every cell is its own tab stop. There is no roving focus and the arrow keys do nothing here — a pager is a list of links to places, not a composite widget with one active item, so Tab reaches each cell and Enter or Space activates it. The host is a `role="navigation"` landmark named from the `pagination.label` key; the previous / next buttons and each number carry their own accessible name, which is what an end-to-end test should match on.'
+  >
+    <ngwr-doc-code [code]="snippets.a11y" language="angular-html" />
+    <p>
+      The names come from the i18n catalog, so they follow the app&#39;s locale — match on the resolved text, or
+      override the key, rather than hard-coding English in a test that a translated build will fail. The three
+      overridable inputs are <code>label</code>, <code>prevLabel</code> and <code>nextLabel</code>; the numbered cells
+      read <code>pagination.goToPage</code> and the size changer <code>pagination.itemsPerPage</code>.
+    </p>
+    <p>
+      The class names are public API and stable — <code>.wr-pagination__page</code> for a numbered cell,
+      <code>.wr-pagination__nav-btn</code> for the two arrows, <code>.wr-pagination__ellipsis</code> for a gap,
+      <code>.wr-pagination__size</code> for the size changer. A unit test has a harness instead:
+      <code>WrPaginationHarness</code> from <code>ngwr/pagination/testing</code>.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

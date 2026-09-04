@@ -45,6 +45,61 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Keyboard"
+    description="The crop window is focusable and fully operable without a pointer — moving it and resizing it are the same two gestures the drag offers, and they go through the same code, so `aspectRatio`, `minWidth` / `minHeight` and the image bounds hold for a keystroke exactly as they do for a drag."
+  >
+    <div class="ngwr-keys">
+      <table>
+        <caption>
+          Focus is on the crop window. Steps are in DISPLAY pixels, then scaled to the source image.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><wr-kbd size="sm">Arrow keys</wr-kbd></td>
+            <td>
+              Move the window by one pixel. Nothing mirrors under <code>dir="rtl"</code> — the image is not flipped.
+            </td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Shift + arrows</wr-kbd></td>
+            <td>
+              The same, by ten pixels — the coarse modifier <code>wr-slider</code>, <code>wr-knob</code> and
+              <code>wr-splitter</code> all use.
+            </td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Alt + arrows</wr-kbd></td>
+            <td>
+              Resize from the east or south edge instead of moving —
+              <wr-kbd size="sm">Alt + ArrowLeft</wr-kbd> / <wr-kbd size="sm">Alt + ArrowRight</wr-kbd> change the width,
+              <wr-kbd size="sm">Alt + ArrowUp</wr-kbd> / <wr-kbd size="sm">Alt + ArrowDown</wr-kbd> the height.
+            </td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Shift + Alt + arrows</wr-kbd></td>
+            <td>Resize by ten pixels.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p wrTypography variant="small" tone="medium">
+      <code>Alt</code> carries the mode switch rather than <code>Shift</code> precisely because
+      <code>Shift</code> already means "coarse" everywhere else in the library, and the two have to compose. Two details
+      worth knowing if you are wiring an upload to this: the live region announces
+      <code>x, y, width × height</code> after each keystroke, and <code>(cropped)</code> fires once per GESTURE, on
+      <code>keyup</code> — not on every repeat of a held arrow, which would render and encode a <code>Blob</code> many
+      times a second.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

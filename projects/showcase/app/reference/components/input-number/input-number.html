@@ -17,12 +17,32 @@
 
   <ngwr-doc-section
     title="Min / max / step"
-    description="Clamps the value to the range. Arrow keys bump by `step`, Shift+Arrow bumps by `10 × step`."
+    description="`[min]` and `[max]` bound what this control's own edits produce — typing, the ▲▼ buttons, the arrow keys. Arrow keys bump by `step`, Shift+Arrow by `10 × step`."
   >
     <ngwr-doc-code [code]="snippets.bounded" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-input-number ariaLabel="Percentage" [(value)]="bounded" [min]="0" [max]="100" [step]="5" />
     </ngwr-doc-snippet>
+
+    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
+      <strong>They do not clamp a value written in from outside.</strong> Set <code>500</code> on a field bound with
+      <code>[max]="100"</code> and the field shows <code>500</code> and the model keeps <code>500</code>; only the next
+      edit is pulled back into range. That asymmetry is deliberate, and the same rule <code>wr-slider</code> and
+      <code>wr-rating</code> follow: writing the clamp back would erase the out-of-range value a
+      <code>Validators.max</code> exists to report, and would mark a pristine form dirty on first paint. Under
+      <code>[formField]</code> it is not even possible to do better — binding <code>[min]</code> beside
+      <code>[formField]</code> is a compile error, so the bounds arrive only through the schema's own
+      <code>min()</code> / <code>max()</code> rules. See <a routerLink="/guides/forms">the reactive-forms guide</a> for
+      the whole table.
+    </p>
+
+    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
+      Two more things about what the field holds. While it has focus, typing owns the text — a typed
+      <code>500</code> is committed as <code>100</code> immediately and the text is only re-formatted from the model on
+      blur. And <strong>an emptied field is <code>null</code>, never <code>0</code></strong
+      >; text that does not parse yet (a lone <code>-</code>, a trailing <code>.</code>) leaves the committed number
+      alone.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Prefix and decimals" description="Fix the number of decimals shown on blur.">

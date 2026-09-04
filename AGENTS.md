@@ -774,17 +774,17 @@ that sequence is a position rather than an oversight:
   author can make, and a selector that stops matching is silent in CSS, in
   `querySelector` and in a test locator alike. So it reports — the same half of
   the rule `migration-v14` uses.
-- **The v13 commit subject and CHANGELOG entry are WRONG about a second break,
-  and nothing should be built on them.** `feat!: readonly and invalid reach
-  every control, and input size loses its prefix` announces a rename of
-  `[wrInput]`'s `wrSize` input to `size`. **That rename was never made** —
-  `projects/lib/input/directives/wr-input.ts` declares `readonly wrSize` at
-  v12.2.0, v13.0.0, v13.0.1 and HEAD alike, and `WrInput` has no `size` input at
-  all. Do not "restore" a rename that never happened, and do not act on a
-  migration diff that rewrites `wrSize="lg"` to `size="lg"`: a static `size` on
-  that directive is an unknown attribute `strictTemplates` says nothing about,
-  so the control silently falls back to `md`. The published changelog cannot be
-  edited; correcting the docs that repeat it can.
+- **v13's commit subject announced a rename it did not make, and v14 made it.**
+  `feat!: … and input size loses its prefix` promised `[wrInput]`'s `wrSize`
+  input as `size`, and the directive shipped `readonly wrSize` unchanged through
+  v12.2.0, v13.0.0 and v13.0.1. The gap was live for a release: the migration
+  guide repeated the note, and following it wrote a static `size` that
+  `strictTemplates` accepts as an unknown attribute while the control falls back
+  to `md`. v14 performed the rename for real and `migration-v14` rewrites it,
+  anchored on the DIRECTIVE rather than the tag, because `size` is a legal
+  native attribute and rewriting one that was never ngwr's would silently
+  rebind a character-width hint. The published v13 changelog cannot be edited;
+  the docs that repeated it were corrected.
 - **v14 ships `migration-v14`, split down the middle of the rule**, and that
   split is the thing to copy. It REWRITES the five renames — on `<wr-alert>`
   from `closeable` to `closable`, on `<wr-table>` from `totalItems` to `total`,

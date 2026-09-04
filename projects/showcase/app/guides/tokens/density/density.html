@@ -57,7 +57,7 @@
 
   <ngwr-doc-section
     title="Global density — provideWrDensity()"
-    description="Configure the global scale at bootstrap. All fields are optional and merged with the defaults (`defaultDensity: 'md'`, `storageKey: 'wr-density'`, `attribute: 'data-wr-density'`). The chosen value is persisted via `WrStorage` under `storageKey` — pass `storageKey: null` to disable persistence."
+    description="Configure the global scale at bootstrap. All fields are optional and merged with the defaults (`defaultDensity: 'md'`, `storageKey: 'wr-density'`, `attribute: 'data-wr-density'`). The chosen value is persisted via `WrStorage` under `storageKey` — pass `storageKey: null` to disable persistence. **The provider has a stylesheet half, and it is not in the theme layer.** The four multipliers are declared in `ngwr/density` and nowhere else, so `@use 'ngwr'` brings them and a per-component setup does not: without `@use 'ngwr/density'` every reader falls through to its `var(--wr-density-y, 1)` fallback, which means the controls look right at `md` and the provider, the service and the directive all appear to do nothing at all. Nothing warns — this is the failure to check first if a density switch has no visible effect."
   >
     <ngwr-doc-code [code]="snippets.provider" language="angular-ts" />
   </ngwr-doc-section>

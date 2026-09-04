@@ -69,6 +69,32 @@ export default class PaginationComponent {
 @Component({ imports: [WrPagination] })
 export class MyComponent {}`,
     basic: `<wr-pagination [total]="120" [(page)]="page" />`,
+    a11y: `<!-- What \`<wr-pagination [total]="120" [(page)]="page" />\` renders, in the
+     shape a Playwright or Testing Library locator sees. Tab reaches every
+     cell; Enter and Space activate the focused one; arrow keys do nothing. -->
+<wr-pagination role="navigation" aria-label="Pagination" class="wr-pagination wr-pagination--md …">
+  <div class="wr-pagination__inner">
+    <div class="wr-pagination__nav">
+      <wr-btn role="button" tabindex="0" aria-label="Previous page" class="wr-pagination__nav-btn">…</wr-btn>
+      <wr-btn role="button" tabindex="0" aria-label="Go to page 1" aria-current="page" class="wr-pagination__page">1</wr-btn>
+      <wr-btn role="button" tabindex="0" aria-label="Go to page 2" class="wr-pagination__page">2</wr-btn>
+      <span class="wr-pagination__ellipsis">…</span>
+      <wr-btn role="button" tabindex="0" aria-label="Next page" class="wr-pagination__nav-btn">…</wr-btn>
+    </div>
+  </div>
+</wr-pagination>
+
+<!-- \`<wr-btn>\` is a custom element, so the role and tabindex are attributes it
+     writes rather than native button semantics: query by role and name.
+
+       page.getByRole('button', { name: 'Go to page 2' }).click();
+       expect(page.getByRole('button', { name: 'Go to page 2' }))
+         .toHaveAttribute('aria-current', 'page');
+
+     The current cell is the one carrying \`aria-current="page"\`. A disabled
+     arrow at the end of the range carries \`aria-disabled="true"\` and loses its
+     \`tabindex\`; the \`disabled\` attribute is written too, but it is inert on a
+     custom element — there is no \`disabled\` DOM property to read. -->`,
     sizes: `<wr-pagination [total]="120" [(page)]="page" size="sm" />
 <wr-pagination [total]="120" [(page)]="page" size="md" />
 <wr-pagination [total]="120" [(page)]="page" size="lg" />`,

@@ -1,11 +1,14 @@
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+
+import { WrTypography } from 'ngwr/typography';
 
 import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
 
 @Component({
   selector: 'ngwr-mobile-page',
   templateUrl: './mobile.html',
-  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent],
+  imports: [RouterLink, WrTypography, DocPageComponent, DocSectionComponent, DocCodeComponent],
 })
 export default class MobilePageComponent {
   protected readonly snippets = {
@@ -58,6 +61,17 @@ export class Toolbar {
   // Signals — recompute when the viewport crosses a breakpoint.
   protected readonly isMd = this.media.matches('md');
   protected readonly isWide = this.media.matches('(min-width: 1200px)');
+}`,
+
+    mediaSsr: `<!-- Reflows in CSS. Same markup on the server and in the browser, so
+     hydration matches and nothing jumps. -->
+<wr-table responsive [columns]="cols" [items]="rows" />
+
+<!-- Branches in the template. \`isMd()\` is false on the server, so the
+     prerendered HTML is always the narrow arm and the aside appears only
+     once the bundle has booted. -->
+@if (isMd()) {
+  <aside class="filters">…</aside>
 }`,
   };
 }

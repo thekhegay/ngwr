@@ -65,7 +65,7 @@
 
   <ngwr-doc-section
     title="Use it in a form"
-    description="Signal forms is the native path — `[formField]` binds the `checked` model directly. Reactive forms and `[(ngModel)]` go through Angular 22's bridge, which binds a signal-forms control with no `ControlValueAccessor` involved: the library ships none, and `formControlName` still works. Mind which model each half binds — a single checkbox is a boolean, the group is the array of `checkboxValue`s."
+    description="Signal forms is the native path — `[formField]` binds the `checked` model directly. Reactive forms and `[(ngModel)]` go through [Angular 22's forms bridge](/guides/forms), which binds a signal-forms control with no `ControlValueAccessor` involved: the library ships none, and `formControlName` still works. That bridge is not an accessor, and the guide is what it carries and what it drops — `updateOn`, `required`, and a `{ emitEvent: false }` write that never repaints. Mind which model each half binds, too: a single checkbox is a boolean, the group is the array of `checkboxValue`s."
   >
     <ngwr-doc-code [code]="snippets.forms" language="angular-html" />
     <ngwr-doc-code [code]="snippets.formsTs" language="angular-ts" />

@@ -1,6 +1,8 @@
 import { Component, signal } from '@angular/core';
 
 import { WrImageCropper } from 'ngwr/image-cropper';
+import { WrKbd } from 'ngwr/keyboard';
+import { WrTypography } from 'ngwr/typography';
 
 import {
   DocApiComponent,
@@ -16,6 +18,8 @@ import {
   templateUrl: './image-cropper.html',
   imports: [
     WrImageCropper,
+    WrKbd,
+    WrTypography,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,

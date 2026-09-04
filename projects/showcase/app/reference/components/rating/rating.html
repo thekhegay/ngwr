@@ -51,6 +51,11 @@
       would delete the out-of-range value that a <code>max()</code> rule exists to report. The first real interaction
       commits an in-range number, and the two agree from then on.
     </p>
+    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
+      <a routerLink="/guides/forms">The reactive-forms guide</a> has the same table for every value control, beside the
+      two bridge behaviours that catch people out more often: <code>updateOn</code> does not apply to an ngwr control,
+      and a <code>{{ '{' }} emitEvent: false {{ '}' }}</code> write does not repaint one.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

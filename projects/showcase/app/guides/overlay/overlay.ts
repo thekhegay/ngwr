@@ -1,14 +1,27 @@
 import { Component } from '@angular/core';
 
+import { WrKbd } from 'ngwr/keyboard';
+import { WrTypography } from 'ngwr/typography';
+
 import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
 
 @Component({
   selector: 'ngwr-overlay-page',
   templateUrl: './overlay.html',
-  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent],
+  imports: [WrKbd, WrTypography, DocPageComponent, DocSectionComponent, DocCodeComponent],
 })
 export default class OverlayPageComponent {
   protected readonly snippets = {
+    focusInitial: `<!-- Inside the dialog's own component template. \`cdkFocusInitial\` is a plain
+     attribute the CDK focus trap looks up — nothing to import. -->
+<h2 wrDialogTitle>Delete project</h2>
+<p>This cannot be undone.</p>
+
+<footer>
+  <button wr-btn cdkFocusInitial [wrDialogClose]="false">Cancel</button>
+  <button wr-btn color="danger" [wrDialogClose]="true">Delete</button>
+</footer>`,
+
     setup: `import { bootstrapApplication } from '@angular/platform-browser';
 import { provideWrOverlay } from 'ngwr/overlay';
 

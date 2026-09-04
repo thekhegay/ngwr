@@ -54,6 +54,26 @@
     <ngwr-doc-api [rows]="drawerApi" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Focus and lifetime — the two forms differ"
+    description="Both trap focus while open and both return it, on close, to whatever was focused when the drawer opened. Where the caret LANDS on open is not the same, and it follows from DOM order rather than from a rule: the focus trap takes `cdkFocusInitial` if the content marks one, and otherwise the first tabbable element in the panel."
+  >
+    <ngwr-doc-code [code]="snippets.focus" language="angular-html" />
+    <p>
+      In <code>&lt;wr-drawer&gt;</code> the ✕ is part of the component&#39;s own template and comes before your
+      projected content, so it is the first tabbable element and takes the focus. <code>WrDrawerManager</code> appends
+      its ✕ after the content instead, so focus lands on the first control in the drawer. Mark the element you want with
+      <code>cdkFocusInitial</code> and the two behave identically.
+    </p>
+    <p>
+      Lifetime differs the same way, and here the component is the safer form. <code>&lt;wr-drawer&gt;</code> belongs to
+      the template that declares it: destroy that view and the overlay goes with it, leaving nothing behind. A
+      service-opened drawer outlives its caller exactly as a dialog does — <code>closeOnNavigation</code> (on by
+      default) covers a route change, and everything else is yours: close the ref from
+      <code>DestroyRef.onDestroy</code> when the opener can disappear on its own.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Service API">
     <ngwr-doc-api [rows]="serviceApi" />
   </ngwr-doc-section>

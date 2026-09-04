@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Slider"
-  description="Drag-to-pick numeric input. Single-thumb by default, optional dual-thumb range mode. A signal-forms native control — it implements `FormValueControl`, so `[formField]` binds straight to its `value` model. `[(value)]` works standalone, and template-driven `[(ngModel)]` / reactive forms keep working through Angular's bridge."
+  description="Drag-to-pick numeric input. Single-thumb by default, optional dual-thumb range mode. A signal-forms native control — it implements `FormValueControl`, so `[formField]` binds straight to its `value` model. `[(value)]` works standalone, and template-driven `[(ngModel)]` / reactive forms keep working through [Angular 22's forms bridge](/guides/forms)."
   [keywords]="['slider', 'range', 'wr-slider']"
   [labels]="['Signal Forms', 'a11y']"
 >
@@ -38,6 +38,35 @@
     title="Keyboard"
     description="The thumb is a real `<button>` with `role='slider'` — full keyboard support out of the box. Arrow keys step by `step`; Shift + arrow or PageUp / PageDown step by `step × 10`; Home / End jump to min / max."
   />
+
+  <ngwr-doc-section
+    title="Values outside the range, and `null`"
+    description="`[min]` and `[max]` bound what the thumb can produce and where it can be drawn. A value written in from a form is clamped for the **display** only — the model keeps exactly what you set."
+  >
+    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
+      Set <code>155</code> on a slider bound with <code>max="100"</code> and the thumb parks at the top of its track and
+      announces <code>aria-valuenow="100"</code>, while <code>control.value</code> stays <code>155</code>. The asymmetry
+      is deliberate and matches <code>wr-rating</code> and <code>wr-input-number</code>: a thumb cannot render off its
+      own track, so the display has no choice — but writing that clamp back into the model would delete the out-of-range
+      value a <code>Validators.max</code> exists to report, and would mark a pristine form dirty on first paint. The
+      first drag or arrow key commits an in-range number and the two agree from then on.
+    </p>
+
+    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
+      <strong><code>WrSliderValue</code> is <code>number | [number, number]</code> — there is no empty state.</strong>
+      A slider always points somewhere, so a value that is neither shape is ignored and the thumb stays where it was:
+      <code>control.reset()</code>, which resets to <code>null</code> by default, leaves the thumb on the old position.
+      Reset to a number instead — <code>control.reset(0)</code>, or whatever your <code>min</code> is. In
+      <code>range</code> mode, a scalar written to a two-thumb slider seeds the high thumb at <code>max</code> and,
+      again, leaves the model holding the scalar you gave it until a thumb moves.
+    </p>
+
+    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
+      <a routerLink="/guides/forms">The reactive-forms guide</a> has the same table for every value control, next to the
+      two bridge behaviours that surprise people more: <code>updateOn</code> does not apply, and a
+      <code>{{ '{' }} emitEvent: false {{ '}' }}</code> write does not repaint.
+    </p>
+  </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

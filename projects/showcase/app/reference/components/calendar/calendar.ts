@@ -1,6 +1,8 @@
 import { Component, signal } from '@angular/core';
 
 import { WrCalendar, type WrCalendarRange } from 'ngwr/calendar';
+import { WrKbd } from 'ngwr/keyboard';
+import { WrTypography } from 'ngwr/typography';
 
 import {
   DocApiComponent,
@@ -14,7 +16,16 @@ import { API } from '#core/generated/api';
 @Component({
   selector: 'ngwr-calendar-page',
   templateUrl: './calendar.html',
-  imports: [WrCalendar, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    WrCalendar,
+    WrKbd,
+    WrTypography,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
 export default class CalendarPageComponent {
   protected readonly single = signal<Date | null>(new Date());

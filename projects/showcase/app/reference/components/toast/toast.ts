@@ -106,6 +106,23 @@ bootstrapApplication(AppComponent, {
 });`,
 
     position: `this.toast.setPosition('bottom-end');`,
+
+    scope: `// The six positions, in full — \`WrToastPosition\` is a union of these and
+// nothing else. Both the global config and every \`show()\` call take one.
+type WrToastPosition =
+  | 'top-start' | 'top' | 'top-end'
+  | 'bottom-start' | 'bottom' | 'bottom-end';
+
+// A toast raised on the way out of a screen still appears, and dismisses
+// itself. Keep the handle only when you mean to remove it early.
+const ref = this.toast.show({ message: 'Uploading…', duration: 0 });
+await this.upload();
+ref.dismiss();
+
+// Route-level providers do NOT reach the service — this is ignored:
+//   { path: 'admin', providers: [provideWrToastConfig({ position: 'bottom' })] }
+// Pass the value per call instead:
+this.toast.show({ message: 'Saved', position: 'bottom' });`,
   };
 
   protected readonly serviceApi: readonly DocApiRow[] = [

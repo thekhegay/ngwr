@@ -55,7 +55,7 @@ export const QUALITY = {
   entryPointsWithSpecs: 204,
 
   /** Documentation pages the showcase's route tables declare — routes with a `loadComponent`, minus the layout shell (it has `children`) and the `**` 404, neither of which is a page. NOT the prerendered-route count either: `app.routes.server.ts` sends the raw-SVG icon galleries and the legacy redirects to the client. */
-  docRoutes: 217,
+  docRoutes: 219,
 
   /** Runtime dependencies of the published package, from `projects/lib/package.json`. Peer dependencies are the consumer's Angular; this is what npm installs on top of it. */
   runtimeDependencies: ["tslib"],
