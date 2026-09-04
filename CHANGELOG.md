@@ -1,5 +1,13 @@
 # Changelog
 
+## [14.0.1](https://github.com/thekhegay/ngwr/compare/v14.0.0...v14.0.1) (2026-09-04)
+
+### Bug Fixes
+
+* **lib:** the hint reaches every control, and a toast outranks the modal above it ([42cd197](https://github.com/thekhegay/ngwr/commit/42cd197d6823520c8ca00b50576c59a1f88ab17f))
+* **toast:** a scoped config says so instead of being ignored, and select documents its keys ([bcd88ad](https://github.com/thekhegay/ngwr/commit/bcd88ad820b1a343ac3e915f631fb79e7b0ea93d))
+* **tree:** inline selection reaches the form, and five docs claims get checked ([cd27704](https://github.com/thekhegay/ngwr/commit/cd277046cd87144e61717044d53f2f940962d3f2))
+
 ## [14.0.0](https://github.com/thekhegay/ngwr/compare/v13.0.1...v14.0.0) (2026-09-04)
 
 ### ⚠ BREAKING CHANGES
