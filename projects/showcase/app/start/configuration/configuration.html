@@ -55,7 +55,9 @@
 
   <ngwr-doc-section
     title="Component defaults"
-    description="`provideWrConfig()` sets what a component falls back to when a template says nothing — the shared `size` scale, the `rounded` shape on the controls that have one, and `<wr-markdown>`'s link target and copy button. A bound value always wins, so nothing has to be re-stated to escape it — and a bound `false` turns a configured `true` back off, because `false` is a value rather than an absence. Intent is deliberately not a key: `null` is how a template says nothing, and it is also how the lib's own chrome says “no colour”."
+    description="`provideWrConfig()` sets what a component falls back to when a template says nothing — the shared `size` scale, the `rounded` shape on the controls that have one, and `<wr-markdown>`'s link target and copy button. A bound value always wins, so nothing has to be re-stated to escape it — and a bound `false` turns a configured `true` back off, because `false` is a value rather than an absence. Intent is deliberately not a key: `null` is how a template says nothing, and it is also how the lib's own chrome says “no colour”.
+
+**The three providers do NOT scope alike, and the difference is worth knowing before you reach for a route.** `provideWrConfig()` is read per route: a component resolves it from its own injector, so a lazy area can carry its own defaults. `provideWrIcons()` works at any level and CHAINS, so a route adds to the set its parent registered rather than replacing it. `provideWrToastConfig()` is bootstrap-only — `WrToast` is root-provided and resolves its config once from the root injector, so a route-level call is never read. That one used to be silent; since v14.0.1 it warns in dev mode and names itself."
   >
     <ngwr-doc-code [code]="snippets.config" language="angular-ts" />
   </ngwr-doc-section>
