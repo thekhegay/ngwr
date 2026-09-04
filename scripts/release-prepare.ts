@@ -36,6 +36,21 @@ import { writeSupportTable } from './lib/version/support-table';
 import { writeVersion } from './lib/version/write';
 
 async function main(): Promise<void> {
+  // An unrecognised flag is refused rather than ignored, and the reason is that
+  // ignoring one is indistinguishable from honouring it. `--dry-run` reads like
+  // a rehearsal and this script has never had one: run that way it bumps
+  // `package.json`, rewrites `NGWR_VERSION`, the SECURITY table and the
+  // CHANGELOG for real, prints its usual success lines, and leaves the tree
+  // dirty in four files. Anything that looks like a safety net has to either
+  // exist or say it does not.
+  const unknown = argv.slice(2).filter(a => !a.startsWith('--bump='));
+  if (unknown.length > 0) {
+    err(`Unknown option(s): ${unknown.join(' ')}`);
+    err('Usage: release:prepare --bump=<patch|minor|major|rc>');
+    err('There is no --dry-run: this script always writes.');
+    exit(1);
+  }
+
   const type = parseReleaseType(argv);
   if (!type) {
     err('Usage: release:prepare --bump=<patch|minor|major|rc>');
