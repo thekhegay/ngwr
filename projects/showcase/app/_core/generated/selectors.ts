@@ -401,4 +401,4 @@ export const STYLE_DEPENDENCIES: Readonly<Record<string, readonly string[]>> = {
  * step: bump `lucide` and re-run `pnpm gen:selectors`, which `build:showcase`
  * does first thing.
  */
-export const LUCIDE_VERSION = "^1.38.0";
+export const LUCIDE_VERSION = "^1.40.0";
