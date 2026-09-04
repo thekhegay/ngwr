@@ -79,7 +79,7 @@ const SYMBOL_MAP = {
  * Both shapes below are real. An entry point with a stylesheet carries a `sass`
  * condition pointing at its `styles/_index.scss`; one without — a harness, a
  * service, an adapter, `ngwr/i18n/en` here — is absent from the map altogether,
- * which is how 94 of the 202 entry points look.
+ * which is how 96 of the 204 entry points look.
  */
 const EXPORTS = {
   '.': { sass: './styles.scss' },
@@ -288,8 +288,8 @@ describe('Catalog', () => {
   it('reports a stylesheet only for an entry point whose exports map declares one', () => {
     const catalog = new Catalog(root);
 
-    // Read from the package's own map rather than assumed from the path: 94 of
-    // the 202 entry points ship no `styles/_index.scss`, and `get_ngwr_component`
+    // Read from the package's own map rather than assumed from the path: 96 of
+    // the 204 entry points ship no `styles/_index.scss`, and `get_ngwr_component`
     // used to tell a consumer to `@use` every one of them.
     expect(catalog.hasStyles('ngwr/alert')).toBe(true);
     expect(catalog.hasStyles('ngwr/badge')).toBe(true);

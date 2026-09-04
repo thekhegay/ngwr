@@ -188,14 +188,14 @@ export default class QualityPage {
     {
       version: 'v14',
       broke:
-        'Five names moved to one word per concept — closeable to closable, totalItems to total, currentPage to page. Router integration became opt-in for wr-loading-bar and routed tabs. A named date format refuses input it cannot read, and wr-pagination ofLabel is gone.',
+        'Six names moved to one word per concept — closeable to closable, totalItems to total, currentPage to page, and [wrInput]’s wrSize to size. Router integration became opt-in for wr-loading-bar and routed tabs. A named date format refuses input it cannot read, and wr-pagination ofLabel is gone.',
       codemod: 'Partial',
     },
     {
       version: 'v13',
       broke:
-        'readonly and invalid reach every control. [wrInput]’s size input lost its wr prefix, and [id] on checkbox, radio and switch stopped landing on the host.',
-      codemod: 'None',
+        'readonly and invalid reach every control, and [id] on checkbox, radio and switch stopped landing on the host — getElementById now returns the inner input, which is what the input always documented.',
+      codemod: 'Reports',
     },
     {
       version: 'v12',

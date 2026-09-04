@@ -132,8 +132,11 @@ ng g ngwr:page dashboard overview
 # Creates <name>.ts + <name>.html + <name>.scss under
 # <sourceRoot>/app/pages/<name>/`,
 
-    update: `# Auto-rewrite the v6 entry-points that v7 consolidated.
-ng update ngwr@7`,
+    update: `# Runs the migration for the major you land on, plus any you skipped.
+ng update ngwr@14
+
+# The example below is v7's, the largest pure rewrite in the collection.
+# v14's own rewrites are six renames; the rest of it reports.`,
 
     updateMap: `// Templates: 11 element / attribute rewrites across .html
 <wr-autocomplete …>     →  <wr-select mode="search" …>

@@ -249,7 +249,7 @@
       Both partials are deliberate. v12's other break — <code>readI18nText()</code> returning a
       <code>Signal&lt;string&gt;</code> — is not codemodded, because adding <code>()</code> means knowing which
       identifiers hold the result, and a wrong guess is a silent behaviour change. The type error names every call site
-      instead. v14 rewrites its five renames and only <em>reports</em> the rest: opting a loading bar or a routed tab
+      instead. v14 rewrites its six renames and only <em>reports</em> the rest: opting a loading bar or a routed tab
       strip back into the router is a decision about a bundle, not a substitution, and the stricter date parsing has no
       token to detect. The <a routerLink="/start/migration">migration guide</a> documents every half, and every break
       back to v7.
@@ -278,7 +278,7 @@
       <wr-description-item label="Stability">
         The catalog moves. {{ majorLine }} is the current line, and the table above is the honest record of what each
         step cost. Pin the major, read the migration guide, and do not assume an upgrade is free because the gates are
-        green — two of the last three majors broke things no codemod could repair.
+        green — each of the last three majors broke something no codemod could repair.
       </wr-description-item>
       <wr-description-item label="Design">
         One person's taste. The tokens are documented and all of them are overridable, but nothing here went through a
