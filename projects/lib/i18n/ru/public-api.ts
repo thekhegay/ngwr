@@ -133,6 +133,7 @@ export const wrRu: WrI18nCatalog = {
     label: 'Палитра команд',
     placeholder: 'Введите команду или поиск…',
     noResults: 'Ничего не найдено',
+    loading: 'Идёт поиск…',
     escHint: 'esc',
   },
   empty: {

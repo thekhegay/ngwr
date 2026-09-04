@@ -474,3 +474,128 @@ describe('WrCommandPalette — the esc hint is localizable', () => {
     expect(hint()).toBe('Esc-Taste');
   });
 });
+
+/**
+ * The palette was a closed box until v14.1: `items` in, `picked` out, and a
+ * substring filter in between that nothing could reach. That is fine for a
+ * fixed command list and impossible for anything backed by a server — which is
+ * what ngwr.dev's own docs search needs.
+ *
+ * The three pieces below are `wr-select`'s vocabulary, name for name, because
+ * this is the same problem and the library should not spell it twice: `query`
+ * is two-way, `serverSearch` says the list arrived pre-scoped, and
+ * `searchChange` fires on a debounce rather than per keystroke.
+ */
+describe('WrCommandPalette backed by a server', () => {
+  @Component({
+    imports: [WrCommandPalette],
+    template: `
+      <wr-command-palette
+        [items]="items()"
+        [(open)]="open"
+        [trigger]="null"
+        [(query)]="query"
+        [serverSearch]="serverSearch()"
+        [loading]="loading()"
+        [debounceMs]="debounceMs()"
+        (searchChange)="searches.push($event)"
+      />
+    `,
+  })
+  class ServerHost {
+    readonly items = signal<readonly WrCommandItem[]>(ITEMS);
+    readonly open = signal(true);
+    readonly query = signal('');
+    readonly serverSearch = signal(true);
+    readonly loading = signal(false);
+    readonly debounceMs = signal(0);
+    readonly searches: string[] = [];
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<ServerHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const input = (): HTMLInputElement => root().querySelector<HTMLInputElement>('input')!;
+  const options = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('[role="option"]')];
+  const status = (): HTMLElement | null => root().querySelector<HTMLElement>('[role="status"]');
+
+  const type = (value: string): void => {
+    input().value = value;
+    input().dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [ConfigurableFocusTrapFactory, provideWrI18n(), provideWrI18nStaticLoader({})],
+    });
+    fixture = TestBed.createComponent(ServerHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps every row a server returned, however little it looks like the query', () => {
+    // The whole point of the flag. A backend that ranks or tolerates typos hands
+    // back rows whose labels do not contain the query at all — "loadnig" really
+    // does return the loading bar — and the client filter would hide them again.
+    type('zzzz');
+
+    expect(options()).toHaveLength(ITEMS.length);
+  });
+
+  it('still filters locally when the host has not claimed the list is scoped', () => {
+    fixture.componentInstance.serverSearch.set(false);
+    fixture.detectChanges();
+
+    type('zzzz');
+
+    expect(options()).toHaveLength(0);
+  });
+
+  it('carries the query both ways, so a host can seed it and read it', () => {
+    fixture.componentInstance.query.set('table');
+    fixture.detectChanges();
+    expect(input().value).toBe('table');
+
+    type('tree');
+    expect(fixture.componentInstance.query()).toBe('tree');
+  });
+
+  it('says it is searching rather than saying there is nothing', () => {
+    fixture.componentInstance.items.set([]);
+    fixture.componentInstance.loading.set(true);
+    fixture.detectChanges();
+
+    // The distinction is the point: an async palette that reports "No results"
+    // between every keystroke and its answer states something that is not true
+    // yet. Both rows are the same live region, so a screen reader hears the
+    // correction rather than a false claim it has to un-learn.
+    expect(status()!.textContent.trim()).toBe('Searching…');
+
+    fixture.componentInstance.loading.set(false);
+    fixture.detectChanges();
+    expect(status()!.textContent.trim()).toBe('No results');
+  });
+
+  it('emits the settled query, not one event per keystroke', async () => {
+    fixture.componentInstance.debounceMs.set(40);
+    fixture.detectChanges();
+
+    type('s');
+    type('se');
+    type('sel');
+
+    expect(fixture.componentInstance.searches).toEqual([]);
+
+    await new Promise(resolve => setTimeout(resolve, 80));
+    expect(fixture.componentInstance.searches).toEqual(['sel']);
+  });
+
+  it('does not emit the empty query it is mounted with', async () => {
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    expect(fixture.componentInstance.searches).toEqual([]);
+  });
+});

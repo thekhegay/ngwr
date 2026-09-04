@@ -66,6 +66,14 @@ export default class CommandPalettePage {
   }
 
   protected readonly snippets = {
+    server: `<wr-command-palette
+  [items]="results()"
+  [(query)]="query"
+  [loading]="loading()"
+  serverSearch
+  [debounceMs]="250"
+  (searchChange)="search($event)"
+/>`,
     install: `import { WrCommandPalette, type WrCommandItem } from 'ngwr/command-palette';
 
 @Component({ imports: [WrCommandPalette] })

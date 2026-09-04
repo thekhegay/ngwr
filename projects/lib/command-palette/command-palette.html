@@ -42,7 +42,9 @@
            `aria-required-children` critical for every query that matched
            nothing, and an empty listbox on its own is not. `role="status"` also
            gets the message spoken while focus stays in the search input. -->
-      @if (filtered().length === 0) {
+      @if (loading()) {
+        <div class="wr-command-palette__empty" role="status">{{ resolvedLoading() }}</div>
+      } @else if (filtered().length === 0) {
         <div class="wr-command-palette__empty" role="status">{{ resolvedEmpty() }}</div>
       }
 

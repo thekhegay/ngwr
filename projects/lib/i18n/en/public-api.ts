@@ -161,6 +161,10 @@ export const wrEn: WrI18nCatalog = {
     label: 'Command palette',
     placeholder: 'Type a command or search…',
     noResults: 'No results',
+    // Shown INSTEAD of `noResults` while a host-driven search is in flight.
+    // Without it an async palette reads "No results" between every keystroke
+    // and its answer, which states something false about the query.
+    loading: 'Searching…',
     // The key-cap chip in the search row. A key NAME rather than prose, so most
     // locales will leave it alone — but a keyboard whose key is not labelled
     // "esc" had no way to say so.
