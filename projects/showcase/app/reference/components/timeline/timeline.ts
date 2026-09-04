@@ -25,6 +25,11 @@ import {
   ],
 })
 export default class TimelinePageComponent {
+  protected readonly install = `import { WrTimeline, WrTimelineItem } from 'ngwr/timeline';
+
+@Component({ imports: [WrTimeline, WrTimelineItem] })
+export class MyComponent {}`;
+
   protected readonly snippet = `<wr-timeline>
   <wr-timeline-item title="Created" time="2026-05-01">Initial commit.</wr-timeline-item>
   <wr-timeline-item title="Deployed" time="2026-05-02" color="success">Live.</wr-timeline-item>

@@ -26,6 +26,11 @@ import {
   ],
 })
 export default class PullToRefreshPageComponent {
+  protected readonly install = `import { WrPullToRefresh } from 'ngwr/pull-to-refresh';
+
+@Component({ imports: [WrPullToRefresh] })
+export class MyComponent {}`;
+
   protected readonly loading = signal(false);
   protected readonly items = signal<string[]>(['Aurora', 'Borealis', 'Cascade', 'Drift', 'Ember', 'Fathom']);
 

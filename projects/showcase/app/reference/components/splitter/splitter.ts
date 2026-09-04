@@ -17,6 +17,11 @@ import { API } from '#core/generated/api';
   imports: [WrSplitter, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class SplitterPageComponent {
+  protected readonly install = `import { WrSplitter } from 'ngwr/splitter';
+
+@Component({ imports: [WrSplitter] })
+export class MyComponent {}`;
+
   protected readonly horizontalPos = signal(40);
   protected readonly verticalPos = signal(50);
 

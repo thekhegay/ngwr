@@ -25,6 +25,11 @@ import { API } from '#core/generated/api';
   ],
 })
 export default class CarouselPageComponent {
+  protected readonly install = `import { WrCarousel, WrCarouselSlide } from 'ngwr/carousel';
+
+@Component({ imports: [WrCarousel, WrCarouselSlide] })
+export class MyComponent {}`;
+
   protected readonly idx = signal(0);
 
   /**

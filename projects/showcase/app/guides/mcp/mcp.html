@@ -7,11 +7,15 @@
     <p wrTypography>
       The package already ships everything an agent needs to know: a
       <code>.d.ts</code> per entry point, the whole catalog as
-      <a href="https://ngwr.dev/llms-full.txt" target="_blank" rel="noreferrer noopener">llms-full.txt</a>, and a
-      markdown twin of every docs page. What it does not ship is a way to ASK. An agent that does not already know an
-      entry point's NAME cannot use a <code>.d.ts</code> — it cannot open <code>types/ngwr-date-picker.d.ts</code> to
-      answer "does this library have a date range picker", because finding that filename was the question. And once it
-      has the name, the file it wants can be 40 KB of declarations standing in for a forty-line answer —
+      <a href="https://ngwr.dev/llms-full.txt" target="_blank" rel="noreferrer noopener">llms-full.txt</a>, and the
+      agent skill under <code>skills/ngwr/</code>. The
+      <strong>markdown twin of a docs page is a URL rather than a file</strong> — append <code>.md</code> to any page on
+      this site and the server renders it — so it is one fetch away rather than on disk. The tools below hand you that
+      URL and stop there; fetching it is your agent's job, which is what keeps this server free of network access
+      entirely. What the package does not ship is a way to ASK. An agent that does not already know an entry point's
+      NAME cannot use a <code>.d.ts</code> — it cannot open <code>types/ngwr-date-picker.d.ts</code> to answer "does
+      this library have a date range picker", because finding that filename was the question. And once it has the name,
+      the file it wants can be 40 KB of declarations standing in for a forty-line answer —
       <code>ngwr-table.d.ts</code> is the record holder.
     </p>
 

@@ -893,6 +893,35 @@
     </p>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Running axe over your own app"
+    description='One result you will see on every page that has a select, and it is a contract rather than a defect. `<wr-select>`, `<wr-cascader>` and an `openOn="overlay"` `<wr-tree>` each publish `aria-controls` on their trigger naming the listbox they own — and the listbox is created when the panel opens, so while the control is closed that attribute names an id no element carries. A combobox is supposed to describe what it owns before you open it, which is why the attribute is written unconditionally; the two date pickers take the other route and drop it while closed, so they give you nothing to triage.'
+  >
+    <p wrTypography variant="small" tone="medium">
+      axe cannot tell a deliberate forward reference from a typo, so it does the only honest thing and asks: the rule is
+      <code>aria-valid-attr-value</code>, the result is <strong>incomplete</strong> — “needs review” — and it carries
+      <strong>critical</strong> impact, which makes it look far louder than it is. It is not a violation, and a gate
+      that asserts on <code>results.violations</code> never sees it. A gate that treats <code>incomplete</code> as
+      failure sees one per closed combobox on every page, forever.
+    </p>
+
+    <ngwr-doc-code [code]="snippets.axeTriage" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>Triage the rule, never the page.</strong> Suppressing <code>aria-valid-attr-value</code> for a route, or
+      excluding the component's subtree, also hides the real thing that rule is for — an
+      <code>aria-labelledby</code> pointing at an id you renamed, which is silent everywhere else and is exactly the
+      class of bug this sweep exists to catch. Filtering the nodes keeps the rule live for everything else on the page.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>And run it on a page in the state you care about.</strong> This project's own structural sweep reads
+      prerendered HTML, so nothing inside an overlay is in it — no open panel, no dialog, no focus ring, no hover.
+      Whatever your own gate asserts about an ngwr overlay, open the overlay in the test first;
+      <a routerLink="/start/quality">Quality</a> describes the three sweeps here and what each of them cannot see.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Writing one for your own component">
     <p wrTypography>
       The same base class is available to you. If your app wraps an ngwr control in something of its own, a harness for

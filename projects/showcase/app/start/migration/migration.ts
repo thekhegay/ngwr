@@ -80,7 +80,7 @@ export default class MigrationPageComponent {
 # between your version and 14, in order. From v12 that is v13 then v14; from
 # v6 it is v7, v8, v9, v12, v13, v14. v10 and v11 ship none — nothing to skip.
 #
-# v14 rewrites its five renames and REPORTS the rest.
+# v14 rewrites its six renames and REPORTS the rest.
 # v13 only reports: it names the files, it edits nothing.
 # Read the output of both — the reports are the part that matters.
 ng update ngwr@14`,

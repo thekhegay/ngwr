@@ -39,6 +39,66 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Reading a key from TypeScript"
+    description="There are two families here and picking the wrong one fails at runtime rather than at compile time. `useI18nText()`, `readI18nText()` and `useI18nFormatter()` all call `inject()`, so they only run in an **injection context** — a field initializer, a constructor, or inside `runInInjectionContext()`. Call one from a click handler, a `setTimeout`, a route resolver body or a module-level constant and Angular throws `NG0203`. The service's own `t()` and `translate()` have no such rule: you already hold the instance, so they work anywhere."
+  >
+    <div style="overflow-x: auto">
+      <table>
+        <caption>
+          Which one to reach for.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Call</th>
+            <th scope="col">Returns</th>
+            <th scope="col">Where it may run</th>
+            <th scope="col">Use it for</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>useI18nText(input, key, fallback)</code></td>
+            <td><code>Signal&lt;string&gt;</code></td>
+            <td>Injection context</td>
+            <td>A component string a consumer can override with an input</td>
+          </tr>
+          <tr>
+            <td><code>readI18nText(key, fallback)</code></td>
+            <td><code>Signal&lt;string&gt;</code></td>
+            <td>Injection context</td>
+            <td>The same, with no override input to forward</td>
+          </tr>
+          <tr>
+            <td><code>useI18nFormatter(key, fallback)</code></td>
+            <td><code>(params) =&gt; string</code></td>
+            <td>Injection context</td>
+            <td>A label that interpolates per row</td>
+          </tr>
+          <tr>
+            <td><code>i18n.translate(key, params?)</code></td>
+            <td><code>Signal&lt;string&gt;</code></td>
+            <td>Anywhere</td>
+            <td>A reactive string built after construction</td>
+          </tr>
+          <tr>
+            <td><code>i18n.t(key, params?)</code></td>
+            <td><code>string</code></td>
+            <td>Anywhere</td>
+            <td>A one-shot read — a toast message, a log line</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ngwr-doc-code [code]="snippets.injectionContext" language="typescript" />
+    <p>
+      <code>readI18nText()</code> returns a <em>signal</em>, and that is not a style choice: catalogs land a microtask
+      after the first change-detection pass even with the static loader, so anything that read a plain string at
+      construction time would freeze the English fallback for the life of the app. Keep the signal and call it in the
+      template.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Service" description="Everything on the injected `WrI18n` instance.">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

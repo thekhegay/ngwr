@@ -65,7 +65,7 @@
 
   <ngwr-doc-section
     title="ng update"
-    description="Runs the migration matched to the major you land on, and any you skipped, in order. Each one touches every `.html`, `.ts` and `.scss` in the workspace (excluding `node_modules`, `dist`, and the rest). Regex-based — verify with `git diff` afterwards. Some migrations only REPORT: where a fix needs a decision a codemod cannot make, it names the files and leaves them to you rather than guessing."
+    description="Runs the migration matched to the major you land on, and any you skipped, in order. Each one touches every `.html`, `.ts` and `.scss` in the workspace (excluding `node_modules`, `dist`, and the rest). Regex-based — verify with `git diff` afterwards. Some migrations only REPORT: where a fix needs a decision a codemod cannot make, it names the files and leaves them to you rather than guessing. There is one of these per MAJOR and never for anything else, which is a rule rather than a habit: a breaking change cannot ride a minor or a patch, because [the release script refuses that bump](/start/versioning)."
   >
     <ngwr-doc-code [code]="snippets.update" language="bash" />
   </ngwr-doc-section>

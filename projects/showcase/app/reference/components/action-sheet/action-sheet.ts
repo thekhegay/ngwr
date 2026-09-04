@@ -26,6 +26,11 @@ import {
   ],
 })
 export default class ActionSheetPageComponent {
+  protected readonly install = `import { WrActionSheet } from 'ngwr/action-sheet';
+
+@Component({ imports: [WrActionSheet] })
+export class MyComponent {}`;
+
   protected readonly open = signal(false);
   protected readonly picked = signal<string>('');
 

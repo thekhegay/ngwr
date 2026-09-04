@@ -30,6 +30,11 @@ import { API } from '#core/generated/api';
   ],
 })
 export default class ResultPageComponent {
+  protected readonly install = `import { WrResult, WrResult404, WrResult403, WrResult500 } from 'ngwr/result';
+
+@Component({ imports: [WrResult, WrResult404, WrResult403, WrResult500] })
+export class MyComponent {}`;
+
   protected readonly snippet = `<wr-result status="success" title="Submitted!" description="We'll be in touch.">
   <button wr-btn color="primary" wrResultExtra>Continue</button>
 </wr-result>`;

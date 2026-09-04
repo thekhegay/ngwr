@@ -18,6 +18,11 @@ import { API } from '#core/generated/api';
   imports: [WrAnchor, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class AnchorPageComponent {
+  protected readonly install = `import { WrAnchor } from 'ngwr/anchor';
+
+@Component({ imports: [WrAnchor] })
+export class MyComponent {}`;
+
   protected readonly links: readonly WrAnchorLink[] = [
     { id: 'anchor-intro', label: 'Introduction' },
     {

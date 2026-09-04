@@ -4,6 +4,10 @@
   [keywords]="['action-sheet', 'action sheet', 'bottom sheet', 'menu', 'mobile']"
   [labels]="['Component']"
 >
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="install" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section
     title="Basic"
     description="Pass `actions`; picking one emits `action` and closes the sheet. `role: 'destructive'` paints the row red, `role: 'cancel'` drops it to a separate group at the bottom. Dismissing via the backdrop, Escape, or a swipe-down closes without emitting."

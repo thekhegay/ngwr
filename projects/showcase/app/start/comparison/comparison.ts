@@ -361,5 +361,11 @@ git show v12.0.0:package.json | grep zone.js                                    
       url: ['/start', 'migration'],
       description: 'What each major broke, and which of them ship a codemod.',
     },
+    {
+      kind: 'Guide',
+      title: 'Versioning & support',
+      url: ['/start', 'versioning'],
+      description: 'The release cadence, the semver rule that is enforced, and how long a major is patched.',
+    },
   ];
 }

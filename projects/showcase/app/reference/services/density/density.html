@@ -66,10 +66,25 @@
 
   <ngwr-doc-section
     title="Override the multipliers"
-    description="Each level resolves to `--wr-density-y`, `--wr-density-x`, `--wr-density-text`, and `--wr-density-gap`. Components multiply their static paddings by these. Override on `:root` or `[data-wr-density='…']` to retune."
+    description="Each level resolves to `--wr-density-y`, `--wr-density-x`, `--wr-density-text`, and `--wr-density-gap`. Components multiply their static paddings by these. Retune them by re-declaring the level you are on — `[data-wr-density='md']`, say — rather than on `:root`."
   >
     <ngwr-doc-code [code]="snippets.tokens" language="scss" />
+    <p>
+      <strong>Why not <code>:root</code>.</strong> <code>provideWrDensity()</code> writes
+      <code>data-wr-density</code> on <code>&lt;html&gt;</code> — including the default <code>md</code> — and the
+      library&#39;s own <code>[data-wr-density='md']</code> block re-declares all four multipliers to <code>1</code>.
+      That block and your <code>:root</code> rule match the same element at the same specificity, so the one that comes
+      later in the cascade wins, and the library&#39;s stylesheet is normally later. The symptom is a retune that half
+      applies: whatever is inside a subtree carrying its own <code>[wrDensity]</code> picks the new number up,
+      everything under <code>&lt;html&gt;</code> keeps the shipped one. Declare on the attribute selector and the
+      question does not arise.
+    </p>
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Where the provider goes"
+    description="`WrDensity` is root-provided — one instance per application, holding one active level — and it reads `WR_DENSITY_CONFIG` from the root injector. So `provideWrDensity()` belongs in the application's own providers: put it in a lazy route and the service never sees it, leaving `defaultDensity`, `storageKey` and a renamed `attribute` at their bootstrap values with nothing reported. To vary density by feature, use the `[wrDensity]` directive on the subtree, which is what it is for — it writes the attribute on its own element and needs no provider at all."
+  />
 
   <ngwr-doc-section
     title="Why ngwr provides this"

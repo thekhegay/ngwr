@@ -26,6 +26,11 @@ import { API } from '#core/generated/api';
   ],
 })
 export default class ToolbarPageComponent {
+  protected readonly install = `import { WrToolbar } from 'ngwr/toolbar';
+
+@Component({ imports: [WrToolbar] })
+export class MyComponent {}`;
+
   protected readonly snippet = `<wr-toolbar>
   <div wrToolbarStart><strong>Items</strong></div>
   <div wrToolbarCenter><wr-btn>Grid</wr-btn> <wr-btn>List</wr-btn></div>
