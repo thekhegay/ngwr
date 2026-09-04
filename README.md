@@ -175,9 +175,13 @@ Components render with `ViewEncapsulation.None`, so their `.wr-*` BEM classes an
 their `--wr-*` custom properties are reachable — and both are treated as public
 API: renaming one is a breaking change carrying a migration note. The DOM *shape*
 is not. Which element holds which class, how deeply they nest, whether a wrapper
-exists — all of that may move in a minor. A rule keyed on one class survives; a
-descendant selector that encodes a structure (`.wr-select__trigger > span > svg`)
-does not. See [Theming](https://ngwr.dev/guides/theming) for the full statement.
+exists — all of that may move in a minor. A rule keyed on one class survives a
+rename; a descendant selector that encodes a structure
+(`.wr-select__trigger > span > svg`) does not. And a surviving rule is not a
+winning one: 27 components ship their own stylesheet, which Angular emits after
+your linked `styles.css`, so a single-class override loses to it at equal
+specificity — reach for their `--wr-*` token instead. See
+[Theming](https://ngwr.dev/guides/theming) for the full statement and the list.
 
 ## Quick start
 
