@@ -33,15 +33,23 @@ interface Transform {
 
 /**
  * Match `value` / `[value]` / `[(value)]` inside a `<wr-checkbox …>` open tag.
- * `[^>]*?` stays inside the tag (it can't cross `>`), so the rename never
- * escapes the element it's scoped to.
  *
  * The tag anchor is `(?![-\w])`, NOT `\b`: a word boundary still matches at
  * `<wr-checkbox-group`, whose own `value` IS its form model (it is the group's
  * `FormValueControl`) and must be left alone — renaming it would break every
  * bound group.
+ *
+ * Quoted values are STEPPED OVER rather than excluded, and that is the half a
+ * plain `[^>]*?` got wrong for two majors: a `>` inside a binding expression
+ * looks like the end of the tag, so `<wr-checkbox [disabled]="n > 0" value="a">`
+ * kept its `value` while the same attributes in the other order moved. The
+ * leftover is SILENT — a static `value="a"` that matches no input is an ordinary
+ * DOM attribute, `strictTemplates` says nothing, and every checkbox in the group
+ * keeps the default identity `null`, so they all toggle together. That is the
+ * exact defect this migration exists to prevent, reintroduced by the migration
+ * itself. `migration-v14` fixed the same anchoring; this is that fix, ported.
  */
-const CHECKBOX_TAG = String.raw`<wr-checkbox(?![-\w])[^>]*?\s`;
+const CHECKBOX_TAG = String.raw`<wr-checkbox(?![-\w])(?:"[^"]*"|'[^']*'|[^>])*?\s`;
 
 const HTML_TRANSFORMS: readonly Transform[] = [
   // <wr-checkbox … value="x">  →  checkboxValue="x"
