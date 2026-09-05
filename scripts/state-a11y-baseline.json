@@ -1,27 +1,47 @@
 {
   "color-contrast (light) — date-picker/calendar": {
     "targets": [
-      ".wr-calendar__day--out-of-month.wr-calendar__day[role=\"gridcell\"]"
+      "button[aria-label=\"Sunday, July 26, 2026\"]",
+      "button[aria-label=\"Monday, July 27, 2026\"]",
+      "button[aria-label=\"Tuesday, July 28, 2026\"]",
+      "button[aria-label=\"Wednesday, July 29, 2026\"]",
+      "button[aria-label=\"Thursday, July 30, 2026\"]",
+      "button[aria-label=\"Friday, July 31, 2026\"]"
     ],
-    "note": "2.23:1, measured 2026-08-14. A design call, not a patch, and NOT the WCAG exemption the route baseline claims for it: out-of-month days are enabled `<button>`s (`disabled=false`, `aria-disabled=false`) reachable with the arrow keys, so 1.4.3 applies to them. The colour is right — `--wr-calendar-muted` is `#5f6c7d`, which clears AA on white at 4.63:1 — and `opacity: 0.55` is what drops it to 2.23. Raising the opacity does not fix it either: at 0.75 the composite is #87919e (3.2:1), and reaching 4.5 needs essentially the full-strength muted colour, which is the same tone as an in-month day. So the de-emphasis and the ratio cannot both be had by tuning this one number — it wants a different signal (weight, a dot, a divider) or non-actionable out-of-month days."
+    "note": "2.23:1, measured 2026-08-14. A design call, not a patch, and NOT the WCAG exemption the route baseline claims for it: out-of-month days are enabled `<button>`s (`disabled=false`, `aria-disabled=false`) reachable with the arrow keys, so 1.4.3 applies to them. The colour is right — `--wr-calendar-muted` is `#5f6c7d`, which clears AA on white at 4.63:1 — and `opacity: 0.55` is what drops it to 2.23. Raising the opacity does not fix it either: at 0.75 the composite is #87919e (3.2:1), and reaching 4.5 needs essentially the full-strength muted colour, which is the same tone as an in-month day. So the de-emphasis and the ratio cannot both be had by tuning this one number — it wants a different signal (weight, a dot, a divider) or non-actionable out-of-month days. Re-recorded 2026-09-05: v14 gave each day an `aria-label`, and axe reports the SHORTEST selector that is unique on the page — so the label displaced `[role=\"gridcell\"]` and these keys now carry a date. Nothing about the rendering moved; only the name the baseline matches on. The dates are stable because the sweep pins the clock (see `check-state-a11y.ts`) — MOVING THAT PIN EXPIRES ALL SIX AT ONCE, and the run will report them as new."
   },
   "color-contrast (dark) — date-picker/calendar": {
     "targets": [
-      ".wr-calendar__day--out-of-month.wr-calendar__day[role=\"gridcell\"]"
+      "button[aria-label=\"Sunday, July 26, 2026\"]",
+      "button[aria-label=\"Monday, July 27, 2026\"]",
+      "button[aria-label=\"Tuesday, July 28, 2026\"]",
+      "button[aria-label=\"Wednesday, July 29, 2026\"]",
+      "button[aria-label=\"Thursday, July 30, 2026\"]",
+      "button[aria-label=\"Friday, July 31, 2026\"]"
     ],
-    "note": "3.11:1, the same element and the same design call as the light entry — #5a6374 on #0b1120. Dark starts closer because the muted role lightens, and the 0.55 opacity is still what puts it under."
+    "note": "3.11:1, the same element and the same design call as the light entry — #5a6374 on #0b1120. Dark starts closer because the muted role lightens, and the 0.55 opacity is still what puts it under. Re-recorded 2026-09-05: v14 gave each day an `aria-label`, and axe reports the SHORTEST selector that is unique on the page — so the label displaced `[role=\"gridcell\"]` and these keys now carry a date. Nothing about the rendering moved; only the name the baseline matches on. The dates are stable because the sweep pins the clock (see `check-state-a11y.ts`) — MOVING THAT PIN EXPIRES ALL SIX AT ONCE, and the run will report them as new."
   },
   "color-contrast (light) — calendar/today-and-selected": {
     "targets": [
-      ".wr-calendar__day--out-of-month.wr-calendar__day[role=\"gridcell\"]"
+      ".wr-calendar__day--out-of-month.wr-calendar__day[aria-label=\"Sunday, July 26, 2026\"]",
+      ".wr-calendar__day--out-of-month.wr-calendar__day[aria-label=\"Monday, July 27, 2026\"]",
+      ".wr-calendar__day--out-of-month.wr-calendar__day[aria-label=\"Tuesday, July 28, 2026\"]",
+      ".wr-calendar__day--out-of-month.wr-calendar__day[aria-label=\"Wednesday, July 29, 2026\"]",
+      ".wr-calendar__day--out-of-month.wr-calendar__day[aria-label=\"Thursday, July 30, 2026\"]",
+      ".wr-calendar__day--out-of-month.wr-calendar__day[aria-label=\"Friday, July 31, 2026\"]"
     ],
-    "note": "The same out-of-month cells as the date-picker entry, reached through `wr-calendar` directly rather than through a picker's popup — 2.23:1, 17 nodes across the page's three calendars. One design call, two states that paint it."
+    "note": "The same out-of-month cells as the date-picker entry, reached through `wr-calendar` directly rather than through a picker's popup — 2.23:1, 17 nodes across the page's three calendars. One design call, two states that paint it. Re-recorded 2026-09-05: v14 gave each day an `aria-label`, and axe reports the SHORTEST selector that is unique on the page — so the label displaced `[role=\"gridcell\"]` and these keys now carry a date. Nothing about the rendering moved; only the name the baseline matches on. The dates are stable because the sweep pins the clock (see `check-state-a11y.ts`) — MOVING THAT PIN EXPIRES ALL SIX AT ONCE, and the run will report them as new."
   },
   "color-contrast (dark) — calendar/today-and-selected": {
     "targets": [
-      ".wr-calendar__day--out-of-month.wr-calendar__day[role=\"gridcell\"]"
+      ".wr-calendar__day--out-of-month.wr-calendar__day[aria-label=\"Sunday, July 26, 2026\"]",
+      ".wr-calendar__day--out-of-month.wr-calendar__day[aria-label=\"Monday, July 27, 2026\"]",
+      ".wr-calendar__day--out-of-month.wr-calendar__day[aria-label=\"Tuesday, July 28, 2026\"]",
+      ".wr-calendar__day--out-of-month.wr-calendar__day[aria-label=\"Wednesday, July 29, 2026\"]",
+      ".wr-calendar__day--out-of-month.wr-calendar__day[aria-label=\"Thursday, July 30, 2026\"]",
+      ".wr-calendar__day--out-of-month.wr-calendar__day[aria-label=\"Friday, July 31, 2026\"]"
     ],
-    "note": "3.11:1, the dark half of the entry above."
+    "note": "3.11:1, the dark half of the entry above. Re-recorded 2026-09-05: v14 gave each day an `aria-label`, and axe reports the SHORTEST selector that is unique on the page — so the label displaced `[role=\"gridcell\"]` and these keys now carry a date. Nothing about the rendering moved; only the name the baseline matches on. The dates are stable because the sweep pins the clock (see `check-state-a11y.ts`) — MOVING THAT PIN EXPIRES ALL SIX AT ONCE, and the run will report them as new."
   },
   "target-size (light) — window/open": {
     "targets": [
