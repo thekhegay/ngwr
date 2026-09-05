@@ -1,9 +1,8 @@
 # Roadmap
 
-What is planned, and nothing else. The reasoning behind the codebase — why a
-gate exists, what it cannot see, which contracts look like bugs — lives in
-[AGENTS.md](AGENTS.md). This file used to carry a second copy of all of it; it
-no longer does.
+What is planned, and nothing else. Why a gate exists, what it cannot see, which
+contracts look like bugs — none of that is here. This file used to carry a
+second copy of it and no longer does.
 
 Sizes are S / M / L / XL.
 
