@@ -21,11 +21,21 @@ updates:
     # @types/node tracks the RUNTIME, and .nvmrc pins Node 24 while `engines`
     # allows `>=26`. Typing against 26 while CI runs 24 does not fail: it
     # type-checks APIs that are not there, which is worse than failing.
+    #
+    # vitest is not ours to choose either. The unit-test target runs through
+    # `@angular/build:unit-test`, and `@angular/build` declares the peer
+    # `vitest: ^4.0.8` — so a 5.x bump reads as a routine dev-dependency PR and
+    # takes the whole suite's runner out of its builder's supported range.
+    # Revisit when @angular/build widens the peer, not before.
     ignore:
       - dependency-name: 'typescript'
         versions: ['>=6.1']
       - dependency-name: '@types/node'
         versions: ['>=26']
+      - dependency-name: 'vitest'
+        versions: ['>=5']
+      - dependency-name: '@vitest/coverage-v8'
+        versions: ['>=5']
     assignees:
       - 'thekhegay'
     labels:
