@@ -104,7 +104,7 @@
       out of the list — that the component did not have. `activeChip()` is where
       the ring is, and it is always an enabled chip.
     -->
-    <div class="wr-calendar__months" role="listbox">
+    <div class="wr-calendar__months" role="listbox" [attr.aria-label]="monthListLabel()">
       @for (name of monthsView(); track name) {
         <button
           type="button"
@@ -125,7 +125,7 @@
   }
 
   @case ('year') {
-    <div class="wr-calendar__years" role="listbox">
+    <div class="wr-calendar__years" role="listbox" [attr.aria-label]="yearListLabel()">
       @for (year of yearsView(); track year) {
         <button
           type="button"

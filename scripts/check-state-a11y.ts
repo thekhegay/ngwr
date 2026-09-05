@@ -212,7 +212,18 @@ async function drive(page: Page, cdp: CDPSession, step: Step): Promise<void> {
     await force(cdp, step.focus, ['focus', 'focus-visible']);
   } else if ('fill' in step) await page.locator(step.fill[0]).first().fill(step.fill[1], { timeout: 5000 });
   else if ('press' in step) await page.keyboard.press(step.press);
-  else if ('wait' in step) await page.waitForTimeout(step.wait);
+  else if ('scrollY' in step) {
+    await page.evaluate(y => window.scrollBy({ top: y, behavior: 'instant' }), step.scrollY);
+    // The components that watch scroll do it from a passive listener, so the
+    // class lands a frame or two after the scroll itself.
+    await page.waitForTimeout(150);
+  } else if ('attach' in step) {
+    const [selector, name, mimeType] = step.attach;
+    await page
+      .locator(selector)
+      .first()
+      .setInputFiles({ name, mimeType, buffer: Buffer.from('ngwr state-a11y fixture') }, { timeout: 5000 });
+  } else if ('wait' in step) await page.waitForTimeout(step.wait);
 }
 
 /**

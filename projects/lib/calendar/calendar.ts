@@ -140,6 +140,8 @@ export class WrCalendar {
   // shim for exactly this — a label with no consumer input to forward.
   private readonly prevMonthLabel = useI18nText(NO_OVERRIDE, 'calendar.prevMonth', 'Previous month');
   private readonly nextMonthLabel = useI18nText(NO_OVERRIDE, 'calendar.nextMonth', 'Next month');
+  protected readonly monthListLabel = useI18nText(NO_OVERRIDE, 'calendar.monthList', 'Months');
+  protected readonly yearListLabel = useI18nText(NO_OVERRIDE, 'calendar.yearList', 'Years');
   private readonly prevYearLabel = useI18nText(NO_OVERRIDE, 'calendar.prevYear', 'Previous year');
   private readonly nextYearLabel = useI18nText(NO_OVERRIDE, 'calendar.nextYear', 'Next year');
   private readonly prevYearsLabel = useI18nText(NO_OVERRIDE, 'calendar.prevYears', 'Previous 12 years');

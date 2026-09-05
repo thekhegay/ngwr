@@ -16,7 +16,14 @@
  *
  * Adding one: give it an `id` that reads as "component / state", the docs route
  * it lives on, the steps that create it, and a `target` that EXISTS ONLY in
- * that state. The target is asserted visible before anything is measured, and a
+ * that state.
+ *
+ * **A `target` is NATIVE CSS; a step's selector is Playwright's.** Steps go
+ * through `page.locator()`, which understands `:has-text()` and `:text-is()` —
+ * and those are how you reach the second demo of something on a page where the
+ * first one is the wrong variant. A `target` reaches `element.closest()` inside
+ * the browser instead, where the same selector is a `SyntaxError` that aborts
+ * the whole run. The target is asserted visible before anything is measured, and a
  * miss fails the run rather than passing quietly — so a wrong selector is loud,
  * which is the whole reason it is a separate field from `scope`.
  */
@@ -649,6 +656,193 @@ export const STATES: readonly State[] = [
     scope: '.wr-action-sheet',
     note: 'Not responsive-gated — an action sheet is a sheet everywhere — but a phone is where it is used.',
   },
+
+  // ── At-rest variants the other gates DO see, but only through two rules.
+  // `check:contrast` runs `color-contrast` and `target-size` and nothing else;
+  // these bring them under the full set, in both themes, which is where
+  // `nested-interactive`, `aria-required-children` and the name rules live.
+  {
+    id: 'select/trigger-search',
+    route: `${REF}/select`,
+    steps: [],
+    target: demo('.wr-select__trigger--search'),
+  },
+  {
+    id: 'select/trigger-tag',
+    route: `${REF}/select`,
+    steps: [],
+    target: demo('.wr-select__trigger--tag'),
+  },
+  {
+    id: 'cascader/trigger',
+    route: `${REF}/cascader`,
+    steps: [],
+    target: demo('.wr-cascader__trigger'),
+  },
+  {
+    id: 'date-picker/trigger',
+    route: `${REF}/date-picker`,
+    steps: [],
+    target: demo('.wr-date-picker__trigger'),
+  },
+  {
+    id: 'tree/trigger',
+    route: `${REF}/tree`,
+    steps: [],
+    target: demo('.wr-tree__trigger'),
+  },
+  {
+    id: 'tabs/tab-disabled',
+    route: `${REF}/tabs`,
+    steps: [],
+    target: demo('.wr-tabs__tab--disabled'),
+  },
+  {
+    id: 'table/expand-btn',
+    route: `${REF}/table`,
+    steps: [],
+    target: demo('.wr-table__expand-btn'),
+  },
+  {
+    id: 'table/tree-toggle',
+    route: `${REF}/table`,
+    steps: [],
+    target: demo('.wr-table__tree-toggle'),
+  },
+  {
+    id: 'markdown/task-checked',
+    route: `${REF}/markdown`,
+    steps: [],
+    target: demo('.wr-markdown__task--checked'),
+  },
+  {
+    id: 'drag-drop/handle',
+    route: `${REF}/drag-drop`,
+    steps: [],
+    target: demo('.wr-drag-handle'),
+  },
+  {
+    id: 'event-calendar/colhead-today',
+    route: `${REF}/event-calendar`,
+    steps: [],
+    target: demo('.wr-event-calendar__colhead--today'),
+  },
+  {
+    id: 'tree/row-active',
+    route: `${REF}/tree`,
+    steps: [{ click: demo('.wr-tree__row') }],
+    target: demo('.wr-tree__row--active'),
+  },
+
+  // ── States that need the interaction first.
+  {
+    id: 'select/option-disabled',
+    route: `${REF}/select`,
+    steps: [{ click: demo('.wr-select__trigger') }],
+    target: '.wr-option--disabled',
+    scope: '.wr-select-panel',
+  },
+  {
+    id: 'dropdown/item-disabled',
+    route: `${REF}/dropdown`,
+    // The page has several dropdowns and they all say "Open", so the trigger is
+    // reached through its own section rather than by position.
+    steps: [{ click: 'ngwr-doc-section:has(h2:text-is("Disabled item")) .wr-dropdown-trigger' }],
+    target: '.wr-dropdown-item--disabled',
+    scope: '.wr-dropdown-menu',
+  },
+  {
+    id: 'context-menu/submenu-chevron',
+    route: `${REF}/context-menu`,
+    // The Basic demo's menu has no nested item, and it comes first on the page —
+    // so the host is reached through its own section, the way the dropdown is.
+    steps: [{ rightClick: '.ngwr-cm-demo:has-text("Right-click for nested options")' }],
+    target: '.wr-context-menu-item__chevron',
+    scope: '.wr-context-menu',
+  },
+  {
+    id: 'cascader/option-disabled',
+    route: `${REF}/cascader`,
+    // The disabled leaf sits two columns in: United States -> California.
+    steps: [
+      { click: demo('.wr-cascader__trigger') },
+      { click: '.wr-cascader-panel .wr-cascader__opt:has-text("United States")' },
+      { click: '.wr-cascader-panel .wr-cascader__opt:has-text("California")' },
+    ],
+    target: '.wr-cascader__opt--disabled',
+    scope: '.wr-cascader-panel',
+  },
+
+  // ── States that exist only as a consequence of scroll position or a file
+  // choice. No selector reaches these; they were the last of the table's blind
+  // spots and are the reason `scrollY` and `attach` exist.
+  {
+    id: 'back-top/visible',
+    route: `${REF}/back-top`,
+    steps: [{ scrollY: 1200 }],
+    target: '.wr-back-top__button',
+  },
+  {
+    id: 'anchor/link-active',
+    route: `${REF}/anchor`,
+    steps: [{ scrollY: 900 }],
+    target: '.wr-anchor__link--active',
+  },
+  {
+    id: 'file-upload/chosen',
+    route: `${REF}/file-upload`,
+    steps: [{ attach: [demo('input[type="file"]'), 'report.pdf', 'application/pdf'] }],
+    target: '.wr-file-upload__remove',
+  },
+  {
+    id: 'calendar/month-chip-selected',
+    route: `${REF}/calendar`,
+    steps: [{ click: demo('.wr-calendar__label') }],
+    target: '.wr-calendar__chip--selected',
+    scope: demo('.wr-calendar'),
+    note: 'Found the month listbox had no accessible name — `aria-input-field-name`, both themes.',
+  },
+  {
+    id: 'calendar/year-view',
+    route: `${REF}/calendar`,
+    // The year list is the same shape as the month one and had the same missing
+    // name; only the month view was reachable, so only that half was caught.
+    steps: [{ click: demo('.wr-calendar__label') }, { click: demo('.wr-calendar__label') }],
+    target: '.wr-calendar__years',
+    scope: demo('.wr-calendar'),
+  },
+  {
+    id: 'table/filter-active',
+    route: `${REF}/table`,
+    steps: [
+      { click: demo('.wr-table-filter__trigger') },
+      { click: '.wr-table-filter__panel .wr-table-filter__item' },
+      { press: 'Escape' },
+    ],
+    target: demo('.wr-table-filter--active'),
+  },
+  {
+    id: 'tree/overlay-clear',
+    route: `${REF}/tree`,
+    steps: [
+      { click: demo('.wr-tree__trigger') },
+      { click: '.wr-tree-panel .wr-tree__row' },
+      { press: 'Escape' },
+    ],
+    target: demo('.wr-tree__clear'),
+  },
+  {
+    id: 'tree/chip-remove',
+    route: `${REF}/tree`,
+    // Chips exist only in overlay + multi, and the single-selection combobox
+    // comes first on the page — so the trigger is reached through its section.
+    steps: [
+      { click: 'ngwr-doc-section:has(h2:text-is("Combobox mode — multi + chips")) .wr-tree__trigger' },
+      { click: '.wr-tree-panel .wr-tree__row' },
+      { press: 'Escape' },
+    ],
+    target: demo('.wr-tree__chip-remove'),
+  },
 ];
 
 /**
@@ -668,6 +862,19 @@ export type Step =
   | { readonly focus: string }
   | { readonly fill: readonly [selector: string, text: string] }
   | { readonly press: string }
+  /**
+   * Scroll the window down by N pixels. Some states exist only as a
+   * consequence of scroll position — a back-to-top button appears past a
+   * threshold, an anchor link marks itself active when its section is in view —
+   * and no selector reaches them.
+   */
+  | { readonly scrollY: number }
+  /**
+   * Hand a file to a file input, by name and MIME type. The bytes are made up
+   * on the spot rather than read from a fixture: nothing under test reads
+   * them, and a binary in the repo for one gate is a fixture to keep alive.
+   */
+  | { readonly attach: readonly [selector: string, filename: string, mime: string] }
   | { readonly wait: number };
 
 export interface State {

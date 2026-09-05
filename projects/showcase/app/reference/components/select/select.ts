@@ -80,6 +80,7 @@ export class MyComponent {}`,
   <wr-option value="sm">Small</wr-option>
   <wr-option value="md">Medium</wr-option>
   <wr-option value="lg">Large</wr-option>
+  <wr-option value="xl" disabled>Extra large — out of stock</wr-option>
 </wr-select>`,
     groups: `<wr-select [(value)]="framework">
   <wr-option-group label="Frontend">

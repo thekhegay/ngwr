@@ -198,6 +198,11 @@ export const wrRu: WrI18nCatalog = {
     nextMonth: 'Следующий месяц',
     prevYear: 'Предыдущий год',
     nextYear: 'Следующий год',
+    // The month / year pickers are `role="listbox"`, and a listbox owes a
+    // name — without one a screen reader announces the control as nothing at
+    // all. Caught by `check:state-a11y` once a state finally opened the view.
+    monthList: 'Месяцы',
+    yearList: 'Годы',
     prevYears: 'Предыдущие 12 лет',
     nextYears: 'Следующие 12 лет',
     header: '{{month}} {{year}}',

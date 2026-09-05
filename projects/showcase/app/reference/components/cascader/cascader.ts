@@ -40,6 +40,7 @@ export default class CascaderPage {
           children: [
             { value: 'la', label: 'Los Angeles' },
             { value: 'sf', label: 'San Francisco' },
+            { value: 'sd', label: 'San Diego', disabled: true },
           ],
         },
         {

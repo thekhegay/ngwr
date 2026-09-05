@@ -239,6 +239,11 @@ export const wrEn: WrI18nCatalog = {
     nextMonth: 'Next month',
     prevYear: 'Previous year',
     nextYear: 'Next year',
+    // The month / year pickers are `role="listbox"`, and a listbox owes a
+    // name — without one a screen reader announces the control as nothing at
+    // all. Caught by `check:state-a11y` once a state finally opened the view.
+    monthList: 'Months',
+    yearList: 'Years',
     prevYears: 'Previous 12 years',
     nextYears: 'Next 12 years',
     // The header above the grid, as ONE template. It was `${month} ${year}` in

@@ -25,7 +25,7 @@
 
 export const QUALITY = {
   /** The published version, read from `projects/lib/package.json` — cross-checked against the `NGWR_VERSION` constant, which is a separate copy. */
-  version: "14.1.0",
+  version: "14.2.0",
 
   /** Secondary entry points — `ngwr/button`, `ngwr/select`, … Counted by `ng-package.json`, the way ng-packagr counts them, so `styles/` and `schematics/` are correctly absent. Excludes the primary `ngwr`. */
   entryPoints: 204,
