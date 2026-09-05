@@ -143,6 +143,40 @@ jobs:
           path: state-a11y-report.txt
           retention-days: 30
 
+  layout:
+    name: Layout geometry
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # The gate reads `dist/showcase`, so the site has to exist first.
+      - run: pnpm build:showcase
+
+      - run: pnpm exec playwright install --with-deps chromium
+
+      # Nightly rather than per-PR for the same reason as its neighbours: it
+      # needs a browser and a built site. `shell: bash` for `-o pipefail`, or
+      # `tee` would hand back its own success over a failure.
+      - run: pnpm check:layout 2>&1 | tee layout-report.txt
+        shell: bash
+
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: layout-report
+          path: layout-report.txt
+          retention-days: 30
+
   rtl-layout:
     name: RTL layout
     runs-on: ubuntu-latest

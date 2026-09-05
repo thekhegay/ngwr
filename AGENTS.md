@@ -293,6 +293,7 @@ with **no `var()` reader anywhere in the library**.
 | Dead-token gate   | `pnpm check:tokens` (a `--wr-*` nothing paints with, unless it says `unused-ok:` — a `pnpm lint` stage) |
 | Theme parity      | `pnpm check:theme` (`wrThemeTokens()` vs the compiled `_colors.scss` — a CI step after `build:showcase`) |
 | RTL layout sweep  | `pnpm check:rtl-layout` (Chromium, LTR vs RTL overflow per route — **nightly**, not a PR gate)      |
+| Layout geometry   | `pnpm check:layout` (box sizes vs `layout-baseline.json`; `--update` re-records — **nightly**)        |
 | API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
 | llms-full.txt     | `pnpm check:llms` (entry-point coverage floors for the generated AI asset)                           |
 | Selector map      | `pnpm gen:selectors` (every `@Component` / `@Directive` selector → symbol + subpath, for the sandbox) |
@@ -981,6 +982,22 @@ you extend it: pass **`--probe`**, which reports every unreachable state instead
 of stopping at the first, and put every selector through **`demo()`** — the
 showcase is built out of the library, so the first `.wr-dropdown-trigger` on every
 page is the header's own version switcher.
+
+**`check:layout` is visual regression without the pixels, and the substitution
+was deliberate.** It measures the bounding box of fifteen load-bearing
+components in both themes and compares against `scripts/layout-baseline.json`;
+`--update` re-records it. Screenshot diffs were the original plan and lost on
+three counts: hundreds of PNGs across 214 routes is tens of megabytes of
+binaries; font rasterisation differs between a macOS working copy and the ubuntu
+runner, so a baseline recorded where the work happens never matches where it is
+checked; and an image diff shows a red blob where `36 → 40` in a JSON diff says
+what changed and can be approved by editing one number. It catches the
+regression nothing else does — a token or density change silently resizing
+controls — and it explicitly does NOT catch colour, shadows or radii. Two rules
+if you extend it: **a target that matches nothing FAILS the run** rather than
+recording an empty array, which would then compare equal to itself forever; and
+the tolerance is 1px, absorbing font-width drift while staying under the
+smallest step the density scale can make.
 
 `check:rtl-layout` is the other nightly job, and it is nightly for the same
 reason. It renders every route in a real Chromium under both directions and fails
