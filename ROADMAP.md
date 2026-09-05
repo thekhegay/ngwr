@@ -1,9 +1,9 @@
-# Roadmap — v14
+# Roadmap
 
-What is planned, and nothing else. The reasoning a contributor or an agent needs
-while working — why a gate exists, what it cannot see, which contracts look like
-bugs — lives in [AGENTS.md](AGENTS.md). This file used to carry a second copy of
-all of it; it no longer does.
+What is planned, and nothing else. The reasoning behind the codebase — why a
+gate exists, what it cannot see, which contracts look like bugs — lives in
+[AGENTS.md](AGENTS.md). This file used to carry a second copy of all of it; it
+no longer does.
 
 Sizes are S / M / L / XL.
 
@@ -11,7 +11,7 @@ Sizes are S / M / L / XL.
 
 1. **C3** — Combobox / autocomplete
 2. **C7** — Menubar
-3. **B4** — Schema-driven `wr-form`
+3. **A** — finish it: A1 mode coverage, A2 the SSR remainder
 4. **D6** — High-contrast rendering (`prefers-contrast: more` first)
 
 Two notes, then it stands:
@@ -19,29 +19,29 @@ Two notes, then it stands:
 - **Nothing is blocked any more.** C3 and C7 were both waiting on a rebuild onto
   `@angular/aria` that is no longer planned — see
   [Non-goals](#non-goals-researched-rejected).
-- **A1 and A5 are deliberately unsequenced** — continuous work that lands
-  between features rather than a queue to pull from.
+- **A is in the sequence now, not beside it.** It used to be described as
+  continuous work that lands between features; the remainder is small enough to
+  finish outright, so it gets a slot instead of a habit. **B4 leaves the
+  sequence** and stays open but unscheduled.
 
 Everything below the Order is open but unscheduled; everything under
 [Deferred](#deferred) is explicitly not now.
 
 ## A — Trust & hardening
 
-- [ ] **A1. Test foundation** (XL, continuous) — the suite exists and gates CI.
-      What remains is **mode coverage inside components that are already
-      covered**: a mode is covered when a spec EXERCISES it, and a component
-      with six inputs has more combinations than any list here can name.
-      Caveat when running it: `mcp/server.spec.ts` spawns
+- [ ] **A1. Mode coverage** (M) — the suite exists, gates CI, and every entry
+      point has a spec. What is left is modes INSIDE covered components: a spec
+      on `wr-table` says nothing about tree rows unless it exercises them.
+      Written as an open-ended tail it could never close, so the bar is
+      enumerable instead: **every documented non-default value of a mode-shaped
+      input has at least one spec that drives it** — `selectionMode`, `mode`,
+      `openOn`, `variant`, `responsive` and their kin, which the API tables
+      already list. Caveat when running the suite: `mcp/server.spec.ts` spawns
       `dist/lib/mcp/server.js`, so on a tree that has never run `build:lib` two
       of its specs fail and two skip.
-- [ ] **A5. Visual regression** (M) — the painted-a11y half landed
-      (`check:contrast`, `check:state-a11y`, `check:rtl-layout`). Remaining:
-      **Playwright screenshot diffs across the showcase**, and the last 24
-      state-dependent classes, several of which need a gesture rather than a
-      selector (a scroll for back-top, a chosen file for file-upload).
-- [ ] **SSR remainder** (S) — per-component SSR-safety notes in the docs, and
-      incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on
-      …)`).
+- [ ] **A2. SSR remainder** (S) — per-component SSR-safety notes in the docs,
+      and incremental hydration (`withIncrementalHydration()` + `@defer (hydrate
+      on …)`).
 
 ## B — Platform alignment (Signal Forms)
 
