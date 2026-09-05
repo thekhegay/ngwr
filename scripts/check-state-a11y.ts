@@ -669,6 +669,14 @@ async function main(): Promise<void> {
         // the same way. Any fixed instant would do; a mid-week, mid-month one
         // keeps every demo showing a full month with events on both sides of
         // "today".
+        //
+        // MOVING THIS DATE EXPIRES FOUR BASELINE ENTRIES. Since v14 each calendar
+        // day carries an `aria-label`, and axe reports the shortest selector that
+        // is unique on the page — so the label won, and the four `color-contrast`
+        // entries for `date-picker/calendar` and `calendar/today-and-selected`
+        // are keyed on selectors naming these six days by date. Change the
+        // instant and the run reports twenty-four brand-new failures that are the
+        // same long-approved design call. Re-record them in the same commit.
         await context.clock.setFixedTime(new Date('2026-08-12T10:00:00Z'));
 
         // Seeded BEFORE the first paint, so one load per state is enough: the
