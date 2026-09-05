@@ -187,4 +187,18 @@
   placeholder="Search the documentation…"
   emptyText="Nothing matched"
   (searchChange)="onSearch($event)"
-/>
+>
+  <!-- REQUIRED by the DocSearch plan, not decoration: "Place Algolia's logo,
+       which links back to Algolia.com, in a visible place on Subscriber's
+       website, either on the search box or in the autocomplete panel of the
+       search experience." The panel footer is that place. -->
+  <a
+    wrCommandPaletteFooter
+    class="ngwr-header__algolia"
+    href="https://www.algolia.com/"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Search by Algolia
+  </a>
+</wr-command-palette>

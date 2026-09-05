@@ -92,6 +92,18 @@
           </div>
         }
       </div>
+
+      <!-- Footer slot. A real palette carries something under the list — a key
+           legend, a result count, a provider's required attribution — and there
+           was nowhere to put it. Projected rather than an input, because the
+           content is markup (a link, a logo) rather than a string.
+
+           Outside the listbox on purpose: a `role="listbox"` may own only
+           `option` and `group` children, the same rule the buckets and the empty
+           row already follow. -->
+      <div class="wr-command-palette__footer">
+        <ng-content select="[wrCommandPaletteFooter]" />
+      </div>
     </div>
   </div>
 }

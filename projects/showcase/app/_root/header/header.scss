@@ -580,3 +580,18 @@
   //  }
   // }
 }
+
+// Algolia attribution, in the palette's footer slot. Required by the DocSearch
+// plan terms — the logo must be visible on the search box or in the autocomplete
+// panel, and must link back to Algolia.com.
+.ngwr-header__algolia {
+  color: var(--wr-color-on-surface-muted);
+  font-size: var(--wr-text-xs);
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--wr-color-on-surface);
+    text-decoration: underline;
+  }
+}

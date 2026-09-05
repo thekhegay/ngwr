@@ -83,10 +83,31 @@
 }
 
 // Command palette options
-.wr-command-palette__option:focus-visible,
-.wr-command-palette__panel input:focus-visible {
+.wr-command-palette__option:focus-visible {
   @include focus-ring;
 }
+
+// The palette's search field gets NO ring, and this is the one place in the
+// library that withholds one deliberately. The rule everywhere else — a
+// component may inset the ring but must not cancel it — was written about
+// `dropdown`, where focus ROVES between items and the ring is the only thing
+// saying which one you are on. Nothing roves here.
+//
+// The palette autofocuses this field on open and focus never leaves it: the
+// arrows move a highlight through `aria-activedescendant`, so the DOM's focused
+// element is the input from the first frame to the last. An indicator that is
+// on before the user has done anything, and that never moves afterwards,
+// reports no state — it is a permanent blue box that reads as an error.
+//
+// What identifies focus here instead: the caret, which a text field draws on
+// its own and which 2.4.7 accepts; the panel, which is modal and traps focus;
+// and the placeholder plus the search icon, which say what the field is. Insetting
+// was tried first and does not help — an outline on a full-bleed field traces
+// the same rectangle two pixels in.
+//
+// If a future palette ever moves real focus between rows, that variant needs the
+// ring back, and it should be scoped to the roving element rather than reinstated
+// here.
 
 // Mention option rows
 .wr-mention-panel__option:focus-visible {
