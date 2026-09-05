@@ -9,7 +9,7 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrSelectSize } from './interfaces';
+import type { WrSelectMode, WrSelectSize } from './interfaces';
 import { WrOption } from './option';
 import { WrOptionGroup } from './option-group';
 import { WrSelect } from './select';
@@ -2155,5 +2155,55 @@ describe('WrSelect panel scrolling', () => {
 
     expect(activeRow()).toBe(25);
     expect(panel().scrollTop).toBe(25 * ROW + ROW - VIEWPORT);
+  });
+});
+
+/**
+ * `mode="search"` IS the WAI-ARIA combobox: a real `<input role="combobox">`
+ * with a listbox popup, and with `freeText` it commits text that matched no
+ * option. What it was missing is the attribute that says a suggestion list
+ * exists at all — `aria-autocomplete`, which the palette and `wr-mention` both
+ * carry and this, the one editable combobox of the three, did not.
+ */
+describe('WrSelect announces its autocomplete behaviour', () => {
+  @Component({
+    imports: [WrSelect, WrOption],
+    template: `
+      <wr-select [mode]="mode()" placeholder="Pick">
+        <wr-option value="a">Alpha</wr-option>
+      </wr-select>
+    `,
+  })
+  class ModeHost {
+    readonly mode = signal<WrSelectMode>('search');
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<ModeHost>>;
+  const combobox = (): HTMLElement | null =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('[role="combobox"]');
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(ModeHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('says a suggestion LIST exists — not `both`, since nothing is written back', () => {
+    const el = combobox()!;
+    expect(el.tagName).toBe('INPUT');
+    expect(el.getAttribute('aria-autocomplete')).toBe('list');
+    expect(el.getAttribute('aria-haspopup')).toBe('listbox');
+  });
+
+  it('leaves the non-editable trigger alone — there is no field to complete', () => {
+    fixture.componentInstance.mode.set('single');
+    fixture.detectChanges();
+
+    const el = combobox()!;
+    expect(el.tagName).not.toBe('INPUT');
+    expect(el.hasAttribute('aria-autocomplete')).toBe(false);
   });
 });

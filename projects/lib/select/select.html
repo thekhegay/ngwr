@@ -13,6 +13,11 @@
          search select with no placeholder rendered a combobox with no name at
          all — the one shape where the documented `ariaLabel` input reached
          nothing. -->
+    <!-- `aria-autocomplete` is static, and `list` rather than `both`: the panel
+         is the only place a suggestion appears, nothing is written back into
+         the field for the user. It describes a permanent CAPABILITY, which is
+         why it does not track `open()` — the same reasoning `wr-mention`
+         records at its own host binding. -->
     <input
       #searchInput
       type="text"
@@ -26,6 +31,7 @@
       [attr.aria-invalid]="ariaInvalid()"
       [disabled]="isDisabled()"
       [attr.aria-haspopup]="'listbox'"
+      aria-autocomplete="list"
       [attr.aria-expanded]="open()"
       [attr.aria-controls]="listboxId"
       [attr.aria-activedescendant]="open() ? activeOptionId() || null : null"
@@ -138,6 +144,10 @@
            keyboard way back UNDER the cap, is bound to this very element. It was
            never needed as enforcement either: `tryAddTag` already refuses past
            capacity. -->
+      <!-- `aria-autocomplete` is conditional here, unlike the search input's:
+           this field is only a combobox when a panel backs it. In plain tag
+           mode there is no popup to suggest from, and claiming otherwise
+           describes a control that does not exist. -->
       <input
         #tagInput
         type="text"
@@ -155,6 +165,7 @@
         [placeholder]="hasSelection() ? '' : resolvedPlaceholder()"
         [attr.role]="hasChipSearch() ? 'combobox' : null"
         [attr.aria-haspopup]="hasChipSearch() ? 'listbox' : null"
+        [attr.aria-autocomplete]="hasChipSearch() ? 'list' : null"
         [attr.aria-expanded]="hasChipSearch() ? open() : null"
         [attr.aria-controls]="hasChipSearch() ? listboxId : null"
         [attr.aria-activedescendant]="hasChipSearch() && open() ? activeOptionId() || null : null"
