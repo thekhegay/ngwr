@@ -46,7 +46,7 @@ export const QUALITY = {
   specFiles: 253,
 
   /** Test cases those files DECLARE — `it(…)` / `test(…)` call sites, counted after comments and string bodies are stripped. */
-  testCases: 4453,
+  testCases: 4455,
 
   /** Whether `testCases` is a total or a floor. A parameterised form (`it.each`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page says "at least" rather than failing a documentation build over a legal spec. */
   testCasesAreExact: false,
@@ -89,6 +89,7 @@ export const QUALITY = {
     { name: "build:showcase", command: "tsx scripts/gen-selectors.ts && tsx scripts/gen-css-vars.ts && tsx scripts/gen-quality.ts && tsx scripts/gen-ai-assets.ts && tsx scripts/build-showcase.ts && tsx scripts/gen-sitemap.ts && tsx scripts/gen-md-docs.ts" },
     { name: "check:contrast", command: "tsx scripts/check-contrast.ts" },
     { name: "check:state-a11y", command: "tsx scripts/check-state-a11y.ts" },
+    { name: "check:layout", command: "tsx scripts/check-layout.ts" },
     { name: "check:rtl-layout", command: "tsx scripts/check-rtl-layout.ts" },
   ],
 } as const;
