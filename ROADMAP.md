@@ -9,15 +9,16 @@ Sizes are S / M / L / XL.
 
 ## Order
 
-1. **C3** — Combobox / autocomplete _(hard-blocked on B2)_
-2. **B2** — Rebuild internals on `@angular/aria`
+1. **C3** — Combobox / autocomplete
+2. **C7** — Menubar
 3. **B4** — Schema-driven `wr-form`
 4. **D6** — High-contrast rendering (`prefers-contrast: more` first)
 
 Two notes, then it stands:
 
-- **C3 sits above B2 and is blocked by it.** In practice either B2 moves up or
-  C3 moves down.
+- **Nothing is blocked any more.** C3 and C7 were both waiting on a rebuild onto
+  `@angular/aria` that is no longer planned — see
+  [Non-goals](#non-goals-researched-rejected).
 - **A1 and A5 are deliberately unsequenced** — continuous work that lands
   between features rather than a queue to pull from.
 
@@ -37,29 +38,26 @@ Everything below the Order is open but unscheduled; everything under
       (`check:contrast`, `check:state-a11y`, `check:rtl-layout`). Remaining:
       **Playwright screenshot diffs across the showcase**, and the last 24
       state-dependent classes, several of which need a gesture rather than a
-      selector (a scroll for back-top, a chosen file for file-upload). B2 wants
-      the screenshot diffs.
+      selector (a scroll for back-top, a chosen file for file-upload).
 - [ ] **SSR remainder** (S) — per-component SSR-safety notes in the docs, and
       incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on
       …)`).
 
-## B — Platform alignment (Signal Forms + Angular Aria)
+## B — Platform alignment (Signal Forms)
 
-- [ ] **B2. Rebuild interactive internals on `@angular/aria`** (XL — DOM and
-      BEM classes will shift, so it needs a major) — listbox→select, combobox,
-      menu/menubar, tabs, accordion, tree, grid primitives. Positions ngwr as
-      "styled components over the official primitives": less a11y logic to own,
-      and a story no other styled Angular library has yet. **Blocks C3, holds
-      C7.** Its precondition is met — A1 pins the DOM and classes it will churn;
-      what A5 still owes it is screenshot diffs.
 - [ ] **B4. Schema-driven `wr-form`** (L, stretch) — generate a form from a
       typed field schema; pairs with Signal Forms' schema API. Unblocked.
 
 ## C — Data-heavy + missing components
 
-- [ ] **C3. Combobox / autocomplete proper** (M, **hard-blocked on B2**) —
-      free-text input plus suggestions is a different ARIA pattern than
-      select-with-search; build on the Aria `Combobox` primitive.
+- [ ] **C3. Combobox / autocomplete proper** (M) — free-text input plus
+      suggestions is a different ARIA pattern than select-with-search, so it is
+      a component rather than a mode on `wr-select`. Unblocked: the interaction
+      model is ours to write, and the comparable ones already in the catalog run
+      to a few dozen lines apiece.
+- [ ] **C7. Menubar** (M) — horizontal app menu with submenus: roving focus,
+      typeahead, submenu orchestration. Completes dropdown / context-menu into a
+      menu family.
 
 ## D — Theming & visuals
 
@@ -112,10 +110,6 @@ nobody ships a free, complete Angular AI kit.
 
 Open and researched, explicitly not now.
 
-- [ ] **C7. Menubar** (M) — horizontal app menu with submenus. **Held for B2 by
-      decision**, not merely "cheaper after": the component is roving focus,
-      typeahead and submenu orchestration, which is what the Aria primitive
-      carries — building it first means writing that twice.
 - [ ] **C9. Charts: the missing three** (M) — **area, scatter and radar do not
       exist**, and legends are implemented separately in `donut-chart` and
       `line-chart` rather than shared. The differentiator is theme-token
@@ -137,20 +131,16 @@ Open and researched, explicitly not now.
       `line-chart.html`, `markdown/styles/_index.scss`), plus dropping `light` /
       `dark` from `WR_COLORS` / `WrColor`. Codemoddable, so it owes a
       `migration-vN` in whichever major carries it.
-- [ ] **B2 internals swap** — DOM and BEM class changes from the Aria
-      primitives. Public API by this project's own rules, so it needs a major.
 - [ ] **Angular 23 peer baseline** (~Nov 2026).
 - [ ] **Per-entry bundle budgets enforced in CI.**
 
 ## What blocks what
 
-The one hard edge is B2.
+Nothing is hard-blocked.
 
-- **C3** — hard-blocked on B2; it needs the Aria `Combobox` primitive.
-- **C7** — technically unblocked, held for B2 by decision.
 - **D5** — blocked in practice on D2.
-- **B2** — unblocked; A1 met its precondition, A5 still owes it screenshot diffs.
-- Everything else is unblocked.
+- Everything else is unblocked, including C3 and C7, which were held for a
+  rebuild that is no longer planned.
 
 ## Non-goals (researched, rejected)
 
@@ -158,7 +148,31 @@ The one hard edge is B2.
   on the real `<input>`, so a mask composes on the same element with no adapter
   and nothing to keep in sync. Documented at `/reference/components/input` with
   six live masks.
-- **Pure-headless library** — `@angular/aria` occupies that for free; build on it.
+- **Pure-headless library** — not our shape; ngwr ships styled components.
+- **Rebuilding the interactive internals on `@angular/aria`** — was planned as
+  B2, dropped 2026-09-05. The package is real and stable as of v22, and the
+  model it copies won decisively in React, where one Radix primitive
+  (`react-dropdown-menu`) outdraws all of MUI roughly five to one. Neither
+  argument survives contact with this library.
+
+  **The saving is already banked.** The pitch is "less a11y logic to own", so
+  the logic was counted: 31 lines of keyboard and focus handling in `select`,
+  24 in `tree`, 11 in `tabs`, 4 in `context-menu`, 0 in `collapse`. Adopting the
+  primitive means deleting a few dozen tested lines to inherit someone else's
+  behaviour — including where ours diverges on purpose (`wr-list`'s row keeps
+  `role="listitem"`; `wr-mention` stays a `textbox`). The virtualized lists
+  cannot use it at all: the primitive tracks a live collection of `ngOption`
+  directives and our windowing removes them from the DOM.
+
+  **And nobody has gone first.** A year after its first publish and one release
+  into stable, no Angular UI library depends on it — not PrimeNG, not NG-ZORRO,
+  not Spartan, not Angular Material, which ships from the same repository. Taiga
+  wrote its own CDK instead. 98k weekly downloads against the CDK's 4.1M.
+  Angular's own roadmap lists Aria beside the CDK and Material as one of three
+  options rather than the direction of travel.
+
+  Not a permanent no: revisit per component if one is ever built where the
+  interaction model IS the work, and reopen if Material adopts it.
 - **Copy-paste-only distribution** — weak traction in Angular; E6 hybrid instead.
 - **A proprietary chart engine, or an AG-Grid feature chase.**
 - **Runtime CSS-in-JS** — CSS custom properties are already the right model.
