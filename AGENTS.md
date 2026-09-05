@@ -1029,7 +1029,17 @@ again. And **a component may inset the ring but must not cancel it**: `list` and
 clipping container, which is correct, while `dropdown` used to write
 `outline: none` in a rule that beat the shared one on source order — the mixin
 lists `.wr-dropdown-item:focus-visible` explicitly, so the two contradicted each
-other and the component won.
+other and the component won. **One selector is deliberately absent from the
+list, and the distinction is what focus DOES rather than what it looks like:**
+the command palette's search input. Its focus never moves — the field is
+autofocused on open and the arrows drive a highlight through
+`aria-activedescendant`, so the focused element is that input from the first
+frame to the last. A ring that is on before the user acts and never changes
+afterwards reports no state; it is a permanent box that reads as an error, and
+insetting only traces the same rectangle two pixels in. The caret, the modal
+panel and the placeholder carry the job instead. That reasoning is written at the
+selector in `theme/styles/_focus.scss`; a palette variant that ever moves real
+focus between rows needs the ring back, scoped to whatever roves.
 
 **Accessibility.** Interactive components follow the WAI-ARIA APG patterns —
 correct roles/states, keyboard navigation, and focus management; overlays use the

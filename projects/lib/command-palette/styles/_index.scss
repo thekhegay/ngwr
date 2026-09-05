@@ -71,6 +71,23 @@
     letter-spacing: var(--wr-tracking-wide);
   }
 
+  // Collapses entirely when the host projects nothing, so a palette that wants
+  // no footer pays no empty bar for the slot existing.
+  &__footer:not(:has(*)) {
+    display: none;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.5rem 0.875rem;
+    border-top: 1px solid var(--wr-color-outline);
+    color: var(--wr-color-on-surface-muted);
+    font-size: var(--wr-text-xs);
+  }
+
   &__body {
     max-height: 24rem;
     overflow-y: auto;

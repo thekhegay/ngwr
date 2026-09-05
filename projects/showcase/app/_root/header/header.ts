@@ -1,7 +1,7 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { isPlatformBrowser } from '@angular/common';
-import { Component, DOCUMENT, DestroyRef, ElementRef, PLATFORM_ID, inject, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, DOCUMENT, DestroyRef, ElementRef, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { ChevronDown, Search, Settings } from 'lucide';
 import { WrBurger } from 'ngwr/burger';
@@ -30,6 +30,21 @@ interface ActionLink {
   readonly modifier: string;
   readonly label: string;
 }
+
+/**
+ * Where each first-open suggestion goes. Kept beside the list rather than inside
+ * it so the paths stay checkable against `#routing` at a glance — a suggestion
+ * pointing at a route that no longer exists fails silently, as a click that
+ * lands on the 404 shell.
+ */
+const SUGGESTION_ROUTES: Readonly<Record<string, string>> = {
+  's:install': `/${routes.start.index}/${routes.start.installation}`,
+  's:forms': `/${routes.guides.index}/${routes.guides.forms}`,
+  's:theming': `/${routes.guides.index}/${routes.guides.theming}`,
+  's:components': `/${routes.reference.index}/${routes.reference.components}`,
+  's:playground': `/${routes.start.index}/${routes.start.playground}`,
+  's:migration': `/${routes.start.index}/${routes.start.migration}`,
+};
 
 /** First major with an archived docs snapshot — nothing older was ever frozen. */
 const OLDEST_ARCHIVED_MAJOR = 7;
@@ -63,12 +78,33 @@ function archivedMajors(current: number): readonly number[] {
 })
 export class Header {
   private readonly docsSearch = inject(DocsSearch);
+  private readonly router = inject(Router);
 
   /** Palette state. Opens from the header button or the palette's own `mod+k`. */
   protected readonly searchOpen = signal(false);
   protected readonly searchQuery = signal('');
-  protected readonly searchResults = signal<readonly WrCommandItem[]>([]);
   protected readonly searching = signal(false);
+
+  private readonly hits = signal<readonly WrCommandItem[]>([]);
+
+  /**
+   * What the palette shows. An empty query has no results by construction — the
+   * index is only asked once something is typed — so an untouched palette would
+   * open as a blank box. These are the pages people actually arrive looking for,
+   * and they double as a legend for what the search can reach.
+   */
+  protected readonly searchResults = computed<readonly WrCommandItem[]>(() =>
+    this.searchQuery().trim().length === 0 ? this.suggestions : this.hits()
+  );
+
+  private readonly suggestions: readonly WrCommandItem[] = [
+    { id: 's:install', label: 'Installation', description: 'Add ngwr to an Angular app', group: 'Start here' },
+    { id: 's:forms', label: 'Signal Forms', description: 'The wedge, and what it replaces', group: 'Start here' },
+    { id: 's:theming', label: 'Theming', description: 'Tokens, light / dark, your own palette', group: 'Start here' },
+    { id: 's:components', label: 'Components', description: 'The full catalog', group: 'Browse' },
+    { id: 's:playground', label: 'Playground', description: 'Try it in the browser', group: 'Browse' },
+    { id: 's:migration', label: 'Migration guide', description: 'Every step back to v6', group: 'Browse' },
+  ].map(item => ({ ...item, action: (): void => void this.router.navigate([SUGGESTION_ROUTES[item.id]]) }));
 
   /**
    * Which query owns the panel. The service already aborts the previous request,
@@ -88,7 +124,7 @@ export class Header {
     const mine = ++this.searchSeq;
 
     if (query.trim().length === 0) {
-      this.searchResults.set([]);
+      this.hits.set([]);
       this.searching.set(false);
       return;
     }
@@ -97,7 +133,7 @@ export class Header {
     const items = await this.docsSearch.search(query);
     if (mine !== this.searchSeq) return;
 
-    this.searchResults.set(items);
+    this.hits.set(items);
     this.searching.set(false);
   }
 

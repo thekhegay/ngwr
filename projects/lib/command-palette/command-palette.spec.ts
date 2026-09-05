@@ -476,6 +476,55 @@ describe('WrCommandPalette — the esc hint is localizable', () => {
 });
 
 /**
+ * The footer slot exists because a palette backed by a provider often MUST carry
+ * something under the list — Algolia's DocSearch terms require its logo, linking
+ * back, visible on the search box or in the panel — and there was nowhere to put
+ * it. It is projected rather than an input because the content is markup.
+ */
+describe('WrCommandPalette footer slot', () => {
+  @Component({
+    imports: [WrCommandPalette],
+    template: `
+      <wr-command-palette [items]="items" [(open)]="open" [trigger]="null">
+        @if (withFooter()) {
+          <a wrCommandPaletteFooter href="https://example.test">Search by Someone</a>
+        }
+      </wr-command-palette>
+    `,
+  })
+  class FooterHost {
+    readonly items = ITEMS;
+    readonly open = signal(true);
+    readonly withFooter = signal(true);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<FooterHost>>;
+  const footer = (): HTMLElement | null =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-command-palette__footer');
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [ConfigurableFocusTrapFactory, provideWrI18n(), provideWrI18nStaticLoader({})],
+    });
+    fixture = TestBed.createComponent(FooterHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('renders what the host projects, with its link intact', () => {
+    expect(footer()!.textContent.trim()).toBe('Search by Someone');
+    expect(footer()!.querySelector('a')!.getAttribute('href')).toBe('https://example.test');
+  });
+
+  it('keeps the footer out of the listbox, which may own only options and groups', () => {
+    const listbox = (fixture.nativeElement as HTMLElement).querySelector('[role="listbox"]')!;
+    expect(listbox.contains(footer())).toBe(false);
+  });
+});
+
+/**
  * The palette was a closed box until v14.1: `items` in, `picked` out, and a
  * substring filter in between that nothing could reach. That is fine for a
  * fixed command list and impossible for anything backed by a server — which is
