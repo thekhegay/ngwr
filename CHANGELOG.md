@@ -1,5 +1,17 @@
 # Changelog
 
+## [14.2.0](https://github.com/thekhegay/ngwr/compare/v14.1.0...v14.2.0) (2026-09-05)
+
+### Features
+
+* **command-palette:** a footer slot, and the search field stops shouting ([e5f4555](https://github.com/thekhegay/ngwr/commit/e5f4555b2186764f5504b23db3b4416c060c80d5))
+* **showcase:** the palette carries algolia's own mark, as the plan requires ([2a1c11e](https://github.com/thekhegay/ngwr/commit/2a1c11e464eec0e38d934f8a301c66e0788cdc83))
+
+### Bug Fixes
+
+* **ci:** re-record the calendar baseline an aria-label renamed out from under ([2afa5a6](https://github.com/thekhegay/ngwr/commit/2afa5a61858f5dd7af2b4d503c75a49cf518dc9c))
+* **schematics:** migration-v9 stops losing a rename to a > in a binding ([926b97d](https://github.com/thekhegay/ngwr/commit/926b97d86cf075181c39bcc34e46b026547ed9b8))
+
 ## [14.1.0](https://github.com/thekhegay/ngwr/compare/v14.0.1...v14.1.0) (2026-09-04)
 
 ### Features
