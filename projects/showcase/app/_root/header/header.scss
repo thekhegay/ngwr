@@ -585,13 +585,33 @@
 // plan terms — the logo must be visible on the search box or in the autocomplete
 // panel, and must link back to Algolia.com.
 .ngwr-header__algolia {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
   color: var(--wr-color-on-surface-muted);
   font-size: var(--wr-text-xs);
   text-decoration: none;
 
+  // The wordmark is 2196.2 x 500, and `.wr-icon` is square by construction —
+  // it sets both axes from `--wr-icon-size`. Height comes from the hook, width
+  // is the aspect ratio applied to it; without this the mark is crushed into a
+  // square slot.
+  // Algolia renders its own mark `#003dff` on light and `#fff` on dark — that is
+  // its `--docsearch-logo-color`, so following it is vendor usage rather than us
+  // recolouring a brand asset to taste.
+  .wr-icon {
+    --wr-icon-size: 0.75rem;
+
+    width: calc(var(--wr-icon-size) * 4.3924);
+    color: #003dff;
+  }
+
+  :host-context([data-theme='dark']) & .wr-icon {
+    color: #fff;
+  }
+
   &:hover,
   &:focus-visible {
     color: var(--wr-color-on-surface);
-    text-decoration: underline;
   }
 }
