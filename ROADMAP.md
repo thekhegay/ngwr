@@ -16,17 +16,11 @@ Two notes, then it stands:
 - **Nothing is blocked any more.** C7 was waiting on a rebuild onto
   `@angular/aria` that is no longer planned, and C3 turned out to be shipped
   already — both are in [Non-goals](#non-goals-researched-rejected).
-- **Section A is closed.** Mode coverage and the SSR remainder were the last of
-  it; what the suite and the four nightly gates now hold is described in
-  AGENTS.md rather than planned here. **B4 is open but unscheduled.**
+- **Sections A and B are closed.** Mode coverage and the SSR remainder finished
+  A; `ngwr/schema-form` finished B.
 
 Everything below the Order is open but unscheduled; everything under
 [Deferred](#deferred) is explicitly not now.
-
-## B — Platform alignment (Signal Forms)
-
-- [ ] **B4. Schema-driven `wr-form`** (L, stretch) — generate a form from a
-      typed field schema; pairs with Signal Forms' schema API. Unblocked.
 
 ## C — Data-heavy + missing components
 

@@ -5,7 +5,7 @@ description: Build Angular UIs with the ngwr component library (standalone, sign
 
 # ngwr
 
-An Angular 22 UI library: 204 tree-shakable entry points, 111 of them shipping a selector.
+An Angular 22 UI library: 205 tree-shakable entry points, 112 of them shipping a selector.
 Standalone, signals-first, zoneless, `ViewEncapsulation.None`. One runtime
 dependency (`tslib`).
 

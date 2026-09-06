@@ -258,6 +258,10 @@ export default [
     loadComponent: () => import('./result/result'),
   },
   {
+    path: components.schemaForm,
+    loadComponent: () => import('./schema-form/schema-form'),
+  },
+  {
     path: components.segmented,
     loadComponent: () => import('./segmented/segmented'),
   },

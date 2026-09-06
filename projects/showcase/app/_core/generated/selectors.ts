@@ -14,7 +14,7 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 173 of 182 declarations are mapped: 0 carry no selector and
+ * 174 of 183 declarations are mapped: 0 carry no selector and
  * 9 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
@@ -132,6 +132,7 @@ export const SELECTORS = {
     "wr-result-404": { symbol: "WrResult404", path: "ngwr/result" },
     "wr-result-500": { symbol: "WrResult500", path: "ngwr/result" },
     "wr-rotating-text": { symbol: "WrRotatingText", path: "ngwr/rotating-text" },
+    "wr-schema-form": { symbol: "WrSchemaForm", path: "ngwr/schema-form" },
     "wr-segmented": { symbol: "WrSegmented", path: "ngwr/segmented" },
     "wr-select": { symbol: "WrSelect", path: "ngwr/select" },
     "wr-shiny-text": { symbol: "WrShinyText", path: "ngwr/shiny-text" },
@@ -300,6 +301,7 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/rating",
   "ngwr/result",
   "ngwr/rotating-text",
+  "ngwr/schema-form",
   "ngwr/segmented",
   "ngwr/select",
   "ngwr/shiny-text",
@@ -378,6 +380,7 @@ export const STYLE_DEPENDENCIES: Readonly<Record<string, readonly string[]>> = {
   "ngwr/popconfirm": ["ngwr/button", "ngwr/icon", "ngwr/spinner"],
   "ngwr/pull-to-refresh": ["ngwr/spinner"],
   "ngwr/radio": ["ngwr/icon"],
+  "ngwr/schema-form": ["ngwr/calendar", "ngwr/checkbox", "ngwr/date-picker", "ngwr/form", "ngwr/icon", "ngwr/input", "ngwr/input-number", "ngwr/radio", "ngwr/select", "ngwr/slider", "ngwr/switch", "ngwr/textarea"],
   "ngwr/segmented": ["ngwr/icon"],
   "ngwr/select": ["ngwr/icon"],
   "ngwr/sidebar": ["ngwr/icon"],

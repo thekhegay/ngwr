@@ -1,0 +1,74 @@
+<ngwr-doc-page
+  title="Schema Form"
+  description="A whole form drawn from a Signal Forms schema. The presentation rides on the same schema as the validation, through the `WR_FIELD` metadata key — so a form is one description, not two."
+  [keywords]="['schema form', 'signal forms', 'generated form', 'metadata', 'wr-schema-form']"
+  [labels]="['Component', 'Standalone', 'Signal Forms']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Describe each field once, next to its rules. `<wr-schema-form>` walks the field tree, draws the control the `kind` names inside a `<wr-form-field>`, and lets the schema own everything else — the `*` marker, the disabled state, the error copy."
+  >
+    <ngwr-doc-snippet [code]="snippets.basic" language="angular-ts">
+      <div style="max-width: 34rem">
+        <wr-schema-form [field]="signup" [columns]="2" />
+        <button wr-btn type="button" color="primary" style="margin-top: 1rem" (click)="submit()">Submit</button>
+      </div>
+    </ngwr-doc-snippet>
+
+    <ngwr-doc-code [code]="snippets.template" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Layout"
+    description="`columns` sets the grid; a field's `span` widens it and is clamped to the grid it sits in, so a two-column spec dropped into a one-column form still lines up."
+  >
+    <ngwr-doc-code [code]="snippets.template" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="A spec is a function, so it can react"
+    description="`metadata()` takes a `LogicFn`, which means a label, a hint or a set of options may depend on the value of another field — without a branch anywhere in the template."
+  >
+    <ngwr-doc-code [code]="snippets.reactive" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="What the spec deliberately does not carry"
+    description="`required`, `disabled`, `readonly`, `hidden`, `min` and `max` are absent from `WrFieldSpec`, and their absence is the design."
+  >
+    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
+      Every one of them is already an Angular schema function that drives the control through
+      <code>[formField]</code>. Repeating them in the spec would be a second source of truth for state the form already
+      owns — and for the bounds it is not even possible: Angular refuses a <code>[min]</code> or
+      <code>[max]</code> binding on a field-bound control outright (<code>NG8022</code>). The one thing this component
+      adds is <code>hidden()</code>, which Angular's own docs say a template has to honour itself; a hidden field is
+      drawn by nobody.
+    </p>
+
+    <ngwr-doc-code [code]="snippets.state" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="A field with no spec is skipped"
+    description="Silently, and on purpose: a schema may describe more than one screen renders, and inferring a control from a field's type would draw a switch for every boolean flag in the model."
+  >
+    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
+      That is also the escape hatch. Point <code>[field]</code> at a nested object field to draw one section, and write
+      the fields that need real markup — a <a routerLink="/reference/components/color-picker">colour picker</a>, a
+      <a routerLink="/reference/components/transfer">transfer list</a>, anything with a layout of its own — by hand
+      beside it. The two halves bind to the same form.
+    </p>
+
+    <ngwr-doc-code [code]="snippets.escape" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

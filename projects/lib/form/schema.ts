@@ -7,8 +7,6 @@
 
 import { createMetadataKey } from '@angular/forms/signals';
 
-import type { WrColor } from 'ngwr/theme';
-
 /**
  * How a field is DRAWN, attached to the same Signal Forms schema that already
  * says how it is validated.
@@ -22,9 +20,12 @@ import type { WrColor } from 'ngwr/theme';
  * the value of another field.
  *
  * What this deliberately does NOT carry: `required`, `disabled`, `readonly`,
- * `hidden`, and every validation rule. Those are Angular's own schema functions,
- * they already drive the control through `[field]`, and duplicating them here
- * would create a second source of truth for state the form already owns.
+ * `hidden`, `min`, `max`, and every validation rule. Those are Angular's own
+ * schema functions, they already drive the control through `[formField]`, and
+ * duplicating them here would create a second source of truth for state the form
+ * already owns. That is not only a judgement call — Angular REFUSES a `[min]` or
+ * `[required]` binding on a field-bound control (NG8022), so the second source
+ * of truth is a compile error rather than a drift.
  */
 export type WrFieldKind =
   'input' | 'textarea' | 'number' | 'select' | 'checkbox' | 'switch' | 'radio' | 'date' | 'slider';
@@ -54,21 +55,24 @@ export interface WrFieldSpec {
   readonly options?: readonly WrFieldOption[];
   /** Native `type` for `kind: 'input'` — `email`, `password`, `url`, `tel`. */
   readonly type?: string;
-  /** For `number` and `slider`. */
-  readonly min?: number;
-  readonly max?: number;
-  readonly step?: number;
-  /** Intent colour, where the control takes one. */
-  readonly color?: WrColor;
   /**
-   * Columns this field spans in `<wr-form>`'s grid, 1–12. Defaults to the full
-   * width the form was configured with.
+   * Granularity for `number` and `slider`. The BOUNDS are deliberately absent:
+   * Angular refuses a `[min]` or `[max]` binding on a `[formField]`-bound
+   * control outright (NG8022), because the field owns them — write `min(path.x,
+   * 18)` in the schema and the control picks it up. `step` is presentation, has
+   * no schema function, and stays here.
+   */
+  readonly step?: number;
+  /**
+   * Columns this field spans in `<wr-schema-form>`'s grid. Clamped to the form's
+   * own `columns`, and 1 by default — a field is one cell unless it asks to be
+   * wider.
    */
   readonly span?: number;
 }
 
 /**
- * The metadata key `<wr-form>` reads.
+ * The metadata key `<wr-schema-form>` reads.
  *
  * ```ts
  * const userSchema = schema<User>(path => {
@@ -80,7 +84,7 @@ export interface WrFieldSpec {
  * ```
  *
  * A field with no `WR_FIELD` metadata is not an error and is not guessed at —
- * `<wr-form>` skips it, so a schema can describe more than one screen shows.
+ * `<wr-schema-form>` skips it, so a schema can describe more than one screen shows.
  */
 export const WR_FIELD = createMetadataKey<WrFieldSpec>();
 

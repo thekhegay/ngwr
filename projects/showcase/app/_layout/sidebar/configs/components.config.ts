@@ -90,6 +90,7 @@ export const COMPONENT_GROUPS: readonly SidebarGroup[] = [
       { title: 'Mention', url: ['/reference/components', 'mention'] },
       { title: 'Radio', url: ['/reference/components', 'radio'] },
       { title: 'Rating', url: ['/reference/components', 'rating'] },
+      { title: 'Schema Form', url: ['/reference/components', 'schema-form'] },
       { title: 'Segmented', url: ['/reference/components', 'segmented'] },
       { title: 'Select', url: ['/reference/components', 'select'] },
       { title: 'Slider', url: ['/reference/components', 'slider'] },
