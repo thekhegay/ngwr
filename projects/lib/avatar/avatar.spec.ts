@@ -158,3 +158,36 @@ describe('WrAvatar under a localized catalog', () => {
     fixture.destroy();
   });
 });
+
+/**
+ * Every documented `[shape]`. `square` was the one with no spec naming it, which
+ * is exactly the value a refactor drops without a compiler noticing.
+ */
+describe('WrAvatar emits a modifier for every documented shape', () => {
+  @Component({ imports: [WrAvatar], template: `<wr-avatar [shape]="shape()" name="Ada" />` })
+  class ShapeHost {
+    readonly shape = signal<WrAvatarShape>('circle');
+  }
+
+  const SHAPES: readonly WrAvatarShape[] = ['rounded', 'square', 'circle', 'squircle'];
+  let fixture: ReturnType<typeof TestBed.createComponent<ShapeHost>>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrI18n(), provideWrI18nStaticLoader({})] });
+    fixture = TestBed.createComponent(ShapeHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  // `rounded` is the default and emits no modifier of its own — the base class
+  // is already that shape. The other three each add one.
+  it.each(SHAPES)('shape %s', shape => {
+    fixture.componentInstance.shape.set(shape);
+    fixture.detectChanges();
+    const el = (fixture.nativeElement as HTMLElement).querySelector('wr-avatar')!;
+    if (shape === 'rounded') expect(el.className).not.toMatch(/wr-avatar--(square|circle|squircle)/);
+    else expect(el.classList).toContain(`wr-avatar--${shape}`);
+  });
+});

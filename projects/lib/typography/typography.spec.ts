@@ -276,3 +276,73 @@ describe('WrTypography', () => {
     plain.destroy();
   });
 });
+
+/**
+ * Every documented value of the three modifier inputs, driven once each.
+ *
+ * The class names are public API — consumers style against them — so a variant
+ * that silently stops emitting its modifier is a breaking change with no
+ * compiler error behind it. Seven variants, five tones and three alignments had
+ * no spec naming them; the defaults did, which is the shape of gap that reads
+ * as covered from a distance.
+ */
+describe('WrTypography emits a modifier for every documented value', () => {
+  @Component({
+    imports: [WrTypography],
+    template: `<p wrTypography [variant]="variant()" [tone]="tone()" [align]="align()">Text</p>`,
+  })
+  class ModifierHost {
+    readonly variant = signal<WrTypographyVariant>('body');
+    readonly tone = signal<WrTypographyTone | null>(null);
+    readonly align = signal<WrTypographyAlign | null>(null);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<ModifierHost>>;
+  const el = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector('p')!;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(ModifierHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  const VARIANTS: readonly WrTypographyVariant[] = [
+    'display',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'lead',
+    'body',
+    'small',
+    'caption',
+    'overline',
+    'code',
+    'list',
+    'link',
+  ];
+  const TONES: readonly WrTypographyTone[] = ['dark', 'medium', 'primary', 'success', 'warning', 'danger'];
+  const ALIGNS: readonly WrTypographyAlign[] = ['start', 'center', 'end', 'justify'];
+
+  it.each(VARIANTS)('variant %s', variant => {
+    fixture.componentInstance.variant.set(variant);
+    fixture.detectChanges();
+    expect(el().classList).toContain(`wr-typography--${variant}`);
+  });
+
+  it.each(TONES)('tone %s', tone => {
+    fixture.componentInstance.tone.set(tone);
+    fixture.detectChanges();
+    expect(el().classList).toContain(`wr-typography--tone-${tone}`);
+  });
+
+  it.each(ALIGNS)('align %s', align => {
+    fixture.componentInstance.align.set(align);
+    fixture.detectChanges();
+    expect(el().classList).toContain(`wr-typography--align-${align}`);
+  });
+});

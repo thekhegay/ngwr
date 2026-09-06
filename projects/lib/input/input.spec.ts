@@ -378,3 +378,37 @@ describe('WrPasswordToggle', () => {
     expect(secret()).not.toBeNull();
   });
 });
+
+/**
+ * Every documented `[size]`. `md` is the default and deliberately emits no
+ * modifier — `resolvedSize` falls back to it and the base class is already that
+ * size — so the assertion for it is the ABSENCE of the other two, not a class.
+ */
+describe('WrInput emits a modifier for every documented size', () => {
+  @Component({
+    imports: [WrInput],
+    template: `<input wrInput [size]="size()" />`,
+  })
+  class SizeHost {
+    readonly size = signal<WrInputSize | null>(null);
+  }
+
+  const SIZES: readonly WrInputSize[] = ['sm', 'md', 'lg'];
+  let fixture: ReturnType<typeof TestBed.createComponent<SizeHost>>;
+  const el = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector('input')!;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(SizeHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it.each(SIZES)('size %s', size => {
+    fixture.componentInstance.size.set(size);
+    fixture.detectChanges();
+    if (size === 'md') expect(el().className).not.toMatch(/wr-input--(sm|lg)/);
+    else expect(el().classList).toContain(`wr-input--${size}`);
+  });
+});
