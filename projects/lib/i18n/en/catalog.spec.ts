@@ -8,14 +8,19 @@
 import { wrEn } from 'ngwr/i18n/en';
 import { describe, expect, it } from 'vitest';
 
+import { expectCatalogContract } from '../catalog-contract';
+
 /**
  * The shipped English catalog, checked as DATA rather than through the service.
  *
- * The shared contract runs against it in `catalog-contract.spec.ts`, beside the
- * definition, because English is what the other twenty-one are compared to.
- * What is left here is the one rule that is English's alone.
+ * It takes the shared contract like the other twenty-one, minus the one
+ * assertion that cannot mean anything against the reference itself — whether a
+ * catalog was translated out of English, which `expectCatalogContract` skips
+ * here. Below it is the rule that is English's alone.
  */
 describe('wrEn', () => {
+  expectCatalogContract('en', wrEn);
+
   it('never puts a plural noun straight after a count', () => {
     // There is no plural machinery here — `wrInterpolate` substitutes and
     // nothing else — so `{{count}} items` reads wrong at one. The two shapes

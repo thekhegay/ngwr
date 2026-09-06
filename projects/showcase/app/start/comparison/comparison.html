@@ -29,7 +29,7 @@
       pair of hands. <strong>There is no vendor</strong> — no paid support, no SLA, no consulting arm, nobody to
       escalate to; an issue tracker is the whole of it. <strong>Majors move fast</strong>: eight since 2026-06-12, v7
       through v14, five of them carrying an <code>ng update</code> codemod and three deliberately not.
-      <strong>Two locale catalogs ship in the box</strong>, English and Russian.
+      <strong>{{ quality.locales.length }} locale catalogs ship in the box.</strong>
       <strong>And almost nobody uses it</strong> — ~150 weekly npm downloads and 3 GitHub stars, read on 2026-08-20. A
       reader who leaves in ten seconds because this page told them the truth is a better outcome than one who adopts and
       churns in a quarter.
@@ -313,10 +313,11 @@
         vendor's to state, not ours to summarise. Everything through 21.1.9 is MIT.
       </li>
       <li>
-        <strong>NG-ZORRO</strong> — you are building Ant Design, or you ship in more than English and Russian. Those are
-        the two catalogs in ngwr's box: <code>provideWrI18n()</code> takes your own and the key set is gated against
-        drift, but you will be writing them, and locale packs are on the roadmap without being committed to. NG-ZORRO's
-        bundled locale set is far larger than ngwr will have for a long time.
+        <strong>NG-ZORRO</strong> — you are building Ant Design, or you ship in a language ngwr does not.
+        {{ quality.locales.length }} catalogs are in the box now and every one is held to the English key set by a test,
+        but NG-ZORRO's bundled set is several times larger and will stay that way. Check the
+        <a routerLink="/guides/translations/setup">list</a> first: if your language is on it you have nothing to write,
+        and if it is not, <code>provideWrI18n()</code> takes your own and gates it the same way.
       </li>
       <li>
         <strong>Taiga UI</strong> — you need to support Angular back to v19 while still moving toward signals, you want

@@ -1,0 +1,408 @@
+import { type WrI18nCatalog } from 'ngwr/i18n';
+
+/** Base Korean catalog for ngwr built-in component strings. */
+export const wrKo: WrI18nCatalog = {
+  common: {
+    ok: '확인',
+    cancel: '취소',
+    close: '닫기',
+    confirm: '확인',
+    delete: '삭제',
+    save: '저장',
+    edit: '편집',
+    add: '추가',
+    remove: '제거',
+    clear: '지우기',
+    search: '검색',
+    loading: '불러오는 중…',
+    select: '선택',
+    next: '다음',
+    previous: '이전',
+    back: '뒤로',
+    today: '오늘',
+    yesterday: '어제',
+    tomorrow: '내일',
+    of: '중',
+  },
+  pagination: {
+    prev: '이전 페이지',
+    next: '다음 페이지',
+    itemsPerPage: '페이지당 항목 수',
+    perPage: '{{size}}개씩',
+    goToPage: '{{page}}페이지로 이동',
+    label: '페이지 탐색',
+    pageOf: '{{total}}페이지 중 {{current}}페이지',
+    range: '{{total}}개 중 {{from}}–{{to}}',
+    compact: '{{current}} / {{total}}',
+  },
+  table: {
+    empty: '데이터 없음',
+    loading: '불러오는 중…',
+    sort: '열 정렬',
+    filter: '열 필터',
+    selectAll: '모든 행 선택',
+    selectRow: '행 선택',
+    expandRow: '행 세부 정보 펼치기/접기',
+    toggleRow: '하위 행 펼치기/접기',
+    selectGroup: '그룹 선택',
+    toggleGroup: '그룹 펼치기/접기',
+    noMatches: '일치하는 항목 없음',
+    search: '검색',
+    reset: '초기화',
+  },
+  eventCalendar: {
+    today: '오늘',
+    previous: '이전',
+    next: '다음',
+    month: '월',
+    week: '주',
+    day: '일',
+    time: '시간',
+    allDay: '종일',
+    label: '캘린더',
+    more: '+{{count}}개',
+    header: '{{year}}년 {{month}}',
+    range: '{{from}} – {{to}}',
+    chipLabel: '{{title}}, {{time}}',
+    slotLabel: '{{date}} {{time}}',
+    allDayCellLabel: '{{date}} {{label}}',
+  },
+  tour: {
+    next: '다음',
+    back: '이전',
+    done: '완료',
+    skip: '건너뛰기',
+    progress: '{{total}}단계 중 {{current}}단계',
+  },
+  splitter: {
+    divider: '영역 크기 조절',
+  },
+  stepper: {
+    optional: '선택 사항',
+  },
+  transfer: {
+    source: '사용 가능',
+    target: '선택됨',
+    search: '검색',
+    empty: '항목 없음',
+    selectAll: '전체 선택',
+    toTarget: '선택 목록으로 이동',
+    toSource: '사용 가능 목록으로 이동',
+    count: '{{checked}} / {{total}}',
+  },
+  form: {
+    optional: '선택',
+  },
+  validation: {
+    required: '필수 입력 항목입니다.',
+    requiredTrue: '이 항목을 선택해야 합니다.',
+    email: '올바른 이메일 주소를 입력하세요.',
+    minlength: '{{requiredLength}}자 이상 입력하세요.',
+    maxlength: '{{requiredLength}}자 이하로 입력하세요.',
+    min: '{{min}} 이상 입력하세요.',
+    max: '{{max}} 이하로 입력하세요.',
+    pattern: '형식이 올바르지 않습니다.',
+    noWhitespace: '공백은 사용할 수 없습니다.',
+    hexColor: '#1a2b3c 형식의 색상 값을 입력하세요.',
+    url: '올바른 URL을 입력하세요.',
+    cardNumber: '올바른 카드 번호를 입력하세요.',
+    cvc: '{{length}}자리 보안 코드를 입력하세요.',
+    iban: '올바른 IBAN을 입력하세요.',
+    match: '두 값이 일치하지 않습니다.',
+    matchFields: '입력한 항목이 서로 일치하지 않습니다.',
+    oneOf: '허용된 값 중 하나를 선택하세요.',
+    minDate: '더 늦은 날짜를 선택하세요.',
+    maxDate: '더 빠른 날짜를 선택하세요.',
+  },
+  select: {
+    label: '선택',
+    placeholder: '선택하세요…',
+    empty: '옵션 없음',
+    clearSelection: '선택 해제',
+    removeItem: '{{label}} 제거',
+    noResults: '검색 결과 없음',
+    loading: '불러오는 중…',
+    more: '+{{count}}개',
+  },
+  // `tree` covers both inline display and combobox-mode pickers
+  // (replaces the dropped `treeSelect` namespace).
+  tree: {
+    expand: '펼치기',
+    collapse: '접기',
+    placeholder: '선택하세요…',
+    clearSelection: '선택 해제',
+    removeItem: '{{label}} 제거',
+    more: '+{{count}}개',
+  },
+  commandPalette: {
+    label: '명령 팔레트',
+    placeholder: '명령어를 입력하거나 검색하세요…',
+    noResults: '검색 결과 없음',
+    loading: '검색 중…',
+    escHint: 'esc',
+  },
+  empty: {
+    noData: '데이터 없음',
+  },
+  fileUpload: {
+    browse: '클릭하여 파일 선택',
+    dropZone: '또는 여기에 파일을 끌어다 놓으세요',
+    dropZoneLabel: '파일 업로드 영역 — 클릭하거나 파일을 끌어다 놓으세요',
+    removeFile: '파일 제거',
+    invalid: '지원하지 않는 파일 형식',
+    tooBig: '파일 크기 초과',
+    size: '{{value}} {{unit}}',
+    unitByte: 'B',
+    unitKb: 'KB',
+    unitMb: 'MB',
+    unitGb: 'GB',
+    unitTb: 'TB',
+  },
+  popconfirm: {
+    label: '작업 확인',
+    confirm: '확인',
+    cancel: '취소',
+  },
+  toast: {
+    region: '알림',
+    close: '닫기',
+    copy: '복사',
+    copied: '복사됨',
+    closeAll: '모두 닫기',
+  },
+  input: {
+    showPassword: '비밀번호 표시',
+    hidePassword: '비밀번호 숨기기',
+  },
+  inputNumber: {
+    increment: '증가',
+    decrement: '감소',
+  },
+  inputOtp: {
+    label: '인증 코드',
+    digit: '{{index}}번째 숫자',
+    character: '{{index}}번째 문자',
+  },
+  anchor: {
+    label: '목차',
+  },
+  avatar: {
+    alt: '아바타',
+  },
+  backTop: {
+    label: '맨 위로',
+  },
+  breadcrumbs: {
+    label: '탐색 경로',
+  },
+  burger: {
+    label: '메뉴 열기/닫기',
+  },
+  calendar: {
+    prevMonth: '이전 달',
+    nextMonth: '다음 달',
+    prevYear: '이전 연도',
+    nextYear: '다음 연도',
+    // The month / year pickers are `role="listbox"`, and a listbox owes a
+    // name — without one a screen reader announces the control as nothing at
+    // all. Caught by `check:state-a11y` once a state finally opened the view.
+    monthList: '월 목록',
+    yearList: '연도 목록',
+    prevYears: '이전 12년',
+    nextYears: '다음 12년',
+    header: '{{year}}년 {{month}}',
+    yearRange: '{{from}} – {{to}}',
+    dayLabel: '{{date}} {{weekday}}',
+  },
+  imageCropper: {
+    empty: '이미지 없음',
+    window: '자르기 영역',
+    keyHelp:
+      '화살표 키로 자르기 영역을 옮깁니다. Alt와 화살표 키를 함께 누르면 크기가 바뀌고, Shift를 누르면 더 크게 움직입니다. ' +
+      '자르기 영역은 이미지 픽셀 단위의 왼쪽, 위쪽, 너비, 높이로 안내됩니다.',
+  },
+  sortableList: {
+    keyHelp:
+      '스페이스 키를 누르면 항목을 집고, 화살표 키로 옮길 수 있습니다. ' +
+      '스페이스 키를 다시 누르면 내려놓고, Esc 키를 누르면 제자리로 되돌립니다.',
+    grabbed: '집었습니다. {{total}}개 중 {{index}}번째.',
+    moved: '{{total}}개 중 {{index}}번째.',
+    dropped: '내려놓았습니다. {{total}}개 중 {{index}}번째.',
+    cancelled: '이동을 취소했습니다.',
+  },
+  colorPicker: {
+    area: '채도 {{saturation}}%, 명도 {{brightness}}%',
+    hue: '색조',
+    alpha: '불투명도',
+    formatHex: 'HEX',
+    formatRgb: 'RGB',
+    formatHsl: 'HSL',
+    channelHex: 'HEX',
+    channelRed: 'R',
+    channelGreen: 'G',
+    channelBlue: 'B',
+    channelHue: 'H',
+    channelSaturation: 'S%',
+    channelLightness: 'L%',
+    channelAlpha: 'A%',
+  },
+  calendarHeatmap: {
+    label: '캘린더 히트맵',
+  },
+  lineChart: {
+    label: '선 차트',
+    thousands: '{{value}}천',
+  },
+  donutChart: {
+    label: '도넛 차트',
+  },
+  compare: {
+    label: '비교 구분선',
+  },
+  // 한국어에는 대소문자 구분이 없어 두 `roledescription`은 위의 이름들과 같은 형태의
+  // 명사 — ‘캐러셀’, ‘슬라이드’ — 로 두었다. 역할 이름 대신 읽히는 값이다.
+  carousel: {
+    label: '캐러셀',
+    goToSlide: '{{index}}번 슬라이드로 이동',
+    prev: '이전 슬라이드',
+    next: '다음 슬라이드',
+    pagination: '캐러셀 페이지 탐색',
+    roledescription: '캐러셀',
+    slideRoledescription: '슬라이드',
+  },
+  actionSheet: {
+    label: '작업',
+  },
+  alert: {
+    close: '알림 닫기',
+  },
+  qr: {
+    label: 'QR 코드',
+  },
+  image: {
+    viewer: '이미지 미리 보기',
+    open: '미리 보기 열기',
+    close: '미리 보기 닫기',
+  },
+  window: {
+    close: '닫기',
+    minimize: '최소화',
+    maximize: '최대화',
+    restore: '복원',
+    restoreDown: '이전 크기로 복원',
+    restoreWindow: '{{title}} 복원',
+    closeWindow: '창 닫기',
+    untitled: '제목 없음',
+    taskbar: '최소화된 창',
+  },
+  dialog: {
+    close: '대화 상자 닫기',
+  },
+  // 의도적으로 포괄적인 이름: 팝오버 패널에는 보편적인 이름이 없고, 이름 없는
+  // `role="dialog"`는 아예 읽히지 않는다. 개별 사용처에서 `[ariaLabel]`로 덮어쓴다.
+  popover: {
+    label: '팝오버',
+  },
+  markdown: {
+    copy: '코드 복사',
+    copied: '복사됨',
+    taskDone: '완료:',
+    taskTodo: '할 일:',
+  },
+  // 이름을 앞에 두고 조사를 쓰지 않는다 — ‘에이다 삽입됨’. 한국어의 을/를은 앞
+  // 단어의 받침에 따라 달라지는데 이름은 미리 알 수 없고, 인터폴레이터는 조사를
+  // 맞춰 주지 못한다. 개수도 같은 이유로 세는 말(개)을 붙여 수와 무관하게 읽힌다.
+  marquee: {
+    label: '흐르는 텍스트',
+    link: '링크',
+  },
+  mention: {
+    listbox: '멘션',
+    available: '일치하는 항목 {{count}}개',
+    inserted: '{{label}} 삽입됨',
+  },
+  drawer: {
+    close: '패널 닫기',
+  },
+  datePicker: {
+    open: '달력 열기',
+    openTime: '시간 선택기 열기',
+    openDateTime: '날짜 및 시간 선택기 열기',
+    openRange: '기간 선택 달력 열기',
+    panel: '날짜 선택',
+    panelTime: '시간 선택',
+    panelDateTime: '날짜 및 시간 선택',
+    panelRange: '기간 선택',
+    panelRangeDateTime: '기간 및 시간 선택',
+    rangeStart: '기간 시작',
+    rangeEnd: '기간 종료',
+    startTime: '시작 시간',
+    endTime: '종료 시간',
+    hours: '시',
+    minutes: '분',
+    seconds: '초',
+    incrementHours: '시 증가',
+    decrementHours: '시 감소',
+    incrementMinutes: '분 증가',
+    decrementMinutes: '분 감소',
+    incrementSeconds: '초 증가',
+    decrementSeconds: '초 감소',
+    toggleAmPm: '오전/오후 전환',
+    am: '오전',
+    pm: '오후',
+  },
+  sidebar: {
+    label: '사이드바',
+  },
+  spinner: {
+    label: '불러오는 중',
+  },
+  rating: {
+    label: '평점',
+  },
+  gauge: {
+    label: '게이지',
+  },
+  progress: {
+    label: '진행률',
+  },
+  meterGroup: {
+    label: '측정값',
+  },
+  knob: {
+    label: '값',
+  },
+  slider: {
+    label: '값',
+    lower: '하한값',
+    upper: '상한값',
+  },
+  speedDial: {
+    label: '작업',
+  },
+  statistic: {
+    delta: '{{value}}{{suffix}}',
+    deltaSuffix: '%',
+  },
+  result: {
+    notFound: '죄송합니다. 요청하신 페이지가 존재하지 않습니다.',
+    forbidden: '죄송합니다. 이 페이지에 접근할 권한이 없습니다.',
+    serverError: '죄송합니다. 문제가 발생했습니다.',
+  },
+  date: {
+    months: {
+      jan: '1월',
+      feb: '2월',
+      mar: '3월',
+      apr: '4월',
+      may: '5월',
+      jun: '6월',
+      jul: '7월',
+      aug: '8월',
+      sep: '9월',
+      oct: '10월',
+      nov: '11월',
+      dec: '12월',
+    },
+  },
+};

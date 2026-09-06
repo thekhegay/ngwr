@@ -8,7 +8,7 @@
 import { wrRu } from 'ngwr/i18n/ru';
 import { describe } from 'vitest';
 
-import { expectCatalogContract } from '../catalog-contract.spec';
+import { expectCatalogContract } from '../catalog-contract';
 
 /**
  * The values that are correctly identical to English: initialisms and key caps
@@ -34,5 +34,5 @@ const SHARED_WITH_ENGLISH = new Set([
 ]);
 
 describe('wrRu', () => {
-  expectCatalogContract('ru', wrRu, { script: 'Cyrillic', sharedWithEnglish: SHARED_WITH_ENGLISH });
+  expectCatalogContract('ru', wrRu, { script: ['Cyrillic'], sharedWithEnglish: SHARED_WITH_ENGLISH });
 });

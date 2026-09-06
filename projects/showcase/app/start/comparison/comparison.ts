@@ -191,10 +191,10 @@ export default class ComparisonPage {
     },
     {
       axis: 'Locales in the box',
-      ngwr: 'Two — English and Russian.',
+      ngwr: `${QUALITY.locales.length} catalogs, gated against the English key set.`,
       material: 'Defers to Angular i18n and MAT_DATE_LOCALE.',
       primeng: 'Not measured.',
-      zorro: 'Many more than two; the exact count was not measured.',
+      zorro: 'Considerably more; the exact count was not measured.',
       taiga: '23 language packages.',
     },
     {

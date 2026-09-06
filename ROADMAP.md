@@ -8,8 +8,7 @@ Sizes are S / M / L / XL.
 
 ## Order
 
-1. **E7** — Locale packs (in progress)
-2. **D6** — High-contrast rendering (`prefers-contrast: more` first)
+1. **D6** — High-contrast rendering (`prefers-contrast: more` first)
 
 Two notes, then it stands:
 
@@ -50,10 +49,6 @@ Everything below the Order is open but unscheduled; everything under
       add a schematic that copies a component's source into the user's repo.
       The shadcn ownership model without abandoning the update path;
       copy-paste-only has weak traction in Angular (spartan ~21k dl/wk).
-- [ ] **E7. Locale packs** (M) — built-in component strings for ~20 locales on
-      top of the i18n service. Two ship today (en / ru); NG-ZORRO ships ~80. A
-      pack only multiplies what is actually wired up, so the audit for
-      hard-coded English comes first.
 - [ ] **E9. Blocks** (L) — `ng g @ngwr/blocks:auth|dashboard|landing|settings`,
       composed from ngwr components and themed through the registry's
       `registry:theme` presets. Proven adoption driver (shadcnblocks, Ant Pro,
@@ -103,8 +98,6 @@ Open and researched, explicitly not now.
 Nothing is hard-blocked.
 
 - **D5** — blocked in practice on D2.
-- **E7** — the audit for hard-coded English comes first; a pack only multiplies
-  what is actually wired up.
 
 ## Non-goals (researched, rejected)
 

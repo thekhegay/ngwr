@@ -5,6 +5,48 @@
   [labels]="['Service']"
 >
   <ngwr-doc-section
+    title="What is in the box"
+    description="One entry point per locale, so an app pays only for the languages it imports. Every one of them is held to the English key set by a test, and none of them can ship a value that lost a placeholder."
+  >
+    <div style="overflow-x: auto">
+      <table class="wr-table" style="min-width: 32rem">
+        <thead>
+          <tr>
+            <th scope="col">Import from</th>
+            <th scope="col">Export</th>
+            <th scope="col">Language</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (locale of shipped; track locale.code) {
+            <tr>
+              <td>
+                <code>ngwr/i18n/{{ locale.code }}</code>
+              </td>
+              <td>
+                <code>{{ locale.symbol }}</code>
+              </td>
+              <td>
+                {{ locale.native }} <span style="color: var(--wr-color-on-surface-muted)">— {{ locale.english }}</span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
+      Codes are LANGUAGES wherever a language is one thing, because the resolver truncates a region to its language and
+      not the other way round: a <code>pt-BR</code> or <code>de-AT</code> <code>LOCALE_ID</code> finds
+      <code>pt</code> and <code>de</code> on its own, while a bare <code>de</code> would never reach a
+      <code>de-DE</code> catalog. A region appears only where the writing system genuinely differs — <code>zh</code> is
+      Simplified, which is also what <code>zh-CN</code> and <code>zh-Hans</code> fall back to, and <code>zh-TW</code> is
+      Traditional. <code>zh-HK</code> and <code>zh-Hant</code> would land on Simplified by that rule, so map those to
+      <code>zh-TW</code> yourself if you ship there.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Static loader"
     description="Inline the catalogs at bootstrap. Best for small apps or when SSR-rendered translations are critical."
   >
