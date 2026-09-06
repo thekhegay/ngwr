@@ -16,9 +16,10 @@
  *     PNGs and tens of megabytes of binaries in a repository whose entire
  *     source is smaller than that.
  *   - **Platform.** Font rasterisation differs between macOS and the ubuntu
- *     runner, so a baseline captured where the work happens never matches where
- *     it is checked. Every pixel gate solves this with a container; this one
- *     does not have the problem, because box geometry is arithmetic.
+ *     runner, so a pixel baseline captured where the work happens never matches
+ *     where it is checked. This gate sidesteps that by measuring HEIGHT, which
+ *     is padding and line-height — arithmetic, and identical on both. Width is
+ *     not: see `width` in the target list, and the night that proved it.
  *   - **Legibility.** An image diff shows a red blob. `height 36 → 40` in a JSON
  *     diff says what changed, is reviewable in a pull request, and can be
  *     approved by editing one number.
@@ -89,14 +90,15 @@ function serve(): Promise<{ server: Server; origin: string }> {
 /**
  * How far a box may move before it is a regression.
  *
- * Not zero, and the reason is text: a label's width depends on font
- * rasterisation, which differs between the machine this is written on and the
- * runner that checks it. One pixel absorbs that. Anything a token change causes
- * is larger — the smallest step in the density scale is two.
+ * One pixel, for sub-pixel rounding, and it can stay that tight because the
+ * thing that is NOT stable across machines — text-driven width — is no longer
+ * compared unless a target opts in. Anything a token change causes is larger:
+ * the smallest step the density scale can make is two.
  */
 const TOLERANCE = 1;
 
-type Box = readonly [width: number, height: number];
+/** `[width, height]`, or `[height]` where width is text-driven and not compared. */
+type Box = readonly number[];
 type Baseline = Record<string, readonly Box[]>;
 
 const log = (s = ''): void => void stdout.write(`${s}\n`);
@@ -160,7 +162,7 @@ async function measure(
         missing.push(`  ✘ ${target.id}[${i}] (${theme}) — matched but has no box`);
         continue;
       }
-      boxes.push([Math.round(box.width), Math.round(box.height)]);
+      boxes.push(target.width ? [Math.round(box.width), Math.round(box.height)] : [Math.round(box.height)]);
     }
     if (boxes.length > 0) out[`${target.id} (${theme})`] = boxes;
   }
@@ -232,10 +234,14 @@ async function main(): Promise<void> {
       problems.push(`  ~ ${key} — ${before.length} box(es) recorded, ${boxes.length} measured.`);
       continue;
     }
-    boxes.forEach(([w, h], i) => {
-      const [bw, bh] = before[i]!;
-      if (Math.abs(w - bw) > TOLERANCE || Math.abs(h - bh) > TOLERANCE) {
-        problems.push(`  ✘ ${key}[${i}] — ${bw}×${bh} recorded, ${w}×${h} measured.`);
+    boxes.forEach((box, i) => {
+      const was = before[i]!;
+      if (was.length !== box.length) {
+        problems.push(`  ~ ${key}[${i}] — recorded ${was.length} dimension(s), measured ${box.length}.`);
+        return;
+      }
+      if (box.some((n, axis) => Math.abs(n - was[axis]!) > TOLERANCE)) {
+        problems.push(`  ✘ ${key}[${i}] — ${was.join('×')} recorded, ${box.join('×')} measured.`);
       }
     });
   }
