@@ -10,3 +10,4 @@ export {
   type WrFormErrorMessage,
   type WrFormErrorMessages,
 } from './form-errors';
+export { WR_FIELD, wrFieldLabel, type WrFieldKind, type WrFieldOption, type WrFieldSpec } from './schema';
