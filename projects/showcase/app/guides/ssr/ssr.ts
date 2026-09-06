@@ -94,6 +94,13 @@ bootstrapApplication(AppComponent, {
   ],
 });`,
 
+    incremental: `<!-- Server-rendered as usual; only the JavaScript waits. -->
+@defer (hydrate on viewport) {
+  <section class="marketing">
+    <wr-blur-text text="Everything below the fold" />
+    <!-- …the rest of a heavy section… -->
+  </section>
+}`,
     tbody: `<!-- WRONG under hydration: the HTML parser inserts an implicit <tbody>
      around these rows, so the live DOM stops matching what the server
      wrote and hydration walks off the end of the table (NG0501). -->

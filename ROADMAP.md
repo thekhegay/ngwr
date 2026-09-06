@@ -9,27 +9,19 @@ Sizes are S / M / L / XL.
 ## Order
 
 1. **C7** — Menubar
-2. **A** — finish it: A1 mode coverage, A2 the SSR remainder
-3. **D6** — High-contrast rendering (`prefers-contrast: more` first)
+2. **D6** — High-contrast rendering (`prefers-contrast: more` first)
 
 Two notes, then it stands:
 
 - **Nothing is blocked any more.** C7 was waiting on a rebuild onto
   `@angular/aria` that is no longer planned, and C3 turned out to be shipped
   already — both are in [Non-goals](#non-goals-researched-rejected).
-- **A is in the sequence now, not beside it.** It used to be described as
-  continuous work that lands between features; the remainder is small enough to
-  finish outright, so it gets a slot instead of a habit. **B4 leaves the
-  sequence** and stays open but unscheduled.
+- **Section A is closed.** Mode coverage and the SSR remainder were the last of
+  it; what the suite and the four nightly gates now hold is described in
+  AGENTS.md rather than planned here. **B4 is open but unscheduled.**
 
 Everything below the Order is open but unscheduled; everything under
 [Deferred](#deferred) is explicitly not now.
-
-## A — Trust & hardening
-
-- [ ] **A1. SSR remainder** (S) — per-component SSR-safety notes in the docs,
-      and incremental hydration (`withIncrementalHydration()` + `@defer (hydrate
-      on …)`).
 
 ## B — Platform alignment (Signal Forms)
 

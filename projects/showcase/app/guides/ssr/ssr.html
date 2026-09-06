@@ -18,6 +18,17 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Incremental hydration"
+    description="Angular 22 turned this on by default — `withIncrementalHydration()` is deprecated and `provideClientHydration()` already carries it, so there is nothing to add to a bootstrap. What it needs from you is somewhere to apply it: a `hydrate` trigger marks a block whose JavaScript can wait. The markup is still server-rendered and still in the DOM; what is deferred is the cost of making it interactive. This site does it to the animation section of its own home page, which is the heaviest thing on it and the furthest below the fold."
+  >
+    <ngwr-doc-code [code]="snippets.incremental" language="angular-html" />
+    <p wrTypography variant="small" tone="medium">
+      Nothing in ngwr opts out of it, and no component needs a trigger of its own — a deferred block is a decision about
+      a REGION of your page, not about the components inside it.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Write the `<tbody>` yourself"
     description="Rows emitted straight into a `<table>` serialize exactly as written, and then the browser's HTML parser inserts an implicit `<tbody>` around them — so the live DOM no longer matches the server's. Hydration walks off the end of the table and throws: `NG0501` under `ng serve`, and a `nextSibling` TypeError in the optimized build, where it also costs the page its title."
   >
