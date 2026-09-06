@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrButton } from './button';
 import { WrButtonGroup } from './button-group';
-import type { WrButtonShape, WrButtonSize } from './interfaces';
+import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './interfaces';
 
 @Component({
   imports: [WrButton],
@@ -507,5 +507,51 @@ describe('WrButton and form submission', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.submits()).toBe(0);
+  });
+});
+
+/**
+ * Every documented `[shape]` and `[iconPosition]`, driven once each. Both land
+ * as BEM modifiers, and `iconPosition` only emits when the button HAS an
+ * adornment — so the host below carries an icon, or the class would be absent
+ * for a reason that has nothing to do with the input.
+ */
+describe('WrButton emits a modifier for every documented shape and icon position', () => {
+  @Component({
+    imports: [WrButton],
+    template: `<wr-btn [shape]="shape()" icon="check" [iconPosition]="iconPosition()">Save</wr-btn>`,
+  })
+  class ShapeHost {
+    readonly shape = signal<WrButtonShape>('rounded');
+    readonly iconPosition = signal<WrButtonIconPosition>('start');
+  }
+
+  const SHAPES: readonly WrButtonShape[] = ['rounded', 'pill', 'squircle'];
+  const POSITIONS: readonly WrButtonIconPosition[] = ['start', 'end'];
+  let fixture: ReturnType<typeof TestBed.createComponent<ShapeHost>>;
+  const host = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector('wr-btn')!;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(ShapeHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  // `rounded` is the default and deliberately emits NO modifier — the base
+  // class already carries its styling, and `resolvedShape` falls back to it.
+  // Asserting a class for it would pin a contract the component does not make.
+  it.each(SHAPES)('shape %s', shape => {
+    fixture.componentInstance.shape.set(shape);
+    fixture.detectChanges();
+    if (shape === 'rounded') expect(host().className).not.toMatch(/wr-btn--(pill|squircle)/);
+    else expect(host().classList).toContain(`wr-btn--${shape}`);
+  });
+
+  it.each(POSITIONS)('iconPosition %s', position => {
+    fixture.componentInstance.iconPosition.set(position);
+    fixture.detectChanges();
+    expect(host().classList).toContain(`wr-btn--icon-${position}`);
   });
 });

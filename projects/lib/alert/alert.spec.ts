@@ -175,3 +175,35 @@ describe('WrAlert with a catalog', () => {
     fixture.destroy();
   });
 });
+
+/**
+ * Every documented `[type]`, driven once each. The modifier is public API and
+ * the type also decides the live-region behaviour, so a value that stops
+ * emitting its class is a styling break AND an announcement break.
+ */
+describe('WrAlert emits a modifier for every documented type', () => {
+  @Component({
+    imports: [WrAlert],
+    template: `<wr-alert [type]="type()">Message</wr-alert>`,
+  })
+  class TypeHost {
+    readonly type = signal<WrAlertType>('info');
+  }
+
+  const TYPES: readonly WrAlertType[] = ['info', 'success', 'warning', 'danger', 'neutral', 'offline'];
+  let fixture: ReturnType<typeof TestBed.createComponent<TypeHost>>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(TypeHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it.each(TYPES)('type %s', type => {
+    fixture.componentInstance.type.set(type);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('wr-alert')!.classList).toContain(`wr-alert--${type}`);
+  });
+});

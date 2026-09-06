@@ -10,7 +10,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { WrDropdown } from './dropdown';
 import { WrDropdownItem } from './dropdown-item';
 import { WrDropdownMenu } from './dropdown-menu';
-import type { WrDropdownTrigger } from './interfaces';
+import type { WrDropdownPosition, WrDropdownTrigger } from './interfaces';
 
 /**
  * The menu is a CDK overlay rendered from a template portal, so it lands in the
@@ -569,5 +569,60 @@ describe('WrDropdown template reference', () => {
     expect(dropdown.isOpen()).toBe(false);
 
     fixture.destroy();
+  });
+});
+
+/**
+ * Every documented `[position]`, driven once each.
+ *
+ * The position lands as a class on the CDK overlay PANE — `wr-dropdown-overlay--<pos>`
+ * — which is what a consumer styles against and what the stylesheet keys its
+ * arrow and offsets on. jsdom has no layout, so the pane's actual placement is
+ * unmeasurable here and deliberately not asserted; the class is the contract
+ * that survives, and it is the one a typo in the position map would break.
+ */
+describe('WrDropdown pane position', () => {
+  @Component({
+    imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
+    template: `
+      <button type="button" [wrDropdown]="menu" [position]="pos()">Open</button>
+      <wr-dropdown-menu #menu><wr-dropdown-item>Copy</wr-dropdown-item></wr-dropdown-menu>
+    `,
+  })
+  class PositionHost {
+    readonly pos = signal<WrDropdownPosition>('bottom-start');
+  }
+
+  const POSITIONS: readonly WrDropdownPosition[] = [
+    'top',
+    'top-start',
+    'top-end',
+    'bottom',
+    'bottom-start',
+    'bottom-end',
+    'left',
+    'right',
+  ];
+
+  let fixture: ReturnType<typeof TestBed.createComponent<PositionHost>>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(PositionHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it.each(POSITIONS)('%s reaches the pane as a class', position => {
+    fixture.componentInstance.pos.set(position);
+    fixture.detectChanges();
+    (fixture.nativeElement as HTMLElement).querySelector('button')!.click();
+    fixture.detectChanges();
+
+    const pane = document.querySelector('.wr-dropdown-overlay');
+    expect(pane).not.toBeNull();
+    expect(pane!.classList).toContain(`wr-dropdown-overlay--${position}`);
   });
 });
