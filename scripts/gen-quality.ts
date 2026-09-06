@@ -278,6 +278,14 @@ function stripCode(src: string, keepStrings = false): string {
 const TEST_CALL = /(^|[^.\w$])(it|test)\s*\(/g;
 const PARAMETERISED = /\b(it|test|describe)\s*\.\s*(each|for)\b/;
 const OPENS_LOOP = /\b(for|while)\s*\(|\.\s*(forEach|map|flatMap)\s*\(/;
+/**
+ * A spec whose cases are declared by a shared contract it calls rather than by
+ * `it()` in the file itself. Named explicitly rather than matched loosely: the
+ * point of the zero-case throw is to catch a broken `stripCode`, and a pattern
+ * like `/expect\w+Contract\(/` would eventually excuse exactly the file it was
+ * written to catch.
+ */
+const DELEGATES = /\bexpectCatalogContract\s*\(/;
 
 interface SpecFacts {
   readonly files: number;
@@ -307,7 +315,13 @@ interface SpecFacts {
  *
  * One thing still throws: a spec file with no cases in it at all. That is not a
  * test-authoring choice, it is the signature of `stripCode` having eaten
- * something, and a broken counter must not publish a number.
+ * something, and a broken counter must not publish a number. The one legitimate
+ * exception is a spec that DELEGATES its whole body to a shared contract —
+ * every `i18n/<locale>/catalog.spec.ts` is eight lines handing its catalog to
+ * `expectCatalogContract`, and twenty-two copies of the same eight assertions
+ * would be worse in every way. Those are counted as an approximation rather
+ * than a failure, the same treatment `it.each` gets and for the same reason:
+ * one call site, several cases.
  */
 function specFacts(entryPoints: readonly string[]): SpecFacts {
   const owners = [...entryPoints].sort((a, b) => b.length - a.length);
@@ -327,6 +341,11 @@ function specFacts(entryPoints: readonly string[]): SpecFacts {
     const src = stripCode(readFileSync(full, 'utf8'));
     if (PARAMETERISED.test(src)) {
       approximations.push(`${rel} uses a parameterised test form (it.each / it.for) — one call site, several cases.`);
+    }
+
+    const delegated = DELEGATES.test(src);
+    if (delegated) {
+      approximations.push(`${rel} delegates to a shared contract — one call site, several cases.`);
     }
 
     let inFile = 0;
@@ -359,7 +378,9 @@ function specFacts(entryPoints: readonly string[]): SpecFacts {
       }
     }
 
-    if (inFile === 0) throw new Error(`${rel} declares no test cases — either the file is empty or \`stripCode\` swallowed it.`);
+    if (inFile === 0 && !delegated) {
+      throw new Error(`${rel} declares no test cases — either the file is empty or \`stripCode\` swallowed it.`);
+    }
     cases += inFile;
   });
 

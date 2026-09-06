@@ -61,6 +61,11 @@ export const wrRu: WrI18nCatalog = {
     allDay: 'Весь день',
     label: 'Календарь',
     more: 'ещё {{count}}',
+    header: '{{month}} {{year}}',
+    range: '{{from}} – {{to}}',
+    chipLabel: '{{title}}, {{time}}',
+    slotLabel: '{{time}} — {{date}}',
+    allDayCellLabel: '{{label}} — {{date}}',
   },
   tour: {
     next: 'Далее',
@@ -246,6 +251,7 @@ export const wrRu: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Линейный график',
+    thousands: '{{value}} тыс.',
   },
   donutChart: {
     label: 'Круговая диаграмма',
