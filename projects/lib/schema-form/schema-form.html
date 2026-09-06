@@ -1,0 +1,61 @@
+@for (f of fields(); track f.key) {
+  @let state = f.field();
+
+  <!-- Angular's `hidden()` does not hide anything on its own; the docs are
+       explicit that the template has to honour it. -->
+  @if (!state.hidden()) {
+    <div class="wr-schema-form__field" [style.grid-column]="f.column">
+      <wr-form-field [label]="f.labelAbove" [hint]="f.spec.hint ?? ''" [required]="state.required()">
+        @switch (f.spec.kind) {
+          @case ('textarea') {
+            <wr-textarea [formField]="f.field" [placeholder]="f.spec.placeholder ?? ''" [ariaLabel]="f.label" />
+          }
+          @case ('number') {
+            <wr-input-number
+              [formField]="f.field"
+              [placeholder]="f.spec.placeholder ?? ''"
+              [step]="f.spec.step ?? 1"
+              [ariaLabel]="f.label"
+            />
+          }
+          @case ('select') {
+            <wr-select [formField]="f.field" [placeholder]="f.spec.placeholder ?? null" [ariaLabel]="f.label">
+              @for (option of f.spec.options ?? []; track option.value) {
+                <wr-option [value]="option.value" [disabled]="option.disabled ?? false">{{ option.label }}</wr-option>
+              }
+            </wr-select>
+          }
+          @case ('checkbox') {
+            <wr-checkbox [formField]="f.field">{{ f.label }}</wr-checkbox>
+          }
+          @case ('switch') {
+            <wr-switch [formField]="f.field">{{ f.label }}</wr-switch>
+          }
+          @case ('radio') {
+            <!-- `wr-radio-group` has no `ariaLabel` input, and needs none: its
+                 host is a `role="radiogroup"`, where `aria-label` is legal. -->
+            <wr-radio-group [formField]="f.field" [attr.aria-label]="f.label">
+              @for (option of f.spec.options ?? []; track option.value) {
+                <wr-radio [value]="option.value" [disabled]="option.disabled ?? false">{{ option.label }}</wr-radio>
+              }
+            </wr-radio-group>
+          }
+          @case ('date') {
+            <wr-date-picker [formField]="f.field" [placeholder]="f.spec.placeholder ?? ''" [ariaLabel]="f.label" />
+          }
+          @case ('slider') {
+            <wr-slider [formField]="f.field" [step]="f.spec.step ?? 1" [ariaLabel]="f.label" />
+          }
+          @default {
+            <input
+              wrInput
+              [formField]="f.field"
+              [type]="f.spec.type ?? 'text'"
+              [placeholder]="f.spec.placeholder ?? ''"
+            />
+          }
+        }
+      </wr-form-field>
+    </div>
+  }
+}

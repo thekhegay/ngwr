@@ -936,6 +936,11 @@ export const API = {
     { name: "staggerFrom", description: "Stagger origin.", type: "WrRotatingTextStaggerFrom", default: "'first'" },
     { name: "(nextChange)", description: "Emitted with the new index on every rotation.", type: "number" },
   ],
+  // <wr-schema-form>
+  WrSchemaForm: [
+    { name: "field", description: "The form to draw — the value `form()` returned, or any object-valued field inside one.", type: "FieldTree<T>", required: true },
+    { name: "columns", description: "Grid columns. A field spans one of them unless its spec says otherwise.", type: "number", default: "1" },
+  ],
   // <wr-segmented>
   WrSegmented: [
     { name: "options", description: "The segments to render.", type: "readonly WrSegmentedOption<T>[]", required: true },

@@ -11,7 +11,7 @@ in the repo_.
 A pnpm + Angular CLI monorepo with two projects:
 
 - **`projects/lib/`** — the published package (`ngwr`). Almost every subfolder is
-  a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **204**
+  a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **205**
   of them (`ngwr/button`, `ngwr/select`, `ngwr/overlay`, …). Counted by
   `ng-package.json`, not by directory: `styles/` and `schematics/` are not entry
   points, and **seventy-eight** are nested — `ngwr/i18n/{en,ru}`,
@@ -260,6 +260,28 @@ which means something else. The field's error state is one call —
 with `useFormFieldAria({ skipSelf: true })`, or its inner segmented strip and
 checkboxes each announce the outer field's error as their own.
 
+**A form can be DRAWN from its schema.** `WR_FIELD` (a `createMetadataKey` in
+`ngwr/form`) carries a field's presentation — `kind`, label, hint, placeholder,
+options, `step`, grid `span` — on the SAME schema as its rules, and
+`<wr-schema-form [field]="f" [columns]="2">` from `ngwr/schema-form` walks the
+field tree and draws each described field inside a `<wr-form-field>`. Three
+things decide its shape and are worth knowing before extending it. **A field
+with no `WR_FIELD` is skipped**, silently: a schema may describe more than one
+screen renders, and inferring a control from a field's type would draw a switch
+for every boolean flag in a model — it is also the escape hatch, since the
+undescribed fields are the ones you write by hand beside it. **`required`,
+`disabled`, `readonly`, `hidden`, `min` and `max` are NOT in `WrFieldSpec`**,
+and for the last two that is not a preference: Angular refuses a `[min]` or
+`[max]` binding on a `[formField]`-bound control (NG8022), so the bounds can
+only live in the schema. `hidden()` is the one state the component acts on
+itself, because Angular's docs say a template has to. And **the entry point is
+its own** rather than part of `ngwr/form`: drawing nine kinds means depending on
+nine controls, and `ngwr/form` is what every form imports for
+`<wr-form-field>` alone. The one thing nothing else can catch is a `kind` that
+contradicts the field's type — TypeScript cannot hold a metadata string against
+it — so the component warns in dev mode off the runtime value, and says nothing
+while that value is still empty.
+
 Validation copy is centralized:
 `<wr-form-field>` resolves a message per error key through
 `provideWrFormErrors()` → the `ngwr/i18n` `validation.*` catalog → a built-in
@@ -312,7 +334,7 @@ Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
 (`ngwr/form`), most of the service layer (`ngwr/hotkey`, `ngwr/i18n`,
 `ngwr/media`, `ngwr/platform`, `ngwr/storage`, `ngwr/overlay`, `ngwr/density`,
 `WrWindowManager`, `ngwr/scroll`) and EVERY component with a
-page under `reference/components` — 248 spec files, at least 4358 specs, and
+page under `reference/components` — 255 spec files, at least 4470 specs, and
 **every entry point now has one**. (Both numbers are re-counted by
 `pnpm gen:quality` into `#core/generated/quality`; the spec figure is a FLOOR,
 since one `it.each` site stands for an unknown number of cases.) What is still uncovered is no longer whole
@@ -480,7 +502,7 @@ shipping. Conventional-commit subjects are checked locally (commitlint
 already covers the need, use it — an existing component (check the catalog
 before hand-rolling), `ngwr/utils`, `ngwr/pipes`, `ngwr/validators`, theme
 tokens — rather than hand-rolling raw markup/logic or pulling an external
-library where an internal tool exists. The catalog is large (204 entry points):
+library where an internal tool exists. The catalog is large (205 entry points):
 check before writing a bare `<input type="file">`, a date / number / truncate
 helper, a coercion, an id generator, and so on. New external runtime
 dependencies need a strong justification — the only runtime dependency today is
@@ -830,7 +852,7 @@ arrow) — for version and before/after descriptions.
 
 ## Building components
 
-The catalog is large (204 entry points) and **deliberately consolidated** —
+The catalog is large (205 entry points) and **deliberately consolidated** —
 many "components" are modes or inputs on one host (e.g. `wr-select` covers
 single / multi / search / tag; `wr-date-picker` covers date / time / datetime;
 `wr-popover` has a `tooltip` mode; `wr-drawer` doubles as a bottom-sheet).
@@ -1077,7 +1099,7 @@ i18n catalog; an `aria-label` on a component's host element does not reach the
 native control inside it.
 
 **Showcase page = the docs.** Every component ships a docs page — under
-`projects/showcase/app/reference/components/<name>/` for the main catalog (84
+`projects/showcase/app/reference/components/<name>/` for the main catalog (85
 dirs), or under `projects/showcase/app/animations/<name>/` for animation /
 visual-effect components (a separate top-level cluster with its own routing +
 sidebar). Wire it into the matching `*.routing.ts` and the `routes` map in

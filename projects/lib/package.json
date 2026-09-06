@@ -315,6 +315,9 @@
     "./rotating-text": {
       "sass": "./rotating-text/styles/_index.scss"
     },
+    "./schema-form": {
+      "sass": "./schema-form/styles/_index.scss"
+    },
     "./segmented": {
       "sass": "./segmented/styles/_index.scss"
     },

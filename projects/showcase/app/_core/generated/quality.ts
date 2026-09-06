@@ -28,7 +28,7 @@ export const QUALITY = {
   version: "14.2.0",
 
   /** Secondary entry points — `ngwr/button`, `ngwr/select`, … Counted by `ng-package.json`, the way ng-packagr counts them, so `styles/` and `schematics/` are correctly absent. Excludes the primary `ngwr`. */
-  entryPoints: 204,
+  entryPoints: 205,
 
   /** Entry points that are CDK test harnesses, published at `ngwr/<name>/testing`. Included in `entryPoints`. */
   testingEntryPoints: 70,
@@ -37,25 +37,25 @@ export const QUALITY = {
   harnessClasses: 103,
 
   /** `@Component` classes a `public-api.ts` exports. Excludes the ones the library instantiates for itself (the toast host, the window container), which no consumer can write. */
-  components: 137,
+  components: 138,
 
   /** `@Directive` classes a `public-api.ts` exports, counted the same way. */
   directives: 37,
 
   /** `*.spec.ts` files under `projects/lib`, harness specs included. They sit beside the code they cover, and `tsconfig.lib.json` excludes them from the package. */
-  specFiles: 253,
+  specFiles: 255,
 
   /** Test cases those files DECLARE — `it(…)` / `test(…)` call sites, counted after comments and string bodies are stripped. */
-  testCases: 4457,
+  testCases: 4470,
 
   /** Whether `testCases` is a total or a floor. A parameterised form (`it.each`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page says "at least" rather than failing a documentation build over a legal spec. */
   testCasesAreExact: false,
 
   /** Entry points owning at least one spec file. Compare against `entryPoints`: the claim is coverage of the catalog, not of every branch in it. */
-  entryPointsWithSpecs: 204,
+  entryPointsWithSpecs: 205,
 
   /** Documentation pages the showcase's route tables declare — routes with a `loadComponent`, minus the layout shell (it has `children`) and the `**` 404, neither of which is a page. NOT the prerendered-route count either: `app.routes.server.ts` sends the raw-SVG icon galleries and the legacy redirects to the client. */
-  docRoutes: 220,
+  docRoutes: 221,
 
   /** Runtime dependencies of the published package, from `projects/lib/package.json`. Peer dependencies are the consumer's Angular; this is what npm installs on top of it. */
   runtimeDependencies: ["tslib"],

@@ -1,0 +1,15 @@
+@use '../../theme/styles' as theme;
+
+.wr-schema-form {
+  --wr-schema-form-gap: 1rem;
+
+  display: grid;
+  gap: var(--wr-schema-form-gap);
+  width: 100%;
+}
+
+.wr-schema-form__field {
+  // A grid item's default `min-width: auto` refuses to shrink below its
+  // content, so a long option label pushes the whole column past the form.
+  min-width: 0;
+}

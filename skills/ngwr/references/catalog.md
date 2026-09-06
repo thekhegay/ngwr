@@ -145,6 +145,7 @@ root barrel for components.
 | `ngwr/result` | `import { WrResult } from 'ngwr/result'` | `wr-result-404` `wr-result-403` `wr-result-500` `wr-result` |
 | `ngwr/rotating-text` | `import { WrRotatingText } from 'ngwr/rotating-text'` | `wr-rotating-text` |
 | `ngwr/rotating-text/testing` | `import { WrRotatingTextHarness } from 'ngwr/rotating-text/testing'` | — |
+| `ngwr/schema-form` | `import { WrSchemaForm } from 'ngwr/schema-form'` | `wr-schema-form` |
 | `ngwr/scroll` | `import { WrScroll } from 'ngwr/scroll'` | — |
 | `ngwr/segmented` | `import { WrSegmented } from 'ngwr/segmented'` | `wr-segmented` |
 | `ngwr/segmented/testing` | `import { WrSegmentedHarness } from 'ngwr/segmented/testing'` | — |

@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 379 hook(s) across 57 page(s). A property is here only when the
+ * 380 hook(s) across 58 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 24 declaration(s) are one component setting
@@ -494,6 +494,12 @@ export const CSS_VARS = {
       { name: "--wr-rating-filled", default: "var(--wr-color-warning, #ffba00)", scope: ".wr-rating" },
       { name: "--wr-rating-gap", default: "0.125rem", scope: ".wr-rating", overrides: 2 },
       { name: "--wr-rating-size", default: "1.25rem", scope: ".wr-rating", overrides: 2 },
+    ],
+  },
+  "reference/components/schema-form": {
+    subpath: "ngwr/schema-form",
+    vars: [
+      { name: "--wr-schema-form-gap", default: "1rem", scope: ".wr-schema-form" },
     ],
   },
   "reference/components/segmented": {

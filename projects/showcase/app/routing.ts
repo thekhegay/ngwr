@@ -139,6 +139,7 @@ export const routes = {
     qrCode: 'qrcode',
     radio: 'radio',
     rating: 'rating',
+    schemaForm: 'schema-form',
     segmented: 'segmented',
     skeleton: 'skeleton',
     slider: 'slider',
