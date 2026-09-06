@@ -9,7 +9,9 @@ updates:
     # just noticed sooner.
     schedule:
       interval: 'daily'
-      time: '13:00'
+      # Early, so the PRs are waiting at the start of the day rather than
+      # landing in the middle of one.
+      time: '08:00'
       timezone: 'Asia/Almaty'
     open-pull-requests-limit: 10
     # Two bumps that would open a green-looking PR and land a red build.
@@ -64,7 +66,9 @@ updates:
     directory: '/'
     schedule:
       interval: 'daily'
-      time: '13:00'
+      # Early, so the PRs are waiting at the start of the day rather than
+      # landing in the middle of one.
+      time: '08:00'
       timezone: 'Asia/Almaty'
     # One PR for all the routine movement — `groups` does not cross ecosystems,
     # so the npm groups above never covered these and every action arrived on
