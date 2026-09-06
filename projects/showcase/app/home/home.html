@@ -185,128 +185,134 @@
   </section>
 
   <!-- Motion gallery (animation kit showcase) -->
-  <section class="ngwr-section">
-    <div class="container">
-      <div class="ngwr-section__head ngwr-section__head--why">
-        <div class="ngwr-section__lede">
-          <wr-tag color="primary" outlined>Animations</wr-tag>
-          <p wrTypography variant="h1" class="ngwr-motion__heading">
-            <wr-split-text text="Motion you can ship." splitType="chars" [delay]="40" [duration]="1.05" />
+  <!-- Hydration is deferred until this section is scrolled to. The markup is
+       prerendered and stays in the DOM either way — what waits is the
+       JavaScript, and this section carries the animation components, which
+       are the heaviest thing on the page and the furthest below the fold. -->
+  @defer (hydrate on viewport) {
+    <section class="ngwr-section">
+      <div class="container">
+        <div class="ngwr-section__head ngwr-section__head--why">
+          <div class="ngwr-section__lede">
+            <wr-tag color="primary" outlined>Animations</wr-tag>
+            <p wrTypography variant="h1" class="ngwr-motion__heading">
+              <wr-split-text text="Motion you can ship." splitType="chars" [delay]="40" [duration]="1.05" />
+            </p>
+          </div>
+          <p wrTypography variant="small" tone="medium" class="ngwr-section__head-aside">
+            Beyond the primitives — a kit of motion components for hero copy, hovers, and the bits of personality that
+            set a real product apart.
           </p>
         </div>
-        <p wrTypography variant="small" tone="medium" class="ngwr-section__head-aside">
-          Beyond the primitives — a kit of motion components for hero copy, hovers, and the bits of personality that set
-          a real product apart.
-        </p>
+
+        <div class="ngwr-motion-grid">
+          <article class="ngwr-motion-tile">
+            <div class="ngwr-motion-tile__stage">
+              <wr-shiny-text text="Premium" [speed]="4" [spread]="160" />
+            </div>
+            <div class="ngwr-motion-tile__label">
+              <p wrTypography variant="small">Shiny text</p>
+              <p wrTypography variant="caption" tone="medium"><code>&lt;wr-shiny-text /&gt;</code></p>
+            </div>
+          </article>
+
+          <article class="ngwr-motion-tile">
+            <div class="ngwr-motion-tile__stage">
+              <wr-glitch-text text="System online" />
+            </div>
+            <div class="ngwr-motion-tile__label">
+              <p wrTypography variant="small">Glitch text</p>
+              <p wrTypography variant="caption" tone="medium"><code>&lt;wr-glitch-text /&gt;</code></p>
+            </div>
+          </article>
+
+          <article class="ngwr-motion-tile">
+            <div class="ngwr-motion-tile__stage">
+              <wr-rotating-text
+                [texts]="['Fast', 'Themeable', 'Live']"
+                splitBy="characters"
+                [rotationInterval]="1800"
+                [staggerDuration]="0.03"
+              />
+            </div>
+            <div class="ngwr-motion-tile__label">
+              <p wrTypography variant="small">Rotating text</p>
+              <p wrTypography variant="caption" tone="medium"><code>&lt;wr-rotating-text /&gt;</code></p>
+            </div>
+          </article>
+
+          <article class="ngwr-motion-tile">
+            <div class="ngwr-motion-tile__stage">
+              @for (tick of [replayTick()]; track tick) {
+                <wr-decrypt-text text="Decrypting…" [maxIterations]="14" />
+              }
+            </div>
+            <div class="ngwr-motion-tile__label">
+              <p wrTypography variant="small">Decrypt text</p>
+              <p wrTypography variant="caption" tone="medium"><code>&lt;wr-decrypt-text /&gt;</code></p>
+            </div>
+          </article>
+
+          <article class="ngwr-motion-tile">
+            <div class="ngwr-motion-tile__stage">
+              @for (tick of [replayTick()]; track tick) {
+                <wr-blur-text text="Reveal on view" animateBy="words" [stepDuration]="0.4" />
+              }
+            </div>
+            <div class="ngwr-motion-tile__label">
+              <p wrTypography variant="small">Blur text</p>
+              <p wrTypography variant="caption" tone="medium"><code>&lt;wr-blur-text /&gt;</code></p>
+            </div>
+          </article>
+
+          <article class="ngwr-motion-tile">
+            <div class="ngwr-motion-tile__stage">
+              @for (tick of [replayTick()]; track tick) {
+                <wr-split-text text="Split by character" splitType="chars" [delay]="45" [duration]="1" />
+              }
+            </div>
+            <div class="ngwr-motion-tile__label">
+              <p wrTypography variant="small">Split text</p>
+              <p wrTypography variant="caption" tone="medium"><code>&lt;wr-split-text /&gt;</code></p>
+            </div>
+          </article>
+
+          <article class="ngwr-motion-tile">
+            <div class="ngwr-motion-tile__stage">
+              <wr-typewriter [texts]="['Typing words…', 'Deleting words…']" [typingSpeed]="65" [pauseDuration]="1400" />
+            </div>
+            <div class="ngwr-motion-tile__label">
+              <p wrTypography variant="small">Typewriter</p>
+              <p wrTypography variant="caption" tone="medium"><code>&lt;wr-typewriter /&gt;</code></p>
+            </div>
+          </article>
+
+          <article class="ngwr-motion-tile">
+            <div class="ngwr-motion-tile__stage">
+              <wr-gradient-text>Gradient flow</wr-gradient-text>
+            </div>
+            <div class="ngwr-motion-tile__label">
+              <p wrTypography variant="small">Gradient text</p>
+              <p wrTypography variant="caption" tone="medium"><code>&lt;wr-gradient-text /&gt;</code></p>
+            </div>
+          </article>
+        </div>
+
+        <div class="ngwr-motion-footer">
+          <a
+            wr-btn
+            outlined
+            size="lg"
+            [routerLink]="[routes.index, routes.animations.index]"
+            icon="arrow-forward"
+            iconPosition="end"
+          >
+            Browse the kit
+          </a>
+        </div>
       </div>
-
-      <div class="ngwr-motion-grid">
-        <article class="ngwr-motion-tile">
-          <div class="ngwr-motion-tile__stage">
-            <wr-shiny-text text="Premium" [speed]="4" [spread]="160" />
-          </div>
-          <div class="ngwr-motion-tile__label">
-            <p wrTypography variant="small">Shiny text</p>
-            <p wrTypography variant="caption" tone="medium"><code>&lt;wr-shiny-text /&gt;</code></p>
-          </div>
-        </article>
-
-        <article class="ngwr-motion-tile">
-          <div class="ngwr-motion-tile__stage">
-            <wr-glitch-text text="System online" />
-          </div>
-          <div class="ngwr-motion-tile__label">
-            <p wrTypography variant="small">Glitch text</p>
-            <p wrTypography variant="caption" tone="medium"><code>&lt;wr-glitch-text /&gt;</code></p>
-          </div>
-        </article>
-
-        <article class="ngwr-motion-tile">
-          <div class="ngwr-motion-tile__stage">
-            <wr-rotating-text
-              [texts]="['Fast', 'Themeable', 'Live']"
-              splitBy="characters"
-              [rotationInterval]="1800"
-              [staggerDuration]="0.03"
-            />
-          </div>
-          <div class="ngwr-motion-tile__label">
-            <p wrTypography variant="small">Rotating text</p>
-            <p wrTypography variant="caption" tone="medium"><code>&lt;wr-rotating-text /&gt;</code></p>
-          </div>
-        </article>
-
-        <article class="ngwr-motion-tile">
-          <div class="ngwr-motion-tile__stage">
-            @for (tick of [replayTick()]; track tick) {
-              <wr-decrypt-text text="Decrypting…" [maxIterations]="14" />
-            }
-          </div>
-          <div class="ngwr-motion-tile__label">
-            <p wrTypography variant="small">Decrypt text</p>
-            <p wrTypography variant="caption" tone="medium"><code>&lt;wr-decrypt-text /&gt;</code></p>
-          </div>
-        </article>
-
-        <article class="ngwr-motion-tile">
-          <div class="ngwr-motion-tile__stage">
-            @for (tick of [replayTick()]; track tick) {
-              <wr-blur-text text="Reveal on view" animateBy="words" [stepDuration]="0.4" />
-            }
-          </div>
-          <div class="ngwr-motion-tile__label">
-            <p wrTypography variant="small">Blur text</p>
-            <p wrTypography variant="caption" tone="medium"><code>&lt;wr-blur-text /&gt;</code></p>
-          </div>
-        </article>
-
-        <article class="ngwr-motion-tile">
-          <div class="ngwr-motion-tile__stage">
-            @for (tick of [replayTick()]; track tick) {
-              <wr-split-text text="Split by character" splitType="chars" [delay]="45" [duration]="1" />
-            }
-          </div>
-          <div class="ngwr-motion-tile__label">
-            <p wrTypography variant="small">Split text</p>
-            <p wrTypography variant="caption" tone="medium"><code>&lt;wr-split-text /&gt;</code></p>
-          </div>
-        </article>
-
-        <article class="ngwr-motion-tile">
-          <div class="ngwr-motion-tile__stage">
-            <wr-typewriter [texts]="['Typing words…', 'Deleting words…']" [typingSpeed]="65" [pauseDuration]="1400" />
-          </div>
-          <div class="ngwr-motion-tile__label">
-            <p wrTypography variant="small">Typewriter</p>
-            <p wrTypography variant="caption" tone="medium"><code>&lt;wr-typewriter /&gt;</code></p>
-          </div>
-        </article>
-
-        <article class="ngwr-motion-tile">
-          <div class="ngwr-motion-tile__stage">
-            <wr-gradient-text>Gradient flow</wr-gradient-text>
-          </div>
-          <div class="ngwr-motion-tile__label">
-            <p wrTypography variant="small">Gradient text</p>
-            <p wrTypography variant="caption" tone="medium"><code>&lt;wr-gradient-text /&gt;</code></p>
-          </div>
-        </article>
-      </div>
-
-      <div class="ngwr-motion-footer">
-        <a
-          wr-btn
-          outlined
-          size="lg"
-          [routerLink]="[routes.index, routes.animations.index]"
-          icon="arrow-forward"
-          iconPosition="end"
-        >
-          Browse the kit
-        </a>
-      </div>
-    </div>
-  </section>
+    </section>
+  }
 
   <ngwr-footer contained />
 </main>

@@ -3,7 +3,7 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideClientHydration } from '@angular/platform-browser';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 
 import { provideWrDateAdapter } from 'ngwr/date';
@@ -40,7 +40,12 @@ export const appConfig: ApplicationConfig = {
     // opts out: `WrWindowManager` portals it into an overlay at runtime, so the
     // module-load `DETECTED_OS` in `window.ts` — 'windows' on the server, the
     // real OS in the browser — is never in prerendered DOM to disagree with.
-    provideClientHydration(),
+    // `withEventReplay()` is the half that is still opt-in — incremental
+    // hydration became the default in Angular 22, so `withIncrementalHydration()`
+    // is deprecated and this call already has it. Replay matters most on a
+    // prerendered docs site: the HTML paints long before the bundle boots, so a
+    // click on a demo button in that window would otherwise be swallowed.
+    provideClientHydration(withEventReplay()),
     // Reset to top on every forward navigation; back / forward restores
     // the previous position. `anchorScrolling` makes `#fragment` links work.
     provideRouter(routing, withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' })),
