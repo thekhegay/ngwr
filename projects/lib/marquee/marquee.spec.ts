@@ -161,3 +161,16 @@ describe('WrMarquee under a localized catalog', () => {
     fixture.destroy();
   });
 });
+
+/**
+ * `[direction]` is deliberately not driven here, and this note is the record of
+ * why rather than an omission.
+ *
+ * The input flips the SIGN of `targetVelocity`, which an animation loop then
+ * integrates into a transform frame by frame. jsdom runs no frames and lays
+ * nothing out, so the only thing a spec could reach is that a private computed
+ * returned a negative number — which answers identically for a working
+ * component and a broken one, and would still pass if the value never reached
+ * the transform at all. It wants a browser; `check:state-a11y` drives the
+ * component in one, and the visual half is a design review.
+ */

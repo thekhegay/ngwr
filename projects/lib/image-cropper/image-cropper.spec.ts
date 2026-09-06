@@ -1,9 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrImageCropper } from './image-cropper';
+import type { WrImageOutputType } from './interfaces';
 
 @Component({
   imports: [WrImageCropper],
@@ -367,5 +368,53 @@ describe('WrImageCropper', () => {
 
       expect(disconnects).toBeGreaterThan(0);
     });
+  });
+});
+
+/**
+ * Every documented `[outputType]`, and an honest statement of what that proves.
+ *
+ * jsdom has no 2D context, so nothing here renders and the BYTES cannot be
+ * checked — the encoded result is a browser's job and this spec does not claim
+ * otherwise. What it does pin is the plumbing: the configured type reaches
+ * `toDataURL` instead of a hardcoded one. That is a real regression to catch,
+ * because an input that silently stops being forwarded looks identical from the
+ * outside: every export still succeeds, and every one of them is a PNG.
+ */
+describe('WrImageCropper forwards every documented output type', () => {
+  @Component({
+    imports: [WrImageCropper],
+    template: `<wr-image-cropper src="data:image/png;base64,iVBORw0KGgo=" [outputType]="type()" />`,
+  })
+  class TypeHost {
+    readonly type = signal<WrImageOutputType>('image/png');
+    readonly cropper = viewChild.required(WrImageCropper);
+  }
+
+  const TYPES: readonly WrImageOutputType[] = ['image/png', 'image/jpeg', 'image/webp'];
+  let fixture: ReturnType<typeof TestBed.createComponent<TypeHost>>;
+  let seen: unknown[];
+
+  beforeEach(() => {
+    seen = [];
+    // The canvas never paints here; it only has to record what it was asked for.
+    HTMLCanvasElement.prototype.toDataURL = function (type?: string): string {
+      seen.push(type);
+      return `data:${type ?? 'image/png'};base64,`;
+    };
+
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(TypeHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it.each(TYPES)('%s reaches the encoder', type => {
+    fixture.componentInstance.type.set(type);
+    fixture.detectChanges();
+
+    fixture.componentInstance.cropper().toDataUrl();
+    expect(seen).toContain(type);
   });
 });

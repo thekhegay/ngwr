@@ -11,8 +11,9 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { noop } from 'ngwr/utils';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrTableColumns } from './interfaces';
+import type { WrTableSortDirection, WrTableColumns } from './interfaces';
 import { WrTable } from './table';
+import { WrTableSort } from './table-sort';
 
 @Component({
   imports: [WrTable],
@@ -1000,5 +1001,44 @@ describe('WrTable summary row over a dataset larger than the spread limit', () =
     expect(foot.map(td => td.textContent.trim())).toEqual(['1', '150000']);
 
     fixture.destroy();
+  });
+});
+
+/**
+ * Every documented `[direction]` on the sort indicator. `null` is the third
+ * documented value and emits nothing — an unsorted column carries no direction
+ * modifier at all, which is what tells the stylesheet to draw the neutral
+ * glyph rather than an arrow.
+ */
+describe('WrTableSort emits a modifier for every documented direction', () => {
+  @Component({
+    imports: [WrTableSort],
+    template: `<wr-table-sort [direction]="direction()" />`,
+  })
+  class SortHost {
+    readonly direction = signal<WrTableSortDirection>(null);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<SortHost>>;
+  const el = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector('wr-table-sort')!;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(SortHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it.each<WrTableSortDirection>(['asc', 'desc'])('direction %s', direction => {
+    fixture.componentInstance.direction.set(direction);
+    fixture.detectChanges();
+    expect(el().classList).toContain(`wr-table-sort--${direction}`);
+  });
+
+  it('unsorted carries no direction modifier', () => {
+    fixture.componentInstance.direction.set(null);
+    fixture.detectChanges();
+    expect(el().className).not.toMatch(/wr-table-sort--(asc|desc)/);
   });
 });

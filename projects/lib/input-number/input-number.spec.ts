@@ -564,3 +564,37 @@ describe('WrInputNumber accessible name', () => {
     expect(input.placeholder).toBe('0');
   });
 });
+
+/**
+ * Every documented `[size]`. The value is forwarded to the inner field rather
+ * than emitted here, so the assertion reads the class the FIELD carries — and
+ * `md`, the fallback, deliberately emits none.
+ */
+describe('WrInputNumber forwards every documented size to its field', () => {
+  @Component({
+    imports: [WrInputNumber],
+    template: `<wr-input-number [size]="size()" />`,
+  })
+  class SizeHost {
+    readonly size = signal<WrInputSize | null>(null);
+  }
+
+  const SIZES: readonly WrInputSize[] = ['sm', 'md', 'lg'];
+  let fixture: ReturnType<typeof TestBed.createComponent<SizeHost>>;
+  const field = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector('input')!;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(SizeHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it.each(SIZES)('size %s', size => {
+    fixture.componentInstance.size.set(size);
+    fixture.detectChanges();
+    if (size === 'md') expect(field().className).not.toMatch(/wr-input--(sm|lg)/);
+    else expect(field().classList).toContain(`wr-input--${size}`);
+  });
+});

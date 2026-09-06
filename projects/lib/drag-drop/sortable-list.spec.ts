@@ -394,3 +394,15 @@ describe('WrSortableList over repeated primitives', () => {
     fixture.destroy();
   });
 });
+
+/**
+ * `[lockAxis]` is deliberately not driven here, for the same reason the marquee
+ * spec records about its direction.
+ *
+ * It only changes what happens DURING a drag, against real pointer coordinates
+ * and a real box — and jsdom has neither layout nor `PointerEvent`. A spec could
+ * assemble the events by hand, as the window drag specs do, but every rect it
+ * measured would be 0x0, so the constrained axis and the free one would come
+ * back identical and the test would pass on a component that ignored the input
+ * entirely.
+ */

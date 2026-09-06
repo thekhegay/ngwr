@@ -27,17 +27,7 @@ Everything below the Order is open but unscheduled; everything under
 
 ## A — Trust & hardening
 
-- [ ] **A1. Mode coverage** (M) — the suite exists, gates CI, and every entry
-      point has a spec. What is left is modes INSIDE covered components: a spec
-      on `wr-table` says nothing about tree rows unless it exercises them.
-      Written as an open-ended tail it could never close, so the bar is
-      enumerable instead: **every documented non-default value of a mode-shaped
-      input has at least one spec that drives it** — `selectionMode`, `mode`,
-      `openOn`, `variant`, `responsive` and their kin, which the API tables
-      already list. Caveat when running the suite: `mcp/server.spec.ts` spawns
-      `dist/lib/mcp/server.js`, so on a tree that has never run `build:lib` two
-      of its specs fail and two skip.
-- [ ] **A2. SSR remainder** (S) — per-component SSR-safety notes in the docs,
+- [ ] **A1. SSR remainder** (S) — per-component SSR-safety notes in the docs,
       and incremental hydration (`withIncrementalHydration()` + `@defer (hydrate
       on …)`).
 
