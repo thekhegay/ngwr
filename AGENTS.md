@@ -993,11 +993,20 @@ runner, so a baseline recorded where the work happens never matches where it is
 checked; and an image diff shows a red blob where `36 → 40` in a JSON diff says
 what changed and can be approved by editing one number. It catches the
 regression nothing else does — a token or density change silently resizing
-controls — and it explicitly does NOT catch colour, shadows or radii. Two rules
-if you extend it: **a target that matches nothing FAILS the run** rather than
-recording an empty array, which would then compare equal to itself forever; and
-the tolerance is 1px, absorbing font-width drift while staying under the
-smallest step the density scale can make.
+controls — and it explicitly does NOT catch colour, shadows or radii.
+
+**It compares HEIGHT, and width only where a target opts in**, which its first
+night in CI is what settled. Every height matched the macOS baseline exactly;
+**100 widths came back 2–6px wider on the ubuntu runner**, all of them on the
+three targets whose width is a label plus padding — button, tab, tag. Raising
+the tolerance to absorb that was the obvious fix and the wrong one: 6px is wider
+than the 2px smallest step the density scale can make, so the allowance would
+have swallowed the regression the gate exists for. `width: true` goes on boxes
+that do not size to their text — a checkbox, a radio dot, a switch track, an
+avatar, a spinner — where no font can move the number. Two more rules if you
+extend it: **a target that matches nothing FAILS the run** rather than recording
+an empty array, which would then compare equal to itself forever; and the
+tolerance stays 1px, which is sub-pixel rounding and nothing else.
 
 `check:rtl-layout` is the other nightly job, and it is nightly for the same
 reason. It renders every route in a real Chromium under both directions and fails

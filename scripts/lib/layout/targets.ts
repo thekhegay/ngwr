@@ -39,6 +39,20 @@ export interface LayoutTarget {
    * — one entry per element says more than one number does.
    */
   readonly all?: boolean;
+  /**
+   * Also compare WIDTH. Off by default, and that default is the whole lesson of
+   * this gate's first night in CI: heights matched the macOS baseline exactly,
+   * every one of them, while 100 widths came back 2–6px wider on the ubuntu
+   * runner. Button, tab and tag widths are their label plus padding, so they
+   * measure font rasterisation rather than layout — and a tolerance loose
+   * enough to absorb 6px of that is looser than the 2px smallest step the
+   * density scale can make, which would hide the regression this exists for.
+   *
+   * Turn it on only where the box does NOT size to its text: a checkbox, a
+   * radio dot, a switch track, an avatar, a spinner. There a width change is
+   * real, and no font can cause one.
+   */
+  readonly width?: boolean;
   readonly note?: string;
 }
 
@@ -49,9 +63,9 @@ export const LAYOUT_TARGETS: readonly LayoutTarget[] = [
   { id: 'input/field', route: `${REF}/input`, selector: demo('.wr-input') },
   { id: 'textarea/field', route: `${REF}/textarea`, selector: demo('.wr-textarea') },
   { id: 'select/trigger', route: `${REF}/select`, selector: demo('.wr-select__trigger') },
-  { id: 'checkbox/box', route: `${REF}/checkbox`, selector: demo('.wr-checkbox__box') },
-  { id: 'radio/dot', route: `${REF}/radio`, selector: demo('.wr-radio__dot') },
-  { id: 'switch/track', route: `${REF}/switch`, selector: demo('.wr-switch__track') },
+  { id: 'checkbox/box', route: `${REF}/checkbox`, selector: demo('.wr-checkbox__box'), width: true },
+  { id: 'radio/dot', route: `${REF}/radio`, selector: demo('.wr-radio__dot'), width: true },
+  { id: 'switch/track', route: `${REF}/switch`, selector: demo('.wr-switch__track'), width: true },
   { id: 'slider/track', route: `${REF}/slider`, selector: demo('.wr-slider__track') },
 
   // Chrome with a documented height. A table row that grows re-flows every page
@@ -59,8 +73,8 @@ export const LAYOUT_TARGETS: readonly LayoutTarget[] = [
   { id: 'table/row', route: `${REF}/table`, selector: demo('.wr-table tbody tr'), all: false },
   { id: 'tabs/tab', route: `${REF}/tabs`, selector: demo('.wr-tabs__tab'), all: true },
   { id: 'badge/tag', route: `${REF}/badge`, selector: demo('.wr-tag') },
-  { id: 'avatar/circle', route: `${REF}/avatar`, selector: demo('.wr-avatar'), all: true },
-  { id: 'spinner/svg', route: `${REF}/spinner`, selector: demo('.wr-spinner') },
+  { id: 'avatar/circle', route: `${REF}/avatar`, selector: demo('.wr-avatar'), all: true, width: true },
+  { id: 'spinner/svg', route: `${REF}/spinner`, selector: demo('.wr-spinner'), width: true },
   { id: 'alert/box', route: `${REF}/alert`, selector: demo('.wr-alert') },
   { id: 'card/box', route: `${REF}/card`, selector: demo('.wr-card') },
 ];
