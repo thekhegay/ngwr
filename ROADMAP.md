@@ -8,16 +8,15 @@ Sizes are S / M / L / XL.
 
 ## Order
 
-1. **C3** — Combobox / autocomplete
-2. **C7** — Menubar
-3. **A** — finish it: A1 mode coverage, A2 the SSR remainder
-4. **D6** — High-contrast rendering (`prefers-contrast: more` first)
+1. **C7** — Menubar
+2. **A** — finish it: A1 mode coverage, A2 the SSR remainder
+3. **D6** — High-contrast rendering (`prefers-contrast: more` first)
 
 Two notes, then it stands:
 
-- **Nothing is blocked any more.** C3 and C7 were both waiting on a rebuild onto
-  `@angular/aria` that is no longer planned — see
-  [Non-goals](#non-goals-researched-rejected).
+- **Nothing is blocked any more.** C7 was waiting on a rebuild onto
+  `@angular/aria` that is no longer planned, and C3 turned out to be shipped
+  already — both are in [Non-goals](#non-goals-researched-rejected).
 - **A is in the sequence now, not beside it.** It used to be described as
   continuous work that lands between features; the remainder is small enough to
   finish outright, so it gets a slot instead of a habit. **B4 leaves the
@@ -49,11 +48,6 @@ Everything below the Order is open but unscheduled; everything under
 
 ## C — Data-heavy + missing components
 
-- [ ] **C3. Combobox / autocomplete proper** (M) — free-text input plus
-      suggestions is a different ARIA pattern than select-with-search, so it is
-      a component rather than a mode on `wr-select`. Unblocked: the interaction
-      model is ours to write, and the comparable ones already in the catalog run
-      to a few dozen lines apiece.
 - [ ] **C7. Menubar** (M) — horizontal app menu with submenus: roving focus,
       typeahead, submenu orchestration. Completes dropdown / context-menu into a
       menu family.
@@ -138,8 +132,8 @@ Open and researched, explicitly not now.
 Nothing is hard-blocked.
 
 - **D5** — blocked in practice on D2.
-- Everything else is unblocked, including C3 and C7, which were held for a
-  rebuild that is no longer planned.
+- Everything else is unblocked, including C7, which was held for a rebuild that
+  is no longer planned.
 
 ## Non-goals (researched, rejected)
 
@@ -148,6 +142,19 @@ Nothing is hard-blocked.
   and nothing to keep in sync. Documented at `/reference/components/input` with
   six live masks.
 - **Pure-headless library** — not our shape; ngwr ships styled components.
+- **A separate combobox / autocomplete component** — was C3, closed 2026-09-05
+  as already shipped. The item claimed free-text-plus-suggestions is a different
+  ARIA pattern from select-with-search; it is the same one, and `wr-select` was
+  already rendering it. `mode="search"` puts `role="combobox"` on a real
+  `<input>` with `aria-haspopup="listbox"`, `aria-expanded`, `aria-controls` and
+  `aria-activedescendant`, and `freeText` commits a query that matched no option
+  as the value — which is autocomplete. The component's own JSDoc calls it "the
+  unified combobox primitive". One thing was genuinely missing and it was one
+  attribute: `aria-autocomplete`, which the command palette and `wr-mention`
+  both carry and the only EDITABLE combobox of the three did not. Shipped
+  static on the search input and conditional on the tag input, whose combobox
+  role is itself conditional. Building a second component would have duplicated
+  a working one.
 - **Rebuilding the interactive internals on `@angular/aria`** — was planned as
   B2, dropped 2026-09-05. The package is real and stable as of v22, and the
   model it copies won decisively in React, where one Radix primitive
