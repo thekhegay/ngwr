@@ -21,20 +21,56 @@ const LIB = join(process.cwd(), 'projects/lib');
  *
  * `schematics/` runs inside the Angular CLI, which brings `@angular-devkit/schematics`
  * and `@schematics/angular` itself; `mcp/` is a Node CLI importing nothing but node:
- * builtins; and `*.spec.ts` never ships (`tsconfig.lib.json` excludes it), so its
- * `vitest` import is a devDependency by construction.
+ * builtins.
  */
 const SKIP = ['schematics', 'mcp'];
+
+/**
+ * What the library build itself leaves out, read from its tsconfig rather than
+ * restated here.
+ *
+ * `**\/*.spec.ts` is most of it, and for a long time it was all of it — which is
+ * why this file used to hardcode that one pattern. It stopped being all of it
+ * when `i18n/catalog-contract.ts` arrived: a test-only module that twenty-two
+ * spec files import, so it cannot be named `*.spec.ts` (vitest would try to
+ * collect it and find no suite), and it imports `vitest`, so if this check ever
+ * reads it the manifest is asked to declare a devDependency. Deriving the list
+ * means the exclusion is stated once, in the place the compiler reads.
+ */
+function excludedFromTheBuild(): (file: string) => boolean {
+  const config = readFileSync(join(LIB, 'tsconfig.lib.json'), 'utf8');
+  const patterns = (JSON.parse(config) as { exclude?: string[] }).exclude ?? [];
+  if (patterns.length === 0)
+    throw new Error('tsconfig.lib.json declares no `exclude` — this check would read the specs.');
+
+  const matchers = patterns.map(pattern => {
+    // ONE pass, alternation ordered longest-first. Chained `replace` calls read
+    // more clearly and are wrong here: `**/` expands to `(?:.*/)?`, which
+    // contains a `*` of its own, so a later `*` pass rewrites the replacement
+    // and `(?:.*/)?` becomes `(?:.[^/]*/)?` — a matcher for exactly one path
+    // segment. It still excluded every top-level spec, so the only visible
+    // symptom was harness specs two directories down leaking back in.
+    const source = pattern.replace(/\*\*\/|\*\*|\*|[.+?^${}()|[\]\\]/g, token => {
+      if (token === '**/') return '(?:.*/)?';
+      if (token === '**') return '.*';
+      if (token === '*') return '[^/]*';
+      return `\\${token}`;
+    });
+    return new RegExp(`^${source}$`);
+  });
+
+  return (file: string) => matchers.some(matcher => matcher.test(file));
+}
 
 /** A module specifier — anything with whitespace in it came from a split string literal. */
 const SPECIFIER = /^(?:@[\w.~-]+\/)?[\w.~-]+(?:\/[\w./~-]+)?$/;
 
-function sources(dir: string, out: string[] = []): string[] {
+function sources(dir: string, out: string[] = [], excluded = excludedFromTheBuild()): string[] {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const full = join(dir, entry.name);
     if (entry.isDirectory()) {
-      if (!SKIP.includes(relative(LIB, full))) sources(full, out);
-    } else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.spec.ts')) {
+      if (!SKIP.includes(relative(LIB, full))) sources(full, out, excluded);
+    } else if (entry.name.endsWith('.ts') && !excluded(relative(LIB, full))) {
       out.push(full);
     }
   }

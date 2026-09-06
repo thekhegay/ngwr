@@ -663,6 +663,7 @@ interface Facts {
   readonly testCasesAreExact: boolean;
   readonly entryPointsWithSpecs: number;
   readonly docRoutes: number;
+  readonly locales: readonly string[];
   readonly runtimeDependencies: readonly string[];
   readonly lintStages: readonly Gate[];
   readonly prGates: readonly Gate[];
@@ -729,6 +730,9 @@ export const QUALITY = {
   /** Documentation pages the showcase's route tables declare — routes with a \`loadComponent\`, minus the layout shell (it has \`children\`) and the \`**\` 404, neither of which is a page. NOT the prerendered-route count either: \`app.routes.server.ts\` sends the raw-SVG icon galleries and the legacy redirects to the client. */
   docRoutes: ${f.docRoutes},
 
+  /** Locale catalogs the package ships, as the subpath each is imported from — \`ngwr/i18n/de\`. Counted from the folders under \`projects/lib/i18n\` that hold a catalog, so a locale added or removed moves this on its own. Region codes appear only where the script genuinely differs; every other code is a language, which a region \`LOCALE_ID\` falls back to. */
+  locales: [${f.locales.map(quote).join(', ')}],
+
   /** Runtime dependencies of the published package, from \`projects/lib/package.json\`. Peer dependencies are the consumer's Angular; this is what npm installs on top of it. */
   runtimeDependencies: [${f.runtimeDependencies.map(quote).join(', ')}],
 
@@ -748,6 +752,22 @@ ${gates(f.nightlyGates)}
   ],
 } as const;
 `;
+}
+
+/**
+ * The locale catalogs, discovered the same way `gen-i18n-json.ts` discovers them
+ * — a folder under `i18n/` holding a `public-api.ts` — rather than from a list
+ * anyone maintains. `/start/comparison` argues against NG-ZORRO partly on this
+ * number, which is the page where a stale figure costs the most.
+ */
+function shippedLocales(): readonly string[] {
+  const root = join(LIB, 'i18n');
+  const found = readdirSync(root, { withFileTypes: true })
+    .filter(entry => entry.isDirectory() && existsSync(join(root, entry.name, 'public-api.ts')))
+    .map(entry => entry.name)
+    .sort();
+  atLeast(found.length, 2, 'locale catalogs');
+  return found;
 }
 
 function main(): void {
@@ -788,6 +808,7 @@ function main(): void {
     testCasesAreExact: specs.casesAreExact,
     entryPointsWithSpecs: atLeast(specs.entryPoints.size, 100, 'entry points with specs'),
     docRoutes: docRoutes(),
+    locales: shippedLocales(),
     runtimeDependencies: Object.keys(libPkg.dependencies ?? {}).sort(),
     lintStages: stagesOf(lintScript, scripts),
     prGates: workflowGates(CI_WORKFLOW, scripts),

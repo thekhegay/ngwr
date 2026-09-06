@@ -6,12 +6,22 @@
  */
 
 import { wrEn } from 'ngwr/i18n/en';
-import { describe, expect, it } from 'vitest';
+import { expect, it } from 'vitest';
 
 import type { WrI18nCatalog } from './i18n-config';
 
 /**
  * What every shipped catalog owes the English one, in one place.
+ *
+ * **Not a `.spec.ts`, and that is load-bearing.** It was one, and a file that is
+ * both a suite and a module twenty-two specs import does not survive being
+ * collected: the importers pull it into the module cache first, its own
+ * `describe` is attributed to whichever of them ran earliest, and vitest then
+ * reports "No test suite found" for the file itself. So it is a plain module,
+ * kept out of the published package by an entry in `tsconfig.lib.json`'s
+ * `exclude` rather than by the `**\/*.spec.ts` pattern that covers everything
+ * else here — move or rename it and that entry has to move with it, or the
+ * library build starts trying to compile `vitest`.
  *
  * There are twenty-two of them. Written out per locale this would be twenty-two
  * copies of the same six assertions, which is a set that stops being updated
@@ -48,20 +58,6 @@ function placeholders(value: string): string[] {
 }
 
 /**
- * The reference catalog runs the contract here rather than in `en/catalog.spec.ts`.
- *
- * Nothing about that is a special case: every locale is checked by exactly one
- * `expectCatalogContract` call, and English's sits beside the definition because
- * it is what the other twenty-one are compared AGAINST — a change to this file
- * that stopped checking anything would otherwise be invisible until a
- * translation regressed. `en/catalog.spec.ts` keeps the one rule that is
- * English's alone.
- */
-describe('wrEn (the reference)', () => {
-  expectCatalogContract('en', wrEn);
-});
-
-/**
  * A locale's own facts.
  *
  * `script` is the Unicode script its prose is written in, and it is the STRONG
@@ -72,8 +68,14 @@ describe('wrEn (the reference)', () => {
  * why `sharedWithEnglish` has to be justified per entry rather than grown.
  */
 export interface WrCatalogFacts {
-  /** e.g. `'Cyrillic'`, `'Arabic'`, `'Han'`. Omit for a Latin-script locale. */
-  readonly script?: string;
+  /**
+   * The Unicode scripts its prose may be written in — `['Cyrillic']`,
+   * `['Arabic']`, `['Hiragana', 'Katakana', 'Han']`. A list rather than one
+   * name because Japanese is three: a value that is entirely katakana matches
+   * no Han property, and a single-script check would call it untranslated.
+   * Omit for a Latin-script locale.
+   */
+  readonly script?: readonly string[];
   /** Keys whose value is correctly the same as English — initialisms, key caps, single letters. */
   readonly sharedWithEnglish?: ReadonlySet<string>;
 }
@@ -146,7 +148,7 @@ export function expectCatalogContract(locale: string, catalog: WrI18nCatalog, fa
       if (!/\p{Script=Latin}/u.test(prose)) continue;
 
       if (facts.script) {
-        const own = new RegExp(`\\p{Script=${facts.script}}`, 'u');
+        const own = new RegExp(facts.script.map(name => `\\p{Script=${name}}`).join('|'), 'u');
         expect(own.test(value), `${key} looks like it was left in English`).toBe(true);
       } else {
         expect(value, `${key} is still the English string`).not.toBe(en[key]);

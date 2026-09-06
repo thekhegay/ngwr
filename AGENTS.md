@@ -11,10 +11,10 @@ in the repo_.
 A pnpm + Angular CLI monorepo with two projects:
 
 - **`projects/lib/`** — the published package (`ngwr`). Almost every subfolder is
-  a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **205**
+  a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **225**
   of them (`ngwr/button`, `ngwr/select`, `ngwr/overlay`, …). Counted by
   `ng-package.json`, not by directory: `styles/` and `schematics/` are not entry
-  points, and **seventy-eight** are nested — `ngwr/i18n/{en,ru}`,
+  points, and **ninety-eight** are nested — the twenty-two `ngwr/i18n/<locale>`,
   `ngwr/icon/adapters/{lucide,feather}`, `ngwr/date/adapters/{fns,luxon}`, the two
   opt-in router adapters `ngwr/loading-bar/router` and `ngwr/tabs/router` that v14
   added, and the CDK test harnesses, which now cover
@@ -103,7 +103,25 @@ one component folder. Reach for them instead of hand-rolling:
   folder.
 - **i18n** (`ngwr/i18n`) — the `wrT` pipe + `[wrT]` directive, `WrI18n` service,
   `provideWrI18n()` + `provideWrI18nStaticLoader()`; ngwr's own catalogs at
-  `ngwr/i18n/{ru,en}`. **Since v14 there is ONE locale source and it is Angular's
+  **twenty-two catalogs**, one entry point each (`ngwr/i18n/de`, `ngwr/i18n/ja`,
+  …), so an app pays only for the languages it imports. Codes are LANGUAGES
+  wherever a language is one thing, because the resolver truncates a region to
+  its language and never the reverse — `pt-BR` finds `pt`, while a bare `de`
+  would never reach a `de-DE`; a region appears only where the script differs
+  (`zh` is Simplified, `zh-TW` Traditional, and `zh-HK` / `zh-Hant` need mapping
+  by hand). Every catalog is held to the English key set, to its placeholder
+  set, and to being written in its own script by one shared
+  `expectCatalogContract` in `i18n/catalog-contract.ts` — **not a `.spec.ts`, and
+  that is load-bearing**: a file that is both a suite and a module twenty-two
+  specs import gets its own `describe` attributed to whichever importer ran
+  first, and vitest then reports "No test suite found" for the file itself. It
+  stays out of the package through `tsconfig.lib.json`'s `exclude`, which
+  `package.spec.ts` now READS rather than restating, so the two cannot disagree.
+  What no assertion covers is the thing most likely to be wrong: there is no
+  plural machinery anywhere here, so a count has to be worded correctly for
+  every value in languages with three or six plural forms, and only English
+  morphology makes that mechanically visible. **Since v14 there is ONE locale
+  source and it is Angular's
   `LOCALE_ID`** — `WrI18n`'s `defaultLocale` and `availableLocales`, and
   `WR_DATE_LOCALE` on the date side, all resolve through it rather than through
   `navigator.language` or a literal `'en'`, so an app that sets `LOCALE_ID`
@@ -334,7 +352,7 @@ Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
 (`ngwr/form`), most of the service layer (`ngwr/hotkey`, `ngwr/i18n`,
 `ngwr/media`, `ngwr/platform`, `ngwr/storage`, `ngwr/overlay`, `ngwr/density`,
 `WrWindowManager`, `ngwr/scroll`) and EVERY component with a
-page under `reference/components` — 255 spec files, at least 4470 specs, and
+page under `reference/components` — 275 spec files, at least 4467 specs, and
 **every entry point now has one**. (Both numbers are re-counted by
 `pnpm gen:quality` into `#core/generated/quality`; the spec figure is a FLOOR,
 since one `it.each` site stands for an unknown number of cases.) What is still uncovered is no longer whole
@@ -502,7 +520,7 @@ shipping. Conventional-commit subjects are checked locally (commitlint
 already covers the need, use it — an existing component (check the catalog
 before hand-rolling), `ngwr/utils`, `ngwr/pipes`, `ngwr/validators`, theme
 tokens — rather than hand-rolling raw markup/logic or pulling an external
-library where an internal tool exists. The catalog is large (205 entry points):
+library where an internal tool exists. The catalog is large (225 entry points):
 check before writing a bare `<input type="file">`, a date / number / truncate
 helper, a coercion, an id generator, and so on. New external runtime
 dependencies need a strong justification — the only runtime dependency today is
@@ -852,7 +870,7 @@ arrow) — for version and before/after descriptions.
 
 ## Building components
 
-The catalog is large (205 entry points) and **deliberately consolidated** —
+The catalog is large (225 entry points) and **deliberately consolidated** —
 many "components" are modes or inputs on one host (e.g. `wr-select` covers
 single / multi / search / tag; `wr-date-picker` covers date / time / datetime;
 `wr-popover` has a `tooltip` mode; `wr-drawer` doubles as a bottom-sheet).

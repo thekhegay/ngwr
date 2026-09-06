@@ -344,7 +344,7 @@ describe('WrI18n runtime-switch warning', () => {
  * library asks for a key nobody ships, whether it ships a key nobody asks for,
  * and whether every locale folder is checked at all.
  *
- * Key-set parity and empty values moved to `catalog-contract.spec.ts`, which
+ * Key-set parity and empty values moved to `catalog-contract.ts`, which
  * every locale runs. They were written against `wrEn` and `wrRu` by name, and
  * a pair of hardcoded imports is exactly the shape that stops covering the
  * twenty locales added after it.
