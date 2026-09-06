@@ -6,6 +6,7 @@ import { wrEn } from 'ngwr/i18n/en';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import type { WrPaginationAlign, WrPaginationShape } from './interfaces';
 import { WrPagination } from './pagination';
 
 @Component({
@@ -669,5 +670,48 @@ describe('WrPagination — the range is one catalog template', () => {
     fixture.detectChanges();
 
     expect(text('.wr-pagination__total')).toBe('1–10 of 95');
+  });
+});
+
+/**
+ * Every documented `[align]` and `[shape]`. Both land unconditionally, defaults
+ * included — unlike button and avatar, which withhold the modifier for theirs.
+ * That inconsistency is why each component needs its own spec rather than one
+ * shared assumption about how modifiers work here.
+ */
+describe('WrPagination emits a modifier for every documented align and shape', () => {
+  @Component({
+    imports: [WrPagination],
+    template: `<wr-pagination [total]="100" [pageSize]="10" [align]="align()" [shape]="shape()" />`,
+  })
+  class ModifierHost {
+    readonly align = signal<WrPaginationAlign>('end');
+    readonly shape = signal<WrPaginationShape>('rounded');
+  }
+
+  const ALIGNS: readonly WrPaginationAlign[] = ['start', 'center', 'end'];
+  const SHAPES: readonly WrPaginationShape[] = ['rounded', 'square'];
+  let fixture: ReturnType<typeof TestBed.createComponent<ModifierHost>>;
+  const host = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector('wr-pagination')!;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrI18n(), provideWrI18nStaticLoader({})] });
+    fixture = TestBed.createComponent(ModifierHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it.each(ALIGNS)('align %s', align => {
+    fixture.componentInstance.align.set(align);
+    fixture.detectChanges();
+    expect(host().classList).toContain(`wr-pagination--${align}`);
+  });
+
+  it.each(SHAPES)('shape %s', shape => {
+    fixture.componentInstance.shape.set(shape);
+    fixture.detectChanges();
+    expect(host().classList).toContain(`wr-pagination--${shape}`);
   });
 });
