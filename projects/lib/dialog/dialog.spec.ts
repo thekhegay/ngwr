@@ -479,3 +479,36 @@ describe('WrDialog', () => {
     expect(document.querySelectorAll('.wr-dialog-panel')).toHaveLength(1);
   });
 });
+
+/**
+ * Every documented `[align]` on the footer directive. It is a plain directive
+ * on the consumer's own element, so the modifier is the entire contract — there
+ * is no other observable difference between the three values.
+ */
+describe('WrDialogFooter emits a modifier for every documented align', () => {
+  @Component({
+    imports: [WrDialogFooter],
+    template: `<div wrDialogFooter [align]="align()">Actions</div>`,
+  })
+  class FooterHost {
+    readonly align = signal<'start' | 'center' | 'end'>('end');
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<FooterHost>>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(FooterHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it.each<'start' | 'center' | 'end'>(['start', 'center', 'end'])('align %s', align => {
+    fixture.componentInstance.align.set(align);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('div')!.classList).toContain(
+      `wr-dialog__footer--${align}`
+    );
+  });
+});

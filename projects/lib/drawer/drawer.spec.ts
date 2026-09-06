@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { WrDrawerTitle } from './directives';
+import { WrDrawerFooter, WrDrawerTitle } from './directives';
 import { WrDrawer } from './drawer';
 import type { WrDrawerPosition } from './interfaces';
 
@@ -410,5 +410,37 @@ describe('WrDrawer', () => {
       expect(fixture.componentInstance.open()).toBe(true);
       expect(swipePanel().style.transform).toBe('');
     });
+  });
+});
+
+/**
+ * Every documented `[align]` on the footer directive — the drawer's half of the
+ * pair `wr-dialog` also has, and emitted the same unconditional way.
+ */
+describe('WrDrawerFooter emits a modifier for every documented align', () => {
+  @Component({
+    imports: [WrDrawerFooter],
+    template: `<div wrDrawerFooter [align]="align()">Actions</div>`,
+  })
+  class FooterHost {
+    readonly align = signal<'start' | 'center' | 'end'>('end');
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<FooterHost>>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(FooterHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it.each<'start' | 'center' | 'end'>(['start', 'center', 'end'])('align %s', align => {
+    fixture.componentInstance.align.set(align);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('div')!.classList).toContain(
+      `wr-drawer__footer--${align}`
+    );
   });
 });

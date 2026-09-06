@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrDateAdapter } from 'ngwr/date';
+import type { WrDateFormat } from 'ngwr/date';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
@@ -939,5 +940,65 @@ describe('WrDatePicker retyping its own value', () => {
     expect([picked.getFullYear(), picked.getMonth(), picked.getDate()]).toEqual([2026, 2, 15]);
     expect([picked.getHours(), picked.getMinutes()]).toEqual([15, 30]);
     fixture.destroy();
+  });
+});
+
+/**
+ * Every documented named `[format]`, driven once each.
+ *
+ * The value the FIELD shows is the whole contract of this input — the adapter
+ * builds it from `Intl`, and since v14 parses it back with the same formatter,
+ * so a name that stops resolving does not throw, it silently formats with the
+ * mode default. Only the five date-bearing names are here: `time` and the
+ * time-only pair are the same code path with no date in the output, and the
+ * mode defaults already cover them.
+ */
+describe('WrDatePicker renders every documented named format', () => {
+  @Component({
+    imports: [WrDatePicker],
+    template: `<wr-date-picker mode="datetime" [format]="format()" [(value)]="picked" />`,
+  })
+  class FormatHost {
+    readonly format = signal<WrDateFormat>('shortDate');
+    readonly picked = signal<Date | null>(new Date(2026, 2, 15, 14, 30));
+  }
+
+  const NAMED: readonly WrDateFormat[] = ['shortDate', 'mediumDate', 'longDate', 'shortDateTime', 'mediumDateTime'];
+  let fixture: ReturnType<typeof TestBed.createComponent<FormatHost>>;
+  const field = (): HTMLInputElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input.wr-input')!;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })],
+    });
+    fixture = TestBed.createComponent(FormatHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it.each(NAMED)('%s produces a non-empty field distinct from the raw date', format => {
+    fixture.componentInstance.format.set(format);
+    fixture.detectChanges();
+
+    const shown = field().value;
+    expect(shown.length).toBeGreaterThan(0);
+    // Every named format carries the year and the day; what differs is how much
+    // else. Asserting the exact string would pin `Intl`'s output rather than
+    // ours, and that moves with the ICU data the runtime ships.
+    expect(shown).toContain('2026');
+    expect(shown).toMatch(/15/);
+  });
+
+  it('a datetime name shows a time and a date-only name does not', () => {
+    fixture.componentInstance.format.set('mediumDateTime');
+    fixture.detectChanges();
+    expect(field().value).toMatch(/\d{1,2}:\d{2}/);
+
+    fixture.componentInstance.format.set('mediumDate');
+    fixture.detectChanges();
+    expect(field().value).not.toMatch(/\d{1,2}:\d{2}/);
   });
 });
