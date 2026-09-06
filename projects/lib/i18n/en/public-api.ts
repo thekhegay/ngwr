@@ -82,6 +82,19 @@ export const wrEn: WrI18nCatalog = {
     allDay: 'All day',
     label: 'Calendar',
     more: '+{{count}} more',
+    // The five composed strings below are the same defect `wr-calendar` fixed
+    // one component over: each was a TypeScript template literal, so the month
+    // name and the date came from `Intl` and the ORDER and the punctuation
+    // between them did not. A locale could translate every word in them and
+    // still be stuck with English word order — ja-JP writes 2026年3月.
+    header: '{{month}} {{year}}',
+    range: '{{from}} – {{to}}',
+    // Accessible names, which is why they matter more than they look: these
+    // three are what a screen reader announces for every chip and every cell in
+    // the grid, so a frozen separator is heard on every one of them.
+    chipLabel: '{{title}}, {{time}}',
+    slotLabel: '{{time}} — {{date}}',
+    allDayCellLabel: '{{label}} — {{date}}',
   },
   tour: {
     next: 'Next',
@@ -303,6 +316,11 @@ export const wrEn: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Line chart',
+    // The Y-axis tick abbreviation. `k` is a Latin convention — ru writes
+    // `тыс.` — and the axis had it hardcoded, so it was the one number on the
+    // chart no locale could reach. The digits go through `Intl.NumberFormat`,
+    // so the catalog owns the suffix and whether a space sits before it.
+    thousands: '{{value}}k',
   },
   donutChart: {
     label: 'Donut chart',

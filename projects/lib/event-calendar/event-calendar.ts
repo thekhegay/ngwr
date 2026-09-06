@@ -243,6 +243,15 @@ export class WrEventCalendar {
   protected readonly allDayLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.allDay', 'All day');
   protected readonly timeLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.time', 'Time');
   protected readonly moreLabel = useI18nFormatter('eventCalendar.more', '+{{count}} more');
+  // The five composed strings. Each was a template literal, which localises the
+  // words inside it and freezes the word ORDER and the punctuation between them
+  // — `wr-calendar` learned the same thing one component over and its
+  // `calendar.header` / `.yearRange` / `.dayLabel` are the shape copied here.
+  private readonly headerText = useI18nFormatter('eventCalendar.header', '{{month}} {{year}}');
+  private readonly rangeText = useI18nFormatter('eventCalendar.range', '{{from}} – {{to}}');
+  private readonly chipLabelText = useI18nFormatter('eventCalendar.chipLabel', '{{title}}, {{time}}');
+  private readonly slotLabelText = useI18nFormatter('eventCalendar.slotLabel', '{{time}} — {{date}}');
+  private readonly allDayCellText = useI18nFormatter('eventCalendar.allDayCellLabel', '{{label}} — {{date}}');
   private readonly monthLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.month', 'Month');
   private readonly weekLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.week', 'Week');
   private readonly dayLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.day', 'Day');
@@ -348,10 +357,13 @@ export class WrEventCalendar {
       case 'week': {
         const [start] = this.range();
         const last = this.adapter.addDays(start, DAYS_PER_WEEK - 1);
-        return `${this.adapter.format(start, 'mediumDate')} – ${this.adapter.format(last, 'mediumDate')}`;
+        return this.rangeText({
+          from: this.adapter.format(start, 'mediumDate'),
+          to: this.adapter.format(last, 'mediumDate'),
+        });
       }
       default:
-        return `${months[this.adapter.getMonth(anchor)]} ${this.adapter.getYear(anchor)}`;
+        return this.headerText({ month: months[this.adapter.getMonth(anchor)], year: this.adapter.getYear(anchor) });
     }
   });
 
@@ -427,7 +439,7 @@ export class WrEventCalendar {
     return days.map((date, col) => ({
       key: this.iso(date),
       date,
-      label: `${this.allDayLabel()} — ${this.adapter.format(date, 'longDate')}`,
+      label: this.allDayCellText({ label: this.allDayLabel(), date: this.adapter.format(date, 'longDate') }),
       bands: chips.filter(chip => chip.column === col),
     }));
   });
@@ -459,7 +471,7 @@ export class WrEventCalendar {
         cells: days.map((date, col) => ({
           key: `${this.iso(date)}:${minutes}`,
           date,
-          label: `${clock} — ${dayLabels[col]}`,
+          label: this.slotLabelText({ time: clock, date: dayLabels[col] }),
           chips: placed[col].filter(chip => chip.slotMinutes === minutes).map(chip => chip.chip),
         })),
       });
@@ -834,7 +846,7 @@ export class WrEventCalendar {
 
   protected chipLabel(event: WrCalendarEvent): string {
     const time = event.allDay ? this.allDayLabel() : this.adapter.format(event.start, 'time');
-    return `${event.title}, ${time}`;
+    return this.chipLabelText({ title: event.title, time });
   }
 
   protected chipTime(event: WrCalendarEvent): string {

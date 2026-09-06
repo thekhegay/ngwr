@@ -6,9 +6,9 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ElementRef, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
+import { Component, ElementRef, LOCALE_ID, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
 
-import { useI18nText } from 'ngwr/i18n';
+import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 
 import type { WrLineSeries } from './interfaces';
 
@@ -54,6 +54,9 @@ export class WrLineChart {
   readonly ariaLabel = input<string | null>(null);
 
   protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'lineChart.label', 'Line chart');
+
+  private readonly locale = inject(LOCALE_ID);
+  private readonly thousandsText = useI18nFormatter('lineChart.thousands', '{{value}}k');
 
   /** Labels for the X axis (one per data point). */
   readonly xLabels = input<readonly string[]>([]);
@@ -230,9 +233,29 @@ export class WrLineChart {
     this.hoveredIndex.set(null);
   }
 
+  /**
+   * A Y-axis tick, in the reader's own language.
+   *
+   * Two halves and both were English. The `k` was a hardcoded Latin
+   * abbreviation — `тыс.` in Russian — so it goes through the catalog like every
+   * other word the library paints. The digits went through `toFixed`, which
+   * always writes a full stop, so a German axis read `1.5` where the rest of the
+   * page read `1,5`; they go through `Intl` now, the way `wrNumber`, `wrDate`
+   * and `wrPlural` already did.
+   *
+   * Grouping is OFF deliberately: a tick is a short axis label, and `5,000k`
+   * would be both wider and a change to what every existing chart draws.
+   */
   protected formatTick(v: number): string {
-    if (Math.abs(v) >= 1000) return `${(v / 1000).toFixed(v % 1000 === 0 ? 0 : 1)}k`;
-    return v.toFixed(v % 1 === 0 ? 0 : 1);
+    const digits = (n: number, fraction: number): string =>
+      new Intl.NumberFormat(this.locale, {
+        useGrouping: false,
+        minimumFractionDigits: fraction,
+        maximumFractionDigits: fraction,
+      }).format(n);
+
+    if (Math.abs(v) >= 1000) return this.thousandsText({ value: digits(v / 1000, v % 1000 === 0 ? 0 : 1) });
+    return digits(v, v % 1 === 0 ? 0 : 1);
   }
 
   protected readonly viewBox = computed(() => `0 0 ${this.vbW} ${this.vbH}`);

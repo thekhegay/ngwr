@@ -9,6 +9,7 @@ import { Subject } from 'rxjs';
 
 import { WrDateAdapter } from 'ngwr/date';
 import { provideWrDateFnsAdapter } from 'ngwr/date/adapters/fns';
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrEventCalendar } from './event-calendar';
@@ -648,5 +649,106 @@ describe('the event-calendar stylesheet', () => {
 
     expect(rule).toMatch(/cursor:\s*grab;/);
     expect(rule).toMatch(/touch-action:\s*none;/);
+  });
+});
+
+/**
+ * The five strings this component COMPOSES, rather than the words inside them.
+ *
+ * Each was a TypeScript template literal, so the month name and the date came
+ * from `Intl` and the ORDER and the punctuation between them did not — a locale
+ * could translate every word in the header and still be stuck reading
+ * "March 2026" where it writes 2026年3月. `wr-calendar` had already learned this
+ * one component over; these are the four that had not.
+ *
+ * Three of the five are ACCESSIBLE NAMES, which is why the assertions read
+ * `aria-label` rather than text: they are what a screen reader announces for
+ * every chip and every cell in the grid, so a frozen separator is heard on
+ * every one of them and is visible in no screenshot.
+ *
+ * The catalog here deliberately reorders and re-punctuates rather than
+ * translating: a test that swapped English words for Russian ones would pass
+ * just as well against the old template literals, which already interpolated
+ * translated words. Word ORDER is the thing that could not be reached before.
+ */
+describe('WrEventCalendar composes its strings from the catalog', () => {
+  const CATALOG = {
+    eventCalendar: {
+      header: '{{year}}年{{month}}',
+      range: '{{from}} ~ {{to}}',
+      chipLabel: '{{time}} · {{title}}',
+      slotLabel: '{{date}} @ {{time}}',
+      allDayCellLabel: '{{date}} / {{label}}',
+    },
+  };
+
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const title = (): string => root().querySelector('.wr-event-calendar__title')!.textContent.trim();
+
+  const mount = async (view: WrCalendarView, events = EVENTS): Promise<void> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrDateFnsAdapter(),
+        provideWrI18n({ defaultLocale: 'xx', availableLocales: ['xx'] }),
+        provideWrI18nStaticLoader({ xx: CATALOG }),
+      ],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.view.set(view);
+    fixture.componentInstance.events.set(events);
+    fixture.detectChanges();
+    // The static loader resolves a microtask after construction, and the header
+    // reads the catalog through `useI18nFormatter` — so a synchronous
+    // `detectChanges` alone can render the English fallback and pass for the
+    // wrong reason.
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('puts the month view header in the order the catalog asks for', async () => {
+    await mount('month');
+    // Year first, then the month name, with no space — the exact thing a
+    // `${month} ${year}` template literal cannot be talked into.
+    expect(title()).toMatch(/^\d{4}年[A-Za-z]+$/);
+  });
+
+  it('punctuates the week view range the way the catalog does', async () => {
+    await mount('week');
+    expect(title()).toContain(' ~ ');
+    expect(title()).not.toContain(' – ');
+  });
+
+  it("names a chip in the catalog's order, not title-then-time", async () => {
+    await mount('week');
+    const chip = [...root().querySelectorAll('.wr-event-calendar__chip')].find(c =>
+      (c.getAttribute('aria-label') ?? '').includes('Standup')
+    );
+    expect(chip?.getAttribute('aria-label')).toMatch(/^\d.* · Standup$/);
+  });
+
+  it("names a time slot and an all-day band in the catalog's order", async () => {
+    // The all-day row renders only when something is in it, so this view has to
+    // be given an all-day event before the band exists to be named.
+    await mount('week', [...EVENTS, { id: 'ooo', title: 'Offsite day', start: AT(14), end: AT(14), allDay: true }]);
+    const labels = [...root().querySelectorAll('[role="gridcell"]')]
+      .map(cell => cell.getAttribute('aria-label'))
+      .filter(label => label !== null);
+
+    // The date now leads both, where the component used to put the time and the
+    // "All day" label first. `All day` itself stays English: the catalog above
+    // overrides only the five composed templates, which is the point — the
+    // WORDS were always reachable and the order was not.
+    expect(
+      labels.some(label => label.includes(' @ ')),
+      'no slot used the catalog template'
+    ).toBe(true);
+    expect(
+      labels.some(label => label.endsWith(' / All day')),
+      'no all-day band used it'
+    ).toBe(true);
   });
 });

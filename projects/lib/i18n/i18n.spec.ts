@@ -340,25 +340,20 @@ describe('WrI18n runtime-switch warning', () => {
 });
 
 /**
- * The two shipped catalogs have to describe the same keys. A key added to `wrEn`
- * alone is invisible: `useI18nText` treats "translation === key" as missing and
- * quietly substitutes the component's English default, so a Russian app renders
- * English with nothing anywhere reporting a gap — and no build gate compares the
- * two files.
+ * What is left here is what only a walk of the SOURCE can answer: whether the
+ * library asks for a key nobody ships, whether it ships a key nobody asks for,
+ * and whether every locale folder is checked at all.
+ *
+ * Key-set parity and empty values moved to `catalog-contract.spec.ts`, which
+ * every locale runs. They were written against `wrEn` and `wrRu` by name, and
+ * a pair of hardcoded imports is exactly the shape that stops covering the
+ * twenty locales added after it.
  */
 describe('the shipped catalogs', () => {
   const keysOf = (node: unknown, prefix = ''): string[] =>
     Object.entries(node as Record<string, unknown>).flatMap(([key, value]) =>
       value !== null && typeof value === 'object' ? keysOf(value, `${prefix}${key}.`) : [`${prefix}${key}`]
     );
-
-  it('cover exactly the same keys in both locales', () => {
-    const en = keysOf(wrEn);
-    const ru = keysOf(wrRu);
-
-    expect(en.length).toBeGreaterThan(100);
-    expect([...ru].sort()).toEqual([...en].sort());
-  });
 
   it('carry every key the library actually asks for', () => {
     // Parity between the two catalogs says nothing about a key NEITHER of them
@@ -529,18 +524,40 @@ describe('the shipped catalogs', () => {
     expect(unread, 'catalog keys nothing in the library reads').toEqual([]);
   });
 
-  it('leave no value empty, in either locale', () => {
-    // An empty string resolves as a real translation rather than a miss, so it
-    // reaches the DOM — as a nameless button, in the aria cases.
-    for (const [locale, catalog] of [
-      ['en', wrEn],
-      ['ru', wrRu],
-    ] as const) {
-      const empty = keysOf(catalog).filter(key => {
-        const value = key.split('.').reduce<unknown>((node, part) => (node as Record<string, unknown>)[part], catalog);
-        return typeof value === 'string' && value.trim() === '';
-      });
-      expect(empty, `${locale} has empty values`).toEqual([]);
+  /**
+   * Every locale folder is held to the contract by a `catalog.spec.ts` beside
+   * it — and this is what says so.
+   *
+   * A locale added without one is checked by nothing at all, and it would not
+   * look wrong from anywhere: the package builds, `gen-i18n-json.ts` discovers
+   * the folder on its own and emits its JSON, and the app renders whatever is
+   * in it. Same rule `check:layout` follows for a target that matches nothing —
+   * a gate that quietly stops looking at something is worse than one that
+   * fails.
+   *
+   * Anchored on the workspace root walked up from `process.cwd()`, never on
+   * `import.meta.url`: the builder bundles specs, and that URL points inside
+   * the bundle.
+   */
+  it('holds every shipped locale to the catalog contract', () => {
+    let dir = process.cwd();
+    for (;;) {
+      if (existsSync(join(dir, 'pnpm-workspace.yaml')) && existsSync(join(dir, 'angular.json'))) break;
+      const up = dirname(dir);
+      if (up === dir) throw new Error(`no workspace root above ${process.cwd()}`);
+      dir = up;
     }
+
+    const root = join(dir, 'projects/lib/i18n');
+    const locales = readdirSync(root, { withFileTypes: true })
+      .filter(entry => entry.isDirectory() && existsSync(join(root, entry.name, 'public-api.ts')))
+      .map(entry => entry.name)
+      .sort();
+
+    expect(locales.length, 'no locale folders found — the path this walks must be wrong').toBeGreaterThan(1);
+    expect(
+      locales.filter(locale => !existsSync(join(root, locale, 'catalog.spec.ts'))),
+      'locale folders with no catalog.spec.ts beside them'
+    ).toEqual([]);
   });
 });

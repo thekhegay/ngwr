@@ -8,25 +8,20 @@ Sizes are S / M / L / XL.
 
 ## Order
 
-1. **C7** — Menubar
+1. **E7** — Locale packs (in progress)
 2. **D6** — High-contrast rendering (`prefers-contrast: more` first)
 
 Two notes, then it stands:
 
-- **Nothing is blocked any more.** C7 was waiting on a rebuild onto
-  `@angular/aria` that is no longer planned, and C3 turned out to be shipped
-  already — both are in [Non-goals](#non-goals-researched-rejected).
+- **Nothing is blocked, and section C is empty.** C3 turned out to be shipped
+  already and C7 is cancelled — both are in
+  [Non-goals](#non-goals-researched-rejected); C9 and C10 are
+  [Deferred](#deferred).
 - **Sections A and B are closed.** Mode coverage and the SSR remainder finished
   A; `ngwr/schema-form` finished B.
 
 Everything below the Order is open but unscheduled; everything under
 [Deferred](#deferred) is explicitly not now.
-
-## C — Data-heavy + missing components
-
-- [ ] **C7. Menubar** (M) — horizontal app menu with submenus: roving focus,
-      typeahead, submenu orchestration. Completes dropdown / context-menu into a
-      menu family.
 
 ## D — Theming & visuals
 
@@ -108,8 +103,8 @@ Open and researched, explicitly not now.
 Nothing is hard-blocked.
 
 - **D5** — blocked in practice on D2.
-- Everything else is unblocked, including C7, which was held for a rebuild that
-  is no longer planned.
+- **E7** — the audit for hard-coded English comes first; a pack only multiplies
+  what is actually wired up.
 
 ## Non-goals (researched, rejected)
 
@@ -155,6 +150,18 @@ Nothing is hard-blocked.
 
   Not a permanent no: revisit per component if one is ever built where the
   interaction model IS the work, and reopen if Material adopts it.
+- **Menubar** — was C7, cancelled 2026-09-06. The item's own pitch was that it
+  "completes dropdown / context-menu into a menu family", and the family turned
+  out to be the part already built: `wr-context-menu-item` takes a nested
+  `[submenu]` that opens as its own overlay pane on hover, with an open delay and
+  a close grace window, and `context-menu/menu-focus.ts` implements the APG menu
+  pattern — one tab stop per pane, arrows / Home / End roving over the enabled
+  rows, CDK's keyboard dispatcher routing to whichever pane is on top. What a
+  menubar would add over that is a horizontal strip of triggers and typeahead
+  (which nothing in the library has today). That is a desktop-application idiom;
+  a web app spells the same thing as a nav bar plus dropdowns, and both ship.
+  Reopen only for a concrete app-shell request, and lift the submenu machinery
+  rather than rebuilding it.
 - **Copy-paste-only distribution** — weak traction in Angular; E6 hybrid instead.
 - **A proprietary chart engine, or an AG-Grid feature chase.**
 - **Runtime CSS-in-JS** — CSS custom properties are already the right model.

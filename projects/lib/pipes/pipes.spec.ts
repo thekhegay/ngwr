@@ -1,8 +1,8 @@
-import { SecurityContext } from '@angular/core';
+import { LOCALE_ID, SecurityContext } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { WrBytes } from './bytes';
 import { WrMark } from './mark';
@@ -10,19 +10,37 @@ import { WrPlural } from './plural';
 import { WrRange } from './range';
 import { WrTruncate } from './truncate';
 
+/**
+ * `wrBytes` is the one formatting pipe here that used to ignore `LOCALE_ID`, so
+ * half of what follows is about a locale other than English. It is constructed
+ * inside an injection context for that reason — a bare `new WrBytes()` cannot
+ * reach the token, which is itself the tell that the pipe now depends on one.
+ */
 describe('wrBytes', () => {
-  const pipe = new WrBytes();
+  // Reset first: the module is instantiated the moment one pipe is built, and a
+  // second locale in the same test would otherwise be refused rather than
+  // silently reusing the first — which is the more useful failure, but not the
+  // one this file wants.
+  const bytes = (locale: string): WrBytes => {
+    TestBed.resetTestingModule();
+    return TestBed.configureTestingModule({
+      providers: [{ provide: LOCALE_ID, useValue: locale }],
+    }).runInInjectionContext(() => new WrBytes());
+  };
+
+  let pipe: WrBytes;
+  beforeEach(() => (pipe = bytes('en-US')));
 
   it('picks the unit by magnitude', () => {
     expect(pipe.transform(512)).toBe('512 B');
-    expect(pipe.transform(1024)).toBe('1.0 KB');
+    expect(pipe.transform(1024)).toBe('1.0 kB');
     expect(pipe.transform(1024 ** 2)).toBe('1.0 MB');
     expect(pipe.transform(1024 ** 3)).toBe('1.0 GB');
   });
 
   it('never shows a fraction of a byte', () => {
-    // 1.5 bytes is not a thing; the decimals argument only applies from KB up.
-    expect(pipe.transform(1536, 2)).toBe('1.50 KB');
+    // 1.5 bytes is not a thing; the decimals argument only applies from kB up.
+    expect(pipe.transform(1536, 2)).toBe('1.50 kB');
     expect(pipe.transform(999, 2)).toBe('999 B');
   });
 
@@ -32,7 +50,7 @@ describe('wrBytes', () => {
 
   it('rounds a sub-byte value up to the smallest unit it knows', () => {
     // A fraction of a byte is still bytes: the unit index has a floor as well as
-    // a cap, or `UNITS[-1]` reaches the DOM as the literal text "undefined".
+    // a cap, or `UNITS[-1]` reaches `Intl` as `undefined` and it throws.
     expect(pipe.transform(0.5)).toBe('1 B');
     expect(pipe.transform(0.9999)).toBe('1 B');
     expect(pipe.transform(0.001)).toBe('0 B');
@@ -46,6 +64,26 @@ describe('wrBytes', () => {
     expect(pipe.transform(0)).toBe('0 B');
     expect(pipe.transform(-5)).toBe('0 B');
     expect(pipe.transform('nonsense')).toBe('0 B');
+  });
+
+  it('writes the number the way the locale writes numbers', () => {
+    // The half that was a plain bug rather than a translation gap: `toFixed`
+    // writes a full stop in every language, so a German page read `1.2 kB`
+    // beside its own `1,2` everywhere else.
+    expect(bytes('de-DE').transform(1536)).toBe('1,5 kB');
+    expect(bytes('fr-FR').transform(1536, 2)).toBe('1,50 ko');
+  });
+
+  it('takes the unit abbreviation from the locale, not from English', () => {
+    expect(bytes('ru-RU').transform(1536)).toBe('1,5 кБ');
+    expect(bytes('fr-FR').transform(512)).toBe('512 o');
+  });
+
+  it('leaves the number and unit in the order the locale puts them', () => {
+    // Hebrew writes the unit first. Reassembling as `${n} ${unit}` would
+    // straighten every such locale into English order without anyone noticing,
+    // which is why the parts are rejoined rather than the string rebuilt.
+    expect(bytes('he-IL').transform(512)).toBe('B 512');
   });
 });
 
