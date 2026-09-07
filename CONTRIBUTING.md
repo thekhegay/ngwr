@@ -22,22 +22,20 @@ pnpm lint             # eslint (lib + showcase + scripts) + stylelint + four rep
 pnpm icons:sets       # rebuild showcase icon catalogs (also runs on postinstall)
 ```
 
-Requirements:
+**Requirements: read them from `package.json`, not from here.** `engines` names
+the Node and pnpm ranges, `packageManager` the exact pnpm corepack fetches, and
+`.nvmrc` the Node version CI runs. No number is repeated in this document on
+purpose — every copy of a version is correct only until someone bumps the
+original, and this block was wrong about all four of its facts for exactly that
+reason.
 
-- Node `^22.22.3 || ^24.15.0 || ^26.0.0` — Angular 22's own range, copied
-  rather than invented. `.nvmrc` pins 26; the other two are LTS lines a nightly
-  job keeps honest.
-- pnpm `^12.3.4`, pinned via `packageManager`: `pnpm@12.3.4`. Run through
-  corepack and you get exactly that version.
-
-They are enforced by different things, which is worth knowing when one of them
-lets you through. Node is checked by `devEngines.runtime` in `package.json` —
-an unsupported runtime fails the install with a clear message. The pnpm version
-is not checked there at all; `packageManager` is what pins it, and corepack
-fetches exactly that. **Neither is enforced by `.npmrc`**, which is deliberately
-empty of settings: it carried `engine-strict=true` until the bump to pnpm 12
-silently made that a no-op, because pnpm 12 reads none of its own behaviour from
-that file.
+What is worth knowing here is what ENFORCES them, because the two are enforced
+differently. Node is checked by `devEngines.runtime`: an unsupported runtime
+fails `pnpm install` with a clear message. The pnpm version is not checked there
+at all — `packageManager` pins it and corepack fetches that exact build.
+**Neither is enforced by `.npmrc`**, which is deliberately empty of settings: it
+carried `engine-strict=true` until the bump to pnpm 12 silently made that a
+no-op, because pnpm 12 reads none of its own behaviour from that file.
 
 ## Filing issues
 

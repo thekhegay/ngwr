@@ -165,7 +165,7 @@ describe('the published manifest', () => {
   it('marks a peer optional only when whole entry points, not the core, need it', () => {
     // `@angular/router` is optional because only tabs, sidebar, breadcrumbs and
     // loading-bar import it — an app with no routing installs nothing extra. The
-    // three below are the same shape (pick an icon set, pick a date library).
+    // two date libraries are the same shape: pick one, or neither.
     // `@angular/forms` is NOT here: `ngwr/form` imports NgControl and every value
     // control has `FormValueControl` in its public `implements` clause.
     const optional = Object.entries(manifest.peerDependenciesMeta ?? {})
@@ -173,7 +173,30 @@ describe('the published manifest', () => {
       .map(([name]) => name)
       .sort();
 
-    expect(optional).toEqual(['@angular/router', 'date-fns', 'lucide', 'luxon']);
+    expect(optional).toEqual(['@angular/router', 'date-fns', 'luxon']);
+  });
+
+  it('declares a peer only for a package the shipped source imports', () => {
+    // The other direction of the check above, and the one `lucide` failed for as
+    // long as it was listed. An ICON set is not a peer dependency: the adapters
+    // take the icon data as an ARGUMENT — `lucideIcons({ Plus })`, `feather(…)`
+    // — so `icon/adapters/lucide/adapter.ts` imports nothing but `WrIconDef`,
+    // and the only `from 'lucide'` in the tree is inside a template literal that
+    // `ng g ngwr:icon-set` writes into the CONSUMER's project. Compare
+    // `date/adapters/fns`, which really does `import { … } from 'date-fns'` and
+    // is therefore really a peer.
+    //
+    // A range on a package the library never loads is not a hint, it is a
+    // resolvable constraint: npm 7+ installs optional peers when present and
+    // errors on a conflict, so `>=1.0.0` could fail an install over a package
+    // ngwr does not touch. Every icon set is optional in the same way — the ones
+    // that ship plain SVG (tabler, phosphor, heroicons, …) go through
+    // `svgIcon()` and were never declared either, which is the consistent
+    // treatment this restores.
+    const imported = importedPackages();
+    const undeclared = Object.keys(manifest.peerDependencies).filter(name => !imported.has(name));
+
+    expect(undeclared).toEqual([]);
   });
 });
 
@@ -298,15 +321,15 @@ describe('component stylesheets', () => {
  * stops the two drifting apart the next time a range moves.
  */
 describe('the root manifest declares one toolchain, not three', () => {
-  const root = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {
+  const manifestRoot = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {
     engines: { node: string; pnpm: string };
     devEngines: { runtime: { name: string; version: string; onFail: string } };
     packageManager: string;
   };
 
   it('enforces exactly the Node range it advertises', () => {
-    expect(root.devEngines.runtime.name).toBe('node');
-    expect(root.devEngines.runtime.version).toBe(root.engines.node);
+    expect(manifestRoot.devEngines.runtime.name).toBe('node');
+    expect(manifestRoot.devEngines.runtime.version).toBe(manifestRoot.engines.node);
   });
 
   it('leaves the pnpm version to corepack rather than to devEngines', () => {
@@ -317,8 +340,8 @@ describe('the root manifest declares one toolchain, not three', () => {
     // hook, which is how this was found. Nothing is lost: `packageManager` is
     // the pin corepack actually enforces, and the range below is what refuses
     // an older one.
-    expect(root.devEngines).not.toHaveProperty('packageManager');
-    expect(root.packageManager).toMatch(/^pnpm@\d+\.\d+\.\d+$/);
+    expect(manifestRoot.devEngines).not.toHaveProperty('packageManager');
+    expect(manifestRoot.packageManager).toMatch(/^pnpm@\d+\.\d+\.\d+$/);
   });
 
   it('fetches a pnpm that satisfies its own range', () => {
@@ -331,15 +354,40 @@ describe('the root manifest declares one toolchain, not three', () => {
     // passed vacuously: `'^12.3.4'.includes('12.3.4')` is true, and so is
     // `'^12.3.40'.includes('12.3.4')` — the one check standing against drift
     // reported green on the drift itself.
-    const [name, version] = root.packageManager.split('@');
+    const [name, version] = manifestRoot.packageManager.split('@');
     expect(name).toBe('pnpm');
-    expect(semver.satisfies(version, root.engines.pnpm)).toBe(true);
+    expect(semver.satisfies(version, manifestRoot.engines.pnpm)).toBe(true);
   });
 
   it('fails the install rather than warning about it', () => {
     // `onFail: 'warn'` would print a line nobody reads in CI and carry on,
     // which is the state this repository was already in by accident.
-    expect(root.devEngines.runtime.onFail).toBe('error');
+    expect(manifestRoot.devEngines.runtime.onFail).toBe('error');
+  });
+
+  it('is the only place the toolchain versions are written down', () => {
+    // Every version this repo pins lives in `package.json`; the prose files
+    // point at it. That is not tidiness — CONTRIBUTING.md restated the Node
+    // range, the `.nvmrc` value, the enforcement mechanism and the pnpm version,
+    // and was wrong about all four at once, because a copy stays correct only
+    // until someone bumps the original and forgets the copies.
+    //
+    // Matched as literals rather than by pattern: a document may legitimately
+    // discuss a version in prose (why TypeScript is held below 7, what a
+    // `@types/node` experiment showed). What must not reappear is THIS
+    // repository's own pinned ranges, restated as fact.
+    const root = process.cwd();
+    const pinned = [manifestRoot.engines.node, manifestRoot.engines.pnpm, manifestRoot.packageManager];
+
+    const offenders: string[] = [];
+    for (const doc of ['README.md', 'CONTRIBUTING.md', 'AGENTS.md']) {
+      const text = readFileSync(join(root, doc), 'utf8');
+      for (const value of pinned) {
+        if (text.includes(value)) offenders.push(`${doc} restates "${value}"`);
+      }
+    }
+
+    expect(offenders).toEqual([]);
   });
 
   it('keeps no pnpm setting in .npmrc, where pnpm 12 would not read it', () => {
