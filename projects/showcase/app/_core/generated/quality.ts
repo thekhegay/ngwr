@@ -89,6 +89,8 @@ export const QUALITY = {
 
   /** The same, from `.github/workflows/nightly.yml`. `build:showcase` is on the list because the workflow runs it: all three checks read `dist/showcase` and cannot start without it. They each need a real browser and hundreds of page loads, which is what keeps them off the PR path — so a green PR says nothing about painted contrast or RTL overflow. */
   nightlyGates: [
+    { name: "test", command: "ng test lib" },
+    { name: "build:lib", command: "ng build lib && tsx scripts/gen-ai-assets.ts && tsx scripts/copy-dist-assets.ts && tsx scripts/gen-i18n-json.ts && tsx scripts/build-schematics.ts && tsx scripts/build-mcp.ts" },
     { name: "build:showcase", command: "tsx scripts/gen-selectors.ts && tsx scripts/gen-css-vars.ts && tsx scripts/gen-quality.ts && tsx scripts/gen-ai-assets.ts && tsx scripts/build-showcase.ts && tsx scripts/gen-sitemap.ts && tsx scripts/gen-md-docs.ts" },
     { name: "check:contrast", command: "tsx scripts/check-contrast.ts" },
     { name: "check:state-a11y", command: "tsx scripts/check-state-a11y.ts" },

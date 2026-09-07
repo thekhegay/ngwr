@@ -46,7 +46,8 @@
             "runner": "vitest",
             "tsConfig": "projects/lib/tsconfig.spec.json",
             "buildTarget": "lib:build:development",
-            "include": ["**/*.spec.ts"]
+            "include": ["**/*.spec.ts"],
+            "setupFiles": ["projects/lib/vitest-setup.ts"]
           }
         }
       }

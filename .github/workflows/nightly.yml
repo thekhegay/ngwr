@@ -52,6 +52,39 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # The OTHER half of `engines`, which nothing else exercises.
+  #
+  # `package.json` accepts `^24.16.0 || >=26.0.0` and every other job now runs
+  # 26, so a contributor or a CI consumer on the LTS line would be relying on a
+  # claim no run has checked since the pin moved. Node 24 is Active LTS until
+  # 2028, which is longer than 26 has existed, so "supported" has to keep
+  # meaning something.
+  #
+  # Nightly rather than on a pull request for the usual reason: a second full
+  # suite on every PR buys minutes to catch a class of break that arrives with a
+  # dependency bump, not with a component change. Lint and the builds are left
+  # to the PR job — what is version-specific is the RUNTIME, so this runs the
+  # tests and the library build and nothing else.
+  legacy-node:
+    name: Node 24 (the LTS half of engines)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm test
+
+      - run: pnpm build:lib
+
   contrast:
     name: Contrast & target size
     runs-on: ubuntu-latest
@@ -65,7 +98,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 26
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
@@ -111,7 +144,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 26
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
@@ -154,7 +187,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 26
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
@@ -188,7 +221,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 26
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
