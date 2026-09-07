@@ -182,6 +182,30 @@ class MixedHost {
   readonly size = signal<unknown>(null);
 }
 
+/** 500 dynamic options with no projected children — the shape that turns virtual scrolling on. */
+@Component({
+  imports: [WrSelect],
+  template: `
+    <wr-select
+      mode="search"
+      ariaLabel="City"
+      virtualScroll
+      [rowHeight]="rowHeight()"
+      [viewportHeight]="viewportHeight()"
+      [overscan]="overscan()"
+      [options]="cities()"
+      [(value)]="city"
+    />
+  `,
+})
+class VirtualHost {
+  readonly cities = signal<readonly string[]>(Array.from({ length: 500 }, (_, i) => `City ${i}`));
+  readonly rowHeight = signal(20);
+  readonly viewportHeight = signal<number | string>(200);
+  readonly overscan = signal(2);
+  readonly city = signal<unknown>(null);
+}
+
 @Component({
   imports: [WrSelect],
   template: `<wr-select mode="search" ariaLabel="Size" [debounceMs]="0" [loader]="load" [(value)]="size" />`,
@@ -202,6 +226,20 @@ class LoaderHost {
     }
     return [`item for ${query}`];
   };
+}
+
+/** Search with `freeText` — the autocomplete tier, where an unmatched query IS the value. */
+@Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select mode="search" freeText ariaLabel="City" [(value)]="city">
+      <wr-option value="paris">Paris</wr-option>
+      <wr-option value="berlin">Berlin</wr-option>
+    </wr-select>
+  `,
+})
+class FreeTextHost {
+  readonly city = signal<unknown>(null);
 }
 
 @Component({
@@ -2205,5 +2243,389 @@ describe('WrSelect announces its autocomplete behaviour', () => {
     const el = combobox()!;
     expect(el.tagName).not.toBe('INPUT');
     expect(el.hasAttribute('aria-autocomplete')).toBe(false);
+  });
+});
+
+/**
+ * Virtual scrolling over a DYNAMIC option array, which is the tier the input
+ * documents and the one nothing drove.
+ *
+ * The block above covers the FALLBACK — `virtualScroll` with grouped projected
+ * children renders the group whole and no window at all — so what was untested
+ * was every case where the window actually engages. That is a mode, not a
+ * branch: rows stop being `<wr-option>` components and become plain
+ * `role="option"` elements navigated by `aria-activedescendant`, which is a
+ * different keyboard model and a different id scheme from the rest of the
+ * component.
+ *
+ * `rowHeight` is bound rather than measured. jsdom reports every row as 0px
+ * tall, so the component's own measurement would fall back to a constant and
+ * every number below would be describing that constant instead of the input —
+ * a test that passes identically whether or not `rowHeight` is read.
+ */
+describe('WrSelect virtual scrolling over a dynamic list', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<VirtualHost>>;
+
+  const field = (): HTMLInputElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('.wr-select__search-input')!;
+  const rows = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('[role="option"]')];
+  const labels = (): string[] => rows().map(r => r.textContent.trim());
+  const vlist = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-select-panel__vlist');
+  const activeLabel = (): string | null => {
+    const id = field().getAttribute('aria-activedescendant');
+    return id ? (document.getElementById(id)?.textContent?.trim() ?? null) : null;
+  };
+  const press = (key: string): void => {
+    field().dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+  const type = (value: string): void => {
+    const input = field();
+    input.value = value;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+  };
+  /**
+   * Scroll the virtual list, the way a wheel or a scrollbar would.
+   *
+   * Async on purpose, and both waits are load-bearing: the component attaches
+   * its `scroll` listener from a `queueMicrotask` once the overlay portal is
+   * up, and the handler coalesces through `requestAnimationFrame`. Dispatching
+   * synchronously hits an element nothing is listening to, and the window never
+   * moves — which reads as "virtualisation is broken" rather than "the test
+   * scrolled too early".
+   */
+  const scrollTo = async (top: number): Promise<void> => {
+    await fixture.whenStable();
+    const list = vlist()!;
+    Object.defineProperty(list, 'scrollTop', { value: top, configurable: true, writable: true });
+    list.dispatchEvent(new Event('scroll'));
+    await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+    fixture.detectChanges();
+  };
+
+  /**
+   * jsdom implements no scrolling API on `Element`, and the virtual list calls
+   * `scrollTo` on itself to keep the active row in view whenever the window
+   * moves — so without this every re-filter throws asynchronously, which vitest
+   * reports as an unhandled error rather than a failed assertion. Stubbed the
+   * way `setPointerCapture` is in `window.spec.ts`, and restored afterwards so
+   * the patch cannot outlive this block.
+   */
+  // Saved as a DESCRIPTOR rather than as the function: reading a method off a
+  // prototype to hold onto is exactly the unbound-method footgun the lint rule
+  // is about, and the descriptor restores an absent property correctly too.
+  let realScrollTo: PropertyDescriptor | undefined;
+
+  beforeEach(() => {
+    realScrollTo = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollTo');
+    Object.defineProperty(Element.prototype, 'scrollTo', {
+      value: (): void => undefined,
+      configurable: true,
+      writable: true,
+    });
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(VirtualHost);
+    fixture.detectChanges();
+    field().dispatchEvent(new Event('focus'));
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    if (realScrollTo) Object.defineProperty(Element.prototype, 'scrollTo', realScrollTo);
+    else delete (Element.prototype as { scrollTo?: unknown }).scrollTo;
+  });
+
+  it('renders a window instead of all five hundred rows', () => {
+    expect(vlist()).not.toBeNull();
+
+    // 200px of viewport at 20px a row is ten, plus one for the partial row and
+    // two of overscan on each side. The exact figure matters less than the fact
+    // that it is a small constant while the list is 500 long.
+    const rendered = rows().length;
+    expect(rendered).toBeGreaterThan(0);
+    expect(rendered).toBeLessThan(20);
+    expect(labels()[0]).toBe('City 0');
+  });
+
+  it('pads the scroller so the bar reflects the whole list, not the window', () => {
+    // Without the spacers the list would be a dozen rows tall and the scrollbar
+    // would say the list is a dozen rows long.
+    const pads = [...vlist()!.querySelectorAll<HTMLElement>('.wr-select-panel__vspacer')];
+    expect(pads.length).toBeGreaterThan(0);
+
+    const padding = pads.reduce((sum, pad) => sum + Number.parseInt(pad.style.height || '0', 10), 0);
+    // 500 rows at 20px, spacers plus rendered rows — so the scroll extent is the
+    // whole list however small the window is.
+    expect(padding + rows().length * 20).toBe(500 * 20);
+    // And they are hidden, because a spacer inside a listbox would otherwise be
+    // an element the role may not own.
+    expect(pads.every(pad => pad.getAttribute('aria-hidden') === 'true')).toBe(true);
+  });
+
+  it('moves the window when the list is scrolled', async () => {
+    expect(labels()).toContain('City 0');
+
+    await scrollTo(100 * 20);
+
+    expect(labels()).not.toContain('City 0');
+    expect(labels()).toContain('City 100');
+  });
+
+  it('names the active row through aria-activedescendant, not focus', () => {
+    // Virtual rows are recycled elements, so they are never focused — the input
+    // keeps focus and points at one by id.
+    expect(activeLabel()).toBe('City 0');
+
+    press('ArrowDown');
+    expect(activeLabel()).toBe('City 1');
+
+    press('ArrowUp');
+    expect(activeLabel()).toBe('City 0');
+    expect(document.activeElement).not.toBe(rows()[0]);
+  });
+
+  it('never points at a row that has been recycled out of the window', async () => {
+    // The failure this prevents is an `aria-activedescendant` dangling at an id
+    // no element carries any more, which a screen reader reads as nothing.
+    await scrollTo(200 * 20);
+
+    const id = field().getAttribute('aria-activedescendant');
+    if (id !== null) expect(document.getElementById(id)).not.toBeNull();
+  });
+
+  it('commits the value of the row the keyboard is on', () => {
+    press('ArrowDown');
+    press('ArrowDown');
+    press('Enter');
+
+    expect(fixture.componentInstance.city()).toBe('City 2');
+  });
+
+  it('filters the dynamic list on the query, and re-windows on what is left', () => {
+    type('City 49');
+
+    // 'City 49' matches 'City 49' and 'City 490'…'City 499' — eleven, which is
+    // fewer than a window, so everything left is rendered.
+    expect(labels()).toEqual([
+      'City 49',
+      'City 490',
+      'City 491',
+      'City 492',
+      'City 493',
+      'City 494',
+      'City 495',
+      'City 496',
+      'City 497',
+      'City 498',
+      'City 499',
+    ]);
+  });
+
+  it('shows the no-results copy when the filter empties the list', () => {
+    type('nothing matches this');
+
+    // The virtual container stays mounted with nothing in it — the window is a
+    // slice of an empty list, not a torn-down list.
+    expect(vlist()!.querySelectorAll('[role="option"]')).toHaveLength(0);
+    // The empty state IS a `role="option"` — disabled and unselectable — rather
+    // than bare text, because a listbox may not own a role-less element.
+    const empty = document.querySelector<HTMLElement>('.wr-select-panel__empty')!;
+    expect(empty.textContent.trim()).toBe('No results');
+    expect(empty.getAttribute('aria-disabled')).toBe('true');
+    expect(rows()).toEqual([empty]);
+  });
+
+  it('takes a CSS length for the viewport, not only a number', () => {
+    fixture.componentInstance.viewportHeight.set('20rem');
+    fixture.detectChanges();
+
+    // Written straight through as a length; a bare number would have gained px.
+    expect(vlist()!.style.maxHeight).toBe('20rem');
+  });
+
+  it('turns a bare numeric string into px', () => {
+    fixture.componentInstance.viewportHeight.set('320');
+    fixture.detectChanges();
+
+    expect(vlist()!.style.maxHeight).toBe('320px');
+  });
+
+  it('renders more rows when the overscan is widened', () => {
+    const tight = rows().length;
+
+    fixture.componentInstance.overscan.set(20);
+    fixture.detectChanges();
+
+    expect(rows().length).toBeGreaterThan(tight);
+  });
+
+  it('falls back to rendering everything when the list is short', () => {
+    fixture.componentInstance.cities.set(['Alpha', 'Beta']);
+    fixture.detectChanges();
+
+    expect(labels()).toEqual(['Alpha', 'Beta']);
+  });
+});
+
+/**
+ * `freeText`, which is the input that makes this component an autocomplete
+ * rather than a select with a filter box — and which nothing drove.
+ *
+ * It matters beyond its own behaviour: `/start/comparison` argues against
+ * shipping a separate combobox on exactly this ground, that `wr-select`
+ * "commits a query that matched no option as the value — which is
+ * autocomplete". An untested claim on that page is the one place a wrong claim
+ * costs the most.
+ *
+ * The interesting half is what it must NOT do. Enter with a row highlighted
+ * still picks that row; free text is the fallback for a query that matched
+ * nothing, not a replacement for selection.
+ */
+describe('WrSelect with freeText', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<FreeTextHost>>;
+
+  const field = (): HTMLInputElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('.wr-select__search-input')!;
+  /**
+   * A filtered-out projected option is HIDDEN, not removed — the registry keeps
+   * its identity — so a bare `[role="option"]` query answers with every option
+   * the select was given, whatever the query says.
+   */
+  const visibleOptions = (): string[] =>
+    [...document.querySelectorAll<HTMLElement>('[role="option"]')]
+      .filter(o => !o.classList.contains('wr-option--hidden'))
+      .map(o => o.textContent.trim());
+  const press = (key: string): void => {
+    field().dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+  const type = (value: string): void => {
+    const input = field();
+    input.value = value;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(FreeTextHost);
+    fixture.detectChanges();
+    field().dispatchEvent(new Event('focus'));
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('commits a query that matched nothing', () => {
+    type('Reykjavik');
+    // Nothing left but the no-results row, which is not a choice.
+    expect(visibleOptions()).toEqual(['No results']);
+
+    press('Enter');
+
+    expect(fixture.componentInstance.city()).toBe('Reykjavik');
+    // And it closes, because the query became the answer.
+    expect(document.querySelector('.wr-select-panel')).toBeNull();
+  });
+
+  it('trims the committed query', () => {
+    type('  Oslo  ');
+    press('Enter');
+
+    expect(fixture.componentInstance.city()).toBe('Oslo');
+  });
+
+  it('still picks the highlighted option when there is one', () => {
+    // The rule that keeps free text a fallback: a query that DOES match leaves
+    // selection alone, so typing "par" and pressing Enter gives the option's
+    // value, not the string "par".
+    type('par');
+    expect(visibleOptions()).toEqual(['Paris']);
+
+    press('Enter');
+
+    expect(fixture.componentInstance.city()).toBe('paris');
+  });
+
+  it('commits nothing on an empty query', () => {
+    type('');
+    // Every option is back, so Enter lands on the highlighted one rather than on
+    // the empty string — the guard is `q` being non-empty, and this is the case
+    // that would otherwise write '' into the model.
+    expect(visibleOptions()).toEqual(['Paris', 'Berlin']);
+
+    press('Escape');
+    expect(fixture.componentInstance.city()).toBeNull();
+  });
+});
+
+/**
+ * Two tolerances and one keyboard path that the mode-by-mode specs above skip,
+ * each reachable only through a combination none of them sets up.
+ */
+describe('WrSelect edge paths in multi and tag mode', () => {
+  const mount = <T>(host: Type<T>): ReturnType<typeof TestBed.createComponent<T>> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    const fixture = TestBed.createComponent(host);
+    fixture.detectChanges();
+    return fixture;
+  };
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('tolerates a scalar written into a multi value', () => {
+    // `[(value)]` on a multi select is documented as an array, and a classic
+    // forms binding or a hand-written patch can still put a bare value there.
+    // Coercing beats throwing: the alternative is a select that renders nothing
+    // and reports no error.
+    const fixture = mount(MultiHost);
+    fixture.componentInstance.sizes.set('md');
+    fixture.detectChanges();
+
+    const trigger = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-select__trigger')!;
+    expect(trigger.textContent).toContain('Medium');
+  });
+
+  it('reads null as an empty selection rather than one null chip', () => {
+    const fixture = mount(MultiHost);
+    fixture.componentInstance.sizes.set(null);
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.wr-select__chip')).toHaveLength(0);
+  });
+
+  it('drops the last selection on Backspace at the button trigger', () => {
+    // The chip-search input has its own Backspace path, already covered. This is
+    // the BUTTON trigger, where the same gesture has to do the same thing.
+    const fixture = mount(MultiHost);
+    fixture.componentInstance.sizes.set(['sm', 'md']);
+    fixture.detectChanges();
+
+    const trigger = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-select__trigger')!;
+    trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.sizes()).toEqual(['sm']);
+  });
+
+  it('commits a half-typed tag when the field loses focus', () => {
+    // Blurring a tag field with text still in it is the everyday way to lose
+    // one: the user typed it, looked away, and expected it to be there.
+    const fixture = mount(TagHost);
+    const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('.wr-select__tag-input')!;
+
+    input.value = 'angular';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    input.dispatchEvent(new Event('blur', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.tags()).toEqual(['angular']);
   });
 });
