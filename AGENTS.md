@@ -460,11 +460,19 @@ the first one decides every other question:
   drift — `WrCalendarDayHarness` is exported twice under two names for exactly
   that reason.
 
-Requirements: Node `^22.22.3 || ^24.15.0 || ^26.0.0` — Angular 22's own range,
-copied rather than invented, so the two cannot disagree — with `.nvmrc` and
-every workflow on 26 and a nightly matrix on the other two. pnpm `^12.3.4`
-(`packageManager` pins 12.3.4, which pnpm 12 also records in the lockfile under
-`packageManagerDependencies`). TypeScript `~6.0`, Angular `22.x`.
+**Requirements are in `package.json` and nowhere else — read them there.**
+`engines` carries the Node and pnpm ranges, `packageManager` the exact pnpm,
+`.nvmrc` the Node CI runs, and `devDependencies` the Angular and TypeScript the
+repo builds against. No version is restated in this file, in README.md or in
+CONTRIBUTING.md, and `package.spec.ts` fails if one reappears: a copy is a claim
+that goes stale silently, and CONTRIBUTING carried four wrong ones for exactly
+as long as it took someone to look.
+
+The shape, which the manifest does not explain: the Node range is Angular's own,
+copied verbatim rather than narrowed, so the two cannot disagree. `.nvmrc` and
+every workflow run the newest of them; a nightly matrix covers the LTS lines
+underneath. pnpm 12 also records itself in the lockfile under
+`packageManagerDependencies`.
 
 **The version guard is `devEngines` in `package.json`, and `.npmrc` is empty on
 purpose.** It used to be `engine-strict=true` there, and pnpm 12 reads no
@@ -912,8 +920,8 @@ runtime describe APIs that are not there, which type-checks clean rather than
 failing.
 
 **The runtime is Node 26, and one thing about the jsdom suite came with it.**
-Angular 22 accepts `^22.22.3 || ^24.15.0 || ^26.0.0`, so `.nvmrc` and every
-workflow moved to 26 — but Node 25 unflagged the Web Storage API and Node 26
+Angular 22 accepts three Node majors, so `.nvmrc` and every
+workflow moved to the newest — but Node 25 unflagged the Web Storage API and Node 26
 leaves `localStorage` on `globalThis` as `undefined` unless `--localstorage-file`
 is passed. The key existing is enough: vitest skips window keys that are already
 on the global, so jsdom's own `localStorage` never lands and forty-six specs

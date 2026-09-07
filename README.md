@@ -72,26 +72,26 @@ through its two-way `[(value)]` / `[(checked)]` model.
 
 ## Requirements
 
-| Peer                           | Range                |
-| ------------------------------ | -------------------- |
-| `@angular/core`                | `>= 22.0.0`          |
-| `@angular/common`              | `>= 22.0.0`          |
-| `@angular/forms`               | `>= 22.0.0`          |
-| `@angular/cdk`                 | `>= 22.0.0`          |
-| `@angular/platform-browser`    | `>= 22.0.0`          |
-| `@angular/router` _(optional)_ | `>= 22.0.0`          |
-| `rxjs`                         | `^7.0.0`             |
-| `date-fns` _(optional)_        | `^3.0.0 \|\| ^4.0.0` |
-| `luxon` _(optional)_           | `^3.0.0`             |
-| `lucide` _(optional)_          | `>= 1.0.0`           |
+**The ranges live in one place: `peerDependencies` in the package's own
+manifest.** Read them with `npm info ngwr peerDependencies`, or on the npm page,
+or in `node_modules/ngwr/package.json` once installed. They are not copied here,
+because a copy is only ever correct until the next release — this table listed
+an icon package as a peer for a while after the library had stopped declaring
+one.
 
-TypeScript `~6.0.x` (Angular 22's compiler declares `typescript >=6.0 <6.1`) and
-a Node version Angular 22 accepts — `^22.22.3 || ^24.15.0 || ^26.0.0`. ngwr
-itself declares neither: no `engines` field and no TypeScript peer, because it
-ships pre-compiled bundles and `.d.ts` files, so the versions that bind are the
-ones your Angular names. Contributing to this repo needs that same range, which
-it now pins verbatim rather than narrowing (`.nvmrc` says 26, and a nightly job
-runs the suite on 22 and 24), plus pnpm ≥ 12.3.4.
+What the manifest will not tell you is the SHAPE, so that is what this section
+is for. Angular, its CDK and rxjs are required. `@angular/router` is optional
+because only a handful of entry points import it. The two date libraries are
+optional and you pick at most one, whichever `provideWrDateAdapter()` you use.
+**Icon sets are not peers at all** — every adapter takes the icon data as an
+argument, so ngwr never imports lucide, feather or any other set; install
+whichever you like, or none, and register raw SVG with `svgIcon()`.
+
+ngwr declares no `engines` field and no TypeScript peer of its own, because it
+ships pre-compiled bundles and `.d.ts` files: the Node and TypeScript versions
+that bind are the ones your Angular names. Contributing to this repo is
+narrower, and those ranges live in the root `package.json` too — `engines`,
+`devEngines` and `packageManager`, with `.nvmrc` naming the version CI runs.
 
 **The floor is real; the missing ceiling promises nothing.** ngwr ships
 partially compiled, and the floor is enforced by the bundles rather than by the
