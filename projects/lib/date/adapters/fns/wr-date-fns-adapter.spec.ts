@@ -587,17 +587,24 @@ describe('WrDateFnsAdapter', () => {
       // it is dead code here and an inverted one goes unnoticed. It is not dead in the wild —
       // Firefox shipped `Intl.Locale.getWeekInfo` only in 2024 — so the method is removed for
       // the length of this case to make the environment the fallback exists for.
+      // Two runtimes, one assertion set. `Intl.Locale.prototype.getWeekInfo` is
+      // recent enough that Node 22 — an LTS line `engines` still accepts — does
+      // not have it, so on that runner the fallback is ALREADY the live path and
+      // there is nothing to remove. Removing it unconditionally passed for the
+      // wrong reason there; asserting it exists first turned that into a red
+      // test on a runtime the library supports. So: take it away only where it
+      // is, and either way run the same expectations against the fallback.
       const proto = Intl.Locale.prototype as unknown as { getWeekInfo?: () => { firstDay: number } };
       const original = proto.getWeekInfo;
-      expect(typeof original).toBe('function'); // the removal below has to actually remove something
-      delete proto.getWeekInfo;
+      const hadIt = typeof original === 'function';
+      if (hadIt) delete proto.getWeekInfo;
 
       try {
         expect(withLocale('en-US').getFirstDayOfWeek()).toBe(0);
         expect(withLocale('en-GB').getFirstDayOfWeek()).toBe(1);
         expect(withLocale('ru-RU').getFirstDayOfWeek()).toBe(1);
       } finally {
-        proto.getWeekInfo = original;
+        if (hadIt) proto.getWeekInfo = original;
       }
 
       // …and the primary path is back, so nothing after this case sees the stub.

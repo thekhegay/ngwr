@@ -6,74 +6,49 @@
  */
 
 /**
- * Builds the showcase and fails when prerendering reported an error.
+ * Builds the documentation site, generators and all.
  *
- * Why this wrapper exists: under `outputMode: 'static'` the builder renders
- * every route in Node at build time, but a route that throws does NOT fail the
- * build. It logs the error, still emits that route's HTML, prints
- * "Prerendered N static routes" plus "Application bundle generation complete",
- * and exits 0. CI would stay green while pages silently degraded — the exact
- * failure this project prerenders to avoid (missing text, missing nav links).
+ * This was seven `tsx` invocations joined by `&&` in `package.json`. It is here
+ * because the order is not incidental — it splits in two around the build, and
+ * the chain had no way to say so:
  *
- * There is no builder option for this: `@angular/build`'s application schema
- * has no fail-on-prerender-error flag, and route count is not a usable signal
- * because failing routes still produce a file. The only reliable marker is the
- * worker forwarding the app's console output, which surfaces as a line
- * starting with `ERROR` — e.g.
+ * **Before.** Four generators write TypeScript the app IMPORTS. `gen-selectors`
+ * and `gen-css-vars` feed the sandbox and the CSS-variables tables,
+ * `gen-quality` feeds every number on `/start/quality`, and `gen-ai-assets`
+ * writes `llms-full.txt` and the agent skill. Run one of them after the build
+ * and the site ships the previous run's data — a failure with no error, which is
+ * the shape this repository keeps finding.
  *
- *   ERROR ReferenceError: getComputedStyle is not defined
- *   ERROR Error: NotYetImplemented
+ * **After.** Two generators read what the build PRODUCED. The sitemap and the
+ * per-page markdown twins are both derived from the prerendered route list, so
+ * they cannot run before it exists — the sitemap's own history is the argument:
+ * an earlier version read `app/` instead, and a folder rename emptied it in
+ * silence.
  *
- * so this scans the build log for those and exits non-zero. Output is streamed
- * through unchanged, so the build looks and behaves exactly as before.
+ * `build-showcase-app.ts` is the middle step and stays its own file: it is the
+ * guarded `ng build showcase` — the one that fails the build on a prerender
+ * error the Angular builder reports and then exits 0 about — and
+ * `archive-docs.yml` calls it directly with its own `--base-href`, wanting the
+ * build without the generators.
  *
- * Wired into `build:showcase`, which means local builds, `ci.yml` and
- * `deploy.yml` are all covered without duplicating a grep per workflow.
- * Extra CLI args are forwarded to `ng build showcase`.
+ * Extra CLI args are forwarded to that middle step, so
+ * `pnpm build:showcase --base-href=/x/` still works.
  */
 
-import { spawn } from 'node:child_process';
+import { argv } from 'node:process';
 
-/** A prerender worker forwards app console errors as `ERROR <message>`. */
-const PRERENDER_ERROR = /^ERROR\b.*$/gm;
+import { tsx } from './lib/run/step';
 
-const args = process.argv.slice(2);
-const child = spawn('pnpm', ['exec', 'ng', 'build', 'showcase', ...args], {
-  stdio: ['inherit', 'pipe', 'pipe'],
-});
+const forwarded = argv.slice(2);
 
-let log = '';
+// Inputs the app imports. Generated first, or the site is built from the last run's data.
+tsx('gen:selectors', 'scripts/gen-selectors.ts');
+tsx('gen:css-vars', 'scripts/gen-css-vars.ts');
+tsx('gen:quality', 'scripts/gen-quality.ts');
+tsx('gen:ai-assets', 'scripts/gen-ai-assets.ts');
 
-child.stdout.on('data', (chunk: Buffer) => {
-  log += chunk.toString();
-  process.stdout.write(chunk);
-});
+tsx('build:showcase (ng build + prerender gate)', 'scripts/build-showcase-app.ts', forwarded);
 
-child.stderr.on('data', (chunk: Buffer) => {
-  log += chunk.toString();
-  process.stderr.write(chunk);
-});
-
-child.on('close', code => {
-  if (code !== 0) {
-    process.exit(code ?? 1);
-  }
-
-  const errors = log.match(PRERENDER_ERROR);
-  if (!errors) return;
-
-  const unique = [...new Set(errors.map(e => e.trim()))];
-  const list = unique.map(e => `    ${e}`).join('\n');
-  process.stderr.write(
-    `
-✘ Prerendering reported ${unique.length} error(s). The bundle "succeeded", but these
-  routes rendered incorrectly — fix them, or guard the code for the server:
-
-${list}
-
-  Usually a browser API touched during server render. Defer it to
-  afterNextRender(), or guard with isPlatformBrowser(inject(PLATFORM_ID)).
-`
-  );
-  process.exit(1);
-});
+// Derived from the prerendered route list, so: only once it exists.
+tsx('gen:sitemap', 'scripts/gen-sitemap.ts');
+tsx('gen:md-docs', 'scripts/gen-md-docs.ts');

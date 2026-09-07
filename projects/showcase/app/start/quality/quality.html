@@ -67,7 +67,7 @@
 
   <ngwr-doc-section
     title="What runs nightly instead"
-    description="Most of this needs a real browser, real CSS and several hundred page loads. On the pull-request path that roughly tripled the job, and what it catches is drift in painted output rather than the kind of break a single review has to be told about — so it runs on a schedule instead. The first two are the exception and are not a second opinion on the same thing: they are the unit suite and the library build re-run on Node 24, which `engines` still accepts and which nothing else exercises now that every other job runs 26."
+    description="Most of this needs a real browser, real CSS and several hundred page loads. On the pull-request path that roughly tripled the job, and what it catches is drift in painted output rather than the kind of break a single review has to be told about — so it runs on a schedule instead. The first two are the exception and are not a second opinion on the same thing: they are the unit suite and the library build re-run on Node 22 and 24 — the LTS lines `engines` still accepts, which nothing else exercises now that every other job runs 26."
   >
     <wr-table responsive [columns]="gateColumns" [items]="nightlyRows">
       <ng-template wrTableCell="gate" let-value>

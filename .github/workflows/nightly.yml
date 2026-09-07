@@ -52,22 +52,32 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # The OTHER half of `engines`, which nothing else exercises.
+  # Every Node in `engines` that the pull-request job does not run.
   #
-  # `package.json` accepts `^24.16.0 || >=26.0.0` and every other job now runs
-  # 26, so a contributor or a CI consumer on the LTS line would be relying on a
-  # claim no run has checked since the pin moved. Node 24 is Active LTS until
-  # 2028, which is longer than 26 has existed, so "supported" has to keep
-  # meaning something.
+  # `package.json` mirrors Angular 22's own range — `^22.22.3 || ^24.15.0 ||
+  # ^26.0.0` — and every other job runs 26, so without this two thirds of that
+  # range would be a claim nothing checks. Both are LTS lines with years left
+  # (22 to April 2027, 24 to 2028) and both are what a consumer is more likely to
+  # be on than the Current release, so "supported" has to keep meaning something.
   #
-  # Nightly rather than on a pull request for the usual reason: a second full
-  # suite on every PR buys minutes to catch a class of break that arrives with a
-  # dependency bump, not with a component change. Lint and the builds are left
-  # to the PR job — what is version-specific is the RUNTIME, so this runs the
-  # tests and the library build and nothing else.
+  # The matrix is derived by hand rather than parsed out of `engines`, and that
+  # is the one thing to keep in step: a version added there without a row here is
+  # exactly the untested claim this job exists to prevent.
+  #
+  # Nightly rather than on a pull request for the usual reason: two more full
+  # suites on every PR buys minutes to catch a class of break that arrives with a
+  # dependency bump, not with a component change. Lint and the docs build are
+  # left to the PR job — what is version-specific is the RUNTIME, so this runs
+  # the tests and the library build and nothing else.
   legacy-node:
-    name: Node 24 (the LTS half of engines)
+    name: Node ${{ matrix.node }} (an LTS line engines still accepts)
     runs-on: ubuntu-latest
+
+    strategy:
+      # One red row should not hide the other's result.
+      fail-fast: false
+      matrix:
+        node: [22, 24]
 
     steps:
       - uses: actions/checkout@v7
@@ -76,7 +86,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: ${{ matrix.node }}
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile

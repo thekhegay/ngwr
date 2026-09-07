@@ -99,7 +99,7 @@ jobs:
       #
       # Through the wrapper, not a bare `ng build`: under `outputMode: 'static'`
       # a route that throws while prerendering does NOT fail the build — it logs
-      # `ERROR …`, emits the broken page anyway and exits 0. scripts/build-showcase.ts
+      # `ERROR …`, emits the broken page anyway and exits 0. scripts/build-showcase-app.ts
       # is the only thing that turns that into a red build, and it forwards extra
       # args straight through to `ng build showcase`. Without it an archive can
       # publish content-less pages under a green check. Calling it directly rather
@@ -107,8 +107,8 @@ jobs:
       # chain and `--base-href` would land on the last one. The wrapper postdates
       # some archivable tags, hence the fallback.
       - run: |
-          if [[ -f scripts/build-showcase.ts ]]; then
-            pnpm exec tsx scripts/build-showcase.ts --base-href=/${{ inputs.path }}/
+          if [[ -f scripts/build-showcase-app.ts ]]; then
+            pnpm exec tsx scripts/build-showcase-app.ts --base-href=/${{ inputs.path }}/
           else
             pnpm exec ng build showcase --base-href=/${{ inputs.path }}/
           fi

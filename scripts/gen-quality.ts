@@ -746,7 +746,7 @@ ${gates(f.lintStages)}
 ${gates(f.prGates)}
   ],
 
-  /** The same, from \`.github/workflows/nightly.yml\`. \`build:showcase\` is on the list because the workflow runs it: all three checks read \`dist/showcase\` and cannot start without it. They each need a real browser and hundreds of page loads, which is what keeps them off the PR path — so a green PR says nothing about painted contrast or RTL overflow. */
+  /** The same, from \`.github/workflows/nightly.yml\`. \`build:showcase\` is on the list because the workflow runs it: all four browser checks read \`dist/showcase\` and cannot start without it. Those four each need a real browser and hundreds of page loads, which is what keeps them off the PR path — so a green PR says nothing about painted contrast, geometry or RTL overflow. \`test\` and \`build:lib\` are on the list for a different reason and are not a second opinion on the PR gate of the same name: they re-run on the LTS Node versions \`engines\` still accepts, which nothing else exercises. */
   nightlyGates: [
 ${gates(f.nightlyGates)}
   ],
