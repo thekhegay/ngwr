@@ -166,6 +166,10 @@ Contributor Covenant is stewarded by the Organization for Ethical Source and
 licensed under CC BY-SA 4.0. To view a copy of this license, visit
 [https://creativecommons.org/licenses/by-sa/4.0/](https://creativecommons.org/licenses/by-sa/4.0/)
 
+This adapted document is likewise licensed under CC BY-SA 4.0 — share-alike
+requires it, and the repository's MIT `LICENSE` covers the software rather than
+this file.
+
 For answers to common questions about Contributor Covenant, see the FAQ at
 [https://www.contributor-covenant.org/faq](https://www.contributor-covenant.org/faq).
 Translations are provided at

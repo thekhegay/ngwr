@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 
+import semver from 'semver';
 import { describe, expect, it } from 'vitest';
 
 /**
@@ -324,9 +325,15 @@ describe('the root manifest declares one toolchain, not three', () => {
     // `packageManager` is an exact version and `engines.pnpm` a range; corepack
     // installs the former, so a range that excludes it would refuse the very
     // package manager the repository pins.
+    //
+    // Resolved with `semver`, not by asking whether the range CONTAINS the
+    // version as a substring. That is what this assertion did first, and it
+    // passed vacuously: `'^12.3.4'.includes('12.3.4')` is true, and so is
+    // `'^12.3.40'.includes('12.3.4')` — the one check standing against drift
+    // reported green on the drift itself.
     const [name, version] = root.packageManager.split('@');
     expect(name).toBe('pnpm');
-    expect(root.engines.pnpm).toContain(version);
+    expect(semver.satisfies(version, root.engines.pnpm)).toBe(true);
   });
 
   it('fails the install rather than warning about it', () => {

@@ -2,7 +2,6 @@
 dist
 tmp
 out-tsc
-RELEASE_BODY.md
 .angular
 .sass-cache
 _old
@@ -52,8 +51,39 @@ projects/lib/icon/_svg/heroicons/
 .gemini/
 .aider*
 
-# Generated AI assets. llms-full.txt and skills/ via scripts/gen-ai-assets.ts;
-# sitemap.xml is emitted straight into the (ignored) dist by
+# Generated AI assets. Both come from scripts/gen-ai-assets.ts, and only ONE of
+# them is ignored — sitemap.xml is emitted straight into the (ignored) dist by
 # scripts/gen-sitemap.ts.
+#
+# `skills/` used to be listed here too, and it contradicted the repository: the
+# three files under `skills/ngwr/` are TRACKED on purpose, because the skill
+# ships inside the npm tarball and a stale committed copy is a real failure —
+# it once sat two entry points behind for a whole release. Since .gitignore
+# does not apply to files already tracked, the rule changed nothing for those
+# three and only armed a trap for the fourth: `gen-ai-assets.ts` deletes and
+# recreates that directory on every build, so a NEW reference file would have
+# been ignored, never committed, and shipped from disk by copy-dist-assets
+# while the repository knew nothing about it.
 llms-full.txt
-skills/
+
+# Root-level markdown, allowlisted. Every document that belongs at the root is
+# named below; anything else there is a scratch file.
+#
+# This exists because one was not caught: `ngwr-pagination-issue.md`, a 188-line
+# issue draft, rode into the v14 release commit and stayed for 46 commits — long
+# enough to ship inside the source tree of v14.0.0, v14.0.1, v14.1.0 and v14.2.0,
+# where anyone browsing the tag found it next to README.md. Nothing in `pnpm
+# lint` reads the repository root, so no gate could have said anything.
+#
+# Adding a root document now costs one deliberate line here, which is the point.
+/*.md
+!/AGENTS.md
+!/CHANGELOG.md
+!/CLAUDE.md
+!/CODE_OF_CONDUCT.md
+!/CONTRIBUTING.md
+!/GEMINI.md
+!/MIGRATION.md
+!/README.md
+!/ROADMAP.md
+!/SECURITY.md
