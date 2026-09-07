@@ -23,8 +23,8 @@
     "check:llms": "tsx scripts/gen-ai-assets.ts --check",
     "check:api-docs": "tsx scripts/gen-api-docs.ts --check",
     "lint:styles": "stylelint \"projects/**/*.scss\"",
-    "build:lib": "ng build lib && tsx scripts/gen-ai-assets.ts && tsx scripts/copy-dist-assets.ts && tsx scripts/gen-i18n-json.ts && tsx scripts/build-schematics.ts && tsx scripts/build-mcp.ts",
-    "build:showcase": "tsx scripts/gen-selectors.ts && tsx scripts/gen-css-vars.ts && tsx scripts/gen-quality.ts && tsx scripts/gen-ai-assets.ts && tsx scripts/build-showcase.ts && tsx scripts/gen-sitemap.ts && tsx scripts/gen-md-docs.ts",
+    "build:lib": "tsx scripts/build-lib.ts",
+    "build:showcase": "tsx scripts/build-showcase.ts",
     "icons:sets": "node scripts/build-icon-sets.mjs",
     "postinstall": "node scripts/build-icon-sets.mjs",
     "release:prepare": "tsx scripts/release-prepare.ts",
@@ -40,10 +40,10 @@
     "commit-msg": "npx --no-install commitlint --edit $1"
   },
   "engines": {
-    "node": "^24.16.0 || >=26.0.0",
-    "pnpm": "^11.10.0"
+    "node": "^22.22.3 || ^24.15.0 || ^26.0.0",
+    "pnpm": "^12.3.4"
   },
-  "packageManager": "pnpm@11.10.0",
+  "packageManager": "pnpm@12.3.4",
   "dependencies": {
     "@angular/cdk": "^22.1.5",
     "@angular/common": "^22.1.5",

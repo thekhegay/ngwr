@@ -283,7 +283,7 @@ export const WrValidators = {
       if (!isDevMode() || warned) return;
       warned = true;
       // `warn`, not `error`: a prerender worker forwards app console errors as
-      // `ERROR …` and `scripts/build-showcase.ts` fails the build on them —
+      // `ERROR …` and `scripts/build-showcase-app.ts` fails the build on them —
       // and adding the control later is a legitimate pattern, not a red build.
       // Reported rather than thrown for the same reason.
       // eslint-disable-next-line no-console -- a silent pass is the very bug this validator removes

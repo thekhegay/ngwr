@@ -86,11 +86,12 @@ through its two-way `[(value)]` / `[(checked)]` model.
 | `lucide` _(optional)_          | `>= 1.0.0`           |
 
 TypeScript `~6.0.x` (Angular 22's compiler declares `typescript >=6.0 <6.1`) and
-a Node version Angular 22 accepts — `^22.22.3 || ^24.15.0 || >=26`. ngwr itself
-declares neither: no `engines` field and no TypeScript peer, because it ships
-pre-compiled bundles and `.d.ts` files, so the versions that bind are the ones
-your Angular names. Contributing to this repo needs the narrower
-`^24.16.0 || >=26` it pins (`.nvmrc` says 26), plus pnpm ≥ 11.10.
+a Node version Angular 22 accepts — `^22.22.3 || ^24.15.0 || ^26.0.0`. ngwr
+itself declares neither: no `engines` field and no TypeScript peer, because it
+ships pre-compiled bundles and `.d.ts` files, so the versions that bind are the
+ones your Angular names. Contributing to this repo needs that same range, which
+it now pins verbatim rather than narrowing (`.nvmrc` says 26, and a nightly job
+runs the suite on 22 and 24), plus pnpm ≥ 12.3.4.
 
 **The floor is real; the missing ceiling promises nothing.** ngwr ships
 partially compiled, and the floor is enforced by the bundles rather than by the

@@ -460,9 +460,12 @@ the first one decides every other question:
   drift — `WrCalendarDayHarness` is exported twice under two names for exactly
   that reason.
 
-Requirements: Node `^24.16.0 || >=26` (`.nvmrc` pins 26), pnpm `^11.10`
+Requirements: Node `^22.22.3 || ^24.15.0 || ^26.0.0` — Angular 22's own range,
+copied rather than invented, so the two cannot disagree — with `.nvmrc` and
+every workflow on 26 and a nightly matrix on the other two. pnpm `^12.3.4`
 (`engine-strict=true` in `.npmrc` — an older pnpm is refused outright, and
-`packageManager` pins 11.10.0), TypeScript `~6.0`, Angular `22.x`.
+`packageManager` pins 12.3.4, which pnpm 12 also records in the lockfile under
+`packageManagerDependencies`). TypeScript `~6.0`, Angular `22.x`.
 
 ### Linting — read before trusting a green run
 
@@ -896,9 +899,14 @@ there — so a repo whose `engines` accepts both cannot set it statically. Upstr
 is not coming: vitest closed the collision as not planned. The LIBRARY was never
 affected — `storage-engine.ts` already falls back to memory on a missing
 `localStorage` — which is what makes this scaffolding rather than a product fix.
-Node 24 is still in `engines` and still Active LTS until 2028, so a nightly
-`legacy-node` job runs `pnpm test` and `build:lib` on it; without that, half the
-range would be a claim nothing checks.
+`engines` still accepts 22 and 24 — both LTS, to April 2027 and 2028 — so the
+nightly `legacy-node` job runs `pnpm test` and `build:lib` on each; without it
+two thirds of the range would be a claim nothing checks. That job earned its
+keep immediately: `Intl.Locale.prototype.getWeekInfo` does not exist on Node 22,
+and the date adapters' fallback spec ASSERTED it did before deleting it, so a
+test written to prove the fallback works was red on the one runtime where the
+fallback is the live path. It now removes the method only where there is one and
+runs the same expectations either way.
 
 **Docs prose.** In changelogs / docs, write "from X to Y" — not "X → Y" (no
 arrow) — for version and before/after descriptions.
@@ -1431,7 +1439,7 @@ because it is guidance rather than a plan.
 `pnpm lint` + `pnpm test` + `pnpm build:lib` + `pnpm build:showcase` are the
 real gates — Angular `strictTemplates` type-checks templates, so most wiring
 errors surface at build, and `pnpm test` covers the pure-logic layer. `build:showcase` also prerenders every route in Node and **fails on
-prerender errors** (`scripts/build-showcase.ts` greps the worker log, because
+prerender errors** (`scripts/build-showcase-app.ts` greps the worker log, because
 the Angular builder itself exits 0 on them), so it doubles as the SSR smoke
 test. For runtime behavior, run `pnpm dev` and exercise it.
 
