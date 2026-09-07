@@ -1,3 +1,11 @@
+# pnpm's settings live here, not in `.npmrc` — pnpm 12 reads no behavioural
+# setting from that file at all.
+
+# `pnpm` prints an "update available" banner otherwise. The version is pinned by
+# `packageManager` and bumped deliberately, so the banner is noise in every log
+# it appears in. Moved here from `.npmrc`, where it had quietly stopped working.
+updateNotifier: false
+
 allowBuilds:
   '@parcel/watcher': true
   core-js: false

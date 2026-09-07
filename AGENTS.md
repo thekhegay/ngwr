@@ -463,9 +463,36 @@ the first one decides every other question:
 Requirements: Node `^22.22.3 || ^24.15.0 || ^26.0.0` — Angular 22's own range,
 copied rather than invented, so the two cannot disagree — with `.nvmrc` and
 every workflow on 26 and a nightly matrix on the other two. pnpm `^12.3.4`
-(`engine-strict=true` in `.npmrc` — an older pnpm is refused outright, and
-`packageManager` pins 12.3.4, which pnpm 12 also records in the lockfile under
+(`packageManager` pins 12.3.4, which pnpm 12 also records in the lockfile under
 `packageManagerDependencies`). TypeScript `~6.0`, Angular `22.x`.
+
+**The version guard is `devEngines` in `package.json`, and `.npmrc` is empty on
+purpose.** It used to be `engine-strict=true` there, and pnpm 12 reads no
+behavioural setting from that file at all — so the move to 12 removed the check
+in silence: an install on an unsupported Node simply succeeded and the next
+failure was somewhere inside a build. Measured, not guessed: pnpm 11 refuses an
+incompatible `engines.node` with or without that line, pnpm 12 accepts it with
+or without, and `node-linker=hoisted` proves the point from the other side by
+applying from `pnpm-workspace.yaml` and doing nothing from `.npmrc`. What that
+file IS still read for is npm-compatible registry and auth config, which is why
+it is kept with a comment rather than deleted — it is where someone would
+otherwise re-add a setting that does nothing. `devEngines.runtime` refuses with a clear message, and
+`package.spec.ts` holds it to the same range `engines` advertises so the two
+cannot drift. **`devEngines.packageManager` is deliberately absent**: npm reads
+`devEngines` too, and an entry naming pnpm makes every npm invocation in the
+repo fail `EBADDEVENGINES` — including the `npx commitlint` in the commit-msg
+hook, which is how it was found, on the commit that added it. The pnpm version
+is pinned by `packageManager` and enforced by corepack, which is the mechanism
+that actually does the work.
+
+**`minimumReleaseAge` was considered for the supply chain and rejected on
+evidence.** A cooling-off window on newly published versions is the right idea
+for a repo whose publish job holds an OIDC token — but pnpm applies it to
+`--frozen-lockfile` too, so a Dependabot PR naming a version younger than the
+window fails CI until the clock catches up. Verified: a lockfile pinning
+`@types/node@26.4.1` under a long window refuses to install at all. The cooling
+off belongs where versions are CHOSEN — Dependabot's own `cooldown` — not where
+they are installed.
 
 ### Linting — read before trusting a green run
 

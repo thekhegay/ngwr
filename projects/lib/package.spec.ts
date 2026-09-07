@@ -280,3 +280,70 @@ describe('component stylesheets', () => {
     expect(styleUrls().size).toBeGreaterThanOrEqual(27);
   });
 });
+
+/**
+ * The toolchain versions, which are stated three times and enforced by one.
+ *
+ * `engines` is what a reader looks at and what npm reports; `devEngines` is
+ * what actually refuses an install; `packageManager` is what corepack fetches.
+ * They said the same thing when they were written, and nothing made them keep
+ * saying it — which is how the guard went missing in the first place.
+ *
+ * **`engine-strict` in `.npmrc` was the guard until pnpm 12, and pnpm 12 reads
+ * no behavioural setting from that file at all.** The bump to 12 therefore
+ * removed the Node check in silence: an install on an unsupported runtime
+ * simply succeeded, and the next failure was somewhere inside a build. The
+ * check moved to `devEngines`, which pnpm 12 does honour — and this is what
+ * stops the two drifting apart the next time a range moves.
+ */
+describe('the root manifest declares one toolchain, not three', () => {
+  const root = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {
+    engines: { node: string; pnpm: string };
+    devEngines: { runtime: { name: string; version: string; onFail: string } };
+    packageManager: string;
+  };
+
+  it('enforces exactly the Node range it advertises', () => {
+    expect(root.devEngines.runtime.name).toBe('node');
+    expect(root.devEngines.runtime.version).toBe(root.engines.node);
+  });
+
+  it('leaves the pnpm version to corepack rather than to devEngines', () => {
+    // `devEngines.packageManager` looks like the obvious companion to the
+    // runtime entry and cannot be used here: npm reads `devEngines` too, and a
+    // `packageManager` entry naming pnpm makes EVERY npm invocation in the repo
+    // fail `EBADDEVENGINES` — including `npx commitlint` in the commit-msg
+    // hook, which is how this was found. Nothing is lost: `packageManager` is
+    // the pin corepack actually enforces, and the range below is what refuses
+    // an older one.
+    expect(root.devEngines).not.toHaveProperty('packageManager');
+    expect(root.packageManager).toMatch(/^pnpm@\d+\.\d+\.\d+$/);
+  });
+
+  it('fetches a pnpm that satisfies its own range', () => {
+    // `packageManager` is an exact version and `engines.pnpm` a range; corepack
+    // installs the former, so a range that excludes it would refuse the very
+    // package manager the repository pins.
+    const [name, version] = root.packageManager.split('@');
+    expect(name).toBe('pnpm');
+    expect(root.engines.pnpm).toContain(version);
+  });
+
+  it('fails the install rather than warning about it', () => {
+    // `onFail: 'warn'` would print a line nobody reads in CI and carry on,
+    // which is the state this repository was already in by accident.
+    expect(root.devEngines.runtime.onFail).toBe('error');
+  });
+
+  it('keeps no pnpm setting in .npmrc, where pnpm 12 would not read it', () => {
+    // Registry and auth lines are still honoured there; anything else is a
+    // setting that looks configured and does nothing.
+    const npmrc = readFileSync(join(process.cwd(), '.npmrc'), 'utf8');
+    const live = npmrc
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line && !line.startsWith('#'));
+
+    expect(live).toEqual([]);
+  });
+});
