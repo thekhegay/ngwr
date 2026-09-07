@@ -24,9 +24,20 @@ pnpm icons:sets       # rebuild showcase icon catalogs (also runs on postinstall
 
 Requirements:
 
-- Node `^24.16 || >=26` (`.nvmrc` pins 24; `.npmrc` sets `engine-strict=true`,
-  so an older Node fails `pnpm install` outright)
-- pnpm `^11.10` (pinned via `packageManager`: `pnpm@11.10.0`)
+- Node `^22.22.3 || ^24.15.0 || ^26.0.0` — Angular 22's own range, copied
+  rather than invented. `.nvmrc` pins 26; the other two are LTS lines a nightly
+  job keeps honest.
+- pnpm `^12.3.4`, pinned via `packageManager`: `pnpm@12.3.4`. Run through
+  corepack and you get exactly that version.
+
+They are enforced by different things, which is worth knowing when one of them
+lets you through. Node is checked by `devEngines.runtime` in `package.json` —
+an unsupported runtime fails the install with a clear message. The pnpm version
+is not checked there at all; `packageManager` is what pins it, and corepack
+fetches exactly that. **Neither is enforced by `.npmrc`**, which is deliberately
+empty of settings: it carried `engine-strict=true` until the bump to pnpm 12
+silently made that a no-op, because pnpm 12 reads none of its own behaviour from
+that file.
 
 ## Filing issues
 
@@ -75,10 +86,16 @@ Scope is the component or area in kebab-case: `feat(button)`, `fix(select)`,
 1. Branch from `main`.
 2. Make focused changes — one PR per concern.
 3. Run `pnpm lint && pnpm test && pnpm build:lib && pnpm build:showcase` before
-   pushing.
+   pushing — and check `pnpm lint`'s exit code rather than its output, for the
+   reason in the style guide below. Those two builds also REGENERATE tracked
+   files (`projects/showcase/app/_core/generated/*.ts` and `skills/ngwr/**`), so
+   run `git status` afterwards and commit whatever moved. They are not the whole
+   gate set: CI runs nine, listed in the style guide.
 4. PR title must be a valid conventional commit (CI enforces this).
 5. Fill in the PR template — describe **what** changed and **why**.
-6. We use **squash merge** so the PR title becomes the commit on `main`.
+6. Merging is **rebase or merge commit** — squash merging is disabled on the
+   repository, so `gh pr merge --squash` fails outright. Keep the branch to one
+   focused commit and `--rebase` lands exactly that commit on `main`.
 
 The maintainer cuts releases via the
 [Release PR](./.github/workflows/release.yml) workflow — contributors don't
@@ -118,6 +135,11 @@ Then:
    has one, and the specs assert the rendered DOM — roles, ARIA state and the
    `.wr-*` classes — rather than component internals. Copy `projects/lib/tabs/`
    for a plain component, or `projects/lib/select/` for one with an overlay.
+8. Run `pnpm gen:api-docs` and commit `projects/showcase/app/_core/generated/api.ts`.
+   This is the one gate no build regenerates for you: `build:showcase` refreshes
+   the selector, CSS-variable and quality data, but the API tables are generated
+   on demand and `check:api-docs` compares the committed file against the
+   library's JSDoc. Skip it and CI fails on a file you never touched.
 
 ## Style guide
 
@@ -141,9 +163,12 @@ Then:
   gates** on every PR: `lint`, `test:coverage`, `check:api-docs`, `check:llms`,
   `check:css-vars`, `build:lib`, `build:showcase`, `check:theme` and
   `check:a11y` — the last two need the prerendered site, which is why they sit
-  after the showcase build. `check:contrast`, `check:state-a11y` and
-  `check:rtl-layout` need a real browser and run nightly instead, so a green PR
-  says nothing about painted contrast or RTL overflow.
+  after the showcase build. Four more need a real browser and hundreds of page
+  loads, so they run nightly instead: `check:contrast`, `check:state-a11y`,
+  `check:layout` and `check:rtl-layout`. A green PR therefore says nothing about
+  painted contrast, box geometry or RTL overflow. The nightly also re-runs the
+  suite and the library build on Node 22 and 24, which nothing else exercises
+  now that every other job runs 26.
 
 ## Setting up your editor
 

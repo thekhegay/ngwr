@@ -34,7 +34,8 @@
   "homepage": "https://ngwr.dev",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thekhegay/ngwr.git"
+    "url": "git+https://github.com/thekhegay/ngwr.git",
+    "directory": "projects/lib"
   },
   "bugs": {
     "url": "https://github.com/thekhegay/ngwr/issues"
