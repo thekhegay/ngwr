@@ -8,6 +8,7 @@ import { lucide, type LucideIconNode } from './adapters/lucide/adapter';
 import { WrIcon } from './icon';
 import { provideWrIcons } from './providers/provide-wr-icons';
 import { svgIcon } from './svg-icon';
+import { sanitizeIcon } from './utils';
 
 /**
  * The payloads, verbatim, from an audit of ngwr 13.0.0 that ran them against a
@@ -339,5 +340,88 @@ describe('WrIcon treats registered icon data as untrusted', () => {
       expect(host.querySelector('path')!.hasAttribute('style')).toBe(false);
       expect(warnings.join(' ')).toContain('style');
     });
+  });
+});
+
+/**
+ * The SERVER parser, which the suite above never reaches.
+ *
+ * `parseInert` prefers `DOMParser` and falls back to a detached `<template>`
+ * when the document has no `defaultView` — which is every
+ * `@angular/platform-server` render, because domino ships no `DOMParser`. That
+ * branch was the last uncovered code in this file, and an untested one here is
+ * the worst shape a sanitizer can have: a control that is strict in the browser
+ * and lax on the server writes the payload into the prerendered HTML, where it
+ * runs on the client before hydration ever calls this function.
+ *
+ * So the questions are not "does it sanitize" but "does it sanitize the SAME",
+ * asked with the same payloads the browser path is held to.
+ */
+describe('sanitizeIcon on a document with no browsing context', () => {
+  /** `createHTMLDocument` has a null `defaultView`, which is the SSR shape. */
+  const serverDoc = (): Document => document.implementation.createHTMLDocument('ssr');
+
+  const sanitized = (data: string): SVGElement | null => sanitizeIcon(serverDoc(), data);
+
+  const attributesOf = (root: Element): string[] => {
+    const names: string[] = [];
+    const walk = (el: Element): void => {
+      for (const attribute of Array.from(el.attributes)) names.push(attribute.name);
+      for (const child of Array.from(el.children)) walk(child);
+    };
+    walk(root);
+    return names;
+  };
+
+  it('takes the fallback parser at all', () => {
+    // The precondition every assertion below rests on. If jsdom ever gave a
+    // detached document a `defaultView`, this file would be re-testing the
+    // browser path and reporting it as the server one.
+    expect(serverDoc().defaultView).toBeNull();
+    expect(sanitized('<svg viewBox="0 0 24 24"><path d="M1 1"/></svg>')).not.toBeNull();
+  });
+
+  it('refuses every payload the browser path refuses', () => {
+    for (const [name, data] of Object.entries(PAYLOADS)) {
+      const svg = sanitized(data);
+      expect(svg, name).not.toBeNull();
+
+      const markup = svg!.outerHTML;
+      expect(attributesOf(svg!), name).not.toContain('onload');
+      expect(attributesOf(svg!), name).not.toContain('onerror');
+      expect(markup, name).not.toContain('__hit');
+      expect(svg!.querySelector('script, image, foreignObject, a, animate'), name).toBeNull();
+    }
+  });
+
+  it('keeps a legitimate icon intact, so the server renders the same glyph', () => {
+    // Refusing everything would satisfy the test above and ship a blank site.
+    const svg = sanitized(
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><circle cx="12" cy="12" r="9"/></svg>'
+    )!;
+
+    expect(svg.getAttribute('viewBox')).toBe('0 0 24 24');
+    expect(svg.getAttribute('stroke')).toBe('currentColor');
+    expect(svg.querySelector('path')!.getAttribute('d')).toBe('M5 12h14');
+    expect(svg.querySelector('circle')!.getAttribute('r')).toBe('9');
+  });
+
+  it('restores the camel case the HTML parser lowercases', () => {
+    // The one thing the two parsers could plausibly disagree on: an HTML parser
+    // lowercases attribute names, and foreign-content adjustment is what puts
+    // `viewBox` and `clipPath` back. A server that emitted `viewbox` would ship
+    // icons that do not scale.
+    const svg = sanitized(
+      '<svg viewBox="0 0 24 24"><clipPath id="c"><rect width="4" height="4"/></clipPath><linearGradient id="g" gradientTransform="rotate(90)"><stop offset="0"/></linearGradient></svg>'
+    )!;
+
+    expect(svg.hasAttribute('viewBox')).toBe(true);
+    expect(svg.querySelector('clipPath')).not.toBeNull();
+    expect(svg.querySelector('linearGradient')!.getAttribute('gradientTransform')).toBe('rotate(90)');
+  });
+
+  it('answers null for data holding no svg root', () => {
+    expect(sanitized('<div>not an icon</div>')).toBeNull();
+    expect(sanitized('')).toBeNull();
   });
 });

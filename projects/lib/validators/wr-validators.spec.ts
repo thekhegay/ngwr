@@ -86,6 +86,79 @@ describe('WrValidators.url', () => {
   it('passes on empty', () => {
     expect(url(control(''))).toBeNull();
   });
+
+  /**
+   * The lenient mode has its own parse, and therefore its own three ways to be
+   * wrong — none of which the strict path exercises, because it never reaches
+   * the retry at all.
+   */
+  describe('with the scheme optional', () => {
+    const lenient = WrValidators.url({ requireProtocol: false });
+
+    it('still rejects input that is not a URL even with https bolted on', () => {
+      // `new URL('https:// spaces')` throws, and the retry has to answer with an
+      // error rather than letting the throw escape a validator.
+      expect(lenient(control('not a url'))).toEqual({ url: true });
+      expect(lenient(control('%%%'))).toEqual({ url: true });
+    });
+
+    it('reads a leading slash as a host, which is the retry being literal', () => {
+      // Pinned because it surprises: `https:///reference` collapses to
+      // `https://reference/`, so a path typed into a lenient URL field is
+      // accepted as a domain. The alternative is a second syntax check the
+      // validator does not do — `requireProtocol: false` means "assume https",
+      // and this is what assuming https costs.
+      expect(lenient(control('/reference'))).toBeNull();
+    });
+
+    it('does not smuggle https past an allow-list that excludes it', () => {
+      // The retry ASSUMES https, so a field restricted to ftp would otherwise
+      // accept a bare domain by inventing the very scheme it forbids.
+      const ftpOnly = WrValidators.url({ requireProtocol: false, protocols: ['ftp'] });
+      expect(ftpOnly(control('ngwr.dev'))).toEqual({ url: { allowed: ['ftp'] } });
+      expect(ftpOnly(control('ftp://ngwr.dev'))).toBeNull();
+    });
+
+    it('leaves an explicit scheme to the strict path', () => {
+      // Input that already has a scheme is never retried, so a bad one stays bad.
+      expect(lenient(control('http:ngwr.dev'))).toEqual({ url: true });
+    });
+  });
+});
+
+/**
+ * Every single-field validator reads its control through one of two coercions,
+ * and both were only ever handed strings. A control bound to a number is
+ * ordinary — `<input type="number">`, a slider, a `[formField]` over a numeric
+ * model — and a control bound to an object is what an unfinished binding
+ * produces. Neither may throw, and neither may report a value it did not see.
+ */
+describe('WrValidators against a non-string control value', () => {
+  it('reads a number as its digits', () => {
+    // The Luhn check is the clearest witness: the same card number typed into a
+    // numeric control and into a text one has to answer the same way.
+    expect(WrValidators.cardNumber(control(4242424242424242))).toBeNull();
+    expect(WrValidators.cardNumber(control(4242424242424241))).toEqual({ cardNumber: true });
+    expect(WrValidators.hexColor(control(123456))).toEqual({ hexColor: true });
+  });
+
+  it('reads a boolean as its word', () => {
+    expect(WrValidators.noWhitespace(control(true))).toBeNull();
+    expect(WrValidators.hexColor(control(false))).toEqual({ hexColor: true });
+  });
+
+  it('treats anything else as empty rather than stringifying it', () => {
+    // `String({})` is `[object Object]`, which holds a space — so a stringifying
+    // coercion would report a `noWhitespace` FAILURE on a value the user can
+    // neither see nor fix. Empty is the honest reading, and empty is what every
+    // validator here waves through.
+    for (const value of [{}, [], () => 0, Symbol('x')]) {
+      expect(WrValidators.url()(control(value))).toBeNull();
+      expect(WrValidators.noWhitespace(control(value))).toBeNull();
+      expect(WrValidators.hexColor(control(value))).toBeNull();
+      expect(WrValidators.cardNumber(control(value))).toBeNull();
+    }
+  });
 });
 
 describe('WrValidators.cardNumber', () => {
@@ -222,6 +295,49 @@ describe('WrValidators.minDate / maxDate', () => {
   it('passes on empty', () => {
     expect(min(control(null))).toBeNull();
     expect(max(control(''))).toBeNull();
+  });
+});
+
+describe('WrValidators.minDate / maxDate against a value that is not a date', () => {
+  // `toMs` has three answers and the third is the one that decides what happens
+  // to junk: a Date, something `new Date()` can read, or NaN. A validator that
+  // let NaN through would compare `NaN >= minMs`, which is always false, and
+  // every date field bound to an object would silently report the bound error
+  // instead of saying the value is unreadable.
+  const min = WrValidators.minDate('2026-01-01');
+  const max = WrValidators.maxDate('2026-12-31');
+
+  it('reports the bound rather than passing an unreadable value', () => {
+    for (const [what, value] of [
+      ['an object', {}],
+      ['an array', []],
+      ['a function', () => 0],
+      ['a symbol', Symbol('x')],
+      ['a boolean', true],
+    ] as const) {
+      expect(min(control(value)), what).toEqual({ minDate: { min: '2026-01-01' } });
+      expect(max(control(value)), what).toEqual({ maxDate: { max: '2026-12-31' } });
+    }
+  });
+
+  it('reports it for a string no calendar can read, too', () => {
+    expect(min(control('not a date'))).toEqual({ minDate: { min: '2026-01-01' } });
+  });
+
+  it('still waves through nothing at all', () => {
+    // Emptiness is `required`'s job, not a bound's — same rule every other
+    // validator here follows.
+    expect(min(control(null))).toBeNull();
+    expect(min(control(''))).toBeNull();
+    expect(max(control(undefined))).toBeNull();
+  });
+
+  it('fails everything when the BOUND itself is unreadable', () => {
+    // The bound is coerced once, at construction. An unreadable one makes every
+    // comparison false, and reporting that as a bound violation on every value
+    // is what surfaces the author's mistake rather than hiding it.
+    const broken = WrValidators.minDate({} as unknown as Date);
+    expect(broken(control(new Date()))).toEqual({ minDate: { min: {} } });
   });
 });
 

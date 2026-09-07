@@ -89,4 +89,31 @@ describe('throttle', () => {
     vi.advanceTimersByTime(1000);
     expect(spy).toHaveBeenCalledOnce();
   });
+
+  it('drops a pending trailing call when the clock jumped past its window', () => {
+    // The case a busy main thread produces: a trailing call is scheduled, the
+    // thread is blocked past the deadline, and the next call arrives on the
+    // leading edge with that timer still queued. Without the clear, the trailing
+    // one fires immediately afterwards and the handler runs twice back to back —
+    // which for a resize or scroll listener is the double work throttling exists
+    // to prevent.
+    //
+    // The clock moves without the timer queue moving, which is exactly what
+    // `setSystemTime` does and `advanceTimersByTime` does not.
+    const spy = vi.fn();
+    const fn = throttle(spy, 100);
+
+    fn('a');
+    fn('b');
+    expect(spy).toHaveBeenCalledExactlyOnceWith('a');
+
+    vi.setSystemTime(Date.now() + 500);
+    fn('c');
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenLastCalledWith('c');
+
+    // And the swallowed trailing call stays swallowed rather than arriving late.
+    vi.advanceTimersByTime(1000);
+    expect(spy).toHaveBeenCalledTimes(2);
+  });
 });

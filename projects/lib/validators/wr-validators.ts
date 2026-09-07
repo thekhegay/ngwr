@@ -137,6 +137,13 @@ export const WrValidators = {
           } catch {
             return { url: true };
           }
+          // Unreachable, and kept as a guard rather than deleted. `https` is a
+          // WHATWG "special" scheme, which may not have an empty host, so
+          // `new URL('https://' + v)` either threw above or produced one —
+          // there is no `v` that lands here (checked by brute force over
+          // two-character ASCII as well as by the spec). It stays because the
+          // line above is the only thing making that true, and a future retry
+          // through a non-special scheme would need it back.
           if (retried.host === '') {
             return { url: true };
           }

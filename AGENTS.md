@@ -347,6 +347,20 @@ builder — no `vitest.config.ts` and no `@analogjs/*`: the target lives in
 sit **next to the code they cover** (`math/math.spec.ts`, not a `test/` tree).
 `tsconfig.lib.json` excludes `**/*.spec.ts`, so nothing ships to npm.
 
+**Codecov is wired and the number is real** — `pnpm test:coverage` writes
+`coverage/lib/lcov.info`, CI uploads it tokenlessly through OIDC, and
+`codecov.yml` keeps both statuses `informational: true` on purpose: the gates
+that fail a build are the nine above, and a coverage service is a badge and a PR
+comment. Read the report as a POINTER rather than a target — its one real catch
+so far was `utils/css-size`, a pure-logic module with no spec at all sitting
+inside a layer this paragraph called covered. The pure-logic layer is now 100%
+line-covered but for one branch that cannot execute (`WrValidators.url`'s
+empty-host guard, explained at the line), and the two other documented
+unreachables — the `<template>` parser in `sanitizeIcon` and the no-`window`
+read in `getRootFontSize` — are now driven by specs that stub the SSR shape,
+because a sanitizer strict in the browser and lax on the server is the worst
+failure a control like that can have.
+
 Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
 `ngwr/pipes`, the colour and squircle maths), the validation-copy contract
 (`ngwr/form`), most of the service layer (`ngwr/hotkey`, `ngwr/i18n`,
