@@ -20,9 +20,11 @@ updates:
     # `typescript >=6.0 <6.1`. 7.0 is out, and without this it arrives as an
     # ordinary weekly PR — no group claims it, so it looks like a lone chore.
     #
-    # @types/node tracks the RUNTIME, and .nvmrc pins Node 24 while `engines`
-    # allows `>=26`. Typing against 26 while CI runs 24 does not fail: it
-    # type-checks APIs that are not there, which is worse than failing.
+    # @types/node tracked the RUNTIME and was pinned below 26 while `.nvmrc`
+    # said 24 — typing against APIs that are not there does not fail, it
+    # type-checks clean, which is worse. Both moved to 26 together, so the
+    # ignore is gone; if the runtime pin ever moves back, this comes back with
+    # it rather than the types silently running ahead.
     #
     # vitest is not ours to choose either. The unit-test target runs through
     # `@angular/build:unit-test`, and `@angular/build` declares the peer
@@ -32,8 +34,6 @@ updates:
     ignore:
       - dependency-name: 'typescript'
         versions: ['>=6.1']
-      - dependency-name: '@types/node'
-        versions: ['>=26']
       - dependency-name: 'vitest'
         versions: ['>=5']
       - dependency-name: '@vitest/coverage-v8'

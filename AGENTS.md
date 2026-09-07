@@ -460,7 +460,7 @@ the first one decides every other question:
   drift — `WrCalendarDayHarness` is exported twice under two names for exactly
   that reason.
 
-Requirements: Node `^24.16.0 || >=26` (`.nvmrc` pins 24), pnpm `^11.10`
+Requirements: Node `^24.16.0 || >=26` (`.nvmrc` pins 26), pnpm `^11.10`
 (`engine-strict=true` in `.npmrc` — an older pnpm is refused outright, and
 `packageManager` pins 11.10.0), TypeScript `~6.0`, Angular `22.x`.
 
@@ -874,10 +874,31 @@ one by one). Angular **tooling** (`@angular/cli`, `@angular/build`,
 Dependabot (grouped, checked daily) handles the PRs — one per group, and `groups` does NOT cross ecosystems, so the npm groups say nothing about GitHub Actions bumps (those have their own group, minor/patch only; a major action bump still arrives alone so it cannot be merged unread). **TypeScript is pinned on purpose** at
 `~6.0.3` — Angular 22's peer range is `typescript >=6.0 <6.1`, and TypeScript 7
 is out. `.github/dependabot.yml` now carries an `ignore` for it, and one for
-`@types/node` `>=26` (`.nvmrc` pins Node 24, so newer types describe APIs the
-runtime does not have — which type-checks clean instead of failing). If either
+TypeScript 7. `.github/dependabot.yml` now carries an `ignore` for it. If it
 appears in a PR anyway, it came from somewhere other than the bot; don't take
-it.
+it. The matching `@types/node` ignore is GONE — the types and the runtime moved
+to 26 together, and they have to keep moving together: types ahead of the
+runtime describe APIs that are not there, which type-checks clean rather than
+failing.
+
+**The runtime is Node 26, and one thing about the jsdom suite came with it.**
+Angular 22 accepts `^22.22.3 || ^24.15.0 || ^26.0.0`, so `.nvmrc` and every
+workflow moved to 26 — but Node 25 unflagged the Web Storage API and Node 26
+leaves `localStorage` on `globalThis` as `undefined` unless `--localstorage-file`
+is passed. The key existing is enough: vitest skips window keys that are already
+on the global, so jsdom's own `localStorage` never lands and forty-six specs
+across six unrelated files fail on one root cause. `projects/lib/vitest-setup.ts`
+(wired through `setupFiles` in `angular.json`) installs the library's own
+`createMemoryStorage()` when the name is taken and empty, and does nothing on a
+Node that supplies a working one. **Not `--no-webstorage`**, which fixes it at
+the source and does not exist on Node 24 — it is refused inside `NODE_OPTIONS`
+there — so a repo whose `engines` accepts both cannot set it statically. Upstream
+is not coming: vitest closed the collision as not planned. The LIBRARY was never
+affected — `storage-engine.ts` already falls back to memory on a missing
+`localStorage` — which is what makes this scaffolding rather than a product fix.
+Node 24 is still in `engines` and still Active LTS until 2028, so a nightly
+`legacy-node` job runs `pnpm test` and `build:lib` on it; without that, half the
+range would be a claim nothing checks.
 
 **Docs prose.** In changelogs / docs, write "from X to Y" — not "X → Y" (no
 arrow) — for version and before/after descriptions.
