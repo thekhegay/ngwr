@@ -1,5 +1,22 @@
 # Changelog
 
+## [14.3.0](https://github.com/thekhegay/ngwr/compare/v14.2.0...v14.3.0) (2026-09-08)
+
+### Features
+
+* **form:** a field's presentation rides on the signal-forms schema ([4ebd5cf](https://github.com/thekhegay/ngwr/commit/4ebd5cf11f0588de99b4eb86cc65ecb296dfd6f4))
+* **i18n:** twenty more locale catalogs, each gated against the english one ([694d1bd](https://github.com/thekhegay/ngwr/commit/694d1bd7b97e1e6c9ac661858cf12007d62480dc))
+* **schema-form:** draw a whole form from its signal-forms schema ([cafa05c](https://github.com/thekhegay/ngwr/commit/cafa05c9b42345550da3431c18f0fdb0c708e889))
+* **showcase:** event replay on, and the heaviest section hydrates on view ([cff8b50](https://github.com/thekhegay/ngwr/commit/cff8b5043dd0e44fb574026d64da70b2b9050691))
+
+### Bug Fixes
+
+* **ci:** the layout gate measures height, where the two platforms agree ([b33f0a4](https://github.com/thekhegay/ngwr/commit/b33f0a4f860b1753ccee4c263e63425d1c8c6a44))
+* **i18n:** route the composed strings and byte units through the locale ([a91cfdf](https://github.com/thekhegay/ngwr/commit/a91cfdfcd2cbe02751bd9d4465594b14269312ea))
+* **repo:** make the meta files say what the repository actually does ([5c8cedd](https://github.com/thekhegay/ngwr/commit/5c8cedd4914acb11684662422f991323bec388c0))
+* **repo:** restore the version guard pnpm 12 silently dropped ([dca52e1](https://github.com/thekhegay/ngwr/commit/dca52e167b007ddd832c24f86ce7a8b76c547a4b))
+* **select:** the search combobox says it has a suggestion list ([2632f82](https://github.com/thekhegay/ngwr/commit/2632f82746596d94923590d0c67585797e3c5c6f))
+
 ## [14.2.0](https://github.com/thekhegay/ngwr/compare/v14.1.0...v14.2.0) (2026-09-05)
 
 ### Features
