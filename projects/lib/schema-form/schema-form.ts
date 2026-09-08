@@ -54,6 +54,41 @@ const EXPECTED_TYPE: Partial<Record<WrFieldSpec['kind'], string>> = {
 };
 
 /**
+ * Warn when a group's described fields are about to be drawn by nothing.
+ *
+ * A field tree is iterated one level deep, so an object-valued field with no
+ * `WR_FIELD` of its own is skipped exactly like an undescribed leaf — and its
+ * children go with it. That is the right default (a model nests for reasons
+ * that have nothing to do with a screen), but it is indistinguishable from a
+ * half-drawn form: nothing is missing from the DOM, so nothing looks wrong.
+ *
+ * Describing the children and getting none of them is never intentional, so
+ * that exact shape is what this reports. A group whose children carry no spec
+ * either is silent, because it is a model detail this screen does not render.
+ */
+function warnOnUndrawnGroup(key: string, group: unknown): void {
+  // A field tree over a primitive is not iterable, and every undescribed leaf
+  // arrives here — so the guard is what keeps this from throwing on the common
+  // case rather than a defence against an exotic one.
+  const subfields = (group as Partial<Iterable<[string, unknown]>>)[Symbol.iterator];
+  if (typeof subfields !== 'function') return;
+
+  let described = 0;
+  for (const [, child] of group as Iterable<[string, unknown]>) {
+    if (isFieldTree(child) && (child as Field<never>)().metadata(WR_FIELD)?.()) described++;
+  }
+  if (described === 0) return;
+
+  // eslint-disable-next-line no-console -- dev-mode validation
+  console.warn(
+    `[NGWR] <wr-schema-form>: "${key}" is a group holding ${described} described ` +
+      `field(s), and none of them are drawn — a field tree is walked one level deep. ` +
+      `Draw the group with a second <wr-schema-form [field]="form.${key}" />, or give ` +
+      `"${key}" a WR_FIELD of its own if this screen is meant to skip it.`
+  );
+}
+
+/**
  * Warn when a `kind` contradicts what the field actually holds.
  *
  * This is the one failure mode of the whole component that nothing else
@@ -182,7 +217,10 @@ export class WrSchemaForm<T extends object> {
 
       const field = child as Field<never>;
       const spec = field().metadata(WR_FIELD)?.();
-      if (!spec) continue;
+      if (!spec) {
+        if (isDevMode()) warnOnUndrawnGroup(key, child);
+        continue;
+      }
 
       const label = spec.label ?? wrFieldLabel(key);
       const span = Math.min(Math.max(Math.round(spec.span ?? 1), 1), columns);
