@@ -158,6 +158,12 @@ max(path.seats, 500);
 // This does not compile — NG8022. The field owns the bound.
 // <wr-input-number [formField]="f.seats" [min]="1" />`,
 
+    group: `<!-- \`address\` is a group: the parent draws none of it. -->
+<wr-schema-form [field]="signup" [columns]="2" />
+
+<h3>Address</h3>
+<wr-schema-form [field]="signup.address" [columns]="2" />`,
+
     escape: `<!-- Draw most of the form, then write the one field by hand. -->
 <wr-schema-form [field]="signup.address" [columns]="2" />
 

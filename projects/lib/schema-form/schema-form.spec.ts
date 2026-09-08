@@ -256,4 +256,95 @@ describe('WrSchemaForm', () => {
       warn.mockRestore();
     });
   });
+  /**
+   * A field tree is walked one level deep, so a nested group is skipped exactly
+   * like an undescribed leaf and takes its children with it. The default is
+   * right — a model nests for reasons a screen knows nothing about — but the
+   * DOM of a half-drawn form looks like the DOM of a finished one, so the one
+   * shape that is never intentional gets a dev-mode warning.
+   */
+  describe('a nested group', () => {
+    interface Address {
+      readonly city: string;
+    }
+    interface Signup {
+      readonly name: string;
+      readonly address: Address;
+    }
+
+    const signupSchema = schema<Signup>(path => {
+      metadata(path.name, WR_FIELD, () => ({ kind: 'input' }));
+      metadata(path.address.city, WR_FIELD, () => ({ kind: 'input' }));
+    });
+
+    @Component({
+      imports: [WrSchemaForm],
+      template: `<wr-schema-form [field]="f" />`,
+    })
+    class TopHost {
+      readonly model = signal<Signup>({ name: '', address: { city: '' } });
+      readonly f = form(this.model, signupSchema);
+    }
+
+    @Component({
+      imports: [WrSchemaForm],
+      template: `<wr-schema-form [field]="f.address" />`,
+    })
+    class GroupHost {
+      readonly model = signal<Signup>({ name: '', address: { city: '' } });
+      readonly f = form(this.model, signupSchema);
+    }
+
+    beforeEach(() => TestBed.resetTestingModule());
+
+    it('is not drawn from the parent, and says so rather than half-drawing the form', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+      const fixture = TestBed.createComponent(TopHost);
+      fixture.detectChanges();
+      const el = fixture.nativeElement as HTMLElement;
+
+      expect([...el.querySelectorAll('.wr-form-field__label')].map(l => l.textContent?.trim())).toEqual(['Name']);
+      expect(warn).toHaveBeenCalledOnce();
+      expect(warn.mock.calls[0][0]).toContain('"address" is a group holding 1 described field(s)');
+      warn.mockRestore();
+    });
+
+    it('draws when the binding points at it, which is the documented way in', () => {
+      const fixture = TestBed.createComponent(GroupHost);
+      fixture.detectChanges();
+      const el = fixture.nativeElement as HTMLElement;
+
+      expect([...el.querySelectorAll('.wr-form-field__label')].map(l => l.textContent?.trim())).toEqual(['City']);
+    });
+
+    /**
+     * Every undescribed LEAF reaches the same code path, and a field tree over a
+     * primitive is not iterable — so this is the case that would throw, not an
+     * exotic one. It also pins the other half of the rule: a group nobody
+     * described is a model detail, not a mistake.
+     */
+    it('says nothing about an undescribed leaf, or a group with nothing described inside', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+      interface Quiet {
+        readonly name: string;
+        readonly internalId: string;
+        readonly meta: { readonly trace: string };
+      }
+      @Component({ imports: [WrSchemaForm], template: `<wr-schema-form [field]="f" />` })
+      class QuietHost {
+        readonly model = signal<Quiet>({ name: '', internalId: 'x-1', meta: { trace: 'a' } });
+        readonly f = form(
+          this.model,
+          schema<Quiet>(path => metadata(path.name, WR_FIELD, () => ({ kind: 'input' })))
+        );
+      }
+
+      TestBed.createComponent(QuietHost).detectChanges();
+
+      expect(warn).not.toHaveBeenCalled();
+      warn.mockRestore();
+    });
+  });
 });

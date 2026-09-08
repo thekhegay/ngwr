@@ -66,6 +66,27 @@
     <ngwr-doc-code [code]="snippets.escape" language="angular-html" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="A nested group is one form each"
+    description="The field tree is walked one level deep, so an object-valued field is skipped like any other undescribed field — and its children go with it."
+  >
+    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
+      That is the default because a model nests for reasons a screen knows nothing about, and because a group has a
+      presentation of its own — a heading, a fieldset, a column count that need not match its parent's — which the spec
+      does not describe. So a group is drawn by pointing a second
+      <code>&lt;wr-schema-form&gt;</code> at it, with whatever markup belongs around it.
+    </p>
+
+    <ngwr-doc-code [code]="snippets.group" language="angular-html" />
+
+    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
+      Describing the children of a group and then getting none of them is never what anyone meant, and it does not look
+      like a mistake — nothing is missing from the page, so a half-drawn form reads as a finished one. That exact shape
+      warns in development. A group nobody described inside stays silent, because it is a model detail this screen is
+      not rendering.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
