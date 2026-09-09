@@ -96,4 +96,51 @@
   &--invalid &__control .wr-select__trigger {
     border-color: var(--wr-color-danger);
   }
+
+  // The three the rule above cannot reach, each for its own reason, and each
+  // of which showed NOTHING in the error state — not a weak cue, none at all.
+  //
+  // `wr-input-group` owns the border on the WRAPPER and strips it from the
+  // inner control on purpose, so recolouring `input` repainted a border that
+  // is not there. The checkbox and the radio never had one to repaint: their
+  // box is a `<span>`, and the field could only reach a native control.
+  //
+  // Each publishes its own border hook, so this sets the hook rather than the
+  // property — the component keeps deciding where its border lives.
+  //
+  // Worth stating because the rest of this audit ran the other way: `danger`
+  // against `outline` separates in LIGHTNESS, not only in hue — 3.11:1 light,
+  // 2.90:1 dark — so unlike two intents compared with each other, this cue
+  // mostly survives a reader who cannot separate hue. Mostly: the dark figure
+  // is under the 3:1 that WCAG 1.4.11 asks of a control boundary, which is the
+  // same shortfall `--wr-color-outline` carries by decision, and it is the
+  // message underneath that does the load-bearing work either way.
+  //
+  // THE HOOK HAS TO LAND ON THE ELEMENT THAT READS IT. The checkbox declares
+  // `--wr-checkbox-border` on its host and reads it on `__box`; its own hover
+  // rule declares the same hook ON `__box`. A custom property resolves per
+  // element, so a declaration matching the element beats an inherited one from
+  // any ancestor no matter how specific that ancestor's rule is — the first
+  // version of this block set the hook on the host only, and hovering an
+  // invalid checkbox turned it back to primary. Naming the inner element takes
+  // the selector to (0,4,0), which outranks the component's (0,3,0) hover.
+  &--invalid &__control .wr-input-group {
+    --wr-input-group-border: var(--wr-color-danger);
+  }
+
+  // This DOES reach every box of a `<wr-checkbox-group>`, while `checkbox.ts`
+  // deliberately suppresses `aria-invalid` on the same boxes — and the two are
+  // not in conflict. A screen reader reads nine boxes SERIALLY, so nine
+  // announcements of one group error is nine times the cost; an eye takes nine
+  // red boxes in at once and reads one signal. The reason the ARIA rule exists
+  // does not transfer to the visual channel.
+  &--invalid &__control .wr-checkbox,
+  &--invalid &__control .wr-checkbox .wr-checkbox__box {
+    --wr-checkbox-border: var(--wr-color-danger);
+  }
+
+  &--invalid &__control .wr-radio,
+  &--invalid &__control .wr-radio .wr-radio__dot {
+    --wr-radio-border: var(--wr-color-danger);
+  }
 }

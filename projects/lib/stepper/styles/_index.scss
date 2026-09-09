@@ -142,6 +142,27 @@ $header-padding-block: 0.25rem;
     background: var(--wr-color-primary-soft);
   }
 
+  // A step `linear` has not opened yet renders a DISABLED button that looked
+  // exactly like an available one. `--reachable` was bound in the template,
+  // asserted by a spec and read by the harness, and styled by nothing at all,
+  // so the only cue was `cursor: not-allowed` — which needs a pointer, and a
+  // touch device has none.
+  //
+  // The cue is the border STYLE, deliberately: `linear` refuses rather than
+  // greys, so dimming would contradict the contract, and a tint would be
+  // invisible to a reader who cannot separate hue.
+  //
+  // `--completed` is excluded because a completed circle is FILLED with
+  // `--wr-color-primary` and rings itself in the same colour, so dashes there
+  // would be dashes against their own fill — invisible, and pointless besides,
+  // since a step already carrying a tick does not need to be told it is shut.
+  // The rule does cover a step its own `disabled` input closed, in a stepper
+  // that is not `linear` at all: `isReachable` fails on `disabled` first
+  // (stepper.ts:126), and "you cannot go here" is the same news either way.
+  &__header:not(.wr-stepper__header--reachable):not(.wr-stepper__header--completed) &__indicator {
+    border-style: dashed;
+  }
+
   &__header--completed &__indicator {
     background: var(--wr-color-primary);
     border-color: var(--wr-color-primary);

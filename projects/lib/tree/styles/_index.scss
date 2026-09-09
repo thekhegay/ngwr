@@ -24,6 +24,9 @@
     cursor: pointer;
     user-select: none;
     outline: 0;
+    // Positioning context for the `--active` cursor bar below. Nothing inside
+    // a row is absolutely positioned, so this establishes one for that alone.
+    position: relative;
     transition:
       background var(--wr-transition-base),
       color var(--wr-transition-base);
@@ -50,9 +53,24 @@
     }
 
     // Active-descendant cursor when virtualized — focus lives on the list
-    // container, so the "current" row is shown by tint rather than a focus ring.
+    // container, so the "current" row cannot use the focus ring.
+    //
+    // The tint alone was the byte-identical declaration `:hover` uses above,
+    // which made the keyboard cursor indistinguishable from a mouse resting on
+    // another row. The bar is what separates them, and it is a shape rather
+    // than a colour so a selected row (also a tint) stays distinct too.
     &--active {
       background: var(--wr-color-hover);
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset-block: 0;
+        inset-inline-start: 0;
+        width: 2px;
+        border-radius: inherit;
+        background: var(--wr-color-primary);
+      }
     }
   }
 

@@ -23,15 +23,28 @@
           <path d="M12 9v4" />
           <path d="M12 17h.01" />
         }
+        <!-- An OCTAGON, and the shape is the point. `danger` used to be a
+             circle holding a bar over a dot, which is the vertical mirror of
+             the `i` the @default branch draws — at the rendered 18px the two
+             differ only by where a 1.5px gap sits. The stop-sign silhouette
+             reads at that size and survives greyscale, which a mirrored gap
+             does not. -->
         @case ('danger') {
-          <circle cx="12" cy="12" r="10" />
+          <path
+            d="M2.586 16.726A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586z"
+          />
           <path d="M12 8v4" />
           <path d="M12 16h.01" />
         }
+        <!-- A bar, not the exclamation mark `danger` used to carry: `neutral`
+             emitted that glyph byte for byte. The icon is the whole difference
+             between these two, because what the component actually paints —
+             `danger-ink` #a32a33 (L 0.0968) against `on-surface-muted` #5f6c7d
+             (L 0.1464) on tints 1.036:1 apart — is a hue difference and little
+             else. -->
         @case ('neutral') {
           <circle cx="12" cy="12" r="10" />
-          <path d="M12 8v4" />
-          <path d="M12 16h.01" />
+          <path d="M8 12h8" />
         }
         @case ('offline') {
           <circle cx="12" cy="12" r="10" />
