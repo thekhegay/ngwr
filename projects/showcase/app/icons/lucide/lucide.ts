@@ -54,9 +54,22 @@ function kebabToPascal(value: string): string {
 export default class LucideBrowser {
   /**
    * Pre-converted icon list. Built lazily via a computed signal so the work
-   * happens once on first render (Lucide ships ~1700 IconNode tuples).
+   * happens once on first render — Lucide ships its icons as IconNode tuples,
+   * two thousand of them and counting.
    */
   protected readonly icons = computed<readonly IconEntry[]>(() => buildLucideEntries());
+
+  /**
+   * The lede, with the set's size DERIVED rather than written down. It was a
+   * literal `~1700` until lucide 1.43 made that 22% short: a count a reader
+   * uses to judge whether the set covers them is exactly the number that must
+   * not be a claim someone has to remember to update.
+   */
+  protected readonly lede = computed(
+    () =>
+      `A modern, community-maintained Feather fork. ${this.icons().length} 24px stroke icons. ` +
+      `Click any tile to copy the import snippet.`
+  );
 
   protected readonly install = 'pnpm add lucide';
 

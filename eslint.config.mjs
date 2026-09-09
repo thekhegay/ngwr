@@ -225,16 +225,6 @@ export default tsEslint.config(
       '@angular-eslint/template/prefer-template-literal': 'error',
     },
   },
-  // Bootstrap `index.html` files contain the app-root tag and run
-  // through Angular's CLI HTML parser, not the Angular template parser
-  // — that parser is HTML5-strict and rejects self-closing custom
-  // elements (`<ngwr-root />`). Exempt them.
-  {
-    files: ['**/index.html'],
-    rules: {
-      '@angular-eslint/template/prefer-self-closing-tags': 'off',
-    },
-  },
   // Specs. A component spec's host is a throwaway that has to declare its
   // template inline — putting it in a `.html` file next to the code under test
   // would ship a fake component into the docs and the package. Selector
