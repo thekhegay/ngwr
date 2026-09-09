@@ -16,7 +16,7 @@
  * 380 hook(s) across 58 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
- * declares it also owns it: 24 declaration(s) are one component setting
+ * declares it also owns it: 27 declaration(s) are one component setting
  * another's hook (`--wr-icon-size` inside its own `<wr-icon>`) and belong on
  * the owner's page, not on the setter's.
  */

@@ -149,17 +149,39 @@
     }
   }
 
-  // Links — flowbite default: medium weight, brand color, underline on
-  // hover. Add your own `underline` class for the always-underlined look.
+  // Links are underlined ALWAYS, and the underline is the whole point rather
+  // than a style preference.
+  //
+  // WCAG technique G183 lets a link be marked by colour alone only when it
+  // clears 3:1 against the prose around it. `--wr-color-primary-ink` on
+  // `--wr-color-on-surface` measures 2.72:1 in LIGHT, so it never did — the
+  // underline was the missing half, and putting it on `:hover` gave it to a
+  // mouse and to nobody else. `ngwr/markdown` had this right all along, which
+  // made the library disagree with itself about its own links.
+  //
+  // The dark figure is deliberately not quoted here: `-ink` is a `color-mix`
+  // there, so it cannot be read off the source, and a hand-composited guess is
+  // the mistake `_colors.scss` already warns about. `check:contrast` measures
+  // it in a browser; the underline does not depend on the answer either way.
+  //
+  // Hover thickens rather than adds, so the interaction still answers. And the
+  // focus ring is here because it was nowhere: this variant is the one piece of
+  // typography that is reliably INTERACTIVE, and it had no `:focus-visible`
+  // rule at all, so a keyboard reached it and nothing on screen said so.
   &--link {
     font-weight: var(--wr-font-weight-medium);
     color: var(--wr-color-primary-ink);
-    text-decoration: none;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
     text-underline-offset: 2px;
     cursor: pointer;
 
     &:hover {
-      text-decoration: underline;
+      text-decoration-thickness: 2px;
+    }
+
+    &:focus-visible {
+      @include theme.focus-ring;
     }
   }
 
