@@ -1,5 +1,11 @@
 # Changelog
 
+## [14.3.1](https://github.com/thekhegay/ngwr/compare/v14.3.0...v14.3.1) (2026-09-09)
+
+### Bug Fixes
+
+* **schema-form:** a nested group says so instead of vanishing silently ([e9ea0c2](https://github.com/thekhegay/ngwr/commit/e9ea0c2fd89da17a5292aaca52547750e54c3058))
+
 ## [14.3.0](https://github.com/thekhegay/ngwr/compare/v14.2.0...v14.3.0) (2026-09-08)
 
 ### Features
