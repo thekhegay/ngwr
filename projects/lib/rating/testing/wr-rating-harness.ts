@@ -143,10 +143,19 @@ export class WrRatingHarness extends ComponentHarness {
   }
 
   /**
-   * Whether the rating is in the tab order.
+   * Whether the rating is a tab stop.
    *
-   * A rating that takes no input takes itself out of it (`tabindex="-1"`), so this
-   * is `false` while readonly or disabled.
+   * `disabled` only, never `readonly` — and the distinction is deliberate, not
+   * incidental. A disabled control leaves the tab order; a READ-ONLY one stays
+   * in it, keeps announcing its value, and still submits, which is the whole
+   * difference between "you may not" and "there is nothing here". The component
+   * records that driving this off an `interactive()` that folded the two
+   * together made `readonly` unreachable, with an `aria-describedby` pointing
+   * at an element nobody could focus.
+   *
+   * This docblock used to describe exactly that fixed bug — "false while
+   * readonly or disabled" — so a reader trusting it would have asserted the
+   * behaviour the component was changed to stop having.
    */
   async isFocusable(): Promise<boolean> {
     const tabIndex = await (await this.row()).getAttribute('tabindex');
