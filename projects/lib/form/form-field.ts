@@ -41,6 +41,43 @@ function toParams(error: unknown): Record<string, unknown> | undefined {
 }
 
 /**
+ * The two Signal Forms kinds whose spelling and payload differ from the classic
+ * validator that means the same thing.
+ *
+ * Reactive forms emit `minlength` / `maxlength` carrying `requiredLength`;
+ * Signal Forms emit `minLength` / `maxLength` carrying `minLength` / `maxLength`.
+ * Nothing bridged them, so the library's FLAGSHIP forms flavour rendered an
+ * empty error block for both: the key missed every message source in turn — the
+ * app's own map, all twenty-two i18n catalogs, and the built-in fallbacks — and
+ * `resolve` returns `''` for a miss, which the caller then filters out. A field
+ * over its length limit was invalid, marked invalid, and said nothing.
+ *
+ * Normalised here rather than by adding two keys to twenty-two catalogs,
+ * because the message is the SAME message: one sentence about a length, reached
+ * by two spellings of one rule.
+ */
+const SIGNAL_FORMS_ALIASES: Readonly<Record<string, { readonly key: string; readonly from: string }>> = {
+  minLength: { key: 'minlength', from: 'minLength' },
+  maxLength: { key: 'maxlength', from: 'maxLength' },
+};
+
+/**
+ * A Signal Forms length error, restated in the classic shape every message
+ * source already understands. Anything else passes through untouched.
+ */
+function normalizeError(key: string, error: unknown): { readonly key: string; readonly error: unknown } {
+  const alias = SIGNAL_FORMS_ALIASES[key];
+  if (!alias) return { key, error };
+
+  const params = toParams(error);
+  const bound = params?.[alias.from];
+  return {
+    key: alias.key,
+    error: bound === undefined ? error : { ...params, requiredLength: bound },
+  };
+}
+
+/**
  * One error message tied to a validator key. Renders only when the parent
  * form-field has a matching error in `control.errors`, and only once the
  * control is touched or dirty.
@@ -279,7 +316,14 @@ export class WrFormField implements WrFormFieldContext {
       .filter(m => m.text.length > 0);
   });
 
-  private resolve(key: string, error: unknown): string {
+  private resolve(rawKey: string, rawError: unknown): string {
+    // A consumer's own map is consulted under BOTH spellings — theirs first, so
+    // someone who already worked around this by writing `minLength` keeps
+    // winning, and the normalised one after.
+    const appRaw = this.appMessages[rawKey];
+    if (appRaw !== undefined) return render(appRaw, rawKey, rawError, this.label());
+
+    const { key, error } = normalizeError(rawKey, rawError);
     const app = this.appMessages[key];
     if (app !== undefined) return render(app, key, error, this.label());
 

@@ -115,7 +115,20 @@ export class WrAffix {
 
           observer = new IntersectionObserver(
             ([entry]) => {
-              const next = !entry.isIntersecting;
+              // NOT `!entry.isIntersecting` on its own. A sentinel is outside
+              // the root in TWO directions, and only one of them means the
+              // header has stuck: above the line because the page scrolled past
+              // it, or below it because the host simply starts further down the
+              // page than the first screen. The bare negation called both
+              // "affixed", so any sticky element below the fold reported
+              // `affixed = true` and painted `.wr-affix--active` on its very
+              // first observer callback — before a pixel had scrolled — and
+              // emitted a transition that never happened.
+              //
+              // `rootBounds.top` is the offset line (the negative `rootMargin`
+              // above moves it), so a sentinel above it has genuinely gone by.
+              const rootTop = entry.rootBounds?.top ?? offset;
+              const next = !entry.isIntersecting && entry.boundingClientRect.top < rootTop;
               if (next === affixed) return;
 
               affixed = next;
