@@ -124,7 +124,31 @@ export class WrPagination {
   protected readonly navLabel = useI18nText(this.label, 'pagination.label', 'Pagination');
 
   /** Internal: total page count. */
-  protected readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize())));
+  /**
+   * A page size that is not a positive number yields ONE page, not `Infinity`.
+   *
+   * `pageSize` is a `model()`, so Angular offers no `transform` to coerce it and
+   * whatever the host writes arrives raw. At 0 the division is `Infinity`,
+   * `Math.max(1, …)` keeps it, and the item list below pushes `total` as the
+   * last page — so the strip rendered a clickable cell reading "Infinity", and
+   * clicking it locked the tab. `NaN` (a `pageSize` bound to an emptied number
+   * field) came through untouched for the same reason.
+   *
+   * One page is the honest answer: a size of zero describes no paging at all.
+   * Note this is about `pageSize` and does NOT touch the recorded contract
+   * about `total` — pagination still refuses to pull the page DOWN while
+   * `total` is at or below zero, because 0 is ambiguous with "still loading".
+   */
+  private readonly usablePageSize = computed(() => {
+    const size = this.pageSize();
+    if (Number.isFinite(size) && size >= 1) return size;
+    // Everything on one page. Deliberately not `Infinity`, which gives the
+    // right page COUNT by accident and then puts `Infinity` in the range label
+    // the moment `page` is above 1.
+    return Math.max(1, this.total());
+  });
+
+  protected readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.usablePageSize())));
 
   /**
    * Internal: where the previous arrow goes. Clamped to the end of the valid
@@ -153,8 +177,10 @@ export class WrPagination {
    * concatenation, re-offered as API.
    */
   protected readonly rangeLabel = computed(() => {
-    const start = this.total() === 0 ? 0 : (this.page() - 1) * this.pageSize() + 1;
-    const end = Math.min(this.page() * this.pageSize(), this.total());
+    // The same guarded size, or the range label reads "1 – NaN of 100".
+    const size = this.usablePageSize();
+    const start = this.total() === 0 ? 0 : (this.page() - 1) * size + 1;
+    const end = Math.min(this.page() * size, this.total());
     return this.rangeText({
       from: this.number(start),
       to: this.number(end),

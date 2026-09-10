@@ -714,4 +714,31 @@ describe('WrPagination emits a modifier for every documented align and shape', (
     fixture.detectChanges();
     expect(host().classList).toContain(`wr-pagination--${shape}`);
   });
+  /**
+   * `pageSize` is a `model()`, so Angular gives it no `transform` and a host
+   * writes whatever it likes. At 0 the page count was `Infinity`, which the
+   * item list rendered as a clickable cell reading "Infinity" — clicking it
+   * locked the tab. `NaN` arrived the same way from a `pageSize` bound to an
+   * emptied number field.
+   */
+  describe('a page size that is not a positive number', () => {
+    for (const size of [0, -5, Number.NaN]) {
+      it(`renders one page and a sane range for pageSize=${String(size)}`, () => {
+        const fx = TestBed.createComponent(Host);
+        fx.componentInstance.pageSize.set(size);
+        fx.componentInstance.total.set(100);
+        fx.componentInstance.showTotal.set(true);
+        fx.detectChanges();
+        const el = fx.nativeElement as HTMLElement;
+
+        const labels = [...el.querySelectorAll('.wr-pagination__page')].map(x => x.textContent?.trim());
+        expect(labels).not.toContain('Infinity');
+        expect(labels).not.toContain('NaN');
+        expect(el.textContent).not.toContain('Infinity');
+        expect(el.textContent).not.toContain('NaN');
+        // One page, and a range that describes the whole set.
+        expect(labels).toEqual(['1']);
+      });
+    }
+  });
 });
