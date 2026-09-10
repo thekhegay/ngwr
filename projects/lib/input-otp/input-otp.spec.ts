@@ -122,6 +122,29 @@ describe('WrInputOtp', () => {
     expect(boxes().map(b => b.value)).toEqual(['4', '8', '2', '9', '1', '3']);
   });
 
+  it('leaves the landing character SELECTED after a full paste', async () => {
+    // `focusCell` ends in `select()`, and under zoneless CD the DOM still holds
+    // the previous value when the paste handler runs — change detection is a
+    // macrotask. The selection was therefore made over an empty box and the
+    // caret landed AFTER the character (`1-1`) instead of over it. With
+    // `maxlength="1"` and the box already full, the next keystroke was refused:
+    // paste a code, type to correct its last digit, nothing happens.
+    const box = boxes()[0];
+    box.focus();
+    const event = new Event('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(event, 'clipboardData', {
+      value: { getData: (type: string) => (type === 'text' || type === 'text/plain' ? '482913' : '') },
+    });
+    box.dispatchEvent(event);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const landed = document.activeElement as HTMLInputElement;
+    expect(landed.value).toBe('3');
+    expect(landed.selectionStart).toBe(0);
+    expect(landed.selectionEnd).toBe(1);
+  });
+
   it('walks back on Backspace from an empty box', () => {
     typeInto(0, '1');
     typeInto(1, '2');
