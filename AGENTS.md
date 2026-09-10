@@ -1111,8 +1111,11 @@ Two more things about it. The baseline is keyed by NODE with `:nth-child()`
 stripped, so a new violation inside an already-failing state cannot hide and the
 calendar entries do not expire when the month changes. And a full run prints
 coverage — state-dependent classes in the BUILT stylesheet versus classes it
-actually painted, **71 of 95** across 78 states — because a curated table that
-stopped growing looks exactly like one that covers the catalog. Two things when
+actually painted, **95 of 95** across 102 states — because a curated table that
+stopped growing looks exactly like one that covers the catalog. (It read 71 of
+95 across 78 states when this paragraph was written, and the figure sat here
+unchecked while the table grew past it. Re-read it off a full run rather than
+from this line: the run prints it, and a number in prose is a claim.) Two things when
 you extend it: pass **`--probe`**, which reports every unreachable state instead
 of stopping at the first, and put every selector through **`demo()`** — the
 showcase is built out of the library, so the first `.wr-dropdown-trigger` on every
