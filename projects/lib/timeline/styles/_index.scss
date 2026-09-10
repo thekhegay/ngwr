@@ -40,21 +40,48 @@
     z-index: 1;
   }
 
+  // Each intent gets a SILHOUETTE, because the dot is an empty 12px span with
+  // no glyph and nothing beside it that names the state: `title` and `time` are
+  // both optional, so an item written as `<wr-timeline-item color="danger">`
+  // may carry no text of its own at all. Colour cannot do the work here —
+  // success, danger and medium sit within 1.006:1 of each other in dark and
+  // 1.006:1 in light, and success against danger is 1.004:1.
+  //
+  // The shapes follow the vocabulary the library already uses: a triangle is a
+  // warning in `wr-alert` and `wr-result`, so it is a warning here. The base
+  // dot stays a plain circle on purpose — it means "no intent given", and the
+  // quietest shape is the right one for it.
   &--success &__dot {
+    // A filled block: finished.
+    border-radius: 2px;
     background: var(--wr-color-success);
   }
 
   &--warning &__dot {
+    clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+    border-radius: 0;
     background: var(--wr-color-warning);
   }
 
   &--danger &__dot {
+    // A diamond — the loudest silhouette at this size, and unmistakable
+    // against the square and the triangle above it.
+    rotate: 45deg;
+    border-radius: 2px;
     background: var(--wr-color-danger);
   }
 
+  // color-ok: `background: transparent` plus an inset ring makes this dot
+  // HOLLOW — a silhouette, like the three above it. Both declarations happen
+  // to be colour-valued, which is the one shape this gate cannot read.
   &--medium &__dot {
+    // Hollow, which reads as the quiet one. The second shadow keeps the 2px
+    // surface halo every dot carries, so the ring does not swallow it.
     // The `color="medium"` INTENT, not the muted-text role — keep the literal.
-    background: var(--wr-color-medium);
+    background: transparent;
+    box-shadow:
+      inset 0 0 0 2px var(--wr-color-medium),
+      0 0 0 2px var(--wr-color-surface);
   }
 
   &__body {

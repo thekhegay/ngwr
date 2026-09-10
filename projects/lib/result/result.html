@@ -13,11 +13,18 @@
         />
       </svg>
     }
+    <!-- A TRIANGLE, and the shape is the point twice over. Warning used to sit
+         in the same circle as info holding a near-identical exclamation mark —
+         the two paths differed by 2 user units, which is under 2px at the
+         rendered size — and `warning` against `info` is a hue difference the
+         palette cannot widen. It also brings this component into line with
+         `wr-alert`, which has drawn warning as a triangle all along; the two
+         disagreeing about what a warning looks like was its own small defect. -->
     @case ('warning') {
       <svg width="64" height="64" viewBox="0 0 64 64">
-        <circle cx="32" cy="32" r="28" fill="currentColor" opacity="0.12" />
+        <path d="M32 8 L60 54 L4 54 Z" fill="currentColor" opacity="0.12" />
         <path
-          d="M32 18 L32 36 M32 44 L32 46"
+          d="M32 26 L32 40 M32 47 L32 49"
           fill="none"
           stroke="currentColor"
           stroke-width="3.5"
@@ -47,7 +54,7 @@
       <svg width="64" height="64" viewBox="0 0 64 64">
         <circle cx="32" cy="32" r="28" fill="currentColor" opacity="0.12" />
         <path
-          d="M32 20 L32 36 M32 42 L32 44"
+          d="M32 18 L32 20 M32 28 L32 46"
           fill="none"
           stroke="currentColor"
           stroke-width="3.5"

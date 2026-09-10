@@ -136,7 +136,14 @@ $header-padding-block: 0.25rem;
       color var(--wr-transition-base);
   }
 
+  // The current step is the one state here with no glyph of its own: completed
+  // swaps the numeral for a tick, pending and unreachable keep the numeral, and
+  // active kept the numeral too — so it was a tinted circle beside a white one,
+  // 1.17:1, which is the same circle to a reader who cannot separate hue. The
+  // ring DOUBLES against the base rule's 1.5px, which is a weight rather than a
+  // colour and survives both greyscale and forced-colors.
   &__header--active &__indicator {
+    border-width: 3px;
     border-color: var(--wr-color-primary);
     color: var(--wr-color-primary-ink);
     background: var(--wr-color-primary-soft);
@@ -163,6 +170,9 @@ $header-padding-block: 0.25rem;
     border-style: dashed;
   }
 
+  // color-ok: a completed step swaps its numeral for a TICK (stepper.html:19),
+  // so the glyph already differs from every other state; this only fills the
+  // disc behind it.
   &__header--completed &__indicator {
     background: var(--wr-color-primary);
     border-color: var(--wr-color-primary);
@@ -194,6 +204,8 @@ $header-padding-block: 0.25rem;
     margin-block-start: calc((var(--wr-stepper-indicator-size) - #{$label-line-height}) / 2);
   }
 
+  // color-ok: the label follows the indicator beside it, which carries the
+  // state in its doubled ring — this is the same news, re-inked.
   &__header--active &__label {
     color: var(--wr-color-primary-ink);
   }
@@ -246,6 +258,9 @@ $header-padding-block: 0.25rem;
     flex: 0 0 auto;
   }
 
+  // color-ok: filled against unfilled is 3.29:1 in LIGHTNESS — primary #3969e2
+  // against the connector's default `--wr-color-outline` #cbd5e1 — so the trail
+  // of finished steps reads as a darker line, not merely a bluer one.
   &__header--completed + &__header &__connector,
   &__header--completed &__connector {
     background: var(--wr-color-primary);

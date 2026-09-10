@@ -213,6 +213,9 @@
     vertical-align: middle;
   }
 
+  // color-ok: the tick is the channel — a selected row's own `__td--select`
+  // cell holds a `<wr-checkbox>` bound to the same predicate as this class,
+  // and its mark appears. The tint is the reinforcement, not the signal.
   &__tr--selected,
   &__tr--selected:hover {
     background: var(--wr-color-primary-soft);
@@ -220,6 +223,9 @@
 
   // Pinned cells paint their own opaque background, so re-apply the selection
   // tint over it (same technique as the row-hover rule above).
+  // color-ok: the pinned cells repaint the row tint they sit in, and the row
+  // itself is marked by the selection checkbox in its `__td--select` cell —
+  // these follow that, they do not carry the state.
   &__tr--selected &__td--pin-left,
   &__tr--selected &__td--pin-right,
   &__tr--selected:hover &__td--pin-left,
@@ -758,6 +764,9 @@
   display: inline-flex;
   color: var(--wr-color-on-surface-muted);
 
+  // color-ok: the same `selectedCount() > 0` renders the `__count` numeral
+  // pill beside the funnel (table-filter.html:17) — a number appears where
+  // there was none.
   &--active {
     color: var(--wr-color-primary);
   }
@@ -850,6 +859,9 @@
     transition: var(--wr-transition-base);
   }
 
+  // color-ok: the tick APPEARS. The base `&__check` holds the same SVG at
+  // `color: transparent` (line 851), so this is a glyph arriving rather than
+  // a hue swapped.
   &__item--selected &__check {
     background: var(--wr-color-primary);
     border-color: var(--wr-color-primary);

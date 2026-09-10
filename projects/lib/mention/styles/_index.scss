@@ -50,10 +50,31 @@
     user-select: none;
     line-height: 1.25rem;
     transition: background var(--wr-transition-base);
+    // Positioning context for the `--active` cursor bar below. Nothing else in
+    // an option is out of flow, so this establishes one for that alone.
+    position: relative;
 
-    &--active,
     &:hover {
       background: rgba(var(--wr-color-primary-rgb), 0.08);
+    }
+
+    // The keyboard cursor is NOT the hover tint — the two were one selector,
+    // so the row the arrows had reached and the row a mouse happened to rest
+    // on were the same pixel. The 8% tint alone measures 1.11:1 against the
+    // surface in light and 1.08:1 in dark, which is the same grey to a reader
+    // who cannot separate hue; the bar is what actually says "here".
+    &--active {
+      background: rgba(var(--wr-color-primary-rgb), 0.08);
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset-block: 0;
+        inset-inline-start: 0;
+        width: 2px;
+        border-radius: inherit;
+        background: var(--wr-color-primary);
+      }
     }
   }
 

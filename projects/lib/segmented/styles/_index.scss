@@ -112,7 +112,10 @@
       color: var(--wr-color-primary-ink);
     }
 
-    &--selected {
+    // color-ok: the selected option is named by POSITION — the thumb pill slides
+  // under it on `--wr-segmented-thumb-index`, and is hidden outright while
+  // nothing is picked. This declaration only re-inks the label above it.
+  &--selected {
       color: var(--wr-segmented-selected-color);
     }
 

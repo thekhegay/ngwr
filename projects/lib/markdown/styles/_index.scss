@@ -190,7 +190,10 @@
     border-radius: var(--wr-border-radius-sm);
     background: var(--wr-color-surface);
 
-    &--checked {
+    // color-ok: the nested `&::after` draws a tick out of two borders, and the
+  // unchecked task has no pseudo-element at all — the glyph appears, the tint
+  // only backs it.
+  &--checked {
       border-color: var(--wr-color-primary);
       background: var(--wr-color-primary);
 

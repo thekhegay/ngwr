@@ -106,7 +106,10 @@
       color: var(--wr-tabs-color-hover);
     }
 
-    &--active {
+    // color-ok: the base tab already reserves `border-bottom: 2px solid
+  // transparent` (line 98), so colouring it paints an underline that no
+  // inactive tab carries — a mark appearing, not a hue swapped.
+  &--active {
       color: var(--wr-tabs-color-active);
       border-bottom-color: var(--wr-tabs-indicator);
     }

@@ -47,18 +47,30 @@
     }
   }
 
+  // color-ok: each status draws its OWN glyph in result.html — a check, a
+  // triangle, a cross, an `i` — so these only ink a silhouette that already
+  // differs. The tint is reinforcement, not the signal.
   &--success &__icon {
     color: var(--wr-color-success-ink);
   }
 
+  // color-ok: each status draws its OWN glyph in result.html — a check, a
+  // triangle, a cross, an `i` — so these only ink a silhouette that already
+  // differs. The tint is reinforcement, not the signal.
   &--warning &__icon {
     color: var(--wr-color-warning-ink);
   }
 
+  // color-ok: each status draws its OWN glyph in result.html — a check, a
+  // triangle, a cross, an `i` — so these only ink a silhouette that already
+  // differs. The tint is reinforcement, not the signal.
   &--error &__icon {
     color: var(--wr-color-danger-ink);
   }
 
+  // color-ok: each status draws its OWN glyph in result.html — a check, a
+  // triangle, a cross, an `i` — so these only ink a silhouette that already
+  // differs. The tint is reinforcement, not the signal.
   &--info &__icon {
     // `-ink`, like the three variants above. This one alone carried the bare
     // intent, which is what made the set inconsistent rather than deliberate.

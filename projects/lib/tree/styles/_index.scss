@@ -35,8 +35,13 @@
       background: var(--wr-color-hover);
     }
 
+    // A selected row had nothing but the tint, and `wr-tree` — unlike its
+    // sibling data view `wr-table` — ships NO checkbox mode, so in
+    // `selectionMode="multiple"` any number of rows were marked by a 1.17:1
+    // wash and nothing else. The weight is what a reader without hue has.
     &--selected {
       background: var(--wr-color-primary-soft);
+      font-weight: var(--wr-font-weight-medium);
       // Text on the `-soft` tint: `-ink`. Bare measured 4.19:1 light / 3.63:1 dark.
       color: var(--wr-color-primary-ink);
     }
@@ -223,6 +228,9 @@
     }
   }
 
+  // color-ok: opening attaches the panel and flips the chevron 180deg, so the
+  // state is a thing appearing and a glyph rotating; this only tints the edge
+  // underneath both.
   &--open &__trigger {
     border-color: var(--wr-color-primary);
     box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);

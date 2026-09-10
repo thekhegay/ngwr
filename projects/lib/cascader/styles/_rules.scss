@@ -94,6 +94,9 @@
     cursor: default;
   }
 
+  // color-ok: opening attaches the panel and flips the chevron 180deg, so the
+  // state is a thing appearing and a glyph rotating; this only tints the edge
+  // underneath both.
   &--open &__trigger {
     border-color: var(--wr-color-primary);
     box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);
