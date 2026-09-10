@@ -834,7 +834,11 @@ follows today** — the guide is ordered newest-first for that reason.
 **Versioning.** **v14 is the current major line.** `projects/lib/package.json`,
 the `NGWR_VERSION` constant, the `SECURITY.md` support table and
 `CHANGELOG.md` are written by `release:prepare`, so read the version from there
-rather than from this file, and never hand-edit any of the four. Don't bump the
+rather than from this file, and never hand-edit any of the four. A FIFTH copy
+is generated rather than written — `#core/generated/quality.ts`, which
+`/start/quality` binds to — and it shipped stale on two consecutive releases
+because `release:prepare` did not run `gen:quality`. `release.yml` runs it now,
+in its own step after the bump. Don't bump the
 version by hand either — releases are cut from Actions, by running the "Release
 PR" workflow with its `bump` input, which runs `release:prepare` /
 `release:body` and opens a `chore(release)` PR.
