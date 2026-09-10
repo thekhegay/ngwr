@@ -313,6 +313,33 @@ describe('WrSlider', () => {
       thumbs()[1].dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
       expect(range.componentInstance.touched).toBe(1);
     });
+    /**
+     * An external `[80, 20]` used to seed `low = 80` and `high = 20`, so each
+     * thumb reported an `aria-valuenow` outside its OWN bounds — the two bound
+     * each other — and the fill was left with a start and no width, which made
+     * a real range vanish.
+     *
+     * Ordered for the DISPLAY only: the model keeps what the host wrote, the
+     * same asymmetry as the clamp beside it and for the same reason. It does
+     * not contradict the contract that an edit to one end is never reordered —
+     * that is scoped to while the user is still ON that end, and an external
+     * write is not an interaction in progress.
+     */
+    it('orders an inverted range written from outside', async () => {
+      range.componentInstance.span.set([80, 20]);
+      range.detectChanges();
+      await range.whenStable();
+
+      for (const thumb of thumbs()) {
+        const now = Number(thumb.getAttribute('aria-valuenow'));
+        expect(now).toBeGreaterThanOrEqual(Number(thumb.getAttribute('aria-valuemin')));
+        expect(now).toBeLessThanOrEqual(Number(thumb.getAttribute('aria-valuemax')));
+      }
+
+      // The model is untouched — the out-of-order pair is the host's data, and
+      // may be exactly what a schema rule is reporting on.
+      expect(range.componentInstance.span()).toEqual([80, 20]);
+    });
   });
 
   /**

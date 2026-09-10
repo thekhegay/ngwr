@@ -305,4 +305,30 @@ describe('WrTransfer', () => {
     expect(rowBoxes(0).every(box => box.disabled)).toBe(true);
     expect(headBox(0).disabled).toBe(true);
   });
+  /**
+   * A move empties the pane's staging set, which is what disables the button
+   * that was just pressed — so the element holding DOM focus went `disabled` as
+   * a RESULT of its own activation and the browser dropped focus to `<body>`,
+   * from where the next Tab restarts at the top of the document.
+   *
+   * Note BOTH buttons are disabled straight after a move — each needs something
+   * ticked, and the move cleared the tick on one side and arrived unticked on
+   * the other — so the landing has to be a row, not the opposite button.
+   */
+  it('keeps focus inside the widget after a move', async () => {
+    check(0, 0);
+    press(toRight());
+    await fixture.whenStable();
+
+    expect(document.activeElement).not.toBe(document.body);
+    expect(root().contains(document.activeElement)).toBe(true);
+
+    // And back the other way.
+    check(1, 0);
+    press(toLeft());
+    await fixture.whenStable();
+
+    expect(document.activeElement).not.toBe(document.body);
+    expect(root().contains(document.activeElement)).toBe(true);
+  });
 });

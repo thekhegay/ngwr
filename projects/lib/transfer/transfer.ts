@@ -6,7 +6,19 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, input, model, output, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  Injector,
+  ViewEncapsulation,
+  afterNextRender,
+  computed,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+} from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { WrButton } from 'ngwr/button';
@@ -242,6 +254,45 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
     (pane === 'source' ? this.sourceQuery : this.targetQuery).set(query);
   }
 
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
+
+  /**
+   * Keep focus in the widget after a move.
+   *
+   * A move empties the pane's staging set, which is exactly what disables the
+   * button that was just pressed — so the element holding DOM focus went
+   * `disabled` as a RESULT of its own activation and the browser dropped focus
+   * to `<body>`. From there the next Tab restarts at the top of the document,
+   * which for a keyboard user is being thrown out of a control they were in the
+   * middle of using.
+   *
+   * The landing is the FIRST ROW OF THE PANE THE ROWS ARRIVED IN, and the
+   * obvious alternative does not work: after a move BOTH buttons are disabled,
+   * because each needs something ticked and the move cleared the tick on one
+   * side and arrived unticked on the other. The rows that just moved are where
+   * the user's attention is and where the next action lives, so that is where
+   * focus goes.
+   *
+   * `afterNextRender`, not `queueMicrotask`: under zoneless CD the microtask
+   * runs before the moved rows are in the DOM, so the focus call would land on
+   * the pane as it was before the move.
+   */
+  private restoreFocusAfterMove(landing: 'source' | 'target'): void {
+    afterNextRender(
+      () => {
+        const root = this.host.nativeElement;
+        const pane =
+          landing === 'target'
+            ? root.querySelector<HTMLElement>('.wr-transfer__pane--target')
+            : root.querySelector<HTMLElement>('.wr-transfer__pane:not(.wr-transfer__pane--target)');
+        const row = pane?.querySelector<HTMLInputElement>('.wr-transfer__item input:not([disabled])');
+        row?.focus();
+      },
+      { injector: this.injector }
+    );
+  }
+
   protected moveRight(): void {
     if (this.disabled() || this.readonly()) return;
     // `source().checked`, not the raw staging box: rows a filter change hid are
@@ -253,6 +304,7 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
     this.value.set([...this.selected(), ...moving]);
     this.sourceChecked.set([]);
     this.touch.emit();
+    this.restoreFocusAfterMove('target');
   }
 
   protected moveLeft(): void {
@@ -262,6 +314,7 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
     this.value.set(this.selected().filter(v => !moving.has(v)));
     this.targetChecked.set([]);
     this.touch.emit();
+    this.restoreFocusAfterMove('source');
   }
 
   /** Filter, then derive the header state from what survived. */
