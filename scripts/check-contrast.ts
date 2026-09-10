@@ -60,6 +60,20 @@ const THEMES = ['light', 'dark'] as const;
 type Theme = (typeof THEMES)[number];
 
 /**
+ * The second axis: what the reader asked the OS for.
+ *
+ * `more` is a real emulation, not a class the page opts into — Playwright sets
+ * it on the context and Chromium recomputes styles against it, so the theme
+ * layer's `@media (prefers-contrast: more)` block is what gets measured. That
+ * block exists precisely because the defaults miss two bars on purpose (AAA on
+ * muted text, 3:1 on the hairline), each for a reason recorded at the token.
+ * Measuring only the default sweep would leave the whole high-contrast path a
+ * claim nobody checks — which is the thing this repo keeps finding.
+ */
+const CONTRAST_MODES = ['no-preference', 'more'] as const;
+type ContrastMode = (typeof CONTRAST_MODES)[number];
+
+/**
  * axe is evaluated inside the page rather than imported here — same reason as
  * `check-a11y.ts`: it binds `window` / `document` at module evaluation time.
  */
@@ -161,7 +175,14 @@ function routes(): string[] {
     .sort();
 }
 
-async function audit(page: Page, origin: string, route: string, theme: Theme, into: Map<string, Finding>): Promise<void> {
+async function audit(
+  page: Page,
+  origin: string,
+  route: string,
+  theme: Theme,
+  mode: ContrastMode,
+  into: Map<string, Finding>
+): Promise<void> {
   await page.goto(`${origin}${route}`, { waitUntil: 'networkidle' });
 
   // The app's own theme service decides `data-theme` from storage, so seeding
@@ -188,7 +209,7 @@ async function audit(page: Page, origin: string, route: string, theme: Theme, in
   }, PAINTED_RULES)) as AxeResults;
 
   for (const violation of results.violations) {
-    const key = `${violation.id} (${theme})`;
+    const key = `${violation.id} (${theme}, ${mode})`;
     const found = into.get(key) ?? {
       rule: key,
       impact: violation.impact,
@@ -209,12 +230,19 @@ async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const verbose = args.includes('--verbose');
   const only = args.find(a => a.startsWith('--theme='))?.split('=')[1] as Theme | undefined;
+  const onlyContrast = args.find(a => a.startsWith('--contrast='))?.split('=')[1] as ContrastMode | undefined;
   const limit = Number(args.find(a => a.startsWith('--routes='))?.split('=')[1] ?? 0);
   const filter = args.find(a => a.startsWith('--filter='))?.split('=')[1] ?? '';
 
   const themes = only ? THEMES.filter(t => t === only) : THEMES;
   if (only && themes.length === 0) {
     err(`\n✘ contrast: unknown theme "${only}". Use light or dark.\n`);
+    exit(1);
+  }
+
+  const modes = onlyContrast ? CONTRAST_MODES.filter(m => m === onlyContrast) : CONTRAST_MODES;
+  if (onlyContrast && modes.length === 0) {
+    err(`\n✘ contrast: unknown contrast mode "${onlyContrast}". Use no-preference or more.\n`);
     exit(1);
   }
 
@@ -235,7 +263,7 @@ async function main(): Promise<void> {
     // One context per theme, and `colorScheme` set on it: a page that renders
     // before the seeded storage is read still starts from the right side, so a
     // first-paint flash cannot be captured as a violation.
-    for (const theme of themes) {
+    for (const theme of themes) for (const mode of modes) {
       // `reducedMotion` is what makes the pass deterministic. Every animation
       // component short-circuits to its final state under it, so nothing is
       // ever measured mid-flight — a `wr-blur-text` piece caught at
@@ -243,6 +271,7 @@ async function main(): Promise<void> {
       // describes a frame, not a design.
       const context = await browser.newContext({
         colorScheme: theme,
+        contrast: mode,
         reducedMotion: 'reduce',
         viewport: { width: 1280, height: 900 },
       });
@@ -261,8 +290,8 @@ async function main(): Promise<void> {
 
       const page = await context.newPage();
 
-      info(`  ${theme}: ${targets.length} routes`);
-      for (const route of targets) await audit(page, origin, route, theme, findings);
+      info(`  ${theme} / contrast ${mode}: ${targets.length} routes`);
+      for (const route of targets) await audit(page, origin, route, theme, mode, findings);
 
       await context.close();
     }
@@ -310,7 +339,8 @@ async function main(): Promise<void> {
   // someone to delete a baseline entry on that evidence is worse than silence.
   // Compare against EVERY route, not the filtered list — `all` is already
   // narrowed, so measuring against it would call any filtered run complete.
-  const complete = targets.length === everything.length && themes.length === THEMES.length;
+  const complete =
+    targets.length === everything.length && themes.length === THEMES.length && modes.length === CONTRAST_MODES.length;
   if (complete) {
     for (const [rule, entry] of Object.entries(baseline)) {
       if (!findings.has(rule)) info(`  ✓ ${rule} no longer appears — drop it from the baseline (${entry.note})`);

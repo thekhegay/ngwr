@@ -326,7 +326,7 @@ with **no `var()` reader anywhere in the library**.
 | Build the docs    | `pnpm build:showcase`                                                                               |
 | Lint everything   | `pnpm lint`                                                                                         |
 | a11y sweep        | `pnpm check:a11y` (axe over `dist/showcase` — run `build:showcase` first)                           |
-| Contrast sweep    | `pnpm check:contrast` (axe in a real Chromium, both themes — **nightly**, not a PR gate)            |
+| Contrast sweep    | `pnpm check:contrast` (axe in a real Chromium, both themes × both `prefers-contrast` modes — **nightly**, not a PR gate; `--theme=` / `--contrast=` narrow it) |
 | State a11y        | `pnpm check:state-a11y` (the FULL axe set INSIDE hovers / overlays — **nightly**)                   |
 | RTL source gate   | `pnpm check:rtl` (physical direction-dependent CSS with no `rtl-ok:` reason — a `pnpm lint` stage)  |
 | Registry gate     | `pnpm check:registry` (the open item format under `registry/` — also a `pnpm lint` stage)           |
@@ -1007,6 +1007,14 @@ rather than the kind of break a
 single PR needs told about mid-review. So a green PR says nothing about
 contrast — run it locally when you touch a token, a tint, or anything that
 paints text on an intent.
+
+**`check:contrast` sweeps two axes: theme × `prefers-contrast`.** The second one
+arrived with D6 — the theme layer answers `prefers-contrast: more` in
+`theme/styles/_contrast.scss`, and an emulation is the only way to measure it,
+since it is a user preference rather than a class the page can set. Playwright
+takes `contrast` on the context and Chromium recomputes styles against it. The
+baseline is keyed `${rule} (${theme}, ${mode})` and only a sweep that is full on
+BOTH axes may report an entry as gone.
 
 **`check:contrast` gates on ROUTE COUNTS per rule, not on nodes**, so a brand-new
 violation on a route already in `contrast-baseline.json` passes silently. That is
