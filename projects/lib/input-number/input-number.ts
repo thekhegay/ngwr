@@ -83,8 +83,21 @@ export class WrInputNumber implements FormValueControl<number | null> {
   /** Step used by stepper buttons + arrow keys. @default 1 */
   readonly step = input(1, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 1)) });
 
-  /** Fixed number of decimals shown on blur. `null` keeps the entered precision. @default null */
-  readonly decimals = input<number | null>(null);
+  /**
+   * Fixed number of decimals shown on blur. `null` keeps the entered precision.
+   *
+   * Clamped to what `toFixed` accepts — 0 to 100 — because it is the one numeric
+   * input on this component that had no transform, and the value goes straight
+   * into `toFixed`, which THROWS a `RangeError` outside that range rather than
+   * degrading. A `[decimals]="-1"` bound from a config object took the whole
+   * component down on blur.
+   *
+   * @default null
+   */
+  readonly decimals = input<number | null, unknown>(null, {
+    transform: (v: unknown): number | null =>
+      v === null || v === undefined ? null : Math.min(100, Math.max(0, Math.trunc(coerceNumberProperty(v, 0)))),
+  });
 
   /** Render the ▲▼ stepper column. @default true */
   readonly showSteppers = input(true, { transform: coerceBooleanProperty });

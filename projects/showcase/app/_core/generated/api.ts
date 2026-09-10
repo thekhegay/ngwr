@@ -642,7 +642,7 @@ export const API = {
     { name: "min", description: "Minimum allowed value.", type: "number | undefined", default: "-Infinity" },
     { name: "max", description: "Maximum allowed value.", type: "number | undefined", default: "Infinity" },
     { name: "step", description: "Step used by stepper buttons + arrow keys.", type: "number", default: "1" },
-    { name: "decimals", description: "Fixed number of decimals shown on blur. `null` keeps the entered precision.", type: "number | null", default: "null" },
+    { name: "decimals", description: "Fixed number of decimals shown on blur. `null` keeps the entered precision. Clamped to what `toFixed` accepts — 0 to 100 — because it is the one numeric input on this component that had no transform, and the value goes straight into `toFixed`, which THROWS a `RangeError` outside that range rather than degrading. A `[decimals]=\"-1\"` bound from a config object took the whole component down on blur.", type: "number | null", default: "null" },
     { name: "showSteppers", description: "Render the ▲▼ stepper column.", type: "boolean", default: "true" },
     { name: "size", description: "Control size — forwarded to the field, and shares the `--wr-control-*` contract. Unset falls back to the `inputNumber.size` app default from `provideWrConfig()`, then to the `input.size` one, then to `md`.", type: "WrInputSize | null", default: "'md'" },
     { name: "rounded", description: "Pill-shaped corners. Unset falls back to the `inputNumber.rounded` app default from `provideWrConfig()`, then to the `input.rounded` one; `[rounded]=\"false\"` turns a configured `true` back off.", type: "boolean | null", default: "false" },

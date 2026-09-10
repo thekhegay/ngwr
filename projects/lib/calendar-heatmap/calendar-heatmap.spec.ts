@@ -138,6 +138,24 @@ describe('WrCalendarHeatmap', () => {
     expect(cellFor('2025-08-13')!.getAttribute('title')).toBe('2025-08-13: 0');
   });
 
+  it('paints a negative day as nothing, not as a light day', () => {
+    // `value / max` for a negative value is a NEGATIVE intensity, and nothing
+    // floored it. `colorFor` treats anything but exactly 0 as activity and
+    // `opacityFor` put it in the lightest band, so a day of -5 rendered exactly
+    // like a day of 1 and unlike the empty day it should have matched.
+    fixture.componentInstance.data.set([
+      { date: '2025-08-11', value: 10 },
+      { date: '2025-08-12', value: -5 },
+      { date: '2025-08-13', value: 1 },
+    ]);
+    fixture.detectChanges();
+
+    const negative = cellFor('2025-08-12')!;
+    const light = cellFor('2025-08-13')!;
+    expect(negative.style.background).toBe('rgba(var(--wr-color-light-rgb), 0.5)');
+    expect(negative.style.background).not.toBe(light.style.background);
+  });
+
   it('renders an empty grid rather than nothing when there is no data', () => {
     fixture.componentInstance.data.set([]);
     fixture.detectChanges();
