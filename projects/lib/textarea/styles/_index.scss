@@ -103,7 +103,12 @@
     inset-inline-end: 0.25rem;
     bottom: 0.25rem;
     display: inline-flex;
-    color: var(--wr-color-text-faint);
+    // NOT `--wr-color-text-faint`, which is where this sat and measured 2.43:1
+    // in light. A resize grip is an interactive affordance, so WCAG 1.4.11 asks
+    // 3:1 of it — the faint tier is documented as "decorative by design", and
+    // this is not decorative. The full-strength role is 5.35:1 light and 7.64:1
+    // dark. No gate reports this: axe ships no non-text-contrast rule.
+    color: var(--wr-color-on-surface-muted);
     touch-action: none;
     transition: color var(--wr-transition-base);
 

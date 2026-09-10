@@ -221,6 +221,17 @@ $contrast-light: #ffffff !default;
   // most softening that still clears it (4.81), which leaves this token barely
   // distinguishable from the flat role it wraps.
   --wr-color-text-muted: rgba(var(--wr-color-muted-text-rgb), 0.95);
+  // unused-ok: the library paints with nothing at this strength any more, and
+  // that is the finding rather than an oversight. It had exactly three
+  // consumers — the OTP placeholder, the textarea resize grip and the avatar
+  // spinner — and all three were FAILING: 2.43:1 in light, against 4.5:1 for
+  // placeholder text and 3:1 for an interactive affordance and a status
+  // indicator. "Decorative by design" was true of the token and not of any of
+  // the three, so they moved to `-text-muted` and `-on-surface-muted`. The tier
+  // stays published because a custom property is public API and a consumer may
+  // have genuinely decorative text; the library, it turns out, has none. Note
+  // that no gate reports the shortfall: axe has no non-text-contrast rule, and
+  // `check:contrast` gates on route counts.
   --wr-color-text-faint: rgba(var(--wr-color-muted-text-rgb), 0.6);
 
   // Semantic role aliases over the flipping neutrals — prefer these in new code
