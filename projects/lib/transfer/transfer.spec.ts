@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { WrTransferItem } from './interfaces';
 import { WrTransfer } from './transfer';
@@ -330,5 +330,30 @@ describe('WrTransfer', () => {
 
     expect(document.activeElement).not.toBe(document.body);
     expect(root().contains(document.activeElement)).toBe(true);
+  });
+  /**
+   * A value with no matching `items` entry lands in NEITHER pane — the left one
+   * drops anything already selected, the right one can only render rows it
+   * found — and the header counts the rows it shows, so nothing on screen
+   * contradicts anything. The value is simply invisible and unremovable, with
+   * no sign it is there.
+   *
+   * Warned rather than rendered, which is how the library treats the same
+   * question elsewhere: `wr-select` shows a value outside its option list only
+   * under an explicit `freeText`.
+   */
+  it('says so when a value matches no item', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    fixture.componentInstance.granted.set(['read', 'ghost']);
+    fixture.detectChanges();
+
+    expect(warn).toHaveBeenCalled();
+    expect(String(warn.mock.calls[0][0])).toContain('"ghost"');
+    // And the pane still renders only what it can: the warning is the channel,
+    // not an invented row.
+    expect(rowBoxes(1).length).toBe(1);
+
+    warn.mockRestore();
   });
 });

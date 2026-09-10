@@ -15,6 +15,7 @@ import {
   computed,
   inject,
   input,
+  isDevMode,
   model,
   output,
   signal,
@@ -193,17 +194,47 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
     )
   );
 
-  protected readonly target = computed<PaneState>(() =>
-    this.pane(
-      // Right-pane order follows `value`, not `items`: the order a user built is
-      // the one they expect to read back.
-      this.selected()
-        .map(v => this.items().find(item => item.value === v))
-        .filter((item): item is WrTransferItem => item !== undefined),
-      this.targetQuery(),
-      this.targetChecked()
-    )
-  );
+  protected readonly target = computed<PaneState>(() => {
+    // Right-pane order follows `value`, not `items`: the order a user built is
+    // the one they expect to read back.
+    const rows = this.selected()
+      .map(v => this.items().find(item => item.value === v))
+      .filter((item): item is WrTransferItem => item !== undefined);
+
+    if (isDevMode() && rows.length !== this.selected().length) this.warnAboutOrphans();
+
+    return this.pane(rows, this.targetQuery(), this.targetChecked());
+  });
+
+  /**
+   * Say something when `value` holds a value no `items` entry matches.
+   *
+   * Such a value is in NEITHER pane — the left one filters out anything already
+   * selected and the right one can only render rows it found — and the header
+   * counts the rows it shows, so nothing on screen contradicts anything. The
+   * result is a value the user can neither see nor remove, and no sign that it
+   * is there.
+   *
+   * A warning rather than an invented row, which matches how the library treats
+   * the same question elsewhere: `wr-select` renders a value outside its option
+   * list only under an explicit `freeText`, so an unmatched value is a mode a
+   * consumer opts into, not a shape a component guesses at. It also stays quiet
+   * about the common transient case — `items` arriving after `value` — because
+   * the message names the values and a developer can see them settle.
+   */
+  private warnAboutOrphans(): void {
+    const known = new Set(this.items().map(item => item.value));
+    const orphans = this.selected().filter(v => !known.has(v));
+    if (orphans.length === 0) return;
+
+    // eslint-disable-next-line no-console -- dev-mode validation
+    console.warn(
+      `[NGWR] <wr-transfer>: ${orphans.length} value(s) in \`value\` match no \`items\` entry ` +
+        `and are rendered in neither pane, so a user can neither see nor remove them: ` +
+        `${orphans.map(v => JSON.stringify(v)).join(', ')}. ` +
+        `If \`items\` loads after \`value\`, this settles on its own.`
+    );
+  }
 
   protected readonly canMoveRight = computed(
     () => !this.disabled() && !this.readonly() && this.source().checkedCount > 0
