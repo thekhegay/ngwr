@@ -410,6 +410,37 @@ describe('WrCalendar month and year listbox keys', () => {
     // index 11 across would ring December instead of the month on screen.
     expect(ringed()).toBe('Jan');
   });
+  /**
+   * The view switch destroys the button holding DOM focus, and nothing used to
+   * put it back — `document.activeElement` became `<body>`, the arrows went
+   * dead (the keydown handler is a HOST binding, so nothing from `<body>`
+   * reaches it) and the next Tab restarted at the top of the document.
+   *
+   * Asserted on `activeElement` and NOT on `tabindex`, deliberately: the ring
+   * always moved correctly. Reading the ring is exactly what let this survive,
+   * which is the inverse of the trap the docblock above this describe names.
+   */
+  it('keeps real focus in the calendar when a month is picked', async () => {
+    await climb(1);
+    chips()[2].click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(document.activeElement?.className ?? '').toContain('wr-calendar__day');
+    // And the grid it landed on has a tab stop at all: `focusedDate` has to
+    // move with `viewDate`, or a DIFFERENT month renders with no focusable cell.
+    expect(root().querySelectorAll('.wr-calendar__day[tabindex="0"]')).toHaveLength(1);
+  });
+
+  it('keeps real focus in the calendar when a year is picked', async () => {
+    await climb(2);
+    chips()[1].click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(document.activeElement?.className ?? '').toContain('wr-calendar__chip');
+    expect(tabStops()).toBe(1);
+  });
 });
 
 /**

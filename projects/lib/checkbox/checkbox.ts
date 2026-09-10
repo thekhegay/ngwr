@@ -61,6 +61,20 @@ export type WrCheckboxSize = 'sm' | 'md' | 'lg';
     // `getElementById` to the host — not a labelable element, so `input.labels`
     // went from 1 to 0 and `document.getElementById(id)` returned the wrong node.
     '[attr.id]': 'null',
+    // The group identity, reflected so a HARNESS can read it. It is the only
+    // way: `checkboxValue` is an `unknown`-typed TypeScript value that reaches
+    // no attribute otherwise, and `WrCheckboxHarness.getCheckboxValue()` read
+    // `value` off the inner `<input>` — which nothing writes, so it answered
+    // `null` for every checkbox in every state. A harness method that answers
+    // the same for a working component and a broken one is the one thing the
+    // harness rules forbid outright.
+    //
+    // `data-`, deliberately, and NOT `value`: a leftover static `value="x"` from
+    // before v9 still lands on this host as a plain attribute, so reading
+    // `value` here would report the identity a consumer THOUGHT they set while
+    // the component used `null`. That is the exact confusion migration-v9
+    // exists to end.
+    '[attr.data-checkbox-value]': 'reflectedValue()',
   },
   imports: [WrIcon],
 })
@@ -80,6 +94,25 @@ export class WrCheckbox implements FormCheckboxControl {
    * `value`.)
    */
   readonly checkboxValue = input<unknown>(null);
+
+  /**
+   * `checkboxValue` as an attribute, when it can be one.
+   *
+   * A primitive round-trips through the DOM and is what a group identity is in
+   * practice. Anything else — an object, an array — has no honest attribute
+   * form, so the attribute is ABSENT rather than `[object Object]`: a harness
+   * reading it then gets `null`, which is true, instead of a string that looks
+   * like data and identifies nothing.
+   */
+  protected readonly reflectedValue = computed(() => {
+    const value = this.checkboxValue();
+    // Narrowed inline rather than through a `typeof` held in a variable, which
+    // TypeScript does not follow — and the linter is right to refuse it: the
+    // point of this guard is that `String()` never sees an object.
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+    return null;
+  });
 
   /**
    * Accessible name for a checkbox used WITHOUT projected text — a selection

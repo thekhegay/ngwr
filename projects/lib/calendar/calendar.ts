@@ -354,18 +354,47 @@ export class WrCalendar {
     }
   }
 
+  /**
+   * Picking a month drops to the day grid — and takes real focus with it.
+   *
+   * The `@switch (viewMode())` in the template destroys the chip that holds DOM
+   * focus, so without the two lines below `document.activeElement` became
+   * `<body>`: the ring appeared on the new view and focus did not, the arrow
+   * keys went dead (the keydown handler is a HOST binding, so nothing reaches
+   * the component from `<body>`), and the next Tab restarted from the top of the
+   * document — out of the calendar entirely. It is the same trap the two
+   * keyboard paths in this file already fix, and for the same reason
+   * `afterNextRender` rather than `queueMicrotask`: under zoneless CD the
+   * microtask runs before the new view is in the DOM.
+   *
+   * `focusedDate` has to move too, and that half is easy to miss. The grid marks
+   * its focusable cell by comparing against `focusedDate`, not `viewDate`, so
+   * choosing a DIFFERENT month rendered a grid with no `--focused` cell and no
+   * `tabindex="0"` at all — unreachable by keyboard from either direction. The
+   * day is preserved when the month already holds it and otherwise falls to the
+   * first, which is where `viewDate` lands anyway.
+   */
   protected onMonthSelect(monthIdx: number): void {
     if (this.isMonthDisabled(monthIdx)) return;
     const v = this.viewDate();
-    this.viewDate.set(this.adapter.createDate(this.adapter.getYear(v), monthIdx, 1));
+    const year = this.adapter.getYear(v);
+    this.viewDate.set(this.adapter.createDate(year, monthIdx, 1));
+
+    const focused = this.focusedDate();
+    const alreadyThere = this.adapter.getYear(focused) === year && this.adapter.getMonth(focused) === monthIdx;
+    if (!alreadyThere) this.focusedDate.set(this.adapter.createDate(year, monthIdx, 1));
+
     this.setViewMode('day');
+    afterNextRender(() => this.focusActiveCell(), { injector: this.injector });
   }
 
+  /** Year → month view, with the same focus restoration; the landing view is chips. */
   protected onYearSelect(year: number): void {
     if (this.isYearDisabled(year)) return;
     const v = this.viewDate();
     this.viewDate.set(this.adapter.createDate(year, this.adapter.getMonth(v), 1));
     this.setViewMode('month');
+    afterNextRender(() => this.focusActiveChip(), { injector: this.injector });
   }
 
   /**
