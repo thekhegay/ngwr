@@ -176,7 +176,7 @@ describe('a Signal Forms length error', () => {
     await fixture.whenStable();
 
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(text).toContain('Enter at least 5 characters');
+    expect(text).toContain('Minimum length is 5');
   });
 });
 /**

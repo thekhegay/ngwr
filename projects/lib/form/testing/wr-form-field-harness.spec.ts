@@ -228,9 +228,9 @@ describe('WrFormFieldHarness', () => {
     // `minlength` and carry `requiredLength`, and `form-field.ts` now restates
     // the first as the second before it asks anyone for copy — so one sentence
     // serves both spellings and no catalog had to grow two more keys.
-    expect(await bio.getErrorTexts()).toEqual(['Enter at least 10 characters.']);
+    expect(await bio.getErrorTexts()).toEqual(['Minimum length is 10.']);
     expect(await bio.hasEmptyErrorBlock()).toBe(false);
-    expect(await bio.getAnnouncedDescription()).toBe('Enter at least 10 characters.');
+    expect(await bio.getAnnouncedDescription()).toBe('Minimum length is 10.');
   });
 
   it('links the label to the control it wraps, one id per field', async () => {
