@@ -9,12 +9,14 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
 
 import { WR_DATE_LOCALE } from 'ngwr/date';
-import { useI18nText } from 'ngwr/i18n';
+import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 
 import type { WrHeatmapDatum } from './interfaces';
 
 interface Cell {
   readonly iso: string;
+  /** The day as the reader's locale writes it — see `cellTitle`. */
+  readonly date: Date;
   readonly value: number;
   readonly intensity: number;
   readonly week: number;
@@ -77,6 +79,30 @@ export class WrCalendarHeatmap {
   readonly ariaLabel = input<string | null>(null);
 
   protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'calendarHeatmap.label', 'Calendar heatmap');
+
+  private readonly cellText = useI18nFormatter('calendarHeatmap.cell', '{{date}}: {{count}}');
+
+  /**
+   * A cell's tooltip, with both halves formatted and the sentence in the catalog.
+   *
+   * It used to be `` `${cell.iso}: ${cell.value}` `` — a raw ISO date beside an
+   * unformatted number, joined by a hard-coded `': '`. Three things were wrong
+   * at once and none of them are visible from the template: `2026-09-10` is not
+   * how most of the world writes a date, `1234` is not how every locale groups
+   * digits (`ar-SA` does not even use these ones), and the separator and order
+   * were frozen into a shape a translator could not reach.
+   *
+   * Both halves go through `Intl` on the SAME locale the rest of the component
+   * resolves — `WR_DATE_LOCALE`, which since v14 follows Angular's `LOCALE_ID`.
+   * The key ships as `{{date}}: {{count}}` everywhere, so nothing reorders today
+   * and every locale can.
+   */
+  protected cellTitle(cell: { readonly date: Date; readonly value: number }): string {
+    return this.cellText({
+      date: new Intl.DateTimeFormat(this.locale, { dateStyle: 'medium' }).format(cell.date),
+      count: new Intl.NumberFormat(this.locale).format(cell.value),
+    });
+  }
 
   /** Last day to render. @default today */
   readonly endDate = input<string | Date | null>(null);
@@ -156,7 +182,7 @@ export class WrCalendarHeatmap {
         // activity, and unlike the empty day it should have matched. The scale
         // has no negative half; the honest floor is "nothing".
         const intensity = max > 0 ? Math.min(1, Math.max(0, value / max)) : 0;
-        out.push({ iso, value, intensity, week: column, day: row });
+        out.push({ iso, date: new Date(cursor), value, intensity, week: column, day: row });
         cursor.setDate(cursor.getDate() + 1);
       }
       column++;

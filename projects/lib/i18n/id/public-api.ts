@@ -244,6 +244,7 @@ export const wrId: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: 'Peta panas kalender',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Diagram garis',

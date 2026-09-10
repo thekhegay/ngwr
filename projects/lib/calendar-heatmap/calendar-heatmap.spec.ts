@@ -42,7 +42,7 @@ describe('WrCalendarHeatmap', () => {
   const monthLabels = (): string[] =>
     [...root().querySelectorAll('.wr-calendar-heatmap__month')].map(el => el.textContent.trim());
   const cellFor = (iso: string): HTMLElement | undefined =>
-    cells().find(cell => cell.getAttribute('title')?.startsWith(iso));
+    cells().find(cell => cell.getAttribute('data-date') === iso);
 
   const mount = (locale = 'en-GB'): void => {
     TestBed.resetTestingModule();
@@ -74,11 +74,15 @@ describe('WrCalendarHeatmap', () => {
     ]);
     fixture.detectChanges();
 
-    expect(cellFor('2025-08-11')!.getAttribute('title')).toBe('2025-08-11: 8');
+    // `data-value`, not the `title`: the tooltip is human-facing text now — the
+    // date through `Intl.DateTimeFormat`, the count through `Intl.NumberFormat`,
+    // and the sentence composed in the catalog — so asserting it would pin this
+    // suite to whatever locale it happens to run under.
+    expect(cellFor('2025-08-11')!.getAttribute('data-value')).toBe('8');
   });
 
   it('leaves a day with no entry at zero', () => {
-    expect(cellFor('2025-08-13')!.getAttribute('title')).toBe('2025-08-13: 0');
+    expect(cellFor('2025-08-13')!.getAttribute('data-value')).toBe('0');
   });
 
   it('announces itself as one picture, with the cells kept quiet', () => {
@@ -134,8 +138,13 @@ describe('WrCalendarHeatmap', () => {
     // The tallest day still paints the colour, and the mid day still scales against it.
     expect(cellFor('2025-08-12')!.style.background).toBe('var(--wr-color-primary)');
     expect(cellFor('2025-08-11')!.style.background).toBe('var(--wr-color-primary)');
-    // The bad day loses only itself — and its title is a number, not the word NaN.
-    expect(cellFor('2025-08-13')!.getAttribute('title')).toBe('2025-08-13: 0');
+    // The bad day loses only itself — and it reports a number, not the word NaN.
+    // Asserted on BOTH halves: `data-value` is what a spec and a harness read,
+    // and the `title` is what a person sees, so `NaN` leaking into either is the
+    // failure. The title is not compared to a literal — it is locale-formatted
+    // now, and pinning it here would pin the suite to one locale.
+    expect(cellFor('2025-08-13')!.getAttribute('data-value')).toBe('0');
+    expect(cellFor('2025-08-13')!.getAttribute('title')).not.toContain('NaN');
   });
 
   it('paints a negative day as nothing, not as a light day', () => {

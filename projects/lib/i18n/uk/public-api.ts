@@ -257,6 +257,7 @@ export const wrUk: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: 'Календарна теплова карта',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Лінійний графік',

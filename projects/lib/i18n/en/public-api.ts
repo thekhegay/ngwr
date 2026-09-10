@@ -314,6 +314,7 @@ export const wrEn: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: 'Calendar heatmap',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Line chart',

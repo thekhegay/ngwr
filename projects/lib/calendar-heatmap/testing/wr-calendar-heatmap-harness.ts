@@ -14,9 +14,14 @@ import type { WrCalendarHeatmapCell, WrCalendarHeatmapHarnessFilters } from './i
  *
  * **Every square is `aria-hidden`, and that is the design.** The grid is one
  * `role="img"` with a name; a year of individually announced days would be unusable
- * with a screen reader. What each square carries instead is a `title` — its ISO date
- * and value — which is the only text a spec can read, and what
- * {@link getCells} parses.
+ * with a screen reader. What each square carries instead is `data-date` and
+ * `data-value`, which is what {@link getCells} reads.
+ *
+ * NOT the `title`, which it used to parse. The tooltip is human-facing text now
+ * — the date formatted for the reader's locale, the count through
+ * `Intl.NumberFormat`, and the sentence composed in the catalog — so parsing it
+ * would have made every assertion here depend on the locale the suite happens to
+ * run under, and on wording a translator is free to change.
  *
  * **Four of the seven weekday labels are blank on purpose**: seven do not fit beside
  * a grid this dense. {@link getWeekdayLabels} returns them as they are, empties
@@ -57,19 +62,17 @@ export class WrCalendarHeatmapHarness extends ComponentHarness {
   /**
    * Every square, from its tooltip and its grid placement.
    *
-   * The `title` is `"<iso>: <value>"`, which is the component's own format and the
-   * only text on a square — everything else about it is colour.
+   * Read from `data-date` / `data-value`, which the component writes for exactly
+   * this. Everything else about a square is colour.
    */
   async getCells(): Promise<WrCalendarHeatmapCell[]> {
     const cells = await this.locatorForAll('.wr-calendar-heatmap__cell')();
 
     return Promise.all(
       cells.map(async cell => {
-        const title = (await cell.getAttribute('title')) ?? '';
-        const [iso, value] = title.split(': ');
         return {
-          iso: iso ?? '',
-          value: value ?? '',
+          iso: (await cell.getAttribute('data-date')) ?? '',
+          value: (await cell.getAttribute('data-value')) ?? '',
           // `grid-column` / `grid-row` as WRITTEN, not the `-start` longhands: the
           // component sets the shorthand, and jsdom does not expand shorthands, so the
           // longhand reads back empty and every square would land at NaN.

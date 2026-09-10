@@ -248,6 +248,7 @@ export const wrJa: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: 'カレンダーヒートマップ',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: '折れ線グラフ',

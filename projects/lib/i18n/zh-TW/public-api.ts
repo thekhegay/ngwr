@@ -247,6 +247,7 @@ export const wrZhTw: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: '行事曆熱圖',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: '折線圖',

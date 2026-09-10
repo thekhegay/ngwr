@@ -253,6 +253,7 @@ export const wrVi: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: 'Bản đồ nhiệt theo lịch',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Biểu đồ đường',
