@@ -5,7 +5,7 @@ import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrOverlay } from 'ngwr/overlay';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDropdown } from './dropdown';
 import { WrDropdownItem } from './dropdown-item';
@@ -624,5 +624,58 @@ describe('WrDropdown pane position', () => {
     const pane = document.querySelector('.wr-dropdown-overlay');
     expect(pane).not.toBeNull();
     expect(pane!.classList).toContain(`wr-dropdown-overlay--${position}`);
+  });
+});
+/**
+ * An `output()` belongs to the view that declares it, so a `closeOverlay()` on
+ * the destroy path tried to emit into a dead `OutputRef`: Angular refused it
+ * with `NG0953`, the consumer's `(closed)` never ran, and a console error was
+ * left behind on every teardown of an open menu.
+ *
+ * There is nobody to notify at that point — the consumer's own view is going
+ * away in the same pass — so the teardown is split from the notification.
+ * `wr-popconfirm` already disposed without emitting; this brought the other two
+ * into line.
+ */
+describe('WrDropdown destroyed while open', () => {
+  @Component({
+    imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
+    template: `
+      @if (alive()) {
+        <button type="button" [wrDropdown]="menu">Actions</button>
+        <wr-dropdown-menu #menu><wr-dropdown-item>Copy</wr-dropdown-item></wr-dropdown-menu>
+      }
+    `,
+  })
+  class TeardownHost {
+    readonly alive = signal(true);
+  }
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('tears the overlay down without emitting into a destroyed output', async () => {
+    // `console.warn`, not `console.error` — Angular reports NG0953 as a warning,
+    // and a first version of this spec watched the wrong channel and therefore
+    // passed with the fix reverted. It was caught by running it against the
+    // reverted fix, which is the only thing that tells a real spec from a
+    // vacuous one.
+    const warnings: string[] = [];
+    const warn = vi.spyOn(console, 'warn').mockImplementation((...args: unknown[]) => {
+      warnings.push(args.map(String).join(' '));
+    });
+
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    const fixture = TestBed.createComponent(TeardownHost);
+    fixture.detectChanges();
+    (fixture.nativeElement as HTMLElement).querySelector('button')!.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    fixture.componentInstance.alive.set(false);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    warn.mockRestore();
+
+    expect(warnings.filter(message => message.includes('NG0953'))).toEqual([]);
   });
 });

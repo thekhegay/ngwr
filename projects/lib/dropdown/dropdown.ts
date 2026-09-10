@@ -131,7 +131,7 @@ export class WrDropdown {
     // The host view carrying `[wrDropdown]` can be destroyed while the menu is
     // open — a route change, or an `@if` around the trigger. The overlay lives
     // in the CDK container, not in that view, so nothing removes it unless we do.
-    this.destroyRef.onDestroy(() => this.closeOverlay());
+    this.destroyRef.onDestroy(() => this.closeOverlay(false));
 
     effect(() => {
       if (this.isOpen()) {
@@ -265,7 +265,23 @@ export class WrDropdown {
     this.opened.emit();
   }
 
-  private closeOverlay(): void {
+  /**
+   * Tear the overlay down, and tell the host — unless the host is going away
+   * with it.
+   *
+   * `notify: false` is the DESTROY path, and it is not a nicety. An `output()`
+   * belongs to the view that declares it, so emitting from `onDestroy` is
+   * refused: Angular logs `NG0953: Unexpected emit for destroyed OutputRef` and
+   * the listener never runs. Measured — a `(closed)` handler on a dropdown whose
+   * host view is removed while the menu is open fired zero times and left a
+   * console error behind. There is nobody to notify at that point, because the
+   * consumer's own view is being torn down in the same pass; `wr-popconfirm`
+   * already disposes without emitting, and this brings the other two into line.
+   *
+   * The focus hand-back is skipped for the same reason — the host element is on
+   * its way out of the document.
+   */
+  private closeOverlay(notify = true): void {
     if (!this.overlayRef) return;
     if (this.trigger() === 'hover') {
       this.overlayRef.overlayElement.removeEventListener('mouseleave', this.onOverlayMouseLeave);
@@ -278,8 +294,10 @@ export class WrDropdown {
     const focusWasInside = active instanceof Node && this.overlayRef.overlayElement.contains(active);
     this.overlayRef.dispose();
     this.overlayRef = null;
-    if (focusWasInside) this.host.nativeElement.focus();
-    this.closed.emit();
+    if (notify) {
+      if (focusWasInside) this.host.nativeElement.focus();
+      this.closed.emit();
+    }
   }
 
   // Keyboard handling
