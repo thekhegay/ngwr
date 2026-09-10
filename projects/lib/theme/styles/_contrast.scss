@@ -74,6 +74,9 @@ $ink-mix-more: (
 
     // The de-emphasis tier closes up — see the note at the top of this file.
     --wr-color-text-muted: rgba(var(--wr-color-muted-text-rgb), 1);
+    // unused-ok: the library paints with nothing at the faint strength any
+    // more — see the note at its declaration in `_colors.scss`. The override
+    // stays so a CONSUMER using the tier is carried into high contrast too.
     --wr-color-text-faint: rgba(var(--wr-color-muted-text-rgb), 1);
 
     // 3.47:1 on the page and 3.00:1 on `#ebeff4`, against the default
@@ -99,6 +102,9 @@ $ink-mix-more: (
     --wr-color-muted-text-rgb: 162, 173, 190;
 
     --wr-color-text-muted: rgba(var(--wr-color-muted-text-rgb), 1);
+    // unused-ok: the library paints with nothing at the faint strength any
+    // more — see the note at its declaration in `_colors.scss`. The override
+    // stays so a CONSUMER using the tier is carried into high contrast too.
     --wr-color-text-faint: rgba(var(--wr-color-muted-text-rgb), 1);
 
     // 3.56:1 on the dark canvas, against the default `#262f44`'s 1.41:1.

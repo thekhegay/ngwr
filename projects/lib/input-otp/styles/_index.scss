@@ -41,7 +41,11 @@
       box-shadow var(--wr-transition-base);
 
     &::placeholder {
-      color: var(--wr-color-text-faint);
+      // Placeholder text is TEXT — 1.4.3 asks 4.5:1, and the faint tier gave it
+      // 2.43:1 in light. `--wr-color-text-muted` is the softest tier that still
+      // clears the bar, at 4.81:1, which is exactly what `_colors.scss` says it
+      // was calibrated for.
+      color: var(--wr-color-text-muted);
     }
 
     &:focus {

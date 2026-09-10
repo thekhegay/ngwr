@@ -49,7 +49,9 @@
 
   &__spin {
     position: absolute;
-    color: var(--wr-color-text-faint);
+    // Same as the textarea grip: a loading indicator is a status GRAPHIC that
+    // 1.4.11 holds to 3:1, and the faint tier is 2.43:1 in light.
+    color: var(--wr-color-on-surface-muted);
     --wr-spinner-size: 40%;
   }
 }
