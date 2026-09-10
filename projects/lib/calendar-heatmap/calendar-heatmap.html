@@ -22,7 +22,9 @@
         [style.opacity]="opacityFor(cell.intensity)"
         [style.grid-column]="cell.week + 1"
         [style.grid-row]="cell.day + 1"
-        [title]="`${cell.iso}: ${cell.value}`"
+        [title]="cellTitle(cell)"
+        [attr.data-date]="cell.iso"
+        [attr.data-value]="cell.value"
         aria-hidden="true"
       ></span>
     }

@@ -249,6 +249,7 @@ export const wrRu: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: 'Календарная тепловая карта',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Линейный график',

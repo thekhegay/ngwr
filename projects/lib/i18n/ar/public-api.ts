@@ -253,6 +253,7 @@ export const wrAr: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: 'خريطة حرارية للتقويم',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'مخطط خطي',

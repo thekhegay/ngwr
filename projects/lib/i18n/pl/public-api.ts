@@ -262,6 +262,7 @@ export const wrPl: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: 'Mapa cieplna kalendarza',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Wykres liniowy',

@@ -244,6 +244,7 @@ export const wrHi: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: 'कैलेंडर हीटमैप',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'लाइन चार्ट',

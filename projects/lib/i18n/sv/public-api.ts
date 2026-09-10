@@ -244,6 +244,7 @@ export const wrSv: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: 'Kalendervärmekarta',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Linjediagram',

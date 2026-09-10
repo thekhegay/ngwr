@@ -252,6 +252,7 @@ export const wrDe: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: 'Kalender-Heatmap',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Liniendiagramm',

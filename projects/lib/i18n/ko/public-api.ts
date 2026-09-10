@@ -249,6 +249,7 @@ export const wrKo: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: '캘린더 히트맵',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: '선 차트',

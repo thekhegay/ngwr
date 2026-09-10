@@ -252,6 +252,7 @@ export const wrTr: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: 'Takvim ısı haritası',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     // Belirtisiz ad tamlaması: Türkçede tamlanan ad iyelik eki alır — “çizgi

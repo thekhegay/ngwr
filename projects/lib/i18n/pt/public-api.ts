@@ -251,6 +251,7 @@ export const wrPt: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: 'Mapa de calor do calendário',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Gráfico de linhas',

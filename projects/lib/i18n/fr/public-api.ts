@@ -253,6 +253,7 @@ export const wrFr: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: 'Carte de chaleur du calendrier',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Graphique en courbes',

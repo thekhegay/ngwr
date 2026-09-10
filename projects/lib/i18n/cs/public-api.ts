@@ -244,6 +244,7 @@ export const wrCs: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: 'Kalendářní tepelná mapa',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Spojnicový graf',

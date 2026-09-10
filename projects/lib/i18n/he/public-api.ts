@@ -257,6 +257,7 @@ export const wrHe: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: 'מפת חום לפי תאריכים',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'תרשים קווים',

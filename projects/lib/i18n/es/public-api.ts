@@ -244,6 +244,7 @@ export const wrEs: WrI18nCatalog = {
   },
   calendarHeatmap: {
     label: 'Mapa de calor del calendario',
+    cell: '{{date}}: {{count}}',
   },
   lineChart: {
     label: 'Gráfico de líneas',
