@@ -83,9 +83,28 @@ export class WrLineChart {
   /** Hovered point index (across all series) — null when no hover. */
   protected readonly hoveredIndex = signal<number | null>(null);
 
+  /**
+   * A dash pattern per series, so the lines are told apart by SHAPE and not
+   * only by hue.
+   *
+   * The default palette's colours sit within about 1.06:1 of each other in
+   * relative luminance — that is the whole nine-intent scale's constraint, and
+   * it means a reader with red-green colour blindness sees several of these
+   * strokes as one grey. A legend that pairs a coloured square with a name does
+   * not rescue it: matching the square to the line is exactly the step that
+   * needs hue. Distinguishing series by dash is the standard remedy and the
+   * only one that survives greyscale, printing and a monochrome display.
+   *
+   * The FIRST entry is solid on purpose. A single-series chart is the common
+   * case and there is nothing to tell apart in it, so it is left exactly as it
+   * was; the patterns only appear once a second series does.
+   */
+  private static readonly DASHES = ['', '7 4', '2 3', '10 4 2 4', '1 4', '6 3 2 3'] as const;
+
   protected readonly resolvedSeries = computed(() =>
     this.series().map((s, i) => ({
       label: s.label,
+      dash: WrLineChart.DASHES[i % WrLineChart.DASHES.length],
       // A non-finite point becomes a HOLE at its own index, not a missing element.
       // It cannot stay a number: `Math.min`/`Math.max` over the pooled data are both
       // NaN as soon as one datum is, so every coordinate in EVERY series came out

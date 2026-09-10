@@ -36,7 +36,9 @@ describe('WrLineChart', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
-  const svg = (): SVGSVGElement => root().querySelector<SVGSVGElement>('svg')!;
+  // `.wr-line-chart__svg`, not a bare `svg`: the legend swatch is an `<svg>` as
+  // well, and it comes first in the DOM.
+  const svg = (): SVGSVGElement => root().querySelector<SVGSVGElement>('.wr-line-chart__svg')!;
   const lines = (): SVGPathElement[] => [...root().querySelectorAll<SVGPathElement>('path.wr-line-chart__line')];
   const legendLabels = (): string[] =>
     [...root().querySelectorAll('.wr-line-chart__legend-item')].map(el => el.textContent.trim());

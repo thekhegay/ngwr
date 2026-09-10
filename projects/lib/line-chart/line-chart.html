@@ -3,7 +3,22 @@
   <ul class="wr-line-chart__legend">
     @for (s of resolvedSeries(); track s.label) {
       <li class="wr-line-chart__legend-item">
-        <span class="wr-line-chart__swatch" [style.background]="s.color"></span>
+        <!-- The swatch draws the series' own dash, not a solid block. A legend
+             that pairs a coloured square with a name leaves the reader to match
+             the square to the LINE, and matching by colour is the step the
+             patterns exist to remove. -->
+        <svg class="wr-line-chart__swatch" viewBox="0 0 16 2" aria-hidden="true">
+          <line
+            x1="0"
+            y1="1"
+            x2="16"
+            y2="1"
+            [attr.stroke]="s.color"
+            [attr.stroke-dasharray]="s.dash || null"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </svg>
         <span>{{ s.label }}</span>
       </li>
     }
@@ -11,7 +26,12 @@
 }
 
 <div class="wr-line-chart__plot" role="img" [attr.aria-label]="resolvedAriaLabel()" [style.height.px]="height()">
+  <!-- Named, where it was the only unnamed element in the component. The legend
+       swatch is an `<svg>` too now, so `querySelector('svg')` no longer means
+       "the chart" — and a plot that nothing can address by name is one a
+       consumer's stylesheet and a spec both have to reach by position. -->
   <svg
+    class="wr-line-chart__svg"
     [attr.viewBox]="viewBox()"
     preserveAspectRatio="none"
     (pointermove)="onPointerMove($event)"
@@ -49,6 +69,7 @@
         [attr.d]="pathFor(s)"
         fill="none"
         [attr.stroke]="s.color"
+        [attr.stroke-dasharray]="s.dash || null"
         stroke-width="2"
         stroke-linecap="round"
         stroke-linejoin="round"

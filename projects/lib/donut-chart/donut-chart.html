@@ -4,8 +4,22 @@
        subtree — including the centre value and label, which are real text and are
        the headline datum the legend does not carry. -->
   <svg viewBox="0 0 100 100" role="img" [attr.aria-label]="resolvedAriaLabel()">
+    <!-- Every slice is stroked in the SURFACE colour, so adjacent arcs are
+         separated by a visible gap rather than by the boundary between two
+         fills. Without it the only thing dividing two slices is the colour
+         change itself, and the default palette's entries sit within about
+         1.06:1 of each other in relative luminance — for a reader who cannot
+         separate hue, two neighbours merge into one arc and the chart reads as
+         having fewer slices than it has. A gap is a shape, and it survives
+         greyscale, printing and a monochrome display. -->
     @for (slice of slices(); track $index) {
-      <path [attr.d]="slice.path" [attr.fill]="slice.color" />
+      <path
+        [attr.d]="slice.path"
+        [attr.fill]="slice.color"
+        stroke="var(--wr-color-surface)"
+        stroke-width="1"
+        stroke-linejoin="round"
+      />
     }
   </svg>
   @if (centerValue() || centerLabel()) {
