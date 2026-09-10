@@ -39,6 +39,19 @@ export interface WrFormFieldContext {
   readonly describedBy: Signal<string | null>;
 
   /**
+   * Id of the field's own `<label>`, or `null` when it renders none.
+   *
+   * For the controls `<label for>` cannot reach. `for` only binds to a LABELABLE
+   * element — button, input, meter, output, progress, select, textarea — so a
+   * control whose focusable part is a `div[role="slider"]`, a `role="button"`
+   * drop zone or a radiogroup got a label pointing at nothing: measured, five of
+   * the eighteen value controls resolved `for` to no element in the document at
+   * all. Those point `aria-labelledby` back at this instead, which is the
+   * direction that works for a role.
+   */
+  readonly labelId?: Signal<string | null>;
+
+  /**
    * Id of the field's hint, or `null` when it is showing none — including while
    * an error has replaced it, since the two never render together and an
    * `aria-describedby` naming an absent element is an author error.

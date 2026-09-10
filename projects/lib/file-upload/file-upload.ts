@@ -115,6 +115,19 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
   /** The surrounding `<wr-form-field>`'s error state. @internal */
   protected readonly fieldAria = useFormFieldAria();
 
+  /**
+   * The field's label names the drop zone, when there is one.
+   *
+   * The zone is a `div[role="button"]`, so `<wr-form-field>`'s `<label for>`
+   * cannot reach it and named nothing at all — the zone announced only its own
+   * generic "drop files here" copy. `aria-labelledby` is the direction that
+   * works for a role. The zone copy stays as the label when no field wraps it.
+   */
+  protected readonly labelledBy = computed(() => this.fieldAria.labelledBy());
+
+  /** `null` while the field's label carries the name, or both are announced. */
+  protected readonly zoneName = computed(() => (this.labelledBy() ? null : this.resolvedDropZone()));
+
   /** Primary call-to-action label. Falls back to `fileUpload.browse`. */
   readonly pickLabel = input<string | null>(null);
 

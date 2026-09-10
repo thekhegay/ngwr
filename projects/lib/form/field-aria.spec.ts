@@ -2,6 +2,10 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormField, form, minLength, required } from '@angular/forms/signals';
 
+import { WrFileUpload } from 'ngwr/file-upload';
+import { WrInputOtp } from 'ngwr/input-otp';
+import { WrKnob } from 'ngwr/knob';
+import { WrRating } from 'ngwr/rating';
 import { WrTextarea } from 'ngwr/textarea';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -173,5 +177,54 @@ describe('a Signal Forms length error', () => {
 
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(text).toContain('Enter at least 5 characters');
+  });
+});
+/**
+ * `<label for>` binds only to a LABELABLE element — button, input, meter,
+ * output, progress, select, textarea. A control whose focusable part carries a
+ * ROLE instead gets nothing from it, and measured, four of them rendered a
+ * field label whose `for` named no element in the document at all: the label
+ * was on screen and, for a screen reader, did not exist.
+ *
+ * No gate reports this. axe's `label` rule looks at native controls, and
+ * `check:a11y` walks prerendered HTML where the field and the control are both
+ * present and both look fine.
+ */
+describe('a field label over a role-based control', () => {
+  @Component({
+    imports: [WrFormField, WrRating, WrKnob, WrInputOtp, WrFileUpload],
+    template: `
+      <wr-form-field label="Overall satisfaction"><wr-rating /></wr-form-field>
+      <wr-form-field label="Volume"><wr-knob /></wr-form-field>
+      <wr-form-field label="One-time code"><wr-input-otp /></wr-form-field>
+      <wr-form-field label="Attachments"><wr-file-upload /></wr-form-field>
+      <wr-form-field label="Ignored"><wr-rating ariaLabel="Explicit wins" /></wr-form-field>
+    `,
+  })
+  class RoleHost {}
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  /** What a screen reader resolves, through the DOCUMENT rather than off the attribute. */
+  const nameOf = (root: HTMLElement, field: Element): string | null => {
+    const named = field.querySelector('[aria-labelledby],[aria-label]');
+    const by = named?.getAttribute('aria-labelledby');
+    if (!by) return named?.getAttribute('aria-label') ?? null;
+    return root.querySelector(`[id="${by}"]`)?.textContent?.trim() ?? null;
+  };
+
+  it('names each one with the field label, and lets an explicit ariaLabel win', () => {
+    const fixture = TestBed.createComponent(RoleHost);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const fields = [...root.querySelectorAll('.wr-form-field')];
+
+    expect(fields.map(f => nameOf(root, f))).toEqual([
+      'Overall satisfaction',
+      'Volume',
+      'One-time code',
+      'Attachments',
+      'Explicit wins',
+    ]);
   });
 });

@@ -280,6 +280,9 @@ export class WrFormField implements WrFormFieldContext {
    */
   readonly hintId = computed(() => (!this.hasError() && this.hint() ? `${this.controlId()}-hint` : null));
 
+  /** @internal `WrFormFieldContext` — the id a role-based control points `aria-labelledby` at. */
+  readonly labelId = computed(() => (this.label() ? `${this.controlId()}-label` : null));
+
   /**
    * Render a catalog message for any error the markup does not already answer.
    *
