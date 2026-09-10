@@ -73,6 +73,15 @@
     @for (col of columns(); track $index; let colIndex = $index) {
       <ul class="wr-cascader__col" role="menu">
         @for (opt of col; track opt.value) {
+          <!--
+            aria-haspopup / aria-expanded, because the only other thing that says
+            "this one goes deeper" is the chevron below, and that svg is
+            aria-hidden. Announcing a branch as a plain menuitem tells a screen
+            reader the choice is final, so Enter reads as committing rather than
+            as descending. `expanded` is exactly `isActiveAt`: `columns()` renders
+            the next column for the active option and only when it has children,
+            so the state can never claim a column that is not on screen.
+          -->
           <li
             class="wr-cascader__opt"
             role="menuitem"
@@ -80,6 +89,8 @@
             [class.wr-cascader__opt--disabled]="opt.disabled"
             [attr.tabindex]="opt.disabled ? -1 : 0"
             [attr.aria-disabled]="opt.disabled ? true : null"
+            [attr.aria-haspopup]="opt.children?.length ? 'menu' : null"
+            [attr.aria-expanded]="opt.children?.length ? isActiveAt(colIndex, opt.value) : null"
             (click)="onOptionClick(colIndex, opt, $event)"
             (keydown.enter)="onOptionClick(colIndex, opt, $event)"
             (keydown.space)="onOptionClick(colIndex, opt, $event)"

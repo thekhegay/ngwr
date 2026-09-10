@@ -233,6 +233,40 @@ describe('WrCascader', () => {
       expect(optionsIn(2).map(o => o.textContent.trim())).toEqual(['Paris']);
     });
 
+    it('says which options go deeper, and which of them is open', () => {
+      open();
+
+      // The chevron beside a branch is `aria-hidden`, so without these two the
+      // only difference between "Europe" and "Antarctica" is a graphic.
+      expect(optionFor('Europe')!.getAttribute('aria-haspopup')).toBe('menu');
+      expect(optionFor('Europe')!.getAttribute('aria-expanded')).toBe('false');
+
+      // A leaf promises nothing. Absent rather than `false`: `aria-expanded`
+      // on a menuitem that opens nothing states a collapsed submenu exists.
+      expect(optionFor('Antarctica')!.getAttribute('aria-haspopup')).toBeNull();
+      expect(optionFor('Antarctica')!.getAttribute('aria-expanded')).toBeNull();
+
+      choose('Europe');
+
+      expect(optionFor('Europe')!.getAttribute('aria-expanded')).toBe('true');
+      // The sibling is still collapsed — one branch open, not the whole level.
+      expect(optionFor('Asia')!.getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('collapses the branch it left when a sibling takes over', () => {
+      open();
+      choose('Europe');
+      choose('Germany');
+      expect(optionFor('Germany')!.getAttribute('aria-expanded')).toBe('true');
+
+      choose('France');
+
+      // `columns()` prunes the column Germany owned, so a lingering `true`
+      // would name a submenu that is no longer in the document.
+      expect(optionFor('Germany')!.getAttribute('aria-expanded')).toBe('false');
+      expect(optionFor('France')!.getAttribute('aria-expanded')).toBe('true');
+    });
+
     it('gives every enabled option its own tab stop', () => {
       open();
       choose('Europe');
