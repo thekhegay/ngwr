@@ -8,7 +8,8 @@ Sizes are S / M / L / XL.
 
 ## Order
 
-1. **D6** — High-contrast rendering (`prefers-contrast: more` first)
+1. **D7** — Colour is never the only channel (it sizes D6)
+2. **D6** — High-contrast rendering (`prefers-contrast: more` first)
 
 Two notes, then it stands:
 
@@ -18,19 +19,42 @@ Two notes, then it stands:
   [Deferred](#deferred).
 - **Sections A and B are closed.** Mode coverage and the SSR remainder finished
   A; `ngwr/schema-form` finished B.
+- **D2 is closed.** Three of its parts shipped (`--wr-disabled-opacity`, the
+  `--wr-color-fill{,-subtle,-strong}` scale, `check:tokens`) and three were
+  refused with reasons in git — a `--wr-sys-*` synonym layer, `color-scheme`
+  (already shipped), emitted `--mat-sys-*` interop. Its one live remnant, the
+  colour role-rename, is a [breaking change](#breaking-changes-on-the-table)
+  rather than a theming task, and is tracked there.
 
 Everything below the Order is open but unscheduled; everything under
 [Deferred](#deferred) is explicitly not now.
 
 ## D — Theming & visuals
 
-- [ ] **D2. System-token layer** (S) — **believed complete.** Its three
-      additions shipped (`--wr-disabled-opacity`, the
-      `--wr-color-fill{,-subtle,-strong}` scale, `check:tokens`), and its other
-      three parts were refused with reasons recorded in git: a `--wr-sys-*`
-      synonym layer, `color-scheme` (already shipped), and emitted `--mat-sys-*`
-      interop. Close it, or say what else was meant. Its one live remnant is the
-      colour role-rename below.
+- [ ] **D7. Colour is never the only channel** (M) — and it comes BEFORE D6,
+      because it decides how much of D6 is a token problem at all. Measured off
+      the shipped `$base-colors`: six of the nine intents — primary, secondary,
+      success, danger, info, medium — sit inside a **1.06:1** band of relative
+      luminance, and `success` against `danger` is **1.004:1**, the same grey.
+      Sixteen of the thirty-six pairs collapse. It is not an oversight: v11
+      deepened five intents so `_contrast()` would pick a WHITE label, and
+      tuning nine colours to one ratio against the same two candidates IS
+      tuning them to one luminance. **So the palette cannot carry a second
+      channel and the components have to.** A sweep upheld 32 findings; the six
+      that were plain defects are fixed, the rest are decisions — `wr-toast`
+      has no per-type glyph, `wr-timeline`'s dot varies by one declaration
+      across five intents, the donut and line charts separate series by fill
+      alone, and `wr-typography--tone-*` is an API whose whole purpose is to put
+      meaning in colour. The instrument is **`check:color-only`**, a `pnpm lint`
+      stage in the `check:rtl` / `check:tokens` "say why" shape: a state
+      modifier whose own declarations are all colour fails without a
+      `// color-ok: <reason>` naming the second channel; a prototype finds ~31.
+      It has to be a SOURCE check — axe ships no 1.4.1 rule, and no assertion
+      about the colours themselves is satisfiable while the intents must share
+      a luminance to keep their labels legible. Two models already in the tree:
+      `wr-statistic` draws two different triangles, `wr-calendar-heatmap` ramps
+      opacity over one hue. Unlike the `--wr-color-outline` 1.4.11 trade, none
+      of this is written down yet — recording it is part of the item.
 - [ ] **D6. High-contrast rendering** (M) — `prefers-contrast: more` first: the
       fix is token-shaped (~11 declarations — the `-ink` shares re-derived,
       `text-faint` 0.6 → 0.85, a deeper light `on-surface-muted`, an opaque
@@ -97,7 +121,10 @@ Open and researched, explicitly not now.
 
 Nothing is hard-blocked.
 
-- **D5** — blocked in practice on D2.
+- **D5** — was blocked in practice on D2, which is now closed. What it waits
+  on instead is a token EXPORT: a kit reimplements `wrThemeTokens()` by hand
+  otherwise, and the recipe is light-only, so dark has to come off the built
+  stylesheet the way `check:theme` reads it.
 
 ## Non-goals (researched, rejected)
 
