@@ -43,6 +43,22 @@
  *    only reject an item this repo would have accepted, never accept one it
  *    refuses.
  *
+ * 4. **Every ngwr symbol an item's TypeScript names is real.** A block is code a
+ *    consumer pastes into their own app, and nothing here compiles it — so the
+ *    one shipped block called `WrValidators.required()` and `WrValidators.email()`
+ *    for a whole release. Neither exists: `WrValidators` is eleven `ValidatorFn`s
+ *    for a reactive `FormControl`, and Signal Forms' `required` / `email` come
+ *    from `@angular/forms/signals`. It could not compile, in a file whose entire
+ *    job is to be pasted and compiled. The check reads each named import against
+ *    the entry point's `public-api.ts`, then each `Symbol.member` access against
+ *    the keys of that symbol's own declaration, and PRINTS how many of each it
+ *    resolved — a member check that silently resolves nothing looks exactly like
+ *    one that passes.
+ *
+ *    What it still cannot see is the template: `[formField]` needs Angular's
+ *    `FormField` in the component's `imports`, and the same block was missing it.
+ *    Catching that needs the Angular compiler, not a scan.
+ *
  * Deliberately NOT a JSON Schema implementation. Validating the schema with a
  * validator would mean adding one, and the interesting rules here are not
  * expressible in it anyway: "is this a real entry point" needs the catalog, and
@@ -92,6 +108,139 @@ function entryPoints(): Set<string> {
   };
   walk(LIB_DIR);
   return out;
+}
+
+/** Symbols an entry point's `public-api.ts` re-exports, by name. */
+function exportsOf(entry: string): ReadonlySet<string> {
+  const file = join(LIB_DIR, entry, 'public-api.ts');
+  const out = new Set<string>();
+  if (!existsSync(file)) return out;
+  const source = readFileSync(file, 'utf8');
+  for (const [, block] of source.matchAll(/export\s*(?:type\s*)?\{([^}]+)\}/g)) {
+    for (const member of block.split(',')) {
+      const published = member.trim().split(/\s+as\s+/).pop() ?? '';
+      const name = /^(?:type\s+)?([A-Za-z_$][\w$]*)/.exec(published);
+      if (name) out.add(name[1]);
+    }
+  }
+  return out;
+}
+
+/**
+ * The top-level keys of `export const <symbol> = { … }`, or `null` when the
+ * symbol is not declared that way.
+ *
+ * `null` is the honest answer rather than an empty set: a class, a function or
+ * a declaration this cannot read has no key list, and an empty one would report
+ * every member access on it as a problem.
+ */
+function constMembers(entry: string, symbol: string): ReadonlySet<string> | null {
+  const dir = join(LIB_DIR, entry);
+  const files: string[] = [];
+  const walk = (at: string): void => {
+    for (const name of readdirSync(at)) {
+      const full = join(at, name);
+      if (statSync(full).isDirectory()) {
+        walk(full);
+      } else if (name.endsWith('.ts') && !name.endsWith('.spec.ts')) {
+        files.push(full);
+      }
+    }
+  };
+  walk(dir);
+
+  for (const file of files) {
+    const source = readFileSync(file, 'utf8');
+    const start = new RegExp(`export const ${symbol}\\b[^=]*=\\s*\\{`).exec(source);
+    if (!start) continue;
+
+    // Walk by brace depth from the opening `{` and take the keys that sit at
+    // depth 1 — a nested object's own keys are not members of the symbol.
+    const out = new Set<string>();
+    let depth = 0;
+    let line = '';
+    // The depth a line STARTS at, which is the one that decides whether its key
+    // belongs to this object. Read at the newline instead, a member whose value
+    // opens a brace on the same line — every one of `WrValidators`' is an arrow
+    // function that does — counts as nested and the whole set comes back empty.
+    // An empty set then reports every real member as missing, so the check fails
+    // for the right item and the wrong reason.
+    let lineDepth = 1;
+    for (let i = start.index + start[0].length - 1; i < source.length; i++) {
+      const ch = source[i];
+      if (ch === '{') depth++;
+      else if (ch === '}') {
+        depth--;
+        if (depth === 0) return out;
+      }
+      if (ch === '\n') {
+        const key = /^\s*([A-Za-z_$][\w$]*)\s*[:(]/.exec(line);
+        if (key && lineDepth === 1) out.add(key[1]);
+        line = '';
+        lineDepth = depth;
+      } else {
+        line += ch;
+      }
+    }
+    return out;
+  }
+  return null;
+}
+
+interface SymbolAudit {
+  readonly problems: readonly string[];
+  readonly imports: number;
+  readonly members: number;
+}
+
+/**
+ * Named ngwr imports and the members read off them, held to the library.
+ *
+ * The item's TypeScript is the thing a consumer pastes, and no gate compiles
+ * it — see the header. Both halves report their counts so a scan that stops
+ * matching is visible as a number falling to zero rather than as a pass.
+ */
+function auditSymbols(file: string, source: string, catalog: ReadonlySet<string>): SymbolAudit {
+  const problems: string[] = [];
+  let imports = 0;
+  let members = 0;
+
+  // Comments first, and the reason is that this file's own fix carries one:
+  // the corrected block explains in prose that there is no
+  // `WrValidators.required`, and a scan of the raw text reports that sentence
+  // as a member access. Same category as the `var()` inside a comment that kept
+  // `--wr-color-outline-rgb` alive in `check:tokens`.
+  const content = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+
+  for (const match of content.matchAll(/import\s*\{([^}]+)\}\s*from\s*'ngwr\/([^']+)'/g)) {
+    const entry = match[2];
+    if (!catalog.has(entry)) {
+      problems.push(`${file} — imports from 'ngwr/${entry}', which is not an entry point`);
+      continue;
+    }
+    const published = exportsOf(entry);
+    for (const raw of match[1].split(',')) {
+      const named = /^\s*(?:type\s+)?([A-Za-z_$][\w$]*)/.exec(raw);
+      if (!named) continue;
+      const symbol = named[1];
+      imports++;
+      if (!published.has(symbol)) {
+        problems.push(`${file} — 'ngwr/${entry}' does not export ${symbol}`);
+        continue;
+      }
+
+      const keys = constMembers(entry, symbol);
+      if (!keys) continue;
+      for (const use of content.matchAll(new RegExp(`\\b${symbol}\\.([A-Za-z_$][\\w$]*)`, 'g'))) {
+        members++;
+        if (!keys.has(use[1])) {
+          problems.push(`${file} — ${symbol}.${use[1]}() does not exist (${symbol} has ${[...keys].sort().join(', ')})`);
+        }
+      }
+    }
+  }
+
+  return { problems, imports, members };
 }
 
 interface Schema {
@@ -256,6 +405,8 @@ function main(): void {
   }
 
   const names = new Set<string>();
+  let imports = 0;
+  let members = 0;
   for (const file of files) {
     const path = join(ITEMS, file);
     let raw: unknown;
@@ -267,6 +418,15 @@ function main(): void {
     }
 
     for (const problem of validateItem(raw, catalog)) problems.push(`${file} — ${problem}`);
+
+    for (const entry of (raw as { files?: readonly { path?: unknown; content?: unknown }[] }).files ?? []) {
+      if (typeof entry.path !== 'string' || !entry.path.endsWith('.ts')) continue;
+      if (typeof entry.content !== 'string') continue;
+      const audit = auditSymbols(`${file}:${entry.path}`, entry.content, catalog);
+      problems.push(...audit.problems);
+      imports += audit.imports;
+      members += audit.members;
+    }
 
     const name = (raw as { name?: unknown }).name;
     if (typeof name === 'string') {
@@ -301,7 +461,8 @@ function main(): void {
 
   info(
     `✓ Registry — ${files.length} item(s) valid against schema.json, ${PRESETS.length} theme(s) match their seeds, ` +
-      `${catalog.size} entry points to check names against.`
+      `${catalog.size} entry points to check names against, ` +
+      `${imports} ngwr import(s) and ${members} member access(es) resolved against the library.`
   );
 }
 
