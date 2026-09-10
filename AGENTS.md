@@ -368,11 +368,13 @@ Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
 (`ngwr/form`), most of the service layer (`ngwr/hotkey`, `ngwr/i18n`,
 `ngwr/media`, `ngwr/platform`, `ngwr/storage`, `ngwr/overlay`, `ngwr/density`,
 `WrWindowManager`, `ngwr/scroll`) and EVERY component with a
-page under `reference/components` — 275 spec files, at least 4467 specs, and
-**every entry point now has one**. (Both numbers are re-counted by
-`pnpm gen:quality` into `#core/generated/quality`; the spec figure is a FLOOR,
-since one `it.each` site stands for an unknown number of cases.) What is still uncovered is no longer whole
-components but what a spec can reach: jsdom has no drawing context, so the canvas
+page under `reference/components`, and **every entry point now has one**. (How
+many spec files and how many cases is re-counted by `pnpm gen:quality` into
+`#core/generated/quality` — read it there. This sentence used to restate both,
+and sat at `275 spec files, at least 4467 specs` for long enough to be wrong by
+four files and a hundred cases. The case figure is a FLOOR either way, since one
+`it.each` site stands for an unknown number of cases.) What is still uncovered
+is no longer whole components but what a spec can reach: jsdom has no drawing context, so the canvas
 and WebGL components can never assert anything painted. All six now install a
 recording context — a WebGL2 stub for `aurora` and `splash-cursor`, a 2D one for
 the rest — and five of them an `ErrorHandler` recorder besides, because what
@@ -535,9 +537,11 @@ page documenting an API — hand-written `DocApiRow` arrays and pages consuming
 `API.Wr*` alike — and holds each to the library: names, `default`, and since v12
 `type` as well. The type column was compared nowhere before that, on any page, so
 a docs table could say `number` for a `string` and every gate stayed green; that
-is closed for the 107 pages mapped to an entry point and for all 933 rows of
+is closed for every page mapped to an entry point and for every row of
 `_core/generated/api.ts`, which the run now re-serialises in memory and compares
-against the committed file. A page expanding a named alias (`'sm' | 'md' | 'lg'`
+against the committed file. **The counts are printed by the run itself — read
+them there rather than from this file**, which carried `107 pages` and `933 rows`
+long after both had moved. A page expanding a named alias (`'sm' | 'md' | 'lg'`
 for `WrKbdSize`) is accepted, and editing the alias in `projects/lib` indicts
 every page that spelled the old union out. Outputs print the PAYLOAD, bare —
 `void`, `Blob`, `{ text: string; index: number }` — never a wrapper;
@@ -550,10 +554,16 @@ library under a wider rule and names anything `MEMBER_RE` missed, so a member
 that STOPS being read is caught (and the run then says *not* to regenerate,
 because baking the loss in is the failure mode), but a class whose
 `public-api.ts` uses `export *` is filtered out of both reads and cannot be
-witnessed at all. **The 66 pages documenting something else** — guides, utils,
-validators, interfaces — carry 92 rows nothing compares; a wrong type there is
-silent. **The comparison never opens a template**, so a row is "documented" even
-when no `<ngwr-doc-api>` renders it, and 47 generated rows ship `description: "—"`
+witnessed at all. **The pages documenting something else** — guides, utils,
+validators, interfaces — carry the rows nothing compares (the run prints both
+counts; the difference between its `hand-written row(s)` and its `type(s)
+compared` IS that number). It is not a hypothetical: a sweep of those rows found
+fourteen wrong, including a parameter type that does not compile
+(`isNonEmptyArray` takes `Maybe<T[]>`, not `readonly T[]`), an error payload
+documented as `true` where the validator returns an object, and a second
+argument documented as an optional scope where the function requires a fallback
+string. A wrong type there is silent. **The comparison never opens a
+template**, so a row is "documented" even when no `<ngwr-doc-api>` renders it, and 47 generated rows ship `description: "—"`
 because the member carries no JSDoc. And **a hand-written row for a REQUIRED
 input is exempt from the existence half**, since `DocApiRow` tells authors to
 omit `default:` for those and that is the field the check keys on — 17 rows on
@@ -608,8 +618,10 @@ role aliases (`--wr-color-{surface,on-surface,on-surface-muted,outline}`); plus
 The TS `WR_COLORS` list and the SCSS `$base-colors` map must stay in sync —
 `scripts/check-color-parity.ts` (in `pnpm lint`) fails the build if they drift.
 
-**The 379 COMPONENT-scoped hooks are catalogued by `gen:css-vars`, and the
-catalogue is the gate `check:tokens` deliberately is not.** `check:tokens` reads
+**The COMPONENT-scoped hooks are catalogued by `gen:css-vars`, and the
+catalogue is the gate `check:tokens` deliberately is not.** How many there are
+is printed by the run — do not re-type it here, which is how this line came to
+say 379 while `gen:css-vars` said 380. `check:tokens` reads
 `theme/styles/` only, calling a component's own `--wr-<name>-*` "a component's
 private surface" — true of the DECISION and not of the audience, since a
 consumer restyles a component through exactly those. They were documented
@@ -619,9 +631,9 @@ hook overrides the internal BEM class instead — against a class-name stability
 statement that never meant to cover it. `scripts/lib/build-css-var-map.ts` reads
 the stylesheets and `<ngwr-doc-page>` renders the section itself, keyed by route,
 so a component that grows a hook cannot ship without the row. Three rules earned
-while writing it: **declaring a hook is not owning one** (twenty-four
-declarations are one component setting another's — `--wr-icon-size` inside its
-own `<wr-icon>` — and belong on the owner's page); **a read may live in
+while writing it: **declaring a hook is not owning one** (some declarations are
+one component setting another's — `--wr-icon-size` inside its own `<wr-icon>` —
+and belong on the owner's page; the run counts those too); **a read may live in
 TypeScript** (`wr-circular-text` writes `var(--wr-circular-text-radius)` into a
 transform and `wr-aurora` reads three hooks through `getPropertyValue`, so a
 stylesheet-only scan called all four dead) but never in a spec or a harness; and
@@ -1002,10 +1014,12 @@ loosest day, and every other day it hides a real regression in the slack.
 is minutes.
 
 It runs **nightly** (`.github/workflows/nightly.yml`), not on every PR: a
-browser and 392 page loads (196 canonical routes, both themes) took the PR job
-from ~5 minutes to nearly 17, and what it catches is drift in painted colour
-rather than the kind of break a
-single PR needs told about mid-review. So a green PR says nothing about
+browser and 392 page loads — 196 canonical routes across both themes, as the
+sweep stood when this was measured — took the PR job from ~5 minutes to nearly
+17. It is bigger now and the case is only stronger: `prefers-contrast: more` is
+a second axis, so a full sweep is routes × themes × contrast modes, and the run
+prints all three. What it catches is drift in painted colour rather than the
+kind of break a single PR needs told about mid-review. So a green PR says nothing about
 contrast — run it locally when you touch a token, a tint, or anything that
 paints text on an intent.
 
@@ -1157,15 +1171,18 @@ one shipped catch was the slider thumb centring itself with a physical
 **`--wr-color-outline` fails WCAG 1.4.11 on control borders, and that is a
 DECIDED trade — do not re-report it.** Measured: `#cbd5e1` on white is **1.48:1**
 and `#262f44` on `#0b1120` is **1.41:1**, against the 3:1 the criterion asks of
-anything that identifies a control. The token carries 103 declarations across 55
+anything that identifies a control. The token carries 100 declarations across 55
 entry points, and only **15** are control boundaries where 1.4.11 applies
 (`input`, `input-group`, `textarea`, `select`, `checkbox`, `radio`, the switch
 track, the slider rail, `button`, `cascader`, the tree trigger, `input-otp`,
-`color-picker`, `time-picker`, `rating`); the other 88 are cards, dividers,
-table rules and panel edges, which the criterion does not reach.
+`color-picker`, `time-picker`, `rating`); every other one is a card, a divider,
+a table rule or a panel edge, which the criterion does not reach. The
+declaration count is stated rather than derived, because a subtraction here
+would go stale on its own — it read `103` and `the other 88` while the real
+figure had fallen to 100.
 
 Two fixes were costed and both were rejected on how they look: darkening the one
-token to `#7e97b5` / `#4d608a` repaints all 103, and splitting out a
+token to `#7e97b5` / `#4d608a` repaints all 100, and splitting out a
 `--wr-color-control-border` at 3:1 leaves control edges visibly darker than every
 line beside them. The maintainer chose to keep the current hairline.
 
