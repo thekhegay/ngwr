@@ -143,6 +143,21 @@ export class WrRating implements FormValueControl<number | null> {
   /** The surrounding `<wr-form-field>`'s error state. @internal */
   protected readonly fieldAria = useFormFieldAria();
 
+  /**
+   * The field's label wins over the built-in default, and an explicit
+   * `ariaLabel` wins over both.
+   *
+   * `<wr-form-field label="…">` renders a `<label for>` that cannot reach this
+   * control — `for` binds only to a LABELABLE element and the focusable part
+   * here carries a role instead — so the field's label named nothing and this
+   * announced its own generic default. A consumer who wrote
+   * `<wr-form-field label="Overall satisfaction">` heard "Rating".
+   */
+  protected readonly labelledBy = computed(() => (this.ariaLabel() ? null : this.fieldAria.labelledBy()));
+
+  /** `null` once `aria-labelledby` is carrying the name, or the two are announced together. */
+  protected readonly nameLabel = computed(() => (this.labelledBy() ? null : this.resolvedAriaLabel()));
+
   protected readonly classes = computed(() => {
     const parts = ['wr-rating'];
     const size = this.size();

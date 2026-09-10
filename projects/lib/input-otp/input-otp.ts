@@ -55,7 +55,12 @@ import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
   selector: 'wr-input-otp',
   templateUrl: './input-otp.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()', role: 'group', '[attr.aria-label]': 'resolvedAriaLabel()' },
+  host: {
+    '[class]': 'classes()',
+    role: 'group',
+    '[attr.aria-label]': 'groupName()',
+    '[attr.aria-labelledby]': 'labelledBy()',
+  },
 })
 export class WrInputOtp implements FormValueControl<string> {
   private readonly dir = inject(Directionality, { optional: true });
@@ -122,6 +127,19 @@ export class WrInputOtp implements FormValueControl<string> {
    * @internal
    */
   protected readonly fieldAria = useFormFieldAria();
+
+  /**
+   * The field's label names the strip, when there is one.
+   *
+   * The host is a `role="group"`, which `<wr-form-field>`'s `<label for>` cannot
+   * reach — `for` binds only to a labelable element — so a field wrapping this
+   * rendered a label that named nothing and the strip announced its own generic
+   * default instead. An explicit `ariaLabel` still wins over both.
+   */
+  protected readonly labelledBy = computed(() => (this.ariaLabel() ? null : this.fieldAria.labelledBy()));
+
+  /** `null` while the field's label carries the name, or the two are announced together. */
+  protected readonly groupName = computed(() => (this.labelledBy() ? null : this.resolvedAriaLabel()));
 
   /** Character shown in empty cells. @default '•' */
   readonly placeholder = input<string>('•');
