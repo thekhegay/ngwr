@@ -331,6 +331,7 @@ with **no `var()` reader anywhere in the library**.
 | RTL source gate   | `pnpm check:rtl` (physical direction-dependent CSS with no `rtl-ok:` reason — a `pnpm lint` stage)  |
 | Registry gate     | `pnpm check:registry` (the open item format under `registry/` — also a `pnpm lint` stage)           |
 | Dead-token gate   | `pnpm check:tokens` (a `--wr-*` nothing paints with, unless it says `unused-ok:` — a `pnpm lint` stage) |
+| Colour-only gate  | `pnpm check:color-only` (a state modifier whose own declarations are all colour, with no `color-ok:` reason — a `pnpm lint` stage) |
 | Theme parity      | `pnpm check:theme` (`wrThemeTokens()` vs the compiled `_colors.scss` — a CI step after `build:showcase`) |
 | RTL layout sweep  | `pnpm check:rtl-layout` (Chromium, LTR vs RTL overflow per route — **nightly**, not a PR gate)      |
 | Layout geometry   | `pnpm check:layout` (box sizes vs `layout-baseline.json`; `--update` re-records — **nightly**)        |
@@ -512,7 +513,10 @@ lines above it) `&&` `check:registry` (`scripts/check-registry.ts` — the items
 under `registry/`, their `entryPoints` against the real catalog, and
 `schema.json` against the validator that enforces it) `&&` `check:tokens`
 (`scripts/check-tokens.ts` — a token declared in `theme/styles/` that nothing in
-`projects/lib` or the showcase's own stylesheets writes `var()` for) — and the last stages are
+`projects/lib` or the showcase's own stylesheets writes `var()` for) `&&`
+`check:color-only` (`scripts/check-color-only.ts` — a state or intent modifier
+whose OWN declarations are all colour properties, with no `color-ok:` reason
+within three lines above the selector) — and the last stages are
 the ones that most often turn a green-looking run red. The first stage prints
 `All files pass linting.` even when a _later_ stage fails — so **verify by exit
 code, never by grepping the output**:

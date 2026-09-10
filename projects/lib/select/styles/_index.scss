@@ -100,6 +100,9 @@
     }
   }
 
+  // color-ok: opening attaches the panel and flips the chevron 180deg, so the
+  // state is a thing appearing and a glyph rotating; this only tints the edge
+  // underneath both.
   &--open &__trigger {
     border-color: var(--wr-color-primary);
     box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);
@@ -454,12 +457,28 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    // Positioning context for the `--active` cursor bar below.
+    position: relative;
   }
 
   // Keyboard cursor highlight — the virtualized list is navigated by
-  // aria-activedescendant, so the active row needs a visible marker.
+  // aria-activedescendant, so real focus never lands on the row and the tint
+  // is all there was. `--wr-color-hover` is translucent and lands within about
+  // 1.1:1 of the panel behind it, which is the same grey to a reader who
+  // cannot separate hue — and it is the declaration `:hover` uses, so the row
+  // the arrows reached and a row under the mouse were indistinguishable. The
+  // bar is the channel; the tint stays as reinforcement.
   .wr-option--active {
     background: var(--wr-color-hover);
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 0;
+      width: 2px;
+      background: var(--wr-color-primary);
+    }
   }
 }
 

@@ -84,6 +84,9 @@
     --wr-switch-line-height: var(--wr-control-line-height-lg);
   }
 
+  // color-ok: the knob TRAVELS — the nested `.wr-switch__thumb` rule moves
+  // `inset-inline-start` from one end of the track to the other. Position is
+  // the channel; the track colour follows it.
   &--checked {
     --wr-switch-bg: var(--wr-switch-bg-checked);
 

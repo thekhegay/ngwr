@@ -98,6 +98,9 @@
   // `light` outlined, after the loop for the same reason the badge carries the
   // same rule: 30% of a surface tone is not a line. At full strength it IS
   // `--wr-color-outline`, which is already this component's default border.
+  // color-ok: every outlined tag already draws a border — this only gives the
+  // one intent that cannot tint one a literal colour. Telling two INTENTS
+  // apart on a bare tag is the open half of D7 and is not what this rule does.
   &--light.wr-tag--outlined {
     --wr-tag-border: var(--wr-color-outline);
   }

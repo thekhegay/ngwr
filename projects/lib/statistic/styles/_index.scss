@@ -39,10 +39,14 @@
     font-weight: var(--wr-font-weight-semibold);
     font-variant-numeric: tabular-nums;
 
+    // color-ok: direction is DRAWN — statistic.html gives up and down two
+    // different triangle paths (apex up `M5 1 L9 8 L1 8 Z`, apex down
+    // `M5 9 L9 2 L1 2 Z`), and the value reads +12.4% against -0.4%.
     &--up {
       color: var(--wr-color-success-ink);
     }
 
+    // color-ok: see `--up` above — the two triangles point opposite ways.
     &--down {
       color: var(--wr-color-danger-ink);
     }

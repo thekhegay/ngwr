@@ -88,6 +88,10 @@
   }
 
   // Visual states — invalid stripes the projected control too.
+  // color-ok: `danger` against the default `--wr-color-outline` separates in
+  // LIGHTNESS, not only in hue — 3.11:1 in light — so unlike two intents
+  // compared with each other this survives greyscale, and the error MESSAGE
+  // the field renders below is the channel that does the real work.
   &--invalid &__control input,
   &--invalid &__control textarea,
   &--invalid &__control select,
@@ -124,6 +128,10 @@
   // version of this block set the hook on the host only, and hovering an
   // invalid checkbox turned it back to primary. Naming the inner element takes
   // the selector to (0,4,0), which outranks the component's (0,3,0) hover.
+  // color-ok: `danger` against the default `--wr-color-outline` separates in
+  // LIGHTNESS, not only in hue — 3.11:1 in light — so unlike two intents
+  // compared with each other this survives greyscale, and the error MESSAGE
+  // the field renders below is the channel that does the real work.
   &--invalid &__control .wr-input-group {
     --wr-input-group-border: var(--wr-color-danger);
   }
@@ -134,11 +142,19 @@
   // announcements of one group error is nine times the cost; an eye takes nine
   // red boxes in at once and reads one signal. The reason the ARIA rule exists
   // does not transfer to the visual channel.
+  // color-ok: `danger` against the default `--wr-color-outline` separates in
+  // LIGHTNESS, not only in hue — 3.11:1 in light — so unlike two intents
+  // compared with each other this survives greyscale, and the error MESSAGE
+  // the field renders below is the channel that does the real work.
   &--invalid &__control .wr-checkbox,
   &--invalid &__control .wr-checkbox .wr-checkbox__box {
     --wr-checkbox-border: var(--wr-color-danger);
   }
 
+  // color-ok: `danger` against the default `--wr-color-outline` separates in
+  // LIGHTNESS, not only in hue — 3.11:1 in light — so unlike two intents
+  // compared with each other this survives greyscale, and the error MESSAGE
+  // the field renders below is the channel that does the real work.
   &--invalid &__control .wr-radio,
   &--invalid &__control .wr-radio .wr-radio__dot {
     --wr-radio-border: var(--wr-color-danger);

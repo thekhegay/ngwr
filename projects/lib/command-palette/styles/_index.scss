@@ -122,11 +122,30 @@
     font-size: var(--wr-text-sm);
     line-height: var(--wr-leading-tight);
     user-select: none;
+    // Positioning context for the `--active` cursor bar below. The option is a
+    // flex row with nothing out of flow inside it, so it establishes none today.
+    position: relative;
 
+    // The bar is the channel. The tint alone measures 1.17:1 against a plain
+    // row in light and 1.12:1 in dark — a hue shift, not a lightness step — and
+    // this component cannot fall back on a focus ring: focus stays in the
+    // search field by design and the rows carry no tabindex, so the row the
+    // arrows have reached is announced by `aria-activedescendant` and drawn by
+    // nothing else.
     &--active {
       background: var(--wr-color-primary-soft);
       // Text on the `-soft` tint: `-ink`. Bare measured 4.17:1 light / 3.65:1 dark.
       color: var(--wr-color-primary-ink);
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset-block: 0;
+        inset-inline-start: 0;
+        width: 2px;
+        border-radius: inherit;
+        background: var(--wr-color-primary);
+      }
     }
   }
 
@@ -140,6 +159,8 @@
     justify-content: center;
   }
 
+  // color-ok: this follows the active ROW, which carries the cursor bar —
+  // it re-inks a glyph that is on every option either way.
   &__option--active &__option-icon {
     color: var(--wr-color-primary);
   }
@@ -152,6 +173,8 @@
   // state that walks past prerendered HTML and a page at rest alike. Putting the chip
   // back on the surface restores the pairing the muted role is calibrated for, and
   // keeps the chip reading as a keycap rather than as part of the highlight.
+  // color-ok: same — the row is marked by its bar; this only restores the
+  // keycap's own surface, for the contrast reason written above.
   &__option--active &__option-shortcut {
     background: var(--wr-color-surface);
   }
