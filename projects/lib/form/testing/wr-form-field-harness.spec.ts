@@ -216,19 +216,21 @@ describe('WrFormFieldHarness', () => {
     expect(await name.getAnnouncedDescription()).toBe('');
   });
 
-  it('reports the same emptiness for a key nothing in the chain has copy for', async () => {
+  it('answers a Signal Forms length error, which used to render an empty block', async () => {
     const bio = await field('Bio');
     await (await bio.getHarness(WrInputHarness)).setValue('too short');
 
     expect(await bio.isInvalid()).toBe(true);
-    // Signal Forms reports this error as `minLength`; every link in the copy chain
-    // knows Angular's lowercase `minlength` and nothing else, so nothing answers and
-    // the block renders empty. Pinned rather than fixed here — the copy tables live
-    // outside this entry point — and it is the one shape of this bug a consumer can
-    // hit without opting out of anything.
-    expect(await bio.getErrorTexts()).toEqual([]);
-    expect(await bio.hasEmptyErrorBlock()).toBe(true);
-    expect(await bio.getAnnouncedDescription()).toBe('');
+    // This assertion used to be `[]`, pinned with a note calling it a bug and
+    // deferring it because "the copy tables live outside this entry point".
+    // They do; the BRIDGE does not. Signal Forms spells the rule `minLength`
+    // and carries the bound under that name, reactive forms spell it
+    // `minlength` and carry `requiredLength`, and `form-field.ts` now restates
+    // the first as the second before it asks anyone for copy — so one sentence
+    // serves both spellings and no catalog had to grow two more keys.
+    expect(await bio.getErrorTexts()).toEqual(['Enter at least 10 characters.']);
+    expect(await bio.hasEmptyErrorBlock()).toBe(false);
+    expect(await bio.getAnnouncedDescription()).toBe('Enter at least 10 characters.');
   });
 
   it('links the label to the control it wraps, one id per field', async () => {

@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { FormField, form, required } from '@angular/forms/signals';
+import { FormField, form, minLength, required } from '@angular/forms/signals';
 
 import { WrTextarea } from 'ngwr/textarea';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -139,3 +139,39 @@ describe('useFormFieldAria', () => {
   template: `<wr-textarea />`,
 })
 class BareHost {}
+/**
+ * Signal Forms spells its length rules `minLength` / `maxLength` and carries the
+ * bound under the same name; reactive forms spell them `minlength` /
+ * `maxlength` and carry it as `requiredLength`. Nothing bridged the two, so the
+ * key missed the app's own map, all twenty-two i18n catalogs and the built-in
+ * fallbacks in turn — and `resolve` returns `''` for a miss, which the caller
+ * filters out. A field over its length limit was invalid, marked invalid, and
+ * rendered an empty error block.
+ *
+ * The flagship forms flavour of this library, saying nothing.
+ */
+describe('a Signal Forms length error', () => {
+  @Component({
+    imports: [WrFormField, WrTextarea, FormField],
+    template: `<wr-form-field label="Bio"><wr-textarea [formField]="f.bio" /></wr-form-field>`,
+  })
+  class LengthHost {
+    private readonly model = signal({ bio: 'ab' });
+    readonly f = form(this.model, path => {
+      minLength(path.bio, 5);
+    });
+  }
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('renders the sentence, with its number', async () => {
+    const fixture = TestBed.createComponent(LengthHost);
+    fixture.detectChanges();
+    fixture.componentInstance.f.bio().markAsTouched();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Enter at least 5 characters');
+  });
+});

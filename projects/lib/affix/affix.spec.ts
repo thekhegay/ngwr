@@ -25,8 +25,15 @@ interface Recorded {
   readonly options: IntersectionObserverInit | undefined;
   readonly targets: Element[];
   disconnected: boolean;
-  /** Deliver an entry the way the browser would, synchronously. */
-  report(isIntersecting: boolean): void;
+  /**
+   * Deliver an entry the way the browser would, synchronously.
+   *
+   * `where` is the sentinel's position relative to the offset line, and it is
+   * not decoration: a sentinel is outside the root in TWO directions and only
+   * `'above'` means the page has scrolled past. Defaults to `'above'`, which is
+   * what every test written before this parameter meant.
+   */
+  report(isIntersecting: boolean, where?: 'above' | 'below'): void;
 }
 
 /**
@@ -86,8 +93,18 @@ describe('WrAffix', () => {
         this.disconnected = true;
       }
 
-      report(isIntersecting: boolean): void {
-        this.callback([{ isIntersecting } as IntersectionObserverEntry], this as unknown as IntersectionObserver);
+      report(isIntersecting: boolean, where: 'above' | 'below' = 'above'): void {
+        // The offset line, as `rootMargin` places it. jsdom lays nothing out, so
+        // the geometry the directive reads has to be supplied here — and it is
+        // the whole difference between "scrolled past" and "further down the
+        // page", which is what the directive got wrong.
+        const rootTop = 0;
+        const entry = {
+          isIntersecting,
+          rootBounds: { top: rootTop } as DOMRectReadOnly,
+          boundingClientRect: { top: where === 'above' ? rootTop - 10 : rootTop + 500 } as DOMRectReadOnly,
+        } as IntersectionObserverEntry;
+        this.callback([entry], this as unknown as IntersectionObserver);
       }
     }
     vi.stubGlobal('IntersectionObserver', StubObserver);
@@ -105,8 +122,8 @@ describe('WrAffix', () => {
   };
 
   /** Hand the directive one observer entry and let it settle. */
-  const report = async (isIntersecting: boolean): Promise<void> => {
-    observers.forEach(o => o.report(isIntersecting));
+  const report = async (isIntersecting: boolean, where: 'above' | 'below' = 'above'): Promise<void> => {
+    observers.forEach(o => o.report(isIntersecting, where));
     await fixture.whenStable();
     fixture.detectChanges();
   };
@@ -282,5 +299,29 @@ describe('WrAffix', () => {
 
     expect(isActive()).toBe(false);
     expect(events()).toEqual([]);
+  });
+  /**
+   * A sticky element that starts below the first screen. The observer's very
+   * first callback reports `isIntersecting: false` — the sentinel is off-screen
+   * DOWNWARD — and the directive used to read that as "affixed", so the class
+   * appeared and a transition was emitted before anything scrolled.
+   *
+   * Not reachable by any gate: jsdom lays nothing out, so only a stub that
+   * carries the geometry can tell the two directions apart, and there was none.
+   */
+  it('is not affixed merely because the host starts below the fold', async () => {
+    await report(false, 'below');
+
+    expect(isActive()).toBe(false);
+    expect(fixture.componentInstance.events).toEqual([]);
+  });
+
+  it('becomes affixed once the sentinel has actually gone past the line', async () => {
+    await report(false, 'below');
+    await report(true);
+    await report(false, 'above');
+
+    expect(isActive()).toBe(true);
+    expect(fixture.componentInstance.events).toEqual([true]);
   });
 });
