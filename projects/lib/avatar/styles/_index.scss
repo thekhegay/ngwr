@@ -26,7 +26,7 @@
 
   &--squircle {
     // iOS-style smooth corners. `corner-shape: squircle` is supported
-    // in Chrome 145+; browsers without it fall back to the same 10%
+    // where supported; browsers without it fall back to the same 10%
     // radius as `shape="rounded"`, which is the closest visual match.
     @include theme.smooth-br(18%);
   }

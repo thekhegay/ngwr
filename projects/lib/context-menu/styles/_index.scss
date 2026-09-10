@@ -46,7 +46,7 @@
   background: var(--wr-color-surface, #fff);
   border: 1px solid var(--wr-color-outline);
   // Soft rounded corners — smooth-br opts into native `corner-shape:
-  // squircle` where supported (Chrome 145+) and falls back to plain
+  // squircle` where supported, and falls back to plain
   // border-radius elsewhere.
   @include theme.smooth-br(var(--wr-border-radius-base));
   box-shadow: var(--wr-shadow-overlay);

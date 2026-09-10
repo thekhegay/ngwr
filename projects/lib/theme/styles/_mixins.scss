@@ -5,15 +5,22 @@
 //   .thing { @include wr.smooth-br(0.625rem); }
 
 /// Smooth border-radius — opts into the native `corner-shape: squircle`
-/// CSS spec (Chrome 145+) when the browser supports it, otherwise
-/// falls back to a plain `border-radius`.
+/// when the browser supports it, and falls back to a plain
+/// `border-radius` when it does not.
 ///
-/// **Experimental.** `corner-shape` is a draft CSS specification; the
-/// property name, value space, and metrics may change before it
-/// stabilises. Components are free to swap this mixin out for plain
-/// `border-radius` at any time. For a deterministic squircle that
-/// works across browsers, prefer the `[wrSquircle]` directive — it
-/// uses a `clip-path` superellipse instead of relying on `corner-shape`.
+/// **This is the one place that describes the support picture, on
+/// purpose.** Six files used to name a Chrome version in a comment, all
+/// six naming the wrong one — the property shipped four releases before
+/// the number they quoted. A version in a comment is a claim nobody
+/// re-checks, so the comments elsewhere now say "where supported" and
+/// point here.
+///
+/// Where it stands: Chromium has shipped it since 139, WebKit has it in
+/// Technology Preview, Gecko does not have it yet. That is why the
+/// `@supports` guard below is the contract rather than a courtesy — a
+/// browser without the property gets the rounded corner it would have
+/// had anyway, and nothing an app relies on changes. There is no state
+/// in which a consumer has to do something about this.
 ///
 /// `corner-shape: squircle` renders a continuous-curvature corner (iOS /
 /// macOS style) instead of a circular arc. The squircle reads as

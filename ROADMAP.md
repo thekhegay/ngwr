@@ -100,8 +100,21 @@ Open and researched, explicitly not now.
 - [ ] **C10. Rich text editor** (XL) — the biggest single component gap across
       free Angular libraries. Likely a ProseMirror-based `ngwr/editor`. Validate
       demand before committing.
-- [ ] **D3. Squircle: graduate or cut** (S) — decide on `corner-shape` browser
-      support; "experimental" should not survive two majors.
+- [x] **D3. Squircle: graduate or cut** (S) — **decided, and the answer was
+      SPLIT**, because one "experimental" label sat on two unrelated mechanisms
+      with opposite futures. The native route (`theme.smooth-br`, 43 call sites
+      across 31 entry points) GRADUATES: its `@supports` guard means a browser
+      without `corner-shape` gets the rounded corner it would have had anyway,
+      so the label warned about something no consumer opted into and none could
+      turn off. The `ngwr/squircle` entry point is DEPRECATED: zero callers in
+      the library, zero in the showcase outside its own page, and the one
+      consumer its JSDoc named had been deleted releases earlier. It is not
+      removed yet because it is still the only deterministic squircle while
+      WebKit is in Technology Preview and Gecko has nothing — removal lands in
+      the major after Safari stable ships the property, and it owes no codemod
+      (there is nothing to rewrite, only something to stop using). Six comments
+      naming a Chrome version were four releases wrong; the support picture now
+      lives in one place, the mixin's own docblock.
 - [ ] **D5. Figma kit** (L) — token-synced community kit; a credibility
       multiplier. `wrThemeTokens()` is the recipe such a kit would otherwise
       reimplement by hand.

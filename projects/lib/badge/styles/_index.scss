@@ -64,7 +64,7 @@
   }
 
   // Squircle — overrides the plain `border-radius` with the
-  // `corner-shape: squircle` mixin so supporting browsers (Chrome 145+)
+  // `corner-shape: squircle` mixin so supporting browsers (where supported)
   // render iOS-style continuous-curvature corners.
   &--squircle {
     @include theme.smooth-br(var(--wr-badge-radius));

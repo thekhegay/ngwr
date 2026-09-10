@@ -1,8 +1,8 @@
 <ngwr-doc-page
   title="Squircle"
-  description="Figma-style smooth-corner rectangle. Standalone `<wr-squircle>` or `[wrSquircle]` directive that clips any element with a superellipse path. Re-computes on resize. The CSS-`corner-shape` route (via the `smooth-br` SCSS mixin) is also wired into most ngwr components — both paths are considered **experimental** while the underlying CSS spec stabilises."
+  description="Figma-style smooth-corner rectangle, clipped with a superellipse path and re-computed on resize. **Deprecated** — the native `corner-shape` route, which 31 entry points already ride through the `smooth-br` SCSS mixin, is the one to use. This entry point exists because that property was Chromium-only, and it will be removed in the major after Safari stable ships it. Until then it is still the only deterministic squircle, so it is deprecated rather than gone."
   [keywords]="['squircle', 'wr-squircle', 'smooth-corner', 'figma']"
-  [labels]="['Component', 'Experimental']"
+  [labels]="['Component', 'Deprecated']"
 >
   <ngwr-doc-section title="Installation">
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
