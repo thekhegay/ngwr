@@ -21,10 +21,12 @@
     font-size: var(--wr-text-xs);
   }
 
+  // A short line rather than a dot, because it now carries the series' dash
+  // pattern and a 10px circle cannot show one.
   &__swatch {
-    width: 0.625rem;
-    height: 0.625rem;
-    border-radius: 50%;
+    width: 1rem;
+    height: 0.125rem;
+    overflow: visible;
     flex: 0 0 auto;
   }
 
