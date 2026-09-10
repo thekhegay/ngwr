@@ -9,8 +9,9 @@ import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import {
   Component,
-  type ElementRef,
+  Injector,
   ViewEncapsulation,
+  afterNextRender,
   computed,
   effect,
   inject,
@@ -18,6 +19,7 @@ import {
   model,
   output,
   signal,
+  type ElementRef,
   untracked,
   viewChildren,
 } from '@angular/core';
@@ -64,6 +66,7 @@ import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
 })
 export class WrInputOtp implements FormValueControl<string> {
   private readonly dir = inject(Directionality, { optional: true });
+  private readonly injector = inject(Injector);
 
   /** Accessible name of the whole strip. Falls back to `inputOtp.label`. */
   readonly ariaLabel = input<string | null>(null);
@@ -281,7 +284,20 @@ export class WrInputOtp implements FormValueControl<string> {
     const next = Array.from({ length: this.length() }, (_, i) => trimmed[i] ?? '');
     this.cells.set(next);
     this.emitChange();
-    this.focusCell(Math.min(trimmed.length, this.length() - 1));
+    // `afterNextRender`, not a straight call. `focusCell` ends in `select()`, and
+    // under zoneless CD the DOM still holds the PREVIOUS value at this point —
+    // change detection runs in a macrotask. So the selection was made over an
+    // empty box and the caret ended up after the character instead of over it:
+    // measured, the landing box read `3` with the selection at `1-1`. With
+    // `maxlength="1"` and one character already in the box, the very next
+    // keystroke was then refused, so a user who pasted a code and typed to
+    // correct its last digit got nothing.
+    //
+    // Only the paste path needs this. Arrow keys move between boxes whose values
+    // are not changing, so a synchronous select there is over settled DOM.
+    afterNextRender(() => this.focusCell(Math.min(trimmed.length, this.length() - 1)), {
+      injector: this.injector,
+    });
   }
 
   protected onBlur(): void {
