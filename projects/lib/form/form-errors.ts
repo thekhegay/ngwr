@@ -83,8 +83,11 @@ export const WR_FORM_ERROR_FALLBACKS: WrFormErrorMessages = {
   required: 'This field is required.',
   requiredTrue: 'This field must be checked.',
   email: 'Enter a valid email address.',
-  minlength: ({ error }) => `Enter at least ${num(error, 'requiredLength')} characters.`,
-  maxlength: ({ error }) => `Enter at most ${num(error, 'requiredLength')} characters.`,
+  // The number goes LAST, so the sentence reads the same at 1 as at 80. A noun
+  // straight after a count needs plural machinery this layer deliberately does
+  // not have — see the note beside the same two keys in `ngwr/i18n/en`.
+  minlength: ({ error }) => `Minimum length is ${num(error, 'requiredLength')}.`,
+  maxlength: ({ error }) => `Maximum length is ${num(error, 'requiredLength')}.`,
   min: ({ error }) => `Enter ${num(error, 'min')} or more.`,
   max: ({ error }) => `Enter ${num(error, 'max')} or less.`,
   pattern: 'This value is not in the expected format.',

@@ -132,8 +132,18 @@ export const wrEn: WrI18nCatalog = {
     required: 'This field is required.',
     requiredTrue: 'This field must be checked.',
     email: 'Enter a valid email address.',
-    minlength: 'Enter at least {{requiredLength}} characters.',
-    maxlength: 'Enter at most {{requiredLength}} characters.',
+    // A noun straight after a count is a plural bug waiting for the value 1 —
+    // "Enter at least 1 characters." — and there is no plural machinery anywhere
+    // in this layer, so the wording has to be right at EVERY value rather than
+    // at the common ones. Putting the number last does it: the sentence reads
+    // the same at 1 and at 80.
+    //
+    // The other twenty-one catalogs carry the same shape in their own
+    // morphology — ru's "символов" is genitive plural, correct for 5–20 and
+    // wrong for 1 and for 2–4. Each needs a native speaker; guessing at Czech
+    // plural rules from here would be the same mistake in a new language.
+    minlength: 'Minimum length is {{requiredLength}}.',
+    maxlength: 'Maximum length is {{requiredLength}}.',
     min: 'Enter {{min}} or more.',
     max: 'Enter {{max}} or less.',
     pattern: 'This value is not in the expected format.',
