@@ -89,6 +89,7 @@ export const wrDe: WrI18nCatalog = {
     toTarget: 'Zur Auswahl hinzufügen',
     toSource: 'Aus der Auswahl entfernen',
     count: '{{checked}} / {{total}}',
+    selectAllAria: '{{pane}} — {{action}}',
   },
   form: {
     optional: 'optional',

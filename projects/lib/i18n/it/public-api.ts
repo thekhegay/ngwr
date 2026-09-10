@@ -89,6 +89,7 @@ export const wrIt: WrI18nCatalog = {
     toTarget: 'Sposta tra i selezionati',
     toSource: 'Sposta tra i disponibili',
     count: '{{checked}} / {{total}}',
+    selectAllAria: '{{pane}} — {{action}}',
   },
   form: {
     optional: 'facoltativo',

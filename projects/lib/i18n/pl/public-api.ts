@@ -92,6 +92,7 @@ export const wrPl: WrI18nCatalog = {
     toTarget: 'Przenieś do wybranych',
     toSource: 'Przenieś do dostępnych',
     count: '{{checked}} / {{total}}',
+    selectAllAria: '{{pane}} — {{action}}',
   },
   form: {
     optional: 'opcjonalnie',

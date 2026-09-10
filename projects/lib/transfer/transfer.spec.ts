@@ -356,4 +356,18 @@ describe('WrTransfer', () => {
 
     warn.mockRestore();
   });
+  /**
+   * The select-all name used to be a template literal — `` `${title} — ${selectAll}` ``
+   * — which froze the separator AND the operand order into English. A translator
+   * could change each half and not the sentence they make, which is the defect
+   * the calendar and event-calendar catalogs were rewritten to remove.
+   *
+   * Asserted as the whole string, not as two halves: reading the halves back is
+   * exactly what would pass while the sentence they compose stayed English.
+   */
+  it('composes the select-all name in the catalog, unchanged in English', () => {
+    const names = [...root().querySelectorAll('.wr-transfer__head input')].map(i => i.getAttribute('aria-label'));
+
+    expect(names).toEqual(['Available — Select all', 'Selected — Select all']);
+  });
 });

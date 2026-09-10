@@ -91,6 +91,7 @@ export const wrVi: WrI18nCatalog = {
     toTarget: 'Chuyển sang danh sách đã chọn',
     toSource: 'Chuyển về danh sách có sẵn',
     count: '{{checked}} / {{total}}',
+    selectAllAria: '{{pane}} — {{action}}',
   },
   form: {
     optional: 'tùy chọn',

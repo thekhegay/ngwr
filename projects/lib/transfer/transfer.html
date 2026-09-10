@@ -18,7 +18,7 @@
         [indeterminate]="state.someChecked"
         [disabled]="disabled() || state.enabledCount === 0"
         [readonly]="readonly()"
-        [ariaLabel]="`${title} — ${resolvedSelectAll()}`"
+        [ariaLabel]="selectAllAria({ action: resolvedSelectAll(), pane: title })"
         (checkedChange)="toggleAll(pane, $event)"
       />
       <span class="wr-transfer__title">{{ title }}</span>

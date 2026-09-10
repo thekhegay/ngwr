@@ -89,6 +89,7 @@ export const wrKo: WrI18nCatalog = {
     toTarget: '선택 목록으로 이동',
     toSource: '사용 가능 목록으로 이동',
     count: '{{checked}} / {{total}}',
+    selectAllAria: '{{pane}} — {{action}}',
   },
   form: {
     optional: '선택',
