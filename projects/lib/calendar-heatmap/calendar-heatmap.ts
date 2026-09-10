@@ -149,7 +149,13 @@ export class WrCalendarHeatmap {
       for (let row = 0; row < 7; row++) {
         const iso = toIso(cursor);
         const value = map.get(iso) ?? 0;
-        const intensity = max > 0 ? Math.min(1, value / max) : 0;
+        // Clamped at the BOTTOM as well as the top. A negative value produced a
+        // negative intensity, which is not zero — so `colorFor` painted it in
+        // the accent colour and `opacityFor` put it in the lightest band,
+        // rendering a day of negative activity exactly like a day of light
+        // activity, and unlike the empty day it should have matched. The scale
+        // has no negative half; the honest floor is "nothing".
+        const intensity = max > 0 ? Math.min(1, Math.max(0, value / max)) : 0;
         out.push({ iso, value, intensity, week: column, day: row });
         cursor.setDate(cursor.getDate() + 1);
       }
