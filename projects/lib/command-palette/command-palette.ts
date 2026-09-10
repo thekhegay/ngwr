@@ -381,6 +381,18 @@ export class WrCommandPalette {
   protected onQueryInput(event: Event): void {
     this.query.set((event.target as HTMLInputElement).value);
     this.activeIndex.set(0);
+    // The highlight goes back to the first row, and the SCROLLER has to go with
+    // it. Nothing moved it otherwise: the options are not focusable, so the
+    // browser scrolls nothing on its own, and `revealActive` is called only from
+    // the arrow keys. Edit the query after arrowing down a long list and the
+    // highlight sat at the top, out of sight, while the rows on screen were
+    // something else — and Enter ran the command the user could not see.
+    //
+    // `scrollTop = 0` rather than `revealActive()`: the list has just been
+    // re-filtered, so under zoneless CD the row at index 0 is still the OLD one
+    // until change detection runs, and the destination is the top either way.
+    const body = this.panelEl()?.nativeElement.querySelector<HTMLElement>('.wr-command-palette__body');
+    if (body) body.scrollTop = 0;
   }
 
   protected onKeydown(event: KeyboardEvent): void {
