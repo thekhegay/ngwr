@@ -21,6 +21,9 @@ import { WrSquircle } from './wr-squircle';
  * ```
  *
  * @see https://ngwr.dev/reference/components/squircle
+ *
+ * @deprecated Follows `[wrSquircle]`, which it wraps — see that directive
+ * for why, and for the native route to use instead.
  */
 @Component({
   selector: 'wr-squircle',

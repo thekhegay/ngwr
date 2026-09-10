@@ -40,6 +40,20 @@ function maskToRadii(mask: WrSquircleCornerMask, r: number): WrSquircleCorners {
  * Apply a Figma-style smooth-corner ("squircle") `clip-path` to the host
  * element. Re-computes the path whenever the element resizes.
  *
+ * @deprecated Use the native route instead — `@use 'ngwr/theme'` and the
+ * `smooth-br` mixin, which 31 entry points already ride by default. This
+ * directive exists because `corner-shape` was Chromium-only, and that reason
+ * has an expiry date: WebKit has it in Technology Preview. It will be removed
+ * in the major after Safari stable ships the property.
+ *
+ * It is deprecated rather than removed today because it is still the only
+ * DETERMINISTIC squircle — the native property reaches roughly two thirds of
+ * users and the rest see a rounded corner. If that difference matters to a
+ * design, this is still the way to get it, with the costs stated: a hand-ported
+ * superellipse, a `ResizeObserver` and a `getBoundingClientRect` per host on
+ * every resize, square corners until hydration under SSR, no test harness, and
+ * a clip that `box-shadow`, `border-image` and the focus ring do not follow.
+ *
  * Borders: pass `[borderWidth]` (px) + `[borderColor]` and the directive
  * paints a `::before` pseudo with an *inset* squircle path on top of the
  * host. The visible border is the host's own background colour, so set
@@ -103,9 +117,11 @@ export class WrSquircle {
    * only the two corners on the named side and leave the other two at
    * 90°. `'none'` is equivalent to disabling the directive.
    *
-   * Modelled so parent components composing the directive can flip the
-   * value imperatively — used by `WrButtonGroup` to squircle only the
-   * outer corners of the first / last child.
+   * A `model()` rather than an `input()` so a parent composing the directive
+   * can flip it imperatively. Nothing in the library does today: this line
+   * used to name `WrButtonGroup` as the consumer, and that component has
+   * carried no squircle reference for several releases — `wr-btn--squircle`
+   * is plain CSS now.
    *
    * @default 'all'
    */
