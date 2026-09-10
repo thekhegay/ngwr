@@ -64,7 +64,28 @@ const THEME_PROVIDER: Record<NonNullable<Schema['theme']>, string | null> = {
 };
 
 const STYLES_DIRECTIVE_SCSS = "@use 'ngwr';";
-const STYLES_DIRECTIVE_CSS = "@import 'ngwr';";
+
+/**
+ * What a project whose global stylesheet is plain CSS is told, instead of a
+ * line that cannot work.
+ *
+ * ngwr ships Sass SOURCES and no compiled CSS: every `exports` entry in
+ * `projects/lib/package.json` carries a `sass` condition and nothing else that
+ * a stylesheet can reach. So `@import 'ngwr'` from a `.css` file resolves
+ * through `default` to `fesm2022/ngwr.mjs` and esbuild — the bundler Angular 22
+ * uses — stops the build with `Cannot import ".../ngwr.mjs" into a CSS file`.
+ *
+ * That mattered more than it sounds: `ng new` takes CSS unless you ask for
+ * something else, so the default path was `ng add ngwr` followed by a build
+ * that failed, naming a `.mjs` nobody had typed. Writing nothing and saying why
+ * is the same choice the three branches below already make when they cannot
+ * find a stylesheet to edit.
+ */
+const CSS_PROJECT_ADVICE =
+  'ngwr ships Sass sources and no compiled CSS, so it cannot be reached from a plain CSS file. ' +
+  'Rename the global stylesheet to .scss (and update its path in angular.json), then add ' +
+  `\`${STYLES_DIRECTIVE_SCSS}\` to it — or keep CSS and pull in only what you use with ` +
+  '`ng g ngwr:component-style <name>`.';
 
 function ngAdd(options: Schema): Rule {
   return (tree: Tree, context: SchematicContext) => {
@@ -111,7 +132,11 @@ function registerStyles(options: Schema): Rule {
 
   return async (tree: Tree, context: SchematicContext) => {
     const workspace = await getWorkspace(tree);
-    const projectName = options.project ?? (workspace.extensions.defaultProject as string | undefined);
+    // Narrowed rather than read off the index signature directly: dotted access
+    // is what eslint asks for and what the lib's `noPropertyAccessFromIndexSignature`
+    // refuses, and this file has a spec now, so it is in that program.
+    const extensions = workspace.extensions as { readonly defaultProject?: string };
+    const projectName = options.project ?? extensions.defaultProject;
     const project = (projectName && workspace.projects.get(projectName)) ?? workspace.projects.values().next().value;
 
     if (!project) {
@@ -120,7 +145,8 @@ function registerStyles(options: Schema): Rule {
     }
 
     const build = project.targets.get('build');
-    const styles = (build?.options?.styles as readonly (string | { input: string })[] | undefined) ?? [];
+    const buildOptions = (build?.options ?? {}) as { readonly styles?: readonly (string | { input: string })[] };
+    const styles = buildOptions.styles ?? [];
     const stylesPath = typeof styles[0] === 'string' ? styles[0] : styles[0]?.input;
 
     if (!stylesPath) {
@@ -135,8 +161,14 @@ function registerStyles(options: Schema): Rule {
       return tree;
     }
 
-    const isCss = stylesPath.endsWith('.css') || stylesPath.endsWith('.less');
-    const directive = isCss ? STYLES_DIRECTIVE_CSS : STYLES_DIRECTIVE_SCSS;
+    // `.sass` is the indented syntax and takes `@use` like `.scss`; `.less` is
+    // the other one that cannot reach a Sass source.
+    if (stylesPath.endsWith('.css') || stylesPath.endsWith('.less')) {
+      context.logger.warn(`ngwr: ${stylesPath} is not Sass. ${CSS_PROJECT_ADVICE}`);
+      return tree;
+    }
+
+    const directive = STYLES_DIRECTIVE_SCSS;
     const existing = tree.readText(stylesPath);
 
     if (existing.includes(directive) || existing.includes("'ngwr'") || existing.includes('"ngwr"')) {
