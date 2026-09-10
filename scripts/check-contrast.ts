@@ -352,7 +352,12 @@ async function main(): Promise<void> {
     exit(1);
   }
 
-  info(`\n✓ No new contrast or target-size violations (${targets.length} routes × ${themes.length} theme(s)).`);
+  // Both axes are named, and a partial run says so. A summary that reports
+  // only the routes and the themes reads as a full sweep even when it looked
+  // at one contrast mode out of two.
+  const partial = complete ? '' : ' — a PARTIAL sweep';
+  const scope = `${targets.length} route(s) × ${themes.length} theme(s) × ${modes.length} contrast mode(s)${partial}`;
+  info(`\n✓ No new contrast or target-size violations (${scope}).`);
 }
 
 await main();
