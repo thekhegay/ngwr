@@ -87,8 +87,24 @@ export class WrGaugeHarness extends ComponentHarness {
     return text === '' ? null : text;
   }
 
-  /** The dial's width in pixels, as the component writes it inline. */
+  /**
+   * The dial's width in pixels, read off the `style` ATTRIBUTE.
+   *
+   * NOT `getCssValue()`, which is `getComputedStyle()`: a computed read answers
+   * from the LAID-OUT box, so it agrees with the inline value in jsdom — which
+   * lays nothing out and echoes the declaration — and disagrees in a browser,
+   * where sub-pixel rounding turns a declared 240 into 239.5. A harness that
+   * answers differently in the two places it runs is worse than one that refuses.
+   */
   async getSize(): Promise<number> {
-    return Number.parseFloat(await (await this.surface()).getCssValue('width'));
+    const style = await (await this.surface()).getAttribute('style');
+    const match = /width:\s*([\d.]+)px/.exec(style ?? '');
+    if (!match) {
+      throw new Error(
+        `WrGaugeHarness.getSize(): the dial carries no inline width (style: "${style ?? ''}"). ` +
+          'The component writes one unconditionally, so its absence is the bug rather than a zero.'
+      );
+    }
+    return Number.parseFloat(match[1]);
   }
 }

@@ -125,8 +125,26 @@ export class WrLineChartHarness extends ComponentHarness {
     );
   }
 
-  /** The plot's height in pixels, as the component writes it inline. */
+  /**
+   * The plot's height in pixels, read off the `style` ATTRIBUTE.
+   *
+   * NOT `getCssValue()`, which is `getComputedStyle()` — the same rule this
+   * file's class note already states and this method alone broke. A computed
+   * read answers from the LAID-OUT box, so it agrees with the inline value in
+   * jsdom (which lays nothing out and echoes the declaration) and disagrees in a
+   * browser, where sub-pixel rounding turns a declared 240 into 239.5. A harness
+   * that answers differently in the two places it runs is worse than one that
+   * refuses.
+   */
   async getPlotHeight(): Promise<number> {
-    return Number.parseFloat(await (await this.locatorFor('.wr-line-chart__plot')()).getCssValue('height'));
+    const style = await (await this.locatorFor('.wr-line-chart__plot')()).getAttribute('style');
+    const match = /height:\s*([\d.]+)px/.exec(style ?? '');
+    if (!match) {
+      throw new Error(
+        `WrLineChartHarness.getPlotHeight(): no inline height on .wr-line-chart__plot (style: "${style ?? ''}"). ` +
+          'The component writes one unconditionally, so its absence is the bug rather than a zero.'
+      );
+    }
+    return Number.parseFloat(match[1]);
   }
 }
