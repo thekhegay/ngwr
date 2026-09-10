@@ -10,13 +10,15 @@ import { WrCheckboxHarness } from './wr-checkbox-harness';
 @Component({
   imports: [WrCheckbox],
   template: `
-    <wr-checkbox [(checked)]="terms">I agree</wr-checkbox>
+    <wr-checkbox [(checked)]="terms" checkboxValue="terms">I agree</wr-checkbox>
+    <wr-checkbox [checkboxValue]="composite">Composite</wr-checkbox>
     <wr-checkbox [indeterminate]="true">Partly</wr-checkbox>
     <wr-checkbox [disabled]="true">Locked</wr-checkbox>
   `,
 })
 class Host {
   readonly terms = signal(false);
+  readonly composite = signal({ id: 7 });
 }
 
 /** Used exactly as a consumer would: through the loader, with no internals touched. */
@@ -37,7 +39,7 @@ describe('WrCheckboxHarness', () => {
   it('finds every checkbox and reads its label', async () => {
     const all = await loader.getAllHarnesses(WrCheckboxHarness);
 
-    expect(await Promise.all(all.map(c => c.getLabel()))).toEqual(['I agree', 'Partly', 'Locked']);
+    expect(await Promise.all(all.map(c => c.getLabel()))).toEqual(['I agree', 'Composite', 'Partly', 'Locked']);
   });
 
   it('narrows by label', async () => {
@@ -93,5 +95,26 @@ describe('WrCheckboxHarness', () => {
     await terms.focus();
 
     expect(await terms.isFocused()).toBe(true);
+  });
+  /**
+   * The identity is the one thing a group test is FOR, and this method used to
+   * answer `null` for every checkbox whatever it was set to — it read `value`
+   * off the inner `<input>`, an attribute nothing writes. A harness method that
+   * cannot tell a working component from a broken one is the shape these files
+   * are not allowed to have, so this pins both halves: the identity that is
+   * readable, and the one that honestly is not.
+   */
+  it('reads the group identity, and says null for one no attribute can carry', async () => {
+    const terms = await loader.getHarness(WrCheckboxHarness.with({ label: 'I agree' }));
+    expect(await terms.getCheckboxValue()).toBe('terms');
+
+    // An object identity has no attribute form. `null` is true; a stringified
+    // `[object Object]` would look like data and identify nothing.
+    const composite = await loader.getHarness(WrCheckboxHarness.with({ label: 'Composite' }));
+    expect(await composite.getCheckboxValue()).toBeNull();
+
+    // And a checkbox that was given no identity at all.
+    const locked = await loader.getHarness(WrCheckboxHarness.with({ label: 'Locked' }));
+    expect(await locked.getCheckboxValue()).toBeNull();
   });
 });

@@ -856,7 +856,8 @@ export class MyWidgetHarness extends ComponentHarness {
     { name: 'isDisabled()', description: 'Whether the box is disabled.', type: 'Promise<boolean>', default: '—' },
     {
       name: 'getCheckboxValue()',
-      description: 'The group identity — `checkboxValue`, not the form value.',
+      description:
+        'The group identity — `checkboxValue`, not the form value. `null` when there is none, or when it is not a primitive: an object identity has no attribute form and a harness reads the DOM.',
       type: 'Promise<string | null>',
       default: '—',
     },

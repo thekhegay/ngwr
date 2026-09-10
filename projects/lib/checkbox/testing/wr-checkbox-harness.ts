@@ -66,9 +66,20 @@ export class WrCheckboxHarness extends ComponentHarness {
     return (await this.input()).getProperty<boolean>('disabled');
   }
 
-  /** The group identity — `checkboxValue`, not the form value. */
+  /**
+   * The group identity — `checkboxValue`, not the form value.
+   *
+   * Read off the host's `data-checkbox-value`, which the component reflects for
+   * exactly this. It used to read `value` from the inner `<input>`, an attribute
+   * nothing writes, so it answered `null` for every checkbox whatever its
+   * identity — the shape these harnesses are not allowed to have.
+   *
+   * `null` still means one honest thing: no identity, or an identity that is not
+   * a primitive. An object or an array has no attribute form, and a harness
+   * cannot reach a TypeScript value the DOM never carried.
+   */
   async getCheckboxValue(): Promise<string | null> {
-    return (await this.input()).getAttribute('value');
+    return (await this.host()).getAttribute('data-checkbox-value');
   }
 
   /** Flip the box. A disabled checkbox does not move; assert rather than assume. */
