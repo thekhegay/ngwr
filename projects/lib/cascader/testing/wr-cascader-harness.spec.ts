@@ -98,11 +98,37 @@ describe('WrCascaderHarness', () => {
 
   afterEach(() => fixture.destroy());
 
-  it('presents a combobox that promises the menu it controls', async () => {
+  it("reads a branch's depth, its expansion and its selectability apart", async () => {
+    const cascader = await loader.getHarness(WrCascaderHarness);
+    await cascader.open();
+    await (await cascader.getOption({ text: 'Europe' })).click();
+
+    const europe = await cascader.getOption({ text: 'Europe' });
+    const germany = await cascader.getOption({ text: 'Germany' });
+
+    // Depth the DOM cannot carry: the columns are siblings.
+    expect(await europe.getLevel()).toBe(1);
+    expect(await germany.getLevel()).toBe(2);
+
+    // Navigation and choice are two questions. Europe is where the user WALKED;
+    // nothing is committed, and a branch is not committable here at all.
+    expect(await europe.isActive()).toBe(true);
+    expect(await europe.isSelected()).toBeNull();
+    expect(await europe.isExpanded()).toBe(true);
+
+    // A leaf is choosable, so it says so before it is chosen — and it has no
+    // subtree to be shut, so expansion answers null rather than false.
+    const antarctica = await cascader.getOption({ text: 'Antarctica' });
+    expect(await antarctica.isSelected()).toBe(false);
+    expect(await antarctica.isExpanded()).toBeNull();
+    expect(await antarctica.hasChildren()).toBe(false);
+  });
+
+  it('presents a combobox that promises the tree it controls', async () => {
     const cascader = await loader.getHarness(WrCascaderHarness);
 
     expect(await cascader.getAccessibleName()).toBe('Place');
-    expect(await cascader.getPopupRole()).toBe('menu');
+    expect(await cascader.getPopupRole()).toBe('tree');
     expect(await cascader.isOpen()).toBe(false);
     expect(await cascader.isDisabled()).toBe(false);
     expect(await cascader.getValueText()).toBe('');
@@ -119,7 +145,7 @@ describe('WrCascaderHarness', () => {
 
     expect(document.getElementById(panelId!)).not.toBeNull();
     expect(await cascader.isPanelWiredToTrigger()).toBe(true);
-    expect(await cascader.getPanelRole()).toBe('menu');
+    expect(await cascader.getPanelRole()).toBe('tree');
   });
 
   it('opens and closes the panel', async () => {
@@ -162,7 +188,7 @@ describe('WrCascaderHarness', () => {
 
     expect(await cascader.getColumnCount()).toBe(1);
     expect(await cascader.getColumnLabels()).toEqual([['Europe', 'Asia', 'Antarctica']]);
-    expect(await (await cascader.getColumn(0)).getRole()).toBe('menu');
+    expect(await (await cascader.getColumn(0)).getRole()).toBe('group');
   });
 
   it('adds a column per level as branches are expanded', async () => {
@@ -281,7 +307,7 @@ describe('WrCascaderHarness', () => {
     await expect(cascader.selectPath(['Asia', 'Japan'])).rejects.toThrow(/"Japan" is disabled/);
 
     const japan = await cascader.getOption({ text: 'Japan' });
-    expect(await japan.getRole()).toBe('menuitem');
+    expect(await japan.getRole()).toBe('treeitem');
     expect(await japan.isDisabled()).toBe(true);
     expect(await japan.getTabIndex()).toBe(-1);
 

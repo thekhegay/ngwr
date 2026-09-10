@@ -14,15 +14,19 @@ import type { WrCascaderOptionHarnessFilters } from './interfaces';
  *
  * An option is either a BRANCH (it has children, so clicking it opens the next
  * column) or a LEAF (clicking it commits the whole path and closes the panel).
- * {@link hasChildren} is the only way to tell them apart, and it reads the
- * chevron the template draws for branches — the option carries no
- * `aria-haspopup` / `aria-expanded`, so a screen-reader user is told nothing
- * about a branch either. Reported here rather than papered over.
+ * {@link hasChildren} reads the chevron the template draws for branches;
+ * {@link isExpanded} reads the state that same branch announces. The two are
+ * not one question — a branch always HAS children and is expanded only while
+ * the column to its right is showing them.
+ *
+ * The panel is a `role="tree"` and an option is a `treeitem`. It was a `menu`
+ * of `menuitem`s until the roles were corrected, and this class documented that
+ * a branch announced nothing at all; both are historical now.
  *
  * @see https://ngwr.dev/guides/testing
  */
 export class WrCascaderOptionHarness extends ComponentHarness {
-  /** The `<li role="menuitem">` a column renders per option. */
+  /** The `<li role="treeitem">` a column renders per option. */
   static hostSelector = '.wr-cascader__opt';
 
   /** Build a predicate that narrows the query. */
@@ -43,7 +47,7 @@ export class WrCascaderOptionHarness extends ComponentHarness {
     return (await this.locatorFor('.wr-cascader__opt-label')()).text();
   }
 
-  /** The role the option announces — `menuitem`. */
+  /** The role the option announces — `treeitem`. */
   async getRole(): Promise<string | null> {
     return (await this.host()).getAttribute('role');
   }
@@ -58,12 +62,53 @@ export class WrCascaderOptionHarness extends ComponentHarness {
    * whose children the column to the right is showing, or the committed segment
    * at this level.
    *
-   * Read from the `--active` modifier because nothing else says it: the option
-   * has no `aria-selected` and no `aria-expanded`, so the class is both the
-   * whole visual answer and the only one available.
+   * Read from the `--active` modifier, and NOT the same question as
+   * {@link isSelected}: this one tracks where the user has navigated, that one
+   * tracks what they committed. They agree only once a leaf is picked, and a
+   * harness that collapsed them would hide exactly the divergence it exists to
+   * catch.
    */
   async isActive(): Promise<boolean> {
     return (await this.host()).hasClass('wr-cascader__opt--active');
+  }
+
+  /**
+   * Whether this option is the committed choice, or `null` when it is not a
+   * choice at all.
+   *
+   * `null` — the attribute absent — for a branch while `changeOnSelect` is off,
+   * because such a branch genuinely cannot be chosen. Answering a plausible
+   * `false` there would report an unselectable row as merely unselected, which
+   * is the distinction the attribute exists to carry.
+   */
+  async isSelected(): Promise<boolean | null> {
+    const raw = await (await this.host()).getAttribute('aria-selected');
+    return raw === null ? null : raw === 'true';
+  }
+
+  /**
+   * Whether this branch's children are the column to its right, or `null` for a
+   * leaf.
+   *
+   * `null` rather than `false`, and the difference is the whole point: a leaf
+   * does not have a collapsed subtree, it has none. `aria-expanded="false"` on
+   * one would state that a subtree exists and is shut.
+   */
+  async isExpanded(): Promise<boolean | null> {
+    const raw = await (await this.host()).getAttribute('aria-expanded');
+    return raw === null ? null : raw === 'true';
+  }
+
+  /**
+   * The option's depth, 1-based — its `aria-level`.
+   *
+   * Worth reading in a spec rather than trusting: the columns are DOM SIBLINGS,
+   * so nothing about the markup's shape carries depth. Every option would be
+   * level 1 if this attribute were dropped, and no gate would say so.
+   */
+  async getLevel(): Promise<number | null> {
+    const raw = await (await this.host()).getAttribute('aria-level');
+    return raw === null ? null : Number.parseInt(raw, 10);
   }
 
   /** Whether the option opens a deeper level rather than ending the path. */
@@ -108,10 +153,10 @@ export class WrCascaderOptionHarness extends ComponentHarness {
    * This is the component's entire keyboard model — the columns bind
    * `keydown.enter` / `keydown.space` per option and nothing else, so there are
    * no arrow keys to walk levels with. A keyboard user reaches the option they
-   * want with Tab and presses Enter — and Tab is a long way round: the panel is a
-   * portal in the overlay container at the end of the document, and nothing moves
-   * focus into it on open, so the first option is not the next stop after the
-   * trigger.
+   * want with Tab and presses Enter. Opening the panel does move focus into it —
+   * `focusPanelOption()` lands on the active option, or the first enabled one —
+   * so the walk starts there rather than from the trigger; this JSDoc claimed
+   * the opposite for a while and was simply wrong.
    */
   async selectByKeyboard(): Promise<void> {
     return (await this.host()).sendKeys(TestKey.ENTER);
