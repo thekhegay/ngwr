@@ -1,0 +1,130 @@
+// `prefers-contrast: more` for the whole token layer.
+//
+// Why this lives in one file, next to `_motion.scss` and for the same reason:
+// the thing being answered is a request the USER made of the operating system,
+// about the page as a whole, and a component cannot answer it on its own. Every
+// declaration below is a token, so a component that reads the tokens — which is
+// all of them — comes along without being edited.
+//
+// What "more contrast" is being read to mean here, since the media query says
+// nothing about how much: **AAA where the role is text (7:1), and the WCAG
+// 1.4.11 bar where the role is a boundary (3:1)**. Those are the two numbers
+// the default palette deliberately does not meet, each for a recorded reason.
+//
+// THE DE-EMPHASIS TIER IS WHAT HIGH CONTRAST SPENDS. `--wr-color-text-faint`
+// and `--wr-color-text-muted` are the muted ink at 0.6 and 0.95 alpha, and
+// under this query both go to 1.0 and collapse onto the deepened role. That is
+// not a shortcut: 7:1 is UNREACHABLE at any alpha in the light theme, because
+// the base itself only reaches 5.35:1 — the alpha is not the lever, the base
+// is. Keeping a visibly fainter tier at 7:1 would need a base of `#353c46`,
+// which measures 11.13:1 on its own and is no longer a muted role at all. A
+// reader who asked for more contrast is asking for the tiers to close up.
+//
+// A LIVE DEFECT THIS EXPOSED, and it is not fixed here. At the default 0.6,
+// `text-faint` measures **2.43:1** in light and 3.46:1 in dark, and its three
+// consumers are an `input-otp` `::placeholder` (text, 1.4.3) plus the textarea
+// resize grip and the avatar spinner (graphics, 1.4.11 → 3:1). All three fail
+// today, in the DEFAULT theme, where `_colors.scss` calls them "decorative by
+// design" — a resize affordance and a loading indicator are not decorative.
+// High contrast repairs them incidentally; the default still needs a decision.
+//
+// TWO BLOCKS, NOT ONE, and this is the part that would silently half-work. A
+// `@media { :root { … } }` resolves its `var()` references against the element
+// it declares on, so a single `:root` block freezes LIGHT values into any
+// subtree-scoped `[data-theme='dark']`. The dark half has to be declared on the
+// dark selector itself.
+//
+// Every figure in the comments below is WCAG relative-luminance arithmetic on
+// solid colours, which reproduces what axe measures. Figures involving an alpha
+// composite are marked as such — those carry ±0.05 and the browser is the
+// authority. `pnpm check:contrast --contrast=more` is that authority.
+
+@use 'sass:map';
+@use 'colors';
+@use 'dark';
+
+/// The `-ink` shares under high contrast.
+///
+/// `-ink` is text by definition, so the target moves from the default 5.0:1 to
+/// AAA 7:1 — measured, as the default shares are, against the intent's own
+/// `-soft` tint rather than the plain canvas, because the tint is the darker of
+/// the two backgrounds `-ink` is documented for and therefore the binding one.
+///
+/// Each share is the MOST saturated value that still reaches 7:1 in BOTH
+/// themes, so the binding theme decides it. Dark binds for six of the seven;
+/// `warning` is the exception and binds on light, where white cannot reach it
+/// at any tone worth shipping.
+$ink-mix-more: (
+  primary: 53%,
+  secondary: 47%,
+  success: 55%,
+  warning: 36%,
+  danger: 53%,
+  info: 54%,
+  medium: 57%,
+) !default;
+
+@media (prefers-contrast: more) {
+  :root {
+    // 8.16:1 on the page, 7.07:1 on `#ebeff4` — the lightest surface the
+    // library paints, and the reference the rest of the theme layer solves
+    // against. The default `#5f6c7d` reaches 5.35 and 4.63 respectively.
+    --wr-color-muted-text: #47505d;
+    --wr-color-muted-text-rgb: 71, 80, 93;
+
+    // The de-emphasis tier closes up — see the note at the top of this file.
+    --wr-color-text-muted: rgba(var(--wr-color-muted-text-rgb), 1);
+    --wr-color-text-faint: rgba(var(--wr-color-muted-text-rgb), 1);
+
+    // 3.47:1 on the page and 3.00:1 on `#ebeff4`, against the default
+    // `#cbd5e1`'s 1.48:1. This is the value AGENTS.md already records as the
+    // honest one, and the reason it is not the default is recorded there too:
+    // the token carries 103 declarations, only 15 of which are control
+    // boundaries that 1.4.11 reaches, and darkening all 103 was refused on how
+    // it looks. Under an explicit request for more contrast that trade flips —
+    // the reader has said which side they want.
+    --wr-color-outline: #718cad;
+    --wr-color-outline-rgb: 113, 140, 173;
+
+    @each $name, $share in $ink-mix-more {
+      --wr-color-#{$name}-ink: color-mix(in srgb, var(--wr-color-#{$name}) #{$share}, var(--wr-color-dark));
+    }
+  }
+
+  #{dark.dark-selector()} {
+    // 8.30:1 on the dark canvas. Dark needed far less than light — the default
+    // `#9aa6b8` already reaches 7.64 there and only misses on `fill-strong`,
+    // the harshest surface the library paints, which this closes.
+    --wr-color-muted-text: #a2adbe;
+    --wr-color-muted-text-rgb: 162, 173, 190;
+
+    --wr-color-text-muted: rgba(var(--wr-color-muted-text-rgb), 1);
+    --wr-color-text-faint: rgba(var(--wr-color-muted-text-rgb), 1);
+
+    // 3.56:1 on the dark canvas, against the default `#262f44`'s 1.41:1.
+    --wr-color-outline: #566b9b;
+    --wr-color-outline-rgb: 86, 107, 155;
+
+    @each $name, $share in $ink-mix-more {
+      --wr-color-#{$name}-ink: color-mix(in srgb, var(--wr-color-#{$name}) #{$share}, var(--wr-color-dark));
+    }
+  }
+}
+
+// Adding a tenth intent to `$base-colors` without a share here would leave it
+// on its default ink under high contrast — a silent hole rather than a build
+// error, which is the failure this repo keeps finding in its own claims. So the
+// two lists are held together at COMPILE time.
+//
+// `light` and `dark` are excluded on both sides for the reason `_colors.scss`
+// records: `light` is a surface tone with no darkening that stays recognisable
+// AND readable, and `dark` already IS the ink.
+@each $name, $seed in colors.$base-colors {
+  @if $name != 'light' and $name != 'dark' {
+    @if not map.has-key($ink-mix-more, $name) {
+      @error 'No high-contrast ink share for intent `#{$name}`. Add one to ' +
+        '`$ink-mix-more` in theme/styles/_contrast.scss, derived at 7:1 against ' +
+        'that intent\'s own `-soft` tint in whichever theme binds.';
+    }
+  }
+}

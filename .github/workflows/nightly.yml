@@ -8,9 +8,15 @@ name: Nightly
 # `pnpm check:contrast` is the other half of the a11y gate: `check:a11y` runs
 # axe in JSDOM, which has no stylesheets, so it turns `color-contrast` and
 # `target-size` off and answers only the structural half. This one drives a real
-# Chromium over every prerendered route in both themes and answers exactly those
-# two rules — which costs a browser download and 386 page loads, and took the PR
-# job from ~5 minutes to nearly 17.
+# Chromium over every prerendered route and answers exactly those two rules.
+#
+# It sweeps TWO axes now, theme × `prefers-contrast`, which doubles the page
+# loads it already cost. That is deliberate and it is why this job is nightly
+# rather than a PR gate: the theme layer answers `prefers-contrast: more` with a
+# block of its own, and a path nothing measures is a claim rather than a
+# feature. Playwright sets the preference on the context and Chromium recomputes
+# against it, so what gets measured is the real emulation, not a class the page
+# opts into.
 #
 # `pnpm check:rtl-layout` is the other half of the RTL gate, for the same shape of
 # reason. `check:rtl` reads SOURCE and catches a physical CSS property with no
