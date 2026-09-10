@@ -8,10 +8,8 @@
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
-  DestroyRef,
   PLATFORM_ID,
   ViewEncapsulation,
-  afterNextRender,
   computed,
   effect,
   inject,
@@ -123,7 +121,6 @@ export class WrStatisticCountdown {
   /** Fires once when the countdown crosses zero. */
   readonly countdownEnd = output<void>();
 
-  private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private readonly targetMs = computed(() => toMs(this.target()));
@@ -159,9 +156,17 @@ export class WrStatisticCountdown {
 
     if (!this.isBrowser) return;
 
-    afterNextRender(() => {
+    // The interval is REBUILT when `tickMs` changes, which is what makes the
+    // input bindable rather than an authoring-time constant. Read once from
+    // inside `afterNextRender` it was a plain, untracked read, so
+    // `[tickMs]="precise() ? 16 : 1000"` kept whatever period the first frame
+    // saw and nothing looked wrong — the countdown still counted. Same shape
+    // `wr-rotating-text` uses for its own rotation period; the `onCleanup` is
+    // what keeps a period change from leaving the old interval running beside
+    // the new one.
+    effect(onCleanup => {
       const handle = setInterval(() => this.tick(), this.tickMs());
-      this.destroyRef.onDestroy(() => clearInterval(handle));
+      onCleanup(() => clearInterval(handle));
     });
   }
 

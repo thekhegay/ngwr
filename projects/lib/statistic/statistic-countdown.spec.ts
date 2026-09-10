@@ -35,7 +35,7 @@ class Host {
 /**
  * The clock is faked for every test here: a countdown asserted against real time
  * is a countdown asserted against how long the test runner took to get here. The
- * interval lives behind `afterNextRender`, so `whenStable` is what starts it: only
+ * interval is built by an effect, so `whenStable` is what starts it: only
  * `setInterval`, `Date` and `performance` are faked, leaving the `setTimeout`
  * that Angular's own scheduler runs on real — fake that too and `whenStable`
  * waits forever.
@@ -114,6 +114,32 @@ describe('WrStatisticCountdown', () => {
     fixture.detectChanges();
 
     expect(text()).toBe('01.500');
+  });
+
+  it('picks up a new tick period, and leaves only one interval running', async () => {
+    await mount();
+    fixture.componentInstance.format.set('ss.SSS');
+    fixture.detectChanges();
+    expect(text()).toBe('00.000');
+
+    // Nothing moves inside a second while the period is the default 1000.
+    advance(250);
+    expect(text()).toBe('00.000');
+
+    fixture.componentInstance.tickMs.set(100);
+    fixture.detectChanges();
+
+    advance(100);
+
+    // 350 ms have passed, and only a 100 ms period can report them: read once
+    // at construction, `tickMs` was a plain value and this stayed at 00.000
+    // while the countdown went on counting, which is why nothing looked wrong.
+    expect(text()).toBe('59.650');
+
+    // And the period that was replaced is gone rather than ticking beside its
+    // successor — `Date` is the source of truth, so a leaked interval paints
+    // the same digits and is invisible in the DOM.
+    expect(vi.getTimerCount()).toBe(1);
   });
 
   it('stops at zero, announces the end once, and swaps in the end text', async () => {
