@@ -155,6 +155,17 @@ $toast-colors: (
   animation: wr-toast-in 0.18s ease-out;
   overflow: hidden;
 
+  // The status glyph. Sized off the title's line box so it reads as part of the
+  // first line rather than floating above it, and inked with the accent the
+  // type already carries — the SHAPE is the channel, the colour reinforces it.
+  &__icon {
+    flex: 0 0 auto;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-block-start: 0.0625rem;
+    color: var(--wr-toast-accent);
+  }
+
   &__body {
     flex: 1 1 auto;
     min-width: 0;
