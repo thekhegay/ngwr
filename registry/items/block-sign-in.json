@@ -10,14 +10,13 @@
     "ngwr/card",
     "ngwr/form",
     "ngwr/input",
-    "ngwr/button",
-    "ngwr/validators"
+    "ngwr/button"
   ],
   "files": [
     {
       "path": "sign-in.ts",
       "target": "src/app/sign-in/sign-in.ts",
-      "content": "import { Component, signal } from '@angular/core';\nimport { form } from '@angular/forms/signals';\n\nimport { WrButton } from 'ngwr/button';\nimport { WrCard } from 'ngwr/card';\nimport { WrFormField } from 'ngwr/form';\nimport { WrInput } from 'ngwr/input';\nimport { WrValidators } from 'ngwr/validators';\n\n@Component({\n  selector: 'app-sign-in',\n  templateUrl: './sign-in.html',\n  imports: [WrCard, WrFormField, WrInput, WrButton],\n})\nexport class SignIn {\n  protected readonly model = signal({ email: '', password: '' });\n  protected readonly f = form(this.model, path => {\n    WrValidators.required(path.email);\n    WrValidators.email(path.email);\n    WrValidators.required(path.password);\n  });\n\n  protected submit(): void {\n    if (this.f().invalid()) return;\n    // POST this.model() somewhere.\n  }\n}\n"
+      "content": "import { Component, signal } from '@angular/core';\nimport { FormField, email, form, required } from '@angular/forms/signals';\n\nimport { WrButton } from 'ngwr/button';\nimport { WrCard } from 'ngwr/card';\nimport { WrFormField } from 'ngwr/form';\nimport { WrInput } from 'ngwr/input';\n\n@Component({\n  selector: 'app-sign-in',\n  templateUrl: './sign-in.html',\n  // `FormField` is what makes `[formField]` a binding rather than an unknown\n  // attribute \u2014 it is Angular's directive, not one of ngwr's, and leaving it\n  // out is the mistake this block shipped with.\n  imports: [FormField, WrCard, WrFormField, WrInput, WrButton],\n})\nexport class SignIn {\n  protected readonly model = signal({ email: '', password: '' });\n\n  // The rules come from `@angular/forms/signals`. `WrValidators` is the other\n  // half of the story and does not fit here: those are `ValidatorFn`s for a\n  // reactive `FormControl`, and its set is the ones Angular has no equivalent\n  // for \u2014 `cardNumber`, `iban`, `matchFields`. There is no `WrValidators.required`.\n  protected readonly f = form(this.model, path => {\n    required(path.email);\n    email(path.email);\n    required(path.password);\n  });\n\n  protected submit(): void {\n    if (this.f().invalid()) return;\n    // POST this.model() somewhere.\n  }\n}\n"
     },
     {
       "path": "sign-in.html",
