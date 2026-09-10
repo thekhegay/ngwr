@@ -569,6 +569,39 @@ describe('WrDatePicker', () => {
     expect(calendar()).toBeTruthy();
   });
 
+  it('closes the open calendar when disabled arrives, and refuses the write', () => {
+    open();
+    expect(calendar()).toBeTruthy();
+    const before = picked();
+
+    // `toggleOverlay` and `openOnInput` both refuse to open under `disabled`,
+    // and a panel already up consults neither: a picker disabled mid-session
+    // (`[disabled]="saving()"`, a schema rule) kept its calendar and a day
+    // click moved the value — the one thing a disabled control must not do.
+    fixture.componentInstance.disabled.set(true);
+    fixture.detectChanges();
+
+    expect(calendar()).toBeNull();
+    expect(picked()).toBe(before);
+  });
+
+  it('refuses a write while disabled even where readonly would allow the browse', () => {
+    // The two flags part company here, on purpose. `readonly` keeps the
+    // calendar browsable and refuses only the write; `disabled` refuses both.
+    // This drives the write path with the panel already gone, so the guard is
+    // asserted on its own rather than through the close above.
+    const before = picked();
+    fixture.componentInstance.disabled.set(true);
+    fixture.componentInstance.format.set('yyyy-MM-dd');
+    fixture.detectChanges();
+
+    type('2026-03-04');
+    field().dispatchEvent(new FocusEvent('blur'));
+    fixture.detectChanges();
+
+    expect(picked()).toBe(before);
+  });
+
   it('presents the popup as a named dialog, as aria-haspopup="dialog" promises', () => {
     // The trigger advertised `aria-haspopup="dialog"` while the overlay content
     // was a bare calendar — no `role="dialog"`, no accessible name on the popup,

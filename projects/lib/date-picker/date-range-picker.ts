@@ -246,6 +246,20 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
       });
     });
 
+    // A panel that is up when `readonly` turns on has to go, and `disabled` is
+    // the same case. The three entrance guards refuse to OPEN the calendar, and
+    // the component's whole position on `readonly` — stricter than the single
+    // picker's, which keeps its calendar browsable — is that the calendar is
+    // not a second way in. Leaving it standing and only refusing the write
+    // trades a wrong value for a dead panel: every click does nothing and
+    // nothing says why.
+    effect(() => {
+      if (!this.readonly() && !this.disabled()) return;
+      untracked(() => {
+        if (this.overlayRef) this.closeOverlay();
+      });
+    });
+
     // Keep the open panel in step with the model.
     effect(() => {
       const ref = this.panelRef();
@@ -363,8 +377,19 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
 
   /** Hand focus back to whatever opened the popup, if it is still on the page. */
   private restoreFocus(): void {
-    const target = this.openedFrom?.isConnected ? this.openedFrom : this.startEl().nativeElement;
-    target.focus();
+    const opener = this.openedFrom?.isConnected ? this.openedFrom : null;
+    opener?.focus();
+
+    // Connected is not the question — whether the focus LANDED is. The calendar
+    // trigger goes `disabled` the moment `readonly` turns on, and a disabled
+    // button is still in the document and still refuses focus, so a panel
+    // closed by that flip used to land on `<body>` and the next Tab restarted
+    // at the top of the page. The start field keeps its tab stop while
+    // read-only, which is the whole point of read-only, so it is where the
+    // caret belongs.
+    if (this.host.nativeElement.ownerDocument.activeElement !== opener) {
+      this.startEl().nativeElement.focus();
+    }
   }
 
   // Input parsing
@@ -504,11 +529,21 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
    */
   private commitRange(next: WrDateRange, options: { normalise: boolean }): WrDateRange {
     const normalised = options.normalise ? this.normalise(next) : next;
-    // Only write when a date actually moved. `normalise()` allocates a fresh
-    // tuple on every call and `model()` compares by reference, so an
-    // unconditional write would emit on every blur — enough to mark a bound
-    // `[formField]` dirty just by tabbing through the two inputs.
-    if (!this.sameRange(normalised, this.value())) {
+    // Only write when a date actually moved, and never while `readonly`.
+    //
+    // `normalise()` allocates a fresh tuple on every call and `model()` compares
+    // by reference, so an unconditional write would emit on every blur — enough
+    // to mark a bound `[formField]` dirty just by tabbing through the two inputs.
+    //
+    // The `readonly` half is the one the three entrance guards cannot cover:
+    // `openOnInput`, `toggleOverlay` and `onFieldKey` all refuse to OPEN the
+    // calendar, and none of them is consulted again by a panel that is already
+    // up. A `readonly()` schema rule turning on mid-session — a save starting,
+    // another field flipping the row — left the popup standing and a day click
+    // wrote the range anyway. The single picker guards its write point for
+    // exactly this reason and says so at `commitValue`; this is the same guard
+    // at the same place.
+    if (!this.readonly() && !this.sameRange(normalised, this.value())) {
       this.lastValue = normalised;
       this.value.set(normalised);
     }
