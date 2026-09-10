@@ -663,4 +663,21 @@ describe('WrCommandPalette backed by a server', () => {
 
     expect(fixture.componentInstance.searches).toEqual([]);
   });
+  /**
+   * The highlight goes back to row 0 on a query edit, and the scroller used to
+   * stay where the arrow keys had left it — so the highlighted row was off
+   * screen, the rows on screen were something else, and Enter ran a command the
+   * user could not see. Nothing moved the scroller on its own: the options are
+   * not focusable, and `revealActive` is only wired to the arrow keys.
+   */
+  it('scrolls back to the top when the query changes', () => {
+    const body = root().querySelector<HTMLElement>('.wr-command-palette__body')!;
+    // jsdom lays nothing out, so `scrollTop` is only ever what is assigned to
+    // it — which is exactly what this asserts: that the component assigns it.
+    body.scrollTop = 400;
+
+    type('set');
+
+    expect(body.scrollTop).toBe(0);
+  });
 });
