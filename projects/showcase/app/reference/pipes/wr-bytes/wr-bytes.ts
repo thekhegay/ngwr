@@ -53,8 +53,9 @@ export class MyComponent { /* ... */ }`,
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'wrBytes',
-      description: 'Humanise byte counts using binary (1024-based) units.',
-      type: '(value: number, decimals = 1) => string',
+      description:
+        'Humanise byte counts using binary (1024-based) units. A `null` / `undefined` / empty value renders as an empty string, so a nullable field needs no guard around it.',
+      type: '(value: number | string | null | undefined, decimals = 1) => string',
       default: '—',
     },
   ];

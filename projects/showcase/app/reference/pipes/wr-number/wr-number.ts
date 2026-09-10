@@ -60,7 +60,7 @@ export class MyComponent { /* ... */ }`,
     {
       name: 'wrNumber',
       description: "Intl.NumberFormat via Angular's LOCALE_ID. Accepts a style shortcut or full options object.",
-      type: "(value, 'decimal' | 'percent' | 'currency' | options, currency?) => string",
+      type: "(value: number | string | null | undefined, styleOrOptions: WrNumberStyle | Intl.NumberFormatOptions = 'decimal', currency = 'USD') => string",
       default: '—',
     },
   ];

@@ -56,8 +56,9 @@ const amex = new FormControl('', [WrValidators.cvc(4)]);  // 4 digits`;
     },
     {
       name: 'error key',
-      description: 'On failure: `{ cvc: true }`. Empty value passes.',
-      type: '{ cvc: true }',
+      description:
+        'On failure: `{ cvc: { length } }` — the digit count it wanted, so one message can serve both card families. Empty value passes.',
+      type: '{ cvc: { length: number } }',
       default: '—',
     },
   ];

@@ -107,15 +107,17 @@ const label = runInInjectionContext(injector, () => readI18nText('x', 'X'));`,
   /** Providers that wire the service up. Previously only documented in the guide. */
   protected readonly providerApi: readonly DocApiRow[] = [
     {
-      name: 'provideWrI18n(config)',
-      description: 'Root provider. Pass `defaultLocale`, `availableLocales`, and optional `missingHandler`.',
-      type: '(config: WrI18nConfig) => Provider',
+      name: 'provideWrI18n(options?)',
+      description:
+        "Root provider. Pass `defaultLocale`, `availableLocales`, an optional `missingHandler`, and an optional `loader`. Every field is optional — called bare it takes `defaultLocale` from Angular's `LOCALE_ID`.",
+      type: '(options: ProvideWrI18nOptions = {}) => EnvironmentProviders',
       default: '—',
     },
     {
-      name: 'provideWrI18nStaticLoader(catalogs)',
-      description: 'Inline catalogs at bootstrap. Best for small apps and SSR.',
-      type: '(catalogs: Record<string, WrI18nCatalog>) => Provider',
+      name: 'provideWrI18nStaticLoader(catalogs, scopes?)',
+      description:
+        'Inline catalogs at bootstrap. Best for small apps and SSR. `catalogs` is keyed by locale; `scopes` is keyed by scope name and then by locale, for a lazy feature that ships its own strings.',
+      type: '(catalogs: WrI18nStaticCatalogs, scopes?: WrI18nStaticScopedCatalogs) => Provider',
       default: '—',
     },
     {
@@ -141,9 +143,10 @@ const label = runInInjectionContext(injector, () => readI18nText('x', 'X'));`,
       default: '—',
     },
     {
-      name: 'useI18nFormatter(key, scope?)',
-      description: 'Returns a `(params) => string` helper for the given key.',
-      type: '(key, scope?) => (params) => string',
+      name: 'useI18nFormatter(key, fallback)',
+      description:
+        'Returns a `(params) => string` helper for the given key. The second argument is the English fallback the helper serves when no catalog carries the key — it is required, not a scope.',
+      type: '(key: string, fallback: string) => (params?: WrI18nParams) => string',
       default: '—',
     },
   ];

@@ -32,10 +32,10 @@ if (isObservable(input)) input.subscribe(render);`;
 
   protected readonly api: readonly DocApiRow[] = [
     {
-      name: 'isObservable(v)',
+      name: 'isObservable(value)',
       description:
-        'Detects an rxjs Observable. Use to write APIs that transparently accept either a plain value or a stream.',
-      type: '(v: unknown) => v is Observable<unknown>',
+        'Detects an rxjs Observable. Use to write APIs that transparently accept either a plain value or a stream. The element type is a parameter, so `isObservable<Row>(x)` narrows to `Observable<Row>` rather than to `unknown`.',
+      type: '<T = unknown>(value: unknown) => value is Observable<T>',
       default: '—',
     },
   ];
