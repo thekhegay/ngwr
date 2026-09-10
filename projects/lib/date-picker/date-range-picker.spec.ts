@@ -528,6 +528,60 @@ describe('WrDateRangePicker', () => {
     expect(trigger().disabled).toBe(true);
   });
 
+  it('closes the open panel when readonly turns on, and refuses the write either way', () => {
+    open();
+    expect(calendar()).not.toBeNull();
+
+    // The three guards this component carries all sit on the ways IN, and a
+    // panel already up consults none of them: a `readonly()` schema rule
+    // turning on mid-session (a save starting, another field flipping the row)
+    // left the calendar standing and a day click committed the range.
+    fixture.componentInstance.readonly.set(true);
+    fixture.detectChanges();
+
+    expect(calendar()).toBeNull();
+    expect(period()).toBeNull();
+  });
+
+  it('leaves the caret on the field the panel was opened from', () => {
+    // Opened from the START FIELD, which keeps its tab stop while read-only —
+    // that is what read-only means — so the caret belongs back on it.
+    startField().focus();
+    startField().dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+    expect(calendar()).not.toBeNull();
+
+    fixture.componentInstance.readonly.set(true);
+    fixture.detectChanges();
+
+    expect(calendar()).toBeNull();
+    expect(document.activeElement).toBe(startField());
+
+    // The other opener is the calendar trigger, which `readonly` disables, and
+    // `restoreFocus` falls back to this same field when the focus does not
+    // land. That branch is NOT asserted here and the omission is deliberate:
+    // jsdom's `focus()` ignores `disabled`, so a disabled button takes focus
+    // there and the assertion would pass with the fallback deleted. A test that
+    // answers the same either way is worse than none.
+    expect(trigger().disabled).toBe(true);
+  });
+
+  it('does not reorder an inverted range on blur while readonly', () => {
+    // The write guard on its own, reached without the calendar. Blur normalises
+    // — that is what settles an end typed before its start — and normalising is
+    // still a WRITE. A host that hands an inverted range to a read-only control
+    // is saying "show this, do not touch it", and tabbing past the field used to
+    // rewrite the model anyway.
+    const inverted: WrDateRange = [new Date(2026, 8, 20), new Date(2026, 8, 4)];
+    fixture.componentInstance.period.set(inverted);
+    fixture.componentInstance.readonly.set(true);
+    fixture.detectChanges();
+
+    blurTo(startField(), null);
+
+    expect(period()).toBe(inverted);
+  });
+
   it('does not open while disabled', () => {
     fixture.componentInstance.disabled.set(true);
     fixture.detectChanges();

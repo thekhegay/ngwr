@@ -293,6 +293,19 @@ export class WrDatePicker implements FormValueControl<Date | null> {
       });
     });
 
+    // A panel that is up when `disabled` arrives has to go. `readonly` is
+    // deliberately NOT here — this component's contract is that the calendar
+    // stays browsable while read-only, and only the write is refused (see
+    // `commitValue`). `disabled` is the other flag and means the opposite:
+    // `toggleOverlay` and `openOnInput` both refuse to open under it, so a
+    // popup left standing is a way in that the component says it does not have.
+    effect(() => {
+      if (!this.disabled()) return;
+      untracked(() => {
+        if (this.overlayRef) this.closeOverlay();
+      });
+    });
+
     // While the calendar popover is open, push every valid typed value into it
     // so the displayed month follows the input live (the calendar snaps its
     // own viewDate to the bound `date`).
@@ -580,7 +593,13 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     // `readonly()` schema rule left a day click writing exactly as if the rule
     // were absent. Guarding at the single write point rather than at the three
     // ways in keeps the calendar readable and still refuses the edit.
-    if (this.readonly()) return;
+    //
+    // `disabled` belongs here for the same reason and was missing: the ways IN
+    // all check it, and a panel already up checks nothing again. A picker
+    // disabled mid-session — `[disabled]="saving()"`, a schema rule — took a
+    // day click and moved its value, which is the one thing a disabled control
+    // must never do.
+    if (this.readonly() || this.disabled()) return;
     this.lastValue = next;
     this.value.set(next);
   }
