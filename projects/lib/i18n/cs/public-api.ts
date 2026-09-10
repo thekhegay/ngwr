@@ -89,6 +89,7 @@ export const wrCs: WrI18nCatalog = {
     toTarget: 'Přesunout mezi vybrané',
     toSource: 'Vrátit mezi dostupné',
     count: '{{checked}} / {{total}}',
+    selectAllAria: '{{pane}} — {{action}}',
   },
   form: {
     optional: 'nepovinné',

@@ -89,6 +89,7 @@ export const wrFr: WrI18nCatalog = {
     toTarget: 'Déplacer vers les sélectionnés',
     toSource: 'Déplacer vers les disponibles',
     count: '{{checked}} / {{total}}',
+    selectAllAria: '{{pane}} — {{action}}',
   },
   form: {
     optional: 'facultatif',

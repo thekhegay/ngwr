@@ -92,6 +92,7 @@ export const wrHe: WrI18nCatalog = {
     toTarget: 'העברה לנבחרים',
     toSource: 'העברה לזמינים',
     count: '{{checked}} / {{total}}',
+    selectAllAria: '{{pane}} — {{action}}',
   },
   form: {
     optional: 'רשות',

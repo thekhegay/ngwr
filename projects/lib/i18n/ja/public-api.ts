@@ -91,6 +91,7 @@ export const wrJa: WrI18nCatalog = {
     toTarget: '選択済みへ移動',
     toSource: '選択可能へ戻す',
     count: '{{checked}} / {{total}}',
+    selectAllAria: '{{pane}} — {{action}}',
   },
   form: {
     optional: '任意',

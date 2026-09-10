@@ -89,6 +89,7 @@ export const wrNl: WrI18nCatalog = {
     toTarget: 'Toevoegen aan selectie',
     toSource: 'Verwijderen uit selectie',
     count: '{{checked}} / {{total}}',
+    selectAllAria: '{{pane}} — {{action}}',
   },
   form: {
     optional: 'optioneel',

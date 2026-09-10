@@ -160,6 +160,18 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
   protected readonly resolvedSearch = useI18nText(this.searchPlaceholder, 'transfer.search', 'Search');
   protected readonly resolvedEmpty = useI18nText(this.emptyText, 'transfer.empty', 'Nothing here');
   protected readonly resolvedSelectAll = useI18nText(this.selectAllLabel, 'transfer.selectAll', 'Select all');
+
+  /**
+   * The select-all checkbox's accessible name, composed IN THE CATALOG.
+   *
+   * It used to be a template literal — `` `${title} — ${selectAll}` `` — which
+   * froze both the separator and the operand order into English. A translator
+   * could change each half and not the sentence they make, which is the exact
+   * defect the calendar and event-calendar catalogs were rewritten to remove.
+   * The key ships as `{{pane}} — {{action}}` in every locale, so nothing reads
+   * differently today and every locale can now reorder it without a code change.
+   */
+  protected readonly selectAllAria = useI18nFormatter('transfer.selectAllAria', '{{pane}} — {{action}}');
   protected readonly resolvedToTarget = useI18nText(this.toTargetLabel, 'transfer.toTarget', 'Move to selected');
   protected readonly resolvedToSource = useI18nText(this.toSourceLabel, 'transfer.toSource', 'Move to available');
 

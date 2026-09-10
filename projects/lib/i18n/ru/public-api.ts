@@ -89,6 +89,7 @@ export const wrRu: WrI18nCatalog = {
     toTarget: 'Перенести в выбранные',
     toSource: 'Вернуть в доступные',
     count: '{{checked}} / {{total}}',
+    selectAllAria: '{{pane}} — {{action}}',
   },
   form: {
     optional: 'необязательно',

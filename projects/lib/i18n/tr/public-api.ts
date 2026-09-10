@@ -89,6 +89,7 @@ export const wrTr: WrI18nCatalog = {
     toTarget: 'Seçilenlere taşı',
     toSource: 'Kullanılabilirlere taşı',
     count: '{{checked}} / {{total}}',
+    selectAllAria: '{{pane}} — {{action}}',
   },
   form: {
     optional: 'isteğe bağlı',

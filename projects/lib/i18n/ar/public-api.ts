@@ -89,6 +89,7 @@ export const wrAr: WrI18nCatalog = {
     toTarget: 'النقل إلى المحدد',
     toSource: 'النقل إلى المتاح',
     count: '{{checked}} / {{total}}',
+    selectAllAria: '{{pane}} — {{action}}',
   },
   form: {
     optional: 'اختياري',
