@@ -340,6 +340,7 @@ with **no `var()` reader anywhere in the library**.
 | Selector map      | `pnpm gen:selectors` (every `@Component` / `@Directive` selector → symbol + subpath, for the sandbox) |
 | Component hooks   | `pnpm gen:css-vars` (the `--wr-<name>-*` each component publishes → the docs' CSS-variables tables); `check:css-vars` gates the committed copy |
 | Quality numbers   | `pnpm gen:quality` (entry points, harnesses, specs, gates — what `/start/quality` binds to)          |
+| Design tokens     | `pnpm gen:design-tokens` (the palette as W3C DTCG, one file per theme, read from the BUILT stylesheet — needs `build:showcase` first) |
 | Unit tests        | `pnpm test` (`ng test lib` — vitest via `@angular/build:unit-test`); `pnpm test:watch` |
 
 `pnpm test` runs **vitest** through Angular's `@angular/build:unit-test`

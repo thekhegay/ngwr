@@ -19,6 +19,7 @@
     "gen:api-docs": "tsx scripts/gen-api-docs.ts",
     "gen:selectors": "tsx scripts/gen-selectors.ts",
     "gen:css-vars": "tsx scripts/gen-css-vars.ts",
+    "gen:design-tokens": "tsx scripts/gen-design-tokens.ts",
     "check:css-vars": "tsx scripts/gen-css-vars.ts --check",
     "gen:quality": "tsx scripts/gen-quality.ts",
     "check:llms": "tsx scripts/gen-ai-assets.ts --check",

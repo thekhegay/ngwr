@@ -136,9 +136,20 @@ Open and researched, explicitly not now.
       (there is nothing to rewrite, only something to stop using). Six comments
       naming a Chrome version were four releases wrong; the support picture now
       lives in one place, the mixin's own docblock.
-- [ ] **D5. Figma kit** (L) — token-synced community kit; a credibility
-      multiplier. `wrThemeTokens()` is the recipe such a kit would otherwise
-      reimplement by hand.
+- [ ] **D5. Figma kit** (L) — **the codeable half shipped; the kit itself
+      cannot come out of this repo.** `pnpm gen:design-tokens` emits the palette
+      as W3C Design Tokens, one file per theme, read from the BUILT stylesheet
+      rather than from `wrThemeTokens()` — the recipe is light-only, and no
+      formula reproduces the hand-tuned dark palette, which is exactly the half
+      a kit author would otherwise get wrong. 119 light and 120 dark tokens,
+      with `var()`, `color-mix()` and the `rgba(var(--x-rgb), α)` forms all
+      resolved to concrete colours, since a design tool reads values and not
+      references. What remains is a Figma FILE: component frames, variants,
+      states, auto-layout geometry — none of it derivable from source. Next
+      cheapest additions, in order: density as a second collection (four modes
+      over four numeric tokens, same parser), and a `/guides/tokens/figma` page
+      carrying the download plus an honest list of what Figma drops (easings,
+      shadows, font stacks).
 
 ## Breaking changes on the table
 
