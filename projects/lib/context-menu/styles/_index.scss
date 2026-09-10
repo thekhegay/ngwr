@@ -29,9 +29,21 @@
     opacity var(--wr-overlay-duration) var(--wr-overlay-ease),
     transform var(--wr-overlay-duration) var(--wr-overlay-ease);
 
+  // Inert while it is not open, which covers the CLOSING half as well as the
+  // opening one. The directive removes `--open` to start the exit and keeps the
+  // pane in the DOM for the transition, so for those 220 ms a menu that is
+  // visibly fading away still took clicks — the row the user had just picked
+  // stayed pickable, and a second click during the fade ran the command again.
+  // `opacity: 0` alone does not stop a pointer.
+  pointer-events: none;
+
+  // color-ok: opacity and transform are the animation, and the state is also
+  // carried by `pointer-events` below — a menu that is not open is inert, which
+  // is a behaviour difference rather than a colour one.
   &--open {
     opacity: 1;
     transform: scale(1);
+    pointer-events: auto;
   }
 
   @media (prefers-reduced-motion: reduce) {
