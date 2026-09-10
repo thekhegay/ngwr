@@ -5,13 +5,16 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { HostTree, type SchematicContext, type Tree } from '@angular-devkit/schematics';
 import { describe, expect, it } from 'vitest';
 
 import ngUpdateV14 from './index';
 
 /**
- * `ng update ngwr@14`, which REWRITES five renames and REPORTS everything else.
+ * `ng update ngwr@14`, which REWRITES six renames and REPORTS everything else.
  *
  * Both halves need a spec, for opposite reasons.
  *
@@ -289,6 +292,24 @@ export const wrRu = {
     expect(read('/a.html')).toBe('<input wrInput [size]="s" />');
     expect(read('/b.html')).toBe('<input [size]="s" wrInput />');
     expect(read('/c.html')).toBe('<textarea wrInput size="lg"></textarea>');
+  });
+
+  it('announces every rename it performs, in the text `ng update` prints', () => {
+    // `migrations.json`'s description is the only account of this codemod a
+    // consumer sees while running it, and it said FIVE renames while the rule
+    // performed six — `wrSize` missing from the list, which is the one rename
+    // v13's own commit subject had already announced without making. A count in
+    // prose beside a list of regexes drifts silently; this reads the shipped
+    // file instead. Adding a seventh rename means adding it here.
+    const manifest = JSON.parse(
+      readFileSync(join(process.cwd(), 'projects/lib/schematics/migrations.json'), 'utf8')
+    ) as { schematics: Record<string, { description: string }> };
+    const description = manifest.schematics['migration-v14'].description;
+
+    for (const renamed of ['closeable', 'totalItems', 'currentPage', 'isDisabledWhenLoading', 'chromeSize', 'wrSize']) {
+      expect(description, renamed).toContain(renamed);
+    }
+    expect(description).toContain('six renames');
   });
 
   it("never touches a native size on an input that is not ngwr's", () => {

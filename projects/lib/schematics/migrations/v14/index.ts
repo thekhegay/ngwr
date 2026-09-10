@@ -10,11 +10,14 @@ import type { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 /**
  * v13 to v14 migration. Two halves, and the split is deliberate.
  *
- * **It REWRITES the five renames**: on `<wr-alert>` from `closeable` to
+ * **It REWRITES the six renames**: on `<wr-alert>` from `closeable` to
  * `closable`, on `<wr-table>` from `[totalItems]` to `[total]`, on
  * `<wr-pagination>` from `[(currentPage)]` to `[(page)]`, from
- * `isDisabledWhenLoading` to `disabledWhenLoading`, and the window
- * `chromeSize` scale from `'compact' | 'normal'` to `'sm' | 'md'`. A rename is
+ * `isDisabledWhenLoading` to `disabledWhenLoading`, the window
+ * `chromeSize` scale from `'compact' | 'normal'` to `'sm' | 'md'`, and on
+ * `[wrInput]` from `wrSize` to `size` — the last one being the rename v13's own
+ * commit subject announced and never made, so leaving it out of the count here
+ * was the same omission running a second time. A rename is
  * exactly what a codemod does well: the new name means what the old one meant,
  * on the same element, and nothing about the app has to be understood to move it.
  *
