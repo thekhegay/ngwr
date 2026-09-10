@@ -941,4 +941,26 @@ describe('WrTree reports an inline pick to a bound field', () => {
     click(1);
     expect(touched).toHaveLength(1);
   });
+  /**
+   * `onBlur` belongs to the OVERLAY trigger, which only renders under
+   * `openOn="overlay"` — so an inline tree emitted `touch` on selection and
+   * nowhere else. Focusing it and walking away without choosing anything left
+   * the control neither touched nor dirty, which is the state a
+   * `<wr-form-field>` waits for before it shows anything: a `required` tree the
+   * user considered and skipped stayed silent while the form was invalid.
+   */
+  it('marks the field touched when focus LEAVES without a pick', () => {
+    const touched: number[] = [];
+    const tree = fixture.debugElement.query(dl => dl.componentInstance instanceof WrTree);
+    (tree.componentInstance as WrTree).touch.subscribe(() => touched.push(1));
+
+    // Moving between rows is not leaving.
+    rows()[0].dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: rows()[1] }));
+    fixture.detectChanges();
+    expect(touched).toHaveLength(0);
+
+    rows()[1].dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: document.body }));
+    fixture.detectChanges();
+    expect(touched).toHaveLength(1);
+  });
 });

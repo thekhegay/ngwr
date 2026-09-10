@@ -101,7 +101,7 @@ let panelUid = 0;
   selector: 'wr-tree',
   templateUrl: './tree.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { '[class]': 'classes()', '(focusout)': 'onFocusOut($event)' },
   imports: [NgTemplateOutlet],
 })
 export class WrTree<TId = string> implements FormValueControl<unknown> {
@@ -676,6 +676,28 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   }
 
   /** Trigger blur — mark the bound field touched. */
+  /**
+   * Leaving an INLINE tree marks it touched.
+   *
+   * `onBlur` below belongs to the overlay trigger, which only renders under
+   * `openOn="overlay"` — so an inline tree emitted `touch` on SELECTION and
+   * nowhere else. Focusing it and walking away without choosing anything left
+   * the control neither touched nor dirty, which is exactly the state a
+   * `<wr-form-field>` waits for before it will show a message: a `required`
+   * tree the user considered and skipped stayed silent, and the form looked
+   * fine while being invalid.
+   *
+   * `relatedTarget` inside the host means focus only moved BETWEEN rows, which
+   * is not leaving. A `null` one — clicking the page background, or a browser
+   * that withholds it — counts as leaving, which is the safe direction: marking
+   * touched too eagerly shows a message the field already had grounds for.
+   */
+  protected onFocusOut(event: FocusEvent): void {
+    const next = event.relatedTarget;
+    if (next instanceof Node && this.host.nativeElement.contains(next)) return;
+    this.touch.emit();
+  }
+
   protected onBlur(): void {
     this.touch.emit();
   }
