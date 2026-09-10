@@ -324,6 +324,52 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     return this.activePath()[colIndex] === value;
   }
 
+  /**
+   * Whether this option is the committed choice — `null` when it is not a
+   * choice at all.
+   *
+   * Two questions the panel has to keep apart, and `--active` answers only the
+   * first: `activePath()` is where the user has NAVIGATED to, `path()` is what
+   * they have COMMITTED. They agree once a leaf is picked and diverge for the
+   * whole walk down.
+   *
+   * `null` — the attribute absent — on a branch while `changeOnSelect` is off,
+   * because such a branch genuinely cannot be chosen; ARIA reads a missing
+   * `aria-selected` as "not selectable", which is exactly true here. That makes
+   * this binding the first expression the `changeOnSelect` contract has ever had
+   * in ARIA, in both directions.
+   */
+  protected isSelectedAt(colIndex: number, opt: WrCascaderOption<T>): boolean | null {
+    const committable = !opt.children?.length || this.changeOnSelect();
+    if (!committable) return null;
+    const path = this.path();
+    return colIndex === path.length - 1 && path[colIndex] === opt.value;
+  }
+
+  /** Stable id for one option — what a column's `aria-labelledby` points at. */
+  protected optionId(colIndex: number, optIndex: number): string {
+    return `${this.panelId}-opt-${colIndex}-${optIndex}`;
+  }
+
+  /** Stable id for one column — what an expanded branch's `aria-controls` points at. */
+  protected columnId(colIndex: number): string {
+    return `${this.panelId}-col-${colIndex}`;
+  }
+
+  /**
+   * The option whose children a column holds, by id — its accessible name.
+   *
+   * The columns are DOM SIBLINGS, so nothing in the markup says the second one
+   * belongs to "Europe". Column 0 has no parent and stays unnamed; the tree
+   * itself already carries the control's name.
+   */
+  protected parentOptionId(colIndex: number): string | null {
+    if (colIndex === 0) return null;
+    const parent = this.columns()[colIndex - 1] ?? [];
+    const index = parent.findIndex(o => this.isActiveAt(colIndex - 1, o.value));
+    return index < 0 ? null : this.optionId(colIndex - 1, index);
+  }
+
   private pathsEqual(a: readonly T[], b: readonly T[]): boolean {
     return a.length === b.length && a.every((v, i) => v === b[i]);
   }

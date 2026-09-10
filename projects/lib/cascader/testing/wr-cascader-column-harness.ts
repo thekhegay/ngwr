@@ -31,7 +31,7 @@ import { WrCascaderOptionHarness } from './wr-cascader-option-harness';
  * @see https://ngwr.dev/guides/testing
  */
 export class WrCascaderColumnHarness extends ComponentHarness {
-  /** The `<ul role="menu">` the panel renders per level. */
+  /** The `<ul role="group">` the panel renders per level, inside the `tree`. */
   static hostSelector = '.wr-cascader__col';
 
   /** Build a predicate that narrows the query. */
@@ -48,7 +48,7 @@ export class WrCascaderColumnHarness extends ComponentHarness {
     );
   }
 
-  /** The role the column announces — `menu`. */
+  /** The role the column announces — `group`, inside the panel's `tree`. */
   async getRole(): Promise<string | null> {
     return (await this.host()).getAttribute('role');
   }

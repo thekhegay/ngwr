@@ -4,7 +4,7 @@
   role="combobox"
   [attr.aria-label]="resolvedAriaLabel()"
   [disabled]="disabled()"
-  [attr.aria-haspopup]="'menu'"
+  [attr.aria-haspopup]="'tree'"
   [attr.aria-expanded]="open()"
   [attr.aria-controls]="panelId"
   [attr.aria-readonly]="readonly() || null"
@@ -67,30 +67,74 @@
     class="wr-cascader-panel"
     [class.wr-cascader-panel--sm]="size() === 'sm'"
     [class.wr-cascader-panel--lg]="size() === 'lg'"
-    role="menu"
+    role="tree"
     [attr.id]="panelId"
+    [attr.aria-label]="resolvedAriaLabel()"
   >
+    <!--
+      tree / group / treeitem, and NOT menu. A combobox's popup may be a listbox,
+      a tree, a grid or a dialog and nothing else, so `aria-haspopup="menu"` on
+      the trigger was an author error — and a `menu` may own menuitems and
+      groups, never other menus, so the columns were a second one. Neither is
+      visible to axe: `menu` is a valid token for the global `aria-haspopup`, and
+      `aria-required-children` passes a menu-inside-menu (measured against this
+      exact fragment). A tree is what this control has always been — the value is
+      a PATH, and only `treeitem` supports aria-expanded, aria-level,
+      aria-setsize, aria-posinset and aria-selected at once.
+
+      The columns stay `group` rather than collapsing to `role="presentation"`,
+      which is also axe-clean: the DOM is column-MAJOR, so a flat tree would
+      leave level plus document order as the only structure, and "Germany"
+      (level 2) would read as a child of "Antarctica" (level 1, the item
+      immediately before it in source order).
+    -->
     @for (col of columns(); track $index; let colIndex = $index) {
-      <ul class="wr-cascader__col" role="menu">
-        @for (opt of col; track opt.value) {
+      <ul
+        class="wr-cascader__col"
+        role="group"
+        [attr.id]="columnId(colIndex)"
+        [attr.aria-labelledby]="parentOptionId(colIndex)"
+      >
+        @for (opt of col; track opt.value; let optIndex = $index) {
           <!--
-            aria-haspopup / aria-expanded, because the only other thing that says
-            "this one goes deeper" is the chevron below, and that svg is
-            aria-hidden. Announcing a branch as a plain menuitem tells a screen
-            reader the choice is final, so Enter reads as committing rather than
-            as descending. `expanded` is exactly `isActiveAt`: `columns()` renders
-            the next column for the active option and only when it has children,
-            so the state can never claim a column that is not on screen.
+            `aria-expanded` is exactly `isActiveAt`: `columns()` renders the next
+            column for the active option and only when it has children, so the
+            state can never claim a column that is not on screen — and
+            `aria-controls` rides that same invariant, which is what makes
+            "expanded" refer to something when the expanded content is a SIBLING
+            rather than a descendant. It is emitted only while expanded: a
+            reference to an absent id is a violation with `aria-expanded="true"`
+            and clean while collapsed.
+
+            `aria-level` is load-bearing rather than decorative. The columns are
+            siblings, so the DOM ancestry represents no level at all and every
+            option would read as level 1. `aria-setsize` / `aria-posinset` are
+            not strictly required — each column IS a complete sibling set — and
+            are written anyway, because a tree that owns sibling groups is the
+            uncommon shape where browser/AT pairs are known to miscompute both.
+
+            `aria-selected` is written on every option that can be COMMITTED,
+            `false` included, matching `wr-tree`. The alternative a reviewer may
+            prefer: only the selected node, leaning on treeitem's implicit false,
+            which is quieter in a long column and loses the "this row is
+            selectable" signal that presence carries.
           -->
           <li
             class="wr-cascader__opt"
-            role="menuitem"
+            role="treeitem"
+            [attr.id]="optionId(colIndex, optIndex)"
             [class.wr-cascader__opt--active]="isActiveAt(colIndex, opt.value)"
             [class.wr-cascader__opt--disabled]="opt.disabled"
             [attr.tabindex]="opt.disabled ? -1 : 0"
             [attr.aria-disabled]="opt.disabled ? true : null"
-            [attr.aria-haspopup]="opt.children?.length ? 'menu' : null"
+            [attr.aria-level]="colIndex + 1"
+            [attr.aria-setsize]="$count"
+            [attr.aria-posinset]="optIndex + 1"
+            [attr.aria-selected]="isSelectedAt(colIndex, opt)"
             [attr.aria-expanded]="opt.children?.length ? isActiveAt(colIndex, opt.value) : null"
+            [attr.aria-controls]="
+              opt.children?.length && isActiveAt(colIndex, opt.value) ? columnId(colIndex + 1) : null
+            "
             (click)="onOptionClick(colIndex, opt, $event)"
             (keydown.enter)="onOptionClick(colIndex, opt, $event)"
             (keydown.space)="onOptionClick(colIndex, opt, $event)"

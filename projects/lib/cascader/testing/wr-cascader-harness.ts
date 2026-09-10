@@ -122,12 +122,19 @@ export class WrCascaderHarness extends ComponentHarness {
     return (await this.trigger()).getAttribute('aria-label');
   }
 
-  /** The kind of popup the trigger promises via `aria-haspopup` — `menu`. */
+  /**
+   * The kind of popup the trigger promises via `aria-haspopup` — `tree`.
+   *
+   * Worth pinning rather than assuming: a combobox's popup may be a listbox, a
+   * tree, a grid or a dialog and nothing else, and this one said `menu` for a
+   * long time. `menu` is a valid token for the global `aria-haspopup`, so axe
+   * reports nothing either way — an assertion here is the only guard there is.
+   */
   async getPopupRole(): Promise<string | null> {
     return (await this.trigger()).getAttribute('aria-haspopup');
   }
 
-  /** The role the panel announces — `menu`, matching what the trigger promised. */
+  /** The role the panel announces — `tree`, matching what the trigger promised. */
   async getPanelRole(): Promise<string | null> {
     return (await this.panel()).getAttribute('role');
   }
