@@ -58,7 +58,7 @@ export class MyComponent { /* ... */ }`,
       name: 'wrPlural',
       description:
         'Picks the word form for a count via `Intl.PluralRules`. Forms are keyed by CLDR category (`zero`/`one`/`two`/`few`/`many`/`other`); missing keys fall back to `other`.',
-      type: '(value: number, forms: WrPluralForms, options?: WrPluralOptions) => string',
+      type: '(value: number | null | undefined, forms: WrPluralForms, options: WrPluralOptions = {}) => string',
       default: '—',
     },
     {

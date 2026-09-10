@@ -85,7 +85,7 @@ export class MyComponent { /* ... */ }`,
       name: 'wrDate',
       description:
         'Delegates to WrDateAdapter when provided; falls back to Intl.DateTimeFormat with the same named keys.',
-      type: "(value: Date | string | number, format = 'shortDate') => string",
+      type: "(value: Date | string | number | null | undefined, format: WrDateFormat | string = 'shortDate') => string",
       default: '—',
     },
   ];

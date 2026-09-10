@@ -17,7 +17,10 @@ export default class GetRootFontSizePage {
   protected readonly snippet = `import { getRootFontSize } from 'ngwr/utils';
 
 const px = getRootFontSize();   // e.g. 16
-const remToPx = 2 * px;          // convert '2rem' to pixels`;
+const remToPx = 2 * px;          // convert '2rem' to pixels
+
+// The fallback is what SSR (and an unparseable computed value) resolves to.
+const px14 = getRootFontSize(14);`;
 
   protected readonly whySnippet = `// Native — verbose, easy to typo \`body\` instead of \`documentElement\`,
 // and crashes on SSR where \`document\` is undefined.
@@ -28,9 +31,10 @@ const px = getRootFontSize();`;
 
   protected readonly api: readonly DocApiRow[] = [
     {
-      name: 'getRootFontSize()',
-      description: 'Pixel value of `:root` font-size. Useful for converting rem-based inputs to px in TS.',
-      type: '() => number',
+      name: 'getRootFontSize(fallback?)',
+      description:
+        'Pixel value of `:root` font-size. Useful for converting rem-based inputs to px in TS. `fallback` is returned when there is no DOM (SSR) or the computed value does not parse.',
+      type: '(fallback = 16) => number',
       default: '—',
     },
   ];

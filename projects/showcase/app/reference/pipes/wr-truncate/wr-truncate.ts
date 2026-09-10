@@ -56,7 +56,7 @@ export class MyComponent { /* ... */ }`,
     {
       name: 'wrTruncate',
       description: 'Clamp string length with optional ellipsis.',
-      type: "(value: string, length = 80, ellipsis = '…') => string",
+      type: "(value: string | null | undefined, length = 80, ellipsis = '…') => string",
       default: '—',
     },
   ];

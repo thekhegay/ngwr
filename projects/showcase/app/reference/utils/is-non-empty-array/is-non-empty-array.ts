@@ -36,10 +36,10 @@ if (isNonEmptyArray(rows)) {
 
   protected readonly api: readonly DocApiRow[] = [
     {
-      name: 'isNonEmptyArray(v)',
+      name: 'isNonEmptyArray(value)',
       description:
-        'Asserts the array has at least one element; narrows the type to `[T, ...T[]]` so index 0 is non-nullable.',
-      type: '<T>(v: readonly T[]) => v is readonly [T, ...T[]]',
+        'Asserts the array has at least one element; narrows the type to `[T, ...T[]]` so index 0 is non-nullable. Takes `Maybe<T[]>`, so a `null` / `undefined` list needs no separate check.',
+      type: '<T>(value: Maybe<T[]>) => value is [T, ...T[]]',
       default: '—',
     },
   ];
