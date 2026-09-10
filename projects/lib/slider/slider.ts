@@ -263,8 +263,21 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
 
       if (Array.isArray(v)) {
         const tuple = v as readonly [number, number];
-        const lo = this.clampToBounds(tuple[0]);
-        const hi = this.clampToBounds(tuple[1]);
+        const a = this.clampToBounds(tuple[0]);
+        const b = this.clampToBounds(tuple[1]);
+        // ORDERED, and only for the display — the same asymmetry as the clamp
+        // above, for the same reason. An external `[80, 20]` used to seed
+        // `low = 80` and `high = 20`, which made each thumb report an
+        // `aria-valuenow` outside its OWN `aria-valuemin`/`aria-valuemax` (the
+        // two bound each other), and left the fill with a start and no width,
+        // so a range that is real simply vanished.
+        //
+        // This does not contradict the recorded contract that an edit to one
+        // end is never reordered: that one is scoped to "while the user is
+        // still on it", and ordering settles when the interaction ends. An
+        // external write IS the end — there is no interaction in progress.
+        const lo = Math.min(a, b);
+        const hi = Math.max(a, b);
         this.low.set(lo);
         this.high.set(hi);
         this.highSeeded = true;
