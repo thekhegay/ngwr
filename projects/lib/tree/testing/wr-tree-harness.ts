@@ -280,6 +280,30 @@ export class WrTreeHarness extends ContentContainerComponentHarness {
   }
 
   /**
+   * Backspace on the closed overlay trigger — the keyboard route to the ×.
+   *
+   * In single mode it clears (only while `clearable` is on); in multi mode it
+   * drops the LAST chip, one per call, whatever `clearable` says. Both ×
+   * controls are `tabindex="-1"` spans inside the trigger, so a key can never
+   * reach them directly. In single mode this is the ONLY keyboard route back to
+   * no selection; in multi mode a keyboard user can also toggle a row off in the
+   * panel ({@link selectNode} with `additive`). {@link clear} / {@link removeChip}
+   * prove the pointer path and nothing more.
+   *
+   * The key is honoured only on the CLOSED trigger, so an open panel is closed
+   * first with Escape — the step a keyboard user takes too, since focus sits in
+   * the panel while it is up.
+   *
+   * Does nothing, rather than throwing, where the component does nothing —
+   * nothing selected, disabled or read-only — so a spec asserts the outcome on
+   * the value.
+   */
+  async clearByKeyboard(): Promise<void> {
+    if (await this.isOpen()) await this.close();
+    await (await this.trigger()).sendKeys(TestKey.BACKSPACE);
+  }
+
+  /**
    * The nodes currently rendered, in the order they are shown.
    *
    * A collapsed branch's children are not rendered at all, so this is the VISIBLE

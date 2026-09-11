@@ -34,6 +34,8 @@ const OPTIONS: readonly WrCascaderOption[] = [
       [(value)]="picked"
       [changeOnSelect]="changeOnSelect()"
       [disabled]="disabled()"
+      [readonly]="readonly()"
+      [clearable]="clearable()"
     />
   `,
 })
@@ -42,6 +44,8 @@ class Host {
   readonly picked = signal<unknown>([]);
   readonly changeOnSelect = signal(false);
   readonly disabled = signal(false);
+  readonly readonly = signal(false);
+  readonly clearable = signal(true);
 }
 
 /**
@@ -153,6 +157,48 @@ describe('WrCascader', () => {
       fixture.detectChanges();
       return event;
     };
+
+    it('clears from the keyboard — Backspace on the closed trigger is the ×', () => {
+      fixture.componentInstance.picked.set(['eu', 'de', 'ber']);
+      fixture.detectChanges();
+      expect(root().querySelector('.wr-cascader__clear')).not.toBeNull();
+
+      // The × is a `tabindex="-1"` span inside this button, and a keydown goes to
+      // the focused element — so the Enter/Space bindings it carried could never
+      // fire, and clearing was pointer-only. WCAG 2.1.1.
+      const event = press('Backspace');
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(picked()).toEqual([]);
+      expect(root().querySelector('.wr-cascader__clear')).toBeNull();
+    });
+
+    it('offers no keyboard twin of a × the consumer turned off', () => {
+      fixture.componentInstance.picked.set(['eu', 'de', 'ber']);
+      fixture.componentInstance.clearable.set(false);
+      fixture.detectChanges();
+
+      const event = press('Backspace');
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(picked()).toEqual(['eu', 'de', 'ber']);
+    });
+
+    it('will not clear while read-only, or claim the key with nothing to clear', () => {
+      fixture.componentInstance.picked.set(['an']);
+      fixture.componentInstance.readonly.set(true);
+      fixture.detectChanges();
+
+      press('Backspace');
+      expect(picked()).toEqual(['an']);
+
+      fixture.componentInstance.readonly.set(false);
+      fixture.componentInstance.picked.set([]);
+      fixture.detectChanges();
+
+      // Nothing selected, so the key is not ours to swallow.
+      expect(press('Backspace').defaultPrevented).toBe(false);
+    });
 
     it('moves the caret into the panel rather than leaving it on the trigger', async () => {
       await openAndSettle();

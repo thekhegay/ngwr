@@ -351,6 +351,27 @@ export class WrCascaderHarness extends ComponentHarness {
     await clear.click();
   }
 
+  /**
+   * Clear from the keyboard — Backspace on the closed trigger.
+   *
+   * The × {@link clear} clicks is a `tabindex="-1"` span inside the trigger, so no
+   * key can ever reach it; Backspace on the trigger is its keyboard twin, and the
+   * route a keyboard-only user actually has. Prefer this one in a spec that cares
+   * about that user — {@link clear} proves the pointer path and nothing more.
+   *
+   * The component honours the key only on the CLOSED trigger, so an open panel
+   * is closed first with Escape — the step a keyboard user takes too. Sending
+   * Backspace into an open panel and returning would be a plausible nothing.
+   *
+   * Does nothing, rather than throwing, when there is nothing to clear, `clearable`
+   * is off, or the cascader is disabled or read-only: that silence IS the
+   * component's contract, so a spec asserts it on the value.
+   */
+  async clearByKeyboard(): Promise<void> {
+    if (await this.isOpen()) await this.close();
+    await (await this.trigger()).sendKeys(TestKey.BACKSPACE);
+  }
+
   /** Move keyboard focus to the trigger. */
   async focus(): Promise<void> {
     return (await this.trigger()).focus();
