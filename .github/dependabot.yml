@@ -13,6 +13,23 @@ updates:
       # landing in the middle of one.
       time: '08:00'
       timezone: 'Asia/Almaty'
+    # A new version waits one day before Dependabot will propose it.
+    #
+    # Written down because the platform had started doing this on its own: from
+    # 2026-09-03 every npm run logs "Filtered out N versions due to cooldown"
+    # with no `cooldown` key anywhere in this file, and Angular 22.1.6 went
+    # unproposed for two mornings while each run reported success. Nothing in
+    # the repository said the window existed, so it read as a broken schedule.
+    # The length it was using is not in the logs; measured against real PRs it
+    # lay between 1.3 and 3.6 days.
+    #
+    # One day is the trade: a release pulled within hours of publishing never
+    # reaches a PR, and a framework patch still arrives at the first morning run
+    # a full day after it ships. AGENTS.md's supply-chain note is why the wait
+    # lives here and not in pnpm's `minimumReleaseAge`, which would also stall
+    # `--frozen-lockfile` in CI.
+    cooldown:
+      default-days: 1
     open-pull-requests-limit: 10
     # Two bumps that would open a green-looking PR and land a red build.
     #
