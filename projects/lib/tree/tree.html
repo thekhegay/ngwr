@@ -12,6 +12,7 @@
     [attr.aria-invalid]="fieldAria.ariaInvalid()"
     [attr.aria-describedby]="fieldAria.describedBy()"
     (click)="onTriggerClick()"
+    (keydown)="onTriggerKey($event)"
     (blur)="onBlur()"
   >
     @if (isMulti()) {
@@ -26,8 +27,6 @@
                 [attr.aria-label]="chipRemoveLabel({ label: chip.label })"
                 tabindex="-1"
                 (click)="removeChip(chip.id, $event)"
-                (keydown.enter)="removeChip(chip.id, $event)"
-                (keydown.space)="removeChip(chip.id, $event)"
               >
                 <svg
                   class="wr-icon__svg"
@@ -68,8 +67,6 @@
         [attr.aria-label]="clearLabel()"
         tabindex="-1"
         (click)="clearSelection($event)"
-        (keydown.enter)="clearSelection($event)"
-        (keydown.space)="clearSelection($event)"
       >
         <svg
           class="wr-icon__svg"

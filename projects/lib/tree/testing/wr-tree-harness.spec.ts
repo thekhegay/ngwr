@@ -646,6 +646,19 @@ describe('WrTreeHarness — overlay multi with chips', () => {
     expect(await tree.getChipLabels()).toEqual(['src', 'README.md']);
   });
 
+  it('drops the last chip from the keyboard, one per press', async () => {
+    await tree.open();
+    await (await tree.getNode({ label: 'src' })).expand();
+    await tree.selectNode({ label: 'src' }, { additive: true });
+    await tree.selectNode({ label: 'README.md' }, { additive: true });
+
+    // The panel is still up after an additive pick; the harness closes it the
+    // way a keyboard user must, because the key only counts on a closed trigger.
+    await tree.clearByKeyboard();
+
+    expect(await tree.getChipLabels()).toEqual(['src']);
+  });
+
   it('clears the whole selection, and says why there is nothing to clear', async () => {
     await expect(tree.clear()).rejects.toThrow(/no clear control/);
 

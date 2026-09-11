@@ -964,3 +964,119 @@ describe('WrTree reports an inline pick to a bound field', () => {
     expect(touched).toHaveLength(1);
   });
 });
+
+@Component({
+  imports: [WrTree],
+  template: `
+    <wr-tree
+      openOn="overlay"
+      [selectionMode]="mode()"
+      [nodes]="nodes"
+      [(selected)]="selected"
+      [clearable]="clearable()"
+      [readonly]="readonly()"
+      placeholder="Pick"
+    />
+  `,
+})
+class KeyboardClearHost {
+  readonly nodes: readonly WrTreeNode[] = [
+    { id: 'a', label: 'Draft' },
+    { id: 'b', label: 'Sent' },
+    { id: 'c', label: 'Spam' },
+  ];
+  readonly mode = signal<WrTreeSelectionMode>('single');
+  readonly selected = signal<readonly string[]>([]);
+  readonly clearable = signal(true);
+  readonly readonly = signal(false);
+}
+
+/**
+ * The overlay trigger's keyboard route to the two controls inside it.
+ *
+ * Both the clear × and every chip's remove × are `tabindex="-1"` spans inside
+ * the `<button role="combobox">`, and each carried `(keydown.enter)` /
+ * `(keydown.space)` bindings that could never fire — a keydown goes to the
+ * focused element, and those spans cannot be focused. The trigger itself had no
+ * key handler at all. In SINGLE mode that made clearing pointer-only — a WCAG
+ * 2.1.1 failure, since Enter on the selected row re-selects it. In MULTI mode it
+ * did not: Ctrl/Cmd+Enter on a row in the panel already toggled it off, so the
+ * multi branch here is parity with `wr-select`, whose key and split these are.
+ */
+describe('WrTree overlay trigger — clearing from the keyboard', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<KeyboardClearHost>>;
+  const host = (): KeyboardClearHost => fixture.componentInstance;
+  const trigger = (): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-tree__trigger')!;
+  const backspace = (): KeyboardEvent => {
+    const event = new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true, cancelable: true });
+    trigger().dispatchEvent(event);
+    fixture.detectChanges();
+    return event;
+  };
+  const set = (
+    patch: Partial<{ mode: WrTreeSelectionMode; selected: string[]; clearable: boolean; readonly: boolean }>
+  ): void => {
+    if (patch.mode) host().mode.set(patch.mode);
+    if (patch.selected) host().selected.set(patch.selected);
+    if (patch.clearable !== undefined) host().clearable.set(patch.clearable);
+    if (patch.readonly !== undefined) host().readonly.set(patch.readonly);
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(KeyboardClearHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('clears a single selection — Backspace on the closed trigger is the ×', () => {
+    set({ selected: ['b'] });
+    expect(trigger().querySelector('.wr-tree__clear')).not.toBeNull();
+
+    const event = backspace();
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(host().selected()).toEqual([]);
+  });
+
+  it('offers no keyboard twin of a × the consumer turned off', () => {
+    set({ selected: ['b'], clearable: false });
+
+    const event = backspace();
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(host().selected()).toEqual(['b']);
+  });
+
+  it('drops the last chip in multi mode, one per press', () => {
+    set({ mode: 'multi', selected: ['a', 'b', 'c'] });
+
+    backspace();
+    expect(host().selected()).toEqual(['a', 'b']);
+    backspace();
+    expect(host().selected()).toEqual(['a']);
+  });
+
+  it('drops a chip even with clearable off — chip removal is its own control', () => {
+    // `clearable` governs the clear-ALL ×. Each chip's own × is rendered
+    // regardless, so its keyboard twin is too — `wr-select` draws the same line.
+    set({ mode: 'multi', selected: ['a', 'b'], clearable: false });
+
+    backspace();
+
+    expect(host().selected()).toEqual(['a']);
+  });
+
+  it('changes nothing while read-only, and claims no key with nothing selected', () => {
+    set({ selected: ['b'], readonly: true });
+    backspace();
+    expect(host().selected()).toEqual(['b']);
+
+    set({ readonly: false, selected: [] });
+    expect(backspace().defaultPrevented).toBe(false);
+  });
+});

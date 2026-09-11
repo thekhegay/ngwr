@@ -283,6 +283,22 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
    */
   protected onTriggerKeydown(event: KeyboardEvent): void {
     if (this.disabled() || this.readonly() || this.open()) return;
+
+    // Backspace is the × from the keyboard, and it has to be: the × is a
+    // `tabindex="-1"` span INSIDE this button, and a keydown goes to the focused
+    // element, so the `(keydown.enter)` / `(keydown.space)` it used to carry could
+    // never fire. Clearing was reachable by pointer alone — a WCAG 2.1.1 failure,
+    // not a missing convenience. The span stays unfocusable, because a focusable
+    // child of a button is `nested-interactive`. Same key, same gating as
+    // `wr-select`: `clearable()` IS the clear control, so a consumer who turned
+    // the × off did not ask for a keyboard twin of it.
+    if (event.key === 'Backspace') {
+      if (!this.clearable() || !this.hasSelection()) return;
+      event.preventDefault();
+      this.clearSelection(event);
+      return;
+    }
+
     if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
     event.preventDefault();
     this.activePath.set(this.path());

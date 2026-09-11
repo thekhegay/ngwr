@@ -407,6 +407,16 @@ describe('WrCascaderHarness', () => {
     expect(await cascader.getPlaceholder()).toBe('Pick a place');
   });
 
+  it('clears from the keyboard, the route a keyboard-only user actually has', async () => {
+    const cascader = await loader.getHarness(WrCascaderHarness);
+    await cascader.selectPath(['Europe', 'France', 'Paris']);
+
+    await cascader.clearByKeyboard();
+
+    expect(picked()).toEqual([]);
+    expect(await cascader.getValueText()).toBe('');
+  });
+
   it('says why there is no clear control to click', async () => {
     const cascader = await loader.getHarness(WrCascaderHarness);
 

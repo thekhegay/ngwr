@@ -702,6 +702,47 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     this.touch.emit();
   }
 
+  /**
+   * Backspace on the CLOSED overlay trigger — the keyboard twin of the two ×
+   * controls inside it.
+   *
+   * Both the clear × and every chip's remove × are `tabindex="-1"` spans inside
+   * this `<button>`, and they carried `(keydown.enter)` / `(keydown.space)`
+   * bindings that could never fire: a keydown goes to the focused element, and
+   * those spans cannot be focused. The spans stay unfocusable, since a focusable
+   * child of a button is `nested-interactive`.
+   *
+   * What that cost differs by mode, and the difference is worth keeping straight.
+   * In SINGLE mode it was a real WCAG 2.1.1 failure: Enter on the selected row
+   * re-selects it, so the × was the only way back to nothing. In MULTI mode it
+   * was not — Ctrl/Cmd+Enter on a row in the panel toggles it off, which is the
+   * route {@link WrTreeHarness.selectNode} drives with `additive`. The multi
+   * branch below is parity with `wr-select` and a shorter path, not a repair.
+   *
+   * The same key and the same split `wr-select` uses, so the two read alike:
+   * in MULTI mode Backspace drops the last chip — chip removal is its own
+   * control, not gated on `clearable()` — and in SINGLE mode it clears, gated on
+   * `clearable()`, because that input IS the clear control. Only while closed:
+   * an open panel owns the keyboard.
+   */
+  protected onTriggerKey(event: KeyboardEvent): void {
+    if (event.key !== 'Backspace') return;
+    if (this.disabled() || this.readonly() || this.open() || !this.hasSelection()) return;
+
+    if (this.isMulti()) {
+      const chips = this.selectedChips();
+      const last = chips[chips.length - 1];
+      if (!last) return;
+      event.preventDefault();
+      this.removeChip(last.id, event);
+      return;
+    }
+
+    if (!this.clearable()) return;
+    event.preventDefault();
+    this.clearSelection(event);
+  }
+
   protected removeChip(id: TId, event: Event): void {
     event.stopPropagation();
     if (this.disabled() || this.readonly()) return;
@@ -834,9 +875,10 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     this.overlayRef.attach(new TemplatePortal(tpl, this.vcr));
 
     // The panel owns the keyboard from here, in BOTH render shapes. `onKeydown`
-    // lives on the `<ul>` inside the portal and the trigger has no handler of
-    // its own, so leaving focus on the trigger — which is what the non-virtual
-    // shape used to do — made an overlay tree mouse-only: arrows, Home/End and
+    // lives on the `<ul>` inside the portal, and the trigger's own handler
+    // (`onTriggerKey`) acts only while CLOSED, so leaving focus on the trigger —
+    // which is what the non-virtual shape used to do — made an overlay tree
+    // mouse-only: arrows, Home/End and
     // Enter all did nothing, and the rows were reachable only by tabbing through
     // the rest of the page, since the pane is appended to `<body>`. Virtual mode
     // focuses the LIST (managed focus via `aria-activedescendant`); the
