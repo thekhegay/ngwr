@@ -1,6 +1,6 @@
 {
   "name": "ngwr",
-  "version": "14.3.1",
+  "version": "14.4.0",
   "bin": {
     "ngwr-mcp": "mcp/server.js"
   },

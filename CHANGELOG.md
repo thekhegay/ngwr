@@ -1,5 +1,43 @@
 # Changelog
 
+## [14.4.0](https://github.com/thekhegay/ngwr/compare/v14.3.1...v14.4.0) (2026-09-11)
+
+### Features
+
+* **lint:** a state told apart by colour alone has to say why ([43abdd9](https://github.com/thekhegay/ngwr/commit/43abdd948746c4757d9e72ddaca6216edbf2821d))
+* **scripts:** the palette exports as design tokens, both themes resolved ([d6d0e7d](https://github.com/thekhegay/ngwr/commit/d6d0e7d5aafcf497c1dd5d250d51b1d5ccc00905))
+* **theme:** the token layer answers prefers-contrast, and the sweep measures it ([b14ad15](https://github.com/thekhegay/ngwr/commit/b14ad1502f0aa6d0086dce2450ae4a05ea4524cc))
+
+### Bug Fixes
+
+* **calendar-heatmap:** a tooltip nobody could read, and a harness parsing it ([47de36b](https://github.com/thekhegay/ngwr/commit/47de36b94df3456aac8ce7a35716230a5a33e79a))
+* **cascader,tree:** clearing a single selection was pointer-only ([39f0a7b](https://github.com/thekhegay/ngwr/commit/39f0a7b5f5d8ad9e56ab499fb083d752d8d99611))
+* **cascader:** a branch option says it opens a submenu, and whether it is open ([2801b1d](https://github.com/thekhegay/ngwr/commit/2801b1db03565bc99f1172686e9d479df0862879))
+* **cascader:** a combobox may not open a menu, so the panel is a tree ([91296c9](https://github.com/thekhegay/ngwr/commit/91296c91ee5aaf034ec3a48db9ae3fa233623b78))
+* **charts:** series and slices told apart by shape, not only by hue ([54a61e4](https://github.com/thekhegay/ngwr/commit/54a61e4a1c303b3daaa587b989c1a1810c6d673b))
+* **command-palette:** a query edit now scrolls the highlight back into view ([5177528](https://github.com/thekhegay/ngwr/commit/517752863b54acd3620d56152aceb5753ca7da9e))
+* **date-picker:** a flag turning on mid-session no longer edits the value ([2baffef](https://github.com/thekhegay/ngwr/commit/2baffef6932468ac6e304f643f910ccf971b85d7))
+* **form:** a field label that four role-based controls could not hear ([5af42d0](https://github.com/thekhegay/ngwr/commit/5af42d0d7e299531626b3fb01014893e1875759e))
+* **i18n:** a count with a plural noun beside it, in the one catalog i can judge ([a5f7c17](https://github.com/thekhegay/ngwr/commit/a5f7c1728a6268c940279f1d3e0c3dd82e572f2d))
+* **input-otp:** a pasted code left its last box unselectable ([6276a61](https://github.com/thekhegay/ngwr/commit/6276a6121bc51bf72bc723778affbcbdd7c439db))
+* **lib:** a harness that always answered null, and focus lost on a view switch ([ea41bf0](https://github.com/thekhegay/ngwr/commit/ea41bf0fd1a548bc2d8e6e21d89342d0864e6c10))
+* **lib:** a negative day painted as activity, and a decimals input that could throw ([116b453](https://github.com/thekhegay/ngwr/commit/116b45359affb4632a18fb08b2b6bd4d5e60f30b))
+* **lib:** a sticky header that lied on load, and a length error that said nothing ([71d9346](https://github.com/thekhegay/ngwr/commit/71d93462789f15a25a5f205741ea677c5882e11f))
+* **lib:** focus lost after a transfer move, and an inverted range that vanished ([14fb051](https://github.com/thekhegay/ngwr/commit/14fb0517b4711c81698b80005e6dd497ac6ef86e))
+* **lib:** six states told apart by hue alone, or by nothing at all ([c9c7cdf](https://github.com/thekhegay/ngwr/commit/c9c7cdf70490a9f1f7be6f572befd2dde8892ae0))
+* **overlay:** a closed menu that still took clicks, and an emit into a dead output ([a82663d](https://github.com/thekhegay/ngwr/commit/a82663d65b7037610eb58586c3af618e06461c6c))
+* **pagination:** a page size of zero is one page, not infinity ([2530228](https://github.com/thekhegay/ngwr/commit/2530228c214c0466d5a46a7f4d76e04d61b83125))
+* **registry:** the one shipped block calls two validators that do not exist ([60bd0d5](https://github.com/thekhegay/ngwr/commit/60bd0d51fde5ed0c260e7039dea5ccf911814f6a))
+* **schematics:** ng add wrote a css import that breaks the next build ([f21b049](https://github.com/thekhegay/ngwr/commit/f21b0493929f75d4c9eb21e2a23327180184c6ce))
+* **schematics:** the v14 migration announces five renames and performs six ([4e748f3](https://github.com/thekhegay/ngwr/commit/4e748f3ae1bc03998d1b0a53803988810153f0c5))
+* **statistic:** a countdown picks up a new tick period instead of ignoring it ([219f18e](https://github.com/thekhegay/ngwr/commit/219f18e0e2592005d643ea9d70ead6cf13a1f72e))
+* **testing:** four harnesses that measured a laid-out box, two that documented a fixed bug ([686d18e](https://github.com/thekhegay/ngwr/commit/686d18ea144575fa358b39218c115d9c05c3e85b))
+* **theme:** three uses of the faint tier that were never decorative ([71e6f82](https://github.com/thekhegay/ngwr/commit/71e6f828591fe3fc0117a99fa08e00cf9959aee9))
+* **toast:** four types that differed by a 3px line now differ by shape ([3c4054b](https://github.com/thekhegay/ngwr/commit/3c4054bd4ee662f51a851b9166e09dcab8a1b92b))
+* **transfer:** a value in neither pane now says so ([cc310c0](https://github.com/thekhegay/ngwr/commit/cc310c013f2ce2b7f74ad22785043ab3695a3a8d))
+* **transfer:** the select-all name is composed in the catalog, not in a template literal ([252a9a2](https://github.com/thekhegay/ngwr/commit/252a9a2640dc9216a28f7796733f94b64bdbf3a7))
+* **tree:** an inline tree the user left without picking now counts as touched ([a991501](https://github.com/thekhegay/ngwr/commit/a991501bb88b3f88188ae47cd39d79b7e9676d3f))
+
 ## [14.3.1](https://github.com/thekhegay/ngwr/compare/v14.3.0...v14.3.1) (2026-09-09)
 
 ### Bug Fixes
