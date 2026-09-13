@@ -34,8 +34,9 @@ differently. Node is checked by `devEngines.runtime`: an unsupported runtime
 fails `pnpm install` with a clear message. The pnpm version is not checked there
 at all — `packageManager` pins it and corepack fetches that exact build.
 **Neither is enforced by `.npmrc`**, which is deliberately empty of settings: it
-carried `engine-strict=true` until the bump to pnpm 12 silently made that a
-no-op, because pnpm 12 reads none of its own behaviour from that file.
+used to carry `engine-strict=true`, and pnpm reads none of its own behaviour from
+that file. The pnpm major is held back on purpose — read AGENTS.md before bumping
+it.
 
 ## Filing issues
 

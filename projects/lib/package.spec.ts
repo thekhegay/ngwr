@@ -313,12 +313,13 @@ describe('component stylesheets', () => {
  * They said the same thing when they were written, and nothing made them keep
  * saying it — which is how the guard went missing in the first place.
  *
- * **`engine-strict` in `.npmrc` was the guard until pnpm 12, and pnpm 12 reads
- * no behavioural setting from that file at all.** The bump to 12 therefore
- * removed the Node check in silence: an install on an unsupported runtime
- * simply succeeded, and the next failure was somewhere inside a build. The
- * check moved to `devEngines`, which pnpm 12 does honour — and this is what
- * stops the two drifting apart the next time a range moves.
+ * **`engine-strict` in `.npmrc` is not the guard it looks like: pnpm reads no
+ * behavioural setting from that file** (measured on 11 and on 12), and an
+ * incompatible `engines.node` on its own only warns. An install on an
+ * unsupported runtime therefore simply succeeded, and the next failure was
+ * somewhere inside a build. The check lives in `devEngines`, which pnpm does
+ * honour — and this is what stops the two drifting apart the next time a range
+ * moves.
  */
 describe('the root manifest declares one toolchain, not three', () => {
   const manifestRoot = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {
@@ -390,7 +391,7 @@ describe('the root manifest declares one toolchain, not three', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('keeps no pnpm setting in .npmrc, where pnpm 12 would not read it', () => {
+  it('keeps no pnpm setting in .npmrc, where pnpm would not read it', () => {
     // Registry and auth lines are still honoured there; anything else is a
     // setting that looks configured and does nothing.
     const npmrc = readFileSync(join(process.cwd(), '.npmrc'), 'utf8');
