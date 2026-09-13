@@ -43,7 +43,7 @@
   },
   "engines": {
     "node": "^22.22.3 || ^24.15.0 || ^26.0.0",
-    "pnpm": "^12.3.4"
+    "pnpm": "^11.26.0"
   },
   "devEngines": {
     "runtime": {
@@ -52,7 +52,7 @@
       "onFail": "error"
     }
   },
-  "packageManager": "pnpm@12.3.4",
+  "packageManager": "pnpm@11.26.0",
   "dependencies": {
     "@angular/cdk": "^22.1.6",
     "@angular/common": "^22.1.6",

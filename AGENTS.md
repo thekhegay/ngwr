@@ -475,17 +475,15 @@ as long as it took someone to look.
 The shape, which the manifest does not explain: the Node range is Angular's own,
 copied verbatim rather than narrowed, so the two cannot disagree. `.nvmrc` and
 every workflow run the newest of them; a nightly matrix covers the LTS lines
-underneath. pnpm 12 also records itself in the lockfile under
-`packageManagerDependencies`.
+underneath.
 
 **The version guard is `devEngines` in `package.json`, and `.npmrc` is empty on
-purpose.** It used to be `engine-strict=true` there, and pnpm 12 reads no
-behavioural setting from that file at all — so the move to 12 removed the check
-in silence: an install on an unsupported Node simply succeeded and the next
-failure was somewhere inside a build. Measured, not guessed: pnpm 11 refuses an
-incompatible `engines.node` with or without that line, pnpm 12 accepts it with
-or without, and `node-linker=hoisted` proves the point from the other side by
-applying from `pnpm-workspace.yaml` and doing nothing from `.npmrc`. What that
+purpose.** It used to carry `engine-strict=true`, and pnpm reads no behavioural
+setting from that file — measured on 11 and on 12, both of which apply
+`node-linker=hoisted` from `pnpm-workspace.yaml` and ignore it from `.npmrc`. Nor
+does `engines.node` refuse on its own: an incompatible range prints a warning and
+the install carries on, so without `devEngines` the next failure is somewhere
+inside a build. What that
 file IS still read for is npm-compatible registry and auth config, which is why
 it is kept with a comment rather than deleted — it is where someone would
 otherwise re-add a setting that does nothing. `devEngines.runtime` refuses with a clear message, and
@@ -496,6 +494,27 @@ repo fail `EBADDEVENGINES` — including the `npx commitlint` in the commit-msg
 hook, which is how it was found, on the commit that added it. The pnpm version
 is pinned by `packageManager` and enforced by corepack, which is the mechanism
 that actually does the work.
+
+**pnpm is held at 11, and the move to 12 waits on GitHub rather than on pnpm.**
+The repository ran pnpm 12 from 2026-09-07 to 2026-09-13, and it broke both halves
+of Dependabot without a single red run. A pnpm 12 lockfile is a stream of two YAML
+documents — the package manager's own pin first, the dependency graph second — and
+GitHub's dependency graph reads only the first
+([dependabot-core#15904](https://github.com/dependabot/dependabot-core/issues/15904)):
+it saw no npm dependency at all, and closed eleven open alerts as fixed while
+`pnpm audit` still reported every one of them. Version updates failed another way:
+the updater ships pnpm 11, which tries to download the 12 the manifest names and
+cannot reach the registry from inside its sandbox
+([#16095](https://github.com/dependabot/dependabot-core/issues/16095)). That stayed
+invisible for six days, because every run until then had nothing past the cooldown,
+never invoked pnpm, and reported success. `pmOnFail: ignore` plus a one-document
+lockfile gets past both and was not taken: the updater's pnpm 11 still refuses a
+manifest whose `engines.pnpm` asks for 12, so the workaround means advertising a
+range the repository does not run. Revisit when both issues close, and verify
+rather than trust a changelog: after the bump
+`gh api repos/thekhegay/ngwr/dependency-graph/sbom` must list more than `tslib` and
+pnpm's own binaries, and a manual "Check for updates" must finish without
+`Could not download the pnpm`.
 
 **`minimumReleaseAge` was considered for the supply chain and rejected on
 evidence.** A cooling-off window on newly published versions is the right idea

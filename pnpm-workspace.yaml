@@ -1,5 +1,5 @@
-# pnpm's settings live here, not in `.npmrc` — pnpm 12 reads no behavioural
-# setting from that file at all.
+# pnpm's settings live here, not in `.npmrc` — pnpm 11 and 12 alike read no
+# behavioural setting from that file at all.
 
 # `pnpm` prints an "update available" banner otherwise. The version is pinned by
 # `packageManager` and bumped deliberately, so the banner is noise in every log
