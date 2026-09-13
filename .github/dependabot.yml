@@ -61,9 +61,17 @@ updates:
       - 'dependencies'
       - 'type: chore'
     groups:
+      # The tooling packages outside `@angular/*` belong here too. Without them
+      # the 22.1.8 tooling patch arrived as four pull requests — the group plus
+      # devkit core, devkit schematics and `@schematics/angular` on their own —
+      # and every merge put the next one into a lockfile conflict. A group only
+      # carries what moved, so the framework is not dragged along by a tooling
+      # release.
       angular:
         patterns:
           - '@angular/*'
+          - '@angular-devkit/*'
+          - '@schematics/angular'
           - '@angular-eslint/*'
           - 'angular-eslint'
           - 'ng-packagr'
