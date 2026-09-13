@@ -78,7 +78,7 @@
     "@commitlint/config-conventional": "^21.2.2",
     "@eslint/js": "^10.0.1",
     "@phosphor-icons/core": "^2.1.1",
-    "@schematics/angular": "^22.1.7",
+    "@schematics/angular": "^22.1.8",
     "@tabler/icons": "^3.46.0",
     "@types/jsdom": "^30.0.0",
     "@types/luxon": "^3.7.5",

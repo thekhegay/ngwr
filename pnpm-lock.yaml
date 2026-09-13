@@ -76,8 +76,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       '@schematics/angular':
-        specifier: ^22.1.7
-        version: 22.1.7(chokidar@5.0.0)
+        specifier: ^22.1.8
+        version: 22.1.8(chokidar@5.0.0)
       '@tabler/icons':
         specifier: ^3.46.0
         version: 3.46.0
@@ -2091,10 +2091,6 @@ packages:
     resolution: {integrity: sha512-j6qaRjdDujJ5utX5l6+8eiWlvMLmBfPMBht8mHP2au3xuzf+4deu6PuCquH5GvDIvIOsWHZhA1UVz/s0FvvgAA==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
-
-  '@schematics/angular@22.1.7':
-    resolution: {integrity: sha512-acBv147JjnwtWFgC8Af0KFBzPpb/TWaYxoWN/Ou3pXtUhYiEqnrdJeoFz3ssDw26eKFIdWnVBLB/dHORBykPBg==}
-    engines: {node: ^22.22.3 || ^24.15.0 || >=26.0.0, npm: ^6.11.0 || ^7.5.6 || >=8.0.0, yarn: '>= 1.13.0'}
 
   '@schematics/angular@22.1.8':
     resolution: {integrity: sha512-V37T9uHOQVHyxxOqwcJ9xjSIW/mW9UuSfjOc7WJE4V8+3zj0abDJLHuoxDZKe0icYGapgOcvHyYjtNOjSeSivw==}
@@ -4760,7 +4756,7 @@ snapshots:
   '@angular-eslint/schematics@22.5.0(@angular-eslint/template-parser@22.5.0(eslint@10.10.0(jiti@2.6.1)(supports-color@10.2.2))(typescript@6.0.3))(@typescript-eslint/types@8.69.0)(@typescript-eslint/utils@8.69.0(eslint@10.10.0(jiti@2.6.1)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(chokidar@5.0.0)(eslint@10.10.0(jiti@2.6.1)(supports-color@10.2.2))(typescript@6.0.3)':
     dependencies:
       '@angular-devkit/core': 22.1.8(chokidar@5.0.0)
-      '@angular-devkit/schematics': 22.1.7(chokidar@5.0.0)
+      '@angular-devkit/schematics': 22.1.8(chokidar@5.0.0)
       '@angular-eslint/eslint-plugin': 22.5.0(@typescript-eslint/utils@8.69.0(eslint@10.10.0(jiti@2.6.1)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.10.0(jiti@2.6.1)(supports-color@10.2.2))(typescript@6.0.3)
       '@angular-eslint/eslint-plugin-template': 22.5.0(@angular-eslint/template-parser@22.5.0(eslint@10.10.0(jiti@2.6.1)(supports-color@10.2.2))(typescript@6.0.3))(@typescript-eslint/types@8.69.0)(@typescript-eslint/utils@8.69.0(eslint@10.10.0(jiti@2.6.1)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.10.0(jiti@2.6.1)(supports-color@10.2.2))(typescript@6.0.3)
       ignore: 7.0.8
@@ -6199,15 +6195,6 @@ snapshots:
       '@types/estree': 1.0.8
     optionalDependencies:
       fsevents: 2.3.3
-
-  '@schematics/angular@22.1.7(chokidar@5.0.0)':
-    dependencies:
-      '@angular-devkit/core': 22.1.7(chokidar@5.0.0)
-      '@angular-devkit/schematics': 22.1.7(chokidar@5.0.0)
-      jsonc-parser: 3.3.1
-      typescript: 6.0.3
-    transitivePeerDependencies:
-      - chokidar
 
   '@schematics/angular@22.1.8(chokidar@5.0.0)':
     dependencies:
