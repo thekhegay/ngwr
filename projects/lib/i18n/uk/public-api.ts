@@ -374,6 +374,11 @@ export const wrUk: WrI18nCatalog = {
   gauge: {
     label: 'Індикатор',
   },
+  graph: {
+    label: 'Граф',
+    parents: 'Батьки: {{names}}.',
+    children: 'Діти: {{names}}.',
+  },
   progress: {
     label: 'Хід виконання',
   },

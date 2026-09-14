@@ -353,6 +353,11 @@ export const wrSv: WrI18nCatalog = {
   gauge: {
     label: 'Mätare',
   },
+  graph: {
+    label: 'Graf',
+    parents: 'Föräldrar: {{names}}.',
+    children: 'Barn: {{names}}.',
+  },
   progress: {
     label: 'Förlopp',
   },

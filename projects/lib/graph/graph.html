@@ -1,0 +1,59 @@
+@let graph = view();
+<!-- The scroller is the one tab stop: a named group, so its label is allowed, and focusable so a keyboard can scroll it. -->
+<div class="wr-graph__viewport" role="group" tabindex="0" [attr.aria-label]="label()">
+  <div class="wr-graph__stage" [style.width.px]="graph.width" [style.height.px]="graph.height">
+    <svg
+      class="wr-graph__edges"
+      aria-hidden="true"
+      focusable="false"
+      [attr.width]="graph.width"
+      [attr.height]="graph.height"
+    >
+      <defs>
+        <marker
+          [attr.id]="markerId"
+          viewBox="0 0 10 10"
+          refX="10"
+          refY="5"
+          markerUnits="userSpaceOnUse"
+          [attr.markerWidth]="arrowSize"
+          [attr.markerHeight]="arrowSize"
+          orient="auto"
+        >
+          <polygon points="0,1 10,5 0,9" />
+        </marker>
+      </defs>
+      @for (edge of graph.edges; track edge.id) {
+        <path
+          class="wr-graph__edge"
+          [attr.d]="edge.d"
+          [attr.data-from]="edge.from"
+          [attr.data-to]="edge.to"
+          [attr.marker-end]="markerUrl"
+        />
+      }
+    </svg>
+    <!-- Items are DIRECT children of the list: a wrapper carrying ARIA or a tabindex would break ownership. -->
+    <div class="wr-graph__nodes" [attr.role]="graph.nodes.length ? 'list' : null">
+      @for (entry of graph.nodes; track entry.node.id) {
+        @let relation = relations().get(entry.node.id);
+        <div
+          class="wr-graph__node"
+          role="listitem"
+          [style.width.px]="entry.width"
+          [style.height.px]="entry.height"
+          [style.transform]="entry.transform"
+        >
+          @if (nodeTemplate(); as custom) {
+            <ng-container [ngTemplateOutlet]="custom.template" [ngTemplateOutletContext]="{ $implicit: entry.node }" />
+          } @else {
+            <div class="wr-graph__card">{{ entry.node.label }}</div>
+          }
+          @if (relation) {
+            <span class="wr-graph__sr-only">{{ relation }}</span>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

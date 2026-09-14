@@ -357,6 +357,11 @@ export const wrJa: WrI18nCatalog = {
   gauge: {
     label: 'ゲージ',
   },
+  graph: {
+    label: 'グラフ',
+    parents: '親：{{names}}。',
+    children: '子：{{names}}。',
+  },
   progress: {
     label: '進行状況',
   },

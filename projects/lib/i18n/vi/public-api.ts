@@ -370,6 +370,11 @@ export const wrVi: WrI18nCatalog = {
   gauge: {
     label: 'Đồng hồ đo',
   },
+  graph: {
+    label: 'Đồ thị',
+    parents: 'Nút cha: {{names}}.',
+    children: 'Nút con: {{names}}.',
+  },
   progress: {
     label: 'Tiến trình',
   },

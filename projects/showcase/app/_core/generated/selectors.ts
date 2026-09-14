@@ -14,7 +14,7 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 174 of 183 declarations are mapped: 0 carry no selector and
+ * 176 of 185 declarations are mapped: 0 carry no selector and
  * 9 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
@@ -94,6 +94,7 @@ export const SELECTORS = {
     "wr-gauge": { symbol: "WrGauge", path: "ngwr/gauge" },
     "wr-glitch-text": { symbol: "WrGlitchText", path: "ngwr/glitch-text" },
     "wr-gradient-text": { symbol: "WrGradientText", path: "ngwr/gradient-text" },
+    "wr-graph": { symbol: "WrGraph", path: "ngwr/graph" },
     "wr-icon": { symbol: "WrIcon", path: "ngwr/icon" },
     "wr-image-cropper": { symbol: "WrImageCropper", path: "ngwr/image-cropper" },
     "wr-input-group": { symbol: "WrInputGroup", path: "ngwr/input" },
@@ -197,6 +198,7 @@ export const SELECTORS = {
     "wrDrawerFooter": { symbol: "WrDrawerFooter", path: "ngwr/drawer" },
     "wrDrawerTitle": { symbol: "WrDrawerTitle", path: "ngwr/drawer" },
     "wrDropdown": { symbol: "WrDropdown", path: "ngwr/dropdown" },
+    "wrGraphNode": { symbol: "WrGraphNodeTemplate", path: "ngwr/graph" },
     "wrHotkey": { symbol: "WrHotkeyBinding", path: "ngwr/hotkey" },
     "wrInput": { symbol: "WrInput", path: "ngwr/input" },
     "wrInputPrefix": { symbol: "WrInputPrefix", path: "ngwr/input" },
@@ -273,6 +275,7 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/gauge",
   "ngwr/glitch-text",
   "ngwr/gradient-text",
+  "ngwr/graph",
   "ngwr/icon",
   "ngwr/image-cropper",
   "ngwr/input",

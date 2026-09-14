@@ -1,0 +1,95 @@
+<ngwr-doc-page
+  title="Graph"
+  description="Draws any graph of blocks joined parent to child — a node can have several parents as well as several children. The layout runs in layers from top to bottom without measuring anything, so a prerendered page ships the finished picture. Display only: the graph scrolls inside its own viewport, and nothing in it is selectable."
+  [keywords]="['graph', 'wr-graph', 'org chart', 'dependency graph', 'diagram', 'hierarchy', 'dag']"
+  [labels]="['Component', 'Standalone', 'SSR-safe']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.styles" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Nodes and edges"
+    description='`nodes` are the blocks and `edges` the links, each `{ from, to }` with `from` the parent and `to` the child. Without a template every node is a card showing its `label`. Parents sit above their children, with one exception: no order can put every parent in a cycle above its child, so an edge that closes a cycle climbs back up instead. Every line, that one included, ends in an arrow at the child. The same arrays always give the same picture — on the server, in the browser, run after run — and under `dir="rtl"` the horizontal order mirrors. An edge that names a node which does not exist is skipped, with a warning in dev mode, and neither array is ever written to.'
+  >
+    <ngwr-doc-snippet [files]="workflowFiles">
+      <wr-graph style="width: 100%" [nodes]="workflowNodes" [edges]="workflowEdges" ariaLabel="Writing workflow" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Custom nodes"
+    description="`ng-template wrGraphNode` replaces the default card, and the node arrives as `let-node` with whatever you put in `data`. The box stays the graph's: its size is what the layout reserved — `nodeWidth` / `nodeHeight` for every node, or a node's own `width` / `height`, as the three teams use here — so a template fills that box rather than sizing it. Render `node.label` somewhere in it, because every neighbour's relation text names this node by its label. Below, Platform has two heads and Dev Sandoval reports to both, while Noor Haddad belongs to Design and Research at once. At most widths this chart is wider than the column, and it scrolls inside its own viewport rather than the page."
+  >
+    <ngwr-doc-snippet [files]="teamFiles">
+      <wr-graph
+        style="width: 100%"
+        [nodes]="teamNodes"
+        [edges]="teamEdges"
+        [nodeWidth]="176"
+        [nodeHeight]="56"
+        ariaLabel="Team structure"
+      >
+        <ng-template wrGraphNode let-node>
+          @if (node.data.kind === 'unit') {
+            <div class="unit">{{ node.label }}</div>
+          } @else {
+            <div class="person">
+              <wr-avatar class="person__avatar" [size]="32" shape="circle">
+                <span aria-hidden="true">{{ node.data.initials }}</span>
+              </wr-avatar>
+              <div class="person__text">
+                <span class="person__name">{{ node.label }}</span>
+                <span class="person__role">{{ node.data.role }}</span>
+              </div>
+            </div>
+          }
+        </ng-template>
+      </wr-graph>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Shared dependencies"
+    description="A package graph reads the same way: the parent is the package that depends, the child is its dependency. `@example/signals` is shared by four packages, one of them two layers up, and that longer line passes between the nodes of the layer it crosses rather than through one. The data does not have to be a clean hierarchy either: several edges between one pair of nodes, or an edge that closes a cycle, are laid out without breaking the picture."
+  >
+    <ngwr-doc-snippet [files]="packageFiles">
+      <wr-graph
+        style="width: 100%"
+        [nodes]="packageNodes"
+        [edges]="packageEdges"
+        [nodeWidth]="184"
+        [nodeHeight]="52"
+        ariaLabel="Dependencies"
+      >
+        <ng-template wrGraphNode let-node>
+          <div class="package">
+            <code class="package__name">{{ node.label }}</code>
+            <span class="package__version">{{ node.data.version }}</span>
+          </div>
+        </ng-template>
+      </wr-graph>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Accessibility"
+    description='What the lines show is also written out. Every node is a list item, and after its own content comes a visually hidden sentence naming its parents and then its children, in reading order — so a screen reader hears the structure without the drawing. A node with no edges gets no sentence. The lines and arrowheads are decorative and hidden from assistive technology. The viewport is the one tab stop: a `role="group"` named by `ariaLabel` (falling back to the `graph.label` catalog entry), and focusable so a keyboard can scroll a graph that is larger than its box. Give each graph its own `ariaLabel` when a page holds more than one.'
+  >
+    <ngwr-doc-code [code]="snippets.a11y" language="html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="What it does not do"
+    description="The graph is a picture with its relations written out, and nothing more. There is no selection or highlighting, no keyboard movement from one node to the next, and no zoom, fit or panning beyond the viewport's own scrolling. Nothing is editable: nodes cannot be dragged, added, collapsed or grouped. The layout runs top to bottom only, with no left-to-right direction, and lines carry no labels. Node sizes are never measured, so nothing is fitted to its box: the default card cuts off a label that does not fit, and a custom template whose content outgrows its box spills over its neighbours — size the box with `nodeWidth` / `nodeHeight` or a node's own `width` / `height` instead."
+  />
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types" description="The data shapes the inputs and the node template take.">
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

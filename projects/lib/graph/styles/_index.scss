@@ -1,0 +1,113 @@
+@use '../../theme/styles' as theme;
+
+.wr-graph {
+  // The scroller's ground and its breathing room around the drawing.
+  --wr-graph-background: var(--wr-color-surface);
+  --wr-graph-padding: 1rem;
+  // Lines and arrowheads are kept quiet beside the cards: 60% of the muted role
+  // over the surface, 2.44:1 on white and 3.47:1 on the dark canvas (token
+  // arithmetic — no contrast gate measures an SVG stroke). That is under the 3:1
+  // WCAG 1.4.11 asks of a meaningful graphic in the light theme, and it is a
+  // maintainer's call rather than an oversight: every relation a line draws is
+  // also written out for assistive technology, and a consumer who needs the
+  // stronger line restores it through this hook.
+  --wr-graph-edge-color: color-mix(in srgb, var(--wr-color-on-surface-muted) 60%, var(--wr-color-surface));
+  // A whole pixel: a fractional stroke is antialiased into a smear that changes
+  // with the device pixel ratio, where a lighter colour stays crisp everywhere.
+  --wr-graph-edge-width: 1px;
+  // The default card, drawn when no `ng-template[wrGraphNode]` is given.
+  --wr-graph-card-background: var(--wr-color-surface);
+  --wr-graph-card-color: var(--wr-color-on-surface);
+  --wr-graph-card-border: var(--wr-color-outline);
+  --wr-graph-card-radius: var(--wr-border-radius-base);
+  --wr-graph-card-padding: 0.5rem 0.75rem;
+  --wr-graph-card-font-size: var(--wr-text-sm);
+
+  display: block;
+  // A grid or flex item's automatic minimum width is its min-content width, and
+  // the stage below is sized inline to the whole drawing — so without this the
+  // host refuses to shrink, stretches its track and the PAGE scrolls sideways.
+  // Zero lets the track decide, and the viewport's `overflow: auto` takes over.
+  min-width: 0;
+  max-width: 100%;
+  font-family: var(--wr-font-family-base);
+
+  // The component scrolls, never the page. `height: 100%` lets a host with a
+  // height constrain it; with no height it simply grows to the drawing.
+  &__viewport {
+    box-sizing: border-box;
+    max-width: 100%;
+    height: 100%;
+    padding: var(--wr-graph-padding);
+    overflow: auto;
+    background: var(--wr-graph-background);
+    border-radius: var(--wr-border-radius-base);
+  }
+
+  // Sized inline from the layout, so the scroll extent is known without measuring.
+  &__stage {
+    position: relative;
+  }
+
+  &__edges,
+  &__node {
+    position: absolute;
+    top: 0;
+    // rtl-ok: x is mirrored in TypeScript for RTL, so the origin stays the physical left edge
+    left: 0;
+  }
+
+  &__edges {
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  &__edge {
+    fill: none;
+    stroke: var(--wr-graph-edge-color);
+    stroke-width: var(--wr-graph-edge-width);
+    stroke-linejoin: round;
+  }
+
+  // The arrowhead. Marker content inherits from the marker's own ancestors, which
+  // is why it takes the hook here rather than from the path that references it.
+  &__edges marker polygon {
+    fill: var(--wr-graph-edge-color);
+  }
+
+  &__node {
+    box-sizing: border-box;
+  }
+
+  &__card {
+    display: flex;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: var(--wr-graph-card-padding);
+    overflow: hidden;
+    color: var(--wr-graph-card-color);
+    font-size: var(--wr-graph-card-font-size);
+    line-height: 1.25;
+    text-align: center;
+    overflow-wrap: anywhere;
+    background: var(--wr-graph-card-background);
+    border: 1px solid var(--wr-graph-card-border);
+    border-radius: var(--wr-graph-card-radius);
+  }
+
+  // Each node's parents and children: read out, never drawn.
+  &__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}

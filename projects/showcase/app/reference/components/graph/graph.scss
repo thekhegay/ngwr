@@ -1,0 +1,74 @@
+// The demos' node templates. The page's own emulated styles reach them: an
+// `ng-template` belongs to the component that declares it, wherever it renders.
+
+.unit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-weight: var(--wr-font-weight-semibold);
+  color: var(--wr-color-primary-ink);
+  background: var(--wr-color-primary-soft);
+  border-radius: var(--wr-border-radius-base);
+}
+
+.person {
+  display: flex;
+  box-sizing: border-box;
+  gap: 0.5rem;
+  align-items: center;
+  height: 100%;
+  padding-inline: 0.625rem;
+  background: var(--wr-color-surface);
+  border: 1px solid var(--wr-color-outline);
+  border-radius: var(--wr-border-radius-base);
+
+  &__avatar {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--wr-text-xs);
+    font-weight: var(--wr-font-weight-semibold);
+    color: var(--wr-color-primary-ink);
+    background: var(--wr-color-primary-soft);
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: var(--wr-text-sm);
+    font-weight: var(--wr-font-weight-semibold);
+  }
+
+  &__role {
+    font-size: var(--wr-text-xs);
+    color: var(--wr-color-on-surface-muted);
+  }
+}
+
+.package {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding-inline: 0.75rem;
+  background: var(--wr-color-surface);
+  border: 1px solid var(--wr-color-outline);
+  border-radius: var(--wr-border-radius-base);
+
+  &__name {
+    font-family: var(--wr-font-family-mono);
+    font-size: var(--wr-text-sm);
+  }
+
+  &__version {
+    font-size: var(--wr-text-xs);
+    color: var(--wr-color-on-surface-muted);
+  }
+}

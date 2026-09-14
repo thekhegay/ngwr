@@ -153,6 +153,7 @@ export const routes = {
     transfer: 'transfer',
     toast: 'toast',
     tree: 'tree',
+    graph: 'graph',
     select: 'select',
     sidebar: 'sidebar',
     dropdown: 'dropdown',

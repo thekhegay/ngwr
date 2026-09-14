@@ -1,7 +1,7 @@
 # ngwr
 
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
-> 225 secondary entry points, 174 component and directive classes, built on
+> 227 secondary entry points, 177 component and directive classes, built on
 > `@angular/cdk` primitives. The only runtime dependency is `tslib`. Docs and
 > live demos: https://ngwr.dev — source: https://github.com/thekhegay/ngwr
 
@@ -169,7 +169,9 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
 - **Data** — `wr-table` (column pin/resize/drag-reorder, row selection,
   expandable rows, grouping, tree rows (`childrenKey`), summary rows,
   CSV export, virtualized body),
-  `wr-pagination`, `wr-tree`, `wr-virtual-scroll`, `wr-sortable-list`
+  `wr-pagination`, `wr-tree`, `wr-graph` (read-only layered diagram: `nodes`
+  plus `{ from, to }` parent-to-child `edges`, each node a default card or an
+  `ng-template wrGraphNode`), `wr-virtual-scroll`, `wr-sortable-list`
   (drag-to-reorder, with `[wrDragHandle]` — both in ngwr/drag-drop).
 - **Feedback** — `wr-alert`, `wr-result`, `wr-empty`, `wr-skeleton`,
   `wr-spinner`.
@@ -238,17 +240,17 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-tree` and `wr-select` (search mode), alongside the standalone
   `wr-virtual-scroll` wrapper.
 - **Testing** — CDK component harnesses ship beside the components they drive, at
-  `ngwr/<name>/testing`. 70 entry points so far, 104 exported harness names over
-  103 distinct classes — `WrCalendarDayHarness` ships under two, since a date
+  `ngwr/<name>/testing`. 71 entry points so far, 106 exported harness names over
+  105 distinct classes — `WrCalendarDayHarness` ships under two, since a date
   picker's popup IS a calendar — covering the
-  form controls, the overlays, both data views, the navigation / disclosure set
+  form controls, the overlays, the data views, the navigation / disclosure set
   (`tabs`, `stepper`, `carousel`, `pagination`, `segmented`, `collapse`,
   `transfer`) and `markdown`: the form controls
   (`button`, `input`, `textarea`, `checkbox`, `switch`, `radio`, `select`,
   `input-number`, `input-otp`, `slider`, `rating`, `file-upload`, `color-picker`,
   `knob`, `form` for `<wr-form-field>`), the overlays (`date-picker`, `dropdown`,
   `popover`, `dialog`, `drawer`, `action-sheet`, `toast`, `context-menu`, `popconfirm`,
-  `command-palette`, `cascader`, `mention`), the data views (`table`, `tree`),
+  `command-palette`, `cascader`, `mention`), the data views (`table`, `tree`, `graph`),
   `splitter`, `speed-dial`, `lightbox`, `tour`, `calendar`, `event-calendar`,
   `window`, `image-cropper`, every chart and eighteen of the twenty-one animations —
   every control, every overlay and every chart has one. `aurora`, `click-spark`,

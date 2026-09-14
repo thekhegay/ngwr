@@ -351,6 +351,11 @@ export const wrZh: WrI18nCatalog = {
   gauge: {
     label: '仪表盘',
   },
+  graph: {
+    label: '图',
+    parents: '父节点：{{names}}。',
+    children: '子节点：{{names}}。',
+  },
   progress: {
     label: '进度',
   },

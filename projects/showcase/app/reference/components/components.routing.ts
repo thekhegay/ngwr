@@ -377,6 +377,10 @@ export default [
     loadComponent: () => import('./tree/tree'),
   },
   {
+    path: components.graph,
+    loadComponent: () => import('./graph/graph'),
+  },
+  {
     path: components.window,
     loadComponent: () => import('./window/window'),
   },

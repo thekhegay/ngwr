@@ -369,6 +369,11 @@ export const wrDe: WrI18nCatalog = {
   gauge: {
     label: 'Messanzeige',
   },
+  graph: {
+    label: 'Graph',
+    parents: 'Übergeordnet: {{names}}.',
+    children: 'Untergeordnet: {{names}}.',
+  },
   progress: {
     label: 'Fortschritt',
   },

@@ -164,3 +164,10 @@
 .wr-alert__close:focus-visible {
   @include focus-ring;
 }
+
+// Graph viewport — the scroller is the graph's one tab stop, so a keyboard user
+// scrolling it needs to see where focus is. Safe as an OUTSET ring: the outline
+// sits outside the scroller's own box, and `.wr-graph` sets no `overflow`.
+.wr-graph__viewport:focus-visible {
+  @include focus-ring;
+}

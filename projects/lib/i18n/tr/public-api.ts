@@ -377,6 +377,11 @@ export const wrTr: WrI18nCatalog = {
   gauge: {
     label: 'Gösterge',
   },
+  graph: {
+    label: 'Çizge',
+    parents: 'Üst öğeler: {{names}}.',
+    children: 'Alt öğeler: {{names}}.',
+  },
   progress: {
     label: 'İlerleme',
   },

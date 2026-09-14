@@ -383,6 +383,11 @@ export const wrAr: WrI18nCatalog = {
   gauge: {
     label: 'عداد',
   },
+  graph: {
+    label: 'مخطط',
+    parents: 'الآباء: {{names}}.',
+    children: 'الأبناء: {{names}}.',
+  },
   progress: {
     label: 'التقدم',
   },

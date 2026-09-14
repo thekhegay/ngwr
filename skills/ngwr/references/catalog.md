@@ -89,6 +89,8 @@ root barrel for components.
 | `ngwr/glitch-text/testing` | `import { WrGlitchTextHarness } from 'ngwr/glitch-text/testing'` | — |
 | `ngwr/gradient-text` | `import { WrGradientText } from 'ngwr/gradient-text'` | `wr-gradient-text` |
 | `ngwr/gradient-text/testing` | `import { WrGradientTextHarness } from 'ngwr/gradient-text/testing'` | — |
+| `ngwr/graph` | `import { WrGraph } from 'ngwr/graph'` | `ng-template[wrGraphNode]` `wr-graph` |
+| `ngwr/graph/testing` | `import { WrGraphHarness } from 'ngwr/graph/testing'` | — |
 | `ngwr/hotkey` | `import { WrHotkey } from 'ngwr/hotkey'` | `[wrHotkey]` |
 | `ngwr/i18n` | `import { WrI18n } from 'ngwr/i18n'` | `[wrT]` |
 | `ngwr/i18n/ar` | `import { wrAr } from 'ngwr/i18n/ar'` | — |
