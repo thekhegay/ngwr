@@ -848,8 +848,8 @@ export const API = {
   // <[wrPopover]>
   WrPopover: [
     { name: "wrPopover", description: "Content to render inside the panel. - In **popover** mode (default): pass a `TemplateRef`. - In **tooltip** mode: pass a plain string.", type: "TemplateRef<unknown> | string", required: true },
-    { name: "mode", description: "Shape preset. - `'popover'` (default) — template content, click trigger, dialog semantics. - `'tooltip'` — text content, hover+focus trigger, `role=\"tooltip\"`, `aria-describedby` on the host.", type: "'popover' | 'tooltip'", default: "'popover'" },
-    { name: "trigger", description: "How the popover opens. Ignored in tooltip mode — tooltips are always hover+focus.", type: "'click' | 'hover'", default: "'click'" },
+    { name: "mode", description: "Shape preset. - `'popover'` (default) — template content, click trigger, dialog semantics. - `'tooltip'` — text content, hover / keyboard-focus trigger, `role=\"tooltip\"`, `aria-describedby` on the host.", type: "'popover' | 'tooltip'", default: "'popover'" },
+    { name: "trigger", description: "How the popover opens. Ignored in tooltip mode — a tooltip is always hover plus keyboard focus.", type: "'click' | 'hover'", default: "'click'" },
     { name: "position", description: "Anchor side.", type: "WrPopoverPosition | null", default: "'bottom' for popover, 'top' for tooltip" },
     { name: "showDelay", description: "Tooltip only — delay before showing, in ms.", type: "number", default: "120" },
     { name: "hideDelay", description: "Tooltip only — delay before hiding, in ms.", type: "number", default: "60" },

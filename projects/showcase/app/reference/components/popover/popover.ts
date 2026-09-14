@@ -40,8 +40,10 @@ export class MyComponent {}`,
 </ng-template>`,
     hover: `<wr-btn [wrPopover]="card" trigger="hover">Hover me</wr-btn>`,
     positions: `<wr-btn [wrPopover]="hint" position="right">Right</wr-btn>`,
-    tooltip: `<!-- Pass a string + mode="tooltip" — opens on hover/focus,
-     closes on blur/pointer-leave/Escape. Uses aria-describedby. -->
+    tooltip: `<!-- Pass a string + mode="tooltip" — opens on hover or a keyboard
+     focus, closes when focus leaves / on pointer-leave / Escape. A .focus()
+     call opens nothing: that is an overlay handing focus back, not a user.
+     Uses aria-describedby. -->
 <wr-btn [wrPopover]="'Save changes'" mode="tooltip" position="top">Save</wr-btn>`,
     tooltipDelays: `<wr-btn
   [wrPopover]="'Slow to appear'"

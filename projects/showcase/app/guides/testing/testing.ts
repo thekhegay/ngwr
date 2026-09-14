@@ -224,7 +224,7 @@ it('sets a time and steps it', async () => {
     popover: `it('explains itself on hover', async () => {
   const tip = await loader.getHarness(WrPopoverHarness.with({ mode: 'tooltip' }));
 
-  await tip.open();                       // hover, focus or click — whichever this one takes
+  await tip.open();                       // hover for a tooltip, click for a popover
   expect(await tip.getContentText()).toBe('Save changes');
   expect(await tip.getRole()).toBe('tooltip');
 

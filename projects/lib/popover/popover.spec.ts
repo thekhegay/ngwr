@@ -1,9 +1,11 @@
+import { FocusMonitor, type FocusOrigin } from '@angular/cdk/a11y';
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
+import { WrDrawerManager } from 'ngwr/drawer';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -43,6 +45,11 @@ import { WrPopover } from './popover';
 
     <button type="button" class="tip-trigger" [wrPopover]="tip()" mode="tooltip">Save</button>
 
+    <!-- A tooltip on a WRAPPER, so a focusable descendant can blur under it. -->
+    <span class="wrap-trigger" wrPopover="Wrapped" mode="tooltip">
+      <button type="button" class="inner-trigger">Inner</button>
+    </span>
+
     <ng-template #panel>
       <p class="panel-body">Anything you can render.</p>
       <button type="button" class="panel-action">Act</button>
@@ -57,12 +64,16 @@ class Host {
   readonly closeCount = signal(0);
 }
 
+/** Something for `WrDrawerManager` to mount in the round-trip case below. */
+@Component({ template: '<p>Filters</p>' })
+class DrawerPanel {}
+
 describe('WrPopover', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
-  const trigger = (kind: 'click' | 'hover' | 'tip'): HTMLButtonElement =>
-    root().querySelector<HTMLButtonElement>(`.${kind}-trigger`)!;
+  const trigger = (kind: 'click' | 'hover' | 'tip' | 'wrap' | 'inner'): HTMLElement =>
+    root().querySelector<HTMLElement>(`.${kind}-trigger`)!;
 
   const popoverPane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-popover-overlay');
   const tooltipPane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-tooltip-overlay');
@@ -80,6 +91,19 @@ describe('WrPopover', () => {
 
   const leave = (el: HTMLElement, relatedTarget: EventTarget | null = null): void => {
     el.dispatchEvent(new MouseEvent('mouseleave', { relatedTarget }));
+    fixture.detectChanges();
+  };
+
+  /**
+   * Focus the tooltip trigger with an ORIGIN.
+   *
+   * `FocusMonitor` is what the directive reads, and it is the only thing in the
+   * DOM that can tell a Tab from a `.focus()` call — a hand-built `FocusEvent`
+   * carries no origin at all, so a case written with one would pass against the
+   * broken directive and the fixed one alike.
+   */
+  const focusVia = (origin: FocusOrigin): void => {
+    TestBed.inject(FocusMonitor).focusVia(trigger('tip'), origin);
     fixture.detectChanges();
   };
 
@@ -437,28 +461,6 @@ describe('WrPopover', () => {
       expect(trigger('tip').getAttribute('aria-describedby')).toBe(tooltipPane()?.id);
     });
 
-    it('opens on focus, so keyboard users get the same hint', () => {
-      trigger('tip').dispatchEvent(new FocusEvent('focus'));
-      fixture.detectChanges();
-      tick(120);
-
-      expect(tooltipPane()).toBeTruthy();
-    });
-
-    it('hides after the hide delay on blur', () => {
-      trigger('tip').dispatchEvent(new FocusEvent('focus'));
-      tick(120);
-
-      trigger('tip').dispatchEvent(new FocusEvent('blur'));
-      fixture.detectChanges();
-      tick(59);
-      expect(tooltipPane()).toBeTruthy();
-
-      tick(1);
-      expect(tooltipPane()).toBeNull();
-      expect(trigger('tip').getAttribute('aria-describedby')).toBeNull();
-    });
-
     it('hides after the pointer leaves', () => {
       enter(trigger('tip'));
       tick(120);
@@ -560,6 +562,188 @@ describe('WrPopover', () => {
       tick(500);
 
       expect(tooltipPane()).toBeNull();
+    });
+  });
+
+  /**
+   * A tooltip answers the KEYBOARD, and that distinction is the whole of this
+   * block.
+   *
+   * The host used to bind `(focus)`, which fires for any focus at all — including
+   * the one an overlay hands BACK to the trigger it was opened from. `WrDrawer`
+   * and `WrDialog` both restore the element that was active when they opened, and
+   * so does this directive for its own popover, so closing a drawer re-showed the
+   * tooltip on the button behind it with nothing left to dismiss it: the pointer
+   * is elsewhere, so no `mouseleave` ever comes, and focus stays on the button, so
+   * no blur either. Reported from a live app as a `.wr-tooltip-overlay` stranded
+   * under its trigger.
+   *
+   * `FocusMonitor`'s origin is most of the answer and not all of it: it reads
+   * `keyboard` for the hand-back too, because the dismissal that caused it IS a
+   * keystroke. The last three cases are that half.
+   */
+  describe('tooltip mode, focus origin', () => {
+    it('opens for a keyboard focus, so keyboard users get the same hint', () => {
+      focusVia('keyboard');
+      tick(119);
+      expect(tooltipPane()).toBeNull();
+
+      tick(1);
+      expect(tooltipPane()).toBeTruthy();
+      expect(trigger('tip').getAttribute('aria-describedby')).toBe(tooltipPane()?.id);
+    });
+
+    it('stays shut for a programmatic focus', () => {
+      // The reporter's own repro, minus the drawer: put the pointer's last
+      // interaction somewhere else, let the clock run past every delay, then
+      // focus the trigger the way a closing overlay restores it.
+      trigger('tip').blur();
+      document.body.click();
+      tick(600);
+
+      trigger('tip').focus();
+      tick(600);
+
+      expect(document.activeElement, 'the trigger never took focus at all').toBe(trigger('tip'));
+      expect(tooltipPane(), 'stranded: no pointer to leave, no focus to lose, nothing to dismiss it').toBeNull();
+    });
+
+    it('stays shut for a mouse focus, and hover still opens the same trigger', () => {
+      // Clicking a button focuses it in a real browser. Showing on that focus
+      // would mean the pointer path fires twice for one gesture, which is why
+      // hover — and only hover — owns it.
+      focusVia('mouse');
+      tick(600);
+      expect(tooltipPane()).toBeNull();
+
+      enter(trigger('tip'));
+      tick(120);
+      expect(tooltipPane(), 'ignoring the mouse ORIGIN cost the trigger its hover').toBeTruthy();
+    });
+
+    it('hides after the hide delay once focus leaves', () => {
+      focusVia('keyboard');
+      tick(120);
+      expect(tooltipPane()).toBeTruthy();
+
+      trigger('tip').blur();
+      fixture.detectChanges();
+      tick(59);
+      expect(tooltipPane()).toBeTruthy();
+
+      tick(1);
+      expect(tooltipPane()).toBeNull();
+      expect(trigger('tip').getAttribute('aria-describedby')).toBeNull();
+    });
+
+    it('leaves a POPOVER trigger alone on the one origin that opens a tooltip', () => {
+      // The monitor is attached in both modes, so that a `[mode]` flipped after
+      // the first render is not half-wired. That puts the whole burden on the
+      // handler's `isTooltip()` guard, which is what this asserts.
+      TestBed.inject(FocusMonitor).focusVia(trigger('click'), 'keyboard');
+      fixture.detectChanges();
+      tick(600);
+
+      expect(popoverPane()).toBeNull();
+      expect(trigger('click').getAttribute('aria-expanded')).toBe('false');
+    });
+
+    /**
+     * The reported scenario, and the half a `keyboard` origin cannot see on its
+     * own.
+     *
+     * `FocusMonitor` calls a focus `keyboard` when ANY key went down within the
+     * millisecond before it — and the drawer that hands focus back does so while
+     * Escape is still being handled, synchronously, inside
+     * `WrDrawerRef.teardown()`. The modality detector listens on `document` in
+     * capture and the overlay's keyboard dispatcher on `<body>` in bubble, so
+     * the modality is already `keyboard` by the time the drawer runs. No drawer
+     * is mounted here: the shape is the keystroke, then the hand-back.
+     */
+    it('stays shut when an overlay hands focus back during the Escape that dismissed it', () => {
+      press('Escape');
+      trigger('tip').focus();
+      fixture.detectChanges();
+      tick(600);
+
+      expect(document.activeElement, 'the hand-back did not land').toBe(trigger('tip'));
+      expect(tooltipPane(), 'Escape dismissed something and the tooltip took the focus for a Tab').toBeNull();
+    });
+
+    it('survives the reported round trip, with a real drawer', () => {
+      // The mechanism above, assembled: focus the tooltipped button, open a
+      // drawer from it, dismiss the drawer with Escape from inside it, and let
+      // `WrDrawerRef.teardown()` put focus back where it found it.
+      trigger('tip').focus();
+      TestBed.inject(WrDrawerManager).open(DrawerPanel);
+      fixture.detectChanges();
+
+      const close = document.querySelector<HTMLElement>('.wr-drawer__close')!;
+      close.focus();
+      press('Escape', close);
+      tick(600);
+
+      expect(document.querySelector('.wr-drawer__panel'), 'the drawer never closed').toBeNull();
+      expect(document.activeElement, 'the drawer never handed focus back').toBe(trigger('tip'));
+      expect(tooltipPane(), 'the reported strand: a pane under the trigger the drawer came back to').toBeNull();
+    });
+
+    it('stays shut when a ✕ activated with Enter hands focus back', () => {
+      // Enter on a button dispatches its click as the keydown's default action,
+      // so the close — and the hand-back inside it — runs while `Enter` is still
+      // the keystroke in flight.
+      press('Enter');
+      trigger('tip').focus();
+      fixture.detectChanges();
+      tick(600);
+
+      expect(tooltipPane()).toBeNull();
+    });
+
+    it('forgets a keystroke once it is over, so a later focus is judged on its own', () => {
+      // The key is only evidence about the focus that lands DURING it. A screen
+      // reader's virtual cursor reaches `FocusMonitor` as a keyboard origin with
+      // no keystroke at all, and an Escape pressed a minute ago must not be what
+      // decides that one.
+      press('Escape');
+      tick(600);
+
+      focusVia('keyboard');
+      tick(120);
+
+      expect(tooltipPane(), 'a stale key silenced a focus that had nothing to do with it').toBeTruthy();
+    });
+
+    it('opens when TAB is the keystroke that put focus there', () => {
+      // The other side of the same coin, and the reason the refusal is keyed on
+      // the key rather than on "focus moved during a keystroke": Tab, and the
+      // arrows a roving composite listens for, are how a keyboard user arrives.
+      press('Tab');
+      trigger('tip').focus();
+      fixture.detectChanges();
+      tick(120);
+
+      expect(tooltipPane(), 'refusing every keystroke would take the hint from Tab as well').toBeTruthy();
+    });
+
+    /**
+     * `FocusMonitor` reports a blur on a DESCENDANT of a monitored element as a
+     * blur of the element itself: `_onFocus` bails when the event target is not
+     * the monitored node, `_onBlur` has no matching guard. The host binding this
+     * replaced never bubbled, so a tooltip on a wrapper had nothing to lose.
+     */
+    it('keeps a hover tooltip up while a CHILD of the trigger loses focus', () => {
+      enter(trigger('wrap'));
+      tick(120);
+      expect(tooltipPane()).toBeTruthy();
+
+      trigger('inner').focus();
+      fixture.detectChanges();
+      trigger('inner').blur();
+      fixture.detectChanges();
+      tick(600);
+
+      expect(tooltipPane(), 'a child tabbing away closed a tooltip the pointer is still holding open').toBeTruthy();
     });
   });
 });

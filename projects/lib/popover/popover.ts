@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { FocusMonitor } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { type BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
@@ -16,6 +17,7 @@ import {
   ElementRef,
   Injector,
   ViewContainerRef,
+  afterNextRender,
   computed,
   effect,
   inject,
@@ -34,10 +36,33 @@ import {
   wrMirrorOffsets,
   wrPresentAsSheet,
 } from 'ngwr/overlay';
-import { numAttr } from 'ngwr/utils';
+import { KEYS, numAttr } from 'ngwr/utils';
 
 import { type WrPopoverPosition, wrPopoverPositions } from './interfaces';
+import { WrCurrentKeystroke } from './internal/keystroke';
 import { WrPopoverTextPanel } from './internal/text-panel';
+
+/**
+ * Keys the USER moves focus with: Tab through the page, the arrows / Home /
+ * End through a composite that roves its own tabindex.
+ *
+ * A roving arrow move is a script `.focus()` call too — the difference from a
+ * dismissal is not who called `focus()` but whether the keystroke was a
+ * NAVIGATION or an action. Anything absent from this list (Escape, Enter,
+ * Space, a character) does something else for a living, so focus that lands
+ * during one of them was placed by a script and a tooltip stays shut.
+ */
+const NAVIGATION_KEYS = new Set<string>([
+  KEYS.TAB,
+  KEYS.ARROW_UP,
+  KEYS.ARROW_DOWN,
+  KEYS.ARROW_LEFT,
+  KEYS.ARROW_RIGHT,
+  KEYS.HOME,
+  KEYS.END,
+  KEYS.PAGE_UP,
+  KEYS.PAGE_DOWN,
+]);
 
 /**
  * Anchored content panel. The same directive covers two shapes:
@@ -47,9 +72,11 @@ import { WrPopoverTextPanel } from './internal/text-panel';
  *   forms, summaries, menus.
  *
  * - **Tooltip** (`mode="tooltip"`) — `[wrPopover]` takes a plain string.
- *   Shown on hover and focus, dismissed on blur / pointer-leave / Escape.
- *   Uses `aria-describedby` instead of `aria-haspopup` and is rendered into
- *   a small dark text panel.
+ *   Shown on hover and when the KEYBOARD puts focus on the trigger — never for
+ *   a `.focus()` call, which is what a dialog or drawer does when it hands
+ *   focus back. Dismissed when focus leaves / on pointer-leave / Escape. Uses
+ *   `aria-describedby` instead of `aria-haspopup` and is rendered into a small
+ *   dark text panel.
  *
  * Built on CDK Overlay so it auto-flips, closes on outside-click and Escape.
  *
@@ -88,8 +115,9 @@ let popoverUid = 0;
     '(click)': 'onClick($event)',
     '(mouseenter)': 'onMouseEnter()',
     '(mouseleave)': 'onMouseLeave($event)',
-    '(focus)': 'onFocus()',
-    '(blur)': 'onBlur()',
+    // No `(focus)` / `(blur)` here: a tooltip answers the KEYBOARD, and a plain
+    // focus event cannot say where the focus came from. `FocusMonitor` can — see
+    // the constructor.
     '(keydown.escape)': 'onEscape()',
   },
 })
@@ -106,14 +134,14 @@ export class WrPopover {
    *
    * - `'popover'` (default) — template content, click trigger, dialog
    *   semantics.
-   * - `'tooltip'` — text content, hover+focus trigger, `role="tooltip"`,
-   *   `aria-describedby` on the host.
+   * - `'tooltip'` — text content, hover / keyboard-focus trigger,
+   *   `role="tooltip"`, `aria-describedby` on the host.
    */
   readonly mode = input<'popover' | 'tooltip'>('popover');
 
   /**
-   * How the popover opens. Ignored in tooltip mode — tooltips are always
-   * hover+focus. @default 'click'
+   * How the popover opens. Ignored in tooltip mode — a tooltip is always hover
+   * plus keyboard focus. @default 'click'
    */
   readonly trigger = input<'click' | 'hover'>('click');
 
@@ -151,6 +179,8 @@ export class WrPopover {
   readonly closed = output<void>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly focusMonitor = inject(FocusMonitor);
+  private readonly keystroke = inject(WrCurrentKeystroke);
   private readonly overlay = inject(WR_OVERLAY);
   private readonly dir = inject(Directionality, { optional: true });
   private readonly outsideClick = inject(WrOutsideClick);
@@ -177,6 +207,8 @@ export class WrPopover {
 
   private overlayRef: OverlayRef | null = null;
   private textPanelRef: ComponentRef<WrPopoverTextPanel> | null = null;
+  /** Whether the HOST itself holds focus — not a descendant of it. */
+  private hostFocused = false;
   private hoverCloseTimer: ReturnType<typeof setTimeout> | null = null;
   private showTimer: ReturnType<typeof setTimeout> | null = null;
   private hideTimer: ReturnType<typeof setTimeout> | null = null;
@@ -199,9 +231,63 @@ export class WrPopover {
       const content = this.content();
       this.textPanelRef?.setInput('text', typeof content === 'string' ? content : '');
     });
+    // A tooltip answers the USER'S KEYBOARD, not every focus there is.
+    //
+    // `(focus)` fired for a programmatic one too, and something hands focus back
+    // to a trigger constantly: `WrDrawer` and `WrDialog` restore the element that
+    // was active when they opened, this directive does the same for its own
+    // popover, and any app may call `.focus()`. So closing a drawer opened from a
+    // button with a tooltip re-showed that tooltip with NOTHING left to dismiss
+    // it — the pointer is elsewhere, so no `mouseleave`, and focus stays on the
+    // button, so no blur. A pane stranded under the trigger, reported from a real
+    // app. The event alone cannot tell those apart; `FocusMonitor` is the CDK's
+    // answer to where a focus came from, and it is what Material's tooltip reads
+    // for the same reason. Mouse and touch origins are deliberately ignored:
+    // hover already drives both, and acting on them would show the tooltip twice
+    // over.
+    //
+    // The origin alone is NOT enough, though, and reading it as if it were leaves
+    // the reported bug half open: the CDK's `keyboard` means "a key went down
+    // within the last millisecond", and the dismissal that hands focus back is
+    // itself a keystroke — Escape on a drawer, Enter on its ✕. See
+    // `WrCurrentKeystroke` for the key that tells a navigation from a dismissal.
+    //
+    // Monitored in EVERY mode rather than only under `mode="tooltip"` — the mode
+    // is an input and may flip after this runs, and a subscription that only
+    // half-exists is the failure this fix is about. The handler asks instead. The
+    // cost is the CDK's own `cdk-*-focused` classes on the host, which nothing in
+    // ngwr styles.
+    //
+    // `afterNextRender` because monitoring binds document listeners: there is no
+    // DOM to bind them to on the server.
+    afterNextRender(() => {
+      this.focusMonitor
+        .monitor(this.host)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(origin => {
+          if (origin) {
+            this.hostFocused = true;
+            if (this.isTooltip() && origin === 'keyboard' && this.fromNavigationKey()) this.scheduleShow();
+            return;
+          }
+          // A null origin is a blur, and the CDK reports one for a DESCENDANT
+          // too: `_onFocus` bails when the event target is not the monitored
+          // element, `_onBlur` has no such guard. The old `(blur)` binding never
+          // bubbled, so hiding on one is new — hover a wrapper, click the button
+          // inside it, tab away, and the tooltip the POINTER opened vanished
+          // while the pointer never moved. Only the host's own focus counts.
+          if (!this.hostFocused) return;
+          this.hostFocused = false;
+          if (this.isTooltip()) this.scheduleHide();
+        });
+    });
     this.destroyRef.onDestroy(() => {
       this.clearTimers();
       this.closeOverlay(false);
+      // Completes the subject `monitor()` handed out and drops the global
+      // listeners it registered for this element; the pipe above unsubscribes
+      // either way, but the CDK's own bookkeeping only clears from here.
+      this.focusMonitor.stopMonitoring(this.host);
     });
   }
 
@@ -257,22 +343,33 @@ export class WrPopover {
   }
 
   /** @internal */
-  protected onFocus(): void {
-    if (!this.isTooltip()) return;
-    this.scheduleShow();
-  }
-
-  /** @internal */
-  protected onBlur(): void {
-    if (!this.isTooltip()) return;
-    this.scheduleHide();
-  }
-
-  /** @internal */
   protected onEscape(): void {
     if (!this.isTooltip()) return;
     this.clearTimers();
     this.isOpen.set(false);
+  }
+
+  /**
+   * Whether the keystroke in flight is one the user moves focus with.
+   *
+   * Asked only of a `keyboard` origin, which the CDK grants to any focus landing
+   * within a millisecond of a keydown — including the hand-back a drawer
+   * performs while Escape is still being handled. That is the reported bug's
+   * keyboard half, and the origin cannot see it.
+   *
+   * NO key on record answers `true`, and that polarity is chosen rather than
+   * inherited: a keyboard modality with no keystroke behind it is a screen
+   * reader's virtual cursor (the CDK reads its synthetic mousedown as
+   * `keyboard`) or a deliberate `focusVia(el, 'keyboard')`, and both are the
+   * user. Refusing wants positive evidence of a key that does something other
+   * than navigate — silence must not cost an AT user the hint. The two windows
+   * are aligned so that "keyboard origin, no key" cannot mean "the key just
+   * expired"; what it does still admit is a `FocusMonitorDetectionMode.EVENTUAL`
+   * app, where the CDK never expires an origin at all.
+   */
+  private fromNavigationKey(): boolean {
+    const key = this.keystroke.key;
+    return key === null || NAVIGATION_KEYS.has(key);
   }
 
   // Tooltip timers
