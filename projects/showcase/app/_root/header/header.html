@@ -97,7 +97,7 @@
             size="sm"
             aria-labelledby="ngwr-settings-direction"
             [options]="directionOptions"
-            [value]="directionality.value"
+            [value]="direction.current()"
             (valueChange)="onDirectionChange($event)"
           />
         </div>

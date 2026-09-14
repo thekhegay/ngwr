@@ -49,6 +49,29 @@
       })();
     </script>
 
+    <!--
+      Pre-paint direction, for the same reason: every prerendered page ships
+      `dir="ltr"`, and a reviewer who switched the header to RTL would otherwise
+      watch the whole layout mirror after the bundle boots. Key `ngwr-direction`,
+      stored as the bare string by `SiteDirection` (`#core/services`); anything
+      but `ltr` / `rtl` is ignored. The CDK's `Directionality` reads this
+      attribute in its constructor, so it boots agreeing with the paint.
+
+      Kept as its own script on purpose: `theme/pre-paint.spec.ts` runs the FIRST
+      inline script here against `wrThemePrePaintScript()`, and that one has to
+      stay the theme recipe alone.
+    -->
+    <script>
+      (function () {
+        try {
+          var dir = localStorage.getItem('ngwr-direction');
+          if (dir === 'ltr' || dir === 'rtl') document.documentElement.setAttribute('dir', dir);
+        } catch (e) {
+          /* storage blocked — keep the prerendered ltr */
+        }
+      })();
+    </script>
+
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
