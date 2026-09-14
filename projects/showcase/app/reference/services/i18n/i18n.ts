@@ -116,8 +116,15 @@ const label = runInInjectionContext(injector, () => readI18nText('x', 'X'));`,
     {
       name: 'provideWrI18nStaticLoader(catalogs, scopes?)',
       description:
-        'Inline catalogs at bootstrap. Best for small apps and SSR. `catalogs` is keyed by locale; `scopes` is keyed by scope name and then by locale, for a lazy feature that ships its own strings.',
+        "Inline catalogs at bootstrap. Best for small apps and SSR. `catalogs` is keyed by locale; `scopes` is keyed by scope name and then by locale, for a lazy feature that ships its own strings. A loader serves only the catalogs you pass it and ngwr registers none of its own: pass only your own keys here and add ngwr's with `provideWrI18nBaseCatalogs`.",
       type: '(catalogs: WrI18nStaticCatalogs, scopes?: WrI18nStaticScopedCatalogs) => Provider',
+      default: '—',
+    },
+    {
+      name: 'provideWrI18nBaseCatalogs(catalogs)',
+      description:
+        "Register ngwr's shipped catalogs (`wrEn`, `wrRu`, …) underneath the loader, keyed by locale. The lookup walks them key by key once the loader's catalog misses, so your keys win and a namespace both sides define keeps both halves. Use it instead of `{ ...wrEn, ...yours }`: a spread is shallow, so any namespace you share with ngwr, e.g. `common`, `validation`, `table`, keeps only the side spread last, and the other side's keys stop resolving with nothing logged.",
+      type: '(catalogs: WrI18nBaseCatalogs) => Provider',
       default: '—',
     },
     {

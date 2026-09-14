@@ -8,7 +8,7 @@ import { provideRouter, withInMemoryScrolling } from '@angular/router';
 
 import { provideWrDateAdapter } from 'ngwr/date';
 import { provideWrDensity } from 'ngwr/density';
-import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { provideWrI18n, provideWrI18nBaseCatalogs, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrEn } from 'ngwr/i18n/en';
 import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrIcons } from 'ngwr/icon';
@@ -65,9 +65,12 @@ export const appConfig: ApplicationConfig = {
     provideWrTheme(),
     provideWrDensity(),
     provideWrI18n({ availableLocales: ['en', 'ru'], defaultLocale: 'en' }),
+    // ngwr's own strings as a base, so the loader carries only the demo's keys —
+    // the form every docs page recommends, rather than a shallow spread.
+    provideWrI18nBaseCatalogs({ en: wrEn, ru: wrRu }),
     provideWrI18nStaticLoader({
-      en: { ...wrEn, app: { title: 'ngwr i18n demo', hello: 'Hello, {{name}}!' } },
-      ru: { ...wrRu, app: { title: 'Демо ngwr i18n', hello: 'Привет, {{name}}!' } },
+      en: { app: { title: 'ngwr i18n demo', hello: 'Hello, {{name}}!' } },
+      ru: { app: { title: 'Демо ngwr i18n', hello: 'Привет, {{name}}!' } },
     }),
     // third-party — for the integration guide
     provideEnvironmentNgxMask(),

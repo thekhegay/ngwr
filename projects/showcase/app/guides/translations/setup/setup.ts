@@ -47,6 +47,7 @@ export default class TranslateSetupPage {
     static: `import { provideHttpClient } from '@angular/common/http';
 import {
   provideWrI18n,
+  provideWrI18nBaseCatalogs,
   provideWrI18nStaticLoader,
 } from 'ngwr/i18n';
 import { wrEn } from 'ngwr/i18n/en';
@@ -59,9 +60,13 @@ bootstrapApplication(AppComponent, {
       defaultLocale: 'en',
       availableLocales: ['en', 'ru'],
     }),
+    // ngwr's strings, looked up key by key underneath yours. Not a
+    // \`{ ...wrEn, ...yours }\` spread: it is shallow, so any namespace you share
+    // with ngwr, e.g. \`common\`, \`validation\`, \`table\`, keeps only one side's keys.
+    provideWrI18nBaseCatalogs({ en: wrEn, ru: wrRu }),
     provideWrI18nStaticLoader({
-      en: { ...wrEn, app: { title: 'My app' } },
-      ru: { ...wrRu, app: { title: 'Моё приложение' } },
+      en: { app: { title: 'My app' } },
+      ru: { app: { title: 'Моё приложение' } },
     }),
   ],
 });`,

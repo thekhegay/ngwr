@@ -48,7 +48,7 @@
 
   <ngwr-doc-section
     title="Static loader"
-    description="Inline the catalogs at bootstrap. Best for small apps or when SSR-rendered translations are critical."
+    description="Inline the catalogs at bootstrap. Best for small apps or when SSR-rendered translations are critical. Pass only your own keys: ngwr's go in underneath, as base catalogs."
   >
     <ngwr-doc-code [code]="snippets.static" language="angular-ts" />
   </ngwr-doc-section>
@@ -62,7 +62,7 @@
 
   <ngwr-doc-section
     title="Keep ngwr's own strings"
-    description="A loader replaces the catalog for a locale rather than extending it, so a catalog holding only your keys leaves every built-in label on its hardcoded English fallback — with nothing logged to point at it. `provideWrI18nBaseCatalogs()` registers ngwr's catalogs as a floor underneath the loader: your keys still win, and you only pay for the locales you list."
+    description="A loader replaces the catalog for a locale rather than extending it, so a catalog holding only your keys leaves every built-in label on its hardcoded English fallback — with nothing logged to point at it. `provideWrI18nBaseCatalogs()` registers ngwr's catalogs as a floor underneath the loader: your keys still win, and you only pay for the locales you list. It is also the answer to merging by hand: `{ ...wrRu, ...yours }` is shallow, so any namespace you share with ngwr, e.g. `common`, `validation`, `table`, keeps only the side spread last, and the other side's keys stop resolving with nothing logged — ngwr's components fall back to English and a `wrT` read of a lost key renders the raw key. A base catalog is looked up key by key, so both halves survive."
   >
     <ngwr-doc-code [code]="snippets.httpBuiltIns" language="angular-ts" />
   </ngwr-doc-section>

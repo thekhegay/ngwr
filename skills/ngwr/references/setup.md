@@ -60,9 +60,9 @@ Every date mode goes through an adapter; there is no built-in default. Needed by
 
 Without it the bar never responds to navigation; it only moves for manual start() / complete(). Needed by `WrLoadingBar`.
 
-### `provideWrI18n() + provideWrI18nStaticLoader({ en: wrEn }) // from 'ngwr/i18n' + 'ngwr/i18n/en'`
+### `provideWrI18n() + provideWrI18nBaseCatalogs({ en: wrEn }) + provideWrI18nStaticLoader({ en: { … } }) // from 'ngwr/i18n' + 'ngwr/i18n/en'`
 
-The pipe and directive read from a catalog you provide. Needed by `WrTPipe`, `WrTDirective`, `WrI18n`.
+The pipe and directive read from a catalog you provide. Register ngwr's with `provideWrI18nBaseCatalogs`, never spread it into yours: a spread is shallow, so any namespace you share with ngwr, e.g. `common`, `validation`, `table`, keeps only the side spread last, and the other side's keys stop resolving with nothing logged — ngwr's components fall back to English and a `wrT` read of a lost key renders the raw key. Needed by `WrTPipe`, `WrTDirective`, `WrI18n`.
 
 ## Optional, app-wide
 

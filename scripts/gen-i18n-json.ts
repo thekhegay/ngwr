@@ -8,14 +8,14 @@
 /**
  * Emits `dist/lib/i18n/<locale>.json` from the TypeScript catalogs.
  *
- * The catalogs ship as TS modules, which is right for `provideWrI18nStaticLoader`
- * (spread them and tree-shake what you don't use) but useless for
- * `provideWrI18nHttpLoader` — you cannot serve a `.ts` file from `assets/`. So
- * consumers on the HTTP path had no supported way to include ngwr's own strings,
- * and every built-in label silently fell back to its hardcoded English default.
+ * The catalogs ship as TS modules, which is what `provideWrI18nBaseCatalogs`
+ * takes on either loader, and a module import tree-shakes the locales an app
+ * does not ship. These files are the same strings as plain JSON, for tooling
+ * that cannot import a `.ts` module.
  *
- * With these files a consumer can either copy them straight into their assets or
- * merge them into their own locale JSON in a build step.
+ * They are not for merging into an app's own locale JSON: a shallow merge keeps
+ * only one side of every namespace both files define, which is the trap
+ * `provideWrI18nBaseCatalogs` exists to avoid.
  *
  * Wired into `build:lib`, so the JSON can never drift from the TS source.
  *

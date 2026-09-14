@@ -55,6 +55,15 @@ export function provideWrI18n(options: ProvideWrI18nOptions = {}): EnvironmentPr
 /**
  * Provide a static loader — catalogs already in memory.
  *
+ * A loader serves only the catalog you pass it, and ngwr registers none of its
+ * own. Pass only your own keys here and register ngwr's catalogs with
+ * {@link provideWrI18nBaseCatalogs} — not `{ ...wrRu, ...yours }`. A spread is
+ * shallow, so any namespace you share with ngwr, e.g. `common`, `validation`,
+ * `table`, keeps only the keys of the side spread last, and the other side's
+ * keys stop resolving with nothing logged: ngwr's components fall back to their
+ * English defaults, and a `wrT` read of a lost key renders the raw key under the
+ * default missing handler.
+ *
  * @param catalogs Root catalogs keyed by locale.
  * @param scopes Optional per-scope catalogs served to `registerScope(name)`.
  */
@@ -86,6 +95,10 @@ export function provideWrI18nStaticLoader(
  *
  * Pass only the locales you ship — the ones you leave out stay out of the
  * bundle. Your own keys always win; this is a floor, not an override.
+ *
+ * Use it instead of spreading `wrRu` into your own catalog, too: the lookup
+ * walks these key by key after the loader's catalog misses, so a namespace both
+ * define keeps both halves, where a shallow spread keeps only one.
  */
 export function provideWrI18nBaseCatalogs(catalogs: WrI18nBaseCatalogs): Provider {
   return { provide: WR_I18N_BASE_CATALOGS, useValue: catalogs, multi: true };
