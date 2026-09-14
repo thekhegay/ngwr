@@ -41,6 +41,18 @@ interface Transform {
   readonly replacement: string | ((match: string, ...groups: string[]) => string);
 }
 
+/**
+ * What an open tag may hold before the attribute a rule is after. A quoted value
+ * is consumed only as a PAIR: the plain `[^>]*?` this replaced read a `>` inside
+ * a binding as the end of the tag, so
+ * `<wr-select [placeholder]="n > 0 ? 'a' : 'b'" multi>` kept its `multi` while the
+ * same attributes in the other order moved — and a lone quote is never consumed,
+ * so a rule cannot slide through an apostrophe in one element's value into the
+ * next element. `migration-v14`'s `IN_TAG` carries the full account, including
+ * the one shape this skips: an UNQUOTED value holding a quote (`title=it's`).
+ */
+const IN_TAG = String.raw`(?:"[^"]*"|'[^']*'|[^>"'])*?`;
+
 const HTML_TRANSFORMS: readonly Transform[] = [
   // wr-autocomplete → wr-select mode="search"
   { pattern: /<wr-autocomplete(\s|>|\/)/g, replacement: '<wr-select mode="search"$1' },
@@ -78,9 +90,9 @@ const HTML_TRANSFORMS: readonly Transform[] = [
   { pattern: /<\/wr-count-up-text>/g, replacement: '</wr-count-up>' },
 
   // wr-select's deprecated [multi] alias → mode="multi"
-  { pattern: /(<wr-select\b[^>]*?)\s\[multi\]="true"/g, replacement: '$1 mode="multi"' },
-  { pattern: /(<wr-select\b[^>]*?)\s\[multi\]="false"/g, replacement: '$1' },
-  { pattern: /(<wr-select\b[^>]*?)\smulti(?=[\s>/])/g, replacement: '$1 mode="multi"' },
+  { pattern: new RegExp(String.raw`(<wr-select\b${IN_TAG})\s\[multi\]="true"`, 'g'), replacement: '$1 mode="multi"' },
+  { pattern: new RegExp(String.raw`(<wr-select\b${IN_TAG})\s\[multi\]="false"`, 'g'), replacement: '$1' },
+  { pattern: new RegExp(String.raw`(<wr-select\b${IN_TAG})\smulti(?=[\s>/])`, 'g'), replacement: '$1 mode="multi"' },
 
   // wr-image → wr-lightbox (rename — same surface)
   { pattern: /<wr-image(\s|>|\/)/g, replacement: '<wr-lightbox$1' },
@@ -91,7 +103,7 @@ const HTML_TRANSFORMS: readonly Transform[] = [
   // attribute form (`<h1 wr-animated-text …>`) has no 1:1 target and is
   // left for manual migration; a bound `[mode]` falls back to typewriter.
   {
-    pattern: /<wr-animated-text\b([^>]*?)\s*(\/>|>\s*<\/wr-animated-text>)/g,
+    pattern: new RegExp(String.raw`<wr-animated-text\b(${IN_TAG})\s*(\/>|>\s*<\/wr-animated-text>)`, 'g'),
     replacement: (_match: string, attrs: string): string => {
       const mode = /\bmode\s*=\s*"(\w+)"/.exec(attrs)?.[1] ?? 'typewriter';
       const tag = mode === 'split' ? 'wr-split-text' : mode === 'scramble' ? 'wr-decrypt-text' : 'wr-typewriter';

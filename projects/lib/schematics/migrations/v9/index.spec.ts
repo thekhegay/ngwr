@@ -90,4 +90,68 @@ describe('ng update ngwr@9', () => {
 
     expect(read(tree, '/src/app/d.html')).toBe(source);
   });
+
+  /**
+   * The hole the first fix opened. Its fallback was `[^>]`, which matches a quote
+   * too, so the engine could open a single-quoted span at the apostrophe inside
+   * `label="Today's"` and run past `/>` into the next element — and on any other
+   * control `value` IS the form model, so the rename broke a binding that was right.
+   */
+  it('keeps the rename inside the checkbox it started in', () => {
+    const source = `<wr-checkbox label="Today's" [checked]="on" />\n<wr-select [placeholder]="'Pick'" [value]="picked" />`;
+    const tree = run({ '/src/app/e.html': source });
+
+    expect(read(tree, '/src/app/e.html')).toBe(source);
+  });
+
+  it('answers at once on a checkbox with many quoted attributes and nothing to rename', () => {
+    // The same overlap made a miss exponential: every quoted value could be read
+    // as a pair or as loose characters, and a tag with nothing to rename was tried
+    // every way before the rule gave up. Pairs-only has one reading per value.
+    // Eighteen attributes, not more, because a catastrophic regex is synchronous
+    // and no test timeout can stop it: on that form this tag took 1.1 s, and every
+    // two more attributes multiply it by about seven. A regression has to fail
+    // this budget, not freeze the suite.
+    const tag = `<wr-checkbox ${Array.from({ length: 18 }, (_, i) => `data-a${i}="v"`).join(' ')} />`;
+    const started = performance.now();
+    const tree = run({ '/src/app/f.html': tag });
+    const elapsed = performance.now() - started;
+
+    expect(read(tree, '/src/app/f.html')).toBe(tag);
+    expect(elapsed).toBeLessThan(100);
+  });
+
+  /**
+   * The other shape the ambiguous form could not survive, and the ordinary one:
+   * a checkbox with no `value`, followed by more markup. A pairing that starts at
+   * a CLOSING quote jumps over `/>` into later elements, so the search spreads
+   * over the rest of the file with exponentially many parses in the number of
+   * quotes after the checkbox. That form shipped here from v14.2.0 and in
+   * `migration-v14` from v14.0.0.
+   *
+   * Four lines, on purpose. A catastrophic regex is SYNCHRONOUS, so vitest's
+   * per-test timeout cannot interrupt it, and a regression has to FAIL the budget
+   * in bounded time rather than freeze the suite. Each button line multiplies the
+   * old form's time by about twenty-five: measured on it, three lines took 0.11 s,
+   * four took 2.6 s and five did not finish in 15 s.
+   */
+  it('answers at once on a checkbox with no value, followed by ordinary markup', () => {
+    const source = [
+      '<div class="wrap">',
+      `  <wr-checkbox [checked]="on()" (checkedChange)="set($event)" [label]="'x.y' | wrT" />`,
+      ...Array.from(
+        { length: 4 },
+        (_, i) =>
+          `  <button wr-btn size="sm" type="button" [title]="'row.${i}' | wrT" (click)="pick(${i})"><wr-icon name="x" /></button>`
+      ),
+      '</div>',
+      '',
+    ].join('\n');
+    const started = performance.now();
+    const tree = run({ '/src/app/g.html': source });
+    const elapsed = performance.now() - started;
+
+    expect(read(tree, '/src/app/g.html')).toBe(source);
+    expect(elapsed).toBeLessThan(100);
+  });
 });

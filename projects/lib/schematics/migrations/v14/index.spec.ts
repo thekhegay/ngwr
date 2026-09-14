@@ -160,7 +160,7 @@ export const wrRu = {
       );
       expect(rewrite('/c.html', '<wr-alert [closeable]="x" />')).toBe('<wr-alert [closable]="x" />');
       // Multi-line open tags are the ordinary shape once a component has four
-      // attributes, and `[^>]*?` matches a newline like any other character.
+      // attributes, and `IN_TAG` matches a newline like any other character.
       expect(rewrite('/d.html', '<wr-alert\n  type="info"\n  closeable\n/>')).toBe(
         '<wr-alert\n  type="info"\n  closable\n/>'
       );
@@ -325,5 +325,202 @@ export const wrRu = {
     const { read } = run(untouched);
 
     for (const [path, before] of Object.entries(untouched)) expect(read(path), path).toBe(before);
+  });
+
+  describe('the open tag every element-scoped rule and attribute detector is scoped to', () => {
+    /**
+     * An apostrophe inside a double-quoted value opens nothing. The first fix's
+     * fallback was `[^>]`, which matches a quote as well, so the engine could open
+     * a single-quoted span there and run past `/>` into the NEXT element —
+     * renaming an attribute on a component that is not ngwr's, with nothing said.
+     */
+    it('does not carry a rename from one element into the next', () => {
+      const untouched = {
+        '/a.html': `<wr-alert title="Today's news" />\n<app-panel [label]="'x'" closeable />`,
+        '/b.html': `<wr-table caption="Today's rows" />\n<app-grid [a]="'b'" totalItems="42" />`,
+        '/c.html': `<input wrInput title="it's" />\n<input [label]="'x'" [wrSize]="s" />`,
+        '/d.html': `<input wrInput title="it's" />\n<input [label]="'x'" wrSize="sm" />`,
+      };
+      const { read, logs } = run(untouched);
+
+      for (const [path, before] of Object.entries(untouched)) expect(read(path), path).toBe(before);
+      expect(said(logs, 'nothing to do')).toBe(true);
+    });
+
+    it('reaches wrSize after a `>` inside a binding, static or bound, in either order', () => {
+      const { read } = run({
+        '/e.html': `<input wrInput [placeholder]="n > 0 ? 'a' : 'b'" wrSize="sm" />`,
+        '/f.html': `<input wrSize="sm" [placeholder]="n > 0 ? 'a' : 'b'" wrInput />`,
+        '/g.html': '<textarea [disabled]="n > 0" wrInput [wrSize]="s"></textarea>',
+        '/h.html': '<textarea [wrSize]="s" [disabled]="n > 0" wrInput></textarea>',
+      });
+
+      expect(read('/e.html')).toBe(`<input wrInput [placeholder]="n > 0 ? 'a' : 'b'" size="sm" />`);
+      expect(read('/f.html')).toBe(`<input size="sm" [placeholder]="n > 0 ? 'a' : 'b'" wrInput />`);
+      expect(read('/g.html')).toBe('<textarea [disabled]="n > 0" wrInput [size]="s"></textarea>');
+      expect(read('/h.html')).toBe('<textarea [size]="s" [disabled]="n > 0" wrInput></textarea>');
+    });
+
+    it('moves wrSize in an external multi-line template, and reports nothing left over', () => {
+      // A miss was reported against exactly this template and did not reproduce:
+      // the rule moves it. Pinned so that answer keeps holding.
+      const before = [
+        '<input',
+        '  wrInput',
+        '  wrSize="sm"',
+        '  class="et__search"',
+        '  [ngModel]="query()"',
+        '  (ngModelChange)="query.set($event)"',
+        `  [placeholder]="'table.search' | wrT"`,
+        '/>',
+      ].join('\n');
+      const { read, logs } = run({ '/src/app/et.html': before });
+
+      expect(read('/src/app/et.html')).toBe(before.replace('wrSize="sm"', 'size="sm"'));
+      expect(said(logs, "[wrInput]'s input has been `size` since v14")).toBe(false);
+    });
+
+    it('leaves a native size alone, beside a `>` binding or not', () => {
+      const untouched = {
+        '/i.html': '<input size="3" />',
+        '/j.html': `<input size="3" [placeholder]="n > 0 ? 'a' : 'b'" />`,
+        '/k.html': `<input [placeholder]="n > 0 ? 'a' : 'b'" size="3" />`,
+      };
+      const { read } = run(untouched);
+
+      for (const [path, before] of Object.entries(untouched)) expect(read(path), path).toBe(before);
+    });
+
+    it('names the wrSize rename in what it says it rewrote', () => {
+      expect(said(run({ '/l.html': '<input wrInput wrSize="sm" />' }).logs, 'from wrSize to size')).toBe(true);
+    });
+
+    it('names a wrSize the renames could not move, and stays quiet once they did', () => {
+      // The renames read `wrSize=` exactly; `wrSize = "sm"` is legal markup they
+      // do not match. Left there it is ignored — a plain DOM attribute, and the
+      // field renders at its default size — so the report is the only voice it has.
+      const { read, logs } = run({
+        '/src/app/m.html': '<input wrInput wrSize = "sm" />',
+        '/src/app/n.html': '<textarea wrSize = "lg" [disabled]="n > 0" wrInput></textarea>',
+      });
+
+      expect(read('/src/app/m.html')).toBe('<input wrInput wrSize = "sm" />');
+      expect(said(logs, "[wrInput]'s input has been `size` since v14")).toBe(true);
+      expect(said(logs, '/src/app/m.html')).toBe(true);
+      expect(said(logs, '/src/app/n.html')).toBe(true);
+      expect(said(logs, 'nothing to do')).toBe(false);
+
+      // Moved, or never a `[wrInput]` field to begin with: nothing to name.
+      const quiet = run({ '/o.html': '<input wrInput wrSize="sm" />', '/p.html': '<my-input wrInput wrSize="lg" />' });
+      expect(said(quiet.logs, "[wrInput]'s input has been `size` since v14")).toBe(false);
+    });
+
+    it('reports a router tab and an ofLabel after a `>` inside a binding, in either order', () => {
+      // Both detectors were a plain `[^>]*`, which read the comparison as the end
+      // of the tag and reported nothing — a quiet "nothing to do" for a tab strip
+      // that throws on first render.
+      for (const source of [
+        '<wr-tab [disabled]="n > 0" routerLink="/x" />',
+        '<wr-tab routerLink="/x" [disabled]="n > 0" />',
+      ]) {
+        expect(said(run({ '/q.html': source }).logs, 'wrTabsRouting'), source).toBe(true);
+      }
+      for (const source of [
+        '<wr-pagination [disabled]="n > 0" ofLabel="of" />',
+        '<wr-pagination ofLabel="of" [disabled]="n > 0" />',
+      ]) {
+        expect(said(run({ '/r.html': source }).logs, 'ofLabel'), source).toBe(true);
+      }
+    });
+
+    it('does not report a router link or an ofLabel that belongs to the next element', () => {
+      const tab = `<wr-tab title="Today's tab" />\n<a [title]="'x'" routerLink="/y">Y</a>`;
+      const pager = `<wr-pagination aria-label="Today's page" />\n<app-pager [x]="'y'" ofLabel="of" />`;
+
+      expect(said(run({ '/s.html': tab }).logs, 'wrTabsRouting')).toBe(false);
+      expect(said(run({ '/t.html': pager }).logs, 'ofLabel')).toBe(false);
+    });
+
+    it('answers at once on a tag with many quoted attributes and nothing to rename', () => {
+      // The `[^>]` fallback made a miss exponential: every quoted value could be
+      // read as a pair or as loose characters, and all of them were tried before a
+      // rule gave up. Eighteen attributes, not more, because a catastrophic regex
+      // is synchronous and no test timeout can stop it: on that form this tag took
+      // 0.7 s, every two more attributes multiply it by about seven, and at
+      // twenty-two the bare `closeable` rule alone took 16 s. A regression has to
+      // fail this budget, not freeze the suite.
+      const tag = `<wr-alert ${Array.from({ length: 18 }, (_, i) => `data-a${i}="v"`).join(' ')} />`;
+      const started = performance.now();
+      const { read } = run({ '/u.html': tag });
+      const elapsed = performance.now() - started;
+
+      expect(read('/u.html')).toBe(tag);
+      expect(elapsed).toBeLessThan(100);
+    });
+  });
+
+  /**
+   * The failure that froze `ng update ngwr@14` on ordinary templates. The pattern
+   * `IN_TAG` replaced was `(?:"[^"]*"|'[^']*'|[^>])*?`: its fallback could consume
+   * a quote, and a quoted pair may contain `>`, so a pairing that started at a
+   * CLOSING quote jumped over `/>` into later elements. On an element that does
+   * not carry the attribute a rule is after, the search spread over the rest of
+   * the file, with exponentially many parses in the number of quotes after it.
+   * `ng update` commits each migration's tree separately, so on a 64-line
+   * template v12 and v13 landed while v14 ran until it was killed and wrote
+   * nothing — every rename and every report lost, with no output to say so.
+   *
+   * The line counts are small on purpose. A catastrophic regex is SYNCHRONOUS,
+   * so vitest's per-test timeout cannot interrupt it, and a regression has to
+   * FAIL the budget in bounded time rather than freeze the suite. Each button
+   * line multiplies the old form's time by about twenty-five: measured on it,
+   * four lines took 0.66–2.2 s per element and five did not finish in 15 s. The
+   * `[wrInput]` rules read through two spans each and already hung at four, so
+   * that field gets three (0.9 s). The quote-safe form answers every one of them
+   * in about a millisecond.
+   */
+  describe('an element with nothing to rename, followed by ordinary markup', () => {
+    const buttons = (lines: number): string[] =>
+      Array.from(
+        { length: lines },
+        (_, i) =>
+          `  <button wr-btn size="sm" type="button" [title]="'row.${i}' | wrT" (click)="pick(${i})"><wr-icon name="x" /></button>`
+      );
+
+    it.each([
+      {
+        rule: '[wrInput] without wrSize',
+        lines: 3,
+        element: `<input wrInput class="search" [ngModel]="q()" (ngModelChange)="q.set($event)" [placeholder]="'table.search' | wrT" />`,
+      },
+      {
+        rule: '<wr-table> without totalItems',
+        lines: 4,
+        element: '<wr-table class="t" [columns]="cols()" [items]="rows()" (sortChange)="sort.set($event)" />',
+      },
+      {
+        rule: '<wr-alert> without closeable',
+        lines: 4,
+        element: `<wr-alert type="info" [title]="'alert.title' | wrT" />`,
+      },
+      {
+        rule: '<wr-pagination> without currentPage',
+        lines: 4,
+        element: '<wr-pagination [total]="total()" [pageSize]="50" (pageChange)="go($event)" />',
+      },
+      {
+        rule: '<wr-window> without chromeSize',
+        lines: 4,
+        element: `<wr-window [title]="'win.title' | wrT" (closed)="close()" />`,
+      },
+    ])('answers at once on $rule', ({ element, lines }) => {
+      const source = ['<div class="wrap">', `  ${element}`, ...buttons(lines), '</div>', ''].join('\n');
+      const started = performance.now();
+      const { read } = run({ '/src/app/grid.html': source });
+      const elapsed = performance.now() - started;
+
+      expect(read('/src/app/grid.html')).toBe(source);
+      expect(elapsed).toBeLessThan(100);
+    });
   });
 });
