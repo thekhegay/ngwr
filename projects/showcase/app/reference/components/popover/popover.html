@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Popover"
-  description='Anchored content panel. Project a template (popover) or pass a plain string (tooltip — use `mode="tooltip"`). Click, hover, or focus to open. Built on CDK Overlay.'
+  description='Anchored content panel. Project a template (popover) or pass a plain string (tooltip — use `mode="tooltip"`). Click or hover to open; a tooltip also answers a keyboard focus. Built on CDK Overlay.'
   [keywords]="['popover', 'tooltip', 'wr-popover', 'overlay']"
   [labels]="['Directive', 'CDK Overlay']"
 >
@@ -69,7 +69,7 @@
 
   <ngwr-doc-section
     title="Tooltip mode"
-    description='Pass a string + `mode="tooltip"` for a small dark hint panel. Opens on hover / focus, dismisses on blur, pointer-leave, or Escape. Uses `aria-describedby` instead of `aria-haspopup`.'
+    description='Pass a string + `mode="tooltip"` for a small dark hint panel. Opens on hover or on a KEYBOARD focus — never on a `.focus()` call, which is what a dialog or drawer does when it hands focus back to the trigger it was opened from. Dismisses when focus leaves, on pointer-leave, or Escape. Uses `aria-describedby` instead of `aria-haspopup`.'
   >
     <ngwr-doc-snippet [code]="snippets.tooltip">
       <wr-btn color="primary" wrPopover="Save changes" mode="tooltip" position="top">Save</wr-btn>

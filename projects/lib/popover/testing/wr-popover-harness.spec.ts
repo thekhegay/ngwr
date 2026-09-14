@@ -218,10 +218,21 @@ describe('WrPopoverHarness', () => {
     expect(await save.getLabel()).toBeNull();
   });
 
-  it('shows a tooltip on focus too, and hides it again on blur', async () => {
+  it('leaves a tooltip shut for a programmatic focus, and hides one on blur', async () => {
     const save = await get('Save');
 
+    // `focus()` is a `.focus()` call, which is exactly the focus a tooltip
+    // ignores — the kind every overlay in the catalog performs when it hands
+    // focus back to the trigger it opened from. This used to open the panel and
+    // nothing could then dismiss it: the pointer is elsewhere, so no mouseleave,
+    // and focus stays put, so no blur.
     await save.focus();
+    await expect(save.waitUntilOpen(100)).rejects.toThrow(/nothing opened/);
+    expect(await save.isOpen()).toBe(false);
+
+    // Blur still hides one the pointer opened, which is the half that keeps a
+    // tooltip from outliving the interaction that showed it.
+    await save.hover();
     await save.waitUntilOpen();
     expect(await save.isOpen()).toBe(true);
 

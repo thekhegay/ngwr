@@ -46,9 +46,9 @@ function sleep(ms: number): Promise<void> {
  *
  * - **popover** — template content, opens on click (or hover), announces
  *   `role="dialog"` and is what the trigger's `aria-expanded` describes;
- * - **tooltip** — string content, opens on hover AND focus after a delay,
- *   announces `role="tooltip"` and DESCRIBES its trigger instead of being
- *   owned by it.
+ * - **tooltip** — string content, opens after a delay on hover or on KEYBOARD
+ *   focus (never on a `.focus()` call — see {@link focus}), announces
+ *   `role="tooltip"` and DESCRIBES its trigger instead of being owned by it.
  *
  * The panel is never inside the trigger: it is a portal in the overlay
  * container, a sibling of the whole app. It is reached through the document
@@ -145,7 +145,9 @@ export class WrPopoverHarness extends ContentContainerComponentHarness {
    * Hover leads because a click is an outside pointer event for every OTHER open
    * panel, so leading with it would dismiss someone else's popover on the way to
    * opening this one; a click-driven popover ignores the hover outright. A
-   * tooltip is never clicked at all — hover and focus are its only gestures.
+   * tooltip is never clicked at all, and hover is the only one of its two
+   * gestures a harness can perform — the other is a keyboard focus, which is
+   * `FocusMonitor`'s to grant (see {@link focus}).
    *
    * Throws when nothing appears: a tooltip with an empty string never opens, and
    * a spec on fake timers has to advance the clock itself.
@@ -192,7 +194,22 @@ export class WrPopoverHarness extends ContentContainerComponentHarness {
     return (await this.host()).mouseAway();
   }
 
-  /** Focus the trigger — a tooltip's other opening gesture, so keyboard users get the hint too. */
+  /**
+   * Focus the trigger PROGRAMMATICALLY — and note that this does not open a
+   * tooltip.
+   *
+   * `TestElement.focus()` is a `.focus()` call, which is the one kind of focus a
+   * tooltip deliberately ignores: it shows for a KEYBOARD focus only, because
+   * every overlay in the catalog hands focus back to the trigger it was opened
+   * from, and a tooltip that answered those appeared with no pointer to leave and
+   * no focus to lose. So this method is the way to assert that NOTHING happens.
+   *
+   * There is no keyboard-origin twin, and it cannot be written honestly here:
+   * origin is `FocusMonitor`'s answer, this class has no injector, and the Tab
+   * that would earn it moves focus in a browser and not in jsdom. A spec that
+   * needs the opening gesture drives `FocusMonitor.focusVia(el, 'keyboard')`
+   * itself, the way `popover.spec.ts` does — or uses `hover()`.
+   */
   async focus(): Promise<void> {
     return (await this.host()).focus();
   }
