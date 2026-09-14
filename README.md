@@ -59,9 +59,15 @@ export class SignupCard {
 }
 ```
 
-Classic `[(ngModel)]` and reactive forms still work — Angular 22 synthesises the
-accessor for a signal-forms control — and every control is usable standalone
-through its two-way `[(value)]` / `[(checked)]` model.
+Classic `[(ngModel)]` and reactive forms still bind, with no `ControlValueAccessor`
+created: Angular's `NgModel` / `FormControlDirective` drive the control's `value`
+or `checked` model directly. That bridge does **not** apply template validator
+directives — `required`, `minlength`, `maxlength`, `pattern` or `email` on an ngwr
+control is silently ignored and the form submits — so put validators on the
+`FormControl`. It also ignores `updateOn`, and a `{ emitEvent: false }` write needs
+`markForCheck()`; the [forms guide](https://ngwr.dev/guides/forms) has the detail.
+Every control is also usable standalone through its two-way `[(value)]` /
+`[(checked)]` model.
 
 > **Status:** active development. v14 is the current major line (Angular 22 peer).
 > Upgrading? `ng update ngwr@14` rewrites v14's six renames and reports the

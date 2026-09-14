@@ -263,9 +263,23 @@ carries its own `value` model and implements neither, because it is a trigger
 that drives a `wr-color-picker` which does. Re-derive with
 `grep -rn "implements .*Form\(Value\|Checkbox\)Control" projects/lib --include='*.ts' | grep -v spec`
 and subtract the internal `date-picker/internal/time-panel.ts`. `ControlValueAccessor` is
-**gone from the library** — never add one. Classic `[(ngModel)]` and reactive
-forms still work: Angular 22 synthesises the accessor for a signal-forms
-control. Standalone use is the two-way model, e.g. `[(value)]` / `[(checked)]`.
+**gone from the library** — never add one. Classic `[(ngModel)]`, `[formControl]`
+and `formControlName` still bind, but **no accessor is created**: `NgModel`,
+`FormControlDirective` and `FormControlName` drive the control's `value` or
+`checked` model directly. Core finds that model BY NAME — an input plus its
+`…Change` output (`initializeCustomControlStatus` in `@angular/core`) — so a
+control whose model is called anything else gets `NG01203` from all three. The
+bridge has limits no ngwr code can lift, and the first is the dangerous one:
+**template validator directives are not applied.** `required`, `minlength`,
+`maxlength`, `pattern` and `email` written on an ngwr control match their
+directives, but only the accessor path calls `setUpValidators`, so the
+`FormControl` never sees them — no error, no `ng-invalid`, and the form submits.
+Validators have to live on the `FormControl` (`min` / `max` never even match:
+their selectors require `input[type=number]`). The bridge also ignores
+`updateOn`, and a write with `{ emitEvent: false }` schedules no repaint, so
+one from an HTTP callback or a timer needs `markForCheck()`. `checkbox/classic-forms-bridge.spec.ts` pins the drop as
+Angular's current behaviour; `/guides/forms` is the consumer-facing account.
+Standalone use is the two-way model, e.g. `[(value)]` / `[(checked)]`.
 New value controls: implement `FormValueControl`, expose `value` as a `model()`,
 plus a `touch` output, a `disabled` input and a **`readonly` input** — Angular
 writes every name in `CONTROL_BINDING_NAMES` onto the control through

@@ -68,12 +68,47 @@
     </wr-table>
 
     <p wrTypography variant="small" tone="medium">
-      <strong>The one to act on is <code>required</code>.</strong> A <code>Validators.required</code> on the
+      <strong>The row to act on is <code>required</code>.</strong> A <code>Validators.required</code> on the
       <code>FormControl</code> reaches the control as nothing at all: no <code>required</code> attribute, no
       <code>aria-required</code>. Marking the field is a separate, manual step —
       <code>&lt;wr-form-field required&gt;</code> draws the asterisk beside the label. Wire both, or a screen reader is
-      told the field is optional while your validator refuses to submit it.
+      told the field is optional while your validator refuses to submit it. And the validator has to be that one: a
+      <code>required</code> attribute on the control itself does not validate at all, which is the next section.
     </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Template validator directives are not applied"
+    description="The most dangerous gap on this page, because nothing about it is visible: `required`, `minlength`, `maxlength`, `pattern` and `email` written on an ngwr control are ignored. Nothing throws, no error appears, and the form submits."
+  >
+    <p wrTypography variant="small" tone="medium">
+      Each of those attributes matches its validator directive on an ngwr control exactly as it does on a native
+      <code>&lt;input&gt;</code>. What differs is what happens next. An accessor-based binding runs Angular's
+      <code>setUpValidators</code>, which merges the directives' validators into the <code>FormControl</code>; the
+      bridge never calls it. So
+      <strong>the directive exists and the <code>FormControl</code> never hears from it</strong> —
+      <code>errors</code> stays <code>null</code>, <code>valid</code> stays <code>true</code>, and
+      <code>&lt;wr-form-field&gt;</code> has no error to show. A native <code>&lt;input wrInput required&gt;</code> in
+      the same form still validates, which is what makes the gap easy to miss in review.
+    </p>
+
+    <ngwr-doc-code [code]="snippets.validators" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>Put every validator on the <code>FormControl</code>.</strong> A template cannot express one for an ngwr
+      control, because every template-level validator is a directive and directives are what the bridge drops — so move
+      that field to <code>[formControl]</code> or <code>formControlName</code>, or to signal forms, where
+      <code>required()</code> lives in the schema and <code>[formField]</code> carries it. <code>min</code> and
+      <code>max</code> are a different case with the same answer: their directives only match
+      <code>input[type=number]</code>, so they never attach to <code>&lt;wr-input-number&gt;</code> at all, whose own
+      <code>[min]</code> / <code>[max]</code> bound what the user can produce and validate nothing.
+    </p>
+
+    <wr-alert
+      type="danger"
+      title="Upgrading a form from ngwr 8 or earlier? Audit every validator attribute."
+      message="Up to v8, sixteen controls shipped a ControlValueAccessor (wr-segmented never did), and Angular's accessor path attached these directives, so a required on one of them worked. On the bridge the same template renders and submits with that validation gone."
+    />
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -249,9 +284,10 @@
     <p wrTypography variant="small" tone="medium">
       One thing to own yourself:
       <strong>the bridge's timings are not covered by ngwr's test suite per component.</strong> Angular tests the
-      synthesis; ngwr's specs prove the contracts. If your app depends on any behaviour on this page, write the spec for
-      it — the <a routerLink="/guides/testing">testing guide</a> covers the harnesses to drive the controls with, and
-      <a routerLink="/start/quality">quality</a> is honest about where that coverage stops.
+      bridge; ngwr's specs prove the contracts, and pin the validator drop on two controls. If your app depends on any
+      behaviour on this page, write the spec for it — the <a routerLink="/guides/testing">testing guide</a> covers the
+      harnesses to drive the controls with, and <a routerLink="/start/quality">quality</a> is honest about where that
+      coverage stops.
     </p>
   </ngwr-doc-section>
 
