@@ -369,12 +369,13 @@
     </p>
 
     <p wrTypography>
-      <strong>Moving between majors.</strong> <code>ng update ngwr&#64;N</code>, with one migration per major that can
-      honestly be codemodded — v14 rewrites six renames and <em>reports</em> the three changes that need a decision
-      instead of a substitution; v12 rewrote the date-adapter import paths, and its other breaking change was a return
-      type that changed, which the compiler names at every call site. v10 and v11 ship no migration on purpose: their
-      breaking changes were painted colour, and an empty codemod would tell you your visual regressions were handled
-      when they were not. v13's migration is the other shape: it runs, it FINDS every host-<code>id</code> selector on
+      <strong>Moving between majors.</strong> One <code>ng update ngwr</code> to the latest major, from whichever one
+      you are on — it runs every migration in between, in order. There is one migration per major that can honestly be
+      codemodded — v14 rewrites six renames and <em>reports</em> the three changes that need a decision instead of a
+      substitution; v12 rewrote the date-adapter import paths, and its other breaking change was a return type that
+      changed, which the compiler names at every call site. v10 and v11 ship no migration on purpose: their breaking
+      changes were painted colour, and an empty codemod would tell you your visual regressions were handled when they
+      were not. v13's migration is the other shape: it runs, it FINDS every host-<code>id</code> selector on
       <code>&lt;wr-checkbox&gt;</code> / <code>&lt;wr-radio&gt;</code> / <code>&lt;wr-switch&gt;</code> — the id moved
       to the inner <code>&lt;input&gt;</code>, where <code>&lt;label for&gt;</code> can reach it — and rewrites none of
       them, because whether <code>wr-checkbox#agree</code> should become <code>#agree</code>,

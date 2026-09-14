@@ -5,9 +5,36 @@
 >
   <ngwr-doc-section
     title="Run the codemod"
-    description="`ng update` runs the version-matched migration: it rewrites templates, TypeScript and stylesheets in place. Commit first, run it, then review with `git diff`."
+    description="One `ng update ngwr@14`, from whatever major you are on: it installs 14, then runs every migration newer than the version you had installed, in order, rewriting templates, TypeScript and stylesheets in place. Commit first, run it, then review with `git diff`. Do not step through the majors."
   >
     <ngwr-doc-code [code]="snippets.update" language="bash" />
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>Never target a 7.x, 8.x or 9.x release</strong> — not with <code>ng update ngwr&#64;7</code>,
+      <code>&#64;8</code> or <code>&#64;9</code>, not with <code>ng add</code>, not with any <code>ng g ngwr:*</code>.
+      Every release from 7.0.0 to 9.1.0 ships CommonJS schematics under a <code>package.json</code> that declares
+      <code>"type": "module"</code>, so Node loads them as ES modules and the command dies with
+      <code>exports is not defined in ES module scope</code>. 10.0.0 fixed the packaging. The one command above never
+      loads those files: the migrations it runs, v7, v8 and v9 included, are the ones shipped inside 14. The
+      &ldquo;migrate each major version individually&rdquo; refusal the Angular CLI prints is for Angular's own packages
+      — it matches <code>&#64;angular/*</code> and <code>&#64;nguniversal/*</code> and nothing else — and does not apply
+      to ngwr.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>If an <code>ng update ngwr&#64;9</code> already failed with that error</strong>, it had moved
+      <code>package.json</code> and your lockfile to 9.x when the migration step crashed, and nothing moved them back:
+      the CLI restores <code>package.json</code> only when the install itself fails. A later
+      <code>ng update ngwr&#64;14</code> therefore starts from 9.x and silently skips the v9 migration — the
+      <code>&lt;wr-checkbox&gt;</code> rename below, whose leftovers raise no error either. Do not count on reverting
+      the bump: committing it, which is how most people get past <code>Repository is not clean</code>, makes it stick.
+      Run the skipped step by name instead. It works however <code>package.json</code> was left. <code>--name</code>
+      runs the migration shipped inside the installed 14 and checks no version, and it rewrites only
+      <code>&lt;wr-checkbox&gt;</code> bindings, which none of v12, v13 or v14 touches. A failed <code>&#64;7</code> or
+      <code>&#64;8</code> leaves the same hole for that major, and for each later one you also tried: run each skipped
+      migration the same way, oldest first.
+    </p>
+    <ngwr-doc-code [code]="snippets.recover" language="bash" />
 
     <p wrTypography variant="small" tone="medium">
       <strong>Two things that stop the first run, and neither is ngwr.</strong> Under pnpm 11 a fresh install can exit 1
