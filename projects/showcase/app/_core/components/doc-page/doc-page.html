@@ -1,8 +1,18 @@
 <header class="header">
-  @if (labels().length) {
+  @if (labels().length || addedIn()) {
     <div class="labels">
       @for (label of labels(); track label) {
         <wr-badge size="sm" shape="pill" [color]="labelColor(label)">{{ label }}</wr-badge>
+      }
+
+      <!--
+        Beside the title, never inside it: a badge in the `<h1>` makes the
+        heading's accessible name "Graph Added in v14.5", and a heading is how a
+        screen-reader user finds the page. As its own chip it is announced on its
+        own, and it says the whole phrase rather than a bare version.
+      -->
+      @if (addedIn(); as added) {
+        <wr-badge class="since" size="sm" shape="pill" color="light">{{ added }}</wr-badge>
       }
     </div>
   }

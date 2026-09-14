@@ -1266,6 +1266,35 @@ sidebar). Wire it into the matching `*.routing.ts` and the `routes` map in
 `<ngwr-doc-section>`, `<ngwr-doc-code>` (code blocks), `<ngwr-doc-snippet>` (live
 demo), and `<ngwr-doc-api>` (API table). A component isn't done without it.
 
+**A page for something NEW declares the version it first shipped in, and the
+sidebar's mark is DERIVED from that** — `<ngwr-doc-page since="14.5.0">`, which
+the page prints as "Added in v14.5" beside its title and `pnpm gen:api-docs`
+reads out of the template into `#core/generated/since` (a second output of that
+run, so `check:api-docs` fails on a stale map rather than a tenth gate doing it).
+`isNewLink()` in `#core/utils` marks a nav row whose declared version is on the
+current minor line or ahead of it, so a page written before its release is
+marked from the commit that adds it and every mark expires on its own when
+`release:prepare` moves `NGWR_VERSION`. Never type a version beside a nav row —
+one per item is what this deliberately is not. A page that declares nothing
+shows nothing: no `@since` exists in `projects/lib` to backfill from, and git
+cannot supply one, because a renamed entry point looks new the day it moves.
+
+**That map is keyed by the ROUTE, and the route is not the page's directory.**
+Both readers look a page up by the URL its nav row carries, so a key taken from
+`dirname()` is written, never read, and green on both sides — and the repo has
+two pages where the two differ: `reference/components/qr/` serves
+`/reference/components/qrcode`, and `icons/svg-only/` is one template behind six
+galleries. `scripts/lib/page-routes.ts` answers what Angular actually serves
+each page directory at, by IMPORTING the routing tree (every `*.routing.ts`
+holds plain data, so `tsx` can load it and the array is the one the router
+uses); a template that no single route renders is REFUSED a version rather than
+keyed by walk order. The mark's own colours are one shared
+`showcase/styles/_badge.scss` rule in two tones — a filled `--wr-color-primary`
+chip for `new`, which is the mark a reader scans for, and the quiet outlined one
+for `soon` — and both fills are opaque on purpose: a translucent chip is
+measured against whatever row it lands in, which is three pairs to keep above AA
+and how the first version shipped at 4.02:1.
+
 **Distribution surfaces.** Three pages under `/start` exist for people who have
 not adopted the library yet, and they are held to a different standard than the
 rest of the docs: everything on them has to be checkable, because they are what a

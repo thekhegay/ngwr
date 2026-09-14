@@ -97,6 +97,24 @@ const isSkipped = (el: Element): boolean => {
   return SKIP.has(`${el.tagName.toLowerCase()}.${cls}`) || SKIP.has(el.tagName.toLowerCase());
 };
 
+/**
+ * The catalog's "new" mark, and the sr-only comma that makes it read as an
+ * aside — both INSIDE the `<a>`, so they are part of the link's text and not of
+ * the component's name.
+ *
+ * Left in, the two cluster-index twins list a component called "Graph, new",
+ * and those twins are what an agent reads to enumerate the catalog: the mark
+ * becomes part of the name for the life of a release line. It is the same
+ * mistake the `Kind:` line was fixed for one surface over — a nav ornament
+ * standing in a slot that means something else. The page's own twin still
+ * carries the version, off the `since` chip, which is where the fact belongs.
+ *
+ * Kept apart from {@link SKIP} rather than folded into it: that set is checked
+ * on BLOCK children only, and widening its reach would silently change every
+ * paragraph and table cell that happens to hold one of its four selectors.
+ */
+const MARKS = new Set(['index__sep', 'index__badge']);
+
 /** Collapse runs of whitespace the way HTML rendering does. */
 const squash = (text: string): string => text.replace(/\s+/g, ' ');
 
@@ -114,6 +132,8 @@ function inline(node: Node): string {
   if (node.nodeType !== 1) return '';
 
   const el = node as Element;
+  if (typeof el.className === 'string' && el.className.trim().split(/\s+/).some(c => MARKS.has(c))) return '';
+
   const kids = (): string => Array.from(el.childNodes).map(inline).join('');
 
   switch (el.tagName.toLowerCase()) {
@@ -240,9 +260,15 @@ function render(document: Document, route: string): string | null {
   const description = text(header?.querySelector('p.description') ?? null);
   if (description) out.push(`> ${description}`);
 
-  const labels = Array.from(header?.querySelectorAll('.labels wr-badge') ?? []).map(b => text(b));
+  // The version chip shares the header's chip row and is NOT a kind — it says
+  // when the thing arrived, not what it is. Left in the same sweep it read as
+  // `Kind: Component, Standalone, Added in v14.5`, which is a false claim in the
+  // one line an agent reads to classify a page.
+  const labels = Array.from(header?.querySelectorAll('.labels wr-badge:not(.since)') ?? []).map(b => text(b));
+  const since = text(header?.querySelector('.labels wr-badge.since') ?? null);
   const meta = [`Source: ${SITE}${route}`];
   if (labels.length > 0) meta.push(`Kind: ${labels.join(', ')}`);
+  if (since) meta.push(since);
   out.push(meta.join('  \n'));
 
   for (const section of Array.from(page.querySelectorAll(':scope > .content > ngwr-doc-section'))) {

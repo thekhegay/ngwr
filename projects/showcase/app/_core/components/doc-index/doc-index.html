@@ -5,7 +5,19 @@
         @for (link of section.links; track link.title) {
           <li>
             @if (link.url && !link.disabled) {
-              <a class="index__link" [routerLink]="link.url">{{ link.title }}</a>
+              <!-- The same mark the sidebar draws, off the same rule: this page lists the
+                   same links, so a reader who arrived at the catalog instead of the nav
+                   sees the same thing. The comma is a real text node, read and never
+                   seen — without it the link's accessible name computes as "Graphnew" —
+                   and the title sits in its own element so Angular drops the whitespace
+                   around it and the name reads "Graph, new" rather than "Graph , new". -->
+              <a class="index__link" [routerLink]="link.url">
+                <span>{{ link.title }}</span>
+                @if (isNew(link)) {
+                  <span class="index__sep">,&nbsp;</span>
+                  <small class="index__badge index__badge--new">new</small>
+                }
+              </a>
             } @else {
               <span class="index__link index__link--disabled">{{ link.title }}</span>
             }

@@ -6,7 +6,9 @@ import { filter, map, startWith } from 'rxjs';
 
 import { WrIcon } from 'ngwr/icon';
 
-import type { SidebarGroup } from './sidebar.types';
+import type { SidebarGroup, SidebarLink } from './sidebar.types';
+
+import { isNewLink } from '#core/utils';
 
 /**
  * Section-aware sidebar. The active route declares its nav via
@@ -79,6 +81,30 @@ export class Sidebar {
 
   protected isOpen(title: string): boolean {
     return this.opened().has(title);
+  }
+
+  /**
+   * Whether a row gets the "new" mark — its page declares a version on the
+   * CURRENT release line (`isNewLink()`).
+   *
+   * Nothing about it is stored here, and that is deliberate on two counts. The
+   * version lives on the page and reaches this through
+   * `#core/generated/since`, so a config carries no second copy to go stale;
+   * and the comparison is against `NGWR_VERSION`, so the mark leaves on its own
+   * the release after the one it belongs to. A version per row — the NG-ZORRO
+   * shape — was refused: the nav answers "what is new", not "what shipped when",
+   * which is the page's own job.
+   *
+   * **A `SidebarGroup` is accepted as well as a `SidebarLink`, and that is not
+   * convenience.** A group carrying `url` instead of `children` is a single
+   * ungrouped row (Squircle today), and the cluster index pages already collect
+   * exactly those into their trailing "Other" section as links — where they run
+   * through this same rule. Marked there and not here, the two surfaces that
+   * exist to agree would disagree about the one row that reaches both by
+   * different paths.
+   */
+  protected isNew(row: SidebarLink | SidebarGroup): boolean {
+    return isNewLink(row.url);
   }
 
   protected toggleGroup(title: string): void {

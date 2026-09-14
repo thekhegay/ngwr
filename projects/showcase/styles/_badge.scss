@@ -1,0 +1,67 @@
+/// The docs' tiny row mark — "new" beside a nav row, "soon" beside a planned
+/// one — as one box, in two tones, included by the sidebar and the catalog page.
+///
+/// **One box and two tones, because the two marks say opposite things.** `new`
+/// is meant to be caught from across the page: it is the whole point of the
+/// mark, and a reader scanning the catalog for what arrived this release should
+/// not have to read every row to find it, so it is a filled
+/// `--wr-color-primary` chip. `soon` is an aside about a page that is not there
+/// yet, and shouting it would put every planned row in front of the live ones.
+/// The geometry is shared so a nav row's rhythm does not change with which mark
+/// it happens to wear.
+///
+/// **Both fills are OPAQUE, and that is load-bearing rather than taste.** The
+/// first version of this mark was translucent — `rgba(var(--wr-color-light-rgb),
+/// 0.6)` under `--wr-color-on-surface-muted` — so it was measured against
+/// whatever it landed on: 4.25:1 on the plain surface, 4.02:1 inside the active
+/// row's primary tint, and something else again over the catalog link's hover
+/// tint. All three under the 4.5:1 this size is held to, and one of them in a
+/// state no gate opens, since `check:contrast` walks a page at rest. Over one
+/// flat colour there is exactly ONE pair per theme and it holds wherever the
+/// mark is dropped.
+///
+/// Measured with axe in Chromium on the built site — active row, inactive row,
+/// catalog page, catalog link hovered, both themes:
+///
+/// - `new` — white on `#3969e2` at **4.89:1** light, white on `#3567ff` at
+///   **4.63:1** dark. That pair is an intent with its own `-contrast`, which is
+///   the label token for a FILLED intent and already the theoretical maximum for
+///   that fill: `_contrast()` PICKS the better of black and white, so there is
+///   no share to tune here and nothing to re-derive if the intent ever moves.
+/// - `soon` — `#5f6c7d` on `#ffffff` at **5.34:1** light, `#9aa6b8` on `#0b1120`
+///   at **7.63:1** dark.
+///
+/// If you retune either, MEASURE it rather than deriving it: axe ships no
+/// non-text-contrast rule, and `check:contrast` gates ROUTE COUNTS, so a new
+/// failure on a route already in the baseline passes in silence.
+@mixin row-mark {
+  padding: 0.0625rem 0.25rem;
+  // Tracks the row it sits in, which is `--wr-border-radius-sm` on both
+  // surfaces. Twin of the library's own `.wr-sidebar__badge`.
+  border-radius: var(--wr-border-radius-sm);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  // Stated rather than inherited, and it is what actually sizes the chip: the
+  // nav row's own line box is 20px, five times this type, so a mark that says
+  // nothing here is 22px tall however little padding it carries.
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/// `soon` — present, not announced. The hairline is what gives an unfilled chip
+/// its shape.
+@mixin row-mark-quiet {
+  background: var(--wr-color-surface);
+  box-shadow: inset 0 0 0 1px var(--wr-color-outline);
+  color: var(--wr-color-on-surface-muted);
+}
+
+/// `new` — the one mark on the page that is supposed to pull the eye. The fill
+/// carries the chip's shape now, so the quiet tone's hairline goes: an outline
+/// the colour of the thing it outlines is a rendering cost and nothing else.
+@mixin row-mark-new {
+  background: var(--wr-color-primary);
+  box-shadow: none;
+  color: var(--wr-color-primary-contrast);
+}

@@ -4,6 +4,15 @@
     @if (group.url) {
       <a class="ngwr-sidebar__group-link" routerLinkActive="ngwr-sidebar__group-link--active" [routerLink]="group.url">
         <span class="ngwr-sidebar__group-title">{{ group.title }}</span>
+
+        <!-- The same mark a child row gets, off the same rule. A single-page group
+             reaches the cluster index as an ordinary link (doc-index's "Other"
+             section), so leaving it out here is the one way the two surfaces
+             could disagree about what is new. -->
+        @if (isNew(group)) {
+          <span class="ngwr-sidebar__sep">,&nbsp;</span>
+          <small class="ngwr-sidebar__badge ngwr-sidebar__badge--new">new</small>
+        }
       </a>
     } @else {
       <!-- Expandable group with children. -->
@@ -43,6 +52,14 @@
                           [routerLink]="link.url"
                         >
                           <span class="ngwr-sidebar__link-title">{{ link.title }}</span>
+
+                          <!-- Marks the current release line only, and derives it from the page's
+                               own `since` — see `isNew()`. The comma is a real text node: without
+                               one the link's accessible name computes as "Graphnew". -->
+                          @if (isNew(link)) {
+                            <span class="ngwr-sidebar__sep">,&nbsp;</span>
+                            <small class="ngwr-sidebar__badge ngwr-sidebar__badge--new">new</small>
+                          }
                         </a>
                       }
                     </li>

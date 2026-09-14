@@ -1,0 +1,24 @@
+/// Text that exists for assistive technology and not for the eye.
+///
+/// The one use today is a separator INSIDE a link: a nav row is
+/// `<span>Graph</span><small>new</small>`, Angular strips the whitespace between
+/// two elements, and the accessible name of the link then computes as
+/// "Graphnew". A real text node carrying ", " fixes the reading and must not
+/// change the row, so it is taken out of flow rather than hidden — `display:
+/// none` and `visibility: hidden` would take it out of the accessible name too,
+/// which is the whole thing it is there for.
+///
+/// A mixin, and shared, because a second copy of these seven declarations is a
+/// second chance to write one of them wrong.
+@mixin sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  // `clip-path`, not the deprecated `clip`: same effect, and it survives
+  // `forced-colors`, where a clipped element is still measured.
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

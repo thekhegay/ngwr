@@ -134,11 +134,21 @@ Then:
    has one, and the specs assert the rendered DOM — roles, ARIA state and the
    `.wr-*` classes — rather than component internals. Copy `projects/lib/tabs/`
    for a plain component, or `projects/lib/select/` for one with an overlay.
-8. Run `pnpm gen:api-docs` and commit `projects/showcase/app/_core/generated/api.ts`.
-   This is the one gate no build regenerates for you: `build:showcase` refreshes
-   the selector, CSS-variable and quality data, but the API tables are generated
-   on demand and `check:api-docs` compares the committed file against the
-   library's JSDoc. Skip it and CI fails on a file you never touched.
+8. Declare the version it first ships in on the page's own
+   `<ngwr-doc-page since="14.5.0">` — the next release, not the current one, if
+   yours has not shipped yet. The page prints "Added in v14.5" beside its title,
+   and the sidebar's "new" mark is derived from that one attribute, so nothing
+   is typed twice and nothing has to be removed later: the mark covers the
+   current minor line and leaves by itself when the next one ships. A page that
+   declares nothing shows nothing, which is right for everything that was
+   already here.
+9. Run `pnpm gen:api-docs` and commit `projects/showcase/app/_core/generated/api.ts`
+   and `since.ts`. This is the one gate no build regenerates for you:
+   `build:showcase` refreshes the selector, CSS-variable and quality data, but
+   the API tables are generated on demand and `check:api-docs` compares both
+   committed files against the source — the JSDoc for one, the pages' own
+   `since` attributes for the other. Skip it and CI fails on a file you never
+   touched.
 
 ## Style guide
 
