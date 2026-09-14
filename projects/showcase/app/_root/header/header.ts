@@ -1,6 +1,6 @@
-import { type Direction, Directionality } from '@angular/cdk/bidi';
+import { type Direction } from '@angular/cdk/bidi';
 import { isPlatformBrowser } from '@angular/common';
-import { Component, DOCUMENT, DestroyRef, ElementRef, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { ChevronDown, Search, Settings } from 'lucide';
@@ -16,7 +16,7 @@ import { WrTheme, type WrThemeMode } from 'ngwr/theme';
 import { NGWR_VERSION_TOKEN } from 'ngwr/version';
 
 import { BRAND_ICONS } from '#core/icons';
-import { DocsSearch, PrimaryColor } from '#core/services';
+import { DocsSearch, PrimaryColor, SiteDirection } from '#core/services';
 import { routes } from '#routing';
 
 interface NavLink {
@@ -140,8 +140,7 @@ export class Header {
   protected readonly theme = inject(WrTheme);
   protected readonly density = inject(WrDensity);
   protected readonly primary = inject(PrimaryColor);
-  protected readonly directionality = inject(Directionality);
-  private readonly document = inject(DOCUMENT);
+  protected readonly direction = inject(SiteDirection);
 
   /** Current major (e.g. `v8`) shown on the version-switcher trigger. */
   protected readonly major = `v${String(inject(NGWR_VERSION_TOKEN)).split('.')[0]}`;
@@ -171,15 +170,8 @@ export class Header {
 
   /**
    * Direction segmented — the switch that makes RTL reviewable at all.
-   *
-   * Both halves have to move together or the toggle lies. `dir` on the document
-   * is what mirrors the CSS (every logical property resolves against it), and
-   * `Directionality` is what the components read for their keyboard and pointer
-   * maths — a slider's arrows, a tree's expand key, a table's column drag. The
-   * CDK's ambient instance reads the document ONCE, in its constructor, so
-   * flipping the attribute alone would mirror the layout and leave every
-   * interaction facing the old way. Writing its `valueSignal` is the documented
-   * way to move the other half.
+   * `SiteDirection` moves both halves (the document `dir` and the CDK's
+   * `Directionality`) together and remembers the pick across reloads.
    */
   protected readonly directionOptions: readonly WrSegmentedOption<Direction>[] = [
     { value: 'ltr', label: 'LTR' },
@@ -226,13 +218,7 @@ export class Header {
   }
 
   protected onDirectionChange(direction: Direction | null): void {
-    if (!direction) return;
-
-    this.document.documentElement.dir = direction;
-    this.directionality.valueSignal.set(direction);
-    // Components that cache a direction-derived value listen to `change` rather
-    // than reading the signal, so a write alone would leave those stale.
-    this.directionality.change.emit(direction);
+    if (direction) this.direction.set(direction);
   }
 
   /**
