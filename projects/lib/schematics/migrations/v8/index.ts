@@ -39,6 +39,18 @@ const DENSITY_MAP: readonly (readonly [string, string])[] = [
   ['comfortable', 'lg'],
 ];
 
+/**
+ * What an open tag may hold before the attribute a rule is after. A quoted value
+ * is consumed only as a PAIR: the plain `[^>]*?` this replaced read a `>` inside
+ * a binding as the end of the tag, so `<wr-pagination [disabled]="n > 0" size="xs" />`
+ * kept its `xs` while the same attributes in the other order moved — and a lone
+ * quote is never consumed, so a rule cannot slide through an apostrophe in one
+ * element's value into the next element. `migration-v14`'s `IN_TAG` carries the
+ * full account, including the one shape this skips: an UNQUOTED value holding a
+ * quote (`title=it's`).
+ */
+const IN_TAG = String.raw`(?:"[^"]*"|'[^']*'|[^>"'])*?`;
+
 const HTML_TRANSFORMS: readonly Transform[] = [
   // density — directive attribute, string form: wrDensity="compact" → "sm"
   ...DENSITY_MAP.map(([from, to]): Transform => ({
@@ -56,8 +68,8 @@ const HTML_TRANSFORMS: readonly Transform[] = [
     replacement: `$1${to}$2`,
   })),
   // pagination size — scoped to the element so other `size="xs"` attrs are untouched
-  { pattern: /(<wr-pagination\b[^>]*?\ssize=")xs(")/g, replacement: '$1sm$2' },
-  { pattern: /(<wr-pagination\b[^>]*?\ssize=")xl(")/g, replacement: '$1lg$2' },
+  { pattern: new RegExp(String.raw`(<wr-pagination\b${IN_TAG}\ssize=")xs(")`, 'g'), replacement: '$1sm$2' },
+  { pattern: new RegExp(String.raw`(<wr-pagination\b${IN_TAG}\ssize=")xl(")`, 'g'), replacement: '$1lg$2' },
 ];
 
 const TS_TRANSFORMS: readonly Transform[] = [

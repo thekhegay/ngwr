@@ -1416,6 +1416,19 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
   registered in `schematics/migrations.json`. There is deliberately no
   `migration-v10` or `-v11`; see Versioning for the rule that decides it.
 
+**A codemod pattern that steps over quoted values must use the quote-safe form,
+`(?:"[^"]*"|'[^']*'|[^>"'])*?`, and carry a timing spec.** The ambiguous
+spelling, whose `[^>]` fallback also consumes a quote, froze
+`ng update ngwr@14` on ordinary templates in every 14.x release up to 14.5.0: a
+pairing that starts at a CLOSING quote jumps over `/>` into later elements, so an
+element without the attribute a rule is after sends the search across the rest of
+the file, with exponentially many parses in the number of quotes that follow.
+`ng update` commits each migration's tree separately, so v12 and v13 were written
+and v14 was silently lost. The timing specs in `migrations/v{7,8,9,14}` keep their
+fixtures small on purpose — a catastrophic regex is synchronous, vitest's timeout
+cannot interrupt it, and a fixture that costs the old form seconds rather than
+hours is what makes a regression fail instead of freezing the suite.
+
 ## Gotchas
 
 - **`<wr-checkbox>` group identity is `checkboxValue`, not `value`.**

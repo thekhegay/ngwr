@@ -110,27 +110,58 @@ interface Transform {
 }
 
 /**
+ * What an open tag may hold between its name and the attribute a rule is after:
+ * a quoted value, consumed only as a PAIR, or any one character that is neither
+ * a quote nor `>`. Every element-scoped rule and attribute detector in this file
+ * is built on it, and both halves of "only as a pair" were earned.
+ *
+ * Stepping OVER a quoted value is what a plain `[^>]*?` got wrong: a `>` inside a
+ * binding looks like the end of the tag, so
+ * `<wr-alert [type]="n > 0 ? 'a' : 'b'" closeable>` left `closeable` behind while
+ * the same attributes in the other order moved. The leftover is SILENT — a static
+ * `closeable` / `totalItems="42"` that matches no input is an ordinary DOM
+ * attribute and `strictTemplates` says nothing, so the alert quietly loses its
+ * dismiss button. (Bracketed forms are loud: NG8002.)
+ *
+ * Never consuming a LONE quote is what the first fix got wrong. It spelled the
+ * fallback `[^>]`, which matches a quote as well, so the engine could backtrack
+ * into a single-quoted span that STARTS at the apostrophe inside `title="it's"`
+ * and runs past `/>` into the following element: `<wr-alert title="it's" />`
+ * then `<app-panel [label]="'x'" closeable />` renamed the PANEL's attribute. The
+ * same overlap made a miss exponential — one `<wr-alert>` holding twenty-two
+ * quoted attributes and nothing to rename took sixteen seconds in the bare
+ * `closeable` rule alone, where this form takes under a millisecond. And a miss
+ * did not stay inside its tag: since a pair may contain `>`, a pairing that
+ * started at a CLOSING quote jumped over `/>` into later elements, so an
+ * ordinary element without the attribute sent the search across the rest of the
+ * file. On a 64-line template that never finished, and because `ng update`
+ * commits each migration's tree separately, v12 and v13 landed while this one
+ * wrote nothing. The spec's timing cases are sized to fail in seconds on that form.
+ *
+ * What it guarantees: a match cannot leave the open tag it started in, as long as
+ * every quote in that tag opens or closes an attribute value. The one markup that
+ * breaks the condition is an UNQUOTED value holding a quote (`title=it's`), and a
+ * tag like that is skipped rather than guessed at — which costs nothing real,
+ * because Angular's own template parser refuses it (`Opening tag "input" not
+ * terminated.`).
+ */
+const IN_TAG = String.raw`(?:"[^"]*"|'[^']*'|[^>"'])*?`;
+
+/**
  * An open tag, up to and including the whitespace before some attribute.
- * `[^>]*?` cannot cross a `>`, so a rename can never escape the element it is
- * scoped to, however the tag wraps across lines.
  *
  * The anchor is `(?![-\w])` and NOT `\b`: a word boundary still matches at the
  * front of a longer element name, which is how a v9-shaped rule would have
  * renamed an attribute on `<wr-table-filter>` while claiming to touch only
  * `<wr-table>`. Every one of these four has such a neighbour — `wr-table-filter`
  * and `wr-table-sort`, `wr-window-container` and `wr-window-taskbar` — or would
- * acquire one the moment the catalog grows.
- *
- * Quoted values are stepped over rather than excluded, and that is the half a
- * plain `[^>]*?` gets wrong: a `>` inside a binding expression looks like the end
- * of the tag, so `<wr-alert [type]="n > 0 ? 'a' : 'b'" closeable>` left
- * `closeable` behind while the same attributes in the other order moved. The
- * leftover is SILENT — a static `closeable` / `totalItems="42"` that matches no
- * input is an ordinary DOM attribute and `strictTemplates` says nothing, so the
- * alert quietly loses its dismiss button. (Bracketed forms are loud: NG8002.)
- * `migration-v9` carries the same anchoring and the same hole.
+ * acquire one the moment the catalog grows. `migration-v9` carries the same
+ * anchoring and the same pattern.
  */
-const openTag = (name: string): string => String.raw`<${name}(?![-\w])(?:"[^"]*"|'[^']*'|[^>])*?\s`;
+const openTag = (name: string): string => String.raw`<${name}(?![-\w])${IN_TAG}\s`;
+
+/** The two elements `[wrInput]` applies to — its selector is `input[wrInput], textarea[wrInput]`. */
+const FIELD = String.raw`<(?:input|textarea)(?![-\w])`;
 
 const ALERT = openTag('wr-alert');
 const TABLE = openTag('wr-table');
@@ -154,22 +185,15 @@ const HTML_TRANSFORMS: readonly Transform[] = [
   // native attribute, so rewriting one that was never ngwr's silently rebinds a
   // character-width hint. The two orders are both real markup, hence two rules.
   {
-    pattern: /(<(?:input|textarea)(?![-\w])(?:"[^"]*"|'[^']*'|[^>])*?\swrInput(?:"[^"]*"|'[^']*'|[^>])*?\s)\[wrSize\]/g,
+    pattern: new RegExp(String.raw`(${FIELD}${IN_TAG}\swrInput${IN_TAG}\s)\[wrSize\]`, 'g'),
     replacement: '$1[size]',
   },
+  { pattern: new RegExp(String.raw`(${FIELD}${IN_TAG}\swrInput${IN_TAG}\s)wrSize=`, 'g'), replacement: '$1size=' },
   {
-    pattern: /(<(?:input|textarea)(?![-\w])(?:"[^"]*"|'[^']*'|[^>])*?\swrInput(?:"[^"]*"|'[^']*'|[^>])*?\s)wrSize=/g,
-    replacement: '$1size=',
-  },
-  {
-    pattern:
-      /(<(?:input|textarea)(?![-\w])(?:"[^"]*"|'[^']*'|[^>])*?\s)\[wrSize\]((?:"[^"]*"|'[^']*'|[^>])*?\swrInput)/g,
+    pattern: new RegExp(String.raw`(${FIELD}${IN_TAG}\s)\[wrSize\](${IN_TAG}\swrInput)`, 'g'),
     replacement: '$1[size]$2',
   },
-  {
-    pattern: /(<(?:input|textarea)(?![-\w])(?:"[^"]*"|'[^']*'|[^>])*?\s)wrSize=((?:"[^"]*"|'[^']*'|[^>])*?\swrInput)/g,
-    replacement: '$1size=$2',
-  },
+  { pattern: new RegExp(String.raw`(${FIELD}${IN_TAG}\s)wrSize=(${IN_TAG}\swrInput)`, 'g'), replacement: '$1size=$2' },
 
   // <wr-table>, from [totalItems] to [total]
   { pattern: new RegExp(`(${TABLE})\\[totalItems\\]`, 'g'), replacement: '$1[total]' },
@@ -220,8 +244,12 @@ const GLOBAL_TRANSFORMS: readonly Transform[] = [
   { pattern: /\bwr-window--chrome-normal\b/g, replacement: 'wr-window--chrome-md' },
 ];
 
-/** `<wr-tab …>` carrying a `routerLink`, however the tag is wrapped across lines. */
-const ROUTER_TAB = /<wr-tab\b[^>]*\brouterLink\b/;
+/**
+ * `<wr-tab …>` carrying a `routerLink`, however the tag is wrapped across lines
+ * and whatever an earlier binding compares — the plain `[^>]*` this used to be
+ * read `[disabled]="n > 0"` as the end of the tag and reported nothing.
+ */
+const ROUTER_TAB = new RegExp(String.raw`<wr-tab(?![-\w])${IN_TAG}\brouterLink\b`);
 const LOADING_BAR = /<wr-loading-bar\b/;
 
 /** `provideWrDateAdapter(` with no `locale:` before the call closes. */
@@ -236,8 +264,21 @@ const DATE_ADAPTER_NO_LOCALE = /\bprovideWrDateAdapter\(\s*(?:\)|\{(?![\s\S]*?\b
 /** `provideWrI18n(` with no `defaultLocale:` before the call closes. */
 const I18N_NO_DEFAULT_LOCALE = /\bprovideWrI18n\(\s*(?:\)|\{(?![^})]*\bdefaultLocale\s*:))/;
 const DEFAULT_CONFIG = /\bDEFAULT_WR_I18N_CONFIG\b/;
-/** `ofLabel` on a pagination tag, bound (`[ofLabel]`) or static. */
-const OF_LABEL = /<wr-pagination\b[^>]*\[?ofLabel\]?\s*=/;
+/** `ofLabel` on a pagination tag, bound (`[ofLabel]`) or static, wherever it sits in the tag. */
+const OF_LABEL = new RegExp(String.raw`${PAGER}\[?ofLabel\]?\s*=`);
+
+/**
+ * `wrSize` still on a `[wrInput]` field AFTER the renames ran, in either
+ * attribute order and with any spacing around `=`. The renames read `wrSize=` and
+ * `[wrSize]` exactly, and whatever they do not move is silent: a static `wrSize`
+ * matches no input, lands on the field as a plain DOM attribute, and the control
+ * renders at its default size. So this is the one detector that reads the
+ * REWRITTEN text — its whole job is what the rules left behind.
+ */
+const LEFTOVER_WR_SIZE: readonly RegExp[] = [
+  new RegExp(String.raw`${FIELD}${IN_TAG}\swrInput${IN_TAG}\s\[?wrSize\]?\s*=`),
+  new RegExp(String.raw`${FIELD}${IN_TAG}\s\[?wrSize\]?\s*=${IN_TAG}\swrInput`),
+];
 
 // The half `OF_LABEL` cannot see. Apps that never bound the input still
 // translated the key, and `pagination.of` is gone: the range is one
@@ -308,6 +349,7 @@ function ngUpdateV14(): Rule {
     const defaultConfigs: string[] = [];
     const ofLabels: string[] = [];
     const staleCatalogs: string[] = [];
+    const leftoverSizes: string[] = [];
     let rewritten = 0;
 
     visit(tree, '/', filePath => {
@@ -320,10 +362,11 @@ function ngUpdateV14(): Rule {
       // reach stylesheets too, because one of them is a BEM class.
       if (!isTs && !isHtml && !isStyle && !lower.endsWith('.json')) return;
 
-      // Read ONCE. Every detector below then answers about the file the user
-      // wrote, not about the file a transform left behind — none of the five
-      // renames touches a reported token today, and relying on that is exactly
-      // the coupling that breaks the next time one is added.
+      // Read ONCE. Every detector below but the leftover `wrSize` check then
+      // answers about the file the user wrote, not about the file a transform
+      // left behind — none of the six renames touches a token those detectors
+      // report today, and relying on that is exactly the coupling that breaks
+      // the next time one is added.
       const content = tree.readText(filePath);
 
       if (isTs || isHtml || isStyle) {
@@ -335,6 +378,11 @@ function ngUpdateV14(): Rule {
         if (next !== content) {
           tree.overwrite(filePath, next);
           rewritten += 1;
+        }
+        // The one detector that reads what the renames LEFT rather than what the
+        // user wrote: a `wrSize` surviving them is exactly what it exists to name.
+        if ((isTs || isHtml) && LEFTOVER_WR_SIZE.some(pattern => pattern.test(next))) {
+          leftoverSizes.push(filePath);
         }
       }
 
@@ -356,10 +404,21 @@ function ngUpdateV14(): Rule {
         `ngwr v14 migration: rewrote ${rewritten} file(s) for the renames: on <wr-alert> from ` +
           'closeable to closable, on <wr-table> from totalItems to total, on <wr-pagination> from ' +
           'currentPage to page (and from currentPageChange to pageChange), from isDisabledWhenLoading ' +
-          'to disabledWhenLoading, and the window chromeSize scale from compact/normal to sm/md ' +
-          '(class .wr-window--chrome-compact to --chrome-sm).'
+          'to disabledWhenLoading, the window chromeSize scale from compact/normal to sm/md ' +
+          '(class .wr-window--chrome-compact to --chrome-sm), and on [wrInput] from wrSize to size ' +
+          '(and from [wrSize] to [size]).'
       );
       context.logger.info('Verify the result with `git diff` — a few edge cases may need manual touch-up.');
+    }
+
+    if (leftoverSizes.length > 0) {
+      context.logger.warn(
+        `ngwr v14: \`wrSize\` is still on a [wrInput] field in ${leftoverSizes.length} file(s), in a spelling ` +
+          "the rename did not match. [wrInput]'s input has been `size` since v14, so a static wrSize is " +
+          'ignored — it lands as a plain DOM attribute and the field renders at its default size, with ' +
+          'nothing said — and a bound [wrSize] fails to compile (NG8002). Rename it to `size` by hand.'
+      );
+      for (const file of leftoverSizes) context.logger.warn(`  ${file}`);
     }
 
     if (staleCatalogs.length > 0) {
@@ -439,7 +498,8 @@ function ngUpdateV14(): Rule {
       i18nProviders.length === 0 &&
       defaultConfigs.length === 0 &&
       ofLabels.length === 0 &&
-      staleCatalogs.length === 0
+      staleCatalogs.length === 0 &&
+      leftoverSizes.length === 0
     ) {
       context.logger.info('ngwr v14 migration: nothing to do — no affected usage found.');
     }
