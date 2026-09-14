@@ -1,10 +1,11 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Location } from '@angular/common';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { provideWrOverlay } from 'ngwr/overlay';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrDrawerManager } from './drawer-manager';
 
@@ -154,5 +155,85 @@ describe('WrDrawerManager', () => {
 
       expect(panel()).not.toBeNull();
     });
+  });
+});
+
+/**
+ * The imperative half of the drawer's direction contract, and the same two
+ * halves as `<wr-drawer>`: the CDK reads the direction once at create, and the
+ * `dir` it writes lands on the flex wrapper the panel is placed inside — so the
+ * attribute alone would slide a `left` drawer to the physical right, and
+ * re-applying the strategy is what cancels it.
+ */
+describe('WrDrawerManager follows a direction change while a drawer is open', () => {
+  let manager: WrDrawerManager;
+  let dir: Directionality;
+
+  const setup = (): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    manager = TestBed.inject(WrDrawerManager);
+    dir = TestBed.inject(Directionality);
+  };
+
+  /** What the CDK writes `dir` and `justify-content` on: the pane's wrapper. */
+  const wrappers = (): HTMLElement[] =>
+    [...document.querySelectorAll<HTMLElement>('.wr-drawer__panel')].map(p => p.parentElement!);
+
+  /** A signal write is state, not an event: it lands on the next pass. */
+  const flip = (next: Direction): void => {
+    dir.valueSignal.set(next);
+    TestBed.tick();
+  };
+
+  beforeEach(() => setup());
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('rewrites the panel’s dir, so the content inside it mirrors with the page', () => {
+    manager.open(Panel, { position: 'left' });
+    TestBed.tick();
+    expect(wrappers().map(w => w.getAttribute('dir'))).toEqual(['ltr']);
+
+    flip('rtl');
+
+    expect(wrappers().map(w => w.getAttribute('dir'))).toEqual(['rtl']);
+  });
+
+  it('keeps a left drawer on the physical left, which is what `position` promises', () => {
+    manager.open(Panel, { position: 'left' });
+    TestBed.tick();
+    expect(wrappers()[0].style.justifyContent).toBe('flex-start');
+
+    flip('rtl');
+
+    // `flex-end` on an RTL row IS the physical left — the reposition is what
+    // stops the attribute from carrying the panel across on its own.
+    expect(wrappers()[0].style.justifyContent).toBe('flex-end');
+  });
+
+  it('follows on every drawer open at once, not only the last one', () => {
+    manager.open(Panel, { position: 'left' });
+    manager.open(Panel, { position: 'right' });
+    TestBed.tick();
+
+    flip('rtl');
+
+    // The follower is per `OverlayRef`, because `open()` is: one installed for
+    // the service would leave the drawer underneath rendering the old way.
+    expect(wrappers().map(w => w.getAttribute('dir'))).toEqual(['rtl', 'rtl']);
+  });
+
+  it('gives a reopened drawer a follower of its own', () => {
+    const first = manager.open(Panel, { position: 'left' });
+    TestBed.tick();
+    first.close();
+    TestBed.tick();
+
+    manager.open(Panel, { position: 'left' });
+    TestBed.tick();
+    flip('rtl');
+
+    expect(wrappers().map(w => w.getAttribute('dir'))).toEqual(['rtl']);
   });
 });

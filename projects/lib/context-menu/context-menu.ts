@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import {
   type ConnectedPosition,
   type FlexibleConnectedPositionStrategyOrigin,
@@ -12,12 +13,12 @@ import {
   ScrollStrategyOptions,
 } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
-import { DestroyRef, Directive, ElementRef, ViewContainerRef, inject, input, signal } from '@angular/core';
+import { DestroyRef, Directive, ElementRef, Injector, ViewContainerRef, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import type { Subscription } from 'rxjs';
 
-import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { randomId } from 'ngwr/utils';
 
 import { WrContextMenuItem } from './context-menu-item';
@@ -106,9 +107,18 @@ export class WrContextMenu {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
+  /**
+   * The reading direction the open menu has to keep up with.
+   *
+   * Optional inject, as on every other overlay here: `Directionality` is
+   * root-provided and so never null in an app, but a bare `TestBed` that
+   * provides nothing should still get a menu that opens.
+   */
+  private readonly dir = inject(Directionality, { optional: true });
   private readonly outsideClick = inject(WrOutsideClick);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
+  private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
 
   /**
@@ -340,6 +350,18 @@ export class WrContextMenu {
       scrollStrategy: this.scrollStrategies.noop(),
       panelClass: ['wr-context-menu-overlay'],
     });
+
+    // The direction `create()` just captured is a string the CDK never reads
+    // again, so a flip while the menu is open would leave `overlayX: 'start'`
+    // resolving to the corner of the direction just left — the menu opening
+    // toward the edge it is meant to open away from.
+    //
+    // No callback: `POINTER_POSITIONS` carries no `offsetX` and the origin is a
+    // physical point, so re-resolving the corner IS the flip. It has to go
+    // through the follower's own `updatePosition()` rather than the `sync` below
+    // — `reapplyLastPosition()` deliberately replays the corner already chosen,
+    // which is exactly the one that has stopped being right.
+    wrFollowDirection(this.overlayRef, this.dir, this.injector);
 
     const portal = new TemplatePortal(this.menu().contentTpl(), this.vcr);
     this.overlayRef.attach(portal);

@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
@@ -32,7 +33,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 
 import type { WrCascaderOption } from './interfaces';
 
@@ -226,6 +227,13 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
+  /**
+   * Ambient reading direction, for the open panel alone — nothing in this
+   * component reads it directly. Optional so a bare `TestBed` needs no
+   * provider; `Directionality` is root-provided anyway, and a missing one
+   * simply reads as `ltr`.
+   */
+  private readonly dir = inject(Directionality, { optional: true });
   private overlayRef: OverlayRef | null = null;
 
   constructor() {
@@ -409,6 +417,11 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
       scrollStrategy: this.scrollStrategies.reposition(),
       panelClass: 'wr-cascader-overlay',
     });
+
+    // The columns cascade inline-wards, and the CDK captured the direction as a
+    // string when this ref was created — so a flip while the panel is open left
+    // the whole cascade running the other way from the page around it.
+    wrFollowDirection(this.overlayRef, this.dir, this.injector);
 
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);
     this.overlayRef.attach(portal);

@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { type BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
@@ -12,6 +13,7 @@ import {
   DestroyRef,
   Directive,
   ElementRef,
+  Injector,
   ViewContainerRef,
   effect,
   inject,
@@ -21,7 +23,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrPresentAsSheet } from 'ngwr/overlay';
+import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrFollowDirection, wrPresentAsSheet } from 'ngwr/overlay';
 
 import type { WrDropdownMenu } from './dropdown-menu';
 import { WR_DROPDOWN_POSITIONS, type WrDropdownPosition, type WrDropdownTrigger } from './interfaces';
@@ -88,10 +90,19 @@ export class WrDropdown {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
+  /**
+   * The reading direction the open menu has to keep up with.
+   *
+   * Optional inject: `Directionality` is root-provided, so this is never null in
+   * an app — but a bare `TestBed` that provides nothing should still get a menu
+   * that opens, with simply nothing ambient to follow.
+   */
+  private readonly dir = inject(Directionality, { optional: true });
   private readonly outsideClick = inject(WrOutsideClick);
   private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
+  private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
 
   /** @internal Public so host bindings can read it. */
@@ -221,6 +232,17 @@ export class WrDropdown {
         ? ['wr-dropdown-overlay', 'wr-overlay-sheet']
         : ['wr-dropdown-overlay', `wr-dropdown-overlay--${this.position()}`],
     });
+
+    // `create()` above froze the direction into the ref as a string, and nothing
+    // in the CDK ever revisits it. This menu is where it shows first: the docs
+    // site keeps its own LTR/RTL switch INSIDE a dropdown, so the flip is made
+    // from within the one panel that has to answer it.
+    //
+    // No callback — `WR_DROPDOWN_POSITIONS` anchors on `start` / `end` and
+    // carries no `offsetX`, so letting the CDK re-resolve those against the new
+    // direction is the whole job; the sheet has no anchor at all and only needs
+    // the `dir` on its host.
+    wrFollowDirection(this.overlayRef, this.dir, this.injector);
 
     if (asSheet) {
       this.overlayRef

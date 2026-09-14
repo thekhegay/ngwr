@@ -6,13 +6,14 @@
  */
 
 import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
+import { Directionality } from '@angular/cdk/bidi';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
 import { Location, isPlatformBrowser } from '@angular/common';
 import { EnvironmentInjector, Injector, PLATFORM_ID, Service, afterEveryRender, inject } from '@angular/core';
 
 import { WrI18n } from 'ngwr/i18n';
-import { WR_OVERLAY, wrAppendOverlayClose } from 'ngwr/overlay';
+import { WR_OVERLAY, wrAppendOverlayClose, wrFollowDirection } from 'ngwr/overlay';
 
 import { WrDrawerRef } from './drawer-ref';
 import type { WrDrawerOptions, WrDrawerPosition } from './interfaces';
@@ -63,6 +64,14 @@ export class WrDrawerManager {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly i18n = inject(WrI18n);
   private readonly location = inject(Location);
+  /**
+   * The application's reading direction — the instance the CDK itself read when
+   * it stamped the overlay. A root service has no node injector above it, so a
+   * plain `inject()` here already resolves the environment one; `<wr-drawer>`,
+   * which does, spells that out and says why. The two halves of one component
+   * must not answer differently about the same panel.
+   */
+  private readonly dir = inject(Directionality, { optional: true });
 
   open<C, R = unknown, D = unknown>(component: ComponentType<C>, options: WrDrawerOptions<D> = {}): WrDrawerRef<C, R> {
     const position = options.position ?? DEFAULT_POSITION;
@@ -106,6 +115,14 @@ export class WrDrawerManager {
       height: isHorizontal ? undefined : (options.height ?? DEFAULT_HEIGHT),
       maxHeight: isHorizontal ? undefined : (cap ?? undefined),
     });
+
+    // Same pair, same reason as `<wr-drawer>`: `position` is physical, the CDK
+    // writes `dir` on the flex host that `justify-content` places the panel in,
+    // so the attribute alone would slide a `left` drawer to the right and
+    // re-applying the strategy is what cancels it. The follower ends on the
+    // ref's own `detachments()`, which every dismissal goes through, and each
+    // `open()` creates a fresh ref of its own.
+    wrFollowDirection(overlayRef, this.dir, this.parentInjector);
 
     const drawerRef = new WrDrawerRef<C, R>(overlayRef);
 

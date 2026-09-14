@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { Dir, type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -255,5 +256,107 @@ describe('the lightbox stylesheet', () => {
     // calls the module it takes it from — what matters is that it lands on the host.
     expect(code).toMatch(/&:has\(&__trigger:focus-visible\) \{\s*@include [\w-]+\.focus-ring;/);
     expect(code).not.toMatch(/&__trigger \{[\s\S]*?outline:\s*var\(--wr-focus-ring/);
+  });
+});
+
+/**
+ * The viewer is centred on both axes, so no geometry rides on the direction —
+ * but its chrome does: the ✕ sits at `inset-inline-end` and the caption reads
+ * as prose. The CDK captures the direction as a string when the overlay is
+ * created and writes it once, so a flip while the viewer is open — this site's
+ * own LTR/RTL switch is a menu item — leaves the button in the corner the
+ * reader has just stopped looking at.
+ */
+describe('WrLightbox follows a direction change while the viewer is open', () => {
+  @Component({
+    imports: [WrLightbox],
+    template: `<wr-lightbox src="/full.jpg" alt="A photo of a cat" caption="On the sill" />`,
+  })
+  class DirHost {}
+
+  let fixture: ReturnType<typeof TestBed.createComponent<DirHost>>;
+  let dir: Directionality;
+
+  /** What the CDK writes `dir` on: the wrapper around the pane, not the pane. */
+  const wrapper = (): HTMLElement => document.querySelector<HTMLElement>('.wr-lightbox-overlay')!.parentElement!;
+
+  const setOpen = async (next: boolean): Promise<void> => {
+    const button = next
+      ? (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-lightbox__trigger')!
+      : document.querySelector<HTMLElement>('.wr-lightbox-viewer__close')!;
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+    await fixture.whenStable();
+  };
+
+  /** A signal write is state, not an event: it lands on the next pass. */
+  const flip = async (next: Direction): Promise<void> => {
+    dir.valueSignal.set(next);
+    await fixture.whenStable();
+  };
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(DirHost);
+    dir = TestBed.inject(Directionality);
+    fixture.detectChanges();
+    await setOpen(true);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('rewrites the viewer’s dir, so its chrome mirrors with the page', async () => {
+    expect(wrapper().getAttribute('dir')).toBe('ltr');
+
+    await flip('rtl');
+
+    expect(wrapper().getAttribute('dir')).toBe('rtl');
+  });
+
+  it('gives a reopened viewer a follower of its own', async () => {
+    await setOpen(false);
+    await setOpen(true);
+
+    await flip('rtl');
+
+    expect(wrapper().getAttribute('dir')).toBe('rtl');
+  });
+});
+
+/**
+ * The viewer is appended to the overlay container on `<body>`, never inside the
+ * `[dir]` region the thumbnail happens to sit in, and the CDK stamped it with
+ * the APPLICATION's direction — `createOverlayRef` reads that off the
+ * `Overlay`'s own injector, which no node-level `[dir]` is ever in the chain
+ * of. A follower reading the island instead would rewrite the chrome one pass
+ * after the viewer opened: a change to how it renders rather than the follow
+ * this is.
+ */
+describe('WrLightbox follows the application, not a scoped [dir] island', () => {
+  @Component({
+    imports: [Dir, WrLightbox],
+    template: `<div dir="rtl"><wr-lightbox src="/full.jpg" alt="A photo of a cat" /></div>`,
+  })
+  class IslandHost {}
+
+  let fixture: ReturnType<typeof TestBed.createComponent<IslandHost>>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(IslandHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('leaves a viewer opened inside an rtl island on the application’s direction', async () => {
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-lightbox__trigger')!.click();
+    await fixture.whenStable();
+    // A second pass on purpose: the watch's first run lands after the viewer is
+    // in the document, so a follower reading the island would flip it here.
+    await fixture.whenStable();
+
+    expect(document.querySelector<HTMLElement>('.wr-lightbox-overlay')!.parentElement!.getAttribute('dir')).toBe('ltr');
   });
 });

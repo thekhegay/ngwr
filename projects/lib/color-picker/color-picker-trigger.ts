@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
@@ -12,6 +13,7 @@ import {
   DestroyRef,
   Directive,
   ElementRef,
+  Injector,
   ViewContainerRef,
   inject,
   input,
@@ -21,7 +23,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 
 import { WrColorPicker } from './color-picker';
 import type { WrColorFormat } from './interfaces';
@@ -97,6 +99,14 @@ export class WrColorPickerTrigger {
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
+  /**
+   * Ambient reading direction, for the open panel alone — nothing in this
+   * directive reads it directly. Optional so a bare `TestBed` needs no
+   * provider; `Directionality` is root-provided anyway, and a missing one
+   * simply reads as `ltr`.
+   */
+  private readonly dir = inject(Directionality, { optional: true });
 
   protected readonly isOpen = signal(false);
   private overlayRef: OverlayRef | null = null;
@@ -139,6 +149,15 @@ export class WrColorPickerTrigger {
       panelClass: 'wr-color-picker-overlay',
     });
     this.overlayRef.overlayElement.id = this.panelId;
+
+    // Two of the four fallbacks anchor on `end`, and the CDK resolves start /
+    // end against the direction it captured when this ref was created. The
+    // `<wr-segmented>` the picker draws its HEX / RGB / HSL tabs with is the
+    // visible half: its thumb reads `Directionality` LIVE, so a flip while this
+    // panel was open slid the thumb to the other slot inside a pane still drawn
+    // `ltr` — parked under the wrong tab, which is the symptom that started all
+    // of this.
+    wrFollowDirection(this.overlayRef, this.dir, this.injector);
 
     const portal = new ComponentPortal(WrColorPicker, this.vcr);
     const ref = this.overlayRef.attach(portal);

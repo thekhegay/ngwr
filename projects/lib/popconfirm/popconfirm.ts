@@ -8,11 +8,21 @@
 import { Directionality } from '@angular/cdk/bidi';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
-import { DestroyRef, Directive, ElementRef, ViewContainerRef, inject, input, output, signal } from '@angular/core';
+import {
+  DestroyRef,
+  Directive,
+  ElementRef,
+  Injector,
+  ViewContainerRef,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY, WrOutsideClick, wrMirrorOffsets } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
 import type { WrColor } from 'ngwr/theme';
 
 import { WR_POPCONFIRM_POSITIONS, type WrPopconfirmPosition } from './interfaces';
@@ -98,6 +108,7 @@ export class WrPopconfirm {
   private readonly outsideClick = inject(WrOutsideClick);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
+  private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
 
   /** @internal Public so the host bindings can read it. */
@@ -129,10 +140,18 @@ export class WrPopconfirm {
   open(): void {
     if (this.overlayRef) return;
 
+    // Read ONCE, here, and mirror this list rather than the input: the side is
+    // chosen at open and a later `position` write moves nothing, so a follower
+    // that re-read the signal would let a direction flip quietly adopt a
+    // position the panel never opened with — and the `wr-popconfirm-overlay--…`
+    // class minted from the same read below, which is what the stylesheet hangs
+    // the arrow and the spacing off, would still name the old one.
+    const positions = WR_POPCONFIRM_POSITIONS[this.position()];
+
     const positionStrategy = this.overlay
       .position()
       .flexibleConnectedTo(this.host)
-      .withPositions(wrMirrorOffsets(WR_POPCONFIRM_POSITIONS[this.position()], this.isRtl()))
+      .withPositions(wrMirrorOffsets(positions, this.isRtl()))
       .withPush(true);
 
     this.overlayRef = this.overlay.create({
@@ -140,6 +159,17 @@ export class WrPopconfirm {
       scrollStrategy: this.scrollStrategies.reposition(),
       panelClass: ['wr-popconfirm-overlay', `wr-popconfirm-overlay--${this.position()}`],
     });
+
+    // `isRtl()` above answered once, at `create()`, and so did the CDK's own
+    // capture of the direction — neither is revisited if the app flips while the
+    // question is still on screen. Both halves have to move: the `dir` on the
+    // host, so `start` / `end` resolve to the other edge, and the mirrored list,
+    // because `offsetX` is added to the final PHYSICAL x. Leave the list behind
+    // and the 8px gap on `left` / `right` becomes an 8px overlap over the very
+    // control the panel is asking about.
+    wrFollowDirection(this.overlayRef, this.dir, this.injector, direction =>
+      positionStrategy.withPositions(wrMirrorOffsets(positions, direction === 'rtl'))
+    );
 
     // Non-modal by choice, like `wr-popover`: an outside click or Escape closes it,
     // so trapping focus would only make it harder to leave. It still needs a role, a

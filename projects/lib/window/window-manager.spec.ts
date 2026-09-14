@@ -1,3 +1,4 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -488,5 +489,79 @@ describe('WrWindowManager', () => {
       // the next open fall back to the config defaults.
       expect(() => manager.clearPersistedPosition(cfg)).not.toThrow();
     });
+  });
+});
+
+/**
+ * A window is the longest-lived thing a user can have open, so it is the most
+ * likely of all the overlays to still be there when the direction changes — and
+ * the CDK captures the direction as a string at create and never looks again.
+ * `x` / `y` are physical by design and do not move (the pane is bare; the window
+ * places itself), but the chrome is not: the macOS title bar parks its button
+ * cluster with `row-reverse`, which resolves against `dir`.
+ */
+describe('WrWindowManager follows a direction change while a window is open', () => {
+  let manager: WrWindowManager;
+  let dir: Directionality;
+
+  /** What the CDK writes `dir` on: the wrapper around the pane, not the pane. */
+  const wrappers = (): HTMLElement[] =>
+    [...document.querySelectorAll<HTMLElement>('.wr-window-overlay')].map(p => p.parentElement!);
+
+  /** A signal write is state, not an event: it lands on the next pass. */
+  const flip = (next: Direction): void => {
+    dir.valueSignal.set(next);
+    TestBed.tick();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [provideWrOverlay(), provideWrStorage({ engine: () => createMemoryStorage() })],
+    });
+    manager = TestBed.inject(WrWindowManager);
+    dir = TestBed.inject(Directionality);
+    TestBed.tick();
+  });
+
+  afterEach(() => {
+    manager.closeAll();
+    TestBed.resetTestingModule();
+  });
+
+  it('rewrites the pane’s dir, so the window chrome mirrors with the page', () => {
+    manager.open(Body, { title: 'One' });
+    TestBed.tick();
+    expect(wrappers().map(w => w.getAttribute('dir'))).toEqual(['ltr']);
+
+    flip('rtl');
+
+    expect(wrappers().map(w => w.getAttribute('dir'))).toEqual(['rtl']);
+  });
+
+  it('follows on every window in the stack, not only the front one', () => {
+    manager.open(Body, { title: 'One' });
+    manager.open(Body, { title: 'Two' });
+    TestBed.tick();
+
+    flip('rtl');
+
+    // A window manager's whole premise is several open at once, so the follower
+    // has to be per `OverlayRef` — one installed for the service would leave
+    // every window but one rendering the old way.
+    expect(wrappers().map(w => w.getAttribute('dir'))).toEqual(['rtl', 'rtl']);
+  });
+
+  it('gives a reopened window a follower of its own', async () => {
+    const first = manager.open(Body, { title: 'One' });
+    TestBed.tick();
+    await first.close();
+    TestBed.tick();
+
+    manager.open(Body, { title: 'One again' });
+    TestBed.tick();
+    flip('rtl');
+
+    expect(wrappers().map(w => w.getAttribute('dir'))).toEqual(['rtl']);
   });
 });

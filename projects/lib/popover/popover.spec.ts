@@ -832,3 +832,138 @@ describe('WrPopover template reference', () => {
     fixture.destroy();
   });
 });
+
+/**
+ * The CDK reads the direction ONCE, as a string, when the overlay is created
+ * (`overlayConfig.direction ||= directionality.value`), writes it as the host's
+ * `dir` on attach and never looks at it again — `updatePosition()` does not
+ * touch it. So an app that flips while a panel is open mirrors the page and
+ * leaves the panel behind, still `ltr` and still carrying the offsets
+ * `wrMirrorOffsets` built for the direction it opened in. This site's own
+ * LTR/RTL switch is the demonstration: it lives inside a menu, and the
+ * `wr-segmented` it is drawn with reads `Directionality` live, so the thumb
+ * slides to a slot the pane around it still lays out the other way.
+ *
+ * The real `Directionality` is flipped here rather than a `{ value, change }`
+ * double, because the state IS `valueSignal` — `value` is a getter over it, and
+ * the root instance emits `change` for nobody.
+ */
+describe('WrPopover when the direction flips while it is open', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+  let dir: Directionality;
+
+  const pane = (): HTMLElement => document.querySelector<HTMLElement>('.wr-popover-overlay')!;
+  /** `dir` goes on the host wrapper; `panelClass` lands on the pane inside it. */
+  const paneDir = (): string | null => pane().parentElement!.getAttribute('dir');
+  const clickTrigger = (): void => {
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.click-trigger')!.click();
+    fixture.detectChanges();
+  };
+
+  const openAt = (position: WrPopoverPosition): void => {
+    fixture.componentInstance.position.set(position);
+    fixture.detectChanges();
+    clickTrigger();
+  };
+
+  /** A signal write is state, not an event: it lands on the next change detection. */
+  const flipTo = (direction: Direction): void => {
+    dir.valueSignal.set(direction);
+    TestBed.tick();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    dir = TestBed.inject(Directionality);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('rewrites the open panel’s own `dir`', () => {
+    openAt('bottom');
+    expect(paneDir()).toBe('ltr');
+
+    flipTo('rtl');
+
+    expect(paneDir()).toBe('rtl');
+  });
+
+  it('turns the gap around without waiting to be reopened', () => {
+    openAt('left');
+    // `left` hangs the panel 8px clear of the trigger's start edge.
+    expect(pane().getAttribute('style')).toContain('translateX(-8px)');
+
+    flipTo('rtl');
+
+    // Mirrored in place. Left alone the -8 survives the flip, and a panel that
+    // has just moved to the trigger's other side sits 8px ON TOP of it.
+    expect(pane().getAttribute('style')).toContain('translateX(8px)');
+  });
+
+  it('gives a reopened panel a follower of its own', () => {
+    openAt('left');
+    clickTrigger();
+    expect(document.querySelector('.wr-popover-overlay')).toBeNull();
+
+    clickTrigger();
+    flipTo('rtl');
+
+    // Closing disposes the ref and takes its follower with it; reopening is a
+    // new ref, so the second panel has to be wired again rather than inheriting.
+    expect([paneDir(), pane().getAttribute('style')?.includes('translateX(8px)')]).toEqual(['rtl', true]);
+  });
+
+  it('follows the direction back again', () => {
+    openAt('left');
+    flipTo('rtl');
+
+    // The waypoint is the whole test. A panel that follows nothing ends this
+    // round trip in exactly the state it started in, so asserting only the
+    // landing would pass on an unwired one — assert that it went somewhere
+    // first.
+    expect([paneDir(), pane().getAttribute('style')?.includes('translateX(8px)')]).toEqual(['rtl', true]);
+
+    flipTo('ltr');
+
+    // Nothing here is one-way: the mirror is rebuilt from the direction it is
+    // handed, not toggled.
+    expect([paneDir(), pane().getAttribute('style')?.includes('translateX(-8px)')]).toEqual(['ltr', true]);
+  });
+});
+
+/**
+ * A sheet is anchored to nothing — a global strategy with no position list to
+ * mirror — which is exactly why it is easy to leave out of the wiring. Its host
+ * still carries the `dir` every logical rule inside the panel reads.
+ */
+describe('WrPopover as a sheet when the direction flips', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<SheetHost>>;
+  const width = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+
+  afterEach(() => {
+    fixture.destroy();
+    if (width) Object.defineProperty(window, 'innerWidth', width);
+  });
+
+  it('rewrites the sheet’s `dir` even with no positions to rebuild', () => {
+    Object.defineProperty(window, 'innerWidth', { value: 390, configurable: true });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(SheetHost);
+    fixture.detectChanges();
+
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.sheet-trigger')!.click();
+    fixture.detectChanges();
+    const sheet = document.querySelector<HTMLElement>('.wr-popover-overlay')!;
+    expect(sheet.classList.contains('wr-overlay-sheet')).toBe(true);
+    expect(sheet.parentElement!.getAttribute('dir')).toBe('ltr');
+
+    TestBed.inject(Directionality).valueSignal.set('rtl');
+    TestBed.tick();
+
+    expect(sheet.parentElement!.getAttribute('dir')).toBe('rtl');
+  });
+});

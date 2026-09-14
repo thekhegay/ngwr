@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
@@ -13,6 +14,7 @@ import {
   type ComponentRef,
   DestroyRef,
   ElementRef,
+  Injector,
   ViewEncapsulation,
   computed,
   effect,
@@ -30,7 +32,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { WrDateAdapter, type WrDateFormat } from 'ngwr/date';
 import { readI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
-import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 
 import type { WrDateRange } from './interfaces';
 import { WrDateRangePanel } from './internal/date-range-panel';
@@ -153,6 +155,14 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
+  /**
+   * Ambient reading direction, for the open panel alone — nothing in this
+   * component reads it directly. Optional so a bare `TestBed` needs no
+   * provider; `Directionality` is root-provided anyway, and a missing one
+   * simply reads as `ltr`.
+   */
+  private readonly dir = inject(Directionality, { optional: true });
   protected readonly startEl = viewChild.required<ElementRef<HTMLInputElement>>('startInput');
   protected readonly endEl = viewChild.required<ElementRef<HTMLInputElement>>('endInput');
   protected readonly triggerEl = viewChild<ElementRef<HTMLButtonElement>>('trigger');
@@ -434,6 +444,13 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
       scrollStrategy: this.scrollStrategies.reposition(),
       panelClass: 'wr-date-picker-overlay',
     });
+
+    // Same four fallbacks as `wr-date-picker`, two of them anchored on `end`,
+    // and the two calendars inside the panel read `Directionality` live — so an
+    // open range panel had to follow a flip or render its months against a
+    // direction the rest of the page had left behind.
+    wrFollowDirection(this.overlayRef, this.dir, this.injector);
+
     this.overlayOpen.set(true);
 
     // The trigger promises `aria-haspopup="dialog"`; the pane is the element it

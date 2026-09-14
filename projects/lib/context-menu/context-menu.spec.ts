@@ -684,6 +684,144 @@ describe('WrContextMenu under dir="rtl"', () => {
 });
 
 /**
+ * Every pane in the chain is its own overlay, and each froze the reading
+ * direction when it was created: the CDK captures it as a string, writes it as
+ * the host's `dir` on attach and never looks again. So a flip while the menu is
+ * open has to reach both levels, and they fail differently.
+ *
+ * The ROOT hangs off the pointer, which is a physical point — its whole
+ * dependence is `overlayX: 'start'`, the corner the menu grows from, and only a
+ * re-apply re-resolves it. (Not the scroll `sync`, which deliberately replays
+ * the corner already chosen.) The SUBMENU also carries a ±4px `offsetX`, which
+ * the item mirrors by hand because the CDK adds it to the final PHYSICAL x — so
+ * an unmirrored gap becomes an overlap over the row the pane hangs off, while
+ * `onSubmenuKeydown`, reading `Directionality` live, has already swapped the
+ * arrow that steps back out.
+ */
+describe('WrContextMenu across a direction flip', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+  let ambient: Directionality;
+
+  const target = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.target')!;
+  const rootPane = (): HTMLElement | null =>
+    document.querySelector<HTMLElement>('.wr-context-menu-overlay:not(.wr-context-menu-overlay--submenu)');
+  const submenuPane = (): HTMLElement | null =>
+    document.querySelector<HTMLElement>('.wr-context-menu-overlay--submenu');
+  const itemFor = (label: string): HTMLElement =>
+    [...document.querySelectorAll<HTMLElement>('.wr-context-menu-item')].find(i => i.textContent?.trim() === label)!;
+
+  /**
+   * The root asks for no flexible dimensions, so the CDK writes it an EXACT
+   * position and the pane's own `left` / `right` is the corner it grew from.
+   */
+  const rootPlacement = (): Record<string, string | null> => ({
+    dir: rootPane()!.parentElement!.getAttribute('dir'),
+    left: rootPane()!.style.left,
+    right: rootPane()!.style.right,
+  });
+
+  /**
+   * The submenu goes through the bounding box, which is pinned to one physical
+   * edge, and carries its mirrored `offsetX` as the pane's own transform.
+   */
+  const submenuPlacement = (): Record<string, string | null> => ({
+    dir: submenuPane()!.parentElement!.getAttribute('dir'),
+    left: submenuPane()!.parentElement!.style.left,
+    right: submenuPane()!.parentElement!.style.right,
+    offset: submenuPane()!.style.transform,
+  });
+
+  const rightClick = (): void => {
+    target().dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  const press = (el: HTMLElement, key: string): void => {
+    el.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  const flipTo = (direction: Direction): void => {
+    ambient.valueSignal.set(direction);
+    fixture.detectChanges();
+  };
+
+  /** A dismissed pane lingers 220 ms for its exit animation before it is disposed. */
+  const settle = (): void => {
+    vi.advanceTimersByTime(400);
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    ambient = TestBed.inject(Directionality);
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.useRealTimers();
+  });
+
+  it('grows the open menu from the other corner', () => {
+    rightClick();
+    expect(rootPlacement()).toEqual({ dir: 'ltr', left: '0px', right: '' });
+
+    flipTo('rtl');
+
+    // A native context menu opens away from the edge the reading starts at, and
+    // that edge has just moved. `setDirection()` alone would rewrite the
+    // attribute and leave the pane pinned to the left of the cursor.
+    expect(rootPlacement()).toEqual({ dir: 'rtl', left: '', right: '0px' });
+  });
+
+  it('re-mirrors the gap an open submenu keeps from its row', () => {
+    rightClick();
+    press(itemFor('More'), 'ArrowRight');
+    expect(submenuPlacement()).toEqual({ dir: 'ltr', left: '0px', right: 'auto', offset: 'translateX(4px)' });
+
+    flipTo('rtl');
+
+    // The sign is the assertion. The pane has moved to the other side of the
+    // row, so the 4px it holds clear has to point the other way with it — and
+    // nothing in the CDK mirrors an `offsetX`.
+    expect(submenuPlacement()).toEqual({ dir: 'rtl', left: 'auto', right: '0px', offset: 'translateX(-4px)' });
+  });
+
+  it('follows the whole chain, not just the pane on top', () => {
+    rightClick();
+    press(itemFor('More'), 'ArrowRight');
+
+    flipTo('rtl');
+
+    // The submenu is the newest overlay and the one the keyboard dispatcher
+    // talks to; the root underneath it is just as visible and just as wrong if
+    // it is left behind.
+    expect([rootPane()!.parentElement!.getAttribute('dir'), submenuPane()!.parentElement!.getAttribute('dir')]).toEqual(
+      ['rtl', 'rtl']
+    );
+  });
+
+  it('gives a reopened menu a follower of its own', () => {
+    rightClick();
+    press(itemFor('Cut'), 'Escape');
+    settle();
+    expect(rootPane()).toBeNull();
+
+    // `dispose()` nulls the element `setDirection()` writes through, so a
+    // follower left behind by the pane that closed throws on this line.
+    flipTo('rtl');
+    rightClick();
+    flipTo('ltr');
+
+    expect(rootPlacement()).toEqual({ dir: 'ltr', left: '0px', right: '' });
+  });
+});
+
+/**
  * ⚠️ This one guards the RULE, not the behaviour.
  *
  * `:hover` and `:focus-visible` shared one declaration block that painted the

@@ -6,6 +6,7 @@
  */
 
 import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
@@ -13,6 +14,8 @@ import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
   DestroyRef,
+  EnvironmentInjector,
+  Injector,
   PLATFORM_ID,
   TemplateRef,
   ViewContainerRef,
@@ -28,7 +31,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY } from 'ngwr/overlay';
+import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 
 import { WrDrawerTitle } from './directives/drawer-title';
 import type { WrDrawerPosition } from './interfaces';
@@ -237,8 +240,28 @@ export class WrDrawer {
   private readonly overlay = inject(WR_OVERLAY);
   private readonly vcr = inject(ViewContainerRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  /**
+   * The reading direction the open drawer has to keep up with, resolved off the
+   * ENVIRONMENT injector rather than this component's.
+   *
+   * That is where the CDK read it: `createOverlayRef` takes `Directionality`
+   * from the `Overlay`'s own injector, which `provideWrOverlay()` parents to
+   * the application's, so a node-level CDK `[dir]` is never in the chain. A
+   * panel is not IN that island either — it is appended to the overlay
+   * container on `<body>` — so following the node injector would not follow the
+   * ref at all: it would rewrite a correctly-stamped panel to the island's
+   * direction one pass after it opened, and `WrDrawerManager`, a root service
+   * with no island to read, could never do the same. Two halves of one
+   * component, same panel classes, same stylesheet, two answers.
+   *
+   * `null` never happens in an app — `Directionality` is root-provided — but a
+   * bare `TestBed` should still get a drawer that opens, with nothing ambient
+   * to follow.
+   */
+  private readonly dir = inject(EnvironmentInjector).get(Directionality, null);
 
   private overlayRef: OverlayRef | null = null;
   private focusTrap: ConfigurableFocusTrap | null = null;
@@ -303,6 +326,17 @@ export class WrDrawer {
       height: isHorizontal ? undefined : this.height(),
       maxHeight: isHorizontal ? undefined : (cap ?? undefined),
     });
+
+    // `position` is PHYSICAL — a `left` drawer is on the physical left in either
+    // direction — and it takes BOTH halves of the follower to keep it that way.
+    // The CDK places the panel with `justify-content` on a host it also writes
+    // `dir` to, and that host is a flex row, so the attribute alone reverses the
+    // main axis and slides a `left` drawer across to the right; `apply()`'s own
+    // RTL branch swaps `flex-start` for `flex-end` to cancel exactly that. So
+    // the `setDirection()` + `updatePosition()` pair leaves the panel where it
+    // is and only re-resolves what the panel's own logical CSS reads — which is
+    // the whole point, since the direction inside the drawer really did change.
+    wrFollowDirection(this.overlayRef, this.dir, this.injector);
 
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);
     this.overlayRef.attach(portal);

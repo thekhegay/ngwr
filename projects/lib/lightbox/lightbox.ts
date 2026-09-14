@@ -6,6 +6,7 @@
  */
 
 import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
@@ -13,6 +14,8 @@ import type { TemplateRef } from '@angular/core';
 import {
   Component,
   DestroyRef,
+  EnvironmentInjector,
+  Injector,
   ViewContainerRef,
   ViewEncapsulation,
   computed,
@@ -25,7 +28,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY } from 'ngwr/overlay';
+import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 
 let viewerUid = 0;
 
@@ -136,7 +139,22 @@ export class WrLightbox {
   private readonly overlay = inject(WR_OVERLAY);
   private readonly vcr = inject(ViewContainerRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
+  /**
+   * The reading direction the open viewer has to keep up with, resolved off the
+   * ENVIRONMENT injector rather than this component's — the same instance the
+   * CDK read when it stamped the overlay, since `createOverlayRef` takes
+   * `Directionality` from the `Overlay`'s injector and no node-level `[dir]` is
+   * in that chain. The viewer is appended to the overlay container on `<body>`,
+   * not into whatever region the thumbnail sits in, so reading the node
+   * injector would rewrite a correctly-stamped panel to an island's direction
+   * one pass after it opened rather than follow the application at all.
+   *
+   * `null` never happens in an app — `Directionality` is root-provided — but a
+   * bare `TestBed` should still get a viewer that opens.
+   */
+  private readonly dir = inject(EnvironmentInjector).get(Directionality, null);
   private focusTrap: ConfigurableFocusTrap | null = null;
   private previouslyFocused: HTMLElement | null = null;
   private overlayRef: OverlayRef | null = null;
@@ -227,6 +245,12 @@ export class WrLightbox {
       scrollStrategy: this.overlay.scrollStrategies.block(),
       panelClass: 'wr-lightbox-overlay',
     });
+
+    // Centred on both axes, so no geometry rides on the direction — but the
+    // viewer's own chrome does. The ✕ is placed with `inset-inline-end` and the
+    // caption reads as prose, both against the `dir` the CDK froze at create, so
+    // a flip while the viewer is open leaves the button on the wrong corner.
+    wrFollowDirection(this.overlayRef, this.dir, this.injector);
 
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);
     this.overlayRef.attach(portal);

@@ -5,11 +5,12 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { type OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
-import { type ComponentRef, Service, inject } from '@angular/core';
+import { type ComponentRef, Injector, Service, inject } from '@angular/core';
 
-import { WR_OVERLAY } from 'ngwr/overlay';
+import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 
 import type { WrToastOptions, WrToastPosition } from '../interfaces';
 import { WrToastHost } from '../toast-host';
@@ -52,6 +53,8 @@ type ActiveEntry = WrToastOptions & {
 export class WrToast {
   private readonly overlay = inject(WR_OVERLAY);
   private readonly config = inject(WR_TOAST_CONFIG);
+  private readonly injector = inject(Injector);
+  private readonly dir = inject(Directionality, { optional: true });
 
   private overlayRef: OverlayRef | null = null;
   private hostRef: ComponentRef<WrToastHost> | null = null;
@@ -166,6 +169,15 @@ export class WrToast {
       hasBackdrop: false,
       panelClass: ['wr-toast-overlay'],
     });
+
+    // The corner is `inset-inline-start` / `-end` on the host component, so the
+    // side the stack sits on is decided entirely by the `dir` the CDK wrote at
+    // create. This host outlives every individual toast — it is torn down only
+    // when the last one leaves — so without this a stack raised before a flip
+    // stays on the reader's old side for the rest of the run. The position
+    // strategy is bare, so nothing else moves. Torn down with the ref by
+    // `disposeHost()`, and the next `ensureHost()` installs a new follower.
+    wrFollowDirection(this.overlayRef, this.dir, this.injector);
 
     const portal = new ComponentPortal(WrToastHost);
     this.hostRef = this.overlayRef.attach(portal);

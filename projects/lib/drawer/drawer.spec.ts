@@ -1,3 +1,4 @@
+import { Dir, type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -442,5 +443,156 @@ describe('WrDrawerFooter emits a modifier for every documented align', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('div')!.classList).toContain(
       `wr-drawer__footer--${align}`
     );
+  });
+});
+
+/**
+ * A drawer outlives a direction change — this site's own LTR/RTL switch is a
+ * menu item, so the flip always arrives with something already open — and the
+ * CDK captures the direction as a string when the overlay is created, writes it
+ * once on attach, and never looks again.
+ *
+ * It takes BOTH halves of the follower to leave a `left` drawer where it is:
+ * the attribute goes on the flex wrapper the panel is placed inside, so writing
+ * it alone reverses that wrapper's main axis and slides the drawer across, and
+ * re-applying the strategy is what swaps `flex-start` for `flex-end` to cancel
+ * it. Hence the two assertions — the attribute, and the placement it moves.
+ */
+describe('WrDrawer follows a direction change while it is open', () => {
+  @Component({
+    imports: [WrDrawer],
+    template: `<wr-drawer [(open)]="open" position="left"><p class="body">Drawer body</p></wr-drawer>`,
+  })
+  class DirHost {
+    readonly open = signal(false);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<DirHost>>;
+  let dir: Directionality;
+
+  /** What the CDK writes `dir` and `justify-content` on: the pane's wrapper. */
+  const wrapper = (): HTMLElement => document.querySelector<HTMLElement>('.wr-drawer-overlay')!.parentElement!;
+
+  const setOpen = async (next: boolean): Promise<void> => {
+    fixture.componentInstance.open.set(next);
+    await fixture.whenStable();
+  };
+
+  /** A signal write is state, not an event: it lands on the next pass. */
+  const flip = async (next: Direction): Promise<void> => {
+    dir.valueSignal.set(next);
+    await fixture.whenStable();
+  };
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(DirHost);
+    dir = TestBed.inject(Directionality);
+    fixture.detectChanges();
+    await setOpen(true);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('rewrites the panel’s dir, so the content inside it mirrors with the page', async () => {
+    expect(wrapper().getAttribute('dir')).toBe('ltr');
+
+    await flip('rtl');
+
+    expect(wrapper().getAttribute('dir')).toBe('rtl');
+  });
+
+  it('keeps a left drawer on the physical left, which is what `position` promises', async () => {
+    expect(wrapper().style.justifyContent).toBe('flex-start');
+
+    await flip('rtl');
+
+    // `flex-end` on an RTL row IS the physical left. Without the reposition the
+    // wrapper would keep `flex-start` under a reversed axis and the drawer
+    // would be on the right — with its rounded corners, its handle gutter and
+    // its safe-area padding all still cut for a left-anchored panel.
+    expect(wrapper().style.justifyContent).toBe('flex-end');
+  });
+
+  it('gives a reopened drawer a follower of its own', async () => {
+    await setOpen(false);
+    await setOpen(true);
+
+    await flip('rtl');
+
+    expect(wrapper().getAttribute('dir')).toBe('rtl');
+  });
+});
+
+/**
+ * A CDK `[dir]` island is a region of the PAGE, and a global overlay is not in
+ * it: the panel is appended to the overlay container on `<body>`, and the CDK
+ * stamps it with the direction it read from the APPLICATION's `Directionality`
+ * — `createOverlayRef` resolves that off the `Overlay`'s own injector, which
+ * `provideWrOverlay()` parents to the environment one, where a node-level
+ * `[dir]` never appears. The follower reads that same instance, and these two
+ * cases are what hold it there: an island must not rewrite a panel one pass
+ * after it opened, and must not shadow a real application flip either.
+ *
+ * `WrDrawerManager` is the other half of the argument. It is a root service
+ * with no island to read, and the declarative and imperative halves of one
+ * component — same panel classes, same stylesheet — cannot answer differently
+ * about the same page.
+ */
+describe('WrDrawer follows the application, not a scoped [dir] island', () => {
+  @Component({
+    imports: [Dir, WrDrawer],
+    template: `
+      <div [dir]="island()">
+        <wr-drawer [(open)]="open" position="left"><p class="body">Drawer body</p></wr-drawer>
+      </div>
+    `,
+  })
+  class IslandHost {
+    readonly open = signal(false);
+    readonly island = signal<Direction>('rtl');
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<IslandHost>>;
+  let app: Directionality;
+
+  const wrapper = (): HTMLElement => document.querySelector<HTMLElement>('.wr-drawer-overlay')!.parentElement!;
+
+  const open = async (): Promise<void> => {
+    fixture.componentInstance.open.set(true);
+    await fixture.whenStable();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(IslandHost);
+    app = TestBed.inject(Directionality);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('leaves a panel opened inside an rtl island on the application’s direction', async () => {
+    await open();
+    // A second pass on purpose: the watch's first run lands after the panel is
+    // in the document, so a follower reading the island would flip it HERE —
+    // a change to what the drawer renders rather than the follow this is.
+    await fixture.whenStable();
+
+    expect(wrapper().getAttribute('dir')).toBe('ltr');
+    expect(wrapper().style.justifyContent).toBe('flex-start');
+  });
+
+  it('still follows an application flip the island does not make', async () => {
+    fixture.componentInstance.island.set('ltr');
+    await fixture.whenStable();
+    await open();
+
+    app.valueSignal.set('rtl');
+    await fixture.whenStable();
+
+    expect(wrapper().getAttribute('dir')).toBe('rtl');
   });
 });
