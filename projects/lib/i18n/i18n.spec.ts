@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
-import { LOCALE_ID } from '@angular/core';
+import { type EnvironmentProviders, LOCALE_ID, type Provider } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { wrEn } from 'ngwr/i18n/en';
@@ -11,6 +11,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WrI18n, wrInterpolate } from './i18n';
 import type { WrI18nCatalog } from './i18n-config';
 import { provideWrI18n, provideWrI18nBaseCatalogs, provideWrI18nStaticLoader } from './provide-wr-i18n';
+import { readI18nText } from './util';
 
 describe('wrInterpolate', () => {
   it('substitutes named placeholders, whitespace and all', () => {
@@ -275,6 +276,68 @@ describe('WrI18n locale chain', () => {
     const i18n = TestBed.inject(WrI18n);
     await settle();
     expect(i18n.t('select.noResults')).toBe('Ничего не найдено');
+  });
+});
+
+/**
+ * The trap every consumer walks into, and the lookup that gets them out of it.
+ *
+ * A loader REPLACES ngwr's catalog for a locale, so the obvious way to keep
+ * ngwr's strings is `{ ...wrRu, ...yours }`. A spread is shallow: any top-level
+ * namespace both sides define (`common`, `validation`, `table`, … wrEn has
+ * dozens) keeps only the keys of the side spread last, and the other side's
+ * keys stop resolving with nothing logged. The base catalogs are walked PER KEY
+ * after the loader's catalog misses, which is why they keep both halves.
+ */
+describe('WrI18n base catalogs under a namespace the app shares', () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => {
+    TestBed.resetTestingModule();
+    vi.restoreAllMocks();
+  });
+
+  /** The app's own Russian catalog — one key, in a namespace ngwr also owns. */
+  const appRu: WrI18nCatalog = { common: { signOut: 'Выйти' } };
+
+  const mount = async (providers: (Provider | EnvironmentProviders)[]): Promise<WrI18n> => {
+    TestBed.configureTestingModule({ providers });
+    const i18n = TestBed.inject(WrI18n);
+    TestBed.tick();
+    await Promise.resolve();
+    await Promise.resolve();
+    TestBed.tick();
+    return i18n;
+  };
+
+  it("fills a key the app catalog's same-named namespace lacks", async () => {
+    const i18n = await mount([
+      provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+      provideWrI18nBaseCatalogs({ ru: wrRu }),
+      provideWrI18nStaticLoader({ ru: appRu }),
+    ]);
+
+    expect(i18n.t('common.signOut')).toBe('Выйти');
+    expect(i18n.t('common.cancel')).toBe('Отмена');
+    expect(TestBed.runInInjectionContext(() => readI18nText('common.cancel', 'Cancel'))()).toBe('Отмена');
+  });
+
+  it('is what a spread merge cannot do: the later namespace replaces the earlier one whole', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const i18n = await mount([
+      provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+      provideWrI18nStaticLoader({ ru: { ...wrRu, ...appRu } }),
+    ]);
+
+    expect(i18n.t('common.signOut')).toBe('Выйти');
+    // The raw key, which is what a `wrT` read renders under the default handler…
+    expect(i18n.t('common.cancel')).toBe('common.cancel');
+    // …and a component reading the same key serves its English fallback.
+    expect(TestBed.runInInjectionContext(() => readI18nText('common.cancel', 'Cancel'))()).toBe('Cancel');
+    // A namespace the app does not define is untouched — the loss is per namespace.
+    expect(i18n.t('select.noResults')).toBe('Ничего не найдено');
+    expect(warn).not.toHaveBeenCalled();
+    expect(error).not.toHaveBeenCalled();
   });
 });
 

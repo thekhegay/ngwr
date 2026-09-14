@@ -110,7 +110,9 @@ one component folder. Reach for them instead of hand-rolling:
 - **i18n** (`ngwr/i18n`) — the `wrT` pipe + `[wrT]` directive, `WrI18n` service,
   `provideWrI18n()` + `provideWrI18nStaticLoader()`; ngwr's own catalogs at
   **twenty-two catalogs**, one entry point each (`ngwr/i18n/de`, `ngwr/i18n/ja`,
-  …), so an app pays only for the languages it imports. Codes are LANGUAGES
+  …), so an app pays only for the languages it imports, and registered through
+  `provideWrI18nBaseCatalogs()`, never spread into the app's (a spread is
+  shallow, so a shared namespace silently keeps one side). Codes are LANGUAGES
   wherever a language is one thing, because the resolver truncates a region to
   its language and never the reverse — `pt-BR` finds `pt`, while a bare `de`
   would never reach a `de-DE`; a region appears only where the script differs

@@ -94,15 +94,19 @@ providers: [provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2, check: Check
 // position: 'top-start' | 'top' | 'top-end' | 'bottom-start' | 'bottom' | 'bottom-end'
 providers: [provideWrToastConfig({ position: 'bottom-end', maxStack: 5 })],`,
 
-    i18n: `import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+    i18n: `import { provideWrI18n, provideWrI18nBaseCatalogs, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrEn } from 'ngwr/i18n/en';
 import { wrRu } from 'ngwr/i18n/ru';
 
 providers: [
   provideWrI18n({ defaultLocale: 'en', availableLocales: ['en', 'ru'] }),
+  // ngwr's strings, looked up key by key underneath yours. Not a
+  // \`{ ...wrEn, ...yours }\` spread: it is shallow, so any namespace you share
+  // with ngwr, e.g. \`common\`, \`validation\`, \`table\`, keeps only one side's keys.
+  provideWrI18nBaseCatalogs({ en: wrEn, ru: wrRu }),
   provideWrI18nStaticLoader({
-    en: { ...wrEn, app: { title: 'My app' } },
-    ru: { ...wrRu, app: { title: 'Мое приложение' } },
+    en: { app: { title: 'My app' } },
+    ru: { app: { title: 'Мое приложение' } },
   }),
 ],`,
 

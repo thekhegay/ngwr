@@ -66,8 +66,15 @@ const REQUIRED_PROVIDERS: readonly RequiredProvider[] = [
     test: /^WrTPipe$|^WrTDirective$|^WrI18n/,
     // Two entry points, and the comment has to say so: the catalog `wrEn` is
     // `ngwr/i18n/en`, not `ngwr/i18n`, which exports neither catalog.
-    provider: "provideWrI18n() + provideWrI18nStaticLoader({ en: wrEn }) // from 'ngwr/i18n' + 'ngwr/i18n/en'",
-    why: 'the pipe and directive read from a catalog you provide',
+    //
+    // `wrEn` goes in as a BASE and the loader carries only the app's keys. A
+    // loader serves only the catalog it is given, so the other way to keep both
+    // is a spread, and a spread is shallow: it silently drops one side of every
+    // namespace the two catalogs share. This line is what an agent pastes, so it
+    // has to be the form that survives the app adding its first `common` key.
+    provider:
+      "provideWrI18n() + provideWrI18nBaseCatalogs({ en: wrEn }) + provideWrI18nStaticLoader({ en: { … } }) // from 'ngwr/i18n' + 'ngwr/i18n/en'",
+    why: "the pipe and directive read from a catalog you provide. Register ngwr's with `provideWrI18nBaseCatalogs`, never spread it into yours: a spread is shallow, so any namespace you share with ngwr, e.g. `common`, `validation`, `table`, keeps only the side spread last, and the other side's keys stop resolving with nothing logged — ngwr's components fall back to English and a `wrT` read of a lost key renders the raw key",
   },
 ];
 

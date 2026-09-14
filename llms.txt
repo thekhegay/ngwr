@@ -84,7 +84,12 @@ Add from their entry points as needed:
   / `select`, and `linkTarget` / `copyable` on `markdown`. There is deliberately no
   `color` key — a bound `[color]="null"` means "no intent", which a default cannot
   express without inventing a sentinel.
-- `provideWrI18n(...)` + `provideWrI18nStaticLoader(...)` — localization.
+- `provideWrI18n(...)` + `provideWrI18nBaseCatalogs({ en: wrEn })` +
+  `provideWrI18nStaticLoader(...)` — localization. ngwr's catalogs go in as a
+  BASE, never spread into yours: a spread is shallow, so any namespace you share
+  with ngwr, e.g. `common`, `validation`, `table`, keeps only the side spread
+  last, and the other side's keys stop resolving with nothing logged — ngwr's
+  components fall back to English and a `wrT` read renders the raw key.
 - `provideWrDateAdapter(...)` — calendar + date-picker (`ngwr/date/adapters/fns`
   or `ngwr/date/adapters/luxon`).
 

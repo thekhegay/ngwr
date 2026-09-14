@@ -95,8 +95,8 @@ cause.
 - `provideWrLoadingBarRouter() // from 'ngwr/loading-bar/router'`
   — without it the bar never responds to navigation; it only moves for manual start() / complete()
   — needed by: `WrLoadingBar`
-- `provideWrI18n() + provideWrI18nStaticLoader({ en: wrEn }) // from 'ngwr/i18n' + 'ngwr/i18n/en'`
-  — the pipe and directive read from a catalog you provide
+- `provideWrI18n() + provideWrI18nBaseCatalogs({ en: wrEn }) + provideWrI18nStaticLoader({ en: { … } }) // from 'ngwr/i18n' + 'ngwr/i18n/en'`
+  — the pipe and directive read from a catalog you provide. Register ngwr's with `provideWrI18nBaseCatalogs`, never spread it into yours: a spread is shallow, so any namespace you share with ngwr, e.g. `common`, `validation`, `table`, keeps only the side spread last, and the other side's keys stop resolving with nothing logged — ngwr's components fall back to English and a `wrT` read of a lost key renders the raw key
   — needed by: `WrTPipe`, `WrTDirective`, `WrI18n`
 
 ## Testing

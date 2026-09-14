@@ -1,16 +1,27 @@
 import { type WrI18nCatalog } from 'ngwr/i18n';
 
 /**
- * Base English catalog for ngwr built-in component strings. Spread this
- * into your root catalog or pass it to `provideWrI18nStaticLoader`.
+ * Base English catalog for ngwr built-in component strings. Register it with
+ * `provideWrI18nBaseCatalogs` and keep only your own keys in the loader.
+ *
+ * Do not spread it into your own catalog. A spread is shallow, so any namespace
+ * you share with ngwr, e.g. `common`, `validation`, `table`, keeps only the keys
+ * of the side spread last, and the other side's keys stop resolving with nothing
+ * logged: ngwr's components fall back to their English defaults, and a `wrT`
+ * read of a lost key renders the raw key under the default missing handler. A
+ * base catalog is looked up key by key underneath yours, so both halves of a
+ * shared namespace resolve.
  *
  * @example
  * ```ts
+ * import { provideWrI18n, provideWrI18nBaseCatalogs, provideWrI18nStaticLoader } from 'ngwr/i18n';
  * import { wrEn } from 'ngwr/i18n/en';
  *
- * provideWrI18nStaticLoader({
- *   en: { ...wrEn, app: { title: 'My app' } },
- * });
+ * providers: [
+ *   provideWrI18n(),
+ *   provideWrI18nBaseCatalogs({ en: wrEn }),
+ *   provideWrI18nStaticLoader({ en: { app: { title: 'My app' } } }),
+ * ]
  * ```
  */
 export const wrEn: WrI18nCatalog = {

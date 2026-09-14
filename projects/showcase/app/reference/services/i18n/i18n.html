@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="WrI18n"
-  description="Reactive i18n service. Active locale lives on a signal, catalogs load lazily through a swappable loader (HTTP or static), and double-brace placeholders interpolate at render time. Scopes let feature modules ship and load their own catalogs."
+  description="Reactive i18n service. Active locale lives on a signal, catalogs load lazily through a swappable loader (HTTP or static), and double-brace placeholders interpolate at render time. Scopes let feature modules ship and load their own catalogs. Keep ngwr's own strings with `provideWrI18nBaseCatalogs` rather than spreading `wrEn` into your catalog: a spread is shallow, so any namespace you share with ngwr, e.g. `common`, `validation`, `table`, keeps only the side spread last, and the other side's keys stop resolving with nothing logged — ngwr's components fall back to English and a `wrT` read of a lost key renders the raw key."
   [keywords]="['i18n', 'translation', 'locale', 'transloco', 'wr-i18n', 'service']"
   [labels]="['Service']"
 >
