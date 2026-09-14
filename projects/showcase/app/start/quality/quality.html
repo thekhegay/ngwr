@@ -214,16 +214,17 @@
 
     <p wrTypography variant="small" tone="medium">
       <strong>The third is classic-forms interop, and it is the one worth knowing about</strong> if you are weighing
-      ngwr against a library that still ships a <code>ControlValueAccessor</code>. Angular 22 synthesises the accessor
-      for a signal-forms control, so <code>[(ngModel)]</code> and <code>[formControl]</code> reach the same
-      <code>value</code> model — but in this suite that is doctrine more than coverage. Across nineteen value controls,
-      exactly <strong>two</strong> are bound through the classic forms API in a spec: <code>wr-segmented</code> (<code
-        >[formControl]</code
-      >
-      and <code>[(ngModel)]</code>) and <code>wr-textarea</code> (<code>[(ngModel)]</code>). The other reactive-forms
-      specs drive native <code>&lt;input&gt;</code>s through <code>WrValidators</code>. Angular's own tests cover the
-      synthesis; nothing here covers it per component, and <a routerLink="/guides/forms">the forms guide</a> is where
-      the bridge's actual semantics are written down.
+      ngwr against a library that still ships a <code>ControlValueAccessor</code>. No accessor is created: Angular's
+      <code>NgModel</code> / <code>FormControlDirective</code> drive the control's <code>value</code> or
+      <code>checked</code> model directly. That bridge <strong>does not apply template validator directives</strong> — a
+      <code>required</code> on an ngwr control produces no error and the form submits, so validators belong on the
+      <code>FormControl</code> — and it ignores <code>updateOn</code>. Across nineteen value controls,
+      <strong>four</strong> are bound through the classic forms API in a spec: <code>wr-checkbox</code> and
+      <code>wr-select</code> (<code>[(ngModel)]</code> and <code>[formControl]</code>, plus the validator drop),
+      <code>wr-segmented</code> (the same two bindings) and <code>wr-textarea</code> (<code>[(ngModel)]</code>). The
+      other reactive-forms specs drive native <code>&lt;input&gt;</code>s through <code>WrValidators</code>. Angular's
+      own tests cover the bridge; <a routerLink="/guides/forms">the forms guide</a> is where its semantics are written
+      down.
     </p>
   </ngwr-doc-section>
 

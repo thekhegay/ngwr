@@ -40,10 +40,11 @@ interface RangeRow {
  * It exists because six pages say "reactive forms keep working through
  * Angular's bridge" and none of them said what the bridge is, what it carries,
  * or what it drops. Every claim on this page is read out of
- * `@angular/forms` and `projects/lib` rather than assumed — the two headline
- * sections (`updateOn`, and the silent write) describe behaviour nobody can
- * change from inside ngwr, so the only useful thing docs can do is name it and
- * say what a host does about it.
+ * `@angular/forms` and `projects/lib` rather than assumed — the three headline
+ * sections (template validators, `updateOn`, and the silent write) describe
+ * behaviour nobody can change from inside ngwr, so the only useful thing docs
+ * can do is name it and say what a host does about it. The validator drop is
+ * pinned by `projects/lib/checkbox/classic-forms-bridge.spec.ts`.
  */
 @Component({
   selector: 'ngwr-gs-forms-page',
@@ -160,7 +161,7 @@ export default class FormsGuidePage {
     {
       state: 'required',
       reaches: 'No',
-      note: '`Validators.required` puts neither `required` nor `aria-required` on the control. `<wr-form-field required>` is the `*` beside the label and nothing more — you write the validator and the marker separately.',
+      note: '`Validators.required` puts neither `required` nor `aria-required` on the control. `<wr-form-field required>` is the `*` beside the label and nothing more — you write the validator and the marker separately. A `required` attribute on the control is not a validator here at all: see the next section.',
     },
     {
       state: 'readonly',
@@ -255,6 +256,19 @@ export class ProfileEditPage {
 // schedules the pass on its own. Reach for { emitEvent: false } when a
 // valueChanges listener would otherwise loop — not as a habit.
 this.form.patchValue(profile);`,
+
+    validators: `// Don't: RequiredValidator matches this element and is then dropped. The
+// bridge never merges directive validators into the FormControl, so errors
+// stays null and the form submits with no plan.
+//   <wr-select formControlName="plan" required>…</wr-select>
+
+// Do: the validator on the FormControl, the marker on the field.
+//   <wr-form-field label="Plan" required>
+//     <wr-select formControlName="plan">…</wr-select>
+//   </wr-form-field>
+const form = new FormGroup({
+  plan: new FormControl<string | null>(null, Validators.required),
+});`,
 
     identity: `// <wr-select> matches the bound value against each option with ===, and there
 // is no compareWith input. A structurally equal object from a second request is

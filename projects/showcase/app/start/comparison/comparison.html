@@ -85,19 +85,23 @@
     </ngwr-doc-snippet>
 
     <p wrTypography>
-      The classic bindings still work, and not through a fallback path inside the library. Angular 22 synthesises the
-      accessor for a signal-forms control, so reactive and template-driven forms reach the same
-      <code>value</code> model:
+      The classic bindings still work, and not through a fallback path inside the library. No
+      <code>ControlValueAccessor</code> is created: Angular's <code>NgModel</code> /
+      <code>FormControlDirective</code> drive the control's <code>value</code> or <code>checked</code> model directly,
+      so reactive and template-driven forms reach the same model:
     </p>
 
     <ngwr-doc-code [code]="snippets.classic" language="angular-html" />
 
     <p wrTypography variant="small" tone="medium">
-      With the caveat that belongs next to it: that synthesis is Angular's, and Angular tests it — ngwr's own suite
-      barely does. <code>[(ngModel)]</code> is bound to a real ngwr control in one spec, and no spec binds
-      <code>[formControl]</code> to one at all. It is the last uncovered corner named on the
-      <a routerLink="/start/quality">Quality</a> page, and it is here because this paragraph is the one you would lean
-      on hardest.
+      With the caveats that belong next to it.
+      <strong>That bridge does not apply template validator directives</strong>: a <code>required</code> or
+      <code>minlength</code> on an ngwr control produces no error and the form submits, so validators go on the
+      <code>FormControl</code>. It also ignores <code>updateOn</code>, and a
+      <code>&#123; emitEvent: false &#125;</code> write needs <code>markForCheck()</code> — the
+      <a routerLink="/guides/forms">forms guide</a> has each one. The bridge is Angular's, and ngwr's own suite binds
+      four of the nineteen value controls through it; the <a routerLink="/start/quality">Quality</a> page names which.
+      These caveats sit here because this paragraph is the one you would lean on hardest.
     </p>
   </ngwr-doc-section>
 

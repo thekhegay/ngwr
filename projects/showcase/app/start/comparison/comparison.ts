@@ -311,9 +311,11 @@ export class FeedbackForm {
   protected readonly demoJson = computed(() => JSON.stringify(this.model()));
 }`,
 
-    classic: `<!-- Still supported, and not a fallback path inside the library: Angular 22
-     synthesises the accessor for a signal-forms control, so the classic
-     bindings reach the same \`value\` model the field would have written. -->
+    classic: `<!-- Still supported, and not a fallback path inside the library: no
+     ControlValueAccessor is created. Angular's NgModel / FormControlDirective
+     drive the same \`value\` model the field would have written. Template
+     validator directives (required, minlength, …) are NOT applied on this
+     path — put validators on the FormControl. -->
 <wr-rating [(ngModel)]="score" />
 <wr-rating [formControl]="scoreControl" />`,
 

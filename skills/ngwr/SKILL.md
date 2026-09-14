@@ -44,8 +44,13 @@ guess gets backwards.
 - **There is no `ControlValueAccessor`.** Value components implement Signal
   Forms' `FormValueControl` / `FormCheckboxControl`. Bind
   `[formField]="form.x"`, or use the two-way model standalone —
-  `[(value)]`, `[(checked)]`. `[(ngModel)]` and reactive forms still work:
-  Angular 22 synthesises the accessor.
+  `[(value)]`, `[(checked)]`. `[(ngModel)]` and reactive forms still bind,
+  with no accessor created: Angular's `NgModel` / `FormControlDirective` drive
+  the `value` or `checked` model directly. That bridge does NOT apply template
+  validator directives — `required`, `minlength`, `maxlength`, `pattern` or
+  `email` on an ngwr control is silently ignored and the form submits — so put
+  validators on the `FormControl`. It also ignores `updateOn`, and a
+  `{ emitEvent: false }` write needs `markForCheck()`.
 - **`<wr-checkbox>` group identity is `checkboxValue`, not `value`.**
   `value` is reserved for the form value, so a leftover `value="x"` lands on the
   host as a plain DOM attribute, every box in the group keeps the default

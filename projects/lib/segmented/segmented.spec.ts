@@ -393,11 +393,11 @@ describe('WrSegmented as a signal-forms control', () => {
 });
 
 /**
- * The classic bindings, which reach the same `value` model through the accessor
- * Angular synthesises for a signal-forms control. Nothing in the component knows
- * about either of them — which is exactly why they are worth pinning: the bridge
- * is Angular's, and a change to how `value` is declared is what would quietly
- * break it.
+ * The classic bindings. No `ControlValueAccessor` is created for them: Angular's
+ * `NgModel` / `FormControlDirective` find the `value` model by name and drive it
+ * directly. Nothing in the component knows about either of them — which is
+ * exactly why they are worth pinning: the bridge is Angular's, and renaming
+ * `value` is what would break it (`NG01203`, no accessor found).
  */
 @Component({
   imports: [FormsModule, ReactiveFormsModule, WrSegmented],
