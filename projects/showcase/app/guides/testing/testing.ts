@@ -58,10 +58,11 @@ expect(forReview).toEqual([]);`,
 </section>`,
 
     install: `// The harnesses live beside the components they drive, one entry point each.
-// 70 so far, 104 harness classes: every form control, every overlay, both data
-// views, the whole navigation / disclosure set, every chart, eighteen of the
-// twenty-one animations, <wr-markdown>, and the standalone widgets — calendar,
-// event-calendar, window, image-cropper, tour, lightbox, speed-dial, splitter.
+// 71 so far, 106 exported names over 105 harness classes: every form control,
+// every overlay, the three data views, the whole navigation / disclosure set,
+// every chart, eighteen of the twenty-one animations, <wr-markdown>, and the
+// standalone widgets — calendar, event-calendar, window, image-cropper, tour,
+// lightbox, speed-dial, splitter.
 import { WrButtonHarness } from 'ngwr/button/testing';
 import { WrInputHarness } from 'ngwr/input/testing';
 import { WrCheckboxHarness } from 'ngwr/checkbox/testing';
@@ -77,6 +78,7 @@ import { WrCommandPaletteHarness } from 'ngwr/command-palette/testing';
 // The data views come as families.
 import { WrTableHarness, WrTableRowHarness } from 'ngwr/table/testing';
 import { WrTreeHarness, WrTreeNodeHarness } from 'ngwr/tree/testing';
+import { WrGraphHarness, WrGraphNodeHarness } from 'ngwr/graph/testing';
 
 // The environment comes from the CDK, which is already a peer dependency.
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';`,
@@ -630,6 +632,21 @@ it('announces the hierarchy', async () => {
   // children of 'src'.
   expect(await app.getSetSize()).toBe(2);
   expect(await app.getPosInSet()).toBe(1);
+});`,
+
+    graph: `it('reads the structure, not the drawing', async () => {
+  const graph = await loader.getHarness(WrGraphHarness.with({ ariaLabel: 'Team structure' }));
+
+  // Lines speak in ids — the only place the DOM writes one — in the order given.
+  expect(await graph.getEdges()).toEqual([
+    { from: 'lead', to: 'design' },
+    { from: 'lead', to: 'build' },
+  ]);
+
+  // Two questions, not one: what the node draws, and what it announces.
+  const design = await graph.getNode({ label: 'Design' });
+  expect(await design.getText()).toBe('Design');
+  expect(await design.getRelationText()).toBe('Parents: Lead');
 });`,
 
     mention: `it('mentions a teammate', async () => {
@@ -2436,6 +2453,30 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'A node adds: getLabel() / getLevel() / getPosInSet() / getSetSize() / getIndex() / isExpandable() / isExpanded() / expand() / collapse() / isSelected() / isDisabled() / isActive() / click() / ctrlClick()',
       description:
         "`aria-setsize` counts the node's SIBLING GROUP including itself and `aria-posinset` is its place in that group — neither is a position in the flat list, and reading them that way is a classic tree bug.",
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly graphApi: readonly DocApiRow[] = [
+    {
+      name: 'getAccessibleName() / getNodes(filters?) / getNode(filters)',
+      description:
+        "The viewport's name, and this graph's own nodes in READING order — layer, then inline position — which is DOM order. Node filter: `label`, matched against the drawn text. Graph filters: `ariaLabel`, `nodeLabel`.",
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getEdges()',
+      description:
+        'One `{ from, to }` per line, off `data-from` / `data-to`, in the order given with skipped edges left out. Throws on a graph that draws no nodes: `[]` would read the same for empty data and for a layout that drew nothing.',
+      type: 'Promise<{ from: string; to: string }[]>',
+      default: '—',
+    },
+    {
+      name: 'A node adds: getText() / getRelationText()',
+      description:
+        'What the node draws (the card or your template, hidden text left out) and the sentence a screen reader hears about its parents and children — `null` for a node with no edges.',
       type: 'Promise<…>',
       default: '—',
     },

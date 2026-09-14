@@ -680,6 +680,28 @@
     <ngwr-doc-api [rows]="treeApi" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Graphs" description="Ids on the lines, words on the nodes.">
+    <ngwr-doc-code [code]="snippets.graph" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      The lines are <code>aria-hidden</code>, so a node's relation sentence is the only form the structure takes for a
+      screen reader — which is why <code>getText()</code> and <code>getRelationText()</code> are two methods: read
+      together, a spec would pass on a graph that named the wrong neighbours. A node's id is written nowhere in the DOM,
+      so nodes are addressed by what they draw and ids are read off the edges.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      Three things are deliberately not offered: a path's <code>d</code>, node positions, and "is scrollable". jsdom
+      lays nothing out, and the coordinates belong to a layout that is internal in this release — the layout's own spec
+      pins them. Every query is anchored to the graph's own parts, so a graph drawn inside a node template never answers
+      for the one around it.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrGraphHarness / WrGraphNodeHarness" description="`ngwr/graph/testing`">
+    <ngwr-doc-api [rows]="graphApi" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Mentions" description="The panel comes from what you typed.">
     <ngwr-doc-code [code]="snippets.mention" language="typescript" />
 

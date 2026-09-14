@@ -353,6 +353,11 @@ export const wrHi: WrI18nCatalog = {
   gauge: {
     label: 'गेज',
   },
+  graph: {
+    label: 'ग्राफ़',
+    parents: 'पैरेंट: {{names}}।',
+    children: 'चाइल्ड: {{names}}।',
+  },
   progress: {
     label: 'प्रगति',
   },

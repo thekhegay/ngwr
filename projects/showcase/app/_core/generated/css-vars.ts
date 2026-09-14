@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 380 hook(s) across 58 page(s). A property is here only when the
+ * 390 hook(s) across 59 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 27 declaration(s) are one component setting
@@ -386,6 +386,21 @@ export const CSS_VARS = {
       { name: "--wr-event-calendar-gutter", default: "3.75rem", scope: ".wr-event-calendar" },
       { name: "--wr-event-calendar-line", default: "var(--wr-color-outline)", scope: ".wr-event-calendar" },
       { name: "--wr-event-calendar-slot-height", default: "1.5rem", scope: ".wr-event-calendar" },
+    ],
+  },
+  "reference/components/graph": {
+    subpath: "ngwr/graph",
+    vars: [
+      { name: "--wr-graph-background", default: "var(--wr-color-surface)", scope: ".wr-graph" },
+      { name: "--wr-graph-card-background", default: "var(--wr-color-surface)", scope: ".wr-graph" },
+      { name: "--wr-graph-card-border", default: "var(--wr-color-outline)", scope: ".wr-graph" },
+      { name: "--wr-graph-card-color", default: "var(--wr-color-on-surface)", scope: ".wr-graph" },
+      { name: "--wr-graph-card-font-size", default: "var(--wr-text-sm)", scope: ".wr-graph" },
+      { name: "--wr-graph-card-padding", default: "0.5rem 0.75rem", scope: ".wr-graph" },
+      { name: "--wr-graph-card-radius", default: "var(--wr-border-radius-base)", scope: ".wr-graph" },
+      { name: "--wr-graph-edge-color", default: "color-mix(in srgb, var(--wr-color-on-surface-muted) 60%, var(--wr-color-surface))", scope: ".wr-graph" },
+      { name: "--wr-graph-edge-width", default: "1px", scope: ".wr-graph" },
+      { name: "--wr-graph-padding", default: "1rem", scope: ".wr-graph" },
     ],
   },
   "reference/components/icon": {

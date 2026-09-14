@@ -365,6 +365,11 @@ export const wrKo: WrI18nCatalog = {
   gauge: {
     label: '게이지',
   },
+  graph: {
+    label: '그래프',
+    parents: '상위 항목: {{names}}.',
+    children: '하위 항목: {{names}}.',
+  },
   progress: {
     label: '진행률',
   },

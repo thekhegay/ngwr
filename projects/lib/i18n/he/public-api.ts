@@ -376,6 +376,11 @@ export const wrHe: WrI18nCatalog = {
   gauge: {
     label: 'מחוון',
   },
+  graph: {
+    label: 'גרף',
+    parents: 'הורים: {{names}}.',
+    children: 'ילדים: {{names}}.',
+  },
   progress: {
     label: 'התקדמות',
   },

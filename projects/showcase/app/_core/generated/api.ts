@@ -606,6 +606,14 @@ export const API = {
     { name: "pauseOnHover", description: "Pause the animation while hovered.", type: "boolean", default: "false" },
     { name: "yoyo", description: "Bounce back-and-forth instead of restarting.", type: "boolean", default: "true" },
   ],
+  // <wr-graph>
+  WrGraph: [
+    { name: "nodes", description: "The nodes, in any order. Input order breaks layout ties, so the same arrays always produce the same picture. Never mutated.", type: "readonly WrGraphNode<TData>[]", default: "[]" },
+    { name: "edges", description: "Parent-child links, `from` the parent and `to` the child. Never mutated.", type: "readonly WrGraphEdge[]", default: "[]" },
+    { name: "nodeWidth", description: "Width in pixels of a node that sets none of its own.", type: "number", default: "160" },
+    { name: "nodeHeight", description: "Height in pixels of a node that sets none of its own.", type: "number", default: "48" },
+    { name: "ariaLabel", description: "Accessible name of the scrolling viewport. Falls back to `graph.label`, then `'Graph'`.", type: "string | null", default: "null" },
+  ],
   // <[wrHotkey]>
   WrHotkeyBinding: [
     { name: "wrHotkey", description: "—", type: "WrHotkeySpec", required: true },

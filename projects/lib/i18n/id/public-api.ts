@@ -353,6 +353,11 @@ export const wrId: WrI18nCatalog = {
   gauge: {
     label: 'Pengukur',
   },
+  graph: {
+    label: 'Graf',
+    parents: 'Induk: {{names}}.',
+    children: 'Anak: {{names}}.',
+  },
   progress: {
     label: 'Kemajuan',
   },

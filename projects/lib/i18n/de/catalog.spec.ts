@@ -23,8 +23,9 @@ import { expectCatalogContract } from '../catalog-contract';
  *   them: German sets a space between a number and its unit („+12,4 %“), which
  *   is exactly the join that template exists to let a locale own.
  * - **Words German spells the same.** `optional` (an adjective, so lowercase in
- *   German too), `Avatar`, `Popover`, the `esc` key cap, and the four months
- *   April, August, September and November.
+ *   German too), `Avatar`, `Popover`, `Graph` (der Graph, the graph-theory
+ *   noun), the `esc` key cap, and the four months April, August, September and
+ *   November.
  * - **Not language at all.** `OK`, the binary size units (German writes B, KB,
  *   MB, GB, TB), the colour-picker initialisms and single-letter channels, the
  *   bare `%` suffix, and `AM` / `PM`, which is what CLDR gives for German too.
@@ -63,6 +64,7 @@ const SHARED_WITH_ENGLISH = new Set([
   'colorPicker.channelLightness',
   'colorPicker.channelAlpha',
   'popover.label',
+  'graph.label',
   'datePicker.am',
   'datePicker.pm',
   'statistic.deltaSuffix',

@@ -369,6 +369,11 @@ export const wrNl: WrI18nCatalog = {
   gauge: {
     label: 'Meter',
   },
+  graph: {
+    label: 'Graaf',
+    parents: 'Ouders: {{names}}.',
+    children: 'Kinderen: {{names}}.',
+  },
   progress: {
     label: 'Voortgang',
   },

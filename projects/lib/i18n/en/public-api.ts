@@ -450,6 +450,15 @@ export const wrEn: WrI18nCatalog = {
   gauge: {
     label: 'Gauge',
   },
+  graph: {
+    label: 'Graph',
+    // Read out inside each node of <wr-graph>. `{{names}}` is a list the component
+    // has already joined with Intl.ListFormat, so the sentence never carries a count.
+    // Each value is a whole sentence with its own terminator: a node with both reads
+    // the two joined by a single space, and adds no punctuation of its own.
+    parents: 'Parents: {{names}}.',
+    children: 'Children: {{names}}.',
+  },
   progress: {
     label: 'Progress',
   },

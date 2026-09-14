@@ -11,23 +11,23 @@ in the repo_.
 A pnpm + Angular CLI monorepo with two projects:
 
 - **`projects/lib/`** — the published package (`ngwr`). Almost every subfolder is
-  a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **225**
+  a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **227**
   of them (`ngwr/button`, `ngwr/select`, `ngwr/overlay`, …). Counted by
   `ng-package.json`, not by directory: `styles/` and `schematics/` are not entry
-  points, and **ninety-eight** are nested — the twenty-two `ngwr/i18n/<locale>`,
+  points, and **ninety-nine** are nested — the twenty-two `ngwr/i18n/<locale>`,
   `ngwr/icon/adapters/{lucide,feather}`, `ngwr/date/adapters/{fns,luxon}`, the two
   opt-in router adapters `ngwr/loading-bar/router` and `ngwr/tabs/router` that v14
   added, and the CDK test harnesses, which now cover
-  **seventy** entry points: the form controls (`button`, `input`, `textarea`,
+  **seventy-one** entry points: the form controls (`button`, `input`, `textarea`,
   `checkbox`, `switch`, `radio`, `select`, `input-number`, `input-otp`, `slider`,
   `rating`, `file-upload`, `color-picker`, `knob`, `form`, `segmented`), the overlays
   (`date-picker`, `dropdown`, `popover`, `dialog`, `drawer`, `action-sheet`,
   `toast`, `context-menu`, `popconfirm`, `command-palette`, `cascader`, `mention`),
-  the data views (`table`, `tree`), the navigation / disclosure set (`tabs`,
+  the data views (`table`, `tree`, `graph`), the navigation / disclosure set (`tabs`,
   `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`,
   `lightbox`, `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`, **every
   chart** and **eighteen of the twenty-one animations** — each at
-  `ngwr/<name>/testing`, 104 harness classes in total; `WrCalendarDayHarness` is the
+  `ngwr/<name>/testing`, 106 exported harness names over 105 classes; `WrCalendarDayHarness` is the
   one exported twice, since a date-picker's popup IS a calendar and
   `ngwr/date-picker/testing` keeps the name it shipped as.
   **Four entry points are deliberately without one, and the reason is the same each
@@ -424,7 +424,7 @@ exists for one `describe` should not ship a `.html` file.
 **Writing a HARNESS** (`ngwr/<name>/testing`): copy
 `projects/lib/collapse/testing/` for the layout and the voice, or
 `projects/lib/image-cropper/testing/` for a component whose geometry a unit test
-cannot reach. The rules below were all earned by shipping seventy of them, and
+cannot reach. The rules below were all earned by shipping seventy-one of them, and
 the first one decides every other question:
 
 - **A method that would answer the same thing for a working component and a
@@ -606,7 +606,7 @@ shipping. Conventional-commit subjects are checked locally (commitlint
 already covers the need, use it — an existing component (check the catalog
 before hand-rolling), `ngwr/utils`, `ngwr/pipes`, `ngwr/validators`, theme
 tokens — rather than hand-rolling raw markup/logic or pulling an external
-library where an internal tool exists. The catalog is large (225 entry points):
+library where an internal tool exists. The catalog is large (227 entry points):
 check before writing a bare `<input type="file">`, a date / number / truncate
 helper, a coercion, an id generator, and so on. New external runtime
 dependencies need a strong justification — the only runtime dependency today is
@@ -988,7 +988,7 @@ arrow) — for version and before/after descriptions.
 
 ## Building components
 
-The catalog is large (225 entry points) and **deliberately consolidated** —
+The catalog is large (227 entry points) and **deliberately consolidated** —
 many "components" are modes or inputs on one host (e.g. `wr-select` covers
 single / multi / search / tag; `wr-date-picker` covers date / time / datetime;
 `wr-popover` has a `tooltip` mode; `wr-drawer` doubles as a bottom-sheet).
@@ -1190,7 +1190,7 @@ one shipped catch was the slider thumb centring itself with a physical
 **`--wr-color-outline` fails WCAG 1.4.11 on control borders, and that is a
 DECIDED trade — do not re-report it.** Measured: `#cbd5e1` on white is **1.48:1**
 and `#262f44` on `#0b1120` is **1.41:1**, against the 3:1 the criterion asks of
-anything that identifies a control. The token carries 100 declarations across 55
+anything that identifies a control. The token carries 101 declarations across 56
 entry points, and only **15** are control boundaries where 1.4.11 applies
 (`input`, `input-group`, `textarea`, `select`, `checkbox`, `radio`, the switch
 track, the slider rail, `button`, `cascader`, the tree trigger, `input-otp`,
@@ -1251,7 +1251,7 @@ i18n catalog; an `aria-label` on a component's host element does not reach the
 native control inside it.
 
 **Showcase page = the docs.** Every component ships a docs page — under
-`projects/showcase/app/reference/components/<name>/` for the main catalog (85
+`projects/showcase/app/reference/components/<name>/` for the main catalog (86
 dirs), or under `projects/showcase/app/animations/<name>/` for animation /
 visual-effect components (a separate top-level cluster with its own routing +
 sidebar). Wire it into the matching `*.routing.ts` and the `routes` map in

@@ -222,6 +222,9 @@
     "./gradient-text": {
       "sass": "./gradient-text/styles/_index.scss"
     },
+    "./graph": {
+      "sass": "./graph/styles/_index.scss"
+    },
     "./grid": {
       "sass": "./styles/_grid.scss"
     },

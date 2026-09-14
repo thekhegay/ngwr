@@ -360,6 +360,11 @@ export const wrZhTw: WrI18nCatalog = {
   gauge: {
     label: '儀表',
   },
+  graph: {
+    label: '圖',
+    parents: '父節點：{{names}}。',
+    children: '子節點：{{names}}。',
+  },
   progress: {
     label: '進度',
   },
