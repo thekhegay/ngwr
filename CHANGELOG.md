@@ -1,5 +1,19 @@
 # Changelog
 
+## [14.5.0](https://github.com/thekhegay/ngwr/compare/v14.4.0...v14.5.0) (2026-09-14)
+
+### Features
+
+* **graph:** a graph of blocks joined parent to child ([9f8872b](https://github.com/thekhegay/ngwr/commit/9f8872bbbc2ddce2fc697c8e4b86aedeba7da4d9))
+* **showcase:** pages declare their version, the nav marks what is new ([fdb3ac9](https://github.com/thekhegay/ngwr/commit/fdb3ac94275e968cbc1664db3e3802816e102583))
+
+### Bug Fixes
+
+* **overlay:** an open overlay follows a direction change ([4ad1454](https://github.com/thekhegay/ngwr/commit/4ad1454ce7142b137145bba1671cc6e4879dd422))
+* **popover:** a tooltip opens on keyboard focus, not on a focus hand-back ([27adc8a](https://github.com/thekhegay/ngwr/commit/27adc8aa1b9127d9242940e3355de50070fb4e2f))
+* **segmented:** the thumb jumps when the direction flips, never slides ([b749886](https://github.com/thekhegay/ngwr/commit/b749886fedea60fc7121c466b81e401a94c06fd3))
+* **showcase:** the direction switch survives a reload ([b1a242f](https://github.com/thekhegay/ngwr/commit/b1a242ff594e8c25e8dde64f436a75c490adbed4))
+
 ## [14.4.0](https://github.com/thekhegay/ngwr/compare/v14.3.1...v14.4.0) (2026-09-11)
 
 ### Features
