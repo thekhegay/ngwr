@@ -13,11 +13,13 @@ import {
   ViewEncapsulation,
   afterNextRender,
   computed,
+  effect,
   inject,
   input,
   model,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
@@ -191,8 +193,39 @@ export class WrSegmented<T = unknown> implements FormValueControl<T | null> {
   /** Flips true after the first paint so the thumb only animates user-driven changes, not the initial snap. */
   private readonly mounted = signal(false);
 
+  /**
+   * True for the tick in which the reading direction changed.
+   *
+   * Mirroring moves the thumb's SLOT by the whole width of the strip (see
+   * `thumbStyle`), and animating that is a quarter-second of the pill travelling
+   * across options it does not mark — caught under the wrong label every time the
+   * docs site's LTR / RTL switch was used, which is a strip inside an overlay that
+   * mirrors underneath it. The selection did not move, so neither should the pill:
+   * the stylesheet drops its transition while this is set, and the new slot lands
+   * in the same pass that removes it.
+   *
+   * Cleared from a task rather than `afterNextRender`, which runs inside the very
+   * change detection that set this and would put the transition back before the
+   * new position is painted.
+   */
+  private readonly flipping = signal(false);
+
   constructor() {
     afterNextRender(() => this.mounted.set(true));
+
+    // `null` until the first run: an effect always runs once, and that run is not
+    // a flip.
+    let previous: boolean | null = null;
+    effect(() => {
+      const rtl = this.isRtl();
+      if (previous === rtl) return;
+      const flipped = previous !== null;
+      previous = rtl;
+      if (!flipped || typeof setTimeout !== 'function') return;
+
+      untracked(() => this.flipping.set(true));
+      setTimeout(() => this.flipping.set(false));
+    });
   }
 
   protected readonly classes = computed(() => {
@@ -203,6 +236,7 @@ export class WrSegmented<T = unknown> implements FormValueControl<T | null> {
     else if (this.readonly()) parts.push('wr-segmented--readonly');
     if (this.selectedIndex() < 0) parts.push('wr-segmented--unselected');
     if (this.mounted()) parts.push('wr-segmented--mounted');
+    if (this.flipping()) parts.push('wr-segmented--flipping');
     return parts.join(' ');
   });
 
