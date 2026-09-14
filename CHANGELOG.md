@@ -1,5 +1,13 @@
 # Changelog
 
+## [14.5.1](https://github.com/thekhegay/ngwr/compare/v14.5.0...v14.5.1) (2026-09-14)
+
+### Bug Fixes
+
+* **schematics:** codemod tag patterns stop hanging and leaking past a tag ([52b5d43](https://github.com/thekhegay/ngwr/commit/52b5d433f82c92f46b42ef312d5319a92b45a077))
+* **table:** an unsorted column shows a line, not a faded arrow ([2a9b062](https://github.com/thekhegay/ngwr/commit/2a9b0625c611c7cd1cc43b34d323437c7e4ba948))
+* **table:** sort and filter icons follow the header text size ([0bc19c3](https://github.com/thekhegay/ngwr/commit/0bc19c3102a9e510143872eaa067db48d0aa0cc8))
+
 ## [14.5.0](https://github.com/thekhegay/ngwr/compare/v14.4.0...v14.5.0) (2026-09-14)
 
 ### Features
