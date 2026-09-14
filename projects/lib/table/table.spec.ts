@@ -1005,10 +1005,12 @@ describe('WrTable summary row over a dataset larger than the spread limit', () =
 });
 
 /**
- * Every documented `[direction]` on the sort indicator. `null` is the third
- * documented value and emits nothing — an unsorted column carries no direction
- * modifier at all, which is what tells the stylesheet to draw the neutral
- * glyph rather than an arrow.
+ * Every documented `[direction]` on the sort indicator, and the glyph each one
+ * draws. `null` is the third documented value: an unsorted column carries no
+ * direction modifier and draws a flat LINE. It used to draw the same up-arrow
+ * as `asc` at half opacity — so an unsorted column read as "sorted ascending,
+ * dimmed" — while this docblock already claimed a neutral glyph. The glyph
+ * assertions are what make that claim true rather than written down.
  */
 describe('WrTableSort emits a modifier for every documented direction', () => {
   @Component({
@@ -1021,6 +1023,7 @@ describe('WrTableSort emits a modifier for every documented direction', () => {
 
   let fixture: ReturnType<typeof TestBed.createComponent<SortHost>>;
   const el = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector('wr-table-sort')!;
+  const paths = (): string[] => [...el().querySelectorAll('svg path')].map(path => path.getAttribute('d') ?? '');
 
   beforeEach(() => {
     TestBed.resetTestingModule();
@@ -1034,11 +1037,29 @@ describe('WrTableSort emits a modifier for every documented direction', () => {
     fixture.componentInstance.direction.set(direction);
     fixture.detectChanges();
     expect(el().classList).toContain(`wr-table-sort--${direction}`);
+    // An arrow — head and shaft. `desc` is the same arrow turned by the
+    // stylesheet, so both directions draw identical paths.
+    expect(paths()).toEqual(['m5 12 7-7 7 7', 'M12 19V5']);
   });
 
-  it('unsorted carries no direction modifier', () => {
+  it('unsorted carries no direction modifier and draws a line, not the arrow', () => {
     fixture.componentInstance.direction.set(null);
     fixture.detectChanges();
     expect(el().className).not.toMatch(/wr-table-sort--(asc|desc)/);
+    expect(paths()).toEqual(['M6 12h12']);
+  });
+
+  // The glyph is swapped by an `@if` INSIDE the `<svg>`. A path created outside
+  // the SVG namespace is a perfectly valid DOM node that paints nothing, so
+  // every other case here would pass over an empty header. Walked through the
+  // whole cycle, because the swap has to survive being made more than once.
+  it('draws its paths in the SVG namespace through the whole cycle', () => {
+    for (const direction of ['asc', 'desc', null, 'asc'] as WrTableSortDirection[]) {
+      fixture.componentInstance.direction.set(direction);
+      fixture.detectChanges();
+      const drawn = [...el().querySelectorAll('svg path')];
+      expect(drawn.length).toBeGreaterThan(0);
+      for (const path of drawn) expect(path.namespaceURI).toBe('http://www.w3.org/2000/svg');
+    }
   });
 });

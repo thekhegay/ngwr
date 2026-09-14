@@ -742,20 +742,35 @@
 .wr-table-sort {
   display: inline-flex;
   --wr-icon-size: 0.875rem;
+  // Unsorted is the flat line the template draws, at full strength in the muted
+  // role — the same ink as the filter funnel beside it. It used to be the sort
+  // ARROW at half opacity, which is how an unsorted column came to read as
+  // "sorted ascending, dimmed". The glyph carries the state now, so the opacity
+  // has no job left, and dropping it is what lifts the indicator over the 3:1 a
+  // graphic that identifies a control is held to. Measured on the header's own
+  // background in Chromium, after the colour transition settled: from 1.98:1 to
+  // 4.78:1 in light (`#5f6c7d` on `#eff2f6`) and from 2.74:1 to 7.04:1 in dark
+  // (`#9aa6b8` on `#131a2b`). An SVG stroke is invisible to axe, so re-measure
+  // by hand if this ink or the header fill ever moves.
   color: var(--wr-color-on-surface-muted);
-  transition:
-    transform var(--wr-transition-base),
-    color var(--wr-transition-base);
-  opacity: 0.5;
+  // Only the colour eases back to unsorted. A transition is taken from the
+  // state being ENTERED, so leaving `--desc` for the base would otherwise spin
+  // the flat line from 180deg to 0 — motion with no direction to report. The
+  // turn between the two arrows still animates, since both modifiers carry it.
+  transition: color var(--wr-transition-base);
 
-  &--asc {
-    opacity: 1;
+  // The template swaps the glyph — a flat line while unsorted, an arrow here
+  // (table-sort.ts) — so the state reads from the shape, and the primary ink
+  // only says which column is the sorted one.
+  &--asc,
+  &--desc {
     color: var(--wr-color-primary);
+    transition:
+      transform var(--wr-transition-base),
+      color var(--wr-transition-base);
   }
 
   &--desc {
-    opacity: 1;
-    color: var(--wr-color-primary);
     transform: rotate(180deg);
   }
 }
