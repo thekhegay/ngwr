@@ -1,3 +1,4 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -520,5 +521,95 @@ describe('WrMention inside a dialog', () => {
     await escape();
 
     expect(panel()).toBeNull();
+  });
+});
+
+/**
+ * The CDK reads the direction ONCE, as a string, when the overlay is created and
+ * writes it as the host's `dir` on attach; nothing but `setDirection()` ever
+ * touches it again. A mention panel outlives a lot of typing — its ref is
+ * created on the first match and kept for the whole session — so an app that
+ * flips while it is up leaves a list rendering `ltr` under a mirrored page, with
+ * `overlayX: 'start'` still resolving to the caret's left.
+ *
+ * There is no offset table to rebuild here, by the design noted at
+ * `CARET_POSITIONS`: `start` is the logical corner and the CDK mirrors it once
+ * the ref knows the direction, which is the whole reason the panel needs no
+ * second table. So the rendered evidence is the attribute.
+ */
+describe('WrMention when the direction flips while the panel is up', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+  let dir: Directionality;
+
+  const field = (): HTMLTextAreaElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLTextAreaElement>('textarea')!;
+  const pane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-mention-overlay');
+  /** `dir` goes on the host wrapper; `panelClass` lands on the pane inside it. */
+  const paneDir = (): string | null => pane()!.parentElement!.getAttribute('dir');
+
+  const type = (text: string): void => {
+    const el = field();
+    el.value = text;
+    el.selectionStart = el.selectionEnd = text.length;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+  };
+
+  /** A signal write is state, not an event: it lands on the next change detection. */
+  const flipTo = (direction: Direction): void => {
+    dir.valueSignal.set(direction);
+    TestBed.tick();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    dir = TestBed.inject(Directionality);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('rewrites the open panel’s `dir`', () => {
+    type('@a');
+    expect(paneDir()).toBe('ltr');
+
+    flipTo('rtl');
+
+    expect(paneDir()).toBe('rtl');
+  });
+
+  it('keeps following across the keystrokes that reuse the same panel', () => {
+    type('@a');
+    // No new ref: the anchor reads the caret's live offset, so a narrowing query
+    // re-places the panel that is already up rather than building another.
+    type('@al');
+
+    flipTo('rtl');
+
+    expect(paneDir()).toBe('rtl');
+  });
+
+  it('gives a reopened panel a follower of its own', () => {
+    type('@a');
+    // A keystroke that leaves the mention disposes the ref — and its follower.
+    type('just prose');
+    expect(pane()).toBeNull();
+
+    type('@a');
+    flipTo('rtl');
+
+    expect(paneDir()).toBe('rtl');
+  });
+
+  it('leaves nothing following a panel that has been disposed', () => {
+    type('@a');
+    type('just prose');
+
+    // `setDirection()` writes through the host element `dispose()` nulls, so a
+    // follower outliving its panel throws on the next flip — inside change
+    // detection, a long way from the field.
+    expect(() => flipTo('rtl')).not.toThrow();
   });
 });

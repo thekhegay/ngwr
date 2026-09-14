@@ -35,7 +35,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
 import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 
 import type { WrTreeNode, WrTreeSelectionMode } from './interfaces';
 
@@ -249,7 +249,8 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
    * anyway, and a missing one simply reads as `ltr`.
    *
    * Read at keystroke time rather than cached, so a runtime `dir` flip needs no
-   * subscription to `change`.
+   * subscription to `change` — the overlay is the half that does, and
+   * `wrFollowDirection` in `openOverlay()` is where that lives.
    */
   private readonly dir = inject(Directionality, { optional: true });
 
@@ -871,6 +872,13 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       width: this.host.nativeElement.getBoundingClientRect().width,
       panelClass: 'wr-tree-overlay',
     });
+
+    // The pane is appended to `<body>`, so the only thing telling it which way
+    // to read is the `dir` the CDK captured when this ref was created. The
+    // arrow-key mapping above reads `Directionality` LIVE, so without this a
+    // mid-session flip left ArrowLeft opening branches the panel still indented
+    // rightward. Ends with the ref; reopening installs a new one.
+    wrFollowDirection(this.overlayRef, this.dir, this.injector);
 
     this.overlayRef.attach(new TemplatePortal(tpl, this.vcr));
 

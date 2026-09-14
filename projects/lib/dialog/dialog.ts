@@ -6,13 +6,20 @@
  */
 
 import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
+import { Directionality } from '@angular/cdk/bidi';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
 import { Location, isPlatformBrowser } from '@angular/common';
 import { EnvironmentInjector, Service, Injector, PLATFORM_ID, afterEveryRender, inject } from '@angular/core';
 
 import { WrI18n } from 'ngwr/i18n';
-import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, wrAppendOverlayClose, wrPresentAsSheet } from 'ngwr/overlay';
+import {
+  WR_OVERLAY,
+  WR_RESPONSIVE_OVERLAYS,
+  wrAppendOverlayClose,
+  wrFollowDirection,
+  wrPresentAsSheet,
+} from 'ngwr/overlay';
 
 import { WrDialogRef } from './dialog-ref';
 import type { WrDialogOptions } from './interfaces';
@@ -52,6 +59,7 @@ export class WrDialog {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
   private readonly i18n = inject(WrI18n, { optional: true });
+  private readonly dir = inject(Directionality, { optional: true });
   // Resolvable wherever the CDK's own `Overlay` is — it injects the same thing
   // to implement `disposeOnNavigation`.
   private readonly location = inject(Location);
@@ -80,6 +88,16 @@ export class WrDialog {
       width: asSheet ? '100%' : options.width,
       maxWidth: asSheet ? '100%' : options.maxWidth,
     });
+
+    // The CDK captures the direction as a string at create and never looks
+    // again, so an app that flips while a dialog is up leaves the panel behind.
+    // Nothing here derives from it — the box is centred and its x offset is
+    // empty, so `apply()`'s RTL branch moves nothing — but the `dir` attribute
+    // is what the dialog's own logical CSS and every ngwr control inside it
+    // resolve `start` and `end` against, so it has to follow. No teardown kept:
+    // the follower ends on the ref's own `detachments()`, which every dismissal
+    // path goes through, and each `open()` creates a fresh ref of its own.
+    wrFollowDirection(overlayRef, this.dir, this.parentInjector);
 
     const dialogRef = new WrDialogRef<C, R>(overlayRef);
 

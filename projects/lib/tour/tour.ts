@@ -7,7 +7,7 @@
 
 import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
-import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
+import { type ConnectedPosition, type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { isPlatformBrowser } from '@angular/common';
 import {
@@ -22,7 +22,7 @@ import {
   signal,
 } from '@angular/core';
 
-import { WR_OVERLAY, wrMirrorOffsets } from 'ngwr/overlay';
+import { WR_OVERLAY, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
 
 import type { WrTourPlacement, WrTourStep } from './interfaces';
 import { WR_TOUR_STEP, WrTourPopup } from './tour-popup';
@@ -239,16 +239,7 @@ export class WrTour {
     const positionStrategy = this.overlay
       .position()
       .flexibleConnectedTo(target)
-      .withPositions(
-        wrMirrorOffsets(
-          FALLBACKS[placement].map(side => ({
-            ...CONNECTED[side],
-            offsetY: side === 'bottom' ? 12 : side === 'top' ? -12 : 0,
-            offsetX: side === 'right' ? 12 : side === 'left' ? -12 : 0,
-          })),
-          this.isRtl()
-        )
-      )
+      .withPositions(this.stepPositions(placement, this.isRtl()))
       .withPush(true);
 
     this.overlayRef = this.overlay.create({
@@ -256,6 +247,15 @@ export class WrTour {
       scrollStrategy: this.scrollStrategies.reposition(),
       panelClass: 'wr-tour-overlay',
     });
+
+    // The CDK read the direction once, just now. A tour is long-lived by nature
+    // — a step can sit on screen while the user changes a language setting — and
+    // without this the card keeps the direction the step opened in, with the
+    // 12px gap that held it clear of the spotlight now pointing into it.
+    // Per step, because every move disposes this ref and builds the next.
+    wrFollowDirection(this.overlayRef, this.dir, this.injector, direction =>
+      positionStrategy.withPositions(this.stepPositions(placement, direction === 'rtl'))
+    );
 
     const portal = new ComponentPortal(
       WrTourPopup,
@@ -288,6 +288,22 @@ export class WrTour {
       window.removeEventListener('scroll', reposition, true);
       window.removeEventListener('resize', reposition);
     };
+  }
+
+  /**
+   * The card's fallback table for one placement, with its inline offsets already
+   * mirrored. Built per call rather than per step: the direction can change while
+   * the step is on screen, and a table is what has to be rebuilt when it does.
+   */
+  private stepPositions(placement: WrTourPlacement, isRtl: boolean): ConnectedPosition[] {
+    return wrMirrorOffsets(
+      FALLBACKS[placement].map(side => ({
+        ...CONNECTED[side],
+        offsetY: side === 'bottom' ? 12 : side === 'top' ? -12 : 0,
+        offsetX: side === 'right' ? 12 : side === 'left' ? -12 : 0,
+      })),
+      isRtl
+    );
   }
 
   private placeSpotlight(target: HTMLElement): void {

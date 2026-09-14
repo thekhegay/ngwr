@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { Directionality } from '@angular/cdk/bidi';
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -497,6 +498,26 @@ describe('WrDropdown as a bottom sheet', () => {
     expect(document.querySelector('.cdk-overlay-backdrop')).toBeNull();
   });
 
+  it('follows a direction flip while it is up', () => {
+    mount(390);
+    const ambient = TestBed.inject(Directionality);
+    trigger().click();
+    fixture.detectChanges();
+    expect(pane()!.parentElement!.getAttribute('dir')).toBe('ltr');
+
+    ambient.valueSignal.set('rtl');
+    fixture.detectChanges();
+
+    // A sheet is pinned to the bottom edge and has no anchor to re-resolve, so
+    // the `dir` on its host IS the whole of the flip here — and the sheet is the
+    // form this menu takes on a phone, where the app's own direction switch is
+    // most likely to be inside it. The follower is deliberately called ABOVE the
+    // `asSheet` branch in `openOverlay()`; this is what would go red if it ever
+    // moved below it.
+    expect(pane()!.parentElement!.getAttribute('dir')).toBe('rtl');
+    expect(pane()!.classList.contains('wr-overlay-sheet')).toBe(true);
+  });
+
   it('never becomes a sheet when the trigger opted out', () => {
     mount(390);
     fixture.componentInstance.responsive.set(false);
@@ -626,6 +647,97 @@ describe('WrDropdown pane position', () => {
     expect(pane!.classList).toContain(`wr-dropdown-overlay--${position}`);
   });
 });
+
+/**
+ * The CDK reads the reading direction ONCE, as a string, when an overlay is
+ * created, writes it as the host's `dir` on attach and never looks at it again —
+ * so an application that flips while a panel is open mirrors the page around a
+ * panel that stays behind, still resolving `start` to the side it has left.
+ *
+ * This menu is where that shows first, and the reason is circular: the docs
+ * site's own LTR/RTL switch lives INSIDE a dropdown, and the `wr-segmented` it
+ * is built from reads `Directionality` live — so the thumb slid to the other
+ * slot while the pane around it still laid out `ltr`, and parked under the
+ * opposite label.
+ *
+ * Read off the rendered overlay. `dir` goes on the HOST wrapper, not on the
+ * pane, which is where `panelClass` lands; and the CDK pins the bounding box to
+ * one physical edge, which is the placement half nothing rewrites unless the
+ * strategy is applied again.
+ */
+describe('WrDropdown across a direction flip', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+  let ambient: Directionality;
+
+  const trigger = (): HTMLButtonElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('button')!;
+  const pane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-dropdown-overlay');
+  const overlayHost = (): HTMLElement => pane()!.parentElement!;
+
+  /**
+   * Where the CDK pinned the `bottom-start` menu, as an edge pair. A `start`
+   * anchor is `left` in LTR and `right` in RTL, and re-resolving it is the whole
+   * of what `updatePosition()` is there for — `setDirection()` writes the
+   * attribute and stops.
+   */
+  const anchoredTo = (): [string, string] => [overlayHost().style.left, overlayHost().style.right];
+
+  const open = (): void => {
+    trigger().click();
+    fixture.detectChanges();
+  };
+
+  /** A signal write is state, not an event: it lands on the next pass. */
+  const flipTo = (direction: 'ltr' | 'rtl'): void => {
+    ambient.valueSignal.set(direction);
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    ambient = TestBed.inject(Directionality);
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('mirrors a menu that is already open', () => {
+    open();
+    expect([overlayHost().getAttribute('dir'), anchoredTo()]).toEqual(['ltr', ['0px', 'auto']]);
+
+    flipTo('rtl');
+
+    expect([overlayHost().getAttribute('dir'), anchoredTo()]).toEqual(['rtl', ['auto', '0px']]);
+  });
+
+  it('leaves the menu alone when the write lands on the direction it already has', () => {
+    open();
+    flipTo('ltr');
+
+    // A no-op write must not yank a panel the user is reading — and the watch's
+    // own mandatory first run is the same write, on every menu in the app.
+    expect([overlayHost().getAttribute('dir'), anchoredTo()]).toEqual(['ltr', ['0px', 'auto']]);
+  });
+
+  it('gives a reopened menu a follower of its own', () => {
+    open();
+    trigger().click();
+    fixture.detectChanges();
+    expect(pane()).toBeNull();
+
+    // Nothing may still be writing through the ref that closed: `dispose()`
+    // nulls the host element `setDirection()` writes to, so a follower that
+    // outlived its overlay throws here rather than anywhere near a dropdown.
+    flipTo('rtl');
+    open();
+    flipTo('ltr');
+
+    expect([overlayHost().getAttribute('dir'), anchoredTo()]).toEqual(['ltr', ['0px', 'auto']]);
+  });
+});
+
 /**
  * An `output()` belongs to the view that declares it, so a `closeOverlay()` on
  * the destroy path tried to emit into a dead `OutputRef`: Angular refused it

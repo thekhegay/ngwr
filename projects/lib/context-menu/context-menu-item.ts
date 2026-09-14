@@ -13,6 +13,7 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  Injector,
   ViewContainerRef,
   ViewEncapsulation,
   computed,
@@ -24,7 +25,7 @@ import {
 import type { Subscription } from 'rxjs';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
-import { WR_OVERLAY, wrMirrorOffsets } from 'ngwr/overlay';
+import { WR_OVERLAY, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
 import { randomId } from 'ngwr/utils';
 
 import { WrContextMenu } from './context-menu';
@@ -103,6 +104,7 @@ export class WrContextMenuItem {
   private readonly dir = inject(Directionality, { optional: true });
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
+  private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
 
   private submenuRef: OverlayRef | null = null;
@@ -300,6 +302,20 @@ export class WrContextMenuItem {
       scrollStrategy: this.scrollStrategies.reposition(),
       panelClass: ['wr-context-menu-overlay', 'wr-context-menu-overlay--submenu'],
     });
+
+    // A cascade can be open across a direction flip, and neither the ref's frozen
+    // direction nor the `isRtl()` read above would notice: the panes would keep
+    // hanging off the side the menu used to cascade to, while `onSubmenuKeydown`
+    // — which reads `Directionality` live — already expects the other arrow to
+    // step back out. The mirrored list has to be rebuilt with it, because the
+    // ±4px gap is an `offsetX` and the CDK adds that to the final physical x.
+    //
+    // The follower ends on the ref's own detachment, which is the 220 ms
+    // `disposeSubmenu()` waits out rather than the moment it lets go — so a pane
+    // still on screen still follows, which is the answer wanted.
+    wrFollowDirection(this.submenuRef, this.dir, this.injector, direction =>
+      positionStrategy.withPositions(wrMirrorOffsets(positions, direction === 'rtl'))
+    );
 
     const portal = new TemplatePortal(panel.contentTpl(), this.vcr);
     this.submenuRef.attach(portal);

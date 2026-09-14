@@ -1,3 +1,4 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, type EnvironmentProviders, type Type, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormField, form, required } from '@angular/forms/signals';
@@ -2627,5 +2628,146 @@ describe('WrSelect edge paths in multi and tag mode', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.tags()).toEqual(['angular']);
+  });
+});
+
+/**
+ * A flip of the reading direction while the panel is OPEN.
+ *
+ * The CDK reads the direction once, as a string, when an overlay is created and
+ * writes it as the host's `dir` on attach; `updatePosition()` never touches it
+ * again. So an application that flips at runtime — this site's own LTR/RTL
+ * switch lives inside a `wr-dropdown` menu, which means the switch itself is
+ * inside an open overlay — mirrored the page and left every open panel behind,
+ * still `ltr`, still resolving `start` to the left edge.
+ *
+ * Both halves are asserted, because only one of them is visible in the markup:
+ * the `dir` attribute is what every logical CSS rule inside the pane reads, and
+ * the anchored edge is what says the CDK re-resolved the position rather than
+ * merely relabelling the box.
+ */
+describe('WrSelect follows a direction flip while its panel is open', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const trigger = (): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('[role="combobox"]')!;
+  const pane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-select-overlay');
+  /**
+   * `panelClass` lands on the PANE; the `dir` attribute and the position styles
+   * are written on the host wrapper around it, so that is what these read.
+   */
+  const overlayHost = (): HTMLElement => pane()!.parentElement!;
+  /**
+   * jsdom gives every element a 0×0 rect, so there are no coordinates to
+   * compare — what survives is which viewport edge the CDK anchored the box to,
+   * and that is decided by `start` resolving against the overlay's direction.
+   */
+  const anchoredEdge = (): [string, string] => [overlayHost().style.left, overlayHost().style.right];
+
+  /** A signal write is state, not an event: it lands on the next change detection. */
+  const flipTo = (direction: Direction): void => {
+    TestBed.inject(Directionality).valueSignal.set(direction);
+    TestBed.tick();
+    fixture.detectChanges();
+  };
+
+  const open = (): void => {
+    trigger().click();
+    fixture.detectChanges();
+  };
+
+  const escape = (): void => {
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('rewrites the open panel’s `dir`', () => {
+    open();
+    expect(overlayHost().getAttribute('dir')).toBe('ltr');
+
+    flipTo('rtl');
+
+    expect(overlayHost().getAttribute('dir')).toBe('rtl');
+  });
+
+  it('re-anchors the panel against the direction just set', () => {
+    open();
+    expect(anchoredEdge()).toEqual(['0px', 'auto']);
+
+    flipTo('rtl');
+
+    // `setDirection()` rewrites the attribute and nothing else — without the
+    // reposition that follows it, the panel keeps hanging off the edge the
+    // direction it left resolved `start` to.
+    expect(anchoredEdge()).toEqual(['auto', '0px']);
+  });
+
+  it('gives a panel reopened after a flip a follower of its own', () => {
+    open();
+    escape();
+    expect(pane()).toBeNull();
+
+    // The follower went down with the disposed ref; nothing here may write
+    // through it. Reopening is always a NEW ref in this library, so the second
+    // panel has to install its own.
+    flipTo('rtl');
+    open();
+    expect(overlayHost().getAttribute('dir')).toBe('rtl');
+
+    flipTo('ltr');
+
+    expect(overlayHost().getAttribute('dir')).toBe('ltr');
+  });
+});
+
+/**
+ * The sheet is a GLOBAL overlay: its geometry is direction-free (full width,
+ * pinned to the bottom edge), and its CONTENT is not. So it follows for the
+ * same reason and through the same call — a check-boxed multi list that mirrors
+ * on the page behind a sheet that does not is the same defect wearing a
+ * different position strategy.
+ */
+describe('WrSelect as a bottom sheet follows a direction flip', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<SheetHost>>;
+  let width: number;
+
+  const trigger = (): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('[role="combobox"]')!;
+  const overlayHost = (): HTMLElement => document.querySelector<HTMLElement>('.wr-overlay-sheet')!.parentElement!;
+
+  beforeEach(() => {
+    // `wrPresentAsSheet` decides on `window.innerWidth` against a 640px default.
+    width = window.innerWidth;
+    Object.defineProperty(window, 'innerWidth', { value: 390, configurable: true });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(SheetHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    Object.defineProperty(window, 'innerWidth', { value: width, configurable: true });
+  });
+
+  it('rewrites the open sheet’s `dir`', () => {
+    trigger().click();
+    fixture.detectChanges();
+    expect(overlayHost().getAttribute('dir')).toBe('ltr');
+
+    TestBed.inject(Directionality).valueSignal.set('rtl');
+    TestBed.tick();
+    fixture.detectChanges();
+
+    expect(overlayHost().getAttribute('dir')).toBe('rtl');
   });
 });

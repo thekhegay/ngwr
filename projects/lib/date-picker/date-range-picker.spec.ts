@@ -1,3 +1,4 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
@@ -624,5 +625,102 @@ describe('WrDateRangePicker inside a form field', () => {
     expect(root.querySelectorAll(`#${CSS.escape(label.htmlFor)}`)).toHaveLength(1);
     expect(root.querySelector(`#${CSS.escape(label.htmlFor)}`)).toBe(inputs[0]);
     expect(inputs[1].getAttribute('id')).toBeNull();
+  });
+});
+
+/**
+ * A flip of the reading direction while the popover is OPEN.
+ *
+ * The CDK reads the direction once, as a string, when an overlay is created and
+ * writes it as the host's `dir` on attach; `updatePosition()` never touches it
+ * again. The same four fallbacks as `wr-date-picker`, two of them anchored on
+ * `end` — and two calendars inside the panel, each reading `Directionality`
+ * live, so a panel left behind navigates one way inside a box drawn the other.
+ *
+ * Both halves are asserted, because only one of them is visible in the markup:
+ * the `dir` attribute is what every logical CSS rule inside the pane reads, and
+ * the anchored edge is what says the CDK re-resolved the position rather than
+ * merely relabelling the box.
+ */
+describe('WrDateRangePicker follows a direction flip while its panel is open', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const trigger = (): HTMLButtonElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.wr-date-picker__trigger')!;
+  const pane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-date-picker-overlay');
+  /**
+   * `panelClass` lands on the PANE; the `dir` attribute and the position styles
+   * are written on the host wrapper around it, so that is what these read.
+   */
+  const overlayHost = (): HTMLElement => pane()!.parentElement!;
+  /**
+   * jsdom gives every element a 0×0 rect, so there are no coordinates to
+   * compare — what survives is which viewport edge the CDK anchored the box to,
+   * and that is decided by `start` resolving against the overlay's direction.
+   */
+  const anchoredEdge = (): [string, string] => [overlayHost().style.left, overlayHost().style.right];
+
+  /** A signal write is state, not an event: it lands on the next change detection. */
+  const flipTo = (direction: Direction): void => {
+    TestBed.inject(Directionality).valueSignal.set(direction);
+    TestBed.tick();
+    fixture.detectChanges();
+  };
+
+  const open = (): void => {
+    trigger().click();
+    fixture.detectChanges();
+  };
+
+  const escape = (): void => {
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('rewrites the open panel’s `dir`', () => {
+    open();
+    expect(overlayHost().getAttribute('dir')).toBe('ltr');
+
+    flipTo('rtl');
+
+    expect(overlayHost().getAttribute('dir')).toBe('rtl');
+  });
+
+  it('re-anchors the panel against the direction just set', () => {
+    open();
+    expect(anchoredEdge()).toEqual(['0px', 'auto']);
+
+    flipTo('rtl');
+
+    // `setDirection()` rewrites the attribute and nothing else — without the
+    // reposition that follows it, the panel keeps hanging off the edge the
+    // direction it left resolved `start` to.
+    expect(anchoredEdge()).toEqual(['auto', '0px']);
+  });
+
+  it('gives a panel reopened after a flip a follower of its own', () => {
+    open();
+    escape();
+    expect(pane()).toBeNull();
+
+    // The follower went down with the disposed ref; nothing here may write
+    // through it. Reopening is always a NEW ref in this library, so the second
+    // panel has to install its own.
+    flipTo('rtl');
+    open();
+    expect(overlayHost().getAttribute('dir')).toBe('rtl');
+
+    flipTo('ltr');
+
+    expect(overlayHost().getAttribute('dir')).toBe('ltr');
   });
 });

@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { type OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
 import { isPlatformBrowser } from '@angular/common';
@@ -19,7 +20,7 @@ import {
   signal,
 } from '@angular/core';
 
-import { WR_OVERLAY } from 'ngwr/overlay';
+import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 import { WrStorage } from 'ngwr/storage';
 import { randomId } from 'ngwr/utils';
 
@@ -58,6 +59,7 @@ export class WrWindowManager {
   private readonly parentInjector = inject(EnvironmentInjector);
   private readonly storage = inject(WrStorage);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly dir = inject(Directionality, { optional: true });
 
   private readonly baseZ = 1000;
   private topZ = this.baseZ;
@@ -162,6 +164,16 @@ export class WrWindowManager {
       // window happened to open after it.
       usePopover: false,
     });
+
+    // Windows are long-lived — a session can leave one open across any number
+    // of direction changes — and while `x` / `y` are physical by design (as are
+    // the resize grips, deliberately), the chrome is not: the macOS title bar
+    // parks its button cluster with `row-reverse`, which resolves against `dir`,
+    // so a stale attribute leaves the dots and the gutter that counterbalances
+    // them on opposite edges. The strategy is bare, so nothing moves. Each
+    // `open()` has its own ref, and `_doClose` disposes it, which is what ends
+    // this follower.
+    wrFollowDirection(overlayRef, this.dir, this.parentInjector);
 
     const id = config.id ?? randomId('wr-window');
     const ref = new WrWindowRef<C, R>(id, overlayRef);

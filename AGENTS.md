@@ -93,7 +93,13 @@ one component folder. Reach for them instead of hand-rolling:
 
 - **Overlays** (`ngwr/overlay`) — `provideWrOverlay()` gives an isolated CDK
   overlay container (never collides with Material / NG-ZORRO). Mobile sheets via
-  `provideWrResponsiveOverlays()` + a per-component `responsive` input.
+  `provideWrResponsiveOverlays()` + a per-component `responsive` input. **Every
+  open overlay follows a runtime direction change through
+  `wrFollowDirection(overlayRef, dir, injector, reposition?)`** — the CDK reads
+  the direction once, as a string, when the overlay is created and never looks
+  again, so a new overlay calls this right after `overlay.create(...)`, passing
+  the callback when its own position list is direction-dependent
+  (`wrMirrorOffsets`).
 - **Icons** (`ngwr/icon`) — `WrIcon` (`<wr-icon name="…">`) +
   `provideWrIcons(lucideIcons({…}))`; adapters under `ngwr/icon/adapters/*` —
   **lucide and feather only** (the two sets that don't ship plain SVG files).

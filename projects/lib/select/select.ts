@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { type BooleanInput, coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
@@ -51,7 +52,7 @@ import {
 import { useConfigValue } from 'ngwr/config';
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrPresentAsSheet } from 'ngwr/overlay';
+import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrFollowDirection, wrPresentAsSheet } from 'ngwr/overlay';
 import { isComposing } from 'ngwr/utils';
 
 import type { WrSelectMode, WrSelectSearchLoader, WrSelectTagValidator, WrSelectSize } from './interfaces';
@@ -1133,6 +1134,13 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly injector = inject(Injector);
+  /**
+   * Ambient reading direction, for the open panel alone — nothing in this
+   * component reads it directly. Optional so a bare `TestBed` needs no
+   * provider; `Directionality` is root-provided anyway, and a missing one
+   * simply reads as `ltr`.
+   */
+  private readonly dir = inject(Directionality, { optional: true });
   private overlayRef: OverlayRef | null = null;
 
   constructor() {
@@ -1653,6 +1661,13 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       backdropClass: asSheet ? 'wr-overlay-backdrop' : undefined,
       panelClass: asSheet ? ['wr-select-overlay', 'wr-overlay-sheet'] : 'wr-select-overlay',
     });
+
+    // Unconditional, sheet or panel: the CDK captured a direction STRING when
+    // this ref was created and never looks again, so a flip while the list is
+    // open leaves the options mirroring the wrong way. The sheet needs it as
+    // much as the connected panel — its geometry is direction-free, its
+    // CONTENT is not.
+    wrFollowDirection(this.overlayRef, this.dir, this.injector);
 
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);
     this.overlayRef.attach(portal);

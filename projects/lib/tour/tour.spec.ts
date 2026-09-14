@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -288,5 +289,105 @@ describe('the tour stylesheet', () => {
     const z = /z-index:\s*(\d+)/.exec(rule)?.[1];
     expect(z).toBeDefined();
     expect(Number(z)).toBeLessThan(1000);
+  });
+});
+
+/**
+ * A tour is long-lived by nature — a card can sit on screen while the user goes
+ * looking through a settings menu — and the CDK reads the direction ONCE, as a
+ * string, when the overlay is created. It writes it as the host's `dir` on
+ * attach and never looks again, so without the follower a page that mirrors
+ * mid-tour leaves the card rendering the old way round, with the 12px that held
+ * it clear of the spotlight now pointing INTO the target.
+ *
+ * The real `Directionality` is flipped rather than a `{ value, change }` double:
+ * the state IS `valueSignal`, `value` is a getter over it, and the root instance
+ * emits `change` for nobody.
+ */
+describe('WrTour when the direction flips mid-step', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+  let tour: WrTour;
+  let dir: Directionality;
+
+  const pane = (): HTMLElement => document.querySelector<HTMLElement>('.wr-tour-overlay')!;
+  /** `dir` goes on the host wrapper; `panelClass` lands on the pane inside it. */
+  const paneDir = (): string | null => pane().parentElement!.getAttribute('dir');
+
+  /** A signal write is state, not an event: it lands on the next change detection. */
+  const flipTo = (direction: Direction): void => {
+    dir.valueSignal.set(direction);
+    TestBed.tick();
+  };
+
+  const step = (target: string): WrTourStep => ({ target, content: 'Look here', placement: 'left' });
+
+  beforeEach(() => {
+    Element.prototype.scrollIntoView = (): undefined => undefined;
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrOverlay(),
+        {
+          provide: ConfigurableFocusTrapFactory,
+          useValue: {
+            create: () => ({
+              destroy: (): undefined => undefined,
+              focusInitialElementWhenReady: () => Promise.resolve(true),
+            }),
+          },
+        },
+      ],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    tour = TestBed.inject(WrTour);
+    dir = TestBed.inject(Directionality);
+  });
+
+  afterEach(() => {
+    tour.stop();
+    fixture.destroy();
+    delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView;
+  });
+
+  it('rewrites the open card’s `dir` and turns its gap around', () => {
+    tour.start([step('#one')]);
+    fixture.detectChanges();
+    expect(paneDir()).toBe('ltr');
+    // `left` holds the card 12px clear of the target's start edge.
+    expect(pane().getAttribute('style')).toContain('translateX(-12px)');
+
+    flipTo('rtl');
+
+    // The CDK mirrors the anchors and not `offsetX`, so an unmirrored -12 would
+    // survive the flip and park the card on top of the thing it is explaining.
+    expect(paneDir()).toBe('rtl');
+    expect(pane().getAttribute('style')).toContain('translateX(12px)');
+  });
+
+  it('wires every step, not only the one the tour opened on', () => {
+    tour.start([step('#one'), step('#two')]);
+    fixture.detectChanges();
+    tour.next();
+    fixture.detectChanges();
+
+    flipTo('rtl');
+
+    // Each move disposes the step's ref and builds the next, taking the first
+    // card's follower with it — the second has to be given one of its own.
+    expect([paneDir(), pane().getAttribute('style')?.includes('translateX(12px)')]).toEqual(['rtl', true]);
+  });
+
+  it('leaves nothing following a card that has been torn down', () => {
+    tour.start([step('#one')]);
+    fixture.detectChanges();
+    tour.stop();
+    fixture.detectChanges();
+
+    // Not hygiene: `setDirection()` writes through the host element `dispose()`
+    // nulls, so a follower outliving its step throws on the next flip — inside
+    // change detection, a long way from the tour.
+    expect(() => flipTo('rtl')).not.toThrow();
+    expect(document.querySelector('.wr-tour-overlay')).toBeNull();
   });
 });

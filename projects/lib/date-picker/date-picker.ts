@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
@@ -13,6 +14,7 @@ import {
   type ComponentRef,
   DestroyRef,
   ElementRef,
+  Injector,
   ViewEncapsulation,
   computed,
   effect,
@@ -31,7 +33,7 @@ import { WrCalendar } from 'ngwr/calendar';
 import { WrDateAdapter, type WrDateFormat } from 'ngwr/date';
 import { readI18nText, useI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
-import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 
 import { WrDateTimePanel } from './internal/date-time-panel';
 import { WrTimePanel } from './internal/time-panel';
@@ -140,6 +142,14 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
+  /**
+   * Ambient reading direction, for the open panel alone — nothing in this
+   * component reads it directly. Optional so a bare `TestBed` needs no
+   * provider; `Directionality` is root-provided anyway, and a missing one
+   * simply reads as `ltr`.
+   */
+  private readonly dir = inject(Directionality, { optional: true });
   protected readonly inputEl = viewChild.required<ElementRef<HTMLInputElement>>('input');
   protected readonly triggerEl = viewChild<ElementRef<HTMLButtonElement>>('trigger');
 
@@ -483,6 +493,13 @@ export class WrDatePicker implements FormValueControl<Date | null> {
       scrollStrategy: this.scrollStrategies.reposition(),
       panelClass: 'wr-date-picker-overlay',
     });
+
+    // Two of the four fallbacks anchor on `end`, and the CDK resolves start /
+    // end against the direction it captured when this ref was created. The
+    // `wr-calendar` inside the pane reads `Directionality` live, so a flip
+    // while the panel was open split the grid's key handling from the box it
+    // was drawn in — the same split the docs site's own switch shows off.
+    wrFollowDirection(this.overlayRef, this.dir, this.injector);
 
     // The trigger promises `aria-haspopup="dialog"`; the pane is the element it
     // points at, so the role, the name and the id all belong here. Non-modal on

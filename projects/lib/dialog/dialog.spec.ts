@@ -1,3 +1,4 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { ScrollDispatcher } from '@angular/cdk/scrolling';
 import { Location } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
@@ -510,5 +511,82 @@ describe('WrDialogFooter emits a modifier for every documented align', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('div')!.classList).toContain(
       `wr-dialog__footer--${align}`
     );
+  });
+});
+
+/**
+ * A dialog outlives a direction change. The CDK captures the direction as a
+ * string when the overlay is created and writes it once, on attach — so an app
+ * that flips while a modal is up mirrors the page and leaves the panel behind,
+ * still resolving `start` and `end` the other way round. This site's own
+ * LTR/RTL switch is the demonstration: it is a menu item, so the flip always
+ * arrives with an overlay already on screen.
+ *
+ * The assertions read the attribute the CDK actually writes, which is on the
+ * WRAPPER around the pane rather than on the pane `panelClass` lands on.
+ */
+describe('WrDialog follows a direction change while a dialog is open', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+  let dir: Directionality;
+  const opened: WrDialogRef<Confirm, boolean>[] = [];
+
+  const panels = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('.wr-dialog-panel')];
+  const dirs = (): (string | null)[] => panels().map(p => p.parentElement!.getAttribute('dir'));
+
+  const open = async (): Promise<void> => {
+    opened.push(fixture.componentInstance.dialog.open<Confirm, boolean>(Confirm));
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+
+  /** A signal write is state, not an event: it lands on the next pass. */
+  const flip = async (next: Direction): Promise<void> => {
+    dir.valueSignal.set(next);
+    await fixture.whenStable();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(Host);
+    dir = TestBed.inject(Directionality);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    for (const ref of opened.splice(0)) ref.close();
+    fixture.destroy();
+  });
+
+  it('rewrites the panel’s dir, so the content inside it mirrors with the page', async () => {
+    await open();
+    expect(dirs()).toEqual(['ltr']);
+
+    await flip('rtl');
+
+    expect(dirs()).toEqual(['rtl']);
+  });
+
+  it('follows on every dialog in the stack, not only the last one opened', async () => {
+    await open();
+    await open();
+
+    await flip('rtl');
+
+    // Each `open()` builds its own `OverlayRef`, so the follower has to be per
+    // ref: one installed for the service would leave the dialog underneath —
+    // the one the user goes back to — rendering the old way.
+    expect(dirs()).toEqual(['rtl', 'rtl']);
+  });
+
+  it('gives a reopened dialog a follower of its own', async () => {
+    await open();
+    for (const ref of opened.splice(0)) ref.close();
+    await fixture.whenStable();
+
+    await open();
+    await flip('rtl');
+
+    expect(dirs()).toEqual(['rtl']);
   });
 });

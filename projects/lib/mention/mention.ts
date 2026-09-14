@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import {
   type ConnectedPosition,
@@ -19,6 +20,7 @@ import {
   DestroyRef,
   Directive,
   ElementRef,
+  Injector,
   PLATFORM_ID,
   computed,
   inject,
@@ -28,7 +30,7 @@ import {
 } from '@angular/core';
 
 import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
-import { WR_OVERLAY } from 'ngwr/overlay';
+import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 import { isComposing } from 'ngwr/utils';
 
 import { getCaretCoordinates } from './caret';
@@ -162,8 +164,15 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
 
   private readonly host = inject<ElementRef<HTMLTextAreaElement | HTMLInputElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
+  /**
+   * Optional inject: `Directionality` is root-provided, so this is never null in
+   * an app — but a bare `TestBed` that provides nothing should still get a
+   * directive that works, and defaulting to LTR is the honest fallback.
+   */
+  private readonly dir = inject(Directionality, { optional: true });
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private overlayRef: OverlayRef | null = null;
@@ -478,6 +487,15 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
         scrollStrategy: this.scrollStrategies.reposition(),
         panelClass: 'wr-mention-overlay',
       });
+
+      // Once per mention SESSION, which is the same thing as once per ref here:
+      // the block this sits in is the only place one is created, and `close()`
+      // is the only place one is disposed. No callback — `CARET_POSITIONS`
+      // carries no `offsetX` to mirror, by the design noted at the table, so
+      // `setDirection` plus the reposition the helper already does is the whole
+      // of it: the panel hangs off the caret's other side and the list inside
+      // reads the way the page now does.
+      wrFollowDirection(this.overlayRef, this.dir, this.injector);
 
       const portal = new ComponentPortal(WrMentionPanel);
       const ref = this.overlayRef.attach(portal);

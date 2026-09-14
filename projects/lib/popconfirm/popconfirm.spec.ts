@@ -1,3 +1,4 @@
+import { Directionality } from '@angular/cdk/bidi';
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -6,6 +7,7 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import type { WrPopconfirmPosition } from './interfaces';
 import { WrPopconfirm } from './popconfirm';
 
 @Component({
@@ -238,5 +240,135 @@ describe('WrPopconfirm template reference', () => {
     expect(popconfirm.isOpen()).toBe(false);
 
     fixture.destroy();
+  });
+});
+
+/**
+ * A panel anchored to its trigger has TWO things that depend on the reading
+ * direction, and the CDK freezes both when the overlay is created: the `dir` it
+ * writes on the host, and the offsets this component mirrored by hand at open.
+ * So an app that flips while the question is on screen leaves the panel in the
+ * old direction — and `offsetX` is added to the final PHYSICAL x, so the 8px
+ * gap the panel keeps clear of its trigger becomes an 8px OVERLAP over the very
+ * control it is asking about.
+ *
+ * `position="left"` is the shape that shows it. The default `top` offsets along
+ * the block axis only, and the block axis does not flip.
+ */
+describe('WrPopconfirm across a direction flip', () => {
+  /**
+   * The side is BOUND rather than written as an attribute because one of these
+   * tests rewrites it while the panel is open. The others leave it where it
+   * starts, and a binding nobody writes renders exactly as the attribute did.
+   */
+  @Component({
+    imports: [WrPopconfirm],
+    template: `<button type="button" wrPopconfirm="Delete this for good?" [position]="side()">Delete</button>`,
+  })
+  class SideHost {
+    readonly side = signal<WrPopconfirmPosition>('left');
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<SideHost>>;
+  let ambient: Directionality;
+
+  const pane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-popconfirm-overlay');
+
+  /**
+   * Everything the CDK wrote about where this panel sits: the direction on the
+   * host wrapper, the edge the bounding box is pinned to, and the inline offset
+   * on the pane — which is the mirrored `offsetX` and nothing else.
+   */
+  const placement = (): Record<string, string | null> => ({
+    dir: pane()!.parentElement!.getAttribute('dir'),
+    left: pane()!.parentElement!.style.left,
+    right: pane()!.parentElement!.style.right,
+    offset: pane()!.style.transform,
+  });
+
+  const open = (): void => {
+    (fixture.nativeElement as HTMLElement)
+      .querySelector('button')!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+    fixture.detectChanges();
+  };
+
+  const flipTo = (direction: 'ltr' | 'rtl'): void => {
+    ambient.valueSignal.set(direction);
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    ambient = TestBed.inject(Directionality);
+    fixture = TestBed.createComponent(SideHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('rewrites the direction and re-mirrors the gap it keeps from the trigger', () => {
+    open();
+    expect(placement()).toEqual({ dir: 'ltr', left: 'auto', right: '0px', offset: 'translateX(-8px)' });
+
+    flipTo('rtl');
+
+    // The sign is the assertion: the panel has moved to the other side of the
+    // trigger, so the 8px has to point the other way with it.
+    expect(placement()).toEqual({ dir: 'rtl', left: '0px', right: 'auto', offset: 'translateX(8px)' });
+  });
+
+  it('lands exactly where a panel opened after the flip lands', () => {
+    open();
+    flipTo('rtl');
+    const followed = placement();
+    fixture.destroy();
+
+    // The same panel opened with the app ALREADY mirrored — the placement the
+    // CDK computes from scratch, and the only definition of correct here that
+    // does not restate the arithmetic under test.
+    fixture = TestBed.createComponent(SideHost);
+    fixture.detectChanges();
+    open();
+
+    expect(followed).toEqual(placement());
+  });
+
+  it('keeps the side it opened on when `position` was rebound behind it', () => {
+    open();
+    fixture.componentInstance.side.set('right');
+    fixture.detectChanges();
+
+    // Rebinding an open panel moves nothing — the side is read once, at open,
+    // and so is the `--left` modifier the stylesheet hangs the arrow off.
+    expect(placement()).toEqual({ dir: 'ltr', left: 'auto', right: '0px', offset: 'translateX(-8px)' });
+
+    flipTo('rtl');
+
+    // So the flip must not smuggle the new side in either. Mirroring `right`
+    // here would swing the panel across to the other edge of the trigger while
+    // its class still said `--left`: the arrow on one side, the panel on the
+    // other. This is the RTL placement of `left`, the same one the first test
+    // pins.
+    expect(pane()!.className).toContain('wr-popconfirm-overlay--left');
+    expect(placement()).toEqual({ dir: 'rtl', left: '0px', right: 'auto', offset: 'translateX(8px)' });
+  });
+
+  it('gives a reopened panel a follower of its own', () => {
+    open();
+    (fixture.nativeElement as HTMLElement)
+      .querySelector('button')!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+    fixture.detectChanges();
+    expect(pane()).toBeNull();
+
+    // `dispose()` nulls the element `setDirection()` writes through, so a
+    // follower left behind by the panel that closed throws on this line.
+    flipTo('rtl');
+    open();
+    flipTo('ltr');
+
+    expect(placement()).toEqual({ dir: 'ltr', left: 'auto', right: '0px', offset: 'translateX(-8px)' });
   });
 });

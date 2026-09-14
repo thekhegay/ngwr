@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, EnvironmentInjector, type EnvironmentProviders, createEnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -811,5 +812,84 @@ describe('provideWrToastConfig outside the root injector', () => {
     TestBed.inject(WrToast);
 
     expect(warn).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * The toast host is the longest-lived overlay in the library: it is created
+ * with the first toast of a run and torn down only when the last one leaves, so
+ * the direction the CDK captured at create can be many toasts out of date by
+ * the time anyone looks. And the corner the stack sits in is
+ * `inset-inline-start` / `-end` on the host component, so a stale `dir` does
+ * not misalign an icon — it parks the whole stack on the side the reader is no
+ * longer looking at, for the rest of the run.
+ */
+describe('WrToast follows a direction change while the stack is up', () => {
+  let toast: WrToast;
+  let dir: Directionality;
+
+  /** What the CDK writes `dir` on: the wrapper around the pane, not the pane. */
+  const wrapper = (): HTMLElement => document.querySelector<HTMLElement>('.wr-toast-overlay')!.parentElement!;
+
+  /** A signal write is state, not an event: it lands on the next pass. */
+  const flip = (next: Direction): void => {
+    dir.valueSignal.set(next);
+    TestBed.tick();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    toast = TestBed.inject(WrToast);
+    dir = TestBed.inject(Directionality);
+  });
+
+  afterEach(() => {
+    toast.dismissAll();
+    TestBed.resetTestingModule();
+  });
+
+  it('rewrites the host’s dir, so the stack moves to the reader’s new corner', () => {
+    toast.show({ message: 'Saved' });
+    TestBed.tick();
+    expect(wrapper().getAttribute('dir')).toBe('ltr');
+
+    flip('rtl');
+
+    expect(wrapper().getAttribute('dir')).toBe('rtl');
+  });
+
+  it('keeps following across the toasts that share the one host', () => {
+    toast.show({ message: 'First' });
+    TestBed.tick();
+    flip('rtl');
+    expect(wrapper().getAttribute('dir')).toBe('rtl');
+
+    toast.show({ message: 'Second' });
+    TestBed.tick();
+    flip('ltr');
+
+    // Asserted after BOTH flips, and the first one is not decoration: ending on
+    // `ltr` is ending on the direction the host was created with, so a single
+    // closing assertion would read the same on a host that never followed at
+    // all. `ensureHost()` returns early once a host exists, so the follower the
+    // first toast installed is the only one this run will get — it has to keep
+    // working, not fire once.
+    expect(wrapper().getAttribute('dir')).toBe('ltr');
+  });
+
+  it('follows again after the host has been torn down and rebuilt', () => {
+    toast.show({ message: 'First' });
+    TestBed.tick();
+    toast.dismissAll();
+    TestBed.tick();
+
+    toast.show({ message: 'Second' });
+    TestBed.tick();
+    flip('rtl');
+
+    // `disposeHost()` ends the old follower with the ref it was watching; the
+    // next `ensureHost()` has to install a new one rather than inherit it.
+    expect(wrapper().getAttribute('dir')).toBe('rtl');
   });
 });

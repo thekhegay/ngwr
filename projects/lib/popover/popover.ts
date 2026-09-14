@@ -14,6 +14,7 @@ import {
   DestroyRef,
   Directive,
   ElementRef,
+  Injector,
   ViewContainerRef,
   computed,
   effect,
@@ -25,7 +26,14 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrMirrorOffsets, wrPresentAsSheet } from 'ngwr/overlay';
+import {
+  WR_OVERLAY,
+  WR_RESPONSIVE_OVERLAYS,
+  WrOutsideClick,
+  wrFollowDirection,
+  wrMirrorOffsets,
+  wrPresentAsSheet,
+} from 'ngwr/overlay';
 import { numAttr } from 'ngwr/utils';
 
 import { type WrPopoverPosition, wrPopoverPositions } from './interfaces';
@@ -150,6 +158,7 @@ export class WrPopover {
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
 
   /** @internal */
   readonly isOpen = signal(false);
@@ -309,13 +318,18 @@ export class WrPopover {
     const asSheet = !tooltip && wrPresentAsSheet(this.responsive(), this.responsiveConfig);
     const paneClass = tooltip ? 'wr-tooltip-overlay' : 'wr-popover-overlay';
 
-    const positionStrategy = asSheet
-      ? this.overlay.position().global().centerHorizontally().bottom('0')
+    // Kept as its own binding rather than inlined into the ternary: it is the
+    // half a direction flip has to rebuild, and a sheet — anchored to nothing —
+    // has no list at all, which is what `null` says here.
+    const connected = asSheet
+      ? null
       : this.overlay
           .position()
           .flexibleConnectedTo(this.host)
           .withPositions(wrMirrorOffsets(wrPopoverPositions(position, paneClass), this.isRtl()))
           .withPush(true);
+
+    const positionStrategy = connected ?? this.overlay.position().global().centerHorizontally().bottom('0');
 
     // The `--<placement>` half is no longer set here: each fallback position
     // carries its own, so the pane names the placement it landed on instead of
@@ -331,6 +345,18 @@ export class WrPopover {
       backdropClass: asSheet ? 'wr-overlay-backdrop' : undefined,
       panelClass: overlayClass,
     });
+
+    // The CDK read the direction once, just now, and will never look again — so
+    // an app that flips while this panel is up mirrors the page around a pane
+    // still rendering `ltr`, with `wr-segmented` and friends inside it already
+    // laying themselves out the other way. Rebuilding the list matters as much
+    // as the attribute: `wrMirrorOffsets` turned the 8px gap around at open, and
+    // an unmirrored offset puts a side-placed panel back on top of its trigger.
+    // A sheet has no list, and `connected?.` is what says so — the arguments are
+    // never evaluated for one.
+    wrFollowDirection(this.overlayRef, this.dir, this.injector, direction =>
+      connected?.withPositions(wrMirrorOffsets(wrPopoverPositions(position, paneClass), direction === 'rtl'))
+    );
 
     if (asSheet) {
       this.overlayRef
