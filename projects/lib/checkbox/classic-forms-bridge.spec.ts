@@ -31,7 +31,9 @@ import { WrCheckbox } from './checkbox';
  * on a native `<input>` in the same template works. Validators have to live on
  * the `FormControl`.
  *
- * That is ANGULAR's current behaviour, pinned rather than endorsed. If a spec in
+ * That is ANGULAR's current behaviour, pinned rather than endorsed, and reported
+ * upstream as https://github.com/angular/angular/issues/70721 (it reproduces with
+ * a plain component that has a `value` model, no ngwr involved). If a spec in
  * that block starts failing after an Angular bump, the bridge moved — in either
  * direction — and the docs that describe it must move with it: AGENTS.md
  * (Forms), README.md, `scripts/lib/ai/skill.ts`, `/guides/forms`,

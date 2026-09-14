@@ -89,7 +89,10 @@
       <strong>the directive exists and the <code>FormControl</code> never hears from it</strong> —
       <code>errors</code> stays <code>null</code>, <code>valid</code> stays <code>true</code>, and
       <code>&lt;wr-form-field&gt;</code> has no error to show. A native <code>&lt;input wrInput required&gt;</code> in
-      the same form still validates, which is what makes the gap easy to miss in review.
+      the same form still validates, which is what makes the gap easy to miss in review. It is Angular's behaviour, not
+      ngwr's — it reproduces with a plain component that has a <code>value</code> model — and it is reported upstream as
+      <a href="https://github.com/angular/angular/issues/70721">angular/angular#70721</a>. Until that is fixed, the rule
+      below holds.
     </p>
 
     <ngwr-doc-code [code]="snippets.validators" language="typescript" />

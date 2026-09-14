@@ -278,7 +278,10 @@ Validators have to live on the `FormControl` (`min` / `max` never even match:
 their selectors require `input[type=number]`). The bridge also ignores
 `updateOn`, and a write with `{ emitEvent: false }` schedules no repaint, so
 one from an HTTP callback or a timer needs `markForCheck()`. `checkbox/classic-forms-bridge.spec.ts` pins the drop as
-Angular's current behaviour; `/guides/forms` is the consumer-facing account.
+Angular's current behaviour — reported upstream as
+[angular/angular#70721](https://github.com/angular/angular/issues/70721), which reproduces it without ngwr,
+so when that closes the pinned cases flip and every doc naming the limit moves with them;
+`/guides/forms` is the consumer-facing account.
 Standalone use is the two-way model, e.g. `[(value)]` / `[(checked)]`.
 New value controls: implement `FormValueControl`, expose `value` as a `model()`,
 plus a `touch` output, a `disabled` input and a **`readonly` input** — Angular
