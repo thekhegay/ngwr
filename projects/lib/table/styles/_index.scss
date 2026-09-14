@@ -389,6 +389,14 @@
     padding: 0;
     cursor: pointer;
     color: inherit;
+    // The indicator inside is a bare `.wr-icon__svg`, which is `1em`, and a
+    // `<button>` does not inherit its font-size: it takes the browser's control
+    // font (about 13.33px) unless the app resets it. So the same glyph measured
+    // 13.33px on a page with no reset and 12px under `ngwr/reset`, which sets
+    // `font: inherit`. Inheriting the size makes `1em` the header's own text in
+    // every app. `--wr-icon-size` cannot do this job — only a `<wr-icon>` host
+    // reads it, and the rule here used to set it for nothing.
+    font-size: inherit;
     line-height: 0;
   }
 
@@ -741,7 +749,6 @@
 
 .wr-table-sort {
   display: inline-flex;
-  --wr-icon-size: 0.875rem;
   // Unsorted is the flat line the template draws, at full strength in the muted
   // role — the same ink as the filter funnel beside it. It used to be the sort
   // ARROW at half opacity, which is how an unsorted column came to read as
@@ -796,7 +803,13 @@
     padding: 0;
     cursor: pointer;
     color: inherit;
-    --wr-icon-size: 0.875rem;
+    // The funnel is the same bare `1em` svg as the sort indicator beside it, in
+    // the same kind of `<button>`, so it inherits the header's font-size for the
+    // same reason (see `.wr-table__sort-btn`). The size only, not the `font`
+    // shorthand: that would also bring the header's 1.25rem line-height, and the
+    // count pill beside the funnel — 10px type with no line-height of its own —
+    // grows from 12px to 20px tall under it.
+    font-size: inherit;
   }
 
   &__count {
@@ -870,7 +883,6 @@
     border-radius: var(--wr-border-radius-sm);
     border: 1px solid var(--wr-color-outline);
     color: transparent;
-    --wr-icon-size: 0.75rem;
     transition: var(--wr-transition-base);
   }
 
