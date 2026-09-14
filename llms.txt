@@ -106,8 +106,12 @@ one element at a time; a step whose target is missing is skipped, not floated.
 
 ## Upgrading to v14
 
-Run `ng update ngwr@14`. It rewrites the renames and REPORTS the rest — read its
-output, because the reported half is where the silent failures are.
+Run `ng update ngwr@14`, once, from whatever major the app is on — it runs every
+migration between the installed version and 14, in order. Do not step through the
+majors, and never target a 7.x, 8.x or 9.x release: their schematics die with
+`exports is not defined in ES module scope`. It rewrites the renames and REPORTS
+the rest — read its output, because the reported half is where the silent
+failures are.
 
 Rewritten for you (six renames, one word per concept):
 

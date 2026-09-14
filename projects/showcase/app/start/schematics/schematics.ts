@@ -132,7 +132,8 @@ ng g ngwr:page dashboard overview
 # Creates <name>.ts + <name>.html + <name>.scss under
 # <sourceRoot>/app/pages/<name>/`,
 
-    update: `# Runs the migration for the major you land on, plus any you skipped.
+    update: `# One command from any earlier major: runs every migration newer than
+# your installed version, in order. Never target a 7.x, 8.x or 9.x release.
 ng update ngwr@14
 
 # The example below is v7's, the largest pure rewrite in the collection.

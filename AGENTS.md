@@ -1406,7 +1406,24 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
 - `ng g ngwr:provider <name>` — splices a provider into bootstrap.
 - `ng g ngwr:icon-set` / `ngwr:component-style` / `ngwr:page` — icon barrel /
   per-component `@use` / starter pages.
-- `ng update ngwr@N` — migrations, one dir per major under
+- `ng update ngwr@<latest major>` — ONE command from any earlier major. The CLI
+  installs the target, then runs every migration in the TARGET's
+  `migrations.json` whose version is above the installed one and at or below
+  the target, in order, so an 8.x app gets v9, v12, v13 and v14 in one pass.
+  **Never document stepping through the majors, and never a 7.x, 8.x or 9.x
+  target.** Every release from 7.0.0 to 9.1.0 ships CommonJS schematics under a
+  `"type": "module"` manifest with no nested `schematics/package.json`, so
+  `ng update ngwr@7` / `@8` / `@9`, `ng add` and every `ng g ngwr:*` against
+  them die with `exports is not defined in ES module scope`; 10.0.0 is the first
+  release carrying the `{ "type": "commonjs" }` manifest
+  `scripts/build-schematics.ts` writes. A step that failed that way had already
+  moved `package.json` and the lockfile, so a later `ng update ngwr@14` starts
+  from that release and silently skips its migration — `MIGRATION.md` carries
+  the recovery. The CLI's "migrate each major version individually" refusal is
+  Angular's own: it matches `@angular/*` and `@nguniversal/*` only
+  (`ANGULAR_PACKAGES_REGEXP` in `@angular/cli`'s update command) and never
+  applies to ngwr, so it is no reason to restore step-through advice.
+  Migrations, one dir per major under
   `schematics/migrations/` (v7 tag rewrites, v8 density/pagination renames,
   **v9 `<wr-checkbox>` from `value` to `checkboxValue`**, **v12 from
   `ngwr/date-adapter*` to `ngwr/date/adapters/*`**, **v14 the six vocabulary
@@ -1423,8 +1440,9 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
   state is the `checked` model and group membership is `checkboxValue`. A
   leftover static `value="x"` lands on the host as a plain DOM attribute — no
   template error, and every checkbox in the group keeps the default identity
-  `null`, so they all toggle together. `ng update ngwr@9` (migration-v9)
-  rewrites it.
+  `null`, so they all toggle together. `migration-v9` rewrites it, as a step
+  of `ng update ngwr@14` from any release before 9.0.0 — never by targeting
+  `ngwr@9`, whose schematics do not load (see Schematics).
 - **`<ng-content />` in `@if` / `@else` branches.** A default (no-`select`)
   `<ng-content />` placed in multiple conditional branches projects into only
   ONE slot (the last in static order) — the others render empty. Use a single
