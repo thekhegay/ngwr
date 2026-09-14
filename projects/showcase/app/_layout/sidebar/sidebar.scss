@@ -1,4 +1,6 @@
 @use 'lib/styles/breakpoints' as bp;
+@use 'showcase/styles/a11y';
+@use 'showcase/styles/badge';
 
 :host {
   --ngwr-sidebar-width: 14rem;
@@ -247,18 +249,28 @@
     }
   }
 
+  // Two rows wear this: the `soon` chip on a planned page, and the `new` mark on
+  // a page from the current release line. Same box, opposite jobs — `soon` is an
+  // aside, `new` is the thing a reader is scanning for — so the tone is a
+  // modifier and the geometry is not. Neither ever carries a version number;
+  // that is the maintainer's rule for the second one.
+  //
+  // Both tones come from `showcase/styles/_badge.scss`, shared with the catalog
+  // page's own mark: only the BOX is local, because this one is a flex child of
+  // the row and that one is an inline chip after the link text. The colours are
+  // not a box question, and two copies of them is how both came to fail AA.
   &__badge {
+    @include badge.row-mark;
+    @include badge.row-mark-quiet;
     flex: 0 0 auto;
-    padding: 0.0625rem 0.375rem;
-    // Tracks `__link`, which is `--wr-border-radius-sm`: the `soon` badge sits
-    // inside the nav row, so it takes the row's corner. Twin of the library's
-    // own `.wr-sidebar__badge`.
-    border-radius: var(--wr-border-radius-sm);
-    background: rgba(var(--wr-color-light-rgb), 0.6);
-    color: var(--wr-color-on-surface-muted);
-    font-size: 0.5625rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+
+    &--new {
+      @include badge.row-mark-new;
+    }
+  }
+
+  // The comma between a row's title and its mark — read, never seen.
+  &__sep {
+    @include a11y.sr-only;
   }
 }

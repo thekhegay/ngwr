@@ -11,6 +11,7 @@ import { DocSectionComponent } from '../doc-section/doc-section';
 
 import { CSS_VARS, type DocCssVarRoute, type DocCssVars } from '#core/generated/css-vars';
 import { MetaService } from '#core/services';
+import { releaseLabel } from '#core/utils';
 
 const FALLBACK_CATEGORY = 'Docs';
 
@@ -86,6 +87,30 @@ export class DocPageComponent {
   readonly labels = input<readonly string[]>([]);
 
   /**
+   * The library version this page's subject FIRST SHIPPED IN — `'14.5.0'`.
+   * Absent (the default) prints nothing, which is what almost every page does.
+   *
+   * **The page is the source of that fact.** Nothing in `projects/lib` carries
+   * an `@since` tag, so there is no history to derive one from, and git cannot
+   * supply it either — a renamed entry point looks new the day it moves. So only
+   * a page that DECLARES a version gets the line, and the silence everywhere
+   * else is the escape hatch rather than a backlog.
+   *
+   * It is also the one string behind the nav's "new" mark:
+   * `pnpm gen:api-docs` reads this attribute out of the template into
+   * `#core/generated/since`, and the sidebar and the cluster index pages mark a
+   * link whose version is on the current release line. Write it as a plain
+   * attribute — a bound `[since]` cannot be read by that scan, and
+   * `pnpm check:api-docs` fails on one rather than letting the mark go missing.
+   *
+   * @example
+   * ```html
+   * <ngwr-doc-page title="Graph" since="14.5.0"> … </ngwr-doc-page>
+   * ```
+   */
+  readonly since = input<string | null>(null);
+
+  /**
    * Override the auto-derived category. Pass `null` to use the URL-derived
    * value (default behaviour). The derived value comes from the cluster
    * segment, mapped via {@link CATEGORY_BY_SEGMENT}.
@@ -96,6 +121,20 @@ export class DocPageComponent {
   private readonly meta = inject(MetaService);
 
   protected readonly resolvedCategory = computed(() => this.category() ?? this.deriveCategoryFromUrl());
+
+  /**
+   * "Added in v14.5", or `null` when the page declares nothing.
+   *
+   * A whole phrase rather than a bare version, because it sits in the chip row
+   * beside "Component" and "Standalone": those are what the thing IS, and a
+   * lone "v14.5" among them reads as another one of those. It is also the chip's
+   * accessible text, and it stays OUT of the `<h1>` so the heading's own name
+   * remains the page title.
+   */
+  protected readonly addedIn = computed(() => {
+    const version = this.since();
+    return version ? `Added in ${releaseLabel(version)}` : null;
+  });
 
   /**
    * The `--wr-*` hooks this page's component publishes, or `null` for a route

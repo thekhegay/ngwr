@@ -48,6 +48,18 @@
     background: rgba(var(--wr-color-danger-rgb), 0.12);
     color: var(--wr-color-danger-ink);
   }
+
+  // The version chip. Outlined rather than tinted, and last in the row: the
+  // chips beside it say what the thing IS, and this one says when it arrived —
+  // a fill would put the two categories in one visual class. `-muted` is the
+  // role alias for quiet prose, which holds 4.63:1 on every surface the docs
+  // paint (the `medium` INTENT does not — 4.01:1 on the lightest one).
+  wr-badge.since {
+    background: none;
+    box-shadow: inset 0 0 0 1px var(--wr-color-outline);
+    color: var(--wr-color-on-surface-muted);
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 .title {

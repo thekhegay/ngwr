@@ -7,6 +7,8 @@ import { DocSectionComponent } from '../doc-section/doc-section';
 
 import type { DocIndexData, DocIndexSection } from './types';
 
+import { isNewLink } from '#core/utils';
+
 /**
  * A section's table of contents, as a real page.
  *
@@ -46,6 +48,15 @@ export default class DocIndexComponent {
   protected readonly page: DocIndexData = (this.route.snapshot.data as { index: DocIndexData }).index;
 
   protected readonly sections: readonly DocIndexSection[] = this.build();
+
+  /**
+   * The sidebar's "new" mark, on the page that lists the same links — one rule
+   * (`isNewLink()`) rather than a second copy of it, so the catalog and the nav
+   * can never disagree about what arrived in this release.
+   */
+  protected isNew(link: SidebarLink): boolean {
+    return isNewLink(link.url);
+  }
 
   private build(): readonly DocIndexSection[] {
     // Loud rather than blank. A route that mounts this component without

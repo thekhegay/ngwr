@@ -1,3 +1,6 @@
+@use 'showcase/styles/a11y';
+@use 'showcase/styles/badge';
+
 .index {
   list-style: none;
   margin: 0;
@@ -30,5 +33,30 @@
     &--disabled {
       color: var(--wr-color-on-surface-muted);
     }
+  }
+
+  // The same mark the sidebar draws, from the one `showcase/styles/_badge.scss`
+  // rule. Only the BOX is local: the nav row lays its mark out as a flex child,
+  // and this link is a block of inline text, so the chip rides after the name
+  // instead. Everything else — the 9px, the fill, the ink — is shared, because
+  // it is one measured pair per tone and a second copy of it is a second chance
+  // to put it back under AA.
+  &__badge {
+    @include badge.row-mark;
+    @include badge.row-mark-quiet;
+    display: inline-block;
+    // A hair off the baseline so the mark rides with the link's x-height rather
+    // than sitting on its descenders.
+    vertical-align: 0.0625rem;
+    margin-inline-start: 0.375rem;
+
+    &--new {
+      @include badge.row-mark-new;
+    }
+  }
+
+  // The comma between a link's title and its mark — read, never seen.
+  &__sep {
+    @include a11y.sr-only;
   }
 }
