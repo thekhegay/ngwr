@@ -70,6 +70,14 @@
     transition: transform 0.25s var(--wr-ease-out);
   }
 
+  // A direction flip mirrors the strip, which moves the thumb's slot by the whole
+  // width of it. Animated, that drags the pill across options it does not mark;
+  // the component sets this class for the tick the flip lands in so the pill is
+  // simply already there. Selection changes keep their slide.
+  &--flipping &__thumb {
+    transition: none;
+  }
+
   &--unselected &__thumb {
     opacity: 0;
   }

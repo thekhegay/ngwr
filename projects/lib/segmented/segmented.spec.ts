@@ -185,6 +185,32 @@ describe('WrSegmented parks its thumb by the reading direction', () => {
     }
   });
 
+  it('jumps rather than slides when the direction flips underneath it', async () => {
+    // A flip moves the slot by the whole width of the strip, and the transition
+    // would drag the pill across every option in between — a quarter second of it
+    // marking one the user did not pick. `--flipping` drops the transition for the
+    // tick the new slot lands in, and a selection change still slides.
+    mount('ltr');
+    await fixture.whenStable();
+    const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-segmented')!;
+    expect(host.className).not.toContain('wr-segmented--flipping');
+
+    TestBed.inject(Directionality).valueSignal.set('rtl');
+    fixture.detectChanges();
+    expect(slot()).toBe('2');
+    expect(host.className).toContain('wr-segmented--flipping');
+
+    await new Promise(resolve => setTimeout(resolve));
+    fixture.detectChanges();
+    expect(host.className).not.toContain('wr-segmented--flipping');
+
+    // A pick still animates: nothing was mirrored, so the pill has a short trip.
+    fixture.componentInstance.picked.set('week');
+    fixture.detectChanges();
+    expect(host.className).not.toContain('wr-segmented--flipping');
+    expect(host.className).toContain('wr-segmented--mounted');
+  });
+
   it('needs no provider at all when nobody set a direction', () => {
     // `optional: true` — the same guarantee the carousel and the table make. A
     // consumer who never thought about `dir` must not have to provide one.
