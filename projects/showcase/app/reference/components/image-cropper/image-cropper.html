@@ -46,6 +46,35 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Load errors"
+    description="A source the browser cannot decode — a renamed `.heic`, a truncated upload, a URL that fails — fires `(loadError)` once and sets `status()` to `'failed'`. The cropper renders no message of its own: what went wrong, and what to try instead, is yours to say. Picking another source clears the failure."
+  >
+    <ngwr-doc-code [code]="snippets.loadError" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.loadErrorTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+          <button wr-btn type="button" size="sm" (click)="pickUnreadable()">Pick an unreadable file</button>
+          <button wr-btn type="button" size="sm" outlined (click)="unreadable.set('/images/image_1.webp')">
+            Back to the photo
+          </button>
+        </div>
+        <wr-image-cropper #unreadableCropper [src]="unreadable()" (loadError)="lastError.set($event)" />
+        @if (unreadableCropper.status() === 'failed') {
+          <wr-alert type="danger" title="This image could not be opened" [message]="unreadableMessage()" />
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Export size"
+    description="Photos straight off a phone are far larger than most uploads need. `[maxOutputSize]` caps the longest side of what `(cropped)`, `toBlob()` and `toDataUrl()` produce: a bigger crop is scaled down with its aspect ratio kept, a smaller one is never upscaled, and `cropRect()` still reports the region in source pixels. Unset, the export is at the source resolution, as before."
+  >
+    <ngwr-doc-code [code]="snippets.maxOutputSize" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Keyboard"
     description="The crop window is focusable and fully operable without a pointer — moving it and resizing it are the same two gestures the drag offers, and they go through the same code, so `aspectRatio`, `minWidth` / `minHeight` and the image bounds hold for a keystroke exactly as they do for a drag."
   >

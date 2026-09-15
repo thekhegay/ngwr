@@ -61,9 +61,10 @@ export interface WrCropWindowBox {
  * arrives on the `(cropped)` output, which emits a `Blob` after each drag end or
  * each run of arrow keys, and a consumer who wants a one-off read calls `toBlob()` /
  * `toDataUrl()` — or `cropRect()` for the geometry — on the component through a
- * `viewChild`. An output and three instance members: component API rather than DOM,
- * so all of it is outside what a harness can reach at all, which is worth knowing
- * rather than discovering.
+ * `viewChild`. The same goes for `(loadError)` and `status()`, which is why
+ * {@link isFailed} reads the failure off the host class instead. Outputs and instance
+ * members are component API rather than DOM, so all of it is outside what a harness
+ * can reach at all, which is worth knowing rather than discovering.
  *
  * @example
  * ```ts
@@ -147,6 +148,40 @@ export class WrImageCropperHarness extends ComponentHarness {
       );
     }
     await image.dispatchEvent('load');
+  }
+
+  /**
+   * Fire the image's `error` event — what a browser does with a source it cannot
+   * decode, and the only way to get one in a unit test, where nothing is decoded.
+   *
+   * Afterwards {@link isFailed} is `true` and the component has emitted
+   * `(loadError)`; a spec that wants the payload binds that output on its host.
+   */
+  async dispatchImageError(): Promise<void> {
+    const image = await this.image();
+    if (!image) {
+      throw new Error(
+        'WrImageCropperHarness.dispatchImageError(): there is no image — the cropper has no `src`, so it is ' +
+          'showing its empty state and there is nothing to fail.'
+      );
+    }
+    await image.dispatchEvent('error');
+  }
+
+  /**
+   * Whether the browser failed to decode the current source.
+   *
+   * Read off the `wr-image-cropper--failed` host modifier — the part of the failure
+   * the DOM shows. It is a third answer beside {@link isEmpty} and {@link isReady},
+   * not a combination of them: a failed cropper has a `src` (so it is not empty) and
+   * no crop window (so it is not ready), which is also exactly what a cropper still
+   * LOADING looks like. Asking those two would call a broken image a slow one.
+   *
+   * The component renders no message for it, so there is no text to read here; the
+   * host's own message is the host's to assert.
+   */
+  async isFailed(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-image-cropper--failed');
   }
 
   /**

@@ -111,6 +111,32 @@ describe('WrImageCropperHarness', () => {
     expect(await harness.isReady()).toBe(false);
   });
 
+  it('reports a source it could not decode, and forgets it for the next one', async () => {
+    const harness = await cropper();
+    expect(await harness.isFailed()).toBe(false);
+
+    await harness.dispatchImageError();
+
+    // Not empty and not ready — which is also what a cropper still loading looks like,
+    // so the failure has to be its own question.
+    expect([await harness.isFailed(), await harness.isEmpty(), await harness.isReady()]).toEqual([true, false, false]);
+
+    fixture.componentInstance.src.set('/other.jpg');
+    await fixture.whenStable();
+    expect(await harness.isFailed()).toBe(false);
+
+    measure();
+    await harness.dispatchImageLoad();
+    expect([await harness.isFailed(), await harness.isReady()]).toEqual([false, true]);
+  });
+
+  it('refuses to fail an image that is not there', async () => {
+    fixture.componentInstance.src.set(null);
+    await fixture.whenStable();
+
+    await expect((await cropper()).dispatchImageError()).rejects.toThrow(/nothing to fail/);
+  });
+
   it('shows a translated placeholder with no source at all', async () => {
     fixture.componentInstance.src.set(null);
     await fixture.whenStable();
