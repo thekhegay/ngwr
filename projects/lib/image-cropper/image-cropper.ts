@@ -23,7 +23,18 @@ import {
 import { useI18nText } from 'ngwr/i18n';
 import { clamp, randomId } from 'ngwr/utils';
 
-import type { WrCropHandle, WrCropRect, WrImageOutputType } from './interfaces';
+import type { WrCropHandle, WrCropRect, WrImageCropperStatus, WrImageLoadError, WrImageOutputType } from './interfaces';
+
+/**
+ * `[maxOutputSize]`'s transform. Anything that is not a positive, finite number —
+ * `null`, an empty attribute, `0`, a typo — means "no cap" rather than a 1px export:
+ * a bad config should cost resolution nobody asked to lose, not the whole image.
+ */
+function coerceMaxOutputSize(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null;
+  const n = coerceNumberProperty(value, Number.NaN);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
 
 /**
  * Stands in for the consumer input `useI18nText` expects. None of this
@@ -55,12 +66,18 @@ interface RectPx {
  * freshly-rendered `Blob` of the cropped region. For one-off reads use
  * `toBlob()` / `toDataUrl()`.
  *
+ * A source the browser cannot decode fires `(loadError)` once, sets `status()` to
+ * `'failed'` and puts `wr-image-cropper--failed` on the host. The component renders
+ * no message of its own for it — what went wrong and what to do next is the host's
+ * to say.
+ *
  * @example
  * ```html
  * <wr-image-cropper
  *   [src]="file"
  *   [aspectRatio]="1"
  *   (cropped)="onBlob($event)"
+ *   (loadError)="onUnreadable($event)"
  * />
  * ```
  *
@@ -70,7 +87,10 @@ interface RectPx {
   selector: 'wr-image-cropper',
   templateUrl: './image-cropper.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-image-cropper' },
+  host: {
+    class: 'wr-image-cropper',
+    '[class.wr-image-cropper--failed]': "status() === 'failed'",
+  },
 })
 export class WrImageCropper {
   /** Image source — URL string, `File`, or `Blob`. */
@@ -91,8 +111,25 @@ export class WrImageCropper {
   /** JPEG / WebP quality for `(cropped)` in [0, 1]. @default 0.92 */
   readonly outputQuality = input(0.92);
 
+  /**
+   * Longest side of the exported image, in pixels — for `(cropped)`, `toBlob()` and
+   * `toDataUrl()` alike. A crop larger than this is scaled down to fit, keeping its
+   * aspect ratio; a smaller one is exported as it is, never upscaled. The crop itself
+   * — `cropRect()`, in source pixels — is not affected. `null` (or anything that is
+   * not a positive number) exports at the source image's own resolution.
+   * @default null
+   */
+  readonly maxOutputSize = input<number | null>(null, { transform: coerceMaxOutputSize });
+
   /** Emits a Blob after each drag end. */
   readonly cropped = output<Blob>();
+
+  /**
+   * Fires once when the browser cannot decode the current `src` — a format it does
+   * not support, a broken file, a URL that fails. Nothing is rendered for it; show
+   * your own message. A new `src` clears the failure.
+   */
+  readonly loadError = output<WrImageLoadError>();
 
   protected readonly imgEl = viewChild.required<ElementRef<HTMLImageElement>>('img');
 
@@ -142,6 +179,15 @@ export class WrImageCropper {
 
   private readonly destroyRef = inject(DestroyRef);
 
+  private readonly statusState = signal<WrImageCropperStatus>('empty');
+
+  /**
+   * Where the source stands: `'empty'`, `'loading'`, `'loaded'` or `'failed'`. Reset
+   * to `'loading'` (or `'empty'`) whenever `src` changes, so a failure never outlives
+   * the source that caused it.
+   */
+  readonly status = this.statusState.asReadonly();
+
   /** Resolved crop rect in natural (source) pixel coordinates. */
   readonly cropRect = computed<WrCropRect>(() => {
     const display = this.display();
@@ -176,8 +222,13 @@ export class WrImageCropper {
       this.resetGeometry();
       if (!src) {
         this.objectUrl.set(null);
+        this.statusState.set('empty');
         return;
       }
+      // A new source starts over: a failure belongs to the source that caused it, and
+      // left in place it would mark a perfectly good next image as broken until the
+      // browser answered for that one too.
+      this.statusState.set('loading');
       if (typeof src === 'string') {
         this.objectUrl.set(src);
       } else {
@@ -221,10 +272,38 @@ export class WrImageCropper {
       w: img.naturalWidth || display.w,
       h: img.naturalHeight || display.h,
     };
+    this.statusState.set('loaded');
     this.natural.set(natural);
     this.display.set(display);
     this.cropDisplay.set(this.initialCrop(display));
     this.watchResize(img);
+  }
+
+  /**
+   * The `<img>` could not decode its source.
+   *
+   * Before this handler existed a failed decode left the component exactly as it
+   * looks while loading — an image with no size, no crop window, nothing emitted —
+   * so a host had no way to tell "still decoding" from "never going to", and a user
+   * who picked a `.heic` the browser cannot read saw an empty box and no reason.
+   *
+   * Once per source: `status` is reset by a new `src` and by nothing else, so a
+   * second `error` for the same source says nothing new and is not re-emitted.
+   */
+  protected onImageError(): void {
+    const url = this.objectUrl();
+    if (!url || this.statusState() === 'failed') return;
+    this.statusState.set('failed');
+    this.resetGeometry();
+
+    const src = this.src();
+    const isBlob = typeof src !== 'string' && src !== null;
+    this.loadError.emit({
+      url,
+      name: typeof File !== 'undefined' && src instanceof File ? src.name : null,
+      type: isBlob ? src.type : null,
+      size: isBlob ? src.size : null,
+    });
   }
 
   /**
@@ -487,12 +566,31 @@ export class WrImageCropper {
 
   // Internals
 
+  /**
+   * The exported image's pixel size: the crop in source pixels, scaled down so its
+   * longer side fits `maxOutputSize`. `Math.min(1, …)` is the never-upscale rule — a
+   * crop already inside the cap keeps its own size, which is also the whole of the
+   * uncapped path.
+   */
+  private outputSize(c: WrCropRect): { width: number; height: number } {
+    const cap = this.maxOutputSize();
+    const longest = Math.max(c.width, c.height);
+    const scale = cap === null || longest === 0 ? 1 : Math.min(1, cap / longest);
+    return {
+      width: Math.max(1, Math.round(c.width * scale)),
+      height: Math.max(1, Math.round(c.height * scale)),
+    };
+  }
+
   private toCanvas(): HTMLCanvasElement {
     const img = this.imgEl().nativeElement;
     const c = this.cropRect();
     const canvas = document.createElement('canvas');
-    canvas.width = Math.max(1, c.width);
-    canvas.height = Math.max(1, c.height);
+    const size = this.outputSize(c);
+    canvas.width = size.width;
+    canvas.height = size.height;
+    // The SOURCE rect stays the whole crop and the destination is the canvas, so a
+    // capped export is the same region drawn smaller rather than a smaller region.
     const ctx = canvas.getContext('2d');
     if (ctx) ctx.drawImage(img, c.x, c.y, c.width, c.height, 0, 0, canvas.width, canvas.height);
     return canvas;

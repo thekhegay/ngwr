@@ -634,7 +634,9 @@ export const API = {
     { name: "minHeight", description: "Minimum crop height in display pixels.", type: "number", default: "32" },
     { name: "outputType", description: "Default output type for `(cropped)`.", type: "WrImageOutputType", default: "'image/png'" },
     { name: "outputQuality", description: "JPEG / WebP quality for `(cropped)` in [0, 1].", type: "number", default: "0.92" },
+    { name: "maxOutputSize", description: "Longest side of the exported image, in pixels — for `(cropped)`, `toBlob()` and `toDataUrl()` alike. A crop larger than this is scaled down to fit, keeping its aspect ratio; a smaller one is exported as it is, never upscaled. The crop itself — `cropRect()`, in source pixels — is not affected. `null` (or anything that is not a positive number) exports at the source image's own resolution.", type: "number | null", default: "null" },
     { name: "(cropped)", description: "Emits a Blob after each drag end.", type: "Blob" },
+    { name: "(loadError)", description: "Fires once when the browser cannot decode the current `src` — a format it does not support, a broken file, a URL that fails. Nothing is rendered for it; show your own message. A new `src` clears the failure.", type: "WrImageLoadError" },
   ],
   // <input[wrInput], textarea[wrInput]>
   WrInput: [

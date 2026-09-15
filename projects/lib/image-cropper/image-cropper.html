@@ -1,6 +1,14 @@
 @if (objectUrl(); as url) {
   <div class="wr-image-cropper__canvas">
-    <img #img class="wr-image-cropper__image" [src]="url" alt="" draggable="false" (load)="onImageLoad()" />
+    <img
+      #img
+      class="wr-image-cropper__image"
+      [src]="url"
+      alt=""
+      draggable="false"
+      (load)="onImageLoad()"
+      (error)="onImageError()"
+    />
 
     @if (display().w > 0) {
       <!-- Semi-transparent backdrop with a cut-out for the crop window. -->

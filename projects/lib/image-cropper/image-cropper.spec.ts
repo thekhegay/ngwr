@@ -4,15 +4,26 @@ import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrImageCropper } from './image-cropper';
-import type { WrImageOutputType } from './interfaces';
+import type { WrImageLoadError, WrImageOutputType } from './interfaces';
 
 @Component({
   imports: [WrImageCropper],
-  template: `<wr-image-cropper [src]="src()" [aspectRatio]="aspectRatio()" />`,
+  template: `
+    <wr-image-cropper
+      [src]="src()"
+      [aspectRatio]="aspectRatio()"
+      [maxOutputSize]="maxOutputSize()"
+      (loadError)="errors.push($event)"
+      (cropped)="blobs.push($event)"
+    />
+  `,
 })
 class Host {
   readonly src = signal<string | File | Blob | null>('/photo.jpg');
   readonly aspectRatio = signal<number | null>(null);
+  readonly maxOutputSize = signal<number | string | null>(null);
+  readonly errors: WrImageLoadError[] = [];
+  readonly blobs: Blob[] = [];
 }
 
 /**
@@ -367,6 +378,208 @@ describe('WrImageCropper', () => {
       fixture.destroy();
 
       expect(disconnects).toBeGreaterThan(0);
+    });
+  });
+
+  /**
+   * A source the browser cannot decode. jsdom fetches nothing and decodes nothing, so
+   * the `error` event is dispatched by hand — the same stand-in `load()` above is for a
+   * successful decode. What is real is everything the component does with it: the
+   * output, the status, and the host modifier a stylesheet or a harness reads.
+   */
+  describe('when the source cannot be decoded', () => {
+    const host = (): Host => fixture.componentInstance;
+    const hostEl = (): HTMLElement => root().querySelector<HTMLElement>('wr-image-cropper')!;
+    const fail = (): void => {
+      img().dispatchEvent(new Event('error'));
+      fixture.detectChanges();
+    };
+
+    afterEach(() => vi.restoreAllMocks());
+
+    it('reports it once, with the url the image was given', () => {
+      fail();
+      // A second `error` for the same source says nothing new.
+      fail();
+
+      expect(host().errors).toEqual([{ url: '/photo.jpg', name: null, type: null, size: null }]);
+      expect(cropper().status()).toBe('failed');
+      expect(hostEl().classList).toContain('wr-image-cropper--failed');
+      expect(window_()).toBeNull();
+      expect(cropper().cropRect()).toEqual({ x: 0, y: 0, width: 0, height: 0 });
+    });
+
+    it('describes a File by what it declares, which is all a host has to explain it with', () => {
+      // jsdom has no object URLs; the component only needs one to hand to the <img>.
+      const created: string[] = [];
+      vi.spyOn(URL, 'createObjectURL').mockImplementation(() => {
+        created.push(`blob:test/${created.length}`);
+        return created[created.length - 1];
+      });
+      vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+
+      host().src.set(new File(['not an image'], 'IMG_0001.heic', { type: 'image/heic' }));
+      fixture.detectChanges();
+      fail();
+
+      expect(host().errors).toEqual([{ url: created[0], name: 'IMG_0001.heic', type: 'image/heic', size: 12 }]);
+      // Torn down while the stub is still in place, since destroying revokes the URL.
+      fixture.destroy();
+    });
+
+    it('forgets the failure the moment the source changes', () => {
+      fail();
+
+      host().src.set('/other.jpg');
+      fixture.detectChanges();
+
+      expect(cropper().status()).toBe('loading');
+      expect(hostEl().classList).not.toContain('wr-image-cropper--failed');
+
+      // And the next source loads as though nothing had happened.
+      load();
+      expect(cropper().status()).toBe('loaded');
+      expect(window_()).not.toBeNull();
+      expect(host().errors.length).toBe(1);
+    });
+
+    it('reports the next source that fails as well', () => {
+      fail();
+      host().src.set('/other.jpg');
+      fixture.detectChanges();
+      fail();
+
+      expect(host().errors.map(e => e.url)).toEqual(['/photo.jpg', '/other.jpg']);
+    });
+
+    it('says nothing for an image that decodes', () => {
+      expect(cropper().status()).toBe('loading');
+
+      load();
+
+      expect(cropper().status()).toBe('loaded');
+      expect(host().errors).toEqual([]);
+      expect(hostEl().classList).not.toContain('wr-image-cropper--failed');
+    });
+
+    it('is empty, not failed, with no source at all', () => {
+      host().src.set(null);
+      fixture.detectChanges();
+
+      expect(cropper().status()).toBe('empty');
+      expect(hostEl().classList).not.toContain('wr-image-cropper--failed');
+    });
+  });
+
+  /**
+   * `[maxOutputSize]`. jsdom has no 2D context, so the canvas is given a recording one:
+   * the assertions are the canvas's pixel SIZE and the `drawImage` call, which together
+   * say whether the export is the same region drawn smaller — the contract — or a
+   * smaller region, which would pass a size-only check.
+   *
+   * Displayed at 400 for a natural 800, so the initial crop's source rect is fixed by
+   * the aspect ratio: 2 gives 480 × 240 at (160, 280), 0.5 gives 240 × 480 at (280, 160).
+   */
+  describe('capping the export size', () => {
+    let draws: number[][];
+    let encoded: { width: number; height: number }[];
+
+    beforeEach(() => {
+      draws = [];
+      encoded = [];
+      vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(
+        () =>
+          ({
+            drawImage: (_img: unknown, ...args: number[]) => draws.push(args),
+          }) as unknown as CanvasRenderingContext2D
+      );
+      vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockImplementation(function (this: HTMLCanvasElement) {
+        encoded.push({ width: this.width, height: this.height });
+        return 'data:image/png;base64,';
+      });
+      vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation(function (
+        this: HTMLCanvasElement,
+        callback: BlobCallback
+      ) {
+        encoded.push({ width: this.width, height: this.height });
+        callback(new Blob(['']));
+      });
+    });
+
+    afterEach(() => vi.restoreAllMocks());
+
+    const loadWith = (aspectRatio: number, maxOutputSize: number | string | null): void => {
+      fixture.componentInstance.aspectRatio.set(aspectRatio);
+      fixture.componentInstance.maxOutputSize.set(maxOutputSize);
+      fixture.detectChanges();
+      load({ display: 400, natural: 800 });
+    };
+
+    it('exports at the source resolution without a cap, as it always has', () => {
+      loadWith(2, null);
+
+      cropper().toDataUrl();
+
+      expect(encoded).toEqual([{ width: 480, height: 240 }]);
+      expect(draws).toEqual([[160, 280, 480, 240, 0, 0, 480, 240]]);
+    });
+
+    it('scales a larger crop down to the cap, keeping its aspect ratio and its region', () => {
+      loadWith(2, 100);
+
+      cropper().toDataUrl();
+
+      expect(encoded).toEqual([{ width: 100, height: 50 }]);
+      // The whole crop is still the source; only the destination shrank.
+      expect(draws).toEqual([[160, 280, 480, 240, 0, 0, 100, 50]]);
+      expect(cropper().cropRect()).toEqual({ x: 160, y: 280, width: 480, height: 240 });
+    });
+
+    it('caps the LONGEST side, which for a portrait crop is the height', () => {
+      loadWith(0.5, 100);
+
+      cropper().toDataUrl();
+
+      expect(encoded).toEqual([{ width: 50, height: 100 }]);
+    });
+
+    it('never upscales a crop already inside the cap', () => {
+      loadWith(2, 1000);
+
+      cropper().toDataUrl();
+
+      expect(encoded).toEqual([{ width: 480, height: 240 }]);
+    });
+
+    it('rounds the short side to a whole pixel', () => {
+      // Ratio 3 gives a 480 x 160 crop; at a cap of 100 the height is 33.3.
+      loadWith(3, 100);
+
+      cropper().toDataUrl();
+
+      expect(encoded).toEqual([{ width: 100, height: 33 }]);
+    });
+
+    it('holds for toBlob and for the (cropped) a gesture emits', async () => {
+      loadWith(2, 100);
+
+      await cropper().toBlob();
+      window_()!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+      window_()!.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowRight', bubbles: true }));
+      await vi.waitFor(() => expect(fixture.componentInstance.blobs.length).toBe(1));
+
+      expect(encoded).toEqual([
+        { width: 100, height: 50 },
+        { width: 100, height: 50 },
+      ]);
+    });
+
+    it.each([0, -50, '', 'wide'])('treats %j as no cap rather than a one-pixel export', cap => {
+      loadWith(2, cap);
+
+      cropper().toDataUrl();
+
+      expect(encoded).toEqual([{ width: 480, height: 240 }]);
     });
   });
 });

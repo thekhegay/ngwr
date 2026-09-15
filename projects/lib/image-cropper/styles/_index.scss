@@ -23,6 +23,13 @@
     user-select: none;
   }
 
+  // A source the browser could not decode. The `<img>` stays in the DOM, since the
+  // next `src` goes through the same element, but some engines draw a broken-image
+  // glyph for it — and the failure is the host's to explain, not a stray icon's.
+  &--failed &__image {
+    display: none;
+  }
+
   &__backdrop {
     position: absolute;
     inset: 0;
