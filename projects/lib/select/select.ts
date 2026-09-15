@@ -9,7 +9,7 @@ import { Directionality } from '@angular/cdk/bidi';
 import { type BooleanInput, coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
-import { isPlatformBrowser } from '@angular/common';
+import { NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import {
   Component,
   DestroyRef,
@@ -21,6 +21,7 @@ import {
   ViewEncapsulation,
   afterNextRender,
   computed,
+  contentChild,
   contentChildren,
   effect,
   forwardRef,
@@ -55,8 +56,15 @@ import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrFollowDirection, wrPresentAsSheet } from 'ngwr/overlay';
 import { isComposing } from 'ngwr/utils';
 
-import type { WrSelectMode, WrSelectSearchLoader, WrSelectTagValidator, WrSelectSize } from './interfaces';
+import type {
+  WrOptionLeadingContext,
+  WrSelectMode,
+  WrSelectSearchLoader,
+  WrSelectTagValidator,
+  WrSelectSize,
+} from './interfaces';
 import { WrOption } from './option';
+import { WrOptionLeading } from './option-leading';
 import { WR_SELECT, type WrSelectContext, type WrSelectOptionRegistration } from './tokens';
 
 let listboxUid = 0;
@@ -64,6 +72,8 @@ let listboxUid = 0;
 interface SelectedChip {
   readonly value: unknown;
   readonly label: string;
+  /** The leading template this chip draws, or `null`. */
+  readonly leading: TemplateRef<WrOptionLeadingContext> | null;
 }
 
 /**
@@ -124,7 +134,7 @@ interface SelectedChip {
   templateUrl: './select.html',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
-  imports: [WrOption],
+  imports: [WrOption, NgTemplateOutlet],
   providers: [
     {
       provide: WR_SELECT,
@@ -596,6 +606,47 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
   protected readonly open = signal(false);
 
+  /** WrSelectContext — whether the panel is open. Options gate their leading visual on it. */
+  readonly panelOpen = this.open.asReadonly();
+
+  /**
+   * A `<ng-template wrOptionLeading>` declared as a DIRECT child of the select —
+   * `descendants: false`, so an option's own template is never mistaken for the
+   * select-wide default.
+   */
+  private readonly defaultLeading = contentChild(WrOptionLeading, { descendants: false });
+
+  /**
+   * WrSelectContext — the select-wide leading template, or `null`. The only
+   * way to give a leading visual to the rows the select draws itself (`[options]`,
+   * `[loader]` results, virtual rows), and the default for projected options that
+   * declare none of their own.
+   */
+  readonly optionLeading = computed<TemplateRef<WrOptionLeadingContext> | null>(
+    () => this.defaultLeading()?.template ?? null
+  );
+
+  /**
+   * The leading template for a value: the registered option's (its own, or the
+   * default it resolved to), else the select-wide default for a value with no
+   * registered option — a virtual row, or one a loader has since dropped.
+   */
+  private leadingFor(value: unknown): TemplateRef<WrOptionLeadingContext> | null {
+    const found = this.registry().find(o => o.value === value);
+    if (found?.leading) return found.leading();
+    return this.optionLeading();
+  }
+
+  /**
+   * The leading visual beside the selected value on a single-mode BUTTON trigger
+   * — one instance, for the one selected value. The search-shaped triggers do not
+   * draw one: their selection is an `<input>`'s text, which cannot hold markup.
+   */
+  protected readonly selectedLeading = computed<TemplateRef<WrOptionLeadingContext> | null>(() => {
+    if (this.isMulti() || this.selectedLabel() == null) return null;
+    return this.leadingFor(this.value());
+  });
+
   /**
    * Trigger label for single mode. Multi reads `selectedChips` instead.
    *
@@ -628,7 +679,8 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     if (!this.hasChips()) return [];
     const arr = this.asArray(this.value());
     if (this.isTag()) {
-      return arr.map<SelectedChip>(v => ({ value: v, label: String(v) }));
+      // Tag values are free text with no option behind them, so no leading.
+      return arr.map<SelectedChip>(v => ({ value: v, label: String(v), leading: null }));
     }
     const list = this.registry();
     return arr.map<SelectedChip>(v => {
@@ -637,7 +689,11 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       // directly: a searchable multi fed from `[options]` has no registered
       // `<wr-option>` for a virtualized or unmounted row, and object items
       // would otherwise render as "[object Object]".
-      return { value: v, label: found?.label() ?? this.displayWith()(v) };
+      return {
+        value: v,
+        label: found?.label() ?? this.displayWith()(v),
+        leading: found?.leading ? found.leading() : this.optionLeading(),
+      };
     });
   });
 
@@ -1674,13 +1730,26 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
     // Seed the projected panel's scroll onto the cursor the same way the virtual
     // one is seeded from its own effect: opening a select whose selected option
-    // is the 200th shows the cursor, not the top of the list. Synchronous is
-    // correct here and a deferral would not be — `attachTemplatePortal` appends
-    // the rows and calls `detectChanges()` before returning, and `activeIndex`
-    // was seeded before `open()` flipped, so the row is in the DOM and the panel
-    // is measurable on this line. The virtual path stays on its effect, which
-    // has to wait to MEASURE a row height this one never needs.
-    if (!this.virtualActive()) this.ensureVisible(this.activeIndex());
+    // is the 200th shows the cursor, not the top of the list. The virtual path
+    // stays on its effect, which has to wait to MEASURE a row height this one
+    // never needs.
+    //
+    // Twice, and both are needed. Synchronously, because `attachTemplatePortal`
+    // appends the rows and calls `detectChanges()` before returning, and
+    // `activeIndex` was seeded before `open()` flipped, so the row is in the DOM
+    // and a panel of plain options lands on the cursor from the first frame.
+    // Again after the next render, because that `detectChanges()` refreshes the
+    // PORTAL's view and not the options: a projected `<wr-option>` belongs to the
+    // consumer's view, so whatever it draws only while the panel is open — its
+    // `wrOptionLeading` visual — lands a pass later and makes every row above the
+    // cursor taller than it was measured. Measured with 38px avatar rows, the
+    // cursor on the last of six sat 9px under the fold of a 90px panel, and the
+    // error grows with each row above it. The second call is a no-op for a panel
+    // whose rows did not move.
+    if (!this.virtualActive()) {
+      this.ensureVisible(this.activeIndex());
+      afterNextRender(() => this.ensureVisible(this.activeIndex()), { injector: this.injector });
+    }
 
     if (asSheet) {
       this.overlayRef

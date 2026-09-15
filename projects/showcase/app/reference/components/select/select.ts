@@ -3,9 +3,10 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
+import { WrAvatar } from 'ngwr/avatar';
 import { WrButton } from 'ngwr/button';
 import { WrFormError, WrFormField } from 'ngwr/form';
-import { WrOption, WrOptionGroup, WrSelect } from 'ngwr/select';
+import { WrOption, WrOptionGroup, WrOptionLeading, type WrOptionLeadingPlacement, WrSelect } from 'ngwr/select';
 
 import {
   DocApiComponent,
@@ -28,6 +29,8 @@ import { API } from '#core/generated/api';
     WrSelect,
     WrOption,
     WrOptionGroup,
+    WrOptionLeading,
+    WrAvatar,
     WrFormField,
     WrFormError,
     WrButton,
@@ -168,6 +171,39 @@ export class MyComponent {
     <wr-option [value]="c">{{ c }}</wr-option>
   }
 </wr-select>`,
+    leading: `<!-- The avatar is a TEMPLATE: nothing is created until the panel opens,
+     and only the selected value / chips draw one while it is closed. -->
+<wr-select placeholder="Assign to" [(value)]="assignee">
+  @for (p of people; track p.id) {
+    <wr-option [value]="p.id" [label]="p.name">
+      <ng-template wrOptionLeading let-placement="placement">
+        <wr-avatar shape="circle" [size]="avatarPx[placement]">{{ p.initials }}</wr-avatar>
+      </ng-template>
+      {{ p.name }} <small>{{ p.team }}</small>
+    </wr-option>
+  }
+</wr-select>
+
+<!-- Multi: every selected chip draws its option's visual. -->
+<wr-select mode="multi" searchable clearable placeholder="Add assignees" [(value)]="assignees">
+  @for (p of people; track p.id) { … the same options … }
+</wr-select>
+
+<!-- Rows the select draws itself ([options], [loader], virtualScroll) take a
+     select-wide template — a direct child of <wr-select>. -->
+<wr-select mode="search" virtualScroll [options]="people" [displayWith]="name">
+  <ng-template wrOptionLeading let-person let-placement="placement">
+    <wr-avatar shape="circle" [size]="avatarPx[placement]">{{ person.initials }}</wr-avatar>
+  </ng-template>
+</wr-select>`,
+    leadingTs: `import { WrAvatar } from 'ngwr/avatar';
+import { WrOption, WrOptionLeading, type WrOptionLeadingPlacement, WrSelect } from 'ngwr/select';
+
+@Component({ imports: [WrSelect, WrOption, WrOptionLeading, WrAvatar] })
+export class AssigneePicker {
+  // One template, three surfaces — size it per placement.
+  protected readonly avatarPx: Record<WrOptionLeadingPlacement, number> = { option: 24, value: 20, chip: 16 };
+}`,
     searchableMulti: `<!-- searchable is orthogonal to mode — this is multi + typeahead. -->
 <wr-select mode="multi" searchable placeholder="Filter categories" [(value)]="categories">
   @for (c of allCategories; track c) {
@@ -260,6 +296,22 @@ categoryId.setValue(2);`,
 
   protected readonly categories = signal<readonly string[]>(['Cranes']);
 
+  // Assignee-picker demo — a leading avatar per person, kept out of the label.
+  protected readonly people = [
+    { id: 1, name: 'Ada Lovelace', initials: 'AL', team: 'Analysis' },
+    { id: 2, name: 'Grace Hopper', initials: 'GH', team: 'Compilers' },
+    { id: 3, name: 'Alan Turing', initials: 'AT', team: 'Research' },
+    { id: 4, name: 'Katherine Johnson', initials: 'KJ', team: 'Flight' },
+    { id: 5, name: 'Margaret Hamilton', initials: 'MH', team: 'Guidance' },
+    { id: 6, name: 'Linus Torvalds', initials: 'LT', team: 'Kernel' },
+  ];
+
+  protected readonly assignee = signal<number | null>(2);
+  protected readonly assignees = signal<readonly number[]>([1, 3, 5]);
+
+  /** One template, three surfaces: a panel row, the single trigger's value, a chip. */
+  protected readonly avatarPx: Record<WrOptionLeadingPlacement, number> = { option: 24, value: 20, chip: 16 };
+
   // Server-side search demo. Stands in for "dispatch an action, read the
   // results back out of a store" — the (searchChange) output is the only wiring.
   protected readonly serverResults = signal<readonly string[]>([]);
@@ -327,6 +379,29 @@ categoryId.setValue(2);`,
   protected readonly optionApi: readonly DocApiRow[] = [
     { name: 'value', description: 'Form value contributed when chosen.', type: 'unknown', required: true },
     { name: 'disabled', description: 'Disable this option.', type: 'boolean', default: 'false' },
+    {
+      name: 'label',
+      description:
+        'What the select reports for this option — trigger, chip, chip remove label and search filter. Unset or empty, the option’s own text is used. The row’s accessible name stays the text it draws.',
+      type: 'string | null',
+      default: 'null',
+    },
+  ];
+
+  protected readonly leadingApi: readonly DocApiRow[] = [
+    {
+      name: '[wrOptionLeading]',
+      description:
+        'On an `<ng-template>` inside a `<wr-option>` (that option’s visual) or as a direct child of `<wr-select>` (the default for every row, and the only way to reach `[options]`, `[loader]` and virtual rows).',
+      type: 'TemplateRef<WrOptionLeadingContext>',
+    },
+    { name: '$implicit', description: 'The option’s value — `let-value`.', type: 'T' },
+    {
+      name: 'placement',
+      description:
+        "Where this copy is drawn: `'option'` (a panel row), `'chip'` (a multi chip) or `'value'` (the single button trigger).",
+      type: "'option' | 'chip' | 'value'",
+    },
   ];
 
   protected readonly groupApi: readonly DocApiRow[] = [

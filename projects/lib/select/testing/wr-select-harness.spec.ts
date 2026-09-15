@@ -3,7 +3,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrOverlay } from 'ngwr/overlay';
-import { WrOption, WrSelect } from 'ngwr/select';
+import { WrOption, WrOptionLeading, WrSelect } from 'ngwr/select';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrSelectHarness } from './wr-select-harness';
@@ -58,6 +58,23 @@ class SearchHost {
   `,
 })
 class TwoHost {}
+
+/** Initials drawn inside each row by a leading template — text the label must not pick up. */
+@Component({
+  imports: [WrSelect, WrOption, WrOptionLeading],
+  template: `
+    <wr-select mode="multi" ariaLabel="Assignees" [(value)]="ids">
+      <wr-option [value]="1">
+        <ng-template wrOptionLeading><span class="initials">AL</span></ng-template>
+        Ada Lovelace
+      </wr-option>
+      <wr-option [value]="2">Grace Hopper</wr-option>
+    </wr-select>
+  `,
+})
+class LeadingHost {
+  readonly ids = signal<unknown>([]);
+}
 
 /**
  * The panel is a template portal in the overlay container, so nothing this spec
@@ -283,5 +300,42 @@ describe('WrSelectHarness — two on one page', () => {
     expect(await veg.isOpen()).toBe(true);
     expect(await fruit.getOptionLabels()).toEqual(['Apple']);
     expect(await veg.getOptionLabels()).toEqual(['Carrot']);
+  });
+});
+
+describe('WrSelectHarness — options with a leading visual', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<LeadingHost>>;
+  let loader: ReturnType<typeof TestbedHarnessEnvironment.loader>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(LeadingHost);
+    fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('reads the option text without the visual drawn inside the row', async () => {
+    const select = await loader.getHarness(WrSelectHarness);
+    await select.open();
+
+    // The row's own textContent starts with "AL"; a harness that read the host
+    // whole would report that as the first word of the name.
+    expect(await select.getOptionLabels()).toEqual(['Ada Lovelace', 'Grace Hopper']);
+
+    await select.selectOption({ text: 'Ada Lovelace' });
+    expect(fixture.componentInstance.ids()).toEqual([1]);
+    expect(await select.getChipLabels()).toEqual(['Ada Lovelace']);
+  });
+
+  it('tells a row drawing a visual from one that is not', async () => {
+    const select = await loader.getHarness(WrSelectHarness);
+    await select.open();
+
+    const [ada, grace] = await select.getOptions();
+    expect(await ada.hasLeading()).toBe(true);
+    expect(await grace.hasLeading()).toBe(false);
   });
 });

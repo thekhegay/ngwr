@@ -30,9 +30,29 @@ export class WrOptionHarness extends ComponentHarness {
       .addOption('disabled', options.disabled, async (harness, disabled) => (await harness.isDisabled()) === disabled);
   }
 
-  /** The option's label, trimmed. */
+  /**
+   * The option's text as drawn, trimmed — without its leading visual.
+   *
+   * A `wrOptionLeading` template renders INSIDE the row, so reading the whole
+   * host would hand back an avatar's initials as the first word of the name. It
+   * is excluded here for the same reason the select excludes it from the label.
+   *
+   * This is the drawn text, not the `label` input: an option whose `label` is
+   * shorter than what it draws still answers with what it draws. What the select
+   * REPORTS for it is on the select harness, as `getValueText()` or
+   * `getChipLabels()`.
+   */
   async getText(): Promise<string> {
-    return (await this.host()).text();
+    return (await this.host()).text({ exclude: '.wr-option__leading' });
+  }
+
+  /**
+   * Whether the row is drawing a leading visual right now. Reads the slot the
+   * select renders the template into, so it answers `false` for an option that
+   * declares a template while the panel is closed — which is the contract.
+   */
+  async hasLeading(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-option__leading')()) !== null;
   }
 
   /** Whether the option is currently selected. */

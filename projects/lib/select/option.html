@@ -1,0 +1,13 @@
+<!-- The leading visual is a sibling of the projected text, never a wrapper
+     around it: `.wr-option` is a flex row, and wrapping the content would fold
+     a consumer's own icon and label into one flex item. `aria-hidden` keeps it
+     out of the option's accessible name; `syncLabel` skips it by reference. -->
+@if (rowLeading(); as leading) {
+  <span #leadingSlot class="wr-option__leading" aria-hidden="true">
+    <ng-container
+      [ngTemplateOutlet]="leading"
+      [ngTemplateOutletContext]="{ $implicit: value(), placement: 'option' }"
+    />
+  </span>
+}
+<ng-content />

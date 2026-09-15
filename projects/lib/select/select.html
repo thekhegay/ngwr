@@ -107,6 +107,14 @@
     <span class="wr-select__chips">
       @for (chip of visibleChips(); track $index) {
         <span class="wr-select__chip">
+          @if (chip.leading; as leading) {
+            <span class="wr-select__chip-leading" aria-hidden="true">
+              <ng-container
+                [ngTemplateOutlet]="leading"
+                [ngTemplateOutletContext]="{ $implicit: chip.value, placement: 'chip' }"
+              />
+            </span>
+          }
           <span class="wr-select__chip-label">{{ chip.label }}</span>
           @if (!isReadonly()) {
             <span
@@ -226,6 +234,16 @@
         <span class="wr-select__chips">
           @for (chip of visibleChips(); track $index) {
             <span class="wr-select__chip">
+              <!-- A selected chip draws its option's leading visual — one copy per
+                   VISIBLE chip, so `maxTagCount` caps these too. -->
+              @if (chip.leading; as leading) {
+                <span class="wr-select__chip-leading" aria-hidden="true">
+                  <ng-container
+                    [ngTemplateOutlet]="leading"
+                    [ngTemplateOutletContext]="{ $implicit: chip.value, placement: 'chip' }"
+                  />
+                </span>
+              }
               <span class="wr-select__chip-label">{{ chip.label }}</span>
               @if (!isReadonly()) {
                 <span
@@ -262,6 +280,16 @@
       }
     } @else {
       @if (selectedLabel(); as label) {
+        <!-- Beside the label, not inside it: the harness and the accessible name
+             both read `.wr-select__value`, and the visual says nothing either should. -->
+        @if (selectedLeading(); as leading) {
+          <span class="wr-select__value-leading" aria-hidden="true">
+            <ng-container
+              [ngTemplateOutlet]="leading"
+              [ngTemplateOutletContext]="{ $implicit: value(), placement: 'value' }"
+            />
+          </span>
+        }
         <span class="wr-select__value">{{ label }}</span>
       } @else {
         <span class="wr-select__placeholder">{{ resolvedPlaceholder() }}</span>
@@ -351,6 +379,17 @@
             [attr.aria-posinset]="entry.index + 1"
             (click)="selectOption(entry.item)"
           >
+            <!-- Only the select-wide template reaches a virtual row — there is no
+                 `<wr-option>` here to declare one — and only rows inside the
+                 rendered window instantiate it. -->
+            @if (optionLeading(); as leading) {
+              <span class="wr-option__leading" aria-hidden="true">
+                <ng-container
+                  [ngTemplateOutlet]="leading"
+                  [ngTemplateOutletContext]="{ $implicit: entry.item, placement: 'option' }"
+                />
+              </span>
+            }
             {{ displayWith()(entry.item) }}
           </div>
         }

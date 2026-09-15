@@ -39,3 +39,20 @@ export type WrSelectSearchLoader<T> = (
 
 /** Control size for `<wr-select>` — shares the `--wr-control-*` contract. */
 export type WrSelectSize = 'sm' | 'md' | 'lg';
+
+/**
+ * Where a `wrOptionLeading` template is being drawn:
+ *
+ * - `'option'` — the row in the open panel.
+ * - `'chip'` — a selected chip on a `mode="multi"` trigger.
+ * - `'value'` — the selected value on a single-mode button trigger.
+ */
+export type WrOptionLeadingPlacement = 'option' | 'chip' | 'value';
+
+/** Template context of `<ng-template wrOptionLeading>`. */
+export interface WrOptionLeadingContext<T = unknown> {
+  /** The option's value — `let-value`. */
+  readonly $implicit: T;
+  /** Where this copy is drawn, so one template can size itself per surface. */
+  readonly placement: WrOptionLeadingPlacement;
+}
