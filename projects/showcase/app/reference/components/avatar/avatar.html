@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Avatar"
-  description="Image avatar with a fixed square or rounded shape. Shows a spinner while the image loads."
+  description="Image avatar with a square, rounded, circle or squircle shape. Projected initials stand in while the image loads and when it fails."
   [keywords]="['avatar', 'profile', 'image', 'wr-avatar']"
   [labels]="['Component', 'Standalone']"
 >
@@ -39,7 +39,7 @@
 
   <ngwr-doc-section
     title="Initials fallback"
-    description="When the avatar has no image, projected content fills the box. Use a flex layout to center it. A `[url]` that fails to load lands in the same place — the spinner and the broken `<img>` are dropped and the initials behind them show through, which is the one state where an avatar is guaranteed to have something worth showing."
+    description="With no `[url]`, projected content fills the box, centred by the avatar's own flex layout."
   >
     <ngwr-doc-snippet [code]="snippets.initials">
       <wr-avatar [size]="48" shape="circle">
@@ -47,6 +47,40 @@
       </wr-avatar>
       <wr-avatar [size]="64" style="background: rgba(var(--wr-color-primary-rgb), 0.15)">
         <span style="font-size: 1.125rem; font-weight: 600; color: var(--wr-color-primary-ink)">AB</span>
+      </wr-avatar>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Initials behind an image"
+    description="Give an image and initials together and the initials are the fallback: they show while the image loads, then give way to it. With an `alt`, a screen reader hears the `alt` while an image is in play and the initials otherwise, never both. Without one the image is only named `Avatar`, so the initials stay announced beside it. They are projected into a `.wr-avatar__content` wrapper, and no spinner is drawn over them."
+  >
+    <ngwr-doc-snippet [code]="snippets.withImage">
+      <wr-avatar
+        [url]="localUrl"
+        alt="Roman Khegay"
+        [size]="64"
+        shape="circle"
+        style="background: var(--wr-color-primary-soft); color: var(--wr-color-primary-ink); font-weight: 600"
+      >
+        RK
+      </wr-avatar>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Broken image"
+    description="A `[url]` that fails to load drops the broken `<img>` and the spinner, and the initials stay — the one state where an avatar is guaranteed to have something worth showing. A new `[url]` is a new attempt."
+  >
+    <ngwr-doc-snippet [code]="snippets.broken">
+      <wr-avatar
+        [url]="brokenUrl"
+        alt="Roman Khegay"
+        [size]="64"
+        shape="circle"
+        style="background: var(--wr-color-primary-soft); color: var(--wr-color-primary-ink); font-weight: 600"
+      >
+        RK
       </wr-avatar>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

@@ -36,7 +36,44 @@
     --wr-avatar-ring: transparent;
   }
 
+  // The projected fallback. `display: contents` keeps whatever is projected a
+  // flex item of the host, laid out by the host's centring (and by any flex
+  // setting a consumer put on the host) exactly as before this wrapper existed.
+  &__content {
+    display: contents;
+  }
+
+  // Once loaded, how the fallback leaves the paint follows whether the image is
+  // NAMED, which the template states as `aria-hidden` on the wrapper. Named, the
+  // initials are already out of the accessibility tree, so `visibility` (which
+  // bare text nodes inherit) takes them out of the paint as well.
+  &--loaded &__content[aria-hidden='true'] {
+    visibility: hidden;
+    // Held until the image's own fade has finished, so the photo crossfades in
+    // over the initials instead of over an empty box.
+    transition: visibility 0s linear var(--wr-duration-base);
+  }
+
+  // Unnamed, the image is only "Avatar" and the initials are what identifies the
+  // person, so they are clipped rather than hidden and stay announced. A clip
+  // needs a box, hence the switch from `contents`; the host has a fixed size,
+  // so taking them out of flow moves nothing around it.
+  &--loaded &__content:not([aria-hidden='true']) {
+    display: block;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   &__img {
+    // Out of flow, so it covers the fallback rather than sharing the box with it
+    // — in flow, the initials were squeezed beside the loaded photo.
+    position: absolute;
+    inset: 0;
     display: block;
     width: 100%;
     height: 100%;
@@ -53,5 +90,14 @@
     // 1.4.11 holds to 3:1, and the faint tier is 2.43:1 in light.
     color: var(--wr-color-on-surface-muted);
     --wr-spinner-size: 40%;
+  }
+
+  // With a fallback projected, the spinner is dropped: both are centred, so at
+  // 40% of a 32px avatar its arc is drawn straight through the letters and
+  // neither reads. The initials are placeholder enough while the photo loads.
+  // `:empty` ignores comment nodes, so a projected `@if` that renders nothing
+  // still gets the spinner.
+  &__content:not(:empty) ~ &__spin {
+    display: none;
   }
 }
