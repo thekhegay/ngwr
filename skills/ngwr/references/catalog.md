@@ -171,7 +171,7 @@ root barrel for components.
 | `ngwr/scroll` | `import { WrScroll } from 'ngwr/scroll'` | — |
 | `ngwr/segmented` | `import { WrSegmented } from 'ngwr/segmented'` | `wr-segmented` |
 | `ngwr/segmented/testing` | `import { WrSegmentedHarness } from 'ngwr/segmented/testing'` | — |
-| `ngwr/select` | `import { WrSelect } from 'ngwr/select'` | `wr-option-group` `wr-option` `wr-select` |
+| `ngwr/select` | `import { WrSelect } from 'ngwr/select'` | `wr-option-group` `ng-template[wrOptionLeading]` `wr-option` `wr-select` |
 | `ngwr/select/testing` | `import { WrOptionHarness } from 'ngwr/select/testing'` | — |
 | `ngwr/shiny-text` | `import { WrShinyText } from 'ngwr/shiny-text'` | `[wrShimmer]` `wr-shiny-text` |
 | `ngwr/shiny-text/testing` | `import { WrShinyTextHarness } from 'ngwr/shiny-text/testing'` | — |

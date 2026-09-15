@@ -985,7 +985,20 @@ export class MyWidgetHarness extends ComponentHarness {
   ];
 
   protected readonly optionApi: readonly DocApiRow[] = [
-    { name: 'getText()', description: "The option's label, trimmed.", type: 'Promise<string>', default: '—' },
+    {
+      name: 'getText()',
+      description:
+        "The option's text as drawn, trimmed, without its `wrOptionLeading` visual. Not the `label` input: what the select reports for the option is `getValueText()` or `getChipLabels()` on `WrSelectHarness`.",
+      type: 'Promise<string>',
+      default: '—',
+    },
+    {
+      name: 'hasLeading()',
+      description:
+        'Whether the row is drawing a `wrOptionLeading` visual right now, so it answers `false` while the panel is closed.',
+      type: 'Promise<boolean>',
+      default: '—',
+    },
     {
       name: 'isSelected() / isDisabled() / isActive()',
       description:

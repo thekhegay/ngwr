@@ -141,6 +141,66 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Leading visuals and an explicit label"
+    description="An avatar, an icon or a colour dot goes in an `<ng-template wrOptionLeading>`, never straight into the option. Projected options are created with the page whether the panel is open or not, so an avatar written into each of 200 options is 200 components and 200 image requests before anyone opens the picker; a template is instantiated only where it is drawn — the rows of an OPEN panel (destroyed again on close, and only the rendered window under `virtualScroll`), each visible chip in `multi` mode, and the selected value on a single button trigger. The search-shaped triggers (`search` mode, a searchable single) do not draw it, because their selection is the text of an input. Every copy is `aria-hidden` and skipped when the option’s text is read, so the trigger, the chips and the search filter read “Ada Lovelace”, never “AL Ada Lovelace”. When a row draws more than the name — a team, an email — set `label` as well: it is what the select reports and searches, while the row keeps announcing everything it shows."
+  >
+    <ngwr-doc-code [code]="snippets.leading" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.leadingTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 28rem">
+        <wr-select placeholder="Assign to" ariaLabel="Assignee" [(value)]="assignee">
+          @for (p of people; track p.id) {
+            <wr-option [value]="p.id" [label]="p.name">
+              <ng-template wrOptionLeading let-placement="placement">
+                <wr-avatar
+                  style="background: var(--wr-color-primary-soft); color: var(--wr-color-primary-ink); font-weight: 600"
+                  shape="circle"
+                  [size]="avatarPx[placement]"
+                  [style.font-size.px]="avatarPx[placement] * 0.42"
+                  >{{ p.initials }}</wr-avatar
+                >
+              </ng-template>
+              {{ p.name }}
+              <small style="margin-inline-start: auto; font-size: 0.75em">{{ p.team }}</small>
+            </wr-option>
+          }
+        </wr-select>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          Assignee: <code>{{ assignee() ?? '—' }}</code>
+        </span>
+
+        <wr-select
+          mode="multi"
+          searchable
+          clearable
+          placeholder="Add assignees"
+          ariaLabel="Assignees"
+          [(value)]="assignees"
+        >
+          @for (p of people; track p.id) {
+            <wr-option [value]="p.id" [label]="p.name">
+              <ng-template wrOptionLeading let-placement="placement">
+                <wr-avatar
+                  style="background: var(--wr-color-primary-soft); color: var(--wr-color-primary-ink); font-weight: 600"
+                  shape="circle"
+                  [size]="avatarPx[placement]"
+                  [style.font-size.px]="avatarPx[placement] * 0.42"
+                  >{{ p.initials }}</wr-avatar
+                >
+              </ng-template>
+              {{ p.name }}
+              <small style="margin-inline-start: auto; font-size: 0.75em">{{ p.team }}</small>
+            </wr-option>
+          }
+        </wr-select>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem"
+          >Assignees: {{ assignees() | json }}</span
+        >
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Server-side search"
     description="`(searchChange)` is the hook when the options live somewhere else: it emits the debounced query, you dispatch, and the results come back through `[options]` with `[loading]` driving the panel's progress row. Add `serverSearch` so the built-in client-side filter stays out of the way — otherwise a ranked or fuzzy match whose label doesn't contain the query would be hidden again. The demo below fakes 700 ms of latency."
   >
@@ -280,6 +340,10 @@
 
   <ngwr-doc-section title="Option API">
     <ngwr-doc-api [rows]="optionApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Option leading template">
+    <ngwr-doc-api [rows]="leadingApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Option Group API">

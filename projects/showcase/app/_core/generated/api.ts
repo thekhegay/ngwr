@@ -801,6 +801,7 @@ export const API = {
   WrOption: [
     { name: "value", description: "The value contributed when this option is chosen. Required.", type: "unknown", required: true },
     { name: "disabled", description: "Disable this option.", type: "boolean", default: "false" },
+    { name: "label", description: "The text the select reports for this option — the trigger label, the chip, the chip's remove label and the search filter all read it. Unset (or empty), the option's own text is used, as it always was. Set it when the row shows more than the name: a projected email under a person, a count beside a category. It does NOT rename the row itself — the option's accessible name stays the text it draws, since a screen reader user browsing the list should hear what a sighted one reads there.", type: "string | null", default: "null" },
   ],
   // <wr-option-group>
   WrOptionGroup: [

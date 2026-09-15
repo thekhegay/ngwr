@@ -5,7 +5,9 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { InjectionToken, type Signal } from '@angular/core';
+import { InjectionToken, type Signal, type TemplateRef } from '@angular/core';
+
+import type { WrOptionLeadingContext } from '../interfaces';
 
 /** Per-option registration metadata. @internal */
 export interface WrSelectOptionRegistration {
@@ -27,6 +29,13 @@ export interface WrSelectOptionRegistration {
    * registration that cannot supply an element simply keeps its place.
    */
   readonly host?: HTMLElement;
+  /**
+   * The option's own `wrOptionLeading` template, when it declares one. Chips
+   * look it up by value, since a chip is drawn by the select and not by the
+   * option. Optional, like `host`: a registration without one falls back to the
+   * select's default template.
+   */
+  readonly leading?: Signal<TemplateRef<WrOptionLeadingContext> | null>;
 }
 
 /**
@@ -64,6 +73,17 @@ export interface WrSelectContext {
    * `[serverSearch]`), in which case options must NOT self-hide.
    */
   readonly clientFilter: Signal<boolean>;
+  /**
+   * Whether the panel is open. An option draws its leading visual only while it
+   * is, because projected options exist — detached — for the whole life of the
+   * select, and a template instantiated there would be every avatar at once.
+   */
+  readonly panelOpen: Signal<boolean>;
+  /**
+   * The select-wide `wrOptionLeading` template — one declared as a direct child
+   * of `<wr-select>` — or `null`. An option with a template of its own ignores it.
+   */
+  readonly optionLeading: Signal<TemplateRef<WrOptionLeadingContext> | null>;
   /** Is the given option value currently selected? Handles both single and multi. */
   isSelected(value: unknown): boolean;
   /**

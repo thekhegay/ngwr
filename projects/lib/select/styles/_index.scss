@@ -120,6 +120,14 @@
     color: var(--wr-color-text-muted);
   }
 
+  // The selected option's leading visual on a single-mode button trigger. Never
+  // shrinks: the label beside it is the part that truncates.
+  &__value-leading {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+  }
+
   &__chevron {
     --wr-icon-size: 1rem;
     flex: 0 0 auto;
@@ -266,6 +274,17 @@
     font-size: var(--wr-text-sm);
     line-height: 1.4;
     user-select: none;
+  }
+
+  // A selected option's leading visual — an avatar, an icon. Pulled toward the
+  // chip's start edge so a round avatar reads as the chip's cap rather than as a
+  // glyph floating in the padding, and spaced from the label by a little more
+  // than the chip's own gap.
+  &__chip-leading {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    margin-inline: -0.25rem 0.125rem;
   }
 
   &__chip-label {
@@ -424,6 +443,14 @@
     }
   }
 
+  // An option's leading visual — a sibling of the label inside the row's flex,
+  // so `--wr-option-inline-gap` spaces it like any projected icon.
+  &__leading {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+  }
+
   // Search-mode filter — out-of-match options collapse but stay in the
   // DOM so registration order survives the panel re-open.
   &--hidden {
@@ -459,6 +486,13 @@
     text-overflow: ellipsis;
     // Positioning context for the `--active` cursor bar below.
     position: relative;
+  }
+
+  // A virtual row is a block, not a flex row (one line, so it can ellipsize),
+  // so the leading visual takes its spacing as a margin instead of the gap.
+  .wr-option__leading {
+    vertical-align: middle;
+    margin-inline-end: var(--wr-option-inline-gap, 0.5rem);
   }
 
   // Keyboard cursor highlight — the virtualized list is navigated by
