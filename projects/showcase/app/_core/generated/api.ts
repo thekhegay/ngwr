@@ -71,8 +71,8 @@ export const API = {
   ],
   // <wr-avatar>
   WrAvatar: [
-    { name: "url", description: "Image URL. When unset, only projected content (e.g. initials) renders.", type: "string | null", default: "null" },
-    { name: "alt", description: "Alt text for the image. Falls back to `avatar.alt`, then `'Avatar'` — pass the person's name where you have it, since that is what a reader wants.", type: "string | null", default: "null" },
+    { name: "url", description: "Image URL. Projected content (e.g. initials) shows while it is unset, loading or broken, and gives way once the image has loaded.", type: "string | null", default: "null" },
+    { name: "alt", description: "Alt text for the image. Falls back to `avatar.alt`, then `'Avatar'` — pass the person's name where you have it, since that is what a reader wants. With an `alt`, projected initials are hidden from assistive technology while an image is in play, so the name is announced once. Without one, the image carries only the generic name, so the initials stay announced beside it — visually hidden once it has loaded, never dropped.", type: "string | null", default: "null" },
     { name: "shape", description: "Corner treatment. `rounded` (default) is a soft rounded square, `circle` is the classic profile avatar, `squircle` is the iOS look.", type: "WrAvatarShape", default: "'rounded'" },
     { name: "size", description: "Box size. See {@link WrAvatarSize} for accepted values.", type: "WrAvatarSize", default: "'6rem'" },
   ],

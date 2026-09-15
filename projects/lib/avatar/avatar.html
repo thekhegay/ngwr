@@ -1,8 +1,9 @@
-<ng-content />
+<span class="wr-avatar__content" [attr.aria-hidden]="fallbackHidden() ? 'true' : null"><ng-content /></span>
 
 @if (url(); as src) {
   @if (!failed()) {
     <img
+      #img
       class="wr-avatar__img"
       [src]="src"
       [alt]="resolvedAlt()"
