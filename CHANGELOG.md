@@ -1,5 +1,16 @@
 # Changelog
 
+## [14.6.0](https://github.com/thekhegay/ngwr/compare/v14.5.1...v14.6.0) (2026-09-15)
+
+### Features
+
+* **image-cropper:** report image load errors and cap the export size ([6a23133](https://github.com/thekhegay/ngwr/commit/6a231334be934d6e34949508de7d7e40d41e0ee7))
+* **select:** option label input and a lazily rendered leading visual ([946cb19](https://github.com/thekhegay/ngwr/commit/946cb1937c12552fad496798129681cb8168b521))
+
+### Bug Fixes
+
+* **avatar:** show projected initials only until the image loads ([624e899](https://github.com/thekhegay/ngwr/commit/624e8997f144e036af1526a0812060d011cb4b7c))
+
 ## [14.5.1](https://github.com/thekhegay/ngwr/compare/v14.5.0...v14.5.1) (2026-09-14)
 
 ### Bug Fixes
