@@ -52,6 +52,83 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Initials at every size"
+    description="Projected initials take the text size around the avatar, capped at `--wr-avatar-initials-scale` of the box — `0.375` by default, where the widest capital pairs (`ЖШ`, `WW`) still clear a circle. Where the surrounding size already fits, nothing changes: beside 15px text a `6rem` avatar keeps 15px initials, and a 16px one draws them at 6px instead of spilling past its own edge. Anything projected that is sized in `em` follows the cap too, a `<wr-icon>` included — pin a `px` or `rem` size on it to opt out. The host publishes the resolved box as `--wr-avatar-size`. The letters are inert — a click on them lands on whatever holds the avatar, and a text selection skips them."
+  >
+    <ngwr-doc-snippet [code]="snippets.initialsScale">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; width: 100%">
+        @for (size of scaleSizes; track size) {
+          <wr-avatar
+            shape="circle"
+            [size]="size"
+            style="background: var(--wr-color-primary-soft); color: var(--wr-color-primary-ink); font-weight: 600"
+            >ХР</wr-avatar
+          >
+        }
+        <wr-avatar
+          shape="circle"
+          size="6rem"
+          style="background: var(--wr-color-primary-soft); color: var(--wr-color-primary-ink); font-weight: 600"
+          >ХР</wr-avatar
+        >
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; width: 100%">
+        @for (person of people; track person.id) {
+          <wr-avatar shape="circle" [size]="16" style="background: var(--wr-color-primary-soft)">{{
+            person.initials
+          }}</wr-avatar>
+          <wr-avatar shape="circle" [size]="24" style="background: var(--wr-color-primary-soft)">{{
+            person.initials
+          }}</wr-avatar>
+        }
+      </div>
+    </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="snippets.initialsScaleCss" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Inside a chip and a tag"
+    description="Where a small avatar usually lives: a 16px circle in a multi-select chip and 24px in its option rows, and a 16px one in a small tag beside a link. Each sits in different text — the chip's 14px, the tag's 12px — and each draws initials sized to its own box. A click on the letters reaches whatever holds the avatar: the chip and the field around it, or the tag."
+  >
+    <ngwr-doc-snippet [files]="smallFiles">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 28rem">
+        <wr-select
+          mode="multi"
+          searchable
+          virtualScroll
+          placeholder="Nobody"
+          ariaLabel="Assignees"
+          [options]="peopleIds"
+          [displayWith]="personName"
+          [(value)]="assignees"
+        >
+          <ng-template wrOptionLeading let-personId let-placement="placement">
+            <wr-avatar
+              shape="circle"
+              [size]="placement === 'chip' ? 16 : 24"
+              [url]="personPhoto(personId)"
+              [alt]="personName(personId)"
+              >{{ personInitials(personId) }}</wr-avatar
+            >
+          </ng-template>
+        </wr-select>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+          @for (id of assignees(); track id) {
+            <wr-tag size="sm" color="medium">
+              <span style="display: inline-flex; align-items: center; gap: 0.25rem">
+                <wr-avatar shape="circle" [size]="16" [url]="personPhoto(id)" [alt]="personName(id)">{{
+                  personInitials(id)
+                }}</wr-avatar>
+                <a href="#" (click)="$event.preventDefault()">{{ personName(id) }}</a>
+              </span>
+            </wr-tag>
+          }
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Initials behind an image"
     description="Give an image and initials together and the initials are the fallback: they show while the image loads, then give way to it. With an `alt`, a screen reader hears the `alt` while an image is in play and the initials otherwise, never both. Without one the image is only named `Avatar`, so the initials stay announced beside it. They are projected into a `.wr-avatar__content` wrapper, and no spinner is drawn over them."
   >
