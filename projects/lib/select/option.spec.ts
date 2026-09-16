@@ -50,7 +50,7 @@ const PEOPLE: readonly Person[] = [
 @Component({
   imports: [WrSelect, WrOption, WrOptionLeading, Probe],
   template: `
-    <wr-select ariaLabel="Assignee" [mode]="mode()" [(value)]="value">
+    <wr-select ariaLabel="Assignee" clearable [mode]="mode()" [searchable]="searchable()" [(value)]="value">
       @for (p of people; track p.id) {
         <wr-option [value]="p.id">
           <ng-template wrOptionLeading let-placement="placement">
@@ -65,6 +65,8 @@ const PEOPLE: readonly Person[] = [
 class LeadingHost {
   readonly people = PEOPLE;
   readonly mode = signal<WrSelectMode | null>(null);
+  /** `searchable` on a single is the other search-shaped trigger; on `multi` it keeps chips. */
+  readonly searchable = signal(false);
   readonly value = signal<unknown>(null);
 }
 
@@ -307,6 +309,188 @@ describe('WrOption leading visual', () => {
         .filter(o => !o.classList.contains('wr-option--hidden'))
         .map(accessibleText)
     ).toEqual(['Ada Lovelace']);
+  });
+});
+
+/**
+ * The search-shaped triggers — `mode="search"` and a searchable single. Their
+ * selection is the text of an `<input>`, so the visual goes BESIDE the field and
+ * only while that field is showing the selected label.
+ *
+ * ⚠️ Nothing here asserts geometry: jsdom lays nothing out, so "the trigger does
+ * not grow when the avatar appears" cannot be read in this file and is measured
+ * in a browser instead.
+ */
+describe('WrOption leading visual — search-shaped triggers', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<LeadingHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const field = (): HTMLInputElement => root().querySelector<HTMLInputElement>('.wr-select__search-input')!;
+  const slot = (): HTMLElement | null => root().querySelector<HTMLElement>('.wr-select__value-leading');
+  const options = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('wr-option')];
+  const visible = (): HTMLElement[] => options().filter(o => !o.classList.contains('wr-option--hidden'));
+
+  const focus = async (): Promise<void> => {
+    field().dispatchEvent(new Event('focus'));
+    await fixture.whenStable();
+  };
+
+  const type = async (text: string): Promise<void> => {
+    const input = field();
+    input.value = text;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    await fixture.whenStable();
+  };
+
+  const select = async (value: unknown): Promise<void> => {
+    fixture.componentInstance.value.set(value);
+    await fixture.whenStable();
+  };
+
+  beforeEach(async () => {
+    live = 0;
+    created = 0;
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(LeadingHost);
+    fixture.componentInstance.mode.set('search');
+    await fixture.whenStable();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('draws one before the input for a selected value in mode="search"', async () => {
+    await select(3);
+
+    expect(slot()).not.toBeNull();
+    expect(slot()!.getAttribute('aria-hidden')).toBe('true');
+    // Before the field, not inside it — an `<input>` holds a string.
+    expect(slot()!.nextElementSibling).toBe(field());
+    expect(probes(root()).map(p => [p.textContent.trim(), p.getAttribute('data-placement')])).toEqual([
+      ['GH', 'value'],
+    ]);
+    expect(live).toBe(1);
+    expect(field().value).toBe('Grace Hopper');
+  });
+
+  it('draws one on a searchable single select too', async () => {
+    fixture.componentInstance.mode.set(null);
+    fixture.componentInstance.searchable.set(true);
+    await select(2);
+
+    // The same trigger shape reached by the other input — `[searchable]` on a
+    // single, which is what `isSearchTrigger()` widens to.
+    expect(root().querySelector('.wr-select__trigger--search')).not.toBeNull();
+    expect(probes(root()).map(p => p.textContent.trim())).toEqual(['AL']);
+    expect(field().value).toBe('Ada Lovelace');
+  });
+
+  it('instantiates nothing with no selection, panel open or shut', async () => {
+    expect(slot()).toBeNull();
+    expect(probes(root())).toEqual([]);
+    expect(created).toBe(0);
+
+    await focus();
+
+    // The rows now have theirs, in the overlay — the trigger still has none.
+    expect(live).toBe(PEOPLE.length);
+    expect(slot()).toBeNull();
+    expect(probes(root())).toEqual([]);
+  });
+
+  it('steps aside while a query is on screen, and comes back with the label', async () => {
+    await select(3);
+    expect(slot()).not.toBeNull();
+
+    // Focus opens the panel and the field goes to the live query, which is empty
+    // — the placeholder is what is on screen, so the avatar has nothing to name.
+    await focus();
+    expect(field().value).toBe('');
+    expect(slot()).toBeNull();
+    expect(probes(root())).toEqual([]);
+
+    await type('grace');
+    expect(slot()).toBeNull();
+
+    // Committing a choice clears the query and closes the panel: one signal
+    // flipping back, so the label and the visual return together.
+    visible()[0].click();
+    await fixture.whenStable();
+
+    expect(field().value).toBe('Grace Hopper');
+    expect(probes(root()).map(p => p.textContent.trim())).toEqual(['GH']);
+    expect(live).toBe(1);
+  });
+
+  /**
+   * The COST of stepping aside, pinned rather than left to a review note:
+   * stepping aside is a destroy, so opening the picker and dismissing it
+   * unchanged re-creates the visual — a template built on an `<img>` re-mounts
+   * once per round trip. The count below says the panel's own rows churn by
+   * three on the same gesture, which is the argument for not special-casing this
+   * one. Here so a rewrite that keeps the node alive behind a `hidden` has to
+   * edit this line and state its intent, rather than change it in silence.
+   */
+  it('re-creates it after a round trip that leaves the value alone', async () => {
+    await select(3);
+    const before = probes(root())[0];
+    const madeSoFar = created;
+
+    await focus();
+    expect(slot(), 'the field went to the query, so the visual should have stepped aside').toBeNull();
+
+    field().dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    await fixture.whenStable();
+
+    // Same value, same label — and a NEW node drawing them.
+    expect(fixture.componentInstance.value()).toBe(3);
+    expect(field().value).toBe('Grace Hopper');
+    expect(live).toBe(1);
+    expect(probes(root())[0]).not.toBe(before);
+    expect(created).toBe(madeSoFar + PEOPLE.length + 1);
+  });
+
+  it('destroys it when the value is cleared', async () => {
+    await select(1);
+    expect(live).toBe(1);
+
+    root().querySelector<HTMLElement>('.wr-select__clear')!.click();
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance.value()).toBeNull();
+    expect(slot()).toBeNull();
+    expect(live).toBe(0);
+  });
+
+  it('never lets the visual into the field, the accessible name or the filter', async () => {
+    await select(1);
+
+    // The field holds a string, and it is the label — the initials are drawn
+    // beside it and are in no reading of it.
+    expect(field().value).toBe('Хегай Роман');
+    expect(field().getAttribute('aria-label')).toBe('Assignee');
+    expect(accessibleText(root().querySelector<HTMLElement>('.wr-select__trigger')!)).toBe('');
+    expect(root().textContent).toContain('ХР');
+
+    // And the filter reads labels, so the initials match nothing — including
+    // the row whose own visual draws them.
+    await focus();
+    await type('ХР');
+    expect(visible()).toEqual([]);
+
+    await type('Хегай');
+    expect(visible().map(accessibleText)).toEqual(['Хегай Роман']);
+  });
+
+  it('leaves the chip trigger alone on a searchable multi', async () => {
+    fixture.componentInstance.mode.set('multi');
+    fixture.componentInstance.searchable.set(true);
+    await select([1, 3]);
+
+    expect(root().querySelector('.wr-select__value-leading')).toBeNull();
+    expect(
+      [...root().querySelectorAll<HTMLElement>('.wr-select__chip-leading')].map(c => c.textContent.trim())
+    ).toEqual(['ХР', 'GH']);
   });
 });
 

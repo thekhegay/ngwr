@@ -639,11 +639,44 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
   /**
    * The leading visual beside the selected value on a single-mode BUTTON trigger
-   * — one instance, for the one selected value. The search-shaped triggers do not
-   * draw one: their selection is an `<input>`'s text, which cannot hold markup.
+   * — one instance, for the one selected value. A search-shaped trigger draws the
+   * same visual through {@link searchLeading}, on a narrower condition.
    */
   protected readonly selectedLeading = computed<TemplateRef<WrOptionLeadingContext> | null>(() => {
     if (this.isMulti() || this.selectedLabel() == null) return null;
+    return this.leadingFor(this.value());
+  });
+
+  /**
+   * The same visual on a SEARCH-shaped trigger (`mode="search"`, a searchable
+   * single), drawn before the input — the surface an assignee picker actually
+   * uses, and the one that lost its avatar the moment the trigger became a field.
+   *
+   * The condition is {@link searchShowsValue} rather than `hasSelection()`, and
+   * the two part company on every open panel: focusing the field replaces the
+   * label with the live query, which starts empty, so what is on screen is the
+   * placeholder. An avatar left standing there names a value the field no longer
+   * shows, and then sits in front of whatever the user types next — the visual
+   * would be answering a different question from the text beside it. It comes
+   * back with the label, which is one signal flipping rather than two things
+   * kept in step: committing a choice clears the query and closes the panel.
+   *
+   * Nothing is instantiated for a search select with no selection, panel open or
+   * shut — `selectedLabel()` is `null` there, and this returns `null` with it.
+   *
+   * The COST of that rule, stated because it is a consumer's to weigh: stepping
+   * aside is a destroy, so opening the picker and dismissing it unchanged
+   * re-creates the visual — a template built on an `<img>` re-mounts once per
+   * round trip, and re-requests unless the cache answers. Kept rather than
+   * traded for a hidden-but-alive node: the panel's own rows already create and
+   * destroy one apiece on the same gesture, so holding this one back buys a
+   * fraction of that, and a node retained while it must not be seen is a second
+   * piece of state to keep in step with the field. Pinned in `option.spec.ts`
+   * ("re-creates it after a round trip"), so a future change here has to say so.
+   */
+  protected readonly searchLeading = computed<TemplateRef<WrOptionLeadingContext> | null>(() => {
+    if (!this.isSearchTrigger() || !this.searchShowsValue()) return null;
+    if (this.selectedLabel() == null) return null;
     return this.leadingFor(this.value());
   });
 
@@ -1153,23 +1186,37 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   }
 
   /**
+   * Whether the search field is showing the SELECTED VALUE rather than a query.
+   * `searchDisplay` takes its text off this, and `searchLeading` the visual that
+   * goes before it, so the two can never disagree about which of the two things
+   * the field is holding.
+   *
+   * FOCUS as well as open, and that second term is the whole `[minChars]` story.
+   * Backspacing under the threshold closes the panel, and falling back to the
+   * selected label the moment `open()` goes false rewrote the field out from
+   * under someone who was still typing — "sma" -> "sm" showed an empty box.
+   *
+   * A NON-EMPTY query, though: picking an option clears it and leaves focus in
+   * the field, and there the label is what belongs on screen.
+   *
+   * Only the search-shaped trigger reads it. A searchable MULTI binds its input
+   * to `searchQuery()` directly and shows its selection as chips, which carry
+   * their own leading visuals whatever the field holds.
+   * @internal
+   */
+  protected readonly searchShowsValue = computed(() => {
+    if (this.open()) return false;
+    return !(this.searchHasFocus() && this.searchQuery() !== '');
+  });
+
+  /**
    * Display text for the search input. Shows the selected option's
    * label when collapsed, or the live query while typing / panel open.
    * @internal
    */
-  protected readonly searchDisplay = computed(() => {
-    // FOCUS as well as open, and that second term is the whole `[minChars]`
-    // story. Backspacing under the threshold closes the panel, and falling back
-    // to the selected label the moment `open()` goes false rewrote the field
-    // out from under someone who was still typing — "sma" -> "sm" showed an
-    // empty box.
-    //
-    // A NON-EMPTY query, though: picking an option clears it and leaves focus
-    // in the field, and there the label is what belongs on screen.
-    if (this.open()) return this.searchQuery();
-    if (this.searchHasFocus() && this.searchQuery() !== '') return this.searchQuery();
-    return this.selectedLabel() ?? '';
-  });
+  protected readonly searchDisplay = computed(() =>
+    this.searchShowsValue() ? (this.selectedLabel() ?? '') : this.searchQuery()
+  );
 
   /**
    * Whether the search field holds focus.

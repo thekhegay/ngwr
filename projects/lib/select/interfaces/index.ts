@@ -45,7 +45,11 @@ export type WrSelectSize = 'sm' | 'md' | 'lg';
  *
  * - `'option'` — the row in the open panel.
  * - `'chip'` — a selected chip on a `mode="multi"` trigger.
- * - `'value'` — the selected value on a single-mode button trigger.
+ * - `'value'` — the selected value on a single-mode trigger: beside the label on
+ *   a button trigger, and before the input on a search-shaped one while that
+ *   input is showing the label. One placement rather than two, because it is one
+ *   surface — the same size is right on both, and splitting it would ask every
+ *   consumer to name a case they do not have.
  */
 export type WrOptionLeadingPlacement = 'option' | 'chip' | 'value';
 

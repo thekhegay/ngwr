@@ -184,6 +184,12 @@ export class MyComponent {
   }
 </wr-select>
 
+<!-- Search: the visual sits before the field while the field shows the label,
+     and steps aside while a query is on screen. Nothing else to wire. -->
+<wr-select mode="search" clearable placeholder="Search people" [(value)]="reviewer">
+  @for (p of people; track p.id) { … the same options … }
+</wr-select>
+
 <!-- Multi: every selected chip draws its option's visual. -->
 <wr-select mode="multi" searchable clearable placeholder="Add assignees" [(value)]="assignees">
   @for (p of people; track p.id) { … the same options … }
@@ -307,9 +313,10 @@ categoryId.setValue(2);`,
   ];
 
   protected readonly assignee = signal<number | null>(2);
+  protected readonly reviewer = signal<number | null>(4);
   protected readonly assignees = signal<readonly number[]>([1, 3, 5]);
 
-  /** One template, three surfaces: a panel row, the single trigger's value, a chip. */
+  /** One template, three surfaces: a panel row, a trigger's selected value, a chip. */
   protected readonly avatarPx: Record<WrOptionLeadingPlacement, number> = { option: 24, value: 20, chip: 16 };
 
   // Server-side search demo. Stands in for "dispatch an action, read the
@@ -399,7 +406,7 @@ categoryId.setValue(2);`,
     {
       name: 'placement',
       description:
-        "Where this copy is drawn: `'option'` (a panel row), `'chip'` (a multi chip) or `'value'` (the single button trigger).",
+        "Where this copy is drawn: `'option'` (a panel row), `'chip'` (a multi chip) or `'value'` (the selected value on a single-mode trigger — beside the label on a button trigger, before the input on a search-shaped one).",
       type: "'option' | 'chip' | 'value'",
     },
   ];

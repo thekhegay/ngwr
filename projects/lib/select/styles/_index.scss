@@ -179,6 +179,22 @@
     }
   }
 
+  // A leading visual inside a search trigger. The FIELD owns the leading
+  // padding here (see `--search` above), so the inset has to move with the
+  // visual — otherwise the avatar sits on the border. Only the trigger's own
+  // 0.5rem `gap` is then left between the two, which is the spacing the button
+  // trigger already has between `__value-leading` and `__value`.
+  &__trigger--search &__value-leading {
+    padding-inline-start: calc(var(--wr-select-padding-x) * var(--wr-density-x, 1));
+  }
+
+  // …and the field drops the inset it just handed over. Keyed on the sibling
+  // rather than on a modifier class so the two can never be set apart: the
+  // padding moves exactly when the element it moved to exists.
+  &__value-leading + &__search-input {
+    padding-inline-start: 0;
+  }
+
   &__search-input {
     flex: 1 1 auto;
     min-width: 0;

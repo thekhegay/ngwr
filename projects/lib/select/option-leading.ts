@@ -22,9 +22,14 @@ import type { WrOptionLeadingContext } from './interfaces';
  * - in an option row, while the panel is OPEN — destroyed again when it closes,
  *   and under `virtualScroll` only for the rows in the rendered window;
  * - in a selected chip on a `mode="multi"` trigger, one per visible chip;
- * - beside the selected value on a single-mode BUTTON trigger — one copy. The
- *   search-shaped triggers (`mode="search"`, `[searchable]`) do not draw it: their
- *   selection is the text of an `<input>`, which cannot hold markup.
+ * - beside the selected value on a single-mode BUTTON trigger — one copy;
+ * - before the input on a SEARCH-shaped trigger (`mode="search"`, a searchable
+ *   single), while that input is showing the selected label. It goes beside the
+ *   field rather than into it — an `<input>` holds a string — and it steps aside
+ *   while a query is on screen, panel open or half-typed, because the value it
+ *   names is not what the field is showing then. Picking an option brings it
+ *   back with the label. Stepping aside is a DESTROY, like a closing panel's
+ *   rows, so an `<img>`-backed visual re-mounts once per open-and-dismiss.
  *
  * Every copy sits in an `aria-hidden` wrapper and is skipped when the option's
  * text is read, so the trigger label, the chip, the search filter and the
