@@ -205,8 +205,15 @@ $toast-colors: (
     transition:
       color var(--wr-transition-base),
       background var(--wr-transition-base);
-
-    --wr-icon-size: 0.875rem;
+    // The glyph is a bare `.wr-icon__svg` — `1em` — and a `<button>` does not
+    // inherit its font-size, so it drew the browser's control font (about
+    // 13.33px) with no reset and the surrounding text's size under `ngwr/reset`.
+    // Inheriting the size makes `1em` the toast's own text in every app; only a
+    // `<wr-icon>` host reads `--wr-icon-size`, so the hook never applied here.
+    // The SIZE only, never the `font` shorthand: that would also bring the
+    // surrounding line-height, which is what stretched the table's filter count
+    // pill from 12px to 20px when it was tried there.
+    font-size: inherit;
 
     &:hover {
       color: var(--wr-color-on-surface);
@@ -323,7 +330,6 @@ $toast-colors: (
     width: 2rem;
     height: 2rem;
     padding: 0;
-    --wr-icon-size: 1.125rem;
   }
 
   .wr-toast-host__close-all {

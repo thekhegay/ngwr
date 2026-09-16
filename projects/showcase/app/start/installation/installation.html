@@ -158,6 +158,18 @@
     description="Neither is loaded by `@use 'ngwr'` and neither is a no-op. `ngwr/grid` adds `.grid` / `.container` / `.col-*` and touches nothing else. `ngwr/reset` is the one to read before adopting: it is a reset in the modern sense, so it removes browser defaults from elements ngwr does not own, and two of those removals are routinely a surprise — links lose their underline (`a { color: inherit; text-decoration: none }`) and plain buttons lose their chrome (`button { background: none; border: 0; padding: 0 }`). It also sets heading sizes and weights from the type scale, which makes it more opinionated than the “box-sizing and body margin” it is usually reached for. Load it AFTER the theme, or after `@use 'ngwr'`: it reads `--wr-font-family-base` and `--wr-text-*`, so on its own those resolve to nothing."
   >
     <ngwr-doc-code [code]="snippets.reset" language="scss" />
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>Adding or dropping it no longer resizes ngwr's own glyphs.</strong> An inline
+      <code>&lt;svg class="wr-icon__svg"&gt;</code> is <code>1em</code> of the font it lands in, and a
+      <code>&lt;button&gt;</code> inherits no font-size — it takes the browser's control font, 13.33px in Chromium. Four
+      rules in the library put a bare glyph in a button of its own: the alert dismiss, the two toast actions, the
+      password reveal and the lightbox close. Each drew that 13.33px on a page with no reset, and the surrounding text's
+      size under this one. They inherit the size explicitly now, so all four follow the text around them either way —
+      which on a page with no reset is a larger glyph than before, and the reason this is a fix rather than a
+      preference: 13.33px was the browser's number, not one anyone chose. <code>--wr-icon-size</code> never reached
+      them, and still does not: only a <code>&lt;wr-icon&gt;</code> host reads that hook.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section

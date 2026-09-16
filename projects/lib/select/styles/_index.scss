@@ -129,7 +129,6 @@
   }
 
   &__chevron {
-    --wr-icon-size: 1rem;
     flex: 0 0 auto;
     color: var(--wr-color-on-surface-muted);
     transition: transform var(--wr-transition-base);
@@ -310,7 +309,6 @@
   }
 
   &__chip-remove {
-    --wr-icon-size: 0.875rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -336,7 +334,6 @@
   }
 
   &__clear {
-    --wr-icon-size: 0.875rem;
     // Never shrink: the chips box is allowed to grow into the whole row, so the
     // × has to hold its own size against it.
     flex: 0 0 auto;
@@ -584,7 +581,6 @@
 
   .wr-select__chip-remove,
   .wr-select__clear {
-    --wr-icon-size: 1.125rem;
     width: 2rem;
     height: 2rem;
   }

@@ -100,9 +100,20 @@ $alert-colors: (
       color var(--wr-transition-base),
       background var(--wr-transition-base);
 
-    --wr-icon-size: 1rem;
+    // The ✕ is a bare `.wr-icon__svg`, which is `1em`, and a `<button>` does not
+    // inherit its font-size: it takes the browser's control font (about 13.33px)
+    // unless the app resets it. So the same glyph measured 13.33px on a page with
+    // no reset and the surrounding text's size under `ngwr/reset`, which sets
+    // `font: inherit`. Inheriting the size makes `1em` the alert's own text in
+    // every app. `--wr-icon-size` cannot do this job — only a `<wr-icon>` host
+    // reads it, and the rule here used to set it for nothing. The SIZE only,
+    // never the `font` shorthand, which would bring the line-height with it; and
+    // no `line-height` of its own either, the way `wr-dialog` needs one — the
+    // alert stretches its row, so this box is the alert's height whatever the
+    // strut says.
+    font-size: inherit;
 
-    @include theme.touch-target; // ~20px glyph -> 44px tap area on touch
+    @include theme.touch-target; // glyph -> 44px tap area on touch
 
     &:hover {
       color: var(--wr-alert-title);

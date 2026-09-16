@@ -249,7 +249,6 @@
   }
 
   &__chevron {
-    --wr-icon-size: 1rem;
     flex: 0 0 auto;
     color: var(--wr-color-on-surface-muted);
     transition: transform var(--wr-transition-base);
@@ -260,7 +259,6 @@
   }
 
   &__clear {
-    --wr-icon-size: 0.875rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -329,7 +327,6 @@
   }
 
   &__chip-remove {
-    --wr-icon-size: 0.875rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
