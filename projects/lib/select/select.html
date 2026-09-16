@@ -4,6 +4,23 @@
        tabstop. -->
   <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
   <div class="wr-select__trigger wr-select__trigger--search" (click)="focusSearchInput()">
+    <!-- The selected option's leading visual, before the field — the same class
+         and the same `placement: 'value'` the button trigger uses, because it is
+         the same surface and a consumer who styled one should not have to learn
+         a second name. `searchLeading()` draws it only while the field is
+         showing the VALUE, so it never stands in front of a query or a bare
+         placeholder, and it sits OUTSIDE the input for the obvious reason: an
+         `<input>` holds a string. `aria-hidden` keeps it out of the combobox's
+         name, which is `resolvedAriaLabel()`, and out of its value, which is the
+         input's own text. -->
+    @if (searchLeading(); as leading) {
+      <span class="wr-select__value-leading" aria-hidden="true">
+        <ng-container
+          [ngTemplateOutlet]="leading"
+          [ngTemplateOutletContext]="{ $implicit: value(), placement: 'value' }"
+        />
+      </span>
+    }
     <!-- `id` / `aria-describedby` / `aria-invalid` come from a surrounding
          `<wr-form-field>` and are null without one — see `controlId` in the
          component. They go on the tab stop, the only labelable element here.
