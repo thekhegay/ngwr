@@ -132,7 +132,13 @@
   touch-action: none;
 
   &__close {
-    --wr-icon-size: 1.25rem;
+    // A bare `.wr-icon__svg` in a `<button>`: `1em`, and a button inherits no
+    // font-size — so the ✕ came out at the browser's control font, about
+    // 13.33px, inside a 36px circle, and at the surrounding text's size under
+    // `ngwr/reset`. Inheriting the size gives the same glyph either way. The
+    // size only, not the `font` shorthand. `--wr-icon-size` was never going to
+    // do it: only a `<wr-icon>` host reads that hook.
+    font-size: inherit;
     position: absolute;
     top: 1rem;
     inset-inline-end: 1rem;

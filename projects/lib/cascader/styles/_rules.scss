@@ -115,7 +115,6 @@
   }
 
   &__chevron {
-    --wr-icon-size: 1rem;
     flex: 0 0 auto;
     color: var(--wr-color-on-surface-muted);
     transition: transform var(--wr-transition-base);
@@ -126,7 +125,6 @@
   }
 
   &__clear {
-    --wr-icon-size: 0.875rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -234,7 +232,6 @@
   }
 
   .wr-cascader__opt-arrow {
-    --wr-icon-size: 0.875rem;
     flex: 0 0 auto;
     color: var(--wr-color-on-surface-muted);
   }
@@ -252,7 +249,6 @@
 // desktop sizing above.
 @media (pointer: coarse) {
   .wr-cascader__clear {
-    --wr-icon-size: 1.125rem;
     width: 2rem;
     height: 2rem;
   }

@@ -199,8 +199,14 @@
     color: var(--wr-input-group-affix);
     cursor: pointer;
     transition: color var(--wr-transition-base);
-
-    --wr-icon-size: 1rem;
+    // The eye is a bare `.wr-icon__svg`, which is `1em`, and a `<button>` does
+    // not inherit its font-size — so it drew the browser's control font (about
+    // 13.33px) with no reset and the surrounding text's size under `ngwr/reset`.
+    // Inheriting the size makes `1em` the text around the field in every app.
+    // The size only, not the `font` shorthand, which would also hand the button
+    // the group's line-height. `--wr-icon-size` only drives `<wr-icon>` hosts, so
+    // the declaration that used to sit here drove nothing.
+    font-size: inherit;
 
     &:hover:not(:disabled) {
       color: var(--wr-color-primary);
