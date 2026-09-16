@@ -37,6 +37,36 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="One column carrying both controls"
+    description="`sortable` and `filterItems` on the SAME column is the header the rest of the demos never build — two controls inside one `.wr-table__th-inner`, six pixels apart. It is also the only arrangement where WCAG 2.5.8 has anything to say: a lone 12px glyph passes on the criterion's spacing exception, and a pair of them does not. On a touch device each control grows a centred 24x24 hit area and the row opens its gap so the two cannot overlap; on a mouse or a trackpad the header is drawn exactly as it always was."
+  >
+    <ngwr-doc-snippet [code]="snippets.sortAndFilter">
+      <div style="width: 100%">
+        <wr-table
+          [columns]="bothColumns"
+          [items]="bothRows()"
+          [(sort)]="bothSort"
+          (filterChange)="onBothFilter($event)"
+        />
+      </div>
+    </ngwr-doc-snippet>
+    <p>
+      The two are separate controls with separate names — <code>.wr-table__sort-btn</code> cycles the sort,
+      <code>.wr-table-filter__trigger</code> opens the dropdown — so a keyboard walks onto each in turn and a finger
+      needs each to be its own box. Both grow one under <code>&#64;media (pointer: coarse)</code> only, through the same
+      <code>touch-target</code> mixin the rest of the library's small controls use; the glyphs inside never move, in
+      either case.
+    </p>
+    <p>
+      One consequence to know before you audit your own app: on a mouse these stay 12px, so an automated WCAG 2.5.8
+      check run with a fine pointer reports <code>target-size</code> on this pair. That is a deliberate trade rather
+      than an oversight — widening the boxes for every pointer would redraw a header that dense data tables are laid out
+      around — and it is recorded as such in the library's own contrast baseline. Space the column's controls yourself,
+      or give the column one of them, if your product needs the criterion met on the desktop too.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Sorting is state, not a sort"
     description="The header cycles asc → desc → off and writes the result into `[(sort)]`. That is all it does: the table never reorders `items`, in any mode — the same contract `groupBy` states about grouping. The rows in the demo above move because THIS page sorts them, and that comparator is the part a docs snippet usually leaves out, so it is spelled in full below. A table bound to a plain array with no comparator behind it shows the arrow flipping and the rows standing still, which reads as a broken control rather than as a contract."
   >

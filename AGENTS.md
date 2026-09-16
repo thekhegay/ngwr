@@ -1237,6 +1237,47 @@ reports this** — axe ships no non-text-contrast rule, so `check:contrast` runs
 `color-contrast` and `target-size` and neither sees a border. Five sweeps
 rediscovered it from first principles; this paragraph exists so a sixth does not.
 
+**The table header's two controls fail WCAG 2.5.8 for a FINE pointer, and that
+is the second DECIDED trade of this kind — do not re-report it.** A column
+declaring both `sortable` and `filterItems` renders `.wr-table__sort-btn` and
+`.wr-table-filter__trigger` inside one `.wr-table__th-inner`: two 12x12 glyphs
+6px apart, centres 18px apart, so neither the 24x24 the criterion asks for nor
+its spacing exception is met, and axe names both nodes. Touch is answered and
+the desktop is not. Under `@media (pointer: coarse)` each control grows a
+centred 24x24 hit area from the shared `touch-target` mixin at `$size: 24px` —
+the 44px default would reach 22px to each side and swallow its neighbour, which
+is the case that mixin's own docblock warns off — and `__th-inner` opens its gap
+from 0.375rem to 0.75rem in the same block, so the two halos cannot overlap — at
+rest they abut exactly, and a filter showing a count pill is 32px wide, which
+only moves them further apart. Hit-tested rather than read off the CSS: 11px off
+centre lands on the control, 13px does not, and 13px to the right of the sort
+button lands on the filter. A mouse or a trackpad keeps exactly what v14.6.0
+draws, measured in Chromium against a build of `origin/main` in both themes —
+12x12 caret, 12x12 funnel, 6px between them, a 40.5px header row, identical to
+the pixel.
+
+The every-pointer version was written and measured first (a real 24px box on
+each control, the row's gap cancelled with a negative margin) and refused,
+because it spaces the caret and the funnel in every desktop table and dense data
+tables are laid out around that header. So `contrast-baseline.json` carries
+/reference/components/table on all four `target-size` keys, each from 1 to 2 —
+the other route is the carousel's dots — and the table's docs page states it for
+consumers. **A coarse-pointer axe run DOES measure the half that was fixed, and
+it measures it through the gap rather than through the halo.** The halo is an
+`::after`, which enters no `getBoundingClientRect`, so axe reads the control's
+own 12x12 in both pointer modes and never sees it — but under a coarse pointer
+the pair PASSES `target-size` outright on 2.5.8's spacing exception, because the
+0.75rem gap puts the centres 24px apart and axe's own safe clickable space lands
+on exactly the 24px minimum. Measured against this branch's `dist/showcase` at
+/reference/components/table, in two Playwright contexts differing only in
+`hasTouch`: two violation nodes fine, zero coarse, and two again the moment that
+gap is forced back to 0.375rem in the same coarse context. So the cheapest gate
+for the half that ships is an axe pass over this one route with `hasTouch: true`
+— it would catch a regression of the gap, which is otherwise pinned only at the
+source, in `table-header-target.spec.ts`. `document.elementFromPoint` is still
+the only check that sees the halo ITSELF, and a header below the fold answers
+`null` to every probe, which reads exactly like a dead hit area.
+
 **The focus ring is `--wr-focus-ring-*`, and no gate can prove it.** The shared
 `theme.focus-ring` mixin emits an OUTLINE plus a halo, both read from tokens
 (`-color` / `-width` / `-offset` / `-halo` in `_variables.scss`). It used to be

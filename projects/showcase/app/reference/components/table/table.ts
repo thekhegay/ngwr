@@ -36,6 +36,31 @@ const RAW_ROWS: readonly Row[] = [
   { name: 'Diego', email: 'diego@example.com', role: 'viewer' },
 ];
 
+/**
+ * The comparator every sorting demo on this page needs — the table writes
+ * `sort` and never reorders `items`, so applying it is the host's job.
+ */
+function sortRows(
+  rows: readonly Record<string, unknown>[],
+  rules: readonly WrTableSortState[]
+): readonly Record<string, unknown>[] {
+  if (rules.length === 0) return rows;
+
+  const text = (row: Record<string, unknown>, key: string): string => {
+    const value = row[key];
+    return typeof value === 'string' || typeof value === 'number' ? String(value) : '';
+  };
+
+  return [...rows].sort((a, b) => {
+    for (const { key, direction } of rules) {
+      if (!direction) continue;
+      const cmp = text(a, key).localeCompare(text(b, key));
+      if (cmp !== 0) return direction === 'asc' ? cmp : -cmp;
+    }
+    return 0;
+  });
+}
+
 // Large dataset for the virtual-scroll demo — 10k rows the DOM never fully holds.
 const VIRTUAL_ROWS: readonly Record<string, unknown>[] = Array.from({ length: 10_000 }, (_, i) => ({
   id: i + 1,
@@ -136,22 +161,41 @@ export default class TablePageComponent {
 
   protected readonly visibleRows = computed<readonly Record<string, unknown>[]>(() => {
     const roles = this.roleFilter();
-    const filtered: readonly Record<string, unknown>[] =
-      roles.length === 0 ? [...RAW_ROWS] : RAW_ROWS.filter(r => roles.includes(r.role));
-    const sortRules = this.sort();
-    if (sortRules.length === 0) return filtered;
-
-    return [...filtered].sort((a, b) => {
-      for (const { key, direction } of sortRules) {
-        if (!direction) continue;
-        const av = (a as unknown as Record<string, string>)[key] ?? '';
-        const bv = (b as unknown as Record<string, string>)[key] ?? '';
-        const cmp = av.localeCompare(bv);
-        if (cmp !== 0) return direction === 'asc' ? cmp : -cmp;
-      }
-      return 0;
-    });
+    return sortRows(roles.length === 0 ? [...RAW_ROWS] : RAW_ROWS.filter(r => roles.includes(r.role)), this.sort());
   });
+
+  // One column with BOTH controls — the header arrangement no other demo on
+  // this page builds, and the only one WCAG 2.5.8 measures: two adjacent
+  // targets in one `.wr-table__th-inner`.
+  protected readonly bothColumns: WrTableColumns = {
+    name: { title: 'Name', sortable: true },
+    email: { title: 'Email' },
+    role: {
+      title: 'Role',
+      sortable: true,
+      filterItems: [
+        { title: 'Admin', value: 'admin' },
+        { title: 'Editor', value: 'editor' },
+        { title: 'Viewer', value: 'viewer' },
+      ],
+    },
+  };
+
+  protected readonly bothSort = signal<readonly WrTableSortState[]>([]);
+  protected readonly bothRoleFilter = signal<readonly string[]>([]);
+
+  protected readonly bothRows = computed<readonly Record<string, unknown>[]>(() =>
+    sortRows(
+      this.bothRoleFilter().length === 0 ? [...RAW_ROWS] : RAW_ROWS.filter(r => this.bothRoleFilter().includes(r.role)),
+      this.bothSort()
+    )
+  );
+
+  protected onBothFilter(change: WrTableFilterChange): void {
+    if (change.key === 'role') {
+      this.bothRoleFilter.set(change.items.map(i => i.value as string));
+    }
+  }
 
   protected readonly paginatedRows = PAGINATED_ROWS;
   protected readonly page = signal(1);
@@ -246,6 +290,22 @@ export class MyComponent {}
     <wr-tag [color]="value === 'admin' ? 'danger' : 'medium'">{{ value }}</wr-tag>
   </ng-template>
 </wr-table>`,
+    sortAndFilter: `// Nothing special to opt into: put both keys on the one column.
+const columns: WrTableColumns = {
+  name: { title: 'Name', sortable: true },
+  email: { title: 'Email' },
+  role: {
+    title: 'Role',
+    sortable: true,
+    filterItems: [
+      { title: 'Admin', value: 'admin' },
+      { title: 'Editor', value: 'editor' },
+      { title: 'Viewer', value: 'viewer' },
+    ],
+  },
+};
+
+<wr-table [columns]="columns" [items]="rows()" [(sort)]="sort" (filterChange)="onFilter($event)" />`,
     cellContext: `<!-- The cell template's context is \`WrTableCellContext\`: three names,
      and only the first is implicit.
 

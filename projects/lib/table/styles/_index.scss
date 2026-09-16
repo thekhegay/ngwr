@@ -376,6 +376,28 @@
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
+
+    // The spacing of the header's controls, and it moves for a COARSE pointer
+    // only. A column that is both `sortable` and `filterable` puts two 12px
+    // controls in this row 0.375rem apart, so their centres are 18px apart —
+    // while the touch halo each one grows below is 24px wide and centred on its
+    // control. Two 24px boxes with centres 18px apart OVERLAP by 6px, and the
+    // later one in the DOM (the filter) wins the hit test, so the sort button
+    // would hand over a strip of the slack it just gained. 0.75rem puts the
+    // centres 24px apart, which is the closest the two halos can come: at rest
+    // they abut exactly, and a filter showing a count pill is 32px wide, which
+    // only separates them further. A fine pointer keeps the 0.375rem this row
+    // has always drawn.
+    //
+    // This gap is also the whole of what a COARSE-pointer `target-size` run
+    // measures. axe never sees the halo — an `::after` enters no rect, so it
+    // reads 12x12 either way — but 24px between centres satisfies WCAG 2.5.8's
+    // spacing exception exactly, and the pair passes. Narrow this and a coarse
+    // run reports both nodes again; `table-header-target.spec.ts` pins the
+    // value here so a PR catches it without a browser.
+    @media (pointer: coarse) {
+      gap: 0.75rem;
+    }
   }
 
   &__title {
@@ -398,6 +420,24 @@
     // reads it, and the rule here used to set it for nothing.
     font-size: inherit;
     line-height: 0;
+    // The pointer target, widened for a COARSE pointer and for nothing else.
+    // WCAG 2.5.8 asks 24x24 of every control, a mouse included, and this glyph
+    // is 12x12: a lone one passes on the criterion's spacing exception, and a
+    // column carrying both this button and a filter trigger 6px away does not.
+    // A real 24px box on every pointer is what satisfies the criterion outright,
+    // and it was written, measured and REFUSED — it moves the caret and the
+    // funnel apart on a mouse, and the maintainer chose to keep the geometry
+    // 14.6.0 draws. So the coarse half ships, the fine-pointer failure is a
+    // decided trade recorded in AGENTS.md and in `scripts/contrast-baseline.json`,
+    // and the table's docs page says so to the reader. Do not re-report it.
+    //
+    // 24px rather than the mixin's 44px default, which is a real constraint and
+    // not a preference: the halo is centred on the control, so 44 reaches 22px
+    // either side and swallows the filter trigger beside it — the mixin's own
+    // docblock warns off tightly-packed rows for exactly this. 24 is the
+    // criterion's number, and `__th-inner` opens its gap under the same media
+    // query so the two halos cannot overlap.
+    @include theme.touch-target($size: 24px);
   }
 
   &__tr {
@@ -810,6 +850,13 @@
     // count pill beside the funnel — 10px type with no line-height of its own —
     // grows from 12px to 20px tall under it.
     font-size: inherit;
+    // The same coarse-pointer target as the sort button beside it, where the
+    // whole reasoning — why 24 and not 44, and why a fine pointer keeps the
+    // 12px glyph — is written out. It goes on the TRIGGER and never on the
+    // `<wr-table-filter>` host: the halo belongs to the element that owns the
+    // click, and a tap landing on the host's own pseudo-element would target
+    // the host and open nothing.
+    @include theme.touch-target($size: 24px);
   }
 
   &__count {
@@ -822,6 +869,14 @@
     background: var(--wr-color-primary);
     color: var(--wr-color-primary-contrast);
     font-size: 0.625rem; // 10px — intentional micro-count badge, below --wr-text-xs
+    // The pill has no padding on the block axis, so its height IS its line box,
+    // and leaving that at `normal` handed the box to whatever the page
+    // inherited: 12px in an app with no reset, 20px under `ngwr/reset`, whose
+    // `font: inherit` on a `<button>` brings the header's 1.25rem down with the
+    // font-size. A ratio of its own makes it 12px in both — and a ratio rather
+    // than a length, so a consumer who enlarges the numeral gets a pill that
+    // grows with it.
+    line-height: 1.2;
     font-weight: 600;
   }
 
