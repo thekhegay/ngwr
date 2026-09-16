@@ -36,6 +36,19 @@ const DEFAULT_SIZE: WrAvatarSize = '6rem';
  * spinner is drawn over it; with nothing projected, the spinner marks the
  * loading state instead. See `alt` for what a screen reader hears.
  *
+ * Projected initials take the text size around the avatar, capped at
+ * `--wr-avatar-initials-scale` (`0.375`) of the box, so they shrink only where
+ * they would not fit: a 16px avatar in a 14px chip draws 6px letters, while a
+ * `6rem` one keeps the surrounding size up to 36px and is capped only past it.
+ * Anything projected that is sized in `em` follows the cap too — a `<wr-icon>`
+ * at its default `1.2em` included — so pin a `px` or `rem` size on the projected
+ * element, or override the hook, to keep it. A `font-size` rule on the avatar
+ * itself still wins, unless it sits in a cascade layer (Tailwind v4's utilities
+ * do), which ngwr's unlayered stylesheet beats whatever the selector.
+ *
+ * The initials are inert: `pointer-events: none` hands a click on them to whatever
+ * holds the avatar, and `user-select: none` keeps them out of a text selection.
+ *
  * @example
  * ```html
  * <wr-avatar url="/me.png" alt="Roman" size="3rem" shape="circle" />
@@ -52,6 +65,9 @@ const DEFAULT_SIZE: WrAvatarSize = '6rem';
     '[class]': 'classes()',
     '[style.width]': 'cssSize()',
     '[style.height]': 'cssSize()',
+    // What the stylesheet sizes projected initials against. Always px or rem: a
+    // value `resolveCssSize` has no pixels for falls back to the default box.
+    '[style.--wr-avatar-size]': 'cssSize()',
   },
   imports: [WrSpinner],
 })
@@ -88,7 +104,8 @@ export class WrAvatar {
   readonly shape = input<WrAvatarShape>('rounded');
 
   /**
-   * Box size. See {@link WrAvatarSize} for accepted values.
+   * Box size. See {@link WrAvatarSize} for accepted values. The resolved value is
+   * published on the host as `--wr-avatar-size`.
    *
    * @default '6rem'
    */

@@ -7,6 +7,13 @@
   --wr-avatar-radius: 10%;
   --wr-avatar-img-opacity: 0;
   --wr-avatar-ring: var(--wr-color-border);
+  // The most of the box projected initials may take, as a share of the size the
+  // host publishes as `--wr-avatar-size`. Measured rather than picked: at 0.375
+  // the widest capital pairs (`ЖШ`, `WW`) in Inter, Geist and the system face, at
+  // weights 400 to 700, keep every inked pixel at least 14% of the radius inside
+  // a circle from 16px to 40px; at 0.4 the semibold `WW` in a 16px circle was
+  // down to 0.6px.
+  --wr-avatar-initials-scale: 0.375;
 
   display: inline-flex;
   align-items: center;
@@ -41,6 +48,43 @@
   // setting a consumer put on the host) exactly as before this wrapper existed.
   &__content {
     display: contents;
+    // Inert: a click on the letters belongs to whatever holds the avatar (a chip,
+    // a link, a row), and a selection dragged across a list of people should not
+    // pick up their initials. Both reach the text through inheritance, which is
+    // what a `contents` box still does.
+    user-select: none;
+    pointer-events: none;
+    // No `line-height` or `white-space` here: both inherit already, and setting
+    // them changed a 6rem avatar — a longer fallback stopped wrapping and was
+    // clipped on both sides, and a projected `rem`-sized span moved by a pixel.
+  }
+
+  // Projected initials take the text around the avatar, and never more than
+  // `--wr-avatar-initials-scale` of the box. `min()` against `1em` (the inherited
+  // size) is what keeps this to the avatars that need it: a 6rem one beside 16px
+  // text keeps its 16px exactly, and a 16px one in a 14px chip draws 6px letters
+  // instead of 14px ones clipped by its own edge. The cap bites wherever the
+  // inherited size is larger than that share, and that includes a 6rem avatar
+  // inside text bigger than 36px (its share at the default root size). Anything
+  // projected that is sized in `em` follows the cap, a `<wr-icon>` included.
+  //
+  // On the HOST rather than on `__content`, because a `contents` wrapper has no
+  // line box of its own: its text is laid out on the host's, whose strut keeps
+  // the host's font. Shrinking only the wrapper's text sat the letters on the
+  // baseline of the bigger strut, about 4px below centre in a 16px circle.
+  //
+  // Only while something is projected, because the spinner drawn when nothing
+  // is sizes itself in `em` too, and it has no business shrinking. A size the
+  // host did not publish leaves the `var()` unresolved, and the declaration
+  // falls back to inheriting.
+  //
+  // `:where()` around the WHOLE selector leaves it no specificity, so any
+  // unlayered `font-size` rule a consumer writes for the avatar — a type, class
+  // or attribute selector, loaded before this stylesheet or after it — still
+  // wins. A rule inside a cascade layer does not (Tailwind v4 ships its
+  // utilities in one): unlayered CSS beats layered CSS whatever the selector.
+  :where(&:has(> .wr-avatar__content:not(:empty))) {
+    font-size: min(1em, var(--wr-avatar-size) * var(--wr-avatar-initials-scale));
   }
 
   // Once loaded, how the fallback leaves the paint follows whether the image is
