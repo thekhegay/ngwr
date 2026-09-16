@@ -54,6 +54,91 @@ interface RectPx {
   h: number;
 }
 
+interface SizePx {
+  w: number;
+  h: number;
+}
+
+/** Distances, in CSS pixels, past each side of a box. */
+interface SidesPx {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
+
+const NO_SIDES: SidesPx = { left: 0, top: 0, right: 0, bottom: 0 };
+
+/**
+ * The rect a resize gesture produces: a pure function of the rect the gesture started
+ * from and the TOTAL pointer offset, so the same pointer position always gives the same
+ * rect however the pointer got there.
+ *
+ * The anchor never moves. It is the edge or corner opposite the handle — for `se` the
+ * top-left corner, for `e` the west edge's line. The old version clamped `x`, `y`, `w`
+ * and `h` one at a time after deriving the second axis, so once the derived axis ran
+ * into the image edge the rect slid AWAY from its anchor and, past the far bound, off
+ * the image entirely.
+ *
+ * With a ratio the size is the largest along that ratio which fits from the anchor —
+ * the smaller of the width-limited and height-limited sizes — and no smaller than both
+ * minimums allow. Where the image cannot fit the minimum from this anchor, the bound
+ * wins: a crop past the edge of the image is worse than one under the minimum.
+ *
+ * An edge handle with a ratio also sizes the axis it does not drive, and that axis has
+ * the image's WHOLE extent to grow into: the rect stays centred on its old midline where
+ * it can and slides along that axis only as far as it must to stay on the image. Capping
+ * the size at twice the distance from the midline to the nearer side instead would leave
+ * a square crop resting against the top edge unable to widen at all.
+ */
+function resizeFrom(
+  r: RectPx,
+  handle: WrCropHandle,
+  dx: number,
+  dy: number,
+  bounds: SizePx,
+  min: SizePx,
+  ratio: number | null
+): RectPx {
+  const east = handle.includes('e');
+  const west = handle.includes('w');
+  const south = handle.includes('s');
+  const north = handle.includes('n');
+  const right = r.x + r.w;
+  const bottom = r.y + r.h;
+
+  if (!ratio || ratio <= 0) {
+    let { x, y, w, h } = r;
+    if (east) w = clamp(r.w + dx, min.w, bounds.w - r.x);
+    if (west) {
+      w = clamp(r.w - dx, min.w, right);
+      x = right - w;
+    }
+    if (south) h = clamp(r.h + dy, min.h, bounds.h - r.y);
+    if (north) {
+      h = clamp(r.h - dy, min.h, bottom);
+      y = bottom - h;
+    }
+    return { x, y, w, h };
+  }
+
+  // Room from the anchor to the image edge on each axis the handle drives; the whole
+  // image on an axis it does not.
+  const roomW = east ? bounds.w - r.x : west ? right : bounds.w;
+  const roomH = south ? bounds.h - r.y : north ? bottom : bounds.h;
+  // Corners follow the horizontal delta, as they always have; `n` / `s` the vertical one.
+  const wanted = east ? r.w + dx : west ? r.w - dx : (south ? r.h + dy : r.h - dy) * ratio;
+  const w = clamp(wanted, Math.max(min.w, min.h * ratio), Math.min(roomW, roomH * ratio));
+  const h = w / ratio;
+
+  return {
+    x: east ? r.x : west ? right - w : clamp(r.x + r.w / 2 - w / 2, 0, bounds.w - w),
+    y: south ? r.y : north ? bottom - h : clamp(r.y + r.h / 2 - h / 2, 0, bounds.h - h),
+    w,
+    h,
+  };
+}
+
 /**
  * Image crop UI. Pass `[src]` (URL, `File`, or `Blob`); the user drags
  * the crop window or any of its eight handles. Optionally lock the crop
@@ -176,6 +261,15 @@ export class WrImageCropper {
   private active: WrCropHandle | null = null;
   private startPointer: { x: number; y: number } = { x: 0, y: 0 };
   private startRect: RectPx = { x: 0, y: 0, w: 0, h: 0 };
+
+  /** The element the live drag set pointer capture on, so the end releases that one. */
+  private captureTarget: HTMLElement | null = null;
+
+  /** The pointer the live drag belongs to. Every other pointer's events are ignored. */
+  private pointerId: number | null = null;
+
+  /** How far past each side of the crop the live resize was pressed — see `onPointerMove`. */
+  private overhang: SidesPx = NO_SIDES;
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -383,24 +477,99 @@ export class WrImageCropper {
     event.preventDefault();
     event.stopPropagation();
     this.active = handle;
+    this.pointerId = event.pointerId;
     this.startPointer = { x: event.clientX, y: event.clientY };
     this.startRect = { ...this.cropDisplay() };
-    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    this.captureTarget = event.currentTarget as HTMLElement;
+    this.captureTarget.setPointerCapture(event.pointerId);
+    this.overhang = handle === 'move' ? NO_SIDES : this.pastCrop(event);
   }
 
+  /**
+   * A resize ENDS when the pointer leaves the image, exactly as `pointerup` would end it:
+   * the move that carried it out is applied — clamped to the image like any other — and
+   * then the drag is over. Nothing after that resumes it or changes the crop, pointer
+   * back over the image or not, until a new `pointerdown`. A move drag is not affected:
+   * its size is fixed, so it simply rests against the edge.
+   *
+   * The move that leaves is applied rather than dropped because pointer moves are
+   * SAMPLES. Dropped, a quick drag toward a corner would stop wherever its last sample
+   * inside happened to fall — a single move from a handle to past the image would change
+   * nothing at all — and even a slow one would stop a fraction of a pixel short of the
+   * edge. A drag that leaves across one edge still ends there: heading for a corner at a
+   * slant that crosses the bottom first, the crop's right edge stays where it was then.
+   *
+   * "The image" is the `<img>`'s own box — the bounds `applyMove` / `applyResize` clamp
+   * the crop to — with its edges counting as inside, since the crop may reach them. The
+   * box is re-measured on every move and compared with `clientX` / `clientY`: both are
+   * viewport coordinates, so a scroll mid-drag cannot put them out of step. The moves
+   * outside reach this handler at all only because the drag holds pointer capture.
+   *
+   * One allowance, fixed at `pointerdown`: the box is widened on each side by however far
+   * past that side of the CROP the press landed — at most as far as the pressed handle
+   * reaches past it. Half of an edge handle, and three quarters of a corner handle, lies
+   * outside the crop, so a press there already has the pointer ahead of the edge it drags.
+   * Measured without the allowance, that pointer would leave the image while the crop was
+   * still short of the image's edge by the same distance, with nothing able to close the
+   * gap; and a handle resting on the image's edge, pressed on its outer part, would begin
+   * its drag already outside. A press on a handle's inner part widens nothing.
+   */
   protected onPointerMove(event: PointerEvent): void {
-    if (!this.active) return;
+    if (!this.active || event.pointerId !== this.pointerId) return;
     const dx = event.clientX - this.startPointer.x;
     const dy = event.clientY - this.startPointer.y;
-    if (this.active === 'move') this.applyMove(dx, dy);
-    else this.applyResize(this.active, dx, dy);
+    if (this.active === 'move') {
+      this.applyMove(dx, dy);
+      return;
+    }
+    this.applyResize(this.active, dx, dy);
+    if (!this.withinImage(event)) this.onPointerUp(event);
   }
 
+  /**
+   * Ends the drag — for `pointerup`, `pointercancel`, a capture lost to something else,
+   * and a resize whose pointer left the image. Once per drag: the capture released here
+   * fires `lostpointercapture` afterwards, and by then there is nothing left to end.
+   *
+   * Only for the pointer that started it. A second finger is refused a drag of its own at
+   * `pointerdown`, but its moves and its lifting reach these handlers all the same, and
+   * would otherwise drive or end the first finger's drag.
+   */
   protected onPointerUp(event: PointerEvent): void {
-    if (!this.active) return;
-    (event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId);
+    if (!this.active || event.pointerId !== this.pointerId) return;
+    const target = this.captureTarget;
     this.active = null;
+    this.pointerId = null;
+    this.captureTarget = null;
+    this.overhang = NO_SIDES;
+    // Asked first: a capture that is already gone has nothing to release, and releasing
+    // one for a pointer that is no longer active throws.
+    if (target?.hasPointerCapture(event.pointerId)) target.releasePointerCapture(event.pointerId);
     void this.emitCropped();
+  }
+
+  /** How far past each side of the crop window the pointer is, in CSS pixels. */
+  private pastCrop(event: PointerEvent): SidesPx {
+    const box = this.imgEl().nativeElement.getBoundingClientRect();
+    const c = this.startRect;
+    return {
+      left: Math.max(0, box.left + c.x - event.clientX),
+      top: Math.max(0, box.top + c.y - event.clientY),
+      right: Math.max(0, event.clientX - (box.left + c.x + c.w)),
+      bottom: Math.max(0, event.clientY - (box.top + c.y + c.h)),
+    };
+  }
+
+  /** Whether the pointer is on the image, edges and the press's `overhang` included. */
+  private withinImage(event: PointerEvent): boolean {
+    const box = this.imgEl().nativeElement.getBoundingClientRect();
+    const o = this.overhang;
+    return (
+      event.clientX >= box.left - o.left &&
+      event.clientX <= box.right + o.right &&
+      event.clientY >= box.top - o.top &&
+      event.clientY <= box.bottom + o.bottom
+    );
   }
 
   // Keyboard
@@ -484,57 +653,8 @@ export class WrImageCropper {
   }
 
   private applyResize(handle: WrCropHandle, dx: number, dy: number): void {
-    const display = this.display();
     const min = { w: this.minWidth(), h: this.minHeight() };
-    const ratio = this.aspectRatio();
-    const r = this.startRect;
-    let x = r.x;
-    let y = r.y;
-    let w = r.w;
-    let h = r.h;
-
-    if (handle.includes('e')) w = clamp(r.w + dx, min.w, display.w - r.x);
-    if (handle.includes('w')) {
-      const nextW = clamp(r.w - dx, min.w, r.x + r.w);
-      x = r.x + (r.w - nextW);
-      w = nextW;
-    }
-    if (handle.includes('s')) h = clamp(r.h + dy, min.h, display.h - r.y);
-    if (handle.includes('n')) {
-      const nextH = clamp(r.h - dy, min.h, r.y + r.h);
-      y = r.y + (r.h - nextH);
-      h = nextH;
-    }
-
-    if (ratio && ratio > 0) {
-      // Lock the orthogonal axis to maintain ratio. For corner handles,
-      // pick whichever delta drives the larger change so we don't bounce.
-      if (handle === 'e' || handle === 'w') {
-        const newH = w / ratio;
-        const dh = newH - r.h;
-        if (handle === 'e' || handle === 'w') {
-          y = r.y - dh / 2;
-          h = newH;
-        }
-      } else if (handle === 'n' || handle === 's') {
-        const newW = h * ratio;
-        const dw = newW - r.w;
-        x = r.x - dw / 2;
-        w = newW;
-      } else {
-        // Corner — drive by width, then derive height.
-        const newH = w / ratio;
-        if (handle.includes('n')) y = r.y + r.h - newH;
-        h = newH;
-      }
-      // Re-clamp after ratio adjustment so we never spill out of the canvas.
-      x = clamp(x, 0, display.w - w);
-      y = clamp(y, 0, display.h - h);
-      w = clamp(w, min.w, display.w - x);
-      h = clamp(h, min.h, display.h - y);
-    }
-
-    this.cropDisplay.set({ x, y, w, h });
+    this.cropDisplay.set(resizeFrom(this.startRect, handle, dx, dy, this.display(), min, this.aspectRatio()));
   }
 
   // Public API
