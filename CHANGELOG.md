@@ -1,5 +1,18 @@
 # Changelog
 
+## [14.7.0](https://github.com/thekhegay/ngwr/compare/v14.6.0...v14.7.0) (2026-09-16)
+
+### Features
+
+* **select:** draw the option leading visual in search triggers ([8f48fe6](https://github.com/thekhegay/ngwr/commit/8f48fe6a35f6bbb89882c1a97d4a610b0b93798a))
+
+### Bug Fixes
+
+* **avatar:** fit the initials inside small avatars and make them inert ([2404a48](https://github.com/thekhegay/ngwr/commit/2404a48a5d2679418845d67205119013337a23f1))
+* **image-cropper:** end a resize when the pointer leaves the image ([203c0b1](https://github.com/thekhegay/ngwr/commit/203c0b1b686ace09a4b6c4c3c8bcfe3e42544a73))
+* **lib:** four button glyphs follow the surrounding text size ([bc29bf3](https://github.com/thekhegay/ngwr/commit/bc29bf30e92f01ec250dda9bd2dcb55324e2b041))
+* **table:** 24px header hit areas on touch and a count pill line box ([876f05b](https://github.com/thekhegay/ngwr/commit/876f05be5ca9e15f49407e8c6cb7a29cb715f99a))
+
 ## [14.6.0](https://github.com/thekhegay/ngwr/compare/v14.5.1...v14.6.0) (2026-09-15)
 
 ### Features
