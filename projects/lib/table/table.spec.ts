@@ -1063,3 +1063,74 @@ describe('WrTableSort emits a modifier for every documented direction', () => {
     }
   });
 });
+
+/**
+ * A column carrying BOTH controls — the arrangement the header's touch geometry
+ * is built around.
+ *
+ * `sortable` and `filterItems` on one column put two 12px controls in a single
+ * `.wr-table__th-inner`, and that pair is the only arrangement WCAG 2.5.8 has
+ * anything to say about: a lone glyph passes on the criterion's spacing
+ * exception, two of them 6px apart do not. On a coarse pointer each grows a
+ * centred 24px hit area and the row opens its gap so the two cannot overlap.
+ *
+ * Split down the middle of what jsdom can answer, and the half it cannot is the
+ * larger one. What is asserted here is the arrangement: both controls, in that
+ * row, in that order, beside the title. The geometry is not — jsdom applies no
+ * stylesheet, so a rect here is 0x0 and a computed style is the initial value.
+ * The declarations live in `table-header-target.spec.ts`, and the painted
+ * numbers come from a real Chromium, with a fine pointer and with a coarse one.
+ */
+describe('WrTable renders both header controls for a sortable, filterable column', () => {
+  @Component({
+    imports: [WrTable],
+    template: `<wr-table [columns]="columns" [items]="items" />`,
+  })
+  class BothControlsHost {
+    protected readonly items = [{ id: 1, name: 'Ada', role: 'admin' }];
+    protected readonly columns: WrTableColumns = {
+      name: { title: 'Name', sortable: true },
+      role: {
+        title: 'Role',
+        sortable: true,
+        filterItems: [{ value: 'admin', title: 'Admin' }],
+      },
+      id: { title: 'Id' },
+    };
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<BothControlsHost>>;
+  const headerFor = (title: string): HTMLElement =>
+    [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('th')].find(th =>
+      th.textContent.includes(title)
+    )!;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(BothControlsHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('puts the sort button and the filter trigger in one inner row, after the title', () => {
+    const inner = headerFor('Role').querySelector<HTMLElement>('.wr-table__th-inner')!;
+    const children = [...inner.children].map(c => c.className);
+
+    expect(inner.firstElementChild?.classList).toContain('wr-table__title');
+    expect(children.some(c => c.includes('wr-table__sort-btn'))).toBe(true);
+    expect(inner.querySelector('.wr-table-filter__trigger')).not.toBeNull();
+  });
+
+  it('gives a sort-only column one control and no filter', () => {
+    const th = headerFor('Name');
+    expect(th.querySelector('.wr-table__sort-btn')).not.toBeNull();
+    expect(th.querySelector('wr-table-filter')).toBeNull();
+  });
+
+  it('gives a plain column neither', () => {
+    const th = headerFor('Id');
+    expect(th.querySelector('.wr-table__sort-btn')).toBeNull();
+    expect(th.querySelector('wr-table-filter')).toBeNull();
+  });
+});
