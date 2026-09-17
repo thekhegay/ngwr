@@ -4,6 +4,7 @@
   `role="meter"` plus the value attributes make it readable either way.
 -->
 <div
+  #surface
   class="wr-gauge__surface"
   [style.width.px]="size()"
   role="meter"
@@ -11,7 +12,9 @@
   [attr.aria-valuemin]="min()"
   [attr.aria-valuemax]="max()"
   [attr.aria-valuenow]="displayValue()"
-  [attr.aria-valuetext]="displayValue() + suffix()"
+  [attr.aria-valuetext]="valueText()"
+  (mouseenter)="tip.enter(0)"
+  (mouseleave)="tip.leave($event)"
 >
   <svg [attr.viewBox]="viewBox" aria-hidden="true">
     <path

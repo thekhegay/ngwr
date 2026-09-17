@@ -1,9 +1,28 @@
+@use '../../popover/styles'; // the `.wr-tooltip` chip the hover tooltip renders into
+
 .wr-sparkline {
   display: inline-block;
+  // The hover marker is placed in percentages of this box, which is the drawing's.
+  position: relative;
   line-height: 0;
 
   svg {
     display: block;
     overflow: visible;
+  }
+
+  // The point the hover tooltip is reading. Placed by the component in SVG
+  // coordinates, which do not flip with `direction`, and never hittable: it sits
+  // under the pointer, and taking the `mousemove` would lose the line.
+  &__marker {
+    position: absolute;
+    width: 0.5rem;
+    height: 0.5rem;
+    border: 2px solid var(--wr-color-surface);
+    border-radius: 50%;
+    box-sizing: content-box;
+    // rtl-ok: SVG coordinates, see above
+    transform: translate(-50%, -50%);
+    pointer-events: none;
   }
 }

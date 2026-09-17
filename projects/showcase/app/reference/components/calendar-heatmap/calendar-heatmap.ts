@@ -52,6 +52,7 @@ export class MyComponent {
   ];
 }`,
     basic: `<wr-calendar-heatmap [data]="contributions" />`,
+    tooltip: `<wr-calendar-heatmap [data]="contributions" [tooltip]="false" />`,
   };
 
   protected readonly typeSnippet = `interface WrHeatmapDatum {

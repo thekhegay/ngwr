@@ -6,9 +6,10 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChildren } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
+import { useChartTooltip } from 'ngwr/popover';
 
 import type { WrMeterSegment } from './interfaces';
 
@@ -62,6 +63,15 @@ export class WrMeterGroup {
   readonly showValues = input(true, { transform: coerceBooleanProperty });
 
   /**
+   * Show a tooltip with the segment's label and value on hover. It replaces the
+   * band's `title`, which is written only while this is off — or the browser would
+   * open a second copy a moment later. @default true
+   */
+  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+
+  private readonly sliceEls = viewChildren<ElementRef<HTMLElement>>('slice');
+
+  /**
    * A segment's contribution, floored at `0` and with anything non-finite read
    * as `0`. One `NaN` used to poison the whole bar: the sum is `NaN` as soon as
    * one value is, so the total fell back to `1` and every OTHER segment was
@@ -102,4 +112,15 @@ export class WrMeterGroup {
       percent: (WrMeterGroup.amount(segment.value) / this.resolvedMax()) * 100,
     }))
   );
+
+  /**
+   * One tooltip for the whole bar, pointing at the hovered band, with the value as
+   * the legend prints it.
+   */
+  protected readonly tip = useChartTooltip(this.tooltip, index => {
+    const slice = this.slices()[index];
+    const el = this.sliceEls()[index]?.nativeElement;
+    if (!slice || !el) return null;
+    return { datum: { label: slice.label, value: String(slice.value), color: slice.color }, anchor: el };
+  });
 }

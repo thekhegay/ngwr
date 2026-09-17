@@ -22,6 +22,16 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Tooltip"
+    description="Hover the dial for the reading, named by `ariaLabel` when one is given — the one place the number shows with `[showValue]` off. Set `[tooltip]` to `false` to turn it off."
+  >
+    <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-gauge [value]="72" suffix="%" [showValue]="false" ariaLabel="CPU" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

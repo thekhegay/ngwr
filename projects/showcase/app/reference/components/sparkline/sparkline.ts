@@ -28,6 +28,7 @@ export class MyComponent {
 }`,
     basic: `<wr-sparkline [data]="[12, 14, 9, 17, 21, 18, 23]" />`,
     area: `<wr-sparkline [data]="data" [showArea]="true" color="var(--wr-color-success)" />`,
+    tooltip: `<wr-sparkline [data]="data" ariaLabel="Signups" />`,
   };
 
   protected readonly api = API.WrSparkline;

@@ -6,10 +6,11 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
+import { Component, type ElementRef, ViewEncapsulation, computed, inject, input, viewChild } from '@angular/core';
 
 import { WR_DATE_LOCALE } from 'ngwr/date';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { useChartTooltip } from 'ngwr/popover';
 
 import type { WrHeatmapDatum } from './interfaces';
 
@@ -125,6 +126,15 @@ export class WrCalendarHeatmap {
   /** Show the weekday + month labels around the grid. @default true */
   readonly showLabels = input(true, { transform: coerceBooleanProperty });
 
+  /**
+   * Show a tooltip with the day and its count on hover. It is the sentence the
+   * square's `title` carried, so the `title` is written only while this is off —
+   * or the browser would open a second copy a moment later. @default true
+   */
+  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+
+  private readonly daysEl = viewChild<ElementRef<HTMLElement>>('days');
+
   private readonly locale = inject(WR_DATE_LOCALE);
 
   /**
@@ -214,6 +224,41 @@ export class WrCalendarHeatmap {
     const cells = this.cells();
     return cells.length === 0 ? 0 : cells[cells.length - 1].week + 1;
   });
+
+  /** Each day's position in `cells()`, for the square the pointer lands on. */
+  private readonly indexByIso = computed(() => new Map(this.cells().map((cell, index) => [cell.iso, index])));
+
+  /**
+   * One tooltip for the whole year, above the grid at the hovered day's week — below
+   * it when there is no room above — so the chip never lands on the days around the
+   * one it describes. The hovered square itself is marked by its own `:hover` scale.
+   * A listener on the grid rather than one per square: a year is 371 of them.
+   */
+  protected readonly tip = useChartTooltip(this.tooltip, index => {
+    const cell = this.cells()[index];
+    // The squares are the container's only children, drawn in `cells()` order a whole
+    // week of seven at a time — so this one's column starts `day` back and ends six on.
+    const days = this.daysEl()?.nativeElement.children;
+    const first = cell ? days?.item(index - cell.day) : null;
+    const last = cell ? days?.item(index - cell.day + 6) : null;
+    if (!cell || !first || !last) return null;
+    const top = first.getBoundingClientRect();
+    return {
+      datum: { value: this.cellTitle(cell) },
+      anchor: { x: top.left, y: top.top, width: top.width, height: last.getBoundingClientRect().bottom - top.top },
+    };
+  });
+
+  /**
+   * Which square the pointer is on, from a `mousemove` on the grid. Over the gap
+   * between two squares it is on none, and the tooltip starts to leave.
+   */
+  protected onCellsPointer(event: MouseEvent): void {
+    const iso = (event.target as Element | null)?.closest<HTMLElement>('.wr-calendar-heatmap__cell')?.dataset['date'];
+    const index = iso === undefined ? undefined : this.indexByIso().get(iso);
+    if (index === undefined) this.tip.leave(event);
+    else this.tip.enter(index);
+  }
 
   protected colorFor(intensity: number): string {
     if (intensity === 0) return this.emptyColor();

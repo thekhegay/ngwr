@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
+import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import type { WrMeterSegment } from './interfaces';
@@ -188,5 +189,63 @@ describe('WrMeterGroup under a localized catalog', () => {
     expect(bar.getAttribute('aria-label')).not.toBe('Meter');
 
     fixture.destroy();
+  });
+});
+
+@Component({
+  imports: [WrMeterGroup],
+  template: `<wr-meter-group [segments]="segments" [showValues]="false" [tooltip]="tooltip()" />`,
+})
+class TooltipHost {
+  readonly segments = SEGMENTS;
+  readonly tooltip = signal(true);
+}
+
+describe('WrMeterGroup tooltip', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<TooltipHost>>;
+
+  const slices = (): HTMLElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.wr-meter-group__slice'),
+  ];
+  const chip = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-chart-tooltip');
+  const part = (name: string): HTMLElement | null =>
+    chip()?.querySelector<HTMLElement>(`.wr-chart-tooltip__${name}`) ?? null;
+
+  const hover = (el: HTMLElement): void => {
+    el.dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(TooltipHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('shows the label, value and colour of the band — even with the legend values off', () => {
+    hover(slices()[1]);
+
+    expect(part('label')!.textContent.trim()).toBe('Reserved');
+    expect(part('value')!.textContent.trim()).toBe('20');
+    expect(part('swatch')!.style.background).toBe('rgb(171, 205, 239)');
+  });
+
+  it('writes no `title` while it shows its own, so the browser does not open a second copy', () => {
+    expect(slices().map(slice => slice.getAttribute('title'))).toEqual([null, null]);
+    // What the harness reads a band's label from, whichever way `tooltip` is set.
+    expect(slices().map(slice => slice.getAttribute('data-label'))).toEqual(['Used', 'Reserved']);
+  });
+
+  it('goes back to the `title` with `tooltip` off', () => {
+    fixture.componentInstance.tooltip.set(false);
+    fixture.detectChanges();
+
+    hover(slices()[0]);
+
+    expect(chip()).toBeNull();
+    expect(slices().map(slice => slice.getAttribute('title'))).toEqual(['Used', 'Reserved']);
   });
 });

@@ -43,6 +43,7 @@ export class MyComponent {
 }`,
     basic: `<wr-donut-chart [segments]="segments" centerLabel="Disk" centerValue="60%" />`,
     solid: `<wr-donut-chart [segments]="segments" thickness="0" />`,
+    tooltip: `<wr-donut-chart [segments]="segments" [tooltip]="false" />`,
   };
 
   protected readonly typeSnippet = `interface WrDonutSegment {
@@ -75,6 +76,13 @@ export class MyComponent {
     { name: 'showLegend', description: 'Show the legend under the chart.', type: 'boolean', default: 'true' },
     { name: 'centerValue', description: 'Bold value text in the center.', type: 'string', default: "''" },
     { name: 'centerLabel', description: 'Smaller label under the center value.', type: 'string', default: "''" },
+    {
+      name: 'tooltip',
+      description:
+        'Show a tooltip with the slice label and value on hover. Pointer only — the legend prints the same numbers.',
+      type: 'boolean',
+      default: 'true',
+    },
   ];
 
   protected readonly typeRows: readonly DocApiRow[] = [

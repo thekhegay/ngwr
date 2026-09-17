@@ -4,7 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { WR_DATE_LOCALE } from 'ngwr/date';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { provideWrOverlay } from 'ngwr/overlay';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrCalendarHeatmap } from './calendar-heatmap';
 import type { WrHeatmapDatum } from './interfaces';
@@ -12,7 +13,13 @@ import type { WrHeatmapDatum } from './interfaces';
 @Component({
   imports: [WrCalendarHeatmap],
   template: `
-    <wr-calendar-heatmap [data]="data()" [endDate]="endDate()" [weeks]="weeks()" [showLabels]="showLabels()" />
+    <wr-calendar-heatmap
+      [data]="data()"
+      [endDate]="endDate()"
+      [weeks]="weeks()"
+      [showLabels]="showLabels()"
+      [tooltip]="tooltip()"
+    />
   `,
 })
 class Host {
@@ -23,6 +30,7 @@ class Host {
   readonly endDate = signal<string | Date | null>('2025-08-16');
   readonly weeks = signal(4);
   readonly showLabels = signal(true);
+  readonly tooltip = signal(true);
 }
 
 /**
@@ -43,10 +51,16 @@ describe('WrCalendarHeatmap', () => {
     [...root().querySelectorAll('.wr-calendar-heatmap__month')].map(el => el.textContent.trim());
   const cellFor = (iso: string): HTMLElement | undefined =>
     cells().find(cell => cell.getAttribute('data-date') === iso);
+  const chip = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-chart-tooltip');
+  /** A `mousemove` over a square, bubbling to the one listener the grid has. */
+  const hover = (el: Element): void => {
+    el.dispatchEvent(new MouseEvent('mousemove', { bubbles: true }));
+    fixture.detectChanges();
+  };
 
   const mount = (locale = 'en-GB'): void => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [{ provide: WR_DATE_LOCALE, useValue: locale }] });
+    TestBed.configureTestingModule({ providers: [{ provide: WR_DATE_LOCALE, useValue: locale }, provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   };
@@ -140,11 +154,13 @@ describe('WrCalendarHeatmap', () => {
     expect(cellFor('2025-08-11')!.style.background).toBe('var(--wr-color-primary)');
     // The bad day loses only itself — and it reports a number, not the word NaN.
     // Asserted on BOTH halves: `data-value` is what a spec and a harness read,
-    // and the `title` is what a person sees, so `NaN` leaking into either is the
-    // failure. The title is not compared to a literal — it is locale-formatted
-    // now, and pinning it here would pin the suite to one locale.
+    // and the tooltip is what a person sees, so `NaN` leaking into either is the
+    // failure. The text is not compared to a literal here — it is locale-formatted,
+    // and the tooltip block below pins one locale on purpose.
     expect(cellFor('2025-08-13')!.getAttribute('data-value')).toBe('0');
-    expect(cellFor('2025-08-13')!.getAttribute('title')).not.toContain('NaN');
+    hover(cellFor('2025-08-13')!);
+    expect(chip()!.textContent.trim()).toMatch(/: 0$/);
+    expect(chip()!.textContent).not.toContain('NaN');
   });
 
   it('paints a negative day as nothing, not as a light day', () => {
@@ -166,6 +182,8 @@ describe('WrCalendarHeatmap', () => {
   });
 
   it('renders an empty grid rather than nothing when there is no data', () => {
+    // With the tooltip off, so every day's sentence is on the page at once as a `title`.
+    fixture.componentInstance.tooltip.set(false);
     fixture.componentInstance.data.set([]);
     fixture.detectChanges();
 
@@ -192,5 +210,94 @@ describe('WrCalendarHeatmap under a localized catalog', () => {
     expect(grid.getAttribute('aria-label')).toBe('Календарная тепловая карта');
 
     fixture.destroy();
+  });
+});
+
+/**
+ * One listener on the grid rather than one per day, so the day is found from the event
+ * target — which is what these drive. Where the chip lands against a 11px square needs
+ * layout and is measured in a browser.
+ */
+describe('WrCalendarHeatmap tooltip', () => {
+  @Component({
+    imports: [WrCalendarHeatmap],
+    template: `<wr-calendar-heatmap [data]="data" endDate="2025-08-16" [weeks]="4" [tooltip]="tooltip()" />`,
+  })
+  class TooltipHost {
+    readonly data: readonly WrHeatmapDatum[] = [{ date: '2025-08-11', value: 1234 }];
+    readonly tooltip = signal(true);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<TooltipHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const cellFor = (iso: string): HTMLElement => root().querySelector<HTMLElement>(`[data-date="${iso}"]`)!;
+  const chip = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-chart-tooltip');
+  const move = (el: Element): void => {
+    el.dispatchEvent(new MouseEvent('mousemove', { bubbles: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: WR_DATE_LOCALE, useValue: 'en-GB' }, provideWrOverlay()] });
+    fixture = TestBed.createComponent(TooltipHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.useRealTimers();
+  });
+
+  it('says what the square used to say in its title — the day and the count, in the locale', () => {
+    move(cellFor('2025-08-11'));
+
+    // Built from the same two formatters the component uses, for the locale this block
+    // pins, so it holds wherever the suite runs.
+    const day = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium' }).format(new Date(2025, 7, 11));
+    const count = new Intl.NumberFormat('en-GB').format(1234);
+    expect(chip()!.querySelector('.wr-chart-tooltip__value')!.textContent.trim()).toBe(`${day}: ${count}`);
+    // A sentence already, so no separate label and no swatch.
+    expect(chip()!.querySelector('.wr-chart-tooltip__label')).toBeNull();
+    expect(chip()!.querySelector('.wr-chart-tooltip__swatch')).toBeNull();
+  });
+
+  it('follows the pointer from day to day with one chip', () => {
+    move(cellFor('2025-08-11'));
+    move(cellFor('2025-08-12'));
+
+    expect(document.querySelectorAll('.wr-chart-tooltip')).toHaveLength(1);
+    expect(chip()!.textContent.trim()).toMatch(/: 0$/);
+  });
+
+  it('starts to leave over the gap between squares, and stays if the pointer lands on one in time', () => {
+    move(cellFor('2025-08-11'));
+    const grid = root().querySelector('.wr-calendar-heatmap__cells')!;
+
+    move(grid);
+    vi.advanceTimersByTime(50);
+    fixture.detectChanges();
+    move(cellFor('2025-08-12'));
+    vi.advanceTimersByTime(500);
+    fixture.detectChanges();
+    expect(chip()).not.toBeNull();
+
+    move(grid);
+    vi.advanceTimersByTime(110);
+    fixture.detectChanges();
+    expect(chip()).toBeNull();
+  });
+
+  it('writes no `title` while it shows its own, and goes back to the `title` with it off', () => {
+    expect(cellFor('2025-08-11').hasAttribute('title')).toBe(false);
+
+    fixture.componentInstance.tooltip.set(false);
+    fixture.detectChanges();
+    move(cellFor('2025-08-11'));
+
+    expect(chip()).toBeNull();
+    expect(cellFor('2025-08-11').getAttribute('title')).toMatch(/1,234$/);
   });
 });

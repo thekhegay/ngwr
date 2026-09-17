@@ -6,9 +6,10 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChild } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
+import { useChartTooltip } from 'ngwr/popover';
 import { clamp } from 'ngwr/utils';
 
 /**
@@ -62,6 +63,14 @@ export class WrGauge {
 
   readonly suffix = input<string>('');
 
+  /**
+   * Show a tooltip with the reading on hover, named by `ariaLabel` when one is
+   * given. Pointer only — the meter announces the same reading. @default true
+   */
+  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+
+  private readonly surface = viewChild<ElementRef<HTMLElement>>('surface');
+
   // Geometry — semicircle in a 100×56 viewBox (centre at 50, 50).
   protected readonly cx = 50;
   protected readonly cy = 50;
@@ -100,4 +109,25 @@ export class WrGauge {
   });
 
   protected readonly viewBox = '0 0 100 56';
+
+  /**
+   * The reading as the meter announces it — `aria-valuetext`, the number plus the
+   * suffix — so the tooltip, the printed value and a screen reader all say one
+   * thing.
+   */
+  protected readonly valueText = computed(() => `${this.displayValue()}${this.suffix()}`);
+
+  /**
+   * One tooltip, pointing at the top of the dial. The whole gauge is one section.
+   * The label is the `ariaLabel` input and not the catalog fallback, which names
+   * the kind of widget rather than the reading.
+   */
+  protected readonly tip = useChartTooltip(this.tooltip, () => {
+    const el = this.surface()?.nativeElement;
+    if (!el) return null;
+    return {
+      datum: { label: this.ariaLabel() ?? undefined, value: this.valueText(), color: this.valueColor() },
+      anchor: el,
+    };
+  });
 }

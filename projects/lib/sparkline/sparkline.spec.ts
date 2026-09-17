@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrSparkline } from './sparkline';
@@ -132,5 +133,110 @@ describe('WrSparkline', () => {
     expect(svg().getAttribute('role')).toBe('img');
     expect(svg().getAttribute('aria-label')).toBe('Signups, last 7 days');
     expect(svg().hasAttribute('aria-hidden')).toBe(false);
+  });
+});
+
+@Component({
+  imports: [WrSparkline],
+  template: `<wr-sparkline [data]="data()" [ariaLabel]="ariaLabel()" [tooltip]="tooltip()" color="#123456" />`,
+})
+class TooltipHost {
+  // Five points, so the step along the 96-unit plot is 24: x = 2, 26, 50, 74, 98.
+  readonly data = signal<readonly number[]>([12, 14, 9, 17, 21]);
+  readonly ariaLabel = signal<string | null>(null);
+  readonly tooltip = signal(true);
+}
+
+/**
+ * The point under the pointer is worked out from the drawing's box, and jsdom reports
+ * every box as 0×0 — so each case STUBS that box to 100px wide at the origin, which
+ * makes a `clientX` read directly as a viewBox x. That stub is the whole of what these
+ * cases cannot show: that a real box of any width maps the same way, and where the chip
+ * lands, are measured in a browser.
+ */
+describe('WrSparkline tooltip', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<TooltipHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const svg = (): SVGSVGElement => root().querySelector<SVGSVGElement>('svg')!;
+  const marker = (): HTMLElement | null => root().querySelector<HTMLElement>('.wr-sparkline__marker');
+  const chip = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-chart-tooltip');
+  const part = (name: string): HTMLElement | null =>
+    chip()?.querySelector<HTMLElement>(`.wr-chart-tooltip__${name}`) ?? null;
+
+  const box = (width: number): void => {
+    svg().getBoundingClientRect = () => new DOMRect(0, 0, width, 40);
+  };
+  const moveTo = (clientX: number): void => {
+    svg().dispatchEvent(new MouseEvent('mousemove', { clientX }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(TooltipHost);
+    fixture.detectChanges();
+    box(100);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('shows the value of the point nearest the pointer, and marks that point', () => {
+    moveTo(47);
+
+    expect(part('value')!.textContent.trim()).toBe('9');
+    expect(part('swatch')!.style.background).toBe('rgb(18, 52, 86)');
+    // x = 50 of 100, and 9 is the minimum, so it sits on the floor of the plot: y = 38 of 40.
+    expect(marker()!.style.left).toBe('50%');
+    expect(marker()!.style.top).toBe('95%');
+    expect(marker()!.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('snaps to the ends rather than running off them', () => {
+    moveTo(-30);
+    expect(part('value')!.textContent.trim()).toBe('12');
+
+    moveTo(400);
+    expect(part('value')!.textContent.trim()).toBe('21');
+  });
+
+  it('names the reading with the `ariaLabel` when there is one', () => {
+    fixture.componentInstance.ariaLabel.set('Signups');
+    fixture.detectChanges();
+
+    moveTo(98);
+
+    expect(part('label')!.textContent.trim()).toBe('Signups');
+    expect(part('value')!.textContent.trim()).toBe('21');
+  });
+
+  it('reads the value off the data as drawn, with non-finite values dropped', () => {
+    // Filtered BEFORE the scale, so the second point drawn is 3 — and the tooltip has to
+    // agree with the drawing rather than with the raw index.
+    fixture.componentInstance.data.set([1, Number.NaN, 3]);
+    fixture.detectChanges();
+
+    moveTo(98);
+
+    expect(part('value')!.textContent.trim()).toBe('3');
+  });
+
+  it('answers nothing for a box that has not been laid out', () => {
+    box(0);
+    moveTo(50);
+
+    expect(chip()).toBeNull();
+    expect(marker()).toBeNull();
+  });
+
+  it('shows neither the chip nor the marker with `tooltip` off', () => {
+    fixture.componentInstance.tooltip.set(false);
+    fixture.detectChanges();
+
+    moveTo(50);
+
+    expect(chip()).toBeNull();
+    expect(marker()).toBeNull();
   });
 });

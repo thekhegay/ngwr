@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrBarChart } from './bar-chart';
@@ -146,5 +147,76 @@ describe('WrBarChart', () => {
     fixture.componentInstance.height.set(10);
     fixture.detectChanges();
     expect(plot().style.height).toBe('40px');
+  });
+});
+
+@Component({
+  imports: [WrBarChart],
+  template: `<wr-bar-chart [data]="data" [tooltip]="tooltip()" />`,
+})
+class TooltipHost {
+  readonly data = DATA;
+  readonly tooltip = signal(true);
+}
+
+/**
+ * The tooltip renders into a CDK overlay, so it is read off `document`. Where the chip
+ * lands — above the bar, flipped below near the top of the viewport — needs layout, and
+ * is measured in a browser instead; what it SAYS is asserted here.
+ */
+describe('WrBarChart tooltip', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<TooltipHost>>;
+
+  const columns = (): HTMLElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.wr-bar-chart__column'),
+  ];
+  const chip = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-chart-tooltip');
+  const part = (name: string): HTMLElement | null =>
+    chip()?.querySelector<HTMLElement>(`.wr-chart-tooltip__${name}`) ?? null;
+
+  const hover = (el: HTMLElement): void => {
+    el.dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(TooltipHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('shows the hovered bar with its label, its printed value and its colour', () => {
+    hover(columns()[2]);
+
+    expect(part('label')!.textContent.trim()).toBe('Wed');
+    expect(part('value')!.textContent.trim()).toBe('5');
+    expect(part('swatch')!.style.background).toBe('rgb(171, 205, 239)');
+  });
+
+  it('keeps one chip for the chart as the pointer crosses the bars', () => {
+    hover(columns()[0]);
+    hover(columns()[1]);
+
+    expect(document.querySelectorAll('.wr-chart-tooltip')).toHaveLength(1);
+    expect(part('label')!.textContent.trim()).toBe('Tue');
+  });
+
+  it('leaves the accessible name where it was — the tooltip is not the way to the number', () => {
+    hover(columns()[0]);
+
+    expect(columns()[0].getAttribute('aria-label')).toBe('Mon: 10');
+    expect(columns()[0].hasAttribute('aria-describedby')).toBe(false);
+  });
+
+  it('shows nothing with `tooltip` off', () => {
+    fixture.componentInstance.tooltip.set(false);
+    fixture.detectChanges();
+
+    hover(columns()[0]);
+
+    expect(chip()).toBeNull();
   });
 });

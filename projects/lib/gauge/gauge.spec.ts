@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrGauge } from './gauge';
@@ -151,5 +152,67 @@ describe('WrGauge', () => {
     expect(root().querySelector('.wr-gauge__text')).toBeNull();
     // The meter still reads out, which is the reason the role is there at all.
     expect(meter().getAttribute('aria-valuenow')).toBe('40');
+  });
+});
+
+@Component({
+  imports: [WrGauge],
+  template: `<wr-gauge [value]="130" suffix="%" [ariaLabel]="ariaLabel()" [tooltip]="tooltip()" />`,
+})
+class TooltipHost {
+  readonly ariaLabel = signal<string | null>('CPU');
+  readonly tooltip = signal(true);
+}
+
+describe('WrGauge tooltip', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<TooltipHost>>;
+
+  const surface = (): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-gauge__surface')!;
+  const chip = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-chart-tooltip');
+  const part = (name: string): HTMLElement | null =>
+    chip()?.querySelector<HTMLElement>(`.wr-chart-tooltip__${name}`) ?? null;
+
+  const hover = (): void => {
+    surface().dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(TooltipHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('says what the meter announces — the clamped reading with its suffix — under its name', () => {
+    hover();
+
+    // 130 on a 0–100 dial is drawn full and announced as 100; the tooltip is a third
+    // place that reading appears, and it must not be the one that disagrees.
+    expect(part('value')!.textContent.trim()).toBe('100%');
+    expect(surface().getAttribute('aria-valuetext')).toBe('100%');
+    expect(part('label')!.textContent.trim()).toBe('CPU');
+  });
+
+  it('leaves the label out rather than printing the generic name from the catalog', () => {
+    fixture.componentInstance.ariaLabel.set(null);
+    fixture.detectChanges();
+
+    hover();
+
+    expect(part('label')).toBeNull();
+    expect(part('value')!.textContent.trim()).toBe('100%');
+  });
+
+  it('shows nothing with `tooltip` off', () => {
+    fixture.componentInstance.tooltip.set(false);
+    fixture.detectChanges();
+
+    hover();
+
+    expect(chip()).toBeNull();
   });
 });

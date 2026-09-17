@@ -1,4 +1,4 @@
-@let hovered = hoveredIndex();
+@let hovered = activeIndex();
 @if (showLegend() && resolvedSeries().length > 0) {
   <ul class="wr-line-chart__legend">
     @for (s of resolvedSeries(); track s.label) {

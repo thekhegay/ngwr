@@ -14,6 +14,12 @@
       <wr-line-chart style="width: 100%" [series]="series" [xLabels]="xLabels" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Tooltip"
+    description="Hover the plot for every series' value at the nearest x label. Set `[tooltip]` to `false` to drop the crosshair, the point markers and the tooltip together."
+  >
+    <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
+  </ngwr-doc-section>
   <ngwr-doc-section title="API" description="Inputs of &lt;wr-line-chart&gt;.">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

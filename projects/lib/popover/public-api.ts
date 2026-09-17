@@ -1,2 +1,3 @@
+export { useChartTooltip } from './chart-tooltip';
 export { WrPopover } from './popover';
-export type { WrPopoverPosition } from './interfaces';
+export type { WrChartTooltip, WrChartTooltipDatum, WrChartTooltipTarget, WrPopoverPosition } from './interfaces';

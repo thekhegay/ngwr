@@ -14,8 +14,8 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 177 of 186 declarations are mapped: 0 carry no selector and
- * 9 are internal classes no entry point publishes. A deliberate subset,
+ * 177 of 187 declarations are mapped: 0 carry no selector and
+ * 10 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
 

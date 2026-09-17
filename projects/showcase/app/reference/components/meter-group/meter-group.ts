@@ -45,6 +45,8 @@ export class MyComponent {}`;
   [max]="100"
 />`;
 
+  protected readonly tooltipSnippet = `<wr-meter-group [segments]="diskUsage" [tooltip]="false" />`;
+
   protected readonly api = API.WrMeterGroup;
 
   protected readonly segmentApi: readonly DocApiRow[] = [

@@ -16,8 +16,9 @@ const SLICE_WIDTH = /(?:^|;)\s*width\s*:\s*([\d.]+)%/;
  * Test harness for `<wr-meter-group>` — one bar divided into labelled bands.
  *
  * **The bar is a single `progressbar`, and its value is the TOTAL.** The bands
- * themselves announce nothing: they carry a `title` for a mouse and their share as an
- * inline width, and the legend is where their labels and values are readable. So a
+ * themselves announce nothing: they carry a hover tooltip (or, with `tooltip` off, a
+ * `title`) for a mouse and their share as an inline width, and the legend is where
+ * their labels and values are readable. So a
  * spec that wants "how much of each" reads {@link getSlices} for the shares or
  * {@link getLegendLabels} / {@link getLegendValues} for what is printed, and one that
  * wants "how full" reads {@link getValue}.
@@ -76,7 +77,10 @@ export class WrMeterGroupHarness extends ComponentHarness {
 
     return Promise.all(
       slices.map(async slice => {
-        const label = await slice.getAttribute('title');
+        // `data-label`, which the band carries whatever `tooltip` says. The `title`
+        // this used to read is written only while the tooltip is off, so reading it
+        // would answer `null` for every band of a default meter.
+        const label = await slice.getAttribute('data-label');
         return { label, percent: WrMeterGroupHarness.percentOf(label, await slice.getAttribute('style')) };
       })
     );
