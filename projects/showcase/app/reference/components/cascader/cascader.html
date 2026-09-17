@@ -33,6 +33,11 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Width"
+    description="A cascader left to size itself is `12rem` wide, or wider when its path needs the room. That is a default rather than a minimum: an explicit `width`, `width: 100%` in a narrower parent, a grid cell and a flex item that has to shrink all win over it, and the path truncates. **Lower the default through `--wr-cascader-min-width`, never through the trigger** — set it to `0` and a bare cascader is as wide as its path. A `min-width` on `.wr-cascader__trigger`, the override that did this before the hook existed, no longer reaches it."
+  />
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
