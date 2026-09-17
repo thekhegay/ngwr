@@ -15,6 +15,7 @@ import {
   DestroyRef,
   ElementRef,
   Injector,
+  type Signal,
   ViewEncapsulation,
   computed,
   effect,
@@ -35,10 +36,20 @@ import { readI18nText, useI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 
+import type { WrDateInputError } from './interfaces';
 import { WrDateTimePanel } from './internal/date-time-panel';
+import {
+  WR_DATE_INPUT_FIELD_VIEW_PROVIDER,
+  WrDateInputField,
+  useDateInputRefusals,
+  useFormParseErrors,
+} from './internal/input-refusal';
 import { WrTimePanel } from './internal/time-panel';
 
 let panelUid = 0;
+
+/** How long a live region stays blank before a repeated refusal is written back. */
+const SILENCE_MS = 100;
 
 /**
  * Unified date / time / date-time picker. Same `<input>` + popover skeleton
@@ -57,8 +68,12 @@ let panelUid = 0;
  * `[(ngModel)]` / reactive forms keep working through Angular's bridge. Value
  * type is `Date | null` for every mode.
  *
- * Parses the input on every keystroke (silently — only emits when valid) and
- * re-formats canonical on blur. Format is driven by {@link WrDateAdapter}: it
+ * Parses the input on every keystroke and emits only a date it can read and the
+ * calendar would accept. Anything else is REFUSED, never guessed: the bound value
+ * stays where it was, and the text stays in the field so it can be corrected.
+ * Enter and leaving the field turn a refusal visible — see {@link inputError}.
+ * A committed date is re-formatted canonical on blur and on Enter. Format is
+ * driven by {@link WrDateAdapter}: it
  * accepts both named keys (`'shortDate'`, `'mediumDateTime'`, …) and raw
  * token strings (`'dd.MM.yyyy'`, `'HH:mm'`). When `format` is left at the
  * default (`null`), the picker derives the right named key from `mode`:
@@ -88,6 +103,8 @@ let panelUid = 0;
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   imports: [WrInput, WrInputGroup, WrInputSuffix],
+  providers: [WrDateInputField],
+  viewProviders: [WR_DATE_INPUT_FIELD_VIEW_PROVIDER],
 })
 export class WrDatePicker implements FormValueControl<Date | null> {
   /** Picker behavior — see class doc. @default 'date' */
@@ -247,9 +264,101 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     return this.panelLabelDate();
   });
 
+  private readonly refusals = useDateInputRefusals();
+  private readonly reportToForm = useFormParseErrors(this.value, () => this.onFormReset());
+  private readonly inputField = inject(WrDateInputField);
+
+  /**
+   * Why the text in the field was not committed — `null` while the text is the value.
+   * Raised on the keystroke that makes the text unusable, and reported to a bound form
+   * from that keystroke on.
+   */
+  private readonly refusal = signal<WrDateInputError | null>(null);
+
+  /**
+   * Whether the refusal is on show. A refusal is raised on the keystroke but shown
+   * only once the user has finished — on Enter, or on leaving the field — because
+   * every date is unreadable for most of the time it takes to type one, and a field
+   * that turned red on the first digit would be telling the user off for typing.
+   * Once shown it follows the text live, so a correction clears it immediately.
+   *
+   * Leaving counts wherever focus goes, including by way of the open panel: moving
+   * into the panel waits, since a pick there replaces the text, but focus that leaves
+   * the panel for anything other than the field — or a panel that closes without a
+   * pick and without handing focus back to the field — has left too.
+   */
+  private readonly revealed = signal(false);
+
+  /**
+   * Why the text in the field is not the bound value, once the picker is showing it —
+   * `null` while the text is the value, and `null` while the user is still typing.
+   *
+   * A refusal is raised on the keystroke that makes the text unreadable (`dateFormat`),
+   * out of `min` / `max` (`minDate` / `maxDate`) or rejected by `dateFilter`, and goes
+   * on show on Enter or when the user leaves the field — the same moment the border
+   * turns and the reason is announced, so a message rendered from this signal never
+   * disagrees with them. Once on show it follows the text, and it clears the moment the
+   * text becomes a date the picker commits, is emptied, or is replaced by a pick from
+   * the panel, a value written from outside, or a form reset. The value itself is never
+   * touched by a refusal.
+   *
+   * A bound form does NOT wait: `[formField]`, `[formControl]`, `formControlName` and
+   * `[(ngModel)]` see the refusal as a parse error from the keystroke, so the form is
+   * invalid the whole time the field holds text it could not use, and
+   * `<wr-form-field>` shows `message` by its own rule — once the control is touched or
+   * dirty. Read this through a template reference when the picker is bound with
+   * `[(value)]` alone and the reason should be on screen.
+   *
+   * @example
+   * ```html
+   * <wr-date-picker #due [(value)]="due" format="dd.MM.yyyy" />
+   * @if (due.inputError(); as error) {
+   *   <small>{{ error.message }}</small>
+   * }
+   * ```
+   */
+  readonly inputError: Signal<WrDateInputError | null> = computed(() => (this.revealed() ? this.refusal() : null));
+
+  /**
+   * Blanked briefly so Enter on an unchanged refusal is announced again. A live region
+   * does not repeat text it already holds, and blanking it for one render is not
+   * enough: both changes land in the same task, and the accessibility tree sees
+   * only the end state. The gap is a timer for that reason — the CDK's
+   * `LiveAnnouncer` clears its region the same way.
+   */
+  private readonly silenced = signal(false);
+  private silenceTimer: ReturnType<typeof setTimeout> | undefined;
+
+  protected readonly statusId = this.inputField.statusId;
+
+  /**
+   * What the picker's own live region says: the refusal on show, unless a surrounding
+   * `<wr-form-field>` is already rendering a message for it — that message is a
+   * `role="alert"`, and a second voice would repeat it.
+   */
+  protected readonly announcement = computed(() => {
+    const shown = this.inputError();
+    if (!shown || this.silenced() || this.inputField.saysAlready(shown)) return '';
+    return shown.message;
+  });
+
+  /**
+   * `aria-invalid` and `aria-describedby` for the text input, bound only with NO
+   * field around the picker. Inside one, `wrInput` writes both from the field — see
+   * `WrDateInputField` for why the picker feeds them through it rather than binding
+   * a second writer beside it.
+   */
+  protected readonly ownAriaInvalid = computed<'true' | null>(() =>
+    !this.inputField.outer && this.inputError() ? 'true' : null
+  );
+  protected readonly ownDescribedBy = computed(() =>
+    !this.inputField.outer && this.announcement() ? this.statusId : null
+  );
+
   protected readonly classes = computed(() => {
     const parts = ['wr-date-picker', `wr-date-picker--${this.mode()}`];
     if (this.disabled()) parts.push('wr-date-picker--disabled');
+    if (this.inputError()) parts.push('wr-date-picker--invalid');
     return parts.join(' ');
   });
 
@@ -275,7 +384,10 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   private lastFormat: string | null = null;
 
   constructor() {
-    this.destroyRef.onDestroy(() => this.dispose());
+    this.destroyRef.onDestroy(() => {
+      this.dispose();
+      clearTimeout(this.silenceTimer);
+    });
 
     // Mirror external writes to `value` (from `[formField]`, `[(value)]`, or a
     // classic-forms bridge) into the display text — this is the old
@@ -295,11 +407,19 @@ export class WrDatePicker implements FormValueControl<Date | null> {
       const v = this.value();
       const fmt = this.resolvedFormat();
       untracked(() => {
+        // Our own commits hand `value` the very object `commitValue` remembered, so a
+        // DIFFERENT object holding the same date came from outside — a reset to a fresh
+        // copy of the day, say. That is no reason to re-render text the user is
+        // typing, but it does replace text the picker refused.
+        const outside = v !== this.lastValue;
         const echo = this.sameDate(v, this.lastValue) && fmt === this.lastFormat;
         this.lastValue = v;
         this.lastFormat = fmt;
-        if (echo) return;
+        if (echo && !(outside && this.refusal())) return;
         this.text.set(v && this.adapter.isValid(v) ? this.adapter.format(v, fmt) : '');
+        // The text the refusal was about is gone — replaced by a value written from
+        // outside, or re-rendered in a new format.
+        this.refuse(null);
       });
     });
 
@@ -315,6 +435,9 @@ export class WrDatePicker implements FormValueControl<Date | null> {
         if (this.overlayRef) this.closeOverlay();
       });
     });
+
+    // The input's field (see `WrDateInputField`) marks it invalid for the refusal on show.
+    this.inputField.describe(this.inputError);
 
     // While the calendar popover is open, push every valid typed value into it
     // so the displayed month follows the input live (the calendar snaps its
@@ -368,12 +491,21 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     this.text.set(raw);
     if (!raw) {
       this.commitValue(null);
+      this.refuse(null);
       return;
     }
     const parsed = this.adapter.parse(raw, this.resolvedFormat());
-    if (parsed && this.adapter.isValid(parsed) && !this.isOutOfBounds(parsed)) {
-      this.commitValue(this.withKeptDate(parsed));
+    if (!parsed || !this.adapter.isValid(parsed)) {
+      this.refuse(this.refusals.unreadable(this.resolvedFormat()));
+      return;
     }
+    const outOfBounds = this.outOfBounds(parsed);
+    if (outOfBounds) {
+      this.refuse(outOfBounds);
+      return;
+    }
+    this.commitValue(this.withKeptDate(parsed));
+    this.refuse(null);
   }
 
   /**
@@ -394,9 +526,60 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     );
   }
 
-  protected onBlur(): void {
+  protected onBlur(event: FocusEvent): void {
     this.touch.emit();
+
+    // A refused entry STAYS. Blur used to overwrite it with the last committed date,
+    // which is how a refusal became invisible: `07.09.1994` typed into a field bounded
+    // to 2026 simply turned back into the old date the moment the user moved on, with
+    // nothing to say it had been refused or why. The text is what they have to
+    // correct, and the value underneath was never changed. Focus moving INTO the open
+    // panel is not leaving — a day click there is about to replace the text anyway;
+    // `onPaneFocusOut` and `closeOverlay` decide when that visit ends.
+    if (this.refusal()) {
+      const next = event.relatedTarget as Node | null;
+      if (!next || !this.overlayRef?.overlayElement.contains(next)) this.reveal();
+      return;
+    }
+
     // Reformat to canonical on blur (cleans up `1/5/25` → `1/5/2025`).
+    this.settleText();
+  }
+
+  /**
+   * Enter is "this is the date". A date the picker committed is re-formatted
+   * canonical and the panel closes; text it refused turns invalid on the spot —
+   * border, `aria-invalid`, the reason announced — and emits `touch`, which is what
+   * makes a surrounding `<wr-form-field>` show its message. The panel closes in both
+   * cases: it opens directly below the field, which is exactly where that message
+   * renders.
+   *
+   * Never `preventDefault`: Enter inside a `<form>` still submits it, and a form
+   * bound to this picker is invalid while the refusal stands.
+   */
+  private onEnter(): void {
+    // Read before closing: a close can put the refusal on show itself.
+    const wasShown = this.revealed();
+    if (this.overlayRef) this.closeOverlay();
+    const refusal = this.refusal();
+    if (!refusal) {
+      this.settleText();
+      return;
+    }
+    this.touch.emit();
+    if (wasShown) {
+      // Already on show, so the live region already holds this sentence — and a live
+      // region does not repeat text it already has. Blank it briefly so a second
+      // Enter is answered rather than met with silence.
+      this.silenced.set(true);
+      clearTimeout(this.silenceTimer);
+      this.silenceTimer = setTimeout(() => this.silenced.set(false), SILENCE_MS);
+    }
+    this.revealed.set(true);
+  }
+
+  /** Show the committed value canonically, or commit an emptied field as `null`. */
+  private settleText(): void {
     const v = this.value();
     if (v && this.adapter.isValid(v)) {
       this.text.set(this.adapter.format(v, this.resolvedFormat()));
@@ -404,6 +587,45 @@ export class WrDatePicker implements FormValueControl<Date | null> {
       this.commitValue(null);
     }
   }
+
+  /**
+   * Record why the current text was not committed, or that it was. Clearing a
+   * refusal also takes it off show, so the next one waits for Enter or blur again.
+   */
+  private refuse(next: WrDateInputError | null): void {
+    this.refusal.set(next);
+    if (!next) this.revealed.set(false);
+    this.reportToForm(next ? [next] : []);
+  }
+
+  /** Put a standing refusal on show — the user has left the field. */
+  private reveal(): void {
+    if (this.refusal()) this.revealed.set(true);
+  }
+
+  /**
+   * The bound form was reset while the model stayed where it was — Angular has thrown
+   * the parse error away, so the text it was about goes too, and the field shows the
+   * value again. (A reset that MOVES the model reaches the text through the sync
+   * effect instead, like any other outside write.)
+   */
+  private onFormReset(): void {
+    if (!this.refusal()) return;
+    const v = this.value();
+    this.text.set(v && this.adapter.isValid(v) ? this.adapter.format(v, this.resolvedFormat()) : '');
+    this.refuse(null);
+  }
+
+  /**
+   * Focus leaving the open panel. Moving within it, or back to the text field, is
+   * still the same visit; anywhere else — the page, the trigger, the next control — is
+   * leaving, so a refusal that waited while focus went into the panel shows now.
+   */
+  private readonly onPaneFocusOut = (event: FocusEvent): void => {
+    const next = event.relatedTarget as Node | null;
+    if (next && (this.overlayRef?.overlayElement.contains(next) || next === this.inputEl().nativeElement)) return;
+    this.reveal();
+  };
 
   /** Called by the input's click — opens the overlay if it isn't open already. */
   protected openOnInput(): void {
@@ -435,6 +657,11 @@ export class WrDatePicker implements FormValueControl<Date | null> {
    */
   protected onFieldKey(event: KeyboardEvent): void {
     if (this.disabled()) return;
+
+    if (event.key === 'Enter') {
+      this.onEnter();
+      return;
+    }
 
     const vertical = event.key === 'ArrowDown' || event.key === 'ArrowUp';
     if (!vertical) return;
@@ -510,6 +737,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     pane.setAttribute('role', 'dialog');
     pane.setAttribute('aria-modal', 'false');
     pane.setAttribute('aria-label', this.resolvedPanelLabel());
+    pane.addEventListener('focusout', this.onPaneFocusOut);
 
     this.overlayOpen.set(true);
 
@@ -599,6 +827,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   private commit(next: Date): void {
     this.text.set(this.adapter.format(next, this.resolvedFormat()));
     this.commitValue(next);
+    this.refuse(null);
   }
 
   /** Push a value to the model while remembering it, so the sync effect treats
@@ -632,9 +861,18 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     const pane = this.overlayRef?.overlayElement;
     const inside = !!pane && pane.contains(document.activeElement);
 
+    // Taking the pane out of the document moves focus without the user doing anything,
+    // so it must not read as focus leaving the panel.
+    pane?.removeEventListener('focusout', this.onPaneFocusOut);
     this.dispose();
 
     if (inside) this.restoreFocus();
+
+    // A panel that closes is the end of the visit to it. Unless focus is back in the
+    // field — Escape handing it there, or a close while the user never left it — the
+    // user is somewhere else now, and a refusal that waited for the panel shows. A pick
+    // has already cleared its refusal, so this only ever reaches text still refused.
+    if (document.activeElement !== this.inputEl().nativeElement) this.reveal();
   }
 
   private dispose(): void {
@@ -651,18 +889,12 @@ export class WrDatePicker implements FormValueControl<Date | null> {
 
   // Helpers
 
-  private isOutOfBounds(date: Date): boolean {
-    if (this.mode() === 'time') return false;
-    const min = this.min();
-    if (min && this.adapter.compareDate(date, min) < 0) return true;
-    const max = this.max();
-    if (max && this.adapter.compareDate(date, max) > 0) return true;
+  private outOfBounds(date: Date): WrDateInputError | null {
+    if (this.mode() === 'time') return null;
     // Covers `dateFilter` as well as the bounds — the calendar disables filtered
     // days, so accepting them from the keyboard made the two entry paths
     // disagree. Same check, same reason, as `wr-date-range-picker`.
-    const filter = this.dateFilter();
-    if (filter && !filter(date)) return true;
-    return false;
+    return this.refusals.outOfBounds(date, { min: this.min(), max: this.max(), filter: this.dateFilter() });
   }
 
   private sameDate(a: Date | null, b: Date | null): boolean {

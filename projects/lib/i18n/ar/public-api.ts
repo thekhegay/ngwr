@@ -114,6 +114,8 @@ export const wrAr: WrI18nCatalog = {
     oneOf: 'اختر إحدى القيم المسموح بها.',
     minDate: 'اختر تاريخًا لاحقًا.',
     maxDate: 'اختر تاريخًا سابقًا.',
+    dateFormat: 'التنسيق المتوقع: {{example}}',
+    dateFilter: 'هذا التاريخ غير متاح.',
   },
   select: {
     // The combobox's own accessible name, also read by `wr-tree` and

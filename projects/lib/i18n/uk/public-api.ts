@@ -122,6 +122,8 @@ export const wrUk: WrI18nCatalog = {
     oneOf: 'Виберіть одне з допустимих значень.',
     minDate: 'Виберіть пізнішу дату.',
     maxDate: 'Виберіть ранішу дату.',
+    dateFormat: 'Очікуваний формат: {{example}}',
+    dateFilter: 'Ця дата недоступна.',
   },
   select: {
     label: 'Вибрати',

@@ -116,6 +116,8 @@ export const wrNl: WrI18nCatalog = {
     oneOf: 'Kies een van de toegestane waarden.',
     minDate: 'Kies een latere datum.',
     maxDate: 'Kies een eerdere datum.',
+    dateFormat: 'Verwachte notatie: {{example}}',
+    dateFilter: 'Deze datum is niet beschikbaar.',
   },
   select: {
     label: 'Selecteren',

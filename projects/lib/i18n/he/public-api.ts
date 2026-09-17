@@ -117,6 +117,8 @@ export const wrHe: WrI18nCatalog = {
     oneOf: 'יש לבחור אחד מהערכים המותרים.',
     minDate: 'יש לבחור תאריך מאוחר יותר.',
     maxDate: 'יש לבחור תאריך מוקדם יותר.',
+    dateFormat: 'התבנית הנדרשת: {{example}}',
+    dateFilter: 'תאריך זה אינו זמין.',
   },
   select: {
     label: 'בחירה',

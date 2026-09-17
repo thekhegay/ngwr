@@ -114,6 +114,8 @@ export const wrTr: WrI18nCatalog = {
     oneOf: 'İzin verilen değerlerden birini seçin.',
     minDate: 'Daha ileri bir tarih seçin.',
     maxDate: 'Daha erken bir tarih seçin.',
+    dateFormat: 'Beklenen biçim: {{example}}',
+    dateFilter: 'Bu tarih seçilemez.',
   },
   select: {
     // `role="combobox"` denetiminin erişilebilir adı, yani buyruk değil ad

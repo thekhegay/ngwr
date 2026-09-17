@@ -114,6 +114,8 @@ export const wrZh: WrI18nCatalog = {
     oneOf: '请从允许的值中选择。',
     minDate: '请选择更晚的日期。',
     maxDate: '请选择更早的日期。',
+    dateFormat: '格式应为：{{example}}',
+    dateFilter: '此日期不可选。',
   },
   select: {
     label: '选择',

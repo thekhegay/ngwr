@@ -1,6 +1,8 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormField, form } from '@angular/forms/signals';
 
 import { provideWrDateAdapter } from 'ngwr/date';
 import { WrFormField } from 'ngwr/form';
@@ -724,3 +726,476 @@ describe('WrDateRangePicker follows a direction flip while its panel is open', (
     expect(overlayHost().getAttribute('dir')).toBe('ltr');
   });
 });
+
+/**
+ * The range picker's half of the refusal work — see `date-picker.spec.ts` for the
+ * single picker and for why a refusal has to be SHOWN. What only a range can get
+ * wrong is which end a refusal belongs to: the end input is hidden from a surrounding
+ * field on purpose, so its state has to be its own, and committing one end must not
+ * throw away the text the user is still correcting in the other.
+ */
+describe('WrDateRangePicker refusing typed text', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-date-range-picker')!;
+  const fields = (): HTMLInputElement[] => [...root().querySelectorAll<HTMLInputElement>('input.wr-input')];
+  const startField = (): HTMLInputElement => fields()[0];
+  const endField = (): HTMLInputElement => fields()[1];
+  const period = (): WrDateRange | null => fixture.componentInstance.period();
+  const announced = (): string => root().querySelector('[role="status"]')!.textContent.trim();
+  const year = new Date().getFullYear();
+
+  const type = (field: HTMLInputElement, text: string): void => {
+    field.value = text;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+  };
+  const blurTo = (field: HTMLInputElement, next: Element | null): void => {
+    field.dispatchEvent(new FocusEvent('blur', { relatedTarget: next }));
+    fixture.detectChanges();
+  };
+  const enter = (field: HTMLInputElement): void => {
+    field.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    fixture.detectChanges();
+  };
+  const invalid = (field: HTMLInputElement): string | null => field.getAttribute('aria-invalid');
+  const describedAs = (field: HTMLInputElement): string | null => {
+    const id = field.getAttribute('aria-describedby');
+    return id ? (document.getElementById(id)?.textContent?.trim() ?? `<missing #${id}>`) : null;
+  };
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.period.set([new Date(2025, 0, 10), new Date(2025, 0, 20)]);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps a refused start on the hop to the end, and marks only the start', () => {
+    type(startField(), '07.09.19');
+    expect(invalid(startField())).toBeNull();
+
+    blurTo(startField(), endField());
+
+    expect([startField().value, endField().value]).toEqual(['07.09.19', '20.01.2025']);
+    expect(invalid(startField())).toBe('true');
+    expect(invalid(endField())).toBeNull();
+    expect(describedAs(startField())).toBe(`Expected format: 31.12.${year}`);
+    expect(host().classList.contains('wr-date-range-picker--invalid')).toBe(true);
+    expect(period()?.[0]?.getDate()).toBe(10);
+    // The hop is not leaving the pair, so a bound field is not touched yet.
+    expect(fixture.componentInstance.touched()).toBe(0);
+  });
+
+  it('marks the END input for an unreadable end — the field hides that input, so the picker owns it', () => {
+    type(endField(), '07.09.19');
+    blurTo(endField(), null);
+
+    expect(invalid(endField())).toBe('true');
+    expect(invalid(startField())).toBeNull();
+    expect(describedAs(endField())).toBe(`Expected format: 31.12.${year}`);
+    expect(endField().value).toBe('07.09.19');
+    expect(period()?.[1]?.getDate()).toBe(20);
+    expect(fixture.componentInstance.touched()).toBe(1);
+  });
+
+  it('does not throw away refused text when the OTHER end commits', () => {
+    type(startField(), '07.09.19');
+    blurTo(startField(), endField());
+    type(endField(), '25.01.2025');
+    blurTo(endField(), null);
+
+    expect([startField().value, endField().value]).toEqual(['07.09.19', '25.01.2025']);
+    expect(period()?.[1]?.getDate()).toBe(25);
+    expect(invalid(startField())).toBe('true');
+  });
+
+  it('shows both ends on Enter, names the bound, and emits touch', () => {
+    fixture.componentInstance.minDate.set(new Date(2025, 0, 5));
+    fixture.detectChanges();
+
+    type(startField(), '07.09.1994');
+    type(endField(), 'soon');
+    enter(endField());
+
+    expect(invalid(startField())).toBe('true');
+    expect(invalid(endField())).toBe('true');
+    expect(announced()).toBe(`Choose a later date. Expected format: 31.12.${year}`);
+    expect(fixture.componentInstance.touched()).toBe(1);
+    expect(period()?.map(d => d?.getDate())).toEqual([10, 20]);
+  });
+
+  it('clears an end the moment its text commits, and settles the range on Enter', () => {
+    type(startField(), '07.09.19');
+    enter(startField());
+    expect(invalid(startField())).toBe('true');
+
+    type(startField(), '12.01.2025');
+    expect(invalid(startField())).toBeNull();
+    expect(announced()).toBe('');
+    expect(host().classList.contains('wr-date-range-picker--invalid')).toBe(false);
+
+    enter(startField());
+    expect(period()?.map(d => d?.getDate())).toEqual([12, 20]);
+  });
+
+  it('lets a range picked in the panel replace refused text', () => {
+    type(startField(), '07.09.19');
+    blurTo(startField(), null);
+    root().querySelector<HTMLButtonElement>('.wr-date-picker__trigger')!.click();
+    fixture.detectChanges();
+
+    const day = (n: number): HTMLButtonElement =>
+      [...document.querySelectorAll<HTMLButtonElement>('.wr-calendar__day')].find(
+        c => !c.classList.contains('wr-calendar__day--out-of-month') && c.textContent?.trim() === String(n)
+      )!;
+    day(3).click();
+    fixture.detectChanges();
+    day(8).click();
+    fixture.detectChanges();
+
+    expect([startField().value, endField().value]).toEqual(['03.01.2025', '08.01.2025']);
+    expect(invalid(startField())).toBeNull();
+    expect(announced()).toBe('');
+  });
+
+  it('lets a range written from outside replace refused text', () => {
+    type(endField(), '07.09.19');
+    blurTo(endField(), null);
+
+    fixture.componentInstance.period.set([new Date(2025, 1, 1), new Date(2025, 1, 2)]);
+    fixture.detectChanges();
+
+    expect([startField().value, endField().value]).toEqual(['01.02.2025', '02.02.2025']);
+    expect(invalid(endField())).toBeNull();
+  });
+
+  it('announces through a live region of its own block', () => {
+    type(endField(), '07.09.19');
+    enter(endField());
+
+    const region = root().querySelector('[role="status"]')!;
+    expect(region.classList.contains('wr-date-range-picker__sr-only')).toBe(true);
+    expect(region.textContent.trim()).toBe(`Expected format: 31.12.${year}`);
+  });
+
+  describe('leaving by way of the open panel', () => {
+    // The same detour as the single picker's: the blur INTO the panel waits, and
+    // wherever focus goes from the panel — other than back into one of the two
+    // fields — the pair has been left.
+    let outside: HTMLInputElement;
+
+    /** Type refused text into the END field, then walk focus into the calendar. */
+    const intoPanel = async (): Promise<void> => {
+      endField().focus();
+      endField().click();
+      fixture.detectChanges();
+      type(endField(), '07.09.19');
+      endField().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(document.activeElement?.closest('.wr-date-picker-overlay')).not.toBeNull();
+      expect(invalid(endField())).toBeNull();
+      expect(announced()).toBe('');
+    };
+
+    beforeEach(() => {
+      outside = document.createElement('input');
+      document.body.appendChild(outside);
+    });
+    afterEach(() => outside.remove());
+
+    it('shows it when a click outside closes the panel focus was in', async () => {
+      await intoPanel();
+
+      outside.focus();
+      document.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      document.dispatchEvent(new PointerEvent('click', { bubbles: true }));
+      fixture.detectChanges();
+
+      expect(document.querySelector('.wr-calendar')).toBeNull();
+      expect(endField().value).toBe('07.09.19');
+      expect(period()?.[1]?.getDate()).toBe(20);
+      expect(invalid(endField())).toBe('true');
+      expect(host().classList.contains('wr-date-range-picker--invalid')).toBe(true);
+      expect(announced()).toBe(`Expected format: 31.12.${year}`);
+    });
+
+    it('shows it when focus leaves the panel and the panel stays up', async () => {
+      await intoPanel();
+
+      outside.focus();
+      fixture.detectChanges();
+
+      expect(document.querySelector('.wr-calendar')).not.toBeNull();
+      expect(invalid(endField())).toBe('true');
+    });
+
+    it('shows the END when focus comes back from the panel to the START field', async () => {
+      await intoPanel();
+
+      startField().focus();
+      fixture.detectChanges();
+
+      expect(invalid(endField())).toBe('true');
+      expect(invalid(startField())).toBeNull();
+    });
+
+    it('shows it when Escape hands focus to the trigger that opened the panel', async () => {
+      root().querySelector<HTMLButtonElement>('.wr-date-picker__trigger')!.focus();
+      root().querySelector<HTMLButtonElement>('.wr-date-picker__trigger')!.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      endField().focus();
+      type(endField(), '07.09.19');
+      endField().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(invalid(endField())).toBeNull();
+
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+
+      expect(document.activeElement?.classList.contains('wr-date-picker__trigger')).toBe(true);
+      expect(invalid(endField())).toBe('true');
+      expect(announced()).toBe(`Expected format: 31.12.${year}`);
+    });
+
+    it('stays quiet when Escape hands focus back to the field that is still being corrected', async () => {
+      await intoPanel();
+
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+
+      expect(document.activeElement).toBe(endField());
+      expect(invalid(endField())).toBeNull();
+      expect(announced()).toBe('');
+    });
+  });
+});
+
+@Component({
+  imports: [WrDateRangePicker],
+  template: `
+    <wr-date-range-picker #picker [(value)]="period" format="dd.MM.yyyy" />
+    <output>{{ describe(picker.inputErrors()) }}</output>
+  `,
+})
+class ErrorReadingRangeHost {
+  readonly period = signal<WrDateRange | null>([new Date(2025, 0, 10), new Date(2025, 0, 20)]);
+  describe(errors: readonly { end: string; kind: string }[]): string {
+    return errors.map(e => `${e.end}:${e.kind}`).join(',') || 'none';
+  }
+}
+
+describe('WrDateRangePicker inputErrors', () => {
+  it('lists the refusals the picker is SHOWING, end by end', () => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    const fixture = TestBed.createComponent(ErrorReadingRangeHost);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    const [start, end] = [...el.querySelectorAll<HTMLInputElement>('input')];
+    const output = (): string => el.querySelector('output')!.textContent.trim();
+    const type = (field: HTMLInputElement, text: string): void => {
+      field.value = text;
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+      fixture.detectChanges();
+    };
+
+    // Typing is not finishing: nothing on show, nothing listed.
+    type(end, '07.09.19');
+    expect(output()).toBe('none');
+
+    // The hop to the other end leaves the end.
+    end.dispatchEvent(new FocusEvent('blur', { relatedTarget: start }));
+    fixture.detectChanges();
+    expect(output()).toBe('end:dateFormat');
+
+    type(start, 'soon');
+    expect(output()).toBe('end:dateFormat');
+    start.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    fixture.detectChanges();
+    expect(output()).toBe('start:dateFormat,end:dateFormat');
+
+    type(end, '25.01.2025');
+    expect(output()).toBe('start:dateFormat');
+    fixture.destroy();
+  });
+});
+
+@Component({
+  imports: [WrDateRangePicker, WrFormField, ReactiveFormsModule],
+  template: `
+    <wr-form-field label="Trip dates">
+      <wr-date-range-picker [formControl]="trip" format="dd.MM.yyyy" />
+    </wr-form-field>
+  `,
+})
+class ReactiveRangeHost {
+  readonly trip = new FormControl<WrDateRange | null>([new Date(2025, 0, 10), new Date(2025, 0, 20)]);
+}
+
+describe('WrDateRangePicker refusals and forms', () => {
+  it('makes the bound control invalid for either end, and marks the end input that is wrong', async () => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    const fixture = TestBed.createComponent(ReactiveRangeHost);
+    fixture.detectChanges();
+    const [start, end] = [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>('input')];
+
+    end.value = '07.09.19';
+    end.dispatchEvent(new Event('input', { bubbles: true }));
+    end.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const trip = fixture.componentInstance.trip;
+    expect(trip.errors?.['dateFormat']).toMatchObject({ kind: 'dateFormat', end: 'end' });
+    expect(trip.value?.[1]?.getDate()).toBe(20);
+    expect(end.getAttribute('aria-invalid')).toBe('true');
+    // The START input carries the field's own state — the field is invalid, and
+    // `wrDateRangeEnd` leaves its message announced from the start, as it always has.
+    expect(start.getAttribute('aria-invalid')).toBe('true');
+
+    end.value = '22.01.2025';
+    end.dispatchEvent(new Event('input', { bubbles: true }));
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(trip.errors).toBeNull();
+    expect(end.getAttribute('aria-invalid')).toBeNull();
+    expect(start.getAttribute('aria-invalid')).toBeNull();
+    fixture.destroy();
+  });
+
+  /** Type into one field and let the form catch up — its parse-error validator runs in an effect. */
+  const typeInto = async (fixture: ComponentFixture<unknown>, field: HTMLInputElement, text: string): Promise<void> => {
+    field.value = text;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+  const inputsOf = (fixture: ComponentFixture<unknown>): HTMLInputElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>('input'),
+  ];
+
+  it('keeps the control invalid for a refused end while the OTHER end commits', async () => {
+    // Angular clears a control's parse errors whenever its model moves — and
+    // committing the start moves the model. The end still holds text that is not
+    // its date, so the form has to hear about it again, or it goes valid and
+    // submits the old end under the user's garbage.
+    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    const fixture = TestBed.createComponent(ReactiveRangeHost);
+    fixture.detectChanges();
+    const [start, end] = inputsOf(fixture);
+    const trip = fixture.componentInstance.trip;
+
+    await typeInto(fixture, end, '07.09.19');
+    expect(Object.keys(trip.errors ?? {})).toEqual(['dateFormat']);
+
+    await typeInto(fixture, start, '12.01.2025');
+
+    expect(trip.value?.map(d => d?.getDate())).toEqual([12, 20]);
+    expect(trip.errors?.['dateFormat']).toMatchObject({ kind: 'dateFormat', end: 'end' });
+    expect(trip.valid).toBe(false);
+    expect(end.value).toBe('07.09.19');
+    fixture.destroy();
+  });
+
+  it('keeps a Signal Forms field invalid for a refused end while the OTHER end commits', async () => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    const fixture = TestBed.createComponent(SignalRangeHost);
+    fixture.detectChanges();
+    const [start, end] = inputsOf(fixture);
+    const trip = fixture.componentInstance.f.trip;
+
+    await typeInto(fixture, end, '07.09.19');
+    expect(
+      trip()
+        .errors()
+        .map(e => e.kind)
+    ).toEqual(['dateFormat']);
+
+    // Read in the same task as the keystroke, before any effect has run: a Signal Forms
+    // field's parse errors are read straight off the picker, so the form must never be
+    // valid in between — not even for a submit handler running right behind the input.
+    start.value = '12.01.2025';
+    start.dispatchEvent(new Event('input', { bubbles: true }));
+    expect(
+      trip()
+        .value()
+        ?.map(d => d?.getDate())
+    ).toEqual([12, 20]);
+    expect(
+      trip()
+        .errors()
+        .map(e => e.kind)
+    ).toEqual(['dateFormat']);
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(trip().valid()).toBe(false);
+    fixture.destroy();
+  });
+
+  it('puts the range back in both fields when the control is reset to the range it holds', async () => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    const fixture = TestBed.createComponent(ReactiveRangeHost);
+    fixture.detectChanges();
+    const [start, end] = inputsOf(fixture);
+    const trip = fixture.componentInstance.trip;
+
+    await typeInto(fixture, end, '07.09.19');
+    end.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(end.getAttribute('aria-invalid')).toBe('true');
+
+    trip.reset(trip.value);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(trip.errors).toBeNull();
+    expect([start.value, end.value]).toEqual(['10.01.2025', '20.01.2025']);
+    expect(end.getAttribute('aria-invalid')).toBeNull();
+    fixture.destroy();
+  });
+
+  it('puts the range back when a reset writes an EQUAL range — fresh copies of the same days', async () => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    const fixture = TestBed.createComponent(ReactiveRangeHost);
+    fixture.detectChanges();
+    const [start, end] = inputsOf(fixture);
+    const trip = fixture.componentInstance.trip;
+
+    await typeInto(fixture, start, '07.09.19');
+    start.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    trip.reset([new Date(2025, 0, 10), new Date(2025, 0, 20)]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(trip.errors).toBeNull();
+    expect([start.value, end.value]).toEqual(['10.01.2025', '20.01.2025']);
+    expect(start.getAttribute('aria-invalid')).toBeNull();
+    fixture.destroy();
+  });
+});
+
+@Component({
+  imports: [WrDateRangePicker, WrFormField, FormField],
+  template: `
+    <wr-form-field label="Trip dates">
+      <wr-date-range-picker [formField]="f.trip" format="dd.MM.yyyy" />
+    </wr-form-field>
+  `,
+})
+class SignalRangeHost {
+  private readonly model = signal<{ trip: WrDateRange | null }>({
+    trip: [new Date(2025, 0, 10), new Date(2025, 0, 20)],
+  });
+  readonly f = form(this.model);
+}

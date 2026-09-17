@@ -114,6 +114,8 @@ export const wrKo: WrI18nCatalog = {
     oneOf: '허용된 값 중 하나를 선택하세요.',
     minDate: '더 늦은 날짜를 선택하세요.',
     maxDate: '더 빠른 날짜를 선택하세요.',
+    dateFormat: '입력 형식: {{example}}',
+    dateFilter: '이 날짜는 선택할 수 없습니다.',
   },
   select: {
     label: '선택',

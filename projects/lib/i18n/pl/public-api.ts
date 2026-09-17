@@ -120,6 +120,8 @@ export const wrPl: WrI18nCatalog = {
     oneOf: 'Wybierz jedną z dozwolonych wartości.',
     minDate: 'Wybierz późniejszą datę.',
     maxDate: 'Wybierz wcześniejszą datę.',
+    dateFormat: 'Oczekiwany format: {{example}}',
+    dateFilter: 'Ta data jest niedostępna.',
   },
   select: {
     // Dostępna nazwa elementu `role="combobox"`, więc rzeczownik, a nie polecenie

@@ -114,6 +114,8 @@ export const wrCs: WrI18nCatalog = {
     oneOf: 'Vyberte jednu z povolených hodnot.',
     minDate: 'Vyberte pozdější datum.',
     maxDate: 'Vyberte dřívější datum.',
+    dateFormat: 'Očekávaný formát: {{example}}',
+    dateFilter: 'Toto datum není k dispozici.',
   },
   select: {
     label: 'Vybrat',

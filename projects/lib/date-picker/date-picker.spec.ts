@@ -1,9 +1,12 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormField, form } from '@angular/forms/signals';
 
 import { provideWrDateAdapter } from 'ngwr/date';
 import type { WrDateFormat } from 'ngwr/date';
+import { WrFormField } from 'ngwr/form';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
@@ -422,13 +425,18 @@ describe('WrDatePicker', () => {
     expect(picked()).toBeNull();
   });
 
-  it('keeps the last valid value while a partial entry is being typed, and restores it on blur', () => {
+  it('keeps the last valid value while a partial entry is being typed, and keeps the entry on blur', () => {
     type('20.0');
     expect(picked()?.getDate()).toBe(15);
 
+    // Blur used to write `15.01.2025` back over the entry, which is how a refusal
+    // vanished without a word. The value is still untouched; the text stays for
+    // the user to correct, and the field now says it was refused.
     field().dispatchEvent(new Event('blur'));
     fixture.detectChanges();
-    expect(field().value).toBe('15.01.2025');
+    expect(field().value).toBe('20.0');
+    expect(picked()?.getDate()).toBe(15);
+    expect(field().getAttribute('aria-invalid')).toBe('true');
   });
 
   it('emits touch on blur so a bound field can mark itself touched', () => {
@@ -953,7 +961,12 @@ describe('WrDatePicker retyping its own value', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.picked()!.getDate()).toBe(15);
-    expect(input.value).toBe('15.3.2026');
+    // The unreadable text stays, marked invalid, and the reason shows the order the
+    // locale wants — rather than the old date silently coming back on blur.
+    expect(input.value).toBe('3/15/2026');
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+    const reason = (fixture.nativeElement as HTMLElement).querySelector('[role="status"]')!.textContent.trim();
+    expect(reason).toBe(`Expected format: 31.12.${new Date().getFullYear()}`);
     fixture.destroy();
   });
 
@@ -1145,5 +1158,600 @@ describe('WrDatePicker follows a direction flip while its panel is open', () => 
     flipTo('ltr');
 
     expect(overlayHost().getAttribute('dir')).toBe('ltr');
+  });
+});
+
+/**
+ * Text the picker will not commit — unreadable, out of `min` / `max`, or rejected by
+ * `dateFilter` — and what the user is told about it.
+ *
+ * The refusal itself is old and correct: the value is never guessed at. What this
+ * pins is that it is no longer SILENT. It was: `07.09.1994` typed into a field
+ * bounded to 2026 changed nothing on Enter, and turned back into the old date on
+ * blur, with no border, no `aria-invalid` and no reason anywhere. Every case below
+ * drives the field the way a person does and reads the result off the DOM — the
+ * input's ARIA, the host's public `--invalid` class, and the text a screen reader
+ * would reach through `aria-describedby`.
+ *
+ * What jsdom cannot hold: the danger border is a stylesheet rule, and whether a
+ * screen reader actually SPEAKS a `role="status"` change is up to the reader. The
+ * border was measured in Chromium instead; the live region is asserted as text.
+ */
+describe('WrDatePicker refusing typed text', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-date-picker')!;
+  const field = (): HTMLInputElement => root().querySelector<HTMLInputElement>('input.wr-input')!;
+  const trigger = (): HTMLButtonElement => root().querySelector<HTMLButtonElement>('.wr-date-picker__trigger')!;
+  const calendar = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-calendar');
+  const picked = (): Date | null => fixture.componentInstance.picked();
+  const year = new Date().getFullYear();
+
+  const type = (text: string): void => {
+    field().value = text;
+    field().dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+  };
+  const enter = (): void => {
+    field().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+  const blurTo = (next: Element | null): void => {
+    field().dispatchEvent(new FocusEvent('blur', { relatedTarget: next }));
+    fixture.detectChanges();
+  };
+  const open = (): void => {
+    trigger().click();
+    fixture.detectChanges();
+  };
+
+  /** What `aria-describedby` resolves to IN THE DOCUMENT — an id naming nothing describes nothing. */
+  const description = (): string | null => {
+    const ids = field().getAttribute('aria-describedby');
+    if (!ids) return null;
+    return ids
+      .split(' ')
+      .map(id => {
+        const target = document.getElementById(id);
+        if (!target) throw new Error(`aria-describedby names "${id}", which is not in the document`);
+        return target.textContent?.trim() ?? '';
+      })
+      .join(' | ');
+  };
+  const announced = (): string => root().querySelector('[role="status"]')!.textContent.trim();
+
+  /** Nothing on show: no ARIA, no class, nothing said. */
+  const expectQuiet = (): void => {
+    expect(field().hasAttribute('aria-invalid')).toBe(false);
+    expect(field().hasAttribute('aria-describedby')).toBe(false);
+    expect(host().classList.contains('wr-date-picker--invalid')).toBe(false);
+    expect(announced()).toBe('');
+  };
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('refuses unreadable text without touching the value — and waits for the user to finish', () => {
+    // Every date is unreadable for most of the time it takes to type one, so a
+    // field that went red on the first digit would be telling the user off for
+    // typing. The refusal exists from this keystroke; it is not yet on show.
+    type('07.09');
+
+    expect(field().value).toBe('07.09');
+    expect(picked()?.getDate()).toBe(15);
+    expectQuiet();
+  });
+
+  it('shows the refusal on Enter: invalid, described, announced — and emits touch', () => {
+    type('07.09.19');
+    enter();
+
+    expect(field().value).toBe('07.09.19');
+    expect(picked()?.getDate()).toBe(15);
+    expect(field().getAttribute('aria-invalid')).toBe('true');
+    expect(host().classList.contains('wr-date-picker--invalid')).toBe(true);
+    expect(announced()).toBe(`Expected format: 31.12.${year}`);
+    expect(description()).toBe(`Expected format: 31.12.${year}`);
+    // `touch` is what makes a surrounding <wr-form-field> show its message.
+    expect(fixture.componentInstance.touched()).toBe(1);
+  });
+
+  it('shows the refusal when focus leaves the field, and KEEPS the text', () => {
+    type('07.09.19');
+    blurTo(null);
+
+    expect(field().value).toBe('07.09.19');
+    expect(picked()?.getDate()).toBe(15);
+    expect(field().getAttribute('aria-invalid')).toBe('true');
+    expect(host().classList.contains('wr-date-picker--invalid')).toBe(true);
+    expect(announced()).toBe(`Expected format: 31.12.${year}`);
+  });
+
+  it('does not show it when focus moves into the open panel — a pick there replaces the text', () => {
+    open();
+    type('07.09.19');
+    blurTo(document.querySelector('.wr-calendar__day'));
+
+    expect(field().hasAttribute('aria-invalid')).toBe(false);
+    expect(announced()).toBe('');
+  });
+
+  describe('leaving by way of the open panel', () => {
+    // Moving INTO the panel is not leaving, which is why the refusal waits there.
+    // But the panel is a detour: wherever focus goes from it, other than back to the
+    // field, the user has left — and a refusal that waited for them has to show, or
+    // the field keeps text that is not the value with nothing saying so.
+    let outside: HTMLInputElement;
+
+    /** Type refused text into the field, then walk focus into the calendar. */
+    const intoPanel = async (): Promise<void> => {
+      field().focus();
+      field().click();
+      fixture.detectChanges();
+      type('07.09.19');
+      field().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(document.activeElement?.closest('.wr-date-picker-overlay')).not.toBeNull();
+      expectQuiet();
+    };
+    const expectShown = (): void => {
+      expect(field().value).toBe('07.09.19');
+      expect(picked()?.getDate()).toBe(15);
+      expect(field().getAttribute('aria-invalid')).toBe('true');
+      expect(host().classList.contains('wr-date-picker--invalid')).toBe(true);
+      expect(announced()).toBe(`Expected format: 31.12.${year}`);
+    };
+
+    beforeEach(() => {
+      outside = document.createElement('input');
+      document.body.appendChild(outside);
+    });
+    afterEach(() => outside.remove());
+
+    it('shows it when a click outside closes the panel focus was in', async () => {
+      await intoPanel();
+
+      // A real pointer moves focus first, then the click closes the panel.
+      outside.focus();
+      document.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      document.dispatchEvent(new PointerEvent('click', { bubbles: true }));
+      fixture.detectChanges();
+
+      expect(calendar()).toBeNull();
+      expectShown();
+    });
+
+    it('shows it when focus leaves the panel and the panel stays up', async () => {
+      await intoPanel();
+
+      outside.focus();
+      fixture.detectChanges();
+
+      expect(calendar()).not.toBeNull();
+      expectShown();
+    });
+
+    it('shows it when Escape hands focus to the trigger that opened the panel, not to the field', async () => {
+      // Opened from the trigger, so that is where a close from inside the panel hands
+      // focus back. No focus leaves the panel on the way — the pane is simply gone —
+      // so it is the CLOSE that has to say the visit is over.
+      trigger().focus();
+      open();
+      await fixture.whenStable();
+      field().focus();
+      type('07.09.19');
+      field().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(document.activeElement?.closest('.wr-date-picker-overlay')).not.toBeNull();
+      expectQuiet();
+
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+
+      expect(calendar()).toBeNull();
+      expect(document.activeElement).toBe(trigger());
+      expectShown();
+    });
+
+    it('stays quiet when Escape hands focus back to the field — the user is there again', async () => {
+      await intoPanel();
+
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+
+      expect(calendar()).toBeNull();
+      expect(document.activeElement).toBe(field());
+      expectQuiet();
+
+      // …and leaving the field from there shows it, as it always did.
+      blurTo(null);
+      expectShown();
+    });
+
+    it('stays quiet when focus goes from the panel straight back to the field', async () => {
+      await intoPanel();
+
+      field().focus();
+      fixture.detectChanges();
+
+      expectQuiet();
+    });
+  });
+
+  it('names the bound a READABLE date broke, in the same words a form field uses', () => {
+    fixture.componentInstance.min.set(new Date(2025, 0, 10));
+    fixture.componentInstance.max.set(new Date(2025, 0, 20));
+    fixture.componentInstance.dateFilter.set(date => date.getDate() !== 17);
+    fixture.detectChanges();
+
+    // rk's case: `dd.MM.yyyy` reads `07.09.1994` perfectly well; the refusal is the
+    // bound, and saying "unreadable" there would send the user after the wrong fix.
+    type('07.09.1994');
+    enter();
+    expect(announced()).toBe('Choose a later date.');
+
+    type('25.01.2025');
+    expect(announced()).toBe('Choose an earlier date.');
+
+    type('17.01.2025');
+    expect(announced()).toBe('This date is not available.');
+
+    expect(picked()?.getDate()).toBe(15);
+  });
+
+  it('follows the text live once on show, and clears the moment it commits', () => {
+    type('07.09.19');
+    enter();
+    expect(field().getAttribute('aria-invalid')).toBe('true');
+
+    type('20.01.2025');
+
+    expect(picked()?.getDate()).toBe(20);
+    expectQuiet();
+
+    // Cleared means cleared: the next refusal waits for Enter or blur again.
+    type('20.01.20');
+    expectQuiet();
+  });
+
+  it('clears when the field is emptied, which commits null', () => {
+    type('07.09.19');
+    enter();
+    type('');
+
+    expect(picked()).toBeNull();
+    expectQuiet();
+  });
+
+  it('lets a pick from the panel replace refused text', () => {
+    type('07.09.19');
+    blurTo(null);
+    open();
+    const cell = [...document.querySelectorAll<HTMLButtonElement>('.wr-calendar__day')].find(
+      c => !c.classList.contains('wr-calendar__day--out-of-month') && c.textContent?.trim() === '22'
+    )!;
+    cell.click();
+    fixture.detectChanges();
+
+    expect(field().value).toBe('22.01.2025');
+    expectQuiet();
+  });
+
+  it('lets a value written from outside replace refused text', () => {
+    type('07.09.19');
+    blurTo(null);
+
+    fixture.componentInstance.picked.set(new Date(2025, 5, 3));
+    fixture.detectChanges();
+
+    expect(field().value).toBe('03.06.2025');
+    expectQuiet();
+  });
+
+  it('re-formats a committed date on Enter, and closes the panel either way', () => {
+    // The named format reads `1/5/25` and prints `1/5/2025`: Enter visibly settles it.
+    fixture.componentInstance.format.set(null);
+    fixture.detectChanges();
+    open();
+    type('1/5/25');
+    enter();
+
+    expect(field().value).toBe('1/5/2025');
+    expect(calendar()).toBeNull();
+    expectQuiet();
+
+    // The panel opens right below the field, which is where a form field's message
+    // renders — so it closes on a refused Enter too.
+    open();
+    type('07.09.1994');
+    enter();
+    expect(calendar()).toBeNull();
+    expect(announced()).toBe(`Expected format: 12/31/${year}`);
+  });
+
+  it('answers a second Enter on an unchanged refusal, rather than meeting it with silence', async () => {
+    // A live region does not repeat text it already holds, so the second Enter
+    // blanks it first — for a real interval, since two writes in one task reach
+    // the accessibility tree as one.
+    type('07.09.19');
+    enter();
+    expect(announced()).not.toBe('');
+
+    enter();
+    expect(announced()).toBe('');
+
+    await new Promise(resolve => setTimeout(resolve, 150));
+    fixture.detectChanges();
+    expect(announced()).toBe(`Expected format: 31.12.${year}`);
+  });
+
+  it('never calls time-mode text out of bounds — a clock has no date to bound', () => {
+    fixture.componentInstance.mode.set('time');
+    fixture.componentInstance.format.set('HH:mm');
+    fixture.componentInstance.min.set(new Date(2030, 0, 1));
+    fixture.detectChanges();
+
+    type('14:3x');
+    enter();
+    expect(announced()).toBe('Expected format: 18:45');
+
+    type('09:15');
+    expect(picked()?.getHours()).toBe(9);
+    expectQuiet();
+  });
+});
+
+@Component({
+  imports: [WrDatePicker],
+  template: `
+    <wr-date-picker #picker [(value)]="picked" format="dd.MM.yyyy" [min]="min" />
+    <output>{{ picker.inputError()?.kind ?? 'none' }}|{{ picker.inputError()?.message ?? '' }}</output>
+  `,
+})
+class ErrorReadingHost {
+  readonly picked = signal<Date | null>(new Date(2026, 8, 16));
+  readonly min = new Date(2026, 8, 7);
+}
+
+describe('WrDatePicker inputError', () => {
+  it('hands a host the reason the picker is SHOWING, so a rendered message agrees with the border', () => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    const fixture = TestBed.createComponent(ErrorReadingHost);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    const input = el.querySelector<HTMLInputElement>('input')!;
+    const output = (): string => el.querySelector('output')!.textContent.trim();
+    const type = (text: string): void => {
+      input.value = text;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      fixture.detectChanges();
+    };
+
+    expect(output()).toBe('none|');
+
+    // Held back while the user is typing, exactly as the border is: the documented
+    // `@if (picker.inputError())` would otherwise print a scolding on the first digit.
+    type('0');
+    expect(output()).toBe('none|');
+    type('07.09.1994');
+    expect(output()).toBe('none|');
+    expect(fixture.componentInstance.picked()?.getFullYear()).toBe(2026);
+
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    fixture.detectChanges();
+    expect(output()).toBe('minDate|Choose a later date.');
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+
+    // Once on show it follows the text, and a commit clears it.
+    type('07.09.19');
+    expect(output()).toBe(`dateFormat|Expected format: 31.12.${new Date().getFullYear()}`);
+    type('17.09.2026');
+    expect(output()).toBe('none|');
+    fixture.destroy();
+  });
+});
+
+@Component({
+  imports: [WrDatePicker, WrFormField, ReactiveFormsModule],
+  template: `
+    <wr-form-field label="Due">
+      <wr-date-picker [formControl]="due" format="dd.MM.yyyy" />
+    </wr-form-field>
+  `,
+})
+class ReactiveFieldHost {
+  readonly due = new FormControl<Date | null>(new Date(2025, 0, 15));
+}
+
+@Component({
+  imports: [WrDatePicker, WrFormField, FormField],
+  template: `
+    <wr-form-field label="Due">
+      <wr-date-picker [formField]="f.due" format="dd.MM.yyyy" />
+    </wr-form-field>
+  `,
+})
+class SignalFieldHost {
+  private readonly model = signal<{ due: Date | null }>({ due: new Date(2025, 0, 15) });
+  readonly f = form(this.model);
+}
+
+@Component({
+  imports: [WrDatePicker, WrFormField],
+  template: `
+    <wr-form-field label="Due">
+      <wr-date-picker [(value)]="due" format="dd.MM.yyyy" />
+    </wr-form-field>
+  `,
+})
+class UnboundFieldHost {
+  readonly due = signal<Date | null>(new Date(2025, 0, 15));
+}
+
+/**
+ * A refusal reaches the FORM, not only the field's border: the pickers report it
+ * through Angular's parse-error channel, so a form holding refused text is invalid
+ * and cannot quietly submit the old date. And `<wr-form-field>` describes the input
+ * with the reason, whichever of the field and the picker is saying it.
+ */
+describe('WrDatePicker refusals and forms', () => {
+  const year = new Date().getFullYear();
+
+  const setUp = <T>(cmp: new () => T): ReturnType<typeof TestBed.createComponent<T>> => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    const fixture = TestBed.createComponent(cmp);
+    fixture.detectChanges();
+    return fixture;
+  };
+  const input = (fixture: { nativeElement: unknown }): HTMLInputElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input.wr-input')!;
+  const type = async (fixture: ReturnType<typeof setUp>, text: string): Promise<void> => {
+    input(fixture).value = text;
+    input(fixture).dispatchEvent(new Event('input', { bubbles: true }));
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+  const enter = async (fixture: ReturnType<typeof setUp>): Promise<void> => {
+    input(fixture).dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+  const description = (fixture: ReturnType<typeof setUp>): string =>
+    (input(fixture).getAttribute('aria-describedby') ?? '')
+      .split(' ')
+      .filter(Boolean)
+      .map(id => document.getElementById(id)?.textContent?.trim() ?? `<missing #${id}>`)
+      .join(' | ');
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('makes a reactive FormControl invalid with the reason, and leaves its value alone', async () => {
+    const fixture = setUp(ReactiveFieldHost);
+    const due = fixture.componentInstance.due;
+
+    await type(fixture, '07.09.19');
+    expect(due.value?.getDate()).toBe(15);
+    expect(due.errors?.['dateFormat']).toMatchObject({ kind: 'dateFormat', example: `31.12.${year}` });
+    expect(due.valid).toBe(false);
+
+    await enter(fixture);
+    expect(input(fixture).getAttribute('aria-invalid')).toBe('true');
+    expect(description(fixture)).toContain(`Expected format: 31.12.${year}`);
+
+    await type(fixture, '20.01.2025');
+    expect(due.value?.getDate()).toBe(20);
+    expect(due.errors).toBeNull();
+    expect(input(fixture).hasAttribute('aria-invalid')).toBe(false);
+    fixture.destroy();
+  });
+
+  it('puts the value back in the field when the control is reset to the value it already holds', async () => {
+    // A Cancel button: the user typed something unusable and the form goes back to
+    // where it was. The model does not move, so nothing but the reset itself says
+    // the refused text is gone — Angular clears its copy of the error, and the
+    // picker has to drop its own and the text with it, or the field shows garbage
+    // over a valid form.
+    const fixture = setUp(ReactiveFieldHost);
+    const due = fixture.componentInstance.due;
+
+    await type(fixture, '07.09.19');
+    await enter(fixture);
+    expect(due.errors?.['dateFormat']).toBeTruthy();
+
+    due.reset(due.value);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(due.errors).toBeNull();
+    expect(input(fixture).value).toBe('15.01.2025');
+    expect(input(fixture).hasAttribute('aria-invalid')).toBe(false);
+    expect((fixture.nativeElement as HTMLElement).querySelector('[role="status"]')!.textContent.trim()).toBe('');
+    fixture.destroy();
+  });
+
+  it('puts the value back when a reset writes an EQUAL date — a fresh copy of the same day', async () => {
+    const fixture = setUp(ReactiveFieldHost);
+    const due = fixture.componentInstance.due;
+
+    await type(fixture, '07.09.19');
+    await enter(fixture);
+
+    due.reset(new Date(2025, 0, 15));
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(due.errors).toBeNull();
+    expect(input(fixture).value).toBe('15.01.2025');
+    expect(input(fixture).hasAttribute('aria-invalid')).toBe(false);
+    fixture.destroy();
+  });
+
+  it('puts the value back when a Signal Forms field is reset', async () => {
+    const fixture = setUp(SignalFieldHost);
+    const due = fixture.componentInstance.f.due;
+
+    await type(fixture, '07.09.19');
+    await enter(fixture);
+    expect(due().invalid()).toBe(true);
+
+    due().reset();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(due().errors()).toEqual([]);
+    expect(input(fixture).value).toBe('15.01.2025');
+    expect(input(fixture).hasAttribute('aria-invalid')).toBe(false);
+    fixture.destroy();
+  });
+
+  it('joins a Signal Forms field’s errors, and the field says it — once', async () => {
+    const fixture = setUp(SignalFieldHost);
+    const due = fixture.componentInstance.f.due;
+    const el = fixture.nativeElement as HTMLElement;
+
+    await type(fixture, '07.09.19');
+    expect(
+      due()
+        .errors()
+        .map(e => e.kind)
+    ).toEqual(['dateFormat']);
+    expect(due().invalid()).toBe(true);
+
+    await enter(fixture);
+    expect(el.querySelector('.wr-form-field__error')?.textContent?.trim()).toBe(`Expected format: 31.12.${year}`);
+    expect(input(fixture).getAttribute('aria-invalid')).toBe('true');
+    expect(description(fixture)).toBe(`Expected format: 31.12.${year}`);
+    // The field's message is a role="alert"; the picker's own region stays quiet.
+    expect(el.querySelector('[role="status"]')!.textContent.trim()).toBe('');
+
+    await type(fixture, '20.01.2025');
+    expect(due().errors()).toEqual([]);
+    expect(el.querySelector('.wr-form-field__error')).toBeNull();
+    fixture.destroy();
+  });
+
+  it('still says it inside a field bound only by [(value)], which has no control to read', async () => {
+    const fixture = setUp(UnboundFieldHost);
+    const el = fixture.nativeElement as HTMLElement;
+
+    await type(fixture, '07.09.19');
+    await enter(fixture);
+
+    expect(el.querySelector('.wr-form-field__error')).toBeNull();
+    expect(input(fixture).getAttribute('aria-invalid')).toBe('true');
+    expect(description(fixture)).toBe(`Expected format: 31.12.${year}`);
+    // The label still points at the input: the picker stands between wrInput and the
+    // field, and must not cost the field its `for`.
+    const label = el.querySelector<HTMLLabelElement>('label')!;
+    expect(document.getElementById(label.htmlFor)).toBe(input(fixture));
+    fixture.destroy();
   });
 });
