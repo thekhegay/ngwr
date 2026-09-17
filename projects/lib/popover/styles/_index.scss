@@ -124,15 +124,18 @@
   $border: var(--wr-color-outline)
 );
 
-// Tooltip: a known child, and no border faces — the chip's own border colour is
-// overridable per instance through `--wr-tooltip-border`, so painting the faces
-// from the token here would desync the moment anyone retints one. The arrow
-// points AT the trigger and overlaps it, so it is the one inert piece: a
-// hittable arrow would eat clicks meant for the control the tooltip describes.
+// Tooltip: a known child, with the chip's border carried onto the arrow's outward
+// faces. Painted from the `--wr-tooltip-border` HOOK rather than the outline token:
+// the square is the chip's own pseudo-element, so a chip retinted per instance
+// retints its arrow with it. Without the faces the chip's outline stopped at the
+// arrow's base and the tip read as a notch cut out of the border. The arrow points
+// AT the trigger and overlaps it, so it is the one inert piece: a hittable arrow
+// would eat clicks meant for the control the tooltip describes.
 @include arrow.anchored-arrow(
   $pane: '.wr-tooltip-overlay',
   $panel: '.wr-tooltip',
   $background: var(--wr-tooltip-bg),
+  $border: var(--wr-tooltip-border),
   $inert: true
 );
 

@@ -232,8 +232,9 @@ function boxOf(anchor: Anchor): Box {
  *   points at the point from inside the drawing, so without this a pointer scrubbing
  *   above the line lands on the chip and the chart stops hearing it: measured in
  *   Chromium, a scrub along the top of a sparkline showed 9 of its 12 values. Asked on
- *   every pointer event while a chip is up, over the chip included; straight up from a
- *   point onto its chip stays on that point, so the chip is still hoverable.
+ *   every pointer event while a chip is up, wherever the pointer is over the chart or its
+ *   own chip; straight up from a point onto its chip stays on that point, so the chip is
+ *   still hoverable. Anywhere else the chip closes after the usual grace.
  *
  * @internal
  */
@@ -427,18 +428,31 @@ export function useChartTooltip(
     const { clientX: x, clientY: y } = event;
     pointer = { x, y };
     // A chart scrubbed by position hears the pointer wherever it is over the drawing,
-    // chip or not — see `sectionAt`.
-    const scrubbed = sectionAt?.(x, y);
-    if (scrubbed !== undefined && scrubbed !== null) {
+    // chip or not — see `sectionAt` — but only where what is under the pointer is the
+    // chart or its own chip. A box says nothing about what covers it: a chip from the
+    // chart beside it can lie over this drawing, and the drawing's edge is a fraction of
+    // a pixel wider than what hit-tests as it. A `mouseout` goes to the element left, so
+    // the one under the pointer is its `relatedTarget`.
+    const under = event.type === 'mouseout' ? event.relatedTarget : event.target;
+    const ours = under instanceof Node && (host.contains(under) || !!overlayRef?.overlayElement.contains(under));
+    const scrubbed = sectionAt && ours ? sectionAt(x, y) : null;
+    if (scrubbed !== null) {
       enter(scrubbed);
       return;
     }
-    if (graceTimer === null) return;
     // On the chip: its own `mouseenter` cancels whatever is pending. Asked of the
     // geometry rather than of the event, because the first event of that move is the
     // section's `mouseout`, whose target is the section being left.
     const chip = chipBox();
-    if (chip && x >= chip.left && x <= chip.right && y >= chip.top && y <= chip.bottom) return;
+    const onChip = chip !== null && x >= chip.left && x <= chip.right && y >= chip.top && y <= chip.bottom;
+    // Off the drawing of a chart scrubbed by position, nothing is hovered, whatever the
+    // drawing's own `mouseleave` did — it only fires once, and a chip can move over or
+    // off a resting pointer without any. Measured in Chromium before this: a pointer
+    // leaving a sparkline across its right edge re-entered the last point in the capture
+    // phase of the same move, cancelled the grace the leave was about to arm, and left
+    // the chip up for good beside the next chart's own.
+    if (sectionAt && !onChip && graceTimer === null) defer(null);
+    if (graceTimer === null || onChip) return;
     if (inBridge()) {
       const distance = distanceToChip();
       if (distance < approach) {
