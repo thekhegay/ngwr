@@ -186,9 +186,9 @@ function main(): void {
   if (map.orphans.length > 0) {
     // Printed in full rather than counted, for the reason `check:tokens` gives
     // about the theme layer: a hook nothing reads is not automatically a bug —
-    // `--wr-density-text` and `--wr-density-gap` are published for consumers to
-    // read in their own `calc()`, which is exactly the case that has to stay
-    // visible instead of being tidied into a number.
+    // `--wr-density-text` is published for consumers to read in their own
+    // `calc()`, which is exactly the case that has to stay visible instead of
+    // being tidied into a number.
     console.log(`  Declared and never read (not listed, ${map.orphans.length}):`);
     for (const { name, where } of map.orphans) console.log(`    ${name}  ${where}`);
   }

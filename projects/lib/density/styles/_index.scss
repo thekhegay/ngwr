@@ -11,8 +11,10 @@
 :root {
   --wr-density-y: 1;
   --wr-density-x: 1;
-  // `-text` and `-gap` are declared for consumers to read; no shipped
-  // component multiplies by either yet. `-y` / `-x` are the live ones.
+  // `-text` is declared for consumers to read; no shipped component multiplies
+  // by it yet. `-gap` scales the space a layout component puts between the
+  // controls projected into it, and is there for consumers to read as well.
+  // `-y` / `-x` are the padding multipliers.
   --wr-density-text: 1;
   --wr-density-gap: 1;
 }

@@ -65,7 +65,8 @@ export default class TokensDensityPage {
       name: '--wr-density-gap',
       type: 'number',
       default: '1',
-      description: 'Declared for consumers to read; no shipped component multiplies by it yet.',
+      description:
+        'Scales the space a layout component puts between the controls projected into it. Yours to read in your own `calc()` too.',
     },
   ];
 
