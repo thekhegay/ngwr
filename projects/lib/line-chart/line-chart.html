@@ -118,15 +118,26 @@
   </svg>
 
   @if (hovered !== null && hoverPoints().length > 0) {
-    <div class="wr-line-chart__tooltip" [style.left.%]="(pointX(hovered) / vbW) * 100" [style.top.px]="padding.top">
-      <div class="wr-line-chart__tooltip-label">{{ hoverLabel() }}</div>
-      @for (p of hoverPoints(); track p.label) {
-        <div class="wr-line-chart__tooltip-row">
-          <span class="wr-line-chart__swatch" [style.background]="p.color"></span>
-          <span class="wr-line-chart__tooltip-name">{{ p.label }}</span>
-          <span class="wr-line-chart__tooltip-value">{{ p.value }}</span>
-        </div>
-      }
+    <!-- The layer spans the plot and is what the tooltip's `cqw` measures. It is out of
+         flow, so the containment it turns on costs the plot's own sizing nothing. The
+         tooltip takes the same `--wr-line-chart-x` the x labels take, and the same clamp:
+         centred on its point, never past either end. -->
+    <div class="wr-line-chart__tooltip-layer">
+      <div
+        class="wr-line-chart__tooltip"
+        [style.left.%]="xPercent(hovered)"
+        [style.--wr-line-chart-x]="xPercent(hovered)"
+        [style.top.px]="padding.top"
+      >
+        <div class="wr-line-chart__tooltip-label">{{ hoverLabel() }}</div>
+        @for (p of hoverPoints(); track p.label) {
+          <div class="wr-line-chart__tooltip-row">
+            <span class="wr-line-chart__swatch" [style.background]="p.color"></span>
+            <span class="wr-line-chart__tooltip-name">{{ p.label }}</span>
+            <span class="wr-line-chart__tooltip-value">{{ p.value }}</span>
+          </div>
+        }
+      </div>
     </div>
   }
 </div>

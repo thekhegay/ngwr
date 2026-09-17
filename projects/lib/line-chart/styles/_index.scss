@@ -40,9 +40,33 @@
     height: 100%;
   }
 
+  // What the tooltip's `cqw` resolves against: the plot's width, which the drawing
+  // stretches to. On the plot itself the containment would take the SVG out of the
+  // chart's intrinsic width — measured in Chromium, a `width: max-content` chart went
+  // from 480px to 0 — while this layer is out of flow and contributes nothing either
+  // way. Never hittable: it covers the plot, and taking the `pointermove` would close
+  // the tooltip it holds.
+  &__tooltip-layer {
+    position: absolute;
+    inset: 0;
+    container-type: inline-size;
+    pointer-events: none;
+  }
+
   &__tooltip {
     position: absolute;
-    transform: translate(-50%, 0.5rem);
+    // Centred on its point, but never past either end of the plot — the x labels' clamp:
+    // the shift is the smaller of half the box and the room actually left on that side,
+    // so a tooltip that fits sits exactly over its crosshair and only the ones near an
+    // end move inwards. Centred with nothing bounding it, the tooltip at the last point
+    // hung half its width past the chart — measured at 52px over the right edge in
+    // Chromium, cut off by any container that clips and a sideways scroll on a phone for
+    // any that does not.
+    // rtl-ok: the SVG's own x, and SVG coordinates do not flip with `direction`
+    transform: translate(
+      clamp(calc(var(--wr-line-chart-x, 50) * -1cqw), -50%, calc((100 - var(--wr-line-chart-x, 50)) * 1cqw - 100%)),
+      0.5rem
+    );
     background: var(--wr-color-surface);
     border: 1px solid var(--wr-color-outline);
     border-radius: var(--wr-border-radius-base);
