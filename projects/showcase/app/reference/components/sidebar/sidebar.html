@@ -10,7 +10,7 @@
 
   <ngwr-doc-section
     title="Basic usage"
-    description="Pass `[entries]` — either `WrSidebarItem` (direct link) or `WrSidebarGroup` (expand to reveal children). Badges accept any string."
+    description="Pass `[entries]` — either `WrSidebarItem` (direct link) or `WrSidebarGroup` (expand to reveal children). Badges accept any string. The host insets its rows by `--wr-sidebar-padding` (`0.5rem`), so a hover or active tint never meets the frame around it. Where the container already pads, set it to `0` on the sidebar itself (`.my-panel .wr-sidebar`): on the container it is shadowed by the host's own default."
   >
     <ngwr-doc-snippet [code]="snippets.template">
       <div class="demo-sidebar">

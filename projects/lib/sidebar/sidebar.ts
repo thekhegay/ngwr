@@ -56,6 +56,13 @@ function matchesRoute(url: string, route: string): boolean {
  * `WrSidebarItem`s (direct links) or `WrSidebarGroup`s (expand to reveal
  * child items). Active route auto-expands its containing group.
  *
+ * The host pads its rows by `--wr-sidebar-padding` (`0.5rem`), so a hovered or
+ * active row's tint stays off the edge of whatever holds the nav, a bordered
+ * card or a `<wr-layout-sider>`, which pads nothing itself. Where the container
+ * already supplies the inset, set the hook to `0` on the sidebar, not on the
+ * container: the host declares its own default, which shadows an inherited one
+ * (`.my-panel .wr-sidebar { --wr-sidebar-padding: 0 }`, or inline).
+ *
  * @example
  * ```html
  * <wr-sidebar [entries]="[
