@@ -1,5 +1,35 @@
 # Changelog
 
+## [14.8.0](https://github.com/thekhegay/ngwr/compare/v14.7.0...v14.8.0) (2026-09-17)
+
+### Features
+
+* **charts:** hover tooltip on every chart section, with a tooltip opt-out ([281f764](https://github.com/thekhegay/ngwr/commit/281f7640a12e5fd808ddedf88efcf79cdfd6cf2f))
+* **dropdown:** arrow pointing at the trigger, and flip when it does not fit ([cbb7d8d](https://github.com/thekhegay/ngwr/commit/cbb7d8de484e46021d74439bfb64ec16b5f8b860))
+
+### Bug Fixes
+
+* **cascader:** keep the trigger at its size's height when empty or clearable ([564980c](https://github.com/thekhegay/ngwr/commit/564980c5c467412a8bea2f50297420c0b2fff766))
+* **cascader:** width floor gives way to the host width and its container ([1adcba8](https://github.com/thekhegay/ngwr/commit/1adcba867462b4cb228484cebf00eab618ac7335))
+* **charts:** point the hover tooltip at the hovered section ([ecf3074](https://github.com/thekhegay/ngwr/commit/ecf30743066f185008ba0b26d0ed6aea36770770))
+* **checkbox:** keep the native input mixed while indeterminate stays bound ([1792f3b](https://github.com/thekhegay/ngwr/commit/1792f3b903efe6f3f75557d77260ea19d7c15f1a))
+* **date-picker:** show refused typed input as invalid instead of silently ([1206c03](https://github.com/thekhegay/ngwr/commit/1206c03c0af7d0756cdefcc912a830ca756ce7c9))
+* **event-calendar:** one hairline per grid edge, spaced chips, smaller radius ([ecdca33](https://github.com/thekhegay/ngwr/commit/ecdca3321d5038170cd142a1881904986cec8981))
+* **form:** an invalid field paints the cascader and tree triggers red ([93370d1](https://github.com/thekhegay/ngwr/commit/93370d121609739ba5040a7f5162ff3fdf8e5b94))
+* **form:** show control errors that change without an event ([b9f6c9b](https://github.com/thekhegay/ngwr/commit/b9f6c9b0e6d474b4de58f18f231861feb4c5cb3b))
+* **input-number:** scale stepper chevrons by size and inset them on a pill ([7f20b9e](https://github.com/thekhegay/ngwr/commit/7f20b9e2a7e1fd4a682bcf96651e00937ea7c4da))
+* **input:** centre the password toggle's eye in its field ([aa2f8af](https://github.com/thekhegay/ngwr/commit/aa2f8af85eef8c3e406d43d7b1174dbeeee1802c))
+* **line-chart:** keep the hover tooltip inside the chart at either end ([34c2e1c](https://github.com/thekhegay/ngwr/commit/34c2e1c9d314101b6a36c2f2f642f9c3c7825367))
+* **line-chart:** size the legend swatch as a dash, not a full-width bar ([6c791a9](https://github.com/thekhegay/ngwr/commit/6c791a992e4ba8be3eba79276f4af96cfb330d46))
+* **overlay:** outline a side-placed arrow on its outer faces in rtl ([7b15c1c](https://github.com/thekhegay/ngwr/commit/7b15c1c83cd0d3528bb42dd1eb51c94260afd08b))
+* **page-header:** space the buttons inside an actions wrapper ([6ec4a4a](https://github.com/thekhegay/ngwr/commit/6ec4a4a73b660304e6cb08f2b69beeecd0ee5b89))
+* **popover:** outline the tooltip arrow and close a stuck sparkline chip ([21b2520](https://github.com/thekhegay/ngwr/commit/21b2520178c1de9dab4e544519939e0a0206d2e8))
+* **select:** width floor gives way to the host width and its container ([68f0ee5](https://github.com/thekhegay/ngwr/commit/68f0ee5fb5359face7a3905f81685d74e39e1774))
+* **showcase:** stop doc pages showing their title as a native tooltip ([dfd942f](https://github.com/thekhegay/ngwr/commit/dfd942fcebbff4d7655e1811a402c7a4d3d4da67))
+* **sidebar:** inset rows from the frame and even out row heights ([0505544](https://github.com/thekhegay/ngwr/commit/0505544a67c70698efbc202169fde4ae3abfafac))
+* **toolbar:** space the controls inside a zone wrapper ([4b213a0](https://github.com/thekhegay/ngwr/commit/4b213a0afc87fa1509522bcc023e301374faf257))
+* **tree:** overlay trigger width floor gives way to the host width ([b8ec126](https://github.com/thekhegay/ngwr/commit/b8ec12660a53c65e86c4602a4dd61ede20324fd8))
+
 ## [14.7.0](https://github.com/thekhegay/ngwr/compare/v14.6.0...v14.7.0) (2026-09-16)
 
 ### Features
