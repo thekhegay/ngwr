@@ -9,6 +9,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   Component,
   DestroyRef,
+  type AfterContentChecked,
   ViewEncapsulation,
   computed,
   contentChild,
@@ -19,7 +20,7 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { NgControl } from '@angular/forms';
+import { AbstractControl, NgControl, type ValidationErrors } from '@angular/forms';
 
 import { EMPTY, type Subscription } from 'rxjs';
 
@@ -162,7 +163,7 @@ export class WrFormError {
     },
   ],
 })
-export class WrFormField implements WrFormFieldContext {
+export class WrFormField implements WrFormFieldContext, AfterContentChecked {
   /** Label text shown above the control. */
   readonly label = input<string>('');
 
@@ -233,8 +234,58 @@ export class WrFormField implements WrFormFieldContext {
    * Angular does expose, so the computed depends on this counter instead.
    * Signal Forms needs none of this — its interop getters read live signals —
    * and harmlessly contributes no events.
+   *
+   * Events are not the whole story, which is what {@link ngAfterContentChecked} is for.
    */
   private readonly revision = signal(0);
+
+  /** What the last check saw on a reactive control — see {@link ngAfterContentChecked}. */
+  private seen: {
+    readonly errors: ValidationErrors | null;
+    readonly touched: boolean;
+    readonly dirty: boolean;
+  } | null = null;
+
+  /**
+   * Catch the changes a reactive control makes WITHOUT an event.
+   *
+   * `updateValueAndValidity({ emitEvent: false })`, `markAsTouched({ emitEvent: false })`
+   * and their siblings change `errors`, `touched` and `dirty` and emit nothing, so the
+   * subscription above never hears them and the message stays whatever it was. That is
+   * not only an app's own silent write: Angular reports a custom control's PARSE errors
+   * to a `FormControl` exactly that way — a validator re-run with `emitEvent: false` —
+   * so a `wr-date-picker` refusing typed text made its control invalid while the field
+   * went on showing the message from before, or nothing — and a later pass of change
+   * detection did not help, because the message was memoised on a revision only events
+   * move.
+   *
+   * This runs whenever the view holding the field is checked, which is when the page
+   * around the control changes — for the date picker, the moment its refusal turns
+   * visible. It is `ngAfterContentChecked` and not `ngDoCheck` for an ordering reason
+   * read out of Angular's `refreshView`: check hooks run BEFORE the view's effects, and
+   * Angular's parse-error validator is re-run from an effect in that same view, so a
+   * `DoCheck` saw the errors one pass late and lost the message whenever nothing
+   * refreshed the view again. Content-checked hooks run after those effects and before
+   * the field's own bindings. Only a change moves the revision.
+   *
+   * Signal Forms' interop control is skipped: it is reactive already, and its `errors`
+   * getter builds a fresh object on every read, which a reference check would call a
+   * change on every pass — and re-resolve every message with it.
+   */
+  ngAfterContentChecked(): void {
+    const control = this.ngControl()?.control;
+    if (!(control instanceof AbstractControl)) {
+      this.seen = null;
+      return;
+    }
+    const { errors, touched, dirty } = control;
+    const seen = this.seen;
+    if (seen?.errors === errors && seen.touched === touched && seen.dirty === dirty) return;
+    this.seen = { errors, touched, dirty };
+    // The first sighting is only the baseline: `errors` reads `ngControl()`, so the
+    // message already recomputed when the control appeared.
+    if (seen) this.revision.update(n => n + 1);
+  }
 
   constructor() {
     let sub: Subscription | null = null;
