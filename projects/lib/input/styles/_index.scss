@@ -188,7 +188,26 @@
     padding-inline-end: 0.25rem;
   }
 
+  // The toggle's flex item is its HOST, not the `<button>`. The group stretches
+  // the host to the field's height, but a blockified host lays the inline-flex
+  // button on a line box, at the top. That line box is a strut of the INHERITED
+  // line-height, so how far off it was depends on the page: on the showcase
+  // (15px text, 22.5px line-height) the eye sat 5.5px above the field's centre
+  // at md, 8.5px at lg and 12px at lg under `touch`, and an `sm` field was 24.5px
+  // instead of 22px; under a 32px line-height even an md field grew to 34px. A
+  // flex host has no line box, and its button stretches.
+  //
+  // `:not([hidden])`, because this is an author rule and the UA's
+  // `[hidden] { display: none }` is not: without it, `<wr-password-toggle
+  // [hidden]="…">` would stay on screen.
+  > wr-password-toggle:not([hidden]) {
+    display: flex;
+  }
+
   &__toggle {
+    // Stretched by the host above, so `align-items: center` below centres the
+    // glyph on the whole field rather than on the glyph's own height.
+    align-self: stretch;
     display: inline-flex;
     align-items: center;
     justify-content: center;
