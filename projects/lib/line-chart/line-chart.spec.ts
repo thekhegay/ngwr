@@ -74,6 +74,33 @@ describe('WrLineChart', () => {
     expect(plot.getAttribute('aria-label')).toBe('Line chart');
   });
 
+  it('hands the hover tooltip the x of its point, so it can stay inside the chart at either end', () => {
+    // jsdom lays nothing out, so the plot's box is stubbed: 600px wide at the origin
+    // makes a clientX read as a viewBox x. Where the box then lands is CSS — centred on
+    // its point, clamped at the ends — measured in a browser; what the clamp is computed
+    // from is this number and the layer its `cqw` resolves against.
+    svg().getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
+    const tooltipAt = (clientX: number): HTMLElement => {
+      svg().dispatchEvent(new MouseEvent('pointermove', { clientX }));
+      fixture.detectChanges();
+      return root().querySelector<HTMLElement>('.wr-line-chart__tooltip')!;
+    };
+    const tooltipX = (clientX: number): number =>
+      Number.parseFloat(tooltipAt(clientX).style.getPropertyValue('--wr-line-chart-x'));
+
+    // The padding is 36 left and 16 right of a 600 viewBox: the first point is at 6%, the
+    // last at 97.33%, and the tooltip carries the same number as the x label under it.
+    expect(tooltipX(0)).toBeCloseTo(6, 5);
+    expect(tooltipX(600)).toBeCloseTo((584 / 600) * 100, 5);
+    expect(tooltipX(600)).toBeCloseTo(xLabelProps('--wr-line-chart-x')[2], 5);
+
+    // The query container is a layer of its own spanning the plot, not the plot: on the
+    // plot, the containment would take the drawing out of the chart's intrinsic width.
+    const layer = tooltipAt(300).parentElement!;
+    expect(layer.classList).toContain('wr-line-chart__tooltip-layer');
+    expect(layer.parentElement!.classList).toContain('wr-line-chart__plot');
+  });
+
   it('uses the given colour and falls back through the palette', () => {
     expect(lines()[0].getAttribute('stroke')).toBe('var(--wr-color-primary)');
     expect(lines()[1].getAttribute('stroke')).toBe('#abcdef');
