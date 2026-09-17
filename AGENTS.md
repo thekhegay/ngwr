@@ -338,8 +338,10 @@ enlarges the controls that read the multipliers — **nine stylesheets**, not ev
 control: `button`, `input`, `textarea`, `select`, `list`, `table`, `badge/_tag`,
 plus `cascader` and `tree`, which only joined when a sweep found their triggers
 frozen at the `md` height in every tier. A component with fixed geometry does not
-move, and `--wr-density-gap` / `--wr-density-text` are published for consumers
-with **no `var()` reader anywhere in the library**.
+move. `--wr-density-text` is published for consumers with **no `var()` reader
+anywhere in the library**; `--wr-density-gap` is published for them too, and its
+only readers inside the library are the gaps a layout component puts between the
+controls projected into it — the controls themselves do not grow with it.
 
 ## Commands
 
@@ -683,9 +685,8 @@ transform and `wr-aurora` reads three hooks through `getPropertyValue`, so a
 stylesheet-only scan called all four dead) but never in a spec or a harness; and
 **the default is the BASE declaration**, outside any at-rule and on a selector
 with no modifier, because a hook is typically re-declared by every variant.
-Exactly two hooks are declared and never read — `--wr-density-text` and
-`--wr-density-gap`, published for consumers' own `calc()` — and the generator
-prints them rather than listing them.
+Exactly one hook is declared and never read — `--wr-density-text`, published
+for consumers' own `calc()` — and the generator prints it rather than listing it.
 
 **A token nobody paints with is not a token, and `check:tokens` is a "say why"
 gate rather than a "don't" gate.** `--wr-*` properties are public API, so a token

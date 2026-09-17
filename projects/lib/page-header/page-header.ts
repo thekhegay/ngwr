@@ -14,6 +14,14 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
  * side), `[wrPageHeaderExtra]` (bottom row of tags / metadata). Title +
  * subtitle come from inputs.
  *
+ * A bare `<div>` wrapper in the actions slot, one with no `class` and no
+ * `style`, is laid out as a wrapping row with the actions region's own gap, so
+ * the buttons inside it are spaced exactly like buttons projected one by one.
+ * The gap follows `--wr-density-gap`. Give the wrapper a class or a style and
+ * its layout is yours: the header sets nothing on it. The extra row spaces its
+ * own children and leaves a wrapper alone, since that is where metadata prose
+ * goes, so project tags through an `<ng-container>` as below.
+ *
  * @example
  * ```html
  * <wr-page-header title="Settings" subtitle="Manage your workspace">
@@ -22,10 +30,10 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
  *     <button wr-btn>Invite</button>
  *     <button wr-btn color="primary">Save</button>
  *   </div>
- *   <div wrPageHeaderExtra>
+ *   <ng-container wrPageHeaderExtra>
  *     <wr-tag>v2.4</wr-tag>
  *     <wr-tag color="success">Stable</wr-tag>
- *   </div>
+ *   </ng-container>
  * </wr-page-header>
  * ```
  *

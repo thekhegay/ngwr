@@ -13,10 +13,10 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 392 hook(s) across 60 page(s). A property is here only when the
+ * 393 hook(s) across 60 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
- * declares it also owns it: 20 declaration(s) are one component setting
+ * declares it also owns it: 21 declaration(s) are one component setting
  * another's hook (`--wr-icon-size` inside its own `<wr-icon>`) and belong on
  * the owner's page, not on the setter's.
  */
@@ -725,6 +725,7 @@ export const CSS_VARS = {
   "reference/services/density": {
     subpath: "ngwr/density",
     vars: [
+      { name: "--wr-density-gap", default: "1", scope: ":root", overrides: 4 },
       { name: "--wr-density-x", default: "1", scope: ":root", overrides: 4 },
       { name: "--wr-density-y", default: "1", scope: ":root", overrides: 4 },
     ],

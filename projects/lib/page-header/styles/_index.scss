@@ -62,7 +62,9 @@
   &__actions {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    // Density-aware: `touch` widens it so adjacent actions do not crowd a
+    // fingertip, `sm` tightens it. `md` resolves to the 8px it always was.
+    gap: calc(0.5rem * var(--wr-density-gap, 1));
     flex-wrap: wrap;
     flex: 0 0 auto;
 
@@ -82,6 +84,40 @@
       display: none;
     }
   }
+}
+
+// The documented actions shape is ONE wrapper around the buttons —
+// `<div wrPageHeaderActions><wr-btn>…</wr-btn><wr-btn>…</wr-btn></div>` — and the
+// `gap` above spaces the region's CHILDREN, which is that wrapper alone, so the
+// buttons inside it met edge to edge (0px, measured in Chromium). A BARE wrapper
+// is laid out the way the region is, taking the region's own gap through
+// `inherit`, so both shapes — one wrapper, or the attribute on each button —
+// space the same and a density change moves them together. What BARE excludes,
+// and why:
+//
+// - A `class` or a `style`. Zero specificity alone does not keep a consumer's
+//   layout: ngwr ships unlayered CSS, and unlayered CSS beats every cascade
+//   layer whatever its specificity, so a Tailwind v4 `hidden` or `space-x-2` on
+//   the wrapper lost to this rule and a hidden wrapper came back. A wrapper with
+//   a class or a style is the consumer's, and nothing here touches it — not
+//   `display`, not `align-items`, not `flex-wrap`. An EMPTY one still counts as
+//   bare, because `class=""` / `style=""` is what a `[class.x]` / `[style.x]`
+//   binding leaves behind when it switches off, and the same state must not lay
+//   out two ways.
+// - Anything but a `div`. A button projected directly is already a child of the
+//   region and spaced by its gap, and must not become a flex container itself.
+// - `[hidden]`. An author rule outranks the user agent's
+//   `[hidden] { display: none }` at any specificity.
+//
+// The extra row is deliberately NOT given the same rule: it is where metadata
+// prose lives, and a flex row would turn the words and links of a bare `<div>`
+// into separate items. Tags go in as its children instead, through an
+// `<ng-container wrPageHeaderExtra>`, which the class JSDoc shows.
+:where(.wr-page-header__actions > div:not([hidden], [class]:not([class='']), [style]:not([style='']))) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: inherit;
 }
 
 // Responsive headers stack the title above the actions when their own box is
