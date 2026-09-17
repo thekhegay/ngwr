@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -319,5 +322,93 @@ describe('WrSidebar under a localized catalog', () => {
     expect(host.getAttribute('aria-label')).toBe('Боковая панель');
 
     fixture.destroy();
+  });
+});
+
+/**
+ * Row geometry lives in the stylesheet, and jsdom loads none — a spec that
+ * measured a row would read 0x0 before the fix and after it. So these read the
+ * declarations that decide the height, and the heights themselves were measured
+ * in Chromium, in both themes: the group toggle went from 33px to the 36px of the
+ * link above it, a nested item from 30px to 32px, and a badge stopped adding 2px
+ * to its row (a top-level link carrying one measured 38px, a nested item 32px
+ * beside 30px neighbours). The same goes for the outer inset: every row, nested
+ * ones included, measured 0px from the frame around the nav, a bordered card or a
+ * `wr-layout-sider`, and 8px after, in both themes and both directions.
+ */
+describe('the sidebar stylesheet', () => {
+  /** A stylesheet with its line comments dropped. */
+  const read = (path: string): string =>
+    readFileSync(join(process.cwd(), path), 'utf8')
+      .split('\n')
+      .filter(line => !line.trim().startsWith('//'))
+      .join('\n');
+
+  const code = read('projects/lib/sidebar/styles/_index.scss');
+
+  /** The block's OWN declarations — not those of the states nested inside it. */
+  const declarations = (selector: string, indent: number, source = code): Record<string, string> => {
+    const pad = ' '.repeat(indent);
+    const body = new RegExp(`\\n${pad}${selector} \\{\\n([\\s\\S]*?)\\n${pad}\\}`).exec(source)?.[1];
+    if (body === undefined) throw new Error(`No \`${selector}\` block at indent ${indent}`);
+    const own = body
+      .split('\n')
+      .filter(line => /^\s*[\w-]+:/.test(line) && line.startsWith(`${pad}  `) && line[indent + 2] !== ' ');
+    return Object.fromEntries(own.map(line => line.trim().replace(/;$/, '').split(/:\s*/) as [string, string]));
+  };
+
+  const rem = (value: string): number => {
+    const match = /^([\d.]+)rem$/.exec(value);
+    if (!match) throw new Error(`Expected a rem length, got \`${value}\``);
+    return Number(match[1]);
+  };
+
+  /** `padding: <block> <inline>` → the block half. */
+  const paddingBlock = (value: string): number => rem(value.split(/\s+/)[0]);
+
+  const host = declarations('\\.wr-sidebar', 0);
+  const entry = declarations('&__entry', 2);
+  const toggle = declarations('&-toggle', 4);
+  const item = declarations('&__item', 2);
+  const badge = declarations('&__badge', 2);
+  const dropdownItem = declarations('\\.wr-dropdown-item', 0, read('projects/lib/dropdown/styles/_index.scss'));
+
+  it('insets every row from the edge of the host through its own padding hook', () => {
+    expect(host['padding']).toBe('var(--wr-sidebar-padding)');
+    expect(rem(host['--wr-sidebar-padding'])).toBeGreaterThan(0);
+  });
+
+  it('ends an open last group on that inset rather than on its gap to a next row', () => {
+    const list = declarations('&__list', 2);
+    const lastList = declarations('&__group:last-child &__list', 2);
+
+    // The gap it cancels is real: `margin: <top> <inline> <bottom>`.
+    expect(rem(list['margin'].split(/\s+/)[2])).toBeGreaterThan(0);
+    expect(lastList['margin-block-end']).toBe('0');
+  });
+
+  it('rounds each row tint with the corner a dropdown item uses', () => {
+    const corner = dropdownItem['--wr-dropdown-item-radius'];
+
+    expect(corner).toBe('var(--wr-border-radius-sm)');
+    for (const row of [entry, toggle, item]) expect(row['border-radius']).toBe(corner);
+  });
+
+  it('gives the group toggle the type of the link beside it, since a <button> inherits none', () => {
+    expect(toggle['font']).toBe('inherit');
+    expect(toggle['font-size']).toBe(entry['font-size']);
+    expect(rem(toggle['line-height'])).toBe(rem(entry['line-height']));
+    expect(paddingBlock(toggle['padding'])).toBe(paddingBlock(entry['padding']));
+  });
+
+  it('keeps a badge inside the line box of every row it can sit in', () => {
+    const chip = rem(badge['line-height']) + 2 * paddingBlock(badge['padding']);
+
+    expect(chip).toBeLessThanOrEqual(rem(entry['line-height']));
+    expect(chip).toBeLessThanOrEqual(rem(item['line-height']));
+  });
+
+  it('insets a nested item by at least 6px around its line', () => {
+    expect(paddingBlock(item['padding'])).toBeGreaterThanOrEqual(0.375);
   });
 });

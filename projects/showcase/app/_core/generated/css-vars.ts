@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 396 hook(s) across 60 page(s). A property is here only when the
+ * 397 hook(s) across 61 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 21 declaration(s) are one component setting
@@ -567,6 +567,12 @@ export const CSS_VARS = {
       { name: "--wr-select-panel-radius", default: "var(--wr-border-radius-base)", scope: ".wr-select-panel" },
       { name: "--wr-select-panel-shadow", default: "var(--wr-shadow-overlay)", scope: ".wr-select-panel" },
       { name: "--wr-select-radius", default: "var(--wr-control-radius-md)", scope: ".wr-select", overrides: 3 },
+    ],
+  },
+  "reference/components/sidebar": {
+    subpath: "ngwr/sidebar",
+    vars: [
+      { name: "--wr-sidebar-padding", default: "0.5rem", scope: ".wr-sidebar" },
     ],
   },
   "reference/components/skeleton": {
