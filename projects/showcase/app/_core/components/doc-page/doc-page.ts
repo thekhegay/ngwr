@@ -72,6 +72,10 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
   selector: 'ngwr-doc-page',
   templateUrl: './doc-page.html',
   styleUrl: './doc-page.scss',
+  // `title` is an input, and a static attribute that feeds an input is still written
+  // onto the host, where the browser shows it as a native tooltip over the whole
+  // page or section.
+  host: { '[attr.title]': 'null' },
 })
 export class DocPageComponent {
   /** Page title. Used as the H1 and in the document title. */
