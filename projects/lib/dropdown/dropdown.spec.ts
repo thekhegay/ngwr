@@ -11,7 +11,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WrDropdown } from './dropdown';
 import { WrDropdownItem } from './dropdown-item';
 import { WrDropdownMenu } from './dropdown-menu';
-import type { WrDropdownPosition, WrDropdownTrigger } from './interfaces';
+import {
+  WR_DROPDOWN_FALLBACKS,
+  WR_DROPDOWN_POSITIONS,
+  type WrDropdownPosition,
+  type WrDropdownTrigger,
+  wrDropdownPositions,
+} from './interfaces';
 
 /**
  * The menu is a CDK overlay rendered from a template portal, so it lands in the
@@ -468,6 +474,17 @@ describe('WrDropdown as a bottom sheet', () => {
     expect(pane()!.className).not.toContain('wr-dropdown-overlay--');
   });
 
+  it('draws no arrow on a sheet, which has nothing to point at', () => {
+    mount(390);
+    trigger().click();
+    fixture.detectChanges();
+
+    // `arrow` is on by default, and still no `--arrow`: a sheet is docked to the
+    // bottom edge, so a tip would point at whatever happens to be above it.
+    expect(pane()!.classList.contains('wr-overlay-sheet')).toBe(true);
+    expect(pane()!.classList.contains('wr-dropdown-overlay--arrow')).toBe(false);
+  });
+
   it('dims the page behind it, with the shared class that has the styles', () => {
     mount(390);
     trigger().click();
@@ -559,6 +576,77 @@ describe('the dropdown item stylesheet', () => {
 });
 
 /**
+ * ⚠️ These guard the RULES, not the painting.
+ *
+ * The arrow is a `::after` drawn by the shared `anchored-arrow` mixin, and jsdom
+ * loads no stylesheet — so no spec here can see it, and one that asserted a
+ * computed `content` would pass identically with the whole rule deleted. What a
+ * unit test can hold is the drift the browser would only show on the one
+ * placement nobody opened: a position added to `WrDropdownPosition` with no arrow
+ * rule or no gap for it, or the opt-out that stops matching.
+ *
+ * The painting was measured in Chromium against the built showcase instead, for
+ * all eight placements in both themes: `content: ""`, a 6px square filled with
+ * the menu's own background and outlined on its two outward faces in the menu's
+ * own border colour, 8px from trigger to menu, and `content: none` with a 4px gap
+ * under `[arrow]="false"`.
+ */
+describe('the dropdown arrow stylesheet', () => {
+  const code = readFileSync(join(process.cwd(), 'projects/lib/dropdown/styles/_index.scss'), 'utf8')
+    .split('\n')
+    .filter(line => !line.trim().startsWith('//'))
+    .join('\n');
+  const placements = Object.keys(WR_DROPDOWN_POSITIONS) as WrDropdownPosition[];
+
+  it('emits the arrow for exactly the placements the directive can land on', () => {
+    const used = /\$placements-used:\s*\(([^)]*)\)/.exec(code)?.[1] ?? '';
+    const names = used
+      .split(',')
+      .map(name => name.trim())
+      .filter(Boolean);
+
+    expect([...names].sort()).toEqual([...placements].sort());
+  });
+
+  /** The selectors written inside `&--arrow { … }`, one per rule. */
+  const arrowTier = (): string[] => {
+    const block = /&--arrow\s*\{([\s\S]*?)\n {2}\}/.exec(code)?.[1] ?? '';
+    return [...block.matchAll(/^\s*(&[^{]*)\{/gm)].map(match => match[1].trim());
+  };
+
+  it('opens a gap on every placement, and a wider one when the arrow is drawn', () => {
+    const wider = arrowTier().join('\n');
+    for (const name of placements) {
+      expect(code, `no plain gap for ${name}`).toMatch(new RegExp(`&--${name}[,\\s{]`));
+      expect(wider, `no arrow gap for ${name}`).toMatch(new RegExp(`\\.wr-dropdown-overlay--${name}[,)]`));
+    }
+  });
+
+  it("keeps the wider gap at one class of weight, so a consumer's own gap still wins", () => {
+    // The gap has no hook: `.wr-dropdown-overlay--<placement> { padding-… }` in
+    // the app's sheet is how it is retuned. A compound `&.wr-dropdown-overlay--…`
+    // here weighs two classes and beats that on specificity, wherever it sits —
+    // measured in Chromium, a consumer's `padding-top: 0` on `--bottom-start`
+    // rendered an 8px gap. Inside `:where()`, the placement adds no weight.
+    const selectors = arrowTier();
+    expect(selectors.length).toBeGreaterThan(0);
+    for (const selector of selectors) expect(selector).toMatch(/^&:where\([^)]*\)$/);
+  });
+
+  it("paints the arrow from the menu's own hooks, so a retinted menu keeps a matching tip", () => {
+    const include = /@include arrow\.anchored-arrow\(([\s\S]*?)\);/.exec(code)?.[1] ?? '';
+    expect(include).toMatch(/\$background:\s*var\(--wr-dropdown-bg\)/);
+    expect(include).toMatch(/\$border:\s*var\(--wr-dropdown-border\)/);
+  });
+
+  it('takes the arrow off a pane the directive did not mark', () => {
+    expect(code).toMatch(
+      /\.wr-dropdown-overlay:not\(\.wr-dropdown-overlay--arrow\)\s*>\s*\.wr-dropdown-menu::after\s*\{\s*content:\s*none;/
+    );
+  });
+});
+
+/**
  * Without `exportAs` a template cannot reach the trigger at all — `#d="wrDropdown"`
  * fails to compile rather than resolving to nothing — so mounting the host is half
  * the assertion, and the other half is that the reference is the directive and not
@@ -598,20 +686,22 @@ describe('WrDropdown template reference', () => {
  *
  * The position lands as a class on the CDK overlay PANE — `wr-dropdown-overlay--<pos>`
  * — which is what a consumer styles against and what the stylesheet keys its
- * arrow and offsets on. jsdom has no layout, so the pane's actual placement is
- * unmeasurable here and deliberately not asserted; the class is the contract
- * that survives, and it is the one a typo in the position map would break.
+ * arrow and offsets on. jsdom has no layout, so every box is 0×0, the first
+ * candidate always "fits", and the class is the requested placement; the class
+ * is the contract that survives, and it is the one a typo in the position map
+ * would break. The flip itself is driven below with stubbed rects.
  */
 describe('WrDropdown pane position', () => {
   @Component({
     imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
     template: `
-      <button type="button" [wrDropdown]="menu" [position]="pos()">Open</button>
+      <button type="button" [wrDropdown]="menu" [position]="pos()" [arrow]="arrow()">Open</button>
       <wr-dropdown-menu #menu><wr-dropdown-item>Copy</wr-dropdown-item></wr-dropdown-menu>
     `,
   })
   class PositionHost {
     readonly pos = signal<WrDropdownPosition>('bottom-start');
+    readonly arrow = signal(true);
   }
 
   const POSITIONS: readonly WrDropdownPosition[] = [
@@ -645,6 +735,400 @@ describe('WrDropdown pane position', () => {
     const pane = document.querySelector('.wr-dropdown-overlay');
     expect(pane).not.toBeNull();
     expect(pane!.classList).toContain(`wr-dropdown-overlay--${position}`);
+  });
+
+  const open = (): HTMLElement => {
+    (fixture.nativeElement as HTMLElement).querySelector('button')!.click();
+    fixture.detectChanges();
+    return document.querySelector<HTMLElement>('.wr-dropdown-overlay')!;
+  };
+
+  it('marks the pane for an arrow unless asked not to', () => {
+    expect(open().classList).toContain('wr-dropdown-overlay--arrow');
+  });
+
+  it('leaves the arrow off when `arrow` is false, and keeps the placement', () => {
+    fixture.componentInstance.arrow.set(false);
+    fixture.detectChanges();
+    const pane = open();
+
+    expect(pane.classList).not.toContain('wr-dropdown-overlay--arrow');
+    // The gap still needs to know which edge faces the trigger.
+    expect(pane.classList).toContain('wr-dropdown-overlay--bottom-start');
+  });
+
+  it('reads a static `arrow="false"` as false, the way every boolean attribute here does', () => {
+    @Component({
+      imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
+      template: `
+        <button type="button" [wrDropdown]="menu" arrow="false">Open</button>
+        <wr-dropdown-menu #menu><wr-dropdown-item>Copy</wr-dropdown-item></wr-dropdown-menu>
+      `,
+    })
+    class StaticHost {}
+
+    fixture.destroy();
+    const host = TestBed.createComponent(StaticHost);
+    host.detectChanges();
+    (host.nativeElement as HTMLElement).querySelector('button')!.click();
+    host.detectChanges();
+
+    expect(document.querySelector('.wr-dropdown-overlay')!.classList).not.toContain('wr-dropdown-overlay--arrow');
+    host.destroy();
+  });
+});
+
+/**
+ * The flip, through the real `FlexibleConnectedPositionStrategy`.
+ *
+ * jsdom lays nothing out, so on its own every rect is 0×0 and the requested
+ * placement always fits. The layout is stubbed to make one not fit — a 1024×768
+ * viewport (the CDK measures it as `documentElement.clientWidth` / `clientHeight`,
+ * which jsdom reports as 0), the trigger pinned near one of its edges, and the pane
+ * as a 160×120 menu — and everything else stays the CDK's own arithmetic. What is asserted is
+ * the class the gap and the arrow key off: the placement the menu LANDED on.
+ * Where the arrow then draws is CSS, and was checked in Chromium (see the
+ * stylesheet guards above).
+ *
+ * Before the fallback chains every list held one position, so the CDK had nothing
+ * to flip to and pushed the menu back over its own trigger instead — measured in
+ * Chromium at 1280×700 with a `bottom-start` trigger 40px above the fold, the menu
+ * started at y=626, inside the trigger's 630–660.
+ */
+describe('WrDropdown when the requested placement does not fit', () => {
+  @Component({
+    imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
+    template: `
+      <button type="button" [wrDropdown]="menu" [position]="pos()" [arrow]="arrow()">Open</button>
+      <wr-dropdown-menu #menu><wr-dropdown-item>Copy</wr-dropdown-item></wr-dropdown-menu>
+    `,
+  })
+  class FlipHost {
+    readonly pos = signal<WrDropdownPosition>('bottom-start');
+    readonly arrow = signal(true);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<FlipHost>>;
+  let triggerRect = { x: 0, y: 0, width: 0, height: 0 };
+  /** The pane's classes each time the CDK measured it. */
+  let measuredWith: string[] = [];
+  /** The pane's box as the CDK measures it — a fixed menu unless a test says otherwise. */
+  let paneSize: (pane: Element) => { width: number; height: number };
+
+  const rect = ({ x, y, width, height }: typeof triggerRect): DOMRect => ({
+    x,
+    y,
+    width,
+    height,
+    top: y,
+    left: x,
+    right: x + width,
+    bottom: y + height,
+    toJSON: () => ({}),
+  });
+
+  const root = document.documentElement;
+
+  beforeEach(() => {
+    measuredWith = [];
+    paneSize = () => ({ width: 160, height: 120 });
+    Object.defineProperty(root, 'clientWidth', { configurable: true, get: () => 1024 });
+    Object.defineProperty(root, 'clientHeight', { configurable: true, get: () => 768 });
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      if (this.classList.contains('wr-dropdown-trigger')) return rect(triggerRect);
+      if (this.classList.contains('cdk-overlay-pane')) {
+        measuredWith.push(this.className);
+        return rect({ x: 0, y: 0, ...paneSize(this) });
+      }
+      return rect({ x: 0, y: 0, width: 0, height: 0 });
+    });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(FlipHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+    // Own properties shadowing the prototype getters; deleting them restores jsdom's.
+    delete (root as { clientWidth?: number }).clientWidth;
+    delete (root as { clientHeight?: number }).clientHeight;
+  });
+
+  const openAt = (position: WrDropdownPosition, at: typeof triggerRect): HTMLElement => {
+    triggerRect = at;
+    fixture.componentInstance.pos.set(position);
+    fixture.detectChanges();
+    (fixture.nativeElement as HTMLElement).querySelector('button')!.click();
+    fixture.detectChanges();
+    return document.querySelector<HTMLElement>('.wr-dropdown-overlay')!;
+  };
+
+  it('opens above a trigger with no room below, and the pane says so', () => {
+    const pane = openAt('bottom-start', { x: 16, y: 730, width: 100, height: 30 });
+
+    expect(pane.classList).toContain('wr-dropdown-overlay--top-start');
+    expect(pane.classList).not.toContain('wr-dropdown-overlay--bottom-start');
+    expect(pane.classList).toContain('wr-dropdown-overlay--arrow');
+  });
+
+  it('comes back to the requested side once there is room for it again', async () => {
+    const pane = openAt('bottom-start', { x: 16, y: 730, width: 100, height: 30 });
+    expect(pane.classList).toContain('wr-dropdown-overlay--top-start');
+
+    // The page scrolled the trigger up; the CDK re-applies on the viewport's
+    // own change stream, which is throttled, hence the wait.
+    triggerRect = { x: 16, y: 100, width: 100, height: 30 };
+    window.dispatchEvent(new Event('resize'));
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    expect(pane.classList).toContain('wr-dropdown-overlay--bottom-start');
+    expect(pane.classList).not.toContain('wr-dropdown-overlay--top-start');
+  });
+
+  it('opens below a trigger with no room above', () => {
+    const pane = openAt('top-end', { x: 400, y: 10, width: 100, height: 30 });
+
+    expect(pane.classList).toContain('wr-dropdown-overlay--bottom-end');
+    expect(pane.classList).not.toContain('wr-dropdown-overlay--top-end');
+  });
+
+  it('crosses to the other side of a trigger at the inline edge', () => {
+    const pane = openAt('right', { x: 950, y: 300, width: 60, height: 30 });
+
+    expect(pane.classList).toContain('wr-dropdown-overlay--left');
+    expect(pane.classList).not.toContain('wr-dropdown-overlay--right');
+  });
+
+  it('is measured WITH the gap it will render with', () => {
+    // The gap is padding keyed by the placement class, and the CDK measures the
+    // pane inside its own `apply()`. A class carried by the position's
+    // `panelClass` — the way `wr-popover` tags its links — is taken off the pane
+    // before that measurement, so the size tested for fit had no gap in it, and a
+    // menu with less room than the gap was squeezed instead of flipped (see
+    // `wrDropdownPositions`). jsdom paints no padding, so what is pinned is the
+    // precondition: the class is on the pane at the moment it is measured.
+    openAt('bottom-start', { x: 16, y: 100, width: 100, height: 30 });
+
+    expect(measuredWith.length).toBeGreaterThan(0);
+    for (const classes of measuredWith) {
+      expect(classes).toContain('wr-dropdown-overlay--bottom-start');
+      expect(classes).toContain('wr-dropdown-overlay--arrow');
+    }
+  });
+
+  /**
+   * The gap is PADDING on the edge that faces the trigger, so the pane's box
+   * depends on the class it carries: a 160×66 menu measures 168 wide beside its
+   * trigger and 74 tall below or above it. That is the stub the fixed 160×120
+   * pane above cannot stand in for — every link measures the same there, so a
+   * link tested with the wrong gap passes as though it were the right one.
+   */
+  const withGap = (pane: Element): { width: number; height: number } => {
+    const on = (...names: string[]): boolean =>
+      names.some(name => pane.classList.contains(`wr-dropdown-overlay--${name}`));
+    return {
+      width: 160 + (on('left', 'right') ? 8 : 0),
+      height: 66 + (on('top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end') ? 8 : 0),
+    };
+  };
+
+  /** The height the CDK gave the box the pane is laid out in. */
+  const boxHeight = (pane: HTMLElement): number => parseFloat(pane.parentElement!.style.height);
+
+  it('drops a side menu below or above by the box it renders with, not the one it was measured with', async () => {
+    paneSize = withGap;
+    // Neither side has 168px; 70px below the trigger holds the 66px menu but not
+    // the 74px pane it becomes once the gap moves to its top edge. Measured in
+    // Chromium before the fix: `--bottom`, and the menu squeezed from 74px to 68px.
+    const pane = openAt('right', { x: 100, y: 668, width: 824, height: 30 });
+    await fixture.whenStable();
+
+    expect(pane.classList).toContain('wr-dropdown-overlay--top');
+    expect(pane.classList).not.toContain('wr-dropdown-overlay--bottom');
+    // Measured a second time, carrying the block gap it fell into — and given the
+    // room above to lay out in, rather than the 70px box the first pass handed it.
+    expect(measuredWith.at(0)).toContain('wr-dropdown-overlay--right');
+    expect(measuredWith.at(-1)).toContain('wr-dropdown-overlay--bottom');
+    expect(boxHeight(pane)).toBeGreaterThanOrEqual(74);
+  });
+
+  it('keeps a side menu below its trigger when the whole pane fits there', async () => {
+    paneSize = withGap;
+    const pane = openAt('left', { x: 100, y: 658, width: 824, height: 30 });
+    await fixture.whenStable();
+
+    expect(pane.classList).toContain('wr-dropdown-overlay--bottom');
+    expect(boxHeight(pane)).toBeGreaterThanOrEqual(74);
+  });
+
+  it('does not flap back beside the trigger while it stays open', async () => {
+    paneSize = withGap;
+    const pane = openAt('right', { x: 100, y: 658, width: 824, height: 30 });
+    await fixture.whenStable();
+    expect(pane.classList).toContain('wr-dropdown-overlay--bottom');
+
+    // Room on the right again. Measured with the block gap, the side link would
+    // look 8px narrower than it renders — so the sides stay out until it closes.
+    triggerRect = { x: 100, y: 300, width: 100, height: 30 };
+    window.dispatchEvent(new Event('resize'));
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    expect(pane.classList).toContain('wr-dropdown-overlay--bottom');
+    expect(pane.classList).not.toContain('wr-dropdown-overlay--right');
+  });
+
+  it('stays where it was asked to open when that fits', () => {
+    const pane = openAt('bottom-start', { x: 16, y: 100, width: 100, height: 30 });
+
+    expect(pane.classList).toContain('wr-dropdown-overlay--bottom-start');
+    expect(pane.className.match(/wr-dropdown-overlay--(?!arrow)[a-z-]+/g)).toEqual([
+      'wr-dropdown-overlay--bottom-start',
+    ]);
+  });
+});
+
+/**
+ * A submenu is a second `[wrDropdown]` whose trigger lives inside the first
+ * menu (the component ships no submenu API of its own). It is an anchored menu
+ * like any other, so it gets the same arrow and the same placement bookkeeping:
+ * pointing at the row that opened it, from the side it opened on.
+ */
+describe('WrDropdown nested inside another menu', () => {
+  @Component({
+    imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
+    template: `
+      <button type="button" [wrDropdown]="file">File</button>
+      <wr-dropdown-menu #file>
+        <wr-dropdown-item>New</wr-dropdown-item>
+        <button type="button" class="share" [wrDropdown]="share" position="right">Share</button>
+      </wr-dropdown-menu>
+      <wr-dropdown-menu #share>
+        <wr-dropdown-item>Copy link</wr-dropdown-item>
+      </wr-dropdown-menu>
+    `,
+  })
+  class NestedHost {}
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    delete (document.documentElement as { clientWidth?: number }).clientWidth;
+    delete (document.documentElement as { clientHeight?: number }).clientHeight;
+  });
+
+  it('anchors the submenu to its own row, and marks that pane with its own placement and the arrow', () => {
+    // Anchored to WHICH element is geometry, so the layout is stubbed the way the
+    // flip specs above stub it: the outer trigger in the top corner, the Share row
+    // lower down with its inline end at x=200, and every pane a 160x66 menu.
+    const root = document.documentElement;
+    Object.defineProperty(root, 'clientWidth', { configurable: true, get: () => 1024 });
+    Object.defineProperty(root, 'clientHeight', { configurable: true, get: () => 768 });
+    const box = (x: number, y: number, width: number, height: number): DOMRect => ({
+      x,
+      y,
+      width,
+      height,
+      top: y,
+      left: x,
+      right: x + width,
+      bottom: y + height,
+      toJSON: () => ({}),
+    });
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      if (this.classList.contains('share')) return box(40, 200, 160, 32);
+      if (this.classList.contains('wr-dropdown-trigger')) return box(16, 16, 80, 30);
+      if (this.classList.contains('cdk-overlay-pane')) return box(0, 0, 160, 66);
+      return box(0, 0, 0, 0);
+    });
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    const fixture = TestBed.createComponent(NestedHost);
+    fixture.detectChanges();
+
+    (fixture.nativeElement as HTMLElement).querySelector('button')!.click();
+    fixture.detectChanges();
+    const share = document.querySelector<HTMLElement>('.share')!;
+    share.click();
+    fixture.detectChanges();
+
+    const panes = [...document.querySelectorAll<HTMLElement>('.wr-dropdown-overlay')];
+    expect(panes).toHaveLength(2);
+    expect(panes[0].classList).toContain('wr-dropdown-overlay--bottom-start');
+    expect(panes[1].classList).toContain('wr-dropdown-overlay--right');
+    for (const pane of panes) expect(pane.classList).toContain('wr-dropdown-overlay--arrow');
+
+    // The submenu names the row that opened it, and starts at that row's inline
+    // end — 200, where anchoring to the outer trigger would have put it at 96.
+    expect(panes[1].querySelector('[role="menu"]')!.getAttribute('aria-labelledby')).toBe(share.id);
+    expect(panes[1].parentElement!.style.left).toBe('200px');
+
+    fixture.destroy();
+  });
+});
+
+/**
+ * The flip chains, asserted as a TABLE — the same properties `wr-popover`'s
+ * chains are held to, since these are those chains restricted to the eight
+ * placements a dropdown offers.
+ */
+describe('WrDropdown placement fallbacks', () => {
+  const names = Object.keys(WR_DROPDOWN_POSITIONS) as WrDropdownPosition[];
+
+  it('gives every placement somewhere to flip to, leading with itself', () => {
+    for (const name of names) {
+      const chain = WR_DROPDOWN_FALLBACKS[name];
+      expect(chain.length, `${name} has no fallback`).toBeGreaterThan(1);
+      expect(chain[0], `${name} does not lead with itself`).toBe(name);
+      expect(new Set(chain).size, `${name} repeats a placement`).toBe(chain.length);
+      for (const link of chain) expect(names, `${name} names a placement that does not exist`).toContain(link);
+    }
+  });
+
+  it('keeps the requested alignment down a block-axis chain, and never sends it sideways', () => {
+    const alignment = (name: WrDropdownPosition): string => name.split('-')[1] ?? '';
+    for (const name of ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end'] as const) {
+      for (const link of WR_DROPDOWN_FALLBACKS[name]) {
+        expect(link).toMatch(/^(top|bottom)/);
+        expect(alignment(link)).toBe(alignment(name));
+      }
+    }
+  });
+
+  it('lets a side placement reach the block axis, where a phone has the room', () => {
+    for (const name of ['left', 'right'] as const) {
+      const chain = WR_DROPDOWN_FALLBACKS[name];
+      expect(
+        chain.some(link => link.startsWith('bottom')),
+        `${name} cannot fall below`
+      ).toBe(true);
+      expect(
+        chain.some(link => link.startsWith('top')),
+        `${name} cannot fall above`
+      ).toBe(true);
+    }
+  });
+
+  it('hands the CDK the chain in order, as untagged copies it can report back by identity', () => {
+    for (const name of names) {
+      const list = wrDropdownPositions(name);
+      expect(list).toEqual(WR_DROPDOWN_FALLBACKS[name].map(link => WR_DROPDOWN_POSITIONS[link]));
+      // A `panelClass` here would be stripped by the CDK before it measures the pane.
+      expect(list.every(position => position.panelClass === undefined)).toBe(true);
+      // Fresh objects each call: the directive matches the reported link by identity.
+      expect(list[0]).not.toBe(WR_DROPDOWN_POSITIONS[name]);
+    }
+  });
+
+  it('keeps the gap out of the CDK offsets, where a hover menu would lose the pointer crossing it', () => {
+    // The gap is pane PADDING so the pointer is still over the overlay on its way
+    // from the trigger to the menu. An offset would leave a strip of page between
+    // them, and a `trigger="hover"` menu closes the moment the pointer is on it.
+    for (const name of names) {
+      expect(WR_DROPDOWN_POSITIONS[name].offsetX, name).toBeUndefined();
+      expect(WR_DROPDOWN_POSITIONS[name].offsetY, name).toBeUndefined();
+    }
   });
 });
 

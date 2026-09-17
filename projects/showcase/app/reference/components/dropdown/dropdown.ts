@@ -55,6 +55,10 @@ export class MyComponent {}`,
   <wr-dropdown-item icon="trash">Delete</wr-dropdown-item>
 </wr-dropdown-menu>`,
     positions: `<button wr-btn [wrDropdown]="menu" position="top-start">Top start</button>`,
+    arrow: `<!-- On by default -->
+<button wr-btn [wrDropdown]="menu">With arrow</button>
+
+<button wr-btn [wrDropdown]="menu" [arrow]="false">Without arrow</button>`,
     hover: `<button wr-btn [wrDropdown]="menu" trigger="hover">Hover me</button>`,
     disabled: `<wr-dropdown-item icon="cog" disabled>Disabled item</wr-dropdown-item>`,
     triggerId: `<!-- Your id stays on the element; the menu points at it. -->

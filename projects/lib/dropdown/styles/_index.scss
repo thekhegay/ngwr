@@ -1,5 +1,17 @@
 @use '../../theme/styles' as theme;
 @use '../../overlay/styles'; // shared .wr-overlay-sheet / .wr-overlay-backdrop for responsive mode
+@use '../../overlay/styles/arrow';
+
+/// Gap between the trigger and the menu, as pane padding on the edge facing the
+/// trigger. Padding rather than a CDK offset so a pointer crossing it is still
+/// over the overlay — a `trigger="hover"` menu closes the moment the pointer is
+/// anywhere else.
+$gap: 0.25rem;
+
+/// The gap with the arrow on. The arrow reaches `arrow.$half + 1px` (4px) out of
+/// the menu's border, so the plain gap would put its tip ON the trigger; this is
+/// the 8px `wr-popover` keeps, leaving the same 4px between tip and control.
+$arrow-gap: 0.5rem;
 
 // The directive marks its host `.wr-dropdown-trigger` — `.wr-dropdown` below is
 // reachable only if a consumer applies it by hand, which is why it stays: the
@@ -41,17 +53,19 @@
 }
 
 .wr-dropdown-overlay {
-  // Positional offsets between trigger and menu by side.
+  // Positional offsets between trigger and menu by side. The directive swaps the
+  // placement class when the menu flips, so the gap moves to the edge that faces
+  // the trigger from where it actually opened.
   &--top,
   &--top-start,
   &--top-end {
-    padding-bottom: 0.25rem;
+    padding-bottom: $gap;
   }
 
   &--bottom,
   &--bottom-start,
   &--bottom-end {
-    padding-top: 0.25rem;
+    padding-top: $gap;
   }
 
   // The gap sits on the pane edge that faces the trigger. `left` / `right` map
@@ -59,12 +73,60 @@
   // `FlexibleConnectedPositionStrategy` already resolves against the ambient
   // `Directionality` — so the padding has to follow the same axis, logically.
   &--left {
-    padding-inline-end: 0.25rem;
+    padding-inline-end: $gap;
   }
 
   &--right {
-    padding-inline-start: 0.25rem;
+    padding-inline-start: $gap;
   }
+
+  // Same edges, wider, when the arrow is drawn. The placement half sits inside
+  // `:where()`, so each rule weighs ONE class, exactly like its plain twin above,
+  // and wins on source order alone. Two classes of weight would also beat a
+  // consumer's own `.wr-dropdown-overlay--bottom-start { padding-top: … }` —
+  // which has been the only way to retune this gap, since it has no hook — and
+  // with the arrow on by default every such override would be silently ignored.
+  &--arrow {
+    &:where(.wr-dropdown-overlay--top, .wr-dropdown-overlay--top-start, .wr-dropdown-overlay--top-end) {
+      padding-bottom: $arrow-gap;
+    }
+
+    &:where(.wr-dropdown-overlay--bottom, .wr-dropdown-overlay--bottom-start, .wr-dropdown-overlay--bottom-end) {
+      padding-top: $arrow-gap;
+    }
+
+    &:where(.wr-dropdown-overlay--left) {
+      padding-inline-end: $arrow-gap;
+    }
+
+    &:where(.wr-dropdown-overlay--right) {
+      padding-inline-start: $arrow-gap;
+    }
+  }
+}
+
+// The arrow — the rotated square `wr-popover` and `wr-popconfirm` draw, from the
+// same mixin, so the three anchored panels cannot drift apart. Filled and
+// outlined from the menu's OWN hooks rather than the tokens behind them: a
+// consumer who retints one menu through `--wr-dropdown-bg` / `-border` would
+// otherwise get an arrow in the old colours. The `::after` inherits the hooks
+// from the menu it belongs to, so the per-instance value reaches it.
+//
+// Eight placements, not twelve: `WrDropdownPosition` has no `left-start` and
+// friends, and those rules could never match.
+@include arrow.anchored-arrow(
+  $pane: '.wr-dropdown-overlay',
+  $panel: '> .wr-dropdown-menu',
+  $background: var(--wr-dropdown-bg),
+  $border: var(--wr-dropdown-border),
+  $placements-used: (top, top-start, top-end, bottom, bottom-start, bottom-end, left, right)
+);
+
+// `[arrow]="false"` — the directive leaves `--arrow` off the pane and the square
+// is never generated. The mixin's own sheet rule covers `responsive`, which gets
+// no `--arrow` either.
+.wr-dropdown-overlay:not(.wr-dropdown-overlay--arrow) > .wr-dropdown-menu::after {
+  content: none;
 }
 
 .wr-dropdown-item {
