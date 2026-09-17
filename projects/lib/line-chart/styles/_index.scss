@@ -34,7 +34,11 @@
     position: relative;
   }
 
-  svg {
+  // The plot's drawing by its class, never a bare `svg`: the legend swatch is an
+  // `<svg>` too, and `.wr-line-chart svg` (0,1,1) outranks `&__swatch` (0,1,0), so
+  // the 1rem × 0.125rem dash stretched to the legend row — measured in Chromium at
+  // 337 × 44px, a solid bar across the series names it was meant to mark.
+  &__svg {
     display: block;
     width: 100%;
     height: 100%;
