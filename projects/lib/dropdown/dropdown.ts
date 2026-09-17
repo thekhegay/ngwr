@@ -26,7 +26,16 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrFollowDirection, wrPresentAsSheet } from 'ngwr/overlay';
 
 import type { WrDropdownMenu } from './dropdown-menu';
-import { WR_DROPDOWN_POSITIONS, type WrDropdownPosition, type WrDropdownTrigger } from './interfaces';
+import {
+  WR_DROPDOWN_FALLBACKS,
+  WR_DROPDOWN_POSITIONS,
+  type WrDropdownPosition,
+  type WrDropdownTrigger,
+  wrDropdownPositions,
+} from './interfaces';
+
+/** Whether a placement puts the menu BESIDE its trigger, where the gap is inline padding. */
+const isSidePlacement = (name: WrDropdownPosition): boolean => name === 'left' || name === 'right';
 
 /**
  * Attach to any element to open a `<wr-dropdown-menu>` as a CDK overlay.
@@ -69,8 +78,29 @@ export class WrDropdown {
   /** How the menu opens. @default 'click' */
   readonly trigger = input<WrDropdownTrigger>('click');
 
-  /** Where the menu anchors relative to the trigger. @default 'bottom-start' */
+  /**
+   * Where the menu anchors relative to the trigger. A placement that does not
+   * fit flips to the opposite side (a `left` / `right` menu may also drop below
+   * or above, and then stays there until it closes), and the pane's
+   * `wr-dropdown-overlay--<placement>` class names the side it actually took.
+   * @default 'bottom-start'
+   */
   readonly position = input<WrDropdownPosition>('bottom-start');
+
+  /**
+   * Draw a small arrow on the menu's edge, pointing at the trigger — the one
+   * `wr-popover` and `wr-popconfirm` draw, from the same shared rule. It follows
+   * the placement the menu actually took, so a flipped menu points the right
+   * way, and it widens the gap to the trigger from 0.25rem to popover's 0.5rem
+   * so the tip does not touch the control.
+   *
+   * Never drawn on a bottom sheet (`responsive`), which is anchored to nothing.
+   * Turn it off on a menu with no padding of its own (`--wr-dropdown-padding: 0`)
+   * or one that clips its overflow: the square reaches about 3px inside the
+   * menu's border, over the first row, and `overflow` cuts its tip off.
+   * Read when the menu opens. @default true
+   */
+  readonly arrow = input(true, { transform: coerceBooleanProperty });
 
   /**
    * Present the menu as a full-width bottom-sheet on small viewports instead
@@ -213,14 +243,29 @@ export class WrDropdown {
     // On small viewports (when opted in) detach from the trigger and present
     // the menu as a full-width slide-up sheet pinned to the bottom edge.
     const asSheet = wrPresentAsSheet(this.responsive(), this.responsiveConfig);
+    const requested = this.position();
+    // A list of fresh objects, kept: the CDK reports the link it landed on by
+    // handing that same object back, which is how the pane learns its placement.
+    const positions = wrDropdownPositions(requested);
 
-    const positionStrategy = asSheet
-      ? this.overlay.position().global().centerHorizontally().bottom('0')
+    // `withGrowAfterOpen`: past the first pass the CDK never gives the pane a box
+    // larger than the last one it gave it. A menu measured with the wrong gap
+    // (see the `positionChanges` handler below) is laid out once in a box sized
+    // for the placement it is about to leave, and without this the pass that
+    // corrects it inherits that box — a `right` menu with 70px below its trigger
+    // moved above it into a 70px box and was squeezed all the same. The menu's
+    // content does not change while it is open, so the box only ever grows back
+    // to what the menu already needs.
+    const connected = asSheet
+      ? null
       : this.overlay
           .position()
           .flexibleConnectedTo(this.host)
-          .withPositions(WR_DROPDOWN_POSITIONS[this.position()])
-          .withPush(true);
+          .withPositions(positions)
+          .withPush(true)
+          .withGrowAfterOpen(true);
+
+    const positionStrategy = connected ?? this.overlay.position().global().centerHorizontally().bottom('0');
 
     this.overlayRef = this.overlay.create({
       positionStrategy,
@@ -228,10 +273,65 @@ export class WrDropdown {
       width: asSheet ? '100%' : undefined,
       hasBackdrop: asSheet,
       backdropClass: asSheet ? 'wr-overlay-backdrop' : undefined,
+      // A sheet is anchored to nothing, so it gets neither a placement nor an
+      // arrow. A floating menu starts on the placement it asked for, which is
+      // what the CDK measures it with — see `wrDropdownPositions` for why that
+      // class must already be on the pane rather than arrive with the position.
       panelClass: asSheet
         ? ['wr-dropdown-overlay', 'wr-overlay-sheet']
-        : ['wr-dropdown-overlay', `wr-dropdown-overlay--${this.position()}`],
+        : [
+            'wr-dropdown-overlay',
+            `wr-dropdown-overlay--${requested}`,
+            ...(this.arrow() ? ['wr-dropdown-overlay--arrow'] : []),
+          ],
     });
+
+    // When the menu flips, the pane has to name the side it actually took: the
+    // gap padding belongs on the edge facing the trigger and the arrow hangs off
+    // that same edge, and both key off this class. The CDK emits synchronously
+    // from inside its own `apply()`, so the swap lands in the same frame as the
+    // move, and the next measurement (a scroll, a resize) sees the new gap.
+    if (connected) {
+      const ref = this.overlayRef;
+      const pane = ref.overlayElement;
+      // Index-aligned: `links[i]` is the object the CDK hands back for `chain[i]`.
+      let chain = WR_DROPDOWN_FALLBACKS[requested];
+      let links = positions;
+      connected.positionChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ connectionPair }) => {
+        const landed = chain[links.indexOf(connectionPair)];
+        if (!landed) return;
+        for (const name of Object.keys(WR_DROPDOWN_POSITIONS)) {
+          pane.classList.toggle(`wr-dropdown-overlay--${name}`, name === landed);
+        }
+
+        // A `left` / `right` menu that fell below or above was tested for fit
+        // with the WRONG gap. The CDK measures the pane once per pass, for every
+        // link, with the class on it at the time — the side placement's, whose
+        // gap is inline padding — so the block link was judged by a box one gap
+        // shorter than the one the swap above has just given it, and a menu with
+        // less room than that gap was squeezed instead of flipped. Measured in
+        // Chromium at 375×700, `right` with 76px below the trigger: the menu shrank
+        // from 74px to 68px and its last row ran through the bottom border.
+        //
+        // So the sides are dropped for as long as this menu stays open and the
+        // pane is measured again, now carrying the block gap, against block links
+        // only. Not re-admitted afterwards: measured with a block gap, a side link
+        // looks one gap narrower than it renders, which is the same mistake the
+        // other way round and a menu that would flap between the two. Deferred to
+        // a microtask because this runs INSIDE the CDK's `apply()`, which records
+        // the link it landed on after this returns — a nested pass would have that
+        // record overwritten by the outer one. A microtask still lands before the
+        // frame is painted.
+        if (isSidePlacement(landed) || !chain.some(isSidePlacement)) return;
+        const kept = chain.flatMap((name, i) => (isSidePlacement(name) ? [] : [i]));
+        chain = kept.map(i => chain[i]);
+        links = kept.map(i => links[i]);
+        connected.withPositions(links);
+        queueMicrotask(() => {
+          if (this.overlayRef === ref) ref.updatePosition();
+        });
+      });
+    }
 
     // `create()` above froze the direction into the ref as a string, and nothing
     // in the CDK ever revisits it. This menu is where it shows first: the docs

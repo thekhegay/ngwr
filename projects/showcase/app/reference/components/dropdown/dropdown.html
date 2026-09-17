@@ -33,15 +33,36 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Positions" description="Eight anchor sides; CDK auto-flips when there's not enough room.">
+  <ngwr-doc-section
+    title="Positions"
+    description="Eight anchor sides. A menu that does not fit flips to the opposite side — a `left` or `right` menu may also drop below or above its trigger — and the pane's `wr-dropdown-overlay--<placement>` class names the side it actually opened on."
+  >
     <ngwr-doc-snippet [code]="snippets.positions">
       <button type="button" wr-btn [wrDropdown]="positionMenu" position="bottom-start">Bottom start</button>
+      <button type="button" wr-btn [wrDropdown]="positionMenu" position="bottom">Bottom</button>
       <button type="button" wr-btn [wrDropdown]="positionMenu" position="bottom-end">Bottom end</button>
       <button type="button" wr-btn [wrDropdown]="positionMenu" position="top-start">Top start</button>
+      <button type="button" wr-btn [wrDropdown]="positionMenu" position="top">Top</button>
+      <button type="button" wr-btn [wrDropdown]="positionMenu" position="top-end">Top end</button>
+      <button type="button" wr-btn [wrDropdown]="positionMenu" position="left">Left</button>
       <button type="button" wr-btn [wrDropdown]="positionMenu" position="right">Right</button>
       <wr-dropdown-menu #positionMenu>
         <wr-dropdown-item icon="cog">Settings</wr-dropdown-item>
         <wr-dropdown-item icon="external-outline">Help</wr-dropdown-item>
+      </wr-dropdown-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Arrow"
+    description='The menu points at its trigger with the same arrow `wr-popover` and `wr-popconfirm` draw, and it follows a flip. It is on by default; `[arrow]="false"` takes it off and narrows the gap to the trigger from 0.5rem back to 0.25rem. A bottom sheet (`responsive`) never has one — it is anchored to nothing. Turn it off on a menu with `--wr-dropdown-padding: 0` or its own `overflow` clipping: the arrow reaches about 3px into the menu, over the first row, and clipping cuts its tip off.'
+  >
+    <ngwr-doc-snippet [code]="snippets.arrow">
+      <button type="button" wr-btn [wrDropdown]="arrowMenu">With arrow</button>
+      <button type="button" wr-btn [wrDropdown]="arrowMenu" [arrow]="false">Without arrow</button>
+      <wr-dropdown-menu #arrowMenu>
+        <wr-dropdown-item icon="copy-outline">Copy</wr-dropdown-item>
+        <wr-dropdown-item icon="download">Download</wr-dropdown-item>
       </wr-dropdown-menu>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
