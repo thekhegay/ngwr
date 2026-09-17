@@ -1,5 +1,8 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, type ElementRef, signal, viewChildren } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
+import { Subject } from 'rxjs';
 
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -35,6 +38,8 @@ class Host {
   readonly anchored = signal(true);
   /** The second section opens below its anchor, the way a donut's lower half does. */
   readonly lowerSecond = signal(false);
+  /** Every section asks for this side instead, when set — a donut's three o'clock. */
+  readonly side = signal<'top' | 'bottom' | 'left' | 'right' | null>(null);
   /**
    * A box anchor instead of the element, the way a donut or a sparkline points —
    * plain viewport numbers, so they only move when something asks again.
@@ -62,7 +67,7 @@ class Host {
         : this.anchored()
           ? (this.sections()[index]?.nativeElement ?? null)
           : null,
-      side: this.lowerSecond() && index === 1 ? 'bottom' : 'top',
+      side: this.side() ?? (this.lowerSecond() && index === 1 ? 'bottom' : 'top'),
     };
   });
 }
@@ -71,11 +76,14 @@ class Host {
  * The tooltip renders into a CDK overlay, so every query for it goes through the
  * document and `provideWrOverlay()` keeps its container out of the next file.
  *
- * What jsdom cannot say: WHERE the chip lands. Every rect is 0×0, so the placement
- * above the section, its flip below near the top of the viewport and the push off
- * the edges are measured in a real browser, not here. What it can say is everything
- * a reader gets — whether a chip is up, what it reads, that it is one chip per chart
- * however many sections are crossed, and when it goes away.
+ * What jsdom cannot say on its own: WHERE the chip lands. Every rect is 0×0 and the
+ * document has no size, so the cases about placement give the document a size and the
+ * pane a box, and read what the CDK and the helper WROTE from them — the bounding box
+ * the pane sits in, the placement class, the arrow's measured offset. That the
+ * stylesheet then paints the arrow at that offset, and that a real layout lands the
+ * chip there, is measured in a browser. What needs no stub is everything a reader gets
+ * — whether a chip is up, what it reads, that it is one chip per chart however many
+ * sections are crossed, and when it goes away.
  */
 describe('useChartTooltip', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -119,8 +127,39 @@ describe('useChartTooltip', () => {
     settle();
   });
 
+  /** Undone after every case: the document size and pane box a placement case gives. */
+  const cleanups: (() => void)[] = [];
+
+  /**
+   * A 1024×768 document, and `pane` as the box of every overlay pane — where the chip
+   * landed, as far as the helper can tell. Everything else keeps jsdom's 0×0.
+   */
+  const layout = (pane: DOMRect): void => {
+    const root = document.documentElement;
+    Object.defineProperty(root, 'clientWidth', { configurable: true, value: 1024 });
+    Object.defineProperty(root, 'clientHeight', { configurable: true, value: 768 });
+    const rects = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      return this.classList.contains('cdk-overlay-pane') ? pane : new DOMRect();
+    });
+    cleanups.push(() => {
+      rects.mockRestore();
+      Reflect.deleteProperty(root, 'clientWidth');
+      Reflect.deleteProperty(root, 'clientHeight');
+    });
+  };
+
+  /** The arrow's offset along the chip's edge, as the helper wrote it. */
+  const arrow = (): string => chip()!.style.getPropertyValue('--wr-chart-tooltip-arrow');
+
+  /** The pointer moves to a point, as far as the document can hear. */
+  const pointer = (clientX: number, clientY: number): void => {
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX, clientY }));
+    settle();
+  };
+
   afterEach(() => {
     fixture.destroy();
+    for (const cleanup of cleanups.splice(0)) cleanup();
     vi.useRealTimers();
   });
 
@@ -241,6 +280,172 @@ describe('useChartTooltip', () => {
       Reflect.deleteProperty(root, 'clientWidth');
       Reflect.deleteProperty(root, 'clientHeight');
     }
+  });
+
+  it('puts the arrow on the anchor, wherever along the chip the chip landed', () => {
+    // A chip 120px wide from x = 40, over an anchor at x = 100: the arrow belongs 60px in,
+    // which is not the chip's middle.
+    layout(new DOMRect(40, 250, 120, 26));
+    fixture.componentInstance.box.set({ x: 100, y: 300 });
+    settle();
+    enter(sections()[0]);
+    expect(panes()[0].classList).toContain('wr-tooltip-overlay--top');
+    expect(arrow()).toBe('60px');
+
+    // A chip slid against the viewport edge past its anchor — the first week of a year —
+    // keeps the arrow on the chip, clear of the corner, rather than off its end.
+    fixture.componentInstance.box.set({ x: 42, y: 300 });
+    settle();
+    expect(arrow()).toBe('10px');
+    fixture.componentInstance.box.set({ x: 400, y: 300 });
+    settle();
+    expect(arrow()).toBe('110px');
+  });
+
+  it('measures a side placement down the chip, and holds it clear of its anchor', () => {
+    layout(new DOMRect(108, 280, 90, 60));
+    fixture.componentInstance.box.set({ x: 100, y: 300 });
+    fixture.componentInstance.side.set('right');
+    settle();
+    enter(sections()[0]);
+
+    expect(panes()[0].classList).toContain('wr-tooltip-overlay--right');
+    expect(panes()[0].getAttribute('style')).toContain('translateX(8px)');
+    // The anchor is 20px tall from y = 300, so its middle is 310: 30px down a chip at 280.
+    expect(arrow()).toBe('30px');
+  });
+
+  it('sends a side placement above its anchor when there is no room beside it, running away from the chart', () => {
+    // 14px short of room to the right of x = 940. The LEFT would fit — and to the left of
+    // a point on a donut's arc is the donut. So the chip goes above the point with its left
+    // end just past it: its box starts at the point, and it is drawn 14px back.
+    layout(new DOMRect(0, 0, 90, 26));
+    fixture.componentInstance.box.set({ x: 940, y: 300 });
+    fixture.componentInstance.side.set('right');
+    settle();
+    enter(sections()[0]);
+
+    const pane = panes()[0];
+    expect(pane.classList).toContain('wr-tooltip-overlay--top');
+    expect(pane.classList).not.toContain('wr-tooltip-overlay--left');
+    expect(pane.parentElement!.style.left).toBe('940px');
+    expect(pane.getAttribute('style')).toContain('translateX(-14px)');
+  });
+
+  it('centres a side placement above its anchor when running away does not fit either', () => {
+    layout(new DOMRect(0, 0, 90, 26));
+    fixture.componentInstance.box.set({ x: 960, y: 300 });
+    fixture.componentInstance.side.set('right');
+    settle();
+    enter(sections()[0]);
+
+    const pane = panes()[0];
+    expect(pane.classList).toContain('wr-tooltip-overlay--top');
+    expect(pane.getAttribute('style')).not.toContain('translateX');
+  });
+
+  it('gives a chip the room it needs again after one was squeezed against the edge', () => {
+    // A chip centred over a point 14px from the right edge is laid out in a box twice that
+    // wide. The CDK never lets a pane's box grow back past its first pass by default, and
+    // this one pane is handed from section to section — so the next chip, over the middle
+    // of the page, inherited those 28px, overflowed its pane and aimed its arrow off it.
+    layout(new DOMRect(0, 0, 120, 26));
+    fixture.componentInstance.box.set({ x: 1010, y: 300 });
+    settle();
+    enter(sections()[0]);
+
+    fixture.componentInstance.box.set({ x: 500, y: 300 });
+    settle();
+    enter(sections()[1]);
+
+    const box = panes()[0].parentElement!.style;
+    expect(Number.parseFloat(box.width)).toBe(1000);
+    expect(Number.parseFloat(box.left)).toBe(0);
+  });
+
+  it('points again when the viewport resizes, and stops listening once the chip is gone', () => {
+    fixture.componentInstance.box.set({ x: 100, y: 300 });
+    settle();
+    enter(sections()[0]);
+    const calls = fixture.componentInstance.resolved;
+
+    // The CDK re-applies on a resize by itself, against the anchor it was last given — a
+    // box of stale viewport numbers — so the chart has to be asked where the section is.
+    window.dispatchEvent(new Event('resize'));
+    tick(25);
+    expect(fixture.componentInstance.resolved).toBeGreaterThan(calls);
+
+    press('Escape');
+    const after = fixture.componentInstance.resolved;
+    window.dispatchEvent(new Event('resize'));
+    tick(25);
+    expect(fixture.componentInstance.resolved).toBe(after);
+  });
+
+  /**
+   * A chip above an anchor at y = 300 whose bottom edge is at 280: the strip between them,
+   * as wide as the chip, is the way onto it.
+   */
+  const bridge = (): void => {
+    layout(new DOMRect(50, 250, 100, 30));
+    fixture.componentInstance.box.set({ x: 100, y: 300 });
+    settle();
+    enter(sections()[0]);
+  };
+
+  it('holds a switch while the pointer crosses another section toward the chip (WCAG 1.4.13)', () => {
+    bridge();
+    // Straight up from a heatmap day runs through the day above. That day reports itself
+    // from inside the strip, and switching to it would move the chip off the pointer.
+    pointer(100, 292);
+    enter(sections()[1]);
+    expect(text('label')).toBe('Mon');
+
+    // Still closing in, however slowly: each step starts the grace again.
+    tick(80);
+    pointer(100, 288);
+    tick(80);
+    pointer(100, 284);
+    tick(80);
+    expect(text('label')).toBe('Mon');
+
+    // The move onto the chip opens with the section's own `mouseout`, whose target is the
+    // section. Leaving the strip is judged by where the pointer IS, which is the chip.
+    sections()[1].dispatchEvent(new MouseEvent('mouseout', { bubbles: true, clientX: 100, clientY: 270 }));
+    settle();
+    expect(text('label')).toBe('Mon');
+
+    panes()[0].dispatchEvent(new MouseEvent('mouseenter'));
+    tick(500);
+    expect(text('label')).toBe('Mon');
+  });
+
+  it('switches once the pointer stops in the strip, rather than holding forever', () => {
+    bridge();
+    pointer(100, 292);
+    enter(sections()[1]);
+
+    tick(110);
+    expect(text('label')).toBe('Tue');
+  });
+
+  it('switches at once anywhere but the strip', () => {
+    bridge();
+    // Beside the anchor, where a pointer scanning a row of days is.
+    pointer(300, 310);
+    enter(sections()[1]);
+
+    expect(text('label')).toBe('Tue');
+  });
+
+  it('switches as soon as the pointer leaves the strip with a section waiting', () => {
+    bridge();
+    pointer(100, 292);
+    enter(sections()[1]);
+
+    // Out past the chip's end, still over the other section: not on its way any more.
+    pointer(170, 292);
+    expect(text('label')).toBe('Tue');
   });
 
   it('hides after a grace period once the pointer leaves, not at once', () => {
@@ -365,5 +570,62 @@ describe('useChartTooltip', () => {
     expect(panes()).toHaveLength(0);
     // A timer left armed would write a signal on a destroyed view.
     expect(() => vi.advanceTimersByTime(500)).not.toThrow();
+  });
+});
+
+/**
+ * A chart's geometry does not mirror: a donut's three o'clock is on the right in both
+ * directions. The CDK resolves a side placement's `start` / `end` against the overlay's
+ * direction, so under RTL the helper asks for the OTHER logical side with its gap turned
+ * around, and tags the pane with that logical name — which is what the arrow stylesheet's
+ * inline insets resolve against the pane's own `dir`.
+ */
+describe('useChartTooltip under dir="rtl"', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const pane = (): HTMLElement => document.querySelector<HTMLElement>('.wr-tooltip-overlay')!;
+
+  const openOn = (side: 'top' | 'left' | 'right'): void => {
+    fixture.componentInstance.side.set(side);
+    fixture.detectChanges();
+    (fixture.nativeElement as HTMLElement).querySelector('.section')!.dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrOverlay(),
+        { provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } },
+      ],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps a chip that belongs on the right on the right', () => {
+    openOn('right');
+
+    expect(pane().parentElement!.getAttribute('dir')).toBe('rtl');
+    expect(pane().classList).toContain('wr-tooltip-overlay--left');
+    // Physical, and not mirrored by the CDK: +8 is to the right, clear of the anchor.
+    expect(pane().getAttribute('style')).toContain('translateX(8px)');
+  });
+
+  it('and one that belongs on the left on the left', () => {
+    openOn('left');
+
+    expect(pane().classList).toContain('wr-tooltip-overlay--right');
+    expect(pane().getAttribute('style')).toContain('translateX(-8px)');
+  });
+
+  it('leaves above and below alone', () => {
+    openOn('top');
+
+    expect(pane().classList).toContain('wr-tooltip-overlay--top');
+    expect(pane().getAttribute('style')).toContain('translateY(-8px)');
   });
 });

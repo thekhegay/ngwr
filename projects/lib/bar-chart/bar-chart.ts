@@ -54,7 +54,7 @@ export class WrBarChart {
    */
   readonly tooltip = input(true, { transform: coerceBooleanProperty });
 
-  private readonly columnEls = viewChildren<ElementRef<HTMLElement>>('column');
+  private readonly barEls = viewChildren<ElementRef<HTMLElement>>('barEl');
 
   /**
    * A datum's value, with anything non-finite read as `0`.
@@ -98,15 +98,17 @@ export class WrBarChart {
 
   /**
    * One tooltip for the whole chart, with the value exactly as it is printed above
-   * the bar. It points at the top of the bar's COLUMN, which is the top of the plot:
-   * above every bar, so the chip never covers a neighbour — pointed at the bar, it
-   * sat over the printed value it repeats and over the tops of the bars beside it —
-   * and straight up from any bar the pointer stays in its own column all the way
-   * onto the chip.
+   * the bar. It points at the top edge of the BAR — above it, below it when there is
+   * no room — rather than at the column, which is the full height of the plot and
+   * would put the chip above every bar alike. A bar with nothing to draw (zero, a
+   * negative value) keeps its 1px floor on the baseline, so its chip points there.
+   *
+   * The bar is the anchor element itself, so an open chip follows it through the
+   * height transition a data change starts.
    */
   protected readonly tip = useChartTooltip(this.tooltip, index => {
     const bar = this.bars()[index];
-    const anchor = this.columnEls()[index]?.nativeElement;
+    const anchor = this.barEls()[index]?.nativeElement;
     if (!bar || !anchor) return null;
     return { datum: { label: bar.label, value: String(bar.value), color: bar.color }, anchor };
   });

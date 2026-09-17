@@ -125,12 +125,17 @@ export class WrDonutChart {
   });
 
   /**
-   * One tooltip for the whole chart, just outside the drawing at the x of the
-   * hovered arc's middle: above it for a slice in the upper half, below it for one
-   * in the lower half. Measured in Chromium, pointing at the arc itself put the chip
-   * of a lower slice over the ring's inner edge — under the pointer resting there —
-   * and pointing at the `<path>` element is no better, since its bounding box is
-   * most of the ring for any slice past a quarter.
+   * One tooltip for the whole chart, pointing at the hovered slice: at the middle of
+   * its OUTER arc, on the side that part of the ring faces — above for a slice whose
+   * middle is in the top quarter, below for the bottom one, beside it for the two at
+   * three and nine o'clock. From there the chip sits clear of the ring, and the way
+   * onto it runs straight out of the slice that opened it, over nothing else.
+   *
+   * Not the slice's `<path>` element: its box is most of the ring for any slice past
+   * a quarter, so the chip would point at the middle of the chart. And not the middle
+   * of the band: a chip there lies over the ring, under a pointer resting on it —
+   * measured in Chromium, the inner half of a lower slice landed on its own chip. A
+   * tiny slice keeps its own mid-angle, so the arrow says which sliver it is.
    */
   protected readonly tip = useChartTooltip(this.tooltip, index => {
     const slice = this.slices()[index];
@@ -138,18 +143,16 @@ export class WrDonutChart {
     if (!slice?.path || !svg) return null;
     const box = svg.getBoundingClientRect();
     // The drawing's y runs downwards, so a positive sine is the lower half.
-    const below = Math.sin(slice.midAngle) > 0;
+    const cos = Math.cos(slice.midAngle);
+    const sin = Math.sin(slice.midAngle);
+    const side = Math.abs(cos) > Math.abs(sin) ? (cos > 0 ? 'right' : 'left') : sin > 0 ? 'bottom' : 'top';
     return {
       datum: { label: slice.label, value: String(slice.value), color: slice.color },
-      // A line down the whole drawing at the arc's x, so a flip for room lands on
-      // the far side of the ring rather than inside it.
       anchor: {
-        x: box.left + ((50 + this.outerR * Math.cos(slice.midAngle)) / 100) * box.width,
-        y: box.top,
-        width: 0,
-        height: box.height,
+        x: box.left + ((50 + this.outerR * cos) / 100) * box.width,
+        y: box.top + ((50 + this.outerR * sin) / 100) * box.height,
       },
-      side: below ? 'bottom' : 'top',
+      side,
     };
   });
 

@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrOverlay } from 'ngwr/overlay';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrBarChart } from './bar-chart';
 import type { WrBarChartDatum } from './interfaces';
@@ -160,9 +160,8 @@ class TooltipHost {
 }
 
 /**
- * The tooltip renders into a CDK overlay, so it is read off `document`. Where the chip
- * lands — above the bar, flipped below near the top of the viewport — needs layout, and
- * is measured in a browser instead; what it SAYS is asserted here.
+ * The tooltip renders into a CDK overlay, so it is read off `document`. What it SAYS is
+ * asserted here; what it points at, with laid-out boxes stubbed in, in the block after.
  */
 describe('WrBarChart tooltip', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<TooltipHost>>;
@@ -218,5 +217,83 @@ describe('WrBarChart tooltip', () => {
     hover(columns()[0]);
 
     expect(chip()).toBeNull();
+  });
+});
+
+@Component({
+  imports: [WrBarChart],
+  template: `<wr-bar-chart [data]="data" />`,
+})
+class AnchorHost {
+  readonly data: readonly WrBarChartDatum[] = [
+    { label: 'Mon', value: 10 },
+    { label: 'Off', value: 0 },
+    { label: 'Refund', value: -4 },
+  ];
+}
+
+/**
+ * Where the chip points. jsdom lays nothing out, so each column and each bar is given a
+ * box — the columns the full 200px of the plot from y = 100, the bars from their top down
+ * to the baseline at y = 300 — and the case reads the box the CDK lays the pane out in,
+ * whose bottom edge is the anchor's top. That the chip paints there is measured in a
+ * browser.
+ */
+describe('WrBarChart tooltip anchor', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<AnchorHost>>;
+
+  const doc = document.documentElement;
+  const columns = (): HTMLElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.wr-bar-chart__column'),
+  ];
+  const style = (): CSSStyleDeclaration =>
+    document.querySelector<HTMLElement>('.wr-tooltip-overlay')!.parentElement!.style;
+  const hover = (el: HTMLElement): void => {
+    el.dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    Object.defineProperty(doc, 'clientWidth', { configurable: true, value: 1024 });
+    Object.defineProperty(doc, 'clientHeight', { configurable: true, value: 768 });
+    fixture = TestBed.createComponent(AnchorHost);
+    fixture.detectChanges();
+
+    // Mon is 150px tall; the other two have nothing to draw and keep their 1px floor.
+    const tops = [150, 299, 299];
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      const column = columns().findIndex(c => c === this || c.querySelector('.wr-bar-chart__bar') === this);
+      if (column < 0) return this.classList.contains('cdk-overlay-pane') ? new DOMRect(0, 0, 90, 26) : new DOMRect();
+      const left = 100 + column * 60;
+      return this.classList.contains('wr-bar-chart__column')
+        ? new DOMRect(left, 100, 50, 200)
+        : new DOMRect(left, tops[column], 50, 300 - tops[column]);
+    });
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+    Reflect.deleteProperty(doc, 'clientWidth');
+    Reflect.deleteProperty(doc, 'clientHeight');
+  });
+
+  it('points at the top of the hovered BAR, not at the top of its column', () => {
+    hover(columns()[0]);
+
+    // Above y = 150, where the bar starts — the column would say 100.
+    expect(768 - Number.parseFloat(style().bottom)).toBeCloseTo(150, 3);
+    expect(Number.parseFloat(style().left) + Number.parseFloat(style().width) / 2).toBeCloseTo(125, 3);
+  });
+
+  it('points a bar with nothing to draw at its floor on the baseline', () => {
+    hover(columns()[1]);
+    expect(768 - Number.parseFloat(style().bottom)).toBeCloseTo(299, 3);
+
+    hover(columns()[2]);
+    expect(768 - Number.parseFloat(style().bottom)).toBeCloseTo(299, 3);
+    expect(Number.parseFloat(style().left) + Number.parseFloat(style().width) / 2).toBeCloseTo(245, 3);
   });
 });

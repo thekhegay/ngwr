@@ -229,23 +229,33 @@ export class WrCalendarHeatmap {
   private readonly indexByIso = computed(() => new Map(this.cells().map((cell, index) => [cell.iso, index])));
 
   /**
-   * One tooltip for the whole year, above the grid at the hovered day's week — below
-   * it when there is no room above — so the chip never lands on the days around the
-   * one it describes. The hovered square itself is marked by its own `:hover` scale.
-   * A listener on the grid rather than one per square: a year is 371 of them.
+   * One tooltip for the whole year, pointing at the hovered day: above its square,
+   * below it when there is no room above, and slid along the viewport edge for the
+   * first and last weeks with the arrow still on the square. A listener on the grid
+   * rather than one per square: a year is 371 of them.
+   *
+   * The box is the square's LAYOUT box rather than its client rect. The hovered square
+   * grows by `:hover` over a transition, and a rect read part way through it would
+   * move the chip by up to a fifth of a square depending on when it was measured;
+   * the scale is centred, so the layout box is the rect's centre and the square's
+   * own size.
    */
   protected readonly tip = useChartTooltip(this.tooltip, index => {
     const cell = this.cells()[index];
-    // The squares are the container's only children, drawn in `cells()` order a whole
-    // week of seven at a time — so this one's column starts `day` back and ends six on.
-    const days = this.daysEl()?.nativeElement.children;
-    const first = cell ? days?.item(index - cell.day) : null;
-    const last = cell ? days?.item(index - cell.day + 6) : null;
-    if (!cell || !first || !last) return null;
-    const top = first.getBoundingClientRect();
+    // The squares are the container's only children, drawn in `cells()` order.
+    const square = cell ? this.daysEl()?.nativeElement.children.item(index) : null;
+    if (!cell || !(square instanceof HTMLElement)) return null;
+    const rect = square.getBoundingClientRect();
+    const width = square.offsetWidth;
+    const height = square.offsetHeight;
     return {
       datum: { value: this.cellTitle(cell) },
-      anchor: { x: top.left, y: top.top, width: top.width, height: last.getBoundingClientRect().bottom - top.top },
+      anchor: {
+        x: (rect.left + rect.right - width) / 2,
+        y: (rect.top + rect.bottom - height) / 2,
+        width,
+        height,
+      },
     };
   });
 

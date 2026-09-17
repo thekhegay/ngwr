@@ -83,6 +83,13 @@
 // be the one thing that did not follow.
 .wr-chart-tooltip {
   display: inline-flex;
+  // Its own text's width, up to the tooltip's `max-width`, whatever room the pane has
+  // left. The CDK pushes a chip against the viewport edge by its ROUNDED width, which
+  // can leave the absolutely positioned pane a fraction of a pixel short, and the chip
+  // for the last week of a year then wrapped `Sep 19, 2026: 0` onto a second line at
+  // 375px, over two more rows of days.
+  flex-shrink: 0;
+  width: max-content;
   align-items: center;
   gap: 0.375rem;
 
@@ -128,6 +135,31 @@
   $background: var(--wr-tooltip-bg),
   $inert: true
 );
+
+// A chart's chip keeps the edge the placement gives its arrow and moves the arrow
+// ALONG that edge, onto the section it describes. The chip is not always centred on
+// its anchor — `withPush` slides the one for a heatmap's first week along the
+// viewport edge — so `useChartTooltip()` measures where the anchor falls on the chip
+// and writes it to `--wr-chart-tooltip-arrow`, in px from the padding edge. Unset,
+// before anything is measured, it is the middle, where the rule above puts it.
+// After that rule on purpose: same specificity, so source order decides.
+.wr-tooltip-overlay--top,
+.wr-tooltip-overlay--bottom {
+  .wr-chart-tooltip::after {
+    inset-inline: auto;
+    margin-inline: 0;
+    // rtl-ok: a length measured from the chip's physical left edge in viewport pixels
+    left: calc(var(--wr-chart-tooltip-arrow, 50%) - #{arrow.$half});
+  }
+}
+
+.wr-tooltip-overlay--left,
+.wr-tooltip-overlay--right {
+  .wr-chart-tooltip::after {
+    top: calc(var(--wr-chart-tooltip-arrow, 50%) - #{arrow.$half});
+    margin-top: 0;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .wr-tooltip {

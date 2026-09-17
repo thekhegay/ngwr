@@ -31,6 +31,7 @@
 </svg>
 @if (markerAt(); as at) {
   <span
+    #marker
     class="wr-sparkline__marker"
     aria-hidden="true"
     [style.left.%]="at.x"
