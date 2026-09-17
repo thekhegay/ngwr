@@ -12,6 +12,13 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
  * Action bar with three named zones — `[wrToolbarStart]`,
  * `[wrToolbarCenter]`, `[wrToolbarEnd]`. Use any one or all three.
  *
+ * A bare `<div>` wrapper in a zone, one with no `class` and no `style`, is laid
+ * out as a wrapping row with the zone's own gap, so the controls inside it are
+ * spaced exactly like controls projected one by one. The gap follows
+ * `--wr-density-gap`. Give the wrapper a class or a style and its layout is
+ * yours: the toolbar sets nothing on it. Put running text in a `<span>` or a
+ * `<p>`, which stay in inline flow.
+ *
  * @example
  * ```html
  * <wr-toolbar>
