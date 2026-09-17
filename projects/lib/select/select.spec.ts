@@ -1,3 +1,6 @@
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, type EnvironmentProviders, type Type, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -2769,5 +2772,129 @@ describe('WrSelect as a bottom sheet follows a direction flip', () => {
     fixture.detectChanges();
 
     expect(overlayHost().getAttribute('dir')).toBe('rtl');
+  });
+});
+
+/** Every rule in one stylesheet, selector to declarations — read from source, see below. */
+const rulesOf = (file: string): Map<string, Record<string, string>> => {
+  const source = readFileSync(join(process.cwd(), file), 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/(^|\s)\/\/[^\n]*/g, '$1');
+  const out = new Map<string, Record<string, string>>();
+  const stack: string[] = [];
+  let buffer = '';
+  for (const ch of source) {
+    if (ch === '{') {
+      const head = buffer.trim();
+      const parent = stack.at(-1);
+      stack.push(parent === undefined ? head : head.includes('&') ? head.replaceAll('&', parent) : `${parent} ${head}`);
+      buffer = '';
+    } else if (ch === ';' || ch === '}') {
+      const statement = buffer.trim();
+      const selector = stack.at(-1);
+      const colon = statement.indexOf(':');
+      if (selector !== undefined && colon > 0 && !statement.startsWith('@')) {
+        out.set(selector, {
+          ...out.get(selector),
+          [statement.slice(0, colon).trim()]: statement.slice(colon + 1).trim(),
+        });
+      }
+      if (ch === '}') stack.pop();
+      buffer = '';
+    } else {
+      buffer += ch;
+    }
+  }
+  return out;
+};
+
+/**
+ * The width floor gives way to the layout. `--wr-select-min-width` used to be a
+ * `min-width` on the TRIGGER, which no width on the host could beat: a
+ * `<wr-select size="sm" style="width: 9rem">` drew a 160px trigger inside a
+ * 144px host and ran into the control beside it, and a select in a narrow grid
+ * cell or flex row overhung it. The floor is now a zero-height spacer in a
+ * one-column grid on the host.
+ *
+ * jsdom has no layout, so nothing here can measure a width — every rect is 0×0
+ * and every one of these would pass on the stylesheet that overflowed. What a
+ * spec CAN hold is the two halves the geometry rests on: the rendered DOM (the
+ * trigger is the host's only element, so the spacer is the column's only other
+ * item — a second top-level element would become a row of its own) and the
+ * declarations, read from source the way `avatar.spec.ts` reads its own. The
+ * widths were measured in Chromium, Firefox and WebKit.
+ */
+describe('WrSelect width floor', () => {
+  const SHEET = 'projects/lib/select/styles/_index.scss';
+
+  it.each([
+    ['a button trigger', Host, 'BUTTON'],
+    ['a search trigger', SearchHost, 'DIV'],
+    ['a tag trigger', TagHost, 'DIV'],
+    ['a multi trigger', MultiHost, 'BUTTON'],
+  ] as const)('renders %s as the host’s only element', (_, type: Type<unknown>, tag) => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    const fixture = TestBed.createComponent(type);
+    fixture.detectChanges();
+
+    const host = (fixture.nativeElement as HTMLElement).querySelector('wr-select')!;
+    expect([...host.children].map(child => `${child.tagName}.${child.classList[0]}`)).toEqual([
+      `${tag}.wr-select__trigger`,
+    ]);
+    fixture.destroy();
+  });
+
+  it('lays the host out as one column that can shrink to nothing', () => {
+    expect(rulesOf(SHEET).get('.wr-select')).toMatchObject({
+      display: 'inline-grid',
+      'grid-template-columns': 'minmax(0, 1fr)',
+      '--wr-select-min-width': '10rem',
+    });
+  });
+
+  it('gives a stretched host’s extra height to the trigger’s row, not the spacer’s', () => {
+    // An implicit second row would be `auto` and take a share of it: a host
+    // stretched to 60px by its flex row drew a 45px trigger over a 15px gap.
+    expect(rulesOf(SHEET).get('.wr-select')).toMatchObject({ 'grid-template-rows': 'auto 0' });
+  });
+
+  it('carries the floor on a spacer a narrower host caps', () => {
+    expect(rulesOf(SHEET).get('.wr-select::after')).toMatchObject({
+      content: "''",
+      width: 'var(--wr-select-min-width)',
+      'max-width': '100%',
+      height: '0',
+    });
+  });
+
+  it('lets the trigger follow the host down', () => {
+    expect(rulesOf(SHEET).get('.wr-select__trigger')).toMatchObject({ width: '100%', 'min-width': '0' });
+  });
+
+  it('keeps the tag field inside a chip row as narrow as the host', () => {
+    expect(rulesOf(SHEET).get('.wr-select__tag-input')).toMatchObject({
+      'min-width': 'min(4rem, 100%)',
+      'max-width': '100%',
+    });
+  });
+
+  it('is opted out of through the hook, never through the trigger', () => {
+    // A `min-width` on `.wr-select__trigger` no longer reaches the floor, so an
+    // override written that way is silently a no-op — which is what the pager's
+    // size changer was until it moved to the hook.
+    const sheets = (readdirSync(join(process.cwd(), 'projects/lib'), { recursive: true }) as string[])
+      .filter(file => file.endsWith('.scss') && !file.startsWith('select/'))
+      .map(file => `projects/lib/${file}`);
+    expect(sheets.length).toBeGreaterThan(50);
+
+    const reaching = sheets.flatMap(file =>
+      [...rulesOf(file)]
+        .filter(([selector, declarations]) => selector.includes('.wr-select__trigger') && 'min-width' in declarations)
+        .map(([selector]) => `${file}: ${selector}`)
+    );
+    expect(reaching).toEqual([]);
+    expect(rulesOf('projects/lib/pagination/styles/_index.scss').get('.wr-pagination__size.wr-select')).toEqual({
+      '--wr-select-min-width': '0',
+    });
   });
 });
