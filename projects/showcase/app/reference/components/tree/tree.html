@@ -75,6 +75,11 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Combobox mode — width"
+    description="A combobox trigger left to size itself is `12rem` wide, or wider when its content needs the room. That is a default rather than a minimum: an explicit `width`, `width: 100%` in a narrower parent, a grid cell and a flex item that has to shrink all win over it, and the label truncates. **Lower the default through `--wr-tree-trigger-min-width`, never through the trigger** — set it to `0` and a bare trigger is as wide as its content. A `min-width` on `.wr-tree__trigger`, the override that did this before the hook existed, no longer reaches it."
+  />
+
+  <ngwr-doc-section
     title="Virtual scroll"
     description="Set `virtualScroll` to window a large tree — only ~one viewport of rows stays in the DOM. `rowHeight` (0 = auto-measure the first row) and `viewportHeight` size the window; keyboard nav switches to `aria-activedescendant` so Arrow / Home / End / Enter keep working across un-rendered rows. Works inline and in `openOn=overlay`. The tree below holds 5,020 nodes."
   >
