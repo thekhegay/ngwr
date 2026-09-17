@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrOverlay } from 'ngwr/overlay';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrSparkline } from './sparkline';
 
@@ -228,6 +228,55 @@ describe('WrSparkline tooltip', () => {
 
     expect(chip()).toBeNull();
     expect(marker()).toBeNull();
+  });
+
+  it('points at the marker of the hovered point, from above', () => {
+    // The marker is where the stylesheet draws the point: give it that box, and the
+    // document a size, and read the box the CDK lays the pane out in from it.
+    const doc = document.documentElement;
+    Object.defineProperty(doc, 'clientWidth', { configurable: true, value: 1024 });
+    Object.defineProperty(doc, 'clientHeight', { configurable: true, value: 768 });
+    const rects = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: HTMLElement
+    ) {
+      if (this.classList.contains('wr-sparkline__marker')) return new DOMRect(44, 300, 12, 12);
+      return this.classList.contains('cdk-overlay-pane') ? new DOMRect(0, 0, 40, 26) : new DOMRect();
+    });
+    try {
+      moveTo(47);
+
+      const style = document.querySelector<HTMLElement>('.wr-tooltip-overlay--top')!.parentElement!.style;
+      expect(768 - Number.parseFloat(style.bottom)).toBeCloseTo(300, 3);
+      expect(Number.parseFloat(style.left) + Number.parseFloat(style.width) / 2).toBeCloseTo(50, 3);
+    } finally {
+      rects.mockRestore();
+      Reflect.deleteProperty(doc, 'clientWidth');
+      Reflect.deleteProperty(doc, 'clientHeight');
+    }
+  });
+
+  it('keeps scrubbing while the pointer runs over the chip, which sits inside the drawing', () => {
+    // The chip points at the marker from above, so it covers the drawing there, and a
+    // pointer scrubbing along the top of the line lands on it. The chip is in the overlay,
+    // not in the drawing, so the drawing's own `mousemove` never hears that pointer.
+    const overChip = (clientX: number, clientY: number): void => {
+      chip()!.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX, clientY }));
+      fixture.detectChanges();
+    };
+    moveTo(47);
+    expect(part('value')!.textContent.trim()).toBe('9');
+
+    // Straight up from the point onto its chip is still that point: the chip stays hoverable.
+    overChip(50, 4);
+    expect(part('value')!.textContent.trim()).toBe('9');
+
+    // Along it, over the next point's stretch of the drawing, is that point.
+    overChip(74, 4);
+    expect(part('value')!.textContent.trim()).toBe('17');
+
+    // The part of a chip that pokes out above the drawing is the chip's alone.
+    overChip(98, -10);
+    expect(part('value')!.textContent.trim()).toBe('17');
   });
 
   it('shows neither the chip nor the marker with `tooltip` off', () => {

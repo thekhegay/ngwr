@@ -1,7 +1,6 @@
 <div class="wr-bar-chart__plot" [style.height.px]="height()">
   @for (bar of bars(); track $index) {
     <div
-      #column
       class="wr-bar-chart__column"
       role="img"
       [attr.aria-label]="bar.name"
@@ -11,7 +10,7 @@
       @if (showValues()) {
         <span class="wr-bar-chart__value">{{ bar.value }}</span>
       }
-      <div class="wr-bar-chart__bar" [style.height.%]="bar.heightPercent" [style.background]="bar.color"></div>
+      <div #barEl class="wr-bar-chart__bar" [style.height.%]="bar.heightPercent" [style.background]="bar.color"></div>
     </div>
   }
 </div>

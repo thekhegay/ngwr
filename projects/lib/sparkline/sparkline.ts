@@ -69,6 +69,7 @@ export class WrSparkline {
   readonly tooltip = input(true, { transform: coerceBooleanProperty });
 
   private readonly svg = viewChild<ElementRef<SVGSVGElement>>('svg');
+  private readonly marker = viewChild<ElementRef<HTMLElement>>('marker');
 
   // Drawn in a 100×40 viewBox — scales smoothly to any CSS size.
   private readonly vbW = 100;
@@ -136,21 +137,33 @@ export class WrSparkline {
   protected readonly viewBox = `0 0 ${this.vbW} ${this.vbH}`;
 
   /**
-   * One tooltip, above the drawing at the hovered point's x — below it when there is
-   * no room above — so the chip never lies over the line the pointer is running
-   * along. The point itself carries a marker.
+   * One tooltip, pointing at the hovered point: above its marker, below it when there
+   * is no room. The marker is the anchor element itself, drawn for the point the
+   * tooltip reads — it renders before this runs, since both follow `tip.active()`.
+   *
+   * The chip sits INSIDE the drawing, over the stretch of line above the marker, so the
+   * helper is also told which point any spot over the drawing reads: a pointer scrubbing
+   * along the top of a sparkline would otherwise land on the chip and stop there.
    */
-  protected readonly tip = useChartTooltip(this.tooltip, index => {
-    const value = this.values()[index];
-    const point = this.points()[index];
-    const svg = this.svg()?.nativeElement;
-    if (value === undefined || !point || !svg) return null;
-    const box = svg.getBoundingClientRect();
-    return {
-      datum: { label: this.ariaLabel() ?? undefined, value: String(value), color: this.color() },
-      anchor: { x: box.left + (point.x / this.vbW) * box.width, y: box.top, width: 0, height: box.height },
-    };
-  });
+  protected readonly tip = useChartTooltip(
+    this.tooltip,
+    index => {
+      const value = this.values()[index];
+      const marker = this.marker()?.nativeElement;
+      if (value === undefined || !marker) return null;
+      return {
+        datum: { label: this.ariaLabel() ?? undefined, value: String(value), color: this.color() },
+        anchor: marker,
+      };
+    },
+    (x, y) => {
+      const svg = this.svg()?.nativeElement;
+      if (!svg) return null;
+      const box = svg.getBoundingClientRect();
+      if (x < box.left || x > box.right || y < box.top || y > box.bottom) return null;
+      return this.indexAt(x, box);
+    }
+  );
 
   /**
    * The marker's place, as percentages of the box the drawing stretches to. An
@@ -163,21 +176,22 @@ export class WrSparkline {
     return point ? { x: (point.x / this.vbW) * 100, y: (point.y / this.vbH) * 100 } : null;
   });
 
+  protected onPointerMove(event: MouseEvent): void {
+    const index = this.indexAt(event.clientX, (event.currentTarget as Element).getBoundingClientRect());
+    if (index !== null) this.tip.enter(index);
+  }
+
   /**
    * The point nearest the pointer, along x only — the points are evenly spaced, so
    * that is a rounding rather than a search. A box with no width (nothing laid out
    * yet) answers nothing rather than a NaN index.
    */
-  protected onPointerMove(event: MouseEvent): void {
+  private indexAt(clientX: number, box: DOMRect): number | null {
     const count = this.points().length;
-    const box = (event.currentTarget as Element).getBoundingClientRect();
-    if (count === 0 || box.width <= 0) return;
-    if (count === 1) {
-      this.tip.enter(0);
-      return;
-    }
-    const x = ((event.clientX - box.left) / box.width) * this.vbW;
+    if (count === 0 || box.width <= 0) return null;
+    if (count === 1) return 0;
+    const x = ((clientX - box.left) / box.width) * this.vbW;
     const step = (this.vbW - this.padding * 2) / (count - 1);
-    this.tip.enter(Math.min(count - 1, Math.max(0, Math.round((x - this.padding) / step))));
+    return Math.min(count - 1, Math.max(0, Math.round((x - this.padding) / step)));
   }
 }

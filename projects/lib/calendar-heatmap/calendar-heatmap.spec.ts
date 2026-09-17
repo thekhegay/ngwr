@@ -300,4 +300,71 @@ describe('WrCalendarHeatmap tooltip', () => {
     expect(chip()).toBeNull();
     expect(cellFor('2025-08-11').getAttribute('title')).toMatch(/1,234$/);
   });
+
+  describe('where it points', () => {
+    const doc = document.documentElement;
+    /** The box the CDK lays the pane out in, in px. */
+    const box = (): Record<'top' | 'bottom' | 'left' | 'width', number> => {
+      const style = document.querySelector<HTMLElement>('.wr-tooltip-overlay')!.parentElement!.style;
+      return {
+        top: Number.parseFloat(style.top),
+        bottom: Number.parseFloat(style.bottom),
+        left: Number.parseFloat(style.left),
+        width: Number.parseFloat(style.width),
+      };
+    };
+    const pane = (): HTMLElement => document.querySelector<HTMLElement>('.wr-tooltip-overlay')!;
+
+    /**
+     * A 1024×768 document, a 160×26 chip, and the square for `iso` laid out as an 11px
+     * square at `(x, y)` — drawn at `scale` of that, about its centre, the way `:hover`
+     * grows it.
+     */
+    const layout = (iso: string, x: number, y: number, scale = 1): void => {
+      Object.defineProperty(doc, 'clientWidth', { configurable: true, value: 1024 });
+      Object.defineProperty(doc, 'clientHeight', { configurable: true, value: 768 });
+      const square = cellFor(iso);
+      Object.defineProperty(square, 'offsetWidth', { configurable: true, value: 11 });
+      Object.defineProperty(square, 'offsetHeight', { configurable: true, value: 11 });
+      const drawn = 11 * scale;
+      vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+        if (this === square) return new DOMRect(x + 5.5 - drawn / 2, y + 5.5 - drawn / 2, drawn, drawn);
+        return this.classList.contains('cdk-overlay-pane') ? new DOMRect(0, 0, 160, 26) : new DOMRect();
+      });
+    };
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+      Reflect.deleteProperty(doc, 'clientWidth');
+      Reflect.deleteProperty(doc, 'clientHeight');
+    });
+
+    it('points at the hovered day from above, not at its week', () => {
+      layout('2025-08-13', 500, 300);
+      move(cellFor('2025-08-13'));
+
+      expect(pane().classList).toContain('wr-tooltip-overlay--top');
+      // Above the square's top edge, centred on the square.
+      expect(768 - box().bottom).toBeCloseTo(300, 3);
+      expect(box().left + box().width / 2).toBeCloseTo(505.5, 3);
+    });
+
+    it('points at the square it lays out, not at the one its hover scale draws', () => {
+      // Part way through the `:hover` growth. A rect read now would move the chip by
+      // whatever fraction of the transition had run when it was measured.
+      layout('2025-08-13', 500, 300, 1.4);
+      move(cellFor('2025-08-13'));
+
+      expect(768 - box().bottom).toBeCloseTo(300, 3);
+      expect(box().left + box().width / 2).toBeCloseTo(505.5, 3);
+    });
+
+    it('flips below a day with no room above it', () => {
+      layout('2025-08-10', 500, 4);
+      move(cellFor('2025-08-10'));
+
+      expect(pane().classList).toContain('wr-tooltip-overlay--bottom');
+      expect(box().top).toBeCloseTo(15, 3);
+    });
+  });
 });
