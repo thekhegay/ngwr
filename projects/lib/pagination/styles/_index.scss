@@ -108,11 +108,15 @@
   &__size {
     min-width: 0;
 
-    // The 10rem floor on `.wr-select__trigger` is sized for a standalone field.
-    // Here the select only ever holds "20 / page", so the pager was reserving
-    // 160px for a ~75px label — the single widest thing in the control.
-    .wr-select__trigger {
-      min-width: 0;
+    // The select's 10rem width floor is sized for a standalone field. Here it
+    // only ever holds "20 / page", so the pager was reserving 160px for a ~75px
+    // label — the single widest thing in the control. Through the hook, since
+    // the floor lives on the select's host and a `min-width` on its trigger no
+    // longer reaches it — and compounded with `.wr-select`, which declares the
+    // default on this same element, so the override does not hang on which
+    // stylesheet loads last.
+    &.wr-select {
+      --wr-select-min-width: 0;
     }
   }
 

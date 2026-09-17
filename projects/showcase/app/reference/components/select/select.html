@@ -69,6 +69,11 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Width"
+    description="A select left to size itself is `10rem` wide, or wider when its value needs the room. That is a default rather than a minimum: an explicit `width`, `width: 100%` in a narrower parent, a grid cell and a flex item that has to shrink all win over it, and the value truncates. **Lower the default through `--wr-select-min-width`, never through the trigger** — set it to `0` and a bare select is as wide as its content. A `min-width` on `.wr-select__trigger`, the override that did this before the hook existed, no longer reaches it."
+  />
+
+  <ngwr-doc-section
     title="Multi mode"
     description="Set the `mode` input to `'multi'` to switch the model to `T[]`. Each pick renders as a chip with a remove button; the panel stays open while you keep picking. Backspace on the closed trigger removes the last chip. Add `clearable` — opt-in, and what the demo below passes — for the clear-all (×) that appears once at least one chip is selected."
   >
