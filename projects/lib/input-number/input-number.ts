@@ -219,8 +219,18 @@ export class WrInputNumber implements FormValueControl<number | null> {
     return v !== null && v >= this.maxValue();
   });
 
+  /**
+   * The size and pill modifiers mirror what is bound down to the chrome, because
+   * the stepper column belongs to neither half of it: the field carries
+   * `wr-input--<size>`, the column is its SIBLING, and the group carries no size
+   * at all. Without a modifier of its own the column drew one 10x6 chevron at
+   * every size and ran its dividers into a pill's rounded end.
+   */
   protected readonly classes = computed(() => {
     const parts = ['wr-input-number'];
+    const size = this.resolvedSize();
+    if (size !== 'md') parts.push(`wr-input-number--${size}`);
+    if (this.resolvedRounded()) parts.push('wr-input-number--rounded');
     if (this.disabled()) parts.push('wr-input-number--disabled');
     return parts.join(' ');
   });

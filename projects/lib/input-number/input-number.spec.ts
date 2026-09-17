@@ -410,6 +410,23 @@ describe('WrInputNumber defaults from provideWrConfig', () => {
     expect(chrome(1).group.classList.contains('wr-input-group--rounded')).toBe(true);
   });
 
+  it('mirrors the resolved size and pill onto its own host, config included', () => {
+    // The stepper column is the field's SIBLING and the group carries no size, so
+    // the host modifier is the only thing its chevrons and its pill inset can key
+    // on. It has to follow the RESOLVED value, or a configured `sm` shrinks the
+    // field and leaves the column drawing `md` chevrons beside it.
+    const instance = mount([provideWrConfig({ inputNumber: { size: 'sm', rounded: true } })]);
+    // Sorted: a `[class]` binding applies its diff, so the order is not the contract.
+    const classes = (): string[] => [...chrome(0).field.closest('wr-input-number')!.classList].sort();
+
+    expect(classes()).toEqual(['wr-input-number', 'wr-input-number--rounded', 'wr-input-number--sm']);
+
+    instance.size.set('lg');
+    instance.rounded.set(false);
+    fixture.detectChanges();
+    expect(classes()).toEqual(['wr-input-number', 'wr-input-number--lg']);
+  });
+
   it('falls back to the `input` key where `inputNumber` says nothing', () => {
     // The field IS a `[wrInput]`, and that directive resolves `input.size` for
     // itself. Since this control binds the value down — and a bound value wins —
@@ -596,5 +613,14 @@ describe('WrInputNumber forwards every documented size to its field', () => {
     fixture.detectChanges();
     if (size === 'md') expect(field().className).not.toMatch(/wr-input--(sm|lg)/);
     else expect(field().classList).toContain(`wr-input--${size}`);
+  });
+
+  it.each(SIZES)('size %s on the host, where the stepper column reads it', size => {
+    fixture.componentInstance.size.set(size);
+    fixture.detectChanges();
+    const host = (fixture.nativeElement as HTMLElement).querySelector('wr-input-number')!;
+    // `md` is the base, exactly as on the field: the ABSENCE of both modifiers.
+    if (size === 'md') expect(host.className).not.toMatch(/wr-input-number--(sm|md|lg)/);
+    else expect(host.classList).toContain(`wr-input-number--${size}`);
   });
 });

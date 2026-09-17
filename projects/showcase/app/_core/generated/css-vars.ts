@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 391 hook(s) across 59 page(s). A property is here only when the
+ * 392 hook(s) across 60 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 19 declaration(s) are one component setting
@@ -429,6 +429,12 @@ export const CSS_VARS = {
       { name: "--wr-input-placeholder", default: "rgba(var(--wr-color-on-surface-muted-rgb), 0.7)", scope: ".wr-input" },
       { name: "--wr-input-radius", default: "var(--wr-control-radius-md)", scope: ".wr-input", overrides: 3 },
       { name: "--wr-input-ring", default: "transparent", scope: ".wr-input", overrides: 2 },
+    ],
+  },
+  "reference/components/input-number": {
+    subpath: "ngwr/input-number",
+    vars: [
+      { name: "--wr-input-number-step-icon-size", default: "0.625rem", scope: ".wr-input-number", overrides: 2 },
     ],
   },
   "reference/components/input-otp": {
