@@ -88,6 +88,14 @@
   }
 
   // Visual states — invalid stripes the projected control too.
+  //
+  // The three combobox triggers are named one by one because each is a
+  // `<button>`, which the native selectors never reach. Only `wr-select`'s was
+  // listed, so a `wr-cascader` or an `openOn="overlay"` `wr-tree` in an invalid
+  // field announced `aria-invalid="true"` and kept its grey border. The property
+  // is set here rather than the component's border hook, the way the select's
+  // is, so the error edge holds while the trigger is focused or open — both of
+  // those set `border-color` directly and would otherwise paint it primary.
   // color-ok: `danger` against the default `--wr-color-outline` separates in
   // LIGHTNESS, not only in hue — 3.11:1 in light — so unlike two intents
   // compared with each other this survives greyscale, and the error MESSAGE
@@ -97,7 +105,9 @@
   &--invalid &__control select,
   &--invalid &__control .wr-input,
   &--invalid &__control .wr-textarea,
-  &--invalid &__control .wr-select__trigger {
+  &--invalid &__control .wr-select__trigger,
+  &--invalid &__control .wr-cascader__trigger,
+  &--invalid &__control .wr-tree__trigger {
     border-color: var(--wr-color-danger);
   }
 
