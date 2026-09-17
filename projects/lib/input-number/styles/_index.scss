@@ -1,7 +1,22 @@
 @use '../../theme/styles' as theme;
 
 .wr-input-number {
+  // Width of the ▲ / ▼ glyph; its height is 0.6 of it, the proportion the
+  // markup's `10x6` always drew. It follows the control's size the way
+  // `--wr-btn-icon-size` does, because the column is one fixed-width strip
+  // whose height does not: at `sm` each half-button is 10px tall, and a
+  // chevron sized for `md` filled all but 2px of it.
+  --wr-input-number-step-icon-size: 0.625rem; // 10px
+
   display: inline-block;
+
+  &--sm {
+    --wr-input-number-step-icon-size: 0.5rem; // 8px
+  }
+
+  &--lg {
+    --wr-input-number-step-icon-size: 0.75rem; // 12px
+  }
 
   // Steppers live as a compact vertical column inside the suffix slot.
   // `<wr-input-group>` sets `pointer-events: none` on non-button affixes
@@ -78,6 +93,60 @@
     &:disabled {
       cursor: not-allowed;
       opacity: var(--wr-disabled-opacity);
+    }
+
+    // CSS size, so it beats the markup's `width` / `height` attributes — which
+    // stay, as what an unstyled page draws instead of a 300x150 default.
+    svg {
+      width: var(--wr-input-number-step-icon-size);
+      height: calc(var(--wr-input-number-step-icon-size) * 0.6);
+    }
+  }
+
+  // A pill's end is a half-disc as tall as the field. The column itself fitted
+  // it — its start border sits 26px from the outer end, on the straight run
+  // before a curve 11–21.5px long, and its own end radius followed the arc — but
+  // the divider between ▲ and ▼ ran to the very tip of the curve, and the start
+  // border plus that divider cut the end cap into a separate square segment with
+  // the chevrons 7px from the end, inside the bend. Keeping the dividers and
+  // clearing the curve means insetting the column by the whole radius (18px at
+  // `lg`), which leaves an empty D-shaped cap after it. So the pill drops the
+  // dividers instead, and the pair sits inside the end the way the text sits
+  // inside the start.
+  &--rounded {
+    .wr-input-number__steppers.wr-input-group__affix {
+      border-inline-start: 0;
+      border-radius: 0;
+      overflow: visible;
+      // Half the pill's affix inset: added to the half-button's own slack around
+      // the glyph (7px at `md`), the chevrons end 14–16px from the border, where
+      // the field's text begins on the other side. It costs a pill 7px of
+      // minimum width (8px of margin, less the 1px border above). Padding the
+      // steps instead keeps the old width and leaves the chevrons 10–12px from
+      // the border.
+      margin-inline-end: calc(var(--wr-input-group-padding-x) / 2);
+    }
+
+    // With the column no longer clipping them, the hover and pressed tints need
+    // a shape of their own: a small-radius tint box reaches past the curved
+    // border at `lg` (measured with 5px corners: about 1px, 2px under `touch`).
+    // An oversized end radius is scaled down to the half-button's own height, so
+    // each tint ends in a quarter-disc that stays inside the curve and the pair
+    // reads as the pill's end cap.
+    .wr-input-number__step {
+      border-radius: 0;
+
+      &:first-child {
+        border-start-end-radius: 999px;
+      }
+
+      &:last-child {
+        border-end-end-radius: 999px;
+      }
+
+      & + .wr-input-number__step {
+        border-top: 0;
+      }
     }
   }
 
