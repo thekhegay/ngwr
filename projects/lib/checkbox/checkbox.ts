@@ -174,6 +174,8 @@ export class WrCheckbox implements FormCheckboxControl {
    * only and controlled: set it yourself for a parent "select all" whose
    * children are partly checked, and clear it on the next toggle. Takes visual
    * precedence over `checked`; the native input reports `aria-checked="mixed"`.
+   * A click the host does not answer still toggles `checked` underneath, and the
+   * dash and the mixed state both stay until the binding turns `false`.
    *
    * @default false
    */
@@ -231,16 +233,25 @@ export class WrCheckbox implements FormCheckboxControl {
   }
 
   protected onInputChange(event: Event): void {
+    const inputEl = event.target as HTMLInputElement;
+    // Activating a checkbox clears its own `indeterminate` before `change` fires,
+    // and the `[indeterminate]` binding never writes again while the bound value
+    // stays `true` — so the box kept painting the dash while the accessibility
+    // tree announced "checked". The input is controlled: the mixed state holds
+    // until the host clears it, and a host that does clears it through the
+    // binding on the next change detection.
+    inputEl.indeterminate = this.indeterminate();
+
     if (this.effectiveReadonly()) {
       // A synthetic `change` cannot be prevented — put the DOM back instead.
-      (event.target as HTMLInputElement).checked = this.isChecked();
+      inputEl.checked = this.isChecked();
       return;
     }
     if (this.group) {
       this.group.toggle(this.checkboxValue());
       return;
     }
-    this.checked.set((event.target as HTMLInputElement).checked);
+    this.checked.set(inputEl.checked);
   }
 
   protected onInputBlur(): void {

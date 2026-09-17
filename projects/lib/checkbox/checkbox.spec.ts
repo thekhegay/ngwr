@@ -1,4 +1,4 @@
-import { Component, type EnvironmentProviders, signal } from '@angular/core';
+import { Component, computed, type EnvironmentProviders, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrConfig } from 'ngwr/config';
@@ -34,7 +34,7 @@ class Host {
   template: `
     <wr-checkbox-group [(value)]="picked" [disabled]="groupDisabled()" (touch)="touched.set(touched() + 1)">
       <wr-checkbox checkboxValue="a">A</wr-checkbox>
-      <wr-checkbox checkboxValue="b">B</wr-checkbox>
+      <wr-checkbox checkboxValue="b" [indeterminate]="bMixed()">B</wr-checkbox>
       <wr-checkbox checkboxValue="c">C</wr-checkbox>
     </wr-checkbox-group>
   `,
@@ -42,7 +42,25 @@ class Host {
 class GroupHost {
   readonly picked = signal<unknown[]>([]);
   readonly groupDisabled = signal(false);
+  readonly bMixed = signal(false);
   readonly touched = signal(0);
+}
+
+/** The documented "select all": the parent's state is DERIVED, and its toggle settles the children. */
+@Component({
+  imports: [WrCheckbox],
+  template: `
+    <wr-checkbox [checked]="all()" [indeterminate]="some()" (checkedChange)="toggleAll()">Select all</wr-checkbox>
+  `,
+})
+class SelectAllHost {
+  readonly picked = signal<string[]>(['a']);
+  readonly all = computed(() => this.picked().length === 3);
+  readonly some = computed(() => this.picked().length > 0 && !this.all());
+
+  toggleAll(): void {
+    this.picked.set(this.all() ? [] : ['a', 'b', 'c']);
+  }
 }
 
 @Component({
@@ -120,6 +138,39 @@ describe('WrCheckbox', () => {
     expect(input().indeterminate).toBe(true);
     expect(root().querySelector('.wr-checkbox__dash')).not.toBeNull();
     expect(root().querySelector('.wr-checkbox__mark')).toBeNull();
+  });
+
+  // `indeterminate` is controlled: the dash stays until the host clears it. The
+  // browser does not know that — activating a checkbox clears the input's own
+  // `indeterminate` before `change` fires — and Angular never re-writes a bound
+  // value that did not change, so the box went on painting a dash while the
+  // accessibility tree announced "checked", then "not checked", on each click.
+  it('keeps the native input mixed across a click while the host keeps it indeterminate', () => {
+    fixture.componentInstance.indeterminate.set(true);
+    fixture.detectChanges();
+
+    toggle();
+
+    expect(fixture.componentInstance.checked()).toBe(true);
+    expect(host().classList).toContain('wr-checkbox--indeterminate');
+    expect(root().querySelector('.wr-checkbox__dash')).not.toBeNull();
+    expect(input().indeterminate).toBe(true);
+
+    toggle();
+
+    expect(fixture.componentInstance.checked()).toBe(false);
+    expect(input().indeterminate).toBe(true);
+  });
+
+  // The reset has to follow the binding, not assume a mixed box: a box that was
+  // never indeterminate has a binding that never changes either, so writing `true`
+  // there would announce "mixed" for the life of the page.
+  it('leaves a box that was never indeterminate out of the mixed state across clicks', () => {
+    toggle();
+    expect([input().indeterminate, input().checked]).toEqual([false, true]);
+
+    toggle();
+    expect([input().indeterminate, input().checked]).toEqual([false, false]);
   });
 
   it('does not toggle while disabled', () => {
@@ -231,12 +282,74 @@ describe('WrCheckboxGroup', () => {
     expect(picked()).toEqual([]);
   });
 
+  it('keeps a grouped box mixed across a click while the host keeps it indeterminate', () => {
+    fixture.componentInstance.bMixed.set(true);
+    fixture.detectChanges();
+
+    click(1);
+    click(0);
+
+    expect(picked()).toEqual(['b', 'a']);
+    expect(inputs().map(i => i.indeterminate)).toEqual([false, true, false]);
+  });
+
   it('keeps the boxes independent of one another', () => {
     click(0);
 
     // The failure this guards is the `value`-instead-of-`checkboxValue` one: a
     // shared identity makes the whole group move as a single control.
     expect(inputs().map(i => i.checked)).toEqual([true, false, false]);
+  });
+});
+
+describe('WrCheckbox as a select-all parent', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<SelectAllHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const input = (): HTMLInputElement => root().querySelector<HTMLInputElement>('input.wr-checkbox__input')!;
+  const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-checkbox')!;
+
+  const toggle = (): void => {
+    input().click();
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(SelectAllHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  // Holding the native state while the binding stays `true` must not fight a host
+  // that answers the toggle: its `(checkedChange)` clears the derived flag, and the
+  // binding writes `false` on the same change detection.
+  it('leaves the mixed state when the host settles the children on the toggle', () => {
+    expect(input().indeterminate).toBe(true);
+
+    toggle();
+
+    expect(fixture.componentInstance.picked()).toEqual(['a', 'b', 'c']);
+    expect([input().indeterminate, input().checked]).toEqual([false, true]);
+    expect(host().classList).toContain('wr-checkbox--checked');
+    expect(host().classList).not.toContain('wr-checkbox--indeterminate');
+    expect(root().querySelector('.wr-checkbox__mark')).not.toBeNull();
+
+    toggle();
+
+    expect(fixture.componentInstance.picked()).toEqual([]);
+    expect([input().indeterminate, input().checked]).toEqual([false, false]);
+  });
+
+  it('turns mixed again when the children are partly checked from outside', () => {
+    toggle();
+    fixture.componentInstance.picked.set(['b']);
+    fixture.detectChanges();
+
+    expect(input().indeterminate).toBe(true);
+    expect(root().querySelector('.wr-checkbox__dash')).not.toBeNull();
   });
 });
 
