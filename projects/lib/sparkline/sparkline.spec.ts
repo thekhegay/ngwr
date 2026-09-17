@@ -279,6 +279,32 @@ describe('WrSparkline tooltip', () => {
     expect(part('value')!.textContent.trim()).toBe('17');
   });
 
+  it('closes once the pointer is off the drawing, even when its leave was undone at the edge', () => {
+    // At the drawing's edge its box and its hit area disagree by a fraction of a pixel,
+    // so the move that fires its `mouseleave` still reads the last point in the capture
+    // phase and cancels the grace the leave arms. Measured in Chromium: the chip then
+    // stayed up for good once the pointer left across the edge.
+    vi.useFakeTimers();
+    try {
+      const at = (type: string, clientX: number): void => {
+        document.body.dispatchEvent(new MouseEvent(type, { bubbles: true, clientX, clientY: 20 }));
+      };
+      moveTo(47);
+      expect(part('value')!.textContent.trim()).toBe('9');
+
+      svg().dispatchEvent(new MouseEvent('mouseleave', { clientX: 47, clientY: 20, relatedTarget: document.body }));
+      at('mouseover', 47);
+      at('mousemove', 130);
+      vi.advanceTimersByTime(150);
+      fixture.detectChanges();
+
+      expect(chip()).toBeNull();
+      expect(marker()).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('shows neither the chip nor the marker with `tooltip` off', () => {
     fixture.componentInstance.tooltip.set(false);
     fixture.detectChanges();
