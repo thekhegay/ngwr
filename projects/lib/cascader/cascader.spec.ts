@@ -31,7 +31,7 @@ const OPTIONS: readonly WrCascaderOption[] = [
     <wr-cascader
       placeholder="Pick a place"
       ariaLabel="Place"
-      [options]="options"
+      [options]="options()"
       [(value)]="picked"
       [changeOnSelect]="changeOnSelect()"
       [disabled]="disabled()"
@@ -41,7 +41,7 @@ const OPTIONS: readonly WrCascaderOption[] = [
   `,
 })
 class Host {
-  readonly options = OPTIONS;
+  readonly options = signal<readonly WrCascaderOption[]>(OPTIONS);
   readonly picked = signal<unknown>([]);
   readonly changeOnSelect = signal(false);
   readonly disabled = signal(false);
@@ -553,6 +553,41 @@ describe('WrCascader', () => {
 
     it('offers no clear button while there is nothing to clear', () => {
       expect(root().querySelector('.wr-cascader__clear')).toBeNull();
+    });
+
+    /**
+     * A bound path is DISPLAYED in every state that cannot change it. An empty
+     * read-only trigger on the all-components page was read as the component
+     * dropping its value; it was the page, which bound every state to one signal
+     * and cleared it from another demo. These two pin the half the component owns.
+     */
+    it('shows a bound path while read-only, and offers nothing that would change it', () => {
+      fixture.componentInstance.picked.set(['eu', 'de', 'ber']);
+      fixture.componentInstance.readonly.set(true);
+      fixture.detectChanges();
+
+      expect(shownLabel()).toBe('Europe / Germany / Berlin');
+      expect(root().querySelector('.wr-cascader__placeholder')).toBeNull();
+      expect(root().querySelector('.wr-cascader__clear')).toBeNull();
+      expect(trigger().getAttribute('aria-readonly')).toBe('true');
+    });
+
+    it('shows a path bound before its options arrived, once they do', () => {
+      fixture.componentInstance.options.set([]);
+      fixture.componentInstance.picked.set(['eu', 'fr', 'par']);
+      fixture.componentInstance.readonly.set(true);
+      fixture.detectChanges();
+
+      // No option to name the path yet, so the trigger shows its placeholder rather
+      // than printing raw values.
+      expect(shownLabel()).toBeUndefined();
+      expect(root().querySelector('.wr-cascader__placeholder')?.textContent?.trim()).toBe('Pick a place');
+
+      fixture.componentInstance.options.set(OPTIONS);
+      fixture.detectChanges();
+
+      expect(shownLabel()).toBe('Europe / France / Paris');
+      expect(picked()).toEqual(['eu', 'fr', 'par']);
     });
 
     it('carries the public BEM classes', () => {

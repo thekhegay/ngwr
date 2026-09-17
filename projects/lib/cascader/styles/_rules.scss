@@ -2,6 +2,8 @@
 // is a horizontal row of columns where each column lists the children
 // of the previously-active node. Picking a leaf commits the path.
 
+@use '../../theme/styles/mixins' as theme;
+
 // `focus` is the one theme partial these rules still load that emits CSS of its
 // own — the shared ring mixin lives in the same file as the baseline
 // `.wr-*:focus-visible` rules, and there is no mixin-only module to take it from.
@@ -86,6 +88,20 @@
     &:disabled {
       cursor: not-allowed;
     }
+
+    // The ×'s touch halo (on `__clear`) CLEARS the path, and nothing undoes that,
+    // so it must never reach past the control it belongs to. A 32px halo on a 22px
+    // `sm` trigger overhung its border by 5px above and below, and a tap 3px above
+    // the trigger, on whatever sits over it, cleared this one. Clipping the block
+    // axis bounds the halo to the trigger's own padding box: 20 / 28 / 32px tall
+    // for sm / md / lg, and still inside under any padding, line-height or density.
+    // A cap re-derived from the hooks overhung again on md and lg as soon as the
+    // trigger's `padding-block` was set directly. `clip` rather than `hidden`, so
+    // there is no scroll container and no baseline change, and the inline axis stays
+    // visible.
+    @media (pointer: coarse) {
+      overflow-y: clip;
+    }
   }
 
   // A read-only trigger still takes focus and still shows its path, so it keeps
@@ -105,6 +121,13 @@
   &__value,
   &__placeholder {
     flex: 1 1 auto;
+    // The text line is what gives the trigger its size's height, so it has to
+    // exist when there is no text. Nothing chosen and no placeholder left an
+    // empty span with no line box, and the trigger fell to the chevron's 1em:
+    // measured 18 / 24 / 28px for sm / md / lg, where the contract is 22 / 30 / 36.
+    // `1lh` is the span's own line, not the hook, so a `line-height` set on the
+    // trigger itself shortens an empty trigger the same way it shortens a filled one.
+    min-height: 1lh;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -130,6 +153,14 @@
     justify-content: center;
     width: 1.125rem;
     height: 1.125rem;
+    // Never adds to the text line, so choosing a value cannot resize the trigger.
+    // The 18px circle is taller than `sm`'s 16px line and made an `sm` cascader
+    // with a value 24px tall. A symmetric negative margin of at least half the box
+    // takes the × out of the line's cross size, for any box up to 2rem, and
+    // `align-items: center` keeps the circle centred as drawn. A margin worked out
+    // from the hook and the 18px literal let a restyled `.wr-cascader__clear` grow
+    // the trigger again: a 24px box made sm / md / lg 28 / 36 / 42px with a value.
+    margin-block: -1rem;
     border-radius: 999px;
     color: var(--wr-color-on-surface-muted);
     cursor: pointer;
@@ -141,6 +172,15 @@
       background: rgba(var(--wr-color-on-surface-rgb), 0.06);
       color: var(--wr-color-on-surface);
     }
+
+    // The same 32px tap area the × has always had on touch, as a halo rather
+    // than a box. Growing the box itself put 32px inside the text line: with a
+    // value, sm / md / lg measured 38 / 42 / 44px under a coarse pointer against
+    // 22 / 30 / 36 without one, so `lg` read as `md` and a pick moved the row.
+    // 2rem rather than the mixin's 44px default, which would reach over the
+    // chevron 8px away and turn a tap meant to open the panel into a clear. The
+    // trigger clips the halo's height to its own (see `__trigger`).
+    @include theme.touch-target($size: 2rem);
   }
 }
 
@@ -244,15 +284,10 @@
   }
 }
 
-// Touch pointers: grow the clear button and make the column option rows ~44px
-// tall so each is a comfortable tap target. Fine pointers keep the compact
-// desktop sizing above.
+// Touch pointers: make the column option rows ~44px tall so each is a
+// comfortable tap target (the clear button's own tap area is on `__clear`).
+// Fine pointers keep the compact desktop sizing above.
 @media (pointer: coarse) {
-  .wr-cascader__clear {
-    width: 2rem;
-    height: 2rem;
-  }
-
   .wr-cascader-panel .wr-cascader__opt {
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
