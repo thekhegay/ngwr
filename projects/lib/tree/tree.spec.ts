@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -1175,5 +1178,101 @@ describe('WrTree in overlay mode follows a direction flip while open', () => {
     flipTo('ltr');
 
     expect(overlayHost().getAttribute('dir')).toBe('ltr');
+  });
+});
+
+/** Every rule in the tree stylesheet, selector to declarations — read from source, see below. */
+const rules = (): Map<string, Record<string, string>> => {
+  const source = readFileSync(join(process.cwd(), 'projects/lib/tree/styles/_index.scss'), 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/(^|\s)\/\/[^\n]*/g, '$1');
+  const out = new Map<string, Record<string, string>>();
+  const stack: string[] = [];
+  let buffer = '';
+  for (const ch of source) {
+    if (ch === '{') {
+      const head = buffer.trim();
+      const parent = stack.at(-1);
+      stack.push(parent === undefined ? head : head.includes('&') ? head.replaceAll('&', parent) : `${parent} ${head}`);
+      buffer = '';
+    } else if (ch === ';' || ch === '}') {
+      const statement = buffer.trim();
+      const selector = stack.at(-1);
+      const colon = statement.indexOf(':');
+      if (selector !== undefined && colon > 0 && !statement.startsWith('@')) {
+        out.set(selector, {
+          ...out.get(selector),
+          [statement.slice(0, colon).trim()]: statement.slice(colon + 1).trim(),
+        });
+      }
+      if (ch === '}') stack.pop();
+      buffer = '';
+    } else {
+      buffer += ch;
+    }
+  }
+  return out;
+};
+
+/**
+ * The overlay trigger's width floor gives way to the layout.
+ * `--wr-tree-trigger-min-width` used to be a `min-width` on the TRIGGER, which no
+ * width on the host could beat: `<wr-tree openOn="overlay" style="width: 6rem">`
+ * drew a 192px trigger inside a 96px host, and one in a narrow grid cell or flex
+ * row overhung it. The floor is now a zero-height spacer in a one-column grid on
+ * the combobox host — the shape `wr-select` uses — and the INLINE tree, which
+ * has no trigger, is left alone.
+ *
+ * jsdom has no layout, so nothing here can measure a width — every rect is 0×0
+ * and every one of these would pass on the stylesheet that overflowed. What a
+ * spec CAN hold is the two halves the geometry rests on: the rendered DOM (the
+ * trigger is the combobox host's only element, so the spacer is the column's
+ * only other item) and the declarations, read from source the way
+ * `avatar.spec.ts` reads its own. The widths were measured in a real browser.
+ */
+describe('WrTree overlay trigger width floor', () => {
+  it('renders the trigger as the combobox host’s only element', () => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    const fixture = TestBed.createComponent(OverlayHost);
+    fixture.detectChanges();
+
+    const host = (fixture.nativeElement as HTMLElement).querySelector('wr-tree')!;
+    expect(host.classList).toContain('wr-tree--combobox');
+    expect([...host.children].map(child => `${child.tagName}.${child.classList[0]}`)).toEqual([
+      'BUTTON.wr-tree__trigger',
+    ]);
+    fixture.destroy();
+  });
+
+  it('lays the combobox host out as one column that can shrink to nothing', () => {
+    expect(rules().get('.wr-tree--combobox')).toMatchObject({
+      display: 'inline-grid',
+      'grid-template-columns': 'minmax(0, 1fr)',
+      '--wr-tree-trigger-min-width': '12rem',
+    });
+  });
+
+  it('gives a stretched combobox host’s extra height to the trigger’s row, not the spacer’s', () => {
+    // An implicit second row would be `auto` and take a share of it: a host
+    // stretched to 60px by its flex row drew a 45px trigger over a 15px gap.
+    expect(rules().get('.wr-tree--combobox')).toMatchObject({ 'grid-template-rows': 'auto 0' });
+  });
+
+  it('carries the floor on a spacer a narrower host caps', () => {
+    expect(rules().get('.wr-tree--combobox::after')).toMatchObject({
+      content: "''",
+      width: 'var(--wr-tree-trigger-min-width)',
+      'max-width': '100%',
+      height: '0',
+    });
+  });
+
+  it('lets the trigger follow the host down', () => {
+    expect(rules().get('.wr-tree__trigger')).toMatchObject({ width: '100%', 'min-width': '0' });
+  });
+
+  it('leaves the inline tree a block with no spacer', () => {
+    expect(rules().get('.wr-tree')).toMatchObject({ display: 'block' });
+    expect(rules().has('.wr-tree::after')).toBe(false);
   });
 });

@@ -177,14 +177,50 @@
     --wr-tree-trigger-font-size: var(--wr-control-font-size-md);
     --wr-tree-trigger-line-height: var(--wr-control-line-height-md);
     --wr-tree-panel-max-height: 18rem;
-    // Trigger width floor — hooked for the same reason as `--wr-select-min-width`:
-    // in a narrow grid column the literal wins over `minmax(0, 1fr)` and the
-    // trigger overhangs its cell, and the only escape was overriding
-    // `.wr-tree__trigger` from outside. Set it to 0 to defer to the layout.
+    // Trigger width floor, the same contract as `--wr-select-min-width`.
+    // Despite the name it is a DEFAULT width rather than a minimum: an explicit
+    // `width`, `width: 100%` in a narrow parent, a `minmax(0, 1fr)` cell and a
+    // shrinking flex item all win over it (see `::after` below). Set it to 0 to
+    // size a bare trigger to its content alone. This hook is the only way to
+    // lower it: a `min-width` on `.wr-tree__trigger`, the override that did it
+    // before the hook existed, no longer reaches the floor.
     --wr-tree-trigger-min-width: 12rem;
 
-    display: inline-flex;
+    // One column that shrinks to whatever the layout gives it and, left to size
+    // itself, grows to the widest thing in it — the trigger's content or the
+    // floor. The floor used to be a `min-width` on the trigger, which no width
+    // on the host could beat: `style="width: 6rem"` drew a 192px trigger in a
+    // 96px host, and in a 200px flex row beside a 120px sibling the tree
+    // overflowed the row by 120px. `minmax(0, …)` also drops the label's text
+    // from the host's min-content, so it shrinks as a flex item the way
+    // `[wrInput]` does and the label truncates instead.
+    display: inline-grid;
+    grid-template-columns: minmax(0, 1fr);
+    // The spacer below lands in a row of its own, and it must be a FIXED 0
+    // rather than an implicit `auto` one: a grid shares height beyond its
+    // content among its auto rows, so a host stretched by a taller flex or grid
+    // row, or given a `height`, drew a 45px trigger in a 60px host with an empty
+    // band beneath it.
+    grid-template-rows: auto 0;
     vertical-align: middle;
+
+    // The floor as a zero-height spacer in the same column. A grid track's
+    // max-content is its widest item, so a host sized to its content is at
+    // least `--wr-tree-trigger-min-width` wide; `max-width: 100%` is ignored
+    // while that size is being worked out and applies once the column exists,
+    // so a narrower host caps the spacer instead of the spacer stretching the
+    // host. `flex: 0 0 0` keeps it from taking room beside the trigger if a
+    // consumer turns the host into a flex container (the floor is then inert,
+    // never in the way). In overlay mode the template renders exactly one
+    // element into the host — the trigger — so this is the column's only other
+    // item, and the zero row is the spacer's.
+    &::after {
+      content: '';
+      flex: 0 0 0;
+      width: var(--wr-tree-trigger-min-width);
+      max-width: 100%;
+      height: 0;
+    }
 
     &.wr-tree--disabled {
       --wr-tree-trigger-color: var(--wr-color-on-surface-muted);
@@ -197,7 +233,10 @@
     align-items: center;
     gap: 0.5rem;
     width: 100%;
-    min-width: var(--wr-tree-trigger-min-width);
+    // Not the floor — that lives on the host, where a width can beat it. Zero
+    // lets the trigger follow the host down and the label's ellipsis take the
+    // difference.
+    min-width: 0;
     appearance: none;
     background: var(--wr-tree-trigger-bg);
     color: var(--wr-tree-trigger-color);
