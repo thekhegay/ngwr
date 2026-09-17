@@ -1,0 +1,8 @@
+@let d = datum();
+@if (d.color) {
+  <span class="wr-chart-tooltip__swatch" [style.background]="d.color"></span>
+}
+@if (d.label) {
+  <span class="wr-chart-tooltip__label">{{ d.label }}</span>
+}
+<span class="wr-chart-tooltip__value">{{ d.value }}</span>

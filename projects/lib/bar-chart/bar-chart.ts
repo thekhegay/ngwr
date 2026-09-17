@@ -6,7 +6,9 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChildren } from '@angular/core';
+
+import { useChartTooltip } from 'ngwr/popover';
 
 import type { WrBarChartDatum } from './interfaces';
 
@@ -47,6 +49,14 @@ export class WrBarChart {
   readonly max = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
 
   /**
+   * Show a tooltip with the bar's label and value on hover. Pointer only — the
+   * column's accessible name already carries both. @default true
+   */
+  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+
+  private readonly columnEls = viewChildren<ElementRef<HTMLElement>>('column');
+
+  /**
    * A datum's value, with anything non-finite read as `0`.
    *
    * One `NaN` used to take out the whole chart rather than its own bar:
@@ -85,6 +95,21 @@ export class WrBarChart {
       };
     })
   );
+
+  /**
+   * One tooltip for the whole chart, with the value exactly as it is printed above
+   * the bar. It points at the top of the bar's COLUMN, which is the top of the plot:
+   * above every bar, so the chip never covers a neighbour — pointed at the bar, it
+   * sat over the printed value it repeats and over the tops of the bars beside it —
+   * and straight up from any bar the pointer stays in its own column all the way
+   * onto the chip.
+   */
+  protected readonly tip = useChartTooltip(this.tooltip, index => {
+    const bar = this.bars()[index];
+    const anchor = this.columnEls()[index]?.nativeElement;
+    if (!bar || !anchor) return null;
+    return { datum: { label: bar.label, value: String(bar.value), color: bar.color }, anchor };
+  });
 }
 
 export type { WrBarChartDatum } from './interfaces';

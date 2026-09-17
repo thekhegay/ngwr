@@ -7,11 +7,17 @@
   [attr.aria-valuenow]="totalValue()"
 >
   @for (slice of slices(); track $index) {
+    <!-- `data-label` is what the harness reads a band's label from; the `title` it
+         used to read is only written while the tooltip is off. -->
     <span
+      #slice
       class="wr-meter-group__slice"
-      [title]="slice.label"
+      [attr.title]="tooltip() ? null : slice.label"
+      [attr.data-label]="slice.label"
       [style.width.%]="slice.percent"
       [style.background]="slice.color"
+      (mouseenter)="tip.enter($index)"
+      (mouseleave)="tip.leave($event)"
     ></span>
   }
 </div>

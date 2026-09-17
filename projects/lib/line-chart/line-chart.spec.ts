@@ -16,7 +16,13 @@ const SERIES: readonly WrLineSeries[] = [
 @Component({
   imports: [WrLineChart],
   template: `
-    <wr-line-chart [series]="series()" [xLabels]="xLabels()" [showLegend]="showLegend()" [showGrid]="showGrid()" />
+    <wr-line-chart
+      [series]="series()"
+      [xLabels]="xLabels()"
+      [showLegend]="showLegend()"
+      [showGrid]="showGrid()"
+      [tooltip]="tooltip()"
+    />
   `,
 })
 class Host {
@@ -24,6 +30,7 @@ class Host {
   readonly xLabels = signal<readonly string[]>(['Mon', 'Tue', 'Wed']);
   readonly showLegend = signal(true);
   readonly showGrid = signal(true);
+  readonly tooltip = signal(true);
 }
 
 /**
@@ -262,6 +269,30 @@ describe('WrLineChart', () => {
     fixture.componentInstance.showGrid.set(false);
     fixture.detectChanges();
     expect(root().querySelectorAll('.wr-line-chart__grid-line').length).toBe(0);
+  });
+
+  it('reads out the x under the pointer, and drops the whole readout with `tooltip` off', () => {
+    // jsdom lays nothing out, so the plot's box is stubbed: 600px wide at the origin makes
+    // a clientX read as a viewBox x. x = 300 is the middle of the three points.
+    svg().getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
+    const readout = (): Element | null => root().querySelector('.wr-line-chart__tooltip');
+    const move = (): void => {
+      svg().dispatchEvent(new MouseEvent('pointermove', { clientX: 310 }));
+      fixture.detectChanges();
+    };
+
+    move();
+    expect(root().querySelector('.wr-line-chart__tooltip-label')!.textContent.trim()).toBe('Tue');
+    expect(root().querySelector('.wr-line-chart__crosshair')).not.toBeNull();
+
+    // Off while the pointer is still on it: the readout goes, it does not wait for a leave.
+    fixture.componentInstance.tooltip.set(false);
+    fixture.detectChanges();
+    expect(readout()).toBeNull();
+
+    move();
+    expect(readout()).toBeNull();
+    expect(root().querySelector('.wr-line-chart__crosshair')).toBeNull();
   });
 
   it('keeps the svg stretchable', () => {

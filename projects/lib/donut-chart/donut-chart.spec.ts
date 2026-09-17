@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
+import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrDonutChart } from './donut-chart';
@@ -191,5 +192,84 @@ describe('WrDonutChart under a localized catalog', () => {
     expect(drawing.getAttribute('aria-label')).toBe('Круговая диаграмма');
 
     fixture.destroy();
+  });
+});
+
+@Component({
+  imports: [WrDonutChart],
+  template: `<wr-donut-chart [segments]="segments" [tooltip]="tooltip()" />`,
+})
+class TooltipHost {
+  readonly segments = SEGMENTS;
+  readonly tooltip = signal(true);
+}
+
+/**
+ * The tooltip points at the middle of the arc, worked out from the drawing's box — which
+ * jsdom reports as 0×0, so WHERE it points is measured in a browser. What it says, and
+ * that it follows the arc under the pointer, is asserted here. So is the one piece of CSS
+ * that decides whether an arc can be hovered at all only in part: the centre text used to
+ * cover the whole drawing, and no stylesheet reaches jsdom, so that half is also measured
+ * in the browser.
+ */
+describe('WrDonutChart tooltip', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<TooltipHost>>;
+
+  const paths = (): SVGPathElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<SVGPathElement>('.wr-donut-chart__surface path'),
+  ];
+  const chip = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-chart-tooltip');
+  const part = (name: string): HTMLElement | null =>
+    chip()?.querySelector<HTMLElement>(`.wr-chart-tooltip__${name}`) ?? null;
+
+  const hover = (el: Element): void => {
+    el.dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(TooltipHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('shows the label, value and colour of the hovered slice', () => {
+    hover(paths()[1]);
+
+    expect(part('label')!.textContent.trim()).toBe('Search');
+    expect(part('value')!.textContent.trim()).toBe('50');
+    expect(part('swatch')!.style.background).toBe('rgb(18, 52, 86)');
+  });
+
+  it('opens below the ring for a lower slice and above it for an upper one', () => {
+    const pane = (): HTMLElement => document.querySelector<HTMLElement>('.wr-tooltip-overlay')!;
+
+    // Direct runs from 0 to 108 degrees, clockwise from three o'clock: its middle is
+    // in the lower half. Search, from 108 to 288, has its middle in the upper half.
+    hover(paths()[0]);
+    expect(pane().classList).toContain('wr-tooltip-overlay--bottom');
+
+    hover(paths()[1]);
+    expect(pane().classList).toContain('wr-tooltip-overlay--top');
+  });
+
+  it('follows the pointer from one slice to the next', () => {
+    hover(paths()[0]);
+    hover(paths()[2]);
+
+    expect(document.querySelectorAll('.wr-chart-tooltip')).toHaveLength(1);
+    expect(part('label')!.textContent.trim()).toBe('Social');
+  });
+
+  it('shows nothing with `tooltip` off', () => {
+    fixture.componentInstance.tooltip.set(false);
+    fixture.detectChanges();
+
+    hover(paths()[0]);
+
+    expect(chip()).toBeNull();
   });
 });

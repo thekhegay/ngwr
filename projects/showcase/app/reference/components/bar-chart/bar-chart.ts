@@ -44,6 +44,7 @@ export class MyComponent {
   ];
 }`,
     basic: `<wr-bar-chart [data]="bars" />`,
+    tooltip: `<wr-bar-chart [data]="bars" [tooltip]="false" />`,
   };
 
   protected readonly typeSnippet = `interface WrBarChartDatum {

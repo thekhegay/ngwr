@@ -37,6 +37,7 @@ export class MyComponent {
   protected readonly labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 }`,
     basic: `<wr-line-chart [series]="series" [xLabels]="labels" />`,
+    tooltip: `<wr-line-chart [series]="series" [xLabels]="labels" [tooltip]="false" />`,
   };
 
   protected readonly typeSnippet = `interface WrLineSeries {

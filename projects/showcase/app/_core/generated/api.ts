@@ -96,6 +96,7 @@ export const API = {
     { name: "showValues", description: "Show value labels above each bar.", type: "boolean", default: "true" },
     { name: "height", description: "Pixel height of the chart area.", type: "number", default: "200" },
     { name: "max", description: "Explicit max value. `0` = auto.", type: "number", default: "0" },
+    { name: "tooltip", description: "Show a tooltip with the bar's label and value on hover. Pointer only — the column's accessible name already carries both.", type: "boolean", default: "true" },
   ],
   // <wr-blur-text>
   WrBlurText: [
@@ -179,6 +180,7 @@ export const API = {
     { name: "color", description: "Cell fill colour at full intensity.", type: "string", default: "primary" },
     { name: "emptyColor", description: "Background colour for zero-value days.", type: "string", default: "light tint" },
     { name: "showLabels", description: "Show the weekday + month labels around the grid.", type: "boolean", default: "true" },
+    { name: "tooltip", description: "Show a tooltip with the day and its count on hover. It is the sentence the square's `title` carried, so the `title` is written only while this is off — or the browser would open a second copy a moment later.", type: "boolean", default: "true" },
   ],
   // <wr-card>
   WrCard: [
@@ -449,6 +451,7 @@ export const API = {
     { name: "showLegend", description: "Show the legend under the chart.", type: "boolean", default: "true" },
     { name: "centerValue", description: "Bold value text in the center.", type: "string", default: "''" },
     { name: "centerLabel", description: "Smaller label under the value.", type: "string", default: "''" },
+    { name: "tooltip", description: "Show a tooltip with the slice's label and value on hover. Pointer only — the legend prints the same numbers, and with `showLegend` off `ariaLabel` is where to say them.", type: "boolean", default: "true" },
   ],
   // <wr-drawer>
   WrDrawer: [
@@ -589,6 +592,7 @@ export const API = {
     { name: "valueColor", description: "—", type: "string", default: "'var(--wr-color-primary)'" },
     { name: "showValue", description: "Show the value text in the center.", type: "boolean", default: "true" },
     { name: "suffix", description: "—", type: "string", default: "''" },
+    { name: "tooltip", description: "Show a tooltip with the reading on hover, named by `ariaLabel` when one is given. Pointer only — the meter announces the same reading.", type: "boolean", default: "true" },
   ],
   // <wr-glitch-text>
   WrGlitchText: [
@@ -731,6 +735,7 @@ export const API = {
     { name: "showGrid", description: "Show gridlines + axis ticks.", type: "boolean", default: "true" },
     { name: "showLegend", description: "Show the legend above the chart.", type: "boolean", default: "true" },
     { name: "showDots", description: "Show dots at each data point.", type: "boolean", default: "true" },
+    { name: "tooltip", description: "Show the hover readout: the crosshair, the point markers and the tooltip. Off drops all three, since a crosshair with no values beside it points at nothing.", type: "boolean", default: "true" },
   ],
   // <wr-list>
   WrList: [
@@ -797,6 +802,7 @@ export const API = {
     { name: "max", description: "Explicit total. When `0` (default), `max = sum(values)`.", type: "number", default: "0" },
     { name: "showLegend", description: "Show the labelled legend under the bar.", type: "boolean", default: "true" },
     { name: "showValues", description: "Show each segment's value in the legend, next to its label.", type: "boolean", default: "true" },
+    { name: "tooltip", description: "Show a tooltip with the segment's label and value on hover. It replaces the band's `title`, which is written only while this is off — or the browser would open a second copy a moment later.", type: "boolean", default: "true" },
   ],
   // <wr-option>
   WrOption: [
@@ -1059,6 +1065,7 @@ export const API = {
     { name: "showTip", description: "Show a dot at the last data point.", type: "boolean", default: "true" },
     { name: "width", description: "CSS width.", type: "string", default: "'8rem'" },
     { name: "height", description: "CSS height.", type: "string", default: "'2rem'" },
+    { name: "tooltip", description: "Show a tooltip with the value of the point nearest the pointer, marking that point, and named by `ariaLabel` when one is given. Pointer only.", type: "boolean", default: "true" },
   ],
   // <wr-speed-dial>
   WrSpeedDial: [

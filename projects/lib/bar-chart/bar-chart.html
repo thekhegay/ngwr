@@ -1,6 +1,13 @@
 <div class="wr-bar-chart__plot" [style.height.px]="height()">
   @for (bar of bars(); track $index) {
-    <div class="wr-bar-chart__column" role="img" [attr.aria-label]="bar.name">
+    <div
+      #column
+      class="wr-bar-chart__column"
+      role="img"
+      [attr.aria-label]="bar.name"
+      (mouseenter)="tip.enter($index)"
+      (mouseleave)="tip.leave($event)"
+    >
       @if (showValues()) {
         <span class="wr-bar-chart__value">{{ bar.value }}</span>
       }

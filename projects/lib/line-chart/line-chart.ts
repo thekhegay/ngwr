@@ -73,6 +73,13 @@ export class WrLineChart {
   /** Show dots at each data point. @default true */
   readonly showDots = input(true, { transform: coerceBooleanProperty });
 
+  /**
+   * Show the hover readout: the crosshair, the point markers and the tooltip. Off
+   * drops all three, since a crosshair with no values beside it points at nothing.
+   * @default true
+   */
+  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+
   // Drawn in a 600×300 viewBox with reserved space for axis labels.
   protected readonly vbW = 600;
   protected readonly vbH = 300;
@@ -82,6 +89,9 @@ export class WrLineChart {
 
   /** Hovered point index (across all series) — null when no hover. */
   protected readonly hoveredIndex = signal<number | null>(null);
+
+  /** The hovered index while the readout is on, so turning `tooltip` off mid-hover clears it. */
+  protected readonly activeIndex = computed(() => (this.tooltip() ? this.hoveredIndex() : null));
 
   /**
    * A dash pattern per series, so the lines are told apart by SHAPE and not
@@ -221,7 +231,7 @@ export class WrLineChart {
   }
 
   protected readonly hoverPoints = computed(() => {
-    const i = this.hoveredIndex();
+    const i = this.activeIndex();
     if (i === null) return [];
     return this.resolvedSeries().flatMap(s => {
       // Past the end of a short series, or on a hole in a longer one — either way there
@@ -233,12 +243,13 @@ export class WrLineChart {
   });
 
   protected readonly hoverLabel = computed(() => {
-    const i = this.hoveredIndex();
+    const i = this.activeIndex();
     if (i === null) return '';
     return this.xLabels()[i] ?? String(i);
   });
 
   protected onPointerMove(event: PointerEvent): void {
+    if (!this.tooltip()) return;
     const svg = (event.currentTarget as SVGElement).getBoundingClientRect();
     const ratio = (event.clientX - svg.left) / svg.width;
     const vbX = ratio * this.vbW;

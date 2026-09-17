@@ -6,9 +6,10 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChild } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
+import { useChartTooltip } from 'ngwr/popover';
 
 import type { WrDonutSegment } from './interfaces';
 
@@ -79,6 +80,15 @@ export class WrDonutChart {
   /** Smaller label under the value. */
   readonly centerLabel = input<string>('');
 
+  /**
+   * Show a tooltip with the slice's label and value on hover. Pointer only — the
+   * legend prints the same numbers, and with `showLegend` off `ariaLabel` is where
+   * to say them. @default true
+   */
+  readonly tooltip = input(true, { transform: coerceBooleanProperty });
+
+  private readonly svg = viewChild<ElementRef<SVGSVGElement>>('svg');
+
   // Drawn in a 100×100 viewBox.
   private readonly outerR = 50;
 
@@ -109,8 +119,38 @@ export class WrDonutChart {
         color: s.color ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length],
         path: this.arcPath(startAngle, endAngle),
         percent: (value / total) * 100,
+        midAngle: (startAngle + endAngle) / 2,
       };
     });
+  });
+
+  /**
+   * One tooltip for the whole chart, just outside the drawing at the x of the
+   * hovered arc's middle: above it for a slice in the upper half, below it for one
+   * in the lower half. Measured in Chromium, pointing at the arc itself put the chip
+   * of a lower slice over the ring's inner edge — under the pointer resting there —
+   * and pointing at the `<path>` element is no better, since its bounding box is
+   * most of the ring for any slice past a quarter.
+   */
+  protected readonly tip = useChartTooltip(this.tooltip, index => {
+    const slice = this.slices()[index];
+    const svg = this.svg()?.nativeElement;
+    if (!slice?.path || !svg) return null;
+    const box = svg.getBoundingClientRect();
+    // The drawing's y runs downwards, so a positive sine is the lower half.
+    const below = Math.sin(slice.midAngle) > 0;
+    return {
+      datum: { label: slice.label, value: String(slice.value), color: slice.color },
+      // A line down the whole drawing at the arc's x, so a flip for room lands on
+      // the far side of the ring rather than inside it.
+      anchor: {
+        x: box.left + ((50 + this.outerR * Math.cos(slice.midAngle)) / 100) * box.width,
+        y: box.top,
+        width: 0,
+        height: box.height,
+      },
+      side: below ? 'bottom' : 'top',
+    };
   });
 
   // Helpers

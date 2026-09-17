@@ -72,6 +72,39 @@
   // API, and the arrow is the pane's business rather than the chip's.
 }
 
+// The chip a chart's hover tooltip renders into (`useChartTooltip()`, used by
+// every chart but `wr-line-chart`, which draws its own). It carries `.wr-tooltip`
+// as well, so everything above is its look and the arrow below is its arrow; this
+// only lays out the inside.
+//
+// The label is told from the value by WEIGHT, not by a muted colour. The chip's
+// colours are the two `--wr-tooltip-*` hooks, and the documented way to invert
+// them makes the chip dark — a muted grey picked against the light surface would
+// be the one thing that did not follow.
+.wr-chart-tooltip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+
+  &__swatch {
+    flex: 0 0 auto;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+  }
+
+  &__value {
+    font-weight: var(--wr-font-weight-semibold);
+    font-variant-numeric: tabular-nums;
+
+    // Alone, with no label or swatch beside it, the value is a whole sentence (a
+    // heatmap day's), and a sentence in semibold reads as shouting.
+    &:only-child {
+      font-weight: inherit;
+    }
+  }
+}
+
 // Arrow for both modes.
 //
 // Popover: the pane wraps whatever the author projected, so the panel selector

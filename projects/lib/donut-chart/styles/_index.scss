@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@use '../../popover/styles'; // the `.wr-tooltip` chip the hover tooltip renders into
 
 .wr-donut-chart {
   display: inline-flex;
@@ -27,6 +28,15 @@
     align-items: center;
     justify-content: center;
     text-align: center;
+    // The box covers the whole drawing, so it took every pointer event meant for
+    // the arcs under it and no slice could be hovered. Only the text itself is
+    // hittable, which keeps it selectable.
+    pointer-events: none;
+  }
+
+  &__center-value,
+  &__center-label {
+    pointer-events: auto;
   }
 
   &__center-value {

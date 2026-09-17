@@ -14,7 +14,7 @@
     </div>
   }
 
-  <div class="wr-calendar-heatmap__cells">
+  <div #days class="wr-calendar-heatmap__cells" (mousemove)="onCellsPointer($event)" (mouseleave)="tip.leave($event)">
     @for (cell of cells(); track cell.iso) {
       <span
         class="wr-calendar-heatmap__cell"
@@ -22,7 +22,7 @@
         [style.opacity]="opacityFor(cell.intensity)"
         [style.grid-column]="cell.week + 1"
         [style.grid-row]="cell.day + 1"
-        [title]="cellTitle(cell)"
+        [attr.title]="tooltip() ? null : cellTitle(cell)"
         [attr.data-date]="cell.iso"
         [attr.data-value]="cell.value"
         aria-hidden="true"
