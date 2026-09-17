@@ -139,8 +139,15 @@ $placements: (
 /// turns the right border into the down-right face and the bottom one into the
 /// down-left face, so `right + bottom` is what outlines a tip pointing DOWN.
 /// Swapping only the inline half would paint two faces that are tucked under
-/// the panel. A mirrored arrow needs the rotation mirrored as well — more than
-/// a property rewrite, so it is left for the RTL pass that owns the TS side.
+/// the panel.
+///
+/// That is also why a side edge needs its own RTL rule, which `anchored-arrow`
+/// emits. `at()` hangs the arrow off the panel's inline start or end, so under
+/// `dir="rtl"` a `right`-placed panel carries it on its PHYSICAL right while
+/// these faces still outline a tip pointing left — the two faces painted are
+/// the ones inside the panel, drawn over its content as a chevron, and the tip
+/// that does stick out has no outline. The top and bottom edges are symmetric
+/// about the vertical axis and need nothing.
 @mixin faces($edge, $color) {
   @if $edge == bottom {
     // rtl-ok: down-right face of a 45°-rotated square — fixed by the rotation
@@ -237,6 +244,24 @@ $placements: (
 
       @if $border != null {
         @include faces($edge, $border);
+      }
+    }
+
+    // A side edge under RTL: the arrow already sits on the mirrored side (`at()`
+    // is logical), so the outline moves to the mirrored faces — see `faces()`.
+    // Keyed on the `dir` the CDK writes on the pane's own host, as a CHILD
+    // combinator, rather than on any RTL ancestor: an overlay created `ltr` inside
+    // an `rtl` page lays out `ltr`, and a descendant match would outline it wrong.
+    @if $border != null and ($edge == left or $edge == right) {
+      $mirrored: left;
+
+      @if $edge == left {
+        $mirrored: right;
+      }
+
+      [dir='rtl'] > #{$pane}--#{$placement} #{$panel}::after {
+        border: 0;
+        @include faces($mirrored, $border);
       }
     }
   }
