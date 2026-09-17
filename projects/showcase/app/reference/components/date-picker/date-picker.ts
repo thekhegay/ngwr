@@ -36,6 +36,7 @@ export default class DatePickerPageComponent {
   protected readonly basic = signal<Date | null>(null);
   protected readonly formatted = signal<Date | null>(null);
   protected readonly bounded = signal<Date | null>(null);
+  protected readonly refused = signal<Date | null>(null);
 
   protected readonly time = signal<Date | null>(new Date());
   protected readonly time24 = signal<Date | null>(new Date());
@@ -86,6 +87,19 @@ export class MyComponent {
   [max]="firstOfNextMonth"
   [dateFilter]="isWeekday"
 />`,
+
+    refused: `<!-- Typed text the picker will not commit leaves the value alone, stays in the
+     field, and is shown as invalid on Enter or blur. inputError() holds the reason
+     while it is on show, so this message appears and clears with the border. -->
+<wr-date-picker #due [(value)]="due" format="dd.MM.yyyy" [min]="today" />
+
+@if (due.inputError(); as error) {
+  <small>{{ error.message }}</small>
+}
+
+<!-- Bound to a form, the same refusal is a parse error on the control from the
+     keystroke: { dateFormat: { example: '31.12.2026', … } }, { minDate: { min, … } },
+     { maxDate: { max, … } } or { dateFilter: { date, … } }. -->`,
 
     time: `<!-- Time-only: HH:MM stepper with optional AM/PM -->
 <wr-date-picker mode="time" [(value)]="picked" />`,
@@ -146,7 +160,9 @@ export class MyComponent {
      needed: Angular 22 binds the control's \`value\` model, relays its \`touch\`
      output as markAsTouched(), and pushes \`disabled\` down from the control.
      The control's value is a \`Date | null\` — the picker never emits a
-     half-typed date, so an unparseable field leaves the last valid one. -->
+     half-typed date, so an unparseable field leaves the last valid one and
+     makes the control invalid with a \`dateFormat\` parse error until it is
+     corrected. -->
 <form [formGroup]="form">
   <wr-form-field label="Due date" required>
     <wr-date-picker formControlName="due" placeholder="Pick a date" />

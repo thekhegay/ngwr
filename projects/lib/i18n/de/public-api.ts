@@ -114,6 +114,8 @@ export const wrDe: WrI18nCatalog = {
     oneOf: 'Wählen Sie einen der zulässigen Werte.',
     minDate: 'Wählen Sie ein späteres Datum.',
     maxDate: 'Wählen Sie ein früheres Datum.',
+    dateFormat: 'Erwartetes Format: {{example}}',
+    dateFilter: 'Dieses Datum ist nicht verfügbar.',
   },
   select: {
     // Accessible name of a `role="combobox"`, so a noun rather than the command

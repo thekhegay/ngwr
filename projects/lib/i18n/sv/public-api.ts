@@ -114,6 +114,8 @@ export const wrSv: WrI18nCatalog = {
     oneOf: 'Välj ett av de tillåtna värdena.',
     minDate: 'Välj ett senare datum.',
     maxDate: 'Välj ett tidigare datum.',
+    dateFormat: 'Förväntat format: {{example}}',
+    dateFilter: 'Det här datumet är inte tillgängligt.',
   },
   select: {
     label: 'Välj',

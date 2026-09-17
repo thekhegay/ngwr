@@ -116,6 +116,8 @@ export const wrJa: WrI18nCatalog = {
     oneOf: '許可された値から選択してください。',
     minDate: 'これより後の日付を選択してください。',
     maxDate: 'これより前の日付を選択してください。',
+    dateFormat: '入力例：{{example}}',
+    dateFilter: 'この日付は選択できません。',
   },
   select: {
     label: '選択',

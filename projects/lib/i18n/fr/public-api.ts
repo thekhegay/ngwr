@@ -117,6 +117,8 @@ export const wrFr: WrI18nCatalog = {
     oneOf: "Choisissez l'une des valeurs autorisées.",
     minDate: 'Choisissez une date ultérieure.',
     maxDate: 'Choisissez une date antérieure.',
+    dateFormat: 'Format attendu : {{example}}',
+    dateFilter: "Cette date n'est pas disponible.",
   },
   select: {
     label: 'Sélectionner',

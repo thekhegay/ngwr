@@ -169,6 +169,11 @@ export const wrEn: WrI18nCatalog = {
     oneOf: 'Choose one of the allowed values.',
     minDate: 'Choose a later date.',
     maxDate: 'Choose an earlier date.',
+    // A date picker's refused entry. The example is a date written in the field's own
+    // format, so it is data rather than prose and takes no full stop — `31.12.2026.`
+    // would read as part of the format.
+    dateFormat: 'Expected format: {{example}}',
+    dateFilter: 'This date is not available.',
   },
   select: {
     label: 'Select',

@@ -114,6 +114,8 @@ export const wrHi: WrI18nCatalog = {
     oneOf: 'अनुमत मानों में से कोई एक चुनें।',
     minDate: 'इसके बाद की तारीख़ चुनें।',
     maxDate: 'इससे पहले की तारीख़ चुनें।',
+    dateFormat: 'अपेक्षित फ़ॉर्मैट: {{example}}',
+    dateFilter: 'यह तारीख़ उपलब्ध नहीं है।',
   },
   select: {
     label: 'चुनें',

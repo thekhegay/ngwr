@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Date Picker"
-  description="Unified date / time / date-time picker. `<input>` + popover for every mode — overlay content swaps based on `[mode]`. Parses on every keystroke (silently — only emits when valid), reformats canonical on blur. Format driven by `WrDateAdapter`. A signal-forms native control — it implements `FormValueControl`, so `[formField]` binds straight to its `value` model. `[(value)]` works standalone, and `[(ngModel)]` / reactive forms keep working through [Angular 22's forms bridge](/guides/forms)."
+  description="Unified date / time / date-time picker. `<input>` + popover for every mode — overlay content swaps based on `[mode]`. Parses on every keystroke and emits only a date it can read and would accept; anything else is refused and shown as invalid, never guessed. Reformats canonical on blur. Format driven by `WrDateAdapter`. A signal-forms native control — it implements `FormValueControl`, so `[formField]` binds straight to its `value` model. `[(value)]` works standalone, and `[(ngModel)]` / reactive forms keep working through [Angular 22's forms bridge](/guides/forms)."
   [keywords]="['date', 'time', 'datetime', 'picker', 'wr-date-picker']"
   [labels]="['Signal Forms', 'CDK Overlay']"
 >
@@ -32,6 +32,28 @@
     <ngwr-doc-code [code]="snippets.bounds" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-date-picker [(value)]="bounded" [min]="today" [max]="firstOfNextMonth" [dateFilter]="isWeekday" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Refused input"
+    description="Text the picker cannot use is REFUSED, never guessed: the bound value stays where it was, and the text stays in the field so it can be corrected. The refusal is raised on the keystroke and shown once the user is done — on Enter, or on leaving the field, including by way of the open panel — as a danger border, `aria-invalid` on the input and the reason announced; a correction clears it at once, and so does a pick from the panel, a value written from outside or a form reset. The reason names what went wrong: text in another format (`dateFormat`, with an example in the field's own format), a date outside `min` / `max` (`minDate` / `maxDate`), or one `dateFilter` rejects. Enter also closes the panel and re-formats a date that was accepted. With `[(value)]` alone, read `inputError()` through a template reference, as below: it holds the reason the picker is showing, so a message rendered from it appears and clears with the border. Bound to a form, the refusal is a parse error on the control from the keystroke — the form is invalid the whole time the field holds refused text — and `<wr-form-field>` shows the message by its own rule, the one every validator follows: once the control is touched or dirty, as soon as the text is refused, rather than waiting for Enter. Type `07.09.1994` and press Enter."
+  >
+    <ngwr-doc-code [code]="snippets.refused" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-date-picker
+          #refusing
+          [(value)]="refused"
+          format="dd.MM.yyyy"
+          [min]="today"
+          [max]="firstOfNextMonth"
+          placeholder="dd.MM.yyyy"
+        />
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          inputError: {{ refusing.inputError()?.message ?? '—' }} · value: {{ refused()?.toLocaleDateString() ?? '—' }}
+        </span>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -138,6 +160,11 @@
       <li>
         <strong>Escape</strong>, picking a day, or clicking away — closes, and hands focus back to whatever opened it,
         provided focus was still inside the popup.
+      </li>
+      <li>
+        <strong>Enter</strong> in the field — accepts what was typed: a date the picker took is re-formatted and the
+        popup closes; text it refused is shown as invalid, with its reason, and the popup closes so a form field's
+        message beneath is not covered. Enter is never swallowed, so it still submits a surrounding form.
       </li>
     </ul>
     <p>

@@ -15,6 +15,7 @@ import {
   DestroyRef,
   ElementRef,
   Injector,
+  type Signal,
   ViewEncapsulation,
   computed,
   effect,
@@ -34,8 +35,14 @@ import { readI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 
-import type { WrDateRange } from './interfaces';
+import type { WrDateInputError, WrDateRange, WrDateRangeInputError } from './interfaces';
 import { WrDateRangePanel } from './internal/date-range-panel';
+import {
+  WR_DATE_INPUT_FIELD_VIEW_PROVIDER,
+  WrDateInputField,
+  useDateInputRefusals,
+  useFormParseErrors,
+} from './internal/input-refusal';
 import { WrDateRangeEndInput } from './internal/range-end-input';
 
 /** Which end of the range an edit applies to. */
@@ -43,6 +50,12 @@ type RangeEnd = 0 | 1;
 
 /** Per-instance popup ids, so `aria-controls` can point at one panel. */
 let rangePanelUid = 0;
+
+/** How long a live region stays blank before a repeated refusal is written back. */
+const SILENCE_MS = 100;
+
+/** One refusal per end, start first — `null` where that end's text is its date. */
+type EndRefusals = readonly [WrDateInputError | null, WrDateInputError | null];
 
 /**
  * Date-range picker — two text inputs sharing one range calendar.
@@ -66,6 +79,10 @@ let rangePanelUid = 0;
  * Either end may be `null` while the range is half-picked. Out-of-order ends
  * are swapped on commit, matching the calendar's own behaviour.
  *
+ * Each end refuses text it cannot use exactly as `<wr-date-picker>` does — never
+ * guessing, keeping the text, and showing the refusal on Enter or when focus
+ * leaves that end. See {@link inputErrors}.
+ *
  * @example
  * ```html
  * <!-- signal forms -->
@@ -86,6 +103,8 @@ let rangePanelUid = 0;
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   imports: [WrDateRangeEndInput, WrInput, WrInputGroup, WrInputSuffix],
+  providers: [WrDateInputField],
+  viewProviders: [WR_DATE_INPUT_FIELD_VIEW_PROVIDER],
 })
 export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   /** Picker behavior — see class doc. @default 'date' */
@@ -226,9 +245,111 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     return this.isDateTime() ? this.panelLabelRangeDateTime() : this.panelLabelRange();
   });
 
+  private readonly refusalBuilder = useDateInputRefusals();
+  private readonly reportToForm = useFormParseErrors(this.value, () => this.onFormReset());
+  private readonly inputField = inject(WrDateInputField);
+
+  /** Why each end's text was not committed. */
+  private readonly refusals = signal<EndRefusals>([null, null]);
+
+  /**
+   * Every refusal standing, on show or not, each marked with its end — what a bound form
+   * hears, from the keystroke.
+   */
+  private readonly raised = computed<readonly WrDateRangeInputError[]>(() => {
+    const [start, end] = this.refusals();
+    const out: WrDateRangeInputError[] = [];
+    if (start) out.push({ ...start, end: 'start' });
+    if (end) out.push({ ...end, end: 'end' });
+    return out;
+  });
+
+  /**
+   * Which ends have their refusal on show — raised on the keystroke, shown on Enter
+   * or when focus leaves that end, for the reason `wr-date-picker` gives at the same
+   * name: a date is unreadable for most of the time it takes to type one. Leaving
+   * includes leaving by way of the open panel, as it does there.
+   */
+  private readonly revealed = signal<readonly [boolean, boolean]>([false, false]);
+
+  protected readonly shownErrors = computed<EndRefusals>(() => {
+    const [start, end] = this.refusals();
+    const [showStart, showEnd] = this.revealed();
+    return [showStart ? start : null, showEnd ? end : null];
+  });
+
+  /**
+   * Why the text in either field is not that end of the bound range, for the ends
+   * whose refusal the picker is SHOWING — one entry per end, marked with the `end` it
+   * came from, and empty while both fields hold their dates or the user is still
+   * typing.
+   *
+   * An end's refusal is raised on the keystroke and goes on show on Enter or when
+   * focus leaves that end — the moment its input turns invalid and the reason is
+   * announced, so a message rendered from this never disagrees with them. It clears
+   * the moment that end's text commits, is emptied, or is replaced by a pick from the
+   * panel, a value written from outside, or a form reset.
+   *
+   * A bound form does NOT wait: it sees every refusal as a parse error from the
+   * keystroke, so it is invalid the whole time either field holds text the picker
+   * could not use — including while the OTHER end commits — and `<wr-form-field>`
+   * shows `message` by its own rule. Read this through a template reference to put
+   * the reason on screen for a picker bound with `[(value)]` alone.
+   */
+  readonly inputErrors: Signal<readonly WrDateRangeInputError[]> = computed(() => {
+    const [showStart, showEnd] = this.revealed();
+    return this.raised().filter(error => (error.end === 'start' ? showStart : showEnd));
+  });
+
+  /**
+   * Blanked briefly so Enter on an unchanged refusal is announced again. A live region
+   * does not repeat text it already holds, and blanking it for one render is not
+   * enough: both changes land in the same task, and the accessibility tree sees
+   * only the end state. The gap is a timer for that reason — the CDK's
+   * `LiveAnnouncer` clears its region the same way.
+   */
+  private readonly silenced = signal(false);
+  private silenceTimer: ReturnType<typeof setTimeout> | undefined;
+
+  protected readonly statusId = this.inputField.statusId;
+
+  /**
+   * The live region's text: every refusal on show that a surrounding `<wr-form-field>`
+   * is not already rendering a message for, each sentence once.
+   */
+  protected readonly announcement = computed(() => {
+    if (this.silenced()) return '';
+    const messages = this.shownErrors()
+      .filter((error): error is WrDateInputError => !!error && !this.inputField.saysAlready(error))
+      .map(error => error.message);
+    return [...new Set(messages)].join(' ');
+  });
+
+  /**
+   * `aria-invalid` / `aria-describedby` for each input, where the picker binds them.
+   *
+   * The START input reads a surrounding field through `wrInput`, so inside one the
+   * picker feeds its refusal through `WrDateInputField` rather than binding a second
+   * writer beside `wrInput`, and binds these only with no field around it. The END
+   * input is hidden from the field on purpose (see `wrDateRangeEnd`), so its `wrInput`
+   * never writes either attribute and the picker always owns them: an unreadable end
+   * date marks the end field, not only the start.
+   */
+  protected readonly startAriaInvalid = computed<'true' | null>(() =>
+    !this.inputField.outer && this.shownErrors()[0] ? 'true' : null
+  );
+  protected readonly endAriaInvalid = computed<'true' | null>(() => (this.shownErrors()[1] ? 'true' : null));
+  protected readonly startDescribedBy = computed(() =>
+    !this.inputField.outer && this.shownErrors()[0] && this.announcement() ? this.statusId : null
+  );
+  protected readonly endDescribedBy = computed(() =>
+    this.shownErrors()[1] && this.announcement() ? this.statusId : null
+  );
+
   protected readonly classes = computed(() => {
     const parts = ['wr-date-range-picker', `wr-date-range-picker--${this.mode()}`];
     if (this.disabled()) parts.push('wr-date-range-picker--disabled');
+    if (this.shownErrors().some(Boolean)) parts.push('wr-date-range-picker--invalid');
     return parts.join(' ');
   });
 
@@ -243,16 +364,31 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   private lastValue: WrDateRange | null = null;
 
   constructor() {
-    this.destroyRef.onDestroy(() => this.dispose());
+    this.destroyRef.onDestroy(() => {
+      this.dispose();
+      clearTimeout(this.silenceTimer);
+    });
 
-    // Mirror external writes to `value` into the two display texts.
+    // The start input's field (see `WrDateInputField`) marks it invalid for the
+    // start end's refusal on show; the end input carries its own.
+    this.inputField.describe(computed(() => this.shownErrors()[0]));
+
+    // Mirror external writes to `value` into the two display texts — and drop the
+    // refusals, whose text that write has just replaced.
     effect(() => {
       const v = this.value();
       untracked(() => {
-        if (this.sameRange(v, this.lastValue)) return;
+        // An equal range in a DIFFERENT tuple came from outside — `commitRange` hands the
+        // model the very tuple it remembered. It leaves text being typed alone, but it
+        // does replace text the picker refused.
+        const outside = v !== this.lastValue;
+        const [refusedStart, refusedEnd] = this.refusals();
+        if (this.sameRange(v, this.lastValue) && !(outside && (refusedStart || refusedEnd))) return;
         this.lastValue = v;
         this.startText.set(this.display(v?.[0] ?? null));
         this.endText.set(this.display(v?.[1] ?? null));
+        this.refuse(0, null);
+        this.refuse(1, null);
       });
     });
 
@@ -316,10 +452,105 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     // typed and moved it into the field they were tabbing into, leaving the old
     // end date under their cursor. Same rule the time steppers follow.
     const [start, end] = this.commitRange(this.current(), { normalise: leaving });
-    // Reformat to canonical on blur (cleans up `1/5/25` → `1/5/2025`).
+    // Reformat to canonical on blur (cleans up `1/5/25` → `1/5/2025`) — except a
+    // refused end, whose text is what the user has to correct. Overwriting it with
+    // the old date is how a refusal used to vanish without a word.
+    const [refusedStart, refusedEnd] = this.refusals();
+    if (!refusedStart) this.startText.set(this.display(start));
+    if (!refusedEnd) this.endText.set(this.display(end));
+
+    // Show the refusal of the end focus just left — both, once it leaves the pair.
+    // Focus moving INTO the open panel is not leaving: a pick there replaces the text.
+    if (next && this.overlayRef?.overlayElement.contains(next)) return;
+    const left: RangeEnd = event.target === this.endEl().nativeElement ? 1 : 0;
+    this.reveal(leaving ? [true, true] : left === 0 ? [true, false] : [false, true]);
+  }
+
+  /**
+   * Enter in either field is "this is the range". Committed ends are settled — sorted
+   * and re-formatted canonical — and the panel closes; a refused end turns invalid on
+   * the spot, and `touch` is emitted so a surrounding `<wr-form-field>` shows its
+   * message, which the panel would otherwise cover. Never `preventDefault`: Enter in a
+   * `<form>` still submits it, and a bound form is invalid while a refusal stands.
+   */
+  private onEnter(): void {
+    // Read before closing: a close can put refusals on show itself.
+    const [shownStart, shownEnd] = this.revealed();
+    if (this.overlayRef) this.closeOverlay();
+    const [start, end] = this.commitRange(this.current(), { normalise: true });
+    const [refusedStart, refusedEnd] = this.refusals();
+    if (!refusedStart) this.startText.set(this.display(start));
+    if (!refusedEnd) this.endText.set(this.display(end));
+    if (!refusedStart && !refusedEnd) return;
+
+    this.touch.emit();
+    if ((!refusedStart || shownStart) && (!refusedEnd || shownEnd)) {
+      // Everything refused is already on show, so the live region already holds this
+      // text and would not repeat it. Blank it briefly so Enter is answered.
+      this.silenced.set(true);
+      clearTimeout(this.silenceTimer);
+      this.silenceTimer = setTimeout(() => this.silenced.set(false), SILENCE_MS);
+    }
+    this.reveal([true, true]);
+  }
+
+  /** Put the refusals of the given ends on show; an end with no refusal stays clear. */
+  private reveal([start, end]: readonly [boolean, boolean]): void {
+    const [refusedStart, refusedEnd] = this.refusals();
+    const [shownStart, shownEnd] = this.revealed();
+    this.revealed.set([shownStart || (start && !!refusedStart), shownEnd || (end && !!refusedEnd)]);
+  }
+
+  /**
+   * Record why one end's text was not committed, or that it was. Clearing a refusal
+   * takes it off show too, so the next one waits for Enter or blur again.
+   */
+  private refuse(end: RangeEnd, next: WrDateInputError | null): void {
+    const current = this.refusals();
+    if (current[end] === next) return;
+    this.refusals.set(end === 0 ? [next, current[1]] : [current[0], next]);
+    if (!next) {
+      const [shownStart, shownEnd] = this.revealed();
+      this.revealed.set(end === 0 ? [false, shownEnd] : [shownStart, false]);
+    }
+    this.reportToForm(this.raised());
+  }
+
+  /**
+   * Put the refusals on show for wherever focus has gone: back into one field leaves
+   * the OTHER end, and anywhere outside the pair leaves both.
+   */
+  private revealFor(focus: Element | null): void {
+    if (focus === this.startEl().nativeElement) this.reveal([false, true]);
+    else if (focus === this.endEl().nativeElement) this.reveal([true, false]);
+    else this.reveal([true, true]);
+  }
+
+  /**
+   * The bound form was reset while the model stayed where it was — Angular has thrown
+   * the parse errors away, so the text they were about goes too, and both fields show
+   * the range again. (A reset that MOVES the model reaches the text through the sync
+   * effect, like any other outside write.)
+   */
+  private onFormReset(): void {
+    const [refusedStart, refusedEnd] = this.refusals();
+    if (!refusedStart && !refusedEnd) return;
+    const [start, end] = this.current();
     this.startText.set(this.display(start));
     this.endText.set(this.display(end));
+    this.refuse(0, null);
+    this.refuse(1, null);
   }
+
+  /**
+   * Focus leaving the open panel. Moving within it is the same visit; anywhere else has
+   * left whichever end focus is not going back to — see {@link revealFor}.
+   */
+  private readonly onPaneFocusOut = (event: FocusEvent): void => {
+    const next = event.relatedTarget as Element | null;
+    if (next && this.overlayRef?.overlayElement.contains(next)) return;
+    this.revealFor(next);
+  };
 
   /** Called by an input's click — opens the overlay if it isn't open already. */
   protected openOnInput(end: RangeEnd): void {
@@ -351,6 +582,11 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
    */
   protected onFieldKey(event: KeyboardEvent, end: RangeEnd): void {
     if (this.disabled() || this.readonly()) return;
+
+    if (event.key === 'Enter') {
+      this.onEnter();
+      return;
+    }
 
     const vertical = event.key === 'ArrowDown' || event.key === 'ArrowUp';
     if (!vertical) return;
@@ -411,14 +647,24 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     const [start, finish] = this.current();
     if (!raw) {
       this.commitRange(end === 0 ? [null, finish] : [start, null], { normalise: false });
+      this.refuse(end, null);
       return;
     }
     const parsed = this.adapter.parse(raw, this.resolvedFormat());
-    if (!parsed || !this.adapter.isValid(parsed) || this.isOutOfBounds(parsed)) return;
+    if (!parsed || !this.adapter.isValid(parsed)) {
+      this.refuse(end, this.refusalBuilder.unreadable(this.resolvedFormat()));
+      return;
+    }
+    const outOfBounds = this.outOfBounds(parsed);
+    if (outOfBounds) {
+      this.refuse(end, outOfBounds);
+      return;
+    }
     // Never reorder mid-keystroke: a half-typed date can parse to an
     // out-of-order value, and swapping there would yank the text the user is
     // still typing over to the other input. Ordering is settled on blur.
     this.commitRange(end === 0 ? [parsed, finish] : [start, parsed], { normalise: false });
+    this.refuse(end, null);
   }
 
   // Overlay
@@ -462,6 +708,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     pane.setAttribute('role', 'dialog');
     pane.setAttribute('aria-modal', 'false');
     pane.setAttribute('aria-label', this.resolvedPanelLabel());
+    pane.addEventListener('focusout', this.onPaneFocusOut);
 
     const ref = this.overlayRef.attach(new ComponentPortal(WrDateRangePanel));
     ref.setInput('value', this.value() ?? [null, null]);
@@ -512,8 +759,12 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
    */
   private closeOverlay(): void {
     const pane = this.overlayRef?.overlayElement;
-    const inside = !!pane && pane.contains(this.host.nativeElement.ownerDocument.activeElement);
+    const doc = this.host.nativeElement.ownerDocument;
+    const inside = !!pane && pane.contains(doc.activeElement);
 
+    // Taking the pane out of the document moves focus without the user doing anything,
+    // so it must not read as focus leaving the panel.
+    pane?.removeEventListener('focusout', this.onPaneFocusOut);
     this.dispose();
 
     // The interaction is over, so settle the ordering an in-progress time edit
@@ -522,6 +773,10 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     this.commitRange(this.current(), { normalise: true });
 
     if (inside) this.restoreFocus();
+
+    // A panel that closes ends the visit to it: wherever focus is now, the ends it is
+    // not in have been left. A pick has already cleared the refusals it replaced.
+    this.revealFor(doc.activeElement);
   }
 
   private dispose(): void {
@@ -545,6 +800,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
    * move their in-progress text into the other input.
    */
   private commitRange(next: WrDateRange, options: { normalise: boolean }): WrDateRange {
+    const previous = this.current();
     const normalised = options.normalise ? this.normalise(next) : next;
     // Only write when a date actually moved, and never while `readonly`.
     //
@@ -564,12 +820,26 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
       this.lastValue = normalised;
       this.value.set(normalised);
     }
+    // An end whose DATE moved — a pick in the panel, a swap — has had its text
+    // replaced by that date, so a refusal about the old text no longer applies.
+    // An end that did not move keeps refused text as it is: committing the OTHER
+    // end is no reason to throw away what the user is still correcting here.
+    const [movedStart, movedEnd] = [0, 1].map(i => !this.sameDate(this.current()[i], previous[i]));
+    if (movedStart) this.refuse(0, null);
+    if (movedEnd) this.refuse(1, null);
+    const [refusedStart, refusedEnd] = this.refusals();
+    // Say the refusals again, whether or not either moved. Angular clears a control's
+    // parse errors whenever its model changes, so committing ONE end used to leave the
+    // form valid while the other end still held refused text — and able to submit the
+    // old end under it.
+    this.reportToForm(this.raised());
+
     // Only rewrite the text of an end whose date moved out from under it —
     // otherwise a half-typed date would be reformatted on every keystroke.
-    if (!this.sameDate(normalised[0], this.parseText(this.startText()))) {
+    if (!refusedStart && !this.sameDate(normalised[0], this.parseText(this.startText()))) {
       this.startText.set(this.display(normalised[0]));
     }
-    if (!this.sameDate(normalised[1], this.parseText(this.endText()))) {
+    if (!refusedEnd && !this.sameDate(normalised[1], this.parseText(this.endText()))) {
       this.endText.set(this.display(normalised[1]));
     }
     return normalised;
@@ -612,18 +882,16 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   }
 
   /**
-   * Whether a typed date must be rejected. Covers `dateFilter` as well as the
-   * bounds — the calendar disables filtered days, so accepting them from the
+   * Why a typed date must be rejected, or `null`. Covers `dateFilter` as well as
+   * the bounds — the calendar disables filtered days, so accepting them from the
    * keyboard would make the two entry paths disagree.
    */
-  private isOutOfBounds(date: Date): boolean {
-    const min = this.minDate();
-    if (min && this.adapter.compareDate(date, min) < 0) return true;
-    const max = this.maxDate();
-    if (max && this.adapter.compareDate(date, max) > 0) return true;
-    const filter = this.dateFilter();
-    if (filter && !filter(date)) return true;
-    return false;
+  private outOfBounds(date: Date): WrDateInputError | null {
+    return this.refusalBuilder.outOfBounds(date, {
+      min: this.minDate(),
+      max: this.maxDate(),
+      filter: this.dateFilter(),
+    });
   }
 
   private sameDate(a: Date | null, b: Date | null): boolean {

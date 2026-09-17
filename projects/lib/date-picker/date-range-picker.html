@@ -7,6 +7,8 @@
     spellcheck="false"
     class="wr-date-range-picker__input"
     [attr.aria-label]="startLabel()"
+    [attr.aria-invalid]="startAriaInvalid()"
+    [attr.aria-describedby]="startDescribedBy()"
     [value]="startText()"
     [placeholder]="startPlaceholder()"
     [disabled]="disabled()"
@@ -31,6 +33,8 @@
     spellcheck="false"
     class="wr-date-range-picker__input"
     [attr.aria-label]="endLabel()"
+    [attr.aria-invalid]="endAriaInvalid()"
+    [attr.aria-describedby]="endDescribedBy()"
     [value]="endText()"
     [placeholder]="endPlaceholder()"
     [disabled]="disabled()"
@@ -68,3 +72,9 @@
     </svg>
   </button>
 </wr-input-group>
+<!--
+  Why a typed end was refused, for a screen reader — the same live region
+  <wr-date-picker> carries, written when a refusal is shown and emptied when it is
+  corrected. Silent inside a <wr-form-field> bound to the same control.
+-->
+<span class="wr-date-range-picker__sr-only" role="status" [id]="statusId">{{ announcement() }}</span>

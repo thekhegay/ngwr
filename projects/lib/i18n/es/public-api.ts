@@ -114,6 +114,8 @@ export const wrEs: WrI18nCatalog = {
     oneOf: 'Debe ser uno de los valores permitidos.',
     minDate: 'La fecha debe ser posterior.',
     maxDate: 'La fecha debe ser anterior.',
+    dateFormat: 'Formato esperado: {{example}}',
+    dateFilter: 'Esta fecha no está disponible.',
   },
   select: {
     label: 'Seleccionar',

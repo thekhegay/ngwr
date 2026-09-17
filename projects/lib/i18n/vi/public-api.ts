@@ -116,6 +116,8 @@ export const wrVi: WrI18nCatalog = {
     oneOf: 'Chọn một trong các giá trị cho phép.',
     minDate: 'Chọn ngày muộn hơn.',
     maxDate: 'Chọn ngày sớm hơn.',
+    dateFormat: 'Định dạng cần nhập: {{example}}',
+    dateFilter: 'Không thể chọn ngày này.',
   },
   select: {
     label: 'Chọn',

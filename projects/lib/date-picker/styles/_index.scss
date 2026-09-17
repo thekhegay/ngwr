@@ -1,5 +1,20 @@
 @use '../../theme/styles' as theme;
 
+// The refusal's live region — a screen reader's copy of what the border says. One
+// element per block, since a BEM class is public API: the range picker's is its own.
+.wr-date-picker__sr-only,
+.wr-date-range-picker__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .wr-date-picker {
   display: inline-block;
 
@@ -49,6 +64,21 @@
       opacity: var(--wr-disabled-opacity);
     }
   }
+}
+
+// A typed entry the picker refused, once it is on show (Enter, or leaving the
+// field). The group owns the border — it strips the inner input's — so the hook
+// is the group's, set exactly as `.wr-form-field--invalid` sets it, and at the
+// same (0,3,0) so a focused group's primary border does not win it back while
+// the user is correcting the text.
+// color-ok: the colour is the SIGHTED half of a state that is not carried by
+// colour alone — the input takes `aria-invalid` and the reason is announced
+// through the picker's live region, or through the surrounding field's message.
+// `danger` against the default `--wr-color-outline` also separates in lightness
+// (3.11:1 light), so the cue survives greyscale.
+.wr-date-picker.wr-date-picker--invalid .wr-input-group,
+.wr-date-range-picker.wr-date-range-picker--invalid .wr-input-group {
+  --wr-input-group-border: var(--wr-color-danger);
 }
 
 // Overlay pane — z-index isolation only. <wr-calendar> + the time panel

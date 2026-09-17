@@ -114,6 +114,8 @@ export const wrId: WrI18nCatalog = {
     oneOf: 'Pilih salah satu nilai yang diizinkan.',
     minDate: 'Pilih tanggal yang lebih baru.',
     maxDate: 'Pilih tanggal yang lebih awal.',
+    dateFormat: 'Format yang diharapkan: {{example}}',
+    dateFilter: 'Tanggal ini tidak tersedia.',
   },
   select: {
     label: 'Pilih',

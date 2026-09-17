@@ -114,6 +114,8 @@ export const wrRu: WrI18nCatalog = {
     oneOf: 'Выберите одно из допустимых значений.',
     minDate: 'Выберите более позднюю дату.',
     maxDate: 'Выберите более раннюю дату.',
+    dateFormat: 'Ожидаемый формат: {{example}}',
+    dateFilter: 'Эта дата недоступна.',
   },
   select: {
     label: 'Выбрать',

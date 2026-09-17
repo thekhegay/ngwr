@@ -107,4 +107,10 @@ export const WR_FORM_ERROR_FALLBACKS: WrFormErrorMessages = {
   oneOf: 'Choose one of the allowed values.',
   minDate: 'Choose a later date.',
   maxDate: 'Choose an earlier date.',
+
+  // `<wr-date-picker>` / `<wr-date-range-picker>` — text typed into the field that
+  // was refused rather than committed. The picker reports these to its form as
+  // parse errors; `example` is a date written in the field's own format.
+  dateFormat: ({ error }) => `Expected format: ${num(error, 'example')}`,
+  dateFilter: 'This date is not available.',
 };
