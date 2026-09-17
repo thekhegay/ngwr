@@ -102,6 +102,11 @@ interface DayCell {
 interface MonthWeek {
   readonly key: string;
   readonly days: readonly DayCell[];
+  /**
+   * How many lanes the row's chips fill. The chips are absolutely positioned,
+   * so this is the only way the row's height can know about them.
+   */
+  readonly lanes: number;
 }
 
 interface TimeCell {
@@ -391,6 +396,7 @@ export class WrEventCalendar {
 
       weeks.push({
         key: this.iso(row[0]),
+        lanes: this.laneCount(chips),
         days: row.map((date, col) => ({
           date,
           key: this.iso(date),
@@ -445,6 +451,9 @@ export class WrEventCalendar {
   });
 
   protected readonly hasAllDay = computed(() => this.allDayBands().length > 0);
+
+  /** Lanes the all-day band fills — it has no `maxLanes` cap, so its row has to grow instead. */
+  protected readonly allDayLanes = computed(() => this.laneCount(this.allDayBands()));
 
   protected readonly rows = computed<readonly TimeRow[]>(() => {
     const slot = Math.max(5, this.slotMinutes());
@@ -775,6 +784,10 @@ export class WrEventCalendar {
     }
 
     return { chips, hidden };
+  }
+
+  private laneCount(chips: readonly BandChip[]): number {
+    return chips.reduce((count, chip) => Math.max(count, chip.lane + 1), 0);
   }
 
   /**

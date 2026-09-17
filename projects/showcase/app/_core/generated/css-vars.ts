@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 393 hook(s) across 60 page(s). A property is here only when the
+ * 396 hook(s) across 60 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 21 declaration(s) are one component setting
@@ -382,6 +382,9 @@ export const CSS_VARS = {
     subpath: "ngwr/event-calendar",
     vars: [
       { name: "--wr-event-calendar-band-height", default: "1.25rem", scope: ".wr-event-calendar" },
+      { name: "--wr-event-calendar-chip-gap", default: "0.25rem", scope: ".wr-event-calendar" },
+      { name: "--wr-event-calendar-chip-inset", default: "0.125rem", scope: ".wr-event-calendar" },
+      { name: "--wr-event-calendar-chip-radius", default: "calc(var(--wr-border-radius-sm) / 2)", scope: ".wr-event-calendar" },
       { name: "--wr-event-calendar-cols", default: "7", scope: ".wr-event-calendar" },
       { name: "--wr-event-calendar-fill", default: "var(--wr-color-fill)", scope: ".wr-event-calendar" },
       { name: "--wr-event-calendar-gutter", default: "3.75rem", scope: ".wr-event-calendar" },

@@ -95,7 +95,7 @@
     </div>
 
     @for (week of weeks(); track week.key; let w = $index) {
-      <div role="row" class="wr-event-calendar__row">
+      <div role="row" class="wr-event-calendar__row" [style.--wr-event-calendar-lanes]="week.lanes">
         @for (cell of week.days; track cell.key; let c = $index) {
           @let index = w * 7 + c;
           <div
@@ -158,7 +158,11 @@
     </div>
 
     @if (hasAllDay()) {
-      <div role="row" class="wr-event-calendar__row wr-event-calendar__row--allday">
+      <div
+        role="row"
+        class="wr-event-calendar__row wr-event-calendar__row--allday"
+        [style.--wr-event-calendar-lanes]="allDayLanes()"
+      >
         <div role="rowheader" class="wr-event-calendar__gutter">{{ allDayLabel() }}</div>
         @for (cell of allDayCells(); track cell.key; let c = $index) {
           <div
@@ -207,9 +211,9 @@
                 [class.wr-event-calendar__chip--continues-after]="chip.continuesAfter"
                 [style.--wr-event-calendar-color]="`var(--wr-color-${chip.event.color ?? 'primary'})`"
                 [style.top.%]="chip.top"
-                [style.height.%]="chip.height"
-                [style.inset-inline-start.%]="chip.inlineStart"
-                [style.width.%]="chip.width"
+                [style.--wr-event-calendar-block-size.%]="chip.height"
+                [style.--wr-event-calendar-inline-start.%]="chip.inlineStart"
+                [style.--wr-event-calendar-inline-size.%]="chip.width"
                 [attr.aria-label]="chipLabel(chip.event)"
                 (click)="onChipClick(chip.event); $event.stopPropagation()"
                 (keydown)="onChipKeyDown($event, chip.event)"

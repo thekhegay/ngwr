@@ -599,8 +599,15 @@ class OverlapHost {
  * physical, so under `dir="rtl"` lane 0 landed at the column's trailing side and
  * the whole cluster read back-to-front.
  *
- * jsdom has no layout, so the lane's PIXELS are the nightly browser sweep's
- * answer. What a unit test can pin is which property carries the offset.
+ * The template writes the lane as custom properties rather than as the inline
+ * `inset-inline-start` / `width` it used to, because the stylesheet takes a small
+ * inset off both — a chip that filled its lane to the pixel covered the column
+ * line and touched the chip in the next lane. So the offset is pinned in two
+ * halves: the numbers here, and the logical property that consumes them in the
+ * stylesheet spec below.
+ *
+ * jsdom has no layout, so the lane's PIXELS are the browser's answer. What a
+ * unit test can pin is which property carries the offset.
  */
 describe('WrEventCalendar lanes a cluster along the inline axis', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<OverlapHost>>;
@@ -621,9 +628,85 @@ describe('WrEventCalendar lanes a cluster along the inline axis', () => {
 
     // Two overlapping events, so the column is halved and lane 1 starts at 50%.
     expect(chips).toHaveLength(2);
-    expect(chips.map(c => c.style.getPropertyValue('inset-inline-start'))).toEqual(['0%', '50%']);
-    expect(chips.map(c => c.style.getPropertyValue('width'))).toEqual(['50%', '50%']);
+    expect(chips.map(c => c.style.getPropertyValue('--wr-event-calendar-inline-start'))).toEqual(['0%', '50%']);
+    expect(chips.map(c => c.style.getPropertyValue('--wr-event-calendar-inline-size'))).toEqual(['50%', '50%']);
+    // Pairing runs 10:00–11:00 and Release 10:30–12:00 on 30-minute slots.
+    expect(chips.map(c => c.style.getPropertyValue('--wr-event-calendar-block-size'))).toEqual(['200%', '300%']);
     expect(chips.every(c => c.style.getPropertyValue('left') === '')).toBe(true);
+    expect(chips.every(c => c.style.getPropertyValue('width') === '')).toBe(true);
+  });
+});
+
+const STACKED: readonly WrCalendarEvent[] = [
+  { id: 'offsite', title: 'Offsite', start: AT(12, 0), end: AT(17, 0), allDay: true },
+  { id: 'launch', title: 'Launch', start: AT(14, 0), end: AT(15, 0), allDay: true },
+  { id: 'freeze', title: 'Code freeze', start: AT(14, 0), end: AT(16, 0), allDay: true },
+  { id: 'standup', title: 'Standup', start: AT(20, 9), end: AT(20, 9, 30) },
+];
+
+@Component({
+  imports: [WrEventCalendar],
+  template: ` <wr-event-calendar [view]="view()" [events]="events" [date]="date" [maxLanes]="maxLanes()" /> `,
+})
+class StackedHost {
+  readonly view = signal<WrCalendarView>('month');
+  readonly maxLanes = signal(3);
+  protected readonly events = STACKED;
+  protected readonly date = AT(14);
+}
+
+/**
+ * Every chip is absolutely positioned, so nothing in flow tells a row how tall
+ * its chips are: a month cell floored at 5.5rem let a third lane hang into the
+ * next week, and the all-day band — which has no lane cap at all — let a second
+ * all-day event spill over the first hour of the grid. The row now carries the
+ * number of lanes it fills and the stylesheet floors the cell on it.
+ *
+ * jsdom cannot measure the height that produces; what it can pin is the number
+ * the template hands the stylesheet, on the row that owns the cells.
+ */
+describe('WrEventCalendar sizes a row for the lanes its chips fill', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<StackedHost>>;
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const lanes = (row: Element): string => (row as HTMLElement).style.getPropertyValue('--wr-event-calendar-lanes');
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter()] });
+    fixture = TestBed.createComponent(StackedHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('hands each month week the lanes it fills, and an empty week none', () => {
+    // Header row first, then six weeks; 11–17 January holds all three bands.
+    const weeks = [...root().querySelectorAll('.wr-event-calendar__grid--month > [role="row"]')].slice(1);
+    const busy = weeks.find(row => row.querySelector('[aria-label*="Code freeze"]'))!;
+
+    expect(weeks).toHaveLength(6);
+    expect(lanes(busy)).toBe('3');
+    expect(weeks.filter(row => row !== busy).map(lanes)).toEqual(['0', '0', '1', '0', '0']);
+  });
+
+  it('never counts a lane past maxLanes, which the "+N more" button stands in for', () => {
+    fixture.componentInstance.maxLanes.set(2);
+    fixture.detectChanges();
+
+    const busy = root()
+      .querySelector('.wr-event-calendar__grid--month [aria-label*="Code freeze"]')!
+      .closest('[role="row"]')!;
+    expect(lanes(busy)).toBe('2');
+    expect(busy.querySelector('.wr-event-calendar__more')).not.toBeNull();
+  });
+
+  it('hands the all-day band every lane, since nothing caps it', () => {
+    fixture.componentInstance.view.set('week');
+    fixture.detectChanges();
+
+    const band = root().querySelector('.wr-event-calendar__row--allday')!;
+    expect(band.querySelectorAll('.wr-event-calendar__chip--band')).toHaveLength(3);
+    expect(lanes(band)).toBe('3');
   });
 });
 
@@ -649,6 +732,112 @@ describe('the event-calendar stylesheet', () => {
 
     expect(rule).toMatch(/cursor:\s*grab;/);
     expect(rule).toMatch(/touch-action:\s*none;/);
+  });
+
+  // The next four are the half of the grid-line fix jsdom can hold. What they
+  // produce — one hairline on every edge, in both themes and every view — was
+  // measured in Chromium by scanning pixels across each edge, not here.
+
+  it('draws lines on logical sides, so they follow the columns under dir="rtl"', () => {
+    // `box-shadow` has no logical form: every cell drew its line on the physical
+    // right, which is the frame for the first column in RTL.
+    expect(code).not.toMatch(/box-shadow:\s*inset/);
+    expect(code).not.toMatch(/border-(?:left|right)/);
+    expect(code).toMatch(/&__cell--day::after,\s*&__cell--allday::after \{\s*border-inline-end-width: 1px;/);
+  });
+
+  it('leaves the edges that meet the frame to the frame', () => {
+    // The frame is the grid's own outer shadow; a line here doubled it.
+    expect(code).toMatch(/&__row > :last-child::after \{\s*border-inline-end-width: 0;\s*\}/);
+    expect(code).toMatch(/&__row:last-child > &__cell::after \{\s*border-block-end-width: 0;\s*\}/);
+    // And the first hour line sits under a rule that is already there.
+    expect(code).toMatch(
+      /&__row:first-child \+ &__row > &__cell--major::after,\s*&__row--allday \+ &__row > &__cell--major::after \{\s*border-block-start-width: 0;/
+    );
+  });
+
+  it('keeps the time gutter to one line that cannot size a row', () => {
+    const gutter = /\n {2}&__gutter \{([^}]*)\}/.exec(code)?.[1] ?? '';
+
+    // A wrapped "09:00 AM" made its row 36px against 24px slot cells: every
+    // column line broke at every hour and every timed chip ended short.
+    expect(gutter).toMatch(/white-space: nowrap;/);
+    expect(gutter).toMatch(/line-height: 1;/);
+    // The transform moves the box, so a line of the gutter's own would move too.
+    expect(gutter).not.toMatch(/box-shadow|border/);
+    expect(code).toMatch(/minmax\(var\(--wr-event-calendar-gutter\), max-content\)/);
+  });
+
+  it('offsets a timed chip from the inline start the template hands it', () => {
+    // The chip's `&--time`, not the grid's, which comes first.
+    const time = /&--time \{([^}]*)\}/.exec(code.slice(code.indexOf('&__chip {')))?.[1] ?? '';
+
+    expect(time).toMatch(/inset-inline-start: calc\(var\(--wr-event-calendar-inline-start\) \+/);
+    expect(time).toMatch(/width: calc\(var\(--wr-event-calendar-inline-size\) -/);
+    expect(time).toMatch(/height: calc\(var\(--wr-event-calendar-block-size\) -/);
+    expect(time).not.toMatch(/\bleft:/);
+  });
+
+  // The rest hold the rules that READ what the template writes. The lane specs
+  // above pin the number on the row, and every one of these rules could be
+  // reverted under them with all of those still green. What the rules produce
+  // was measured in Chromium, not here: rows that grow for a third lane, a 2px
+  // focus ring on every side of a cell, a one-line title in a one-slot chip,
+  // and axe's target-size at widths from 375px to 1280px.
+
+  it('grows a day and an all-day cell for the lanes the row says it fills', () => {
+    const day = /&--day \{([^}]*)\}/.exec(code)?.[1] ?? '';
+    const allDay = /&--allday \{([^}]*)\}/.exec(code)?.[1] ?? '';
+    const slot = /&--slot \{([^}]*)\}/.exec(code)?.[1] ?? '';
+
+    expect(day).toMatch(/min-height: max\(\s*5\.5rem,[^;]*var\(--wr-event-calendar-lanes, 0\)/);
+    expect(allDay).toMatch(/min-height: calc\([^;]*var\(--wr-event-calendar-lanes, 1\)/);
+    // A fixed height left a slot cell's lines short of a row that grew anyway.
+    expect(slot).toMatch(/min-height: var\(--wr-event-calendar-slot-height\);/);
+    expect(slot).not.toMatch(/(^|[^-])height:/m);
+  });
+
+  it('keeps a gap above the first lane and between lanes, the "+N more" button included', () => {
+    const band = /&--band \{([^}]*)\}/.exec(code.slice(code.indexOf('&__chip {')))?.[1] ?? '';
+    const more = /\n {2}&__more \{([^}]*)\}/.exec(code)?.[1] ?? '';
+    const lanes =
+      /var\(--wr-event-calendar-lane\) \*\s*\(var\(--wr-event-calendar-band-height\) \+ var\(--wr-event-calendar-chip-gap\)\)/;
+
+    expect(band).toMatch(/top: calc\(\s*var\(--wr-event-calendar-offset\) \+ var\(--wr-event-calendar-chip-gap\) \+/);
+    expect(band).toMatch(lanes);
+    expect(more).toMatch(/margin-top: calc\(\s*var\(--wr-event-calendar-chip-gap\) \+/);
+    expect(more).toMatch(lanes);
+    // As tall as a chip, so its centre is one full pitch below the chip above:
+    // at 18px it was 23px away, short of the 24px WCAG 2.5.8's spacing exception asks for.
+    expect(more).toMatch(/min-height: var\(--wr-event-calendar-band-height\);/);
+  });
+
+  it('paints the grid lines of a focused cell under its focus ring', () => {
+    // The focused cell's `z-index` makes it a stacking context, and a positioned
+    // `::after` inside one painted over the inset outline.
+    expect(code).toMatch(/&__cell:focus-visible::after \{\s*z-index: -1;\s*\}/);
+  });
+
+  it('keeps the all-day label out of the gutter width', () => {
+    const allDayGutter = /&__row--allday > &__gutter \{([^}]*)\}/.exec(code)?.[1] ?? '';
+
+    // "Toute la journée" on one line widened the French gutter from 72px to 107px.
+    expect(allDayGutter).toMatch(/contain: inline-size;/);
+    expect(allDayGutter).toMatch(/white-space: normal;/);
+    // Wrapped instead, its second line ran into the first hour's label, which
+    // the gutter lifts 0.5em into this row. The bottom padding grows the row.
+    expect(allDayGutter).toMatch(/padding-block: var\(--wr-event-calendar-chip-gap\) 1em;/);
+    expect(code).toMatch(/\n {2}&__gutter \{[^}]*transform: translateY\(-0\.5em\);/);
+  });
+
+  it('keeps the title on the clock line of a chip that holds one line', () => {
+    const time = /&--time \{([^}]*)\}/.exec(code.slice(code.indexOf('&__chip {')))?.[1] ?? '';
+
+    expect(time).toMatch(/container: wr-event-calendar-chip \/ size;/);
+    // Wrapped, the title started 14.4px down a 16px content box.
+    expect(code).toMatch(
+      /@container wr-event-calendar-chip \(height < 2\.4em\) \{\s*\.wr-event-calendar__chip-title \{\s*flex: 1 1 0;\s*min-width: 0;\s*white-space: nowrap;/
+    );
   });
 });
 
