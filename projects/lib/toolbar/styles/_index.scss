@@ -33,7 +33,9 @@
   &__zone {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    // Density-aware: `touch` widens it so adjacent controls do not crowd a
+    // fingertip, `sm` tightens it. `md` resolves to the 8px it always was.
+    gap: calc(0.5rem * var(--wr-density-gap, 1));
     min-width: 0;
 
     &:empty {
@@ -72,6 +74,38 @@
       background: var(--wr-color-outline);
     }
   }
+}
+
+// The documented zone shape is ONE wrapper around the controls —
+// `<div wrToolbarEnd><wr-btn>…</wr-btn><wr-btn>…</wr-btn></div>` — and the zone's
+// `gap` spaces the zone's CHILDREN, which is that wrapper alone, so the buttons
+// inside it met edge to edge (0px, measured in Chromium). A BARE wrapper is laid
+// out the way the zone is, taking the zone's own gap through `inherit`, so both
+// shapes — one wrapper, or the attribute on each control — space the same and a
+// density change moves them together. It wraps, as the inline flow it replaces
+// did, so a stacked `responsive` zone still folds its controls onto a second
+// row, now with the gap between the rows as well. What BARE excludes, and why:
+//
+// - A `class` or a `style`. Zero specificity alone does not keep a consumer's
+//   layout: ngwr ships unlayered CSS, and unlayered CSS beats every cascade
+//   layer whatever its specificity, so a Tailwind v4 `hidden`, `grid` or `gap-4`
+//   on the wrapper lost to this rule and a hidden wrapper came back. A wrapper
+//   with a class or a style is the consumer's, and nothing here touches it — not
+//   `display`, not `align-items`, not `flex-wrap`. An EMPTY one still counts as
+//   bare, because `class=""` / `style=""` is what a `[class.x]` / `[style.x]`
+//   binding leaves behind when it switches off, and the same state must not lay
+//   out two ways.
+// - Anything but a `div`. A control projected directly is already a child of the
+//   zone and spaced by its gap, and must not become a flex container itself.
+//   Running text belongs in a `<span>` or a `<p>`, which stay in inline flow: in
+//   a bare `<div>` its words and links would become separate flex items.
+// - `[hidden]`. An author rule outranks the user agent's
+//   `[hidden] { display: none }` at any specificity.
+:where(.wr-toolbar__zone > div:not([hidden], [class]:not([class='']), [style]:not([style='']))) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: inherit;
 }
 
 // Responsive toolbars stack their zones when the bar is too narrow for a row.
