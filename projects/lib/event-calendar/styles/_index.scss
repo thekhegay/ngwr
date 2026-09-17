@@ -8,15 +8,19 @@
 /// one of the 120-odd style entries that referenced tokens without pulling the
 /// layer that declares them: `@use 'ngwr/event-calendar'` on its own emitted
 /// 5.5 kB of rules carrying 57 unresolved `var(--wr-*)` references, so the grid
-/// lines (`box-shadow`, hence no fallback) vanished and the text fell back to
-/// black. The ten other entries that skip the load — `affix`, `density` and the
-/// eight canvas / text-animation ones — reference no token at all, which is why
-/// a sweep for "who is missing it" is not enough on its own.
+/// lines (then a `box-shadow`, hence no fallback) vanished and the text fell
+/// back to black. The ten other entries that skip the load — `affix`, `density`
+/// and the eight canvas / text-animation ones — reference no token at all, which
+/// is why a sweep for "who is missing it" is not enough on its own.
 ///
-/// Grid lines are `box-shadow: inset`, never borders. A border would take up
-/// layout space, and the whole chip model depends on cell boxes being exactly
-/// contiguous: a band's `calc(var(--span) * 100%)` is only the right width if
-/// one cell ends precisely where the next begins.
+/// Grid lines are borders on an absolutely positioned `::after`, never on the
+/// cell itself. A border on the cell would take up layout space, and the whole
+/// chip model depends on cell boxes being exactly contiguous: a band's
+/// `calc(var(--span) * 100%)` is only the right width if one cell ends precisely
+/// where the next begins. They used to be `box-shadow: inset`, which costs no
+/// space either but has no logical form — and each cell drew its line on the
+/// physical right and bottom whether or not that edge was the frame, so the last
+/// column and the last row painted a second hairline against the grid's own.
 @use '../../theme/styles';
 
 .wr-event-calendar {
@@ -29,6 +33,17 @@
   // dark enough that `--wr-color-on-surface-muted` on top of it lands at 3.6:1.
   --wr-event-calendar-fill: var(--wr-color-fill);
   --wr-event-calendar-cols: 7;
+  // A chip is a 20px strip carrying a 3px accent on its leading edge, and the
+  // library's small radius (6px) bent that accent into a bracket. Half of it
+  // keeps the corner soft and the accent straight, and still follows a theme
+  // that re-tunes `--wr-border-radius-sm`.
+  --wr-event-calendar-chip-radius: calc(var(--wr-border-radius-sm) / 2);
+  // Space above the first chip (below the day number, or below the header rule
+  // in the all-day band) and between stacked chips.
+  --wr-event-calendar-chip-gap: 0.25rem;
+  // How far a chip stands in from the lines of the cell it sits in — on both
+  // inline sides, and below a timed chip so back-to-back events do not merge.
+  --wr-event-calendar-chip-inset: 0.125rem;
 
   display: flex;
   flex-direction: column;
@@ -75,6 +90,9 @@
     display: grid;
     overflow: hidden;
     border-radius: var(--wr-border-radius-base);
+    // The frame, spread OUTSIDE the box. It owns the four outer edges, which is
+    // why no cell draws a line on a side that meets it (see the grid lines
+    // below).
     box-shadow: 0 0 0 1px var(--wr-event-calendar-line);
 
     &--month {
@@ -82,7 +100,15 @@
     }
 
     &--time {
-      grid-template-columns: var(--wr-event-calendar-gutter) repeat(var(--wr-event-calendar-cols), minmax(0, 1fr));
+      // The hook is the gutter's FLOOR, not its width. A fixed 3.75rem could not
+      // hold "09:00 AM" at the label's own padding, so the label wrapped onto a
+      // second line, the rows carrying one grew to 36px while the slot cells
+      // stayed 24px, and every column line broke for 12px at every hour — and a
+      // timed chip, sized in percentages of one 24px slot, ended short of its
+      // own end time by 12px per hour it crossed.
+      grid-template-columns:
+        minmax(var(--wr-event-calendar-gutter), max-content)
+        repeat(var(--wr-event-calendar-cols), minmax(0, 1fr));
     }
   }
 
@@ -94,13 +120,13 @@
 
   &__weekday,
   &__colhead {
+    position: relative;
     padding: 0.5rem 0.375rem;
     font-size: var(--wr-text-xs);
     font-weight: var(--wr-font-weight-medium);
     color: var(--wr-color-on-surface-muted);
     text-align: center;
     background: var(--wr-event-calendar-fill);
-    box-shadow: inset 0 -1px 0 var(--wr-event-calendar-line);
   }
 
   &__colhead {
@@ -122,11 +148,36 @@
   &__gutter {
     padding: 0 0.5rem;
     font-size: var(--wr-text-xs);
+    // One line box exactly one em tall, so the nudge below centres the label on
+    // its line and the label can never make a slot row taller than the slot.
+    line-height: 1;
     color: var(--wr-color-on-surface-muted);
     text-align: end;
+    white-space: nowrap;
     // Nudged up so the label reads as the line it labels, not the band below it.
+    // The transform moves the box, so the gutter draws no line of its own — the
+    // divider is the first day column's (see the grid lines below).
     transform: translateY(-0.5em);
-    box-shadow: inset -1px 0 0 var(--wr-event-calendar-line);
+  }
+
+  // The all-day label names a band, not a line: its top level with the first
+  // chip's. Not centred on the chip — the first hour's label below is centred on
+  // the band's bottom rule, and a centred "All day" ran into it.
+  //
+  // And it does not size the column. The hour labels have to stay on one line,
+  // because a wrapped one grows its row; this label only grows the all-day row,
+  // which is a floor anyway. Left to `nowrap`, "Toute la journée" widened the
+  // French gutter from 72px to 107px and took a fifth off every day column at
+  // phone width, and the English label overrode a smaller gutter hook. A wrapped
+  // label grows the row through its bottom padding instead: the first hour's
+  // label is lifted 0.5em into this row, and the other 0.5em is the space a
+  // one-line "All day" already leaves above it. Without it the second line of
+  // "Toute la journée" overlapped "08:00 AM".
+  &__row--allday > &__gutter {
+    contain: inline-size;
+    padding-block: var(--wr-event-calendar-chip-gap) 1em;
+    white-space: normal;
+    transform: none;
   }
 
   &__cell {
@@ -137,7 +188,6 @@
     position: relative;
     min-width: 0;
     cursor: pointer;
-    box-shadow: inset -1px -1px 0 var(--wr-event-calendar-line);
 
     &:focus-visible {
       z-index: 2;
@@ -146,7 +196,18 @@
     }
 
     &--day {
-      min-height: 5.5rem;
+      // A floor that knows the lanes. Every chip is absolutely positioned, so
+      // nothing in flow made the cell tall enough for its last lane: a third
+      // chip hung into the next week's row. `--wr-event-calendar-lanes` is the
+      // number of lanes the week row fills, set on the row and inherited through
+      // its `display: contents`.
+      min-height: max(
+        5.5rem,
+        calc(
+          1.75rem + var(--wr-event-calendar-chip-gap) + var(--wr-event-calendar-lanes, 0) *
+            (var(--wr-event-calendar-band-height) + var(--wr-event-calendar-chip-gap))
+        )
+      );
       padding: 0.25rem;
     }
 
@@ -164,20 +225,90 @@
     }
 
     &--allday {
-      min-height: calc(var(--wr-event-calendar-band-height) + 0.5rem);
-      padding: 0.125rem 0;
+      // Same rule as a day cell: the band has no ceiling on lanes, and a second
+      // all-day event used to spill over the first hour of the grid.
+      min-height: calc(
+        var(--wr-event-calendar-chip-gap) + var(--wr-event-calendar-lanes, 1) *
+          (var(--wr-event-calendar-band-height) + var(--wr-event-calendar-chip-gap))
+      );
     }
 
     &--slot {
-      height: var(--wr-event-calendar-slot-height);
-      box-shadow: inset -1px 0 0 var(--wr-event-calendar-line);
+      // A floor rather than a height, so a row that grows anyway stretches its
+      // cells with it instead of leaving their lines short.
+      min-height: var(--wr-event-calendar-slot-height);
     }
+  }
 
-    &--major {
-      box-shadow:
-        inset -1px 0 0 var(--wr-event-calendar-line),
-        inset 0 1px 0 var(--wr-event-calendar-line);
+  // ------------------------------------------------------------- grid lines
+  //
+  // One hairline per edge, and one owner per line. A cell draws the line on its
+  // inline END and its block END, and draws nothing where that edge is the
+  // frame; the time grid draws hour lines on the block START of a major row,
+  // except where a header or the all-day band already put a rule there. Logical
+  // sides throughout, so the lines follow the columns under `dir="rtl"`.
+  &__weekday,
+  &__colhead,
+  &__cell {
+    &::after {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      content: '';
+      border: 0 solid var(--wr-event-calendar-line);
     }
+  }
+
+  &__weekday::after,
+  &__colhead::after {
+    border-block-end-width: 1px;
+  }
+
+  &__cell--day::after,
+  &__cell--allday::after {
+    border-inline-end-width: 1px;
+    border-block-end-width: 1px;
+  }
+
+  &__cell--slot::after {
+    border-inline-end-width: 1px;
+  }
+
+  &__cell--major::after {
+    border-block-start-width: 1px;
+  }
+
+  // The divider between the gutter and the days. The first day column draws it,
+  // in every row, because the gutter's labels are moved with a transform that
+  // would carry any line of the gutter's own up with them — it used to stop
+  // 0.5em short of the grid's bottom edge.
+  &__gutter + &__colhead::after,
+  &__gutter + &__cell::after {
+    border-inline-start-width: 1px;
+  }
+
+  // The first slot row sits directly under the header rule or the all-day rule.
+  &__row:first-child + &__row > &__cell--major::after,
+  &__row--allday + &__row > &__cell--major::after {
+    border-block-start-width: 0;
+  }
+
+  // Edges that meet the frame.
+  &__row > :last-child::after {
+    border-inline-end-width: 0;
+  }
+
+  &__row:last-child > &__cell::after {
+    border-block-end-width: 0;
+  }
+
+  // Under the focus ring, never over it. A focused cell takes `z-index: 2`, so
+  // it is a stacking context, and Chromium paints a positioned `::after` inside
+  // one AFTER the cell's own outline: the inset ring lost its outer pixel on
+  // every side the cell draws a line on. A negative z-index still paints above
+  // the cell's background, so a muted day keeps its lines.
+  &__cell:focus-visible::after {
+    z-index: -1;
   }
 
   &__daynum {
@@ -207,7 +338,7 @@
     background: color-mix(in srgb, var(--wr-event-calendar-color) 18%, transparent);
     border: 0;
     border-inline-start: 3px solid var(--wr-event-calendar-color);
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-event-calendar-chip-radius);
     transition: filter var(--wr-transition-short);
 
     &:hover {
@@ -221,19 +352,31 @@
     }
 
     &--band {
-      inset-inline-start: 0.125rem;
+      inset-inline-start: var(--wr-event-calendar-chip-inset);
+      // `offset` is where the chips start — below the day number in a month
+      // cell, at the top of the all-day band — and the first lane keeps one gap
+      // clear of it, the way every later lane keeps one clear of the chip above.
       top: calc(
-        var(--wr-event-calendar-offset) + var(--wr-event-calendar-lane) *
-          (var(--wr-event-calendar-band-height) + 0.125rem)
+        var(--wr-event-calendar-offset) + var(--wr-event-calendar-chip-gap) + var(--wr-event-calendar-lane) *
+          (var(--wr-event-calendar-band-height) + var(--wr-event-calendar-chip-gap))
       );
       // Reaching across `--span` cells: each is exactly 100% of this one,
       // because the grid has no gaps and the lines cost no layout space.
-      width: calc(var(--wr-event-calendar-span) * 100% - 0.25rem);
+      width: calc(var(--wr-event-calendar-span) * 100% - 2 * var(--wr-event-calendar-chip-inset));
       height: var(--wr-event-calendar-band-height);
       padding: 0 0.375rem;
     }
 
     &--time {
+      // The template writes the lane geometry as custom properties rather than
+      // as `inset-inline-start` / `width` / `height` directly, so the inset can
+      // be taken off here: an inline style cannot be adjusted by a stylesheet,
+      // and a chip filling its lane to the pixel covered the column line and
+      // touched its neighbour in the next lane and the event after it. `top`
+      // needs no adjustment and stays an inline `top`.
+      inset-inline-start: calc(var(--wr-event-calendar-inline-start) + var(--wr-event-calendar-chip-inset));
+      width: calc(var(--wr-event-calendar-inline-size) - 2 * var(--wr-event-calendar-chip-inset));
+      height: calc(var(--wr-event-calendar-block-size) - var(--wr-event-calendar-chip-inset));
       padding: 0.125rem 0.25rem;
       // The clock and the title share a line while there is room for both and
       // the title drops below it when there is not. `flex-direction: column`
@@ -250,6 +393,10 @@
       row-gap: 0;
       min-height: 1.25rem;
       white-space: normal;
+      // The chip's height is set from outside and never from its content, so
+      // size containment costs nothing, and it lets the title ask how many lines
+      // the chip holds (see `&-title`).
+      container: wr-event-calendar-chip / size;
     }
 
     // A segment clipped by the edge of the view loses the rounding on that side,
@@ -280,8 +427,8 @@
       // one-slot event has — so the label was clipped through its own digits.
       white-space: nowrap;
       // The muted role is calibrated against the plain surface, and the chip
-      // puts an 18% wash of the event colour under it (line ~192) — which spent
-      // the whole margin: 4.18–4.28:1 across the shipped demo colours, under AA
+      // puts an 18% wash of the event colour under it (its `background`) — which
+      // spent the whole margin: 4.18–4.28:1 across the shipped demo colours, under AA
       // in LIGHT for every one of them. Mixing toward the page's own ink is the
       // `-ink` recipe: `--wr-color-on-surface` flips per theme, so one
       // declaration darkens on a light tint and lightens on a dark one. 85% is
@@ -307,18 +454,28 @@
   // The one thing in a day cell that is NOT absolutely positioned, and it has
   // to stay that way. Its lane is `maxLanes` — one past the last chip — so
   // absolute put it at 1.75rem + 3 x 1.375rem = 5.875rem inside a cell whose
-  // floor is 5.5rem: the entire button landed in the following week's row,
+  // floor was 5.5rem: the entire button landed in the following week's row,
   // which comes later in the DOM and (correctly, per the `__cell` note above)
   // has no z-index to lose to it, so it swallowed every click. A block box in
-  // flow lands on exactly the same 5.875rem — the day-number line box is
-  // precisely the 1.75rem the chips offset by, so only the lanes have to be
-  // skipped — and makes the cell GROW to hold it instead. `min-height` on the
-  // cell is a floor, not a size; the row stretches its siblings to match.
+  // flow lands exactly where that lane would start — the day-number line box is
+  // precisely the 1.75rem the chips offset by, so only the first gap and the
+  // lanes have to be skipped — and makes the cell GROW to hold it instead.
+  // `min-height` on the cell is a floor, not a size; the row stretches its
+  // siblings to match.
+  //
+  // It is as tall as a chip. At its own 18px line its centre sat 23px below the
+  // centre of the chip above it, one pixel short of the 24px WCAG 2.5.8's
+  // spacing exception asks for. axe flagged both targets wherever the cell was
+  // narrow enough to put the two centres nearly in line.
   &__more {
     display: block;
     width: fit-content;
-    margin-top: calc(var(--wr-event-calendar-lane) * (var(--wr-event-calendar-band-height) + 0.125rem));
-    margin-inline-start: 0.125rem;
+    min-height: var(--wr-event-calendar-band-height);
+    margin-top: calc(
+      var(--wr-event-calendar-chip-gap) + var(--wr-event-calendar-lane) *
+        (var(--wr-event-calendar-band-height) + var(--wr-event-calendar-chip-gap))
+    );
+    margin-inline-start: var(--wr-event-calendar-chip-inset);
     padding: 0 0.375rem;
     font: inherit;
     font-size: var(--wr-text-xs);
@@ -352,5 +509,22 @@
   &--dragging {
     cursor: grabbing;
     user-select: none;
+  }
+}
+
+// A timed chip with room for ONE line: two of the chip's 1.2 line boxes are
+// 2.4em, and the query measures the content box. There the title stays on the
+// clock's line and ends in an ellipsis. Left to wrap, it dropped to a second
+// line that started 14.4px down a 16px content box, so a one-slot chip showed
+// the top of the title's letters and nothing else. On the docs page that
+// happened at 1280px wide, where the week columns are 118px. A chip narrower
+// than its clock plus the gap still wraps the title, because a container query
+// cannot turn off `flex-wrap` on the chip itself; at that width the clock is
+// already cut off.
+@container wr-event-calendar-chip (height < 2.4em) {
+  .wr-event-calendar__chip-title {
+    flex: 1 1 0;
+    min-width: 0;
+    white-space: nowrap;
   }
 }
