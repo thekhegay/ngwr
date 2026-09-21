@@ -408,6 +408,34 @@ describe('the root manifest declares one toolchain, not three', () => {
     expect(offenders).toEqual([]);
   });
 
+  it('keeps release-bound data out of README.md', () => {
+    // The README is also the npm page, and nothing regenerates it. Every
+    // version, count, size and date it used to restate went stale, so it links
+    // to the pages that are generated instead. Counts are matched as words too,
+    // because the house style spells them out ("twenty value controls"); a bare
+    // "one" is left alone, since "the one component" is prose.
+    const text = readFileSync(join(process.cwd(), 'README.md'), 'utf8');
+    const unit =
+      '(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen)';
+    const tens = '(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)';
+    const number = `(?:\\d+\\+?|${tens}(?:-${unit})?|(?!one\\b)${unit}|hundreds?)`;
+    const noun =
+      '(?:entry points?|components?|value controls?|controls?|harness(?:es)?|declarations?|packages?|routes?|specs?|tests?|icons?|animations?|locales?|languages?|catalogs?)';
+    const banned: readonly (readonly [RegExp, string])[] = [
+      [/ngwr@\d/, 'a pinned ngwr version'],
+      [/\bv\d+(?:\.\d+)*\b/, 'a version or major line'],
+      [/\bAngular \d{2}\b/, 'an Angular major'],
+      [/\d+(?:\.\d+)?\s?[kK]B\b/, 'a bundle size'],
+      [new RegExp(`\\b${number}\\s+(?:[\\w\`*/-]+\\s+){0,2}${noun}\\b`, 'i'), 'a count'],
+      [/\b20\d\d-\d\d-\d\d\b/, 'a date'],
+      [/<!--/, 'a hidden comment'],
+    ];
+
+    const offenders = banned.filter(([re]) => re.test(text)).map(([re, why]) => `${why}: ${text.match(re)![0]}`);
+
+    expect(offenders).toEqual([]);
+  });
+
   it('keeps no pnpm setting in .npmrc, where pnpm would not read it', () => {
     // Registry and auth lines are still honoured there; anything else is a
     // setting that looks configured and does nothing.

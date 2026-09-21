@@ -36,8 +36,9 @@ import { WrCheckbox } from './checkbox';
  * a plain component that has a `value` model, no ngwr involved). If a spec in
  * that block starts failing after an Angular bump, the bridge moved — in either
  * direction — and the docs that describe it must move with it: AGENTS.md
- * (Forms), README.md, `scripts/lib/ai/skill.ts`, `/guides/forms`,
- * `/start/quality` and `/start/comparison`.
+ * (Forms), README.md (one clause: that ngModel and reactive forms bind, with
+ * limits), `scripts/lib/ai/skill.ts`, `/guides/forms`, `/start/quality` and
+ * `/start/comparison`.
  */
 
 @Component({

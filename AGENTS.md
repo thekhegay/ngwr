@@ -1036,9 +1036,11 @@ many "components" are modes or inputs on one host (e.g. `wr-select` covers
 single / multi / search / tag; `wr-date-picker` covers date / time / datetime;
 `wr-popover` has a `tooltip` mode; `wr-drawer` doubles as a bottom-sheet).
 **Before adding a new component, check whether an existing one should grow a
-mode or input instead.** Orient with the grouped catalog in [README.md](README.md)
-(Form / Buttons / Data / Feedback / Display / Layout / Navigation / Overlays /
-Charts, plus a separate Animations section) or `ls projects/lib`.
+mode or input instead.** Orient with the grouped catalog at
+https://ngwr.dev/reference/components. Its groups are `COMPONENT_GROUPS` in
+`projects/showcase/app/_layout/sidebar/configs/components.config.ts`, and
+animations have their own in `animations.config.ts`. For a flat list, read
+`skills/ngwr/references/catalog.md` (generated) or run `ls projects/lib`.
 
 **Skeleton.** Mirror the nearest existing entry point (`projects/lib/alert/` is
 the cleanest match) — copy its `@Component` shape (`ViewEncapsulation.None`,
@@ -1690,8 +1692,10 @@ rather than relying on timing. Touch _feel_ ultimately needs a real device.
 
 ## Where to look first
 
-- **What exists / how to consume it** → [README.md](README.md) (full catalog,
-  install, quick start).
+- **What exists** → https://ngwr.dev/reference/components, or
+  `skills/ngwr/references/catalog.md` (generated from source).
+- **How to consume it** → [README.md](README.md) for install, and
+  https://ngwr.dev/start/installation for the detail.
 - **Direction and priorities** → [ROADMAP.md](ROADMAP.md).
 - **A working example of any pattern** → the nearest existing entry point in
   `projects/lib/` and its showcase page. The catalog is large and consistent;

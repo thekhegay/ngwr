@@ -1,32 +1,19 @@
-# <a href="https://ngwr.dev"><img src="https://ngwr.dev/images/logo.svg" alt="ngwr" height="32px"></a>
+# <a href="https://ngwr.dev"><img src="https://ngwr.dev/images/logo.svg" alt="ngwr" height="32"></a>
+
+Signals-first UI components for Angular.
 
 [![ngwr website](https://img.shields.io/badge/ngwr.dev-3969e2)](https://ngwr.dev)
-[![ngwr version](https://img.shields.io/github/package-json/v/thekhegay/ngwr?filename=projects%2Flib%2Fpackage.json&color=%23e21a62)](https://www.npmjs.com/package/ngwr)
+[![npm version](https://img.shields.io/npm/v/ngwr?color=e21a62)](https://www.npmjs.com/package/ngwr)
 [![angular peer](https://img.shields.io/npm/dependency-version/ngwr/peer/@angular/core)](https://www.npmjs.com/package/ngwr)
 [![ci](https://img.shields.io/github/actions/workflow/status/thekhegay/ngwr/ci.yml?branch=main&label=ci)](https://github.com/thekhegay/ngwr/actions/workflows/ci.yml)
 [![coverage](https://codecov.io/gh/thekhegay/ngwr/branch/main/graph/badge.svg)](https://codecov.io/gh/thekhegay/ngwr)
 [![license](https://img.shields.io/npm/l/ngwr)](https://github.com/thekhegay/ngwr/blob/main/LICENSE)
 
-<!-- "Twenty" is derived, not chosen: `grep -rn "implements .*Form\(Value\|Checkbox\)Control" projects/lib`
-     returns twenty-one class declarations, and the twenty-first — `date-picker/internal/time-panel.ts` —
-     is exported by no `public-api.ts`. Eighteen implement `FormValueControl`; `wr-checkbox` and
-     `wr-switch` implement `FormCheckboxControl`. It is a count and not the word "every" on purpose:
-     `[wrColorPickerTrigger]` is public, carries its own `value` model, and implements neither.
-     Re-derive before editing the number. -->
+[Documentation](https://ngwr.dev) · [Getting started](https://ngwr.dev/start/installation) · [Playground](https://ngwr.dev/start/playground) · [Why ngwr](https://ngwr.dev/start/comparison) · [Changelog](https://github.com/thekhegay/ngwr/blob/main/CHANGELOG.md)
 
-**NGWR is an Angular UI library that binds straight to Signal Forms.** Twenty
-value controls implement `FormValueControl` / `FormCheckboxControl` themselves,
-so `[formField]` writes the component's own `value` / `checked` model — there
-is not one `ControlValueAccessor` in the library. Zoneless by construction, not
-zoneless-compatible: signal inputs, signal state, `afterNextRender()` for DOM
-work, and no `@NgModule` or `@Input()` decorator anywhere in the source. 229
-tree-shakable entry points, on `@angular/cdk` for overlay, portal and a11y
-primitives.
-
-**[Try it in the browser](https://ngwr.dev/start/playground)** — no install.
-**[How it compares](https://ngwr.dev/start/comparison)** — what the other
-Angular UI libraries do about Signal Forms today, counted rather than asserted.
-**[Docs and live demos](https://ngwr.dev)**.
+ngwr's form controls implement `FormValueControl` and `FormCheckboxControl`
+from Signal Forms directly. `[formField]` binds to each component's own `value`
+or `checked` model, and the library contains no `ControlValueAccessor`.
 
 ```ts
 import { Component, signal } from '@angular/core';
@@ -49,9 +36,6 @@ import { WrInput } from 'ngwr/input';
 export class SignupCard {
   private readonly model = signal({ email: '', agree: false });
 
-  // `[formField]` binds to the control's own `value` / `checked` model, and
-  // `<wr-form-field>` resolves the error copy from the i18n catalog — so
-  // neither an accessor nor a `<wr-form-error>` has to be written by hand.
   readonly signup = form(this.model, path => {
     required(path.email);
     email(path.email);
@@ -59,106 +43,39 @@ export class SignupCard {
 }
 ```
 
-Classic `[(ngModel)]` and reactive forms still bind, with no `ControlValueAccessor`
-created: Angular's `NgModel` / `FormControlDirective` drive the control's `value`
-or `checked` model directly. That bridge does **not** apply template validator
-directives — `required`, `minlength`, `maxlength`, `pattern` or `email` on an ngwr
-control is silently ignored and the form submits — so put validators on the
-`FormControl`. It also ignores `updateOn`, and a `{ emitEvent: false }` write needs
-`markForCheck()`; the [forms guide](https://ngwr.dev/guides/forms) has the detail.
-Every control is also usable standalone through its two-way `[(value)]` /
-`[(checked)]` model.
+`<wr-form-field>` shows the validation messages itself, so there is no error
+markup to write. Template-driven and reactive forms bind too, with limits the
+[forms guide](https://ngwr.dev/guides/forms) lists.
 
-> **Status:** active development. v14 is the current major line (Angular 22 peer).
-> Upgrading? `ng update ngwr@14` rewrites v14's six renames and reports the
-> changes no codemod should guess at — the
-> [migration guide](https://ngwr.dev/start/migration) walks every step.
-> [Open an issue](https://github.com/thekhegay/ngwr/issues/new)
-> if something breaks or feels wrong.
+## Features
 
-## Requirements
+- Standalone, signal-based components that work zoneless and render on the
+  server.
+- One import path per component (`ngwr/button`, `ngwr/select`). The only
+  runtime dependency is `tslib`.
+- [Theming](https://ngwr.dev/guides/theming) through `--wr-*` CSS custom
+  properties, with light and dark modes.
+- Keyboard and screen reader support based on the WAI-ARIA patterns.
+- Translatable built-in labels and right-to-left layouts.
+- Angular CDK [test harnesses](https://ngwr.dev/guides/testing) for the form
+  controls and overlays.
 
-**The ranges live in one place: `peerDependencies` in the package's own
-manifest.** Read them with `npm info ngwr peerDependencies`, or on the npm page,
-or in `node_modules/ngwr/package.json` once installed. They are not copied here,
-because a copy is only ever correct until the next release — this table listed
-an icon package as a peer for a while after the library had stopped declaring
-one.
+Browse the [components](https://ngwr.dev/reference/components) and
+[animations](https://ngwr.dev/animations) with live demos. Directives, pipes,
+services and validators are in the [reference](https://ngwr.dev/reference).
 
-What the manifest will not tell you is the SHAPE, so that is what this section
-is for. Angular, its CDK and rxjs are required. `@angular/router` is optional
-because only a handful of entry points import it. The two date libraries are
-optional and you pick at most one, whichever `provideWrDateAdapter()` you use.
-The eight `prosemirror-*` packages are optional too, and only `ngwr/editor`
-imports them — an app without a rich-text editor never installs them.
-**Icon sets are not peers at all** — every adapter takes the icon data as an
-argument, so ngwr never imports lucide, feather or any other set; install
-whichever you like, or none, and register raw SVG with `svgIcon()`.
-
-ngwr declares no `engines` field and no TypeScript peer of its own, because it
-ships pre-compiled bundles and `.d.ts` files: the Node and TypeScript versions
-that bind are the ones your Angular names. Contributing to this repo is
-narrower, and those ranges live in the root `package.json` too — `engines`,
-`devEngines` and `packageManager`, with `.nvmrc` naming the version CI runs.
-
-**The floor is real; the missing ceiling promises nothing.** ngwr ships
-partially compiled, and the floor is enforced by the bundles rather than by the
-range — but by a minority of them, which is why the failure is confusing when it
-arrives. Of 654 declarations, **25 record `minVersion: "22.0.0"`** (the service
-declarations, across 22 files); the rest are older shapes an old linker reads
-fine. So the install succeeds — every package manager treats an unmet peer as a
-warning — and `ng build` then dies inside one `fesm2022` bundle with a message
-that names no version at all. Read the peer warning at install time. Above the
-floor, an open-ended range only means your package manager will not stop you
-installing next to an Angular this release was never built against.
+## Installation
 
 ```sh
-grep -ho 'minVersion: *"[^"]*"' node_modules/ngwr/fesm2022/*.mjs | sort | uniq -c
-```
-
-## Versioning and support
-
-Semver, with the one rule that matters made mechanical: **a breaking change
-cannot ride a minor or a patch.** `release:prepare` refuses `--bump=minor` and
-`--bump=patch` when any commit since the last release tag carries a `!` type or
-a `BREAKING CHANGE:` footer — it prints the offending subjects and exits
-non-zero, and since a release is cut only by that workflow, the refusal is the
-release. It exists because the opposite shipped: 12.2.0 was a minor carrying a
-`BREAKING CHANGES` section, and `^12.1.0` picked it up silently. So a caret
-range on a major is a safe range now. It was not then. What the guard cannot see
-is a break nobody labelled as one — it reads commit metadata, which is what
-commitlint on every commit and PR title gives it to read.
-
-Public API is three surfaces, and all three move only in a major: the exported
-TypeScript, the `.wr-*` BEM class names (components ship
-`ViewEncapsulation.None`), and the `--wr-*` custom properties. Anything marked
-`@internal` is not API, and the marker survives into the shipped types —
-`grep -rn "@internal" node_modules/ngwr/types` is the whole check. A few helpers
-are exported, unmarked and undocumented; treat those as unsupported until a page
-describes them, and open an issue naming the one you need.
-
-Two lines are supported at a time: the current major in full, the one before it
-for mechanical security fixes only, and that second row ends when the next major
-ships. Read it against the cadence rather than a calendar — eight majors shipped
-between 2026-06-12 (v7.0.0) and 2026-09-04 (v14.0.0). Table, targets and the
-private reporting route: [SECURITY.md](SECURITY.md). Full policy, with the
-commands to check every claim in it against the installed package:
-<https://ngwr.dev/start/versioning>.
-
-## Install
-
-The schematic does the whole Install + Styles section for you — it installs
-ngwr and its peers, appends `@use 'ngwr';` to your global stylesheet, and
-prints a provider snippet tailored to your answers (date adapter, density,
-theme) to paste into bootstrap:
-
-```shell
 ng add ngwr
 ```
 
-Or wire it up by hand:
+The schematic asks a few questions, adds `@use 'ngwr';` to your global Sass
+stylesheet and prints the providers to add to your app.
 
-```shell
+Or install the packages yourself:
+
+```sh
 pnpm add ngwr @angular/cdk
 # or
 npm install ngwr @angular/cdk
@@ -166,258 +83,72 @@ npm install ngwr @angular/cdk
 yarn add ngwr @angular/cdk
 ```
 
-Beyond Angular itself, `@angular/cdk` and `@angular/forms` are the required
-peers — forms because the value controls implement its Signal Forms interfaces.
-`@angular/router` is optional, and since v14 nothing pulls it in unless you ask:
-a `<wr-tab routerLink>` needs `WrTabsRouting` from `ngwr/tabs/router` on the
-strip, and `<wr-loading-bar>` follows navigation only once you add
-`provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`. Both used to be
-automatic, which cost every app 66–76 kB of router whether it routed or not.
-A stock `ng new` app already ships forms and router, so
-`@angular/cdk` is the only one you have to add — which is why it is on the
-install lines above. Add an icon set and a date library only if you use them —
-`lucide` (or `feather-icons`) for the icon adapters, `date-fns` or `luxon`
-for the calendar / date-picker, which otherwise runs on a built-in native
-`Date` adapter, and the eight `prosemirror-*` packages for `wr-editor` — its
-[docs page](https://ngwr.dev/reference/components/editor) has the install line. The Quick start below registers a lucide icon, so it needs
-`lucide`:
-
-```shell
-pnpm add lucide
-```
+The optional packages (a date library, an icon set, ProseMirror for the editor)
+are listed in the [installation guide](https://ngwr.dev/start/installation).
 
 ## Styles
-
-The fastest way — pull in everything (theme tokens + all component styles):
 
 ```scss
 // styles.scss
 @use 'ngwr';
 ```
 
-Good for a spike, but it is every entry point at once — about **265 kB** of CSS
-(~40 kB over the wire), which is over half the 500 kB initial budget a fresh
-`ng new` warns at before any of your own code. For anything you intend to keep,
-opt in per component below and the sheet stays proportional to what you actually
-render.
-
-Prefer to opt in per-component? Each component has its own SCSS entry that pulls
-in the theme automatically:
+This loads the theme and the styles of every component. To keep the stylesheet
+small, load only the components you use. Each entry brings the theme with it:
 
 ```scss
-@use 'ngwr/theme'; // CSS custom properties (--wr-color-*, --wr-font-*, etc.)
-@use 'ngwr/button';
+@use 'ngwr/form';
 @use 'ngwr/input';
 @use 'ngwr/checkbox';
 ```
 
-Opt-in utilities (not part of `@use 'ngwr'`):
+Utilities are opt-in and are not part of `@use 'ngwr'`:
 
 ```scss
 @use 'ngwr/reset'; // box-sizing, body margin, sane defaults
 @use 'ngwr/grid'; // .grid, .container, .col-*
-@use 'ngwr/animations'; // .wr-animate-fade-in, .wr-animate-slide-up, …
-@use 'ngwr/typography-utilities'; // .wr-text-*, .wr-font-* utility classes
-@use 'ngwr/breakpoints' as bp; // SCSS mixins only, no CSS output
+@use 'ngwr/animations'; // .wr-animate-* classes
+@use 'ngwr/typography-utilities'; // .wr-text-*, .wr-font-* classes
+@use 'ngwr/breakpoints' as bp; // Sass mixins only, no CSS output
 ```
 
-`ngwr/typography-utilities` is the utility-class sheet — not `ngwr/typography`,
-which is the larger `wrTypography` component entry.
+## Upgrading
 
-### What you may style, and what may move
-
-Components render with `ViewEncapsulation.None`, so their `.wr-*` BEM classes and
-their `--wr-*` custom properties are reachable — and both are treated as public
-API: renaming one is a breaking change carrying a migration note. The DOM *shape*
-is not. Which element holds which class, how deeply they nest, whether a wrapper
-exists — all of that may move in a minor. A rule keyed on one class survives a
-rename; a descendant selector that encodes a structure
-(`.wr-select__trigger > span > svg`) does not. And a surviving rule is not a
-winning one: 27 components ship their own stylesheet, which Angular emits after
-your linked `styles.css`, so a single-class override loses to it at equal
-specificity — reach for their `--wr-*` token instead. See
-[Theming](https://ngwr.dev/guides/theming) for the full statement and the list.
-
-## Quick start
-
-```ts
-// main.ts
-import { bootstrapApplication } from '@angular/platform-browser';
-import { provideWrOverlay } from 'ngwr/overlay';
-
-import { AppComponent } from './app/app.component';
-
-bootstrapApplication(AppComponent, {
-  providers: [
-    provideWrOverlay(), // isolated overlay container
-  ],
-});
+```sh
+ng update ngwr
 ```
 
-```ts
-// app.component.ts
-import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Check } from 'lucide';
-import { WrButton } from 'ngwr/button';
-import { provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
-import { WrInput } from 'ngwr/input';
+This installs the latest version and runs its migrations. The
+[migration guide](https://ngwr.dev/start/migration) describes the changes in
+each major. The Angular badge shows the lowest Angular version ngwr needs.
+[Versioning](https://ngwr.dev/start/versioning) explains the support policy.
 
-@Component({
-  selector: 'app-root',
-  imports: [FormsModule, WrButton, WrInput],
-  providers: [provideWrIcons(lucideIcons({ checkmark: Check }))], // tree-shaken icons
-  template: `
-    <input wrInput [(ngModel)]="name" placeholder="Your name" />
-    <button wr-btn color="primary" icon="checkmark" (click)="greet()">Hello</button>
-  `,
-})
-export class AppComponent {
-  readonly name = signal('');
-  greet(): void {
-    console.log('Hi', this.name());
-  }
-}
-```
+## AI agents
 
-Value controls are Signal Forms-native, so `[formField]` binds straight
-through — no `ControlValueAccessor` anywhere in the chain:
-
-```ts
-// profile-form.ts
-import { Component, signal } from '@angular/core';
-import { FormField, form } from '@angular/forms/signals';
-import { WrCheckbox } from 'ngwr/checkbox';
-import { WrInput } from 'ngwr/input';
-
-@Component({
-  selector: 'app-profile-form',
-  imports: [FormField, WrCheckbox, WrInput],
-  template: `
-    <input wrInput [formField]="profile.name" placeholder="Your name" />
-    <wr-checkbox [formField]="profile.agree">I agree</wr-checkbox>
-  `,
-})
-export class ProfileForm {
-  readonly model = signal({ name: '', agree: false });
-  readonly profile = form(this.model); // FieldTree — profile.name, profile.agree
-}
-```
-
-## Catalog
-
-> Browse the full catalog with live demos at [**ngwr.dev**](https://ngwr.dev).
-> Each entry below is a tree-shakable subpath — `import { … } from 'ngwr/<name>'`.
-> A few share a package: `form-field` ships from `ngwr/form`, `button-group` from
-> `ngwr/button`, and `qr` is the subpath behind the `qrcode` docs page.
-
-### Components
-
-**Form** — [calendar](https://ngwr.dev/reference/components/calendar), [cascader](https://ngwr.dev/reference/components/cascader), [checkbox](https://ngwr.dev/reference/components/checkbox), [color-picker](https://ngwr.dev/reference/components/color-picker), [date-picker](https://ngwr.dev/reference/components/date-picker), [editor](https://ngwr.dev/reference/components/editor), [file-upload](https://ngwr.dev/reference/components/file-upload), [form](https://ngwr.dev/reference/components/form), [form-field](https://ngwr.dev/reference/components/form-field), [input](https://ngwr.dev/reference/components/input), [input-number](https://ngwr.dev/reference/components/input-number), [input-otp](https://ngwr.dev/reference/components/input-otp), [knob](https://ngwr.dev/reference/components/knob), [mention](https://ngwr.dev/reference/components/mention), [radio](https://ngwr.dev/reference/components/radio), [rating](https://ngwr.dev/reference/components/rating), [schema-form](https://ngwr.dev/reference/components/schema-form), [segmented](https://ngwr.dev/reference/components/segmented), [select](https://ngwr.dev/reference/components/select), [slider](https://ngwr.dev/reference/components/slider), [switch](https://ngwr.dev/reference/components/switch), [textarea](https://ngwr.dev/reference/components/textarea), [transfer](https://ngwr.dev/reference/components/transfer).
-
-**Buttons** — [button](https://ngwr.dev/reference/components/button), [button-group](https://ngwr.dev/reference/components/button-group), [speed-dial](https://ngwr.dev/reference/components/speed-dial).
-
-**Data** — [drag-drop](https://ngwr.dev/reference/components/drag-drop), [event-calendar](https://ngwr.dev/reference/components/event-calendar), [graph](https://ngwr.dev/reference/components/graph), [pagination](https://ngwr.dev/reference/components/pagination), [pull-to-refresh](https://ngwr.dev/reference/components/pull-to-refresh), [table](https://ngwr.dev/reference/components/table), [tree](https://ngwr.dev/reference/components/tree), [virtual-scroll](https://ngwr.dev/reference/components/virtual-scroll).
-
-**Feedback** — [alert](https://ngwr.dev/reference/components/alert), [empty](https://ngwr.dev/reference/components/empty), [progress](https://ngwr.dev/reference/components/progress), [result](https://ngwr.dev/reference/components/result), [skeleton](https://ngwr.dev/reference/components/skeleton), [spinner](https://ngwr.dev/reference/components/spinner).
-
-**Display** — [avatar](https://ngwr.dev/reference/components/avatar), [badge](https://ngwr.dev/reference/components/badge) (incl. `wr-tag`), [compare](https://ngwr.dev/reference/components/compare), [counter](https://ngwr.dev/reference/components/counter), [descriptions](https://ngwr.dev/reference/components/descriptions), [divider](https://ngwr.dev/reference/components/divider), [image-cropper](https://ngwr.dev/reference/components/image-cropper), [keyboard](https://ngwr.dev/reference/components/keyboard), [lightbox](https://ngwr.dev/reference/components/lightbox), [markdown](https://ngwr.dev/reference/components/markdown), [qr](https://ngwr.dev/reference/components/qrcode), [statistic](https://ngwr.dev/reference/components/statistic), [timeline](https://ngwr.dev/reference/components/timeline).
-
-**Layout** — [card](https://ngwr.dev/reference/components/card), [carousel](https://ngwr.dev/reference/components/carousel), [collapse](https://ngwr.dev/reference/components/collapse), [layout](https://ngwr.dev/reference/components/layout), [list](https://ngwr.dev/reference/components/list), [page-header](https://ngwr.dev/reference/components/page-header), [splitter](https://ngwr.dev/reference/components/splitter), [toolbar](https://ngwr.dev/reference/components/toolbar).
-
-**Navigation** — [anchor](https://ngwr.dev/reference/components/anchor), [back-top](https://ngwr.dev/reference/components/back-top), [breadcrumbs](https://ngwr.dev/reference/components/breadcrumbs), [burger](https://ngwr.dev/reference/components/burger), [dropdown](https://ngwr.dev/reference/components/dropdown), [sidebar](https://ngwr.dev/reference/components/sidebar), [stepper](https://ngwr.dev/reference/components/stepper), [tabs](https://ngwr.dev/reference/components/tabs).
-
-**Overlays** — [action-sheet](https://ngwr.dev/reference/components/action-sheet), [command-palette](https://ngwr.dev/reference/components/command-palette), [context-menu](https://ngwr.dev/reference/components/context-menu), [dialog](https://ngwr.dev/reference/components/dialog), [drawer](https://ngwr.dev/reference/components/drawer), [popconfirm](https://ngwr.dev/reference/components/popconfirm), [popover](https://ngwr.dev/reference/components/popover), [toast](https://ngwr.dev/reference/components/toast), [window](https://ngwr.dev/reference/components/window).
-
-**Charts** — [bar-chart](https://ngwr.dev/reference/components/bar-chart), [calendar-heatmap](https://ngwr.dev/reference/components/calendar-heatmap), [donut-chart](https://ngwr.dev/reference/components/donut-chart), [gauge](https://ngwr.dev/reference/components/gauge), [line-chart](https://ngwr.dev/reference/components/line-chart), [meter-group](https://ngwr.dev/reference/components/meter-group), [sparkline](https://ngwr.dev/reference/components/sparkline).
-
-Plus [icon](https://ngwr.dev/reference/components/icon), the experimental [squircle](https://ngwr.dev/reference/components/squircle), and the [typography](https://ngwr.dev/reference/directives/typography) directive.
-
-### Animations
-
-Animated UI effects. Mix of in-house components + ports of [reactbits.dev](https://www.reactbits.dev) — each port carries a credit chip on its docs page. Defaults are theme-aware (light + dark), and every component in **this section** honors `prefers-reduced-motion` — the one exception is `spotlight-card`, whose highlight only tracks the pointer. The scope of that sentence is the thing to read carefully: it says nothing about the rest of the catalog, and until v13 it was inviting a reader to over-generalise. The always-on chrome — the spinner and skeleton that animate on essentially every page, plus the enter animations on dialog, drawer, dropdown, popconfirm, toast, lightbox and the responsive bottom sheet — had no guard at all. It has one now, in the theme layer (`theme/styles/_motion.scss`) rather than per component, so the set is reviewable in one place.
-
-[aurora](https://ngwr.dev/animations/aurora), [blur-text](https://ngwr.dev/animations/blur-text), [border-glow](https://ngwr.dev/animations/border-glow), [circular-text](https://ngwr.dev/animations/circular-text), [click-spark](https://ngwr.dev/animations/click-spark), [confetti](https://ngwr.dev/animations/confetti), [decrypt-text](https://ngwr.dev/animations/decrypt-text), [falling-text](https://ngwr.dev/animations/falling-text), [fuzzy-text](https://ngwr.dev/animations/fuzzy-text), [glitch-text](https://ngwr.dev/animations/glitch-text), [gradient-text](https://ngwr.dev/animations/gradient-text), [marquee](https://ngwr.dev/animations/marquee), [rotating-text](https://ngwr.dev/animations/rotating-text), [shiny-text](https://ngwr.dev/animations/shiny-text), [splash-cursor](https://ngwr.dev/animations/splash-cursor), [split-text](https://ngwr.dev/animations/split-text), [spotlight-card](https://ngwr.dev/animations/spotlight-card), [star-border](https://ngwr.dev/animations/star-border), [tilt-card](https://ngwr.dev/animations/tilt-card), [typewriter](https://ngwr.dev/animations/typewriter), [waves](https://ngwr.dev/animations/waves).
-
-Card packages bundle their related directives: `ngwr/spotlight-card` exports `WrSpotlight`; `ngwr/tilt-card` exports `WrTilt`; `ngwr/shiny-text` exports `WrShimmer`.
-
-### Directives — `ngwr/directives`
-
-[autofocus](https://ngwr.dev/reference/directives/autofocus), [autosize](https://ngwr.dev/reference/directives/autosize), [click-outside](https://ngwr.dev/reference/directives/click-outside), [copy-to-clipboard](https://ngwr.dev/reference/directives/copy-to-clipboard). [affix](https://ngwr.dev/reference/directives/affix) ships as its own entry (`ngwr/affix`).
-
-### Pipes — `ngwr/pipes`
-
-[wrBytes](https://ngwr.dev/reference/pipes/wr-bytes), [wrDate](https://ngwr.dev/reference/pipes/wr-date), [wrMark](https://ngwr.dev/reference/pipes/wr-mark), [wrNumber](https://ngwr.dev/reference/pipes/wr-number), [wrPlural](https://ngwr.dev/reference/pipes/wr-plural), [wrRange](https://ngwr.dev/reference/pipes/wr-range), [wrTruncate](https://ngwr.dev/reference/pipes/wr-truncate).
-
-### Services
-
-[clipboard](https://ngwr.dev/reference/services/clipboard), [cookie](https://ngwr.dev/reference/services/cookie), [density](https://ngwr.dev/reference/services/density), [hotkey](https://ngwr.dev/reference/services/hotkey), [loading-bar](https://ngwr.dev/reference/services/loading-bar), [media](https://ngwr.dev/reference/services/media), [meta](https://ngwr.dev/reference/services/meta), [platform](https://ngwr.dev/reference/services/platform), [scroll](https://ngwr.dev/reference/services/scroll), [storage](https://ngwr.dev/reference/services/storage), [theme](https://ngwr.dev/reference/services/theme), [tour](https://ngwr.dev/reference/services/tour), [i18n](https://ngwr.dev/reference/services/i18n).
-
-### Validators — `ngwr/validators`
-
-Bundled `ValidatorFn`s composing cleanly with Angular's built-in `Validators`: `cardNumber` (Luhn), `cvc`, `hexColor`, `iban` (mod-97), `match` (sibling control), `matchFields` (group-level), `maxDate`, `minDate`, `noWhitespace`, `oneOf`, `url`. See [docs](https://ngwr.dev/reference/validators).
-
-### Utils — `ngwr/utils`
-
-Math (`clamp`, `round`), coercion (`numAttr`), css helpers (`resolveCssSize`, `getRootFontSize`), ids (`randomId`), type guards (`isDefined`, `isNonEmptyArray`, `isObservable`), keyboard helpers (`KEYS`, `hasModifier`, `isPrintableKey`), functional primitives (`noop`, `badgeLog`, `debounce`, `throttle`), focus management (`getFocusableElements`, `trapFocus`). See [docs](https://ngwr.dev/reference/utils) for the full list. Shared shapes (`Maybe`, `SafeAny`, `WrColor`, …) are documented under [Interfaces](https://ngwr.dev/reference/interfaces).
-
-### Core
-
-- [Color](https://ngwr.dev/guides/tokens/colors) — design tokens and palette.
-- [Grid](https://ngwr.dev/guides/grid) — opt-in 12-column layout.
-- [Overlay](https://ngwr.dev/guides/overlay) — isolated CDK overlay container, `provideWrOverlay()`.
-- [Mobile & responsive](https://ngwr.dev/guides/mobile) — responsive overlays, touch targets & density, swipe gestures, safe-area insets, container-query layouts.
-- [Typography](https://ngwr.dev/guides/typography) — `wrTypography` directive: headings, paragraphs, lists, links, code.
-- [Icons](https://ngwr.dev/icons) — `ngwr/icon` registry. Use `svgIcon()` for any set that ships raw SVG files (Tabler, Phosphor, Heroicons, Iconoir, Radix, Bootstrap, or your designer's own), plus thin adapters for Lucide (`ngwr/icon/adapters/lucide`) and Feather (`ngwr/icon/adapters/feather`), whose packages don't ship SVGs.
-- **Date adapters** — `ngwr/date` (native `Date`, no extra package), `ngwr/date/adapters/fns`, `ngwr/date/adapters/luxon`. Wire one with `provideWrDateAdapter()` — plus `{ adapter: WrDateFnsAdapter }` / `{ adapter: WrLuxonAdapter }` for the library-backed ones — to power calendar + every mode of date-picker.
-- **Component defaults** — `ngwr/config`. `provideWrConfig({ button: { size: 'sm' } })` sets what a component falls back to when a template says nothing; a bound value always wins, and a bound `false` beats a configured `true`, so a config never has to be escaped. [Reference](https://ngwr.dev/start/configuration).
-
-## Highlights
-
-- **Standalone & signals-first.** Every component is standalone and uses `input()` / `model()` / `output()` / `signal()` / `computed()`. Zoneless-ready.
-- **Signal Forms native.** Twenty value controls implement `FormValueControl` / `FormCheckboxControl`, so `[formField]` binds straight through — there is no `ControlValueAccessor` in the library at all. `[(ngModel)]` and reactive forms keep working through Angular's bridge, and every control also works standalone via `[(value)]` / `[(checked)]`.
-- **CDK-powered.** Overlays, portals, and a11y come from `@angular/cdk`. We add `provideWrOverlay()` so NGWR overlays never collide with other CDK consumers (Material, NG-ZORRO, etc.).
-- **Mobile & responsive.** Overlays collapse to bottom-sheets on small screens (`provideWrResponsiveOverlays()`), touch targets grow to ≥44px on coarse pointers, a `touch` density preset enlarges the ten control families that read the multipliers, and drawer / lightbox / toast / carousel respond to swipe gestures. Fixed surfaces respect `env(safe-area-inset-*)`, and layout components (`descriptions`, `stepper`, `page-header`, `toolbar`, `pagination`, `table`) reflow to their container via container queries. [Guide](https://ngwr.dev/guides/mobile).
-- **Table, batteries included.** `wr-table` covers column pinning / resizing / drag-reorder, row selection, expandable rows, grouping, tree rows (`childrenKey` — the forest flattens into the same `<tbody>`, so pinning and cell templates keep working at every depth, and the table announces a `treegrid`), summary rows, CSV export (`exportCsv()`, dependency-free RFC 4180) and a virtualized body — all opt-in inputs on the one component. Excel (`.xlsx`) export is deliberately not shipped: it would mean a third-party dependency.
-- **Tree-shakable.** 229 separate ng-packagr entry points — import only what you use. Per-component FESM bundles are small: a median of ~4 KB gzipped, the heaviest (`ngwr/markdown`) ~23 KB. Every runtime bundle together gzips to ~690 KB — the 72 `ngwr/<name>/testing` harnesses aside, since they never reach an app bundle — but real apps pull a handful of entries. The only runtime dependency is `tslib`.
-- **Modular SCSS.** Component styles are scoped through CSS custom properties. Theme tokens live in `ngwr/theme`; utilities (`grid`, `reset`) and the breakpoints SCSS API are opt-in.
-- **Tree-shaken icons.** `provideWrIcons(lucideIcons({ plus: Plus }))` registers only the icons you actually import. Dev-mode validation warns about unregistered icons.
-- **Reactbits ports, dependency-free.** All animation ports are reimplemented with vanilla DOM + Web Animations API / `IntersectionObserver` / `requestAnimationFrame` / raw WebGL — no GSAP, no `motion/react`, no `matter-js`, no `ogl`.
-- **Motion respects the OS.** Every animation component short-circuits to its final state under `prefers-reduced-motion`, except `spotlight-card`, which animates nothing on its own — its highlight follows the cursor.
-- **Legible to agents.** Every docs page also serves as markdown at the same URL plus `.md` — [reference/components/select.md](https://ngwr.dev/reference/components/select.md) is that page's prose, code samples and API tables without the site chrome. The whole catalog is at [llms-full.txt](https://ngwr.dev/llms-full.txt), a quick-ref at [llms.txt](https://ngwr.dev/llms.txt).
-
-### MCP server
-
-The package ships `ngwr-mcp`, a zero-dependency MCP server that makes those files askable: `search_ngwr` (find an entry point by what you need), `get_ngwr_component`, `get_ngwr_api` (a class's inputs / models / outputs / methods, read out of the shipped `.d.ts`) and `get_ngwr_setup` (the install, `ng g ngwr:use` and provider commands — returned as text; it never runs them). It adds no second copy of the catalog: it reads only files inside its own installed package, makes no network requests, and runs no commands.
+ngwr ships `ngwr-mcp`, an MCP server that lets coding agents search the catalog
+and read component APIs. Add it to your client:
 
 ```json
 {
   "mcpServers": {
-    "ngwr": { "command": "npx", "args": ["-y", "ngwr-mcp"] }
+    "ngwr": { "command": "npx", "args": ["-y", "-p", "ngwr", "ngwr-mcp"] }
   }
 }
 ```
 
-Works in Claude Code (`claude mcp add ngwr -- npx -y ngwr-mcp`), Claude Desktop and Cursor. To pin it to the version in your lockfile, use `"command": "node", "args": ["./node_modules/ngwr/mcp/server.js"]`. [Guide](https://ngwr.dev/guides/mcp).
+The [MCP guide](https://ngwr.dev/guides/mcp) covers each client. Agents without
+MCP can use the [agent skill](https://ngwr.dev/guides/agent-skill),
+[llms.txt](https://ngwr.dev/llms.txt), or any docs page as markdown by adding
+`.md` to its URL.
 
 ## Contributing
 
-Conventional commits are enforced on PR titles. Common types: `feat`, `fix`, `perf`, `refactor`, `docs`, `style`, `test`, `build`, `ci`, `chore`, `revert`. Optional scope is the component or area (`feat(checkbox): icon mode`).
-
-```shell
-pnpm install
-pnpm dev            # ng serve --o (showcase)
-pnpm test           # ng test lib (vitest)
-pnpm build:lib      # ng build lib + ai assets + dist assets + i18n json + schematics + mcp server
-pnpm build:showcase # ai assets + showcase build + sitemap + markdown twins
-pnpm lint           # ng lint + eslint scripts + stylelint + colour parity + rtl + registry + tokens
-```
-
-## Authors
-
-- [Roman Khegay](https://github.com/thekhegay) — code, design
+Bug reports go to [issues](https://github.com/thekhegay/ngwr/issues/new/choose)
+and questions to [Discussions](https://github.com/thekhegay/ngwr/discussions).
+Read [CONTRIBUTING.md](https://github.com/thekhegay/ngwr/blob/main/CONTRIBUTING.md)
+before opening a pull request, and report security issues privately as
+[SECURITY.md](https://github.com/thekhegay/ngwr/blob/main/SECURITY.md) describes.
 
 ## License
 
-[MIT](./LICENSE) — free for commercial use.
+[MIT](https://github.com/thekhegay/ngwr/blob/main/LICENSE) © [Roman Khegay](https://github.com/thekhegay)

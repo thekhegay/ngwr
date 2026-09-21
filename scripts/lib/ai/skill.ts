@@ -74,8 +74,8 @@ reaching for:
    export per entry point.
 3. Any docs page as markdown: append \`.md\` to the URL, e.g.
    \`${DOCS}/reference/components/select.md\`.
-4. \`npx ngwr-mcp\` — the bundled MCP server, when the agent speaks MCP:
-   \`search_ngwr\`, \`get_ngwr_component\`, \`get_ngwr_api\`, \`get_ngwr_setup\`.
+4. \`npx -y -p ngwr ngwr-mcp\` — the bundled MCP server, when the agent speaks
+   MCP: \`search_ngwr\`, \`get_ngwr_component\`, \`get_ngwr_api\`, \`get_ngwr_setup\`.
 
 Exact input / output signatures are in the shipped \`.d.ts\` files. Do not invent
 an input name; read one.

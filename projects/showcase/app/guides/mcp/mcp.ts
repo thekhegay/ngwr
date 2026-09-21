@@ -30,7 +30,7 @@ export default class McpGuidePageComponent {
   protected readonly snippets = {
     claudeCode: `# From your project root. The server is a bin in the package you already
 # depend on, so there is nothing extra to install.
-claude mcp add ngwr -- npx -y ngwr-mcp`,
+claude mcp add ngwr -- npx -y -p ngwr ngwr-mcp`,
 
     mcpJson: `// .mcp.json at the project root — check it in and every agent on the
 // team gets the same catalog.
@@ -38,7 +38,7 @@ claude mcp add ngwr -- npx -y ngwr-mcp`,
   "mcpServers": {
     "ngwr": {
       "command": "npx",
-      "args": ["-y", "ngwr-mcp"]
+      "args": ["-y", "-p", "ngwr", "ngwr-mcp"]
     }
   }
 }`,
@@ -49,7 +49,7 @@ claude mcp add ngwr -- npx -y ngwr-mcp`,
   "mcpServers": {
     "ngwr": {
       "command": "npx",
-      "args": ["-y", "ngwr-mcp"]
+      "args": ["-y", "-p", "ngwr", "ngwr-mcp"]
     }
   }
 }`,
@@ -59,7 +59,7 @@ claude mcp add ngwr -- npx -y ngwr-mcp`,
   "mcpServers": {
     "ngwr": {
       "command": "npx",
-      "args": ["-y", "ngwr-mcp"]
+      "args": ["-y", "-p", "ngwr", "ngwr-mcp"]
     }
   }
 }`,

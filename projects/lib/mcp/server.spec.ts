@@ -23,7 +23,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
  * (one stray `console.log` and every client drops the connection).
  *
  * It runs against a COMPILED artifact rather than the source, because the
- * compiled artifact is what `npx ngwr-mcp` runs — shebang, execute bit and all.
+ * compiled artifact is what `npx -y -p ngwr ngwr-mcp` runs — shebang, execute
+ * bit and all.
  * The artifact is built HERE, into a temp package laid out like an installed
  * `ngwr`, with the same `tsc -p mcp/tsconfig.json` invocation and the same two
  * finishing touches `scripts/build-mcp.ts` applies.

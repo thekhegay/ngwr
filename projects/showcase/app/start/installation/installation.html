@@ -155,7 +155,7 @@
 
   <ngwr-doc-section
     title="What the opt-in utilities do"
-    description="Neither is loaded by `@use 'ngwr'` and neither is a no-op. `ngwr/grid` adds `.grid` / `.container` / `.col-*` and touches nothing else. `ngwr/reset` is the one to read before adopting: it is a reset in the modern sense, so it removes browser defaults from elements ngwr does not own, and two of those removals are routinely a surprise — links lose their underline (`a { color: inherit; text-decoration: none }`) and plain buttons lose their chrome (`button { background: none; border: 0; padding: 0 }`). It also sets heading sizes and weights from the type scale, which makes it more opinionated than the “box-sizing and body margin” it is usually reached for. Load it AFTER the theme, or after `@use 'ngwr'`: it reads `--wr-font-family-base` and `--wr-text-*`, so on its own those resolve to nothing."
+    description="None of these is loaded by `@use 'ngwr'`, and none is a no-op. `ngwr/grid` adds `.grid` / `.container` / `.col-*` and touches nothing else. `ngwr/reset` is the one to read before adopting: it is a reset in the modern sense, so it removes browser defaults from elements ngwr does not own, and two of those removals are routinely a surprise — links lose their underline (`a { color: inherit; text-decoration: none }`) and plain buttons lose their chrome (`button { background: none; border: 0; padding: 0 }`). It also sets heading sizes and weights from the type scale, which makes it more opinionated than the “box-sizing and body margin” it is usually reached for. Load it AFTER the theme, or after `@use 'ngwr'`: it reads `--wr-font-family-base` and `--wr-text-*`, so on its own those resolve to nothing."
   >
     <ngwr-doc-code [code]="snippets.reset" language="scss" />
 
@@ -169,6 +169,17 @@
       which on a page with no reset is a larger glyph than before, and the reason this is a fix rather than a
       preference: 13.33px was the browser's number, not one anyone chose. <code>--wr-icon-size</code> never reached
       them, and still does not: only a <code>&lt;wr-icon&gt;</code> host reads that hook.
+    </p>
+
+    <p wrTypography>
+      <strong><code>ngwr/typography-utilities</code> adds utility classes for the type tokens and nothing else.</strong>
+      Size is <code>.wr-text-xs</code> to <code>.wr-text-5xl</code>, weight is <code>.wr-font-thin</code> to
+      <code>.wr-font-extrabold</code>, and the family is <code>.wr-font-base</code> or <code>.wr-font-mono</code>.
+      <code>.wr-leading-*</code> and <code>.wr-tracking-*</code> set line height and letter spacing, and
+      <code>.wr-text-balance</code>, <code>.wr-text-pretty</code> and <code>.wr-truncate</code> cover wrapping. Load it
+      with <code>&#64;use 'ngwr/typography-utilities'</code>, after the theme like the reset, because every class reads
+      a <code>--wr-*</code> token. It is not <code>ngwr/typography</code>: that entry is the stylesheet of the
+      <code>wrTypography</code> component, and <code>&#64;use 'ngwr'</code> already includes it.
     </p>
   </ngwr-doc-section>
 
@@ -226,8 +237,9 @@
       <a routerLink="/start/migration">/start/migration</a> and in the GitHub releases, so an air-gapped checkout of
       <code>node_modules</code> does not carry them. The
       <strong>markdown twin of a docs page is a URL, not a file</strong> — append <code>.md</code> to any page on this
-      site (<code>/reference/components/select.md</code>) and the server renders it; the MCP server fetches those same
-      URLs rather than reading anything local.
+      site (<code>/reference/components/select.md</code>) and the server renders it. The MCP server hands those URLs to
+      your agent as text and never fetches them: it reads only files inside its own installed package and makes no
+      network requests.
     </p>
   </ngwr-doc-section>
 
