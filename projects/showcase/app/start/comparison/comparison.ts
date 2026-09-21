@@ -132,10 +132,10 @@ export default class ComparisonPage {
    * than merely vague. ngwr's `3` stars is exact because it is exact and small
    * enough to stay that way.
    *
-   * What is deliberately NOT rounded: ngwr's own commit counts, `1,409 of
-   * 1,480`. That is a claim about this repository which the page invites the
-   * reader to re-run `git shortlog -sn --all` against, and there the precision
-   * IS the honesty — a rounded number cannot be checked, only believed.
+   * ngwr's own commits are a share, not a total. They were once exact
+   * (`1,409 of 1,480`), which made them checkable and also false by the next
+   * commit, so the page states the share that holds ("more than nine in ten")
+   * and hands the reader `git shortlog -sn --all` for the exact figures.
    */
   protected readonly comparisonRows: readonly ComparisonRow[] = [
     {
@@ -175,7 +175,7 @@ export default class ComparisonPage {
     },
     {
       axis: 'Who maintains it',
-      ngwr: 'One person — 1,409 of 1,480 commits, under four author identities. The next human contributor has 13; the two bots have 29 each.',
+      ngwr: 'One person — more than nine commits in ten, under four author identities. The only other human contributor has 13; the rest are two bots.',
       material: 'The Angular team at Google.',
       primeng: 'PrimeTek, commercially.',
       zorro: 'Over a hundred contributors.',
@@ -323,12 +323,13 @@ export class FeedbackForm {
 grep -rn '@NgModule' projects/lib --include='*.ts' | wc -l                      # 0
 grep -rn 'standalone: true' projects/lib --include='*.ts' | wc -l               # 0
 grep -rn 'ChangeDetectionStrategy.OnPush' projects/lib --include='*.ts' | wc -l # 2
-grep -rn 'ControlValueAccessor' projects/lib --include='*.ts' | wc -l           # 16
+grep -rn 'ControlValueAccessor' projects/lib --include='*.ts' \\
+  | grep -vE ':[0-9]+:\\s*\\*' | wc -l                                          # 0
 
-# The last two need their answer read rather than counted. The two OnPush
-# declarations are legacy files under window/; the sixteen mentions of
-# ControlValueAccessor are all comments saying there is not one — fifteen in a
-# component's own JSDoc, one in a spec's.
+# Two of those need a word. The two OnPush declarations are legacy files under
+# window/. And the second grep on the last one drops comment lines: every
+# mention of ControlValueAccessor in the library is a comment saying there is
+# not one, so leave that filter off to read them.
 
 # And since "always" is the claim people check first — it is not the claim.
 # The library was rebuilt at v7 and the two zeroes above date from there:

@@ -202,8 +202,8 @@ provideWrTheme({ attribute: 'data-color-mode' })
   }
 }`,
 
-    importantList: `// Every !important outside the reduced-motion blocks — 17 declarations on
-// six selectors, and CDK's inline styles are what fifteen of them fight.
+    importantList: `// Every !important outside the reduced-motion blocks — 20 declarations on
+// seven selectors, and CDK's inline styles are what fifteen of them fight.
 
 .wr-overlay-sheet                             // 8 — the mobile bottom sheet
 .wr-overlay-sheet > *:not(.wr-dialog__close)  // 4 — its direct children
@@ -211,10 +211,14 @@ provideWrTheme({ attribute: 'data-color-mode' })
 .wr-dialog-panel        { position: relative }// 1 — same, so the × can be parked
 .wr-drawer__panel       { position: relative }// 1 — same, service-opened drawers
 .wr-window--no-anim, .wr-window--no-anim *    // 2 — the component's own opt-out
+.wr-editor__surface img.ProseMirror-separator // 3 — ProseMirror's own rule
 
 // And inside @media (prefers-reduced-motion: reduce), 18 more: the theme
 // layer's shared block plus marquee, star-border, glitch-text, shiny-text,
-// gradient-text, window and the ngwr/animations utilities.`,
+// gradient-text and the ngwr/animations utilities.
+//
+// Re-count them against the version you installed:
+//   grep -rn '!important;' node_modules/ngwr --include='*.scss'`,
 
     importantOverride: `// styles.scss — after @use 'ngwr', so source order is already on your side.
 @use 'ngwr';

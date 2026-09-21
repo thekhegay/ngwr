@@ -6,12 +6,12 @@
 >
   <ngwr-doc-section
     title="Requirements"
-    description="**Angular 22 is the floor**, and it is a floor with no ceiling: `@angular/core`, `@angular/common`, `@angular/forms`, `@angular/platform-browser` and the `@angular/cdk` peer are all declared `>=22.0.0`, alongside rxjs 7. More peers are optional and marked as such, so nothing installs them for you until you reach for the feature: `@angular/router` (`wr-sidebar`, `wr-breadcrumbs`, and the two v14 opt-ins `ngwr/tabs/router` and `ngwr/loading-bar/router` — a plain `wr-tabs` or `wr-loading-bar` no longer reaches for it), `date-fns` or `luxon` (their date adapters), and the eight `prosemirror-*` packages behind `wr-editor`. No icon set is a peer: the icon adapters take the icon data as an argument, so `lucide` is yours to install only if you use it. `tslib` is the only real dependency."
+    description="**Angular 22 is the floor**, and it is a floor with no ceiling: `@angular/core`, `@angular/common`, `@angular/forms`, `@angular/platform-browser` and the `@angular/cdk` peer are all declared `>=22.0.0`, alongside rxjs 7. More peers are optional and marked as such, so nothing installs them for you until you reach for the feature: `@angular/router` (`wr-sidebar`, `wr-breadcrumbs`, and the two opt-in router adapters `ngwr/tabs/router` and `ngwr/loading-bar/router`, so a plain `wr-tabs` or `wr-loading-bar` does not import it), `date-fns` or `luxon` (their date adapters), and the `prosemirror-*` packages behind `wr-editor`. No icon set is a peer: the icon adapters take the icon data as an argument, so `lucide` is yours to install only if you use it. `tslib` is the only real dependency."
   >
     <wr-alert
       type="warning"
       title="On Angular 21 or 20 the install succeeds and the build is what fails."
-      message="npm, pnpm and yarn all treat an unsatisfied peer as a warning rather than an error, so adding ngwr to an Angular 21 project prints “Issues with peer dependencies found” and exits 0. The failure surfaces later, in the Angular linker, as “Unsupported enum value for [object Object]” pointing at a line inside one of the fesm2022 bundles — 25 of the package’s 654 partially-compiled declarations carry minVersion 22.0.0 — the service ones, across 22 files — and a linker that predates that shape cannot read them. Read the peer warning at install time: the message you get at build time never mentions a version."
+      message="npm, pnpm and yarn all treat an unsatisfied peer as a warning rather than an error, so adding ngwr to an Angular 21 project prints “Issues with peer dependencies found” and exits 0. The failure surfaces later, in the Angular linker, as “Unsupported enum value for [object Object]” pointing at a line inside one of the fesm2022 bundles. The package’s service declarations carry minVersion 22.0.0, and a linker that predates that shape cannot read them. Read the peer warning at install time: the message you get at build time never mentions a version."
     />
 
     <p wrTypography variant="small" tone="medium">
@@ -48,7 +48,7 @@
 
   <ngwr-doc-section
     title="Every import is a subpath — the root is empty on purpose"
-    description="`import { WrButton } from 'ngwr'` does not work, and it fails in a way an IDE will happily write for you. There is no barrel: the root entry point exports nothing (`export {}` in `public-api.ts`, an empty FESM module in the tarball), because a barrel re-exporting 204 entry points is a barrel every consumer's bundler has to prove it can shake. So the compiler answers `TS2305: Module '&quot;ngwr&quot;' has no exported member 'WrButton'`, which names the symbol and not the mistake. **The symbol always comes from the entry point, and the entry point is the last segment of the component's docs URL** — `/reference/components/select` is `ngwr/select`. The one lint rule below turns a wrong auto-import into a red squiggle instead of a build error."
+    description="`import { WrButton } from 'ngwr'` does not work, and it fails in a way an IDE will happily write for you. There is no barrel: the root entry point exports nothing (`export {}` in `public-api.ts`, an empty FESM module in the tarball), because a barrel re-exporting every entry point in the catalog is a barrel every consumer's bundler has to prove it can shake. So the compiler answers `TS2305: Module '&quot;ngwr&quot;' has no exported member 'WrButton'`, which names the symbol and not the mistake. **The symbol always comes from the entry point, and the entry point is the last segment of the component's docs URL** — `/reference/components/select` is `ngwr/select`. The one lint rule below turns a wrong auto-import into a red squiggle instead of a build error."
   >
     <ngwr-doc-code [code]="snippets.rootEntry" language="typescript" />
   </ngwr-doc-section>
@@ -62,8 +62,8 @@
     <p wrTypography variant="small" tone="medium">
       <strong>What it costs, since <code>ng new</code> warns at 500 kB.</strong> Compiled and minified, the umbrella is
       about <strong>{{ styleSizes.umbrella }}</strong> of CSS, roughly {{ styleSizes.umbrellaGzip }} over the wire —
-      every one of the ~120 component sheets, whether you render the component or not. The fifteen entries a typical
-      CRUD screen needs (theme, density, button, input, form, icon, select, checkbox, table, pagination, dialog, toast,
+      every component sheet in the catalog, whether you render the component or not. The fifteen entries a typical CRUD
+      screen needs (theme, density, button, input, form, icon, select, checkbox, table, pagination, dialog, toast,
       overlay, spinner, dropdown) come to about <strong>{{ styleSizes.crud }}</strong> /
       {{ styleSizes.crudGzip }} gzipped; the theme token layer alone is {{ styleSizes.theme }} /
       {{ styleSizes.themeGzip }}. Those are this release measured with the command below, not a budget — re-run it
@@ -92,11 +92,11 @@
 
     <p wrTypography variant="small" tone="medium">
       <strong>Three entries you will not think to add, and every app wants all three.</strong>
-      <code>ngwr/icon</code> — twenty-eight entry points render either a <code>&lt;wr-icon&gt;</code> or a bare inline
-      <code>&lt;svg class="wr-icon__svg"&gt;</code> — select and cascader chevrons, table sort and expand arrows, tree
-      twisties, accordion carets, the alert and toast status marks — and this entry is the only thing that sizes them.
-      <code>ngwr/density</code> — the <code>--wr-density-*</code> multipliers live there and nowhere else; every reader
-      falls back to <code>1</code>, so without it geometry is correct at <code>md</code> and
+      <code>ngwr/icon</code> — a large part of the catalog renders either a <code>&lt;wr-icon&gt;</code> or a bare
+      inline <code>&lt;svg class="wr-icon__svg"&gt;</code> — select and cascader chevrons, table sort and expand arrows,
+      tree twisties, accordion carets, the alert and toast status marks — and this entry is the only thing that sizes
+      them. <code>ngwr/density</code> — the <code>--wr-density-*</code> multipliers live there and nowhere else; every
+      reader falls back to <code>1</code>, so without it geometry is correct at <code>md</code> and
       <code>provideWrDensity()</code> / <code>[wrDensity]</code> silently do nothing at all. <code>ngwr/overlay</code> —
       <code>.wr-overlay-sheet</code>, the mobile bottom-sheet presentation shared by dialog, select, dropdown and
       popover.

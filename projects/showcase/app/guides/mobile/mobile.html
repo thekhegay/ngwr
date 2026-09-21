@@ -32,7 +32,7 @@
 
   <ngwr-doc-section
     title="Touch density"
-    description="For touch-first screens, the `touch` density preset scales the padding of every density-aware control at once — vertical ×1.7, horizontal ×1.25 — so button, input, textarea, select, cascader, the tree-select trigger, list rows, table cells and tags grow together and keep a shared baseline. Controls with fixed geometry — checkbox, switch, radio, segmented, slider — are unaffected; reach for the touch targets above for those. `--wr-density-gap` widens the space a layout component puts between the controls projected into it (×1.5 under `touch`), and `--wr-density-text` is published for you to read in your own `calc()` — no shipped component multiplies by it yet. Set it app-wide with `provideWrDensity`, or scope it to a subtree with the `wrDensity` directive."
+    description="For touch-first screens, the `touch` density preset scales the padding of every density-aware control at once — vertical ×1.7, horizontal ×1.25 — so button, input, textarea, select, cascader, the tree-select trigger, list rows, table cells, tags and the editor's writing surface grow together and keep a shared baseline. Controls with fixed geometry — checkbox, switch, radio, segmented, slider — are unaffected; reach for the touch targets above for those. `--wr-density-gap` widens the space a layout component puts between the controls projected into it (×1.5 under `touch`), and `--wr-density-text` is published for you to read in your own `calc()` — no shipped component multiplies by it yet. Set it app-wide with `provideWrDensity`, or scope it to a subtree with the `wrDensity` directive."
   >
     <ngwr-doc-code [code]="snippets.density" language="angular-ts" />
   </ngwr-doc-section>

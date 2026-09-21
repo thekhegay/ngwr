@@ -18,7 +18,7 @@ interface StyleDepRow {
 
 /**
  * What a component renders that lives in ANOTHER style entry point, minus
- * `ngwr/icon` — which twenty-eight of them need and the prose above the table
+ * `ngwr/icon` — which a large part of the catalog needs and the prose above the table
  * settles once, rather than repeating it down a column nobody reads twice.
  *
  * Derived by reading every template and host binding in `projects/lib` for a
@@ -71,7 +71,10 @@ const STYLE_DEPS: readonly StyleDepRow[] = [
 
 /**
  * The compiled size of a few style entry points, measured with the command the
- * page prints beside them — `sass --style=compressed`, then `gzip -9`.
+ * page prints beside them — `sass --pkg-importer=node --style=compressed`, then
+ * `gzip -9`. A plain `--load-path=node_modules` cannot measure them at all: the
+ * Sass CLI reads no `exports` map without the package importer, so `@use
+ * 'ngwr/button'` is "Can't find stylesheet to import".
  *
  * Written as strings, and rounded, on purpose. A figure typed into a page is a
  * figure that starts drifting the day it is typed; rounding says how much of it
@@ -79,11 +82,11 @@ const STYLE_DEPS: readonly StyleDepRow[] = [
  * gates these, so treat a stale one as stale rather than as a regression.
  */
 const STYLE_SIZES = {
-  umbrella: '290 kB',
-  umbrellaGzip: '42 kB',
-  crud: '87 kB',
-  crudGzip: '13 kB',
-  theme: '22 kB',
+  umbrella: '320 kB',
+  umbrellaGzip: '46 kB',
+  crud: '94 kB',
+  crudGzip: '14 kB',
+  theme: '24 kB',
   themeGzip: '4 kB',
 } as const;
 
@@ -185,8 +188,10 @@ export default [
 @use 'ngwr/reset';  // see "What the opt-in utilities do" below
 @use 'ngwr/typography-utilities';  // .wr-text-*, .wr-font-* and friends`,
     measureCss: `# What any set of style entries actually compiles to, in your own checkout.
-# Write the @use lines you are considering into a scratch file, then:
-npx sass --load-path=node_modules --style=compressed check.scss check.css
+# Write the @use lines you are considering into a scratch file with a pkg:
+# prefix, which is how the Sass CLI reads the package's exports map:
+#   @use 'pkg:ngwr/button';
+npx sass --pkg-importer=node --style=compressed --no-source-map check.scss check.css
 wc -c < check.css          # minified
 gzip -9 -c check.css | wc -c   # over the wire`,
     perComponent: `// Or import only the component styles you actually use.

@@ -6,7 +6,7 @@
 >
   <ngwr-doc-section
     title="How it works"
-    description="Density is four CSS custom properties — multipliers that default to `1`. Setting a density writes `[data-wr-density]` (on `<html>` for the global scale, or on a subtree host for an override), and the stylesheet swaps the multipliers for that scope. Every control reads them through `calc()`, so changing density is a pure CSS-variable flip — no JS re-layout, no component churn. `md` resolves every multiplier to `1`, so touching density is pure opt-in: controls without density-aware paddings just keep their static values."
+    description="Density is four CSS custom properties — multipliers that default to `1`. Setting a density writes `[data-wr-density]` (on `<html>` for the global scale, or on a subtree host for an override), and the stylesheet swaps the multipliers for that scope. Every density-aware control reads them through `calc()`, so changing density is a pure CSS-variable flip — no JS re-layout, no component churn. `md` resolves every multiplier to `1`, so touching density is pure opt-in: controls without density-aware paddings just keep their static values."
   >
     <ngwr-doc-api [rows]="multipliers" />
   </ngwr-doc-section>

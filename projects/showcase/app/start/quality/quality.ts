@@ -37,13 +37,15 @@ interface MajorRow {
  * exists to avoid.
  */
 const PR_GATE_NOTES: Readonly<Record<string, string>> = {
-  lint: 'ESLint, Stylelint and four repository gates in one chain — colour-list parity, unexplained physical CSS, the registry format, dead design tokens. Every stage is listed below.',
+  lint: 'ESLint, Stylelint and the repository gates in one chain — colour-list parity, unexplained physical CSS, the registry format, dead design tokens and colour-only state rules. Every stage is listed below.',
   'test:coverage':
     'The vitest suite, with coverage. Specs sit beside the code they cover and assert the rendered DOM — roles, ARIA state, and the .wr-* classes, which are public API — rather than component internals.',
   'check:api-docs':
     'A documented input the component no longer has, a default the docs invented, a page with no API table at all. Every hand-written table is compared against the signal API in the source.',
   'check:llms':
     'The generated AI assets — llms-full.txt and the agent skill — against coverage floors. Missing frontmatter, or a catalog table with nothing but a header, fails the build.',
+  'check:css-vars':
+    'The --wr-<name>-* hooks each component page lists, regenerated from the stylesheets and compared against the committed copy. A hook a component grows cannot ship without its row.',
   'build:lib':
     'ng-packagr over every secondary entry point, then the schematics, the MCP server and the AI assets. An entry point that does not compile in isolation fails here and nowhere else.',
   'build:showcase':
@@ -68,15 +70,19 @@ const LINT_STAGE_NOTES: Readonly<Record<string, string>> = {
     'The open registry items, their entryPoints against the real catalog, and schema.json against the validator that enforces it.',
   'check:tokens':
     'A --wr-* token nothing paints with. A say-why gate rather than a do-not gate: an intentionally unused token carries unused-ok: and the reason.',
+  'check:color-only':
+    'A state or intent modifier whose own declarations are all colour, with no color-ok: reason above the selector. WCAG 1.4.1 has no axe rule, so this reads the stylesheets instead — @each loops included.',
 };
 
-/** The nightly workflow. `build:showcase` is on it because the other three read what it writes. */
+/** The nightly workflow. `build:showcase` is on it because the browser checks read what it writes. */
 const NIGHTLY_NOTES: Readonly<Record<string, string>> = {
-  'build:showcase': 'Not a check. The three below read dist/showcase and cannot start without it.',
+  'build:showcase': 'Not a check. The browser checks below read dist/showcase and cannot start without it.',
   'check:contrast':
     "axe's color-contrast and target-size rules in a real Chromium, both themes, every canonical route — the two rules check:a11y has to switch off.",
   'check:state-a11y':
     'The full axe rule set inside a state you have to create: a hover, a focus ring, an open overlay. Neither static gate can reach one.',
+  'check:layout':
+    'The measured box of a set of load-bearing components in both themes, against a committed baseline. It catches a token or density change that silently resizes controls, and says nothing about colour, shadows or radii.',
   'check:rtl-layout':
     'Every route rendered both ways, failing only where the RTL pass overflows sideways and the LTR pass does not. Differential, so there is no baseline of pixel positions to rot.',
 };
