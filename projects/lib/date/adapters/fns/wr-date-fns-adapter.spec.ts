@@ -4,7 +4,7 @@ import { setDefaultOptions } from 'date-fns';
 import { enGB } from 'date-fns/locale/en-GB';
 import { ru } from 'date-fns/locale/ru';
 import { WrDateAdapter } from 'ngwr/date';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { provideWrDateFnsAdapter } from './provide-wr-date-fns-adapter';
 import { WrDateFnsAdapter } from './wr-date-fns-adapter';
@@ -242,6 +242,13 @@ describe('WrDateFnsAdapter', () => {
     // Every other case in this file runs in the machine's zone, which has no transitions —
     // there, one calendar day IS 86_400_000 ms and the two implementations are identical.
     // These three ask for `Europe/London`, where they are not.
+
+    // The first switch in a worker loads London's rules and, on the way back, re-detects the
+    // machine's zone. That is usually instant, but on a loaded CI runner it once took 7.4 s
+    // inside the first case below, over its 5 s budget. Paying it here keeps it out of the cases.
+    beforeAll(() => {
+      inTimeZone('Europe/London', () => new Date(2025, 2, 30).getHours());
+    }, 30_000);
 
     it('adds a calendar day across the spring-forward, not 24 hours', () => {
       inTimeZone('Europe/London', () => {
