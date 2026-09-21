@@ -94,6 +94,13 @@ ng update ngwr                                      # skip if the latest is alre
 # Commit that result first: ng update refuses a migration on a dirty tree too.
 ng update ngwr --migrate-only --name=migration-v9   # the step the range skipped`,
 
+    recoverV14: `# Only if an ng update ngwr on 14.5.0 or earlier hung in the v14 migration
+# and had to be killed.
+
+ng update ngwr                                       # skip if the latest is already installed
+# Commit that result first: ng update refuses a migration on a dirty tree too.
+ng update ngwr --migrate-only --name=migration-v14   # the step the hang skipped`,
+
     v14Dates: `// A named format round-trips now. Nothing to change if you only
 // bind [(value)] — this is about what happens when a user TYPES.
 

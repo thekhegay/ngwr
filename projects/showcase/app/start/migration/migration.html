@@ -37,6 +37,17 @@
     <ngwr-doc-code [code]="snippets.recover" language="bash" />
 
     <p wrTypography variant="small" tone="medium">
+      <strong>If <code>ng update ngwr</code> hung on 14.5.0 or earlier</strong>, it was the v14 migration: up to 14.5.0
+      it could hang on an ordinary template, and the only way out was to kill the command. By then
+      <code>package.json</code> was on 14.x and any earlier migration in that run had already written its changes, so
+      the project looks upgraded, but the v14 renames were never applied and a later <code>ng update ngwr</code> skips
+      them. Leftover <code>closeable</code>, <code>totalItems</code>, <code>currentPage</code> or <code>wrSize</code>
+      bindings compile without an error. 14.5.1 fixed the hang. Run the skipped step by name; it rewrites the six
+      renames, prints the v14 report again, and changes nothing in templates that are already migrated.
+    </p>
+    <ngwr-doc-code [code]="snippets.recoverV14" language="bash" />
+
+    <p wrTypography variant="small" tone="medium">
       <strong>Two things that stop the first run, and neither is ngwr.</strong> Under pnpm 11 a fresh install can exit 1
       with <code>ERR_PNPM_IGNORED_BUILDS</code> — its default is to refuse dependency build scripts until the workspace
       allows them — and a release published within the last day is held back by pnpm's minimum release age, so
