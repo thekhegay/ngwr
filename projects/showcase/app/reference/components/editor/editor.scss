@@ -1,0 +1,33 @@
+// The demos: an editor, and under it what the model holds.
+
+.editor-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 44rem;
+
+  &--pair {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    max-width: none;
+  }
+
+  // The live value. Scrolls inside its own box rather than growing the page with
+  // every keystroke, which is why it is a focusable, named region — a scroller a
+  // keyboard cannot reach is one it cannot read either.
+  &__value {
+    margin: 0;
+    max-block-size: 14rem;
+    overflow: auto;
+    padding: 0.625rem 0.75rem;
+    font-family: var(--wr-font-family-mono);
+    font-size: var(--wr-text-xs);
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    color: var(--wr-color-on-surface-muted);
+    background: var(--wr-color-fill-subtle);
+    border-radius: var(--wr-border-radius-base);
+  }
+}

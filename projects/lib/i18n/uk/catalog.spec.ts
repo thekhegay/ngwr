@@ -39,6 +39,9 @@ import { expectCatalogContract } from '../catalog-contract';
  *
  * The size UNITS are deliberately absent: Ukrainian writes Б, КБ, МБ, ГБ, ТБ in
  * Cyrillic, and so does this catalog.
+ *
+ * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Ukrainian
+ * keyboard prints.
  */
 const SHARED_WITH_ENGLISH = new Set([
   'common.ok',
@@ -67,6 +70,9 @@ const SHARED_WITH_ENGLISH = new Set([
   'colorPicker.channelAlpha',
   'statistic.delta',
   'statistic.deltaSuffix',
+  'editor.keyCtrl',
+  'editor.keyShift',
+  'editor.keyAlt',
 ]);
 
 describe('wrUk', () => {

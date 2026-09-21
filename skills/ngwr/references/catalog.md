@@ -72,6 +72,8 @@ root barrel for components.
 | `ngwr/drawer/testing` | `import { WrDrawerHarness } from 'ngwr/drawer/testing'` | — |
 | `ngwr/dropdown` | `import { WrDropdown } from 'ngwr/dropdown'` | `wr-dropdown-item` `wr-dropdown-menu` `[wrDropdown]` |
 | `ngwr/dropdown/testing` | `import { WrDropdownHarness } from 'ngwr/dropdown/testing'` | — |
+| `ngwr/editor` | `import { WrEditor } from 'ngwr/editor'` | `wr-editor` |
+| `ngwr/editor/testing` | `import { WrEditorHarness } from 'ngwr/editor/testing'` | — |
 | `ngwr/empty` | `import { WrEmpty } from 'ngwr/empty'` | `wr-empty` |
 | `ngwr/event-calendar` | `import { WrEventCalendar } from 'ngwr/event-calendar'` | `ng-template[wrCalendarEvent]` `wr-event-calendar` |
 | `ngwr/event-calendar/testing` | `import { WrEventCalendarChipHarness } from 'ngwr/event-calendar/testing'` | — |

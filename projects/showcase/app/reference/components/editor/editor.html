@@ -1,0 +1,269 @@
+<ngwr-doc-page
+  title="Editor"
+  description="Rich-text editor on ProseMirror, with a formatting toolbar, a link panel, keyboard shortcuts and markdown-style block shortcuts. The value is an HTML string, a markdown string or the document as JSON, and whatever arrives is treated as untrusted and rebuilt from the editor's own schema. A signal-forms native control; ProseMirror is an optional peer dependency that only an app importing `ngwr/editor` installs."
+  [keywords]="['editor', 'wr-editor', 'rich text', 'wysiwyg', 'prosemirror', 'markdown editor', 'html editor']"
+  [labels]="['Component', 'Standalone', 'Signal Forms', 'SSR-safe']"
+  since="14.9.0"
+>
+  <ngwr-doc-section
+    title="Installation"
+    description="ProseMirror is an OPTIONAL peer: `ngwr` declares the eight packages and marks them optional, so nothing installs them until you do. No other entry point imports them, so an app that never reaches for `ngwr/editor` never pays for it."
+  >
+    <ngwr-doc-code [code]="snippets.peers" language="bash" />
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.styles" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic usage"
+    description="`[(value)]` is the document. By default it is an HTML string, and every edit writes a fresh one back — the block under the editor shows exactly what the model holds. Until the first edit that is the string the host wrote; the editor reads it, but never writes a normalised copy back on load, which would mark a pristine form dirty."
+  >
+    <ngwr-doc-snippet [files]="htmlFiles">
+      <div class="editor-demo">
+        <wr-editor ariaLabel="Release notes" placeholder="What changed?" [(value)]="html" />
+        <pre class="editor-demo__value" tabindex="0" role="region" aria-label="HTML value">{{ html() }}</pre>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Markdown"
+    description='`format="markdown"` reads and writes the dialect `ngwr/markdown` parses and `<wr-markdown>` renders, so a document written here displays the same way there. Markdown has no underline, so in this format the underline tool, its shortcut and the mark itself are absent — a pasted `<u>` cannot show on screen and then vanish on save. The serializer writes one canonical spelling, so the first edit may respell what you bound (`*` bullets become `-`) without changing the document.'
+  >
+    <ngwr-doc-snippet [files]="markdownFiles">
+      <div class="editor-demo">
+        <wr-editor ariaLabel="Checklist" format="markdown" [(value)]="markdown" />
+        <pre class="editor-demo__value" tabindex="0" role="region" aria-label="Markdown value">{{ markdown() }}</pre>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="JSON"
+    description='`format="json"` hands you the document as a `WrEditorJson` tree — the shape to store when the content is going to be read by code rather than by a browser. A bound tree is VALIDATED, not repaired: an unknown node or mark, an attribute outside its set, a broken content rule or a link the URL policy refuses, and the whole value is refused. The editor keeps the document it had, warns in dev mode, and stays read-only until it is given a value it can read.'
+  >
+    <ngwr-doc-snippet [files]="jsonFiles">
+      <div class="editor-demo">
+        <wr-editor ariaLabel="Agenda" format="json" [(value)]="json" />
+        <pre class="editor-demo__value" tabindex="0" role="region" aria-label="JSON value">{{ json() | json }}</pre>
+      </div>
+    </ngwr-doc-snippet>
+    <p wrTypography variant="small" tone="medium">
+      A document with nothing written in it is <code>''</code> in the two string formats and <code>null</code> in
+      <code>json</code>, so a <code>required()</code> rule sees an empty editor as empty —
+      <code>'&lt;p&gt;&lt;/p&gt;'</code> would be a non-empty string. That holds for everything that only looks written:
+      empty lines, a few spaces, or a list, quote or heading chosen with no text in it. An image or a horizontal line
+      counts as content. Changing <code>format</code> at runtime re-reads <code>value</code> in the new format; if it
+      cannot, the document on screen is kept and edits are written in the new format from then on. An app that stores
+      one format everywhere sets it once:
+    </p>
+    <ngwr-doc-code [code]="snippets.config" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Toolbar"
+    description="`toolbar` is the list of tools, in order, with `'|'` between groups; `false` removes the toolbar and leaves the shortcuts. Separators are drawn only between two groups, and a tool the format cannot store is dropped. A tool the selection cannot use is disabled rather than hidden, so the toolbar does not reflow under the caret."
+  >
+    <ngwr-doc-snippet [files]="toolbarFiles">
+      <div class="editor-demo">
+        <wr-editor ariaLabel="Comment" placeholder="Leave a comment" [toolbar]="commentTools" [(value)]="comment" />
+      </div>
+    </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="snippets.toolbar" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.noToolbar" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Signal Forms"
+    description="`[formField]` writes the editor's own `value` model — no `ControlValueAccessor` in between — and a plain `string` field binds to it as it is. Inside a `<wr-form-field>` the label names the text surface through `aria-labelledby` (a contenteditable is not labelable, so `<label for>` cannot reach it), and the hint or error describes it. `touch` fires once focus leaves the whole control, not when it moves to the editor's own toolbar or link panel — so the error below appears when you leave the field empty, not while you pick a heading."
+  >
+    <ngwr-doc-snippet [files]="formFiles">
+      <div class="editor-demo">
+        <wr-form-field label="Description" hint="Markdown. Required.">
+          <wr-editor format="markdown" placeholder="Describe the change" [formField]="ticket.description" />
+        </wr-form-field>
+        <pre class="editor-demo__value" tabindex="0" role="region" aria-label="Field value">{{
+          ticket.description().value() | json
+        }}</pre>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Read-only and disabled"
+    description="`readonly` refuses every edit while the text stays focusable, selectable and announced — the surface keeps its tab stop and reports `aria-readonly`, and the toolbar goes inert because none of its tools can apply. `disabled` takes the surface out of the tab order and reports `aria-disabled`. Under `[formField]` both are bound from the schema's `readonly()` and `disabled()` rules."
+  >
+    <ngwr-doc-snippet [code]="snippets.states" language="angular-html">
+      <div class="editor-demo editor-demo--pair">
+        <wr-editor ariaLabel="Published notes" readonly [value]="html()" />
+        <wr-editor ariaLabel="Locked notes" disabled [value]="html()" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Keyboard"
+    description="Every toolbar command but the horizontal line has a key, on the platform's primary modifier — ⌘ on Apple keyboards, Ctrl elsewhere — and the toolbar names it: in the tooltips, and in each button's `aria-keyshortcuts`. The block-type chords are Google Docs'; the few Docs does not cover follow Tiptap and Notion."
+  >
+    <div class="ngwr-keys">
+      <table>
+        <caption>
+          Focus is in the text. Mod is ⌘ on Apple keyboards and Ctrl elsewhere.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Key</th>
+            <th scope="col">Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <wr-kbd size="sm">Mod + B</wr-kbd> · <wr-kbd size="sm">Mod + I</wr-kbd> ·
+              <wr-kbd size="sm">Mod + U</wr-kbd>
+            </td>
+            <td>Bold, italic, underline. Underline does nothing in <code>markdown</code> format.</td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Mod + Shift + S</wr-kbd> · <wr-kbd size="sm">Mod + E</wr-kbd></td>
+            <td>Strikethrough, inline code.</td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Mod + Alt + 0</wr-kbd> … <wr-kbd size="sm">Mod + Alt + 3</wr-kbd></td>
+            <td>Paragraph, then heading 1 to 3. Pressing an active heading's chord turns it back into a paragraph.</td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Mod + Shift + 8</wr-kbd> · <wr-kbd size="sm">Mod + Shift + 7</wr-kbd></td>
+            <td>Bulleted list, numbered list — into one, out of it, or over to the other kind.</td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Mod + Shift + B</wr-kbd> · <wr-kbd size="sm">Mod + Alt + C</wr-kbd></td>
+            <td>Quote, code block.</td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Mod + ]</wr-kbd> · <wr-kbd size="sm">Mod + [</wr-kbd></td>
+            <td>
+              Indent or outdent a list item. Not <code>Tab</code>: indenting with it would trap keyboard focus inside
+              the text, so <code>Tab</code> leaves the editor as it leaves any field. On a layout that types a bracket
+              with AltGr or Option — German, French, Nordic, Polish — the chord works with that key held as well.
+            </td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Mod + K</wr-kbd></td>
+            <td>
+              Open the link panel. The chord stops at the editor, so a command palette bound to the same keys does not
+              open as well.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <wr-kbd size="sm">Mod + Z</wr-kbd> · <wr-kbd size="sm">Mod + Shift + Z</wr-kbd> ·
+              <wr-kbd size="sm">Ctrl + Y</wr-kbd>
+            </td>
+            <td>Undo, redo. <code>Ctrl + Y</code> is the Windows redo and is not bound on Apple keyboards.</td>
+          </tr>
+          <tr>
+            <td><wr-kbd size="sm">Shift + Enter</wr-kbd></td>
+            <td>A line break inside the paragraph; in a code block, a new paragraph after it.</td>
+          </tr>
+          <tr>
+            <td>
+              <wr-kbd size="sm">Mod + Enter</wr-kbd> · <wr-kbd size="sm">ArrowDown</wr-kbd> ·
+              <wr-kbd size="sm">ArrowUp</wr-kbd>
+            </td>
+            <td>
+              Out of a code block or a table onto a new paragraph after it. The arrows do the same at the edge of a
+              table with nothing after or before it — the last line of its last row, the first line of its first — since
+              there is no other way to put the caret beyond it.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <code>#</code>, <code>##</code>, <code>###</code>, <code>&gt;</code>, <code>-</code>, <code>1.</code> then
+              <wr-kbd size="sm">Space</wr-kbd>; <code>```</code>
+            </td>
+            <td>
+              At the start of a line: a heading, a quote, a bulleted or numbered list, a code block. These are the only
+              input rules — no smart quotes, dashes or ellipses, which would rewrite a name or a code someone typed.
+              <wr-kbd size="sm">Backspace</wr-kbd> straight after one undoes it.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p wrTypography variant="small" tone="medium">
+      The toolbar is one tab stop. <wr-kbd size="sm">Tab</wr-kbd> reaches it once, the arrow keys move between tools
+      (mirrored under <code>dir="rtl"</code>), <wr-kbd size="sm">Home</wr-kbd> and <wr-kbd size="sm">End</wr-kbd> jump
+      to either end, and a tool that cannot apply is skipped. After a tool runs from the keyboard, focus stays on it —
+      unless the tool just disabled itself, when the text takes it. <wr-kbd size="sm">Escape</wr-kbd> is not bound, so
+      an editor inside a dialog still lets the dialog close.
+    </p>
+    <p wrTypography variant="small" tone="medium">
+      On Windows, <code>Ctrl + Alt</code> is AltGr, and on the layouts that type characters with it the
+      <code>Mod + Alt</code> chords type those instead — <code>AltGr + 0</code> is <code>&#125;</code> on a German
+      keyboard and <code>AltGr + C</code> is <code>ć</code> on a Polish one. That is deliberate: taking the chord by
+      physical key would make those characters impossible to type in the editor. The toolbar sets every block type
+      there.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Untrusted input"
+    description="Every value is treated as untrusted, in all three formats, and so is a paste. HTML is parsed without executing anything — into an inert template, never through `innerHTML` on a live node — and only what the schema knows is rebuilt from it: no script, style, class, event handler, iframe or unknown tag survives, while the text inside an unknown tag is kept. Links and images go through the same `safeMarkdownUrl` policy `<wr-markdown>` uses, so a `javascript:` or `data:` address never becomes a live link: in HTML and markdown the link is dropped and its text kept, and in JSON the whole value is refused. A fourth- to sixth-level heading becomes a third-level one."
+  >
+    <ngwr-doc-snippet [files]="untrustedFiles">
+      <div class="editor-demo">
+        <wr-editor ariaLabel="Imported content" [(value)]="untrusted" />
+        <pre class="editor-demo__value" tabindex="0" role="region" aria-label="Bound value">{{ untrusted() }}</pre>
+      </div>
+    </ngwr-doc-snippet>
+    <p wrTypography variant="small" tone="medium">
+      The block above keeps showing the hostile string you bound, and that is deliberate: the editor draws the cleaned
+      document but writes nothing back until someone edits it, at which point the model holds the cleaned HTML. A value
+      the editor cannot read at all — JSON that breaks the schema, say — is refused outright: the document already on
+      screen stays, a dev-mode warning names the reason, and nothing is written back, the same rule
+      <code>wr-input-number</code> and <code>wr-date-picker</code> follow for input they cannot parse. Until a value it
+      can read arrives, the editor is read-only and carries <code>wr-editor--refused</code>: the model still holds the
+      refused value, and a keystroke would otherwise write the document on screen over it.
+    </p>
+    <p wrTypography variant="small" tone="medium">
+      On a page that enforces Trusted Types, an HTML value is parsed through the page's default policy when there is
+      one, and otherwise through a policy named <code>ngwr-editor</code>; paste goes through ProseMirror's own
+      <code>ProseMirrorClipboard</code>. A <code>trusted-types</code> allowlist with no default policy names both. Where
+      neither can be created, HTML values are refused as unreadable.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Accessibility"
+    description='The text surface is a `role="textbox"` with `aria-multiline="true"`, named by `ariaLabel`, else the surrounding field&apos;s label, else the `editor.label` catalog entry. `aria-placeholder` is present only while the document is empty, the moment the placeholder is drawn. The toolbar follows the APG toolbar pattern, with `aria-pressed` on every toggle and a visible cue besides colour for a pressed tool. The link panel is a labelled dialog whose address field announces a refused URL through `aria-invalid` and a `role="alert"` message. A task item&apos;s box is presentational, with its state as screen-reader text beside it, as in `<wr-markdown>`. Every label comes from the `editor.*` catalog, in all twenty-two languages.'
+  >
+    <ngwr-doc-code [code]="snippets.a11y" language="html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Bundle cost"
+    description="The eight ProseMirror packages come to about 67 kB gzipped (221 kB minified) with every export kept, before tree-shaking. They land in the chunk that imports `ngwr/editor` and nowhere else, so a lazy route already keeps them off every other page; `@defer` keeps them off the first paint of the page that holds the editor as well."
+  >
+    <ngwr-doc-code [code]="snippets.defer" language="angular-html" />
+    <p wrTypography variant="small" tone="medium">
+      The server side needs no deferral. Under SSR and prerendering ProseMirror never starts: the editor renders a
+      static preview of the document from the same sanitised tree, with the same metrics as the live surface so the swap
+      does not move a line, and replaces it with the editable surface once the page is running in a browser.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="What it does not do"
+    description="Tables survive every format and their text is editable, but there is no way to insert a table, a row or a column, and no merging. Images survive too, with no way to insert or upload one. A task item's box shows its state and cannot be toggled. There are no colours, fonts, sizes or alignment, no headings past level three, no mentions, no collaborative editing, and no way to extend the schema or add a tool of your own."
+  />
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types" description="The value shapes and the toolbar vocabulary.">
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

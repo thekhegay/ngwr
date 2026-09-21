@@ -58,7 +58,7 @@ expect(forReview).toEqual([]);`,
 </section>`,
 
     install: `// The harnesses live beside the components they drive, one entry point each.
-// 71 so far, 106 exported names over 105 harness classes: every form control,
+// 72 so far, 107 exported names over 106 harness classes: every form control,
 // every overlay, the three data views, the whole navigation / disclosure set,
 // every chart, eighteen of the twenty-one animations, <wr-markdown>, and the
 // standalone widgets — calendar, event-calendar, window, image-cropper, tour,
@@ -68,6 +68,7 @@ import { WrInputHarness } from 'ngwr/input/testing';
 import { WrCheckboxHarness } from 'ngwr/checkbox/testing';
 import { WrRadioGroupHarness } from 'ngwr/radio/testing';
 import { WrFormFieldHarness } from 'ngwr/form/testing';
+import { WrEditorHarness } from 'ngwr/editor/testing';
 
 // The overlay ones — panels that render outside your fixture.
 import { WrSelectHarness } from 'ngwr/select/testing';
@@ -658,6 +659,23 @@ it('announces the hierarchy', async () => {
 
   await mention.commit();
   expect(await mention.getValue()).toBe('hey @ada ');
+});`,
+
+    editor: `it('writes through the editor, and reads the value from the model', async () => {
+  const body = await loader.getHarness(WrEditorHarness.with({ label: 'Body' }));
+
+  await body.setText('Release notes');
+  await body.selectAll();
+  await (await body.getTool('Bold')).click();
+
+  // Two questions: what the surface draws, and what the model holds.
+  expect(await body.getText()).toBe('Release notes');
+  expect(await body.isToolPressed('Bold')).toBe(true);
+  expect(fixture.componentInstance.body()).toBe('<p><strong>Release notes</strong></p>');
+
+  // A refused address leaves the panel open with its message.
+  await body.setLink('javascript:alert(1)');
+  expect(await body.getLinkError()).toBe('This address cannot be used as a link.');
 });`,
 
     formField: `it('shows a message the app never wrote', async () => {
@@ -2490,6 +2508,37 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'A node adds: getText() / getRelationText()',
       description:
         'What the node draws (the card or your template, hidden text left out) and the sentence a screen reader hears about its parents and children — `null` for a node with no edges.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly editorApi: readonly DocApiRow[] = [
+    {
+      name: 'getText() / getLabel() / getPlaceholder() / isMounted()',
+      description:
+        'What the surface DRAWS, one textblock per line, the task-item words left out; the accessible name, with a field label resolved through `aria-labelledby`; the placeholder as announced, `null` once the document holds anything. The value is not here — read it from the model you bound. Filters: `label`, `text`, `disabled`, `readonly`.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'setText(text) / paste(text) / pasteHtml(html, text?) / selectAll() / pressKey(key, modifiers?)',
+      description:
+        'The writes. `setText` replaces the document through the DOM change ProseMirror reads; `paste` / `pasteHtml` insert at the selection, through the same schema a bound value goes through; `pressKey` refuses a printable character with no modifier, since a key event types nothing in jsdom.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getTool(label) / getToolLabels() / isToolPressed(label) / getToolShortcuts(label) / getToolbarTabStop()',
+      description:
+        'A tool by its accessible name, as a `WrButtonHarness`; the drawn tools; `aria-pressed` (throws for a tool that is not a toggle); `aria-keyshortcuts`; the one tool in the tab order.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'openLinkPanel() / setLink(url) / removeLink() / getLinkError() / isLinkPanelOpen()',
+      description:
+        'The link panel, scoped by the id its button publishes — `openLinkPanel()` hands back the `WrPopoverHarness`. `setLink` resolves either way; a refused address leaves the panel open and `getLinkError()` reads its message.',
       type: 'Promise<…>',
       default: '—',
     },

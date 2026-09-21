@@ -59,9 +59,11 @@ const ROUTES_JSON = join(DIST, 'prerendered-routes.json');
  * and so exported a meta-refresh stub instead of a page. 210 is that plus
  * `/reference/utils/is-composing`, added in v14 — the third time the floor was
  * left behind by the export it guards, and the reason this paragraph now names
- * every increment.
+ * every increment. 216 is that plus `/start/versioning`, `/guides/forms`,
+ * `/guides/ssr`, `/reference/components/graph` and `/reference/components/schema-form`,
+ * none of which raised it, and `/reference/components/editor`, which did.
  */
-const MIN_PAGES = 210;
+const MIN_PAGES = 216;
 
 /**
  * Doc pages that will never have a twin, named so the decision is on the record.

@@ -13,10 +13,10 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 397 hook(s) across 61 page(s). A property is here only when the
+ * 415 hook(s) across 62 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
- * declares it also owns it: 21 declaration(s) are one component setting
+ * declares it also owns it: 24 declaration(s) are one component setting
  * another's hook (`--wr-icon-size` inside its own `<wr-icon>`) and belong on
  * the owner's page, not on the setter's.
  */
@@ -376,6 +376,29 @@ export const CSS_VARS = {
       { name: "--wr-dropdown-padding", default: "0.25rem", scope: ".wr-dropdown-menu" },
       { name: "--wr-dropdown-radius", default: "var(--wr-border-radius-base)", scope: ".wr-dropdown-menu" },
       { name: "--wr-dropdown-shadow", default: "var(--wr-shadow-overlay)", scope: ".wr-dropdown-menu" },
+    ],
+  },
+  "reference/components/editor": {
+    subpath: "ngwr/editor",
+    vars: [
+      { name: "--wr-editor-bg", default: "var(--wr-color-surface)", scope: ".wr-editor", overrides: 1 },
+      { name: "--wr-editor-border", default: "var(--wr-color-outline)", scope: ".wr-editor", overrides: 1 },
+      { name: "--wr-editor-color", default: "var(--wr-color-on-surface)", scope: ".wr-editor", overrides: 1 },
+      { name: "--wr-editor-font-size", default: "var(--wr-text-sm)", scope: ".wr-editor" },
+      { name: "--wr-editor-line-height", default: "1.6", scope: ".wr-editor" },
+      { name: "--wr-editor-max-height", default: "none", scope: ".wr-editor" },
+      { name: "--wr-editor-min-height", default: "8rem", scope: ".wr-editor" },
+      { name: "--wr-editor-padding-x", default: "var(--wr-control-padding-x-md)", scope: ".wr-editor" },
+      { name: "--wr-editor-padding-y", default: "0.5rem", scope: ".wr-editor" },
+      { name: "--wr-editor-placeholder", default: "var(--wr-color-on-surface-muted)", scope: ".wr-editor" },
+      { name: "--wr-editor-radius", default: "var(--wr-control-radius-md)", scope: ".wr-editor" },
+      { name: "--wr-editor-ring", default: "transparent", scope: ".wr-editor", overrides: 1 },
+      { name: "--wr-editor-tool-active-bg", default: "var(--wr-color-primary-soft)", scope: ".wr-editor" },
+      { name: "--wr-editor-tool-active-color", default: "var(--wr-color-primary-ink)", scope: ".wr-editor" },
+      { name: "--wr-editor-tool-mark", default: "2px", scope: ".wr-editor__tool--active.wr-btn", base: false },
+      { name: "--wr-editor-toolbar-bg", default: "var(--wr-color-fill-subtle)", scope: ".wr-editor" },
+      { name: "--wr-editor-toolbar-border", default: "var(--wr-color-outline)", scope: ".wr-editor" },
+      { name: "--wr-editor-toolbar-gap", default: "0.125rem", scope: ".wr-editor" },
     ],
   },
   "reference/components/event-calendar": {

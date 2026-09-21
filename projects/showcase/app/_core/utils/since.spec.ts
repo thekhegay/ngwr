@@ -141,7 +141,7 @@ describe('the surfaces that draw it', () => {
       .filter(row => isNewLink(row.url, '14.4.0'))
       .map(row => row.title);
 
-    expect(marked).toEqual(['Graph']);
+    expect(marked).toEqual(['Graph', 'Editor']);
   });
 
   // Both branches of the sidebar template: a child row inside a group, and a

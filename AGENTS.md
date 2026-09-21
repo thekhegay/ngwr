@@ -11,23 +11,23 @@ in the repo_.
 A pnpm + Angular CLI monorepo with two projects:
 
 - **`projects/lib/`** — the published package (`ngwr`). Almost every subfolder is
-  a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **227**
+  a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **229**
   of them (`ngwr/button`, `ngwr/select`, `ngwr/overlay`, …). Counted by
   `ng-package.json`, not by directory: `styles/` and `schematics/` are not entry
-  points, and **ninety-nine** are nested — the twenty-two `ngwr/i18n/<locale>`,
+  points, and **one hundred** are nested — the twenty-two `ngwr/i18n/<locale>`,
   `ngwr/icon/adapters/{lucide,feather}`, `ngwr/date/adapters/{fns,luxon}`, the two
   opt-in router adapters `ngwr/loading-bar/router` and `ngwr/tabs/router` that v14
   added, and the CDK test harnesses, which now cover
-  **seventy-one** entry points: the form controls (`button`, `input`, `textarea`,
+  **seventy-two** entry points: the form controls (`button`, `input`, `textarea`,
   `checkbox`, `switch`, `radio`, `select`, `input-number`, `input-otp`, `slider`,
-  `rating`, `file-upload`, `color-picker`, `knob`, `form`, `segmented`), the overlays
+  `rating`, `file-upload`, `color-picker`, `knob`, `form`, `segmented`, `editor`), the overlays
   (`date-picker`, `dropdown`, `popover`, `dialog`, `drawer`, `action-sheet`,
   `toast`, `context-menu`, `popconfirm`, `command-palette`, `cascader`, `mention`),
   the data views (`table`, `tree`, `graph`), the navigation / disclosure set (`tabs`,
   `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`,
   `lightbox`, `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`, **every
   chart** and **eighteen of the twenty-one animations** — each at
-  `ngwr/<name>/testing`, 106 exported harness names over 105 classes; `WrCalendarDayHarness` is the
+  `ngwr/<name>/testing`, 107 exported harness names over 106 classes; `WrCalendarDayHarness` is the
   one exported twice, since a date-picker's popup IS a calendar and
   `ngwr/date-picker/testing` keeps the name it shipped as.
   **Four entry points are deliberately without one, and the reason is the same each
@@ -251,11 +251,28 @@ one component folder. Reach for them instead of hand-rolling:
   markup: highlighted HTML would need `bypassSecurityTrustHtml` and put the
   `[innerHTML]` hole back in the one component whose entire input is untrusted.
   Hand-rolled parser, so no new runtime dependency.
+- **Rich text** (`ngwr/editor`) — `<wr-editor>` is ProseMirror behind a Signal
+  Forms value control, and ProseMirror is an OPTIONAL peer: eight `prosemirror-*`
+  packages in `peerDependencies` + `peerDependenciesMeta`, which `package.spec.ts`
+  holds equal to what the source imports, in both directions. **Keep
+  `ngwr/editor` the only entry point that imports them** — a static import
+  anywhere else (a `schema-form` kind, a `form` helper) forces the peers on every
+  consumer of that entry point, which is why router support was split out in v14.
+  `format` picks the value: an HTML string, a markdown string (read and written
+  through `ngwr/markdown`'s own parser and `serializeMarkdown`, so no
+  `prosemirror-markdown` or `markdown-it`) or a JSON tree. Every value and every
+  paste is untrusted: HTML is parsed inert and rebuilt from the schema, links and
+  images go through `safeMarkdownUrl`, and JSON is validated and refused whole.
+  `new EditorView` runs only in `afterNextRender`; the server draws a static
+  preview BESIDE the mount surface, never inside it, since `{ mount }` wipes its
+  children. A jsdom spec stubs `Range.getClientRects` — ProseMirror throws from a
+  DOM listener after the document has already changed, so without the stub a spec
+  passes for the wrong reason.
 - **Mobile primitives** (`ngwr/platform`, …) — `WrHaptics`, `ngwr/action-sheet`,
   `ngwr/pull-to-refresh`, and `WrVisualViewport` (publishes
   `--wr-keyboard-inset`, installed by `provideWrOverlay()`).
 
-**Forms.** Value components are **Signal Forms-native** — nineteen public
+**Forms.** Value components are **Signal Forms-native** — twenty public
 controls implement `FormValueControl` or `FormCheckboxControl`, so
 `[formField]="form.x"` binds straight to the component's `value` / `checked`
 model. A count and not "each", deliberately: `[wrColorPickerTrigger]` is public,
@@ -334,9 +351,9 @@ field-specific wording.
 **Responsive / touch.** Adaptive components take a `responsive` opt-in modifier
 (container-query reflow). Touch ergonomics use the `touch-target` SCSS mixin
 (≥44px hit area gated `@media (pointer: coarse)`); the `touch` density preset
-enlarges the controls that read the multipliers — **nine stylesheets**, not every
+enlarges the controls that read the multipliers — **ten stylesheets**, not every
 control: `button`, `input`, `textarea`, `select`, `list`, `table`, `badge/_tag`,
-plus `cascader` and `tree`, which only joined when a sweep found their triggers
+`editor` (its text padding and its tools), plus `cascader` and `tree`, which only joined when a sweep found their triggers
 frozen at the `md` height in every tier. A component with fixed geometry does not
 move. `--wr-density-text` is published for consumers with **no `var()` reader
 anywhere in the library**; `--wr-density-gap` is published for them too, and its
@@ -451,7 +468,7 @@ exists for one `describe` should not ship a `.html` file.
 **Writing a HARNESS** (`ngwr/<name>/testing`): copy
 `projects/lib/collapse/testing/` for the layout and the voice, or
 `projects/lib/image-cropper/testing/` for a component whose geometry a unit test
-cannot reach. The rules below were all earned by shipping seventy-one of them, and
+cannot reach. The rules below were all earned by shipping seventy-two of them, and
 the first one decides every other question:
 
 - **A method that would answer the same thing for a working component and a
@@ -633,7 +650,7 @@ shipping. Conventional-commit subjects are checked locally (commitlint
 already covers the need, use it — an existing component (check the catalog
 before hand-rolling), `ngwr/utils`, `ngwr/pipes`, `ngwr/validators`, theme
 tokens — rather than hand-rolling raw markup/logic or pulling an external
-library where an internal tool exists. The catalog is large (227 entry points):
+library where an internal tool exists. The catalog is large (229 entry points):
 check before writing a bare `<input type="file">`, a date / number / truncate
 helper, a coercion, an id generator, and so on. New external runtime
 dependencies need a strong justification — the only runtime dependency today is
@@ -1014,7 +1031,7 @@ arrow) — for version and before/after descriptions.
 
 ## Building components
 
-The catalog is large (227 entry points) and **deliberately consolidated** —
+The catalog is large (229 entry points) and **deliberately consolidated** —
 many "components" are modes or inputs on one host (e.g. `wr-select` covers
 single / multi / search / tag; `wr-date-picker` covers date / time / datetime;
 `wr-popover` has a `tooltip` mode; `wr-drawer` doubles as a bottom-sheet).
@@ -1216,18 +1233,18 @@ one shipped catch was the slider thumb centring itself with a physical
 **`--wr-color-outline` fails WCAG 1.4.11 on control borders, and that is a
 DECIDED trade — do not re-report it.** Measured: `#cbd5e1` on white is **1.48:1**
 and `#262f44` on `#0b1120` is **1.41:1**, against the 3:1 the criterion asks of
-anything that identifies a control. The token carries 101 declarations across 56
-entry points, and only **15** are control boundaries where 1.4.11 applies
+anything that identifies a control. The token carries 107 declarations across 57
+entry points, and only **16** are control boundaries where 1.4.11 applies
 (`input`, `input-group`, `textarea`, `select`, `checkbox`, `radio`, the switch
 track, the slider rail, `button`, `cascader`, the tree trigger, `input-otp`,
-`color-picker`, `time-picker`, `rating`); every other one is a card, a divider,
+`color-picker`, `time-picker`, `rating`, the editor's frame); every other one is a card, a divider,
 a table rule or a panel edge, which the criterion does not reach. The
 declaration count is stated rather than derived, because a subtraction here
 would go stale on its own — it read `103` and `the other 88` while the real
 figure had fallen to 100.
 
 Two fixes were costed and both were rejected on how they look: darkening the one
-token to `#7e97b5` / `#4d608a` repaints all 100, and splitting out a
+token to `#7e97b5` / `#4d608a` repaints all 107, and splitting out a
 `--wr-color-control-border` at 3:1 leaves control edges visibly darker than every
 line beside them. The maintainer chose to keep the current hairline.
 
@@ -1318,7 +1335,7 @@ i18n catalog; an `aria-label` on a component's host element does not reach the
 native control inside it.
 
 **Showcase page = the docs.** Every component ships a docs page — under
-`projects/showcase/app/reference/components/<name>/` for the main catalog (86
+`projects/showcase/app/reference/components/<name>/` for the main catalog (87
 dirs), or under `projects/showcase/app/animations/<name>/` for animation /
 visual-effect components (a separate top-level cluster with its own routing +
 sidebar). Wire it into the matching `*.routing.ts` and the `routes` map in

@@ -384,4 +384,8 @@ export default [
     path: components.window,
     loadComponent: () => import('./window/window'),
   },
+  {
+    path: components.editor,
+    loadComponent: () => import('./editor/editor'),
+  },
 ] satisfies Routes;

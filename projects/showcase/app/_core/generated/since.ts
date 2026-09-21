@@ -26,5 +26,6 @@
  * wants it. The runtime lookups widen it back — see `_core/utils/since.ts`.
  */
 export const SINCE = {
+  "reference/components/editor": "14.9.0",
   "reference/components/graph": "14.5.0",
 } satisfies Record<string, string>;

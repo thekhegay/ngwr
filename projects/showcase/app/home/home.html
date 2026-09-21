@@ -102,11 +102,11 @@
              marker and the sentence on their own, and the chips are back to being
              inline content inside a paragraph that wraps normally. -->
         <ul class="ngwr-checks">
-          <!-- "Nineteen" is a count, not a quantifier, and the distinction is the point:
+          <!-- "Twenty" is a count, not a quantifier, and the distinction is the point:
                `grep -rn "implements .*Form\(Value\|Checkbox\)Control" projects/lib` returns
-               twenty class declarations, and the twentieth is `date-picker/internal/time-panel.ts`,
-               which no `public-api.ts` exports. So nineteen PUBLIC controls implement one of the
-               two — seventeen `FormValueControl`, plus `wr-checkbox` and `wr-switch` on
+               twenty-one class declarations, and the twenty-first is `date-picker/internal/time-panel.ts`,
+               which no `public-api.ts` exports. So twenty PUBLIC controls implement one of the
+               two — eighteen `FormValueControl`, plus `wr-checkbox` and `wr-switch` on
                `FormCheckboxControl`. It still does not say "every value control":
                `[wrColorPickerTrigger]` is public, carries its own `value` model and implements
                neither — deliberately, since it is a trigger that drives a `wr-color-picker` which
@@ -114,7 +114,7 @@
           <li>
             <span class="ngwr-checks__mark" aria-hidden="true">✓</span>
             <span class="ngwr-checks__text">
-              Nineteen value controls implement a Signal Forms interface — zero <code>ControlValueAccessor</code> in the
+              Twenty value controls implement a Signal Forms interface — zero <code>ControlValueAccessor</code> in the
               library
             </span>
           </li>

@@ -26,7 +26,7 @@ interface RequiredProvider {
 
 const REQUIRED_PROVIDERS: readonly RequiredProvider[] = [
   {
-    test: /^Wr(Dialog|Drawer|Toast|Popover|Popconfirm|ContextMenu|Select|Dropdown|CommandPalette|Cascader|Mention|DatePicker|Tour|Lightbox)/,
+    test: /^Wr(Dialog|Drawer|Toast|Popover|Popconfirm|ContextMenu|Select|Dropdown|CommandPalette|Cascader|Mention|DatePicker|Tour|Lightbox|Editor)/,
     provider: "provideWrOverlay() // from 'ngwr/overlay'",
     why: 'overlays render into an ngwr-owned container; without it they never appear',
   },

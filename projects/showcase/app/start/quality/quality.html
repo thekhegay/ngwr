@@ -218,7 +218,7 @@
       <code>NgModel</code> / <code>FormControlDirective</code> drive the control's <code>value</code> or
       <code>checked</code> model directly. That bridge <strong>does not apply template validator directives</strong> — a
       <code>required</code> on an ngwr control produces no error and the form submits, so validators belong on the
-      <code>FormControl</code> — and it ignores <code>updateOn</code>. Across nineteen value controls,
+      <code>FormControl</code> — and it ignores <code>updateOn</code>. Across twenty value controls,
       <strong>four</strong> are bound through the classic forms API in a spec: <code>wr-checkbox</code> and
       <code>wr-select</code> (<code>[(ngModel)]</code> and <code>[formControl]</code>, plus the validator drop),
       <code>wr-segmented</code> (the same two bindings) and <code>wr-textarea</code> (<code>[(ngModel)]</code>). The

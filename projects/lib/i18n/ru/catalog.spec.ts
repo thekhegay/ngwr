@@ -15,6 +15,9 @@ import { expectCatalogContract } from '../catalog-contract';
  * Russian spells the same way, single-letter colour channels (`R` `G` `B`, `H`
  * `S` `L` — the same letters in a Russian colour picker), and a bare numeric
  * ratio with no words in it.
+ *
+ * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Russian
+ * keyboard prints.
  */
 const SHARED_WITH_ENGLISH = new Set([
   'common.ok',
@@ -31,6 +34,9 @@ const SHARED_WITH_ENGLISH = new Set([
   'colorPicker.channelSaturation',
   'colorPicker.channelLightness',
   'colorPicker.channelAlpha',
+  'editor.keyCtrl',
+  'editor.keyShift',
+  'editor.keyAlt',
 ]);
 
 describe('wrRu', () => {

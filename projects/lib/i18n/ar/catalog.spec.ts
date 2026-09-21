@@ -37,6 +37,9 @@ import { expectCatalogContract } from '../catalog-contract';
  * `common.ok` is deliberately NOT here: Arabic Windows, macOS, iOS and Android
  * all label that button «موافق», so leaving it as `OK` would be the untranslated
  * string rather than the correct one.
+ *
+ * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Arabic
+ * keyboard prints.
  */
 const SHARED_WITH_ENGLISH = new Set([
   // 1 — key caps, initialisms, single letters, a percent sign.
@@ -65,6 +68,9 @@ const SHARED_WITH_ENGLISH = new Set([
   'eventCalendar.range',
   'eventCalendar.slotLabel',
   'eventCalendar.allDayCellLabel',
+  'editor.keyCtrl',
+  'editor.keyShift',
+  'editor.keyAlt',
 ]);
 
 describe('wrAr', () => {

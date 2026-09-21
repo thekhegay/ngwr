@@ -140,7 +140,7 @@ export default class ComparisonPage {
   protected readonly comparisonRows: readonly ComparisonRow[] = [
     {
       axis: 'Signal Forms binding',
-      ngwr: 'Native. Nineteen value controls implement FormValueControl or FormCheckboxControl; no ControlValueAccessor in the package. One public component with a value model implements neither: [wrColorPickerTrigger].',
+      ngwr: 'Native. Twenty value controls implement FormValueControl or FormCheckboxControl; no ControlValueAccessor in the package. One public component with a value model implements neither: [wrColorPickerTrigger].',
       material: 'ControlValueAccessor. Eleven controls declare one; no FormValueControl in the tarball.',
       primeng: 'No FormValueControl in the shipped .d.ts.',
       zorro: 'Started. 22.0.1 added Signal Forms state to the input; 41 files still reference ControlValueAccessor.',

@@ -410,6 +410,40 @@ export const wrEn: WrI18nCatalog = {
     taskDone: 'Done:',
     taskTodo: 'To do:',
   },
+  // `<wr-editor>`. `heading` is one template for the three levels, and
+  // `shortcut` joins a label to its key chord in a tooltip, so a locale owns
+  // the punctuation (ja and zh use full-width brackets). The three `key*`
+  // values are the modifier names printed on the keys — German keyboards say
+  // Strg — while Apple keyboards get the ⌘ ⌥ ⇧ glyphs, which are not words.
+  editor: {
+    label: 'Rich text',
+    toolbar: 'Formatting',
+    bold: 'Bold',
+    italic: 'Italic',
+    underline: 'Underline',
+    strike: 'Strikethrough',
+    code: 'Inline code',
+    paragraph: 'Paragraph',
+    heading: 'Heading {{level}}',
+    bulletList: 'Bulleted list',
+    orderedList: 'Numbered list',
+    blockquote: 'Quote',
+    codeBlock: 'Code block',
+    link: 'Insert link',
+    horizontalRule: 'Horizontal line',
+    undo: 'Undo',
+    redo: 'Redo',
+    linkUrl: 'Link address',
+    linkApply: 'Apply',
+    linkRemove: 'Remove link',
+    linkInvalid: 'This address cannot be used as a link.',
+    shortcut: '{{label}} ({{keys}})',
+    keyCtrl: 'Ctrl',
+    keyShift: 'Shift',
+    keyAlt: 'Alt',
+    taskDone: 'Done:',
+    taskTodo: 'To do:',
+  },
   // Count-neutral on purpose: `wrInterpolate` does `{{name}}` substitution only,
   // with no plural support, so "Matches available: 1" has to read correctly too.
   marquee: {

@@ -69,9 +69,6 @@ Open and researched, explicitly not now.
       exist**, and legends are implemented separately in `donut-chart` and
       `line-chart` rather than shared. The differentiator is theme-token
       integration and dashboard blocks — do not build a chart engine.
-- [ ] **C10. Rich text editor** (XL) — the biggest single component gap across
-      free Angular libraries. Likely a ProseMirror-based `ngwr/editor`. Validate
-      demand before committing.
 - [ ] **D5. Figma kit** (L) — the token export exists (`pnpm gen:design-tokens`);
       what is missing is a Figma FILE — component frames, variants, states,
       auto-layout geometry — none of it derivable from source, so the kit itself

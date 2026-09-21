@@ -65,6 +65,18 @@ export interface WrControlDefaults {
 export interface WrConfig {
   readonly button?: Pick<WrControlDefaults, 'size'>;
   readonly checkbox?: Pick<WrControlDefaults, 'size'>;
+  /**
+   * Defaults for `<wr-editor>`.
+   *
+   * `format` passes the test a config key has to pass: what an app STORES —
+   * HTML, markdown or the document as JSON — is decided once, by its backend,
+   * not per field. Spelled as a literal union rather than imported from
+   * `ngwr/editor`, for the reason `markdown.linkTarget` is: that entry point
+   * imports this one, and ng-packagr refuses the cycle.
+   */
+  readonly editor?: {
+    readonly format?: 'html' | 'markdown' | 'json';
+  };
   readonly input?: WrControlDefaults;
   readonly inputNumber?: WrControlDefaults;
   readonly inputOtp?: Pick<WrControlDefaults, 'size'>;

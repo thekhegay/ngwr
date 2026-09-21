@@ -36,6 +36,9 @@ import { expectCatalogContract } from '../catalog-contract';
  * Nothing outside those four is shared: `AM` / `PM` are NOT here, because
  * Vietnamese has its own day-period abbreviations (SA / CH, per CLDR) and a
  * clock that says AM in a Vietnamese app is untranslated rather than idiomatic.
+ *
+ * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Vietnamese
+ * keyboard prints.
  */
 const SHARED_WITH_ENGLISH = new Set([
   'common.ok',
@@ -67,6 +70,9 @@ const SHARED_WITH_ENGLISH = new Set([
   'colorPicker.channelAlpha',
   'statistic.delta',
   'statistic.deltaSuffix',
+  'editor.keyCtrl',
+  'editor.keyShift',
+  'editor.keyAlt',
 ]);
 
 describe('wrVi', () => {

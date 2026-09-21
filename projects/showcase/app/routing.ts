@@ -109,6 +109,7 @@ export const routes = {
     dialog: 'dialog',
     divider: 'divider',
     drawer: 'drawer',
+    editor: 'editor',
     empty: 'empty',
     form: 'form',
     formField: 'form-field',

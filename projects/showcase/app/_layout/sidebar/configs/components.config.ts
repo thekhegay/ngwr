@@ -81,6 +81,7 @@ export const COMPONENT_GROUPS: readonly SidebarGroup[] = [
       { title: 'Checkbox', url: ['/reference/components', 'checkbox'] },
       { title: 'Color Picker', url: ['/reference/components', 'color-picker'] },
       { title: 'Date Picker', url: ['/reference/components', 'date-picker'] },
+      { title: 'Editor', url: ['/reference/components', 'editor'] },
       { title: 'File Upload', url: ['/reference/components', 'file-upload'] },
       { title: 'Form', url: ['/reference/components', 'form'] },
       { title: 'Form Field', url: ['/reference/components', 'form-field'] },

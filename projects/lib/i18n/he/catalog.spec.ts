@@ -41,6 +41,9 @@ import { expectCatalogContract } from '../catalog-contract';
  * untranslated string rather than the correct one. `validation.iban` and
  * `qr.label` look English at a glance and are not here either — each carries an
  * initialism Hebrew keeps in Latin, and the prose around it IS translated.
+ *
+ * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Hebrew
+ * keyboard prints.
  */
 const SHARED_WITH_ENGLISH = new Set([
   // 1 — key caps, initialisms, single letters, a percent sign.
@@ -75,6 +78,9 @@ const SHARED_WITH_ENGLISH = new Set([
   'eventCalendar.chipLabel',
   'eventCalendar.slotLabel',
   'eventCalendar.allDayCellLabel',
+  'editor.keyCtrl',
+  'editor.keyShift',
+  'editor.keyAlt',
 ]);
 
 describe('wrHe', () => {

@@ -29,6 +29,10 @@ import { expectCatalogContract } from '../catalog-contract';
  * - **Not language at all.** `OK`, the binary size units (German writes B, KB,
  *   MB, GB, TB), the colour-picker initialisms and single-letter channels, the
  *   bare `%` suffix, and `AM` / `PM`, which is what CLDR gives for German too.
+ *
+ * Of the editor's modifier key caps, `Alt` is what a German keyboard prints;
+ * `Ctrl` and `Shift` are translated, because the key says `Strg` and `Umschalt`
+ * there.
  */
 const SHARED_WITH_ENGLISH = new Set([
   'common.ok',
@@ -72,6 +76,7 @@ const SHARED_WITH_ENGLISH = new Set([
   'date.months.aug',
   'date.months.sep',
   'date.months.nov',
+  'editor.keyAlt',
 ]);
 
 describe('wrDe', () => {

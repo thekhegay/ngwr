@@ -46,7 +46,7 @@ points that ship no stylesheet (the `/testing` harnesses, `ngwr/utils`) have no
 
 ### `provideWrOverlay() // from 'ngwr/overlay'`
 
-Overlays render into an ngwr-owned container; without it they never appear. Needed by `WrDialog`, `WrDrawer`, `WrToast`, `WrPopover`, `WrPopconfirm`, `WrContextMenu`, `WrSelect`, `WrDropdown`, `WrCommandPalette`, `WrCascader`, `WrMention`, `WrDatePicker`, `WrTour`, `WrLightbox`.
+Overlays render into an ngwr-owned container; without it they never appear. Needed by `WrDialog`, `WrDrawer`, `WrToast`, `WrPopover`, `WrPopconfirm`, `WrContextMenu`, `WrSelect`, `WrDropdown`, `WrCommandPalette`, `WrCascader`, `WrMention`, `WrDatePicker`, `WrTour`, `WrLightbox`, `WrEditor`.
 
 ### `provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon' + 'ngwr/icon/adapters/lucide'`
 
@@ -69,9 +69,9 @@ The pipe and directive read from a catalog you provide. Register ngwr's with `pr
 - `provideWrConfig({ button: { size: 'sm' } })` — component defaults. A bound
   value always wins, including a bound `false` over a configured `true`.
 - `provideWrDensity({ defaultDensity: 'sm' })` — one control size for the whole
-  app; `'sm' | 'md' | 'lg' | 'touch'`. It scales the paddings of the nine
+  app; `'sm' | 'md' | 'lg' | 'touch'`. It scales the paddings of the ten
   stylesheets that read the multipliers — button, input, textarea, select,
-  cascader, tree, list, table, badge/tag — so `touch` grows those together. A
+  cascader, tree, list, table, badge/tag, editor — so `touch` grows those together. A
   control with fixed geometry (checkbox, switch, radio, slider, rating,
   segmented) does not move; its ≥44px target comes from the `touch-target` mixin
   under `@media (pointer: coarse)` instead.
