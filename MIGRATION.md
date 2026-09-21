@@ -52,6 +52,24 @@ none of v12, v13 or v14 touches, so running it after them is safe.
 A failed `ng update ngwr@7` or `@8` leaves the same hole for that major, and for each later one you
 also tried: run each skipped migration the same way, oldest first (`migration-v7`, `migration-v8`).
 
+### If `ng update ngwr` hung on 14.5.0 or earlier
+
+Up to 14.5.0 the v14 migration could hang on an ordinary template, and the only way out was to
+kill the command. By then the install had moved `package.json` to 14.x and any earlier migration
+in that run had already written its changes, so the project looks upgraded. It is not: **the v14
+renames were never applied**, and a later `ng update ngwr` starts from 14.x and skips them. Leftover
+`closeable`, `totalItems`, `currentPage` or `wrSize` bindings compile without an error. 14.5.1 fixed
+the hang; run the step it skipped by name:
+
+```bash
+ng update ngwr                                       # skip if the latest is already installed
+# Commit that result first: ng update refuses a migration on a dirty tree too.
+ng update ngwr --migrate-only --name=migration-v14   # the step the hang skipped
+```
+
+It rewrites the six v14 renames and prints the v14 report again. Running it on templates that are
+already migrated changes nothing.
+
 **The full guide lives at [ngwr.dev/start/migration](https://ngwr.dev/start/migration)**, with a
 runnable diff per change. This file carries the same breaks in short form, newest first, so the
 history is readable without leaving the repository.
