@@ -24,6 +24,9 @@ import { expectCatalogContract } from '../catalog-contract';
  * `common.ok` is deliberately NOT here: Korean Windows, macOS and Android all
  * label that button 확인, so leaving it as `OK` would be the untranslated case
  * rather than the shared one.
+ *
+ * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Korean
+ * keyboard prints.
  */
 const SHARED_WITH_ENGLISH = new Set([
   'pagination.compact',
@@ -51,6 +54,9 @@ const SHARED_WITH_ENGLISH = new Set([
   'colorPicker.channelAlpha',
   'statistic.delta',
   'statistic.deltaSuffix',
+  'editor.keyCtrl',
+  'editor.keyShift',
+  'editor.keyAlt',
 ]);
 
 describe('wrKo', () => {

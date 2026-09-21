@@ -165,7 +165,12 @@ describe('the published manifest', () => {
   it('marks a peer optional only when whole entry points, not the core, need it', () => {
     // `@angular/router` is optional because only tabs, sidebar, breadcrumbs and
     // loading-bar import it — an app with no routing installs nothing extra. The
-    // two date libraries are the same shape: pick one, or neither.
+    // two date libraries are the same shape: pick one, or neither. The eight
+    // ProseMirror packages are imported by `ngwr/editor` and nothing else, so an
+    // app without a rich-text field installs none of them — which is also why no
+    // other entry point may import `ngwr/editor`. Only the packages the editor
+    // imports BY NAME are listed: `prosemirror-transform` arrives as their own
+    // dependency, and declaring it would fail the "imported" check below.
     // `@angular/forms` is NOT here: `ngwr/form` imports NgControl and every value
     // control has `FormValueControl` in its public `implements` clause.
     const optional = Object.entries(manifest.peerDependenciesMeta ?? {})
@@ -173,7 +178,19 @@ describe('the published manifest', () => {
       .map(([name]) => name)
       .sort();
 
-    expect(optional).toEqual(['@angular/router', 'date-fns', 'luxon']);
+    expect(optional).toEqual([
+      '@angular/router',
+      'date-fns',
+      'luxon',
+      'prosemirror-commands',
+      'prosemirror-history',
+      'prosemirror-inputrules',
+      'prosemirror-keymap',
+      'prosemirror-model',
+      'prosemirror-schema-list',
+      'prosemirror-state',
+      'prosemirror-view',
+    ]);
   });
 
   it('declares a peer only for a package the shipped source imports', () => {

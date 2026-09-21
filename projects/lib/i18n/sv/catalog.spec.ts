@@ -31,6 +31,9 @@ import { expectCatalogContract } from '../catalog-contract';
  *   them. They are listed rather than skipped because the order in them is a
  *   real choice: Swedish puts the month before the year and the weekday before
  *   the date, so the English order survives translation instead of escaping it.
+ *
+ * Of the editor's modifier key caps, `Ctrl` and `Alt` are what a Swedish
+ * keyboard prints; `Shift` is translated, because the key says `Skift` there.
  */
 const SHARED_WITH_ENGLISH = new Set([
   // Spelled the same in a Swedish UI.
@@ -69,6 +72,8 @@ const SHARED_WITH_ENGLISH = new Set([
   'eventCalendar.chipLabel',
   'eventCalendar.slotLabel',
   'eventCalendar.allDayCellLabel',
+  'editor.keyCtrl',
+  'editor.keyAlt',
 ]);
 
 describe('wrSv', () => {

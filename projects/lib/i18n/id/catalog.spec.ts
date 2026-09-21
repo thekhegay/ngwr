@@ -35,6 +35,9 @@ import { expectCatalogContract } from '../catalog-contract';
  *   `Avatar` (KBBI), the `slide` a carousel announces, and the months April,
  *   September and November — Indonesian differs on the other nine (Mei, Juni,
  *   Juli, Agustus, Oktober, Desember, Januari, Februari, Maret).
+ *
+ * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Indonesian
+ * keyboard prints.
  */
 const SHARED_WITH_ENGLISH = new Set([
   'common.ok',
@@ -75,6 +78,9 @@ const SHARED_WITH_ENGLISH = new Set([
   'date.months.apr',
   'date.months.sep',
   'date.months.nov',
+  'editor.keyCtrl',
+  'editor.keyShift',
+  'editor.keyAlt',
 ]);
 
 describe('wrId', () => {

@@ -31,6 +31,9 @@ import { expectCatalogContract } from '../catalog-contract';
  * Czech interfaces use for the thing, and the component may show initials or an
  * icon rather than a photograph, so the more descriptive "Profilový obrázek"
  * would be wrong about half the cases it is spoken over.
+ *
+ * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Czech
+ * keyboard prints.
  */
 const SHARED_WITH_ENGLISH = new Set([
   'common.ok',
@@ -64,6 +67,9 @@ const SHARED_WITH_ENGLISH = new Set([
   'colorPicker.channelAlpha',
   'statistic.delta',
   'statistic.deltaSuffix',
+  'editor.keyCtrl',
+  'editor.keyShift',
+  'editor.keyAlt',
 ]);
 
 describe('wrCs', () => {

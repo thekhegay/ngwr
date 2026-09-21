@@ -9,7 +9,12 @@ import { isTemplateLanguage, isTypeScriptLanguage } from './languages';
 import { scanTemplate, type SandboxField, type TemplateScan } from './resolve';
 import type { SandboxFile, SandboxProject } from './types';
 
-import { LUCIDE_VERSION, STYLE_DEPENDENCIES, STYLE_ENTRY_POINTS } from '#core/generated/selectors';
+import {
+  LUCIDE_VERSION,
+  OPTIONAL_PEER_DEPENDENCIES,
+  STYLE_DEPENDENCIES,
+  STYLE_ENTRY_POINTS,
+} from '#core/generated/selectors';
 
 /**
  * Builds a bootable Angular 22 workspace out of a docs snippet.
@@ -160,10 +165,13 @@ const jsdocSafe = (text: string): string => text.replace(/\*\//g, '*\u2044');
  *   (`grep -rl "@angular/router" projects/lib`). One package is not worth a
  *   module-resolution error, so it stays unconditional.
  *
- * `lucide` is the only entry that is genuinely conditional, and it is gated
- * below. So trimming is not the answer to a failed install; it is only tidiness.
+ * `lucide` is conditional, and gated below; so are the OPTIONAL peers of the
+ * entry points the snippet reaches — `ngwr/editor`'s ProseMirror packages, the
+ * date adapters' libraries — which installing `ngwr` does not bring along, so a
+ * project that left them out failed module resolution rather than booting
+ * slower. So trimming is not the answer to a failed install; it is only tidiness.
  */
-function packageJson(needsIcons: boolean): string {
+function packageJson(needsIcons: boolean, subpaths: readonly string[] = []): string {
   const dependencies: Record<string, string> = {
     '@angular/cdk': CDK,
     '@angular/common': ANGULAR,
@@ -180,6 +188,14 @@ function packageJson(needsIcons: boolean): string {
   // and a sandbox that installs an icon set nothing renders is slower to boot
   // for no reason.
   if (needsIcons) dependencies['lucide'] = LUCIDE;
+  // What the manifest already pins wins: `@angular/router` is an optional peer
+  // of the router adapters and is installed unconditionally above, at the
+  // framework's own range.
+  for (const subpath of subpaths) {
+    for (const [name, range] of Object.entries(OPTIONAL_PEER_DEPENDENCIES[subpath] ?? {})) {
+      dependencies[name] ??= range;
+    }
+  }
 
   return `${JSON.stringify(
     {
@@ -659,7 +675,7 @@ function buildSandboxProject(title: string, files: readonly SandboxFile[]): Sand
 
     return {
       files: {
-        'package.json': packageJson(needsIcons),
+        'package.json': packageJson(needsIcons, usedStyleSubpaths),
         '.stackblitzrc': `${JSON.stringify({ installDependencies: true, startCommand: 'npm start' }, null, 2)}\n`,
         '.npmrc': npmrc(),
         'angular.json': angularJson(),
@@ -687,7 +703,7 @@ function buildSandboxProject(title: string, files: readonly SandboxFile[]): Sand
       const usedStyleSubpaths = [...scan.imports.keys()];
       return {
         files: {
-          'package.json': packageJson(scan.needsIcons),
+          'package.json': packageJson(scan.needsIcons, usedStyleSubpaths),
           '.stackblitzrc': `${JSON.stringify({ installDependencies: true, startCommand: 'npm start' }, null, 2)}\n`,
           '.npmrc': npmrc(),
           'angular.json': angularJson(),

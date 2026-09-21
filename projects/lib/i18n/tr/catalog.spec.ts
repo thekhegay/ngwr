@@ -33,6 +33,9 @@ import { expectCatalogContract } from '../catalog-contract';
  *   Turkish words (kırmızı, yeşil, mavi, ton, doygunluk, parlaklık).
  * - `commandPalette.escHint` is a key cap: Turkish keyboards print `esc`.
  * - `avatar.alt` — `avatar` is the word Turkish uses, borrowed and current.
+ *
+ * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Turkish
+ * keyboard prints.
  */
 const SHARED_WITH_ENGLISH = new Set([
   'pagination.compact',
@@ -66,6 +69,9 @@ const SHARED_WITH_ENGLISH = new Set([
   'colorPicker.channelAlpha',
   'statistic.delta',
   'statistic.deltaSuffix',
+  'editor.keyCtrl',
+  'editor.keyShift',
+  'editor.keyAlt',
 ]);
 
 describe('wrTr', () => {

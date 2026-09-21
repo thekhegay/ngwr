@@ -31,6 +31,9 @@ import { expectCatalogContract } from '../catalog-contract';
  *   in them. They are listed rather than skipped because the choice is real:
  *   Dutch puts the month before the year and the weekday before the date, so
  *   the English order survives translation instead of escaping it.
+ *
+ * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Dutch
+ * keyboard prints.
  */
 const SHARED_WITH_ENGLISH = new Set([
   // Spelled the same in a Dutch UI.
@@ -71,6 +74,9 @@ const SHARED_WITH_ENGLISH = new Set([
   'eventCalendar.chipLabel',
   'eventCalendar.slotLabel',
   'eventCalendar.allDayCellLabel',
+  'editor.keyCtrl',
+  'editor.keyShift',
+  'editor.keyAlt',
 ]);
 
 describe('wrNl', () => {

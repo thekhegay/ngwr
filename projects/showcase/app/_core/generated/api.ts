@@ -492,6 +492,17 @@ export const API = {
     { name: "icon", description: "Optional leading icon name.", type: "WrIconName | null", default: "null" },
     { name: "disabled", description: "Disable interaction (suppresses pointer + keyboard).", type: "boolean", default: "false" },
   ],
+  // <wr-editor>
+  WrEditor: [
+    { name: "value", description: "The document. A string in `html` and `markdown` format, a {@link WrEditorJson} tree in `json`; `''` / `null` when nothing is written. Bound by `[formField]`, or two-way via `[(value)]`.", type: "WrEditorValue", default: "null" },
+    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+    { name: "disabled", description: "Disable the editor and its toolbar. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse edits while the text stays focusable, selectable and announced. Bound automatically from the field's readonly state when used with `[formField]`. The surface keeps its tab stop and reports `aria-readonly`; typing, paste, drop, the shortcuts and every toolbar command are refused. The toolbar goes inert, since none of its tools can apply.", type: "boolean", default: "false" },
+    { name: "placeholder", description: "Hint shown while the document is empty, and exposed as `aria-placeholder`.", type: "string", default: "''" },
+    { name: "ariaLabel", description: "Accessible name of the text surface. Falls back to the surrounding `<wr-form-field>`'s label, then to `editor.label`.", type: "string | null", default: "null" },
+    { name: "format", description: "What `value` holds — see {@link WrEditorFormat}. Unset, it falls back to `provideWrConfig({ editor: { format } })`. Changing it re-reads `value` in the new format.", type: "WrEditorFormat | null", default: "'html'" },
+    { name: "toolbar", description: "The toolbar's tools, in order, with `'|'` between groups; `false` hides it. `underline` is left out in `markdown` format, which cannot store it.", type: "readonly WrEditorTool[] | false", default: "WR_EDITOR_TOOLBAR" },
+  ],
   // <wr-empty>
   WrEmpty: [
     { name: "icon", description: "Render the built-in folder glyph. Pass `false` to show no icon at all. Ignored when `iconName` is set — the same contract as `<wr-alert>`. This used to be typed as an icon NAME, which it never was: whatever name you passed, the template drew the folder. Any truthy value still shows it, so nothing that compiled before behaves differently.", type: "boolean", default: "true" },

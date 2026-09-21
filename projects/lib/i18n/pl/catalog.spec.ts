@@ -43,6 +43,9 @@ import { expectCatalogContract } from '../catalog-contract';
  * verbatim — there is no Polish pair to reach for, and inventing one (`przed
  * południem` / `po południu`) would not fit the meridiem column and would not
  * match what the rest of the system says.
+ *
+ * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Polish
+ * keyboard prints.
  */
 const SHARED_WITH_ENGLISH = new Set([
   'common.ok',
@@ -79,6 +82,9 @@ const SHARED_WITH_ENGLISH = new Set([
   'datePicker.pm',
   'statistic.delta',
   'statistic.deltaSuffix',
+  'editor.keyCtrl',
+  'editor.keyShift',
+  'editor.keyAlt',
 ]);
 
 describe('wrPl', () => {

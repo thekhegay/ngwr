@@ -7,6 +7,7 @@ import { WrCheckbox, WrCheckboxGroup } from 'ngwr/checkbox';
 import { WrColorPicker } from 'ngwr/color-picker';
 import { provideWrDateAdapter } from 'ngwr/date';
 import { WrDatePicker, WrDateRangePicker, type WrDateRange } from 'ngwr/date-picker';
+import { WrEditor } from 'ngwr/editor';
 import { WrFileUpload } from 'ngwr/file-upload';
 import { WrInputNumber } from 'ngwr/input-number';
 import { WrInputOtp } from 'ngwr/input-otp';
@@ -48,6 +49,9 @@ interface Model {
   colorPicker: string;
   datePicker: Date | null;
   dateRangePicker: WrDateRange | null;
+  // A plain `string`, narrower than the editor's `WrEditorValue` model — which is
+  // exactly how an app binds it, so this line is also the type check that it can.
+  editor: string;
   fileUpload: File | readonly File[] | null;
   inputNumber: number | null;
   inputOtp: string;
@@ -72,6 +76,7 @@ interface Model {
     WrColorPicker,
     WrDatePicker,
     WrDateRangePicker,
+    WrEditor,
     WrFileUpload,
     WrFormField,
     WrInputNumber,
@@ -115,6 +120,10 @@ interface Model {
 
     <wr-form-field data-k="date-range-picker" label="Range">
       <wr-date-range-picker [formField]="f.dateRangePicker" />
+    </wr-form-field>
+
+    <wr-form-field data-k="editor" label="Editor">
+      <wr-editor [formField]="f.editor" />
     </wr-form-field>
 
     <wr-form-field data-k="file-upload" label="Files">
@@ -200,6 +209,10 @@ class Host {
     colorPicker: '#336699',
     datePicker: null,
     dateRangePicker: null,
+    // Not empty: Enter on an empty editor writes nothing — two empty paragraphs
+    // are still nothing written — so the key the gestures below press needs text
+    // to split.
+    editor: '<p>Draft</p>',
     fileUpload: null,
     inputNumber: null,
     inputOtp: '',
@@ -235,6 +248,7 @@ class Host {
     readonly(path.colorPicker, locked);
     readonly(path.datePicker, locked);
     readonly(path.dateRangePicker, locked);
+    readonly(path.editor, locked);
     readonly(path.fileUpload, locked);
     readonly(path.inputNumber, locked);
     readonly(path.inputOtp, locked);
@@ -255,6 +269,7 @@ class Host {
     validate(path.colorPicker, fails);
     validate(path.datePicker, fails);
     validate(path.dateRangePicker, fails);
+    validate(path.editor, fails);
     validate(path.fileUpload, fails);
     validate(path.inputNumber, fails);
     validate(path.inputOtp, fails);
@@ -312,6 +327,8 @@ const PROBES: readonly Probe[] = [
   },
   { key: 'date-picker', aria: 'input.wr-input', isReadonly: nativeReadonly('input.wr-input') },
   { key: 'date-range-picker', aria: 'input.wr-input', isReadonly: nativeReadonly('input.wr-input') },
+  // A `contenteditable` `role="textbox"`, which supports `aria-readonly`.
+  { key: 'editor', aria: '.wr-editor__surface', isReadonly: ariaReadonly('.wr-editor__surface') },
   {
     key: 'file-upload',
     aria: '.wr-file-upload__zone',
@@ -368,7 +385,7 @@ describe('every value control, as a form control', () => {
   it('renders one field per control, and the table covers all of them', () => {
     // A probe table that quietly stopped growing looks exactly like one that
     // covers the catalog, so the count is asserted rather than assumed.
-    expect(PROBES).toHaveLength(19);
+    expect(PROBES).toHaveLength(20);
     for (const probe of PROBES) expect(field(probe.key), probe.key).toBeTruthy();
   });
 
@@ -533,6 +550,7 @@ describe('every value control, as a form control', () => {
       press(q('knob', '.wr-knob__surface'), 'ArrowRight');
       press(q('rating', '.wr-rating__row'), 'ArrowRight');
       press(q('color-picker', '.wr-color-picker__slider--hue'), 'ArrowRight');
+      press(q('editor', '.wr-editor__surface'), 'Enter');
       const cell = q<HTMLInputElement>('input-otp', 'input.wr-input-otp__cell');
       cell.value = '7';
       cell.dispatchEvent(new Event('input', { bubbles: true }));
@@ -551,6 +569,7 @@ describe('every value control, as a form control', () => {
       expect(model().rating).not.toBeNull();
       expect(model().colorPicker).not.toBe('#336699');
       expect(model().inputOtp).toBe('7');
+      expect(model().editor).not.toBe('<p>Draft</p>');
       expect(q('select', '.wr-select__trigger').getAttribute('aria-expanded')).toBe('true');
       expect(q('cascader', '.wr-cascader__trigger').getAttribute('aria-expanded')).toBe('true');
       expect(q<HTMLInputElement>('file-upload', 'input.wr-file-upload__picker').disabled).toBe(false);
@@ -623,6 +642,13 @@ describe('every value control, as a form control', () => {
       press(q('color-picker', '.wr-color-picker__sv'), 'ArrowRight');
 
       expect(model().colorPicker).toBe('#336699');
+    });
+
+    it('refuses a key that would split a paragraph in the editor', () => {
+      press(q('editor', '.wr-editor__surface'), 'Enter');
+
+      expect(model().editor).toBe('<p>Draft</p>');
+      expect(q('editor', '.wr-editor__surface').getAttribute('contenteditable')).toBe('false');
     });
 
     it('refuses a character typed into an OTP box', () => {

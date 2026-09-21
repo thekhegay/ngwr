@@ -7,19 +7,19 @@
 [![coverage](https://codecov.io/gh/thekhegay/ngwr/branch/main/graph/badge.svg)](https://codecov.io/gh/thekhegay/ngwr)
 [![license](https://img.shields.io/npm/l/ngwr)](https://github.com/thekhegay/ngwr/blob/main/LICENSE)
 
-<!-- "Nineteen" is derived, not chosen: `grep -rn "implements .*Form\(Value\|Checkbox\)Control" projects/lib`
-     returns twenty class declarations, and the twentieth — `date-picker/internal/time-panel.ts` —
-     is exported by no `public-api.ts`. Seventeen implement `FormValueControl`; `wr-checkbox` and
+<!-- "Twenty" is derived, not chosen: `grep -rn "implements .*Form\(Value\|Checkbox\)Control" projects/lib`
+     returns twenty-one class declarations, and the twenty-first — `date-picker/internal/time-panel.ts` —
+     is exported by no `public-api.ts`. Eighteen implement `FormValueControl`; `wr-checkbox` and
      `wr-switch` implement `FormCheckboxControl`. It is a count and not the word "every" on purpose:
      `[wrColorPickerTrigger]` is public, carries its own `value` model, and implements neither.
      Re-derive before editing the number. -->
 
-**NGWR is an Angular UI library that binds straight to Signal Forms.** Nineteen
+**NGWR is an Angular UI library that binds straight to Signal Forms.** Twenty
 value controls implement `FormValueControl` / `FormCheckboxControl` themselves,
 so `[formField]` writes the component's own `value` / `checked` model — there
 is not one `ControlValueAccessor` in the library. Zoneless by construction, not
 zoneless-compatible: signal inputs, signal state, `afterNextRender()` for DOM
-work, and no `@NgModule` or `@Input()` decorator anywhere in the source. 227
+work, and no `@NgModule` or `@Input()` decorator anywhere in the source. 229
 tree-shakable entry points, on `@angular/cdk` for overlay, portal and a11y
 primitives.
 
@@ -89,6 +89,8 @@ What the manifest will not tell you is the SHAPE, so that is what this section
 is for. Angular, its CDK and rxjs are required. `@angular/router` is optional
 because only a handful of entry points import it. The two date libraries are
 optional and you pick at most one, whichever `provideWrDateAdapter()` you use.
+The eight `prosemirror-*` packages are optional too, and only `ngwr/editor`
+imports them — an app without a rich-text editor never installs them.
 **Icon sets are not peers at all** — every adapter takes the icon data as an
 argument, so ngwr never imports lucide, feather or any other set; install
 whichever you like, or none, and register raw SVG with `svgIcon()`.
@@ -174,9 +176,10 @@ automatic, which cost every app 66–76 kB of router whether it routed or not.
 A stock `ng new` app already ships forms and router, so
 `@angular/cdk` is the only one you have to add — which is why it is on the
 install lines above. Add an icon set and a date library only if you use them —
-`lucide` (or `feather-icons`) for the icon adapters, and `date-fns` or `luxon`
+`lucide` (or `feather-icons`) for the icon adapters, `date-fns` or `luxon`
 for the calendar / date-picker, which otherwise runs on a built-in native
-`Date` adapter. The Quick start below registers a lucide icon, so it needs
+`Date` adapter, and the eight `prosemirror-*` packages for `wr-editor` — its
+[docs page](https://ngwr.dev/reference/components/editor) has the install line. The Quick start below registers a lucide icon, so it needs
 `lucide`:
 
 ```shell
@@ -311,7 +314,7 @@ export class ProfileForm {
 
 ### Components
 
-**Form** — [calendar](https://ngwr.dev/reference/components/calendar), [cascader](https://ngwr.dev/reference/components/cascader), [checkbox](https://ngwr.dev/reference/components/checkbox), [color-picker](https://ngwr.dev/reference/components/color-picker), [date-picker](https://ngwr.dev/reference/components/date-picker), [file-upload](https://ngwr.dev/reference/components/file-upload), [form](https://ngwr.dev/reference/components/form), [form-field](https://ngwr.dev/reference/components/form-field), [input](https://ngwr.dev/reference/components/input), [input-number](https://ngwr.dev/reference/components/input-number), [input-otp](https://ngwr.dev/reference/components/input-otp), [knob](https://ngwr.dev/reference/components/knob), [mention](https://ngwr.dev/reference/components/mention), [radio](https://ngwr.dev/reference/components/radio), [rating](https://ngwr.dev/reference/components/rating), [schema-form](https://ngwr.dev/reference/components/schema-form), [segmented](https://ngwr.dev/reference/components/segmented), [select](https://ngwr.dev/reference/components/select), [slider](https://ngwr.dev/reference/components/slider), [switch](https://ngwr.dev/reference/components/switch), [textarea](https://ngwr.dev/reference/components/textarea), [transfer](https://ngwr.dev/reference/components/transfer).
+**Form** — [calendar](https://ngwr.dev/reference/components/calendar), [cascader](https://ngwr.dev/reference/components/cascader), [checkbox](https://ngwr.dev/reference/components/checkbox), [color-picker](https://ngwr.dev/reference/components/color-picker), [date-picker](https://ngwr.dev/reference/components/date-picker), [editor](https://ngwr.dev/reference/components/editor), [file-upload](https://ngwr.dev/reference/components/file-upload), [form](https://ngwr.dev/reference/components/form), [form-field](https://ngwr.dev/reference/components/form-field), [input](https://ngwr.dev/reference/components/input), [input-number](https://ngwr.dev/reference/components/input-number), [input-otp](https://ngwr.dev/reference/components/input-otp), [knob](https://ngwr.dev/reference/components/knob), [mention](https://ngwr.dev/reference/components/mention), [radio](https://ngwr.dev/reference/components/radio), [rating](https://ngwr.dev/reference/components/rating), [schema-form](https://ngwr.dev/reference/components/schema-form), [segmented](https://ngwr.dev/reference/components/segmented), [select](https://ngwr.dev/reference/components/select), [slider](https://ngwr.dev/reference/components/slider), [switch](https://ngwr.dev/reference/components/switch), [textarea](https://ngwr.dev/reference/components/textarea), [transfer](https://ngwr.dev/reference/components/transfer).
 
 **Buttons** — [button](https://ngwr.dev/reference/components/button), [button-group](https://ngwr.dev/reference/components/button-group), [speed-dial](https://ngwr.dev/reference/components/speed-dial).
 
@@ -373,11 +376,11 @@ Math (`clamp`, `round`), coercion (`numAttr`), css helpers (`resolveCssSize`, `g
 ## Highlights
 
 - **Standalone & signals-first.** Every component is standalone and uses `input()` / `model()` / `output()` / `signal()` / `computed()`. Zoneless-ready.
-- **Signal Forms native.** Nineteen value controls implement `FormValueControl` / `FormCheckboxControl`, so `[formField]` binds straight through — there is no `ControlValueAccessor` in the library at all. `[(ngModel)]` and reactive forms keep working through Angular's bridge, and every control also works standalone via `[(value)]` / `[(checked)]`.
+- **Signal Forms native.** Twenty value controls implement `FormValueControl` / `FormCheckboxControl`, so `[formField]` binds straight through — there is no `ControlValueAccessor` in the library at all. `[(ngModel)]` and reactive forms keep working through Angular's bridge, and every control also works standalone via `[(value)]` / `[(checked)]`.
 - **CDK-powered.** Overlays, portals, and a11y come from `@angular/cdk`. We add `provideWrOverlay()` so NGWR overlays never collide with other CDK consumers (Material, NG-ZORRO, etc.).
-- **Mobile & responsive.** Overlays collapse to bottom-sheets on small screens (`provideWrResponsiveOverlays()`), touch targets grow to ≥44px on coarse pointers, a `touch` density preset enlarges the nine control families that read the multipliers, and drawer / lightbox / toast / carousel respond to swipe gestures. Fixed surfaces respect `env(safe-area-inset-*)`, and layout components (`descriptions`, `stepper`, `page-header`, `toolbar`, `pagination`, `table`) reflow to their container via container queries. [Guide](https://ngwr.dev/guides/mobile).
+- **Mobile & responsive.** Overlays collapse to bottom-sheets on small screens (`provideWrResponsiveOverlays()`), touch targets grow to ≥44px on coarse pointers, a `touch` density preset enlarges the ten control families that read the multipliers, and drawer / lightbox / toast / carousel respond to swipe gestures. Fixed surfaces respect `env(safe-area-inset-*)`, and layout components (`descriptions`, `stepper`, `page-header`, `toolbar`, `pagination`, `table`) reflow to their container via container queries. [Guide](https://ngwr.dev/guides/mobile).
 - **Table, batteries included.** `wr-table` covers column pinning / resizing / drag-reorder, row selection, expandable rows, grouping, tree rows (`childrenKey` — the forest flattens into the same `<tbody>`, so pinning and cell templates keep working at every depth, and the table announces a `treegrid`), summary rows, CSV export (`exportCsv()`, dependency-free RFC 4180) and a virtualized body — all opt-in inputs on the one component. Excel (`.xlsx`) export is deliberately not shipped: it would mean a third-party dependency.
-- **Tree-shakable.** 227 separate ng-packagr entry points — import only what you use. Per-component FESM bundles are small: a median of ~4 KB gzipped, the heaviest (`ngwr/markdown`) ~23 KB. Every runtime bundle together gzips to ~690 KB — the 71 `ngwr/<name>/testing` harnesses aside, since they never reach an app bundle — but real apps pull a handful of entries. The only runtime dependency is `tslib`.
+- **Tree-shakable.** 229 separate ng-packagr entry points — import only what you use. Per-component FESM bundles are small: a median of ~4 KB gzipped, the heaviest (`ngwr/markdown`) ~23 KB. Every runtime bundle together gzips to ~690 KB — the 72 `ngwr/<name>/testing` harnesses aside, since they never reach an app bundle — but real apps pull a handful of entries. The only runtime dependency is `tslib`.
 - **Modular SCSS.** Component styles are scoped through CSS custom properties. Theme tokens live in `ngwr/theme`; utilities (`grid`, `reset`) and the breakpoints SCSS API are opt-in.
 - **Tree-shaken icons.** `provideWrIcons(lucideIcons({ plus: Plus }))` registers only the icons you actually import. Dev-mode validation warns about unregistered icons.
 - **Reactbits ports, dependency-free.** All animation ports are reimplemented with vanilla DOM + Web Animations API / `IntersectionObserver` / `requestAnimationFrame` / raw WebGL — no GSAP, no `motion/react`, no `matter-js`, no `ogl`.

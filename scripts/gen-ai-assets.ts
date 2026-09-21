@@ -77,11 +77,11 @@ const read = (path: string): string => (existsSync(path) ? readFileSync(path, 'u
  * Every secondary entry point, keyed by its import subpath.
  *
  * Discovery is by `ng-package.json`, which is what ng-packagr itself builds
- * from — a directory scan one level deep misses the seventy-eight nested ones
- * (`i18n/{en,ru}`, `icon/adapters/{lucide,feather}`, `date/adapters/{fns,luxon}`,
- * the v14 router opt-ins `loading-bar/router` and `tabs/router`, and the seventy
- * `<name>/testing` harness entry points) and reports 126 where the package
- * publishes 204. `projects/lib/ng-package.json` is the PRIMARY entry point and
+ * from — a directory scan one level deep misses the one hundred nested ones
+ * (the twenty-two `i18n/<locale>`, `icon/adapters/{lucide,feather}`,
+ * `date/adapters/{fns,luxon}`, the v14 router opt-ins `loading-bar/router` and
+ * `tabs/router`, and the seventy-two `<name>/testing` harness entry points) and
+ * reports 129 where the package publishes 229. `projects/lib/ng-package.json` is the PRIMARY entry point and
  * is excluded: its key would be the empty string and its import specifier a
  * bare `ngwr`.
  */
@@ -401,12 +401,17 @@ function render(entries: readonly Entry[]): string {
  * of slack into a major. Two is enough to lose the pair that had just been
  * added, silently — which is the only kind of erosion this file can suffer
  * before anyone reads the output.
+ *
+ * And a third time, wider: the floors sat at 204 while the i18n split, `graph`
+ * and `schema-form` took the package to 227, so twenty-three entry points could
+ * vanish unreported. Raised to the catalog as it stood when `ngwr/editor` and
+ * its harness landed.
  */
-const MIN_ENTRIES = 204;
-const MIN_DESCRIBED = 118;
-const MIN_WITH_EXPORTS = 204;
+const MIN_ENTRIES = 229;
+const MIN_DESCRIBED = 121;
+const MIN_WITH_EXPORTS = 229;
 /** Rows in the skill's catalog table — one per entry point, plus the header. */
-const MIN_SKILL_ROWS = 204;
+const MIN_SKILL_ROWS = 229;
 
 /** A tag, an attribute, or a tag with an attribute — the three shapes the library declares. */
 const SELECTOR_SHAPE = /^[a-z][a-z\d-]*(\[[A-Za-z][\w-]*\])?$|^\[[A-Za-z][\w-]*\]$/;

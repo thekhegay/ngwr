@@ -843,6 +843,51 @@ export const STATES: readonly State[] = [
     ],
     target: demo('.wr-tree__chip-remove'),
   },
+  // The editor's live surface exists only in the browser: the prerendered page
+  // holds the static preview and a HIDDEN mount point, so `check:a11y` has never
+  // seen the contenteditable, the pressed tools or the link panel.
+  {
+    id: 'editor/focused',
+    route: `${REF}/editor`,
+    // A real click, not a forced `focus`: the frame's focus cue follows the
+    // surface's `focus` EVENT, which a forced pseudo-class never fires.
+    steps: [{ click: demo('.wr-editor__surface') }],
+    target: demo('.wr-editor--focused'),
+  },
+  {
+    id: 'editor/tool-active',
+    route: `${REF}/editor`,
+    // No step: the first demo opens on a heading, and ProseMirror puts the caret
+    // at the start of the document, so Heading 2 is pressed from the first frame.
+    steps: [],
+    target: demo('.wr-editor__tool--active'),
+    scope: demo('.wr-editor__toolbar'),
+  },
+  {
+    id: 'editor/task-checked',
+    route: `${REF}/editor`,
+    steps: [],
+    target: demo('.wr-editor__task--checked'),
+    scope: demo('.wr-editor__surface'),
+  },
+  {
+    id: 'editor/link-panel',
+    route: `${REF}/editor`,
+    steps: [{ click: demo('.wr-editor__tool[aria-haspopup="dialog"]') }],
+    target: '.wr-editor-link',
+    scope: '.wr-popover-overlay',
+  },
+  {
+    id: 'editor/link-refused',
+    route: `${REF}/editor`,
+    steps: [
+      { click: demo('.wr-editor__tool[aria-haspopup="dialog"]') },
+      { fill: ['.wr-editor-link input', 'javascript:alert(1)'] },
+      { press: 'Enter' },
+    ],
+    target: '.wr-editor-link__error',
+    scope: '.wr-popover-overlay',
+  },
 ];
 
 /**

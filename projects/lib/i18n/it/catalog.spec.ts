@@ -38,6 +38,9 @@ import { expectCatalogContract } from '../catalog-contract';
  * - `datePicker.am` / `.pm` — Italy is a 24-hour-clock country, so there is no
  *   Italian meridiem abbreviation to spell; where the component shows the
  *   column at all, `AM` / `PM` is what it shows.
+ *
+ * Of the editor's modifier key caps, `Ctrl` and `Alt` are what a Italian
+ * keyboard prints; `Shift` is translated, because the key says `Maiusc` there.
  */
 const SHARED_WITH_ENGLISH = new Set([
   'common.ok',
@@ -75,6 +78,8 @@ const SHARED_WITH_ENGLISH = new Set([
   'datePicker.pm',
   'statistic.delta',
   'statistic.deltaSuffix',
+  'editor.keyCtrl',
+  'editor.keyAlt',
 ]);
 
 describe('wrIt', () => {

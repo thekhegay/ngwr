@@ -269,9 +269,9 @@ ${providers.map(p => `### \`${p.provider}\`\n\n${p.why[0].toUpperCase()}${p.why.
 - \`provideWrConfig({ button: { size: 'sm' } })\` — component defaults. A bound
   value always wins, including a bound \`false\` over a configured \`true\`.
 - \`provideWrDensity({ defaultDensity: 'sm' })\` — one control size for the whole
-  app; \`'sm' | 'md' | 'lg' | 'touch'\`. It scales the paddings of the nine
+  app; \`'sm' | 'md' | 'lg' | 'touch'\`. It scales the paddings of the ten
   stylesheets that read the multipliers — button, input, textarea, select,
-  cascader, tree, list, table, badge/tag — so \`touch\` grows those together. A
+  cascader, tree, list, table, badge/tag, editor — so \`touch\` grows those together. A
   control with fixed geometry (checkbox, switch, radio, slider, rating,
   segmented) does not move; its ≥44px target comes from the \`touch-target\` mixin
   under \`@media (pointer: coarse)\` instead.

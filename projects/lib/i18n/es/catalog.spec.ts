@@ -23,6 +23,9 @@ import { expectCatalogContract } from '../catalog-contract';
  * rather than of the Spanish words behind them; and three plain words — `OK`,
  * the `esc` key cap a Spanish keyboard also carries, and `Avatar`, which is the
  * Spanish word too.
+ *
+ * Of the editor's modifier key caps, `Ctrl` and `Alt` are what a Spanish
+ * keyboard prints; `Shift` is translated, because the key says `Mayús` there.
  */
 const SHARED_WITH_ENGLISH = new Set([
   'common.ok',
@@ -55,6 +58,8 @@ const SHARED_WITH_ENGLISH = new Set([
   'colorPicker.channelAlpha',
   'statistic.delta',
   'statistic.deltaSuffix',
+  'editor.keyCtrl',
+  'editor.keyAlt',
 ]);
 
 describe('wrEs', () => {

@@ -14,7 +14,7 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 177 of 187 declarations are mapped: 0 carry no selector and
+ * 178 of 188 declarations are mapped: 0 carry no selector and
  * 10 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
@@ -83,6 +83,7 @@ export const SELECTORS = {
     "wr-drawer": { symbol: "WrDrawer", path: "ngwr/drawer" },
     "wr-dropdown-item": { symbol: "WrDropdownItem", path: "ngwr/dropdown" },
     "wr-dropdown-menu": { symbol: "WrDropdownMenu", path: "ngwr/dropdown" },
+    "wr-editor": { symbol: "WrEditor", path: "ngwr/editor" },
     "wr-empty": { symbol: "WrEmpty", path: "ngwr/empty" },
     "wr-event-calendar": { symbol: "WrEventCalendar", path: "ngwr/event-calendar" },
     "wr-falling-text": { symbol: "WrFallingText", path: "ngwr/falling-text" },
@@ -268,6 +269,7 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/drag-drop",
   "ngwr/drawer",
   "ngwr/dropdown",
+  "ngwr/editor",
   "ngwr/empty",
   "ngwr/event-calendar",
   "ngwr/falling-text",
@@ -375,6 +377,7 @@ export const STYLE_DEPENDENCIES: Readonly<Record<string, readonly string[]>> = {
   "ngwr/date-picker": ["ngwr/calendar", "ngwr/icon", "ngwr/input"],
   "ngwr/drawer": ["ngwr/icon"],
   "ngwr/dropdown": ["ngwr/icon"],
+  "ngwr/editor": ["ngwr/button", "ngwr/icon", "ngwr/input", "ngwr/spinner"],
   "ngwr/empty": ["ngwr/icon"],
   "ngwr/event-calendar": ["ngwr/button", "ngwr/icon", "ngwr/spinner"],
   "ngwr/input": ["ngwr/icon"],
@@ -408,4 +411,20 @@ export const STYLE_DEPENDENCIES: Readonly<Record<string, readonly string[]>> = {
  * step: bump `lucide` and re-run `pnpm gen:selectors`, which `build:showcase`
  * does first thing.
  */
-export const LUCIDE_VERSION = "^1.46.0";
+export const LUCIDE_VERSION = "^1.47.0";
+
+/**
+ * Per entry point, the optional peer dependencies it imports and the range the
+ * library declares for each — what a generated sandbox project has to add to
+ * its `package.json` when a snippet reaches that entry point, since installing
+ * `ngwr` does not install an optional peer.
+ */
+export const OPTIONAL_PEER_DEPENDENCIES: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  "ngwr/breadcrumbs": { "@angular/router": ">=22.0.0" },
+  "ngwr/date/adapters/fns": { "date-fns": "^3.0.0 || ^4.0.0" },
+  "ngwr/date/adapters/luxon": { "luxon": "^3.0.0" },
+  "ngwr/editor": { "prosemirror-commands": "^1.7.2", "prosemirror-history": "^1.5.0", "prosemirror-inputrules": "^1.5.1", "prosemirror-keymap": "^1.2.3", "prosemirror-model": "^1.25.8", "prosemirror-schema-list": "^1.5.1", "prosemirror-state": "^1.4.4", "prosemirror-view": "^1.42.3" },
+  "ngwr/loading-bar/router": { "@angular/router": ">=22.0.0" },
+  "ngwr/sidebar": { "@angular/router": ">=22.0.0" },
+  "ngwr/tabs/router": { "@angular/router": ">=22.0.0" },
+};

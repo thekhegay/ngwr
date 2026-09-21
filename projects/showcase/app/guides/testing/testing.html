@@ -716,6 +716,32 @@
     <ngwr-doc-api [rows]="mentionApi" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Editors" description="The drawn text here, the value in the model.">
+    <ngwr-doc-code [code]="snippets.editor" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      The value is an HTML string, a markdown string or a JSON tree, written by the editor's codec and never by the DOM,
+      so the harness does not pretend to read it — a string rebuilt from the surface would be a fourth format that
+      agrees with none of the three. Typing is refused for the reason <code>pressKey()</code> gives: a browser inserts
+      the character into a contenteditable and ProseMirror reads the change, and jsdom inserts nothing.
+      <code>setText()</code> writes the surface the way the CDK defines writing a contenteditable, which ProseMirror
+      reads as a real change, so the edit reaches the model through the editor's own path.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      Your spec installs one stub: ProseMirror scrolls the selection into view after an edit made with focus, and
+      jsdom's <code>Range</code> has no <code>getClientRects()</code>. Without it the edit throws from a DOM listener
+      after the document changed, the model keeps its old value, and the error surfaces only as an unhandled one. The
+      harness class docs have the three lines. There is no caret placement beyond <code>selectAll()</code>, no heights,
+      and no "is the placeholder visible" — it is CSS <code>content</code>, so <code>getPlaceholder()</code> reads what
+      is announced instead.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrEditorHarness" description="`ngwr/editor/testing`">
+    <ngwr-doc-api [rows]="editorApi" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Form fields" description="Where the validation copy actually comes from.">
     <ngwr-doc-code [code]="snippets.formField" language="typescript" />
 

@@ -1,0 +1,343 @@
+@if (tools().length) {
+  <div class="wr-editor__toolbar" role="toolbar" [attr.aria-label]="toolbarLabel()" [attr.aria-controls]="surfaceId">
+    @for (item of tools(); track $index; let n = $index) {
+      @if (item === '|') {
+        <span class="wr-editor__separator" aria-hidden="true"></span>
+      } @else if (item === 'link') {
+        <!-- The link button hosts the link panel, so it carries the popover's own
+             `aria-haspopup` / `aria-expanded` / `aria-controls` — and no tooltip,
+             since one element cannot host `[wrPopover]` twice; its name and
+             `aria-keyshortcuts` still say what the others' tooltips say. No
+             `aria-pressed` either: a button that opens a popup is not a toggle,
+             and the panel's remove button is where "in a link" is announced. -->
+        <button
+          #tool
+          #linkPopover="wrPopover"
+          wr-btn
+          type="button"
+          class="wr-editor__tool"
+          [class.wr-editor__tool--active]="state(item)?.active"
+          [disabled]="!state(item)?.available"
+          [attr.aria-label]="label(item)"
+          [attr.aria-keyshortcuts]="keyShortcuts(item)"
+          [wrPopover]="linkPanel"
+          [ariaLabel]="label(item)"
+          (opened)="onLinkOpened()"
+          (closed)="onLinkClosed()"
+          (focus)="onToolFocus(buttonIndex()[n])"
+          (keydown)="onToolbarKeydown($event)"
+          (mousedown)="$event.preventDefault()"
+        >
+          <svg
+            class="wr-editor__icon"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            @for (d of icon(item); track $index) {
+              <path [attr.d]="d" />
+            }
+          </svg>
+        </button>
+      } @else {
+        <button
+          #tool
+          wr-btn
+          type="button"
+          class="wr-editor__tool"
+          mode="tooltip"
+          [class.wr-editor__tool--active]="state(item)?.active"
+          [disabled]="!state(item)?.available"
+          [attr.aria-pressed]="isToggle(item) ? (state(item)?.active ? 'true' : 'false') : null"
+          [attr.aria-label]="label(item)"
+          [attr.aria-keyshortcuts]="keyShortcuts(item)"
+          [wrPopover]="tooltip(item)"
+          (click)="onToolClick(item, $event)"
+          (focus)="onToolFocus(buttonIndex()[n])"
+          (keydown)="onToolbarKeydown($event)"
+          (mousedown)="$event.preventDefault()"
+        >
+          <svg
+            class="wr-editor__icon"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            @for (d of icon(item); track $index) {
+              <path [attr.d]="d" />
+            }
+          </svg>
+        </button>
+      }
+    }
+  </div>
+}
+
+<!--
+  The static preview: what Angular renders until ProseMirror mounts — on the
+  server, and for the first browser frame. It is a SIBLING of the mount surface,
+  never inside it: `{ mount }` replaces the element's children, and nodes Angular
+  owns would be deleted out from under the next change detection.
+-->
+@if (preview(); as doc) {
+  <div class="wr-editor__preview wr-editor__content">
+    <ng-container [ngTemplateOutlet]="previewBlocks" [ngTemplateOutletContext]="{ $implicit: doc.content }" />
+  </div>
+}
+
+<!--
+  The mount surface. Angular binds every attribute it needs, so the prerendered
+  page and the synchronous first render already carry the role, the name and the
+  field's error state; ProseMirror adds only its own class, `contenteditable` and
+  `translate`, and never touches an attribute it did not set. No Angular child
+  ever lives in here.
+-->
+<div
+  #surface
+  class="wr-editor__surface wr-editor__content"
+  role="textbox"
+  aria-multiline="true"
+  [id]="surfaceId"
+  [hidden]="!mounted()"
+  [attr.aria-label]="accessibleName()"
+  [attr.aria-labelledby]="labelledBy()"
+  [attr.aria-describedby]="fieldAria.describedBy()"
+  [attr.aria-invalid]="fieldAria.ariaInvalid()"
+  [attr.aria-readonly]="locked() && !disabled() ? 'true' : null"
+  [attr.aria-disabled]="disabled() ? 'true' : null"
+  [attr.aria-placeholder]="ariaPlaceholder()"
+  [attr.tabindex]="locked() && !disabled() ? 0 : null"
+  (focus)="focused.set(true)"
+  (blur)="focused.set(false)"
+></div>
+
+<!--
+  The popover styles its panel as `.wr-popover-overlay > *`, which is this form,
+  so the form stays a plain block and the layout lives one level in.
+-->
+<ng-template #linkPanel>
+  <form
+    class="wr-editor-link"
+    novalidate
+    [id]="linkField.panelId"
+    (submit)="applyLink($event)"
+    (focusout)="onFocusOut($event)"
+  >
+    <div class="wr-editor-link__body">
+      <label class="wr-editor-link__label" [attr.for]="linkField.controlId()">{{ linkUrlLabel() }}</label>
+      <input
+        wrInput
+        class="wr-editor-link__input"
+        type="text"
+        inputmode="url"
+        autocomplete="url"
+        spellcheck="false"
+        [value]="linkDraft()"
+        (input)="onLinkInput($event)"
+      />
+      @if (linkField.invalid()) {
+        <p class="wr-editor-link__error" role="alert" [id]="linkField.errorId">{{ linkInvalidLabel() }}</p>
+      }
+      <div class="wr-editor-link__actions">
+        @if (linkActive()) {
+          <button wr-btn type="button" class="wr-editor-link__remove" (click)="removeLink()">
+            {{ linkRemoveLabel() }}
+          </button>
+        }
+        <button wr-btn type="submit" color="primary" class="wr-editor-link__apply">{{ linkApplyLabel() }}</button>
+      </div>
+    </div>
+  </form>
+</ng-template>
+
+<!--
+  Recursion runs through `ngTemplateOutlet`, as in `<wr-markdown>`, so the preview
+  is exactly the document with no wrapper between a `<ul>` and its `<li>`.
+-->
+<ng-template #previewBlocks let-raw>
+  @for (node of nodesOf(raw); track $index) {
+    @switch (node.type) {
+      @case ('paragraph') {
+        <p [class.wr-editor__placeholder]="ariaPlaceholder() !== null" [attr.data-placeholder]="ariaPlaceholder()">
+          <ng-container [ngTemplateOutlet]="previewInline" [ngTemplateOutletContext]="{ $implicit: node.content }" />
+        </p>
+      }
+      @case ('heading') {
+        @switch (attr(node, 'level')) {
+          @case (2) {
+            <h2>
+              <ng-container
+                [ngTemplateOutlet]="previewInline"
+                [ngTemplateOutletContext]="{ $implicit: node.content }"
+              />
+            </h2>
+          }
+          @case (3) {
+            <h3>
+              <ng-container
+                [ngTemplateOutlet]="previewInline"
+                [ngTemplateOutletContext]="{ $implicit: node.content }"
+              />
+            </h3>
+          }
+          @default {
+            <h1>
+              <ng-container
+                [ngTemplateOutlet]="previewInline"
+                [ngTemplateOutletContext]="{ $implicit: node.content }"
+              />
+            </h1>
+          }
+        }
+      }
+      @case ('blockquote') {
+        <blockquote>
+          <ng-container [ngTemplateOutlet]="previewBlocks" [ngTemplateOutletContext]="{ $implicit: node.content }" />
+        </blockquote>
+      }
+      @case ('code_block') {
+        <pre><code>{{ textOf(node) }}</code></pre>
+      }
+      @case ('horizontal_rule') {
+        <hr />
+      }
+      @case ('bullet_list') {
+        <ul>
+          <ng-container [ngTemplateOutlet]="previewBlocks" [ngTemplateOutletContext]="{ $implicit: node.content }" />
+        </ul>
+      }
+      @case ('ordered_list') {
+        <ol [attr.start]="attr(node, 'order') === 1 ? null : attr(node, 'order')">
+          <ng-container [ngTemplateOutlet]="previewBlocks" [ngTemplateOutletContext]="{ $implicit: node.content }" />
+        </ol>
+      }
+      @case ('list_item') {
+        @let checked = attr(node, 'checked');
+        @if (checked === null) {
+          <li>
+            <ng-container [ngTemplateOutlet]="previewBlocks" [ngTemplateOutletContext]="{ $implicit: node.content }" />
+          </li>
+        } @else {
+          <li class="wr-editor__item wr-editor__item--task" [attr.data-checked]="checked">
+            <span class="wr-editor__task" [class.wr-editor__task--checked]="checked === true" aria-hidden="true"></span>
+            <span class="wr-editor__sr-only">{{ checked === true ? taskDoneLabel() : taskTodoLabel() }}</span>
+            <div class="wr-editor__task-body">
+              <ng-container
+                [ngTemplateOutlet]="previewBlocks"
+                [ngTemplateOutletContext]="{ $implicit: node.content }"
+              />
+            </div>
+          </li>
+        }
+      }
+      @case ('table') {
+        <table>
+          <tbody>
+            <ng-container [ngTemplateOutlet]="previewBlocks" [ngTemplateOutletContext]="{ $implicit: node.content }" />
+          </tbody>
+        </table>
+      }
+      @case ('table_row') {
+        <tr>
+          <ng-container [ngTemplateOutlet]="previewBlocks" [ngTemplateOutletContext]="{ $implicit: node.content }" />
+        </tr>
+      }
+      @case ('table_header') {
+        <th [style.text-align]="text(node, 'align')">
+          <ng-container [ngTemplateOutlet]="previewBlocks" [ngTemplateOutletContext]="{ $implicit: node.content }" />
+        </th>
+      }
+      @case ('table_cell') {
+        <td [style.text-align]="text(node, 'align')">
+          <ng-container [ngTemplateOutlet]="previewBlocks" [ngTemplateOutletContext]="{ $implicit: node.content }" />
+        </td>
+      }
+    }
+  }
+</ng-template>
+
+<ng-template #previewInline let-raw>
+  @for (node of nodesOf(raw); track $index) {
+    <ng-container [ngTemplateOutlet]="previewMarked" [ngTemplateOutletContext]="{ $implicit: node, depth: 0 }" />
+  }
+</ng-template>
+
+<!-- One mark per level, outermost first — the order the schema ranks them in. -->
+<ng-template #previewMarked let-raw let-depth="depth">
+  @let node = nodeOf(raw);
+  @let mark = markAt(node, depth);
+  @if (mark) {
+    @switch (mark.type) {
+      @case ('link') {
+        <a [href]="text(mark, 'href')" [attr.title]="text(mark, 'title')" rel="noopener noreferrer nofollow"
+          ><ng-container
+            [ngTemplateOutlet]="previewMarked"
+            [ngTemplateOutletContext]="{ $implicit: node, depth: depth + 1 }"
+        /></a>
+      }
+      @case ('strong') {
+        <strong
+          ><ng-container
+            [ngTemplateOutlet]="previewMarked"
+            [ngTemplateOutletContext]="{ $implicit: node, depth: depth + 1 }"
+        /></strong>
+      }
+      @case ('em') {
+        <em
+          ><ng-container
+            [ngTemplateOutlet]="previewMarked"
+            [ngTemplateOutletContext]="{ $implicit: node, depth: depth + 1 }"
+        /></em>
+      }
+      @case ('underline') {
+        <u
+          ><ng-container
+            [ngTemplateOutlet]="previewMarked"
+            [ngTemplateOutletContext]="{ $implicit: node, depth: depth + 1 }"
+        /></u>
+      }
+      @case ('strike') {
+        <s
+          ><ng-container
+            [ngTemplateOutlet]="previewMarked"
+            [ngTemplateOutletContext]="{ $implicit: node, depth: depth + 1 }"
+        /></s>
+      }
+      @case ('code') {
+        <code
+          ><ng-container
+            [ngTemplateOutlet]="previewMarked"
+            [ngTemplateOutletContext]="{ $implicit: node, depth: depth + 1 }"
+        /></code>
+      }
+      @default {
+        <ng-container
+          [ngTemplateOutlet]="previewMarked"
+          [ngTemplateOutletContext]="{ $implicit: node, depth: depth + 1 }"
+        />
+      }
+    }
+  } @else {
+    @switch (node.type) {
+      @case ('text') {
+        <ng-container>{{ node.text }}</ng-container>
+      }
+      @case ('hard_break') {
+        <br />
+      }
+      @case ('image') {
+        <img [src]="text(node, 'src')" [alt]="text(node, 'alt') ?? ''" [attr.title]="text(node, 'title')" />
+      }
+    }
+  }
+</ng-template>

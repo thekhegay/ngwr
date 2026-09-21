@@ -27,6 +27,9 @@ import { expectCatalogContract } from '../catalog-contract';
  * Android all label that button 确定, so leaving it as `OK` would be the
  * untranslated case rather than the shared one — and 确定 stays distinct from
  * `common.confirm` 确认, which is the pair a Chinese dialog draws on.
+ *
+ * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Chinese
+ * keyboard prints.
  */
 const SHARED_WITH_ENGLISH = new Set([
   'pagination.compact',
@@ -53,6 +56,9 @@ const SHARED_WITH_ENGLISH = new Set([
   'colorPicker.channelAlpha',
   'statistic.delta',
   'statistic.deltaSuffix',
+  'editor.keyCtrl',
+  'editor.keyShift',
+  'editor.keyAlt',
 ]);
 
 describe('wrZh', () => {

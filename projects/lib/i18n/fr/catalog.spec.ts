@@ -44,6 +44,9 @@ import { expectCatalogContract } from '../catalog-contract';
  *   calendar's three accessible names put the same part first in French as in
  *   English. They are listed rather than skipped because keeping that order is
  *   a decision — ja-JP could not.
+ *
+ * Of the editor's modifier key caps, `Ctrl` and `Alt` are what a French
+ * keyboard prints; `Shift` is translated, because the key says `Maj` there.
  */
 const SHARED_WITH_ENGLISH = new Set([
   'common.ok',
@@ -82,6 +85,8 @@ const SHARED_WITH_ENGLISH = new Set([
   'speedDial.label',
   'statistic.delta',
   'statistic.deltaSuffix',
+  'editor.keyCtrl',
+  'editor.keyAlt',
 ]);
 
 describe('wrFr', () => {

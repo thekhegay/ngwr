@@ -32,6 +32,9 @@ import { expectCatalogContract } from '../catalog-contract';
  * Neither are the file-size units: Hindi writes them in Devanagari (बाइट, केबी,
  * एमबी, जीबी, टीबी), the way `wrRu` and `wrHe` do, rather than keeping the Latin
  * abbreviations `wrJa` and `wrZh` correctly leave alone.
+ *
+ * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Hindi
+ * keyboard prints.
  */
 const SHARED_WITH_ENGLISH = new Set([
   'pagination.compact',
@@ -59,6 +62,9 @@ const SHARED_WITH_ENGLISH = new Set([
   'colorPicker.channelAlpha',
   'statistic.delta',
   'statistic.deltaSuffix',
+  'editor.keyCtrl',
+  'editor.keyShift',
+  'editor.keyAlt',
 ]);
 
 describe('wrHi', () => {

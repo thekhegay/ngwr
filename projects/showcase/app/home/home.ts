@@ -149,15 +149,15 @@ export class SignupCard {
    * page as literal characters — keep the marked-up terms to the one or two
    * that carry the tile.
    *
-   * "Nineteen" is derived, not chosen; the derivation sits in the comment above
-   * the DX checklist in `home.html`. A naive re-grep answers nineteen.
+   * "Twenty" is derived, not chosen; the derivation sits in the comment above
+   * the DX checklist in `home.html`. A naive re-grep answers twenty-one.
    */
   protected readonly whyTiles: readonly WhyTile[] = [
     {
       icon: 'form-check',
       title: 'Signal Forms, natively',
       description:
-        "Nineteen value controls implement a Signal Forms interface, so `[formField]` binds to the component's own value or checked model. No `ControlValueAccessor` anywhere in the library.",
+        "Twenty value controls implement a Signal Forms interface, so `[formField]` binds to the component's own value or checked model. No `ControlValueAccessor` anywhere in the library.",
       accent: 'primary',
       spotlight: 'rgba(var(--wr-color-primary-rgb), 0.14)',
     },
@@ -225,7 +225,7 @@ export class SignupCard {
     // absent from the results for what it actually does.
     meta.setTitle('The Angular UI library for Signal Forms');
     meta.setDescription(
-      'An Angular UI library that binds straight to Signal Forms: nineteen value controls implement FormValueControl or FormCheckboxControl — no accessor layer.'
+      'An Angular UI library that binds straight to Signal Forms: twenty value controls implement FormValueControl or FormCheckboxControl — no accessor layer.'
     );
     meta.setKeywords([
       'home',

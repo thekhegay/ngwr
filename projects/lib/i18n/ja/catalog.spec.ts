@@ -21,6 +21,9 @@ import { expectCatalogContract } from '../catalog-contract';
  * a ratio, a size and its unit, a value and its suffix. Japanese keeps the space
  * before a unit abbreviation, so `fileUpload.size` is unchanged on purpose
  * rather than untranslated.
+ *
+ * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Japanese
+ * keyboard prints.
  */
 const SHARED_WITH_ENGLISH = new Set([
   'common.ok',
@@ -46,6 +49,9 @@ const SHARED_WITH_ENGLISH = new Set([
   'colorPicker.channelSaturation',
   'colorPicker.channelLightness',
   'colorPicker.channelAlpha',
+  'editor.keyCtrl',
+  'editor.keyShift',
+  'editor.keyAlt',
 ]);
 
 describe('wrJa', () => {

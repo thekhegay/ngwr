@@ -24,6 +24,9 @@ import { expectCatalogContract } from '../catalog-contract';
  *
  * `common.ok` is deliberately NOT here: a Taiwanese dialog's affirmative button
  * says 確定, distinct from the 確認 of `common.confirm`.
+ *
+ * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Taiwanese
+ * keyboard prints.
  */
 const SHARED_WITH_ENGLISH = new Set([
   'pagination.compact',
@@ -50,6 +53,9 @@ const SHARED_WITH_ENGLISH = new Set([
   'colorPicker.channelAlpha',
   'statistic.delta',
   'statistic.deltaSuffix',
+  'editor.keyCtrl',
+  'editor.keyShift',
+  'editor.keyAlt',
 ]);
 
 describe('wrZhTw', () => {

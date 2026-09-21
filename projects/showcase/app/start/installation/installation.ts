@@ -43,6 +43,11 @@ const STYLE_DEPS: readonly StyleDepRow[] = [
   { component: 'date-picker', needs: 'ngwr/calendar, ngwr/input', why: 'the popup panel and the field it opens from' },
   { component: 'dialog', needs: 'ngwr/overlay', why: 'the responsive bottom-sheet presentation' },
   { component: 'dropdown', needs: 'ngwr/overlay', why: 'the responsive bottom-sheet presentation' },
+  {
+    component: 'editor',
+    needs: 'ngwr/button, ngwr/input, ngwr/popover',
+    why: 'the toolbar buttons, the link address field, and the tooltips and link panel',
+  },
   { component: 'event-calendar', needs: 'ngwr/button', why: 'the view switcher and the month arrows' },
   { component: 'input-number', needs: 'ngwr/input', why: 'the field under the steppers' },
   { component: 'pagination', needs: 'ngwr/button, ngwr/select', why: 'the page cells, and the size changer' },

@@ -366,6 +366,61 @@ function lucideRange(): string {
   return range;
 }
 
+/**
+ * Per entry point, the OPTIONAL peer dependencies its own source imports, with
+ * the range `projects/lib/package.json` declares for each.
+ *
+ * The sandbox writes a `package.json` for every generated project, and an
+ * optional peer is by definition one the `ngwr` install does not bring along:
+ * a snippet reaching `ngwr/editor` failed module resolution on
+ * `prosemirror-state` in the container, since nothing had put it there. Read
+ * from each entry point's imports rather than kept as a table, for the same
+ * reason as `STYLE_DEPENDENCIES` — the next entry point that takes an optional
+ * peer arrives here on its own. Specs are skipped, and a nested entry point is
+ * its own entry, so `ngwr/tabs` does not inherit `ngwr/tabs/router`'s router.
+ *
+ * The ranges are the library's PEER ranges, not the repository's
+ * devDependencies: what a consumer's project must satisfy is the contract the
+ * generated project is standing in for.
+ */
+function optionalPeerDependencies(entries: readonly EntryPoint[]): Record<string, Record<string, string>> {
+  const manifest = JSON.parse(readFileSync(join(LIB_ROOT, 'package.json'), 'utf8')) as {
+    peerDependencies?: Record<string, string>;
+    peerDependenciesMeta?: Record<string, { optional?: boolean }>;
+  };
+  const optional = Object.entries(manifest.peerDependenciesMeta ?? {})
+    .filter(([, meta]) => meta.optional)
+    .map(([name]) => name);
+  const nested = new Set(entries.map(e => e.dir));
+  const out: Record<string, Record<string, string>> = {};
+
+  for (const entry of entries) {
+    const stopAt = new Set([...nested].filter(dir => dir !== entry.dir && dir.startsWith(`${entry.dir}/`)));
+    const imported = new Set<string>();
+    for (const file of filesIn(entry.dir, name => name.endsWith('.ts') && !name.endsWith('.spec.ts'), stopAt)) {
+      for (const m of readFileSync(file, 'utf8').matchAll(/from\s+['"]([^'"]+)['"]/g)) {
+        const specifier = m[1];
+        const name = optional.find(peer => specifier === peer || specifier.startsWith(`${peer}/`));
+        if (name) imported.add(name);
+      }
+    }
+    if (imported.size === 0) continue;
+    const ranges: Record<string, string> = {};
+    for (const name of [...imported].sort()) {
+      const range = manifest.peerDependencies?.[name];
+      if (!range) {
+        throw new Error(
+          `gen:selectors — ${entry.subpath} imports the optional peer ${name}, which projects/lib/package.json ` +
+            'marks optional but gives no range in peerDependencies. Declare the range there.'
+        );
+      }
+      ranges[name] = range;
+    }
+    out[entry.subpath] = ranges;
+  }
+  return out;
+}
+
 function bucket(entries: Record<string, WrSelectorTarget>): string {
   return Object.entries(entries)
     .map(([key, t]) => `    ${JSON.stringify(key)}: { symbol: ${JSON.stringify(t.symbol)}, path: ${JSON.stringify(t.path)} },`)
@@ -376,7 +431,8 @@ function serialize(
   map: WrSelectorMap,
   styles: readonly string[],
   deps: Record<string, readonly string[]>,
-  lucide: string
+  lucide: string,
+  peers: Record<string, Record<string, string>>
 ): string {
   return `/**
  * @license
@@ -470,6 +526,23 @@ ${Object.entries(deps)
  * does first thing.
  */
 export const LUCIDE_VERSION = ${JSON.stringify(lucide)};
+
+/**
+ * Per entry point, the optional peer dependencies it imports and the range the
+ * library declares for each — what a generated sandbox project has to add to
+ * its \`package.json\` when a snippet reaches that entry point, since installing
+ * \`ngwr\` does not install an optional peer.
+ */
+export const OPTIONAL_PEER_DEPENDENCIES: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+${Object.entries(peers)
+  .map(
+    ([key, value]) =>
+      `  ${JSON.stringify(key)}: { ${Object.entries(value)
+        .map(([name, range]) => `${JSON.stringify(name)}: ${JSON.stringify(range)}`)
+        .join(', ')} },`
+  )
+  .join('\n')}
+};
 `;
 }
 
@@ -482,13 +555,15 @@ function main(): void {
   const styles = styleEntryPoints(entries);
   const deps = styleDependencies(entries, map);
   const lucide = lucideRange();
-  writeFileSync(OUT_FILE, serialize(map, styles, deps, lucide));
+  const peers = optionalPeerDependencies(entries);
+  writeFileSync(OUT_FILE, serialize(map, styles, deps, lucide, peers));
 
   console.log(
     `✓ ${relative(ROOT_PATH, OUT_FILE)} — ${Object.keys(map.tags).length} tags, ` +
       `${Object.keys(map.attributes).length} attributes from ${stats.mapped} declarations, ` +
       `${styles.length} style entry points, ` +
-      `${Object.keys(deps).length} with style dependencies, lucide ${lucide}`
+      `${Object.keys(deps).length} with style dependencies, ${Object.keys(peers).length} with optional peers, ` +
+      `lucide ${lucide}`
   );
   console.log(
     `  ${stats.files} files, ${stats.declarations} declarations` +

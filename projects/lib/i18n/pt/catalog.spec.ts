@@ -26,6 +26,9 @@ import { expectCatalogContract } from '../catalog-contract';
  * `esc` key cap a Portuguese keyboard also carries, `Avatar`, and `slide`, which
  * is what both variants call a carousel item (`diapositivo` belongs to a
  * presentation deck, not to a banner that rotates).
+ *
+ * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Portuguese
+ * keyboard prints.
  */
 const SHARED_WITH_ENGLISH = new Set([
   'common.ok',
@@ -61,6 +64,9 @@ const SHARED_WITH_ENGLISH = new Set([
   'datePicker.pm',
   'statistic.delta',
   'statistic.deltaSuffix',
+  'editor.keyCtrl',
+  'editor.keyShift',
+  'editor.keyAlt',
 ]);
 
 describe('wrPt', () => {

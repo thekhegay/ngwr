@@ -1,7 +1,7 @@
 # ngwr
 
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
-> 227 secondary entry points, 177 component and directive classes, built on
+> 229 secondary entry points, 178 component and directive classes, built on
 > `@angular/cdk` primitives. The only runtime dependency is `tslib`. Docs and
 > live demos: https://ngwr.dev — source: https://github.com/thekhegay/ngwr
 
@@ -28,7 +28,8 @@ pnpm add ngwr @angular/cdk
 
 Requires Angular / CDK `>= 22.0.0` (peers: `@angular/cdk`, `@angular/common`,
 `@angular/core`, `@angular/platform-browser`, `rxjs ^7`; optional `date-fns` /
-`luxon` / `lucide`). On Angular 21 or older the INSTALL succeeds — every package
+`luxon`, and the eight `prosemirror-*` packages `ngwr/editor` alone imports; icon
+sets such as `lucide` are not peers — the adapters take the icon data). On Angular 21 or older the INSTALL succeeds — every package
 manager treats an unmet peer as a warning — and the `ng build` fails instead, in
 the linker, with `Unsupported enum value for [object Object]`. The floor is real
 and the ceiling is absent — an Angular newer than the release has not been built
@@ -174,7 +175,10 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-date-range-picker` (both in ngwr/date-picker; the range value is
   `[start, end]`, hence a separate component), `wr-file-upload`,
   `wr-form-field` (in ngwr/form), `wr-color-picker`, `wr-transfer` (dual listbox;
-  the value is the RIGHT pane).
+  the value is the RIGHT pane), `wr-editor` (ngwr/editor — rich text on
+  ProseMirror, an optional peer; `format` makes the value an HTML string, a
+  markdown string or a JSON tree, and every value is sanitised through the
+  schema).
 - **Data** — `wr-table` (column pin/resize/drag-reorder, row selection,
   expandable rows, grouping, tree rows (`childrenKey`), summary rows,
   CSV export, virtualized body),
@@ -200,7 +204,7 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
 
 ## Patterns
 
-- **Forms** — nineteen value controls are signal-forms native (`FormValueControl`,
+- **Forms** — twenty value controls are signal-forms native (`FormValueControl`,
   or `FormCheckboxControl` for checkbox/switch) — no `ControlValueAccessor` in the
   library. A count rather than "every": `[wrColorPickerTrigger]` is public, carries
   its own `value` model, and implements neither.
@@ -249,15 +253,15 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-tree` and `wr-select` (search mode), alongside the standalone
   `wr-virtual-scroll` wrapper.
 - **Testing** — CDK component harnesses ship beside the components they drive, at
-  `ngwr/<name>/testing`. 71 entry points so far, 106 exported harness names over
-  105 distinct classes — `WrCalendarDayHarness` ships under two, since a date
+  `ngwr/<name>/testing`. 72 entry points so far, 107 exported harness names over
+  106 distinct classes — `WrCalendarDayHarness` ships under two, since a date
   picker's popup IS a calendar — covering the
   form controls, the overlays, the data views, the navigation / disclosure set
   (`tabs`, `stepper`, `carousel`, `pagination`, `segmented`, `collapse`,
   `transfer`) and `markdown`: the form controls
   (`button`, `input`, `textarea`, `checkbox`, `switch`, `radio`, `select`,
   `input-number`, `input-otp`, `slider`, `rating`, `file-upload`, `color-picker`,
-  `knob`, `form` for `<wr-form-field>`), the overlays (`date-picker`, `dropdown`,
+  `knob`, `form` for `<wr-form-field>`, `editor`), the overlays (`date-picker`, `dropdown`,
   `popover`, `dialog`, `drawer`, `action-sheet`, `toast`, `context-menu`, `popconfirm`,
   `command-palette`, `cascader`, `mention`), the data views (`table`, `tree`, `graph`),
   `splitter`, `speed-dial`, `lightbox`, `tour`, `calendar`, `event-calendar`,
@@ -292,7 +296,7 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
 Four pages exist for the question before installation, and everything on them
 is meant to be checkable rather than taken on trust:
 
-- **Why ngwr, and when not to** — the wedge (nineteen value controls are Signal
+- **Why ngwr, and when not to** — the wedge (twenty value controls are Signal
   Forms controls; no `ControlValueAccessor` in the library), a comparison against
   Material / PrimeNG / NG-ZORRO / Taiga / Spartan, and a per-competitor "choose
   something else if" section: https://ngwr.dev/start/comparison
