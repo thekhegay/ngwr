@@ -332,7 +332,7 @@ provideWrConfig({
 
 // <wr-markdown [value]="doc" />                     -> copyable, links open in a new tab
 // <wr-markdown [value]="doc" [copyable]="false" />  -> the binding wins; \`false\` is a value`,
-    parse: `import { parseMarkdown, parseInlines, plainText, safeMarkdownUrl } from 'ngwr/markdown';
+    parse: `import { parseMarkdown, parseInlines, plainText, safeMarkdownUrl, serializeMarkdown } from 'ngwr/markdown';
 
 // The same tree the component renders — useful for a summary, a search index,
 // or a table of contents.
@@ -346,7 +346,14 @@ const inlines = parseInlines('a **bold** label');
 
 // The URL check the renderer itself uses.
 safeMarkdownUrl('javascript:alert(1)', 'link'); // null
-safeMarkdownUrl('/docs', 'link'); // '/docs'`,
+safeMarkdownUrl('/docs', 'link'); // '/docs'
+
+// And back again: markdown that parseMarkdown reads as the same tree.
+const withoutRules = serializeMarkdown(blocks.filter(block => block.kind !== 'rule'));
+
+// Only what would read as syntax is escaped.
+serializeMarkdown([{ kind: 'paragraph', inlines: [{ kind: 'text', value: '2 * 3, not *emphasis*' }] }]);
+// '2 * 3, not \\\\*emphasis\\\\*'`,
   };
 
   protected readonly basicFiles: readonly DocCodeFile[] = [
