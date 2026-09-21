@@ -20,13 +20,15 @@
 // which measures 11.13:1 on its own and is no longer a muted role at all. A
 // reader who asked for more contrast is asking for the tiers to close up.
 //
-// A LIVE DEFECT THIS EXPOSED, and it is not fixed here. At the default 0.6,
-// `text-faint` measures **2.43:1** in light and 3.46:1 in dark, and its three
-// consumers are an `input-otp` `::placeholder` (text, 1.4.3) plus the textarea
-// resize grip and the avatar spinner (graphics, 1.4.11 → 3:1). All three fail
-// today, in the DEFAULT theme, where `_colors.scss` calls them "decorative by
-// design" — a resize affordance and a loading indicator are not decorative.
-// High contrast repairs them incidentally; the default still needs a decision.
+// WHAT THIS ONCE REPAIRED BY ACCIDENT. At the default 0.6, `text-faint`
+// measures **2.43:1** in light and 3.46:1 in dark, and this block used to be
+// the only thing lifting its three consumers — an `input-otp` `::placeholder`
+// (text, 1.4.3) plus the textarea resize grip and the avatar spinner (graphics,
+// 1.4.11 → 3:1). All three left the tier in the DEFAULT theme: the placeholder
+// for `--wr-color-placeholder`, the two graphics for `-on-surface-muted`. So the
+// faint override below carries a consumer's own use of the tier and nothing of
+// the library's. `--wr-color-placeholder` needs no line of its own here: it IS
+// the muted role, so the deepened base carries it to 8.16:1 and 8.30:1.
 //
 // TWO BLOCKS, NOT ONE, and this is the part that would silently half-work. A
 // `@media { :root { … } }` resolves its `var()` references against the element

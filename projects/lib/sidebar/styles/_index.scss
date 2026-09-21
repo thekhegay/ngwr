@@ -52,6 +52,11 @@
       }
     }
 
+    // color-ok: the resting entry paints no background, so the active one
+    // differs in LIGHTNESS as well as hue — a filled tint, 1.17:1 light and
+    // 1.12:1 dark against the surface under it, measured in the built showcase.
+    // Weak, and it is the whole cue: a top-level entry has no rail for the bar a
+    // nested `__item` draws, and `pointer-events: none` paints nothing.
     &--active {
       color: var(--wr-color-primary-ink);
       background: var(--wr-color-primary-soft);
@@ -221,6 +226,11 @@
       }
     }
 
+    // color-ok: the `::before` above is transparent on every other row, so this
+    // draws a 2px bar over the group's 1px rail beside the active row — a width
+    // the rail does not have, and 4.89:1 light / 4.07:1 dark against the
+    // surface. Under `prefers-contrast: more` the rail deepens to within 1.41:1
+    // of the bar in light and 1.14:1 in dark, and the width is what is left.
     &--active {
       color: var(--wr-color-primary-ink);
       background: var(--wr-color-primary-soft);

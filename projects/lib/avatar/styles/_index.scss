@@ -73,10 +73,12 @@
   // the host's font. Shrinking only the wrapper's text sat the letters on the
   // baseline of the bigger strut, about 4px below centre in a 16px circle.
   //
-  // Only while something is projected, because the spinner drawn when nothing
-  // is sizes itself in `em` too, and it has no business shrinking. A size the
-  // host did not publish leaves the `var()` unresolved, and the declaration
-  // falls back to inheriting.
+  // Only while something is projected, which is when there is text to size.
+  // The one thing an empty avatar draws is the loading spinner, and the cap
+  // cannot reach it either way: it is 40% of the box rather than `em` (the
+  // `__spin` rule below), and it is hidden whenever something is projected. A
+  // size the host did not publish leaves the `var()` unresolved, and the
+  // declaration falls back to inheriting.
   //
   // `:where()` around the WHOLE selector leaves it no specificity, so any
   // unlayered `font-size` rule a consumer writes for the avatar — a type, class
@@ -128,10 +130,19 @@
     transition: opacity var(--wr-transition-base);
   }
 
-  &__spin {
+  // Doubled with `.wr-spinner` on purpose. A lone `.wr-avatar__spin` ties with
+  // the spinner's own `.wr-spinner { color: inherit; --wr-spinner-size: 1.25em }`,
+  // and the combined `@use 'ngwr'` sheet forwards the spinner after the avatar,
+  // so the spinner won both: measured, every avatar drew a 19px spinner in the
+  // inherited ink (17.85:1 light, 15.73:1 dark) — 59% of a 32px box and 20% of
+  // a 96px one — and the colour and size written here never painted once.
+  // Specificity, not order, so it holds for an app that `@use`s the two entry
+  // points in either order.
+  &__spin.wr-spinner {
     position: absolute;
-    // Same as the textarea grip: a loading indicator is a status GRAPHIC that
-    // 1.4.11 holds to 3:1, and the faint tier is 2.43:1 in light.
+    // A loading indicator is a status GRAPHIC, which 1.4.11 holds to 3:1: the
+    // muted role is 5.35:1 light and 7.64:1 dark on the surface it sits over.
+    // Not the faint tier, which is 2.43:1 in light.
     color: var(--wr-color-on-surface-muted);
     --wr-spinner-size: 40%;
   }

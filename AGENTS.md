@@ -375,7 +375,7 @@ controls projected into it — the controls themselves do not grow with it.
 | RTL source gate   | `pnpm check:rtl` (physical direction-dependent CSS with no `rtl-ok:` reason — a `pnpm lint` stage)  |
 | Registry gate     | `pnpm check:registry` (the open item format under `registry/` — also a `pnpm lint` stage)           |
 | Dead-token gate   | `pnpm check:tokens` (a `--wr-*` nothing paints with, unless it says `unused-ok:` — a `pnpm lint` stage) |
-| Colour-only gate  | `pnpm check:color-only` (a state modifier whose own declarations are all colour, with no `color-ok:` reason — a `pnpm lint` stage) |
+| Colour-only gate  | `pnpm check:color-only` (a state modifier, hand-written or unrolled from an `@each`, whose own declarations are all colour, with no `color-ok:` reason; a loop whose list it cannot resolve, or a modifier still interpolated after unrolling, needs one too — a `pnpm lint` stage) |
 | Theme parity      | `pnpm check:theme` (`wrThemeTokens()` vs the compiled `_colors.scss` — a CI step after `build:showcase`) |
 | RTL layout sweep  | `pnpm check:rtl-layout` (Chromium, LTR vs RTL overflow per route — **nightly**, not a PR gate)      |
 | Layout geometry   | `pnpm check:layout` (box sizes vs `layout-baseline.json`; `--update` re-records — **nightly**)        |
@@ -581,9 +581,19 @@ under `registry/`, their `entryPoints` against the real catalog, and
 (`scripts/check-tokens.ts` — a token declared in `theme/styles/` that nothing in
 `projects/lib` or the showcase's own stylesheets writes `var()` for) `&&`
 `check:color-only` (`scripts/check-color-only.ts` — a state or intent modifier
-whose OWN declarations are all colour properties, with no `color-ok:` reason
-within three lines above the selector) — and the last stages are
-the ones that most often turn a green-looking run red. The first stage prints
+whose OWN declarations are all colour, with no `color-ok:` reason in the
+comment block above the selector or above the `@each` that generates it; it
+unrolls every loop whose list it can read, through the lists `check:tokens`
+resolves from the same `scripts/lib/scss-loops.ts`, and fails on a loop it
+cannot read when that loop writes a modifier — and on any modifier still
+spelled as an interpolation once unrolling is done. It judges a custom property
+by the colour its VALUE holds rather than by its name, judges a state that
+declares nothing itself on the colour it puts on its children and `@if` /
+`@media` branches, counts `cursor` / `pointer-events` / `transition` as neither
+colour nor channel, reads a prefixed modifier (`--tone-danger`), and proves each
+of those readings on its own fixtures (`SELF_TEST`) before it judges the tree,
+because every one of them once passed a colour-only rule green) — and the last
+stages are the ones that most often turn a green-looking run red. The first stage prints
 `All files pass linting.` even when a _later_ stage fails — so **verify by exit
 code, never by grepping the output**:
 
@@ -675,7 +685,7 @@ by `provideWrTheme()`): intent colors
 `--wr-color-{primary,secondary,success,warning,danger,info,light,medium,dark}`,
 each with `-contrast / -light / -lighter / -dark / -darker / -rgb`, plus the
 soft set (`-soft / -soft-border / -soft-contrast / -active`), `-ink` and semantic
-role aliases (`--wr-color-{surface,on-surface,on-surface-muted,outline}`); plus
+role aliases (`--wr-color-{surface,on-surface,on-surface-muted,placeholder,outline}`); plus
 `--wr-border-radius-{sm,base,lg,pill}`, `--wr-text-*`, `--wr-font-weight-*`,
 `--wr-duration-*`, `--wr-ease-*`. Pull mixins and tokens from `ngwr/theme`.
 The TS `WR_COLORS` list and the SCSS `$base-colors` map must stay in sync —
@@ -842,7 +852,14 @@ per theme, so one declaration darkens in light and lightens in dark. For muted
 prose the role alias `--wr-color-on-surface-muted` is the answer — NOT the
 `medium` intent, which is a fill colour: it reaches 4.63:1 on pure white but only
 4.01:1 on the lightest surface the library paints (`#ebeff4`), where the muted
-role still holds 4.63:1.
+role still holds 4.63:1. **Placeholder text reads `--wr-color-placeholder`**,
+which is that role under the name of its job — every placeholder in the catalog
+reads it, including the component hooks (`--wr-input-placeholder`,
+`--wr-textarea-placeholder`), and `theme/styles.spec.ts` fails on one that reads
+anything else, a hook defaulting to the muted role it equals today included. It replaced four strengths, the weakest an
+`rgba(…, 0.7)` at 2.91:1, and no softer tier can exist under it: 4.5:1 needs
+0.93 alpha on white and 0.98 on a readonly field's fill. `--wr-color-text-faint`
+is decorative only and nothing in the library paints with it.
 
 **SSR-safe.** Components must render under SSR / hydration: zoneless,
 signals-only, and **no constructor-time DOM access** (guard with
@@ -1074,6 +1091,18 @@ until 2026-08-19, and because the event-calendar demo builds its events from
 `new Date()`, its route count slid between 1 and 2 on its own. A count that
 moves by itself is worse than a failure: the allowance can only be set to the
 loosest day, and every other day it hides a real regression in the slack.
+**It measures placeholders, which axe never does**: axe reads an empty field's
+`color`, the TYPED text, so `[wrInput]` and `wr-textarea` placeholders sat at
+2.91:1 under a green nightly while axe reported the same fields at 17.85:1.
+After the painted run, every field showing its placeholder has its
+`::placeholder` colour copied onto `color` for one `color-contrast` pass scoped to
+those fields, and a failure is keyed `placeholder-contrast (${theme}, ${mode})`
+like any other rule. It sees no placeholder drawn as generated content and none
+inside an overlay — `theme/styles.spec.ts` holds every placeholder rule to
+`--wr-color-placeholder` at the source, which is what covers those — and a pass
+that measured nothing FAILS rather than printing green: an empty
+`::placeholder` read, a read equal to the typed colour, or a full sweep under
+its route floor.
 `--filter=<substring>` narrows it to a route while you iterate; the full sweep
 is minutes.
 
@@ -1297,6 +1326,42 @@ for the half that ships is an axe pass over this one route with `hasTouch: true`
 source, in `table-header-target.spec.ts`. `document.elementFromPoint` is still
 the only check that sees the halo ITSELF, and a header below the fold answers
 `null` to every probe, which reads exactly like a dead hit area.
+
+**Intent is not a second channel, and no palette can make it one — the third
+DECIDED trade of this kind; do not re-report it.** Six of the nine intents —
+`primary`, `secondary`, `success`, `danger`, `info`, `medium` — sit inside a
+**1.062:1** band of relative luminance in light and **1.006:1** in dark, and
+`success` against `danger` is **1.004:1** / **1.003:1**. v11 tuned them to take
+the same white label, which is tuning them to one luminance: greyscale sees one
+grey, a deuteranope two khakis (`#008800` and `#dc3137` simulate to `#7f711a`
+and `#908230`), and `primary` against `info` is the same blue for everyone
+(`#3969e2` / `#3472d9`). Separating them by lightness would cost the white
+labels, so the library does not try, and the split is by what a component DOES.
+One that REPORTS a state carries a channel of its own — `wr-alert` and
+`wr-toast` draw a glyph per type, `wr-timeline` a silhouette per dot,
+`wr-statistic` two triangles. One that LABELS carries the words its author
+writes: a `wr-tag` or `wr-badge` colour is decoration or category, the label has
+to say the state, and a tag that must stand for a status on its own takes its
+existing `icon` input. Nothing is drawn by default, because tags are categories
+too — the home page's bento tags `Standalone` in success and `Zoneless` in
+danger, where a check and a stop sign would say something false. `wr-typography`'s
+`tone` is emphasis and never the only carrier: `success-ink` against
+`danger-ink` is 1.05:1 as text, a directive has no template to draw a glyph
+into, and every semantic use in the showcase names its state in words. `wr-btn`
+(the label is the verb), `wr-divider`, `wr-skeleton` and the button-group seam
+are colour by design, and `wr-progress`'s intent is colour-only whenever a host
+uses it as a status. Three alternatives were costed and not taken: an opt-in
+`statusIcon` on the tag (a third copy of the alert's glyph paths, for a channel
+`icon` already gives), a glyph drawn by default (every existing status tag 18px
+wider and every category tag wrong — a visual break of the kind v10 and v11
+shipped as majors), and deprecating the intent tones (a major, for five demo
+uses whose words already carry the state). Each such rule carries a `color-ok:`
+naming its case, and `check:color-only` reads them now that it unrolls `@each`.
+axe ships no WCAG 1.4.1 rule, so that source check is the only gate this has,
+and it reads ngwr's stylesheets, never a consumer's template: a red tag whose
+words say nothing is still the app's to catch. The consumer-facing account is
+the badge page's "Colour is not a label" section and the `WrTag.color`,
+`WrBadge.color` and `WrTypography.tone` JSDoc.
 
 **The focus ring is `--wr-focus-ring-*`, and no gate can prove it.** The shared
 `theme.focus-ring` mixin emits an OUTLINE plus a halo, both read from tokens

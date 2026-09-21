@@ -38,15 +38,24 @@ import type { WrTagIconPosition } from './interfaces';
 })
 export class WrTag {
   /**
-   * Color variant.
+   * Color variant — decoration or category, never the state on its own. The
+   * label carries the state (`Failed`, not a red `Build`): six of the nine
+   * intents share one lightness and `success` against `danger` is 1.004:1, so a
+   * reader who cannot separate red from green cannot tell those two tags
+   * apart, and `primary` and `info` are the same blue to everyone. When a tag has to stand
+   * for a status by itself, give it an `icon` as well — register one with
+   * `provideWrIcons(lucideIcons({ 'octagon-alert': OctagonAlert }))`, then write
+   * `<wr-tag color="danger" icon="octagon-alert">Failed</wr-tag>`.
    *
    * @default 'primary'
    */
   readonly color = input<WrColor>('primary');
 
   /**
-   * Icon name shown alongside the content. The icon is replaced by a
-   * spinner when `loading` is true.
+   * Icon name shown alongside the content — the one channel besides the label
+   * that a tag has, so the one to reach for when colour is carrying a status.
+   * Nothing ships built in: register the name through `provideWrIcons` first.
+   * The icon is replaced by a spinner when `loading` is true.
    *
    * @default null
    */

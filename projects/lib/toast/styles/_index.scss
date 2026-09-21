@@ -249,6 +249,10 @@ $toast-colors: (
     animation-play-state: paused;
   }
 
+  // color-ok: every type draws its own glyph in toast-item.html — a check in a
+  // broken circle, a triangle, an octagon, an `i`, the shapes `wr-alert` uses —
+  // and the host announces it as `role="alert"` or `"status"`. The accent only
+  // inks the edge, the glyph and the countdown.
   @each $variant, $color in $toast-colors {
     &--#{$variant} {
       --wr-toast-accent: var(--wr-color-#{$color});

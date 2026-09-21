@@ -94,6 +94,9 @@
     --wr-checkbox-line-height: var(--wr-control-line-height-lg);
   }
 
+  // color-ok: the cue is the tick arriving — `.wr-checkbox__mark` (or a custom
+  // `__icon`) goes from `opacity: 0` at 70% scale to full in the nested rule
+  // below. The fill only backs it.
   &--checked {
     --wr-checkbox-bg: var(--wr-color-primary);
     --wr-checkbox-border: var(--wr-color-primary);
@@ -109,6 +112,7 @@
   // Indeterminate: same filled box as checked, but reveals the dash. Takes
   // visual precedence over `--checked` (the two classes are mutually exclusive
   // in the host binding).
+  // color-ok: the dash arriving is the cue, as the tick is for `--checked`.
   &--indeterminate {
     --wr-checkbox-bg: var(--wr-color-primary);
     --wr-checkbox-border: var(--wr-color-primary);

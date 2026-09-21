@@ -197,6 +197,10 @@
   }
 
   // Color variants
+  // color-ok: a button's intent is emphasis, not a state — the label names the
+  // action and the intent only ranks it against its neighbours. A destructive
+  // button says `Delete`; a red `OK` is the author's colour-only cue, and no
+  // rule here can supply the word.
   @each $name in theme.$colors {
     &--#{$name} {
       --wr-btn-color: var(--wr-color-#{$name}-contrast);
@@ -271,6 +275,8 @@
   // borders. On hover/focus the segment raises its own border (z-index above
   // neighbours), which would otherwise double-paint that edge — so drop the
   // seam there and let the raised border own it cleanly.
+  // color-ok: not an intent cue — the seam is the same 20% black hairline for
+  // all nine; the loop only picks WHICH segments are solid enough to need it.
   @each $name in theme.$colors {
     > .wr-btn--#{$name}:not(.wr-btn--outlined):not(:last-child) {
       // `box-shadow` offsets are physical by spec — there is no logical form to

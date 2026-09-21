@@ -68,6 +68,12 @@
   }
 
   // Colored variants
+  // color-ok: a tag's colour is decoration or category — the label carries the
+  // state (`Failed`, not a red `Build`), because six of the nine intents share
+  // one lightness and `success` against `danger` is 1.004:1. When a tag has to
+  // stand for a status on its own, its `icon` input is the channel. Nothing is
+  // drawn per intent by default: tags are categories too, and a check on
+  // `Standalone` would say something false.
   @each $name in theme.$colors {
     &--#{$name} {
       --wr-tag-color: var(--wr-color-#{$name}-contrast);
@@ -100,7 +106,7 @@
   // `--wr-color-outline`, which is already this component's default border.
   // color-ok: every outlined tag already draws a border — this only gives the
   // one intent that cannot tint one a literal colour. Telling two INTENTS
-  // apart on a bare tag is the open half of D7 and is not what this rule does.
+  // apart is the label's job, as the marker above the loop says.
   &--light.wr-tag--outlined {
     --wr-tag-border: var(--wr-color-outline);
   }

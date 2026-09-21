@@ -30,6 +30,9 @@
   // Tint strength: 12.5% reads as "nothing" on a white card — the
   // placeholder has to be obviously present, so the base sits at 50%
   // with the shimmer band sweeping visibly above it.
+  // color-ok: decoration — a skeleton is a placeholder, announced through
+  // `aria-busy`, and its default is the neutral `light`; an intent only matches
+  // it to the content about to load.
   @each $name in theme.$colors {
     &--#{$name} {
       background: rgba(var(--wr-color-#{$name}-rgb), 0.5);

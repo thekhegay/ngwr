@@ -41,6 +41,10 @@ export class WrTypography {
   /**
    * Color tone. `null` (default) keeps the variant's own color — the base
    * dark for headings/body, medium for lead/caption, primary for links.
+   * Emphasis only: a tone never carries a state on its own. Six of the nine
+   * intents share one lightness, and `success` against `danger` is 1.05:1 as
+   * text, so the words have to name the state (`500 Server Error`, not a red
+   * `Request`) — or reach for `<wr-alert>`, which draws a glyph per type.
    */
   readonly tone = input<WrTypographyTone | null>(null);
 

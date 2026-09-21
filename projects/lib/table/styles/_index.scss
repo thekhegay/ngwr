@@ -900,6 +900,13 @@
     color: var(--wr-color-on-surface);
     font: inherit;
     font-size: var(--wr-text-sm);
+
+    // Written, where it used to be left to the browser: Chromium's own #757575
+    // is one grey for both themes, 4.60:1 on white and 4.08:1 on the dark
+    // canvas, and it was the one placeholder in the catalog no token reached.
+    &::placeholder {
+      color: var(--wr-color-placeholder);
+    }
   }
 
   &__list {

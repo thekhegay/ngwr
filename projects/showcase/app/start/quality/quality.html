@@ -120,7 +120,9 @@
         Exactly the two rules the structural sweep has to disable. It reports axe's own measured ratio instead of
         re-deriving one, emulates <code>prefers-reduced-motion</code> so an animation caught mid-flight cannot report a
         failure that describes a single frame, and pins the clock so a demo built from <code>new Date()</code> cannot
-        move its own route count overnight.
+        move its own route count overnight. It also measures what axe never does: placeholder text. axe reads an empty
+        field's typed-text colour, which is how input placeholders at 2.91:1 passed as 17.85:1, so every field showing
+        its placeholder gets that colour copied onto its text for one scoped pass.
       </wr-description-item>
       <wr-description-item label="Cannot see">
         A page at rest is all it measures, so hovers, focus rings and overlay contents stay out of reach. And it gates
@@ -173,6 +175,12 @@
       type="info"
       title="And one failure no gate reports at all."
       message="--wr-color-outline measures 1.48:1 in light and 1.41:1 in dark, against the 3:1 WCAG 1.4.11 asks of anything that identifies a control. Fifteen of its declarations are control boundaries where the criterion applies; the rest are cards, dividers and table rules, which it does not reach. Both fixes were costed — darkening the one token repaints every rule that uses it, and splitting out a control-border token leaves control edges visibly darker than every line beside them — and the maintainer chose to keep the hairline. No gate reports it, because axe ships no non-text-contrast rule."
+    />
+
+    <wr-alert
+      type="info"
+      title="Colour is never the only channel — and no runtime gate can check that."
+      message="WCAG 1.4.1 has no axe rule, and the nine intents cannot carry it on their own: six share one luminance to within 1.06:1, and success against danger is 1.004:1, because they were tuned to take the same white label. So the components that report a state draw a shape for it — alert and toast a glyph per type, timeline a silhouette per dot — while the colour of a tag, a badge or a typography tone is decoration or category, and the words have to say the state; a tag that must stand for a status on its own takes an icon. A source check, check:color-only, holds every colour-only rule in the library to a written reason. It reads ngwr's stylesheets, not your templates."
     />
   </ngwr-doc-section>
 

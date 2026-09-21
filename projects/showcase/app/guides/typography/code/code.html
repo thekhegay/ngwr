@@ -23,7 +23,10 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Tones in code" description='Combine `variant="code"` with any tone for status callouts.'>
+  <ngwr-doc-section
+    title="Tones in code"
+    description='Combine `variant="code"` with a tone for emphasis — the text still has to name the status, as "200 OK" and "500 Server Error" do here. `success` against `danger` is 1.05:1 as text, so to a reader who cannot separate red from green the tone alone says nothing.'
+  >
     <ngwr-doc-code [code]="snippets.tones" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start">

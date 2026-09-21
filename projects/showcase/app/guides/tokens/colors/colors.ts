@@ -141,7 +141,8 @@ export default class TokensColorsPage {
     {
       name: '--wr-color-text-faint',
       type: 'rgba(var(--wr-color-muted-text-rgb), 0.6)',
-      description: 'Faintest text — placeholders, disabled hints.',
+      description:
+        'Decorative only — 2.43:1 on the light surface, under the 4.5:1 text needs and the 3:1 a graphic needs, so nothing in the library paints with it. Not for placeholders: those read `--wr-color-placeholder`.',
     },
   ];
 
@@ -164,6 +165,12 @@ export default class TokensColorsPage {
       name: '--wr-color-on-surface-muted',
       type: 'var(--wr-color-muted-text)',
       description: 'Secondary / muted text on a surface.',
+    },
+    {
+      name: '--wr-color-placeholder',
+      type: 'var(--wr-color-on-surface-muted)',
+      description:
+        'Placeholder text, in every field the library draws — `[wrInput]`, `wr-textarea`, `wr-input-otp`, the select, cascader and tree triggers, the command palette and the table filter. A placeholder is text, so it has to clear 4.5:1: this one is 5.34:1 on the light surface, 4.76:1 on a readonly field and 7.63:1 in dark. Written as the muted role, so dark mode and `prefers-contrast: more` carry it without a line of their own.',
     },
     {
       name: '--wr-color-outline',
@@ -287,7 +294,8 @@ export default class TokensColorsPage {
   background: var(--wr-color-surface);
   color: var(--wr-color-on-surface);
 }
-.panel__caption { color: var(--wr-color-on-surface-muted); }`,
+.panel__caption { color: var(--wr-color-on-surface-muted); }
+.panel__field::placeholder { color: var(--wr-color-placeholder); }`,
 
     neutral: `/* Semantic neutrals — theme-correct surfaces, borders, muted text. */
 .card {

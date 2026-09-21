@@ -95,12 +95,15 @@
   }
 
   // color-ok: the cue is the glyph arriving — `.wr-radio__icon` goes from
-  // `opacity: 0` to `1` under `--checked` (line 109). This fill only backs it,
+  // `opacity: 0` to `1` in the `--checked` rule below. This fill only backs it,
   // since `--has-icon` turns the default dot off.
   &--has-icon.wr-radio--checked {
     --wr-radio-bg: var(--wr-color-primary);
   }
 
+  // color-ok: the cue is the inner dot arriving — `.wr-radio__dot::after` goes
+  // from `scale(0)` to `scale(1)` below, or the icon fades in under
+  // `--has-icon`. The ring and dot colours only back it.
   &--checked {
     --wr-radio-border: var(--wr-color-primary);
     --wr-radio-dot: var(--wr-color-primary);

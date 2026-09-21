@@ -42,7 +42,7 @@
 
   <ngwr-doc-section
     title="Tones"
-    description="The same `--wr-color-*` tokens used by every other ngwr component. Setting no tone at all is the default, and it is not the same as asking for `dark` — an untoned variant keeps its own colour, which is why `lead`, `caption` and `overline` above are muted without anyone asking."
+    description="The same `--wr-color-*` tokens used by every other ngwr component. Setting no tone at all is the default, and it is not the same as asking for `dark` — an untoned variant keeps its own colour, which is why `lead`, `caption` and `overline` above are muted without anyone asking. A tone is emphasis, never the only carrier of a state: six of the nine intents share one lightness and `success` against `danger` is 1.05:1 as text, so the words have to say it — as each line below does — or the message belongs in `wr-alert`, which draws a glyph per type."
   >
     <ngwr-doc-code [code]="snippets.tones" language="angular-html" />
     <ngwr-doc-snippet code="">

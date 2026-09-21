@@ -14,6 +14,11 @@
     transition: color var(--wr-transition-base);
   }
 
+  // color-ok: `wr-form-item` lays out what it is given and prints nothing, so
+  // the channel is the `<wr-form-error>` text the author projects beside the
+  // control; the label and border colours repeat it. A row with `hasError` and
+  // no message is colour-only, and the author's to catch — `wr-form-field`
+  // resolves and prints the message itself.
   &--error {
     > label {
       color: var(--wr-color-danger-ink);
