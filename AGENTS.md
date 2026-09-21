@@ -11,23 +11,27 @@ in the repo_.
 A pnpm + Angular CLI monorepo with two projects:
 
 - **`projects/lib/`** — the published package (`ngwr`). Almost every subfolder is
-  a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **229**
-  of them (`ngwr/button`, `ngwr/select`, `ngwr/overlay`, …). Counted by
-  `ng-package.json`, not by directory: `styles/` and `schematics/` are not entry
-  points, and **one hundred** are nested — the twenty-two `ngwr/i18n/<locale>`,
+  a **tree-shakable secondary entry point** consumed as `ngwr/<name>`
+  (`ngwr/button`, `ngwr/select`, `ngwr/overlay`, …). How many is `entryPoints`
+  in `#core/generated/quality`, which `pnpm gen:quality` counts from the tree.
+  Read it there: this line used to restate it and went stale with every new
+  component. Counted by `ng-package.json`, not by directory: `styles/` and
+  `schematics/` are not entry points, and the nested ones are the twenty-two
+  `ngwr/i18n/<locale>`,
   `ngwr/icon/adapters/{lucide,feather}`, `ngwr/date/adapters/{fns,luxon}`, the two
   opt-in router adapters `ngwr/loading-bar/router` and `ngwr/tabs/router` that v14
-  added, and the CDK test harnesses, which now cover
-  **seventy-two** entry points: the form controls (`button`, `input`, `textarea`,
+  added, and the CDK test harnesses (`testingEntryPoints` in the same file), which
+  cover the form controls (`button`, `input`, `textarea`,
   `checkbox`, `switch`, `radio`, `select`, `input-number`, `input-otp`, `slider`,
   `rating`, `file-upload`, `color-picker`, `knob`, `form`, `segmented`, `editor`), the overlays
   (`date-picker`, `dropdown`, `popover`, `dialog`, `drawer`, `action-sheet`,
   `toast`, `context-menu`, `popconfirm`, `command-palette`, `cascader`, `mention`),
   the data views (`table`, `tree`, `graph`), the navigation / disclosure set (`tabs`,
   `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`,
-  `lightbox`, `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`, **every
-  chart** and **eighteen of the twenty-one animations** — each at
-  `ngwr/<name>/testing`, 107 exported harness names over 106 classes; `WrCalendarDayHarness` is the
+  `lightbox`, `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`,
+  `markdown`, **every chart** and **eighteen of the twenty-one animations** — each at
+  `ngwr/<name>/testing`. They export one more harness name than there are classes
+  (`harnessClasses` in the same file): `WrCalendarDayHarness` is the
   one exported twice, since a date-picker's popup IS a calendar and
   `ngwr/date-picker/testing` keeps the name it shipped as.
   **Four entry points are deliberately without one, and the reason is the same each
@@ -212,10 +216,13 @@ one component folder. Reach for them instead of hand-rolling:
   simply never moves for navigation — nothing throws, and this project's own
   site shipped a permanently-empty bar for the length of a release by missing
   exactly that. When you add a component that would inject `Router`, split it
-  the same way rather than paying the dependency for everyone.
+  the same way rather than paying the dependency for everyone. Two entry points
+  still import `@angular/router` directly: `ngwr/sidebar` injects `Router` and
+  `ngwr/breadcrumbs` uses `RouterLink`. With the two adapters they are the only
+  importers, which is why `@angular/router` is an OPTIONAL peer.
 - **Shared code — don't reinvent these.** `ngwr/utils` (`coercion` incl.
   `numAttr` for input transforms; plus `dom`, `guards`, `id`, `keyboard`,
-  `css-size`, `fn`, `math`, `log`), `ngwr/pipes` (`wrDate`, `wrBytes`,
+  `css-size`, `css-value`, `fn`, `math`, `log`), `ngwr/pipes` (`wrDate`, `wrBytes`,
   `wrTruncate`, `wrNumber`, `wrMark`, `wrPlural`, `wrRange`), and
   `ngwr/validators` (`WrValidators`).
 - **Scheduling** (`ngwr/event-calendar`) — `wr-event-calendar` is month / week /
@@ -278,8 +285,9 @@ controls implement `FormValueControl` or `FormCheckboxControl`, so
 model. A count and not "each", deliberately: `[wrColorPickerTrigger]` is public,
 carries its own `value` model and implements neither, because it is a trigger
 that drives a `wr-color-picker` which does. Re-derive with
-`grep -rn "implements .*Form\(Value\|Checkbox\)Control" projects/lib --include='*.ts' | grep -v spec`
-and subtract the internal `date-picker/internal/time-panel.ts`. `ControlValueAccessor` is
+`grep -rn "export class .* implements .*Form\(Value\|Checkbox\)Control" projects/lib --include='*.ts' | grep -v spec`
+and subtract the internal `date-picker/internal/time-panel.ts` (without
+`export class` the grep also counts the JSDoc lines that name the interface). `ControlValueAccessor` is
 **gone from the library** — never add one. Classic `[(ngModel)]`, `[formControl]`
 and `formControlName` still bind, but **no accessor is created**: `NgModel`,
 `FormControlDirective` and `FormControlName` drive the control's `value` or
@@ -394,7 +402,7 @@ sit **next to the code they cover** (`math/math.spec.ts`, not a `test/` tree).
 `tsconfig.lib.json` excludes `**/*.spec.ts`, so nothing ships to npm.
 
 **Codecov is wired and the number is real** — `pnpm test:coverage` writes
-`coverage/lib/lcov.info`, CI uploads it tokenlessly through OIDC, and
+`coverage/lib/lcov.info`, CI uploads it with the `CODECOV_TOKEN` secret, and
 `codecov.yml` keeps both statuses `informational: true` on purpose: the gates
 that fail a build are the nine above, and a coverage service is a badge and a PR
 comment. Read the report as a POINTER rather than a target — its one real catch
@@ -425,7 +433,7 @@ the rest — and five of them an `ErrorHandler` recorder besides, because what
 `afterNextRender` throws reaches neither `detectChanges()` nor `whenStable()`, so
 a boot that died reads as a pass without one. (`wr-confetti` is the exception and
 correctly so: a service, with no deferred boot to lose an error inside.) That
-carries the 61 specs across those six files past the early return, to frame
+carries the 63 specs across those six files past the early return, to frame
 counts, spark and particle counts, the fuzz ramp, a `var(--wr-…)` colour resolved
 against the host, gravity bringing a particle back down, and teardown — while
 each keeps the null-context path it started as, one "survives a browser that will
@@ -468,7 +476,7 @@ exists for one `describe` should not ship a `.html` file.
 **Writing a HARNESS** (`ngwr/<name>/testing`): copy
 `projects/lib/collapse/testing/` for the layout and the voice, or
 `projects/lib/image-cropper/testing/` for a component whose geometry a unit test
-cannot reach. The rules below were all earned by shipping seventy-two of them, and
+cannot reach. The rules below were all earned by shipping every one of them, and
 the first one decides every other question:
 
 - **A method that would answer the same thing for a working component and a
@@ -517,7 +525,10 @@ that goes stale silently, and CONTRIBUTING carried four wrong ones for exactly
 as long as it took someone to look.
 
 The shape, which the manifest does not explain: the Node range is Angular's own,
-copied verbatim rather than narrowed, so the two cannot disagree. `.nvmrc` and
+arm for arm, with the same majors and the same minimums, and one difference.
+Angular leaves its newest arm open-ended (`>=`) and `engines` closes it at that
+major (`^`), so `devEngines` refuses a Node major the repository has never run.
+Compare the two when Angular moves its range. `.nvmrc` and
 every workflow run the newest of them; a nightly matrix covers the LTS lines
 underneath.
 
@@ -618,7 +629,7 @@ long after both had moved. A page expanding a named alias (`'sm' | 'md' | 'lg'`
 for `WrKbdSize`) is accepted, and editing the alias in `projects/lib` indicts
 every page that spelled the old union out. Outputs print the PAYLOAD, bare —
 `void`, `Blob`, `{ text: string; index: number }` — never a wrapper;
-`EventEmitter` is wrong for all 74 of them, since `output<T>()` returns
+`EventEmitter` is wrong for every one of them, since `output<T>()` returns
 `OutputEmitterRef<T>` and the library has not used an `@Output()` since v7.
 
 Four things it cannot see, all measured rather than assumed. **A member the
@@ -644,10 +655,12 @@ omit `default:` for those and that is the field the check keys on — 17 rows on
 ORDER and a different alias with identical arms are admitted deliberately: both
 are value-set identities, and no binding changes.
 
-**CI gates on `pnpm lint` + `pnpm test` + `pnpm check:api-docs` +
+**CI gates on `pnpm lint` + `pnpm test:coverage` + `pnpm check:api-docs` +
 `pnpm check:llms` + `pnpm check:css-vars` + `pnpm build:lib` +
-`pnpm build:showcase` + `pnpm check:theme` + `pnpm check:a11y`** — all nine must
-be green (a silently
+`pnpm build:showcase` + `pnpm check:theme` + `pnpm check:a11y`** — `test:coverage`
+is `pnpm test` instrumented, so the suite runs once and feeds Codecov. The list
+as CI runs it is `prGates` in `#core/generated/quality`, parsed from `ci.yml`, and
+all nine must be green (a silently
 failed lint stage once slipped past and blocked a publish). The last two need the
 prerendered site, which is why they sit after `build:showcase` rather than in the
 lint chain. The publish job re-runs `pnpm lint` + `pnpm build:lib` before
@@ -660,7 +673,8 @@ shipping. Conventional-commit subjects are checked locally (commitlint
 already covers the need, use it — an existing component (check the catalog
 before hand-rolling), `ngwr/utils`, `ngwr/pipes`, `ngwr/validators`, theme
 tokens — rather than hand-rolling raw markup/logic or pulling an external
-library where an internal tool exists. The catalog is large (229 entry points):
+library where an internal tool exists. The catalog is large (over two hundred
+entry points; the exact count is `entryPoints` in `#core/generated/quality`):
 check before writing a bare `<input type="file">`, a date / number / truncate
 helper, a coercion, an id generator, and so on. New external runtime
 dependencies need a strong justification — the only runtime dependency today is
@@ -924,8 +938,8 @@ a wrong guess is a silent behaviour change — whereas the type error names ever
 site. `useI18nText`, the `wrT` pipe and the `[wrT]` directive are untouched.
 
 Both are still on the user-facing migration guide at `/start/migration`, which
-carries every step back to v6. **`ng update ngwr@14` is the section a consumer
-follows today** — the guide is ordered newest-first for that reason.
+carries every step back to v6. **The newest section is the one a consumer
+follows** (`ng update ngwr`) — the guide is ordered newest-first for that reason.
 
 **Versioning.** **v14 is the current major line.** `projects/lib/package.json`,
 the `NGWR_VERSION` constant, the `SECURITY.md` support table and
@@ -999,8 +1013,7 @@ that sequence is a position rather than an oversight:
   `ngwr/loading-bar/router`, a `<wr-tab routerLink>` needs `wrTabsRouting` on
   the strip plus `WrTabsRouting` in `imports`), `WR_DATE_LOCALE` and `WrI18n`'s
   `defaultLocale` / `availableLocales` now resolve from Angular's `LOCALE_ID`
-  instead of the browser, a named date format refuses input it cannot read
-  rather than committing a wrong date, and `<wr-pagination ofLabel>` is gone
+  instead of the browser, and `<wr-pagination ofLabel>` is gone
   with the `pagination.of` key — the range is one `pagination.range` template.
   A migration that pretended to have handled any of those would be worse than
   none, because the silence reads as "nothing to do".
@@ -1009,12 +1022,14 @@ that sequence is a position rather than an oversight:
 one by one). Angular **tooling** (`@angular/cli`, `@angular/build`,
 `@angular-devkit/*`, `@schematics/angular`) patches independently of the
 **framework** (`@angular/core` et al.) — bump only the train that moved.
-Dependabot (grouped, checked daily) handles the PRs — one per group, and `groups` does NOT cross ecosystems, so the npm groups say nothing about GitHub Actions bumps (those have their own group, minor/patch only; a major action bump still arrives alone so it cannot be merged unread). **TypeScript is pinned on purpose** at
-`~6.0.3` — Angular 22's peer range is `typescript >=6.0 <6.1`, and TypeScript 7
-is out. `.github/dependabot.yml` now carries an `ignore` for it, and one for
-TypeScript 7. `.github/dependabot.yml` now carries an `ignore` for it. If it
-appears in a PR anyway, it came from somewhere other than the bot; don't take
-it. The matching `@types/node` ignore is GONE — the types and the runtime moved
+Dependabot (grouped, checked daily) handles the PRs — one per group, and `groups` does NOT cross ecosystems, so the npm groups say nothing about GitHub Actions bumps (those have their own group, minor/patch only; a major action bump still arrives alone so it cannot be merged unread). **TypeScript is pinned on purpose** to
+the 6.0 line (a tilde range in `devDependencies`) — Angular 22's peer range is
+`typescript >=6.0 <6.1`, and TypeScript 7 is out. `.github/dependabot.yml`
+carries one `ignore` for it, `>=6.1`, which covers TypeScript 7 too, and holds
+`vitest` and `@vitest/coverage-v8` below 5 the same way: the unit-test target
+runs through `@angular/build:unit-test`, and `@angular/build` declares a 4.x
+`vitest` peer. Revisit that one when the peer widens. If either bump appears in
+a PR anyway, it came from somewhere other than the bot; don't take it. The matching `@types/node` ignore is GONE — the types and the runtime moved
 to 26 together, and they have to keep moving together: types ahead of the
 runtime describe APIs that are not there, which type-checks clean rather than
 failing.
@@ -1048,7 +1063,7 @@ arrow) — for version and before/after descriptions.
 
 ## Building components
 
-The catalog is large (229 entry points) and **deliberately consolidated** —
+The catalog is large (over two hundred entry points) and **deliberately consolidated** —
 many "components" are modes or inputs on one host (e.g. `wr-select` covers
 single / multi / search / tag; `wr-date-picker` covers date / time / datetime;
 `wr-popover` has a `tooltip` mode; `wr-drawer` doubles as a bottom-sheet).
@@ -1150,7 +1165,7 @@ both: the third a11y gate, nightly, driving a curated table of states from
 `scripts/lib/state-a11y/states.ts` and running the FULL axe rule set inside each
 (only `color-contrast-enhanced` is off — it is AAA).
 
-Four rules if you touch it, and each one is a bug it already had:
+The rules if you touch it, and each one is a bug it already had:
 
 - **A state that did not paint FAILS the run.** A clean axe run over an element
   that never rendered is indistinguishable from a pass, and that is how an audit
@@ -1218,11 +1233,11 @@ Two more things about it. The baseline is keyed by NODE with `:nth-child()`
 stripped, so a new violation inside an already-failing state cannot hide and the
 calendar entries do not expire when the month changes. And a full run prints
 coverage — state-dependent classes in the BUILT stylesheet versus classes it
-actually painted, **95 of 95** across 102 states — because a curated table that
-stopped growing looks exactly like one that covers the catalog. (It read 71 of
-95 across 78 states when this paragraph was written, and the figure sat here
-unchecked while the table grew past it. Re-read it off a full run rather than
-from this line: the run prints it, and a number in prose is a claim.) Two things when
+actually painted — because a curated table that stopped growing looks exactly
+like one that covers the catalog. (This line used to carry the figure and went
+stale twice while the table grew past it: 71 of 95 across 78 states, then 95 of
+95 across 102. Read it off a full run: the run prints it, and a number in prose
+is a claim.) Two things when
 you extend it: pass **`--probe`**, which reports every unreachable state instead
 of stopping at the first, and put every selector through **`demo()`** — the
 showcase is built out of the library, so the first `.wr-dropdown-trigger` on every
@@ -1472,7 +1487,7 @@ the OPTIMIZED build every start — the dev server prints "Prebundling has been
 configured but will not be used because scripts optimization is enabled" — and
 that path dies in rolldown on rxjs's circular ESM
 (`rxjs/dist/esm/internal/scheduled/scheduled.js`). **Two: `@use 'ngwr';`**,
-which compiles all ~120 component stylesheets for a two-element demo and hit an
+which compiles every component stylesheet in the package for a two-element demo and hit an
 out-of-memory error; narrowed to the entry points the snippet renders, the CSS
 goes from 287 kB to 44 kB. Both fixes are the right thing for a generated
 project anyway, which is the tell that they were defects rather than
@@ -1511,9 +1526,9 @@ than from `app/` so it cannot drift, with the live demos dropped and their
 source blocks kept. Each page advertises its own via
 `<link rel="alternate" type="text/markdown">` (`MetaService.setMarkdownAlternate()`),
 and `ngwr-doc-code` reflects `data-language` purely so the export can fence a
-block correctly — a bound `[language]` does not reach the DOM on its own. `llms-full.txt` is **gitignored** — it exists
-in the working tree (~51 KB) but is untracked and rewritten on every build.
-Never hand-edit it; edit `scripts/gen-ai-assets.ts`. Only the curated
+block correctly — a bound `[language]` does not reach the DOM on its own.
+`llms-full.txt` is rewritten on every build, so never hand-edit it; edit
+`scripts/gen-ai-assets.ts`. Only the curated
 [`llms.txt`](llms.txt) and this file are hand-maintained: update them when the
 doc structure or the headline components change. (A rename once silently
 emptied the sitemap because its generator hard-coded the old `app/components`
@@ -1599,7 +1614,7 @@ hours is what makes a regression fail instead of freezing the suite.
   leftover static `value="x"` lands on the host as a plain DOM attribute — no
   template error, and every checkbox in the group keeps the default identity
   `null`, so they all toggle together. `migration-v9` rewrites it, as a step
-  of `ng update ngwr@14` from any release before 9.0.0 — never by targeting
+  of `ng update ngwr` from any release before 9.0.0 — never by targeting
   `ngwr@9`, whose schematics do not load (see Schematics).
 - **`<ng-content />` in `@if` / `@else` branches.** A default (no-`select`)
   `<ng-content />` placed in multiple conditional branches projects into only
@@ -1716,8 +1731,8 @@ because it is guidance rather than a plan.
 - Escape does NOT depend on focus being inside an overlay:
   `overlayRef.keydownEvents()` is fed by CDK's `OverlayKeyboardDispatcher`,
   which keeps one document listener and routes to the topmost overlay.
-- Both shipped catalogs are pinned at **identical key sets** with no
-  empty values — empty is the worse case, since it resolves as a real
+- Every shipped catalog is pinned to **the English key set** with no
+  empty values (`expectCatalogContract`, above) — empty is the worse case, since it resolves as a real
   translation and reaches the DOM as a nameless control. Nothing had compared
   `wrEn` with `wrRu` before: `useI18nText` reads "translation === key" as
   missing and quietly serves the English default, so a Russian app rendered

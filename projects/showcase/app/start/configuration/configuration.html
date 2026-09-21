@@ -78,7 +78,7 @@
 
   <ngwr-doc-section
     title="Loading bar"
-    description="Router-aware top bar. Auto-shows on `NavigationStart`, hides on `NavigationEnd` / `Cancel`. Imperative `WrLoadingBar.start()` / `complete()` available for non-router waits."
+    description="A top progress bar driven by `WrLoadingBar.start()` / `complete()`, which need no provider. Router navigations drive it only once you add `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`: then `NavigationStart` shows it and `NavigationEnd` / `Cancel` / `Error` hide it. Without that call the bar never moves for a navigation, and nothing warns. It is opt-in because the subscription is what brings `@angular/router` into the bundle."
   >
     <ngwr-doc-code [code]="snippets.loadingBar" language="angular-ts" />
   </ngwr-doc-section>

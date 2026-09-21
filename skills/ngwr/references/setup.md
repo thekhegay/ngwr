@@ -46,7 +46,7 @@ points that ship no stylesheet (the `/testing` harnesses, `ngwr/utils`) have no
 
 ### `provideWrOverlay() // from 'ngwr/overlay'`
 
-Overlays render into an ngwr-owned container; without it they never appear. Needed by `WrDialog`, `WrDrawer`, `WrToast`, `WrPopover`, `WrPopconfirm`, `WrContextMenu`, `WrSelect`, `WrDropdown`, `WrCommandPalette`, `WrCascader`, `WrMention`, `WrDatePicker`, `WrTour`, `WrLightbox`, `WrEditor`.
+Gives ngwr overlays their own container, so they never collide with other CDK overlays. Needed by `WrDialog`, `WrDrawer`, `WrToast`, `WrPopover`, `WrPopconfirm`, `WrContextMenu`, `WrSelect`, `WrDropdown`, `WrCommandPalette`, `WrCascader`, `WrMention`, `WrDatePicker`, `WrTour`, `WrLightbox`, `WrEditor`.
 
 ### `provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon' + 'ngwr/icon/adapters/lucide'`
 

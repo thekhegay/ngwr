@@ -12,6 +12,7 @@ import {
   DocSeeAlsoComponent,
   type DocSeeAlsoLink,
 } from '#core/components';
+import { QUALITY } from '#core/generated/quality';
 
 @Component({
   selector: 'ngwr-gs-testing-page',
@@ -58,7 +59,7 @@ expect(forReview).toEqual([]);`,
 </section>`,
 
     install: `// The harnesses live beside the components they drive, one entry point each.
-// 72 so far, 107 exported names over 106 harness classes: every form control,
+// ${QUALITY.testingEntryPoints} so far, publishing ${QUALITY.harnessClasses} harness classes: every form control,
 // every overlay, the three data views, the whole navigation / disclosure set,
 // every chart, eighteen of the twenty-one animations, <wr-markdown>, and the
 // standalone widgets — calendar, event-calendar, window, image-cropper, tour,

@@ -89,7 +89,7 @@ Each of these compiles fine and then does nothing, with no error naming the
 cause.
 
 - `provideWrOverlay() // from 'ngwr/overlay'`
-  — overlays render into an ngwr-owned container; without it they never appear
+  — gives ngwr overlays their own container, so they never collide with other CDK overlays
   — needed by: `WrDialog`, `WrDrawer`, `WrToast`, `WrPopover`, `WrPopconfirm`, `WrContextMenu`, `WrSelect`, `WrDropdown`, `WrCommandPalette`, `WrCascader`, `WrMention`, `WrDatePicker`, `WrTour`, `WrLightbox`, `WrEditor`
 - `provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon' + 'ngwr/icon/adapters/lucide'`
   — icons resolve by name from a registry you populate

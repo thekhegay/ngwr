@@ -81,14 +81,14 @@
 
   <ngwr-doc-section
     title="Every !important in the library"
-    description="Thirty-five declarations, and knowing where they are is the difference between an override that works and an afternoon. **Eighteen are the reduced-motion block above** and its per-component counterparts — `marquee`, `star-border`, `glitch-text`, `shiny-text`, `gradient-text`, `window`, and the `ngwr/animations` utility classes — where `!important` is structural: the theme layer loads before every component stylesheet, so an ordinary rule there loses to the animation it is trying to remove. **The other seventeen sit on six selectors, and fifteen of them are fighting an inline style rather than your CSS** — CDK's, written onto the pane after attach and re-written on every reposition, which no ordinary rule at any specificity can reach. The remaining two are `.wr-window--no-anim`, the window's own opt-out modifier, doing to its subtree what you would do by hand."
+    description="Thirty-eight declarations, and knowing where they are is the difference between an override that works and an afternoon. **Eighteen are the reduced-motion block above** and its per-component counterparts — `marquee`, `star-border`, `glitch-text`, `shiny-text`, `gradient-text` and the `ngwr/animations` utility classes — where `!important` is structural: the theme layer loads before every component stylesheet, so an ordinary rule there loses to the animation it is trying to remove. **The other twenty sit on seven selectors, and fifteen of them are fighting an inline style rather than your CSS** — CDK's, written onto the pane after attach and re-written on every reposition, which no ordinary rule at any specificity can reach. Two are `.wr-window--no-anim`, the window's own opt-out modifier, doing to its subtree what you would do by hand. The last three are ProseMirror's own rule for the `img.ProseMirror-separator` it inserts into `wr-editor`, restated because ngwr does not ship ProseMirror's stylesheet: the image has to stay inline, borderless and marginless whatever a page's `img` rules say, `ngwr/reset` among them."
   >
     <ngwr-doc-code [code]="snippets.importantList" language="scss" />
 
     <p wrTypography variant="small" tone="medium">
       <strong>Overriding the bottom sheet takes an <code>!important</code> of your own</strong>, in a stylesheet that
       loads after ngwr's, at equal or higher specificity — that is the whole trick, and a rule on the BEM class without
-      it simply does nothing. Twelve of the seventeen are on <code>.wr-overlay-sheet</code>, the presentation dialog,
+      it simply does nothing. Twelve of the twenty are on <code>.wr-overlay-sheet</code>, the presentation dialog,
       select, dropdown and popover share on small viewports: eight on the sheet itself (width, min / max width, the two
       <code>max-height</code> declarations, the top-only radius, the keyboard lift and the slide-up animation) and four
       stretching its direct children and squaring their bottom corners. Reach for the sheet's own tokens first —

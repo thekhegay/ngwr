@@ -171,10 +171,15 @@ providers: [
   }),
 ],`,
 
-    loadingBar: `import { WrLoadingBarComponent } from 'ngwr/loading-bar';
+    loadingBar: `import { WrLoadingBar, WrLoadingBarComponent } from 'ngwr/loading-bar';
+import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router';
 
-// No provider to register — render the component once in your root template
-// and drive it through the injectable \`WrLoadingBar\` service.
+// Only if navigations should drive the bar. Manual start() / complete() work
+// without it, and a bar with no router adapter simply never moves on its own.
+providers: [provideRouter(routes), provideWrLoadingBarRouter()],
+
+// Render the component once in your root template, and drive it through the
+// injectable \`WrLoadingBar\` service for anything that is not a navigation.
 @Component({
   selector: 'app-root',
   imports: [WrLoadingBarComponent],

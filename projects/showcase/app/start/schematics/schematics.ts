@@ -83,8 +83,8 @@ providers: [provideWrIcons(APP_ICONS)],`,
 ng g ngwr:use WrButton --path src/app/pages/checkout/checkout.ts
 ng g ngwr:use WrSelect --path src/app/pages/checkout/checkout.ts
 
-# 215 symbols recognized — every public Wr* export the scan finds, mapped to
-# the entry point it comes from.`,
+# Recognizes every public Wr* export the scan finds, mapped to the entry
+# point it comes from.`,
 
     useBefore: `// Before: src/app/pages/checkout/checkout.ts
 import { Component } from '@angular/core';
@@ -115,8 +115,10 @@ ng g ngwr:provider date-adapter
 # Available: overlay | icons | toast | i18n | date-adapter | density |
 #            storage | theme
 #
-# loading-bar and cookie are not here on purpose: neither has a provider.
-# Render <wr-loading-bar /> once and inject WrLoadingBar; inject WrCookie.`,
+# cookie is not here because it has no provider: inject WrCookie. Neither is
+# loading-bar, whose only provider is the opt-in router adapter. Add
+# provideWrLoadingBarRouter() from 'ngwr/loading-bar/router' by hand if
+# navigations should drive the bar; manual start() / complete() need nothing.`,
 
     componentStyle: `# Append \`@use 'ngwr/<name>';\` to the project's global stylesheet.
 # Pairs with \`--styles=none\` on \`ng add\`.
@@ -132,9 +134,10 @@ ng g ngwr:page dashboard overview
 # Creates <name>.ts + <name>.html + <name>.scss under
 # <sourceRoot>/app/pages/<name>/`,
 
-    update: `# One command from any earlier major: runs every migration newer than
-# your installed version, in order. Never target a 7.x, 8.x or 9.x release.
-ng update ngwr@14
+    update: `# One command from any earlier major: installs the latest release and runs
+# every migration newer than your installed version, in order. Never target a
+# 7.x, 8.x or 9.x release.
+ng update ngwr
 
 # The example below is v7's, the largest pure rewrite in the collection.
 # v14's own rewrites are six renames; the rest of it reports.`,

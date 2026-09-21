@@ -3,27 +3,28 @@
 Most majors ship an `ng update` codemod that rewrites your templates,
 TypeScript and stylesheets in place. Commit first, run the migration, then
 review with `git diff` — a handful of edge cases always need a manual
-touch-up. Not every major has one: v10's breaking changes are purely visual and
-carry no codemod, as its section below explains.
+touch-up. Not every major has one that rewrites: v10's and v11's breaking
+changes are purely visual and carry no codemod, as the v10 section below
+explains, and v13's migration only reports.
 
 ```bash
-# One command, from whatever major you are on. It installs 14, then runs every
-# migration newer than the version you had installed, in order.
-ng update ngwr@14
+# One command, from whatever major you are on. It installs the latest release,
+# then runs every migration newer than the version you had installed, in order.
+ng update ngwr
 ```
 
-**Do not step through the majors.** From 8.x that one command runs the v9, v12, v13 and v14
-migrations; from 6.x it runs v7, v8, v9, v12, v13 and v14. v10 and v11 ship none, so there is nothing
-to skip. Sections are newest-first, and where a major has a codemod its section names it as a step
-that command runs — read every section between your version and 14, because the codemods also
-REPORT what they cannot rewrite.
+**Do not step through the majors.** From 8.x that one command runs every migration from v9 on; from
+6.x, every one from v7 on. v10 and v11 ship none, so there is nothing to skip. Sections are
+newest-first, and where a major has a codemod its section names it as a step that command runs —
+read every section between your version and the latest, because the codemods also REPORT what they
+cannot rewrite.
 
 **Never target a 7.x, 8.x or 9.x release** — not with `ng update ngwr@7`, `@8` or `@9`, not with
 `ng add`, not with any `ng g ngwr:*`. Every release from 7.0.0 to 9.1.0 ships CommonJS schematics
 under a `package.json` that declares `"type": "module"`, so Node loads them as ES modules and the
 command dies with `exports is not defined in ES module scope`. 10.0.0 fixed the packaging. The one
 command above never loads those files: the migrations it runs, v7, v8 and v9 included, are the ones
-shipped inside 14.
+shipped inside the release it installs.
 
 The "migrate each major version individually" refusal the Angular CLI prints is for Angular's own
 packages — it matches `@angular/*` and `@nguniversal/*` and nothing else — and does not apply to
@@ -33,18 +34,18 @@ ngwr.
 
 It had already moved `package.json` and your lockfile to 9.x when the migration step crashed, and
 nothing moved them back: the CLI restores `package.json` only when the install itself fails. A later
-`ng update ngwr@14` therefore starts from 9.x and **silently skips the v9 migration** — the
+`ng update ngwr` therefore starts from 9.x and **silently skips the v9 migration** — the
 `<wr-checkbox>` rename below, whose leftovers raise no error either. Do not count on reverting the
 bump: committing it, which is how most people get past `Repository is not clean`, makes it stick.
 Run the skipped step by name instead. It works however `package.json` was left:
 
 ```bash
-ng update ngwr@14                                   # skip if 14 is already installed
+ng update ngwr                                      # skip if the latest is already installed
 # Commit that result first: ng update refuses a migration on a dirty tree too.
 ng update ngwr --migrate-only --name=migration-v9   # the step the range skipped
 ```
 
-`--name` runs the migration shipped inside the installed 14, never the 9.x copy that crashed, and
+`--name` runs the migration shipped inside the release you installed, never the 9.x copy that crashed, and
 checks no version, so no range can leave it out. It rewrites only `<wr-checkbox>` bindings, which
 none of v12, v13 or v14 touches, so running it after them is safe.
 
@@ -59,7 +60,7 @@ history is readable without leaving the repository.
 
 ## v13 to v14
 
-The largest release so far. Six renames, all rewritten by `ng update ngwr@14` — `wr-alert`'s
+The largest release so far. Six renames, all rewritten by the v14 migration — `wr-alert`'s
 `closeable` to `closable`, `wr-table`'s `totalItems` to `total`, `wr-pagination`'s `currentPage`
 to `page` (and `currentPageChange` to `pageChange`), `isDisabledWhenLoading` to
 `disabledWhenLoading`, `wr-window`'s `chromeSize` from `compact`/`normal` to `sm`/`md`, and
@@ -87,8 +88,9 @@ than the browser. The codemod reports every one of these by file.
 `[id]` on `wr-checkbox`, `wr-radio` and `wr-switch` no longer lands on the host element, so
 `document.getElementById` returns the inner `<input>` — the association the input always
 documented. A CSS or E2E selector written as `wr-checkbox#agree` stops matching; `#agree` alone
-still works. No codemod: which of the two elements a selector meant is not derivable from the
-source.
+still works. The v13 migration, a step of `ng update ngwr`, lists every file holding such a
+selector and rewrites none of them: which of the two elements a selector meant is not derivable
+from the source.
 
 ---
 
@@ -96,7 +98,7 @@ source.
 
 Two breaking changes needing opposite treatment. The three date entry points moved —
 `ngwr/date-adapter` to `ngwr/date`, and the two adapters under `ngwr/date/adapters/*` — which is
-pure import paths, so the v12 migration, a step of `ng update ngwr@14`, rewrites all of it. And `readI18nText()` returns
+pure import paths, so the v12 migration, a step of `ng update ngwr`, rewrites all of it. And `readI18nText()` returns
 `Signal<string>` instead of `string`, so every call site needs a `()`. That one is deliberately not
 codemodded: adding parentheses means knowing which identifiers hold the result, and a wrong guess
 is a silent behaviour change, whereas the type error names every site for you.
@@ -114,7 +116,7 @@ tell you your regressions were handled when they were not. Check the pages, not 
 ## v9 to v10
 
 Three breaking changes, all of them visual defaults. **There is no v10
-migration**, so `ng update ngwr@14` runs nothing for this step — and that is deliberate: nothing here can be rewritten
+migration**, so `ng update ngwr` runs nothing for this step — and that is deliberate: nothing here can be rewritten
 mechanically, and an empty codemod would tell you your regressions were handled
 when they were not. Nothing errors at build time either, so the way to check
 this upgrade is to look at the pages, not the logs.
@@ -187,7 +189,7 @@ input:
 **This one fails silently.** A leftover `value="autosave"` raises no
 template error — it lands on the host as a plain DOM attribute, so every
 checkbox in the group keeps the default identity (`null`) and they all
-toggle together. The v9 migration, a step of `ng update ngwr@14`, rewrites `value=`, `[value]=` and
+toggle together. The v9 migration, a step of `ng update ngwr`, rewrites `value=`, `[value]=` and
 `[(value)]=` scoped to the `<wr-checkbox` open tag, in both `.html` files
 and inline `.ts` templates.
 
@@ -216,7 +218,7 @@ usage is unaffected — only exhaustive `switch`es over `WrColor` and
 
 ## v7 to v8
 
-Three breaking changes. The v8 migration, a step of `ng update ngwr@14`, auto-fixes density and
+Three breaking changes. The v8 migration, a step of `ng update ngwr`, auto-fixes density and
 pagination, and warns — with file paths — about the two removed
 components, which have no automatic replacement.
 
@@ -275,7 +277,7 @@ The visible change is the **drop of class- and file-name suffixes**
 (`*Component`, `*Directive`, `*Pipe`, `*Service`); alongside it, a batch of
 single-purpose entry points was folded into shared components.
 
-The v7 migration, the first step `ng update ngwr@14` runs from 6.x, handles the class renames, the entry-point rewrites and
+The v7 migration, the first step `ng update ngwr` runs from 6.x, handles the class renames, the entry-point rewrites and
 the SCSS `@use` paths — ≥ 95 % of the work.
 
 ### Class names
@@ -355,7 +357,7 @@ the codemod.
 
 ### Manual review checklist
 
-After `ng update ngwr@14` has run the v7 migration, sanity-check:
+After `ng update ngwr` has run the v7 migration, sanity-check:
 
 - [ ] **Imports compile**: `tsc --noEmit` (or `ng build`) has no `cannot
 find name 'WrXxxComponent'` errors.

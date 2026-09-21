@@ -46,8 +46,8 @@
   <ngwr-doc-section title="What SKILL.md says">
     <p wrTypography>
       Roughly a page, deliberately. The format's whole idea is progressive disclosure: the short file is always in
-      context, the reference files are opened when they are needed, and a skill that inlines a 204-row table has spent
-      its budget on something the agent could have looked up.
+      context, the reference files are opened when they are needed, and a skill that inlines a row for every entry point
+      has spent its budget on something the agent could have looked up.
     </p>
 
     <ngwr-doc-api [rows]="contents" title="Sections" />
@@ -67,7 +67,9 @@
     </p>
 
     <p wrTypography variant="small" tone="medium">
-      Never hand-edit the generated files — they are rewritten on every build and are not in git. Edit the generator.
+      Never hand-edit the generated files — they are rewritten on every build. <code>llms-full.txt</code> is not in git;
+      the skill is, so a build that changes the catalog leaves a diff under <code>skills/ngwr/</code> to commit with it.
+      Edit the generator.
     </p>
   </ngwr-doc-section>
 

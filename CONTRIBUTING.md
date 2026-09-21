@@ -18,7 +18,7 @@ Other scripts:
 ```shell
 pnpm build:lib        # build the publishable library → dist/lib
 pnpm build:showcase   # build the docs site         → dist/showcase
-pnpm lint             # eslint (lib + showcase + scripts) + stylelint + four repo checks
+pnpm lint             # eslint (lib + showcase + scripts) + stylelint + the repo's check:* stages
 pnpm icons:sets       # rebuild showcase icon catalogs (also runs on postinstall)
 ```
 
@@ -42,9 +42,9 @@ it.
 
 Use the appropriate template:
 
-- **🐛 Bug** — something is broken. Include a minimal reproduction (StackBlitz,
-  CodeSandbox, or repo link). Issues without a reproduction may be closed
-  pending one.
+- **🐛 Bug report** — something is broken. Include a minimal reproduction
+  (StackBlitz, CodeSandbox, or repo link). Issues without a reproduction may be
+  closed pending one.
 - **✨ Feature request** — propose a new component or capability. Explain the
   use case first; we'll discuss API in the issue before any code.
 - **Questions / discussions** — use
@@ -89,7 +89,7 @@ Scope is the component or area in kebab-case: `feat(button)`, `fix(select)`,
    reason in the style guide below. Those two builds also REGENERATE tracked
    files (`projects/showcase/app/_core/generated/*.ts` and `skills/ngwr/**`), so
    run `git status` afterwards and commit whatever moved. They are not the whole
-   gate set: CI runs nine, listed in the style guide.
+   gate set: CI runs more, listed in the style guide.
 4. PR title must be a valid conventional commit (CI enforces this).
 5. Fill in the PR template — describe **what** changed and **why**.
 6. Merging is **rebase or merge commit** — squash merging is disabled on the
@@ -120,7 +120,10 @@ projects/lib/<name>/
 Then:
 
 1. Add the entry to the umbrella SCSS at `projects/lib/styles.scss`.
-2. Add the entry to `projects/lib/package.json` `exports` map.
+2. Add a `sass` condition for it to the `exports` map in
+   `projects/lib/package.json`, pointing at `styles/_index.scss`, so
+   `@use 'ngwr/<name>'` resolves. ng-packagr writes the TypeScript entries
+   itself.
 3. Add a docs page under
    `projects/showcase/app/reference/components/<name>/` (`<name>.ts` +
    `<name>.html`).
@@ -164,20 +167,23 @@ Then:
   `Overlay`) so isolation works.
 - **CSS custom properties scoped per component.** Component styles read from
   `--wr-*` tokens; consumers can override per-instance.
-- **Verify lint by exit code.** `pnpm lint` is a seven-stage `&&` chain:
-  `ng lint`, then `eslint scripts`, `lint:styles` (stylelint), `check:colors`,
-  `check:rtl`, `check:registry` and `check:tokens`. The first stage prints
-  `All files pass linting.` even when a later stage fails, so run
-  `pnpm lint; echo $?` and trust the code, not the output. CI runs **nine
-  gates** on every PR: `lint`, `test:coverage`, `check:api-docs`, `check:llms`,
-  `check:css-vars`, `build:lib`, `build:showcase`, `check:theme` and
-  `check:a11y` — the last two need the prerendered site, which is why they sit
-  after the showcase build. Four more need a real browser and hundreds of page
-  loads, so they run nightly instead: `check:contrast`, `check:state-a11y`,
-  `check:layout` and `check:rtl-layout`. A green PR therefore says nothing about
-  painted contrast, box geometry or RTL overflow. The nightly also re-runs the
-  suite and the library build on Node 22 and 24, which nothing else exercises
-  now that every other job runs 26.
+- **Verify lint by exit code.** `pnpm lint` is an `&&` chain: `ng lint`, then
+  `eslint scripts`, `lint:styles` (stylelint) and the repo's own `check:*`
+  scripts. The `lint` script in `package.json` is the list, and `pnpm gen:quality`
+  renders it on [/start/quality](https://ngwr.dev/start/quality). The first
+  stage prints `All files pass linting.` even when a later stage fails, so run
+  `pnpm lint; echo $?` and trust the code, not the output. CI gates every PR on
+  the steps in [`ci.yml`](./.github/workflows/ci.yml), which today are `lint`,
+  `test:coverage`, `check:api-docs`, `check:llms`, `check:css-vars`,
+  `build:lib`, `build:showcase`, `check:theme` and `check:a11y`; the last two
+  need the prerendered site, which is why they sit after the showcase build.
+  The browser checks need a real Chromium and hundreds of page loads, so they
+  run nightly instead ([`nightly.yml`](./.github/workflows/nightly.yml)):
+  `check:contrast`, `check:state-a11y`, `check:layout` and `check:rtl-layout`.
+  A green PR therefore says nothing about painted contrast, box geometry or RTL
+  overflow. The nightly also re-runs the suite and the library build on the
+  older LTS Node lines `engines` still accepts, which nothing else exercises
+  now that every other job runs the `.nvmrc` version.
 
 ## Setting up your editor
 

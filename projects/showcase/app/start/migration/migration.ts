@@ -76,20 +76,21 @@ export default class MigrationPageComponent {
 + <button [attr.aria-label]="label()">`,
 
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
-# One command, whatever major you are on: ng update applies every migration
-# between your version and 14, in order. From v12 that is v13 then v14; from
-# v6 it is v7, v8, v9, v12, v13, v14. v10 and v11 ship none — nothing to skip.
+# One command, whatever major you are on: ng update installs the latest
+# release and applies every migration newer than the version you had, oldest
+# first. From v6 that is every migration in the collection. v10 and v11 ship
+# none, so there is nothing to skip.
 # Never target a 7.x, 8.x or 9.x release: their schematics do not load.
 #
 # v14 rewrites its six renames and REPORTS the rest.
 # v13 only reports: it names the files, it edits nothing.
 # Read the output of both — the reports are the part that matters.
-ng update ngwr@14`,
+ng update ngwr`,
 
     recover: `# Only if an earlier ng update ngwr@9 died with
 # "exports is not defined in ES module scope".
 
-ng update ngwr@14                                   # skip if 14 is already installed
+ng update ngwr                                      # skip if the latest is already installed
 # Commit that result first: ng update refuses a migration on a dirty tree too.
 ng update ngwr --migrate-only --name=migration-v9   # the step the range skipped`,
 

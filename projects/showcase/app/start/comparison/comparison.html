@@ -23,11 +23,12 @@
 
     <p wrTypography>
       The numbers that belong before the argument rather than after it, so a reader can leave here.
-      <strong>The bus factor is one</strong>: 1,409 of 1,480 commits are by one person under four author identities, the
-      next human contributor has 13 and the two bots have 29 each, from the first commit on 2022-08-22 — four years, one
-      pair of hands. <strong>There is no vendor</strong> — no paid support, no SLA, no consulting arm, nobody to
-      escalate to; an issue tracker is the whole of it. <strong>Majors move fast</strong>: eight since 2026-06-12, v7
-      through v14, five of them carrying an <code>ng update</code> codemod and three deliberately not.
+      <strong>The bus factor is one</strong>: more than nine commits in ten are by one person under four author
+      identities, the only other human contributor has 13, and the rest are two bots, from the first commit on
+      2022-08-22 — four years, one pair of hands. <strong>There is no vendor</strong> — no paid support, no SLA, no
+      consulting arm, nobody to escalate to; an issue tracker is the whole of it. <strong>Majors move fast</strong>:
+      eight since 2026-06-12, v7 through v14, five of them carrying an <code>ng update</code> codemod and three
+      deliberately not.
       <strong>{{ quality.locales.length }} locale catalogs ship in the box.</strong>
       <strong>And almost nobody uses it</strong> — ~150 weekly npm downloads and 3 GitHub stars, read on 2026-08-20. A
       reader who leaves in ten seconds because this page told them the truth is a better outcome than one who adopts and
@@ -99,8 +100,8 @@
       <code>FormControl</code>. It also ignores <code>updateOn</code>, and a
       <code>&#123; emitEvent: false &#125;</code> write needs <code>markForCheck()</code> — the
       <a routerLink="/guides/forms">forms guide</a> has each one. The bridge is Angular's, and ngwr's own suite binds
-      four of the twenty value controls through it; the <a routerLink="/start/quality">Quality</a> page names which.
-      These caveats sit here because this paragraph is the one you would lean on hardest.
+      only some of the value controls through it; the <a routerLink="/start/quality">Quality</a> page names which. These
+      caveats sit here because this paragraph is the one you would lean on hardest.
     </p>
   </ngwr-doc-section>
 
@@ -237,14 +238,14 @@
       the forms, dependency and harness rows come from the published tarball of each library's then-current version.
       <strong>The download and star rows are rounded to two significant figures</strong> and dated in the table itself:
       those two move every day, so an exact figure read once is false within a week while still reading as a
-      measurement, where <code>~2M</code> stays true for months and cannot be mistaken for one. ngwr's own commit counts
-      are deliberately not rounded — they are a claim about this repository, and the command below re-runs them. The
-      rest move too, and a competitor's licensing terms are the vendor's to state — check them there before you rely on
-      a row here. The ngwr column is measured in this repository and reproducible:
+      measurement, where <code>~2M</code> stays true for months and cannot be mistaken for one. ngwr's own commits are
+      given as a share rather than as totals, because the maintainer's total moves with every commit; the command below
+      prints the exact figures. The rest move too, and a competitor's licensing terms are the vendor's to state — check
+      them there before you rely on a row here. The ngwr column is measured in this repository and reproducible:
       <code>find projects/lib -name ng-package.json</code> for the entry points, a grep for
       <code>ControlValueAccessor</code>, and <code>git shortlog -sn --all</code> for the commits. That last one prints
-      seven rows, not one: the maintainer is four of them (977 + 422 + 8 + 2 = 1,409, an identity per machine and per
-      email over four years), two are bots at 29 each, and one is the other human at 13.
+      seven rows, not one: the maintainer is four of them (an identity per machine and per email over four years), two
+      are bots, and one is the other human.
     </p>
 
     <p wrTypography>
@@ -271,11 +272,11 @@
 
     <p wrTypography>
       <strong>Those two nightly baselines are not empty, and pretending otherwise is the failure mode here.</strong>
-      Four accepted entries in the contrast baseline and ten in the state one. Behind them: out-of-month calendar days
-      at <strong>2.23:1</strong>, the carousel's 8×8 pagination dots, the window chrome's 14×14 traffic-light buttons,
-      the event calendar's 20px chips, a token-swatch grid that labels every shade of a ramp with a token calibrated for
-      the base shade, and disabled controls axe cannot recognise as disabled. Each carries the alternative, costed, in
-      the baseline file — and each is a WCAG failure that is on the site today. The
+      Behind the accepted entries in both: out-of-month calendar days at <strong>2.23:1</strong>, the carousel's 8×8
+      pagination dots, the window chrome's 14×14 traffic-light buttons, the table header's 12×12 sort and filter
+      controls on a fine pointer, a token-swatch grid that labels every shade of a ramp with a token calibrated for the
+      base shade, and disabled controls axe cannot recognise as disabled. Each carries its reason in the baseline file,
+      and every one but the disabled controls, which WCAG exempts, is a failure that is on the site today. The
       <a routerLink="/start/quality">Quality</a> page lists them and what every gate cannot see.
     </p>
 
@@ -306,8 +307,8 @@
       <li>
         <strong>PrimeNG</strong> — you need the widest catalog in Angular (rich-text editor, organisation chart, tree
         table, galleria, Chart.js integration) or a vendor you can pay. ngwr has both of the first two, narrower:
-        <code>wr-editor</code> is a ProseMirror editor with a fixed schema and no way to insert a table or an image, and
-        <code>wr-graph</code> draws an organisation chart that is display-only. It has a tree table as well:
+        <code>wr-editor</code> is a ProseMirror editor with a fixed schema and no tool that inserts a table or an image,
+        and <code>wr-graph</code> draws an organisation chart that is display-only. It has a tree table as well:
         <code>wr-table</code>'s <code>childrenKey</code> makes <code>items</code> the roots and the table announces a
         <code>treegrid</code>. And <code>.xlsx</code>
         export is a standing refusal rather than a gap — it needs a third-party dependency, and
@@ -353,7 +354,7 @@
       <code>common</code>, <code>forms</code>, <code>platform-browser</code> — plus <code>rxjs</code> and
       <code>&#64;angular/cdk</code>, which is not in a default <code>ng new</code> app and brings
       <code>parse5</code> with it. <code>&#64;angular/router</code>, <code>date-fns</code>, <code>luxon</code> and the
-      eight <code>prosemirror-*</code> packages behind <code>wr-editor</code> are declared optional and stay uninstalled
+      <code>prosemirror-*</code> packages behind <code>wr-editor</code> are declared optional and stay uninstalled
       unless you use the features that need them. No icon set is a peer at all. <code>ng add ngwr</code> wires the rest.
     </p>
 

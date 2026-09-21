@@ -28,7 +28,7 @@ const REQUIRED_PROVIDERS: readonly RequiredProvider[] = [
   {
     test: /^Wr(Dialog|Drawer|Toast|Popover|Popconfirm|ContextMenu|Select|Dropdown|CommandPalette|Cascader|Mention|DatePicker|Tour|Lightbox|Editor)/,
     provider: "provideWrOverlay() // from 'ngwr/overlay'",
-    why: 'overlays render into an ngwr-owned container; without it they never appear',
+    why: 'gives ngwr overlays their own container, so they never collide with other CDK overlays',
   },
   {
     test: /^WrIcon/,
