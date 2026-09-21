@@ -23,7 +23,7 @@ import { TOOLS, callTool, validateArguments } from './tools.js';
  * not fail — it waits, which is worse. Every branch here now ends in exactly one
  * reply per request, and none for a notification.
  *
- * Run it with `npx ngwr-mcp`, or point a client at
+ * Run it with `npx -y -p ngwr ngwr-mcp`, or point a client at
  * `node ./node_modules/ngwr/mcp/server.js`.
  *
  * @see https://modelcontextprotocol.io

@@ -182,7 +182,8 @@ export default [
 
 // Opt-in utilities
 @use 'ngwr/grid';   // .grid, .container, .col-*
-@use 'ngwr/reset';  // see "What the opt-in utilities do" below`,
+@use 'ngwr/reset';  // see "What the opt-in utilities do" below
+@use 'ngwr/typography-utilities';  // .wr-text-*, .wr-font-* and friends`,
     measureCss: `# What any set of style entries actually compiles to, in your own checkout.
 # Write the @use lines you are considering into a scratch file, then:
 npx sass --load-path=node_modules --style=compressed check.scss check.css

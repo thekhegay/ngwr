@@ -339,11 +339,12 @@ statement; do not build on them.
   prose and code samples and API tables, without the site chrome. Prefer it over
   `llms-full.txt` when you already know which component you need. Each HTML page
   advertises its twin as `<link rel="alternate" type="text/markdown">`.
-- **MCP server — the same files, askable.** `npx -y ngwr-mcp` (a bin in the
-  installed package; zero dependencies, JSON-RPC over stdio) exposes four tools:
-  `search_ngwr` turns a need into an entry point name, `get_ngwr_component`
-  summarises one entry point, `get_ngwr_api` returns a class's inputs / models /
-  outputs read out of the shipped `.d.ts`, and `get_ngwr_setup` returns the
+- **MCP server — the same files, askable.** `npx -y -p ngwr ngwr-mcp` (a bin
+  in the installed package; zero dependencies, JSON-RPC over stdio) exposes
+  four tools: `search_ngwr` turns a need into an entry point name,
+  `get_ngwr_component` summarises one entry point, `get_ngwr_api` returns a
+  class's inputs / models / outputs read out of the shipped `.d.ts`, and
+  `get_ngwr_setup` returns the
   install / `ng g ngwr:use` / provider commands as text — it never runs them,
   and it never reaches outside its own package: no network, no commands. It reads the resources
   listed here rather than embedding a copy of them. Client config for Claude

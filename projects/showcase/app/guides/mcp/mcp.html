@@ -52,21 +52,21 @@
 
   <ngwr-doc-section
     title="Pinning it to your installed copy"
-    description="`npx` fetches the latest; `node` runs the one your app resolves."
+    description="`npx` falls back to the latest; `node` runs only the one your app resolves."
   >
     <p wrTypography>
-      <code>npx -y ngwr-mcp</code> resolves the newest published version, which is the right default for asking what the
-      library can do. It is the wrong default when the answers have to match the version in your lockfile — an agent
-      told about an input that only exists in a later major will write code that does not compile. Point the client at
-      <code>node_modules</code> instead:
+      <code>npx -y -p ngwr ngwr-mcp</code> runs the ngwr your project has installed. Where there is none, it fetches the
+      newest published version. That is fine for asking what the library can do, and wrong when the answers have to
+      match your lockfile: an agent told about an input that only exists in a later major will write code that does not
+      compile. To make sure the server never falls back, point the client at <code>node_modules</code> instead:
     </p>
 
     <ngwr-doc-code [code]="snippets.pinned" language="typescript" />
 
     <p wrTypography variant="small" tone="medium">
-      The path is relative to the working directory the client launches the server in, which for every client above is
-      the project root. Both forms are the same file: <code>npx</code> downloads the package that
-      <code>./node_modules/ngwr/mcp/server.js</code> already sits inside.
+      The path is relative to the working directory the client launches the server in, which for Claude Code is the
+      project root. Inside a project, <code>npx</code> runs this same file from the installed copy. Outside one, as in
+      Claude Desktop, <code>-p ngwr</code> fetches ngwr into the npx cache and runs the server from there.
     </p>
   </ngwr-doc-section>
 
@@ -154,8 +154,8 @@
     </p>
 
     <p wrTypography>
-      <strong>It answers for the version it was launched from.</strong> Under <code>npx</code> that is the latest
-      published release, not necessarily yours — see the pinning section above.
+      <strong>It answers for the version it was launched from.</strong> Under <code>npx</code> outside a project, that
+      is the latest published release, not necessarily yours — see the pinning section above.
     </p>
 
     <p wrTypography variant="small" tone="medium">
