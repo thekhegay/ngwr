@@ -25,6 +25,25 @@
  * token that passes in one can fail in the other, and only checking the default
  * would hide half the surface.
  *
+ * PLACEHOLDERS ARE MEASURED BY A SWAP, because axe never measures them. It
+ * reads an empty field's `color`, which is the TYPED text, so an input whose
+ * placeholder painted 2.91:1 was reported as passing at 17.85:1 — and two of
+ * the library's placeholder hooks sat at that 2.91 under a green nightly. After
+ * the painted run, every field showing its placeholder gets its `::placeholder`
+ * colour copied onto `color` and axe runs `color-contrast` over those fields
+ * alone, so the ratio printed is still axe's own. A failure is reported as
+ * `placeholder-contrast (theme, mode)` and held to the baseline like any other
+ * rule, with no allowance: none was needed when it landed. What it cannot see:
+ * a placeholder drawn as generated content rather than `::placeholder`, and
+ * one inside an overlay, which does not exist on a page at rest — both are held
+ * to the placeholder token at the source by `theme/styles.spec.ts` instead. axe
+ * exempts a disabled field here as it does anywhere; a readonly one is
+ * measured, because it is not inactive. And the pass has to show it measured
+ * something, since one that measured nothing prints the same green line: an
+ * empty `::placeholder` read, a read equal to the typed colour on every field,
+ * or a full sweep under `PLACEHOLDER_ROUTE_FLOOR` routes fails the run, and the
+ * count per theme and mode is printed either way.
+ *
  * Usage:
  *   pnpm check:contrast                    # after build:showcase
  *   pnpm check:contrast --theme=dark       # one theme
@@ -52,6 +71,38 @@ const BASELINE_PATH = resolve(ROOT_PATH, 'scripts/contrast-baseline.json');
 
 /** The rules JSDOM cannot answer. This script exists for exactly these. */
 const PAINTED_RULES = ['color-contrast', 'target-size'] as const;
+
+/** The name a placeholder failure is reported and baselined under — see the header. */
+const PLACEHOLDER_RULE = 'placeholder-contrast';
+
+/** Marks the fields a placeholder pass measures, so axe can be scoped to them. */
+const PLACEHOLDER_PROBE = 'data-wr-placeholder-probe';
+
+/**
+ * Routes showing a placeholder at rest, per theme and contrast mode, below which
+ * a FULL sweep fails — set at the count when the probe landed, in the
+ * `check:llms` idiom, with no slack.
+ *
+ * A probe that measures nothing prints the same green line as one that measured
+ * everything and found it fine. Its query can stop matching, the demos that
+ * show a placeholder at rest can go, or a Chromium can stop answering for the
+ * pseudo-element: `getComputedStyle(el, '::nonsense').color` is `""`, and
+ * copying that onto `color` REMOVES the override, so the field is measured in
+ * its typed colour at 17.85:1 and passes. The empty read and the typed-colour
+ * read fail on their own, on any sweep; this catches the rest. Raise it when a
+ * demo adds a field; a drop is a gate going blind.
+ */
+const PLACEHOLDER_ROUTE_FLOOR = 27;
+
+/** What the placeholder pass measured, per theme and contrast mode. */
+interface PlaceholderTally {
+  fields: number;
+  readonly routes: Set<string>;
+  /** Fields whose `::placeholder` read came back empty — nothing was measured. */
+  unreadable: number;
+  /** Fields whose `::placeholder` read equals their typed colour. */
+  indistinct: number;
+}
 
 /** Fail on these. `minor` / `moderate` are reported but do not fail. */
 const FAILING_IMPACTS: readonly ImpactValue[] = ['serious', 'critical'];
@@ -181,7 +232,8 @@ async function audit(
   route: string,
   theme: Theme,
   mode: ContrastMode,
-  into: Map<string, Finding>
+  into: Map<string, Finding>,
+  tally: PlaceholderTally
 ): Promise<void> {
   await page.goto(`${origin}${route}`, { waitUntil: 'networkidle' });
 
@@ -208,22 +260,64 @@ async function audit(
     });
   }, PAINTED_RULES)) as AxeResults;
 
-  for (const violation of results.violations) {
-    const key = `${violation.id} (${theme}, ${mode})`;
-    const found = into.get(key) ?? {
-      rule: key,
-      impact: violation.impact,
-      help: violation.help,
-      helpUrl: violation.helpUrl,
-      routes: new Set<string>(),
-      nodes: [],
-    };
-    found.routes.add(route);
-    for (const node of violation.nodes.slice(0, 2)) {
-      if (found.nodes.length < 8) found.nodes.push(`${route} — ${node.html.slice(0, 100)}${describe(node)}`);
+  for (const violation of results.violations) record(into, `${violation.id} (${theme}, ${mode})`, violation, route);
+
+  // The placeholder pass, after the painted one on purpose: it repaints fields,
+  // and the run above has to see the page as it ships. `:placeholder-shown` is
+  // exactly "the placeholder is what is drawn", so a field holding a value is
+  // left alone.
+  const probed = await page.evaluate(attr => {
+    let count = 0;
+    let unreadable = 0;
+    let indistinct = 0;
+    for (const field of document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea')) {
+      if (!field.matches(':placeholder-shown')) continue;
+      const colour = getComputedStyle(field, '::placeholder').color;
+      if (!colour) {
+        unreadable++;
+        continue;
+      }
+      if (colour === getComputedStyle(field).color) indistinct++;
+      field.style.setProperty('color', colour, 'important');
+      field.setAttribute(attr, '');
+      count++;
     }
-    into.set(key, found);
+    return { count, unreadable, indistinct };
+  }, PLACEHOLDER_PROBE);
+  tally.fields += probed.count;
+  tally.unreadable += probed.unreadable;
+  tally.indistinct += probed.indistinct;
+  if (probed.count === 0) return;
+  tally.routes.add(route);
+
+  const placeholders = (await page.evaluate(async (selector: string) => {
+    const runner = (window as unknown as { axe: { run: (c: unknown, o: unknown) => Promise<AxeResults> } }).axe;
+    return runner.run(
+      { include: [selector] },
+      { resultTypes: ['violations'], runOnly: { type: 'rule', values: ['color-contrast'] } }
+    );
+  }, `[${PLACEHOLDER_PROBE}]`)) as AxeResults;
+
+  for (const violation of placeholders.violations) {
+    record(into, `${PLACEHOLDER_RULE} (${theme}, ${mode})`, violation, route, 'A placeholder, painted as the field text');
   }
+}
+
+/** One axe violation into the per-rule tally, keyed the way the baseline is. */
+function record(into: Map<string, Finding>, key: string, violation: AxeResults['violations'][number], route: string, prefix = ''): void {
+  const found = into.get(key) ?? {
+    rule: key,
+    impact: violation.impact,
+    help: prefix ? `${prefix}: ${violation.help}` : violation.help,
+    helpUrl: violation.helpUrl,
+    routes: new Set<string>(),
+    nodes: [],
+  };
+  found.routes.add(route);
+  for (const node of violation.nodes.slice(0, 2)) {
+    if (found.nodes.length < 8) found.nodes.push(`${route} — ${node.html.slice(0, 100)}${describe(node)}`);
+  }
+  into.set(key, found);
 }
 
 async function main(): Promise<void> {
@@ -257,6 +351,7 @@ async function main(): Promise<void> {
   const { server, origin } = await serve();
   let browser: Browser | null = null;
   const findings = new Map<string, Finding>();
+  const placeholders = new Map<string, PlaceholderTally>();
 
   try {
     browser = await chromium.launch();
@@ -291,7 +386,9 @@ async function main(): Promise<void> {
       const page = await context.newPage();
 
       info(`  ${theme} / contrast ${mode}: ${targets.length} routes`);
-      for (const route of targets) await audit(page, origin, route, theme, mode, findings);
+      const tally: PlaceholderTally = { fields: 0, routes: new Set(), unreadable: 0, indistinct: 0 };
+      placeholders.set(`${theme} / contrast ${mode}`, tally);
+      for (const route of targets) await audit(page, origin, route, theme, mode, findings, tally);
 
       await context.close();
     }
@@ -347,8 +444,28 @@ async function main(): Promise<void> {
     }
   }
 
-  if (failures.length > 0) {
-    err(`\n✘ ${failures.length} contrast/target-size rule(s) over baseline.\n`);
+  // The placeholder pass has to prove it measured something: see
+  // PLACEHOLDER_ROUTE_FLOOR for the three ways it can go blind and still print
+  // a green line.
+  const blind: string[] = [];
+  for (const [pass, tally] of placeholders) {
+    info(`  · placeholders measured, ${pass}: ${tally.fields} field(s) on ${tally.routes.size} route(s)`);
+    if (tally.unreadable > 0) blind.push(`${pass}: ${tally.unreadable} field(s) whose \`::placeholder\` colour read back empty`);
+    if (tally.fields > 0 && tally.indistinct === tally.fields) {
+      blind.push(`${pass}: every \`::placeholder\` read equals the typed colour — the read is not reaching the pseudo-element`);
+    }
+    if (complete && tally.routes.size < PLACEHOLDER_ROUTE_FLOOR) {
+      blind.push(`${pass}: placeholders measured on ${tally.routes.size} route(s), floor ${PLACEHOLDER_ROUTE_FLOOR}`);
+    }
+  }
+  for (const line of blind) err(`  ✘ placeholder probe — ${line}`);
+
+  if (failures.length > 0 || blind.length > 0) {
+    const parts = [
+      failures.length > 0 && `${failures.length} contrast/placeholder/target-size rule(s) over baseline`,
+      blind.length > 0 && 'a placeholder pass that cannot show it measured anything',
+    ].filter(Boolean);
+    err(`\n✘ ${parts.join(', and ')}.\n`);
     exit(1);
   }
 
@@ -357,7 +474,7 @@ async function main(): Promise<void> {
   // at one contrast mode out of two.
   const partial = complete ? '' : ' — a PARTIAL sweep';
   const scope = `${targets.length} route(s) × ${themes.length} theme(s) × ${modes.length} contrast mode(s)${partial}`;
-  info(`\n✓ No new contrast or target-size violations (${scope}).`);
+  info(`\n✓ No new contrast, placeholder or target-size violations (${scope}).`);
 }
 
 await main();

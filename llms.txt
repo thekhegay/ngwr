@@ -234,7 +234,9 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   surface for every intent but `warning` and `light`, but still fails on the `-soft`
   tint — which is exactly where outlined / ghost / tinted variants paint it, so use
   `-ink` there. For muted prose use `--wr-color-on-surface-muted`, not the `medium`
-  intent.
+  intent, and for placeholder text `--wr-color-placeholder` (never
+  `--wr-color-text-faint`, which is decorative only). An intent colour on a tag,
+  badge or typography tone is decoration or category: the words carry the state.
 - **SSR** — everything renders on the server; the library contains no
   `ngSkipHydration`, so `provideClientHydration()` and `withEventReplay()` need
   nothing from it. Two calls are NOT no-ops there and ship an overlay into a

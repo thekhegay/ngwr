@@ -49,6 +49,8 @@
     flex: 0 0 var(--wr-divider-aside);
   }
 
+  // color-ok: decoration — a divider separates by being a line, which it is in
+  // every intent; the tint marks no state.
   @each $name in theme.$colors {
     &--#{$name} {
       --wr-divider-color: var(--wr-color-#{$name});

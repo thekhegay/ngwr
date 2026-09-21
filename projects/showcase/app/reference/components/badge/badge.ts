@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { Check } from 'lucide';
+import { Check, CircleCheck, OctagonAlert } from 'lucide';
 import { WrBadge, WrTag } from 'ngwr/badge';
 import { provideWrIcons } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
@@ -28,7 +28,9 @@ import { API } from '#core/generated/api';
     DocCodeComponent,
     DocApiComponent,
   ],
-  providers: [provideWrIcons(lucideIcons({ checkmark: Check }))],
+  providers: [
+    provideWrIcons(lucideIcons({ checkmark: Check, 'circle-check': CircleCheck, 'octagon-alert': OctagonAlert })),
+  ],
 })
 export default class BadgeComponent {
   protected readonly colors = WR_COLORS;
@@ -49,13 +51,34 @@ export class MyComponent {}`,
     tag: `<wr-tag color="success" icon="checkmark">Done</wr-tag>
 <wr-tag color="primary" outlined rounded>Beta</wr-tag>
 <wr-tag color="warning" loading>Saving</wr-tag>`,
+    statusIcons: `import { CircleCheck, OctagonAlert } from 'lucide';
+import { provideWrIcons } from 'ngwr/icon';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+
+@Component({
+  providers: [provideWrIcons(lucideIcons({ 'circle-check': CircleCheck, 'octagon-alert': OctagonAlert }))],
+})
+export class BuildStatus {}`,
+    status: `<wr-tag color="success" icon="circle-check">Passed</wr-tag>
+<wr-tag color="danger" icon="octagon-alert">Failed</wr-tag>
+<wr-badge color="warning">Degraded</wr-badge>`,
   };
 
   protected readonly api = API.WrBadge;
 
   protected readonly tagApi: readonly DocApiRow[] = [
-    { name: 'color', description: 'Intent colour.', type: 'WrColor', default: "'primary'" },
-    { name: 'icon', description: 'Icon rendered beside the label.', type: 'WrIconName | null', default: 'null' },
+    {
+      name: 'color',
+      description: 'Intent colour — decoration or category. The label carries the state; see above.',
+      type: 'WrColor',
+      default: "'primary'",
+    },
+    {
+      name: 'icon',
+      description: 'Icon rendered beside the label — the channel when a tag stands for a status on its own.',
+      type: 'WrIconName | null',
+      default: 'null',
+    },
     { name: 'iconPosition', description: 'Which side the icon sits on.', type: `'start' | 'end'`, default: "'start'" },
     { name: 'outlined', description: 'Transparent fill with a coloured ring.', type: 'boolean', default: 'false' },
     { name: 'transparent', description: 'Drop the fill entirely.', type: 'boolean', default: 'false' },

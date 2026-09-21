@@ -7,7 +7,11 @@
 //
 .wr-input {
   --wr-input-color: var(--wr-color-on-surface);
-  --wr-input-placeholder: rgba(var(--wr-color-on-surface-muted-rgb), 0.7);
+  // The placeholder role, not the muted channel at 0.7 it used to be: that
+  // composited to 2.91:1 on the surface and 2.73:1 on the readonly fill, and
+  // `prefers-contrast: more` could not reach it (3.72:1), since the alpha was
+  // written here rather than in the theme.
+  --wr-input-placeholder: var(--wr-color-placeholder);
   --wr-input-bg: var(--wr-color-surface);
   --wr-input-border: var(--wr-color-outline);
   --wr-input-radius: var(--wr-control-radius-md);

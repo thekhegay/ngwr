@@ -212,14 +212,14 @@ $contrast-light: #ffffff !default;
   --wr-color-fill: rgba(var(--wr-color-light-rgb), 0.3);
   --wr-color-fill-strong: rgba(var(--wr-color-light-rgb), 0.55);
 
-  // De-emphasized text — the muted ink dimmed to two canonical strengths so
-  // labels / captions / placeholders read consistently. One place each.
-  // Only the full-opacity token above is AA-safe for body text; these two are
-  // decorative by design (0.85 reaches ~3.5:1, 0.6 ~2.3:1 on a light surface).
-  // 0.95, not 0.85: the role itself is 5.35:1 on the light surface, but wrapping
-  // it at 0.85 composited to #778291 — 3.90:1, under the AA bar. 0.95 is the
-  // most softening that still clears it (4.81), which leaves this token barely
-  // distinguishable from the flat role it wraps.
+  // De-emphasized text — the muted ink at two strengths, and only the first is
+  // text. `-text-muted` is 0.95, not 0.85: the role itself is 5.35:1 on the
+  // light surface, but wrapping it at 0.85 composited to #778291 — 3.90:1,
+  // under the AA bar. 0.95 is the most softening that still clears it (4.81),
+  // which leaves this token barely distinguishable from the flat role it wraps.
+  // Every library rule that read it was a placeholder, and those read
+  // `--wr-color-placeholder` now; it stays for the muted labels a consumer
+  // writes. `-text-faint` is below every bar — see its marker.
   --wr-color-text-muted: rgba(var(--wr-color-muted-text-rgb), 0.95);
   // unused-ok: the library paints with nothing at this strength any more, and
   // that is the finding rather than an oversight. It had exactly three
@@ -227,11 +227,14 @@ $contrast-light: #ffffff !default;
   // spinner — and all three were FAILING: 2.43:1 in light, against 4.5:1 for
   // placeholder text and 3:1 for an interactive affordance and a status
   // indicator. "Decorative by design" was true of the token and not of any of
-  // the three, so they moved to `-text-muted` and `-on-surface-muted`. The tier
-  // stays published because a custom property is public API and a consumer may
-  // have genuinely decorative text; the library, it turns out, has none. Note
-  // that no gate reports the shortfall: axe has no non-text-contrast rule, and
-  // `check:contrast` gates on route counts.
+  // the three, so the grip and the spinner moved to `-on-surface-muted` and the
+  // placeholder to `--wr-color-placeholder`. The tier stays published because a
+  // custom property is public API and a consumer may have genuinely decorative
+  // text; the library, it turns out, has none. No gate reports a GRAPHIC at
+  // this strength — axe has no non-text-contrast rule. A placeholder painted
+  // with it fails `check:contrast`'s probe only where the probe can reach one,
+  // an at-rest `::placeholder`; every other placeholder rule is held to
+  // `--wr-color-placeholder` at the source, by `theme/styles.spec.ts`.
   --wr-color-text-faint: rgba(var(--wr-color-muted-text-rgb), 0.6);
 
   // Semantic role aliases over the flipping neutrals — prefer these in new code
@@ -256,6 +259,29 @@ $contrast-light: #ffffff !default;
   --wr-color-on-surface-rgb: var(--wr-color-dark-rgb);
   --wr-color-on-surface-muted: var(--wr-color-muted-text);
   --wr-color-on-surface-muted-rgb: var(--wr-color-muted-text-rgb);
+
+  // Placeholder text — its own role because placeholders are where the catalog
+  // kept inventing strengths: four of them, down to `rgba(…, 0.7)` on
+  // `[wrInput]` and `wr-textarea` at 2.91:1 in light, and the table filter's
+  // search on the browser's own #757575 at 4.08:1 in dark. A placeholder is
+  // TEXT, so 1.4.3 asks 4.5:1, and the muted role is the only value that holds
+  // on both backgrounds a field paints — 5.34:1 on the surface and 4.76:1 on the
+  // `--wr-color-fill` of a readonly `[wrInput]` (7.63 / 7.03 in dark, and 8.16 /
+  // 8.30 under `prefers-contrast: more`, where the muted base is what deepens).
+  // No softer tier fits under it: 4.5:1 needs 0.93 alpha on white and 0.98 on
+  // the readonly fill. The price is that an empty READONLY `[wrInput]` paints its
+  // placeholder in the colour a readonly value takes; `-text-muted` would keep
+  // them apart and fails there at 4.29. Written as the role rather than a
+  // literal, so dark and high contrast follow it on their own, and with no
+  // `-rgb` twin on purpose — an alpha over the muted channel is the defect this
+  // replaced. What measures it is narrower than "every placeholder":
+  // `check:contrast` swaps in each `::placeholder` a page shows at rest, plain
+  // `color-contrast` reads the select, cascader and tree triggers (text spans),
+  // and nothing painted reaches the command palette's or the table filter's,
+  // which exist only inside an overlay. `theme/styles.spec.ts` covers all of
+  // them the other way — every placeholder rule reads this token — so the
+  // unmeasured ones sit at the measured value.
+  --wr-color-placeholder: var(--wr-color-on-surface-muted);
 
   // Solid hairline / divider colour. Distinct from `--wr-color-border` above,
   // which is deliberately translucent (`light` at 50%) so it reads on any

@@ -268,6 +268,93 @@ describe('the focus ring', () => {
   });
 });
 
+describe('every placeholder reads the placeholder role', () => {
+  /**
+   * `--wr-color-placeholder` is the one place a placeholder's colour is decided,
+   * and AGENTS.md, the colours guide and the token's own comment all say every
+   * field in the catalog reads it. A placeholder rule that reaches past it — to
+   * the muted role it equals today, to a literal, or through a component hook
+   * whose default is either — breaks that promise with nothing painted to show
+   * for it: an app that sets the token restyles every field but that one, and a
+   * later retune of the role skips it. No contrast sweep can see the drift while
+   * the two values agree, and a placeholder drawn as generated content
+   * (`&__placeholder::before`) is outside the contrast probe altogether. So the
+   * rule is held here, at the source: every `color` a placeholder rule declares
+   * is the role itself, or a `--wr-<name>-placeholder` hook whose every
+   * declaration is the role.
+   */
+  const walk = (dir: string): string[] =>
+    readdirSync(dir).flatMap(name => {
+      const full = join(dir, name);
+      if (statSync(full).isDirectory()) return name === 'node_modules' || full === THEME_STYLES ? [] : walk(full);
+      return name.endsWith('.scss') ? [full] : [];
+    });
+
+  /** Comments stripped, and `#{…}` masked so its braces open no block. */
+  const sources = walk(LIB).map(file => ({ file, src: code(file).replace(/#\{[^}]*\}/g, m => '_'.repeat(m.length)) }));
+
+  /** Every value each `--wr-<name>-placeholder` hook is declared with. */
+  const hooks = new Map<string, Set<string>>();
+  for (const { src } of sources) {
+    for (const m of src.matchAll(/(--wr-[a-z0-9-]+-placeholder)\s*:\s*([^;]+);/g)) {
+      hooks.set(m[1], (hooks.get(m[1]) ?? new Set()).add(m[2].trim()));
+    }
+  }
+
+  const ROLE = 'var(--wr-color-placeholder)';
+
+  /** Each `color` a `::placeholder` or `__placeholder` rule declares at its own level. */
+  const painted: { where: string; value: string }[] = [];
+  for (const { file, src } of sources) {
+    for (const opener of src.matchAll(/([^{};]*)\{/g)) {
+      const selector = opener[1].trim().replace(/\s+/g, ' ');
+      if (!/::placeholder|__placeholder\b/.test(selector)) continue;
+      // Walked by depth, so a nested rule's `color` is its own and a
+      // declaration AFTER a nested rule is still this one's.
+      let depth = 0;
+      let segment = '';
+      for (let i = (opener.index ?? 0) + opener[0].length; i < src.length; i++) {
+        const ch = src[i];
+        if (ch === '{' || ch === '}') {
+          if (ch === '}' && depth === 0) break;
+          depth += ch === '{' ? 1 : -1;
+          segment = '';
+          continue;
+        }
+        if (depth > 0) continue;
+        if (ch !== ';') {
+          segment += ch;
+          continue;
+        }
+        const value = /^\s*color\s*:\s*([\s\S]+)$/.exec(segment)?.[1];
+        if (value) painted.push({ where: `${relative(LIB, file)}: \`${selector}\``, value: value.trim() });
+        segment = '';
+      }
+    }
+  }
+
+  it('paints with the role, directly or through a hook that defaults to it', () => {
+    const offenders = painted.flatMap(({ where, value }) => {
+      if (value === ROLE) return [];
+      const hook = /^var\((--wr-[a-z0-9-]+-placeholder)\)$/.exec(value)?.[1];
+      const defaults = hook ? [...(hooks.get(hook) ?? [])] : [];
+      if (defaults.length > 0 && defaults.every(d => d === ROLE)) return [];
+      return [
+        `${where} paints ${value}${defaults.length > 0 ? `, which is declared as ${defaults.join(' and ')}` : ''}`,
+      ];
+    });
+    expect(offenders).toEqual([]);
+  });
+
+  it('finds a plausible number of placeholders', () => {
+    // A selector pattern that quietly matched nothing would report every
+    // placeholder as reading the role. Ten when this was written: input,
+    // textarea, input-otp, the select trigger and its two search fields,
+    // cascader, tree, the command palette and the table filter.
+    expect(painted.length).toBeGreaterThanOrEqual(10);
+  });
+});
+
 describe('rebrand()', () => {
   const colors = code(join(THEME_STYLES, '_colors.scss'));
 

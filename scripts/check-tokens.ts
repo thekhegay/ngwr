@@ -48,13 +48,18 @@
  * loop) is expanded against the list its `@each` actually iterates, which is the
  * only way a concretely-named declaration such as the dark theme's
  * `--wr-color-dark-dark` can be seen for what it is: the background
- * `.wr-btn--dark:hover` paints. Both directions read SCSS, which is what makes
+ * `.wr-btn--dark:hover` paints. Which list that is comes from
+ * `scripts/lib/scss-loops.ts`, the same module `check:color-only` unrolls its
+ * per-intent rules through, so the two gates cannot read one loop two ways.
+ * Both directions read SCSS, which is what makes
  * the check work without a build — it belongs in `pnpm lint` rather than beside
  * `check:theme`, which needs the compiled stylesheet.
  */
 
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { extname, join, relative, resolve } from 'node:path';
+
+import { EACH, type LoopList, loopLists, resolveLoopList } from './lib/scss-loops';
 
 const ROOT = resolve(import.meta.dirname, '..');
 const THEME = join(ROOT, 'projects/lib/theme/styles');
@@ -155,59 +160,6 @@ function withoutComments(src: string): string {
     .replace(/<!--[\s\S]*?-->/g, ' ');
 }
 
-/** Members of `(a, b, c)` or `(a: 1, b: 2)`, as the `@each` binds them. */
-function members(body: string): { keys: string[]; values: string[] } {
-  const keys: string[] = [];
-  const values: string[] = [];
-  for (const entry of body.split(',')) {
-    const [key, value] = entry.includes(':') ? entry.split(':') : [entry, entry];
-    if (/^[\w-]+$/.test(key.trim())) keys.push(key.trim());
-    if (/^[\w-]+$/.test(value.trim())) values.push(value.trim());
-  }
-  return { keys, values };
-}
-
-/**
- * Every list an `@each` in the counted sources can iterate, by BARE name.
- *
- * `theme.$colors` in a component and `$colors` in the theme are one list under
- * two spellings, so the namespace is dropped on the way in. Two files declaring
- * the same name with different members is the case this cannot resolve, so it
- * drops the name rather than guessing — an expansion that is wrong calls a dead
- * token alive, which is the one outcome worse than not expanding at all.
- */
-function loopLists(): Map<string, { keys: string[]; values: string[] }> {
-  const out = new Map<string, { keys: string[]; values: string[] }>();
-  const dropped = new Set<string>();
-  const aliases = new Map<string, string>();
-
-  const remember = (name: string, list: { keys: string[]; values: string[] }): void => {
-    const seen = out.get(name);
-    if (seen && seen.keys.join() !== list.keys.join()) dropped.add(name);
-    out.set(name, list);
-  };
-
-  for (const [dir] of SOURCES) {
-    for (const file of files(dir, p => extname(p) === '.scss')) {
-      const src = withoutComments(readFileSync(file, 'utf8'));
-      for (const [, name, body] of src.matchAll(/^\$([\w-]+)\s*:\s*\(([^)]*)\)/gm)) remember(name, members(body));
-      // `$colors: map.keys($base-colors)` — the public loop list, one hop away
-      // from the map every component's `@each` is really walking.
-      for (const [, name, source] of src.matchAll(/^\$([\w-]+)\s*:\s*map\.keys\(\s*\$([\w-]+)\s*\)/gm)) {
-        aliases.set(name, source);
-      }
-    }
-  }
-
-  for (const [name, source] of aliases) {
-    const list = out.get(source);
-    if (list) remember(name, { keys: list.keys, values: list.keys });
-  }
-  for (const name of dropped) out.delete(name);
-
-  return out;
-}
-
 /**
  * The concrete `var()` lines an interpolated one stands for.
  *
@@ -220,7 +172,7 @@ function loopLists(): Map<string, { keys: string[]; values: string[] }> {
  * line is re-emitted once per member, scoped by brace depth so a second `@each`
  * in the same file cannot lend its list to the first.
  */
-function expansions(src: string, lists: ReadonlyMap<string, { keys: string[]; values: string[] }>): string[] {
+function expansions(src: string, lists: ReadonlyMap<string, LoopList>): string[] {
   const out: string[] = [];
   const scopes: { depth: number; bound: Map<string, string[]> }[] = [];
   let depth = 0;
@@ -236,13 +188,12 @@ function expansions(src: string, lists: ReadonlyMap<string, { keys: string[]; va
       }
     }
 
-    const each = /@each\s+\$([\w-]+)(?:\s*,\s*\$([\w-]+))?\s+in\s+(.+?)\s*\{/.exec(bare);
+    const each = EACH.exec(bare);
     depth += (bare.match(/\{/g)?.length ?? 0) - (bare.match(/\}/g)?.length ?? 0);
 
     if (each) {
       const [, first, second, expression] = each;
-      const inline = /^\((.*)\)$/.exec(expression.trim());
-      const list = inline ? members(inline[1]) : lists.get(expression.trim().replace(/^[\w-]+\./, '').replace('$', ''));
+      const list = resolveLoopList(expression, lists);
       if (list) {
         const bound = new Map<string, string[]>([[first, list.keys]]);
         if (second) bound.set(second, list.values);
@@ -265,7 +216,7 @@ function expansions(src: string, lists: ReadonlyMap<string, { keys: string[]; va
  * consumer even when the loop's list is not one this can read.
  */
 function consumers(): string {
-  const lists = loopLists();
+  const lists = loopLists(SOURCES.map(([dir]) => dir));
   const parts: string[] = [];
 
   for (const [dir, extensions] of SOURCES) {

@@ -186,21 +186,37 @@
   }
 
   // Tones
+  // color-ok: a text ROLE, not a state — body copy. Like every tone it is
+  // emphasis only, and the words carry whatever state there is.
   &--tone-dark {
     color: var(--wr-color-on-surface);
   }
+  // color-ok: a text ROLE, not a state — muted prose rather than body copy.
+  // Like every tone it is emphasis only.
   &--tone-medium {
     color: var(--wr-color-on-surface-muted);
   }
+  // color-ok: emphasis only, never the sole carrier of a state — the words
+  // carry it, as "500 Server Error" does, because `success` against `danger` is
+  // 1.05:1 as text in light.
   &--tone-primary {
     color: var(--wr-color-primary-ink);
   }
+  // color-ok: emphasis only, never the sole carrier of a state — the words
+  // carry it, as "500 Server Error" does, because `success` against `danger` is
+  // 1.05:1 as text in light.
   &--tone-success {
     color: var(--wr-color-success-ink);
   }
+  // color-ok: emphasis only, never the sole carrier of a state — the words
+  // carry it, as "500 Server Error" does, because `success` against `danger` is
+  // 1.05:1 as text in light.
   &--tone-warning {
     color: var(--wr-color-warning-ink);
   }
+  // color-ok: emphasis only, never the sole carrier of a state — the words
+  // carry it, as "500 Server Error" does, because `success` against `danger` is
+  // 1.05:1 as text in light.
   &--tone-danger {
     color: var(--wr-color-danger-ink);
   }

@@ -63,6 +63,20 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Colour is not a label"
+    description="Six of the nine intents are the same lightness — `success` against `danger` is 1.004:1 — so to a reader who cannot separate red from green a success tag and a danger tag are the same chip, and `primary` and `info` are the same blue to everyone. So the colour of a tag or a badge is decoration or category, and the words carry the state: write `Failed`, not a red `Build`. When a tag has to stand for a status on its own, give it an `icon` as well. Nothing ships built in, so register the icons you use; a badge has no icon, so its label has to do all of it."
+  >
+    <ngwr-doc-code [code]="snippets.statusIcons" language="angular-ts" />
+    <ngwr-doc-snippet [code]="snippets.status">
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+        <wr-tag color="success" icon="circle-check">Passed</wr-tag>
+        <wr-tag color="danger" icon="octagon-alert">Failed</wr-tag>
+        <wr-badge color="warning">Degraded</wr-badge>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API" description="Inputs of &lt;wr-badge&gt;.">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

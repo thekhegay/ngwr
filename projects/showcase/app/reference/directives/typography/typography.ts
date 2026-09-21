@@ -37,7 +37,7 @@ export default class DirectivesTypographyPage {
       type: 'WrTypographyTone | null',
       default: 'null',
       description:
-        'Colour override. `null` emits no tone class at all, leaving each variant its own colour — body and headings read `--wr-color-on-surface`, `lead` / `caption` / `overline` are muted, `link` is primary. Set a tone only to depart from that.',
+        'Colour override. `null` emits no tone class at all, leaving each variant its own colour — body and headings read `--wr-color-on-surface`, `lead` / `caption` / `overline` are muted, `link` is primary. Set a tone only to depart from that — and for emphasis only: a tone never carries a state on its own, since `success` against `danger` is 1.05:1 as text. The words have to name the state.',
     },
     {
       name: 'align',

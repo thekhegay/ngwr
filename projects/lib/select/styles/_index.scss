@@ -152,7 +152,7 @@
   }
 
   &__placeholder {
-    color: var(--wr-color-text-muted);
+    color: var(--wr-color-placeholder);
   }
 
   // The selected option's leading visual on a single-mode button trigger. Never
@@ -243,7 +243,7 @@
     line-height: var(--wr-select-line-height);
 
     &::placeholder {
-      color: var(--wr-color-text-muted);
+      color: var(--wr-color-placeholder);
     }
 
     &:disabled {
@@ -278,7 +278,7 @@
     line-height: var(--wr-select-line-height);
 
     &::placeholder {
-      color: var(--wr-color-text-muted);
+      color: var(--wr-color-placeholder);
     }
 
     // At `maxItems` the input goes READONLY rather than disabled — it is the

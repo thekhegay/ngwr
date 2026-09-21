@@ -13,9 +13,10 @@ import type { WrColor } from 'ngwr/theme';
 import type { WrBadgeShape, WrBadgeSize } from './interfaces';
 
 /**
- * Lean status chip — color, size, rounded/pill. Use for short labels
- * and counts (e.g. "ONLINE", "3 unread", "v2.1"). Reach for `<wr-tag>`
- * when you need icons, loading state, or outlined / transparent styles.
+ * Lean chip — color, size, rounded/pill. Use for short labels and counts
+ * (e.g. "ONLINE", "3 unread", "v2.1"), where the words say the state and the
+ * colour decorates it. Reach for `<wr-tag>` when you need icons, loading
+ * state, or outlined / transparent styles.
  *
  * @example
  * ```html
@@ -36,7 +37,12 @@ import type { WrBadgeShape, WrBadgeSize } from './interfaces';
 })
 export class WrBadge {
   /**
-   * Color variant. Maps to `--wr-color-*` CSS variables from the theme.
+   * Color variant. Maps to `--wr-color-*` CSS variables from the theme. It is
+   * decoration or category, never the state on its own: six of the nine intents
+   * share one lightness and `success` against `danger` is 1.004:1, so the label
+   * has to say the state (`Offline`, not a red `Status`). A badge draws no
+   * icon — when a chip must stand for a status without words, use `<wr-tag>`
+   * with its `icon` input.
    *
    * @default 'primary'
    */

@@ -30,6 +30,10 @@
     transition: width var(--wr-transition-base);
   }
 
+  // color-ok: the VALUE is the bar's length and its `aria-valuenow`; the intent
+  // only tints it. A host that uses `danger` to mean "failed" has to say so in
+  // words — the `ariaLabel`, the text beside the bar — because six intents
+  // share one lightness and the bar has no second channel for a status.
   @each $name in theme.$colors {
     &--#{$name} {
       --wr-progress-track: rgba(var(--wr-color-#{$name}-rgb), 0.2);
