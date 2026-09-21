@@ -1,5 +1,13 @@
 # Changelog
 
+## [14.9.0](https://github.com/thekhegay/ngwr/compare/v14.8.0...v14.9.0) (2026-09-21)
+
+### Features
+
+* **editor:** rich text editor on prosemirror, value as html, markdown or json ([e559a80](https://github.com/thekhegay/ngwr/commit/e559a8077ccc91a11047762b423be23d3f3cf2a7))
+* **markdown:** write a parsed tree back as markdown ([b932229](https://github.com/thekhegay/ngwr/commit/b9322290d2744490299469c8e5984243629e5eb6))
+* **theme:** placeholder role token, and check:color-only reads [@each](https://github.com/each) loops ([5164c2d](https://github.com/thekhegay/ngwr/commit/5164c2d0a58aacfd7e94332a243c0bfd7cfbc9b3))
+
 ## [14.8.0](https://github.com/thekhegay/ngwr/compare/v14.7.0...v14.8.0) (2026-09-17)
 
 ### Features
