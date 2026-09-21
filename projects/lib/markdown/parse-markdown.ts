@@ -599,6 +599,34 @@ const BARE_URL_RE = /^https?:\/\/[^\s<>[\]()]*(?:\([^\s<>()]*\)[^\s<>[\]()]*)*/i
 const EMAIL_AUTOLINK_RE = /^<([^\s@<>]+@[^\s@<>.]+\.[^\s@<>]+)>/;
 
 /**
+ * Whitespace and control characters only: a hyphen has no business being
+ * stripped out of a host name. Written as escapes rather than literal bytes — a
+ * raw NUL inside a regex literal makes the file binary to every text tool.
+ * Stripping control characters is the entire point: a browser ignores them before
+ * resolving the scheme, so a check that reads the raw string sees a relative path
+ * and waves `java\u0000script:` straight through.
+ */
+// eslint-disable-next-line no-control-regex
+const URL_IGNORED_RE = /[\s\u0000-\u001f\u007f]/g;
+
+/**
+ * The character references a CommonMark renderer decodes in a link destination
+ * that can spell a scheme: every numeric one, and the named ones for the colon
+ * and for the whitespace a browser strips (`&colon;`, `&Tab;`, `&NewLine;`).
+ * Matched without regard to case and with the semicolon optional, which is wider
+ * than any renderer decodes — the net only ever catches a URL nobody writes.
+ */
+const SCHEME_REFERENCE_RE = /&(?:#x([0-9a-f]+)|#(\d+)|(colon|tab|newline));?/gi;
+
+function decodeSchemeReferences(url: string): string {
+  return url.replace(SCHEME_REFERENCE_RE, (_reference, hex?: string, decimal?: string, name?: string) => {
+    if (name) return name.toLowerCase() === 'colon' ? ':' : '\n';
+    const code = hex ? Number.parseInt(hex, 16) : Number(decimal);
+    return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : '\ufffd';
+  });
+}
+
+/**
  * A URL safe to put in `href` / `src`, or `null` to render the link as plain text.
  *
  * Two layers, and both are wanted. Angular sanitizes `[href]` bindings itself,
@@ -608,19 +636,16 @@ const EMAIL_AUTOLINK_RE = /^<([^\s@<>]+@[^\s@<>.]+\.[^\s@<>]+)>/;
  *
  * Whitespace and control characters are stripped before the scheme is read,
  * because `java\nscript:` and `java script:` are the same URL to a browser and
- * different strings to a naive check.
+ * different strings to a naive check. So are character references:
+ * `javascript&colon;` has no scheme to this check, but a CommonMark renderer
+ * decodes it in a destination, so any markdown the URL is written into — an
+ * editor's output, say — hands a browser `javascript:`. The scheme is read from
+ * the decoded form; what comes back is still the URL as written.
  */
 function safeMarkdownUrl(raw: string, kind: 'link' | 'image'): string | null {
   const url = raw.trim();
-  // Whitespace and control characters only: a hyphen has no business being
-  // stripped out of a host name. Written as escapes rather than literal bytes —
-  // a raw NUL inside a regex literal makes the file binary to every text tool.
-  // Stripping control characters is the entire point here: a browser ignores them
-  // before resolving the scheme, so a check that reads the raw string sees a
-  // relative path and waves `java\u0000script:` straight through.
-  // eslint-disable-next-line no-control-regex
-  const bare = url.replace(/[\s\u0000-\u001f\u007f]/g, '');
-  const scheme = SCHEME_RE.exec(bare);
+  const bare = url.replace(URL_IGNORED_RE, '');
+  const scheme = SCHEME_RE.exec(decodeSchemeReferences(bare).replace(URL_IGNORED_RE, ''));
 
   // No scheme at all: relative path, `#anchor`, `//host` — nothing executable.
   if (!scheme) return url;
@@ -1234,3 +1259,23 @@ function patchText(value: string): readonly WrMarkdownInline[] | null {
 }
 
 export { parseInlines, parseMarkdown, plainText, safeMarkdownUrl };
+
+// Internal to the entry point: `serialize-markdown.ts` writes markdown against
+// THIS parser's rules rather than CommonMark's, so it asks these the same
+// questions the parser asks. `public-api.ts` decides what is public, and none of
+// these are — a regex is not an API anyone should be able to depend on.
+export {
+  AUTOLINK_RE,
+  EMAIL_AUTOLINK_RE,
+  MAX_DESTINATION_NESTING,
+  MAX_LABEL_LENGTH,
+  MAX_TABLE_COLUMNS,
+  QUOTE_RE,
+  RULE_RE,
+  TABLE_DELIM_RE,
+  codeSpanValue,
+  interruptsParagraph,
+  isTableStart,
+  matchListStart,
+  startsBlock,
+};

@@ -441,6 +441,26 @@ describe('safeMarkdownUrl', () => {
     expect(safeMarkdownUrl(' javascript:alert(1)', 'link')).toBeNull();
   });
 
+  it('refuses a script URL whose colon or letters are character references', () => {
+    // A CommonMark renderer decodes references in a destination, so a document
+    // this URL is written into reads `javascript:` — the check has to as well.
+    for (const url of [
+      'javascript&colon;alert(1)',
+      'javascript&#58;alert(1)',
+      'javascript&#x3A;alert(1)',
+      'javascript&#0058alert(1)',
+      '&#106;avascript:alert(1)',
+      'java&Tab;script:alert(1)',
+      'data&colon;text/html,x',
+    ]) {
+      expect(safeMarkdownUrl(url, 'link')).toBeNull();
+    }
+    expect(safeMarkdownUrl('data&colon;image/png;base64,iVBORw0KGgo=', 'image')).toBeNull();
+    // An allowed scheme, or none, is still returned exactly as written.
+    expect(safeMarkdownUrl('https&colon;//a.b', 'link')).toBe('https&colon;//a.b');
+    expect(safeMarkdownUrl('/search?a=1&amp;b=2', 'link')).toBe('/search?a=1&amp;b=2');
+  });
+
   it('keeps hyphens in a host name', () => {
     // The character class doing the stripping is easy to get wrong in a way that
     // silently rewrites real URLs rather than failing loudly.

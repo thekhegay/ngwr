@@ -153,8 +153,8 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Parsing without rendering"
-    description="The parser is exported. `parseMarkdown()` returns the same block tree the component renders, `parseInlines()` handles one line of inline markdown, `plainText()` flattens an inline tree, and `safeMarkdownUrl()` is the URL check the renderer itself applies. Useful for a table of contents, a search index or a plain-text summary."
+    title="Parsing and writing back"
+    description="The parser is exported, and so is its inverse. `parseMarkdown()` returns the same block tree the component renders, `parseInlines()` handles one line of inline markdown, `plainText()` flattens an inline tree, and `safeMarkdownUrl()` is the URL check the renderer itself applies. `serializeMarkdown()` writes a tree back as markdown that `parseMarkdown()` reads as the same tree, escaping only what it would otherwise read as syntax; what markdown cannot say — whitespace just inside a delimiter, two adjacent lists of one kind — is normalised rather than guessed at. Useful for a table of contents, a search index, a plain-text summary, or saving a tree you edited."
   >
     <ngwr-doc-code [code]="snippets.parse" language="typescript" />
   </ngwr-doc-section>
