@@ -3,7 +3,6 @@ name: Deploy showcase
 on:
   push:
     branches: [main]
-  # Deploy on demand — for a rollback, or to re-push the current main.
   workflow_dispatch:
 
 concurrency:
@@ -13,20 +12,11 @@ concurrency:
 jobs:
   deploy:
     name: Build & deploy showcase
-    # Stable releases only — RCs and ordinary commits do not ship. The site
-    # therefore always documents a version that exists on npm, instead of
-    # drifting ahead of it across the hundreds of commits that can land between
-    # releases. `workflow_dispatch` is the manual escape hatch: use it to
-    # re-push the current main or to roll back.
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (startsWith(github.event.head_commit.message, 'chore(release): v') &&
       !contains(github.event.head_commit.message, '-rc.'))
     runs-on: ubuntu-latest
-    # Scopes the SSH secrets to this job instead of the whole repository, so a
-    # workflow added later cannot reach the production box just by naming them.
-    # Also gives the Deployments page a real history and puts a link to the live
-    # site on every deploying commit.
     environment:
       name: production
       url: https://ngwr.dev
@@ -43,7 +33,6 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Gate the deploy on lint + build — nothing ships unless both pass.
       - run: pnpm lint
 
       - run: pnpm build:showcase
@@ -51,16 +40,7 @@ jobs:
       - uses: easingthemes/ssh-deploy@v6.0.3
         with:
           SCRIPT_BEFORE: ls
-          # `--delete` because without it every hashed bundle ever built stays
-          # on the server forever: the box had accumulated 2728 `chunk-*.js`,
-          # 25 `main-*.js` and 15 `styles-*.css` — 106 MB of dead weight out of
-          # 188 MB total.
-          #
-          # `--exclude=/v[0-9]*` is what makes that safe. The archived docs
-          # (/v7/, /v8/, /v9/) live in this same directory but are NOT part of
-          # `dist/showcase`, so an unguarded `--delete` would wipe every frozen
-          # major on the next deploy. Verified with `--dry-run` against the live
-          # server: 2799 stale files matched, zero of them under an archive.
+          # The exclude keeps --delete away from the archived /vN/ docs.
           ARGS: '-rlgoDzvc -i --delete --exclude=/v[0-9]*'
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SOURCE: 'dist/showcase/'

@@ -22,7 +22,6 @@ jobs:
   release-pr:
     name: Cut release PR
     runs-on: ubuntu-latest
-    # Always cut releases from main — there is no separate release branch.
     if: github.ref == 'refs/heads/main'
 
     steps:
@@ -49,12 +48,6 @@ jobs:
         id: prepare
         run: pnpm release:prepare --bump=${{ inputs.bump }} > /dev/null
 
-      # `release:prepare` writes four copies of the version; `quality.ts` is a
-      # FIFTH, generated rather than written, and it went out stale on two
-      # consecutive releases before anyone looked — the docs site's own
-      # `/start/quality` page binds to it. The deployed page is always correct
-      # because `deploy.yml` rebuilds it, so only the committed copy drifts,
-      # which is exactly the kind of drift nobody notices.
       - name: Re-generate the quality facts the bump just changed
         run: pnpm gen:quality
 

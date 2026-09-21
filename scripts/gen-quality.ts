@@ -599,9 +599,8 @@ function ownKeysOf(src: string, at: number): string {
  *
  * Parsed out of the workflow rather than listed here, which is the point: a gate
  * added to CI shows up on the page without anyone remembering this file exists,
- * and a gate deleted disappears from it. YAML comment lines are dropped first —
- * `ci.yml` explains at length why `check:contrast` is NOT in the PR job, and a
- * scan that reads comments would list it as one.
+ * and a gate deleted disappears from it. YAML comment lines are dropped first, so
+ * a script named only in a comment is never listed as a gate.
  *
  * The builds are included. `build:lib` and `build:showcase` are steps that fail
  * the run like any other, and `build:showcase` prerenders every route in Node,

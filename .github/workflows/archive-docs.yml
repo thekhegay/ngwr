@@ -1,34 +1,6 @@
 name: Archive docs version
 
-# Build a past release's showcase docs and deploy them to a versioned path
-# (e.g. /v7/) so the header version-switcher can link to frozen older docs.
-# Run once per archived major.
-#
-# Server prerequisite: nginx has to route the versioned path with its own SPA
-# fallback, or `/v9/anything` falls through to the ROOT index.html and serves
-# the current docs instead of the archived ones. One regex location covers every
-# past and future major, so no server change is needed per release:
-#
-#   location ~ ^/(v[0-9]+(?:\.[0-9]+)*(?:-rc(?:\.[0-9]+)?)?)/ {
-#       try_files $uri $uri/ /$1/index.html =404;
-#   }
-#
-# Both halves of that are load-bearing. The optional octets and `-rc` suffix let
-# the same location serve a `v9.1.0` or `v9.0.0-rc` path, not just `v9`.
-#
-# The `=404` terminator matters only when the snapshot itself is missing — a
-# half-finished archive job, or a wrong `path` input. `try_files` then re-enters
-# this same location hunting for a `/vN/index.html` that is not there, and nginx
-# aborts with "rewrite or internal redirection cycle": a 500 where 404 is the
-# honest answer. So if archived deep links 500, suspect the missing snapshot
-# first; the terminator turns that into a diagnosable 404 rather than causing it.
-#
-# (The older per-version form — `location /v7/ { … }` — works too but has to be
-# added by hand each time, which is exactly what the automation below removes.)
-
 on:
-  # Manual re-runs: re-archiving a major, or back-filling one that predates the
-  # automatic hook below.
   workflow_dispatch:
     inputs:
       tag:
@@ -39,8 +11,6 @@ on:
         description: 'Versioned URL path / target subdir (e.g. v7)'
         required: true
         type: string
-  # Called by `publish.yml` when a major ships, to freeze the major it replaces.
-  # Same inputs, so the two paths cannot drift.
   workflow_call:
     inputs:
       tag:
@@ -52,13 +22,6 @@ on:
         required: true
         type: string
 
-# Pinned read-only, and that matters most on the `workflow_call` path: a called
-# workflow otherwise inherits the CALLER's token, and publish.yml holds
-# `contents: write` + `id-token: write` for tagging and npm Trusted Publishing.
-# This job restores a pnpm cache — the very thing publish.yml disables so a
-# poisoned entry cannot reach its OIDC token — so inheriting that token would
-# reopen the hole one job below the comment explaining why it was closed.
-# Declaring the narrower set here drops both privileges for this workflow.
 permissions:
   contents: read
 
@@ -70,9 +33,6 @@ jobs:
   archive:
     name: Build ${{ inputs.tag }} → /${{ inputs.path }}/
     runs-on: ubuntu-latest
-    # Same environment as `deploy.yml` — it reaches the same server with the
-    # same secrets, so it has to be scoped the same way. Without this the job
-    # cannot see them once they move off the repository level.
     environment:
       name: production
       url: https://ngwr.dev/${{ inputs.path }}/
@@ -91,21 +51,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # AI assets are best-effort — the generator may be absent on older tags.
       - run: pnpm exec tsx scripts/gen-ai-assets.ts || true
 
-      # Root the snapshot at the versioned path so its assets + router links
-      # resolve under /<path>/.
-      #
-      # Through the wrapper, not a bare `ng build`: under `outputMode: 'static'`
-      # a route that throws while prerendering does NOT fail the build — it logs
-      # `ERROR …`, emits the broken page anyway and exits 0. scripts/build-showcase-app.ts
-      # is the only thing that turns that into a red build, and it forwards extra
-      # args straight through to `ng build showcase`. Without it an archive can
-      # publish content-less pages under a green check. Calling it directly rather
-      # than via `pnpm build:showcase`, because that script is a three-command
-      # chain and `--base-href` would land on the last one. The wrapper postdates
-      # some archivable tags, hence the fallback.
       - run: |
           if [[ -f scripts/build-showcase-app.ts ]]; then
             pnpm exec tsx scripts/build-showcase-app.ts --base-href=/${{ inputs.path }}/
@@ -113,60 +60,14 @@ jobs:
             pnpm exec ng build showcase --base-href=/${{ inputs.path }}/
           fi
 
-      # Keep superseded docs out of search results.
-      #
-      # Archived majors are indexable exactly like the live site, so someone
-      # searching for a component can land on two-year-old documentation with
-      # nothing telling them so. `noindex, follow` drops the pages from the
-      # index while still letting crawlers walk the links, and it is applied to
-      # the built output rather than the source: the older tags this workflow
-      # checks out predate any such markup and cannot be changed retroactively.
-      #
-      # Deliberately not `canonical` to the current version — route paths move
-      # between majors, so a page-to-page mapping would silently point at the
-      # wrong page or a 404. Dropping from the index is the honest option.
       - name: Mark the snapshot noindex
         run: |
           count=$(find dist/showcase -name '*.html' | wc -l)
           find dist/showcase -name '*.html' -print0 | xargs -0 sed -i \
             's|<head>|<head><meta name="robots" content="noindex, follow">|'
           echo "Marked $count pages noindex"
-          # The snapshot's own sitemap would invite exactly the indexing we
-          # just turned off.
           rm -f dist/showcase/sitemap.xml
 
-      # Give the reader a way out, and stop the snapshot claiming to be current.
-      #
-      # An archived build's own version-switcher is frozen at the moment it was
-      # tagged, so it can never be right: /v9/ labels itself "v9 · latest" and
-      # offers only v7, because the v9 build has no idea v10 exists — and /v7/
-      # and /v8/ have no switcher at all, leaving no route back to the live docs
-      # from any page. Both are fixed the same way: hide the stale control and
-      # inject a banner that always points at the site root.
-      #
-      # Injected into the built HTML rather than authored in the app, for the
-      # same reason as the noindex above — these tags are already cut and cannot
-      # be given the markup retroactively. It names the version it IS (a frozen
-      # fact) and never the current one (which would go stale on the next
-      # major), and it carries its own styles so it does not depend on whatever
-      # token layer that release happened to ship.
-      #
-      # Appended after </body>'s content, i.e. outside the app root, so Angular
-      # hydration never sees it as unexpected DOM.
-      #
-      # `position: sticky` rather than `fixed`, and this is load-bearing: a fixed
-      # bar reserves no space, and the showcase pins `html, body { height: 100% }`
-      # under `box-sizing: border-box`, so the obvious remedy — padding the body —
-      # reserves nothing either. The padding is spent inside the first viewport
-      # while the app root (`min-height: 100vh`) overflows past it, leaving the
-      # document's scroll bottom flush with the content and the bar painted over
-      # the footer, unreachable at any scroll position. Sticky sits in normal
-      # flow, so it reserves exactly its own height at whatever width it wraps to,
-      # and still pins to the bottom of the viewport while scrolling.
-      #
-      # z-index stays BELOW the CDK overlay container (1000): archived pages host
-      # live demos, and a bar above them would cover a drawer's or dialog's
-      # buttons and make the demo look broken.
       - name: Flag the snapshot as archived
         env:
           ARCHIVED_PATH: ${{ inputs.path }}
