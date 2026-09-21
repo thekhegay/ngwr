@@ -1,55 +1,7 @@
 name: Nightly
 
-# The checks that are worth running, but not worth waiting for.
-#
-# Three jobs, all needing a real browser, which is what keeps them out of the
-# PR gate.
-#
-# `pnpm check:contrast` is the other half of the a11y gate: `check:a11y` runs
-# axe in JSDOM, which has no stylesheets, so it turns `color-contrast` and
-# `target-size` off and answers only the structural half. This one drives a real
-# Chromium over every prerendered route and answers exactly those two rules.
-#
-# It sweeps TWO axes now, theme × `prefers-contrast`, which doubles the page
-# loads it already cost. That is deliberate and it is why this job is nightly
-# rather than a PR gate: the theme layer answers `prefers-contrast: more` with a
-# block of its own, and a path nothing measures is a claim rather than a
-# feature. Playwright sets the preference on the context and Chromium recomputes
-# against it, so what gets measured is the real emulation, not a class the page
-# opts into.
-#
-# `pnpm check:rtl-layout` is the other half of the RTL gate, for the same shape of
-# reason. `check:rtl` reads SOURCE and catches a physical CSS property with no
-# stated reason; it cannot see what a page does once painted. Nothing else in CI
-# ever renders a page right-to-left, and the one bug the RTL sweep shipped was
-# exactly that kind: a thumb centred with `translate(-50%)` against an inset that
-# had become logical, sitting a whole thumb-width past its own value under
-# `dir="rtl"`. This job loads every route in both directions and fails when a box
-# escapes the viewport in RTL that does not in LTR.
-#
-# `pnpm check:state-a11y` is the third a11y gate, and it covers what the other
-# two structurally cannot: a state the user has to create. Both
-# of them read a page at rest — prerendered HTML in one case, a loaded route in
-# the other — so a hover, a focus ring and everything inside an overlay go
-# unpainted and therefore unmeasured — and since `check:a11y` reads prerendered
-# HTML, the STRUCTURAL rules have never run in there either. Seven real AA
-# colour failures and one nested-interactive button were found by hand in
-# exactly those places while both gates were green. This one drives each state,
-# asserts it painted, and runs the full rule set there.
-#
-# Nightly is the right cadence for it. What it catches is drift in painted
-# colour: a token nudged, a tint restyled, a component switched off the `-ink`
-# ramp. That shows up the day after the change lands just as usefully as it
-# would inside a review cycle, and nobody sits waiting for it.
-#
-# Failure is the notification — GitHub mails the run to whoever watches Actions.
-# The full report is attached as an artifact so the numbers can be read without
-# re-running twenty minutes of browser.
-
 on:
   schedule:
-    # 03:00 UTC. Late enough that a day's merges are all in, early enough that
-    # the result is waiting rather than competing with the morning's CI.
     - cron: '0 3 * * *'
   workflow_dispatch:
 
@@ -58,29 +10,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Every Node in `engines` that the pull-request job does not run.
-  #
-  # `package.json` mirrors Angular 22's own range — `^22.22.3 || ^24.15.0 ||
-  # ^26.0.0` — and every other job runs 26, so without this two thirds of that
-  # range would be a claim nothing checks. Both are LTS lines with years left
-  # (22 to April 2027, 24 to 2028) and both are what a consumer is more likely to
-  # be on than the Current release, so "supported" has to keep meaning something.
-  #
-  # The matrix is derived by hand rather than parsed out of `engines`, and that
-  # is the one thing to keep in step: a version added there without a row here is
-  # exactly the untested claim this job exists to prevent.
-  #
-  # Nightly rather than on a pull request for the usual reason: two more full
-  # suites on every PR buys minutes to catch a class of break that arrives with a
-  # dependency bump, not with a component change. Lint and the docs build are
-  # left to the PR job — what is version-specific is the RUNTIME, so this runs
-  # the tests and the library build and nothing else.
   legacy-node:
     name: Node ${{ matrix.node }} (an LTS line engines still accepts)
     runs-on: ubuntu-latest
 
     strategy:
-      # One red row should not hide the other's result.
       fail-fast: false
       matrix:
         node: [22, 24]
@@ -108,8 +42,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # No `version:` — the action reads the pinned pnpm from package.json's
-      # `packageManager` field. Single source of truth.
       - uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v7
@@ -119,29 +51,14 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # The gate reads `dist/showcase`, so the site has to exist first. This is
-      # the only reason the job is not just one command.
       - run: pnpm build:showcase
 
       - run: pnpm exec playwright install --with-deps chromium
 
-      # `--verbose` because nobody is watching this run: the log IS the report,
-      # and a baselined finding printed without its numbers is a line nobody can
-      # act on tomorrow morning.
-      #
-      # `shell: bash` is load bearing, not decoration. A pipeline reports the
-      # exit code of its LAST command, so `check:contrast | tee` would hand back
-      # tee's success and the job would go green over a real failure. Naming the
-      # shell explicitly is what gets `-o pipefail`; the default `bash -e {0}`
-      # does not set it.
-      # `2>&1` is not tidiness: `scripts/lib/log/{info,err}` both write to
-      # STDERR, so piping stdout alone captures pnpm's preamble and nothing
-      # else — an artifact that exists, weighs a few bytes, and says nothing.
+      # shell: bash adds pipefail, so tee cannot hide a failing check.
       - run: pnpm check:contrast --verbose 2>&1 | tee contrast-report.txt
         shell: bash
 
-      # Kept even when the run is green — the trend is the point. A baselined
-      # count creeping up inside its allowance is invisible in a pass/fail.
       - if: always()
         uses: actions/upload-artifact@v7
         with:
@@ -165,26 +82,13 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # The gate reads `dist/showcase`, so the site has to exist first.
       - run: pnpm build:showcase
 
       - run: pnpm exec playwright install --with-deps chromium
 
-      # `--verbose` prints the baseline notes, which is where the reasoning for
-      # every allowed failure lives. `shell: bash` for `-o pipefail`, and `2>&1`
-      # because both loggers write to stderr — same two traps as the job above.
-      #
-      # `--probe` because nobody is watching THIS run either. Without it the
-      # sweep stops at the first state it cannot reach and says nothing about
-      # the seventy behind it, which is what the first nightly did: one entry
-      # that depended on the runner's OS took the whole report with it. The exit
-      # code is the same; only the amount you learn from one run changes.
       - run: pnpm check:state-a11y --verbose --probe 2>&1 | tee state-a11y-report.txt
         shell: bash
 
-      # The coverage line is the reason to keep this even when green: the table
-      # of states is hand-maintained, and "21 of 95 state-dependent classes" is
-      # the only signal that says whether it is still growing with the catalog.
       - if: always()
         uses: actions/upload-artifact@v7
         with:
@@ -208,14 +112,10 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # The gate reads `dist/showcase`, so the site has to exist first.
       - run: pnpm build:showcase
 
       - run: pnpm exec playwright install --with-deps chromium
 
-      # Nightly rather than per-PR for the same reason as its neighbours: it
-      # needs a browser and a built site. `shell: bash` for `-o pipefail`, or
-      # `tee` would hand back its own success over a failure.
       - run: pnpm check:layout 2>&1 | tee layout-report.txt
         shell: bash
 
@@ -242,15 +142,10 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # The gate reads `dist/showcase`, so the site has to exist first.
       - run: pnpm build:showcase
 
       - run: pnpm exec playwright install --with-deps chromium
 
-      # `--verbose` for the same reason the contrast job passes it: nobody is
-      # watching, so the log is the report, and the per-route numbers are what
-      # make a new finding readable tomorrow morning. `shell: bash` for
-      # `-o pipefail`, or `tee` would hand back its own success over a failure.
       - run: pnpm check:rtl-layout --verbose 2>&1 | tee rtl-layout-report.txt
         shell: bash
 

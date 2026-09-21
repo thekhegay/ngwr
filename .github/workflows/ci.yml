@@ -13,20 +13,12 @@ concurrency:
 jobs:
   build:
     name: Lint & build
-    # Skip release commits. They are already gated by the workflows that act on
-    # them: publish.yml runs `lint` + `build:lib` before `npm publish`, and
-    # deploy.yml runs `lint` + `build:showcase` before deploying. Running here as
-    # well only added a third copy of the same work that finished *after* both had
-    # shipped — which read like the release had raced the gate. (On pull_request
-    # `head_commit` is null, so this never skips a PR.)
     if: "!startsWith(github.event.head_commit.message, 'chore(release): v')"
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v7
 
-      # No `version:` — action reads the pinned pnpm from package.json's
-      # `packageManager` field. Single source of truth.
       - uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v7
@@ -38,60 +30,24 @@ jobs:
 
       - run: pnpm lint
 
-      # Runs before the builds: a unit failure is cheaper to read than a broken
-      # bundle, and these are pure-logic specs that need nothing built first.
-      # `test:coverage` rather than `test` so the suite runs ONCE — instrumenting
-      # it costs a fraction of what a second full run would.
       - run: pnpm test:coverage
 
-      # Publishes the lcov the step above wrote. `fail_ci_if_error: false` on
-      # purpose: a fork PR gets no secrets, so the upload is skipped there, and a
-      # coverage report that could not be delivered is not a reason to fail a
-      # build that passed. The badge is the signal; CI stays about correctness.
       - uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          # The builder writes per-project, so the path carries the project name.
           files: ./coverage/lib/lcov.info
           fail_ci_if_error: false
 
-      # Reads the library source only, so it runs before the builds: a docs
-      # table that no longer matches the JSDoc it was copied from fails here.
       - run: pnpm check:api-docs
 
-      # Same lane: llms-full.txt ships to npm and to ngwr.dev, and nothing else
-      # in CI looks at it. The floors are set AT the current catalog size.
       - run: pnpm check:llms
 
-      # And the same again for the per-component `--wr-*` catalogue. The docs
-      # build regenerates it, so the PAGE cannot go stale — this is what keeps
-      # the COMMITTED file honest, so a clean checkout type-checks against the
-      # hooks the library actually publishes.
       - run: pnpm check:css-vars
 
       - run: pnpm build:lib
 
       - run: pnpm build:showcase
 
-      # Reads the stylesheet the step above compiled and asks whether
-      # `wrThemeTokens()` still derives the same 63 tokens from the same seeds.
-      # It lives here rather than in `pnpm lint` only because it needs that
-      # build, and it lives here rather than in nightly.yml because this job
-      # already produces one — the drift it catches is a code change, not
-      # painted-colour creep, so it belongs inside the review cycle. Left out of
-      # CI entirely at first, which made the one guard over a duplicated recipe
-      # a command nobody ran.
       - run: pnpm check:theme
 
-      # Needs the prerendered output, so it runs last. Gated against
-      # scripts/a11y-baseline.json, which is now empty — any serious or
-      # critical violation fails.
       - run: pnpm check:a11y
-
-      # `pnpm check:contrast` is deliberately NOT here. It is the other half of
-      # the a11y gate — the rules JSDOM cannot answer — but it needs a browser
-      # and 386 page loads, which took this job from ~5 minutes to nearly 17.
-      # It runs nightly instead (nightly.yml), where the wall clock costs
-      # nobody anything. What it catches is a slow drift in painted colour, not
-      # the kind of break a single PR introduces and needs told about inside a
-      # review cycle.

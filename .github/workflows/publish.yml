@@ -8,30 +8,10 @@ concurrency:
   group: publish-${{ github.ref }}
   cancel-in-progress: false
 
-# Read-only by DEFAULT; `publish` elevates itself and no other job does. These
-# two lines used to sit here, workflow-wide, which handed `id-token: write` — the
-# npm Trusted Publisher credential — to `detect` and `find-superseded-major`,
-# jobs that do nothing but read git history. A token is in scope for every step
-# of every job that holds it, so that was the publishing credential sitting live
-# through checkouts that never publish anything.
-#
-# `archive-superseded-major` calls a reusable workflow, which takes its cap from
-# here; archive-docs.yml already declares `contents: read` for itself, so the
-# effective permission there is unchanged.
 permissions:
   contents: read
 
-# Third-party actions are pinned to commit SHAs in THIS workflow and by tag
-# everywhere else, and the asymmetry is deliberate: a tag is mutable, and this is
-# the only workflow whose jobs can mint the npm Trusted Publisher credential. A
-# moved tag here could publish an `ngwr` carrying a valid provenance attestation
-# — the exact property consumers are asked to trust.
-#
-# Dependabot keeps them current: the `github-actions` ecosystem resolves a pinned
-# SHA back to its release through the trailing version comment, so these ride the
-# same grouped minor/patch PR as every other action and a major still arrives
-# alone. KEEP THE COMMENT when you move a SHA — without it the bump is an opaque
-# hash and Dependabot loses the thread.
+# SHA-pinned because this workflow can publish to npm; keep the version comments.
 jobs:
   detect:
     name: Detect release commit
@@ -49,7 +29,6 @@ jobs:
         run: |
           subject=$(git log -1 --pretty=%s)
           echo "Head subject: $subject"
-          # Optional trailing " (#123)" — GitHub appends the PR number on squash merge.
           if [[ "$subject" =~ ^chore\(release\):\ v([0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?)(\ \(#[0-9]+\))?$ ]]; then
             version="${BASH_REMATCH[1]}"
             tag="v$version"
@@ -68,11 +47,9 @@ jobs:
     if: needs.detect.outputs.is_release == 'true'
     runs-on: ubuntu-latest
 
-    # The only job that needs more than read. `id-token: write` is the npm
-    # Trusted Publisher credential and lives here, not at workflow level.
     permissions:
-      contents: write # tag + create release
-      id-token: write # npm publish via Trusted Publisher OIDC
+      contents: write
+      id-token: write
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -82,11 +59,7 @@ jobs:
 
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
 
-      # No dependency cache in the publishing job: it holds an OIDC token
-      # (Trusted Publisher), and a poisoned cache would hand that token to
-      # attacker-controlled code. `package-manager-cache: false` also opts out
-      # of the automatic caching keyed off package.json's `packageManager`.
-      # Costs this job a cold `pnpm install`; it only runs on release commits.
+      # No dependency cache: this job holds the npm OIDC token.
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 26
@@ -95,7 +68,6 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Gate the publish on lint + build — nothing ships unless both pass.
       - run: pnpm lint
 
       - run: pnpm build:lib
@@ -104,8 +76,6 @@ jobs:
         run: pnpm release:body --output=.release-body.md
 
       - name: Create git tag
-        # Skip when the tag already exists on origin — keeps re-runs after a
-        # failed publish step idempotent.
         run: |
           tag="${{ needs.detect.outputs.tag }}"
           if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
@@ -127,37 +97,11 @@ jobs:
           make_latest: ${{ needs.detect.outputs.is_rc == 'false' }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # The npm that publishes is the one bundled with the Node installed above,
-      # and deliberately NOT a fresh `npm install -g npm@latest`. Same threat as
-      # the disabled cache forty lines up, through a different door: this job
-      # holds the Trusted Publisher OIDC token, and `npm@latest` resolves at run
-      # time — no lockfile, no review, no Dependabot — so whatever was published
-      # to the `npm` package minutes earlier would execute with that credential
-      # in scope. `pnpm install --frozen-lockfile` below runs far more foreign
-      # code in the same job, but every byte of it is pinned by a lockfile
-      # someone reviewed; this one step was the only unreviewed resolution.
-      #
-      # Not hypothetical churn, either: v13.0.0 was published by npm 12.0.2
-      # (`npm view ngwr@13.0.0 _npmVersion`), while every Node 24 bundles an
-      # npm 11.x — 11.13.0 on the 24.16.0 that `.nvmrc` pins. The publishing
-      # tool crossed a MAJOR that nobody in this repo chose or noticed.
-      #
-      # Nothing is pinned here on purpose: a pinned npm nobody bumps rots into
-      # its own problem, and `node-version` above is already the single dial that
-      # decides this — Node's releases carry npm forward. What replaces a pin is
-      # an ASSERTION, so the floor is checked rather than assumed and a runner
-      # below it fails here, by name, instead of somewhere inside `npm publish`.
-      # If it ever fails: raise `node-version` first; only if that is not enough,
-      # install an EXACT version. Never `@latest`.
       - name: Assert npm supports Trusted Publishing
         run: |
-          floor=11.5.1 # OIDC Trusted Publishing landed in npm 11.5.1.
+          floor=11.5.1
           have=$(npm --version)
           echo "npm $have, bundled with node $(node --version)"
-          # Compared component by component in bash rather than with `sort -V`,
-          # so the step that gates every release does not depend on which
-          # coreutils the runner image ships. A component that is not a number
-          # reads as 0 and therefore FAILS the comparison — the safe direction.
           IFS=. read -r fa fb fc <<<"$floor"
           IFS=. read -r ha hb hc <<<"${have%%-*}"
           if (( ha < fa || (ha == fa && (hb < fb || (hb == fb && hc < fc))) )); then
@@ -166,28 +110,11 @@ jobs:
           fi
 
       - name: Publish to npm (Trusted Publisher)
-        # Run from the package dir — a bare `dist/lib` argument is parsed by
-        # npm as a GitHub owner/repo shorthand, not a folder.
         working-directory: dist/lib
         run: |
           tag=$([[ "${{ needs.detect.outputs.is_rc }}" == "true" ]] && echo "next" || echo "latest")
           npm publish --access public --provenance --tag "$tag"
 
-  # A major release replaces the docs at `/`, so the major it supersedes has to
-  # be frozen at `/vN/` — otherwise its documentation is simply gone. This used
-  # to be a manual `workflow_dispatch`, and v8 and v9 shipped without anyone
-  # remembering to link them.
-  #
-  # Runs alongside `deploy.yml` — the same release commit triggers both. They do
-  # not clobber each other: this rebuilds the snapshot from the OLD TAG rather
-  # than copying it off the server, and rsyncs it into `/vN/` while the site
-  # deploy targets the root. `deploy.yml` DOES pass `--delete`; what keeps it off
-  # the archives is its `--exclude=/v[0-9]*`, so that exclude is a safety
-  # interlock between these two workflows, not a tidiness preference.
-  #
-  # `deploy.yml` finishes first, so `/vN/` 404s for the few minutes until this
-  # job lands — and permanently if this job fails. Recover by re-running
-  # "Archive docs version" manually with the same tag and path.
   find-superseded-major:
     name: Find the major being superseded
     needs: [detect, publish]
@@ -199,24 +126,17 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # Tags are the whole point of this job.
           fetch-depth: 0
 
       - id: pick
         run: |
           version="${{ needs.detect.outputs.version }}"
-          # Only a major bump supersedes anything — X.0.0 and nothing else.
           if [[ ! "$version" =~ ^([0-9]+)\.0\.0$ ]]; then
             echo "$version is not a major release — nothing to archive"
             exit 0
           fi
 
           prev=$(( ${BASH_REMATCH[1]} - 1 ))
-          # Highest STABLE tag of the previous major: the last docs that major
-          # ever shipped. Release candidates are filtered out because git's
-          # version sort ranks them ABOVE the release they precede —
-          # `--sort=-v:refname` puts v10.0.0-rc.2 before v10.0.0 — so without this
-          # the frozen record of a major would be its release-candidate docs.
           prev_tag=$(git tag --list "v${prev}.*" --sort=-v:refname | grep -v -- '-rc\.' | head -1)
 
           if [[ -z "$prev_tag" ]]; then

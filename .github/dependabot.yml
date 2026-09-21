@@ -3,51 +3,14 @@ version: 2
 updates:
   - package-ecosystem: 'npm'
     directory: '/'
-    # Daily. The grouping below is what keeps that from being noisy — Angular,
-    # eslint and the `@types/*` each arrive as ONE pull request however many
-    # packages moved, so a daily cadence mostly means the same weekly volume,
-    # just noticed sooner.
     schedule:
       interval: 'daily'
-      # Early, so the PRs are waiting at the start of the day rather than
-      # landing in the middle of one.
       time: '08:00'
       timezone: 'Asia/Almaty'
-    # A new version waits one day before Dependabot will propose it.
-    #
-    # Written down because the platform had started doing this on its own: from
-    # 2026-09-03 every npm run logs "Filtered out N versions due to cooldown"
-    # with no `cooldown` key anywhere in this file, and Angular 22.1.6 went
-    # unproposed for two mornings while each run reported success. Nothing in
-    # the repository said the window existed, so it read as a broken schedule.
-    # The length it was using is not in the logs; measured against real PRs it
-    # lay between 1.3 and 3.6 days.
-    #
-    # One day is the trade: a release pulled within hours of publishing never
-    # reaches a PR, and a framework patch still arrives at the first morning run
-    # a full day after it ships. AGENTS.md's supply-chain note is why the wait
-    # lives here and not in pnpm's `minimumReleaseAge`, which would also stall
-    # `--frozen-lockfile` in CI.
     cooldown:
       default-days: 1
     open-pull-requests-limit: 10
-    # Two bumps that would open a green-looking PR and land a red build.
-    #
-    # TypeScript is pinned at ~6.0.3 because Angular 22's peer range is
-    # `typescript >=6.0 <6.1`. 7.0 is out, and without this it arrives as an
-    # ordinary weekly PR — no group claims it, so it looks like a lone chore.
-    #
-    # @types/node tracked the RUNTIME and was pinned below 26 while `.nvmrc`
-    # said 24 — typing against APIs that are not there does not fail, it
-    # type-checks clean, which is worse. Both moved to 26 together, so the
-    # ignore is gone; if the runtime pin ever moves back, this comes back with
-    # it rather than the types silently running ahead.
-    #
-    # vitest is not ours to choose either. The unit-test target runs through
-    # `@angular/build:unit-test`, and `@angular/build` declares the peer
-    # `vitest: ^4.0.8` — so a 5.x bump reads as a routine dev-dependency PR and
-    # takes the whole suite's runner out of its builder's supported range.
-    # Revisit when @angular/build widens the peer, not before.
+    # typescript and vitest are held to the peer ranges Angular declares.
     ignore:
       - dependency-name: 'typescript'
         versions: ['>=6.1']
@@ -61,12 +24,6 @@ updates:
       - 'dependencies'
       - 'type: chore'
     groups:
-      # The tooling packages outside `@angular/*` belong here too. Without them
-      # the 22.1.8 tooling patch arrived as four pull requests — the group plus
-      # devkit core, devkit schematics and `@schematics/angular` on their own —
-      # and every merge put the next one into a lockfile conflict. A group only
-      # carries what moved, so the framework is not dragged along by a tooling
-      # release.
       angular:
         patterns:
           - '@angular/*'
@@ -91,20 +48,8 @@ updates:
     directory: '/'
     schedule:
       interval: 'daily'
-      # Early, so the PRs are waiting at the start of the day rather than
-      # landing in the middle of one.
       time: '08:00'
       timezone: 'Asia/Almaty'
-    # One PR for all the routine movement — `groups` does not cross ecosystems,
-    # so the npm groups above never covered these and every action arrived on
-    # its own.
-    #
-    # Minor and patch ONLY, deliberately. A major left in this batch would ride
-    # in behind a pile of harmless bumps and get merged unread, which is exactly
-    # what should not happen to it: `upload-artifact` 4 -> 7 crossed three
-    # majors, changed the runner's Node version and the module format, and
-    # needed the nightly actually run against it before it was safe. Majors
-    # still arrive alone, which is the point.
     groups:
       actions:
         patterns:
