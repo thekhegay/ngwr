@@ -1,5 +1,11 @@
 # Changelog
 
+## [14.10.0](https://github.com/thekhegay/ngwr/compare/v14.9.1...v14.10.0) (2026-09-23)
+
+### Features
+
+* **editor:** render the document statically when readonly, with no prosemirror ([df59265](https://github.com/thekhegay/ngwr/commit/df592651dcc45aa0c135689f39eb640fdfe7c7cc))
+
 ## [14.9.1](https://github.com/thekhegay/ngwr/compare/v14.9.0...v14.9.1) (2026-09-23)
 
 ### Features
