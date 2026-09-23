@@ -105,6 +105,16 @@ interface WrToolState {
  * editor is read-only and carries `wr-editor--refused`: the model still holds the
  * refused value, and an edit would write the document on screen over it.
  *
+ * **`readonly` never mounts ProseMirror.** The document is drawn as ordinary
+ * Angular markup instead — the same rendering the server prerenders — so a page
+ * showing thirty saved comments boots no editor at all, and the headings, lists
+ * and tables of what it shows stay in the accessibility tree rather than being
+ * swallowed by a textbox, every descendant of which is presentational. It is
+ * lazy, not permanent: the first time `readonly` is lifted the editor mounts,
+ * and from there behaves exactly as one that never was read-only. Setting it
+ * again keeps the mounted view — throwing a live session's undo history away to
+ * save one view would cost more than the view.
+ *
  * Headings stop at three levels: an h4–h6 read from HTML or markdown becomes an
  * h3 rather than a paragraph. Underline exists in `html` and `json` only —
  * markdown cannot spell it, so in that format the tool, the shortcut and the mark
@@ -163,13 +173,22 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * Refuse edits while the text stays focusable, selectable and announced.
+   * Refuse edits while the text stays reachable, selectable and announced.
    * Bound automatically from the field's readonly state when used with
    * `[formField]`.
    *
-   * The surface keeps its tab stop and reports `aria-readonly`; typing, paste,
-   * drop, the shortcuts and every toolbar command are refused. The toolbar goes
-   * inert, since none of its tools can apply.
+   * Set before the editor mounts, it means ProseMirror is never started: the
+   * document is drawn as ordinary markup in a focusable `role="group"` that
+   * keeps the tab stop and carries the editor's name, so a viewer costs no
+   * editor and the structure of what it shows is still announced. `aria-readonly`
+   * is deliberately absent there — ARIA does not allow it on `group`, and
+   * `aria-disabled`, the only attribute that would apply, means something else —
+   * so the cue is the `wr-editor--readonly` class. The toolbar goes inert, since
+   * none of its tools can apply; a pure viewer binds `[toolbar]="false"`.
+   *
+   * A view that is already mounted stays mounted, refuses typing, paste, drop,
+   * the shortcuts and every toolbar command, and reports `aria-readonly` on its
+   * surface as before.
    *
    * @default false
    */
@@ -183,7 +202,8 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   readonly placeholder = input<string>('');
 
   /**
-   * Accessible name of the text surface. Falls back to the surrounding
+   * Accessible name of the text — of the surface, or of the document a
+   * read-only editor draws in its place. Falls back to the surrounding
    * `<wr-form-field>`'s label, then to `editor.label`.
    */
   readonly ariaLabel = input<string | null>(null);
@@ -246,6 +266,13 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   /** ProseMirror owns the surface from here on; until then the preview stands in. */
   protected readonly mounted = signal(false);
 
+  /**
+   * Read-only and nothing mounted: the preview is not standing in for a surface,
+   * it IS the editor, and the surface is not rendered at all. One id, one name
+   * and one tab stop move onto it with the job. @internal
+   */
+  protected readonly staticMode = computed(() => !this.mounted() && this.readonly());
+
   protected readonly focused = signal(false);
 
   private readonly editorState = signal<EditorState | null>(null);
@@ -265,7 +292,10 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   /** Apple keyboards name the modifier ⌘. Read in the browser only — see `mount()`. */
   private readonly apple = signal(false);
 
-  private readonly surface = viewChild.required<ElementRef<HTMLElement>>('surface');
+  // Optional, both of them: exactly one is in the DOM at a time, and which one
+  // is the difference between a mounted editor and the static document.
+  private readonly surface = viewChild<ElementRef<HTMLElement>>('surface');
+  private readonly staticDoc = viewChild<ElementRef<HTMLElement>>('staticDoc');
   // `read`, because `#tool` sits on a `wr-btn` and would otherwise resolve to the component.
   private readonly toolButtons = viewChildren<unknown, ElementRef<HTMLButtonElement>>('tool', { read: ElementRef });
   private readonly linkPopover = viewChild<WrPopover>('linkPopover');
@@ -281,6 +311,12 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
    */
   private lastSerialized: WrEditorValue | undefined = undefined;
   private linkToSurface = false;
+  /**
+   * Whether the static path has already named the refusal the model is holding.
+   * A read-only editor reports one itself, and a mount that follows would
+   * otherwise warn a second time about the same value.
+   */
+  private refusalWarned = false;
 
   // Labels
 
@@ -403,7 +439,14 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
     list_item: listItemView({ done: this.taskDoneLabel(), todo: this.taskTodoLabel() }),
   }));
 
-  protected readonly ariaPlaceholder = computed(() => (this.placeholder() && this.empty() ? this.placeholder() : null));
+  /**
+   * Nothing in the static mode: a hint for input, where no input is taken, and
+   * `aria-placeholder` is not among the attributes `role="group"` allows — so
+   * one drawn there would be text no screen reader ever reaches.
+   */
+  protected readonly ariaPlaceholder = computed(() =>
+    this.placeholder() && this.empty() && !this.staticMode() ? this.placeholder() : null
+  );
 
   // Link panel
 
@@ -413,9 +456,10 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   protected readonly linkActive = computed(() => this.toolStates().get('link')?.active ?? false);
 
   /**
-   * The value rendered by Angular until ProseMirror takes over: on the server,
-   * and for the first browser frame. Read from the doc JSON, so it shows exactly
-   * what the schema kept — the same sanitised document the editor will mount.
+   * The value rendered by Angular rather than by ProseMirror: on the server, for
+   * the first browser frame, and — for as long as it lasts — in the static mode,
+   * where no mount is coming. Read from the doc JSON, so it shows exactly what
+   * the schema kept: the same sanitised document the editor would mount.
    */
   protected readonly preview = computed<WrEditorJson | null>(() => {
     if (this.mounted()) return null;
@@ -423,7 +467,8 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
     try {
       return readValue(this.value(), format, editorSchema(format), this.document).toJSON() as WrEditorJson;
     } catch (error) {
-      // The browser warns once, when it mounts; the server has no mount to wait for.
+      // The browser warns from `sync()` — at the mount, or at the write itself
+      // while read-only; the server has neither to wait for.
       if (!this.isBrowser && isDevMode()) this.warnRefused(format, error);
       return null;
     }
@@ -478,16 +523,29 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
     // `afterNextRender` alone is not the guard: it keys on the global server
     // flag, not on `PLATFORM_ID`, so a platform test would still run it.
     if (!this.isBrowser) return;
-    afterNextRender(() => this.mount());
+
+    // Mount on the first render that is not read-only — usually the very first
+    // one, and otherwise the one that lifts `readonly`. A WRITE phase, so the
+    // surface the template puts back is already in the DOM by the time
+    // `mount()` looks for it; `mount()` itself happens once and never undoes.
+    afterRenderEffect({
+      write: () => {
+        if (!this.readonly()) this.mount();
+      },
+    });
   }
 
-  /** Focus the text surface — what Signal Forms calls to focus this control. */
+  /**
+   * Focus the editor — what Signal Forms calls to focus this control. Whatever
+   * is on screen takes it: the mounted surface, or the static document, which
+   * keeps a tab stop for exactly this reason.
+   */
   focus(options?: FocusOptions): void {
     const view = this.view;
     // ProseMirror's own `focus()` is a no-op while the view is not editable,
     // and read-only has to stay focusable.
     if (view?.editable) view.focus();
-    else this.surface().nativeElement.focus(options);
+    else (this.surface() ?? this.staticDoc())?.nativeElement.focus(options);
   }
 
   // Template handlers
@@ -711,6 +769,13 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   }
 
   private mount(): void {
+    // Once and for all: a second call would drop a live document, and going
+    // back to read-only is not a reason to throw a session's history away.
+    if (this.view) return;
+    // The template draws the surface in every state but the static one, which
+    // this is never called out of — after the render that puts it back.
+    const surface = this.surface();
+    if (!surface) return;
     this.apple.set((this.platform.userAgent ?? '').toLowerCase().includes('mac'));
     const format = untracked(this.resolvedFormat);
     const value = untracked(this.value);
@@ -719,7 +784,8 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
     try {
       doc = readValue(value, format, schema, this.document);
     } catch (error) {
-      if (isDevMode()) this.warnRefused(format, error);
+      // Never twice for a refusal the static path has already named.
+      if (isDevMode() && !this.refusalWarned) this.warnRefused(format, error);
       doc = schema.topNodeType.createAndFill()!;
       // An empty document over a stored value: see `refused`.
       this.refused.set(true);
@@ -727,7 +793,7 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
 
     const state = this.createState(doc);
     this.view = new EditorView(
-      { mount: this.surface().nativeElement },
+      { mount: surface.nativeElement },
       {
         state,
         editable: () => untracked(() => this.canEdit()),
@@ -792,7 +858,15 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
    */
   private sync(value: WrEditorValue, format: WrEditorFormat): void {
     const view = this.view;
-    if (!view) return;
+    if (!view) {
+      // Nothing to bring it into. `preview()` redraws it either way; what it
+      // cannot do is REPORT a value it could not read, and in the static mode
+      // no mount is coming to do that — so the check happens here instead.
+      // Before a mount that IS coming it is `mount()` that reports, and on the
+      // server `preview()` does, each exactly once.
+      if (this.isBrowser && untracked(this.readonly)) this.readStatically(value, format);
+      return;
+    }
     if (format === this.viewFormat && value === this.lastSerialized) return;
 
     const schema = editorSchema(format);
@@ -815,6 +889,30 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
     if (format === this.viewFormat && doc.eq(view.state.doc)) return;
     this.viewFormat = format;
     this.replaceState(doc);
+  }
+
+  /**
+   * The check `mount()` makes, made without a mount: the same warning and the
+   * same `refused` flag, so an unreadable value is refused whether or not
+   * ProseMirror ever starts. Without it a read-only editor met one with silence
+   * — `preview()` renders nothing for a document it cannot read, and the model
+   * goes on holding a value nothing has said a word about.
+   *
+   * The parsed document is dropped; `preview()` reads its own. The cost is one
+   * extra parse per write, and only while read-only, where a write is rare.
+   */
+  private readStatically(value: WrEditorValue, format: WrEditorFormat): void {
+    try {
+      readValue(value, format, editorSchema(format), this.document);
+      this.refused.set(false);
+      this.refusalWarned = false;
+    } catch (error) {
+      if (isDevMode()) {
+        this.warnRefused(format, error);
+        this.refusalWarned = true;
+      }
+      this.refused.set(true);
+    }
   }
 
   /**

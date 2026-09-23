@@ -417,6 +417,62 @@ describe('WrEditorHarness inside a Signal Forms field', () => {
   });
 });
 
+/**
+ * The Host's editors all mount in the suite above, where `readonly` starts off.
+ * Bound from the FIRST render it is a different component: ProseMirror is never
+ * created, and what the harness reads is the document drawn in its place.
+ */
+describe('WrEditorHarness on an editor that was read-only before it could mount', () => {
+  let removeStubs: () => void;
+
+  beforeEach(() => (removeStubs = installLayoutStubs()));
+  afterEach(() => removeStubs());
+
+  const readOnly = async (value: WrEditorValue): Promise<[Host, WrEditorHarness, () => void]> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    const fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.readonly.set(true);
+    fixture.componentInstance.body.set(value);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const editor = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrEditorHarness.with({ label: 'Body' }));
+    return [fixture.componentInstance, editor, () => fixture.destroy()];
+  };
+
+  it('reads the document, refuses everything that needs a view, and mounts once the rule is lifted', async () => {
+    const [host, editor, destroy] = await readOnly('<h2>Shipped</h2><p>Hello</p>');
+
+    expect(await editor.isMounted()).toBe(false);
+    expect(await editor.isReadonly()).toBe(true);
+    expect(await editor.isDisabled()).toBe(false);
+    expect(await editor.getLabel()).toBe('Body');
+    expect(await editor.getText()).toBe('Shipped\nHello');
+
+    await editor.focus();
+    expect(await editor.isFocused()).toBe(true);
+
+    await expect(editor.setText('x')).rejects.toThrow(/never mounted/);
+    await expect(editor.paste('x')).rejects.toThrow(/never mounted/);
+    await expect(editor.pressKey('b', { control: true })).rejects.toThrow(/never mounted/);
+    await expect(editor.selectAll()).rejects.toThrow(/read-only/);
+
+    host.readonly.set(false);
+    expect(await editor.isMounted()).toBe(true);
+    await editor.setText('Written');
+    expect(host.body()).toBe('<p>Written</p>');
+    destroy();
+  });
+
+  it('announces no placeholder, since a read-only editor draws none to announce', async () => {
+    const [, editor, destroy] = await readOnly('');
+
+    expect(await editor.getText()).toBe('');
+    expect(await editor.getPlaceholder()).toBeNull();
+    destroy();
+  });
+});
+
 describe('WrEditorHarness on the server', () => {
   it('reports the editor unmounted and refuses to read the preview as if it were the editor', async () => {
     TestBed.resetTestingModule();

@@ -20,8 +20,19 @@ import { WrPopoverHarness } from 'ngwr/popover/testing';
 
 import type { WrEditorHarnessFilters } from './interfaces';
 
-/** The text surface ProseMirror mounts on. */
+/** The text surface ProseMirror mounts on. Not rendered at all while the editor is read-only. */
 const SURFACE = '.wr-editor__surface';
+
+/**
+ * The document a read-only editor draws instead of mounting. It exists in that
+ * one state and in no other, so finding it IS the answer to "is this editor
+ * read-only" — the state cannot carry `aria-readonly`, since `role="group"`
+ * does not allow one.
+ */
+const STATIC = '.wr-editor__preview--static';
+
+/** Whichever of the two is on screen — the element carrying the editor's id, name and ARIA. */
+const CONTROL = `:is(${SURFACE}, ${STATIC})`;
 
 /** One toolbar button. The separators are `<span>`s and never match. */
 const TOOL = '.wr-editor__tool';
@@ -38,7 +49,7 @@ const LINK_TOOL = `${TOOL}[aria-haspopup="dialog"]`;
  * nothing else: a task item's box and its screen-reader words sit OUTSIDE the
  * paragraph, beside it.
  */
-const TEXTBLOCKS = `${SURFACE} :is(p, h1, h2, h3, pre)`;
+const TEXTBLOCKS = `${CONTROL} :is(p, h1, h2, h3, pre)`;
 
 /**
  * The modifier ProseMirror's keymap reads `Mod` as. It decides from
@@ -91,10 +102,24 @@ function primaryModifier(): ModifierKeys {
  * {@link getTool} hands back a `WrButtonHarness`; what that harness does not read
  * (`aria-pressed`, `aria-keyshortcuts`, the roving tab stop) is answered here.
  *
- * Every method reads the MOUNTED surface. ProseMirror takes it over in
+ * **A read-only editor has no surface at all**, and that is the state to know
+ * about before reading anything here. `readonly` set before the editor mounts
+ * means ProseMirror is never created: the document is drawn as ordinary markup
+ * in a focusable `role="group"`, which takes over the id, the name and the tab
+ * stop. So the reads answer from whichever element is on screen —
+ * {@link getText}, {@link getLabel}, {@link isDisabled}, {@link isInvalid},
+ * {@link focus} — while everything that needs a live view ({@link setText},
+ * {@link paste}, {@link pressKey}, {@link selectAll}) throws a sentence saying
+ * there is nothing to type into rather than passing on a surface that is not
+ * there. {@link isMounted} is the question itself, and {@link isReadonly} keeps
+ * answering: the static document exists in that one state, which is how it is
+ * read, since ARIA allows no `aria-readonly` on a group.
+ *
+ * Otherwise every method reads the MOUNTED surface. ProseMirror takes it over in
  * `afterNextRender`, which the harness's own stabilising lets run; under a server
- * `PLATFORM_ID` it never does, and the static preview the server renders is not
- * something this harness pretends to be the editor.
+ * `PLATFORM_ID` it never does, and the transient preview the server renders — the
+ * one a browser is about to replace — is not something this harness pretends to
+ * be the editor.
  *
  * **A spec under jsdom installs one stub first.** After an edit made while the
  * surface has focus, ProseMirror scrolls the selection into view, which measures a
@@ -139,23 +164,31 @@ export class WrEditorHarness extends ComponentHarness {
       .addOption('readonly', options.readonly, async (harness, readonly) => (await harness.isReadonly()) === readonly);
   }
 
-  private readonly surface = this.locatorFor(SURFACE);
+  /** The element carrying the editor's id, name and ARIA — the surface, or the static document. */
+  private readonly control = this.locatorFor(CONTROL);
+  private readonly liveSurface = this.locatorForOptional(SURFACE);
+  private readonly staticDoc = this.locatorForOptional(STATIC);
 
   // ---------------------------------------------------------------------------
   // The surface
   // ---------------------------------------------------------------------------
 
   /**
-   * Whether ProseMirror owns the surface yet — read from the `contenteditable` it
+   * Whether ProseMirror owns a surface yet — read from the `contenteditable` it
    * writes there, which nothing else does.
    *
-   * `true` in any browser-platform spec by the time a harness method runs. `false`
-   * under a server `PLATFORM_ID`, where the editor is the static preview for good —
-   * and every other method here throws, rather than answer about a preview as if it
-   * were the editor.
+   * `true` in any browser-platform spec on an editor that is not read-only, by the
+   * time a harness method runs. `false` in the two states where no mount is coming:
+   * under a server `PLATFORM_ID`, where what shows is the transient preview and
+   * every other method here throws rather than answer about it as if it were the
+   * editor; and on a READ-ONLY editor, which never mounts by design and whose
+   * static document is read here like any other — this is the method that tells
+   * those two apart from a mounted one, and {@link isReadonly} tells them apart
+   * from each other.
    */
   async isMounted(): Promise<boolean> {
-    return (await (await this.surface()).getAttribute('contenteditable')) !== null;
+    const surface = await this.liveSurface();
+    return !!surface && (await surface.getAttribute('contenteditable')) !== null;
   }
 
   /**
@@ -171,16 +204,21 @@ export class WrEditorHarness extends ComponentHarness {
    *
    * This is the drawn half of the two questions an editor answers; the class docs say
    * why the other half, the value, is read from the model instead.
+   *
+   * A READ-ONLY editor draws its document without ProseMirror, and this reads that
+   * document — it is the editor there, not a stand-in for one.
    */
   async getText(): Promise<string> {
-    await this.mountedSurface('getText');
+    await this.drawnDocument('getText');
     const blocks = await this.locatorForAll(TEXTBLOCKS)();
     return (await parallel(() => blocks.map(block => block.text()))).join('\n');
   }
 
   /**
-   * The surface's accessible name — `ariaLabel` when one is bound, else the
-   * surrounding `<wr-form-field>`'s label, else the catalog's `editor.label`.
+   * The editor's accessible name — `ariaLabel` when one is bound, else the
+   * surrounding `<wr-form-field>`'s label, else the catalog's `editor.label`. Read
+   * off whichever element carries it: the surface, or a read-only editor's static
+   * document, which takes the name over with the tab stop.
    *
    * A field's label reaches the surface through `aria-labelledby`, never `<label for>`:
    * a contenteditable is not labelable. So the reference is resolved the way assistive
@@ -189,8 +227,8 @@ export class WrEditorHarness extends ComponentHarness {
    * catching.
    */
   async getLabel(): Promise<string | null> {
-    const surface = await this.surface();
-    const labelledBy = await surface.getAttribute('aria-labelledby');
+    const control = await this.control();
+    const labelledBy = await control.getAttribute('aria-labelledby');
     if (labelledBy) {
       const root = this.documentRootLocatorFactory();
       const labels = await parallel(() =>
@@ -204,7 +242,7 @@ export class WrEditorHarness extends ComponentHarness {
       );
       return labels.filter(Boolean).join(' ') || null;
     }
-    return surface.getAttribute('aria-label');
+    return control.getAttribute('aria-label');
   }
 
   /**
@@ -215,39 +253,53 @@ export class WrEditorHarness extends ComponentHarness {
    * `placeholder` is bound: the component publishes it only while the document is
    * empty, the moment it is also drawn. A document holding an empty heading still
    * counts as empty.
+   *
+   * Always `null` on a READ-ONLY editor, however `placeholder` is bound, and that is
+   * the truth rather than a hole: there is no input to hint at, and
+   * `aria-placeholder` is not among the attributes the static document's
+   * `role="group"` allows, so the component draws none there either.
    */
   async getPlaceholder(): Promise<string | null> {
-    return (await this.surface()).getAttribute('aria-placeholder');
+    return (await this.control()).getAttribute('aria-placeholder');
   }
 
   /**
-   * Whether the editor is disabled — the surface's `aria-disabled`.
+   * Whether the editor is disabled — `aria-disabled`, on the surface or on the static
+   * document, whichever is drawn.
    *
-   * Read from the surface rather than the `wr-editor--disabled` host class, because a
+   * Read from there rather than from the `wr-editor--disabled` host class, because a
    * contenteditable has no `disabled` property: the attribute is what a screen reader
    * is told, and ProseMirror's own `contenteditable="false"` is what turns the
    * keyboard away. The component sets both.
    */
   async isDisabled(): Promise<boolean> {
-    return (await (await this.surface()).getAttribute('aria-disabled')) === 'true';
+    return (await (await this.control()).getAttribute('aria-disabled')) === 'true';
   }
 
   /**
-   * Whether the editor shows its document and refuses edits — the surface's
-   * `aria-readonly`, which `role="textbox"` allows. Read-only keeps the tab stop, so
-   * {@link focus} still lands; disabled does not.
+   * Whether the editor shows its document and refuses edits. Read-only keeps the tab
+   * stop, so {@link focus} still lands; disabled does not.
+   *
+   * Two DOM facts answer it, because the two shapes of read-only look nothing alike.
+   * An editor that was read-only before it could mount has no surface at all, and the
+   * static document it draws instead is drawn in that state and in no other — so its
+   * presence is the answer, and it is the only one available: ARIA defines no
+   * `aria-readonly` for `role="group"`, and `aria-disabled` would say something else.
+   * One that mounted first keeps its surface and reports `aria-readonly` there, which
+   * `role="textbox"` does allow.
    */
   async isReadonly(): Promise<boolean> {
-    return (await (await this.surface()).getAttribute('aria-readonly')) === 'true';
+    if (await this.staticDoc()) return true;
+    return (await (await this.control()).getAttribute('aria-readonly')) === 'true';
   }
 
   /**
-   * Whether the surface is announced invalid — the `aria-invalid` the surrounding
+   * Whether the editor is announced invalid — the `aria-invalid` the surrounding
    * `<wr-form-field>` hands it when a bound field fails validation and has been
    * touched. An editor outside a field is never invalid.
    */
   async isInvalid(): Promise<boolean> {
-    return (await (await this.surface()).getAttribute('aria-invalid')) === 'true';
+    return (await (await this.control()).getAttribute('aria-invalid')) === 'true';
   }
 
   /**
@@ -264,8 +316,9 @@ export class WrEditorHarness extends ComponentHarness {
    * An empty `text` empties the document, which writes `''` (`null` in `json` format).
    *
    * Throws on a disabled or read-only editor, where no user could change a word — the
-   * surface is not contenteditable then, and a write the DOM accepted anyway would be
-   * a green spec for something that cannot happen.
+   * surface is not contenteditable then, and is not even rendered when read-only came
+   * first, so a write the DOM accepted anyway would be a green spec for something that
+   * cannot happen.
    */
   async setText(text: string): Promise<void> {
     const surface = await this.writableSurface('setText');
@@ -278,10 +331,11 @@ export class WrEditorHarness extends ComponentHarness {
    * Paste `text` as plain text at the selection, replacing whatever is selected — a
    * `paste` event carrying `text/plain`, handled by ProseMirror's own paste path.
    *
-   * On a READ-ONLY editor the event is still delivered, because a browser delivers it:
-   * the refusal is the editor's to make, and asserting the value did not change is how
-   * a spec proves it did. Throws on a disabled one, whose surface cannot hold focus for
-   * a paste to arrive at.
+   * On an editor that was MOUNTED before it went read-only the event is still
+   * delivered, because a browser delivers it: the refusal is the editor's to make, and
+   * asserting the value did not change is how a spec proves it did. One that was
+   * read-only from the start has no surface for a paste to arrive at, and throws
+   * saying so. Throws on a disabled one too, whose surface cannot hold focus.
    */
   async paste(text: string): Promise<void> {
     await this.dispatchPaste('paste', { 'text/plain': text });
@@ -308,7 +362,8 @@ export class WrEditorHarness extends ComponentHarness {
    * Throws on a read-only or disabled editor: ProseMirror hands the keyboard back to
    * the browser once the surface is not editable, and the browser's native select-all
    * is exactly what jsdom does not have, so the chord would select nothing and say so
-   * to no one.
+   * to no one — and an editor that was read-only before it could mount has no surface
+   * to aim the chord at in the first place.
    */
   async selectAll(): Promise<void> {
     if (await this.isReadonly()) {
@@ -351,30 +406,30 @@ export class WrEditorHarness extends ComponentHarness {
   }
 
   /**
-   * Move focus to the text surface. A read-only editor keeps its tab stop and takes
-   * it.
+   * Move focus to the text — the mounted surface, or a read-only editor's static
+   * document, which keeps a tab stop for exactly this.
    *
-   * Throws on a disabled one rather than focusing it. In a browser its surface cannot
-   * take focus — no `tabindex`, and `contenteditable="false"` — but jsdom counts ANY
-   * `contenteditable` attribute as focusable, `false` included, so the focus would
-   * land in the spec and never in the app.
+   * Throws on a disabled editor rather than focusing it. In a browser its surface
+   * cannot take focus — no `tabindex`, and `contenteditable="false"` — but jsdom
+   * counts ANY `contenteditable` attribute as focusable, `false` included, so the
+   * focus would land in the spec and never in the app.
    */
   async focus(): Promise<void> {
-    return (await this.focusableSurface('focus')).focus();
+    return (await this.focusableControl('focus')).focus();
   }
 
   /**
-   * Take focus away from the surface — the whole control losing focus, which is what
+   * Take focus away from the text — the whole control losing focus, which is what
    * emits `touch` and lets a bound field show its error. Focus moving to the editor's
    * own toolbar or link panel is not a blur of the control, and does not emit it.
    */
   async blur(): Promise<void> {
-    return (await this.surface()).blur();
+    return (await this.control()).blur();
   }
 
-  /** Whether the text surface holds focus. A toolbar button holding it is not the surface. */
+  /** Whether the text holds focus. A toolbar button holding it is not the text. */
   async isFocused(): Promise<boolean> {
-    return (await this.surface()).isFocused();
+    return (await this.control()).isFocused();
   }
 
   // ---------------------------------------------------------------------------
@@ -577,17 +632,34 @@ export class WrEditorHarness extends ComponentHarness {
   // Internals
   // ---------------------------------------------------------------------------
 
-  /** The surface, or a sentence saying the editor is still the server's static preview. */
+  /** The element drawing the editor's own document — the mounted surface, or the static one. */
+  private async drawnDocument(method: string): Promise<TestElement> {
+    if ((await this.isMounted()) || (await this.staticDoc())) return this.control();
+    throw new Error(
+      `WrEditorHarness.${method}(): the editor is not mounted. ProseMirror takes the surface over in ` +
+        'afterNextRender, which never runs under a server PLATFORM_ID — what shows there is the transient ' +
+        'preview, and this harness does not answer for it as if it were the editor. A read-only editor is the ' +
+        'other way round: it never mounts by design, and the document it draws IS the editor, so it reads here ' +
+        'like any other.'
+    );
+  }
+
+  /** The surface, or a sentence saying what is on screen instead of one. */
   private async mountedSurface(method: string): Promise<TestElement> {
-    const surface = await this.surface();
-    if ((await surface.getAttribute('contenteditable')) === null) {
+    const surface = await this.liveSurface();
+    if (surface && (await surface.getAttribute('contenteditable')) !== null) return surface;
+    if (await this.staticDoc()) {
       throw new Error(
-        `WrEditorHarness.${method}(): the editor is not mounted. ProseMirror takes the surface over in ` +
-          'afterNextRender, which never runs under a server PLATFORM_ID — what shows there is the static ' +
-          'preview, and this harness does not answer for it as if it were the editor.'
+        `WrEditorHarness.${method}(): the editor is read-only, so ProseMirror was never mounted and there is no ` +
+          'contenteditable surface for a key, a paste or a write to arrive at. Assert isReadonly(), read the ' +
+          'document with getText(), or lift readonly first — the editor mounts then.'
       );
     }
-    return surface;
+    throw new Error(
+      `WrEditorHarness.${method}(): the editor is not mounted. ProseMirror takes the surface over in ` +
+        'afterNextRender, which never runs under a server PLATFORM_ID — what shows there is the transient ' +
+        'preview, and this harness does not answer for it as if it were the editor.'
+    );
   }
 
   /** The surface, when a user could still reach it with the keyboard. */
@@ -600,6 +672,19 @@ export class WrEditorHarness extends ComponentHarness {
       );
     }
     return surface;
+  }
+
+  /** Whatever a keyboard user could put focus on: the surface, or the static document. */
+  private async focusableControl(method: string): Promise<TestElement> {
+    const staticDoc = await this.staticDoc();
+    if (!staticDoc) return this.focusableSurface(method);
+    if (await this.isDisabled()) {
+      throw new Error(
+        `WrEditorHarness.${method}(): the editor is disabled — the document it draws is out of the tab order, so ` +
+          'focus could not land there. Assert isDisabled() instead.'
+      );
+    }
+    return staticDoc;
   }
 
   /** The surface, when a user could change its text. */

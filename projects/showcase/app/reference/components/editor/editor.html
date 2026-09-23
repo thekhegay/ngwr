@@ -91,14 +91,30 @@
 
   <ngwr-doc-section
     title="Read-only and disabled"
-    description="`readonly` refuses every edit while the text stays focusable, selectable and announced — the surface keeps its tab stop and reports `aria-readonly`, and the toolbar goes inert because none of its tools can apply. `disabled` takes the surface out of the tab order and reports `aria-disabled`. Under `[formField]` both are bound from the schema's `readonly()` and `disabled()` rules."
+    description="`readonly` does not make the editor refuse edits — it stops there being an editor. An instance that is read-only before it can mount never creates ProseMirror at all: it renders the document as ordinary Angular markup, the same rendering the server prerenders, so a page showing thirty saved comments builds no editor view, no document state, no plugin stack and no `contenteditable` for any of them — the ProseMirror packages are still in the chunk that imports `ngwr/editor`, and everything they would have done per instance is what this saves. `disabled` is the other thing entirely: it mounts, then takes the surface out of the tab order and reports `aria-disabled`. Under `[formField]` both are bound from the schema's `readonly()` and `disabled()` rules."
   >
     <ngwr-doc-snippet [code]="snippets.states" language="angular-html">
       <div class="editor-demo editor-demo--pair">
-        <wr-editor ariaLabel="Published notes" readonly [value]="html()" />
+        <wr-editor ariaLabel="Published notes" readonly [toolbar]="false" [value]="html()" />
         <wr-editor ariaLabel="Locked notes" disabled [value]="html()" />
       </div>
     </ngwr-doc-snippet>
+    <p wrTypography variant="small" tone="medium">
+      What the read-only rendering gives you: the structure survives. Headings, lists and tables are announced as
+      headings, lists and tables, where a <code>role="textbox"</code> would have made every one of them presentational —
+      which is the whole point of showing a document rather than editing one. It is one focusable
+      <code>role="group"</code> carrying the editor's name and a tab stop, so a keyboard user can reach it and scroll
+      it, and it takes no <code>aria-readonly</code>: ARIA does not define one for a group, and
+      <code>aria-disabled</code> would say something else, so the state is on the host as
+      <code>wr-editor--readonly</code>. A pure viewer should pass <code>[toolbar]="false"</code> — the toolbar is drawn
+      and inert otherwise, since not one of its tools can apply.
+    </p>
+    <p wrTypography variant="small" tone="medium">
+      It is lazy, not permanent. Bind <code>readonly</code> to something that changes and the editor mounts the moment
+      it goes false, behaving from then on exactly like one that never was read-only; setting it again keeps that
+      mounted view, undo history and all, rather than throwing a live session away to save one view. So an "edit" button
+      costs ProseMirror on the first click and nothing before it.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -237,7 +253,7 @@
 
   <ngwr-doc-section
     title="Accessibility"
-    description='The text surface is a `role="textbox"` with `aria-multiline="true"`, named by `ariaLabel`, else the surrounding field&apos;s label, else the `editor.label` catalog entry. `aria-placeholder` is present only while the document is empty, the moment the placeholder is drawn. The toolbar follows the APG toolbar pattern, with `aria-pressed` on every toggle and a visible cue besides colour for a pressed tool. The link panel is a labelled dialog whose address field announces a refused URL through `aria-invalid` and a `role="alert"` message. A task item&apos;s box is presentational, with its state as screen-reader text beside it, as in `<wr-markdown>`. Every label comes from the `editor.*` catalog, in all twenty-two languages.'
+    description='The text surface is a `role="textbox"` with `aria-multiline="true"`, named by `ariaLabel`, else the surrounding field&apos;s label, else the `editor.label` catalog entry. A read-only editor has no surface at all: the document it draws instead is a focusable `role="group"` carrying that same name and id, so what it shows keeps its own headings, lists and tables in the accessibility tree. `aria-placeholder` is present only while the document is empty, the moment the placeholder is drawn — and never on a read-only editor, which takes no input and could not announce one from a group anyway. The toolbar follows the APG toolbar pattern, with `aria-pressed` on every toggle and a visible cue besides colour for a pressed tool. The link panel is a labelled dialog whose address field announces a refused URL through `aria-invalid` and a `role="alert"` message. A task item&apos;s box is presentational, with its state as screen-reader text beside it, as in `<wr-markdown>`. Every label comes from the `editor.*` catalog, in all twenty-two languages.'
   >
     <ngwr-doc-code [code]="snippets.a11y" language="html" />
   </ngwr-doc-section>

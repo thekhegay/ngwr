@@ -139,7 +139,10 @@ readonly tools: readonly WrEditorTool[] = WR_EDITOR_TOOLBAR.filter(
 );`,
     noToolbar: `<!-- No toolbar at all: the shortcuts and the block shortcuts still work. -->
 <wr-editor ariaLabel="Notes" [toolbar]="false" [(value)]="notes" />`,
-    states: `<wr-editor ariaLabel="Published notes" readonly [value]="notes" />
+    states: `<!-- A viewer: no ProseMirror is created for this one, and no toolbar is drawn. -->
+<wr-editor ariaLabel="Published notes" readonly [toolbar]="false" [value]="notes" />
+
+<!-- Disabled mounts as usual, then leaves the tab order. -->
 <wr-editor ariaLabel="Locked notes" disabled [value]="notes" />`,
     defer: `<!-- ProseMirror lands in the chunk that imports ngwr/editor, and in no other.
      @defer moves that chunk off the first load as well. -->

@@ -163,7 +163,22 @@
     display: none;
   }
 
-  &--disabled &__surface {
+  // The document a read-only editor draws instead of mounting. It is the control
+  // itself there, and the only one of the two that needs a focus ring: a mounted
+  // surface says where focus is with a caret, and this has none. Inset, because
+  // the box runs flush to the editor's own border and an outset ring would paint
+  // over it — the override `list` and `window` make for the same reason.
+  &__preview--static {
+    cursor: default;
+
+    &:focus-visible {
+      @include theme.focus-ring;
+      outline-offset: -2px;
+    }
+  }
+
+  &--disabled &__surface,
+  &--disabled &__preview--static {
     cursor: not-allowed;
   }
 
