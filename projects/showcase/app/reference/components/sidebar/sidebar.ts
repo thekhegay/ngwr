@@ -62,6 +62,12 @@ export class MyComponent {
   ];
 }`,
     template: `<wr-sidebar [entries]="entries" />`,
+    activeOptions: `protected readonly entries: WrSidebarEntry[] = [
+  // Without this, \`/\` is a prefix of every URL, so Home paints as
+  // the current page everywhere — and the active row ignores the pointer.
+  { title: 'Home', url: ['/'], activeOptions: { exact: true } },
+  { title: 'Orders', url: ['/orders'] }, // stays active on /orders/42
+];`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -97,7 +103,8 @@ export class MyComponent {
     },
     {
       name: 'WrSidebarItem',
-      description: '`{ title, url, icon?, badge?, disabled? }` — a direct-link entry.',
+      description:
+        "`{ title, url, icon?, badge?, disabled?, activeOptions? }` — a direct-link entry. `activeOptions` is the entry's `[routerLinkActiveOptions]`.",
       type: 'interface',
       default: '—',
     },
@@ -105,6 +112,12 @@ export class MyComponent {
       name: 'WrSidebarGroup',
       description: '`{ title, children, icon?, defaultOpen? }` — expand to reveal child items.',
       type: 'interface',
+      default: '—',
+    },
+    {
+      name: 'WrSidebarActiveOptions',
+      description: "`{ exact: boolean }` or any subset of the router's own match options.",
+      type: 'type',
       default: '—',
     },
   ];
