@@ -464,39 +464,117 @@ describe('WrEditor', () => {
     });
   });
 
+  /**
+   * Read-only is not a mode the editor runs in, it is the editor not running:
+   * ProseMirror is never created, and the document on screen is the same
+   * Angular markup the server prerenders. A page showing thirty saved comments
+   * used to boot thirty views of something nobody could type into.
+   */
   describe('read-only', () => {
-    beforeEach(async () => {
+    const statik = (): HTMLElement => root().querySelector<HTMLElement>('.wr-editor__preview--static')!;
+
+    it('draws the document — structure and all — and creates no view', async () => {
+      await mount(h => {
+        h.readonly.set(true);
+        h.value.set('<h2>Shipped</h2><ul><li>One</li><li>Two</li></ul>');
+      });
+
+      expect(statik().querySelector('h2')?.textContent).toBe('Shipped');
+      expect([...statik().querySelectorAll('li')].map(li => li.textContent)).toEqual(['One', 'Two']);
+      // Nothing of ProseMirror's: no surface to mount on, no `contenteditable`
+      // it writes there, and none of the classes it puts on a live view.
+      expect(root().querySelector('.wr-editor__surface')).toBeNull();
+      expect(root().querySelector('[contenteditable]')).toBeNull();
+      expect(root().querySelector('.ProseMirror')).toBeNull();
+    });
+
+    it('carries the name, the id and the tab stop, as a group and not as a textbox', async () => {
       await mount(h => h.readonly.set(true));
-    });
 
-    it('keeps the tab stop and announces itself read-only, not disabled', () => {
-      expect(surface().getAttribute('contenteditable')).toBe('false');
-      expect(surface().getAttribute('tabindex')).toBe('0');
-      expect(surface().getAttribute('aria-readonly')).toBe('true');
-      expect(surface().hasAttribute('aria-disabled')).toBe(false);
+      expect(statik().getAttribute('role')).toBe('group');
+      expect(statik().getAttribute('aria-label')).toBe('Rich text');
+      expect(statik().getAttribute('tabindex')).toBe('0');
+      expect(statik().id).toBe(root().querySelector('[role="toolbar"]')!.getAttribute('aria-controls'));
+      // A textbox would make every heading and list item inside it
+      // presentational; `aria-readonly` is not allowed on a group, so the host
+      // class is what says the editor refuses edits.
+      expect(statik().getAttribute('role')).not.toBe('textbox');
+      expect(statik().hasAttribute('aria-readonly')).toBe(false);
       expect(root().querySelector('wr-editor')!.classList).toContain('wr-editor--readonly');
-    });
-
-    it('refuses the keyboard, the toolbar and a paste', () => {
-      key(surface(), { key: 'a', ctrlKey: true });
-      key(surface(), { key: 'Enter' });
-      key(surface(), { key: 'b', ctrlKey: true });
-      tool('Heading 1').click();
-      const paste = new Event('paste', { bubbles: true, cancelable: true });
-      Object.defineProperty(paste, 'clipboardData', { value: { types: ['text/plain'], getData: () => 'x' } });
-      surface().dispatchEvent(paste);
-
-      expect(host().value()).toBe('<p>Hello</p>');
       expect(buttons().every(b => b.disabled)).toBe(true);
     });
 
-    it('does the same edits for real once the rule is off — the guard against a vacuous suite', () => {
+    it('re-renders a value written while it is read-only', async () => {
+      await mount(h => h.readonly.set(true));
+      host().value.set('<p>Written from elsewhere</p>');
+      fixture.detectChanges();
+
+      expect(statik().textContent).toContain('Written from elsewhere');
+      expect(root().querySelector('.wr-editor__surface')).toBeNull();
+    });
+
+    it('mounts when the rule is lifted, and keeps that view — history and all — when it comes back', async () => {
+      await mount(h => h.readonly.set(true));
+      expect(root().querySelector('.wr-editor__surface')).toBeNull();
+
       host().readonly.set(false);
       fixture.detectChanges();
+      await fixture.whenStable();
+
+      // Editable for real from here on, which is also the guard against a
+      // vacuous suite: the same keys that do nothing above do the edit here.
+      expect(surface().getAttribute('contenteditable')).toBe('true');
+      expect(root().querySelector('.wr-editor__preview')).toBeNull();
       key(surface(), { key: 'a', ctrlKey: true });
       key(surface(), { key: 'b', ctrlKey: true });
-
       expect(host().value()).toBe('<p><strong>Hello</strong></p>');
+
+      const mounted = surface();
+      host().readonly.set(true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(surface()).toBe(mounted);
+      expect(surface().getAttribute('contenteditable')).toBe('false');
+      expect(surface().getAttribute('aria-readonly')).toBe('true');
+      expect(surface().getAttribute('tabindex')).toBe('0');
+      expect(root().querySelector('.wr-editor__preview--static')).toBeNull();
+
+      host().readonly.set(false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      key(surface(), { key: 'z', ctrlKey: true });
+
+      // The round trip kept the view, so it kept the history in it.
+      expect(host().value()).toBe('<p>Hello</p>');
+    });
+
+    it('refuses a value it cannot read, and says so once even if it mounts later', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      await mount(h => {
+        h.readonly.set(true);
+        h.format.set('json');
+        // Written by another schema: h4 is outside this one's three levels.
+        h.value.set({
+          type: 'doc',
+          content: [{ type: 'heading', attrs: { level: 4 }, content: [{ type: 'text', text: 'Stored' }] }],
+        });
+      });
+
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(String(warn.mock.calls[0][0])).toContain('could not be read as json');
+      expect(root().querySelector('wr-editor')!.classList).toContain('wr-editor--refused');
+      expect(statik().textContent?.trim()).toBe('');
+
+      host().readonly.set(false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // The mount meets the same refusal the static path already named.
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(surface().getAttribute('contenteditable')).toBe('false');
+      expect(root().querySelector('wr-editor')!.classList).toContain('wr-editor--refused');
+      warn.mockRestore();
     });
   });
 
@@ -831,11 +909,20 @@ describe('WrEditor', () => {
   });
 
   describe('focus()', () => {
-    it('focuses the surface, and still does while read-only', async () => {
-      await mount(h => h.readonly.set(true));
-      fixture.debugElement.query(By.directive(WrEditor)).injector.get(WrEditor).focus();
+    const editor = (): WrEditor => fixture.debugElement.query(By.directive(WrEditor)).injector.get(WrEditor);
+
+    it('focuses the surface', async () => {
+      await mount();
+      editor().focus();
 
       expect(document.activeElement).toBe(surface());
+    });
+
+    it('focuses the static document while read-only, where there is no surface to focus', async () => {
+      await mount(h => h.readonly.set(true));
+      editor().focus();
+
+      expect(document.activeElement).toBe(root().querySelector('.wr-editor__preview--static'));
     });
   });
 });

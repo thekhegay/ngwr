@@ -84,42 +84,80 @@
 }
 
 <!--
-  The static preview: what Angular renders until ProseMirror mounts — on the
-  server, and for the first browser frame. It is a SIBLING of the mount surface,
-  never inside it: `{ mount }` replaces the element's children, and nodes Angular
-  owns would be deleted out from under the next change detection.
+  The document drawn by Angular, in either of the two ways it stands on screen.
+
+  In the STATIC mode — read-only with nothing mounted — it is the editor, for as
+  long as `readonly` holds, so it takes the id, the name, the field's state and
+  the tab stop the surface below would have carried, and that surface is not
+  rendered at all: two elements with one id, or a nameless empty textbox beside
+  the text, is what rendering both would mean. A focusable `role="group"` and not
+  a textbox, because every descendant of a textbox is presentational — the
+  headings, lists and tables being shown would stop being announced, which is the
+  whole point of showing a document. No `aria-readonly`: ARIA does not allow it
+  on `group`, and `.wr-editor--readonly` on the host is the cue instead.
+
+  Otherwise it is the preview that stands in until ProseMirror mounts — on the
+  server, and for the first browser frame — and carries nothing of the surface's.
+
+  Either way it is a SIBLING of the mount surface, never inside it: `{ mount }`
+  replaces the element's children, and nodes Angular owns would be deleted out
+  from under the next change detection.
 -->
-@if (preview(); as doc) {
-  <div class="wr-editor__preview wr-editor__content">
-    <ng-container [ngTemplateOutlet]="previewBlocks" [ngTemplateOutletContext]="{ $implicit: doc.content }" />
+@if (staticMode()) {
+  <div
+    #staticDoc
+    class="wr-editor__preview wr-editor__preview--static wr-editor__content"
+    role="group"
+    [id]="surfaceId"
+    [attr.aria-label]="accessibleName()"
+    [attr.aria-labelledby]="labelledBy()"
+    [attr.aria-describedby]="fieldAria.describedBy()"
+    [attr.aria-invalid]="fieldAria.ariaInvalid()"
+    [attr.aria-disabled]="disabled() ? 'true' : null"
+    [attr.tabindex]="disabled() ? null : 0"
+    (focus)="focused.set(true)"
+    (blur)="focused.set(false)"
+  >
+    <ng-container [ngTemplateOutlet]="previewContent" />
   </div>
+} @else {
+  @if (preview()) {
+    <div class="wr-editor__preview wr-editor__content">
+      <ng-container [ngTemplateOutlet]="previewContent" />
+    </div>
+  }
+
+  <!--
+    The mount surface. Angular binds every attribute it needs, so the prerendered
+    page and the synchronous first render already carry the role, the name and the
+    field's error state; ProseMirror adds only its own class, `contenteditable` and
+    `translate`, and never touches an attribute it did not set. No Angular child
+    ever lives in here.
+  -->
+  <div
+    #surface
+    class="wr-editor__surface wr-editor__content"
+    role="textbox"
+    aria-multiline="true"
+    [id]="surfaceId"
+    [hidden]="!mounted()"
+    [attr.aria-label]="accessibleName()"
+    [attr.aria-labelledby]="labelledBy()"
+    [attr.aria-describedby]="fieldAria.describedBy()"
+    [attr.aria-invalid]="fieldAria.ariaInvalid()"
+    [attr.aria-readonly]="locked() && !disabled() ? 'true' : null"
+    [attr.aria-disabled]="disabled() ? 'true' : null"
+    [attr.aria-placeholder]="ariaPlaceholder()"
+    [attr.tabindex]="locked() && !disabled() ? 0 : null"
+    (focus)="focused.set(true)"
+    (blur)="focused.set(false)"
+  ></div>
 }
 
-<!--
-  The mount surface. Angular binds every attribute it needs, so the prerendered
-  page and the synchronous first render already carry the role, the name and the
-  field's error state; ProseMirror adds only its own class, `contenteditable` and
-  `translate`, and never touches an attribute it did not set. No Angular child
-  ever lives in here.
--->
-<div
-  #surface
-  class="wr-editor__surface wr-editor__content"
-  role="textbox"
-  aria-multiline="true"
-  [id]="surfaceId"
-  [hidden]="!mounted()"
-  [attr.aria-label]="accessibleName()"
-  [attr.aria-labelledby]="labelledBy()"
-  [attr.aria-describedby]="fieldAria.describedBy()"
-  [attr.aria-invalid]="fieldAria.ariaInvalid()"
-  [attr.aria-readonly]="locked() && !disabled() ? 'true' : null"
-  [attr.aria-disabled]="disabled() ? 'true' : null"
-  [attr.aria-placeholder]="ariaPlaceholder()"
-  [attr.tabindex]="locked() && !disabled() ? 0 : null"
-  (focus)="focused.set(true)"
-  (blur)="focused.set(false)"
-></div>
+<!-- The document itself, written once for both of the containers above. -->
+<ng-template #previewContent>
+  <ng-container [ngTemplateOutlet]="previewBlocks" [ngTemplateOutletContext]="{ $implicit: preview()?.content }" />
+</ng-template>
 
 <!--
   The popover styles its panel as `.wr-popover-overlay > *`, which is this form,

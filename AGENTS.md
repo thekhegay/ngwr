@@ -270,9 +270,26 @@ one component folder. Reach for them instead of hand-rolling:
   `prosemirror-markdown` or `markdown-it`) or a JSON tree. Every value and every
   paste is untrusted: HTML is parsed inert and rebuilt from the schema, links and
   images go through `safeMarkdownUrl`, and JSON is validated and refused whole.
-  `new EditorView` runs only in `afterNextRender`; the server draws a static
+  `new EditorView` runs only after render; the server draws a static
   preview BESIDE the mount surface, never inside it, since `{ mount }` wipes its
-  children. A jsdom spec stubs `Range.getClientRects` — ProseMirror throws from a
+  children. **`readonly` does not mount at all**, and that static rendering IS
+  the editor there: a page of thirty saved comments was booting thirty views of
+  something nobody could type into. It takes the surface's id, name, field ARIA
+  and tab stop over, and the surface is not rendered — rendering both would put
+  two elements under one id and a nameless empty textbox beside the text. A
+  focusable `role="group"` and NOT a textbox, because every descendant of a
+  textbox is presentational, so the headings, lists and tables of the document
+  being shown would stop being announced, which is the whole reason for showing
+  it; `aria-readonly` goes with the role that allowed it, leaving
+  `.wr-editor--readonly` as the cue, the same call `wr-segmented` and `wr-tree`
+  make. It is LAZY rather than permanent — the mount is an `afterRenderEffect`
+  write phase, which runs the first time `readonly` is false and after the
+  render that put the surface back, and going read-only again keeps the mounted
+  view, since a live session's undo history costs more than the view it sits in.
+  The one thing no mount would otherwise do is REFUSE a value it cannot read, so
+  `sync()` makes that check itself while read-only — same warning, same
+  `refused` — and a mount that follows does not say it twice. A jsdom spec stubs
+  `Range.getClientRects` — ProseMirror throws from a
   DOM listener after the document has already changed, so without the stub a spec
   passes for the wrong reason.
 - **Mobile primitives** (`ngwr/platform`, …) — `WrHaptics`, `ngwr/action-sheet`,

@@ -327,7 +327,11 @@ const PROBES: readonly Probe[] = [
   },
   { key: 'date-picker', aria: 'input.wr-input', isReadonly: nativeReadonly('input.wr-input') },
   { key: 'date-range-picker', aria: 'input.wr-input', isReadonly: nativeReadonly('input.wr-input') },
-  // A `contenteditable` `role="textbox"`, which supports `aria-readonly`.
+  // A `contenteditable` `role="textbox"`, which supports `aria-readonly`. This
+  // editor mounts before the rule is ever applied, which is why it has a surface
+  // to read at all: one that is read-only from its FIRST render never mounts, and
+  // carries the state as `.wr-editor--readonly` on a `role="group"` that ARIA
+  // gives no `aria-readonly` — see the input's own docs.
   { key: 'editor', aria: '.wr-editor__surface', isReadonly: ariaReadonly('.wr-editor__surface') },
   {
     key: 'file-upload',
