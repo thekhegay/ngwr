@@ -1,5 +1,15 @@
 # Changelog
 
+## [14.9.1](https://github.com/thekhegay/ngwr/compare/v14.9.0...v14.9.1) (2026-09-23)
+
+### Features
+
+* **sidebar:** let an entry choose how the router matches it as active ([ef89180](https://github.com/thekhegay/ngwr/commit/ef89180a9ab967037f039801e17637654643d7b3))
+
+### Bug Fixes
+
+* **deps:** drop the duplicated lockfile entries a merge left behind ([b76b2af](https://github.com/thekhegay/ngwr/commit/b76b2afc39f697ca7a626c8d5453203e7d08f4d1))
+
 ## [14.9.0](https://github.com/thekhegay/ngwr/compare/v14.8.0...v14.9.0) (2026-09-21)
 
 ### Features
