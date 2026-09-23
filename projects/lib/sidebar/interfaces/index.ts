@@ -5,7 +5,15 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import type { IsActiveMatchOptions } from '@angular/router';
+
 import type { WrIconName } from 'ngwr/icon';
+
+/**
+ * What `[routerLinkActiveOptions]` accepts: the short form, or any subset of the
+ * router's own match options (`paths`, `queryParams`, `matrixParams`, `fragment`).
+ */
+export type WrSidebarActiveOptions = { readonly exact: boolean } | Partial<IsActiveMatchOptions>;
 
 /** A single navigable entry. */
 export interface WrSidebarItem {
@@ -17,6 +25,16 @@ export interface WrSidebarItem {
   readonly badge?: string;
   /** Render as disabled (no navigation). */
   readonly disabled?: boolean;
+  /**
+   * How the router decides this entry is active — the value of
+   * `[routerLinkActiveOptions]`. The default matches a path PREFIX, so an entry at
+   * `['/']` is active on every route; `{ exact: true }` is what a "Home" entry
+   * wants. It decides the active class only: `autoExpand` finds the group holding
+   * the current route by the same prefix rule either way.
+   *
+   * @default { exact: false }
+   */
+  readonly activeOptions?: WrSidebarActiveOptions;
 }
 
 /** Expandable group of items. */

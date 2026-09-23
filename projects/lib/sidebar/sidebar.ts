@@ -110,6 +110,12 @@ export class WrSidebar {
 
   protected readonly isGroup = isGroup;
 
+  /**
+   * What an entry without its own `activeOptions` gets. It is the router's own
+   * default, written out because a binding cannot be left unset per entry.
+   */
+  protected readonly defaultActiveOptions = { exact: false };
+
   private readonly opened = signal<ReadonlySet<string>>(new Set());
 
   /** Group titles already seeded from `defaultOpen`, so it seeds once and not again. */

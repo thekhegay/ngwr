@@ -22,7 +22,12 @@
           }
         </span>
       } @else {
-        <a class="wr-sidebar__entry" routerLinkActive="wr-sidebar__entry--active" [routerLink]="asItem(entry).url">
+        <a
+          class="wr-sidebar__entry"
+          routerLinkActive="wr-sidebar__entry--active"
+          [routerLink]="asItem(entry).url"
+          [routerLinkActiveOptions]="asItem(entry).activeOptions ?? defaultActiveOptions"
+        >
           @if (asItem(entry).icon || defaultItemIcon(); as name) {
             <wr-icon class="wr-sidebar__icon" [name]="name" />
           }
@@ -80,7 +85,12 @@
                       }
                     </span>
                   } @else {
-                    <a class="wr-sidebar__item" routerLinkActive="wr-sidebar__item--active" [routerLink]="child.url">
+                    <a
+                      class="wr-sidebar__item"
+                      routerLinkActive="wr-sidebar__item--active"
+                      [routerLink]="child.url"
+                      [routerLinkActiveOptions]="child.activeOptions ?? defaultActiveOptions"
+                    >
                       @if (child.icon || defaultItemIcon(); as name) {
                         <wr-icon class="wr-sidebar__icon" [name]="name" />
                       }

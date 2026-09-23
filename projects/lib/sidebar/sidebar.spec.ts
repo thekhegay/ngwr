@@ -68,6 +68,14 @@ describe('WrSidebar', () => {
   const bodyFor = (title: string): HTMLElement =>
     root().querySelector<HTMLElement>(`#${toggleFor(title).getAttribute('aria-controls')!}`)!;
   const isOpen = (title: string): boolean => toggleFor(title).getAttribute('aria-expanded') === 'true';
+  const entryFor = (title: string): HTMLAnchorElement =>
+    [...root().querySelectorAll<HTMLAnchorElement>('.wr-sidebar__entry')].find(link =>
+      link.textContent.includes(title)
+    )!;
+  const itemFor = (title: string): HTMLAnchorElement =>
+    [...root().querySelectorAll<HTMLAnchorElement>('.wr-sidebar__item')].find(link =>
+      link.textContent.includes(title)
+    )!;
 
   const mount = async (extra: unknown[] = []): Promise<void> => {
     TestBed.resetTestingModule();
@@ -77,6 +85,7 @@ describe('WrSidebar', () => {
           { path: 'tab', component: Page },
           { path: 'table', component: Page },
           { path: 'tabs', component: Page },
+          { path: 'tabs/second', component: Page },
           { path: 'input', component: Page },
         ]),
         provideWrIcons([svgIcon('folder', ICON), svgIcon('caret-forward', ICON)]),
@@ -299,6 +308,49 @@ describe('WrSidebar', () => {
     // Same URL again: the guard is what keeps the collapse from being undone.
     await navigate('/table');
     expect(isOpen('Data & charts')).toBe(false);
+  });
+
+  it('marks an entry active by path PREFIX when it says nothing, so `/` is active everywhere', async () => {
+    // The router's own default, and the reason `activeOptions` exists: every URL
+    // starts with `/`, so a "Home" entry paints as the current page on every page.
+    await navigate('/table');
+
+    expect(entryFor('Home').classList.contains('wr-sidebar__entry--active')).toBe(true);
+  });
+
+  it("passes an entry's own activeOptions to the router, on a top-level entry and a nested one", async () => {
+    fixture.componentInstance.entries.set([
+      { title: 'Home', url: ['/'], activeOptions: { exact: true } },
+      {
+        title: 'Data & charts',
+        defaultOpen: true,
+        children: [{ title: 'Tab', url: ['/tab'], activeOptions: { exact: true } }],
+      },
+    ]);
+    fixture.detectChanges();
+
+    await navigate('/table');
+    expect(entryFor('Home').classList.contains('wr-sidebar__entry--active')).toBe(false);
+    expect(itemFor('Tab').classList.contains('wr-sidebar__item--active')).toBe(false);
+
+    await navigate('/');
+    expect(entryFor('Home').classList.contains('wr-sidebar__entry--active')).toBe(true);
+
+    await navigate('/tab');
+    expect(itemFor('Tab').classList.contains('wr-sidebar__item--active')).toBe(true);
+  });
+
+  it('keeps a prefix match for the entries that ask for nothing while a sibling asks for exact', async () => {
+    fixture.componentInstance.entries.set([
+      { title: 'Home', url: ['/'], activeOptions: { exact: true } },
+      { title: 'Tabs', url: ['/tabs'] },
+    ]);
+    fixture.detectChanges();
+
+    await navigate('/tabs/second');
+
+    expect(entryFor('Tabs').classList.contains('wr-sidebar__entry--active')).toBe(true);
+    expect(entryFor('Home').classList.contains('wr-sidebar__entry--active')).toBe(false);
   });
 });
 

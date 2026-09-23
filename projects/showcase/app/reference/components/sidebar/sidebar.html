@@ -19,6 +19,13 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Which route counts as active"
+    description="An entry gets `--active` while the current URL starts with its `url`, which is the router's own rule. An entry at `['/']` is therefore active on every page, and since an active row sets `pointer-events: none` it cannot be clicked from anywhere. Give that entry `activeOptions: { exact: true }`. The field takes anything `[routerLinkActiveOptions]` takes, so `paths`, `queryParams`, `matrixParams` and `fragment` work too. It decides the active class only: a group still expands for the route below it either way."
+  >
+    <ngwr-doc-code [code]="snippets.activeOptions" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
