@@ -17,7 +17,15 @@ import { WrInputNumber } from './input-number';
  *   * the chevrons were `10x6` at every size. At `sm` each half-button is 10px
  *     tall (9.1px under `sm` density), so the glyph filled all but 2px of it and
  *     the pair nearly touched; at `lg` the same glyph sat small in a 17px half.
- *     They are now 8x4.8 / 10x6 / 12x7.2 — `md` unchanged to the pixel.
+ *     They step with the control size now.
+ *
+ *     The mark itself was a filled triangle until it became the stroked chevron
+ *     `wr-select` and `wr-pagination` draw, so the hook sizes a SQUARE box — the
+ *     24-unit viewBox is square — and the visible mark is half its width by a
+ *     quarter of its height. Measured in Chromium at `md`: a 14px box, a 7x3.5px
+ *     mark, identical to what a select trigger shows beside it, which is the
+ *     whole reason the hook now resolves to the control font size rather than to
+ *     a length of its own.
  *   * on a pill, the divider between the two buttons ran to the tip of the
  *     rounded end, and with the column's start border it cut the end cap into a
  *     separate square segment, chevrons 7px from the end. The column itself
@@ -70,15 +78,20 @@ const hook = (body: string): string | undefined =>
 
 describe('WrInputNumber stepper geometry', () => {
   it('sizes the chevron from a hook that steps with the control size', () => {
-    expect(hook(block('.wr-input-number').body)).toBe('0.625rem');
-    expect(hook(block('&--sm').body)).toBe('0.5rem');
-    expect(hook(block('&--lg').body)).toBe('0.75rem');
+    // The control font size, which is the box `wr-select` gives its own chevron
+    // through `1em` — stated as the same token rather than as a matching length,
+    // so the two cannot drift apart by a rem.
+    expect(hook(block('.wr-input-number').body)).toBe('var(--wr-control-font-size-md)');
+    expect(hook(block('&--sm').body)).toBe('var(--wr-control-font-size-sm)');
+    expect(hook(block('&--lg').body)).toBe('var(--wr-control-font-size-lg)');
   });
 
   it('draws the glyph at that size, in CSS, so it outranks the markup attributes', () => {
     const svg = block('svg', block('&__step').start).body;
     expect(svg).toMatch(/width:\s*var\(--wr-input-number-step-icon-size\)\s*;/);
-    expect(svg).toMatch(/height:\s*calc\(var\(--wr-input-number-step-icon-size\)\s*\*\s*0\.6\)\s*;/);
+    // Square, and asserted as such: a non-square box scales the 24-unit viewBox
+    // unevenly, which thins the chevron's strokes against the select's.
+    expect(svg).toMatch(/height:\s*var\(--wr-input-number-step-icon-size\)\s*;/);
   });
 
   it('drops both dividers on a pill and insets the pair from its rounded end', () => {
@@ -128,7 +141,12 @@ describe('WrInputNumber stepper geometry', () => {
         const glyphs = step.querySelectorAll(':scope > svg');
         expect(glyphs).toHaveLength(1);
         // The unstyled fallback stays: without it an svg with no size draws 300x150.
-        expect(glyphs[0].getAttribute('width')).toBe('10');
+        // Square, and the `md` box: a page with no stylesheet has no size class
+        // to read either, so the fallback can only be one of the three.
+        expect(glyphs[0].getAttribute('width')).toBe('14');
+        expect(glyphs[0].getAttribute('height')).toBe('14');
+        // The mark itself, so a change of glyph cannot pass as a change of size.
+        expect(glyphs[0].querySelector('path')?.getAttribute('d')).toMatch(/^m(18 15-6-6-6 6|6 9 6 6 6-6)$/);
       }
     });
   });

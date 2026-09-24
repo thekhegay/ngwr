@@ -460,7 +460,7 @@ export const CSS_VARS = {
   "reference/components/input-number": {
     subpath: "ngwr/input-number",
     vars: [
-      { name: "--wr-input-number-step-icon-size", default: "0.625rem", scope: ".wr-input-number", overrides: 2 },
+      { name: "--wr-input-number-step-icon-size", default: "var(--wr-control-font-size-md)", scope: ".wr-input-number", overrides: 2 },
     ],
   },
   "reference/components/input-otp": {

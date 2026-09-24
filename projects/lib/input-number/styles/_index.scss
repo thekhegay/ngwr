@@ -1,21 +1,27 @@
 @use '../../theme/styles' as theme;
 
 .wr-input-number {
-  // Width of the ▲ / ▼ glyph; its height is 0.6 of it, the proportion the
-  // markup's `10x6` always drew. It follows the control's size the way
+  // Box the ▲ / ▼ chevron draws in — square, because the glyph is the same
+  // stroked chevron `wr-select` and `wr-pagination` use and its 24-unit viewBox
+  // is square. It is the BOX rather than the mark: the path spans half that
+  // width and a quarter of that height, so a 14px box draws a 7x3.5px chevron,
+  // which is what a select trigger shows beside it at the same size.
+  //
+  // Hence the control font size and not a size of its own — that is what select
+  // hands its own chevron through `1em`, and matching it by hand would be two
+  // numbers to keep in step. It still follows the control's size, the way
   // `--wr-btn-icon-size` does, because the column is one fixed-width strip
-  // whose height does not: at `sm` each half-button is 10px tall, and a
-  // chevron sized for `md` filled all but 2px of it.
-  --wr-input-number-step-icon-size: 0.625rem; // 10px
+  // whose height is not: at `sm` each half-button is 10px tall.
+  --wr-input-number-step-icon-size: var(--wr-control-font-size-md); // 14px
 
   display: inline-block;
 
   &--sm {
-    --wr-input-number-step-icon-size: 0.5rem; // 8px
+    --wr-input-number-step-icon-size: var(--wr-control-font-size-sm); // 12px
   }
 
   &--lg {
-    --wr-input-number-step-icon-size: 0.75rem; // 12px
+    --wr-input-number-step-icon-size: var(--wr-control-font-size-lg); // 16px
   }
 
   // Steppers live as a compact vertical column inside the suffix slot.
@@ -96,10 +102,12 @@
     }
 
     // CSS size, so it beats the markup's `width` / `height` attributes — which
-    // stay, as what an unstyled page draws instead of a 300x150 default.
+    // stay, as what an unstyled page draws instead of a 300x150 default. Square:
+    // the viewBox is, and squashing it would thin the chevron's two strokes
+    // against the ones a select draws beside it.
     svg {
       width: var(--wr-input-number-step-icon-size);
-      height: calc(var(--wr-input-number-step-icon-size) * 0.6);
+      height: var(--wr-input-number-step-icon-size);
     }
   }
 
@@ -119,7 +127,7 @@
       border-radius: 0;
       overflow: visible;
       // Half the pill's affix inset: added to the half-button's own slack around
-      // the glyph (7px at `md`), the chevrons end 14–16px from the border, where
+      // the glyph (8.5px at `md`), the chevrons end 14–16px from the border, where
       // the field's text begins on the other side. It costs a pill 7px of
       // minimum width (8px of margin, less the 1px border above). Padding the
       // steps instead keeps the old width and leaves the chevrons 10–12px from
