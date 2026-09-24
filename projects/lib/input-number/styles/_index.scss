@@ -38,7 +38,13 @@
     align-self: stretch;
     padding: 0;
     margin: 0;
-    border-inline-start: 1px solid var(--wr-input-group-border);
+    // No rule between the column and the field, and none between the two halves
+    // (below). The hover and pressed tints are what separate them, and they only
+    // need to be there while the pointer is: a pair of hairlines around a control
+    // that is idle most of the time reads as chrome the field does not have
+    // anywhere else. The pill has been drawn this way since it shipped — this is
+    // the square variant catching up, so the two no longer differ by two lines.
+    //
     // The column sits in the group's suffix slot, so its rounded corners are the
     // group's trailing ones and the square pair faces the input.
     border-start-start-radius: 0;
@@ -74,11 +80,6 @@
       color var(--wr-transition-base),
       background var(--wr-transition-base);
 
-    // Divider between ▲ and ▼.
-    & + & {
-      border-top: 1px solid var(--wr-input-group-border);
-    }
-
     &:hover:not(:disabled) {
       color: var(--wr-color-primary);
       background: rgba(var(--wr-color-primary-rgb), 0.08);
@@ -111,27 +112,20 @@
     }
   }
 
-  // A pill's end is a half-disc as tall as the field. The column itself fitted
-  // it — its start border sits 26px from the outer end, on the straight run
-  // before a curve 11–21.5px long, and its own end radius followed the arc — but
-  // the divider between ▲ and ▼ ran to the very tip of the curve, and the start
-  // border plus that divider cut the end cap into a separate square segment with
-  // the chevrons 7px from the end, inside the bend. Keeping the dividers and
-  // clearing the curve means insetting the column by the whole radius (18px at
-  // `lg`), which leaves an empty D-shaped cap after it. So the pill drops the
-  // dividers instead, and the pair sits inside the end the way the text sits
-  // inside the start.
+  // A pill's end is a half-disc as tall as the field, and the column has to sit
+  // inside the bend rather than be clipped to it: its own end radius followed the
+  // arc, but a square-cornered tint at the tip did not. So the pill stops
+  // clipping and insets the pair, and the tints take a shape of their own below.
+  // The dividers this used to undo are gone from every variant now.
   &--rounded {
     .wr-input-number__steppers.wr-input-group__affix {
-      border-inline-start: 0;
       border-radius: 0;
       overflow: visible;
       // Half the pill's affix inset: added to the half-button's own slack around
       // the glyph (8.5px at `md`), the chevrons end 14–16px from the border, where
-      // the field's text begins on the other side. It costs a pill 7px of
-      // minimum width (8px of margin, less the 1px border above). Padding the
-      // steps instead keeps the old width and leaves the chevrons 10–12px from
-      // the border.
+      // the field's text begins on the other side. It costs a pill 8px of minimum
+      // width. Padding the steps instead keeps the old width and leaves the
+      // chevrons 10–12px from the border.
       margin-inline-end: calc(var(--wr-input-group-padding-x) / 2);
     }
 
@@ -150,10 +144,6 @@
 
       &:last-child {
         border-end-end-radius: 999px;
-      }
-
-      & + .wr-input-number__step {
-        border-top: 0;
       }
     }
   }

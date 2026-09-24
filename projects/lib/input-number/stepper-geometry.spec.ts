@@ -28,15 +28,19 @@ import { WrInputNumber } from './input-number';
  *     a length of its own.
  *   * on a pill, the divider between the two buttons ran to the tip of the
  *     rounded end, and with the column's start border it cut the end cap into a
- *     separate square segment, chevrons 7px from the end. The column itself
- *     fitted the curve — its start border sits 26px from the outer end, before a
- *     curve 11–21.5px long, and its own end radius left 0px² outside the pill in
- *     every case. Keeping the dividers means insetting the column by the whole
- *     radius (18px at `lg`, 21.5px at `lg` under `touch`). The pill drops both
- *     dividers and insets the pair instead: the chevrons end 14–16px from the
+ *     separate square segment, chevrons 7px from the end. Keeping the dividers
+ *     means insetting the column by the whole radius (18px at `lg`, 21.5px at
+ *     `lg` under `touch`), which leaves an empty D-shaped cap after it. The pill
+ *     dropped both and inset the pair instead: the chevrons end 14–16px from the
  *     border in every measured case, where the field's own text starts 13.6–20px
- *     from the other one, at a cost of 7px of minimum width, and the hover /
+ *     from the other one, at a cost of 8px of minimum width, and the hover /
  *     pressed tints end in a quarter-disc that stays inside the curve.
+ *
+ *     Those two dividers are now gone from the square variant as well, so the
+ *     pill has nothing left to undo. The pair is told apart by its tints alone,
+ *     which is the state a pointer is in when it matters — the assertion below
+ *     is that NO rule in the file draws either line, in any variant, rather than
+ *     that one variant switches them off.
  *
  * jsdom applies no stylesheet and every rect is 0x0, so none of those numbers
  * is reachable from a rendered fixture. What IS reachable is split in two: the
@@ -94,14 +98,23 @@ describe('WrInputNumber stepper geometry', () => {
     expect(svg).toMatch(/height:\s*var\(--wr-input-number-step-icon-size\)\s*;/);
   });
 
-  it('drops both dividers on a pill and insets the pair from its rounded end', () => {
-    const rounded = block('&--rounded').start;
-    const column = block('.wr-input-number__steppers.wr-input-group__affix', rounded).body;
-    expect(column).toMatch(/border-inline-start:\s*0\s*;/);
-    expect(column).toMatch(/margin-inline-end:\s*calc\(var\(--wr-input-group-padding-x\)\s*\/\s*2\)\s*;/);
+  it('draws no rule between the column and the field, nor between the two halves', () => {
+    // Read over the whole file rather than one block: a divider restored under
+    // any selector — a size modifier, a density branch — is the regression, and
+    // a block-scoped assertion would miss all of them. `border: 0` on the button
+    // and the radius declarations are the only `border` left, hence the filter.
+    const declarations = strip(STYLES)
+      .split(/[;{}]/)
+      .map(d => d.trim())
+      .filter(d => /^border(-(top|bottom|inline|block)(-(start|end))?)?\s*:/.test(d));
 
-    const second = block('& + .wr-input-number__step', rounded).body;
-    expect(second).toMatch(/border-top:\s*0\s*;/);
+    expect(declarations).toEqual(['border: 0']);
+  });
+
+  it("insets the pair from a pill's rounded end instead of clipping it", () => {
+    const column = block('.wr-input-number__steppers.wr-input-group__affix', block('&--rounded').start).body;
+    expect(column).toMatch(/overflow:\s*visible\s*;/);
+    expect(column).toMatch(/margin-inline-end:\s*calc\(var\(--wr-input-group-padding-x\)\s*\/\s*2\)\s*;/);
   });
 
   it('keeps the hover and pressed tints inside the curve on a pill', () => {
