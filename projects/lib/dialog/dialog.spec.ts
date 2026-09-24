@@ -193,6 +193,21 @@ describe('WrDialog', () => {
     expect(panel()!.classList.contains('narrow')).toBe(true);
   });
 
+  /**
+   * The array form above was the only one covered, and the string form THREW:
+   * the CDK hands `panelClass` to `classList.add()` without splitting it, so one
+   * `'tall narrow'` reached `add('tall narrow')` and took the open call down with
+   * `InvalidCharacterError`. Which is the form anyone writing utility classes
+   * reaches for first.
+   */
+  it('splits a space-separated panelClass instead of throwing on it', async () => {
+    await open({ panelClass: 'tall narrow' });
+
+    expect(panel()!.classList.contains('wr-dialog-panel')).toBe(true);
+    expect(panel()!.classList.contains('tall')).toBe(true);
+    expect(panel()!.classList.contains('narrow')).toBe(true);
+  });
+
   it('applies the width options to the panel', async () => {
     await open({ width: '24rem', maxWidth: '90vw' });
 

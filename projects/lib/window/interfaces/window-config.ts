@@ -5,6 +5,8 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import type { WrClassInput } from 'ngwr/utils';
+
 import type { WrWindowChromeSize } from './window-chrome-size';
 import type { WrWindowOs } from './window-os';
 import type { WrWindowSize } from './window-size';
@@ -95,6 +97,13 @@ export interface WrWindowConfig<D = unknown> {
 
   // Persistence
   readonly storage?: WrWindowStorageConfig;
+
+  /**
+   * Extra CSS classes for the window's overlay pane. The pane is only a mount
+   * point — `<wr-window>` inside it positions itself `fixed` — so a rule for the
+   * chrome reads `.my-class .wr-window`.
+   */
+  readonly panelClass?: WrClassInput;
 
   // Payload for the projected component (`WR_WINDOW_DATA` token)
   readonly data?: D;

@@ -34,6 +34,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
+import { toClassList, type WrClassInput } from 'ngwr/utils';
 
 import type { WrCascaderOption } from './interfaces';
 
@@ -150,6 +151,16 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
 
   /** Separator between labels in the trigger display. @default '/' */
   readonly separator = input<string>('/');
+
+  /**
+   * Extra CSS classes for the column panel's overlay pane.
+   *
+   * The pane is appended to the overlay container, not to this component, so
+   * nothing in the consumer's own template encloses it and no descendant rule
+   * written around the trigger can reach it. This input is the only per-instance
+   * handle on it. A space-separated string works as well as an array.
+   */
+  readonly panelClass = input<WrClassInput>(null);
 
   /**
    * Committed selection path (full array from root to leaf). Bound by
@@ -415,7 +426,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     this.overlayRef = this.overlay.create({
       positionStrategy,
       scrollStrategy: this.scrollStrategies.reposition(),
-      panelClass: 'wr-cascader-overlay',
+      panelClass: toClassList('wr-cascader-overlay', this.panelClass()),
     });
 
     // The columns cascade inline-wards, and the CDK captured the direction as a

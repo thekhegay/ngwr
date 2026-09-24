@@ -32,6 +32,7 @@ import { WrCheckbox } from 'ngwr/checkbox';
 import { useI18nText } from 'ngwr/i18n';
 import { WrPagination } from 'ngwr/pagination';
 import { WrSpinner } from 'ngwr/spinner';
+import { toClassList } from 'ngwr/utils';
 
 import type {
   WrTableCellContext,
@@ -43,6 +44,7 @@ import type {
   WrTableFilterItem,
   WrTableGroupContext,
   WrTableRow,
+  WrTableRowClass,
   WrTableSortState,
   WrTableSortDirection,
   WrTableSummary,
@@ -168,6 +170,19 @@ export class WrTable {
    * select-all header; `'single'` keeps one row selected. @default null (off)
    */
   readonly rowSelection = input<'single' | 'multiple' | null>(null);
+
+  /**
+   * Extra CSS classes per body row, from the row and its drawn index.
+   *
+   * The `<tr>` is ngwr's own element and there is no template slot that renders
+   * as one, so this is the only way to mark a row — overdue, unsaved, over
+   * budget — without a rule that has to re-derive the condition in CSS.
+   *
+   * It does NOT touch the detail row an expanded row opens, the group header or
+   * the summary row: each of those is a sibling `<tr>` with its own meaning, and
+   * a row predicate that painted them too would stripe a table's totals.
+   */
+  readonly rowClass = input<WrTableRowClass | null>(null);
 
   /**
    * How to identify a row for selection — a property name or a function.
@@ -620,6 +635,30 @@ export class WrTable {
   /** Whether `key` is the inner-edge pinned column on `side` (carries the shadow). */
   protected isPinEdge(key: string, side: 'left' | 'right'): boolean {
     return (side === 'left' ? this.pins().leftEdge : this.pins().rightEdge) === key;
+  }
+
+  /**
+   * The BEM class and the consumer's own, merged into one string.
+   *
+   * One binding rather than a static `class` beside a `[class]` — Angular does
+   * merge the two, but `no-duplicate-attributes` refuses the shape, and a reader
+   * should not have to know the merge rules to know what a cell ends up with.
+   * Each returns the shared constant untouched when nothing was passed, so a
+   * table without these hooks allocates nothing per cell.
+   */
+  protected thClasses(column: WrTableColumn): string {
+    return column.class ? toClassList('wr-table__th', column.class).join(' ') : 'wr-table__th';
+  }
+
+  /** Body-cell half of {@link thClasses}. */
+  protected tdClasses(column: WrTableColumn): string {
+    return column.class ? toClassList('wr-table__td', column.class).join(' ') : 'wr-table__td';
+  }
+
+  /** Row half of {@link thClasses}, resolved through the `rowClass` predicate. */
+  protected rowClasses(row: Record<string, unknown>, index: number): string {
+    const extra = this.rowClass()?.(row, index);
+    return extra ? toClassList('wr-table__tr', extra).join(' ') : 'wr-table__tr';
   }
 
   // --- Column resizing ------------------------------------------------------

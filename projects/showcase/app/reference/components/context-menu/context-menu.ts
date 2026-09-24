@@ -132,6 +132,16 @@ export class MyComponent {}`,
     },
   ];
 
+  protected readonly panelApi: readonly DocApiRow[] = [
+    {
+      name: 'panelClass',
+      description:
+        'Extra class(es) on the menu box. Only the inner element is portalled into the overlay, so a class on the tag would not travel — and every submenu is its own <wr-context-menu>, so each takes its own.',
+      type: 'WrClassInput',
+      default: 'null',
+    },
+  ];
+
   protected readonly itemApi: readonly DocApiRow[] = [
     {
       name: 'icon',

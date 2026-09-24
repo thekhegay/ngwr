@@ -36,7 +36,7 @@ import {
   wrMirrorOffsets,
   wrPresentAsSheet,
 } from 'ngwr/overlay';
-import { KEYS, numAttr } from 'ngwr/utils';
+import { KEYS, numAttr, toClassList, type WrClassInput } from 'ngwr/utils';
 
 import { type WrPopoverPosition, wrPopoverPositions } from './interfaces';
 import { WrCurrentKeystroke } from './internal/keystroke';
@@ -171,6 +171,16 @@ export class WrPopover {
    * has a heading or a purpose, pass it.
    */
   readonly ariaLabel = input<string | null>(null);
+
+  /**
+   * Extra CSS classes for the popover's (or tooltip's) overlay pane.
+   *
+   * The pane is appended to the overlay container, not to this component, so
+   * nothing in the consumer's own template encloses it and no descendant rule
+   * written around the trigger can reach it. This input is the only per-instance
+   * handle on it. A space-separated string works as well as an array.
+   */
+  readonly panelClass = input<WrClassInput>(null);
 
   /** Fires after the panel opens. */
   readonly opened = output<void>();
@@ -432,7 +442,7 @@ export class WrPopover {
     // carries its own, so the pane names the placement it landed on instead of
     // the one that was requested, and the arrow follows a flip. A sheet has no
     // anchor and so no placement class at all.
-    const overlayClass = asSheet ? [paneClass, 'wr-overlay-sheet'] : [paneClass];
+    const overlayClass = toClassList(paneClass, asSheet && 'wr-overlay-sheet', this.panelClass());
 
     this.overlayRef = this.overlay.create({
       positionStrategy,

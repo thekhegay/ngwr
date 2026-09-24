@@ -141,5 +141,11 @@ tour.step();    // the current WrTourStep | null`,
       default: "'bottom'",
       sub: true,
     },
+    {
+      name: 'panelClass',
+      description: "Extra classes on this step's overlay pane. Per step, since each step builds its own.",
+      type: 'WrClassInput',
+      sub: true,
+    },
   ];
 }

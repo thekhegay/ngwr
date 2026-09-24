@@ -621,6 +621,12 @@ interface WrTableGroupContext {
       type: 'WrTableSummary',
       sub: true,
     },
+    {
+      name: 'class',
+      description: "Extra classes on this column's header cell and every body cell under it. Not the summary row.",
+      type: 'WrClassInput',
+      sub: true,
+    },
     { name: 'WrTableFilterItem', description: 'One entry in a column filter.', type: 'interface' },
     { name: 'title', description: 'Visible label.', type: 'string', required: true, sub: true },
     { name: 'value', description: 'Value matched against the cell.', type: 'T', required: true, sub: true },

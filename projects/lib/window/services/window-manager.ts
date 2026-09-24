@@ -22,7 +22,7 @@ import {
 
 import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 import { WrStorage } from 'ngwr/storage';
-import { randomId } from 'ngwr/utils';
+import { randomId, toClassList } from 'ngwr/utils';
 
 import type { WrWindowConfig, WrWindowLayoutSnapshot, WrWindowStorageConfig } from '../interfaces';
 import { storageKey } from '../storage-key';
@@ -143,7 +143,7 @@ export class WrWindowManager {
     // you need a backdrop + focus trap + scroll block.
     const overlayRef: OverlayRef = this.overlay.create({
       positionStrategy: this.overlay.position().global(),
-      panelClass: 'wr-window-overlay',
+      panelClass: toClassList('wr-window-overlay', config.panelClass),
       hasBackdrop: false,
       // Which window an Escape belongs to is a question the CDK cannot answer
       // here. Its keyboard dispatcher walks the attached overlays newest-first

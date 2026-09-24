@@ -14,6 +14,7 @@ import { EnvironmentInjector, Injector, PLATFORM_ID, Service, afterEveryRender, 
 
 import { WrI18n } from 'ngwr/i18n';
 import { WR_OVERLAY, wrAppendOverlayClose, wrFollowDirection } from 'ngwr/overlay';
+import { toClassList } from 'ngwr/utils';
 
 import { WrDrawerRef } from './drawer-ref';
 import type { WrDrawerOptions, WrDrawerPosition } from './interfaces';
@@ -79,20 +80,15 @@ export class WrDrawerManager {
 
     // The content component is attached straight into the overlay pane, so the
     // panel styles land on the pane rather than on an inner wrapper.
-    const panelClasses = [
+    const panelClasses = toClassList(
       'wr-drawer-overlay',
       `wr-drawer-overlay--${position}`,
       'wr-drawer__panel',
       `wr-drawer__panel--${position}`,
-    ];
-    if (options.rounded) panelClasses.push('wr-drawer__panel--rounded');
-    if (options.safeArea) panelClasses.push('wr-drawer__panel--safe-area');
-    const extra = options.panelClass;
-    if (typeof extra === 'string') {
-      panelClasses.push(extra);
-    } else if (extra) {
-      for (const cls of extra) panelClasses.push(cls);
-    }
+      options.rounded && 'wr-drawer__panel--rounded',
+      options.safeArea && 'wr-drawer__panel--safe-area',
+      options.panelClass
+    );
 
     const positionStrategy = this.overlay
       .position()

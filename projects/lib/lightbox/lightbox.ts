@@ -29,6 +29,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
+import { toClassList, type WrClassInput } from 'ngwr/utils';
 
 let viewerUid = 0;
 
@@ -114,6 +115,16 @@ export class WrLightbox {
    * paint. @default null
    */
   readonly aspectRatio = input<string | number | null>(null);
+
+  /**
+   * Extra CSS classes for the viewer's overlay pane.
+   *
+   * The pane is appended to the overlay container, not to this component, so
+   * nothing in the consumer's own template encloses it and no descendant rule
+   * written around the trigger can reach it. This input is the only per-instance
+   * handle on it. A space-separated string works as well as an array.
+   */
+  readonly panelClass = input<WrClassInput>(null);
 
   protected readonly open = signal(false);
   protected readonly loaded = signal(false);
@@ -243,7 +254,7 @@ export class WrLightbox {
       backdropClass: 'wr-lightbox-backdrop',
       positionStrategy: this.overlay.position().global().centerHorizontally().centerVertically(),
       scrollStrategy: this.overlay.scrollStrategies.block(),
-      panelClass: 'wr-lightbox-overlay',
+      panelClass: toClassList('wr-lightbox-overlay', this.panelClass()),
     });
 
     // Centred on both axes, so no geometry rides on the direction — but the

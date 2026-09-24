@@ -28,6 +28,7 @@ export const API = {
     { name: "title", description: "Optional bold heading above the rows.", type: "string", default: "''" },
     { name: "titleFallback", description: "Name announced for the dialog when there is no visible `title`. Falls back to `actionSheet.label`, then `'Actions'` — it used to be that English string, written into the template of a component whose every other string comes from the caller.", type: "string | null", default: "null" },
     { name: "message", description: "Optional muted sub-heading under the title.", type: "string", default: "''" },
+    { name: "panelClass", description: "Extra CSS classes for the sheet's panel, forwarded to the `<wr-drawer>` this renders. The drawer is in THIS component's template rather than in the consumer's, so a class on `<wr-action-sheet>` lands on a host that only wraps it — the panel itself is reachable no other way.", type: "WrClassInput", default: "null" },
     { name: "(action)", description: "Fires with the chosen row (never fires on a dismiss).", type: "WrActionSheetAction" },
   ],
   // <[wrAffix]>
@@ -219,6 +220,7 @@ export const API = {
     { name: "clearable", description: "Show a clear-all (×) button on the trigger when a path is selected.", type: "boolean", default: "true" },
     { name: "changeOnSelect", description: "Allow selecting non-leaf (parent) nodes. When `false`, only leaves (nodes without children) commit a selection.", type: "boolean", default: "false" },
     { name: "separator", description: "Separator between labels in the trigger display.", type: "string", default: "'/'" },
+    { name: "panelClass", description: "Extra CSS classes for the column panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
     { name: "value", description: "Committed selection path (full array from root to leaf). Bound by `[formField]`, or two-way via `[(value)]`.", type: "unknown", default: "[]" },
     { name: "(touch)", description: "Emitted on blur / commit so a bound field can mark itself touched.", type: "void" },
   ],
@@ -289,6 +291,7 @@ export const API = {
     { name: "format", description: "Forwarded to the inner picker.", type: "WrColorFormat", default: "'hex'" },
     { name: "swatches", description: "Forwarded to the inner picker.", type: "readonly string[]", default: "[]" },
     { name: "disabled", description: "Disable the trigger entirely.", type: "boolean", default: "false" },
+    { name: "panelClass", description: "Extra CSS classes for the picker panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
     { name: "(opened)", description: "Fires after the picker opens.", type: "void" },
     { name: "(closed)", description: "Fires after the picker closes.", type: "void" },
   ],
@@ -329,6 +332,10 @@ export const API = {
     { name: "icon", description: "Optional leading icon name.", type: "WrIconName | null", default: "null" },
     { name: "disabled", description: "Disable interaction (suppresses pointer + keyboard).", type: "boolean", default: "false" },
     { name: "submenu", description: "Optional nested `<wr-context-menu>`. When set, hovering the item (or pressing →) opens it to the right with a chevron indicator.", type: "WrContextMenuPanel | null", default: "null" },
+  ],
+  // <wr-context-menu>
+  WrContextMenuPanel: [
+    { name: "panelClass", description: "Extra CSS classes for the menu box. It goes on the box rather than on the CDK pane, and that is what makes one input cover a whole cascade: only the inner `<div>` of this template is portalled into the overlay, the host element stays behind at `display: none`, and every submenu is its own `<wr-context-menu>` — so a class written on each one reaches each panel, with nothing to plumb from the trigger down.", type: "WrClassInput", default: "null" },
   ],
   // <[wrCopyToClipboard]>
   WrCopyToClipboard: [
@@ -380,6 +387,7 @@ export const API = {
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
     { name: "ariaLabel", description: "Accessible name of the text field. Falls back to the placeholder, then to the same catalog string the calendar button uses — the field is a `role=\"combobox\"`, and with an empty placeholder it had no name at all.", type: "string | null", default: "null" },
     { name: "panelAriaLabel", description: "Accessible name of the popup. The trigger advertises `aria-haspopup=\"dialog\"`, so the panel is a `role=\"dialog\"` — and an unnamed dialog announces as a bare \"dialog\". Defaults to the catalog's `datePicker.panel*` string for the current `mode`.", type: "string | null", default: "null" },
+    { name: "panelClass", description: "Extra CSS classes for the calendar panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
   ],
   // <wr-date-range-picker>
   WrDateRangePicker: [
@@ -399,6 +407,7 @@ export const API = {
     { name: "value", description: "The picked range. Bound by `[formField]`, or two-way via `[(value)]`.", type: "WrDateRange | null", default: "null" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
     { name: "panelAriaLabel", description: "Accessible name of the popup. The trigger advertises `aria-haspopup=\"dialog\"`, so the pane is a `role=\"dialog\"` — and an unnamed dialog announces as a bare \"dialog\". Defaults to the catalog's `datePicker.panelRange*` string for the current `mode`.", type: "string | null", default: "null" },
+    { name: "panelClass", description: "Extra CSS classes for the calendar panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
   ],
   // <wr-decrypt-text>
   WrDecryptText: [
@@ -468,6 +477,7 @@ export const API = {
     { name: "closeOnEscape", description: "Close on Escape.", type: "boolean", default: "true" },
     { name: "closable", description: "Show a dismiss (×) button in the panel's top-right corner. Set `false` when the projected content supplies its own close affordance.", type: "boolean", default: "true" },
     { name: "closeLabel", description: "Accessible name for the dismiss button. Falls back to `drawer.close`.", type: "string | null", default: "null" },
+    { name: "panelClass", description: "Extra CSS classes for the drawer's panel — the box that slides in. On the panel rather than on the CDK pane, because that is the element `WrDrawerManager.open({ panelClass })` styles too: there the content IS the pane, so one name has to mean the same surface on both paths.", type: "WrClassInput", default: "null" },
   ],
   // <[wrDrawerClose]>
   WrDrawerClose: [
@@ -483,6 +493,7 @@ export const API = {
     { name: "trigger", description: "How the menu opens.", type: "WrDropdownTrigger", default: "'click'" },
     { name: "position", description: "Where the menu anchors relative to the trigger. A placement that does not fit flips to the opposite side (a `left` / `right` menu may also drop below or above, and then stays there until it closes), and the pane's `wr-dropdown-overlay--<placement>` class names the side it actually took.", type: "WrDropdownPosition", default: "'bottom-start'" },
     { name: "arrow", description: "Draw a small arrow on the menu's edge, pointing at the trigger — the one `wr-popover` and `wr-popconfirm` draw, from the same shared rule. It follows the placement the menu actually took, so a flipped menu points the right way, and it widens the gap to the trigger from 0.25rem to popover's 0.5rem so the tip does not touch the control. Never drawn on a bottom sheet (`responsive`), which is anchored to nothing. Turn it off on a menu with no padding of its own (`--wr-dropdown-padding: 0`) or one that clips its overflow: the square reaches about 3px inside the menu's border, over the first row, and `overflow` cuts its tip off. Read when the menu opens.", type: "boolean", default: "true" },
+    { name: "panelClass", description: "Extra CSS classes for the menu's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
     { name: "responsive", description: "Present the menu as a full-width bottom-sheet on small viewports instead of an anchored panel. `undefined` follows the app-wide `provideWrResponsiveOverlays()` setting; `true`/`false` overrides it.", type: "boolean | undefined", default: "undefined" },
     { name: "(opened)", description: "Fires after the menu opens.", type: "void" },
     { name: "(closed)", description: "Fires after the menu closes.", type: "void" },
@@ -736,6 +747,7 @@ export const API = {
     { name: "disablePreview", description: "Disable the click-to-zoom lightbox.", type: "boolean", default: "false" },
     { name: "caption", description: "Caption shown under the full image in the lightbox.", type: "string", default: "''" },
     { name: "aspectRatio", description: "Reserve space before the image resolves by fixing the thumbnail's `aspect-ratio` (e.g. `'16 / 9'`, `'4 / 3'`, or a number like `1.5`). Prevents the layout jump when the intrinsic image size isn't known up front — pair it with a `width` and the box keeps its height from first paint.", type: "string | number | null", default: "null" },
+    { name: "panelClass", description: "Extra CSS classes for the viewer's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
   ],
   // <wr-line-chart>
   WrLineChart: [
@@ -800,6 +812,7 @@ export const API = {
     { name: "valueWith", description: "Returns the text to insert into the textarea on commit. Receives the picked item and the trigger char.", type: "((item: T, trigger: string) => string) | null", default: "`${trigger}${displayWith(item)}`" },
     { name: "filterWith", description: "Custom filter.", type: "((query: string, item: T) => boolean) | null", default: "case-insensitive `includes` over `displayWith(item)`." },
     { name: "maxResults", description: "Maximum number of items shown in the panel.", type: "number", default: "8" },
+    { name: "panelClass", description: "Extra CSS classes for the suggestion panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
     { name: "(wrMentionSelected)", description: "Emits the selected item, trigger, and query whenever the user commits.", type: "WrMentionCommit<T>" },
   ],
   // <[wrMeta]>
@@ -863,6 +876,7 @@ export const API = {
     { name: "cancelText", description: "Cancel button text. Falls back to `popconfirm.cancel`.", type: "string | null", default: "null" },
     { name: "ariaLabel", description: "Accessible name of the confirmation dialog. `role=\"dialog\"` with no name announces as a bare \"dialog\". Falls back to `popconfirm.label`.", type: "string | null", default: "null" },
     { name: "confirmColor", description: "Color of the confirm button.", type: "WrColor", default: "'primary'" },
+    { name: "panelClass", description: "Extra CSS classes for the confirmation bubble's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
     { name: "(confirmed)", description: "Fires when the user clicks confirm.", type: "void" },
     { name: "(cancelled)", description: "Fires when the user clicks cancel or dismisses the overlay.", type: "void" },
   ],
@@ -876,6 +890,7 @@ export const API = {
     { name: "hideDelay", description: "Tooltip only — delay before hiding, in ms.", type: "number", default: "60" },
     { name: "responsive", description: "Popover mode only — present the panel as a full-width bottom-sheet on small viewports instead of an anchored panel. `undefined` follows the app-wide `provideWrResponsiveOverlays()` setting; `true`/`false` overrides it. Tooltips never become sheets.", type: "boolean | undefined", default: "undefined" },
     { name: "ariaLabel", description: "Popover mode only — accessible name of the panel. `role=\"dialog\"` with no name announces as a bare \"dialog\", so the catalog's `popover.label` is used when nothing is given. A popover has no universal name; whenever the panel has a heading or a purpose, pass it.", type: "string | null", default: "null" },
+    { name: "panelClass", description: "Extra CSS classes for the popover's (or tooltip's) overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
     { name: "(opened)", description: "Fires after the panel opens.", type: "void" },
     { name: "(closed)", description: "Fires after the panel closes.", type: "void" },
   ],
@@ -1011,6 +1026,7 @@ export const API = {
     { name: "allowDuplicates", description: "Tag mode: allow the same value to appear more than once.", type: "boolean", default: "false" },
     { name: "validate", description: "Tag mode: custom validator — return `true` to accept the value, `false` to silently reject. Receives the trimmed draft + the existing chips.", type: "WrSelectTagValidator | null", default: "null" },
     { name: "clearable", description: "Show a clear (×) button once at least one option is selected. NOT multi-only, which this said for a long time and which the template refutes: only the button trigger gates on `isMulti()`, so the chips trigger AND a single `mode=\"search\"` / `[searchable]` select carry it too. The wording mattered little while the default was `true`; it decides what a reader expects to lose now that it is not. The default changed from `true` to `false`: the affordance is opt-in, so a trigger that grew an × on its own no longer does — pass `clearable` to keep it. In `search` mode this also gates Backspace-to-clear on an empty field, since that key is the keyboard twin of this button.", type: "boolean", default: "false" },
+    { name: "panelClass", description: "Extra CSS classes for the dropdown panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array. The pane is a positioning wrapper carrying the gap above the list; the box that paints is `.wr-select-panel` inside it, so a rule meant for the surface reads `.my-class .wr-select-panel`.", type: "WrClassInput", default: "null" },
     { name: "maxItems", description: "Cap on selected items (multi mode). `0` = unlimited. Once reached, additional clicks on unselected options are ignored.", type: "number", default: "0" },
     { name: "maxTagCount", description: "Maximum number of chips rendered before collapsing the rest into a `+N more` indicator. `0` = render every chip.", type: "number", default: "0" },
     { name: "value", description: "Unified value. Single mode holds a scalar (or `null`); multi / tag mode holds `readonly unknown[]`. Bound by `[formField]`, or two-way via `[(value)]`.", type: "unknown", default: "null" },
@@ -1228,6 +1244,7 @@ export const API = {
     { name: "reorderable", description: "Enable drag-to-reorder on the column headers.", type: "boolean", default: "false" },
     { name: "columnOrder", description: "Two-way bindable column order — an array of column keys. Reflects and drives the header order: the table falls back to declaration order for any key not listed, and updates this on drag. Bind it to persist a user's arrangement.", type: "readonly string[]", default: "[]" },
     { name: "rowSelection", description: "Row selection with a leading checkbox column — `'multiple'` adds a select-all header; `'single'` keeps one row selected.", type: "'single' | 'multiple' | null", default: "null (off)" },
+    { name: "rowClass", description: "Extra CSS classes per body row, from the row and its drawn index. The `<tr>` is ngwr's own element and there is no template slot that renders as one, so this is the only way to mark a row — overdue, unsaved, over budget — without a rule that has to re-derive the condition in CSS. It does NOT touch the detail row an expanded row opens, the group header or the summary row: each of those is a sibling `<tr>` with its own meaning, and a row predicate that painted them too would stripe a table's totals.", type: "WrTableRowClass | null", default: "null" },
     { name: "rowKey", description: "How to identify a row for selection — a property name or a function. Unset uses the row object itself (fine for a stable row array).", type: "string | ((row: Record<string, unknown>) => unknown) | null", default: "null" },
     { name: "selection", description: "Two-way bindable selected row keys.", type: "readonly unknown[]", default: "[]" },
     { name: "expanded", description: "Two-way bindable expanded row keys (needs a `[wrTableExpand]` template).", type: "readonly unknown[]", default: "[]" },
@@ -1365,6 +1382,7 @@ export const API = {
     { name: "rowHeight", description: "Uniform row height in px used to map scroll offset to node index. `0` (default) measures the first rendered row once and reuses it, so it adapts to the active density / touch target automatically. Read only when `virtualScroll` is on.", type: "number", default: "0" },
     { name: "viewportHeight", description: "Height of the scroll viewport when `virtualScroll` is on — a number (px) or any CSS length (`'60vh'`). A numeric px value lets the server prerender the exact first window.", type: "number | string", default: "288" },
     { name: "overscan", description: "Extra rows kept rendered above and below the viewport as scroll headroom.", type: "number", default: "6" },
+    { name: "panelClass", description: "Extra CSS classes for the overlay pane, when `openOn` puts the tree in one. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array. Inline trees never open an overlay, so this input does nothing for the default `openOn=\"inline\"` — the host element is right there to take a class of its own.", type: "WrClassInput", default: "null" },
     { name: "value", description: "Form value — the current selection as seen by a bound field. Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `selectionMode`: `TId | null` in single mode, `readonly TId[]` in multi mode. Works in both `openOn` modes; `[(selected)]` stays the inline-native API and always carries an array, whatever the selection mode.", type: "unknown", default: "undefined" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],

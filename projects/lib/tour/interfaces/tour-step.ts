@@ -5,6 +5,8 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import type { WrClassInput } from 'ngwr/utils';
+
 /** Where the step popup sits relative to its target. */
 export type WrTourPlacement = 'top' | 'bottom' | 'left' | 'right';
 
@@ -23,4 +25,10 @@ export interface WrTourStep {
   readonly content: string;
   /** Preferred side. The overlay falls back to the opposite side near an edge. @default 'bottom' */
   readonly placement?: WrTourPlacement;
+  /**
+   * Extra CSS classes for this step's overlay pane. Per STEP rather than per
+   * tour, because each step disposes the previous pane and builds its own — so
+   * one step can be widened for a long screenshot without touching the rest.
+   */
+  readonly panelClass?: WrClassInput;
 }

@@ -63,7 +63,7 @@
             #thCell
             cdkDrag
             [cdkDragDisabled]="!reorderable() || !!col.column.pin"
-            class="wr-table__th"
+            [class]="thClasses(col.column)"
             [attr.aria-sort]="ariaSortFor(col.key, col.column.sortable)"
             [class.wr-table__th--draggable]="reorderable() && !col.column.pin"
             [class.wr-table__th--pin-left]="col.column.pin === 'left'"
@@ -208,7 +208,7 @@
             </tr>
           } @else {
             <tr
-              class="wr-table__tr"
+              [class]="rowClasses(entry.row, i)"
               [class.wr-table__tr--selected]="rowSelection() && isRowSelected(entry.row)"
               [class.wr-table__tr--child]="entry.depth > 0"
               [attr.aria-rowindex]="virtualized() ? windowStart() + i + 2 : null"
@@ -256,7 +256,7 @@
               }
               @for (col of displayColumns(); track col.key) {
                 <td
-                  class="wr-table__td"
+                  [class]="tdClasses(col.column)"
                   [class.wr-table__td--pin-left]="col.column.pin === 'left'"
                   [class.wr-table__td--pin-right]="col.column.pin === 'right'"
                   [class.wr-table__td--pin-edge-left]="isPinEdge(col.key, 'left')"

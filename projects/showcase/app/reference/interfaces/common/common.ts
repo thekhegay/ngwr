@@ -15,7 +15,7 @@ import {
 })
 export default class CommonTypesPage {
   protected readonly snippets = {
-    install: `import type { Maybe, SafeAny } from 'ngwr/utils';`,
+    install: `import type { Maybe, SafeAny, WrClassInput } from 'ngwr/utils';`,
     usage: `function findUser(id: string): Maybe<User> {
   return db.get(id) ?? null;
 }
@@ -24,7 +24,11 @@ export default class CommonTypesPage {
 // unlike \`any\`, the intent is explicit and greppable.
 function fromLegacyBridge(payload: SafeAny): void {
   // narrow before use
-}`,
+}
+
+// What every panelClass takes. A space-separated string is the
+// common case; an array is there for a list built in TypeScript.
+const extra: WrClassInput = wide() ? 'w-[40rem] shadow-2xl' : null;`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -39,6 +43,13 @@ function fromLegacyBridge(payload: SafeAny): void {
       name: 'SafeAny',
       description:
         'Explicitly untyped value for interop boundaries. Same mechanics as `any`, but the name is searchable and signals intent.',
+      type: 'type alias',
+      default: '—',
+    },
+    {
+      name: 'WrClassInput',
+      description:
+        'Extra classes handed to a part ngwr renders itself — `string | readonly string[] | null | undefined`. The type every `panelClass` takes; [toClassList](/reference/utils/to-class-list) normalises one.',
       type: 'type alias',
       default: '—',
     },

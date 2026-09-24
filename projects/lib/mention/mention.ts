@@ -31,7 +31,7 @@ import {
 
 import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
 import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
-import { isComposing } from 'ngwr/utils';
+import { isComposing, toClassList, type WrClassInput } from 'ngwr/utils';
 
 import { getCaretCoordinates } from './caret';
 import type { WrMentionCommit, WrMentionItem } from './interfaces';
@@ -158,6 +158,16 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
 
   /** Maximum number of items shown in the panel. @default 8 */
   readonly maxResults = input(8, { transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 8)) });
+
+  /**
+   * Extra CSS classes for the suggestion panel's overlay pane.
+   *
+   * The pane is appended to the overlay container, not to this component, so
+   * nothing in the consumer's own template encloses it and no descendant rule
+   * written around the trigger can reach it. This input is the only per-instance
+   * handle on it. A space-separated string works as well as an array.
+   */
+  readonly panelClass = input<WrClassInput>(null);
 
   /** Emits the selected item, trigger, and query whenever the user commits. */
   readonly wrMentionSelected = output<WrMentionCommit<T>>();
@@ -485,7 +495,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
           .withPush(true)
           .withPositions(CARET_POSITIONS),
         scrollStrategy: this.scrollStrategies.reposition(),
-        panelClass: 'wr-mention-overlay',
+        panelClass: toClassList('wr-mention-overlay', this.panelClass()),
       });
 
       // Once per mention SESSION, which is the same thing as once per ref here:

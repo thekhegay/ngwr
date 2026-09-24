@@ -24,6 +24,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
 import type { WrColor } from 'ngwr/theme';
+import { toClassList, type WrClassInput } from 'ngwr/utils';
 
 import { WR_POPCONFIRM_POSITIONS, type WrPopconfirmPosition } from './interfaces';
 import { WrPopconfirmPanel } from './popconfirm-panel';
@@ -96,6 +97,16 @@ export class WrPopconfirm {
   /** Color of the confirm button. @default 'primary' */
   readonly confirmColor = input<WrColor>('primary');
 
+  /**
+   * Extra CSS classes for the confirmation bubble's overlay pane.
+   *
+   * The pane is appended to the overlay container, not to this component, so
+   * nothing in the consumer's own template encloses it and no descendant rule
+   * written around the trigger can reach it. This input is the only per-instance
+   * handle on it. A space-separated string works as well as an array.
+   */
+  readonly panelClass = input<WrClassInput>(null);
+
   /** Fires when the user clicks confirm. */
   readonly confirmed = output<void>();
 
@@ -157,7 +168,7 @@ export class WrPopconfirm {
     this.overlayRef = this.overlay.create({
       positionStrategy,
       scrollStrategy: this.scrollStrategies.reposition(),
-      panelClass: ['wr-popconfirm-overlay', `wr-popconfirm-overlay--${this.position()}`],
+      panelClass: toClassList('wr-popconfirm-overlay', `wr-popconfirm-overlay--${this.position()}`, this.panelClass()),
     });
 
     // `isRtl()` above answered once, at `create()`, and so did the CDK's own

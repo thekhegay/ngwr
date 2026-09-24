@@ -1,0 +1,22 @@
+<ngwr-doc-page
+  title="toClassList"
+  since="14.11.0"
+  description="Flattens class inputs into the de-duplicated token array `classList.add()` and the CDK both require. What every `panelClass` in the kit passes through."
+  [keywords]="['toClassList', 'panelClass', 'class', 'overlay', 'utils']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Splitting on whitespace is the point of it. The CDK applies an overlay's `panelClass` with `classList.add()` and never splits a string, so a single `'p-4 rounded-xl'` reaches `add('p-4 rounded-xl')` and throws `InvalidCharacterError` — taking the overlay down with it. Which is the first form anyone writing utility classes reaches for. It is exported because the same rule applies to any class list you build yourself."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

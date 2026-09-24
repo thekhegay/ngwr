@@ -5,6 +5,8 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import type { WrClassInput } from 'ngwr/utils';
+
 import type { WrTableFilterItem } from './table-filter-item';
 
 /**
@@ -38,6 +40,17 @@ export interface WrTableColumn {
    * (`total` set) it reflects the current page, not the whole dataset.
    */
   readonly summary?: WrTableSummary;
+  /**
+   * Extra CSS classes for this column's header cell AND every body cell under
+   * it — the one place to align a numeric column right or set a monospace face,
+   * since the `<th>` and `<td>` are ngwr's own elements and a cell template
+   * renders INSIDE the `<td>` rather than as it.
+   *
+   * The summary and group-footer cells are deliberately left out: they are a
+   * different row with their own classes, and a column whose cells are right
+   * aligned usually wants its total aligned by the footer's own rule.
+   */
+  readonly class?: WrClassInput;
 }
 
 /**

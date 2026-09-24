@@ -39,6 +39,27 @@ export default class ThemingPage {
   }
 
   protected readonly snippets = {
+    classHooks: `<!-- One select's panel, without touching the other forty. -->
+<wr-select panelClass="w-[28rem] shadow-2xl" [(value)]="size">…</wr-select>
+
+<!-- A menu box and, separately, its submenu. -->
+<wr-context-menu #menu panelClass="w-64">…</wr-context-menu>
+
+<!-- Header and body cells of one column; and a row, from its own data. -->
+<wr-table [columns]="columns" [items]="rows" [rowClass]="rowClass" />`,
+
+    classHooksTs: `readonly columns: WrTableColumns = {
+  name: { title: 'Name' },
+  amount: { title: 'Amount', class: 'text-right tabular-nums' },
+};
+
+// Inline, so the parameter is inferred - a named function wants its own cast.
+readonly rowClass: WrTableRowClass = row => (row['overdue'] ? 'bg-danger-soft' : null);
+
+// Service calls take theirs in the options object.
+this.dialog.open(EditCard, { panelClass: 'max-w-3xl' });
+this.toast.show({ message: 'Saved', class: 'w-96' });`,
+
     provider: `import { bootstrapApplication } from '@angular/platform-browser';
 import { provideWrTheme } from 'ngwr/theme';
 import { provideWrDensity } from 'ngwr/density';

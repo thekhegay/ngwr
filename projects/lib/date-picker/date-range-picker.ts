@@ -34,6 +34,7 @@ import { WrDateAdapter, type WrDateFormat } from 'ngwr/date';
 import { readI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
+import { toClassList, type WrClassInput } from 'ngwr/utils';
 
 import type { WrDateInputError, WrDateRange, WrDateRangeInputError } from './interfaces';
 import { WrDateRangePanel } from './internal/date-range-panel';
@@ -235,6 +236,16 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
    * `datePicker.panelRange*` string for the current `mode`.
    */
   readonly panelAriaLabel = input<string | null>(null);
+
+  /**
+   * Extra CSS classes for the calendar panel's overlay pane.
+   *
+   * The pane is appended to the overlay container, not to this component, so
+   * nothing in the consumer's own template encloses it and no descendant rule
+   * written around the trigger can reach it. This input is the only per-instance
+   * handle on it. A space-separated string works as well as an array.
+   */
+  readonly panelClass = input<WrClassInput>(null);
 
   /** Popup id — what the trigger's `aria-controls` points at while open. */
   protected readonly panelId = `wr-date-range-picker-panel-${++rangePanelUid}`;
@@ -688,7 +699,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     this.overlayRef = this.overlay.create({
       positionStrategy,
       scrollStrategy: this.scrollStrategies.reposition(),
-      panelClass: 'wr-date-picker-overlay',
+      panelClass: toClassList('wr-date-picker-overlay', this.panelClass()),
     });
 
     // Same four fallbacks as `wr-date-picker`, two of them anchored on `end`,

@@ -13,6 +13,7 @@
     [dismissible]="toast.dismissible ?? true"
     [showProgress]="showProgressFor(toast)"
     [showCopy]="showCopyFor(toast)"
+    [extraClass]="toast.class ?? null"
     [duration]="toast.resolvedDuration"
     [labels]="labels()"
     (dismissed)="dismissed.emit(toast.id)"

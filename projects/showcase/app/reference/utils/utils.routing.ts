@@ -15,6 +15,7 @@ export default [
   { path: utils.clamp, loadComponent: () => import('./clamp/clamp') },
   { path: utils.round, loadComponent: () => import('./round/round') },
   { path: utils.numAttr, loadComponent: () => import('./num-attr/num-attr') },
+  { path: utils.toClassList, loadComponent: () => import('./to-class-list/to-class-list') },
   // Types grew into their own top-level section. Spelled at its CURRENT path:
   // `/interfaces/common` is itself a pre-reorg alias, so this was a redirect to a
   // redirect — two hops, and the stub's markdown twin pointed at a URL that has

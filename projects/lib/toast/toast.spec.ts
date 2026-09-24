@@ -893,3 +893,54 @@ describe('WrToast follows a direction change while the stack is up', () => {
     expect(wrapper().getAttribute('dir')).toBe('rtl');
   });
 });
+
+/**
+ * A toast is raised from a service call, so there is no element in anyone's
+ * template to carry a class — and the overlay pane is no help either: it holds
+ * the whole STACK and outlives every toast in it, so a class put there would
+ * paint the ones already on screen and the ones raised after.
+ */
+describe('WrToast per-toast class', () => {
+  let toast: WrToast;
+
+  const tick = (): void => TestBed.tick();
+  const items = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('.wr-toast')];
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    toast = TestBed.inject(WrToast);
+  });
+
+  afterEach(() => {
+    toast.dismissAll();
+    TestBed.tick();
+  });
+
+  it('adds the classes to the toast box beside its own', () => {
+    toast.show({ message: 'Saved', type: 'success', class: 'w-96 border-2' });
+    tick();
+
+    const [item] = items();
+    expect(item.classList.contains('wr-toast')).toBe(true);
+    expect(item.classList.contains('wr-toast--success')).toBe(true);
+    expect(item.classList.contains('w-96')).toBe(true);
+    expect(item.classList.contains('border-2')).toBe(true);
+  });
+
+  it('marks only the toast that asked for it, not the stack', () => {
+    toast.show({ message: 'Plain' });
+    toast.show({ message: 'Wide', class: 'w-96' });
+    tick();
+
+    const marked = items().map(t => t.classList.contains('w-96'));
+    expect(marked).toEqual([false, true]);
+  });
+
+  it('leaves the shared pane untouched', () => {
+    toast.show({ message: 'Wide', class: 'w-96' });
+    tick();
+
+    const pane = document.querySelector<HTMLElement>('.wr-toast-overlay')!;
+    expect(pane.classList.contains('w-96')).toBe(false);
+  });
+});

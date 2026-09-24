@@ -176,6 +176,12 @@ this.toast.show({ message: 'Saved', position: 'bottom' });`,
       type: 'boolean',
       default: 'config.showCopy',
     },
+    {
+      name: 'class',
+      description:
+        "Extra classes on this toast's own box. Not the overlay pane — that holds the whole stack and outlives every toast in it.",
+      type: 'WrClassInput',
+    },
   ];
 
   protected readonly configApi: readonly DocApiRow[] = [

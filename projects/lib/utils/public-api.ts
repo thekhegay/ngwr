@@ -1,5 +1,5 @@
 // Types
-export type { Maybe, SafeAny } from './interfaces';
+export type { Maybe, SafeAny, WrClassInput } from './interfaces';
 
 // Guards
 export { isDefined, isNonEmptyArray, isObservable } from './guards';
@@ -9,6 +9,9 @@ export { clamp, round } from './math';
 
 // Coercion
 export { numAttr } from './coercion';
+
+// CSS class
+export { toClassList } from './css-class';
 
 // CSS value
 export { isSafeCssValue } from './css-value';

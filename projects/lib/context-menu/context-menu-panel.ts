@@ -5,7 +5,9 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Component, TemplateRef, ViewEncapsulation, viewChild } from '@angular/core';
+import { Component, TemplateRef, ViewEncapsulation, computed, input, viewChild } from '@angular/core';
+
+import { toClassList, type WrClassInput } from 'ngwr/utils';
 
 /**
  * Container for the rows shown when a {@link WrContextMenu} opens.
@@ -23,7 +25,7 @@ import { Component, TemplateRef, ViewEncapsulation, viewChild } from '@angular/c
  */
 @Component({
   selector: 'wr-context-menu',
-  template: '<ng-template><div class="wr-context-menu" role="menu"><ng-content /></div></ng-template>',
+  template: '<ng-template><div role="menu" [class]="menuClasses()"><ng-content /></div></ng-template>',
   exportAs: 'wrContextMenu',
   encapsulation: ViewEncapsulation.None,
   // A BOUND display rather than a static `style` attribute: Angular writes a
@@ -33,6 +35,28 @@ import { Component, TemplateRef, ViewEncapsulation, viewChild } from '@angular/c
   host: { '[style.display]': "'none'" },
 })
 export class WrContextMenuPanel {
+  /**
+   * Extra CSS classes for the menu box.
+   *
+   * It goes on the box rather than on the CDK pane, and that is what makes one
+   * input cover a whole cascade: only the inner `<div>` of this template is
+   * portalled into the overlay, the host element stays behind at
+   * `display: none`, and every submenu is its own `<wr-context-menu>` — so a
+   * class written on each one reaches each panel, with nothing to plumb from
+   * the trigger down.
+   */
+  readonly panelClass = input<WrClassInput>(null);
+
+  /**
+   * One binding rather than a static `class` beside a `[class]`, which
+   * `no-duplicate-attributes` refuses — and the constant is returned untouched
+   * when nothing was passed.
+   */
+  protected readonly menuClasses = computed(() => {
+    const extra = this.panelClass();
+    return extra ? toClassList('wr-context-menu', extra).join(' ') : 'wr-context-menu';
+  });
+
   /** The internal template the directive portals into the overlay. @internal */
   readonly contentTpl = viewChild.required(TemplateRef);
 }

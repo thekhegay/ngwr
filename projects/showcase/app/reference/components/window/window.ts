@@ -311,6 +311,14 @@ ref.close(savedDocId);`,
       default: '—',
     },
     {
+      name: 'panelClass',
+      sub: true,
+      description:
+        'Extra classes on the overlay pane. The pane is a mount point — the chrome is `.wr-window` inside it.',
+      type: 'WrClassInput',
+      default: '—',
+    },
+    {
       name: 'data',
       sub: true,
       description: 'Arbitrary payload — read it inside the projected component via `inject(WR_WINDOW_DATA)`.',

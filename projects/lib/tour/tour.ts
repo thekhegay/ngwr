@@ -23,6 +23,7 @@ import {
 } from '@angular/core';
 
 import { WR_OVERLAY, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
+import { toClassList } from 'ngwr/utils';
 
 import type { WrTourPlacement, WrTourStep } from './interfaces';
 import { WR_TOUR_STEP, WrTourPopup } from './tour-popup';
@@ -245,7 +246,7 @@ export class WrTour {
     this.overlayRef = this.overlay.create({
       positionStrategy,
       scrollStrategy: this.scrollStrategies.reposition(),
-      panelClass: 'wr-tour-overlay',
+      panelClass: toClassList('wr-tour-overlay', step.panelClass),
     });
 
     // The CDK read the direction once, just now. A tour is long-lived by nature
