@@ -24,6 +24,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrFollowDirection, wrPresentAsSheet } from 'ngwr/overlay';
+import { toClassList, type WrClassInput } from 'ngwr/utils';
 
 import type { WrDropdownMenu } from './dropdown-menu';
 import {
@@ -101,6 +102,16 @@ export class WrDropdown {
    * Read when the menu opens. @default true
    */
   readonly arrow = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * Extra CSS classes for the menu's overlay pane.
+   *
+   * The pane is appended to the overlay container, not to this component, so
+   * nothing in the consumer's own template encloses it and no descendant rule
+   * written around the trigger can reach it. This input is the only per-instance
+   * handle on it. A space-separated string works as well as an array.
+   */
+  readonly panelClass = input<WrClassInput>(null);
 
   /**
    * Present the menu as a full-width bottom-sheet on small viewports instead
@@ -278,12 +289,13 @@ export class WrDropdown {
       // what the CDK measures it with — see `wrDropdownPositions` for why that
       // class must already be on the pane rather than arrive with the position.
       panelClass: asSheet
-        ? ['wr-dropdown-overlay', 'wr-overlay-sheet']
-        : [
+        ? toClassList('wr-dropdown-overlay', 'wr-overlay-sheet', this.panelClass())
+        : toClassList(
             'wr-dropdown-overlay',
             `wr-dropdown-overlay--${requested}`,
-            ...(this.arrow() ? ['wr-dropdown-overlay--arrow'] : []),
-          ],
+            this.arrow() && 'wr-dropdown-overlay--arrow',
+            this.panelClass()
+          ),
     });
 
     // When the menu flips, the pane has to name the side it actually took: the

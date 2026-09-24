@@ -54,7 +54,7 @@ import { useConfigValue } from 'ngwr/config';
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrFollowDirection, wrPresentAsSheet } from 'ngwr/overlay';
-import { isComposing } from 'ngwr/utils';
+import { isComposing, toClassList, type WrClassInput } from 'ngwr/utils';
 
 import type {
   WrOptionLeadingContext,
@@ -513,6 +513,20 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
    * since that key is the keyboard twin of this button. @default false
    */
   readonly clearable = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Extra CSS classes for the dropdown panel's overlay pane.
+   *
+   * The pane is appended to the overlay container, not to this component, so
+   * nothing in the consumer's own template encloses it and no descendant rule
+   * written around the trigger can reach it. This input is the only per-instance
+   * handle on it. A space-separated string works as well as an array.
+   *
+   * The pane is a positioning wrapper carrying the gap above the list; the
+   * box that paints is `.wr-select-panel` inside it, so a rule meant for the
+   * surface reads `.my-class .wr-select-panel`.
+   */
+  readonly panelClass = input<WrClassInput>(null);
 
   /**
    * Cap on selected items (multi mode). `0` = unlimited. Once reached,
@@ -1762,7 +1776,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       // imports it for exactly this. A custom class also REPLACES the CDK
       // default, so the sheet had an invisible scrim that still ate clicks.
       backdropClass: asSheet ? 'wr-overlay-backdrop' : undefined,
-      panelClass: asSheet ? ['wr-select-overlay', 'wr-overlay-sheet'] : 'wr-select-overlay',
+      panelClass: toClassList('wr-select-overlay', asSheet && 'wr-overlay-sheet', this.panelClass()),
     });
 
     // Unconditional, sheet or panel: the CDK captured a direction STRING when

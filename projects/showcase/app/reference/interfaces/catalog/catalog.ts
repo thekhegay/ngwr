@@ -80,6 +80,11 @@ export default class TypesCatalogPage {
         },
         { name: 'WrTableColumn', description: 'Single column definition.', url: ['/reference/components', 'table'] },
         { name: 'WrTableSortState', description: 'Emitted by (sortChange).', url: ['/reference/components', 'table'] },
+        {
+          name: 'WrTableRowClass',
+          description: 'Per-row class predicate.',
+          url: ['/reference/components', 'table'],
+        },
         { name: 'WrTreeNode', description: 'Immutable tree node.', url: ['/reference/components', 'tree'] },
         {
           name: 'WrMarkdownBlock',

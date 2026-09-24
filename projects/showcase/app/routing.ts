@@ -236,6 +236,7 @@ export const routes = {
     round: 'round',
     numAttr: 'num-attr',
     // Css helpers
+    toClassList: 'to-class-list',
     resolveCssSize: 'resolve-css-size',
     getRootFontSize: 'get-root-font-size',
     // Ids

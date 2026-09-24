@@ -132,6 +132,13 @@ const back = toHex(rgb!, true);         // '#3969e2ff'`,
     { name: 'format', description: 'Forwarded to the inner picker.', type: 'WrColorFormat', default: "'hex'" },
     { name: 'swatches', description: 'Forwarded to the inner picker.', type: 'readonly string[]', default: '[]' },
     { name: 'disabled', description: 'Disable the trigger itself.', type: 'boolean', default: 'false' },
+    {
+      name: 'panelClass',
+      description:
+        'Extra class(es) on the overlay pane. The pane lives in the overlay container, so this is the only per-instance handle on it.',
+      type: 'WrClassInput',
+      default: 'null',
+    },
   ];
 
   protected readonly triggerEvents: readonly DocApiRow[] = [

@@ -1,4 +1,13 @@
-<wr-drawer [(open)]="open" position="bottom" height="auto" rounded showHandle safeArea maxHeight="90dvh">
+<wr-drawer
+  [(open)]="open"
+  position="bottom"
+  height="auto"
+  rounded
+  showHandle
+  safeArea
+  maxHeight="90dvh"
+  [panelClass]="panelClass()"
+>
   <div class="wr-action-sheet">
     @if (title() || message()) {
       <div class="wr-action-sheet__header">

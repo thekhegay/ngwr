@@ -7,6 +7,8 @@
 
 import { Component, ElementRef, ViewEncapsulation, computed, inject, input, output, signal } from '@angular/core';
 
+import { toClassList, type WrClassInput } from 'ngwr/utils';
+
 import type { WrToastConfig, WrToastType } from './interfaces';
 
 /**
@@ -42,6 +44,8 @@ export class WrToastItem {
   readonly dismissible = input<boolean>(true);
   readonly showProgress = input<boolean>(false);
   readonly showCopy = input<boolean>(false);
+  /** Extra classes from `WrToastOptions.class`, merged into the host's own. */
+  readonly extraClass = input<WrClassInput>(null);
   /** Auto-dismiss duration in ms — used to scale the progress bar. `0` hides it. */
   readonly duration = input<number>(0);
   /**
@@ -58,7 +62,9 @@ export class WrToastItem {
   protected readonly justCopied = signal(false);
   private copyResetTimer: ReturnType<typeof setTimeout> | null = null;
 
-  protected readonly classes = computed(() => `wr-toast wr-toast--${this.type()}`);
+  protected readonly classes = computed(() =>
+    toClassList('wr-toast', `wr-toast--${this.type()}`, this.extraClass()).join(' ')
+  );
 
   /** Escalate to `alert`/`assertive` for danger/warning toasts. */
   protected readonly liveRole = computed(() => (this.type() === 'danger' ? 'alert' : 'status'));

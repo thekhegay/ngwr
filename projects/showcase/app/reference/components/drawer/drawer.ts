@@ -185,6 +185,12 @@ private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WR_DRAWER_REF)
       default: 'true',
     },
     {
+      name: 'panelClass',
+      description: 'Extra class(es) on the panel — the same surface the service option of this name styles.',
+      type: 'WrClassInput',
+      default: 'null',
+    },
+    {
       name: 'closeLabel',
       description: 'Accessible name for the dismiss button. Falls back to the drawer.close catalog key.',
       type: 'string',
@@ -192,8 +198,8 @@ private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WR_DRAWER_REF)
     },
     {
       name: 'panelClass',
-      description: 'Extra class(es) on the panel.',
-      type: 'string | readonly string[]',
+      description: 'Extra class(es) on the panel — the box that slides in, not the CDK pane around it.',
+      type: 'WrClassInput',
       default: '—',
     },
   ];

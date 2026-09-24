@@ -36,6 +36,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { useFormFieldAria } from 'ngwr/form';
 import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
+import { toClassList, type WrClassInput } from 'ngwr/utils';
 
 import type { WrTreeNode, WrTreeSelectionMode } from './interfaces';
 
@@ -220,6 +221,20 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
   /** Extra rows kept rendered above and below the viewport as scroll headroom. @default 6 */
   readonly overscan = input(6, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 6)) });
+
+  /**
+   * Extra CSS classes for the overlay pane, when `openOn` puts the tree in one.
+   *
+   * The pane is appended to the overlay container, not to this component, so
+   * nothing in the consumer's own template encloses it and no descendant rule
+   * written around the trigger can reach it. This input is the only per-instance
+   * handle on it. A space-separated string works as well as an array.
+   *
+   * Inline trees never open an overlay, so this input does nothing for the
+   * default `openOn="inline"` — the host element is right there to take a
+   * class of its own.
+   */
+  readonly panelClass = input<WrClassInput>(null);
 
   /**
    * Form value — the current selection as seen by a bound field. Bound by
@@ -870,7 +885,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       positionStrategy,
       scrollStrategy: this.scrollStrategies.reposition(),
       width: this.host.nativeElement.getBoundingClientRect().width,
-      panelClass: 'wr-tree-overlay',
+      panelClass: toClassList('wr-tree-overlay', this.panelClass()),
     });
 
     // The pane is appended to `<body>`, so the only thing telling it which way

@@ -32,6 +32,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
+import { toClassList, type WrClassInput } from 'ngwr/utils';
 
 import { WrDrawerTitle } from './directives/drawer-title';
 import type { WrDrawerPosition } from './interfaces';
@@ -123,6 +124,15 @@ export class WrDrawer {
   /** Accessible name for the dismiss button. Falls back to `drawer.close`. */
   readonly closeLabel = input<string | null>(null);
 
+  /**
+   * Extra CSS classes for the drawer's panel — the box that slides in.
+   *
+   * On the panel rather than on the CDK pane, because that is the element
+   * `WrDrawerManager.open({ panelClass })` styles too: there the content IS the
+   * pane, so one name has to mean the same surface on both paths.
+   */
+  readonly panelClass = input<WrClassInput>(null);
+
   protected readonly resolvedCloseLabel = useI18nText(this.closeLabel, 'drawer.close', 'Close drawer');
 
   protected readonly panelTpl = viewChild.required(TemplateRef);
@@ -140,7 +150,7 @@ export class WrDrawer {
    */
   private readonly projectedTitle = contentChild(WrDrawerTitle);
 
-  protected panelClass(): string {
+  protected panelClasses(): string {
     const parts = ['wr-drawer__panel', `wr-drawer__panel--${this.position()}`];
     if (this.rounded()) parts.push('wr-drawer__panel--rounded');
     if (this.safeArea()) parts.push('wr-drawer__panel--safe-area');
@@ -153,7 +163,7 @@ export class WrDrawer {
     // Only when there is something to collide with: a closable drawer with a
     // title already clears the button, and an unclosable one has no button.
     if (this.closable() && !this.projectedTitle()) parts.push('wr-drawer__panel--untitled');
-    return parts.join(' ');
+    return toClassList(parts, this.panelClass()).join(' ');
   }
 
   // Swipe-to-dismiss — gated to the grab handle, so it never fights the

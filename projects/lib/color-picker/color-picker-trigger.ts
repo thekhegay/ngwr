@@ -24,6 +24,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
+import { toClassList, type WrClassInput } from 'ngwr/utils';
 
 import { WrColorPicker } from './color-picker';
 import type { WrColorFormat } from './interfaces';
@@ -87,6 +88,16 @@ export class WrColorPickerTrigger {
   /** Disable the trigger entirely. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Extra CSS classes for the picker panel's overlay pane.
+   *
+   * The pane is appended to the overlay container, not to this component, so
+   * nothing in the consumer's own template encloses it and no descendant rule
+   * written around the trigger can reach it. This input is the only per-instance
+   * handle on it. A space-separated string works as well as an array.
+   */
+  readonly panelClass = input<WrClassInput>(null);
+
   /** Fires after the picker opens. */
   readonly opened = output<void>();
 
@@ -146,7 +157,7 @@ export class WrColorPickerTrigger {
     this.overlayRef = this.overlay.create({
       positionStrategy,
       scrollStrategy: this.scrollStrategies.reposition(),
-      panelClass: 'wr-color-picker-overlay',
+      panelClass: toClassList('wr-color-picker-overlay', this.panelClass()),
     });
     this.overlayRef.overlayElement.id = this.panelId;
 

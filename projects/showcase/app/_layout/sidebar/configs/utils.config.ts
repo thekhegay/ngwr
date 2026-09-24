@@ -31,6 +31,7 @@ export const UTILS_GROUP: SidebarGroup = {
     { title: 'resolveCssSize', url: ['/reference/utils', 'resolve-css-size'] },
     { title: 'round', url: ['/reference/utils', 'round'] },
     { title: 'throttle', url: ['/reference/utils', 'throttle'] },
+    { title: 'toClassList', url: ['/reference/utils', 'to-class-list'] },
     { title: 'trapFocus', url: ['/reference/utils', 'trap-focus'] },
   ],
 };

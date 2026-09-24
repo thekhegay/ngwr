@@ -1134,3 +1134,98 @@ describe('WrTable renders both header controls for a sortable, filterable column
     expect(th.querySelector('wr-table-filter')).toBeNull();
   });
 });
+
+/**
+ * The `<th>`, `<td>` and `<tr>` are the table's own elements: a cell template
+ * renders INSIDE the `<td>` rather than as it, so nothing a consumer writes can
+ * carry a class onto one. These two hooks are the only way to align a numeric
+ * column or mark a row without re-deriving the condition in a CSS rule.
+ */
+describe('WrTable class hooks', () => {
+  const HOOK_COLUMNS: WrTableColumns = {
+    name: { title: 'Name' },
+    amount: { title: 'Amount', class: 'text-right tabular-nums' },
+  };
+
+  @Component({
+    imports: [WrTable],
+    template: `<wr-table [columns]="columns" [items]="items" [rowClass]="rowClass()" />`,
+  })
+  class HookHost {
+    protected readonly columns = HOOK_COLUMNS;
+    protected readonly items = [
+      { name: 'Ann', amount: -5 },
+      { name: 'Bo', amount: 12 },
+    ];
+    readonly rowClass = signal<((row: Record<string, unknown>, index: number) => string | null) | null>(null);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<HookHost>>;
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const rows = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-table__tr')];
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideWrI18n(), provideWrI18nStaticLoader({})] });
+    fixture = TestBed.createComponent(HookHost);
+    fixture.detectChanges();
+  });
+
+  it('puts a column class on the header cell beside the BEM one', () => {
+    const headers = [...root().querySelectorAll<HTMLElement>('.wr-table__th')];
+    const amount = headers.find(th => th.textContent?.includes('Amount'))!;
+
+    expect(amount.classList.contains('wr-table__th')).toBe(true);
+    expect(amount.classList.contains('text-right')).toBe(true);
+    expect(amount.classList.contains('tabular-nums')).toBe(true);
+  });
+
+  it('puts the same class on every body cell in that column and on no other', () => {
+    for (const row of rows()) {
+      const [name, amount] = [...row.querySelectorAll<HTMLElement>('.wr-table__td')];
+      expect(amount.classList.contains('text-right')).toBe(true);
+      expect(amount.classList.contains('wr-table__td')).toBe(true);
+      expect(name.classList.contains('text-right')).toBe(false);
+    }
+  });
+
+  it('adds nothing to a row until rowClass is given one', () => {
+    expect(rows().every(tr => tr.className === 'wr-table__tr')).toBe(true);
+  });
+
+  it('calls rowClass with the row and its drawn index', () => {
+    const seen: (readonly [string, number])[] = [];
+    fixture.componentInstance.rowClass.set((row, index) => {
+      seen.push([row['name'] as string, index]);
+      return null;
+    });
+    fixture.detectChanges();
+
+    expect(seen).toEqual([
+      ['Ann', 0],
+      ['Bo', 1],
+    ]);
+  });
+
+  it('marks only the rows the predicate answers for, keeping the BEM class', () => {
+    fixture.componentInstance.rowClass.set(row => ((row['amount'] as number) < 0 ? 'bg-red-50 font-bold' : null));
+    fixture.detectChanges();
+
+    const [ann, bo] = rows();
+    expect(ann.classList.contains('wr-table__tr')).toBe(true);
+    expect(ann.classList.contains('bg-red-50')).toBe(true);
+    expect(ann.classList.contains('font-bold')).toBe(true);
+    expect(bo.className).toBe('wr-table__tr');
+  });
+
+  it('drops the class again when the predicate stops answering for a row', () => {
+    const flag = signal(true);
+    fixture.componentInstance.rowClass.set(row => (flag() && (row['amount'] as number) < 0 ? 'bg-red-50' : null));
+    fixture.detectChanges();
+    expect(rows()[0].classList.contains('bg-red-50')).toBe(true);
+
+    flag.set(false);
+    fixture.detectChanges();
+    expect(rows()[0].classList.contains('bg-red-50')).toBe(false);
+    expect(rows()[0].classList.contains('wr-table__tr')).toBe(true);
+  });
+});

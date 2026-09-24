@@ -5,6 +5,8 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import type { WrClassInput } from 'ngwr/utils';
+
 import type { WrDrawerPosition } from './drawer-position';
 
 /**
@@ -52,5 +54,10 @@ export interface WrDrawerOptions<D = unknown> {
   /** Accessible name for the dismiss button. Falls back to the `drawer.close` catalog key. */
   readonly closeLabel?: string;
   /** Extra CSS class(es) added to the panel. */
-  readonly panelClass?: string | readonly string[];
+  /**
+   * Extra CSS classes for the panel. A space-separated string works as well as
+   * an array — the CDK would throw `InvalidCharacterError` on the first, so the
+   * splitting happens here.
+   */
+  readonly panelClass?: WrClassInput;
 }

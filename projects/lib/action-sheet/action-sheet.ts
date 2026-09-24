@@ -11,6 +11,7 @@ import { WrDrawer, WrDrawerTitle } from 'ngwr/drawer';
 import { useI18nText } from 'ngwr/i18n';
 import { WrIcon } from 'ngwr/icon';
 import { WrHaptics } from 'ngwr/platform';
+import type { WrClassInput } from 'ngwr/utils';
 
 import type { WrActionSheetAction } from './interfaces';
 
@@ -72,6 +73,14 @@ export class WrActionSheet {
 
   /** Optional muted sub-heading under the title. */
   readonly message = input<string>('');
+
+  /**
+   * Extra CSS classes for the sheet's panel, forwarded to the `<wr-drawer>` this
+   * renders. The drawer is in THIS component's template rather than in the
+   * consumer's, so a class on `<wr-action-sheet>` lands on a host that only
+   * wraps it — the panel itself is reachable no other way.
+   */
+  readonly panelClass = input<WrClassInput>(null);
 
   /** Fires with the chosen row (never fires on a dismiss). */
   readonly action = output<WrActionSheetAction>();

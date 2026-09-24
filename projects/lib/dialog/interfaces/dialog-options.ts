@@ -5,6 +5,8 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import type { WrClassInput } from 'ngwr/utils';
+
 /**
  * Options accepted by `WrDialog.open()`.
  */
@@ -36,8 +38,12 @@ export interface WrDialogOptions<D = unknown> {
   readonly width?: string;
   /** Maximum width applied to the panel. */
   readonly maxWidth?: string;
-  /** Extra CSS class(es) added to the panel. */
-  readonly panelClass?: string | readonly string[];
+  /**
+   * Extra CSS classes for the panel. A space-separated string works as well as
+   * an array — the CDK would throw `InvalidCharacterError` on the first, so the
+   * splitting happens here.
+   */
+  readonly panelClass?: WrClassInput;
   /**
    * Present as a full-width bottom-sheet on small viewports instead of a
    * centred modal. `undefined` follows the app-wide

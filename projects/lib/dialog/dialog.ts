@@ -20,6 +20,7 @@ import {
   wrFollowDirection,
   wrPresentAsSheet,
 } from 'ngwr/overlay';
+import { toClassList } from 'ngwr/utils';
 
 import { WrDialogRef } from './dialog-ref';
 import type { WrDialogOptions } from './interfaces';
@@ -65,18 +66,10 @@ export class WrDialog {
   private readonly location = inject(Location);
 
   open<C, R = unknown, D = unknown>(component: ComponentType<C>, options: WrDialogOptions<D> = {}): WrDialogRef<C, R> {
-    const panelClasses: string[] = [DEFAULT_PANEL_CLASS];
-    const extra = options.panelClass;
-    if (typeof extra === 'string') {
-      panelClasses.push(extra);
-    } else if (extra) {
-      for (const cls of extra) panelClasses.push(cls);
-    }
-
     // On small viewports (when opted in) present as a slide-up sheet pinned
     // to the bottom edge, full-width, instead of a centred modal.
     const asSheet = wrPresentAsSheet(options.responsive, this.responsiveConfig);
-    if (asSheet) panelClasses.push('wr-overlay-sheet');
+    const panelClasses = toClassList(DEFAULT_PANEL_CLASS, options.panelClass, asSheet && 'wr-overlay-sheet');
 
     const position = this.overlay.position().global().centerHorizontally();
     const overlayRef: OverlayRef = this.overlay.create({

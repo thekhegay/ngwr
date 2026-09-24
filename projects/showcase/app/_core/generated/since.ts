@@ -28,4 +28,5 @@
 export const SINCE = {
   "reference/components/editor": "14.9.0",
   "reference/components/graph": "14.5.0",
+  "reference/utils/to-class-list": "14.11.0",
 } satisfies Record<string, string>;

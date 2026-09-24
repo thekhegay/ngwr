@@ -2898,3 +2898,83 @@ describe('WrSelect width floor', () => {
     });
   });
 });
+
+/**
+ * The panel opens into the overlay container, so nothing the consumer writes
+ * around `<wr-select>` encloses it: a descendant rule keyed on the host cannot
+ * reach the pane, and a bare `.wr-select-overlay` rule reaches every select on
+ * the page at once. `panelClass` is the only per-instance handle on it.
+ */
+describe('WrSelect panelClass', () => {
+  @Component({
+    imports: [WrSelect, WrOption],
+    template: `
+      <wr-select ariaLabel="Size" [panelClass]="extra()">
+        <wr-option value="sm">Small</wr-option>
+      </wr-select>
+    `,
+  })
+  class PanelClassHost {
+    readonly extra = signal<string | readonly string[] | null>(null);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<PanelClassHost>>;
+
+  const pane = (): HTMLElement => document.querySelector<HTMLElement>('.wr-select-overlay')!;
+
+  const open = (): void => {
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.wr-select__trigger')!.click();
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(PanelClassHost);
+    fixture.detectChanges();
+  });
+
+  it("leaves the pane with ngwr's own class when nothing is passed", () => {
+    open();
+    // `cdk-overlay-pane` is the CDK's and is on every pane; what matters is that
+    // an unset input contributes no token of its own.
+    expect([...pane().classList]).toEqual(['cdk-overlay-pane', 'wr-select-overlay']);
+  });
+
+  it('adds a space-separated string as separate tokens, rather than throwing', () => {
+    fixture.componentInstance.extra.set('w-96 shadow-2xl');
+    fixture.detectChanges();
+    expect(() => open()).not.toThrow();
+
+    expect(pane().classList.contains('wr-select-overlay')).toBe(true);
+    expect(pane().classList.contains('w-96')).toBe(true);
+    expect(pane().classList.contains('shadow-2xl')).toBe(true);
+  });
+
+  it('accepts an array as well', () => {
+    fixture.componentInstance.extra.set(['w-96', 'shadow-2xl']);
+    fixture.detectChanges();
+    open();
+
+    expect(pane().classList.contains('w-96')).toBe(true);
+    expect(pane().classList.contains('shadow-2xl')).toBe(true);
+  });
+
+  /**
+   * The value is read when the panel OPENS — the CDK writes the pane's classes
+   * at create and this component builds a new ref per open — so a signal that
+   * changes while the panel is up does not move them. Pinned rather than fixed:
+   * re-applying on every change would mean tracking what was added last time to
+   * remove it, and a class list that changes mid-open is not a real case.
+   */
+  it('reads panelClass at open, not continuously', () => {
+    fixture.componentInstance.extra.set('first');
+    fixture.detectChanges();
+    open();
+
+    fixture.componentInstance.extra.set('second');
+    fixture.detectChanges();
+
+    expect(pane().classList.contains('first')).toBe(true);
+    expect(pane().classList.contains('second')).toBe(false);
+  });
+});

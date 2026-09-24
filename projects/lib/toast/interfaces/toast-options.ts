@@ -5,6 +5,8 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import type { WrClassInput } from 'ngwr/utils';
+
 import type { WrToastPosition } from './toast-position';
 import type { WrToastType } from './toast-type';
 
@@ -33,4 +35,13 @@ export interface WrToastOptions {
   readonly showProgress?: boolean;
   /** Override the copy button visibility for this toast only. */
   readonly showCopy?: boolean;
+  /**
+   * Extra CSS classes for this toast's own box.
+   *
+   * Not `panelClass`, and the difference is not cosmetic: the overlay pane holds
+   * the whole STACK and outlives every toast in it, so a class put there would
+   * land on the toasts already on screen and on the ones raised after. This goes
+   * on the `<wr-toast>` element, which belongs to this call alone.
+   */
+  readonly class?: WrClassInput;
 }

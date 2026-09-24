@@ -879,3 +879,82 @@ describe('WrContextMenu template reference', () => {
     fixture.destroy();
   });
 });
+
+/**
+ * Only the inner `<div role="menu">` of `<wr-context-menu>` is portalled into
+ * the overlay — the host element stays behind at `display: none` — so a class
+ * written on the tag never travels with it. Putting the input on the PANEL
+ * rather than on the trigger is what makes one name cover a whole cascade:
+ * every submenu is its own `<wr-context-menu>`, so each takes its own.
+ */
+describe('WrContextMenu panelClass', () => {
+  @Component({
+    imports: [WrContextMenu, WrContextMenuPanel, WrContextMenuItem],
+    template: `
+      <div class="target" [wrContextMenu]="menu">Right-click me</div>
+
+      <wr-context-menu #menu panelClass="w-64 shadow-xl">
+        <wr-context-menu-item [submenu]="more">More</wr-context-menu-item>
+      </wr-context-menu>
+
+      <wr-context-menu #more panelClass="w-40">
+        <wr-context-menu-item>Nested</wr-context-menu-item>
+      </wr-context-menu>
+    `,
+  })
+  class PanelClassHost {}
+
+  let fixture: ReturnType<typeof TestBed.createComponent<PanelClassHost>>;
+
+  const menus = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('[role="menu"]')];
+
+  const rightClick = (): void => {
+    (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLElement>('.target')!
+      .dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(PanelClassHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    fixture.detectChanges();
+  });
+
+  it('puts the classes on the menu box that is portalled, beside its own', () => {
+    rightClick();
+
+    const [root] = menus();
+    expect(root.classList.contains('wr-context-menu')).toBe(true);
+    expect(root.classList.contains('w-64')).toBe(true);
+    expect(root.classList.contains('shadow-xl')).toBe(true);
+  });
+
+  it('leaves nothing on the host element, which never moves', () => {
+    rightClick();
+
+    const host = (fixture.nativeElement as HTMLElement).querySelector('wr-context-menu');
+    expect(host?.classList.contains('w-64')).toBe(false);
+  });
+
+  it('gives a submenu its own, with no plumbing from the trigger', async () => {
+    rightClick();
+    const more = [...document.querySelectorAll<HTMLElement>('[role="menuitem"]')].find(i =>
+      (i.textContent ?? '').includes('More')
+    )!;
+    more.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    const [root, submenu] = menus();
+    expect(root.classList.contains('w-64')).toBe(true);
+    expect(submenu.classList.contains('w-40')).toBe(true);
+    expect(submenu.classList.contains('w-64')).toBe(false);
+  });
+});
