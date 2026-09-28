@@ -87,10 +87,25 @@ function compiledTokens(): Map<string, string> {
   return out;
 }
 
-/** `#rrggbb`, `#rgb` or `rgb(r, g, b)` — including Sass's fractional channels. */
+/**
+ * `#rrggbb`, `#rgb` or `rgb(r, g, b)` — including Sass's fractional channels,
+ * and including the PERCENTAGE channels `sass-embedded` writes.
+ *
+ * The percent suffix is the whole reason this function has a unit at all.
+ * Angular 22.2 moved `@angular/build` onto `sass-embedded`, which serialises a
+ * scaled colour as `rgb(3.2507739938%, 4.9845201238%, 9.1021671827%)` where the
+ * JS implementation wrote `#080d17`. Same pixel either way — 3.25% of 255 is
+ * 8.29 — but a reader that takes `3.2507739938` for a 0-255 channel compares a
+ * colour against a thirtieth of itself, and all 34 scaled tokens disagree at
+ * once. It is the `check:contrast` trap in a second place: components of a
+ * colour are only 0-255 when the notation says so.
+ */
 function channels(value: string): readonly [number, number, number] | null {
-  const rgb = /^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)/.exec(value);
-  if (rgb) return [Number(rgb[1]), Number(rgb[2]), Number(rgb[3])];
+  const rgb = /^rgba?\(\s*([\d.]+)(%?)[,\s]+([\d.]+)(%?)[,\s]+([\d.]+)(%?)/.exec(value);
+  if (rgb) {
+    const scale = (n: string, unit: string): number => (unit === '%' ? (Number(n) / 100) * 255 : Number(n));
+    return [scale(rgb[1], rgb[2]), scale(rgb[3], rgb[4]), scale(rgb[5], rgb[6])];
+  }
 
   const hex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(value.trim());
   if (!hex) return null;
@@ -115,6 +130,27 @@ function samePixel(a: string, b: string): boolean {
   const cb = channels(b);
   if (!ca || !cb) return false;
   return ca.every((v, i) => Math.round(v) === Math.round(cb[i]));
+}
+
+/**
+ * Every notation this gate has had to read, proved before it judges the tree.
+ *
+ * A green run proves nothing about a notation the stylesheet does not currently
+ * happen to contain: the percentage form arrived with one Angular minor and
+ * turned all 34 scaled tokens red at once, and the reading that was wrong had
+ * been green for as long as Sass wrote hex. Same reasoning as `SELF_TEST` in
+ * `check-color-only.ts`. A pair here is the same pixel written two ways.
+ */
+const SELF_TEST: readonly { readonly why: string; readonly a: string; readonly b: string }[] = [
+  { why: "sass-embedded's percentage channels against hex", a: 'rgb(3.2507739938%, 4.9845201238%, 9.1021671827%)', b: '#080d17' },
+  { why: 'percentages at the ends of the range', a: 'rgb(0%, 100%, 50%)', b: 'rgb(0, 255, 127.5)' },
+  { why: "Sass's fractional 0-255 channels, which have no unit", a: 'rgb(0, 110.5, 0)', b: '#006f00' },
+  { why: 'a three-digit hex', a: '#abc', b: 'rgb(170, 187, 204)' },
+  { why: 'space-separated channels', a: 'rgb(8 13 23)', b: '#080d17' },
+];
+
+function selfTest(): string[] {
+  return SELF_TEST.flatMap(({ why, a, b }) => (samePixel(a, b) ? [] : [`${why}: \`${a}\` and \`${b}\` should be the same pixel`]));
 }
 
 function main(): void {
@@ -169,6 +205,14 @@ function main(): void {
   }
 
   info(`✓ Theme parity — ${compared} tokens across ${WR_COLORS.length} intents match the compiled stylesheet.`);
+}
+
+const blindSpots = selfTest();
+if (blindSpots.length > 0) {
+  err(`\n✘ check:theme cannot read a colour notation it is meant to read:\n`);
+  for (const spot of blindSpots) err(`  ${spot}`);
+  err(`\n  A green run over the tree would mean nothing — see SELF_TEST in scripts/check-theme-parity.ts.\n`);
+  exit(1);
 }
 
 main();
