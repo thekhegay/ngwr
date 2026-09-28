@@ -103,7 +103,15 @@ function compiledTokens(): Map<string, string> {
 function channels(value: string): readonly [number, number, number] | null {
   const rgb = /^rgba?\(\s*([\d.]+)(%?)[,\s]+([\d.]+)(%?)[,\s]+([\d.]+)(%?)/.exec(value);
   if (rgb) {
-    const scale = (n: string, unit: string): number => (unit === '%' ? (Number(n) / 100) * 255 : Number(n));
+    // A percentage is printed to ten decimal places, which is not enough to
+    // survive the trip back. `success-dark` is channel 110.5 exactly; as a
+    // percentage it is 43.333333333333336, printed `43.3333333333`, and
+    // multiplied out again that is 110.499999999915 — which rounds DOWN, one
+    // short. Restoring six decimals erases the printing error while leaving a
+    // genuine half alone, and a half is the only fraction that decides
+    // anything here. Three tokens land on it.
+    const scale = (n: string, unit: string): number =>
+      unit === '%' ? Number((((Number(n) / 100) * 255).toFixed(6))) : Number(n);
     return [scale(rgb[1], rgb[2]), scale(rgb[3], rgb[4]), scale(rgb[5], rgb[6])];
   }
 
@@ -144,6 +152,10 @@ function samePixel(a: string, b: string): boolean {
 const SELF_TEST: readonly { readonly why: string; readonly a: string; readonly b: string }[] = [
   { why: "sass-embedded's percentage channels against hex", a: 'rgb(3.2507739938%, 4.9845201238%, 9.1021671827%)', b: '#080d17' },
   { why: 'percentages at the ends of the range', a: 'rgb(0%, 100%, 50%)', b: 'rgb(0, 255, 127.5)' },
+  // The three tokens that survived the first version of the percentage reading.
+  { why: 'a half channel printed as a percentage, rounding up', a: 'rgb(0%, 43.3333333333%, 0%)', b: '#006f00' },
+  { why: 'the same, higher in the range', a: 'rgb(0%, 63.3333333333%, 0%)', b: '#00a200' },
+  { why: 'a half in one channel of three', a: 'rgb(91.6246498599%, 27.1988795518%, 50.3921568627%)', b: '#ea4581' },
   { why: "Sass's fractional 0-255 channels, which have no unit", a: 'rgb(0, 110.5, 0)', b: '#006f00' },
   { why: 'a three-digit hex', a: '#abc', b: 'rgb(170, 187, 204)' },
   { why: 'space-separated channels', a: 'rgb(8 13 23)', b: '#080d17' },
