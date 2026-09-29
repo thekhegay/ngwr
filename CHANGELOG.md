@@ -1,5 +1,19 @@
 # Changelog
 
+## [14.11.0](https://github.com/thekhegay/ngwr/compare/v14.10.0...v14.11.0) (2026-09-29)
+
+### Features
+
+* **lib:** class hooks for the parts a consumer cannot reach ([330d30d](https://github.com/thekhegay/ngwr/commit/330d30dff652b1a5c6e92f052d4822f93fc14457))
+
+### Bug Fixes
+
+* **input-number:** drop both hairlines from the stepper column ([1dfa96b](https://github.com/thekhegay/ngwr/commit/1dfa96b37f42fe2e3283c05ee2ec450067ce2c4b))
+* **input-number:** stepper arrows are the chevron a select draws ([fc8d2b9](https://github.com/thekhegay/ngwr/commit/fc8d2b991be53dfe2033697317c46abcc3faf902))
+* **scripts:** check:theme reads the percentage channels sass-embedded writes ([c3b0789](https://github.com/thekhegay/ngwr/commit/c3b0789a6061c3118284b11568f63c30e87191cf))
+* **scripts:** restore the precision a percentage channel loses in print ([4a3d97b](https://github.com/thekhegay/ngwr/commit/4a3d97b5feb1f5e5d6a84ef726121b48edf05c39))
+* **segmented:** keep an icon-only option as tall as a labelled one ([9b6edcf](https://github.com/thekhegay/ngwr/commit/9b6edcf662399c20808e7e4df0b3fa8700101622))
+
 ## [14.10.0](https://github.com/thekhegay/ngwr/compare/v14.9.1...v14.10.0) (2026-09-23)
 
 ### Features
