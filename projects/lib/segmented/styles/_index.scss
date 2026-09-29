@@ -95,6 +95,13 @@
     border: 0;
     // Height = line-height + 2×option-py + 2×track-padding (md → 30px); all scale per size.
     padding: var(--wr-segmented-option-py) 0.75rem;
+    // An option is a flex container, so its height is its tallest child: a label
+    // carries the line box, an icon carries only its own 14px glyph. An
+    // icon-only strip therefore sat 2 / 6 / 10px short of a labelled one at
+    // `sm` / `md` / `lg` — the same control, two heights, side by side. The
+    // floor is the formula above rather than a number, so it keeps stepping
+    // with the size tokens.
+    min-height: calc(var(--wr-segmented-line-height) + 2 * var(--wr-segmented-option-py));
     // The track divides into `1fr` columns, so an option's width has nothing to
     // do with its own text: on a crowded track the label outgrows the option and
     // paints across the inline padding — which is FINE, the padding is a gutter
@@ -121,9 +128,9 @@
     }
 
     // color-ok: the selected option is named by POSITION — the thumb pill slides
-  // under it on `--wr-segmented-thumb-index`, and is hidden outright while
-  // nothing is picked. This declaration only re-inks the label above it.
-  &--selected {
+    // under it on `--wr-segmented-thumb-index`, and is hidden outright while
+    // nothing is picked. This declaration only re-inks the label above it.
+    &--selected {
       color: var(--wr-segmented-selected-color);
     }
 
