@@ -207,7 +207,7 @@
 
   <ngwr-doc-section
     title="How dark mode flips"
-    description="Dark mode is opt-in via `[data-theme='dark']` on `<html>` (driven by `provideWrTheme()`). The key inversion is that `--wr-color-white` is the page *surface* and `--wr-color-dark` is the *text* — and both swap roles in dark mode. The intents are not left alone either: seven of the nine are re-tuned for the deep canvas (`primary`, `success`, `warning`, `danger` for legibility on it, `light` / `medium` / `dark` because they are the neutrals doing the flipping). Only `secondary` and `info` keep their light values. Build with the tokens and you write zero dark-mode overrides."
+    description="Dark mode is opt-in via `[data-theme='dark']` on `<html>` (driven by `provideWrTheme()`). The key inversion is that `--wr-color-white` is the page *surface* and `--wr-color-on-surface` is the *text* — and both swap roles in dark mode. The neutrals do it through the gray ramp, which each theme SETS rather than mirrors: a derived ramp has to be symmetric in what its ends are for, and this one is not — four of its six steps are tints crowded near the canvas while two are text. The intents are not left alone either: `primary`, `success`, `warning` and `danger` are re-tuned for legibility on the deep canvas, and only `info` keeps its light value. Build with the tokens and you write zero dark-mode overrides."
   >
     <div style="display: flex; gap: 1rem; flex-wrap: wrap">
       <div

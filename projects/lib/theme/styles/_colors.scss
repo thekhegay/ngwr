@@ -55,21 +55,11 @@
 // 14.14.
 $base-colors: (
   primary: #3969e2,
-  secondary: #e21a62,
   success: #008800,
   warning: #ffba00,
   danger: #dc3137,
   info: #3472d9,
-  light: #cbd5e1,
-  medium: #6a7683,
-  dark: #0f172a,
 ) !default;
-
-// Deprecated: the old YIQ brightness cut-off. No longer read — `_contrast()`
-// compares real WCAG contrast ratios, which needs no threshold. Kept declared
-// so `@use 'ngwr/theme' with ($contrast-threshold: …)` in an existing app still
-// compiles instead of erroring on an unknown variable.
-$contrast-threshold: 150 !default;
 
 // Dark text used on light backgrounds.
 //
@@ -121,7 +111,8 @@ $contrast-light: #ffffff !default;
  *
  * Was a YIQ brightness threshold, which is a brightness *estimate*, not the
  * metric accessibility is judged by, and it mispicked on every mid-saturation
- * colour: five of the nine shipped intents got white text below AA
+ * colour: five of the nine intents the palette shipped at the time got white
+ * text below AA
  * (success 3.33:1, medium 3.10:1, danger and info 3.68:1, secondary 3.99:1)
  * where dark text would have cleared it (5.43 / 5.82 / 4.90 / 4.91 / 4.52).
  * Comparing the real ratios needs no threshold to tune.
@@ -186,9 +177,9 @@ $contrast-light: #ffffff !default;
   // computed to exactly these values. Those were FILLS, and naming a fill after a
   // hairline is how a token layer starts lying, so the `--wr-color-fill*` scale
   // below absorbed them instead; not one of those hand-rolls is left.
-  --wr-color-border: rgba(var(--wr-color-light-rgb), 0.5);
-  --wr-color-border-subtle: rgba(var(--wr-color-light-rgb), 0.35);
-  --wr-color-border-strong: rgba(var(--wr-color-light-rgb), 0.6);
+  --wr-color-border: rgba(var(--wr-color-gray-4-rgb), 0.5);
+  --wr-color-border-subtle: rgba(var(--wr-color-gray-4-rgb), 0.35);
+  --wr-color-border-strong: rgba(var(--wr-color-gray-4-rgb), 0.6);
 
   // Scrim behind modals / drawers — always black so the dim reads as "covered"
   // regardless of theme.
@@ -256,9 +247,9 @@ $contrast-light: #ffffff !default;
   --wr-color-surface: var(--wr-color-white);
   --wr-color-surface-rgb: var(--wr-color-white-rgb);
   --wr-color-on-surface: var(--wr-color-gray-6);
-  --wr-color-on-surface-rgb: var(--wr-color-dark-rgb);
+  --wr-color-on-surface-rgb: var(--wr-color-gray-6-rgb);
   --wr-color-on-surface-muted: var(--wr-color-gray-5);
-  --wr-color-on-surface-muted-rgb: var(--wr-color-muted-text-rgb);
+  --wr-color-on-surface-muted-rgb: var(--wr-color-gray-5-rgb);
 
   // Placeholder text — its own role because placeholders are where the catalog
   // kept inventing strengths: four of them, down to `rgba(…, 0.7)` on
@@ -291,11 +282,10 @@ $contrast-light: #ffffff !default;
   --wr-color-outline: var(--wr-color-gray-4);
   // unused-ok: the channel form of the hairline, kept for a consumer writing
   // their own `rgba()` rule. The library's twenty-two hand-rolls read it and
-  // moved to `--wr-color-fill*` above — deliberately off `light-rgb`, for the
-  // reason stated there — so nothing paints with the channels today. Until this
-  // check stopped counting comments as consumers, the paragraph at :152 was the
-  // only thing keeping it green.
-  --wr-color-outline-rgb: var(--wr-color-light-rgb);
+  // moved to `--wr-color-fill*` above, so nothing paints with the channels
+  // today. Until this check stopped counting comments as consumers, the
+  // paragraph at :152 was the only thing keeping it green.
+  --wr-color-outline-rgb: var(--wr-color-gray-4-rgb);
 
   // Soft trio per intent (+ `medium` for neutral surfaces) — tokenizes the
   // ad-hoc `rgba(var(--*-rgb), α)` fills components hand-rolled at ~8
@@ -304,14 +294,14 @@ $contrast-light: #ffffff !default;
   // `-soft-contrast` the readable same-hue text on it (deep in light,
   // light in dark — follows `--wr-color-dark`). All theme-correct over any
   // background via the -rgb channels.
-  @each $name in (primary, secondary, success, warning, danger, info, medium) {
+  @each $name in (primary, success, warning, danger, info) {
     --wr-color-#{$name}-soft: rgba(var(--wr-color-#{$name}-rgb), 0.12);
     --wr-color-#{$name}-soft-border: rgba(var(--wr-color-#{$name}-rgb), 0.3);
     // unused-ok: superseded in practice by `-ink`, which is calibrated to 5.0:1
     // against this very tint while this one is a flat 62% mix that was never
     // measured. Kept because it is public and predates `-ink`; do not reach for
     // it in new code, and do not delete it in a minor.
-    --wr-color-#{$name}-soft-contrast: color-mix(in srgb, var(--wr-color-#{$name}) 62%, var(--wr-color-dark));
+    --wr-color-#{$name}-soft-contrast: color-mix(in srgb, var(--wr-color-#{$name}) 62%, var(--wr-color-gray-6));
     --wr-color-#{$name}-active: rgba(var(--wr-color-#{$name}-rgb), 0.2);
   }
 
@@ -363,34 +353,21 @@ $contrast-light: #ffffff !default;
   // and `pnpm check:contrast` is the authority.
   $ink-mix: (
     primary: 78%,
-    secondary: 75%,
     success: 67%,
     warning: 48%,
     danger: 72%,
     info: 71%,
-    medium: 65%,
   );
 
   @each $name, $share in $ink-mix {
-    --wr-color-#{$name}-ink: color-mix(in srgb, var(--wr-color-#{$name}) #{$share}, var(--wr-color-dark));
+    --wr-color-#{$name}-ink: color-mix(in srgb, var(--wr-color-#{$name}) #{$share}, var(--wr-color-gray-6));
   }
 
-  // `light` is a surface tone by definition — a hair off the page background in
-  // either theme — so there is no darkening that keeps it recognisable AND
-  // readable. It borrows the page's own ink; the border still carries the
-  // intent. `dark` already IS the ink.
-  // unused-ok: the two ends of the ink ramp that resolve to something already
-  // named. `light` borrows the page's own ink and `dark` IS the ink, so a
-  // component would write the role directly — these exist so that
-  // `var(--wr-color-#{$intent}-ink)` in a loop resolves for all nine intents
-  // instead of nine minus two.
-  --wr-color-light-ink: var(--wr-color-on-surface);
-  --wr-color-dark-ink: var(--wr-color-dark);
 }
 
 /// Re-emit an intent's WHOLE token set on the current selector, from one seed.
 ///
-/// `$colors` is a map of intent name to base colour, keyed by the same nine
+/// `$colors` is a map of intent name to base colour, keyed by the same five
 /// names as `$base-colors`. Anything else is an `@error`: a typo would otherwise
 /// emit a family of `--wr-color-brnad-*` properties that resolve for nothing.
 ///
@@ -482,13 +459,6 @@ $contrast-light: #ffffff !default;
   // and turns the backdrop into a white wash.
   --wr-color-backdrop-rgb: 0, 0, 0;
 
-  // Muted TEXT, deliberately its own token rather than an alias of the `medium`
-  // intent. The two roles pull in opposite directions and cannot share a value:
-  // as text it needs >= 4.5:1 against the lightest surface (#ebeff4), while as a
-  // fill it has to clear the bar the other way, against its own label. v11 pulled
-  // them further apart rather than closer — the `medium` fill went deeper
-  // (#6a7683, whose label is now white at 4.63) while this token stayed where a
-  // light canvas needs it. Aliasing them left secondary text at 2.69:1.
   // The neutral ramp. Six steps from the faintest wash to body text, and the
   // dark theme sets its own six rather than deriving them: a derived ramp has to
   // be symmetric in what its ends are FOR, and this one is not — four of the six
@@ -501,6 +471,15 @@ $contrast-light: #ffffff !default;
   --wr-color-gray-4: #cbd5e1;
   --wr-color-gray-5: #5f6c7d;
   --wr-color-gray-6: #0f172a;
+
+  // Channel form, for the three steps a translucent rule reads through a role.
+  // Only three, because a `-rgb` nothing composites over is a token with no
+  // consumer. `theme/styles.spec.ts` holds each one to the channels of its own
+  // step, in every theme and both contrast modes — they are written out rather
+  // than derived in a loop so `check:tokens` can still match them by name.
+  --wr-color-gray-4-rgb: 203, 213, 225;
+  --wr-color-gray-5-rgb: 95, 108, 125;
+  --wr-color-gray-6-rgb: 15, 23, 42;
 
   // Neutral gray ramp — a FIXED primitive scale (slate). Each step is a stable
   // job (50 = subtlest surface tint … 950 = strongest ink) and, unlike the

@@ -39,7 +39,7 @@ import type { WrTagIconPosition } from './interfaces';
 export class WrTag {
   /**
    * Color variant — decoration or category, never the state on its own. The
-   * label carries the state (`Failed`, not a red `Build`): six of the nine
+   * label carries the state (`Failed`, not a red `Build`): four of the five
    * intents share one lightness and `success` against `danger` is 1.004:1, so a
    * reader who cannot separate red from green cannot tell those two tags
    * apart, and `primary` and `info` are the same blue to everyone. When a tag has to stand
@@ -49,7 +49,7 @@ export class WrTag {
    *
    * @default 'primary'
    */
-  readonly color = input<WrColor>('primary');
+  readonly color = input<WrColor | null>('primary');
 
   /**
    * Icon name shown alongside the content — the one channel besides the label
@@ -104,7 +104,11 @@ export class WrTag {
   readonly loading = input(false, { transform: coerceBooleanProperty });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-tag', `wr-tag--${this.color()}`];
+    const parts = ['wr-tag'];
+
+    const color = this.color();
+    if (color) parts.push(`wr-tag--${color}`);
+
     if (this.outlined()) parts.push('wr-tag--outlined');
     if (this.transparent()) parts.push('wr-tag--transparent');
     if (this.rounded()) parts.push('wr-tag--rounded');

@@ -182,7 +182,7 @@
     <wr-alert
       type="info"
       title="Colour is never the only channel — and no runtime gate can check that."
-      message="WCAG 1.4.1 has no axe rule, and the nine intents cannot carry it on their own: six share one luminance to within 1.06:1, and success against danger is 1.004:1, because they were tuned to take the same white label. So the components that report a state draw a shape for it — alert and toast a glyph per type, timeline a silhouette per dot — while the colour of a tag, a badge or a typography tone is decoration or category, and the words have to say the state; a tag that must stand for a status on its own takes an icon. A source check, check:color-only, holds every colour-only rule in the library to a written reason. It reads ngwr's stylesheets, not your templates."
+      message="WCAG 1.4.1 has no axe rule, and the five intents cannot carry it on their own: four share one luminance to within 1.06:1, and success against danger is 1.004:1, because they were tuned to take the same white label. So the components that report a state draw a shape for it — alert and toast a glyph per type, timeline a silhouette per dot — while the colour of a tag, a badge or a typography tone is decoration or category, and the words have to say the state; a tag that must stand for a status on its own takes an icon. A source check, check:color-only, holds every colour-only rule in the library to a written reason. It reads ngwr's stylesheets, not your templates."
     />
   </ngwr-doc-section>
 
@@ -253,7 +253,7 @@
         <code wrTypography variant="code">{{ value }}</code>
       </ng-template>
       <ng-template wrTableCell="codemod" let-value>
-        <wr-tag transparent [color]="value === 'Yes' ? 'success' : value === 'Partial' ? 'warning' : 'medium'">
+        <wr-tag transparent [color]="value === 'Yes' ? 'success' : value === 'Partial' ? 'warning' : null">
           {{ value }}
         </wr-tag>
       </ng-template>

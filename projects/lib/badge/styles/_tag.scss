@@ -10,9 +10,11 @@
   text-decoration: none;
   white-space: nowrap;
 
-  // Defaults — color and style modifiers override
+  // Defaults — color and style modifiers override. `color` is nullable and a
+  // null one carries no modifier, so this trio IS the neutral tag: the gray
+  // ramp does the job the removed `medium` intent used to stand in for.
   --wr-tag-color: var(--wr-color-on-surface);
-  --wr-tag-bg: var(--wr-color-surface);
+  --wr-tag-bg: var(--wr-color-fill);
   --wr-tag-border: var(--wr-color-outline);
   --wr-tag-radius: var(--wr-border-radius-sm);
   --wr-tag-padding-y: 0.125rem;
@@ -69,7 +71,7 @@
 
   // Colored variants
   // color-ok: a tag's colour is decoration or category — the label carries the
-  // state (`Failed`, not a red `Build`), because six of the nine intents share
+  // state (`Failed`, not a red `Build`), because four of the five intents share
   // one lightness and `success` against `danger` is 1.004:1. When a tag has to
   // stand for a status on its own, its `icon` input is the channel. Nothing is
   // drawn per intent by default: tags are categories too, and a check on

@@ -185,7 +185,7 @@
           <button wr-btn type="button" outlined color="primary" (click)="silentWrite()">
             patchValue, emitEvent: false
           </button>
-          <button wr-btn type="button" outlined color="medium" (click)="readModel()">Read the model</button>
+          <button wr-btn type="button" outlined (click)="readModel()">Read the model</button>
         </div>
 
         <p wrTypography variant="small" tone="medium" aria-live="polite">{{ lastWrite() }}</p>

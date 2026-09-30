@@ -42,7 +42,7 @@ export default class TokensColorsPage {
    * derived from anything importable. Adding a colour to the palette does NOT
    * add it here or there; both are manual.
    */
-  protected readonly softIntents = ['primary', 'secondary', 'success', 'warning', 'danger', 'info', 'medium'] as const;
+  protected readonly softIntents = ['primary', 'success', 'warning', 'danger', 'info'] as const;
 
   /** Generated shade variants every intent exposes. */
   protected readonly shades: readonly Swatch[] = [

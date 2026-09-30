@@ -181,7 +181,7 @@ export const CSS_VARS = {
       { name: "--wr-badge-padding-x", default: "0.5rem", scope: ".wr-badge", overrides: 3 },
       { name: "--wr-badge-padding-y", default: "0.25rem", scope: ".wr-badge", overrides: 2 },
       { name: "--wr-badge-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-badge", overrides: 1 },
-      { name: "--wr-tag-bg", default: "var(--wr-color-surface)", scope: ".wr-tag", overrides: 3 },
+      { name: "--wr-tag-bg", default: "var(--wr-color-fill)", scope: ".wr-tag", overrides: 3 },
       { name: "--wr-tag-border", default: "var(--wr-color-outline)", scope: ".wr-tag", overrides: 4 },
       { name: "--wr-tag-color", default: "var(--wr-color-on-surface)", scope: ".wr-tag", overrides: 3 },
       { name: "--wr-tag-font-size", default: "var(--wr-text-xs)", scope: ".wr-tag" },

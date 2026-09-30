@@ -58,12 +58,10 @@
 /// at any tone worth shipping.
 $ink-mix-more: (
   primary: 53%,
-  secondary: 47%,
   success: 55%,
   warning: 36%,
   danger: 53%,
   info: 54%,
-  medium: 57%,
 ) !default;
 
 @media (prefers-contrast: more) {
@@ -88,10 +86,11 @@ $ink-mix-more: (
     // it looks. Under an explicit request for more contrast that trade flips —
     // the reader has said which side they want.
     --wr-color-gray-4: #718cad;
-    --wr-color-outline-rgb: 113, 140, 173;
+    --wr-color-gray-4-rgb: 113, 140, 173;
+    --wr-color-gray-5-rgb: 71, 80, 93;
 
     @each $name, $share in $ink-mix-more {
-      --wr-color-#{$name}-ink: color-mix(in srgb, var(--wr-color-#{$name}) #{$share}, var(--wr-color-dark));
+      --wr-color-#{$name}-ink: color-mix(in srgb, var(--wr-color-#{$name}) #{$share}, var(--wr-color-gray-6));
     }
   }
 
@@ -109,10 +108,11 @@ $ink-mix-more: (
 
     // 3.56:1 on the dark canvas, against the default `#262f44`'s 1.41:1.
     --wr-color-gray-4: #566b9b;
-    --wr-color-outline-rgb: 86, 107, 155;
+    --wr-color-gray-4-rgb: 86, 107, 155;
+    --wr-color-gray-5-rgb: 162, 173, 190;
 
     @each $name, $share in $ink-mix-more {
-      --wr-color-#{$name}-ink: color-mix(in srgb, var(--wr-color-#{$name}) #{$share}, var(--wr-color-dark));
+      --wr-color-#{$name}-ink: color-mix(in srgb, var(--wr-color-#{$name}) #{$share}, var(--wr-color-gray-6));
     }
   }
 }

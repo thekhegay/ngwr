@@ -117,7 +117,7 @@
       <wr-btn icon="add" color="primary">Add</wr-btn>
       <wr-btn icon="checkmark" color="success">Confirm</wr-btn>
       <wr-btn icon="trash" color="danger" outlined>Delete</wr-btn>
-      <wr-btn icon="download" iconPosition="end" color="dark">Download</wr-btn>
+      <wr-btn icon="download" iconPosition="end">Download</wr-btn>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -136,7 +136,7 @@
     <ngwr-doc-snippet [code]="snippets.loading">
       <wr-btn [loading]="loading()" color="primary" (click)="loading.set(!loading())">Click to toggle</wr-btn>
       <wr-btn loading color="success">Saving</wr-btn>
-      <wr-btn loading icon="add" color="dark" outlined>With icon</wr-btn>
+      <wr-btn loading icon="add" outlined>With icon</wr-btn>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

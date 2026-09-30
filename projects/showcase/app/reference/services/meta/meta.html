@@ -44,7 +44,7 @@
         <wr-btn (click)="toggleReactiveTitle()">
           {{ reactiveBound() ? 'Unbind title' : 'Bind title to i18n' }}
         </wr-btn>
-        <wr-btn color="light" [disabled]="!reactiveBound()" (click)="toggleLocale()">
+        <wr-btn [disabled]="!reactiveBound()" (click)="toggleLocale()">
           Switch locale (current: {{ i18n.locale() }})
         </wr-btn>
       </div>

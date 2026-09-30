@@ -50,7 +50,7 @@
   >
     <wr-table responsive [columns]="surfaceColumns" [items]="surfaceRows">
       <ng-template wrTableCell="status" let-value>
-        <wr-tag transparent [color]="value === 'Yes' ? 'success' : value === 'No' ? 'medium' : 'warning'">
+        <wr-tag transparent [color]="value === 'Yes' ? 'success' : value === 'No' ? null : 'warning'">
           {{ value }}
         </wr-tag>
       </ng-template>
@@ -77,7 +77,7 @@
         <code wrTypography variant="code">{{ value }}</code>
       </ng-template>
       <ng-template wrTableCell="level" let-value>
-        <wr-tag transparent [color]="value === 'Full' ? 'success' : value === 'Limited' ? 'warning' : 'medium'">
+        <wr-tag transparent [color]="value === 'Full' ? 'success' : value === 'Limited' ? 'warning' : null">
           {{ value }}
         </wr-tag>
       </ng-template>

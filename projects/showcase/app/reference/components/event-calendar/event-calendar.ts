@@ -53,12 +53,12 @@ export default class EventCalendarComponent {
     { id: 4, title: 'Release window', start: at(1, 11), end: at(1, 13), color: 'warning' },
     // Five days — long enough to show a band spanning cells, and it splits into
     // one band per week whenever it straddles a week boundary.
-    { id: 5, title: 'Conference', start: at(2, 0), end: at(7, 0), allDay: true, color: 'secondary' },
+    { id: 5, title: 'Conference', start: at(2, 0), end: at(7, 0), allDay: true, color: 'info' },
     { id: 6, title: 'Retro', start: at(4, 15), end: at(4, 16), color: 'danger' },
     { id: 7, title: 'Frozen — no deploys', start: at(6, 0), end: at(7, 0), allDay: true, editable: false },
     // Two more on the busiest day, to push it past `maxLanes` and show “+N more”.
     { id: 8, title: 'Interview', start: at(1, 14), end: at(1, 15), color: 'info' },
-    { id: 9, title: 'Budget sync', start: at(1, 15, 30), end: at(1, 16, 30), color: 'medium' },
+    { id: 9, title: 'Budget sync', start: at(1, 15, 30), end: at(1, 16, 30), color: 'primary' },
   ]);
 
   /** Latest output, echoed under the demo so the flow is visible. */
@@ -95,7 +95,7 @@ bootstrapApplication(App, {
     basic: `<wr-event-calendar [events]="events()" [(view)]="view" [(date)]="anchor" />`,
     events: `protected readonly events = signal<readonly WrCalendarEvent[]>([
   { id: 1, title: 'Design review', start: at(0, 10), end: at(0, 11, 30), color: 'primary' },
-  { id: 5, title: 'Conference', start: at(2, 0), end: at(5, 0), allDay: true, color: 'secondary' },
+  { id: 5, title: 'Conference', start: at(2, 0), end: at(5, 0), allDay: true, color: 'info' },
   { id: 7, title: 'Frozen — no deploys', start: at(6, 0), end: at(7, 0), allDay: true, editable: false },
 ]);`,
     editable: `<wr-event-calendar

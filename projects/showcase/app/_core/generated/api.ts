@@ -85,7 +85,7 @@ export const API = {
   ],
   // <wr-badge>
   WrBadge: [
-    { name: "color", description: "Color variant. Maps to `--wr-color-*` CSS variables from the theme. It is decoration or category, never the state on its own: six of the nine intents share one lightness and `success` against `danger` is 1.004:1, so the label has to say the state (`Offline`, not a red `Status`). A badge draws no icon — when a chip must stand for a status without words, use `<wr-tag>` with its `icon` input.", type: "WrColor", default: "'primary'" },
+    { name: "color", description: "Color variant. Maps to `--wr-color-*` CSS variables from the theme. It is decoration or category, never the state on its own: four of the five intents share one lightness and `success` against `danger` is 1.004:1, so the label has to say the state (`Offline`, not a red `Status`). A badge draws no icon — when a chip must stand for a status without words, use `<wr-tag>` with its `icon` input.", type: "WrColor | null", default: "'primary'" },
     { name: "size", description: "Size variant.", type: "WrBadgeSize", default: "'md'" },
     { name: "shape", description: "Corner treatment. Mirrors `<wr-btn>` — `rounded` (default) uses the small form-radius; `pill` rounds the ends fully.", type: "WrBadgeShape", default: "'rounded'" },
     { name: "outlined", description: "Outlined style — transparent fill, colored border and text.", type: "boolean", default: "false" },
@@ -1055,7 +1055,7 @@ export const API = {
   ],
   // <wr-skeleton>
   WrSkeleton: [
-    { name: "color", description: "Color tint for the placeholder. Default is `'light'` because it's theme-stable — the `light` token is slate-300 in light mode (subtle gray on white) and slate-800 in dark mode (subtle lift on near-black). The `'dark'` value flips to a near- white wash in dark mode and breaks the placeholder affordance.", type: "WrColor", default: "'light'" },
+    { name: "color", description: "Intent tint for the placeholder. `null`, the default, paints the neutral gray a placeholder almost always wants. It used to default to the `light` intent, chosen because that one token was theme-stable — slate-300 on white, slate-800 on near-black. The neutral ramp does that job now and does it by construction, so the default is the absence of an intent rather than a particular one. An intent here tints a thing that is not yet content, so reach for it only when the placeholder stands in for something the colour already identifies.", type: "WrColor | null", default: "null" },
     { name: "animated", description: "Whether the shimmer animation runs.", type: "boolean", default: "true" },
   ],
   // <wr-slider>
@@ -1297,7 +1297,7 @@ export const API = {
   ],
   // <wr-tag>
   WrTag: [
-    { name: "color", description: "Color variant — decoration or category, never the state on its own. The label carries the state (`Failed`, not a red `Build`): six of the nine intents share one lightness and `success` against `danger` is 1.004:1, so a reader who cannot separate red from green cannot tell those two tags apart, and `primary` and `info` are the same blue to everyone. When a tag has to stand for a status by itself, give it an `icon` as well — register one with `provideWrIcons(lucideIcons({ 'octagon-alert': OctagonAlert }))`, then write `<wr-tag color=\"danger\" icon=\"octagon-alert\">Failed</wr-tag>`.", type: "WrColor", default: "'primary'" },
+    { name: "color", description: "Color variant — decoration or category, never the state on its own. The label carries the state (`Failed`, not a red `Build`): four of the five intents share one lightness and `success` against `danger` is 1.004:1, so a reader who cannot separate red from green cannot tell those two tags apart, and `primary` and `info` are the same blue to everyone. When a tag has to stand for a status by itself, give it an `icon` as well — register one with `provideWrIcons(lucideIcons({ 'octagon-alert': OctagonAlert }))`, then write `<wr-tag color=\"danger\" icon=\"octagon-alert\">Failed</wr-tag>`.", type: "WrColor | null", default: "'primary'" },
     { name: "icon", description: "Icon name shown alongside the content — the one channel besides the label that a tag has, so the one to reach for when colour is carrying a status. Nothing ships built in: register the name through `provideWrIcons` first. The icon is replaced by a spinner when `loading` is true.", type: "WrIconName | null", default: "null" },
     { name: "iconPosition", description: "Where the icon/spinner is rendered.", type: "WrTagIconPosition", default: "'start'" },
     { name: "outlined", description: "Outlined style — colored text and border on a tinted background.", type: "boolean", default: "false" },
@@ -1408,7 +1408,7 @@ export const API = {
   // <[wrTypography]>
   WrTypography: [
     { name: "variant", description: "Visual variant.", type: "WrTypographyVariant", default: "'body'" },
-    { name: "tone", description: "Color tone. `null` (default) keeps the variant's own color — the base dark for headings/body, medium for lead/caption, primary for links. Emphasis only: a tone never carries a state on its own. Six of the nine intents share one lightness, and `success` against `danger` is 1.05:1 as text, so the words have to name the state (`500 Server Error`, not a red `Request`) — or reach for `<wr-alert>`, which draws a glyph per type.", type: "WrTypographyTone | null", default: "null" },
+    { name: "tone", description: "Color tone. `null` (default) keeps the variant's own color — the base dark for headings/body, medium for lead/caption, primary for links. Emphasis only: a tone never carries a state on its own. Four of the five intents share one lightness, and `success` against `danger` is 1.05:1 as text, so the words have to name the state (`500 Server Error`, not a red `Request`) — or reach for `<wr-alert>`, which draws a glyph per type.", type: "WrTypographyTone | null", default: "null" },
     { name: "align", description: "Horizontal alignment.", type: "WrTypographyAlign | null", default: "null" },
     { name: "truncate", description: "Truncate to single line with ellipsis.", type: "boolean", default: "false" },
     { name: "mono", description: "Render with monospace font.", type: "boolean", default: "false (auto-true for `code`)" },

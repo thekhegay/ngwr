@@ -44,7 +44,7 @@ describe('WrBadge', () => {
   });
 
   it('names every intent', () => {
-    for (const color of ['success', 'danger', 'warning', 'info', 'light', 'medium', 'dark'] as const) {
+    for (const color of ['success', 'danger', 'warning', 'info', 'primary'] as const) {
       fixture.componentInstance.color.set(color);
       fixture.detectChanges();
       expect(host().className).toBe(`wr-badge wr-badge--${color}`);

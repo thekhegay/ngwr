@@ -38,7 +38,7 @@ import type { WrBadgeShape, WrBadgeSize } from './interfaces';
 export class WrBadge {
   /**
    * Color variant. Maps to `--wr-color-*` CSS variables from the theme. It is
-   * decoration or category, never the state on its own: six of the nine intents
+   * decoration or category, never the state on its own: four of the five intents
    * share one lightness and `success` against `danger` is 1.004:1, so the label
    * has to say the state (`Offline`, not a red `Status`). A badge draws no
    * icon — when a chip must stand for a status without words, use `<wr-tag>`
@@ -46,7 +46,7 @@ export class WrBadge {
    *
    * @default 'primary'
    */
-  readonly color = input<WrColor>('primary');
+  readonly color = input<WrColor | null>('primary');
 
   /**
    * Size variant.
@@ -71,7 +71,11 @@ export class WrBadge {
   readonly outlined = input(false, { transform: coerceBooleanProperty });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-badge', `wr-badge--${this.color()}`];
+    const parts = ['wr-badge'];
+
+    const color = this.color();
+    if (color) parts.push(`wr-badge--${color}`);
+
     const size = this.size();
     if (size !== 'md') {
       parts.push(`wr-badge--${size}`);

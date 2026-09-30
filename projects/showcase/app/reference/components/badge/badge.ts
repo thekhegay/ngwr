@@ -69,8 +69,9 @@ export class BuildStatus {}`,
   protected readonly tagApi: readonly DocApiRow[] = [
     {
       name: 'color',
-      description: 'Intent colour — decoration or category. The label carries the state; see above.',
-      type: 'WrColor',
+      description:
+        'Intent colour — decoration or category. The label carries the state; see above. `null` paints the neutral gray.',
+      type: 'WrColor | null',
       default: "'primary'",
     },
     {
