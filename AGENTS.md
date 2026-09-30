@@ -195,10 +195,40 @@ one component folder. Reach for them instead of hand-rolling:
   `$theme-attribute` has to be re-stated in every one of them, and `@use
   'ngwr/theme'` there brings a second, shimmed-dead copy of the token layer with
   it — 24 kB minified.
-  **`ngwr/theme` resolves through `exports`, and editors do not read `exports`**,
-  so `theme/_index.scss` is a forward-only twin at the plain path a Sass language
-  server looks for. Without it `theme.dark` was an unknown mixin in the editor on
-  a line that compiles.
+  **The public Sass entry is `theme/_index.scss`, it DECLARES its API rather
+  than forwarding it, and both halves of that were measured rather than
+  guessed.** Editors do not read the `sass` condition of `exports`: they resolve
+  the specifier as a plain path, so there has to be a file at
+  `node_modules/ngwr/theme/_index.scss` at all — `exports` points at the same
+  file so the compiler and the editor can never land on two different ones. And
+  once an editor is there it has to follow `@forward` to find anything, which
+  WebStorm does not do for a file inside `node_modules`. One variable at a time,
+  against a real project: the same one-hop forward chain resolves inside `src/`
+  and does not inside `node_modules`; a two-hop chain inside `src/` resolves, so
+  it is not depth; it fails through a pnpm symlink and through a plain copied
+  directory alike, so it is not the symlink; it fails for a relative `@use` into
+  `node_modules` as well as for a bare specifier, so it is not the specifier;
+  `@forward … show` does not help; and marking the directory Not Excluded or a
+  Test Source Root does not either. What DOES resolve is a member the resolved
+  file declares itself — so `dark`, `dark-selector`, `smooth-br`,
+  `touch-target` and `focus-ring` are re-declared there as one-line wrappers.
+  Three rules hold it together and each one is a build error or a silent loss if
+  broken: `@forward` comes BEFORE `@use`, because the forward is the load that
+  accepts configuration and the other order makes `@use 'ngwr' with
+  ($theme-attribute: …)` refuse to compile; the forward `hide`s exactly the
+  wrapped names, or each collides with its own original; and a VARIABLE cannot
+  be wrapped, so `$theme-attribute` stays forwarded and stays the one member
+  that resolves in the compiler and not in the editor. The cost is a second copy
+  of every signature, which is why `theme/sass-entry.spec.ts` compiles the entry
+  and holds each wrapper's parameter list against the implementation's as well
+  as pinning the `exports` target, the `hide` list and the load order.
+  **An escaped quote inside an interpolated string stops a language server
+  reading the rest of the file**, and that was the first half of the same bug:
+  `@return '[#{$theme-attribute}=\'dark\']'` sits sixteen lines above
+  `@mixin dark`, and WebStorm reported "Cannot find mixin" until it was written
+  with double quotes instead. Sass emits the identical string either way, so
+  nothing downstream moved. There were exactly two in the library and neither is
+  left; prefer double quotes for any Sass string that has to contain one.
   **`wrThemeTokens()` is the palette recipe in TypeScript** — the same arithmetic
   as `_colors.scss`, for a theme chosen at RUNTIME (a builder, a tenant colour, a
   registry preset). It emits **seven tokens per intent, not twelve**: the tint and

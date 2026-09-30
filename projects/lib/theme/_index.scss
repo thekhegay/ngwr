@@ -1,13 +1,84 @@
-// `@use 'ngwr/theme'` resolved by PATH, for editors.
+// The public Sass entry point of the theme layer: `@use 'ngwr/theme'`.
 //
-// The build resolves that specifier through the `sass` condition of this
-// package's `exports` map, which points at `theme/styles/_index.scss`. Sass
-// language servers do not read `exports`: they take the specifier as a path
-// under `node_modules`, look for `ngwr/theme/_index.scss`, find nothing, and
-// report `theme.dark` as an unknown mixin — in an editor, on a line that
-// compiles. This file is that path.
+// It DECLARES the mixins and functions instead of forwarding them, and that is
+// the whole reason it exists. Editors do not read the `sass` condition of a
+// package's `exports` map, so they resolve the specifier as a plain path and
+// land here — and once here, a Sass language server has to follow `@forward` to
+// find anything. WebStorm does not do that for a file inside `node_modules`.
 //
-// A forward and nothing else. `exports` stays pointed at the real entry so the
-// build keeps one canonical URL for the module, and this alias adds no second
-// place for a declaration to live.
-@forward 'styles';
+// Measured, one variable at a time, against a real project: the same one-hop
+// forward chain resolves inside `src/` and does not inside `node_modules`;
+// a two-hop chain inside `src/` resolves, so it is not depth; it fails through
+// a pnpm symlink and through a plain copied directory alike, so it is not the
+// symlink; it fails for a relative `@use` into `node_modules` as well as a bare
+// specifier, so it is not the specifier; `@forward … show` does not help; and
+// marking the directory Not Excluded or a Test Source Root does not either.
+// What DOES resolve from `node_modules` is a member the resolved file declares
+// itself. Hence the wrappers below.
+//
+// `@use 'ngwr/theme'` is what the docs have always told people to write, so the
+// fix goes here rather than into a second entry point they would have to learn.
+// The cost is that every wrapper repeats a signature, which is a place for two
+// declarations to drift — so this stays the set a consumer writes in a COMPONENT
+// stylesheet, and everything else keeps coming through the forward.
+//
+// Two ordering rules, both load-bearing:
+//
+// `@forward` comes FIRST. It is the load that accepts configuration, so
+// `@use 'ngwr' with ($theme-attribute: 'data-color-mode')` reaches the module
+// through it. Put the `@use` above and Sass refuses the whole build with "This
+// module was already loaded, so it can't be configured using with".
+//
+// `hide` names exactly what is re-declared below. Without it the forwarded
+// original and the wrapper collide under one name.
+//
+// A VARIABLE cannot be wrapped — `$theme-attribute` has to stay forwarded to
+// stay configurable, so it is the one member that keeps resolving only in the
+// compiler and not in the editor.
+@forward 'styles' hide dark, dark-selector, smooth-br, touch-target, focus-ring;
+@use 'styles' as base;
+
+/// The dark-theme selector, for a stylesheet that has to build its own.
+///
+/// @example scss
+///   #{theme.dark-selector()} .my-thing { ... }
+@function dark-selector() {
+  @return base.dark-selector();
+}
+
+/// Wrap a declaration block so it only applies in dark mode, honouring
+/// `$theme-attribute`. Works in a global stylesheet and in an Angular component
+/// stylesheet alike — see the docblock on the implementation for how.
+///
+/// @example scss
+///   @use 'ngwr/theme' as theme;
+///
+///   .my-card {
+///     background: #fff;
+///
+///     @include theme.dark {
+///       background: #0b1120;
+///     }
+///   }
+@mixin dark {
+  @include base.dark {
+    @content;
+  }
+}
+
+/// iOS-style smooth corners, degrading to a plain radius where `corner-shape`
+/// is unsupported.
+@mixin smooth-br($br) {
+  @include base.smooth-br($br);
+}
+
+/// A hit area of at least `$size`, gated on `@media (pointer: coarse)`.
+@mixin touch-target($size: 44px, $positioned: false) {
+  @include base.touch-target($size, $positioned);
+}
+
+/// The shared focus indicator: an outline plus a halo, both read from
+/// `--wr-focus-ring-*`.
+@mixin focus-ring {
+  @include base.focus-ring;
+}

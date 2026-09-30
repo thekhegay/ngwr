@@ -132,7 +132,7 @@ $ink-mix-more: (
     @if not map.has-key($ink-mix-more, $name) {
       @error 'No high-contrast ink share for intent `#{$name}`. Add one to ' +
         '`$ink-mix-more` in theme/styles/_contrast.scss, derived at 7:1 against ' +
-        'that intent\'s own `-soft` tint in whichever theme binds.';
+        "that intent's own `-soft` tint in whichever theme binds.";
     }
   }
 }
