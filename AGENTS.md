@@ -406,7 +406,7 @@ controls projected into it — the controls themselves do not grow with it.
 | Layout geometry   | `pnpm check:layout` (box sizes vs `layout-baseline.json`; `--update` re-records — **nightly**)        |
 | API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
 | llms-full.txt     | `pnpm check:llms` (entry-point coverage floors for the generated AI asset)                           |
-| Selector map      | `pnpm gen:selectors` (every `@Component` / `@Directive` selector → symbol + subpath, for the sandbox) |
+| Selector map      | `pnpm gen:selectors` (every `@Component` / `@Directive` selector → symbol + subpath, for the sandbox); `check:selectors` gates the committed copy — a `pnpm lint` stage |
 | Component hooks   | `pnpm gen:css-vars` (the `--wr-<name>-*` each component publishes → the docs' CSS-variables tables); `check:css-vars` gates the committed copy |
 | Quality numbers   | `pnpm gen:quality` (entry points, harnesses, specs, gates — what `/start/quality` binds to)          |
 | Design tokens     | `pnpm gen:design-tokens` (the palette as W3C DTCG, one file per theme, read from the BUILT stylesheet — needs `build:showcase` first) |
@@ -620,7 +620,14 @@ declares nothing itself on the colour it puts on its children and `@if` /
 `@media` branches, counts `cursor` / `pointer-events` / `transition` as neither
 colour nor channel, reads a prefixed modifier (`--tone-danger`), and proves each
 of those readings on its own fixtures (`SELF_TEST`) before it judges the tree,
-because every one of them once passed a colour-only rule green) — and the last
+because every one of them once passed a colour-only rule green) `&&`
+`check:selectors` (`scripts/gen-selectors.ts --check` — the committed
+`#core/generated/selectors.ts` against what the generator produces now, the same
+`--check` shape `gen-css-vars.ts` and `gen-api-docs.ts` use. It reads source and
+`package.json` only, which is why it is a lint stage where `check:css-vars` is a
+CI step. Before it existed the generator wrote the file unconditionally, so a
+run meant to inspect the drift created it instead, and a stale copy sat in the
+tree for two days after a `lucide` bump) — and the last
 stages are the ones that most often turn a green-looking run red. The first stage prints
 `All files pass linting.` even when a _later_ stage fails — so **verify by exit
 code, never by grepping the output**:

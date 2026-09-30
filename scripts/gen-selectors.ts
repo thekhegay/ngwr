@@ -547,16 +547,31 @@ ${Object.entries(peers)
 }
 
 function main(): void {
+  const check = process.argv.includes('--check');
   const map = buildSelectorMap();
   const { stats } = map;
 
-  if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
   const entries = entryPoints();
   const styles = styleEntryPoints(entries);
   const deps = styleDependencies(entries, map);
   const lucide = lucideRange();
   const peers = optionalPeerDependencies(entries);
-  writeFileSync(OUT_FILE, serialize(map, styles, deps, lucide, peers));
+  const next = serialize(map, styles, deps, lucide, peers);
+  const path = relative(ROOT_PATH, OUT_FILE);
+
+  if (check) {
+    const current = existsSync(OUT_FILE) ? readFileSync(OUT_FILE, 'utf8') : '';
+    if (current !== next) {
+      console.error(`\n✘ ${path} is out of date with projects/lib. Run \`pnpm gen:selectors\` and commit the result.\n`);
+      process.exit(1);
+    }
+    console.log(`✓ ${path} — ${Object.keys(map.tags).length} tags, ${styles.length} style entry points, lucide ${lucide}, up to date`);
+
+    return;
+  }
+
+  if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
+  writeFileSync(OUT_FILE, next);
 
   console.log(
     `✓ ${relative(ROOT_PATH, OUT_FILE)} — ${Object.keys(map.tags).length} tags, ` +
