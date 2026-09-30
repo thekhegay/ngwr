@@ -71,15 +71,14 @@ $ink-mix-more: (
     // 8.16:1 on the page, 7.07:1 on `#ebeff4` — the lightest surface the
     // library paints, and the reference the rest of the theme layer solves
     // against. The default `#5f6c7d` reaches 5.35 and 4.63 respectively.
-    --wr-color-muted-text: #47505d;
-    --wr-color-muted-text-rgb: 71, 80, 93;
+    --wr-color-gray-3: #47505d;
 
     // The de-emphasis tier closes up — see the note at the top of this file.
-    --wr-color-text-muted: rgba(var(--wr-color-muted-text-rgb), 1);
+    --wr-color-text-muted: var(--wr-color-gray-3);
     // unused-ok: the library paints with nothing at the faint strength any
     // more — see the note at its declaration in `_colors.scss`. The override
     // stays so a CONSUMER using the tier is carried into high contrast too.
-    --wr-color-text-faint: rgba(var(--wr-color-muted-text-rgb), 1);
+    --wr-color-text-faint: var(--wr-color-gray-3);
 
     // 3.47:1 on the page and 3.00:1 on `#ebeff4`, against the default
     // `#cbd5e1`'s 1.48:1. This is the value AGENTS.md already records as the
@@ -88,7 +87,7 @@ $ink-mix-more: (
     // boundaries that 1.4.11 reaches, and darkening all 103 was refused on how
     // it looks. Under an explicit request for more contrast that trade flips —
     // the reader has said which side they want.
-    --wr-color-outline: #718cad;
+    --wr-color-gray-2: #718cad;
     --wr-color-outline-rgb: 113, 140, 173;
 
     @each $name, $share in $ink-mix-more {
@@ -100,17 +99,16 @@ $ink-mix-more: (
     // 8.30:1 on the dark canvas. Dark needed far less than light — the default
     // `#9aa6b8` already reaches 7.64 there and only misses on `fill-strong`,
     // the harshest surface the library paints, which this closes.
-    --wr-color-muted-text: #a2adbe;
-    --wr-color-muted-text-rgb: 162, 173, 190;
+    --wr-color-gray-3: #a2adbe;
 
-    --wr-color-text-muted: rgba(var(--wr-color-muted-text-rgb), 1);
+    --wr-color-text-muted: var(--wr-color-gray-3);
     // unused-ok: the library paints with nothing at the faint strength any
     // more — see the note at its declaration in `_colors.scss`. The override
     // stays so a CONSUMER using the tier is carried into high contrast too.
-    --wr-color-text-faint: rgba(var(--wr-color-muted-text-rgb), 1);
+    --wr-color-text-faint: var(--wr-color-gray-3);
 
     // 3.56:1 on the dark canvas, against the default `#262f44`'s 1.41:1.
-    --wr-color-outline: #566b9b;
+    --wr-color-gray-2: #566b9b;
     --wr-color-outline-rgb: 86, 107, 155;
 
     @each $name, $share in $ink-mix-more {

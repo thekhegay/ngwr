@@ -164,13 +164,20 @@ $dark-intents: (
 // the shade derivations read from the value that actually ships, instead of
 // being re-typed next to it.
 $_light: #262f44;
-// The medium FILL, past the flip point. Not the muted-text role: that reads from
-// `--wr-color-muted-text` below, which stays #9aa6b8 — it is text on the canvas,
+// The medium FILL, past the flip point. Not the muted-text role: that is
+// `--wr-color-gray-3`, which mirrors to #cbd5e1 here — it is text on the canvas,
 // where lighter is what makes it legible, the opposite direction from a fill.
 $_medium: #6d7682;
 $_dark: #e6ebf3;
 
 #{dark-selector()} {
+  // The neutral ramp, mirrored. Same four values in the opposite order, because
+  // the step means distance from the canvas and the canvas has moved.
+  --wr-color-gray-1: #0f172a;
+  --wr-color-gray-2: #5f6c7d;
+  --wr-color-gray-3: #cbd5e1;
+  --wr-color-gray-4: #eff2f6;
+
   // Canvas (was `--wr-color-white` in light mode)
   // Deeper than slate-900 so an elevated surface in slate-800 reads
   // as a real layer rather than vanishing into the background.
@@ -275,8 +282,6 @@ $_dark: #e6ebf3;
   // Muted TEXT is its own token now (the light theme could not serve both text
   // and fill from one value), so the dark canvas needs its own version too —
   // otherwise it would inherit the light theme's dark ink. 7.64:1 here.
-  --wr-color-muted-text: #9aa6b8;
-  --wr-color-muted-text-rgb: 154, 166, 184;
 
   // Brand-color retune
   // The default primary (#3969e2) reads a touch dim on the deep canvas. What
