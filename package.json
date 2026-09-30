@@ -81,7 +81,7 @@
     "@schematics/angular": "^22.2.0",
     "@tabler/icons": "^3.48.0",
     "@types/jsdom": "^30.0.0",
-    "@types/luxon": "^3.7.5",
+    "@types/luxon": "^3.7.6",
     "@types/node": "^26.6.3",
     "@types/semver": "^7.8.0",
     "@vitest/coverage-v8": "4.1.11",
