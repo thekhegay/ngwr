@@ -6,8 +6,8 @@ import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrLineSeries } from './interfaces';
 import { WrLineChart } from './line-chart';
+import type { WrLineSeries } from './types';
 
 /**
  * Which of the stylesheet's rules SIZE each drawing, asked of the rendered chart.

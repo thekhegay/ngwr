@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrCollapseHarnessFilters } from './interfaces';
+import type { WrCollapseHarnessFilters } from './types';
 
 /**
  * Test harness for one `<wr-collapse>` — a disclosure: a header button, and the region

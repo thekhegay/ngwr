@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrSparklineHarnessFilters } from './interfaces';
+import type { WrSparklineHarnessFilters } from './types';
 
 /**
  * Test harness for `<wr-sparkline>`.

@@ -30,7 +30,7 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
-import type { WrFallingTextTrigger } from './interfaces';
+import type { WrFallingTextTrigger } from './types';
 
 interface Body {
   el: HTMLElement;
@@ -384,4 +384,4 @@ export class WrFallingText {
   }
 }
 
-export type { WrFallingTextTrigger } from './interfaces';
+export type { WrFallingTextTrigger } from './types';

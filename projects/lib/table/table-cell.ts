@@ -7,7 +7,7 @@
 
 import { Directive, TemplateRef, inject, input } from '@angular/core';
 
-import type { WrTableCellContext } from './interfaces';
+import type { WrTableCellContext } from './types';
 
 /**
  * Provide a custom template for a specific column's cells.

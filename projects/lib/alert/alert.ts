@@ -11,7 +11,7 @@ import { Component, ViewEncapsulation, computed, input, output, signal } from '@
 import { useI18nText } from 'ngwr/i18n';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 
-import type { WrAlertType } from './interfaces';
+import type { WrAlertType } from './types';
 
 /**
  * Inline status banner. Use for feedback messages — saved/failed/notice etc.

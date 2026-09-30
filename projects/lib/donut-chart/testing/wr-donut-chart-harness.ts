@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrDonutChartHarnessFilters, WrDonutChartLegendEntry } from './interfaces';
+import type { WrDonutChartHarnessFilters, WrDonutChartLegendEntry } from './types';
 
 /**
  * Test harness for `<wr-donut-chart>`.

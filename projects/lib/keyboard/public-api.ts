@@ -1,2 +1,2 @@
 export { WrKbd } from './kbd';
-export type { WrKbdSize } from './interfaces';
+export type { WrKbdSize } from './types';

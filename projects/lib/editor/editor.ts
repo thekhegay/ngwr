@@ -45,7 +45,6 @@ import type { Node } from 'prosemirror-model';
 import { EditorState, type Transaction } from 'prosemirror-state';
 import { Decoration, DecorationSet, EditorView } from 'prosemirror-view';
 
-import type { WrEditorFormat, WrEditorJson, WrEditorMarkJson, WrEditorTool, WrEditorValue } from './interfaces';
 import { readValue, writeValue } from './internal/codec';
 import {
   SHORTCUTS,
@@ -63,6 +62,7 @@ import { WrEditorLinkField } from './internal/link-field';
 import { listItemView } from './internal/list-item-view';
 import { editorSchema, isEmptyDoc } from './internal/schema';
 import { WR_EDITOR_TOOLBAR } from './toolbar';
+import type { WrEditorFormat, WrEditorJson, WrEditorMarkJson, WrEditorTool, WrEditorValue } from './types';
 
 let nextId = 0;
 

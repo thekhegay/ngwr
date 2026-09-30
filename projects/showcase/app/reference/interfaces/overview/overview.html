@@ -11,7 +11,7 @@
 
   <ngwr-doc-section
     title="Why interfaces, not types"
-    description="ngwr declares every object shape as an `interface` — errors point at the named shape instead of an expanded literal, consumers can `extends` them, and declaration merging stays available. `type` is reserved for what interfaces can't express: unions (`WrColor`, mode strings) and aliases (`Maybe<T>`). The lib folders mirror the convention — every entry keeps its shapes in `interfaces/`. Note that `export type { WrCascaderOption }` is just TypeScript's type-only **export syntax** (erased at runtime) — the declaration behind it is still an `interface`."
+    description="ngwr declares every object shape as an `interface` — errors point at the named shape instead of an expanded literal, consumers can `extends` them, and declaration merging stays available. `type` is reserved for what interfaces can't express: unions (`WrColor`, mode strings) and aliases (`Maybe<T>`). Every entry point keeps its shapes in a `types/` folder — named for what it holds rather than for one of the two things in it, since a folder called `interfaces/` was as often a union or an alias. Note that `export type { WrCascaderOption }` is just TypeScript's type-only **export syntax** (erased at runtime) — the declaration behind it is still an `interface`."
   />
 
   <ngwr-doc-see-also [links]="related" />

@@ -1,2 +1,2 @@
 export { WrActionSheet } from './action-sheet';
-export type { WrActionSheetAction } from './interfaces';
+export type { WrActionSheetAction } from './types';

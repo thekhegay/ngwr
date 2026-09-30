@@ -13,7 +13,7 @@ import { WrIcon } from 'ngwr/icon';
 import { WrHaptics } from 'ngwr/platform';
 import type { WrClassInput } from 'ngwr/utils';
 
-import type { WrActionSheetAction } from './interfaces';
+import type { WrActionSheetAction } from './types';
 
 /**
  * iOS-style action sheet — a bottom sheet offering a short list of choices.

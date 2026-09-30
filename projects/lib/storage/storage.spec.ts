@@ -3,10 +3,10 @@ import { TestBed } from '@angular/core/testing';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { WrStorageEngine } from './interfaces';
 import { provideWrStorage } from './provide-wr-storage';
 import { WrStorage } from './storage';
 import { createMemoryStorage } from './storage-engine';
+import type { WrStorageEngine } from './types';
 
 /**
  * `WrStorage` is the persistence floor under `WrI18n` and `WrTheme`, so a bug

@@ -11,7 +11,7 @@ import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChi
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 
-import type { WrMeterSegment } from './interfaces';
+import type { WrMeterSegment } from './types';
 
 const FALLBACK_COLORS = [
   'var(--wr-color-primary)',

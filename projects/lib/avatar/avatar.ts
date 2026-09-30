@@ -22,7 +22,7 @@ import { useI18nText } from 'ngwr/i18n';
 import { WrSpinner } from 'ngwr/spinner';
 import { resolveCssSize, type ResolvedCssSize } from 'ngwr/utils';
 
-import type { WrAvatarShape, WrAvatarSize } from './interfaces';
+import type { WrAvatarShape, WrAvatarSize } from './types';
 
 const DEFAULT_SIZE: WrAvatarSize = '6rem';
 

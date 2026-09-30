@@ -10,7 +10,7 @@ import { Component, ElementRef, LOCALE_ID, ViewEncapsulation, computed, inject, 
 
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 
-import type { WrLineSeries } from './interfaces';
+import type { WrLineSeries } from './types';
 
 const FALLBACK_COLORS = [
   'var(--wr-color-primary)',
@@ -294,4 +294,4 @@ export class WrLineChart {
   protected readonly hostEl = this.host.nativeElement;
 }
 
-export type { WrLineSeries } from './interfaces';
+export type { WrLineSeries } from './types';

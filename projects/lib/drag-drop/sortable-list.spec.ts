@@ -9,8 +9,8 @@ import { Subject } from 'rxjs';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrSortableReorderEvent } from './interfaces';
 import { WrSortableList } from './sortable-list';
+import type { WrSortableReorderEvent } from './types';
 
 interface Row {
   readonly id: number;

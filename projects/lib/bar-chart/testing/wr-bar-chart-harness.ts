@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrBarChartBar, WrBarChartHarnessFilters } from './interfaces';
+import type { WrBarChartBar, WrBarChartHarnessFilters } from './types';
 
 /** The `height: <n>%` the component writes onto a bar, out of its inline `style`. */
 const BAR_HEIGHT = /(?:^|;)\s*height\s*:\s*([\d.]+)%/;

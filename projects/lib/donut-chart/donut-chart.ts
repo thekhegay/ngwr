@@ -11,7 +11,7 @@ import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChi
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 
-import type { WrDonutSegment } from './interfaces';
+import type { WrDonutSegment } from './types';
 
 /**
  * A segment's contribution to the ring. `Math.max(0, NaN)` is NaN, and the running total
@@ -200,4 +200,4 @@ export class WrDonutChart {
   }
 }
 
-export type { WrDonutSegment } from './interfaces';
+export type { WrDonutSegment } from './types';

@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrFuzzyTextHarnessFilters } from './interfaces';
+import type { WrFuzzyTextHarnessFilters } from './types';
 
 /**
  * Test harness for `<wr-fuzzy-text>` — a headline drawn into a canvas, one row of pixels

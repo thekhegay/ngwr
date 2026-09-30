@@ -15,7 +15,7 @@ import {
 
 import type { WrPopoverPosition } from 'ngwr/popover';
 
-import type { WrPopoverHarnessFilters } from './interfaces';
+import type { WrPopoverHarnessFilters } from './types';
 
 /** How long the waiters poll before giving up, in ms. Generous next to the 120ms default delays. */
 const DEFAULT_TIMEOUT = 1000;

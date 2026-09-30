@@ -27,8 +27,8 @@ import type { Subscription } from 'rxjs';
 
 import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 
-import type { WrChartTooltip, WrChartTooltipTarget } from './interfaces';
 import { WrChartTooltipPanel } from './internal/chart-tooltip-panel';
+import type { WrChartTooltip, WrChartTooltipTarget } from './types';
 
 /**
  * How long the tooltip outlives the pointer leaving a section, or reporting another

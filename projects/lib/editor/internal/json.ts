@@ -7,7 +7,7 @@
 
 import type { Node, Schema } from 'prosemirror-model';
 
-import type { WrEditorJson } from '../interfaces';
+import type { WrEditorJson } from '../types';
 
 /**
  * How deep a JSON value may nest before it is refused unread.

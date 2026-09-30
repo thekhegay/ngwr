@@ -8,7 +8,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { DestroyRef, Directive, ElementRef, effect, inject, input, output } from '@angular/core';
 
-import type { WrHotkeyHandle, WrHotkeySpec } from './interfaces';
+import type { WrHotkeyHandle, WrHotkeySpec } from './types';
 import { WrHotkey } from './wr-hotkey';
 
 /**

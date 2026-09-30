@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, TestKey } from '@angular/cdk/testing';
 
-import type { WrEventCalendarArrowKey, WrEventCalendarChipHarnessFilters } from './interfaces';
+import type { WrEventCalendarArrowKey, WrEventCalendarChipHarnessFilters } from './types';
 
 const ARROWS: Record<WrEventCalendarArrowKey, TestKey> = {
   left: TestKey.LEFT_ARROW,

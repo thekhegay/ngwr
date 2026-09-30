@@ -9,7 +9,7 @@ import { ComponentHarness, HarnessPredicate, TestKey, type TestElement } from '@
 
 import type { WrCropHandle } from 'ngwr/image-cropper';
 
-import type { WrImageCropperHarnessFilters } from './interfaces';
+import type { WrImageCropperHarnessFilters } from './types';
 
 const ARROWS = {
   left: TestKey.LEFT_ARROW,

@@ -8,7 +8,7 @@ import { WrHaptics } from 'ngwr/platform';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrActionSheet } from './action-sheet';
-import type { WrActionSheetAction } from './interfaces';
+import type { WrActionSheetAction } from './types';
 
 const ACTIONS: readonly WrActionSheetAction[] = [
   { label: 'Share', value: 'share' },

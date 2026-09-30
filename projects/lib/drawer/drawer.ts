@@ -35,7 +35,7 @@ import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 import { toClassList, type WrClassInput } from 'ngwr/utils';
 
 import { WrDrawerTitle } from './directives/drawer-title';
-import type { WrDrawerPosition } from './interfaces';
+import type { WrDrawerPosition } from './types';
 
 /**
  * Side panel that slides in from an edge of the viewport. Two-way binds

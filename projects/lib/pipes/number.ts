@@ -8,7 +8,7 @@
 import { LOCALE_ID, Pipe, inject } from '@angular/core';
 import type { PipeTransform } from '@angular/core';
 
-import type { WrNumberStyle } from './interfaces';
+import type { WrNumberStyle } from './types';
 
 /**
  * Locale-aware number formatting via `Intl.NumberFormat`. Uses Angular's
@@ -57,4 +57,4 @@ export class WrNumber implements PipeTransform {
   }
 }
 
-export type { WrNumberStyle } from './interfaces';
+export type { WrNumberStyle } from './types';

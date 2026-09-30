@@ -10,7 +10,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Directive, ElementRef, PLATFORM_ID, effect, inject, input, model } from '@angular/core';
 
 import { squirclePath, type WrSquircleCorners } from './compute-squircle-path';
-import type { WrSquircleCornerMask } from './interfaces';
+import type { WrSquircleCornerMask } from './types';
 
 /**
  * Which corners to squircle. `'all'` = standard four-corner squircle;
@@ -211,4 +211,4 @@ export class WrSquircle {
   }
 }
 
-export type { WrSquircleCornerMask } from './interfaces';
+export type { WrSquircleCornerMask } from './types';

@@ -62,7 +62,7 @@ A pnpm + Angular CLI monorepo with two projects:
 | `alert.ts`           | the `@Component` / `@Directive` (`ViewEncapsulation.None`)  |
 | `alert.html`         | template (components only)                                  |
 | `styles/_index.scss` | consumable styles — imported by apps as `@use 'ngwr/alert'` |
-| `interfaces/`        | public types                                                |
+| `types/`             | public types                                                |
 | `public-api.ts`      | the entry point's exports — **ng-packagr's `entryFile`**    |
 | `index.ts`           | barrel (`export * from './public-api'`)                     |
 | `ng-package.json`    | ng-packagr secondary-entry config                           |
@@ -86,8 +86,12 @@ components were quietly reverting a documented `@use 'ngwr/theme' with
 a red test rather than a silent 40 kB.
 
 Public types live in each entry point's
-`interfaces/` folder (an `index.ts` barrel re-exported through
-`public-api.ts`); cross-cutting types live in `ngwr/utils/interfaces`
+`types/` folder (an `index.ts` barrel re-exported through
+`public-api.ts`), and a type declared in a `tokens/*.token.ts` belongs there
+too — the token file holds the `InjectionToken`, its contract lives beside every
+other type the entry point publishes. The folder was `interfaces/` until v15 and
+the name was a lie in most of them: what it holds is unions and aliases as often
+as it is an `interface`. Cross-cutting types live in `ngwr/utils/types`
 (e.g. `Maybe`, `SafeAny`).
 
 ## Cross-cutting systems

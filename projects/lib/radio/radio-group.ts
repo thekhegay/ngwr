@@ -12,7 +12,8 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { useFormFieldAria } from 'ngwr/form';
 import { randomId } from 'ngwr/utils';
 
-import { WR_RADIO_GROUP, type WrRadioGroupContext } from './tokens';
+import { WR_RADIO_GROUP } from './tokens';
+import type { WrRadioGroupContext } from './types';
 
 /**
  * Hosts a group of `<wr-radio>` children as a single-value selection.

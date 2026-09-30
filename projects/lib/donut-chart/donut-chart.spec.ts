@@ -10,7 +10,7 @@ import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDonutChart } from './donut-chart';
-import type { WrDonutSegment } from './interfaces';
+import type { WrDonutSegment } from './types';
 
 const SEGMENTS: readonly WrDonutSegment[] = [
   { label: 'Direct', value: 30 },

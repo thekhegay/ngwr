@@ -27,7 +27,7 @@ import {
 
 import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
 
-import type { WrSortableReorderEvent } from './interfaces';
+import type { WrSortableReorderEvent } from './types';
 
 /** Counted, not random: the list prerenders, so the id has to match on rehydration. */
 let sortableListUid = 0;
@@ -299,4 +299,4 @@ export class WrSortableList<T = unknown> {
   }
 }
 
-export type { WrSortableReorderEvent } from './interfaces';
+export type { WrSortableReorderEvent } from './types';

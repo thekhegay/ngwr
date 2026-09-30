@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrBorderGlowHarnessFilters } from './interfaces';
+import type { WrBorderGlowHarnessFilters } from './types';
 
 /** The seven halo steps, in the order the component writes them: 100%, 60%, 50%, 40%, 30%, 20%, 10%. */
 const GLOW_VAR_SUFFIXES = ['', '-60', '-50', '-40', '-30', '-20', '-10'] as const;

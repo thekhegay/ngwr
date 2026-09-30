@@ -7,14 +7,7 @@
 
 import { InjectionToken } from '@angular/core';
 
-/** Configuration for responsive (bottom-sheet) overlay presentation. */
-interface WrResponsiveOverlaysConfig {
-  /**
-   * Viewport width (CSS px) at or below which overlays present as a
-   * bottom-sheet instead of a floating panel. @default 640
-   */
-  readonly breakpoint: number;
-}
+import type { WrResponsiveOverlaysConfig } from '../types';
 
 /**
  * When set, overlay services (dialog, select, dropdown, …) present as a
@@ -49,4 +42,3 @@ function wrPresentAsSheet(responsive: boolean | undefined, config: WrResponsiveO
 }
 
 export { WR_RESPONSIVE_OVERLAYS, wrPresentAsSheet };
-export type { WrResponsiveOverlaysConfig };

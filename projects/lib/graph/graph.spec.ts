@@ -8,9 +8,9 @@ import { type MockInstance, afterEach, beforeEach, describe, expect, it, vi } fr
 
 import { WrGraph } from './graph';
 import { WrGraphNodeTemplate } from './graph-node-template';
-import type { WrGraphEdge, WrGraphNode } from './interfaces';
 import { WrGraphLayout } from './internal/layout/types';
 import type { WrGraphLayoutInput, WrGraphLayoutResult } from './internal/layout/types';
+import type { WrGraphEdge, WrGraphNode } from './types';
 
 /**
  * The pattern for a component spec here: a tiny host that uses the component

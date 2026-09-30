@@ -38,7 +38,7 @@ import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { toClassList, type WrClassInput } from 'ngwr/utils';
 
-import type { WrTreeNode, WrTreeSelectionMode } from './interfaces';
+import type { WrTreeNode, WrTreeSelectionMode } from './types';
 
 interface FlatNode<TId> {
   readonly node: WrTreeNode<TId>;

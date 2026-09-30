@@ -6,4 +6,4 @@ export type {
   WrCalendarDayHarnessFilters,
   WrCalendarHarnessFilters,
   WrCalendarView,
-} from './interfaces';
+} from './types';

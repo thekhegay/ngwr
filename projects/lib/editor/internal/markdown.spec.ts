@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { WrEditorJson } from '../interfaces';
+import type { WrEditorJson } from '../types';
 
 import { jsonToMarkdown, markdownToJson } from './markdown';
 import { editorSchema } from './schema';

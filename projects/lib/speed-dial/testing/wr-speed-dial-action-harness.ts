@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrSpeedDialActionHarnessFilters } from './interfaces';
+import type { WrSpeedDialActionHarnessFilters } from './types';
 
 /**
  * Test harness for one action inside a {@link WrSpeedDialHarness}.

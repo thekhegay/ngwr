@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrTypographyAlign, WrTypographyTone, WrTypographyVariant } from './interfaces';
+import type { WrTypographyAlign, WrTypographyTone, WrTypographyVariant } from './types';
 import { WrTypography } from './typography';
 
 @Component({

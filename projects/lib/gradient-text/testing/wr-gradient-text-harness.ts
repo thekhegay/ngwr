@@ -9,7 +9,7 @@ import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 import type { WrGradientTextDirection } from 'ngwr/gradient-text';
 
-import type { WrGradientTextHarnessFilters } from './interfaces';
+import type { WrGradientTextHarnessFilters } from './types';
 
 const GRADIENT = /^linear-gradient\((.*)\)$/s;
 

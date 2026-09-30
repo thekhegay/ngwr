@@ -7,8 +7,8 @@
 
 import { Injectable, inject } from '@angular/core';
 
-import type { WrIconDef } from './interfaces';
 import { WR_ICONS } from './tokens';
+import type { WrIconDef } from './types';
 
 /**
  * One link in the icon-registry chain. {@link provideWrIcons} provides an

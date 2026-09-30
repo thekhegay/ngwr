@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, TestKey } from '@angular/cdk/testing';
 
-import type { WrKnobArrowKey, WrKnobHarnessFilters } from './interfaces';
+import type { WrKnobArrowKey, WrKnobHarnessFilters } from './types';
 
 const ARROWS: Record<WrKnobArrowKey, TestKey> = {
   left: TestKey.LEFT_ARROW,

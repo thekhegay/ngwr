@@ -3,8 +3,8 @@ import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrSpeedDialAction, WrSpeedDialDirection } from './interfaces';
 import { WrSpeedDial } from './speed-dial';
+import type { WrSpeedDialAction, WrSpeedDialDirection } from './types';
 
 const ACTIONS: readonly WrSpeedDialAction[] = [
   { id: 'note', label: 'New note', icon: 'plus' },

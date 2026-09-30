@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, TestKey } from '@angular/cdk/testing';
 
-import type { WrActionSheetActionHarnessFilters, WrActionSheetHarnessFilters } from './interfaces';
+import type { WrActionSheetActionHarnessFilters, WrActionSheetHarnessFilters } from './types';
 import { WrActionSheetActionHarness } from './wr-action-sheet-action-harness';
 
 /**

@@ -9,8 +9,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { WrTourStep } from './interfaces';
 import { WrTour } from './tour';
+import type { WrTourStep } from './types';
 
 @Component({
   template: `<div id="one">one</div>

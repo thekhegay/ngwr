@@ -3,8 +3,8 @@ import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrStarBorderMode, WrStarBorderRays } from './interfaces';
 import { WrStarBorder } from './star-border';
+import type { WrStarBorderMode, WrStarBorderRays } from './types';
 
 @Component({
   imports: [WrStarBorder],

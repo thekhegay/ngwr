@@ -9,8 +9,8 @@ import { Component, DestroyRef, ViewEncapsulation, computed, inject, input, outp
 
 import { useI18nText } from 'ngwr/i18n';
 
-import type { WrToastConfig, WrToastMode, WrToastOptions, WrToastPosition } from './interfaces';
 import { WrToastItem } from './toast-item';
+import type { WrToastConfig, WrToastMode, WrToastOptions, WrToastPosition } from './types';
 
 /** ms before the pointer or focus leaving actually collapses the stack. Buffers
  * the cursor briefly leaving the host as toasts reflow underneath it, and focus

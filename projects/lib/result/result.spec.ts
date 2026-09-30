@@ -3,9 +3,9 @@ import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrResultStatus } from './interfaces';
 import { WrResult403, WrResult404, WrResult500 } from './presets';
 import { WrResult } from './result';
+import type { WrResultStatus } from './types';
 
 @Component({
   imports: [WrResult],

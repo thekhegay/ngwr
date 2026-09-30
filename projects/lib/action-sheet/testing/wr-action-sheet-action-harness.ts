@@ -9,7 +9,7 @@ import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 import type { WrActionSheetAction } from 'ngwr/action-sheet';
 
-import type { WrActionSheetActionHarnessFilters } from './interfaces';
+import type { WrActionSheetActionHarnessFilters } from './types';
 
 /**
  * Test harness for one row inside a {@link WrActionSheetHarness}.

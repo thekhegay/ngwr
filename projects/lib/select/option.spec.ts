@@ -4,10 +4,10 @@ import { TestBed } from '@angular/core/testing';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrSelectMode } from './interfaces';
 import { WrOption } from './option';
 import { WrOptionLeading } from './option-leading';
 import { WrSelect } from './select';
+import type { WrSelectMode } from './types';
 
 /**
  * Counts its own instances, and prints the initials it is given — so a spec can

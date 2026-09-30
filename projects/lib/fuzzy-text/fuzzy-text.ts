@@ -30,7 +30,7 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
-import type { WrFuzzyTextDirection } from './interfaces';
+import type { WrFuzzyTextDirection } from './types';
 
 /**
  * Canvas-rendered "fuzzy" text — each row/column of glyphs is offset by
@@ -460,4 +460,4 @@ export class WrFuzzyText {
   }
 }
 
-export type { WrFuzzyTextDirection } from './interfaces';
+export type { WrFuzzyTextDirection } from './types';

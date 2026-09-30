@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
-import type { WrBlurTextHarnessFilters } from './interfaces';
+import type { WrBlurTextHarnessFilters } from './types';
 
 /** The animated pieces — one per word or per character, whitespace excluded. */
 const PIECE = '.wr-blur-text__piece';

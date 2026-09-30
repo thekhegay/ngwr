@@ -38,9 +38,9 @@ import {
 } from 'ngwr/overlay';
 import { KEYS, numAttr, toClassList, type WrClassInput } from 'ngwr/utils';
 
-import { type WrPopoverPosition, wrPopoverPositions } from './interfaces';
 import { WrCurrentKeystroke } from './internal/keystroke';
 import { WrPopoverTextPanel } from './internal/text-panel';
+import { type WrPopoverPosition, wrPopoverPositions } from './types';
 
 /**
  * Keys the USER moves focus with: Tab through the page, the arrows / Home /

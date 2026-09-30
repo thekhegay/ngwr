@@ -17,8 +17,8 @@ import { WR_OVERLAY, wrAppendOverlayClose, wrFollowDirection } from 'ngwr/overla
 import { toClassList } from 'ngwr/utils';
 
 import { WrDrawerRef } from './drawer-ref';
-import type { WrDrawerOptions, WrDrawerPosition } from './interfaces';
 import { WR_DRAWER_DATA, WR_DRAWER_REF } from './tokens';
+import type { WrDrawerOptions, WrDrawerPosition } from './types';
 
 const DEFAULT_POSITION: WrDrawerPosition = 'right';
 const DEFAULT_WIDTH = '20rem';

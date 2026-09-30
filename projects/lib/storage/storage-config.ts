@@ -7,7 +7,7 @@
 
 import { InjectionToken } from '@angular/core';
 
-import type { WrStorageConfigResolved } from './interfaces';
+import type { WrStorageConfigResolved } from './types';
 
 export const DEFAULT_WR_STORAGE_CONFIG: WrStorageConfigResolved = {
   prefix: '',
@@ -20,4 +20,4 @@ export const WR_STORAGE_CONFIG = new InjectionToken<WrStorageConfigResolved>('WR
   factory: () => DEFAULT_WR_STORAGE_CONFIG,
 });
 
-export type { WrStorageConfig, WrStorageConfigResolved } from './interfaces';
+export type { WrStorageConfig, WrStorageConfigResolved } from './types';

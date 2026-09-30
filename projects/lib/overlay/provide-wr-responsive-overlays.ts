@@ -7,7 +7,8 @@
 
 import { type EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
 
-import { WR_RESPONSIVE_OVERLAYS, type WrResponsiveOverlaysConfig } from './tokens/wr-responsive-overlays.token';
+import { WR_RESPONSIVE_OVERLAYS } from './tokens/wr-responsive-overlays.token';
+import type { WrResponsiveOverlaysConfig } from './types';
 
 /**
  * Opt every NGWR overlay into responsive presentation — on viewports at or

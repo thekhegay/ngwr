@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrDrawerFooter, WrDrawerTitle } from './directives';
 import { WrDrawer } from './drawer';
-import type { WrDrawerPosition } from './interfaces';
+import type { WrDrawerPosition } from './types';
 
 @Component({
   imports: [WrDrawer],

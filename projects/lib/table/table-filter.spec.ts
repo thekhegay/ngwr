@@ -7,8 +7,8 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrTableFilterItem } from './interfaces';
 import { WrTableFilter } from './table-filter';
+import type { WrTableFilterItem } from './types';
 
 @Component({
   imports: [WrTableFilter],

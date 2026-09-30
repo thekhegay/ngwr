@@ -8,7 +8,7 @@
 import { DOCUMENT } from '@angular/common';
 import { Service, inject } from '@angular/core';
 
-import type { WrCookieOptions } from './interfaces';
+import type { WrCookieOptions } from './types';
 
 const DEFAULT_OPTS: Required<Pick<WrCookieOptions, 'path' | 'sameSite'>> = {
   path: '/',
@@ -134,4 +134,4 @@ export class WrCookie {
   }
 }
 
-export type { WrCookieOptions } from './interfaces';
+export type { WrCookieOptions } from './types';

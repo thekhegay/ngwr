@@ -27,7 +27,7 @@ import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
 import { clamp, round } from 'ngwr/utils';
 
-import type { WrSliderValue } from './interfaces';
+import type { WrSliderValue } from './types';
 
 /** Trim float drift from step calculations. */
 

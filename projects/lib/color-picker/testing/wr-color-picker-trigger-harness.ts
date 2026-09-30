@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, TestKey } from '@angular/cdk/testing';
 
-import type { WrColorPickerTriggerHarnessFilters } from './interfaces';
+import type { WrColorPickerTriggerHarnessFilters } from './types';
 import { WrColorPickerHarness } from './wr-color-picker-harness';
 
 /**

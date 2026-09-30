@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
-import type { WrRotatingTextHarnessFilters } from './interfaces';
+import type { WrRotatingTextHarnessFilters } from './types';
 
 /** One animated piece — a grapheme, a word or a line, depending on `splitBy`. */
 const CHAR = '.wr-rotating-text__char';

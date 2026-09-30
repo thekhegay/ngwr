@@ -8,7 +8,7 @@ import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrCalendarHeatmap } from './calendar-heatmap';
-import type { WrHeatmapDatum } from './interfaces';
+import type { WrHeatmapDatum } from './types';
 
 @Component({
   imports: [WrCalendarHeatmap],

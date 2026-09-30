@@ -7,8 +7,8 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrPopconfirmPosition } from './interfaces';
 import { WrPopconfirm } from './popconfirm';
+import type { WrPopconfirmPosition } from './types';
 
 @Component({
   imports: [WrPopconfirm],

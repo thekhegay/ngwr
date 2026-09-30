@@ -10,7 +10,7 @@ import { Component, InjectionToken, ViewEncapsulation, computed, inject } from '
 import { WrButton } from 'ngwr/button';
 import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
 
-import type { WrTourStep } from './interfaces';
+import type { WrTourStep } from './types';
 
 /** What the popup needs from the running tour, without importing the service (cycle). */
 export interface WrTourController {

@@ -7,8 +7,8 @@
 
 import { describe, expect, it } from 'vitest';
 
-import type { WrMarkdownBlock, WrMarkdownInline } from './interfaces';
 import { parseInlines, parseMarkdown, plainText, safeMarkdownUrl } from './parse-markdown';
+import type { WrMarkdownBlock, WrMarkdownInline } from './types';
 
 /**
  * The parser's own spec. Everything here is pure — no TestBed, no DOM — which is

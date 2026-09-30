@@ -7,7 +7,7 @@
 
 import type { Node, Schema } from 'prosemirror-model';
 
-import type { WrEditorFormat, WrEditorJson, WrEditorValue } from '../interfaces';
+import type { WrEditorFormat, WrEditorJson, WrEditorValue } from '../types';
 
 import { readHtml, writeHtml } from './html';
 import { readJson } from './json';

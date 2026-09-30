@@ -7,7 +7,7 @@
 
 import { ComponentHarness, type EventData, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
-import type { WrFileUploadHarnessFilters } from './interfaces';
+import type { WrFileUploadHarnessFilters } from './types';
 
 /**
  * A `DataTransfer` carrying `files`.

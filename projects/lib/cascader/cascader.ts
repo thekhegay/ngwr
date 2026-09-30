@@ -36,7 +36,7 @@ import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { toClassList, type WrClassInput } from 'ngwr/utils';
 
-import type { WrCascaderOption } from './interfaces';
+import type { WrCascaderOption } from './types';
 
 let panelUid = 0;
 
@@ -501,4 +501,4 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
   }
 }
 
-export type { WrCascaderOption } from './interfaces';
+export type { WrCascaderOption } from './types';

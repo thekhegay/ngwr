@@ -8,7 +8,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Directive, computed, input } from '@angular/core';
 
-import type { WrTypographyAlign, WrTypographyTone, WrTypographyVariant } from './interfaces';
+import type { WrTypographyAlign, WrTypographyTone, WrTypographyVariant } from './types';
 
 /**
  * Semantic typography directive. Attaches to any native element and

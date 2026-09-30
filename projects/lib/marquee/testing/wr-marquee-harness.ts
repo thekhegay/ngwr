@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrMarqueeHarnessFilters, WrMarqueeLink } from './interfaces';
+import type { WrMarqueeHarnessFilters, WrMarqueeLink } from './types';
 import { WrMarqueeItemHarness } from './wr-marquee-item-harness';
 
 /** Copy 0 is the original sequence; every other `.wr-marquee__list` is a clone of it. */

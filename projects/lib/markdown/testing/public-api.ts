@@ -9,4 +9,4 @@ export type {
   WrMarkdownHarnessLink,
   WrMarkdownHarnessTable,
   WrMarkdownHarnessTaskItem,
-} from './interfaces';
+} from './types';

@@ -12,7 +12,7 @@ import {
   type TestElement,
 } from '@angular/cdk/testing';
 
-import type { WrFormFieldError, WrFormFieldHarnessFilters } from './interfaces';
+import type { WrFormFieldError, WrFormFieldHarnessFilters } from './types';
 
 /**
  * The messages this field is showing, or the ones it is holding back.

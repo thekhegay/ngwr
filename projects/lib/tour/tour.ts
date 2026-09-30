@@ -25,8 +25,8 @@ import {
 import { WR_OVERLAY, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
 import { toClassList } from 'ngwr/utils';
 
-import type { WrTourPlacement, WrTourStep } from './interfaces';
 import { WR_TOUR_STEP, WrTourPopup } from './tour-popup';
+import type { WrTourPlacement, WrTourStep } from './types';
 
 /** Fallback order per preferred side — the opposite side first, then the sides. */
 const FALLBACKS: Record<WrTourPlacement, readonly WrTourPlacement[]> = {

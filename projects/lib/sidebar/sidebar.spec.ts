@@ -10,8 +10,8 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrIcons, svgIcon } from 'ngwr/icon';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrSidebarEntry } from './interfaces';
 import { WrSidebar } from './sidebar';
+import type { WrSidebarEntry } from './types';
 
 /** Minimal valid SVG: the registry rejects markup with no root element. */
 const ICON = '<svg viewBox="0 0 24 24"><path d="M1 1" /></svg>';

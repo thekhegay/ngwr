@@ -5,7 +5,7 @@ import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrAlert } from './alert';
-import type { WrAlertType } from './interfaces';
+import type { WrAlertType } from './types';
 
 @Component({
   imports: [WrAlert],

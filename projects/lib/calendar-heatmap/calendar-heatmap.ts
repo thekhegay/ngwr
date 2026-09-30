@@ -12,7 +12,7 @@ import { WR_DATE_LOCALE } from 'ngwr/date';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 
-import type { WrHeatmapDatum } from './interfaces';
+import type { WrHeatmapDatum } from './types';
 
 interface Cell {
   readonly iso: string;
@@ -285,4 +285,4 @@ export class WrCalendarHeatmap {
   }
 }
 
-export type { WrHeatmapDatum } from './interfaces';
+export type { WrHeatmapDatum } from './types';

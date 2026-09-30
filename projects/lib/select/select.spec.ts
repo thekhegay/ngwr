@@ -13,10 +13,10 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrSelectMode, WrSelectSize } from './interfaces';
 import { WrOption } from './option';
 import { WrOptionGroup } from './option-group';
 import { WrSelect } from './select';
+import type { WrSelectMode, WrSelectSize } from './types';
 
 /**
  * The panel is a CDK overlay, so its options land in the overlay container

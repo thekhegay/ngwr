@@ -24,7 +24,7 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
-import type { WrClickSparkEasing } from './interfaces';
+import type { WrClickSparkEasing } from './types';
 
 interface Spark {
   readonly x: number;
@@ -230,4 +230,4 @@ export class WrClickSpark {
   }
 }
 
-export type { WrClickSparkEasing } from './interfaces';
+export type { WrClickSparkEasing } from './types';

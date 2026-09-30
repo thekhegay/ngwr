@@ -1,7 +1,7 @@
 import type { Node } from 'prosemirror-model';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { WrEditorFormat, WrEditorJson, WrEditorValue } from '../interfaces';
+import type { WrEditorFormat, WrEditorJson, WrEditorValue } from '../types';
 
 import { readValue, writeValue } from './codec';
 import { readHtml } from './html';

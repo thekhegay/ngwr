@@ -30,7 +30,7 @@ import { useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { isComposing } from 'ngwr/utils';
 
-import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
+import type { WrInputOtpMode, WrInputOtpSize } from './types';
 
 /**
  * Fixed-length one-time-code input. Renders one `<input>` per character,

@@ -7,7 +7,7 @@
 
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-import type { WrTimelineColor } from './interfaces';
+import type { WrTimelineColor } from './types';
 
 /**
  * One event in a {@link WrTimeline}. Project content for the
@@ -27,4 +27,4 @@ export class WrTimelineItem {
   protected readonly classes = computed(() => `wr-timeline-item wr-timeline-item--${this.color()}`);
 }
 
-export type { WrTimelineColor } from './interfaces';
+export type { WrTimelineColor } from './types';

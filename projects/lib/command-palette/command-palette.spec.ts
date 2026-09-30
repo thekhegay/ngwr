@@ -6,7 +6,7 @@ import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrCommandPalette } from './command-palette';
-import type { WrCommandItem } from './interfaces';
+import type { WrCommandItem } from './types';
 
 /**
  * Two groups, interleaved in SOURCE order on purpose: `bucketize` collects each

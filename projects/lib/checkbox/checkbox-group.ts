@@ -11,7 +11,8 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
 
-import { WR_CHECKBOX_GROUP, type WrCheckboxGroupContext } from './tokens';
+import { WR_CHECKBOX_GROUP } from './tokens';
+import type { WrCheckboxGroupContext } from './types';
 
 /**
  * Manages a group of `<wr-checkbox>` children as a single form value

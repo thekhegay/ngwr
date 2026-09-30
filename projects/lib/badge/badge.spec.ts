@@ -5,8 +5,8 @@ import type { WrColor } from 'ngwr/theme';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrBadge } from './badge';
-import type { WrBadgeShape, WrBadgeSize, WrTagIconPosition } from './interfaces';
 import { WrTag } from './tag';
+import type { WrBadgeShape, WrBadgeSize, WrTagIconPosition } from './types';
 
 @Component({
   imports: [WrBadge],

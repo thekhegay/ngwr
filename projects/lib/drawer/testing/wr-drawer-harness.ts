@@ -9,7 +9,7 @@ import { ContentContainerComponentHarness, HarnessPredicate, TestKey, type TestE
 
 import type { WrDrawerPosition } from 'ngwr/drawer';
 
-import type { WrDrawerHarnessFilters } from './interfaces';
+import type { WrDrawerHarnessFilters } from './types';
 
 const POSITIONS: readonly WrDrawerPosition[] = ['left', 'right', 'top', 'bottom'];
 

@@ -8,9 +8,9 @@
 import { isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Service, PLATFORM_ID, type Signal, type WritableSignal, inject, signal } from '@angular/core';
 
-import type { WrStorageEnvelope } from './interfaces';
 import { WR_STORAGE_CONFIG } from './storage-config';
 import { WR_STORAGE_ENGINE } from './storage-engine';
+import type { WrStorageEnvelope } from './types';
 
 function isEnvelope(x: unknown): x is WrStorageEnvelope {
   return x !== null && typeof x === 'object' && 'v' in x;

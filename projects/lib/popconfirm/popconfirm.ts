@@ -26,8 +26,8 @@ import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrMirrorOffsets } from '
 import type { WrColor } from 'ngwr/theme';
 import { toClassList, type WrClassInput } from 'ngwr/utils';
 
-import { WR_POPCONFIRM_POSITIONS, type WrPopconfirmPosition } from './interfaces';
 import { WrPopconfirmPanel } from './popconfirm-panel';
+import { WR_POPCONFIRM_POSITIONS, type WrPopconfirmPosition } from './types';
 
 /**
  * Small "Are you sure?" panel anchored to its trigger. Fires `confirmed`
