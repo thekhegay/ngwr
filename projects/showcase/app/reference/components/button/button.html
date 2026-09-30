@@ -26,16 +26,24 @@
     <ngwr-doc-code [code]="snippets.submit" language="html" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Colors">
+  <ngwr-doc-section
+    title="Colors"
+    description="Five intents, and the neutral you get by setting no color at all — which is the default, not a fallback. An intent is emphasis: it ranks a button against the ones beside it. It is never the only thing saying what the button does, because four of the five sit inside a 1.06:1 band of lightness and `success` against `danger` is 1.004:1 — the label carries the meaning, so write `Delete`, not a red `OK`."
+  >
     <ngwr-doc-snippet [code]="snippets.colors">
+      <wr-btn>neutral</wr-btn>
       @for (c of colors; track c) {
         <wr-btn [color]="c">{{ c }}</wr-btn>
       }
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Outlined">
+  <ngwr-doc-section
+    title="Outlined"
+    description="Transparent fill, so whatever the button sits on shows through. The neutral one keeps the same hairline the solid neutral draws and drops its surface."
+  >
     <ngwr-doc-snippet [code]="snippets.outlined">
+      <wr-btn outlined>neutral</wr-btn>
       @for (c of colors; track c) {
         <wr-btn [color]="c" outlined>{{ c }}</wr-btn>
       }

@@ -51,9 +51,12 @@ export class MyComponent {}`,
   <!-- Does NOT submit: <wr-btn> is a custom element. Bind the click. -->
   <wr-btn (click)="save()" color="primary">Save</wr-btn>
 </form>`,
-    colors: `<wr-btn color="primary">Primary</wr-btn>
+    colors: `<!-- No color is the neutral button, and it is the default. -->
+<wr-btn>Neutral</wr-btn>
+<wr-btn color="primary">Primary</wr-btn>
 <wr-btn color="success">Success</wr-btn>`,
-    outlined: `<wr-btn color="primary" outlined>Outlined</wr-btn>`,
+    outlined: `<wr-btn outlined>Neutral</wr-btn>
+<wr-btn color="primary" outlined>Outlined</wr-btn>`,
     sizes: `<wr-btn size="sm">Small</wr-btn>
 <wr-btn size="md">Medium</wr-btn>
 <wr-btn size="lg">Large</wr-btn>`,
@@ -68,7 +71,8 @@ export class MyComponent {}`,
 <wr-btn color="primary" wrSquircle [radius]="14">Squircle</wr-btn>`,
     block: `<wr-btn color="primary" block>Full width</wr-btn>`,
     icon: `<wr-btn icon="add" color="primary">Add</wr-btn>
-<wr-btn icon="download" iconPosition="end" color="success">Download</wr-btn>`,
+<wr-btn icon="trash" color="danger" outlined>Delete</wr-btn>
+<wr-btn icon="download" iconPosition="end">Download</wr-btn>`,
     disabled: `<wr-btn disabled>Disabled</wr-btn>`,
     loading: `<wr-btn [loading]="loading()" color="primary" (click)="loading.set(!loading())">
   Click to toggle

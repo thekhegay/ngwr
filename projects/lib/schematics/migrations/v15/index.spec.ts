@@ -1,0 +1,229 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+import { HostTree, type SchematicContext, type Tree } from '@angular-devkit/schematics';
+import { describe, expect, it } from 'vitest';
+
+import ngUpdateV15 from './index';
+
+/**
+ * `ng update ngwr@15`, which REWRITES the neutral token renames and REPORTS
+ * every use of a removed intent.
+ *
+ * Both halves need a spec and they fail in opposite directions, the same way
+ * v14's do. The reporting half fails by staying quiet, and quiet is
+ * indistinguishable from "nothing to do". The rewriting half fails by touching
+ * something it should not — and here that risk is sharper than in any earlier
+ * migration, because the rules key on a token NAME rather than on an element:
+ * `--wr-color-light` is a prefix of `--wr-color-light-rgb` and of
+ * `--wr-color-light-lighter`, and getting the order or the lookahead wrong
+ * produces a name that is not a token at all, which is the exact failure the
+ * whole migration exists to prevent.
+ */
+
+interface Run {
+  readonly logs: readonly string[];
+  readonly read: (path: string) => string;
+}
+
+function run(files: Readonly<Record<string, string>>): Run {
+  const tree = new HostTree();
+  for (const [path, content] of Object.entries(files)) tree.create(path, content);
+
+  const logs: string[] = [];
+  const context = {
+    logger: { info: (message: string) => logs.push(message), warn: (message: string) => logs.push(message) },
+  } as unknown as SchematicContext;
+  const rule = ngUpdateV15() as (target: Tree, ctx: SchematicContext) => Tree;
+  const next = rule(tree, context);
+
+  return { logs, read: (path: string) => next.readText(path) };
+}
+
+function rewrite(path: string, content: string): string {
+  return run({ [path]: content }).read(path);
+}
+
+const said = (logs: readonly string[], fragment: string): boolean => logs.some(line => line.includes(fragment));
+
+describe('ng update ngwr@15', () => {
+  it('says nothing to do on a project that uses none of it', () => {
+    const { logs } = run({ '/src/app/app.html': '<wr-btn color="primary">Save</wr-btn>' });
+
+    expect(said(logs, 'nothing to do')).toBe(true);
+  });
+
+  describe('the neutral tokens it rewrites', () => {
+    it.each([
+      ['--wr-color-light', '--wr-color-outline'],
+      ['--wr-color-light-rgb', '--wr-color-outline-rgb'],
+      ['--wr-color-dark', '--wr-color-on-surface'],
+      ['--wr-color-dark-rgb', '--wr-color-on-surface-rgb'],
+      ['--wr-color-muted-text', '--wr-color-on-surface-muted'],
+      ['--wr-color-muted-text-rgb', '--wr-color-on-surface-muted-rgb'],
+      ['--wr-color-medium', '--wr-color-on-surface-muted'],
+      ['--wr-color-medium-rgb', '--wr-color-on-surface-muted-rgb'],
+    ])('moves %s to %s', (from, to) => {
+      expect(rewrite('/src/a.scss', `.card { color: var(${from}); }`)).toBe(`.card { color: var(${to}); }`);
+    });
+
+    /**
+     * The whole reason `TOKEN_RENAMES` is ordered longest-first AND carries a
+     * `(?![\w-])` lookahead. With either one missing, `--wr-color-light-rgb`
+     * becomes `--wr-color-outline-rgb` by the wrong route — the short rule
+     * matching the prefix — and any name the short rule does not cover, such as
+     * `-light-lighter`, is silently mangled into a token that does not exist.
+     */
+    it('never matches inside a longer token name', () => {
+      const source = [
+        '.a { border-color: var(--wr-color-light-lighter); }',
+        '.b { background: var(--wr-color-dark-darker); }',
+        '.c { color: var(--wr-color-medium-contrast); }',
+      ].join('\n');
+
+      expect(rewrite('/src/a.scss', source)).toBe(source);
+    });
+
+    it('leaves the intents that survived alone', () => {
+      const source = '.a { color: var(--wr-color-primary); background: var(--wr-color-info-soft); }';
+
+      expect(rewrite('/src/a.scss', source)).toBe(source);
+    });
+
+    /**
+     * A token name means the same thing in all three file kinds, which is why
+     * these rules are not scoped to an element the way v14's renames are: a
+     * stylesheet declares and reads one, a template writes one in an inline
+     * `style`, and a component writes one into a signal or a class binding.
+     */
+    it('reaches a template and a component file, not only a stylesheet', () => {
+      expect(rewrite('/src/a.html', '<div style="color: var(--wr-color-dark)"></div>')).toContain(
+        'var(--wr-color-on-surface)'
+      );
+      expect(rewrite('/src/a.ts', "const c = 'rgba(var(--wr-color-light-rgb), 0.4)';")).toContain(
+        'var(--wr-color-outline-rgb)'
+      );
+    });
+
+    it('rewrites a declaration as readily as a read', () => {
+      expect(rewrite('/src/a.scss', '.theme { --wr-color-dark: #fff; }')).toBe(
+        '.theme { --wr-color-on-surface: #fff; }'
+      );
+    });
+  });
+
+  describe('the removed intents it reports', () => {
+    it('names a `color` attribute, static or bound, and spares one that survived', () => {
+      expect(said(run({ '/a.html': '<wr-btn color="secondary">Go</wr-btn>' }).logs, 'removed intent')).toBe(true);
+      expect(said(run({ '/a.html': `<wr-tag [color]="'medium'">x</wr-tag>` }).logs, 'removed intent')).toBe(true);
+      expect(said(run({ '/a.html': '<wr-btn color="primary">Go</wr-btn>' }).logs, 'removed intent')).toBe(false);
+    });
+
+    /**
+     * Deliberately not anchored to an element, unlike every rule in
+     * `migration-v14`. The alternative is a list of every component taking a
+     * `WrColor`, which is wrong the moment the catalog grows — so this has to
+     * fire on a component the migration has never heard of.
+     */
+    it('fires on a component it does not know about', () => {
+      expect(said(run({ '/a.html': '<app-thing color="dark" />' }).logs, 'removed intent')).toBe(true);
+    });
+
+    it('names a class that no longer matches', () => {
+      expect(said(run({ '/a.scss': '.wr-btn--secondary { margin: 0; }' }).logs, 'no longer emits it')).toBe(true);
+      expect(said(run({ '/a.scss': '.wr-btn--primary { margin: 0; }' }).logs, 'no longer emits it')).toBe(false);
+    });
+
+    it('names a secondary token, which has no successor and is never rewritten', () => {
+      const source = '.a { color: var(--wr-color-secondary-ink); }';
+      const { logs, read } = run({ '/a.scss': source });
+
+      expect(said(logs, 'second brand colour')).toBe(true);
+      expect(read('/a.scss')).toBe(source);
+    });
+
+    it('names an orphan shade rather than guessing a role for it', () => {
+      const source = '.a { border-color: var(--wr-color-light-lighter); }';
+      const { logs, read } = run({ '/a.scss': source });
+
+      expect(said(logs, 'SHADE of a removed intent')).toBe(true);
+      expect(read('/a.scss')).toBe(source);
+    });
+
+    it('names a `$base-colors` map still carrying a removed key', () => {
+      const source = "@use 'ngwr' with ($base-colors: (primary: #06c, secondary: #e21a62));";
+
+      expect(said(run({ '/a.scss': source }).logs, '$base-colors')).toBe(true);
+      expect(said(run({ '/b.scss': "@use 'ngwr' with ($base-colors: (primary: #06c));" }).logs, '$base-colors')).toBe(
+        false
+      );
+    });
+
+    it('names a WrColor literal the narrowed union refuses', () => {
+      expect(said(run({ '/a.ts': "const c: WrColor = 'medium';" }).logs, 'WrColor')).toBe(true);
+    });
+  });
+
+  /**
+   * The manifest is what `ng update` reads, and v14 shipped saying one thing
+   * while doing another — its own commit subject announced a rename it had not
+   * made. So the description is held to the rule rather than trusted.
+   */
+  it('describes itself in the manifest the way it behaves', () => {
+    const manifest = JSON.parse(readFileSync(join(import.meta.dirname, '..', '..', 'migrations.json'), 'utf8')) as {
+      schematics: Record<string, { version: string; description: string; factory: string }>;
+    };
+    const entry = manifest.schematics['migration-v15'];
+
+    expect(entry).toBeDefined();
+    expect(entry.version).toBe('15.0.0');
+    expect(entry.factory).toBe('./migrations/v15/index#default');
+    for (const rewritten of ['--wr-color-light', '--wr-color-dark', '--wr-color-muted-text', '--wr-color-medium']) {
+      expect(entry.description).toContain(rewritten);
+    }
+    for (const reported of ['secondary', 'light', 'medium', 'dark']) {
+      expect(entry.description).toContain(reported);
+    }
+  });
+
+  /**
+   * A catastrophic regex is SYNCHRONOUS, so vitest's timeout cannot interrupt
+   * it — a regression would freeze the suite rather than fail it. These
+   * fixtures are sized so the ambiguous `[^>]` spelling of `IN_TAG` costs
+   * seconds where the quote-safe one costs under a millisecond, which is what
+   * makes a regression fail instead of hang. That form froze `ng update
+   * ngwr@14` on ordinary templates in every 14.x release up to 14.5.0.
+   */
+  describe('an element with no removed intent, followed by ordinary markup', () => {
+    const rows = (lines: number): string[] =>
+      Array.from(
+        { length: lines },
+        (_, i) =>
+          `  <button wr-btn size="sm" type="button" [title]="'row.${i}' | wrT" (click)="pick(${i})"><wr-icon name="x" /></button>`
+      );
+
+    it.each([
+      {
+        shape: 'a button with a surviving intent',
+        element: '<wr-btn color="primary" [disabled]="n > 0">Save</wr-btn>',
+      },
+      { shape: 'a tag with no colour at all', element: `<wr-tag [icon]="'x'" [title]="'it\\'s'">Draft</wr-tag>` },
+      { shape: 'an alert with a bound type', element: `<wr-alert [type]="n > 0 ? 'info' : 'warning'" closable />` },
+    ])('answers at once on $shape', ({ element }) => {
+      const source = ['<div class="wrap">', `  ${element}`, ...rows(4), '</div>', ''].join('\n');
+      const started = performance.now();
+      const { read } = run({ '/src/app/grid.html': source });
+      const elapsed = performance.now() - started;
+
+      expect(read('/src/app/grid.html')).toBe(source);
+      expect(elapsed).toBeLessThan(100);
+    });
+  });
+});

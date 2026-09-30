@@ -196,6 +196,26 @@
     }
   }
 
+  // Outlined, with no intent. Every other outlined rule lives inside the intent
+  // loop below, so before v15 a bare `<wr-btn outlined>` was styled by nothing
+  // at all and painted identically to a plain one — a documented boolean input
+  // with a state in which it did nothing. It went unseen while the neutral
+  // button was rarely drawn; cutting the palette made neutral the answer
+  // wherever a removed intent had been, and the docs page put the two side by
+  // side. Transparent rather than a tint: the border is the whole of what
+  // outlined means here, and the surface behind it belongs to the host.
+  &--outlined {
+    --wr-btn-bg: transparent;
+
+    &:hover {
+      --wr-btn-bg: var(--wr-color-hover);
+    }
+
+    &:active {
+      --wr-btn-bg: var(--wr-color-fill-strong);
+    }
+  }
+
   // Color variants
   // color-ok: a button's intent is emphasis, not a state — the label names the
   // action and the intent only ranks it against its neighbours. A destructive
@@ -220,9 +240,7 @@
       &.wr-btn--outlined {
         // `-ink` is the intent darkened (light) / lightened (dark) until it
         // clears 4.5:1 as its own label — the base hue does not: in light,
-        // warning as a label is 1.71:1. `--wr-color-light-ink` resolves to the
-        // page's own ink, which is why the `light` special case is gone; the
-        // border still carries the intent.
+        // warning as a label is 1.71:1. The border still carries the intent.
         --wr-btn-color: var(--wr-color-#{$name}-ink);
         --wr-btn-bg: transparent;
         --wr-btn-border: rgba(var(--wr-color-#{$name}-rgb), 0.4);
@@ -276,7 +294,7 @@
   // neighbours), which would otherwise double-paint that edge — so drop the
   // seam there and let the raised border own it cleanly.
   // color-ok: not an intent cue — the seam is the same 20% black hairline for
-  // all nine; the loop only picks WHICH segments are solid enough to need it.
+  // all five; the loop only picks WHICH segments are solid enough to need it.
   @each $name in theme.$colors {
     > .wr-btn--#{$name}:not(.wr-btn--outlined):not(:last-child) {
       // `box-shadow` offsets are physical by spec — there is no logical form to
