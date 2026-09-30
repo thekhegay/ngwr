@@ -82,7 +82,7 @@
   &__spinner {
     width: 1.5rem;
     height: 1.5rem;
-    border: 2px solid rgb(var(--wr-color-on-surface-muted-rgb) / 30%);
+    border: 2px solid rgba(var(--wr-color-on-surface-muted-rgb), 0.3);
     border-top-color: var(--wr-color-primary);
     border-radius: 50%;
     animation: wr-card-spin 0.7s linear infinite;
