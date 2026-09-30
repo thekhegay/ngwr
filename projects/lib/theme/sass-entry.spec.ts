@@ -1,10 +1,11 @@
+import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
 /**
- * What `theme.dark` EMITS, compiled rather than read.
+ * What `@use 'ngwr/theme'` GIVES a consumer, compiled rather than read.
  *
  * `styles.spec.ts` next door is source assertions on purpose, and says why. This
  * file is the exception, because the defect it pins is invisible to both halves
@@ -117,5 +118,109 @@ describe('theme.dark', () => {
     expect(
       selectors('.card { @include dark.dark { color: red; } }', " with ($theme-attribute: 'data-color-mode')")
     ).toEqual(['[data-color-mode=dark] .card', ':host-context([data-color-mode=dark]) .card']);
+  });
+});
+
+const THEME = join(process.cwd(), 'projects/lib/theme');
+
+/**
+ * The parameter list of every mixin and function a file declares, by name.
+ *
+ * `()` normalises to empty: `@mixin dark()` and `@mixin dark` take the same
+ * nothing, and a gate that reported those as drift would be noise at exactly
+ * the moment someone reads it.
+ */
+function signatures(file: string): Record<string, string> {
+  const src = readFileSync(file, 'utf8');
+  const out: Record<string, string> = {};
+
+  for (const m of src.matchAll(/^@(mixin|function)\s+([\w-]+)\s*(\([^)]*\))?/gm)) {
+    const params = (m[3] ?? '').replace(/\s+/g, '');
+    out[m[2]] = params === '()' ? '' : params;
+  }
+
+  return out;
+}
+
+describe("the public entry `@use 'ngwr/theme'`", () => {
+  /**
+   * The wrappers in `theme/_index.scss` exist because no Sass language server
+   * follows `@forward` into `node_modules` — the file a consumer's editor
+   * resolves has to DECLARE what it offers. Its own docblock carries the
+   * measurements. What the docblock cannot prevent is the cost it names: a
+   * wrapper is a second copy of a signature, and two copies drift.
+   */
+  const WRAPPED = ['dark', 'smooth-br', 'touch-target', 'focus-ring', 'dark-selector'] as const;
+
+  it('is the file the `exports` map names', () => {
+    const pkg = JSON.parse(readFileSync(join(process.cwd(), 'projects/lib/package.json'), 'utf8')) as {
+      exports: Record<string, { sass?: string }>;
+    };
+
+    // Pointing this back at `theme/styles/_index.scss` would compile exactly the
+    // same and silently take the editor resolution away again.
+    expect(pkg.exports['./theme'].sass).toBe('./theme/_index.scss');
+  });
+
+  it('declares what it offers instead of forwarding it', () => {
+    const declared = signatures(join(THEME, '_index.scss'));
+
+    for (const name of WRAPPED) expect(Object.keys(declared)).toContain(name);
+  });
+
+  it('hides every wrapped name from the forward, or the two collide', () => {
+    const src = readFileSync(join(THEME, '_index.scss'), 'utf8');
+    const hidden = /@forward 'styles' hide ([^;]+);/.exec(src)?.[1];
+
+    expect(hidden).toBeDefined();
+    expect(
+      hidden!
+        .split(',')
+        .map(s => s.trim())
+        .sort()
+    ).toEqual([...WRAPPED].sort());
+  });
+
+  it('forwards BEFORE it uses, or `with (…)` stops configuring', () => {
+    // `@use` above `@forward` makes `@use 'ngwr' with ($theme-attribute: …)` a
+    // build error: "This module was already loaded, so it can't be configured".
+    const src = readFileSync(join(THEME, '_index.scss'), 'utf8');
+
+    expect(src.indexOf("@forward 'styles'")).toBeLessThan(src.indexOf("@use 'styles'"));
+  });
+
+  it('keeps every wrapper signature equal to the one it wraps', () => {
+    const outer = signatures(join(THEME, '_index.scss'));
+    const inner = {
+      ...signatures(join(THEME, 'styles/_dark.scss')),
+      ...signatures(join(THEME, 'styles/_mixins.scss')),
+      ...signatures(join(THEME, 'styles/_focus.scss')),
+    };
+
+    for (const name of WRAPPED) expect([name, outer[name]]).toEqual([name, inner[name]]);
+  });
+
+  it('compiles to exactly what the inner entry compiles to', () => {
+    const body = '.x { @include t.dark { color: red } } .y { @include t.smooth-br(4px); }';
+    const css = (spec: string): string =>
+      sass.compileString(`@use '${spec}' as t; ${body}`, {
+        loadPaths: [join(process.cwd(), 'projects/lib')],
+        style: 'expanded',
+      }).css;
+
+    expect(css('theme')).toBe(css('theme/styles'));
+  });
+
+  it('still carries a renamed `$theme-attribute` through', () => {
+    // The variable is the one member that CANNOT be wrapped, so it stays
+    // forwarded — and the forward has to keep accepting configuration.
+    const css = sass.compileString(
+      `@use 'theme' as t with ($theme-attribute: 'data-color-mode');
+       .card { @include t.dark { color: red } }`,
+      { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' }
+    ).css;
+
+    expect(css).toContain('[data-color-mode=dark] .card');
+    expect(css).not.toContain('[data-theme=dark] .card');
   });
 });

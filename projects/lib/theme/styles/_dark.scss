@@ -49,7 +49,7 @@ $theme-attribute: 'data-theme' !default;
 /// @example scss
 ///   #{dark.dark-selector()} .my-thing { ... }
 @function dark-selector() {
-  @return '[#{$theme-attribute}=\'dark\']';
+  @return "[#{$theme-attribute}='dark']";
 }
 
 /// Wrap a declaration block so it only applies in dark mode, honouring

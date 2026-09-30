@@ -417,7 +417,7 @@
       "sass": "./textarea/styles/_index.scss"
     },
     "./theme": {
-      "sass": "./theme/styles/_index.scss"
+      "sass": "./theme/_index.scss"
     },
     "./tilt-card": {
       "sass": "./tilt-card/styles/_index.scss"
