@@ -286,14 +286,10 @@ export class App {}`,
 @use 'ngwr/theme' with (
   $base-colors: (
     primary: #6366f1,
-    secondary: #ec4899,
     success: #10b981,
     warning: #f59e0b,
     danger: #ef4444,
     info: #3b82f6,
-    light: #e5e7eb,
-    medium: #6b7280,
-    dark: #111827,
   ),
 );`,
   };

@@ -254,7 +254,13 @@ export const STATES: readonly State[] = [
     id: 'tour/step',
     // A service, so its page is under /reference/services rather than /components.
     route: '/reference/services/tour',
-    steps: [{ click: demo('.wr-btn--secondary') }, { wait: 400 }],
+    // By TEXT, not by intent. It used to be `.wr-btn--secondary`, which was
+    // unique only because `secondary` was the one intent this page used twice —
+    // v15 removed that intent and the demo's two buttons are both `primary` now,
+    // so a class selector picks "Save changes" and the tour never opens. A state
+    // that did not paint fails the run, which is how this was caught, but the
+    // label is the honest anchor either way.
+    steps: [{ click: demo('.wr-btn:has-text("Show me around")') }, { wait: 400 }],
     target: '.wr-tour-popup',
     scope: '.wr-tour-popup',
   },

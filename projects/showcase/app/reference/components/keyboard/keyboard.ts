@@ -145,13 +145,13 @@ export class MyComponent {}`,
     {
       name: 'CSS — --wr-kbd-border / --wr-kbd-border-bottom',
       type: 'color',
-      default: '— dark @ 18% / 32%',
+      default: '— on-surface @ 18% / 32%',
       description: 'Side border / chunkier bottom border (the depth illusion).',
     },
     {
       name: 'CSS — --wr-kbd-color',
       type: 'color',
-      default: 'var(--wr-color-dark)',
+      default: 'var(--wr-color-on-surface)',
       description: 'Glyph color.',
     },
     {

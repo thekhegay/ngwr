@@ -4,7 +4,7 @@
   display: block;
   // Match the sidebar's right border so the two divider lines
   // visually connect when the docs layout shows both at once.
-  border-top: 1px solid var(--wr-color-light-lighter);
+  border-top: 1px solid var(--wr-color-border-subtle);
   background: var(--wr-color-white);
 
   &__inner {
@@ -49,7 +49,7 @@
     width: max-content;
 
     > span {
-      color: var(--wr-color-dark);
+      color: var(--wr-color-on-surface);
     }
   }
 
@@ -76,7 +76,7 @@
 
     &-title {
       margin: 0 0 0.25rem;
-      color: var(--wr-color-dark);
+      color: var(--wr-color-on-surface);
       font-size: 0.75rem;
       font-weight: 600;
       letter-spacing: 0.08em;
@@ -107,7 +107,7 @@
   // Bottom row: copyright + version
   &__bottom {
     padding: 1.25rem var(--wr-grid-gutter) 1.5rem;
-    border-top: 1px solid var(--wr-color-light-lighter);
+    border-top: 1px solid var(--wr-color-border-subtle);
     display: flex;
     align-items: center;
     justify-content: space-between;

@@ -224,7 +224,7 @@ export const CSS_VARS = {
   "reference/components/button": {
     subpath: "ngwr/button",
     vars: [
-      { name: "--wr-btn-bg", default: "var(--wr-color-surface)", scope: ".wr-btn", overrides: 8 },
+      { name: "--wr-btn-bg", default: "var(--wr-color-surface)", scope: ".wr-btn", overrides: 11 },
       { name: "--wr-btn-border", default: "var(--wr-color-outline)", scope: ".wr-btn", overrides: 6 },
       { name: "--wr-btn-color", default: "var(--wr-color-on-surface)", scope: ".wr-btn", overrides: 4 },
       { name: "--wr-btn-font-size", default: "var(--wr-control-font-size-md)", scope: ".wr-btn", overrides: 2 },

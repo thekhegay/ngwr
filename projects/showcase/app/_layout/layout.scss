@@ -59,7 +59,7 @@
     padding: 0.5rem var(--wr-grid-gutter);
 
     background: rgba(var(--wr-color-white-rgb), 0.85);
-    border-bottom: 1px solid var(--wr-color-light-lighter);
+    border-bottom: 1px solid var(--wr-color-border-subtle);
     backdrop-filter: blur(8px);
   }
 
@@ -72,13 +72,13 @@
     align-items: center;
     gap: 0.375rem;
 
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
     font-size: 0.875rem;
     font-weight: 600;
     line-height: 1rem;
 
     background: transparent;
-    border: 1px solid var(--wr-color-light-lighter);
+    border: 1px solid var(--wr-color-border-subtle);
     border-radius: 0.375rem;
     padding: 0.375rem 0.625rem;
 

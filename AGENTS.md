@@ -821,6 +821,26 @@ with no modifier, because a hook is typically re-declared by every variant.
 Exactly one hook is declared and never read — `--wr-density-text`, published
 for consumers' own `calc()` — and the generator prints it rather than listing it.
 
+**`check:tokens` asks its question in BOTH directions, and the second one is
+the dangerous half.** The first pass finds a token with no reader. The second
+finds a READER with no token — a `var(--wr-color-…)` at a name the theme never
+declares — and those are not the same check in mirror: a dead declaration is
+untidy, while a dangling read is invalid at computed-value time, so the browser
+drops the WHOLE declaration holding it. `border: 1px solid var(--wr-color-gone)`
+draws no border at all, and nothing says so in the build, the console or a test.
+v15 is why the pass exists: cutting four intents left **220 reads across 71
+files**, nine of them in the SHIPPED library — `wr-gauge`, `wr-knob`,
+`wr-calendar-heatmap` and `wr-line-chart` each drew a neutral track or grid line
+through a token that no longer existed — and every one of the nine gates was
+green. Scope: only the `--wr-color-*` namespace, which the theme layer owns
+entirely; a read in a template or in TypeScript counts, unlike in the first pass,
+because an inline `style` is a live rule and a printed snippet is advice someone
+will paste; a declaration counts from a stylesheet or a template but NEVER from
+TypeScript, since every `--wr-color-…:` in a `.ts` file here is inside a printed
+snippet, and counting those made the check answer that every read of a deleted
+token resolved. `projects/lib/schematics` is skipped whole: a codemod's tables
+and fixtures name the old vocabulary on purpose.
+
 **A token nobody paints with is not a token, and `check:tokens` is a "say why"
 gate rather than a "don't" gate.** `--wr-*` properties are public API, so a token
 the library never reads can still be right to ship — the eleven
@@ -1093,6 +1113,25 @@ that sequence is a position rather than an oversight:
   native attribute and rewriting one that was never ngwr's would silently
   rebind a character-width hint. The published v13 changelog cannot be edited;
   the docs that repeated it were corrected.
+- **v15 ships `migration-v15`, and the split falls somewhere new: the TOKENS
+  are rewritten and the INTENTS are not**, though one change removed both. Three
+  of the four deleted neutral families have a successor carrying the IDENTICAL
+  value in both themes — `--wr-color-light` to `--wr-color-outline`,
+  `--wr-color-dark` to `--wr-color-on-surface`, `--wr-color-muted-text` to
+  `--wr-color-on-surface-muted`, each with its `-rgb` companion — so a rewritten
+  stylesheet paints to the pixel, and `--wr-color-medium` moves one step of the
+  ramp because it was a FILL where the role replacing it is calibrated as TEXT.
+  Rewriting those is not optional: a dangling `var()` drops its whole
+  declaration silently, which is the failure the repo found 220 of in itself.
+  Every use of a removed INTENT is reported instead — `secondary` was a second
+  BRAND colour and no library can pick an app's, while `light` / `medium` /
+  `dark` were fills and what replaced them is a set of roles, so
+  `<wr-btn color="dark">` is not `<wr-btn>`. The intent detector is deliberately
+  NOT anchored to an element, the opposite call from every v14 rule: `color`
+  carrying one of those four values is ngwr's vocabulary and nobody else's, and
+  the alternative is a component list that is wrong the moment the catalog
+  grows. Nothing here steps over a tag, so `IN_TAG` is absent — the timing cases
+  stay anyway, as the guard for whoever adds the first element-scoped rule.
 - **v14 ships `migration-v14`, split down the middle of the rule**, and that
   split is the thing to copy. It REWRITES the six renames — on `<wr-alert>`
   from `closeable` to `closable`, on `<wr-table>` from `totalItems` to `total`,
@@ -1687,7 +1726,8 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
   **v9 `<wr-checkbox>` from `value` to `checkboxValue`**, **v12 from
   `ngwr/date-adapter*` to `ngwr/date/adapters/*`**, **v14 the six vocabulary
   renames, plus a report for the router / locale / `ofLabel` changes no codemod
-  should guess at**), plus **v13, which reports every host-`id` selector on
+  should guess at**, **v15 the four neutral token families, plus a report for
+  every use of a removed intent**), plus **v13, which reports every host-`id` selector on
   `<wr-checkbox>` / `<wr-radio>` / `<wr-switch>` and rewrites nothing** — all
   registered in `schematics/migrations.json`. There is deliberately no
   `migration-v10` or `-v11`; see Versioning for the rule that decides it.

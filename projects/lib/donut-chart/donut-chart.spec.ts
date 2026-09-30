@@ -98,9 +98,13 @@ describe('WrDonutChart', () => {
   });
 
   it('uses the given colour and falls back through the palette', () => {
+    // The fallback list is four intents and the neutral role, in that order.
+    // `info` is deliberately not in it — it is the same blue as `primary` to
+    // every reader — so index 2 is `warning`, where it used to be `success`
+    // behind the `secondary` v15 removed.
     expect(paths()[1].getAttribute('fill')).toBe('#123456');
     expect(paths()[0].getAttribute('fill')).toBe('var(--wr-color-primary)');
-    expect(paths()[2].getAttribute('fill')).toBe('var(--wr-color-success)');
+    expect(paths()[2].getAttribute('fill')).toBe('var(--wr-color-warning)');
   });
 
   it('lists every segment in the legend with its own value', () => {

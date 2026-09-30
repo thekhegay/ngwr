@@ -69,7 +69,7 @@ import type { WrFuzzyTextDirection } from './types';
     '<span class="wr-fuzzy-text__sr-only" [style]="srOnly">{{ text() }}</span>' +
     '<canvas #canvas aria-hidden="true"></canvas>',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-fuzzy-text', '[style.color]': "'var(--wr-color-dark)'" },
+  host: { class: 'wr-fuzzy-text', '[style.color]': "'var(--wr-color-on-surface)'" },
 })
 export class WrFuzzyText {
   /**

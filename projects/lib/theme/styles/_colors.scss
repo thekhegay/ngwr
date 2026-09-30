@@ -203,29 +203,31 @@ $contrast-light: #ffffff !default;
   --wr-color-fill: var(--wr-color-gray-2);
   --wr-color-fill-strong: var(--wr-color-gray-3);
 
-  // De-emphasized text — the muted ink at two strengths, and only the first is
-  // text. `-text-muted` is 0.95, not 0.85: the role itself is 5.35:1 on the
-  // light surface, but wrapping it at 0.85 composited to #778291 — 3.90:1,
-  // under the AA bar. 0.95 is the most softening that still clears it (4.81),
-  // which leaves this token barely distinguishable from the flat role it wraps.
-  // Every library rule that read it was a placeholder, and those read
-  // `--wr-color-placeholder` now; it stays for the muted labels a consumer
-  // writes. `-text-faint` is below every bar — see its marker.
+  // De-emphasized text. Two NAMES and one value, which is the state v15 left
+  // them in and is recorded here rather than tidied away.
+  //
+  // They were a two-strength ramp over the muted ink — `-text-muted` an 0.95
+  // alpha measuring 4.81:1, `-text-faint` a weaker tier at 2.43:1 — and both
+  // now resolve to `--wr-color-gray-5`, the ramp step the neutral roles resolve
+  // to as well. The collapse is not a slip in either direction. The muted tier
+  // was already barely distinguishable from the flat role it wrapped, and the
+  // faint one had exactly three consumers, all of them FAILING: the OTP
+  // placeholder, the textarea resize grip and the avatar spinner, against
+  // 4.5:1 for placeholder text and 3:1 for an affordance and a status
+  // indicator. "Decorative by design" was true of the token and of none of the
+  // three, so the grip and the spinner moved to `-on-surface-muted` and the
+  // placeholder to `--wr-color-placeholder`.
+  //
+  // unused-ok: both, and for one reason. A custom property is public API, so a
+  // consumer with genuinely decorative text keeps something to reach for — but
+  // the library paints with neither, and new code should take the ROLE
+  // (`--wr-color-on-surface-muted`) rather than either of these older names.
+  // No gate can report a GRAPHIC drawn at a faint strength: axe ships no
+  // non-text-contrast rule. A placeholder painted with one is caught only where
+  // `check:contrast`'s probe can reach an at-rest `::placeholder`; every other
+  // placeholder rule is held to `--wr-color-placeholder` at the source, by
+  // `theme/styles.spec.ts`.
   --wr-color-text-muted: var(--wr-color-gray-5);
-  // unused-ok: the library paints with nothing at this strength any more, and
-  // that is the finding rather than an oversight. It had exactly three
-  // consumers — the OTP placeholder, the textarea resize grip and the avatar
-  // spinner — and all three were FAILING: 2.43:1 in light, against 4.5:1 for
-  // placeholder text and 3:1 for an interactive affordance and a status
-  // indicator. "Decorative by design" was true of the token and not of any of
-  // the three, so the grip and the spinner moved to `-on-surface-muted` and the
-  // placeholder to `--wr-color-placeholder`. The tier stays published because a
-  // custom property is public API and a consumer may have genuinely decorative
-  // text; the library, it turns out, has none. No gate reports a GRAPHIC at
-  // this strength — axe has no non-text-contrast rule. A placeholder painted
-  // with it fails `check:contrast`'s probe only where the probe can reach one,
-  // an at-rest `::placeholder`; every other placeholder rule is held to
-  // `--wr-color-placeholder` at the source, by `theme/styles.spec.ts`.
   --wr-color-text-faint: var(--wr-color-gray-5);
 
   // Semantic role aliases over the flipping neutrals — prefer these in new code
@@ -280,11 +282,14 @@ $contrast-light: #ffffff !default;
   // with today. Both are kept: swapping one for the other changes appearance,
   // not just naming.
   --wr-color-outline: var(--wr-color-gray-4);
-  // unused-ok: the channel form of the hairline, kept for a consumer writing
-  // their own `rgba()` rule. The library's twenty-two hand-rolls read it and
-  // moved to `--wr-color-fill*` above, so nothing paints with the channels
-  // today. Until this check stopped counting comments as consumers, the
-  // paragraph at :152 was the only thing keeping it green.
+  // The channel form of the hairline. Its twenty-two hand-rolled readers moved
+  // to `--wr-color-fill*` above and it carried an `unused-ok:` marker for a
+  // release — until v15, when `wr-gauge`, `wr-knob`, `wr-calendar-heatmap` and
+  // `wr-line-chart` landed on it from the other direction: each drew a neutral
+  // track or grid line through `--wr-color-light-rgb`, the intent v15 deleted,
+  // at an alpha this token composites to identically. An alpha is right there
+  // where an opaque step is not — a track sits behind data on whatever surface
+  // the host gives it.
   --wr-color-outline-rgb: var(--wr-color-gray-4-rgb);
 
   // Soft trio per intent (+ `medium` for neutral surfaces) — tokenizes the

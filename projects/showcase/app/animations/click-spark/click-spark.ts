@@ -28,7 +28,7 @@ import {
 })
 export default class ClickSparkPage {
   // Live demo state
-  protected readonly sparkColor = signal('var(--wr-color-dark)');
+  protected readonly sparkColor = signal('var(--wr-color-on-surface)');
   protected readonly sparkCount = signal(8);
   protected readonly sparkRadius = signal(15);
   protected readonly sparkSize = signal(10);
@@ -73,7 +73,7 @@ export default class ClickSparkPage {
       description:
         'Spark stroke colour. Accepts any CSS colour or a var(--wr-…) token, which is resolved against the theme.',
       type: 'string',
-      default: "'var(--wr-color-dark)'",
+      default: "'var(--wr-color-on-surface)'",
     },
     {
       name: 'sparkSize',

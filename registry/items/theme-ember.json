@@ -3,7 +3,7 @@
   "name": "theme-ember",
   "type": "registry:theme",
   "title": "Ember",
-  "description": "Warm and high-contrast: a burnt-orange primary with a red-leaning secondary.",
+  "description": "Warm and high-contrast: a burnt-orange primary with a crimson danger that sits beside it.",
   "author": "ngwr",
   "ngwr": ">=11",
   "cssVars": {
@@ -14,7 +14,14 @@
       "--wr-color-primary-dark": "#9e3c17",
       "--wr-color-primary-darker": "#873314",
       "--wr-color-primary-light": "#ca4c1d",
-      "--wr-color-primary-lighter": "#df5622"
+      "--wr-color-primary-lighter": "#df5622",
+      "--wr-color-danger": "#c02a4a",
+      "--wr-color-danger-rgb": "192, 42, 74",
+      "--wr-color-danger-contrast": "#ffffff",
+      "--wr-color-danger-dark": "#ab2542",
+      "--wr-color-danger-darker": "#96213a",
+      "--wr-color-danger-light": "#d23154",
+      "--wr-color-danger-lighter": "#d74665"
     },
     "dark": {
       "--wr-color-primary": "#ef8a5c",
@@ -23,7 +30,14 @@
       "--wr-color-primary-dark": "#ed7945",
       "--wr-color-primary-darker": "#ea692e",
       "--wr-color-primary-light": "#f19b73",
-      "--wr-color-primary-lighter": "#f4ab8a"
+      "--wr-color-primary-lighter": "#f4ab8a",
+      "--wr-color-danger": "#e2607e",
+      "--wr-color-danger-rgb": "226, 96, 126",
+      "--wr-color-danger-contrast": "#000000",
+      "--wr-color-danger-dark": "#de4a6d",
+      "--wr-color-danger-darker": "#da355b",
+      "--wr-color-danger-light": "#e6768f",
+      "--wr-color-danger-lighter": "#ea8ba1"
     }
   }
 }

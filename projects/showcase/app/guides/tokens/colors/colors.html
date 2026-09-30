@@ -57,7 +57,7 @@
 
   <ngwr-doc-section
     title="Soft set"
-    description="Seven intents (`primary`, `secondary`, `success`, `warning`, `danger`, `info`, `medium` — **not** `light` or `dark`) also expose a soft set: a low-alpha fill, a matching hairline, a pressed tint, and a readable same-hue text color. Every alpha lives in exactly one place, so soft surfaces stay consistent everywhere."
+    description="All five intents (`primary`, `success`, `warning`, `danger`, `info`) also expose a soft set: a low-alpha fill, a matching hairline, a pressed tint, and a readable same-hue text color. Every alpha lives in exactly one place, so soft surfaces stay consistent everywhere."
   >
     <div style="display: flex; flex-direction: column; gap: 0.5rem">
       @for (intent of softIntents; track intent) {
@@ -97,7 +97,7 @@
 
   <ngwr-doc-section
     title="Semantic neutrals"
-    description="Theme-aware tokens for the chrome around your content — surfaces, dividers, scrims, and muted text. These are not per-intent; there is one canonical token for each job. The borders and the hover tint are built on the flipping `light` channel, so they adapt to dark mode automatically; muted text has its own base (`--wr-color-muted-text`, re-tuned per theme) because as text it needs contrast the `medium` fill cannot give it."
+    description="Theme-aware tokens for the chrome around your content — surfaces, dividers, scrims, and muted text. These are not per-intent; there is one canonical token for each job. They are built on the six-step neutral ramp (`--wr-color-gray-1` … `-6`), which each theme SETS rather than derives, so they adapt to dark mode automatically: the borders read the hairline step `--wr-color-gray-4`, the hover tint the wash `--wr-color-gray-2`, and muted text its own step `--wr-color-gray-5`, which is tuned as text rather than as a fill."
   >
     <div
       style="
@@ -113,12 +113,12 @@
       <div
         style="
           padding: 0.625rem 0.875rem;
-          color: var(--wr-color-dark);
+          color: var(--wr-color-on-surface);
           border-bottom: 1px solid var(--wr-color-border-subtle);
           font-weight: 600;
         "
       >
-        Surface on <code>--wr-color-white</code>, text in <code>--wr-color-dark</code>
+        Surface on <code>--wr-color-white</code>, text in <code>--wr-color-on-surface</code>
       </div>
       <div
         style="
@@ -136,7 +136,7 @@
         style="
           padding: 0.625rem 0.875rem;
           background: var(--wr-color-hover);
-          color: var(--wr-color-dark);
+          color: var(--wr-color-on-surface);
           border-top: 1px solid var(--wr-color-border-strong);
         "
       >
@@ -150,7 +150,7 @@
 
   <ngwr-doc-section
     title="Gray ramp"
-    description="A fixed neutral primitive — slate from `50` (subtlest surface tint) to `950` (strongest ink). Unlike the semantic neutrals it does **not** flip in dark mode; each step is a stable building block. Reach for the role aliases below when you want a value that adapts to the theme."
+    description="A fixed neutral primitive — slate from `50` (subtlest surface tint) to `950` (strongest ink). Not to be confused with the six-step `--wr-color-gray-1` … `-6` ramp the semantic neutrals are built on: that one is re-set per theme, this one does **not** flip in dark mode, and each step here is a stable building block. Reach for the role aliases below when you want a value that adapts to the theme."
   >
     <div style="display: flex; flex-wrap: wrap; gap: 0.25rem">
       @for (step of grayRamp; track step) {
@@ -168,7 +168,7 @@
 
   <ngwr-doc-section
     title="Role aliases"
-    description="Intent-free semantic roles layered over the flipping neutrals. Prefer these in new code for surface / text jobs — they resolve through `white` / `dark` / `muted-text`, each of which is re-tuned for the dark canvas, so they adapt to dark mode for free. The underlying `--wr-color-white` / `-dark` / `-muted-text` primitives stay available."
+    description="Intent-free semantic roles layered over the flipping neutrals. Prefer these in new code for surface / text jobs — they resolve through `white` and the neutral ramp (`gray-6` ink, `gray-5` muted, `gray-4` hairline), each of which is re-set for the dark canvas, so they adapt to dark mode for free. The underlying `--wr-color-white` and `--wr-color-gray-*` primitives stay available."
   >
     <ngwr-doc-api [rows]="roleTokens" />
     <ngwr-doc-code [code]="snippets.roles" language="scss" />
@@ -181,11 +181,12 @@
     <ngwr-doc-api [rows]="fillTokens" />
 
     <p>
-      These read <code>--wr-color-light-rgb</code> rather than <code>--wr-color-outline-rgb</code>, even though the two
-      resolve to the same channel. A fill is not a hairline: when 33 declarations across 22 files hand-rolled this wash
-      out of the outline channel, retuning outlines for their own job would have moved every one of them — and one
-      measured pair in <code>wr-table</code> drops from 6.58:1 to 4.05:1 that way. Reach for
-      <code>--wr-color-outline</code> when you are drawing a rule, and for these when you are filling a shape.
+      These are their own steps of the neutral ramp — <code>--wr-color-gray-1</code> to <code>-3</code> — rather than an
+      alpha over the hairline channel, which is the bug the scale exists to prevent. A fill is not a hairline: when 33
+      declarations across 22 files hand-rolled this wash out of the outline channel, retuning outlines for their own job
+      would have moved every one of them — and one measured pair in <code>wr-table</code> drops from 6.58:1 to 4.05:1
+      that way. Reach for <code>--wr-color-outline</code> when you are drawing a rule, and for these when you are
+      filling a shape.
     </p>
   </ngwr-doc-section>
 
@@ -215,14 +216,14 @@
           flex: 1 1 14rem;
           padding: 1rem;
           background: var(--wr-color-white);
-          color: var(--wr-color-dark);
+          color: var(--wr-color-on-surface);
           border: 1px solid var(--wr-color-border);
           border-radius: 0.5rem;
         "
       >
         <strong>Same markup, current theme</strong>
         <p style="margin: 0.5rem 0 0; color: var(--wr-color-text-muted); font-size: 0.875rem">
-          surface = <code>--wr-color-white</code>, text = <code>--wr-color-dark</code>
+          surface = <code>--wr-color-white</code>, text = <code>--wr-color-on-surface</code>
         </p>
       </div>
 
@@ -232,7 +233,7 @@
           flex: 1 1 14rem;
           padding: 1rem;
           background: var(--wr-color-white);
-          color: var(--wr-color-dark);
+          color: var(--wr-color-on-surface);
           border: 1px solid var(--wr-color-border);
           border-radius: 0.5rem;
         "

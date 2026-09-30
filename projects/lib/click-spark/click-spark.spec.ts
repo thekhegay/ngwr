@@ -16,7 +16,7 @@ import { WrClickSpark } from './click-spark';
 })
 class Host {
   readonly sparkCount = signal(8);
-  readonly sparkColor = signal('var(--wr-color-dark)');
+  readonly sparkColor = signal('var(--wr-color-on-surface)');
   readonly duration = signal(400);
 }
 
@@ -325,7 +325,7 @@ describe('WrClickSpark', () => {
     // Canvas `strokeStyle` cannot read a custom property, so the component has to
     // resolve the token itself; a spark painted with the literal string `var(…)`
     // would be invisible.
-    host().style.setProperty('--wr-color-dark', 'rgb(1, 2, 3)');
+    host().style.setProperty('--wr-color-on-surface', 'rgb(1, 2, 3)');
 
     const t0 = clickAt();
     runFrame(t0, 1);
