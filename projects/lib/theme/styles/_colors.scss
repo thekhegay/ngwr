@@ -172,7 +172,7 @@ $contrast-light: #ffffff !default;
 @mixin derived() {
   // Generic subtle hover-surface tint (icon buttons, list rows) — one place
   // so the hover strength stays consistent everywhere.
-  --wr-color-hover: var(--wr-color-gray-1);
+  --wr-color-hover: var(--wr-color-gray-2);
 
   // Border / divider strengths — translucent so they read on any surface and
   // auto-adapt in dark (via the flipping `light` channels). One place each.
@@ -209,8 +209,8 @@ $contrast-light: #ffffff !default;
   // these are not `--wr-color-border-*` under a new name: those three carry the
   // right VALUES under the wrong noun.
   --wr-color-fill-subtle: var(--wr-color-gray-1);
-  --wr-color-fill: var(--wr-color-gray-1);
-  --wr-color-fill-strong: var(--wr-color-gray-1);
+  --wr-color-fill: var(--wr-color-gray-2);
+  --wr-color-fill-strong: var(--wr-color-gray-3);
 
   // De-emphasized text — the muted ink at two strengths, and only the first is
   // text. `-text-muted` is 0.95, not 0.85: the role itself is 5.35:1 on the
@@ -220,7 +220,7 @@ $contrast-light: #ffffff !default;
   // Every library rule that read it was a placeholder, and those read
   // `--wr-color-placeholder` now; it stays for the muted labels a consumer
   // writes. `-text-faint` is below every bar — see its marker.
-  --wr-color-text-muted: var(--wr-color-gray-3);
+  --wr-color-text-muted: var(--wr-color-gray-5);
   // unused-ok: the library paints with nothing at this strength any more, and
   // that is the finding rather than an oversight. It had exactly three
   // consumers — the OTP placeholder, the textarea resize grip and the avatar
@@ -235,7 +235,7 @@ $contrast-light: #ffffff !default;
   // with it fails `check:contrast`'s probe only where the probe can reach one,
   // an at-rest `::placeholder`; every other placeholder rule is held to
   // `--wr-color-placeholder` at the source, by `theme/styles.spec.ts`.
-  --wr-color-text-faint: var(--wr-color-gray-3);
+  --wr-color-text-faint: var(--wr-color-gray-5);
 
   // Semantic role aliases over the flipping neutrals — prefer these in new code
   // for intent-free surface / text / outline jobs. They resolve through
@@ -255,9 +255,9 @@ $contrast-light: #ffffff !default;
   // reach back down to a literal.
   --wr-color-surface: var(--wr-color-white);
   --wr-color-surface-rgb: var(--wr-color-white-rgb);
-  --wr-color-on-surface: var(--wr-color-gray-4);
+  --wr-color-on-surface: var(--wr-color-gray-6);
   --wr-color-on-surface-rgb: var(--wr-color-dark-rgb);
-  --wr-color-on-surface-muted: var(--wr-color-gray-3);
+  --wr-color-on-surface-muted: var(--wr-color-gray-5);
   --wr-color-on-surface-muted-rgb: var(--wr-color-muted-text-rgb);
 
   // Placeholder text — its own role because placeholders are where the catalog
@@ -288,7 +288,7 @@ $contrast-light: #ffffff !default;
   // surface — `outline` is the opaque one components actually draw 1px rules
   // with today. Both are kept: swapping one for the other changes appearance,
   // not just naming.
-  --wr-color-outline: var(--wr-color-gray-2);
+  --wr-color-outline: var(--wr-color-gray-4);
   // unused-ok: the channel form of the hairline, kept for a consumer writing
   // their own `rgba()` rule. The library's twenty-two hand-rolls read it and
   // moved to `--wr-color-fill*` above — deliberately off `light-rgb`, for the
@@ -489,24 +489,18 @@ $contrast-light: #ffffff !default;
   // them further apart rather than closer — the `medium` fill went deeper
   // (#6a7683, whose label is now white at 4.63) while this token stayed where a
   // light canvas needs it. Aliasing them left secondary text at 2.69:1.
-  // The neutral ramp. Four steps, and the number means DISTANCE FROM THE CANVAS
-  // rather than lightness, so `gray-1` is the faintest wash and `gray-4` is body
-  // text in both themes. The dark block mirrors the four values, which is why a
-  // component writes one number and never a theme.
-  //
-  // FOUR and not five, and that is forced rather than chosen: a mirrored ramp of
-  // odd length has a middle step that maps to itself, and the middle here would
-  // be muted text — which has to flip, or it reads at 3.52:1 on the dark canvas
-  // against the 7.64:1 it holds today. The intents keep five because their
-  // middle is a mid-tone that may be the same in both themes.
-  //
-  // Every value is what the role it replaces paints TODAY, so the light theme
-  // does not move: `#eff2f6` is the fill, `#cbd5e1` the hairline, `#5f6c7d` the
-  // muted text, `#0f172a` the ink.
-  --wr-color-gray-1: #eff2f6;
-  --wr-color-gray-2: #cbd5e1;
-  --wr-color-gray-3: #5f6c7d;
-  --wr-color-gray-4: #0f172a;
+  // The neutral ramp. Six steps from the faintest wash to body text, and the
+  // dark theme sets its own six rather than deriving them: a derived ramp has to
+  // be symmetric in what its ends are FOR, and this one is not — four of the six
+  // are tints crowded near the canvas while two are text. Values here are what
+  // the roles they replace paint today, composited on each theme's canvas, so
+  // nothing moves.
+  --wr-color-gray-1: #f7f9fb;
+  --wr-color-gray-2: #eff2f6;
+  --wr-color-gray-3: #e2e8ef;
+  --wr-color-gray-4: #cbd5e1;
+  --wr-color-gray-5: #5f6c7d;
+  --wr-color-gray-6: #0f172a;
 
   // Neutral gray ramp — a FIXED primitive scale (slate). Each step is a stable
   // job (50 = subtlest surface tint … 950 = strongest ink) and, unlike the

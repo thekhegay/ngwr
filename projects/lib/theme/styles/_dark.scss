@@ -171,12 +171,14 @@ $_medium: #6d7682;
 $_dark: #e6ebf3;
 
 #{dark-selector()} {
-  // The neutral ramp, mirrored. Same four values in the opposite order, because
-  // the step means distance from the canvas and the canvas has moved.
-  --wr-color-gray-1: #0f172a;
-  --wr-color-gray-2: #5f6c7d;
-  --wr-color-gray-3: #cbd5e1;
-  --wr-color-gray-4: #eff2f6;
+  // The neutral ramp for the dark canvas. Set, not derived — see the note at the
+  // light declarations. Same values these roles composite to today.
+  --wr-color-gray-1: #0f1625;
+  --wr-color-gray-2: #131a2b;
+  --wr-color-gray-3: #1a2234;
+  --wr-color-gray-4: #262f44;
+  --wr-color-gray-5: #9aa6b8;
+  --wr-color-gray-6: #e6ebf3;
 
   // Canvas (was `--wr-color-white` in light mode)
   // Deeper than slate-900 so an elevated surface in slate-800 reads
