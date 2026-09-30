@@ -60,6 +60,21 @@ function loaded(entry: string): string[] {
 }
 
 /** Every `<name>/styles/_index.scss` under `projects/lib` — the public Sass entries. */
+/** Every `.scss` under `dir`, so a check can read the whole library at once. */
+function scssFiles(dir: string): string[] {
+  const out: string[] = [];
+  const walk = (at: string): void => {
+    for (const name of readdirSync(at)) {
+      if (name === 'node_modules') continue;
+      const full = join(at, name);
+      if (statSync(full).isDirectory()) walk(full);
+      else if (full.endsWith('.scss')) out.push(full);
+    }
+  };
+  walk(dir);
+  return out;
+}
+
 function styleEntries(): string[] {
   const out: string[] = [];
   const walk = (dir: string): void => {
@@ -227,6 +242,35 @@ describe('the dark block is keyed on the configured attribute', () => {
       'tilt-card',
       'waves',
     ]);
+  });
+});
+
+describe('a channel-list token is never used in slash form', () => {
+  /**
+   * `--wr-color-*-rgb` holds `95, 108, 125` — three comma-separated numbers, not a
+   * colour. CSS Color 4 allows `rgb(r g b / a)` with SPACES or the legacy
+   * `rgba(r, g, b, a)` with commas, and mixing the two is invalid: `rgb(95, 108,
+   * 125 / 30%)` parses as nothing and the declaration is dropped.
+   *
+   * It shipped twice — `.wr-card__spinner`'s ring and `.wr-loading-bar__fill`'s
+   * glow — and both painted black for as long as they existed. Nothing caught it:
+   * stylelint's `color-function-notation` and `alpha-value-notation` are null on
+   * purpose, `check:contrast` measures text and target size, and a dropped
+   * declaration leaves no trace in a build log. Measured in Chromium before the
+   * fix: `rgb(var(--ch) / 30%)` computes to `rgb(0, 0, 0)`.
+   */
+  it('has no `rgb(var(--…-rgb) / a)` anywhere in the library', () => {
+    const offenders: string[] = [];
+
+    for (const file of scssFiles(LIB)) {
+      const src = code(file);
+
+      for (const m of src.matchAll(/rgba?\(\s*var\(--wr-[\w-]+-rgb\)\s*\/[^)]*\)/g)) {
+        offenders.push(`${relative(LIB, file)}: ${m[0]}`);
+      }
+    }
+
+    expect(offenders).toEqual([]);
   });
 });
 
