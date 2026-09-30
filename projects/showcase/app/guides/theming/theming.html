@@ -47,6 +47,13 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Dark mode in a component stylesheet"
+    description="The same mixin, and it emits TWO rules to get there. Angular's emulated encapsulation appends `_ngcontent-…` to every compound of a selector, the ancestor included, so a plain `[data-theme=\'dark\'] .login` is shimmed into `[data-theme=dark][_ngcontent-x] .login[_ngcontent-x]` — and `&lt;html&gt;` carries no such attribute, so the rule compiles, ships, and matches nothing. `:host-context()` is the one form Angular leaves the ancestor untagged in, so the mixin writes both and lets whichever cannot match in a given compilation sit inert. Two rules rather than one selector list, deliberately: `:host-context()` is Chromium-only, and an unknown pseudo-class invalidates the whole list it sits in, so sharing one would take the working arm down with it wherever the pseudo-class reaches a browser instead of being compiled away."
+  >
+    <ngwr-doc-code [code]="snippets.componentDark" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Rebrand — at compile time"
     description="Pass your hex values to the SCSS palette module before `@use 'ngwr'`. NGWR re-derives all variants (dark, darker, light, lighter, contrast) — **in the light theme, which is the whole of what `$base-colors` configures.** Dark mode does not follow, and that is a boundary rather than an oversight: the dark intents are hand-tuned for the dark canvas, not lightened from the light ones. `success` and `danger` are moved 33% and 21% so their labels can go white on a dark ground, `warning` is deliberately left where it is because white cannot reach it at any tone worth shipping, and `primary` is deepened for the same flip — a direction no formula would take on its own. Deriving dark from your seed would swap a visibly wrong colour for an invisible failing contrast ratio, so the library refuses to guess and hands you the same arithmetic instead: `theme.rebrand()`, wrapped in `theme.dark`. Pick the dark seed FOR the dark canvas — usually lighter than the light one — and measure it."
   >

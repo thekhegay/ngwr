@@ -1,0 +1,13 @@
+// `@use 'ngwr/theme'` resolved by PATH, for editors.
+//
+// The build resolves that specifier through the `sass` condition of this
+// package's `exports` map, which points at `theme/styles/_index.scss`. Sass
+// language servers do not read `exports`: they take the specifier as a path
+// under `node_modules`, look for `ngwr/theme/_index.scss`, find nothing, and
+// report `theme.dark` as an unknown mixin — in an editor, on a line that
+// compiles. This file is that path.
+//
+// A forward and nothing else. `exports` stays pointed at the real entry so the
+// build keeps one canonical URL for the module, and this alias adds no second
+// place for a declaration to live.
+@forward 'styles';
