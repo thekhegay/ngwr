@@ -1,4 +1,6 @@
 @use 'sass:color';
+@use 'sass:list';
+@use 'sass:selector';
 
 @use 'colors';
 @use 'variables';
@@ -64,13 +66,67 @@ $theme-attribute: 'data-theme' !default;
 ///       background: #0b1120;
 ///     }
 ///   }
+///
+/// Two rules come out, not one, and the second is what makes this usable inside
+/// an Angular COMPONENT stylesheet. Emulated encapsulation appends
+/// `_ngcontent-…` to every compound of a selector, the ancestor included, so
+/// `[data-theme='dark'] .my-card` is shimmed to
+/// `[data-theme=dark][_ngcontent-x] .my-card[_ngcontent-x]` — and `<html>`
+/// carries no such attribute, so the rule compiles, ships, and matches nothing,
+/// forever. `:host-context()` is the one form Angular leaves the ancestor
+/// untagged in. Neither arm can serve both compilations, so both are emitted,
+/// and the one that cannot match in a given context is inert rather than wrong:
+/// nothing in a global stylesheet is ever inside a `:host-context()`, and in a
+/// component stylesheet the plain ancestor was already dead.
+///
+/// `:host-context()` is Chromium-only — Firefox and Safari have never shipped
+/// it, and the CSS WG removed it from the spec — which is fine here and is the
+/// reason for two RULES rather than one comma-separated selector. Where the
+/// pseudo-class does the work it never reaches a browser: Angular resolves it at
+/// BUILD time into plain attribute selectors. Where it does reach one (a global
+/// stylesheet, or a `ViewEncapsulation.None` component) it is an unknown
+/// pseudo-class, and an unknown pseudo-class invalidates the entire selector
+/// list it sits in — so a single list would have taken the working arm down with
+/// it and stopped dark mode in two of the three engines.
 @mixin dark() {
+  $ancestor: dark-selector();
+  $context: ':host-context(#{$ancestor})';
+
   @if & {
-    @at-root #{dark-selector()} #{&} {
+    // `selector.nest`, not `#{$ancestor} #{&}` — interpolating a selector LIST
+    // renders it as `.a, .b`, so the ancestor would bind to the first arm only
+    // and `.b` would escape into the light theme.
+    @at-root #{selector.nest($ancestor, &)} {
+      @content;
+    }
+
+    // Arm by arm, because one list can mix the two shapes. A `:host` arm takes
+    // the context IN PLACE of itself — `:host-context(…) :host` is a host inside
+    // a host and matches nothing — while every other arm takes it as an
+    // ancestor. Running `selector.replace` over the whole list instead would
+    // leave the `.z` of a `:host, .z` list with no dark condition at all, which
+    // paints it in BOTH themes: worse than the bug being fixed.
+    $hosted: ();
+
+    @each $arm in & {
+      $dark-arm: selector.nest($context, $arm);
+
+      @if list.nth($arm, 1) == ':host' {
+        $dark-arm: selector.replace($arm, ':host', $context);
+      }
+
+      $hosted: list.append($hosted, $dark-arm, comma);
+    }
+
+    @at-root #{$hosted} {
       @content;
     }
   } @else {
-    #{dark-selector()} {
+    #{$ancestor} {
+      @content;
+    }
+
+    #{$context} {
       @content;
     }
   }

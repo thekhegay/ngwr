@@ -175,6 +175,30 @@ one component folder. Reach for them instead of hand-rolling:
   the LIBRARY is built, so the attribute in it can only ever be the default, and
   Angular appends that copy after the app's linked sheet, where it would outrank
   the correctly named rule. `theme/styles.spec.ts` gates both halves.
+  **`theme.dark` emits TWO rules and the second is what makes it usable in a
+  CONSUMER's component stylesheet** — emulated encapsulation appends
+  `_ngcontent-…` to every compound of a selector, the ancestor included, so a
+  plain `[data-theme='dark'] .card` ships as
+  `[data-theme=dark][_ngcontent-x] .card[_ngcontent-x]` and `<html>` has no such
+  attribute: it compiled, shipped, and matched nothing for as long as the mixin
+  existed, and the showcase's own header worked around it by hand rather than
+  carrying the fix back. `:host-context()` is the one form Angular leaves the
+  ancestor untagged in, so both are written and the arm that cannot match in a
+  given compilation is inert. They are two RULES rather than one comma list
+  because `:host-context()` is Chromium-only and an unknown pseudo-class
+  invalidates the list it sits in — one list would have taken the working arm
+  down with it in Firefox and Safari, everywhere the pseudo-class reaches a
+  browser instead of being compiled away. `theme/dark-mixin.spec.ts` compiles the
+  mixin and pins all of it, including the two shapes a single `selector.replace`
+  or a bare `#{&}` would get wrong. Two things it cannot fix and the docs state
+  instead: a component stylesheet is its OWN Sass compilation, so a renamed
+  `$theme-attribute` has to be re-stated in every one of them, and `@use
+  'ngwr/theme'` there brings a second, shimmed-dead copy of the token layer with
+  it — 24 kB minified.
+  **`ngwr/theme` resolves through `exports`, and editors do not read `exports`**,
+  so `theme/_index.scss` is a forward-only twin at the plain path a Sass language
+  server looks for. Without it `theme.dark` was an unknown mixin in the editor on
+  a line that compiles.
   **`wrThemeTokens()` is the palette recipe in TypeScript** — the same arithmetic
   as `_colors.scss`, for a theme chosen at RUNTIME (a builder, a tenant colour, a
   registry preset). It emits **seven tokens per intent, not twelve**: the tint and

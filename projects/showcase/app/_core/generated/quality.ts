@@ -43,10 +43,10 @@ export const QUALITY = {
   directives: 39,
 
   /** `*.spec.ts` files under `projects/lib`, harness specs included. They sit beside the code they cover, and `tsconfig.lib.json` excludes them from the package. */
-  specFiles: 302,
+  specFiles: 303,
 
   /** Test cases those files DECLARE — `it(…)` / `test(…)` call sites, counted after comments and string bodies are stripped. */
-  testCases: 5357,
+  testCases: 5364,
 
   /** Whether `testCases` is a total or a floor. A parameterised form (`it.each`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page says "at least" rather than failing a documentation build over a legal spec. */
   testCasesAreExact: false,
@@ -73,11 +73,12 @@ export const QUALITY = {
     { name: "check:registry", command: "tsx scripts/check-registry.ts" },
     { name: "check:tokens", command: "tsx scripts/check-tokens.ts" },
     { name: "check:color-only", command: "tsx scripts/check-color-only.ts" },
+    { name: "check:selectors", command: "tsx scripts/gen-selectors.ts --check" },
   ],
 
   /** Every `package.json` script `.github/workflows/ci.yml` runs on a pull request, in order. Parsed from the workflow, so a gate added or removed there moves this list. */
   prGates: [
-    { name: "lint", command: "ng lint && eslint scripts && pnpm lint:styles && pnpm check:colors && pnpm check:rtl && pnpm check:registry && pnpm check:tokens && pnpm check:color-only" },
+    { name: "lint", command: "ng lint && eslint scripts && pnpm lint:styles && pnpm check:colors && pnpm check:rtl && pnpm check:registry && pnpm check:tokens && pnpm check:color-only && pnpm check:selectors" },
     { name: "test:coverage", command: "ng test lib --coverage --coverage-reporters lcovonly text-summary" },
     { name: "check:api-docs", command: "tsx scripts/gen-api-docs.ts --check" },
     { name: "check:llms", command: "tsx scripts/gen-ai-assets.ts --check" },

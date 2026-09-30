@@ -193,6 +193,39 @@ theme.resolved();          // 'light' | 'dark' — what the DOM has
   --wr-color-dark: #f5f6f8;
 }`,
 
+    componentDark: `// login.scss — a component stylesheet, not the global one.
+@use 'ngwr/theme' as theme;
+
+.login {
+  --mp-login-bg: var(--wr-color-gray-100);
+
+  @include theme.dark {
+    --mp-login-bg: var(--wr-color-gray-800);
+  }
+}
+
+// What comes out:
+//
+//   [data-theme='dark'] .login                 { ... }  // global stylesheets
+//   :host-context([data-theme='dark']) .login  { ... }  // component ones
+//
+// :host takes the context IN PLACE of itself, so component-level custom
+// properties work the same way:
+//
+//   :host { @include theme.dark { --mp-login-bg: #0b1120; } }
+//
+// Two things a global stylesheet does not have to think about:
+//
+// 1. Renamed the attribute? Re-state it HERE as well — Sass configuration is
+//    per compilation and every component stylesheet is its own, so the
+//    \`@use 'ngwr' with (...)\` in styles.scss never reaches this file:
+//      @use 'ngwr/theme' as theme with ($theme-attribute: 'data-color-mode');
+//
+// 2. \`@use 'ngwr/theme'\` brings the token layer with it, and in a separate
+//    compilation that is a second copy — 24 kB minified, shimmed to selectors
+//    that cannot match, so it paints nothing. Reach for it in the components
+//    that need the mixin, not as a habit.`,
+
     attribute: `// The attribute is configurable, and it has TWO halves that must agree.
 // A CSS selector cannot read a provider value, so the stylesheet takes the
 // same name as a Sass variable. Set one without the other and dark mode
