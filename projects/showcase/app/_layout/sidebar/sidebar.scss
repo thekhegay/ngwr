@@ -3,8 +3,6 @@
 @use 'showcase/styles/badge';
 
 :host {
-  --ngwr-sidebar-width: 14rem;
-
   // Below `md` the host renders inside the layout's wr-drawer and just
   // fills the panel; the sticky-column chrome is desktop-only.
   display: block;
@@ -14,35 +12,22 @@
 
   padding: 1.5rem 0.75rem 2rem;
 
-  // `sticky` here resolves against the document scroller, and every ngwr
-  // overlay that blocks scroll (dialog, drawer, action-sheet, lightbox, and
-  // the sheet-mode select / dropdown / popover) takes that scroller away:
-  // CDK's `BlockScrollStrategy` puts `position: fixed` on `<html>` with
-  // `top: -<scrollY>px`. Read cold that looks like it must drop this column
-  // to its static position — i.e. off the top of the screen by however far
-  // the page was scrolled.
-  //
-  // It does not, in Chromium. Measured on `/reference/components/dialog` at
-  // 1280x900, 1280x640 and 1024x800, scrolled 700–1200px: opening the dialog
-  // moves nothing — a rect diff over all 1065 elements outside the overlay
-  // container reports zero, across 145 consecutive animation frames, with
-  // this host's own `scrollTop` and `documentElement.clientWidth` unchanged
-  // either side. Chromium keeps a sticky offset resolved at the frozen scroll
-  // position, and `.cdk-global-scrollblock` carries `overflow-y: scroll` so
-  // the gutter survives too. Same result for drawer, action-sheet and
-  // lightbox, which share the one CDK strategy.
-  //
-  // So: not a defect to chase here. If a jump does turn up in another engine,
-  // the fix is to stop depending on the document scroller (fix the column and
-  // reserve its track on the grid), not to weaken the dialog's scroll block —
-  // `block()` is what makes a modal modal.
+  // `sticky` against the document scroller, which every overlay that blocks
+  // scroll takes away — CDK's `BlockScrollStrategy` puts `position: fixed` on
+  // `<html>`. Where that drops this column to its static position, the global
+  // `html.cdk-global-scrollblock` block in `styles.scss` pins it instead; the
+  // long version of why is written there. Chromium does not need it and is
+  // not harmed by it, which is how the problem survived a measurement here.
   @include bp.media-up(md) {
     position: sticky;
     height: calc(100vh - var(--ngwr-header-height, 4rem));
     top: var(--ngwr-header-height, 4rem);
 
     align-self: start;
-    width: var(--ngwr-sidebar-width);
+    // Inherited from `.ngwr-layout`, which declares it because its grid track
+    // needs the same number. The fallback is for the copy of this host that
+    // renders inside the mobile drawer, outside that grid.
+    width: var(--ngwr-sidebar-width, 14rem);
 
     border-right: 1px solid var(--wr-color-border-subtle);
   }

@@ -55,6 +55,60 @@ html {
   scrollbar-gutter: stable;
 }
 
+// Every sticky element on the page, pinned a second way while an overlay
+// blocks the scroll.
+//
+// CDK's `BlockScrollStrategy` puts `position: fixed; top: -<scrollY>px` on
+// `<html>`, which takes the document scroller away — and `position: sticky`
+// has nothing left to stick to, so the header, the section column and the
+// mobile bar all drop to their static positions, which is `scrollY` pixels
+// above the top of the screen. What a reader sees is the header gone and the
+// bottom edge of the sidebar poking into the top-left corner.
+//
+// This repo's own Chromium does NOT do that — it keeps each sticky offset
+// resolved at the frozen scroll position, which is why the sidebar carried a
+// comment saying the problem was measured and absent. It was measured in one
+// engine. The behaviour is not something a page may rely on either way, so
+// the fix is the one that comment already named: stop depending on the
+// document scroller.
+//
+// `fixed` resolves against the viewport whatever `<html>` is doing — a fixed
+// ancestor does not become a containing block for a fixed descendant — so
+// each element pins exactly where sticky was holding it, and where sticky
+// already worked nothing moves at all. Scoped to the class so it costs
+// nothing the rest of the time, and GLOBAL rather than `:host-context()`,
+// which is Chromium-only and would fix the bug in the one browser that does
+// not have it.
+//
+// Taking an element out of flow leaves a hole, so each one is paid for: the
+// header's height is reserved on the shell (exact by then — the measurement
+// has long since run, which is why this is not the permanent shape), and the
+// sidebar's track is explicit on the grid at every width (see layout.scss),
+// so its column cannot collapse.
+html.cdk-global-scrollblock {
+  ngwr-root {
+    padding-block-start: var(--ngwr-header-height, 4rem);
+  }
+
+  ngwr-header {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+  }
+
+  .ngwr-layout__sidebar {
+    position: fixed;
+    inset-block-start: var(--ngwr-header-height, 4rem);
+    inset-inline-start: 0;
+  }
+
+  .ngwr-layout__mobile-bar {
+    position: fixed;
+    inset-block-start: var(--ngwr-header-height, 4rem);
+    inset-inline: 0;
+  }
+}
+
 body {
   margin: 0;
   font-family: var(--wr-font-family-base);
