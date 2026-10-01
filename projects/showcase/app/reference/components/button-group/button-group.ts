@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrButton, WrButtonGroup } from 'ngwr/button';
 
@@ -10,8 +10,6 @@ import {
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
-
-type Align = 'left' | 'center' | 'right';
 
 @Component({
   selector: 'ngwr-button-group-page',
@@ -27,8 +25,6 @@ type Align = 'left' | 'center' | 'right';
   ],
 })
 export default class ButtonGroupComponent {
-  protected readonly align = signal<Align>('left');
-
   protected readonly snippets = {
     install: `import { WrButtonGroup } from 'ngwr/button';
 
@@ -42,11 +38,6 @@ export class MyComponent {}`,
     colors: `<wr-btn-group>
   <button wr-btn color="primary">Save</button>
   <button wr-btn color="primary">Save & Continue</button>
-</wr-btn-group>`,
-    toggle: `<wr-btn-group>
-  <button wr-btn [color]="align() === 'left' ? 'primary' : null" (click)="align.set('left')">Left</button>
-  <button wr-btn [color]="align() === 'center' ? 'primary' : null" (click)="align.set('center')">Center</button>
-  <button wr-btn [color]="align() === 'right' ? 'primary' : null" (click)="align.set('right')">Right</button>
 </wr-btn-group>`,
     shape: `<wr-btn-group shape="rounded">
   <button wr-btn>One</button>
@@ -76,12 +67,4 @@ export class MyComponent {}`,
       default: 'null',
     },
   ];
-
-  protected colorFor(value: Align): 'primary' | null {
-    return this.align() === value ? 'primary' : null;
-  }
-
-  protected setAlign(value: Align): void {
-    this.align.set(value);
-  }
 }

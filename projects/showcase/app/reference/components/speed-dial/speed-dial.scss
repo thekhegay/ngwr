@@ -1,0 +1,18 @@
+.ngwr-dial-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1rem;
+
+  &__cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    // The fan needs room to open inside its own cell, whichever way it points.
+    min-height: 13rem;
+    padding: 1rem;
+    border: 1px solid var(--wr-color-border-subtle);
+    border-radius: var(--wr-border-radius-lg);
+  }
+}

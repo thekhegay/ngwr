@@ -5,6 +5,7 @@ import { WrButton, type WrButtonShape } from 'ngwr/button';
 import { provideWrIcons } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WR_COLORS } from 'ngwr/theme';
+import { WrTypography } from 'ngwr/typography';
 
 import {
   DocApiComponent,
@@ -18,7 +19,16 @@ import { API } from '#core/generated/api';
 @Component({
   selector: 'ngwr-button-page',
   templateUrl: './button.html',
-  imports: [WrButton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    WrButton,
+    WrTypography,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
+  styleUrl: './button.scss',
   providers: [
     provideWrIcons(
       lucideIcons({
@@ -51,11 +61,11 @@ export class MyComponent {}`,
   <!-- Does NOT submit: <wr-btn> is a custom element. Bind the click. -->
   <wr-btn (click)="save()" color="primary">Save</wr-btn>
 </form>`,
-    colors: `<!-- No color is the neutral button, and it is the default. -->
-<wr-btn>Neutral</wr-btn>
+    colors: `<!-- No color at all is the default button. -->
+<wr-btn>Default</wr-btn>
 <wr-btn color="primary">Primary</wr-btn>
 <wr-btn color="success">Success</wr-btn>`,
-    outlined: `<wr-btn outlined>Neutral</wr-btn>
+    outlined: `<wr-btn outlined>Default</wr-btn>
 <wr-btn color="primary" outlined>Outlined</wr-btn>`,
     sizes: `<wr-btn size="sm">Small</wr-btn>
 <wr-btn size="md">Medium</wr-btn>

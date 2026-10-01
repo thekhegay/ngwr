@@ -238,10 +238,9 @@
       }
 
       &.wr-btn--outlined {
-        // `-ink` is the intent darkened (light) / lightened (dark) until it
-        // clears 4.5:1 as its own label — the base hue does not: in light,
-        // warning as a label is 1.71:1. The border still carries the intent.
-        --wr-btn-color: var(--wr-color-#{$name}-ink);
+        // The label is the intent itself, the same colour the solid variant
+        // fills with, so the two read as one control in two weights.
+        --wr-btn-color: var(--wr-color-#{$name});
         --wr-btn-bg: transparent;
         --wr-btn-border: rgba(var(--wr-color-#{$name}-rgb), 0.4);
 

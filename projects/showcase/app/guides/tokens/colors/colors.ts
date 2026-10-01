@@ -21,6 +21,7 @@ interface Swatch {
 @Component({
   selector: 'ngwr-tokens-colors',
   templateUrl: './colors.html',
+  styleUrl: './colors.scss',
   imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent, DocSeeAlsoComponent],
 })
 export default class TokensColorsPage {
@@ -47,10 +48,10 @@ export default class TokensColorsPage {
   /** Generated shade variants every intent exposes. */
   protected readonly shades: readonly Swatch[] = [
     { suffix: '', label: 'base' },
-    { suffix: '-dark', label: 'dark −5%' },
-    { suffix: '-darker', label: 'darker −10%' },
-    { suffix: '-light', label: 'light +5%' },
-    { suffix: '-lighter', label: 'lighter +10%' },
+    { suffix: '-dark', label: 'dark' },
+    { suffix: '-darker', label: 'darker' },
+    { suffix: '-light', label: 'light' },
+    { suffix: '-lighter', label: 'lighter' },
   ];
 
   /** The four soft-set tokens, with the alpha each is baked at. */

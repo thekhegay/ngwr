@@ -31,17 +31,6 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Segmented control" description="Use color to highlight the active option.">
-    <ngwr-doc-snippet [code]="snippets.toggle">
-      <wr-btn-group>
-        <button type="button" wr-btn [color]="colorFor('left')" (click)="setAlign('left')">Left</button>
-        <button type="button" wr-btn [color]="colorFor('center')" (click)="setAlign('center')">Center</button>
-        <button type="button" wr-btn [color]="colorFor('right')" (click)="setAlign('right')">Right</button>
-      </wr-btn-group>
-      <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Selected: {{ align() }}</span>
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
   <ngwr-doc-section
     title="Shape"
     description="`shape` on the group enforces a corner treatment across every child `<wr-btn>` — child `[shape]` inputs are ignored so the group reads as one coherent control."
