@@ -12,6 +12,7 @@ import { WrSlider } from 'ngwr/slider';
 import { WrSwitch } from 'ngwr/switch';
 
 import { DocCodeComponent } from '../doc-code/doc-code';
+import { useExampleFiles } from '../doc-code/example-files';
 import type { DocCodeFile } from '../doc-code/types';
 
 import type { DocControl, DocSliderControl } from './types';
@@ -87,8 +88,15 @@ export class DocPlaygroundComponent {
   /** Multi-file source — rendered with a tab strip when set. */
   readonly files = input<readonly DocCodeFile[] | null>(null);
 
+  /**
+   * The HTML / TS pair the code block shows — the same derivation
+   * `<ngwr-doc-snippet>` uses, so a playground and a plain demo answer the
+   * question the same way. Twenty-one pages carry only a playground.
+   */
+  protected readonly resolvedFiles = useExampleFiles({ code: this.code, language: this.language, files: this.files });
+
   protected readonly hasCode = computed(() => {
-    const fs = this.files();
+    const fs = this.resolvedFiles();
     if (fs?.some(f => f.code.trim().length > 0)) return true;
     return this.code().trim().length > 0;
   });
