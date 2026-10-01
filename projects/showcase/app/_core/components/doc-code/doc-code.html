@@ -52,9 +52,15 @@
     } @else {
       <pre class="fallback" tabindex="0"><code>{{ normalized() }}</code></pre>
     }
-  </div>
 
-  <button type="button" class="copy" (click)="copy()" [attr.aria-label]="copied() ? 'Copied' : 'Copy'">
-    <wr-icon [name]="copied() ? 'check' : 'copy'" />
-  </button>
+    <!--
+      Inside the panel, not beside it: the button copies whatever the ACTIVE
+      tab holds, and positioned against the host it floated over the tab strip
+      instead — a control sitting on top of the two controls that decide what
+      it would copy.
+    -->
+    <button type="button" class="copy" (click)="copy()" [attr.aria-label]="copied() ? 'Copied' : 'Copy'">
+      <wr-icon [name]="copied() ? 'check' : 'copy'" />
+    </button>
+  </div>
 }

@@ -92,7 +92,11 @@
   }
 }
 
+// The positioning context for the copy button. It is the panel rather than the
+// host because the host also holds the tab strip, and a button anchored to the
+// host's top-right corner lands on the tabs.
 .panel {
+  position: relative;
   display: block;
 }
 
