@@ -1,10 +1,10 @@
 <ngwr-doc-page
   title="Drag & Drop"
-  description="`<wr-sortable-list>` wraps CDK's `cdkDropList` + `cdkDrag` with a signal-based two-way `[(items)]` binding. Includes the `[wrDragHandle]` helper and themed `.cdk-drag-preview` / `.cdk-drag-placeholder` defaults. Touch-ready: a default touch start-delay lets a quick swipe scroll the list while a hold begins a drag."
+  description="Drag-to-reorder list over the Angular CDK. Rows are `<wr-sortable-item>`, the order comes back through two-way `[(items)]`, and `[wrDragHandle]` restricts the grab to one element."
   [keywords]="['drag-drop', 'sortable', 'wr-sortable-list', 'wrDragHandle', 'cdk-drag', 'reorder', 'touch']"
   [labels]="['Component']"
 >
-  <ngwr-doc-section title="Import">
+  <ngwr-doc-section title="Installation">
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 

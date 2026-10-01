@@ -28,13 +28,11 @@
   >
     <ngwr-doc-code [code]="snippets.direction" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div class="ngwr-dial-grid">
-        @for (direction of directions; track direction) {
-          <div class="ngwr-dial-grid__cell">
-            <wr-speed-dial [actions]="actions" [direction]="direction" (pick)="onPick($event)" />
-            <span wrTypography variant="overline" tone="muted">{{ direction }}</span>
-          </div>
-        }
+      <div class="ngwr-dial-demo">
+        <wr-segmented [options]="directionOptions" [(value)]="direction" size="sm" />
+        <div [class]="`ngwr-dial-demo__stage ngwr-dial-demo__stage--${direction()}`">
+          <wr-speed-dial [actions]="actions" [direction]="direction()" (pick)="onPick($event)" />
+        </div>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

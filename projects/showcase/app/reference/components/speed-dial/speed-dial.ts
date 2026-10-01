@@ -3,8 +3,8 @@ import { Component, signal } from '@angular/core';
 import { Plus, Search, Settings } from 'lucide';
 import { provideWrIcons } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
-import { WrSpeedDial, type WrSpeedDialDirection } from 'ngwr/speed-dial';
-import { WrTypography } from 'ngwr/typography';
+import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
+import { WrSpeedDial, type WrSpeedDialAction, type WrSpeedDialDirection } from 'ngwr/speed-dial';
 
 import {
   DocApiComponent,
@@ -21,8 +21,8 @@ import { API } from '#core/generated/api';
   templateUrl: './speed-dial.html',
   styleUrl: './speed-dial.scss',
   imports: [
+    WrSegmented,
     WrSpeedDial,
-    WrTypography,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -34,24 +34,31 @@ import { API } from '#core/generated/api';
 export default class SpeedDialPageComponent {
   protected readonly lastPick = signal<string>('');
 
-  protected readonly actions = [
-    { id: 'new', label: 'New', icon: 'add' as const },
-    { id: 'search', label: 'Search', icon: 'search' as const },
-    { id: 'settings', label: 'Settings', icon: 'cog' as const },
+  protected readonly actions: readonly WrSpeedDialAction[] = [
+    { id: 'new', label: 'New', icon: 'add' },
+    { id: 'search', label: 'Search', icon: 'search' },
+    { id: 'settings', label: 'Settings', icon: 'cog' },
   ];
 
-  protected readonly directions: readonly WrSpeedDialDirection[] = ['up', 'down', 'left', 'right'];
+  protected readonly direction = signal<WrSpeedDialDirection>('up');
 
-  protected onPick(action: { id: string; label: string }): void {
+  protected readonly directionOptions: readonly WrSegmentedOption<WrSpeedDialDirection>[] = [
+    { value: 'up', label: 'up' },
+    { value: 'down', label: 'down' },
+    { value: 'left', label: 'left' },
+    { value: 'right', label: 'right' },
+  ];
+
+  protected onPick(action: WrSpeedDialAction): void {
     this.lastPick.set(action.label);
   }
 
   protected readonly snippets = {
-    install: `import { WrSpeedDial } from 'ngwr/speed-dial';
+    install: `import { WrSpeedDial, type WrSpeedDialAction } from 'ngwr/speed-dial';
 
 @Component({ imports: [WrSpeedDial] })
 export class MyComponent {
-  protected readonly actions = [
+  protected readonly actions: readonly WrSpeedDialAction[] = [
     { id: 'new', label: 'New', icon: 'add' },
     { id: 'search', label: 'Search', icon: 'search' },
   ];
@@ -61,10 +68,7 @@ export class MyComponent {
   }
 }`,
     basic: `<wr-speed-dial [actions]="actions" (pick)="onPick($event)" />`,
-    direction: `<wr-speed-dial [actions]="actions" direction="up" />
-<wr-speed-dial [actions]="actions" direction="down" />
-<wr-speed-dial [actions]="actions" direction="left" />
-<wr-speed-dial [actions]="actions" direction="right" />`,
+    direction: `<wr-speed-dial [actions]="actions" direction="down" />`,
   };
 
   protected readonly typeSnippet = `interface WrSpeedDialAction {
