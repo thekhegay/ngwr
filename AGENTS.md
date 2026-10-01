@@ -24,8 +24,8 @@ A pnpm + Angular CLI monorepo with two projects:
   cover the form controls (`button`, `input`, `textarea`,
   `checkbox`, `switch`, `radio`, `select`, `input-number`, `input-otp`, `slider`,
   `rating`, `file-upload`, `color-picker`, `knob`, `form`, `segmented`, `editor`), the overlays
-  (`date-picker`, `dropdown`, `popover`, `dialog`, `drawer`, `action-sheet`,
-  `toast`, `context-menu`, `popconfirm`, `command-palette`, `cascader`, `mention`),
+  (`date-picker`, `dropdown`, `popover`, `dialog`, `drawer`, `toast`,
+  `context-menu`, `popconfirm`, `command-palette`, `cascader`, `mention`),
   the data views (`table`, `tree`, `graph`), the navigation / disclosure set (`tabs`,
   `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`,
   `lightbox`, `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`,
@@ -366,9 +366,13 @@ one component folder. Reach for them instead of hand-rolling:
   `Range.getClientRects` — ProseMirror throws from a
   DOM listener after the document has already changed, so without the stub a spec
   passes for the wrong reason.
-- **Mobile primitives** (`ngwr/platform`, …) — `WrHaptics`, `ngwr/action-sheet`,
+- **Mobile primitives** (`ngwr/platform`, …) — `WrHaptics`,
   `ngwr/pull-to-refresh`, and `WrVisualViewport` (publishes
-  `--wr-keyboard-inset`, installed by `provideWrOverlay()`).
+  `--wr-keyboard-inset`, installed by `provideWrOverlay()`). The set is
+  deliberately small and v15 made it smaller: `ngwr/action-sheet` is gone and
+  `wr-drawer`'s swipe-to-dismiss grab handle with it, because ngwr is not a
+  mobile library and a mobile-only affordance has to earn the surface it adds
+  to a component every desktop app also uses.
 
 **Forms.** Value components are **Signal Forms-native** — twenty public
 controls implement `FormValueControl` or `FormCheckboxControl`, so
@@ -507,7 +511,7 @@ because a sanitizer strict in the browser and lax on the server is the worst
 failure a control like that can have.
 
 Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
-`ngwr/pipes`, the colour and squircle maths), the validation-copy contract
+`ngwr/pipes`, the colour maths), the validation-copy contract
 (`ngwr/form`), most of the service layer (`ngwr/hotkey`, `ngwr/i18n`,
 `ngwr/media`, `ngwr/platform`, `ngwr/storage`, `ngwr/overlay`, `ngwr/density`,
 `WrWindowManager`, `ngwr/scroll`) and EVERY component with a
@@ -884,12 +888,13 @@ alive) and a `var()` inside a CODE COMMENT, which is the same category and was
 the only thing keeping `--wr-color-outline-rgb` green. Only `projects/lib` and
 the showcase's own `.scss` count, comments stripped.
 
-**A `::before` background is invisible to every contrast checker.** `wr-squircle`
-paints its content fill on a pseudo-element, so axe walks past it to the host's
-`background-color` — which for the bordered variant is the BORDER colour — and
-reports the intent measured against itself. Any component that paints through a
-pseudo-element, a gradient, or an SVG is unmeasurable this way; check those by
-hand rather than believing the number.
+**A `::before` background is invisible to every contrast checker.** The case
+that taught it was `wr-squircle`, which painted its content fill on a
+pseudo-element: axe walked past it to the host's `background-color` — which for
+the bordered variant was the BORDER colour — and reported the intent measured
+against itself. That component is gone with v15, the rule is not. Any component
+that paints through a pseudo-element, a gradient, or an SVG is unmeasurable this
+way; check those by hand rather than believing the number.
 
 **`-contrast` picks, it does not blend.** `_contrast()` returns whichever of
 `$contrast-dark` / `$contrast-light` scores higher against the fill, so those two
@@ -942,9 +947,9 @@ default that specs pin. `.wr-date-picker__trigger`, `.wr-table-sort--asc`,
 `.wr-input-number__step` and all five `.wr-sidebar__icon` rules contain nothing but
 an `<svg>`, and WCAG holds a graphic to 3:1, which `#3567ff` clears on the dark
 canvas at 3.87. Deepening those would restyle the light theme for no accessibility
-gain. The eleven that DID move — `wr-option--selected`, `wr-tree__row--selected`,
+gain. The ten that DID move — `wr-option--selected`, `wr-tree__row--selected`,
 `wr-tree__chip`, `wr-cascader__opt--active`, the command-palette and context-menu
-items, `wr-segmented__option:hover`, `wr-action-sheet__action`,
+items, `wr-segmented__option:hover`,
 `wr-anchor__link--active`, `wr-table-filter__reset` ("Reset", a real text button)
 and `wr-falling-text__word--hl` — all carry text, and six of them sit directly on
 `--wr-color-primary-soft`, the tint `-ink` is calibrated against. Five were failing
@@ -1580,7 +1585,7 @@ i18n catalog; an `aria-label` on a component's host element does not reach the
 native control inside it.
 
 **Showcase page = the docs.** Every component ships a docs page — under
-`projects/showcase/app/reference/components/<name>/` for the main catalog (87
+`projects/showcase/app/reference/components/<name>/` for the main catalog (85
 dirs), or under `projects/showcase/app/animations/<name>/` for animation /
 visual-effect components (a separate top-level cluster with its own routing +
 sidebar). Wire it into the matching `*.routing.ts` and the `routes` map in

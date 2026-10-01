@@ -278,9 +278,6 @@ export const wrDe: WrI18nCatalog = {
     roledescription: 'Karussell',
     slideRoledescription: 'Folie',
   },
-  actionSheet: {
-    label: 'Aktionen',
-  },
   alert: {
     close: 'Hinweis schließen',
   },

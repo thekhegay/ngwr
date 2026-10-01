@@ -23,10 +23,10 @@ import { VALIDATORS_GROUP } from './validators.config';
  * words rather than of pages.
  *
  * The sizes are what make this version possible instead. Components is nine
- * category groups plus Squircle; the other six clusters are fifty-nine rows
- * in total, so each fits as ONE sibling group beside Buttons and Overlays.
- * Sixteen top-level rows, one of them expanded, every cluster one click away,
- * and a reader sees real pages at the top level.
+ * category groups; the other six clusters are fifty-nine rows in total, so
+ * each fits as ONE sibling group beside Buttons and Overlays. Fifteen
+ * top-level rows, one of them expanded, every cluster one click away, and a
+ * reader sees real pages at the top level.
  *
  * The order is deliberate: the component categories first, in their own run,
  * then the six API-kind clusters. Interleaving them alphabetically would put

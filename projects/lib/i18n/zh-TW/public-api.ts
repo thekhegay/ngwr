@@ -272,9 +272,6 @@ export const wrZhTw: WrI18nCatalog = {
     roledescription: '輪播',
     slideRoledescription: '投影片',
   },
-  actionSheet: {
-    label: '動作',
-  },
   alert: {
     close: '關閉警示',
   },

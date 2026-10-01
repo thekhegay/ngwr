@@ -38,9 +38,6 @@ const BACKDROP_CLASS = 'wr-drawer-backdrop';
  * — drawers render into NGWR's own overlay container and never collide
  * with other CDK consumers (Material, NG-ZORRO, etc.).
  *
- * `showHandle` / swipe-to-dismiss is component-only: it needs the drawer's own
- * wrapper markup, which the service path replaces with your component.
- *
  * @example
  * ```ts
  * const drawers = inject(WrDrawerManager);

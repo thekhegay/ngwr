@@ -38,13 +38,6 @@ import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types'
  * <wr-btn color="primary" shape="pill">Pill</wr-btn>
  * ```
  *
- * **Squircle?** Wrap with `[wrSquircle]` — the directive is the only
- * way ngwr ships smooth-corner clip-paths:
- *
- * ```html
- * <wr-btn wrSquircle [radius]="14">Squircle</wr-btn>
- * ```
- *
  * Inside a `<wr-btn-group shape="…">`, the group's shape is enforced on
  * every child — child `[shape]` inputs are ignored so the group reads as
  * one coherent control.

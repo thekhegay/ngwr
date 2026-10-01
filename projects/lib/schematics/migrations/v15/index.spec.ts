@@ -276,6 +276,103 @@ describe('ng update ngwr@15', () => {
   });
 
   /**
+   * Three whole removals, and every one of them reports rather than rewrites:
+   * nothing the library can write means what the removed thing meant in the
+   * same place. The specs below prove that in both directions — that each is
+   * named, and that each leaves the file byte-for-byte alone.
+   */
+  describe('the three things it removes and reports', () => {
+    it('names an import of the removed squircle entry point, and rewrites nothing', () => {
+      const source = "import { WrSquircle } from 'ngwr/squircle';";
+      const { logs, read } = run({ '/a.ts': source });
+
+      expect(said(logs, 'ngwr/squircle')).toBe(true);
+      expect(read('/a.ts')).toBe(source);
+    });
+
+    it.each([
+      ['an attribute', '/a.html', '<div wrSquircle [radius]="14">x</div>'],
+      ['the host element', '/a.html', '<wr-squircle>x</wr-squircle>'],
+      ['a Sass use', '/a.scss', "@use 'ngwr/squircle';"],
+      ['a BEM selector', '/a.scss', '.wr-squircle--bordered { border: 0; }'],
+      ['a custom property', '/a.scss', '.x { --wr-squircle-radius: 12px; }'],
+    ])('names %s', (_what, path, source) => {
+      const { logs, read } = run({ [path]: source });
+
+      expect(said(logs, 'ngwr/squircle')).toBe(true);
+      expect(read(path)).toBe(source);
+    });
+
+    it('does not read a native corner-shape squircle as the removed directive', () => {
+      const source = ['<wr-btn shape="squircle">Save</wr-btn>', '.x { corner-shape: squircle; }'].join('\n');
+
+      expect(said(run({ '/a.html': source }).logs, 'ngwr/squircle')).toBe(false);
+    });
+
+    it.each([
+      ['the element', '/a.html', '<wr-action-sheet [actions]="rows" />'],
+      ['an import', '/a.ts', "import { WrActionSheet } from 'ngwr/action-sheet';"],
+      ['a harness import', '/a.ts', "import { WrActionSheetHarness } from 'ngwr/action-sheet/testing';"],
+      ['a BEM selector', '/a.scss', '.wr-action-sheet__action { color: red; }'],
+    ])('names %s of the removed action sheet', (_what, path, source) => {
+      const { logs, read } = run({ [path]: source });
+
+      expect(said(logs, 'ngwr/action-sheet')).toBe(true);
+      expect(read(path)).toBe(source);
+    });
+
+    it('leaves the drawer the action sheet was a preset over alone', () => {
+      const source = '<wr-drawer position="bottom" rounded>x</wr-drawer>';
+
+      expect(said(run({ '/a.html': source }).logs, 'ngwr/action-sheet')).toBe(false);
+    });
+
+    it.each([
+      ['bare', '<wr-drawer position="bottom" showHandle>x</wr-drawer>'],
+      ['bound', '<wr-drawer [showHandle]="true">x</wr-drawer>'],
+      ['after a binding holding a greater-than', '<wr-drawer [hasBackdrop]="n > 0" showHandle>x</wr-drawer>'],
+    ])('names a %s drawer grab handle', (_what, source) => {
+      const { logs, read } = run({ '/a.html': source });
+
+      expect(said(logs, 'showHandle')).toBe(true);
+      expect(read('/a.html')).toBe(source);
+    });
+
+    it('names the handle classes a stylesheet or a locator keys on', () => {
+      expect(said(run({ '/a.scss': '.wr-drawer__handle { cursor: grab; }' }).logs, 'showHandle')).toBe(true);
+      expect(said(run({ '/a.ts': "q('.wr-drawer__panel--handle')" }).logs, 'showHandle')).toBe(true);
+    });
+
+    /**
+     * The handle detector is anchored to `<wr-drawer`, unlike the intent one,
+     * and this is the case that decides it: `showHandle` is a live public
+     * input on `<wr-compare>` and an internal computed on `wr-textarea`, so an
+     * unanchored rule would name files whose markup is correct and invite
+     * someone to delete it.
+     */
+    it('does not claim a showHandle that belongs to another component', () => {
+      const source = ['<wr-compare [showHandle]="true" />', '<wr-drawer>x</wr-drawer>'].join('\n');
+
+      expect(said(run({ '/a.html': source }).logs, 'showHandle')).toBe(false);
+    });
+
+    /**
+     * The quote-safe `IN_TAG` again. A catastrophic regex is synchronous, so
+     * vitest's timeout cannot interrupt it — the fixture is small enough that
+     * the ambiguous spelling costs seconds rather than hours, which is what
+     * makes a regression fail instead of freezing the suite.
+     */
+    it('steps over an unmatched drawer without backtracking', () => {
+      const source = `<wr-drawer position="left">${'<p class="a" id="b">x</p>'.repeat(60)}`;
+      const started = performance.now();
+
+      run({ '/a.html': source });
+
+      expect(performance.now() - started).toBeLessThan(2000);
+    });
+  });
+
+  /**
    * The manifest is what `ng update` reads, and v14 shipped saying one thing
    * while doing another — its own commit subject announced a rename it had not
    * made. So the description is held to the rule rather than trusted.
@@ -294,6 +391,11 @@ describe('ng update ngwr@15', () => {
     }
     for (const reported of ['secondary', 'light', 'medium', 'dark']) {
       expect(entry.description).toContain(reported);
+    }
+    // The three outright removals, which the manifest has to name for the same
+    // reason: a migration that says nothing about them reads as "nothing to do".
+    for (const removed of ['ngwr/squircle', 'ngwr/action-sheet', 'showHandle']) {
+      expect(entry.description).toContain(removed);
     }
   });
 

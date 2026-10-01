@@ -21,16 +21,6 @@ import type { DocApiRow } from '#core/components';
  * compile error instead of `undefined` at runtime.
  */
 export const API = {
-  // <wr-action-sheet>
-  WrActionSheet: [
-    { name: "open", description: "Whether the sheet is open. Two-way.", type: "boolean", default: "false" },
-    { name: "actions", description: "The rows to offer.", type: "readonly WrActionSheetAction[]", default: "[]" },
-    { name: "title", description: "Optional bold heading above the rows.", type: "string", default: "''" },
-    { name: "titleFallback", description: "Name announced for the dialog when there is no visible `title`. Falls back to `actionSheet.label`, then `'Actions'` — it used to be that English string, written into the template of a component whose every other string comes from the caller.", type: "string | null", default: "null" },
-    { name: "message", description: "Optional muted sub-heading under the title.", type: "string", default: "''" },
-    { name: "panelClass", description: "Extra CSS classes for the sheet's panel, forwarded to the `<wr-drawer>` this renders. The drawer is in THIS component's template rather than in the consumer's, so a class on `<wr-action-sheet>` lands on a host that only wraps it — the panel itself is reachable no other way.", type: "WrClassInput", default: "null" },
-    { name: "(action)", description: "Fires with the chosen row (never fires on a dismiss).", type: "WrActionSheetAction" },
-  ],
   // <[wrAffix]>
   WrAffix: [
     { name: "wrAffixOffsetTop", description: "Pixels from the top of the scroll container when stuck.", type: "number", default: "0" },
@@ -470,7 +460,6 @@ export const API = {
     { name: "height", description: "Height when position is top/bottom. Any CSS length.", type: "string", default: "'16rem'" },
     { name: "maxHeight", description: "Upper cap on height (top/bottom positions). Useful for bottom sheets that should grow with content up to a viewport-relative max. Any CSS length.", type: "string | null", default: "null (no cap)" },
     { name: "rounded", description: "Round the leading corners — the edge facing the viewport interior. Common bottom-sheet styling.", type: "boolean", default: "false" },
-    { name: "showHandle", description: "Render a grab handle at the leading edge and enable swipe-to-dismiss: drag the handle toward the drawer's edge (down for `bottom`, left for `left`, …) and release past ~30% of the panel to close.", type: "boolean", default: "false" },
     { name: "safeArea", description: "Pad the trailing edge with `env(safe-area-inset-*)` so content doesn't sit under the iOS home indicator.", type: "boolean", default: "false" },
     { name: "hasBackdrop", description: "Show the dimming backdrop.", type: "boolean", default: "true" },
     { name: "closeOnBackdropClick", description: "Close when the backdrop is clicked.", type: "boolean", default: "true" },
@@ -1158,15 +1147,6 @@ export const API = {
   WrSpotlightCard: [
     { name: "spotlightColor", description: "Highlight colour (any CSS colour). When unset, the theme decides: a dark-ish glow on light surfaces, a light glow on dark.", type: "string | null", default: "null" },
     { name: "radius", description: "Where the spotlight fades out, as a percentage of the gradient.", type: "number", default: "80" },
-  ],
-  // <[wrSquircle]>
-  WrSquircle: [
-    { name: "radius", description: "Corner radius in CSS pixels. Falls back to `--wr-border-radius-base` × 16.", type: "number", default: "12" },
-    { name: "smoothing", description: "Smoothing factor — `0` = plain rounded rect; `1` = full smooth iOS corner.", type: "number", default: "1" },
-    { name: "enabled", description: "Whether the squircle clip-path is applied. When `false`, the directive stays inert (clip-path cleared). Modelled as `model()` so a parent component composing this directive (`inject(WrSquircle, { self: true }).enabled.set(...)`) can flip the state from outside without exposing an `enabled` input on its own API.", type: "boolean", default: "true" },
-    { name: "borderWidth", description: "Border thickness in CSS pixels. `0` disables the border ring entirely. Modelled (not `input()`) so parent components composing this directive can flip it imperatively — e.g. `WrButton` turning on a 1px ring when `shape=\"squircle\" outlined` is active.", type: "number", default: "0" },
-    { name: "borderColor", description: "Border colour — any CSS colour. Applied to the host's background so the outer squircle reveals it. Defaults to `currentColor` so the consuming element's text colour drives the ring.", type: "string", default: "'currentColor'" },
-    { name: "corners", description: "Which corners to squircle. `'all'` (default) is the standard four- corner shape; `'left'` / `'right'` / `'top'` / `'bottom'` squircle only the two corners on the named side and leave the other two at 90°. `'none'` is equivalent to disabling the directive. A `model()` rather than an `input()` so a parent composing the directive can flip it imperatively. Nothing in the library does today: this line used to name `WrButtonGroup` as the consumer, and that component has carried no squircle reference for several releases — `wr-btn--squircle` is plain CSS now.", type: "WrSquircleCornerMask", default: "'all'" },
   ],
   // <wr-star-border, [wr-star-border]>
   WrStarBorder: [

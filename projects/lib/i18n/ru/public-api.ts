@@ -274,9 +274,6 @@ export const wrRu: WrI18nCatalog = {
     roledescription: 'карусель',
     slideRoledescription: 'слайд',
   },
-  actionSheet: {
-    label: 'Действия',
-  },
   alert: {
     close: 'Закрыть оповещение',
   },

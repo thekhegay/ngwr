@@ -141,14 +141,6 @@ export const STATES: readonly State[] = [
     scope: '.wr-drawer__panel',
   },
   {
-    id: 'action-sheet/open',
-    route: `${REF}/action-sheet`,
-    steps: [{ click: demo('.wr-btn:has-text("Open action sheet")') }],
-    target: '.wr-action-sheet__action',
-    scope: '.wr-action-sheet',
-    note: 'Its actions paint the intent as TEXT, which is the -ink case.',
-  },
-  {
     id: 'popconfirm/open',
     route: `${REF}/popconfirm`,
     steps: [{ click: demo('.wr-popconfirm-trigger') }],
@@ -652,15 +644,6 @@ export const STATES: readonly State[] = [
     steps: [{ click: demo('.wr-btn:has-text("Open drawer")') }, { wait: 300 }],
     target: '.wr-drawer__panel',
     scope: '.wr-drawer__panel',
-  },
-  {
-    id: 'sheet/action-sheet',
-    route: `${REF}/action-sheet`,
-    viewport: 'mobile',
-    steps: [{ click: demo('.wr-btn:has-text("Open action sheet")') }, { wait: 300 }],
-    target: '.wr-action-sheet__action',
-    scope: '.wr-action-sheet',
-    note: 'Not responsive-gated — an action sheet is a sheet everywhere — but a phone is where it is used.',
   },
 
   // ── At-rest variants the other gates DO see, but only through two rules.

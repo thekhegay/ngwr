@@ -122,7 +122,7 @@ export default class VersioningPage {
       surface: 'Exported, undocumented, unmarked',
       status: 'Not yet',
       check:
-        'A real gap rather than a category: wrAppendOverlayClose, wrMirrorOffsets, wrPresentAsSheet and WrOutsideClick from ngwr/overlay, useConfigValue, useFormFieldAria, squirclePath, wrContrastFor, wrIntentTokens, isSafeCssValue, and a handful of WR_* context tokens such as WR_STEPPER. They import, they work, and nothing on this site describes what they promise. Treat them as unsupported until a page exists — and open an issue naming the one you want, because that is what turns a hole into a decision.',
+        'A real gap rather than a category: wrAppendOverlayClose, wrMirrorOffsets, wrPresentAsSheet and WrOutsideClick from ngwr/overlay, useConfigValue, useFormFieldAria, wrContrastFor, wrIntentTokens, isSafeCssValue, and a handful of WR_* context tokens such as WR_STEPPER. They import, they work, and nothing on this site describes what they promise. Treat them as unsupported until a page exists — and open an issue naming the one you want, because that is what turns a hole into a decision.',
     },
   ];
 

@@ -368,9 +368,6 @@ export const wrEn: WrI18nCatalog = {
     roledescription: 'carousel',
     slideRoledescription: 'slide',
   },
-  actionSheet: {
-    label: 'Actions',
-  },
   alert: {
     close: 'Close alert',
   },

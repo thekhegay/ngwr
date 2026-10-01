@@ -43,10 +43,7 @@ provideWrDensity({ defaultDensity: 'touch' });
 
 // …or scope it to a subtree with the directive:
 // <section wrDensity="touch">…</section>`,
-    swipe: `<!-- Drawer: render a grab handle, then drag it toward the edge to close -->
-<wr-drawer position="bottom" showHandle>…</wr-drawer>
-
-<!-- The rest is automatic — no input needed:
+    swipe: `<!-- Automatic — no input needed:
        lightbox   swipe down       → close
        toast      swipe sideways   → dismiss
        carousel   swipe left/right → change slide -->`,

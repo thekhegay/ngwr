@@ -279,9 +279,6 @@ export const wrVi: WrI18nCatalog = {
     roledescription: 'băng chuyền',
     slideRoledescription: 'trang chiếu',
   },
-  actionSheet: {
-    label: 'Thao tác',
-  },
   alert: {
     close: 'Đóng cảnh báo',
   },

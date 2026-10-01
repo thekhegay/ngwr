@@ -14,7 +14,7 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 180 of 190 declarations are mapped: 0 carry no selector and
+ * 177 of 187 declarations are mapped: 0 carry no selector and
  * 10 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
@@ -37,7 +37,6 @@ export const SELECTORS = {
   /** Element selectors, without the angle brackets: `wr-alert`. */
   tags: {
     "wr-accordion": { symbol: "WrAccordion", path: "ngwr/collapse" },
-    "wr-action-sheet": { symbol: "WrActionSheet", path: "ngwr/action-sheet" },
     "wr-alert": { symbol: "WrAlert", path: "ngwr/alert" },
     "wr-anchor": { symbol: "WrAnchor", path: "ngwr/anchor" },
     "wr-aurora": { symbol: "WrAurora", path: "ngwr/aurora" },
@@ -151,7 +150,6 @@ export const SELECTORS = {
     "wr-split-text": { symbol: "WrSplitText", path: "ngwr/split-text" },
     "wr-splitter": { symbol: "WrSplitter", path: "ngwr/splitter" },
     "wr-spotlight-card": { symbol: "WrSpotlightCard", path: "ngwr/spotlight-card" },
-    "wr-squircle": { symbol: "WrSquircleHost", path: "ngwr/squircle" },
     "wr-star-border": { symbol: "WrStarBorder", path: "ngwr/star-border" },
     "wr-statistic": { symbol: "WrStatistic", path: "ngwr/statistic" },
     "wr-statistic-countdown": { symbol: "WrStatisticCountdown", path: "ngwr/statistic" },
@@ -213,7 +211,6 @@ export const SELECTORS = {
     "wrPopover": { symbol: "WrPopover", path: "ngwr/popover" },
     "wrShimmer": { symbol: "WrShimmer", path: "ngwr/shiny-text" },
     "wrSpotlight": { symbol: "WrSpotlight", path: "ngwr/spotlight-card" },
-    "wrSquircle": { symbol: "WrSquircle", path: "ngwr/squircle" },
     "wrT": { symbol: "WrTDirective", path: "ngwr/i18n" },
     "wrTableCell": { symbol: "WrTableCell", path: "ngwr/table" },
     "wrTableExpand": { symbol: "WrTableExpand", path: "ngwr/table" },
@@ -233,7 +230,6 @@ export const SELECTORS = {
  * one does not fail quietly — it fails the build.
  */
 export const STYLE_ENTRY_POINTS: readonly string[] = [
-  "ngwr/action-sheet",
   "ngwr/affix",
   "ngwr/alert",
   "ngwr/anchor",
@@ -323,7 +319,6 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/split-text",
   "ngwr/splitter",
   "ngwr/spotlight-card",
-  "ngwr/squircle",
   "ngwr/star-border",
   "ngwr/statistic",
   "ngwr/stepper",
@@ -364,7 +359,6 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
  * `ngwr/pagination`, which is what reaches `ngwr/select` and then `ngwr/icon`.
  */
 export const STYLE_DEPENDENCIES: Readonly<Record<string, readonly string[]>> = {
-  "ngwr/action-sheet": ["ngwr/drawer", "ngwr/icon"],
   "ngwr/alert": ["ngwr/icon"],
   "ngwr/avatar": ["ngwr/spinner"],
   "ngwr/badge": ["ngwr/icon", "ngwr/spinner"],

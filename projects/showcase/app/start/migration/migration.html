@@ -108,6 +108,34 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="v14 to v15 — three things are gone"
+    description="Each is reported by `ng update`, file by file, and none is rewritten: nothing the library can write means what the removed thing meant in the same place."
+  >
+    <ngwr-doc-code [code]="snippets.v15Removed" language="diff" />
+    <p wrTypography variant="small" tone="muted">
+      <strong><code>ngwr/squircle</code></strong> was deprecated in v14 and is removed. Use
+      <code>shape="squircle"</code> on <code>&lt;wr-btn&gt;</code>, <code>&lt;wr-avatar&gt;</code> and
+      <code>&lt;wr-badge&gt;</code>, or the <code>smooth-br</code> mixin from <code>&#64;use 'ngwr/theme'</code>
+      anywhere else. They are not the same thing, which is why this is not rewritten for you: the native
+      <code>corner-shape</code> falls back to a plain rounded corner where a browser has not shipped it, and it takes no
+      radius, smoothing, corners or border inputs. An import or an <code>&#64;use</code> fails the build; a leftover
+      <code>wrSquircle</code> attribute is inert and silent.
+    </p>
+    <p wrTypography variant="small" tone="muted">
+      <strong><code>&lt;wr-action-sheet&gt;</code></strong> is removed, with its test harness. ngwr is not a mobile
+      library, and the sheet was a preset over <code>&lt;wr-drawer position="bottom" rounded&gt;</code> — two of its
+      three ingredients went with it. Write the drawer directly; the rows, their order and the cancel group are markup
+      only you have.
+    </p>
+    <p wrTypography variant="small" tone="muted">
+      <strong><code>&lt;wr-drawer showHandle&gt;</code></strong> is removed, and swipe-to-dismiss with it, for the same
+      reason. The drawer still closes on the backdrop, on Escape, and through its own dismiss button
+      (<code>closable</code>, on by default) — so for most drawers deleting the attribute is the whole migration. A
+      bound <code>[showHandle]</code> is a compile error; a bare one is inert, which is why the codemod names it.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="v14 to v15 — what the codemod rewrites"
     description="Two kinds, and both pass the same test: the new form means what the old one meant in the same place. The neutral TOKENS, where three of the four successors carry the identical value in both themes, so a rewritten stylesheet paints to the pixel. And two VALUES that were named after an intent while always painting a neutral role — `[wrTypography]`'s `tone` and `<wr-timeline-item>`'s `color` — which move onto the name of what they do, together with the BEM class each emits."
   >

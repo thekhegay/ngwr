@@ -407,11 +407,11 @@ function render(entries: readonly Entry[]): string {
  * vanish unreported. Raised to the catalog as it stood when `ngwr/editor` and
  * its harness landed.
  */
-const MIN_ENTRIES = 229;
-const MIN_DESCRIBED = 121;
-const MIN_WITH_EXPORTS = 229;
+const MIN_ENTRIES = 226;
+const MIN_DESCRIBED = 119;
+const MIN_WITH_EXPORTS = 226;
 /** Rows in the skill's catalog table — one per entry point, plus the header. */
-const MIN_SKILL_ROWS = 229;
+const MIN_SKILL_ROWS = 226;
 
 /** A tag, an attribute, or a tag with an attribute — the three shapes the library declares. */
 const SELECTOR_SHAPE = /^[a-z][a-z\d-]*(\[[A-Za-z][\w-]*\])?$|^\[[A-Za-z][\w-]*\]$/;

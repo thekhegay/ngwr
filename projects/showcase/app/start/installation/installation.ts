@@ -35,7 +35,6 @@ interface StyleDepRow {
  * table row and hide which one is the surprise.
  */
 const STYLE_DEPS: readonly StyleDepRow[] = [
-  { component: 'action-sheet', needs: 'ngwr/drawer', why: 'the sheet IS a drawer docked to the bottom edge' },
   { component: 'avatar', needs: 'ngwr/spinner', why: 'the loading state while an image resolves' },
   { component: 'badge', needs: 'ngwr/spinner', why: 'a tag in its processing state' },
   { component: 'button', needs: 'ngwr/spinner', why: 'the [loading] state' },

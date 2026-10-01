@@ -280,9 +280,6 @@ export const wrTr: WrI18nCatalog = {
     roledescription: 'karusel',
     slideRoledescription: 'slayt',
   },
-  actionSheet: {
-    label: 'İşlemler',
-  },
   alert: {
     close: 'Uyarıyı kapat',
   },

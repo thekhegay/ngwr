@@ -271,9 +271,6 @@ export const wrJa: WrI18nCatalog = {
     roledescription: 'カルーセル',
     slideRoledescription: 'スライド',
   },
-  actionSheet: {
-    label: 'アクション',
-  },
   alert: {
     close: 'アラートを閉じる',
   },

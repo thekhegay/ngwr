@@ -73,12 +73,7 @@ export class MyComponent {}`,
     shape: `<!-- Three shapes -->
 <wr-btn color="primary">Rounded (default)</wr-btn>
 <wr-btn color="primary" shape="pill">Pill</wr-btn>
-<wr-btn color="primary" shape="squircle">Squircle</wr-btn>
-
-<!-- No corner-shape support? [wrSquircle] clips the same look everywhere.
-     Its own entry point: import { WrSquircle } from 'ngwr/squircle' and add
-     WrSquircle to imports — the attribute is inert without it. -->
-<wr-btn color="primary" wrSquircle [radius]="14">Squircle</wr-btn>`,
+<wr-btn color="primary" shape="squircle">Squircle</wr-btn>`,
     block: `<wr-btn color="primary" block>Full width</wr-btn>`,
     icon: `<wr-btn icon="add" color="primary">Add</wr-btn>
 <wr-btn icon="trash" color="danger" outlined>Delete</wr-btn>

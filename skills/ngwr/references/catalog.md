@@ -5,8 +5,6 @@ root barrel for components.
 
 | Entry point | Import | Selector(s) |
 | --- | --- | --- |
-| `ngwr/action-sheet` | `import { WrActionSheet } from 'ngwr/action-sheet'` | `wr-action-sheet` |
-| `ngwr/action-sheet/testing` | `import { WrActionSheetActionHarness } from 'ngwr/action-sheet/testing'` | — |
 | `ngwr/affix` | `import { WrAffix } from 'ngwr/affix'` | `[wrAffix]` |
 | `ngwr/alert` | `import { WrAlert } from 'ngwr/alert'` | `wr-alert` |
 | `ngwr/anchor` | `import { WrAnchor } from 'ngwr/anchor'` | `wr-anchor` |
@@ -194,7 +192,6 @@ root barrel for components.
 | `ngwr/splitter/testing` | `import { WrSplitterHarness } from 'ngwr/splitter/testing'` | — |
 | `ngwr/spotlight-card` | `import { WrSpotlightCard } from 'ngwr/spotlight-card'` | `wr-spotlight-card` `[wrSpotlight]` |
 | `ngwr/spotlight-card/testing` | `import { WrSpotlightCardHarness } from 'ngwr/spotlight-card/testing'` | — |
-| `ngwr/squircle` | `import { WrSquircle } from 'ngwr/squircle'` | `wr-squircle` `[wrSquircle]` |
 | `ngwr/star-border` | `import { WrStarBorder } from 'ngwr/star-border'` | `wr-star-border` `[wr-star-border]` |
 | `ngwr/star-border/testing` | `import { WrStarBorderHarness } from 'ngwr/star-border/testing'` | — |
 | `ngwr/statistic` | `import { WrStatistic } from 'ngwr/statistic'` | `wr-statistic-countdown` `wr-statistic-group` `wr-statistic` |

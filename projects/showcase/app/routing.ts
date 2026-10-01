@@ -76,7 +76,6 @@ export const routes = {
   },
   components: {
     index: 'components',
-    actionSheet: 'action-sheet',
     alert: 'alert',
     anchor: 'anchor',
     avatar: 'avatar',
@@ -87,7 +86,6 @@ export const routes = {
     donutChart: 'donut-chart',
     lineChart: 'line-chart',
     calendarHeatmap: 'calendar-heatmap',
-    squircle: 'squircle',
     backTop: 'back-top',
     badge: 'badge',
     breadcrumbs: 'breadcrumbs',

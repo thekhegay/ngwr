@@ -267,9 +267,6 @@ export const wrHi: WrI18nCatalog = {
     roledescription: 'कैरोसेल',
     slideRoledescription: 'स्लाइड',
   },
-  actionSheet: {
-    label: 'कार्रवाइयां',
-  },
   alert: {
     close: 'अलर्ट बंद करें',
   },

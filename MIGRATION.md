@@ -76,6 +76,40 @@ history is readable without leaving the repository.
 
 ---
 
+## v14 to v15
+
+The palette went from nine intents to five. `secondary`, `light`, `medium` and `dark` are gone;
+what replaced the last three is a six-step neutral gray ramp read through role aliases that name
+the job — `--wr-color-surface`, `-on-surface`, `-on-surface-muted`, `-outline`, `-hover`, `-fill`,
+`-fill-subtle`, `-fill-strong`, `-placeholder`. The v15 migration **rewrites the token renames**,
+because three of the four successors carry the identical value in both themes, and rewriting them
+is not optional: a `var()` at a name nothing declares is invalid at computed-value time, so the
+browser drops the whole declaration — a border that never draws, with no error anywhere. It
+**reports every use of a removed intent** instead, because `<wr-btn color="dark">` and `<wr-btn>`
+are different buttons and only you know which you meant.
+
+The sortable list moved to an entry point of its own, `ngwr/drag-drop` to `ngwr/sortable-list`
+(rewritten, every symbol keeping its name), and no longer owns its loop — write your own and
+project one `<wr-sortable-item>` per row. That half is reported, not rewritten: a loop needs the
+array name and a track key.
+
+**Three things were removed outright, and all three are reported by file.** `ngwr/squircle`, which
+v14 deprecated: use `shape="squircle"` on `<wr-btn>` / `<wr-avatar>` / `<wr-badge>`, or the
+`smooth-br` mixin from `@use 'ngwr/theme'`. They are not equivalent, which is why nothing is
+rewritten — the native `corner-shape` falls back to a plain rounded corner where a browser has not
+shipped it, and takes no radius or border inputs. `<wr-action-sheet>`, with its test harness: ngwr
+is not a mobile library, and the sheet was a preset over `<wr-drawer position="bottom" rounded>`,
+which is what to write instead. And `<wr-drawer showHandle>`, the grab handle and the
+swipe-to-dismiss it gated, for the same reason — the drawer still closes on the backdrop, on
+Escape and through its own dismiss button, so deleting the attribute is usually the whole
+migration.
+
+A leftover import or `@use` fails the build and a bound `[showHandle]` is a compile error, but a
+bare `wrSquircle` attribute, a `<wr-action-sheet>` without `strictTemplates` and a
+`.wr-drawer__handle` selector are all silent. That is what the file list is for.
+
+---
+
 ## v13 to v14
 
 The largest release so far. Six renames, all rewritten by the v14 migration — `wr-alert`'s

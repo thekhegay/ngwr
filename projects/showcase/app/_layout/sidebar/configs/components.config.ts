@@ -130,7 +130,6 @@ export const COMPONENT_GROUPS: readonly SidebarGroup[] = [
   {
     title: 'Overlays',
     children: [
-      { title: 'Action Sheet', url: ['/reference/components', 'action-sheet'] },
       { title: 'Command Palette', url: ['/reference/components', 'command-palette'] },
       { title: 'Context Menu', url: ['/reference/components', 'context-menu'] },
       { title: 'Dialog', url: ['/reference/components', 'dialog'] },
@@ -141,5 +140,4 @@ export const COMPONENT_GROUPS: readonly SidebarGroup[] = [
       { title: 'Window', url: ['/reference/components', 'window'] },
     ],
   },
-  { title: 'Squircle', url: ['/reference/components', 'squircle'] },
 ];

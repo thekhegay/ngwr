@@ -145,8 +145,8 @@ describe('the surfaces that draw it', () => {
   });
 
   // Both branches of the sidebar template: a child row inside a group, and a
-  // top-level group that carries a `url` instead of `children` (Squircle's
-  // shape). The second had no mark at all, while the cluster index pages list
+  // top-level group that carries a `url` instead of `children` (the shape
+  // every /icons row has). The second had no mark at all, while the index pages list
   // exactly those groups as ordinary links and marked them — the one way the two
   // surfaces could disagree about what is new.
   it('draws the mark in both sidebar branches, comma and all', () => {

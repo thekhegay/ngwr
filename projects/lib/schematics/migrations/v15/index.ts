@@ -248,6 +248,86 @@ const REMOVED_INTENT_CLASS = new RegExp(String.raw`\.?wr-[\w-]+--(?:${REMOVED.jo
  */
 const SORTABLE_TEMPLATE = new RegExp(String.raw`<wr-sortable-list(?![-\w])[\s\S]*?<ng-template`);
 
+/**
+ * The `ngwr/squircle` entry point, in any of the shapes an app holds it by.
+ *
+ * REPORTED, never rewritten, and the native route is not a successor in the
+ * sense the rewrite rule means. `corner-shape: squircle` is a different thing:
+ * it is non-deterministic — a browser without it draws a plain rounded corner,
+ * which is precisely why the directive existed — it is driven by a `shape`
+ * input or the `smooth-br` mixin rather than by an attribute, it takes none of
+ * `[radius]` / `[smoothing]` / `[borderWidth]` / `[borderColor]` / `[corners]`,
+ * and `<wr-squircle>` as a standalone container has no tag to become. Rewriting
+ * `wrSquircle` to `shape="squircle"` would also be wrong on every host that is
+ * not an ngwr component, which is most of them.
+ *
+ * Unanchored, like the removed-intent detector and for the same reason: every
+ * spelling here is ngwr's vocabulary and nobody else's, so nothing it can reach
+ * belongs to another library.
+ */
+const SQUIRCLE = new RegExp(
+  [
+    String.raw`['"]ngwr/squircle['"]`,
+    String.raw`\bwrSquircle(?![\w-])`,
+    String.raw`<wr-squircle(?![-\w])`,
+    String.raw`\b(?:WrSquircle|WrSquircleHost|WrSquircleCorners|WrSquircleCornerMask|squirclePath)\b`,
+    String.raw`\.?wr-squircle(?:--[\w-]+)?(?![\w-])`,
+    String.raw`--wr-squircle-[\w-]+`,
+  ].join('|')
+);
+
+/**
+ * The `ngwr/action-sheet` entry point, the same way.
+ *
+ * REPORTED because there is nothing to rewrite it to: an action sheet was a
+ * thin preset over `<wr-drawer>` — bottom position, rounded corners, a grab
+ * handle — and two of those three are gone with it. A `<wr-drawer position=
+ * "bottom" rounded>` carrying the app's own rows is the shape that replaces it,
+ * and the rows, their roles, their order and the cancel group are markup only
+ * the app can write.
+ *
+ * How a leftover fails splits the same way the intent half does: a
+ * `<wr-action-sheet>` in a template is NG8001 under `strictTemplates` and an
+ * inert unknown element without it, an import is a build error, and a
+ * `.wr-action-sheet` selector in a stylesheet or a locator simply stops
+ * matching, silently.
+ */
+const ACTION_SHEET = new RegExp(
+  [
+    String.raw`['"]ngwr/action-sheet(?:/testing)?['"]`,
+    String.raw`<wr-action-sheet(?![-\w])`,
+    String.raw`\bWrActionSheet[\w]*\b`,
+    String.raw`\.?wr-action-sheet(?:__[\w-]+)?(?:--[\w-]+)?(?![\w-])`,
+  ].join('|')
+);
+
+/**
+ * `<wr-drawer showHandle>` — the grab handle and the swipe-to-dismiss gesture
+ * it gated, both removed in v15 for the reason the action sheet was.
+ *
+ * ANCHORED to the element, which is the opposite of the call the intent
+ * detector makes two constants up, and the difference is not stylistic:
+ * `showHandle` is a live public input on `<wr-compare>` (default `true`) and an
+ * internal computed on `wr-textarea`, so the unanchored shape would name files
+ * that need no change and invite someone to delete correct markup.
+ *
+ * Reported rather than rewritten even though stripping the attribute is
+ * mechanical, because stripping it does not preserve meaning — the drawer loses
+ * a dismissal the author chose, and whether that wants a visible close button
+ * in its place is theirs to decide. A bound `[showHandle]` is an NG8002 they
+ * cannot miss; a bare `showHandle` is inert and silent, and the silent one is
+ * the shape the report exists for.
+ */
+const DRAWER_HANDLE = new RegExp(String.raw`<wr-drawer(?![-\w])${IN_TAG}\s\[?showHandle\]?(?![-\w])`);
+
+/**
+ * The handle's BEM classes in a consumer stylesheet or a test locator. Public
+ * API here, and a selector that stops matching is silent in CSS, in
+ * `querySelector` and in a locator alike — the case `migration-v13` established
+ * and `REMOVED_INTENT_CLASS` repeats.
+ */
+const DRAWER_HANDLE_CLASS = /\.?wr-drawer__(?:handle|grabber)(?![\w-])|\.?wr-drawer__panel--handle(?![\w-])/;
+
 /** `$base-colors:` configured with a key v15 removed. */
 const BASE_COLORS_KEY = new RegExp(String.raw`\$base-colors\s*:[\s\S]{0,400}?\b(?:${REMOVED.join('|')})\s*:`);
 
@@ -263,6 +343,9 @@ function ngUpdateV15(): Rule {
     const baseColors: string[] = [];
     const colorLiterals: string[] = [];
     const sortableTemplates: string[] = [];
+    const squircles: string[] = [];
+    const actionSheets: string[] = [];
+    const drawerHandles: string[] = [];
     let rewritten = 0;
 
     visit(tree, '/', filePath => {
@@ -300,6 +383,10 @@ function ngUpdateV15(): Rule {
       if (isStyle && BASE_COLORS_KEY.test(content)) baseColors.push(filePath);
       if (isTs && WR_COLOR_LITERAL.test(content)) colorLiterals.push(filePath);
       if ((isTs || isHtml) && SORTABLE_TEMPLATE.test(content)) sortableTemplates.push(filePath);
+      if (SQUIRCLE.test(content)) squircles.push(filePath);
+      if (ACTION_SHEET.test(content)) actionSheets.push(filePath);
+      if ((isTs || isHtml) && DRAWER_HANDLE.test(content)) drawerHandles.push(filePath);
+      else if (DRAWER_HANDLE_CLASS.test(content)) drawerHandles.push(filePath);
     });
 
     if (rewritten > 0) {
@@ -395,6 +482,46 @@ function ngUpdateV15(): Rule {
       for (const file of sortableTemplates) context.logger.warn(`  ${file}`);
     }
 
+    if (squircles.length > 0) {
+      context.logger.warn(
+        `ngwr v15: the \`ngwr/squircle\` entry point in ${squircles.length} file(s). It is gone — the directive, ` +
+          '<wr-squircle>, squirclePath and the .wr-squircle classes with it. It was deprecated in v14 and the native ' +
+          'route is what replaces it: `shape="squircle"` on wr-btn / wr-avatar / wr-badge, or the `smooth-br` mixin ' +
+          "from `@use 'ngwr/theme'` on anything else. Not rewritten, because the two are not the same thing — " +
+          'corner-shape falls back to a plain rounded corner where a browser has not shipped it, which is the ' +
+          'determinism the directive existed to give, and it takes no radius, smoothing, corners or border inputs. ' +
+          'An import and an `@use` are build errors; a leftover `wrSquircle` attribute is silent, and the element ' +
+          'simply renders with its ordinary border-radius.'
+      );
+      for (const file of squircles) context.logger.warn(`  ${file}`);
+    }
+
+    if (actionSheets.length > 0) {
+      context.logger.warn(
+        `ngwr v15: \`ngwr/action-sheet\` in ${actionSheets.length} file(s). The component and its test harness are ` +
+          'gone: ngwr is not a mobile library, and the sheet was a thin preset over <wr-drawer> — bottom position, ' +
+          'rounded corners, a grab handle — two of which v15 removed anyway. Write the drawer directly: ' +
+          '<wr-drawer position="bottom" rounded> with your own rows. Not rewritten, because the rows, their roles, ' +
+          'their order and the cancel group are markup only you have. With strictTemplates a leftover element is ' +
+          'NG8001; without it the tag renders as nothing at all, and a `.wr-action-sheet` selector or locator stops ' +
+          'matching in silence.'
+      );
+      for (const file of actionSheets) context.logger.warn(`  ${file}`);
+    }
+
+    if (drawerHandles.length > 0) {
+      context.logger.warn(
+        `ngwr v15: <wr-drawer showHandle> or a \`.wr-drawer__handle\` selector in ${drawerHandles.length} file(s). ` +
+          'The grab handle and the swipe-to-dismiss it gated are gone, for the same reason the action sheet is. ' +
+          'The drawer still closes on the backdrop, on Escape and through its own dismiss button (`closable`, on by ' +
+          'default) — so for most drawers deleting the attribute is the whole migration. Not rewritten, because ' +
+          'removing an affordance the author chose is a decision rather than a rename, and a drawer that relied on ' +
+          'the swipe may want a visible close control in its place. A bound [showHandle] is NG8002; a bare one is ' +
+          'inert and says nothing.'
+      );
+      for (const file of drawerHandles) context.logger.warn(`  ${file}`);
+    }
+
     if (
       rewritten === 0 &&
       intentAttrs.length === 0 &&
@@ -403,7 +530,10 @@ function ngUpdateV15(): Rule {
       orphanShades.length === 0 &&
       baseColors.length === 0 &&
       colorLiterals.length === 0 &&
-      sortableTemplates.length === 0
+      sortableTemplates.length === 0 &&
+      squircles.length === 0 &&
+      actionSheets.length === 0 &&
+      drawerHandles.length === 0
     ) {
       context.logger.info('ngwr v15 migration: nothing to do — no affected usage found.');
     }

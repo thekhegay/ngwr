@@ -129,6 +129,26 @@ export default class MigrationPageComponent {
 - imports: [WrSortableList]
 + imports: [WrSortableList, WrSortableItem]`,
 
+    v15Removed: `# The squircle directive. Deprecated in v14, gone in v15.
+- import { WrSquircle } from 'ngwr/squircle';
+- <wr-btn wrSquircle [radius]="14">Save</wr-btn>
++ <wr-btn shape="squircle">Save</wr-btn>
+# …or, on anything that is not an ngwr component:
++ @use 'ngwr/theme';
++ .card { @include theme.smooth-br(16px); }
+
+# The action sheet. It was a drawer with three inputs set — write the drawer.
+- <wr-action-sheet [(open)]="open" [actions]="actions" (action)="pick($event)" />
++ <wr-drawer [(open)]="open" position="bottom" rounded>
++   @for (a of actions; track a.id) {
++     <wr-btn block (click)="pick(a)">{{ a.label }}</wr-btn>
++   }
++ </wr-drawer>
+
+# The drawer's grab handle, and the swipe it gated. Usually just delete it.
+- <wr-drawer position="bottom" showHandle>…</wr-drawer>
++ <wr-drawer position="bottom">…</wr-drawer>`,
+
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
 # One command, whatever major you are on: ng update installs the latest
 # release and applies every migration newer than the version you had, oldest

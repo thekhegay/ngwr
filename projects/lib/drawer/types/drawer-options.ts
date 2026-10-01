@@ -12,8 +12,8 @@ import type { WrDrawerPosition } from './drawer-position';
 /**
  * Options accepted by `WrDrawerManager.open()`.
  *
- * Mirrors the `<wr-drawer>` inputs, minus the ones that need the component's
- * own wrapper markup (`showHandle` / swipe-to-dismiss).
+ * Mirrors the `<wr-drawer>` inputs, plus `data` and `closeOnNavigation` and
+ * minus `open`, which the ref owns.
  */
 export interface WrDrawerOptions<D = unknown> {
   /** Data payload exposed to the drawer content via `WR_DRAWER_DATA`. */

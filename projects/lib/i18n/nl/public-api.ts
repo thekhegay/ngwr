@@ -277,9 +277,6 @@ export const wrNl: WrI18nCatalog = {
     roledescription: 'carrousel',
     slideRoledescription: 'dia',
   },
-  actionSheet: {
-    label: 'Acties',
-  },
   alert: {
     close: 'Melding sluiten',
   },
