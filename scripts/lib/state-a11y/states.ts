@@ -722,8 +722,8 @@ export const STATES: readonly State[] = [
     target: demo('.wr-markdown__task--checked'),
   },
   {
-    id: 'drag-drop/handle',
-    route: `${REF}/drag-drop`,
+    id: 'sortable-list/handle',
+    route: `${REF}/sortable-list`,
     steps: [],
     target: demo('.wr-drag-handle'),
   },

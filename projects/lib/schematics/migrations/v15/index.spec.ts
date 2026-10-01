@@ -119,6 +119,23 @@ describe('ng update ngwr@15', () => {
     });
   });
 
+  describe('the entry point it moves', () => {
+    it.each([
+      [`import { WrSortableList } from 'ngwr/drag-drop';`, `import { WrSortableList } from 'ngwr/sortable-list';`],
+      [`@use 'ngwr/drag-drop';`, `@use 'ngwr/sortable-list';`],
+      [`import('ngwr/drag-drop/testing')`, `import('ngwr/sortable-list/testing')`],
+    ])('moves %s', (before, after) => {
+      expect(rewrite('/a.ts', before)).toBe(after);
+    });
+
+    it('leaves the CDK package alone', () => {
+      // A different package, and the one every `cdkDrag` consumer imports.
+      const source = `import { CdkDrag } from '@angular/cdk/drag-drop';`;
+
+      expect(rewrite('/a.ts', source)).toBe(source);
+    });
+  });
+
   describe('the two values it rewrites', () => {
     // These are renames and not reports, because each value was named after an
     // intent and never painted one: both tones always resolved to a neutral

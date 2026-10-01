@@ -108,6 +108,25 @@ const TOKEN_RENAMES: readonly (readonly [string, string])[] = [
   ['--wr-color-medium', '--wr-color-on-surface-muted'],
 ];
 
+/**
+ * The sortable list got its own entry point.
+ *
+ * `ngwr/drag-drop` named a whole interaction while holding one component, and
+ * drag and drop is the broader idea — so the namespace is wanted for it and
+ * `WrSortableList` took a name of its own. Every symbol keeps its name, which
+ * is what makes this a codemod rather than a release note: a path is what a
+ * rewrite moves without reading the code around it, the same shape v12's
+ * date-adapter move had.
+ *
+ * Both specifiers, because the entry point ships styles: a TypeScript import
+ * and the `@use 'ngwr/drag-drop'` a consumer writes for them. The trailing
+ * group keeps it off `@angular/cdk/drag-drop`, which is a different package
+ * and stays where it is.
+ */
+const ENTRY_POINT_TRANSFORMS: readonly Transform[] = [
+  { pattern: /(['"])ngwr\/drag-drop(['"/])/g, replacement: '$1ngwr/sortable-list$2' },
+];
+
 const TOKEN_TRANSFORMS: readonly Transform[] = TOKEN_RENAMES.map(([from, to]) => ({
   pattern: new RegExp(`${from.replace(/-/g, '-')}(?![\\w-])`, 'g'),
   replacement: to,
@@ -263,7 +282,12 @@ function ngUpdateV15(): Rule {
       // A token name is unambiguous in all three file kinds — a stylesheet
       // declares and reads it, a template writes it in an inline `style`, and a
       // component writes one into a signal or a class binding.
-      const next = apply(content, [...TOKEN_TRANSFORMS, ...(isTs || isHtml ? VALUE_RENAMES : []), ...CLASS_RENAMES]);
+      const next = apply(content, [
+        ...ENTRY_POINT_TRANSFORMS,
+        ...TOKEN_TRANSFORMS,
+        ...(isTs || isHtml ? VALUE_RENAMES : []),
+        ...CLASS_RENAMES,
+      ]);
       if (next !== content) {
         tree.overwrite(filePath, next);
         rewritten += 1;
@@ -286,7 +310,9 @@ function ngUpdateV15(): Rule {
           '-rgb companion with them. The first two carry the identical value in both themes, so ' +
           'those rules paint exactly as they did; --wr-color-medium moves by one step of the ' +
           'neutral ramp, because it was a FILL and the role that replaces it is calibrated as ' +
-          'TEXT. Values named after a removed intent that always painted a neutral role — ' +
+          'TEXT. The sortable list moved to an entry point of its own, from ngwr/drag-drop to ' +
+          'ngwr/sortable-list, import path and @use alike, every symbol keeping its name. ' +
+          'Values named after a removed intent that always painted a neutral role — ' +
           '[wrTypography] tone from dark to base and from medium to muted, <wr-timeline-item> ' +
           'color from medium to neutral, and the BEM class each of them emits.'
       );

@@ -221,8 +221,8 @@
     "./donut-chart": {
       "sass": "./donut-chart/styles/_index.scss"
     },
-    "./drag-drop": {
-      "sass": "./drag-drop/styles/_index.scss"
+    "./sortable-list": {
+      "sass": "./sortable-list/styles/_index.scss"
     },
     "./drawer": {
       "sass": "./drawer/styles/_index.scss"

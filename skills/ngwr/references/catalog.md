@@ -67,7 +67,6 @@ root barrel for components.
 | `ngwr/divider` | `import { WrDivider } from 'ngwr/divider'` | `wr-divider` |
 | `ngwr/donut-chart` | `import { WrDonutChart } from 'ngwr/donut-chart'` | `wr-donut-chart` |
 | `ngwr/donut-chart/testing` | `import { WrDonutChartHarness } from 'ngwr/donut-chart/testing'` | — |
-| `ngwr/drag-drop` | `import { WrSortableList } from 'ngwr/drag-drop'` | `[wrDragHandle]` `wr-sortable-item` `wr-sortable-list` |
 | `ngwr/drawer` | `import { WrDrawer } from 'ngwr/drawer'` | `[wrDrawerClose]` `[wrDrawerContent]` `[wrDrawerFooter]` `[wrDrawerTitle]` `wr-drawer` |
 | `ngwr/drawer/testing` | `import { WrDrawerHarness } from 'ngwr/drawer/testing'` | — |
 | `ngwr/dropdown` | `import { WrDropdown } from 'ngwr/dropdown'` | `wr-dropdown-item` `wr-dropdown-menu` `[wrDropdown]` |
@@ -181,6 +180,7 @@ root barrel for components.
 | `ngwr/skeleton` | `import { WrSkeleton } from 'ngwr/skeleton'` | `wr-skeleton` |
 | `ngwr/slider` | `import { WrSlider } from 'ngwr/slider'` | `wr-slider` |
 | `ngwr/slider/testing` | `import { WrSliderHarness } from 'ngwr/slider/testing'` | — |
+| `ngwr/sortable-list` | `import { WrSortableList } from 'ngwr/sortable-list'` | `[wrDragHandle]` `wr-sortable-item` `wr-sortable-list` |
 | `ngwr/sparkline` | `import { WrSparkline } from 'ngwr/sparkline'` | `wr-sparkline` |
 | `ngwr/sparkline/testing` | `import { WrSparklineHarness } from 'ngwr/sparkline/testing'` | — |
 | `ngwr/speed-dial` | `import { WrSpeedDial } from 'ngwr/speed-dial'` | `wr-speed-dial` |

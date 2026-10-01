@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 
-import { WrDragHandle, WrSortableItem, WrSortableList, type WrSortableReorderEvent } from 'ngwr/drag-drop';
+import { WrDragHandle, WrSortableItem, WrSortableList, type WrSortableReorderEvent } from 'ngwr/sortable-list';
 import { WrTypography } from 'ngwr/typography';
 
 import {
@@ -56,7 +56,7 @@ export default class SortableListPage {
   WrSortableItem,
   WrSortableList,
   type WrSortableReorderEvent,
-} from 'ngwr/drag-drop';
+} from 'ngwr/sortable-list';
 
 @Component({ imports: [WrSortableList, WrSortableItem, WrDragHandle] })
 export class MyComponent {

@@ -109,7 +109,14 @@ export default class MigrationPageComponent {
   var(--wr-color-secondary-ink)
   var(--wr-color-light-lighter)`,
 
-    v15Sortable: `  <wr-sortable-list [(items)]="rows" (reorder)="onReorder($event)">
+    v15Sortable: `# The entry point moved. Rewritten for you, both specifiers.
+- import { WrSortableList } from 'ngwr/drag-drop';
++ import { WrSortableList, WrSortableItem } from 'ngwr/sortable-list';
+- @use 'ngwr/drag-drop';
++ @use 'ngwr/sortable-list';
+
+# The row did not. This half is yours.
+  <wr-sortable-list [(items)]="rows" (reorder)="onReorder($event)">
 -   <ng-template let-row let-i="index">
 -     <div class="row">{{ i + 1 }}. {{ row.label }}</div>
 -   </ng-template>

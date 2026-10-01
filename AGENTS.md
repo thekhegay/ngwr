@@ -299,7 +299,7 @@ one component folder. Reach for them instead of hand-rolling:
   `[wrTableExpand]`, tree + `virtualScroll`. Excel (`.xlsx`)
   export is deliberately NOT shipped (would need a third-party dep). Don't
   hand-roll selection checkboxes or a CSV writer.
-- **Sortable list** (`ngwr/drag-drop`) — `<wr-sortable-list [(items)]>` with one
+- **Sortable list** (`ngwr/sortable-list`) — `<wr-sortable-list [(items)]>` with one
   `<wr-sortable-item>` per row, and `[wrDragHandle]` to restrict the grab.
   **The consumer writes the loop**, which is the v15 change: the list used to
   own it and render one unnamed `<ng-template let-row let-i="index">`, so the
@@ -308,10 +308,12 @@ one component folder. Reach for them instead of hand-rolling:
   the live region; a row knows only its own position, which it resolves by
   DOCUMENT ORDER rather than by registration order — a row can be added,
   removed or moved by the consumer's loop, and construction order survives none
-  of those. `trackBy` went with the loop. The entry point stays `drag-drop`
-  (the namespace for both symbols) while the page is
-  `/reference/components/sortable-list` (the component), which is why
-  `gen-api-docs` and `gen-ai-assets` each carry one entry mapping the two.
+  of those. `trackBy` went with the loop. The entry point moved with the
+  component in the same release — `ngwr/drag-drop` became
+  `ngwr/sortable-list`, because drag and drop is a broader idea than one
+  sortable list and the name is wanted for it. `migration-v15` rewrites the
+  import path and the `@use`, which is what a codemod moves without reading
+  the code around it.
 - **Virtual scrolling** — `wr-table`, `wr-tree` and `wr-select` (search mode)
   use hand-rolled spacer-row windowing and switch to `aria-activedescendant`
   while virtual. `ngwr/virtual-scroll` is a _separate_ public component wrapping

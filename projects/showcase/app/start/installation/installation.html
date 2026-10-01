@@ -108,7 +108,7 @@
       <code>&#64;use 'ngwr/button'</code>, <code>&lt;wr-tag&gt;</code> is <code>ngwr/badge</code>,
       <code>&lt;wr-option&gt;</code> is <code>ngwr/select</code>, <code>&lt;wr-accordion&gt;</code> is
       <code>ngwr/collapse</code>, <code>&lt;wr-form-field&gt;</code> is <code>ngwr/form</code>,
-      <code>&lt;wr-sortable-list&gt;</code> is <code>ngwr/drag-drop</code>, <code>&lt;wr-kbd&gt;</code> is
+      <code>&lt;wr-sortable-list&gt;</code> is <code>ngwr/sortable-list</code>, <code>&lt;wr-kbd&gt;</code> is
       <code>ngwr/keyboard</code>, <code>&lt;wr-count-up&gt;</code> is <code>ngwr/counter</code>. The rule that always
       holds: it is the last segment of the component's docs URL, the same string as its TypeScript subpath.
     </p>
@@ -207,7 +207,7 @@
 
   <ngwr-doc-section
     title="What an entry point pulls in with it"
-    description="Two structural facts, since “tree-shakable” is easy to over-read. **One: an entry point's static imports come with it, options or no options.** A `<wr-table>` with three columns and nothing turned on still bundles `ngwr/checkbox`, `ngwr/dropdown`, `ngwr/pagination` (and through it `ngwr/select` and `ngwr/button`), `ngwr/spinner` and `@angular/cdk/drag-drop` — the selection column, the filter menu, the pager and column drag-reorder are inputs on one component, not separate imports, so the code is reachable whether or not the template asks for it. **Two: `provideWrOverlay()` is the heaviest provider in the catalog**, because what it pulls is CDK's overlay module, not ngwr code — it is optional in the sense that panels open without it, not in the sense that it is small. Any overlay component pulls that module in anyway, so the marginal cost is near zero once one dialog is on the page and close to the whole of it in an app that has none. Measure yours rather than budgeting from a page; the two commands below are the ones that answer it."
+    description="Two things worth knowing before you budget. An entry point brings its static imports whether or not you use the feature, so a bare `<wr-table>` still carries the checkbox, dropdown, pagination and spinner it can show. And `provideWrOverlay()` pulls CDK's overlay module, which is the heaviest thing here — free once any overlay is on the page. Measure your own build with the commands below."
   >
     <ngwr-doc-code [code]="snippets.measureJs" language="bash" />
   </ngwr-doc-section>

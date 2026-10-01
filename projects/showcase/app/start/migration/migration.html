@@ -97,7 +97,7 @@
 
   <ngwr-doc-section
     title="v14 to v15 — the sortable list projects its rows"
-    description="`<wr-sortable-list>` no longer owns the loop. Write your own and project one `<wr-sortable-item>` per row, which gives a row somewhere to carry its own markup instead of forcing every per-row decision onto an input of the list. `trackBy` is gone with the loop — the track expression is yours now."
+    description="It moved to an entry point of its own as well: `ngwr/drag-drop` became `ngwr/sortable-list`, import path and `@use` alike, every symbol keeping its name — the codemod rewrites that half. `<wr-sortable-list>` no longer owns the loop. Write your own and project one `<wr-sortable-item>` per row, which gives a row somewhere to carry its own markup instead of forcing every per-row decision onto an input of the list. `trackBy` is gone with the loop — the track expression is yours now."
   >
     <ngwr-doc-code [code]="snippets.v15Sortable" language="diff" />
     <p wrTypography variant="small" tone="muted">
