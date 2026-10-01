@@ -75,6 +75,40 @@ export default class MigrationPageComponent {
 - <button [attr.aria-label]="label">
 + <button [attr.aria-label]="label()">`,
 
+    v15: `# Tokens. The first two carry the identical value in both themes, so
+# every rule rewritten this way paints exactly as it did.
+- border: 1px solid var(--wr-color-light);
++ border: 1px solid var(--wr-color-outline);
+- background: rgba(var(--wr-color-light-rgb), 0.4);
++ background: rgba(var(--wr-color-outline-rgb), 0.4);
+- color: var(--wr-color-dark);
++ color: var(--wr-color-on-surface);
+- color: var(--wr-color-muted-text);
++ color: var(--wr-color-on-surface-muted);
+
+# --wr-color-medium moves one step of the neutral ramp. It was a FILL and
+# the role replacing it is calibrated as TEXT.
+- color: var(--wr-color-medium);
++ color: var(--wr-color-on-surface-muted);
+
+# Two values that were named after a removed intent and never painted one.
+- <p wrTypography tone="dark">Heading</p>
++ <p wrTypography tone="base">Heading</p>
+- <p wrTypography tone="medium">Caption</p>
++ <p wrTypography tone="muted">Caption</p>
+- <wr-timeline-item color="medium">Archived</wr-timeline-item>
++ <wr-timeline-item color="neutral">Archived</wr-timeline-item>
+
+# And the BEM class each of them emits.
+- .wr-typography--tone-medium { ... }
++ .wr-typography--tone-muted { ... }
+
+# NOT rewritten. There is no replacement a codemod can pick.
+  <wr-btn color="secondary">Go</wr-btn>
+  <wr-tag color="dark">Archived</wr-tag>
+  var(--wr-color-secondary-ink)
+  var(--wr-color-light-lighter)`,
+
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
 # One command, whatever major you are on: ng update installs the latest
 # release and applies every migration newer than the version you had, oldest

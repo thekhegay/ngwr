@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Migration guide"
-  description="How to move between major versions of ngwr. Each major does one of three things here, and which one depends on what it broke. **v7, v8, v9, v12 and v14 REWRITE**: their breaking changes are in code, so `ng update` edits your templates, TypeScript and stylesheets in place — the tables below document what moved if you'd rather do it by hand. **v13 REPORTS**: its one breaking change is a selector that stops matching, which no codemod can fix for you (only you know which element you meant) but which is worth a file list, because nothing anywhere errors. **v10 and v11 ship neither**, deliberately: they broke painted COLOUR — contrast on `--wr-color-*-contrast`, table header casing and tooltip theming in v10, five deepened intents in v11 — and no codemod can repair a screenshot. An empty one would only have told you your visual regressions were handled when they were not."
+  description="How to move between major versions of ngwr. Each major does one of three things here, and which one depends on what it broke. **v7, v8, v9, v12, v14 and v15 REWRITE**: their breaking changes are in code, so `ng update` edits your templates, TypeScript and stylesheets in place — the tables below document what moved if you'd rather do it by hand. **v15 also reports**, because half of what it broke is a colour decision only you can make: a removed intent has no mechanical replacement, while the neutral tokens it replaced do. **v13 REPORTS**: its one breaking change is a selector that stops matching, which no codemod can fix for you (only you know which element you meant) but which is worth a file list, because nothing anywhere errors. **v10 and v11 ship neither**, deliberately: they broke painted COLOUR — contrast on `--wr-color-*-contrast`, table header casing and tooltip theming in v10, five deepened intents in v11 — and no codemod can repair a screenshot. An empty one would only have told you your visual regressions were handled when they were not."
   [keywords]="['migration', 'ng update', 'upgrade', 'breaking changes', 'codemod', 'schematics']"
 >
   <ngwr-doc-section
@@ -63,6 +63,43 @@
       how long the line you are leaving keeps getting security fixes, and what the open-ended Angular peer range does
       and does not promise.
     </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15 — the palette is five intents"
+    description="`secondary`, `light`, `medium` and `dark` are gone. The first was a second brand colour, which a library cannot pick for you. The other three were neutral FILLS wearing the names of surfaces, and what replaced them is a six-step gray ramp read through roles that name the job — `--wr-color-surface`, `-on-surface`, `-on-surface-muted`, `-outline`, `-hover`, `-fill`, `-fill-subtle`, `-fill-strong`, `-placeholder`. Paint with the role, never with a ramp step: the step is the substrate, and reaching past the role is how a rule ends up right in one theme only."
+  >
+    <p wrTypography variant="small" tone="muted">
+      <strong>The silent half is a <code>var()</code> at a token that no longer exists.</strong> It is invalid at
+      computed-value time, so the browser drops the whole declaration holding it — a
+      <code>border: 1px solid var(--wr-color-light)</code> draws no border at all, a background stays transparent — and
+      nothing says so in the build, the console or a test. A dropped declaration is indistinguishable from a rule nobody
+      wrote. This repository found 220 of them in its own docs site after the cut, across 71 files, with every one of
+      its nine gates green. <code>ng update ngwr@15</code> rewrites the four families that have a successor, so the
+      common case needs nothing from you.
+    </p>
+    <p wrTypography variant="small" tone="muted">
+      <strong>A removed intent in a template fails loudly, or not at all.</strong> With <code>strictTemplates</code> —
+      the CLI default — a static <code>color="secondary"</code> is a compile error naming the five values that remain.
+      Without it the string binds, the component writes a class no rule matches, and the element renders neutral in
+      silence. The codemod lists every one either way, and rewrites none: whether a <code>secondary</code> button should
+      become <code>primary</code>, <code>danger</code> or a colour you declare yourself is a decision only you can make,
+      and <code>light</code> / <code>medium</code> / <code>dark</code> were fills, so dropping the attribute to get the
+      neutral variant is a visual change rather than a rename.
+    </p>
+    <p wrTypography variant="small" tone="muted">
+      <strong>A compile-time rebrand has to drop the removed keys.</strong> A
+      <code>&#64;use 'ngwr' with ($base-colors: (…))</code> map still naming one of the four stops the Sass build with
+      the key in the message. The neutrals are no longer seeded there at all: they are the gray ramp, and each theme
+      sets its own six steps rather than mirroring the other's.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15 — what the codemod rewrites"
+    description="Two kinds, and both pass the same test: the new form means what the old one meant in the same place. The neutral TOKENS, where three of the four successors carry the identical value in both themes, so a rewritten stylesheet paints to the pixel. And two VALUES that were named after an intent while always painting a neutral role — `[wrTypography]`'s `tone` and `<wr-timeline-item>`'s `color` — which move onto the name of what they do, together with the BEM class each emits."
+  >
+    <ngwr-doc-code [code]="snippets.v15" language="diff" />
   </ngwr-doc-section>
 
   <ngwr-doc-section

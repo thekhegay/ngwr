@@ -84,15 +84,24 @@ const READ_SOURCES: readonly (readonly [string])[] = [[join(ROOT, 'projects/lib'
 const READ_EXTENSIONS: ReadonlySet<string> = new Set(['.scss', '.html', '.ts']);
 
 /**
- * The one exclusion, and it is not a convenience.
+ * Two exclusions, and they are the same exclusion twice.
  *
  * A codemod's whole job is the old vocabulary: `migration-v15` carries a table
  * mapping `--wr-color-light` to `--wr-color-outline`, and its spec feeds it
  * fixtures holding every deleted name — including the orphan shades it must
  * REFUSE to rewrite, which by construction can never resolve. Scanning those is
  * asking a migration to stop naming what it migrates.
+ *
+ * `/start/migration` is the consumer-facing half of exactly that. Its diff
+ * snippets show the removed name on the `-` line and its successor on the `+`
+ * one, so every dangling read there is the page doing its job. Nothing else in
+ * the showcase gets this: the page is the one surface whose subject is the
+ * vocabulary a release took away.
  */
-const READ_SKIP = join(ROOT, 'projects/lib/schematics');
+const READ_SKIP: readonly string[] = [
+  join(ROOT, 'projects/lib/schematics'),
+  join(ROOT, 'projects/showcase/app/start/migration'),
+];
 
 /**
  * The marker covers a contiguous RUN of declarations, not a fixed number of
@@ -295,7 +304,7 @@ function danglingReads(lists: ReadonlyMap<string, LoopList>): { file: string; li
   const scanned: { file: string; lines: string[] }[] = [];
 
   for (const [dir] of READ_SOURCES) {
-    for (const file of files(dir, p => READ_EXTENSIONS.has(extname(p)) && !p.startsWith(READ_SKIP))) {
+    for (const file of files(dir, p => READ_EXTENSIONS.has(extname(p)) && !READ_SKIP.some(skip => p.startsWith(skip)))) {
       const src = withoutComments(readFileSync(file, 'utf8'));
       const lines = [...src.split('\n'), ...expansions(src, lists)];
       scanned.push({ file: relative(ROOT, file), lines });
