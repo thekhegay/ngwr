@@ -33,7 +33,7 @@ export const COMPONENT_GROUPS: readonly SidebarGroup[] = [
   {
     title: 'Data',
     children: [
-      { title: 'Drag & Drop', url: ['/reference/components', 'drag-drop'] },
+      { title: 'Sortable List', url: ['/reference/components', 'sortable-list'] },
       { title: 'Event Calendar', url: ['/reference/components', 'event-calendar'] },
       { title: 'Graph', url: ['/reference/components', 'graph'] },
       { title: 'Pagination', url: ['/reference/components', 'pagination'] },

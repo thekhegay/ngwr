@@ -9,6 +9,7 @@ import { Subject } from 'rxjs';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { WrSortableItem } from './sortable-item';
 import { WrSortableList } from './sortable-list';
 import type { WrSortableReorderEvent } from './types';
 
@@ -24,7 +25,7 @@ const ROWS: Row[] = [
 ];
 
 @Component({
-  imports: [WrSortableList],
+  imports: [WrSortableList, WrSortableItem],
   template: `
     <wr-sortable-list
       [(items)]="items"
@@ -32,9 +33,11 @@ const ROWS: Row[] = [
       [disabled]="disabled()"
       (reorder)="events.push($event)"
     >
-      <ng-template let-row let-i="index">
-        <span class="row">{{ i + 1 }}. {{ row.label }}</span>
-      </ng-template>
+      @for (row of items(); track row.id) {
+        <wr-sortable-item>
+          <span class="row">{{ $index + 1 }}. {{ row.label }}</span>
+        </wr-sortable-item>
+      }
     </wr-sortable-list>
   `,
 })
@@ -364,36 +367,12 @@ describe('WrSortableList under a reading direction', () => {
   });
 });
 
-@Component({
-  imports: [WrSortableList],
-  template: `
-    <wr-sortable-list [(items)]="items">
-      <ng-template let-row>{{ row }}</ng-template>
-    </wr-sortable-list>
-  `,
-})
-class PrimitiveHost {
-  readonly items = signal<string[]>(['a', 'b', 'a']);
-}
-
-describe('WrSortableList over repeated primitives', () => {
-  it('renders a list whose values repeat', () => {
-    // The default `trackBy` is identity, which for objects is exactly right and
-    // for repeated primitives is a duplicate key. Angular is loud about that, so
-    // this pins which way it goes rather than leaving it to be discovered.
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({});
-    const fixture = TestBed.createComponent(PrimitiveHost);
-
-    expect(() => fixture.detectChanges()).not.toThrow();
-    // Scoped to the list: the component also renders the screen-reader-only key
-    // model and its live region, and both are text on the host.
-    const list = (fixture.nativeElement as HTMLElement).querySelector('.wr-sortable-list__list')!;
-    expect(list.textContent.replace(/\s+/g, '')).toBe('aba');
-
-    fixture.destroy();
-  });
-});
+/*
+ * The repeated-primitive case that used to sit here pinned the default
+ * `trackBy` of the list's own `@for`. v15 moved the loop to the consumer, so
+ * the track expression is theirs and a duplicate key is Angular's own error to
+ * report, not this component's behaviour to hold.
+ */
 
 /**
  * `[lockAxis]` is deliberately not driven here, for the same reason the marquee

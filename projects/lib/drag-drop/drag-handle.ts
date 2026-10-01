@@ -16,12 +16,12 @@ import { Directive } from '@angular/core';
  * @example
  * ```html
  * <wr-sortable-list [(items)]="rows">
- *   <ng-template let-row>
- *     <div class="row">
+ *   @for (row of rows(); track row.id) {
+ *     <wr-sortable-item>
  *       <span wrDragHandle class="grip">≡</span>
  *       <span>{{ row.label }}</span>
- *     </div>
- *   </ng-template>
+ *     </wr-sortable-item>
+ *   }
  * </wr-sortable-list>
  * ```
  */

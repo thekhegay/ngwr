@@ -226,6 +226,36 @@ describe('ng update ngwr@15', () => {
     it('names a WrColor literal the narrowed union refuses', () => {
       expect(said(run({ '/a.ts': "const c: WrColor = 'medium';" }).logs, 'WrColor')).toBe(true);
     });
+
+    it('names a sortable list still rendering its row from a template', () => {
+      const source = [
+        '<wr-sortable-list [(items)]="rows">',
+        '  <ng-template let-row>{{ row.label }}</ng-template>',
+        '</wr-sortable-list>',
+      ].join('\n');
+      const { logs, read } = run({ '/a.html': source });
+
+      expect(said(logs, 'wr-sortable-item')).toBe(true);
+      expect(read('/a.html')).toBe(source);
+    });
+
+    it('leaves a migrated sortable list alone', () => {
+      const source = [
+        '<wr-sortable-list [(items)]="rows">',
+        '  @for (row of rows(); track row.id) {',
+        '    <wr-sortable-item>{{ row.label }}</wr-sortable-item>',
+        '  }',
+        '</wr-sortable-list>',
+      ].join('\n');
+
+      expect(said(run({ '/a.html': source }).logs, 'wr-sortable-item')).toBe(false);
+    });
+
+    it('does not claim an ng-template that belongs to something else', () => {
+      const source = ['<wr-select [options]="o" />', '<ng-template #tpl>x</ng-template>'].join('\n');
+
+      expect(said(run({ '/a.html': source }).logs, 'wr-sortable-item')).toBe(false);
+    });
   });
 
   /**

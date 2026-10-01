@@ -1079,7 +1079,6 @@ export const API = {
     { name: "disabled", description: "Disable all dragging.", type: "boolean", default: "false" },
     { name: "lockAxis", description: "Locked axis — restrict drag movement to one axis even diagonally.", type: "'x' | 'y' | undefined", default: "undefined" },
     { name: "dragStartDelay", description: "Delay (ms) before a drag begins after the pointer goes down. The touch delay is the fix for the classic CDK touch snag: without it, the `touch-action: none` CDK puts on each item blocks scrolling the list on a phone. With a small touch delay, a quick swipe scrolls and a brief hold starts the drag; mouse stays instant. Pass a single number to apply one delay to both pointers.", type: "number | { touch: number; mouse: number }", default: "{ touch: 150, mouse: 0 }" },
-    { name: "trackBy", description: "`trackBy` for the inner `@for`. Defaults to identity.", type: "(index: number, item: T) => unknown", default: "(_, item) => item" },
     { name: "(reorder)", description: "Fired after a successful reorder with the new array + indices.", type: "WrSortableReorderEvent<T>" },
   ],
   // <wr-sparkline>

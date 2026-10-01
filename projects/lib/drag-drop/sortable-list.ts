@@ -7,27 +7,30 @@
 
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { CdkDrag, type CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import { NgTemplateOutlet } from '@angular/common';
+import { type CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import type { ElementRef } from '@angular/core';
 import {
   Component,
   Injector,
-  TemplateRef,
   ViewEncapsulation,
   afterNextRender,
-  contentChild,
   inject,
   input,
   model,
   output,
   signal,
-  viewChildren,
 } from '@angular/core';
 
 import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
 
-import type { WrSortableReorderEvent } from './types';
+import { WR_SORTABLE_LIST } from './tokens';
+import type { WrSortableListContext, WrSortableReorderEvent } from './types';
+
+/** Whether `b` comes after `a` in the document. */
+function follows(a: HTMLElement, b: HTMLElement): boolean {
+  // eslint-disable-next-line no-bitwise -- compareDocumentPosition answers with a bitmask
+  return (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+}
 
 /** Counted, not random: the list prerenders, so the id has to match on rehydration. */
 let sortableListUid = 0;
@@ -37,10 +40,12 @@ let sortableListUid = 0;
  * signal-based items binding — the source array is updated in place and
  * emitted via 2-way `[(items)]`.
  *
- * Drop a single template — it's rendered per item with `let-item
- * let-index="index"`. Put `wrDragHandle` on an element inside that
- * template to restrict drag start to a handle; there is no input for
- * it, the directive's presence is the switch.
+ * Write the loop yourself and project a `<wr-sortable-item>` per row. Until
+ * v15 the list owned the loop and rendered one unnamed `<ng-template
+ * let-row let-i="index">`, which said nothing in the markup about where those
+ * variables came from and gave a row no way to carry anything of its own. Put
+ * `wrDragHandle` on an element inside a row to restrict drag start to a
+ * handle; there is no input for it, the directive's presence is the switch.
  *
  * Every row is a tab stop: Space or Enter picks it up, the arrow keys move it,
  * Space or Enter drops it and Escape puts it back. CDK's `cdkDrag` ships no key
@@ -61,26 +66,27 @@ let sortableListUid = 0;
  * @example
  * ```html
  * <wr-sortable-list [(items)]="rows" (reorder)="onReorder($event)">
- *   <ng-template let-row let-i="index">
- *     <div class="row">
+ *   @for (row of rows(); track row.id) {
+ *     <wr-sortable-item>
  *       <span wrDragHandle>≡</span>
- *       {{ i + 1 }}. {{ row.label }}
- *     </div>
- *   </ng-template>
+ *       {{ row.label }}
+ *     </wr-sortable-item>
+ *   }
  * </wr-sortable-list>
  * ```
  *
- * @see https://ngwr.dev/reference/components/drag-drop
+ * @see https://ngwr.dev/reference/components/sortable-list
  */
 @Component({
   selector: 'wr-sortable-list',
   templateUrl: './sortable-list.html',
   styleUrl: './sortable-list.scss',
   encapsulation: ViewEncapsulation.None,
-  imports: [CdkDropList, CdkDrag, NgTemplateOutlet],
+  imports: [CdkDropList],
   host: { class: 'wr-sortable-list' },
+  providers: [{ provide: WR_SORTABLE_LIST, useExisting: WrSortableList }],
 })
-export class WrSortableList<T = unknown> {
+export class WrSortableList<T = unknown> implements WrSortableListContext {
   /** Items to render. Two-way — emits the reordered array on drop. */
   readonly items = model.required<T[]>();
 
@@ -103,13 +109,8 @@ export class WrSortableList<T = unknown> {
    */
   readonly dragStartDelay = input<number | { touch: number; mouse: number }>({ touch: 150, mouse: 0 });
 
-  /** `trackBy` for the inner `@for`. Defaults to identity. */
-  readonly trackBy = input<(index: number, item: T) => unknown>((_, item) => item);
-
   /** Fired after a successful reorder with the new array + indices. */
   readonly reorder = output<WrSortableReorderEvent<T>>();
-
-  protected readonly rowTemplate = contentChild.required(TemplateRef<{ $implicit: T; index: number }>);
 
   private readonly injector = inject(Injector);
 
@@ -129,16 +130,26 @@ export class WrSortableList<T = unknown> {
    */
   private readonly dir = inject(Directionality, { optional: true });
 
-  private readonly rowEls = viewChildren<ElementRef<HTMLElement>>('row');
+  /**
+   * The rows, in projection order, which is the order the consumer's own loop
+   * rendered them in — so a row's position here IS its index into `items()`.
+   *
+   * Collected on construction rather than through `contentChildren`, because
+   * the keyboard path has to resolve an index DURING a keydown and a query
+   * signal is only guaranteed current after change detection. A row that
+   * Angular destroys drops out on the next lookup: the element is gone from
+   * the DOM, so `indexOf` cannot find it and the stale entry is swept then.
+   */
+  private readonly rows: { readonly host: ElementRef<HTMLElement> }[] = [];
 
   /** Index of the row the keyboard is holding, or `null` when nothing is held. */
-  protected readonly grabbedIndex = signal<number | null>(null);
+  readonly grabbedIndex = signal<number | null>(null);
 
   /** Live-region text. Written by the keyboard path only. */
   protected readonly announcement = signal('');
 
   /** Links every row to the key model via `aria-describedby`. */
-  protected readonly keyHelpId = `wr-sortable-list-help-${++sortableListUid}`;
+  readonly keyHelpId = `wr-sortable-list-help-${++sortableListUid}`;
 
   protected readonly resolvedKeyHelp = readI18nText(
     'sortableList.keyHelp',
@@ -179,7 +190,29 @@ export class WrSortableList<T = unknown> {
    * an input projected into the row template keeps every key it would normally
    * get.
    */
-  protected onRowKeydown(event: KeyboardEvent, index: number): void {
+  /** @internal A row registering itself on construction. */
+  register(item: { readonly host: ElementRef<HTMLElement> }): void {
+    this.rows.push(item);
+  }
+
+  /**
+   * @internal A row's position among its live siblings.
+   *
+   * Read off the DOM rather than off the registration order, because a row can
+   * be added, removed or moved by the consumer's own loop and construction
+   * order survives none of those. Rows whose element has left the document are
+   * swept here, which is the only place that can tell.
+   */
+  indexOf(item: { readonly host: ElementRef<HTMLElement> }): number {
+    for (let i = this.rows.length - 1; i >= 0; i -= 1) {
+      if (!this.rows[i].host.nativeElement.isConnected) this.rows.splice(i, 1);
+    }
+    this.rows.sort((a, b) => (follows(a.host.nativeElement, b.host.nativeElement) ? -1 : 1));
+    return this.rows.indexOf(item);
+  }
+
+  /** @internal */
+  onRowKeydown(event: KeyboardEvent, index: number): void {
     if (this.disabled() || event.target !== event.currentTarget) return;
 
     const grabbed = this.grabbedIndex();
@@ -226,7 +259,8 @@ export class WrSortableList<T = unknown> {
    * The guard is what makes it safe: moving a focused node in the DOM blurs it,
    * so every keyboard move fires this too.
    */
-  protected onRowFocusout(): void {
+  /** @internal */
+  onRowFocusout(): void {
     if (this.restoringFocus || this.grabbedIndex() === null) return;
     this.drop();
   }
@@ -287,7 +321,7 @@ export class WrSortableList<T = unknown> {
     this.restoringFocus = true;
     afterNextRender(
       () => {
-        this.rowEls()[to]?.nativeElement.focus();
+        this.rows[to]?.host.nativeElement.focus();
         this.restoringFocus = false;
       },
       { injector: this.injector }

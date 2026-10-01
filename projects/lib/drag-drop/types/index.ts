@@ -11,3 +11,4 @@ interface WrSortableReorderEvent<T> {
 }
 
 export type { WrSortableReorderEvent };
+export type { WrSortableListContext } from './sortable-list-context';

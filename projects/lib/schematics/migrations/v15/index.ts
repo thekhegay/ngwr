@@ -212,6 +212,23 @@ const REMOVED_INTENT_ATTR = new RegExp(String.raw`\s\[?color\]?\s*=\s*["']\s*'?(
 /** A BEM class for a removed intent, in a stylesheet or a test locator. */
 const REMOVED_INTENT_CLASS = new RegExp(String.raw`\.?wr-[\w-]+--(?:${REMOVED.join('|')})(?![\w-])`);
 
+/**
+ * A `<wr-sortable-list>` still rendering its row through an `<ng-template>`.
+ *
+ * Reported rather than rewritten, and this is the clearest case of the rule in
+ * the file: turning the template into a loop needs the name of the array and a
+ * track expression, and only the author knows both. The template's context
+ * variables (`let-row`, `let-i="index"`) also become ordinary bindings in the
+ * caller's own `@for`, which is a rewrite of the row's body rather than of its
+ * wrapper.
+ *
+ * It fails loudly — `contentChild.required(TemplateRef)` is gone, so the
+ * template is simply never rendered and the list comes up empty — but an empty
+ * list reads as "no data" rather than as a migration step, which is why it is
+ * worth naming the files.
+ */
+const SORTABLE_TEMPLATE = new RegExp(String.raw`<wr-sortable-list(?![-\w])[\s\S]*?<ng-template`);
+
 /** `$base-colors:` configured with a key v15 removed. */
 const BASE_COLORS_KEY = new RegExp(String.raw`\$base-colors\s*:[\s\S]{0,400}?\b(?:${REMOVED.join('|')})\s*:`);
 
@@ -226,6 +243,7 @@ function ngUpdateV15(): Rule {
     const orphanShades: string[] = [];
     const baseColors: string[] = [];
     const colorLiterals: string[] = [];
+    const sortableTemplates: string[] = [];
     let rewritten = 0;
 
     visit(tree, '/', filePath => {
@@ -257,6 +275,7 @@ function ngUpdateV15(): Rule {
       if (ORPHAN_SHADE.test(content)) orphanShades.push(filePath);
       if (isStyle && BASE_COLORS_KEY.test(content)) baseColors.push(filePath);
       if (isTs && WR_COLOR_LITERAL.test(content)) colorLiterals.push(filePath);
+      if ((isTs || isHtml) && SORTABLE_TEMPLATE.test(content)) sortableTemplates.push(filePath);
     });
 
     if (rewritten > 0) {
@@ -339,6 +358,17 @@ function ngUpdateV15(): Rule {
       for (const file of colorLiterals) context.logger.warn(`  ${file}`);
     }
 
+    if (sortableTemplates.length > 0) {
+      context.logger.warn(
+        `ngwr v15: <wr-sortable-list> with an <ng-template> row in ${sortableTemplates.length} file(s). The list no ` +
+          'longer owns the loop: write your own and project one <wr-sortable-item> per row, which also gives a row ' +
+          'somewhere to carry its own markup. `trackBy` is gone with the loop — the track expression is yours now. ' +
+          'Not rewritten because turning a template into a loop needs the array name and a track key, and only you ' +
+          'know both. The list renders nothing until you do, which looks like empty data rather than a missed step.'
+      );
+      for (const file of sortableTemplates) context.logger.warn(`  ${file}`);
+    }
+
     if (
       rewritten === 0 &&
       intentAttrs.length === 0 &&
@@ -346,7 +376,8 @@ function ngUpdateV15(): Rule {
       secondaryTokens.length === 0 &&
       orphanShades.length === 0 &&
       baseColors.length === 0 &&
-      colorLiterals.length === 0
+      colorLiterals.length === 0 &&
+      sortableTemplates.length === 0
     ) {
       context.logger.info('ngwr v15 migration: nothing to do — no affected usage found.');
     }

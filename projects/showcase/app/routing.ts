@@ -163,7 +163,7 @@ export const routes = {
     pullToRefresh: 'pull-to-refresh',
     table: 'table',
     virtualScroll: 'virtual-scroll',
-    dragDrop: 'drag-drop',
+    sortableList: 'sortable-list',
     window: 'window',
   },
   directives: {

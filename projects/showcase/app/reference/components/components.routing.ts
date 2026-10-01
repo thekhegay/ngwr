@@ -314,9 +314,12 @@ export default [
     loadComponent: () => import('./virtual-scroll/virtual-scroll'),
   },
   {
-    path: components.dragDrop,
-    loadComponent: () => import('./drag-drop/drag-drop'),
+    path: components.sortableList,
+    loadComponent: () => import('./sortable-list/sortable-list'),
   },
+  // The page was called "Drag & Drop" until v15, after the entry point rather
+  // than after the component it documents.
+  { path: 'drag-drop', redirectTo: components.sortableList },
   {
     path: components.tabs,
     loadComponent: () => import('./tabs/tabs'),

@@ -96,6 +96,18 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="v14 to v15 — the sortable list projects its rows"
+    description="`<wr-sortable-list>` no longer owns the loop. Write your own and project one `<wr-sortable-item>` per row, which gives a row somewhere to carry its own markup instead of forcing every per-row decision onto an input of the list. `trackBy` is gone with the loop — the track expression is yours now."
+  >
+    <ngwr-doc-code [code]="snippets.v15Sortable" language="diff" />
+    <p wrTypography variant="small" tone="muted">
+      Not rewritten by the codemod: turning a template into a loop needs the array name and a track key, and only you
+      know both. It names every file instead. The list renders nothing until you migrate, which reads as empty data
+      rather than as a missed step.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="v14 to v15 — what the codemod rewrites"
     description="Two kinds, and both pass the same test: the new form means what the old one meant in the same place. The neutral TOKENS, where three of the four successors carry the identical value in both themes, so a rewritten stylesheet paints to the pixel. And two VALUES that were named after an intent while always painting a neutral role — `[wrTypography]`'s `tone` and `<wr-timeline-item>`'s `color` — which move onto the name of what they do, together with the BEM class each emits."
   >

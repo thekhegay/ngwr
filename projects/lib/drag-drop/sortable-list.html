@@ -1,8 +1,11 @@
 <!--
-  `role="list"` / `role="listitem"` rather than the bare divs this used to be:
-  every row is a tab stop now, and a focusable element with no role at all is
-  announced as loose text. The list role is also what gives the reader the
+  `role="list"` on the container and `role="listitem"` on each row rather than
+  bare divs: every row is a tab stop, and a focusable element with no role at
+  all is announced as loose text. The list role is what gives the reader the
   position of the row focus lands on.
+
+  Rows arrive through `<ng-content>` — the consumer writes the loop, so the
+  markup says what each row is instead of hiding it in an unnamed template.
 -->
 <div
   cdkDropList
@@ -12,24 +15,7 @@
   [cdkDropListDisabled]="disabled()"
   (cdkDropListDropped)="onDrop($event)"
 >
-  @for (item of items(); track trackBy()($index, item)) {
-    <div
-      #row
-      cdkDrag
-      role="listitem"
-      class="wr-sortable-list__item"
-      [class.wr-sortable-list__item--grabbed]="grabbedIndex() === $index"
-      [attr.tabindex]="disabled() ? null : 0"
-      [attr.aria-describedby]="disabled() ? null : keyHelpId"
-      [cdkDragDisabled]="disabled()"
-      [cdkDragLockAxis]="lockAxis() ?? null"
-      [cdkDragStartDelay]="dragStartDelay()"
-      (keydown)="onRowKeydown($event, $index)"
-      (focusout)="onRowFocusout()"
-    >
-      <ng-container *ngTemplateOutlet="rowTemplate(); context: { $implicit: item, index: $index }" />
-    </div>
-  }
+  <ng-content />
 </div>
 
 <!--

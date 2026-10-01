@@ -109,6 +109,19 @@ export default class MigrationPageComponent {
   var(--wr-color-secondary-ink)
   var(--wr-color-light-lighter)`,
 
+    v15Sortable: `  <wr-sortable-list [(items)]="rows" (reorder)="onReorder($event)">
+-   <ng-template let-row let-i="index">
+-     <div class="row">{{ i + 1 }}. {{ row.label }}</div>
+-   </ng-template>
++   @for (row of rows(); track row.id; let i = $index) {
++     <wr-sortable-item>{{ i + 1 }}. {{ row.label }}</wr-sortable-item>
++   }
+  </wr-sortable-list>
+
+# imports: [] takes the new component too.
+- imports: [WrSortableList]
++ imports: [WrSortableList, WrSortableItem]`,
+
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
 # One command, whatever major you are on: ng update installs the latest
 # release and applies every migration newer than the version you had, oldest

@@ -67,7 +67,7 @@ root barrel for components.
 | `ngwr/divider` | `import { WrDivider } from 'ngwr/divider'` | `wr-divider` |
 | `ngwr/donut-chart` | `import { WrDonutChart } from 'ngwr/donut-chart'` | `wr-donut-chart` |
 | `ngwr/donut-chart/testing` | `import { WrDonutChartHarness } from 'ngwr/donut-chart/testing'` | — |
-| `ngwr/drag-drop` | `import { WrSortableList } from 'ngwr/drag-drop'` | `[wrDragHandle]` `wr-sortable-list` |
+| `ngwr/drag-drop` | `import { WrSortableList } from 'ngwr/drag-drop'` | `[wrDragHandle]` `wr-sortable-item` `wr-sortable-list` |
 | `ngwr/drawer` | `import { WrDrawer } from 'ngwr/drawer'` | `[wrDrawerClose]` `[wrDrawerContent]` `[wrDrawerFooter]` `[wrDrawerTitle]` `wr-drawer` |
 | `ngwr/drawer/testing` | `import { WrDrawerHarness } from 'ngwr/drawer/testing'` | — |
 | `ngwr/dropdown` | `import { WrDropdown } from 'ngwr/dropdown'` | `wr-dropdown-item` `wr-dropdown-menu` `[wrDropdown]` |

@@ -307,6 +307,20 @@ function docPageDescription(html: string): string {
  */
 const CLUSTER_PRIORITY = ['components', 'directives', 'pipes', 'services', 'utils', 'validators', 'interfaces'];
 
+/**
+ * Entry point → the page directory that documents it, where the two differ.
+ *
+ * A page is normally named after its entry point and the lookup is the folder
+ * name. `ngwr/drag-drop` is the exception v15 created deliberately: the entry
+ * point is the namespace for `WrSortableList` and `WrDragHandle` together,
+ * while the page documents the component, so it is `/reference/components/
+ * sortable-list`. Keyed by entry point and not by page, because the entry
+ * point is what the generated asset is listing.
+ */
+const PAGE_FOR_ENTRY: Readonly<Record<string, string>> = {
+  'drag-drop': 'sortable-list',
+};
+
 const descriptions = ((): Map<string, string> => {
   const map = new Map<string, string>();
 
@@ -324,6 +338,12 @@ const descriptions = ((): Map<string, string> => {
   for (const cluster of clusters) {
     const clusterDir = join(REFERENCE_DIR, cluster);
     for (const name of dirsOnly(clusterDir)) take(name, read(join(clusterDir, name, `${name}.html`)));
+  }
+
+  for (const [entry, page] of Object.entries(PAGE_FOR_ENTRY)) {
+    for (const cluster of clusters) {
+      take(entry, read(join(REFERENCE_DIR, cluster, page, `${page}.html`)));
+    }
   }
   for (const name of dirsOnly(ANIMATIONS_DIR)) take(name, read(join(ANIMATIONS_DIR, name, `${name}.html`)));
 

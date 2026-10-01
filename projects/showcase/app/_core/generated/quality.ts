@@ -37,7 +37,7 @@ export const QUALITY = {
   harnessClasses: 106,
 
   /** `@Component` classes a `public-api.ts` exports. Excludes the ones the library instantiates for itself (the toast host, the window container), which no consumer can write. */
-  components: 140,
+  components: 141,
 
   /** `@Directive` classes a `public-api.ts` exports, counted the same way. */
   directives: 39,
@@ -46,7 +46,7 @@ export const QUALITY = {
   specFiles: 304,
 
   /** Test cases those files DECLARE — `it(…)` / `test(…)` call sites, counted after comments and string bodies are stripped. */
-  testCases: 5391,
+  testCases: 5393,
 
   /** Whether `testCases` is a total or a floor. A parameterised form (`it.each`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page says "at least" rather than failing a documentation build over a legal spec. */
   testCasesAreExact: false,
