@@ -18,7 +18,7 @@
     title="What the bridge is"
     description="Two contracts, three ways to bind them, and one thing worth knowing about which half of that is stable."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Twenty ngwr controls implement <code>FormValueControl&lt;T&gt;</code> or <code>FormCheckboxControl</code> from
       <code>&#64;angular/forms/signals</code>. Both contracts are Angular public API, tagged
       <code>&#64;publicApi 22.0</code>. A control that implements one exposes its value as a <code>model()</code> —
@@ -29,13 +29,13 @@
 
     <ngwr-doc-code [code]="snippets.bridge" language="angular-html" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>Signal forms bind that contract directly.</strong> <code>[formField]</code> is the native path: it writes
       the field's value into the <code>value</code> model and reads edits back out, and it carries the schema's
       <code>disabled()</code>, <code>readonly()</code> and validation state with it.
     </p>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong
         >Reactive and template-driven forms reach the same model through a bridge inside <code>NgControl</code></strong
       >
@@ -67,7 +67,7 @@
       </ng-template>
     </wr-table>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>The row to act on is <code>required</code>.</strong> A <code>Validators.required</code> on the
       <code>FormControl</code> reaches the control as nothing at all: no <code>required</code> attribute, no
       <code>aria-required</code>. Marking the field is a separate, manual step —
@@ -81,7 +81,7 @@
     title="Template validator directives are not applied"
     description="The most dangerous gap on this page, because nothing about it is visible: `required`, `minlength`, `maxlength`, `pattern` and `email` written on an ngwr control are ignored. Nothing throws, no error appears, and the form submits."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Each of those attributes matches its validator directive on an ngwr control exactly as it does on a native
       <code>&lt;input&gt;</code>. What differs is what happens next. An accessor-based binding runs Angular's
       <code>setUpValidators</code>, which merges the directives' validators into the <code>FormControl</code>; the
@@ -97,7 +97,7 @@
 
     <ngwr-doc-code [code]="snippets.validators" language="typescript" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>Put every validator on the <code>FormControl</code>.</strong> A template cannot express one for an ngwr
       control, because every template-level validator is a directive and directives are what the bridge drops — so move
       that field to <code>[formControl]</code> or <code>formControlName</code>, or to signal forms, where
@@ -118,7 +118,7 @@
     title="`updateOn: 'blur'` and `'submit'` do not apply"
     description="This is the difference that surprises a team migrating an existing form, because a native `<input>` in the same FormGroup keeps honouring the option."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       A <code>ControlValueAccessor</code> stages each edit as a pending value and commits it when
       <code>updateOn</code> says so. The bridge has no pending stage: the moment an ngwr control's model emits, it calls
       <code>setValue()</code> and <code>markAsDirty()</code>. So
@@ -128,7 +128,7 @@
 
     <ngwr-doc-code [code]="snippets.updateOn" language="typescript" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Two consequences worth planning for. <strong>An expensive validator now runs per keystroke</strong>; if the cost
       was what <code>updateOn: 'blur'</code> was buying you, move the work into an async validator and debounce it
       yourself. And <strong>messages appear on the first edit</strong>: <code>&lt;wr-form-field&gt;</code> reveals an
@@ -139,7 +139,7 @@
       keyed on the errors rather than on the message. Plan for the message arriving on keystroke one.
     </p>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       What still lands on blur is <strong><code>touched</code></strong
       >. That half never went through <code>updateOn</code>: each control emits <code>touch</code> when the user is
       finished with it — a blur, or the commit that closes an overlay — and the bridge marks the control touched. So a
@@ -151,7 +151,7 @@
     title="A silent write does not reach the screen"
     description="`setValue` / `patchValue` / `reset` with `{ emitEvent: false }` moves the model and leaves the control showing the old value. In a zoneless app that covers every HTTP callback, timer and websocket message — and the fix is one call."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       The model-to-view half of the bridge runs inside the host template's change-detection pass. The only thing that
       asks for that pass is a <code>markForCheck()</code> the bridge subscribes to the control's
       <code>valueChanges</code> and <code>statusChanges</code> — and
@@ -188,14 +188,14 @@
           <button wr-btn type="button" outlined (click)="readModel()">Read the model</button>
         </div>
 
-        <p wrTypography variant="small" tone="medium" aria-live="polite">{{ lastWrite() }}</p>
-        <p wrTypography variant="small" tone="medium">
+        <p wrTypography variant="small" tone="muted" aria-live="polite">{{ lastWrite() }}</p>
+        <p wrTypography variant="small" tone="muted">
           <code wrTypography variant="code">form.value</code> at the last read: {{ modelReadout() }}
         </p>
       </form>
     </ngwr-doc-snippet>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>Call <code>markForCheck()</code> after a silent write.</strong> That is the whole fix — one call on the
       host component, covering every control in its template.
     </p>
@@ -215,7 +215,7 @@
     title="An out-of-range value is displayed, not rewritten"
     description="Bounds like `[min]`, `[max]` and `[count]` govern what a control's own edits may produce. A value written in from a FormControl is drawn as best the control can and left in the model exactly as it stands."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       The rule is one decision applied five times, and the reasoning is worth having: a control that clamps on write
       <strong>erases the error the validator exists to report</strong> — the out-of-range number a
       <code>Validators.max</code> would have flagged is gone before anything reads it — and the write
@@ -235,7 +235,7 @@
       </ng-template>
     </wr-table>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       The consequence to design around:
       <strong>a field can look wrong while the form is perfectly consistent.</strong> If a control shows something other
       than what you set, read <code>control.value</code> before suspecting the control — it is almost always holding
@@ -247,7 +247,7 @@
     title="Object values in `<wr-select>`"
     description="Identity is `===`, there is no `compareWith`, and this is the one gap in the list that fails silently in both directions at once."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <code>&lt;wr-select&gt;</code> finds the selected option by comparing the bound value with each
       <code>&lt;wr-option [value]&gt;</code> using <code>===</code>. There is no <code>compareWith</code> input and no
       identity key. An object that came back from a second request is structurally equal to the one in your options list
@@ -259,7 +259,7 @@
     <ngwr-doc-code [code]="snippets.identity" language="typescript" />
     <ngwr-doc-code [code]="snippets.identityTemplate" language="angular-html" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Bind a primitive key and resolve the object where you need it. If the value genuinely has to be the object, keep
       one canonical instance per id in the store the options render from, so the reference the form holds is the
       reference the option carries.
@@ -270,7 +270,7 @@
     title="FormArray, nested groups and child components"
     description="Nothing special is required, because nothing about the bridge is structural: it works per control, and does not care how the directive found its FormControl."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <code>formArrayName</code>, <code>formGroupName</code>, a <code>[formControl]</code> handed to a presentational
       child, and a control resolved through <code>ControlContainer</code> in a child component all bind ngwr controls
       the same way they bind native ones.
@@ -284,7 +284,7 @@
       message="An @for over a FormArray tracked by $index does not re-bind [formGroupName] after removeAt(), so the row left behind keeps rendering the removed group's values. This is Angular's behaviour and it hits a native <input> identically — but it looks like a control bug, so it is worth naming here."
     />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       One thing to own yourself:
       <strong>the bridge's timings are not covered by ngwr's test suite per component.</strong> Angular tests the
       bridge; ngwr's specs prove the contracts, and pin the validator drop on two controls. If your app depends on any

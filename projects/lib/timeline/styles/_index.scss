@@ -74,7 +74,7 @@
   // color-ok: `background: transparent` plus an inset ring makes this dot
   // HOLLOW — a silhouette, like the three above it. Both declarations happen
   // to be colour-valued, which is the one shape this gate cannot read.
-  &--medium &__dot {
+  &--neutral &__dot {
     // Hollow, which reads as the quiet one. The second shadow keeps the 2px
     // surface halo every dot carries, so the ring does not swallow it.
     // This used to paint the `medium` INTENT and deliberately not the muted

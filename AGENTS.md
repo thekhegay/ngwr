@@ -1500,7 +1500,17 @@ too — the home page's bento tags `Standalone` in success and `Zoneless` in
 danger, where a check and a stop sign would say something false. `wr-typography`'s
 `tone` is emphasis and never the only carrier: `success-ink` against
 `danger-ink` is 1.05:1 as text, a directive has no template to draw a glyph
-into, and every semantic use in the showcase names its state in words. `wr-btn`
+into, and every semantic use in the showcase names its state in words. Its two
+NEUTRAL tones are named for the job rather than for a colour since v15 — `base`
+and `muted`, which were `dark` and `medium` and always painted
+`--wr-color-on-surface` and `-on-surface-muted` rather than the intents they
+were named after. `wr-timeline-item`'s quiet dot moved the same way, from
+`medium` to `neutral`. Both are rewritten by `migration-v15`, because there the
+new name means what the old one meant in the same place, which a `color` naming
+a removed intent does not. **Five intents give four tones, and `info` is the one
+left out**: it is the same blue as `primary` to every reader, so as emphasis it
+would be a second name for one appearance — the same reason it is absent from
+the chart components' default series list. `wr-btn`
 (the label is the verb), `wr-divider`, `wr-skeleton` and the button-group seam
 are colour by design, and `wr-progress`'s intent is colour-only whenever a host
 uses it as a status. Three alternatives were costed and not taken: an opt-in

@@ -18,7 +18,7 @@
       <wr-statistic label="Runtime dependencies" [value]="quality.runtimeDependencies.length" />
     </wr-statistic-group>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Every counter says what it measured. Test cases are declared <code>it()</code> call sites, which equals the real
       figure only while nothing mints cases at runtime — so a parameterised form (<code>it.each</code>) or a call site
       inside a loop makes the generator print the file and line and label this figure a floor, and the page then reads
@@ -36,7 +36,7 @@
     title="The gates on every pull request"
     description="These run on every push to a pull request, in this order. The last two read the prerendered site, so they cannot start before it exists."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       All {{ quality.prGates.length }} of them have to be green before anything merges, and the publish job re-runs the
       lint and the library build again before it ships a tarball.
     </p>
@@ -75,7 +75,7 @@
       </ng-template>
     </wr-table>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       The trade is worth saying out loud:
       <strong>a green pull request says nothing about painted contrast or RTL overflow.</strong> If you are working on
       the library and you touch a token, a tint, or anything that paints text on an intent, run
@@ -190,7 +190,7 @@
     title="What the tests cover, and what they do not"
     description="The suite is broad. It is not uniformly deep, and the shallow parts are worth naming."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       {{ testCasesPhrase }} across {{ quality.specFiles }} spec files, and {{ quality.entryPointsWithSpecs }} of the
       {{ quality.entryPoints }} entry points own at least one. Read that second figure narrowly: it is file-level
       coverage of the catalog, not branch coverage of the code. Specs sit beside what they cover and assert the
@@ -199,7 +199,7 @@
       passes straight through the kind of change that actually breaks people.
     </p>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       {{ quality.harnessClasses }} CDK test harness classes ship alongside, published from
       {{ quality.testingEntryPoints }} <code>ngwr/&lt;name&gt;/testing</code> entry points, so your own tests can drive
       a select or a date picker without knowing its markup. Four entry points deliberately have none — three that draw
@@ -207,7 +207,7 @@
       the same each time: every honest method would answer identically for a working component and a broken one.
     </p>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Which is also the first hole. <strong>jsdom has no drawing context and no layout</strong> — every rect is 0×0 — so
       the canvas and WebGL components can never assert anything painted. All six install a recording context and five an
       error recorder besides, which carries their specs past the early return to frame counts, particle counts, a
@@ -215,14 +215,14 @@
       Painted output itself is not reachable, and neither is anything measured in pixels.
     </p>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>The second hole is mode coverage inside components that are covered.</strong>
       <code>wr-table</code> has column pinning, drag-reorder, grouping, tree rows, expandable rows, CSV export and a
       virtualized body on one host; a spec on the table says nothing about tree rows unless it exercises them, and not
       every spec does. A green suite here means no covered behaviour regressed — not that every behaviour is covered.
     </p>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>The third is classic-forms interop, and it is the one worth knowing about</strong> if you are weighing
       ngwr against a library that still ships a <code>ControlValueAccessor</code>. No accessor is created: Angular's
       <code>NgModel</code> / <code>FormControlDirective</code> drive the control's <code>value</code> or
@@ -242,7 +242,7 @@
     title="Breaking changes, and which ones a codemod can honestly repair"
     description="A major ships an `ng update` codemod when a codemod can actually repair what broke — and deliberately ships none when it cannot."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       That rule is the whole table. v12 moved three import paths, which is exactly what a codemod can move without
       reading the code around it. v10 and v11 changed painted colour, which no codemod can repair — and shipping an
       empty one would have told you your visual regressions were handled when they were not.
@@ -259,7 +259,7 @@
       </ng-template>
     </wr-table>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Both partials are deliberate. v12's other break — <code>readI18nText()</code> returning a
       <code>Signal&lt;string&gt;</code> — is not codemodded, because adding <code>()</code> means knowing which
       identifiers hold the result, and a wrong guess is a silent behaviour change. The type error names every call site

@@ -13,7 +13,7 @@
 
     <ngwr-doc-code [code]="snippets.clientRendered" language="bash" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       The part that does the work is the stylesheet import. Twenty-seven entry points — the animation and canvas
       components, plus <code>card</code>, <code>cascader</code>, <code>list</code>, <code>lightbox</code>,
       <code>loading-bar</code>, <code>virtual-scroll</code>, <code>drag-drop</code> and <code>breadcrumbs</code> —
@@ -23,7 +23,7 @@
       stylesheet:
     </p>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       It does matter for one other thing, and only when the injection is <strong>not</strong> blocked: Angular appends
       that copy after your <code>styles.css</code>, so for these twenty-seven a single-class override of your own loses
       to it at equal specificity. Override them through their <a routerLink="/guides/theming">tokens</a> instead. A
@@ -45,7 +45,7 @@
 
     <ngwr-doc-code [code]="snippets.nonce" language="angular-ts" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Importing the stylesheet is the better answer: it is one line, it is the documented install path anyway, and it
       keeps the CSS out of your JavaScript bundle.
     </p>
@@ -64,7 +64,7 @@
 
     <ngwr-doc-code [code]="snippets.ssr" language="bash" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       A statically prerendered site has no per-response step to mint a nonce in, so a nonce there is a fixed string in a
       cacheable file — which buys nothing. Hashes or <code>'unsafe-inline'</code> for <code>style-src</code> are the
       honest options. This is Angular's behaviour, not ngwr's: it applies to your own component styles the same way.
@@ -78,7 +78,7 @@
   <ngwr-doc-section title="This site">
     <ngwr-doc-code [code]="snippets.docsSite" language="bash" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       ngwr.dev is prerendered, which is where the <code>style-src</code> relaxation comes from, and it highlights code
       with shiki — whose Oniguruma engine is a WebAssembly module. Neither applies to the library: nothing you install
       from <code>ngwr</code> pulls in a highlighter, and <code>'wasm-unsafe-eval'</code> is never needed to run the

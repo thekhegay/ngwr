@@ -68,8 +68,8 @@ const VARIANTS: Record<WrTypographyVariant, string[]> = {
 
 /** Same trick for the two smaller unions: `satisfies` refuses an incomplete record. */
 const TONES = Object.keys({
-  dark: true,
-  medium: true,
+  base: true,
+  muted: true,
   primary: true,
   success: true,
   warning: true,
@@ -325,7 +325,7 @@ describe('WrTypography emits a modifier for every documented value', () => {
     'list',
     'link',
   ];
-  const TONES: readonly WrTypographyTone[] = ['dark', 'medium', 'primary', 'success', 'warning', 'danger'];
+  const TONES: readonly WrTypographyTone[] = ['base', 'muted', 'primary', 'success', 'warning', 'danger'];
   const ALIGNS: readonly WrTypographyAlign[] = ['start', 'center', 'end', 'justify'];
 
   it.each(VARIANTS)('variant %s', variant => {

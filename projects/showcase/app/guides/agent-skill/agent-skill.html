@@ -37,7 +37,7 @@
   <ngwr-doc-section title="Using it" description="Point your agent at the copy in node_modules, or commit one.">
     <ngwr-doc-code [code]="snippets.install" language="bash" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Copying it in pins the skill to the version you installed, which is the point — a skill describing a catalog you
       do not have is worse than none. Re-copy it when you upgrade, or symlink and let the package own it.
     </p>
@@ -66,7 +66,7 @@
       a header and nothing under it, passes every input floor and is useless to its one reader.
     </p>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Never hand-edit the generated files — they are rewritten on every build. <code>llms-full.txt</code> is not in git;
       the skill is, so a build that changes the catalog leaves a diff under <code>skills/ngwr/</code> to commit with it.
       Edit the generator.

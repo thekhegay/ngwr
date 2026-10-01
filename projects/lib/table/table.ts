@@ -99,7 +99,7 @@ function flatRow(row: Record<string, unknown>, id: string, posinset: number, set
  *   (filterChange)="onFilter($event)"
  * >
  *   <ng-template wrTableCell="role" let-value>
- *     <wr-tag [color]="value === 'admin' ? 'danger' : 'medium'">{{ value }}</wr-tag>
+ *     <wr-tag [color]="value === 'admin' ? 'danger' : null">{{ value }}</wr-tag>
  *   </ng-template>
  * </wr-table>
  * ```

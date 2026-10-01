@@ -16,7 +16,7 @@ import type { WrTableCellContext } from './types';
  * ```html
  * <wr-table [columns]="columns" [items]="items">
  *   <ng-template wrTableCell="role" let-value let-row="item">
- *     <wr-tag [color]="value === 'admin' ? 'danger' : 'medium'">{{ value }}</wr-tag>
+ *     <wr-tag [color]="value === 'admin' ? 'danger' : null">{{ value }}</wr-tag>
  *   </ng-template>
  * </wr-table>
  * ```

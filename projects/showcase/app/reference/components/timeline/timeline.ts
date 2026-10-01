@@ -32,7 +32,8 @@ export class MyComponent {}`;
 
   protected readonly snippet = `<wr-timeline>
   <wr-timeline-item title="Created" time="2026-05-01">Initial commit.</wr-timeline-item>
-  <wr-timeline-item title="Deployed" time="2026-05-02" color="success">Live.</wr-timeline-item>
+  <wr-timeline-item title="Archived" time="2026-05-02" color="neutral">Branch deleted.</wr-timeline-item>
+  <wr-timeline-item title="Deployed" time="2026-05-03" color="success">Live.</wr-timeline-item>
 </wr-timeline>`;
   protected readonly horizontalSnippet = `<wr-timeline orientation="horizontal">
   <wr-timeline-item title="Plan" time="Q1">Scope agreed.</wr-timeline-item>
@@ -53,8 +54,9 @@ export class MyComponent {}`;
     { name: 'time', description: 'Muted timestamp shown above the title.', type: 'string', default: "''" },
     {
       name: 'color',
-      description: 'Dot color.',
-      type: "'primary' | 'success' | 'warning' | 'danger' | 'medium'",
+      description:
+        'Dot color. Each value draws its own silhouette as well, because a 12px dot with no glyph beside it has nothing but colour otherwise. `neutral` is the quiet one, a hollow ring.',
+      type: "'primary' | 'success' | 'warning' | 'danger' | 'neutral'",
       default: "'primary'",
     },
   ];

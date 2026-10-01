@@ -1408,7 +1408,7 @@ export const API = {
   // <[wrTypography]>
   WrTypography: [
     { name: "variant", description: "Visual variant.", type: "WrTypographyVariant", default: "'body'" },
-    { name: "tone", description: "Color tone. `null` (default) keeps the variant's own color — the base dark for headings/body, medium for lead/caption, primary for links. Emphasis only: a tone never carries a state on its own. Four of the five intents share one lightness, and `success` against `danger` is 1.05:1 as text, so the words have to name the state (`500 Server Error`, not a red `Request`) — or reach for `<wr-alert>`, which draws a glyph per type.", type: "WrTypographyTone | null", default: "null" },
+    { name: "tone", description: "Color tone. `null` (default) keeps the variant's own color — the page ink for headings and body, the muted role for lead and caption, primary for links. Emphasis only: a tone never carries a state on its own. Four of the five intents share one lightness, and `success` against `danger` is 1.05:1 as text, so the words have to name the state (`500 Server Error`, not a red `Request`) — or reach for `<wr-alert>`, which draws a glyph per type.", type: "WrTypographyTone | null", default: "null" },
     { name: "align", description: "Horizontal alignment.", type: "WrTypographyAlign | null", default: "null" },
     { name: "truncate", description: "Truncate to single line with ellipsis.", type: "boolean", default: "false" },
     { name: "mono", description: "Render with monospace font.", type: "boolean", default: "false (auto-true for `code`)" },

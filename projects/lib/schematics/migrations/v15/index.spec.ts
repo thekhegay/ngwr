@@ -119,6 +119,63 @@ describe('ng update ngwr@15', () => {
     });
   });
 
+  describe('the two values it rewrites', () => {
+    // These are renames and not reports, because each value was named after an
+    // intent and never painted one: both tones always resolved to a neutral
+    // ROLE, and the timeline's quiet dot was always a hollow ring.
+    it.each([
+      ['<p wrTypography tone="dark">x</p>', '<p wrTypography tone="base">x</p>'],
+      ['<p wrTypography tone="medium">x</p>', '<p wrTypography tone="muted">x</p>'],
+      ['<p tone="dark" wrTypography>x</p>', '<p tone="base" wrTypography>x</p>'],
+      ['<p tone="medium" wrTypography>x</p>', '<p tone="muted" wrTypography>x</p>'],
+      [
+        '<wr-timeline-item color="medium">x</wr-timeline-item>',
+        '<wr-timeline-item color="neutral">x</wr-timeline-item>',
+      ],
+    ])('moves %s', (before, after) => {
+      expect(rewrite('/a.html', before)).toBe(after);
+    });
+
+    /**
+     * Scoped to the element, the opposite call from the intent detector below,
+     * because `tone` and `color` carrying these words mean something else
+     * anywhere but here.
+     */
+    it('leaves the same attribute on anything else alone', () => {
+      const source = [
+        '<p tone="dark">not the directive</p>',
+        '<app-chart color="medium">not the timeline</app-chart>',
+        '<wr-timeline color="medium">the container, not the item</wr-timeline>',
+      ].join('\n');
+
+      expect(rewrite('/a.html', source)).toBe(source);
+    });
+
+    it('moves the BEM class each of them emits', () => {
+      expect(rewrite('/a.scss', '.wr-typography--tone-dark { margin: 0; }')).toContain('.wr-typography--tone-base');
+      expect(rewrite('/a.scss', '.wr-typography--tone-medium { margin: 0; }')).toContain('.wr-typography--tone-muted');
+      expect(rewrite('/a.scss', '.wr-timeline-item--medium { margin: 0; }')).toContain('.wr-timeline-item--neutral');
+    });
+
+    it('reaches an inline template in a component file', () => {
+      expect(rewrite('/a.ts', 'template: `<p wrTypography tone="medium">x</p>`,')).toContain('tone="muted"');
+    });
+
+    /**
+     * The half of `IN_TAG` no timing case can show. A `>` inside an earlier
+     * binding ends the tag for the ambiguous `[^>]*?` spelling, so the rename
+     * never fires — and a leftover is silent here, because a `tone` matching no
+     * value renders untoned with no error at all. Both of these pass with the
+     * quote-safe form and fail with the loose one.
+     */
+    it('crosses a binding that contains a greater-than sign', () => {
+      expect(rewrite('/a.html', `<p wrTypography [hidden]="n > 0" tone="medium">x</p>`)).toContain('tone="muted"');
+      expect(rewrite('/a.html', `<wr-timeline-item [hidden]="n > 0" color="medium">x</wr-timeline-item>`)).toContain(
+        'color="neutral"'
+      );
+    });
+  });
+
   describe('the removed intents it reports', () => {
     it('names a `color` attribute, static or bound, and spares one that survived', () => {
       expect(said(run({ '/a.html': '<wr-btn color="secondary">Go</wr-btn>' }).logs, 'removed intent')).toBe(true);
@@ -216,6 +273,14 @@ describe('ng update ngwr@15', () => {
       },
       { shape: 'a tag with no colour at all', element: `<wr-tag [icon]="'x'" [title]="'it\\'s'">Draft</wr-tag>` },
       { shape: 'an alert with a bound type', element: `<wr-alert [type]="n > 0 ? 'info' : 'warning'" closable />` },
+      {
+        shape: 'a typography element with no tone',
+        element: `<p wrTypography variant="body" [class.x]="a > b" [title]="'it\\'s'">Copy</p>`,
+      },
+      {
+        shape: 'a timeline item with a surviving colour',
+        element: `<wr-timeline-item color="success" [title]="'it\\'s'">Done</wr-timeline-item>`,
+      },
     ])('answers at once on $shape', ({ element }) => {
       const source = ['<div class="wrap">', `  ${element}`, ...rows(4), '</div>', ''].join('\n');
       const started = performance.now();

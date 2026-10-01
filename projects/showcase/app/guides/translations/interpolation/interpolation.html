@@ -19,7 +19,7 @@
       <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 24rem">
         <input wrInput placeholder="Your name" [value]="name()" (input)="onName($event)" />
         <p wrTypography variant="h3">{{ 'app.hello' | wrT: { name: name() } }}</p>
-        <p wrTypography tone="medium">Locale: {{ locale() }}</p>
+        <p wrTypography tone="muted">Locale: {{ locale() }}</p>
       </div>
     </ngwr-doc-snippet>
     <ngwr-doc-code [code]="snippets.pipe" language="angular-html" />

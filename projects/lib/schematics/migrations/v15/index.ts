@@ -114,6 +114,69 @@ const TOKEN_TRANSFORMS: readonly Transform[] = TOKEN_RENAMES.map(([from, to]) =>
 }));
 
 /**
+ * What an open tag may hold between its name and the attribute a rule is after:
+ * a quoted value consumed only as a PAIR, or any one character that is neither
+ * a quote nor `>`.
+ *
+ * Copied from `migration-v14`, and the reason is worth restating rather than
+ * cross-referencing. The ambiguous spelling, `[^>]*?`, gets two things wrong at
+ * once. It MISSES, because a `>` inside a binding such as
+ * `[disabled]="n > 0"` looks like the end of the tag, and a leftover here is
+ * silent: a `tone="dark"` that matches no value renders untoned with no error.
+ * And it HANGS, because the fallback also matches a quote, so a pairing that
+ * starts at a closing quote runs past `/>` into later elements, with
+ * exponentially many parses in the number of quotes that follow. That froze
+ * `ng update ngwr@14` on ordinary templates in every 14.x release up to 14.5.0.
+ */
+const IN_TAG = String.raw`(?:"[^"]*"|'[^']*'|[^>"'])*?`;
+
+/**
+ * Two value renames the removed intents left behind, and these ARE rewritten
+ * where a `color` is not, because here the new form means what the old one
+ * meant in the same place.
+ *
+ * Both values were named after an intent and never painted one. `<wr-typography
+ * tone="dark">` always resolved to `--wr-color-on-surface` and `tone="medium"`
+ * to `-on-surface-muted`, the two neutral ROLES; `<wr-timeline-item
+ * color="medium">` always drew the hollow ring, which is the quiet dot rather
+ * than a filled intent. v15 moved each name onto what the value does, so the
+ * replacement is exact and nothing an app knows is needed to pick it.
+ *
+ * Scoped to the element, unlike the intent DETECTOR below, and for the opposite
+ * reason: `tone` and `color` carrying these words mean something else on
+ * anything that is not these two. The anchor is `(?![-\w])` rather than `\b`,
+ * so `<wr-timeline-item>` cannot be matched by a rule written for
+ * `<wr-timeline>`.
+ */
+const TYPO = String.raw`\swrTypography(?![-\w])`;
+const TIMELINE_ITEM = String.raw`<wr-timeline-item(?![-\w])`;
+
+const VALUE_RENAMES: readonly Transform[] = [
+  // `[wrTypography]` is a directive on any element, so the anchor is the
+  // attribute rather than a tag, and the two attribute orders are both real
+  // markup, hence two rules per value.
+  { pattern: new RegExp(String.raw`(${TYPO}${IN_TAG}\stone=")dark(")`, 'g'), replacement: '$1base$2' },
+  { pattern: new RegExp(String.raw`(${TYPO}${IN_TAG}\stone=")medium(")`, 'g'), replacement: '$1muted$2' },
+  { pattern: new RegExp(String.raw`(\stone=")dark("${IN_TAG}${TYPO})`, 'g'), replacement: '$1base$2' },
+  { pattern: new RegExp(String.raw`(\stone=")medium("${IN_TAG}${TYPO})`, 'g'), replacement: '$1muted$2' },
+  {
+    pattern: new RegExp(String.raw`(${TIMELINE_ITEM}${IN_TAG}\scolor=")medium(")`, 'g'),
+    replacement: '$1neutral$2',
+  },
+];
+
+/**
+ * The BEM classes those two values emit. Public API here, so a consumer
+ * stylesheet or test locator keyed on one has to move with the component, and
+ * the name is unambiguous enough to rewrite anywhere.
+ */
+const CLASS_RENAMES: readonly Transform[] = [
+  { pattern: /\bwr-typography--tone-dark\b/g, replacement: 'wr-typography--tone-base' },
+  { pattern: /\bwr-typography--tone-medium\b/g, replacement: 'wr-typography--tone-muted' },
+  { pattern: /\bwr-timeline-item--medium\b/g, replacement: 'wr-timeline-item--neutral' },
+];
+
+/**
  * A shade of a removed intent, which has no successor and must not be guessed
  * at. `--wr-color-light-lighter` was `color.adjust(#cbd5e1, +5%)`; no role
  * resolves to it, and the nearest — `--wr-color-fill-subtle` or `-outline` —
@@ -139,15 +202,10 @@ const SECONDARY_TOKEN = /--wr-color-secondary(?![\w-])|--wr-color-secondary-[\w-
  * that over-names is recoverable; one that silently misses the component someone
  * actually used is not.
  *
- * Not scoping to an element is also what keeps `IN_TAG` out of this file. Every
- * element-scoped rule in `migration-v14` has to step over a quoted value with
- * `(?:"[^"]*"|'[^']*'|[^>"'])*?`, because the ambiguous `[^>]` spelling lets the
- * engine backtrack into a quoted span and run past `/>` into later elements,
- * with exponentially many parses in the number of quotes that follow — that form
- * froze `ng update ngwr@14` on ordinary templates in every 14.x release up to
- * 14.5.0. Nothing here steps over a tag, so nothing here can backtrack that way.
- * The timing cases in the spec beside this file stay anyway, as the guard for
- * whoever adds the first element-scoped rule.
+ * The two VALUE renames above are the opposite call, and they are element
+ * scoped for the opposite reason: `tone` and `color` carrying those words mean
+ * something else on anything that is not those two. Being element scoped is
+ * what makes them step over a tag, which is why `IN_TAG` exists here at all.
  */
 const REMOVED_INTENT_ATTR = new RegExp(String.raw`\s\[?color\]?\s*=\s*["']\s*'?(?:${REMOVED.join('|')})'?\s*["']`);
 
@@ -187,7 +245,7 @@ function ngUpdateV15(): Rule {
       // A token name is unambiguous in all three file kinds — a stylesheet
       // declares and reads it, a template writes it in an inline `style`, and a
       // component writes one into a signal or a class binding.
-      const next = apply(content, TOKEN_TRANSFORMS);
+      const next = apply(content, [...TOKEN_TRANSFORMS, ...(isTs || isHtml ? VALUE_RENAMES : []), ...CLASS_RENAMES]);
       if (next !== content) {
         tree.overwrite(filePath, next);
         rewritten += 1;
@@ -203,12 +261,15 @@ function ngUpdateV15(): Rule {
 
     if (rewritten > 0) {
       context.logger.info(
-        `ngwr v15 migration: rewrote ${rewritten} file(s) for the neutral tokens — ` +
+        `ngwr v15 migration: rewrote ${rewritten} file(s). Neutral tokens — ` +
           '--wr-color-light to --wr-color-outline, --wr-color-dark to --wr-color-on-surface, ' +
           '--wr-color-muted-text and --wr-color-medium to --wr-color-on-surface-muted, and each ' +
           '-rgb companion with them. The first two carry the identical value in both themes, so ' +
           'those rules paint exactly as they did; --wr-color-medium moves by one step of the ' +
-          'neutral ramp, because it was a FILL and the role that replaces it is calibrated as TEXT.'
+          'neutral ramp, because it was a FILL and the role that replaces it is calibrated as ' +
+          'TEXT. Values named after a removed intent that always painted a neutral role — ' +
+          '[wrTypography] tone from dark to base and from medium to muted, <wr-timeline-item> ' +
+          'color from medium to neutral, and the BEM class each of them emits.'
       );
       context.logger.info('Verify the result with `git diff` — a few edge cases may need manual touch-up.');
     }
