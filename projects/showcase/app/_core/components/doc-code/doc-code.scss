@@ -105,6 +105,15 @@
 // picks up our padding / font sizing, same as the `.fallback` pre.
 :host ::ng-deep pre {
   margin: 0;
+  // Inherited, not re-declared — but it has to be SAID. `font-family` is an
+  // inherited property and the host above sets the mono token, so this reads
+  // like a no-op; it is not, because the UA stylesheet gives `pre` a
+  // `font-family: monospace` of its own, and a rule that matches the element
+  // beats what it would otherwise inherit. Without this line every code block
+  // on the site rendered in the browser's default monospace and the token was
+  // decorative — which is how a change of mono typeface reached `main` with
+  // the font loaded, declared, and visible nowhere.
+  font-family: inherit;
   padding: var(--ngwr-doc-code-padding);
   overflow-x: auto;
   font-size: var(--ngwr-doc-code-font-size);

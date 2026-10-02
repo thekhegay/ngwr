@@ -6,8 +6,8 @@
 @use '../lib/styles/animations';
 @use '../lib/styles/typography';
 
-// Showcase-only fonts: declares `@font-face` blocks and overrides
-// `--wr-font-family-*` to Inter.
+// Showcase-only fonts: declares the `@font-face` blocks and overrides
+// `--wr-font-family-*` to Geist and Geist Mono.
 @use 'styles/fonts';
 
 :root {
