@@ -24,7 +24,7 @@ const DEFAULT_COLORS: readonly string[] = ['#5227FF', '#FF9FFC', '#B497CF'];
 /**
  * Animated multi-stop gradient text. The gradient slides across the text
  * via `background-clip: text`. Optional `[showBorder]` wraps the text in
- * a dark pill with the same animated gradient as a border ring.
+ * a surface-coloured pill with the same animated gradient as a border ring.
  *
  * @example
  * ```html
@@ -65,7 +65,7 @@ export class WrGradientText {
   /** Seconds per full sweep (or per half if `[yoyo]` is on). @default 8 */
   readonly animationSpeed = input(8, { transform: numAttr(8) });
 
-  /** Wrap the text in a dark pill with the gradient as a border. @default false */
+  /** Wrap the text in a surface-coloured pill with the gradient as a border. @default false */
   readonly showBorder = input(false, { transform: coerceBooleanProperty });
 
   /** Gradient slide direction. @default 'horizontal' */

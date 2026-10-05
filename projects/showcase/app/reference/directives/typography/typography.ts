@@ -63,8 +63,8 @@ export default class DirectivesTypographyPage {
 
   protected readonly variants: readonly DocApiRow[] = [
     { name: 'display', type: 'clamp(--wr-text-4xl, 6vw, 3.75rem)', description: 'Hero headline. The only fluid size.' },
-    { name: 'h1 … h6', type: '--wr-text-3xl … --wr-text-base', description: 'The heading ladder.' },
-    { name: 'lead', type: '--wr-text-lg · muted', description: 'Intro paragraph under a heading.' },
+    { name: 'h1 … h6', type: '--wr-text-5xl … --wr-text-lg', description: 'The heading ladder.' },
+    { name: 'lead', type: '--wr-text-xl · muted', description: 'Intro paragraph under a heading.' },
     { name: 'body', type: '--wr-text-base', description: 'Default. Running text.' },
     { name: 'small', type: '--wr-text-sm', description: 'Small print.' },
     { name: 'caption', type: '--wr-text-xs · muted', description: 'Captions, helper text.' },

@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="isPrintableKey"
-  description="Predicate that returns true only for single-character printable keystrokes with no modifier — ideal for type-to-search lists and inline-edit fields."
+  description="True for a single printable character with no Ctrl / Cmd / Alt chord. **Shift is allowed** — it has to be, or a type-to-search buffer could never receive a capital letter. Pair it with `hasModifier` only after this test, never before."
   [keywords]="['isPrintableKey', 'keyboard', 'utils']"
   [labels]="['Util']"
 >
