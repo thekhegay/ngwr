@@ -241,7 +241,8 @@ export class MyComponent {
     { name: 'disabled', description: 'Block interaction.', type: 'boolean', default: 'false' },
     {
       name: 'readonly',
-      description: 'Inputs are not typeable; trigger icon still opens the overlay.',
+      description:
+        'Read-only — neither the inputs nor the calendar can change the value, and the trigger does not open. Deliberately stricter than `<wr-date-picker>`, which does still open its popup: with two fields feeding one calendar there is no reading of &ldquo;untypeable&rdquo; that leaves the grid free to rewrite both ends.',
       type: 'boolean',
       default: 'false',
     },

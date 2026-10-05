@@ -79,14 +79,16 @@ export default class CardPage {
     { name: 'compact', description: 'Half-paddings for tight layouts.', type: 'boolean', default: 'false' },
     {
       name: '<wr-card-header>',
-      description: 'Header slot. Projected content gets the `wr-card__header` BEM class.',
-      type: 'directive',
+      description:
+        'Header slot. The element itself carries `.wr-card__header` — the content projected INTO it is left alone.',
+      type: 'component',
       default: '—',
     },
     {
       name: '<wr-card-footer>',
-      description: 'Footer slot. Projected content gets the `wr-card__footer` BEM class.',
-      type: 'directive',
+      description:
+        'Footer slot. The element itself carries `.wr-card__footer` — the content projected INTO it is left alone.',
+      type: 'component',
       default: '—',
     },
   ];
