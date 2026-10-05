@@ -79,9 +79,9 @@ export default class DatePickerPageComponent {
     refused: `<!-- Typed text the picker will not commit leaves the value alone, stays in the
      field, and is shown as invalid on Enter or blur. inputError() holds the reason
      while it is on show, so this message appears and clears with the border. -->
-<wr-date-picker #due [(value)]="due" format="dd.MM.yyyy" [min]="today" />
+<wr-date-picker #dueField [(value)]="due" format="dd.MM.yyyy" [min]="today" />
 
-@if (due.inputError(); as error) {
+@if (dueField.inputError(); as error) {
   <small>{{ error.message }}</small>
 }
 

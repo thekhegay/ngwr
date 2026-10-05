@@ -345,7 +345,7 @@ const withoutRules = serializeMarkdown(blocks.filter(block => block.kind !== 'ru
 
 // Only what would read as syntax is escaped.
 serializeMarkdown([{ kind: 'paragraph', inlines: [{ kind: 'text', value: '2 * 3, not *emphasis*' }] }]);
-// '2 * 3, not \\\\*emphasis\\\\*'`,
+// '2 * 3, not \\*emphasis\\*'`,
   };
 
   protected readonly basicFiles: readonly DocCodeFile[] = [
