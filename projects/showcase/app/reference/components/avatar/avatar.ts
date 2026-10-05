@@ -145,7 +145,7 @@ export class MyComponent {}`,
 </wr-select>
 
 @for (id of assignees(); track id) {
-  <wr-tag size="sm" color="medium">
+  <wr-tag size="sm">
     <span class="assignee">
       <wr-avatar shape="circle" [size]="16" [url]="personPhoto(id)" [alt]="personName(id)">{{
         personInitials(id)

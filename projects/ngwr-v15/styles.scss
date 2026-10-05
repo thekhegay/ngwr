@@ -1,0 +1,36 @@
+// The v15 wiring, written exactly the way a consumer is told to write it.
+//
+// There is no `@use 'ngwr'` umbrella any more, so this file IS the test: if a
+// component renders unstyled here, either its docs page forgot to say which
+// entry point to `@use`, or the entry point does not ship one.
+//
+// The token layer goes FIRST and nowhere else. Every component entry loads it
+// too and Sass emits it once, but only a module's first load can take
+// `with (...)`, so a `@use 'ngwr/theme' with ($theme-attribute: '…')` below any
+// component line fails the build outright.
+@use 'ngwr/theme';
+@use 'ngwr/density';
+@use 'ngwr/reset';
+
+// One line per component you render. Add to this list as you add components —
+// that is the thing being checked.
+@use 'ngwr/button';
+@use 'ngwr/icon';
+@use 'ngwr/input';
+@use 'ngwr/form';
+@use 'ngwr/select';
+@use 'ngwr/checkbox';
+@use 'ngwr/badge';
+@use 'ngwr/alert';
+@use 'ngwr/card';
+@use 'ngwr/dialog';
+@use 'ngwr/overlay';
+@use 'ngwr/spinner';
+
+body {
+  margin: 0;
+  padding: 2rem;
+  background: var(--wr-color-surface);
+  color: var(--wr-color-on-surface);
+  font-family: var(--wr-font-family-base);
+}

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "ng serve --o",
+    "dev:sandbox": "ng serve ngwr-v15 --o",
     "test": "ng test lib",
     "test:coverage": "ng test lib --coverage --coverage-reporters lcovonly text-summary",
     "test:watch": "ng test lib --watch",
@@ -30,7 +31,7 @@
     "build:lib": "tsx scripts/build/lib.ts",
     "build:showcase": "tsx scripts/build/showcase.ts",
     "icons:sets": "node scripts/build/icon-sets.mjs",
-    "postinstall": "node scripts/build/icon-sets.mjs",
+    "postinstall": "node scripts/build/icon-sets.mjs && tsx scripts/build/link-lib.ts",
     "release:prepare": "tsx scripts/release/prepare.ts",
     "release:body": "tsx scripts/release/body.ts",
     "prepare": "simple-git-hooks",

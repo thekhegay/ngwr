@@ -179,6 +179,58 @@
           }
         }
       }
+    },
+    "ngwr-v15": {
+      "projectType": "application",
+      "root": "projects/ngwr-v15",
+      "sourceRoot": "projects/ngwr-v15",
+      "prefix": "sbx",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "projects/ngwr-v15/main.ts",
+            "index": "projects/ngwr-v15/index.html",
+            "tsConfig": "projects/ngwr-v15/tsconfig.app.json",
+            "polyfills": [],
+            "styles": [
+              "projects/ngwr-v15/styles.scss"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "sourceMap": true,
+              "extractLicenses": false
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "ngwr-v15:build:production"
+            },
+            "development": {
+              "buildTarget": "ngwr-v15:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/ngwr-v15/**/*.ts",
+              "projects/ngwr-v15/**/*.html"
+            ]
+          }
+        }
+      }
     }
   }
 }

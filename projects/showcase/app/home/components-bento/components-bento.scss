@@ -358,8 +358,16 @@
     width: 2.5rem;
     height: 2.5rem;
     border-radius: 50%;
-    background-color: var(--wr-color-white);
-    background-image: linear-gradient(rgba(var(--wr-color-outline-rgb), 0.7), rgba(var(--wr-color-outline-rgb), 0.7));
+    // One opaque fill, where this was a flat two-stop gradient laid over white.
+    // That construction hid a real AA failure from every gate: a contrast
+    // checker reads `background-color`, so axe measured the muted label against
+    // the WHITE underneath and reported 5.35:1, while the painted surface was
+    // `rgba(outline, 0.7)` over white — 4.08:1, and 3.62:1 under
+    // `prefers-contrast: more`, where the border token darkens. Same blind spot
+    // AGENTS.md records for a `::before` background. `--wr-color-fill` carries
+    // the muted label at 4.76:1 and no contrast mode moves it. NOT
+    // `-fill-strong`, which is closer to the old weight and reads 4.33:1 here.
+    background: var(--wr-color-fill);
     color: var(--wr-color-on-surface-muted);
     font-size: 0.75rem;
     font-weight: 600;

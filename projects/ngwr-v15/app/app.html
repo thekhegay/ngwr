@@ -1,0 +1,42 @@
+<header class="bar">
+  <h1 class="bar__title">ngwr v15 sandbox</h1>
+
+  <button wr-btn type="button" outlined size="sm" (click)="toggleTheme()">
+    <wr-icon [name]="theme.resolved() === 'dark' ? 'sun' : 'moon'" />
+    {{ theme.resolved() === 'dark' ? 'Light' : 'Dark' }}
+  </button>
+</header>
+
+<!--
+  Drop whatever you are checking below, and remember the two halves: the class
+  goes in `imports` on this component, and the entry point goes in
+  `styles.scss`. If a component renders unstyled, the second half is what is
+  missing — which is exactly the thing worth catching.
+-->
+<main class="sandbox">
+  <section class="sandbox__block">
+    <h2 class="sandbox__heading">Button</h2>
+    <div class="sandbox__row">
+      <wr-btn color="primary">Primary</wr-btn>
+      <wr-btn color="danger" outlined>Outlined</wr-btn>
+      <wr-btn color="primary" shape="pill">Pill</wr-btn>
+      <wr-btn color="primary" icon="check">With icon</wr-btn>
+      <wr-btn color="primary" loading>Loading</wr-btn>
+      <wr-btn color="primary" disabled>Disabled</wr-btn>
+    </div>
+  </section>
+
+  <section class="sandbox__block">
+    <h2 class="sandbox__heading">Badge</h2>
+    <div class="sandbox__row">
+      @for (c of colors; track c) {
+        <wr-badge [color]="c">{{ c }}</wr-badge>
+      }
+    </div>
+  </section>
+
+  <section class="sandbox__block">
+    <h2 class="sandbox__heading">Alert</h2>
+    <wr-alert type="info" title="Info">The five intents and nothing else.</wr-alert>
+  </section>
+</main>
