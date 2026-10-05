@@ -132,19 +132,25 @@ describe('WrCalendarHarness', () => {
     expect(await harness.getInRangeDayNumbers()).toEqual([11, 12, 13]);
   });
 
-  it('pages the month, and leaves the roving cell behind', async () => {
+  it('pages the month and carries the roving cell with it', async () => {
     const harness = await calendar();
     expect(await harness.getActiveDayNumber()).toBe(15);
 
     await harness.next();
 
     expect(await harness.getHeaderLabel()).toBe('April 2026');
-    // Paging is a view change rather than a navigation, so the ring stays in March
-    // — and this grid has no tab stop at all until a key or a click puts one back.
-    expect(await harness.getActiveDayNumber()).toBeNull();
+    // The cursor moves with the view, keeping the same day-of-month. This spec
+    // used to pin the opposite — "the ring stays in March ... this grid has no
+    // tab stop at all until a key or a click puts one back" — which is a
+    // composite widget dropping out of the tab order, the one thing the APG
+    // grid pattern does not allow. Two clicks put `viewDate` more than the
+    // rendered 42-day window away from `focusedDate`, so no cell matched
+    // `isFocused` and all 42 day buttons were `tabindex="-1"`.
+    expect(await harness.getActiveDayNumber()).toBe(15);
 
     await harness.previous();
     expect(await harness.getHeaderLabel()).toBe('March 2026');
+    expect(await harness.getActiveDayNumber()).toBe(15);
   });
 
   it('names the arrows for what they do in the current view', async () => {

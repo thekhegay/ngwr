@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 416 hook(s) across 50 page(s). A property is here only when the
+ * 419 hook(s) across 50 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 23 declaration(s) are one component setting
@@ -59,6 +59,9 @@ export const CSS_VARS = {
   "reference/components/badge": {
     subpath: "ngwr/badge",
     vars: [
+      { name: "--wr-badge-bg", default: "var(--wr-color-fill)", scope: ".wr-badge" },
+      { name: "--wr-badge-border", default: "var(--wr-color-outline)", scope: ".wr-badge" },
+      { name: "--wr-badge-color", default: "var(--wr-color-on-surface)", scope: ".wr-badge" },
       { name: "--wr-badge-font-size", default: "var(--wr-text-xs)", scope: ".wr-badge", overrides: 2 },
       { name: "--wr-badge-font-weight", default: "600", scope: ".wr-badge" },
       { name: "--wr-badge-min-height", default: "1.5rem", scope: ".wr-badge", overrides: 2 },
@@ -156,11 +159,11 @@ export const CSS_VARS = {
     vars: [
       { name: "--wr-cascader-bg", default: "var(--wr-color-surface)", scope: ".wr-cascader", overrides: 1 },
       { name: "--wr-cascader-border", default: "var(--wr-color-outline)", scope: ".wr-cascader" },
-      { name: "--wr-cascader-col-width", default: "12rem", scope: ".wr-cascader" },
+      { name: "--wr-cascader-col-width", default: "12rem", scope: ".wr-cascader-panel" },
       { name: "--wr-cascader-color", default: "var(--wr-color-on-surface)", scope: ".wr-cascader", overrides: 1 },
       { name: "--wr-cascader-font-size", default: "var(--wr-control-font-size-md)", scope: ".wr-cascader", overrides: 2 },
       { name: "--wr-cascader-line-height", default: "var(--wr-control-line-height-md)", scope: ".wr-cascader", overrides: 2 },
-      { name: "--wr-cascader-max-height", default: "16rem", scope: ".wr-cascader" },
+      { name: "--wr-cascader-max-height", default: "16rem", scope: ".wr-cascader-panel" },
       { name: "--wr-cascader-min-width", default: "12rem", scope: ".wr-cascader" },
       { name: "--wr-cascader-opt-font", default: "var(--wr-control-font-size-md)", scope: ".wr-cascader-panel", overrides: 2 },
       { name: "--wr-cascader-opt-py", default: "0.5rem", scope: ".wr-cascader-panel", overrides: 2 },

@@ -57,7 +57,12 @@ describe('WrList', () => {
     const ul = root().querySelector('ul')!;
     expect(ul.getAttribute('role')).toBe('list');
     expect(items().every(i => i.getAttribute('role') === 'listitem')).toBe(true);
-    expect(root().querySelector('wr-list')!.getAttribute('aria-label')).toBe('Recent files');
+    // On the `<ul>`, which is the element carrying `role="list"`. The host is a
+    // role-less custom element, where `aria-label` is prohibited and names
+    // nothing — this assertion used to pin the attribute's PLACEMENT rather
+    // than the list being named, so it passed while the list had no name.
+    expect(ul.getAttribute('aria-label')).toBe('Recent files');
+    expect(root().querySelector('wr-list')!.hasAttribute('aria-label')).toBe(false);
   });
 
   it('gives a tab stop only to the interactive row', () => {

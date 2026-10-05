@@ -37,18 +37,6 @@
     --wr-badge-font-weight: 500;
   }
 
-  // The neutral chip, and the default: `labelColor()` returns `null` for every
-  // label but `Experimental`, so a badge with no colour modifier is what the
-  // row is mostly made of. It was never styled — the only neutral rule here
-  // keyed on `wr-badge--light`, an intent v15 removed, so "Component" and
-  // "Standalone" had been rendering as bare text. A fill role rather than a
-  // tint off the border token: `-fill-strong` reads 1.23 against the page, so
-  // the chip is a chip, and `on-surface` sits on it at 12.19:1.
-  wr-badge {
-    background: var(--wr-color-fill-strong);
-    color: var(--wr-color-on-surface);
-  }
-
   wr-badge.wr-badge--danger {
     // A soft tint, so the text is the intent-as-text case and wants `-ink`.
     // The bare intent measured 3.12:1 against this background at 11px.
