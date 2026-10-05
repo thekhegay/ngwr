@@ -30,7 +30,9 @@ export default class BarChartPageComponent {
 
   protected readonly snippets = {
     basic: `<wr-bar-chart [data]="bars" />`,
-    tooltip: `<wr-bar-chart [data]="bars" [tooltip]="false" />`,
+    tooltip: `<!-- On by default; hover either chart below to compare. -->
+<wr-bar-chart [data]="bars" />
+<wr-bar-chart [data]="bars" [tooltip]="false" />`,
   };
 
   protected readonly typeSnippet = `interface WrBarChartDatum {

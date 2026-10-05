@@ -30,6 +30,20 @@
     description="Hover the line for the value of the nearest point, marked on the line, in a tooltip pointing at that mark and named by `ariaLabel` when one is given. Set `[tooltip]` to `false` to turn it off."
   >
     <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 2rem; flex-wrap: wrap; width: 100%">
+        <div style="flex: 1 1 16rem; min-width: 0">
+          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">On (default)</p>
+          <wr-sparkline [data]="data" ariaLabel="Signups" style="width: 100%" />
+        </div>
+        <div style="flex: 1 1 16rem; min-width: 0">
+          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+            <code>[tooltip]="false"</code>
+          </p>
+          <wr-sparkline [data]="data" ariaLabel="Signups" [tooltip]="false" style="width: 100%" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
