@@ -71,7 +71,15 @@ export class WrToast {
 
   /** Open a toast. Returns a handle you can `dismiss()` early. */
   show(options: WrToastOptions): WrToastRef {
-    const resolvedPosition = options.position ?? this.config.position;
+    // `currentPosition` before the injected default, so `setPosition()` holds
+    // across a host that has been disposed. `dismiss()` and `dismissAll()`
+    // tear the host down, so "no host alive" is the state before the first
+    // toast of a run and after the last one goes — exactly where the stack
+    // used to snap back to the configured corner with nothing to say so.
+    // `setMode` already persisted this way, and its JSDoc says it does.
+    // `currentPosition` is seeded from the config, so the default still wins
+    // when nobody has called `setPosition`.
+    const resolvedPosition = options.position ?? this.currentPosition;
     const resolvedDuration = options.duration ?? this.config.duration;
 
     this.ensureHost(resolvedPosition);
