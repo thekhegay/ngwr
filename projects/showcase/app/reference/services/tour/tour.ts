@@ -66,7 +66,12 @@ export default class TourComponent {
 tour.active();  // is a tour running
 tour.index();   // 0-based step, -1 when idle
 tour.total();   // how many steps
-tour.step();    // the current WrTourStep | null`,
+tour.step();    // the current WrTourStep | null
+
+// Ends, and NOT index() === 0 / total() - 1: a step whose target is missing
+// is skipped, so the tour can open on index 1 and finish before the last.
+tour.isFirst(); // nothing before this step
+tour.isLast();  // nothing after it`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -113,6 +118,22 @@ tour.step();    // the current WrTourStep | null`,
       sub: true,
     },
     { name: 'total', description: 'Step count of the running tour.', type: 'Signal<number>', default: '0', sub: true },
+    {
+      name: 'isFirst',
+      description:
+        'Nothing before this step. NOT `index() === 0`: a leading step whose target is missing is skipped, so the tour can open on a later index — reading the raw index put a Back button on the first card that did nothing.',
+      type: 'Signal<boolean>',
+      default: 'false',
+      sub: true,
+    },
+    {
+      name: 'isLast',
+      description:
+        'Nothing after this step, by the same rule — the mirror of `isFirst`, and what decides whether the primary button says Next or Done.',
+      type: 'Signal<boolean>',
+      default: 'false',
+      sub: true,
+    },
     {
       name: 'step',
       description: 'The step being shown.',
