@@ -88,23 +88,6 @@ export default class ThemeBuilderPageComponent {
     return `${selector} {\n${entries.map(([k, v]) => `  ${k}: ${v};`).join('\n')}\n}`;
   });
 
-  protected readonly preset = computed(() => {
-    const side = this.editing();
-    return JSON.stringify(
-      {
-        $schema: 'https://ngwr.dev/registry/schema.json',
-        name: 'theme-mine',
-        type: 'registry:theme',
-        title: 'My theme',
-        description: 'Generated with the ngwr theme builder.',
-        ngwr: '>=11',
-        cssVars: { [side]: this.tokens() },
-      },
-      null,
-      2
-    );
-  });
-
   /** Paint the tokens onto `<html>` so the whole page previews them. */
   protected apply(): void {
     const root = this.doc.documentElement;
@@ -133,12 +116,6 @@ export default class ThemeBuilderPageComponent {
       title: 'Colour tokens',
       url: ['/guides/tokens', 'colors'],
       description: 'Every `--wr-color-*` the layer defines, and which role each one plays.',
-    },
-    {
-      kind: 'Guide',
-      title: 'Registry',
-      url: ['/guides', 'registry'],
-      description: 'The format the exported preset is written in, and how someone else installs it.',
     },
     {
       kind: 'Guide',
