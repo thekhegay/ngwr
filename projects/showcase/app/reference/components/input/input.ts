@@ -133,8 +133,18 @@ export class MyForm {}`,
   ];
 
   protected readonly affixApi: readonly DocApiRow[] = [
-    { name: '[wrInputPrefix]', description: 'Marks an element as the left affix.', type: 'attribute', default: '—' },
-    { name: '[wrInputSuffix]', description: 'Marks an element as the right affix.', type: 'attribute', default: '—' },
+    {
+      name: '[wrInputPrefix]',
+      description: 'Marks an element as the affix before the input in reading order — left in LTR, right in RTL.',
+      type: 'attribute',
+      default: '—',
+    },
+    {
+      name: '[wrInputSuffix]',
+      description: 'Marks an element as the affix after the input in reading order — right in LTR, left in RTL.',
+      type: 'attribute',
+      default: '—',
+    },
   ];
 
   protected readonly passwordToggleApi: readonly DocApiRow[] = [
