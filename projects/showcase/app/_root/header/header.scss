@@ -109,7 +109,7 @@
       &--active,
       &--active:hover {
         --ngwr-header-nav-link-color: var(--wr-color-on-surface-muted);
-        --ngwr-header-nav-link-bg: rgba(var(--wr-color-outline-rgb), 0.3);
+        --ngwr-header-nav-link-bg: var(--wr-color-fill);
       }
     }
   }
@@ -211,7 +211,7 @@
       &:hover,
       &[aria-expanded='true'] {
         --ngwr-header-action-icon-color: var(--wr-color-on-surface);
-        --ngwr-header-action-icon-bg: rgba(var(--wr-color-outline-rgb), 0.4);
+        --ngwr-header-action-icon-bg: var(--wr-color-hover);
       }
 
       &:focus-visible {
@@ -386,7 +386,7 @@
       &--active,
       &--active:hover {
         color: var(--wr-color-on-surface-muted);
-        background: rgba(var(--wr-color-outline-rgb), 0.3);
+        background: var(--wr-color-fill);
       }
     }
 

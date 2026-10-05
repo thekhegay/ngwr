@@ -347,77 +347,11 @@
   overflow-wrap: anywhere;
   padding: 0.125rem 0.3125rem;
   border-radius: var(--wr-border-radius-sm);
-  background: rgba(var(--wr-color-outline-rgb), 0.35);
+  background: rgba(var(--wr-color-on-surface-rgb), 0.07);
   color: var(--wr-color-on-surface);
   line-height: 1.25;
   font-family: var(--wr-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 0.85em;
-}
-
-.ngwr-codecard {
-  border: 1px solid var(--wr-color-outline);
-  border-radius: 0.75rem;
-  background: rgba(var(--wr-color-outline-rgb), 0.05);
-  overflow: hidden;
-  box-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.12);
-
-  &__chrome {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1rem;
-    border-bottom: 1px solid var(--wr-color-outline);
-    background: rgba(var(--wr-color-outline-rgb), 0.05);
-  }
-
-  &__dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-
-    &--r {
-      background: #ff5f57;
-    }
-    &--y {
-      background: #febc2e;
-    }
-    &--g {
-      background: #28c840;
-    }
-  }
-
-  &__file {
-    margin-left: 0.75rem;
-    flex: 1 1 auto;
-    text-align: center;
-    font-family: var(--wr-font-family-mono, ui-monospace, monospace);
-    font-size: 0.75rem;
-    color: var(--wr-color-on-surface-muted);
-  }
-
-  &__copy {
-    appearance: none;
-    background: transparent;
-    border: 0;
-    color: var(--wr-color-on-surface-muted);
-    font-size: 0.75rem;
-    cursor: pointer;
-
-    &:hover {
-      color: var(--hero-accent);
-    }
-  }
-
-  &__code {
-    margin: 0;
-    padding: 1.25rem 1.5rem;
-    font-family: var(--wr-font-family-mono, ui-monospace, monospace);
-    font-size: 0.8125rem;
-    line-height: 1.5rem;
-    color: var(--wr-color-on-surface);
-    white-space: pre;
-    overflow-x: auto;
-  }
 }
 
 /* Why grid */
@@ -533,7 +467,7 @@
     letter-spacing: -0.01em;
     background:
       radial-gradient(circle at 50% 0%, rgba(var(--wr-color-primary-rgb), 0.08), transparent 70%),
-      rgba(var(--wr-color-outline-rgb), 0.2);
+      var(--wr-color-fill-subtle);
     color: var(--wr-color-on-surface);
     text-align: center;
   }

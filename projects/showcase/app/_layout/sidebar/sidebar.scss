@@ -68,7 +68,7 @@
       transition: background var(--wr-transition-base);
 
       &:hover {
-        background: rgba(var(--wr-color-outline-rgb), 0.5);
+        background: var(--wr-color-hover);
 
         .ngwr-sidebar__icon {
           color: var(--wr-color-primary-ink);
@@ -136,7 +136,7 @@
       color var(--wr-transition-base);
 
     &:hover {
-      background: rgba(var(--wr-color-outline-rgb), 0.5);
+      background: var(--wr-color-hover);
 
       .ngwr-sidebar__icon {
         color: var(--wr-color-primary-ink);

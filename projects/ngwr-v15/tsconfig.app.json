@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../out-tsc/ngwr-v15",
+    "types": []
+  },
+  "files": ["main.ts"],
+  "include": ["**/*.d.ts"]
+}

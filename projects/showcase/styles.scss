@@ -153,7 +153,16 @@ ngwr-doc-page :not(pre) > code {
   overflow-wrap: anywhere;
   padding: 0.125rem 0.3125rem;
   border-radius: var(--wr-border-radius-sm);
-  background: rgba(var(--wr-color-outline-rgb), 0.35);
+  // A tint off the INK channel, not the border one. `--wr-color-outline` is a
+  // border token and `prefers-contrast: more` darkens it on purpose, so a chip
+  // painted from it got harder to read in the mode meant to help. It stays
+  // TRANSLUCENT rather than taking an opaque fill role because a chip lands on
+  // whatever is behind it: `--wr-color-fill` would make it vanish outright on
+  // /guides/tokens/colors, where a demo row paints `--wr-color-hover` — the same
+  // value — at 1.00:1. `--wr-color-on-surface-rgb` is `gray-6-rgb`, which
+  // `_contrast.scss` never redeclares, so this holds in every mode: 1.14 against
+  // the page and 1.14 against that row, where today's reads 1.14 and 1.10.
+  background: rgba(var(--wr-color-on-surface-rgb), 0.07);
   color: var(--wr-color-on-surface);
   line-height: 1.25;
   font-family: var(--wr-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
