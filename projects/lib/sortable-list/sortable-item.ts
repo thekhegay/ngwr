@@ -68,8 +68,23 @@ export class WrSortableItem {
   /**
    * Position among the list's rows, which IS the index into `items()`: the
    * consumer's own loop renders them in that order.
+   *
+   * It reads `items()` to have a producer at all. `indexOf` resolves by
+   * DOCUMENT ORDER over a plain array, so it touches no signal — and a
+   * `computed` whose body reads none runs once and is cached forever, since
+   * nothing can ever mark it dirty. Every row's index was therefore frozen at
+   * whatever it was during the first change detection, while the consumer's
+   * own `@for` kept moving the rows: a grabbed row reported a position it no
+   * longer held, and the keyboard move went to the wrong slot.
+   *
+   * `rowCount` is that producer: the list derives it from `items`, which it
+   * owns as a `model`, so every reorder, insertion and removal the consumer
+   * makes goes through it — exactly when a position can change.
    */
-  protected readonly index = computed(() => this.list.indexOf(this));
+  protected readonly index = computed(() => {
+    this.list.rowCount();
+    return this.list.indexOf(this);
+  });
 
   protected readonly grabbed = computed(() => this.list.grabbedIndex() === this.index());
 

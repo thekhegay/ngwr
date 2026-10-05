@@ -14,6 +14,7 @@ import {
   Injector,
   ViewEncapsulation,
   afterNextRender,
+  computed,
   inject,
   input,
   model,
@@ -145,6 +146,15 @@ export class WrSortableList<T = unknown> implements WrSortableListContext {
   /** Index of the row the keyboard is holding, or `null` when nothing is held. */
   readonly grabbedIndex = signal<number | null>(null);
 
+  /**
+   * The producer a row's position depends on — see `WrSortableListContext`.
+   *
+   * A count rather than the array, because what a row needs is something that
+   * changes whenever a position can: `items` is a `model`, so a reorder
+   * replaces it and the length is re-read either way.
+   */
+  readonly rowCount = computed(() => this.items().length);
+
   /** Live-region text. Written by the keyboard path only. */
   protected readonly announcement = signal('');
 
@@ -204,11 +214,23 @@ export class WrSortableList<T = unknown> implements WrSortableListContext {
    * swept here, which is the only place that can tell.
    */
   indexOf(item: { readonly host: ElementRef<HTMLElement> }): number {
+    this.sortRows();
+    return this.rows.indexOf(item);
+  }
+
+  /**
+   * Drops rows whose element has left the document and puts the rest into
+   * document order.
+   *
+   * Its own method because `relocate` needs it too: that one focuses
+   * `rows[to]` after the move, and without a re-sort it reached into an array
+   * still ordered as the list looked BEFORE the move.
+   */
+  private sortRows(): void {
     for (let i = this.rows.length - 1; i >= 0; i -= 1) {
       if (!this.rows[i].host.nativeElement.isConnected) this.rows.splice(i, 1);
     }
     this.rows.sort((a, b) => (follows(a.host.nativeElement, b.host.nativeElement) ? -1 : 1));
-    return this.rows.indexOf(item);
   }
 
   /** @internal */
@@ -321,6 +343,13 @@ export class WrSortableList<T = unknown> implements WrSortableListContext {
     this.restoringFocus = true;
     afterNextRender(
       () => {
+        // Re-sorted FIRST. `this.rows` is only ever put into document order by
+        // `indexOf`, and nothing calls it between the move and here — so the
+        // array was still in the order it had BEFORE the move, and `rows[to]`
+        // was whichever row used to be at that slot. `sortRows()` is the same
+        // sweep-and-sort `indexOf` runs; after it, index `to` is the row the
+        // move actually put there.
+        this.sortRows();
         this.rows[to]?.host.nativeElement.focus();
         this.restoringFocus = false;
       },

@@ -144,6 +144,11 @@ describe('WrTextarea', () => {
     fixture.componentInstance.readonly.set(true);
     fixture.detectChanges();
     expect(native().readOnly).toBe(true);
+    // And SAYS so. The attribute reached the element and nothing else changed,
+    // so a read-only textarea looked exactly like an editable one — a box that
+    // silently refuses what is typed into it. The library's contract for a
+    // value control is a `wr-<x>--readonly` class with a non-editable cue.
+    expect(host().classList.contains('wr-textarea--readonly')).toBe(true);
 
     fixture.componentInstance.disabled.set(true);
     fixture.detectChanges();

@@ -580,7 +580,7 @@ export const CSS_VARS = {
   "reference/components/textarea": {
     subpath: "ngwr/textarea",
     vars: [
-      { name: "--wr-textarea-bg", default: "var(--wr-color-surface)", scope: ".wr-textarea", overrides: 1 },
+      { name: "--wr-textarea-bg", default: "var(--wr-color-surface)", scope: ".wr-textarea", overrides: 2 },
       { name: "--wr-textarea-border", default: "var(--wr-color-outline)", scope: ".wr-textarea", overrides: 1 },
       { name: "--wr-textarea-color", default: "var(--wr-color-on-surface)", scope: ".wr-textarea", overrides: 1 },
       { name: "--wr-textarea-font-size", default: "var(--wr-text-sm)", scope: ".wr-textarea", overrides: 2 },
