@@ -88,11 +88,11 @@
 
   <ngwr-doc-section
     title="Chip overflow + max items"
-    description="`[maxTagCount]` collapses extra chips into a `+N more` indicator on the trigger so long selections don't wrap forever. `[maxItems]` caps the underlying array."
+    description="`[maxTagCount]` collapses extra chips into a `+N more` indicator on the trigger so long selections don’t wrap forever — it is purely how the trigger DRAWS the value. `[maxItems]` caps the array itself: at the cap an unselected option simply does not commit, and the one below is set to 4 with four already chosen, so picking a fifth is visibly refused. Deselecting always works, cap or not."
   >
     <ngwr-doc-snippet [code]="snippets.multiOverflow">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
-        <wr-select mode="multi" [maxTagCount]="2" [maxItems]="6" [(value)]="manyTags">
+        <wr-select mode="multi" [maxTagCount]="2" [maxItems]="4" [(value)]="manyTags">
           <wr-option value="typescript">TypeScript</wr-option>
           <wr-option value="angular">Angular</wr-option>
           <wr-option value="rxjs">RxJS</wr-option>
