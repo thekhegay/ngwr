@@ -492,7 +492,8 @@ protected onPage(page: number): void {
     },
     {
       name: 'let-col="column"',
-      description: 'That column’s own definition — `title`, `width`, `align`, and the rest of `WrTableColumn`.',
+      description:
+        'That column’s own definition — `title`, `width`, `pin`, `summary`, and the rest of `WrTableColumn`.',
       type: 'WrTableColumn',
       default: '—',
       sub: true,
