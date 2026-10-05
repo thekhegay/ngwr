@@ -15,7 +15,7 @@
  *    copies, and an invalid example teaches the wrong format faster than any
  *    documentation teaches the right one.
  * 2. **Every `entryPoints` name is a real ngwr entry point**, read from the same
- *    `ng-package.json` scan `llms-full.txt` uses. The registry does not get its
+ *    `public-api.ts` scan `llms-full.txt` uses. The registry does not get its
  *    own copy of the catalog.
  * 3. **The published schema and the validator agree.** `schema.json` is the
  *    contract third-party tooling reads; `scripts/lib/registry/item.ts` is what
@@ -92,7 +92,7 @@ const SCHEMA = join(REGISTRY, 'schema.json');
 const LIB_DIR = resolve(ROOT_PATH, 'projects/lib');
 
 /**
- * Every secondary entry point, by `ng-package.json` — the same discovery
+ * Every secondary entry point, by `public-api.ts` — the same discovery
  * `gen-ai-assets.ts` uses, and for the same reason: a directory scan misses the
  * nested ones.
  */
@@ -102,7 +102,7 @@ function entryPoints(): Set<string> {
     for (const name of readdirSync(dir)) {
       const full = join(dir, name);
       if (!statSync(full).isDirectory()) continue;
-      if (existsSync(join(full, 'ng-package.json'))) out.add(relative(LIB_DIR, full));
+      if (existsSync(join(full, 'public-api.ts'))) out.add(relative(LIB_DIR, full));
       walk(full);
     }
   };

@@ -107,7 +107,7 @@ function allValueExports(): Set<string> {
     for (const name of readdirSync(dir)) {
       const full = join(dir, name);
       if (!statSync(full).isDirectory()) continue;
-      if (existsSync(join(full, 'ng-package.json')) && existsSync(join(full, 'public-api.ts'))) {
+      if (existsSync(join(full, 'public-api.ts'))) {
         for (const symbol of valueExports(relative(LIB, full))) out.add(symbol);
       }
       walk(full);
@@ -161,7 +161,7 @@ describe('REQUIRED_PROVIDERS', () => {
       for (const path of paths) {
         expect(path, required.provider).toMatch(/^ngwr\//);
         expect(
-          existsSync(join(LIB, path.replace(/^ngwr\//, ''), 'ng-package.json')),
+          existsSync(join(LIB, path.replace(/^ngwr\//, ''), 'public-api.ts')),
           `${required.provider} — ${path} is not an entry point`
         ).toBe(true);
       }
