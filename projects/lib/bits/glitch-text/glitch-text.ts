@@ -20,13 +20,13 @@ import { numAttr } from 'ngwr/utils';
 
 /**
  * Glitchy text effect — colour-split horizontal-tear glitch on the
- * provided text. Defaults to playing constantly; toggle `[enableOnHover]`
- * to make it idle until the user hovers.
+ * provided text. Idles until hovered; set `[enableOnHover]="false"` to play
+ * constantly.
  *
  * @example
  * ```html
  * <wr-glitch-text text="404" />
- * <wr-glitch-text text="ERROR" [speed]="0.5" [enableOnHover]="true" />
+ * <wr-glitch-text text="ERROR" [speed]="0.5" [enableOnHover]="false" />
  * ```
  *
  * @see https://www.reactbits.dev/text-animations/glitch-text

@@ -75,7 +75,7 @@ export default class TokensColorsPage {
       name: '--wr-color-{intent}-soft-contrast',
       type: 'color-mix(in srgb, var(--wr-color-{intent}) 62%, var(--wr-color-gray-6))',
       description:
-        'Readable same-hue text on a soft fill. Deep in light mode, light in dark — it follows `--wr-color-gray-6`.',
+        'Same-hue text on a soft fill, predating `-ink`. A flat 62% mix that was never measured against the tint it names: `warning` reads 3.58:1 on `warning-soft`, under AA. Public and unchanged, so nothing that uses it breaks — but new code takes `-ink`, which is calibrated to 5.0:1 against this very fill.',
     },
   ];
 
