@@ -31,6 +31,13 @@
     <wr-back-top visibilityThreshold="400" [offset]="80" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Your own glyph"
+    description="Project anything and it replaces the default arrow; the button, its position and its reveal threshold are unchanged. Source only here rather than a live demo — the button is fixed to one corner, so a second instance would land on top of the one above."
+  >
+    <ngwr-doc-code [code]="customIcon" language="angular-html" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

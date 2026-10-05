@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
-import { WrPopconfirm } from 'ngwr/popconfirm';
+import { type WrPopconfirmPosition, WrPopconfirm } from 'ngwr/popconfirm';
 
 import {
   DocApiComponent,
@@ -28,7 +28,10 @@ import { API } from '#core/generated/api';
 export default class PopconfirmPageComponent {
   protected readonly status = signal<string>('—');
 
+  protected readonly positions: readonly WrPopconfirmPosition[] = ['top', 'bottom', 'left', 'right'];
+
   protected readonly snippets = {
+    positions: `<wr-btn wrPopconfirm="Delete this item?" position="bottom" (confirmed)="remove()">Delete</wr-btn>`,
     basic: `<wr-btn
   color="danger"
   [wrPopconfirm]="'Delete this item?'"
