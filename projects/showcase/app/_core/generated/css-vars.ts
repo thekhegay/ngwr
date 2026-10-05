@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 415 hook(s) across 50 page(s). A property is here only when the
+ * 416 hook(s) across 50 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 23 declaration(s) are one component setting
@@ -552,6 +552,7 @@ export const CSS_VARS = {
       { name: "--wr-table-head-bg", default: "var(--wr-color-fill)", scope: ".wr-table" },
       { name: "--wr-table-head-letter-spacing", default: "var(--wr-tracking-normal)", scope: ".wr-table" },
       { name: "--wr-table-head-transform", default: "none", scope: ".wr-table" },
+      { name: "--wr-table-pin-shadow-ink", default: "rgb(0 0 0 / 18%)", scope: ".wr-table", overrides: 1 },
       { name: "--wr-table-row-hover", default: "var(--wr-color-fill-subtle)", scope: ".wr-table" },
     ],
   },

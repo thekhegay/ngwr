@@ -136,36 +136,6 @@ export class MyComponent {}`,
       default: `'md'`,
       description: 'Visual size variant.',
     },
-    {
-      name: 'CSS — --wr-kbd-bg',
-      type: 'color',
-      default: 'var(--wr-color-white)',
-      description: 'Cap background.',
-    },
-    {
-      name: 'CSS — --wr-kbd-border / --wr-kbd-border-bottom',
-      type: 'color',
-      default: '— on-surface @ 18% / 32%',
-      description: 'Side border / chunkier bottom border (the depth illusion).',
-    },
-    {
-      name: 'CSS — --wr-kbd-color',
-      type: 'color',
-      default: 'var(--wr-color-on-surface)',
-      description: 'Glyph color.',
-    },
-    {
-      name: 'CSS — --wr-kbd-radius',
-      type: 'length',
-      default: '4px',
-      description: 'Corner radius.',
-    },
-    {
-      name: 'CSS — --wr-kbd-shadow',
-      type: 'shadow',
-      default: '0 1px 0 rgba(dark, 0.12)',
-      description: 'Drop shadow under the cap.',
-    },
   ];
 
   protected readonly related: readonly DocSeeAlsoLink[] = [

@@ -15,6 +15,19 @@
   // capitals and looks wrong on sentence case.
   --wr-table-head-transform: none;
   --wr-table-head-letter-spacing: var(--wr-tracking-normal);
+  // The ink of the pinned group's separating shadow, published as a hook
+  // because it has to be raised for the dark canvas and the geometry cannot
+  // come from `--wr-shadow-*` — the offset leans per direction, so the two
+  // rules below differ only in the sign. The alphas mirror `--wr-shadow-sm`,
+  // whose own dark value goes from 15% to 45% under the note in `_dark.scss`:
+  // "Black shadows at light-mode alphas vanish on the deep canvas". This was
+  // a hard `rgba(0, 0, 0, 0.18)` with no dark counterpart, so on the deep
+  // canvas the one cue that a column is pinned all but disappeared.
+  --wr-table-pin-shadow-ink: rgb(0 0 0 / 18%);
+
+  @include theme.dark {
+    --wr-table-pin-shadow-ink: rgb(0 0 0 / 45%);
+  }
 
   display: block;
   position: relative;
@@ -349,13 +362,13 @@
   &__th--pin-edge-left,
   &__td--pin-edge-left {
     // rtl-ok: `box-shadow` has no logical form; the RTL sign is set explicitly below
-    box-shadow: 0.375rem 0 0.375rem -0.25rem rgba(0, 0, 0, 0.18);
+    box-shadow: 0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
   }
 
   &__th--pin-edge-right,
   &__td--pin-edge-right {
     // rtl-ok: `box-shadow` has no logical form; the RTL sign is set explicitly below
-    box-shadow: -0.375rem 0 0.375rem -0.25rem rgba(0, 0, 0, 0.18);
+    box-shadow: -0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
   }
 
   // Under `dir="rtl"` the start-pinned group sits at the physical right and the
@@ -363,13 +376,13 @@
   [dir='rtl'] &__th--pin-edge-left,
   [dir='rtl'] &__td--pin-edge-left {
     // rtl-ok: this IS the RTL sign for the rule above
-    box-shadow: -0.375rem 0 0.375rem -0.25rem rgba(0, 0, 0, 0.18);
+    box-shadow: -0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
   }
 
   [dir='rtl'] &__th--pin-edge-right,
   [dir='rtl'] &__td--pin-edge-right {
     // rtl-ok: this IS the RTL sign for the rule above
-    box-shadow: 0.375rem 0 0.375rem -0.25rem rgba(0, 0, 0, 0.18);
+    box-shadow: 0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
   }
 
   &__th-inner {
