@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { WrSparkline } from 'ngwr/sparkline';
+import { WrSparkline } from 'ngwr/charts/sparkline';
 
 import {
   DocApiComponent,
@@ -20,7 +20,7 @@ export default class SparklinePageComponent {
   protected readonly data = [12, 18, 9, 22, 30, 25, 27, 35, 32, 41, 38, 45];
 
   protected readonly snippets = {
-    install: `import { WrSparkline } from 'ngwr/sparkline';
+    install: `import { WrSparkline } from 'ngwr/charts/sparkline';
 
 @Component({ imports: [WrSparkline] })
 export class MyComponent {

@@ -1,6 +1,6 @@
 import { Component, ElementRef, afterNextRender, computed, signal, viewChild } from '@angular/core';
 
-import { WrSpotlight, WrSpotlightCard } from 'ngwr/spotlight-card';
+import { WrSpotlight, WrSpotlightCard } from 'ngwr/animations/spotlight-card';
 
 import {
   DocApiComponent,
@@ -74,9 +74,9 @@ export default class SpotlightCardPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrSpotlightCard } from 'ngwr/spotlight-card';`,
+    install: `import { WrSpotlightCard } from 'ngwr/animations/spotlight-card';`,
     directive: `// Directive variant — same package, drops on any element.
-import { WrSpotlight } from 'ngwr/spotlight-card';
+import { WrSpotlight } from 'ngwr/animations/spotlight-card';
 
 <div wrSpotlight class="card">…</div>
 

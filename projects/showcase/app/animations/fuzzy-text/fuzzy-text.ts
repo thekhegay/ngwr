@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrFuzzyText } from 'ngwr/fuzzy-text';
+import { WrFuzzyText } from 'ngwr/animations/fuzzy-text';
 
 import {
   DocApiComponent,
@@ -62,7 +62,7 @@ export default class FuzzyTextPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrFuzzyText } from 'ngwr/fuzzy-text';`,
+    install: `import { WrFuzzyText } from 'ngwr/animations/fuzzy-text';`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

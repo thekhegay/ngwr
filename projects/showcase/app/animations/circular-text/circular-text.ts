@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrCircularText } from 'ngwr/circular-text';
+import { WrCircularText } from 'ngwr/animations/circular-text';
 
 import {
   DocApiComponent,
@@ -53,7 +53,7 @@ export default class CircularTextPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrCircularText } from 'ngwr/circular-text';`,
+    install: `import { WrCircularText } from 'ngwr/animations/circular-text';`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

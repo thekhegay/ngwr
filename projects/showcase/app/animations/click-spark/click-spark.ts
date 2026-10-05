@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrClickSpark } from 'ngwr/click-spark';
+import { WrClickSpark } from 'ngwr/animations/click-spark';
 
 import {
   DocApiComponent,
@@ -64,7 +64,7 @@ export default class ClickSparkPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrClickSpark } from 'ngwr/click-spark';`,
+    install: `import { WrClickSpark } from 'ngwr/animations/click-spark';`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

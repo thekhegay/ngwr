@@ -3,21 +3,21 @@ import { Component, DestroyRef, PLATFORM_ID, inject, signal } from '@angular/cor
 import { RouterLink } from '@angular/router';
 
 import { Folder, ListChecks, Moon, Play, ShieldCheck, Terminal } from 'lucide';
+import { WrBlurText } from 'ngwr/animations/blur-text';
+import { WrDecryptText } from 'ngwr/animations/decrypt-text';
+import { WrGlitchText } from 'ngwr/animations/glitch-text';
+import { WrGradientText } from 'ngwr/animations/gradient-text';
+import { WrRotatingText } from 'ngwr/animations/rotating-text';
+import { WrShinyText } from 'ngwr/animations/shiny-text';
+import { WrSplitText } from 'ngwr/animations/split-text';
+import { WrSpotlightCard } from 'ngwr/animations/spotlight-card';
+import { WrTypewriter } from 'ngwr/animations/typewriter';
+import { WrWaves } from 'ngwr/animations/waves';
 import { WrTag } from 'ngwr/badge';
-import { WrBlurText } from 'ngwr/blur-text';
 import { WrButton } from 'ngwr/button';
-import { WrDecryptText } from 'ngwr/decrypt-text';
-import { WrGlitchText } from 'ngwr/glitch-text';
-import { WrGradientText } from 'ngwr/gradient-text';
 import { provideWrIcons, WrIcon } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
-import { WrRotatingText } from 'ngwr/rotating-text';
-import { WrShinyText } from 'ngwr/shiny-text';
-import { WrSplitText } from 'ngwr/split-text';
-import { WrSpotlightCard } from 'ngwr/spotlight-card';
-import { WrTypewriter } from 'ngwr/typewriter';
 import { WrTypography } from 'ngwr/typography';
-import { WrWaves } from 'ngwr/waves';
 
 import { Footer } from '../_layout/footer/footer';
 

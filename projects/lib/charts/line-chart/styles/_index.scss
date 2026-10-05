@@ -1,0 +1,143 @@
+@use '../../../theme/styles' as theme;
+
+.wr-line-chart {
+  display: block;
+  font-family: var(--wr-font-family-base);
+  color: var(--wr-color-on-surface);
+
+  &__legend {
+    list-style: none;
+    margin: 0 0 0.75rem;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem 0.875rem;
+  }
+
+  &__legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: var(--wr-text-xs);
+  }
+
+  // A short line rather than a dot, because it now carries the series' dash
+  // pattern and a 10px circle cannot show one.
+  &__swatch {
+    width: 1rem;
+    height: 0.125rem;
+    overflow: visible;
+    flex: 0 0 auto;
+  }
+
+  &__plot {
+    position: relative;
+  }
+
+  // The plot's drawing by its class, never a bare `svg`: the legend swatch is an
+  // `<svg>` too, and `.wr-line-chart svg` (0,1,1) outranks `&__swatch` (0,1,0), so
+  // the 1rem × 0.125rem dash stretched to the legend row — measured in Chromium at
+  // 337 × 44px, a solid bar across the series names it was meant to mark.
+  &__svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  // What the tooltip's `cqw` resolves against: the plot's width, which the drawing
+  // stretches to. On the plot itself the containment would take the SVG out of the
+  // chart's intrinsic width — measured in Chromium, a `width: max-content` chart went
+  // from 480px to 0 — while this layer is out of flow and contributes nothing either
+  // way. Never hittable: it covers the plot, and taking the `pointermove` would close
+  // the tooltip it holds.
+  &__tooltip-layer {
+    position: absolute;
+    inset: 0;
+    container-type: inline-size;
+    pointer-events: none;
+  }
+
+  &__tooltip {
+    position: absolute;
+    // Centred on its point, but never past either end of the plot — the x labels' clamp:
+    // the shift is the smaller of half the box and the room actually left on that side,
+    // so a tooltip that fits sits exactly over its crosshair and only the ones near an
+    // end move inwards. Centred with nothing bounding it, the tooltip at the last point
+    // hung half its width past the chart — measured at 52px over the right edge in
+    // Chromium, cut off by any container that clips and a sideways scroll on a phone for
+    // any that does not.
+    // rtl-ok: the SVG's own x, and SVG coordinates do not flip with `direction`
+    transform: translate(
+      clamp(calc(var(--wr-line-chart-x, 50) * -1cqw), -50%, calc((100 - var(--wr-line-chart-x, 50)) * 1cqw - 100%)),
+      0.5rem
+    );
+    background: var(--wr-color-surface);
+    border: 1px solid var(--wr-color-outline);
+    border-radius: var(--wr-border-radius-base);
+    box-shadow: var(--wr-shadow-sm);
+    padding: 0.5rem 0.625rem;
+    font-size: var(--wr-text-xs);
+    pointer-events: none;
+    z-index: 1;
+    min-width: 6rem;
+  }
+
+  &__tooltip-label {
+    font-weight: var(--wr-font-weight-semibold);
+    margin-bottom: 0.25rem;
+  }
+
+  &__tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__tooltip-name {
+    flex: 1 1 auto;
+    color: var(--wr-color-on-surface-muted);
+  }
+
+  &__tooltip-value {
+    font-weight: var(--wr-font-weight-semibold);
+  }
+
+  &__x-labels {
+    position: relative;
+    margin-top: 0.25rem;
+    font-size: var(--wr-text-xs);
+    // The labels are absolutely positioned onto their points, so the strip has no
+    // content of its own to give it a height. Without this it collapses and the
+    // labels overlap whatever the page puts under the chart.
+    height: 1.25em;
+    // A `translateX` percentage means the LABEL's own width, so the room left beside it
+    // has to arrive in another unit — `cqw` is this strip's. Every label is out of flow,
+    // so the strip contributes no intrinsic width either way and the containment this
+    // turns on costs the layout nothing.
+    container-type: inline-size;
+  }
+
+  &__x-label {
+    position: absolute;
+    // rtl-ok: the SVG's own x, and SVG coordinates do not flip with `direction`
+    left: calc(var(--wr-line-chart-x, 50) * 1%);
+    // Centred on the point it names, but never past either end of the strip: the shift
+    // is the smaller of half the label and the room actually left on that side, so a
+    // label that fits sits exactly on its dot and only the outermost ones move inwards.
+    // Physical for the same reason `left` is. Together with the width bound below, a
+    // label stays inside its own slot: measured in Chromium at 600px, twelve month names
+    // went from four overlapping pairs and 13px hanging outside the chart to neither.
+    // jsdom has no layout, so no spec can hold that — the spec pins the two numbers the
+    // template hands this rule instead.
+    transform: translateX(
+      clamp(calc(var(--wr-line-chart-x, 50) * -1cqw), -50%, calc((100 - var(--wr-line-chart-x, 50)) * 1cqw - 100%))
+    );
+    max-width: calc(var(--wr-line-chart-x-max, 100) * 1%);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: inherit;
+    color: var(--wr-color-on-surface-muted);
+    white-space: nowrap;
+  }
+}

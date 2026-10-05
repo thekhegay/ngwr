@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrRotatingText } from 'ngwr/rotating-text';
+import { WrRotatingText } from 'ngwr/animations/rotating-text';
 
 import {
   DocApiComponent,
@@ -96,7 +96,7 @@ export default class RotatingTextPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrRotatingText } from 'ngwr/rotating-text';`,
+    install: `import { WrRotatingText } from 'ngwr/animations/rotating-text';`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

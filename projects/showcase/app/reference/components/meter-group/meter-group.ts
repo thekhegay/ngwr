@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { WrMeterGroup } from 'ngwr/meter-group';
+import { WrMeterGroup } from 'ngwr/charts/meter-group';
 
 import {
   DocApiComponent,
@@ -25,7 +25,7 @@ import { API } from '#core/generated/api';
   ],
 })
 export default class MeterGroupPageComponent {
-  protected readonly install = `import { WrMeterGroup } from 'ngwr/meter-group';
+  protected readonly install = `import { WrMeterGroup } from 'ngwr/charts/meter-group';
 
 @Component({ imports: [WrMeterGroup] })
 export class MyComponent {}`;
