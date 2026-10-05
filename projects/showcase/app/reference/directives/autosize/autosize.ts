@@ -41,5 +41,19 @@ export default class AutosizePage {
       type: 'directive on textarea',
       default: '—',
     },
+    {
+      name: 'minRows',
+      description: 'Floor, in rows. The field never shrinks below it.',
+      type: 'number',
+      default: '1',
+      sub: true,
+    },
+    {
+      name: 'maxRows',
+      description: 'Ceiling, in rows. `0` — the default — means no cap, and the field grows with its content.',
+      type: 'number',
+      default: '0',
+      sub: true,
+    },
   ];
 }

@@ -146,6 +146,13 @@ private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WrDrawerRef);`
   protected readonly optionsApi: readonly DocApiRow[] = [
     { name: 'data', description: 'Payload exposed to the content via WR_DRAWER_DATA.', type: 'D', default: '—' },
     {
+      name: 'closeOnNavigation',
+      description:
+        'Close the drawer when the router navigates. Turn it off only for a drawer that OWNS the navigation — a filter panel keeping its state in the query string.',
+      type: 'boolean',
+      default: 'true',
+    },
+    {
       name: 'position',
       description: 'Side the drawer slides in from.',
       type: "'left' | 'right' | 'top' | 'bottom'",
