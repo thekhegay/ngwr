@@ -37,13 +37,6 @@ export default class FileUploadPageComponent {
   }
 
   protected readonly snippets = {
-    install: `import { WrFileUpload } from 'ngwr/file-upload';
-
-@Component({ imports: [WrFileUpload] })
-export class MyComponent {
-  protected readonly files = signal<readonly File[] | null>(null);
-}`,
-
     single: `<wr-file-upload [(value)]="file" />`,
 
     multi: `<wr-file-upload [(value)]="files" [multiple]="true" [maxFiles]="5" />`,

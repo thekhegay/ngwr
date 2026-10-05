@@ -36,11 +36,6 @@ export default class CardPage {
   }
 
   protected readonly snippets = {
-    install: `import { WrCard, WrCardHeader, WrCardFooter } from 'ngwr/card';
-
-@Component({ imports: [WrCard, WrCardHeader, WrCardFooter] })
-export class MyComponent {}`,
-
     basic: `<wr-card>
   <wr-card-header>
     <h3>Settings</h3>

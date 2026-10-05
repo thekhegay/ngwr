@@ -31,7 +31,6 @@ export default class ClickOutsidePage {
   }
 
   protected readonly snippets = {
-    install: `import { WrClickOutside } from 'ngwr/directives';`,
     usage: `<div class="popup" (wrClickOutside)="close()"> … </div>`,
   };
 

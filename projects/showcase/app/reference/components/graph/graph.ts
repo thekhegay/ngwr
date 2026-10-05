@@ -119,14 +119,6 @@ export default class GraphPageComponent {
   protected readonly packageEdges = PACKAGE_EDGES;
 
   protected readonly snippets = {
-    install: `import { WrGraph, WrGraphNodeTemplate } from 'ngwr/graph';
-
-// WrGraphNodeTemplate is the <ng-template wrGraphNode> directive in the custom
-// node examples below — the selector is wrGraphNode, and imports: [] takes the
-// class. A graph that draws its default cards needs WrGraph alone.
-@Component({ imports: [WrGraph, WrGraphNodeTemplate] })
-export class MyComponent {}`,
-    styles: `@use 'ngwr/graph';`,
     a11y: `<!-- What the team structure above exposes. The SVG holding the lines is aria-hidden,
      and each <span> is visually hidden. -->
 <div role="group" tabindex="0" aria-label="Team structure">

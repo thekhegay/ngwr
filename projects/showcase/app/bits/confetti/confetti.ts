@@ -80,9 +80,7 @@ onWin(): void {
     });
   }
 
-  protected readonly snippets = {
-    install: `import { WrConfetti } from 'ngwr/bits/confetti';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api: readonly DocApiRow[] = [
     {

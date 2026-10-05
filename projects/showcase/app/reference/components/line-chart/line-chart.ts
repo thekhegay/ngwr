@@ -26,16 +26,6 @@ export default class LineChartPageComponent {
   protected readonly xLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   protected readonly snippets = {
-    install: `import { WrLineChart, type WrLineSeries } from 'ngwr/charts/line-chart';
-
-@Component({ imports: [WrLineChart] })
-export class MyComponent {
-  protected readonly series: readonly WrLineSeries[] = [
-    { label: 'Visits', data: [12, 18, 9, 22, 30, 27, 35] },
-    { label: 'Signups', data: [3, 5, 4, 8, 11, 9, 14], color: 'var(--wr-color-success)' },
-  ];
-  protected readonly labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-}`,
     basic: `<wr-line-chart [series]="series" [xLabels]="labels" />`,
     tooltip: `<wr-line-chart [series]="series" [xLabels]="labels" [tooltip]="false" />`,
   };

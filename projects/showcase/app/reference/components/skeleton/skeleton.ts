@@ -21,10 +21,6 @@ export default class SkeletonComponent {
   protected readonly colors = WR_COLORS;
 
   protected readonly snippets = {
-    install: `import { WrSkeleton } from 'ngwr/skeleton';
-
-@Component({ imports: [WrSkeleton] })
-export class MyComponent {}`,
     basic: `<wr-skeleton />`,
     colors: `<wr-skeleton color="primary" />
 <wr-skeleton color="success" />`,

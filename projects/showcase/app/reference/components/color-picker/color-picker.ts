@@ -44,16 +44,6 @@ export default class ColorPickerPageComponent {
   ];
 
   protected readonly snippets = {
-    install: `import { WrColorPicker, WrColorPickerTrigger } from 'ngwr/color-picker';
-import { FormsModule } from '@angular/forms';
-
-@Component({
-  imports: [WrColorPicker, WrColorPickerTrigger, FormsModule],
-})
-export class MyComponent {
-  protected readonly color = signal('#3969e2');
-}`,
-
     basic: `<wr-color-picker [(value)]="color" />`,
 
     opaque: `<wr-color-picker [(value)]="color" [alpha]="false" />`,

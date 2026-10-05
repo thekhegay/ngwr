@@ -80,15 +80,6 @@ export default class TreePageComponent {
   protected readonly bigPick = signal<readonly string[]>([]);
 
   protected readonly snippets = {
-    install: `import { WrTree, type WrTreeNode } from 'ngwr/tree';
-
-@Component({ imports: [WrTree] })
-export class MyComponent {
-  protected readonly nodes: readonly WrTreeNode[] = [
-    { id: 'src', label: 'src', children: [{ id: 'src/app.ts', label: 'app.ts' }] },
-  ];
-}`,
-
     single: `<wr-tree
   [nodes]="folders"
   [(selected)]="picked"

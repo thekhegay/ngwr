@@ -60,7 +60,6 @@ export default class ShinyTextPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrShinyText } from 'ngwr/bits/shiny-text';`,
     shimmer: `import { WrShimmer } from 'ngwr/bits/shiny-text';
 
 <h1 wrShimmer>Premium</h1>`,

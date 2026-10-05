@@ -45,22 +45,6 @@ export default class SidebarPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrSidebar } from 'ngwr/sidebar';
-
-@Component({ imports: [WrSidebar] })
-export class MyComponent {
-  protected readonly entries: WrSidebarEntry[] = [
-    { title: 'Dashboard', icon: 'home', url: ['/dashboard'] },
-    {
-      title: 'Settings',
-      icon: 'cog',
-      children: [
-        { title: 'Profile', url: ['/settings', 'profile'] },
-        { title: 'Billing', url: ['/settings', 'billing'] },
-      ],
-    },
-  ];
-}`,
     template: `<wr-sidebar [entries]="entries" />`,
     activeOptions: `protected readonly entries: WrSidebarEntry[] = [
   // Without this, \`/\` is a prefix of every URL, so Home paints as

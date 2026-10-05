@@ -68,9 +68,7 @@ export default class BlurTextPage {
     this.replayKey.update(n => n + 1);
   }
 
-  protected readonly snippets = {
-    install: `import { WrBlurText } from 'ngwr/bits/blur-text';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api: readonly DocApiRow[] = [
     { name: 'text', description: 'Text to animate.', type: 'string', required: true },

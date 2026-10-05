@@ -34,9 +34,6 @@ export default class AutofocusPage {
    * boolean toggle would need two clicks to come back around to `true`. */
 
   protected readonly snippets = {
-    install: `import { WrButton } from 'ngwr/button';
-import { WrAutofocus } from 'ngwr/directives';
-import { WrInput } from 'ngwr/input';`,
     usage: `<input wrAutofocus placeholder="Focused on init" />
 <input [wrAutofocus]="shouldFocus()" />`,
   };

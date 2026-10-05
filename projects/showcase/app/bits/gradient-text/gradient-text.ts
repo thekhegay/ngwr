@@ -71,9 +71,7 @@ export default class GradientTextPage {
     { kind: 'text', label: 'Text', signal: this.text, placeholder: 'Text' },
   ];
 
-  protected readonly snippets = {
-    install: `import { WrGradientText } from 'ngwr/bits/gradient-text';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api: readonly DocApiRow[] = [
     {

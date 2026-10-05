@@ -95,9 +95,7 @@ export default class RotatingTextPage {
     { kind: 'toggle', label: 'Loop', signal: this.loop },
   ];
 
-  protected readonly snippets = {
-    install: `import { WrRotatingText } from 'ngwr/bits/rotating-text';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api: readonly DocApiRow[] = [
     {

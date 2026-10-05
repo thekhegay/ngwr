@@ -4,10 +4,6 @@
   [keywords]="['tour', 'onboarding', 'walkthrough', 'spotlight', 'wr-tour']"
   [labels]="['Service']"
 >
-  <ngwr-doc-section title="Installation">
-    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
-  </ngwr-doc-section>
-
   <ngwr-doc-section
     title="Run a tour"
     description="Steps are data, not markup: `start()` takes an array and the service owns the overlay, the cut-out, focus and the keyboard. Escape ends the tour and focus returns where it began. The demo below has a deliberate fourth step pointing at an element that is not on the page — it is skipped rather than shown floating, which is what keeps a tour alive when a feature sits behind a flag or a permission."

@@ -50,9 +50,7 @@ export default class WavesPage {
     { kind: 'slider', label: 'Y Gap', signal: this.yGap, min: 12, max: 80, step: 2 },
   ];
 
-  protected readonly snippets = {
-    install: `import { WrWaves } from 'ngwr/bits/waves';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api: readonly DocApiRow[] = [
     {

@@ -31,16 +31,6 @@ export default class DonutChartPageComponent {
   ];
 
   protected readonly snippets = {
-    install: `import { WrDonutChart, type WrDonutSegment } from 'ngwr/charts/donut-chart';
-
-@Component({ imports: [WrDonutChart] })
-export class MyComponent {
-  protected readonly segments: readonly WrDonutSegment[] = [
-    { label: 'Used', value: 60 },
-    { label: 'Reserved', value: 25 },
-    { label: 'Free', value: 15 },
-  ];
-}`,
     basic: `<wr-donut-chart [segments]="segments" centerLabel="Disk" centerValue="60%" />`,
     solid: `<wr-donut-chart [segments]="segments" thickness="0" />`,
     tooltip: `<wr-donut-chart [segments]="segments" [tooltip]="false" />`,

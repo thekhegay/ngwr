@@ -53,7 +53,6 @@ export default class SpotlightCardPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrSpotlightCard } from 'ngwr/bits/spotlight-card';`,
     directive: `// Directive variant — same package, drops on any element.
 import { WrSpotlight } from 'ngwr/bits/spotlight-card';
 

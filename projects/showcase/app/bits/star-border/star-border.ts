@@ -45,7 +45,6 @@ export default class StarBorderPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrStarBorder } from 'ngwr/bits/star-border';`,
     button: `<button wr-star-border mode="hover" rays="single" type="button">
   Hover me
 </button>`,

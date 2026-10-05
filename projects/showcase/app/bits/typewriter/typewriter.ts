@@ -56,9 +56,7 @@ export default class TypewriterPage {
     { kind: 'text', label: 'Cursor', signal: this.cursorCharacter, placeholder: '|' },
   ];
 
-  protected readonly snippets = {
-    install: `import { WrTypewriter } from 'ngwr/bits/typewriter';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api: readonly DocApiRow[] = [
     {

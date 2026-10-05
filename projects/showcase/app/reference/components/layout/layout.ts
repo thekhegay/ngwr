@@ -37,14 +37,6 @@ export default class LayoutPageComponent {
   }
 
   protected readonly snippets = {
-    install: `import {
-  WrLayout,
-  WrLayoutHeader,
-  WrLayoutSider,
-  WrLayoutContent,
-  WrLayoutFooter
-} from 'ngwr/layout';`,
-
     basic: `<wr-layout>
   <wr-layout-header>App bar</wr-layout-header>
   <wr-layout-content>Main</wr-layout-content>

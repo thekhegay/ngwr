@@ -54,13 +54,6 @@ export default class MentionPageComponent {
   protected readonly userDisplay = (u: User): string => `${u.label}`;
 
   protected readonly snippets = {
-    install: `import { WrMention, type WrMentionItem } from 'ngwr/mention';
-
-@Component({ imports: [WrMention, FormsModule] })
-export class MyComponent {
-  protected readonly users = [{ label: 'Ada' }, { label: 'Alan' }];
-}`,
-
     basic: `<textarea
   wrMention
   [wrMentionItems]="users"

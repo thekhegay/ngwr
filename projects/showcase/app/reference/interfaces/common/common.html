@@ -4,6 +4,12 @@
   [keywords]="['types', 'Maybe', 'SafeAny', 'utils']"
   [labels]="['Type']"
 >
+  <!--
+    Hand-written, and the only page left that is: `<ngwr-doc-page>` builds this
+    section from the page's own imports, and a page of TYPES imports none — no
+    class to declare, no entry point to `@use`. The import line is the whole
+    recipe here.
+  -->
   <ngwr-doc-section title="Installation">
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>

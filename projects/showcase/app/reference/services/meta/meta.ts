@@ -50,17 +50,6 @@ export default class MetaServicePageComponent {
   }
 
   protected readonly snippets = {
-    install: `import { provideWrMeta, WrMeta } from 'ngwr/meta';
-
-bootstrapApplication(AppComponent, {
-  providers: [
-    provideWrMeta({
-      titleTemplate: '{{ title }} · NGWR',
-      og: { siteName: 'NGWR', type: 'website' },
-      twitter: { card: 'summary_large_image', creator: '@thekhegay' },
-    }),
-  ],
-});`,
     push: `private readonly meta = inject(WrMeta);
 
 ngOnInit() {

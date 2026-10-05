@@ -45,29 +45,6 @@ export default class InputComponent {
   protected readonly money = signal('');
 
   protected readonly snippets = {
-    install: `import {
-  WrInput,
-  WrInputGroup,
-  WrInputPrefix,
-  WrInputSuffix,
-  WrPasswordToggle
-} from 'ngwr/input';
-import { FormsModule } from '@angular/forms';
-
-@Component({
-  imports: [
-    WrInput,
-    WrInputGroup,
-    WrInputPrefix,
-    WrInputSuffix,
-    WrPasswordToggle,
-    FormsModule,
-  ],
-})
-export class MyComponent {
-  text = signal('');
-}`,
-
     basic: `<input wrInput placeholder="Type here…" [(ngModel)]="text" />`,
 
     types: `<input wrInput type="email" placeholder="you@example.com" />

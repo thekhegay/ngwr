@@ -1645,6 +1645,27 @@ sidebar). Wire it into the matching `*.routing.ts` and the `routes` map in
 `<ngwr-doc-section>`, `<ngwr-doc-code>` (code blocks), `<ngwr-doc-snippet>` (live
 demo), and `<ngwr-doc-api>` (API table). A component isn't done without it.
 
+**The Installation section is rendered by the SHELL, from the page's own
+imports.** `pnpm gen:install` writes `#core/generated/install.ts` — route →
+`{ path, symbols, styled }` — and `<ngwr-doc-page>` draws the section from it as
+two tabs, the TypeScript import and the `@use`. It replaced 128 hand-written
+copies of the same two-line recipe, and the reason it had to is v15: removing
+the `@use 'ngwr'` umbrella made the style entry load-bearing, and **not one of
+the 128 mentioned it** — three pages out of the whole catalog showed a `styles`
+snippet at all. A page that shows the import and omits the `@use` teaches half
+an installation, and the omitted half fails silently, with the component
+rendering unstyled and nothing in the build or the console to say so. Two things
+it reads deliberately: the page's OWN imports rather than the selector map,
+because a docs page imports exactly what it renders while an entry point exports
+more; and the page's own entry point FIRST, because the select page pulls
+`ngwr/avatar` for an option template and a recipe opening with someone else's
+entry point reads as though you need it. Template literals are stripped before
+the scan — a docs page is full of snippet strings containing `import … from
+'ngwr/…'`, and counting those made the map describe what a page PRINTS rather
+than what it renders. One page is still hand-written and says why at the line:
+`reference/interfaces/common` documents types, so it has no class to declare and
+no entry point to `@use`.
+
 **A page for something NEW declares the version it first shipped in, and the
 sidebar's mark is DERIVED from that** — `<ngwr-doc-page since="14.5.0">`, which
 the page prints as "Added in v14.5" beside its title and `pnpm gen:api-docs`

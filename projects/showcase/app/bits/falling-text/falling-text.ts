@@ -56,9 +56,7 @@ export default class FallingTextPage {
     this.replayKey.update(n => n + 1);
   }
 
-  protected readonly snippets = {
-    install: `import { WrFallingText } from 'ngwr/bits/falling-text';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api: readonly DocApiRow[] = [
     {

@@ -26,10 +26,6 @@ import {
 })
 export default class ButtonGroupComponent {
   protected readonly snippets = {
-    install: `import { WrButtonGroup } from 'ngwr/button';
-
-@Component({ imports: [WrButton, WrButtonGroup] })
-export class MyComponent {}`,
     basic: `<wr-btn-group>
   <button wr-btn>Left</button>
   <button wr-btn>Middle</button>

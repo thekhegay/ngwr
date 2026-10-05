@@ -48,9 +48,7 @@ export default class BreadcrumbsPage {
     { kind: 'text', label: 'Aria Label', signal: this.ariaLabel, placeholder: 'Breadcrumbs' },
   ];
 
-  protected readonly snippets = {
-    install: `import { WrBreadcrumbs, WrBreadcrumbsItem } from 'ngwr/breadcrumbs';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api: readonly DocApiRow[] = [
     {

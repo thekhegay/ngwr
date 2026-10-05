@@ -107,14 +107,6 @@ export default class SchemaFormPage {
   protected readonly api = API.WrSchemaForm;
 
   protected readonly snippets = {
-    install: `import { WR_FIELD } from 'ngwr/form';
-import { WrSchemaForm } from 'ngwr/schema-form';
-
-@Component({
-  imports: [WrSchemaForm],
-})
-export class MyComponent {}`,
-
     basic: `import { form, metadata, required, schema } from '@angular/forms/signals';
 import { WR_FIELD } from 'ngwr/form';
 

@@ -31,8 +31,6 @@ export default class AutosizePage {
   protected readonly textareaValue = signal('Type more lines\nto see\nthis grow…');
 
   protected readonly snippets = {
-    install: `import { WrAutosize } from 'ngwr/directives';
-import { WrInput } from 'ngwr/input';`,
     usage: `<textarea wrAutosize minRows="2" maxRows="8" [(ngModel)]="text"></textarea>`,
   };
 

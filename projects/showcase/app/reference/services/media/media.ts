@@ -33,12 +33,6 @@ export default class MediaServicePageComponent {
   protected readonly isLg = this.mediaService.matches('lg');
 
   protected readonly snippets = {
-    install: `import { WrMedia, provideWrMedia } from 'ngwr/media';
-
-// Optional — override breakpoints (defaults match _breakpoints.scss).
-bootstrapApplication(AppComponent, {
-  providers: [provideWrMedia({ md: 720 })],
-});`,
     usage: `private readonly media = inject(WrMedia);
 
 protected readonly isMd = this.media.matches('md');

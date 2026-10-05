@@ -32,11 +32,6 @@ export default class CheckboxComponent {
   protected readonly features = signal<string[]>(['autosave']);
 
   protected readonly snippets = {
-    install: `import { WrCheckbox, WrCheckboxGroup } from 'ngwr/checkbox';
-import { FormsModule } from '@angular/forms';
-
-@Component({ imports: [WrCheckbox, WrCheckboxGroup, FormsModule] })
-export class MyComponent {}`,
     standalone: `<!-- signal-forms native: [(checked)], [formField], or classic [(ngModel)] -->
 <wr-checkbox [(checked)]="agree">I agree</wr-checkbox>`,
     group: `<wr-checkbox-group [(value)]="features">

@@ -30,11 +30,6 @@ export default class TextareaComponent {
   protected readonly autoText = signal('Type to see autosize…');
 
   protected readonly snippets = {
-    install: `import { WrTextarea } from 'ngwr/textarea';
-import { FormsModule } from '@angular/forms';
-
-@Component({ imports: [WrTextarea, FormsModule] })
-export class MyComponent {}`,
     basic: `<wr-textarea placeholder="Notes" [(value)]="text" />`,
     rows: `<wr-textarea [rows]="5" />`,
     autosize: `<wr-textarea autosize [maxRows]="6" [(value)]="text" />`,

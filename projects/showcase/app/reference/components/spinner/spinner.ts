@@ -18,10 +18,6 @@ import { API } from '#core/generated/api';
 })
 export default class SpinnerComponent {
   protected readonly snippets = {
-    install: `import { WrSpinner } from 'ngwr/spinner';
-
-@Component({ imports: [WrSpinner] })
-export class MyComponent {}`,
     basic: `<wr-spinner />`,
     sizes: `<wr-spinner size="sm" />
 <wr-spinner size="md" />

@@ -25,6 +25,21 @@
 </header>
 
 <div class="content">
+  <!--
+    FIRST section on the page, and rendered by the shell for the same reason as
+    the CSS-variables one below: 128 pages wrote the import by hand and not one
+    wrote the `@use`, which v15 made load-bearing when it removed the umbrella.
+    Generated from the page's own imports, so it cannot drift from the page.
+  -->
+  @if (install(); as files) {
+    <ngwr-doc-section
+      title="Installation"
+      description="The class goes in the component's `imports`, and the entry point goes in your global stylesheet. **Both halves are needed** — a component whose styles are not `@use`d renders unstyled, with nothing in the build to say so."
+    >
+      <ngwr-doc-code [files]="files" />
+    </ngwr-doc-section>
+  }
+
   <ng-content />
 
   <!--

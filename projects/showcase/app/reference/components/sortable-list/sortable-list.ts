@@ -51,24 +51,6 @@ export default class SortableListPage {
 
   protected readonly snippets = {
     peer: `npm install @angular/cdk`,
-    install: `import {
-  WrDragHandle,
-  WrSortableItem,
-  WrSortableList,
-  type WrSortableReorderEvent,
-} from 'ngwr/sortable-list';
-
-@Component({ imports: [WrSortableList, WrSortableItem, WrDragHandle] })
-export class MyComponent {
-  protected readonly rows = signal([
-    { id: 1, label: 'One' },
-    { id: 2, label: 'Two' },
-  ]);
-
-  protected onReorder(e: WrSortableReorderEvent<{ id: number; label: string }>): void {
-    console.log(e.previousIndex, '->', e.currentIndex);
-  }
-}`,
     basic: `<wr-sortable-list [(items)]="rows" (reorder)="onReorder($event)">
   @for (row of rows(); track row.id; let i = $index) {
     <wr-sortable-item>{{ i + 1 }}. {{ row.label }}</wr-sortable-item>

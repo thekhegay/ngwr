@@ -57,9 +57,7 @@ export default class VirtualScrollPage {
     { kind: 'slider', label: 'Viewport (px)', signal: this.height, min: 200, max: 600, step: 20, unit: 'px' },
   ];
 
-  protected readonly snippets = {
-    install: `import { WrVirtualScroll } from 'ngwr/virtual-scroll';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api: readonly DocApiRow[] = [
     {

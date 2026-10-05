@@ -33,13 +33,6 @@ export default class InputNumberPageComponent {
   protected readonly noSteppers = signal<number | null>(42);
 
   protected readonly snippets = {
-    install: `import { WrInputNumber } from 'ngwr/input-number';
-
-@Component({ imports: [WrInputNumber] })
-export class MyComponent {
-  protected readonly value = signal<number | null>(0);
-}`,
-
     basic: `<wr-input-number [(value)]="value" />`,
 
     bounded: `<wr-input-number [(value)]="value" [min]="0" [max]="100" [step]="5" />`,

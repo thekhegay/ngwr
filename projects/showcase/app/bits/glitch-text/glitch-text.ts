@@ -50,9 +50,7 @@ export default class GlitchTextPage {
     { kind: 'text', label: 'Text', signal: this.text, placeholder: 'Text' },
   ];
 
-  protected readonly snippets = {
-    install: `import { WrGlitchText } from 'ngwr/bits/glitch-text';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api = API.WrGlitchText;
 }

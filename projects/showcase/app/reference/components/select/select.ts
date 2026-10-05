@@ -71,14 +71,6 @@ export default class SelectComponent {
   }
 
   protected readonly snippets = {
-    install: `import { WrSelect, WrOption, WrOptionGroup } from 'ngwr/select';
-import { FormsModule } from '@angular/forms';
-
-// WrOptionGroup only if you use <wr-option-group>; FormsModule only for
-// [(ngModel)]. For reactive forms bring ReactiveFormsModule instead — see
-// "Use it in a form" below.
-@Component({ imports: [WrSelect, WrOption, WrOptionGroup, FormsModule] })
-export class MyComponent {}`,
     basic: `<wr-select placeholder="Pick a size" [(value)]="size">
   <wr-option value="sm">Small</wr-option>
   <wr-option value="md">Medium</wr-option>

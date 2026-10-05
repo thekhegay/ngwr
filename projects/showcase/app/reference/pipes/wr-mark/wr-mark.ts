@@ -43,11 +43,6 @@ export default class WrMarkPipePage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrMark } from 'ngwr/pipes';
-
-@Component({ imports: [WrMark] })
-export class MyComponent { /* ... */ }`,
-
     usage: `<!-- The output is SafeHtml — bind with [innerHTML]. -->
 <span [innerHTML]="row.name | wrMark: query()"></span>
 

@@ -48,13 +48,6 @@ export default class DrawerPageComponent {
   ];
 
   protected readonly snippets = {
-    install: `import {
-  WrDrawer,
-  WrDrawerTitle,
-  WrDrawerContent,
-  WrDrawerFooter,
-  WrDrawerClose
-} from 'ngwr/drawer';`,
     basic: `<wr-btn (click)="open.set(true)">Open</wr-btn>
 
 <wr-drawer [(open)]="open" position="right" width="22rem">

@@ -38,11 +38,6 @@ export default class WrPluralPipePage {
   protected readonly ru = { one: 'файл', few: 'файла', other: 'файлов' } as const;
 
   protected readonly snippets = {
-    install: `import { WrPlural } from 'ngwr/pipes';
-
-@Component({ imports: [WrPlural] })
-export class MyComponent { /* ... */ }`,
-
     usage: `{{ 1 | wrPlural: { one: 'comment', other: 'comments' } }}
 <!-- "1 comment" -->
 

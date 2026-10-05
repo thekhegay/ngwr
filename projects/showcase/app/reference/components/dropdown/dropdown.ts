@@ -43,10 +43,6 @@ import { API } from '#core/generated/api';
 })
 export default class DropdownComponent {
   protected readonly snippets = {
-    install: `import { WrDropdown, WrDropdownMenu, WrDropdownItem } from 'ngwr/dropdown';
-
-@Component({ imports: [WrDropdown, WrDropdownMenu, WrDropdownItem] })
-export class MyComponent {}`,
     basic: `<button wr-btn [wrDropdown]="menu">Actions</button>
 
 <wr-dropdown-menu #menu>

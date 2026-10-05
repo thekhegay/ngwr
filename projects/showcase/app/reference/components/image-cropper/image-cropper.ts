@@ -65,17 +65,6 @@ export default class ImageCropperPageComponent {
   }
 
   protected readonly snippets = {
-    install: `import { WrImageCropper } from 'ngwr/image-cropper';
-
-@Component({ imports: [WrImageCropper] })
-export class MyComponent {
-  protected readonly src = signal<File | null>(null);
-
-  onCropped(blob: Blob) {
-    // upload blob, preview it, etc.
-  }
-}`,
-
     basic: `<input type="file" accept="image/*" (change)="onFileChange($event)" />
 
 <wr-image-cropper [src]="src()" (cropped)="onCropped($event)" />`,

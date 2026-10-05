@@ -39,18 +39,6 @@ export default class ContextMenuPageComponent {
   }
 
   protected readonly snippets = {
-    install: `import {
-  WrContextMenu,
-  WrContextMenuPanel,
-  WrContextMenuItem,
-  WrContextMenuDivider,
-} from 'ngwr/context-menu';
-
-@Component({
-  imports: [WrContextMenu, WrContextMenuPanel, WrContextMenuItem, WrContextMenuDivider],
-})
-export class MyComponent {}`,
-
     basic: `<div [wrContextMenu]="menu">Right-click me</div>
 
 <wr-context-menu #menu>

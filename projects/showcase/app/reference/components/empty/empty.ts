@@ -27,10 +27,6 @@ import { API } from '#core/generated/api';
 })
 export default class EmptyPageComponent {
   protected readonly snippets = {
-    install: `import { WrEmpty } from 'ngwr/empty';
-
-@Component({ imports: [WrEmpty] })
-export class MyComponent {}`,
     basic: `<wr-empty />`,
     custom: `<wr-empty iconName="search" title="No results">
   Try a different query or clear filters.

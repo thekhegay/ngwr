@@ -47,10 +47,6 @@ export default class ButtonComponent {
   protected readonly loading = signal(false);
 
   protected readonly snippets = {
-    install: `import { WrButton } from 'ngwr/button';
-
-@Component({ imports: [WrButton] })
-export class MyComponent {}`,
     basic: `<wr-btn>Default</wr-btn>
 <button wr-btn>Native button</button>
 <a wr-btn>Anchor</a>`,

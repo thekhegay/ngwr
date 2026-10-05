@@ -65,18 +65,6 @@ export default class DatePickerPageComponent {
   protected readonly isWeekday = (d: Date): boolean => d.getDay() > 0 && d.getDay() < 6;
 
   protected readonly snippets = {
-    install: `import { WrDatePicker } from 'ngwr/date-picker';
-import { provideWrDateAdapter } from 'ngwr/date';
-
-bootstrapApplication(AppComponent, {
-  providers: [provideWrDateAdapter()],
-});
-
-@Component({ imports: [WrDatePicker] })
-export class MyComponent {
-  protected readonly picked = signal<Date | null>(null);
-}`,
-
     basic: `<wr-date-picker [(value)]="picked" placeholder="Pick a date" />`,
 
     format: `<wr-date-picker [(value)]="picked" format="dd.MM.yyyy" />`,

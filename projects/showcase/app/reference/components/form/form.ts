@@ -39,11 +39,6 @@ export default class FormComponent {
   protected readonly emailInvalid = signal(false);
 
   protected readonly snippets = {
-    install: `import { WrFormItem, WrFormError } from 'ngwr/form';
-import { WrInput } from 'ngwr/input';   // the control in the examples below
-
-@Component({ imports: [WrFormItem, WrFormError, WrInput] })
-export class MyComponent {}`,
     // Both wrappers ship from `ngwr/form`, and this page used to carry the OTHER
     // one's API table while importing only `WrFormItem` — so "which do I use"
     // was answerable only from the far page. The answer lives here now.

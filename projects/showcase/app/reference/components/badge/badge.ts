@@ -36,10 +36,6 @@ export default class BadgeComponent {
   protected readonly colors = WR_COLORS;
 
   protected readonly snippets = {
-    install: `import { WrBadge, WrTag } from 'ngwr/badge';
-
-@Component({ imports: [WrBadge, WrTag] })
-export class MyComponent {}`,
     basic: `<wr-badge>New</wr-badge>`,
     colors: `<wr-badge color="primary">Primary</wr-badge>
 <wr-badge color="success">Success</wr-badge>`,

@@ -69,9 +69,7 @@ export default class BorderGlowPage {
     { kind: 'color', label: 'Glow Color', signal: this.glowColorHex, alpha: false },
   ];
 
-  protected readonly snippets = {
-    install: `import { WrBorderGlow } from 'ngwr/bits/border-glow';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api: readonly DocApiRow[] = [
     {

@@ -31,11 +31,6 @@ export default class RadioComponent {
   protected readonly plan = signal('starter');
 
   protected readonly snippets = {
-    install: `import { WrRadio, WrRadioGroup } from 'ngwr/radio';
-import { FormsModule } from '@angular/forms';
-
-@Component({ imports: [WrRadio, WrRadioGroup, FormsModule] })
-export class MyComponent {}`,
     basic: `<wr-radio-group [(value)]="size">
   <wr-radio value="sm">Small</wr-radio>
   <wr-radio value="md">Medium</wr-radio>

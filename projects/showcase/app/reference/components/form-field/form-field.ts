@@ -64,14 +64,6 @@ export default class FormFieldPage {
   }
 
   protected readonly snippets = {
-    install: `import { WrFormField, WrFormError } from 'ngwr/form';
-import { WrInput } from 'ngwr/input';   // plus whichever control you project
-
-@Component({
-  imports: [WrFormField, WrFormError, WrInput],
-})
-export class MyComponent {}`,
-
     basic: `<wr-form-field label="Email" hint="We'll never share it." required>
   <input wrInput [formControl]="email" type="email" />
   <wr-form-error key="required">Email is required.</wr-form-error>

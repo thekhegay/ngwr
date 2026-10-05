@@ -77,10 +77,6 @@ export default class AvatarComponent {
   }
 
   protected readonly snippets = {
-    install: `import { WrAvatar } from 'ngwr/avatar';
-
-@Component({ imports: [WrAvatar] })
-export class MyComponent {}`,
     basic: `<wr-avatar url="/me.png" alt="Roman" />`,
     sizes: `<wr-avatar url="/me.png" alt="Roman" [size]="32" />
 <wr-avatar url="/me.png" alt="Roman" size="4rem" />
