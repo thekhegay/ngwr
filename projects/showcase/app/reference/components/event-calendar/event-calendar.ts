@@ -120,7 +120,10 @@ bootstrapApplication(App, { providers: [provideWrDateFnsAdapter()] });`,
   [dayEndHour]="14"
   [events]="events()"
 />`,
-    template: `<wr-event-calendar [events]="events()">
+    template: `// The attribute is \`wrCalendarEvent\`; the class to import is WrCalendarEventTemplate.
+// imports: [WrEventCalendar, WrCalendarEventTemplate]
+
+<wr-event-calendar [events]="events()">
   <ng-template wrCalendarEvent let-event>
     <strong>{{ event.title }}</strong>
     <small>{{ event.data.room }}</small>

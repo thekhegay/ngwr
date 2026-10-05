@@ -4,7 +4,10 @@
   [keywords]="['dropdown', 'menu', 'wr-dropdown', 'overlay']"
   [labels]="['Directive', 'Components', 'CDK Overlay']"
 >
-  <ngwr-doc-section title="Basic usage">
+  <ngwr-doc-section
+    title="Basic usage"
+    description="An item emits a `click` and nothing else — it does NOT close the menu, because a toggle row or a filter wants to stay open. Where picking should dismiss, take the trigger through its `exportAs` (`#d=\'wrDropdown\'`) and call `d.close()` alongside your handler."
+  >
     <ngwr-doc-snippet [code]="snippets.basic">
       <button type="button" wr-btn color="primary" [wrDropdown]="basicMenu">Actions</button>
       <wr-dropdown-menu #basicMenu>
