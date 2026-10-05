@@ -20,17 +20,19 @@ class MyService {
   private onChange: (v: string) => void = noop;
 }`;
 
-  protected readonly whySnippet = `// Native — each instance gets a fresh arrow, breaking ref equality.
+  protected readonly whySnippet = `// Inline — reads as unfinished, and each instance gets its own closure.
 class MyComponent {
-  // \`() => {}\` here creates a new function per instance.
   onChange = () => {};
 }
-// → OnPush comparing \`onChange\` between renders sees "changed" every time.
 
-// ngwr — single shared function reference; ref equality is stable.
+// noop — says the nothing is deliberate, and it is one shared reference.
 class MyComponent {
   onChange = noop;
-}`;
+}
+
+// Where the reference matters: the same function goes in and comes back out.
+el.addEventListener('scroll', noop);
+el.removeEventListener('scroll', noop);`;
 
   protected readonly api: readonly DocApiRow[] = [
     {

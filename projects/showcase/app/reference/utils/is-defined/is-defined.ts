@@ -19,14 +19,15 @@ export default class IsDefinedPage {
 const items: (string | null | undefined)[] = ['a', null, 'b', undefined];
 const present = items.filter(isDefined);   // string[] — narrowed`;
 
-  protected readonly whySnippet = `// Native — TS doesn't narrow through an inline arrow predicate.
-const items: (string | null | undefined)[] = ['a', null, 'b'];
-const a = items.filter(x => x !== null && x !== undefined);
-//    ^? (string | null | undefined)[]      ← still nullable!
+  protected readonly whySnippet = `const items: (string | null | undefined)[] = ['a', null, 'b'];
 
-// ngwr — type predicate signature narrows the result.
+// Since TS 5.5 the inline arrow is inferred as a type predicate too.
+const a = items.filter(x => x !== null && x !== undefined);
+//    ^? string[]
+
+// Same result, named once, with Maybe<T> on the parameter.
 const b = items.filter(isDefined);
-//    ^? string[]                          ← clean`;
+//    ^? string[]`;
 
   protected readonly api: readonly DocApiRow[] = [
     {

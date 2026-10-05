@@ -20,7 +20,7 @@
 
   <ngwr-doc-section
     title="Knowing the state between events"
-    description="This predicate is scoped to `keydown`. It does not answer “is a composition in progress” for an `input` or `blur` handler — on the committing keystroke the key flag and the composition state disagree by design. A component that needs the state between events tracks the `compositionstart` / `compositionend` pair, which is what `wr-mention` and `wr-input-otp` do."
+    description="This predicate is scoped to `keydown`. It does not answer “is a composition in progress” for an `input` or `blur` handler — on the committing keystroke the key flag and the composition state disagree by design. A component that needs the state between events tracks the `compositionstart` / `compositionend` pair, which is what `wr-mention` does. `wr-input-otp` takes the cheaper route its job allows: `InputEvent.isComposing` on the `input` event, plus a `compositionend` handler to sanitise the committed text — enough for a single cell, where there is nothing to keep open across the composition."
   >
     <ngwr-doc-code [code]="stateSnippet" language="angular-ts" />
   </ngwr-doc-section>
