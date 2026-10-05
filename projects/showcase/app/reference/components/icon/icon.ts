@@ -18,7 +18,6 @@ import { API } from '#core/generated/api';
 @Component({
   selector: 'ngwr-icon-page',
   templateUrl: './icon.html',
-  styleUrl: './icon.scss',
   imports: [
     WrIcon,
     DocPageComponent,
