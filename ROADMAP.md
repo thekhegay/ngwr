@@ -22,8 +22,8 @@ unscheduled; everything under [Deferred](#deferred) is explicitly not now.
       The shadcn ownership model without abandoning the update path;
       copy-paste-only has weak traction in Angular (spartan ~21k dl/wk).
 - [ ] **E9. Blocks** (L) — `ng g @ngwr/blocks:auth|dashboard|landing|settings`,
-      composed from ngwr components and themed through the registry's
-      `registry:theme` presets. Proven adoption driver (shadcnblocks, Ant Pro,
+      composed from ngwr components and themed through the token layer.
+      Proven adoption driver (shadcnblocks, Ant Pro,
       Tremor); virtually no Angular block ecosystem exists.
 
 ## F — AI components (`ngwr/ai`)
