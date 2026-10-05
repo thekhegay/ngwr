@@ -40,7 +40,9 @@ import { WR_TABS, WR_TABS_ROUTING } from './tokens';
   // binding through `style.setProperty`, which no CSP governs, while a real
   // `style="…"` attribute is refused under `style-src 'self'` — and this host
   // would then lay out an empty box in the middle of the content.
-  host: { '[style.display]': "'none'" },
+  // The host is `display: none`, so the tooltip never shows — but a static
+  // `title=` still lands on it. See `WrAlert` for the whole shape.
+  host: { '[style.display]': "'none'", '[attr.title]': 'null' },
 })
 export class WrTab {
   /** Visible label on the tab strip. */

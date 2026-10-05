@@ -30,6 +30,14 @@ import type { WrAlertType } from './types';
   imports: [WrIcon],
   encapsulation: ViewEncapsulation.None,
   host: {
+    // `title` is an input, and a static attribute that feeds an input is ALSO
+    // written onto the host — where the browser shows it as a native tooltip
+    // over the whole component, and where it feeds the accessible name of any
+    // element that has a role. `<wr-alert title="Heads up">` is the documented
+    // spelling, so every page writing it shipped both. A bound `[title]` never
+    // did this, which is why the two forms behaved differently for no reason a
+    // reader could see.
+    '[attr.title]': 'null',
     '[class]': 'classes()',
     '[attr.role]': 'liveRole()',
     '[attr.aria-live]': 'liveLevel()',

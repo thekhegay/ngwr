@@ -40,7 +40,9 @@ import { WrIcon, type WrIconName } from 'ngwr/icon';
   selector: 'wr-empty',
   templateUrl: './empty.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-empty', role: 'status' },
+  // See `WrAlert`: a static `title=` feeds the input AND lands on the host,
+  // where the browser draws it as a tooltip over the whole component.
+  host: { class: 'wr-empty', role: 'status', '[attr.title]': 'null' },
   imports: [WrIcon],
 })
 export class WrEmpty {

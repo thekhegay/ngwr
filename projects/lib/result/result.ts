@@ -30,7 +30,9 @@ import type { WrResultStatus } from './types';
   selector: 'wr-result',
   templateUrl: './result.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  // See `WrAlert`: a static `title=` feeds the input AND lands on the host,
+  // where the browser draws it as a tooltip over the whole component.
+  host: { '[class]': 'classes()', '[attr.title]': 'null' },
 })
 export class WrResult {
   readonly title = input<string>('');

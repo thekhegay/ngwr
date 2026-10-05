@@ -35,7 +35,9 @@ import { WR_COLLAPSE_GROUP } from './tokens';
   selector: 'wr-collapse',
   templateUrl: './collapse.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  // See `WrAlert`: a static `title=` feeds the input AND lands on the host,
+  // where the browser draws it as a tooltip over the whole component.
+  host: { '[class]': 'classes()', '[attr.title]': 'null' },
 })
 export class WrCollapse {
   /** Header text. */
