@@ -54,7 +54,7 @@
   // into vertical streams. `break-inside: avoid` prevents the engine from
   // slicing a tile across columns.
   &__tile {
-    --wr-cbento-bg: var(--wr-color-white);
+    --wr-cbento-bg: var(--wr-color-surface);
     --wr-cbento-border: var(--wr-color-outline);
     --wr-cbento-shadow: 0 1px 2px rgba(var(--wr-color-backdrop-rgb), 0.04);
 
@@ -123,7 +123,7 @@
     min-width: 1.25rem;
     height: 1.25rem;
     padding: 0 0.25rem;
-    background: var(--wr-color-white);
+    background: var(--wr-color-surface);
     border: 1px solid rgba(var(--wr-color-on-surface-rgb), 0.18);
     border-bottom-width: 2px;
     border-radius: 4px;
@@ -325,7 +325,7 @@
       // to read as a stack, not so much they crowd the initials. The
       // white ring lifts each item via `box-shadow` (replaces the lib's
       // default inset hairline so the outline paints outward).
-      box-shadow: 0 0 0 2px var(--wr-color-white);
+      box-shadow: 0 0 0 2px var(--wr-color-surface);
       margin-left: -0.625rem;
 
       &:first-child {
@@ -339,7 +339,7 @@
     .ngwr-cbento__avatar-text {
       // Layered over an opaque surface — translucent fills let the avatar
       // behind bleed through the stack overlap.
-      background-color: var(--wr-color-white);
+      background-color: var(--wr-color-surface);
       background-image: linear-gradient(
         rgba(var(--wr-color-primary-rgb), 0.12),
         rgba(var(--wr-color-primary-rgb), 0.12)

@@ -72,10 +72,12 @@ $ink-mix-more: (
     --wr-color-gray-5: #47505d;
 
     // The de-emphasis tier closes up — see the note at the top of this file.
+    //
+    // unused-ok: BOTH of the two below. The library paints at neither strength
+    // any more — see the note at their declaration in `_colors.scss` — and new
+    // code takes the role, `--wr-color-on-surface-muted`. The overrides stay so
+    // a CONSUMER still using either tier is carried into high contrast too.
     --wr-color-text-muted: var(--wr-color-gray-5);
-    // unused-ok: the library paints with nothing at the faint strength any
-    // more — see the note at its declaration in `_colors.scss`. The override
-    // stays so a CONSUMER using the tier is carried into high contrast too.
     --wr-color-text-faint: var(--wr-color-gray-5);
 
     // 3.47:1 on the page and 3.00:1 on `#ebeff4`, against the default
@@ -100,10 +102,10 @@ $ink-mix-more: (
     // the harshest surface the library paints, which this closes.
     --wr-color-gray-5: #a2adbe;
 
+    // unused-ok: BOTH of the two below, for the reason the light block above
+    // gives — the library paints at neither strength, and the overrides exist
+    // for a consumer who still does.
     --wr-color-text-muted: var(--wr-color-gray-5);
-    // unused-ok: the library paints with nothing at the faint strength any
-    // more — see the note at its declaration in `_colors.scss`. The override
-    // stays so a CONSUMER using the tier is carried into high contrast too.
     --wr-color-text-faint: var(--wr-color-gray-5);
 
     // 3.56:1 on the dark canvas, against the default `#262f44`'s 1.41:1.

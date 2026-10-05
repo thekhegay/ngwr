@@ -5,7 +5,7 @@
   // Match the sidebar's right border so the two divider lines
   // visually connect when the docs layout shows both at once.
   border-top: 1px solid var(--wr-color-border-subtle);
-  background: var(--wr-color-white);
+  background: var(--wr-color-surface);
 
   &__inner {
     // No padding here — rows (`__top`, `__bottom`) carry their own

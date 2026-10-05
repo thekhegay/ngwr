@@ -2,5 +2,7 @@
   max-width: 14rem;
   border: 1px solid var(--wr-color-outline);
   border-radius: 0.625rem;
-  background: var(--wr-color-white);
+  // Same as the result tiles: the demo sits on the page's own surface, so
+  // repainting it in that colour said nothing.
+  background: var(--wr-color-fill-subtle);
 }
