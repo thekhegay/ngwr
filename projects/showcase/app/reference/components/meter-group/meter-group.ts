@@ -49,17 +49,6 @@ export class MyComponent {}`;
 
   protected readonly api = API.WrMeterGroup;
 
-  protected readonly segmentApi: readonly DocApiRow[] = [
-    { name: 'label', type: 'string', default: '—', description: 'Legend label.' },
-    { name: 'value', type: 'number', default: '—', description: 'Slice size — proportional to total.' },
-    {
-      name: 'color',
-      type: 'string',
-      default: 'auto',
-      description: 'CSS color (any value). Falls through to a rotating palette of theme tokens when omitted.',
-    },
-  ];
-
   protected readonly typeSnippet = `interface WrMeterSegment {
   label: string;
   value: number;
