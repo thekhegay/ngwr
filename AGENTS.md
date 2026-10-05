@@ -1032,9 +1032,9 @@ single linear commit. After a merge, resync local main:
 `git fetch --prune origin && git merge --ff-only origin/main`.
 
 **No assistant artifacts in the repo.** `.claude/` is gitignored; keep AI
-tooling files and AI mentions out of committed content. This file is the one
-exception and the only one: there is no `CLAUDE.md` and no `GEMINI.md` pointer
-any more, so a tool that wants the instructions reads `AGENTS.md` directly.
+tooling files and AI mentions out of committed content. (`AGENTS.md` plus the
+`CLAUDE.md` / `GEMINI.md` pointers are the sanctioned exception — they're the
+cross-tool instruction standard, one source of truth in `AGENTS.md`.)
 
 **Scope discipline.** Do exactly what's asked — don't restructure, standardize
 CI, bump versions, or touch adjacent areas unprompted. If a broader change
