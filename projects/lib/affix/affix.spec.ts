@@ -20,6 +20,16 @@ class Host {
   readonly events: boolean[] = [];
 }
 
+@Component({
+  imports: [WrAffix],
+  template: `
+    <div class="scroller" style="overflow-y: auto; height: 100px">
+      <div wrAffix>Header</div>
+    </div>
+  `,
+})
+class ScrollerHost {}
+
 /** One observer the directive created, with the levers a test needs. */
 interface Recorded {
   readonly options: IntersectionObserverInit | undefined;
@@ -71,7 +81,7 @@ describe('WrAffix', () => {
   const events = (): boolean[] => fixture.componentInstance.events;
   const isActive = (): boolean => affixed().classList.contains('wr-affix--active');
 
-  const mount = async (offset: unknown = 0, providers: unknown[] = []): Promise<void> => {
+  const mount = async (offset: unknown = 0, providers: unknown[] = [], host: unknown = Host): Promise<void> => {
     observers = [];
 
     class StubObserver {
@@ -111,11 +121,13 @@ describe('WrAffix', () => {
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({ providers: providers as never[] });
-    fixture = TestBed.createComponent(Host);
+    fixture = TestBed.createComponent(host as typeof Host);
     // The sentinel and the observer are set up in `afterNextRender`, which under
     // zoneless CD runs in a macrotask — a synchronous `detectChanges()` alone leaves
     // the directive half-built and every assertion below meaningless.
-    fixture.componentInstance.offset.set(offset);
+    // The scroller host has no `offset` signal — it exists to prove which
+    // element the observer roots at, and takes the directive's default.
+    fixture.componentInstance.offset?.set(offset);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -194,6 +206,35 @@ describe('WrAffix', () => {
 
     await mount(64);
     expect(observers[0].options?.rootMargin).toBe('-64px 0px 0px 0px');
+  });
+
+  it('measures against the element the host sticks to, not the viewport', async () => {
+    // `position: sticky` pins against the nearest SCROLLING ancestor, and an
+    // observer with no root measures against the viewport. Inside a nested
+    // scroller those are different lines, so the state never flipped:
+    // `rootBounds.top` read 0 while the host pinned at the container's own
+    // top, the one crossing the observer ever delivered computed `false`, and
+    // `isIntersecting` stays false afterwards so nothing came again.
+    //
+    // With no scrolling ancestor the root is `null`, which is the document
+    // scroller and what the browser uses for a page-level sticky.
+    expect(observers[0].options?.root ?? null).toBeNull();
+
+    // jsdom lays nothing out, so the ancestor is recognised the way
+    // `scrollParent` recognises it: a computed `overflow` that scrolls, and a
+    // `scrollHeight` past its `clientHeight`. Both are stubbed here.
+    // Stubbed BEFORE the mount, because `scrollParent` reads them while the
+    // observer is being built.
+    Object.defineProperty(HTMLElement.prototype, 'scrollHeight', { configurable: true, get: () => 500 });
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, get: () => 100 });
+    try {
+      await mount(0, [], ScrollerHost);
+      const scroller = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.scroller')!;
+      expect(observers[observers.length - 1].options?.root).toBe(scroller);
+    } finally {
+      Reflect.deleteProperty(HTMLElement.prototype, 'scrollHeight');
+      Reflect.deleteProperty(HTMLElement.prototype, 'clientHeight');
+    }
   });
 
   it('moves the trigger line with the offset, not only the pinning line', async () => {
