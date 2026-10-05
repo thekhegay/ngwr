@@ -1,10 +1,33 @@
 // Shimmering text (reactbits port). Clips an animated linear gradient to
 // the text via `background-clip: text`.
 //
-// The keyframes are 0% → 50%, then hold at the end position. Inputs set
-// `animation-duration` to (speed + delay); the keyframe hits the end at
-// the 50%/totalDuration mark and rests for the rest, which collapses to
-// `speed` of motion + `delay` of pause — without needing two animations.
+// The keyframe animates a registered NUMBER, not the position, and the
+// position is derived from it. That indirection is what makes `speed` and
+// `delay` mean what they say. The keyframe used to move over `0% → 50%` and
+// hold over `50% → 100%`, which divides every cycle in half whatever the
+// inputs are: the default `speed: 2, delay: 0` swept for one second of its two
+// and sat still for the other, so the stripe crossed at half the stated speed
+// with a pause nobody had asked for. A keyframe OFFSET cannot be
+// parameterised, and an element-level `animation-timing-function` cannot fix
+// it either — in a CSS animation that applies per keyframe SEGMENT, not across
+// the timeline, so no easing can move where one segment ends.
+//
+// So the cycle runs a plain linear `0 → 1` and the component binds
+// `--wr-shiny-text-motion` to `speed / (speed + delay)`. `min()` clamps the
+// progress at that fraction, which puts the end of the motion exactly there
+// and holds for the remainder. At `delay: 0` the fraction is 1 and there is no
+// remainder — one uninterrupted sweep per `speed`.
+//
+// `@property` is load-bearing: an unregistered custom property interpolates
+// DISCRETELY, flipping at the midpoint, so a browser without it gets a stripe
+// that jumps rather than sweeps. Baseline since mid-2024 and the whole effect
+// is decorative, which is why that degradation is accepted rather than
+// guarded.
+@property --wr-shiny-text-progress {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
 
 .wr-shiny-text {
   // Theme-default sweep (overridden by `[color]` / `[shineColor]`):
@@ -13,9 +36,13 @@
   --wr-shiny-text-base: var(--wr-color-on-surface-muted, #8594a4);
   --wr-shiny-text-shine: var(--wr-color-on-surface, #0f172a);
 
+  // Overridden per host by the component; 1 means "no rest", which is the
+  // default `delay: 0` and the right answer for a bare stylesheet consumer.
+  --wr-shiny-text-motion: 1;
+
   display: inline-block;
   background-size: 200% auto;
-  background-position: 150% center;
+  background-position: calc(150% - 200% * min(1, var(--wr-shiny-text-progress) / var(--wr-shiny-text-motion))) center;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -48,14 +75,11 @@
 }
 
 @keyframes wr-shiny-text-sweep {
-  0% {
-    background-position: 150% center;
+  from {
+    --wr-shiny-text-progress: 0;
   }
-  50% {
-    background-position: -50% center;
-  }
-  100% {
-    background-position: -50% center;
+  to {
+    --wr-shiny-text-progress: 1;
   }
 }
 

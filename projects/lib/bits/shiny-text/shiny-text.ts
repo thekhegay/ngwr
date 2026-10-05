@@ -51,6 +51,7 @@ import { isSafeCssValue, numAttr } from 'ngwr/utils';
     '[class.wr-shiny-text--reverse]': "direction() === 'right'",
     '[style.background-image]': 'gradient()',
     '[style.animation-duration]': "totalDuration() + 's'",
+    '[style.--wr-shiny-text-motion]': 'motion()',
   },
 })
 export class WrShinyText {
@@ -84,8 +85,28 @@ export class WrShinyText {
   /** Pause between sweeps in seconds. @default 0 */
   readonly delay = input(0, { transform: numAttr(0) });
 
+  /** Sweep time, in seconds. Floored so a `0` never makes the cycle degenerate. */
+  private readonly sweep = computed(() => Math.max(0.01, this.speed()));
+
+  /** Rest between sweeps, in seconds. A negative value is no rest. */
+  private readonly rest = computed(() => Math.max(0, this.delay()));
+
   /** Total animation cycle (speed + delay) in seconds. */
-  protected readonly totalDuration = computed(() => this.speed() + this.delay());
+  protected readonly totalDuration = computed(() => this.sweep() + this.rest());
+
+  /**
+   * The fraction of the cycle spent MOVING — `speed / (speed + delay)`. The
+   * stylesheet clamps the keyframe's linear `0 → 1` progress at it, so the
+   * motion ends there and the rest of the cycle is the rest. See the comment
+   * at the top of `styles/_rules.scss` for why the split cannot live in the
+   * keyframe or in an easing.
+   *
+   * `1` at `delay: 0`: nothing to clamp, one uninterrupted sweep.
+   */
+  protected readonly motion = computed(() => {
+    const share = this.sweep() / this.totalDuration();
+    return String(Math.round(share * 1e4) / 1e4);
+  });
 
   protected readonly gradient = computed(() => {
     // Both colours are CONCATENATED into the gradient below, so a value that

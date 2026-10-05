@@ -90,7 +90,13 @@ export default class ShinyTextPage {
     { name: 'yoyo', description: 'Bounce back-and-forth instead of restarting.', type: 'boolean', default: 'false' },
     { name: 'pauseOnHover', description: 'Pause the animation while hovered.', type: 'boolean', default: 'false' },
     { name: 'direction', description: 'Sweep direction.', type: "'left' | 'right'", default: "'left'" },
-    { name: 'delay', description: 'Pause between sweeps in seconds.', type: 'number', default: '0' },
+    {
+      name: 'delay',
+      description:
+        'Rest between sweeps, in seconds. Folded into the one animation rather than run as a second: the cycle lasts `speed + delay` and the easing puts the end of the motion at `speed` into it.',
+      type: 'number',
+      default: '0',
+    },
     {
       name: '[wrShimmer]',
       description:

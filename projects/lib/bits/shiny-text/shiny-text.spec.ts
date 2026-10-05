@@ -35,14 +35,18 @@ class Host {
 }
 
 /**
- * One CSS animation whose whole configuration is host bindings. The interesting
- * one is the duration: the pause between sweeps is folded INTO it (the keyframe
- * finishes early and holds), so `speed + delay` is the number that has to appear.
+ * One CSS animation whose whole configuration is host bindings. Two of them
+ * carry the timing between them, and neither says much alone: the pause is
+ * folded INTO the duration, so `speed + delay` is the number that appears
+ * there, and the SPLIT between sweeping and resting is a remapping easing,
+ * because a keyframe offset cannot be parameterised. Assert the pair.
  */
 describe('WrShinyText', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
   const host = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-shiny-text')!;
+  /** Read off the style ATTRIBUTE: a computed read would resolve the stylesheet's own `1`. */
+  const motion = (): string => host().style.getPropertyValue('--wr-shiny-text-motion');
 
   beforeEach(() => {
     TestBed.resetTestingModule();
@@ -63,6 +67,45 @@ describe('WrShinyText', () => {
     fixture.componentInstance.delay.set(3);
     fixture.detectChanges();
     expect(host().style.animationDuration).toBe('5s');
+  });
+
+  it('ends the motion at the point in the cycle where the pause starts', () => {
+    // The keyframe used to move over its first half and hold over its second,
+    // which divides every cycle 50/50 whatever the inputs say: the default
+    // swept for 1s of its 2s and sat still for the other, so the stripe
+    // crossed at half the stated speed with a pause nobody asked for. The
+    // keyframe now runs a plain 0 → 1 and this fraction is where the motion is
+    // clamped, so it IS the split. `delay: 0` is 1 — one uninterrupted sweep.
+    expect(motion()).toBe('1');
+
+    // speed 2 + delay 3 = a 5s cycle, two fifths of it moving.
+    fixture.componentInstance.delay.set(3);
+    fixture.detectChanges();
+    expect(motion()).toBe('0.4');
+
+    // speed 1 + delay 2: a third of the cycle, rounded rather than printed at
+    // full float width.
+    fixture.componentInstance.speed.set(1);
+    fixture.componentInstance.delay.set(2);
+    fixture.detectChanges();
+    expect(motion()).toBe('0.3333');
+  });
+
+  it('survives a zero speed rather than dividing by the cycle it would make', () => {
+    fixture.componentInstance.speed.set(0);
+    fixture.componentInstance.delay.set(0);
+    fixture.detectChanges();
+
+    expect(host().style.animationDuration).toBe('0.01s');
+    expect(motion()).toBe('1');
+  });
+
+  it('ignores a negative delay rather than running the cycle backwards', () => {
+    fixture.componentInstance.delay.set(-5);
+    fixture.detectChanges();
+
+    expect(host().style.animationDuration).toBe('2s');
+    expect(motion()).toBe('1');
   });
 
   it('paints the sweep as a background gradient', () => {
