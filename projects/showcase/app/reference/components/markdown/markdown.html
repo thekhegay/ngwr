@@ -4,11 +4,6 @@
   [keywords]="['markdown', 'wr-markdown', 'streaming', 'llm', 'syntax highlighting']"
   [labels]="['Component', 'Standalone', 'SSR-safe']"
 >
-  <ngwr-doc-section title="Installation">
-    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
-    <ngwr-doc-code [code]="snippets.styles" language="scss" />
-  </ngwr-doc-section>
-
   <ngwr-doc-section
     title="Security"
     description="The input is untrusted by construction, so the component takes the one decision that makes it safe by default: **there is no HTML anywhere in the pipeline.** The parser produces a node tree, the template renders it through ordinary bindings, every text node is a text node, and every `href` passes a scheme check before Angular's own URL sanitizer sees it. No `[innerHTML]`, no `bypassSecurityTrustHtml`, nothing for a `<img onerror>` to ride in on. Raw HTML in the source is therefore escaped, never rendered — `<div>` in, `<div>` on screen, as text. Everything in the document below is hostile; all of it renders as prose."

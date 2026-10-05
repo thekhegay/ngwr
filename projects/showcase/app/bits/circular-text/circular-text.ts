@@ -52,9 +52,7 @@ export default class CircularTextPage {
     { kind: 'text', label: 'Text', signal: this.text, placeholder: 'TEXT * ' },
   ];
 
-  protected readonly snippets = {
-    install: `import { WrCircularText } from 'ngwr/bits/circular-text';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api: readonly DocApiRow[] = [
     {

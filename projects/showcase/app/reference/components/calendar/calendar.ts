@@ -48,20 +48,6 @@ export default class CalendarPageComponent {
   protected readonly bounded = signal<Date | null>(null);
 
   protected readonly snippets = {
-    install: `import { WrCalendar } from 'ngwr/calendar';
-import { provideWrDateAdapter } from 'ngwr/date';
-
-// In main.ts
-bootstrapApplication(AppComponent, {
-  providers: [provideWrDateAdapter()],
-});
-
-// In any component
-@Component({ imports: [WrCalendar] })
-export class MyComponent {
-  protected readonly picked = signal<Date | null>(new Date());
-}`,
-
     single: `<wr-calendar [(date)]="picked" />`,
 
     range: `<wr-calendar mode="range" [(range)]="picked" />`,

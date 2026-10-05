@@ -68,10 +68,6 @@ export default class WrDatePipePage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrDate } from 'ngwr/pipes';
-
-@Component({ imports: [WrDate] })
-export class MyComponent { /* ... */ }`,
     named: `{{ now | wrDate }}                    <!-- shortDate (default) -->
 {{ now | wrDate: 'mediumDate' }}      <!-- Jun 12, 2026        -->
 {{ now | wrDate: 'time' }}            <!-- 10:51 AM            -->

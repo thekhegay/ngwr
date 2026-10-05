@@ -61,24 +61,6 @@ export default class CookieServicePage {
   }
 
   protected readonly snippets = {
-    install: `import { WrCookie } from 'ngwr/cookie';
-
-@Component({ /* … */ })
-export class MyComponent {
-  private readonly cookies = inject(WrCookie);
-
-  protected init() {
-    this.cookies.set('theme', 'dark', {
-      expires: 60 * 60 * 24 * 30,   // 30 days
-      sameSite: 'Strict',
-      secure: true,
-    });
-
-    this.cookies.get('theme');     // 'dark'
-    this.cookies.has('theme');     // true
-    this.cookies.remove('theme');
-  }
-}`,
     expires: `// Numeric expires = seconds from now (Max-Age):
 cookies.set('session', token, { expires: 3600 });          // 1 hour
 

@@ -28,10 +28,6 @@ export default class TabsPageComponent {
   protected readonly active = signal<string | null>('overview');
 
   protected readonly snippets = {
-    install: `import { WrTabs, WrTab } from 'ngwr/tabs';
-
-@Component({ imports: [WrTabs, WrTab] })
-export class MyComponent {}`,
     basic: `<wr-tabs [(active)]="key">
   <wr-tab key="overview" title="Overview">Overview content…</wr-tab>
   <wr-tab key="details"  title="Details">Details content…</wr-tab>

@@ -5,11 +5,6 @@
   [labels]="['Component', 'Standalone', 'SSR-safe']"
   since="14.5.0"
 >
-  <ngwr-doc-section title="Installation">
-    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
-    <ngwr-doc-code [code]="snippets.styles" language="scss" />
-  </ngwr-doc-section>
-
   <ngwr-doc-section
     title="Nodes and edges"
     description='`nodes` are the blocks and `edges` the links, each `{ from, to }` with `from` the parent and `to` the child. Without a template every node is a card showing its `label`. Parents sit above their children, with one exception: no order can put every parent in a cycle above its child, so an edge that closes a cycle climbs back up instead. Every line, that one included, ends in an arrow at the child. The same arrays always give the same picture — on the server, in the browser, run after run — and under `dir="rtl"` the horizontal order mirrors. An edge that names a node which does not exist is skipped, with a warning in dev mode, and neither array is ever written to.'

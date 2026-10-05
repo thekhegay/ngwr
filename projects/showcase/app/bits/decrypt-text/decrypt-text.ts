@@ -72,9 +72,7 @@ export default class DecryptTextPage {
     this.replayKey.update(n => n + 1);
   }
 
-  protected readonly snippets = {
-    install: `import { WrDecryptText } from 'ngwr/bits/decrypt-text';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api: readonly DocApiRow[] = [
     { name: 'text', description: 'Text to reveal.', type: 'string', required: true },

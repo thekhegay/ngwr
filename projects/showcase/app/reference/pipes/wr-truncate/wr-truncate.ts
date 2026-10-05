@@ -44,10 +44,6 @@ export default class WrTruncatePipePage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrTruncate } from 'ngwr/pipes';
-
-@Component({ imports: [WrTruncate] })
-export class MyComponent { /* ... */ }`,
     basic: `{{ longText | wrTruncate: 24 }}  <!-- "Lorem ipsum dolor sit a…" -->`,
     ellipsis: `{{ longText | wrTruncate: 24 : ' [more]' }}`,
   };

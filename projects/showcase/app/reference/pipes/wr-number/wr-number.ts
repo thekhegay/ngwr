@@ -45,10 +45,6 @@ export default class WrNumberPipePage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrNumber } from 'ngwr/pipes';
-
-@Component({ imports: [WrNumber] })
-export class MyComponent { /* ... */ }`,
     decimal: `{{ 1234.5 | wrNumber }}  <!-- "1,234.5" -->`,
     percent: `{{ 0.875 | wrNumber: 'percent' }}  <!-- "88%" -->`,
     currency: `{{ 19.99 | wrNumber: 'currency' : 'USD' }}  <!-- "$19.99" -->`,

@@ -274,16 +274,6 @@ export default class TablePageComponent {
   };
 
   protected readonly snippets = {
-    install: `import { WrTable, WrTableCell, type WrTableColumns } from 'ngwr/table';
-
-@Component({ imports: [WrTable, WrTableCell] })
-export class MyComponent {}
-
-// Each projected template is its own directive, and \`imports: []\` takes the
-// class, not the selector. Add the ones your template actually uses:
-//   <ng-template wrTableCell>        -> WrTableCell
-//   <ng-template wrTableExpand>      -> WrTableExpand
-//   <ng-template wrTableGroupHeader> -> WrTableGroupHeader`,
     basic: `<wr-table [columns]="columns" [items]="rows" />`,
     custom: `<wr-table [columns]="columns" [items]="rows" [(sort)]="sort" (filterChange)="onFilter($event)">
   <ng-template wrTableCell="role" let-value>

@@ -28,23 +28,6 @@ export default class DialogPageComponent {
     // reader cannot derive. The API table below lists the layout directives by
     // SELECTOR (\`[wrDialogTitle]\`), while \`imports: []\` takes the CLASS, so a
     // page that named only \`WrDialog\` left the four class names spelled nowhere.
-    install: `// The component that OPENS a dialog injects the service.
-import { WrDialog } from 'ngwr/dialog';
-
-@Component({...})
-export class MyComponent {
-  private readonly dialog = inject(WrDialog);
-}
-
-// The component OPENED as a dialog imports the layout directives it uses.
-// Selector -> class: [wrDialogTitle] -> WrDialogTitle, and so on.
-import { WrDialogClose, WrDialogContent, WrDialogFooter, WrDialogTitle } from 'ngwr/dialog';
-
-@Component({
-  imports: [WrDialogTitle, WrDialogContent, WrDialogFooter, WrDialogClose],
-  templateUrl: './confirm.html',
-})
-export class ConfirmComponent {}`,
     open: `const ref = dialog.open(ConfirmComponent, {
   data: { title: 'Delete', message: 'Are you sure?' },
   width: '24rem',

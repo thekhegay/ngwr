@@ -58,9 +58,7 @@ export default class SplashCursorPage {
     { kind: 'toggle', label: 'Fullscreen overlay', signal: this.fullscreen },
   ];
 
-  protected readonly snippets = {
-    install: `import { WrSplashCursor } from 'ngwr/bits/splash-cursor';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api: readonly DocApiRow[] = [
     {

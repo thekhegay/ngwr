@@ -54,14 +54,6 @@ export default class StorageServicePage {
   }
 
   protected readonly snippets = {
-    install: `import { provideWrStorage, WrStorage } from 'ngwr/storage';
-
-bootstrapApplication(AppComponent, {
-  providers: [
-    // Optional — defaults to localStorage with an in-memory SSR fallback.
-    provideWrStorage({ prefix: 'myapp:', ttl: 24 * 60 * 60 * 1000 }),
-  ],
-});`,
     swap: `// Swap the engine globally (e.g. sessionStorage for a tab-only app):
 provideWrStorage({ engine: sessionStorage })
 

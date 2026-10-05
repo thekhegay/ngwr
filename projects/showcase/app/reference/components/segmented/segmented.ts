@@ -39,10 +39,6 @@ export default class SegmentedPageComponent {
   ];
 
   protected readonly snippets = {
-    install: `import { WrSegmented } from 'ngwr/segmented';
-
-@Component({ imports: [WrSegmented] })
-export class MyComponent {}`,
     basic: `<wr-segmented [options]="options" [(value)]="range" />`,
     icons: `<wr-segmented
   [options]="[

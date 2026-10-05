@@ -56,13 +56,6 @@ export default class ToastPageComponent {
   ];
 
   protected readonly snippets = {
-    install: `import { WrToast } from 'ngwr/toast';
-
-@Component({...})
-export class MyComponent {
-  private readonly toast = inject(WrToast);
-}`,
-
     config: `import { bootstrapApplication } from '@angular/platform-browser';
 import { provideWrToastConfig } from 'ngwr/toast';
 

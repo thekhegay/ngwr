@@ -95,7 +95,6 @@ export default class CascaderPage {
   protected readonly pickedAny = signal<readonly string[]>([]);
 
   protected readonly snippets = {
-    install: `import { WrCascader, type WrCascaderOption } from 'ngwr/cascader';`,
     basic: `<wr-cascader [options]="locations" [(value)]="picked" placeholder="Pick a location" />
 
 locations: WrCascaderOption[] = [

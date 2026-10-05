@@ -41,10 +41,6 @@ export default class CounterPageComponent {
   }
 
   protected readonly snippets = {
-    install: `import { WrCounter, WrCountUp } from 'ngwr/counter';
-
-@Component({ imports: [WrCounter, WrCountUp] })
-export class MyComponent {}`,
     odometer: `<wr-counter [value]="123456" mode="odometer" />`,
     tween: `<wr-counter [value]="9.99" mode="tween" [decimals]="2" prefix="$" />`,
     minDigits: `<wr-counter [value]="42" [minIntegerDigits]="6" mode="odometer" />`,

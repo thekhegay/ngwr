@@ -57,7 +57,6 @@ export default class TiltCardPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrTiltCard, WrTilt } from 'ngwr/bits/tilt-card';`,
     directive: `// Directive variant — same package, drops on any element.
 import { WrTilt } from 'ngwr/bits/tilt-card';
 

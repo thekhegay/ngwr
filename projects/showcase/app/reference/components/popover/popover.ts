@@ -27,10 +27,6 @@ import { API } from '#core/generated/api';
 })
 export default class PopoverPageComponent {
   protected readonly snippets = {
-    install: `import { WrPopover } from 'ngwr/popover';
-
-@Component({ imports: [WrPopover] })
-export class MyComponent {}`,
     basic: `<wr-btn [wrPopover]="info">Details</wr-btn>
 
 <ng-template #info>

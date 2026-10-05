@@ -60,17 +60,6 @@ export default class ClipboardServicePage {
   }
 
   protected readonly snippets = {
-    install: `import { WrClipboard } from 'ngwr/clipboard';
-
-@Component({ /* … */ })
-export class MyComponent {
-  private readonly clip = inject(WrClipboard);
-
-  protected async copy(value: string) {
-    const ok = await this.clip.write(value);
-    if (!ok) console.warn('Copy failed — denied permission or no clipboard');
-  }
-}`,
     read: `// Read text. Returns null when unsupported or denied.
 const text = await this.clip.read();
 if (text) console.log('pasted:', text);`,

@@ -67,9 +67,7 @@ export default class SplitTextPage {
     this.replayKey.update(n => n + 1);
   }
 
-  protected readonly snippets = {
-    install: `import { WrSplitText } from 'ngwr/bits/split-text';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api: readonly DocApiRow[] = [
     { name: 'text', description: 'Text to animate.', type: 'string', required: true },

@@ -28,10 +28,6 @@ export default class LightboxPage {
   protected readonly portraitThumb = PORTRAIT_THUMB;
 
   protected readonly snippets = {
-    install: `import { WrLightbox } from 'ngwr/lightbox';
-
-@Component({ imports: [WrLightbox] })
-export class MyComponent {}`,
     basic: `<wr-lightbox src="/photo.jpg" alt="Mountain lake" />`,
     preview: `<wr-lightbox
   src="/photo-full.jpg"

@@ -50,18 +50,6 @@ export default class DensityServicePage {
   }
 
   protected readonly snippets = {
-    install: `import { provideWrDensity, WrDensity } from 'ngwr/density';
-
-bootstrapApplication(AppComponent, {
-  providers: [
-    provideWrDensity({ defaultDensity: 'sm' }),
-  ],
-});
-
-// Switch it later:
-const density = inject(WrDensity);
-density.set('lg');
-density.cycle();`,
     directive: `<!-- Scope an override to a subtree — descendants get sm, the rest of the app keeps the global value. -->
 <aside wrDensity="sm">
   <wr-list ...></wr-list>

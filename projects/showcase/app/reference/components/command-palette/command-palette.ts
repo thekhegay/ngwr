@@ -74,20 +74,6 @@ export default class CommandPalettePage {
   [debounceMs]="250"
   (searchChange)="search($event)"
 />`,
-    install: `import { WrCommandPalette, type WrCommandItem } from 'ngwr/command-palette';
-
-@Component({ imports: [WrCommandPalette] })
-export class AppShell {
-  protected readonly commands: WrCommandItem[] = [
-    { id: 'theme.light', label: 'Switch to light theme', group: 'Theme', shortcut: 'T L' },
-    { id: 'theme.dark',  label: 'Switch to dark theme',  group: 'Theme', shortcut: 'T D' },
-    { id: 'docs.search', label: 'Search docs',           group: 'Docs',  shortcut: '/' },
-  ];
-
-  protected onPicked(item: WrCommandItem) {
-    console.log('picked', item.id);
-  }
-}`,
     template: `<!-- Drop at the root once; opens via global hotkey (default: mod+k). -->
 <wr-command-palette
   [items]="commands"

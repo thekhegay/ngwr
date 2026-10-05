@@ -42,13 +42,6 @@ export default class StepperPageComponent {
   }
 
   protected readonly snippets = {
-    install: `import { WrStepper, WrStep } from 'ngwr/stepper';
-
-@Component({ imports: [WrStepper, WrStep] })
-export class MyComponent {
-  protected readonly step = signal(0);
-}`,
-
     basic: `<wr-stepper [(active)]="step">
   <wr-step label="Account">Account form…</wr-step>
   <wr-step label="Profile" description="Optional">Profile form…</wr-step>

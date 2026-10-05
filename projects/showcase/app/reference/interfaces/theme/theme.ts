@@ -31,7 +31,6 @@ export default class ThemeTypesPage {
   protected readonly colors = WR_COLORS;
 
   protected readonly snippets = {
-    install: `import type { WrColor, WrThemeMode, WrResolvedTheme } from 'ngwr/theme';`,
     color: `const accent: WrColor = 'primary';`,
   };
 

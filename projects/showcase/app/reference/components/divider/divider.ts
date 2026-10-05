@@ -21,10 +21,6 @@ export default class DividerComponent {
   protected readonly colors = WR_COLORS;
 
   protected readonly snippets = {
-    install: `import { WrDivider } from 'ngwr/divider';
-
-@Component({ imports: [WrDivider] })
-export class MyComponent {}`,
     basic: `<wr-divider />`,
     types: `<wr-divider type="solid" />
 <wr-divider type="dashed" />

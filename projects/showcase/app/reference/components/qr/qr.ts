@@ -31,10 +31,6 @@ export default class QrComponent {
   protected readonly text = signal('https://ngwr.dev');
 
   protected readonly snippets = {
-    install: `import { WrQr } from 'ngwr/qr';
-
-@Component({ imports: [WrQr] })
-export class MyComponent {}`,
     basic: `<wr-qr value="https://ngwr.dev" />`,
     sized: `<wr-qr value="ngwr" [size]="240" level="H" color="#3969e2" />`,
     interactive: `<wr-qr [value]="text()" [size]="200" />`,

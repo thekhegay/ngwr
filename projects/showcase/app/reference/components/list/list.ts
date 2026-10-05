@@ -67,9 +67,7 @@ export default class ListPage {
     { kind: 'toggle', label: 'Interactive rows', signal: this.interactive },
   ];
 
-  protected readonly snippets = {
-    install: `import { WrList, WrListItem } from 'ngwr/list';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api: readonly DocApiRow[] = [
     {
