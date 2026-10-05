@@ -51,7 +51,7 @@ import type { WrCountUpDirection, WrCountUpEasing, WrCountUpTrigger } from './ty
  *
  * @example Count down
  * ```html
- * <wr-count-up [from]="60" [to]="0" direction="down" />
+ * <wr-count-up [from]="0" [to]="60" direction="down" />
  * ```
  *
  * @see https://ngwr.dev/reference/components/counter
@@ -69,13 +69,29 @@ export class WrCountUp {
   /** Target value. */
   readonly to = input.required<number>();
 
+  // Nullable rather than defaulting to a number, because the two easings read
+  // two different units and so want two different defaults. It used to default
+  // to `1200` for both, so a `<wr-count-up easing="spring">` with no duration
+  // was handed 1200 SECONDS — stiffness 0.083, damping 20.03, and a counter
+  // that never visibly moved. The doc already promised 2; the code had one
+  // default where the units are two.
   /**
-   * Animation duration. Units depend on `easing`:
+   * Animation duration, in the units its easing reads, or `null` for that
+   * easing's own default:
    *
    * - `ease-out` — milliseconds (default 1200, min 100)
-   * - `spring` — seconds (tunes spring stiffness; default 2)
+   * - `spring` — seconds, tuning the stiffness (default 2, min 0.05)
    */
-  readonly duration = input(1200, { transform: numAttr(1200) });
+  readonly duration = input<number | null>(null, {
+    // Not `numAttr`, which takes a numeric fallback and so cannot express
+    // "absent": an empty or unparsable value has to stay `null` here, or the
+    // easing-dependent default below can never be reached.
+    transform: (value: unknown): number | null =>
+      value === null || value === undefined || value === '' ? null : coerceNumberProperty(value, 0) || null,
+  });
+
+  /** The duration this run uses, in the units its easing reads. */
+  private readonly resolvedDuration = computed(() => this.duration() ?? (this.easing() === 'spring' ? 2 : 1200));
 
   /** Optional delay (ms) before the animation starts. @default 0 */
   readonly delay = input(0, { transform: numAttr(0) });
@@ -236,7 +252,7 @@ export class WrCountUp {
   // Tweens
 
   private tweenEaseOut(start: number, target: number): void {
-    const duration = Math.max(100, this.duration());
+    const duration = Math.max(100, this.resolvedDuration());
     const startTs = performance.now();
     const tick = (now: number): void => {
       const t = Math.min(1, (now - startTs) / duration);
@@ -262,7 +278,7 @@ export class WrCountUp {
    * displacement and velocity fall below epsilon.
    */
   private tweenSpring(start: number, target: number): void {
-    const duration = Math.max(0.05, this.duration());
+    const duration = Math.max(0.05, this.resolvedDuration());
     const damping = 20 + 40 / duration;
     const stiffness = 100 / duration;
     let current = start;

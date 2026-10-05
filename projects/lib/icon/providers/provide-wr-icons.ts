@@ -32,26 +32,29 @@ import { validateIcon } from '../utils';
  *
  * @example
  * ```ts
- * // App-level registration
- * import { home, user, cog, provideWrIcons } from 'ngwr/icon';
+ * // App-level registration, from an icon package through its adapter.
+ * import { Home, Settings, User } from 'lucide';
+ * import { provideWrIcons } from 'ngwr/icon';
+ * import { lucideIcons } from 'ngwr/icon/adapters/lucide';
  *
  * export const appConfig: ApplicationConfig = {
- *   providers: [
- *     provideWrIcons([home, user, cog]),
- *   ],
+ *   providers: [provideWrIcons(lucideIcons({ home: Home, user: User, settings: Settings }))],
  * };
  * ```
  *
  * @example
  * ```ts
- * // Component-level registration
- * import { logoGithub, logoNpm, provideWrIcons, WrIconDef } from 'ngwr/icon';
+ * // Component-level registration, from raw SVG. `svgIcon` names the glyph;
+ * // the name is what `<wr-icon name="…">` looks up.
+ * import { WrIcon, provideWrIcons, svgIcon } from 'ngwr/icon';
+ *
+ * const BRAND = '<svg viewBox="0 0 24 24"><path d="M4 12h16" /></svg>';
  *
  * @Component({
  *   selector: 'ngwr-header',
  *   imports: [WrIcon],
- *   providers: [provideWrIcons([logoGithub, logoNpm])],
- *   template: `<wr-icon name="logo-github" />`,
+ *   providers: [provideWrIcons([svgIcon('brand', BRAND)])],
+ *   template: `<wr-icon name="brand" />`,
  * })
  * export class HeaderComponent {}
  * ```

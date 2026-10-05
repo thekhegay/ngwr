@@ -41,6 +41,12 @@ class CountUpHost {
   readonly completions = signal(0);
 }
 
+@Component({
+  imports: [WrCountUp],
+  template: `<wr-count-up [to]="100" easing="spring" />`,
+})
+class SpringDefaultHost {}
+
 /** jsdom has no `IntersectionObserver`, and `trigger="visible"` starts one on first render. */
 function stubIntersectionObserver(): void {
   class StubObserver {
@@ -230,6 +236,37 @@ describe('WrCountUp', () => {
     // consumer waiting on it is not left hanging on a tween that never ran.
     expect(text()).toBe('1,234');
     expect(fixture.componentInstance.completions()).toBe(1);
+  });
+
+  it('gives the spring a default in the units the spring reads', () => {
+    // `duration` is nullable so the two easings can want two different
+    // numbers, and this is the half that was wrong: the input defaulted to
+    // `1200` for both while the spring path reads SECONDS, so an unset spring
+    // got 1200 seconds — stiffness 0.083, damping 20.03, and a counter that
+    // never visibly moved. Two seconds of frames is enough to finish at the
+    // real default and nowhere near enough at the old one.
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const spring = TestBed.createComponent(SpringDefaultHost);
+    spring.detectChanges();
+
+    const read = (): number =>
+      Number(((spring.nativeElement as HTMLElement).textContent ?? '').replace(/[^\d.-]/g, '') || '0');
+
+    expect(read()).toBe(0);
+    // One second in it is most of the way there, and it settles a few seconds
+    // later — the spring is heavily overdamped at this stiffness, which is the
+    // look the default is tuned for. At the old default — 1200 of the seconds this path reads — it
+    // had not left `from` after any amount of time this suite can advance.
+    vi.advanceTimersByTime(1000);
+    spring.detectChanges();
+    expect(read()).toBeGreaterThan(50);
+
+    vi.advanceTimersByTime(6000);
+    spring.detectChanges();
+    expect(read()).toBe(100);
+
+    spring.destroy();
   });
 
   it('shows the figure below the fold too, for someone who asked for less motion', () => {

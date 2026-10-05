@@ -94,7 +94,9 @@
     description="The spinner overlays the label so layout stays put. By default pointer events are blocked while loading."
   >
     <ngwr-doc-snippet [code]="snippets.loading">
-      <wr-btn [loading]="loading()" color="primary" (click)="loading.set(!loading())">Click to toggle</wr-btn>
+      <wr-btn [loading]="loading()" [disabledWhenLoading]="false" color="primary" (click)="loading.set(!loading())">
+        Click to toggle
+      </wr-btn>
       <wr-btn loading color="success">Saving</wr-btn>
       <wr-btn loading icon="add" outlined>With icon</wr-btn>
     </ngwr-doc-snippet>
