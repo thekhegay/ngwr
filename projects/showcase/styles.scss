@@ -145,6 +145,19 @@ button {
 // Global, therefore, and scoped to `ngwr-doc-page` so it cannot leak into a
 // component demo. `:not(pre) >` keeps it off the `<code>` inside a highlighted
 // block, which has its own colours.
+// What `wrMark` wraps a match in. Without a rule the highlight is painted by
+// the user agent's `Mark` / `MarkText` system colours, which track the browser
+// rather than the theme — so the demo showed one highlight while the page told
+// the reader to write another, three sections below. This IS that rule.
+// `--wr-color-on-surface` rather than `inherit`: 14.20:1 light, 5.46:1 dark on
+// the tint, where an inherited muted line reads 4.25 and 2.65.
+mark {
+  background: rgba(var(--wr-color-warning-rgb), 0.4);
+  color: var(--wr-color-on-surface);
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
 ngwr-doc-page :not(pre) > code {
   display: inline-block;
   // An inline-block is atomic and cannot break, so a chip longer than its

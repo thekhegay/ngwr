@@ -60,7 +60,11 @@ export class MyComponent { /* ... */ }`,
     style: `/* Style the wrap globally — every match shares the same class. */
 mark {
   background: rgba(var(--wr-color-warning-rgb), 0.4);
-  color: inherit;
+  /* Named, not inherited: the two hosts this pipe is for — a wr-select
+     suggestion and a wr-command-palette item — paint their secondary lines
+     with --wr-color-on-surface-muted, which over this tint is 4.25:1 in light
+     and 2.65:1 in dark. */
+  color: var(--wr-color-on-surface);
   padding: 0 2px;
   border-radius: 2px;
 }`,
