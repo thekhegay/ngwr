@@ -21,8 +21,6 @@
   --wr-cascader-padding-x: var(--wr-control-padding-x-md);
   --wr-cascader-font-size: var(--wr-control-font-size-md);
   --wr-cascader-line-height: var(--wr-control-line-height-md);
-  --wr-cascader-col-width: 12rem;
-  --wr-cascader-max-height: 16rem;
   // Trigger width floor, the same contract as `--wr-select-min-width`. Despite
   // the name it is a DEFAULT width rather than a minimum: an explicit `width`,
   // `width: 100%` in a narrow parent, a `minmax(0, 1fr)` cell and a shrinking
@@ -230,6 +228,13 @@
   // can't inherit the host size class). Default md.
   --wr-cascader-opt-font: var(--wr-control-font-size-md);
   --wr-cascader-opt-py: 0.5rem;
+  // Column geometry, declared HERE for the same reason. Both used to sit on
+  // `.wr-cascader` and be read inside this panel, which the overlay appends to
+  // the CDK container — so the host is not an ancestor of the thing reading
+  // them, and a consumer setting either on `<wr-cascader>` got the `var()`
+  // fallback and no change. Reach them through `panelClass`.
+  --wr-cascader-col-width: 12rem;
+  --wr-cascader-max-height: 16rem;
 
   display: flex;
   background: var(--wr-color-surface);
@@ -255,8 +260,8 @@
     margin: 0;
     // Inset padding so options read as rounded pills, matching the select panel.
     padding: 0.25rem;
-    width: var(--wr-cascader-col-width, 12rem);
-    max-height: var(--wr-cascader-max-height, 16rem);
+    width: var(--wr-cascader-col-width);
+    max-height: var(--wr-cascader-max-height);
     overflow-y: auto;
     display: flex;
     flex-direction: column;

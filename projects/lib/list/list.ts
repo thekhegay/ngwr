@@ -32,12 +32,16 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
  */
 @Component({
   selector: 'wr-list',
-  template: '<ul class="wr-list__items" role="list"><ng-content /></ul>',
+  // The label goes on the `<ul role="list">`, not on the host. `<wr-list>` is a
+  // role-less generic element, and ARIA 1.2 prohibits `aria-label` on one — so
+  // the attribute was legal-looking, axe-reportable (`aria-prohibited-attr`)
+  // and, worse, silent: the list it was written for stayed nameless, and a page
+  // with three of them announced three identical unnamed lists.
+  template: '<ul class="wr-list__items" role="list" [attr.aria-label]="ariaLabel() || null"><ng-content /></ul>',
   styleUrl: './list.scss',
   encapsulation: ViewEncapsulation.None,
   host: {
     '[class]': 'classes()',
-    '[attr.aria-label]': 'ariaLabel() || null',
   },
 })
 export class WrList {

@@ -24,6 +24,17 @@
   line-height: normal;
   white-space: nowrap;
 
+  // The neutral default, READ. The three hooks below were declared with a
+  // comment saying they are "what a badge paints when nothing asks for an
+  // intent" and nothing read any of them, so `<wr-badge [color]="null">` — a
+  // typed, documented, public option — painted no fill and no text colour and
+  // rendered as bare inherited text. `--wr-tag-*` next door was always read
+  // this way; the badge simply never caught up. No `border` here: the filled
+  // intents carry none either, and adding one would widen every badge in the
+  // catalogue by 2px. The neutral RING is the outlined variant's job, below.
+  background-color: var(--wr-badge-bg);
+  color: var(--wr-badge-color);
+
   // Defaults — sized modifiers override these
   --wr-badge-padding-y: 0.25rem;
   --wr-badge-padding-x: 0.5rem;
@@ -120,7 +131,11 @@
   // name, after the loop, rather than by an alpha that happens to land there.
   &--outlined {
     background-color: transparent;
-    box-shadow: inset 0 0 0 1px currentcolor;
+    // `--wr-badge-border` rather than `currentcolor` for the NEUTRAL case, for
+    // the reason the note above gives about the chromatic ones: a ring drawn in
+    // the text colour is a hairline at full label strength around text of
+    // exactly that strength. An intent overrides it in the loop below.
+    box-shadow: inset 0 0 0 1px var(--wr-badge-border);
 
     // color-ok: the decision the filled loop above records — decoration or
     // category, with the label carrying the state.

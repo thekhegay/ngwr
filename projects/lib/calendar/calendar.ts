@@ -337,11 +337,42 @@ export class WrCalendar {
   /** Header `‹` button — steps by month / year / decade based on the active view. */
   protected prev(): void {
     this.viewDate.set(this.stepViewDate(-1));
+    this.carryCursorIntoView();
   }
 
   /** Header `›` button — steps by month / year / decade based on the active view. */
   protected next(): void {
     this.viewDate.set(this.stepViewDate(1));
+    this.carryCursorIntoView();
+  }
+
+  /**
+   * Keeps the roving cursor inside the month the grid is showing.
+   *
+   * The day grid marks its one tab stop by comparing each cell against
+   * `focusedDate` — `[attr.tabindex]="isFocused(day) ? 0 : -1"` — and `weeks()`
+   * renders a fixed 42-day window around `viewDate`. Stepping the header moved
+   * the window and left the cursor behind, so after two clicks no rendered cell
+   * matched and all 42 buttons were `tabindex="-1"`: the grid dropped out of
+   * the tab order entirely and could not be reached by keyboard again without
+   * navigating back. `onMonthSelect` already did this for its own path and says
+   * why at the line; this is the same move for the header arrows.
+   *
+   * The day-of-month is kept where the new month is long enough for it, so
+   * paging through March from the 31st does not silently walk the cursor back
+   * to the 1st, and the landing is routed through `nearestEnabled` like every
+   * other cursor write.
+   */
+  private carryCursorIntoView(): void {
+    if (this.viewMode() !== 'day') return;
+
+    const view = this.viewDate();
+    const focused = this.focusedDate();
+    if (this.adapter.isSameMonth(focused, view)) return;
+
+    const day = Math.min(this.adapter.getDate(focused), this.adapter.getDaysInMonth(view));
+    const landing = this.adapter.createDate(this.adapter.getYear(view), this.adapter.getMonth(view), day);
+    this.focusedDate.set(this.nearestEnabled(landing));
   }
 
   /** Header label click — zooms out (`day → month → year`). No-op at year view. */
