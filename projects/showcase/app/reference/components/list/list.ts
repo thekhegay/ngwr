@@ -120,29 +120,5 @@ export default class ListPage {
       type: 'boolean',
       default: 'false',
     },
-    {
-      name: 'CSS — --wr-list-item-padding-y / -x',
-      description: 'Per-row padding.',
-      type: 'length',
-      default: '0.625rem / 1rem',
-    },
-    {
-      name: 'CSS — --wr-list-item-gap',
-      description: 'Gap between leading / body / trailing slots.',
-      type: 'length',
-      default: '0.75rem',
-    },
-    {
-      name: 'CSS — --wr-list-divider-color',
-      description: 'Divider line colour.',
-      type: 'color',
-      default: 'var(--wr-color-outline)',
-    },
-    {
-      name: 'CSS — --wr-list-hover-bg',
-      description: 'Hover background on interactive rows.',
-      type: 'color',
-      default: 'var(--wr-color-hover)',
-    },
   ];
 }

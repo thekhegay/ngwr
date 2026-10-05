@@ -9,18 +9,26 @@ import { WrTypography } from 'ngwr/typography';
 import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSeeAlsoComponent } from '#core/components';
 import type { DocSeeAlsoLink } from '#core/components';
 
-/** The intents the builder offers. `light` and `dark` are surface tones, not brand colours. */
+/** The intents the builder offers — the five the theme has. */
 const SEEDABLE = WR_COLORS;
 
-/** Where each slider starts — the shipped light palette. */
-const DEFAULTS: Readonly<Record<string, string>> = {
+/**
+ * Where each picker starts — the shipped light palette.
+ *
+ * Typed `Record<WrColor, string>` rather than `Record<string, string>`, which
+ * is what let two removed intents sit here unreachable after v15: `secondary`
+ * and `medium` kept their old hexes in a map nobody could reach, because
+ * `SEEDABLE` is `WR_COLORS` and they are not in it. The narrow type makes the
+ * next one a compile error, and it matters more than tidiness — `changed()`
+ * keys the exported CSS on "differs from DEFAULTS", so this map agreeing with
+ * `$base-colors` is load-bearing.
+ */
+const DEFAULTS: Readonly<Record<WrColor, string>> = {
   primary: '#3969e2',
-  secondary: '#e21a62',
   success: '#008800',
   warning: '#ffba00',
   danger: '#dc3137',
   info: '#3472d9',
-  medium: '#6a7683',
 };
 
 /**
@@ -72,7 +80,12 @@ export default class ThemeBuilderPageComponent {
   protected readonly changed = computed<Record<string, string>>(() => {
     const out: Record<string, string> = {};
     for (const [name, hex] of Object.entries(this.seeds())) {
-      if (hex.toLowerCase() !== DEFAULTS[name]?.toLowerCase()) out[name] = hex;
+      // `Object.entries` widens the key to `string`, and `DEFAULTS` is now
+      // keyed by `WrColor` — the narrowing that stopped two removed intents
+      // living here. A seed that is not an intent cannot differ from a default
+      // it has no row in, so it is skipped rather than cast.
+      if (!SEEDABLE.includes(name as WrColor)) continue;
+      if (hex.toLowerCase() !== DEFAULTS[name as WrColor].toLowerCase()) out[name] = hex;
     }
     return out;
   });
