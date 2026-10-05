@@ -99,5 +99,14 @@ export default class CommandPalettePage {
       type: 'interface',
       default: '—',
     },
+    {
+      // Documented nowhere, and the only way to put anything of your own in the
+      // panel. A projection selector, so nothing goes in `imports`.
+      name: '[wrCommandPaletteFooter]',
+      description:
+        'Projection slot for the strip under the list — a hint line, a link, a key legend. It sits OUTSIDE the listbox on purpose: a `role="listbox"` may own only `option` and `group` children, so anything of your own has to live beside it rather than in it.',
+      type: 'content slot',
+      default: '—',
+    },
   ];
 }
