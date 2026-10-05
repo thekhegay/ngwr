@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrStarBorder } from 'ngwr/star-border';
+import { WrStarBorder } from 'ngwr/animations/star-border';
 
 import {
   DocApiComponent,
@@ -45,7 +45,7 @@ export default class StarBorderPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrStarBorder } from 'ngwr/star-border';`,
+    install: `import { WrStarBorder } from 'ngwr/animations/star-border';`,
     button: `<button wr-star-border mode="hover" rays="single" type="button">
   Hover me
 </button>`,

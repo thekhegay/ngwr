@@ -144,7 +144,7 @@ const MODULE_RENAMES: ReadonlyMap<string, string> = new Map([
   // Best-effort: typewriter was animated-text's default mode. Scramble /
   // split users need ngwr/decrypt-text / ngwr/split-text instead — the
   // HTML transform above already points the template at the right tag.
-  ['ngwr/animated-text', 'ngwr/typewriter'],
+  ['ngwr/animated-text', 'ngwr/animations/typewriter'],
 ]);
 
 const SYMBOL_RENAMES: ReadonlyMap<string, string> = new Map([

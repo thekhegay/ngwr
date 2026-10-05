@@ -1,9 +1,9 @@
 import { Component, type TemplateRef, computed, signal, viewChild } from '@angular/core';
 
 import { Atom, Code, Flame, GitBranch, Globe, Package, Send } from 'lucide';
+import { WrMarquee, type WrMarqueeItem } from 'ngwr/animations/marquee';
 import { WrIcon, provideWrIcons } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
-import { WrMarquee, type WrMarqueeItem } from 'ngwr/marquee';
 
 import {
   DocApiComponent,
@@ -94,7 +94,7 @@ export default class MarqueePage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrMarquee } from 'ngwr/marquee';`,
+    install: `import { WrMarquee } from 'ngwr/animations/marquee';`,
   };
 
   protected readonly api = API.WrMarquee;

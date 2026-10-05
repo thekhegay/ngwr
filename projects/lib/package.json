@@ -126,9 +126,141 @@
       "sass": "./anchor/styles/_index.scss",
       "default": "./anchor/public-api.ts"
     },
-    "./aurora": {
-      "sass": "./aurora/styles/_index.scss",
-      "default": "./aurora/public-api.ts"
+    "./animations/aurora": {
+      "sass": "./animations/aurora/styles/_index.scss",
+      "default": "./animations/aurora/public-api.ts"
+    },
+    "./animations/blur-text": {
+      "sass": "./animations/blur-text/styles/_index.scss",
+      "default": "./animations/blur-text/public-api.ts"
+    },
+    "./animations/blur-text/testing": {
+      "default": "./animations/blur-text/testing/public-api.ts"
+    },
+    "./animations/border-glow": {
+      "sass": "./animations/border-glow/styles/_index.scss",
+      "default": "./animations/border-glow/public-api.ts"
+    },
+    "./animations/border-glow/testing": {
+      "default": "./animations/border-glow/testing/public-api.ts"
+    },
+    "./animations/circular-text": {
+      "sass": "./animations/circular-text/styles/_index.scss",
+      "default": "./animations/circular-text/public-api.ts"
+    },
+    "./animations/circular-text/testing": {
+      "default": "./animations/circular-text/testing/public-api.ts"
+    },
+    "./animations/click-spark": {
+      "sass": "./animations/click-spark/styles/_index.scss",
+      "default": "./animations/click-spark/public-api.ts"
+    },
+    "./animations/confetti": {
+      "default": "./animations/confetti/public-api.ts"
+    },
+    "./animations/decrypt-text": {
+      "sass": "./animations/decrypt-text/styles/_index.scss",
+      "default": "./animations/decrypt-text/public-api.ts"
+    },
+    "./animations/decrypt-text/testing": {
+      "default": "./animations/decrypt-text/testing/public-api.ts"
+    },
+    "./animations/falling-text": {
+      "sass": "./animations/falling-text/styles/_index.scss",
+      "default": "./animations/falling-text/public-api.ts"
+    },
+    "./animations/falling-text/testing": {
+      "default": "./animations/falling-text/testing/public-api.ts"
+    },
+    "./animations/fuzzy-text": {
+      "default": "./animations/fuzzy-text/public-api.ts"
+    },
+    "./animations/fuzzy-text/testing": {
+      "default": "./animations/fuzzy-text/testing/public-api.ts"
+    },
+    "./animations/glitch-text": {
+      "sass": "./animations/glitch-text/styles/_index.scss",
+      "default": "./animations/glitch-text/public-api.ts"
+    },
+    "./animations/glitch-text/testing": {
+      "default": "./animations/glitch-text/testing/public-api.ts"
+    },
+    "./animations/gradient-text": {
+      "sass": "./animations/gradient-text/styles/_index.scss",
+      "default": "./animations/gradient-text/public-api.ts"
+    },
+    "./animations/gradient-text/testing": {
+      "default": "./animations/gradient-text/testing/public-api.ts"
+    },
+    "./animations/marquee": {
+      "sass": "./animations/marquee/styles/_index.scss",
+      "default": "./animations/marquee/public-api.ts"
+    },
+    "./animations/marquee/testing": {
+      "default": "./animations/marquee/testing/public-api.ts"
+    },
+    "./animations/rotating-text": {
+      "sass": "./animations/rotating-text/styles/_index.scss",
+      "default": "./animations/rotating-text/public-api.ts"
+    },
+    "./animations/rotating-text/testing": {
+      "default": "./animations/rotating-text/testing/public-api.ts"
+    },
+    "./animations/shiny-text": {
+      "sass": "./animations/shiny-text/styles/_index.scss",
+      "default": "./animations/shiny-text/public-api.ts"
+    },
+    "./animations/shiny-text/testing": {
+      "default": "./animations/shiny-text/testing/public-api.ts"
+    },
+    "./animations/splash-cursor": {
+      "sass": "./animations/splash-cursor/styles/_index.scss",
+      "default": "./animations/splash-cursor/public-api.ts"
+    },
+    "./animations/splash-cursor/testing": {
+      "default": "./animations/splash-cursor/testing/public-api.ts"
+    },
+    "./animations/split-text": {
+      "sass": "./animations/split-text/styles/_index.scss",
+      "default": "./animations/split-text/public-api.ts"
+    },
+    "./animations/split-text/testing": {
+      "default": "./animations/split-text/testing/public-api.ts"
+    },
+    "./animations/spotlight-card": {
+      "sass": "./animations/spotlight-card/styles/_index.scss",
+      "default": "./animations/spotlight-card/public-api.ts"
+    },
+    "./animations/spotlight-card/testing": {
+      "default": "./animations/spotlight-card/testing/public-api.ts"
+    },
+    "./animations/star-border": {
+      "sass": "./animations/star-border/styles/_index.scss",
+      "default": "./animations/star-border/public-api.ts"
+    },
+    "./animations/star-border/testing": {
+      "default": "./animations/star-border/testing/public-api.ts"
+    },
+    "./animations/tilt-card": {
+      "sass": "./animations/tilt-card/styles/_index.scss",
+      "default": "./animations/tilt-card/public-api.ts"
+    },
+    "./animations/tilt-card/testing": {
+      "default": "./animations/tilt-card/testing/public-api.ts"
+    },
+    "./animations/typewriter": {
+      "sass": "./animations/typewriter/styles/_index.scss",
+      "default": "./animations/typewriter/public-api.ts"
+    },
+    "./animations/typewriter/testing": {
+      "default": "./animations/typewriter/testing/public-api.ts"
+    },
+    "./animations/waves": {
+      "sass": "./animations/waves/styles/_index.scss",
+      "default": "./animations/waves/public-api.ts"
+    },
+    "./animations/waves/testing": {
+      "default": "./animations/waves/testing/public-api.ts"
     },
     "./avatar": {
       "sass": "./avatar/styles/_index.scss",
@@ -141,27 +273,6 @@
     "./badge": {
       "sass": "./badge/styles/_index.scss",
       "default": "./badge/public-api.ts"
-    },
-    "./bar-chart": {
-      "sass": "./bar-chart/styles/_index.scss",
-      "default": "./bar-chart/public-api.ts"
-    },
-    "./bar-chart/testing": {
-      "default": "./bar-chart/testing/public-api.ts"
-    },
-    "./blur-text": {
-      "sass": "./blur-text/styles/_index.scss",
-      "default": "./blur-text/public-api.ts"
-    },
-    "./blur-text/testing": {
-      "default": "./blur-text/testing/public-api.ts"
-    },
-    "./border-glow": {
-      "sass": "./border-glow/styles/_index.scss",
-      "default": "./border-glow/public-api.ts"
-    },
-    "./border-glow/testing": {
-      "default": "./border-glow/testing/public-api.ts"
     },
     "./breadcrumbs": {
       "sass": "./breadcrumbs/styles/_index.scss",
@@ -185,13 +296,6 @@
     "./calendar/testing": {
       "default": "./calendar/testing/public-api.ts"
     },
-    "./calendar-heatmap": {
-      "sass": "./calendar-heatmap/styles/_index.scss",
-      "default": "./calendar-heatmap/public-api.ts"
-    },
-    "./calendar-heatmap/testing": {
-      "default": "./calendar-heatmap/testing/public-api.ts"
-    },
     "./card": {
       "sass": "./card/styles/_index.scss",
       "default": "./card/public-api.ts"
@@ -210,23 +314,61 @@
     "./cascader/testing": {
       "default": "./cascader/testing/public-api.ts"
     },
+    "./charts/bar-chart": {
+      "sass": "./charts/bar-chart/styles/_index.scss",
+      "default": "./charts/bar-chart/public-api.ts"
+    },
+    "./charts/bar-chart/testing": {
+      "default": "./charts/bar-chart/testing/public-api.ts"
+    },
+    "./charts/calendar-heatmap": {
+      "sass": "./charts/calendar-heatmap/styles/_index.scss",
+      "default": "./charts/calendar-heatmap/public-api.ts"
+    },
+    "./charts/calendar-heatmap/testing": {
+      "default": "./charts/calendar-heatmap/testing/public-api.ts"
+    },
+    "./charts/donut-chart": {
+      "sass": "./charts/donut-chart/styles/_index.scss",
+      "default": "./charts/donut-chart/public-api.ts"
+    },
+    "./charts/donut-chart/testing": {
+      "default": "./charts/donut-chart/testing/public-api.ts"
+    },
+    "./charts/gauge": {
+      "sass": "./charts/gauge/styles/_index.scss",
+      "default": "./charts/gauge/public-api.ts"
+    },
+    "./charts/gauge/testing": {
+      "default": "./charts/gauge/testing/public-api.ts"
+    },
+    "./charts/line-chart": {
+      "sass": "./charts/line-chart/styles/_index.scss",
+      "default": "./charts/line-chart/public-api.ts"
+    },
+    "./charts/line-chart/testing": {
+      "default": "./charts/line-chart/testing/public-api.ts"
+    },
+    "./charts/meter-group": {
+      "sass": "./charts/meter-group/styles/_index.scss",
+      "default": "./charts/meter-group/public-api.ts"
+    },
+    "./charts/meter-group/testing": {
+      "default": "./charts/meter-group/testing/public-api.ts"
+    },
+    "./charts/sparkline": {
+      "sass": "./charts/sparkline/styles/_index.scss",
+      "default": "./charts/sparkline/public-api.ts"
+    },
+    "./charts/sparkline/testing": {
+      "default": "./charts/sparkline/testing/public-api.ts"
+    },
     "./checkbox": {
       "sass": "./checkbox/styles/_index.scss",
       "default": "./checkbox/public-api.ts"
     },
     "./checkbox/testing": {
       "default": "./checkbox/testing/public-api.ts"
-    },
-    "./circular-text": {
-      "sass": "./circular-text/styles/_index.scss",
-      "default": "./circular-text/public-api.ts"
-    },
-    "./circular-text/testing": {
-      "default": "./circular-text/testing/public-api.ts"
-    },
-    "./click-spark": {
-      "sass": "./click-spark/styles/_index.scss",
-      "default": "./click-spark/public-api.ts"
     },
     "./clipboard": {
       "default": "./clipboard/public-api.ts"
@@ -255,9 +397,6 @@
     "./compare": {
       "sass": "./compare/styles/_index.scss",
       "default": "./compare/public-api.ts"
-    },
-    "./confetti": {
-      "default": "./confetti/public-api.ts"
     },
     "./config": {
       "default": "./config/public-api.ts"
@@ -292,13 +431,6 @@
     "./date-picker/testing": {
       "default": "./date-picker/testing/public-api.ts"
     },
-    "./decrypt-text": {
-      "sass": "./decrypt-text/styles/_index.scss",
-      "default": "./decrypt-text/public-api.ts"
-    },
-    "./decrypt-text/testing": {
-      "default": "./decrypt-text/testing/public-api.ts"
-    },
     "./density": {
       "sass": "./density/styles/_index.scss",
       "default": "./density/public-api.ts"
@@ -320,13 +452,6 @@
     "./divider": {
       "sass": "./divider/styles/_index.scss",
       "default": "./divider/public-api.ts"
-    },
-    "./donut-chart": {
-      "sass": "./donut-chart/styles/_index.scss",
-      "default": "./donut-chart/public-api.ts"
-    },
-    "./donut-chart/testing": {
-      "default": "./donut-chart/testing/public-api.ts"
     },
     "./drawer": {
       "sass": "./drawer/styles/_index.scss",
@@ -360,13 +485,6 @@
     "./event-calendar/testing": {
       "default": "./event-calendar/testing/public-api.ts"
     },
-    "./falling-text": {
-      "sass": "./falling-text/styles/_index.scss",
-      "default": "./falling-text/public-api.ts"
-    },
-    "./falling-text/testing": {
-      "default": "./falling-text/testing/public-api.ts"
-    },
     "./file-upload": {
       "sass": "./file-upload/styles/_index.scss",
       "default": "./file-upload/public-api.ts"
@@ -380,33 +498,6 @@
     },
     "./form/testing": {
       "default": "./form/testing/public-api.ts"
-    },
-    "./fuzzy-text": {
-      "default": "./fuzzy-text/public-api.ts"
-    },
-    "./fuzzy-text/testing": {
-      "default": "./fuzzy-text/testing/public-api.ts"
-    },
-    "./gauge": {
-      "sass": "./gauge/styles/_index.scss",
-      "default": "./gauge/public-api.ts"
-    },
-    "./gauge/testing": {
-      "default": "./gauge/testing/public-api.ts"
-    },
-    "./glitch-text": {
-      "sass": "./glitch-text/styles/_index.scss",
-      "default": "./glitch-text/public-api.ts"
-    },
-    "./glitch-text/testing": {
-      "default": "./glitch-text/testing/public-api.ts"
-    },
-    "./gradient-text": {
-      "sass": "./gradient-text/styles/_index.scss",
-      "default": "./gradient-text/public-api.ts"
-    },
-    "./gradient-text/testing": {
-      "default": "./gradient-text/testing/public-api.ts"
     },
     "./graph": {
       "sass": "./graph/styles/_index.scss",
@@ -547,13 +638,6 @@
     "./lightbox/testing": {
       "default": "./lightbox/testing/public-api.ts"
     },
-    "./line-chart": {
-      "sass": "./line-chart/styles/_index.scss",
-      "default": "./line-chart/public-api.ts"
-    },
-    "./line-chart/testing": {
-      "default": "./line-chart/testing/public-api.ts"
-    },
     "./list": {
       "sass": "./list/styles/_index.scss",
       "default": "./list/public-api.ts"
@@ -572,13 +656,6 @@
     "./markdown/testing": {
       "default": "./markdown/testing/public-api.ts"
     },
-    "./marquee": {
-      "sass": "./marquee/styles/_index.scss",
-      "default": "./marquee/public-api.ts"
-    },
-    "./marquee/testing": {
-      "default": "./marquee/testing/public-api.ts"
-    },
     "./media": {
       "default": "./media/public-api.ts"
     },
@@ -591,13 +668,6 @@
     },
     "./meta": {
       "default": "./meta/public-api.ts"
-    },
-    "./meter-group": {
-      "sass": "./meter-group/styles/_index.scss",
-      "default": "./meter-group/public-api.ts"
-    },
-    "./meter-group/testing": {
-      "default": "./meter-group/testing/public-api.ts"
     },
     "./overlay": {
       "sass": "./overlay/styles/_index.scss",
@@ -664,13 +734,6 @@
       "sass": "./result/styles/_index.scss",
       "default": "./result/public-api.ts"
     },
-    "./rotating-text": {
-      "sass": "./rotating-text/styles/_index.scss",
-      "default": "./rotating-text/public-api.ts"
-    },
-    "./rotating-text/testing": {
-      "default": "./rotating-text/testing/public-api.ts"
-    },
     "./schema-form": {
       "sass": "./schema-form/styles/_index.scss",
       "default": "./schema-form/public-api.ts"
@@ -692,13 +755,6 @@
     "./select/testing": {
       "default": "./select/testing/public-api.ts"
     },
-    "./shiny-text": {
-      "sass": "./shiny-text/styles/_index.scss",
-      "default": "./shiny-text/public-api.ts"
-    },
-    "./shiny-text/testing": {
-      "default": "./shiny-text/testing/public-api.ts"
-    },
     "./sidebar": {
       "sass": "./sidebar/styles/_index.scss",
       "default": "./sidebar/public-api.ts"
@@ -718,13 +774,6 @@
       "sass": "./sortable-list/styles/_index.scss",
       "default": "./sortable-list/public-api.ts"
     },
-    "./sparkline": {
-      "sass": "./sparkline/styles/_index.scss",
-      "default": "./sparkline/public-api.ts"
-    },
-    "./sparkline/testing": {
-      "default": "./sparkline/testing/public-api.ts"
-    },
     "./speed-dial": {
       "sass": "./speed-dial/styles/_index.scss",
       "default": "./speed-dial/public-api.ts"
@@ -736,40 +785,12 @@
       "sass": "./spinner/styles/_index.scss",
       "default": "./spinner/public-api.ts"
     },
-    "./splash-cursor": {
-      "sass": "./splash-cursor/styles/_index.scss",
-      "default": "./splash-cursor/public-api.ts"
-    },
-    "./splash-cursor/testing": {
-      "default": "./splash-cursor/testing/public-api.ts"
-    },
-    "./split-text": {
-      "sass": "./split-text/styles/_index.scss",
-      "default": "./split-text/public-api.ts"
-    },
-    "./split-text/testing": {
-      "default": "./split-text/testing/public-api.ts"
-    },
     "./splitter": {
       "sass": "./splitter/styles/_index.scss",
       "default": "./splitter/public-api.ts"
     },
     "./splitter/testing": {
       "default": "./splitter/testing/public-api.ts"
-    },
-    "./spotlight-card": {
-      "sass": "./spotlight-card/styles/_index.scss",
-      "default": "./spotlight-card/public-api.ts"
-    },
-    "./spotlight-card/testing": {
-      "default": "./spotlight-card/testing/public-api.ts"
-    },
-    "./star-border": {
-      "sass": "./star-border/styles/_index.scss",
-      "default": "./star-border/public-api.ts"
-    },
-    "./star-border/testing": {
-      "default": "./star-border/testing/public-api.ts"
     },
     "./statistic": {
       "sass": "./statistic/styles/_index.scss",
@@ -820,13 +841,6 @@
       "sass": "./theme/_index.scss",
       "default": "./theme/public-api.ts"
     },
-    "./tilt-card": {
-      "sass": "./tilt-card/styles/_index.scss",
-      "default": "./tilt-card/public-api.ts"
-    },
-    "./tilt-card/testing": {
-      "default": "./tilt-card/testing/public-api.ts"
-    },
     "./timeline": {
       "sass": "./timeline/styles/_index.scss",
       "default": "./timeline/public-api.ts"
@@ -863,13 +877,6 @@
     "./tree/testing": {
       "default": "./tree/testing/public-api.ts"
     },
-    "./typewriter": {
-      "sass": "./typewriter/styles/_index.scss",
-      "default": "./typewriter/public-api.ts"
-    },
-    "./typewriter/testing": {
-      "default": "./typewriter/testing/public-api.ts"
-    },
     "./typography": {
       "sass": "./typography/styles/_index.scss",
       "default": "./typography/public-api.ts"
@@ -886,13 +893,6 @@
     "./virtual-scroll": {
       "sass": "./virtual-scroll/styles/_index.scss",
       "default": "./virtual-scroll/public-api.ts"
-    },
-    "./waves": {
-      "sass": "./waves/styles/_index.scss",
-      "default": "./waves/public-api.ts"
-    },
-    "./waves/testing": {
-      "default": "./waves/testing/public-api.ts"
     },
     "./window": {
       "sass": "./window/styles/_index.scss",

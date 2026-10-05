@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrFallingText } from 'ngwr/falling-text';
+import { WrFallingText } from 'ngwr/animations/falling-text';
 
 import {
   DocApiComponent,
@@ -57,7 +57,7 @@ export default class FallingTextPage {
   }
 
   protected readonly snippets = {
-    install: `import { WrFallingText } from 'ngwr/falling-text';`,
+    install: `import { WrFallingText } from 'ngwr/animations/falling-text';`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

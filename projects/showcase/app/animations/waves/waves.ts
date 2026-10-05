@@ -1,7 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
 
+import { WrWaves } from 'ngwr/animations/waves';
 import { WrTypography } from 'ngwr/typography';
-import { WrWaves } from 'ngwr/waves';
 
 import {
   DocApiComponent,
@@ -51,7 +51,7 @@ export default class WavesPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrWaves } from 'ngwr/waves';`,
+    install: `import { WrWaves } from 'ngwr/animations/waves';`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

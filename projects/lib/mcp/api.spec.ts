@@ -824,7 +824,8 @@ describe("the library's own examples", () => {
 
   it('keeps the lines an @ViewChild used to cut off an example', () => {
     const example =
-      extractClass(documented('rotating-text/rotating-text.ts', 'WrRotatingText'), 'WrRotatingText')?.example ?? '';
+      extractClass(documented('animations/rotating-text/rotating-text.ts', 'WrRotatingText'), 'WrRotatingText')
+        ?.example ?? '';
 
     // `WrRotatingText`'s example demonstrates the imperative half of its API,
     // and the demonstration is exactly the part that was lost: everything from

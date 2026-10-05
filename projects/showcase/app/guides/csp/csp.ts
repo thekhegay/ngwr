@@ -41,7 +41,7 @@ Content-Security-Policy:
 
 // …or per component, if you are trimming:
 @use 'ngwr/button';
-@use 'ngwr/split-text';`,
+@use 'ngwr/animations/split-text';`,
 
     nonce: `// main.ts — only needed if you do NOT import the stylesheet above.
 import { CSP_NONCE } from '@angular/core';

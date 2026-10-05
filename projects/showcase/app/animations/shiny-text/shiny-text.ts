@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrShimmer, WrShinyText } from 'ngwr/shiny-text';
+import { WrShimmer, WrShinyText } from 'ngwr/animations/shiny-text';
 
 import {
   DocApiComponent,
@@ -60,8 +60,8 @@ export default class ShinyTextPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrShinyText } from 'ngwr/shiny-text';`,
-    shimmer: `import { WrShimmer } from 'ngwr/shiny-text';
+    install: `import { WrShinyText } from 'ngwr/animations/shiny-text';`,
+    shimmer: `import { WrShimmer } from 'ngwr/animations/shiny-text';
 
 <h1 wrShimmer>Premium</h1>`,
   };

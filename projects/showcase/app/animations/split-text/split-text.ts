@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrSplitText } from 'ngwr/split-text';
+import { WrSplitText } from 'ngwr/animations/split-text';
 
 import {
   type DocApiRow,
@@ -68,7 +68,7 @@ export default class SplitTextPage {
   }
 
   protected readonly snippets = {
-    install: `import { WrSplitText } from 'ngwr/split-text';`,
+    install: `import { WrSplitText } from 'ngwr/animations/split-text';`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { WrGauge } from 'ngwr/gauge';
+import { WrGauge } from 'ngwr/charts/gauge';
 
 import {
   DocApiComponent,
@@ -18,7 +18,7 @@ import { API } from '#core/generated/api';
 })
 export default class GaugePageComponent {
   protected readonly snippets = {
-    install: `import { WrGauge } from 'ngwr/gauge';
+    install: `import { WrGauge } from 'ngwr/charts/gauge';
 
 @Component({ imports: [WrGauge] })
 export class MyComponent {}`,

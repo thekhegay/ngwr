@@ -1,6 +1,6 @@
 import { Component, ElementRef, afterNextRender, computed, signal, viewChild } from '@angular/core';
 
-import { WrAurora } from 'ngwr/aurora';
+import { WrAurora } from 'ngwr/animations/aurora';
 
 import {
   DocApiComponent,
@@ -75,7 +75,7 @@ export default class AuroraPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrAurora } from 'ngwr/aurora';`,
+    install: `import { WrAurora } from 'ngwr/animations/aurora';`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

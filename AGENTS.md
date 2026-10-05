@@ -31,12 +31,21 @@ A pnpm + Angular CLI monorepo with two projects:
   `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`,
   `lightbox`, `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`,
   `markdown`, **every chart** and **eighteen of the twenty-one animations** — each at
-  `ngwr/<name>/testing`. They export one more harness name than there are classes
+  `ngwr/<name>/testing`. Charts and animations are NESTED since v15:
+  `ngwr/charts/bar-chart`, `ngwr/animations/aurora`, harnesses at
+  `ngwr/charts/bar-chart/testing`. Twenty-eight folders that used to sit beside
+  `button` and `select` in `projects/lib` now live under two, which is the only
+  thing that changed — they are ordinary entry points, in the same package, and
+  `pnpm gen:exports` writes their keys like any other. Mind the one name that
+  reads two ways: `@use 'ngwr/animations'` is the keyframe UTILITY sheet
+  (`styles/_animations.scss`), while `@use 'ngwr/animations/aurora'` is a
+  component. They export one more harness name than there are classes
   (`harnessClasses` in the same file): `WrCalendarDayHarness` is the
   one exported twice, since a date-picker's popup IS a calendar and
   `ngwr/date-picker/testing` keeps the name it shipped as.
   **Four entry points are deliberately without one, and the reason is the same each
-  time**: `aurora`, `click-spark` and `confetti` draw into a canvas whose context is
+  time**: `animations/aurora`, `animations/click-spark` and `animations/confetti`
+  draw into a canvas whose context is
   `null` under jsdom, and `virtual-scroll` is a thin wrapper over
   `cdk-virtual-scroll-viewport` whose whole observable behaviour is the window it
   measures — so every honest method would answer identically for a working component

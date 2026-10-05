@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 
+import { WrConfetti } from 'ngwr/animations/confetti';
 import { WrButton } from 'ngwr/button';
-import { WrConfetti } from 'ngwr/confetti';
 
 import {
   DocApiComponent,
@@ -81,7 +81,7 @@ onWin(): void {
   }
 
   protected readonly snippets = {
-    install: `import { WrConfetti } from 'ngwr/confetti';`,
+    install: `import { WrConfetti } from 'ngwr/animations/confetti';`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

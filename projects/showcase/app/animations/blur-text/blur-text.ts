@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrBlurText } from 'ngwr/blur-text';
+import { WrBlurText } from 'ngwr/animations/blur-text';
 
 import {
   DocApiComponent,
@@ -69,7 +69,7 @@ export default class BlurTextPage {
   }
 
   protected readonly snippets = {
-    install: `import { WrBlurText } from 'ngwr/blur-text';`,
+    install: `import { WrBlurText } from 'ngwr/animations/blur-text';`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

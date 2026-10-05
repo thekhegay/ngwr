@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { WrLineChart, type WrLineSeries } from 'ngwr/line-chart';
+import { WrLineChart, type WrLineSeries } from 'ngwr/charts/line-chart';
 
 import {
   DocApiComponent,
@@ -26,7 +26,7 @@ export default class LineChartPageComponent {
   protected readonly xLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   protected readonly snippets = {
-    install: `import { WrLineChart, type WrLineSeries } from 'ngwr/line-chart';
+    install: `import { WrLineChart, type WrLineSeries } from 'ngwr/charts/line-chart';
 
 @Component({ imports: [WrLineChart] })
 export class MyComponent {

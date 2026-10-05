@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { WrCalendarHeatmap, type WrHeatmapDatum } from 'ngwr/calendar-heatmap';
+import { WrCalendarHeatmap, type WrHeatmapDatum } from 'ngwr/charts/calendar-heatmap';
 
 import {
   DocApiComponent,
@@ -39,7 +39,7 @@ export default class CalendarHeatmapPageComponent {
   protected readonly data = makeHeatmap();
 
   protected readonly snippets = {
-    install: `import { WrCalendarHeatmap, type WrHeatmapDatum } from 'ngwr/calendar-heatmap';
+    install: `import { WrCalendarHeatmap, type WrHeatmapDatum } from 'ngwr/charts/calendar-heatmap';
 
 @Component({ imports: [WrCalendarHeatmap] })
 export class MyComponent {

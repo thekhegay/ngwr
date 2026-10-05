@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrGlitchText } from 'ngwr/glitch-text';
+import { WrGlitchText } from 'ngwr/animations/glitch-text';
 
 import {
   DocApiComponent,
@@ -51,7 +51,7 @@ export default class GlitchTextPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrGlitchText } from 'ngwr/glitch-text';`,
+    install: `import { WrGlitchText } from 'ngwr/animations/glitch-text';`,
   };
 
   protected readonly api = API.WrGlitchText;

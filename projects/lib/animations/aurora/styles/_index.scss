@@ -1,0 +1,11 @@
+// Public Sass entry for `@use 'ngwr/animations/aurora'`.
+//
+// `aurora.scss` — the component's `styleUrl` — forwards `_rules` and nothing
+// else, so the compiled component styles carry this component's own CSS and no
+// second copy of the theme layer. `_dark.scss` is loaded from HERE rather than
+// from `_rules` because its selector is built out of `$theme-attribute`, which
+// only a stylesheet compiled by the consuming app can configure.
+@use '../../../theme/styles';
+
+@forward 'rules';
+@forward 'dark';

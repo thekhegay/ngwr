@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrTypewriter } from 'ngwr/typewriter';
+import { WrTypewriter } from 'ngwr/animations/typewriter';
 
 import {
   DocApiComponent,
@@ -57,7 +57,7 @@ export default class TypewriterPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrTypewriter } from 'ngwr/typewriter';`,
+    install: `import { WrTypewriter } from 'ngwr/animations/typewriter';`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

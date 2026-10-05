@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrBorderGlow } from 'ngwr/border-glow';
+import { WrBorderGlow } from 'ngwr/animations/border-glow';
 import { parseHex, rgbToHsl } from 'ngwr/color-picker';
 
 import {
@@ -70,7 +70,7 @@ export default class BorderGlowPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrBorderGlow } from 'ngwr/border-glow';`,
+    install: `import { WrBorderGlow } from 'ngwr/animations/border-glow';`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
