@@ -356,8 +356,6 @@ describe('WrRadioGroup under focusBoundControl()', () => {
     order().size().focusBoundControl();
 
     expect(root().contains(document.activeElement)).toBe(false);
-  });
-});
 
 @Component({
   imports: [WrFormField, WrRadio, WrRadioGroup],
