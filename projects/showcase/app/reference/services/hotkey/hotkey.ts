@@ -73,6 +73,43 @@ ngOnInit() {
       type: 'string',
       default: '—',
     },
+    {
+      name: 'WrHotkeyOptions',
+      description: "The third argument of `bind()`, and what the `[wrHotkey]` directive's own inputs mirror.",
+      type: 'interface',
+      default: '—',
+    },
+    {
+      name: 'element',
+      description:
+        'Scope the listener to one element instead of `document`. It has to be focusable or hold the focus for the binding to fire at all, so this usually comes with `tabindex="0"` on the host.',
+      type: 'HTMLElement',
+      default: 'document',
+      sub: true,
+    },
+    {
+      name: 'preventDefault',
+      description: 'Call `event.preventDefault()` on a match. Turn it off for a combo the browser should still handle.',
+      type: 'boolean',
+      default: 'true',
+      sub: true,
+    },
+    {
+      name: 'allowInInput',
+      description:
+        'Fire even while an `<input>`, a `<textarea>` or a contenteditable has focus. Off by default so a plain letter shortcut does not eat what someone is typing.',
+      type: 'boolean',
+      default: 'false',
+      sub: true,
+    },
+    {
+      name: 'priority',
+      description:
+        'Higher goes first. Bindings sharing a key dispatch in priority order, and a handler calling `event.preventDefault()` stops the lower ones — which is how a dialog takes Escape from the page behind it.',
+      type: 'number',
+      default: '0',
+      sub: true,
+    },
   ];
 
   protected readonly bindingApi = API.WrHotkeyBinding;
