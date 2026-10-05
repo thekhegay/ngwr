@@ -70,7 +70,9 @@ export class MyComponent {}`,
     icon: `<wr-btn icon="add" color="primary">Add</wr-btn>
 <wr-btn icon="download" iconPosition="end" color="success">Download</wr-btn>`,
     disabled: `<wr-btn disabled>Disabled</wr-btn>`,
-    loading: `<wr-btn [loading]="loading()" color="primary" (click)="loading.set(!loading())">
+    loading: `<!-- \`disabledWhenLoading\` is on by default, so a button that toggles its own
+     loading state would disable itself on the first click and never come back. -->
+<wr-btn [loading]="loading()" [disabledWhenLoading]="false" color="primary" (click)="loading.set(!loading())">
   Click to toggle
 </wr-btn>`,
   };
