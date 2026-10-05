@@ -32,6 +32,33 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="All three slots"
+    description="`[wrPageHeaderBreadcrumbs]` is the row above the title, `[wrPageHeaderActions]` the right-hand side, and `[wrPageHeaderExtra]` the row of tags or metadata below. They are projection SELECTORS rather than directives, so nothing extra goes in `imports` — put the attribute on whatever element the slot should hold. The actions slot lays out a bare `<div>` for you; the extra row leaves a wrapper alone, which is why the tags below are projected through an `<ng-container>`."
+  >
+    <ngwr-doc-code [code]="allSlots" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-page-header title="Billing" subtitle="Plan, invoices and payment method">
+        <wr-breadcrumbs wrPageHeaderBreadcrumbs>
+          <wr-breadcrumbs-item>Workspace</wr-breadcrumbs-item>
+          <wr-breadcrumbs-item>Settings</wr-breadcrumbs-item>
+          <wr-breadcrumbs-item>Billing</wr-breadcrumbs-item>
+        </wr-breadcrumbs>
+
+        <div wrPageHeaderActions>
+          <wr-btn outlined>Download invoices</wr-btn>
+          <wr-btn color="primary">Change plan</wr-btn>
+        </div>
+
+        <ng-container wrPageHeaderExtra>
+          <wr-tag color="success">Active</wr-tag>
+          <wr-tag>Pro</wr-tag>
+          <wr-tag outlined>Renews 1 Nov</wr-tag>
+        </ng-container>
+      </wr-page-header>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
