@@ -96,7 +96,8 @@ export default class SelectComponent {
   <wr-option value="rxjs">RxJS</wr-option>
   <wr-option value="signals">Signals</wr-option>
 </wr-select>`,
-    multiOverflow: `<wr-select mode="multi" [maxTagCount]="2" [maxItems]="6" [(value)]="manyTags">
+    multiOverflow: `<!-- Four already selected and maxItems=4: a fifth pick does not commit. -->
+<wr-select mode="multi" [maxTagCount]="2" [maxItems]="4" [(value)]="manyTags">
   <wr-option value="typescript">TypeScript</wr-option>
   <wr-option value="angular">Angular</wr-option>
   <wr-option value="rxjs">RxJS</wr-option>
