@@ -32,6 +32,17 @@ export interface WrSortableListContext {
   /** Id of the shared key-model description every row points at. */
   readonly keyHelpId: string;
 
+  /**
+   * How many rows the list is showing, as a signal.
+   *
+   * A row's `index` is resolved by DOCUMENT ORDER, which touches no signal —
+   * so the `computed` wrapping it had no producer and was cached for the life
+   * of the row. This is the producer: the list owns `items` as a `model`, so
+   * every reorder, insertion and removal goes through it, which is exactly
+   * when a position can change.
+   */
+  readonly rowCount: Signal<number>;
+
   /** Register a row on construction, in projection order. */
   register(item: { readonly host: ElementRef<HTMLElement> }): void;
 

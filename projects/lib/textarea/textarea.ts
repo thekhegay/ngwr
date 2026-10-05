@@ -162,6 +162,13 @@ export class WrTextarea implements FormValueControl<string> {
     if (resize === 'horizontal' || resize === 'both') parts.push('wr-textarea--resize-x');
     if (this.focused()) parts.push('wr-textarea--focused');
     if (this.disabled()) parts.push('wr-textarea--disabled');
+    // Read-only has to LOOK different, or it is a box that silently refuses
+    // what is typed into it. `readonly` reached the native element and
+    // produced no class and no rule, so a read-only textarea was identical to
+    // an editable one: same fill, same border, same text cursor. The library's
+    // own contract for a value control is a `wr-<x>--readonly` class with a
+    // non-editable cue, which `.wr-input[readonly]` already draws.
+    if (this.readonly()) parts.push('wr-textarea--readonly');
     return parts.join(' ');
   });
 

@@ -39,6 +39,17 @@
     cursor: not-allowed;
   }
 
+  // Read-only keeps the tab stop, keeps announcing its value and still
+  // submits — so the cue is the fill and the cursor, never the disabled
+  // treatment. The same pair `.wr-input[readonly]` draws.
+  //
+  // color-ok: `cursor` is the second channel, and the state is also announced
+  // — `aria-readonly` is legal on a `textbox`, which the native element is.
+  &--readonly {
+    --wr-textarea-bg: var(--wr-color-fill);
+    cursor: default;
+  }
+
   // Horizontal resize needs a shrinkable, explicit-width box (not full-width block).
   &--resize-x {
     display: inline-block;
