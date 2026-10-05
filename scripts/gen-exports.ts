@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
 /**
@@ -71,21 +71,34 @@ function main(): void {
   for (const name of entryPoints(LIB)) {
     const key = `./${name.split('\\').join('/')}`;
     const entry: Record<string, string> = {};
-    // A `sass` condition the map already carried stays, and stays FIRST: Node
-    // resolves conditions in declaration order, and `default` matches anything.
+    // `sass` comes FIRST, because Node resolves conditions in declaration order
+    // and `default` matches anything. Read from the tree rather than copied
+    // from the previous map: a moved entry point keeps its stylesheet and
+    // changes its key, and a lookup by key would silently drop the condition.
+    // A condition the map already carried WINS, as long as the file is still
+    // there: `./theme` deliberately points at `theme/_index.scss` rather than
+    // `theme/styles/_index.scss`, so deriving would quietly repoint the one
+    // entry whose public Sass surface is not where the pattern says.
     const prev = previous[key];
-    if (prev && typeof prev === 'object' && 'sass' in (prev as object)) {
-      entry['sass'] = (prev as Record<string, string>)['sass'];
-    }
+    const kept = prev && typeof prev === 'object' ? (prev as Record<string, string>)['sass'] : undefined;
+    const derived = `./${name}/styles/_index.scss`;
+    if (kept && existsSync(join(LIB, kept))) entry['sass'] = kept;
+    else if (existsSync(join(LIB, derived))) entry['sass'] = derived;
     entry['default'] = `./${name}/public-api.ts`;
     exportsMap[key] = entry;
   }
 
-  // Style-only subpaths the tree has no directory for (`./theme`, `./breakpoints`…).
+  // Style-only subpaths with no directory of their own — `./theme`, `./grid`,
+  // `./animations` and friends, which point straight at a partial. Carried
+  // over from the previous map, and only while the file they name still
+  // exists: that is what stops a deleted or moved entry point living on as a
+  // key nothing backs.
   for (const [key, value] of Object.entries(previous)) {
     if (key in exportsMap) continue;
     if (PASSTHROUGH.some(([k]) => k === key)) continue;
-    exportsMap[key] = value;
+    const target = typeof value === 'object' && value !== null ? (value as Record<string, string>)['sass'] : undefined;
+    if (!target || !existsSync(join(LIB, target))) continue;
+    exportsMap[key] = { sass: target };
   }
 
   manifest['exports'] = exportsMap;

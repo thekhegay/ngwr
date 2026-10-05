@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrTilt, WrTiltCard } from 'ngwr/tilt-card';
+import { WrTilt, WrTiltCard } from 'ngwr/animations/tilt-card';
 
 import {
   DocApiComponent,
@@ -57,9 +57,9 @@ export default class TiltCardPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrTiltCard, WrTilt } from 'ngwr/tilt-card';`,
+    install: `import { WrTiltCard, WrTilt } from 'ngwr/animations/tilt-card';`,
     directive: `// Directive variant — same package, drops on any element.
-import { WrTilt } from 'ngwr/tilt-card';
+import { WrTilt } from 'ngwr/animations/tilt-card';
 
 <img wrTilt [maxTilt]="10" [scale]="1.02" src="…" />`,
   };

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { WrDonutChart, type WrDonutSegment } from 'ngwr/donut-chart';
+import { WrDonutChart, type WrDonutSegment } from 'ngwr/charts/donut-chart';
 
 import {
   DocApiComponent,
@@ -31,7 +31,7 @@ export default class DonutChartPageComponent {
   ];
 
   protected readonly snippets = {
-    install: `import { WrDonutChart, type WrDonutSegment } from 'ngwr/donut-chart';
+    install: `import { WrDonutChart, type WrDonutSegment } from 'ngwr/charts/donut-chart';
 
 @Component({ imports: [WrDonutChart] })
 export class MyComponent {

@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrDecryptText } from 'ngwr/decrypt-text';
+import { WrDecryptText } from 'ngwr/animations/decrypt-text';
 
 import {
   DocApiComponent,
@@ -73,7 +73,7 @@ export default class DecryptTextPage {
   }
 
   protected readonly snippets = {
-    install: `import { WrDecryptText } from 'ngwr/decrypt-text';`,
+    install: `import { WrDecryptText } from 'ngwr/animations/decrypt-text';`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

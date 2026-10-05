@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrGradientText } from 'ngwr/gradient-text';
+import { WrGradientText } from 'ngwr/animations/gradient-text';
 
 import {
   DocApiComponent,
@@ -72,7 +72,7 @@ export default class GradientTextPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrGradientText } from 'ngwr/gradient-text';`,
+    install: `import { WrGradientText } from 'ngwr/animations/gradient-text';`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

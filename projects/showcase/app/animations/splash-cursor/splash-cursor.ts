@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrSplashCursor } from 'ngwr/splash-cursor';
+import { WrSplashCursor } from 'ngwr/animations/splash-cursor';
 
 import {
   DocApiComponent,
@@ -59,7 +59,7 @@ export default class SplashCursorPage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrSplashCursor } from 'ngwr/splash-cursor';`,
+    install: `import { WrSplashCursor } from 'ngwr/animations/splash-cursor';`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

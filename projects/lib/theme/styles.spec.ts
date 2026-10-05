@@ -231,16 +231,17 @@ describe('the dark block is keyed on the configured attribute', () => {
       loaded(entry).some(f => !f.startsWith(THEME_STYLES) && code(f).includes('dark-selector()'))
     );
 
-    // aurora, border-glow, shiny-text, spotlight-card, star-border, tilt-card,
-    // waves — the seven that carried the literal.
-    expect(withDark.map(f => relative(LIB, f).split('/')[0]).sort()).toEqual([
-      'aurora',
-      'border-glow',
-      'shiny-text',
-      'spotlight-card',
-      'star-border',
-      'tilt-card',
-      'waves',
+    // The seven that carried the literal. Named by entry point rather than by
+    // first path segment: they live under `animations/` since v15, and a
+    // segment read would answer `animations` seven times and still pass.
+    expect(withDark.map(f => relative(LIB, f).replace(/\/styles\/.*$/, '')).sort()).toEqual([
+      'animations/aurora',
+      'animations/border-glow',
+      'animations/shiny-text',
+      'animations/spotlight-card',
+      'animations/star-border',
+      'animations/tilt-card',
+      'animations/waves',
     ]);
   });
 });

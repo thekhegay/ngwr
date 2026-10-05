@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { WrBarChart, type WrBarChartDatum } from 'ngwr/bar-chart';
+import { WrBarChart, type WrBarChartDatum } from 'ngwr/charts/bar-chart';
 
 import {
   DocApiComponent,
@@ -29,7 +29,7 @@ export default class BarChartPageComponent {
   ];
 
   protected readonly snippets = {
-    install: `import { WrBarChart, type WrBarChartDatum } from 'ngwr/bar-chart';
+    install: `import { WrBarChart, type WrBarChartDatum } from 'ngwr/charts/bar-chart';
 
 @Component({ imports: [WrBarChart] })
 export class MyComponent {

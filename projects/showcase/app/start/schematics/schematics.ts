@@ -167,7 +167,7 @@ ng update ngwr
 'ngwr/bottom-sheet'     →  'ngwr/drawer'         (WrBottomSheet     → WrDrawer)
 'ngwr/count-up-text'    →  'ngwr/counter'        (WrCountUpText     → WrCountUp)
 'ngwr/image'            →  'ngwr/lightbox'       (WrImage           → WrLightbox)
-'ngwr/animated-text'    →  'ngwr/typewriter'     (WrAnimatedText    → WrTypewriter)
+'ngwr/animated-text'    →  'ngwr/animations/typewriter'     (WrAnimatedText    → WrTypewriter)
 'ngwr/count-up'         →  'ngwr/counter'        (entry merged; symbol unchanged)
 'ngwr/tag'              →  'ngwr/badge'          (entry merged; symbol unchanged)
 'ngwr/form-field'       →  'ngwr/form'           (entry merged; symbol unchanged)
