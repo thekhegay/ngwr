@@ -64,29 +64,33 @@
     letter-spacing: 0.05em;
     text-transform: uppercase;
 
-    // Kind-specific tints — purely cosmetic, fall through to the neutral default.
+    // Kind-specific tints. The `-soft` token IS `rgba(var(--wr-color-<intent>-rgb),
+    // 0.12)` — `_colors.scss` tokenised the trio precisely to stop that
+    // expression being written out at a spread of alphas — so these name it
+    // rather than restate it, and `warning` joins them instead of sitting
+    // 0.04 away for no recorded reason.
     &[data-kind='Service'] {
-      background: rgba(var(--wr-color-primary-rgb), 0.12);
+      background: var(--wr-color-primary-soft);
       color: var(--wr-color-primary-ink);
     }
 
     &[data-kind='Component'] {
-      background: rgba(var(--wr-color-success-rgb), 0.12);
+      background: var(--wr-color-success-soft);
       color: var(--wr-color-success-ink);
     }
 
     &[data-kind='Directive'] {
-      background: rgba(var(--wr-color-warning-rgb), 0.16);
+      background: var(--wr-color-warning-soft);
       color: var(--wr-color-warning-ink);
     }
 
     &[data-kind='Pipe'] {
-      background: rgba(var(--wr-color-info-rgb), 0.12);
+      background: var(--wr-color-info-soft);
       color: var(--wr-color-info-ink);
     }
 
     &[data-kind='Validator'] {
-      background: rgba(var(--wr-color-danger-rgb), 0.12);
+      background: var(--wr-color-danger-soft);
       color: var(--wr-color-danger-ink);
     }
   }

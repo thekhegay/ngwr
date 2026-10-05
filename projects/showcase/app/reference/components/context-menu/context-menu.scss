@@ -31,14 +31,11 @@
   }
 }
 
-// Keyboard hint pill on the right of an item.
+// The shortcut chip is `<wr-kbd>`, the component this showcase already uses on
+// four other pages — so the docs stop rendering shortcut chips two ways. The
+// local rule used to re-derive one out of a 0.12 muted-ink fill under 11px
+// muted text, which measures 4.56:1 in light: AA by six hundredths, inside an
+// overlay no gate can reach. All that is left here is where it sits.
 .ngwr-cm-kbd {
   margin-left: auto;
-  padding: 0 0.375rem;
-  font-family: var(--wr-font-family-mono);
-  font-size: 0.6875rem;
-  color: var(--wr-color-on-surface-muted);
-  background: rgba(var(--wr-color-on-surface-muted-rgb), 0.12);
-  border-radius: 0.25rem;
-  line-height: 1.5;
 }

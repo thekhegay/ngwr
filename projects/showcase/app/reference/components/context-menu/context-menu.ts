@@ -4,6 +4,7 @@ import { FileText, Settings, Trash2 } from 'lucide';
 import { WrContextMenu, WrContextMenuDivider, WrContextMenuItem, WrContextMenuPanel } from 'ngwr/context-menu';
 import { provideWrIcons } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { WrKbd } from 'ngwr/keyboard';
 
 import {
   DocApiComponent,
@@ -19,6 +20,7 @@ import {
   templateUrl: './context-menu.html',
   styleUrl: './context-menu.scss',
   imports: [
+    WrKbd,
     WrContextMenu,
     WrContextMenuPanel,
     WrContextMenuItem,

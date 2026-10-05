@@ -133,7 +133,11 @@
 
   &__label {
     flex: 0 0 auto;
-    color: rgba(var(--wr-color-on-surface-rgb), 0.6);
+    // The role, not an alpha off the ink channel. `prefers-contrast: more`
+    // redeclares gray-5 — which the role resolves through — and leaves the
+    // gray-6 channel an alpha is built on, so the one label that most needs
+    // the lift was the one that could not take it.
+    color: var(--wr-color-on-surface-muted);
     white-space: nowrap;
   }
 

@@ -276,6 +276,7 @@ export const INSTALL = {
       { path: "ngwr/context-menu", symbols: ["WrContextMenu", "WrContextMenuDivider", "WrContextMenuItem", "WrContextMenuPanel"], styled: true },
       { path: "ngwr/icon", symbols: ["provideWrIcons"], styled: true },
       { path: "ngwr/icon/adapters/lucide", symbols: ["lucideIcons"], styled: false },
+      { path: "ngwr/keyboard", symbols: ["WrKbd"], styled: true },
   ],
   "reference/components/counter": [
       { path: "ngwr/counter", symbols: ["WrCountUp", "WrCounter"], styled: true },
