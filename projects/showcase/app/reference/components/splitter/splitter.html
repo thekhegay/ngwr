@@ -16,7 +16,11 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Vertical">
+  <ngwr-doc-section
+    title="Vertical"
+    description="The divider becomes a horizontal bar and `position` is measured from the top. The two slot directives are unchanged — `wrSplitterStart` is the upper pane."
+  >
+    <ngwr-doc-code [code]="verticalSnippet" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-splitter
         [(position)]="verticalPos"

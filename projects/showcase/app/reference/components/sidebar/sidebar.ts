@@ -22,23 +22,31 @@ import {
   providers: [provideWrIcons(lucideIcons({ home: House, folder: Folder, cog: Settings }))],
 })
 export default class SidebarPage {
+  /**
+   * Distinct destinations, and that is the whole point of the demo. Every entry
+   * used to name THIS page, so `routerLinkActive` matched all six at once and
+   * the active treatment was indistinguishable from the inactive one — the one
+   * thing the section exists to show. Only `Dashboard` resolves here, so only
+   * `Dashboard` is highlighted; the rest are real docs routes and clicking one
+   * navigates, the way a sidebar entry does.
+   */
   protected readonly entries: readonly WrSidebarEntry[] = [
     { title: 'Dashboard', icon: 'home', url: ['/reference/components', 'sidebar'] },
     {
       title: 'Workspace',
       icon: 'folder',
       children: [
-        { title: 'Projects', url: ['/reference/components', 'sidebar'] },
-        { title: 'Members', url: ['/reference/components', 'sidebar'], badge: '12' },
-        { title: 'Billing', url: ['/reference/components', 'sidebar'], badge: 'new' },
+        { title: 'Projects', url: ['/reference/components', 'table'] },
+        { title: 'Members', url: ['/reference/components', 'avatar'], badge: '12' },
+        { title: 'Billing', url: ['/reference/components', 'statistic'], badge: 'new' },
       ],
     },
     {
       title: 'Settings',
       icon: 'cog',
       children: [
-        { title: 'Profile', url: ['/reference/components', 'sidebar'] },
-        { title: 'Security', url: ['/reference/components', 'sidebar'] },
+        { title: 'Profile', url: ['/reference/components', 'form'] },
+        { title: 'Security', url: ['/reference/components', 'input-otp'] },
         { title: 'Tokens (soon)', url: ['/reference/components', 'sidebar'], disabled: true },
       ],
     },
