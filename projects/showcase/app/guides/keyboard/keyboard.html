@@ -11,7 +11,7 @@
     <ngwr-doc-code [code]="snippets.declarative" language="angular-html" />
     <ngwr-doc-code [code]="snippets.imperative" language="angular-ts" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Specs are written as <code>mod+k</code>, <code>shift+/</code>, <code>escape</code>.
       <strong><code>mod</code></strong> is the point of the whole notation: it resolves to <kbd>⌘</kbd> on macOS and
       <kbd>Ctrl</kbd> everywhere else, so you write the binding once instead of branching on the platform.
@@ -47,7 +47,7 @@
       </div>
     </ngwr-doc-snippet>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Typing never fires a shortcut: while an <code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code> or
       contenteditable has focus, bindings are skipped unless you opt in with <code>allowInInput</code>.
     </p>
@@ -65,7 +65,7 @@
       <div style="display: flex; align-items: center; gap: 0.375rem">
         <wr-kbd>⌘</wr-kbd>
         <wr-kbd>K</wr-kbd>
-        <span wrTypography variant="small" tone="medium">or</span>
+        <span wrTypography variant="small" tone="muted">or</span>
         <wr-kbd size="sm">Ctrl</wr-kbd>
         <wr-kbd size="sm">K</wr-kbd>
       </div>
@@ -78,7 +78,7 @@
   >
     <ngwr-doc-code [code]="snippets.keys" language="angular-ts" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <a routerLink="/reference/utils/keys">KEYS</a> spells the <code>KeyboardEvent.key</code> values correctly, so a
       typo like <code>'Esacpe'</code> is a compile error rather than a handler that never fires;
       <a routerLink="/reference/utils/has-modifier">hasModifier</a> is how you avoid stealing <kbd>⌘C</kbd>;
@@ -91,7 +91,7 @@
     title="What the components already do"
     description="Every interactive component follows its WAI-ARIA APG pattern, and until now that was a claim rather than a contract you could write a test against. Here it is, one table per focused element, read off each component's own `keydown` handler. Nothing below needs configuring — it is what the component does out of the box."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Two conventions run through all of it. <strong>Arrows that name a side of the screen mirror under</strong>
       <code>dir="rtl"</code> — the tab strip, the calendar grid, the tree and a context menu's cascade all swap
       ArrowLeft and ArrowRight, while <wr-kbd size="sm">Home</wr-kbd> and <wr-kbd size="sm">End</wr-kbd> name a position
@@ -101,7 +101,7 @@
       independent destinations, not a composite.
     </p>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       These tables are about KEYS. Where focus lands when an overlay opens, and where it goes back to for each of the
       four ways of closing one, is the other half —
       <a routerLink="/guides/overlay">the overlay guide</a> owns that, so the two are not maintained twice.
@@ -149,7 +149,7 @@
       </div>
     }
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Five more components document their own grid on their own page, because the keys mean something only next to the
       thing they move: <a routerLink="/reference/components/calendar">calendar</a>,
       <a routerLink="/reference/components/event-calendar">event calendar</a>,

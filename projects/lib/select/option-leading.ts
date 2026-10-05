@@ -7,7 +7,7 @@
 
 import { Directive, TemplateRef, inject } from '@angular/core';
 
-import type { WrOptionLeadingContext } from './interfaces';
+import type { WrOptionLeadingContext } from './types';
 
 /**
  * A leading visual — an avatar, an icon, a colour dot — drawn before an

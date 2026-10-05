@@ -55,7 +55,14 @@
   >
     <ngwr-doc-snippet [code]="snippets.password">
       <wr-input-group>
-        <input wrInput type="password" placeholder="Password" [(ngModel)]="password" #pwInput />
+        <input
+          wrInput
+          type="password"
+          autocomplete="new-password"
+          placeholder="Password"
+          [(ngModel)]="password"
+          #pwInput
+        />
         <wr-password-toggle [for]="pwInput" />
       </wr-input-group>
     </ngwr-doc-snippet>

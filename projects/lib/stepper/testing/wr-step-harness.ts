@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrStepHarnessFilters } from './interfaces';
+import type { WrStepHarnessFilters } from './types';
 import { wrStepperHarnessText } from './wr-stepper-harness-text';
 
 /**

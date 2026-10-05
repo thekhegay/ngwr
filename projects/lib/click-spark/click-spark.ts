@@ -24,7 +24,7 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
-import type { WrClickSparkEasing } from './interfaces';
+import type { WrClickSparkEasing } from './types';
 
 interface Spark {
   readonly x: number;
@@ -71,9 +71,9 @@ export class WrClickSpark {
    * Spark line colour. Accepts any CSS colour, or a `var(--wr-…)` token which is
    * resolved against the host so it tracks the theme. The default flips with the
    * theme — dark sparks in light mode, light sparks in dark.
-   * @default 'var(--wr-color-dark)'
+   * @default 'var(--wr-color-on-surface)'
    */
-  readonly sparkColor = input('var(--wr-color-dark)');
+  readonly sparkColor = input('var(--wr-color-on-surface)');
 
   /** Length of each spark line in pixels (at t=0; tapers to 0 at t=1). @default 10 */
   readonly sparkSize = input(10, { transform: numAttr(10) });
@@ -230,4 +230,4 @@ export class WrClickSpark {
   }
 }
 
-export type { WrClickSparkEasing } from './interfaces';
+export type { WrClickSparkEasing } from './types';

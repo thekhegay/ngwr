@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrCalendarHeatmapCell, WrCalendarHeatmapHarnessFilters } from './interfaces';
+import type { WrCalendarHeatmapCell, WrCalendarHeatmapHarnessFilters } from './types';
 
 /**
  * Test harness for `<wr-calendar-heatmap>`.

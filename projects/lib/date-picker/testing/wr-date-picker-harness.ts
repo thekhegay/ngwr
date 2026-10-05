@@ -7,7 +7,7 @@
 
 import { HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
-import type { WrDatePickerHarnessFilters, WrDatePickerTimeFields } from './interfaces';
+import type { WrDatePickerHarnessFilters, WrDatePickerTimeFields } from './types';
 import { WrDatePickerHarnessBase } from './wr-date-picker-harness-base';
 import type { WrTimePanelHarness } from './wr-time-panel-harness';
 

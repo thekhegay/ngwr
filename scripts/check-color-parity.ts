@@ -58,8 +58,15 @@ const TS_PATH = resolve(ROOT_PATH, 'projects/lib/theme/colors.ts');
  */
 const SCSS_MAP = /^\$base-colors:\s*\(([\s\S]*?)^\)\s*!default;/m;
 
-/** The `WR_COLORS` array body. */
-const TS_ARRAY = /^export const WR_COLORS = \[([\s\S]*?)^\] as const;/m;
+/**
+ * The `WR_COLORS` array body, on one line or many.
+ *
+ * The first version anchored the closing bracket to the start of a line, so it
+ * stopped matching the moment prettier collapsed a short list onto one — and
+ * the check then failed as "declaration moved" rather than reporting on the
+ * palette. Formatting is not the thing being checked.
+ */
+const TS_ARRAY = /export const WR_COLORS = \[([\s\S]*?)\] as const;/;
 
 /** A `key:` at the start of a line inside the map body. */
 const SCSS_KEY = /^\s*([a-z][a-z0-9-]*)\s*:/gm;

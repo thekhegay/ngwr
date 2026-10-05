@@ -14,7 +14,7 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 178 of 188 declarations are mapped: 0 carry no selector and
+ * 177 of 187 declarations are mapped: 0 carry no selector and
  * 10 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
@@ -37,7 +37,6 @@ export const SELECTORS = {
   /** Element selectors, without the angle brackets: `wr-alert`. */
   tags: {
     "wr-accordion": { symbol: "WrAccordion", path: "ngwr/collapse" },
-    "wr-action-sheet": { symbol: "WrActionSheet", path: "ngwr/action-sheet" },
     "wr-alert": { symbol: "WrAlert", path: "ngwr/alert" },
     "wr-anchor": { symbol: "WrAnchor", path: "ngwr/anchor" },
     "wr-aurora": { symbol: "WrAurora", path: "ngwr/aurora" },
@@ -47,6 +46,7 @@ export const SELECTORS = {
     "wr-bar-chart": { symbol: "WrBarChart", path: "ngwr/bar-chart" },
     "wr-blur-text": { symbol: "WrBlurText", path: "ngwr/blur-text" },
     "wr-border-glow": { symbol: "WrBorderGlow", path: "ngwr/border-glow" },
+    "wr-breadcrumbs": { symbol: "WrBreadcrumbs", path: "ngwr/breadcrumbs" },
     "wr-breadcrumbs-item": { symbol: "WrBreadcrumbsItem", path: "ngwr/breadcrumbs" },
     "wr-btn": { symbol: "WrButton", path: "ngwr/button" },
     "wr-btn-group": { symbol: "WrButtonGroup", path: "ngwr/button" },
@@ -141,7 +141,8 @@ export const SELECTORS = {
     "wr-sidebar": { symbol: "WrSidebar", path: "ngwr/sidebar" },
     "wr-skeleton": { symbol: "WrSkeleton", path: "ngwr/skeleton" },
     "wr-slider": { symbol: "WrSlider", path: "ngwr/slider" },
-    "wr-sortable-list": { symbol: "WrSortableList", path: "ngwr/drag-drop" },
+    "wr-sortable-item": { symbol: "WrSortableItem", path: "ngwr/sortable-list" },
+    "wr-sortable-list": { symbol: "WrSortableList", path: "ngwr/sortable-list" },
     "wr-sparkline": { symbol: "WrSparkline", path: "ngwr/sparkline" },
     "wr-speed-dial": { symbol: "WrSpeedDial", path: "ngwr/speed-dial" },
     "wr-spinner": { symbol: "WrSpinner", path: "ngwr/spinner" },
@@ -149,7 +150,6 @@ export const SELECTORS = {
     "wr-split-text": { symbol: "WrSplitText", path: "ngwr/split-text" },
     "wr-splitter": { symbol: "WrSplitter", path: "ngwr/splitter" },
     "wr-spotlight-card": { symbol: "WrSpotlightCard", path: "ngwr/spotlight-card" },
-    "wr-squircle": { symbol: "WrSquircleHost", path: "ngwr/squircle" },
     "wr-star-border": { symbol: "WrStarBorder", path: "ngwr/star-border" },
     "wr-statistic": { symbol: "WrStatistic", path: "ngwr/statistic" },
     "wr-statistic-countdown": { symbol: "WrStatisticCountdown", path: "ngwr/statistic" },
@@ -193,7 +193,7 @@ export const SELECTORS = {
     "wrDialogContent": { symbol: "WrDialogContent", path: "ngwr/dialog" },
     "wrDialogFooter": { symbol: "WrDialogFooter", path: "ngwr/dialog" },
     "wrDialogTitle": { symbol: "WrDialogTitle", path: "ngwr/dialog" },
-    "wrDragHandle": { symbol: "WrDragHandle", path: "ngwr/drag-drop" },
+    "wrDragHandle": { symbol: "WrDragHandle", path: "ngwr/sortable-list" },
     "wrDrawerClose": { symbol: "WrDrawerClose", path: "ngwr/drawer" },
     "wrDrawerContent": { symbol: "WrDrawerContent", path: "ngwr/drawer" },
     "wrDrawerFooter": { symbol: "WrDrawerFooter", path: "ngwr/drawer" },
@@ -211,7 +211,6 @@ export const SELECTORS = {
     "wrPopover": { symbol: "WrPopover", path: "ngwr/popover" },
     "wrShimmer": { symbol: "WrShimmer", path: "ngwr/shiny-text" },
     "wrSpotlight": { symbol: "WrSpotlight", path: "ngwr/spotlight-card" },
-    "wrSquircle": { symbol: "WrSquircle", path: "ngwr/squircle" },
     "wrT": { symbol: "WrTDirective", path: "ngwr/i18n" },
     "wrTableCell": { symbol: "WrTableCell", path: "ngwr/table" },
     "wrTableExpand": { symbol: "WrTableExpand", path: "ngwr/table" },
@@ -231,7 +230,6 @@ export const SELECTORS = {
  * one does not fail quietly — it fails the build.
  */
 export const STYLE_ENTRY_POINTS: readonly string[] = [
-  "ngwr/action-sheet",
   "ngwr/affix",
   "ngwr/alert",
   "ngwr/anchor",
@@ -266,7 +264,6 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/dialog",
   "ngwr/divider",
   "ngwr/donut-chart",
-  "ngwr/drag-drop",
   "ngwr/drawer",
   "ngwr/dropdown",
   "ngwr/editor",
@@ -314,6 +311,7 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/sidebar",
   "ngwr/skeleton",
   "ngwr/slider",
+  "ngwr/sortable-list",
   "ngwr/sparkline",
   "ngwr/speed-dial",
   "ngwr/spinner",
@@ -321,7 +319,6 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/split-text",
   "ngwr/splitter",
   "ngwr/spotlight-card",
-  "ngwr/squircle",
   "ngwr/star-border",
   "ngwr/statistic",
   "ngwr/stepper",
@@ -362,7 +359,6 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
  * `ngwr/pagination`, which is what reaches `ngwr/select` and then `ngwr/icon`.
  */
 export const STYLE_DEPENDENCIES: Readonly<Record<string, readonly string[]>> = {
-  "ngwr/action-sheet": ["ngwr/drawer", "ngwr/icon"],
   "ngwr/alert": ["ngwr/icon"],
   "ngwr/avatar": ["ngwr/spinner"],
   "ngwr/badge": ["ngwr/icon", "ngwr/spinner"],

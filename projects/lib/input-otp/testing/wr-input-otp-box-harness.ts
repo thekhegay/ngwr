@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrInputOtpBoxHarnessFilters } from './interfaces';
+import type { WrInputOtpBoxHarnessFilters } from './types';
 
 /**
  * Test harness for ONE box of a `<wr-input-otp>` — the `<input>` that holds a

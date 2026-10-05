@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrSplashCursorHarnessFilters } from './interfaces';
+import type { WrSplashCursorHarnessFilters } from './types';
 
 /**
  * Test harness for `<wr-splash-cursor>` — a WebGL fluid that splashes dye under the

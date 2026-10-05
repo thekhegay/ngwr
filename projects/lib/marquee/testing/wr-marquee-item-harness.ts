@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrMarqueeItemHarnessFilters } from './interfaces';
+import type { WrMarqueeItemHarnessFilters } from './types';
 
 /**
  * Test harness for one entry of a `<wr-marquee>`.

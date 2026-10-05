@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrGaugeHarnessFilters } from './interfaces';
+import type { WrGaugeHarnessFilters } from './types';
 
 /**
  * Test harness for `<wr-gauge>`.

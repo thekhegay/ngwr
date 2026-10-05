@@ -35,7 +35,7 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
-import type { WrCircularTextHover } from './interfaces';
+import type { WrCircularTextHover } from './types';
 
 interface Char {
   readonly ch: string;
@@ -218,4 +218,4 @@ export class WrCircularText {
   }
 }
 
-export type { WrCircularTextHover } from './interfaces';
+export type { WrCircularTextHover } from './types';

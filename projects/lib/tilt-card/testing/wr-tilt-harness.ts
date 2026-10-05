@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrTiltHarnessFilters, WrTiltRotation } from './interfaces';
+import type { WrTiltHarnessFilters, WrTiltRotation } from './types';
 
 /** The overlay `[glare]` appends — `aria-hidden`, and the only node the directive adds. */
 const GLARE = '.wr-tilt-glare';

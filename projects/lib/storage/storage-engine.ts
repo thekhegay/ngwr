@@ -7,7 +7,7 @@
 
 import { InjectionToken } from '@angular/core';
 
-import type { WrStorageEngine } from './interfaces';
+import type { WrStorageEngine } from './types';
 
 /**
  * Probe a `Storage` candidate to confirm it's writable. Safari private
@@ -73,4 +73,4 @@ export const WR_STORAGE_ENGINE = new InjectionToken<WrStorageEngine>('WR_STORAGE
   },
 });
 
-export type { WrStorageEngine } from './interfaces';
+export type { WrStorageEngine } from './types';

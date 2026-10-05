@@ -95,15 +95,11 @@ bootstrapApplication(AppComponent, {
 // everything derived from it (-soft, -contrast, -rgb).
 @use 'ngwr/theme' with (
   $base-colors: (
-    primary: #6366f1,   // indigo-500
-    secondary: #14b8a6, // teal-500
+    primary: #6366f1, // indigo-500
     success: #22c55e,
     warning: #f59e0b,
     danger: #f43f5e,
     info: #3472d9,
-    light: #cbd5e1,
-    medium: #6a7683,
-    dark: #0f172a,
   )
 );
 @use 'ngwr' as *;
@@ -187,10 +183,10 @@ theme.resolved();          // 'light' | 'dark' — what the DOM has
 // from $theme-attribute — a hand-written [data-theme='dark'] stops matching the
 // moment anyone renames the attribute, silently.
 // There is no --wr-color-bg: in dark, --wr-color-white IS the canvas and
-// --wr-color-dark IS the ink — the two neutrals swap jobs.
+// --wr-color-gray-6 IS the ink — the two neutrals swap jobs.
 @include theme.dark {
   --wr-color-white: #0c0d10;
-  --wr-color-dark: #f5f6f8;
+  --wr-color-gray-6: #f5f6f8;
 }`,
 
     componentDark: `// login.scss — a component stylesheet, not the global one.

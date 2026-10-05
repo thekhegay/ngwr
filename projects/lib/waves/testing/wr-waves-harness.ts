@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrWavesHarnessFilters } from './interfaces';
+import type { WrWavesHarnessFilters } from './types';
 
 /** `--wr-waves-x-gap: 40px` on the host's own `style` attribute — the pitch, as published. */
 const X_GAP = /(?:^|;)\s*--wr-waves-x-gap\s*:\s*([^;]+)/;

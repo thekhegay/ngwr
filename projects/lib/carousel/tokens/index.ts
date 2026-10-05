@@ -1,1 +1,1 @@
-export { WR_CAROUSEL, type WrCarouselContext } from './carousel.token';
+export { WR_CAROUSEL } from './carousel.token';

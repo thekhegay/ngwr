@@ -47,7 +47,7 @@
       <button wr-btn outlined type="button" (click)="reset()">Reset</button>
     </div>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       "Apply" writes the tokens onto <code>&lt;html&gt;</code>, so the preview is the whole site — this page, the
       header, the sidebar, every component below. A builder that previews into an isolated box can be wrong about the
       thing you are actually choosing. Reload to drop it.
@@ -64,7 +64,7 @@
   >
     <ngwr-doc-code [code]="preset()" language="typescript" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Only the intents you moved are in there. A preset restating the defaults would fight the next palette change
       instead of riding it, and <a [routerLink]="['/guides', 'registry']">the format</a> is explicit that an omitted
       intent keeps whatever the stylesheet compiled.

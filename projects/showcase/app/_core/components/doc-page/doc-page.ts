@@ -196,8 +196,8 @@ export class DocPageComponent {
     });
   }
 
-  protected labelColor(label: string): WrColor {
-    return label === 'Experimental' ? 'danger' : 'light';
+  protected labelColor(label: string): WrColor | null {
+    return label === 'Experimental' ? 'danger' : null;
   }
 
   private deriveCategoryFromUrl(): string {

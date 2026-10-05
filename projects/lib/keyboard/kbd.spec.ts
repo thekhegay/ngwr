@@ -3,8 +3,8 @@ import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrKbdSize } from './interfaces';
 import { WrKbd } from './kbd';
+import type { WrKbdSize } from './types';
 
 @Component({
   imports: [WrKbd],

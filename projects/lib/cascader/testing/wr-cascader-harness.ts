@@ -13,11 +13,7 @@ import {
   type TestElement,
 } from '@angular/cdk/testing';
 
-import type {
-  WrCascaderColumnHarnessFilters,
-  WrCascaderHarnessFilters,
-  WrCascaderOptionHarnessFilters,
-} from './interfaces';
+import type { WrCascaderColumnHarnessFilters, WrCascaderHarnessFilters, WrCascaderOptionHarnessFilters } from './types';
 import { WrCascaderColumnHarness } from './wr-cascader-column-harness';
 import type { WrCascaderOptionHarness } from './wr-cascader-option-harness';
 

@@ -31,7 +31,7 @@ import {
 import { useI18nText } from 'ngwr/i18n';
 import { numAttr } from 'ngwr/utils';
 
-import type { WrMarqueeNode, WrMarqueeItem } from './interfaces';
+import type { WrMarqueeNode, WrMarqueeItem } from './types';
 
 const SMOOTH_TAU = 0.25;
 const MIN_COPIES = 2;
@@ -259,4 +259,4 @@ export class WrMarquee {
   }
 }
 
-export type { WrMarqueeImage, WrMarqueeNode, WrMarqueeItem } from './interfaces';
+export type { WrMarqueeImage, WrMarqueeNode, WrMarqueeItem } from './types';

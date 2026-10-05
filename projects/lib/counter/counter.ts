@@ -24,7 +24,7 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 
 import { easeOutCubic } from './easing';
-import type { WrCounterMode } from './interfaces';
+import type { WrCounterMode } from './types';
 
 /** Visual cell in odometer mode — either a 0-9 column or a static glyph. */
 type Cell = { readonly kind: 'digit'; readonly fraction: number } | { readonly kind: 'static'; readonly char: string };

@@ -8,8 +8,8 @@
 import { type Provider, isDevMode } from '@angular/core';
 
 import { WrIconRegistry } from '../icon-registry';
-import type { WrIconDef } from '../interfaces';
 import { WR_ICONS } from '../tokens';
+import type { WrIconDef } from '../types';
 import { validateIcon } from '../utils';
 
 /**

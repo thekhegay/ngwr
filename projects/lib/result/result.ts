@@ -7,7 +7,7 @@
 
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-import type { WrResultStatus } from './interfaces';
+import type { WrResultStatus } from './types';
 
 /**
  * Large-illustration result / empty-state. Use after a successful action,
@@ -40,4 +40,4 @@ export class WrResult {
   protected readonly classes = computed(() => `wr-result wr-result--${this.status()}`);
 }
 
-export type { WrResultStatus } from './interfaces';
+export type { WrResultStatus } from './types';

@@ -9,7 +9,7 @@ import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 import type { WrToastType } from 'ngwr/toast';
 
-import type { WrToastHarnessFilters } from './interfaces';
+import type { WrToastHarnessFilters } from './types';
 
 const TYPES: readonly WrToastType[] = ['info', 'success', 'warning', 'danger'];
 

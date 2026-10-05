@@ -66,7 +66,7 @@ interface Declaration {
   readonly offset: number;
 }
 
-type ScanState = 'code' | 'line-comment' | 'block-comment' | 'single' | 'double' | 'template';
+type ScanState = 'code' | 'line-comment' | 'block-comment' | 'single' | 'double' | 'template' | 'regex';
 
 const DECORATOR_RE = /@(?:Component|Directive)\s*\(/g;
 
@@ -92,6 +92,34 @@ function isWordChar(ch: string | undefined): boolean {
   return ch !== undefined && /[\w$]/.test(ch);
 }
 
+/** Word tokens a `/` may follow and still open a regex literal. */
+const REGEX_AFTER = new Set(['return', 'typeof', 'instanceof', 'in', 'of', 'case', 'delete', 'void', 'new', 'do', 'else', 'yield', 'await']);
+
+/**
+ * Whether the `/` at `i` opens a regex literal rather than dividing.
+ *
+ * Decided by the token before it, the way a JS lexer does: a value cannot be
+ * followed by a regex, so an identifier, a number or a closing bracket means
+ * division, and everything else means a literal. The keyword set is the
+ * exception both ways round — `return /x/` is a literal and `a in /x/` is too.
+ *
+ * Not cosmetic. Without this state `/[\\"]/g` in `cssString()` reads as a
+ * string opening, which desyncs the scanner for the rest of the file: the
+ * `@Component` under it was counted as a mention, so `wr-breadcrumbs` was
+ * missing from the map while every gate stayed green.
+ */
+function startsRegex(source: string, i: number): boolean {
+  let j = i - 1;
+  while (j >= 0 && /\s/.test(source[j])) j--;
+  if (j < 0) return true;
+  const prev = source[j];
+  if (prev === ')' || prev === ']' || prev === '}') return false;
+  if (!isWordChar(prev)) return true;
+  let k = j;
+  while (k >= 0 && isWordChar(source[k])) k--;
+  return REGEX_AFTER.has(source.slice(k + 1, j + 1));
+}
+
 /**
  * Walk the decorator body from its opening `{` to the matching `}`, returning
  * the top-level `selector` literal (or `null`) and where the body ends.
@@ -104,6 +132,7 @@ function isWordChar(ch: string | undefined): boolean {
  */
 function readDecoratorBody(source: string, open: number, where: string): { selector: string | null; end: number } {
   let state: ScanState = 'code';
+  let inClass = false;
   let depth = 0;
   let selector: string | null = null;
   let awaiting = false;
@@ -125,6 +154,14 @@ function readDecoratorBody(source: string, open: number, where: string): { selec
           state = 'code';
           i++;
         }
+        break;
+
+      case 'regex':
+        // A `/` inside a character class does not close the literal.
+        if (ch === '\\') i++;
+        else if (ch === '[') inClass = true;
+        else if (ch === ']') inClass = false;
+        else if (ch === '/' && !inClass) state = 'code';
         break;
 
       case 'single':
@@ -178,6 +215,11 @@ function readDecoratorBody(source: string, open: number, where: string): { selec
         if (ch === '/' && next === '*') {
           state = 'block-comment';
           i++;
+          break;
+        }
+        if (ch === '/' && startsRegex(source, i)) {
+          state = 'regex';
+          inClass = false;
           break;
         }
         if (ch === "'" || ch === '"' || ch === '`') {
@@ -262,6 +304,7 @@ function declarationsIn(file: string): { declarations: Declaration[]; mentions: 
  */
 function inCode(source: string, offset: number): boolean {
   let state: ScanState = 'code';
+  let inClass = false;
   const substitutions: boolean[] = [];
 
   for (let i = 0; i < offset; i++) {
@@ -278,6 +321,14 @@ function inCode(source: string, offset: number): boolean {
           i++;
         }
         break;
+      case 'regex':
+        // A `/` inside a character class does not close the literal.
+        if (ch === '\\') i++;
+        else if (ch === '[') inClass = true;
+        else if (ch === ']') inClass = false;
+        else if (ch === '/' && !inClass) state = 'code';
+        break;
+
       case 'single':
       case 'double':
         if (ch === '\\') i++;
@@ -298,6 +349,9 @@ function inCode(source: string, offset: number): boolean {
         } else if (ch === '/' && next === '*') {
           state = 'block-comment';
           i++;
+        } else if (ch === '/' && startsRegex(source, i)) {
+          state = 'regex';
+          inClass = false;
         } else if (ch === "'") state = 'single';
         else if (ch === '"') state = 'double';
         else if (ch === '`') state = 'template';

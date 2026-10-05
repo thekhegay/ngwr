@@ -6,8 +6,8 @@ import { WrDialog } from 'ngwr/dialog';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrMentionCommit, WrMentionItem } from './interfaces';
 import { WrMention } from './mention';
+import type { WrMentionCommit, WrMentionItem } from './types';
 
 const PEOPLE: readonly WrMentionItem[] = [
   { id: 'ada', label: 'Ada Lovelace' },

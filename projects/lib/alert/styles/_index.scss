@@ -138,7 +138,7 @@ $alert-colors: (
   // from `danger` — the two paints sit on tints 1.036:1 apart, which is a hue
   // difference and little else (measured in the template's comment).
   &--neutral {
-    --wr-alert-bg: var(--wr-color-medium-soft);
+    --wr-alert-bg: var(--wr-color-fill);
     --wr-alert-title: var(--wr-color-on-surface);
     --wr-alert-message: var(--wr-color-on-surface-muted);
     --wr-alert-close: var(--wr-color-on-surface-muted);

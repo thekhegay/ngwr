@@ -6,8 +6,8 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrMeterSegment } from './interfaces';
 import { WrMeterGroup } from './meter-group';
+import type { WrMeterSegment } from './types';
 
 const SEGMENTS: readonly WrMeterSegment[] = [
   { label: 'Used', value: 60 },

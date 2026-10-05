@@ -33,7 +33,7 @@ export const COMPONENT_GROUPS: readonly SidebarGroup[] = [
   {
     title: 'Data',
     children: [
-      { title: 'Drag & Drop', url: ['/reference/components', 'drag-drop'] },
+      { title: 'Sortable List', url: ['/reference/components', 'sortable-list'] },
       { title: 'Event Calendar', url: ['/reference/components', 'event-calendar'] },
       { title: 'Graph', url: ['/reference/components', 'graph'] },
       { title: 'Pagination', url: ['/reference/components', 'pagination'] },
@@ -130,7 +130,6 @@ export const COMPONENT_GROUPS: readonly SidebarGroup[] = [
   {
     title: 'Overlays',
     children: [
-      { title: 'Action Sheet', url: ['/reference/components', 'action-sheet'] },
       { title: 'Command Palette', url: ['/reference/components', 'command-palette'] },
       { title: 'Context Menu', url: ['/reference/components', 'context-menu'] },
       { title: 'Dialog', url: ['/reference/components', 'dialog'] },
@@ -141,5 +140,4 @@ export const COMPONENT_GROUPS: readonly SidebarGroup[] = [
       { title: 'Window', url: ['/reference/components', 'window'] },
     ],
   },
-  { title: 'Squircle', url: ['/reference/components', 'squircle'] },
 ];

@@ -7,7 +7,7 @@
 
 import { Component, ViewEncapsulation, input, output } from '@angular/core';
 
-import type { WrMentionItem } from './interfaces';
+import type { WrMentionItem } from './types';
 
 /**
  * The id of the option at `index`, given the listbox's own id.

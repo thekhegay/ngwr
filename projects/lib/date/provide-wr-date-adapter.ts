@@ -7,8 +7,8 @@
 
 import { type EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
 
-import type { WrDateAdapterOptions } from './interfaces';
 import { WR_DATE_LOCALE } from './tokens';
+import type { WrDateAdapterOptions } from './types';
 import { WrDateAdapter } from './wr-date-adapter';
 import { WrNativeDateAdapter } from './wr-native-date-adapter';
 
@@ -43,4 +43,4 @@ export function provideWrDateAdapter(options: WrDateAdapterOptions = {}): Enviro
   return makeEnvironmentProviders(providers);
 }
 
-export type { WrDateAdapterOptions } from './interfaces';
+export type { WrDateAdapterOptions } from './types';

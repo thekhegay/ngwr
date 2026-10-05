@@ -188,12 +188,12 @@
   // Tones
   // color-ok: a text ROLE, not a state — body copy. Like every tone it is
   // emphasis only, and the words carry whatever state there is.
-  &--tone-dark {
+  &--tone-base {
     color: var(--wr-color-on-surface);
   }
   // color-ok: a text ROLE, not a state — muted prose rather than body copy.
   // Like every tone it is emphasis only.
-  &--tone-medium {
+  &--tone-muted {
     color: var(--wr-color-on-surface-muted);
   }
   // color-ok: emphasis only, never the sole carrier of a state — the words

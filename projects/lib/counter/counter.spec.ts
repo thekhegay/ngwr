@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrCountUp } from './count-up';
 import { WrCounter } from './counter';
-import type { WrCounterMode, WrCountUpTrigger } from './interfaces';
+import type { WrCounterMode, WrCountUpTrigger } from './types';
 
 @Component({
   imports: [WrCounter],

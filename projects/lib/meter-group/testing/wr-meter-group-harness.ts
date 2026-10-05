@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrMeterGroupHarnessFilters, WrMeterGroupSlice } from './interfaces';
+import type { WrMeterGroupHarnessFilters, WrMeterGroupSlice } from './types';
 
 /** The `width: <n>%` the component writes onto a band, out of its inline `style`. */
 const SLICE_WIDTH = /(?:^|;)\s*width\s*:\s*([\d.]+)%/;

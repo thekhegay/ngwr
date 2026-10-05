@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrRatingItemHarnessFilters } from './interfaces';
+import type { WrRatingItemHarnessFilters } from './types';
 
 /** The star's own box, once it is known to have one. */
 interface WrRatingItemBox {

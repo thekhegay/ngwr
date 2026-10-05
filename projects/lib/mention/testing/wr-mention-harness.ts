@@ -13,7 +13,7 @@ import {
   type TestElement,
 } from '@angular/cdk/testing';
 
-import type { WrMentionHarnessFilters, WrMentionOptionHarnessFilters } from './interfaces';
+import type { WrMentionHarnessFilters, WrMentionOptionHarnessFilters } from './types';
 import { WrMentionOptionHarness } from './wr-mention-option-harness';
 
 /** How long {@link WrMentionHarness.blur} waits for the deferred close, in ms. Generous next to the 120ms grace period. */

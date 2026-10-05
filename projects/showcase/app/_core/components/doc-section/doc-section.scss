@@ -24,8 +24,8 @@
     overflow-wrap: anywhere;
     padding: 0.125rem 0.3125rem;
     border-radius: var(--wr-border-radius-sm);
-    background: rgba(var(--wr-color-light-rgb), 0.35);
-    color: var(--wr-color-dark);
+    background: rgba(var(--wr-color-outline-rgb), 0.35);
+    color: var(--wr-color-on-surface);
     line-height: 1.25;
     font-family: var(--wr-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
     font-size: 0.75rem;

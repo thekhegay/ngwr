@@ -9,8 +9,8 @@ import { Subject } from 'rxjs';
 import { WrFormField } from 'ngwr/form';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrSegmentedOption } from './interfaces';
 import { WrSegmented } from './segmented';
+import type { WrSegmentedOption } from './types';
 
 @Component({
   imports: [WrSegmented],

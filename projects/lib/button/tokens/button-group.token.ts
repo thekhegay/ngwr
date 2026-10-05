@@ -5,19 +5,9 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { InjectionToken, type Signal } from '@angular/core';
+import { InjectionToken } from '@angular/core';
 
-import type { WrButtonShape } from '../interfaces';
-
-/**
- * Contract a child `<wr-btn>` reads from its enclosing `<wr-btn-group>`.
- *
- * @internal
- */
-export interface WrButtonGroupContext {
-  /** Shape cascade — child buttons fall back to this when they don't set their own. */
-  readonly shape: Signal<WrButtonShape | null>;
-}
+import type { WrButtonGroupContext } from '../types';
 
 /**
  * Token a `<wr-btn>` injects to discover its parent `<wr-btn-group>`. The

@@ -18,4 +18,4 @@ export type {
   WrTableSortState,
   WrTableSortDirection,
   WrTableSummary,
-} from './interfaces';
+} from './types';

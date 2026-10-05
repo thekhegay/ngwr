@@ -13,7 +13,7 @@ import {
   type TestElement,
 } from '@angular/cdk/testing';
 
-import type { WrContextMenuHarnessFilters, WrContextMenuItemHarnessFilters } from './interfaces';
+import type { WrContextMenuHarnessFilters, WrContextMenuItemHarnessFilters } from './types';
 import { DEFAULT_TIMEOUT, POLL_STEP, sleep } from './wait';
 import { WrContextMenuItemHarness } from './wr-context-menu-item-harness';
 

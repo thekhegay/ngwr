@@ -186,7 +186,7 @@ export class SignupCard {
       description:
         'Color, radius, spacing, and duration come from `--wr-*` custom properties — and a token nothing paints with has to justify itself to the lint run. Re-skin one component or all of them.',
       accent: 'secondary',
-      spotlight: 'rgba(var(--wr-color-medium-rgb, 113, 128, 150), 0.14)',
+      spotlight: 'rgba(var(--wr-color-on-surface-muted-rgb, 113, 128, 150), 0.14)',
     },
     {
       icon: 'folder',

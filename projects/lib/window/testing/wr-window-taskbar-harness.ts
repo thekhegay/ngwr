@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
-import type { WrWindowTaskbarHarnessFilters } from './interfaces';
+import type { WrWindowTaskbarHarnessFilters } from './types';
 
 /**
  * Test harness for `<wr-window-taskbar>` — the rail of minimized windows.

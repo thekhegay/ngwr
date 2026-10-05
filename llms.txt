@@ -230,7 +230,7 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-back-top`, `[wrAffix]`, `wr-dropdown-menu` (with its `[wrDropdown]`
   trigger — both in ngwr/dropdown).
 - **Overlays** — `wr-drawer` (or `WrDrawerManager.open()` to open a component as
-  a drawer from code), `wr-action-sheet`, `[wrPopover]` (directive; has a
+  a drawer from code), `[wrPopover]` (directive; has a
   `tooltip` mode), `wr-command-palette`, `wr-context-menu`, `wr-popconfirm`.
   (Dialog and toast are service-opened — inject `WrDialog` / `WrToast`.
   Content inside a service-opened dialog or drawer can `inject(WrDialogRef)` /
@@ -308,7 +308,7 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   (`button`, `input`, `textarea`, `checkbox`, `switch`, `radio`, `select`,
   `input-number`, `input-otp`, `slider`, `rating`, `file-upload`, `color-picker`,
   `knob`, `segmented`, `editor`, and `form` for `<wr-form-field>`), the overlays
-  (`date-picker`, `dropdown`, `popover`, `dialog`, `drawer`, `action-sheet`,
+  (`date-picker`, `dropdown`, `popover`, `dialog`, `drawer`,
   `toast`, `context-menu`, `popconfirm`, `command-palette`, `cascader`,
   `mention`), the data views (`table`, `tree`, `graph`), the navigation and
   disclosure set (`tabs`, `stepper`, `carousel`, `pagination`, `collapse`,
@@ -375,7 +375,7 @@ TSDoc means not API and survives into the published types, so
 `grep -rn "@internal" node_modules/ngwr/types` answers it. A few helpers are
 exported, unmarked and undocumented — `wrAppendOverlayClose`, `wrMirrorOffsets`,
 `wrPresentAsSheet`, `wrFollowDirection`, `WrOutsideClick`, `useConfigValue`,
-`useFormFieldAria`, `squirclePath`, `wrContrastFor`, `wrIntentTokens`,
+`useFormFieldAria`, `wrContrastFor`, `wrIntentTokens`,
 `isSafeCssValue`, and a handful of `WR_*` context tokens such as `WR_STEPPER` —
 and carry no stability statement; do not build on them.
 

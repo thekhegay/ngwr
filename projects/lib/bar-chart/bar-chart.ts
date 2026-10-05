@@ -10,7 +10,7 @@ import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChi
 
 import { useChartTooltip } from 'ngwr/popover';
 
-import type { WrBarChartDatum } from './interfaces';
+import type { WrBarChartDatum } from './types';
 
 /**
  * Minimal vertical bar chart. Pass `[data]` — each datum becomes a bar.
@@ -114,4 +114,4 @@ export class WrBarChart {
   });
 }
 
-export type { WrBarChartDatum } from './interfaces';
+export type { WrBarChartDatum } from './types';

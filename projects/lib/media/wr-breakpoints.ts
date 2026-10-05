@@ -7,7 +7,7 @@
 
 import { InjectionToken } from '@angular/core';
 
-import type { WrBreakpointMap } from './interfaces';
+import type { WrBreakpointMap } from './types';
 
 /** Defaults mirror `projects/lib/styles/_breakpoints.scss`. */
 export const DEFAULT_WR_BREAKPOINTS: WrBreakpointMap = Object.freeze({
@@ -27,4 +27,4 @@ export const WR_BREAKPOINTS = new InjectionToken<WrBreakpointMap>('WR_BREAKPOINT
   factory: () => DEFAULT_WR_BREAKPOINTS,
 });
 
-export type { WrBreakpoint, WrBreakpointMap } from './interfaces';
+export type { WrBreakpoint, WrBreakpointMap } from './types';

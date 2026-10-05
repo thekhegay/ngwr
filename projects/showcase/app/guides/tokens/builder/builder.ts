@@ -11,7 +11,7 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSeeAlsoComp
 import type { DocSeeAlsoLink } from '#core/components';
 
 /** The intents the builder offers. `light` and `dark` are surface tones, not brand colours. */
-const SEEDABLE = WR_COLORS.filter(c => c !== 'light' && c !== 'dark');
+const SEEDABLE = WR_COLORS;
 
 /** Where each slider starts — the shipped light palette. */
 const DEFAULTS: Readonly<Record<string, string>> = {

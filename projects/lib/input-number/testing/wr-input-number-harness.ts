@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, TestKey, type TestElement } from '@angular/cdk/testing';
 
-import type { WrInputNumberHarnessFilters } from './interfaces';
+import type { WrInputNumberHarnessFilters } from './types';
 
 /** The decimal + grouping characters `Intl` formats `locale` with. */
 function separatorsFor(locale?: string): { decimal: string; group: string } {

@@ -266,9 +266,6 @@ export const wrCs: WrI18nCatalog = {
     roledescription: 'karusel',
     slideRoledescription: 'snímek',
   },
-  actionSheet: {
-    label: 'Akce',
-  },
   alert: {
     close: 'Zavřít upozornění',
   },

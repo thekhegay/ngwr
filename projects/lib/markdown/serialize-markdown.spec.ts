@@ -7,9 +7,9 @@
 
 import { describe, expect, it } from 'vitest';
 
-import type { WrMarkdownAlign, WrMarkdownBlock, WrMarkdownInline, WrMarkdownListItem } from './interfaces';
 import { parseMarkdown } from './parse-markdown';
 import { serializeMarkdown } from './serialize-markdown';
+import type { WrMarkdownAlign, WrMarkdownBlock, WrMarkdownInline, WrMarkdownListItem } from './types';
 
 /**
  * The serializer's spec, and the one property it exists for:

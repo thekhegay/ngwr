@@ -13,7 +13,7 @@ import {
   type TestElement,
 } from '@angular/cdk/testing';
 
-import type { WrTabHarnessFilters, WrTabsHarnessFilters, WrTabsHarnessSize } from './interfaces';
+import type { WrTabHarnessFilters, WrTabsHarnessFilters, WrTabsHarnessSize } from './types';
 import { WrTabHarness } from './wr-tab-harness';
 
 /**

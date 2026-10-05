@@ -34,7 +34,7 @@ export class MyComponent {}`;
     { label: 'System', value: 32 },
     { label: 'Apps', value: 88 },
     { label: 'Documents', value: 24 },
-    { label: 'Free', value: 112, color: 'var(--wr-color-light)' },
+    { label: 'Free', value: 112, color: 'var(--wr-color-on-surface-muted)' },
   ];
 
   protected readonly snippet = `<wr-meter-group

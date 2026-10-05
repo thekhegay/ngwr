@@ -5,7 +5,7 @@ import { WrPlatform } from 'ngwr/platform';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrFallingText } from './falling-text';
-import type { WrFallingTextTrigger } from './interfaces';
+import type { WrFallingTextTrigger } from './types';
 
 @Component({
   imports: [WrFallingText],

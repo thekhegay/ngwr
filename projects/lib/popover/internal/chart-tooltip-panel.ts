@@ -7,7 +7,7 @@
 
 import { Component, ViewEncapsulation, input } from '@angular/core';
 
-import type { WrChartTooltipDatum } from '../interfaces';
+import type { WrChartTooltipDatum } from '../types';
 
 /**
  * The chip a chart's hover tooltip renders into. Not part of the template API —

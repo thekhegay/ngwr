@@ -5,8 +5,8 @@ import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrLineSeries } from './interfaces';
 import { WrLineChart } from './line-chart';
+import type { WrLineSeries } from './types';
 
 const SERIES: readonly WrLineSeries[] = [
   { label: 'Visits', data: [10, 20, 30] },

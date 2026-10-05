@@ -9,7 +9,7 @@ import { ComponentHarness, HarnessPredicate, TestKey } from '@angular/cdk/testin
 
 import type { WrRatingSize } from 'ngwr/rating';
 
-import type { WrRatingHarnessFilters, WrRatingItemHarnessFilters } from './interfaces';
+import type { WrRatingHarnessFilters, WrRatingItemHarnessFilters } from './types';
 import { WrRatingItemHarness } from './wr-rating-item-harness';
 
 /**

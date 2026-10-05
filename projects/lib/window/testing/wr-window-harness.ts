@@ -9,7 +9,7 @@ import { ContentContainerComponentHarness, HarnessPredicate, TestKey, type TestE
 
 import type { WrWindowChromeSize, WrWindowState } from 'ngwr/window';
 
-import type { WrWindowBox, WrWindowHarnessFilters } from './interfaces';
+import type { WrWindowBox, WrWindowHarnessFilters } from './types';
 
 const STATES: readonly WrWindowState[] = ['normal', 'minimized', 'maximized'];
 

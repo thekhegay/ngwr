@@ -11,9 +11,9 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { noop } from 'ngwr/utils';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrTableSortDirection, WrTableColumns } from './interfaces';
 import { WrTable } from './table';
 import { WrTableSort } from './table-sort';
+import type { WrTableSortDirection, WrTableColumns } from './types';
 
 @Component({
   imports: [WrTable],

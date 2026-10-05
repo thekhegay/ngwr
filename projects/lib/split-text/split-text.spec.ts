@@ -4,8 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { WrPlatform } from 'ngwr/platform';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { WrSplitTextUnit } from './interfaces';
 import { WrSplitText } from './split-text';
+import type { WrSplitTextUnit } from './types';
 
 @Component({
   imports: [WrSplitText],

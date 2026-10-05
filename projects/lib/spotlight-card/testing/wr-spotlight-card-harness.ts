@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrSpotlightCardHarnessFilters } from './interfaces';
+import type { WrSpotlightCardHarnessFilters } from './types';
 import { wrSpotlightInlineVars } from './wr-spotlight-harness-vars';
 
 /** `120px` — the card writes its pointer coordinates as a pixel length, always. */

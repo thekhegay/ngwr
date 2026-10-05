@@ -11,7 +11,7 @@ import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChi
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 
-import type { WrDonutSegment } from './interfaces';
+import type { WrDonutSegment } from './types';
 
 /**
  * A segment's contribution to the ring. `Math.max(0, NaN)` is NaN, and the running total
@@ -22,13 +22,22 @@ function weight(value: number): number {
   return Number.isFinite(value) ? Math.max(0, value) : 0;
 }
 
+/**
+ * Default series colours, in order.
+ *
+ * Four intents and the neutral role, and `info` is deliberately absent: it is the
+ * same blue as `primary` to every reader (1.061:1 apart in light, 1.004:1 in
+ * dark, and the same hue), so two adjacent series would be one series with a
+ * seam. The neutral closes the list because it is the one tone here that no
+ * intent is near — it used to be the `medium` intent, which v15 removed, and the
+ * role resolves to the same step of the gray ramp.
+ */
 const FALLBACK_COLORS = [
   'var(--wr-color-primary)',
-  'var(--wr-color-secondary)',
   'var(--wr-color-success)',
   'var(--wr-color-warning)',
   'var(--wr-color-danger)',
-  'var(--wr-color-medium)',
+  'var(--wr-color-on-surface-muted)',
 ];
 
 /**
@@ -200,4 +209,4 @@ export class WrDonutChart {
   }
 }
 
-export type { WrDonutSegment } from './interfaces';
+export type { WrDonutSegment } from './types';

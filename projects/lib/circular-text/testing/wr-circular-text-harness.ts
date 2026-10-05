@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
-import type { WrCircularTextHarnessFilters } from './interfaces';
+import type { WrCircularTextHarnessFilters } from './types';
 
 /** One grapheme of the ring, placed by an inline transform the component writes itself. */
 const CHAR = '.wr-circular-text__char';

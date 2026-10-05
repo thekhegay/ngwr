@@ -3,9 +3,9 @@ import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrTimelineColor } from './interfaces';
 import { WrTimeline } from './timeline';
 import { WrTimelineItem } from './timeline-item';
+import type { WrTimelineColor } from './types';
 
 @Component({
   imports: [WrTimeline, WrTimelineItem],

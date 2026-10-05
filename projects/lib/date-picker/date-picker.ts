@@ -37,7 +37,6 @@ import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { toClassList, type WrClassInput } from 'ngwr/utils';
 
-import type { WrDateInputError } from './interfaces';
 import { WrDateTimePanel } from './internal/date-time-panel';
 import {
   WR_DATE_INPUT_FIELD_VIEW_PROVIDER,
@@ -46,6 +45,7 @@ import {
   useFormParseErrors,
 } from './internal/input-refusal';
 import { WrTimePanel } from './internal/time-panel';
+import type { WrDateInputError } from './types';
 
 let panelUid = 0;
 

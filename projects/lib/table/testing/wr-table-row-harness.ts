@@ -7,7 +7,7 @@
 
 import { ContentContainerComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrTableCellHarnessFilters, WrTableRowHarnessFilters } from './interfaces';
+import type { WrTableCellHarnessFilters, WrTableRowHarnessFilters } from './types';
 import { WrTableCellHarness } from './wr-table-cell-harness';
 
 /**

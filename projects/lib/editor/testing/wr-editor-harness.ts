@@ -18,7 +18,7 @@ import { WrButtonHarness } from 'ngwr/button/testing';
 import { WrInputHarness } from 'ngwr/input/testing';
 import { WrPopoverHarness } from 'ngwr/popover/testing';
 
-import type { WrEditorHarnessFilters } from './interfaces';
+import type { WrEditorHarnessFilters } from './types';
 
 /** The text surface ProseMirror mounts on. Not rendered at all while the editor is read-only. */
 const SURFACE = '.wr-editor__surface';

@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrShinyTextHarnessFilters, WrShinyTextSweepDirection } from './interfaces';
+import type { WrShinyTextHarnessFilters, WrShinyTextSweepDirection } from './types';
 
 const GRADIENT = /^linear-gradient\((.*)\)$/s;
 const DEGREES = /^(-?[\d.]+)deg$/;

@@ -11,8 +11,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WrDialog } from './dialog';
 import { WrDialogRef } from './dialog-ref';
 import { WrDialogClose, WrDialogContent, WrDialogFooter, WrDialogTitle } from './directives';
-import type { WrDialogOptions } from './interfaces';
 import { WR_DIALOG_DATA } from './tokens';
+import type { WrDialogOptions } from './types';
 
 /**
  * `WrDialog` is a service, so there is no element to render in a host template:

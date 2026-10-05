@@ -124,13 +124,13 @@ export default class BreadcrumbsPage {
       name: 'CSS — --wr-breadcrumbs-current-color',
       description: 'Current-page (last) item colour.',
       type: 'color',
-      default: 'var(--wr-color-dark)',
+      default: 'var(--wr-color-on-surface)',
     },
     {
       name: 'CSS — --wr-breadcrumbs-separator-color',
       description: 'Separator glyph colour.',
       type: 'color',
-      default: 'rgba(var(--wr-color-dark-rgb), 0.3)',
+      default: 'rgba(var(--wr-color-on-surface-rgb), 0.3)',
     },
   ];
 }

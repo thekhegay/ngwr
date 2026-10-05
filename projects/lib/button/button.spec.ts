@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrButton } from './button';
 import { WrButtonGroup } from './button-group';
-import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './interfaces';
+import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types';
 
 @Component({
   imports: [WrButton],

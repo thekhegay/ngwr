@@ -7,7 +7,7 @@
 
 import { ContentContainerComponentHarness, HarnessPredicate, TestKey } from '@angular/cdk/testing';
 
-import type { WrDialogHarnessFilters } from './interfaces';
+import type { WrDialogHarnessFilters } from './types';
 
 /**
  * Test harness for a dialog opened with `WrDialog.open()`.

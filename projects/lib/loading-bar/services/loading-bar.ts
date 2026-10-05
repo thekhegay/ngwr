@@ -8,7 +8,7 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Service, PLATFORM_ID, type Signal, computed, inject, signal } from '@angular/core';
 
-import type { WrLoadingState } from '../interfaces';
+import type { WrLoadingState } from '../types';
 
 /**
  * Singleton state machine for a top-of-page progress indicator: a counter of
@@ -141,4 +141,4 @@ export class WrLoadingBar {
   }
 }
 
-export type { WrLoadingState } from '../interfaces';
+export type { WrLoadingState } from '../types';

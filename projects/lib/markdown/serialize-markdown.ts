@@ -5,13 +5,6 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type {
-  WrMarkdownAlign,
-  WrMarkdownBlock,
-  WrMarkdownCell,
-  WrMarkdownInline,
-  WrMarkdownListItem,
-} from './interfaces';
 import {
   AUTOLINK_RE,
   EMAIL_AUTOLINK_RE,
@@ -28,6 +21,7 @@ import {
   safeMarkdownUrl,
   startsBlock,
 } from './parse-markdown';
+import type { WrMarkdownAlign, WrMarkdownBlock, WrMarkdownCell, WrMarkdownInline, WrMarkdownListItem } from './types';
 
 /**
  * A block tree back to markdown — the inverse of {@link parseMarkdown}.

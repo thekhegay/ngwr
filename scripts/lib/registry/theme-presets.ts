@@ -21,15 +21,26 @@
  * to the shipped dark theme.
  */
 
+import type { WrColor } from '../../../projects/lib/theme/colors';
 import { wrThemeTokens } from '../../../projects/lib/theme/palette';
 
 interface ThemePreset {
   readonly name: string;
   readonly title: string;
   readonly description: string;
-  /** Seeds per theme. Intents left out keep the compiled values. */
-  readonly light: Record<string, string>;
-  readonly dark: Record<string, string>;
+  /**
+   * Seeds per theme. Intents left out keep the compiled values.
+   *
+   * Keyed by `WrColor` and not by `string`, because `wrThemeTokens()` iterates
+   * the palette rather than the seed map: a key that is not an intent is
+   * DROPPED, and a `Record<string, string>` is assignable to the parameter, so
+   * nothing said a word. v15 removed `secondary` and `theme-ember` went on
+   * seeding it — the preset shipped with half the tokens it advertised and a
+   * description naming a colour it no longer contained, through `gen`, through
+   * `check:registry`, and through the build.
+   */
+  readonly light: Partial<Record<WrColor, string>>;
+  readonly dark: Partial<Record<WrColor, string>>;
 }
 
 const PRESETS: readonly ThemePreset[] = [
@@ -43,9 +54,14 @@ const PRESETS: readonly ThemePreset[] = [
   {
     name: 'theme-ember',
     title: 'Ember',
-    description: 'Warm and high-contrast: a burnt-orange primary with a red-leaning secondary.',
-    light: { primary: '#b4441a', secondary: '#c02a4a' },
-    dark: { primary: '#ef8a5c', secondary: '#e2607e' },
+    description: 'Warm and high-contrast: a burnt-orange primary with a crimson danger that sits beside it.',
+    // The crimson used to seed `secondary`, the second brand colour v15 removed.
+    // It moved to `danger` rather than being dropped: it is a red, the theme is
+    // built around the pair, and `danger` is the one intent a warm palette has
+    // to re-tune anyway — a default scarlet beside a burnt orange reads as two
+    // unrelated reds.
+    light: { primary: '#b4441a', danger: '#c02a4a' },
+    dark: { primary: '#ef8a5c', danger: '#e2607e' },
   },
   {
     name: 'theme-forest',

@@ -1,1 +1,1 @@
-export { WR_RADIO_GROUP, type WrRadioGroupContext } from './radio-group.token';
+export { WR_RADIO_GROUP } from './radio-group.token';

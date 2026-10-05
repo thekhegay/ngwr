@@ -5,8 +5,8 @@ import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrSpinnerSize } from './interfaces';
 import { WrSpinner } from './spinner';
+import type { WrSpinnerSize } from './types';
 
 @Component({
   imports: [WrSpinner],

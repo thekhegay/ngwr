@@ -266,9 +266,6 @@ export const wrSv: WrI18nCatalog = {
     roledescription: 'karusell',
     slideRoledescription: 'bild',
   },
-  actionSheet: {
-    label: 'Åtgärder',
-  },
   alert: {
     close: 'Stäng meddelandet',
   },

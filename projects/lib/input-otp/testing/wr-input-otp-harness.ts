@@ -9,7 +9,7 @@ import { ComponentHarness, HarnessPredicate, TestKey, type TestElement } from '@
 
 import type { WrInputOtpSize } from 'ngwr/input-otp';
 
-import type { WrInputOtpBoxHarnessFilters, WrInputOtpHarnessFilters } from './interfaces';
+import type { WrInputOtpBoxHarnessFilters, WrInputOtpHarnessFilters } from './types';
 import { WrInputOtpBoxHarness } from './wr-input-otp-box-harness';
 
 /** Which box a keyboard move aims at, and the key that gets it there. */

@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrCheckboxHarnessFilters } from './interfaces';
+import type { WrCheckboxHarnessFilters } from './types';
 
 /**
  * Test harness for `<wr-checkbox>`.

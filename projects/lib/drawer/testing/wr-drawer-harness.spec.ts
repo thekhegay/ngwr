@@ -39,7 +39,6 @@ const stubLayout = (): void => {
       [(open)]="open"
       [position]="position()"
       [rounded]="rounded()"
-      [showHandle]="showHandle()"
       [safeArea]="safeArea()"
       [closable]="closable()"
       [closeLabel]="closeLabel()"
@@ -63,7 +62,6 @@ class Host {
   readonly showTitle = signal(true);
   readonly position = signal<WrDrawerPosition>('right');
   readonly rounded = signal(false);
-  readonly showHandle = signal(false);
   readonly safeArea = signal(false);
   readonly closable = signal(true);
   readonly closeLabel = signal<string | null>(null);
@@ -90,7 +88,7 @@ class ServiceHost {
 @Component({
   imports: [WrDrawer, WrDrawerContent, WrDrawerTitle],
   template: `
-    <wr-drawer [(open)]="open" position="left" rounded showHandle>
+    <wr-drawer [(open)]="open" position="left" rounded>
       <h2 wrDrawerTitle>Filters</h2>
       <div wrDrawerContent>Two of nine selected.</div>
     </wr-drawer>
@@ -185,28 +183,21 @@ describe('WrDrawerHarness — <wr-drawer>', () => {
   it('reads the bottom-sheet trimmings off the panel', async () => {
     fixture.componentInstance.position.set('bottom');
     fixture.componentInstance.rounded.set(true);
-    fixture.componentInstance.showHandle.set(true);
     fixture.componentInstance.safeArea.set(true);
 
     const sheet = await open();
 
     expect(await sheet.isSheet()).toBe(true);
     expect(await sheet.isRounded()).toBe(true);
-    expect(await sheet.hasHandle()).toBe(true);
     expect(await sheet.hasSafeArea()).toBe(true);
   });
 
   it('reports a plain side panel as none of those', async () => {
     const drawer = await open();
 
-    const trimmings = [
-      await drawer.isSheet(),
-      await drawer.isRounded(),
-      await drawer.hasHandle(),
-      await drawer.hasSafeArea(),
-    ];
+    const trimmings = [await drawer.isSheet(), await drawer.isRounded(), await drawer.hasSafeArea()];
 
-    expect(trimmings).toEqual([false, false, false, false]);
+    expect(trimmings).toEqual([false, false, false]);
   });
 
   it('closes through the built-in dismiss button, and writes back through [(open)]', async () => {
@@ -378,10 +369,6 @@ describe('WrDrawerHarness — WrDrawerManager.open()', () => {
     expect(await sheet.isSheet()).toBe(true);
     expect(await sheet.isRounded()).toBe(true);
     expect(await sheet.hasSafeArea()).toBe(true);
-    // Not an oversight: the grab handle lives in `<wr-drawer>`'s own wrapper markup,
-    // which this path replaces with the caller's component, so `showHandle` is not
-    // even an option here.
-    expect(await sheet.hasHandle()).toBe(false);
   });
 
   it("closes through the dismiss button the manager appends, settling the caller's ref", async () => {
@@ -483,7 +470,7 @@ describe('WrDrawerHarness — two drawers open at once', () => {
   let rootLoader: ReturnType<typeof TestbedHarnessEnvironment.documentRootLoader>;
   const opened: WrDrawerRef<SharePanel>[] = [];
 
-  /** Filters (element, left, rounded, handle, backdrop), then Share (service, bottom, none). */
+  /** Filters (element, left, rounded, backdrop), then Share (service, bottom, none). */
   const openBoth = async (): Promise<[WrDrawerHarness, WrDrawerHarness]> => {
     fixture.componentInstance.open.set(true);
     opened.push(fixture.componentInstance.drawers.open(SharePanel, { position: 'bottom', hasBackdrop: false }));
@@ -530,14 +517,11 @@ describe('WrDrawerHarness — two drawers open at once', () => {
     expect(await filters.hasBackdrop()).toBe(true);
     expect(await share.hasBackdrop()).toBe(false);
 
-    // Same trap one level in: both flavours carry `.wr-drawer__panel` and the
-    // handle is a plain class in the shared container, so a query that leaves the
-    // pane reports the OTHER drawer's trimmings — the service sheet would claim a
-    // grab handle it cannot even be given.
+    // Same trap one level in: both flavours carry `.wr-drawer__panel` and
+    // `--rounded` is a plain class in the shared container, so a query that
+    // leaves the pane reports the OTHER drawer's trimmings.
     expect(await filters.isRounded()).toBe(true);
     expect(await share.isRounded()).toBe(false);
-    expect(await filters.hasHandle()).toBe(true);
-    expect(await share.hasHandle()).toBe(false);
   });
 
   it('narrows by content and by edge', async () => {

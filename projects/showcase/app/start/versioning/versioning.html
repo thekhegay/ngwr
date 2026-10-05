@@ -19,7 +19,7 @@
   >
     <ngwr-doc-code [code]="snippets.guard" language="bash" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>It exists because the opposite shipped.</strong> v12.2.0 was a <em>minor</em> that carried a
       <code>BREAKING CHANGES</code> heading in its own changelog — <code>select: clearable is opt-in</code> — and an app
       on <code>^12.1.0</code> received it on the next install with nothing said. The bump was a value someone picked
@@ -34,7 +34,7 @@
       message="It reads commit metadata — a ! on the type, or a BREAKING CHANGE: footer. A break nobody labelled as one is invisible to it, and no script can close that: whether a behaviour change breaks you is a fact about your code. Conventional-commit subjects are enforced by commitlint on every commit and on every pull-request title, which is what gives the guard something to read; judging what counts as breaking is still a person's job. And the direction it does not run is the harmless one — a major carrying nothing breaking is legal and happens."
     />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Two smaller rules complete it. <strong><code>rc</code> is exempt</strong>, and has to be: a release candidate is
       where a major is staged, and it publishes to the <code>next</code> dist-tag rather than to <code>latest</code>, so
       nobody receives it by upgrading. And <strong>“a patch is only fixes” is a convention, not a gate</strong> — 10.2.1
@@ -50,13 +50,13 @@
   >
     <wr-table responsive [columns]="surfaceColumns" [items]="surfaceRows">
       <ng-template wrTableCell="status" let-value>
-        <wr-tag transparent [color]="value === 'Yes' ? 'success' : value === 'No' ? 'medium' : 'warning'">
+        <wr-tag transparent [color]="value === 'Yes' ? 'success' : value === 'No' ? null : 'warning'">
           {{ value }}
         </wr-tag>
       </ng-template>
     </wr-table>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       The last row is the honest one and it is worth stating plainly rather than leaving to a reader with a
       <code>.d.ts</code> open: <strong>being exported is not the same as being supported.</strong> An entry point's
       <code>public-api.ts</code> exports a few helpers that exist because a component needed them, and a symbol like
@@ -77,7 +77,7 @@
         <code wrTypography variant="code">{{ value }}</code>
       </ng-template>
       <ng-template wrTableCell="level" let-value>
-        <wr-tag transparent [color]="value === 'Full' ? 'success' : value === 'Limited' ? 'warning' : 'medium'">
+        <wr-tag transparent [color]="value === 'Full' ? 'success' : value === 'Limited' ? 'warning' : null">
           {{ value }}
         </wr-tag>
       </ng-template>
@@ -89,7 +89,7 @@
       message="“Until the next major” is a duration set by the release schedule, and on this project that has meant weeks. Eight majors shipped between 2026-06-12 (v7.0.0) and 2026-09-04 (v14.0.0). If your plan is to sit a major behind and take security fixes, that plan has to survive the previous line going unsupported the day the next one ships — which is a reason to upgrade on the majors, not a reason to expect a longer window than the table states."
     />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Reporting is private:
       <a href="https://github.com/thekhegay/ngwr/security/advisories/new" target="_blank" rel="noreferrer noopener"
         >GitHub's private vulnerability reporting</a
@@ -107,7 +107,7 @@
     title="The Angular range — a real floor and an open ceiling"
     description="Every Angular peer is declared `>=22.0.0`, and the two halves of that range mean very different things. **The floor is real and it is enforced by the compiled output**, not by the range — though by a minority of it: only the service declarations record `minVersion: 22.0.0`, and one unreadable declaration is enough to fail the build. `grep -oh 'minVersion: &quot;[0-9.]*&quot;' node_modules/ngwr/fesm2022/*.mjs | sort | uniq -c` counts them in the version you installed. **The ceiling is absent, and absent is not a promise.** It means your package manager will not stop you from installing ngwr next to an Angular that did not exist when the release was cut — nothing more."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>Below the floor, the install succeeds and the build is what fails.</strong> npm, pnpm and yarn all treat
       an unsatisfied peer as a warning, so adding ngwr to an Angular 21 project prints “Issues with peer dependencies
       found” and exits 0. The failure surfaces later, in the linker, as
@@ -116,7 +116,7 @@
       printed.
     </p>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>Above the ceiling, nobody knows yet, and the honest answer is a procedure rather than a range.</strong>
       When a new Angular major lands, ngwr has not been built or tested against it — the gates run on the Angular the
       repository is pinned to. So: upgrade Angular on a branch, run your own suite, and expect a supporting ngwr release
@@ -127,7 +127,7 @@
       not been announced.
     </p>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>TypeScript and Node are decided by your Angular, not by ngwr.</strong> The package declares no
       <code>engines</code> field and no TypeScript peer at all: it ships pre-compiled bundles and
       <code>.d.ts</code> files, so the compiler version that matters is the one Angular's own peer range names —
@@ -141,7 +141,7 @@
     title="The cadence, stated rather than inferred"
     description="It is fast, and reading it out of a changelog gives a worse impression than reading it here. **Eight majors shipped between 2026-06-12 (v7.0.0) and 2026-09-04 (v14.0.0)** — under a fortnight apart on average. That was a library settling its vocabulary, its entry-point layout and its palette before it had an install base to protect: two of those majors broke nothing but painted colour, and the largest single category across the rest is renames — `closeable` to `closable`, `totalItems` to `total`, `compact` / `normal` to `sm` / `md`. The table on [Quality](/start/quality) has what each one actually cost. Useful to know, and not a promise about next quarter."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Three things follow, and they are what a team can actually act on.
       <strong>One: a caret range on a major is a safe range now</strong>, which it demonstrably was not on v12 — that is
       what the guard at the top of this page buys, and it is the whole reason it is worth stating publicly instead of
@@ -155,7 +155,7 @@
 
     <ngwr-doc-code [code]="snippets.pin" language="bash" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       What none of this buys: there is no commercial support, no SLA and no contract —
       <a routerLink="/start/quality">Quality</a> says so in the same words. The library is MIT and every gate runs in
       the public repository, so a fork is a real option; that is the fallback the licence gives you, not a plan anyone

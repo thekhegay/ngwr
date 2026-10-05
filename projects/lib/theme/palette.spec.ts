@@ -53,8 +53,8 @@ describe('wrIntentTokens', () => {
   it('clamps rather than wrapping at the ends of the lightness range', () => {
     // `+10%` on white and `-10%` on black have nowhere to go; wrapping would
     // hand back the opposite end of the scale.
-    expect(wrIntentTokens('light', '#ffffff')['--wr-color-light-lighter']).toBe('#ffffff');
-    expect(wrIntentTokens('dark', '#000000')['--wr-color-dark-darker']).toBe('#000000');
+    expect(wrIntentTokens('info', '#ffffff')['--wr-color-info-lighter']).toBe('#ffffff');
+    expect(wrIntentTokens('danger', '#000000')['--wr-color-danger-darker']).toBe('#000000');
   });
 
   it('accepts the short hex a person types', () => {

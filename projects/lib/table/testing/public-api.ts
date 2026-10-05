@@ -7,4 +7,4 @@ export type {
   WrTableHarnessFilters,
   WrTableHeaderCellHarnessFilters,
   WrTableRowHarnessFilters,
-} from './interfaces';
+} from './types';

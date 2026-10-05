@@ -32,7 +32,7 @@
 }
 
 .scale__sample {
-  color: var(--wr-color-dark);
+  color: var(--wr-color-on-surface);
   font-family: var(--wr-font-family-base);
   font-weight: var(--wr-font-weight-semibold);
   line-height: var(--wr-leading-tight);
@@ -62,7 +62,7 @@
 
 .families__sample {
   margin: 0;
-  color: var(--wr-color-dark);
+  color: var(--wr-color-on-surface);
   font-size: var(--wr-text-lg);
 
   &--base {

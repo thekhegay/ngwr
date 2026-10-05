@@ -12,7 +12,7 @@ import {
   type TestElement,
 } from '@angular/cdk/testing';
 
-import type { WrTabHarnessFilters } from './interfaces';
+import type { WrTabHarnessFilters } from './types';
 
 /**
  * Test harness for one tab of a `<wr-tabs>` strip — the header, and the panel it

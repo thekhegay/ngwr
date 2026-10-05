@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrCommandPaletteItemHarnessFilters } from './interfaces';
+import type { WrCommandPaletteItemHarnessFilters } from './types';
 
 /**
  * Test harness for one command inside an open `<wr-command-palette>`.

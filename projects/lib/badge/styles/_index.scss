@@ -72,8 +72,15 @@
 
   // Colors
 
+  // Neutral, and the default: `color` is nullable and a null one carries no
+  // modifier, so this trio is what a badge paints when nothing asks for an
+  // intent. The neutral roles do the job the removed `medium` intent used to.
+  --wr-badge-bg: var(--wr-color-fill);
+  --wr-badge-color: var(--wr-color-on-surface);
+  --wr-badge-border: var(--wr-color-outline);
+
   // color-ok: a badge's colour is decoration or category, never the state —
-  // the LABEL carries that. Six of the nine intents share one lightness
+  // the LABEL carries that. Four of the five intents share one lightness
   // (`success` against `danger` is 1.004:1), so a badge whose words do not name
   // the state tells a reader without hue nothing, and no palette can fix that
   // without giving up the white labels the intents were tuned for.

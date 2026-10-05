@@ -6,6 +6,7 @@ import { provideWrIcons, WrIcon } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 
 import { DocCodeComponent } from '../doc-code/doc-code';
+import { useExampleFiles } from '../doc-code/example-files';
 import type { DocCodeFile } from '../doc-code/types';
 
 import { canSandbox, SandboxService, toSandboxFiles } from '#core/sandbox';
@@ -94,9 +95,11 @@ export class DocSnippetComponent {
 
   private readonly pageTitle = inject(Title);
 
+  protected readonly resolvedFiles = useExampleFiles({ code: this.code, language: this.language, files: this.files });
+
   /** Drives the border between demo + code (hidden when nothing to show). */
   protected readonly hasCode = computed(() => {
-    const fs = this.files();
+    const fs = this.resolvedFiles();
     if (fs?.some(f => f.code.trim().length > 0)) return true;
     return this.code().trim().length > 0;
   });

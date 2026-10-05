@@ -7,7 +7,7 @@ import { WrScroll } from 'ngwr/scroll';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrAnchor } from './anchor';
-import type { WrAnchorLink } from './interfaces';
+import type { WrAnchorLink } from './types';
 
 const LINKS: readonly WrAnchorLink[] = [
   { id: 'intro', label: 'Introduction' },

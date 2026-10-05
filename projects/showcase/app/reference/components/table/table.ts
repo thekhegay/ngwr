@@ -287,7 +287,7 @@ export class MyComponent {}
     basic: `<wr-table [columns]="columns" [items]="rows" />`,
     custom: `<wr-table [columns]="columns" [items]="rows" [(sort)]="sort" (filterChange)="onFilter($event)">
   <ng-template wrTableCell="role" let-value>
-    <wr-tag [color]="value === 'admin' ? 'danger' : 'medium'">{{ value }}</wr-tag>
+    <wr-tag [color]="value === 'admin' ? 'danger' : 'info'">{{ value }}</wr-tag>
   </ng-template>
 </wr-table>`,
     sortAndFilter: `// Nothing special to opt into: put both keys on the one column.

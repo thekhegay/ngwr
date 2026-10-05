@@ -9,7 +9,7 @@ import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 import { WrButtonHarness } from 'ngwr/button/testing';
 
-import type { WrTourHarnessFilters, WrTourProgress } from './interfaces';
+import type { WrTourHarnessFilters, WrTourProgress } from './types';
 
 /**
  * Test harness for the card `WrTour` shows beside the spotlit element.

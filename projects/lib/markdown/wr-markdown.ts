@@ -13,14 +13,8 @@ import { useConfigValue } from 'ngwr/config';
 import { WrCopyToClipboard } from 'ngwr/directives';
 import { useI18nText } from 'ngwr/i18n';
 
-import type {
-  WrHighlightLine,
-  WrMarkdownBlock,
-  WrMarkdownCell,
-  WrMarkdownInline,
-  WrMarkdownListItem,
-} from './interfaces';
 import { parseMarkdown } from './parse-markdown';
+import type { WrHighlightLine, WrMarkdownBlock, WrMarkdownCell, WrMarkdownInline, WrMarkdownListItem } from './types';
 import { WrMarkdownHighlight } from './wr-markdown-highlight';
 
 /** How long the copy button stays in its "copied" state. */

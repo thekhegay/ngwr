@@ -6,13 +6,15 @@
 >
   <ngwr-reactbits-credit slug="rotating-text" category="text-animations" />
 
-  <ngwr-doc-section title="Import">
+  <ngwr-doc-section title="Installation">
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Playground">
     <ngwr-doc-playground [code]="snippet()" [controls]="controls">
-      <span style="display: inline-flex; gap: 0.5rem; font-size: 2rem; font-weight: 700; color: var(--wr-color-dark)">
+      <span
+        style="display: inline-flex; gap: 0.5rem; font-size: 2rem; font-weight: 700; color: var(--wr-color-on-surface)"
+      >
         We
         <wr-rotating-text
           [texts]="texts()"

@@ -48,7 +48,12 @@ export default class BurgerPage {
 
   protected readonly tokens: readonly DocApiRow[] = [
     { name: '--wr-burger-size', description: 'Button square size.', type: 'length', default: '2.5rem' },
-    { name: '--wr-burger-color', description: 'Resting stroke color.', type: 'color', default: 'var(--wr-color-dark)' },
+    {
+      name: '--wr-burger-color',
+      description: 'Resting stroke color.',
+      type: 'color',
+      default: 'var(--wr-color-on-surface)',
+    },
     {
       name: '--wr-burger-color-opened',
       description: 'Stroke color when open.',

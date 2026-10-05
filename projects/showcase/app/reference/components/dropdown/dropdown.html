@@ -72,7 +72,7 @@
     description="Opens on mouseenter; closes when the pointer leaves both trigger and menu."
   >
     <ngwr-doc-snippet [code]="snippets.hover">
-      <button type="button" wr-btn color="dark" [wrDropdown]="hoverMenu" trigger="hover">Hover me</button>
+      <button type="button" wr-btn [wrDropdown]="hoverMenu" trigger="hover">Hover me</button>
       <wr-dropdown-menu #hoverMenu>
         <wr-dropdown-item>Item 1</wr-dropdown-item>
         <wr-dropdown-item>Item 2</wr-dropdown-item>

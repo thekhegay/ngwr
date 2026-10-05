@@ -56,16 +56,18 @@ import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrFollowDirection, wrPresentAsSheet } from 'ngwr/overlay';
 import { isComposing, toClassList, type WrClassInput } from 'ngwr/utils';
 
+import { WrOption } from './option';
+import { WrOptionLeading } from './option-leading';
+import { WR_SELECT } from './tokens';
 import type {
   WrOptionLeadingContext,
   WrSelectMode,
   WrSelectSearchLoader,
   WrSelectTagValidator,
   WrSelectSize,
-} from './interfaces';
-import { WrOption } from './option';
-import { WrOptionLeading } from './option-leading';
-import { WR_SELECT, type WrSelectContext, type WrSelectOptionRegistration } from './tokens';
+  WrSelectContext,
+  WrSelectOptionRegistration,
+} from './types';
 
 let listboxUid = 0;
 
