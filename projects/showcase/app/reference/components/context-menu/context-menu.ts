@@ -150,7 +150,7 @@ export default class ContextMenuPageComponent {
       type: 'WrContextMenuPanel | null',
       default: 'null',
       description:
-        'Optional nested menu. Opens to the right on hover or →. Shows a chevron indicator. ← (or click-outside) closes it.',
+        'Optional nested menu. Opens toward the reading direction — → in LTR, ← in RTL — on hover or that arrow key; the opposite arrow, or a click outside, closes it. Shows a chevron indicator.',
     },
   ];
 }

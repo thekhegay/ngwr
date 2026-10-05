@@ -52,7 +52,7 @@ export default class DonutChartPageComponent {
     {
       name: 'ariaLabel',
       description:
-        'Accessible name of the chart. The ring itself is `aria-hidden`, so with `showLegend` off this is all a screen reader gets. Falls back to the donutChart.label catalog key.',
+        'Accessible name of the chart. The ring is a `role="img"` named by this input — not `aria-hidden` — so with `showLegend` off it, the centre value and the centre label are what a screen reader gets. Falls back to the `donutChart.label` catalog key.',
       type: 'string | null',
       default: 'null',
     },
