@@ -4,7 +4,10 @@
   [keywords]="['compare', 'slider', 'diff', 'before-after', 'wr-compare']"
   [labels]="['Composite']"
 >
-  <ngwr-doc-section title="Image compare" description="Drag the divider — or use ←/→ on the focused slider.">
+  <ngwr-doc-section
+    title="Image compare"
+    description="Drag the divider — or use ←/→ on the focused slider, with Shift for ten points at a time. The arrows follow the VISUAL axis, so in an RTL document ←/→ still move the divider the way they point."
+  >
     <ngwr-doc-code [code]="snippets.images" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-compare
@@ -24,7 +27,10 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Vertical split">
+  <ngwr-doc-section
+    title="Vertical split"
+    description="Drag the divider — or use ↑/↓ on the focused slider, which is the block axis and so is never mirrored by `dir`. Shift takes ten points at a time, and Home / End go to `minPosition` / `maxPosition` in either orientation."
+  >
     <ngwr-doc-code [code]="snippets.vertical" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-compare
