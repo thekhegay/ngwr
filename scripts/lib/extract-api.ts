@@ -31,9 +31,10 @@
  * inventing an input.
  */
 
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
+import { libEntryPoints } from './entry-points';
 import { ROOT_PATH } from './paths/root';
 
 const LIB = resolve(ROOT_PATH, 'projects/lib');
@@ -249,36 +250,59 @@ function extractFile(file: string, entry: string): ApiEntry[] {
   return out;
 }
 
-function walk(dir: string, entry: string, acc: string[]): void {
-  for (const name of readdirSync(dir)) {
-    const full = join(dir, name);
-    if (statSync(full).isDirectory()) {
-      // `internal/` is the library's own marker for code no consumer imports —
-      // the popover's text panel, the date-picker's clock. Documenting their
-      // inputs would invent public API that does not exist.
-      if (name === 'internal') continue;
-      walk(full, entry, acc);
-    } else if (name.endsWith('.ts') && !name.endsWith('.spec.ts')) {
-      acc.push(full);
-    }
-  }
-}
 
-/** Every entry point folder's `.ts` files, keyed by the folder name. */
+/**
+ * Every entry point's `.ts` files, keyed by the entry point's NAME.
+ *
+ * Read from the published `exports` map rather than from the top level of
+ * `projects/lib`, which is what it used to do. v15 nested two groups, so a
+ * `readdirSync` of the root returns `bits` and `charts` as one folder each —
+ * and every component inside them collapsed into a single pooled entry whose
+ * name matched no page. Twenty-eight pages fell out of the comparison in
+ * silence, because an unmatched page is `continue`d rather than reported.
+ *
+ * `libEntryPoints()` is the one reader for this question; a nested group costs
+ * it nothing, and a `/testing` subpath is skipped because a harness is public
+ * but documents no component API.
+ */
 function filesByEntry(): Map<string, string[]> {
   const out = new Map<string, string[]>();
 
-  for (const entry of readdirSync(LIB).sort()) {
-    if (entry === 'schematics' || entry === 'styles') continue;
+  for (const entry of libEntryPoints(LIB)) {
+    if (entry.endsWith('/testing')) continue;
     const dir = join(LIB, entry);
-    if (!statSync(dir).isDirectory()) continue;
+    if (!existsSync(dir) || !statSync(dir).isDirectory()) continue;
 
     const files: string[] = [];
-    walk(dir, entry, files);
+    walkShallow(dir, files);
     out.set(entry, files);
   }
 
   return out;
+}
+
+/**
+ * One entry point's own files, NOT its nested entry points'.
+ *
+ * `bits/` and `charts/` are plain folders holding other entry points, and
+ * `icon/` holds `icon/adapters/lucide` — so a recursive walk from one entry
+ * would hand it the members of its neighbours.
+ */
+function walkShallow(dir: string, acc: string[]): void {
+  for (const name of readdirSync(dir)) {
+    const full = join(dir, name);
+    if (statSync(full).isDirectory()) {
+      // A directory that is itself an entry point belongs to that entry point.
+      if (existsSync(join(full, 'public-api.ts'))) continue;
+      // `internal/` is the library's own marker for code no consumer imports —
+      // the popover's text panel, the date-picker's clock. Documenting their
+      // inputs would invent public API that does not exist.
+      if (name === 'internal') continue;
+      walkShallow(full, acc);
+    } else if (name.endsWith('.ts') && !name.endsWith('.spec.ts')) {
+      acc.push(full);
+    }
+  }
 }
 
 /**

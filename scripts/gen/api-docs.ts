@@ -41,7 +41,7 @@
  * template no consumer can type. All three now live in `extract-api.ts`.
  *
  * For a long time the comparison read NAMES only, and a name is the half a
- * reader does not copy. `animations/circular-text` could document
+ * reader does not copy. `bits/circular-text` could document
  * `spinDuration` as `999` — the source says `20` — and the gate exited 0, on a
  * page in `COMPARED_CLUSTERS` that it had opened and read. Twenty-one of the
  * twenty-four animation pages hand-write their rows, so that hole covered nearly
@@ -295,7 +295,17 @@ function pages(): Map<string, string> {
 /**
  * The clusters where a page's folder name IS an entry point, by construction —
  * "one public API per page" for `reference`, one component per page for
- * `animations`.
+ * `bits`.
+ *
+ * `bits` was `animations` until v15, and this list kept the old name for a
+ * while after the move. Nothing said so: `entryOf()` returns `''` for a page
+ * outside the clusters, the page lands in `unmapped` and is skipped before any
+ * comparison runs, and the summary folds it into "documenting something else"
+ * — a bucket whose own wording names guides, utils, validators and interfaces
+ * and not this. Twenty pages and about 171 hand-written rows were held to
+ * nothing. The only trace in the output was a note that
+ * `EXPRESSION_DEFAULTS no longer needs decrypt-text.characters`, which is a
+ * page falling out of the comparison wearing the look of a tidy-up.
  *
  * Everywhere else the match is a coincidence of naming, and taking it produces
  * confident nonsense: `guides/keyboard` is the hotkey walkthrough and would be
@@ -303,14 +313,32 @@ function pages(): Map<string, string> {
  * against the density DIRECTIVE, `guides/tokens/typography` against
  * `wrTypography` — whose real reference page is `reference/directives/typography`.
  */
-const COMPARED_CLUSTERS = ['reference/', 'animations/'];
+const COMPARED_CLUSTERS = ['reference/', 'bits/'];
 
-/** `…/reference/components/button/button.ts` → `button`; `''` outside the clusters above. */
-function entryOf(file: string): string {
+/**
+ * `…/reference/components/button/button.ts` → `button`; `''` outside the
+ * clusters above.
+ *
+ * The folder name is not always the entry point any more. v15 nested two
+ * groups, so the chart pages under `reference/components/` document
+ * `charts/<name>` and every page under `bits/` documents `bits/<name>` — and
+ * a bare folder name matches no entry, which drops the page out of the
+ * comparison in silence. `NESTED` is resolved against the real catalogue
+ * rather than hard-coded, so a third group costs nothing.
+ */
+const NESTED = ['charts', 'bits'] as const;
+
+function entryOf(file: string, known: ReadonlySet<string>): string {
   const rel = relative(PAGES_ROOT, file);
   if (!COMPARED_CLUSTERS.some(prefix => rel.startsWith(prefix))) return '';
   const parts = rel.split('/');
-  return parts[parts.length - 2] ?? '';
+  const name = parts[parts.length - 2] ?? '';
+  if (name === '') return '';
+  if (known.has(name)) return name;
+  for (const group of NESTED) {
+    if (known.has(`${group}/${name}`)) return `${group}/${name}`;
+  }
+  return name;
 }
 
 /**
@@ -1364,7 +1392,7 @@ const UNDOCUMENTED_ENTRIES: ReadonlyMap<string, string> = new Map([
  */
 const EXPRESSION_DEFAULTS: ReadonlySet<string> = new Set([
   'tabs.key',
-  'decrypt-text.characters',
+  'bits/decrypt-text.characters',
   'virtual-scroll.maxBufferPx',
   'virtual-scroll.minBufferPx',
   'virtual-scroll.trackBy',
@@ -1489,7 +1517,7 @@ function check(api: Map<string, ApiEntry>): Findings {
       if (of !== undefined) documentedEntries.add(of);
     }
 
-    const entry = entryOf(file);
+    const entry = entryOf(file, new Set(byEntry.keys()));
     const found = byEntry.get(entry);
     if (found) documentedEntries.add(entry);
 
