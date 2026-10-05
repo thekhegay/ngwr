@@ -381,7 +381,21 @@ async function main(): Promise<void> {
     targets.length === everything.length && themes.length === THEMES.length && modes.length === CONTRAST_MODES.length;
   if (complete) {
     for (const [rule, entry] of Object.entries(baseline)) {
-      if (!findings.has(rule)) info(`  ✓ ${rule} no longer appears — drop it from the baseline (${entry.note})`);
+      const finding = findings.get(rule);
+      if (!finding) {
+        info(`  ✓ ${rule} no longer appears — drop it from the baseline (${entry.note})`);
+        continue;
+      }
+      // A rule that SHRANK is the quieter half of the same problem, and it is
+      // the dangerous one: an allowance of 4 against a reality of 2 absorbs two
+      // brand-new failing routes in silence, and the run still prints green.
+      // Four entries had drifted that way by 2026-10-06. Reported rather than
+      // failed, because the note has to be rewritten by hand — a count on its
+      // own says nothing about which routes are left or why.
+      if (finding.routes.size < entry.routes) {
+        info(`  ✓ ${rule} is down to ${finding.routes.size} from ${entry.routes} — tighten the baseline, or the slack hides the next ${entry.routes - finding.routes.size}`);
+        info(`      routes: ${[...finding.routes].sort().join(', ')}`);
+      }
     }
   }
 
