@@ -81,7 +81,7 @@
 
   <ngwr-doc-section
     title="Custom chip contents"
-    description="`wrCalendarEvent` replaces what a chip renders. Position, sizing and drag stay with the calendar, so a custom template cannot break the geometry."
+    description="An `<ng-template wrCalendarEvent>` replaces what a chip renders — the attribute belongs to `WrCalendarEventTemplate`, which has to be in the component’s `imports` for the template to bind at all. Position, sizing and drag stay with the calendar, so a custom template cannot break the geometry."
   >
     <ngwr-doc-code [code]="snippets.template" language="html" />
   </ngwr-doc-section>

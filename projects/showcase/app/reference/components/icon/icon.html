@@ -8,7 +8,10 @@
     <ngwr-doc-code [code]="snippets.register" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Use">
+  <ngwr-doc-section
+    title="Use"
+    description="The rendered `<svg>` always carries `aria-hidden`, so an icon is decoration and never a name. A control with nothing but an icon in it has to carry its own accessible name on the INTERACTIVE host — `aria-label` on the `<button>`, not on the `<wr-icon>`, which a screen reader is already skipping."
+  >
     <ngwr-doc-code [code]="snippets.use" language="angular-ts" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; gap: 0.75rem; align-items: center; font-size: 1.25rem">
@@ -20,7 +23,7 @@
 
   <ngwr-doc-section
     title="Custom inline SVG"
-    description="When you need a one-off icon (your logo, a designer hand-off) wrap it with `svgIcon()`."
+    description="When you need a one-off icon (your logo, a designer hand-off) wrap it with `svgIcon()`. Icon data is untrusted by construction and is REBUILT from an allowlist rather than inserted: `<style>`, `<image>`, `<foreignObject>`, `<a>`, filters and SMIL are dropped, and so is the `style` ATTRIBUTE — dev mode names what went. Reach for presentation attributes (`fill`, `stroke`, `stroke-width`) instead; not one icon in the shipped corpus needs a `style`."
   >
     <ngwr-doc-code [code]="snippets.custom" language="angular-ts" />
   </ngwr-doc-section>

@@ -43,12 +43,15 @@ import { API } from '#core/generated/api';
 })
 export default class DropdownComponent {
   protected readonly snippets = {
-    basic: `<button wr-btn [wrDropdown]="menu">Actions</button>
+    basic: `<!-- An item EMITS a click and does not close the menu — a toggle row or a
+     filter wants to stay open. Reach the trigger through its exportAs and
+     close it yourself where that is what you want. -->
+<button wr-btn [wrDropdown]="menu" #d="wrDropdown">Actions</button>
 
 <wr-dropdown-menu #menu>
-  <wr-dropdown-item icon="copy-outline">Copy</wr-dropdown-item>
-  <wr-dropdown-item icon="download">Download</wr-dropdown-item>
-  <wr-dropdown-item icon="trash">Delete</wr-dropdown-item>
+  <wr-dropdown-item icon="copy-outline" (click)="copy(); d.close()">Copy</wr-dropdown-item>
+  <wr-dropdown-item icon="download" (click)="download(); d.close()">Download</wr-dropdown-item>
+  <wr-dropdown-item icon="trash" (click)="remove(); d.close()">Delete</wr-dropdown-item>
 </wr-dropdown-menu>`,
     positions: `<button wr-btn [wrDropdown]="menu" position="top-start">Top start</button>`,
     arrow: `<!-- On by default -->

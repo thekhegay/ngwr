@@ -4,6 +4,11 @@
   [keywords]="['context menu', 'right click', 'menu', 'submenu', 'wr-context-menu']"
   [labels]="['Overlay']"
 >
+  <ngwr-doc-section
+    title="Opening it"
+    description="Three ways in, and only the first is a mouse. A RIGHT-CLICK, or anything else the browser turns into a `contextmenu` event. SHIFT+F10 or the Menu key, which is the keyboard path and why `[wrContextMenu]` belongs on a focusable region rather than on a bare `<div>`. And a 500 ms LONG-PRESS on touch, where there is no right button. The native browser menu is suppressed on the host for all of them. Once open, the arrows rove the items, Home / End jump to the ends, Enter or Space picks, and Escape closes — the overlay dispatcher routes the key, so it works wherever focus happens to be."
+  />
+
   <ngwr-doc-section title="Basic" description="Right-click the area below.">
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
