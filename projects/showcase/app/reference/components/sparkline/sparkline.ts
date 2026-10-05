@@ -22,7 +22,10 @@ export default class SparklinePageComponent {
   protected readonly snippets = {
     basic: `<wr-sparkline [data]="[12, 14, 9, 17, 21, 18, 23]" />`,
     area: `<wr-sparkline [data]="data" [showArea]="true" color="var(--wr-color-success)" />`,
-    tooltip: `<wr-sparkline [data]="data" ariaLabel="Signups" />`,
+    tooltip: `<!-- On by default; hover either line below to compare. The tooltip is named
+     by ariaLabel when one is given. -->
+<wr-sparkline [data]="data" ariaLabel="Signups" />
+<wr-sparkline [data]="data" ariaLabel="Signups" [tooltip]="false" />`,
   };
 
   protected readonly api = API.WrSparkline;
