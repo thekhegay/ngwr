@@ -33,6 +33,14 @@ export default class FallingTextPage {
   protected readonly gravity = signal(980);
   protected readonly fontSize = signal('1.5rem');
 
+  /**
+   * Prefix matches, so `drag` also catches `dragged`. Bound in the playground
+   * because the class that paints them (`.wr-falling-text__word--hl`) could not
+   * be reached otherwise — no demo passed this input, which made it the one
+   * state the a11y sweep had to skip for want of an element.
+   */
+  protected readonly highlightWords: readonly string[] = ['Hover', 'drag'];
+
   protected readonly replayKey = signal(0);
 
   protected readonly snippet = computed(
@@ -40,6 +48,7 @@ export default class FallingTextPage {
       `<wr-falling-text
   text="${this.text()}"
   trigger="${this.trigger()}"
+  [highlightWords]="['Hover', 'drag']"
   [gravity]="${this.gravity()}"
   fontSize="${this.fontSize()}"
 />`
