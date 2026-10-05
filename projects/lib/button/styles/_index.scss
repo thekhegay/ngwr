@@ -238,9 +238,14 @@
       }
 
       &.wr-btn--outlined {
-        // The label is the intent itself, the same colour the solid variant
-        // fills with, so the two read as one control in two weights.
-        --wr-btn-color: var(--wr-color-#{$name});
+        // `-ink`, not the bare intent. The label is TEXT on whatever surface the
+        // host gives the transparent button, and the bare token does not clear
+        // AA there: `#3567ff` on the dark canvas measures 4.06:1, and in light
+        // `warning` is 1.71:1 on white. `-ink` is the token calibrated for exactly
+        // this role — it darkens in light and lightens in dark, so one declaration
+        // answers both. It reads a shade off the solid variant's fill rather than
+        // identical to it, which is the price of a label anyone can read.
+        --wr-btn-color: var(--wr-color-#{$name}-ink);
         --wr-btn-bg: transparent;
         --wr-btn-border: rgba(var(--wr-color-#{$name}-rgb), 0.4);
 
