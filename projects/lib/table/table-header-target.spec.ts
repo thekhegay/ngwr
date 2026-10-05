@@ -29,7 +29,7 @@ import { describe, expect, it } from 'vitest';
  * 14.6.0 draws — same 12px caret and funnel, same 0.375rem between them, same
  * header height — measured in Chromium against a build of `origin/main` rather
  * than assumed. That leaves a real `target-size` finding for a fine pointer,
- * which is a DECIDED trade: it is carried in `scripts/contrast-baseline.json`,
+ * which is a DECIDED trade: it is carried in `scripts/baselines/contrast.json`,
  * explained in AGENTS.md beside the `--wr-color-outline` one, and stated on the
  * table's docs page. The cases below are what stop the coarse gate quietly
  * turning back into an every-pointer one, or the other way round.

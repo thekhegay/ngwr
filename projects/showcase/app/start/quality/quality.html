@@ -6,7 +6,7 @@
 >
   <ngwr-doc-section
     title="Counted, not claimed"
-    description="The counters below are written by `scripts/gen-quality.ts`, which counts the repository during the showcase build, and every sentence further down that repeats one of them binds the same value. None of them is typed in by hand — that is the only way a page like this is still true a year after it was written."
+    description="The counters below are written by `scripts/gen/quality.ts`, which counts the repository during the showcase build, and every sentence further down that repeats one of them binds the same value. None of them is typed in by hand — that is the only way a page like this is still true a year after it was written."
   >
     <wr-statistic-group min="10rem">
       <wr-statistic label="Entry points" [value]="quality.entryPoints" />
@@ -105,7 +105,7 @@
         noise. And prerendered HTML holds no hover, no focus ring and nothing inside an overlay.
       </wr-description-item>
       <wr-description-item label="Already accepted">
-        Nothing. <code>scripts/a11y-baseline.json</code> is <code>&#123;&#125;</code>, so there is no allowance to hide
+        Nothing. <code>scripts/baselines/a11y.json</code> is <code>&#123;&#125;</code>, so there is no allowance to hide
         a regression in — which is exactly why the two blocks below have to state theirs.
       </wr-description-item>
     </wr-descriptions>
@@ -132,7 +132,7 @@
         something else, and the sweep printed “no new violations”. Change a token, measure the elements you changed.
       </wr-description-item>
       <wr-description-item label="Already accepted">
-        The entries in <code>scripts/contrast-baseline.json</code>, one per rule, theme and
+        The entries in <code>scripts/baselines/contrast.json</code>, one per rule, theme and
         <code>prefers-contrast</code> mode, each allowing a number of routes rather than of nodes. The worst is
         <code>wr-calendar__day--out-of-month</code> at <strong>2.23:1</strong> — enabled buttons the arrow keys reach,
         so the exemption for inactive controls does not apply to them, and it is <code>opacity: 0.55</code> rather than
@@ -165,7 +165,7 @@
         element that never rendered is indistinguishable from a pass.
       </wr-description-item>
       <wr-description-item label="Already accepted">
-        The entries in <code>scripts/state-a11y-baseline.json</code>, one per state and theme, come down to a few
+        The entries in <code>scripts/baselines/state-a11y.json</code>, one per state and theme, come down to a few
         decisions rather than a pile of problems: the same out-of-month calendar days as above (2.23:1 light, 3.11:1
         dark) reached through two separate states, and <code>target-size</code> on the window chrome's 14×14
         traffic-light buttons and on the carousel dots again. Each is a design call with the alternative costed in the

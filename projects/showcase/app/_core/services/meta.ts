@@ -127,7 +127,7 @@ export class MetaService {
 
   /**
    * Advertise the page's markdown twin — `<link rel="alternate" type="text/markdown">`
-   * pointing at the same URL plus `.md`, written by `scripts/gen-md-docs.ts`.
+   * pointing at the same URL plus `.md`, written by `scripts/gen/md-docs.ts`.
    *
    * An agent that lands on the HTML should be able to find the cheap version of
    * the same page without guessing the convention, which is the whole reason the

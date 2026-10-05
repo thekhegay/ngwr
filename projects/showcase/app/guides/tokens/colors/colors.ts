@@ -30,7 +30,7 @@ export default class TokensColorsPage {
    *
    * Taken from the tuple rather than retyped: this page's whole job is showing
    * what the palette contains, so a copy that can fall behind it is the one
-   * thing it must not have. `scripts/check-color-parity.ts` keeps the tuple
+   * thing it must not have. `scripts/check/color-parity.ts` keeps the tuple
    * itself honest against `$base-colors`.
    */
   protected readonly intents = WR_COLORS;

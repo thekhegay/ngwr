@@ -13,7 +13,7 @@
  * the cause. Everything else is discoverable from the docs page.
  *
  * It sits in its own file because two things ship it: `get_ngwr_setup` in the
- * MCP server, and the generated agent skill (`scripts/gen-ai-assets.ts`), which
+ * MCP server, and the generated agent skill (`scripts/gen/ai-assets.ts`), which
  * writes the same five rules into `skills/ngwr/SKILL.md`. One table, imported
  * twice — the alternative is two lists that agree until one of them is edited.
  */
