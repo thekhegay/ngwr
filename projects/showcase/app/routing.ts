@@ -48,7 +48,6 @@ export const routes = {
     testing: 'testing',
     mcp: 'mcp',
     agentSkill: 'agent-skill',
-    registry: 'registry',
     csp: 'csp',
     tokens: 'tokens',
     translations: 'translations',

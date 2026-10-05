@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Theme builder"
-  description="Pick a seed per intent and the whole page repaints. Export the tokens as CSS, or as a registry preset someone else can install."
-  [keywords]="['theme builder', 'palette', 'seed colour', 'theme preset', 'tokens', 'registry:theme']"
+  description="Pick a seed per intent and the whole page repaints, then export the tokens as CSS."
+  [keywords]="['theme builder', 'palette', 'seed colour', 'tokens']"
 >
   <ngwr-doc-section title="Seeds">
     <p wrTypography>
@@ -56,19 +56,6 @@
 
   <ngwr-doc-section title="CSS" description="Paste into your global stylesheet, after ngwr's own.">
     <ngwr-doc-code [code]="css()" language="scss" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="As a registry preset"
-    description="One JSON file, hosted anywhere — see the registry guide for what a tool does with it."
-  >
-    <ngwr-doc-code [code]="preset()" language="typescript" />
-
-    <p wrTypography variant="small" tone="muted">
-      Only the intents you moved are in there. A preset restating the defaults would fight the next palette change
-      instead of riding it, and <a [routerLink]="['/guides', 'registry']">the format</a> is explicit that an omitted
-      intent keeps whatever the stylesheet compiled.
-    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-see-also [links]="related" />
