@@ -15,7 +15,7 @@
 >
   <ngwr-doc-section
     title="Semantic versioning, and the one rule a script enforces"
-    description="ngwr follows semver: a breaking change is a **major**, a new feature is a **minor**, a fix is a **patch**. The half of that worth writing down is the half that is checked rather than intended — `scripts/release-prepare.ts` refuses `--bump=minor` and `--bump=patch` outright when any commit since the last release tag carries a `!` type or a `BREAKING CHANGE:` footer. It prints every offending subject and exits non-zero, and since a release is cut only by running the Release PR workflow — whose one input is that bump — the refusal IS the release: no version is written, no changelog is generated, no pull request is opened."
+    description="ngwr follows semver: a breaking change is a **major**, a new feature is a **minor**, a fix is a **patch**. The half of that worth writing down is the half that is checked rather than intended — `scripts/release/prepare.ts` refuses `--bump=minor` and `--bump=patch` outright when any commit since the last release tag carries a `!` type or a `BREAKING CHANGE:` footer. It prints every offending subject and exits non-zero, and since a release is cut only by running the Release PR workflow — whose one input is that bump — the refusal IS the release: no version is written, no changelog is generated, no pull request is opened."
   >
     <ngwr-doc-code [code]="snippets.guard" language="bash" />
 

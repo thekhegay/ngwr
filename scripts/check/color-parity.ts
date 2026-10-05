@@ -40,9 +40,9 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { exit } from 'node:process';
 
-import { err } from './lib/log/err';
-import { info } from './lib/log/info';
-import { ROOT_PATH } from './lib/paths/root';
+import { err } from '../lib/log/err';
+import { info } from '../lib/log/info';
+import { ROOT_PATH } from '../lib/paths/root';
 
 const SCSS_PATH = resolve(ROOT_PATH, 'projects/lib/theme/styles/_colors.scss');
 const TS_PATH = resolve(ROOT_PATH, 'projects/lib/theme/colors.ts');
@@ -99,7 +99,7 @@ function extract(source: string, pattern: RegExp, label: string, path: string): 
     ${path}
 
   The declaration moved or was reformatted, so this check can no longer see
-  it. Fix the pattern in scripts/check-color-parity.ts — do not delete the
+  it. Fix the pattern in scripts/check/color-parity.ts — do not delete the
   check. It is the only thing tying the two colour lists together.
 `
     );

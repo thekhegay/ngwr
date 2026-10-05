@@ -38,9 +38,9 @@ import { exit } from 'node:process';
 
 import { JSDOM } from 'jsdom';
 
-import { err } from './lib/log/err';
-import { info } from './lib/log/info';
-import { ROOT_PATH } from './lib/paths/root';
+import { err } from '../lib/log/err';
+import { info } from '../lib/log/info';
+import { ROOT_PATH } from '../lib/paths/root';
 
 const SITE = 'https://ngwr.dev';
 const DIST = join(ROOT_PATH, 'dist/showcase');
@@ -363,7 +363,7 @@ function main(): void {
   if (stale.length > 0) {
     err(
       `\n✘ md docs: ${stale.join(', ')} now prerender, so NO_TWIN is stale.\n` +
-        `  Drop them from the list in scripts/gen-md-docs.ts and raise MIN_PAGES.\n`
+        `  Drop them from the list in scripts/gen/md-docs.ts and raise MIN_PAGES.\n`
     );
     exit(1);
   }

@@ -10,7 +10,7 @@ import type { Rule } from '@angular-devkit/schematics';
 import { useRule } from './rule';
 import type { Schema } from './schema';
 
-// Bundled at build time by `scripts/build-symbol-map.ts`. Map of every
+// Bundled at build time by `scripts/build/symbol-map.ts`. Map of every
 // `Wr*` public symbol → the subpath it lives under.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const SYMBOL_MAP = require('./symbol-map.json') as Record<string, string>;

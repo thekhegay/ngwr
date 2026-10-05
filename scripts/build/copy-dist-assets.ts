@@ -24,10 +24,10 @@ import { copyFileSync, cpSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { exit } from 'node:process';
 
-import { err } from './lib/log/err';
-import { info } from './lib/log/info';
-import { DIST_LIB_PATH } from './lib/paths/dist-lib';
-import { ROOT_PATH } from './lib/paths/root';
+import { err } from '../lib/log/err';
+import { info } from '../lib/log/info';
+import { DIST_LIB_PATH } from '../lib/paths/dist-lib';
+import { ROOT_PATH } from '../lib/paths/root';
 
 const ASSETS = ['README.md', 'LICENSE', 'llms.txt', 'llms-full.txt'] as const;
 

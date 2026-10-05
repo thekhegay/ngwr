@@ -44,7 +44,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
-const ROOT = resolve(import.meta.dirname, '..');
+const ROOT = resolve(import.meta.dirname, '../..');
 const LIB = join(ROOT, 'projects/lib');
 
 /** How far above a declaration the marker may sit. */

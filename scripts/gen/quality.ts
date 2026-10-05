@@ -45,8 +45,8 @@
 import { readFileSync, readdirSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
-import { libEntryPoints } from './lib/entry-points';
-import { ROOT_PATH } from './lib/paths/root';
+import { libEntryPoints } from '../lib/entry-points';
+import { ROOT_PATH } from '../lib/paths/root';
 
 const OUT_DIR = resolve(ROOT_PATH, 'projects/showcase/app/_core/generated');
 const OUT_FILE = join(OUT_DIR, 'quality.ts');

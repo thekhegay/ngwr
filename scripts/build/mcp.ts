@@ -22,7 +22,7 @@
  * Wired into `build:lib`, so local builds and CI ship the same artifact.
  *
  * Usage:
- *   pnpm tsx scripts/build-mcp.ts
+ *   pnpm tsx scripts/build/mcp.ts
  */
 
 import { execSync } from 'node:child_process';
@@ -30,10 +30,10 @@ import { chmodSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { exit } from 'node:process';
 
-import { err } from './lib/log/err';
-import { info } from './lib/log/info';
-import { DIST_LIB_PATH } from './lib/paths/dist-lib';
-import { ROOT_PATH } from './lib/paths/root';
+import { err } from '../lib/log/err';
+import { info } from '../lib/log/info';
+import { DIST_LIB_PATH } from '../lib/paths/dist-lib';
+import { ROOT_PATH } from '../lib/paths/root';
 
 const SRC = resolve(ROOT_PATH, 'projects/lib/mcp');
 const TSCONFIG = resolve(SRC, 'tsconfig.json');

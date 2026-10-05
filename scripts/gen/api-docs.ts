@@ -175,9 +175,9 @@ import {
   splitUnion,
   unbrand,
   unreadMembers,
-} from './lib/extract-api';
-import { buildPageRoutes, type WrPageRoutes } from './lib/page-routes';
-import { ROOT_PATH } from './lib/paths/root';
+} from '../lib/extract-api';
+import { buildPageRoutes, type WrPageRoutes } from '../lib/page-routes';
+import { ROOT_PATH } from '../lib/paths/root';
 
 const OUT_DIR = resolve(ROOT_PATH, 'projects/showcase/app/_core/generated');
 const OUT_FILE = join(OUT_DIR, 'api.ts');
@@ -2103,7 +2103,7 @@ async function main(): Promise<void> {
       if (problems.length > 0) {
         console.error(
           `\n✘ ${problems.length} thing(s) above left the comparison, and each line names the page, member or` +
-            ` entry point it is about. Fix that, or record it BY KEY in scripts/gen-api-docs.ts` +
+            ` entry point it is about. Fix that, or record it BY KEY in scripts/gen/api-docs.ts` +
             ` (UNDOCUMENTED_ENTRIES / EXPRESSION_DEFAULTS / SELECTOR_ROWS) with the reason —` +
             ` there is no total here to raise, so adding a page or a row can never be what caused this.`
         );

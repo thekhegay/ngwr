@@ -34,10 +34,10 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
-import { err } from './lib/log/err';
-import { info } from './lib/log/info';
+import { err } from '../lib/log/err';
+import { info } from '../lib/log/info';
 
-const ROOT_PATH = resolve(import.meta.dirname, '..');
+const ROOT_PATH = resolve(import.meta.dirname, '../..');
 const DIST = resolve(ROOT_PATH, 'dist/showcase');
 const OUT_DIR = resolve(ROOT_PATH, 'dist/design-tokens');
 
@@ -246,7 +246,7 @@ function main(): void {
     const doc = {
       $description:
         `ngwr ${theme} colour tokens, generated from the built stylesheet by ` +
-        `scripts/gen-design-tokens.ts. Do not hand-edit. The dark palette is ` +
+        `scripts/gen/design-tokens.ts. Do not hand-edit. The dark palette is ` +
         `hand-tuned in theme/styles/_dark.scss and is NOT derivable from the light one.`,
       color,
     };

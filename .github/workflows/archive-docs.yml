@@ -51,11 +51,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm exec tsx scripts/gen-ai-assets.ts || true
+      - run: pnpm exec tsx scripts/gen/ai-assets.ts || true
 
       - run: |
-          if [[ -f scripts/build-showcase-app.ts ]]; then
-            pnpm exec tsx scripts/build-showcase-app.ts --base-href=/${{ inputs.path }}/
+          if [[ -f scripts/build/showcase-app.ts ]]; then
+            pnpm exec tsx scripts/build/showcase-app.ts --base-href=/${{ inputs.path }}/
           else
             pnpm exec ng build showcase --base-href=/${{ inputs.path }}/
           fi

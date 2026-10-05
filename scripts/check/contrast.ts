@@ -52,22 +52,20 @@
  *   pnpm check:contrast --verbose          # list every failing node
  */
 
-import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs';
-import { createServer, type Server } from 'node:http';
+import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { extname, join, resolve } from 'node:path';
+import { resolve } from 'node:path';
 import { exit } from 'node:process';
 
 import type { AxeResults, ImpactValue } from 'axe-core';
 import { chromium, type Browser, type Page } from 'playwright';
 
-import { err } from './lib/log/err';
-import { info } from './lib/log/info';
-import { ROOT_PATH } from './lib/paths/root';
+import { prerenderedRoutes, serveDist } from '../lib/dist-site';
+import { err } from '../lib/log/err';
+import { info } from '../lib/log/info';
+import { ROOT_PATH } from '../lib/paths/root';
 
-const DIST = resolve(ROOT_PATH, 'dist/showcase');
-const ROUTES_JSON = join(DIST, 'prerendered-routes.json');
-const BASELINE_PATH = resolve(ROOT_PATH, 'scripts/contrast-baseline.json');
+const BASELINE_PATH = resolve(ROOT_PATH, 'scripts/baselines/contrast.json');
 
 /** The rules JSDOM cannot answer. This script exists for exactly these. */
 const PAINTED_RULES = ['color-contrast', 'target-size'] as const;
@@ -130,50 +128,12 @@ type ContrastMode = (typeof CONTRAST_MODES)[number];
  */
 const AXE_SOURCE = readFileSync(createRequire(import.meta.url).resolve('axe-core'), 'utf8');
 
-const MIME: Readonly<Record<string, string>> = {
-  '.html': 'text/html; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.mjs': 'text/javascript; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.svg': 'image/svg+xml',
-  '.woff2': 'font/woff2',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.webp': 'image/webp',
-  '.ico': 'image/x-icon',
-  '.md': 'text/markdown; charset=utf-8',
-};
-
 /**
  * The pages carry `<base href="/">`, so `file://` cannot resolve a single
  * stylesheet — without a server every page would be analysed unstyled, which is
  * the very thing this script exists to avoid. Hence ~40 lines of static server
  * rather than a dependency.
  */
-function serve(): Promise<{ server: Server; origin: string }> {
-  const server = createServer((req, res) => {
-    const url = new URL(req.url ?? '/', 'http://localhost');
-    let file = join(DIST, decodeURIComponent(url.pathname));
-
-    if (existsSync(file) && statSync(file).isDirectory()) file = join(file, 'index.html');
-    // The showcase is a SPA behind a static host; anything unresolved is a
-    // client route, and its prerendered twin is the directory index.
-    if (!existsSync(file)) file = join(DIST, 'index.html');
-
-    res.writeHead(200, { 'content-type': MIME[extname(file)] ?? 'application/octet-stream' });
-    createReadStream(file).pipe(res);
-  });
-
-  return new Promise(done => {
-    server.listen(0, '127.0.0.1', () => {
-      const address = server.address();
-      const port = typeof address === 'object' && address ? address.port : 0;
-      done({ server, origin: `http://127.0.0.1:${port}` });
-    });
-  });
-}
-
 interface Finding {
   readonly rule: string;
   readonly impact: ImpactValue | null | undefined;
@@ -207,25 +167,6 @@ const readBaseline = (): Baseline => {
 };
 
 /** Every canonical route, redirect stubs dropped. */
-function routes(): string[] {
-  if (!existsSync(ROUTES_JSON)) {
-    err(`\n✘ contrast: ${ROUTES_JSON} not found. Run build:showcase first.\n`);
-    exit(1);
-  }
-
-  const all = Object.keys(
-    (JSON.parse(readFileSync(ROUTES_JSON, 'utf8')) as { routes?: Record<string, unknown> }).routes ?? {}
-  );
-
-  return all
-    .filter(route => {
-      const file = route === '/' ? join(DIST, 'index.html') : join(DIST, route.replace(/^\//, ''), 'index.html');
-      // A redirect stub is a meta-refresh page the user never sees painted.
-      return existsSync(file) && !readFileSync(file, 'utf8').includes('http-equiv="refresh"');
-    })
-    .sort();
-}
-
 async function audit(
   page: Page,
   origin: string,
@@ -340,7 +281,7 @@ async function main(): Promise<void> {
     exit(1);
   }
 
-  const everything = routes();
+  const everything = prerenderedRoutes('contrast');
   const all = everything.filter(route => route.includes(filter));
   if (all.length === 0) {
     err(`\n✘ contrast: no route matches "${filter}".\n`);
@@ -348,7 +289,7 @@ async function main(): Promise<void> {
   }
   const targets = limit > 0 ? all.slice(0, limit) : all;
 
-  const { server, origin } = await serve();
+  const { server, origin } = await serveDist('spa');
   let browser: Browser | null = null;
   const findings = new Map<string, Finding>();
   const placeholders = new Map<string, PlaceholderTally>();

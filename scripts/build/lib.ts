@@ -22,12 +22,12 @@
  * schematics and the `ngwr-mcp` CLI.
  */
 
-import { step, tsx } from './lib/run/step';
+import { step, tsx } from '../lib/run/step';
 
 step('ng build lib', 'pnpm', ['exec', 'ng', 'build', 'lib']);
 
-tsx('gen:ai-assets', 'scripts/gen-ai-assets.ts');
-tsx('copy-dist-assets', 'scripts/copy-dist-assets.ts');
-tsx('gen:i18n-json', 'scripts/gen-i18n-json.ts');
-tsx('build:schematics', 'scripts/build-schematics.ts');
-tsx('build:mcp', 'scripts/build-mcp.ts');
+tsx('gen:ai-assets', 'scripts/gen/ai-assets.ts');
+tsx('copy-dist-assets', 'scripts/build/copy-dist-assets.ts');
+tsx('gen:i18n-json', 'scripts/gen/i18n-json.ts');
+tsx('build:schematics', 'scripts/build/schematics.ts');
+tsx('build:mcp', 'scripts/build/mcp.ts');

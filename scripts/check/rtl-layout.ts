@@ -42,16 +42,11 @@
  *   pnpm check:rtl-layout --verbose          # per-route numbers, not just failures
  */
 
-import { existsSync, readFileSync } from 'node:fs';
-import { createServer, type Server } from 'node:http';
-import { extname, join, resolve } from 'node:path';
 import { exit } from 'node:process';
 
 import { chromium, type Browser, type Page } from 'playwright';
 
-const ROOT_PATH = resolve(import.meta.dirname, '..');
-const DIST = join(ROOT_PATH, 'dist/showcase');
-const ROUTES_JSON = join(DIST, 'prerendered-routes.json');
+import { prerenderedRoutes, serveDist } from '../lib/dist-site';
 
 /**
  * How far a box may escape the viewport before it counts.
@@ -63,70 +58,10 @@ const ROUTES_JSON = join(DIST, 'prerendered-routes.json');
  */
 const TOLERANCE = 4;
 
-const MIME: Record<string, string> = {
-  '.html': 'text/html; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.mjs': 'text/javascript; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.svg': 'image/svg+xml',
-  '.woff2': 'font/woff2',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.webp': 'image/webp',
-  '.ico': 'image/x-icon',
-  '.txt': 'text/plain; charset=utf-8',
-  '.xml': 'application/xml',
-  '.webmanifest': 'application/manifest+json',
-};
-
 const info = (message: string): void => console.log(message);
 const err = (message: string): void => console.error(message);
 
 /** The prerendered site needs a real origin, or every page is analysed unstyled. */
-function serve(): Promise<{ server: Server; origin: string }> {
-  const server = createServer((req, res) => {
-    const path = decodeURIComponent((req.url ?? '/').split('?')[0]);
-    const candidates = [join(DIST, path), join(DIST, path, 'index.html')];
-    const file = candidates.find(candidate => existsSync(candidate) && extname(candidate) !== '');
-
-    if (!file) {
-      res.writeHead(404).end('not found');
-      return;
-    }
-
-    res.writeHead(200, { 'content-type': MIME[extname(file)] ?? 'application/octet-stream' });
-    res.end(readFileSync(file));
-  });
-
-  return new Promise(done => {
-    server.listen(0, '127.0.0.1', () => {
-      const address = server.address();
-      const port = typeof address === 'object' && address ? address.port : 0;
-      done({ server, origin: `http://127.0.0.1:${port}` });
-    });
-  });
-}
-
-/** Every canonical route, redirect stubs dropped. */
-function routes(): string[] {
-  if (!existsSync(ROUTES_JSON)) {
-    err(`\n✘ rtl-layout: ${ROUTES_JSON} not found. Run build:showcase first.\n`);
-    exit(1);
-  }
-
-  const all = Object.keys(
-    (JSON.parse(readFileSync(ROUTES_JSON, 'utf8')) as { routes?: Record<string, unknown> }).routes ?? {}
-  );
-
-  return all
-    .filter(route => {
-      const file = route === '/' ? join(DIST, 'index.html') : join(DIST, route.replace(/^\//, ''), 'index.html');
-      return existsSync(file) && !readFileSync(file, 'utf8').includes('http-equiv="refresh"');
-    })
-    .sort();
-}
-
 interface Measurement {
   /** How far the worst visible box escapes the viewport, in CSS pixels. */
   readonly escape: number;
@@ -224,14 +159,14 @@ async function main(): Promise<void> {
   const limit = Number(args.find(a => a.startsWith('--routes='))?.split('=')[1] ?? 0);
   const filter = args.find(a => a.startsWith('--filter='))?.split('=')[1] ?? '';
 
-  const all = routes().filter(route => route.includes(filter));
+  const all = prerenderedRoutes('rtl-layout').filter(route => route.includes(filter));
   if (all.length === 0) {
     err(`\n✘ rtl-layout: no route matches "${filter}".\n`);
     exit(1);
   }
   const targets = limit > 0 ? all.slice(0, limit) : all;
 
-  const { server, origin } = await serve();
+  const { server, origin } = await serveDist('404');
   let browser: Browser | null = null;
   const failures: { route: string; ltr: number; rtl: number; culprit: string | null }[] = [];
 

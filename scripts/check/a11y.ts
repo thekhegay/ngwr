@@ -39,7 +39,7 @@ import { join, relative, resolve } from 'node:path';
 import type { AxeResults, ImpactValue, Result } from 'axe-core';
 import { JSDOM } from 'jsdom';
 
-import { ROOT_PATH } from './lib/paths/root';
+import { ROOT_PATH } from '../lib/paths/root';
 
 const DIST = resolve(ROOT_PATH, 'dist/showcase');
 
@@ -76,7 +76,7 @@ const FAILING_IMPACTS: readonly ImpactValue[] = ['serious', 'critical'];
  * any serious or critical violation now fails the build outright. Add an entry
  * back only to land a gate ahead of a fix, never to silence one.
  */
-const BASELINE_PATH = resolve(ROOT_PATH, 'scripts/a11y-baseline.json');
+const BASELINE_PATH = resolve(ROOT_PATH, 'scripts/baselines/a11y.json');
 type Baseline = Record<string, { readonly routes: number; readonly note: string }>;
 
 function readBaseline(): Baseline {

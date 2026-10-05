@@ -39,53 +39,16 @@
  */
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { createServer, type Server } from 'node:http';
-import { extname, join } from 'node:path';
-import { argv, cwd, exit, stdout } from 'node:process';
+import { resolve } from 'node:path';
+import { argv, exit, stdout } from 'node:process';
 
 import { chromium, type Browser } from 'playwright';
 
-import { LAYOUT_TARGETS, type LayoutTarget } from './lib/layout/targets';
+import { requireBuiltShowcase, serveDist } from '../lib/dist-site';
+import { LAYOUT_TARGETS, type LayoutTarget } from '../lib/layout/targets';
 
-const DIST = join(cwd(), 'dist/showcase');
-const BASELINE = join(cwd(), 'scripts/layout-baseline.json');
+const BASELINE = resolve('scripts/baselines/layout.json');
 const VIEWPORT = { width: 1280, height: 900 };
-
-const MIME: Record<string, string> = {
-  '.html': 'text/html; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.mjs': 'text/javascript; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.svg': 'image/svg+xml',
-  '.woff2': 'font/woff2',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.webp': 'image/webp',
-};
-
-/** The prerendered site needs a real origin, or every page renders unstyled. */
-function serve(): Promise<{ server: Server; origin: string }> {
-  const server = createServer((req, res) => {
-    const path = decodeURIComponent((req.url ?? '/').split('?')[0]);
-    const candidates = [join(DIST, path), join(DIST, path, 'index.html')];
-    const file = candidates.find(candidate => existsSync(candidate) && extname(candidate) !== '');
-    if (!file) {
-      res.writeHead(404).end('not found');
-      return;
-    }
-    res.writeHead(200, { 'content-type': MIME[extname(file)] ?? 'application/octet-stream' });
-    res.end(readFileSync(file));
-  });
-
-  return new Promise(done => {
-    server.listen(0, '127.0.0.1', () => {
-      const address = server.address();
-      const port = typeof address === 'object' && address ? address.port : 0;
-      done({ server, origin: `http://127.0.0.1:${port}` });
-    });
-  });
-}
 
 /**
  * How far a box may move before it is a regression.
@@ -174,10 +137,7 @@ async function measure(
 async function main(): Promise<void> {
   const { update, filter } = parseArgs();
 
-  if (!existsSync(join(DIST, 'index.html'))) {
-    log('dist/showcase is missing — run `pnpm build:showcase` first.');
-    exit(1);
-  }
+  requireBuiltShowcase('layout');
 
   const targets = LAYOUT_TARGETS.filter(t => t.id.includes(filter));
   if (targets.length === 0) {
@@ -185,7 +145,7 @@ async function main(): Promise<void> {
     exit(1);
   }
 
-  const { server, origin } = await serve();
+  const { server, origin } = await serveDist('404');
   const browser = await chromium.launch();
   const missing: string[] = [];
   let measured: Baseline = {};
@@ -212,7 +172,7 @@ async function main(): Promise<void> {
       : measured;
     const sorted = Object.fromEntries(Object.entries(merged).sort(([a], [b]) => a.localeCompare(b)));
     writeFileSync(BASELINE, `${JSON.stringify(sorted, null, 2)}\n`);
-    log(`\n✓ Recorded ${Object.keys(measured).length} entr(ies) into scripts/layout-baseline.json`);
+    log(`\n✓ Recorded ${Object.keys(measured).length} entr(ies) into scripts/baselines/layout.json`);
     return;
   }
 

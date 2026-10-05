@@ -59,9 +59,9 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { extname, join, relative, resolve } from 'node:path';
 
-import { EACH, type LoopList, loopLists, resolveLoopList } from './lib/scss-loops';
+import { EACH, type LoopList, loopLists, resolveLoopList } from '../lib/scss-loops';
 
-const ROOT = resolve(import.meta.dirname, '..');
+const ROOT = resolve(import.meta.dirname, '../..');
 const THEME = join(ROOT, 'projects/lib/theme/styles');
 /**
  * Where a reference counts from.

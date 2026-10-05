@@ -3,7 +3,7 @@
  * Heroicons, Iconoir, Bootstrap).
  *
  * Each route imports a generated `<set>.json` catalog (built by
- * `scripts/build-icon-sets.mjs`) and passes it in alongside a spec
+ * `scripts/build/icon-sets.mjs`) and passes it in alongside a spec
  * describing how to install + wire the source. The shared template
  * renders install + usage snippets above a full IconGrid so visitors
  * can see (and copy from) the entire catalog.

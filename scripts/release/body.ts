@@ -19,10 +19,10 @@ import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { argv } from 'node:process';
 
-import { extractLatestSection } from './lib/changelog/extract-latest-section';
-import { withEmojiHeadings } from './lib/changelog/with-emoji-headings';
-import { out } from './lib/log/out';
-import { ROOT_PATH } from './lib/paths/root';
+import { extractLatestSection } from '../lib/changelog/extract-latest-section';
+import { withEmojiHeadings } from '../lib/changelog/with-emoji-headings';
+import { out } from '../lib/log/out';
+import { ROOT_PATH } from '../lib/paths/root';
 
 const body = withEmojiHeadings(extractLatestSection());
 

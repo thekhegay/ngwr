@@ -21,7 +21,7 @@ import { resolve } from 'node:path';
  * the builder itself applies — a `sass`-only subpath is a stylesheet the
  * manifest carries, not an entry point that compiles.
  *
- * `scripts/gen-exports.ts` writes that map from the tree, so the tree is still
+ * `scripts/gen/exports.ts` writes that map from the tree, so the tree is still
  * the origin; this is the one reader everything else goes through.
  */
 export function libEntryPoints(libRoot = resolve('projects/lib')): string[] {

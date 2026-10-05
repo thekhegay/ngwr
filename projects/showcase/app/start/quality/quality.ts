@@ -119,7 +119,7 @@ function grouped(value: number): string {
 export default class QualityPage {
   /**
    * Every figure the template renders. Bound, never retyped — the file behind
-   * it is written by `scripts/gen-quality.ts` during `build:showcase`, so the
+   * it is written by `scripts/gen/quality.ts` during `build:showcase`, so the
    * page cannot outlive the repository it describes.
    */
   protected readonly quality = QUALITY;

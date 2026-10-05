@@ -130,9 +130,9 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
-import { EACH, listsIn, type LoopList, loopLists, resolveLoopList } from './lib/scss-loops';
+import { EACH, listsIn, type LoopList, loopLists, resolveLoopList } from '../lib/scss-loops';
 
-const ROOT = resolve(import.meta.dirname, '..');
+const ROOT = resolve(import.meta.dirname, '../..');
 const LIB = join(ROOT, 'projects/lib');
 
 /**
@@ -834,7 +834,7 @@ const blindSpots = selfTest(loopLists(LOOP_LIST_ROOTS));
 if (blindSpots.length > 0) {
   console.error(`\n✖ check:color-only is blind to a shape it is meant to see:\n`);
   for (const spot of blindSpots) console.error(`  ${spot}`);
-  console.error(`\n  A green run over the tree would mean nothing — see SELF_TEST in scripts/check-color-only.ts.\n`);
+  console.error(`\n  A green run over the tree would mean nothing — see SELF_TEST in scripts/check/color-only.ts.\n`);
   process.exit(1);
 }
 

@@ -30,9 +30,9 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { exit } from 'node:process';
 
-import { err } from './lib/log/err';
-import { info } from './lib/log/info';
-import { ROOT_PATH } from './lib/paths/root';
+import { err } from '../lib/log/err';
+import { info } from '../lib/log/info';
+import { ROOT_PATH } from '../lib/paths/root';
 
 const SITE = 'https://ngwr.dev';
 const DIST = join(ROOT_PATH, 'dist/showcase');

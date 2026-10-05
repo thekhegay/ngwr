@@ -37,18 +37,18 @@
 
 import { argv } from 'node:process';
 
-import { tsx } from './lib/run/step';
+import { tsx } from '../lib/run/step';
 
 const forwarded = argv.slice(2);
 
 // Inputs the app imports. Generated first, or the site is built from the last run's data.
-tsx('gen:selectors', 'scripts/gen-selectors.ts');
-tsx('gen:css-vars', 'scripts/gen-css-vars.ts');
-tsx('gen:quality', 'scripts/gen-quality.ts');
-tsx('gen:ai-assets', 'scripts/gen-ai-assets.ts');
+tsx('gen:selectors', 'scripts/gen/selectors.ts');
+tsx('gen:css-vars', 'scripts/gen/css-vars.ts');
+tsx('gen:quality', 'scripts/gen/quality.ts');
+tsx('gen:ai-assets', 'scripts/gen/ai-assets.ts');
 
-tsx('build:showcase (ng build + prerender gate)', 'scripts/build-showcase-app.ts', forwarded);
+tsx('build:showcase (ng build + prerender gate)', 'scripts/build/showcase-app.ts', forwarded);
 
 // Derived from the prerendered route list, so: only once it exists.
-tsx('gen:sitemap', 'scripts/gen-sitemap.ts');
-tsx('gen:md-docs', 'scripts/gen-md-docs.ts');
+tsx('gen:sitemap', 'scripts/gen/sitemap.ts');
+tsx('gen:md-docs', 'scripts/gen/md-docs.ts');

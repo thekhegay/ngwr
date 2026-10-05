@@ -27,7 +27,7 @@
  * Wired into `build:lib` so local builds and CI ship the same artifact.
  *
  * Usage:
- *   pnpm tsx scripts/build-schematics.ts
+ *   pnpm tsx scripts/build/schematics.ts
  */
 
 import { execSync } from 'node:child_process';
@@ -35,11 +35,11 @@ import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { exit } from 'node:process';
 
-import { buildSymbolMap } from './lib/build-symbol-map';
-import { err } from './lib/log/err';
-import { info } from './lib/log/info';
-import { DIST_LIB_PATH } from './lib/paths/dist-lib';
-import { ROOT_PATH } from './lib/paths/root';
+import { buildSymbolMap } from '../lib/build-symbol-map';
+import { err } from '../lib/log/err';
+import { info } from '../lib/log/info';
+import { DIST_LIB_PATH } from '../lib/paths/dist-lib';
+import { ROOT_PATH } from '../lib/paths/root';
 
 const SRC = resolve(ROOT_PATH, 'projects/lib/schematics');
 const TSCONFIG = resolve(SRC, 'tsconfig.json');

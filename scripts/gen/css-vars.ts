@@ -40,8 +40,8 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
-import { buildCssVarMap, type WrCssVarEntry, type WrCssVarMap } from './lib/build-css-var-map';
-import { ROOT_PATH } from './lib/paths/root';
+import { buildCssVarMap, type WrCssVarEntry, type WrCssVarMap } from '../lib/build-css-var-map';
+import { ROOT_PATH } from '../lib/paths/root';
 
 const OUT_DIR = resolve(ROOT_PATH, 'projects/showcase/app/_core/generated');
 const OUT_FILE = join(OUT_DIR, 'css-vars.ts');

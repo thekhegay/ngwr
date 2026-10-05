@@ -47,12 +47,11 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { exit } from 'node:process';
 
-import { WR_COLORS } from '../projects/lib/theme/colors';
-import { wrIntentTokens } from '../projects/lib/theme/palette';
-
-import { err } from './lib/log/err';
-import { info } from './lib/log/info';
-import { ROOT_PATH } from './lib/paths/root';
+import { WR_COLORS } from '../../projects/lib/theme/colors';
+import { wrIntentTokens } from '../../projects/lib/theme/palette';
+import { err } from '../lib/log/err';
+import { info } from '../lib/log/info';
+import { ROOT_PATH } from '../lib/paths/root';
 
 const DIST = resolve(ROOT_PATH, 'dist/showcase');
 const COLORS_SCSS = resolve(ROOT_PATH, 'projects/lib/theme/styles/_colors.scss');
@@ -223,7 +222,7 @@ const blindSpots = selfTest();
 if (blindSpots.length > 0) {
   err(`\n✘ check:theme cannot read a colour notation it is meant to read:\n`);
   for (const spot of blindSpots) err(`  ${spot}`);
-  err(`\n  A green run over the tree would mean nothing — see SELF_TEST in scripts/check-theme-parity.ts.\n`);
+  err(`\n  A green run over the tree would mean nothing — see SELF_TEST in scripts/check/theme-parity.ts.\n`);
   exit(1);
 }
 

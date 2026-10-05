@@ -64,7 +64,7 @@ export default class ComparisonPage {
   /**
    * The ngwr column, counted rather than typed.
    *
-   * Written by `scripts/gen-quality.ts` during the showcase build. It matters
+   * Written by `scripts/gen/quality.ts` during the showcase build. It matters
    * more here than on the quality page: this is the page a reader arrives at
    * ready to disbelieve, and every figure in the ngwr column is one they can
    * check in thirty seconds. A stale one costs the whole table.

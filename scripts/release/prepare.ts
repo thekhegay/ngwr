@@ -24,16 +24,16 @@
 import { appendFileSync } from 'node:fs';
 import { argv, env, exit } from 'node:process';
 
-import { regenerateChangelog } from './lib/changelog/regenerate';
-import { err } from './lib/log/err';
-import { info } from './lib/log/info';
-import { out } from './lib/log/out';
-import { parseReleaseType } from './lib/parse-release-type';
-import { breakingSince, lastReleaseTag, truncatedBreakingNotes } from './lib/version/breaking-since';
-import { nextVersion } from './lib/version/next';
-import { readCurrentVersion } from './lib/version/read-current';
-import { writeSupportTable } from './lib/version/support-table';
-import { writeVersion } from './lib/version/write';
+import { regenerateChangelog } from '../lib/changelog/regenerate';
+import { err } from '../lib/log/err';
+import { info } from '../lib/log/info';
+import { out } from '../lib/log/out';
+import { parseReleaseType } from '../lib/parse-release-type';
+import { breakingSince, lastReleaseTag, truncatedBreakingNotes } from '../lib/version/breaking-since';
+import { nextVersion } from '../lib/version/next';
+import { readCurrentVersion } from '../lib/version/read-current';
+import { writeSupportTable } from '../lib/version/support-table';
+import { writeVersion } from '../lib/version/write';
 
 async function main(): Promise<void> {
   // An unrecognised flag is refused rather than ignored, and the reason is that

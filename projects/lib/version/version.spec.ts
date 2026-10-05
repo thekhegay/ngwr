@@ -10,7 +10,7 @@ import { NGWR_VERSION_TOKEN } from './version.token';
 
 /**
  * A three-line entry point with one job that nothing else can do for it: keep a
- * hard-coded string in step with `package.json`. `scripts/release-prepare.ts` rewrites
+ * hard-coded string in step with `package.json`. `scripts/release/prepare.ts` rewrites
  * both, so the only way they drift is a hand edit to one of them — and nothing about a
  * stale constant looks wrong until a bug report quotes the wrong version.
  *

@@ -20,17 +20,17 @@
  * Wired into `build:lib`, so the JSON can never drift from the TS source.
  *
  * Usage:
- *   pnpm tsx scripts/gen-i18n-json.ts
+ *   pnpm tsx scripts/gen/i18n-json.ts
  */
 
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { exit } from 'node:process';
 
-import { err } from './lib/log/err';
-import { info } from './lib/log/info';
-import { DIST_LIB_PATH } from './lib/paths/dist-lib';
-import { ROOT_PATH } from './lib/paths/root';
+import { err } from '../lib/log/err';
+import { info } from '../lib/log/info';
+import { DIST_LIB_PATH } from '../lib/paths/dist-lib';
+import { ROOT_PATH } from '../lib/paths/root';
 
 const I18N_SRC = resolve(ROOT_PATH, 'projects/lib/i18n');
 

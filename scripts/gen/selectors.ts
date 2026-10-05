@@ -24,8 +24,8 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
-import { buildSelectorMap, type WrSelectorMap, type WrSelectorTarget } from './lib/build-selector-map';
-import { ROOT_PATH } from './lib/paths/root';
+import { buildSelectorMap, type WrSelectorMap, type WrSelectorTarget } from '../lib/build-selector-map';
+import { ROOT_PATH } from '../lib/paths/root';
 
 const OUT_DIR = resolve(ROOT_PATH, 'projects/showcase/app/_core/generated');
 const OUT_FILE = join(OUT_DIR, 'selectors.ts');

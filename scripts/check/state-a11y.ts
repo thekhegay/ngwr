@@ -65,22 +65,21 @@
  *   pnpm check:state-a11y --probe         # report every unreachable state instead of the first
  */
 
-import { createReadStream, existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { createServer, type Server } from 'node:http';
+import { readdirSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { extname, join, resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import { exit } from 'node:process';
 
 import type { AxeResults, ImpactValue } from 'axe-core';
 import { chromium, type Browser, type CDPSession, type Page } from 'playwright';
 
-import { err } from './lib/log/err';
-import { info } from './lib/log/info';
-import { ROOT_PATH } from './lib/paths/root';
-import { STATES, type State, type Step } from './lib/state-a11y/states';
+import { DIST_SHOWCASE as DIST, requireBuiltShowcase, serveDist } from '../lib/dist-site';
+import { err } from '../lib/log/err';
+import { info } from '../lib/log/info';
+import { ROOT_PATH } from '../lib/paths/root';
+import { STATES, type State, type Step } from '../lib/state-a11y/states';
 
-const DIST = resolve(ROOT_PATH, 'dist/showcase');
-const BASELINE_PATH = resolve(ROOT_PATH, 'scripts/state-a11y-baseline.json');
+const BASELINE_PATH = resolve(ROOT_PATH, 'scripts/baselines/state-a11y.json');
 
 /**
  * Everything axe knows, minus one.
@@ -141,43 +140,7 @@ const AXE_SOURCE = readFileSync(createRequire(import.meta.url).resolve('axe-core
 /** `--probe`: collect unreachable states instead of stopping at the first. */
 const PROBE = process.argv.includes('--probe');
 
-const MIME: Readonly<Record<string, string>> = {
-  '.html': 'text/html; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.mjs': 'text/javascript; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.svg': 'image/svg+xml',
-  '.woff2': 'font/woff2',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.webp': 'image/webp',
-  '.ico': 'image/x-icon',
-  '.md': 'text/markdown; charset=utf-8',
-};
-
 /** Same static host as `check-contrast.ts`: `<base href="/">` rules out `file://`. */
-function serve(): Promise<{ server: Server; origin: string }> {
-  const server = createServer((req, res) => {
-    const url = new URL(req.url ?? '/', 'http://localhost');
-    let file = join(DIST, decodeURIComponent(url.pathname));
-
-    if (existsSync(file) && statSync(file).isDirectory()) file = join(file, 'index.html');
-    if (!existsSync(file)) file = join(DIST, 'index.html');
-
-    res.writeHead(200, { 'content-type': MIME[extname(file)] ?? 'application/octet-stream' });
-    createReadStream(file).pipe(res);
-  });
-
-  return new Promise(done => {
-    server.listen(0, '127.0.0.1', () => {
-      const address = server.address();
-      const port = typeof address === 'object' && address ? address.port : 0;
-      done({ server, origin: `http://127.0.0.1:${port}` });
-    });
-  });
-}
-
 /**
  * `:hover` and `:focus-visible` through the devtools protocol.
  *
@@ -604,10 +567,7 @@ async function main(): Promise<void> {
   const only = args.find(a => a.startsWith('--theme='))?.split('=')[1] as Theme | undefined;
   const filter = args.find(a => a.startsWith('--filter='))?.split('=')[1] ?? '';
 
-  if (!existsSync(join(DIST, 'index.html'))) {
-    err('\n✘ state-a11y: dist/showcase not found. Run build:showcase first.\n');
-    exit(1);
-  }
+  requireBuiltShowcase('state-a11y');
 
   const themes = only ? THEMES.filter(t => t === only) : THEMES;
   if (only && themes.length === 0) {
@@ -621,7 +581,7 @@ async function main(): Promise<void> {
     exit(1);
   }
 
-  const { server, origin } = await serve();
+  const { server, origin } = await serveDist('spa');
   let browser: Browser | null = null;
   const failures: Failure[] = [];
   const painted = new Set<string>();

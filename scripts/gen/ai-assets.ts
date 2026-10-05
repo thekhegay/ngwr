@@ -21,7 +21,7 @@
  *
  * Wired into `build:lib` + `build:showcase`. The output is generated
  * (gitignored) — never hand-edit it; edit this script. (The sitemap is a
- * separate post-build step, `scripts/gen-sitemap.ts`, because it needs the
+ * separate post-build step, `scripts/gen/sitemap.ts`, because it needs the
  * prerendered route list, which only exists after the showcase build.)
  *
  * The whole point of this file is to be RIGHT about the catalog, so it carries
@@ -30,18 +30,17 @@
  * all, and nothing else in CI looks at this output.
  *
  * Usage:
- *   pnpm tsx scripts/gen-ai-assets.ts
- *   pnpm tsx scripts/gen-ai-assets.ts --check
+ *   pnpm tsx scripts/gen/ai-assets.ts
+ *   pnpm tsx scripts/gen/ai-assets.ts --check
  */
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 
-import { REQUIRED_PROVIDERS } from '../projects/lib/mcp/providers';
-
-import { renderSkill } from './lib/ai/skill';
-import { info } from './lib/log/info';
-import { ROOT_PATH } from './lib/paths/root';
+import { REQUIRED_PROVIDERS } from '../../projects/lib/mcp/providers';
+import { renderSkill } from '../lib/ai/skill';
+import { info } from '../lib/log/info';
+import { ROOT_PATH } from '../lib/paths/root';
 
 const LIB_DIR = join(ROOT_PATH, 'projects/lib');
 const SHOWCASE_APP = join(ROOT_PATH, 'projects/showcase/app');
@@ -483,7 +482,7 @@ function main(): void {
   if (process.argv.includes('--check')) {
     const failures = check(entries);
     if (failures > 0) {
-      console.error(`\n✘ llms-full.txt would ship ${failures} defect(s). Fix scripts/gen-ai-assets.ts.`);
+      console.error(`\n✘ llms-full.txt would ship ${failures} defect(s). Fix scripts/gen/ai-assets.ts.`);
       process.exit(1);
     }
     info(`✓ llms-full.txt inputs — ${entries.length} entry points, ${entries.filter(e => e.description).length} described`);

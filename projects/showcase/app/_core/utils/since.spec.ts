@@ -197,7 +197,7 @@ describe('the surfaces that draw it', () => {
   // `scanSince()` / `staleSince()` deleted the committed file would sit there
   // unread and every gate would stay green.
   it('re-derives the map from the pages on every check', () => {
-    const generator = read('scripts/gen-api-docs.ts');
+    const generator = read('scripts/gen/api-docs.ts');
 
     expect(generator.match(/\bscanSince\(pageRoutes\)/g)).toHaveLength(2);
     expect(generator).toMatch(/\bstaleSince\(since\.versions\)/);

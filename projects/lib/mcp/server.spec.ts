@@ -27,7 +27,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
  * bit and all.
  * The artifact is built HERE, into a temp package laid out like an installed
  * `ngwr`, with the same `tsc -p mcp/tsconfig.json` invocation and the same two
- * finishing touches `scripts/build-mcp.ts` applies.
+ * finishing touches `scripts/build/mcp.ts` applies.
  *
  * It used to point at `dist/lib/mcp/server.js` and skip when that was missing,
  * which read as coverage and was not: CI runs the suite twenty-one lines BEFORE
@@ -203,7 +203,7 @@ beforeAll(() => {
   root = mkdtempSync(join(tmpdir(), 'ngwr-mcp-server-'));
   server = join(root, 'mcp', 'server.js');
 
-  // The compiler invocation `scripts/build-mcp.ts` runs, pointed at the fixture
+  // The compiler invocation `scripts/build/mcp.ts` runs, pointed at the fixture
   // instead of `dist/lib`. Failing loudly here is the whole point of the change:
   // a compiler that cannot be found must not read as a suite with nothing to do.
   execFileSync(process.execPath, [TSC, '-p', TSCONFIG, '--outDir', join(root, 'mcp')], { stdio: 'pipe' });
