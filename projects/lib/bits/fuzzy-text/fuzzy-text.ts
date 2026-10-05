@@ -370,27 +370,47 @@ export class WrFuzzyText {
           ctx.drawImage(offscreen, i, 0, 1, tightHeight, i, dy, 1, tightHeight);
         }
       } else {
-        // both: horizontal pass then vertical pass on the result
+        // both: horizontal pass, then a vertical pass over what it drew.
         for (let j = 0; j < tightHeight; j++) {
           const dx = Math.floor(currentIntensity * (Math.random() - 0.5) * fuzzRange);
           ctx.drawImage(offscreen, 0, j, offscreenWidth, 1, dx, j, offscreenWidth, 1);
         }
-        const w = offscreenWidth + fuzzRange;
-        const h = tightHeight + fuzzRange;
-        const data = ctx.getImageData(0, 0, w, h);
-        ctx.clearRect(
-          -fuzzRange - 20,
-          -fuzzRange - 10,
-          offscreenWidth + 2 * (fuzzRange + 20),
-          tightHeight + 2 * (fuzzRange + 10)
-        );
-        ctx.putImageData(data, 0, 0);
-        for (let i = 0; i < w; i++) {
+
+        // The second pass runs in DEVICE space, with the transform off.
+        //
+        // `getImageData` and `putImageData` are specified to ignore the
+        // current transformation matrix; `drawImage` and `clearRect` honour
+        // it. The context carries `translate(horizontalMargin, …)`, so the
+        // two halves of this branch were addressing pixels two different
+        // ways: the read started at device x=0, a whole margin to the LEFT of
+        // what the horizontal pass had drawn, and the write put it back
+        // there — shifting the text off its own box every frame. Resetting
+        // the matrix for the duration is what makes the four calls agree.
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+        // Wide enough for the fuzz the first pass may have thrown either way,
+        // and clamped to the canvas so no read runs off the edge.
+        const readX = Math.max(0, horizontalMargin - fuzzRange);
+        const readW = Math.min(canvas.width - readX, offscreenWidth + fuzzRange * 2);
+        const readY = verticalMargin;
+        const readH = Math.min(canvas.height - readY, tightHeight);
+
+        const data = ctx.getImageData(readX, readY, readW, readH);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.putImageData(data, readX, readY);
+
+        for (let i = 0; i < readW; i++) {
           const dy = Math.floor(currentIntensity * (Math.random() - 0.5) * fuzzRange * 0.5);
-          const col = ctx.getImageData(i, 0, 1, h);
-          ctx.clearRect(i, -fuzzRange, 1, tightHeight + 2 * fuzzRange);
-          ctx.putImageData(col, i, dy);
+          if (dy === 0) continue;
+          const col = ctx.getImageData(readX + i, readY, 1, readH);
+          // `putImageData` REPLACES rather than composites, so the column has
+          // to be cleared before it is written back at its offset.
+          ctx.clearRect(readX + i, 0, 1, canvas.height);
+          ctx.putImageData(col, readX + i, readY + dy);
         }
+
+        ctx.restore();
       }
 
       rafId = requestAnimationFrame(run);

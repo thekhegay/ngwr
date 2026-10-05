@@ -51,13 +51,16 @@ export default class AuroraPage {
 
   protected readonly snippet = computed(
     () =>
-      `<wr-aurora${
-        this.colorStops() ? `\n  [colorStops]="['${this.stopA()}', '${this.stopB()}', '${this.stopC()}']"` : ''
-      }
-  [amplitude]="${this.amplitude()}"
-  [blend]="${this.blend()}"
-  [speed]="${this.speed()}"
-/>`
+      // The wrapper is part of the recipe, not decoration: the canvas fills
+      // its nearest positioned ancestor, so pasted on its own the component
+      // has nothing to size against and paints nothing.
+      `<div style="position: relative; min-height: 18rem; overflow: hidden">
+  <wr-aurora${this.colorStops() ? `\n    [colorStops]="['${this.stopA()}', '${this.stopB()}', '${this.stopC()}']"` : ''}
+    [amplitude]="${this.amplitude()}"
+    [blend]="${this.blend()}"
+    [speed]="${this.speed()}"
+  />
+</div>`
   );
 
   protected readonly controls: readonly DocControl[] = [
