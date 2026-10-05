@@ -2,6 +2,7 @@ import { Component, type EnvironmentProviders, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrConfig } from 'ngwr/config';
+import { WrFormField } from 'ngwr/form';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrRadio, type WrRadioSize } from './radio';
@@ -260,5 +261,69 @@ describe('WrRadio with an author-supplied id', () => {
   it('still labels the control', () => {
     expect(label().htmlFor).toBe('rad');
     expect(input().labels).toHaveLength(1);
+  });
+});
+
+@Component({
+  imports: [WrFormField, WrRadio, WrRadioGroup],
+  template: `
+    <wr-form-field label="Plan">
+      <wr-radio-group [(value)]="picked">
+        <wr-radio value="free">Free</wr-radio>
+        <wr-radio value="pro">Pro</wr-radio>
+      </wr-radio-group>
+    </wr-form-field>
+  `,
+})
+class FieldHost {
+  readonly picked = signal<string | null>(null);
+}
+
+describe('WrRadioGroup inside a form field', () => {
+  it('takes the field label as its accessible name', () => {
+    // `<wr-form-field>` renders a `<label for>`, and `for` binds only to a
+    // LABELABLE element — which a `div role="radiogroup"` is not. So the
+    // visible label pointed at nothing and the group announced unnamed: a
+    // reader heard the options and never the question. `aria-labelledby` is
+    // the association that does reach a role, and `useFormFieldAria` publishes
+    // the label's id for exactly this.
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(FieldHost);
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    const group = el.querySelector('[role="radiogroup"]')!;
+    const labelId = group.getAttribute('aria-labelledby');
+
+    expect(labelId).toBeTruthy();
+    expect(el.querySelector(`#${labelId}`)?.textContent?.trim()).toContain('Plan');
+
+    fixture.destroy();
+  });
+
+  it('leaves a hand-written association alone', () => {
+    // The component ships no label input on purpose — the question above a
+    // group is usually the consumer's own heading — so the field's id is a
+    // FALLBACK. A binding that always won would delete every hand-written
+    // `aria-labelledby` on a group that is not inside a field.
+    @Component({
+      imports: [WrRadio, WrRadioGroup],
+      template: `
+        <h3 id="own-question">Size</h3>
+        <wr-radio-group aria-labelledby="own-question"><wr-radio value="s">S</wr-radio></wr-radio-group>
+      `,
+    })
+    class OwnLabelHost {}
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(OwnLabelHost);
+    fixture.detectChanges();
+
+    const group = (fixture.nativeElement as HTMLElement).querySelector('[role="radiogroup"]')!;
+    expect(group.getAttribute('aria-labelledby')).toBe('own-question');
+
+    fixture.destroy();
   });
 });

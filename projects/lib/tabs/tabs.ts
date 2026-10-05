@@ -159,7 +159,9 @@ export class WrTabs implements WrTabsContext {
     const key = this.active();
     const tabs = this.tabs();
     if (tabs.length === 0) return null;
-    return tabs.find(t => t.key() === key) ?? tabs[0];
+    // Same fallback as the seed: landing on a disabled tab leaves the strip
+    // with no tab stop at all.
+    return tabs.find(t => t.key() === key) ?? tabs.find(t => !t.disabled()) ?? tabs[0];
   });
 
   // WrTabsContext
@@ -196,7 +198,15 @@ export class WrTabs implements WrTabsContext {
     // never heard of.
     effect(() => {
       const tabs = this.tabs();
-      if (tabs.length > 0 && this.active() === null) this.active.set(tabs[0].key());
+      // The first ENABLED tab, not the first tab. Every other path already
+      // skips a disabled one — `onStripKeydown` filters them out and
+      // `onTabClick` returns early — so a strip whose first tab is behind a
+      // flag seeded `active` to a key nothing can select: the roving stop is
+      // `tab === activeTab() && !tab.disabled()`, which no button then
+      // satisfied, and the whole strip left the tab order.
+      if (tabs.length > 0 && this.active() === null) {
+        this.active.set((tabs.find(t => !t.disabled()) ?? tabs[0]).key());
+      }
     });
 
     const destroyRef = inject(DestroyRef);
