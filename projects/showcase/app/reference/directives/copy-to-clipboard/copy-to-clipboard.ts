@@ -41,8 +41,21 @@ export default class CopyToClipboardPage {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: '[wrCopyToClipboard]',
-      description: 'Copies the bound string on host click. `(copied)` / `(copyFailed)` outputs.',
+      description: 'The string copied on host click. Required.',
       type: 'string',
+      required: true,
+    },
+    {
+      name: '(copied)',
+      description: 'The text that reached the clipboard.',
+      type: 'string',
+      default: '—',
+    },
+    {
+      name: '(copyFailed)',
+      description:
+        'What the write threw — a permissions refusal, an insecure origin, or a clipboard the browser would not give. The page leans on this one in prose and never tabulated it.',
+      type: 'unknown',
       default: '—',
     },
   ];

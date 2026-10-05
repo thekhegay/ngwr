@@ -42,8 +42,8 @@ export default class AutofocusPage {
     {
       name: '[wrAutofocus]',
       description: 'Focus host on init, or whenever the bound expression becomes truthy.',
-      type: 'boolean (default true)',
-      default: '—',
+      type: 'boolean',
+      default: 'true',
     },
   ];
 }

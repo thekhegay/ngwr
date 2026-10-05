@@ -58,7 +58,8 @@ start.errors; // { minDate: { min: Date(2026-01-01) } }`;
     },
     {
       name: 'error key',
-      description: 'On failure: `{ minDate: { min: Date } }`. Empty value passes.',
+      description:
+        'On failure: `{ minDate: { min: Date | string | number } }` — the bound echoed back exactly as configured, not coerced to a `Date`. Empty value passes.',
       type: '{ minDate: { min } }',
       default: '—',
     },
