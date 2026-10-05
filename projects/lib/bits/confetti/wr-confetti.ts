@@ -35,6 +35,18 @@ interface Particle {
   color: string;
   size: number;
   ttl: number;
+  /**
+   * The physics this particle was FIRED with.
+   *
+   * Carried per particle rather than read off `DEFAULTS` in the tick, which
+   * is what it used to do: `fire({ gravity: 1 })` behaved exactly like
+   * `fire()`, because `spawn` merged the options and `tick` then ignored
+   * them. A field rather than a per-burst variable because bursts overlap —
+   * one loop drains particles from several `fire()` calls at once, and each
+   * should keep the arc it was given.
+   */
+  gravity: number;
+  drag: number;
 }
 
 /**
@@ -150,6 +162,8 @@ export class WrConfetti {
         color: opts.colors[Math.floor(Math.random() * opts.colors.length)],
         size: opts.size * (0.8 + Math.random() * 0.6),
         ttl: opts.ttl,
+        gravity: opts.gravity,
+        drag: opts.drag,
       });
     }
   }
@@ -164,8 +178,8 @@ export class WrConfetti {
     ctx.clearRect(0, 0, win.innerWidth, win.innerHeight);
     const next: Particle[] = [];
     for (const p of this.particles) {
-      p.vx *= DEFAULTS.drag;
-      p.vy = p.vy * DEFAULTS.drag + DEFAULTS.gravity;
+      p.vx *= p.drag;
+      p.vy = p.vy * p.drag + p.gravity;
       p.x += p.vx;
       p.y += p.vy;
       p.rotation += p.rotationSpeed;

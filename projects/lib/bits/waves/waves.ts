@@ -228,6 +228,14 @@ export class WrWaves {
       if (!this.ctx) return;
       this.setSize();
       this.setLines();
+      // And paint it, when there is no frame loop to. Under
+      // `prefers-reduced-motion` `boot()` draws once and returns before
+      // `requestAnimationFrame`, so a later gap change cleared the canvas
+      // (`setSize` writes `canvas.width`), rebuilt the grid and left it
+      // undrawn — with `.wr-waves--painted` already on the host, so the
+      // element stayed visible and empty. `onResize` ends the same way, for
+      // the same reason.
+      if (this.platform.prefersReducedMotion()) this.drawLines();
     });
   }
 
