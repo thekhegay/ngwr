@@ -60,7 +60,11 @@ provideWrStorage({ engine: sessionStorage })
 // Or lazily — useful when wrapping with encryption / IndexedDB / a worker bridge:
 provideWrStorage({ engine: () => new EncryptedStorage(localStorage, key) })
 
-// Or directly via the token (per-feature overrides through nested injectors):
+// Or directly via the token, at BOOTSTRAP. \`WrStorage\` is root-provided and
+// resolves its engine once, when the singleton is first constructed — a token
+// re-provided on a lazy route or a component reaches no \`inject(WrStorage)\`,
+// because that instance already exists. A feature that genuinely needs its own
+// engine provides its own \`WrStorage\` beside it.
 providers: [{ provide: WR_STORAGE_ENGINE, useValue: sessionStorage }]`,
     usage: `private readonly store = inject(WrStorage);
 
@@ -68,7 +72,8 @@ this.store.set('user', { name: 'Ada' });
 this.store.get<{ name: string }>('user');         // → { name: 'Ada' }
 
 this.store.set('cart', items, { ttl: 60_000 });   // expires in 60s
-this.store.has('cart');                            // true → false after 60s
+this.store.get('cart');                            // → null after 60s, and the key is dropped
+this.store.has('cart');                            // presence only — still true until something reads it
 
 const theme = this.store.watch<'light' | 'dark'>('theme', 'light');
 effect(() => console.log('theme is', theme()));`,

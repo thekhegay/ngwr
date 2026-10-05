@@ -71,18 +71,21 @@ export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
       description: 'Open a slot. While at least one slot is open, the bar trickles asymptotically toward 90%.',
       type: '() => void',
       default: '—',
+      sub: true,
     },
     {
       name: 'complete()',
       description: 'Close one slot. When the last closes, the bar fast-forwards to 100% then resets.',
       type: '() => void',
       default: '—',
+      sub: true,
     },
     {
       name: 'reset()',
       description: 'Abort — clear every slot and hide the bar immediately, without animating to 100%.',
       type: '() => void',
       default: '—',
+      sub: true,
     },
     {
       name: 'progress',
