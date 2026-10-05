@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 
+import { WrButton } from 'ngwr/button';
 import { WrLayout, WrLayoutContent, WrLayoutFooter, WrLayoutHeader, WrLayoutSider } from 'ngwr/layout';
 
 import {
@@ -15,6 +16,7 @@ import {
   selector: 'ngwr-layout-page',
   templateUrl: './layout.html',
   imports: [
+    WrButton,
     WrLayout,
     WrLayoutHeader,
     WrLayoutSider,

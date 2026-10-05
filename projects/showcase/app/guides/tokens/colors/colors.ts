@@ -300,11 +300,11 @@ export default class TokensColorsPage {
 
     neutral: `/* Semantic neutrals — theme-correct surfaces, borders, muted text. */
 .card {
-  background: var(--wr-color-white);              /* page surface */
-  border: 1px solid var(--wr-color-border);
-  color: var(--wr-color-on-surface);              /* body text */
+  background: var(--wr-color-surface);     /* page surface */
+  border: 1px solid var(--wr-color-outline);
+  color: var(--wr-color-on-surface);       /* body text */
 }
-.card__meta  { color: var(--wr-color-text-muted); }
+.card__meta  { color: var(--wr-color-on-surface-muted); }
 .card__row:hover { background: var(--wr-color-hover); }`,
 
     iterateScss: `/* Author an intent-aware component the way the lib itself does.
@@ -349,7 +349,7 @@ export class Palette {
 
 /* So this card needs NO dark-mode override — the tokens carry it: */
 .card {
-  background: var(--wr-color-white);     /* light page / dark canvas */
+  background: var(--wr-color-surface);   /* light page / dark canvas */
   color: var(--wr-color-on-surface);     /* dark ink   / light ink   */
 }`,
   };
