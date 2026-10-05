@@ -88,8 +88,10 @@ export class WrCompare {
   /** Disable interaction (divider stays put). @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
-  /** Initial position transform — accepts any number / numeric string. */
+  /** Lowest position the divider may reach, in percent. @default 0 */
   readonly minPosition = input(0, { transform: (v: unknown): number => coerceNumberProperty(v, 0) });
+
+  /** Highest position the divider may reach, in percent. @default 100 */
   readonly maxPosition = input(100, { transform: (v: unknown): number => coerceNumberProperty(v, 100) });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);

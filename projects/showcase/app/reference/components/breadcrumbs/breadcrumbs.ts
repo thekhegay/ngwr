@@ -74,7 +74,8 @@ export default class BreadcrumbsPage {
     },
     {
       name: '<wr-breadcrumbs-item>',
-      description: 'Single row. Renders `<a>` when linked, `<span aria-current="page">` otherwise.',
+      description:
+        'Single row. The host element IS the row — `<wr-breadcrumbs-item role="listitem">` — and holds an `<a class="wr-breadcrumbs__link">` when linked or an `<a class="wr-breadcrumbs__current" aria-current="page">` when it is the page you are on. Both are anchors; the current one simply has nowhere to go.',
       type: 'component',
       default: '—',
     },

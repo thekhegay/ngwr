@@ -13,7 +13,7 @@
 
   <ngwr-doc-section
     title="Live demo"
-    description="Click the button or press ⌘K / Ctrl+K. Type to filter. ↑/↓ to move, Enter to pick, Esc to close."
+    description="Click the button or press ⌘⇧K / Ctrl+Shift+K. **Not ⌘K** — this site's own header binds that one at bootstrap, before a lazy route's, so two palettes claiming one chord means the first registered wins and the demo never opens. Type to filter. ↑/↓ to move, Enter to pick, Esc to close."
   >
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start">
@@ -26,7 +26,7 @@
           }
         </p>
       </div>
-      <wr-command-palette [items]="items" [(open)]="open" trigger="mod+k" (picked)="onPicked($event)" />
+      <wr-command-palette [items]="items" [(open)]="open" trigger="mod+shift+k" (picked)="onPicked($event)" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

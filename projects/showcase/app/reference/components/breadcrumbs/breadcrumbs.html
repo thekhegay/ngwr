@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Breadcrumbs"
-  description="Navigation trail showing the user's location in the site hierarchy. `<wr-breadcrumbs-item>` renders as a `<li>` containing either an `<a>` (when linked) or a `<span aria-current=&quot;page&quot;>` (the final crumb). Separator is a CSS pseudo-element so it doesn't pollute the accessibility tree. Each item accepts an optional leading icon."
+  description='Navigation trail showing the user&apos;s location in the site hierarchy. `<wr-breadcrumbs-item>` IS the row — the host carries `role="listitem"` rather than wrapping an `<li>` — and holds an `<a class="wr-breadcrumbs__link">` when linked, or an `<a class="wr-breadcrumbs__current" aria-current="page" role="text" tabindex="-1">` for the page you are on. Separator is a CSS pseudo-element so it doesn&apos;t pollute the accessibility tree. Each item accepts an optional leading icon.'
   [keywords]="['breadcrumbs', 'wr-breadcrumbs', 'navigation', 'a11y']"
   [labels]="['Component']"
 >
