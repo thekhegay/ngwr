@@ -110,7 +110,8 @@ export default class VirtualScrollPage {
     },
     {
       name: 'checkViewportSize()',
-      description: 'Force a viewport size recheck (after host resize outside ResizeObserver).',
+      description:
+        'Re-measure the viewport. The CDK watches the WINDOW through its `ViewportRuler`, so this is for a size change it cannot see — a split pane, a sidebar collapsing, or a parent that was `display: none` until now.',
       type: '() => void',
       default: '—',
     },

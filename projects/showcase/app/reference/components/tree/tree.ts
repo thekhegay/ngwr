@@ -131,7 +131,7 @@ export default class TreePageComponent {
     {
       name: 'WrTreeNode',
       description:
-        '`{ id, label, children?, disabled?, icon? }`. `id` is what `[(selected)]` / `[(expanded)]` carry; a node without `children` is a leaf.',
+        '`{ id, label, children?, disabled? }`. `id` is what `[(selected)]` / `[(expanded)]` carry; a node without `children` is a leaf.',
       type: 'interface',
       default: '—',
     },
