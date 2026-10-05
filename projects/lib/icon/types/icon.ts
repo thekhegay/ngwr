@@ -10,8 +10,9 @@ import type { WrIconName } from './icon-name';
 /**
  * Shape of an icon registered with the icon registry.
  *
- * The library ships a set of built-in icons, but consumers can also
- * provide their own custom icons with the same shape.
+ * **ngwr ships no icons.** Every `WrIconDef` comes from an adapter —
+ * `lucideIcons()` / `featherIcons()` — or from `svgIcon()` over raw SVG, so
+ * the set an app pays for is the set it registers.
  *
  * @example
  * ```ts
