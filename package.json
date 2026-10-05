@@ -19,6 +19,7 @@
     "gen:api-docs": "tsx scripts/gen-api-docs.ts",
     "gen:selectors": "tsx scripts/gen-selectors.ts",
     "gen:css-vars": "tsx scripts/gen-css-vars.ts",
+    "gen:exports": "tsx scripts/gen-exports.ts",
     "gen:design-tokens": "tsx scripts/gen-design-tokens.ts",
     "check:css-vars": "tsx scripts/gen-css-vars.ts --check",
     "check:selectors": "tsx scripts/gen-selectors.ts --check",
@@ -72,7 +73,7 @@
   "devDependencies": {
     "@angular-devkit/core": "^22.2.2",
     "@angular-devkit/schematics": "^22.2.2",
-    "@angular/build": "^22.2.2",
+    "@angular/build": "^22.3.0-next.0",
     "@angular/cli": "^22.2.2",
     "@angular/compiler-cli": "^22.2.1",
     "@commitlint/cli": "^21.2.3",
