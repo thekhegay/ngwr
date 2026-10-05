@@ -32,7 +32,7 @@ import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
 import { easeOutCubic } from './easing';
-import type { WrCountUpDirection, WrCountUpEasing, WrCountUpTrigger } from './interfaces';
+import type { WrCountUpDirection, WrCountUpEasing, WrCountUpTrigger } from './types';
 
 /**
  * Animated number tick. Animates from `from` to the current `to`, formatting
@@ -302,4 +302,4 @@ export class WrCountUp {
   }
 }
 
-export type { WrCountUpEasing, WrCountUpTrigger, WrCountUpDirection } from './interfaces';
+export type { WrCountUpEasing, WrCountUpTrigger, WrCountUpDirection } from './types';

@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, TestKey, type TestElement } from '@angular/cdk/testing';
 
-import type { WrLightboxHarnessFilters } from './interfaces';
+import type { WrLightboxHarnessFilters } from './types';
 
 /**
  * Test harness for `<wr-lightbox>` — the thumbnail, and the full-size viewer it

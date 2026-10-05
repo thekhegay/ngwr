@@ -10,7 +10,7 @@ import { DestroyRef, Service, inject } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
 
-import type { WrConfettiOptions } from './interfaces';
+import type { WrConfettiOptions } from './types';
 
 const DEFAULTS: Required<WrConfettiOptions> = {
   count: 80,

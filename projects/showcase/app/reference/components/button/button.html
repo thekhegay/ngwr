@@ -21,21 +21,26 @@
 
   <ngwr-doc-section
     title="Inside a form"
-    description="`<wr-btn>` is a custom element with a `button` role, and no custom element submits a form — the platform submits for `<button>`, `<input type=submit>` and `<input type=image>` and nothing else. So it takes no `type` input, and Enter in a text field will not reach it either. A submit or reset button has to be the native form: `<button wr-btn type=submit>`. Where the element form is what you want, bind the click and call the handler yourself."
+    description="Use the native form for submit and reset: `<button wr-btn type=submit>`. The `<wr-btn>` element is a custom element, which no browser submits a form for, so it takes no `type` — bind the click instead."
   >
     <ngwr-doc-code [code]="snippets.submit" language="html" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Colors">
+  <ngwr-doc-section
+    title="Colors"
+    description="Five intents, plus the default you get by setting no `color` at all. An intent ranks a button against the ones beside it — the label says what it does, so write `Delete`, not a red `OK`."
+  >
     <ngwr-doc-snippet [code]="snippets.colors">
+      <wr-btn>default</wr-btn>
       @for (c of colors; track c) {
         <wr-btn [color]="c">{{ c }}</wr-btn>
       }
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Outlined">
+  <ngwr-doc-section title="Outlined" description="Transparent fill with a coloured label and border.">
     <ngwr-doc-snippet [code]="snippets.outlined">
+      <wr-btn outlined>default</wr-btn>
       @for (c of colors; track c) {
         <wr-btn [color]="c" outlined>{{ c }}</wr-btn>
       }
@@ -52,57 +57,16 @@
 
   <ngwr-doc-section
     title="Shape"
-    description="`shape` is `rounded` (default, small radius), `pill` (fully rounded ends) or `squircle`. Every button already asks for `corner-shape: squircle` where the browser supports it, so `squircle` mostly picks a larger anchor radius to make those smooth corners read — and `pill` deliberately opts back to a round arc, since squircle maths draws a different shape at pill radii rather than degenerating into one. Where `corner-shape` is unsupported the corners are ordinary arcs; `[wrSquircle]` is the clip-path route that works regardless — see the Squircle docs."
+    description="`rounded` (default), `pill` or `squircle`. Where the browser has no `corner-shape`, a squircle falls back to a plain rounded corner."
   >
     <ngwr-doc-snippet [code]="snippets.shape">
-      <!-- Side-by-side comparison of all three shapes. -->
-      <div
-        style="
-          display: grid;
-          grid-template-columns: 6rem 1fr;
-          gap: 0.5rem 1rem;
-          align-items: center;
-          margin-bottom: 1.25rem;
-        "
-      >
-        <code style="font-size: 0.75rem; color: var(--wr-color-on-surface-muted)">rounded</code>
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
-          <wr-btn color="primary">Primary</wr-btn>
-          <wr-btn color="primary" outlined>Outlined</wr-btn>
-          <wr-btn>Default</wr-btn>
-        </div>
-
-        <code style="font-size: 0.75rem; color: var(--wr-color-on-surface-muted)">pill</code>
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
-          <wr-btn color="primary" shape="pill">Primary</wr-btn>
-          <wr-btn color="primary" outlined shape="pill">Outlined</wr-btn>
-          <wr-btn shape="pill">Default</wr-btn>
-        </div>
-
-        <code style="font-size: 0.75rem; color: var(--wr-color-on-surface-muted)">squircle</code>
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
-          <wr-btn color="primary" shape="squircle">Primary</wr-btn>
-          <wr-btn color="primary" outlined shape="squircle">Outlined</wr-btn>
-          <wr-btn shape="squircle">Default</wr-btn>
-        </div>
-      </div>
-
-      <!-- All colors × all shapes. -->
-      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+      <div class="ngwr-shape-grid">
         @for (s of shapes; track s) {
-          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center">
-            <code
-              style="
-                font-size: 0.75rem;
-                color: var(--wr-color-on-surface-muted);
-                min-width: 5rem;
-                display: inline-block;
-              "
-              >{{ s }}</code
-            >
-            @for (c of colors; track c) {
-              <wr-btn [color]="c" [shape]="s">{{ c }}</wr-btn>
-            }
+          <span wrTypography variant="overline" tone="muted">{{ s }}</span>
+          <div class="ngwr-shape-grid__row">
+            <wr-btn color="primary" [shape]="s">Primary</wr-btn>
+            <wr-btn color="primary" outlined [shape]="s">Outlined</wr-btn>
+            <wr-btn [shape]="s">Default</wr-btn>
           </div>
         }
       </div>
@@ -117,7 +81,7 @@
       <wr-btn icon="add" color="primary">Add</wr-btn>
       <wr-btn icon="checkmark" color="success">Confirm</wr-btn>
       <wr-btn icon="trash" color="danger" outlined>Delete</wr-btn>
-      <wr-btn icon="download" iconPosition="end" color="dark">Download</wr-btn>
+      <wr-btn icon="download" iconPosition="end">Download</wr-btn>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -136,7 +100,7 @@
     <ngwr-doc-snippet [code]="snippets.loading">
       <wr-btn [loading]="loading()" color="primary" (click)="loading.set(!loading())">Click to toggle</wr-btn>
       <wr-btn loading color="success">Saving</wr-btn>
-      <wr-btn loading icon="add" color="dark" outlined>With icon</wr-btn>
+      <wr-btn loading icon="add" outlined>With icon</wr-btn>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

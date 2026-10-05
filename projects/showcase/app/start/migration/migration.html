@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Migration guide"
-  description="How to move between major versions of ngwr. Each major does one of three things here, and which one depends on what it broke. **v7, v8, v9, v12 and v14 REWRITE**: their breaking changes are in code, so `ng update` edits your templates, TypeScript and stylesheets in place — the tables below document what moved if you'd rather do it by hand. **v13 REPORTS**: its one breaking change is a selector that stops matching, which no codemod can fix for you (only you know which element you meant) but which is worth a file list, because nothing anywhere errors. **v10 and v11 ship neither**, deliberately: they broke painted COLOUR — contrast on `--wr-color-*-contrast`, table header casing and tooltip theming in v10, five deepened intents in v11 — and no codemod can repair a screenshot. An empty one would only have told you your visual regressions were handled when they were not."
+  description="How to move between major versions of ngwr. Each major does one of three things here, and which one depends on what it broke. **v7, v8, v9, v12, v14 and v15 REWRITE**: their breaking changes are in code, so `ng update` edits your templates, TypeScript and stylesheets in place — the tables below document what moved if you'd rather do it by hand. **v15 also reports**, because half of what it broke is a colour decision only you can make: a removed intent has no mechanical replacement, while the neutral tokens it replaced do. **v13 REPORTS**: its one breaking change is a selector that stops matching, which no codemod can fix for you (only you know which element you meant) but which is worth a file list, because nothing anywhere errors. **v10 and v11 ship neither**, deliberately: they broke painted COLOUR — contrast on `--wr-color-*-contrast`, table header casing and tooltip theming in v10, five deepened intents in v11 — and no codemod can repair a screenshot. An empty one would only have told you your visual regressions were handled when they were not."
   [keywords]="['migration', 'ng update', 'upgrade', 'breaking changes', 'codemod', 'schematics']"
 >
   <ngwr-doc-section
@@ -9,7 +9,7 @@
   >
     <ngwr-doc-code [code]="snippets.update" language="bash" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>Never target a 7.x, 8.x or 9.x release</strong> — not with <code>ng update ngwr&#64;7</code>,
       <code>&#64;8</code> or <code>&#64;9</code>, not with <code>ng add</code>, not with any <code>ng g ngwr:*</code>.
       Every release from 7.0.0 to 9.1.0 ships CommonJS schematics under a <code>package.json</code> that declares
@@ -21,7 +21,7 @@
       else — and does not apply to ngwr.
     </p>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>If an <code>ng update ngwr&#64;9</code> already failed with that error</strong>, it had moved
       <code>package.json</code> and your lockfile to 9.x when the migration step crashed, and nothing moved them back:
       the CLI restores <code>package.json</code> only when the install itself fails. A later
@@ -36,7 +36,7 @@
     </p>
     <ngwr-doc-code [code]="snippets.recover" language="bash" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>If <code>ng update ngwr</code> hung on 14.5.0 or earlier</strong>, it was the v14 migration: up to 14.5.0
       it could hang on an ordinary template, and the only way out was to kill the command. By then
       <code>package.json</code> was on 14.x and any earlier migration in that run had already written its changes, so
@@ -47,7 +47,7 @@
     </p>
     <ngwr-doc-code [code]="snippets.recoverV14" language="bash" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>Two things that stop the first run, and neither is ngwr.</strong> Under pnpm 11 a fresh install can exit 1
       with <code>ERR_PNPM_IGNORED_BUILDS</code> — its default is to refuse dependency build scripts until the workspace
       allows them — and a release published within the last day is held back by pnpm's minimum release age, so
@@ -56,7 +56,7 @@
       it twice costs nothing.
     </p>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>Upgrading is also the moment to read the range you pinned.</strong> A breaking change can no longer arrive
       in a minor or a patch — the release script refuses that bump — so a caret range on a major is a safe range, which
       it was not when 12.2.0 shipped one. <a routerLink="/start/versioning">Versioning &amp; support</a> has that rule,
@@ -66,10 +66,87 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="v14 to v15 — the palette is five intents"
+    description="`secondary`, `light`, `medium` and `dark` are gone. The first was a second brand colour, which a library cannot pick for you. The other three were neutral FILLS wearing the names of surfaces, and what replaced them is a six-step gray ramp read through roles that name the job — `--wr-color-surface`, `-on-surface`, `-on-surface-muted`, `-outline`, `-hover`, `-fill`, `-fill-subtle`, `-fill-strong`, `-placeholder`. Paint with the role, never with a ramp step: the step is the substrate, and reaching past the role is how a rule ends up right in one theme only."
+  >
+    <p wrTypography variant="small" tone="muted">
+      <strong>The silent half is a <code>var()</code> at a token that no longer exists.</strong> It is invalid at
+      computed-value time, so the browser drops the whole declaration holding it — a
+      <code>border: 1px solid var(--wr-color-light)</code> draws no border at all, a background stays transparent — and
+      nothing says so in the build, the console or a test. A dropped declaration is indistinguishable from a rule nobody
+      wrote. This repository found 220 of them in its own docs site after the cut, across 71 files, with every one of
+      its nine gates green. <code>ng update ngwr@15</code> rewrites the four families that have a successor, so the
+      common case needs nothing from you.
+    </p>
+    <p wrTypography variant="small" tone="muted">
+      <strong>A removed intent in a template fails loudly, or not at all.</strong> With <code>strictTemplates</code> —
+      the CLI default — a static <code>color="secondary"</code> is a compile error naming the five values that remain.
+      Without it the string binds, the component writes a class no rule matches, and the element renders neutral in
+      silence. The codemod lists every one either way, and rewrites none: whether a <code>secondary</code> button should
+      become <code>primary</code>, <code>danger</code> or a colour you declare yourself is a decision only you can make,
+      and <code>light</code> / <code>medium</code> / <code>dark</code> were fills, so dropping the attribute to get the
+      neutral variant is a visual change rather than a rename.
+    </p>
+    <p wrTypography variant="small" tone="muted">
+      <strong>A compile-time rebrand has to drop the removed keys.</strong> A
+      <code>&#64;use 'ngwr' with ($base-colors: (…))</code> map still naming one of the four stops the Sass build with
+      the key in the message. The neutrals are no longer seeded there at all: they are the gray ramp, and each theme
+      sets its own six steps rather than mirroring the other's.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15 — the sortable list projects its rows"
+    description="It moved to an entry point of its own as well: `ngwr/drag-drop` became `ngwr/sortable-list`, import path and `@use` alike, every symbol keeping its name — the codemod rewrites that half. `<wr-sortable-list>` no longer owns the loop. Write your own and project one `<wr-sortable-item>` per row, which gives a row somewhere to carry its own markup instead of forcing every per-row decision onto an input of the list. `trackBy` is gone with the loop — the track expression is yours now."
+  >
+    <ngwr-doc-code [code]="snippets.v15Sortable" language="diff" />
+    <p wrTypography variant="small" tone="muted">
+      Not rewritten by the codemod: turning a template into a loop needs the array name and a track key, and only you
+      know both. It names every file instead. The list renders nothing until you migrate, which reads as empty data
+      rather than as a missed step.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15 — three things are gone"
+    description="Each is reported by `ng update`, file by file, and none is rewritten: nothing the library can write means what the removed thing meant in the same place."
+  >
+    <ngwr-doc-code [code]="snippets.v15Removed" language="diff" />
+    <p wrTypography variant="small" tone="muted">
+      <strong><code>ngwr/squircle</code></strong> was deprecated in v14 and is removed. Use
+      <code>shape="squircle"</code> on <code>&lt;wr-btn&gt;</code>, <code>&lt;wr-avatar&gt;</code> and
+      <code>&lt;wr-badge&gt;</code>, or the <code>smooth-br</code> mixin from <code>&#64;use 'ngwr/theme'</code>
+      anywhere else. They are not the same thing, which is why this is not rewritten for you: the native
+      <code>corner-shape</code> falls back to a plain rounded corner where a browser has not shipped it, and it takes no
+      radius, smoothing, corners or border inputs. An import or an <code>&#64;use</code> fails the build; a leftover
+      <code>wrSquircle</code> attribute is inert and silent.
+    </p>
+    <p wrTypography variant="small" tone="muted">
+      <strong><code>&lt;wr-action-sheet&gt;</code></strong> is removed, with its test harness. ngwr is not a mobile
+      library, and the sheet was a preset over <code>&lt;wr-drawer position="bottom" rounded&gt;</code> — two of its
+      three ingredients went with it. Write the drawer directly; the rows, their order and the cancel group are markup
+      only you have.
+    </p>
+    <p wrTypography variant="small" tone="muted">
+      <strong><code>&lt;wr-drawer showHandle&gt;</code></strong> is removed, and swipe-to-dismiss with it, for the same
+      reason. The drawer still closes on the backdrop, on Escape, and through its own dismiss button
+      (<code>closable</code>, on by default) — so for most drawers deleting the attribute is the whole migration. A
+      bound <code>[showHandle]</code> is a compile error; a bare one is inert, which is why the codemod names it.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15 — what the codemod rewrites"
+    description="Two kinds, and both pass the same test: the new form means what the old one meant in the same place. The neutral TOKENS, where three of the four successors carry the identical value in both themes, so a rewritten stylesheet paints to the pixel. And two VALUES that were named after an intent while always painting a neutral role — `[wrTypography]`'s `tone` and `<wr-timeline-item>`'s `color` — which move onto the name of what they do, together with the BEM class each emits."
+  >
+    <ngwr-doc-code [code]="snippets.v15" language="diff" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="v13 to v14 — the three that fail silently"
     description="Read this section even if your build is green, because these are the three changes nothing will tell you about. Everything else in v14 is either rewritten for you or caught by the compiler; these three compile, run, and quietly do something other than what they did in v13."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong><code>&lt;wr-loading-bar&gt;</code> no longer follows the router.</strong> The subscription is opt-in now
       — add <code>provideWrLoadingBarRouter()</code> from <code>ngwr/loading-bar/router</code> to your application
       providers. Without it the bar still works for manual <code>start()</code> / <code>complete()</code> and simply
@@ -77,7 +154,7 @@
       stays at 0%. This project's own site shipped an empty bar for the length of a release by missing precisely this.
       <code>ng update</code> lists every file that renders one.
     </p>
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>A translated <code>pagination.of</code> stops being read.</strong> The whole “1–10 of 235” line is one
       <code>pagination.range</code> template now, so a catalog that still defines <code>of</code> keeps a key nothing
       looks up — and that one line reverts to English while every other string in the same catalog goes on working,
@@ -85,7 +162,7 @@
       <code>pagination.compact</code>, whose shapes are in the diff below. <code>common.of</code> is a different key and
       is untouched — it is still shipped, and still unread.
     </p>
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>A date the field cannot parse now returns null instead of a wrong date.</strong> The one change here with
       no codemod entry at all, because there is no token to detect. It turns a wrong answer into no answer, so a host
       that relied on <code>new Date()</code>'s leniency sees the committed value stay put where it used to change — and
@@ -99,7 +176,7 @@
     description="Six names moved, and `ng update ngwr@14` rewrites every one of them: a rename is exactly what a codemod does well, since the new name means what the old one meant on the same element. `<wr-alert closeable>` becomes `closable`, matching the three places that already spelled it that way — and note that neither spelling ever raised a template error, because a bare attribute matching no input is just an attribute. `<wr-table [totalItems]>` and `<wr-pagination [(currentPage)]>` become `[total]` and `[(page)]`, so two components built to sit on the same screen stop using two words for each of the two concepts they share. `isDisabledWhenLoading` loses its prefix, leaving the library with no `is*` boolean at all. And the window's `chromeSize` moves from `compact`/`normal` to `sm`/`md` — the vocabulary v8 renamed everywhere else three majors ago. Sixth: `[wrInput]`'s size input is now plain `size`, like the other twenty-three components. It was spelled with a prefix to dodge the native `<input size>` attribute, which measures the field in characters and which `.wr-input`'s `width: 100%` has always overridden — so the clash it guarded against was never observable, and the cost of dropping it is that a native `size` on an ngwr input, which already did nothing, now does nothing under a different name."
   >
     <ngwr-doc-code [code]="snippets.v14Renames" language="diff" />
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Two things the codemod cannot reach. A component class reading one of these off a
       <code>viewChild()</code> reference is a type error on upgrade, which is the loud failure and needs no help. The
       quiet one is a test: <code>WrWindowHarness.getChromeSize()</code> answers <code>'sm'</code> /
@@ -108,7 +185,7 @@
       <code>WrPaginationHarness.with(&#123; currentPage: 3 &#125;)</code> becomes <code>&#123; page: 3 &#125;</code> —
       and that one the codemod does rewrite.
     </p>
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       One correction, because the release notes said otherwise:
       <strong>v13 announced this rename and did not make it</strong> — its subject line reads &ldquo;input size loses
       its prefix&rdquo; while <code>wrSize</code> shipped unchanged in 13.0.0 and 13.0.1. It lands here, in v14. If you
@@ -148,7 +225,7 @@
     title="v11 to v12"
     description="Two breaking changes, and they need opposite treatment. The entry-point move is pure import paths, so the v12 migration rewrites all of it. The i18n helper is a type change, which no codemod should guess at — but the compiler points at every call site, so it is a mechanical fix you can trust your build to find."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>The date entry points nest under `ngwr/date`.</strong> `ngwr/icon` has always nested its implementations
       at `ngwr/icon/adapters/lucide` and `…/feather`, while the date ones were flat and hyphenated — one idea spelled
       two ways depending on which feature you reached for. Only the import specifier changes: every exported symbol
@@ -157,7 +234,7 @@
     <ngwr-doc-api [rows]="dateEntryRows" />
     <ngwr-doc-code [code]="snippets.dateEntry" language="diff" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>`readI18nText()` returns `Signal&lt;string&gt;`.</strong> Add `()` at every read. This is a fix rather
       than a refactor, and the reason matters if you have ever wondered why a component announced itself in the wrong
       language: `WrI18n` writes every loader-backed catalog from a promise, which resolves a microtask AFTER the first
@@ -174,7 +251,7 @@
     title="v8 to v9"
     description="Three breaking changes. The codemod auto-fixes the checkbox rename; the other two are one-line manual edits — and both of those fail SILENTLY, so check them even if your build is green."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>`&lt;wr-checkbox&gt;` — `value` is now `checkboxValue`.</strong> The checkbox became a signal-forms native
       `FormCheckboxControl`, whose contract reserves `value` for the form value — so its boolean state is the `checked`
       model, and the group-membership identity moved to `checkboxValue`. Watch out: the static form fails silently.
@@ -186,14 +263,14 @@
     <ngwr-doc-api [rows]="checkboxRows" />
     <ngwr-doc-code [code]="snippets.checkbox" language="diff" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>Lucide icon names register verbatim.</strong> `lucideIcons()` no longer kebab-cases its keys, so a
       `chevronDown` key now registers as `chevronDown`, not `chevron-down`. No codemod — and nothing errors, the icon
       simply stops rendering. Either quote the key or update the usages.
     </p>
     <ngwr-doc-code [code]="snippets.lucide" language="diff" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>`info` added to `WR_COLORS` / `WrColor`.</strong> Additive at runtime, but it widens the union — an
       exhaustive `switch` over `WrColor` without a `default` will stop compiling until you handle the new member.
     </p>
@@ -203,7 +280,7 @@
     title="v7 to v8"
     description="Three breaking changes. The codemod auto-fixes density + pagination and warns (with file paths) about the removed components, which have no automatic replacement."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>Density values renamed.</strong> `compact` / `default` / `comfortable` become `sm` / `md` / `lg`; `touch`
       is unchanged and `md` is now the default. Affects `provideWrDensity`, the `wrDensity` directive, and the
       `[data-wr-density]` selector.
@@ -212,13 +289,13 @@
     <ngwr-doc-code [code]="snippets.density" language="diff" />
     <ngwr-doc-code [code]="snippets.densityTpl" language="diff" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>Pagination sizes trimmed.</strong> `WrPaginationSize` drops `xs` and `xl` — it is now `'sm' | 'md' |
       'lg'`.
     </p>
     <ngwr-doc-api [rows]="paginationRows" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>Removed components.</strong> `WrReveal` (the `wrReveal` directive in `ngwr/directives`) and
       `WrScrambleText` (`ngwr/scramble-text`) were removed — both were unreliable. There is no drop-in replacement; the
       codemod lists every file that uses them so you can swap them out.
@@ -230,7 +307,7 @@
     title="v6 to v7"
     description="v7 consolidated ten standalone entry-points into shared components. The v7 migration rewrites the tags, TypeScript imports and SCSS `@use` paths — and it runs as the first step of the one `ng update ngwr` at the top of this page, so a v6 app does not climb the ladder one major at a time."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Key renames: `wr-autocomplete` / `wr-chips-input` → `wr-select` (with `mode`); `wr-time-picker` /
       `wr-date-time-picker` → `wr-date-picker`; `wr-tooltip` → `wr-popover`; `wr-tree-select` → `wr-tree`;
       `wr-bottom-sheet` → `wr-drawer`; `wr-image` → `wr-lightbox`; `ngwr/tag` → `ngwr/badge`; `wr-animated-text` →

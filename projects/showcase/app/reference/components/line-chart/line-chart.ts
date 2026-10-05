@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { WrLineChart } from 'ngwr/line-chart';
+import { WrLineChart, type WrLineSeries } from 'ngwr/line-chart';
 
 import {
   DocApiComponent,
@@ -18,7 +18,7 @@ import { API } from '#core/generated/api';
   imports: [WrLineChart, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class LineChartPageComponent {
-  protected readonly series = [
+  protected readonly series: readonly WrLineSeries[] = [
     { label: 'Visits', data: [12, 18, 9, 22, 30, 27, 35] },
     { label: 'Signups', data: [3, 5, 4, 8, 11, 9, 14], color: 'var(--wr-color-success)' },
   ];
@@ -26,11 +26,11 @@ export default class LineChartPageComponent {
   protected readonly xLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   protected readonly snippets = {
-    install: `import { WrLineChart } from 'ngwr/line-chart';
+    install: `import { WrLineChart, type WrLineSeries } from 'ngwr/line-chart';
 
 @Component({ imports: [WrLineChart] })
 export class MyComponent {
-  protected readonly series = [
+  protected readonly series: readonly WrLineSeries[] = [
     { label: 'Visits', data: [12, 18, 9, 22, 30, 27, 35] },
     { label: 'Signups', data: [3, 5, 4, 8, 11, 9, 14], color: 'var(--wr-color-success)' },
   ];

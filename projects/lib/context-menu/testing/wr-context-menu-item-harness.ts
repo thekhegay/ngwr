@@ -7,7 +7,7 @@
 
 import { ComponentHarness, type HarnessLoader, HarnessPredicate, TestKey } from '@angular/cdk/testing';
 
-import type { WrContextMenuItemHarnessFilters } from './interfaces';
+import type { WrContextMenuItemHarnessFilters } from './types';
 import { DEFAULT_TIMEOUT, POLL_STEP, sleep } from './wait';
 
 /**

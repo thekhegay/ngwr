@@ -1,2 +1,2 @@
 export { WrBorderGlowHarness } from './wr-border-glow-harness';
-export type { WrBorderGlowHarnessFilters } from './interfaces';
+export type { WrBorderGlowHarnessFilters } from './types';

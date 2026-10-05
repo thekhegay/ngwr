@@ -15,7 +15,7 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
 
 import { numAttr } from 'ngwr/utils';
 
-import type { WrStarBorderMode, WrStarBorderRays } from './interfaces';
+import type { WrStarBorderMode, WrStarBorderRays } from './types';
 
 /**
  * Star border — radial "comet" rays orbiting the top and bottom edges of
@@ -68,4 +68,4 @@ export class WrStarBorder {
   };
 }
 
-export type { WrStarBorderMode, WrStarBorderRays } from './interfaces';
+export type { WrStarBorderMode, WrStarBorderRays } from './types';

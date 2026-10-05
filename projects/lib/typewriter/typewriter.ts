@@ -32,7 +32,7 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
-import type { WrTypewriterVariableSpeed } from './interfaces';
+import type { WrTypewriterVariableSpeed } from './types';
 
 /**
  * Classic typewriter — types out a string char-by-char, optionally
@@ -267,4 +267,4 @@ export class WrTypewriter {
   }
 }
 
-export type { WrTypewriterVariableSpeed } from './interfaces';
+export type { WrTypewriterVariableSpeed } from './types';

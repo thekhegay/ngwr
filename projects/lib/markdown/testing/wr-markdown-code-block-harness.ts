@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrMarkdownCodeBlockHarnessFilters } from './interfaces';
+import type { WrMarkdownCodeBlockHarnessFilters } from './types';
 
 /**
  * Test harness for one fenced code block of a `<wr-markdown>` document.

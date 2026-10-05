@@ -17,7 +17,7 @@ import {
   type WrDropdownPosition,
   type WrDropdownTrigger,
   wrDropdownPositions,
-} from './interfaces';
+} from './types';
 
 /**
  * The menu is a CDK overlay rendered from a template portal, so it lands in the

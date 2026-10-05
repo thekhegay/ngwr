@@ -34,7 +34,7 @@ import type {
   WrCalendarEventContext,
   WrCalendarSlot,
   WrCalendarView,
-} from './interfaces';
+} from './types';
 
 /**
  * Stands in for the consumer input `useI18nText` expects — the header strings take no

@@ -5,7 +5,7 @@ import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrBarChart } from './bar-chart';
-import type { WrBarChartDatum } from './interfaces';
+import type { WrBarChartDatum } from './types';
 
 const DATA: readonly WrBarChartDatum[] = [
   { label: 'Mon', value: 10 },

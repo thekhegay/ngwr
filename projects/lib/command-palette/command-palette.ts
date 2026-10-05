@@ -34,7 +34,7 @@ import { WrIcon } from 'ngwr/icon';
 import { WR_RESPONSIVE_OVERLAYS, wrPresentAsSheet } from 'ngwr/overlay';
 import { isComposing } from 'ngwr/utils';
 
-import type { WrCommandItem } from './interfaces';
+import type { WrCommandItem } from './types';
 
 interface Bucket {
   readonly title: string | null;

@@ -7,8 +7,8 @@
 
 import { type EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
 
-import type { WrConfig } from './interfaces';
 import { WR_CONFIG } from './tokens';
+import type { WrConfig } from './types';
 
 /**
  * Set app-wide component defaults.

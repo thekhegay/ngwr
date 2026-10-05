@@ -9,7 +9,7 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
 
-import type { WrSpinnerSize } from './interfaces';
+import type { WrSpinnerSize } from './types';
 
 /**
  * Inline loading indicator.

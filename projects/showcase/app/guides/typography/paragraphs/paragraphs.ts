@@ -35,8 +35,8 @@ export default class TypographyTextPage {
     tones: `<!-- No tone at all is the default: each variant keeps its own colour. -->
 <p wrTypography>Body, untoned</p>
 
-<p wrTypography tone="dark">Dark</p>
-<p wrTypography tone="medium">Muted</p>
+<p wrTypography tone="base">Base ink</p>
+<p wrTypography tone="muted">Muted</p>
 <p wrTypography tone="primary">Primary</p>
 <p wrTypography tone="success">Success</p>
 <p wrTypography tone="warning">Warning</p>

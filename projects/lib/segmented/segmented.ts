@@ -26,7 +26,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { WrIcon } from 'ngwr/icon';
 
-import type { WrSegmentedOption } from './interfaces';
+import type { WrSegmentedOption } from './types';
 
 /**
  * Single-choice picker rendered as a segmented control. Two-way binds

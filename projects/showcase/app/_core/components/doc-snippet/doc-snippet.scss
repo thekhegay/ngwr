@@ -4,7 +4,7 @@
   // descendants (sticky needs an unclipped chain to the scroll root,
   // which is what the anchor + back-top demos rely on). Border-radius
   // clipping is handled at `.demo` / `.code` instead.
-  border: 1px solid var(--wr-color-light);
+  border: 1px solid var(--wr-color-outline);
   border-radius: var(--wr-border-radius-base);
 }
 
@@ -16,7 +16,7 @@
   justify-content: flex-start;
   gap: 0.75rem;
   padding: 1.5rem;
-  border-bottom: 1px solid var(--wr-color-light);
+  border-bottom: 1px solid var(--wr-color-outline);
 
   // Collapse when nothing is projected (a code-only snippet). The demo is now
   // wrapped for the phone frame, so `:empty` no longer matches — key off the
@@ -72,7 +72,7 @@
   width: 1.75rem;
   height: 1.75rem;
   padding: 0;
-  border: 1px solid var(--wr-color-light);
+  border: 1px solid var(--wr-color-outline);
   border-radius: var(--wr-border-radius-sm);
   background: var(--wr-color-surface);
   color: var(--wr-color-on-surface-muted);
@@ -142,7 +142,7 @@
   height: min(70vh, 40rem);
   overflow: hidden;
   background: var(--wr-color-surface);
-  border: 1px solid var(--wr-color-light);
+  border: 1px solid var(--wr-color-outline);
   border-radius: 2rem;
   box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.18);
 }

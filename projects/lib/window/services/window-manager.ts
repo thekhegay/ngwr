@@ -24,9 +24,9 @@ import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 import { WrStorage } from 'ngwr/storage';
 import { randomId, toClassList } from 'ngwr/utils';
 
-import type { WrWindowConfig, WrWindowLayoutSnapshot, WrWindowStorageConfig } from '../interfaces';
 import { storageKey } from '../storage-key';
 import { WR_WINDOW_DATA, WR_WINDOW_REF } from '../tokens';
+import type { WrWindowConfig, WrWindowLayoutSnapshot, WrWindowStorageConfig } from '../types';
 import { WrWindowContainer } from '../window-container';
 import { WrWindowRef } from '../window-ref';
 

@@ -11,7 +11,7 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrInputOtp } from './input-otp';
-import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
+import type { WrInputOtpMode, WrInputOtpSize } from './types';
 
 @Component({
   imports: [WrInputOtp],

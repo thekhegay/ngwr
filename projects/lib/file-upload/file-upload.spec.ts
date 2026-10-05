@@ -7,7 +7,7 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrFileUpload } from './file-upload';
-import type { WrFileUploadRejection } from './interfaces';
+import type { WrFileUploadRejection } from './types';
 
 @Component({
   imports: [WrFileUpload],

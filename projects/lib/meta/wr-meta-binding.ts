@@ -7,7 +7,7 @@
 
 import { DestroyRef, Directive, effect, inject, input, untracked } from '@angular/core';
 
-import type { WrMetaConfig, WrMetaHandle } from './interfaces';
+import type { WrMetaConfig, WrMetaHandle } from './types';
 import { WrMeta } from './wr-meta';
 
 /**

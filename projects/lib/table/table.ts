@@ -34,6 +34,11 @@ import { WrPagination } from 'ngwr/pagination';
 import { WrSpinner } from 'ngwr/spinner';
 import { toClassList } from 'ngwr/utils';
 
+import { WrTableCell } from './table-cell';
+import { WrTableExpand } from './table-expand';
+import { WrTableFilter } from './table-filter';
+import { WrTableGroupHeader } from './table-group-header';
+import { WrTableSort } from './table-sort';
 import type {
   WrTableCellContext,
   WrTableColumn,
@@ -48,12 +53,7 @@ import type {
   WrTableSortState,
   WrTableSortDirection,
   WrTableSummary,
-} from './interfaces';
-import { WrTableCell } from './table-cell';
-import { WrTableExpand } from './table-expand';
-import { WrTableFilter } from './table-filter';
-import { WrTableGroupHeader } from './table-group-header';
-import { WrTableSort } from './table-sort';
+} from './types';
 
 /** Sentinel value for the single synthetic bucket used when grouping is off. */
 const WR_TABLE_UNGROUPED = Symbol('wr-table-ungrouped');
@@ -99,7 +99,7 @@ function flatRow(row: Record<string, unknown>, id: string, posinset: number, set
  *   (filterChange)="onFilter($event)"
  * >
  *   <ng-template wrTableCell="role" let-value>
- *     <wr-tag [color]="value === 'admin' ? 'danger' : 'medium'">{{ value }}</wr-tag>
+ *     <wr-tag [color]="value === 'admin' ? 'danger' : null">{{ value }}</wr-tag>
  *   </ng-template>
  * </wr-table>
  * ```

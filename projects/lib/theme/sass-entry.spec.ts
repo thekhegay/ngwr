@@ -224,3 +224,66 @@ describe("the public entry `@use 'ngwr/theme'`", () => {
     expect(css).not.toContain('[data-theme=dark] .card');
   });
 });
+
+describe('the compiled token layer', () => {
+  /** Every theme block the layer emits, keyed by selector, as one string each. */
+  const compiled = (): string =>
+    sass.compileString("@use 'index' as *;", {
+      loadPaths: [join(process.cwd(), 'projects/lib/theme')],
+      style: 'expanded',
+    }).css;
+
+  /**
+   * A `var()` at a name the layer never declares resolves to nothing, and the
+   * declaration holding it is dropped at computed-value time — silently, with no
+   * build error and no trace in a log. It is the same failure `rgb(var(--…-rgb) /
+   * a)` produces next door, arriving through the other door: not a malformed
+   * value, a well-formed reference to a token that is gone.
+   *
+   * v15 shipped the whole class at once. Cutting `light`, `medium`, `dark` and
+   * `secondary` from the palette left thirty-two references behind, and the two
+   * that mattered were not the obvious ones: every intent's `-soft-contrast`
+   * mixed toward `var(--wr-color-dark)`, and `--wr-color-on-surface-rgb` — read
+   * by eleven components for a translucent fill — pointed at `--wr-color-dark-rgb`.
+   * `check:tokens` is the inverse check and cannot see it: it reports a token
+   * nothing READS, never a read of a token nothing declares.
+   */
+  it('references no token it does not declare', () => {
+    const css = compiled();
+    const declared = new Set([...css.matchAll(/(--wr-[\w-]+)\s*:/g)].map(m => m[1]));
+    const dangling = [...new Set([...css.matchAll(/var\((--wr-[\w-]+)/g)].map(m => m[1]))].filter(
+      name => !declared.has(name)
+    );
+
+    expect(dangling).toEqual([]);
+  });
+
+  /**
+   * A `-rgb` companion is typed out rather than derived from its own step, so
+   * that `check:tokens` can match it by a concrete name. That is the trade this
+   * pins the other half of: the ramp is set per theme AND per contrast mode, so
+   * one hex edited without its channels is four chances to leave a translucent
+   * fill painting the previous theme's neutral.
+   */
+  it('keeps every `-rgb` companion equal to the step it names', () => {
+    const drift: string[] = [];
+
+    for (const block of compiled().split('}')) {
+      const hex = new Map([...block.matchAll(/(--wr-color-gray-\d+)\s*:\s*#([0-9a-f]{6})\b/g)].map(m => [m[1], m[2]]));
+
+      for (const [, name, channels] of block.matchAll(/(--wr-color-gray-\d+)-rgb\s*:\s*([\d, ]+);/g)) {
+        const expected = hex.get(name);
+        if (expected === undefined) continue;
+
+        const actual = channels
+          .split(',')
+          .map(part => Number(part).toString(16).padStart(2, '0'))
+          .join('');
+
+        if (actual !== expected) drift.push(`${name}-rgb: ${channels.trim()} but ${name}: #${expected}`);
+      }
+    }
+
+    expect(drift).toEqual([]);
+  });
+});

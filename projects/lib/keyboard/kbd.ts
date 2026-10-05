@@ -7,7 +7,7 @@
 
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-import type { WrKbdSize } from './interfaces';
+import type { WrKbdSize } from './types';
 
 /**
  * Tiny keycap chip — renders projected content (`⌘`, `K`, `Enter`, etc.) in

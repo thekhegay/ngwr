@@ -11,7 +11,7 @@ import { WrSkeleton } from './skeleton';
   template: `<wr-skeleton [color]="color()" [animated]="animated()" />`,
 })
 class Host {
-  readonly color = signal<WrColor>('light');
+  readonly color = signal<WrColor | null>(null);
   readonly animated = signal(true);
 }
 
@@ -43,18 +43,18 @@ describe('WrSkeleton', () => {
   });
 
   it('carries the colour and the shimmer by default', () => {
-    expect(classes()).toEqual(['wr-skeleton', 'wr-skeleton--animated', 'wr-skeleton--light']);
+    expect(classes()).toEqual(['wr-skeleton', 'wr-skeleton--animated']);
   });
 
   it('drops the shimmer when asked', () => {
     fixture.componentInstance.animated.set(false);
     fixture.detectChanges();
 
-    expect(classes()).toEqual(['wr-skeleton', 'wr-skeleton--light']);
+    expect(classes()).toEqual(['wr-skeleton']);
   });
 
   it('names every intent', () => {
-    for (const color of ['primary', 'medium', 'dark'] as const) {
+    for (const color of ['primary', 'success', 'danger'] as const) {
       fixture.componentInstance.color.set(color);
       fixture.detectChanges();
       expect(host().className).toContain(`wr-skeleton--${color}`);

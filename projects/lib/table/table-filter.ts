@@ -11,7 +11,7 @@ import { WrDropdown, WrDropdownMenu } from 'ngwr/dropdown';
 import { useI18nText } from 'ngwr/i18n';
 import { isComposing } from 'ngwr/utils';
 
-import type { WrTableFilterItem } from './interfaces';
+import type { WrTableFilterItem } from './types';
 
 /**
  * Filter dropdown rendered in a filterable column's header.

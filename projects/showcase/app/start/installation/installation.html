@@ -14,7 +14,7 @@
       message="npm, pnpm and yarn all treat an unsatisfied peer as a warning rather than an error, so adding ngwr to an Angular 21 project prints “Issues with peer dependencies found” and exits 0. The failure surfaces later, in the Angular linker, as “Unsupported enum value for [object Object]” pointing at a line inside one of the fesm2022 bundles. The package’s service declarations carry minVersion 22.0.0, and a linker that predates that shape cannot read them. Read the peer warning at install time: the message you get at build time never mentions a version."
     />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>The missing upper bound is not a promise, and the floor is not the only compatibility question.</strong>
       An open-ended range means your package manager will not stop you installing ngwr beside an Angular that did not
       exist when the release was cut — nothing more; and no TypeScript peer and no <code>engines</code> field are
@@ -59,7 +59,7 @@
   >
     <ngwr-doc-code [code]="snippets.globalStyles" language="scss" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>What it costs, since <code>ng new</code> warns at 500 kB.</strong> Compiled and minified, the umbrella is
       about <strong>{{ styleSizes.umbrella }}</strong> of CSS, roughly {{ styleSizes.umbrellaGzip }} over the wire —
       every component sheet in the catalog, whether you render the component or not. The fifteen entries a typical CRUD
@@ -72,7 +72,7 @@
 
     <ngwr-doc-code [code]="snippets.measureCss" language="bash" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>One declaration in that CSS is not a <code>--wr-*</code></strong
       >, and it is worth knowing about before you go looking for it: the token layer sets
       <code>color-scheme: light</code> on <code>:root</code>, and the dark block sets <code>color-scheme: dark</code> on
@@ -90,7 +90,7 @@
   >
     <ngwr-doc-code [code]="snippets.perComponent" language="scss" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>Three entries you will not think to add, and every app wants all three.</strong>
       <code>ngwr/icon</code> — a large part of the catalog renders either a <code>&lt;wr-icon&gt;</code> or a bare
       inline <code>&lt;svg class="wr-icon__svg"&gt;</code> — select and cascader chevrons, table sort and expand arrows,
@@ -102,25 +102,25 @@
       popover.
     </p>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>Then the entry point is named after itself, not after the selector.</strong> Mostly they agree, and where
       they do not the surprises are worth reading once: <code>&lt;wr-btn&gt;</code> is
       <code>&#64;use 'ngwr/button'</code>, <code>&lt;wr-tag&gt;</code> is <code>ngwr/badge</code>,
       <code>&lt;wr-option&gt;</code> is <code>ngwr/select</code>, <code>&lt;wr-accordion&gt;</code> is
       <code>ngwr/collapse</code>, <code>&lt;wr-form-field&gt;</code> is <code>ngwr/form</code>,
-      <code>&lt;wr-sortable-list&gt;</code> is <code>ngwr/drag-drop</code>, <code>&lt;wr-kbd&gt;</code> is
+      <code>&lt;wr-sortable-list&gt;</code> is <code>ngwr/sortable-list</code>, <code>&lt;wr-kbd&gt;</code> is
       <code>ngwr/keyboard</code>, <code>&lt;wr-count-up&gt;</code> is <code>ngwr/counter</code>. The rule that always
       holds: it is the last segment of the component's docs URL, the same string as its TypeScript subpath.
     </p>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>And a service mounts a component no template mentions.</strong>
       <code>WrDialog.open()</code> needs <code>&#64;use 'ngwr/dialog'</code>, <code>WrToast.show()</code> needs
       <code>ngwr/toast</code>, and <code>WrDrawerManager.open()</code> needs <code>ngwr/drawer</code> — a dialog without
       its entry opens as unstyled content with no panel and no backdrop.
     </p>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       Below: everything a component renders <em>beyond</em> <code>ngwr/icon</code>, which the paragraph above already
       settles. The list is DIRECT, so follow it through — <code>&lt;wr-table&gt;</code> pulls
       <code>ngwr/pagination</code>, which pulls <code>ngwr/select</code>, which pulls <code>ngwr/overlay</code>. A
@@ -136,7 +136,7 @@
       </ng-template>
     </wr-table>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>The subpath is the API; a deeper path into the package is not.</strong>
       <code>&#64;use 'ngwr/button'</code> resolves through the <code>sass</code> condition in the package's
       <code>exports</code> map, and that map is what a major has to keep working. A deep path like
@@ -159,7 +159,7 @@
   >
     <ngwr-doc-code [code]="snippets.reset" language="scss" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>Adding or dropping it no longer resizes ngwr's own glyphs.</strong> An inline
       <code>&lt;svg class="wr-icon__svg"&gt;</code> is <code>1em</code> of the font it lands in, and a
       <code>&lt;button&gt;</code> inherits no font-size — it takes the browser's control font, 13.33px in Chromium. Four
@@ -207,7 +207,7 @@
 
   <ngwr-doc-section
     title="What an entry point pulls in with it"
-    description="Two structural facts, since “tree-shakable” is easy to over-read. **One: an entry point's static imports come with it, options or no options.** A `<wr-table>` with three columns and nothing turned on still bundles `ngwr/checkbox`, `ngwr/dropdown`, `ngwr/pagination` (and through it `ngwr/select` and `ngwr/button`), `ngwr/spinner` and `@angular/cdk/drag-drop` — the selection column, the filter menu, the pager and column drag-reorder are inputs on one component, not separate imports, so the code is reachable whether or not the template asks for it. **Two: `provideWrOverlay()` is the heaviest provider in the catalog**, because what it pulls is CDK's overlay module, not ngwr code — it is optional in the sense that panels open without it, not in the sense that it is small. Any overlay component pulls that module in anyway, so the marginal cost is near zero once one dialog is on the page and close to the whole of it in an app that has none. Measure yours rather than budgeting from a page; the two commands below are the ones that answer it."
+    description="Two things worth knowing before you budget. An entry point brings its static imports whether or not you use the feature, so a bare `<wr-table>` still carries the checkbox, dropdown, pagination and spinner it can show. And `provideWrOverlay()` pulls CDK's overlay module, which is the heaviest thing here — free once any overlay is on the page. Measure your own build with the commands below."
   >
     <ngwr-doc-code [code]="snippets.measureJs" language="bash" />
   </ngwr-doc-section>
@@ -230,7 +230,7 @@
     title="What is in the package"
     description="Worth a look before you vendor `node_modules` or go hunting for a file that is not there. `node_modules/ngwr` holds one FESM bundle per entry point under `fesm2022/`, a `.d.ts` per entry point under `types/` (`types/ngwr-date-picker.d.ts` — the fastest exact answer for any API question), the `.scss` sources every `@use 'ngwr/<name>'` resolves against, the `schematics/` collection `ng add` and `ng update` run, and the `ngwr-mcp` server under `mcp/`. **Roughly half the unpacked size is source maps** — one `.mjs.map` beside every `.mjs`, each carrying `sourcesContent` — which is why the unpacked package is roughly twice the size of the code it runs; they are what makes a stack trace inside ngwr readable, and nothing else reads them."
   >
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>Four markdown files ship, and they are not the docs.</strong> <code>README.md</code>,
       <code>skills/ngwr/SKILL.md</code> and its two <code>references/</code> files. There is no
       <code>CHANGELOG.md</code> and no migration guide in the package: the release notes live on

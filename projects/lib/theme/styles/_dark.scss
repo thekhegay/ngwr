@@ -163,14 +163,20 @@ $dark-intents: (
 // can't express). Holding the values in variables lets the `-rgb` triplets and
 // the shade derivations read from the value that actually ships, instead of
 // being re-typed next to it.
-$_light: #262f44;
-// The medium FILL, past the flip point. Not the muted-text role: that reads from
-// `--wr-color-muted-text` below, which stays #9aa6b8 — it is text on the canvas,
-// where lighter is what makes it legible, the opposite direction from a fill.
-$_medium: #6d7682;
-$_dark: #e6ebf3;
 
 #{dark-selector()} {
+  // The neutral ramp for the dark canvas. Set, not derived — see the note at the
+  // light declarations. Same values these roles composite to today.
+  --wr-color-gray-1: #0f1625;
+  --wr-color-gray-2: #131a2b;
+  --wr-color-gray-3: #1a2234;
+  --wr-color-gray-4: #262f44;
+  --wr-color-gray-5: #9aa6b8;
+  --wr-color-gray-6: #e6ebf3;
+  --wr-color-gray-4-rgb: 38, 47, 68;
+  --wr-color-gray-5-rgb: 154, 166, 184;
+  --wr-color-gray-6-rgb: 230, 235, 243;
+
   // Canvas (was `--wr-color-white` in light mode)
   // Deeper than slate-900 so an elevated surface in slate-800 reads
   // as a real layer rather than vanishing into the background.
@@ -179,104 +185,15 @@ $_dark: #e6ebf3;
 
   // Text
   // Softer than pure-white — easier on the eyes for long reading.
-  --wr-color-dark: #{$_dark};
-  --wr-color-dark-rgb:
-    #{color.channel($_dark, 'red')}, #{color.channel($_dark, 'green')}, #{color.channel($_dark, 'blue')};
-  // `*-contrast` values are baked at SCSS compile time from the light
-  // palette, so they don't auto-flip when `--wr-color-dark` /
-  // `--wr-color-white` are reassigned for dark mode. Tooltip-style
-  // surfaces (`bg: dark; color: dark-contrast`) would render
-  // white-on-white without this override; re-pair them by hand here.
-  // unused-ok: for `-white-contrast`. Both are re-paired here because the light
-  // palette baked them, and a tooltip painting `bg: dark; color: dark-contrast`
-  // would render white-on-white without it. Only the `dark` half is painted with
-  // today; the `white` one has to be right anyway, or a consumer reaching for it
-  // in dark mode gets the light theme's answer.
-  --wr-color-dark-contrast: #0b1120;
+  //
+  // unused-ok: `*-contrast` is baked at SCSS compile time from the LIGHT
+  // palette, so it does not flip on its own when `--wr-color-white` is
+  // reassigned for the dark canvas — a tooltip painting `bg: white;
+  // color: white-contrast` would render white on white. Nothing in the library
+  // reaches for it (v15 removed the `dark` intent, which was the one thing that
+  // did), and it still has to be right, or a consumer reaching for it in dark
+  // mode gets the light theme's answer.
   --wr-color-white-contrast: #e6ebf3;
-  // Same story as the contrast pair: the shades were baked from the light
-  // palette's near-black ink, so `.wr-btn--dark:hover` painted itself almost
-  // black while keeping the near-black `-contrast` text. `dark` is an INK token,
-  // so unlike `light` below its shades mean exactly what they say.
-  // `color.scale`, not `color.adjust`, for the two lighter steps. In dark mode
-  // `dark` IS the near-white ink (#e6ebf3, L 92.7%), so `adjust(+10%)` asks for
-  // L 102.7% — out of gamut. Sass then cannot emit rgb and falls back to legacy
-  // comma-hsl with an out-of-range lightness, which browsers clamp: the token
-  // silently became pure white instead of a controlled step. `scale` moves a
-  // percentage of the REMAINING headroom, so it approaches white without ever
-  // leaving the gamut. 70% reproduces the previous `-light` to within a rounding
-  // step; 85% is the distinct step beyond it.
-  // unused-ok: for `-light` / `-lighter`. The catalog's intent loops run over
-  // `dark` like any other intent, so `.wr-btn--dark` really does paint `-dark`
-  // on hover and `-darker` on active — leaving those inherited is what once made
-  // that hover almost black under near-black text. Nothing reaches for the two
-  // lighter steps; they keep the shade set symmetric.
-  --wr-color-dark-light: #{color.scale($_dark, $lightness: 70%)};
-  --wr-color-dark-lighter: #{color.scale($_dark, $lightness: 85%)};
-  --wr-color-dark-dark: #{color.adjust($_dark, $lightness: -5%)};
-  --wr-color-dark-darker: #{color.adjust($_dark, $lightness: -10%)};
-
-  // Borders / tints (was `--wr-color-light`)
-  // Used for two jobs at once: 1-px borders and translucent surface
-  // tints (`rgba(light-rgb, 0.4)` etc.). Sits between the original
-  // slate-800 (#1f2a3d, invisible) and a brighter slate-700 (#334155,
-  // looks like glowing pencil lines). This value reads as a real
-  // divider on cards / inputs without shouting — matches what Vercel
-  // and shadcn ship for the same job.
-  --wr-color-light: #{$_light};
-  --wr-color-light-rgb:
-    #{color.channel($_light, 'red')}, #{color.channel($_light, 'green')}, #{color.channel($_light, 'blue')};
-  // The baked contrast pairs with the LIGHT value (#cbd5e1 → dark text);
-  // the dark surface above needs light text instead. Painted: it is the label
-  // `.wr-btn--light` puts on the fill.
-  --wr-color-light-contrast: #e6ebf3;
-  // `*-lighter` / `*-darker` are baked at SCSS compile time from the
-  // LIGHT palette (slate-300 ± 10% lightness ≈ #e8eef5), so without
-  // these overrides the showcase header / sidebar would draw a
-  // bright slate-200 hairline on the dark canvas. Re-derive with the
-  // semantics inverted: "lighter" still means "subtler hairline"
-  // (closer to canvas, so darker absolute color), "darker" still
-  // means "stronger divider" (further from canvas, so lighter).
-  // Both are painted: `-lighter` by the showcase chrome's hairline, `-darker` by
-  // `.wr-btn--light:active` through the intent loop.
-  --wr-color-light-lighter: #1a2236;
-  --wr-color-light-darker: #3a4661;
-  // `-light` / `-dark` were the two the hand block forgot, and `-dark` is what
-  // `.wr-btn--light` uses for hover. Left inherited, hover swapped in
-  // the LIGHT palette's slate-300 — a near-white fill under the near-white
-  // `-contrast` text above, so the button simply disappeared under the cursor.
-  // Half-steps of the tuned pair, same inverted reading: toward the canvas for
-  // `-light`, away from it for `-dark`, which also makes hover read as a lift.
-  // unused-ok: for `-light`. Only its opposite is reached for — `.wr-btn--light`
-  // takes the `-dark` step on hover and nothing takes this one — but a half-step
-  // that exists in one direction and not the other is the kind of hole the hand
-  // block already shipped once.
-  --wr-color-light-light: #{color.adjust($_light, $lightness: -2.5%)};
-  --wr-color-light-dark: #{color.adjust($_light, $lightness: 5%)};
-
-  // Secondary text (was `--wr-color-medium`)
-  // Lifted from slate-400 → slate-300-ish for better legibility on
-  // the deeper canvas.
-  --wr-color-medium: #{$_medium};
-  --wr-color-medium-rgb:
-    #{color.channel($_medium, 'red')}, #{color.channel($_medium, 'green')}, #{color.channel($_medium, 'blue')};
-  // This block shipped base + rgb only, so contrast and all four shades still
-  // came from the light palette's slate. Ink token, plain shades.
-  // unused-ok: for `-light` / `-lighter`. `.wr-btn--medium` paints `-contrast`,
-  // `-dark` and `-darker` through the intent loop, and inheriting the light
-  // palette's slate for those is the bug this block fixes. Nothing reaches for
-  // the two lighter steps; they keep the set symmetric.
-  --wr-color-medium-contrast: #{colors.contrast($_medium)};
-  --wr-color-medium-light: #{color.adjust($_medium, $lightness: 5%)};
-  --wr-color-medium-lighter: #{color.adjust($_medium, $lightness: 10%)};
-  --wr-color-medium-dark: #{color.adjust($_medium, $lightness: -5%)};
-  --wr-color-medium-darker: #{color.adjust($_medium, $lightness: -10%)};
-
-  // Muted TEXT is its own token now (the light theme could not serve both text
-  // and fill from one value), so the dark canvas needs its own version too —
-  // otherwise it would inherit the light theme's dark ink. 7.64:1 here.
-  --wr-color-muted-text: #9aa6b8;
-  --wr-color-muted-text-rgb: 154, 166, 184;
 
   // Brand-color retune
   // The default primary (#3969e2) reads a touch dim on the deep canvas. What

@@ -13,7 +13,7 @@ import type { Mark, MarkType, NodeType, ResolvedPos, Schema } from 'prosemirror-
 import { liftListItem, sinkListItem, splitListItem, wrapInList } from 'prosemirror-schema-list';
 import { type Command, type EditorState, Plugin, TextSelection, type Transaction } from 'prosemirror-state';
 
-import type { WrEditorTool } from '../interfaces';
+import type { WrEditorTool } from '../types';
 
 import { MAX_NESTING, nestingOf } from './schema';
 

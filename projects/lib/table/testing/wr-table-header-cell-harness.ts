@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrTableHeaderCellHarnessFilters } from './interfaces';
+import type { WrTableHeaderCellHarnessFilters } from './types';
 
 /**
  * Test harness for one column header of a `<wr-table>`.

@@ -13,7 +13,7 @@ import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrEventCalendar } from './event-calendar';
-import type { WrCalendarEvent, WrCalendarEventChange, WrCalendarSlot, WrCalendarView } from './interfaces';
+import type { WrCalendarEvent, WrCalendarEventChange, WrCalendarSlot, WrCalendarView } from './types';
 
 const AT = (day: number, hour = 9, minute = 0): Date => new Date(2026, 0, day, hour, minute);
 

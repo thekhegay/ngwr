@@ -11,7 +11,7 @@ import { wrEn } from 'ngwr/i18n/en';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrCalendar } from './calendar';
-import type { WrCalendarRange } from './interfaces';
+import type { WrCalendarRange } from './types';
 
 @Component({
   imports: [WrCalendar],

@@ -97,7 +97,8 @@ export class Sidebar {
    *
    * **A `SidebarGroup` is accepted as well as a `SidebarLink`, and that is not
    * convenience.** A group carrying `url` instead of `children` is a single
-   * ungrouped row (Squircle today), and the cluster index pages already collect
+   * ungrouped row — every row of the /icons sidebar, and none under
+   * /reference since v15 removed Squircle — and the cluster index pages collect
    * exactly those into their trailing "Other" section as links — where they run
    * through this same rule. Marked there and not here, the two surfaces that
    * exist to agree would disagree about the one row that reaches both by

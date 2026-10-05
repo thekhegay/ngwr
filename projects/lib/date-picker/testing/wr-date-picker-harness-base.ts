@@ -7,7 +7,7 @@
 
 import { ComponentHarness, type HarnessLoader, type TestElement } from '@angular/cdk/testing';
 
-import type { WrDatePickerDayHarnessFilters } from './interfaces';
+import type { WrDatePickerDayHarnessFilters } from './types';
 import { WrDatePickerDayHarness } from './wr-date-picker-day-harness';
 import { WrTimePanelHarness } from './wr-time-panel-harness';
 
@@ -29,7 +29,7 @@ async function byText(elements: TestElement[], text: string): Promise<TestElemen
  *
  * **Deliberately not exported, and `WrAnyDatePickerHarness` is what replaces it.**
  * The reason a consumer wanted this name was to write a helper taking "either
- * picker", which the union in `interfaces/` says directly and without publishing
+ * picker", which the union in `types/` says directly and without publishing
  * anything else. Exporting the class instead would publish the `protected` members
  * below as a subclassing contract — including `timePanels()`, which hands back the
  * harness for `<wr-time-panel>`, a component this package does not ship as public

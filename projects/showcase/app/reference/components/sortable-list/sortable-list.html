@@ -1,0 +1,81 @@
+<ngwr-doc-page
+  title="Sortable List"
+  description="Drag-to-reorder list over the Angular CDK. Rows are `<wr-sortable-item>`, the new order comes back through two-way `[(items)]`, and `[wrDragHandle]` restricts the grab to one element."
+  [keywords]="[
+    'sortable-list',
+    'drag-drop',
+    'wr-sortable-list',
+    'wr-sortable-item',
+    'wrDragHandle',
+    'reorder',
+    'touch',
+  ]"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Installation"
+    description="The list is built on the Angular CDK, so `@angular/cdk` has to be installed — it is a peer dependency, not a bundled one."
+  >
+    <ngwr-doc-code [code]="snippets.peer" language="bash" />
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic usage"
+    description="You write the loop, so a row is ordinary markup. The list reorders `items` and emits `reorder` once per gesture."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-sortable-demo">
+        <wr-sortable-list [(items)]="tasks" (reorder)="onReorder($event)">
+          @for (task of tasks(); track task.id) {
+            <wr-sortable-item>
+              <div class="ngwr-sortable-demo__row">
+                <span class="ngwr-sortable-demo__index">#{{ $index + 1 }}</span>
+                <span>{{ task.label }}</span>
+              </div>
+            </wr-sortable-item>
+          }
+        </wr-sortable-list>
+        <p wrTypography variant="small" tone="muted">Last reorder: {{ lastReorder() }}</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="With a drag handle"
+    description="Put `wrDragHandle` on one element inside the row and only that element starts a drag. There is no input for it — the directive is the switch."
+  >
+    <ngwr-doc-code [code]="snippets.handle" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-sortable-demo">
+        <wr-sortable-list [(items)]="tasks">
+          @for (task of tasks(); track task.id) {
+            <wr-sortable-item>
+              <div class="ngwr-sortable-demo__row ngwr-sortable-demo__row--handled">
+                <span wrDragHandle class="ngwr-sortable-demo__grip">≡</span>
+                <span>{{ task.label }}</span>
+              </div>
+            </wr-sortable-item>
+          }
+        </wr-sortable-list>
+        <p wrTypography variant="small" tone="muted">Only the ≡ handle starts a drag.</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Keyboard"
+    description="Every row is a tab stop. The CDK ships no key handling of its own, so without this the list would be unusable without a pointer."
+  >
+    <ngwr-doc-api [rows]="keys" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Related" description="The two symbols a row is built from.">
+    <ngwr-doc-api [rows]="related" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

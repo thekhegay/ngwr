@@ -5,8 +5,6 @@ root barrel for components.
 
 | Entry point | Import | Selector(s) |
 | --- | --- | --- |
-| `ngwr/action-sheet` | `import { WrActionSheet } from 'ngwr/action-sheet'` | `wr-action-sheet` |
-| `ngwr/action-sheet/testing` | `import { WrActionSheetActionHarness } from 'ngwr/action-sheet/testing'` | — |
 | `ngwr/affix` | `import { WrAffix } from 'ngwr/affix'` | `[wrAffix]` |
 | `ngwr/alert` | `import { WrAlert } from 'ngwr/alert'` | `wr-alert` |
 | `ngwr/anchor` | `import { WrAnchor } from 'ngwr/anchor'` | `wr-anchor` |
@@ -67,7 +65,6 @@ root barrel for components.
 | `ngwr/divider` | `import { WrDivider } from 'ngwr/divider'` | `wr-divider` |
 | `ngwr/donut-chart` | `import { WrDonutChart } from 'ngwr/donut-chart'` | `wr-donut-chart` |
 | `ngwr/donut-chart/testing` | `import { WrDonutChartHarness } from 'ngwr/donut-chart/testing'` | — |
-| `ngwr/drag-drop` | `import { WrSortableList } from 'ngwr/drag-drop'` | `[wrDragHandle]` `wr-sortable-list` |
 | `ngwr/drawer` | `import { WrDrawer } from 'ngwr/drawer'` | `[wrDrawerClose]` `[wrDrawerContent]` `[wrDrawerFooter]` `[wrDrawerTitle]` `wr-drawer` |
 | `ngwr/drawer/testing` | `import { WrDrawerHarness } from 'ngwr/drawer/testing'` | — |
 | `ngwr/dropdown` | `import { WrDropdown } from 'ngwr/dropdown'` | `wr-dropdown-item` `wr-dropdown-menu` `[wrDropdown]` |
@@ -181,6 +178,7 @@ root barrel for components.
 | `ngwr/skeleton` | `import { WrSkeleton } from 'ngwr/skeleton'` | `wr-skeleton` |
 | `ngwr/slider` | `import { WrSlider } from 'ngwr/slider'` | `wr-slider` |
 | `ngwr/slider/testing` | `import { WrSliderHarness } from 'ngwr/slider/testing'` | — |
+| `ngwr/sortable-list` | `import { WrSortableList } from 'ngwr/sortable-list'` | `[wrDragHandle]` `wr-sortable-item` `wr-sortable-list` |
 | `ngwr/sparkline` | `import { WrSparkline } from 'ngwr/sparkline'` | `wr-sparkline` |
 | `ngwr/sparkline/testing` | `import { WrSparklineHarness } from 'ngwr/sparkline/testing'` | — |
 | `ngwr/speed-dial` | `import { WrSpeedDial } from 'ngwr/speed-dial'` | `wr-speed-dial` |
@@ -194,7 +192,6 @@ root barrel for components.
 | `ngwr/splitter/testing` | `import { WrSplitterHarness } from 'ngwr/splitter/testing'` | — |
 | `ngwr/spotlight-card` | `import { WrSpotlightCard } from 'ngwr/spotlight-card'` | `wr-spotlight-card` `[wrSpotlight]` |
 | `ngwr/spotlight-card/testing` | `import { WrSpotlightCardHarness } from 'ngwr/spotlight-card/testing'` | — |
-| `ngwr/squircle` | `import { WrSquircle } from 'ngwr/squircle'` | `wr-squircle` `[wrSquircle]` |
 | `ngwr/star-border` | `import { WrStarBorder } from 'ngwr/star-border'` | `wr-star-border` `[wr-star-border]` |
 | `ngwr/star-border/testing` | `import { WrStarBorderHarness } from 'ngwr/star-border/testing'` | — |
 | `ngwr/statistic` | `import { WrStatistic } from 'ngwr/statistic'` | `wr-statistic-countdown` `wr-statistic-group` `wr-statistic` |

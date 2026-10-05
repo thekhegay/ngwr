@@ -1,2 +1,2 @@
 export { WrInputHarness } from './wr-input-harness';
-export type { WrInputHarnessFilters } from './interfaces';
+export type { WrInputHarnessFilters } from './types';

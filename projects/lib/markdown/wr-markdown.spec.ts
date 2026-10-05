@@ -11,8 +11,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideWrConfig } from 'ngwr/config';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { WrHighlightLine } from './interfaces';
 import { provideWrMarkdownHighlighter } from './provide-wr-markdown';
+import type { WrHighlightLine } from './types';
 import { WrMarkdown } from './wr-markdown';
 import { WrMarkdownHighlight } from './wr-markdown-highlight';
 

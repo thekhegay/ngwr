@@ -9,8 +9,8 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
 
-import type { WrResultStatus } from './interfaces';
 import { WrResult } from './result';
+import type { WrResultStatus } from './types';
 
 /**
  * Pre-set 404 result. Override `title` / `description` for localisation.

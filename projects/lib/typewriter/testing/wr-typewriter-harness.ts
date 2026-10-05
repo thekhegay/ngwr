@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
-import type { WrTypewriterHarnessFilters } from './interfaces';
+import type { WrTypewriterHarnessFilters } from './types';
 
 /** The one text node the state machine writes into — the whole of its observable output. */
 const CONTENT = '.wr-typewriter__content';

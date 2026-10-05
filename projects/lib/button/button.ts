@@ -23,8 +23,8 @@ import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WrSpinner } from 'ngwr/spinner';
 import type { WrColor } from 'ngwr/theme';
 
-import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './interfaces';
 import { WR_BUTTON_GROUP } from './tokens';
+import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types';
 
 /**
  * Trigger an action. Renders as a `<wr-btn>` element, or attach to a
@@ -36,13 +36,6 @@ import { WR_BUTTON_GROUP } from './tokens';
  * <a wr-btn color="primary" outlined>Cancel</a>
  * <wr-btn color="danger" icon="trash">Delete</wr-btn>
  * <wr-btn color="primary" shape="pill">Pill</wr-btn>
- * ```
- *
- * **Squircle?** Wrap with `[wrSquircle]` — the directive is the only
- * way ngwr ships smooth-corner clip-paths:
- *
- * ```html
- * <wr-btn wrSquircle [radius]="14">Squircle</wr-btn>
  * ```
  *
  * Inside a `<wr-btn-group shape="…">`, the group's shape is enforced on

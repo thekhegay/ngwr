@@ -6,8 +6,8 @@ import { wrEn } from 'ngwr/i18n/en';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrPaginationAlign, WrPaginationShape } from './interfaces';
 import { WrPagination } from './pagination';
+import type { WrPaginationAlign, WrPaginationShape } from './types';
 
 @Component({
   imports: [WrPagination],

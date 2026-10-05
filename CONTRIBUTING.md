@@ -113,7 +113,7 @@ projects/lib/<name>/
 ├── <name>.ts                  # encapsulation: None, signals-only
 ├── <name>.html
 ├── styles/_index.scss
-└── interfaces/index.ts        # public types, re-exported from public-api.ts
+└── types/index.ts             # public types, re-exported from public-api.ts
 ```
 
 Then:

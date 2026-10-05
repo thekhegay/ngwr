@@ -10,7 +10,7 @@ import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrDateRangePicker } from './date-range-picker';
-import type { WrDateRange } from './interfaces';
+import type { WrDateRange } from './types';
 
 /**
  * Sibling of `date-picker.spec.ts`, and the same overlay caveat applies: the

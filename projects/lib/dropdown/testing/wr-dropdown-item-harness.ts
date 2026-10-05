@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrDropdownItemHarnessFilters } from './interfaces';
+import type { WrDropdownItemHarnessFilters } from './types';
 
 /**
  * Test harness for one `<wr-dropdown-item>` inside a dropdown menu.

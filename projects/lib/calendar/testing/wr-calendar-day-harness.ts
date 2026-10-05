@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrCalendarDayHarnessFilters } from './interfaces';
+import type { WrCalendarDayHarnessFilters } from './types';
 
 /**
  * Test harness for one day cell of a `<wr-calendar>` grid.

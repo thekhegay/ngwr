@@ -7,8 +7,8 @@
 
 import { type EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
 
-import type { WrMarkdownHighlighter } from './interfaces';
 import { WR_MARKDOWN_HIGHLIGHTER } from './tokens';
+import type { WrMarkdownHighlighter } from './types';
 
 /**
  * Give every `<wr-markdown>` in the app a syntax highlighter.

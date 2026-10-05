@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
-import type { WrDecryptTextHarnessFilters } from './interfaces';
+import type { WrDecryptTextHarnessFilters } from './types';
 
 /** The readable copy of the string, carried once and hidden with CSS. */
 const SR_ONLY = '.wr-decrypt-text__sr-only';

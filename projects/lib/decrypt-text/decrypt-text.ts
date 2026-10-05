@@ -30,7 +30,7 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
-import type { WrDecryptTextAnimateOn, WrDecryptTextRevealDirection, WrDecryptTextClickMode } from './interfaces';
+import type { WrDecryptTextAnimateOn, WrDecryptTextRevealDirection, WrDecryptTextClickMode } from './types';
 
 const DEFAULT_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+';
 
@@ -436,4 +436,4 @@ export class WrDecryptText {
   }
 }
 
-export type { WrDecryptTextAnimateOn, WrDecryptTextRevealDirection, WrDecryptTextClickMode } from './interfaces';
+export type { WrDecryptTextAnimateOn, WrDecryptTextRevealDirection, WrDecryptTextClickMode } from './types';

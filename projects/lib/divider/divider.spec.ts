@@ -5,7 +5,7 @@ import type { WrColor } from 'ngwr/theme';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrDivider } from './divider';
-import type { WrDividerAlign, WrDividerType } from './interfaces';
+import type { WrDividerAlign, WrDividerType } from './types';
 
 @Component({
   imports: [WrDivider],

@@ -8,11 +8,11 @@
     <div class="ngwr-translate-overview__hero">
       <p wrTypography variant="overline" tone="primary">ngwr/i18n</p>
       <p wrTypography variant="display">{{ 'common.save' | wrT }} . {{ 'common.cancel' | wrT }}</p>
-      <p wrTypography variant="lead" tone="medium">
+      <p wrTypography variant="lead" tone="muted">
         One service, one signal — pipe / directive / inject. Switch locales without re-bootstrapping.
       </p>
       <div class="ngwr-translate-overview__switcher">
-        <p wrTypography tone="medium">Active locale:</p>
+        <p wrTypography tone="muted">Active locale:</p>
         @for (l of available; track l) {
           <button
             type="button"
@@ -33,7 +33,7 @@
         <li>
           <a class="ngwr-translate-overview__card" [routerLink]="card.url">
             <p wrTypography variant="h4">{{ card.title }}</p>
-            <p wrTypography tone="medium">{{ card.body }}</p>
+            <p wrTypography tone="muted">{{ card.body }}</p>
           </a>
         </li>
       }

@@ -566,8 +566,8 @@ export function extractPublicFields(): Map<string, ReadonlyMap<string, readonly 
  *
  * Declared rather than exported, deliberately. The bar this has to clear is
  * "invented versus real", and an `export` scan cannot clear it: a barrel
- * re-exports with `export type { … } from './interfaces'` in some entry points
- * and `export * from './interfaces'` in others, so half the real names never
+ * re-exports with `export type { … } from './types'` in some entry points
+ * and `export * from './types'` in others, so half the real names never
  * appear beside the word `export` anywhere. A page naming a real-but-internal
  * type is a smaller problem than a gate that cannot tell a typo from a barrel.
  */
@@ -661,10 +661,10 @@ export function unbrand(type: string): string {
  *
  * **`export` is optional.** Of the 72 aliases a documented row can reach, 49 are
  * `export type` and 23 are a bare `type X = …` re-exported by a barrel at the
- * foot of `interfaces/index.ts`. A regex keyed on `export\s+type` misses a third
+ * foot of `types/index.ts`. A regex keyed on `export\s+type` misses a third
  * of them, including 13 of the rows this tolerance exists for.
  *
- * **Location is not a convention.** 65 of the names live under `interfaces/`,
+ * **Location is not a convention.** 65 of the names live under `types/`,
  * eight sit beside the component (`WrCascaderSize`, `WrSwitchSize`,
  * `WrTextareaResize`, …), so the scan is over every non-spec file rather than a
  * folder.

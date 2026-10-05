@@ -25,7 +25,7 @@ import {
 import { WrDateAdapter } from 'ngwr/date';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 
-import type { WrCalendarMode, WrCalendarRange } from './interfaces';
+import type { WrCalendarMode, WrCalendarRange } from './types';
 
 /**
  * Stands in for the consumer input `useI18nText` expects, for labels the calendar

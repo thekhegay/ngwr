@@ -55,7 +55,7 @@ export class WrGauge {
     transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 10)),
   });
 
-  readonly trackColor = input<string>('rgba(var(--wr-color-light-rgb), 0.6)');
+  readonly trackColor = input<string>('rgba(var(--wr-color-outline-rgb), 0.6)');
   readonly valueColor = input<string>('var(--wr-color-primary)');
 
   /** Show the value text in the center. @default true */

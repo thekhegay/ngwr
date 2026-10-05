@@ -5,7 +5,7 @@ import { WrPlatform } from 'ngwr/platform';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrFuzzyText } from './fuzzy-text';
-import type { WrFuzzyTextDirection } from './interfaces';
+import type { WrFuzzyTextDirection } from './types';
 
 @Component({
   imports: [WrFuzzyText],

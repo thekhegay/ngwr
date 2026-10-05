@@ -1,12 +1,12 @@
 :host {
   --ngwr-doc-code-padding: 1rem;
   --ngwr-doc-code-radius: var(--wr-border-radius-base);
-  --ngwr-doc-code-bg: rgba(var(--wr-color-light-rgb), 0.2);
-  // `--wr-color-dark` IS the primary text token (near-black in light
-  // mode, near-white in dark). `--wr-color-dark-contrast` would be the
+  --ngwr-doc-code-bg: rgba(var(--wr-color-outline-rgb), 0.2);
+  // `--wr-color-on-surface` IS the primary text token (near-black in light
+  // mode, near-white in dark). `--wr-color-surface` would be the
   // paired color (white in light, near-black in dark) — invisible on
   // the matching surface.
-  --ngwr-doc-code-fg: var(--wr-color-dark);
+  --ngwr-doc-code-fg: var(--wr-color-on-surface);
   --ngwr-doc-code-font-size: 0.8125rem;
   --ngwr-doc-code-line-height: 1.5;
 
@@ -92,7 +92,11 @@
   }
 }
 
+// The positioning context for the copy button. It is the panel rather than the
+// host because the host also holds the tab strip, and a button anchored to the
+// host's top-right corner lands on the tabs.
 .panel {
+  position: relative;
   display: block;
 }
 
@@ -101,6 +105,15 @@
 // picks up our padding / font sizing, same as the `.fallback` pre.
 :host ::ng-deep pre {
   margin: 0;
+  // Inherited, not re-declared — but it has to be SAID. `font-family` is an
+  // inherited property and the host above sets the mono token, so this reads
+  // like a no-op; it is not, because the UA stylesheet gives `pre` a
+  // `font-family: monospace` of its own, and a rule that matches the element
+  // beats what it would otherwise inherit. Without this line every code block
+  // on the site rendered in the browser's default monospace and the token was
+  // decorative — which is how a change of mono typeface reached `main` with
+  // the font loaded, declared, and visible nowhere.
+  font-family: inherit;
   padding: var(--ngwr-doc-code-padding);
   overflow-x: auto;
   font-size: var(--ngwr-doc-code-font-size);
@@ -144,7 +157,7 @@
   padding: 0;
   border: 0;
   border-radius: var(--wr-border-radius-sm);
-  background: rgba(var(--wr-color-dark-rgb), 0.25);
+  background: rgba(var(--wr-color-on-surface-rgb), 0.25);
   color: var(--wr-color-white);
   cursor: pointer;
   opacity: 0;

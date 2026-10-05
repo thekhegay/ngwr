@@ -283,9 +283,6 @@ export const wrAr: WrI18nCatalog = {
     roledescription: 'عرض دوّار',
     slideRoledescription: 'شريحة',
   },
-  actionSheet: {
-    label: 'الإجراءات',
-  },
   alert: {
     close: 'إغلاق التنبيه',
   },

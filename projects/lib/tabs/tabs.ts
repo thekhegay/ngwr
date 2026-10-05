@@ -25,7 +25,8 @@ import {
 } from '@angular/core';
 
 import { WrTab } from './tab';
-import { WR_TABS, WR_TABS_ROUTING, type WrTabsContext } from './tokens';
+import { WR_TABS, WR_TABS_ROUTING } from './tokens';
+import type { WrTabsContext } from './types';
 
 /**
  * Instance counter for the header / panel ids. Deterministic under prerender,

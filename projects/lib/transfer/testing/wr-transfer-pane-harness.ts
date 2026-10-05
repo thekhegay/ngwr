@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
-import type { WrTransferItemHarnessFilters, WrTransferPaneHarnessFilters, WrTransferSide } from './interfaces';
+import type { WrTransferItemHarnessFilters, WrTransferPaneHarnessFilters, WrTransferSide } from './types';
 import { WrTransferItemHarness } from './wr-transfer-item-harness';
 
 /**

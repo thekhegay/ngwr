@@ -17,8 +17,8 @@ import { WR_OVERLAY, wrAppendOverlayClose, wrFollowDirection } from 'ngwr/overla
 import { toClassList } from 'ngwr/utils';
 
 import { WrDrawerRef } from './drawer-ref';
-import type { WrDrawerOptions, WrDrawerPosition } from './interfaces';
 import { WR_DRAWER_DATA, WR_DRAWER_REF } from './tokens';
+import type { WrDrawerOptions, WrDrawerPosition } from './types';
 
 const DEFAULT_POSITION: WrDrawerPosition = 'right';
 const DEFAULT_WIDTH = '20rem';
@@ -37,9 +37,6 @@ const BACKDROP_CLASS = 'wr-drawer-backdrop';
  * Uses `WR_OVERLAY` so it composes cleanly with `provideWrOverlay()`
  * — drawers render into NGWR's own overlay container and never collide
  * with other CDK consumers (Material, NG-ZORRO, etc.).
- *
- * `showHandle` / swipe-to-dismiss is component-only: it needs the drawer's own
- * wrapper markup, which the service path replaces with your component.
  *
  * @example
  * ```ts

@@ -7,7 +7,7 @@
 
 import { InjectionToken } from '@angular/core';
 
-import type { WrConfig } from './interfaces';
+import type { WrConfig } from './types';
 
 /**
  * App-wide component defaults, or `{}` when the app never called

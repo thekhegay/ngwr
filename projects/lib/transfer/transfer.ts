@@ -28,7 +28,7 @@ import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrInput } from 'ngwr/input';
 
-import type { WrTransferItem } from './interfaces';
+import type { WrTransferItem } from './types';
 
 /** A pane's rows plus the header state derived from them. */
 interface PaneState {

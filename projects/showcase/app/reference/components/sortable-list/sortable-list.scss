@@ -1,0 +1,33 @@
+.ngwr-sortable-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 28rem;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--wr-color-outline);
+    border-radius: var(--wr-border-radius-base);
+    background: var(--wr-color-surface);
+
+    &--handled {
+      cursor: default;
+    }
+  }
+
+  &__index {
+    min-width: 1.5rem;
+    color: var(--wr-color-on-surface-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__grip {
+    padding: 0 0.25rem;
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+}

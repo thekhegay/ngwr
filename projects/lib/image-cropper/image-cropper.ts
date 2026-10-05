@@ -23,7 +23,7 @@ import {
 import { useI18nText } from 'ngwr/i18n';
 import { clamp, randomId } from 'ngwr/utils';
 
-import type { WrCropHandle, WrCropRect, WrImageCropperStatus, WrImageLoadError, WrImageOutputType } from './interfaces';
+import type { WrCropHandle, WrCropRect, WrImageCropperStatus, WrImageLoadError, WrImageOutputType } from './types';
 
 /**
  * `[maxOutputSize]`'s transform. Anything that is not a positive, finite number —

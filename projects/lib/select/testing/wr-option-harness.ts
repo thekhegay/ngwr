@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrOptionHarnessFilters } from './interfaces';
+import type { WrOptionHarnessFilters } from './types';
 
 /**
  * Test harness for one option inside a `<wr-select>` panel.

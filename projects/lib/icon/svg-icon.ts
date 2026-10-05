@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { WrIconDef } from './interfaces';
+import type { WrIconDef } from './types';
 
 /**
  * Wrap a raw SVG string in the {@link WrIconDef} envelope. Use this when

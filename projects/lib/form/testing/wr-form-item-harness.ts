@@ -7,7 +7,7 @@
 
 import { ContentContainerComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrFormItemHarnessFilters } from './interfaces';
+import type { WrFormItemHarnessFilters } from './types';
 
 /**
  * Test harness for `<wr-form-item>` — the layout-only field row.

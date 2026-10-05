@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
-import type { WrSplitTextHarnessFilters } from './interfaces';
+import type { WrSplitTextHarnessFilters } from './types';
 
 /** The animated pieces — one per character or per word, whitespace excluded. */
 const PIECE = '.wr-split-text__piece';

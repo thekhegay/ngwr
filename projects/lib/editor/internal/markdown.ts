@@ -15,7 +15,7 @@ import {
   serializeMarkdown,
 } from 'ngwr/markdown';
 
-import type { WrEditorJson, WrEditorMarkJson } from '../interfaces';
+import type { WrEditorJson, WrEditorMarkJson } from '../types';
 
 /**
  * Markdown to and from the editor's document JSON — both walkers pure, with no

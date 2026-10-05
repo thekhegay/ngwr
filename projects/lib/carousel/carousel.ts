@@ -26,7 +26,8 @@ import {
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 
 import { WrCarouselSlide } from './carousel-slide';
-import { WR_CAROUSEL, type WrCarouselContext } from './tokens';
+import { WR_CAROUSEL } from './tokens';
+import type { WrCarouselContext } from './types';
 
 /**
  * Slide carousel. Project `<wr-carousel-slide>` children — the carousel

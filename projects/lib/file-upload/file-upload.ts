@@ -27,7 +27,7 @@ import { useFormFieldAria } from 'ngwr/form';
 import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { randomId } from 'ngwr/utils';
 
-import type { WrFileUploadRejection, WrFileUploadRejectionReason } from './interfaces';
+import type { WrFileUploadRejection, WrFileUploadRejectionReason } from './types';
 
 /** Does `file` match the `accept` attribute (extensions or MIME globs)? */
 function matchesAccept(file: File, accept: string): boolean {

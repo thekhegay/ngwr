@@ -13,7 +13,7 @@ import { useI18nText } from 'ngwr/i18n';
 import { numAttr } from 'ngwr/utils';
 
 import { drawQrCode } from './generator';
-import type { WrQrErrorLevel } from './interfaces';
+import type { WrQrErrorLevel } from './types';
 
 /**
  * Renders a QR code on a `<canvas>`.

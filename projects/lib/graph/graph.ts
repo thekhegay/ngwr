@@ -23,10 +23,10 @@ import { WrI18n, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { numAttr } from 'ngwr/utils';
 
 import { WrGraphNodeTemplate } from './graph-node-template';
-import type { WrGraphEdge, WrGraphNode } from './interfaces';
 import { WrLayeredGraphLayout } from './internal/layout/layered-layout';
 import { WrGraphLayout } from './internal/layout/types';
 import type { WrGraphLayoutInput, WrGraphLayoutResult, WrGraphPoint } from './internal/layout/types';
+import type { WrGraphEdge, WrGraphNode } from './types';
 
 /** What a size falls back to when neither the node nor the graph supplies a usable one. */
 const DEFAULT_NODE_WIDTH = 160;

@@ -22,7 +22,7 @@ import { useI18nText } from 'ngwr/i18n';
 import { WrPlatform } from 'ngwr/platform';
 import { WrScroll } from 'ngwr/scroll';
 
-import type { WrAnchorLink } from './interfaces';
+import type { WrAnchorLink } from './types';
 
 /**
  * Scroll-spy in-page navigation. Renders a list of links to elements on
@@ -119,4 +119,4 @@ export class WrAnchor {
   }
 }
 
-export type { WrAnchorLink } from './interfaces';
+export type { WrAnchorLink } from './types';
