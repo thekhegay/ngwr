@@ -30,5 +30,12 @@ export class MyComponent {}`;
   <div wrSplitterEnd>Editor</div>
 </wr-splitter>`;
 
+  protected readonly verticalSnippet = `<!-- The slot directives do not change with the orientation: \`start\` is the
+     top pane and \`end\` the bottom one, the same way they are left and right. -->
+<wr-splitter [(position)]="pos" orientation="vertical">
+  <div wrSplitterStart>Preview</div>
+  <div wrSplitterEnd>Logs</div>
+</wr-splitter>`;
+
   protected readonly api = API.WrSplitter;
 }
