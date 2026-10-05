@@ -115,7 +115,7 @@ function entryPointsUnder(dir: string, prefix = ''): string[] {
     const full = join(dir, name);
     if (!statSync(full).isDirectory()) continue;
     const entry = prefix ? `${prefix}/${name}` : name;
-    if (existsSync(join(full, 'public-api.ts')) && existsSync(join(full, 'ng-package.json'))) out.push(entry);
+    if (existsSync(join(full, 'public-api.ts'))) out.push(entry);
     out.push(...entryPointsUnder(full, entry));
   }
   return out;
