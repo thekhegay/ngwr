@@ -55,6 +55,19 @@ class Host {
 })
 class RouterHost {}
 
+@Component({
+  imports: [WrTabs, WrTab],
+  template: `
+    <wr-tabs [(active)]="active">
+      <wr-tab title="Behind a flag" key="first" [disabled]="true">Hidden</wr-tab>
+      <wr-tab title="Second" key="second">Visible</wr-tab>
+    </wr-tabs>
+  `,
+})
+class DisabledFirstHost {
+  readonly active = signal<string | null>(null);
+}
+
 describe('WrTabs', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
@@ -128,6 +141,24 @@ describe('WrTabs', () => {
 
     key('ArrowRight');
     expect(selected()).toBe('One');
+  });
+
+  it('seeds past a disabled first tab, so the strip keeps its tab stop', () => {
+    // A feature behind a flag is usually the FIRST tab, and the seed used to
+    // take `tabs[0]` whatever its state. The roving stop is
+    // `tab === activeTab() && !tab.disabled()`, so seeding onto a disabled tab
+    // gave the strip no `tabindex="0"` at all and took the whole widget out of
+    // the tab order.
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const probe = TestBed.createComponent(DisabledFirstHost);
+    probe.detectChanges();
+
+    const buttons = [...(probe.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('[role="tab"]')];
+    expect(buttons.map(b => b.getAttribute('tabindex'))).toEqual(['-1', '0']);
+    expect(probe.componentInstance.active()).toBe('second');
+
+    probe.destroy();
   });
 
   it('skips a disabled tab rather than landing on it', () => {
