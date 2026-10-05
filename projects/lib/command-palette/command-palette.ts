@@ -319,10 +319,20 @@ export class WrCommandPalette {
       this.activeIndex.set(0);
     });
 
-    // Sheet presentation, kept OUT of the reset above: reading `responsive()` there
-    // made the reset depend on it, so a `[responsive]` bound to a signal that
-    // flipped while the palette was open wiped whatever the user had typed.
+    // Sheet presentation, kept OUT of the reset above: reading `responsive()`
+    // there made the reset depend on it, so a `[responsive]` bound to a signal
+    // that flipped while the palette was open wiped whatever the user had
+    // typed.
+    //
+    // It depends on `open()` as well, and that is the half that was missing.
+    // `wrPresentAsSheet` reads `window.innerWidth`, which is not a signal — so
+    // with `responsive()` as the only dependency the width was sampled once,
+    // when the component was created. A palette mounted in the app shell on a
+    // wide window and opened later on a narrow one got the modal, and no
+    // resize ever changed it. Re-reading on every open is what the other four
+    // overlays get for free by deciding inside their open path.
     effect(() => {
+      this.open();
       this.presentAsSheet.set(wrPresentAsSheet(this.responsive(), this.responsiveConfig));
     });
 
