@@ -32,12 +32,12 @@ export default class ScrollServicePageComponent {
     {
       id: 'three',
       title: 'Section three',
-      body: 'The page-top button scrolls the window instead, with an 80px offset.',
+      body: 'The page-top button scrolls the window instead.',
     },
   ] as const;
 
   protected scrollToTop(): void {
-    this.scroll.toTop({ offset: 80 });
+    this.scroll.toTop();
   }
 
   protected scrollToSection(id: string): void {
@@ -77,7 +77,8 @@ this.scroll.intoView(myEl, { offset: 64 });`,
     },
     {
       name: 'options.offset',
-      description: 'Pixel offset subtracted from the target (sticky-header compensation).',
+      description:
+        'Pixel offset SUBTRACTED from the resolved target position — sticky-header compensation. It has no effect on `toTop()`, whose target is already 0: the browser clamps a negative scroll position back to the top.',
       type: 'number',
       default: '0',
     },

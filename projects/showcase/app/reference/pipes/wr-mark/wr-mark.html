@@ -27,7 +27,7 @@
 
   <ngwr-doc-section
     title="Styling"
-    description="The pipe outputs plain `<mark>` elements. Style them globally — every match shares the same class so themes can target them."
+    description="The pipe emits a bare `<mark>` with no class of its own, so a `mark { … }` rule styles every match — globally, or scoped to the host that renders the highlighted text."
   >
     <ngwr-doc-code [code]="snippets.style" language="scss" />
   </ngwr-doc-section>

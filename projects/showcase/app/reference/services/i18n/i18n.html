@@ -41,7 +41,7 @@
 
   <ngwr-doc-section
     title="Reading a key from TypeScript"
-    description="There are two families here and picking the wrong one fails at runtime rather than at compile time. `useI18nText()`, `readI18nText()` and `useI18nFormatter()` all call `inject()`, so they only run in an **injection context** — a field initializer, a constructor, or inside `runInInjectionContext()`. Call one from a click handler, a `setTimeout`, a route resolver body or a module-level constant and Angular throws `NG0203`. The service's own `t()` and `translate()` have no such rule: you already hold the instance, so they work anywhere."
+    description="There are two families here and picking the wrong one fails at runtime rather than at compile time. `useI18nText()`, `readI18nText()` and `useI18nFormatter()` all call `inject()`, so they only run in an **injection context** — a field initializer, a constructor, or inside `runInInjectionContext()`. Call one from a click handler, a `setTimeout`, a promise callback or a module-level constant and Angular throws `NG0203`. A functional `ResolveFn`, `CanActivateFn`, `CanMatchFn` or `HttpInterceptorFn` is fine — Angular runs each of those inside an injection context, so they are the one place a route hook may call these. The service's own `t()` and `translate()` have no such rule: you already hold the instance, so they work anywhere."
   >
     <div style="overflow-x: auto">
       <table>

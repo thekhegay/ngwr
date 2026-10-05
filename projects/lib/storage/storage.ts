@@ -72,7 +72,13 @@ export class WrStorage {
 
   // Public API
 
-  /** Is `key` present (regardless of value / expiry)? */
+  /**
+   * Is `key` present? A raw presence check: it does not parse the envelope, so
+   * an EXPIRED entry still answers `true` until something reads it — `get()`
+   * is what notices the TTL and removes the key on its way out. Branch on
+   * `get() !== null` when the answer has to respect expiry; this one is for
+   * "is there anything under this key at all", quota accounting included.
+   */
   has(key: string): boolean {
     return this.engine.getItem(this.fullKey(key)) !== null;
   }

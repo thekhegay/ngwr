@@ -36,7 +36,7 @@
 
   <ngwr-doc-section
     title="Why ngwr provides this"
-    description="A router-aware progress bar needs router event wiring, debounce against quick navigations, and manual start/stop for HTTP work. The service centralizes that instead of leaving it to every app shell."
+    description="The service owns the parts every app shell would otherwise rewrite: slot COUNTING, so concurrent requests share one bar instead of fighting over it; the asymptotic trickle toward 90% that keeps a long wait moving without promising an end; and the fast-forward-and-reset when the last slot closes. What it deliberately does NOT own is the router — `WrLoadingBar` injects nothing from `@angular/router`, so an app that never routes pays none of it, and an app that does adds `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`. Without that provider the bar still works for manual `start()` / `complete()` and simply never moves on navigation, which is a silence worth checking for."
   />
 
   <ngwr-doc-section title="API">

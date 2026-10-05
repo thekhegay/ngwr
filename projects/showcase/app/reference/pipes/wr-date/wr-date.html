@@ -6,7 +6,7 @@
 >
   <ngwr-doc-section
     title="Named keys"
-    description="Six locale-aware presets work with or without an adapter — they map to `Intl` date/time styles."
+    description="Six locale-aware presets resolve with or without an adapter, but not to the same string: with `provideWrDateAdapter()` they are the adapter’s own option sets (`3/15/2026`, `02:30 PM`), and without one the pipe falls back to `Intl`’s `dateStyle` / `timeStyle` shorthands, which abbreviate the year and drop the leading zero (`3/15/26`, `2:30 PM`). Provide an adapter wherever the exact rendering matters."
   >
     <ngwr-doc-code [code]="snippets.named" language="angular-html" />
     <ngwr-doc-snippet code="">
