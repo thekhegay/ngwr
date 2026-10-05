@@ -21,10 +21,38 @@ const FOCUSABLE_SELECTOR = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(',');
 
-/** Return every focusable descendant of `root` in DOM order. */
+/**
+ * Is `el` rendered? A layout test, not a style one: `getClientRects()` is empty
+ * for `display: none` on the element OR on any ancestor, and non-empty for
+ * everything that has a box — `position: fixed` included.
+ *
+ * It used to be `offsetParent !== null`, which is almost the same test and
+ * wrong in one direction that matters here: a `position: fixed` element has no
+ * offset parent at all, so every control inside a fixed panel — the one shape a
+ * focus trap is most often wrapped around — was dropped as if it were hidden.
+ *
+ * `visibility: hidden` keeps its box, so it needs its own read. It is checked
+ * second because it is the expensive one, and `getClientRects()` already
+ * rejects the common case.
+ */
+function isRendered(el: HTMLElement): boolean {
+  if (el.getClientRects().length === 0) return false;
+  return el.ownerDocument.defaultView?.getComputedStyle(el).visibility !== 'hidden';
+}
+
+/**
+ * Return every focusable descendant of `root`, in DOM ORDER — not in tab order.
+ * A positive `tabindex` is not reordered, because a trap that honoured it would
+ * disagree with the browser about what Tab does for everything outside the trap;
+ * APG says not to use positive values at all.
+ *
+ * Elements with no box are dropped (see `isRendered`), except the one that
+ * currently has focus: a trap must still be able to find where it is standing,
+ * and an element can be focused and then hidden by the same interaction.
+ */
 export function getFocusableElements(root: HTMLElement): readonly HTMLElement[] {
   return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
-    el => el.offsetParent !== null || el === document.activeElement
+    el => isRendered(el) || el === document.activeElement
   );
 }
 

@@ -89,7 +89,7 @@ WrValidators.matchFields('a', 'b', 'c');`;
     {
       name: 'error key',
       description:
-        'On mismatch: `{ matchFields: { fields: [...] } }`, on the GROUP. The payload echoes the configured names and deliberately carries no control values.',
+        'On mismatch: `{ matchFields: { fields: [...] } }`, on the GROUP. `fields` lists the names it actually COMPARED, so a disabled control is left out of it — pointing a reader at something they cannot edit is worse than saying nothing. It deliberately carries no control VALUES: this guards passwords, and an error object reaches the DOM, the logs and whatever reports errors.',
       type: '{ matchFields: { fields } }',
       default: '—',
     },

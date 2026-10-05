@@ -10,7 +10,7 @@
 
   <ngwr-doc-section
     title="Why ngwr provides this"
-    description="`Math.round((v) * 100) / 100` mis-rounds boundary values because of binary floating point — `1.005` becomes `1` instead of `1.01`. Adding `Number.EPSILON` before scaling fixes the boundary cases; the slider and input-number components rely on it for step math."
+    description="`Math.round(v * 100) / 100` mis-rounds a boundary value because of binary floating point: `1.005` is stored a hair below the half, so it becomes `1` rather than `1.01`. Adding `Number.EPSILON` first nudges it back. Know the bound, because it is narrower than it looks — `Number.EPSILON` is an ABSOLUTE 2^-52, which is exactly one ulp while `|value|` is under 2 and smaller than one ulp above that, so the nudge is inert for a larger number and the result is whatever `Math.round` would have given. That is the right trade for what the library rounds with it: slider step maths and `wr-input-number`’s decimals, where the interesting values are small."
   >
     <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
   </ngwr-doc-section>
