@@ -89,14 +89,14 @@ export class ChatComponent {
 }
 
 // The class token already types the generics — no cast, no WR_DRAWER_REF needed:
-private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WR_DRAWER_REF);`,
+private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WrDrawerRef);`,
     focus: `<!-- Say where focus starts and the two forms stop differing. The attribute
      needs no import — the focus trap looks it up by name. -->
 <wr-drawer [(open)]="open" position="right">
   <h2 wrDrawerTitle>Filters</h2>
   <div wrDrawerContent>
     <wr-form-field label="Search">
-      <input wrInput cdkFocusInitial [(value)]="query" />
+      <input wrInput cdkFocusInitial [value]="query()" (input)="onQuery($event)" />
     </wr-form-field>
   </div>
 </wr-drawer>
