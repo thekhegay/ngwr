@@ -14,6 +14,43 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Size and stroke"
+    description="`size` is the dial's diameter in px (floored at 32) and `strokeWidth` the thickness of the arc. Both are plain numbers rather than CSS lengths, because the SVG geometry is computed from them."
+  >
+    <ngwr-doc-code [code]="sizeSnippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: center">
+        <wr-knob [(value)]="value" [size]="64" [strokeWidth]="5" />
+        <wr-knob [(value)]="value" [size]="120" />
+        <wr-knob [(value)]="value" [size]="160" [strokeWidth]="14" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Without the readout"
+    description="Binding `showValue` to false hides the number in the middle and leaves the arc. The value is still announced — it lives on the dial's `aria-valuenow`, not in the text — so this is a visual choice rather than an accessibility one. Give the knob an `ariaLabel` either way; with no readout there is nothing on screen naming it."
+  >
+    <ngwr-doc-code [code]="noValueSnippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-knob [(value)]="volume" [showValue]="false" ariaLabel="Volume" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Read-only and disabled"
+    description="Tab through both. A READ-ONLY dial keeps its tab stop and keeps announcing its value through `aria-readonly`; it only refuses the drag and the arrows. A DISABLED one leaves the tab order altogether. The distinction matters on a form that shows a computed figure beside the ones you can set."
+  >
+    <ngwr-doc-code [code]="statesSnippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: center">
+        <wr-knob [value]="62" readonly ariaLabel="Read-only" />
+        <wr-knob [value]="62" disabled ariaLabel="Disabled" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

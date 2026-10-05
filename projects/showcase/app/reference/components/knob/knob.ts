@@ -27,5 +27,13 @@ export class MyComponent {}`;
 
   protected readonly snippet = `<wr-knob [(value)]="value" [min]="0" [max]="100" suffix="%" />`;
 
+  protected readonly sizeSnippet = `<wr-knob [(value)]="value" [size]="64" [strokeWidth]="5" />
+<wr-knob [(value)]="value" [size]="160" [strokeWidth]="14" />`;
+
+  protected readonly noValueSnippet = `<wr-knob [(value)]="volume" [showValue]="false" ariaLabel="Volume" />`;
+
+  protected readonly statesSnippet = `<wr-knob [value]="62" readonly ariaLabel="Read-only" />
+<wr-knob [value]="62" disabled ariaLabel="Disabled" />`;
+
   protected readonly api = API.WrKnob;
 }

@@ -30,6 +30,11 @@ export default class DescriptionsPageComponent {
 @Component({ imports: [WrDescriptions, WrDescriptionItem] })
 export class MyComponent {}`;
 
+  protected readonly plainSnippet = `<wr-descriptions title="Account">
+  <wr-description-item label="Name">Ada Lovelace</wr-description-item>
+  <wr-description-item label="Email">ada@example.com</wr-description-item>
+</wr-descriptions>`;
+
   protected readonly snippet = `<wr-descriptions title="Account" inline bordered>
   <wr-description-item label="Name">Ada Lovelace</wr-description-item>
   <wr-description-item label="Email">ada@example.com</wr-description-item>

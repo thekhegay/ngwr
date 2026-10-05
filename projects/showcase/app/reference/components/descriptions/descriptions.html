@@ -3,7 +3,24 @@
   description="Read-only labeled key/value list. `inline` for label-left / value-right, `bordered` for a card."
   [keywords]="['descriptions', 'wr-descriptions']"
 >
-  <ngwr-doc-section title="Inline + bordered">
+  <ngwr-doc-section
+    title="Default"
+    description="Neither flag set: each item stacks its label above its value, with no rules between them. That is the shape to reach for inside a card or a panel that already has its own frame — `inline` and `bordered` are the two things you add to it."
+  >
+    <ngwr-doc-code [code]="plainSnippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-descriptions title="Account">
+        <wr-description-item label="Name">Ada Lovelace</wr-description-item>
+        <wr-description-item label="Email">ada@example.com</wr-description-item>
+        <wr-description-item label="Joined">2024-03-12</wr-description-item>
+      </wr-descriptions>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Inline + bordered"
+    description="`inline` puts the label beside its value instead of above it; `bordered` draws the rules around and between the rows. They are independent, so either alone is a valid shape."
+  >
     <ngwr-doc-code [code]="snippet" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-descriptions title="Account" inline bordered>
