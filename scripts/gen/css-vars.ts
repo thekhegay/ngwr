@@ -57,16 +57,32 @@ const APP_ROOT = resolve(ROOT_PATH, 'projects/showcase/app');
  */
 const CLUSTERS = [
   'reference/components',
-  'animations',
   'reference/services',
   'reference/directives',
   'reference/pipes',
 ] as const;
 
-/** `alert` → `reference/components/alert`, or `null` when no page documents it. */
+/**
+ * `alert` → `reference/components/alert`, or `null` when no page documents it.
+ *
+ * Two shapes, because an entry point's PATH is not its route. A nested one is
+ * served from wherever its cluster lives: `bits/aurora` has a page at
+ * `bits/aurora`, and `charts/bar-chart` at `reference/components/bar-chart` —
+ * beside every other component. So the path as written is tried first, and
+ * then each cluster against the LAST segment.
+ *
+ * This used to join every entry onto a cluster list that still named
+ * `animations`, the directory `bits/` replaced. Nothing failed: the join found
+ * no page for a bit OR for a chart, both dropped out of the map, and
+ * `check:css-vars` compared the committed copy against the same wrong output
+ * and passed. A generator and its own gate agreeing is the one shape a
+ * generated file cannot catch.
+ */
 function routeOf(entry: string): string | null {
+  if (existsSync(join(APP_ROOT, entry))) return entry;
+  const name = entry.slice(entry.lastIndexOf('/') + 1);
   for (const cluster of CLUSTERS) {
-    const route = `${cluster}/${entry}`;
+    const route = `${cluster}/${name}`;
     if (existsSync(join(APP_ROOT, route))) return route;
   }
   return null;
