@@ -131,9 +131,10 @@
     <ngwr-doc-code [code]="snippets.a11y" language="angular-html" />
     <p>
       The names come from the i18n catalog, so they follow the app&#39;s locale — match on the resolved text, or
-      override the key, rather than hard-coding English in a test that a translated build will fail. The three
-      overridable inputs are <code>label</code>, <code>prevLabel</code> and <code>nextLabel</code>; the numbered cells
-      read <code>pagination.goToPage</code> and the size changer <code>pagination.itemsPerPage</code>.
+      override the key, rather than hard-coding English in a test that a translated build will fail. The four
+      overridable inputs are <code>label</code>, <code>prevLabel</code>, <code>nextLabel</code> and
+      <code>itemsPerPageLabel</code>; where none is bound, the numbered cells read <code>pagination.goToPage</code> and
+      the size changer <code>pagination.itemsPerPage</code>.
     </p>
     <p>
       The class names are public API and stable — <code>.wr-pagination__page</code> for a numbered cell,
