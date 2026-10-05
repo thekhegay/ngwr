@@ -117,8 +117,16 @@ ngOnInit() {
     },
     {
       name: 'current()',
-      description: 'Snapshot of the resolved metadata currently applied to <head>.',
+      description:
+        'A SNAPSHOT of what is in `<head>` right now — a plain method, not a signal, so a template reading it does not re-render when the stack changes. Reach for it from code that is already running at the moment it asks.',
       type: '() => Readonly<WrMetaConfig>',
+      default: '—',
+    },
+    {
+      name: 'resolved()',
+      description:
+        'The same merged configuration, as a SIGNAL — the reactive half, and what a template or a `computed()` should read. It follows every `set()`, `push()` and `pop()`; `current()` only answers for the instant you call it.',
+      type: 'Signal<WrMetaConfig>',
       default: '—',
     },
     {
