@@ -23,6 +23,16 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Without the illustration"
+    description="Binding `icon` to false drops the artwork entirely — for a placeholder inside a card, a table body or anywhere the surrounding frame already says what is empty. It is a separate input from `iconName`, which only swaps WHICH icon is drawn."
+  >
+    <ngwr-doc-code [code]="snippets.noIcon" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-empty [icon]="false" title="No results">Try a different query.</wr-empty>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

@@ -17,11 +17,20 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Accordion" description="Opening one panel auto-closes the others.">
+  <ngwr-doc-section
+    title="Accordion"
+    description="Opening one panel auto-closes the others. Both forms below are the same component — `<wr-accordion>` is `<wr-collapse-group accordion>` with the flag baked in, and each is its own export, so whichever you write has to be in `imports`."
+  >
     <ngwr-doc-snippet [code]="snippets.accordion">
-      <div style="width: 100%">
+      <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%">
+        <wr-accordion>
+          <wr-collapse title="One">First panel body — `&lt;wr-accordion&gt;`.</wr-collapse>
+          <wr-collapse title="Two">Second panel body.</wr-collapse>
+          <wr-collapse title="Three">Third panel body.</wr-collapse>
+        </wr-accordion>
+
         <wr-collapse-group accordion>
-          <wr-collapse title="One">First panel body.</wr-collapse>
+          <wr-collapse title="One">First panel body — `&lt;wr-collapse-group accordion&gt;`.</wr-collapse>
           <wr-collapse title="Two">Second panel body.</wr-collapse>
           <wr-collapse title="Three">Third panel body.</wr-collapse>
         </wr-collapse-group>
