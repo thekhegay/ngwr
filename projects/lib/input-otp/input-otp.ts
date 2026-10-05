@@ -176,13 +176,29 @@ export class WrInputOtp implements FormValueControl<string> {
   protected readonly cellRefs = viewChildren<ElementRef<HTMLInputElement>>('cell');
 
   constructor() {
-    // Resize the cell array whenever `length` changes — preserves existing values.
+    // Resize the cell array whenever `length` changes — preserves existing
+    // values, and tells the model about the ones it dropped.
+    //
+    // The write-back is the half that was missing. Shrinking `length` trimmed
+    // the cells and left `value` holding the longer string: six boxes with
+    // `123456` typed in, `length` set to 4, four boxes showing `1234` and a
+    // form still submitting `123456` — a code the user could not see and had
+    // no way to correct, since nothing resynced until the next keystroke. The
+    // other effect cannot cover it: it tracks `value` alone and reads `length`
+    // inside `untracked`, so a `length` change never re-runs it.
     effect(() => {
       const len = this.length();
-      const current = this.cells();
+      const current = untracked(() => this.cells());
       if (current.length === len) return;
       const next = Array.from({ length: len }, (_, i) => current[i] ?? '');
       this.cells.set(next);
+
+      // ONLY when the resize threw characters away. Emitting on every resize
+      // clobbers the first render — the array is sized before the `value`
+      // effect has split an incoming code into it, so an empty `next` would
+      // write `''` over the value the host just set.
+      const dropped = current.slice(len).join('');
+      if (dropped !== '') this.emitChange();
     });
 
     // Split an external `value` write back into cells (mirrors the old

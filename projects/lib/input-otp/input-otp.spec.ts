@@ -419,6 +419,54 @@ describe('WrInputOtp names', () => {
   });
 });
 
+describe('WrInputOtp when `length` shrinks', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  it('drops the characters it stopped showing from the value too', () => {
+    const boxes = (): HTMLInputElement[] => [
+      ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>('input'),
+    ];
+
+    fixture.componentInstance.code.set('123456');
+    fixture.detectChanges();
+    expect(boxes()).toHaveLength(6);
+
+    fixture.componentInstance.length.set(4);
+    fixture.detectChanges();
+
+    // Four boxes showing `1234`, and the model agrees. It used to keep the
+    // six-character string: a form submitted a code the user could neither
+    // see nor correct, and nothing resynced until the next keystroke.
+    expect(boxes()).toHaveLength(4);
+    expect(
+      boxes()
+        .map(b => b.value)
+        .join('')
+    ).toBe('1234');
+    expect(fixture.componentInstance.code()).toBe('1234');
+  });
+
+  it('leaves a value alone when the resize throws nothing away', () => {
+    // Growing, and shrinking past empty cells, must not touch the model —
+    // the guard that keeps the first render from writing `''` over an
+    // incoming code before the value effect has split it.
+    fixture.componentInstance.code.set('12');
+    fixture.detectChanges();
+
+    fixture.componentInstance.length.set(4);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.code()).toBe('12');
+  });
+});
+
 @Component({
   imports: [WrInputOtp],
   template: `<wr-input-otp [(value)]="code" [length]="4" mode="text" />`,
