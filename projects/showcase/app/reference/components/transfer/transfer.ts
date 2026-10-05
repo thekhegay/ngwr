@@ -40,10 +40,6 @@ export default class TransferComponent {
   protected readonly searchGranted = signal<readonly unknown[]>([]);
 
   protected readonly snippets = {
-    install: `import { WrTransfer } from 'ngwr/transfer';
-
-@Component({ imports: [WrTransfer] })
-export class MyComponent {}`,
     basic: `<wr-transfer [items]="permissions" [(value)]="granted" />`,
     searchable: `<wr-transfer
   searchable

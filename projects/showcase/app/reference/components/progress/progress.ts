@@ -31,10 +31,6 @@ export default class ProgressComponent {
   protected readonly demoValue = signal(35);
 
   protected readonly snippets = {
-    install: `import { WrProgress } from 'ngwr/progress';
-
-@Component({ imports: [WrProgress] })
-export class MyComponent {}`,
     basic: `<wr-progress [value]="42" />`,
     colors: `<wr-progress color="success" [value]="80" />`,
     interactive: `<wr-progress [value]="value()" />

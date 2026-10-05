@@ -93,9 +93,7 @@ export default class MarqueePage {
     { kind: 'toggle', label: 'Fade Out', signal: this.fadeOut },
   ];
 
-  protected readonly snippets = {
-    install: `import { WrMarquee } from 'ngwr/bits/marquee';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api = API.WrMarquee;
 

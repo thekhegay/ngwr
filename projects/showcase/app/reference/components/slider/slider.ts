@@ -33,13 +33,6 @@ export default class SliderPageComponent {
   protected stepped = 50;
 
   protected readonly snippets = {
-    install: `import { WrSlider } from 'ngwr/slider';
-
-@Component({ imports: [WrSlider, FormsModule] })
-export class MyComponent {
-  protected volume = 35;
-}`,
-
     single: `<wr-slider [(value)]="volume" min="0" max="100" />`,
 
     range: `<wr-slider [(value)]="priceRange" range min="0" max="1000" step="50" />`,

@@ -43,11 +43,6 @@ export default class ThemeServicePageComponent {
   protected readonly prePaint = `<script>${wrThemePrePaintScript()}</script>`;
 
   protected readonly snippets = {
-    install: `import { provideWrTheme, WrTheme } from 'ngwr/theme';
-
-bootstrapApplication(AppComponent, {
-  providers: [provideWrTheme({ defaultMode: 'auto' })],
-});`,
     usage: `private readonly theme = inject(WrTheme);
 
 this.theme.set('dark');

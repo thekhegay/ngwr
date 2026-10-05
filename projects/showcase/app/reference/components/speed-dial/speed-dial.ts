@@ -54,19 +54,6 @@ export default class SpeedDialPageComponent {
   }
 
   protected readonly snippets = {
-    install: `import { WrSpeedDial, type WrSpeedDialAction } from 'ngwr/speed-dial';
-
-@Component({ imports: [WrSpeedDial] })
-export class MyComponent {
-  protected readonly actions: readonly WrSpeedDialAction[] = [
-    { id: 'new', label: 'New', icon: 'add' },
-    { id: 'search', label: 'Search', icon: 'search' },
-  ];
-
-  protected onPick(action: WrSpeedDialAction): void {
-    console.log(action.id);
-  }
-}`,
     basic: `<wr-speed-dial [actions]="actions" (pick)="onPick($event)" />`,
     direction: `<wr-speed-dial [actions]="actions" direction="down" />`,
   };

@@ -5,11 +5,14 @@ import { WrBadge } from 'ngwr/badge';
 import type { WrColor } from 'ngwr/theme';
 import { WrTypography } from 'ngwr/typography';
 
+import { DocCodeComponent } from '../doc-code/doc-code';
+import type { DocCodeFile } from '../doc-code/types';
 import { DocCssVarsComponent } from '../doc-css-vars/doc-css-vars';
 import { DocRichPipe, docRichToText } from '../doc-rich/doc-rich';
 import { DocSectionComponent } from '../doc-section/doc-section';
 
 import { CSS_VARS, type DocCssVarRoute, type DocCssVars } from '#core/generated/css-vars';
+import { INSTALL, type DocInstallRoute } from '#core/generated/install';
 import { MetaService } from '#core/services';
 import { releaseLabel } from '#core/utils';
 
@@ -68,7 +71,7 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
  * ```
  */
 @Component({
-  imports: [DocCssVarsComponent, DocRichPipe, DocSectionComponent, WrBadge, WrTypography],
+  imports: [DocCodeComponent, DocCssVarsComponent, DocRichPipe, DocSectionComponent, WrBadge, WrTypography],
   selector: 'ngwr-doc-page',
   templateUrl: './doc-page.html',
   styleUrl: './doc-page.scss',
@@ -154,8 +157,55 @@ export class DocPageComponent {
    * them listed. The catalogue is written by `pnpm gen:css-vars` from the
    * library's stylesheets, so a renamed hook moves on the next build.
    */
+  /**
+   * The two halves of an installation, rendered by the SHELL.
+   *
+   * The import was always here, written by hand on 128 pages. The `@use` was
+   * on none of them — and v15 is the release that made it load-bearing, by
+   * removing the `@use 'ngwr'` umbrella. A page that shows only the import
+   * teaches half an installation, and the half it omits fails silently: the
+   * component renders, unstyled, with nothing in the build or the console.
+   *
+   * Generated from the page's own imports (`#core/generated/install`), so the
+   * recipe cannot disagree with the page it sits on, and a component that
+   * moves entry point carries its install line with it.
+   */
+  /** The URL with its leading and trailing slashes off — how both generated maps are keyed. */
+  private readonly routeKey = computed(() => this.router.url.split(/[?#]/)[0].replace(/^\/+|\/+$/g, ''));
+
+  protected readonly install = computed<readonly DocCodeFile[] | null>(() => {
+    const entries = INSTALL[this.routeKey() as DocInstallRoute] as
+      readonly { path: string; symbols: readonly string[]; styled: boolean }[] | undefined;
+    if (!entries || entries.length === 0) return null;
+
+    const withSymbols = entries.filter(e => e.symbols.length > 0);
+    const imports = withSymbols.map(e => `import { ${e.symbols.join(', ')} } from '${e.path}';`).join('\n');
+    const declared = withSymbols.flatMap(e => e.symbols);
+
+    const ts =
+      declared.length > 0
+        ? `${imports}\n\n@Component({ imports: [${declared.join(', ')}] })\nexport class MyComponent {}`
+        : imports;
+
+    // `ngwr/theme` leads and is not optional: every component entry loads the
+    // token layer too and Sass emits it once, but only a module's FIRST load
+    // can take `with (...)`, so it has to be the first ngwr line in the file.
+    const styled = entries.filter(e => e.styled);
+    const scss =
+      styled.length > 0
+        ? [`// styles.scss — the token layer first, then one line per component.`, `@use 'ngwr/theme';`]
+            .concat(styled.map(e => `@use '${e.path}';`))
+            .join('\n')
+        : '';
+
+    const files: DocCodeFile[] = [];
+    if (ts) files.push({ label: 'TS', language: 'typescript', code: ts });
+    if (scss) files.push({ label: 'SCSS', language: 'scss', code: scss });
+    return files.length > 0 ? files : null;
+  });
+
   protected readonly cssVars = computed<DocCssVars | null>(() => {
-    const route = this.router.url.split(/[?#]/)[0].replace(/^\/+|\/+$/g, '');
+    const route = this.routeKey();
     return Object.hasOwn(CSS_VARS, route) ? CSS_VARS[route as DocCssVarRoute] : null;
   });
 

@@ -63,9 +63,7 @@ export default class ClickSparkPage {
     { kind: 'color', label: 'Color', signal: this.sparkColor },
   ];
 
-  protected readonly snippets = {
-    install: `import { WrClickSpark } from 'ngwr/bits/click-spark';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api: readonly DocApiRow[] = [
     {

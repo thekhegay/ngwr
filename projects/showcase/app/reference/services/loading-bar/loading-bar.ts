@@ -43,24 +43,6 @@ export default class LoadingBarServicePage {
   }
 
   protected readonly snippets = {
-    install: `import { WrLoadingBar, WrLoadingBarComponent } from 'ngwr/loading-bar';
-
-@Component({
-  selector: 'app-shell',
-  template: \`
-    <wr-loading-bar />
-    <router-outlet />
-  \`,
-  imports: [WrLoadingBarComponent, RouterOutlet],
-})
-export class AppShell {
-  // Inject once at the shell so the singleton exists before the first
-  // navigation. The subscription itself comes from provideWrLoadingBarRouter().
-  constructor() {
-    inject(WrLoadingBar);
-  }
-}`,
-
     intercept: `// HttpInterceptor — start a slot per pending HTTP request.
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';

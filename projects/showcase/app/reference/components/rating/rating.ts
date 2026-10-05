@@ -32,13 +32,6 @@ export default class RatingPageComponent {
   protected readonly readonlyValue = signal<number | null>(4.5);
 
   protected readonly snippets = {
-    install: `import { WrRating } from 'ngwr/rating';
-
-@Component({ imports: [WrRating] })
-export class MyComponent {
-  protected readonly score = signal<number | null>(0);
-}`,
-
     basic: `<wr-rating [(value)]="score" />`,
 
     halves: `<wr-rating [(value)]="score" step="0.5" />`,

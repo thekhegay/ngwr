@@ -23,11 +23,6 @@ export default class ComparePageComponent {
   protected readonly textPos = signal(50);
 
   protected readonly snippets = {
-    install: `import { WrCompare } from 'ngwr/compare';
-
-@Component({ imports: [WrCompare] })
-export class MyComponent {}`,
-
     images: `<wr-compare [(position)]="pos">
   <img wrCompareBefore src="before.jpg" alt="" />
   <img wrCompareAfter src="after.jpg" alt="" />

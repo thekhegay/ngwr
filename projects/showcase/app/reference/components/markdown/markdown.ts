@@ -252,14 +252,6 @@ export default class MarkdownPageComponent {
   // ---------------------------------------------------------------------------
 
   protected readonly snippets = {
-    install: `import { WrMarkdown } from 'ngwr/markdown';
-
-@Component({ imports: [WrMarkdown] })
-export class MyComponent {
-  protected readonly doc = signal('# hello');
-}`,
-    styles: `// Global styles — the component is ViewEncapsulation.None.
-@use 'ngwr/markdown';`,
     streamTs: `protected readonly streamed = signal('');
 protected readonly streaming = signal(false);
 

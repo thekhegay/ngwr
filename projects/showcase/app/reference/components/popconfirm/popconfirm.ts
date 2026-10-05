@@ -29,10 +29,6 @@ export default class PopconfirmPageComponent {
   protected readonly status = signal<string>('—');
 
   protected readonly snippets = {
-    install: `import { WrPopconfirm } from 'ngwr/popconfirm';
-
-@Component({ imports: [WrPopconfirm] })
-export class MyComponent {}`,
     basic: `<wr-btn
   color="danger"
   [wrPopconfirm]="'Delete this item?'"

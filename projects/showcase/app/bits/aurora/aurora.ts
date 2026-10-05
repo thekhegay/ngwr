@@ -69,9 +69,7 @@ export default class AuroraPage {
     { kind: 'slider', label: 'Speed', signal: this.speed, min: 0.1, max: 3, step: 0.1, precision: 1 },
   ];
 
-  protected readonly snippets = {
-    install: `import { WrAurora } from 'ngwr/bits/aurora';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api: readonly DocApiRow[] = [
     {

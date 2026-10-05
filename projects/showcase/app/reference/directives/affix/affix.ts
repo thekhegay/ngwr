@@ -20,7 +20,6 @@ export default class AffixPage {
   protected readonly affixed = signal(false);
 
   protected readonly snippets = {
-    install: `import { WrAffix } from 'ngwr/affix';`,
     usage: `<header wrAffix [wrAffixOffsetTop]="0" (wrAffixChange)="onAffix($event)">
   …
 </header>`,

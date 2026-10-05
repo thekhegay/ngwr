@@ -57,10 +57,6 @@ export default class TourComponent {
   }
 
   protected readonly snippets = {
-    install: `import { WrTour } from 'ngwr/tour';
-
-// Nothing to import into a component — the service owns the overlay.
-private readonly tour = inject(WrTour);`,
     start: `this.tour.start([
   { target: '[data-tour="search"]', title: 'Start here', content: 'Type a name…' },
   { target: '[data-tour="filter"]', content: 'Filters stack.', placement: 'right' },

@@ -25,14 +25,6 @@ export default class InputOtpPageComponent {
   protected readonly lastCompleted = signal<string | null>(null);
 
   protected readonly snippets = {
-    install: `import { WrInputOtp } from 'ngwr/input-otp';
-
-@Component({ imports: [WrInputOtp] })
-export class MyComponent {
-  protected code = '';
-  protected verify(code: string) { /* … */ }
-}`,
-
     basic: `<wr-input-otp [(value)]="code" length="6" (completed)="verify($event)" />`,
 
     masked: `<wr-input-otp [(value)]="secret" mask />`,

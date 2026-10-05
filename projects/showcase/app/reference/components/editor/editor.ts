@@ -116,17 +116,12 @@ export default class EditorPageComponent {
   });
 
   protected readonly snippets = {
-    install: `import { WrEditor } from 'ngwr/editor';
-
-@Component({ imports: [WrEditor] })
-export class MyComponent {}`,
     peers: `# ProseMirror is an optional peer: installing ngwr does not bring it along.
 pnpm add prosemirror-model prosemirror-state prosemirror-view prosemirror-commands \\
   prosemirror-keymap prosemirror-history prosemirror-schema-list prosemirror-inputrules
 # or
 npm install prosemirror-model prosemirror-state prosemirror-view prosemirror-commands \\
   prosemirror-keymap prosemirror-history prosemirror-schema-list prosemirror-inputrules`,
-    styles: `@use 'ngwr/editor';`,
     config: `import { provideWrConfig } from 'ngwr/config';
 
 // Every <wr-editor> that binds no [format] of its own now reads and writes markdown.

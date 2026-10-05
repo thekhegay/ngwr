@@ -35,7 +35,6 @@ export default class CopyToClipboardPage {
   }
 
   protected readonly snippets = {
-    install: `import { WrCopyToClipboard } from 'ngwr/directives';`,
     usage: `<button [wrCopyToClipboard]="value" (copied)="toast('Copied!')">Copy</button>`,
   };
 

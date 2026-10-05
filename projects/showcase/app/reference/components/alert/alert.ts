@@ -24,10 +24,6 @@ export default class AlertComponent {
   protected readonly types: readonly WrAlertType[] = ['info', 'success', 'warning', 'danger', 'neutral', 'offline'];
 
   protected readonly snippets = {
-    install: `import { WrAlert } from 'ngwr/alert';
-
-@Component({ imports: [WrAlert] })
-export class MyComponent {}`,
     basic: `<wr-alert title="Heads up" message="Your trial ends in 3 days." />`,
     types: `<wr-alert title="Info" type="info" />
 <wr-alert title="Success" type="success" />

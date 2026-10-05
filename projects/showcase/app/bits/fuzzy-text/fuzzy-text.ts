@@ -61,9 +61,7 @@ export default class FuzzyTextPage {
     { kind: 'text', label: 'Text', signal: this.text, placeholder: 'Text' },
   ];
 
-  protected readonly snippets = {
-    install: `import { WrFuzzyText } from 'ngwr/bits/fuzzy-text';`,
-  };
+  protected readonly snippets = {};
 
   protected readonly api: readonly DocApiRow[] = [
     { name: 'text', description: 'Text to render.', type: 'string', required: true },

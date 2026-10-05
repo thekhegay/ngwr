@@ -64,10 +64,6 @@ export default class PaginationComponent {
   }
 
   protected readonly snippets = {
-    install: `import { WrPagination } from 'ngwr/pagination';
-
-@Component({ imports: [WrPagination] })
-export class MyComponent {}`,
     basic: `<wr-pagination [total]="120" [(page)]="page" />`,
     a11y: `<!-- What \`<wr-pagination [total]="120" [(page)]="page" />\` renders, in the
      shape a Playwright or Testing Library locator sees. Tab reaches every

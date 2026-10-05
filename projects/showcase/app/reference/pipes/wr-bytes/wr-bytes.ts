@@ -41,10 +41,6 @@ export default class WrBytesPipePage {
   ];
 
   protected readonly snippets = {
-    install: `import { WrBytes } from 'ngwr/pipes';
-
-@Component({ imports: [WrBytes] })
-export class MyComponent { /* ... */ }`,
     basic: `{{ 1234 | wrBytes }}  <!-- "1.2 KB" -->`,
     decimals: `{{ 1234567 | wrBytes: 0 }}  <!-- "1 MB" -->
 {{ 1234567 | wrBytes: 2 }}  <!-- "1.18 MB" -->`,

@@ -29,10 +29,6 @@ export default class SwitchPageComponent {
   protected readonly enabled = signal(true);
 
   protected readonly snippets = {
-    install: `import { WrSwitch } from 'ngwr/switch';
-
-@Component({ imports: [WrSwitch, FormsModule] })
-export class MyComponent {}`,
     basic: `<wr-switch [(checked)]="enabled">Notifications</wr-switch>`,
     disabled: `<wr-switch [disabled]="true">Disabled</wr-switch>`,
   };
