@@ -55,7 +55,8 @@ const end = new FormControl('', [
     },
     {
       name: 'error key',
-      description: 'On failure: `{ maxDate: { max: Date } }`. Empty value passes.',
+      description:
+        'On failure: `{ maxDate: { max: Date | string | number } }` — the bound echoed back exactly as configured, not coerced to a `Date`. Empty value passes.',
       type: '{ maxDate: { max } }',
       default: '—',
     },

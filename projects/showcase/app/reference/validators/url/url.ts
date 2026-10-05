@@ -53,7 +53,7 @@ secure.errors; // { url: { allowed: ['https'] } }`;
     {
       name: 'signature',
       description: 'Factory — call it to get a `ValidatorFn`.',
-      type: '(opts?) => ValidatorFn',
+      type: '(options?: { protocols?: readonly string[]; requireProtocol?: boolean }) => ValidatorFn',
       default: '—',
     },
     {

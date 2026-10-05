@@ -88,7 +88,7 @@ export default class GradientTextPage {
     },
     {
       name: 'showBorder',
-      description: 'Wrap the text in a dark pill with the gradient as a border.',
+      description: 'Wrap the text in a surface-coloured pill with the gradient as a border ring.',
       type: 'boolean',
       default: 'false',
     },

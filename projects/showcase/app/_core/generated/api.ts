@@ -106,7 +106,7 @@ export const API = {
     { name: "backgroundColor", description: "Card background fill. When unset, uses the theme surface token.", type: "string | null", default: "null" },
     { name: "borderRadius", description: "Corner radius in pixels.", type: "number", default: "28" },
     { name: "glowRadius", description: "Halo extent in pixels — how far the outer glow reaches past the card edge.", type: "number", default: "40" },
-    { name: "glowIntensity", description: "Halo opacity multiplier (1 = full strength).", type: "number", default: "1" },
+    { name: "glowIntensity", description: "Halo opacity multiplier (1 = full strength). Applies only alongside an explicit `glowColor`: the halo variables are built from the two together, so on the default palette this input is read and never reaches a declaration.", type: "number", default: "1" },
     { name: "coneSpread", description: "Width of the lit cone as a percentage of the perimeter.", type: "number", default: "25" },
     { name: "edgeSensitivity", description: "How sharply the halo fades as the cursor leaves the edge. Lower = wider falloff.", type: "number", default: "30" },
     { name: "fillOpacity", description: "Strength of the soft-light interior fill near edges.", type: "number", default: "0.5" },
@@ -617,7 +617,7 @@ export const API = {
   WrGradientText: [
     { name: "colors", description: "Gradient stops.", type: "readonly string[]", default: "['#5227FF', '#FF9FFC', '#B497CF']" },
     { name: "animationSpeed", description: "Seconds per full sweep (or per half if `[yoyo]` is on).", type: "number", default: "8" },
-    { name: "showBorder", description: "Wrap the text in a dark pill with the gradient as a border.", type: "boolean", default: "false" },
+    { name: "showBorder", description: "Wrap the text in a surface-coloured pill with the gradient as a border.", type: "boolean", default: "false" },
     { name: "direction", description: "Gradient slide direction.", type: "WrGradientTextDirection", default: "'horizontal'" },
     { name: "pauseOnHover", description: "Pause the animation while hovered.", type: "boolean", default: "false" },
     { name: "yoyo", description: "Bounce back-and-forth instead of restarting.", type: "boolean", default: "true" },

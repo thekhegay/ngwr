@@ -150,7 +150,15 @@ export class WrBorderGlow {
   /** Halo extent in pixels — how far the outer glow reaches past the card edge. @default 40 */
   readonly glowRadius = input(40, { transform: numAttr(40) });
 
-  /** Halo opacity multiplier (1 = full strength). @default 1 */
+  /**
+   * Halo opacity multiplier (1 = full strength).
+   *
+   * Applies only alongside an explicit `glowColor`: the halo variables are
+   * built from the two together, so on the default palette this input is read
+   * and never reaches a declaration.
+   *
+   * @default 1
+   */
   readonly glowIntensity = input(1, { transform: numAttr(1) });
 
   /** Width of the lit cone as a percentage of the perimeter. @default 25 */
