@@ -42,9 +42,16 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Disabled">
-    <ngwr-doc-snippet code="<wr-input-otp disabled />">
-      <wr-input-otp disabled />
+  <ngwr-doc-section
+    title="Disabled and read-only"
+    description="Tab through both. A DISABLED strip is out of the tab order and submits nothing. A READ-ONLY one keeps every box focusable, keeps announcing the code, and still submits — each box is a real input, so the arrows, Home / End and selection all keep working; only typing and pasting are refused."
+  >
+    <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 1rem">
+        <wr-input-otp disabled [(value)]="lockedCode" />
+        <wr-input-otp readonly [(value)]="lockedCode" />
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

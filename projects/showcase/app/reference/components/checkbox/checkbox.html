@@ -50,11 +50,30 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Disabled">
+  <ngwr-doc-section
+    title="Sizes"
+    description="`sm` / `md` / `lg` scale the box, its tick and the label together. Unset falls back to the `checkbox.size` app default from `provideWrConfig()`, then to `md`."
+  >
+    <ngwr-doc-code [code]="snippets.sizes" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap">
+        @for (s of sizes; track s) {
+          <wr-checkbox [size]="s" [checked]="true">{{ s }}</wr-checkbox>
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Disabled and read-only"
+    description="Tab through all four. A DISABLED box leaves the tab order and submits nothing. A READ-ONLY one keeps its tab stop, keeps announcing its state through `aria-readonly`, and still submits — it simply refuses the toggle. The cue is `.wr-checkbox--readonly` and a default cursor, not the dimming `disabled` uses, because the two mean different things to the person reading the form."
+  >
     <ngwr-doc-snippet [code]="snippets.disabled">
       <div style="display: flex; flex-direction: column; gap: 0.5rem">
         <wr-checkbox [disabled]="true">Disabled</wr-checkbox>
         <wr-checkbox [disabled]="true" [(checked)]="agree">Disabled (checked)</wr-checkbox>
+        <wr-checkbox [readonly]="true">Read-only</wr-checkbox>
+        <wr-checkbox [readonly]="true" [checked]="true">Read-only (checked)</wr-checkbox>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

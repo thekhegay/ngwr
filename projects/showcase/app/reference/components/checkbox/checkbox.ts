@@ -1,7 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import { WrCheckbox, WrCheckboxGroup } from 'ngwr/checkbox';
+import { type WrCheckboxSize, WrCheckbox, WrCheckboxGroup } from 'ngwr/checkbox';
 
 import {
   DocApiComponent,
@@ -31,6 +31,8 @@ export default class CheckboxComponent {
   protected readonly agree = signal(true);
   protected readonly features = signal<string[]>(['autosave']);
 
+  protected readonly sizes: readonly WrCheckboxSize[] = ['sm', 'md', 'lg'];
+
   protected readonly snippets = {
     standalone: `<!-- signal-forms native: [(checked)], [formField], or classic [(ngModel)] -->
 <wr-checkbox [(checked)]="agree">I agree</wr-checkbox>`,
@@ -39,7 +41,12 @@ export default class CheckboxComponent {
   <wr-checkbox checkboxValue="notifications">Notifications</wr-checkbox>
   <wr-checkbox checkboxValue="darkmode">Dark mode</wr-checkbox>
 </wr-checkbox-group>`,
-    disabled: `<wr-checkbox [disabled]="true">Disabled</wr-checkbox>`,
+    sizes: `<wr-checkbox size="sm" [(checked)]="agree">Small</wr-checkbox>
+<wr-checkbox size="lg" [(checked)]="agree">Large</wr-checkbox>`,
+    disabled: `<!-- disabled leaves the tab order and submits nothing;
+     readonly keeps both and refuses only the toggle. -->
+<wr-checkbox [disabled]="true">Disabled</wr-checkbox>
+<wr-checkbox [readonly]="true">Read-only</wr-checkbox>`,
     // No example existed for this, next to the library's loud "no
     // ControlValueAccessor anywhere" — which reads as "reactive forms are not
     // supported". They are: Angular 22 binds a signal-forms control directly.
