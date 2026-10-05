@@ -127,19 +127,4 @@ locations: WrCascaderOption[] = [
       default: '—',
     },
   ];
-
-  protected readonly cssApi: readonly DocApiRow[] = [
-    {
-      name: '--wr-cascader-col-width',
-      description: 'Width of each column in the panel.',
-      type: 'length',
-      default: '12rem',
-    },
-    {
-      name: '--wr-cascader-max-height',
-      description: 'Max height per column before scrolling.',
-      type: 'length',
-      default: '16rem',
-    },
-  ];
 }
