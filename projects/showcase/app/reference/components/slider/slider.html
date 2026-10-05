@@ -18,7 +18,10 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Step" description="The thumb snaps to the nearest multiple of `step`.">
+  <ngwr-doc-section
+    title="Step"
+    description="The thumb snaps to the nearest `min + n × step` — the ladder starts at `min`, not at zero, so a slider with `min` 5 and `step` 10 stops on 5, 15, 25, never on 10."
+  >
     <ngwr-doc-snippet code="<wr-slider [(value)]='stepped' min='0' max='100' step='25' />">
       <wr-slider [(value)]="stepped" min="0" max="100" step="25" />
     </ngwr-doc-snippet>
@@ -49,7 +52,10 @@
     </p>
 
     <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
-      <strong><code>WrSliderValue</code> is <code>number | [number, number]</code> — there is no empty state.</strong>
+      <strong
+        ><code>WrSliderValue</code> is <code>number | readonly [number, number]</code> — there is no empty
+        state.</strong
+      >
       A slider always points somewhere, so a value that is neither shape is ignored and the thumb stays where it was:
       <code>control.reset()</code>, which resets to <code>null</code> by default, leaves the thumb on the old position.
       Reset to a number instead — <code>control.reset(0)</code>, or whatever your <code>min</code> is. In

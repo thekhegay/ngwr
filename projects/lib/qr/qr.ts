@@ -42,7 +42,21 @@ export class WrQr {
   /** Side length of the rendered canvas, in pixels. @default 160 */
   readonly size = input(160, { transform: numAttr(160) });
 
-  /** Outer quiet-zone padding in pixels. @default 10 */
+  /**
+   * Outer quiet-zone padding, in BITMAP units — not the CSS pixels `size`
+   * is in. The canvas is drawn at ten bitmap units per QR module and then
+   * scaled to `size`, so the default 10 is exactly one module, and what it
+   * comes to on screen shrinks as the payload grows and the code gains
+   * modules. `iconSize` is the other way round, in CSS pixels, and is scaled
+   * into the bitmap on the way in.
+   *
+   * The QR spec asks for a four-module quiet zone, i.e. `40`. One module is
+   * enough for a phone decoder reading a screen, where the page around the
+   * canvas extends the margin anyway; raise it for a code that will be
+   * printed small or sit on a busy background.
+   *
+   * @default 10
+   */
   readonly padding = input(10, { transform: numAttr(10) });
 
   /** Module (dot) color. @default '#000000' */

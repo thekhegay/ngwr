@@ -160,7 +160,8 @@ this.toast.show({ message: 'Saved', position: 'bottom' });`,
     { name: 'dismissible', description: 'Show close (×) button.', type: 'boolean', default: 'true' },
     {
       name: 'position',
-      description: 'Override the corner for this toast only.',
+      description:
+        'Corner this toast opens in. The whole stack shares one host, so it is not per-toast: a different corner relocates the toasts already on screen along with this one.',
       type: 'WrToastPosition',
       default: 'config.position',
     },
@@ -214,7 +215,8 @@ this.toast.show({ message: 'Saved', position: 'bottom' });`,
     },
     {
       name: 'maxStack',
-      description: 'Max visible toasts; oldest dismissed when exceeded. 0 = unlimited.',
+      description:
+        'Max visible toasts. Nothing on screen is taken away to make room — past the cap the NEWEST waits in a FIFO queue and is promoted as visible ones dismiss, and its countdown only starts once it is visible. 0 = unlimited.',
       type: 'number',
       default: '5',
     },
