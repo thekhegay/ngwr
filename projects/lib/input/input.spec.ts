@@ -7,8 +7,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrInput, WrInputPrefix, WrInputSuffix } from './directives';
 import { WrInputGroup } from './input-group';
-import type { WrInputSize } from './interfaces';
 import { WrPasswordToggle } from './password-toggle';
+import type { WrInputSize } from './types';
 
 @Component({
   imports: [WrInput, WrInputGroup, WrInputPrefix, WrInputSuffix, WrPasswordToggle],

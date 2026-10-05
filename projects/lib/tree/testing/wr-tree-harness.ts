@@ -13,7 +13,7 @@ import {
   type TestElement,
 } from '@angular/cdk/testing';
 
-import type { WrTreeHarnessFilters, WrTreeNodeHarnessFilters } from './interfaces';
+import type { WrTreeHarnessFilters, WrTreeNodeHarnessFilters } from './types';
 import { WrTreeNodeHarness } from './wr-tree-node-harness';
 
 /** How many levels {@link WrTreeHarness.expandAll} is willing to walk. */

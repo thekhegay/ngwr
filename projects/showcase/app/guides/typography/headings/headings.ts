@@ -34,7 +34,7 @@ export default class TypographyHeadingsPage {
 <h6 wrTypography variant="h6">Heading 6</h6>`,
     pair: `<p wrTypography variant="overline" tone="primary">Pricing</p>
 <h1 wrTypography variant="display">Built for every scale</h1>
-<p wrTypography variant="lead" tone="medium">
+<p wrTypography variant="lead" tone="muted">
   Start on the free tier and grow into a self-hosted seat the moment you outgrow it.
 </p>`,
   };

@@ -274,9 +274,6 @@ export const wrPt: WrI18nCatalog = {
     roledescription: 'carrossel',
     slideRoledescription: 'slide',
   },
-  actionSheet: {
-    label: 'Ações',
-  },
   alert: {
     close: 'Fechar alerta',
   },

@@ -1365,7 +1365,6 @@ const UNDOCUMENTED_ENTRIES: ReadonlyMap<string, string> = new Map([
 const EXPRESSION_DEFAULTS: ReadonlySet<string> = new Set([
   'tabs.key',
   'decrypt-text.characters',
-  'drag-drop.trackBy',
   'virtual-scroll.maxBufferPx',
   'virtual-scroll.minBufferPx',
   'virtual-scroll.trackBy',

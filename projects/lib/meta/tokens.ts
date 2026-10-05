@@ -7,7 +7,7 @@
 
 import { InjectionToken } from '@angular/core';
 
-import type { WrMetaConfig } from './interfaces';
+import type { WrMetaConfig } from './types';
 
 /** App-wide defaults registered via {@link provideWrMeta}. */
 export const WR_META_DEFAULTS = new InjectionToken<WrMetaConfig>('WR_META_DEFAULTS', {

@@ -249,7 +249,7 @@
       border-radius: var(--wr-border-radius-sm);
       background: var(--wr-color-fill);
       // `-ink`: code on a tint is text, and the bare colour fails AA there.
-      color: var(--wr-color-dark-ink);
+      color: var(--wr-color-on-surface);
       font-family: var(--wr-font-family-mono, ui-monospace, monospace);
       font-size: 0.9em;
     }

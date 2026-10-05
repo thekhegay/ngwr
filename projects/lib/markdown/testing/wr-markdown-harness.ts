@@ -16,7 +16,7 @@ import type {
   WrMarkdownHarnessLink,
   WrMarkdownHarnessTable,
   WrMarkdownHarnessTaskItem,
-} from './interfaces';
+} from './types';
 import { WrMarkdownCodeBlockHarness } from './wr-markdown-code-block-harness';
 import { wrMarkdownHarnessText } from './wr-markdown-harness-text';
 

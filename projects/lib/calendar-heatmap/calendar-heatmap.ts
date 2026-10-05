@@ -12,7 +12,7 @@ import { WR_DATE_LOCALE } from 'ngwr/date';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 
-import type { WrHeatmapDatum } from './interfaces';
+import type { WrHeatmapDatum } from './types';
 
 interface Cell {
   readonly iso: string;
@@ -120,8 +120,8 @@ export class WrCalendarHeatmap {
   /** Cell fill colour at full intensity. @default primary */
   readonly color = input<string>('var(--wr-color-primary)');
 
-  /** Background colour for zero-value days. @default light tint */
-  readonly emptyColor = input<string>('rgba(var(--wr-color-light-rgb), 0.5)');
+  /** Background colour for zero-value days. @default rgba(var(--wr-color-outline-rgb), 0.5) */
+  readonly emptyColor = input<string>('rgba(var(--wr-color-outline-rgb), 0.5)');
 
   /** Show the weekday + month labels around the grid. @default true */
   readonly showLabels = input(true, { transform: coerceBooleanProperty });
@@ -285,4 +285,4 @@ export class WrCalendarHeatmap {
   }
 }
 
-export type { WrHeatmapDatum } from './interfaces';
+export type { WrHeatmapDatum } from './types';

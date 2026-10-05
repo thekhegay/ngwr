@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrSpotlightHarnessFilters } from './interfaces';
+import type { WrSpotlightHarnessFilters } from './types';
 import { wrSpotlightInlineVars } from './wr-spotlight-harness-vars';
 
 /**

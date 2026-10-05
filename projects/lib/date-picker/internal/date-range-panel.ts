@@ -11,7 +11,7 @@ import { WrCalendar, type WrCalendarRange } from 'ngwr/calendar';
 import { WrDateAdapter } from 'ngwr/date';
 import { readI18nText } from 'ngwr/i18n';
 
-import type { WrDateRange } from '../interfaces';
+import type { WrDateRange } from '../types';
 
 import { WrTimePanel } from './time-panel';
 

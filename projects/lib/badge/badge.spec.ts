@@ -5,8 +5,8 @@ import type { WrColor } from 'ngwr/theme';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrBadge } from './badge';
-import type { WrBadgeShape, WrBadgeSize, WrTagIconPosition } from './interfaces';
 import { WrTag } from './tag';
+import type { WrBadgeShape, WrBadgeSize, WrTagIconPosition } from './types';
 
 @Component({
   imports: [WrBadge],
@@ -44,7 +44,7 @@ describe('WrBadge', () => {
   });
 
   it('names every intent', () => {
-    for (const color of ['success', 'danger', 'warning', 'info', 'light', 'medium', 'dark'] as const) {
+    for (const color of ['success', 'danger', 'warning', 'info', 'primary'] as const) {
       fixture.componentInstance.color.set(color);
       fixture.detectChanges();
       expect(host().className).toBe(`wr-badge wr-badge--${color}`);

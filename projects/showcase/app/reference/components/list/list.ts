@@ -136,13 +136,13 @@ export default class ListPage {
       name: 'CSS — --wr-list-divider-color',
       description: 'Divider line colour.',
       type: 'color',
-      default: 'var(--wr-color-light)',
+      default: 'var(--wr-color-outline)',
     },
     {
       name: 'CSS — --wr-list-hover-bg',
       description: 'Hover background on interactive rows.',
       type: 'color',
-      default: 'rgba(light, 0.4)',
+      default: 'var(--wr-color-hover)',
     },
   ];
 }

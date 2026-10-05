@@ -7,7 +7,7 @@
 
 import { Directive, TemplateRef, inject } from '@angular/core';
 
-import type { WrTableGroupContext } from './interfaces';
+import type { WrTableGroupContext } from './types';
 
 /**
  * Provide a custom template for a group band's label area. The collapse chevron

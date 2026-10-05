@@ -107,7 +107,7 @@
   gap: 0.5rem;
 
   padding: 0.75rem 0.25rem 0.875rem;
-  border: 1px solid var(--wr-color-light);
+  border: 1px solid var(--wr-color-outline);
   border-radius: var(--wr-border-radius-base);
   background: var(--wr-color-surface);
 }
@@ -155,7 +155,7 @@
   // A tint rather than a border: below the five-column tier every cell is a
   // labelled block of its own, and nine rows of five bordered boxes is a
   // drawing of a grid rather than a reading surface.
-  background: rgba(var(--wr-color-light-rgb), 0.18);
+  background: rgba(var(--wr-color-outline-rgb), 0.18);
 
   color: var(--wr-color-on-surface);
   font-size: var(--wr-text-sm);

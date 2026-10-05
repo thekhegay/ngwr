@@ -12,8 +12,8 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { WrTreeNode, WrTreeSelectionMode } from './interfaces';
 import { WrTree } from './tree';
+import type { WrTreeNode, WrTreeSelectionMode } from './types';
 
 @Component({
   imports: [WrTree],

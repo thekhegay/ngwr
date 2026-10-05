@@ -9,7 +9,7 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrAvatar } from './avatar';
-import type { WrAvatarShape, WrAvatarSize } from './interfaces';
+import type { WrAvatarShape, WrAvatarSize } from './types';
 
 @Component({
   imports: [WrAvatar],

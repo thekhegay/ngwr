@@ -114,7 +114,7 @@
         </wr-select>
         <div style="display: flex; flex-wrap: wrap; gap: 0.5rem">
           @for (id of assignees(); track id) {
-            <wr-tag size="sm" color="medium">
+            <wr-tag size="sm">
               <span style="display: inline-flex; align-items: center; gap: 0.25rem">
                 <wr-avatar shape="circle" [size]="16" [url]="personPhoto(id)" [alt]="personName(id)">{{
                   personInitials(id)

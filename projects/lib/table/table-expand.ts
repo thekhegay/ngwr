@@ -7,7 +7,7 @@
 
 import { Directive, TemplateRef, inject } from '@angular/core';
 
-import type { WrTableExpandContext } from './interfaces';
+import type { WrTableExpandContext } from './types';
 
 /**
  * Provide the detail template revealed when a row is expanded. Adding it turns

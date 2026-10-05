@@ -15,7 +15,7 @@ import type {
   WrCalendarDayHarnessFilters,
   WrCalendarHarnessFilters,
   WrCalendarView,
-} from './interfaces';
+} from './types';
 import { WrCalendarDayHarness } from './wr-calendar-day-harness';
 
 const ARROWS: Record<WrCalendarArrowKey, TestKey> = {

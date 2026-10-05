@@ -8,7 +8,7 @@
 import { DOCUMENT } from '@angular/common';
 import { Service, inject } from '@angular/core';
 
-import type { WrClipboardPermission } from './interfaces';
+import type { WrClipboardPermission } from './types';
 
 /**
  * Programmatic clipboard read / write.
@@ -153,4 +153,4 @@ export class WrClipboard {
   }
 }
 
-export type { WrClipboardPermission } from './interfaces';
+export type { WrClipboardPermission } from './types';

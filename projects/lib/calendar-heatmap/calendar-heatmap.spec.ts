@@ -8,7 +8,7 @@ import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrCalendarHeatmap } from './calendar-heatmap';
-import type { WrHeatmapDatum } from './interfaces';
+import type { WrHeatmapDatum } from './types';
 
 @Component({
   imports: [WrCalendarHeatmap],
@@ -177,7 +177,7 @@ describe('WrCalendarHeatmap', () => {
 
     const negative = cellFor('2025-08-12')!;
     const light = cellFor('2025-08-13')!;
-    expect(negative.style.background).toBe('rgba(var(--wr-color-light-rgb), 0.5)');
+    expect(negative.style.background).toBe('rgba(var(--wr-color-outline-rgb), 0.5)');
     expect(negative.style.background).not.toBe(light.style.background);
   });
 

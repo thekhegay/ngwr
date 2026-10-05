@@ -10,7 +10,7 @@ import { type ComponentRef, type Signal, type WritableSignal, signal } from '@an
 
 import { ReplaySubject, Subject } from 'rxjs';
 
-import type { WrWindowState, WrWindowBeforeCloseHook } from './interfaces';
+import type { WrWindowState, WrWindowBeforeCloseHook } from './types';
 
 /**
  * Handle returned by `WrWindowManager.open()`.
@@ -232,4 +232,4 @@ export class WrWindowRef<C, R = unknown> {
   }
 }
 
-export type { WrWindowBeforeCloseHook } from './interfaces';
+export type { WrWindowBeforeCloseHook } from './types';

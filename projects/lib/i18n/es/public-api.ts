@@ -267,9 +267,6 @@ export const wrEs: WrI18nCatalog = {
     roledescription: 'carrusel',
     slideRoledescription: 'diapositiva',
   },
-  actionSheet: {
-    label: 'Acciones',
-  },
   alert: {
     close: 'Cerrar la alerta',
   },

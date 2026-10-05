@@ -9,10 +9,6 @@ export default [
   // see `reference.routing.ts` for why, and for the `data.index` it inherits.
   { path: '', pathMatch: 'full', loadComponent: () => import('#core/components/doc-index/doc-index') },
   {
-    path: components.actionSheet,
-    loadComponent: () => import('./action-sheet/action-sheet'),
-  },
-  {
     path: components.alert,
     loadComponent: () => import('./alert/alert'),
   },
@@ -88,10 +84,6 @@ export default [
   {
     path: components.calendarHeatmap,
     loadComponent: () => import('./calendar-heatmap/calendar-heatmap'),
-  },
-  {
-    path: components.squircle,
-    loadComponent: () => import('./squircle/squircle'),
   },
   {
     path: components.cascader,
@@ -314,9 +306,12 @@ export default [
     loadComponent: () => import('./virtual-scroll/virtual-scroll'),
   },
   {
-    path: components.dragDrop,
-    loadComponent: () => import('./drag-drop/drag-drop'),
+    path: components.sortableList,
+    loadComponent: () => import('./sortable-list/sortable-list'),
   },
+  // The page was called "Drag & Drop" until v15, after the entry point rather
+  // than after the component it documents.
+  { path: 'drag-drop', redirectTo: components.sortableList },
   {
     path: components.tabs,
     loadComponent: () => import('./tabs/tabs'),
@@ -345,6 +340,16 @@ export default [
   { path: 'bottom-sheet', redirectTo: components.drawer },
   { path: 'time-picker', redirectTo: components.datePicker },
   { path: 'date-time-picker', redirectTo: components.datePicker },
+  // v15 removed two components outright, and the same rule covers them: the
+  // slug stays indexed either way, so it goes where the reader's question is
+  // answered. `action-sheet` WAS a drawer — bottom position, rounded — and the
+  // drawer page is where that shape is documented; `squircle` names a corner
+  // treatment, and `shape="squircle"` on the button page is where the
+  // surviving native route is shown. Neither is the component that was
+  // removed, which is exactly the point: `/start/migration` says what went and
+  // what replaces it, and a 404 says neither.
+  { path: 'action-sheet', redirectTo: components.drawer },
+  { path: 'squircle', redirectTo: components.button },
   // `animated-text` stays at the 404 on purpose — it split three ways by mode
   // (`typewriter` / `decrypt-text` / `split-text`), into a different cluster,
   // so any single target would be the guess the others are not.

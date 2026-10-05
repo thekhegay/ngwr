@@ -285,9 +285,6 @@ export const wrHe: WrI18nCatalog = {
     roledescription: 'קרוסלה',
     slideRoledescription: 'שקופית',
   },
-  actionSheet: {
-    label: 'פעולות',
-  },
   alert: {
     close: 'סגירת ההתראה',
   },

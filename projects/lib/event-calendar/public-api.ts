@@ -6,4 +6,4 @@ export type {
   WrCalendarEventContext,
   WrCalendarSlot,
   WrCalendarView,
-} from './interfaces';
+} from './types';

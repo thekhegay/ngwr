@@ -9,7 +9,7 @@ import { DOCUMENT } from '@angular/common';
 import { Component, ElementRef, ViewEncapsulation, computed, effect, inject, input, isDevMode } from '@angular/core';
 
 import { WrIconRegistry } from './icon-registry';
-import type { WrIconDef, WrIconName } from './interfaces';
+import type { WrIconDef, WrIconName } from './types';
 import { type WrIconStripReport, sanitizeIcon } from './utils';
 
 /**

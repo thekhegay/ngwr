@@ -7,7 +7,8 @@
 
 import { Component, ViewEncapsulation, forwardRef, signal } from '@angular/core';
 
-import { WR_COLLAPSE_GROUP, type WrCollapseGroupContext, type WrCollapseGroupMember } from './tokens';
+import { WR_COLLAPSE_GROUP } from './tokens';
+import type { WrCollapseGroupContext, WrCollapseGroupMember } from './types';
 
 /**
  * Accordion — a `<wr-collapse>` container that enforces single-open

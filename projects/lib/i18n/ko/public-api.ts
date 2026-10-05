@@ -274,9 +274,6 @@ export const wrKo: WrI18nCatalog = {
     roledescription: '캐러셀',
     slideRoledescription: '슬라이드',
   },
-  actionSheet: {
-    label: '작업',
-  },
   alert: {
     close: '알림 닫기',
   },

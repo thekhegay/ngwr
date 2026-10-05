@@ -14,4 +14,4 @@ export type {
   WrMarkdownInline,
   WrMarkdownListItem,
   WrMarkdownParseOptions,
-} from './interfaces';
+} from './types';

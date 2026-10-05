@@ -7,7 +7,7 @@
 
 import { InjectionToken } from '@angular/core';
 
-import type { WrMarkdownHighlighter } from './interfaces';
+import type { WrMarkdownHighlighter } from './types';
 
 /**
  * The app's syntax highlighter, or `null` for none.

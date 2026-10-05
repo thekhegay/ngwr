@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrSwitchHarnessFilters } from './interfaces';
+import type { WrSwitchHarnessFilters } from './types';
 
 /**
  * Test harness for `<wr-switch>`.

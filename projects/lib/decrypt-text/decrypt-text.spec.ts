@@ -5,7 +5,7 @@ import { WrPlatform } from 'ngwr/platform';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDecryptText } from './decrypt-text';
-import type { WrDecryptTextAnimateOn, WrDecryptTextClickMode, WrDecryptTextRevealDirection } from './interfaces';
+import type { WrDecryptTextAnimateOn, WrDecryptTextClickMode, WrDecryptTextRevealDirection } from './types';
 
 @Component({
   imports: [WrDecryptText],

@@ -13,7 +13,7 @@ import { provideWrOverlay } from 'ngwr/overlay';
 import { type MockInstance, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrEditor } from './editor';
-import type { WrEditorFormat, WrEditorJson, WrEditorTool, WrEditorValue } from './interfaces';
+import type { WrEditorFormat, WrEditorJson, WrEditorTool, WrEditorValue } from './types';
 
 /**
  * jsdom lays nothing out, and ProseMirror measures: once the editor has focus,

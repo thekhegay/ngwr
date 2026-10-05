@@ -55,21 +55,11 @@
 // 14.14.
 $base-colors: (
   primary: #3969e2,
-  secondary: #e21a62,
   success: #008800,
   warning: #ffba00,
   danger: #dc3137,
   info: #3472d9,
-  light: #cbd5e1,
-  medium: #6a7683,
-  dark: #0f172a,
 ) !default;
-
-// Deprecated: the old YIQ brightness cut-off. No longer read — `_contrast()`
-// compares real WCAG contrast ratios, which needs no threshold. Kept declared
-// so `@use 'ngwr/theme' with ($contrast-threshold: …)` in an existing app still
-// compiles instead of erroring on an unknown variable.
-$contrast-threshold: 150 !default;
 
 // Dark text used on light backgrounds.
 //
@@ -121,7 +111,8 @@ $contrast-light: #ffffff !default;
  *
  * Was a YIQ brightness threshold, which is a brightness *estimate*, not the
  * metric accessibility is judged by, and it mispicked on every mid-saturation
- * colour: five of the nine shipped intents got white text below AA
+ * colour: five of the nine intents the palette shipped at the time got white
+ * text below AA
  * (success 3.33:1, medium 3.10:1, danger and info 3.68:1, secondary 3.99:1)
  * where dark text would have cleared it (5.43 / 5.82 / 4.90 / 4.91 / 4.52).
  * Comparing the real ratios needs no threshold to tune.
@@ -172,7 +163,7 @@ $contrast-light: #ffffff !default;
 @mixin derived() {
   // Generic subtle hover-surface tint (icon buttons, list rows) — one place
   // so the hover strength stays consistent everywhere.
-  --wr-color-hover: rgba(var(--wr-color-light-rgb), 0.4);
+  --wr-color-hover: var(--wr-color-gray-2);
 
   // Border / divider strengths — translucent so they read on any surface and
   // auto-adapt in dark (via the flipping `light` channels). One place each.
@@ -186,9 +177,9 @@ $contrast-light: #ffffff !default;
   // computed to exactly these values. Those were FILLS, and naming a fill after a
   // hairline is how a token layer starts lying, so the `--wr-color-fill*` scale
   // below absorbed them instead; not one of those hand-rolls is left.
-  --wr-color-border: rgba(var(--wr-color-light-rgb), 0.5);
-  --wr-color-border-subtle: rgba(var(--wr-color-light-rgb), 0.35);
-  --wr-color-border-strong: rgba(var(--wr-color-light-rgb), 0.6);
+  --wr-color-border: rgba(var(--wr-color-gray-4-rgb), 0.5);
+  --wr-color-border-subtle: rgba(var(--wr-color-gray-4-rgb), 0.35);
+  --wr-color-border-strong: rgba(var(--wr-color-gray-4-rgb), 0.6);
 
   // Scrim behind modals / drawers — always black so the dim reads as "covered"
   // regardless of theme.
@@ -208,34 +199,36 @@ $contrast-light: #ffffff !default;
   // from 6.58:1 to 4.05:1 that way. A fill is not a hairline, which is also why
   // these are not `--wr-color-border-*` under a new name: those three carry the
   // right VALUES under the wrong noun.
-  --wr-color-fill-subtle: rgba(var(--wr-color-light-rgb), 0.15);
-  --wr-color-fill: rgba(var(--wr-color-light-rgb), 0.3);
-  --wr-color-fill-strong: rgba(var(--wr-color-light-rgb), 0.55);
+  --wr-color-fill-subtle: var(--wr-color-gray-1);
+  --wr-color-fill: var(--wr-color-gray-2);
+  --wr-color-fill-strong: var(--wr-color-gray-3);
 
-  // De-emphasized text — the muted ink at two strengths, and only the first is
-  // text. `-text-muted` is 0.95, not 0.85: the role itself is 5.35:1 on the
-  // light surface, but wrapping it at 0.85 composited to #778291 — 3.90:1,
-  // under the AA bar. 0.95 is the most softening that still clears it (4.81),
-  // which leaves this token barely distinguishable from the flat role it wraps.
-  // Every library rule that read it was a placeholder, and those read
-  // `--wr-color-placeholder` now; it stays for the muted labels a consumer
-  // writes. `-text-faint` is below every bar — see its marker.
-  --wr-color-text-muted: rgba(var(--wr-color-muted-text-rgb), 0.95);
-  // unused-ok: the library paints with nothing at this strength any more, and
-  // that is the finding rather than an oversight. It had exactly three
-  // consumers — the OTP placeholder, the textarea resize grip and the avatar
-  // spinner — and all three were FAILING: 2.43:1 in light, against 4.5:1 for
-  // placeholder text and 3:1 for an interactive affordance and a status
-  // indicator. "Decorative by design" was true of the token and not of any of
-  // the three, so the grip and the spinner moved to `-on-surface-muted` and the
-  // placeholder to `--wr-color-placeholder`. The tier stays published because a
-  // custom property is public API and a consumer may have genuinely decorative
-  // text; the library, it turns out, has none. No gate reports a GRAPHIC at
-  // this strength — axe has no non-text-contrast rule. A placeholder painted
-  // with it fails `check:contrast`'s probe only where the probe can reach one,
-  // an at-rest `::placeholder`; every other placeholder rule is held to
-  // `--wr-color-placeholder` at the source, by `theme/styles.spec.ts`.
-  --wr-color-text-faint: rgba(var(--wr-color-muted-text-rgb), 0.6);
+  // De-emphasized text. Two NAMES and one value, which is the state v15 left
+  // them in and is recorded here rather than tidied away.
+  //
+  // They were a two-strength ramp over the muted ink — `-text-muted` an 0.95
+  // alpha measuring 4.81:1, `-text-faint` a weaker tier at 2.43:1 — and both
+  // now resolve to `--wr-color-gray-5`, the ramp step the neutral roles resolve
+  // to as well. The collapse is not a slip in either direction. The muted tier
+  // was already barely distinguishable from the flat role it wrapped, and the
+  // faint one had exactly three consumers, all of them FAILING: the OTP
+  // placeholder, the textarea resize grip and the avatar spinner, against
+  // 4.5:1 for placeholder text and 3:1 for an affordance and a status
+  // indicator. "Decorative by design" was true of the token and of none of the
+  // three, so the grip and the spinner moved to `-on-surface-muted` and the
+  // placeholder to `--wr-color-placeholder`.
+  //
+  // unused-ok: both, and for one reason. A custom property is public API, so a
+  // consumer with genuinely decorative text keeps something to reach for — but
+  // the library paints with neither, and new code should take the ROLE
+  // (`--wr-color-on-surface-muted`) rather than either of these older names.
+  // No gate can report a GRAPHIC drawn at a faint strength: axe ships no
+  // non-text-contrast rule. A placeholder painted with one is caught only where
+  // `check:contrast`'s probe can reach an at-rest `::placeholder`; every other
+  // placeholder rule is held to `--wr-color-placeholder` at the source, by
+  // `theme/styles.spec.ts`.
+  --wr-color-text-muted: var(--wr-color-gray-5);
+  --wr-color-text-faint: var(--wr-color-gray-5);
 
   // Semantic role aliases over the flipping neutrals — prefer these in new code
   // for intent-free surface / text / outline jobs. They resolve through
@@ -255,10 +248,10 @@ $contrast-light: #ffffff !default;
   // reach back down to a literal.
   --wr-color-surface: var(--wr-color-white);
   --wr-color-surface-rgb: var(--wr-color-white-rgb);
-  --wr-color-on-surface: var(--wr-color-dark);
-  --wr-color-on-surface-rgb: var(--wr-color-dark-rgb);
-  --wr-color-on-surface-muted: var(--wr-color-muted-text);
-  --wr-color-on-surface-muted-rgb: var(--wr-color-muted-text-rgb);
+  --wr-color-on-surface: var(--wr-color-gray-6);
+  --wr-color-on-surface-rgb: var(--wr-color-gray-6-rgb);
+  --wr-color-on-surface-muted: var(--wr-color-gray-5);
+  --wr-color-on-surface-muted-rgb: var(--wr-color-gray-5-rgb);
 
   // Placeholder text — its own role because placeholders are where the catalog
   // kept inventing strengths: four of them, down to `rgba(…, 0.7)` on
@@ -288,14 +281,16 @@ $contrast-light: #ffffff !default;
   // surface — `outline` is the opaque one components actually draw 1px rules
   // with today. Both are kept: swapping one for the other changes appearance,
   // not just naming.
-  --wr-color-outline: var(--wr-color-light);
-  // unused-ok: the channel form of the hairline, kept for a consumer writing
-  // their own `rgba()` rule. The library's twenty-two hand-rolls read it and
-  // moved to `--wr-color-fill*` above — deliberately off `light-rgb`, for the
-  // reason stated there — so nothing paints with the channels today. Until this
-  // check stopped counting comments as consumers, the paragraph at :152 was the
-  // only thing keeping it green.
-  --wr-color-outline-rgb: var(--wr-color-light-rgb);
+  --wr-color-outline: var(--wr-color-gray-4);
+  // The channel form of the hairline. Its twenty-two hand-rolled readers moved
+  // to `--wr-color-fill*` above and it carried an `unused-ok:` marker for a
+  // release — until v15, when `wr-gauge`, `wr-knob`, `wr-calendar-heatmap` and
+  // `wr-line-chart` landed on it from the other direction: each drew a neutral
+  // track or grid line through `--wr-color-light-rgb`, the intent v15 deleted,
+  // at an alpha this token composites to identically. An alpha is right there
+  // where an opaque step is not — a track sits behind data on whatever surface
+  // the host gives it.
+  --wr-color-outline-rgb: var(--wr-color-gray-4-rgb);
 
   // Soft trio per intent (+ `medium` for neutral surfaces) — tokenizes the
   // ad-hoc `rgba(var(--*-rgb), α)` fills components hand-rolled at ~8
@@ -304,14 +299,14 @@ $contrast-light: #ffffff !default;
   // `-soft-contrast` the readable same-hue text on it (deep in light,
   // light in dark — follows `--wr-color-dark`). All theme-correct over any
   // background via the -rgb channels.
-  @each $name in (primary, secondary, success, warning, danger, info, medium) {
+  @each $name in (primary, success, warning, danger, info) {
     --wr-color-#{$name}-soft: rgba(var(--wr-color-#{$name}-rgb), 0.12);
     --wr-color-#{$name}-soft-border: rgba(var(--wr-color-#{$name}-rgb), 0.3);
     // unused-ok: superseded in practice by `-ink`, which is calibrated to 5.0:1
     // against this very tint while this one is a flat 62% mix that was never
     // measured. Kept because it is public and predates `-ink`; do not reach for
     // it in new code, and do not delete it in a minor.
-    --wr-color-#{$name}-soft-contrast: color-mix(in srgb, var(--wr-color-#{$name}) 62%, var(--wr-color-dark));
+    --wr-color-#{$name}-soft-contrast: color-mix(in srgb, var(--wr-color-#{$name}) 62%, var(--wr-color-gray-6));
     --wr-color-#{$name}-active: rgba(var(--wr-color-#{$name}-rgb), 0.2);
   }
 
@@ -363,34 +358,21 @@ $contrast-light: #ffffff !default;
   // and `pnpm check:contrast` is the authority.
   $ink-mix: (
     primary: 78%,
-    secondary: 75%,
     success: 67%,
     warning: 48%,
     danger: 72%,
     info: 71%,
-    medium: 65%,
   );
 
   @each $name, $share in $ink-mix {
-    --wr-color-#{$name}-ink: color-mix(in srgb, var(--wr-color-#{$name}) #{$share}, var(--wr-color-dark));
+    --wr-color-#{$name}-ink: color-mix(in srgb, var(--wr-color-#{$name}) #{$share}, var(--wr-color-gray-6));
   }
 
-  // `light` is a surface tone by definition — a hair off the page background in
-  // either theme — so there is no darkening that keeps it recognisable AND
-  // readable. It borrows the page's own ink; the border still carries the
-  // intent. `dark` already IS the ink.
-  // unused-ok: the two ends of the ink ramp that resolve to something already
-  // named. `light` borrows the page's own ink and `dark` IS the ink, so a
-  // component would write the role directly — these exist so that
-  // `var(--wr-color-#{$intent}-ink)` in a loop resolves for all nine intents
-  // instead of nine minus two.
-  --wr-color-light-ink: var(--wr-color-on-surface);
-  --wr-color-dark-ink: var(--wr-color-dark);
 }
 
 /// Re-emit an intent's WHOLE token set on the current selector, from one seed.
 ///
-/// `$colors` is a map of intent name to base colour, keyed by the same nine
+/// `$colors` is a map of intent name to base colour, keyed by the same five
 /// names as `$base-colors`. Anything else is an `@error`: a typo would otherwise
 /// emit a family of `--wr-color-brnad-*` properties that resolve for nothing.
 ///
@@ -482,15 +464,27 @@ $contrast-light: #ffffff !default;
   // and turns the backdrop into a white wash.
   --wr-color-backdrop-rgb: 0, 0, 0;
 
-  // Muted TEXT, deliberately its own token rather than an alias of the `medium`
-  // intent. The two roles pull in opposite directions and cannot share a value:
-  // as text it needs >= 4.5:1 against the lightest surface (#ebeff4), while as a
-  // fill it has to clear the bar the other way, against its own label. v11 pulled
-  // them further apart rather than closer — the `medium` fill went deeper
-  // (#6a7683, whose label is now white at 4.63) while this token stayed where a
-  // light canvas needs it. Aliasing them left secondary text at 2.69:1.
-  --wr-color-muted-text: #5f6c7d;
-  --wr-color-muted-text-rgb: 95, 108, 125;
+  // The neutral ramp. Six steps from the faintest wash to body text, and the
+  // dark theme sets its own six rather than deriving them: a derived ramp has to
+  // be symmetric in what its ends are FOR, and this one is not — four of the six
+  // are tints crowded near the canvas while two are text. Values here are what
+  // the roles they replace paint today, composited on each theme's canvas, so
+  // nothing moves.
+  --wr-color-gray-1: #f7f9fb;
+  --wr-color-gray-2: #eff2f6;
+  --wr-color-gray-3: #e2e8ef;
+  --wr-color-gray-4: #cbd5e1;
+  --wr-color-gray-5: #5f6c7d;
+  --wr-color-gray-6: #0f172a;
+
+  // Channel form, for the three steps a translucent rule reads through a role.
+  // Only three, because a `-rgb` nothing composites over is a token with no
+  // consumer. `theme/styles.spec.ts` holds each one to the channels of its own
+  // step, in every theme and both contrast modes — they are written out rather
+  // than derived in a loop so `check:tokens` can still match them by name.
+  --wr-color-gray-4-rgb: 203, 213, 225;
+  --wr-color-gray-5-rgb: 95, 108, 125;
+  --wr-color-gray-6-rgb: 15, 23, 42;
 
   // Neutral gray ramp — a FIXED primitive scale (slate). Each step is a stable
   // job (50 = subtlest surface tint … 950 = strongest ink) and, unlike the

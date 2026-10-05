@@ -77,7 +77,6 @@ const SHARED_WITH_ENGLISH = new Set([
   'colorPicker.channelSaturation',
   'colorPicker.channelLightness',
   'colorPicker.channelAlpha',
-  'actionSheet.label',
   'mention.listbox',
   'datePicker.minutes',
   'datePicker.am',

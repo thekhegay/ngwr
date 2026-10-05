@@ -9,8 +9,8 @@ import { WrDrawerManager } from 'ngwr/drawer';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { WR_POPOVER_FALLBACKS, WR_POPOVER_POSITIONS, type WrPopoverPosition, wrPopoverPositions } from './interfaces';
 import { WrPopover } from './popover';
+import { WR_POPOVER_FALLBACKS, WR_POPOVER_POSITIONS, type WrPopoverPosition, wrPopoverPositions } from './types';
 
 /**
  * `[wrPopover]` renders its panel into a CDK overlay, so nothing it opens is

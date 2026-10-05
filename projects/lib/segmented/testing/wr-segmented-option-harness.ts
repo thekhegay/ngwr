@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrSegmentedOptionHarnessFilters } from './interfaces';
+import type { WrSegmentedOptionHarnessFilters } from './types';
 
 /**
  * Test harness for one segment of a `<wr-segmented>` — an option, not a control.

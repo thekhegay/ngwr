@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrGlitchTextColourSplit, WrGlitchTextDurations, WrGlitchTextHarnessFilters } from './interfaces';
+import type { WrGlitchTextColourSplit, WrGlitchTextDurations, WrGlitchTextHarnessFilters } from './types';
 
 /**
  * Test harness for `<wr-glitch-text>`.

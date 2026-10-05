@@ -5,6 +5,7 @@ import { WrButton, type WrButtonShape } from 'ngwr/button';
 import { provideWrIcons } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WR_COLORS } from 'ngwr/theme';
+import { WrTypography } from 'ngwr/typography';
 
 import {
   DocApiComponent,
@@ -18,7 +19,16 @@ import { API } from '#core/generated/api';
 @Component({
   selector: 'ngwr-button-page',
   templateUrl: './button.html',
-  imports: [WrButton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    WrButton,
+    WrTypography,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
+  styleUrl: './button.scss',
   providers: [
     provideWrIcons(
       lucideIcons({
@@ -51,24 +61,23 @@ export class MyComponent {}`,
   <!-- Does NOT submit: <wr-btn> is a custom element. Bind the click. -->
   <wr-btn (click)="save()" color="primary">Save</wr-btn>
 </form>`,
-    colors: `<wr-btn color="primary">Primary</wr-btn>
+    colors: `<!-- No color at all is the default button. -->
+<wr-btn>Default</wr-btn>
+<wr-btn color="primary">Primary</wr-btn>
 <wr-btn color="success">Success</wr-btn>`,
-    outlined: `<wr-btn color="primary" outlined>Outlined</wr-btn>`,
+    outlined: `<wr-btn outlined>Default</wr-btn>
+<wr-btn color="primary" outlined>Outlined</wr-btn>`,
     sizes: `<wr-btn size="sm">Small</wr-btn>
 <wr-btn size="md">Medium</wr-btn>
 <wr-btn size="lg">Large</wr-btn>`,
     shape: `<!-- Three shapes -->
 <wr-btn color="primary">Rounded (default)</wr-btn>
 <wr-btn color="primary" shape="pill">Pill</wr-btn>
-<wr-btn color="primary" shape="squircle">Squircle</wr-btn>
-
-<!-- No corner-shape support? [wrSquircle] clips the same look everywhere.
-     Its own entry point: import { WrSquircle } from 'ngwr/squircle' and add
-     WrSquircle to imports — the attribute is inert without it. -->
-<wr-btn color="primary" wrSquircle [radius]="14">Squircle</wr-btn>`,
+<wr-btn color="primary" shape="squircle">Squircle</wr-btn>`,
     block: `<wr-btn color="primary" block>Full width</wr-btn>`,
     icon: `<wr-btn icon="add" color="primary">Add</wr-btn>
-<wr-btn icon="download" iconPosition="end" color="success">Download</wr-btn>`,
+<wr-btn icon="trash" color="danger" outlined>Delete</wr-btn>
+<wr-btn icon="download" iconPosition="end">Download</wr-btn>`,
     disabled: `<wr-btn disabled>Disabled</wr-btn>`,
     loading: `<wr-btn [loading]="loading()" color="primary" (click)="loading.set(!loading())">
   Click to toggle

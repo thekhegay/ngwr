@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrImageCropper } from './image-cropper';
-import type { WrCropHandle, WrImageLoadError, WrImageOutputType } from './interfaces';
+import type { WrCropHandle, WrImageLoadError, WrImageOutputType } from './types';
 
 @Component({
   imports: [WrImageCropper],

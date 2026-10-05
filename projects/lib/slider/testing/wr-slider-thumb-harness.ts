@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, TestKey } from '@angular/cdk/testing';
 
-import type { WrSliderThumbHarnessFilters, WrSliderThumbPosition } from './interfaces';
+import type { WrSliderThumbHarnessFilters, WrSliderThumbPosition } from './types';
 
 /** How many key presses {@link WrSliderThumbHarness.setValue} spends before it gives up. */
 const MAX_PRESSES = 1000;

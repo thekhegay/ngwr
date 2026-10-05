@@ -9,7 +9,7 @@ import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 import type { WrRadioSize } from 'ngwr/radio';
 
-import type { WrRadioHarnessFilters } from './interfaces';
+import type { WrRadioHarnessFilters } from './types';
 
 /**
  * Test harness for one `<wr-radio>` — an option, not a control.

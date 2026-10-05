@@ -9,7 +9,7 @@ import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 import type { WrSegmentedSize } from 'ngwr/segmented';
 
-import type { WrSegmentedHarnessFilters, WrSegmentedOptionHarnessFilters } from './interfaces';
+import type { WrSegmentedHarnessFilters, WrSegmentedOptionHarnessFilters } from './types';
 import { WrSegmentedOptionHarness } from './wr-segmented-option-harness';
 
 /** Sizes that earn a modifier class — `md` is the default and carries none. */

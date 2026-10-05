@@ -287,9 +287,6 @@ export const wrPl: WrI18nCatalog = {
     roledescription: 'karuzela',
     slideRoledescription: 'slajd',
   },
-  actionSheet: {
-    label: 'Działania',
-  },
   alert: {
     close: 'Zamknij komunikat',
   },

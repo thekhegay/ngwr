@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
-import type { WrCarouselHarnessFilters } from './interfaces';
+import type { WrCarouselHarnessFilters } from './types';
 
 /**
  * The settled percentage out of `translateX(-100%)`, and out of the mid-drag

@@ -4,4 +4,4 @@ export type {
   WrEventCalendarArrowKey,
   WrEventCalendarChipHarnessFilters,
   WrEventCalendarHarnessFilters,
-} from './interfaces';
+} from './types';

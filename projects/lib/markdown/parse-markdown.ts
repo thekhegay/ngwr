@@ -12,7 +12,7 @@ import type {
   WrMarkdownInline,
   WrMarkdownListItem,
   WrMarkdownParseOptions,
-} from './interfaces';
+} from './types';
 
 /**
  * Markdown to a node tree. No HTML anywhere in the pipeline.

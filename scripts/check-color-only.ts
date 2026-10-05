@@ -10,10 +10,10 @@
  * else, without saying why that is acceptable.
  *
  * Why this exists, and why it is a source check rather than a browser one. The
- * nine intents cannot be told apart by lightness: v11 deepened five of them so
- * `_contrast()` would pick a WHITE label, and tuning nine colours to one ratio
+ * intents cannot be told apart by lightness: v11 deepened five of them so
+ * `_contrast()` would pick a WHITE label, and tuning colours to one ratio
  * against the same two candidates IS tuning them to one luminance. Measured off
- * `$base-colors`, six of the nine sit inside a 1.06:1 band and `success`
+ * `$base-colors`, four of the five sit inside a 1.06:1 band and `success`
  * against `danger` is 1.004:1 — the same grey. So for a reader with red-green
  * colour blindness, roughly one man in twelve, a `--success` modifier and a
  * `--danger` modifier that differ only in colour are the same element.
@@ -52,7 +52,7 @@
  * state. AGENTS.md keeps that as a decided trade beside the `--wr-color-outline`
  * one, with the alternatives that were costed and not taken.
  *
- * LOOPS ARE UNROLLED. Most of the catalog paints its nine intents from an
+ * LOOPS ARE UNROLLED. Most of the catalog paints its five intents from an
  * `@each` over `theme.$colors`, and the literal selector `&--#{$name}` names no
  * state — so while this read one concrete selector at a time, a green run said
  * nothing about the badge, the tag, the button or the progress bar, which are
@@ -167,7 +167,7 @@ const MARKER = 'color-ok:';
  * shape and size, where a colour-only rule says nothing at all about state, and
  * treating them as findings would bury the real ones. What is listed here is
  * the set a reader has to TELL APART to use the component — a status, a
- * selection, a validity, or one of the nine intents.
+ * selection, a validity, or one of the five intents.
  */
 const STATEFUL = new RegExp(
   [
@@ -175,7 +175,8 @@ const STATEFUL = new RegExp(
     String.raw`selected|active|current|checked|indeterminate|open|expanded|collapsed`,
     // Validity and progress.
     String.raw`invalid|error|valid|complete|completed|pending|reachable|loading`,
-    // The nine intents, plus the names components give them.
+    // The five intents, plus the names components give them — including the
+    // four v15 removed, which components still use as local modifier names.
     String.raw`primary|secondary|success|warning|danger|info|neutral|offline|medium|light|dark`,
     // Direction of change — a statistic, a trend, a diff.
     String.raw`up|down|added|removed`,
@@ -856,7 +857,7 @@ if (found.length > 0 || unread.length > 0) {
     console.error(`    ${header} → members this check cannot name, written as ${variables.map(v => `\`--#{$${v}}\``).join(' and ')}`);
   }
   console.error(`
-  Six of the nine intents sit inside a 1.06:1 band of relative luminance, and
+  Four of the five intents sit inside a 1.06:1 band of relative luminance, and
   \`success\` against \`danger\` is 1.004:1 — the same grey. A modifier whose only
   declarations are colour is invisible to a reader with red-green colour
   blindness, and no gate but this one can see it: axe ships no WCAG 1.4.1 rule.

@@ -11,7 +11,7 @@ import { type WrI18nCatalog, provideWrI18n, provideWrI18nStaticLoader } from 'ng
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrColorPicker } from './color-picker';
-import type { WrColorFormat } from './interfaces';
+import type { WrColorFormat } from './types';
 
 @Component({
   imports: [WrColorPicker],

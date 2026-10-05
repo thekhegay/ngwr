@@ -2,12 +2,17 @@
   title="Speed Dial"
   description="Floating action button that fans out a set of secondary actions on click."
   [keywords]="['speed-dial', 'fab', 'wr-speed-dial']"
+  [labels]="['Component', 'Standalone']"
 >
-  <ngwr-doc-section title="Up direction" description="Click the FAB to expand the fan.">
-    <ngwr-doc-code [code]="snippet" language="angular-html" />
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage" description="Click the FAB to expand the fan.">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="padding-top: 16rem; padding-bottom: 1rem; display: flex; justify-content: center">
-        <wr-speed-dial [actions]="actions" direction="up" (pick)="onPick($event)" />
+        <wr-speed-dial [actions]="actions" (pick)="onPick($event)" />
       </div>
       @if (lastPick()) {
         <small style="display: block; text-align: center; color: var(--wr-color-on-surface-muted)"
@@ -16,9 +21,26 @@
       }
     </ngwr-doc-snippet>
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Direction"
+    description="Which way the fan opens. `up` is the default; pick the one that points away from the edge the dial sits against."
+  >
+    <ngwr-doc-code [code]="snippets.direction" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-dial-demo">
+        <wr-segmented [options]="directionOptions" [(value)]="direction" size="sm" />
+        <div [class]="`ngwr-dial-demo__stage ngwr-dial-demo__stage--${direction()}`">
+          <wr-speed-dial [actions]="actions" [direction]="direction()" (pick)="onPick($event)" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
+
   <ngwr-doc-section title="Types" description="Data shapes used by the inputs and outputs above.">
     <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
     <ngwr-doc-api [rows]="typeRows" />

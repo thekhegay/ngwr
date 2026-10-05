@@ -25,8 +25,8 @@ A pnpm + Angular CLI monorepo with two projects:
   cover the form controls (`button`, `input`, `textarea`,
   `checkbox`, `switch`, `radio`, `select`, `input-number`, `input-otp`, `slider`,
   `rating`, `file-upload`, `color-picker`, `knob`, `form`, `segmented`, `editor`), the overlays
-  (`date-picker`, `dropdown`, `popover`, `dialog`, `drawer`, `action-sheet`,
-  `toast`, `context-menu`, `popconfirm`, `command-palette`, `cascader`, `mention`),
+  (`date-picker`, `dropdown`, `popover`, `dialog`, `drawer`, `toast`,
+  `context-menu`, `popconfirm`, `command-palette`, `cascader`, `mention`),
   the data views (`table`, `tree`, `graph`), the navigation / disclosure set (`tabs`,
   `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`,
   `lightbox`, `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`,
@@ -64,7 +64,7 @@ A pnpm + Angular CLI monorepo with two projects:
 | `alert.ts`           | the `@Component` / `@Directive` (`ViewEncapsulation.None`)  |
 | `alert.html`         | template (components only)                                  |
 | `styles/_index.scss` | consumable styles — imported by apps as `@use 'ngwr/alert'` |
-| `interfaces/`        | public types                                                |
+| `types/`             | public types                                                |
 | `public-api.ts`      | the entry point's exports — what `exports` points at       |
 | `index.ts`           | barrel (`export * from './public-api'`)                     |
 | _(no per-folder config)_ | the `exports` map declares it; `pnpm gen:exports` writes that |
@@ -88,8 +88,12 @@ components were quietly reverting a documented `@use 'ngwr/theme' with
 a red test rather than a silent 40 kB.
 
 Public types live in each entry point's
-`interfaces/` folder (an `index.ts` barrel re-exported through
-`public-api.ts`); cross-cutting types live in `ngwr/utils/interfaces`
+`types/` folder (an `index.ts` barrel re-exported through
+`public-api.ts`), and a type declared in a `tokens/*.token.ts` belongs there
+too — the token file holds the `InjectionToken`, its contract lives beside every
+other type the entry point publishes. The folder was `interfaces/` until v15 and
+the name was a lie in most of them: what it holds is unions and aliases as often
+as it is an `interface`. Cross-cutting types live in `ngwr/utils/types`
 (e.g. `Maybe`, `SafeAny`).
 
 ## Cross-cutting systems
@@ -241,15 +245,16 @@ one component folder. Reach for them instead of hand-rolling:
   re-tuned intent otherwise keeps the label of the colour it replaced. Only the
   LIGHT recipe — `_dark.scss` is hand-tuned (`color.scale(…, 70%)` where light
   uses `color.adjust(…, 5%)`), so a dark seed gives a consistent dark palette, not
-  the shipped one. `pnpm check:theme` reads the BUILT stylesheet and compares all
-  63 shipped tokens; it caught a missing second modulo in `hslToRgb` on its first
+  the shipped one. `pnpm check:theme` reads the BUILT stylesheet and compares every
+  shipped token (35 across the five intents when this was written — the run
+  prints both figures); it caught a missing second modulo in `hslToRgb` on its first
   run (`((h % 360) + 360) / 60` reads as normalisation and sends 222° to sector
   9.7 instead of 3.7, so only greys survived). The three `registry/items/theme-*`
   presets are GENERATED from a seed table by `pnpm gen:theme-presets` and
   re-derived by `check:registry`; `/guides/tokens/builder` exports both a CSS
   block and a ready preset. **What this does not cover:** `-ink` shares are
   calibrated against the SHIPPED bases, so a far-off seed inherits shares that no
-  longer guarantee 5:1, and `check:theme` will not notice — it compares the nine
+  longer guarantee 5:1, and `check:theme` will not notice — it compares the
   shipped intents, not an arbitrary seed.
 - **Date adapters** (`ngwr/date`, plus `ngwr/date/adapters/{fns,luxon}`) —
   `provideWrDateAdapter(...)` powers calendar + every date-picker mode. The three
@@ -296,6 +301,21 @@ one component folder. Reach for them instead of hand-rolling:
   `[wrTableExpand]`, tree + `virtualScroll`. Excel (`.xlsx`)
   export is deliberately NOT shipped (would need a third-party dep). Don't
   hand-roll selection checkboxes or a CSV writer.
+- **Sortable list** (`ngwr/sortable-list`) — `<wr-sortable-list [(items)]>` with one
+  `<wr-sortable-item>` per row, and `[wrDragHandle]` to restrict the grab.
+  **The consumer writes the loop**, which is the v15 change: the list used to
+  own it and render one unnamed `<ng-template let-row let-i="index">`, so the
+  markup said nothing about where those variables came from and a row could
+  carry nothing of its own. The list keeps the array, the keyboard gesture and
+  the live region; a row knows only its own position, which it resolves by
+  DOCUMENT ORDER rather than by registration order — a row can be added,
+  removed or moved by the consumer's loop, and construction order survives none
+  of those. `trackBy` went with the loop. The entry point moved with the
+  component in the same release — `ngwr/drag-drop` became
+  `ngwr/sortable-list`, because drag and drop is a broader idea than one
+  sortable list and the name is wanted for it. `migration-v15` rewrites the
+  import path and the `@use`, which is what a codemod moves without reading
+  the code around it.
 - **Virtual scrolling** — `wr-table`, `wr-tree` and `wr-select` (search mode)
   use hand-rolled spacer-row windowing and switch to `aria-activedescendant`
   while virtual. `ngwr/virtual-scroll` is a _separate_ public component wrapping
@@ -348,9 +368,13 @@ one component folder. Reach for them instead of hand-rolling:
   `Range.getClientRects` — ProseMirror throws from a
   DOM listener after the document has already changed, so without the stub a spec
   passes for the wrong reason.
-- **Mobile primitives** (`ngwr/platform`, …) — `WrHaptics`, `ngwr/action-sheet`,
+- **Mobile primitives** (`ngwr/platform`, …) — `WrHaptics`,
   `ngwr/pull-to-refresh`, and `WrVisualViewport` (publishes
-  `--wr-keyboard-inset`, installed by `provideWrOverlay()`).
+  `--wr-keyboard-inset`, installed by `provideWrOverlay()`). The set is
+  deliberately small and v15 made it smaller: `ngwr/action-sheet` is gone and
+  `wr-drawer`'s swipe-to-dismiss grab handle with it, because ngwr is not a
+  mobile library and a mobile-only affordance has to earn the surface it adds
+  to a component every desktop app also uses.
 
 **Forms.** Value components are **Signal Forms-native** — twenty public
 controls implement `FormValueControl` or `FormCheckboxControl`, so
@@ -489,7 +513,7 @@ because a sanitizer strict in the browser and lax on the server is the worst
 failure a control like that can have.
 
 Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
-`ngwr/pipes`, the colour and squircle maths), the validation-copy contract
+`ngwr/pipes`, the colour maths), the validation-copy contract
 (`ngwr/form`), most of the service layer (`ngwr/hotkey`, `ngwr/i18n`,
 `ngwr/media`, `ngwr/platform`, `ngwr/storage`, `ngwr/overlay`, `ngwr/density`,
 `WrWindowManager`, `ngwr/scroll`) and EVERY component with a
@@ -775,11 +799,20 @@ custom properties are public too.
 
 **Styling.** Component styles live in `styles/_index.scss`, themed through
 **CSS custom properties** (`--wr-*`), not encapsulation. The token layer (set
-by `provideWrTheme()`): intent colors
-`--wr-color-{primary,secondary,success,warning,danger,info,light,medium,dark}`,
+by `provideWrTheme()`): five intent colors
+`--wr-color-{primary,success,warning,danger,info}`,
 each with `-contrast / -light / -lighter / -dark / -darker / -rgb`, plus the
-soft set (`-soft / -soft-border / -soft-contrast / -active`), `-ink` and semantic
-role aliases (`--wr-color-{surface,on-surface,on-surface-muted,placeholder,outline}`); plus
+soft set (`-soft / -soft-border / -soft-contrast / -active`) and `-ink`. **The
+neutrals are not intents** — v15 cut `secondary`, `light`, `medium` and `dark`,
+because the first was a second brand colour nobody had and the other three were
+fills wearing the names of surfaces. What replaced them is a six-step gray ramp
+(`--wr-color-gray-1` … `-6`, faintest wash to body text) that each theme SETS
+rather than mirrors, plus the semantic role aliases that resolve through it
+(`--wr-color-{surface,on-surface,on-surface-muted,placeholder,outline,hover,fill,fill-subtle,fill-strong}`).
+A component paints with the ROLE, never with a ramp step: the step is the
+substrate, and reaching past the role is how a component ends up right in one
+theme only. Only `gray-4`, `-5` and `-6` carry a `-rgb` companion, since a
+channel list nothing composites over is a token with no consumer; plus
 `--wr-border-radius-{sm,base,lg,pill}`, `--wr-text-*`, `--wr-font-weight-*`,
 `--wr-duration-*`, `--wr-ease-*`. Pull mixins and tokens from `ngwr/theme`.
 The TS `WR_COLORS` list and the SCSS `$base-colors` map must stay in sync —
@@ -809,6 +842,26 @@ with no modifier, because a hook is typically re-declared by every variant.
 Exactly one hook is declared and never read — `--wr-density-text`, published
 for consumers' own `calc()` — and the generator prints it rather than listing it.
 
+**`check:tokens` asks its question in BOTH directions, and the second one is
+the dangerous half.** The first pass finds a token with no reader. The second
+finds a READER with no token — a `var(--wr-color-…)` at a name the theme never
+declares — and those are not the same check in mirror: a dead declaration is
+untidy, while a dangling read is invalid at computed-value time, so the browser
+drops the WHOLE declaration holding it. `border: 1px solid var(--wr-color-gone)`
+draws no border at all, and nothing says so in the build, the console or a test.
+v15 is why the pass exists: cutting four intents left **220 reads across 71
+files**, nine of them in the SHIPPED library — `wr-gauge`, `wr-knob`,
+`wr-calendar-heatmap` and `wr-line-chart` each drew a neutral track or grid line
+through a token that no longer existed — and every one of the nine gates was
+green. Scope: only the `--wr-color-*` namespace, which the theme layer owns
+entirely; a read in a template or in TypeScript counts, unlike in the first pass,
+because an inline `style` is a live rule and a printed snippet is advice someone
+will paste; a declaration counts from a stylesheet or a template but NEVER from
+TypeScript, since every `--wr-color-…:` in a `.ts` file here is inside a printed
+snippet, and counting those made the check answer that every read of a deleted
+token resolved. `projects/lib/schematics` is skipped whole: a codemod's tables
+and fixtures name the old vocabulary on purpose.
+
 **A token nobody paints with is not a token, and `check:tokens` is a "say why"
 gate rather than a "don't" gate.** `--wr-*` properties are public API, so a token
 the library never reads can still be right to ship — the eleven
@@ -825,24 +878,25 @@ has to name WHICH of the run it excuses, or it states something false about the
 neighbours it happens to cover. **Interpolation is the trap, in both
 directions.** A component stylesheet writes `var(--wr-color-#{$name}-dark)`, so a
 matcher built on `[\w-]+` reports the whole shade set as dead; and a loop that
-writes nine references still matches no concretely-named declaration, which is
-how the dark theme's hand-tuned `--wr-color-dark-dark` — the background
-`.wr-btn--dark:hover` paints — came to carry a marker saying nothing paints with
-it. The check now resolves an `@each` to the list it actually iterates and
+writes one reference per intent still matches no concretely-named declaration,
+which is how the dark theme's hand-tuned `--wr-color-dark-dark` — the background
+the since-removed `.wr-btn--dark:hover` painted — came to carry a marker saying
+nothing paints with it. The check now resolves an `@each` to the list it actually iterates and
 expands the reference against it, scoped by brace depth, so a loop over three
-intents cannot vouch for the other six. Two more things do NOT count as painting
+intents cannot vouch for the rest. Two more things do NOT count as painting
 with a token: the showcase's templates (a swatch with an inline `style`, a
 `var()` inside a printed SCSS snippet — counting those called three dead families
 alive) and a `var()` inside a CODE COMMENT, which is the same category and was
 the only thing keeping `--wr-color-outline-rgb` green. Only `projects/lib` and
 the showcase's own `.scss` count, comments stripped.
 
-**A `::before` background is invisible to every contrast checker.** `wr-squircle`
-paints its content fill on a pseudo-element, so axe walks past it to the host's
-`background-color` — which for the bordered variant is the BORDER colour — and
-reports the intent measured against itself. Any component that paints through a
-pseudo-element, a gradient, or an SVG is unmeasurable this way; check those by
-hand rather than believing the number.
+**A `::before` background is invisible to every contrast checker.** The case
+that taught it was `wr-squircle`, which painted its content fill on a
+pseudo-element: axe walked past it to the host's `background-color` — which for
+the bordered variant was the BORDER colour — and reported the intent measured
+against itself. That component is gone with v15, the rule is not. Any component
+that paints through a pseudo-element, a gradient, or an SVG is unmeasurable this
+way; check those by hand rather than believing the number.
 
 **`-contrast` picks, it does not blend.** `_contrast()` returns whichever of
 `$contrast-dark` / `$contrast-light` scores higher against the fill, so those two
@@ -855,11 +909,12 @@ label no matter what anyone prefers. That is the whole reason v11 deepened five
 intents — `secondary`, `success`, `danger`, `info`, `medium` — just past the flip
 (light theme: white 4.60–4.64, black 4.52–4.56, an 8–20% shift in tone); at the
 old tones white measured 3.10–3.99, below AA, so a muddy black label won on
-merit. `warning` (black at 12.28:1) and `light` (14.14:1) are deliberately NOT in
-that set and cannot be — white needs `#906900` on warning, which is brown, not a
-warning colour. Every intent clears AA; the tightest are now `secondary` and
-`info` at 4.61:1, where white already wins and pure white is the ceiling, so the
-only lever left is the fill itself.
+merit. `warning` (black at 12.28:1) is deliberately NOT in that set and cannot
+be — white needs `#906900` on it, which is brown, not a warning colour. Two of
+those five, `secondary` and `medium`, are gone with v15; the deepening stands
+for the three that remain. Every intent clears AA; the tightest is now `info`
+at 4.61:1 with `danger` at 4.63:1, where white already wins and pure white is
+the ceiling, so the only lever left is the fill itself.
 
 **In the DARK theme those two roles cannot both be satisfied, and the arithmetic
 says so.** A patch after v11 deepened the dark `primary` from `#5b85ff` to
@@ -894,9 +949,9 @@ default that specs pin. `.wr-date-picker__trigger`, `.wr-table-sort--asc`,
 `.wr-input-number__step` and all five `.wr-sidebar__icon` rules contain nothing but
 an `<svg>`, and WCAG holds a graphic to 3:1, which `#3567ff` clears on the dark
 canvas at 3.87. Deepening those would restyle the light theme for no accessibility
-gain. The eleven that DID move — `wr-option--selected`, `wr-tree__row--selected`,
+gain. The ten that DID move — `wr-option--selected`, `wr-tree__row--selected`,
 `wr-tree__chip`, `wr-cascader__opt--active`, the command-palette and context-menu
-items, `wr-segmented__option:hover`, `wr-action-sheet__action`,
+items, `wr-segmented__option:hover`,
 `wr-anchor__link--active`, `wr-table-filter__reset` ("Reset", a real text button)
 and `wr-falling-text__word--hl` — all carry text, and six of them sit directly on
 `--wr-color-primary-soft`, the tint `-ink` is calibrated against. Five were failing
@@ -916,12 +971,15 @@ one, so the light theme sits at 5.03–6.56 while dark slipped. `primary` has si
 been re-derived from 86% to **78%** — the dark base deepening dropped it to
 4.48:1 on the sidebar's own tint, a real AA failure axe caught, and 78% is the
 most saturated share that reaches 5.0 there (5.04). Lowering a share only helps
-the light theme, where less intent means more `--wr-color-dark`. `secondary-ink`
-in DARK is still at 4.78 — clear of AA, under the documented target, and the next
-share to re-derive if you touch this. **Derive against the pair axe resolved on
+the light theme, where less intent means more `--wr-color-gray-6`. The one
+recorded laggard was `secondary-ink` in DARK at 4.78 — clear of AA, under the
+documented target — and v15 removed that intent, so nothing measured sits below
+the target today. That is not the same as everything clearing it: v11 moved
+`success` and `danger` without re-deriving either share, so measure before you
+trust the four that remain. **Derive against the pair axe resolved on
 the page, not against a hand-rolled composite:** compositing the `-soft` tint over
 the canvas by hand reproduces the ink colour exactly and the BACKGROUND not at all
-(4.14 computed where axe measured 4.48, and it misses the recorded
+(4.14 computed where axe measured 4.48, and it missed the then-recorded
 `secondary-ink` 4.78 by the same kind of margin). The ratio formula itself is
 sound — it reproduces axe to the second decimal on a pair axe has already
 resolved. So take the foreground/background pair out of the `check:contrast`
@@ -936,17 +994,18 @@ its own `-soft` tint. In the dark theme the bare token is now unusable as text f
 showcase learned this the hard way across 193 routes. The v11 deepening changed
 the first half of that story and
 not the second: a bare `--wr-color-<intent>` as text now clears AA on the plain
-light surface for every intent but `warning` (1.71:1) and `light` (1.48:1) — but
+light surface for every intent but `warning` (1.71:1) — but
 on its own `-soft` tint, which is where outlined / ghost / tinted variants
 actually paint it, it still fails everywhere (1.60–4.17 in light, 3.65–4.84 in
 dark). That tint is what `-ink` is calibrated against, so those variants take
 `-ink` regardless of how the bare intent scores on white. `-ink` and
-`-soft-contrast` are `color-mix`es toward `--wr-color-dark`, which itself flips
-per theme, so one declaration darkens in light and lightens in dark. For muted
-prose the role alias `--wr-color-on-surface-muted` is the answer — NOT the
-`medium` intent, which is a fill colour: it reaches 4.63:1 on pure white but only
-4.01:1 on the lightest surface the library paints (`#ebeff4`), where the muted
-role still holds 4.63:1. **Placeholder text reads `--wr-color-placeholder`**,
+`-soft-contrast` are `color-mix`es toward `--wr-color-gray-6`, the ramp's ink
+step, which each theme sets for itself — so one declaration darkens in light and
+lightens in dark. For muted prose the role alias `--wr-color-on-surface-muted`
+is the answer, and v15 removed the trap that used to sit beside it: the `medium`
+INTENT was a fill reading 4.63:1 on pure white and only 4.01:1 on the lightest
+surface the library paints (`#ebeff4`), where the muted role still holds 4.63:1.
+There is no longer a neutral intent to reach for by mistake. **Placeholder text reads `--wr-color-placeholder`**,
 which is that role under the name of its job — every placeholder in the catalog
 reads it, including the component hooks (`--wr-input-placeholder`,
 `--wr-textarea-placeholder`), and `theme/styles.spec.ts` fails on one that reads
@@ -1076,6 +1135,25 @@ that sequence is a position rather than an oversight:
   native attribute and rewriting one that was never ngwr's would silently
   rebind a character-width hint. The published v13 changelog cannot be edited;
   the docs that repeated it were corrected.
+- **v15 ships `migration-v15`, and the split falls somewhere new: the TOKENS
+  are rewritten and the INTENTS are not**, though one change removed both. Three
+  of the four deleted neutral families have a successor carrying the IDENTICAL
+  value in both themes — `--wr-color-light` to `--wr-color-outline`,
+  `--wr-color-dark` to `--wr-color-on-surface`, `--wr-color-muted-text` to
+  `--wr-color-on-surface-muted`, each with its `-rgb` companion — so a rewritten
+  stylesheet paints to the pixel, and `--wr-color-medium` moves one step of the
+  ramp because it was a FILL where the role replacing it is calibrated as TEXT.
+  Rewriting those is not optional: a dangling `var()` drops its whole
+  declaration silently, which is the failure the repo found 220 of in itself.
+  Every use of a removed INTENT is reported instead — `secondary` was a second
+  BRAND colour and no library can pick an app's, while `light` / `medium` /
+  `dark` were fills and what replaced them is a set of roles, so
+  `<wr-btn color="dark">` is not `<wr-btn>`. The intent detector is deliberately
+  NOT anchored to an element, the opposite call from every v14 rule: `color`
+  carrying one of those four values is ngwr's vocabulary and nobody else's, and
+  the alternative is a component list that is wrong the moment the catalog
+  grows. Nothing here steps over a tag, so `IN_TAG` is absent — the timing cases
+  stay anyway, as the guard for whoever adds the first element-scoped rule.
 - **v14 ships `migration-v14`, split down the middle of the rule**, and that
   split is the thing to copy. It REWRITES the six renames — on `<wr-alert>`
   from `closeable` to `closable`, on `<wr-table>` from `totalItems` to `total`,
@@ -1423,10 +1501,12 @@ the only check that sees the halo ITSELF, and a header below the fold answers
 `null` to every probe, which reads exactly like a dead hit area.
 
 **Intent is not a second channel, and no palette can make it one — the third
-DECIDED trade of this kind; do not re-report it.** Six of the nine intents —
-`primary`, `secondary`, `success`, `danger`, `info`, `medium` — sit inside a
-**1.062:1** band of relative luminance in light and **1.006:1** in dark, and
-`success` against `danger` is **1.004:1** / **1.003:1**. v11 tuned them to take
+DECIDED trade of this kind; do not re-report it.** Four of the five intents —
+`primary`, `success`, `danger`, `info` — sit inside a **1.061:1** band of
+relative luminance in light and **1.006:1** in dark, and `success` against
+`danger` is **1.004:1** / **1.003:1**. `warning` is the only one separable by
+lightness, so v15's cut to five made the proportion worse rather than better:
+four in five where it used to be six in nine. v11 tuned them to take
 the same white label, which is tuning them to one luminance: greyscale sees one
 grey, a deuteranope two khakis (`#008800` and `#dc3137` simulate to `#7f711a`
 and `#908230`), and `primary` against `info` is the same blue for everyone
@@ -1442,7 +1522,17 @@ too — the home page's bento tags `Standalone` in success and `Zoneless` in
 danger, where a check and a stop sign would say something false. `wr-typography`'s
 `tone` is emphasis and never the only carrier: `success-ink` against
 `danger-ink` is 1.05:1 as text, a directive has no template to draw a glyph
-into, and every semantic use in the showcase names its state in words. `wr-btn`
+into, and every semantic use in the showcase names its state in words. Its two
+NEUTRAL tones are named for the job rather than for a colour since v15 — `base`
+and `muted`, which were `dark` and `medium` and always painted
+`--wr-color-on-surface` and `-on-surface-muted` rather than the intents they
+were named after. `wr-timeline-item`'s quiet dot moved the same way, from
+`medium` to `neutral`. Both are rewritten by `migration-v15`, because there the
+new name means what the old one meant in the same place, which a `color` naming
+a removed intent does not. **Five intents give four tones, and `info` is the one
+left out**: it is the same blue as `primary` to every reader, so as emphasis it
+would be a second name for one appearance — the same reason it is absent from
+the chart components' default series list. `wr-btn`
 (the label is the verb), `wr-divider`, `wr-skeleton` and the button-group seam
 are colour by design, and `wr-progress`'s intent is colour-only whenever a host
 uses it as a status. Three alternatives were costed and not taken: an opt-in
@@ -1497,7 +1587,7 @@ i18n catalog; an `aria-label` on a component's host element does not reach the
 native control inside it.
 
 **Showcase page = the docs.** Every component ships a docs page — under
-`projects/showcase/app/reference/components/<name>/` for the main catalog (87
+`projects/showcase/app/reference/components/<name>/` for the main catalog (85
 dirs), or under `projects/showcase/app/animations/<name>/` for animation /
 visual-effect components (a separate top-level cluster with its own routing +
 sidebar). Wire it into the matching `*.routing.ts` and the `routes` map in
@@ -1668,7 +1758,8 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
   **v9 `<wr-checkbox>` from `value` to `checkboxValue`**, **v12 from
   `ngwr/date-adapter*` to `ngwr/date/adapters/*`**, **v14 the six vocabulary
   renames, plus a report for the router / locale / `ofLabel` changes no codemod
-  should guess at**), plus **v13, which reports every host-`id` selector on
+  should guess at**, **v15 the four neutral token families, plus a report for
+  every use of a removed intent**), plus **v13, which reports every host-`id` selector on
   `<wr-checkbox>` / `<wr-radio>` / `<wr-switch>` and rewrites nothing** — all
   registered in `schematics/migrations.json`. There is deliberately no
   `migration-v10` or `-v11`; see Versioning for the rule that decides it.

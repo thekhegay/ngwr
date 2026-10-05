@@ -1,0 +1,33 @@
+<!--
+  `role="list"` on the container and `role="listitem"` on each row rather than
+  bare divs: every row is a tab stop, and a focusable element with no role at
+  all is announced as loose text. The list role is what gives the reader the
+  position of the row focus lands on.
+
+  Rows arrive through `<ng-content>` — the consumer writes the loop, so the
+  markup says what each row is instead of hiding it in an unnamed template.
+-->
+<div
+  cdkDropList
+  role="list"
+  class="wr-sortable-list__list"
+  [cdkDropListOrientation]="orientation()"
+  [cdkDropListDisabled]="disabled()"
+  (cdkDropListDropped)="onDrop($event)"
+>
+  <ng-content />
+</div>
+
+<!--
+  The key model, on every row rather than once on the container: focus lands on
+  a row and never on the list itself, so a description hung on the list would
+  never be read out.
+-->
+<p class="wr-sortable-list__sr-only" [id]="keyHelpId">{{ resolvedKeyHelp() }}</p>
+
+<!--
+  Position announcements, written by the keyboard path only — a drag already
+  gives sighted feedback, and announcing every pointer move would flood the
+  region.
+-->
+<p class="wr-sortable-list__sr-only" role="status">{{ announcement() }}</p>

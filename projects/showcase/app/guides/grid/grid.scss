@@ -7,7 +7,7 @@
   td {
     text-align: left;
     padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid var(--wr-color-light);
+    border-bottom: 1px solid var(--wr-color-outline);
   }
 
   th {
@@ -21,7 +21,7 @@
   code {
     font-family: var(--wr-font-family-mono);
     font-size: 0.75rem;
-    background: rgba(var(--wr-color-light-rgb), 0.4);
+    background: rgba(var(--wr-color-outline-rgb), 0.4);
     padding: 0.125rem 0.375rem;
     border-radius: var(--wr-border-radius-sm);
   }
@@ -40,7 +40,7 @@
   // resolves this box's OWN `min-width: auto` to zero, so it collapses into the
   // content column rather than widening it.
   overflow-x: auto;
-  background: rgba(var(--wr-color-light-rgb), 0.15);
+  background: rgba(var(--wr-color-outline-rgb), 0.15);
   border-radius: var(--wr-border-radius-base);
 
   &__row {

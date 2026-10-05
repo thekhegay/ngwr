@@ -36,7 +36,7 @@
     }
   </div>
   @if (hasCode()) {
-    <ngwr-doc-code class="code" [code]="code()" [language]="language()" [files]="files()" />
+    <ngwr-doc-code class="code" [code]="code()" [language]="language()" [files]="resolvedFiles()" />
   }
 </div>
 

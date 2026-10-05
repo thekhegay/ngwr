@@ -25,17 +25,7 @@
  * WR_COLORS.forEach(color => console.log(color));
  * ```
  */
-export const WR_COLORS = [
-  'primary',
-  'secondary',
-  'success',
-  'warning',
-  'danger',
-  'info',
-  'light',
-  'medium',
-  'dark',
-] as const;
+export const WR_COLORS = ['primary', 'success', 'warning', 'danger', 'info'] as const;
 
 /**
  * A color variant name.

@@ -21,16 +21,6 @@ import type { DocApiRow } from '#core/components';
  * compile error instead of `undefined` at runtime.
  */
 export const API = {
-  // <wr-action-sheet>
-  WrActionSheet: [
-    { name: "open", description: "Whether the sheet is open. Two-way.", type: "boolean", default: "false" },
-    { name: "actions", description: "The rows to offer.", type: "readonly WrActionSheetAction[]", default: "[]" },
-    { name: "title", description: "Optional bold heading above the rows.", type: "string", default: "''" },
-    { name: "titleFallback", description: "Name announced for the dialog when there is no visible `title`. Falls back to `actionSheet.label`, then `'Actions'` — it used to be that English string, written into the template of a component whose every other string comes from the caller.", type: "string | null", default: "null" },
-    { name: "message", description: "Optional muted sub-heading under the title.", type: "string", default: "''" },
-    { name: "panelClass", description: "Extra CSS classes for the sheet's panel, forwarded to the `<wr-drawer>` this renders. The drawer is in THIS component's template rather than in the consumer's, so a class on `<wr-action-sheet>` lands on a host that only wraps it — the panel itself is reachable no other way.", type: "WrClassInput", default: "null" },
-    { name: "(action)", description: "Fires with the chosen row (never fires on a dismiss).", type: "WrActionSheetAction" },
-  ],
   // <[wrAffix]>
   WrAffix: [
     { name: "wrAffixOffsetTop", description: "Pixels from the top of the scroll container when stuck.", type: "number", default: "0" },
@@ -85,7 +75,7 @@ export const API = {
   ],
   // <wr-badge>
   WrBadge: [
-    { name: "color", description: "Color variant. Maps to `--wr-color-*` CSS variables from the theme. It is decoration or category, never the state on its own: six of the nine intents share one lightness and `success` against `danger` is 1.004:1, so the label has to say the state (`Offline`, not a red `Status`). A badge draws no icon — when a chip must stand for a status without words, use `<wr-tag>` with its `icon` input.", type: "WrColor", default: "'primary'" },
+    { name: "color", description: "Color variant. Maps to `--wr-color-*` CSS variables from the theme. It is decoration or category, never the state on its own: four of the five intents share one lightness and `success` against `danger` is 1.004:1, so the label has to say the state (`Offline`, not a red `Status`). A badge draws no icon — when a chip must stand for a status without words, use `<wr-tag>` with its `icon` input.", type: "WrColor | null", default: "'primary'" },
     { name: "size", description: "Size variant.", type: "WrBadgeSize", default: "'md'" },
     { name: "shape", description: "Corner treatment. Mirrors `<wr-btn>` — `rounded` (default) uses the small form-radius; `pill` rounds the ends fully.", type: "WrBadgeShape", default: "'rounded'" },
     { name: "outlined", description: "Outlined style — transparent fill, colored border and text.", type: "boolean", default: "false" },
@@ -179,7 +169,7 @@ export const API = {
     { name: "cellSize", description: "Cell side in CSS pixels.", type: "number", default: "11" },
     { name: "cellGap", description: "Pixel gap between cells.", type: "number", default: "2" },
     { name: "color", description: "Cell fill colour at full intensity.", type: "string", default: "primary" },
-    { name: "emptyColor", description: "Background colour for zero-value days.", type: "string", default: "light tint" },
+    { name: "emptyColor", description: "Background colour for zero-value days.", type: "string", default: "rgba(var(--wr-color-outline-rgb), 0.5)" },
     { name: "showLabels", description: "Show the weekday + month labels around the grid.", type: "boolean", default: "true" },
     { name: "tooltip", description: "Show a tooltip with the day and its count on hover. It is the sentence the square's `title` carried, so the `title` is written only while this is off — or the browser would open a second copy a moment later.", type: "boolean", default: "true" },
   ],
@@ -256,7 +246,7 @@ export const API = {
   ],
   // <wr-click-spark>
   WrClickSpark: [
-    { name: "sparkColor", description: "Spark line colour. Accepts any CSS colour, or a `var(--wr-…)` token which is resolved against the host so it tracks the theme. The default flips with the theme — dark sparks in light mode, light sparks in dark.", type: "string", default: "'var(--wr-color-dark)'" },
+    { name: "sparkColor", description: "Spark line colour. Accepts any CSS colour, or a `var(--wr-…)` token which is resolved against the host so it tracks the theme. The default flips with the theme — dark sparks in light mode, light sparks in dark.", type: "string", default: "'var(--wr-color-on-surface)'" },
     { name: "sparkSize", description: "Length of each spark line in pixels (at t=0; tapers to 0 at t=1).", type: "number", default: "10" },
     { name: "sparkRadius", description: "Distance each spark travels from origin in pixels.", type: "number", default: "15" },
     { name: "sparkCount", description: "Number of sparks per click (evenly distributed around the circle).", type: "number", default: "8" },
@@ -470,7 +460,6 @@ export const API = {
     { name: "height", description: "Height when position is top/bottom. Any CSS length.", type: "string", default: "'16rem'" },
     { name: "maxHeight", description: "Upper cap on height (top/bottom positions). Useful for bottom sheets that should grow with content up to a viewport-relative max. Any CSS length.", type: "string | null", default: "null (no cap)" },
     { name: "rounded", description: "Round the leading corners — the edge facing the viewport interior. Common bottom-sheet styling.", type: "boolean", default: "false" },
-    { name: "showHandle", description: "Render a grab handle at the leading edge and enable swipe-to-dismiss: drag the handle toward the drawer's edge (down for `bottom`, left for `left`, …) and release past ~30% of the panel to close.", type: "boolean", default: "false" },
     { name: "safeArea", description: "Pad the trailing edge with `env(safe-area-inset-*)` so content doesn't sit under the iOS home indicator.", type: "boolean", default: "false" },
     { name: "hasBackdrop", description: "Show the dimming backdrop.", type: "boolean", default: "true" },
     { name: "closeOnBackdropClick", description: "Close when the backdrop is clicked.", type: "boolean", default: "true" },
@@ -610,7 +599,7 @@ export const API = {
     { name: "max", description: "—", type: "number", default: "100" },
     { name: "size", description: "Diameter in CSS pixels.", type: "number", default: "160" },
     { name: "strokeWidth", description: "Arc stroke thickness in viewBox units (out of 100).", type: "number", default: "10" },
-    { name: "trackColor", description: "—", type: "string", default: "'rgba(var(--wr-color-light-rgb), 0.6)'" },
+    { name: "trackColor", description: "—", type: "string", default: "'rgba(var(--wr-color-outline-rgb), 0.6)'" },
     { name: "valueColor", description: "—", type: "string", default: "'var(--wr-color-primary)'" },
     { name: "showValue", description: "Show the value text in the center.", type: "boolean", default: "true" },
     { name: "suffix", description: "—", type: "string", default: "''" },
@@ -720,7 +709,7 @@ export const API = {
     { name: "step", description: "Step granularity.", type: "number", default: "1" },
     { name: "size", description: "Dial diameter in CSS pixels.", type: "number", default: "120" },
     { name: "strokeWidth", description: "Stroke width of the dial arc, in CSS pixels.", type: "number", default: "8" },
-    { name: "trackColor", description: "Track (unfilled) color.", type: "string", default: "rgba(--wr-color-light, 0.6)" },
+    { name: "trackColor", description: "Track (unfilled) color.", type: "string", default: "rgba(var(--wr-color-outline-rgb), 0.6)" },
     { name: "valueColor", description: "Filled-arc color.", type: "string", default: "var(--wr-color-primary)" },
     { name: "showValue", description: "Show the value text in the center.", type: "boolean", default: "true" },
     { name: "suffix", description: "Optional suffix appended to the center text (e.g. `'%'`).", type: "string", default: "''" },
@@ -1055,7 +1044,7 @@ export const API = {
   ],
   // <wr-skeleton>
   WrSkeleton: [
-    { name: "color", description: "Color tint for the placeholder. Default is `'light'` because it's theme-stable — the `light` token is slate-300 in light mode (subtle gray on white) and slate-800 in dark mode (subtle lift on near-black). The `'dark'` value flips to a near- white wash in dark mode and breaks the placeholder affordance.", type: "WrColor", default: "'light'" },
+    { name: "color", description: "Intent tint for the placeholder. `null`, the default, paints the neutral gray a placeholder almost always wants. It used to default to the `light` intent, chosen because that one token was theme-stable — slate-300 on white, slate-800 on near-black. The neutral ramp does that job now and does it by construction, so the default is the absence of an intent rather than a particular one. An intent here tints a thing that is not yet content, so reach for it only when the placeholder stands in for something the colour already identifies.", type: "WrColor | null", default: "null" },
     { name: "animated", description: "Whether the shimmer animation runs.", type: "boolean", default: "true" },
   ],
   // <wr-slider>
@@ -1079,7 +1068,6 @@ export const API = {
     { name: "disabled", description: "Disable all dragging.", type: "boolean", default: "false" },
     { name: "lockAxis", description: "Locked axis — restrict drag movement to one axis even diagonally.", type: "'x' | 'y' | undefined", default: "undefined" },
     { name: "dragStartDelay", description: "Delay (ms) before a drag begins after the pointer goes down. The touch delay is the fix for the classic CDK touch snag: without it, the `touch-action: none` CDK puts on each item blocks scrolling the list on a phone. With a small touch delay, a quick swipe scrolls and a brief hold starts the drag; mouse stays instant. Pass a single number to apply one delay to both pointers.", type: "number | { touch: number; mouse: number }", default: "{ touch: 150, mouse: 0 }" },
-    { name: "trackBy", description: "`trackBy` for the inner `@for`. Defaults to identity.", type: "(index: number, item: T) => unknown", default: "(_, item) => item" },
     { name: "(reorder)", description: "Fired after a successful reorder with the new array + indices.", type: "WrSortableReorderEvent<T>" },
   ],
   // <wr-sparkline>
@@ -1159,15 +1147,6 @@ export const API = {
   WrSpotlightCard: [
     { name: "spotlightColor", description: "Highlight colour (any CSS colour). When unset, the theme decides: a dark-ish glow on light surfaces, a light glow on dark.", type: "string | null", default: "null" },
     { name: "radius", description: "Where the spotlight fades out, as a percentage of the gradient.", type: "number", default: "80" },
-  ],
-  // <[wrSquircle]>
-  WrSquircle: [
-    { name: "radius", description: "Corner radius in CSS pixels. Falls back to `--wr-border-radius-base` × 16.", type: "number", default: "12" },
-    { name: "smoothing", description: "Smoothing factor — `0` = plain rounded rect; `1` = full smooth iOS corner.", type: "number", default: "1" },
-    { name: "enabled", description: "Whether the squircle clip-path is applied. When `false`, the directive stays inert (clip-path cleared). Modelled as `model()` so a parent component composing this directive (`inject(WrSquircle, { self: true }).enabled.set(...)`) can flip the state from outside without exposing an `enabled` input on its own API.", type: "boolean", default: "true" },
-    { name: "borderWidth", description: "Border thickness in CSS pixels. `0` disables the border ring entirely. Modelled (not `input()`) so parent components composing this directive can flip it imperatively — e.g. `WrButton` turning on a 1px ring when `shape=\"squircle\" outlined` is active.", type: "number", default: "0" },
-    { name: "borderColor", description: "Border colour — any CSS colour. Applied to the host's background so the outer squircle reveals it. Defaults to `currentColor` so the consuming element's text colour drives the ring.", type: "string", default: "'currentColor'" },
-    { name: "corners", description: "Which corners to squircle. `'all'` (default) is the standard four- corner shape; `'left'` / `'right'` / `'top'` / `'bottom'` squircle only the two corners on the named side and leave the other two at 90°. `'none'` is equivalent to disabling the directive. A `model()` rather than an `input()` so a parent composing the directive can flip it imperatively. Nothing in the library does today: this line used to name `WrButtonGroup` as the consumer, and that component has carried no squircle reference for several releases — `wr-btn--squircle` is plain CSS now.", type: "WrSquircleCornerMask", default: "'all'" },
   ],
   // <wr-star-border, [wr-star-border]>
   WrStarBorder: [
@@ -1297,7 +1276,7 @@ export const API = {
   ],
   // <wr-tag>
   WrTag: [
-    { name: "color", description: "Color variant — decoration or category, never the state on its own. The label carries the state (`Failed`, not a red `Build`): six of the nine intents share one lightness and `success` against `danger` is 1.004:1, so a reader who cannot separate red from green cannot tell those two tags apart, and `primary` and `info` are the same blue to everyone. When a tag has to stand for a status by itself, give it an `icon` as well — register one with `provideWrIcons(lucideIcons({ 'octagon-alert': OctagonAlert }))`, then write `<wr-tag color=\"danger\" icon=\"octagon-alert\">Failed</wr-tag>`.", type: "WrColor", default: "'primary'" },
+    { name: "color", description: "Color variant — decoration or category, never the state on its own. The label carries the state (`Failed`, not a red `Build`): four of the five intents share one lightness and `success` against `danger` is 1.004:1, so a reader who cannot separate red from green cannot tell those two tags apart, and `primary` and `info` are the same blue to everyone. When a tag has to stand for a status by itself, give it an `icon` as well — register one with `provideWrIcons(lucideIcons({ 'octagon-alert': OctagonAlert }))`, then write `<wr-tag color=\"danger\" icon=\"octagon-alert\">Failed</wr-tag>`.", type: "WrColor | null", default: "'primary'" },
     { name: "icon", description: "Icon name shown alongside the content — the one channel besides the label that a tag has, so the one to reach for when colour is carrying a status. Nothing ships built in: register the name through `provideWrIcons` first. The icon is replaced by a spinner when `loading` is true.", type: "WrIconName | null", default: "null" },
     { name: "iconPosition", description: "Where the icon/spinner is rendered.", type: "WrTagIconPosition", default: "'start'" },
     { name: "outlined", description: "Outlined style — colored text and border on a tinted background.", type: "boolean", default: "false" },
@@ -1408,7 +1387,7 @@ export const API = {
   // <[wrTypography]>
   WrTypography: [
     { name: "variant", description: "Visual variant.", type: "WrTypographyVariant", default: "'body'" },
-    { name: "tone", description: "Color tone. `null` (default) keeps the variant's own color — the base dark for headings/body, medium for lead/caption, primary for links. Emphasis only: a tone never carries a state on its own. Six of the nine intents share one lightness, and `success` against `danger` is 1.05:1 as text, so the words have to name the state (`500 Server Error`, not a red `Request`) — or reach for `<wr-alert>`, which draws a glyph per type.", type: "WrTypographyTone | null", default: "null" },
+    { name: "tone", description: "Color tone. `null` (default) keeps the variant's own color — the page ink for headings and body, the muted role for lead and caption, primary for links. Emphasis only: a tone never carries a state on its own. Four of the five intents share one lightness, and `success` against `danger` is 1.05:1 as text, so the words have to name the state (`500 Server Error`, not a red `Request`) — or reach for `<wr-alert>`, which draws a glyph per type.", type: "WrTypographyTone | null", default: "null" },
     { name: "align", description: "Horizontal alignment.", type: "WrTypographyAlign | null", default: "null" },
     { name: "truncate", description: "Truncate to single line with ellipsis.", type: "boolean", default: "false" },
     { name: "mono", description: "Render with monospace font.", type: "boolean", default: "false (auto-true for `code`)" },

@@ -34,7 +34,7 @@
   &__tile {
     appearance: none;
     background: transparent;
-    border: 1px solid var(--wr-color-light);
+    border: 1px solid var(--wr-color-outline);
     border-radius: var(--wr-border-radius-base);
     padding: 0.875rem 0.5rem 0.5rem;
     color: inherit;
@@ -72,7 +72,7 @@
     justify-content: center;
     width: 2.5rem;
     height: 2.5rem;
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
 
     // The svg arrives via [innerHTML], so it never gets Angular's scoping
     // attribute — pierce the emulated encapsulation or the sizing below

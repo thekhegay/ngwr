@@ -11,7 +11,7 @@ import { WrButtonHarness } from 'ngwr/button/testing';
 import type { WrPaginationSize } from 'ngwr/pagination';
 import { WrSelectHarness } from 'ngwr/select/testing';
 
-import type { WrPaginationHarnessFilters } from './interfaces';
+import type { WrPaginationHarnessFilters } from './types';
 
 /**
  * Test harness for `<wr-pagination>` — the numbered strip, its two step controls,

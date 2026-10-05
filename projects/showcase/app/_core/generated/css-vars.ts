@@ -16,7 +16,7 @@
  * 415 hook(s) across 62 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
- * declares it also owns it: 24 declaration(s) are one component setting
+ * declares it also owns it: 23 declaration(s) are one component setting
  * another's hook (`--wr-icon-size` inside its own `<wr-icon>`) and belong on
  * the owner's page, not on the setter's.
  */
@@ -181,7 +181,7 @@ export const CSS_VARS = {
       { name: "--wr-badge-padding-x", default: "0.5rem", scope: ".wr-badge", overrides: 3 },
       { name: "--wr-badge-padding-y", default: "0.25rem", scope: ".wr-badge", overrides: 2 },
       { name: "--wr-badge-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-badge", overrides: 1 },
-      { name: "--wr-tag-bg", default: "var(--wr-color-surface)", scope: ".wr-tag", overrides: 3 },
+      { name: "--wr-tag-bg", default: "var(--wr-color-fill)", scope: ".wr-tag", overrides: 3 },
       { name: "--wr-tag-border", default: "var(--wr-color-outline)", scope: ".wr-tag", overrides: 4 },
       { name: "--wr-tag-color", default: "var(--wr-color-on-surface)", scope: ".wr-tag", overrides: 3 },
       { name: "--wr-tag-font-size", default: "var(--wr-text-xs)", scope: ".wr-tag" },
@@ -224,7 +224,7 @@ export const CSS_VARS = {
   "reference/components/button": {
     subpath: "ngwr/button",
     vars: [
-      { name: "--wr-btn-bg", default: "var(--wr-color-surface)", scope: ".wr-btn", overrides: 8 },
+      { name: "--wr-btn-bg", default: "var(--wr-color-surface)", scope: ".wr-btn", overrides: 11 },
       { name: "--wr-btn-border", default: "var(--wr-color-outline)", scope: ".wr-btn", overrides: 6 },
       { name: "--wr-btn-color", default: "var(--wr-color-on-surface)", scope: ".wr-btn", overrides: 4 },
       { name: "--wr-btn-font-size", default: "var(--wr-control-font-size-md)", scope: ".wr-btn", overrides: 2 },

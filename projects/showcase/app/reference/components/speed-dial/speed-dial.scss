@@ -1,0 +1,35 @@
+.ngwr-dial-demo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  // The snippet's preview area is a ROW flex container, and the wrappers
+  // between it and this are `display: contents`, so this is a flex item of it
+  // and shrank to its content — 225px, with the left-facing fan hanging 104px
+  // outside. `align-self: stretch` on the stage below cannot widen it past
+  // that, since the width is already decided here.
+  flex: 1;
+
+  // One stage with the dial dead centre. The actions are positioned off the
+  // trigger rather than laid out, so three of them reach past the dial's own
+  // box by about 220px and the stage has to carry that clearance on the axis
+  // the fan opens along — only that axis, or an up-facing demo would be a
+  // 450px empty square. Four dials side by side overlapped each other, which
+  // is what this replaced.
+  //
+  // `align-self: stretch` because the column centres its children, which
+  // shrinks them to their content: the stage came out 225px wide and the
+  // left-facing fan hung 104px outside it.
+  &__stage {
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 9rem;
+  }
+
+  &__stage--up,
+  &__stage--down {
+    min-height: 28rem;
+  }
+}

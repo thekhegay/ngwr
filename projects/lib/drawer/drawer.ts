@@ -35,7 +35,7 @@ import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 import { toClassList, type WrClassInput } from 'ngwr/utils';
 
 import { WrDrawerTitle } from './directives/drawer-title';
-import type { WrDrawerPosition } from './interfaces';
+import type { WrDrawerPosition } from './types';
 
 /**
  * Side panel that slides in from an edge of the viewport. Two-way binds
@@ -94,13 +94,6 @@ export class WrDrawer {
   readonly rounded = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * Render a grab handle at the leading edge and enable swipe-to-dismiss:
-   * drag the handle toward the drawer's edge (down for `bottom`, left for
-   * `left`, …) and release past ~30% of the panel to close. @default false
-   */
-  readonly showHandle = input(false, { transform: coerceBooleanProperty });
-
-  /**
    * Pad the trailing edge with `env(safe-area-inset-*)` so content
    * doesn't sit under the iOS home indicator. @default false
    */
@@ -155,96 +148,10 @@ export class WrDrawer {
     if (this.rounded()) parts.push('wr-drawer__panel--rounded');
     if (this.safeArea()) parts.push('wr-drawer__panel--safe-area');
     if (this.closable()) parts.push('wr-drawer__panel--closable');
-    // The handle sits on the LEADING edge, which for `left` / `right` is a
-    // vertical rail rather than a row in the column — so it leaves the flow and
-    // the panel has to reserve the gutter it floats over. Only the panel can do
-    // that, and only if it knows the handle is there.
-    if (this.showHandle()) parts.push('wr-drawer__panel--handle');
     // Only when there is something to collide with: a closable drawer with a
     // title already clears the button, and an unclosable one has no button.
     if (this.closable() && !this.projectedTitle()) parts.push('wr-drawer__panel--untitled');
     return toClassList(parts, this.panelClass()).join(' ');
-  }
-
-  // Swipe-to-dismiss — gated to the grab handle, so it never fights the
-  // panel's own scrolling. The panel follows the finger toward the closing
-  // edge and closes past ~30% of its size, otherwise snaps back.
-
-  private swipeStartX = 0;
-  private swipeStartY = 0;
-  private swiping = false;
-
-  // Pointer, not Touch. The handle has always advertised itself to a mouse with
-  // `cursor: grab`, but the gesture was bound to touch events only, so on a
-  // desktop it could not be dragged at all. Pointer Events cover touch, mouse and
-  // pen through one path — the same idiom `wr-splitter` already uses.
-
-  protected onSwipeStart(event: PointerEvent): void {
-    // Ignore secondary contacts of a multi-touch gesture.
-    if (!event.isPrimary) return;
-    this.swipeStartX = event.clientX;
-    this.swipeStartY = event.clientY;
-    this.swiping = true;
-    // Capture, so the drag keeps reporting once the cursor leaves the 2.5rem
-    // grabber — without it a mouse drag dies the moment it slips off the handle.
-    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
-  }
-
-  protected onSwipeMove(event: PointerEvent, panel: HTMLElement): void {
-    if (!this.swiping) return;
-    const { axis, sign } = this.closeAxis();
-    const delta = axis === 'y' ? event.clientY - this.swipeStartY : event.clientX - this.swipeStartX;
-    // Only follow the pointer when dragging toward the closing edge.
-    if (delta * sign <= 0) {
-      panel.style.transform = '';
-      return;
-    }
-    panel.style.transition = 'none';
-    panel.style.transform = axis === 'y' ? `translateY(${delta}px)` : `translateX(${delta}px)`;
-  }
-
-  /**
-   * A cancelled pointer is an ABANDONED swipe, not a completed one — the system
-   * took the gesture away (a call, a system gesture, an orientation change) and
-   * no `pointerup` ever arrives. Routing it through `onSwipeEnd` dismissed the
-   * drawer on an interruption the user did not ask for and, because the overlay
-   * is disposed with the dragged offset applied, could not take back. Same rule
-   * `wr-pull-to-refresh` states for `touchcancel`.
-   */
-  protected onSwipeCancel(panel: HTMLElement): void {
-    if (!this.swiping) return;
-    this.swiping = false;
-    panel.style.transition = '';
-    panel.style.transform = '';
-  }
-
-  protected onSwipeEnd(event: PointerEvent, panel: HTMLElement): void {
-    if (!this.swiping) return;
-    this.swiping = false;
-    const { axis, sign } = this.closeAxis();
-    const delta = axis === 'y' ? event.clientY - this.swipeStartY : event.clientX - this.swipeStartX;
-    const panelSize = axis === 'y' ? panel.offsetHeight : panel.offsetWidth;
-    if (delta * sign > panelSize * 0.3) {
-      this.open.set(false); // keep the dragged offset as the overlay disposes
-    } else {
-      panel.style.transition = '';
-      panel.style.transform = '';
-    }
-  }
-
-  /** Axis + sign of the closing direction for the current position. */
-  private closeAxis(): { axis: 'x' | 'y'; sign: number } {
-    switch (this.position()) {
-      case 'bottom':
-        return { axis: 'y', sign: 1 };
-      case 'top':
-        return { axis: 'y', sign: -1 };
-      case 'left':
-        return { axis: 'x', sign: -1 };
-      case 'right':
-      default:
-        return { axis: 'x', sign: 1 };
-    }
   }
 
   private readonly overlay = inject(WR_OVERLAY);

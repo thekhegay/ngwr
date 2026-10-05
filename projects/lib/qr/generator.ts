@@ -7,8 +7,8 @@
 
 import { isDevMode } from '@angular/core';
 
-import type { WrQrErrorLevel } from './interfaces';
 import qrcodegen from './qrcodegen';
+import type { WrQrErrorLevel } from './types';
 
 interface DrawOptionsInternal {
   readonly value: string;

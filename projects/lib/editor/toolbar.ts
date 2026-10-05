@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { WrEditorTool } from './interfaces';
+import type { WrEditorTool } from './types';
 
 /**
  * The toolbar `<wr-editor>` draws when `toolbar` is not bound — every tool, in

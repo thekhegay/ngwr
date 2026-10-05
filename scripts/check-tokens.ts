@@ -79,6 +79,30 @@ const SOURCES: readonly (readonly [string, ReadonlySet<string>])[] = [
   [join(ROOT, 'projects/showcase'), new Set(['.scss'])],
 ];
 
+/** Where a dangling READ counts from — everything, for the reason at `danglingReads`. */
+const READ_SOURCES: readonly (readonly [string])[] = [[join(ROOT, 'projects/lib')], [join(ROOT, 'projects/showcase')]];
+const READ_EXTENSIONS: ReadonlySet<string> = new Set(['.scss', '.html', '.ts']);
+
+/**
+ * Two exclusions, and they are the same exclusion twice.
+ *
+ * A codemod's whole job is the old vocabulary: `migration-v15` carries a table
+ * mapping `--wr-color-light` to `--wr-color-outline`, and its spec feeds it
+ * fixtures holding every deleted name — including the orphan shades it must
+ * REFUSE to rewrite, which by construction can never resolve. Scanning those is
+ * asking a migration to stop naming what it migrates.
+ *
+ * `/start/migration` is the consumer-facing half of exactly that. Its diff
+ * snippets show the removed name on the `-` line and its successor on the `+`
+ * one, so every dangling read there is the page doing its job. Nothing else in
+ * the showcase gets this: the page is the one surface whose subject is the
+ * vocabulary a release took away.
+ */
+const READ_SKIP: readonly string[] = [
+  join(ROOT, 'projects/lib/schematics'),
+  join(ROOT, 'projects/showcase/app/start/migration'),
+];
+
 /**
  * The marker covers a contiguous RUN of declarations, not a fixed number of
  * lines above one — the reach `check:rtl` uses, because a physical property is
@@ -229,6 +253,85 @@ function consumers(): string {
   return parts.join('\n').replace(/#\{[^}]*\}/g, 'interpolated');
 }
 
+/**
+ * The same question asked backwards: a `var(--wr-color-…)` naming a token the
+ * theme never declares.
+ *
+ * The pass above finds a token with no reader. This one finds a reader with no
+ * token, and the two are NOT the same check run in mirror — a dead declaration
+ * is tidiness, a dangling read is a broken rule. A `var()` at a name nothing
+ * declares is invalid at computed-value time, so the browser drops the WHOLE
+ * declaration holding it: a `border: 1px solid var(--wr-color-gone)` draws no
+ * border at all, a `background` paints nothing, and there is no error anywhere —
+ * not in the build, not in the console, not in a test. It reads exactly like a
+ * rule someone deliberately did not write.
+ *
+ * v15 is why it exists. Cutting `secondary`, `light`, `medium` and `dark` from
+ * the palette left 145 reads behind across the library and the showcase, and
+ * every gate stayed green: `pnpm test` does not render, `check:a11y` runs in
+ * JSDOM with no stylesheets, `check:contrast` measures a colour it can only see
+ * once something paints it, and this file's own first pass reports the opposite
+ * direction. A dropped declaration is invisible to all of them.
+ *
+ * Three decisions about scope, each of which is the reason a version of this
+ * would otherwise be wrong:
+ *
+ * **Only the `--wr-color-*` namespace.** The theme layer owns it entirely, so a
+ * name in it either resolves there or is a typo. A `--wr-<component>-*` hook is
+ * the component's own and may legitimately be declared by a consumer, which is
+ * the whole point of publishing it — and `gen:css-vars` catalogues those.
+ *
+ * **A read in a TEMPLATE or in TypeScript counts, unlike in the pass above.**
+ * That pass excludes the showcase's templates because drawing a picture of a
+ * token is not painting with it. Here the reasoning inverts: an inline
+ * `style="background: var(--wr-color-light)"` is a live rule that draws nothing,
+ * and a `var(--wr-color-dark)` inside a printed SCSS snippet is advice a reader
+ * will paste into their own app, where it will draw nothing there instead. Both
+ * are wrong, so both are reported. A comment is still not a read.
+ *
+ * **A declaration counts from a STYLESHEET or a template, never from
+ * TypeScript.** `rebrand()` re-emits an intent's whole set on a subtree and a
+ * demo may set one on a wrapper, so the theme layer is not the only place a
+ * name can come from. But every `--wr-color-…:` in a `.ts` file in this repo is
+ * inside a printed snippet — `/guides/theming` shows a dark block declaring
+ * `--wr-color-dark: #f5f6f8`, which is a picture of the OLD palette — and
+ * counting those made the check answer that every read of a deleted token
+ * resolved. It found 136 of them once the snippets stopped vouching for names
+ * nothing declares.
+ */
+function danglingReads(lists: ReadonlyMap<string, LoopList>): { file: string; line: number; name: string }[] {
+  const declared = new Set<string>();
+  const scanned: { file: string; lines: string[] }[] = [];
+
+  for (const [dir] of READ_SOURCES) {
+    for (const file of files(dir, p => READ_EXTENSIONS.has(extname(p)) && !READ_SKIP.some(skip => p.startsWith(skip)))) {
+      const src = withoutComments(readFileSync(file, 'utf8'));
+      const lines = [...src.split('\n'), ...expansions(src, lists)];
+      scanned.push({ file: relative(ROOT, file), lines });
+      if (extname(file) === '.ts') continue;
+      for (const line of lines) {
+        for (const m of line.matchAll(/(--wr-color-[\w-]+)\s*:/g)) declared.add(m[1]);
+      }
+    }
+  }
+
+  const out: { file: string; line: number; name: string }[] = [];
+  for (const { file, lines } of scanned) {
+    lines.forEach((line, index) => {
+      // An expansion has no honest line number, so it is scanned for names only
+      // — a dangling read inside a loop is reported at the interpolated source
+      // line by the pass over the raw text, which sees the same `var(`.
+      if (index >= lines.length) return;
+      for (const m of line.matchAll(/var\(\s*(--wr-color-[\w-]+)\s*[,)]/g)) {
+        if (declared.has(m[1])) continue;
+        out.push({ file, line: index + 1, name: m[1] });
+      }
+    });
+  }
+
+  return out;
+}
+
 const haystack = consumers();
 const orphans = declarations().filter(d => !d.match.test(haystack));
 
@@ -250,4 +353,29 @@ if (orphans.length > 0) {
   process.exit(1);
 }
 
+const dangling = danglingReads(loopLists(SOURCES.map(([dir]) => dir)));
+
+if (dangling.length > 0) {
+  const names = [...new Set(dangling.map(d => d.name))].sort();
+  console.error(
+    `\n✖ ${dangling.length} \`var()\` read${dangling.length === 1 ? '' : 's'} at ${names.length} colour token${
+      names.length === 1 ? '' : 's'
+    } nothing declares:\n`
+  );
+  for (const name of names) {
+    const hits = dangling.filter(d => d.name === name);
+    console.error(`  ${name}  (${hits.length})`);
+    for (const { file, line } of hits) console.error(`    ${file}:${line}`);
+  }
+  console.error(`
+  A \`var()\` at a name nothing declares is invalid at computed-value time, so the
+  browser drops the WHOLE declaration holding it — a border that never draws, a
+  background that stays transparent — with nothing said in the build, the console
+  or a test. Either the token was removed and the rule has to be rewritten against
+  what replaced it, or the name is a typo.
+`);
+  process.exit(1);
+}
+
 console.log(`✓ Tokens — every \`--wr-*\` the theme declares is painted with, or says why not.`);
+console.log(`✓ Tokens — every \`var(--wr-color-…)\` resolves to a declaration.`);

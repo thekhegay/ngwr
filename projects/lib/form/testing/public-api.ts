@@ -5,4 +5,4 @@ export type {
   WrFormFieldErrorSource,
   WrFormFieldHarnessFilters,
   WrFormItemHarnessFilters,
-} from './interfaces';
+} from './types';

@@ -4,9 +4,10 @@ import { VERSION as NG_VERSION } from '@angular/core';
 import { NGWR_VERSION } from 'ngwr/version';
 
 import { readComponentSource } from './component-source';
+import { buildComponentTs } from './component-ts';
 import { renderIconsFile } from './demo-icons';
 import { isTemplateLanguage, isTypeScriptLanguage } from './languages';
-import { scanTemplate, type SandboxField, type TemplateScan } from './resolve';
+import { scanTemplate, type TemplateScan } from './resolve';
 import type { SandboxFile, SandboxProject } from './types';
 
 import {
@@ -130,14 +131,6 @@ const SITE = 'https://ngwr.dev';
  * with nothing on it — but it is a difference from the docs page, not a
  * faithful copy of it.
  */
-const SEEDS: Readonly<Record<SandboxField['kind'], string>> = {
-  value: 'null',
-  object: '{}',
-  list: '[]',
-  method: '[]',
-  signal: '[]',
-};
-
 /**
  * A comment terminator inside a generated JSDoc closes it early and the rest of
  * the file becomes code. Titles come from `document.title` and reasons quote
@@ -497,58 +490,22 @@ function mainTs(component: string, from: string, isDefault: boolean, needsIcons:
 
 /** The synthesised component for a template fragment. */
 function appTs(scan: TemplateScan, title: string): string {
-  const symbols = [...scan.imports.values()].flat();
-  const importLines = [...scan.imports.entries()].map(
-    ([path, names]) => `import { ${names.join(', ')} } from '${path}';`
+  return buildComponentTs(
+    {
+      template: '',
+      selector: ROOT_SELECTOR,
+      className: 'App',
+      templateUrl: './app.html',
+      doc: [
+        title,
+        '',
+        `Generated from a snippet on ${SITE}. The markup in \`app.html\` is the`,
+        "page's, character for character; the `imports` below were resolved from it",
+        "against ngwr's selector map.",
+      ],
+    },
+    scan
   );
-
-  const angular = importLines.filter(line => line.includes("'@angular/"));
-  const rest = importLines.filter(line => !line.includes("'@angular/"));
-
-  const fields = scan.fields.map(field => {
-    if (field.kind === 'method') {
-      return `  protected ${field.name}(...args: any[]): any {\n    return ${SEEDS.method};\n  }`;
-    }
-    // A signal, not a field: the fragment read it as `x()` AND, half the time,
-    // wrote it back as `x.set($event)` from the other end of a two-way binding.
-    if (field.kind === 'signal') return `  protected readonly ${field.name} = signal<any>(${SEEDS.signal});`;
-    return `  protected ${field.name}: any = ${SEEDS[field.kind]};`;
-  });
-
-  const needsSignal = scan.fields.some(field => field.kind === 'signal');
-
-  const body =
-    fields.length === 0
-      ? '{}'
-      : [
-          '{',
-          '  // Stubbed by the sandbox. The docs page owned these values; the snippet',
-          '  // showed the markup that reads them, not where they come from. Replace',
-          '  // each one with the real thing — that is the exercise.',
-          ...fields,
-          '}',
-        ].join('\n');
-
-  return [
-    `import { Component${needsSignal ? ', signal' : ''} } from '@angular/core';`,
-    ...(angular.length > 0 ? angular : []),
-    ...(rest.length > 0 ? ['', ...rest] : []),
-    '',
-    '/**',
-    ` * ${jsdocSafe(title)}`,
-    ' *',
-    ` * Generated from a snippet on ${SITE}. The markup in \`app.html\` is the`,
-    " * page's, character for character; the `imports` below were resolved from it",
-    " * against ngwr's selector map.",
-    ' */',
-    '@Component({',
-    `  selector: '${ROOT_SELECTOR}',`,
-    `  templateUrl: './app.html',`,
-    `  imports: [${symbols.join(', ')}],`,
-    '})',
-    `export class App ${body}`,
-    '',
-  ].join('\n');
 }
 
 /** Tier 3: an app whose whole job is to show the snippet and say why. */

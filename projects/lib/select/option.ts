@@ -24,9 +24,9 @@ import {
   viewChild,
 } from '@angular/core';
 
-import type { WrOptionLeadingContext } from './interfaces';
 import { WrOptionLeading } from './option-leading';
 import { WR_SELECT } from './tokens';
+import type { WrOptionLeadingContext } from './types';
 
 let uid = 0;
 

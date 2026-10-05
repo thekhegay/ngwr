@@ -7,7 +7,7 @@
 
 import { ComponentHarness, type TestElement } from '@angular/cdk/testing';
 
-import type { WrDatePickerTimeFields } from './interfaces';
+import type { WrDatePickerTimeFields } from './types';
 
 /** Column order inside the stepper, which is also the order the boxes render in. */
 const UNITS = ['hours', 'minutes', 'seconds'] as const;

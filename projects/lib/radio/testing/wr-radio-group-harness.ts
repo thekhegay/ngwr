@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrRadioGroupHarnessFilters, WrRadioHarnessFilters } from './interfaces';
+import type { WrRadioGroupHarnessFilters, WrRadioHarnessFilters } from './types';
 import { WrRadioHarness } from './wr-radio-harness';
 
 /**

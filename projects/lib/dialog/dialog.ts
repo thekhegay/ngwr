@@ -23,8 +23,8 @@ import {
 import { toClassList } from 'ngwr/utils';
 
 import { WrDialogRef } from './dialog-ref';
-import type { WrDialogOptions } from './interfaces';
 import { WR_DIALOG_DATA, WR_DIALOG_REF } from './tokens';
+import type { WrDialogOptions } from './types';
 
 const DEFAULT_PANEL_CLASS = 'wr-dialog-panel';
 const DEFAULT_BACKDROP_CLASS = 'wr-dialog-backdrop';

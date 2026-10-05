@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrFallingTextHarnessFilters } from './interfaces';
+import type { WrFallingTextHarnessFilters } from './types';
 
 /** Read one declaration out of an inline `style` attribute, or `null` when it is not there. */
 function inlineStyle(style: string | null, property: string): string | null {

@@ -5,4 +5,4 @@ export type {
   WrColorPickerTab,
   WrColorPickerThumbs,
   WrColorPickerTriggerHarnessFilters,
-} from './interfaces';
+} from './types';

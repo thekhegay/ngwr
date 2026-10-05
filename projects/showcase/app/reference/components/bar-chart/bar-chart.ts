@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { WrBarChart } from 'ngwr/bar-chart';
+import { WrBarChart, type WrBarChartDatum } from 'ngwr/bar-chart';
 
 import {
   DocApiComponent,
@@ -18,7 +18,7 @@ import { API } from '#core/generated/api';
   imports: [WrBarChart, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class BarChartPageComponent {
-  protected readonly bars = [
+  protected readonly bars: readonly WrBarChartDatum[] = [
     { label: 'Mon', value: 12 },
     { label: 'Tue', value: 18, color: 'var(--wr-color-success)' },
     { label: 'Wed', value: 9 },
@@ -29,11 +29,11 @@ export default class BarChartPageComponent {
   ];
 
   protected readonly snippets = {
-    install: `import { WrBarChart } from 'ngwr/bar-chart';
+    install: `import { WrBarChart, type WrBarChartDatum } from 'ngwr/bar-chart';
 
 @Component({ imports: [WrBarChart] })
 export class MyComponent {
-  protected readonly bars = [
+  protected readonly bars: readonly WrBarChartDatum[] = [
     { label: 'Mon', value: 12 },
     { label: 'Tue', value: 18, color: 'var(--wr-color-success)' },
     { label: 'Wed', value: 9 },

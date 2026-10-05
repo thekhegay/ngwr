@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, TestKey } from '@angular/cdk/testing';
 
-import type { WrCascaderOptionHarnessFilters } from './interfaces';
+import type { WrCascaderOptionHarnessFilters } from './types';
 
 /**
  * Test harness for one option inside a `<wr-cascader>` column.

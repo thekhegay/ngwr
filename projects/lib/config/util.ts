@@ -7,8 +7,8 @@
 
 import { type Signal, computed, inject } from '@angular/core';
 
-import type { WrConfig } from './interfaces';
 import { WR_CONFIG } from './tokens';
+import type { WrConfig } from './types';
 
 /**
  * Resolve an input against the app's {@link WrConfig}, then a built-in fallback.

@@ -14,7 +14,7 @@ import type {
   WrEventCalendarArrowKey,
   WrEventCalendarChipHarnessFilters,
   WrEventCalendarHarnessFilters,
-} from './interfaces';
+} from './types';
 import { WrEventCalendarChipHarness } from './wr-event-calendar-chip-harness';
 
 const ARROWS: Record<WrEventCalendarArrowKey, TestKey> = {

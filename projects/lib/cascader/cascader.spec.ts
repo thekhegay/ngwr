@@ -9,7 +9,7 @@ import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrCascader } from './cascader';
-import type { WrCascaderOption } from './interfaces';
+import type { WrCascaderOption } from './types';
 
 const OPTIONS: readonly WrCascaderOption[] = [
   {

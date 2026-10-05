@@ -1,1 +1,1 @@
-export { WR_CHECKBOX_GROUP, type WrCheckboxGroupContext } from './checkbox-group.token';
+export { WR_CHECKBOX_GROUP } from './checkbox-group.token';

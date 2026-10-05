@@ -10,8 +10,14 @@
 }
 
 .ngwr-layout {
+  // The section column's own width, declared here rather than on the column,
+  // because the TRACK has to know it too: while an overlay blocks the scroll
+  // the column is `position: fixed` (see styles.scss) and an `auto` track
+  // sized by its content would collapse to nothing, taking the page sideways.
+  --ngwr-sidebar-width: 14rem;
+
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: var(--ngwr-sidebar-width) 1fr;
   align-items: stretch;
   min-height: 100%;
 
@@ -23,13 +29,20 @@
   // The server cannot know the viewport, so gating these on a `matchMedia`
   // signal would bake the mobile shape into every prerendered page (dropping
   // the section links from the static HTML) and mismatch on hydration.
+  // Both tracks are placed explicitly rather than auto-flowed. While an
+  // overlay blocks the scroll the column is out of flow, and an out-of-flow
+  // grid item occupies no cell — so `<main>` would auto-place into column 1
+  // and render 224px wide behind the backdrop.
   &__sidebar {
+    grid-column: 1;
+
     @include bp.media-down(md) {
       display: none;
     }
   }
 
   &__content {
+    grid-column: 2;
     min-width: 0;
     padding: 0;
     display: flex;
@@ -59,7 +72,7 @@
     padding: 0.5rem var(--wr-grid-gutter);
 
     background: rgba(var(--wr-color-white-rgb), 0.85);
-    border-bottom: 1px solid var(--wr-color-light-lighter);
+    border-bottom: 1px solid var(--wr-color-border-subtle);
     backdrop-filter: blur(8px);
   }
 
@@ -72,13 +85,13 @@
     align-items: center;
     gap: 0.375rem;
 
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
     font-size: 0.875rem;
     font-weight: 600;
     line-height: 1rem;
 
     background: transparent;
-    border: 1px solid var(--wr-color-light-lighter);
+    border: 1px solid var(--wr-color-border-subtle);
     border-radius: 0.375rem;
     padding: 0.375rem 0.625rem;
 

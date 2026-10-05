@@ -8,4 +8,4 @@ export type {
   WrDatePickerTimeFields,
   WrDateRangePickerEnd,
   WrDateRangePickerHarnessFilters,
-} from './interfaces';
+} from './types';

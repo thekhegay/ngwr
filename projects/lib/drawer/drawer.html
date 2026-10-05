@@ -1,17 +1,5 @@
 <ng-template>
-  <div #panel [class]="panelClasses()">
-    @if (showHandle()) {
-      <div
-        class="wr-drawer__handle"
-        aria-hidden="true"
-        (pointerdown)="onSwipeStart($event)"
-        (pointermove)="onSwipeMove($event, panel)"
-        (pointerup)="onSwipeEnd($event, panel)"
-        (pointercancel)="onSwipeCancel(panel)"
-      >
-        <span class="wr-drawer__grabber"></span>
-      </div>
-    }
+  <div [class]="panelClasses()">
     @if (closable()) {
       <button type="button" class="wr-drawer__close" [attr.aria-label]="resolvedCloseLabel()" (click)="open.set(false)">
         <svg

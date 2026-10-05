@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { WrClassInput } from '../interfaces';
+import type { WrClassInput } from '../types';
 
 /**
  * Flattens class inputs into the de-duplicated token array `classList.add()`

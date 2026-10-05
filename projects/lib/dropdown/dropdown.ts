@@ -33,7 +33,7 @@ import {
   type WrDropdownPosition,
   type WrDropdownTrigger,
   wrDropdownPositions,
-} from './interfaces';
+} from './types';
 
 /** Whether a placement puts the menu BESIDE its trigger, where the gap is inline padding. */
 const isSidePlacement = (name: WrDropdownPosition): boolean => name === 'left' || name === 'right';

@@ -5,8 +5,8 @@ import { By } from '@angular/platform-browser';
 import { WrPlatform } from 'ngwr/platform';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { WrRotatingTextSplit } from './interfaces';
 import { WrRotatingText } from './rotating-text';
+import type { WrRotatingTextSplit } from './types';
 
 @Component({
   imports: [WrRotatingText],

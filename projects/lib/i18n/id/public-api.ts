@@ -267,9 +267,6 @@ export const wrId: WrI18nCatalog = {
     roledescription: 'korsel',
     slideRoledescription: 'slide',
   },
-  actionSheet: {
-    label: 'Tindakan',
-  },
   alert: {
     close: 'Tutup pemberitahuan',
   },

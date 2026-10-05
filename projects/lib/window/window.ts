@@ -22,6 +22,7 @@ import {
 import { useI18nText } from 'ngwr/i18n';
 import { clamp, randomId } from 'ngwr/utils';
 
+import { WrWindowManager } from './services/window-manager';
 import type {
   WrWindowChromeSize,
   WrWindowOs,
@@ -30,8 +31,7 @@ import type {
   WrWindowSnap,
   WrWindowSnapTarget,
   WrWindowState,
-} from './interfaces';
-import { WrWindowManager } from './services/window-manager';
+} from './types';
 
 /**
  * Stands in for the consumer input `useI18nText` expects. The chrome buttons take no

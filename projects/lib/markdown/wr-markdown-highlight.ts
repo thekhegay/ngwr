@@ -7,8 +7,8 @@
 
 import { Injectable, inject, signal } from '@angular/core';
 
-import type { WrHighlightLine } from './interfaces';
 import { WR_MARKDOWN_HIGHLIGHTER } from './tokens';
+import type { WrHighlightLine } from './types';
 
 /**
  * How many highlighted code blocks to remember, per language.

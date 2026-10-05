@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrLineChartHarnessFilters, WrLineChartTooltipRow } from './interfaces';
+import type { WrLineChartHarnessFilters, WrLineChartTooltipRow } from './types';
 
 /**
  * Test harness for `<wr-line-chart>`.

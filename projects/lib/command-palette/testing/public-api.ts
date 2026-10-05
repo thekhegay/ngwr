@@ -5,4 +5,4 @@ export type {
   WrCommandPaletteGroupHarnessFilters,
   WrCommandPaletteHarnessFilters,
   WrCommandPaletteItemHarnessFilters,
-} from './interfaces';
+} from './types';

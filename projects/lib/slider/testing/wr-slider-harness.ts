@@ -9,7 +9,7 @@ import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 import type { WrSliderValue } from 'ngwr/slider';
 
-import type { WrSliderHarnessFilters, WrSliderThumbHarnessFilters } from './interfaces';
+import type { WrSliderHarnessFilters, WrSliderThumbHarnessFilters } from './types';
 import { WrSliderThumbHarness } from './wr-slider-thumb-harness';
 
 /** Element-wise comparison for the `value` filter — a tuple never matches a plain number. */

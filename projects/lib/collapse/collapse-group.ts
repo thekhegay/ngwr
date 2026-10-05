@@ -8,7 +8,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, forwardRef, input } from '@angular/core';
 
-import { WR_COLLAPSE_GROUP, type WrCollapseGroupContext, type WrCollapseGroupMember } from './tokens';
+import { WR_COLLAPSE_GROUP } from './tokens';
+import type { WrCollapseGroupContext, WrCollapseGroupMember } from './types';
 
 /**
  * Visual + behavioral grouping of `<wr-collapse>` children. When

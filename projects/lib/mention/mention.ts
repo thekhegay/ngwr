@@ -34,8 +34,8 @@ import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 import { isComposing, toClassList, type WrClassInput } from 'ngwr/utils';
 
 import { getCaretCoordinates } from './caret';
-import type { WrMentionCommit, WrMentionItem } from './interfaces';
 import { WrMentionPanel, wrMentionOptionId } from './mention-panel';
+import type { WrMentionCommit, WrMentionItem } from './types';
 
 interface ActiveState {
   trigger: string;

@@ -4,7 +4,7 @@
   [keywords]="['service', 'meta', 'head', 'SEO', 'WrMeta']"
   [labels]="['Service']"
 >
-  <ngwr-doc-section title="Install">
+  <ngwr-doc-section title="Installation">
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
@@ -20,7 +20,7 @@
         style="
           padding: 0.4rem 0.875rem;
           border-radius: 0.375rem;
-          border: 1px solid var(--wr-color-light);
+          border: 1px solid var(--wr-color-outline);
           background: var(--wr-color-white);
           cursor: pointer;
         "
@@ -44,7 +44,7 @@
         <wr-btn (click)="toggleReactiveTitle()">
           {{ reactiveBound() ? 'Unbind title' : 'Bind title to i18n' }}
         </wr-btn>
-        <wr-btn color="light" [disabled]="!reactiveBound()" (click)="toggleLocale()">
+        <wr-btn [disabled]="!reactiveBound()" (click)="toggleLocale()">
           Switch locale (current: {{ i18n.locale() }})
         </wr-btn>
       </div>

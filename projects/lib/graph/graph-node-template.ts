@@ -7,7 +7,7 @@
 
 import { Directive, TemplateRef, inject } from '@angular/core';
 
-import type { WrGraphNodeContext } from './interfaces';
+import type { WrGraphNodeContext } from './types';
 
 /**
  * Replace the default card. The node is the implicit context; its box — the

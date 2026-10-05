@@ -19,7 +19,7 @@ import {
 
 import type { WrColor } from 'ngwr/theme';
 
-import type { WrDividerAlign, WrDividerType } from './interfaces';
+import type { WrDividerAlign, WrDividerType } from './types';
 
 /**
  * Horizontal separator line. Projected content renders as a label

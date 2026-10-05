@@ -1,9 +1,10 @@
 import { Component, signal } from '@angular/core';
 
-import { Plus, Settings } from 'lucide';
+import { Plus, Search, Settings } from 'lucide';
 import { provideWrIcons } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
-import { WrSpeedDial } from 'ngwr/speed-dial';
+import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
+import { WrSpeedDial, type WrSpeedDialAction, type WrSpeedDialDirection } from 'ngwr/speed-dial';
 
 import {
   DocApiComponent,
@@ -18,28 +19,65 @@ import { API } from '#core/generated/api';
 @Component({
   selector: 'ngwr-speed-dial-page',
   templateUrl: './speed-dial.html',
-  imports: [WrSpeedDial, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
-  providers: [provideWrIcons(lucideIcons({ add: Plus, cog: Settings }))],
+  styleUrl: './speed-dial.scss',
+  imports: [
+    WrSegmented,
+    WrSpeedDial,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
+  providers: [provideWrIcons(lucideIcons({ add: Plus, search: Search, cog: Settings }))],
 })
 export default class SpeedDialPageComponent {
   protected readonly lastPick = signal<string>('');
-  protected readonly actions = [
-    { id: 'new', label: 'New', icon: 'add' as const },
-    { id: 'search', label: 'Search', icon: 'search' as const },
-    { id: 'settings', label: 'Settings', icon: 'cog' as const },
+
+  protected readonly actions: readonly WrSpeedDialAction[] = [
+    { id: 'new', label: 'New', icon: 'add' },
+    { id: 'search', label: 'Search', icon: 'search' },
+    { id: 'settings', label: 'Settings', icon: 'cog' },
   ];
 
-  protected onPick(action: { id: string; label: string }): void {
+  protected readonly direction = signal<WrSpeedDialDirection>('up');
+
+  protected readonly directionOptions: readonly WrSegmentedOption<WrSpeedDialDirection>[] = [
+    { value: 'up', label: 'up' },
+    { value: 'down', label: 'down' },
+    { value: 'left', label: 'left' },
+    { value: 'right', label: 'right' },
+  ];
+
+  protected onPick(action: WrSpeedDialAction): void {
     this.lastPick.set(action.label);
   }
 
-  protected readonly snippet = `<wr-speed-dial [actions]="actions" (pick)="onPick($event)" />`;
+  protected readonly snippets = {
+    install: `import { WrSpeedDial, type WrSpeedDialAction } from 'ngwr/speed-dial';
+
+@Component({ imports: [WrSpeedDial] })
+export class MyComponent {
+  protected readonly actions: readonly WrSpeedDialAction[] = [
+    { id: 'new', label: 'New', icon: 'add' },
+    { id: 'search', label: 'Search', icon: 'search' },
+  ];
+
+  protected onPick(action: WrSpeedDialAction): void {
+    console.log(action.id);
+  }
+}`,
+    basic: `<wr-speed-dial [actions]="actions" (pick)="onPick($event)" />`,
+    direction: `<wr-speed-dial [actions]="actions" direction="down" />`,
+  };
 
   protected readonly typeSnippet = `interface WrSpeedDialAction {
   id: string;
   label: string;
   icon?: WrIconName;
-}`;
+}
+
+type WrSpeedDialDirection = 'up' | 'down' | 'left' | 'right';`;
 
   protected readonly api = API.WrSpeedDial;
 
@@ -48,5 +86,10 @@ export default class SpeedDialPageComponent {
     { name: 'id', description: 'Stable identifier for the action.', type: 'string', required: true, sub: true },
     { name: 'label', description: 'Tooltip / accessible label.', type: 'string', required: true, sub: true },
     { name: 'icon', description: 'Button icon.', type: 'WrIconName', sub: true },
+    {
+      name: 'WrSpeedDialDirection',
+      description: 'Which way the fan opens.',
+      type: "'up' | 'down' | 'left' | 'right'",
+    },
   ];
 }

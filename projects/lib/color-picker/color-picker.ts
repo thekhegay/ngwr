@@ -28,7 +28,7 @@ import {
   type WrHsl,
   type WrRgb,
 } from './color';
-import type { WrColorFormat } from './interfaces';
+import type { WrColorFormat } from './types';
 
 type Tab = 'hex' | 'rgb' | 'hsl';
 

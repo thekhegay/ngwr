@@ -114,13 +114,6 @@
       "sass": "./styles.scss",
       "default": "./public-api.ts"
     },
-    "./action-sheet": {
-      "sass": "./action-sheet/styles/_index.scss",
-      "default": "./action-sheet/public-api.ts"
-    },
-    "./action-sheet/testing": {
-      "default": "./action-sheet/testing/public-api.ts"
-    },
     "./affix": {
       "sass": "./affix/styles/_index.scss",
       "default": "./affix/public-api.ts"
@@ -334,10 +327,6 @@
     },
     "./donut-chart/testing": {
       "default": "./donut-chart/testing/public-api.ts"
-    },
-    "./drag-drop": {
-      "sass": "./drag-drop/styles/_index.scss",
-      "default": "./drag-drop/public-api.ts"
     },
     "./drawer": {
       "sass": "./drawer/styles/_index.scss",
@@ -725,6 +714,10 @@
     "./slider/testing": {
       "default": "./slider/testing/public-api.ts"
     },
+    "./sortable-list": {
+      "sass": "./sortable-list/styles/_index.scss",
+      "default": "./sortable-list/public-api.ts"
+    },
     "./sparkline": {
       "sass": "./sparkline/styles/_index.scss",
       "default": "./sparkline/public-api.ts"
@@ -770,10 +763,6 @@
     },
     "./spotlight-card/testing": {
       "default": "./spotlight-card/testing/public-api.ts"
-    },
-    "./squircle": {
-      "sass": "./squircle/styles/_index.scss",
-      "default": "./squircle/public-api.ts"
     },
     "./star-border": {
       "sass": "./star-border/styles/_index.scss",

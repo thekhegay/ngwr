@@ -9,7 +9,7 @@ import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/c
 
 import type { WrTextareaResize, WrTextareaSize } from 'ngwr/textarea';
 
-import type { WrTextareaHarnessFilters } from './interfaces';
+import type { WrTextareaHarnessFilters } from './types';
 
 /** Sizes that earn a modifier class — `md` is the default and carries none. */
 const SIZES: readonly WrTextareaSize[] = ['sm', 'lg'];

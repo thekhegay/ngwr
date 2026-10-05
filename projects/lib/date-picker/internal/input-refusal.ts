@@ -22,7 +22,7 @@ import { WrDateAdapter } from 'ngwr/date';
 import { WR_FORM_FIELD, type WrFormFieldContext } from 'ngwr/form';
 import { useI18nFormatter } from 'ngwr/i18n';
 
-import type { WrDateInputError } from '../interfaces';
+import type { WrDateInputError } from '../types';
 
 /** Per-picker live-region ids — see {@link WrDateInputField.statusId}. */
 let statusUid = 0;

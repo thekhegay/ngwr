@@ -21,6 +21,7 @@ interface Swatch {
 @Component({
   selector: 'ngwr-tokens-colors',
   templateUrl: './colors.html',
+  styleUrl: './colors.scss',
   imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent, DocSeeAlsoComponent],
 })
 export default class TokensColorsPage {
@@ -35,22 +36,22 @@ export default class TokensColorsPage {
   protected readonly intents = WR_COLORS;
 
   /**
-   * Intents that additionally get the soft set (light + dark are excluded).
+   * Intents that additionally get the soft set — every one of them, since v15.
    *
    * Still hand-written, because the lib does not export this subset — it is
    * the literal `@each $name in (…)` list in `_colors.scss`, so it cannot be
    * derived from anything importable. Adding a colour to the palette does NOT
    * add it here or there; both are manual.
    */
-  protected readonly softIntents = ['primary', 'secondary', 'success', 'warning', 'danger', 'info', 'medium'] as const;
+  protected readonly softIntents = ['primary', 'success', 'warning', 'danger', 'info'] as const;
 
   /** Generated shade variants every intent exposes. */
   protected readonly shades: readonly Swatch[] = [
     { suffix: '', label: 'base' },
-    { suffix: '-dark', label: 'dark −5%' },
-    { suffix: '-darker', label: 'darker −10%' },
-    { suffix: '-light', label: 'light +5%' },
-    { suffix: '-lighter', label: 'lighter +10%' },
+    { suffix: '-dark', label: 'dark' },
+    { suffix: '-darker', label: 'darker' },
+    { suffix: '-light', label: 'light' },
+    { suffix: '-lighter', label: 'lighter' },
   ];
 
   /** The four soft-set tokens, with the alpha each is baked at. */
@@ -72,9 +73,9 @@ export default class TokensColorsPage {
     },
     {
       name: '--wr-color-{intent}-soft-contrast',
-      type: 'color-mix(in srgb, var(--wr-color-{intent}) 62%, var(--wr-color-dark))',
+      type: 'color-mix(in srgb, var(--wr-color-{intent}) 62%, var(--wr-color-gray-6))',
       description:
-        'Readable same-hue text on a soft fill. Deep in light mode, light in dark — it follows `--wr-color-dark`.',
+        'Readable same-hue text on a soft fill. Deep in light mode, light in dark — it follows `--wr-color-gray-6`.',
     },
   ];
 
@@ -82,9 +83,9 @@ export default class TokensColorsPage {
   protected readonly inkTokens: readonly DocApiRow[] = [
     {
       name: '--wr-color-{intent}-ink',
-      type: 'color-mix(in srgb, var(--wr-color-{intent}) 48–78%, var(--wr-color-dark))',
+      type: 'color-mix(in srgb, var(--wr-color-{intent}) 48–78%, var(--wr-color-gray-6))',
       description:
-        "The intent darkened (light) / lightened (dark) until it clears WCAG AA **as its own label** — what outlined and ghost variants, tags and tinted chips paint with. The bare intent does not: on white, `warning` is 1.71:1 and `success` 3.33:1. The share is per intent, each the most saturated value that still reaches 5.0:1 against that intent's own `-soft` tint in BOTH themes — primary 78%, secondary 75%, danger 72%, info 71%, success 67%, medium 65%, warning 48%. Warning travels furthest because a yellow readable on white is not yellow. `primary` was re-derived from 86% when the dark base deepened to `#3567ff`: a deeper base makes the ink deeper too, which on a dark tint is the losing direction, and axe measured the old share at 4.48:1 on the sidebar's own tint. The 5.0 target is deliberate headroom over AA's 4.5: an earlier pass aimed at 4.5 exactly and a slightly different background pushed `wr-typography--code` back under it. `light-ink` is `--wr-color-on-surface` (a surface tone has no readable darkening) and `dark-ink` is `--wr-color-dark`.",
+        "The intent darkened (light) / lightened (dark) until it clears WCAG AA **as its own label** — what outlined and ghost variants, tags and tinted chips paint with. The bare intent does not: on white, `warning` is 1.71:1 and `success` 3.33:1. The share is per intent, each the most saturated value that still reaches 5.0:1 against that intent's own `-soft` tint in BOTH themes — primary 78%, danger 72%, info 71%, success 67%, warning 48%. Warning travels furthest because a yellow readable on white is not yellow. `primary` was re-derived from 86% when the dark base deepened to `#3567ff`: a deeper base makes the ink deeper too, which on a dark tint is the losing direction, and axe measured the old share at 4.48:1 on the sidebar's own tint. The 5.0 target is deliberate headroom over AA's 4.5: an earlier pass aimed at 4.5 exactly and a slightly different background pushed `wr-typography--code` back under it. For a neutral job there is no `-ink`: reach for the role aliases below, which the mix already resolves through.",
     },
   ];
 
@@ -102,23 +103,23 @@ export default class TokensColorsPage {
     },
     {
       name: '--wr-color-hover',
-      type: 'rgba(var(--wr-color-light-rgb), 0.4)',
+      type: 'var(--wr-color-gray-2)',
       description:
-        'Generic subtle hover tint (icon buttons, list rows). Adapts in dark via the flipping `light` channel.',
+        'Generic subtle hover tint (icon buttons, list rows). Adapts in dark because each theme sets its own gray ramp.',
     },
     {
       name: '--wr-color-border',
-      type: 'rgba(var(--wr-color-light-rgb), 0.5)',
+      type: 'rgba(var(--wr-color-gray-4-rgb), 0.5)',
       description: 'Default divider / border. Translucent so it reads on any surface.',
     },
     {
       name: '--wr-color-border-subtle',
-      type: 'rgba(var(--wr-color-light-rgb), 0.35)',
+      type: 'rgba(var(--wr-color-gray-4-rgb), 0.35)',
       description: 'Quieter hairline — for low-emphasis separators.',
     },
     {
       name: '--wr-color-border-strong',
-      type: 'rgba(var(--wr-color-light-rgb), 0.6)',
+      type: 'rgba(var(--wr-color-gray-4-rgb), 0.6)',
       description: 'Heavier border — for focused or emphasized edges.',
     },
     {
@@ -130,19 +131,19 @@ export default class TokensColorsPage {
       name: '--wr-color-backdrop-rgb',
       type: '0, 0, 0',
       description:
-        'Always-black channel for scrims. Not wired to `-dark-rgb`, which would flip to a white wash in dark.',
+        'Always-black channel for scrims. Not wired to `--wr-color-on-surface-rgb`, which would flip to a white wash in dark.',
     },
     {
       name: '--wr-color-text-muted',
-      type: 'rgba(var(--wr-color-muted-text-rgb), 0.95)',
+      type: 'var(--wr-color-gray-5)',
       description:
-        'De-emphasized text — muted labels, captions. 0.95, not a rounder 0.85: wrapping the role at 0.85 composited to 3.90:1 on the light surface, under the AA bar. 0.95 is the most softening that still clears it (4.81).',
+        'De-emphasized text — muted labels, captions. It used to wrap the muted ink in an alpha; since the ramp landed it is the ramp step itself, so it is the same 5.35:1 on the light surface as the muted role.',
     },
     {
       name: '--wr-color-text-faint',
-      type: 'rgba(var(--wr-color-muted-text-rgb), 0.6)',
+      type: 'var(--wr-color-gray-5)',
       description:
-        'Decorative only — 2.43:1 on the light surface, under the 4.5:1 text needs and the 3:1 a graphic needs, so nothing in the library paints with it. Not for placeholders: those read `--wr-color-placeholder`.',
+        'The published decorative tier. Nothing in the library paints with it — its three consumers were all failing at the softer strength it used to carry, and each moved to a role. Not for placeholders: those read `--wr-color-placeholder`.',
     },
   ];
 
@@ -158,12 +159,12 @@ export default class TokensColorsPage {
     },
     {
       name: '--wr-color-on-surface',
-      type: 'var(--wr-color-dark)',
+      type: 'var(--wr-color-gray-6)',
       description: 'Primary text on a surface. Flips with the theme.',
     },
     {
       name: '--wr-color-on-surface-muted',
-      type: 'var(--wr-color-muted-text)',
+      type: 'var(--wr-color-gray-5)',
       description: 'Secondary / muted text on a surface.',
     },
     {
@@ -174,7 +175,7 @@ export default class TokensColorsPage {
     },
     {
       name: '--wr-color-outline',
-      type: 'var(--wr-color-light)',
+      type: 'var(--wr-color-gray-4)',
       description:
         'The opaque hairline components draw 1px rules with — borders, dividers, table gridlines. Distinct from `--wr-color-border`, which is the same hue at 50% alpha so it reads over any fill; swapping one for the other changes appearance, not just naming.',
     },
@@ -184,17 +185,17 @@ export default class TokensColorsPage {
   protected readonly fillTokens: readonly DocApiRow[] = [
     {
       name: '--wr-color-fill-subtle',
-      type: 'rgba(var(--wr-color-light-rgb), 0.15)',
+      type: 'var(--wr-color-gray-1)',
       description: 'Barely there — a hovered table row, a detail row, a group band.',
     },
     {
       name: '--wr-color-fill',
-      type: 'rgba(var(--wr-color-light-rgb), 0.3)',
+      type: 'var(--wr-color-gray-2)',
       description: 'The default neutral surface — a table header, a readonly field, a grouped control.',
     },
     {
       name: '--wr-color-fill-strong',
-      type: 'rgba(var(--wr-color-light-rgb), 0.55)',
+      type: 'var(--wr-color-gray-3)',
       description: 'The pronounced one — a code chip, a progress track, a drop zone.',
     },
   ];
@@ -233,7 +234,7 @@ export default class TokensColorsPage {
     focus: `/* Retheme the ring once and every control that DRAWS one follows —
    the library's own mixin reads nothing else. */
 :root {
-  --wr-focus-ring-color: var(--wr-color-secondary);
+  --wr-focus-ring-color: var(--wr-color-success);
   --wr-focus-ring-width: 3px;
 }
 
@@ -301,7 +302,7 @@ export default class TokensColorsPage {
 .card {
   background: var(--wr-color-white);              /* page surface */
   border: 1px solid var(--wr-color-border);
-  color: var(--wr-color-dark);                    /* body text */
+  color: var(--wr-color-on-surface);              /* body text */
 }
 .card__meta  { color: var(--wr-color-text-muted); }
 .card__row:hover { background: var(--wr-color-hover); }`,
@@ -330,24 +331,26 @@ export class Palette {
 }`,
 
     dark: `/* The neutrals swap roles; four intents are re-tuned for the canvas
-   (primary, success, warning, danger). secondary and info keep their
-   light values.
-   --wr-color-white  = page surface  → #0b1120 in dark
-   --wr-color-dark   = body text     → #e6ebf3 in dark
-   --wr-color-light  = borders/tints → #262f44 in dark
-   --wr-color-medium = medium FILL   → #6d7682 in dark
+   (primary, success, warning, danger). Only info keeps its light value.
+   Each theme SETS its own six-step ramp rather than deriving one:
+   --wr-color-white  = page surface   → #0b1120 in dark
+   --wr-color-gray-6 = body text      → #e6ebf3 in dark
+   --wr-color-gray-5 = muted text     → #9aa6b8 in dark
+   --wr-color-gray-4 = borders/tints  → #262f44 in dark
+   --wr-color-gray-1 = faintest wash  → #0f1625 in dark
 
-   Secondary TEXT is --wr-color-on-surface-muted (#9aa6b8 in dark) — a
-   different token on purpose: lighter is what makes text legible on a dark
-   canvas, the opposite direction from a fill. */
+   Read them through the roles — --wr-color-on-surface, -on-surface-muted,
+   -outline — rather than the steps: the role names the job, and lighter is
+   what makes text legible on a dark canvas, the opposite direction from a
+   fill. */
 [data-theme='dark'] {
   /* set automatically by provideWrTheme(); shown here for reference */
 }
 
 /* So this card needs NO dark-mode override — the tokens carry it: */
 .card {
-  background: var(--wr-color-white); /* light page / dark canvas */
-  color: var(--wr-color-dark);       /* dark ink  / light ink   */
+  background: var(--wr-color-white);     /* light page / dark canvas */
+  color: var(--wr-color-on-surface);     /* dark ink   / light ink   */
 }`,
   };
 

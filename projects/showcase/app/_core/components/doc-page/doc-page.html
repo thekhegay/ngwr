@@ -12,7 +12,7 @@
         own, and it says the whole phrase rather than a bare version.
       -->
       @if (addedIn(); as added) {
-        <wr-badge class="since" size="sm" shape="pill" color="light">{{ added }}</wr-badge>
+        <wr-badge class="since" size="sm" shape="pill">{{ added }}</wr-badge>
       }
     </div>
   }
@@ -20,7 +20,7 @@
   <h1 wrTypography variant="h3" class="title">{{ title() }}</h1>
 
   @if (description(); as d) {
-    <p wrTypography variant="body" tone="medium" class="description" [innerHTML]="d | wrDocRich"></p>
+    <p wrTypography variant="body" tone="muted" class="description" [innerHTML]="d | wrDocRich"></p>
   }
 </header>
 

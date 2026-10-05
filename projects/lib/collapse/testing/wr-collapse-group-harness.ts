@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrCollapseGroupHarnessFilters, WrCollapseHarnessFilters } from './interfaces';
+import type { WrCollapseGroupHarnessFilters, WrCollapseHarnessFilters } from './types';
 import { WrCollapseHarness } from './wr-collapse-harness';
 
 /**

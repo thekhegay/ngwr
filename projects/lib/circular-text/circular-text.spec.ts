@@ -5,7 +5,7 @@ import { WrPlatform } from 'ngwr/platform';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrCircularText } from './circular-text';
-import type { WrCircularTextHover } from './interfaces';
+import type { WrCircularTextHover } from './types';
 
 @Component({
   imports: [WrCircularText],

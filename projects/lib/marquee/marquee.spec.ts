@@ -5,8 +5,8 @@ import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrMarqueeItem } from './interfaces';
 import { WrMarquee } from './marquee';
+import type { WrMarqueeItem } from './types';
 
 const ITEMS: readonly WrMarqueeItem[] = [
   { src: '/a.png', alt: 'Acme' },

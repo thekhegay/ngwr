@@ -16,7 +16,7 @@ import {
 import type { WrPopconfirmPosition } from 'ngwr/popconfirm';
 import { WR_COLORS, type WrColor } from 'ngwr/theme';
 
-import type { WrPopconfirmHarnessFilters } from './interfaces';
+import type { WrPopconfirmHarnessFilters } from './types';
 
 /** The two answers a popconfirm offers, which are also its two action modifiers. */
 type WrPopconfirmAction = 'confirm' | 'cancel';

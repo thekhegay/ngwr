@@ -141,14 +141,6 @@ export const STATES: readonly State[] = [
     scope: '.wr-drawer__panel',
   },
   {
-    id: 'action-sheet/open',
-    route: `${REF}/action-sheet`,
-    steps: [{ click: demo('.wr-btn:has-text("Open action sheet")') }],
-    target: '.wr-action-sheet__action',
-    scope: '.wr-action-sheet',
-    note: 'Its actions paint the intent as TEXT, which is the -ink case.',
-  },
-  {
     id: 'popconfirm/open',
     route: `${REF}/popconfirm`,
     steps: [{ click: demo('.wr-popconfirm-trigger') }],
@@ -254,7 +246,13 @@ export const STATES: readonly State[] = [
     id: 'tour/step',
     // A service, so its page is under /reference/services rather than /components.
     route: '/reference/services/tour',
-    steps: [{ click: demo('.wr-btn--secondary') }, { wait: 400 }],
+    // By TEXT, not by intent. It used to be `.wr-btn--secondary`, which was
+    // unique only because `secondary` was the one intent this page used twice —
+    // v15 removed that intent and the demo's two buttons are both `primary` now,
+    // so a class selector picks "Save changes" and the tour never opens. A state
+    // that did not paint fails the run, which is how this was caught, but the
+    // label is the honest anchor either way.
+    steps: [{ click: demo('.wr-btn:has-text("Show me around")') }, { wait: 400 }],
     target: '.wr-tour-popup',
     scope: '.wr-tour-popup',
   },
@@ -647,15 +645,6 @@ export const STATES: readonly State[] = [
     target: '.wr-drawer__panel',
     scope: '.wr-drawer__panel',
   },
-  {
-    id: 'sheet/action-sheet',
-    route: `${REF}/action-sheet`,
-    viewport: 'mobile',
-    steps: [{ click: demo('.wr-btn:has-text("Open action sheet")') }, { wait: 300 }],
-    target: '.wr-action-sheet__action',
-    scope: '.wr-action-sheet',
-    note: 'Not responsive-gated — an action sheet is a sheet everywhere — but a phone is where it is used.',
-  },
 
   // ── At-rest variants the other gates DO see, but only through two rules.
   // `check:contrast` runs `color-contrast` and `target-size` and nothing else;
@@ -716,8 +705,8 @@ export const STATES: readonly State[] = [
     target: demo('.wr-markdown__task--checked'),
   },
   {
-    id: 'drag-drop/handle',
-    route: `${REF}/drag-drop`,
+    id: 'sortable-list/handle',
+    route: `${REF}/sortable-list`,
     steps: [],
     target: demo('.wr-drag-handle'),
   },

@@ -6,7 +6,7 @@
   justify-content: center;
   width: 100%;
   height: 8rem;
-  border: 1px dashed var(--wr-color-light);
+  border: 1px dashed var(--wr-color-outline);
   border-radius: 0.5rem;
   color: var(--wr-color-on-surface-muted);
 }
@@ -22,7 +22,7 @@
   &__title {
     font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
   }
 
   &__sub {
@@ -38,7 +38,7 @@
   font-family: var(--wr-font-family-mono);
   font-size: 0.6875rem;
   color: var(--wr-color-on-surface-muted);
-  background: rgba(var(--wr-color-medium-rgb), 0.12);
+  background: rgba(var(--wr-color-on-surface-muted-rgb), 0.12);
   border-radius: 0.25rem;
   line-height: 1.5;
 }

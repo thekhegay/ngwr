@@ -1,2 +1,2 @@
 export { WrCheckboxHarness } from './wr-checkbox-harness';
-export type { WrCheckboxHarnessFilters } from './interfaces';
+export type { WrCheckboxHarnessFilters } from './types';

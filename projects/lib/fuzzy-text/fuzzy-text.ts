@@ -30,7 +30,7 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
-import type { WrFuzzyTextDirection } from './interfaces';
+import type { WrFuzzyTextDirection } from './types';
 
 /**
  * Canvas-rendered "fuzzy" text — each row/column of glyphs is offset by
@@ -69,7 +69,7 @@ import type { WrFuzzyTextDirection } from './interfaces';
     '<span class="wr-fuzzy-text__sr-only" [style]="srOnly">{{ text() }}</span>' +
     '<canvas #canvas aria-hidden="true"></canvas>',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-fuzzy-text', '[style.color]': "'var(--wr-color-dark)'" },
+  host: { class: 'wr-fuzzy-text', '[style.color]': "'var(--wr-color-on-surface)'" },
 })
 export class WrFuzzyText {
   /**
@@ -460,4 +460,4 @@ export class WrFuzzyText {
   }
 }
 
-export type { WrFuzzyTextDirection } from './interfaces';
+export type { WrFuzzyTextDirection } from './types';

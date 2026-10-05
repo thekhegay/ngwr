@@ -9,7 +9,7 @@ import { Component, ElementRef, ViewEncapsulation, computed, inject, input, outp
 
 import { toClassList, type WrClassInput } from 'ngwr/utils';
 
-import type { WrToastConfig, WrToastType } from './interfaces';
+import type { WrToastConfig, WrToastType } from './types';
 
 /**
  * One toast row inside the toast host. Not used directly — see

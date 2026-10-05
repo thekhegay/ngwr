@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { type DrawOptions, drawQrCode } from './generator';
-import type { WrQrErrorLevel } from './interfaces';
+import type { WrQrErrorLevel } from './types';
 
 /**
  * jsdom implements no canvas 2D context — `getContext('2d')` returns `null` — so the

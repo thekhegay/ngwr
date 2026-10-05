@@ -74,8 +74,11 @@ export default class DocIndexComponent {
 
     const sections: DocIndexSection[] = [];
     // A group carrying `url` instead of `children` is a single row the sidebar
-    // deliberately left ungrouped (Squircle). One heading over one link reads
-    // as a mistake, so they collect into a trailing section instead.
+    // deliberately left ungrouped. One heading over one link reads as a
+    // mistake, so they collect into a trailing section instead. No cluster
+    // under /reference has one today — the last was Squircle, which v15
+    // removed — so this branch is dormant rather than dead: the /icons
+    // sidebar is built entirely out of that shape.
     const loose: SidebarLink[] = [];
 
     for (const group of this.page.groups) {

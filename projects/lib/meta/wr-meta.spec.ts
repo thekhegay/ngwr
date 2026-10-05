@@ -3,8 +3,8 @@ import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrMetaConfig } from './interfaces';
 import { provideWrMeta } from './provide-wr-meta';
+import type { WrMetaConfig } from './types';
 import { WrMeta } from './wr-meta';
 import { WrMetaBinding } from './wr-meta-binding';
 

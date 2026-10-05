@@ -30,7 +30,7 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
-import type { WrSplitTextUnit, WrSplitTextMotion } from './interfaces';
+import type { WrSplitTextUnit, WrSplitTextMotion } from './types';
 
 type Piece = { readonly kind: 'piece'; readonly text: string } | { readonly kind: 'space'; readonly text: string };
 
@@ -252,4 +252,4 @@ export class WrSplitText {
   }
 }
 
-export type { WrSplitTextUnit, WrSplitTextMotion } from './interfaces';
+export type { WrSplitTextUnit, WrSplitTextMotion } from './types';

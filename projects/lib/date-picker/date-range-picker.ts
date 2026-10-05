@@ -36,7 +36,6 @@ import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { toClassList, type WrClassInput } from 'ngwr/utils';
 
-import type { WrDateInputError, WrDateRange, WrDateRangeInputError } from './interfaces';
 import { WrDateRangePanel } from './internal/date-range-panel';
 import {
   WR_DATE_INPUT_FIELD_VIEW_PROVIDER,
@@ -45,6 +44,7 @@ import {
   useFormParseErrors,
 } from './internal/input-refusal';
 import { WrDateRangeEndInput } from './internal/range-end-input';
+import type { WrDateInputError, WrDateRange, WrDateRangeInputError } from './types';
 
 /** Which end of the range an edit applies to. */
 type RangeEnd = 0 | 1;

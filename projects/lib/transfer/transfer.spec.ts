@@ -3,8 +3,8 @@ import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { WrTransferItem } from './interfaces';
 import { WrTransfer } from './transfer';
+import type { WrTransferItem } from './types';
 
 const ITEMS: readonly WrTransferItem[] = [
   { value: 'read', label: 'Read' },

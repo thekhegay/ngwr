@@ -13,7 +13,7 @@ import {
   type TestElement,
 } from '@angular/cdk/testing';
 
-import type { WrDropdownHarnessFilters, WrDropdownItemHarnessFilters } from './interfaces';
+import type { WrDropdownHarnessFilters, WrDropdownItemHarnessFilters } from './types';
 import { WrDropdownItemHarness } from './wr-dropdown-item-harness';
 
 /**

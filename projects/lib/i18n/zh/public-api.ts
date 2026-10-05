@@ -265,9 +265,6 @@ export const wrZh: WrI18nCatalog = {
     roledescription: '轮播图',
     slideRoledescription: '幻灯片',
   },
-  actionSheet: {
-    label: '操作',
-  },
   alert: {
     close: '关闭提示',
   },

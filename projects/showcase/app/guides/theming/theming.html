@@ -92,7 +92,7 @@
   >
     <ngwr-doc-code [code]="snippets.importantList" language="scss" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>Overriding the bottom sheet takes an <code>!important</code> of your own</strong>, in a stylesheet that
       loads after ngwr's, at equal or higher specificity — that is the whole trick, and a rule on the BEM class without
       it simply does nothing. Twelve of the twenty are on <code>.wr-overlay-sheet</code>, the presentation dialog,
@@ -105,7 +105,7 @@
 
     <ngwr-doc-code [code]="snippets.importantOverride" language="scss" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>One of the twelve cannot be beaten by a plain rule at any specificity.</strong>
       <code>margin-bottom</code> on the sheet is fighting an inline style: all four sheet users pin the pane with a CDK
       <code>GlobalPositionStrategy</code>, whose <code>apply()</code> writes <code>margin-bottom: 0px</code> onto that
@@ -124,7 +124,7 @@
     <ngwr-doc-code [code]="snippets.classHooks" language="angular-html" />
     <ngwr-doc-code [code]="snippets.classHooksTs" language="angular-ts" />
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>A space-separated string is the point</strong> — an array works too, but the CDK hands an overlay's
       classes to <code>classList.add()</code> without splitting them, so a single <code>'p-4 rounded-xl'</code> used to
       throw <code>InvalidCharacterError</code> and take the overlay down with it. Every hook here runs its value through
@@ -133,7 +133,7 @@
       that is not ready yet needs no guard.
     </p>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>What lands where is worth knowing before you write the rule.</strong> A pane is a positioning wrapper: for
       dialog and the drawer service the content IS the pane, so your classes paint the box, while for select, dropdown
       and the pickers the box that paints is inside it — so <code>.my-class .wr-select-panel</code> is the rule, not
@@ -141,7 +141,7 @@
       than its pane. Each input's JSDoc names its element.
     </p>
 
-    <p wrTypography variant="small" tone="medium">
+    <p wrTypography variant="small" tone="muted">
       <strong>This does not rescue an encapsulated component stylesheet.</strong> The element belongs to ngwr's view, so
       it carries no <code>_ngcontent</code> attribute of yours and a rule in your component's own
       <code>.scss</code> will not match it — the class has to be global, which is what a utility framework's classes

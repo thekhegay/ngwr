@@ -1,2 +1,2 @@
 export { WrStarBorderHarness } from './wr-star-border-harness';
-export type { WrStarBorderHarnessFilters } from './interfaces';
+export type { WrStarBorderHarnessFilters } from './types';

@@ -9,7 +9,7 @@ import { ComponentHarness, HarnessPredicate, TestKey } from '@angular/cdk/testin
 
 import type { WrSpeedDialDirection } from 'ngwr/speed-dial';
 
-import type { WrSpeedDialActionHarnessFilters, WrSpeedDialHarnessFilters } from './interfaces';
+import type { WrSpeedDialActionHarnessFilters, WrSpeedDialHarnessFilters } from './types';
 import { WrSpeedDialActionHarness } from './wr-speed-dial-action-harness';
 
 const DIRECTIONS: readonly WrSpeedDialDirection[] = ['up', 'down', 'left', 'right'];

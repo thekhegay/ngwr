@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, TestKey } from '@angular/cdk/testing';
 
-import type { WrSplitterArrowKey, WrSplitterHarnessFilters, WrSplitterPaneSizes } from './interfaces';
+import type { WrSplitterArrowKey, WrSplitterHarnessFilters, WrSplitterPaneSizes } from './types';
 
 const ARROWS: Record<WrSplitterArrowKey, TestKey> = {
   left: TestKey.LEFT_ARROW,

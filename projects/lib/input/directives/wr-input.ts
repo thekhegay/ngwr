@@ -11,7 +11,7 @@ import { Directive, ElementRef, computed, inject, input } from '@angular/core';
 import { useConfigValue } from 'ngwr/config';
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 
-import type { WrInputSize } from '../interfaces';
+import type { WrInputSize } from '../types';
 
 /**
  * Applies NGWR input styling to a native `<input>` element.

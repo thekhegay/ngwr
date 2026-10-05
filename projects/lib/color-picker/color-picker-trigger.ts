@@ -27,7 +27,7 @@ import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { toClassList, type WrClassInput } from 'ngwr/utils';
 
 import { WrColorPicker } from './color-picker';
-import type { WrColorFormat } from './interfaces';
+import type { WrColorFormat } from './types';
 
 let triggerUid = 0;
 

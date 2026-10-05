@@ -11,7 +11,7 @@ import type {
   WrCommandPaletteGroupHarnessFilters,
   WrCommandPaletteHarnessFilters,
   WrCommandPaletteItemHarnessFilters,
-} from './interfaces';
+} from './types';
 import { WrCommandPaletteGroupHarness } from './wr-command-palette-group-harness';
 import { WrCommandPaletteItemHarness } from './wr-command-palette-item-harness';
 
