@@ -501,6 +501,12 @@ protected onPage(page: number): void {
 
   protected readonly methodsApi: readonly DocApiRow[] = [
     {
+      name: 'expandAllRows() / collapseAllRows()',
+      description: 'Open or close every parent in a tree-mode forest. No-ops when `childrenKey` is unset.',
+      type: '() => void',
+      default: '—',
+    },
+    {
       name: 'exportCsv(options?)',
       description: 'Download the rows as a CSV file (options: filename, selectedOnly, delimiter).',
       type: '(WrTableCsvOptions) => void',

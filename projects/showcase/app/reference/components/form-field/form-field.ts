@@ -120,6 +120,20 @@ bootstrapApplication(App, {
   protected readonly api: readonly DocApiRow[] = [
     { name: 'label', description: 'Label text shown above the projected control.', type: 'string', default: "''" },
     {
+      name: 'optionalLabel',
+      description:
+        'Word inside the optional marker&rsquo;s parentheses, for a field that is NOT required. Falls back to the `form.optional` catalog key, then to `optional`; the parentheses are the template&rsquo;s, so no locale repeats punctuation.',
+      type: 'string | null',
+      default: 'null',
+    },
+    {
+      name: 'autoErrors',
+      description:
+        'Resolve a message per error key through `provideWrFormErrors()`, then the i18n `validation.*` catalog, then a built-in fallback. Turn it off to write every message by hand.',
+      type: 'boolean',
+      default: 'true',
+    },
+    {
       name: 'hint',
       description: 'Subtext under the control. Hidden when an error is visible.',
       type: 'string',

@@ -152,6 +152,13 @@ protected readonly message = computed(() => {
       sub: true,
     },
     {
+      name: 'refresh()',
+      description:
+        'Re-measure the image and re-emit `(cropped)`. For a host that resized the cropper itself — a panel opening, a split moving — where no input changed.',
+      type: '() => Promise<void>',
+      default: '—',
+    },
+    {
       name: 'toBlob() / toDataUrl()',
       description: 'Read the current crop programmatically.',
       type: 'method',

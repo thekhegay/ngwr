@@ -50,6 +50,7 @@ export default class CopyToClipboardPage {
       description: 'The text that reached the clipboard.',
       type: 'string',
       default: '—',
+      sub: true,
     },
     {
       name: '(copyFailed)',
@@ -57,6 +58,7 @@ export default class CopyToClipboardPage {
         'What the write threw — a permissions refusal, an insecure origin, or a clipboard the browser would not give. The page leans on this one in prose and never tabulated it.',
       type: 'unknown',
       default: '—',
+      sub: true,
     },
   ];
 

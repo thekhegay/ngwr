@@ -385,6 +385,13 @@ ref.close(savedDocId);`,
       default: '—',
     },
     {
+      name: 'readLayout(name)',
+      description:
+        'Read a saved workspace without opening it — `null` when no snapshot is stored under that name. What `restoreLayout` reads, exposed so a host can check before it asks.',
+      type: '(name: string) => readonly WrWindowLayoutSnapshot[] | null',
+      default: '—',
+    },
+    {
       name: 'restoreLayout(name, open?)',
       sub: true,
       description:
