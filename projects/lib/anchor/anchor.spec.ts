@@ -33,6 +33,7 @@ const LINKS: readonly WrAnchorLink[] = [
     <h2 id="usage">Usage</h2>
     <h3 id="basic">Basic</h3>
     <h3 id="advanced">Advanced</h3>
+    <h4 id="deeper">Deeper</h4>
   `,
 })
 class Host {
@@ -207,6 +208,31 @@ describe('WrAnchor', () => {
     expect(links().length).toBe(4);
     expect(add).not.toHaveBeenCalledWith('scroll', expect.anything(), expect.anything());
     expect(activeIds()).toEqual([]);
+  });
+
+  it('never makes a grandchild active, because no link renders one', () => {
+    // `WrAnchorLink` documents one level of nesting and the template renders
+    // exactly that. The spy used to walk the tree all the way down, so a third
+    // level became `activeId` while no rendered link carried the id: scrolling
+    // through that region dropped the highlight entirely instead of leaving it
+    // on the parent.
+    fixture.componentInstance.links.set([
+      { id: 'intro', label: 'Introduction' },
+      {
+        id: 'usage',
+        label: 'Usage',
+        children: [{ id: 'basic', label: 'Basic', children: [{ id: 'deeper', label: 'Deeper' }] }],
+      },
+    ]);
+    fixture.detectChanges();
+
+    // Only the two levels the template draws exist as links.
+    expect(links().map(a => a.getAttribute('href'))).toEqual(['#intro', '#usage', '#basic']);
+
+    // The cursor is past every target, including the grandchild's.
+    placeTargets({ intro: -300, usage: -200, basic: -100, deeper: -50 });
+
+    expect(activeIds()).toEqual(['basic']);
   });
 });
 

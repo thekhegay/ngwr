@@ -40,7 +40,8 @@ import type { WrInputOtpMode, WrInputOtpSize } from './types';
  * A signal-forms native control: it implements `FormValueControl<string>`, so
  * `[formField]` binds straight to its `value` model — no
  * `ControlValueAccessor` in between. `[(value)]` works standalone. Emits
- * `completed` once all cells are filled (useful for auto-submission).
+ * `completed` whenever the code changes while all cells are filled (useful for
+ * auto-submission).
  *
  * @example
  * ```html
@@ -150,7 +151,12 @@ export class WrInputOtp implements FormValueControl<string> {
   /** The entered code. Bound by `[formField]`, or two-way via `[(value)]`. */
   readonly value = model<string>('');
 
-  /** Fires once when every cell holds a character. */
+  /**
+   * Fires on every change made while every cell holds a character — so
+   * correcting a digit of an already-complete code emits again. Not latched on
+   * the incomplete-to-complete transition: a host auto-submitting on it has to
+   * guard its own re-entry, and gets the corrected code for free.
+   */
   readonly completed = output<string>();
 
   /** Emitted on blur so a bound field can mark itself touched. */

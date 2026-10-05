@@ -39,7 +39,7 @@
 
   <ngwr-doc-section
     title="Where focus goes, and where it comes back"
-    description="On open, focus moves into the panel: to whatever carries `cdkFocusInitial` if anything does, and otherwise to the first tabbable element in DOM order. The built-in ✕ is appended after your content, so it is the LAST tabbable element rather than the first — a dialog whose content starts with a text field opens with the caret in that field. A panel with nothing tabbable in it takes no focus at all; Escape still closes it, because the key is handled by the overlay rather than by whatever is focused."
+    description="On open, focus moves into the panel: to whatever carries `cdkFocusInitial` if anything does, and otherwise to the first tabbable element in DOM order. The built-in ✕ is appended after your content, so it is the LAST tabbable element rather than the first — a dialog whose content starts with a text field opens with the caret in that field. Since the ✕ is a real button, the only panel with nothing tabbable in it is one opened `closable: false` whose own content is inert — that one takes no focus at all, and Escape still closes it, because the key is handled by the overlay rather than by whatever is focused."
   >
     <ngwr-doc-code [code]="snippets.focus" language="angular-html" />
     <p>

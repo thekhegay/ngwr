@@ -24,12 +24,13 @@
       <strong>They do not clamp a value written in from outside.</strong> Set <code>500</code> on a field bound with
       <code>[max]="100"</code> and the field shows <code>500</code> and the model keeps <code>500</code>; only the next
       edit is pulled back into range. That asymmetry is deliberate, and the same rule <code>wr-slider</code> and
-      <code>wr-rating</code> follow: writing the clamp back would erase the out-of-range value a
-      <code>Validators.max</code> exists to report, and would mark a pristine form dirty on first paint. Under
-      <code>[formField]</code> it is not even possible to do better — binding <code>[min]</code> beside
-      <code>[formField]</code> is a compile error, so the bounds arrive only through the schema's own
-      <code>min()</code> / <code>max()</code> rules. See <a routerLink="/guides/forms">the reactive-forms guide</a> for
-      the whole table.
+      <code>wr-rating</code> follow for the model — they differ only in that a slider has nowhere to draw an
+      out-of-range value, so its thumb sits at the end of the track while its model keeps the number. Writing the clamp
+      back would erase the out-of-range value a <code>Validators.max</code> exists to report, and would mark a pristine
+      form dirty on first paint. Under <code>[formField]</code> it is not even possible to do better — binding
+      <code>[min]</code> beside <code>[formField]</code> is a compile error, so the bounds arrive only through the
+      schema's own <code>min()</code> / <code>max()</code> rules. See
+      <a routerLink="/guides/forms">the reactive-forms guide</a> for the whole table.
     </p>
 
     <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
@@ -41,7 +42,10 @@
     </p>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Prefix and decimals" description="Fix the number of decimals shown on blur.">
+  <ngwr-doc-section
+    title="Prefix and decimals"
+    description="Round the committed value to a fixed number of decimals, and show it with that many on blur."
+  >
     <ngwr-doc-code [code]="snippets.price" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-input-number ariaLabel="Price" prefix="$" [(value)]="price" [decimals]="2" />

@@ -84,11 +84,14 @@ export class WrInputNumber implements FormValueControl<number | null> {
   readonly step = input(1, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 1)) });
 
   /**
-   * Fixed number of decimals shown on blur. `null` keeps the entered precision.
+   * Fixed number of decimals. Rounds the value as it is COMMITTED, and fixes the
+   * digits shown once the field reformats on blur. `null` keeps the entered
+   * precision and formats with up to 20.
    *
-   * Clamped to what `toFixed` accepts — 0 to 100 — because it is the one numeric
-   * input on this component that had no transform, and the value goes straight
-   * into `toFixed`, which THROWS a `RangeError` outside that range rather than
+   * Clamped to 0–100, the range `Intl.NumberFormat`'s `minimumFractionDigits` /
+   * `maximumFractionDigits` accept — because it is the one numeric input on this
+   * component that had no transform, and the value goes straight into the
+   * formatter, which THROWS a `RangeError` outside that range rather than
    * degrading. A `[decimals]="-1"` bound from a config object took the whole
    * component down on blur.
    *

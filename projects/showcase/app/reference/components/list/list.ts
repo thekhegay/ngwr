@@ -107,7 +107,8 @@ export default class ListPage {
     {
       name: 'interactive',
       sub: true,
-      description: 'Hover + cursor pointer + Enter/Space activation + listitem role.',
+      description:
+        'Hover + cursor pointer, a tab stop, and Enter/Space activation. The `listitem` role is there either way.',
       type: 'boolean',
       default: 'false',
     },
