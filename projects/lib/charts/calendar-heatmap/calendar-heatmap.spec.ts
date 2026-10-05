@@ -75,6 +75,30 @@ describe('WrCalendarHeatmap', () => {
     expect(rows.size).toBe(7);
   });
 
+  it('stops at the last day to render, and draws exactly the weeks asked for', () => {
+    // A mid-week end date, which is what the old arithmetic could not handle.
+    // The inner loop always walked a whole week, so it ran on to the Saturday
+    // — up to six days PAST `endDate`, drawn as ordinary `value: 0` squares
+    // and indistinguishable from a past day of no activity. And the Sunday
+    // alignment was applied AFTER `weeks * 7` days were allocated, so any
+    // alignment at all produced one column more than asked for.
+    //
+    // 13 Aug 2025 is a Wednesday. Four weeks ending there is 25 days: three
+    // whole weeks plus Sunday to Wednesday.
+    fixture.componentInstance.endDate.set('2025-08-13');
+    fixture.detectChanges();
+
+    const dates = cells()
+      .map(cell => cell.getAttribute('data-date') ?? '')
+      .sort();
+    expect(dates[dates.length - 1]).toBe('2025-08-13');
+    expect(cellFor('2025-08-14')).toBeUndefined();
+
+    const columns = new Set(cells().map(cell => cell.style.gridColumn));
+    expect(columns.size).toBe(4);
+    expect(dates).toHaveLength(25);
+  });
+
   it('places a day in the row its weekday sits on', () => {
     // 11 Aug 2025 is a Monday, and row 1 is Monday when column 0 starts on Sunday.
     expect(cellFor('2025-08-11')!.style.gridRow).toBe('2');

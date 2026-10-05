@@ -162,7 +162,6 @@ export class WrCalendarHeatmap {
     const end = this.endDate() ? parseInput(this.endDate()!) : new Date();
     end.setHours(0, 0, 0, 0);
     const weeks = this.weeks();
-    const totalDays = weeks * 7;
 
     // Build value lookup.
     const map = new Map<string, number>();
@@ -174,15 +173,27 @@ export class WrCalendarHeatmap {
 
     // Walk backwards from end day; arrange into columns by week, rows by weekday.
     const out: Cell[] = [];
+    // Exactly `weeks` columns, the last of them the week `end` falls in, every
+    // column starting on a Sunday (matches GitHub).
+    //
+    // Counted in WEEKS rather than in days. It used to allocate `weeks * 7`
+    // days and then align the start back to a Sunday, which adds up to six
+    // more — so any alignment at all produced one column more than asked for:
+    // 54 for the default 53, with `--wr-heatmap-columns` reporting 54 and a
+    // container sized from `weeks * (cellSize + cellGap)` one column short.
     const start = new Date(end);
-    start.setDate(end.getDate() - totalDays + 1);
-    // Align start so column 0 begins on a Sunday (matches GitHub).
-    start.setDate(start.getDate() - start.getDay());
+    start.setDate(end.getDate() - end.getDay() - (weeks - 1) * 7);
 
     const cursor = new Date(start);
     let column = 0;
     while (cursor <= end) {
       for (let row = 0; row < 7; row++) {
+        // Stop at `end`. The inner loop always walks a whole week, so once the
+        // cursor crossed `end` mid-week it kept going to Saturday — up to six
+        // days AFTER the last day to render, drawn as ordinary `value: 0`
+        // squares and indistinguishable from a past day of no activity. With
+        // the default that is today plus five future days.
+        if (cursor > end) break;
         const iso = toIso(cursor);
         const value = map.get(iso) ?? 0;
         // Clamped at the BOTTOM as well as the top. A negative value produced a
