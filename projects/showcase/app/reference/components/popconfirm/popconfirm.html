@@ -22,6 +22,20 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Positions"
+    description="`position` names the side the panel opens on — `top` (default), `bottom`, `left` or `right`. It is a preference rather than a promise: the overlay falls back to the opposite side when the chosen one would leave the viewport, so a trigger near an edge still shows the whole panel."
+  >
+    <ngwr-doc-code [code]="snippets.positions" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap">
+        @for (p of positions; track p) {
+          <wr-btn outlined wrPopconfirm="Delete this item?" [position]="p" (confirmed)="onConfirm()">{{ p }}</wr-btn>
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Template reference"
     description="The directive exports itself as `wrPopconfirm`, so a template can raise the question from a control other than the one it is attached to."
   >
