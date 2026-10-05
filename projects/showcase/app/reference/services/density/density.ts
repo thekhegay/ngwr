@@ -91,7 +91,7 @@ export default class DensityServicePage {
     {
       name: 'CSS tokens',
       description:
-        '`--wr-density-y`, `--wr-density-x`, `--wr-density-text`, `--wr-density-gap` — multipliers components apply to their paddings via `calc()`.',
+        '`--wr-density-y` / `--wr-density-x` are the multipliers the ten density-aware controls put through `calc()` on their block and inline padding. `--wr-density-gap` scales the gap a LAYOUT component leaves between the controls projected into it — the controls themselves do not grow with it. `--wr-density-text` is published for your own `calc()` and nothing in the library reads it.',
       type: 'CSS custom property',
       default: '1',
     },

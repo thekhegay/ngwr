@@ -22,7 +22,7 @@
 
   <ngwr-doc-section
     title="Why ngwr provides this"
-    description="Raw `keydown` listeners need platform-aware modifier mapping (⌘ vs Ctrl), input-field exclusion, and teardown. `WrHotkey` registers a declarative combo and cleans up with the host's `DestroyRef`."
+    description="Raw `keydown` listeners need platform-aware modifier mapping (⌘ vs Ctrl), input-field exclusion, and teardown. `WrHotkey` answers all three. The `[wrHotkey]` directive is the one that cleans up for you — it unbinds on its host's `DestroyRef`. The service's `bind()` hands back a handle and leaves the lifetime to you: the service itself is root-provided, so its own teardown is the application's, and a handle never unbound outlives every component that registered it."
   />
 
   <ngwr-doc-section title="API">

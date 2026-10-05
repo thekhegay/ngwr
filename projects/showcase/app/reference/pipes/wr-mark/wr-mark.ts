@@ -52,7 +52,7 @@ export default class WrMarkPipePage {
 <!-- Empty / null query is a pass-through: -->
 <span [innerHTML]="row.name | wrMark: null"></span>`,
 
-    style: `/* Style the wrap globally — every match shares the same class. */
+    style: `/* The pipe emits a bare <mark>, so one element rule reaches every match. */
 mark {
   background: rgba(var(--wr-color-warning-rgb), 0.4);
   /* Named, not inherited: the two hosts this pipe is for — a wr-select

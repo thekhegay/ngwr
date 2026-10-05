@@ -13,7 +13,13 @@ export type WrScrollTarget = Element | string | { top: number; left?: number };
 
 /** Options accepted by {@link WrScroll} scroll methods. */
 export interface WrScrollOptions {
-  /** Pixel offset to subtract from the target — handy for sticky headers. @default 0 */
+  /**
+   * Pixel offset to subtract from the resolved target position — handy for
+   * sticky headers. No effect on `toTop()`, where the target is already 0 and
+   * the browser clamps a negative position back to the top.
+   *
+   * @default 0
+   */
   readonly offset?: number;
   /** Smooth or instant scrolling. @default true (smooth) */
   readonly smooth?: boolean;
