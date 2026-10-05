@@ -50,4 +50,12 @@ export class MyComponent {}`;
 </wr-carousel>`;
 
   protected readonly api = API.WrCarousel;
+
+  /**
+   * `<wr-carousel-slide>` has one input and it was documented nowhere. Its own
+   * table rather than a row on the carousel's: the generated map keys by class,
+   * and a hand-written row for it would be the one thing on this page nothing
+   * compares against the library.
+   */
+  protected readonly slideApi = API.WrCarouselSlide;
 }

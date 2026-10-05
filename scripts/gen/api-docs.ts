@@ -1474,6 +1474,17 @@ function check(api: Map<string, ApiEntry>): Findings {
   // says which thing it is about, or an allowance keyed the same way — see the
   // block above for why none of them is a total.
   const documentedEntries = new Set<string>();
+  /**
+   * Classes some page actually RENDERS, from `API.WrFoo`.
+   *
+   * Reported rather than gated, because a hand-written table is often the
+   * deliberate choice — a page may merge two classes into one table, or nest a
+   * directive's rows under its parent as `sub` rows, and the generated table
+   * can express neither. What the number is for is the drift: every class here
+   * is compared row by row against the library, and a class NOT here is only
+   * as right as whatever a page typed by hand.
+   */
+  const renderedClasses = new Set<string>();
   const noTable: string[] = [];
   const unnamedRows: string[] = [];
   const expressionDefaults: string[] = [];
@@ -1513,6 +1524,7 @@ function check(api: Map<string, ApiEntry>): Findings {
     // page documents an entry point whose folder it is not named after.
     const credited = [...blanked(code, true).matchAll(/\bAPI\.(Wr\w+)/g)].map(m => m[1] ?? '');
     for (const klass of credited) {
+      renderedClasses.add(klass);
       const of = api.get(klass)?.entry;
       if (of !== undefined) documentedEntries.add(of);
     }
@@ -1685,6 +1697,8 @@ function check(api: Map<string, ApiEntry>): Findings {
       `  ${typesCompared} type(s) and ${defaultsCompared} default(s) compared against a declaration;\n` +
       `  ${api.size} class(es) and ${[...api.values()].reduce((n, e) => n + e.rows.length, 0)} row(s) in generated/api.ts,` +
       ` every member the library declares read;\n` +
+      `  ${[...api.keys()].filter(k => renderedClasses.has(k)).length} of them rendered by a page,` +
+      ` ${[...api.keys()].filter(k => !renderedClasses.has(k)).length} documented by a hand-written table instead;\n` +
       `  ${byEntry.size - UNDOCUMENTED_ENTRIES.size} of ${byEntry.size} entry point(s) documented by a page,` +
       ` ${UNDOCUMENTED_ENTRIES.size} recorded as not;\n` +
       `  ${expressionDefaults.length} default(s) and ${selectorRows.length} selector row(s) not comparable, all recorded;\n` +
