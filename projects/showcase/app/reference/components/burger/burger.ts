@@ -4,7 +4,6 @@ import { WrBurger } from 'ngwr/burger';
 import { WrDrawer } from 'ngwr/drawer';
 
 import {
-  type DocApiRow,
   DocApiComponent,
   DocCodeComponent,
   DocPageComponent,
@@ -45,22 +44,4 @@ export default class BurgerPage {
 />`;
 
   protected readonly api = API.WrBurger;
-
-  protected readonly tokens: readonly DocApiRow[] = [
-    { name: '--wr-burger-size', description: 'Button square size.', type: 'length', default: '2.5rem' },
-    {
-      name: '--wr-burger-color',
-      description: 'Resting stroke color.',
-      type: 'color',
-      default: 'var(--wr-color-on-surface)',
-    },
-    {
-      name: '--wr-burger-color-opened',
-      description: 'Stroke color when open.',
-      type: 'color',
-      default: 'var(--wr-color-primary)',
-    },
-    { name: '--wr-burger-stroke-width', description: 'Line thickness.', type: 'length', default: '6px' },
-    { name: '--wr-burger-duration', description: 'Morph duration.', type: 'time', default: '0.5s' },
-  ];
 }

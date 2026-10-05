@@ -15,8 +15,13 @@ import { WR_CHECKBOX_GROUP } from './tokens';
 import type { WrCheckboxGroupContext } from './types';
 
 /**
- * Manages a group of `<wr-checkbox>` children as a single form value
- * (an array of the checked items' `value` inputs).
+ * Manages a group of `<wr-checkbox>` children as a single form value — an
+ * array of the checked items' **`checkboxValue`** inputs, not their `value`.
+ * `FormCheckboxControl` reserves `value` for the form value, so a child's
+ * boolean state is `checked` and its group identity is `checkboxValue`; a
+ * leftover static `value="x"` lands on the host as a plain DOM attribute, and
+ * every box in the group keeps the default identity `null` and toggles
+ * together.
  *
  * A signal-forms native control: it implements `FormValueControl<unknown[]>`,
  * so `[formField]` binds to its `value` model. `[(value)]` works standalone,

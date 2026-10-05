@@ -175,12 +175,22 @@ function duplicatedTables(): string[] {
       else if (full.endsWith('.ts')) {
         const src = readFileSync(full, 'utf8');
         src.split('\n').forEach((line, i) => {
-          if (/name:\s*'CSS — /.test(line)) out.push(`${relative(ROOT_PATH, full)}:${i + 1}`);
+          // Two spellings, because the first sweep only caught one. `CSS — …`
+          // is the prefixed form; a row naming the hook outright is the other,
+          // and `burger` and `cascader` were carrying five and two of those.
+          const hit = /name:\s*'CSS — /.test(line) || /name:\s*'--wr-[\w-]+'/.test(line);
+          if (hit) out.push(`${relative(ROOT_PATH, full)}:${i + 1}`);
         });
       }
     }
   };
-  walk(join(ROOT_PATH, 'projects/showcase/app'));
+  // Only `reference/components` and `bits`. The `/guides/tokens/*` pages
+  // document the THEME layer — `--wr-text-*`, `--wr-duration-*`, the colour
+  // ramp — which the generator does not catalogue, because it reads each
+  // component's own `--wr-<name>-*` hooks. Those tables are the only record
+  // of the token layer and must stay hand-written.
+  walk(join(ROOT_PATH, 'projects/showcase/app/reference/components'));
+  walk(join(ROOT_PATH, 'projects/showcase/app/bits'));
   return out;
 }
 
