@@ -348,7 +348,7 @@ export const API = {
   WrCountUp: [
     { name: "from", description: "Starting value.", type: "number", default: "0" },
     { name: "to", description: "Target value.", type: "number", required: true },
-    { name: "duration", description: "Animation duration. Units depend on `easing`: - `ease-out` — milliseconds (default 1200, min 100) - `spring` — seconds (tunes spring stiffness; default 2)", type: "number", default: "1200" },
+    { name: "duration", description: "Animation duration, in the units its easing reads, or `null` for that easing's own default: - `ease-out` — milliseconds (default 1200, min 100) - `spring` — seconds, tuning the stiffness (default 2, min 0.05)", type: "number | null", default: "null" },
     { name: "delay", description: "Optional delay (ms) before the animation starts.", type: "number", default: "0" },
     { name: "easing", description: "Animation curve.", type: "WrCountUpEasing", default: "'ease-out'" },
     { name: "trigger", description: "When to start the animation. - `'mount'` (default) — start as soon as the component is rendered. - `'visible'` — wait for the host to enter the viewport (IntersectionObserver). Useful for long pages or hero numbers below the fold.", type: "WrCountUpTrigger", default: "'mount'" },

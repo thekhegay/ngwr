@@ -41,7 +41,7 @@
     <ngwr-doc-code [code]="snippets.countUp" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; align-items: center; gap: 2rem; font-size: 3rem; font-weight: 600">
-        <wr-count-up [to]="1000" easing="spring" trigger="visible" />
+        <wr-count-up [to]="1000" easing="spring" [duration]="2" trigger="visible" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -50,7 +50,7 @@
     <ngwr-doc-code [code]="snippets.countDown" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; align-items: center; gap: 2rem; font-size: 3rem; font-weight: 600">
-        <wr-count-up [from]="60" [to]="0" direction="down" />
+        <wr-count-up [from]="0" [to]="60" direction="down" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

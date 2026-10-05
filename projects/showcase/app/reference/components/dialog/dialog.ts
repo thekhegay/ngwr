@@ -57,7 +57,7 @@ export class EditUserComponent {
 }
 
 // The class token already types the generics — no cast, no WR_DIALOG_REF needed:
-private readonly ref = inject<WrDialogRef<EditUserComponent, boolean>>(WR_DIALOG_REF);`,
+private readonly ref = inject<WrDialogRef<EditUserComponent, boolean>>(WrDialogRef);`,
     closeButton: `// The × comes for free — nothing to add. It sits in the panel's top-right
 // corner, is labelled from the \`dialog.close\` i18n key, and the title row
 // reserves the gutter so a long heading wraps instead of running under it.
