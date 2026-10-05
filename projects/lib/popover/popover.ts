@@ -309,6 +309,15 @@ export class WrPopover {
     this.isOpen.set(false);
   }
 
+  /**
+   * Flip the panel, from the TRIGGER.
+   *
+   * A control outside the trigger should use {@link open} / {@link close}
+   * instead: the click reaching it has already run the document's
+   * capture-phase outside-click listener, which closed the panel — so
+   * `toggle()` reads `false` and flips it straight back open, and the panel
+   * can never be closed from there.
+   */
   toggle(): void {
     this.isOpen.update(v => !v);
   }

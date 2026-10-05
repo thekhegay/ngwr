@@ -65,8 +65,13 @@ export default class PopoverPageComponent {
 export class PanelComponent {}`,
     exportAs: `<wr-btn [wrPopover]="card" #details="wrPopover">Details</wr-btn>
 
-<!-- Anywhere else in the same template -->
-<wr-btn (click)="details.toggle()">Toggle from here</wr-btn>
+<!-- Anywhere else in the same template. \`open()\` and \`close()\` from a
+     control OUTSIDE the trigger, never \`toggle()\`: the click that reaches
+     the button has already run the document outside-click listener, which
+     closed the panel — so \`toggle()\` reads \`false\` and flips it straight
+     back open. On the trigger itself there is no outside click and
+     \`toggle()\` is the right call. -->
+<wr-btn [disabled]="details.isOpen()" (click)="details.open()">Open</wr-btn>
 <wr-btn [disabled]="!details.isOpen()" (click)="details.close()">Close</wr-btn>`,
   };
 
