@@ -37,7 +37,7 @@ interface MajorRow {
  * exists to avoid.
  */
 const PR_GATE_NOTES: Readonly<Record<string, string>> = {
-  lint: 'ESLint, Stylelint and the repository gates in one chain — colour-list parity, unexplained physical CSS, the registry format, dead design tokens and colour-only state rules. Every stage is listed below.',
+  lint: 'ESLint, Stylelint and the repository gates in one chain — colour-list parity, unexplained physical CSS, dead design tokens and colour-only state rules. Every stage is listed below.',
   'test:coverage':
     'The vitest suite, with coverage. Specs sit beside the code they cover and assert the rendered DOM — roles, ARIA state, and the .wr-* classes, which are public API — rather than component internals.',
   'check:api-docs':
@@ -66,8 +66,6 @@ const LINT_STAGE_NOTES: Readonly<Record<string, string>> = {
     'The TypeScript colour list against the SCSS palette map. They drifted once: v8 shipped --wr-color-info and its whole modifier class while color="info" stayed a template type error.',
   'check:rtl':
     'A direction-dependent CSS property written in physical form with no rtl-ok: reason above it. Plenty of them are correct — the rule is that the reason is written down.',
-  'check:registry':
-    'The open registry items, their entryPoints against the real catalog, and schema.json against the validator that enforces it.',
   'check:tokens':
     'A --wr-* token nothing paints with. A say-why gate rather than a do-not gate: an intentionally unused token carries unused-ok: and the reason.',
   'check:color-only':

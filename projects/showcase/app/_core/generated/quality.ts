@@ -55,7 +55,7 @@ export const QUALITY = {
   entryPointsWithSpecs: 226,
 
   /** Documentation pages the showcase's route tables declare — routes with a `loadComponent`, minus the layout shell (it has `children`) and the `**` 404, neither of which is a page. NOT the prerendered-route count either: `app.routes.server.ts` sends the raw-SVG icon galleries and the legacy redirects to the client. */
-  docRoutes: 222,
+  docRoutes: 221,
 
   /** Locale catalogs the package ships, as the subpath each is imported from — `ngwr/i18n/de`. Counted from the folders under `projects/lib/i18n` that hold a catalog, so a locale added or removed moves this on its own. Region codes appear only where the script genuinely differs; every other code is a language, which a region `LOCALE_ID` falls back to. */
   locales: ["ar", "cs", "de", "en", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "sv", "tr", "uk", "vi", "zh", "zh-TW"],
@@ -70,7 +70,6 @@ export const QUALITY = {
     { name: "lint:styles", command: "stylelint \"projects/**/*.scss\"" },
     { name: "check:colors", command: "tsx scripts/check-color-parity.ts" },
     { name: "check:rtl", command: "tsx scripts/check-rtl.ts" },
-    { name: "check:registry", command: "tsx scripts/check-registry.ts" },
     { name: "check:tokens", command: "tsx scripts/check-tokens.ts" },
     { name: "check:color-only", command: "tsx scripts/check-color-only.ts" },
     { name: "check:selectors", command: "tsx scripts/gen-selectors.ts --check" },
@@ -78,7 +77,7 @@ export const QUALITY = {
 
   /** Every `package.json` script `.github/workflows/ci.yml` runs on a pull request, in order. Parsed from the workflow, so a gate added or removed there moves this list. */
   prGates: [
-    { name: "lint", command: "ng lint && eslint scripts && pnpm lint:styles && pnpm check:colors && pnpm check:rtl && pnpm check:registry && pnpm check:tokens && pnpm check:color-only && pnpm check:selectors" },
+    { name: "lint", command: "ng lint && eslint scripts && pnpm lint:styles && pnpm check:colors && pnpm check:rtl && pnpm check:tokens && pnpm check:color-only && pnpm check:selectors" },
     { name: "test:coverage", command: "ng test lib --coverage --coverage-reporters lcovonly text-summary" },
     { name: "check:api-docs", command: "tsx scripts/gen-api-docs.ts --check" },
     { name: "check:llms", command: "tsx scripts/gen-ai-assets.ts --check" },

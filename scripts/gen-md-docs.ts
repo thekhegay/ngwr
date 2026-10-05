@@ -63,7 +63,7 @@ const ROUTES_JSON = join(DIST, 'prerendered-routes.json');
  * `/guides/ssr`, `/reference/components/graph` and `/reference/components/schema-form`,
  * none of which raised it, and `/reference/components/editor`, which did.
  */
-const MIN_PAGES = 215;
+const MIN_PAGES = 214;
 
 /**
  * Doc pages that will never have a twin, named so the decision is on the record.

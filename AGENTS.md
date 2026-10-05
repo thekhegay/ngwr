@@ -236,8 +236,7 @@ one component folder. Reach for them instead of hand-rolling:
   nothing downstream moved. There were exactly two in the library and neither is
   left; prefer double quotes for any Sass string that has to contain one.
   **`wrThemeTokens()` is the palette recipe in TypeScript** — the same arithmetic
-  as `_colors.scss`, for a theme chosen at RUNTIME (a builder, a tenant colour, a
-  registry preset). It emits **seven tokens per intent, not twelve**: the tint and
+  as `_colors.scss`, for a theme chosen at RUNTIME (a builder, a tenant colour). It emits **seven tokens per intent, not twelve**: the tint and
   ink layer is written in terms of `var()`, so redefining the base and its `-rgb`
   re-resolves `-soft`, `-soft-border`, `-soft-contrast`, `-active` and `-ink` on
   its own, and emitting those would freeze values the stylesheet is meant to keep
@@ -249,10 +248,8 @@ one component folder. Reach for them instead of hand-rolling:
   shipped token (35 across the five intents when this was written — the run
   prints both figures); it caught a missing second modulo in `hslToRgb` on its first
   run (`((h % 360) + 360) / 60` reads as normalisation and sends 222° to sector
-  9.7 instead of 3.7, so only greys survived). The three `registry/items/theme-*`
-  presets are GENERATED from a seed table by `pnpm gen:theme-presets` and
-  re-derived by `check:registry`; `/guides/tokens/builder` exports both a CSS
-  block and a ready preset. **What this does not cover:** `-ink` shares are
+  9.7 instead of 3.7, so only greys survived). `/guides/tokens/builder` exports
+  the tokens as a CSS block. **What this does not cover:** `-ink` shares are
   calibrated against the SHIPPED bases, so a far-off seed inherits shares that no
   longer guarantee 5:1, and `check:theme` will not notice — it compares the
   shipped intents, not an arbitrary seed.
@@ -478,7 +475,6 @@ controls projected into it — the controls themselves do not grow with it.
 | Contrast sweep    | `pnpm check:contrast` (axe in a real Chromium, both themes × both `prefers-contrast` modes — **nightly**, not a PR gate; `--theme=` / `--contrast=` narrow it) |
 | State a11y        | `pnpm check:state-a11y` (the FULL axe set INSIDE hovers / overlays — **nightly**)                   |
 | RTL source gate   | `pnpm check:rtl` (physical direction-dependent CSS with no `rtl-ok:` reason — a `pnpm lint` stage)  |
-| Registry gate     | `pnpm check:registry` (the open item format under `registry/` — also a `pnpm lint` stage)           |
 | Dead-token gate   | `pnpm check:tokens` (a `--wr-*` nothing paints with, unless it says `unused-ok:` — a `pnpm lint` stage) |
 | Colour-only gate  | `pnpm check:color-only` (a state modifier, hand-written or unrolled from an `@each`, whose own declarations are all colour, with no `color-ok:` reason; a loop whose list it cannot resolve, or a modifier still interpolated after unrolling, needs one too — a `pnpm lint` stage) |
 | Theme parity      | `pnpm check:theme` (`wrThemeTokens()` vs the compiled `_colors.scss` — a CI step after `build:showcase`) |
@@ -683,9 +679,7 @@ they are installed.
 `eslint scripts` `&&` `stylelint` `&&` `check:colors`
 (`scripts/check-color-parity.ts`) `&&` `check:rtl` (`scripts/check-rtl.ts` — a
 physical, direction-dependent CSS property with no `rtl-ok:` reason within three
-lines above it) `&&` `check:registry` (`scripts/check-registry.ts` — the items
-under `registry/`, their `entryPoints` against the real catalog, and
-`schema.json` against the validator that enforces it) `&&` `check:tokens`
+lines above it) `&&` `check:tokens`
 (`scripts/check-tokens.ts` — a token declared in `theme/styles/` that nothing in
 `projects/lib` or the showcase's own stylesheets writes `var()` for) `&&`
 `check:color-only` (`scripts/check-color-only.ts` — a state or intent modifier
@@ -1038,9 +1032,9 @@ single linear commit. After a merge, resync local main:
 `git fetch --prune origin && git merge --ff-only origin/main`.
 
 **No assistant artifacts in the repo.** `.claude/` is gitignored; keep AI
-tooling files and AI mentions out of committed content. (`AGENTS.md` plus the
-`CLAUDE.md` / `GEMINI.md` pointers are the sanctioned exception — they're the
-cross-tool instruction standard, one source of truth in `AGENTS.md`.)
+tooling files and AI mentions out of committed content. This file is the one
+exception and the only one: there is no `CLAUDE.md` and no `GEMINI.md` pointer
+any more, so a tool that wants the instructions reads `AGENTS.md` directly.
 
 **Scope discipline.** Do exactly what's asked — don't restructure, standardize
 CI, bump versions, or touch adjacent areas unprompted. If a broader change
