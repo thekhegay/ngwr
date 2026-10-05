@@ -105,358 +105,827 @@
     "migrations": "./schematics/migrations.json"
   },
   "exports": {
+    "./package.json": {
+      "default": "./package.json"
+    },
     "./schematics/*": "./schematics/*",
     "./i18n/*.json": "./i18n/*.json",
     ".": {
-      "sass": "./styles.scss"
+      "sass": "./styles.scss",
+      "default": "./public-api.ts"
     },
     "./action-sheet": {
-      "sass": "./action-sheet/styles/_index.scss"
+      "sass": "./action-sheet/styles/_index.scss",
+      "default": "./action-sheet/public-api.ts"
+    },
+    "./action-sheet/testing": {
+      "default": "./action-sheet/testing/public-api.ts"
     },
     "./affix": {
-      "sass": "./affix/styles/_index.scss"
+      "sass": "./affix/styles/_index.scss",
+      "default": "./affix/public-api.ts"
     },
     "./alert": {
-      "sass": "./alert/styles/_index.scss"
+      "sass": "./alert/styles/_index.scss",
+      "default": "./alert/public-api.ts"
     },
     "./anchor": {
-      "sass": "./anchor/styles/_index.scss"
+      "sass": "./anchor/styles/_index.scss",
+      "default": "./anchor/public-api.ts"
+    },
+    "./aurora": {
+      "sass": "./aurora/styles/_index.scss",
+      "default": "./aurora/public-api.ts"
+    },
+    "./avatar": {
+      "sass": "./avatar/styles/_index.scss",
+      "default": "./avatar/public-api.ts"
+    },
+    "./back-top": {
+      "sass": "./back-top/styles/_index.scss",
+      "default": "./back-top/public-api.ts"
+    },
+    "./badge": {
+      "sass": "./badge/styles/_index.scss",
+      "default": "./badge/public-api.ts"
+    },
+    "./bar-chart": {
+      "sass": "./bar-chart/styles/_index.scss",
+      "default": "./bar-chart/public-api.ts"
+    },
+    "./bar-chart/testing": {
+      "default": "./bar-chart/testing/public-api.ts"
+    },
+    "./blur-text": {
+      "sass": "./blur-text/styles/_index.scss",
+      "default": "./blur-text/public-api.ts"
+    },
+    "./blur-text/testing": {
+      "default": "./blur-text/testing/public-api.ts"
+    },
+    "./border-glow": {
+      "sass": "./border-glow/styles/_index.scss",
+      "default": "./border-glow/public-api.ts"
+    },
+    "./border-glow/testing": {
+      "default": "./border-glow/testing/public-api.ts"
+    },
+    "./breadcrumbs": {
+      "sass": "./breadcrumbs/styles/_index.scss",
+      "default": "./breadcrumbs/public-api.ts"
+    },
+    "./burger": {
+      "sass": "./burger/styles/_index.scss",
+      "default": "./burger/public-api.ts"
+    },
+    "./button": {
+      "sass": "./button/styles/_index.scss",
+      "default": "./button/public-api.ts"
+    },
+    "./button/testing": {
+      "default": "./button/testing/public-api.ts"
+    },
+    "./calendar": {
+      "sass": "./calendar/styles/_index.scss",
+      "default": "./calendar/public-api.ts"
+    },
+    "./calendar/testing": {
+      "default": "./calendar/testing/public-api.ts"
+    },
+    "./calendar-heatmap": {
+      "sass": "./calendar-heatmap/styles/_index.scss",
+      "default": "./calendar-heatmap/public-api.ts"
+    },
+    "./calendar-heatmap/testing": {
+      "default": "./calendar-heatmap/testing/public-api.ts"
+    },
+    "./card": {
+      "sass": "./card/styles/_index.scss",
+      "default": "./card/public-api.ts"
+    },
+    "./carousel": {
+      "sass": "./carousel/styles/_index.scss",
+      "default": "./carousel/public-api.ts"
+    },
+    "./carousel/testing": {
+      "default": "./carousel/testing/public-api.ts"
+    },
+    "./cascader": {
+      "sass": "./cascader/styles/_index.scss",
+      "default": "./cascader/public-api.ts"
+    },
+    "./cascader/testing": {
+      "default": "./cascader/testing/public-api.ts"
+    },
+    "./checkbox": {
+      "sass": "./checkbox/styles/_index.scss",
+      "default": "./checkbox/public-api.ts"
+    },
+    "./checkbox/testing": {
+      "default": "./checkbox/testing/public-api.ts"
+    },
+    "./circular-text": {
+      "sass": "./circular-text/styles/_index.scss",
+      "default": "./circular-text/public-api.ts"
+    },
+    "./circular-text/testing": {
+      "default": "./circular-text/testing/public-api.ts"
+    },
+    "./click-spark": {
+      "sass": "./click-spark/styles/_index.scss",
+      "default": "./click-spark/public-api.ts"
+    },
+    "./clipboard": {
+      "default": "./clipboard/public-api.ts"
+    },
+    "./collapse": {
+      "sass": "./collapse/styles/_index.scss",
+      "default": "./collapse/public-api.ts"
+    },
+    "./collapse/testing": {
+      "default": "./collapse/testing/public-api.ts"
+    },
+    "./color-picker": {
+      "sass": "./color-picker/styles/_index.scss",
+      "default": "./color-picker/public-api.ts"
+    },
+    "./color-picker/testing": {
+      "default": "./color-picker/testing/public-api.ts"
+    },
+    "./command-palette": {
+      "sass": "./command-palette/styles/_index.scss",
+      "default": "./command-palette/public-api.ts"
+    },
+    "./command-palette/testing": {
+      "default": "./command-palette/testing/public-api.ts"
+    },
+    "./compare": {
+      "sass": "./compare/styles/_index.scss",
+      "default": "./compare/public-api.ts"
+    },
+    "./confetti": {
+      "default": "./confetti/public-api.ts"
+    },
+    "./config": {
+      "default": "./config/public-api.ts"
+    },
+    "./context-menu": {
+      "sass": "./context-menu/styles/_index.scss",
+      "default": "./context-menu/public-api.ts"
+    },
+    "./context-menu/testing": {
+      "default": "./context-menu/testing/public-api.ts"
+    },
+    "./cookie": {
+      "default": "./cookie/public-api.ts"
+    },
+    "./counter": {
+      "sass": "./counter/styles/_index.scss",
+      "default": "./counter/public-api.ts"
+    },
+    "./date": {
+      "default": "./date/public-api.ts"
+    },
+    "./date/adapters/fns": {
+      "default": "./date/adapters/fns/public-api.ts"
+    },
+    "./date/adapters/luxon": {
+      "default": "./date/adapters/luxon/public-api.ts"
+    },
+    "./date-picker": {
+      "sass": "./date-picker/styles/_index.scss",
+      "default": "./date-picker/public-api.ts"
+    },
+    "./date-picker/testing": {
+      "default": "./date-picker/testing/public-api.ts"
+    },
+    "./decrypt-text": {
+      "sass": "./decrypt-text/styles/_index.scss",
+      "default": "./decrypt-text/public-api.ts"
+    },
+    "./decrypt-text/testing": {
+      "default": "./decrypt-text/testing/public-api.ts"
+    },
+    "./density": {
+      "sass": "./density/styles/_index.scss",
+      "default": "./density/public-api.ts"
+    },
+    "./descriptions": {
+      "sass": "./descriptions/styles/_index.scss",
+      "default": "./descriptions/public-api.ts"
+    },
+    "./dialog": {
+      "sass": "./dialog/styles/_index.scss",
+      "default": "./dialog/public-api.ts"
+    },
+    "./dialog/testing": {
+      "default": "./dialog/testing/public-api.ts"
+    },
+    "./directives": {
+      "default": "./directives/public-api.ts"
+    },
+    "./divider": {
+      "sass": "./divider/styles/_index.scss",
+      "default": "./divider/public-api.ts"
+    },
+    "./donut-chart": {
+      "sass": "./donut-chart/styles/_index.scss",
+      "default": "./donut-chart/public-api.ts"
+    },
+    "./donut-chart/testing": {
+      "default": "./donut-chart/testing/public-api.ts"
+    },
+    "./drag-drop": {
+      "sass": "./drag-drop/styles/_index.scss",
+      "default": "./drag-drop/public-api.ts"
+    },
+    "./drawer": {
+      "sass": "./drawer/styles/_index.scss",
+      "default": "./drawer/public-api.ts"
+    },
+    "./drawer/testing": {
+      "default": "./drawer/testing/public-api.ts"
+    },
+    "./dropdown": {
+      "sass": "./dropdown/styles/_index.scss",
+      "default": "./dropdown/public-api.ts"
+    },
+    "./dropdown/testing": {
+      "default": "./dropdown/testing/public-api.ts"
+    },
+    "./editor": {
+      "sass": "./editor/styles/_index.scss",
+      "default": "./editor/public-api.ts"
+    },
+    "./editor/testing": {
+      "default": "./editor/testing/public-api.ts"
+    },
+    "./empty": {
+      "sass": "./empty/styles/_index.scss",
+      "default": "./empty/public-api.ts"
+    },
+    "./event-calendar": {
+      "sass": "./event-calendar/styles/_index.scss",
+      "default": "./event-calendar/public-api.ts"
+    },
+    "./event-calendar/testing": {
+      "default": "./event-calendar/testing/public-api.ts"
+    },
+    "./falling-text": {
+      "sass": "./falling-text/styles/_index.scss",
+      "default": "./falling-text/public-api.ts"
+    },
+    "./falling-text/testing": {
+      "default": "./falling-text/testing/public-api.ts"
+    },
+    "./file-upload": {
+      "sass": "./file-upload/styles/_index.scss",
+      "default": "./file-upload/public-api.ts"
+    },
+    "./file-upload/testing": {
+      "default": "./file-upload/testing/public-api.ts"
+    },
+    "./form": {
+      "sass": "./form/styles/_index.scss",
+      "default": "./form/public-api.ts"
+    },
+    "./form/testing": {
+      "default": "./form/testing/public-api.ts"
+    },
+    "./fuzzy-text": {
+      "default": "./fuzzy-text/public-api.ts"
+    },
+    "./fuzzy-text/testing": {
+      "default": "./fuzzy-text/testing/public-api.ts"
+    },
+    "./gauge": {
+      "sass": "./gauge/styles/_index.scss",
+      "default": "./gauge/public-api.ts"
+    },
+    "./gauge/testing": {
+      "default": "./gauge/testing/public-api.ts"
+    },
+    "./glitch-text": {
+      "sass": "./glitch-text/styles/_index.scss",
+      "default": "./glitch-text/public-api.ts"
+    },
+    "./glitch-text/testing": {
+      "default": "./glitch-text/testing/public-api.ts"
+    },
+    "./gradient-text": {
+      "sass": "./gradient-text/styles/_index.scss",
+      "default": "./gradient-text/public-api.ts"
+    },
+    "./gradient-text/testing": {
+      "default": "./gradient-text/testing/public-api.ts"
+    },
+    "./graph": {
+      "sass": "./graph/styles/_index.scss",
+      "default": "./graph/public-api.ts"
+    },
+    "./graph/testing": {
+      "default": "./graph/testing/public-api.ts"
+    },
+    "./hotkey": {
+      "default": "./hotkey/public-api.ts"
+    },
+    "./i18n": {
+      "default": "./i18n/public-api.ts"
+    },
+    "./i18n/ar": {
+      "default": "./i18n/ar/public-api.ts"
+    },
+    "./i18n/cs": {
+      "default": "./i18n/cs/public-api.ts"
+    },
+    "./i18n/de": {
+      "default": "./i18n/de/public-api.ts"
+    },
+    "./i18n/en": {
+      "default": "./i18n/en/public-api.ts"
+    },
+    "./i18n/es": {
+      "default": "./i18n/es/public-api.ts"
+    },
+    "./i18n/fr": {
+      "default": "./i18n/fr/public-api.ts"
+    },
+    "./i18n/he": {
+      "default": "./i18n/he/public-api.ts"
+    },
+    "./i18n/hi": {
+      "default": "./i18n/hi/public-api.ts"
+    },
+    "./i18n/id": {
+      "default": "./i18n/id/public-api.ts"
+    },
+    "./i18n/it": {
+      "default": "./i18n/it/public-api.ts"
+    },
+    "./i18n/ja": {
+      "default": "./i18n/ja/public-api.ts"
+    },
+    "./i18n/ko": {
+      "default": "./i18n/ko/public-api.ts"
+    },
+    "./i18n/nl": {
+      "default": "./i18n/nl/public-api.ts"
+    },
+    "./i18n/pl": {
+      "default": "./i18n/pl/public-api.ts"
+    },
+    "./i18n/pt": {
+      "default": "./i18n/pt/public-api.ts"
+    },
+    "./i18n/ru": {
+      "default": "./i18n/ru/public-api.ts"
+    },
+    "./i18n/sv": {
+      "default": "./i18n/sv/public-api.ts"
+    },
+    "./i18n/tr": {
+      "default": "./i18n/tr/public-api.ts"
+    },
+    "./i18n/uk": {
+      "default": "./i18n/uk/public-api.ts"
+    },
+    "./i18n/vi": {
+      "default": "./i18n/vi/public-api.ts"
+    },
+    "./i18n/zh": {
+      "default": "./i18n/zh/public-api.ts"
+    },
+    "./i18n/zh-TW": {
+      "default": "./i18n/zh-TW/public-api.ts"
+    },
+    "./icon": {
+      "sass": "./icon/styles/_index.scss",
+      "default": "./icon/public-api.ts"
+    },
+    "./icon/adapters/feather": {
+      "default": "./icon/adapters/feather/public-api.ts"
+    },
+    "./icon/adapters/lucide": {
+      "default": "./icon/adapters/lucide/public-api.ts"
+    },
+    "./image-cropper": {
+      "sass": "./image-cropper/styles/_index.scss",
+      "default": "./image-cropper/public-api.ts"
+    },
+    "./image-cropper/testing": {
+      "default": "./image-cropper/testing/public-api.ts"
+    },
+    "./input": {
+      "sass": "./input/styles/_index.scss",
+      "default": "./input/public-api.ts"
+    },
+    "./input/testing": {
+      "default": "./input/testing/public-api.ts"
+    },
+    "./input-number": {
+      "sass": "./input-number/styles/_index.scss",
+      "default": "./input-number/public-api.ts"
+    },
+    "./input-number/testing": {
+      "default": "./input-number/testing/public-api.ts"
+    },
+    "./input-otp": {
+      "sass": "./input-otp/styles/_index.scss",
+      "default": "./input-otp/public-api.ts"
+    },
+    "./input-otp/testing": {
+      "default": "./input-otp/testing/public-api.ts"
+    },
+    "./keyboard": {
+      "sass": "./keyboard/styles/_index.scss",
+      "default": "./keyboard/public-api.ts"
+    },
+    "./knob": {
+      "sass": "./knob/styles/_index.scss",
+      "default": "./knob/public-api.ts"
+    },
+    "./knob/testing": {
+      "default": "./knob/testing/public-api.ts"
+    },
+    "./layout": {
+      "sass": "./layout/styles/_index.scss",
+      "default": "./layout/public-api.ts"
+    },
+    "./lightbox": {
+      "sass": "./lightbox/styles/_index.scss",
+      "default": "./lightbox/public-api.ts"
+    },
+    "./lightbox/testing": {
+      "default": "./lightbox/testing/public-api.ts"
+    },
+    "./line-chart": {
+      "sass": "./line-chart/styles/_index.scss",
+      "default": "./line-chart/public-api.ts"
+    },
+    "./line-chart/testing": {
+      "default": "./line-chart/testing/public-api.ts"
+    },
+    "./list": {
+      "sass": "./list/styles/_index.scss",
+      "default": "./list/public-api.ts"
+    },
+    "./loading-bar": {
+      "sass": "./loading-bar/styles/_index.scss",
+      "default": "./loading-bar/public-api.ts"
+    },
+    "./loading-bar/router": {
+      "default": "./loading-bar/router/public-api.ts"
+    },
+    "./markdown": {
+      "sass": "./markdown/styles/_index.scss",
+      "default": "./markdown/public-api.ts"
+    },
+    "./markdown/testing": {
+      "default": "./markdown/testing/public-api.ts"
+    },
+    "./marquee": {
+      "sass": "./marquee/styles/_index.scss",
+      "default": "./marquee/public-api.ts"
+    },
+    "./marquee/testing": {
+      "default": "./marquee/testing/public-api.ts"
+    },
+    "./media": {
+      "default": "./media/public-api.ts"
+    },
+    "./mention": {
+      "sass": "./mention/styles/_index.scss",
+      "default": "./mention/public-api.ts"
+    },
+    "./mention/testing": {
+      "default": "./mention/testing/public-api.ts"
+    },
+    "./meta": {
+      "default": "./meta/public-api.ts"
+    },
+    "./meter-group": {
+      "sass": "./meter-group/styles/_index.scss",
+      "default": "./meter-group/public-api.ts"
+    },
+    "./meter-group/testing": {
+      "default": "./meter-group/testing/public-api.ts"
+    },
+    "./overlay": {
+      "sass": "./overlay/styles/_index.scss",
+      "default": "./overlay/public-api.ts"
+    },
+    "./page-header": {
+      "sass": "./page-header/styles/_index.scss",
+      "default": "./page-header/public-api.ts"
+    },
+    "./pagination": {
+      "sass": "./pagination/styles/_index.scss",
+      "default": "./pagination/public-api.ts"
+    },
+    "./pagination/testing": {
+      "default": "./pagination/testing/public-api.ts"
+    },
+    "./pipes": {
+      "default": "./pipes/public-api.ts"
+    },
+    "./platform": {
+      "default": "./platform/public-api.ts"
+    },
+    "./popconfirm": {
+      "sass": "./popconfirm/styles/_index.scss",
+      "default": "./popconfirm/public-api.ts"
+    },
+    "./popconfirm/testing": {
+      "default": "./popconfirm/testing/public-api.ts"
+    },
+    "./popover": {
+      "sass": "./popover/styles/_index.scss",
+      "default": "./popover/public-api.ts"
+    },
+    "./popover/testing": {
+      "default": "./popover/testing/public-api.ts"
+    },
+    "./progress": {
+      "sass": "./progress/styles/_index.scss",
+      "default": "./progress/public-api.ts"
+    },
+    "./pull-to-refresh": {
+      "sass": "./pull-to-refresh/styles/_index.scss",
+      "default": "./pull-to-refresh/public-api.ts"
+    },
+    "./qr": {
+      "sass": "./qr/styles/_index.scss",
+      "default": "./qr/public-api.ts"
+    },
+    "./radio": {
+      "sass": "./radio/styles/_index.scss",
+      "default": "./radio/public-api.ts"
+    },
+    "./radio/testing": {
+      "default": "./radio/testing/public-api.ts"
+    },
+    "./rating": {
+      "sass": "./rating/styles/_index.scss",
+      "default": "./rating/public-api.ts"
+    },
+    "./rating/testing": {
+      "default": "./rating/testing/public-api.ts"
+    },
+    "./result": {
+      "sass": "./result/styles/_index.scss",
+      "default": "./result/public-api.ts"
+    },
+    "./rotating-text": {
+      "sass": "./rotating-text/styles/_index.scss",
+      "default": "./rotating-text/public-api.ts"
+    },
+    "./rotating-text/testing": {
+      "default": "./rotating-text/testing/public-api.ts"
+    },
+    "./schema-form": {
+      "sass": "./schema-form/styles/_index.scss",
+      "default": "./schema-form/public-api.ts"
+    },
+    "./scroll": {
+      "default": "./scroll/public-api.ts"
+    },
+    "./segmented": {
+      "sass": "./segmented/styles/_index.scss",
+      "default": "./segmented/public-api.ts"
+    },
+    "./segmented/testing": {
+      "default": "./segmented/testing/public-api.ts"
+    },
+    "./select": {
+      "sass": "./select/styles/_index.scss",
+      "default": "./select/public-api.ts"
+    },
+    "./select/testing": {
+      "default": "./select/testing/public-api.ts"
+    },
+    "./shiny-text": {
+      "sass": "./shiny-text/styles/_index.scss",
+      "default": "./shiny-text/public-api.ts"
+    },
+    "./shiny-text/testing": {
+      "default": "./shiny-text/testing/public-api.ts"
+    },
+    "./sidebar": {
+      "sass": "./sidebar/styles/_index.scss",
+      "default": "./sidebar/public-api.ts"
+    },
+    "./skeleton": {
+      "sass": "./skeleton/styles/_index.scss",
+      "default": "./skeleton/public-api.ts"
+    },
+    "./slider": {
+      "sass": "./slider/styles/_index.scss",
+      "default": "./slider/public-api.ts"
+    },
+    "./slider/testing": {
+      "default": "./slider/testing/public-api.ts"
+    },
+    "./sparkline": {
+      "sass": "./sparkline/styles/_index.scss",
+      "default": "./sparkline/public-api.ts"
+    },
+    "./sparkline/testing": {
+      "default": "./sparkline/testing/public-api.ts"
+    },
+    "./speed-dial": {
+      "sass": "./speed-dial/styles/_index.scss",
+      "default": "./speed-dial/public-api.ts"
+    },
+    "./speed-dial/testing": {
+      "default": "./speed-dial/testing/public-api.ts"
+    },
+    "./spinner": {
+      "sass": "./spinner/styles/_index.scss",
+      "default": "./spinner/public-api.ts"
+    },
+    "./splash-cursor": {
+      "sass": "./splash-cursor/styles/_index.scss",
+      "default": "./splash-cursor/public-api.ts"
+    },
+    "./splash-cursor/testing": {
+      "default": "./splash-cursor/testing/public-api.ts"
+    },
+    "./split-text": {
+      "sass": "./split-text/styles/_index.scss",
+      "default": "./split-text/public-api.ts"
+    },
+    "./split-text/testing": {
+      "default": "./split-text/testing/public-api.ts"
+    },
+    "./splitter": {
+      "sass": "./splitter/styles/_index.scss",
+      "default": "./splitter/public-api.ts"
+    },
+    "./splitter/testing": {
+      "default": "./splitter/testing/public-api.ts"
+    },
+    "./spotlight-card": {
+      "sass": "./spotlight-card/styles/_index.scss",
+      "default": "./spotlight-card/public-api.ts"
+    },
+    "./spotlight-card/testing": {
+      "default": "./spotlight-card/testing/public-api.ts"
+    },
+    "./squircle": {
+      "sass": "./squircle/styles/_index.scss",
+      "default": "./squircle/public-api.ts"
+    },
+    "./star-border": {
+      "sass": "./star-border/styles/_index.scss",
+      "default": "./star-border/public-api.ts"
+    },
+    "./star-border/testing": {
+      "default": "./star-border/testing/public-api.ts"
+    },
+    "./statistic": {
+      "sass": "./statistic/styles/_index.scss",
+      "default": "./statistic/public-api.ts"
+    },
+    "./stepper": {
+      "sass": "./stepper/styles/_index.scss",
+      "default": "./stepper/public-api.ts"
+    },
+    "./stepper/testing": {
+      "default": "./stepper/testing/public-api.ts"
+    },
+    "./storage": {
+      "default": "./storage/public-api.ts"
+    },
+    "./switch": {
+      "sass": "./switch/styles/_index.scss",
+      "default": "./switch/public-api.ts"
+    },
+    "./switch/testing": {
+      "default": "./switch/testing/public-api.ts"
+    },
+    "./table": {
+      "sass": "./table/styles/_index.scss",
+      "default": "./table/public-api.ts"
+    },
+    "./table/testing": {
+      "default": "./table/testing/public-api.ts"
+    },
+    "./tabs": {
+      "sass": "./tabs/styles/_index.scss",
+      "default": "./tabs/public-api.ts"
+    },
+    "./tabs/router": {
+      "default": "./tabs/router/public-api.ts"
+    },
+    "./tabs/testing": {
+      "default": "./tabs/testing/public-api.ts"
+    },
+    "./textarea": {
+      "sass": "./textarea/styles/_index.scss",
+      "default": "./textarea/public-api.ts"
+    },
+    "./textarea/testing": {
+      "default": "./textarea/testing/public-api.ts"
+    },
+    "./theme": {
+      "sass": "./theme/_index.scss",
+      "default": "./theme/public-api.ts"
+    },
+    "./tilt-card": {
+      "sass": "./tilt-card/styles/_index.scss",
+      "default": "./tilt-card/public-api.ts"
+    },
+    "./tilt-card/testing": {
+      "default": "./tilt-card/testing/public-api.ts"
+    },
+    "./timeline": {
+      "sass": "./timeline/styles/_index.scss",
+      "default": "./timeline/public-api.ts"
+    },
+    "./toast": {
+      "sass": "./toast/styles/_index.scss",
+      "default": "./toast/public-api.ts"
+    },
+    "./toast/testing": {
+      "default": "./toast/testing/public-api.ts"
+    },
+    "./toolbar": {
+      "sass": "./toolbar/styles/_index.scss",
+      "default": "./toolbar/public-api.ts"
+    },
+    "./tour": {
+      "sass": "./tour/styles/_index.scss",
+      "default": "./tour/public-api.ts"
+    },
+    "./tour/testing": {
+      "default": "./tour/testing/public-api.ts"
+    },
+    "./transfer": {
+      "sass": "./transfer/styles/_index.scss",
+      "default": "./transfer/public-api.ts"
+    },
+    "./transfer/testing": {
+      "default": "./transfer/testing/public-api.ts"
+    },
+    "./tree": {
+      "sass": "./tree/styles/_index.scss",
+      "default": "./tree/public-api.ts"
+    },
+    "./tree/testing": {
+      "default": "./tree/testing/public-api.ts"
+    },
+    "./typewriter": {
+      "sass": "./typewriter/styles/_index.scss",
+      "default": "./typewriter/public-api.ts"
+    },
+    "./typewriter/testing": {
+      "default": "./typewriter/testing/public-api.ts"
+    },
+    "./typography": {
+      "sass": "./typography/styles/_index.scss",
+      "default": "./typography/public-api.ts"
+    },
+    "./utils": {
+      "default": "./utils/public-api.ts"
+    },
+    "./validators": {
+      "default": "./validators/public-api.ts"
+    },
+    "./version": {
+      "default": "./version/public-api.ts"
+    },
+    "./virtual-scroll": {
+      "sass": "./virtual-scroll/styles/_index.scss",
+      "default": "./virtual-scroll/public-api.ts"
+    },
+    "./waves": {
+      "sass": "./waves/styles/_index.scss",
+      "default": "./waves/public-api.ts"
+    },
+    "./waves/testing": {
+      "default": "./waves/testing/public-api.ts"
+    },
+    "./window": {
+      "sass": "./window/styles/_index.scss",
+      "default": "./window/public-api.ts"
+    },
+    "./window/testing": {
+      "default": "./window/testing/public-api.ts"
     },
     "./animations": {
       "sass": "./styles/_animations.scss"
     },
-    "./aurora": {
-      "sass": "./aurora/styles/_index.scss"
-    },
-    "./avatar": {
-      "sass": "./avatar/styles/_index.scss"
-    },
-    "./back-top": {
-      "sass": "./back-top/styles/_index.scss"
-    },
-    "./badge": {
-      "sass": "./badge/styles/_index.scss"
-    },
-    "./bar-chart": {
-      "sass": "./bar-chart/styles/_index.scss"
-    },
-    "./blur-text": {
-      "sass": "./blur-text/styles/_index.scss"
-    },
-    "./border-glow": {
-      "sass": "./border-glow/styles/_index.scss"
-    },
-    "./breadcrumbs": {
-      "sass": "./breadcrumbs/styles/_index.scss"
-    },
     "./breakpoints": {
       "sass": "./styles/_breakpoints.scss"
-    },
-    "./burger": {
-      "sass": "./burger/styles/_index.scss"
-    },
-    "./button": {
-      "sass": "./button/styles/_index.scss"
-    },
-    "./calendar": {
-      "sass": "./calendar/styles/_index.scss"
-    },
-    "./calendar-heatmap": {
-      "sass": "./calendar-heatmap/styles/_index.scss"
-    },
-    "./card": {
-      "sass": "./card/styles/_index.scss"
-    },
-    "./carousel": {
-      "sass": "./carousel/styles/_index.scss"
-    },
-    "./cascader": {
-      "sass": "./cascader/styles/_index.scss"
-    },
-    "./checkbox": {
-      "sass": "./checkbox/styles/_index.scss"
-    },
-    "./circular-text": {
-      "sass": "./circular-text/styles/_index.scss"
-    },
-    "./click-spark": {
-      "sass": "./click-spark/styles/_index.scss"
-    },
-    "./collapse": {
-      "sass": "./collapse/styles/_index.scss"
-    },
-    "./color-picker": {
-      "sass": "./color-picker/styles/_index.scss"
-    },
-    "./command-palette": {
-      "sass": "./command-palette/styles/_index.scss"
-    },
-    "./compare": {
-      "sass": "./compare/styles/_index.scss"
-    },
-    "./context-menu": {
-      "sass": "./context-menu/styles/_index.scss"
-    },
-    "./counter": {
-      "sass": "./counter/styles/_index.scss"
-    },
-    "./date-picker": {
-      "sass": "./date-picker/styles/_index.scss"
-    },
-    "./decrypt-text": {
-      "sass": "./decrypt-text/styles/_index.scss"
-    },
-    "./density": {
-      "sass": "./density/styles/_index.scss"
-    },
-    "./descriptions": {
-      "sass": "./descriptions/styles/_index.scss"
-    },
-    "./dialog": {
-      "sass": "./dialog/styles/_index.scss"
-    },
-    "./divider": {
-      "sass": "./divider/styles/_index.scss"
-    },
-    "./donut-chart": {
-      "sass": "./donut-chart/styles/_index.scss"
-    },
-    "./drag-drop": {
-      "sass": "./drag-drop/styles/_index.scss"
-    },
-    "./drawer": {
-      "sass": "./drawer/styles/_index.scss"
-    },
-    "./dropdown": {
-      "sass": "./dropdown/styles/_index.scss"
-    },
-    "./editor": {
-      "sass": "./editor/styles/_index.scss"
-    },
-    "./empty": {
-      "sass": "./empty/styles/_index.scss"
-    },
-    "./event-calendar": {
-      "sass": "./event-calendar/styles/_index.scss"
-    },
-    "./falling-text": {
-      "sass": "./falling-text/styles/_index.scss"
-    },
-    "./file-upload": {
-      "sass": "./file-upload/styles/_index.scss"
-    },
-    "./form": {
-      "sass": "./form/styles/_index.scss"
-    },
-    "./gauge": {
-      "sass": "./gauge/styles/_index.scss"
-    },
-    "./glitch-text": {
-      "sass": "./glitch-text/styles/_index.scss"
-    },
-    "./gradient-text": {
-      "sass": "./gradient-text/styles/_index.scss"
-    },
-    "./graph": {
-      "sass": "./graph/styles/_index.scss"
     },
     "./grid": {
       "sass": "./styles/_grid.scss"
     },
-    "./icon": {
-      "sass": "./icon/styles/_index.scss"
-    },
-    "./image-cropper": {
-      "sass": "./image-cropper/styles/_index.scss"
-    },
-    "./input": {
-      "sass": "./input/styles/_index.scss"
-    },
-    "./input-number": {
-      "sass": "./input-number/styles/_index.scss"
-    },
-    "./input-otp": {
-      "sass": "./input-otp/styles/_index.scss"
-    },
-    "./keyboard": {
-      "sass": "./keyboard/styles/_index.scss"
-    },
-    "./knob": {
-      "sass": "./knob/styles/_index.scss"
-    },
-    "./layout": {
-      "sass": "./layout/styles/_index.scss"
-    },
-    "./lightbox": {
-      "sass": "./lightbox/styles/_index.scss"
-    },
-    "./line-chart": {
-      "sass": "./line-chart/styles/_index.scss"
-    },
-    "./list": {
-      "sass": "./list/styles/_index.scss"
-    },
-    "./loading-bar": {
-      "sass": "./loading-bar/styles/_index.scss"
-    },
-    "./markdown": {
-      "sass": "./markdown/styles/_index.scss"
-    },
-    "./marquee": {
-      "sass": "./marquee/styles/_index.scss"
-    },
-    "./mention": {
-      "sass": "./mention/styles/_index.scss"
-    },
-    "./meter-group": {
-      "sass": "./meter-group/styles/_index.scss"
-    },
-    "./overlay": {
-      "sass": "./overlay/styles/_index.scss"
-    },
-    "./page-header": {
-      "sass": "./page-header/styles/_index.scss"
-    },
-    "./pagination": {
-      "sass": "./pagination/styles/_index.scss"
-    },
-    "./popconfirm": {
-      "sass": "./popconfirm/styles/_index.scss"
-    },
-    "./popover": {
-      "sass": "./popover/styles/_index.scss"
-    },
-    "./progress": {
-      "sass": "./progress/styles/_index.scss"
-    },
-    "./pull-to-refresh": {
-      "sass": "./pull-to-refresh/styles/_index.scss"
-    },
-    "./qr": {
-      "sass": "./qr/styles/_index.scss"
-    },
-    "./radio": {
-      "sass": "./radio/styles/_index.scss"
-    },
-    "./rating": {
-      "sass": "./rating/styles/_index.scss"
-    },
     "./reset": {
       "sass": "./styles/_reset.scss"
     },
-    "./result": {
-      "sass": "./result/styles/_index.scss"
-    },
-    "./rotating-text": {
-      "sass": "./rotating-text/styles/_index.scss"
-    },
-    "./schema-form": {
-      "sass": "./schema-form/styles/_index.scss"
-    },
-    "./segmented": {
-      "sass": "./segmented/styles/_index.scss"
-    },
-    "./select": {
-      "sass": "./select/styles/_index.scss"
-    },
-    "./shiny-text": {
-      "sass": "./shiny-text/styles/_index.scss"
-    },
-    "./sidebar": {
-      "sass": "./sidebar/styles/_index.scss"
-    },
-    "./skeleton": {
-      "sass": "./skeleton/styles/_index.scss"
-    },
-    "./slider": {
-      "sass": "./slider/styles/_index.scss"
-    },
-    "./sparkline": {
-      "sass": "./sparkline/styles/_index.scss"
-    },
-    "./speed-dial": {
-      "sass": "./speed-dial/styles/_index.scss"
-    },
-    "./spinner": {
-      "sass": "./spinner/styles/_index.scss"
-    },
-    "./splash-cursor": {
-      "sass": "./splash-cursor/styles/_index.scss"
-    },
-    "./split-text": {
-      "sass": "./split-text/styles/_index.scss"
-    },
-    "./splitter": {
-      "sass": "./splitter/styles/_index.scss"
-    },
-    "./spotlight-card": {
-      "sass": "./spotlight-card/styles/_index.scss"
-    },
-    "./squircle": {
-      "sass": "./squircle/styles/_index.scss"
-    },
-    "./star-border": {
-      "sass": "./star-border/styles/_index.scss"
-    },
-    "./statistic": {
-      "sass": "./statistic/styles/_index.scss"
-    },
-    "./stepper": {
-      "sass": "./stepper/styles/_index.scss"
-    },
-    "./switch": {
-      "sass": "./switch/styles/_index.scss"
-    },
-    "./table": {
-      "sass": "./table/styles/_index.scss"
-    },
-    "./tabs": {
-      "sass": "./tabs/styles/_index.scss"
-    },
-    "./textarea": {
-      "sass": "./textarea/styles/_index.scss"
-    },
-    "./theme": {
-      "sass": "./theme/_index.scss"
-    },
-    "./tilt-card": {
-      "sass": "./tilt-card/styles/_index.scss"
-    },
-    "./timeline": {
-      "sass": "./timeline/styles/_index.scss"
-    },
-    "./toast": {
-      "sass": "./toast/styles/_index.scss"
-    },
-    "./toolbar": {
-      "sass": "./toolbar/styles/_index.scss"
-    },
-    "./tour": {
-      "sass": "./tour/styles/_index.scss"
-    },
-    "./transfer": {
-      "sass": "./transfer/styles/_index.scss"
-    },
-    "./tree": {
-      "sass": "./tree/styles/_index.scss"
-    },
-    "./typewriter": {
-      "sass": "./typewriter/styles/_index.scss"
-    },
-    "./typography": {
-      "sass": "./typography/styles/_index.scss"
-    },
     "./typography-utilities": {
       "sass": "./styles/_typography.scss"
-    },
-    "./virtual-scroll": {
-      "sass": "./virtual-scroll/styles/_index.scss"
-    },
-    "./waves": {
-      "sass": "./waves/styles/_index.scss"
-    },
-    "./window": {
-      "sass": "./window/styles/_index.scss"
     }
   }
 }

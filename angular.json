@@ -17,13 +17,32 @@
       "prefix": "wr",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "options": {
-            "project": "projects/lib/ng-package.json"
+            "tsConfig": "projects/lib/tsconfig.lib.json",
+            "outputPath": "dist/lib",
+            "assets": [
+              {
+                "glob": "**/*.scss",
+                "input": "projects/lib",
+                "output": "."
+              },
+              {
+                "glob": "README.md",
+                "input": ".",
+                "output": "."
+              },
+              {
+                "glob": "LICENSE",
+                "input": ".",
+                "output": "."
+              }
+            ]
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/lib/tsconfig.lib.prod.json"
+              "tsConfig": "projects/lib/tsconfig.lib.prod.json",
+              "compilationMode": "partial"
             },
             "development": {
               "tsConfig": "projects/lib/tsconfig.lib.json"
@@ -46,8 +65,13 @@
             "runner": "vitest",
             "tsConfig": "projects/lib/tsconfig.spec.json",
             "buildTarget": "lib:build:development",
-            "include": ["**/*.spec.ts", "../showcase/**/*.spec.ts"],
-            "setupFiles": ["projects/lib/vitest-setup.ts"]
+            "include": [
+              "**/*.spec.ts",
+              "../showcase/**/*.spec.ts"
+            ],
+            "setupFiles": [
+              "projects/lib/vitest-setup.ts"
+            ]
           }
         }
       }
@@ -103,7 +127,9 @@
               "projects/showcase/styles.scss"
             ],
             "stylePreprocessorOptions": {
-              "includePaths": ["projects"]
+              "includePaths": [
+                "projects"
+              ]
             },
             "scripts": []
           },

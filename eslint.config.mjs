@@ -155,6 +155,20 @@ export default tsEslint.config(
               group: 'external',
               position: 'before',
             },
+            // `ngwr/*` sorts with the externals, which is where it always
+            // sorted — alphabetically beside `vitest`, as every spec in the
+            // library is written. It used to land there by accident: nothing
+            // resolved the specifier, and an unresolved import defaults to
+            // external. The library builder resolves it, because entry points
+            // are declared in `projects/lib/package.json`'s `exports` now and
+            // each one points at a real `public-api.ts` inside the project, so
+            // import-x started calling it internal and 409 files were suddenly
+            // in the wrong group. Nothing about where the code lives moved, so
+            // the classification is pinned rather than the files rewritten.
+            {
+              pattern: 'ngwr/**',
+              group: 'external',
+            },
           ],
           pathGroupsExcludedImportTypes: [],
         },
