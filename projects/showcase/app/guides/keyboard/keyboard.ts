@@ -284,11 +284,17 @@ protected onKeydown(event: KeyboardEvent): void {
   // Compare against the constant, not the magic string — it is searchable.
   if (event.key === KEYS.ESCAPE) return this.close();
 
-  // Let the browser keep its own chords (copy, reload, devtools…).
-  if (hasModifier(event)) return;
+  // Type-to-search FIRST: \`isPrintableKey\` already rejects ctrl / meta / alt,
+  // and it accepts Shift — which it has to, or the buffer can never receive a
+  // capital letter. \`hasModifier\` counts Shift as a modifier, so guarding on
+  // it ahead of this returns on every shifted character.
+  if (isPrintableKey(event)) {
+    this.query.update(q => q + event.key);
+    return;
+  }
 
-  // Type-to-search: react only to characters, not to Tab / arrows / F-keys.
-  if (isPrintableKey(event)) this.query.update(q => q + event.key);
+  // Then let the browser keep its own chords (copy, reload, devtools…).
+  if (hasModifier(event)) return;
 }`,
   };
 
