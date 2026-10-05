@@ -63,14 +63,14 @@
 
   <ngwr-doc-section
     title="Soft set"
-    description="Every intent also exposes a tinted fill, a matching hairline, a pressed tint and a readable same-hue text colour."
+    description="Every intent also exposes a tinted fill, a matching hairline and a pressed tint. Text on that fill is `-ink`, which is calibrated against it; `-soft-contrast` is the older, flat 62% mix that predates `-ink` and was never measured — `warning-soft-contrast` reads 3.58:1 on its own tint, under AA. It is still public and still resolves, so nothing breaks, but reach for `-ink`."
   >
     <div style="display: flex; flex-direction: column; gap: 0.5rem">
       @for (intent of softIntents; track intent) {
         <div
           [style.background]="`var(--wr-color-${intent}-soft)`"
           [style.border]="`1px solid var(--wr-color-${intent}-soft-border)`"
-          [style.color]="`var(--wr-color-${intent}-soft-contrast)`"
+          [style.color]="`var(--wr-color-${intent}-ink)`"
           style="
             display: flex;
             align-items: center;
@@ -85,7 +85,7 @@
             style="width: 0.75rem; height: 0.75rem; flex: none; border-radius: 999px"
           ></span>
           <strong>{{ intent }}</strong>
-          <span style="opacity: 0.85"> -soft fill · -soft-border hairline · -soft-contrast text </span>
+          <span> -soft fill · -soft-border hairline · -ink text </span>
         </div>
       }
     </div>

@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Circular Text"
-  description="Text laid out around a circle, with the whole circle spinning on a keyframe. Hover behaviour swaps the spin rate (or pauses) without resetting the rotation angle. Pure CSS port — no JS animation loop."
+  description="Text laid out around a circle, with the whole circle spinning. Hover swaps the spin rate (or pauses) without resetting the rotation angle — which is why the spin is a Web Animations API animation rather than a CSS keyframe: changing `animation-duration` mid-flight makes the browser recompute progress against the new duration and visibly jump. No per-frame JS loop either way; the `scale` on hover is still plain CSS."
   [keywords]="['circular-text', 'wr-circular-text', 'text animation', 'reactbits']"
   [labels]="['Animation']"
 >
