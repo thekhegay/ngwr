@@ -52,6 +52,11 @@ import type { WrAnchorLink } from './types';
   host: { class: 'wr-anchor', role: 'navigation', '[attr.aria-label]': 'resolvedAriaLabel()' },
 })
 export class WrAnchor {
+  /**
+   * The entries, in DOCUMENT ORDER — the scroll spy walks them top to bottom
+   * and stops at the first target below the cursor line, so a list in any other
+   * order highlights the wrong entry.
+   */
   readonly links = input<readonly WrAnchorLink[]>([]);
 
   /**
@@ -71,16 +76,20 @@ export class WrAnchor {
 
   protected readonly activeId = signal<string | null>(null);
 
-  /** Flat list of all ids (top-level + children) — used for scroll spy. */
+  /**
+   * Flat list of the ids the template RENDERS — top level plus one level of
+   * children, which is the nesting `WrAnchorLink` documents. It used to recurse
+   * all the way down, so a third level was spied on and drawn nowhere: scrolling
+   * through a grandchild made it active, no rendered link matched the id, and
+   * the highlight vanished for that whole region rather than resting on its
+   * parent.
+   */
   protected readonly flatIds = computed<readonly string[]>(() => {
     const out: string[] = [];
-    const walk = (list: readonly WrAnchorLink[]): void => {
-      for (const item of list) {
-        out.push(item.id);
-        if (item.children) walk(item.children);
-      }
-    };
-    walk(this.links());
+    for (const item of this.links()) {
+      out.push(item.id);
+      for (const child of item.children ?? []) out.push(child.id);
+    }
     return out;
   });
 

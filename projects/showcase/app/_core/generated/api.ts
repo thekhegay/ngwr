@@ -39,7 +39,7 @@ export const API = {
   ],
   // <wr-anchor>
   WrAnchor: [
-    { name: "links", description: "—", type: "readonly WrAnchorLink[]", default: "[]" },
+    { name: "links", description: "The entries, in DOCUMENT ORDER — the scroll spy walks them top to bottom and stops at the first target below the cursor line, so a list in any other order highlights the wrong entry.", type: "readonly WrAnchorLink[]", default: "[]" },
     { name: "ariaLabel", description: "Accessible name for the navigation landmark. Falls back to `anchor.label`, then `'Table of contents'` — it used to be that English string, hard-coded on the host, in a landmark a screen reader reads out on every page.", type: "string | null", default: "null" },
     { name: "offset", description: "Pixel offset subtracted on scroll — for sticky headers.", type: "number", default: "0" },
     { name: "hitArea", description: "Highlight an item when its target's top is within this many px of the offset line.", type: "number", default: "80" },
@@ -668,7 +668,7 @@ export const API = {
     { name: "min", description: "Minimum allowed value.", type: "number | undefined", default: "-Infinity" },
     { name: "max", description: "Maximum allowed value.", type: "number | undefined", default: "Infinity" },
     { name: "step", description: "Step used by stepper buttons + arrow keys.", type: "number", default: "1" },
-    { name: "decimals", description: "Fixed number of decimals shown on blur. `null` keeps the entered precision. Clamped to what `toFixed` accepts — 0 to 100 — because it is the one numeric input on this component that had no transform, and the value goes straight into `toFixed`, which THROWS a `RangeError` outside that range rather than degrading. A `[decimals]=\"-1\"` bound from a config object took the whole component down on blur.", type: "number | null", default: "null" },
+    { name: "decimals", description: "Fixed number of decimals. Rounds the value as it is COMMITTED, and fixes the digits shown once the field reformats on blur. `null` keeps the entered precision and formats with up to 20. Clamped to 0–100, the range `Intl.NumberFormat`'s `minimumFractionDigits` / `maximumFractionDigits` accept — because it is the one numeric input on this component that had no transform, and the value goes straight into the formatter, which THROWS a `RangeError` outside that range rather than degrading. A `[decimals]=\"-1\"` bound from a config object took the whole component down on blur.", type: "number | null", default: "null" },
     { name: "showSteppers", description: "Render the ▲▼ stepper column.", type: "boolean", default: "true" },
     { name: "size", description: "Control size — forwarded to the field, and shares the `--wr-control-*` contract. Unset falls back to the `inputNumber.size` app default from `provideWrConfig()`, then to the `input.size` one, then to `md`.", type: "WrInputSize | null", default: "'md'" },
     { name: "rounded", description: "Pill-shaped corners. Unset falls back to the `inputNumber.rounded` app default from `provideWrConfig()`, then to the `input.rounded` one; `[rounded]=\"false\"` turns a configured `true` back off.", type: "boolean | null", default: "false" },
@@ -694,7 +694,7 @@ export const API = {
     { name: "readonly", description: "Refuse edits while every box stays focusable and the code still submits. Bound automatically from the field's readonly state when used with `[formField]`. Each box is a real text input, so this is the native `readonly` attribute — arrow keys, Home / End and selection keep working, which is the whole difference from `disabled`. Paste is cancelled too, since a `paste` still reaches a read-only input even though typing does not.", type: "boolean", default: "false" },
     { name: "placeholder", description: "Character shown in empty cells.", type: "string", default: "'•'" },
     { name: "value", description: "The entered code. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
-    { name: "(completed)", description: "Fires once when every cell holds a character.", type: "string" },
+    { name: "(completed)", description: "Fires on every change made while every cell holds a character — so correcting a digit of an already-complete code emits again. Not latched on the incomplete-to-complete transition: a host auto-submitting on it has to guard its own re-entry, and gets the corrected code for free.", type: "string" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
   // <wr-kbd>
@@ -729,7 +729,7 @@ export const API = {
   // <wr-lightbox>
   WrLightbox: [
     { name: "openLabel", description: "Accessible name of the thumbnail button. Falls back to `alt`, then `image.open`.", type: "string | null", default: "null" },
-    { name: "closeLabel", description: "—", type: "string | null", default: "null" },
+    { name: "closeLabel", description: "Accessible name of the viewer's close button. Falls back to `image.close`, then `'Close preview'`.", type: "string | null", default: "null" },
     { name: "src", description: "Image source.", type: "string", required: true },
     { name: "alt", description: "Alt text. Required for a11y; falls back to an empty string.", type: "string", default: "''" },
     { name: "preview", description: "Lighter source for the THUMBNAIL — a small or blurred copy, so the grid does not pull full-size images. The viewer always shows `src`; the thumbnail does not swap to it later.", type: "string | null", default: "null" },

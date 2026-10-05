@@ -4,7 +4,6 @@ import { WrInputOtp } from 'ngwr/input-otp';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
@@ -33,15 +32,6 @@ export default class InputOtpPageComponent {
   };
 
   protected readonly api = API.WrInputOtp;
-
-  protected readonly events: readonly DocApiRow[] = [
-    {
-      name: '(completed)',
-      description: 'Fires once every cell holds a character — useful for auto-submit.',
-      type: 'string',
-      default: '—',
-    },
-  ];
 
   protected onCompleted(value: string): void {
     this.lastCompleted.set(value);
