@@ -240,6 +240,26 @@ export class MyComponent {
     { name: 'step', description: 'Minute / second step for the time panels.', type: 'number', default: '1' },
     { name: 'disabled', description: 'Block interaction.', type: 'boolean', default: 'false' },
     {
+      name: 'panelAriaLabel',
+      description:
+        'Accessible name of the popup. The trigger advertises `aria-haspopup="dialog"`, so the pane is a `role="dialog"` — and an unnamed dialog announces as a bare “dialog”. Defaults to the catalog’s `datePicker.panelRange*` string for the current `mode`.',
+      type: 'string | null',
+      default: 'null',
+    },
+    {
+      name: 'panelClass',
+      description:
+        'Extra classes for the calendar panel’s overlay pane. The pane is appended to the overlay container rather than to this component, so nothing in your own template encloses it and no descendant rule written around the trigger can reach it — this input is the only per-instance handle on it. A space-separated string works as well as an array.',
+      type: 'WrClassInput',
+      default: 'null',
+    },
+    {
+      name: '(touch)',
+      description: 'Emitted on blur so a bound field can mark itself touched.',
+      type: 'void',
+      default: '—',
+    },
+    {
       name: 'readonly',
       description:
         'Read-only — neither the inputs nor the calendar can change the value, and the trigger does not open. Deliberately stricter than `<wr-date-picker>`, which does still open its popup: with two fields feeding one calendar there is no reading of &ldquo;untypeable&rdquo; that leaves the grid free to rewrite both ends.',

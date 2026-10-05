@@ -233,11 +233,42 @@ ref.close(savedDocId);`,
       default: "'md'",
     },
     {
-      name: 'x / y / width / height',
+      // `x` / `y` / `width` / `height` are READ-ONLY signals on the component,
+      // not bindings — the inputs that SEED them carry the `initial` prefix,
+      // and that is the half this row used to name. A static `x="40"` on
+      // `<wr-window>` is a legal HTML attribute on a custom element, so it
+      // compiled, landed on the host and positioned nothing.
+      name: 'initialX / initialY / initialWidth / initialHeight',
       sub: true,
-      description: 'Explicit initial geometry in px.',
-      type: 'number',
-      default: 'cascade',
+      description:
+        'Explicit opening geometry in px. Read once, at open: the live `x` / `y` / `width` / `height` signals follow the user after that, so re-binding these does not move a window that is already on screen. Unset falls into the cascade.',
+      type: 'number | null',
+      default: 'null (cascade)',
+    },
+    {
+      name: '(closed)',
+      sub: true,
+      description: 'The window was dismissed — by its own ✕, by `close()`, or by the service.',
+      type: 'void',
+      default: '—',
+    },
+    {
+      // Both stay silent for a programmatic move or resize, and for the opening
+      // cascade: the caller already knows where it put the window. Documented
+      // here because the asymmetry reads as a missed event otherwise.
+      name: '(moved)',
+      sub: true,
+      description:
+        'The header was dragged. Silent for `moveTo()`, `center()` and the opening cascade — the caller already knows where it put the window.',
+      type: '{ x: number; y: number }',
+      default: '—',
+    },
+    {
+      name: '(resized)',
+      sub: true,
+      description: 'A resize handle was dragged. Silent for a programmatic resize, the same way `(moved)` is.',
+      type: '{ width: number; height: number }',
+      default: '—',
     },
     {
       name: 'minWidth / minHeight / maxWidth / maxHeight',
