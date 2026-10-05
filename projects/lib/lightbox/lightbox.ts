@@ -61,10 +61,10 @@ let viewerUid = 0;
   },
 })
 export class WrLightbox {
-  /** Accessible name. Falls back to `image.close`, then `'Close preview'`. */
   /** Accessible name of the thumbnail button. Falls back to `alt`, then `image.open`. */
   readonly openLabel = input<string | null>(null);
 
+  /** Accessible name of the viewer's close button. Falls back to `image.close`, then `'Close preview'`. */
   readonly closeLabel = input<string | null>(null);
 
   protected readonly resolvedCloseLabel = useI18nText(this.closeLabel, 'image.close', 'Close preview');
