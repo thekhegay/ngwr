@@ -23,7 +23,12 @@ export default class InputOtpPageComponent {
   protected alphaNumeric = '';
   protected readonly lastCompleted = signal<string | null>(null);
 
+  /** Pre-filled so the read-only strip has something to announce. */
+  protected lockedCode = '428159';
+
   protected readonly snippets = {
+    states: `<wr-input-otp disabled [(value)]="code" />
+<wr-input-otp readonly [(value)]="code" />`,
     basic: `<wr-input-otp [(value)]="code" length="6" (completed)="verify($event)" />`,
 
     masked: `<wr-input-otp [(value)]="secret" mask />`,
