@@ -215,12 +215,16 @@
     height: 1rem;
     border-radius: 0.25rem;
     border: 1px solid rgba(var(--wr-color-on-surface-rgb), 0.15);
-    // Checkerboard for translucent colours.
+    // Checkerboard for translucent colours, keyed off the INK channel so it
+    // inverts to a faint light checker in dark — the only direction that reads
+    // there. Black at 8% is invisible on the deep canvas. This block was also
+    // unreachable until the chip stopped binding `[style.background]`: the
+    // shorthand resets `background-image` to `none` at inline specificity.
     background-image:
-      linear-gradient(45deg, rgba(0, 0, 0, 0.08) 25%, transparent 25%),
-      linear-gradient(-45deg, rgba(0, 0, 0, 0.08) 25%, transparent 25%),
-      linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.08) 75%),
-      linear-gradient(-45deg, transparent 75%, rgba(0, 0, 0, 0.08) 75%);
+      linear-gradient(45deg, rgba(var(--wr-color-on-surface-rgb), 0.08) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(var(--wr-color-on-surface-rgb), 0.08) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, rgba(var(--wr-color-on-surface-rgb), 0.08) 75%),
+      linear-gradient(-45deg, transparent 75%, rgba(var(--wr-color-on-surface-rgb), 0.08) 75%);
     background-size: 0.5rem 0.5rem;
     background-position:
       0 0,

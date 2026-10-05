@@ -26,8 +26,8 @@ export default class AffixPage {
 </header>`,
     scss: `/* Style the stuck state via the .wr-affix--active modifier */
 header.wr-affix--active {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  background: var(--wr-color-white);
+  box-shadow: var(--wr-shadow-sm);
+  background: var(--wr-color-surface);
 }`,
   };
 

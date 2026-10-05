@@ -37,7 +37,7 @@
  * thing would only make one failure look like two.
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
 import { buildCssVarMap, type WrCssVarEntry, type WrCssVarMap } from '../lib/build-css-var-map';
@@ -147,6 +147,43 @@ export type DocCssVarRoute = keyof typeof CSS_VARS;
 `;
 }
 
+/**
+ * A page carrying its own copy of a table this run generates.
+ *
+ * `<ngwr-doc-page>` renders the CSS-variables section itself, from the map
+ * below, so a hand-written `{ name: 'CSS — --wr-kbd-bg', … }` row is a second
+ * table of the same thing a few hundred pixels higher up the page — and the
+ * second one has nobody keeping it true. Three of the five rows on the Keyboard
+ * page had drifted when this check was written, the worst documenting
+ * `--wr-kbd-shadow` as `0 1px 0 rgba(dark, 0.12)`: not valid CSS in any reading,
+ * and naming an intent v15 removed, on a page whose generated table states the
+ * real value further down. Nothing caught it — `check:api-docs` filters these
+ * rows out, because `CSS — --wr-kbd-bg` matches no library member.
+ *
+ * Keyed on the exact `CSS — ` prefix, which is the duplicated-table spelling.
+ * A row that documents the IDEA of a token family rather than one component's
+ * hooks — `density.ts`'s "CSS tokens", `testing.ts`'s "CSS-driven text: …" —
+ * writes no em dash and is left alone.
+ */
+function duplicatedTables(): string[] {
+  const out: string[] = [];
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(dir)) {
+      if (entry === 'node_modules' || entry === 'generated') continue;
+      const full = join(dir, entry);
+      if (statSync(full).isDirectory()) walk(full);
+      else if (full.endsWith('.ts')) {
+        const src = readFileSync(full, 'utf8');
+        src.split('\n').forEach((line, i) => {
+          if (/name:\s*'CSS — /.test(line)) out.push(`${relative(ROOT_PATH, full)}:${i + 1}`);
+        });
+      }
+    }
+  };
+  walk(join(ROOT_PATH, 'projects/showcase/app'));
+  return out;
+}
+
 function main(): void {
   const check = process.argv.includes('--check');
   const map = buildCssVarMap();
@@ -161,6 +198,15 @@ function main(): void {
 
   const next = serialize(map, byRoute);
   const path = relative(ROOT_PATH, OUT_FILE);
+
+  const duplicated = duplicatedTables();
+  if (duplicated.length > 0) {
+    console.error(`\n✘ ${duplicated.length} hand-written \`CSS — …\` row(s) duplicating the generated section:\n`);
+    for (const where of duplicated) console.error(`    ${where}`);
+    console.error('\n  Delete them. The section `<ngwr-doc-page>` renders is the single source — a');
+    console.error('  hook that needs prose belongs in the stylesheet comment the generator reads.\n');
+    process.exit(1);
+  }
 
   if (check) {
     const current = existsSync(OUT_FILE) ? readFileSync(OUT_FILE, 'utf8') : '';

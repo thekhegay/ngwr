@@ -1,4 +1,4 @@
-import { Component, ElementRef, afterNextRender, computed, signal, viewChild } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrAurora } from 'ngwr/bits/aurora';
 
@@ -27,25 +27,20 @@ import {
   ],
 })
 export default class AuroraPage {
-  // Live demo state
-  // Prefilled from the theme's resolved `--wr-aurora-stop-*` defaults
-  // after first render, so the pickers show working colours right away.
+  // Live demo state.
+  //
+  // Deliberately EMPTY until the reader picks one. Prefilling them from the
+  // resolved `--wr-aurora-stop-*` read in a one-shot `afterNextRender` froze
+  // the palette at whatever the theme was on load: the stops genuinely differ
+  // per theme, so a page opened in light and toggled to dark kept the light
+  // triple, and the printed snippet then advertised that frozen triple as the
+  // thing to paste. Empty means `[colorStops]` stays `null`, the component
+  // resolves its own hook, and the demo follows the theme — which is also the
+  // better demo, because it shows the hook working.
   protected readonly stopA = signal('');
   protected readonly stopB = signal('');
   protected readonly stopC = signal('');
 
-  private readonly auroraRef = viewChild(WrAurora, { read: ElementRef });
-
-  constructor() {
-    afterNextRender(() => {
-      const el = this.auroraRef()?.nativeElement as HTMLElement | undefined;
-      if (!el) return;
-      const style = getComputedStyle(el);
-      this.stopA.set(style.getPropertyValue('--wr-aurora-stop-1').trim() || '#5227ff');
-      this.stopB.set(style.getPropertyValue('--wr-aurora-stop-2').trim() || '#7cff67');
-      this.stopC.set(style.getPropertyValue('--wr-aurora-stop-3').trim() || '#5227ff');
-    });
-  }
   protected readonly amplitude = signal(1);
   protected readonly blend = signal(0.5);
   protected readonly speed = signal(1);

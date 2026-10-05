@@ -1,4 +1,4 @@
-import { Component, ElementRef, afterNextRender, computed, signal, viewChild } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrSpotlight, WrSpotlightCard } from 'ngwr/bits/spotlight-card';
 
@@ -13,19 +13,6 @@ import {
   DocSnippetComponent,
   ReactbitsCredit,
 } from '#core/components';
-
-/** `rgb(a)` computed colour → #rrggbbaa for the playground picker. */
-function rgbaToHex(value: string): string | null {
-  const m = /rgba?\(\s*(\d+)\s*,?\s*(\d+)\s*,?\s*(\d+)\s*(?:[,/]\s*([\d.]+%?))?\s*\)/.exec(value);
-  if (!m) return null;
-  const to2 = (n: number): string => n.toString(16).padStart(2, '0');
-  let alpha = 255;
-  if (m[4] !== undefined) {
-    const raw = m[4].endsWith('%') ? Number.parseFloat(m[4]) / 100 : Number.parseFloat(m[4]);
-    alpha = Math.round(raw * 255);
-  }
-  return `#${to2(+m[1])}${to2(+m[2])}${to2(+m[3])}${to2(alpha)}`;
-}
 
 @Component({
   selector: 'ngwr-spotlight-card-page',
@@ -45,20 +32,12 @@ function rgbaToHex(value: string): string | null {
 export default class SpotlightCardPage {
   // Prefilled from the theme's resolved spotlight colour after first
   // render, so the picker shows a working value right away.
+  // Empty until the reader picks one, for the reason `aurora` records: the
+  // one-shot read froze a ROLE token — `rgba(var(--wr-color-on-surface-rgb),
+  // 0.15)` light, `0.22` dark — so a dark card loaded in light got a near-black
+  // glow on a near-black surface and the demo looked broken.
   protected readonly spotlightColor = signal('');
   protected readonly radius = signal(80);
-
-  private readonly cardRef = viewChild(WrSpotlightCard, { read: ElementRef });
-
-  constructor() {
-    afterNextRender(() => {
-      const el = this.cardRef()?.nativeElement as HTMLElement | undefined;
-      if (!el) return;
-      const resolved = getComputedStyle(el).getPropertyValue('--wr-spotlight-color').trim();
-      const hex = rgbaToHex(resolved);
-      if (hex) this.spotlightColor.set(hex);
-    });
-  }
 
   protected readonly snippet = computed(
     () =>

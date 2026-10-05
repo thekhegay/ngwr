@@ -17,6 +17,7 @@ import { WrWaves } from 'ngwr/bits/waves';
 import { WrButton } from 'ngwr/button';
 import { provideWrIcons, WrIcon } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import type { WrColor } from 'ngwr/theme';
 import { WrTypography } from 'ngwr/typography';
 
 import { Footer } from '../_layout/footer/footer';
@@ -33,7 +34,15 @@ interface WhyTile {
   readonly icon: string;
   readonly title: string;
   readonly description: string;
-  readonly accent: 'primary' | 'success' | 'warning' | 'info' | 'danger' | 'secondary';
+  /**
+   * `neutral` is the name v15 gave this job on `wr-timeline-item`, and the
+   * reason it is spelled out rather than borrowed: `secondary` was one of the
+   * four intents that release deleted, and the tile using it only looked fine
+   * because its rule quietly redirected to `--wr-color-on-surface-muted`. A
+   * union listing a token the theme does not have is what the next tile gets
+   * written against.
+   */
+  readonly accent: WrColor | 'neutral';
   /** Hover-spotlight tint — tracks the icon accent. */
   readonly spotlight: string;
 }
@@ -185,7 +194,7 @@ export class SignupCard {
       // and alpha ramps, and `wr-window`'s macOS traffic lights.
       description:
         'Color, radius, spacing, and duration come from `--wr-*` custom properties — and a token nothing paints with has to justify itself to the lint run. Re-skin one component or all of them.',
-      accent: 'secondary',
+      accent: 'neutral',
       spotlight: 'rgba(var(--wr-color-on-surface-muted-rgb, 113, 128, 150), 0.14)',
     },
     {

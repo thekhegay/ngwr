@@ -102,35 +102,5 @@ export default class BreadcrumbsPage {
       type: 'boolean',
       default: 'false',
     },
-    {
-      name: 'CSS — --wr-breadcrumbs-separator',
-      description: 'Override the separator glyph.',
-      type: 'string',
-      default: "'/'",
-    },
-    {
-      name: 'CSS — --wr-breadcrumbs-gap',
-      description: 'Spacing between items and separators.',
-      type: 'length',
-      default: '0.5rem',
-    },
-    {
-      name: 'CSS — --wr-breadcrumbs-link-color',
-      description: 'Link colour.',
-      type: 'color',
-      default: 'var(--wr-color-primary-ink)',
-    },
-    {
-      name: 'CSS — --wr-breadcrumbs-current-color',
-      description: 'Current-page (last) item colour.',
-      type: 'color',
-      default: 'var(--wr-color-on-surface)',
-    },
-    {
-      name: 'CSS — --wr-breadcrumbs-separator-color',
-      description: 'Separator glyph colour.',
-      type: 'color',
-      default: 'rgba(var(--wr-color-on-surface-rgb), 0.3)',
-    },
   ];
 }

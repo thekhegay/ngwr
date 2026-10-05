@@ -29,9 +29,14 @@
   &__logo {
     --ngwr-header-logo-bg: transparent;
     // The droplet mark (`__bg`) is painted in the live primary color, so
-    // picking a preset in the settings panel recolors the logo in real
-    // time. The inner blob (`__icon`) stays white for contrast.
-    --ngwr-header-logo-mark-color: var(--wr-color-white);
+    // picking a preset in the settings panel recolors the logo in real time.
+    // The inner blob (`__icon`) takes the LABEL token for that fill, which is
+    // what `-contrast` is: it picks whichever of black and white scores higher
+    // and lands on white for every shipped primary. It used to read
+    // `--wr-color-white`, which is the CANVAS token — #0b1120 in dark — so the
+    // blob inverted to near-black on a blue droplet and the comment beside it
+    // said "stays white" about a rule that did the opposite.
+    --ngwr-header-logo-mark-color: var(--wr-color-primary-contrast);
     --ngwr-header-logo-mark-bg: var(--wr-color-primary);
 
     display: inline-flex;
@@ -157,8 +162,10 @@
     &--github {
       --ngwr-header-action-icon-color: #24292e;
 
+      // A literal, not `--wr-color-white`: the surface is GitHub's fixed
+      // brand black, so its label cannot flip with the theme. 14.67:1.
       &:hover {
-        --ngwr-header-action-icon-color: var(--wr-color-white);
+        --ngwr-header-action-icon-color: #fff;
         --ngwr-header-action-icon-bg: #24292e;
       }
 
@@ -181,8 +188,10 @@
     &--npm {
       --ngwr-header-action-icon-color: #cb0201;
 
+      // Same as GitHub: npm's brand red does not flip, so neither does its
+      // label. 5.92:1, and the dark theme now needs no second rule for it.
       &:hover {
-        --ngwr-header-action-icon-color: var(--wr-color-white);
+        --ngwr-header-action-icon-color: #fff;
         --ngwr-header-action-icon-bg: #cb0201;
       }
 
@@ -191,11 +200,6 @@
       // a brighter red; hover keeps the brand-red surface.
       :host-context([data-theme='dark']) & {
         --ngwr-header-action-icon-color: #ff5050;
-
-        &:hover {
-          --ngwr-header-action-icon-color: var(--wr-color-on-surface);
-          --ngwr-header-action-icon-bg: #cb0201;
-        }
       }
     }
 

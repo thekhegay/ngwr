@@ -409,12 +409,19 @@
       background: rgba(var(--wr-color-danger-rgb), 0.18);
       color: var(--wr-color-danger-ink);
     }
+    // `info` paints its own token. It used to borrow primary's, which made the
+    // tile declaring `accent: 'info'` byte-identical to the primary one and
+    // meant the `info` intent was never reached on the page that shows it off.
     &[data-accent='info'] {
-      background: rgba(var(--wr-color-primary-rgb), 0.18);
-      color: var(--wr-color-primary-ink);
+      background: rgba(var(--wr-color-info-rgb), 0.18);
+      color: var(--wr-color-info-ink);
     }
-    &[data-accent='secondary'] {
-      background: rgba(var(--wr-color-on-surface-muted-rgb, 113, 128, 150), 0.18);
+    // The quiet tile. `secondary` until v15 deleted that intent, after which
+    // this rule was redirecting to the muted role under a name the theme no
+    // longer had — and carrying a hard-coded RGB fallback for a token that
+    // does exist, so the fallback could only ever mask a typo.
+    &[data-accent='neutral'] {
+      background: rgba(var(--wr-color-on-surface-muted-rgb), 0.18);
       color: var(--wr-color-on-surface-muted);
     }
     &[data-accent='primary'] {
