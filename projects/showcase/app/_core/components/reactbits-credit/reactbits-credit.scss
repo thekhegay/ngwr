@@ -3,9 +3,9 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  border: 1px solid rgba(var(--wr-color-primary-rgb), 0.25);
+  border: 1px solid var(--wr-color-primary-soft-border);
   border-radius: var(--wr-border-radius-base);
-  background: rgba(var(--wr-color-primary-rgb), 0.06);
+  background: var(--wr-color-primary-soft);
   color: var(--wr-color-on-surface);
   font-size: 0.875rem;
   line-height: 1.25rem;
