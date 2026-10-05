@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 import { Check, CircleCheck, OctagonAlert } from 'lucide';
-import { WrBadge, WrTag } from 'ngwr/badge';
+import { type WrBadgeShape, WrBadge, WrTag } from 'ngwr/badge';
 import { provideWrIcons } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WR_COLORS } from 'ngwr/theme';
@@ -34,6 +34,7 @@ import { API } from '#core/generated/api';
 })
 export default class BadgeComponent {
   protected readonly colors = WR_COLORS;
+  protected readonly shapes: readonly WrBadgeShape[] = ['rounded', 'pill', 'squircle'];
 
   protected readonly snippets = {
     basic: `<wr-badge>New</wr-badge>`,
@@ -42,7 +43,9 @@ export default class BadgeComponent {
     sizes: `<wr-badge size="sm">12</wr-badge>
 <wr-badge size="md">12</wr-badge>
 <wr-badge size="lg">12</wr-badge>`,
-    shape: `<wr-badge color="primary" shape="pill">Beta</wr-badge>`,
+    shape: `<wr-badge color="primary">Beta</wr-badge>
+<wr-badge color="primary" shape="pill">Beta</wr-badge>
+<wr-badge color="primary" shape="squircle">Beta</wr-badge>`,
     outlined: `<wr-badge color="primary" outlined>Beta</wr-badge>`,
     tag: `<wr-tag color="success" icon="checkmark">Done</wr-tag>
 <wr-tag color="primary" outlined rounded>Beta</wr-tag>

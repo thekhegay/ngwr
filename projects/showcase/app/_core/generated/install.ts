@@ -260,7 +260,7 @@ export const INSTALL = {
       { path: "ngwr/checkbox", symbols: ["WrCheckbox", "WrCheckboxGroup"], styled: true },
   ],
   "reference/components/collapse": [
-      { path: "ngwr/collapse", symbols: ["WrCollapse", "WrCollapseGroup"], styled: true },
+      { path: "ngwr/collapse", symbols: ["WrAccordion", "WrCollapse", "WrCollapseGroup"], styled: true },
   ],
   "reference/components/color-picker": [
       { path: "ngwr/color-picker", symbols: ["WrColorPicker", "WrColorPickerTrigger"], styled: true },

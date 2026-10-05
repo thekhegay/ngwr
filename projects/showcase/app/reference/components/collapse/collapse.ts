@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { WrCollapse, WrCollapseGroup } from 'ngwr/collapse';
+import { WrAccordion, WrCollapse, WrCollapseGroup } from 'ngwr/collapse';
 
 import {
   DocApiComponent,
@@ -16,6 +16,7 @@ import { API } from '#core/generated/api';
   selector: 'ngwr-collapse-page',
   templateUrl: './collapse.html',
   imports: [
+    WrAccordion,
     WrCollapse,
     WrCollapseGroup,
     DocPageComponent,

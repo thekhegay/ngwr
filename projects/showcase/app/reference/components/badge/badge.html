@@ -31,9 +31,16 @@
     description="`rounded` (default) keeps the small form-radius, `pill` rounds the ends fully, and `squircle` takes the iOS-style smooth corner where `corner-shape` is supported."
   >
     <ngwr-doc-snippet [code]="snippets.shape">
-      @for (c of colors; track c) {
-        <wr-badge [color]="c" shape="pill">{{ c }}</wr-badge>
-      }
+      <div style="display: flex; flex-direction: column; gap: 0.75rem">
+        @for (s of shapes; track s) {
+          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap">
+            <code style="min-width: 5rem">{{ s }}</code>
+            @for (c of colors; track c) {
+              <wr-badge [color]="c" [shape]="s">{{ c }}</wr-badge>
+            }
+          </div>
+        }
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
