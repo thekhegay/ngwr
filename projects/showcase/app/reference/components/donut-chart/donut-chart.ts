@@ -33,7 +33,9 @@ export default class DonutChartPageComponent {
   protected readonly snippets = {
     basic: `<wr-donut-chart [segments]="segments" centerLabel="Disk" centerValue="60%" />`,
     solid: `<wr-donut-chart [segments]="segments" thickness="0" />`,
-    tooltip: `<wr-donut-chart [segments]="segments" [tooltip]="false" />`,
+    tooltip: `<!-- On by default; hover either ring below to compare. -->
+<wr-donut-chart [segments]="segments" />
+<wr-donut-chart [segments]="segments" [tooltip]="false" />`,
   };
 
   protected readonly typeSnippet = `interface WrDonutSegment {

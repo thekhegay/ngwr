@@ -17,6 +17,20 @@
     description="Hover a bar for its label and value, in a tooltip pointing at the top of that bar. Pointer only: each bar's accessible name already carries both. Set `[tooltip]` to `false` to turn it off."
   >
     <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 2rem; flex-wrap: wrap; width: 100%">
+        <div style="flex: 1 1 16rem; min-width: 0">
+          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">On (default)</p>
+          <wr-bar-chart [data]="bars" style="width: 100%" />
+        </div>
+        <div style="flex: 1 1 16rem; min-width: 0">
+          <p style="margin: 0 0 0.5rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+            <code>[tooltip]="false"</code>
+          </p>
+          <wr-bar-chart [data]="bars" [tooltip]="false" style="width: 100%" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
   </ngwr-doc-section>
   <ngwr-doc-section title="API" description="Inputs of &lt;wr-bar-chart&gt;.">
     <ngwr-doc-api [rows]="api" />
