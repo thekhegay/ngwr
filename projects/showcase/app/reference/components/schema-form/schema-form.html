@@ -87,5 +87,13 @@
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Types"
+    description="What a `WR_FIELD` entry may carry. `kind` is the only required member — a spec saying no more than `{ kind: 'input' }` still draws a labelled, error-bound control, with the label falling back to the field's own key, de-camel-cased."
+  >
+    <ngwr-doc-code [code]="typeSnippet" language="typescript" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+
   <ngwr-doc-see-also [links]="related" />
 </ngwr-doc-page>
