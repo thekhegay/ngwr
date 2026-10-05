@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="getFocusableElements"
-  description="Enumerate focusable descendants of an element in DOM order. The visibility filter skips `display:none` / `visibility:hidden` / `tabindex='-1'` nodes so the result reflects what the user can actually tab to."
+  description="Enumerate focusable descendants of an element, in DOM ORDER. The selector drops what cannot take focus at all — a disabled control, a hidden input, `tabindex='-1'`, `contenteditable='false'` — and the filter then drops what is not rendered: no box (`display: none`, its own or an ancestor’s) or `visibility: hidden`. The element that currently holds focus is kept either way, because a trap has to know where it is standing. Positive `tabindex` values are NOT sorted: a trap that reordered them would disagree with the browser about everything outside it, and APG says not to use them."
   [keywords]="['getFocusableElements', 'focus', 'a11y', 'utils']"
   [labels]="['Util']"
 >

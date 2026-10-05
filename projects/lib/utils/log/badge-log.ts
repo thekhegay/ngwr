@@ -20,8 +20,6 @@
  * @param badgeText Short label shown inside the pill.
  * @param color    CSS colour applied to the pill border and text.
  * @param message  Anything you'd pass to `console.log` as the second argument.
- *
- * @internal
  */
 export function badgeLog(badgeText: string, color: string, message: unknown): void {
   const style = `
