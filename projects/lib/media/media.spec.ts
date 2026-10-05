@@ -124,8 +124,18 @@ describe('WrMedia', () => {
     resizeTo(800);
     expect(media.current()).toBe('md');
 
+    // 1600 IS `xga`. This used to expect `xxl`, which pinned the defect: the
+    // walk was a hardcoded six and stopped there, so the top three
+    // breakpoints the map has always shipped were unreachable — and a
+    // `case 'rt':` over `current()` compiled, type-narrowed and never ran.
     resizeTo(1600);
-    expect(media.current()).toBe('xxl');
+    expect(media.current()).toBe('xga');
+
+    resizeTo(1920);
+    expect(media.current()).toBe('fhd');
+
+    resizeTo(2560);
+    expect(media.current()).toBe('rt');
   });
 
   it('tears its listeners down with the injector', () => {

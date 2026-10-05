@@ -35,14 +35,25 @@ export class WrMedia {
   /** Cache of query → signal so we share `matchMedia` listeners. */
   private readonly cache = new Map<string, Signal<boolean>>();
 
-  /** Active breakpoint key — `xs` / `sm` / `md` / `lg` / `xl` / `xxl`. */
+  /**
+   * Active breakpoint key — the largest one the viewport satisfies.
+   *
+   * The order is DERIVED from the injected map, by descending width, rather
+   * than written out. It used to be a hardcoded six, which stopped at `xxl`
+   * and could never return `xga`, `fhd` or `rt` — three real breakpoints the
+   * map has shipped all along, so a 1600px display reported `xxl` and a
+   * `case 'rt':` compiled, type-narrowed and never ran. A custom map through
+   * `provideWrMedia` has the same problem the other way round, and this has
+   * neither.
+   */
   readonly current = computed<WrBreakpoint>(() => {
-    // Walk from largest to smallest, return the first one that matches.
-    const ordered: readonly WrBreakpoint[] = ['xxl', 'xl', 'lg', 'md', 'sm', 'xs'];
+    const ordered = (Object.keys(this.breakpoints) as WrBreakpoint[]).sort(
+      (a, b) => this.breakpoints[b] - this.breakpoints[a]
+    );
     for (const key of ordered) {
       if (this.matches(key)()) return key;
     }
-    return 'xs';
+    return ordered[ordered.length - 1] ?? 'xs';
   });
 
   /**

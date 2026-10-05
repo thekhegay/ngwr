@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { WrI18n } from 'ngwr/i18n';
@@ -24,6 +24,15 @@ export default class MetaServicePageComponent {
 
   private reactiveHandle: WrMetaHandle | null = null;
   protected readonly reactiveBound = signal(false);
+
+  constructor() {
+    // The page's own `reactive` snippet tells a reader to pop the handle on
+    // destroy, and the page did not. `bind()` creates its effect on the
+    // ROOT-provided service's injector, so navigating away left the layer and
+    // its effect alive: switch the locale on another page and the stale
+    // binding re-applies, overwriting whatever title that page had pushed.
+    inject(DestroyRef).onDestroy(() => this.reactiveHandle?.pop());
+  }
 
   protected pushMeta(): void {
     const handle = this.metaService.push({
