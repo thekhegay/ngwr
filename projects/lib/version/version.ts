@@ -7,7 +7,7 @@
 
 /**
  * The ngwr library version string, kept in sync with
- * `projects/lib/package.json` by `scripts/release-prepare.ts`.
+ * `projects/lib/package.json` by `scripts/release/prepare.ts`.
  *
  * Prefer this over reading `package.json` at runtime — that requires a JSON
  * import or `require`, neither of which tree-shakes well in Angular builds.

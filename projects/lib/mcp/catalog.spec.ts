@@ -17,7 +17,7 @@ import { type CatalogEntry, Catalog, parseCatalog } from './catalog.js';
  * The catalog reader's spec.
  *
  * `parseCatalog` is one half of a contract between two files in this repo:
- * `scripts/gen-ai-assets.ts` writes `llms-full.txt`, this reads it. So the
+ * `scripts/gen/ai-assets.ts` writes `llms-full.txt`, this reads it. So the
  * samples below are copied from the real generated shapes rather than invented
  * — a parser tested against text no generator emits proves nothing. The shapes
  * that matter are the four the generator actually produces: one selector,
