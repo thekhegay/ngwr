@@ -120,6 +120,8 @@ function viewportHeight(): number {
   templateUrl: './window.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    // See `WrAlert`: a static `title=` feeds the input AND lands on the host.
+    '[attr.title]': 'null',
     role: 'dialog',
     '[class]': 'classes()',
     '[style.left.px]': 'x()',

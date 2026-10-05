@@ -22,6 +22,8 @@ import type { WrToastConfig, WrToastType } from './types';
   templateUrl: './toast-item.html',
   encapsulation: ViewEncapsulation.None,
   host: {
+    // See `WrAlert`: a static `title=` feeds the input AND lands on the host.
+    '[attr.title]': 'null',
     '[class]': 'classes()',
     '[style.--wr-toast-duration]': 'durationMs()',
     '[style.transform]': 'swipeTransform()',
