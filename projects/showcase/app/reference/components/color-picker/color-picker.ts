@@ -76,6 +76,15 @@ const back = toHex(rgb!, true);         // '#3969e2ff'`,
 
   protected readonly pickerApi: readonly DocApiRow[] = [
     {
+      // Documented on the trigger and nowhere on the picker itself, which is
+      // the half a `[formField]` or a `[(value)]` actually binds.
+      name: 'value',
+      description:
+        'The selected colour as a string, in whatever `format` names. Bound by `[formField]`, or two-way via `[(value)]`. All three notations are read on the way IN, so a bound `rgb(…)` lands on the canvas whatever `format` says — only what is written back follows it.',
+      type: 'string',
+      default: "''",
+    },
+    {
       name: 'alpha',
       description:
         'Render the alpha slider and carry alpha in the emitted value — 8-digit hex, or the fourth argument of `rgba()` / `hsla()`.',
