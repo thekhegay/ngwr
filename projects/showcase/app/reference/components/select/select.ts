@@ -104,7 +104,7 @@ export default class SelectComponent {
   <wr-option value="cdk">CDK</wr-option>
   <wr-option value="ssr">SSR</wr-option>
 </wr-select>`,
-    tag: `<wr-select mode="tag" placeholder="Add a tag" [(value)]="tags" />
+    tag: `<wr-select mode="tag" placeholder="Add a tag" [(value)]="freeTags" />
 
 <!-- With separators + validator + caps -->
 <wr-select

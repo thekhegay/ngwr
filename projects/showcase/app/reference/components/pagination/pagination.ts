@@ -68,7 +68,7 @@ export default class PaginationComponent {
     a11y: `<!-- What \`<wr-pagination [total]="120" [(page)]="page" />\` renders, in the
      shape a Playwright or Testing Library locator sees. Tab reaches every
      cell; Enter and Space activate the focused one; arrow keys do nothing. -->
-<wr-pagination role="navigation" aria-label="Pagination" class="wr-pagination wr-pagination--md …">
+<wr-pagination role="navigation" aria-label="Pagination" class="wr-pagination wr-pagination--sm …">
   <div class="wr-pagination__inner">
     <div class="wr-pagination__nav">
       <wr-btn role="button" tabindex="0" aria-label="Previous page" class="wr-pagination__nav-btn">…</wr-btn>

@@ -1914,9 +1914,13 @@ because it is guidance rather than a plan.
 - `wr-alert` does not use one live region: danger interrupts
   (`role="alert"` / assertive), warning is assertive without interrupting,
   the rest wait their turn — and all of it goes away on dismiss.
-- `<wr-window>`'s `moved` fires while the header is dragged and stays silent
-  for `moveTo()` / `center()` / the opening cascade: the caller already knows
-  where it put the window. Defensible and now documented, which it was not.
+- `<wr-window>`'s `moved` fires ONCE when a header drag ends, with the final
+  position, and stays silent for `moveTo()` / `center()` / the opening cascade:
+  the caller already knows where it put the window. `resized` is the same shape.
+  This entry used to say "while the header is dragged, once per pointer move",
+  and so did the output's own JSDoc — both wrong since the emit has always sat
+  in the `pointerup` / `pointercancel` cleanup. A consumer persisting the
+  position wants the landing rather than the path, which is what it does.
 - `wr-tour` skips a step whose target is missing (a tour has to survive a
   feature behind a flag) while the progress line still counts every step it
   was given.

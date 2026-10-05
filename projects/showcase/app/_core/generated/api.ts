@@ -1441,8 +1441,8 @@ export const API = {
     { name: "showMaximize", description: "Show the maximize control. `null` (the default) follows the chrome, as with {@link showMinimize}.", type: "boolean | null", default: "null" },
     { name: "showClose", description: "Show the close control. Not per-OS: every chrome closes.", type: "boolean", default: "true" },
     { name: "(closed)", description: "Fires when the window closes — from the header button or from `close()`.", type: "void" },
-    { name: "(moved)", description: "Fires while the header is DRAGGED, once per pointer move. Programmatic moves (`moveTo`, `center`, the initial cascade) are silent: the caller already knows where it put the window, and echoing those back would double-count for a consumer persisting the position.", type: "{ readonly x: number; readonly y: number }" },
-    { name: "(resized)", description: "Fires while an edge is DRAGGED, and once when a snap target is applied.", type: "{ readonly width: number; readonly height: number }" },
+    { name: "(moved)", description: "Fires ONCE when a header drag ends — on `pointerup` or `pointercancel` — with the window's final position. Not per pointer move: a consumer persisting the position wants the landing, not the path. Programmatic moves (`moveTo`, `center`, the initial cascade) are silent: the caller already knows where it put the window, and echoing those back would double-count.", type: "{ readonly x: number; readonly y: number }" },
+    { name: "(resized)", description: "Fires once when an edge drag ends, and once when a snap target is applied.", type: "{ readonly width: number; readonly height: number }" },
   ],
   // <wr-window-taskbar>
   WrWindowTaskbar: [
