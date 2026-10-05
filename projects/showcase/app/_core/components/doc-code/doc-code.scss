@@ -166,7 +166,15 @@
   border: 0;
   border-radius: var(--wr-border-radius-sm);
   background: rgba(var(--wr-color-on-surface-rgb), 0.25);
-  color: var(--wr-color-white);
+  // The ink's own partner, NOT `--wr-color-white`. The scrim is 25% of the INK
+  // channel, so it composites toward the SURFACE — and `--wr-color-white` is
+  // the token for the opposite case, a label on a dark fill. Both flip with
+  // the theme in the same direction, so the pair stayed unreadable in both:
+  // 1.82:1 light and 2.16:1 dark, on an icon-only button that WCAG 1.4.11
+  // holds to 3:1, on every code block on the site. Reads 9.84 and 7.29 now.
+  // No gate could see it — the button is `opacity: 0` until the block is
+  // hovered, and `check:contrast` photographs a page at rest.
+  color: var(--wr-color-on-surface);
   cursor: pointer;
   opacity: 0;
   // Invisible has to mean intangible. The `<pre>` scrolls under this corner, so
