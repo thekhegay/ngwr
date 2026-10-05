@@ -102,13 +102,12 @@ need to bump versions.
 
 ## Adding a new component
 
-Each component is its own ng-packagr secondary entry point. Use an existing
+Each component is its own secondary entry point. Use an existing
 small component (`projects/lib/alert` is a good template) and replicate the
 structure:
 
 ```
 projects/lib/<name>/
-├── ng-package.json
 ├── index.ts
 ├── public-api.ts
 ├── <name>.ts                  # encapsulation: None, signals-only
@@ -122,7 +121,7 @@ Then:
 1. Add the entry to the umbrella SCSS at `projects/lib/styles.scss`.
 2. Add a `sass` condition for it to the `exports` map in
    `projects/lib/package.json`, pointing at `styles/_index.scss`, so
-   `@use 'ngwr/<name>'` resolves. ng-packagr writes the TypeScript entries
+   `@use 'ngwr/<name>'` resolves. `pnpm gen:exports` writes the TypeScript entries
    itself.
 3. Add a docs page under
    `projects/showcase/app/reference/components/<name>/` (`<name>.ts` +

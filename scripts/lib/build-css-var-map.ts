@@ -90,7 +90,7 @@ function entryPoints(dir = LIB_ROOT, prefix = ''): EntryPoint[] {
     const full = join(dir, name);
     if (!statSync(full).isDirectory()) continue;
     const entry = prefix ? `${prefix}/${name}` : name;
-    if (existsSync(join(full, 'ng-package.json')) && !TOKEN_LAYER.has(entry)) out.push({ entry, dir: full });
+    if (existsSync(join(full, 'public-api.ts')) && !TOKEN_LAYER.has(entry)) out.push({ entry, dir: full });
     out.push(...entryPoints(full, entry));
   }
   return out;

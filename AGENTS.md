@@ -15,7 +15,8 @@ A pnpm + Angular CLI monorepo with two projects:
   (`ngwr/button`, `ngwr/select`, `ngwr/overlay`, …). How many is `entryPoints`
   in `#core/generated/quality`, which `pnpm gen:quality` counts from the tree.
   Read it there: this line used to restate it and went stale with every new
-  component. Counted by `ng-package.json`, not by directory: `styles/` and
+  component. Read from the `exports` map in `projects/lib/package.json`, not
+  from the directory tree: `styles/` and
   `schematics/` are not entry points, and the nested ones are the twenty-two
   `ngwr/i18n/<locale>`,
   `ngwr/icon/adapters/{lucide,feather}`, `ngwr/date/adapters/{fns,luxon}`, the two
@@ -40,7 +41,8 @@ A pnpm + Angular CLI monorepo with two projects:
   `cdk-virtual-scroll-viewport` whose whole observable behaviour is the window it
   measures — so every honest method would answer identically for a working component
   and a broken one. Do not "finish the set" by adding them.
-  Built with **ng-packagr**. TS path mapping: `ngwr/*` → `./projects/lib/*`.
+  Built with **`@angular/build:library`**, not ng-packagr. TS path mapping:
+  `ngwr/*` → `./projects/lib/*`.
 - **`projects/showcase/`** — the docs site (**ngwr.dev**): live demos + API
   docs, and where components are dogfooded. Docs are organised into five
   top-level clusters — **start / guides / reference / icons / animations**: API
@@ -63,9 +65,9 @@ A pnpm + Angular CLI monorepo with two projects:
 | `alert.html`         | template (components only)                                  |
 | `styles/_index.scss` | consumable styles — imported by apps as `@use 'ngwr/alert'` |
 | `interfaces/`        | public types                                                |
-| `public-api.ts`      | the entry point's exports — **ng-packagr's `entryFile`**    |
+| `public-api.ts`      | the entry point's exports — what `exports` points at       |
 | `index.ts`           | barrel (`export * from './public-api'`)                     |
-| `ng-package.json`    | ng-packagr secondary-entry config                           |
+| _(no per-folder config)_ | the `exports` map declares it; `pnpm gen:exports` writes that |
 
 `@use 'ngwr/<name>'` resolves through the `sass` condition in
 `projects/lib/package.json`'s `exports` map.
@@ -1156,7 +1158,7 @@ animations have their own in `animations.config.ts`. For a flat list, read
 the cleanest match) — copy its `@Component` shape (`ViewEncapsulation.None`,
 `host` bindings, signal `input()` / `model()` / `output()`; no `standalone` or
 `changeDetection` property), plus `styles/_index.scss`, `public-api.ts`,
-`index.ts`, and `ng-package.json`. The catalog is consistent — match the local
+and `index.ts`, then `pnpm gen:exports`. The catalog is consistent — match the local
 idiom rather than inventing one.
 
 **Naming.** Selector prefix `wr-` (mind the abbreviations — the button is

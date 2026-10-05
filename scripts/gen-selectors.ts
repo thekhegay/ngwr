@@ -60,7 +60,7 @@ function entryPoints(dir = LIB_ROOT, prefix = ''): EntryPoint[] {
       continue;
     }
     const entry = prefix ? `${prefix}/${name}` : name;
-    if (existsSync(join(full, 'ng-package.json'))) {
+    if (existsSync(join(full, 'public-api.ts'))) {
       out.push({ subpath: `ngwr/${entry}`, dir: full, ships: existsSync(join(full, 'styles', '_index.scss')) });
     }
     out.push(...entryPoints(full, entry));

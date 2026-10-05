@@ -38,13 +38,20 @@ const PASSTHROUGH: readonly (readonly [string, unknown])[] = [
 
 const SKIP = new Set(['node_modules', 'schematics', 'styles', 'mcp', '_svg']);
 
-/** Every directory holding an `ng-package.json`, relative to the library root. */
+/**
+ * Every directory holding a `public-api.ts`, relative to the library root.
+ *
+ * That file IS the entry point now. Discovery used to key on a nested
+ * `ng-package.json` beside it, which ng-packagr read and `@angular/build`
+ * does not; those files are deleted, so the one that carries the exports is
+ * the one to look for.
+ */
 function entryPoints(dir: string, out: string[] = []): string[] {
   for (const name of readdirSync(dir).sort()) {
     if (name.startsWith('.') || SKIP.has(name)) continue;
     const full = join(dir, name);
     if (!statSync(full).isDirectory()) continue;
-    if (readdirSync(full).includes('ng-package.json')) out.push(relative(LIB, full));
+    if (readdirSync(full).includes('public-api.ts')) out.push(relative(LIB, full));
     entryPoints(full, out);
   }
   return out;

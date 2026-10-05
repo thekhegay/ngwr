@@ -76,12 +76,12 @@ const read = (path: string): string => (existsSync(path) ? readFileSync(path, 'u
 /**
  * Every secondary entry point, keyed by its import subpath.
  *
- * Discovery is by `ng-package.json`, which is what ng-packagr itself builds
+ * Discovery is by `public-api.ts`, which is what the exports map points at
  * from — a directory scan one level deep misses the one hundred nested ones
  * (the twenty-two `i18n/<locale>`, `icon/adapters/{lucide,feather}`,
  * `date/adapters/{fns,luxon}`, the v14 router opt-ins `loading-bar/router` and
  * `tabs/router`, and the seventy-two `<name>/testing` harness entry points) and
- * reports 129 where the package publishes 229. `projects/lib/ng-package.json` is the PRIMARY entry point and
+ * reports 129 where the package publishes 229. `projects/lib/public-api.ts` is the PRIMARY entry point and
  * is excluded: its key would be the empty string and its import specifier a
  * bare `ngwr`.
  */
@@ -91,7 +91,7 @@ function findEntries(): string[] {
     for (const name of readdirSync(dir)) {
       const full = join(dir, name);
       if (!statSync(full).isDirectory()) continue;
-      if (existsSync(join(full, 'ng-package.json'))) out.push(relative(LIB_DIR, full));
+      if (existsSync(join(full, 'public-api.ts'))) out.push(relative(LIB_DIR, full));
       walk(full);
     }
   };

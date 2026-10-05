@@ -39,11 +39,11 @@ const LIB_ROOT = resolve(ROOT_PATH, 'projects/lib');
 const EXPORT_RE = /export\s*(type\s*)?\{([^}]+)\}/g;
 const SYMBOL_RE = /\b(Wr[A-Z][A-Za-z0-9_]*)\b/g;
 
-/** Sub-directories that aren't actual public entry-points (no ng-package.json). */
+/** Sub-directories that aren't actual public entry-points (no public-api.ts). */
 function isEntryPoint(dir: string): boolean {
   try {
     statSync(resolve(LIB_ROOT, dir, 'public-api.ts'));
-    statSync(resolve(LIB_ROOT, dir, 'ng-package.json'));
+    statSync(resolve(LIB_ROOT, dir, 'public-api.ts'));
     return true;
   } catch {
     return false;
