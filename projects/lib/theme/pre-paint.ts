@@ -16,7 +16,7 @@ export interface WrThemePrePaintOptions {
   readonly storageKey?: string;
   /**
    * The attribute written on `<html>` — `provideWrTheme({ attribute })`, which
-   * has to agree with `@use 'ngwr' with ($theme-attribute: '…')`.
+   * has to agree with `@use 'ngwr/theme' with ($theme-attribute: '…')`.
    * @default 'data-theme'
    */
   readonly attribute?: string;

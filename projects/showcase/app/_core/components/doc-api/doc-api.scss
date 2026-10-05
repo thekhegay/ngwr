@@ -11,7 +11,7 @@
 
 // The four columns are DECLARED, and `fixed` is what makes the declaration
 // stick. Under `auto` the browser sizes by content volume, and the two failure
-// modes are opposite ends of the same fault: on `/animations/circular-text` —
+// modes are opposite ends of the same fault: on `/bits/circular-text` —
 // three short descriptions and one long union — it handed Type 413px and
 // Description 319px, so the widest column was the one nobody reads; on
 // `/reference/components/markdown`, whose descriptions come from the library's

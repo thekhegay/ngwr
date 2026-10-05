@@ -373,7 +373,7 @@ describe('callTool — get_ngwr_component', () => {
     // `reference/components/<name>` for everything, and half the catalog is
     // documented somewhere else — directives, services, pipes, utils and
     // validators have their own clusters, the animation components live under
-    // `/animations/`, and the harness entry points have no page at all. 84 of
+    // `/bits/`, and the harness entry points have no page at all. 84 of
     // the 166 got a link that 404s, the markdown twin beside it doubly so: an
     // agent that fetched the twin parsed the 404 page as documentation. The URL
     // now comes from the `@see` in the class's own JSDoc — the same string the
@@ -486,7 +486,7 @@ describe('callTool — get_ngwr_setup', () => {
         '`--path` is a NAMED option, not positional — passing it bare fails with `Unknown argument`.',
         '',
         '## 3. Styles',
-        "@use 'ngwr';   // everything, or per component:",
+        "@use 'ngwr/theme';   // the token layer, first — then per component:",
         "@use 'ngwr/badge';",
         '',
       ].join('\n')

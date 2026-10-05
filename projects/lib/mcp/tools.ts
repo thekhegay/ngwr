@@ -366,7 +366,7 @@ function setup(catalog: Catalog, symbols: readonly string[]): string {
     '`--path` is a NAMED option, not positional — passing it bare fails with `Unknown argument`.',
     '',
     '## 3. Styles',
-    "@use 'ngwr';   // everything, or per component:",
+    "@use 'ngwr/theme';   // the token layer, first — then per component:",
     // Only the entry points that ship one. `component()` was fixed for this and
     // `setup()` was missed — which is worse here, because this tool's entire
     // output is commands to run, and `@use 'ngwr/table/testing'` fails the build.

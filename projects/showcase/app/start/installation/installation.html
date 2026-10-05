@@ -27,7 +27,7 @@
 
   <ngwr-doc-section
     title="Quick start"
-    description="`ng add` runs the schematic that installs peer deps (including `lucide`), wires `@use 'ngwr';` into your global styles, and prints a tailored bootstrap snippet based on the prompts you answer. It prints those providers rather than writing them — copy them into `app.config.ts` yourself."
+    description="`ng add` runs the schematic that installs peer deps (including `lucide`), wires `@use 'ngwr/theme';` into your global styles, and prints a tailored bootstrap snippet based on the prompts you answer. It prints those providers rather than writing them — copy them into `app.config.ts` yourself."
   >
     <ngwr-doc-code [code]="snippets.ngAdd" language="bash" />
   </ngwr-doc-section>
@@ -55,19 +55,19 @@
 
   <ngwr-doc-section
     title="Global styles"
-    description="Import once in your global stylesheet. The umbrella entry pulls theme tokens + every component's styles. Utilities are opt-in. The [theming guide](/guides/theming) writes this as `@use 'ngwr' as *;` — same CSS either way; `as *` only drops the `ngwr.` prefix from the SCSS mixins the umbrella forwards, so reach for it when you want `@include media-up(md)` unqualified."
+    description="One `@use` per thing you render, in your global stylesheet, with `ngwr/theme` on the first line. **There is no `@use 'ngwr'`** — the package ships no umbrella, because a sheet that compiles every component in the catalog to paint a page using four of them is the opposite of what a per-entry-point library is for. Each component entry loads the token layer itself and Sass de-duplicates it, so the tokens are emitted once no matter how many lines you write; the theme line is still first, because only a module's FIRST load can take `with (...)`, and that is where `$theme-attribute` goes. Utilities are opt-in on top."
   >
     <ngwr-doc-code [code]="snippets.globalStyles" language="scss" />
 
     <p wrTypography variant="small" tone="muted">
-      <strong>What it costs, since <code>ng new</code> warns at 500 kB.</strong> Compiled and minified, the umbrella is
-      about <strong>{{ styleSizes.umbrella }}</strong> of CSS, roughly {{ styleSizes.umbrellaGzip }} over the wire —
-      every component sheet in the catalog, whether you render the component or not. The fifteen entries a typical CRUD
+      <strong>What it costs, since <code>ng new</code> warns at 500 kB.</strong> The fifteen entries a typical CRUD
       screen needs (theme, density, button, input, form, icon, select, checkbox, table, pagination, dialog, toast,
-      overlay, spinner, dropdown) come to about <strong>{{ styleSizes.crud }}</strong> /
+      overlay, spinner, dropdown) compile and minify to about <strong>{{ styleSizes.crud }}</strong> /
       {{ styleSizes.crudGzip }} gzipped; the theme token layer alone is {{ styleSizes.theme }} /
-      {{ styleSizes.themeGzip }}. Those are this release measured with the command below, not a budget — re-run it
-      rather than trusting the numbers a page was written with.
+      {{ styleSizes.themeGzip }}. The whole catalog, for comparison, is <strong>{{ styleSizes.everything }}</strong> /
+      {{ styleSizes.everythingGzip }} — that figure is why there is nothing to <code>&#64;use</code> that gives you all
+      of it. These are this release measured with the command below, not a budget: re-run it rather than trusting the
+      numbers a page was written with.
     </p>
 
     <ngwr-doc-code [code]="snippets.measureCss" language="bash" />
@@ -85,8 +85,8 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Per-component styles"
-    description="Each component also ships a standalone SCSS entry, and the theme layer comes with it — `@use 'ngwr/button'` emits the tokens too, deduped across the compilation, so you never load `ngwr/theme` by hand. What does NOT come with it is every other component this one renders, and that is the whole hazard of opting in per component: nothing warns you, the control just renders wrong. A missing `ngwr/icon` is the loudest of them: an inline SVG with no `.wr-icon__svg` rule falls back to the browser's default replaced-element box, so a select's chevron renders at around 150px tall."
+    title="The style entries you will forget"
+    description="A component's SCSS entry brings the theme layer with it — `@use 'ngwr/button'` emits the tokens too, deduped across the compilation — but it does not bring the other components this one renders, and that is the one real hazard of a per-entry-point library: nothing warns you, the control just renders wrong. A missing `ngwr/icon` is the loudest of them: an inline SVG with no `.wr-icon__svg` rule falls back to the browser's default replaced-element box, so a select's chevron renders at around 150px tall. The table below is the full set."
   >
     <ngwr-doc-code [code]="snippets.perComponent" language="scss" />
 
@@ -148,14 +148,14 @@
 
     <wr-alert
       type="info"
-      title="If you are not chasing bytes, use the umbrella."
-      message="The umbrella has none of this failure mode, and the whole of the saving is CSS — the per-component split changes nothing about your JavaScript bundle, which is decided by what you import in TypeScript. Opt in per component when the stylesheet is genuinely the budget you are over, and check the rendered control rather than the build log, because nothing here fails loudly."
+      title="Nothing here fails loudly."
+      message="A missing style entry is not a build error and not a console warning — it is a control that renders with no styling, or worse, one that renders almost right because the sheet it was leaning on came in through something else. Check the rendered control, not the build log. And none of this touches your JavaScript bundle, which is decided purely by what you import in TypeScript."
     />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="What the opt-in utilities do"
-    description="None of these is loaded by `@use 'ngwr'`, and none is a no-op. `ngwr/grid` adds `.grid` / `.container` / `.col-*` and touches nothing else. `ngwr/reset` is the one to read before adopting: it is a reset in the modern sense, so it removes browser defaults from elements ngwr does not own, and two of those removals are routinely a surprise — links lose their underline (`a { color: inherit; text-decoration: none }`) and plain buttons lose their chrome (`button { background: none; border: 0; padding: 0 }`). It also sets heading sizes and weights from the type scale, which makes it more opinionated than the “box-sizing and body margin” it is usually reached for. Load it AFTER the theme, or after `@use 'ngwr'`: it reads `--wr-font-family-base` and `--wr-text-*`, so on its own those resolve to nothing."
+    description="None of these comes in with a component, and none is a no-op. `ngwr/grid` adds `.grid` / `.container` / `.col-*` and touches nothing else. `ngwr/reset` is the one to read before adopting: it is a reset in the modern sense, so it removes browser defaults from elements ngwr does not own, and two of those removals are routinely a surprise — links lose their underline (`a { color: inherit; text-decoration: none }`) and plain buttons lose their chrome (`button { background: none; border: 0; padding: 0 }`). It also sets heading sizes and weights from the type scale, which makes it more opinionated than the “box-sizing and body margin” it is usually reached for. Load it AFTER `ngwr/theme`: it reads `--wr-font-family-base` and `--wr-text-*`, so on its own those resolve to nothing."
   >
     <ngwr-doc-code [code]="snippets.reset" language="scss" />
 
@@ -179,7 +179,7 @@
       <code>.wr-text-balance</code>, <code>.wr-text-pretty</code> and <code>.wr-truncate</code> cover wrapping. Load it
       with <code>&#64;use 'ngwr/typography-utilities'</code>, after the theme like the reset, because every class reads
       a <code>--wr-*</code> token. It is not <code>ngwr/typography</code>: that entry is the stylesheet of the
-      <code>wrTypography</code> component, and <code>&#64;use 'ngwr'</code> already includes it.
+      <code>wrTypography</code> component, which you &#64;use when you render it.
     </p>
   </ngwr-doc-section>
 

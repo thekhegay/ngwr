@@ -25,7 +25,7 @@
 // Two ordering rules, both load-bearing:
 //
 // `@forward` comes FIRST. It is the load that accepts configuration, so
-// `@use 'ngwr' with ($theme-attribute: 'data-color-mode')` reaches the module
+// `@use 'ngwr/theme' with ($theme-attribute: 'data-color-mode')` reaches the module
 // through it. Put the `@use` above and Sass refuses the whole build with "This
 // module was already loaded, so it can't be configured using with".
 //

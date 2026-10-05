@@ -198,7 +198,7 @@ export class Header {
     { url: [routes.index, routes.guides.index], label: 'Guides' },
     { url: [routes.index, routes.reference.index], label: 'Reference' },
     { url: [routes.index, routes.icons.index], label: 'Icons' },
-    { url: [routes.index, routes.animations.index], label: 'Animations' },
+    { url: [routes.index, routes.bits.index], label: 'Bits' },
   ];
   protected readonly actions: readonly ActionLink[] = [
     { url: 'https://github.com/thekhegay/ngwr', icon: 'github', modifier: 'github', label: 'GitHub' },

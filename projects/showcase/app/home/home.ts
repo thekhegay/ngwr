@@ -3,17 +3,17 @@ import { Component, DestroyRef, PLATFORM_ID, inject, signal } from '@angular/cor
 import { RouterLink } from '@angular/router';
 
 import { Folder, ListChecks, Moon, Play, ShieldCheck, Terminal } from 'lucide';
-import { WrBlurText } from 'ngwr/animations/blur-text';
-import { WrDecryptText } from 'ngwr/animations/decrypt-text';
-import { WrGlitchText } from 'ngwr/animations/glitch-text';
-import { WrGradientText } from 'ngwr/animations/gradient-text';
-import { WrRotatingText } from 'ngwr/animations/rotating-text';
-import { WrShinyText } from 'ngwr/animations/shiny-text';
-import { WrSplitText } from 'ngwr/animations/split-text';
-import { WrSpotlightCard } from 'ngwr/animations/spotlight-card';
-import { WrTypewriter } from 'ngwr/animations/typewriter';
-import { WrWaves } from 'ngwr/animations/waves';
 import { WrTag } from 'ngwr/badge';
+import { WrBlurText } from 'ngwr/bits/blur-text';
+import { WrDecryptText } from 'ngwr/bits/decrypt-text';
+import { WrGlitchText } from 'ngwr/bits/glitch-text';
+import { WrGradientText } from 'ngwr/bits/gradient-text';
+import { WrRotatingText } from 'ngwr/bits/rotating-text';
+import { WrShinyText } from 'ngwr/bits/shiny-text';
+import { WrSplitText } from 'ngwr/bits/split-text';
+import { WrSpotlightCard } from 'ngwr/bits/spotlight-card';
+import { WrTypewriter } from 'ngwr/bits/typewriter';
+import { WrWaves } from 'ngwr/bits/waves';
 import { WrButton } from 'ngwr/button';
 import { provideWrIcons, WrIcon } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';

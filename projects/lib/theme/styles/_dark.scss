@@ -23,12 +23,21 @@
 /// Configure the two together:
 ///
 /// ```scss
-/// // styles.scss
-/// @use 'ngwr' with ($theme-attribute: 'data-color-mode');
+/// // styles.scss — this line FIRST, above every component.
+/// @use 'ngwr/theme' with ($theme-attribute: 'data-color-mode');
+/// @use 'ngwr/button';
 /// ```
 /// ```ts
 /// provideWrTheme({ attribute: 'data-color-mode' })
 /// ```
+///
+/// The order is load-bearing and Sass says so out loud. Every component
+/// stylesheet loads the theme layer itself, and a module can be configured
+/// only at its FIRST load — so a `@use 'ngwr/theme' with (...)` that sits
+/// below `@use 'ngwr/button'` fails the build with "This module was already
+/// loaded, so it can't be configured using with". It used to be possible to
+/// not notice, because the `@use 'ngwr'` umbrella loaded everything in one
+/// line; v15 removed the umbrella, so this line is the first line.
 ///
 /// Only the configured attribute is emitted — the default is NOT kept as a
 /// second selector. Renaming it is what decouples ngwr from another design

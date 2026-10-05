@@ -7,73 +7,131 @@
     "project": {
       "type": "string",
       "description": "Target Angular project name. Defaults to the workspace default project.",
-      "$default": { "$source": "projectName" }
+      "$default": {
+        "$source": "projectName"
+      }
     },
     "styles": {
       "type": "string",
-      "enum": ["all", "none"],
-      "default": "all",
-      "description": "How to wire ngwr styles. `all` appends `@use 'ngwr';` to the project's global stylesheet. `none` skips — opt in per-component later via `ng g ngwr:component-style <name>`.",
+      "enum": [
+        "theme",
+        "none"
+      ],
+      "default": "theme",
+      "description": "How to wire ngwr styles. `theme` appends `@use 'ngwr/theme';` to the project's global stylesheet \u2014 the token layer, which is the line that can carry `with ($theme-attribute: ...)`. `none` skips. Component styles are opt-in either way, via `ng g ngwr:component-style <name>`: there is no umbrella entry point.",
       "x-prompt": {
         "message": "How should ngwr styles be wired?",
         "type": "list",
         "items": [
-          { "value": "all", "label": "All — one `@use 'ngwr';` import (recommended)" },
-          { "value": "none", "label": "None — opt in per-component later" }
+          {
+            "value": "theme",
+            "label": "Theme \u2014 one `@use 'ngwr/theme';` import (recommended)"
+          },
+          {
+            "value": "none",
+            "label": "None \u2014 wire styles yourself"
+          }
         ]
       }
     },
     "dateAdapter": {
       "type": "string",
-      "enum": ["none", "native", "date-fns", "luxon"],
+      "enum": [
+        "none",
+        "native",
+        "date-fns",
+        "luxon"
+      ],
       "default": "none",
       "description": "Wire a date adapter for calendar / date-picker. `none` skips. `native` uses the built-in Date adapter (no extra deps). `date-fns` / `luxon` auto-install the corresponding peer.",
       "x-prompt": {
         "message": "Wire a date adapter? (Used by calendar / date-picker.)",
         "type": "list",
         "items": [
-          { "value": "none", "label": "None — skip (you can add later)" },
-          { "value": "native", "label": "Native — built-in Date, no extra deps" },
-          { "value": "date-fns", "label": "date-fns — small, modular" },
-          { "value": "luxon", "label": "Luxon — Intl-backed, locale-rich" }
+          {
+            "value": "none",
+            "label": "None \u2014 skip (you can add later)"
+          },
+          {
+            "value": "native",
+            "label": "Native \u2014 built-in Date, no extra deps"
+          },
+          {
+            "value": "date-fns",
+            "label": "date-fns \u2014 small, modular"
+          },
+          {
+            "value": "luxon",
+            "label": "Luxon \u2014 Intl-backed, locale-rich"
+          }
         ]
       }
     },
     "density": {
       "type": "string",
-      "enum": ["none", "sm", "lg"],
+      "enum": [
+        "none",
+        "sm",
+        "lg"
+      ],
       "default": "none",
       "description": "Default density wired via `provideWrDensity()`. `none` uses lib defaults (md).",
       "x-prompt": {
         "message": "Pick a default density",
         "type": "list",
         "items": [
-          { "value": "none", "label": "None — use lib defaults (md)" },
-          { "value": "sm", "label": "sm — tight spacing" },
-          { "value": "lg", "label": "lg — relaxed spacing" }
+          {
+            "value": "none",
+            "label": "None \u2014 use lib defaults (md)"
+          },
+          {
+            "value": "sm",
+            "label": "sm \u2014 tight spacing"
+          },
+          {
+            "value": "lg",
+            "label": "lg \u2014 relaxed spacing"
+          }
         ]
       }
     },
     "theme": {
       "type": "string",
-      "enum": ["none", "light", "dark", "system"],
+      "enum": [
+        "none",
+        "light",
+        "dark",
+        "system"
+      ],
       "default": "none",
       "description": "Theme starter for `data-theme` on `<html>`. `system` auto-switches via `prefers-color-scheme`.",
       "x-prompt": {
         "message": "Theme starter?",
         "type": "list",
         "items": [
-          { "value": "none", "label": "None — stay on lib defaults" },
-          { "value": "light", "label": "Light" },
-          { "value": "dark", "label": "Dark" },
-          { "value": "system", "label": "System — auto-switch via prefers-color-scheme" }
+          {
+            "value": "none",
+            "label": "None \u2014 stay on lib defaults"
+          },
+          {
+            "value": "light",
+            "label": "Light"
+          },
+          {
+            "value": "dark",
+            "label": "Dark"
+          },
+          {
+            "value": "system",
+            "label": "System \u2014 auto-switch via prefers-color-scheme"
+          }
         ]
       }
     },
     "skipPeerInstall": {
       "type": "boolean",
       "default": false,
-      "description": "Skip running the package manager install task — useful in monorepos where you manage installs yourself."
+      "description": "Skip running the package manager install task \u2014 useful in monorepos where you manage installs yourself."
     }
   },
   "required": []
