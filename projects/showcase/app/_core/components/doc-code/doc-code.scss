@@ -1,7 +1,15 @@
 :host {
   --ngwr-doc-code-padding: 1rem;
   --ngwr-doc-code-radius: var(--wr-border-radius-base);
-  --ngwr-doc-code-bg: rgba(var(--wr-color-outline-rgb), 0.2);
+  // A FILL role, deliberately not `rgba(var(--wr-color-outline-rgb), 0.2)`,
+  // which is what this was. `--wr-color-outline` is a BORDER token, and
+  // `prefers-contrast: more` darkens it on purpose so hairlines stay visible —
+  // which turned the code well from `#f5f7f9` into `#e3e8ef` and dropped the
+  // shiki comment colour (`#66707b`, fixed by the theme and not a `--wr-*`)
+  // from 4.69:1 to 4.09:1. High-contrast mode made the code HARDER to read,
+  // on every page with a snippet. `--wr-color-fill-subtle` is the faintest
+  // wash of the ramp, no contrast mode touches it, and it lands at 4.77:1.
+  --ngwr-doc-code-bg: var(--wr-color-fill-subtle);
   // `--wr-color-on-surface` IS the primary text token (near-black in light
   // mode, near-white in dark). `--wr-color-surface` would be the
   // paired color (white in light, near-black in dark) — invisible on
