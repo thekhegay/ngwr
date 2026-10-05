@@ -72,12 +72,13 @@ export const QUALITY = {
     { name: "check:rtl", command: "tsx scripts/check/rtl.ts" },
     { name: "check:tokens", command: "tsx scripts/check/tokens.ts" },
     { name: "check:color-only", command: "tsx scripts/check/color-only.ts" },
+    { name: "check:attrs", command: "tsx scripts/check/unknown-attrs.ts" },
     { name: "check:selectors", command: "tsx scripts/gen/selectors.ts --check" },
   ],
 
   /** Every `package.json` script `.github/workflows/ci.yml` runs on a pull request, in order. Parsed from the workflow, so a gate added or removed there moves this list. */
   prGates: [
-    { name: "lint", command: "ng lint && eslint scripts && pnpm lint:styles && pnpm check:colors && pnpm check:rtl && pnpm check:tokens && pnpm check:color-only && pnpm check:selectors" },
+    { name: "lint", command: "ng lint && eslint scripts && pnpm lint:styles && pnpm check:colors && pnpm check:rtl && pnpm check:tokens && pnpm check:color-only && pnpm check:attrs && pnpm check:selectors" },
     { name: "test:coverage", command: "ng test lib --coverage --coverage-reporters lcovonly text-summary" },
     { name: "check:api-docs", command: "tsx scripts/gen/api-docs.ts --check" },
     { name: "check:llms", command: "tsx scripts/gen/ai-assets.ts --check" },
