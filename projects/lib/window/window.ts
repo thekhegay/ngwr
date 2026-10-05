@@ -270,14 +270,17 @@ export class WrWindow {
   readonly closed = output<void>();
 
   /**
-   * Fires while the header is DRAGGED, once per pointer move. Programmatic moves
-   * (`moveTo`, `center`, the initial cascade) are silent: the caller already knows
-   * where it put the window, and echoing those back would double-count for a
-   * consumer persisting the position.
+   * Fires ONCE when a header drag ends — on `pointerup` or `pointercancel` —
+   * with the window's final position. Not per pointer move: a consumer
+   * persisting the position wants the landing, not the path.
+   *
+   * Programmatic moves (`moveTo`, `center`, the initial cascade) are silent:
+   * the caller already knows where it put the window, and echoing those back
+   * would double-count.
    */
   readonly moved = output<{ readonly x: number; readonly y: number }>();
 
-  /** Fires while an edge is DRAGGED, and once when a snap target is applied. */
+  /** Fires once when an edge drag ends, and once when a snap target is applied. */
   readonly resized = output<{ readonly width: number; readonly height: number }>();
 
   private readonly manager = inject(WrWindowManager);

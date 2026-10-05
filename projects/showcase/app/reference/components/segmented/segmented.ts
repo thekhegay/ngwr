@@ -82,9 +82,18 @@ export class ScheduleComponent {
   label?: string;
   icon?: WrIconName;
   disabled?: boolean;
+  /** Accessible name for an icon-only segment, which has no text to read. */
+  ariaLabel?: string;
 }`;
 
   protected readonly typeRows: readonly DocApiRow[] = [
+    {
+      name: 'ariaLabel',
+      description:
+        'Accessible name for an icon-only option. Without a `label` the button has no text at all, so assistive tech announced nothing; omitted, the option&rsquo;s `value` is the last resort.',
+      type: 'string',
+      default: '—',
+    },
     { name: 'WrSegmentedOption', description: 'One entry in the track.', type: 'interface' },
     { name: 'value', description: 'Model value when this segment is picked.', type: 'T', required: true, sub: true },
     { name: 'label', description: 'Visible text; omit for icon-only segments.', type: 'string', sub: true },

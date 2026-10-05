@@ -32,7 +32,7 @@ export default class StatisticPageComponent {
   protected readonly groupSnippet = `<wr-statistic-group [columns]="4" min="11rem">
   <wr-statistic label="Active users" [value]="12345" />
   <wr-statistic label="Revenue" [value]="9512" prefix="$" [delta]="12.4" />
-  <wr-statistic label="Churn" [value]="1.8" suffix="%" [delta]="-0.4" />
+  <wr-statistic label="Churn" [value]="1.8" [precision]="1" suffix="%" [delta]="-0.4" />
   <wr-statistic label="Sessions" [value]="48210" />
 </wr-statistic-group>`;
 

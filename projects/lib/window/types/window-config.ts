@@ -50,7 +50,7 @@ export interface WrWindowConfig<D = unknown> {
   readonly os?: WrWindowOs;
   /** Initial size preset. Ignored when `width` / `height` are passed. */
   readonly size?: WrWindowSize;
-  /** Title-bar density. @default 'normal' */
+  /** Title-bar density. @default 'md' */
   readonly chromeSize?: WrWindowChromeSize;
 
   // Initial geometry (pixels)
