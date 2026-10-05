@@ -28,18 +28,7 @@
         style="height: 16rem; border: 1px solid var(--wr-color-outline); border-radius: 0.5rem; overflow: hidden"
       >
         <wr-layout-header>
-          <button
-            type="button"
-            style="
-              padding: 0.25rem 0.625rem;
-              border-radius: 0.25rem;
-              border: 1px solid var(--wr-color-outline);
-              background: var(--wr-color-white);
-              cursor: pointer;
-              font-size: 0.8125rem;
-            "
-            (click)="toggleSider()"
-          >
+          <button type="button" wr-btn size="sm" outlined (click)="toggleSider()">
             {{ collapsed() ? 'Expand' : 'Collapse' }} sider
           </button>
         </wr-layout-header>
