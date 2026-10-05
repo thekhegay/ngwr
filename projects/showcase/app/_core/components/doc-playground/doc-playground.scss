@@ -123,7 +123,11 @@
   padding: 0.625rem 0.875rem;
   border: 1px solid var(--wr-color-outline);
   border-radius: 0.5rem;
-  background: rgba(var(--wr-color-outline-rgb), 0.2);
+  // A fill role, for the reason spelled out in `doc-code.scss`: the border
+  // token darkens under `prefers-contrast: more`, so using it as a FILL made
+  // every control label here harder to read in the mode meant to help —
+  // `.chip__label` went from 4.99:1 to 4.36:1.
+  background: var(--wr-color-fill-subtle);
   color: var(--wr-color-on-surface);
   font-size: 0.8125rem;
 
