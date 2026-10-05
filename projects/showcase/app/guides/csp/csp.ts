@@ -37,11 +37,10 @@ Content-Security-Policy:
   object-src  'none'`,
 
     styles: `// styles.scss — this is what makes 'self' enough for ngwr.
-@use 'ngwr';           // every component, in the linked stylesheet
-
-// …or per component, if you are trimming:
+// One @use per thing you render, all of it in the linked stylesheet.
+@use 'ngwr/theme';
 @use 'ngwr/button';
-@use 'ngwr/animations/split-text';`,
+@use 'ngwr/bits/split-text';`,
 
     nonce: `// main.ts — only needed if you do NOT import the stylesheet above.
 import { CSP_NONCE } from '@angular/core';
@@ -117,7 +116,7 @@ Content-Security-Policy:
       kind: 'Guide',
       title: 'Theming',
       url: ['/guides', 'theming'],
-      description: "Where the stylesheet import lives, and what `@use 'ngwr'` pulls in.",
+      description: 'Where the style entries live, and what each one pulls in with it.',
     },
     {
       kind: 'Guide',

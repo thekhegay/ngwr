@@ -232,12 +232,12 @@ describe('ng update ngwr@15', () => {
     });
 
     it('names a `$base-colors` map still carrying a removed key', () => {
-      const source = "@use 'ngwr' with ($base-colors: (primary: #06c, secondary: #e21a62));";
+      const source = "@use 'ngwr/theme' with ($base-colors: (primary: #06c, secondary: #e21a62));";
 
       expect(said(run({ '/a.scss': source }).logs, '$base-colors')).toBe(true);
-      expect(said(run({ '/b.scss': "@use 'ngwr' with ($base-colors: (primary: #06c));" }).logs, '$base-colors')).toBe(
-        false
-      );
+      expect(
+        said(run({ '/b.scss': "@use 'ngwr/theme' with ($base-colors: (primary: #06c));" }).logs, '$base-colors')
+      ).toBe(false);
     });
 
     it('names a WrColor literal the narrowed union refuses', () => {

@@ -81,8 +81,8 @@ const STYLE_DEPS: readonly StyleDepRow[] = [
  * gates these, so treat a stale one as stale rather than as a regression.
  */
 const STYLE_SIZES = {
-  umbrella: '320 kB',
-  umbrellaGzip: '46 kB',
+  everything: '320 kB',
+  everythingGzip: '46 kB',
   crud: '94 kB',
   crudGzip: '14 kB',
   theme: '24 kB',
@@ -179,8 +179,14 @@ export default [
     },
   },
 ];`,
-    globalStyles: `// styles.scss — import once, gets the full library
-@use 'ngwr';
+    globalStyles: `// styles.scss — the token layer FIRST, then one line per component.
+@use 'ngwr/theme';    // :root tokens, the dark block, color-scheme
+@use 'ngwr/density';  // the --wr-density-* multipliers
+
+@use 'ngwr/button';
+@use 'ngwr/input';
+@use 'ngwr/select';   // its panel is a <wr-option> list, so this covers both
+@use 'ngwr/dialog';   // needed by WrDialog.open(), which no template names
 
 // Opt-in utilities
 @use 'ngwr/grid';   // .grid, .container, .col-*
@@ -193,8 +199,10 @@ export default [
 npx sass --pkg-importer=node --style=compressed --no-source-map check.scss check.css
 wc -c < check.css          # minified
 gzip -9 -c check.css | wc -c   # over the wire`,
-    perComponent: `// Or import only the component styles you actually use.
-// The theme layer comes with each entry (deduped) — you never @use it by hand.
+    perComponent: `// The theme layer goes first. Every component entry loads it too and Sass
+// de-duplicates, so it is emitted once — but only the FIRST load of a module
+// can take \`with (...)\`, which is what makes the order matter.
+@use 'ngwr/theme' with ($theme-attribute: 'data-color-mode');
 @use 'ngwr/density';  // the --wr-density-* multipliers; nothing else declares them
 @use 'ngwr/icon';     // .wr-icon__svg — sizes every inline chevron and caret
 @use 'ngwr/overlay';  // .wr-overlay-sheet — the responsive bottom sheet
@@ -203,7 +211,7 @@ gzip -9 -c check.css | wc -c   # over the wire`,
 @use 'ngwr/select';   // its panel is a <wr-option> list, so this covers both
 @use 'ngwr/dialog';   // needed by WrDialog.open(), which no template names`,
     reset: `// styles.scss — reset AFTER the tokens it reads.
-@use 'ngwr';
+@use 'ngwr/theme';
 @use 'ngwr/reset';
 
 // What it changes outside ngwr's own components:
@@ -271,8 +279,8 @@ const CHECK = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill=
   \`,
 })
 export class App {}`,
-    overrideTokens: `// Override theme tokens by redeclaring CSS variables after the lib styles.
-@use 'ngwr';
+    overrideTokens: `// Override theme tokens by redeclaring CSS variables after the token layer.
+@use 'ngwr/theme';
 
 :root {
   --wr-color-primary: #6366f1;       // your brand

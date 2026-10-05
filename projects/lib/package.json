@@ -111,7 +111,6 @@
     "./schematics/*": "./schematics/*",
     "./i18n/*.json": "./i18n/*.json",
     ".": {
-      "sass": "./styles.scss",
       "default": "./public-api.ts"
     },
     "./affix": {
@@ -126,142 +125,6 @@
       "sass": "./anchor/styles/_index.scss",
       "default": "./anchor/public-api.ts"
     },
-    "./animations/aurora": {
-      "sass": "./animations/aurora/styles/_index.scss",
-      "default": "./animations/aurora/public-api.ts"
-    },
-    "./animations/blur-text": {
-      "sass": "./animations/blur-text/styles/_index.scss",
-      "default": "./animations/blur-text/public-api.ts"
-    },
-    "./animations/blur-text/testing": {
-      "default": "./animations/blur-text/testing/public-api.ts"
-    },
-    "./animations/border-glow": {
-      "sass": "./animations/border-glow/styles/_index.scss",
-      "default": "./animations/border-glow/public-api.ts"
-    },
-    "./animations/border-glow/testing": {
-      "default": "./animations/border-glow/testing/public-api.ts"
-    },
-    "./animations/circular-text": {
-      "sass": "./animations/circular-text/styles/_index.scss",
-      "default": "./animations/circular-text/public-api.ts"
-    },
-    "./animations/circular-text/testing": {
-      "default": "./animations/circular-text/testing/public-api.ts"
-    },
-    "./animations/click-spark": {
-      "sass": "./animations/click-spark/styles/_index.scss",
-      "default": "./animations/click-spark/public-api.ts"
-    },
-    "./animations/confetti": {
-      "default": "./animations/confetti/public-api.ts"
-    },
-    "./animations/decrypt-text": {
-      "sass": "./animations/decrypt-text/styles/_index.scss",
-      "default": "./animations/decrypt-text/public-api.ts"
-    },
-    "./animations/decrypt-text/testing": {
-      "default": "./animations/decrypt-text/testing/public-api.ts"
-    },
-    "./animations/falling-text": {
-      "sass": "./animations/falling-text/styles/_index.scss",
-      "default": "./animations/falling-text/public-api.ts"
-    },
-    "./animations/falling-text/testing": {
-      "default": "./animations/falling-text/testing/public-api.ts"
-    },
-    "./animations/fuzzy-text": {
-      "default": "./animations/fuzzy-text/public-api.ts"
-    },
-    "./animations/fuzzy-text/testing": {
-      "default": "./animations/fuzzy-text/testing/public-api.ts"
-    },
-    "./animations/glitch-text": {
-      "sass": "./animations/glitch-text/styles/_index.scss",
-      "default": "./animations/glitch-text/public-api.ts"
-    },
-    "./animations/glitch-text/testing": {
-      "default": "./animations/glitch-text/testing/public-api.ts"
-    },
-    "./animations/gradient-text": {
-      "sass": "./animations/gradient-text/styles/_index.scss",
-      "default": "./animations/gradient-text/public-api.ts"
-    },
-    "./animations/gradient-text/testing": {
-      "default": "./animations/gradient-text/testing/public-api.ts"
-    },
-    "./animations/marquee": {
-      "sass": "./animations/marquee/styles/_index.scss",
-      "default": "./animations/marquee/public-api.ts"
-    },
-    "./animations/marquee/testing": {
-      "default": "./animations/marquee/testing/public-api.ts"
-    },
-    "./animations/rotating-text": {
-      "sass": "./animations/rotating-text/styles/_index.scss",
-      "default": "./animations/rotating-text/public-api.ts"
-    },
-    "./animations/rotating-text/testing": {
-      "default": "./animations/rotating-text/testing/public-api.ts"
-    },
-    "./animations/shiny-text": {
-      "sass": "./animations/shiny-text/styles/_index.scss",
-      "default": "./animations/shiny-text/public-api.ts"
-    },
-    "./animations/shiny-text/testing": {
-      "default": "./animations/shiny-text/testing/public-api.ts"
-    },
-    "./animations/splash-cursor": {
-      "sass": "./animations/splash-cursor/styles/_index.scss",
-      "default": "./animations/splash-cursor/public-api.ts"
-    },
-    "./animations/splash-cursor/testing": {
-      "default": "./animations/splash-cursor/testing/public-api.ts"
-    },
-    "./animations/split-text": {
-      "sass": "./animations/split-text/styles/_index.scss",
-      "default": "./animations/split-text/public-api.ts"
-    },
-    "./animations/split-text/testing": {
-      "default": "./animations/split-text/testing/public-api.ts"
-    },
-    "./animations/spotlight-card": {
-      "sass": "./animations/spotlight-card/styles/_index.scss",
-      "default": "./animations/spotlight-card/public-api.ts"
-    },
-    "./animations/spotlight-card/testing": {
-      "default": "./animations/spotlight-card/testing/public-api.ts"
-    },
-    "./animations/star-border": {
-      "sass": "./animations/star-border/styles/_index.scss",
-      "default": "./animations/star-border/public-api.ts"
-    },
-    "./animations/star-border/testing": {
-      "default": "./animations/star-border/testing/public-api.ts"
-    },
-    "./animations/tilt-card": {
-      "sass": "./animations/tilt-card/styles/_index.scss",
-      "default": "./animations/tilt-card/public-api.ts"
-    },
-    "./animations/tilt-card/testing": {
-      "default": "./animations/tilt-card/testing/public-api.ts"
-    },
-    "./animations/typewriter": {
-      "sass": "./animations/typewriter/styles/_index.scss",
-      "default": "./animations/typewriter/public-api.ts"
-    },
-    "./animations/typewriter/testing": {
-      "default": "./animations/typewriter/testing/public-api.ts"
-    },
-    "./animations/waves": {
-      "sass": "./animations/waves/styles/_index.scss",
-      "default": "./animations/waves/public-api.ts"
-    },
-    "./animations/waves/testing": {
-      "default": "./animations/waves/testing/public-api.ts"
-    },
     "./avatar": {
       "sass": "./avatar/styles/_index.scss",
       "default": "./avatar/public-api.ts"
@@ -273,6 +136,142 @@
     "./badge": {
       "sass": "./badge/styles/_index.scss",
       "default": "./badge/public-api.ts"
+    },
+    "./bits/aurora": {
+      "sass": "./bits/aurora/styles/_index.scss",
+      "default": "./bits/aurora/public-api.ts"
+    },
+    "./bits/blur-text": {
+      "sass": "./bits/blur-text/styles/_index.scss",
+      "default": "./bits/blur-text/public-api.ts"
+    },
+    "./bits/blur-text/testing": {
+      "default": "./bits/blur-text/testing/public-api.ts"
+    },
+    "./bits/border-glow": {
+      "sass": "./bits/border-glow/styles/_index.scss",
+      "default": "./bits/border-glow/public-api.ts"
+    },
+    "./bits/border-glow/testing": {
+      "default": "./bits/border-glow/testing/public-api.ts"
+    },
+    "./bits/circular-text": {
+      "sass": "./bits/circular-text/styles/_index.scss",
+      "default": "./bits/circular-text/public-api.ts"
+    },
+    "./bits/circular-text/testing": {
+      "default": "./bits/circular-text/testing/public-api.ts"
+    },
+    "./bits/click-spark": {
+      "sass": "./bits/click-spark/styles/_index.scss",
+      "default": "./bits/click-spark/public-api.ts"
+    },
+    "./bits/confetti": {
+      "default": "./bits/confetti/public-api.ts"
+    },
+    "./bits/decrypt-text": {
+      "sass": "./bits/decrypt-text/styles/_index.scss",
+      "default": "./bits/decrypt-text/public-api.ts"
+    },
+    "./bits/decrypt-text/testing": {
+      "default": "./bits/decrypt-text/testing/public-api.ts"
+    },
+    "./bits/falling-text": {
+      "sass": "./bits/falling-text/styles/_index.scss",
+      "default": "./bits/falling-text/public-api.ts"
+    },
+    "./bits/falling-text/testing": {
+      "default": "./bits/falling-text/testing/public-api.ts"
+    },
+    "./bits/fuzzy-text": {
+      "default": "./bits/fuzzy-text/public-api.ts"
+    },
+    "./bits/fuzzy-text/testing": {
+      "default": "./bits/fuzzy-text/testing/public-api.ts"
+    },
+    "./bits/glitch-text": {
+      "sass": "./bits/glitch-text/styles/_index.scss",
+      "default": "./bits/glitch-text/public-api.ts"
+    },
+    "./bits/glitch-text/testing": {
+      "default": "./bits/glitch-text/testing/public-api.ts"
+    },
+    "./bits/gradient-text": {
+      "sass": "./bits/gradient-text/styles/_index.scss",
+      "default": "./bits/gradient-text/public-api.ts"
+    },
+    "./bits/gradient-text/testing": {
+      "default": "./bits/gradient-text/testing/public-api.ts"
+    },
+    "./bits/marquee": {
+      "sass": "./bits/marquee/styles/_index.scss",
+      "default": "./bits/marquee/public-api.ts"
+    },
+    "./bits/marquee/testing": {
+      "default": "./bits/marquee/testing/public-api.ts"
+    },
+    "./bits/rotating-text": {
+      "sass": "./bits/rotating-text/styles/_index.scss",
+      "default": "./bits/rotating-text/public-api.ts"
+    },
+    "./bits/rotating-text/testing": {
+      "default": "./bits/rotating-text/testing/public-api.ts"
+    },
+    "./bits/shiny-text": {
+      "sass": "./bits/shiny-text/styles/_index.scss",
+      "default": "./bits/shiny-text/public-api.ts"
+    },
+    "./bits/shiny-text/testing": {
+      "default": "./bits/shiny-text/testing/public-api.ts"
+    },
+    "./bits/splash-cursor": {
+      "sass": "./bits/splash-cursor/styles/_index.scss",
+      "default": "./bits/splash-cursor/public-api.ts"
+    },
+    "./bits/splash-cursor/testing": {
+      "default": "./bits/splash-cursor/testing/public-api.ts"
+    },
+    "./bits/split-text": {
+      "sass": "./bits/split-text/styles/_index.scss",
+      "default": "./bits/split-text/public-api.ts"
+    },
+    "./bits/split-text/testing": {
+      "default": "./bits/split-text/testing/public-api.ts"
+    },
+    "./bits/spotlight-card": {
+      "sass": "./bits/spotlight-card/styles/_index.scss",
+      "default": "./bits/spotlight-card/public-api.ts"
+    },
+    "./bits/spotlight-card/testing": {
+      "default": "./bits/spotlight-card/testing/public-api.ts"
+    },
+    "./bits/star-border": {
+      "sass": "./bits/star-border/styles/_index.scss",
+      "default": "./bits/star-border/public-api.ts"
+    },
+    "./bits/star-border/testing": {
+      "default": "./bits/star-border/testing/public-api.ts"
+    },
+    "./bits/tilt-card": {
+      "sass": "./bits/tilt-card/styles/_index.scss",
+      "default": "./bits/tilt-card/public-api.ts"
+    },
+    "./bits/tilt-card/testing": {
+      "default": "./bits/tilt-card/testing/public-api.ts"
+    },
+    "./bits/typewriter": {
+      "sass": "./bits/typewriter/styles/_index.scss",
+      "default": "./bits/typewriter/public-api.ts"
+    },
+    "./bits/typewriter/testing": {
+      "default": "./bits/typewriter/testing/public-api.ts"
+    },
+    "./bits/waves": {
+      "sass": "./bits/waves/styles/_index.scss",
+      "default": "./bits/waves/public-api.ts"
+    },
+    "./bits/waves/testing": {
+      "default": "./bits/waves/testing/public-api.ts"
     },
     "./breadcrumbs": {
       "sass": "./breadcrumbs/styles/_index.scss",

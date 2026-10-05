@@ -14,8 +14,8 @@ ng add ngwr`,
 
     ngAddPrompts: `# Sample run (defaults shown in brackets):
 ?  How should ngwr styles be wired?
-   ❯ All — one \`@use 'ngwr';\` import (recommended)
-     None — opt in per-component later
+   ❯ Theme — one \`@use 'ngwr/theme';\` import (recommended)
+     None — wire styles yourself
 
 ?  Wire a date adapter? (Used by calendar / date-picker.)
    ❯ None — skip (you can add later)
@@ -167,7 +167,7 @@ ng update ngwr
 'ngwr/bottom-sheet'     →  'ngwr/drawer'         (WrBottomSheet     → WrDrawer)
 'ngwr/count-up-text'    →  'ngwr/counter'        (WrCountUpText     → WrCountUp)
 'ngwr/image'            →  'ngwr/lightbox'       (WrImage           → WrLightbox)
-'ngwr/animated-text'    →  'ngwr/animations/typewriter'     (WrAnimatedText    → WrTypewriter)
+'ngwr/animated-text'    →  'ngwr/bits/typewriter'     (WrAnimatedText    → WrTypewriter)
 'ngwr/count-up'         →  'ngwr/counter'        (entry merged; symbol unchanged)
 'ngwr/tag'              →  'ngwr/badge'          (entry merged; symbol unchanged)
 'ngwr/form-field'       →  'ngwr/form'           (entry merged; symbol unchanged)

@@ -85,8 +85,8 @@ describe('ng-add', () => {
       BASE
     );
 
-    expect(read('/src/styles.scss')).toBe("@use 'ngwr';\nbody { margin: 0; }\n");
-    expect(said(logs, "added `@use 'ngwr';`")).toBe(true);
+    expect(read('/src/styles.scss')).toBe("@use 'ngwr/theme';\nbody { margin: 0; }\n");
+    expect(said(logs, "added `@use 'ngwr/theme';`")).toBe(true);
   });
 
   it('writes NOTHING into a css project, and says why', async () => {
@@ -111,7 +111,7 @@ describe('ng-add', () => {
   });
 
   it('leaves a stylesheet that already pulls ngwr in alone', async () => {
-    const before = "@use 'ngwr';\nbody { margin: 0; }\n";
+    const before = "@use 'ngwr/theme';\nbody { margin: 0; }\n";
     const { read, logs } = await run(
       { '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': before },
       BASE

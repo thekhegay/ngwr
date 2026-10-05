@@ -1,4 +1,4 @@
-export { ANIMATIONS_SIDEBAR } from './animations.config';
+export { BITS_SIDEBAR } from './bits.config';
 export { GUIDES_SIDEBAR } from './guides.config';
 export { ICONS_SIDEBAR } from './icons.config';
 export { REFERENCE_SIDEBAR } from './reference.config';

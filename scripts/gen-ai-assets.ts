@@ -46,7 +46,7 @@ import { ROOT_PATH } from './lib/paths/root';
 const LIB_DIR = join(ROOT_PATH, 'projects/lib');
 const SHOWCASE_APP = join(ROOT_PATH, 'projects/showcase/app');
 const REFERENCE_DIR = join(SHOWCASE_APP, 'reference');
-const ANIMATIONS_DIR = join(SHOWCASE_APP, 'animations');
+const BITS_DIR = join(SHOWCASE_APP, 'bits');
 
 /**
  * The Angular major the library is built against, read from its own peer range
@@ -297,9 +297,12 @@ function docPageDescription(html: string): string {
 /**
  * Entry name → doc-page description.
  *
- * Both clusters are walked. The animation and visual-effect components live
- * under `app/animations/`, not `app/reference/`, which is why 21 entry points
- * ship description-less today.
+ * Both clusters are walked, and the second one is why: the animation and
+ * visual-effect components are `ngwr/bits/*` and their pages live under
+ * `app/bits/`, not under `app/reference/`. Miss that directory and 21 entry
+ * points ship description-less, which `check:llms` reports as a coverage floor
+ * rather than as a missing path — it is how the `/animations` to `/bits` move
+ * was caught.
  *
  * Cluster order is explicit rather than alphabetical-and-last-wins: `theme` has
  * a page in both `interfaces` and `services`, and which one lands should be a
@@ -325,7 +328,7 @@ const descriptions = ((): Map<string, string> => {
     const clusterDir = join(REFERENCE_DIR, cluster);
     for (const name of dirsOnly(clusterDir)) take(name, read(join(clusterDir, name, `${name}.html`)));
   }
-  for (const name of dirsOnly(ANIMATIONS_DIR)) take(name, read(join(ANIMATIONS_DIR, name, `${name}.html`)));
+  for (const name of dirsOnly(BITS_DIR)) take(name, read(join(BITS_DIR, name, `${name}.html`)));
 
   return map;
 })();

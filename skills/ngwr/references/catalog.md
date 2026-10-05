@@ -8,48 +8,48 @@ root barrel for components.
 | `ngwr/affix` | `import { WrAffix } from 'ngwr/affix'` | `[wrAffix]` |
 | `ngwr/alert` | `import { WrAlert } from 'ngwr/alert'` | `wr-alert` |
 | `ngwr/anchor` | `import { WrAnchor } from 'ngwr/anchor'` | `wr-anchor` |
-| `ngwr/animations/aurora` | `import { WrAurora } from 'ngwr/animations/aurora'` | `wr-aurora` |
-| `ngwr/animations/blur-text` | `import { WrBlurText } from 'ngwr/animations/blur-text'` | `wr-blur-text` |
-| `ngwr/animations/blur-text/testing` | `import { WrBlurTextHarness } from 'ngwr/animations/blur-text/testing'` | — |
-| `ngwr/animations/border-glow` | `import { WrBorderGlow } from 'ngwr/animations/border-glow'` | `wr-border-glow` |
-| `ngwr/animations/border-glow/testing` | `import { WrBorderGlowHarness } from 'ngwr/animations/border-glow/testing'` | — |
-| `ngwr/animations/circular-text` | `import { WrCircularText } from 'ngwr/animations/circular-text'` | `wr-circular-text` |
-| `ngwr/animations/circular-text/testing` | `import { WrCircularTextHarness } from 'ngwr/animations/circular-text/testing'` | — |
-| `ngwr/animations/click-spark` | `import { WrClickSpark } from 'ngwr/animations/click-spark'` | `wr-click-spark` |
-| `ngwr/animations/confetti` | `import { WrConfetti } from 'ngwr/animations/confetti'` | — |
-| `ngwr/animations/decrypt-text` | `import { WrDecryptText } from 'ngwr/animations/decrypt-text'` | `wr-decrypt-text` |
-| `ngwr/animations/decrypt-text/testing` | `import { WrDecryptTextHarness } from 'ngwr/animations/decrypt-text/testing'` | — |
-| `ngwr/animations/falling-text` | `import { WrFallingText } from 'ngwr/animations/falling-text'` | `wr-falling-text` |
-| `ngwr/animations/falling-text/testing` | `import { WrFallingTextHarness } from 'ngwr/animations/falling-text/testing'` | — |
-| `ngwr/animations/fuzzy-text` | `import { WrFuzzyText } from 'ngwr/animations/fuzzy-text'` | `wr-fuzzy-text` |
-| `ngwr/animations/fuzzy-text/testing` | `import { WrFuzzyTextHarness } from 'ngwr/animations/fuzzy-text/testing'` | — |
-| `ngwr/animations/glitch-text` | `import { WrGlitchText } from 'ngwr/animations/glitch-text'` | `wr-glitch-text` |
-| `ngwr/animations/glitch-text/testing` | `import { WrGlitchTextHarness } from 'ngwr/animations/glitch-text/testing'` | — |
-| `ngwr/animations/gradient-text` | `import { WrGradientText } from 'ngwr/animations/gradient-text'` | `wr-gradient-text` |
-| `ngwr/animations/gradient-text/testing` | `import { WrGradientTextHarness } from 'ngwr/animations/gradient-text/testing'` | — |
-| `ngwr/animations/marquee` | `import { WrMarquee } from 'ngwr/animations/marquee'` | `wr-marquee` |
-| `ngwr/animations/marquee/testing` | `import { WrMarqueeHarness } from 'ngwr/animations/marquee/testing'` | — |
-| `ngwr/animations/rotating-text` | `import { WrRotatingText } from 'ngwr/animations/rotating-text'` | `wr-rotating-text` |
-| `ngwr/animations/rotating-text/testing` | `import { WrRotatingTextHarness } from 'ngwr/animations/rotating-text/testing'` | — |
-| `ngwr/animations/shiny-text` | `import { WrShinyText } from 'ngwr/animations/shiny-text'` | `[wrShimmer]` `wr-shiny-text` |
-| `ngwr/animations/shiny-text/testing` | `import { WrShinyTextHarness } from 'ngwr/animations/shiny-text/testing'` | — |
-| `ngwr/animations/splash-cursor` | `import { WrSplashCursor } from 'ngwr/animations/splash-cursor'` | `wr-splash-cursor` |
-| `ngwr/animations/splash-cursor/testing` | `import { WrSplashCursorHarness } from 'ngwr/animations/splash-cursor/testing'` | — |
-| `ngwr/animations/split-text` | `import { WrSplitText } from 'ngwr/animations/split-text'` | `wr-split-text` |
-| `ngwr/animations/split-text/testing` | `import { WrSplitTextHarness } from 'ngwr/animations/split-text/testing'` | — |
-| `ngwr/animations/spotlight-card` | `import { WrSpotlightCard } from 'ngwr/animations/spotlight-card'` | `wr-spotlight-card` `[wrSpotlight]` |
-| `ngwr/animations/spotlight-card/testing` | `import { WrSpotlightCardHarness } from 'ngwr/animations/spotlight-card/testing'` | — |
-| `ngwr/animations/star-border` | `import { WrStarBorder } from 'ngwr/animations/star-border'` | `wr-star-border` `[wr-star-border]` |
-| `ngwr/animations/star-border/testing` | `import { WrStarBorderHarness } from 'ngwr/animations/star-border/testing'` | — |
-| `ngwr/animations/tilt-card` | `import { WrTiltCard } from 'ngwr/animations/tilt-card'` | `wr-tilt-card` `[wrTilt]` |
-| `ngwr/animations/tilt-card/testing` | `import { WrTiltHarness } from 'ngwr/animations/tilt-card/testing'` | — |
-| `ngwr/animations/typewriter` | `import { WrTypewriter } from 'ngwr/animations/typewriter'` | `wr-typewriter` |
-| `ngwr/animations/typewriter/testing` | `import { WrTypewriterHarness } from 'ngwr/animations/typewriter/testing'` | — |
-| `ngwr/animations/waves` | `import { WrWaves } from 'ngwr/animations/waves'` | `wr-waves` |
-| `ngwr/animations/waves/testing` | `import { WrWavesHarness } from 'ngwr/animations/waves/testing'` | — |
 | `ngwr/avatar` | `import { WrAvatar } from 'ngwr/avatar'` | `wr-avatar` |
 | `ngwr/back-top` | `import { WrBackTop } from 'ngwr/back-top'` | `wr-back-top` |
 | `ngwr/badge` | `import { WrBadge } from 'ngwr/badge'` | `wr-badge` `wr-tag` |
+| `ngwr/bits/aurora` | `import { WrAurora } from 'ngwr/bits/aurora'` | `wr-aurora` |
+| `ngwr/bits/blur-text` | `import { WrBlurText } from 'ngwr/bits/blur-text'` | `wr-blur-text` |
+| `ngwr/bits/blur-text/testing` | `import { WrBlurTextHarness } from 'ngwr/bits/blur-text/testing'` | — |
+| `ngwr/bits/border-glow` | `import { WrBorderGlow } from 'ngwr/bits/border-glow'` | `wr-border-glow` |
+| `ngwr/bits/border-glow/testing` | `import { WrBorderGlowHarness } from 'ngwr/bits/border-glow/testing'` | — |
+| `ngwr/bits/circular-text` | `import { WrCircularText } from 'ngwr/bits/circular-text'` | `wr-circular-text` |
+| `ngwr/bits/circular-text/testing` | `import { WrCircularTextHarness } from 'ngwr/bits/circular-text/testing'` | — |
+| `ngwr/bits/click-spark` | `import { WrClickSpark } from 'ngwr/bits/click-spark'` | `wr-click-spark` |
+| `ngwr/bits/confetti` | `import { WrConfetti } from 'ngwr/bits/confetti'` | — |
+| `ngwr/bits/decrypt-text` | `import { WrDecryptText } from 'ngwr/bits/decrypt-text'` | `wr-decrypt-text` |
+| `ngwr/bits/decrypt-text/testing` | `import { WrDecryptTextHarness } from 'ngwr/bits/decrypt-text/testing'` | — |
+| `ngwr/bits/falling-text` | `import { WrFallingText } from 'ngwr/bits/falling-text'` | `wr-falling-text` |
+| `ngwr/bits/falling-text/testing` | `import { WrFallingTextHarness } from 'ngwr/bits/falling-text/testing'` | — |
+| `ngwr/bits/fuzzy-text` | `import { WrFuzzyText } from 'ngwr/bits/fuzzy-text'` | `wr-fuzzy-text` |
+| `ngwr/bits/fuzzy-text/testing` | `import { WrFuzzyTextHarness } from 'ngwr/bits/fuzzy-text/testing'` | — |
+| `ngwr/bits/glitch-text` | `import { WrGlitchText } from 'ngwr/bits/glitch-text'` | `wr-glitch-text` |
+| `ngwr/bits/glitch-text/testing` | `import { WrGlitchTextHarness } from 'ngwr/bits/glitch-text/testing'` | — |
+| `ngwr/bits/gradient-text` | `import { WrGradientText } from 'ngwr/bits/gradient-text'` | `wr-gradient-text` |
+| `ngwr/bits/gradient-text/testing` | `import { WrGradientTextHarness } from 'ngwr/bits/gradient-text/testing'` | — |
+| `ngwr/bits/marquee` | `import { WrMarquee } from 'ngwr/bits/marquee'` | `wr-marquee` |
+| `ngwr/bits/marquee/testing` | `import { WrMarqueeHarness } from 'ngwr/bits/marquee/testing'` | — |
+| `ngwr/bits/rotating-text` | `import { WrRotatingText } from 'ngwr/bits/rotating-text'` | `wr-rotating-text` |
+| `ngwr/bits/rotating-text/testing` | `import { WrRotatingTextHarness } from 'ngwr/bits/rotating-text/testing'` | — |
+| `ngwr/bits/shiny-text` | `import { WrShinyText } from 'ngwr/bits/shiny-text'` | `[wrShimmer]` `wr-shiny-text` |
+| `ngwr/bits/shiny-text/testing` | `import { WrShinyTextHarness } from 'ngwr/bits/shiny-text/testing'` | — |
+| `ngwr/bits/splash-cursor` | `import { WrSplashCursor } from 'ngwr/bits/splash-cursor'` | `wr-splash-cursor` |
+| `ngwr/bits/splash-cursor/testing` | `import { WrSplashCursorHarness } from 'ngwr/bits/splash-cursor/testing'` | — |
+| `ngwr/bits/split-text` | `import { WrSplitText } from 'ngwr/bits/split-text'` | `wr-split-text` |
+| `ngwr/bits/split-text/testing` | `import { WrSplitTextHarness } from 'ngwr/bits/split-text/testing'` | — |
+| `ngwr/bits/spotlight-card` | `import { WrSpotlightCard } from 'ngwr/bits/spotlight-card'` | `wr-spotlight-card` `[wrSpotlight]` |
+| `ngwr/bits/spotlight-card/testing` | `import { WrSpotlightCardHarness } from 'ngwr/bits/spotlight-card/testing'` | — |
+| `ngwr/bits/star-border` | `import { WrStarBorder } from 'ngwr/bits/star-border'` | `wr-star-border` `[wr-star-border]` |
+| `ngwr/bits/star-border/testing` | `import { WrStarBorderHarness } from 'ngwr/bits/star-border/testing'` | — |
+| `ngwr/bits/tilt-card` | `import { WrTiltCard } from 'ngwr/bits/tilt-card'` | `wr-tilt-card` `[wrTilt]` |
+| `ngwr/bits/tilt-card/testing` | `import { WrTiltHarness } from 'ngwr/bits/tilt-card/testing'` | — |
+| `ngwr/bits/typewriter` | `import { WrTypewriter } from 'ngwr/bits/typewriter'` | `wr-typewriter` |
+| `ngwr/bits/typewriter/testing` | `import { WrTypewriterHarness } from 'ngwr/bits/typewriter/testing'` | — |
+| `ngwr/bits/waves` | `import { WrWaves } from 'ngwr/bits/waves'` | `wr-waves` |
+| `ngwr/bits/waves/testing` | `import { WrWavesHarness } from 'ngwr/bits/waves/testing'` | — |
 | `ngwr/breadcrumbs` | `import { WrBreadcrumbs } from 'ngwr/breadcrumbs'` | `wr-breadcrumbs-item` `wr-breadcrumbs` |
 | `ngwr/burger` | `import { WrBurger } from 'ngwr/burger'` | `wr-burger` |
 | `ngwr/button` | `import { WrButton } from 'ngwr/button'` | `wr-btn-group` `wr-btn` `button[wr-btn]` `a[wr-btn]` |

@@ -31,7 +31,7 @@ function isThemeMode(v: unknown): v is WrThemeMode {
  *
  * A configured `attribute` has to be given to the STYLESHEET too — a CSS
  * selector cannot read a provider value — so pair it with
- * `@use 'ngwr' with ($theme-attribute: '...')`. In dev mode the service compares
+ * `@use 'ngwr/theme' with ($theme-attribute: '...')`. In dev mode the service compares
  * the two and warns when they disagree.
  *
  * **Under SSR or prerendering this service cannot prevent a flash of the wrong
@@ -125,7 +125,7 @@ export class WrTheme {
     console.warn(
       `[NGWR] Theme attribute mismatch: provideWrTheme({ attribute: '${this.config.attribute}' }) ` +
         `but the stylesheet keys its dark block on '${declared}'. Dark mode will never apply. ` +
-        `Configure both: @use 'ngwr' with ($theme-attribute: '${this.config.attribute}');`
+        `Configure both: @use 'ngwr/theme' with ($theme-attribute: '${this.config.attribute}');`
     );
   }
 

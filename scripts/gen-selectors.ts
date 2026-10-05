@@ -71,11 +71,10 @@ function entryPoints(dir = LIB_ROOT, prefix = ''): EntryPoint[] {
 /**
  * Entry points that actually ship a stylesheet, as `ngwr/<name>` subpaths.
  *
- * The sandbox needs this to write `@use 'ngwr/button';` instead of the umbrella
- * `@use 'ngwr';`, and it cannot guess: `@use` on an entry point with no
+ * The sandbox needs this to write `@use 'ngwr/button';` for the components a
+ * demo renders, and it cannot guess: `@use` on an entry point with no
  * `styles/_index.scss` — `ngwr/date`, `ngwr/utils`, every `<name>/testing` — is
- * a build error, while the umbrella compiles all hundred-and-twenty component
- * sheets whether the demo draws one component or all of them. Reading the
+ * a build error, and there is no umbrella to fall back on. Reading the
  * filesystem is the only honest source; a hand-kept list would drift the first
  * time an entry point grew or lost styles.
  */

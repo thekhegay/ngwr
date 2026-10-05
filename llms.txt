@@ -236,7 +236,7 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   Content inside a service-opened dialog or drawer can `inject(WrDialogRef)` /
   `inject(WrDrawerRef)` to close itself.)
 - **Animations** — text effects, cursor effects and backgrounds, each its own
-  entry point, documented under https://ngwr.dev/animations/ and listed in
+  entry point, documented under https://ngwr.dev/bits/ and listed in
   `llms-full.txt`.
 
 ## Patterns

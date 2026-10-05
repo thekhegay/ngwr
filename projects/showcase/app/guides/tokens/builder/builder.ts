@@ -1,5 +1,4 @@
 import { DOCUMENT, Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 import { WrButton } from 'ngwr/button';
 import { WrColorPickerTrigger } from 'ngwr/color-picker';
@@ -43,7 +42,6 @@ const DEFAULTS: Readonly<Record<string, string>> = {
   templateUrl: './builder.html',
   styleUrl: './builder.scss',
   imports: [
-    RouterLink,
     WrTypography,
     WrButton,
     WrColorPickerTrigger,

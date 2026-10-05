@@ -96,7 +96,7 @@ export default class TypesCatalogPage {
           description: 'Code-to-spans function a highlighter provides.',
           url: ['/reference/components', 'markdown'],
         },
-        { name: 'WrMarqueeItem', description: 'Image or template marquee entry.', url: ['/animations', 'marquee'] },
+        { name: 'WrMarqueeItem', description: 'Image or template marquee entry.', url: ['/bits', 'marquee'] },
         { name: 'WrTimelineColor', description: 'Dot color union.', url: ['/reference/components', 'timeline'] },
       ],
     },

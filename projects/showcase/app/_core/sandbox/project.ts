@@ -55,10 +55,13 @@ import {
  *   rxjs's circular ESM (`rxjs/dist/esm/internal/scheduled/scheduled.js`). The
  *   dev server had been saying so all along: "Prebundling has been configured
  *   but will not be used because scripts optimization is enabled."
- * - **`@use 'ngwr';`.** The umbrella compiles all hundred-and-twenty component
- *   stylesheets to serve a two-element demo, and the container answered with an
- *   out-of-memory error. Narrowed to the entry points the snippet actually
- *   renders (see `stylesScss`), the CSS drops from 287 kB to 44 kB.
+ * - **`@use 'ngwr';`.** The umbrella compiled every component stylesheet to
+ *   serve a two-element demo, and the container answered with an out-of-memory
+ *   error. Narrowed to the entry points the snippet actually renders (see
+ *   `stylesScss`), the CSS drops from 287 kB to 44 kB. This is where v15's
+ *   removal of that entry point started: the sandbox was the first consumer to
+ *   pay the whole catalog's compile for two elements, and it was not going to
+ *   be the last.
  *
  * The narrowing then shipped a regression of its own, and the fix is the
  * `STYLE_DEPENDENCIES` lookup in `stylesScss` — a component's style
@@ -344,14 +347,13 @@ function indexHtml(selector: string, title: string): string {
 /**
  * The stylesheet, narrowed to the entry points the demo actually renders.
  *
- * `@use 'ngwr';` is one line and compiles all hundred-and-twenty component
- * sheets. That is the right default in an app and the wrong one here: inside
- * StackBlitz's container the dev server died with an out-of-memory error, and
- * compiling the whole catalog's Sass to serve a two-element demo is the largest
- * piece of work in the build that nothing on the page needs. Per-entry `@use`
- * is also dedup-safe and pulls the theme in on its own, so the narrow form is
- * not a lesser version of the umbrella — it is what `/start/installation`
- * already recommends for an app that imports a handful of components.
+ * There is no umbrella to fall back on — v15 removed it, and this file is part
+ * of why. Inside StackBlitz's container the one-line form died with an
+ * out-of-memory error: compiling the whole catalog's Sass to serve a
+ * two-element demo was the largest piece of work in the build, and nothing on
+ * the page needed it. Per-entry `@use` is dedup-safe and pulls the theme in on
+ * its own, so the narrow form is not a lesser version of anything — it is what
+ * `/start/installation` tells an app to write.
  *
  * `ngwr/theme` goes in unconditionally: the body rule below paints with
  * `--wr-*`, and a project whose only component ships no styles would otherwise
@@ -405,9 +407,9 @@ function stylesScss(subpaths: readonly string[]): string {
 
   return [
     '// Only the entry points this demo renders and the sheets they paint',
-    '// through, plus the token layer. Each one pulls the theme in itself and',
-    "// de-duplicates, so this is `@use 'ngwr';` minus every component the page",
-    '// does not draw.',
+    '// through, plus the token layer, which goes first because it is the load',
+    '// that can be configured. Each component pulls the theme in itself and',
+    '// Sass de-duplicates, so nothing here is emitted twice.',
     ...uses.map(p => `@use '${p}';`),
     '',
     'body {',

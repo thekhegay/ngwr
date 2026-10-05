@@ -70,8 +70,8 @@ services and validators are in the [reference](https://ngwr.dev/reference).
 ng add ngwr
 ```
 
-The schematic asks a few questions, adds `@use 'ngwr';` to your global Sass
-stylesheet and prints the providers to add to your app.
+The schematic asks a few questions, adds `@use 'ngwr/theme';` to your global
+Sass stylesheet and prints the providers to add to your app.
 
 Or install the packages yourself:
 
@@ -88,21 +88,20 @@ are listed in the [installation guide](https://ngwr.dev/start/installation).
 
 ## Styles
 
+One `@use` per thing you render, with the token layer on the first line. There
+is no umbrella entry point: each component brings the theme with it and Sass
+emits it once, but only a module's first load can take `with ()`, which is
+where `$theme-attribute` and `$base-colors` go.
+
 ```scss
 // styles.scss
-@use 'ngwr';
-```
-
-This loads the theme and the styles of every component. To keep the stylesheet
-small, load only the components you use. Each entry brings the theme with it:
-
-```scss
+@use 'ngwr/theme';
 @use 'ngwr/form';
 @use 'ngwr/input';
 @use 'ngwr/checkbox';
 ```
 
-Utilities are opt-in and are not part of `@use 'ngwr'`:
+Utilities are opt-in and come with nothing:
 
 ```scss
 @use 'ngwr/reset'; // box-sizing, body margin, sane defaults

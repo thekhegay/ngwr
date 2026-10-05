@@ -1,12 +1,12 @@
 // Box model baseline for ngwr's own elements.
 //
 // `ngwr/reset` (which does set `box-sizing: border-box` globally) is opt-in by
-// design, and the umbrella `@use 'ngwr'` deliberately leaves it out — so a
-// consumer following the documented "import once, everything works" path lands
-// in a `content-box` world. Components can't assume otherwise, and several of
-// them did: any `.wr-*` element that pairs `width: 100%` with padding or a
-// border overflowed its container by exactly padding + border. Measured in a
-// stock Angular app on `@use 'ngwr'`:
+// design, and nothing a component pulls in brings it — so a consumer who wires
+// up the theme layer and the components they use lands in a `content-box`
+// world. Components can't assume otherwise, and several of them did: any
+// `.wr-*` element that pairs `width: 100%` with padding or a border overflowed
+// its container by exactly padding + border. Measured in a stock Angular app
+// with no reset:
 //
 //   .wr-btn--block                → 30px over (14+14 padding, 1+1 border)
 //   .wr-input (sm / md / lg)      → 18 / 26 / 34px over

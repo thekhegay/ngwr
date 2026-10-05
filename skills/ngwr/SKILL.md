@@ -55,8 +55,9 @@ guess gets backwards.
   `value` is reserved for the form value, so a leftover `value="x"` lands on the
   host as a plain DOM attribute, every box in the group keeps the default
   identity `null`, and they all toggle together. No template error.
-- **Styles are opt-in and global.** `@use 'ngwr'` for everything, or
-  `@use 'ngwr/<name>'` per component. Components are `ViewEncapsulation.None`;
+- **Styles are opt-in, global, and per entry point.** `@use 'ngwr/theme'` first,
+  then `@use 'ngwr/<name>'` for each component. There is no `@use 'ngwr'`.
+  Components are `ViewEncapsulation.None`;
   their `.wr-*` BEM classes and `--wr-*` custom properties are PUBLIC API, so
   style against them rather than reaching into the DOM structure.
 - **Theme through tokens, not overrides.** `--wr-color-{intent}` and its

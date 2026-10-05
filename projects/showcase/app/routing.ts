@@ -1,7 +1,7 @@
 import type { Routes } from '@angular/router';
 
 import {
-  ANIMATIONS_SIDEBAR,
+  BITS_SIDEBAR,
   GUIDES_SIDEBAR,
   ICONS_SIDEBAR,
   REFERENCE_SIDEBAR,
@@ -174,8 +174,8 @@ export const routes = {
   },
   // Visual effects + animations. Mixed bag of in-house components and
   // ports of reactbits.dev effects (attribution in each file).
-  animations: {
-    index: 'animations',
+  bits: {
+    index: 'bits',
     borderGlow: 'border-glow',
     aurora: 'aurora',
     marquee: 'marquee',
@@ -338,9 +338,9 @@ export const routing: Routes = [
         loadChildren: () => import('./icons/icons.routing'),
       },
       {
-        path: routes.animations.index,
-        data: { sidebar: ANIMATIONS_SIDEBAR },
-        loadChildren: () => import('./animations/animations.routing'),
+        path: routes.bits.index,
+        data: { sidebar: BITS_SIDEBAR },
+        loadChildren: () => import('./bits/bits.routing'),
       },
 
       // Legacy URLs. The docs were reorganised into start / guides / reference;

@@ -114,7 +114,7 @@ describe('theme.dark', () => {
 
   it('follows a renamed `$theme-attribute` in both arms', () => {
     // The half a hand-written literal never had. Both arms are built from
-    // `dark-selector()`, so `@use 'ngwr' with ($theme-attribute: …)` carries.
+    // `dark-selector()`, so `@use 'ngwr/theme' with ($theme-attribute: …)` carries.
     expect(
       selectors('.card { @include dark.dark { color: red; } }', " with ($theme-attribute: 'data-color-mode')")
     ).toEqual(['[data-color-mode=dark] .card', ':host-context([data-color-mode=dark]) .card']);
@@ -182,7 +182,7 @@ describe("the public entry `@use 'ngwr/theme'`", () => {
   });
 
   it('forwards BEFORE it uses, or `with (…)` stops configuring', () => {
-    // `@use` above `@forward` makes `@use 'ngwr' with ($theme-attribute: …)` a
+    // `@use` above `@forward` makes `@use 'ngwr/theme' with ($theme-attribute: …)` a
     // build error: "This module was already loaded, so it can't be configured".
     const src = readFileSync(join(THEME, '_index.scss'), 'utf8');
 

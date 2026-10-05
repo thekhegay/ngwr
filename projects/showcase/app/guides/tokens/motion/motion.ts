@@ -156,7 +156,7 @@ export default class TokensMotionPage {
     {
       kind: 'Animation',
       title: 'Animations',
-      url: ['/animations'],
+      url: ['/bits'],
       description: 'The ready-made animated components that build on these curves.',
     },
     {

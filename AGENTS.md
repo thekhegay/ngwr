@@ -30,16 +30,18 @@ A pnpm + Angular CLI monorepo with two projects:
   the data views (`table`, `tree`, `graph`), the navigation / disclosure set (`tabs`,
   `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`,
   `lightbox`, `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`,
-  `markdown`, **every chart** and **eighteen of the twenty-one animations** — each at
-  `ngwr/<name>/testing`. Charts and animations are NESTED since v15:
-  `ngwr/charts/bar-chart`, `ngwr/animations/aurora`, harnesses at
+  `markdown`, **every chart** and **eighteen of the twenty-one bits** — each at
+  `ngwr/<name>/testing`. Charts and bits are NESTED since v15:
+  `ngwr/charts/bar-chart`, `ngwr/bits/aurora`, harnesses at
   `ngwr/charts/bar-chart/testing`. Twenty-eight folders that used to sit beside
   `button` and `select` in `projects/lib` now live under two, which is the only
   thing that changed — they are ordinary entry points, in the same package, and
-  `pnpm gen:exports` writes their keys like any other. Mind the one name that
-  reads two ways: `@use 'ngwr/animations'` is the keyframe UTILITY sheet
-  (`styles/_animations.scss`), while `@use 'ngwr/animations/aurora'` is a
-  component. They export one more harness name than there are classes
+  `pnpm gen:exports` writes their keys like any other. The animation components
+  are **`bits`**, and the rename is what makes the vocabulary readable:
+  `@use 'ngwr/animations'` is the keyframe UTILITY sheet
+  (`styles/_animations.scss`), while `ngwr/bits/aurora` is a component. The two
+  used to be one word, and the docs cluster moved with them — `/animations/*`
+  is `/bits/*`. They export one more harness name than there are classes
   (`harnessClasses` in the same file): `WrCalendarDayHarness` is the
   one exported twice, since a date-picker's popup IS a calendar and
   `ngwr/date-picker/testing` keeps the name it shipped as.
@@ -58,7 +60,7 @@ A pnpm + Angular CLI monorepo with two projects:
   pages under `app/reference/<cluster>/<name>/` (components, directives, pipes,
   services, utils, validators, interfaces), task guides under `app/guides/`,
   getting-started under `app/start/`, the icon-set browsers under `app/icons/`
-  and the animation / visual-effect components under `app/animations/`. Shared
+  and the animation / visual-effect components under `app/bits/`. Shared
   doc scaffolding (the `<ngwr-doc-*>` components, services, shiki highlighting)
   is in `app/_core/` (alias `#core/*`).
 - **`projects/lib/theme/`** — the styling foundation: design tokens (CSS custom
@@ -169,11 +171,26 @@ one component folder. Reach for them instead of hand-rolling:
 - **Breakpoints** (`ngwr/media` + SCSS) — `WrMedia.matches('md')` returns a
   `Signal<boolean>`; SCSS mixin API via `@use 'ngwr/breakpoints'`.
 - **Theme** (`ngwr/theme`) — `provideWrTheme()` sets the `--wr-*` token layer
-  (see Styling). Global CSS: `@use 'ngwr'` (umbrella) or `@use 'ngwr/<name>'`.
+  (see Styling). Global CSS is `@use 'ngwr/theme'` plus one `@use 'ngwr/<name>'`
+  per component. **There is no umbrella and v15 removed it**: the root `exports`
+  key carries no `sass` condition, so `@use 'ngwr'` does not resolve. It
+  compiled every component stylesheet for whatever a page rendered — measured
+  here at 287 kB against 44 kB for the entry points one demo draws, and an
+  out-of-memory error inside StackBlitz. The key itself still exists, pointing
+  at the empty `public-api.ts`, because `@angular/build:library` refuses a
+  manifest whose `exports` has no `.`. The one consumer that really does want
+  every sheet is the showcase, and its aggregate is
+  `projects/showcase/styles/_components.scss`, written by `pnpm gen:exports`
+  off the same walk — not a hand-kept list, which is what it was for 110 lines.
+  Removing the umbrella made `@use` ORDER load-bearing, and Sass says so out
+  loud: a module can be configured only at its first load, so
+  `@use 'ngwr/theme' with (...)` below any component entry fails the build with
+  "This module was already loaded".
   **`provideWrTheme({ attribute })` has a Sass half and both must be set**, since
   a CSS selector cannot read a provider value: the dark block keys on
   `$theme-attribute` (`theme/styles/_dark.scss`, default `'data-theme'`), so a
-  renamed attribute means `@use 'ngwr' with ($theme-attribute: '...')` as well.
+  renamed attribute means `@use 'ngwr/theme' with ($theme-attribute: '...')` as
+  well, on the first ngwr line in the file.
   Only the configured name is emitted — keeping the default as a second selector
   would re-couple ngwr to whatever other design system owns `data-theme`, which
   is the collision the rename exists to escape. The two disagreeing used to be
@@ -229,7 +246,7 @@ one component folder. Reach for them instead of hand-rolling:
   `touch-target` and `focus-ring` are re-declared there as one-line wrappers.
   Three rules hold it together and each one is a build error or a silent loss if
   broken: `@forward` comes BEFORE `@use`, because the forward is the load that
-  accepts configuration and the other order makes `@use 'ngwr' with
+  accepts configuration and the other order makes `@use 'ngwr/theme' with
   ($theme-attribute: …)` refuse to compile; the forward `hide`s exactly the
   wrapped names, or each collides with its own original; and a VARIABLE cannot
   be wrapped, so `$theme-attribute` stays forwarded and stays the one member
@@ -1591,7 +1608,7 @@ native control inside it.
 
 **Showcase page = the docs.** Every component ships a docs page — under
 `projects/showcase/app/reference/components/<name>/` for the main catalog (85
-dirs), or under `projects/showcase/app/animations/<name>/` for animation /
+dirs), or under `projects/showcase/app/bits/<name>/` for animation /
 visual-effect components (a separate top-level cluster with its own routing +
 sidebar). Wire it into the matching `*.routing.ts` and the `routes` map in
 `app/routing.ts`, and author it with the doc-page components from
@@ -1660,9 +1677,10 @@ the OPTIMIZED build every start — the dev server prints "Prebundling has been
 configured but will not be used because scripts optimization is enabled" — and
 that path dies in rolldown on rxjs's circular ESM
 (`rxjs/dist/esm/internal/scheduled/scheduled.js`). **Two: `@use 'ngwr';`**,
-which compiles every component stylesheet in the package for a two-element demo and hit an
+which compiled every component stylesheet in the package for a two-element demo and hit an
 out-of-memory error; narrowed to the entry points the snippet renders, the CSS
-goes from 287 kB to 44 kB. Both fixes are the right thing for a generated
+goes from 287 kB to 44 kB. That measurement is why v15 deleted the umbrella
+outright — the sandbox was simply the first consumer to pay for it. Both fixes are the right thing for a generated
 project anyway, which is the tell that they were defects rather than
 workarounds. `STYLE_ENTRY_POINTS` in the generated selector map is what makes
 the narrowing safe: `@use` on an entry point with no `styles/_index.scss`

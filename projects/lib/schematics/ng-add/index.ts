@@ -63,7 +63,7 @@ const THEME_PROVIDER: Record<NonNullable<Schema['theme']>, string | null> = {
   system: "provideWrTheme({ defaultMode: 'auto' })",
 };
 
-const STYLES_DIRECTIVE_SCSS = "@use 'ngwr';";
+const STYLES_DIRECTIVE_SCSS = "@use 'ngwr/theme';";
 
 /**
  * What a project whose global stylesheet is plain CSS is told, instead of a
@@ -121,12 +121,21 @@ function installPeerDeps(options: Schema, context: SchematicContext): Rule {
 }
 
 /**
- * Appends `@use 'ngwr';` to the project's first global stylesheet when
- * `styles === 'all'`. Skipped entirely when `styles === 'none'` — the
- * user is expected to opt in per component via `ng g ngwr:component-style`.
+ * Appends `@use 'ngwr/theme';` to the project's first global stylesheet when
+ * `styles === 'theme'`. Skipped entirely when `styles === 'none'`.
+ *
+ * The theme layer and NOT the components, because v15 removed the `@use 'ngwr'`
+ * umbrella: a sheet that compiled all 228 component stylesheets for a page
+ * rendering two of them was measured here at 287 kB against 44 kB. What a
+ * project does want globally is the token layer — `:root`, the dark block, the
+ * box-sizing reset — which every component sheet loads anyway, so writing it
+ * first costs nothing and buys the one thing order matters for: this is the
+ * line that can carry `with ($theme-attribute: ...)`, and only the first load
+ * of a module can be configured. Components go in per component, through
+ * `ng g ngwr:component-style <name>`.
  */
 function registerStyles(options: Schema): Rule {
-  if ((options.styles ?? 'all') === 'none') {
+  if ((options.styles ?? 'theme') === 'none') {
     return (tree: Tree) => tree;
   }
 
@@ -171,7 +180,11 @@ function registerStyles(options: Schema): Rule {
     const directive = STYLES_DIRECTIVE_SCSS;
     const existing = tree.readText(stylesPath);
 
-    if (existing.includes(directive) || existing.includes("'ngwr'") || existing.includes('"ngwr"')) {
+    // Matched on the subpath rather than on the whole line, so a stylesheet
+    // that already configures the layer — `@use 'ngwr/theme' with (...)` — is
+    // left alone instead of getting a second, unconfigured load above it,
+    // which Sass refuses outright.
+    if (existing.includes("'ngwr/theme'") || existing.includes('"ngwr/theme"')) {
       context.logger.info(`ngwr: ${stylesPath} already imports ngwr — skipping.`);
       return tree;
     }
@@ -256,7 +269,7 @@ Browse the full catalog at https://ngwr.dev.
 
 function snapshotSummary(options: Schema): string {
   const lines: string[] = ['Selected:'];
-  lines.push(`  • styles      = ${options.styles ?? 'all'}`);
+  lines.push(`  • styles      = ${options.styles ?? 'theme'}`);
   lines.push(`  • dateAdapter = ${options.dateAdapter ?? 'none'}`);
   lines.push(`  • density     = ${options.density ?? 'none'}`);
   lines.push(`  • theme       = ${options.theme ?? 'none'}`);

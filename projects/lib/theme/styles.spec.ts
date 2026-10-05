@@ -232,16 +232,16 @@ describe('the dark block is keyed on the configured attribute', () => {
     );
 
     // The seven that carried the literal. Named by entry point rather than by
-    // first path segment: they live under `animations/` since v15, and a
-    // segment read would answer `animations` seven times and still pass.
+    // first path segment: they live under `bits/` since v15, and a
+    // segment read would answer `bits` seven times and still pass.
     expect(withDark.map(f => relative(LIB, f).replace(/\/styles\/.*$/, '')).sort()).toEqual([
-      'animations/aurora',
-      'animations/border-glow',
-      'animations/shiny-text',
-      'animations/spotlight-card',
-      'animations/star-border',
-      'animations/tilt-card',
-      'animations/waves',
+      'bits/aurora',
+      'bits/border-glow',
+      'bits/shiny-text',
+      'bits/spotlight-card',
+      'bits/star-border',
+      'bits/tilt-card',
+      'bits/waves',
     ]);
   });
 });
