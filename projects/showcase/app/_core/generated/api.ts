@@ -310,8 +310,8 @@ export const API = {
     { name: "orientation", description: "Divider direction: - `'horizontal'` — divider line is vertical, drags left/right. - `'vertical'` — divider line is horizontal, drags up/down.", type: "'horizontal' | 'vertical'", default: "'horizontal'" },
     { name: "showHandle", description: "Show the round drag handle on the divider.", type: "boolean", default: "true" },
     { name: "disabled", description: "Disable interaction (divider stays put).", type: "boolean", default: "false" },
-    { name: "minPosition", description: "Initial position transform — accepts any number / numeric string.", type: "number", default: "0" },
-    { name: "maxPosition", description: "—", type: "number", default: "100" },
+    { name: "minPosition", description: "Lowest position the divider may reach, in percent.", type: "number", default: "0" },
+    { name: "maxPosition", description: "Highest position the divider may reach, in percent.", type: "number", default: "100" },
   ],
   // <[wrContextMenu]>
   WrContextMenu: [
