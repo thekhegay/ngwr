@@ -403,6 +403,8 @@ export const INSTALL = {
   ],
   "reference/components/page-header": [
       { path: "ngwr/page-header", symbols: ["WrPageHeader"], styled: true },
+      { path: "ngwr/badge", symbols: ["WrTag"], styled: true },
+      { path: "ngwr/breadcrumbs", symbols: ["WrBreadcrumbs", "WrBreadcrumbsItem"], styled: true },
       { path: "ngwr/button", symbols: ["WrButton"], styled: true },
   ],
   "reference/components/pagination": [
