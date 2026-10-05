@@ -8,6 +8,7 @@ import { WrSchemaForm } from 'ngwr/schema-form';
 
 import {
   DocApiComponent,
+  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
@@ -103,6 +104,91 @@ export default class SchemaFormPage {
   protected submit(): void {
     this.signup().markAsTouched();
   }
+
+  protected readonly typeSnippet = `type WrFieldKind =
+  | 'input' | 'textarea' | 'number' | 'select'
+  | 'checkbox' | 'switch' | 'radio' | 'date' | 'slider';
+
+interface WrFieldOption {
+  value: unknown;
+  label: string;
+  disabled?: boolean;
+}
+
+interface WrFieldSpec {
+  kind: WrFieldKind;
+  label?: string;
+  placeholder?: string;
+  hint?: string;
+  options?: readonly WrFieldOption[];
+  type?: string;
+  step?: number;
+  span?: number;
+}`;
+
+  protected readonly typeRows: readonly DocApiRow[] = [
+    {
+      name: 'WrFieldSpec',
+      description: "One field's presentation, carried on the schema under `WR_FIELD`.",
+      type: 'interface',
+    },
+    {
+      name: 'kind',
+      description:
+        'Which control to draw. The one required member — and the one thing nothing can type-check against the field, so a `kind` that contradicts the value type warns in dev mode off the runtime value.',
+      type: 'WrFieldKind',
+      sub: true,
+    },
+    {
+      name: 'label',
+      description: "Defaults to the field's key, de-camel-cased — `workEmail` becomes “Work email”.",
+      type: 'string',
+      default: 'the key',
+      sub: true,
+    },
+    { name: 'placeholder', description: 'Passed through to the control.', type: 'string', default: '—', sub: true },
+    {
+      name: 'hint',
+      description: 'Help text under the control. An error replaces it while the field is invalid.',
+      type: 'string',
+      default: '—',
+      sub: true,
+    },
+    {
+      name: 'options',
+      description: 'For `select` and `radio`. Ignored by every other kind.',
+      type: 'readonly WrFieldOption[]',
+      default: '—',
+      sub: true,
+    },
+    {
+      name: 'type',
+      description: "Native `type` for `kind: 'input'` — `email`, `password`, `url`, `tel`.",
+      type: 'string',
+      default: "'text'",
+      sub: true,
+    },
+    {
+      name: 'step',
+      description:
+        'Granularity for `number` and `slider`. The BOUNDS are deliberately absent: Angular refuses a `[min]` or `[max]` binding on a `[formField]`-bound control (NG8022), so they live in the schema as `min(path.x, 18)`. `step` is presentation and has no schema function, so it stays here.',
+      type: 'number',
+      default: '1',
+      sub: true,
+    },
+    {
+      name: 'span',
+      description: "Columns this field spans in the grid, clamped to the form's own `columns`.",
+      type: 'number',
+      default: '1',
+      sub: true,
+    },
+    {
+      name: 'WrFieldOption',
+      description: 'One choice, for the kinds that offer a list: `{ value, label, disabled? }`.',
+      type: 'interface',
+    },
+  ];
 
   protected readonly api = API.WrSchemaForm;
 
