@@ -21,6 +21,28 @@ import {
 } from '@angular/core';
 
 /**
+ * The element a `position: sticky` host actually pins against.
+ *
+ * Walks up looking for an ancestor that scrolls — `overflow` anything but
+ * `visible` on an axis, and a box that can actually be scrolled. `null` means
+ * the document scroller, which is both what the browser uses and what
+ * `IntersectionObserver` takes for "the viewport".
+ *
+ * A `getComputedStyle` read per ancestor, once per observer construction —
+ * cheap, and the only way to answer the question: CSS resolves it internally
+ * and exposes nothing.
+ */
+function scrollParent(el: HTMLElement): HTMLElement | null {
+  for (let node = el.parentElement; node !== null; node = node.parentElement) {
+    if (node === document.body || node === document.documentElement) break;
+    const style = getComputedStyle(node);
+    const scrolls = /auto|scroll|overlay|hidden/.test(`${style.overflowY} ${style.overflowX}`);
+    if (scrolls && node.scrollHeight > node.clientHeight) return node;
+  }
+  return null;
+}
+
+/**
  * Stick-on-scroll directive. Combines native CSS `position: sticky` with
  * an `IntersectionObserver`-driven `wr-affix--active` state class, so consumers
  * can style the element differently while it's pinned (e.g. add a
@@ -31,8 +53,11 @@ import {
  * scrolls out of view, the host is "stuck" and gets `wr-affix--active`
  * + an `(wrAffixChange)` emission.
  *
- * Works inside any scroll container without configuration — CSS sticky
- * picks the nearest scrollable ancestor automatically.
+ * Works inside any scroll container without configuration: CSS sticky picks
+ * the nearest scrollable ancestor, and the observer watching for the pinned
+ * state is given that same element as its root — see `scrollParent`. Without
+ * that second half the two measured different lines, and the state never
+ * flipped inside a nested scroller.
  *
  * @example
  * ```html
@@ -113,6 +138,20 @@ export class WrAffix {
         onCleanup => {
           const offset = this.offsetTop();
 
+          // The observer's ROOT has to be the element the host sticks to, not
+          // the viewport. `position: sticky` pins against the nearest
+          // SCROLLING ancestor, and an observer with no root measures against
+          // the viewport — so inside any nested scroller whose top sits below
+          // the viewport's, `rootBounds.top` was 0 while the host pinned at
+          // the container's own top. The direction guard below then computed
+          // `false` at the one crossing it was ever handed, and because
+          // `isIntersecting` stays false afterwards no further callback came:
+          // `wr-affix--active` was never added and `(wrAffixChange)` never
+          // emitted, for the whole scroll. The JSDoc promised the opposite —
+          // "works inside any scroll container without configuration" — and
+          // the docs page's own demo is exactly that shape.
+          const root = scrollParent(el);
+
           observer = new IntersectionObserver(
             ([entry]) => {
               // NOT `!entry.isIntersecting` on its own. A sentinel is outside
@@ -136,6 +175,9 @@ export class WrAffix {
               this.affixChange.emit(next);
             },
             {
+              // `null` is the document scroller, which is what the browser
+              // uses for a host with no scrolling ancestor.
+              root,
               // Trigger when the sentinel's top crosses the offset line.
               rootMargin: `-${offset}px 0px 0px 0px`,
               threshold: [0],
