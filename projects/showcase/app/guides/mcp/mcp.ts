@@ -152,7 +152,7 @@ ng g ngwr:use WrDatePicker --path src/app/some.component.ts   # ngwr/date-picker
 \`--path\` is a NAMED option, not positional — passing it bare fails with \`Unknown argument\`.
 
 ## 3. Styles
-@use 'ngwr';   // everything, or per component:
+@use 'ngwr/theme';   // the token layer, first — then per component:
 @use 'ngwr/select';
 @use 'ngwr/date-picker';
 

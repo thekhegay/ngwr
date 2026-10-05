@@ -132,8 +132,8 @@
 
   // Doubled with `.wr-spinner` on purpose. A lone `.wr-avatar__spin` ties with
   // the spinner's own `.wr-spinner { color: inherit; --wr-spinner-size: 1.25em }`,
-  // and the combined `@use 'ngwr'` sheet forwards the spinner after the avatar,
-  // so the spinner won both: measured, every avatar drew a 19px spinner in the
+  // and an app that loads the spinner's sheet after this one gives the spinner
+  // both: measured, every avatar drew a 19px spinner in the
   // inherited ink (17.85:1 light, 15.73:1 dark) — 59% of a 32px box and 20% of
   // a 96px one — and the colour and size written here never painted once.
   // Specificity, not order, so it holds for an app that `@use`s the two entry

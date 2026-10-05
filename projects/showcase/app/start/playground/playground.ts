@@ -208,8 +208,10 @@ bootstrapApplication(Demo, {
   ],
 }).catch(error => console.error(error));`,
 
-    styles: `// src/styles.scss — one import for the whole library.
-@use 'ngwr';`,
+    styles: `// src/styles.scss — the token layer, then only what the demo renders.
+@use 'ngwr/theme';
+@use 'ngwr/button';
+@use 'ngwr/input';`,
   };
 
   /**

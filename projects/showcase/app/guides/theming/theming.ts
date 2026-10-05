@@ -71,11 +71,12 @@ bootstrapApplication(AppComponent, {
   ],
 });`,
 
-    styles: `// styles.scss — load the umbrella stylesheet.
-// Pulls in every component's CSS, design tokens, dark mode, density vars.
-@use 'ngwr' as *;
+    styles: `// styles.scss — the token layer first: design tokens, dark mode, density.
+// \`as *\` drops the \`theme.\` prefix from the SCSS mixins it forwards, so
+// \`@include media-up(md)\` and \`@include dark { ... }\` work unqualified.
+@use 'ngwr/theme' as *;
 
-// Or per-entry-point if you bundle by component:
+// Then one line per component you render.
 @use 'ngwr/button';
 @use 'ngwr/input';
 @use 'ngwr/theme';`,
@@ -102,7 +103,6 @@ bootstrapApplication(AppComponent, {
     info: #3472d9,
   )
 );
-@use 'ngwr' as *;
 
 // Carry the rebrand into dark mode. \`rebrand()\` is the same arithmetic the
 // light palette runs, on whatever element you include it on — and \`theme.dark\`
@@ -214,7 +214,7 @@ theme.resolved();          // 'light' | 'dark' — what the DOM has
 //
 // 1. Renamed the attribute? Re-state it HERE as well — Sass configuration is
 //    per compilation and every component stylesheet is its own, so the
-//    \`@use 'ngwr' with (...)\` in styles.scss never reaches this file:
+//    \`@use 'ngwr/theme' with (...)\` in styles.scss never reaches this file:
 //      @use 'ngwr/theme' as theme with ($theme-attribute: 'data-color-mode');
 //
 // 2. \`@use 'ngwr/theme'\` brings the token layer with it, and in a separate
@@ -230,7 +230,7 @@ theme.resolved();          // 'light' | 'dark' — what the DOM has
 // 1. styles.scss — configure the stylesheet FIRST, before anything that
 //    pulls the theme in. Sass refuses to configure a module that is already
 //    loaded, so a component entry point above this line is a build error.
-@use 'ngwr' with ($theme-attribute: 'data-color-mode');
+@use 'ngwr/theme' with ($theme-attribute: 'data-color-mode');
 
 // 2. app.config.ts — the same string.
 provideWrTheme({ attribute: 'data-color-mode' })
@@ -270,8 +270,9 @@ provideWrTheme({ attribute: 'data-color-mode' })
 // Re-count them against the version you installed:
 //   grep -rn '!important;' node_modules/ngwr --include='*.scss'`,
 
-    importantOverride: `// styles.scss — after @use 'ngwr', so source order is already on your side.
-@use 'ngwr';
+    importantOverride: `// styles.scss — after the ngwr entries, so source order is already on your side.
+@use 'ngwr/theme';
+@use 'ngwr/overlay';
 
 // A plain rule loses. This is not a specificity problem; it is the !important.
 .wr-overlay-sheet {

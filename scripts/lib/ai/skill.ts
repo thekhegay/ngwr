@@ -109,8 +109,9 @@ guess gets backwards.
   \`value\` is reserved for the form value, so a leftover \`value="x"\` lands on the
   host as a plain DOM attribute, every box in the group keeps the default
   identity \`null\`, and they all toggle together. No template error.
-- **Styles are opt-in and global.** \`@use 'ngwr'\` for everything, or
-  \`@use 'ngwr/<name>'\` per component. Components are \`ViewEncapsulation.None\`;
+- **Styles are opt-in, global, and per entry point.** \`@use 'ngwr/theme'\` first,
+  then \`@use 'ngwr/<name>'\` for each component. There is no \`@use 'ngwr'\`.
+  Components are \`ViewEncapsulation.None\`;
   their \`.wr-*\` BEM classes and \`--wr-*\` custom properties are PUBLIC API, so
   style against them rather than reaching into the DOM structure.
 - **Theme through tokens, not overrides.** \`--wr-color-{intent}\` and its
@@ -253,9 +254,14 @@ installs \`WrVisualViewport\`, which publishes \`--wr-keyboard-inset\`.
 ## Styles
 
 \`\`\`scss
-@use 'ngwr';          // everything
-@use 'ngwr/button';   // or one entry point at a time
+@use 'ngwr/theme';    // the token layer — first, and the only configurable load
+@use 'ngwr/button';   // then one line per component you render
 \`\`\`
+
+There is no \`@use 'ngwr'\` umbrella: compiling every component stylesheet for a
+page that renders a handful was measured at 287 kB against 44 kB. Only a
+module's FIRST load can be configured, so the theme line goes above the
+components or \`with ($theme-attribute: …)\` fails the build.
 
 Resolved through the \`sass\` condition in the package's \`exports\` map. Entry
 points that ship no stylesheet (the \`/testing\` harnesses, \`ngwr/utils\`) have no

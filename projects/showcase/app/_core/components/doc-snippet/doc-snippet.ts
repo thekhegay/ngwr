@@ -65,10 +65,10 @@ export class DocSnippetComponent {
    *    every start — the dev server says so itself ("Prebundling has been
    *    configured but will not be used because scripts optimization is
    *    enabled"), and that is the path rolldown died on;
-   * 2. `@use 'ngwr';`, which compiles all hundred-and-twenty component
-   *    stylesheets to serve a two-element demo. Narrowed to the entry points
-   *    the snippet renders, the CSS went from 287 kB to 44 kB and the container
-   *    stopped running out of memory.
+   * 2. `@use 'ngwr';`, which compiled every component stylesheet to serve a
+   *    two-element demo. Narrowed to the entry points the snippet renders, the
+   *    CSS went from 287 kB to 44 kB and the container stopped running out of
+   *    memory. v15 then removed that entry point from the package outright.
    *
    * With both fixed, a generated project was POSTed by hand and watched
    * through: install, `ng serve`, "Application bundle generation complete
