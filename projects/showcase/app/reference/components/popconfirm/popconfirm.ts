@@ -34,7 +34,7 @@ export default class PopconfirmPageComponent {
     positions: `<wr-btn wrPopconfirm="Delete this item?" position="bottom" (confirmed)="remove()">Delete</wr-btn>`,
     basic: `<wr-btn
   color="danger"
-  [wrPopconfirm]="'Delete this item?'"
+  wrPopconfirm="Delete this item?"
   confirmText="Delete"
   confirmColor="danger"
   (confirmed)="remove()"
