@@ -96,11 +96,21 @@
   --wr-input-group-border: var(--wr-color-danger);
 }
 
-// Overlay pane — z-index isolation only. <wr-calendar> + the time panel
-// bring their own chrome.
-.wr-date-picker-overlay {
-  z-index: 1050;
-}
+// A `z-index` on an overlay PANE does nothing, and this is where the three that
+// tried it lived.
+//
+// CDK promotes each pane into the top layer through the popover API, where
+// paint order is the sequence of `showPopover()` calls and `z-index` has no
+// say. Below that, the pane is scoped by `.cdk-overlay-container`'s own
+// stacking context, so a value here only ever competed with sibling panes —
+// and `ngwr/dialog` re-emits `.cdk-overlay-pane { z-index: 1000 }`, a selector
+// of equal specificity, so which one won came down to the order a consumer
+// happened to write their `@use` lines in. Measured both ways with a picker
+// open under a modal dialog: the dialog's backdrop intercepts either way, the
+// calendar is unreachable either way, and nothing on screen moves.
+//
+// <wr-calendar> and the time panel bring their own chrome, so the pane needs
+// no rule at all.
 
 // Time-only mode attaches the bare stepper as the overlay content — it
 // has to bring the panel chrome the calendar otherwise provides.
