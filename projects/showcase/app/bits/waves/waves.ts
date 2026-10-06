@@ -6,7 +6,6 @@ import { WrTypography } from 'ngwr/typography';
 import {
   DocApiComponent,
   type DocApiRow,
-  DocCodeComponent,
   type DocControl,
   DocPageComponent,
   DocPlaygroundComponent,
@@ -23,7 +22,6 @@ import {
     DocPageComponent,
     DocSectionComponent,
     DocPlaygroundComponent,
-    DocCodeComponent,
     DocApiComponent,
     ReactbitsCredit,
   ],

@@ -5,19 +5,13 @@ import { WrAlert, type WrAlertType } from 'ngwr/alert';
 import { provideWrIcons } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 
-import {
-  DocApiComponent,
-  DocCodeComponent,
-  DocPageComponent,
-  DocSectionComponent,
-  DocSnippetComponent,
-} from '#core/components';
+import { DocApiComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
 import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-alert-page',
   templateUrl: './alert.html',
-  imports: [WrAlert, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [WrAlert, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocApiComponent],
   providers: [provideWrIcons(lucideIcons({ sparkles: Sparkles }))],
 })
 export default class AlertComponent {

@@ -6,7 +6,6 @@ import { WrButton } from 'ngwr/button';
 import {
   DocApiComponent,
   type DocApiRow,
-  DocCodeComponent,
   type DocControl,
   DocPageComponent,
   DocPlaygroundComponent,
@@ -16,7 +15,7 @@ import {
 @Component({
   selector: 'ngwr-confetti-page',
   templateUrl: './confetti.html',
-  imports: [WrButton, DocPageComponent, DocSectionComponent, DocPlaygroundComponent, DocCodeComponent, DocApiComponent],
+  imports: [WrButton, DocPageComponent, DocSectionComponent, DocPlaygroundComponent, DocApiComponent],
 })
 export default class ConfettiPage {
   private readonly confetti = inject(WrConfetti);
