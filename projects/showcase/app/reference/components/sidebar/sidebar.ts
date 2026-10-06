@@ -23,15 +23,27 @@ import {
 })
 export default class SidebarPage {
   /**
-   * Distinct destinations, and that is the whole point of the demo. Every entry
-   * used to name THIS page, so `routerLinkActive` matched all six at once and
-   * the active treatment was indistinguishable from the inactive one — the one
-   * thing the section exists to show. Only `Dashboard` resolves here, so only
-   * `Dashboard` is highlighted; the rest are real docs routes and clicking one
-   * navigates, the way a sidebar entry does.
+   * Distinct destinations, and exactly ONE of them resolves here — the entry
+   * that is a visible CHILD of a group.
+   *
+   * Every entry used to name this page, so `routerLinkActive` matched all six at
+   * once and the active treatment was indistinguishable from the inactive one,
+   * the single thing the section exists to show. Pointing them at real routes
+   * fixed that and broke the other half: the only row left matching was
+   * `Dashboard`, a top-level entry, so nothing on the page carried
+   * `.wr-sidebar__item--active` and no group expanded for a reason a reader can
+   * see. `Settings` DID open — `Tokens (soon)` named this route — but a disabled
+   * entry renders as a `<span>`, which `routerLinkActive` never touches, so the
+   * group opened because of an inert row with no highlight on it. The page
+   * promises "active route auto-expands its containing group" directly above.
+   *
+   * So `Profile` is the one that resolves here: its group opens on load, the row
+   * inside it is highlighted, and the promise is demonstrated by something
+   * visible. `check:state-a11y` measures `.wr-sidebar__item--active` on this
+   * route and went unreachable for exactly as long as no child was active.
    */
   protected readonly entries: readonly WrSidebarEntry[] = [
-    { title: 'Dashboard', icon: 'home', url: ['/reference/components', 'sidebar'] },
+    { title: 'Dashboard', icon: 'home', url: ['/reference/components', 'card'] },
     {
       title: 'Workspace',
       icon: 'folder',
@@ -45,9 +57,9 @@ export default class SidebarPage {
       title: 'Settings',
       icon: 'cog',
       children: [
-        { title: 'Profile', url: ['/reference/components', 'form'] },
+        { title: 'Profile', url: ['/reference/components', 'sidebar'] },
         { title: 'Security', url: ['/reference/components', 'input-otp'] },
-        { title: 'Tokens (soon)', url: ['/reference/components', 'sidebar'], disabled: true },
+        { title: 'Tokens (soon)', url: ['/reference/components', 'descriptions'], disabled: true },
       ],
     },
   ];
