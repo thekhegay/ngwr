@@ -626,6 +626,47 @@ describe('the auto-close bar, as the stylesheet declares it', () => {
 })
 class StackProbe {}
 
+/**
+ * The collapsed stack owns `transform`, and the entry animation must not.
+ *
+ * A running CSS animation outranks a normal declaration, so a keyframe writing
+ * `transform` silently replaces the stack's own — the one carrying both the
+ * per-level 8px offset and the per-level scale. Measured in Chromium before the
+ * fix: a toast at stack index 2 painted `matrix(1, 0, 0, 1, 0, -8)` while
+ * `wr-toast-in` ran, where the stack rule wanted `matrix(0.9, 0, 0, 0.9, 0,
+ * 16)`. For its first 180ms every arriving toast was drawn FULL SIZE IN SLOT 0
+ * whatever its depth, so a burst piled three identical cards a few pixels apart
+ * with all three messages legible at once — reported from an app whose toasts
+ * arrive in bursts.
+ *
+ * A SOURCE assertion, and it has to be: jsdom applies no cascade, so no
+ * rendered-DOM spec in this repo can see one declaration lose to another. What
+ * a file scan can hold is the structural half, which is where the defect lived.
+ */
+describe('the entry animation, as the stylesheet declares it', () => {
+  const sheet = readFileSync(join(process.cwd(), 'projects/lib/toast/styles/_index.scss'), 'utf8');
+  const keyframes = sheet.slice(sheet.indexOf('@keyframes wr-toast-in'), sheet.indexOf('@keyframes wr-toast-progress'));
+
+  it('never writes `transform`, which the collapsed stack owns', () => {
+    expect(keyframes).not.toMatch(/^\s*transform:/m);
+  });
+
+  it('nudges with `translate`, which composes with the stack instead of replacing it', () => {
+    expect(keyframes).toMatch(/^\s*translate:\s*0 -0\.5rem;/m);
+    expect(keyframes).toMatch(/^\s*translate:\s*0 0;/m);
+  });
+
+  it('is paired with a stack rule that really does set `transform`', () => {
+    // Without this the first assertion passes on a stylesheet where the stack
+    // stopped positioning anything, which is the vacuous way to stay green.
+    const collapsed = sheet.slice(
+      sheet.indexOf('&--stack:not(.wr-toast-host--expanded) {'),
+      sheet.indexOf('// Bottom-anchored hosts')
+    );
+    expect(collapsed).toMatch(/transform:\s*translateY\(calc\(var\(--wr-toast-i\)/);
+  });
+});
+
 describe('WrToast stacking', () => {
   let toast: WrToast;
   let dialog: WrDialog;

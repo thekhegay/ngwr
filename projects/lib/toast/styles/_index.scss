@@ -260,14 +260,29 @@ $toast-colors: (
   }
 }
 
+// The entry nudge rides on `translate`, NOT on `transform`, and that is the
+// whole of it: a running animation outranks a normal declaration, so a keyframe
+// writing `transform` silently replaces the collapsed stack's own
+// `transform` — the one carrying both the per-level 8px offset and the
+// per-level scale. Measured: a toast at stack index 2 painted
+// `matrix(1, 0, 0, 1, 0, -8)` while this animation ran, where the stack rule
+// wanted `matrix(0.9, 0, 0, 0.9, 0, 16)`. For its first 180ms every arriving
+// toast was therefore drawn FULL SIZE IN SLOT 0 whatever its real depth, so a
+// burst put three identical cards on top of each other a few pixels apart, each
+// at its own fading opacity, with all three messages legible at once.
+//
+// `translate` is an independent transform property and composes: the rendered
+// result is `translate` then `rotate` then `scale` then `transform`, so the
+// slot keeps its placement and the nudge happens on top of it. In list mode
+// `.wr-toast` carries no `transform`, so this behaves exactly as before.
 @keyframes wr-toast-in {
   from {
     opacity: 0;
-    transform: translateY(-0.5rem);
+    translate: 0 -0.5rem;
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    translate: 0 0;
   }
 }
 
