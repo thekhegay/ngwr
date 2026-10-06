@@ -68,8 +68,8 @@ export const wrEn: WrI18nCatalog = {
   table: {
     empty: 'No data',
     loading: 'Loading…',
-    sort: 'Sort column',
-    filter: 'Filter column',
+    sort: 'Sort {{column}}',
+    filter: 'Filter {{column}}',
     selectAll: 'Select all rows',
     selectRow: 'Select row',
     expandRow: 'Toggle row details',

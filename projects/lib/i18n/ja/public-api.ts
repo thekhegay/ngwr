@@ -38,8 +38,8 @@ export const wrJa: WrI18nCatalog = {
   table: {
     empty: 'データがありません',
     loading: '読み込み中…',
-    sort: '列の並べ替え',
-    filter: '列のフィルター',
+    sort: '{{column}}列の並べ替え',
+    filter: '{{column}}列のフィルター',
     selectAll: 'すべての行を選択',
     selectRow: '行を選択',
     expandRow: '詳細行の開閉',

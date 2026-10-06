@@ -38,8 +38,8 @@ export const wrId: WrI18nCatalog = {
   table: {
     empty: 'Tidak ada data',
     loading: 'Memuat…',
-    sort: 'Urutkan kolom',
-    filter: 'Filter kolom',
+    sort: 'Urutkan kolom {{column}}',
+    filter: 'Filter kolom {{column}}',
     selectAll: 'Pilih semua baris',
     selectRow: 'Pilih baris',
     expandRow: 'Alihkan detail baris',
