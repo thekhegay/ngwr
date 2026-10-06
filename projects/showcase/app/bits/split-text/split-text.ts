@@ -37,11 +37,15 @@ export default class SplitTextPage {
   /** Live snippet that reflects the current control values. */
   protected readonly snippet = computed(
     () =>
-      `<wr-split-text
+      `<!-- rootMargin is "-100px" by default, which holds the animation until the
+     text is 100px INSIDE the viewport. The playground overrides it so the
+     replay fires where the demo already sits. -->
+<wr-split-text
   text="${this.text()}"
   splitType="${this.splitType()}"
   [delay]="${this.delay()}"
   [duration]="${this.duration()}"
+  rootMargin="0px"
 />`
   );
 
