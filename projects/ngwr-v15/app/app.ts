@@ -1,15 +1,13 @@
 import { Component, ViewEncapsulation, inject, signal } from '@angular/core';
 
-import { WrAlert } from 'ngwr/alert';
 import { WrButton } from 'ngwr/button';
-import { WrEmpty } from 'ngwr/empty';
-import { WrProgress } from 'ngwr/progress';
-import { WrPullToRefresh } from 'ngwr/pull-to-refresh';
-import { WrResult, WrResult403, WrResult404, WrResult500 } from 'ngwr/result';
-import { WrSkeleton } from 'ngwr/skeleton';
-import { WrSlider } from 'ngwr/slider';
-import { WrSpinner } from 'ngwr/spinner';
+import { WrCommandPalette, type WrCommandItem } from 'ngwr/command-palette';
+import { WrContextMenu, WrContextMenuItem, WrContextMenuPanel } from 'ngwr/context-menu';
+import { WrDrawer, WrDrawerClose, WrDrawerContent, WrDrawerFooter, WrDrawerTitle } from 'ngwr/drawer';
+import { WrPopconfirm } from 'ngwr/popconfirm';
+import { WrPopover } from 'ngwr/popover';
 import { WrTheme } from 'ngwr/theme';
+import { WrToast } from 'ngwr/toast';
 
 /** The sandbox host. Everything below is a docs snippet, copied as written. */
 @Component({
@@ -18,40 +16,40 @@ import { WrTheme } from 'ngwr/theme';
   styleUrl: './app.scss',
   encapsulation: ViewEncapsulation.None,
   imports: [
-    WrAlert,
     WrButton,
-    WrEmpty,
-    WrProgress,
-    WrPullToRefresh,
-    WrResult,
-    WrResult403,
-    WrResult404,
-    WrResult500,
-    WrSkeleton,
-    WrSlider,
-    WrSpinner,
+    WrCommandPalette,
+    WrContextMenu,
+    WrContextMenuItem,
+    WrContextMenuPanel,
+    WrDrawer,
+    WrDrawerClose,
+    WrDrawerContent,
+    WrDrawerFooter,
+    WrDrawerTitle,
+    WrPopconfirm,
+    WrPopover,
   ],
 })
 export class AppComponent {
   protected readonly theme = inject(WrTheme);
-
   protected toggleTheme(): void {
     this.theme.set(this.theme.resolved() === 'dark' ? 'light' : 'dark');
   }
 
-  protected readonly value = signal(42);
-  protected readonly loading = signal(false);
-  protected readonly items = signal(['one', 'two', 'three']);
+  private readonly toast = inject(WrToast);
 
-  protected onClose(): void {
-    this.loading.set(false);
+  protected readonly open = signal(false);
+
+  protected readonly commands: readonly WrCommandItem[] = [
+    { id: 'new', label: 'New file' },
+    { id: 'open', label: 'Open…' },
+  ];
+
+  protected notify(): void {
+    this.toast.show({ message: 'Saved', type: 'success' });
   }
 
-  protected reset(): void {
-    this.value.set(0);
-  }
-
-  protected reload(): void {
-    this.loading.set(true);
+  protected remove(): void {
+    this.toast.show({ message: 'Deleted', type: 'danger' });
   }
 }

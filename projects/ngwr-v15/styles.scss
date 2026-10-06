@@ -1,13 +1,11 @@
 @use 'ngwr/theme';
-@use 'ngwr/alert';
 @use 'ngwr/button';
-@use 'ngwr/empty';
-@use 'ngwr/progress';
-@use 'ngwr/pull-to-refresh';
-@use 'ngwr/result';
-@use 'ngwr/skeleton';
-@use 'ngwr/slider';
-@use 'ngwr/spinner';
+@use 'ngwr/command-palette';
+@use 'ngwr/context-menu';
+@use 'ngwr/drawer';
+@use 'ngwr/popconfirm';
+@use 'ngwr/popover';
+@use 'ngwr/toast';
 
 body {
   margin: 0;
