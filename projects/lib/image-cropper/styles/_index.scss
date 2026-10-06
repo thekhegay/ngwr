@@ -147,7 +147,7 @@
     text-align: center;
     color: var(--wr-color-on-surface-muted);
     background: var(--wr-color-hover);
-    border: 1px dashed var(--wr-color-outline);
+    border: 1px dashed var(--wr-border-base);
     @include theme.smooth-br(var(--wr-border-radius-base));
   }
 }

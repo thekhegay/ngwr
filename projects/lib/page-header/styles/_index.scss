@@ -9,7 +9,7 @@
   width: 100%;
   min-width: 0;
   padding: var(--wr-space-xl) 0 var(--wr-space-xl);
-  border-bottom: 1px solid var(--wr-color-outline);
+  border-bottom: 1px solid var(--wr-border-base);
   font-family: var(--wr-font-family-base);
 
   // Opt-in (`responsive`): query the box's own width so the title + actions row

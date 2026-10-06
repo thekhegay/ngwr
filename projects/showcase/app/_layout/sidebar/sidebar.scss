@@ -29,7 +29,7 @@
     // renders inside the mobile drawer, outside that grid.
     width: var(--ngwr-sidebar-width, 14rem);
 
-    border-right: 1px solid var(--wr-color-border-subtle);
+    border-right: 1px solid var(--wr-border-subtle);
   }
 }
 
@@ -162,7 +162,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.0625rem;
-    border-left: 1px solid var(--wr-color-outline);
+    border-left: 1px solid var(--wr-border-base);
   }
 
   &__link {

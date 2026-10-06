@@ -230,7 +230,7 @@ interface TeamEntry {
       height: 100%;
       padding-inline: 0.625rem;
       background: var(--wr-color-surface);
-      border: 1px solid var(--wr-color-outline);
+      border: 1px solid var(--wr-border-base);
       border-radius: var(--wr-border-radius-base);
     }
     .person__avatar {
@@ -322,7 +322,7 @@ import { WrGraph, WrGraphNodeTemplate, type WrGraphEdge, type WrGraphNode } from
       height: 100%;
       padding-inline: 0.75rem;
       background: var(--wr-color-surface);
-      border: 1px solid var(--wr-color-outline);
+      border: 1px solid var(--wr-border-base);
       border-radius: var(--wr-border-radius-base);
     }
     .package__name {

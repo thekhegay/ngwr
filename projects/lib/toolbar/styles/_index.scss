@@ -14,7 +14,7 @@
   min-height: 3rem;
   padding: var(--wr-space-sm) var(--wr-space-lg);
   background: var(--wr-color-surface);
-  border: 1px solid var(--wr-color-outline);
+  border: 1px solid var(--wr-border-base);
   @include theme.smooth-br(var(--wr-border-radius-base));
   box-shadow: var(--wr-shadow-xs);
   font-family: var(--wr-font-family-base);
@@ -71,7 +71,7 @@
       transform: translateY(-50%);
       height: 1.25rem;
       width: 1px;
-      background: var(--wr-color-outline);
+      background: var(--wr-border-base);
     }
   }
 }

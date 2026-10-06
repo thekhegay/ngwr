@@ -171,14 +171,14 @@ export const CSS_VARS = {
       { name: "--wr-avatar-img-opacity", default: "0", scope: ".wr-avatar", overrides: 1 },
       { name: "--wr-avatar-initials-scale", default: "0.375", scope: ".wr-avatar" },
       { name: "--wr-avatar-radius", default: "10%", scope: ".wr-avatar", overrides: 2 },
-      { name: "--wr-avatar-ring", default: "var(--wr-color-border)", scope: ".wr-avatar", overrides: 1 },
+      { name: "--wr-avatar-ring", default: "var(--wr-border-strong)", scope: ".wr-avatar", overrides: 1 },
     ],
   },
   "reference/components/badge": {
     subpath: "ngwr/badge",
     vars: [
       { name: "--wr-badge-bg", default: "var(--wr-color-fill)", scope: ".wr-badge" },
-      { name: "--wr-badge-border", default: "var(--wr-color-outline)", scope: ".wr-badge" },
+      { name: "--wr-badge-border", default: "var(--wr-border-base)", scope: ".wr-badge" },
       { name: "--wr-badge-color", default: "var(--wr-color-on-surface)", scope: ".wr-badge" },
       { name: "--wr-badge-font-size", default: "var(--wr-text-xs)", scope: ".wr-badge", overrides: 2 },
       { name: "--wr-badge-font-weight", default: "600", scope: ".wr-badge" },
@@ -187,7 +187,7 @@ export const CSS_VARS = {
       { name: "--wr-badge-padding-y", default: "var(--wr-space-xs)", scope: ".wr-badge", overrides: 2 },
       { name: "--wr-badge-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-badge", overrides: 1 },
       { name: "--wr-tag-bg", default: "var(--wr-color-fill)", scope: ".wr-tag", overrides: 3 },
-      { name: "--wr-tag-border", default: "var(--wr-color-outline)", scope: ".wr-tag", overrides: 4 },
+      { name: "--wr-tag-border", default: "var(--wr-border-base)", scope: ".wr-tag", overrides: 4 },
       { name: "--wr-tag-color", default: "var(--wr-color-on-surface)", scope: ".wr-tag", overrides: 3 },
       { name: "--wr-tag-font-size", default: "var(--wr-text-xs)", scope: ".wr-tag" },
       { name: "--wr-tag-font-weight", default: "500", scope: ".wr-tag" },
@@ -230,7 +230,7 @@ export const CSS_VARS = {
     subpath: "ngwr/button",
     vars: [
       { name: "--wr-btn-bg", default: "var(--wr-color-surface)", scope: ".wr-btn", overrides: 11 },
-      { name: "--wr-btn-border", default: "var(--wr-color-outline)", scope: ".wr-btn", overrides: 6 },
+      { name: "--wr-btn-border", default: "var(--wr-border-base)", scope: ".wr-btn", overrides: 6 },
       { name: "--wr-btn-color", default: "var(--wr-color-on-surface)", scope: ".wr-btn", overrides: 4 },
       { name: "--wr-btn-font-size", default: "var(--wr-control-font-size-md)", scope: ".wr-btn", overrides: 2 },
       { name: "--wr-btn-font-weight", default: "500", scope: ".wr-btn" },
@@ -250,7 +250,7 @@ export const CSS_VARS = {
       { name: "--wr-calendar-accent-ink", default: "var(--wr-color-primary-ink)", scope: ".wr-calendar" },
       { name: "--wr-calendar-accent-rgb", default: "var(--wr-color-primary-rgb)", scope: ".wr-calendar" },
       { name: "--wr-calendar-bg", default: "var(--wr-color-surface)", scope: ".wr-calendar" },
-      { name: "--wr-calendar-border", default: "var(--wr-color-outline)", scope: ".wr-calendar" },
+      { name: "--wr-calendar-border", default: "var(--wr-border-base)", scope: ".wr-calendar" },
       { name: "--wr-calendar-cell-size", default: "2rem", scope: ".wr-calendar" },
       { name: "--wr-calendar-color", default: "var(--wr-color-on-surface)", scope: ".wr-calendar" },
       { name: "--wr-calendar-day-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-calendar" },
@@ -263,7 +263,7 @@ export const CSS_VARS = {
     subpath: "ngwr/card",
     vars: [
       { name: "--wr-card-bg", default: "var(--wr-color-surface)", scope: ".wr-card" },
-      { name: "--wr-card-border", default: "var(--wr-color-outline)", scope: ".wr-card" },
+      { name: "--wr-card-border", default: "var(--wr-border-base)", scope: ".wr-card" },
       { name: "--wr-card-color", default: "var(--wr-color-on-surface)", scope: ".wr-card" },
       { name: "--wr-card-padding-x", default: "var(--wr-space-xl)", scope: ".wr-card", overrides: 1 },
       { name: "--wr-card-padding-y", default: "var(--wr-space-lg)", scope: ".wr-card", overrides: 1 },
@@ -276,7 +276,7 @@ export const CSS_VARS = {
     subpath: "ngwr/cascader",
     vars: [
       { name: "--wr-cascader-bg", default: "var(--wr-color-surface)", scope: ".wr-cascader", overrides: 1 },
-      { name: "--wr-cascader-border", default: "var(--wr-color-outline)", scope: ".wr-cascader" },
+      { name: "--wr-cascader-border", default: "var(--wr-border-base)", scope: ".wr-cascader" },
       { name: "--wr-cascader-col-width", default: "12rem", scope: ".wr-cascader-panel" },
       { name: "--wr-cascader-color", default: "var(--wr-color-on-surface)", scope: ".wr-cascader", overrides: 1 },
       { name: "--wr-cascader-font-size", default: "var(--wr-control-font-size-md)", scope: ".wr-cascader", overrides: 2 },
@@ -294,7 +294,7 @@ export const CSS_VARS = {
     subpath: "ngwr/checkbox",
     vars: [
       { name: "--wr-checkbox-bg", default: "var(--wr-color-surface)", scope: ".wr-checkbox", overrides: 2 },
-      { name: "--wr-checkbox-border", default: "var(--wr-color-outline)", scope: ".wr-checkbox", overrides: 3 },
+      { name: "--wr-checkbox-border", default: "var(--wr-border-base)", scope: ".wr-checkbox", overrides: 3 },
       { name: "--wr-checkbox-color", default: "var(--wr-color-on-surface)", scope: ".wr-checkbox", overrides: 1 },
       { name: "--wr-checkbox-font-size", default: "var(--wr-text-sm)", scope: ".wr-checkbox", overrides: 2 },
       { name: "--wr-checkbox-line-height", default: "var(--wr-control-line-height-md)", scope: ".wr-checkbox", overrides: 2 },
@@ -307,7 +307,7 @@ export const CSS_VARS = {
     subpath: "ngwr/collapse",
     vars: [
       { name: "--wr-collapse-bg", default: "var(--wr-color-surface)", scope: ".wr-collapse" },
-      { name: "--wr-collapse-border", default: "var(--wr-color-outline)", scope: ".wr-collapse" },
+      { name: "--wr-collapse-border", default: "var(--wr-border-base)", scope: ".wr-collapse" },
       { name: "--wr-collapse-color", default: "var(--wr-color-on-surface)", scope: ".wr-collapse", overrides: 1 },
       { name: "--wr-collapse-radius", default: "var(--wr-border-radius-base)", scope: ".wr-collapse" },
     ],
@@ -316,7 +316,7 @@ export const CSS_VARS = {
     subpath: "ngwr/color-picker",
     vars: [
       { name: "--wr-color-picker-bg", default: "var(--wr-color-surface)", scope: ".wr-color-picker" },
-      { name: "--wr-color-picker-border", default: "var(--wr-color-outline)", scope: ".wr-color-picker" },
+      { name: "--wr-color-picker-border", default: "var(--wr-border-base)", scope: ".wr-color-picker" },
       { name: "--wr-color-picker-gap", default: "0.625rem", scope: ".wr-color-picker" },
       { name: "--wr-color-picker-hue", default: "hsl(0, 100%, 50%)", scope: ".wr-color-picker" },
       { name: "--wr-color-picker-padding", default: "var(--wr-space-md)", scope: ".wr-color-picker" },
@@ -333,7 +333,7 @@ export const CSS_VARS = {
     subpath: "ngwr/date-picker",
     vars: [
       { name: "--wr-time-picker-bg", default: "var(--wr-color-surface)", scope: ".wr-time-picker" },
-      { name: "--wr-time-picker-border", default: "var(--wr-color-outline)", scope: ".wr-time-picker" },
+      { name: "--wr-time-picker-border", default: "var(--wr-border-base)", scope: ".wr-time-picker" },
       { name: "--wr-time-picker-col-width", default: "3rem", scope: ".wr-time-picker" },
       { name: "--wr-time-picker-color", default: "var(--wr-color-on-surface)", scope: ".wr-time-picker" },
       { name: "--wr-time-picker-muted", default: "var(--wr-color-on-surface-muted)", scope: ".wr-time-picker" },
@@ -354,7 +354,7 @@ export const CSS_VARS = {
     subpath: "ngwr/divider",
     vars: [
       { name: "--wr-divider-aside", default: "1rem", scope: ".wr-divider" },
-      { name: "--wr-divider-color", default: "var(--wr-color-outline)", scope: ".wr-divider", overrides: 1 },
+      { name: "--wr-divider-color", default: "var(--wr-border-base)", scope: ".wr-divider", overrides: 1 },
       { name: "--wr-divider-gap", default: "var(--wr-space-md)", scope: ".wr-divider" },
       { name: "--wr-divider-style", default: "solid", scope: ".wr-divider", overrides: 2 },
       { name: "--wr-divider-width", default: "1px", scope: ".wr-divider" },
@@ -371,7 +371,7 @@ export const CSS_VARS = {
     subpath: "ngwr/dropdown",
     vars: [
       { name: "--wr-dropdown-bg", default: "var(--wr-color-surface)", scope: ".wr-dropdown-menu" },
-      { name: "--wr-dropdown-border", default: "var(--wr-color-outline)", scope: ".wr-dropdown-menu" },
+      { name: "--wr-dropdown-border", default: "var(--wr-border-base)", scope: ".wr-dropdown-menu" },
       { name: "--wr-dropdown-item-bg-hover", default: "var(--wr-color-hover)", scope: ".wr-dropdown-item" },
       { name: "--wr-dropdown-item-color", default: "var(--wr-color-on-surface)", scope: ".wr-dropdown-item" },
       { name: "--wr-dropdown-item-padding-x", default: "var(--wr-space-md)", scope: ".wr-dropdown-item" },
@@ -387,7 +387,7 @@ export const CSS_VARS = {
     subpath: "ngwr/editor",
     vars: [
       { name: "--wr-editor-bg", default: "var(--wr-color-surface)", scope: ".wr-editor", overrides: 1 },
-      { name: "--wr-editor-border", default: "var(--wr-color-outline)", scope: ".wr-editor", overrides: 1 },
+      { name: "--wr-editor-border", default: "var(--wr-border-base)", scope: ".wr-editor", overrides: 1 },
       { name: "--wr-editor-color", default: "var(--wr-color-on-surface)", scope: ".wr-editor", overrides: 1 },
       { name: "--wr-editor-font-size", default: "var(--wr-text-sm)", scope: ".wr-editor" },
       { name: "--wr-editor-line-height", default: "1.6", scope: ".wr-editor" },
@@ -402,7 +402,7 @@ export const CSS_VARS = {
       { name: "--wr-editor-tool-active-color", default: "var(--wr-color-primary-ink)", scope: ".wr-editor" },
       { name: "--wr-editor-tool-mark", default: "2px", scope: ".wr-editor__tool--active.wr-btn", base: false },
       { name: "--wr-editor-toolbar-bg", default: "var(--wr-color-fill-subtle)", scope: ".wr-editor" },
-      { name: "--wr-editor-toolbar-border", default: "var(--wr-color-outline)", scope: ".wr-editor" },
+      { name: "--wr-editor-toolbar-border", default: "var(--wr-border-base)", scope: ".wr-editor" },
       { name: "--wr-editor-toolbar-gap", default: "0.125rem", scope: ".wr-editor" },
     ],
   },
@@ -416,7 +416,7 @@ export const CSS_VARS = {
       { name: "--wr-event-calendar-cols", default: "7", scope: ".wr-event-calendar" },
       { name: "--wr-event-calendar-fill", default: "var(--wr-color-fill)", scope: ".wr-event-calendar" },
       { name: "--wr-event-calendar-gutter", default: "3.75rem", scope: ".wr-event-calendar" },
-      { name: "--wr-event-calendar-line", default: "var(--wr-color-outline)", scope: ".wr-event-calendar" },
+      { name: "--wr-event-calendar-line", default: "var(--wr-border-base)", scope: ".wr-event-calendar" },
       { name: "--wr-event-calendar-slot-height", default: "1.5rem", scope: ".wr-event-calendar" },
     ],
   },
@@ -425,7 +425,7 @@ export const CSS_VARS = {
     vars: [
       { name: "--wr-graph-background", default: "var(--wr-color-surface)", scope: ".wr-graph" },
       { name: "--wr-graph-card-background", default: "var(--wr-color-surface)", scope: ".wr-graph" },
-      { name: "--wr-graph-card-border", default: "var(--wr-color-outline)", scope: ".wr-graph" },
+      { name: "--wr-graph-card-border", default: "var(--wr-border-base)", scope: ".wr-graph" },
       { name: "--wr-graph-card-color", default: "var(--wr-color-on-surface)", scope: ".wr-graph" },
       { name: "--wr-graph-card-font-size", default: "var(--wr-text-sm)", scope: ".wr-graph" },
       { name: "--wr-graph-card-padding", default: "var(--wr-space-sm) var(--wr-space-md)", scope: ".wr-graph" },
@@ -445,12 +445,12 @@ export const CSS_VARS = {
     subpath: "ngwr/input",
     vars: [
       { name: "--wr-input-bg", default: "var(--wr-color-surface)", scope: ".wr-input", overrides: 1 },
-      { name: "--wr-input-border", default: "var(--wr-color-outline)", scope: ".wr-input", overrides: 2 },
+      { name: "--wr-input-border", default: "var(--wr-border-base)", scope: ".wr-input", overrides: 2 },
       { name: "--wr-input-color", default: "var(--wr-color-on-surface)", scope: ".wr-input", overrides: 1 },
       { name: "--wr-input-font-size", default: "var(--wr-control-font-size-md)", scope: ".wr-input", overrides: 2 },
       { name: "--wr-input-group-affix", default: "var(--wr-color-on-surface-muted)", scope: ".wr-input-group" },
       { name: "--wr-input-group-bg", default: "var(--wr-color-surface)", scope: ".wr-input-group", overrides: 1 },
-      { name: "--wr-input-group-border", default: "var(--wr-color-outline)", scope: ".wr-input-group", overrides: 1 },
+      { name: "--wr-input-group-border", default: "var(--wr-border-base)", scope: ".wr-input-group", overrides: 1 },
       { name: "--wr-input-group-padding-x", default: "0.75rem", scope: ".wr-input-group", overrides: 1 },
       { name: "--wr-input-group-radius", default: "var(--wr-control-radius-md)", scope: ".wr-input-group", overrides: 1 },
       { name: "--wr-input-group-ring", default: "transparent", scope: ".wr-input-group", overrides: 1 },
@@ -472,7 +472,7 @@ export const CSS_VARS = {
     subpath: "ngwr/input-otp",
     vars: [
       { name: "--wr-input-otp-bg", default: "var(--wr-color-surface)", scope: ".wr-input-otp" },
-      { name: "--wr-input-otp-border", default: "var(--wr-color-outline)", scope: ".wr-input-otp" },
+      { name: "--wr-input-otp-border", default: "var(--wr-border-base)", scope: ".wr-input-otp" },
       { name: "--wr-input-otp-color", default: "var(--wr-color-on-surface)", scope: ".wr-input-otp" },
       { name: "--wr-input-otp-focus", default: "var(--wr-color-primary)", scope: ".wr-input-otp" },
       { name: "--wr-input-otp-font", default: "var(--wr-text-lg)", scope: ".wr-input-otp", overrides: 2 },
@@ -498,7 +498,7 @@ export const CSS_VARS = {
     vars: [
       { name: "--wr-list-active-bg", default: "rgba(var(--wr-color-primary-rgb), 0.08)", scope: ".wr-list" },
       { name: "--wr-list-bg", default: "transparent", scope: ".wr-list" },
-      { name: "--wr-list-divider-color", default: "var(--wr-color-outline)", scope: ".wr-list" },
+      { name: "--wr-list-divider-color", default: "var(--wr-border-base)", scope: ".wr-list" },
       { name: "--wr-list-hover-bg", default: "var(--wr-color-hover)", scope: ".wr-list" },
       { name: "--wr-list-item-gap", default: "var(--wr-space-md)", scope: ".wr-list" },
       { name: "--wr-list-item-padding-x", default: "var(--wr-space-lg)", scope: ".wr-list" },
@@ -515,7 +515,7 @@ export const CSS_VARS = {
     subpath: "ngwr/popover",
     vars: [
       { name: "--wr-tooltip-bg", default: "var(--wr-color-surface)", scope: ".wr-tooltip" },
-      { name: "--wr-tooltip-border", default: "var(--wr-color-outline)", scope: ".wr-tooltip" },
+      { name: "--wr-tooltip-border", default: "var(--wr-border-base)", scope: ".wr-tooltip" },
       { name: "--wr-tooltip-color", default: "var(--wr-color-on-surface)", scope: ".wr-tooltip" },
     ],
   },
@@ -532,7 +532,7 @@ export const CSS_VARS = {
     subpath: "ngwr/radio",
     vars: [
       { name: "--wr-radio-bg", default: "var(--wr-color-surface)", scope: ".wr-radio", overrides: 1 },
-      { name: "--wr-radio-border", default: "var(--wr-color-outline)", scope: ".wr-radio", overrides: 2 },
+      { name: "--wr-radio-border", default: "var(--wr-border-base)", scope: ".wr-radio", overrides: 2 },
       { name: "--wr-radio-color", default: "var(--wr-color-on-surface)", scope: ".wr-radio", overrides: 1 },
       { name: "--wr-radio-dot", default: "transparent", scope: ".wr-radio", overrides: 1 },
       { name: "--wr-radio-font-size", default: "var(--wr-text-sm)", scope: ".wr-radio", overrides: 2 },
@@ -543,7 +543,7 @@ export const CSS_VARS = {
   "reference/components/rating": {
     subpath: "ngwr/rating",
     vars: [
-      { name: "--wr-rating-empty", default: "var(--wr-color-outline)", scope: ".wr-rating" },
+      { name: "--wr-rating-empty", default: "var(--wr-border-base)", scope: ".wr-rating" },
       { name: "--wr-rating-filled", default: "var(--wr-color-warning, #ffba00)", scope: ".wr-rating" },
       { name: "--wr-rating-gap", default: "0.125rem", scope: ".wr-rating", overrides: 2 },
       { name: "--wr-rating-size", default: "1.25rem", scope: ".wr-rating", overrides: 2 },
@@ -582,7 +582,7 @@ export const CSS_VARS = {
       { name: "--wr-option-padding-x", default: "0.625rem", scope: ".wr-select-panel", overrides: 2 },
       { name: "--wr-option-padding-y", default: "0.4375rem", scope: ".wr-select-panel", overrides: 2 },
       { name: "--wr-select-bg", default: "var(--wr-color-surface)", scope: ".wr-select", overrides: 1 },
-      { name: "--wr-select-border", default: "var(--wr-color-outline)", scope: ".wr-select" },
+      { name: "--wr-select-border", default: "var(--wr-border-base)", scope: ".wr-select" },
       { name: "--wr-select-color", default: "var(--wr-color-on-surface)", scope: ".wr-select", overrides: 1 },
       { name: "--wr-select-font-size", default: "var(--wr-control-font-size-md)", scope: ".wr-select", overrides: 2 },
       { name: "--wr-select-line-height", default: "var(--wr-control-line-height-md)", scope: ".wr-select", overrides: 2 },
@@ -590,7 +590,7 @@ export const CSS_VARS = {
       { name: "--wr-select-padding-x", default: "var(--wr-control-padding-x-md)", scope: ".wr-select", overrides: 3 },
       { name: "--wr-select-padding-y", default: "var(--wr-control-padding-y-md)", scope: ".wr-select", overrides: 2 },
       { name: "--wr-select-panel-bg", default: "var(--wr-color-surface)", scope: ".wr-select-panel" },
-      { name: "--wr-select-panel-border", default: "var(--wr-color-outline)", scope: ".wr-select-panel" },
+      { name: "--wr-select-panel-border", default: "var(--wr-border-base)", scope: ".wr-select-panel" },
       { name: "--wr-select-panel-max-height", default: "16rem", scope: ".wr-select-panel" },
       { name: "--wr-select-panel-radius", default: "var(--wr-border-radius-base)", scope: ".wr-select-panel" },
       { name: "--wr-select-panel-shadow", default: "var(--wr-shadow-overlay)", scope: ".wr-select-panel" },
@@ -618,7 +618,7 @@ export const CSS_VARS = {
       { name: "--wr-slider-thumb", default: "var(--wr-color-surface)", scope: ".wr-slider" },
       { name: "--wr-slider-thumb-border", default: "var(--wr-color-primary)", scope: ".wr-slider", overrides: 1 },
       { name: "--wr-slider-thumb-size", default: "1rem", scope: ".wr-slider" },
-      { name: "--wr-slider-track", default: "var(--wr-color-outline)", scope: ".wr-slider" },
+      { name: "--wr-slider-track", default: "var(--wr-border-base)", scope: ".wr-slider" },
       { name: "--wr-slider-track-height", default: "0.25rem", scope: ".wr-slider" },
     ],
   },
@@ -645,7 +645,7 @@ export const CSS_VARS = {
   "reference/components/stepper": {
     subpath: "ngwr/stepper",
     vars: [
-      { name: "--wr-stepper-connector", default: "var(--wr-color-outline)", scope: ".wr-stepper" },
+      { name: "--wr-stepper-connector", default: "var(--wr-border-base)", scope: ".wr-stepper" },
       { name: "--wr-stepper-indicator-size", default: "1.75rem", scope: ".wr-stepper" },
       { name: "--wr-stepper-muted", default: "var(--wr-color-on-surface-muted)", scope: ".wr-stepper" },
     ],
@@ -653,7 +653,7 @@ export const CSS_VARS = {
   "reference/components/switch": {
     subpath: "ngwr/switch",
     vars: [
-      { name: "--wr-switch-bg", default: "var(--wr-color-outline)", scope: ".wr-switch", overrides: 1 },
+      { name: "--wr-switch-bg", default: "var(--wr-border-base)", scope: ".wr-switch", overrides: 1 },
       { name: "--wr-switch-bg-checked", default: "var(--wr-color-primary)", scope: ".wr-switch" },
       { name: "--wr-switch-color", default: "var(--wr-color-on-surface)", scope: ".wr-switch", overrides: 1 },
       { name: "--wr-switch-font-size", default: "var(--wr-text-sm)", scope: ".wr-switch", overrides: 2 },
@@ -668,7 +668,7 @@ export const CSS_VARS = {
     subpath: "ngwr/table",
     vars: [
       { name: "--wr-table-bg", default: "var(--wr-color-surface)", scope: ".wr-table" },
-      { name: "--wr-table-border", default: "var(--wr-color-outline)", scope: ".wr-table" },
+      { name: "--wr-table-border", default: "var(--wr-border-base)", scope: ".wr-table" },
       { name: "--wr-table-group-bg", default: "var(--wr-color-fill-subtle)", scope: ".wr-table" },
       { name: "--wr-table-head-bg", default: "var(--wr-color-fill)", scope: ".wr-table" },
       { name: "--wr-table-head-letter-spacing", default: "var(--wr-tracking-normal)", scope: ".wr-table" },
@@ -680,7 +680,7 @@ export const CSS_VARS = {
   "reference/components/tabs": {
     subpath: "ngwr/tabs",
     vars: [
-      { name: "--wr-tabs-border", default: "var(--wr-color-outline)", scope: ".wr-tabs" },
+      { name: "--wr-tabs-border", default: "var(--wr-border-base)", scope: ".wr-tabs" },
       { name: "--wr-tabs-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-tabs" },
       { name: "--wr-tabs-color-active", default: "var(--wr-color-primary-ink)", scope: ".wr-tabs" },
       { name: "--wr-tabs-color-hover", default: "var(--wr-color-on-surface)", scope: ".wr-tabs" },
@@ -699,7 +699,7 @@ export const CSS_VARS = {
     subpath: "ngwr/textarea",
     vars: [
       { name: "--wr-textarea-bg", default: "var(--wr-color-surface)", scope: ".wr-textarea", overrides: 2 },
-      { name: "--wr-textarea-border", default: "var(--wr-color-outline)", scope: ".wr-textarea", overrides: 1 },
+      { name: "--wr-textarea-border", default: "var(--wr-border-base)", scope: ".wr-textarea", overrides: 1 },
       { name: "--wr-textarea-color", default: "var(--wr-color-on-surface)", scope: ".wr-textarea", overrides: 1 },
       { name: "--wr-textarea-font-size", default: "var(--wr-text-sm)", scope: ".wr-textarea", overrides: 2 },
       { name: "--wr-textarea-line-height", default: "1.375rem", scope: ".wr-textarea", overrides: 2 },
@@ -715,7 +715,7 @@ export const CSS_VARS = {
     vars: [
       { name: "--wr-toast-accent", default: "var(--wr-color-primary)", scope: ".wr-toast", overrides: 1 },
       { name: "--wr-toast-bg", default: "var(--wr-color-surface)", scope: ".wr-toast" },
-      { name: "--wr-toast-border", default: "var(--wr-color-outline)", scope: ".wr-toast" },
+      { name: "--wr-toast-border", default: "var(--wr-border-base)", scope: ".wr-toast" },
       { name: "--wr-toast-i", default: "var(--wr-toast-stack-index, 0)", scope: ".wr-toast-host--stack:not(.wr-toast-host--expanded) .wr-toast", base: false },
       { name: "--wr-toast-message", default: "var(--wr-color-on-surface-muted)", scope: ".wr-toast" },
       { name: "--wr-toast-title", default: "var(--wr-color-on-surface)", scope: ".wr-toast" },
@@ -734,7 +734,7 @@ export const CSS_VARS = {
       { name: "--wr-tree-indent", default: "1.25rem", scope: ".wr-tree" },
       { name: "--wr-tree-panel-max-height", default: "18rem", scope: ".wr-tree--combobox", base: false },
       { name: "--wr-tree-trigger-bg", default: "var(--wr-color-surface)", scope: ".wr-tree--combobox", base: false, overrides: 1 },
-      { name: "--wr-tree-trigger-border", default: "var(--wr-color-outline)", scope: ".wr-tree--combobox", base: false },
+      { name: "--wr-tree-trigger-border", default: "var(--wr-border-base)", scope: ".wr-tree--combobox", base: false },
       { name: "--wr-tree-trigger-color", default: "var(--wr-color-on-surface)", scope: ".wr-tree--combobox", base: false, overrides: 1 },
       { name: "--wr-tree-trigger-font-size", default: "var(--wr-control-font-size-md)", scope: ".wr-tree--combobox", base: false },
       { name: "--wr-tree-trigger-line-height", default: "var(--wr-control-line-height-md)", scope: ".wr-tree--combobox", base: false },
@@ -750,7 +750,7 @@ export const CSS_VARS = {
       { name: "--wr-window-action-size", default: "1.5rem", scope: ".wr-window", overrides: 1 },
       { name: "--wr-window-anim-duration", default: "0.18s", scope: ".wr-window" },
       { name: "--wr-window-bg", default: "var(--wr-color-surface)", scope: ".wr-window" },
-      { name: "--wr-window-border", default: "var(--wr-color-outline)", scope: ".wr-window" },
+      { name: "--wr-window-border", default: "var(--wr-border-base)", scope: ".wr-window" },
       { name: "--wr-window-chrome-bg", default: "var(--wr-color-hover)", scope: ".wr-window" },
       { name: "--wr-window-chrome-color", default: "var(--wr-color-on-surface)", scope: ".wr-window" },
       { name: "--wr-window-chrome-height", default: "2.25rem", scope: ".wr-window", overrides: 1 },

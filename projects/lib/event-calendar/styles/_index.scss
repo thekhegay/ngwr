@@ -41,7 +41,7 @@
   --wr-event-calendar-slot-height: 1.5rem;
   --wr-event-calendar-band-height: 1.25rem;
   --wr-event-calendar-gutter: 3.75rem;
-  --wr-event-calendar-line: var(--wr-color-outline);
+  --wr-event-calendar-line: var(--wr-border-base);
   // The house fill for a header strip — `wr-table` and `wr-transfer` use the
   // same one. NOT `--wr-color-light`, which is an intent colour: it composites
   // dark enough that `--wr-color-on-surface-muted` on top of it lands at 3.6:1.

@@ -462,7 +462,7 @@
   display: flex;
   flex-direction: column;
   background: var(--wr-color-surface);
-  border: 1px solid var(--wr-color-outline);
+  border: 1px solid var(--wr-border-base);
   border-radius: var(--wr-border-radius-lg);
   overflow: hidden;
 
@@ -488,7 +488,7 @@
     flex-direction: column;
     gap: 0.125rem;
     padding: 0.875rem 1.125rem;
-    border-top: 1px solid var(--wr-color-outline);
+    border-top: 1px solid var(--wr-border-base);
 
     code {
       font-family: var(--wr-font-family-mono, ui-monospace, monospace);

@@ -65,7 +65,7 @@ export class WrGauge {
    * Colour of the unfilled arc behind the value. Any CSS colour; the default is
    * the outline token at 60%, which reads as a hairline in both themes.
    */
-  readonly trackColor = input<string>('rgba(var(--wr-color-outline-rgb), 0.6)');
+  readonly trackColor = input<string>('rgba(var(--wr-border-base-rgb), 0.6)');
   /**
    * Colour of the filled arc. Any CSS colour — pass an intent token to tie it to
    * a threshold, e.g. `var(--wr-color-danger)` once the value crosses one.

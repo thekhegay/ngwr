@@ -123,7 +123,7 @@
     width: 2rem;
     height: 2rem;
     padding: 0;
-    border: 1px solid var(--wr-color-outline);
+    border: 1px solid var(--wr-border-base);
     border-radius: var(--wr-border-radius-sm);
     background: var(--wr-color-surface);
     color: var(--wr-color-on-surface-muted);
@@ -186,7 +186,7 @@
     display: inline-block;
     width: 1em;
     height: 1em;
-    border: 1px solid var(--wr-color-outline);
+    border: 1px solid var(--wr-border-base);
     border-radius: var(--wr-border-radius-sm);
     background: var(--wr-color-surface);
 
@@ -232,14 +232,14 @@
     margin-block: 0 0.85em;
     margin-inline: 0;
     padding-inline-start: 1em;
-    border-inline-start: 3px solid var(--wr-color-outline);
+    border-inline-start: 3px solid var(--wr-border-base);
     color: var(--wr-color-on-surface-muted);
   }
 
   &__rule {
     margin-block: 1.5em;
     border: 0;
-    border-block-start: 1px solid var(--wr-color-outline);
+    border-block-start: 1px solid var(--wr-border-base);
   }
 
   &__table-scroll {
@@ -256,7 +256,7 @@
   &__th,
   &__td {
     padding: var(--wr-space-sm) var(--wr-space-md);
-    border: 1px solid var(--wr-color-outline);
+    border: 1px solid var(--wr-border-base);
   }
 
   &__th {

@@ -62,8 +62,15 @@ describe('ng update ngwr@15', () => {
 
   describe('the neutral tokens it rewrites', () => {
     it.each([
-      ['--wr-color-light', '--wr-color-outline'],
-      ['--wr-color-light-rgb', '--wr-color-outline-rgb'],
+      ['--wr-color-light', '--wr-border-base'],
+      ['--wr-color-light-rgb', '--wr-border-base-rgb'],
+      // The hairline moved twice in one release; only the end of the chain may
+      // be emitted, or an app lands on a token nothing declares.
+      ['--wr-color-outline', '--wr-border-base'],
+      ['--wr-color-outline-rgb', '--wr-border-base-rgb'],
+      ['--wr-color-border-subtle', '--wr-border-subtle'],
+      ['--wr-color-border-strong', '--wr-border-strong'],
+      ['--wr-color-border', '--wr-border-strong'],
       ['--wr-color-dark', '--wr-color-on-surface'],
       ['--wr-color-dark-rgb', '--wr-color-on-surface-rgb'],
       ['--wr-color-muted-text', '--wr-color-on-surface-muted'],
@@ -77,7 +84,7 @@ describe('ng update ngwr@15', () => {
     /**
      * The whole reason `TOKEN_RENAMES` is ordered longest-first AND carries a
      * `(?![\w-])` lookahead. With either one missing, `--wr-color-light-rgb`
-     * becomes `--wr-color-outline-rgb` by the wrong route — the short rule
+     * becomes `--wr-border-base-rgb` by the wrong route — the short rule
      * matching the prefix — and any name the short rule does not cover, such as
      * `-light-lighter`, is silently mangled into a token that does not exist.
      */
@@ -108,7 +115,7 @@ describe('ng update ngwr@15', () => {
         'var(--wr-color-on-surface)'
       );
       expect(rewrite('/src/a.ts', "const c = 'rgba(var(--wr-color-light-rgb), 0.4)';")).toContain(
-        'var(--wr-color-outline-rgb)'
+        'var(--wr-border-base-rgb)'
       );
     });
 

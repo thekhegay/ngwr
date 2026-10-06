@@ -10,7 +10,7 @@ $header-padding-block: 0.25rem;
 
 .wr-stepper {
   --wr-stepper-indicator-size: 1.75rem;
-  --wr-stepper-connector: var(--wr-color-outline);
+  --wr-stepper-connector: var(--wr-border-base);
   --wr-stepper-muted: var(--wr-color-on-surface-muted);
 
   display: flex;
@@ -121,7 +121,7 @@ $header-padding-block: 0.25rem;
     width: var(--wr-stepper-indicator-size);
     height: var(--wr-stepper-indicator-size);
     border-radius: 50%;
-    border: 1.5px solid var(--wr-color-outline);
+    border: 1.5px solid var(--wr-border-base);
     background: var(--wr-color-surface);
     color: var(--wr-stepper-muted);
     font-size: var(--wr-text-sm);
@@ -259,7 +259,7 @@ $header-padding-block: 0.25rem;
   }
 
   // color-ok: filled against unfilled is 3.29:1 in LIGHTNESS — primary #3969e2
-  // against the connector's default `--wr-color-outline` #cbd5e1 — so the trail
+  // against the connector's default `--wr-border-base` #cbd5e1 — so the trail
   // of finished steps reads as a darker line, not merely a bluer one.
   &__header--completed + &__header &__connector,
   &__header--completed &__connector {
