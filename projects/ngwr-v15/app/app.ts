@@ -1,13 +1,25 @@
 import { Component, ViewEncapsulation, inject, signal } from '@angular/core';
 
+import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
-import { type WrGraphEdge, type WrGraphNode, WrGraph, WrGraphNodeTemplate } from 'ngwr/graph';
+import { type WrCalendarEvent, type WrCalendarEventChange, WrEventCalendar } from 'ngwr/event-calendar';
 import { WrIcon } from 'ngwr/icon';
-import { WrPagination } from 'ngwr/pagination';
-import { WrDragHandle, WrSortableItem, WrSortableList } from 'ngwr/sortable-list';
+import {
+  type WrTableColumns,
+  type WrTableSortState,
+  WrTable,
+  WrTableCell,
+  WrTableExpand,
+  WrTableGroupHeader,
+} from 'ngwr/table';
 import { WrTheme } from 'ngwr/theme';
-import { type WrTreeNode, WrTree } from 'ngwr/tree';
-import { WrVirtualScroll } from 'ngwr/virtual-scroll';
+
+interface Row {
+  readonly name: string;
+  readonly email: string;
+  readonly role: string;
+  readonly score: number;
+}
 
 /** The sandbox host. Everything below is a docs snippet, copied as written. */
 @Component({
@@ -15,18 +27,7 @@ import { WrVirtualScroll } from 'ngwr/virtual-scroll';
   templateUrl: './app.html',
   styleUrl: './app.scss',
   encapsulation: ViewEncapsulation.None,
-  imports: [
-    WrButton,
-    WrDragHandle,
-    WrGraph,
-    WrGraphNodeTemplate,
-    WrIcon,
-    WrPagination,
-    WrSortableItem,
-    WrSortableList,
-    WrTree,
-    WrVirtualScroll,
-  ],
+  imports: [WrButton, WrEventCalendar, WrIcon, WrTable, WrTableCell, WrTableExpand, WrTableGroupHeader, WrTag],
 })
 export class AppComponent {
   protected readonly theme = inject(WrTheme);
@@ -35,55 +36,52 @@ export class AppComponent {
     this.theme.set(this.theme.resolved() === 'dark' ? 'light' : 'dark');
   }
 
-  // --- Sortable list ------------------------------------------------------
-  protected readonly rows = signal([
-    { id: 'a', label: 'Draft the brief' },
-    { id: 'b', label: 'Review with design' },
-    { id: 'c', label: 'Ship it' },
-  ]);
-  protected readonly reordered = signal('—');
-  protected onReorder(e: unknown): void {
-    this.reordered.set(JSON.stringify(e));
-  }
-
-  // --- Pagination ---------------------------------------------------------
-  protected readonly page = signal(1);
-  protected readonly pageSm = signal(1);
-  protected readonly pageMd = signal(1);
-  protected readonly pageLg = signal(1);
-  protected readonly pageRounded = signal(1);
-  protected readonly pageSquare = signal(1);
-
-  // --- Tree ---------------------------------------------------------------
-  protected readonly folders: readonly WrTreeNode[] = [
-    {
-      id: 'src',
-      label: 'src',
-      children: [
-        { id: 'app', label: 'app', children: [{ id: 'main', label: 'main.ts' }] },
-        { id: 'styles', label: 'styles.scss' },
+  protected readonly columns: WrTableColumns = {
+    name: { title: 'Name', sortable: true },
+    email: { title: 'Email' },
+    role: {
+      title: 'Role',
+      sortable: true,
+      filterItems: [
+        { title: 'Admin', value: 'admin' },
+        { title: 'Editor', value: 'editor' },
+        { title: 'Viewer', value: 'viewer' },
       ],
     },
-    { id: 'docs', label: 'docs', children: [{ id: 'readme', label: 'README.md' }] },
-  ];
-  protected readonly picked = signal<readonly string[]>([]);
-  protected readonly open = signal<readonly string[]>(['src']);
-  protected readonly pickedMulti = signal<readonly string[]>([]);
-  protected readonly openMulti = signal<readonly string[]>(['src']);
+    score: { title: 'Score', sortable: true, summary: 'sum' },
+  };
 
-  // --- Graph --------------------------------------------------------------
-  protected readonly nodes: readonly WrGraphNode[] = [
-    { id: 'draft', label: 'Draft' },
-    { id: 'review', label: 'Review' },
-    { id: 'legal', label: 'Legal' },
-    { id: 'publish', label: 'Publish' },
-  ];
-  protected readonly edges: readonly WrGraphEdge[] = [
-    { from: 'draft', to: 'review' },
-    { from: 'review', to: 'legal' },
-    { from: 'review', to: 'publish' },
+  protected readonly rows: readonly Row[] = [
+    { name: 'Ada Lovelace', email: 'ada@example.com', role: 'admin', score: 42 },
+    { name: 'Alan Turing', email: 'alan@example.com', role: 'editor', score: 31 },
+    { name: 'Grace Hopper', email: 'grace@example.com', role: 'admin', score: 57 },
+    { name: 'Margaret Hamilton', email: 'margaret@example.com', role: 'viewer', score: 18 },
   ];
 
-  // --- Virtual scroll -----------------------------------------------------
-  protected readonly manyRows = Array.from({ length: 5000 }, (_, i) => `Row ${i + 1}`);
+  protected readonly sort = signal<readonly WrTableSortState[]>([]);
+  protected readonly selected = signal<readonly unknown[]>([]);
+  protected readonly expanded = signal<readonly unknown[]>([]);
+  protected readonly collapsed = signal<readonly unknown[]>([]);
+  protected readonly page = signal(1);
+  protected readonly loading = signal(false);
+
+  protected onFilter(e: unknown): void {
+    void e;
+  }
+  protected remove(row: unknown): void {
+    void row;
+  }
+
+  // --- Event calendar -----------------------------------------------------
+  protected readonly events = signal<readonly WrCalendarEvent[]>([
+    { id: '1', title: 'Standup', start: new Date(2026, 9, 6, 9, 30), end: new Date(2026, 9, 6, 10, 0) },
+    { id: '2', title: 'Design review', start: new Date(2026, 9, 7, 14, 0), end: new Date(2026, 9, 7, 15, 30) },
+    { id: '3', title: 'Retro', start: new Date(2026, 9, 9, 16, 0), end: new Date(2026, 9, 9, 17, 0) },
+  ]);
+
+  protected onEventChange(change: WrCalendarEventChange): void {
+    this.events.update(list =>
+      list.map(x => (x.id === change.event.id ? { ...x, start: change.start, end: change.end } : x))
+    );
+  }
 }
