@@ -426,6 +426,11 @@
     // run reports both nodes again; `table-header-target.spec.ts` pins the
     // value here so a PR catches it without a browser.
     @media (pointer: coarse) {
+      // NOT on the spacing scale, and the literal is the point: this gap is
+      // what puts the sort and filter centres 24px apart, which is how the pair
+      // meets WCAG 2.5.8's spacing exception on a coarse pointer. It was
+      // hit-tested, not read off the CSS. A consumer retuning the scale would
+      // close it silently.
       gap: 0.75rem;
     }
   }
@@ -894,7 +899,7 @@
     align-items: center;
     justify-content: center;
     min-width: 1rem;
-    padding: 0 0.25rem;
+    padding: 0 var(--wr-space-xs);
     border-radius: var(--wr-border-radius-pill);
     background: var(--wr-color-primary);
     color: var(--wr-color-primary-contrast);

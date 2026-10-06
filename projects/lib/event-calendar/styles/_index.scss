@@ -54,7 +54,7 @@
   --wr-event-calendar-chip-radius: calc(var(--wr-border-radius-sm) / 2);
   // Space above the first chip (below the day number, or below the header rule
   // in the all-day band) and between stacked chips.
-  --wr-event-calendar-chip-gap: 0.25rem;
+  --wr-event-calendar-chip-gap: var(--wr-space-xs);
   // How far a chip stands in from the lines of the cell it sits in — on both
   // inline sides, and below a timed chip so back-to-back events do not merge.
   --wr-event-calendar-chip-inset: 0.125rem;
@@ -160,7 +160,7 @@
   }
 
   &__gutter {
-    padding: 0 0.5rem;
+    padding: 0 var(--wr-space-sm);
     font-size: var(--wr-text-xs);
     // One line box exactly one em tall, so the nudge below centres the label on
     // its line and the label can never make a slot row taller than the slot.

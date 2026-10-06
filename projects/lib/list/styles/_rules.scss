@@ -14,8 +14,8 @@
 
 .wr-list {
   --wr-list-item-padding-y: 0.625rem;
-  --wr-list-item-padding-x: 1rem;
-  --wr-list-item-gap: 0.75rem;
+  --wr-list-item-padding-x: var(--wr-space-lg);
+  --wr-list-item-gap: var(--wr-space-md);
   --wr-list-divider-color: var(--wr-color-outline);
   --wr-list-bg: transparent;
   --wr-list-hover-bg: var(--wr-color-hover);
