@@ -37,7 +37,8 @@ export default class ThemeTypesPage {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'WrColor',
-      description: 'Palette names accepted by every `[color]` input.',
+      description:
+        'The five intent names. Six components type their `[color]` to it — `wr-badge`, `wr-tag`, `wr-btn`, `wr-divider`, `wr-progress` and `wr-skeleton`.',
       // Derived from the real tuple rather than retyped. The hand-written
       // mirror that used to sit here fell a member behind the union it
       // documents — on the page that renders that same tuple as badges.

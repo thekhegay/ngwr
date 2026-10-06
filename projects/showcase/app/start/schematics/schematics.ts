@@ -35,13 +35,13 @@ ng add ngwr`,
      System — auto-switch via prefers-color-scheme`,
 
     ngAddFlags: `# Skip prompts:
-ng add ngwr --styles=all --dateAdapter=date-fns --density=lg --theme=system
+ng add ngwr --styles=theme --dateAdapter=date-fns --density=lg --theme=system
 
 # "None" is spelled \`none\` — it is a real enum value, not an empty flag:
 ng add ngwr --styles=none --dateAdapter=none --density=none --theme=none
 
 # Every accepted value:
-#   --styles       all | none                        (default: all)
+#   --styles       theme | none                      (default: theme)
 #   --dateAdapter  none | native | date-fns | luxon  (default: none)
 #   --density      none | sm | lg                    (default: none)
 #   --theme        none | light | dark | system      (default: none)

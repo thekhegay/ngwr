@@ -55,7 +55,7 @@ export default class CopyToClipboardPage {
     {
       name: '(copyFailed)',
       description:
-        'What the write threw — a permissions refusal, an insecure origin, or a clipboard the browser would not give. The page leans on this one in prose and never tabulated it.',
+        'What the write threw — a permissions refusal, an insecure origin, or a clipboard the browser would not give.',
       type: 'unknown',
       default: '—',
       sub: true,

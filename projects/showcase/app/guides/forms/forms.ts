@@ -188,7 +188,7 @@ export default class FormsGuidePage {
       outOfRange:
         'The thumb clamps to `[min, max]` — it cannot render off its own track — and the model keeps the number it was given.',
       empty:
-        '`WrSliderValue` is `number | [number, number]`, so a non-number is ignored and the thumb stays put. Reset to a number, not to `null`.',
+        '`WrSliderValue` is `number | readonly [number, number]`, so a non-number is ignored and the thumb stays put. Reset to a number, not to `null`.',
     },
     {
       control: 'wr-rating',

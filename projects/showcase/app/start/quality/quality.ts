@@ -41,7 +41,7 @@ const PR_GATE_NOTES: Readonly<Record<string, string>> = {
   'test:coverage':
     'The vitest suite, with coverage. Specs sit beside the code they cover and assert the rendered DOM — roles, ARIA state, and the .wr-* classes, which are public API — rather than component internals.',
   'check:api-docs':
-    'A documented input the component no longer has, a default the docs invented, a page with no API table at all. Every hand-written table is compared against the signal API in the source.',
+    'A documented input the component no longer has, a default the docs invented, a page with no API table at all. A page is keyed to an entry point by its FOLDER name, so it is held only where the folder is the entry point: every service page and most component pages, names, types and defaults alike. A pipe, util or validator page is named after the function, and nothing resolves that to an entry point — nor the interface pages, four of the six directive pages, or the handful of components whose folder differs from their route. Read those signatures against the shipped types.',
   'check:llms':
     'The generated AI assets — llms-full.txt and the agent skill — against coverage floors. Missing frontmatter, or a catalog table with nothing but a header, fails the build.',
   'check:css-vars':

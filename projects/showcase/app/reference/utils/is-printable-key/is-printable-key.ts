@@ -34,7 +34,7 @@ if (isPrintableKey(e)) buffer.push(e.key);`;
     {
       name: 'isPrintableKey(event)',
       description:
-        'True when the key is a single printable character with no modifiers. Use for type-to-search and inline-edit flows.',
+        'True when the key is a single printable character with no Ctrl / Cmd / Alt chord. Shift is accepted, so a type-to-search buffer still receives capitals. Use for type-to-search and inline-edit flows.',
       type: '(e: KeyboardEvent) => boolean',
       default: '—',
     },
