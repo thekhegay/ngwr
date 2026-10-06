@@ -24,32 +24,32 @@
   &--h2 {
     font-size: var(--wr-text-4xl);
     font-weight: var(--wr-font-weight-bold);
-    line-height: 2.5rem;
+    line-height: var(--wr-text-4xl-leading);
     letter-spacing: var(--wr-tracking-tight);
   }
 
   &--h3 {
     font-size: var(--wr-text-3xl);
     font-weight: var(--wr-font-weight-bold);
-    line-height: 2.25rem;
+    line-height: var(--wr-text-3xl-leading);
   }
 
   &--h4 {
     font-size: var(--wr-text-2xl);
     font-weight: var(--wr-font-weight-bold);
-    line-height: 2rem;
+    line-height: var(--wr-text-2xl-leading);
   }
 
   &--h5 {
     font-size: var(--wr-text-xl);
     font-weight: var(--wr-font-weight-bold);
-    line-height: 1.75rem;
+    line-height: var(--wr-text-xl-leading);
   }
 
   &--h6 {
     font-size: var(--wr-text-lg);
     font-weight: var(--wr-font-weight-bold);
-    line-height: 1.75rem;
+    line-height: var(--wr-text-lg-leading);
   }
 
   &--lead {

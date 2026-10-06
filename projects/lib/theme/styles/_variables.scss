@@ -184,6 +184,34 @@
   --wr-text-4xl: 2.25rem;
   --wr-text-5xl: 3rem;
 
+  // The leading each size is SET at, in rem, one per step.
+  //
+  // Separate from the semantic `--wr-leading-*` scale below, which is unitless
+  // and for prose. These are the pairings the type scale itself was drawn with,
+  // and they were literals inside `wr-typography` — `line-height: 2.5rem` next
+  // to `font-size: var(--wr-text-4xl)` — so a consumer who hung the size token
+  // on their own element got the size and had no way to reach the leading that
+  // belongs to it. Hanging both now reproduces the directive exactly.
+  //
+  // Rem rather than unitless on purpose: at these sizes the leading is a
+  // vertical-rhythm decision, not a ratio, and the ratio a unitless value would
+  // need differs per step (1.33 at `xs`, 1.11 at `4xl`).
+  //
+  // unused-ok: for `xs`, `sm`, `base` and `5xl`. The first three are what
+  // `--wr-control-line-height-*` already sets for controls, and `5xl` ships at
+  // `1` because a display size wants none; they are here so the pairing is a
+  // whole scale a consumer can read rather than the five the catalog happens
+  // to draw.
+  --wr-text-xs-leading: 1rem;
+  --wr-text-sm-leading: 1.25rem;
+  --wr-text-base-leading: 1.5rem;
+  --wr-text-lg-leading: 1.75rem;
+  --wr-text-xl-leading: 1.75rem;
+  --wr-text-2xl-leading: 2rem;
+  --wr-text-3xl-leading: 2.25rem;
+  --wr-text-4xl-leading: 2.5rem;
+  --wr-text-5xl-leading: 1;
+
   // Font weight scale
   --wr-font-weight-thin: 200;
   --wr-font-weight-light: 300;
