@@ -25,11 +25,6 @@ import { API } from '#core/generated/api';
   ],
 })
 export default class MeterGroupPageComponent {
-  protected readonly install = `import { WrMeterGroup } from 'ngwr/charts/meter-group';
-
-@Component({ imports: [WrMeterGroup] })
-export class MyComponent {}`;
-
   protected readonly diskUsage = [
     { label: 'System', value: 32 },
     { label: 'Apps', value: 88 },
