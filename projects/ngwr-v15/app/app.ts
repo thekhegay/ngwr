@@ -1,55 +1,16 @@
 import { Component, ViewEncapsulation, inject } from '@angular/core';
 
-import { WrAurora } from 'ngwr/bits/aurora';
-import { WrBlurText } from 'ngwr/bits/blur-text';
-import { WrBorderGlow } from 'ngwr/bits/border-glow';
-import { WrCircularText } from 'ngwr/bits/circular-text';
-import { WrClickSpark } from 'ngwr/bits/click-spark';
-import { WrDecryptText } from 'ngwr/bits/decrypt-text';
-import { WrFallingText } from 'ngwr/bits/falling-text';
-import { WrFuzzyText } from 'ngwr/bits/fuzzy-text';
-import { WrGlitchText } from 'ngwr/bits/glitch-text';
-import { WrGradientText } from 'ngwr/bits/gradient-text';
-import { WrMarquee, type WrMarqueeItem } from 'ngwr/bits/marquee';
-import { WrRotatingText } from 'ngwr/bits/rotating-text';
-import { WrShinyText } from 'ngwr/bits/shiny-text';
-import { WrSplashCursor } from 'ngwr/bits/splash-cursor';
-import { WrSplitText } from 'ngwr/bits/split-text';
-import { WrSpotlightCard } from 'ngwr/bits/spotlight-card';
-import { WrStarBorder } from 'ngwr/bits/star-border';
-import { WrTiltCard } from 'ngwr/bits/tilt-card';
-import { WrTypewriter } from 'ngwr/bits/typewriter';
-import { WrWaves } from 'ngwr/bits/waves';
+import { WrButton } from 'ngwr/button';
 import { WrTheme } from 'ngwr/theme';
+import { WrToast } from 'ngwr/toast';
 
-/** The sandbox host. Everything below is a docs snippet, copied as written. */
+/** Reproduction of the reported toast-stack defect: several arriving fast. */
 @Component({
   selector: 'sbx-root',
   templateUrl: './app.html',
   styleUrl: './app.scss',
   encapsulation: ViewEncapsulation.None,
-  imports: [
-    WrAurora,
-    WrBlurText,
-    WrBorderGlow,
-    WrCircularText,
-    WrClickSpark,
-    WrDecryptText,
-    WrFallingText,
-    WrFuzzyText,
-    WrGlitchText,
-    WrGradientText,
-    WrMarquee,
-    WrRotatingText,
-    WrShinyText,
-    WrSplashCursor,
-    WrSplitText,
-    WrSpotlightCard,
-    WrStarBorder,
-    WrTiltCard,
-    WrTypewriter,
-    WrWaves,
-  ],
+  imports: [WrButton],
 })
 export class AppComponent {
   protected readonly theme = inject(WrTheme);
@@ -57,11 +18,32 @@ export class AppComponent {
     this.theme.set(this.theme.resolved() === 'dark' ? 'light' : 'dark');
   }
 
-  /** Data-URI SVGs so the sandbox needs no network. */
-  protected readonly items: readonly WrMarqueeItem[] = ['Angular', 'Signals', 'Zoneless', 'Standalone'].map(label => ({
-    src: `data:image/svg+xml;utf8,${encodeURIComponent(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="160" height="36"><rect width="160" height="36" rx="8" fill="%233969e2"/><text x="80" y="23" font-family="sans-serif" font-size="14" fill="white" text-anchor="middle">${label}</text></svg>`
-    )}`,
-    alt: label,
-  }));
+  private readonly toast = inject(WrToast);
+  private n = 0;
+
+  /** The reported shape: identical messages, no gap between them. */
+  protected burst(count: number): void {
+    for (let i = 0; i < count; i++) {
+      this.toast.show({ message: `Редкие пакеты локаций · 66119${i}`, type: 'warning', duration: 20000 });
+    }
+  }
+
+  protected one(): void {
+    this.n += 1;
+    this.toast.show({ message: `Toast ${this.n}`, type: 'info', duration: 20000 });
+  }
+
+  /** The reported timing: one arriving while another is on its way out. */
+  protected stream(): void {
+    for (let i = 0; i < 6; i++) {
+      setTimeout(() => {
+        this.n += 1;
+        this.toast.show({
+          message: `Редкие пакеты локаций · 6611${90 + this.n}`,
+          type: 'warning',
+          duration: 1600,
+        });
+      }, i * 450);
+    }
+  }
 }
