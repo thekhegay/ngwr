@@ -17,13 +17,29 @@ interface Row {
   readonly theirsRatio: string;
 }
 
-const hex = (v: string): string | null => {
-  const m = /^#([0-9a-f]{6})$/i.exec(v.trim());
-  if (m) return `#${m[1]}`;
-  const rgb = /^rgba?\(([^)]+)\)$/.exec(v.trim());
+/**
+ * A colour as the eye receives it — alpha COMPOSITED over what is behind it.
+ *
+ * Dropping the alpha is not a rounding error here: `--wr-border-subtle` and
+ * `-strong` are the same base at 0.35 and 0.6, so a parser that keeps three
+ * channels and throws the fourth away reports all three border tokens as one
+ * colour at one ratio, which is what this page did until it was looked at.
+ */
+const hex = (v: string, over = '#ffffff'): string | null => {
+  const trimmed = v.trim();
+  const plain = /^#([0-9a-f]{6})$/i.exec(trimmed);
+  if (plain) return `#${plain[1]}`;
+
+  const rgb = /^rgba?\(([^)]+)\)$/.exec(trimmed);
   if (!rgb) return null;
-  const [r, g, b] = rgb[1].split(',').map(n => Number(n.trim()));
-  return `#${[r, g, b].map(n => n.toString(16).padStart(2, '0')).join('')}`;
+  const parts = rgb[1].split(/[,/]/).map(n => Number(n.trim()));
+  const [r, g, b] = parts;
+  const a = parts.length > 3 && Number.isFinite(parts[3]) ? parts[3] : 1;
+
+  const bg = /^#([0-9a-f]{6})$/i.test(over) ? over : '#ffffff';
+  const back = [1, 3, 5].map(i => parseInt(bg.slice(i, i + 2), 16));
+  const mix = [r, g, b].map((c, i) => Math.round(c * a + back[i] * (1 - a)));
+  return `#${mix.map(n => n.toString(16).padStart(2, '0')).join('')}`;
 };
 
 const lum = (h: string): number => {
@@ -60,12 +76,17 @@ export class AppComponent {
     requestAnimationFrame(() => this.tick.update(n => n + 1));
   }
 
-  private read(token: string): string | null {
+  private read(token: string, over?: string): string | null {
     this.tick();
     this.theme.resolved();
     if (typeof document === 'undefined') return null;
-    const raw = getComputedStyle(document.documentElement).getPropertyValue(token);
-    return raw ? hex(raw) : null;
+    const style = getComputedStyle(document.documentElement);
+    const raw = style.getPropertyValue(token);
+    if (!raw) return null;
+    // Default the ground to the live canvas, read straight rather than through
+    // `canvas()` — that computed calls this one, and would recurse.
+    const ground = over ?? hex(style.getPropertyValue('--wr-color-surface')) ?? '#ffffff';
+    return hex(raw, ground);
   }
 
   private tw(path: string): string {
@@ -99,5 +120,29 @@ export class AppComponent {
   }
 
   protected readonly ramp = computed(() => this.rows(PAIRS));
+
+  /**
+   * The renamed border family, live, with the one step the ramp does not have.
+   * `aa` is not a token — it is the value a control border would need to meet
+   * WCAG 1.4.11, shown so the gap is a number rather than an argument.
+   */
+  protected readonly borders = computed(() => {
+    this.tick();
+    const bg = this.canvas();
+    const dark = this.theme.resolved() === 'dark';
+    const live = (t: string): string | null => this.read(t);
+    const rows: { name: string; value: string | null; ratio: string; note: string }[] = [
+      { name: '--wr-border-subtle', value: live('--wr-border-subtle'), ratio: '', note: 'the quiet end' },
+      { name: '--wr-border-base', value: live('--wr-border-base'), ratio: '', note: 'what 209 declarations draw' },
+      { name: '--wr-border-strong', value: live('--wr-border-strong'), ratio: '', note: 'the loud end' },
+      {
+        name: '(no token)',
+        value: dark ? '#4d608a' : '#718cad',
+        ratio: '',
+        note: 'what a control border needs for 1.4.11 — darker than the ramp’s own rhythm',
+      },
+    ];
+    return rows.map(r => ({ ...r, ratio: ratio(r.value, bg) }));
+  });
   protected readonly intents = computed(() => this.rows(INTENTS));
 }

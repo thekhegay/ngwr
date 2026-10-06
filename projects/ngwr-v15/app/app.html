@@ -40,6 +40,36 @@
   </section>
 
   <section class="sandbox__block">
+    <h2>Borders — the renamed family, live</h2>
+    <p>
+      Four tokens became three. <code>base</code> is unchanged, so the 209 declarations that draw every hairline were
+      renamed without moving a pixel. The last row is not a token: it is what a control border would need to meet WCAG
+      1.4.11, and the ramp has no step there — the one below it reads 2.56:1 and the one above 4.76:1.
+    </p>
+    <div class="pal">
+      <div class="pal__head">token</div>
+      <div class="pal__head">value</div>
+      <div class="pal__head">on the canvas</div>
+      @for (b of borders(); track b.name) {
+        <div class="pal__label">{{ b.name }}</div>
+        <div class="pal__cell">
+          <span class="pal__swatch" [style.background]="b.value ?? 'transparent'"></span>
+          <span class="pal__hex">{{ b.value ?? '—' }}</span>
+        </div>
+        <div class="pal__cell">
+          <span class="pal__ratio">{{ b.ratio }}:1</span>
+          <input
+            [style.border]="`1px solid ${b.value ?? 'transparent'}`"
+            style="padding: 0.4rem 0.6rem; border-radius: 0.4rem; background: transparent; color: inherit; width: 11rem"
+            placeholder="a control edge"
+          />
+        </div>
+        <div class="pal__note">{{ b.note }}</div>
+      }
+    </div>
+  </section>
+
+  <section class="sandbox__block">
     <h2>Intents</h2>
     <p>
       Ours are tuned so the label on a filled control can be white; theirs are not, which is most of the difference.
