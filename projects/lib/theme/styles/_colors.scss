@@ -183,11 +183,13 @@ $contrast-light: #ffffff !default;
   // ramp does not carry, so it reads the fixed scale directly and is the one
   // member this file re-declares for dark.
   //
-  // It is NOT a 1.4.11 border: 2.56:1 in light, where the criterion asks 3:1.
-  // Reaching that needs `#718cad` / `#4d608a`, which is darker than the ramp's
-  // own rhythm and would leave control edges visibly heavier than every line
-  // beside them. That trade is recorded against `--wr-border-base` and is the
-  // maintainer's to reopen; this scale does not quietly pre-empt it.
+  // **It is NOT a 1.4.11 border, and that is DECIDED — do not re-report it.**
+  // 2.54:1 in light and 2.49:1 in dark, where the criterion asks 3:1 of
+  // anything that identifies a control. Reaching three needs `#718cad` /
+  // `#4d608a`, which is darker than the ramp's own rhythm and would leave every
+  // input and checkbox edge visibly heavier than every other line on the page.
+  // The maintainer weighed that and kept the lighter step, the same call
+  // already recorded for `--wr-border-base` in AGENTS.md.
   //
   // unused-ok: for `-subtle`. `-strong` has the avatar's ring.
   --wr-border-subtle: var(--wr-color-gray-3);
