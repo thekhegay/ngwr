@@ -243,6 +243,9 @@ export const wrCs: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Sloupcový graf',
+  },
   calendarHeatmap: {
     label: 'Kalendářní tepelná mapa',
     cell: '{{date}}: {{count}}',

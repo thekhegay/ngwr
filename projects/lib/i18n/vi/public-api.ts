@@ -252,6 +252,9 @@ export const wrVi: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Biểu đồ cột',
+  },
   calendarHeatmap: {
     label: 'Bản đồ nhiệt theo lịch',
     cell: '{{date}}: {{count}}',

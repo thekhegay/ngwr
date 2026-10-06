@@ -1,4 +1,4 @@
-<div class="wr-bar-chart__plot" [style.height.px]="height()">
+<div class="wr-bar-chart__plot" role="img" [attr.aria-label]="resolvedAriaLabel()" [style.height.px]="height()">
   @for (bar of bars(); track $index) {
     <div
       class="wr-bar-chart__column"
