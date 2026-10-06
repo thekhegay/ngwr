@@ -25,11 +25,6 @@ import { API } from '#core/generated/api';
   ],
 })
 export default class DescriptionsPageComponent {
-  protected readonly install = `import { WrDescriptions, WrDescriptionItem } from 'ngwr/descriptions';
-
-@Component({ imports: [WrDescriptions, WrDescriptionItem] })
-export class MyComponent {}`;
-
   protected readonly plainSnippet = `<wr-descriptions title="Account">
   <wr-description-item label="Name">Ada Lovelace</wr-description-item>
   <wr-description-item label="Email">ada@example.com</wr-description-item>
