@@ -40,7 +40,7 @@ export default class CardPage {
   </wr-card-header>
   <p>Body content.</p>
   <wr-card-footer>
-    <button wr-btn color="primary">Save</button>
+    <button wr-btn type="button" color="primary">Save</button>
   </wr-card-footer>
 </wr-card>`,
 

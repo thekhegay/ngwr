@@ -69,9 +69,9 @@ export default class TokensSizingPage {
     size: `<!-- One size scale everywhere — sm · md (default) · lg. The attribute
      name differs on the input directive: it is \`size\`, so it cannot clash
      with the native \`<input size>\`. -->
-<button wr-btn size="sm">Small</button>
-<button wr-btn size="md">Medium</button>
-<button wr-btn size="lg">Large</button>
+<button wr-btn type="button" size="sm">Small</button>
+<button wr-btn type="button" size="md">Medium</button>
+<button wr-btn type="button" size="lg">Large</button>
 
 <input wrInput size="sm" placeholder="Small" />
 <wr-select size="lg" placeholder="Large">…</wr-select>`,

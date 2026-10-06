@@ -183,13 +183,24 @@
     justify-content: center;
     // Hairline silhouette so the button reads as a distinct surface even
     // when its `--wr-color-surface` bg matches the canvas (dark mode) or
-    // sits on a same-tone page bg (light mode).
+    // sits on a same-tone page bg (light mode). The hairline is NOT enough on
+    // its own and was never meant to be: `--wr-color-outline` measures 1.41:1
+    // on the dark canvas, which is the one contrast figure the project has
+    // decided to live with. The shadow is what has to carry it.
     border: 1px solid var(--wr-color-outline);
     border-radius: 50%;
     background: var(--wr-color-surface);
     color: var(--wr-color-on-surface);
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(var(--wr-color-backdrop-rgb), 0.18);
+    // The token, like the TRIGGER forty lines above — not a hand-rolled alpha.
+    // This used to be `rgba(var(--wr-color-backdrop-rgb), 0.18)`, which is the
+    // LIGHT theme's figure hard-coded into both: `--wr-shadow-float` is 18% in
+    // light and 55% in dark precisely because a floating surface needs more
+    // separation there. With an 18% black shadow on a near-black canvas, a fill
+    // that matches that canvas exactly (1.00:1) and a 1.41:1 hairline, the
+    // action buttons of a dark-mode speed dial had no visible body at all —
+    // three icons apparently floating on the page.
+    box-shadow: var(--wr-shadow-float);
     transition:
       transform var(--wr-transition-base),
       background var(--wr-transition-base);

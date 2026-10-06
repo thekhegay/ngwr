@@ -48,7 +48,7 @@ export default class ButtonComponent {
 
   protected readonly snippets = {
     basic: `<wr-btn>Default</wr-btn>
-<button wr-btn>Native button</button>
+<button wr-btn type="button">Native button</button>
 <a wr-btn>Anchor</a>`,
     submit: `<form (ngSubmit)="save()">
   <!-- Submits: a real <button>, with the type the platform reads. -->

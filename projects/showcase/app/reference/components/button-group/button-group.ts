@@ -18,30 +18,30 @@ import {
 export default class ButtonGroupComponent {
   protected readonly snippets = {
     basic: `<wr-btn-group>
-  <button wr-btn>Left</button>
-  <button wr-btn>Middle</button>
-  <button wr-btn>Right</button>
+  <button wr-btn type="button">Left</button>
+  <button wr-btn type="button">Middle</button>
+  <button wr-btn type="button">Right</button>
 </wr-btn-group>`,
     colors: `<wr-btn-group>
-  <button wr-btn color="primary">Save</button>
-  <button wr-btn color="primary">Save & Continue</button>
+  <button wr-btn type="button" color="primary">Save</button>
+  <button wr-btn type="button" color="primary">Save & Continue</button>
 </wr-btn-group>`,
     shape: `<wr-btn-group shape="rounded">
-  <button wr-btn>One</button>
-  <button wr-btn>Two</button>
-  <button wr-btn>Three</button>
+  <button wr-btn type="button">One</button>
+  <button wr-btn type="button">Two</button>
+  <button wr-btn type="button">Three</button>
 </wr-btn-group>
 
 <wr-btn-group shape="pill">
-  <button wr-btn>One</button>
-  <button wr-btn>Two</button>
-  <button wr-btn>Three</button>
+  <button wr-btn type="button">One</button>
+  <button wr-btn type="button">Two</button>
+  <button wr-btn type="button">Three</button>
 </wr-btn-group>
 
 <!-- Group shape wins over child [shape] -->
 <wr-btn-group shape="pill">
-  <button wr-btn>Forced</button>
-  <button wr-btn shape="rounded">Pill anyway</button>
+  <button wr-btn type="button">Forced</button>
+  <button wr-btn type="button" shape="rounded">Pill anyway</button>
 </wr-btn-group>`,
   };
 

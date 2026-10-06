@@ -36,7 +36,7 @@ export default class ResultPageComponent {
 export class MyComponent {}`;
 
   protected readonly snippet = `<wr-result status="success" title="Submitted!" description="We'll be in touch.">
-  <button wr-btn color="primary" wrResultExtra>Continue</button>
+  <button wr-btn type="button" color="primary" wrResultExtra>Continue</button>
 </wr-result>`;
 
   protected readonly presets = `<!-- Pre-built variants for the common HTTP statuses. Override
