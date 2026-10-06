@@ -8,6 +8,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   Component,
+  HostAttributeToken,
   ElementRef,
   Injector,
   ViewEncapsulation,
@@ -85,6 +86,9 @@ interface PaneState {
     // control is a composite with no single element carrying its semantics, and
     // `aria-invalid` on a bare `generic` host is announced by nothing.
     role: 'group',
+    // See `wr-checkbox-group`: not labelable, so the field's label named
+    // nothing and the composite announced only its inner parts.
+    '[attr.aria-labelledby]': 'labelledBy()',
     '[attr.aria-invalid]': 'fieldAria.ariaInvalid()',
     '[attr.aria-describedby]': 'fieldAria.describedBy()',
   },
@@ -127,6 +131,21 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
 
   /** The surrounding `<wr-form-field>`'s error state. @internal */
   protected readonly fieldAria = useFormFieldAria({ skipSelf: true });
+  /**
+   * The author's own `aria-labelledby`, read as a static host attribute.
+   *
+   * A host binding WRITES the attribute, so binding the field's label
+   * unconditionally would REMOVE a reference the consumer put there by hand:
+   * `<wr-segmented aria-labelledby="range-question">` went nameless the moment
+   * the field's label was `null`, which a harness spec caught one commit after
+   * it was introduced. `HostAttributeToken` reads it at construction without
+   * touching the DOM, so this stays SSR-safe, and the author's own reference
+   * wins — the same precedence `[ariaLabel]` has everywhere else.
+   */
+  private readonly ownLabelledBy = inject(new HostAttributeToken('aria-labelledby'), { optional: true });
+
+  /** The surrounding field's label, unless the author named the control. */
+  protected readonly labelledBy = computed(() => this.ownLabelledBy ?? this.fieldAria.labelledBy());
 
   /** Show a filter box above each pane. @default false */
   readonly searchable = input(false, { transform: coerceBooleanProperty });

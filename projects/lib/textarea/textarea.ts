@@ -130,6 +130,21 @@ export class WrTextarea implements FormValueControl<string> {
 
   /** The surrounding `<wr-form-field>`'s error state. @internal */
   protected readonly fieldAria = useFormFieldAria();
+  /**
+   * The field's own label, when it renders one — `null` otherwise, and `null`
+   * when `[ariaLabel]` was set deliberately.
+   *
+   * `aria-label` outranks a `<label for>` in the accname order, so a control
+   * inside `<wr-form-field label="Delivery notes">` with a placeholder of its
+   * own announced the PLACEHOLDER and the visible label reached nobody.
+   * Nothing catches it: the control has a name, so axe is satisfied, and the
+   * name is plausible, so a reader is too — it fails WCAG 2.5.3, where the
+   * visible label has to be IN the accessible name.
+   */
+  protected readonly labelledBy = computed(() => (this.ariaLabel() ? null : this.fieldAria.labelledBy()));
+
+  /** `null` once `aria-labelledby` is carrying the name — see {@link labelledBy}. */
+  protected readonly nameLabel = computed(() => (this.labelledBy() ? null : this.resolvedAriaLabel()));
 
   private readonly field = inject(WR_FORM_FIELD, { optional: true });
 
