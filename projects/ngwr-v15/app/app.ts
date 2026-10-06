@@ -48,6 +48,34 @@ export class AppComponent {
     { name: 'xl', value: 'modal' },
   ];
 
+  /** What a rounded corner looks like today, against the proposed step. */
+  protected readonly radiusNow: readonly {
+    readonly now: string;
+    readonly nowVal: string;
+    readonly next: string;
+    readonly nextVal: string;
+  }[] = [
+    { now: 'sm', nowVal: '0.375rem', next: 'sm', nextVal: '0.375rem' },
+    { now: 'base', nowVal: '0.625rem', next: 'md', nextVal: '0.5rem' },
+    { now: 'lg', nowVal: '1rem', next: 'xl', nextVal: '1rem' },
+  ];
+
+  /** Named layers. The numbers today were chosen against each other. */
+  protected readonly layers: readonly Step[] = [
+    { name: 'base', value: '0' },
+    { name: 'raised', value: '10' },
+    { name: 'sticky', value: '100' },
+    { name: 'overlay', value: '1000' },
+    { name: 'modal', value: '1100' },
+    { name: 'toast', value: '1200' },
+  ];
+
+  protected readonly leading: readonly Step[] = [
+    { name: 'tight', value: '1.25' },
+    { name: 'normal', value: '1.5' },
+    { name: 'relaxed', value: '1.75' },
+  ];
+
   protected readonly borders: readonly Step[] = [
     { name: 'subtle', value: '1.23 / 1.21' },
     { name: 'base', value: '1.48 / 1.41' },
