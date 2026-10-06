@@ -176,12 +176,33 @@ function fence(code: Element, out: string[]): void {
   if (!body.trim()) return;
 
   const lang = code.getAttribute('data-language') ?? code.getAttribute('language') ?? '';
-  // A tab strip means the page shows several files and only the open one is in
-  // the DOM. Name the rest instead of pretending the block is complete.
-  const tabs = Array.from(code.querySelectorAll('.tabs__btn')).map(t => text(t));
-  if (tabs.length > 1) out.push(`_Also shown on the page: ${tabs.slice(1).join(', ')}._`);
-
   out.push(`\`\`\`${lang}\n${body.replace(/\s+$/, '')}\n\`\`\``);
+
+  // A tab strip means the page shows several files and only the OPEN one is in
+  // the panel — `doc-code` holds one panel and swaps what it contains. The rest
+  // ride along as `data-inactive-files` for exactly this, because naming them
+  // instead of printing them is how 85 twins came to say "Also shown on the
+  // page: SCSS" directly under prose insisting both halves of an installation
+  // are needed, and then print only the TypeScript half.
+  for (const file of inactiveFiles(code)) {
+    out.push(`\`\`\`${file.language}\n${file.code.replace(/\s+$/, '')}\n\`\`\``);
+  }
+}
+
+/** The tabs `doc-code` reflected but did not render. Malformed JSON yields none. */
+function inactiveFiles(code: Element): readonly { label: string; language: string; code: string }[] {
+  const raw = code.getAttribute('data-inactive-files');
+  if (!raw) return [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (f): f is { label: string; language: string; code: string } =>
+        typeof f === 'object' && f !== null && typeof (f as { code?: unknown }).code === 'string'
+    );
+  } catch {
+    return [];
+  }
 }
 
 /** A `<table>` becomes a markdown table; cells keep their inline markup. */
