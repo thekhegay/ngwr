@@ -34,7 +34,7 @@
   &__label {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--wr-space-sm);
     cursor: pointer;
     user-select: none;
   }
@@ -155,5 +155,5 @@
 .wr-checkbox-group {
   display: inline-flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--wr-space-sm);
 }

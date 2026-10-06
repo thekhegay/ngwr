@@ -9,7 +9,7 @@
   --wr-tabs-font-size: var(--wr-control-font-size-md);
   --wr-tabs-line-height: var(--wr-control-line-height-md);
   --wr-tabs-padding-y: 0.625rem;
-  --wr-tabs-padding-x: 1rem;
+  --wr-tabs-padding-x: var(--wr-space-lg);
 
   display: block;
   // Claim the full row even when nested in a flex-row demo wrapper.
@@ -23,20 +23,20 @@
     --wr-tabs-font-size: var(--wr-control-font-size-sm);
     --wr-tabs-line-height: var(--wr-control-line-height-sm);
     --wr-tabs-padding-y: 0.5rem;
-    --wr-tabs-padding-x: 0.75rem;
+    --wr-tabs-padding-x: var(--wr-space-md);
   }
 
   &--lg {
     --wr-tabs-font-size: var(--wr-control-font-size-lg);
     --wr-tabs-line-height: var(--wr-control-line-height-lg);
     --wr-tabs-padding-y: 0.75rem;
-    --wr-tabs-padding-x: 1.25rem;
+    --wr-tabs-padding-x: var(--wr-space-xl);
   }
 
   &__strip {
     display: flex;
     align-items: stretch;
-    gap: 0.25rem;
+    gap: var(--wr-space-xs);
     // The hairline is an inset shadow, not `border-bottom` — the strip
     // clips overflow (see below), which would cut off tabs pulled down
     // with a negative margin; the shadow lets the active indicator paint
@@ -122,6 +122,6 @@
   }
 
   &__panel {
-    padding-top: 1rem;
+    padding-top: var(--wr-space-lg);
   }
 }

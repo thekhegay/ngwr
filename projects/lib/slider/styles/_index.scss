@@ -78,7 +78,7 @@
   }
 
   &__label {
-    margin-top: 0.5rem;
+    margin-top: var(--wr-space-sm);
     color: var(--wr-slider-label);
     font-size: var(--wr-text-sm);
     line-height: 1.125rem;

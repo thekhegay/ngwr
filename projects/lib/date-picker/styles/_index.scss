@@ -105,7 +105,7 @@
 // Time-only mode attaches the bare stepper as the overlay content — it
 // has to bring the panel chrome the calendar otherwise provides.
 .wr-date-picker-overlay > .wr-time-picker {
-  padding: 0.5rem 0.75rem;
+  padding: var(--wr-space-sm) var(--wr-space-md);
   background: var(--wr-time-picker-bg);
   border: 1px solid var(--wr-time-picker-border);
   border-radius: var(--wr-border-radius-base);
@@ -127,7 +127,7 @@
 
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--wr-space-xs);
   font-family: var(--wr-font-family-base);
 
   // Each stepper column = ▲ button + input + ▼ button stacked vertically.
@@ -136,7 +136,7 @@
     flex-direction: column;
     align-items: stretch;
     width: var(--wr-time-picker-col-width);
-    gap: 0.125rem;
+    gap: var(--wr-space-xs);
   }
 
   &__step {
@@ -178,7 +178,7 @@
 
   &__input {
     width: 100%;
-    padding: 0.3125rem 0.25rem;
+    padding: var(--wr-space-xs) var(--wr-space-xs);
     appearance: none;
     -moz-appearance: textfield;
     background: var(--wr-time-picker-bg);
@@ -237,7 +237,7 @@
     line-height: 1;
     user-select: none;
     align-self: center;
-    padding-top: 0.5rem;
+    padding-top: var(--wr-space-sm);
   }
 
   &--disabled {
@@ -263,7 +263,7 @@
   &__time {
     display: flex;
     justify-content: center;
-    padding: 0.75rem;
+    padding: var(--wr-space-md);
     background: var(--wr-color-surface);
     border: 1px solid var(--wr-color-outline);
     border-top: 0;
@@ -288,8 +288,8 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.75rem 1.25rem;
-    padding: 0.75rem;
+    gap: var(--wr-space-md) var(--wr-space-xl);
+    padding: var(--wr-space-md);
     background: var(--wr-color-surface);
     border: 1px solid var(--wr-color-outline);
     border-top: 0;
@@ -299,7 +299,7 @@
   &__time {
     display: inline-flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: var(--wr-space-xs);
   }
 
   &__time-label {

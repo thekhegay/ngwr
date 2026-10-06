@@ -12,7 +12,7 @@
 
 .wr-breadcrumbs {
   --wr-breadcrumbs-separator: '/';
-  --wr-breadcrumbs-gap: 0.5rem;
+  --wr-breadcrumbs-gap: var(--wr-space-sm);
   --wr-breadcrumbs-color: rgba(var(--wr-color-on-surface-rgb), 0.6);
   --wr-breadcrumbs-current-color: var(--wr-color-on-surface);
   --wr-breadcrumbs-link-color: var(--wr-color-primary-ink);
@@ -53,7 +53,7 @@
   &__link {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
+    gap: var(--wr-space-sm);
     color: var(--wr-breadcrumbs-link-color);
     text-decoration: none;
     border-radius: var(--wr-border-radius-sm);
@@ -72,7 +72,7 @@
   &__current {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
+    gap: var(--wr-space-sm);
     color: var(--wr-breadcrumbs-current-color);
     font-weight: 600;
   }

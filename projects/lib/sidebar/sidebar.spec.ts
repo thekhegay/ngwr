@@ -409,8 +409,28 @@ describe('the sidebar stylesheet', () => {
     return Object.fromEntries(own.map(line => line.trim().replace(/;$/, '').split(/:\s*/) as [string, string]));
   };
 
+  /**
+   * The five-step spacing scale, read from the theme layer rather than restated.
+   *
+   * These assertions are about ARITHMETIC — that an inset is non-zero, that the
+   * gap a last group cancels is real — so a value arriving as
+   * `var(--wr-space-sm)` has to be resolved, not waved through. Loosening the
+   * regex to accept any string would keep the spec green on a padding of zero,
+   * which is the thing it exists to refuse.
+   */
+  const SCALE: Readonly<Record<string, string>> = Object.fromEntries(
+    [...read('projects/lib/theme/styles/_variables.scss').matchAll(/(--wr-space-[a-z]+):\s*([^;]+);/g)].map(m => [
+      m[1],
+      m[2].trim(),
+    ])
+  );
+
   const rem = (value: string): number => {
-    const match = /^([\d.]+)rem$/.exec(value);
+    const token = /^var\(\s*(--wr-space-[a-z]+)\s*\)$/.exec(value);
+    const resolved = token ? SCALE[token[1]] : value;
+    if (token && resolved === undefined) throw new Error(`No \`${token[1]}\` in the theme layer`);
+
+    const match = /^([\d.]+)rem$/.exec(resolved);
     if (!match) throw new Error(`Expected a rem length, got \`${value}\``);
     return Number(match[1]);
   };

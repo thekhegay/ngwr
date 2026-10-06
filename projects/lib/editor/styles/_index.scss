@@ -75,7 +75,7 @@
     flex-wrap: wrap;
     align-items: center;
     gap: var(--wr-editor-toolbar-gap);
-    padding: 0.25rem;
+    padding: var(--wr-space-xs);
     border-block-end: 1px solid var(--wr-editor-toolbar-border);
     background: var(--wr-editor-toolbar-bg);
     // The frame's corners, which the toolbar would otherwise square off.
@@ -86,8 +86,8 @@
   &__separator {
     align-self: stretch;
     inline-size: 1px;
-    margin-block: 0.25rem;
-    margin-inline: 0.25rem;
+    margin-block: var(--wr-space-xs);
+    margin-inline: var(--wr-space-xs);
     background: var(--wr-editor-toolbar-border);
   }
 
@@ -272,7 +272,7 @@
 
     pre {
       margin-block: 0 0.75em;
-      padding: 0.75rem;
+      padding: var(--wr-space-md);
       overflow-x: auto;
       border-radius: var(--wr-border-radius-base);
       background: var(--wr-color-fill);
@@ -332,7 +332,7 @@
 
     th,
     td {
-      padding: 0.375rem 0.625rem;
+      padding: var(--wr-space-sm) var(--wr-space-md);
       border: 1px solid var(--wr-color-outline);
       vertical-align: top;
 
@@ -448,8 +448,8 @@
   &__body {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.75rem;
+    gap: var(--wr-space-sm);
+    padding: var(--wr-space-md);
   }
 
   &__label {
@@ -467,6 +467,6 @@
   &__actions {
     display: flex;
     justify-content: flex-end;
-    gap: 0.5rem;
+    gap: var(--wr-space-sm);
   }
 }

@@ -20,7 +20,7 @@
     display: block;
     min-width: 14rem;
     max-width: 22rem;
-    padding: 0.875rem 1rem;
+    padding: var(--wr-space-lg) var(--wr-space-lg);
     background: var(--wr-color-surface);
     border: 1px solid var(--wr-color-outline);
     border-radius: var(--wr-border-radius-base);
@@ -35,7 +35,7 @@
 
 .wr-popconfirm {
   &__message {
-    margin: 0 0 0.625rem;
+    margin: 0 0 var(--wr-space-md);
     font-size: var(--wr-text-sm);
     line-height: 1.25rem;
   }
@@ -43,7 +43,7 @@
   &__actions {
     display: flex;
     justify-content: flex-end;
-    gap: 0.375rem;
+    gap: var(--wr-space-sm);
   }
 }
 

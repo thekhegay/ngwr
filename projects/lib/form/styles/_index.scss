@@ -3,7 +3,7 @@
 .wr-form-item {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
+  gap: var(--wr-space-sm);
   width: 100%;
 
   > label {
@@ -42,13 +42,13 @@
 .wr-form-field {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
+  gap: var(--wr-space-sm);
   font-family: var(--wr-font-family-base);
 
   &__label {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: var(--wr-space-xs);
     color: var(--wr-color-on-surface);
     font-size: var(--wr-text-sm);
     font-weight: 500;
@@ -79,7 +79,7 @@
   &__errors {
     display: flex;
     flex-direction: column;
-    gap: 0.125rem;
+    gap: var(--wr-space-xs);
   }
 
   &__error--hidden {

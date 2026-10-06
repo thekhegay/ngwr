@@ -103,7 +103,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.375rem;
+    gap: var(--wr-space-sm);
     appearance: none;
     background: transparent;
     border: 0;

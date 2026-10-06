@@ -4,7 +4,7 @@
 .wr-meter-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--wr-space-sm);
   font-family: var(--wr-font-family-base);
   color: var(--wr-color-on-surface);
 
@@ -23,7 +23,7 @@
     transition: width var(--wr-transition-base);
 
     & + & {
-      margin-inline-start: 2px;
+      margin-inline-start: var(--wr-space-xs);
     }
   }
 
@@ -33,13 +33,13 @@
     padding: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.375rem 0.875rem;
+    gap: var(--wr-space-sm) var(--wr-space-lg);
   }
 
   &__legend-item {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
+    gap: var(--wr-space-sm);
     font-size: var(--wr-text-xs);
     color: var(--wr-color-on-surface);
   }

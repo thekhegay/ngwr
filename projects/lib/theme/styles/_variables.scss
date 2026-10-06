@@ -18,6 +18,25 @@
 }
 
 :root {
+  // Spacing — one scale for padding, margin AND gap.
+  //
+  // Five steps on a 4px grid, and the step count is measured rather than
+  // chosen: the catalog carried 439 spacing literals across those three
+  // properties, and three steps would have matched 28% of them exactly where
+  // five match 59%. Seven would reach 83%, by admitting the 2px half-steps
+  // (6 / 10 / 14px) into the public API — and those are drift, not design:
+  // nobody picked 0.4375rem on purpose, it just appeared six times.
+  //
+  // ONE family rather than `--wr-padding-*`, `--wr-margin-*` and `--wr-gap-*`,
+  // because the three carried the same values — `gap` alone was 136
+  // declarations whose four commonest values are the four commonest paddings.
+  // Three names for one scale is three things to keep in step.
+  --wr-space-xs: 0.25rem;
+  --wr-space-sm: 0.5rem;
+  --wr-space-md: 0.75rem;
+  --wr-space-lg: 1rem;
+  --wr-space-xl: 1.5rem;
+
   // Border radius
   --wr-border-radius-sm: 0.375rem;
   --wr-border-radius-base: 0.625rem;

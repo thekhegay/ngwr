@@ -24,7 +24,7 @@ $alert-colors: (
 .wr-alert {
   display: flex;
   align-items: stretch;
-  gap: 0.75rem;
+  gap: var(--wr-space-md);
   // Claim the full row even when nested in a flex-row demo wrapper.
   flex: 1 1 100%;
   width: 100%;
@@ -54,7 +54,7 @@ $alert-colors: (
   background: var(--wr-alert-bg);
   border: 1px solid var(--wr-alert-border);
   @include theme.smooth-br(var(--wr-border-radius-base));
-  padding: 0.625rem 0.875rem;
+  padding: var(--wr-space-md) var(--wr-space-lg);
 
   &--dismissed {
     display: none;
@@ -64,7 +64,7 @@ $alert-colors: (
     flex: 0 0 auto;
     width: 1.125rem;
     height: 1.125rem;
-    margin-top: 0.125rem;
+    margin-top: var(--wr-space-xs);
     color: var(--wr-alert-title);
     // A custom `<wr-icon>` sizes via this var, not width/height.
     --wr-icon-size: 1.125rem;
@@ -80,7 +80,7 @@ $alert-colors: (
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: var(--wr-space-xs);
     min-width: 0;
   }
 
@@ -106,7 +106,7 @@ $alert-colors: (
     appearance: none;
     background: transparent;
     border: 0;
-    padding: 0.125rem;
+    padding: var(--wr-space-xs);
     color: var(--wr-alert-close);
     cursor: pointer;
     border-radius: var(--wr-border-radius-sm);

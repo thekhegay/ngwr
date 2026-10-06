@@ -19,7 +19,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: var(--wr-space-sm);
   padding: 2rem 1rem;
   // Claim the parent's box so the empty state reads as "this whole area
   // has nothing" rather than a tiny pill floating top-left. Consumers
@@ -32,7 +32,7 @@
   &__icon {
     color: var(--wr-color-on-surface-muted);
     opacity: 0.6;
-    margin-bottom: 0.25rem;
+    margin-bottom: var(--wr-space-xs);
     // The built-in glyph is sized by `.wr-icon__svg` at 1em; a custom
     // `<wr-icon>` sizes through this var instead, so without it the two
     // branches of the same slot rendered at different sizes (15px vs 18px).
@@ -62,9 +62,9 @@
   }
 
   &__actions {
-    margin-top: 0.5rem;
+    margin-top: var(--wr-space-sm);
     display: flex;
-    gap: 0.5rem;
+    gap: var(--wr-space-sm);
 
     &:empty {
       display: none;

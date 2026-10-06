@@ -21,7 +21,7 @@
   // list, and with a bare `display: block` and no padding its cells touched the
   // content above and below. Padding rather than margin so it stays inside the
   // component's own box and can't collapse into the consumer's spacing.
-  padding-block: 0.5rem;
+  padding-block: var(--wr-space-sm);
 
   &--disabled {
     opacity: var(--wr-disabled-opacity);
@@ -39,7 +39,7 @@
   &__inner {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: var(--wr-space-lg);
     flex-wrap: wrap;
   }
 
@@ -62,7 +62,7 @@
   &__nav {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: var(--wr-space-xs);
     // `__inner` wraps, but the whole numbered strip is ONE of its children, so
     // that wrap could never help: at `size="lg"` the strip is 9 cells of 2.5rem
     // plus gaps = 392px, which at 375px left the last page number cut off at the
@@ -83,8 +83,8 @@
       height: var(--wr-pagination-cell, 2rem);
       padding-top: 0;
       padding-bottom: 0;
-      padding-inline-start: 0.5rem;
-      padding-inline-end: 0.5rem;
+      padding-inline-start: var(--wr-space-sm);
+      padding-inline-end: var(--wr-space-sm);
     }
   }
 
@@ -112,7 +112,7 @@
   &__current {
     display: none;
     align-items: center;
-    padding: 0 0.375rem;
+    padding: 0 var(--wr-space-sm);
     color: var(--wr-color-on-surface);
     font-family: var(--wr-font-family-base);
     font-size: var(--wr-text-sm);
