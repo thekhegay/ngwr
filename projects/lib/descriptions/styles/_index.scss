@@ -18,7 +18,7 @@
   &__title {
     font-size: var(--wr-text-base);
     font-weight: var(--wr-font-weight-semibold);
-    margin-bottom: 0.75rem;
+    margin-bottom: var(--wr-space-md);
   }
 
   &__list {
@@ -26,13 +26,13 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--wr-space-sm);
   }
 
   &__row {
     display: flex;
     flex-direction: column;
-    gap: 0.125rem;
+    gap: var(--wr-space-xs);
     padding: 0;
   }
 
@@ -55,7 +55,7 @@
   &--inline &__list {
     display: grid;
     grid-template-columns: minmax(8rem, max-content) 1fr;
-    gap: 0.5rem 1rem;
+    gap: var(--wr-space-sm) var(--wr-space-lg);
     align-items: baseline;
   }
 
@@ -79,7 +79,7 @@
   }
 
   &--bordered &__row {
-    padding: 0.625rem 0.875rem;
+    padding: var(--wr-space-md) var(--wr-space-lg);
   }
 
   // Nesting this as `& + &` expands BOTH sides in full —
@@ -102,7 +102,7 @@
 
   &--bordered#{&}--inline &__label,
   &--bordered#{&}--inline &__value {
-    padding: 0.625rem 0.875rem;
+    padding: var(--wr-space-md) var(--wr-space-lg);
     border-top: 1px solid var(--wr-color-outline);
   }
 
@@ -125,7 +125,7 @@
   .wr-descriptions--inline .wr-descriptions__list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--wr-space-sm);
     // The grid layout above aligns its two columns on `baseline`, which is
     // correct there and wrong here: once the list is a COLUMN flex container
     // the cross axis is the width, so `baseline` sizes each row to its own
@@ -137,7 +137,7 @@
   .wr-descriptions--inline .wr-descriptions__row {
     display: flex;
     flex-direction: column;
-    gap: 0.125rem;
+    gap: var(--wr-space-xs);
   }
 
   // Bordered + inline reverts to the plain bordered stacked rows: the card
@@ -152,8 +152,8 @@
   .wr-descriptions--bordered.wr-descriptions--inline .wr-descriptions__row {
     display: flex;
     flex-direction: column;
-    gap: 0.125rem;
-    padding: 0.625rem 0.875rem;
+    gap: var(--wr-space-xs);
+    padding: var(--wr-space-md) var(--wr-space-lg);
   }
 
   .wr-descriptions--bordered.wr-descriptions--inline .wr-descriptions__row + .wr-descriptions__row {

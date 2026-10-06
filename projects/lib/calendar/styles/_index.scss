@@ -20,9 +20,9 @@
 
   display: inline-flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--wr-space-sm);
   width: var(--wr-calendar-width);
-  padding: 0.75rem;
+  padding: var(--wr-space-md);
   background: var(--wr-calendar-bg);
   border: 1px solid var(--wr-calendar-border);
   @include theme.smooth-br(var(--wr-calendar-radius));
@@ -35,7 +35,7 @@
   &__header {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--wr-space-sm);
   }
 
   &__label {
@@ -43,7 +43,7 @@
     appearance: none;
     background: transparent;
     border: 0;
-    padding: 0 0.5rem;
+    padding: 0 var(--wr-space-sm);
     color: inherit;
     text-align: center;
     font-family: inherit;
@@ -137,13 +137,13 @@
   &__body {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--wr-space-sm);
   }
 
   &__grid {
     display: flex;
     flex-direction: column;
-    gap: 0.125rem;
+    gap: var(--wr-space-xs);
   }
 
   &__week {
@@ -228,13 +228,13 @@
   &__months {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.25rem;
+    gap: var(--wr-space-xs);
   }
 
   &__years {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 0.25rem;
+    gap: var(--wr-space-xs);
   }
 
   &__chip {

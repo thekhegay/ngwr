@@ -89,7 +89,7 @@
   &__trigger {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--wr-space-sm);
     width: 100%;
     // Not the floor — that lives on the host, where a width can beat it. Zero
     // lets the trigger follow the host down and the path's ellipsis take the
@@ -220,7 +220,7 @@
 }
 
 .wr-cascader-overlay {
-  padding-top: 0.25rem;
+  padding-top: var(--wr-space-xs);
 }
 
 .wr-cascader-panel {
@@ -259,13 +259,13 @@
     list-style: none;
     margin: 0;
     // Inset padding so options read as rounded pills, matching the select panel.
-    padding: 0.25rem;
+    padding: var(--wr-space-xs);
     width: var(--wr-cascader-col-width);
     max-height: var(--wr-cascader-max-height);
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 0.125rem;
+    gap: var(--wr-space-xs);
 
     + .wr-cascader__col {
       border-inline-start: 1px solid var(--wr-color-outline);
@@ -276,7 +276,7 @@
   .wr-cascader__opt {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--wr-space-sm);
     padding: var(--wr-cascader-opt-py) 0.625rem;
     border-radius: var(--wr-border-radius-sm);
     color: var(--wr-color-on-surface);
@@ -331,7 +331,7 @@
 // Fine pointers keep the compact desktop sizing above.
 @media (pointer: coarse) {
   .wr-cascader-panel .wr-cascader__opt {
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
+    padding-top: var(--wr-space-md);
+    padding-bottom: var(--wr-space-md);
   }
 }

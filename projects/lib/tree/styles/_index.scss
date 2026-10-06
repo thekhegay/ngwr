@@ -11,14 +11,14 @@
   &__list {
     list-style: none;
     margin: 0;
-    padding: 0.25rem 0;
+    padding: var(--wr-space-xs) 0;
   }
 
   &__row {
     display: flex;
     align-items: center;
-    gap: 0.375rem;
-    padding: 0.3125rem 0.5rem;
+    gap: var(--wr-space-sm);
+    padding: var(--wr-space-xs) var(--wr-space-sm);
     padding-inline-start: calc(0.5rem + var(--wr-tree-depth, 0) * var(--wr-tree-indent));
     border-radius: var(--wr-border-radius-sm);
     cursor: pointer;
@@ -231,7 +231,7 @@
   &__trigger {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--wr-space-sm);
     width: 100%;
     // Not the floor — that lives on the host, where a width can beat it. Zero
     // lets the trigger follow the host down and the label's ellipsis take the
@@ -321,7 +321,7 @@
   &--multi &__trigger {
     flex-wrap: wrap;
     align-items: center;
-    padding: 0.25rem 0.5rem;
+    padding: var(--wr-space-xs) var(--wr-space-sm);
     // Empty / one-row floor = single-mode height (+2px for the border), so it
     // has to carry the same density multiplier the single-mode padding does —
     // otherwise the two modes stop agreeing the moment density leaves `md`.
@@ -335,18 +335,18 @@
     flex: 1 1 auto;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.25rem;
+    gap: var(--wr-space-xs);
     min-width: 0;
   }
 
   &__chip {
     display: inline-flex;
     align-items: center;
-    gap: 0.125rem;
+    gap: var(--wr-space-xs);
     max-width: 100%;
     // Roomier on the label side, tighter where the remove (×) sits.
     padding-block: 0.125rem;
-    padding-inline: 0.5rem 0.25rem;
+    padding-inline: var(--wr-space-sm) var(--wr-space-xs);
     // Not a pill: a chip is a shape nested INSIDE the trigger, so it repeats the
     // trigger's own corner instead of deciding one for itself — and an override
     // of `--wr-tree-trigger-radius` carries the chips with it.
@@ -392,7 +392,7 @@
 }
 
 .wr-tree-overlay {
-  padding-top: 0.25rem;
+  padding-top: var(--wr-space-xs);
 }
 
 .wr-tree-panel {
@@ -400,7 +400,7 @@
   border: 1px solid var(--wr-color-outline);
   border-radius: var(--wr-border-radius-base);
   box-shadow: var(--wr-shadow-overlay);
-  padding: 0.375rem;
+  padding: var(--wr-space-sm);
   max-height: var(--wr-tree-panel-max-height, 18rem);
   overflow-y: auto;
 
@@ -417,8 +417,8 @@
 // the compact desktop rows above.
 @media (pointer: coarse) {
   .wr-tree__row {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    padding-top: var(--wr-space-sm);
+    padding-bottom: var(--wr-space-sm);
   }
 
   .wr-tree__toggle {

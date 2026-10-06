@@ -51,8 +51,8 @@
   color: var(--wr-badge-color);
 
   // Defaults — sized modifiers override these
-  --wr-badge-padding-y: 0.25rem;
-  --wr-badge-padding-x: 0.5rem;
+  --wr-badge-padding-y: var(--wr-space-xs);
+  --wr-badge-padding-x: var(--wr-space-sm);
   --wr-badge-radius: var(--wr-border-radius-sm);
   --wr-badge-font-size: var(--wr-text-xs);
   --wr-badge-min-height: 1.5rem;
@@ -86,7 +86,7 @@
 
   &--pill {
     --wr-badge-radius: var(--wr-border-radius-pill);
-    --wr-badge-padding-x: 0.75rem;
+    --wr-badge-padding-x: var(--wr-space-md);
   }
 
   // Squircle — overrides the plain `border-radius` with the

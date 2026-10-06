@@ -27,7 +27,7 @@
       '. months'
       'weekdays cells';
     grid-template-columns: auto 1fr;
-    gap: 0.375rem;
+    gap: var(--wr-space-sm);
   }
 
   &__weekdays {

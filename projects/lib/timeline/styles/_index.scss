@@ -11,7 +11,7 @@
 
   &--vertical {
     flex-direction: column;
-    gap: 1.25rem;
+    gap: var(--wr-space-xl);
   }
 
   &--horizontal {
@@ -25,8 +25,8 @@
   position: relative;
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
-  padding-bottom: 0.5rem;
+  gap: var(--wr-space-md);
+  padding-bottom: var(--wr-space-sm);
 
   &__dot {
     flex: 0 0 auto;
@@ -96,7 +96,7 @@
     line-height: 1rem;
     color: var(--wr-color-on-surface-muted);
     font-weight: var(--wr-font-weight-medium);
-    margin-bottom: 0.125rem;
+    margin-bottom: var(--wr-space-xs);
   }
 
   &__title {
@@ -106,7 +106,7 @@
   }
 
   &__content {
-    margin-top: 0.25rem;
+    margin-top: var(--wr-space-xs);
     font-size: var(--wr-text-sm);
     line-height: var(--wr-leading-relaxed);
     color: var(--wr-color-on-surface);
@@ -160,7 +160,7 @@
     }
 
     .wr-timeline-item__body {
-      margin-top: 0.5rem;
+      margin-top: var(--wr-space-sm);
     }
   }
 }
