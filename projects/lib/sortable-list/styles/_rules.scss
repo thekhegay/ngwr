@@ -58,7 +58,24 @@
     // only lasts while a pointer is held down.
     &--grabbed {
       cursor: grabbing;
-      box-shadow: 0 6px 12px rgba(var(--wr-color-backdrop-rgb), 0.22);
+    }
+
+    // Held, and visibly so. This state used to carry one declaration —
+    // `box-shadow: 0 6px 12px rgba(var(--wr-color-backdrop-rgb), 0.22)` — and it
+    // could never apply: a row is always FOCUSED while it is held, the shared
+    // focus ring emits a `box-shadow` halo of its own, and `:focus-visible`
+    // beats a plain modifier on specificity. So held-and-focused rendered
+    // identically to focused, and the only state a keyboard reorder has was
+    // announced once in the live region and drawn nowhere. A user pressing the
+    // arrows could not tell whether they were moving the row or the focus.
+    //
+    // Recolouring the ring the row already has is the one cue a consumer's own
+    // row chrome cannot cover — this component ships no surface of its own, so
+    // anything drawn behind the content is hidden the moment somebody styles a
+    // row, which the docs tell them to do. Written against `:focus-visible` for
+    // the same specificity reason that killed the shadow.
+    &--grabbed:focus-visible {
+      outline-color: var(--wr-color-primary);
     }
   }
 

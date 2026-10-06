@@ -21,9 +21,10 @@
 
   <ngwr-doc-section
     title="Basic usage"
-    description="You write the loop, so a row is ordinary markup. The list reorders `items` and emits `reorder` once per gesture."
+    description="You write the loop, so a row is ordinary markup — and ordinary markup is ALL it is: `<wr-sortable-item>` ships a grab cursor, a tab stop and a focus ring, and no padding, border or surface of its own. The list owns the array, the gesture, the keyboard path and the live region; what a row looks like is yours. Written bare it is text you can drag, which is why both the demo and the snippet below carry a `.row` of their own."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.basicStyles" language="scss" />
     <ngwr-doc-snippet code="">
       <div class="ngwr-sortable-demo">
         <wr-sortable-list [(items)]="tasks" (reorder)="onReorder($event)">

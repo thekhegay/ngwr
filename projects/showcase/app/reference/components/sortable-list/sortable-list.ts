@@ -51,16 +51,38 @@ export default class SortableListPage {
 
   protected readonly snippets = {
     peer: `npm install @angular/cdk`,
-    basic: `<wr-sortable-list [(items)]="rows" (reorder)="onReorder($event)">
+    basic: `<!-- A row ships NO resting chrome — no padding, no border, no surface.
+     The component owns the array, the drag, the keyboard gesture and the live
+     region; what a row looks like is yours, which is why the markup below has
+     a \`.row\` of its own. Written bare, a row is text with a grab cursor. -->
+<wr-sortable-list [(items)]="rows" (reorder)="onReorder($event)">
   @for (row of rows(); track row.id; let i = $index) {
-    <wr-sortable-item>{{ i + 1 }}. {{ row.label }}</wr-sortable-item>
+    <wr-sortable-item>
+      <div class="row">
+        <span class="row__index">#{{ i + 1 }}</span>
+        <span>{{ row.label }}</span>
+      </div>
+    </wr-sortable-item>
   }
 </wr-sortable-list>`,
-    handle: `<wr-sortable-list [(items)]="rows">
+    basicStyles: `.row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--wr-color-outline);
+  border-radius: var(--wr-border-radius-base);
+  background: var(--wr-color-surface);
+}`,
+    handle: `<!-- Same rule: the \`.row\` is yours. \`[wrDragHandle]\` narrows the grab
+     to one element, so the rest of the row stops being a drag surface. -->
+<wr-sortable-list [(items)]="rows">
   @for (row of rows(); track row.id) {
     <wr-sortable-item>
-      <span wrDragHandle>≡</span>
-      <span>{{ row.label }}</span>
+      <div class="row">
+        <span wrDragHandle aria-label="Reorder">≡</span>
+        <span>{{ row.label }}</span>
+      </div>
     </wr-sortable-item>
   }
 </wr-sortable-list>`,

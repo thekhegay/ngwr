@@ -1,5 +1,5 @@
 <header class="bar">
-  <h1 class="bar__title">ngwr v15 sandbox — Charts</h1>
+  <h1 class="bar__title">ngwr v15 sandbox — Data</h1>
   <button wr-btn type="button" outlined size="sm" (click)="toggleTheme()">
     <wr-icon [name]="theme.resolved() === 'dark' ? 'sun' : 'moon'" />
     {{ theme.resolved() === 'dark' ? 'Light' : 'Dark' }}
@@ -8,62 +8,66 @@
 
 <main class="sandbox">
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Bar Chart — basic</h2>
-    <wr-bar-chart [data]="bars" />
+    <h2 class="sandbox__heading">Sortable List — basic usage</h2>
+    <wr-sortable-list [(items)]="rows" (reorder)="onReorder($event)">
+      @for (row of rows(); track row.id) {
+        <wr-sortable-item>{{ $index + 1 }}. {{ row.label }}</wr-sortable-item>
+      }
+    </wr-sortable-list>
+    <p>Reordered: {{ reordered() }}</p>
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Bar Chart — tooltip off</h2>
-    <wr-bar-chart [data]="bars" [tooltip]="false" />
+    <h2 class="sandbox__heading">Sortable List — with a drag handle</h2>
+    <wr-sortable-list [(items)]="rows">
+      @for (row of rows(); track row.id) {
+        <wr-sortable-item>
+          <span wrDragHandle aria-label="Reorder">⠿</span>
+          {{ row.label }}
+        </wr-sortable-item>
+      }
+    </wr-sortable-list>
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Calendar Heatmap — basic</h2>
-    <wr-calendar-heatmap [data]="contributions" />
+    <h2 class="sandbox__heading">Pagination — basic usage</h2>
+    <wr-pagination [total]="120" [(page)]="page" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Donut Chart — with center label</h2>
-    <wr-donut-chart [segments]="segments" centerLabel="Disk" centerValue="60%" />
+    <h2 class="sandbox__heading">Pagination — sizes</h2>
+    <wr-pagination [total]="120" [(page)]="pageSm" size="sm" />
+    <wr-pagination [total]="120" [(page)]="pageMd" size="md" />
+    <wr-pagination [total]="120" [(page)]="pageLg" size="lg" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Donut Chart — solid pie</h2>
-    <wr-donut-chart [segments]="segments" thickness="0" />
+    <h2 class="sandbox__heading">Pagination — shape</h2>
+    <wr-pagination [total]="120" [(page)]="pageRounded" shape="rounded" />
+    <wr-pagination [total]="120" [(page)]="pageSquare" shape="square" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Gauge — basic</h2>
-    <wr-gauge [value]="72" suffix="%" />
+    <h2 class="sandbox__heading">Tree — single selection</h2>
+    <wr-tree [nodes]="folders" [(selected)]="picked" [(expanded)]="open" selectionMode="single" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Gauge — custom range + color</h2>
-    <wr-gauge [value]="9.5" [min]="0" [max]="10" suffix="/10" valueColor="var(--wr-color-warning)" />
+    <h2 class="sandbox__heading">Tree — multi selection</h2>
+    <wr-tree [nodes]="folders" [(selected)]="pickedMulti" [(expanded)]="openMulti" selectionMode="multi" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Gauge — no value readout</h2>
-    <wr-gauge [value]="72" suffix="%" [showValue]="false" ariaLabel="CPU" />
+    <h2 class="sandbox__heading">Graph — nodes and edges</h2>
+    <wr-graph [nodes]="nodes" [edges]="edges" ariaLabel="Writing workflow" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Line Chart — multi-series</h2>
-    <wr-line-chart [series]="series" [xLabels]="labels" />
-  </section>
-
-  <section class="sandbox__block">
-    <h2 class="sandbox__heading">Meter Group — disk usage</h2>
-    <wr-meter-group [segments]="diskUsage" [max]="100" />
-  </section>
-
-  <section class="sandbox__block">
-    <h2 class="sandbox__heading">Sparkline — basic</h2>
-    <wr-sparkline [data]="[12, 14, 9, 17, 21, 18, 23]" />
-  </section>
-
-  <section class="sandbox__block">
-    <h2 class="sandbox__heading">Sparkline — filled area</h2>
-    <wr-sparkline [data]="data" [showArea]="true" color="var(--wr-color-success)" />
+    <h2 class="sandbox__heading">Virtual Scroll — 5000 rows</h2>
+    <wr-virtual-scroll [items]="manyRows" [itemSize]="32" [height]="200">
+      <ng-template let-row let-i="index">
+        <div style="padding: 0.375rem 0.75rem">{{ i + 1 }}. {{ row }}</div>
+      </ng-template>
+    </wr-virtual-scroll>
   </section>
 </main>
