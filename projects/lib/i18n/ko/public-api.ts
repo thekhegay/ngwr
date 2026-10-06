@@ -38,8 +38,8 @@ export const wrKo: WrI18nCatalog = {
   table: {
     empty: '데이터 없음',
     loading: '불러오는 중…',
-    sort: '열 정렬',
-    filter: '열 필터',
+    sort: '{{column}} 열 정렬',
+    filter: '{{column}} 열 필터',
     selectAll: '모든 행 선택',
     selectRow: '행 선택',
     expandRow: '행 세부 정보 펼치기/접기',

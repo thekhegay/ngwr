@@ -80,7 +80,7 @@
                 <button
                   type="button"
                   class="wr-table__sort-btn"
-                  [attr.aria-label]="resolvedSortLabel()"
+                  [attr.aria-label]="sortLabelFor(col.column.title)"
                   (click)="cycleSort(col.key)"
                 >
                   <wr-table-sort [direction]="directionFor(col.key)" />
@@ -89,7 +89,11 @@
 
               @if (col.column.filterItems; as filterItems) {
                 @if (filterItems.length) {
-                  <wr-table-filter [items]="filterItems" (selectionChange)="onFilter(col.key, $event)" />
+                  <wr-table-filter
+                    [items]="filterItems"
+                    [column]="col.column.title"
+                    (selectionChange)="onFilter(col.key, $event)"
+                  />
                 }
               }
             </div>

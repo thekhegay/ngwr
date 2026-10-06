@@ -42,8 +42,8 @@ export const wrUk: WrI18nCatalog = {
   table: {
     empty: 'Немає даних',
     loading: 'Завантаження…',
-    sort: 'Сортувати стовпець',
-    filter: 'Фільтрувати стовпець',
+    sort: 'Сортувати стовпець «{{column}}»',
+    filter: 'Фільтрувати стовпець «{{column}}»',
     selectAll: 'Вибрати всі рядки',
     selectRow: 'Вибрати рядок',
     expandRow: 'Показати деталі рядка',

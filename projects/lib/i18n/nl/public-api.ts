@@ -38,8 +38,8 @@ export const wrNl: WrI18nCatalog = {
   table: {
     empty: 'Geen gegevens',
     loading: 'Laden…',
-    sort: 'Kolom sorteren',
-    filter: 'Kolom filteren',
+    sort: 'Kolom {{column}} sorteren',
+    filter: 'Kolom {{column}} filteren',
     selectAll: 'Alle rijen selecteren',
     selectRow: 'Rij selecteren',
     expandRow: 'Rijdetails tonen of verbergen',

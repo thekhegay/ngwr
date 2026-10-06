@@ -29,7 +29,7 @@ import {
 } from '@angular/core';
 
 import { WrCheckbox } from 'ngwr/checkbox';
-import { useI18nText } from 'ngwr/i18n';
+import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrPagination } from 'ngwr/pagination';
 import { WrSpinner } from 'ngwr/spinner';
 import { toClassList } from 'ngwr/utils';
@@ -320,7 +320,20 @@ export class WrTable {
    * never read.
    */
   protected readonly resolvedLoadingLabel = useI18nText(this.loadingLabel, 'table.loading', 'Loading…');
-  protected readonly resolvedSortLabel = useI18nText(this.sortLabel, 'table.sort', 'Sort column');
+  private readonly sortText = useI18nFormatter('table.sort', 'Sort {{column}}');
+
+  /**
+   * The sort button's accessible name, with the COLUMN in it.
+   *
+   * It used to be one static string on every sortable header, so a header row
+   * with three of them offered a screen reader three buttons called "Sort
+   * column". An `aria-label` replaces content, so the title sitting next to
+   * the caret reached a sighted reader and nobody else. A consumer's own
+   * `sortLabel` still wins whole, unformatted — it is their string.
+   */
+  protected sortLabelFor(column: string): string {
+    return this.sortLabel() ?? this.sortText({ column });
+  }
   protected readonly resolvedSelectAllLabel = useI18nText(this.selectAllLabel, 'table.selectAll', 'Select all rows');
   protected readonly resolvedSelectRowLabel = useI18nText(this.selectRowLabel, 'table.selectRow', 'Select row');
   protected readonly resolvedExpandRowLabel = useI18nText(this.expandRowLabel, 'table.expandRow', 'Toggle row details');

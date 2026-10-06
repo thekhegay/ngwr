@@ -38,8 +38,8 @@ export const wrRu: WrI18nCatalog = {
   table: {
     empty: 'Нет данных',
     loading: 'Загрузка…',
-    sort: 'Сортировать столбец',
-    filter: 'Фильтр столбца',
+    sort: 'Сортировать столбец «{{column}}»',
+    filter: 'Фильтр столбца «{{column}}»',
     selectAll: 'Выбрать все строки',
     selectRow: 'Выбрать строку',
     expandRow: 'Показать детали строки',

@@ -38,8 +38,8 @@ export const wrDe: WrI18nCatalog = {
   table: {
     empty: 'Keine Daten',
     loading: 'Wird geladen…',
-    sort: 'Spalte sortieren',
-    filter: 'Spalte filtern',
+    sort: 'Spalte {{column}} sortieren',
+    filter: 'Spalte {{column}} filtern',
     selectAll: 'Alle Zeilen auswählen',
     selectRow: 'Zeile auswählen',
     expandRow: 'Zeilendetails ein-/ausblenden',

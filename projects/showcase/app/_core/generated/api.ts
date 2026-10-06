@@ -1260,6 +1260,7 @@ export const API = {
   // <wr-table-filter>
   WrTableFilter: [
     { name: "filterLabel", description: "Accessible name of the filter trigger. Falls back to `table.filter`.", type: "string | null", default: "null" },
+    { name: "column", description: "The column this filter belongs to, for the trigger's accessible name. Without it every filter trigger in a header row announced the same \"Filter column\", so a screen-reader user tabbing the row heard the same button three times and could not tell which column each one narrowed. The caret and the funnel sit beside the column title, so sighted readers had the context all along; an `aria-label` REPLACES content, so nobody else did.", type: "string", default: "''" },
     { name: "noMatchesLabel", description: "Text shown when the search finds nothing. Falls back to `table.noMatches`.", type: "string | null", default: "null" },
     { name: "searchLabel", description: "Placeholder AND accessible name of the search box. Falls back to `table.search`. One string for both because the box has no visible label: the placeholder was its only name, so a hard-coded literal left the control unnamed in every other language rather than merely untranslated.", type: "string | null", default: "null" },
     { name: "resetLabel", description: "Label of the clear-selection button. Falls back to `table.reset`.", type: "string | null", default: "null" },
