@@ -19,7 +19,7 @@ export default class TextareaComponent {
     basic: `<wr-textarea placeholder="Notes" [(value)]="text" />`,
     rows: `<wr-textarea [rows]="5" />`,
     autosize: `<wr-textarea autosize [maxRows]="6" [(value)]="text" />`,
-    fixed: `<wr-textarea [resizable]="false" [(value)]="text" />`,
+    fixed: `<wr-textarea [resizable]="false" [rows]="4" placeholder="No resize handle" />`,
   };
 
   protected readonly api = API.WrTextarea;

@@ -38,6 +38,7 @@ export default class GlitchTextPage {
   [speed]="${this.speed()}"
   [enableShadows]="${this.enableShadows()}"
   [enableOnHover]="${this.enableOnHover()}"
+  background="var(--wr-color-surface)"
 />`
   );
 
