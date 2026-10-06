@@ -252,6 +252,9 @@ export const wrTr: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Çubuk grafiği',
+  },
   calendarHeatmap: {
     label: 'Takvim ısı haritası',
     cell: '{{date}}: {{count}}',

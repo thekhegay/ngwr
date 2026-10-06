@@ -247,6 +247,9 @@ export const wrZhTw: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: '長條圖',
+  },
   calendarHeatmap: {
     label: '行事曆熱圖',
     cell: '{{date}}: {{count}}',

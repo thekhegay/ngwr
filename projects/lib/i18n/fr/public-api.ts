@@ -253,6 +253,9 @@ export const wrFr: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Graphique à barres',
+  },
   calendarHeatmap: {
     label: 'Carte de chaleur du calendrier',
     cell: '{{date}}: {{count}}',

@@ -8,6 +8,7 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChildren } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 
 import type { WrBarChartDatum } from './types';
@@ -35,6 +36,20 @@ import type { WrBarChartDatum } from './types';
 })
 export class WrBarChart {
   readonly data = input<readonly WrBarChartDatum[]>([]);
+
+  /**
+   * Accessible name of the CHART. Falls back to `barChart.label`, then
+   * `'Bar chart'`.
+   *
+   * Every bar already carries its own `role="img"` and its own "Mon: 12", and
+   * that is what the plot had instead of a name of its own — so the chart
+   * announced as whatever its first bar said, and a page with three bar charts
+   * offered a reader three images called by a weekday. The four sibling charts
+   * all name the plot; this one was the omission.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'barChart.label', 'Bar chart');
 
   /** Default bar colour when a datum has none. @default primary */
   readonly color = input<string>('var(--wr-color-primary)');

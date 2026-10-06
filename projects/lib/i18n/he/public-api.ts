@@ -257,6 +257,9 @@ export const wrHe: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'תרשים עמודות',
+  },
   calendarHeatmap: {
     label: 'מפת חום לפי תאריכים',
     cell: '{{date}}: {{count}}',

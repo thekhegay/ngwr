@@ -244,6 +244,9 @@ export const wrHi: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'बार चार्ट',
+  },
   calendarHeatmap: {
     label: 'कैलेंडर हीटमैप',
     cell: '{{date}}: {{count}}',

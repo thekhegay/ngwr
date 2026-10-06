@@ -252,6 +252,9 @@ export const wrDe: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Balkendiagramm',
+  },
   calendarHeatmap: {
     label: 'Kalender-Heatmap',
     cell: '{{date}}: {{count}}',

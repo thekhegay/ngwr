@@ -338,6 +338,9 @@ export const wrEn: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Bar chart',
+  },
   calendarHeatmap: {
     label: 'Calendar heatmap',
     cell: '{{date}}: {{count}}',

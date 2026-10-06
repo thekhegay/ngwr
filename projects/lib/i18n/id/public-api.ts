@@ -244,6 +244,9 @@ export const wrId: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Diagram batang',
+  },
   calendarHeatmap: {
     label: 'Peta panas kalender',
     cell: '{{date}}: {{count}}',

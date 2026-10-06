@@ -248,6 +248,9 @@ export const wrJa: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: '棒グラフ',
+  },
   calendarHeatmap: {
     label: 'カレンダーヒートマップ',
     cell: '{{date}}: {{count}}',

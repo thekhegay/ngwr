@@ -249,6 +249,9 @@ export const wrKo: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: '막대 차트',
+  },
   calendarHeatmap: {
     label: '캘린더 히트맵',
     cell: '{{date}}: {{count}}',

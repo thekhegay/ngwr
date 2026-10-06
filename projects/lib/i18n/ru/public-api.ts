@@ -249,6 +249,9 @@ export const wrRu: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Столбчатая диаграмма',
+  },
   calendarHeatmap: {
     label: 'Календарная тепловая карта',
     cell: '{{date}}: {{count}}',

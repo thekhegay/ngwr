@@ -253,6 +253,9 @@ export const wrAr: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'مخطط شريطي',
+  },
   calendarHeatmap: {
     label: 'خريطة حرارية للتقويم',
     cell: '{{date}}: {{count}}',
