@@ -5,11 +5,14 @@
   --wr-rating-gap: 0.125rem;
   --wr-rating-empty: var(--wr-border-base);
   --wr-rating-filled: var(--wr-color-warning, #ffba00);
+  --wr-rating-font-family: var(--wr-font-family-base);
 
   display: inline-flex;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-rating-font-family);
 
   &__row {
+    --wr-rating-row-radius: var(--wr-border-radius-sm);
+
     display: inline-flex;
     align-items: center;
     gap: var(--wr-rating-gap);
@@ -17,7 +20,7 @@
 
     &:focus-visible {
       @include theme.focus-ring;
-      border-radius: var(--wr-border-radius-sm);
+      border-radius: var(--wr-rating-row-radius);
     }
   }
 

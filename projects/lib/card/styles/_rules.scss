@@ -7,6 +7,9 @@
   --wr-card-radius: var(--wr-border-radius-base);
   --wr-card-padding-y: var(--wr-space-lg);
   --wr-card-padding-x: var(--wr-space-xl);
+  --wr-card-gap: var(--wr-space-sm);
+  --wr-card-font-family: var(--wr-font-family-base);
+  --wr-card-header-font-weight: var(--wr-font-weight-medium);
   --wr-card-shadow: var(--wr-shadow-xs);
   --wr-card-shadow-hover: var(--wr-shadow-overlay);
 
@@ -17,7 +20,7 @@
   color: var(--wr-card-color);
   @include theme.smooth-br(var(--wr-card-radius));
   box-shadow: var(--wr-card-shadow);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-card-font-family);
   transition:
     box-shadow var(--wr-transition-base),
     transform var(--wr-transition-base);
@@ -48,10 +51,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-card-gap);
     padding: var(--wr-card-padding-y) var(--wr-card-padding-x);
     border-bottom: 1px solid var(--wr-card-border);
-    font-weight: 500;
+    font-weight: var(--wr-card-header-font-weight);
   }
 
   &__body {
@@ -63,7 +66,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-card-gap);
     padding: var(--wr-card-padding-y) var(--wr-card-padding-x);
     border-top: 1px solid var(--wr-card-border);
   }

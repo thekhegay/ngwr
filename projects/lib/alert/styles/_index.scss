@@ -24,7 +24,7 @@ $alert-colors: (
 .wr-alert {
   display: flex;
   align-items: stretch;
-  gap: var(--wr-space-md);
+  gap: var(--wr-alert-gap);
   // Claim the full row even when nested in a flex-row demo wrapper.
   flex: 1 1 100%;
   width: 100%;
@@ -51,10 +51,25 @@ $alert-colors: (
   --wr-alert-message: var(--wr-color-on-surface);
   --wr-alert-close: var(--wr-color-info);
 
+  --wr-alert-radius: var(--wr-border-radius-base);
+  --wr-alert-gap: var(--wr-space-md);
+  --wr-alert-padding-y: var(--wr-space-md);
+  --wr-alert-padding-x: var(--wr-space-lg);
+  --wr-alert-body-gap: var(--wr-space-xs);
+  --wr-alert-icon-margin-top: var(--wr-space-xs);
+  --wr-alert-font-family: var(--wr-font-family-base);
+  --wr-alert-title-font-size: var(--wr-text-sm);
+  --wr-alert-title-font-weight: var(--wr-font-weight-semibold);
+  --wr-alert-title-line-height: var(--wr-text-sm-leading);
+  --wr-alert-message-font-size: var(--wr-text-sm);
+  --wr-alert-message-line-height: var(--wr-text-sm-leading);
+  --wr-alert-close-padding: var(--wr-space-xs);
+  --wr-alert-close-radius: var(--wr-border-radius-sm);
+
   background: var(--wr-alert-bg);
   border: 1px solid var(--wr-alert-border);
-  @include theme.smooth-br(var(--wr-border-radius-base));
-  padding: var(--wr-space-md) var(--wr-space-lg);
+  @include theme.smooth-br(var(--wr-alert-radius));
+  padding: var(--wr-alert-padding-y) var(--wr-alert-padding-x);
 
   &--dismissed {
     display: none;
@@ -64,7 +79,7 @@ $alert-colors: (
     flex: 0 0 auto;
     width: 1.125rem;
     height: 1.125rem;
-    margin-top: var(--wr-space-xs);
+    margin-top: var(--wr-alert-icon-margin-top);
     color: var(--wr-alert-title);
     // A custom `<wr-icon>` sizes via this var, not width/height.
     --wr-icon-size: 1.125rem;
@@ -80,25 +95,25 @@ $alert-colors: (
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-alert-body-gap);
     min-width: 0;
   }
 
   &__title {
     margin: 0;
     color: var(--wr-alert-title);
-    font-family: var(--wr-font-family-base);
-    font-size: var(--wr-text-sm);
-    font-weight: 600;
-    line-height: 1.25rem;
+    font-family: var(--wr-alert-font-family);
+    font-size: var(--wr-alert-title-font-size);
+    font-weight: var(--wr-alert-title-font-weight);
+    line-height: var(--wr-alert-title-line-height);
   }
 
   &__message {
     margin: 0;
     color: var(--wr-alert-message);
-    font-family: var(--wr-font-family-base);
-    font-size: var(--wr-text-sm);
-    line-height: 1.125rem;
+    font-family: var(--wr-alert-font-family);
+    font-size: var(--wr-alert-message-font-size);
+    line-height: var(--wr-alert-message-line-height);
   }
 
   &__close {
@@ -106,10 +121,10 @@ $alert-colors: (
     appearance: none;
     background: transparent;
     border: 0;
-    padding: var(--wr-space-xs);
+    padding: var(--wr-alert-close-padding);
     color: var(--wr-alert-close);
     cursor: pointer;
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-alert-close-radius);
     transition:
       color var(--wr-transition-base),
       background var(--wr-transition-base);

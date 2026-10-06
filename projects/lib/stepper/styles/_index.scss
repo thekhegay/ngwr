@@ -12,6 +12,8 @@ $header-padding-block: 0.25rem;
   --wr-stepper-indicator-size: 1.75rem;
   --wr-stepper-connector: var(--wr-border-base);
   --wr-stepper-muted: var(--wr-color-on-surface-muted);
+  --wr-stepper-gap: var(--wr-space-lg);
+  --wr-stepper-font-family: var(--wr-font-family-base);
 
   display: flex;
   flex-direction: column;
@@ -19,8 +21,8 @@ $header-padding-block: 0.25rem;
   flex: 1 1 100%;
   width: 100%;
   min-width: 0;
-  gap: var(--wr-space-lg);
-  font-family: var(--wr-font-family-base);
+  gap: var(--wr-stepper-gap);
+  font-family: var(--wr-stepper-font-family);
 
   // Opt-in (`responsive`): query the box's own width so a horizontal stepper
   // can drop to vertical when its column is too narrow. The host is already
@@ -52,10 +54,12 @@ $header-padding-block: 0.25rem;
   // A row of same-height steps is unaffected: with equal heights `center` and
   // `flex-start` resolve identically.
   &__header {
+    --wr-stepper-header-gap: var(--wr-space-md);
+
     display: flex;
     align-items: flex-start;
     flex: 1 1 auto;
-    gap: var(--wr-space-md);
+    gap: var(--wr-stepper-header-gap);
     min-width: 0;
 
     &--disabled {
@@ -85,13 +89,15 @@ $header-padding-block: 0.25rem;
   // than the indicator carrying a negative one, so the circle stays inside the
   // button's own box.
   &__header-button {
+    --wr-stepper-header-button-gap: var(--wr-space-md);
+
     appearance: none;
     background: transparent;
     border: 0;
     padding: $header-padding-block 0;
     display: inline-flex;
     align-items: flex-start;
-    gap: var(--wr-space-md);
+    gap: var(--wr-stepper-header-button-gap);
     color: var(--wr-color-on-surface);
     cursor: pointer;
     text-align: start;
@@ -118,14 +124,18 @@ $header-padding-block: 0.25rem;
   }
 
   &__indicator {
+    --wr-stepper-indicator-border: var(--wr-border-base);
+    --wr-stepper-indicator-font-size: var(--wr-text-sm);
+    --wr-stepper-indicator-font-weight: var(--wr-font-weight-semibold);
+
     width: var(--wr-stepper-indicator-size);
     height: var(--wr-stepper-indicator-size);
     border-radius: 50%;
-    border: 1.5px solid var(--wr-border-base);
+    border: 1.5px solid var(--wr-stepper-indicator-border);
     background: var(--wr-color-surface);
     color: var(--wr-stepper-muted);
-    font-size: var(--wr-text-sm);
-    font-weight: 600;
+    font-size: var(--wr-stepper-indicator-font-size);
+    font-weight: var(--wr-stepper-indicator-font-weight);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -180,11 +190,15 @@ $header-padding-block: 0.25rem;
   }
 
   &__label {
+    --wr-stepper-label-gap: var(--wr-space-xs);
+    --wr-stepper-label-font-size: var(--wr-text-sm);
+    --wr-stepper-label-font-weight: var(--wr-font-weight-medium);
+
     display: inline-flex;
     flex-direction: column;
-    gap: 0.0625rem;
-    font-size: var(--wr-text-sm);
-    font-weight: 500;
+    gap: var(--wr-stepper-label-gap);
+    font-size: var(--wr-stepper-label-font-size);
+    font-weight: var(--wr-stepper-label-font-weight);
     line-height: $label-line-height;
     // The other half of the shrink above: a flex item's automatic minimum size
     // is its min-content width, and for a German compound noun that IS the whole
@@ -210,21 +224,37 @@ $header-padding-block: 0.25rem;
     color: var(--wr-color-primary-ink);
   }
 
-  &__optional,
-  &__description {
-    font-size: var(--wr-text-xs);
-    font-weight: 500;
+  // `__description` is listed FIRST on purpose: `gen:css-vars` attributes a
+  // hook to the head of the selector list, and `__optional` re-declares
+  // `-letter-spacing` ten lines below — heading the list with it documented a
+  // default on the one element where it never applies.
+  &__description,
+  &__optional {
+    // One name for the two elements: both are the step's hint line.
+    --wr-stepper-hint-font-size: var(--wr-text-xs);
+    --wr-stepper-hint-font-weight: var(--wr-font-weight-medium);
+    --wr-stepper-hint-letter-spacing: var(--wr-tracking-normal);
+
+    font-size: var(--wr-stepper-hint-font-size);
+    font-weight: var(--wr-stepper-hint-font-weight);
     color: var(--wr-stepper-muted);
     text-transform: none;
-    letter-spacing: 0.01em;
+    letter-spacing: var(--wr-stepper-hint-letter-spacing);
   }
 
   &__optional {
+    --wr-stepper-hint-letter-spacing: var(--wr-tracking-wider);
+
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: var(--wr-stepper-hint-letter-spacing);
   }
 
   &__connector {
+    --wr-stepper-connector-margin-inline: var(--wr-space-sm);
+    // Painted only by the vertical layouts below, which stack the thread
+    // between two circles instead of running it across the row.
+    --wr-stepper-connector-margin-block: var(--wr-space-xs);
+
     flex: 1 1 auto;
     height: 1.5px;
     background: var(--wr-stepper-connector);
@@ -235,7 +265,7 @@ $header-padding-block: 0.25rem;
     // Same y the centred version produced for a row of equal-height steps — and
     // unlike it, the same y when one step grows a hint line.
     margin-block-start: calc(#{$header-padding-block} + var(--wr-stepper-indicator-size) / 2 - 0.75px);
-    margin-inline: var(--wr-space-sm);
+    margin-inline: var(--wr-stepper-connector-margin-inline);
   }
 
   &--vertical &__connector {
@@ -252,7 +282,7 @@ $header-padding-block: 0.25rem;
     // physical `margin-left` is therefore the TRAILING side under `dir="rtl"`,
     // and the line paints flush against the row's right edge, half an indicator
     // (14px) clear of every circle it is supposed to join.
-    margin-block: var(--wr-space-xs);
+    margin-block: var(--wr-stepper-connector-margin-block);
     margin-inline: calc(var(--wr-stepper-indicator-size) / 2) 0;
     align-self: stretch;
     flex: 0 0 auto;
@@ -292,7 +322,7 @@ $header-padding-block: 0.25rem;
     min-height: 1.25rem;
     height: auto;
     // Logical for the same reason as the `--vertical` rule above.
-    margin-block: var(--wr-space-xs);
+    margin-block: var(--wr-stepper-connector-margin-block);
     margin-inline: calc(var(--wr-stepper-indicator-size) / 2) 0;
     align-self: stretch;
     flex: 0 0 auto;

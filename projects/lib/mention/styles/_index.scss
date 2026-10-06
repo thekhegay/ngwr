@@ -24,31 +24,43 @@
 }
 
 .wr-mention-panel {
+  --wr-mention-panel-border: var(--wr-border-base);
+  --wr-mention-panel-radius: var(--wr-border-radius-base);
+  --wr-mention-panel-font-family: var(--wr-font-family-base);
+  --wr-mention-panel-font-size: var(--wr-text-sm);
+  --wr-mention-panel-list-padding-y: var(--wr-space-xs);
+  --wr-mention-panel-option-padding-y: var(--wr-space-sm);
+  --wr-mention-panel-option-padding-x: var(--wr-space-md);
+  --wr-mention-panel-option-line-height: var(--wr-text-sm-leading);
+  --wr-mention-panel-empty-padding-y: var(--wr-space-sm);
+  --wr-mention-panel-empty-padding-x: var(--wr-space-md);
+  --wr-mention-panel-empty-font-size: var(--wr-text-sm);
+
   display: block;
   min-width: 12rem;
   max-width: 20rem;
   background: var(--wr-color-surface);
-  border: 1px solid var(--wr-border-base);
-  @include theme.smooth-br(var(--wr-border-radius-base));
+  border: 1px solid var(--wr-mention-panel-border);
+  @include theme.smooth-br(var(--wr-mention-panel-radius));
   box-shadow: var(--wr-shadow-overlay);
-  font-family: var(--wr-font-family-base);
-  font-size: var(--wr-text-sm);
+  font-family: var(--wr-mention-panel-font-family);
+  font-size: var(--wr-mention-panel-font-size);
   color: var(--wr-color-on-surface);
   overflow: hidden;
 
   &__list {
     list-style: none;
     margin: 0;
-    padding: var(--wr-space-xs) 0;
+    padding: var(--wr-mention-panel-list-padding-y) 0;
     max-height: 14rem;
     overflow-y: auto;
   }
 
   &__option {
-    padding: var(--wr-space-sm) var(--wr-space-md);
+    padding: var(--wr-mention-panel-option-padding-y) var(--wr-mention-panel-option-padding-x);
     cursor: pointer;
     user-select: none;
-    line-height: 1.25rem;
+    line-height: var(--wr-mention-panel-option-line-height);
     transition: background var(--wr-transition-base);
     // Positioning context for the `--active` cursor bar below. Nothing else in
     // an option is out of flow, so this establishes one for that alone.
@@ -83,9 +95,9 @@
   // removed. Kept because `.wr-*` classes are public API and deleting one is a
   // breaking change for no gain; a consumer styling it simply sees no element.
   &__empty {
-    padding: var(--wr-space-sm) var(--wr-space-md);
+    padding: var(--wr-mention-panel-empty-padding-y) var(--wr-mention-panel-empty-padding-x);
     color: var(--wr-color-on-surface-muted);
-    font-size: var(--wr-text-sm);
+    font-size: var(--wr-mention-panel-empty-font-size);
     user-select: none;
   }
 }

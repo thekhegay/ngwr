@@ -4,8 +4,11 @@
   --wr-switch-track-width: 2rem;
   --wr-switch-track-height: 1.125rem; // md = checkbox/radio box (18px)
   --wr-switch-thumb-size: 0.875rem;
+  --wr-switch-track-radius: var(--wr-border-radius-pill);
+  --wr-switch-font-family: var(--wr-font-family-base);
   --wr-switch-font-size: var(--wr-text-sm);
   --wr-switch-line-height: var(--wr-control-line-height-md);
+  --wr-switch-label-gap: var(--wr-space-sm);
   --wr-switch-bg: var(--wr-border-base);
   --wr-switch-bg-checked: var(--wr-color-primary);
   --wr-switch-thumb: var(--wr-color-surface);
@@ -14,14 +17,14 @@
   display: inline-flex;
   vertical-align: middle;
   color: var(--wr-switch-color);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-switch-font-family);
   font-size: var(--wr-switch-font-size);
   line-height: var(--wr-switch-line-height);
 
   &__label {
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-switch-label-gap);
     cursor: pointer;
     user-select: none;
   }
@@ -48,7 +51,7 @@
     width: var(--wr-switch-track-width);
     height: var(--wr-switch-track-height);
     background: var(--wr-switch-bg);
-    border-radius: var(--wr-border-radius-pill);
+    border-radius: var(--wr-switch-track-radius);
     transition: background var(--wr-transition-base);
   }
 

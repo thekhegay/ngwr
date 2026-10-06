@@ -121,9 +121,20 @@ describe('WrInputNumber stepper geometry', () => {
     // Measured, not derived: with the column unclipped, a 5px-cornered tint
     // crossed the curved border at `lg`. The end radius is oversized on purpose
     // and scaled down to the half-button.
+    //
+    // The oversize used to be a literal `999px` and is now the pill token,
+    // which is the library's own name for exactly this — so what the spec holds
+    // is the chain rather than the number: both caps read the component's hook,
+    // and the hook reads `--wr-border-radius-pill`. A hook quietly re-pointed
+    // at an ordinary corner fails here.
     const step = block('.wr-input-number__step', block('&--rounded').start).start;
-    expect(block('&:first-child', step).body).toMatch(/border-start-end-radius:\s*999px\s*;/);
-    expect(block('&:last-child', step).body).toMatch(/border-end-end-radius:\s*999px\s*;/);
+    expect(block('&:first-child', step).body).toMatch(
+      /border-start-end-radius:\s*var\(--wr-input-number-step-cap-radius\)\s*;/
+    );
+    expect(block('&:last-child', step).body).toMatch(
+      /border-end-end-radius:\s*var\(--wr-input-number-step-cap-radius\)\s*;/
+    );
+    expect(STYLES).toMatch(/--wr-input-number-step-cap-radius:\s*var\(--wr-border-radius-pill\)\s*;/);
   });
 
   describe('in the rendered DOM', () => {

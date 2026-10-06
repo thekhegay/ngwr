@@ -10,14 +10,18 @@
 // rules that were here, for the same twelve placements.
 
 .wr-popover-overlay > * {
+  --wr-popover-border: var(--wr-border-base);
+  --wr-popover-radius: var(--wr-border-radius-base);
+  --wr-popover-font-family: var(--wr-font-family-base);
+
   display: block;
   min-width: 8rem;
   max-width: 22rem;
   background: var(--wr-color-surface);
-  border: 1px solid var(--wr-border-base);
-  @include theme.smooth-br(var(--wr-border-radius-base));
+  border: 1px solid var(--wr-popover-border);
+  @include theme.smooth-br(var(--wr-popover-radius));
   box-shadow: var(--wr-shadow-overlay);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-popover-font-family);
   color: var(--wr-color-on-surface);
   animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
   // rtl-ok: scale-in growth corner — `transform-origin` takes no logical keywords
@@ -49,18 +53,24 @@
   --wr-tooltip-bg: var(--wr-color-surface);
   --wr-tooltip-color: var(--wr-color-on-surface);
   --wr-tooltip-border: var(--wr-border-base);
+  --wr-tooltip-radius: var(--wr-border-radius-sm);
+  --wr-tooltip-padding-y: var(--wr-space-xs);
+  --wr-tooltip-padding-x: var(--wr-space-sm);
+  --wr-tooltip-font-family: var(--wr-font-family-base);
+  --wr-tooltip-font-size: var(--wr-text-xs);
+  --wr-tooltip-line-height: var(--wr-text-xs-leading);
 
   position: relative;
   display: inline-block;
   max-width: 18rem;
-  padding: var(--wr-space-xs) var(--wr-space-sm);
+  padding: var(--wr-tooltip-padding-y) var(--wr-tooltip-padding-x);
   background: var(--wr-tooltip-bg);
   color: var(--wr-tooltip-color);
   border: 1px solid var(--wr-tooltip-border);
-  border-radius: var(--wr-border-radius-sm);
-  font-family: var(--wr-font-family-base);
-  font-size: var(--wr-text-xs);
-  line-height: 1rem;
+  border-radius: var(--wr-tooltip-radius);
+  font-family: var(--wr-tooltip-font-family);
+  font-size: var(--wr-tooltip-font-size);
+  line-height: var(--wr-tooltip-line-height);
   box-shadow: var(--wr-shadow-overlay);
   animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
   // rtl-ok: scale-in growth corner — `transform-origin` takes no logical keywords
@@ -82,6 +92,8 @@
 // them makes the chip dark — a muted grey picked against the light surface would
 // be the one thing that did not follow.
 .wr-chart-tooltip {
+  --wr-chart-tooltip-gap: var(--wr-space-sm);
+
   display: inline-flex;
   // Its own text's width, up to the tooltip's `max-width`, whatever room the pane has
   // left. The CDK pushes a chip against the viewport edge by its ROUNDED width, which
@@ -91,7 +103,7 @@
   flex-shrink: 0;
   width: max-content;
   align-items: center;
-  gap: var(--wr-space-sm);
+  gap: var(--wr-chart-tooltip-gap);
 
   &__swatch {
     flex: 0 0 auto;
@@ -101,7 +113,9 @@
   }
 
   &__value {
-    font-weight: var(--wr-font-weight-semibold);
+    --wr-chart-tooltip-value-font-weight: var(--wr-font-weight-semibold);
+
+    font-weight: var(--wr-chart-tooltip-value-font-weight);
     font-variant-numeric: tabular-nums;
 
     // Alone, with no label or swatch beside it, the value is a whole sentence (a
@@ -121,7 +135,7 @@
   $pane: '.wr-popover-overlay',
   $panel: '> *',
   $background: var(--wr-color-surface),
-  $border: var(--wr-border-base)
+  $border: var(--wr-popover-border)
 );
 
 // Tooltip: a known child, with the chip's border carried onto the arrow's outward

@@ -9,13 +9,16 @@
   --wr-spotlight-x: 50%;
   --wr-spotlight-y: 50%;
   --wr-spotlight-color: rgba(var(--wr-color-on-surface-rgb), 0.15);
+  --wr-spotlight-card-radius: var(--wr-border-radius-lg);
+  --wr-spotlight-card-border: var(--wr-border-base);
+  --wr-spotlight-card-padding: var(--wr-space-xl);
 
   position: relative;
   display: block;
-  border-radius: 1.5rem;
-  border: 1px solid var(--wr-border-base);
+  border-radius: var(--wr-spotlight-card-radius);
+  border: 1px solid var(--wr-spotlight-card-border);
   background-color: var(--wr-color-surface);
-  padding: 2rem;
+  padding: var(--wr-spotlight-card-padding);
   overflow: hidden;
   color: var(--wr-color-on-surface);
 

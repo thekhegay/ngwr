@@ -180,6 +180,10 @@ describe('which zone wrappers the stylesheet lays out', () => {
   });
 
   it('scales the zone gap with density', () => {
-    expect(scss).toMatch(/&__zone \{[^}]*gap: calc\(0\.5rem \* var\(--wr-density-gap, 1\)\);/);
+    // Read through the hook rather than for the literal: the gap is published
+    // as `--wr-toolbar-zone-gap` so a consumer can retune the zone rhythm, and
+    // the density multiplier is what this spec is actually for.
+    expect(scss).toMatch(/--wr-toolbar-zone-gap:\s*var\(--wr-space-sm\);/);
+    expect(scss).toMatch(/&__zone \{[^}]*gap: calc\(var\(--wr-toolbar-zone-gap\) \* var\(--wr-density-gap, 1\)\);/);
   });
 });

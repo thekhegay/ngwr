@@ -28,6 +28,7 @@
   --wr-window-title-size: var(--wr-text-sm);
   --wr-window-action-size: 1.5rem;
   --wr-window-anim-duration: 0.18s;
+  --wr-window-font-family: var(--wr-font-family-base);
 
   position: fixed;
   display: flex;
@@ -36,7 +37,7 @@
   border: 1px solid var(--wr-window-border);
   @include theme.smooth-br(var(--wr-window-radius));
   box-shadow: var(--wr-shadow-modal);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-window-font-family);
   color: var(--wr-color-on-surface);
   // The resize grips live entirely OUTSIDE the padding box (see `&__handle`),
   // and `overflow: hidden` clipped every pixel of them — including hit-testing,
@@ -88,13 +89,16 @@
 
   // Chrome (title bar)
   &__chrome {
+    --wr-window-chrome-padding-inline-start: var(--wr-space-md);
+    --wr-window-chrome-padding-inline-end: var(--wr-space-xs);
+
     flex: 0 0 auto;
     display: flex;
     align-items: center;
     height: var(--wr-window-chrome-height);
     padding-block: 0;
     // Roomy where the title starts, tight where the action cluster ends.
-    padding-inline: var(--wr-space-md) var(--wr-space-xs);
+    padding-inline: var(--wr-window-chrome-padding-inline-start) var(--wr-window-chrome-padding-inline-end);
     background: var(--wr-window-chrome-bg);
     color: var(--wr-window-chrome-color);
     cursor: grab;
@@ -108,22 +112,29 @@
   }
 
   &__title {
+    --wr-window-title-font-weight: var(--wr-font-weight-semibold);
+    --wr-window-title-line-height: var(--wr-text-sm-leading);
+
     flex: 1 1 auto;
     font-size: var(--wr-window-title-size);
-    font-weight: 600;
-    line-height: 1.25rem;
+    font-weight: var(--wr-window-title-font-weight);
+    line-height: var(--wr-window-title-line-height);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   &__title-extra {
+    --wr-window-title-extra-gap: var(--wr-space-sm);
+    --wr-window-title-extra-padding-inline-end: var(--wr-space-sm);
+    --wr-window-title-extra-font-size: var(--wr-text-xs);
+
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-sm);
-    padding-inline-end: var(--wr-space-sm);
-    font-size: var(--wr-text-xs);
+    gap: var(--wr-window-title-extra-gap);
+    padding-inline-end: var(--wr-window-title-extra-padding-inline-end);
+    font-size: var(--wr-window-title-extra-font-size);
 
     &:empty {
       display: none;
@@ -131,13 +142,21 @@
   }
 
   &__chrome-actions {
+    --wr-window-chrome-actions-gap: var(--wr-space-xs);
+    // Zero unless an OS preset parks the cluster against the frame edge — the
+    // macOS block below re-declares it rather than adding a second property.
+    --wr-window-chrome-actions-padding-inline-start: 0;
+
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-window-chrome-actions-gap);
+    padding-inline-start: var(--wr-window-chrome-actions-padding-inline-start);
   }
 
   &__chrome-action {
+    --wr-window-chrome-action-radius: var(--wr-border-radius-sm);
+
     appearance: none;
     background: transparent;
     border: 0;
@@ -149,7 +168,7 @@
     justify-content: center;
     color: var(--wr-color-on-surface-muted);
     cursor: pointer;
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-window-chrome-action-radius);
     transition:
       color var(--wr-transition-base),
       background var(--wr-transition-base);
@@ -182,8 +201,9 @@
       padding-inline-end: 5rem;
     }
     .wr-window__chrome-actions {
-      gap: var(--wr-space-sm);
-      padding-inline-start: var(--wr-space-sm); // gap from the edge the cluster is parked on
+      --wr-window-chrome-actions-gap: var(--wr-space-sm);
+      // gap from the edge the cluster is parked on
+      --wr-window-chrome-actions-padding-inline-start: var(--wr-space-sm);
     }
     .wr-window__chrome-action {
       width: 0.875rem; // 14px — bigger than the prior 12px to match native
@@ -231,16 +251,18 @@
       height: 2.5rem;
     }
     .wr-window__title {
-      font-weight: 500;
+      --wr-window-title-font-weight: var(--wr-font-weight-medium);
     }
   }
 
   // Body
   &__body {
+    --wr-window-body-padding: var(--wr-space-lg);
+
     flex: 1 1 auto;
     min-height: 0;
     overflow: auto;
-    padding: var(--wr-space-lg) var(--wr-space-lg);
+    padding: var(--wr-window-body-padding);
     user-select: text;
   }
 
@@ -249,15 +271,20 @@
   }
 
   &__status-bar {
+    --wr-window-status-bar-gap: var(--wr-space-sm);
+    --wr-window-status-bar-padding-y: var(--wr-space-xs);
+    --wr-window-status-bar-padding-x: var(--wr-space-md);
+    --wr-window-status-bar-font-size: var(--wr-text-xs);
+
     flex: 0 0 auto;
     display: flex;
     align-items: center;
-    gap: var(--wr-space-sm);
-    padding: var(--wr-space-xs) var(--wr-space-md);
+    gap: var(--wr-window-status-bar-gap);
+    padding: var(--wr-window-status-bar-padding-y) var(--wr-window-status-bar-padding-x);
     border-top: 1px solid var(--wr-window-border);
     background: var(--wr-color-fill);
     @include _corner-pair(border-end-start-radius, border-end-end-radius, var(--wr-window-radius));
-    font-size: var(--wr-text-xs);
+    font-size: var(--wr-window-status-bar-font-size);
     color: var(--wr-color-on-surface-muted);
 
     &:empty {
@@ -366,12 +393,14 @@
 // Snap hint — translucent rectangle showing the target region the
 //                 window will jump into when the pointer is released.
 .wr-window__snap-hint {
+  --wr-window-snap-hint-radius: var(--wr-border-radius-base);
+
   position: fixed;
   pointer-events: none;
   z-index: var(--wr-z-window, 1100);
   background: rgba(var(--wr-color-primary-rgb), 0.18);
   border: 2px solid var(--wr-color-primary);
-  border-radius: var(--wr-border-radius-base);
+  border-radius: var(--wr-window-snap-hint-radius);
   transition: all 0.12s ease;
 
   // rtl-ok: the `inset` shorthands below paint physical screen regions, not
@@ -403,6 +432,8 @@
 
 // Window taskbar — strip of restore tabs for minimized windows.
 .wr-window-taskbar {
+  --wr-window-taskbar-font-family: var(--wr-font-family-base);
+
   position: fixed;
   // rtl-ok: centred with a physical translateX, so the pair must stay physical
   left: 50%;
@@ -410,7 +441,7 @@
   z-index: var(--wr-z-window, 1100);
   display: block;
   pointer-events: none;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-window-taskbar-font-family);
 
   &--bottom {
     bottom: calc(0.75rem + env(safe-area-inset-bottom));
@@ -420,13 +451,18 @@
   }
 
   &__rail {
+    --wr-window-taskbar-rail-gap: var(--wr-space-xs);
+    --wr-window-taskbar-rail-padding: var(--wr-space-xs);
+    --wr-window-taskbar-rail-border: var(--wr-border-base);
+    --wr-window-taskbar-rail-radius: var(--wr-border-radius-base);
+
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-xs);
-    padding: var(--wr-space-xs);
+    gap: var(--wr-window-taskbar-rail-gap);
+    padding: var(--wr-window-taskbar-rail-padding);
     background: var(--wr-color-surface);
-    border: 1px solid var(--wr-border-base);
-    @include theme.smooth-br(var(--wr-border-radius-base));
+    border: 1px solid var(--wr-window-taskbar-rail-border);
+    @include theme.smooth-br(var(--wr-window-taskbar-rail-radius));
     box-shadow: var(--wr-shadow-overlay);
     pointer-events: auto;
   }
@@ -435,16 +471,23 @@
   // close beside it has to be a sibling, not a control nested in a control.
   // The class stays: consumers style against it, and it still names the pill.
   &__tab {
+    --wr-window-taskbar-tab-gap: var(--wr-space-xs);
+    --wr-window-taskbar-tab-padding-inline-start: var(--wr-space-md);
+    --wr-window-taskbar-tab-padding-inline-end: var(--wr-space-xs);
+    --wr-window-taskbar-tab-radius: var(--wr-border-radius-sm);
+    --wr-window-taskbar-tab-font-size: var(--wr-text-sm);
+    --wr-window-taskbar-tab-line-height: var(--wr-text-sm-leading);
+
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-window-taskbar-tab-gap);
     // Roomy where the title starts, tight against the trailing close button,
     // which now carries its own padding to reach a 24px target.
-    padding-inline: var(--wr-space-md) var(--wr-space-xs);
-    border-radius: var(--wr-border-radius-sm);
+    padding-inline: var(--wr-window-taskbar-tab-padding-inline-start) var(--wr-window-taskbar-tab-padding-inline-end);
+    border-radius: var(--wr-window-taskbar-tab-radius);
     color: var(--wr-color-on-surface);
-    font-size: var(--wr-text-sm);
-    line-height: 1.25rem;
+    font-size: var(--wr-window-taskbar-tab-font-size);
+    line-height: var(--wr-window-taskbar-tab-line-height);
     max-width: 12rem;
     transition: background var(--wr-transition-base);
 
@@ -454,16 +497,19 @@
   }
 
   &__tab-restore {
+    --wr-window-taskbar-tab-restore-padding-block: var(--wr-space-xs);
+    --wr-window-taskbar-tab-restore-radius: var(--wr-border-radius-sm);
+
     appearance: none;
     background: transparent;
     border: 0;
-    padding-block: var(--wr-space-xs);
+    padding-block: var(--wr-window-taskbar-tab-restore-padding-block);
     padding-inline: 0;
     flex: 1 1 auto;
     min-width: 0;
     display: inline-flex;
     align-items: center;
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-window-taskbar-tab-restore-radius);
     color: inherit;
     font-family: inherit;
     font-size: inherit;
@@ -486,6 +532,8 @@
   }
 
   &__tab-close {
+    --wr-window-taskbar-tab-close-radius: var(--wr-border-radius-sm);
+
     appearance: none;
     border: 0;
     background: transparent;
@@ -499,7 +547,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-window-taskbar-tab-close-radius);
     color: var(--wr-color-on-surface-muted);
     cursor: pointer;
 

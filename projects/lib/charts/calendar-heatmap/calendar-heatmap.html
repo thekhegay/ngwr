@@ -2,9 +2,9 @@
   class="wr-calendar-heatmap__grid"
   role="img"
   [attr.aria-label]="resolvedAriaLabel()"
-  [style.--wr-heatmap-cell-size.px]="cellSize()"
-  [style.--wr-heatmap-cell-gap.px]="cellGap()"
-  [style.--wr-heatmap-columns]="columnCount()"
+  [style.--wr-calendar-heatmap-cell-size.px]="cellSize()"
+  [style.--wr-calendar-heatmap-cell-gap.px]="cellGap()"
+  [style.--wr-calendar-heatmap-columns]="columnCount()"
 >
   @if (showLabels()) {
     <div class="wr-calendar-heatmap__weekdays">

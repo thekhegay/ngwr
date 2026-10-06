@@ -183,7 +183,7 @@ export class WrCalendarHeatmap {
     // Counted in WEEKS rather than in days. It used to allocate `weeks * 7`
     // days and then align the start back to a Sunday, which adds up to six
     // more — so any alignment at all produced one column more than asked for:
-    // 54 for the default 53, with `--wr-heatmap-columns` reporting 54 and a
+    // 54 for the default 53, with `--wr-calendar-heatmap-columns` reporting 54 and a
     // container sized from `weeks * (cellSize + cellGap)` one column short.
     const start = new Date(end);
     start.setDate(end.getDate() - end.getDay() - (weeks - 1) * 7);

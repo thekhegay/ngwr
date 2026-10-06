@@ -15,15 +15,23 @@
 @use '../../icon/styles' as icon-styles; // WrIcon
 
 .wr-command-palette {
+  // The top inset is the modal's own drop from the viewport edge, not a step on
+  // the spacing scale — the scale tops out at 1.5rem.
+  --wr-command-palette-padding-top: 6rem;
+  --wr-command-palette-padding-x: var(--wr-space-lg);
+  --wr-command-palette-padding-bottom: var(--wr-space-lg);
+  --wr-command-palette-font-family: var(--wr-font-family-base);
+
   position: fixed;
   inset: 0;
   z-index: 1000;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 6rem 1rem 1rem;
+  padding: var(--wr-command-palette-padding-top) var(--wr-command-palette-padding-x)
+    var(--wr-command-palette-padding-bottom);
   pointer-events: none;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-command-palette-font-family);
 
   &__backdrop {
     position: absolute;
@@ -35,12 +43,14 @@
   }
 
   &__panel {
+    --wr-command-palette-panel-radius: var(--wr-border-radius-base);
+
     position: relative;
     width: 100%;
     max-width: 36rem;
     background: var(--wr-color-surface);
     border: 1px solid var(--wr-border-base);
-    @include theme.smooth-br(var(--wr-border-radius-base));
+    @include theme.smooth-br(var(--wr-command-palette-panel-radius));
     box-shadow: var(--wr-shadow-modal);
     overflow: hidden;
     pointer-events: auto;
@@ -48,10 +58,14 @@
   }
 
   &__search {
+    --wr-command-palette-search-gap: var(--wr-space-md);
+    --wr-command-palette-search-padding: var(--wr-space-lg);
+    --wr-command-palette-search-font-size: var(--wr-text-base);
+
     display: flex;
     align-items: center;
-    gap: var(--wr-space-md);
-    padding: var(--wr-space-lg) var(--wr-space-lg);
+    gap: var(--wr-command-palette-search-gap);
+    padding: var(--wr-command-palette-search-padding);
     border-bottom: 1px solid var(--wr-border-base);
     color: var(--wr-color-on-surface-muted);
 
@@ -65,7 +79,7 @@
       padding: 0;
       color: var(--wr-color-on-surface);
       font-family: inherit;
-      font-size: var(--wr-text-base);
+      font-size: var(--wr-command-palette-search-font-size);
 
       &::placeholder {
         color: var(--wr-color-placeholder);
@@ -74,15 +88,22 @@
   }
 
   &__hint {
-    padding: 0.0625rem 0.375rem;
+    --wr-command-palette-hint-padding-y: var(--wr-control-padding-y-sm);
+    --wr-command-palette-hint-padding-x: var(--wr-control-padding-x-sm);
+    --wr-command-palette-hint-radius: var(--wr-border-radius-sm);
+    --wr-command-palette-hint-font-size: var(--wr-text-xs);
+    --wr-command-palette-hint-font-weight: var(--wr-font-weight-medium);
+    --wr-command-palette-hint-letter-spacing: var(--wr-tracking-wide);
+
+    padding: var(--wr-command-palette-hint-padding-y) var(--wr-command-palette-hint-padding-x);
     border: 1px solid var(--wr-border-base);
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-command-palette-hint-radius);
     color: var(--wr-color-on-surface-muted);
     font-family: inherit;
-    font-size: var(--wr-text-xs);
-    font-weight: var(--wr-font-weight-medium);
+    font-size: var(--wr-command-palette-hint-font-size);
+    font-weight: var(--wr-command-palette-hint-font-weight);
     text-transform: uppercase;
-    letter-spacing: var(--wr-tracking-wide);
+    letter-spacing: var(--wr-command-palette-hint-letter-spacing);
   }
 
   // Collapses entirely when the host projects nothing, so a palette that wants
@@ -92,24 +113,33 @@
   }
 
   &__footer {
+    --wr-command-palette-footer-gap: var(--wr-space-sm);
+    --wr-command-palette-footer-padding-y: var(--wr-space-sm);
+    --wr-command-palette-footer-padding-x: var(--wr-space-lg);
+    --wr-command-palette-footer-font-size: var(--wr-text-xs);
+
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: var(--wr-space-sm);
-    padding: var(--wr-space-sm) var(--wr-space-lg);
+    gap: var(--wr-command-palette-footer-gap);
+    padding: var(--wr-command-palette-footer-padding-y) var(--wr-command-palette-footer-padding-x);
     border-top: 1px solid var(--wr-border-base);
     color: var(--wr-color-on-surface-muted);
-    font-size: var(--wr-text-xs);
+    font-size: var(--wr-command-palette-footer-font-size);
   }
 
   &__body {
+    --wr-command-palette-body-padding: var(--wr-space-sm);
+
     max-height: 24rem;
     overflow-y: auto;
-    padding: var(--wr-space-sm);
+    padding: var(--wr-command-palette-body-padding);
   }
 
   &__group {
-    padding: var(--wr-space-xs) 0;
+    --wr-command-palette-group-padding-y: var(--wr-space-xs);
+
+    padding: var(--wr-command-palette-group-padding-y) 0;
 
     &:first-child {
       padding-top: 0;
@@ -117,24 +147,39 @@
   }
 
   &__group-title {
-    padding: var(--wr-space-sm) var(--wr-space-md) var(--wr-space-xs);
+    --wr-command-palette-group-title-padding-top: var(--wr-space-sm);
+    --wr-command-palette-group-title-padding-x: var(--wr-space-md);
+    --wr-command-palette-group-title-padding-bottom: var(--wr-space-xs);
+    --wr-command-palette-group-title-font-size: var(--wr-text-xs);
+    --wr-command-palette-group-title-font-weight: var(--wr-font-weight-semibold);
+    --wr-command-palette-group-title-letter-spacing: var(--wr-tracking-wide);
+
+    padding: var(--wr-command-palette-group-title-padding-top) var(--wr-command-palette-group-title-padding-x)
+      var(--wr-command-palette-group-title-padding-bottom);
     color: var(--wr-color-on-surface-muted);
-    font-size: var(--wr-text-xs);
-    font-weight: var(--wr-font-weight-semibold);
+    font-size: var(--wr-command-palette-group-title-font-size);
+    font-weight: var(--wr-command-palette-group-title-font-weight);
     text-transform: uppercase;
-    letter-spacing: var(--wr-tracking-wide);
+    letter-spacing: var(--wr-command-palette-group-title-letter-spacing);
   }
 
   &__option {
+    --wr-command-palette-option-gap: var(--wr-space-md);
+    --wr-command-palette-option-padding-y: var(--wr-space-sm);
+    --wr-command-palette-option-padding-x: var(--wr-space-md);
+    --wr-command-palette-option-radius: var(--wr-border-radius-sm);
+    --wr-command-palette-option-font-size: var(--wr-text-sm);
+    --wr-command-palette-option-line-height: var(--wr-leading-tight);
+
     display: flex;
     align-items: center;
-    gap: var(--wr-space-md);
-    padding: var(--wr-space-sm) var(--wr-space-md);
-    border-radius: var(--wr-border-radius-sm);
+    gap: var(--wr-command-palette-option-gap);
+    padding: var(--wr-command-palette-option-padding-y) var(--wr-command-palette-option-padding-x);
+    border-radius: var(--wr-command-palette-option-radius);
     cursor: pointer;
     color: var(--wr-color-on-surface);
-    font-size: var(--wr-text-sm);
-    line-height: var(--wr-leading-tight);
+    font-size: var(--wr-command-palette-option-font-size);
+    line-height: var(--wr-command-palette-option-line-height);
     user-select: none;
     // Positioning context for the `--active` cursor bar below. The option is a
     // flex row with nothing out of flow inside it, so it establishes none today.
@@ -199,38 +244,53 @@
   }
 
   &__option-label {
-    font-weight: var(--wr-font-weight-medium);
+    --wr-command-palette-option-label-font-weight: var(--wr-font-weight-medium);
+
+    font-weight: var(--wr-command-palette-option-label-font-weight);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   &__option-description {
-    margin-top: 0.0625rem;
+    --wr-command-palette-option-description-margin-top: var(--wr-space-xs);
+    --wr-command-palette-option-description-font-size: var(--wr-text-xs);
+
+    margin-top: var(--wr-command-palette-option-description-margin-top);
     color: var(--wr-color-on-surface-muted);
-    font-size: var(--wr-text-xs);
+    font-size: var(--wr-command-palette-option-description-font-size);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   &__option-shortcut {
+    --wr-command-palette-option-shortcut-padding-y: var(--wr-control-padding-y-sm);
+    --wr-command-palette-option-shortcut-padding-x: var(--wr-control-padding-x-sm);
+    --wr-command-palette-option-shortcut-radius: var(--wr-border-radius-sm);
+    --wr-command-palette-option-shortcut-font-size: var(--wr-text-xs);
+    --wr-command-palette-option-shortcut-font-weight: var(--wr-font-weight-medium);
+
     flex: 0 0 auto;
-    padding: 0.0625rem 0.375rem;
+    padding: var(--wr-command-palette-option-shortcut-padding-y) var(--wr-command-palette-option-shortcut-padding-x);
     border: 1px solid var(--wr-border-base);
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-command-palette-option-shortcut-radius);
     background: var(--wr-color-hover);
     color: var(--wr-color-on-surface-muted);
     font-family: inherit;
-    font-size: var(--wr-text-xs);
-    font-weight: var(--wr-font-weight-medium);
+    font-size: var(--wr-command-palette-option-shortcut-font-size);
+    font-weight: var(--wr-command-palette-option-shortcut-font-weight);
   }
 
   &__empty {
-    padding: var(--wr-space-xl) var(--wr-space-lg);
+    --wr-command-palette-empty-padding-y: var(--wr-space-xl);
+    --wr-command-palette-empty-padding-x: var(--wr-space-lg);
+    --wr-command-palette-empty-font-size: var(--wr-text-sm);
+
+    padding: var(--wr-command-palette-empty-padding-y) var(--wr-command-palette-empty-padding-x);
     text-align: center;
     color: var(--wr-color-on-surface-muted);
-    font-size: var(--wr-text-sm);
+    font-size: var(--wr-command-palette-empty-font-size);
   }
 }
 
