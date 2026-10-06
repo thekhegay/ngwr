@@ -73,6 +73,10 @@ const FALLBACK_COLORS = [
   host: { class: 'wr-line-chart' },
 })
 export class WrLineChart {
+  /**
+   * One entry per line. A series with no `color` takes the next entry from the
+   * chart's fallback palette, so several lines are distinguishable unconfigured.
+   */
   readonly series = input<readonly WrLineSeries[]>([]);
 
   /**

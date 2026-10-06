@@ -31,6 +31,10 @@ import type { WrTableSortDirection } from './types';
   host: { '[class]': 'classes()' },
 })
 export class WrTableSort {
+  /**
+   * Which way the column is currently sorted, or `null` for unsorted — the three
+   * states the indicator cycles through. Drive it from the table's `sort` state.
+   */
   readonly direction = input<WrTableSortDirection>(null);
 
   protected readonly classes = computed(() => {

@@ -39,9 +39,18 @@ import { ROOT_PATH } from './paths/root';
 
 const LIB = resolve(ROOT_PATH, 'projects/lib');
 
-/** `readonly foo = input<T>(…)` / `input.required<T>()` / `model<T>(…)` / `output<T>()`. */
+/**
+ * `readonly foo = input<T>(…)` / `input.required<T>()` / `model<T>(…)` / `output<T>()`.
+ *
+ * Line comments are stepped over between the JSDoc and the declaration, because
+ * a tooling directive has to sit there: `eslint-disable-next-line` governs the
+ * line immediately after it, so a member with an aliased output has no way to
+ * keep both the directive and its own description adjacent. Without this,
+ * `WrAffix.affixChange` was documented in the source and shipped its API row as
+ * an em-dash for as long as the alias has existed.
+ */
 const MEMBER_RE =
-  /(?<doc>\/\*\*(?:[^*]|\*(?!\/))*\*\/\s*)?readonly\s+(?<name>\w+)\s*=\s*(?<kind>input|model|output)(?<required>\.required)?\s*(?:<(?<generic>[\s\S]*?)>)?\s*\((?<args>[\s\S]*?)\);/g;
+  /(?<doc>\/\*\*(?:[^*]|\*(?!\/))*\*\/\s*)?(?<directives>(?:\/\/[^\n]*\n\s*)*)readonly\s+(?<name>\w+)\s*=\s*(?<kind>input|model|output)(?<required>\.required)?\s*(?:<(?<generic>[\s\S]*?)>)?\s*\((?<args>[\s\S]*?)\);/g;
 
 /**
  * Any property assigned an `input` / `model` / `output`, however it is written.
@@ -66,7 +75,7 @@ function parseDoc(raw: string | undefined): { description: string; def?: string 
     .replace(/^\s*\/\*\*/, '')
     .replace(/\*\/\s*$/, '')
     .split('\n')
-    .map(l => l.replace(/^\s*\*ы?\s?/, '').replace(/^\s*\*\s?/, ''))
+    .map(l => l.replace(/^\s*\*\s?/, ''))
     .join('\n');
 
   const def = /@default\s+(.+?)(?:\n|$)/.exec(body)?.[1]?.trim();
@@ -211,10 +220,15 @@ function extractFile(file: string, entry: string): ApiEntry[] {
       const required = Boolean(g['required']);
       const { description, def } = parseDoc(g['doc']);
 
-      // The JSDoc group is a prefix of the match, so the declaration starts
-      // right after it — and that is the offset the mask is asked about. A
-      // member whose `readonly` sits on a blanked column is inside a comment.
-      if (!live(start + (m.index ?? 0) + (g['doc']?.length ?? 0))) continue;
+      // The JSDoc group and any line directives after it are a prefix of the
+      // match, so the declaration starts right after BOTH — and that is the
+      // offset the mask is asked about. A member whose `readonly` sits on a
+      // blanked column is inside a comment. Forgetting `directives` here points
+      // the probe at the blanked `// eslint-disable-next-line` instead, and the
+      // member then reads as commented out and vanishes from the map entirely —
+      // which is how this was found, one regex change after it was widened.
+      const prefix = (g['doc']?.length ?? 0) + (g['directives']?.length ?? 0);
+      if (!live(start + (m.index ?? 0) + prefix)) continue;
 
       // `protected` / `private` members never reach a consumer.
       const before = body.slice(Math.max(0, (m.index ?? 0) - 220), m.index);

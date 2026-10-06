@@ -170,6 +170,10 @@ export class WrWindow {
   readonly initialX = input<number | null>(null, {
     transform: (v: unknown): number | null => (v == null ? null : coerceNumberProperty(v, 0)),
   });
+  /**
+   * Initial top offset in px. `null` = auto-cascade from the manager, which is
+   * what keeps several windows from opening on top of each other.
+   */
   readonly initialY = input<number | null>(null, {
     transform: (v: unknown): number | null => (v == null ? null : coerceNumberProperty(v, 0)),
   });
@@ -185,6 +189,10 @@ export class WrWindow {
   readonly initialWidth = input<number | null>(null, {
     transform: (v: unknown): number | null => (v == null ? null : coerceNumberProperty(v, 480)),
   });
+  /**
+   * Initial height in px, overriding the `size` preset. Clamped to `minHeight` /
+   * `maxHeight` before it is applied.
+   */
   readonly initialHeight = input<number | null>(null, {
     transform: (v: unknown): number | null => (v == null ? null : coerceNumberProperty(v, 320)),
   });
@@ -221,17 +229,41 @@ export class WrWindow {
    */
   readonly animations = input(true, { transform: coerceBooleanProperty });
 
+  /**
+   * Narrowest the user may drag it. Also the floor for `initialWidth`.
+   */
   readonly minWidth = input<number>(220, { transform: (v: unknown): number => coerceNumberProperty(v, 220) });
+  /**
+   * Shortest the user may drag it. Also the floor for `initialHeight`.
+   */
   readonly minHeight = input<number>(140, { transform: (v: unknown): number => coerceNumberProperty(v, 140) });
+  /**
+   * Widest the user may drag it. Unbounded by default.
+   */
   readonly maxWidth = input<number>(Number.POSITIVE_INFINITY, {
     transform: (v: unknown): number => (v == null ? Number.POSITIVE_INFINITY : coerceNumberProperty(v, Infinity)),
   });
+  /**
+   * Tallest the user may drag it. Unbounded by default.
+   */
   readonly maxHeight = input<number>(Number.POSITIVE_INFINITY, {
     transform: (v: unknown): number => (v == null ? Number.POSITIVE_INFINITY : coerceNumberProperty(v, Infinity)),
   });
 
+  /**
+   * Allow dragging by the header. `false` pins the window where it opened; the
+   * header still carries the title and the action buttons.
+   */
   readonly movable = input(true, { transform: coerceBooleanProperty });
+  /**
+   * Allow dragging the edges and corners. `false` also hides the maximize button,
+   * since there would be no way back to a custom size.
+   */
   readonly resizable = input(true, { transform: coerceBooleanProperty });
+  /**
+   * Hold the window inside the viewport while it is dragged or the page is
+   * resized. `false` lets it go off-screen, which only a custom chrome wants.
+   */
   readonly keepInViewport = input(true, { transform: coerceBooleanProperty });
 
   /** Drag-to-edge snap behaviour. @default 'none' */

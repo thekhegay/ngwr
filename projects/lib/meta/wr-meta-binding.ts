@@ -24,6 +24,10 @@ import { WrMeta } from './wr-meta';
  */
 @Directive({ selector: '[wrMeta]' })
 export class WrMetaBinding {
+  /**
+   * The tags to write while this element is alive — title, description, Open
+   * Graph. They are reverted when it is destroyed, so a route can own its own.
+   */
   readonly wrMeta = input.required<WrMetaConfig>();
 
   private readonly metaService = inject(WrMeta);
