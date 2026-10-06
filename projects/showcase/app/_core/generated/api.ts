@@ -24,7 +24,7 @@ export const API = {
   // <[wrAffix]>
   WrAffix: [
     { name: "wrAffixOffsetTop", description: "Pixels from the top of the scroll container when stuck.", type: "number", default: "0" },
-    { name: "(wrAffixChange)", description: "—", type: "boolean" },
+    { name: "(wrAffixChange)", description: "Fires when the element pins or unpins — `true` once it has stuck, `false` when it returns to the flow. Use it to swap a shadow or a compact layout.", type: "boolean" },
   ],
   // <wr-alert>
   WrAlert: [
@@ -57,8 +57,8 @@ export const API = {
   ],
   // <textarea[wrAutosize]>
   WrAutosize: [
-    { name: "minRows", description: "—", type: "number", default: "1" },
-    { name: "maxRows", description: "—", type: "number", default: "0" },
+    { name: "minRows", description: "Smallest height, in rendered rows. The textarea never shrinks below it, so a field that starts empty still reserves the room.", type: "number", default: "1" },
+    { name: "maxRows", description: "Largest height, in rendered rows. `0` — the default — lets it grow without a ceiling; any other value caps the height and the textarea scrolls past it.", type: "number", default: "0" },
   ],
   // <wr-avatar>
   WrAvatar: [
@@ -82,7 +82,7 @@ export const API = {
   ],
   // <wr-bar-chart>
   WrBarChart: [
-    { name: "data", description: "—", type: "readonly WrBarChartDatum[]", default: "[]" },
+    { name: "data", description: "The bars, left to right. One series: a datum with no `color` of its own takes the chart's `color`, so by default every bar comes out the same.", type: "readonly WrBarChartDatum[]", default: "[]" },
     { name: "ariaLabel", description: "Accessible name of the CHART. Falls back to `barChart.label`, then `'Bar chart'`. Every bar already carries its own `role=\"img\"` and its own \"Mon: 12\", and that is what the plot had instead of a name of its own — so the chart announced as whatever its first bar said, and a page with three bar charts offered a reader three images called by a weekday. The four sibling charts all name the plot; this one was the omission.", type: "string | null", default: "null" },
     { name: "color", description: "Default bar colour when a datum has none.", type: "string", default: "primary" },
     { name: "showValues", description: "Show value labels above each bar.", type: "boolean", default: "true" },
@@ -163,7 +163,7 @@ export const API = {
   ],
   // <wr-calendar-heatmap>
   WrCalendarHeatmap: [
-    { name: "data", description: "—", type: "readonly WrHeatmapDatum[]", default: "[]" },
+    { name: "data", description: "One entry per day — `{ date, value }`. Days you pass nothing for render as empty cells, so a sparse array is the normal shape rather than a gap.", type: "readonly WrHeatmapDatum[]", default: "[]" },
     { name: "ariaLabel", description: "Accessible name of the whole grid. Its cells are bare spans whose `title` a screen reader on a role-less element does not read, so the map used to be several hundred anonymous nodes with no name. Falls back to `calendarHeatmap.label`.", type: "string | null", default: "null" },
     { name: "endDate", description: "Last day to render.", type: "string | Date | null", default: "today" },
     { name: "weeks", description: "Number of weeks (columns) to render.", type: "number", default: "53" },
@@ -243,7 +243,7 @@ export const API = {
   ],
   // <[wrClickOutside]>
   WrClickOutside: [
-    { name: "(wrClickOutside)", description: "—", type: "MouseEvent" },
+    { name: "(wrClickOutside)", description: "Fires on a pointer press that landed outside the host element. Close a menu or commit an inline edit with it; the event is the original click.", type: "MouseEvent" },
   ],
   // <wr-click-spark>
   WrClickSpark: [
@@ -418,7 +418,7 @@ export const API = {
   ],
   // <wr-description-item>
   WrDescriptionItem: [
-    { name: "label", description: "—", type: "string", default: "''" },
+    { name: "label", description: "The term shown beside the projected value — \"Email\", \"Created\". Keep it a noun: it is read as the name of the value, not as a sentence.", type: "string", default: "''" },
   ],
   // <wr-descriptions>
   WrDescriptions: [
@@ -444,7 +444,7 @@ export const API = {
   ],
   // <wr-donut-chart>
   WrDonutChart: [
-    { name: "segments", description: "—", type: "readonly WrDonutSegment[]", default: "[]" },
+    { name: "segments", description: "The slices, drawn clockwise from twelve o'clock. A segment with no `color` takes the next entry from the chart's fallback palette.", type: "readonly WrDonutSegment[]", default: "[]" },
     { name: "ariaLabel", description: "Accessible name of the drawing. The arcs carry no text and the legend is optional, so with `showLegend: false` this and the centre text are the whole of what a screen reader gets. Falls back to `donutChart.label`.", type: "string | null", default: "null" },
     { name: "size", description: "Diameter in CSS pixels.", type: "number", default: "200" },
     { name: "thickness", description: "Inner-ring thickness as a percent of radius (0–100). `0` = solid pie.", type: "number", default: "30" },
@@ -596,14 +596,14 @@ export const API = {
   WrGauge: [
     { name: "ariaLabel", description: "Accessible name — the role needs one. Falls back to `gauge.label`.", type: "string | null", default: "null" },
     { name: "value", description: "The reading. Coerced like every other numeric input here — it was the only one without it, so a NaN reached the arc's `d` as the literal text `NaN`, which is invalid path geometry and drops the arc.", type: "number", required: true },
-    { name: "min", description: "—", type: "number", default: "0" },
-    { name: "max", description: "—", type: "number", default: "100" },
+    { name: "min", description: "Low end of the scale — where the arc starts. Values below it clamp here.", type: "number", default: "0" },
+    { name: "max", description: "High end of the scale — where the arc completes. Values above it clamp here.", type: "number", default: "100" },
     { name: "size", description: "Diameter in CSS pixels.", type: "number", default: "160" },
     { name: "strokeWidth", description: "Arc stroke thickness in viewBox units (out of 100).", type: "number", default: "10" },
-    { name: "trackColor", description: "—", type: "string", default: "'rgba(var(--wr-color-outline-rgb), 0.6)'" },
-    { name: "valueColor", description: "—", type: "string", default: "'var(--wr-color-primary)'" },
+    { name: "trackColor", description: "Colour of the unfilled arc behind the value. Any CSS colour; the default is the outline token at 60%, which reads as a hairline in both themes.", type: "string", default: "'rgba(var(--wr-color-outline-rgb), 0.6)'" },
+    { name: "valueColor", description: "Colour of the filled arc. Any CSS colour — pass an intent token to tie it to a threshold, e.g. `var(--wr-color-danger)` once the value crosses one.", type: "string", default: "'var(--wr-color-primary)'" },
     { name: "showValue", description: "Show the value text in the center.", type: "boolean", default: "true" },
-    { name: "suffix", description: "—", type: "string", default: "''" },
+    { name: "suffix", description: "Unit printed immediately after the number — `%`, `/10`, ` GB`. It goes into the accessible text too, so the gauge is announced the way it reads.", type: "string", default: "''" },
     { name: "tooltip", description: "Show a tooltip with the reading on hover, named by `ariaLabel` when one is given. Pointer only — the meter announces the same reading.", type: "boolean", default: "true" },
   ],
   // <wr-glitch-text>
@@ -633,7 +633,7 @@ export const API = {
   ],
   // <[wrHotkey]>
   WrHotkeyBinding: [
-    { name: "wrHotkey", description: "—", type: "WrHotkeySpec", required: true },
+    { name: "wrHotkey", description: "The chord to listen for — `'mod+k'`, `'shift+?'`, or the full spec object. `mod` resolves to ⌘ on macOS and Ctrl everywhere else.", type: "WrHotkeySpec", required: true },
     { name: "scoped", description: "Scope the binding to the host element instead of `document`.", type: "boolean", default: "false" },
     { name: "allowInInput", description: "Fire even when an input / textarea has focus.", type: "boolean", default: "false" },
     { name: "preventDefault", description: "Suppress the default action when the binding fires.", type: "boolean", default: "true" },
@@ -641,7 +641,7 @@ export const API = {
   ],
   // <wr-icon>
   WrIcon: [
-    { name: "name", description: "—", type: "WrIconName", required: true },
+    { name: "name", description: "Name the icon was registered under in `provideWrIcons()`. An unregistered name renders nothing and logs in dev mode — ngwr ships no icons itself.", type: "WrIconName", required: true },
   ],
   // <wr-image-cropper>
   WrImageCropper: [
@@ -741,7 +741,7 @@ export const API = {
   ],
   // <wr-line-chart>
   WrLineChart: [
-    { name: "series", description: "—", type: "readonly WrLineSeries[]", default: "[]" },
+    { name: "series", description: "One entry per line. A series with no `color` takes the next entry from the chart's fallback palette, so several lines are distinguishable unconfigured.", type: "readonly WrLineSeries[]", default: "[]" },
     { name: "ariaLabel", description: "Accessible name of the chart. The legend carries the series NAMES only — the numbers are nowhere in text — so without this the plot is nothing at all to a screen reader. Falls back to `lineChart.label`.", type: "string | null", default: "null" },
     { name: "xLabels", description: "Labels for the X axis (one per data point).", type: "readonly string[]", default: "[]" },
     { name: "height", description: "Chart pixel height.", type: "number", default: "240" },
@@ -807,12 +807,12 @@ export const API = {
   ],
   // <[wrMeta]>
   WrMetaBinding: [
-    { name: "wrMeta", description: "—", type: "WrMetaConfig", required: true },
+    { name: "wrMeta", description: "The tags to write while this element is alive — title, description, Open Graph. They are reverted when it is destroyed, so a route can own its own.", type: "WrMetaConfig", required: true },
   ],
   // <wr-meter-group>
   WrMeterGroup: [
     { name: "ariaLabel", description: "Accessible name — the role needs one. Falls back to `meterGroup.label`.", type: "string | null", default: "null" },
-    { name: "segments", description: "—", type: "readonly WrMeterSegment[]", default: "[]" },
+    { name: "segments", description: "The parts of the bar, in order. Values are summed and each segment is drawn as its share of that total, so they need not add up to anything in particular.", type: "readonly WrMeterSegment[]", default: "[]" },
     { name: "max", description: "Explicit total. When `0` (default), `max = sum(values)`.", type: "number", default: "0" },
     { name: "showLegend", description: "Show the labelled legend under the bar.", type: "boolean", default: "true" },
     { name: "showValues", description: "Show each segment's value in the legend, next to its label.", type: "boolean", default: "true" },
@@ -938,23 +938,23 @@ export const API = {
   ],
   // <wr-result>
   WrResult: [
-    { name: "title", description: "—", type: "string", default: "''" },
-    { name: "description", description: "—", type: "string", default: "''" },
-    { name: "status", description: "—", type: "WrResultStatus", default: "'info'" },
+    { name: "title", description: "The headline — the outcome in a few words. Pair it with `description` for the detail; a result with neither renders the illustration alone.", type: "string", default: "''" },
+    { name: "description", description: "Secondary line under the title. Say what happens next, not what went wrong again — the title has already said it.", type: "string", default: "''" },
+    { name: "status", description: "Which illustration and tint to draw. `empty` is the quiet one, for a list with nothing in it rather than for something that failed.", type: "WrResultStatus", default: "'info'" },
   ],
   // <wr-result-403>
   WrResult403: [
-    { name: "title", description: "—", type: "string", default: "'403'" },
+    { name: "title", description: "The big figure. Defaults to `403`; override it for a localised or differently-worded page.", type: "string", default: "'403'" },
     { name: "description", description: "Body text. Falls back to `result.forbidden` from WrI18n.", type: "string | null", default: "null" },
   ],
   // <wr-result-404>
   WrResult404: [
-    { name: "title", description: "—", type: "string", default: "'404'" },
+    { name: "title", description: "The big figure. Defaults to `404`; override it for a localised or differently-worded page.", type: "string", default: "'404'" },
     { name: "description", description: "Body text. Falls back to `result.notFound` from WrI18n.", type: "string | null", default: "null" },
   ],
   // <wr-result-500>
   WrResult500: [
-    { name: "title", description: "—", type: "string", default: "'500'" },
+    { name: "title", description: "The big figure. Defaults to `500`; override it for a localised or differently-worded page.", type: "string", default: "'500'" },
     { name: "description", description: "Body text. Falls back to `result.serverError` from WrI18n.", type: "string | null", default: "null" },
   ],
   // <wr-rotating-text>
@@ -1037,7 +1037,7 @@ export const API = {
   ],
   // <wr-sidebar>
   WrSidebar: [
-    { name: "entries", description: "—", type: "readonly WrSidebarEntry[]", default: "[]" },
+    { name: "entries", description: "The navigation tree. Each entry may carry `children`, which the sidebar renders as a collapsible group and expands when a descendant is the active route.", type: "readonly WrSidebarEntry[]", default: "[]" },
     { name: "ariaLabel", description: "Accessible name for the navigation landmark. Falls back to `sidebar.label`, then `'Sidebar'` — a page with a sidebar AND a table of contents has two navigation landmarks, and an unnamed one is announced as just \"navigation\".", type: "string | null", default: "null" },
     { name: "defaultGroupIcon", description: "Default icon for entries without one.", type: "string", default: "'folder'" },
     { name: "defaultItemIcon", description: "Default icon for items without one.", type: "string", default: "'caret-forward'" },
@@ -1073,7 +1073,7 @@ export const API = {
   ],
   // <wr-sparkline>
   WrSparkline: [
-    { name: "data", description: "—", type: "readonly number[]", default: "[]" },
+    { name: "data", description: "The values, left to right. Evenly spaced — a sparkline carries no x axis, so pass an already-ordered series rather than points with their own timestamps.", type: "readonly number[]", default: "[]" },
     { name: "ariaLabel", description: "Accessible name. A sparkline usually sits beside the number it summarises, where announcing it again is noise — so it is `aria-hidden` by default and becomes a named `role=\"img\"` only when a consumer says what it shows.", type: "string | null", default: "null" },
     { name: "color", description: "Stroke colour.", type: "string", default: "`var(--wr-color-primary)`" },
     { name: "strokeWidth", description: "Line thickness in CSS pixels — `vector-effect=\"non-scaling-stroke\"` keeps it at that width whatever the box is stretched to, so it is NOT in viewBox units.", type: "number", default: "1.5" },
@@ -1085,7 +1085,7 @@ export const API = {
   ],
   // <wr-speed-dial>
   WrSpeedDial: [
-    { name: "actions", description: "—", type: "readonly WrSpeedDialAction[]", default: "[]" },
+    { name: "actions", description: "The buttons that fan out when the dial opens, in order from the trigger outwards. Each needs a label: it is the accessible name as well as the tooltip.", type: "readonly WrSpeedDialAction[]", default: "[]" },
     { name: "triggerLabel", description: "Accessible name of the trigger. Falls back to `speedDial.label`, then `'Actions'` — the trigger is icon-only, so without this it has no name at all.", type: "string | null", default: "null" },
     { name: "direction", description: "Direction the actions fan out.", type: "WrSpeedDialDirection", default: "'up'" },
     { name: "open", description: "Two-way bindable open state.", type: "boolean", default: "false" },
@@ -1142,7 +1142,7 @@ export const API = {
   // <[wrSpotlight]>
   WrSpotlight: [
     { name: "resetX", description: "Optional default coordinates when no pointer is over the host.", type: "string", default: "'50%'" },
-    { name: "resetY", description: "—", type: "string", default: "'50%'" },
+    { name: "resetY", description: "Vertical half of that resting position. Same units as `resetX`.", type: "string", default: "'50%'" },
   ],
   // <wr-spotlight-card>
   WrSpotlightCard: [
@@ -1159,7 +1159,7 @@ export const API = {
   ],
   // <wr-statistic>
   WrStatistic: [
-    { name: "label", description: "—", type: "string", default: "''" },
+    { name: "label", description: "The caption above the figure — what the number counts. Keep it short; the value is the thing being read, and this names it.", type: "string", default: "''" },
     { name: "value", description: "The number (or string) to display in the main slot.", type: "number | string | null", default: "null" },
     { name: "prefix", description: "Prefix glyph / symbol (e.g. `'$'`).", type: "string", default: "''" },
     { name: "suffix", description: "Suffix glyph / unit (e.g. `'%'`, `'kg'`).", type: "string", default: "''" },
@@ -1229,7 +1229,7 @@ export const API = {
     { name: "selection", description: "Two-way bindable selected row keys.", type: "readonly unknown[]", default: "[]" },
     { name: "expanded", description: "Two-way bindable expanded row keys (needs a `[wrTableExpand]` template).", type: "readonly unknown[]", default: "[]" },
     { name: "groupBy", description: "Group rows under collapsible band headers — a row property name, or a function returning the group value. `null` (default) renders the table exactly as before. Grouping runs AFTER pagination: it buckets the rows on the current page in first-appearance order (it never re-sorts your data — same contract as `[(sort)]`), so a group straddling a page boundary shows a band on both pages, and per-group counts / subtotals are page-scoped. Sort `items` by the same key upstream to keep groups whole, or pair with `pageSize = 0`. Group values are compared by identity (`Map`/`Set`, SameValueZero) — return a primitive, exactly as for `rowKey`. Objects / `Date`s bucket by reference.", type: "string | ((row: Record<string, unknown>) => unknown) | null", default: "null" },
-    { name: "childrenKey", description: "Render the rows as a hierarchy: names the property (or computes the array) holding each row's children. `items` then means the ROOTS, and the forest is flattened depth-first into the same `<tbody>` — child rows are ordinary `<tr>`s going through the same cell loop, so column pin / resize / drag-reorder and `[wrTableCell]` templates keep working at every depth. Open state reuses the `expanded` model and row identity reuses `rowKey`, so a tree needs no second key space. Everything collapsed is the default. *Mutually exclusive with `groupBy`** — a forest has no flat list to bucket, so grouping wins and the hierarchy is ignored while it is set. Also mutually exclusive with `[wrTableExpand]` detail rows: both own the row's disclosure affordance. `pageSize` pages the ROOTS; a root brings its open descendants with it. The function form RETURNS `WrTableRow`s, matching `[items]`: a return is covariant, so an array of `interface`-typed children satisfies it. Declared as records it did not, and a forest that bound to `[items]` could not hand its children back out. The PARAMETER stays `Record<string, unknown>` — that side is contravariant, and widening it would reject the callbacks that compile today while leaving `row['reports']` unindexable. See {@link WrTableRow}.", type: "string | ((row: Record<string, unknown>) => readonly WrTableRow[] | null | undefined) | null", default: "null" },
+    { name: "childrenKey", description: "Render the rows as a hierarchy: names the property (or computes the array) holding each row's children. `items` then means the ROOTS, and the forest is flattened depth-first into the same `<tbody>` — child rows are ordinary `<tr>`s going through the same cell loop, so column pin / resize / drag-reorder and `[wrTableCell]` templates keep working at every depth. Open state reuses the `expanded` model and row identity reuses `rowKey`, so a tree needs no second key space. Everything collapsed is the default. **Mutually exclusive with `groupBy`** — a forest has no flat list to bucket, so grouping wins and the hierarchy is ignored while it is set. Also mutually exclusive with `[wrTableExpand]` detail rows: both own the row's disclosure affordance. `pageSize` pages the ROOTS; a root brings its open descendants with it. The function form RETURNS `WrTableRow`s, matching `[items]`: a return is covariant, so an array of `interface`-typed children satisfies it. Declared as records it did not, and a forest that bound to `[items]` could not hand its children back out. The PARAMETER stays `Record<string, unknown>` — that side is contravariant, and widening it would reject the callbacks that compile today while leaving `row['reports']` unindexable. See {@link WrTableRow}.", type: "string | ((row: Record<string, unknown>) => readonly WrTableRow[] | null | undefined) | null", default: "null" },
     { name: "treeColumn", description: "Which column carries the indent and the expand toggle. Keyed, not positional, so it survives a `columnOrder` drag. Defaults to whichever column renders first.", type: "string | null", default: "null" },
     { name: "toggleRowLabel", description: "Accessible name of a parent row's expand toggle. Falls back to `table.toggleRow`.", type: "string | null", default: "null" },
     { name: "collapsedGroups", description: "Two-way bindable collapsed group values (the values `groupBy` returns). Keyed by value, so a collapsed group stays collapsed across page changes and re-sorts. Empty (the default) shows every group expanded.", type: "readonly unknown[]", default: "[]" },
@@ -1264,12 +1264,12 @@ export const API = {
     { name: "noMatchesLabel", description: "Text shown when the search finds nothing. Falls back to `table.noMatches`.", type: "string | null", default: "null" },
     { name: "searchLabel", description: "Placeholder AND accessible name of the search box. Falls back to `table.search`. One string for both because the box has no visible label: the placeholder was its only name, so a hard-coded literal left the control unnamed in every other language rather than merely untranslated.", type: "string | null", default: "null" },
     { name: "resetLabel", description: "Label of the clear-selection button. Falls back to `table.reset`.", type: "string | null", default: "null" },
-    { name: "items", description: "—", type: "readonly WrTableFilterItem[]", required: true },
+    { name: "items", description: "The values the column can be filtered by. Shown as a checkbox list, so pass the distinct values rather than one entry per row.", type: "readonly WrTableFilterItem[]", required: true },
     { name: "(selectionChange)", description: "Fires whenever the selection changes.", type: "readonly WrTableFilterItem[]" },
   ],
   // <wr-table-sort>
   WrTableSort: [
-    { name: "direction", description: "—", type: "WrTableSortDirection", default: "null" },
+    { name: "direction", description: "Which way the column is currently sorted, or `null` for unsorted — the three states the indicator cycles through. Drive it from the table's `sort` state.", type: "WrTableSortDirection", default: "null" },
   ],
   // <wr-tabs>
   WrTabs: [
@@ -1317,13 +1317,13 @@ export const API = {
   ],
   // <wr-timeline>
   WrTimeline: [
-    { name: "orientation", description: "—", type: "'vertical' | 'horizontal'", default: "'vertical'" },
+    { name: "orientation", description: "Which way the line runs. `horizontal` lays the items out in a row and suits a short, fixed set of steps; a feed of unknown length wants the default.", type: "'vertical' | 'horizontal'", default: "'vertical'" },
   ],
   // <wr-timeline-item>
   WrTimelineItem: [
-    { name: "title", description: "—", type: "string", default: "''" },
-    { name: "time", description: "—", type: "string", default: "''" },
-    { name: "color", description: "—", type: "WrTimelineColor", default: "'primary'" },
+    { name: "title", description: "The headline for this point on the line. Projected content goes below it as the body, so keep this to what happened.", type: "string", default: "''" },
+    { name: "time", description: "When it happened, already formatted — the component does no date formatting. Run a `Date` through the `wrDate` pipe on the way in.", type: "string", default: "''" },
+    { name: "color", description: "Tint of this item's dot. Decoration by default: it carries no meaning on its own, so say the state in the title as well if it is one.", type: "WrTimelineColor", default: "'primary'" },
   ],
   // <wr-toolbar>
   WrToolbar: [
@@ -1423,20 +1423,20 @@ export const API = {
     { name: "state", description: "Two-way bindable state.", type: "WrWindowState", default: "'normal'" },
     { name: "title", description: "Header title.", type: "string", default: "''" },
     { name: "initialX", description: "Initial position. `null` = auto-cascade from the manager.", type: "number | null", default: "null" },
-    { name: "initialY", description: "—", type: "number | null", default: "null" },
+    { name: "initialY", description: "Initial top offset in px. `null` = auto-cascade from the manager, which is what keeps several windows from opening on top of each other.", type: "number | null", default: "null" },
     { name: "size", description: "Size preset — seeds initial width / height when `[initialWidth]` / `[initialHeight]` are not provided. `null` keeps the explicit pixel inputs in charge.", type: "WrWindowSize | null", default: "'md'" },
     { name: "initialWidth", description: "Initial / forced size in pixels. Wins over `[size]` when set.", type: "number | null", default: "null" },
-    { name: "initialHeight", description: "—", type: "number | null", default: "null" },
+    { name: "initialHeight", description: "Initial height in px, overriding the `size` preset. Clamped to `minHeight` / `maxHeight` before it is applied.", type: "number | null", default: "null" },
     { name: "os", description: "OS chrome style. `'auto'` reads `navigator.userAgentData.platform` / `navigator.platform` and picks the matching preset (SSR-safe; unknown platforms fall back to `windows`).", type: "WrWindowOs", default: "'auto'" },
     { name: "chromeSize", description: "Title-bar density.", type: "WrWindowChromeSize", default: "'md'" },
     { name: "animations", description: "Enter / leave animations. Set to `false` to disable the open-fade and the minimize / maximize transitions. Honoured automatically when `prefers-reduced-motion: reduce`.", type: "boolean", default: "true" },
-    { name: "minWidth", description: "—", type: "number", default: "220" },
-    { name: "minHeight", description: "—", type: "number", default: "140" },
-    { name: "maxWidth", description: "—", type: "number", default: "Number.POSITIVE_INFINITY" },
-    { name: "maxHeight", description: "—", type: "number", default: "Number.POSITIVE_INFINITY" },
-    { name: "movable", description: "—", type: "boolean", default: "true" },
-    { name: "resizable", description: "—", type: "boolean", default: "true" },
-    { name: "keepInViewport", description: "—", type: "boolean", default: "true" },
+    { name: "minWidth", description: "Narrowest the user may drag it. Also the floor for `initialWidth`.", type: "number", default: "220" },
+    { name: "minHeight", description: "Shortest the user may drag it. Also the floor for `initialHeight`.", type: "number", default: "140" },
+    { name: "maxWidth", description: "Widest the user may drag it. Unbounded by default.", type: "number", default: "Number.POSITIVE_INFINITY" },
+    { name: "maxHeight", description: "Tallest the user may drag it. Unbounded by default.", type: "number", default: "Number.POSITIVE_INFINITY" },
+    { name: "movable", description: "Allow dragging by the header. `false` pins the window where it opened; the header still carries the title and the action buttons.", type: "boolean", default: "true" },
+    { name: "resizable", description: "Allow dragging the edges and corners. `false` also hides the maximize button, since there would be no way back to a custom size.", type: "boolean", default: "true" },
+    { name: "keepInViewport", description: "Hold the window inside the viewport while it is dragged or the page is resized. `false` lets it go off-screen, which only a custom chrome wants.", type: "boolean", default: "true" },
     { name: "snap", description: "Drag-to-edge snap behaviour.", type: "WrWindowSnap", default: "'none'" },
     { name: "dragHandle", description: "CSS selector inside the projected body that restricts the move grab — pointer-downs outside this selector won't start a drag. Use to keep interactive body content (sliders, inputs) from hijacking the title-bar drag. `null` (default) means the whole title bar is grabbable.", type: "string | null", default: "null" },
     { name: "showMinimize", description: "Show the minimize control. `null` (the default) follows the chrome: every OS but Linux shows it, and the Linux preset is close-only by convention. Pass `true` to override that — on Linux it is what puts a window within reach of `<wr-window-taskbar>`.", type: "boolean | null", default: "null" },

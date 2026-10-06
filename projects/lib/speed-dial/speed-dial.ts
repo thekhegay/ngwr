@@ -52,6 +52,10 @@ let menuUid = 0;
   imports: [WrIcon],
 })
 export class WrSpeedDial {
+  /**
+   * The buttons that fan out when the dial opens, in order from the trigger
+   * outwards. Each needs a label: it is the accessible name as well as the tooltip.
+   */
   readonly actions = input<readonly WrSpeedDialAction[]>([]);
 
   /**

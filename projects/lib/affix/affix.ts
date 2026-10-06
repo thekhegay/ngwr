@@ -87,7 +87,10 @@ export class WrAffix {
     transform: (v: unknown): number => coerceNumberProperty(v, 0),
   });
 
-  /** Emits `true` when the element becomes affixed, `false` when it unsticks. */
+  /**
+   * Fires when the element pins or unpins — `true` once it has stuck, `false`
+   * when it returns to the flow. Use it to swap a shadow or a compact layout.
+   */
   // eslint-disable-next-line @angular-eslint/no-output-rename -- keep wr-prefixed binding to match `[wrAffix]`
   readonly affixChange = output<boolean>({ alias: 'wrAffixChange' });
 

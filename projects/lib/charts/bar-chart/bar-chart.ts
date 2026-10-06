@@ -35,6 +35,10 @@ import type { WrBarChartDatum } from './types';
   host: { class: 'wr-bar-chart' },
 })
 export class WrBarChart {
+  /**
+   * The bars, left to right. One series: a datum with no `color` of its own
+   * takes the chart's `color`, so by default every bar comes out the same.
+   */
   readonly data = input<readonly WrBarChartDatum[]>([]);
 
   /**

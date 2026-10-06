@@ -70,6 +70,10 @@ function amount(raw: number): number {
   host: { class: 'wr-calendar-heatmap' },
 })
 export class WrCalendarHeatmap {
+  /**
+   * One entry per day — `{ date, value }`. Days you pass nothing for render as
+   * empty cells, so a sparse array is the normal shape rather than a gap.
+   */
   readonly data = input<readonly WrHeatmapDatum[]>([]);
 
   /**
