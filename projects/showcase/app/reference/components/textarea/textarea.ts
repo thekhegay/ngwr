@@ -3,27 +3,13 @@ import { FormsModule } from '@angular/forms';
 
 import { WrTextarea } from 'ngwr/textarea';
 
-import {
-  DocApiComponent,
-  DocCodeComponent,
-  DocPageComponent,
-  DocSectionComponent,
-  DocSnippetComponent,
-} from '#core/components';
+import { DocApiComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
 import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-textarea-page',
   templateUrl: './textarea.html',
-  imports: [
-    FormsModule,
-    WrTextarea,
-    DocPageComponent,
-    DocSectionComponent,
-    DocSnippetComponent,
-    DocCodeComponent,
-    DocApiComponent,
-  ],
+  imports: [FormsModule, WrTextarea, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocApiComponent],
 })
 export default class TextareaComponent {
   protected readonly text = signal('Hello world');

@@ -6,7 +6,6 @@ import { WrCard, WrCardFooter, WrCardHeader } from 'ngwr/card';
 import {
   type DocApiRow,
   DocApiComponent,
-  DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
@@ -23,7 +22,6 @@ import {
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
-    DocCodeComponent,
     DocApiComponent,
   ],
 })

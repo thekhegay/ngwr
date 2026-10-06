@@ -4,28 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { WrInput } from 'ngwr/input';
 import { WrQr } from 'ngwr/qr';
 
-import {
-  DocApiComponent,
-  DocCodeComponent,
-  DocPageComponent,
-  DocSectionComponent,
-  DocSnippetComponent,
-} from '#core/components';
+import { DocApiComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
 import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-qr-page',
   templateUrl: './qr.html',
-  imports: [
-    FormsModule,
-    WrQr,
-    WrInput,
-    DocPageComponent,
-    DocSectionComponent,
-    DocSnippetComponent,
-    DocCodeComponent,
-    DocApiComponent,
-  ],
+  imports: [FormsModule, WrQr, WrInput, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocApiComponent],
 })
 export default class QrComponent {
   protected readonly text = signal('https://ngwr.dev');

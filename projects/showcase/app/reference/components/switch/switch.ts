@@ -3,27 +3,13 @@ import { FormsModule } from '@angular/forms';
 
 import { WrSwitch } from 'ngwr/switch';
 
-import {
-  DocApiComponent,
-  DocCodeComponent,
-  DocPageComponent,
-  DocSectionComponent,
-  DocSnippetComponent,
-} from '#core/components';
+import { DocApiComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
 import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-switch-page',
   templateUrl: './switch.html',
-  imports: [
-    FormsModule,
-    WrSwitch,
-    DocPageComponent,
-    DocSectionComponent,
-    DocSnippetComponent,
-    DocCodeComponent,
-    DocApiComponent,
-  ],
+  imports: [FormsModule, WrSwitch, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocApiComponent],
 })
 export default class SwitchPageComponent {
   protected readonly enabled = signal(true);

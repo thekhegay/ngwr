@@ -6,7 +6,6 @@ import {
   type DocApiRow,
   type DocControl,
   DocApiComponent,
-  DocCodeComponent,
   DocPageComponent,
   DocPlaygroundComponent,
   DocSectionComponent,
@@ -20,15 +19,7 @@ interface Row {
 @Component({
   selector: 'ngwr-list-page',
   templateUrl: './list.html',
-  imports: [
-    WrList,
-    WrListItem,
-    DocPageComponent,
-    DocSectionComponent,
-    DocPlaygroundComponent,
-    DocCodeComponent,
-    DocApiComponent,
-  ],
+  imports: [WrList, WrListItem, DocPageComponent, DocSectionComponent, DocPlaygroundComponent, DocApiComponent],
 })
 export default class ListPage {
   protected readonly bordered = signal(true);
