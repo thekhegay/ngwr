@@ -1762,14 +1762,24 @@ describe('WrSelect inside a form field', () => {
     expect(errors!.textContent?.trim()).not.toBe('');
   });
 
-  it('keeps the trigger’s own name — an aria-label outranks a <label>', () => {
-    // Deliberate, and the same call `wr-slider` made: `<wr-form-field>` renders a
-    // label only when its `label` input is set, so it cannot promise a name, and
-    // a combobox that traded a generic one for none would be the worse bug. Set
-    // `[ariaLabel]` to the field's label where the two should read alike.
-    const trigger = (build(FieldHost).nativeElement as HTMLElement).querySelector('.wr-select__trigger')!;
+  it('lets the field’s label name the trigger, over its own generic default', () => {
+    // This used to go the other way, on the reasoning that the field "cannot
+    // promise a name". It can — `WrFormFieldContext.labelId` is `null` exactly
+    // when no label is rendered — so the trade this feared never arises: with
+    // no field label the generic `select.label` still answers. What it cost
+    // was every labelled select announcing "Select", or its placeholder, while
+    // the visible label reached nobody. WCAG 2.5.3, and invisible to axe: the
+    // control HAS a name, and a plausible one.
+    const host = build(FieldHost).nativeElement as HTMLElement;
+    const trigger = host.querySelector('.wr-select__trigger')!;
 
-    expect(trigger.getAttribute('aria-label')).toBe('Select');
+    expect(trigger.hasAttribute('aria-label')).toBe(false);
+
+    const by = trigger.getAttribute('aria-labelledby');
+    expect(by).not.toBeNull();
+    expect(host.querySelector(`#${CSS.escape(by!)}`)?.textContent?.trim()).toBe(
+      host.querySelector('label')?.textContent?.trim()
+    );
   });
 
   it('is described by the field’s hint, without reporting itself invalid', () => {

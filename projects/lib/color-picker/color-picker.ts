@@ -8,7 +8,18 @@
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { DecimalPipe } from '@angular/common';
-import { Component, ViewEncapsulation, computed, effect, inject, input, model, output, signal } from '@angular/core';
+import {
+  Component,
+  HostAttributeToken,
+  ViewEncapsulation,
+  computed,
+  effect,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+} from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
@@ -70,6 +81,14 @@ function hasAlphaDigits(hex: string): boolean {
   encapsulation: ViewEncapsulation.None,
   host: {
     '[class]': 'classes()',
+    // `role="group"` so the field's label has somewhere to land: the picker is
+    // a composite with no single element carrying its semantics, and its parts
+    // name themselves — "Saturation and brightness", "Hue", "Opacity". Two
+    // colour fields on one form announced the same three names twice, with
+    // nothing saying which colour either belonged to. Same call `wr-transfer`
+    // makes one directory over, for the same reason.
+    role: 'group',
+    '[attr.aria-labelledby]': 'labelledBy()',
     '[style.--wr-color-picker-hue]': 'hueCss()',
     '[style.--wr-color-picker-rgb]': 'rgbCss()',
   },
@@ -105,6 +124,21 @@ export class WrColorPicker implements FormValueControl<string> {
 
   /** The surrounding `<wr-form-field>`'s error state. @internal */
   protected readonly fieldAria = useFormFieldAria({ skipSelf: true });
+  /**
+   * The author's own `aria-labelledby`, read as a static host attribute.
+   *
+   * A host binding WRITES the attribute, so binding the field's label
+   * unconditionally would REMOVE a reference the consumer put there by hand:
+   * `<wr-segmented aria-labelledby="range-question">` went nameless the moment
+   * the field's label was `null`, which a harness spec caught one commit after
+   * it was introduced. `HostAttributeToken` reads it at construction without
+   * touching the DOM, so this stays SSR-safe, and the author's own reference
+   * wins — the same precedence `[ariaLabel]` has everywhere else.
+   */
+  private readonly ownLabelledBy = inject(new HostAttributeToken('aria-labelledby'), { optional: true });
+
+  /** The surrounding field's label, unless the author named the control. */
+  protected readonly labelledBy = computed(() => this.ownLabelledBy ?? this.fieldAria.labelledBy());
 
   /**
    * Format the control writes into `value`. See {@link WrColorFormat} — all

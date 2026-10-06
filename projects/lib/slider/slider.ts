@@ -183,6 +183,29 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   // the control the report was filed against.
   private readonly fieldAria = useFormFieldAria();
   protected readonly describedBy = this.fieldAria.describedBy;
+
+  /**
+   * The field's own label, when it renders one — `null` otherwise, and `null`
+   * when `[ariaLabel]` was set deliberately.
+   *
+   * `aria-label` outranks a `<label for>` in the accname order, so without this
+   * every slider in a form announced the generic `slider.value` default: three
+   * sliders under three different labels, all called "Value". Nothing catches
+   * it — the control HAS a name, so axe is satisfied — and it fails WCAG 2.5.3,
+   * where the visible label has to be IN the accessible name.
+   *
+   * SINGLE thumb only, and deliberately: a range has two, and pointing both at
+   * one label would name them identically, which is worse than the generic
+   * pair they carry now. Naming a range's thumbs after their field needs
+   * `aria-labelledby` to carry two ids — the field's and a hidden one per thumb
+   * — which is more machinery than this is worth until someone asks for it.
+   */
+  protected readonly labelledBy = computed(() =>
+    this.ariaLabel() || this.range() ? null : this.fieldAria.labelledBy()
+  );
+
+  /** `null` once `aria-labelledby` is carrying the name — see {@link labelledBy}. */
+  protected readonly lowNameLabel = computed(() => (this.labelledBy() ? null : this.resolvedLowLabel()));
   protected readonly ariaInvalid = this.fieldAria.ariaInvalid;
 
   /**

@@ -96,7 +96,7 @@ interface Model {
   ],
   template: `
     <wr-form-field data-k="cascader" label="Cascader">
-      <wr-cascader [options]="cascaderOptions" [formField]="f.cascader" />
+      <wr-cascader [options]="cascaderOptions" [formField]="f.cascader" placeholder="Choose a region" />
     </wr-form-field>
 
     <wr-form-field data-k="checkbox" label="Checkbox">
@@ -115,7 +115,7 @@ interface Model {
     </wr-form-field>
 
     <wr-form-field data-k="date-picker" label="Date">
-      <wr-date-picker [formField]="f.datePicker" />
+      <wr-date-picker [formField]="f.datePicker" placeholder="dd/mm/yyyy" />
     </wr-form-field>
 
     <wr-form-field data-k="date-range-picker" label="Range">
@@ -158,7 +158,7 @@ interface Model {
     </wr-form-field>
 
     <wr-form-field data-k="select" label="Select">
-      <wr-select [formField]="f.select">
+      <wr-select [formField]="f.select" placeholder="Pick one">
         <wr-option value="a">A</wr-option>
         <wr-option value="b">B</wr-option>
       </wr-select>
@@ -173,7 +173,7 @@ interface Model {
     </wr-form-field>
 
     <wr-form-field data-k="textarea" label="Notes">
-      <wr-textarea [formField]="f.textarea" />
+      <wr-textarea [formField]="f.textarea" placeholder="Say something" />
     </wr-form-field>
 
     <wr-form-field data-k="transfer" label="Transfer">
@@ -391,6 +391,116 @@ describe('every value control, as a form control', () => {
     // covers the catalog, so the count is asserted rather than assumed.
     expect(PROBES).toHaveLength(20);
     for (const probe of PROBES) expect(field(probe.key), probe.key).toBeTruthy();
+  });
+
+  describe("the field's label is the control's accessible name", () => {
+    /**
+     * The accname algorithm, as far as jsdom can go: `aria-label`, then
+     * `aria-labelledby`, then a `<label for>` pointing here, then a `<label>`
+     * wrapping it. Enough for this table, because every control here is named
+     * by exactly one of those four and the question is WHICH.
+     */
+    const nameOf = (el: Element): string => {
+      const label = el.getAttribute('aria-label');
+      if (label !== null && label !== '') return label;
+
+      const by = el.getAttribute('aria-labelledby');
+      if (by !== null && by !== '') {
+        return by
+          .split(/\s+/)
+          .map(
+            id =>
+              root()
+                .querySelector(`#${CSS.escape(id)}`)
+                ?.textContent?.trim() ?? ''
+          )
+          .join(' ')
+          .trim();
+      }
+
+      if (el.id !== '') {
+        const forLabel = root().querySelector(`label[for="${CSS.escape(el.id)}"]`);
+        if (forLabel) return forLabel.textContent?.trim() ?? '';
+      }
+
+      return el.closest('label')?.textContent?.trim() ?? '';
+    };
+
+    /**
+     * Controls that name themselves from their own projected content, where the
+     * field's label is a heading ABOVE a control that already says what it is.
+     * Nothing else belongs here: a placeholder is not a label, and a generic
+     * default is worse than one.
+     */
+    const SELF_LABELLED: Readonly<Record<string, string>> = {
+      checkbox: 'Agree',
+      switch: 'On',
+    };
+
+    /**
+     * Composites whose `aria` element above is a PART, where the part's own
+     * name is the right one and the field's label belongs to the host instead.
+     * The host is checked for them, and the part is left alone.
+     *
+     * `date-range-picker` is the one that stays split on purpose: two inputs,
+     * "Range start" and "Range end", and pointing both at one label would name
+     * them identically — worse than the pair they carry. Naming them after
+     * their field needs `aria-labelledby` to carry two ids, the field's and a
+     * hidden one per input, which is more machinery than this is worth until
+     * someone asks. `wr-slider` in `range` mode takes the same position, at the
+     * same cost, and says so at `labelledBy`.
+     */
+    const COMPOSITE_HOST: Readonly<Record<string, string>> = {
+      'color-picker': 'wr-color-picker',
+      'input-otp': 'wr-input-otp',
+    };
+
+    /** The one control whose parts stay separately named — see above. */
+    const PART_NAMED: Readonly<Record<string, string>> = { 'date-range-picker': 'Range start' };
+
+    it('gives every control a name', () => {
+      const nameless = PROBES.filter(p => nameOf(field(p.key).querySelector(p.aria)!) === '');
+      expect(nameless.map(p => p.key)).toEqual([]);
+    });
+
+    it("makes the field's label reachable from inside the control", () => {
+      // Either the `<label for>` resolves — which only a LABELABLE element can
+      // answer — or something inside points `aria-labelledby` back at the
+      // label. Five of the controls here can only do the second, which is what
+      // `WrFormFieldContext.labelId` exists for; what this refuses is a field
+      // whose label reaches neither, where the label renders, reads correctly,
+      // and names nothing.
+      const unreachable = PROBES.filter(p => {
+        // A self-labelling control is exempt because the field above it renders
+        // NO label: `wr-schema-form` resolves `labelAbove` to `''` for exactly
+        // these two kinds, so the composition this host builds — a labelled
+        // field around a control that already says what it is — is one the
+        // library's own consumer never makes. Only this spec does.
+        if (p.key in SELF_LABELLED) return false;
+
+        const host = field(p.key);
+        const label = host.querySelector('label[for]');
+        const target = label?.getAttribute('for');
+        if (target != null && host.querySelector(`#${CSS.escape(target)}`) !== null) return false;
+
+        const labelId = host.querySelector('label')?.id ?? '';
+        return labelId === '' || host.querySelector(`[aria-labelledby~="${CSS.escape(labelId)}"]`) === null;
+      });
+
+      expect(unreachable.map(p => p.key)).toEqual([]);
+    });
+
+    it('does not let a placeholder or a generic default outrank it', () => {
+      const named = (p: Probe): string => nameOf(field(p.key).querySelector(COMPOSITE_HOST[p.key] ?? p.aria)!);
+
+      const wrong = PROBES.filter(p => {
+        const expected =
+          SELF_LABELLED[p.key] ?? PART_NAMED[p.key] ?? field(p.key).querySelector('label')?.textContent?.trim() ?? '';
+        return named(p) !== expected;
+      }).map(p => `${p.key}: ${named(p)}`);
+
+      expect(wrong).toEqual([]);
+    });
   });
 
   describe('readonly()', () => {

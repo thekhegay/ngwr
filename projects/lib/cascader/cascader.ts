@@ -137,6 +137,23 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
   /** The surrounding `<wr-form-field>`'s error state. @internal */
   protected readonly fieldAria = useFormFieldAria();
 
+  /**
+   * The field's own label, when it renders one — `null` otherwise, and `null`
+   * when `[ariaLabel]` was set deliberately.
+   *
+   * `aria-label` outranks a `<label for>` in the accname order, so without this
+   * a cascader inside `<wr-form-field label="Region">` announced its
+   * PLACEHOLDER, or the generic `select.label` default, and the visible label
+   * reached nobody. Nothing catches it: the control has a name, so axe is
+   * satisfied, and the name is plausible, so a reader is too — it fails WCAG
+   * 2.5.3, where the visible label has to be IN the accessible name. Same call
+   * `wr-rating` and `wr-knob` already make.
+   */
+  protected readonly labelledBy = computed(() => (this.ariaLabel() ? null : this.fieldAria.labelledBy()));
+
+  /** `null` once `aria-labelledby` is carrying the name — see {@link labelledBy}. */
+  protected readonly nameLabel = computed(() => (this.labelledBy() ? null : this.resolvedAriaLabel()));
+
   /** Control size — shares the `--wr-control-*` contract. @default 'md' */
   readonly size = input<WrCascaderSize>('md');
 

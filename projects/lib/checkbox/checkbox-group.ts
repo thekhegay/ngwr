@@ -6,7 +6,17 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, forwardRef, input, model, output } from '@angular/core';
+import {
+  Component,
+  HostAttributeToken,
+  ViewEncapsulation,
+  computed,
+  forwardRef,
+  inject,
+  input,
+  model,
+  output,
+} from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
@@ -45,6 +55,11 @@ import type { WrCheckboxGroupContext } from './types';
   host: {
     class: 'wr-checkbox-group',
     role: 'group',
+    // `<label for>` binds only to a labelable element, which a `role="group"`
+    // is not, so the field's own label reached this host through nothing and
+    // the group announced no name at all. Same call `wr-radio-group` and
+    // `wr-rating` already make.
+    '[attr.aria-labelledby]': 'labelledBy()',
     '[attr.aria-invalid]': 'fieldAria.ariaInvalid()',
     '[attr.aria-describedby]': 'fieldAria.describedBy()',
   },
@@ -79,6 +94,21 @@ export class WrCheckboxGroup implements FormValueControl<unknown[]>, WrCheckboxG
 
   /** The surrounding `<wr-form-field>`'s error state. @internal */
   protected readonly fieldAria = useFormFieldAria();
+  /**
+   * The author's own `aria-labelledby`, read as a static host attribute.
+   *
+   * A host binding WRITES the attribute, so binding the field's label
+   * unconditionally would REMOVE a reference the consumer put there by hand:
+   * `<wr-segmented aria-labelledby="range-question">` went nameless the moment
+   * the field's label was `null`, which a harness spec caught one commit after
+   * it was introduced. `HostAttributeToken` reads it at construction without
+   * touching the DOM, so this stays SSR-safe, and the author's own reference
+   * wins — the same precedence `[ariaLabel]` has everywhere else.
+   */
+  private readonly ownLabelledBy = inject(new HostAttributeToken('aria-labelledby'), { optional: true });
+
+  /** The surrounding field's label, unless the author named the control. */
+  protected readonly labelledBy = computed(() => this.ownLabelledBy ?? this.fieldAria.labelledBy());
 
   /** The checked items' values. Bound by `[formField]`, or two-way via `[(value)]`. */
   readonly value = model<unknown[]>([]);

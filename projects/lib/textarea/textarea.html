@@ -2,7 +2,8 @@
   #native
   class="wr-textarea__native"
   [attr.id]="controlId()"
-  [attr.aria-label]="resolvedAriaLabel()"
+  [attr.aria-label]="nameLabel()"
+  [attr.aria-labelledby]="labelledBy()"
   [placeholder]="placeholder()"
   [rows]="rows()"
   [readonly]="readonly()"

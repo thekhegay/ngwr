@@ -419,11 +419,12 @@ describe('WrTextarea defaults from provideWrConfig', () => {
   imports: [WrFormField, WrTextarea],
   template: `
     <wr-form-field label="Description" [hint]="hint()">
-      <wr-textarea [placeholder]="placeholder()" />
+      <wr-textarea [placeholder]="placeholder()" [ariaLabel]="ariaLabel()" />
     </wr-form-field>
   `,
 })
 class FieldHost {
+  readonly ariaLabel = signal<string | null>(null);
   readonly hint = signal('');
   readonly placeholder = signal('');
 }
@@ -497,13 +498,36 @@ describe('WrTextarea inside a form field', () => {
     expect(native().hasAttribute('aria-invalid')).toBe(false);
   });
 
-  it('keeps the placeholder as its name — an aria-label outranks a <label>', () => {
-    // Deliberate, and the same call `wr-select` and `wr-slider` make: the field
-    // renders a label only when its `label` input is set, so it cannot promise a
-    // name to fall back on. Set `[ariaLabel]` where the two should read alike.
+  it('lets the field’s label name it, over its own placeholder', () => {
+    // This used to go the other way, and the reasoning recorded here was the
+    // defect: "the field cannot promise a name to fall back on". It can —
+    // `WrFormFieldContext.labelId` is exactly that promise, `null` when the
+    // field renders no label, and five controls already read it. So a textarea
+    // under `<wr-form-field label="Notes">` announced "Describe the product"
+    // and the visible label reached nobody. Nothing catches that: the control
+    // HAS a name, so axe is satisfied, and the name is plausible, so a reader
+    // is too — it fails WCAG 2.5.3, where the visible label has to be IN the
+    // accessible name.
     fixture.componentInstance.placeholder.set('Describe the product');
     fixture.detectChanges();
 
-    expect(native().getAttribute('aria-label')).toBe('Describe the product');
+    expect(native().hasAttribute('aria-label')).toBe(false);
+
+    const by = native().getAttribute('aria-labelledby');
+    expect(by).not.toBeNull();
+    expect(
+      root()
+        .querySelector(`#${CSS.escape(by!)}`)
+        ?.textContent?.trim()
+    ).toBe(root().querySelector('label')?.textContent?.trim());
+  });
+
+  it('still lets an explicit ariaLabel win, which is the escape hatch', () => {
+    fixture.componentInstance.placeholder.set('Describe the product');
+    fixture.componentInstance.ariaLabel.set('Product description');
+    fixture.detectChanges();
+
+    expect(native().getAttribute('aria-label')).toBe('Product description');
+    expect(native().hasAttribute('aria-labelledby')).toBe(false);
   });
 });

@@ -122,6 +122,7 @@
     class="wr-tree__list"
     role="tree"
     [attr.aria-multiselectable]="isMulti() ? 'true' : null"
+    [attr.aria-labelledby]="isOverlay() ? null : fieldAria.labelledBy()"
     [attr.aria-invalid]="isOverlay() ? null : fieldAria.ariaInvalid()"
     [attr.aria-describedby]="isOverlay() ? null : fieldAria.describedBy()"
     [class.wr-tree__list--virtual]="virtualized()"

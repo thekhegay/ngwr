@@ -9,6 +9,7 @@ import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   Component,
+  HostAttributeToken,
   ElementRef,
   ViewEncapsulation,
   afterNextRender,
@@ -73,6 +74,11 @@ export type WrSegmentedSize = 'sm' | 'md' | 'lg';
     '[class]': 'classes()',
     '[style]': 'thumbStyle()',
     role: 'group',
+    // `<label for>` binds only to a labelable element, which a `role="group"`
+    // is not — so inside a `<wr-form-field label="…">` the strip had no name,
+    // while the field's own `for` landed on the FIRST segment, making a click
+    // on the label select it.
+    '[attr.aria-labelledby]': 'labelledBy()',
     '[attr.aria-describedby]': 'describedBy()',
     '[attr.aria-invalid]': 'ariaInvalid()',
     '(focusout)': 'onFocusOut($event)',
@@ -181,6 +187,22 @@ export class WrSegmented<T = unknown> implements FormValueControl<T | null> {
   // these three announced the error and never the hint — and `<input wrInput>` is
   // the control the report was filed against.
   private readonly fieldAria = useFormFieldAria();
+  /**
+   * The author's own `aria-labelledby`, read as a static host attribute.
+   *
+   * A host binding WRITES the attribute, so binding the field's label
+   * unconditionally would REMOVE a reference the consumer put there by hand:
+   * `<wr-segmented aria-labelledby="range-question">` went nameless the moment
+   * the field's label was `null`, which a harness spec caught one commit after
+   * it was introduced. `HostAttributeToken` reads it at construction without
+   * touching the DOM, so this stays SSR-safe, and the author's own reference
+   * wins — the same precedence `[ariaLabel]` has everywhere else.
+   */
+  private readonly ownLabelledBy = inject(new HostAttributeToken('aria-labelledby'), { optional: true });
+
+  /** The surrounding field's label, unless the author named the control. */
+  protected readonly labelledBy = computed(() => this.ownLabelledBy ?? this.fieldAria.labelledBy());
+
   protected readonly describedBy = this.fieldAria.describedBy;
   protected readonly ariaInvalid = this.fieldAria.ariaInvalid;
 
