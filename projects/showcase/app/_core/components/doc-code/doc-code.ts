@@ -57,6 +57,21 @@ let docCodeUid = 0;
     // static `language="ts"` already lands in the DOM; a bound one does not,
     // and every snippet binds it — so read the active tab instead of the input.
     '[attr.data-language]': 'activeTab()?.language ?? null',
+    // The same reflection, for the files the panel is NOT currently showing.
+    //
+    // One panel holds whichever tab is open (see the template for why), so the
+    // prerendered HTML carries exactly one file and the markdown twin could
+    // only name the rest: 85 pages printed "Also shown on the page: SCSS" and
+    // then no `@use` line, directly under prose insisting that **both halves
+    // are needed**. v15 is what made that half load-bearing, by removing the
+    // `@use 'ngwr'` umbrella — so the twin was teaching the installation whose
+    // omission fails silently.
+    //
+    // An attribute rather than a second panel: it changes nothing on the page,
+    // enters no accessibility tree, and needs no decision about how a tabs
+    // pattern should hide an inactive panel. `JSON.stringify` keeps newlines
+    // and quotes intact through attribute serialisation.
+    '[attr.data-inactive-files]': 'inactiveFilesJson()',
   },
   providers: [provideWrIcons(lucideIcons({ copy: Copy, check: Check }))],
 })
@@ -88,6 +103,21 @@ export class DocCodeComponent {
   protected readonly normalized = computed(() => {
     const t = this.activeTab();
     return t ? stripIndent(t.code) : '';
+  });
+
+  /**
+   * The tabs the panel is not showing, as JSON — read by
+   * `scripts/gen/md-docs.ts` and by nothing else. `null` while there is only
+   * one file, so a single-file block carries no attribute at all.
+   */
+  protected readonly inactiveFilesJson = computed<string | null>(() => {
+    const all = this.tabs();
+    if (all.length < 2) return null;
+    const active = this.activeIndex();
+    const rest = all
+      .filter((_, i) => i !== active)
+      .map(f => ({ label: f.label, language: f.language, code: stripIndent(f.code) }));
+    return rest.length > 0 ? JSON.stringify(rest) : null;
   });
 
   protected readonly copied = signal(false);
