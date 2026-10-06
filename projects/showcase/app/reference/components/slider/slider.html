@@ -5,15 +5,13 @@
   [labels]="['Signal Forms', 'a11y']"
 >
   <ngwr-doc-section title="Single value" description="The default. Bind a `number` through any form mechanism.">
-    <ngwr-doc-code [code]="snippets.single" language="angular-html" />
-    <ngwr-doc-snippet code="<wr-slider [(value)]='volume' min='0' max='100' />">
+    <ngwr-doc-snippet [code]="snippets.single" language="angular-html">
       <wr-slider [(value)]="volume" min="0" max="100" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Range" description="Set `range` to render two thumbs. The bound value is `[low, high]`.">
-    <ngwr-doc-code [code]="snippets.range" language="angular-html" />
-    <ngwr-doc-snippet code="<wr-slider [(value)]='priceRange' range min='0' max='1000' step='50' />">
+    <ngwr-doc-snippet [code]="snippets.range" language="angular-html">
       <wr-slider [(value)]="priceRange" range min="0" max="1000" step="50" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -22,13 +20,13 @@
     title="Step"
     description="The thumb snaps to the nearest `min + n × step` — the ladder starts at `min`, not at zero, so a slider with `min` 5 and `step` 10 stops on 5, 15, 25, never on 10."
   >
-    <ngwr-doc-snippet code="<wr-slider [(value)]='stepped' min='0' max='100' step='25' />">
+    <ngwr-doc-snippet [code]="snippets.stepped" language="angular-html">
       <wr-slider [(value)]="stepped" min="0" max="100" step="25" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Disabled">
-    <ngwr-doc-snippet code="<wr-slider [(value)]='volume' disabled />">
+    <ngwr-doc-snippet [code]="snippets.disabled" language="angular-html">
       <wr-slider [(value)]="volume" disabled />
     </ngwr-doc-snippet>
   </ngwr-doc-section>

@@ -36,6 +36,10 @@ export default class SliderPageComponent {
     single: `<wr-slider [(value)]="volume" min="0" max="100" />`,
 
     range: `<wr-slider [(value)]="priceRange" range min="0" max="1000" step="50" />`,
+
+    stepped: `<wr-slider [(value)]="stepped" min="0" max="100" step="25" />`,
+
+    disabled: `<wr-slider [(value)]="volume" disabled />`,
   };
 
   protected readonly api = API.WrSlider;

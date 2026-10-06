@@ -29,7 +29,9 @@ export default class InputOtpPageComponent {
   protected readonly snippets = {
     states: `<wr-input-otp disabled [(value)]="code" />
 <wr-input-otp readonly [(value)]="code" />`,
-    basic: `<wr-input-otp [(value)]="code" length="6" (completed)="verify($event)" />`,
+    basic: `<wr-input-otp [(value)]="code" (completed)="onCompleted($event)" />`,
+
+    length: `<wr-input-otp [(value)]="codeShort" length="4" />`,
 
     masked: `<wr-input-otp [(value)]="secret" mask />`,
 
