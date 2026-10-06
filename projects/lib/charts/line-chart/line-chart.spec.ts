@@ -52,6 +52,10 @@ describe('WrLineChart', () => {
   const allPaths = (): string[] => [...root().querySelectorAll('path')].map(el => el.getAttribute('d') ?? '');
   const dots = (): SVGCircleElement[] => [...root().querySelectorAll<SVGCircleElement>('circle.wr-line-chart__dot')];
   /** What each x label hands the stylesheet, as a percentage of the chart's width. */
+  /** The y-axis labels, top to bottom, as rendered. */
+  const ticks = (): string[] =>
+    [...root().querySelectorAll<HTMLElement>('.wr-line-chart__tick')].map(el => el.textContent?.trim() ?? '');
+
   const xLabelProps = (name: string): number[] =>
     [...root().querySelectorAll<HTMLElement>('.wr-line-chart__x-label')].map(el =>
       Number.parseFloat(el.style.getPropertyValue(name))
@@ -136,6 +140,41 @@ describe('WrLineChart', () => {
 
     expect(lines()).toEqual([]);
     expect(root().querySelector('.wr-line-chart__legend')).toBeNull();
+  });
+
+  it('puts the y axis on readable numbers rather than quarters of the data', () => {
+    // The axis used to be "the data's max plus 10%, divided into four", which
+    // lands on a round number almost never: these seven integers gave
+    // 38.2 / 28.7 / 19.1 / 9.6 / 0. An axis is the one part of a chart a reader
+    // does arithmetic against.
+    fixture.componentInstance.series.set([{ label: 'Visits', data: [3, 12, 18, 9, 22, 30, 35] }]);
+    fixture.detectChanges();
+
+    expect(ticks()).toEqual(['40', '30', '20', '10', '0']);
+  });
+
+  it('keeps the ladder readable at every magnitude, and never touches the frame', () => {
+    for (const [data, expected] of [
+      [
+        [12, 23],
+        ['30', '20', '10', '0'],
+      ],
+      [
+        [100, 8400],
+        ['10k', '7.5k', '5k', '2.5k', '0'],
+      ],
+      [
+        [0.2, 0.9],
+        ['1', '0.75', '0.5', '0.25', '0'],
+      ],
+    ] as const) {
+      fixture.componentInstance.series.set([{ label: 'S', data: [...data] }]);
+      fixture.detectChanges();
+      expect(ticks(), String(data)).toEqual([...expected]);
+      // The top tick is at or above the peak, which is what replaced the old
+      // 10% pad: a line that ends exactly on the frame reads as clipped.
+      expect(Number.parseFloat(ticks()[0].replace('k', 'e3'))).toBeGreaterThan(data[1]);
+    }
   });
 
   it('centres a flat series instead of dividing by a zero span', () => {

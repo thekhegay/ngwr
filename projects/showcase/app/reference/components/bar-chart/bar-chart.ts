@@ -47,6 +47,17 @@ export default class BarChartPageComponent {
     { name: 'WrBarChartDatum', description: 'One bar of data.', type: 'interface' },
     { name: 'label', description: 'Category label under the bar.', type: 'string', required: true, sub: true },
     { name: 'value', description: 'Bar magnitude.', type: 'number', required: true, sub: true },
-    { name: 'color', description: 'CSS color for the bar.', type: 'string', default: 'palette', sub: true },
+    {
+      // NOT a palette — that is the donut and the line chart, which rotate
+      // through a fallback list per series. A bar chart is one series, so an
+      // uncoloured bar takes the chart's own `color` input and every bar comes
+      // out the same. Saying `palette` here promised five different bars.
+      name: 'color',
+      description:
+        "CSS color for this bar. Unset falls back to the chart's own `color` input, so by default every bar is the same.",
+      type: 'string',
+      default: 'the chart’s `color`',
+      sub: true,
+    },
   ];
 }
