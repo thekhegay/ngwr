@@ -56,8 +56,8 @@ export default class ColorPickerPageComponent {
     trigger: `<button wrColorPickerTrigger
         [(value)]="color"
         [swatches]="palette">
-  <span class="swatch" [style.background]="color"></span>
-  {{ color }}
+  <span class="swatch" [style.background]="color()"></span>
+  {{ color() }}
 </button>`,
 
     utils: `import { parseHex, toHex, rgbToHsl } from 'ngwr/color-picker';
