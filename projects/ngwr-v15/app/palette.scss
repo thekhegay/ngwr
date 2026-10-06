@@ -1,0 +1,54 @@
+.pal {
+  display: grid;
+  grid-template-columns: 11rem 1fr 1fr;
+  gap: 0 1.25rem;
+  align-items: center;
+  font: 12px/1.5 ui-monospace, monospace;
+}
+.pal__head {
+  position: sticky;
+  top: 0;
+  padding: 0.5rem 0;
+  background: var(--wr-color-surface);
+  font-weight: 600;
+  color: var(--wr-color-on-surface);
+  border-bottom: 1px solid var(--wr-color-outline);
+}
+.pal__label {
+  color: var(--wr-color-on-surface-muted);
+  padding: 0.35rem 0;
+}
+.pal__cell {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0;
+}
+.pal__swatch {
+  flex: 0 0 auto;
+  width: 3.5rem;
+  height: 1.75rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--wr-color-outline);
+}
+.pal__hex {
+  width: 5rem;
+  color: var(--wr-color-on-surface);
+}
+.pal__ratio {
+  width: 3.5rem;
+  color: var(--wr-color-on-surface-muted);
+  text-align: right;
+}
+.pal__same {
+  color: var(--wr-color-success-ink);
+}
+.pal__gap .pal__label,
+.pal__gap .pal__hex {
+  color: var(--wr-color-danger-ink);
+}
+.pal__note {
+  grid-column: 1 / -1;
+  padding: 0 0 0.5rem;
+  color: var(--wr-color-on-surface-muted);
+}
