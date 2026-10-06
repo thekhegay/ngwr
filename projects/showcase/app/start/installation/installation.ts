@@ -210,8 +210,9 @@ gzip -9 -c check.css | wc -c   # over the wire`,
 @use 'ngwr/button';
 @use 'ngwr/select';   // its panel is a <wr-option> list, so this covers both
 @use 'ngwr/dialog';   // needed by WrDialog.open(), which no template names`,
-    reset: `// styles.scss — reset AFTER the tokens it reads.
-@use 'ngwr/theme';
+    reset: `// styles.scss — the reset carries the tokens it reads, so this one line
+// is enough. Keep it BELOW any "@use 'ngwr/theme' with (...)", which has to be
+// the first ngwr line in the file or Sass refuses to configure it.
 @use 'ngwr/reset';
 
 // What it changes outside ngwr's own components:
