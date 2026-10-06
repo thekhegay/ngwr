@@ -1,140 +1,19 @@
 <header class="sandbox__bar">
-  <strong>ngwr v15 sandbox — Bits</strong>
-  <button type="button" (click)="toggleTheme()">{{ theme.resolved() === 'dark' ? 'Dark' : 'Light' }}</button>
+  <strong>ngwr v15 sandbox — toast stack</strong>
+  <button wr-btn type="button" size="sm" outlined (click)="toggleTheme()">
+    {{ theme.resolved() === 'dark' ? 'Dark' : 'Light' }}
+  </button>
 </header>
 
 <main class="sandbox">
   <section class="sandbox__block">
-    <h2>Aurora</h2>
-    <div style="position: relative; min-height: 10rem; overflow: hidden">
-      <wr-aurora [amplitude]="1" [blend]="0.5" [speed]="1" />
+    <h2>Burst</h2>
+    <div class="row">
+      <button wr-btn type="button" (click)="one()">One</button>
+      <button wr-btn type="button" color="primary" (click)="burst(2)">Two at once</button>
+      <button wr-btn type="button" color="primary" (click)="burst(3)">Three at once</button>
+      <button wr-btn type="button" color="danger" (click)="burst(8)">Eight at once</button>
+      <button wr-btn type="button" color="warning" (click)="stream()">Stream (overlapping)</button>
     </div>
-  </section>
-
-  <section class="sandbox__block">
-    <h2>Waves</h2>
-    <section style="position: relative; min-height: 10rem">
-      <wr-waves [waveAmpX]="32" [waveAmpY]="16" [xGap]="10" [yGap]="32" />
-      <h1>Content above the waves</h1>
-    </section>
-  </section>
-
-  <section class="sandbox__block">
-    <h2>Border glow, star border, tilt card, spotlight card</h2>
-    <wr-border-glow [borderRadius]="28" [glowRadius]="40" [coneSpread]="25" [glowIntensity]="1" [animated]="false">
-      Border glow
-    </wr-border-glow>
-    <wr-star-border mode="infinite" rays="mirror" [speed]="6">Star border</wr-star-border>
-    <wr-tilt-card [maxTilt]="12" [perspective]="800" [scale]="1.03" [glare]="false">
-      <h3>Hover me</h3>
-      <p>Move the cursor across me.</p>
-    </wr-tilt-card>
-    <wr-spotlight-card>
-      <h3>Cursor-tracked spotlight</h3>
-      <p>Move the pointer across this card.</p>
-    </wr-spotlight-card>
-  </section>
-
-  <section class="sandbox__block">
-    <h2>Marquee</h2>
-    <wr-marquee
-      [items]="items"
-      [speed]="120"
-      [gap]="48"
-      [itemHeight]="36"
-      direction="left"
-      [pauseOnHover]="false"
-      [fadeOut]="true"
-    />
-  </section>
-
-  <section class="sandbox__block">
-    <h2>Click spark and splash cursor</h2>
-    <wr-click-spark
-      sparkColor="var(--wr-color-on-surface)"
-      [sparkCount]="8"
-      [sparkRadius]="15"
-      [sparkSize]="10"
-      [duration]="400"
-      easing="ease-out"
-    >
-      <div>Click me</div>
-    </wr-click-spark>
-    <div style="position: relative; min-height: 8rem">
-      <wr-splash-cursor [fullscreen]="false" [splatRadius]="0.2" [curl]="3" />
-    </div>
-  </section>
-
-  <section class="sandbox__block">
-    <h2>Text — blur, circular, decrypt, falling</h2>
-    <wr-blur-text text="Welcome to ngwr" animateBy="words" direction="top" [delay]="200" [stepDuration]="0.35" />
-    <wr-circular-text text="HELLO * NGWR * " [spinDuration]="20" onHover="speedUp" />
-    <wr-decrypt-text
-      text="Hover to decrypt!"
-      [speed]="50"
-      [sequential]="false"
-      revealDirection="start"
-      animateOn="hover"
-      [useOriginalCharsOnly]="false"
-    />
-    <wr-falling-text
-      text="Hover this block. Each word falls and you can drag them around."
-      trigger="hover"
-      [highlightWords]="['Hover', 'drag']"
-      [gravity]="980"
-      fontSize="1.5rem"
-    />
-  </section>
-
-  <section class="sandbox__block">
-    <h2>Text — fuzzy, glitch, gradient, rotating</h2>
-    <wr-fuzzy-text
-      text="404"
-      [fuzzRange]="30"
-      [baseIntensity]="0.18"
-      [hoverIntensity]="0.5"
-      direction="horizontal"
-      [glitchMode]="false"
-    />
-    <wr-glitch-text
-      text="ERROR"
-      [speed]="1"
-      [enableShadows]="true"
-      [enableOnHover]="true"
-      background="var(--wr-color-surface)"
-    />
-    <wr-gradient-text
-      [animationSpeed]="8"
-      direction="horizontal"
-      [yoyo]="true"
-      [pauseOnHover]="false"
-      [showBorder]="false"
-    >
-      Hello, ngwr!
-    </wr-gradient-text>
-    <wr-rotating-text
-      [texts]="['design', 'ship', 'iterate']"
-      [rotationInterval]="2000"
-      splitBy="characters"
-      [duration]="0.6"
-      easing="cubic-bezier(0.16, 1, 0.3, 1)"
-      [staggerDuration]="0"
-      staggerFrom="first"
-      [loop]="true"
-    />
-  </section>
-
-  <section class="sandbox__block">
-    <h2>Text — shiny, split, typewriter</h2>
-    <wr-shiny-text text="Premium" [speed]="2" [spread]="120" direction="left" [yoyo]="false" [pauseOnHover]="false" />
-    <wr-split-text text="Hello, ngwr!" splitType="chars" [delay]="40" [duration]="1.2" rootMargin="0px" />
-    <wr-typewriter
-      [texts]="['design.', 'ship.', 'iterate.']"
-      [typingSpeed]="50"
-      [deletingSpeed]="30"
-      [pauseDuration]="2000"
-      [loop]="true"
-      cursorCharacter="|"
-    />
   </section>
 </main>
