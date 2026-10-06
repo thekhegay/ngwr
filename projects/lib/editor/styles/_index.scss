@@ -1,5 +1,21 @@
 @use '../../theme/styles' as theme;
 
+// Styles for the entry points this component's own markup renders.
+//
+// v15 removed the `@use 'ngwr'` umbrella, which is what had been covering these:
+// a consumer now writes one `@use` per component they place, and never learns
+// about the ones a component places INSIDE itself. `@use 'ngwr/date-picker'`
+// alone gave a date field with a raw browser input — grey, square, 2px inset —
+// and `@use 'ngwr/table'` a table with unstyled checkboxes and pager. Nothing
+// says so: the component renders, the markup is right, and no build, console or
+// gate has an opinion about a missing rule.
+//
+// Sass deduplicates `@use` within a compilation, so an app that also loads one of
+// these by hand still emits it once.
+@use '../../button/styles' as button-styles; // WrButton
+@use '../../input/styles' as input-styles; // WrInput
+@use '../../popover/styles' as popover-styles; // WrPopover
+
 .wr-editor {
   display: flex;
   flex-direction: column;
