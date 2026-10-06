@@ -317,8 +317,6 @@
   }
 }
 
-// Overlay pane used by [wrColorPickerTrigger]. The inner `.wr-color-picker`
-// brings its own border + shadow, so the pane just provides z-index isolation.
-.wr-color-picker-overlay {
-  z-index: 1050;
-}
+// The overlay pane `[wrColorPickerTrigger]` opens needs no rule: the inner
+// `.wr-color-picker` brings its own border and shadow, and a `z-index` on a
+// pane does nothing — see the note in `ngwr/date-picker`.
