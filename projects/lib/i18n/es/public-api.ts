@@ -38,8 +38,8 @@ export const wrEs: WrI18nCatalog = {
   table: {
     empty: 'Sin datos',
     loading: 'Cargando…',
-    sort: 'Ordenar columna',
-    filter: 'Filtrar columna',
+    sort: 'Ordenar columna {{column}}',
+    filter: 'Filtrar columna {{column}}',
     selectAll: 'Seleccionar todas las filas',
     selectRow: 'Seleccionar fila',
     expandRow: 'Mostrar u ocultar los detalles de la fila',

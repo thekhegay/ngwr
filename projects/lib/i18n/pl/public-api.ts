@@ -38,8 +38,8 @@ export const wrPl: WrI18nCatalog = {
   table: {
     empty: 'Brak danych',
     loading: 'Ładowanie…',
-    sort: 'Sortuj kolumnę',
-    filter: 'Filtruj kolumnę',
+    sort: 'Sortuj kolumnę {{column}}',
+    filter: 'Filtruj kolumnę {{column}}',
     selectAll: 'Zaznacz wszystkie wiersze',
     selectRow: 'Zaznacz wiersz',
     // „Toggle” to jeden przycisk w obie strony, więc nazwa nie może obiecywać

@@ -38,8 +38,8 @@ export const wrVi: WrI18nCatalog = {
   table: {
     empty: 'Không có dữ liệu',
     loading: 'Đang tải…',
-    sort: 'Sắp xếp cột',
-    filter: 'Lọc cột',
+    sort: 'Sắp xếp cột {{column}}',
+    filter: 'Lọc cột {{column}}',
     selectAll: 'Chọn tất cả hàng',
     selectRow: 'Chọn hàng',
     expandRow: 'Hiện/ẩn chi tiết hàng',

@@ -38,8 +38,8 @@ export const wrSv: WrI18nCatalog = {
   table: {
     empty: 'Inga data',
     loading: 'Läser in…',
-    sort: 'Sortera kolumn',
-    filter: 'Filtrera kolumn',
+    sort: 'Sortera kolumnen {{column}}',
+    filter: 'Filtrera kolumnen {{column}}',
     selectAll: 'Markera alla rader',
     selectRow: 'Markera rad',
     expandRow: 'Visa eller dölj raddetaljer',

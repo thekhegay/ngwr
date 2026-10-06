@@ -38,8 +38,8 @@ export const wrHi: WrI18nCatalog = {
   table: {
     empty: 'कोई डेटा नहीं',
     loading: 'लोड हो रहा है…',
-    sort: 'कॉलम क्रमबद्ध करें',
-    filter: 'कॉलम फ़िल्टर करें',
+    sort: '{{column}} कॉलम क्रमबद्ध करें',
+    filter: '{{column}} कॉलम फ़िल्टर करें',
     selectAll: 'सभी पंक्तियां चुनें',
     selectRow: 'पंक्ति चुनें',
     expandRow: 'पंक्ति का विवरण टॉगल करें',

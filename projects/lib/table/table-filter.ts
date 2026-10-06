@@ -8,7 +8,7 @@
 import { Component, ViewEncapsulation, computed, input, output, signal } from '@angular/core';
 
 import { WrDropdown, WrDropdownMenu } from 'ngwr/dropdown';
-import { useI18nText } from 'ngwr/i18n';
+import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { isComposing } from 'ngwr/utils';
 
 import type { WrTableFilterItem } from './types';
@@ -30,6 +30,17 @@ export class WrTableFilter {
   /** Accessible name of the filter trigger. Falls back to `table.filter`. */
   readonly filterLabel = input<string | null>(null);
 
+  /**
+   * The column this filter belongs to, for the trigger's accessible name.
+   *
+   * Without it every filter trigger in a header row announced the same
+   * "Filter column", so a screen-reader user tabbing the row heard the same
+   * button three times and could not tell which column each one narrowed. The
+   * caret and the funnel sit beside the column title, so sighted readers had
+   * the context all along; an `aria-label` REPLACES content, so nobody else did.
+   */
+  readonly column = input<string>('');
+
   /** Text shown when the search finds nothing. Falls back to `table.noMatches`. */
   readonly noMatchesLabel = input<string | null>(null);
 
@@ -45,7 +56,11 @@ export class WrTableFilter {
   /** Label of the clear-selection button. Falls back to `table.reset`. */
   readonly resetLabel = input<string | null>(null);
 
-  protected readonly resolvedFilterLabel = useI18nText(this.filterLabel, 'table.filter', 'Filter column');
+  private readonly filterText = useI18nFormatter('table.filter', 'Filter {{column}}');
+
+  protected readonly resolvedFilterLabel = computed(
+    () => this.filterLabel() ?? this.filterText({ column: this.column() })
+  );
   protected readonly resolvedNoMatchesLabel = useI18nText(this.noMatchesLabel, 'table.noMatches', 'No matches');
   protected readonly resolvedSearchLabel = useI18nText(this.searchLabel, 'table.search', 'Search');
   protected readonly resolvedResetLabel = useI18nText(this.resetLabel, 'table.reset', 'Reset');

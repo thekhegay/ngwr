@@ -38,8 +38,8 @@ export const wrCs: WrI18nCatalog = {
   table: {
     empty: 'Žádná data',
     loading: 'Načítání…',
-    sort: 'Seřadit sloupec',
-    filter: 'Filtrovat sloupec',
+    sort: 'Seřadit sloupec {{column}}',
+    filter: 'Filtrovat sloupec {{column}}',
     selectAll: 'Vybrat všechny řádky',
     selectRow: 'Vybrat řádek',
     expandRow: 'Přepnout podrobnosti řádku',

@@ -38,8 +38,8 @@ export const wrZh: WrI18nCatalog = {
   table: {
     empty: '暂无数据',
     loading: '加载中…',
-    sort: '对此列排序',
-    filter: '筛选此列',
+    sort: '对{{column}}列排序',
+    filter: '筛选{{column}}列',
     selectAll: '选择所有行',
     selectRow: '选择行',
     expandRow: '展开或收起行详情',

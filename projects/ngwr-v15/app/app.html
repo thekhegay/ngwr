@@ -1,5 +1,5 @@
 <header class="bar">
-  <h1 class="bar__title">ngwr v15 sandbox — Data</h1>
+  <h1 class="bar__title">ngwr v15 sandbox — Table &amp; Event Calendar</h1>
   <button wr-btn type="button" outlined size="sm" (click)="toggleTheme()">
     <wr-icon [name]="theme.resolved() === 'dark' ? 'sun' : 'moon'" />
     {{ theme.resolved() === 'dark' ? 'Light' : 'Dark' }}
@@ -8,66 +8,56 @@
 
 <main class="sandbox">
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Sortable List — basic usage</h2>
-    <wr-sortable-list [(items)]="rows" (reorder)="onReorder($event)">
-      @for (row of rows(); track row.id) {
-        <wr-sortable-item>{{ $index + 1 }}. {{ row.label }}</wr-sortable-item>
-      }
-    </wr-sortable-list>
-    <p>Reordered: {{ reordered() }}</p>
+    <h2 class="sandbox__heading">Table — basic usage</h2>
+    <wr-table [columns]="columns" [items]="rows" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Sortable List — with a drag handle</h2>
-    <wr-sortable-list [(items)]="rows">
-      @for (row of rows(); track row.id) {
-        <wr-sortable-item>
-          <span wrDragHandle aria-label="Reorder">⠿</span>
-          {{ row.label }}
-        </wr-sortable-item>
-      }
-    </wr-sortable-list>
-  </section>
-
-  <section class="sandbox__block">
-    <h2 class="sandbox__heading">Pagination — basic usage</h2>
-    <wr-pagination [total]="120" [(page)]="page" />
-  </section>
-
-  <section class="sandbox__block">
-    <h2 class="sandbox__heading">Pagination — sizes</h2>
-    <wr-pagination [total]="120" [(page)]="pageSm" size="sm" />
-    <wr-pagination [total]="120" [(page)]="pageMd" size="md" />
-    <wr-pagination [total]="120" [(page)]="pageLg" size="lg" />
-  </section>
-
-  <section class="sandbox__block">
-    <h2 class="sandbox__heading">Pagination — shape</h2>
-    <wr-pagination [total]="120" [(page)]="pageRounded" shape="rounded" />
-    <wr-pagination [total]="120" [(page)]="pageSquare" shape="square" />
-  </section>
-
-  <section class="sandbox__block">
-    <h2 class="sandbox__heading">Tree — single selection</h2>
-    <wr-tree [nodes]="folders" [(selected)]="picked" [(expanded)]="open" selectionMode="single" />
-  </section>
-
-  <section class="sandbox__block">
-    <h2 class="sandbox__heading">Tree — multi selection</h2>
-    <wr-tree [nodes]="folders" [(selected)]="pickedMulti" [(expanded)]="openMulti" selectionMode="multi" />
-  </section>
-
-  <section class="sandbox__block">
-    <h2 class="sandbox__heading">Graph — nodes and edges</h2>
-    <wr-graph [nodes]="nodes" [edges]="edges" ariaLabel="Writing workflow" />
-  </section>
-
-  <section class="sandbox__block">
-    <h2 class="sandbox__heading">Virtual Scroll — 5000 rows</h2>
-    <wr-virtual-scroll [items]="manyRows" [itemSize]="32" [height]="200">
-      <ng-template let-row let-i="index">
-        <div style="padding: 0.375rem 0.75rem">{{ i + 1 }}. {{ row }}</div>
+    <h2 class="sandbox__heading">Table — sort + filter + custom cell</h2>
+    <wr-table [columns]="columns" [items]="rows" [(sort)]="sort" (filterChange)="onFilter($event)">
+      <ng-template wrTableCell="role" let-value>
+        <wr-tag [color]="value === 'admin' ? 'danger' : 'info'">{{ value }}</wr-tag>
       </ng-template>
-    </wr-virtual-scroll>
+    </wr-table>
+  </section>
+
+  <section class="sandbox__block">
+    <h2 class="sandbox__heading">Table — loading and empty</h2>
+    <wr-table [columns]="columns" [items]="[]" emptyLabel="No users yet" />
+  </section>
+
+  <section class="sandbox__block">
+    <h2 class="sandbox__heading">Table — row selection</h2>
+    <wr-table rowSelection="multiple" rowKey="email" [(selection)]="selected" [columns]="columns" [items]="rows" />
+  </section>
+
+  <section class="sandbox__block">
+    <h2 class="sandbox__heading">Table — expandable rows</h2>
+    <wr-table rowKey="email" [(expanded)]="expanded" [columns]="columns" [items]="rows">
+      <ng-template wrTableExpand let-row>
+        <p>{{ row.name }} — {{ row.email }}</p>
+      </ng-template>
+    </wr-table>
+  </section>
+
+  <section class="sandbox__block">
+    <h2 class="sandbox__heading">Table — row grouping with a custom header</h2>
+    <wr-table groupBy="role" [(collapsedGroups)]="collapsed" [columns]="columns" [items]="rows">
+      <ng-template wrTableGroupHeader let-value let-count="count">
+        <wr-tag color="primary" transparent>{{ value }}</wr-tag>
+        <small>{{ count }} users</small>
+      </ng-template>
+    </wr-table>
+  </section>
+
+  <section class="sandbox__block">
+    <h2 class="sandbox__heading">Table — CSV export</h2>
+    <wr-table #table [columns]="columns" [items]="rows" />
+    <wr-btn (click)="table.exportCsv({ filename: 'users.csv' })">Export CSV</wr-btn>
+  </section>
+
+  <section class="sandbox__block">
+    <h2 class="sandbox__heading">Event Calendar — month</h2>
+    <wr-event-calendar [events]="events()" (eventChange)="onEventChange($event)" />
   </section>
 </main>

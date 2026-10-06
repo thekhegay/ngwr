@@ -38,8 +38,8 @@ export const wrPt: WrI18nCatalog = {
   table: {
     empty: 'Sem dados',
     loading: 'A carregar…',
-    sort: 'Ordenar coluna',
-    filter: 'Filtrar coluna',
+    sort: 'Ordenar coluna {{column}}',
+    filter: 'Filtrar coluna {{column}}',
     selectAll: 'Selecionar todas as linhas',
     selectRow: 'Selecionar linha',
     expandRow: 'Alternar detalhes da linha',

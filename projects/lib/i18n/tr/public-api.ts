@@ -38,8 +38,8 @@ export const wrTr: WrI18nCatalog = {
   table: {
     empty: 'Veri yok',
     loading: 'Yükleniyor…',
-    sort: 'Sütunu sırala',
-    filter: 'Sütunu filtrele',
+    sort: '{{column}} sütununu sırala',
+    filter: '{{column}} sütununu filtrele',
     selectAll: 'Tüm satırları seç',
     selectRow: 'Satırı seç',
     expandRow: 'Satır ayrıntılarını aç/kapat',
