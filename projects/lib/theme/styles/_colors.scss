@@ -468,12 +468,15 @@ $contrast-light: #ffffff !default;
   // wash to body text, and the dark theme sets its own six — that flip is what
   // makes every role alias below theme-aware without being written twice.
   //
-  // Each position now reads a step of the FIXED scale further down rather than
+  // Each position here reads a step of the FIXED scale further down rather than
   // carrying a hex of its own. The two ramps had drifted into two palettes: the
   // fixed scale was already slate to the byte, the painted one was six
   // hand-picked neighbours of it, and `gray-4` / `gray-6` happened to land on
   // `gray-300` / `gray-900` exactly while the other four sat a byte or two off.
-  // One set of values, one indirection carrying the theme.
+  //
+  // The LIGHT side only. The dark theme keeps hand-tuned values and says at its
+  // own declarations why: the scale's dark end has two steps where that side
+  // needs three, and its 950 is darker than the dark canvas.
   //
   // The one position that MOVED rather than being renamed is `gray-5`, the
   // muted-text step: it was `#5f6c7d`, between `gray-500` and `gray-600`, and
