@@ -1,5 +1,5 @@
 <header class="sandbox__bar">
-  <strong>ngwr — proposed token scales</strong>
+  <strong>ngwr palette — ours against Tailwind</strong>
   <button wr-btn type="button" size="sm" outlined (click)="toggleTheme()">
     {{ theme.resolved() === 'dark' ? 'Dark' : 'Light' }}
   </button>
@@ -7,141 +7,58 @@
 
 <main class="sandbox">
   <section class="sandbox__block">
-    <h2>Padding / margin — five steps on a 4px grid</h2>
-    <p>The number on the right is how many of the catalog's 303 spacing literals already equal that step exactly.</p>
-    <div class="tok">
-      @for (s of space; track s.name) {
-        <div class="tok__row">
-          <span class="tok__name">--wr-space-{{ s.name }}</span>
-          <span class="tok__val">{{ s.value }}</span>
-          <span class="tok__pad" [style.padding]="s.value"><span>content</span></span>
-          <span class="tok__val">{{ s.uses }} uses</span>
-        </div>
-      }
-    </div>
-  </section>
-
-  <section class="sandbox__block">
-    <h2>Radius — a corner inside a corner</h2>
+    <h2>Neutral ramp</h2>
     <p>
-      Left of each pair: the same radius on both, which is what you get by reaching for one token twice. Right:
-      <code>inner = outer − padding</code>. The gap between the two curves is constant on the right and pinches shut at
-      the corner on the left, which is the whole of it. Padding between them is 12px in every case.
+      Ours is read out of the compiled theme, so this column is whatever the library actually ships, and the counterpart
+      flips with the theme — a dark theme reads the ramp from the other end. The ratio is against the live canvas. A row
+      says so when the two sides match to the byte; the two red rows are steps we do not have, and that is where a 3:1
+      control border would live.
     </p>
-    <div class="nest">
-      @for (r of nested; track r) {
-        <div class="nest__case nest__case--bad">
-          <div class="nest__outer" [style.border-radius]="r">
-            <div class="nest__inner" [style.border-radius]="r"></div>
-          </div>
-          <span>same {{ r }}</span>
+    <div class="pal">
+      <div class="pal__head">token</div>
+      <div class="pal__head">ngwr</div>
+      <div class="pal__head">Tailwind</div>
+      @for (r of ramp(); track r.theirsName) {
+        <div class="pal__label" [class.pal__gap]="!r.ours">{{ r.label }}</div>
+        <div class="pal__cell" [class.pal__gap]="!r.ours">
+          @if (r.ours) {
+            <span class="pal__swatch" [style.background]="r.ours"></span>
+            <span class="pal__hex" [class.pal__same]="r.same">{{ r.oursName }}</span>
+            <span class="pal__ratio">{{ r.oursRatio }}:1</span>
+          } @else {
+            <span class="pal__hex">no step</span>
+          }
         </div>
-        <div class="nest__case">
-          <div class="nest__outer" [style.border-radius]="r">
-            <div class="nest__inner" [style.border-radius]="`max(0px, calc(${r} - var(--p-md)))`"></div>
-          </div>
-          <span>outer {{ r }} − 12px</span>
+        <div class="pal__cell">
+          <span class="pal__swatch" [style.background]="r.theirs"></span>
+          <span class="pal__hex" [class.pal__same]="r.same">{{ r.theirsName }}</span>
+          <span class="pal__ratio">{{ r.theirsRatio }}:1</span>
         </div>
+        <div class="pal__note">{{ r.note }}{{ r.same ? ' — identical to the byte' : '' }}</div>
       }
     </div>
   </section>
 
   <section class="sandbox__block">
-    <h2>Radius — the scale, and the inner each step implies</h2>
-    <p>Inner = outer − the padding between them, so a nested corner stays concentric instead of looking pinched.</p>
-    <div class="tok">
-      @for (r of radius; track r.name) {
-        <div class="tok__row">
-          <span class="tok__name">--wr-radius-{{ r.name }}</span>
-          <span class="tok__val">{{ r.value }}</span>
-          <span class="tok__card" [style.border-radius]="r.value"></span>
-          <span class="tok__nest" [style.border-radius]="r.value">
-            <div [style.border-radius]="`calc(${r.value} - var(--p-md))`"></div>
-          </span>
-        </div>
-      }
-    </div>
-  </section>
-
-  <section class="sandbox__block">
-    <h2>Radius — today against the proposed step</h2>
-    <p>Left is what ships now, right is the step it would land on. Only the middle one moves: 10px to 8px.</p>
-    <div class="tok">
-      @for (r of radiusNow; track r.now) {
-        <div class="tok__row">
-          <span class="tok__name">radius-{{ r.now }}</span>
-          <span class="tok__pair">
-            <span class="tok__chip" [style.border-radius]="r.nowVal">{{ r.nowVal }}</span>
-            <span class="tok__chip" [style.border-radius]="r.nextVal">{{ r.nextVal }}</span>
-          </span>
-          <span class="tok__val">&rarr; --wr-radius-{{ r.next }}</span>
-        </div>
-      }
-    </div>
-  </section>
-
-  <section class="sandbox__block">
-    <h2>z-index — named layers</h2>
+    <h2>Intents</h2>
     <p>
-      Ten global values today, picked one at a time against each other: the date-picker and colour-picker overlays sit
-      at 1050 above the overlay container's 1000 they live inside, and the tour holds 999 and 1001 at once.
+      Ours are tuned so the label on a filled control can be white; theirs are not, which is most of the difference.
     </p>
-    <div class="tok">
-      @for (l of layers; track l.name) {
-        <div class="tok__row">
-          <span class="tok__name">--wr-layer-{{ l.name }}</span>
-          <span class="tok__layer">{{ l.value }}</span>
+    <div class="pal">
+      <div class="pal__head">intent</div>
+      <div class="pal__head">ngwr</div>
+      <div class="pal__head">Tailwind</div>
+      @for (r of intents(); track r.theirsName) {
+        <div class="pal__label">{{ r.label }}</div>
+        <div class="pal__cell">
+          <span class="pal__swatch" [style.background]="r.ours ?? 'transparent'"></span>
+          <span class="pal__hex" [class.pal__same]="r.same">{{ r.oursName }}</span>
+          <span class="pal__ratio">{{ r.oursRatio }}:1</span>
         </div>
-      }
-    </div>
-  </section>
-
-  <section class="sandbox__block">
-    <h2>Line height — three steps</h2>
-    <p>55 declarations today, 17 distinct, and the units are mixed: some are leading, some are a box height.</p>
-    <div class="tok">
-      @for (l of leading; track l.name) {
-        <div class="tok__row">
-          <span class="tok__name">--wr-leading-{{ l.name }}</span>
-          <span class="tok__val">{{ l.value }}</span>
-          <span style="max-width: 22rem" [style.line-height]="l.value">
-            A paragraph set at this step, long enough to wrap onto a second line so the leading is visible.
-          </span>
-        </div>
-      }
-    </div>
-  </section>
-
-  <section class="sandbox__block">
-    <h2>Shadow — five steps, each theme its own</h2>
-    <div class="tok">
-      @for (s of shadow; track s.name) {
-        <div class="tok__row">
-          <span class="tok__name">--wr-shadow-{{ s.name }}</span>
-          <span class="tok__val">{{ s.value }}</span>
-          <span class="tok__card" [style.box-shadow]="`var(--s-${s.name})`" style="border: 0"></span>
-        </div>
-      }
-    </div>
-  </section>
-
-  <section class="sandbox__block">
-    <h2>Border colours — contrast against the canvas, light / dark</h2>
-    <p>
-      The natural third step of the neutral scale reaches 2.56:1. A control border that meets WCAG 1.4.11 needs 3:1,
-      which is the fourth row — darker than the scale's own rhythm, which is the whole of the trade.
-    </p>
-    <div class="tok">
-      @for (b of borders; track b.name) {
-        <div class="tok__row">
-          <span class="tok__name">--wr-border-{{ b.name }}</span>
-          <span class="tok__swatch" [style.border]="`1px solid var(--b-${b.name})`"></span>
-          <span class="tok__val">{{ b.value }}</span>
-          <input
-            [style.border]="`1px solid var(--b-${b.name})`"
-            style="padding: 0.5rem 0.75rem; border-radius: 0.5rem; background: transparent; color: inherit"
-            placeholder="a control edge"
-          />
+        <div class="pal__cell">
+          <span class="pal__swatch" [style.background]="r.theirs"></span>
+          <span class="pal__hex" [class.pal__same]="r.same">{{ r.theirsName }}</span>
+          <span class="pal__ratio">{{ r.theirsRatio }}:1</span>
         </div>
       }
     </div>
