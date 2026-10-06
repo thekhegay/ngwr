@@ -41,8 +41,8 @@ export const wrHe: WrI18nCatalog = {
   table: {
     empty: 'אין נתונים',
     loading: 'טוען…',
-    sort: 'מיון עמודה',
-    filter: 'סינון עמודה',
+    sort: 'מיון עמודת {{column}}',
+    filter: 'סינון עמודת {{column}}',
     selectAll: 'בחירת כל השורות',
     selectRow: 'בחירת שורה',
     expandRow: 'הצגה או הסתרה של פרטי השורה',

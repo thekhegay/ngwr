@@ -38,8 +38,8 @@ export const wrAr: WrI18nCatalog = {
   table: {
     empty: 'لا توجد بيانات',
     loading: 'جارٍ التحميل…',
-    sort: 'فرز العمود',
-    filter: 'تصفية العمود',
+    sort: 'فرز عمود {{column}}',
+    filter: 'تصفية عمود {{column}}',
     selectAll: 'تحديد كل الصفوف',
     selectRow: 'تحديد الصف',
     expandRow: 'تبديل تفاصيل الصف',
