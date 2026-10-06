@@ -159,6 +159,13 @@
       content: '';
       flex: 0 0 0;
       min-height: var(--wr-select-line-height);
+      // A pseudo-element with `content` IS a flex item, so the trigger's own
+      // `gap` was applied between it and the real first child — a zero-width
+      // box still gets spaced from its neighbour. Every trigger in the catalog
+      // carried a phantom 8px indent: the value sat 21px from the edge where
+      // the 12px padding plus the 1px border says 13. Cancel exactly the gap
+      // this one introduces, so retuning `--wr-select-trigger-gap` stays correct.
+      margin-inline-end: calc(-1 * var(--wr-select-trigger-gap));
     }
   }
 
