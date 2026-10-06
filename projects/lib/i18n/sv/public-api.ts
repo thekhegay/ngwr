@@ -243,6 +243,9 @@ export const wrSv: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Stapeldiagram',
+  },
   calendarHeatmap: {
     label: 'Kalendervärmekarta',
     cell: '{{date}}: {{count}}',

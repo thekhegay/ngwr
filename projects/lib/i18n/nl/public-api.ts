@@ -250,6 +250,9 @@ export const wrNl: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  barChart: {
+    label: 'Staafdiagram',
+  },
   calendarHeatmap: {
     label: 'Kalenderheatmap',
     cell: '{{date}}: {{count}}',
