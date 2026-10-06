@@ -31,7 +31,7 @@
   --wr-editor-ring: transparent;
   --wr-editor-min-height: 8rem;
   --wr-editor-max-height: none;
-  --wr-editor-padding-y: 0.5rem;
+  --wr-editor-padding-y: var(--wr-space-sm);
   --wr-editor-padding-x: var(--wr-control-padding-x-md);
   --wr-editor-font-size: var(--wr-text-sm);
   --wr-editor-line-height: 1.6;

@@ -63,7 +63,7 @@
   --wr-dialog-radius: var(--wr-border-radius-lg);
   --wr-dialog-shadow: var(--wr-shadow-modal);
   --wr-dialog-min-width: 18rem;
-  --wr-dialog-padding-y: 1rem;
+  --wr-dialog-padding-y: var(--wr-space-lg);
   --wr-dialog-padding-x: 1.25rem;
 
   display: flex;
