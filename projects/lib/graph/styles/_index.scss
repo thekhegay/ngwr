@@ -3,7 +3,7 @@
 .wr-graph {
   // The scroller's ground and its breathing room around the drawing.
   --wr-graph-background: var(--wr-color-surface);
-  --wr-graph-padding: 1rem;
+  --wr-graph-padding: var(--wr-space-lg);
   // Lines and arrowheads are kept quiet beside the cards: 60% of the muted role
   // over the surface, 2.44:1 on white and 3.47:1 on the dark canvas (token
   // arithmetic — no contrast gate measures an SVG stroke). That is under the 3:1
@@ -20,7 +20,7 @@
   --wr-graph-card-color: var(--wr-color-on-surface);
   --wr-graph-card-border: var(--wr-color-outline);
   --wr-graph-card-radius: var(--wr-border-radius-base);
-  --wr-graph-card-padding: 0.5rem 0.75rem;
+  --wr-graph-card-padding: var(--wr-space-sm) var(--wr-space-md);
   --wr-graph-card-font-size: var(--wr-text-sm);
 
   display: block;

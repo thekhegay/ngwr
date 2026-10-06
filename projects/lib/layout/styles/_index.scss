@@ -19,7 +19,7 @@
   align-items: center;
   flex: 0 0 auto;
   min-height: 3.5rem;
-  padding: 0 1.5rem;
+  padding: 0 var(--wr-space-xl);
   background: var(--wr-color-surface);
   border-bottom: 1px solid var(--wr-color-outline);
   font-family: var(--wr-font-family-base);
@@ -31,7 +31,7 @@
   flex: 1 1 auto;
   min-height: 0;
   min-width: 0;
-  padding: 1.5rem;
+  padding: var(--wr-space-xl);
   background: var(--wr-color-surface);
   font-family: var(--wr-font-family-base);
   color: var(--wr-color-on-surface);
@@ -42,7 +42,7 @@
   align-items: center;
   flex: 0 0 auto;
   min-height: 3rem;
-  padding: 0 1.5rem;
+  padding: 0 var(--wr-space-xl);
   background: var(--wr-color-surface);
   border-top: 1px solid var(--wr-color-outline);
   font-family: var(--wr-font-family-base);

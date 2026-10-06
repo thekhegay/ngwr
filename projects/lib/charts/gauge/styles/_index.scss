@@ -23,14 +23,14 @@
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    padding-bottom: 0.5rem;
+    padding-bottom: var(--wr-space-sm);
     font-size: var(--wr-text-xl);
     font-weight: var(--wr-font-weight-semibold);
     font-variant-numeric: tabular-nums;
   }
 
   &__suffix {
-    margin-inline-start: 0.125rem;
+    margin-inline-start: var(--wr-space-xs);
     font-size: var(--wr-text-sm);
     color: var(--wr-color-on-surface-muted);
     font-weight: var(--wr-font-weight-medium);
