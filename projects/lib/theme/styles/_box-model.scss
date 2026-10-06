@@ -27,3 +27,27 @@
 :where([class^='wr-'], [class*=' wr-'])::after {
   box-sizing: border-box;
 }
+
+// Bare inline SVGs — the ones that live OUTSIDE a `<wr-icon>` host: the alert
+// and toast close ✕, the password-toggle eye, the pagination and select
+// chevrons, the tree and cascader carets, the table's sort and filter glyphs.
+// Fifteen entry points draw one.
+//
+// This is a BASELINE and not icon styling, which is why it is here rather than
+// in `ngwr/icon`. It used to be there, and an SVG with no intrinsic size is
+// 0×0: a consumer who followed `<wr-alert>`'s documented installation —
+// `@use 'ngwr/theme'` plus `@use 'ngwr/alert'` — got a close button 4px wide
+// that still announced itself as "Close alert". Nothing in the build or the
+// console says so, and the component's own docs never mention `ngwr/icon`.
+//
+// `flex: 0 0 auto` is load-bearing beside the size: every one of these sits in
+// a flex row, where the default `flex-shrink: 1` beats a declared width.
+// Plain `.wr-icon__svg`, so a component's own rule for one still wins on
+// specificity or on source order — the theme layer is always loaded first.
+.wr-icon__svg {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  flex: 0 0 auto;
+}

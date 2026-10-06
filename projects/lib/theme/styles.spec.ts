@@ -179,6 +179,66 @@ describe('a style entry point loads the token layer it paints with', () => {
   });
 });
 
+describe('a bare .wr-icon__svg is sized by the entry point that draws it', () => {
+  /**
+   * The CLASS version of the invariant above, and it shipped broken.
+   *
+   * Fifteen entry points draw an inline `<svg class="wr-icon__svg">` for a bit
+   * of chrome — the alert and toast close ✕, the password-toggle eye, the
+   * pagination and select chevrons, the tree and cascader carets, the table's
+   * sort and filter glyphs. The rule that gives them a size lived in
+   * `ngwr/icon`, which none of those fifteen load and no component's documented
+   * installation asks for. An SVG with no intrinsic size is 0×0, so a consumer
+   * who followed `<wr-alert>`'s own install recipe got a close button 4px wide
+   * that still announced itself as "Close alert" — and nothing in the build,
+   * the console or any of the nine gates said a word.
+   *
+   * It is the only class in the library that one entry point draws and another
+   * declares, which is why this is pinned by name rather than swept: every
+   * other `.wr-*` class is written as a BEM nest under its own block, so a
+   * literal scan cannot see it and a compile-everything sweep is minutes.
+   */
+  const GLYPH = 'wr-icon__svg';
+
+  /** Entry points whose templates draw a bare `.wr-icon__svg`. */
+  function drawers(): string[] {
+    const out = new Set<string>();
+    const walk = (dir: string): void => {
+      for (const name of readdirSync(dir)) {
+        if (name === 'node_modules' || name === 'testing') continue;
+        const full = join(dir, name);
+        if (statSync(full).isDirectory()) {
+          walk(full);
+          continue;
+        }
+        const isTemplate = name.endsWith('.html') || (name.endsWith('.ts') && !name.endsWith('.spec.ts'));
+        if (!isTemplate || !readFileSync(full, 'utf8').includes(`class="${GLYPH}"`)) continue;
+        // Walk up to the directory holding `styles/_index.scss` — the entry point.
+        let at = dirname(full);
+        while (at.startsWith(LIB) && !existsSync(join(at, 'styles/_index.scss'))) at = dirname(at);
+        if (at.startsWith(LIB)) out.add(join(at, 'styles/_index.scss'));
+      }
+    };
+    walk(LIB);
+    return [...out].sort();
+  }
+
+  it("is declared somewhere in every drawing entry point's own load closure", () => {
+    // `\\b` is NOT enough: a hyphen is a non-word character, so a renamed
+    // `.wr-icon__svg-gone` would still match and this spec would pass on the
+    // very bug it exists for — which it did, until the rename was tried.
+    const rule = new RegExp(`\\.${GLYPH}\\s*[,{]`);
+    const offenders = drawers().filter(entry => !loaded(entry).some(f => rule.test(code(f))));
+
+    expect(offenders.map(f => relative(LIB, f))).toEqual([]);
+  });
+
+  it('finds the entry points that draw one', () => {
+    // A template scanner that matched nothing would report the invariant as held.
+    expect(drawers().length).toBeGreaterThanOrEqual(12);
+  });
+});
+
 describe('the dark block is keyed on the configured attribute', () => {
   /**
    * `provideWrTheme({ attribute: 'data-color-mode' })` has a Sass half — `@use
