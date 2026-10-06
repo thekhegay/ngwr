@@ -7,6 +7,8 @@
 
 import { Directive, TemplateRef, inject } from '@angular/core';
 
+import type { SafeAny } from 'ngwr/utils/types';
+
 import type { WrOptionLeadingContext } from './types';
 
 /**
@@ -58,16 +60,32 @@ import type { WrOptionLeadingContext } from './types';
 @Directive({
   selector: 'ng-template[wrOptionLeading]',
 })
-export class WrOptionLeading {
-  readonly template = inject<TemplateRef<WrOptionLeadingContext>>(TemplateRef);
+export class WrOptionLeading<T = SafeAny> {
+  readonly template = inject<TemplateRef<WrOptionLeadingContext<T>>>(TemplateRef);
 
   /**
    * Types the template's `let-` variables under `strictTemplates`. Without it
    * `let-placement` is `any`, and indexing a `Record<WrOptionLeadingPlacement, …>`
    * with it — the obvious way to size one visual per surface — does not compile.
+   *
+   * **`T` defaults to `SafeAny`, and that is the whole reason this is generic.**
+   * The guard used to narrow to a bare `WrOptionLeadingContext`, which is
+   * `WrOptionLeadingContext<unknown>` — so `let-value` came out `unknown` and
+   * every use of it was a compile error under `strictTemplates`, which made the
+   * guard WORSE than no guard at all: without one the variable is `any` and
+   * `personName(id)` compiles. The value cannot be inferred — a structural
+   * directive with no input has nothing to infer from, and the template is
+   * declared on the select rather than on the option it draws — so the honest
+   * type at this boundary is the unchecked one. `placement`, which is what the
+   * guard exists for, stays narrowed either way.
+   *
+   * It bit the one documented shape that NEEDS the value: a template written as
+   * a direct child of `<wr-select>` over `[options]`, where no outer `@for`
+   * variable is in scope. This library's own docs page carries three helpers
+   * typed `(id: unknown)` to get around it, with nothing saying why.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- a guard's parameters exist to be narrowed, never read
-  static ngTemplateContextGuard(_dir: WrOptionLeading, _ctx: unknown): _ctx is WrOptionLeadingContext {
+  static ngTemplateContextGuard<T>(_dir: WrOptionLeading<T>, _ctx: unknown): _ctx is WrOptionLeadingContext<T> {
     return true;
   }
 }
