@@ -1,9 +1,11 @@
 @use '../../theme/styles' as theme;
 
 .wr-graph {
+  --wr-graph-font-family: var(--wr-font-family-base);
   // The scroller's ground and its breathing room around the drawing.
   --wr-graph-background: var(--wr-color-surface);
   --wr-graph-padding: var(--wr-space-lg);
+  --wr-graph-viewport-radius: var(--wr-border-radius-base);
   // Lines and arrowheads are kept quiet beside the cards: 60% of the muted role
   // over the surface, 2.44:1 on white and 3.47:1 on the dark canvas (token
   // arithmetic — no contrast gate measures an SVG stroke). That is under the 3:1
@@ -22,6 +24,7 @@
   --wr-graph-card-radius: var(--wr-border-radius-base);
   --wr-graph-card-padding: var(--wr-space-sm) var(--wr-space-md);
   --wr-graph-card-font-size: var(--wr-text-sm);
+  --wr-graph-card-line-height: var(--wr-leading-tight);
 
   display: block;
   // A grid or flex item's automatic minimum width is its min-content width, and
@@ -30,7 +33,7 @@
   // Zero lets the track decide, and the viewport's `overflow: auto` takes over.
   min-width: 0;
   max-width: 100%;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-graph-font-family);
 
   // The component scrolls, never the page. `height: 100%` lets a host with a
   // height constrain it; with no height it simply grows to the drawing.
@@ -41,7 +44,7 @@
     padding: var(--wr-graph-padding);
     overflow: auto;
     background: var(--wr-graph-background);
-    border-radius: var(--wr-border-radius-base);
+    border-radius: var(--wr-graph-viewport-radius);
   }
 
   // Sized inline from the layout, so the scroll extent is known without measuring.
@@ -90,7 +93,7 @@
     overflow: hidden;
     color: var(--wr-graph-card-color);
     font-size: var(--wr-graph-card-font-size);
-    line-height: 1.25;
+    line-height: var(--wr-graph-card-line-height);
     text-align: center;
     overflow-wrap: anywhere;
     background: var(--wr-graph-card-background);

@@ -18,13 +18,15 @@
 @use '../../spinner/styles' as spinner-styles; // WrSpinner
 
 .wr-pull-to-refresh {
+  --wr-pull-to-refresh-font-family: var(--wr-font-family-base);
+
   display: block;
   position: relative;
   overflow-y: auto;
   // Keep the browser's own pull-to-refresh / scroll-chaining out of the way.
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-pull-to-refresh-font-family);
 
   // Revealed above the content as it is pulled down (absolute, so it never
   // adds to the scroll height). Height tracks the live pull distance.

@@ -36,12 +36,27 @@
   --wr-btn-bg: var(--wr-color-surface);
   --wr-btn-border: var(--wr-border-base);
   --wr-btn-radius: var(--wr-control-radius-md);
-  --wr-btn-gap: 0.375rem;
+  --wr-btn-gap: var(--wr-space-sm);
   --wr-btn-padding-y: var(--wr-control-padding-y-md);
-  --wr-btn-padding-x: 0.875rem; // 14px — buttons sit a touch wider than input/select
+  // 16px. Buttons sit a touch WIDER than input and select, which is why this one
+  // reads the spacing scale while every other control dimension here reads the
+  // `--wr-control-*` contract. The conversion to tokens briefly took it onto
+  // `--wr-control-padding-x-*` (8 / 12 / 16), which deleted that offset and
+  // narrowed `sm` from 12px to 8px — straight into the WCAG 2.5.8 finding
+  // recorded at the size block below, where a packed row of `sm` buttons already
+  // fails the spacing exception and a narrower button fails it harder.
+  //
+  // The ramp was 12 / 14 / 18 and is now 12 / 16 / 24. `sm` is exact; the other
+  // two are the only assignment the five-step scale allows that keeps three
+  // distinct tiers, since 14 and 18 both sit nearest to 16 and taking that for
+  // either one collapses it into a neighbour.
+  --wr-btn-padding-x: var(--wr-space-lg);
+  --wr-btn-font-family: var(--wr-font-family-base);
   --wr-btn-font-size: var(--wr-control-font-size-md);
-  --wr-btn-font-weight: 500;
+  --wr-btn-font-weight: var(--wr-font-weight-medium);
   --wr-btn-line-height: var(--wr-control-line-height-md);
+  // Literal: no global scale sizes an icon box — the 14 / 16 / 18 ramp is the
+  // glyph's own geometry, so the hook is the only override point there is.
   --wr-btn-icon-size: 1rem;
 
   color: var(--wr-btn-color);
@@ -49,7 +64,7 @@
   border: 1px solid var(--wr-btn-border);
   @include theme.smooth-br(var(--wr-btn-radius));
   padding: calc(var(--wr-btn-padding-y) * var(--wr-density-y, 1)) calc(var(--wr-btn-padding-x) * var(--wr-density-x, 1));
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-btn-font-family);
   font-size: var(--wr-btn-font-size);
   font-weight: var(--wr-btn-font-weight);
   line-height: var(--wr-btn-line-height);
@@ -78,10 +93,10 @@
     // Lucide and feather draw on a 24-unit grid with a 2-unit safe area, so a
     // twelfth of the icon box is transparent on each side. `padding-x` sits
     // outside that slack and `gap` inside it, so the declared numbers and the
-    // optical ones diverge — measured at md: 14.6px from the button edge to the
-    // first ink against 11.9px on the label side, and 8.7px to the label against
-    // a declared 6px gap. Reclaiming the slack makes the spacing look like what
-    // the tokens say.
+    // optical ones diverge — measured at md, back when padding-x was 14px and
+    // the gap 6px: 14.6px from the button edge to the first ink against 11.9px
+    // on the label side, and 8.7px to the label against the declared 6px.
+    // Reclaiming the slack makes the spacing look like what the tokens say.
     margin-inline: calc(var(--wr-btn-icon-size) / -12);
   }
 
@@ -133,8 +148,8 @@
   }
 
   // Sizes — share the `--wr-control-*` contract (22 / 30 / 36 px) so button,
-  // input and select line up in a row. Buttons keep a slightly wider padding-x
-  // (12 / 14 / 18) than input/select; gap + icon step with the size.
+  // input and select line up in a row. Padding-x is the one exception and keeps
+  // its own wider ramp (12 / 16 / 24); gap + icon step with the size.
   // `sm` is 22px tall (16 line-height + 2·2 padding + 2·1 border) and that is
   // BELOW the 24×24 WCAG 2.2 asks of a target — deliberately, and it is the
   // consumer's layout that decides whether it passes. 2.5.8 has a spacing
@@ -153,9 +168,9 @@
   // Space the targets, or use `md` where they sit together.
   &--sm {
     --wr-btn-radius: var(--wr-control-radius-sm);
-    --wr-btn-gap: 0.25rem;
+    --wr-btn-gap: var(--wr-space-xs);
     --wr-btn-padding-y: var(--wr-control-padding-y-sm);
-    --wr-btn-padding-x: 0.75rem; // 12px
+    --wr-btn-padding-x: var(--wr-space-md);
     --wr-btn-font-size: var(--wr-control-font-size-sm);
     --wr-btn-line-height: var(--wr-control-line-height-sm);
     --wr-btn-icon-size: 0.875rem; // 14px
@@ -163,9 +178,9 @@
 
   &--lg {
     --wr-btn-radius: var(--wr-control-radius-lg);
-    --wr-btn-gap: 0.5rem;
+    --wr-btn-gap: var(--wr-space-md);
     --wr-btn-padding-y: var(--wr-control-padding-y-lg);
-    --wr-btn-padding-x: 1.125rem; // 18px
+    --wr-btn-padding-x: var(--wr-space-xl);
     --wr-btn-font-size: var(--wr-control-font-size-lg);
     --wr-btn-line-height: var(--wr-control-line-height-lg);
     --wr-btn-icon-size: 1.125rem; // 18px

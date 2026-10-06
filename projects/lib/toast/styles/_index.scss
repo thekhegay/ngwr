@@ -19,10 +19,12 @@ $toast-colors: (
 }
 
 .wr-toast-host {
+  --wr-toast-host-gap: var(--wr-space-sm);
+
   position: fixed;
   display: flex;
   flex-direction: column;
-  gap: var(--wr-space-sm);
+  gap: var(--wr-toast-host-gap);
   // Safe-area: fold each inset into the matching padding side so toasts clear
   // notches / the home indicator / rounded corners on mobile, whichever edge
   // the host is anchored to. env() is 0 without insets, so desktop stays 1rem.
@@ -138,20 +140,34 @@ $toast-colors: (
   --wr-toast-accent: var(--wr-color-primary);
   --wr-toast-title: var(--wr-color-on-surface);
   --wr-toast-message: var(--wr-color-on-surface-muted);
+  --wr-toast-gap: var(--wr-space-md);
+  --wr-toast-padding-y: var(--wr-space-md);
+  --wr-toast-padding-x: var(--wr-space-lg);
+  --wr-toast-radius: var(--wr-border-radius-base);
+  --wr-toast-font-family: var(--wr-font-family-base);
+  --wr-toast-title-margin-bottom: var(--wr-space-xs);
+  --wr-toast-title-font-size: var(--wr-text-sm);
+  --wr-toast-title-font-weight: var(--wr-font-weight-semibold);
+  --wr-toast-title-line-height: var(--wr-text-sm-leading);
+  --wr-toast-message-font-size: var(--wr-text-sm);
+  --wr-toast-message-line-height: var(--wr-text-sm-leading);
+  --wr-toast-actions-gap: var(--wr-space-xs);
+  --wr-toast-action-padding: var(--wr-space-xs);
+  --wr-toast-action-radius: var(--wr-border-radius-sm);
 
   position: relative;
   display: flex;
   align-items: flex-start;
-  gap: var(--wr-space-md);
-  padding: var(--wr-space-md) var(--wr-space-lg);
+  gap: var(--wr-toast-gap);
+  padding: var(--wr-toast-padding-y) var(--wr-toast-padding-x);
   background: var(--wr-toast-bg);
   border: 1px solid var(--wr-toast-border);
   // Capture horizontal swipe-to-dismiss; let vertical scroll pass through.
   touch-action: pan-y;
   border-inline-start: 3px solid var(--wr-toast-accent);
-  @include theme.smooth-br(var(--wr-border-radius-base));
+  @include theme.smooth-br(var(--wr-toast-radius));
   box-shadow: var(--wr-shadow-overlay);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-toast-font-family);
   animation: wr-toast-in 0.18s ease-out;
   overflow: hidden;
 
@@ -172,18 +188,18 @@ $toast-colors: (
   }
 
   &__title {
-    margin: 0 0 0.125rem;
+    margin: 0 0 var(--wr-toast-title-margin-bottom);
     color: var(--wr-toast-title);
-    font-size: var(--wr-text-sm);
-    font-weight: 600;
-    line-height: 1.25rem;
+    font-size: var(--wr-toast-title-font-size);
+    font-weight: var(--wr-toast-title-font-weight);
+    line-height: var(--wr-toast-title-line-height);
   }
 
   &__message {
     margin: 0;
     color: var(--wr-toast-message);
-    font-size: var(--wr-text-sm);
-    line-height: 1.125rem;
+    font-size: var(--wr-toast-message-font-size);
+    line-height: var(--wr-toast-message-line-height);
     overflow-wrap: break-word;
   }
 
@@ -191,17 +207,17 @@ $toast-colors: (
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-toast-actions-gap);
   }
 
   &__action {
     appearance: none;
     background: transparent;
     border: 0;
-    padding: var(--wr-space-xs);
+    padding: var(--wr-toast-action-padding);
     color: var(--wr-color-on-surface-muted);
     cursor: pointer;
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-toast-action-radius);
     transition:
       color var(--wr-transition-base),
       background var(--wr-transition-base);
@@ -296,6 +312,15 @@ $toast-colors: (
 }
 
 .wr-toast-host__close-all {
+  --wr-toast-host-close-all-border: var(--wr-border-base);
+  --wr-toast-host-close-all-radius: var(--wr-border-radius-base);
+  --wr-toast-host-close-all-padding-y: var(--wr-space-sm);
+  --wr-toast-host-close-all-padding-x: var(--wr-space-md);
+  --wr-toast-host-close-all-font-family: var(--wr-font-family-base);
+  --wr-toast-host-close-all-font-size: var(--wr-text-xs);
+  --wr-toast-host-close-all-font-weight: var(--wr-font-weight-medium);
+  --wr-toast-host-close-all-line-height: var(--wr-text-xs-leading);
+
   // Full bleed to match toast width so the cursor never leaves a hit
   // region between toasts and button (was a source of expand/collapse
   // flicker in stack mode).
@@ -303,14 +328,14 @@ $toast-colors: (
   pointer-events: auto;
   appearance: none;
   background: var(--wr-color-surface);
-  border: 1px solid var(--wr-border-base);
-  @include theme.smooth-br(var(--wr-border-radius-base));
-  padding: var(--wr-space-sm) var(--wr-space-md);
+  border: 1px solid var(--wr-toast-host-close-all-border);
+  @include theme.smooth-br(var(--wr-toast-host-close-all-radius));
+  padding: var(--wr-toast-host-close-all-padding-y) var(--wr-toast-host-close-all-padding-x);
   color: var(--wr-color-on-surface-muted);
-  font-family: var(--wr-font-family-base);
-  font-size: var(--wr-text-xs);
-  font-weight: 500;
-  line-height: 1rem;
+  font-family: var(--wr-toast-host-close-all-font-family);
+  font-size: var(--wr-toast-host-close-all-font-size);
+  font-weight: var(--wr-toast-host-close-all-font-weight);
+  line-height: var(--wr-toast-host-close-all-line-height);
   text-align: center;
   cursor: pointer;
   box-shadow: var(--wr-shadow-xs);
@@ -339,7 +364,7 @@ $toast-colors: (
 // sizing above.
 @media (pointer: coarse) {
   .wr-toast__actions {
-    gap: var(--wr-space-xs);
+    gap: var(--wr-toast-actions-gap);
   }
 
   .wr-toast__action {
@@ -352,7 +377,6 @@ $toast-colors: (
   }
 
   .wr-toast-host__close-all {
-    padding-top: var(--wr-space-md);
-    padding-bottom: var(--wr-space-md);
+    --wr-toast-host-close-all-padding-y: var(--wr-space-md);
   }
 }

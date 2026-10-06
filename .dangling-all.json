@@ -1,0 +1,44 @@
+[
+  {
+    "spec": "ngwr/avatar",
+    "count": 1,
+    "tokens": [
+      "--wr-avatar-size"
+    ]
+  },
+  {
+    "spec": "ngwr/charts/calendar-heatmap",
+    "count": 2,
+    "tokens": [
+      "--wr-calendar-heatmap-cell-size",
+      "--wr-calendar-heatmap-cell-gap"
+    ]
+  },
+  {
+    "spec": "ngwr/event-calendar",
+    "count": 7,
+    "tokens": [
+      "--wr-event-calendar-color",
+      "--wr-event-calendar-offset",
+      "--wr-event-calendar-lane",
+      "--wr-event-calendar-span",
+      "--wr-event-calendar-inline-start",
+      "--wr-event-calendar-inline-size",
+      "--wr-event-calendar-block-size"
+    ]
+  },
+  {
+    "spec": "ngwr/speed-dial",
+    "count": 1,
+    "tokens": [
+      "--wr-speed-dial-i"
+    ]
+  },
+  {
+    "spec": "ngwr/table",
+    "count": 1,
+    "tokens": [
+      "--wr-table-row-h"
+    ]
+  }
+]

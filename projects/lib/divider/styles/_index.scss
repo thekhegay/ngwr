@@ -8,15 +8,20 @@
   --wr-divider-color: var(--wr-border-base);
   --wr-divider-style: solid;
   --wr-divider-gap: var(--wr-space-md);
+  // Stays a LITERAL: its only readers are `flex: 0 0 var(--wr-divider-aside)`,
+  // and a flex-basis is component geometry rather than spacing — it sizes the
+  // rule stub beside a label, not a gap between things.
   --wr-divider-aside: 1rem;
+  --wr-divider-font-size: var(--wr-text-sm);
+  --wr-divider-line-height: var(--wr-text-sm-leading);
 
   display: flex;
   align-items: center;
   width: 100%;
   user-select: none;
   color: var(--wr-color-on-surface-muted);
-  font-size: var(--wr-text-sm);
-  line-height: 1.125rem;
+  font-size: var(--wr-divider-font-size);
+  line-height: var(--wr-divider-line-height);
 
   &::before,
   &::after {

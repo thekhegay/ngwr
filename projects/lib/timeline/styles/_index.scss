@@ -1,32 +1,47 @@
 @use '../../theme/styles' as theme;
 
 .wr-timeline {
+  --wr-timeline-font-family: var(--wr-font-family-base);
+  --wr-timeline-gap: var(--wr-space-xl);
+
   display: flex;
   // Claim the full row even when nested in a flex-row demo wrapper.
   flex: 1 1 100%;
   width: 100%;
   min-width: 0;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-timeline-font-family);
   color: var(--wr-color-on-surface);
 
   &--vertical {
     flex-direction: column;
-    gap: var(--wr-space-xl);
+    gap: var(--wr-timeline-gap);
   }
 
   &--horizontal {
+    // 2rem rather than a scale step: the connector below spans
+    // `calc(100% + 2rem)`, so the row gap and that width are one solved pair.
+    --wr-timeline-gap: 2rem;
+
     flex-direction: row;
-    gap: 2rem;
+    gap: var(--wr-timeline-gap);
     overflow-x: auto;
   }
 }
 
 .wr-timeline-item {
+  --wr-timeline-item-gap: var(--wr-space-md);
+  --wr-timeline-item-padding-bottom: var(--wr-space-sm);
+  // Read by the connector hairline in both orientations, which are drawn from
+  // `::before` inside the orientation rules further down.
+  --wr-timeline-item-connector: var(--wr-border-base);
+  // Horizontal only — the vertical layout puts the body beside the dot.
+  --wr-timeline-item-body-margin-top: var(--wr-space-sm);
+
   position: relative;
   display: flex;
   align-items: flex-start;
-  gap: var(--wr-space-md);
-  padding-bottom: var(--wr-space-sm);
+  gap: var(--wr-timeline-item-gap);
+  padding-bottom: var(--wr-timeline-item-padding-bottom);
 
   &__dot {
     flex: 0 0 auto;
@@ -92,23 +107,36 @@
   }
 
   &__time {
-    font-size: var(--wr-text-xs);
-    line-height: 1rem;
+    --wr-timeline-item-time-font-size: var(--wr-text-xs);
+    --wr-timeline-item-time-line-height: var(--wr-text-xs-leading);
+    --wr-timeline-item-time-font-weight: var(--wr-font-weight-medium);
+    --wr-timeline-item-time-margin-bottom: var(--wr-space-xs);
+
+    font-size: var(--wr-timeline-item-time-font-size);
+    line-height: var(--wr-timeline-item-time-line-height);
     color: var(--wr-color-on-surface-muted);
-    font-weight: var(--wr-font-weight-medium);
-    margin-bottom: var(--wr-space-xs);
+    font-weight: var(--wr-timeline-item-time-font-weight);
+    margin-bottom: var(--wr-timeline-item-time-margin-bottom);
   }
 
   &__title {
-    font-size: var(--wr-text-sm);
-    font-weight: var(--wr-font-weight-semibold);
-    line-height: var(--wr-leading-snug);
+    --wr-timeline-item-title-font-size: var(--wr-text-sm);
+    --wr-timeline-item-title-font-weight: var(--wr-font-weight-semibold);
+    --wr-timeline-item-title-line-height: var(--wr-leading-snug);
+
+    font-size: var(--wr-timeline-item-title-font-size);
+    font-weight: var(--wr-timeline-item-title-font-weight);
+    line-height: var(--wr-timeline-item-title-line-height);
   }
 
   &__content {
-    margin-top: var(--wr-space-xs);
-    font-size: var(--wr-text-sm);
-    line-height: var(--wr-leading-relaxed);
+    --wr-timeline-item-content-margin-top: var(--wr-space-xs);
+    --wr-timeline-item-content-font-size: var(--wr-text-sm);
+    --wr-timeline-item-content-line-height: var(--wr-leading-relaxed);
+
+    margin-top: var(--wr-timeline-item-content-margin-top);
+    font-size: var(--wr-timeline-item-content-font-size);
+    line-height: var(--wr-timeline-item-content-line-height);
     color: var(--wr-color-on-surface);
   }
 
@@ -121,7 +149,7 @@
       top: 1rem;
       bottom: -1.25rem;
       width: 1.5px;
-      background: var(--wr-border-base);
+      background: var(--wr-timeline-item-connector);
     }
 
     &:last-child::before {
@@ -151,7 +179,7 @@
       inset-inline-start: 50%;
       width: calc(100% + 2rem);
       height: 1.5px;
-      background: var(--wr-border-base);
+      background: var(--wr-timeline-item-connector);
       z-index: 0;
     }
 
@@ -160,7 +188,7 @@
     }
 
     .wr-timeline-item__body {
-      margin-top: var(--wr-space-sm);
+      margin-top: var(--wr-timeline-item-body-margin-top);
     }
   }
 }

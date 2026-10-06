@@ -3,10 +3,13 @@
 // overlay that the directive appends when `[glare]="true"`.
 
 .wr-tilt-card {
+  --wr-tilt-card-padding: var(--wr-space-xl);
+  --wr-tilt-card-radius: var(--wr-border-radius-base);
+
   display: block;
   position: relative;
-  padding: var(--wr-space-xl);
-  border-radius: 0.75rem;
+  padding: var(--wr-tilt-card-padding);
+  border-radius: var(--wr-tilt-card-radius);
   border: 1px solid var(--wr-border-base);
   background: var(--wr-color-surface);
   color: var(--wr-color-on-surface);

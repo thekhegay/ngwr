@@ -19,11 +19,13 @@
 .wr-transfer {
   --wr-transfer-pane-width: 14rem;
   --wr-transfer-pane-height: 15rem;
+  --wr-transfer-gap: var(--wr-space-md);
+  --wr-transfer-font-family: var(--wr-font-family-base);
 
   display: flex;
   align-items: stretch;
-  gap: var(--wr-space-md);
-  font-family: var(--wr-font-family-base);
+  gap: var(--wr-transfer-gap);
+  font-family: var(--wr-transfer-font-family);
   color: var(--wr-color-on-surface);
 
   &--disabled {
@@ -31,21 +33,27 @@
   }
 
   &__pane {
+    --wr-transfer-pane-radius: var(--wr-border-radius-base);
+
     display: flex;
     flex-direction: column;
     flex: 1 1 var(--wr-transfer-pane-width);
     min-width: 0;
     border: 1px solid var(--wr-border-base);
-    @include theme.smooth-br(var(--wr-border-radius-base));
+    @include theme.smooth-br(var(--wr-transfer-pane-radius));
     background: var(--wr-color-surface);
     overflow: hidden;
   }
 
   &__head {
+    --wr-transfer-head-gap: var(--wr-space-sm);
+    --wr-transfer-head-padding-y: var(--wr-space-sm);
+    --wr-transfer-head-padding-x: var(--wr-space-md);
+
     display: flex;
     align-items: center;
-    gap: var(--wr-space-sm);
-    padding: var(--wr-space-sm) var(--wr-space-md);
+    gap: var(--wr-transfer-head-gap);
+    padding: var(--wr-transfer-head-padding-y) var(--wr-transfer-head-padding-x);
     border-bottom: 1px solid var(--wr-border-base);
     background: var(--wr-color-fill);
     // The checkbox and the count are intrinsically sized, so on a narrow pane
@@ -58,6 +66,9 @@
   }
 
   &__title {
+    --wr-transfer-title-font-size: var(--wr-text-sm);
+    --wr-transfer-title-font-weight: var(--wr-font-weight-medium);
+
     // A small basis rather than `auto`: the title has to be the item that
     // yields, and with a content-sized basis a long title pushes ITSELF onto
     // the next line, leaving the select-all checkbox alone on a row and the
@@ -69,34 +80,45 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: var(--wr-text-sm);
-    font-weight: var(--wr-font-weight-medium);
+    font-size: var(--wr-transfer-title-font-size);
+    font-weight: var(--wr-transfer-title-font-weight);
   }
 
   &__count {
+    --wr-transfer-count-font-size: var(--wr-text-xs);
+
     flex: 0 0 auto;
-    font-size: var(--wr-text-xs);
+    font-size: var(--wr-transfer-count-font-size);
     color: var(--wr-color-on-surface-muted);
     font-variant-numeric: tabular-nums;
   }
 
   &__search {
-    padding: var(--wr-space-sm) var(--wr-space-md);
+    --wr-transfer-search-padding-y: var(--wr-space-sm);
+    --wr-transfer-search-padding-x: var(--wr-space-md);
+
+    padding: var(--wr-transfer-search-padding-y) var(--wr-transfer-search-padding-x);
     border-bottom: 1px solid var(--wr-border-base);
   }
 
   &__list {
+    --wr-transfer-list-padding: var(--wr-space-xs);
+
     flex: 1 1 auto;
     margin: 0;
-    padding: var(--wr-space-xs);
+    padding: var(--wr-transfer-list-padding);
     list-style: none;
     overflow-y: auto;
     max-height: var(--wr-transfer-pane-height);
   }
 
   &__item {
-    padding: var(--wr-space-xs) var(--wr-space-sm);
-    border-radius: var(--wr-border-radius-sm);
+    --wr-transfer-item-padding-y: var(--wr-space-xs);
+    --wr-transfer-item-padding-x: var(--wr-space-sm);
+    --wr-transfer-item-radius: var(--wr-border-radius-sm);
+
+    padding: var(--wr-transfer-item-padding-y) var(--wr-transfer-item-padding-x);
+    border-radius: var(--wr-transfer-item-radius);
 
     &:hover {
       background: var(--wr-color-hover);
@@ -108,17 +130,23 @@
   }
 
   &__empty {
-    padding: var(--wr-space-lg) var(--wr-space-sm);
+    --wr-transfer-empty-padding-y: var(--wr-space-lg);
+    --wr-transfer-empty-padding-x: var(--wr-space-sm);
+    --wr-transfer-empty-font-size: var(--wr-text-sm);
+
+    padding: var(--wr-transfer-empty-padding-y) var(--wr-transfer-empty-padding-x);
     text-align: center;
-    font-size: var(--wr-text-sm);
+    font-size: var(--wr-transfer-empty-font-size);
     color: var(--wr-color-on-surface-muted);
   }
 
   &__actions {
+    --wr-transfer-actions-gap: var(--wr-space-sm);
+
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-transfer-actions-gap);
     flex: 0 0 auto;
   }
 

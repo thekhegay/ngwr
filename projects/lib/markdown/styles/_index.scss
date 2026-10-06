@@ -1,10 +1,13 @@
 @use '../../theme/styles' as theme;
 
 .wr-markdown {
+  --wr-markdown-font-size: var(--wr-text-base);
+  --wr-markdown-line-height: var(--wr-leading-relaxed);
+
   display: block;
   color: var(--wr-color-on-surface);
-  font-size: var(--wr-text-base);
-  line-height: 1.65;
+  font-size: var(--wr-markdown-font-size);
+  line-height: var(--wr-markdown-line-height);
   overflow-wrap: break-word;
 
   // The document's own outer margins belong to whatever holds it — a chat bubble,
@@ -18,28 +21,33 @@
   }
 
   &__heading {
+    --wr-markdown-heading-font-size: var(--wr-text-base);
+    --wr-markdown-heading-font-weight: var(--wr-font-weight-semibold);
+    --wr-markdown-heading-line-height: var(--wr-leading-tight);
+
     margin-block: 1.5em 0.6em;
-    font-weight: var(--wr-font-weight-semibold);
-    line-height: 1.3;
+    font-size: var(--wr-markdown-heading-font-size);
+    font-weight: var(--wr-markdown-heading-font-weight);
+    line-height: var(--wr-markdown-heading-line-height);
     text-wrap: balance;
   }
 
   h1#{&}__heading {
-    font-size: var(--wr-text-2xl);
+    --wr-markdown-heading-font-size: var(--wr-text-2xl);
   }
 
   h2#{&}__heading {
-    font-size: var(--wr-text-xl);
+    --wr-markdown-heading-font-size: var(--wr-text-xl);
   }
 
   h3#{&}__heading {
-    font-size: var(--wr-text-lg);
+    --wr-markdown-heading-font-size: var(--wr-text-lg);
   }
 
   h4#{&}__heading,
   h5#{&}__heading,
   h6#{&}__heading {
-    font-size: var(--wr-text-base);
+    --wr-markdown-heading-font-size: var(--wr-text-base);
   }
 
   &__paragraph {
@@ -47,7 +55,9 @@
   }
 
   &__strong {
-    font-weight: var(--wr-font-weight-semibold);
+    --wr-markdown-strong-font-weight: var(--wr-font-weight-semibold);
+
+    font-weight: var(--wr-markdown-strong-font-weight);
   }
 
   &__link {
@@ -65,9 +75,11 @@
   }
 
   &__image {
+    --wr-markdown-image-radius: var(--wr-border-radius-base);
+
     max-width: 100%;
     height: auto;
-    border-radius: var(--wr-border-radius-base);
+    border-radius: var(--wr-markdown-image-radius);
   }
 
   // ---------------------------------------------------------------------------
@@ -75,13 +87,16 @@
   // ---------------------------------------------------------------------------
 
   &__code-inline {
+    --wr-markdown-code-inline-radius: var(--wr-border-radius-sm);
+    --wr-markdown-code-inline-font-family: var(--wr-font-family-mono, ui-monospace, monospace);
+
     padding: 0.15em 0.35em;
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-markdown-code-inline-radius);
     background: var(--wr-color-fill);
     // `-ink`, not the bare intent: code on a tint is text, and the bare colour
     // fails AA there. The share in `$ink-mix` is calibrated against this tint.
     color: var(--wr-color-on-surface);
-    font-family: var(--wr-font-family-mono, ui-monospace, monospace);
+    font-family: var(--wr-markdown-code-inline-font-family);
     font-size: 0.9em;
   }
 
@@ -91,18 +106,24 @@
   }
 
   &__pre {
+    --wr-markdown-pre-padding: var(--wr-space-md);
+    --wr-markdown-pre-radius: var(--wr-border-radius-base);
+
     margin: 0;
-    padding: var(--wr-space-md);
+    padding: var(--wr-markdown-pre-padding);
     overflow-x: auto;
-    border-radius: var(--wr-border-radius-base);
+    border-radius: var(--wr-markdown-pre-radius);
     background: var(--wr-color-fill);
     tab-size: 2;
   }
 
   &__code {
-    font-family: var(--wr-font-family-mono, ui-monospace, monospace);
+    --wr-markdown-code-font-family: var(--wr-font-family-mono, ui-monospace, monospace);
+    --wr-markdown-code-line-height: var(--wr-leading-relaxed);
+
+    font-family: var(--wr-markdown-code-font-family);
     font-size: 0.875em;
-    line-height: 1.6;
+    line-height: var(--wr-markdown-code-line-height);
   }
 
   &__line {
@@ -112,6 +133,9 @@
   }
 
   &__copy {
+    --wr-markdown-copy-border: var(--wr-border-base);
+    --wr-markdown-copy-radius: var(--wr-border-radius-sm);
+
     position: absolute;
     // Logical, so the button follows the scrollbar-free corner in both
     // directions. The block it sits on is pinned LTR; its chrome is not.
@@ -123,8 +147,8 @@
     width: 2rem;
     height: 2rem;
     padding: 0;
-    border: 1px solid var(--wr-border-base);
-    border-radius: var(--wr-border-radius-sm);
+    border: 1px solid var(--wr-markdown-copy-border);
+    border-radius: var(--wr-markdown-copy-radius);
     background: var(--wr-color-surface);
     color: var(--wr-color-on-surface-muted);
     cursor: pointer;
@@ -180,14 +204,17 @@
   }
 
   &__task {
+    --wr-markdown-task-border: var(--wr-border-base);
+    --wr-markdown-task-radius: var(--wr-border-radius-sm);
+
     position: absolute;
     inset-block-start: 0.35em;
     inset-inline-start: 0.15em;
     display: inline-block;
     width: 1em;
     height: 1em;
-    border: 1px solid var(--wr-border-base);
-    border-radius: var(--wr-border-radius-sm);
+    border: 1px solid var(--wr-markdown-task-border);
+    border-radius: var(--wr-markdown-task-radius);
     background: var(--wr-color-surface);
 
     // color-ok: the nested `&::after` draws a tick out of two borders, and the
@@ -229,17 +256,21 @@
   // ---------------------------------------------------------------------------
 
   &__quote {
+    --wr-markdown-quote-border: var(--wr-border-base);
+
     margin-block: 0 0.85em;
     margin-inline: 0;
     padding-inline-start: 1em;
-    border-inline-start: 3px solid var(--wr-border-base);
+    border-inline-start: 3px solid var(--wr-markdown-quote-border);
     color: var(--wr-color-on-surface-muted);
   }
 
   &__rule {
+    --wr-markdown-rule-border: var(--wr-border-base);
+
     margin-block: 1.5em;
     border: 0;
-    border-block-start: 1px solid var(--wr-border-base);
+    border-block-start: 1px solid var(--wr-markdown-rule-border);
   }
 
   &__table-scroll {
@@ -248,20 +279,28 @@
   }
 
   &__table {
+    --wr-markdown-table-font-size: var(--wr-text-sm);
+
     border-collapse: collapse;
     width: 100%;
-    font-size: var(--wr-text-sm);
+    font-size: var(--wr-markdown-table-font-size);
   }
 
   &__th,
   &__td {
-    padding: var(--wr-space-sm) var(--wr-space-md);
-    border: 1px solid var(--wr-border-base);
+    --wr-markdown-cell-padding-y: var(--wr-space-sm);
+    --wr-markdown-cell-padding-x: var(--wr-space-md);
+    --wr-markdown-cell-border: var(--wr-border-base);
+
+    padding: var(--wr-markdown-cell-padding-y) var(--wr-markdown-cell-padding-x);
+    border: 1px solid var(--wr-markdown-cell-border);
   }
 
   &__th {
+    --wr-markdown-cell-font-weight: var(--wr-font-weight-semibold);
+
     background: var(--wr-color-fill);
-    font-weight: var(--wr-font-weight-semibold);
+    font-weight: var(--wr-markdown-cell-font-weight);
   }
 
   // ---------------------------------------------------------------------------

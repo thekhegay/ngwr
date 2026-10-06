@@ -24,16 +24,53 @@
   // the container already provides the inset, set it to 0 on `.wr-sidebar`, not
   // on the container: this declaration shadows anything inherited.
   --wr-sidebar-padding: var(--wr-space-sm);
+  --wr-sidebar-font-family: var(--wr-font-family-base);
+  --wr-sidebar-inner-gap: var(--wr-space-xs);
+  --wr-sidebar-entry-gap: var(--wr-space-sm);
+  --wr-sidebar-entry-padding-y: var(--wr-space-sm);
+  --wr-sidebar-entry-padding-x: var(--wr-space-md);
+  --wr-sidebar-entry-radius: var(--wr-border-radius-sm);
+  --wr-sidebar-entry-font-size: var(--wr-text-sm);
+  --wr-sidebar-entry-font-weight: var(--wr-font-weight-semibold);
+  --wr-sidebar-entry-line-height: var(--wr-text-sm-leading);
+  --wr-sidebar-group-toggle-gap: var(--wr-space-sm);
+  --wr-sidebar-group-toggle-padding-y: var(--wr-space-sm);
+  --wr-sidebar-group-toggle-padding-x: var(--wr-space-md);
+  --wr-sidebar-group-toggle-radius: var(--wr-border-radius-sm);
+  --wr-sidebar-group-toggle-font-size: var(--wr-text-sm);
+  --wr-sidebar-group-toggle-font-weight: var(--wr-font-weight-semibold);
+  --wr-sidebar-group-toggle-line-height: var(--wr-text-sm-leading);
+  --wr-sidebar-title-font-size: var(--wr-text-sm);
+  --wr-sidebar-title-font-weight: var(--wr-font-weight-semibold);
+  --wr-sidebar-list-margin-top: var(--wr-space-xs);
+  --wr-sidebar-list-margin-bottom: var(--wr-space-sm);
+  --wr-sidebar-list-margin-inline-start: var(--wr-space-sm);
+  --wr-sidebar-list-gap: var(--wr-space-xs);
+  --wr-sidebar-list-border: var(--wr-border-base);
+  --wr-sidebar-item-gap: var(--wr-space-sm);
+  --wr-sidebar-item-padding-y: var(--wr-space-sm);
+  --wr-sidebar-item-padding-x: var(--wr-space-md);
+  --wr-sidebar-item-radius: var(--wr-border-radius-sm);
+  --wr-sidebar-item-font-size: var(--wr-text-sm);
+  --wr-sidebar-item-font-weight: var(--wr-font-weight-medium);
+  --wr-sidebar-item-line-height: var(--wr-text-sm-leading);
+  --wr-sidebar-badge-padding-y: 0.125rem;
+  --wr-sidebar-badge-padding-x: var(--wr-space-sm);
+  --wr-sidebar-badge-radius: var(--wr-border-radius-sm);
+  --wr-sidebar-badge-font-size: var(--wr-text-xs);
+  --wr-sidebar-badge-font-weight: var(--wr-font-weight-semibold);
+  --wr-sidebar-badge-line-height: var(--wr-text-xs-leading);
+  --wr-sidebar-badge-letter-spacing: var(--wr-tracking-wide);
 
   display: block;
   padding: var(--wr-sidebar-padding);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-sidebar-font-family);
   color: var(--wr-color-on-surface);
 
   &__inner {
     display: flex;
     flex-direction: column;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-sidebar-inner-gap);
   }
 
   &__icon {
@@ -46,13 +83,13 @@
   &__entry {
     display: flex;
     align-items: center;
-    gap: var(--wr-space-sm);
-    padding: var(--wr-space-sm) var(--wr-space-md);
-    border-radius: var(--wr-border-radius-sm);
+    gap: var(--wr-sidebar-entry-gap);
+    padding: var(--wr-sidebar-entry-padding-y) var(--wr-sidebar-entry-padding-x);
+    border-radius: var(--wr-sidebar-entry-radius);
     color: var(--wr-color-on-surface);
-    font-size: var(--wr-text-sm);
-    font-weight: var(--wr-font-weight-semibold);
-    line-height: 1.25rem;
+    font-size: var(--wr-sidebar-entry-font-size);
+    font-weight: var(--wr-sidebar-entry-font-weight);
+    line-height: var(--wr-sidebar-entry-line-height);
     text-decoration: none;
     transition:
       background var(--wr-transition-base),
@@ -113,21 +150,21 @@
     &-toggle {
       display: flex;
       align-items: center;
-      gap: var(--wr-space-sm);
+      gap: var(--wr-sidebar-group-toggle-gap);
       width: 100%;
       margin: 0;
-      padding: var(--wr-space-sm) var(--wr-space-md);
+      padding: var(--wr-sidebar-group-toggle-padding-y) var(--wr-sidebar-group-toggle-padding-x);
       background: transparent;
       border: 0;
-      border-radius: var(--wr-border-radius-sm);
+      border-radius: var(--wr-sidebar-group-toggle-radius);
       color: var(--wr-color-on-surface);
       // A `<button>` inherits no type. The UA's 13.33px and `line-height: normal`
       // made this row 33px under the 36px link beside it, and shrank the icon and
       // the chevron, which size from `em` — so the same type as `__entry`.
       font: inherit;
-      font-size: var(--wr-text-sm);
-      font-weight: var(--wr-font-weight-semibold);
-      line-height: 1.25rem;
+      font-size: var(--wr-sidebar-group-toggle-font-size);
+      font-weight: var(--wr-sidebar-group-toggle-font-weight);
+      line-height: var(--wr-sidebar-group-toggle-line-height);
       cursor: pointer;
       text-align: start;
       transition: background var(--wr-transition-base);
@@ -161,8 +198,8 @@
 
   &__title {
     flex: 1 1 auto;
-    font-size: var(--wr-text-sm);
-    font-weight: var(--wr-font-weight-semibold);
+    font-size: var(--wr-sidebar-title-font-size);
+    font-weight: var(--wr-sidebar-title-font-weight);
   }
 
   &__chevron {
@@ -187,14 +224,18 @@
   // Child items (inside an expanded group)
   &__list {
     list-style: none;
-    margin: var(--wr-space-xs) 0 var(--wr-space-sm);
-    margin-inline-start: var(--wr-space-sm);
+    margin: var(--wr-sidebar-list-margin-top) 0 var(--wr-sidebar-list-margin-bottom);
+    margin-inline-start: var(--wr-sidebar-list-margin-inline-start);
     padding: 0;
+    // Literal, and paired with the `__item::before` cursor bar below: that bar
+    // is pulled back to `-0.6875rem` so its 2px covers the 1px rail this
+    // padding stands off from. Both numbers have to move together, and `inset`
+    // is out of scope for the token sweep, so neither does.
     padding-inline-start: 0.625rem;
     display: flex;
     flex-direction: column;
-    gap: 0.0625rem;
-    border-inline-start: 1px solid var(--wr-border-base);
+    gap: var(--wr-sidebar-list-gap);
+    border-inline-start: 1px solid var(--wr-sidebar-list-border);
   }
 
   // The list's 6px bottom margin spaces an open group from the row after it. On
@@ -208,16 +249,16 @@
     position: relative;
     display: flex;
     align-items: center;
-    gap: var(--wr-space-sm);
-    // 6px around the 20px line: a 32px row, the geometry of a dropdown item. At
+    gap: var(--wr-sidebar-item-gap);
+    // 8px around the 20px line: a 36px row, the geometry of a dropdown item. At
     // 5px the hover and active tint sat closer to the text than anywhere else in
     // the nav, and a badge row came out 2px taller than its neighbours.
-    padding: 0.375rem 0.75rem;
-    border-radius: var(--wr-border-radius-sm);
+    padding: var(--wr-sidebar-item-padding-y) var(--wr-sidebar-item-padding-x);
+    border-radius: var(--wr-sidebar-item-radius);
     color: var(--wr-color-on-surface);
-    font-size: var(--wr-text-sm);
-    font-weight: var(--wr-font-weight-medium);
-    line-height: 1.25rem;
+    font-size: var(--wr-sidebar-item-font-size);
+    font-weight: var(--wr-sidebar-item-font-weight);
+    line-height: var(--wr-sidebar-item-line-height);
     text-decoration: none;
     transition:
       color var(--wr-transition-base),
@@ -294,17 +335,17 @@
     // 16px line plus 2px either side is the row's own 20px line box, so a badge
     // never makes its row taller: it inherited the row's 20px line and came out
     // 22px, which grew `__entry` from 36px to 38px and `__item` by the same 2px.
-    padding: 0.125rem 0.375rem;
+    padding: var(--wr-sidebar-badge-padding-y) var(--wr-sidebar-badge-padding-x);
     // The row's corner, not a pill: the badge sits inside `__entry` / `__item`,
     // which both read `--wr-border-radius-sm`, and a stadium nested in a 6px row
     // reads as a foreign shape rather than a part of it.
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-sidebar-badge-radius);
     background: var(--wr-color-fill-strong);
     color: var(--wr-color-on-surface-muted);
-    font-size: var(--wr-text-xs);
-    font-weight: var(--wr-font-weight-semibold);
-    line-height: 1rem;
+    font-size: var(--wr-sidebar-badge-font-size);
+    font-weight: var(--wr-sidebar-badge-font-weight);
+    line-height: var(--wr-sidebar-badge-line-height);
     text-transform: uppercase;
-    letter-spacing: var(--wr-tracking-wide);
+    letter-spacing: var(--wr-sidebar-badge-letter-spacing);
   }
 }

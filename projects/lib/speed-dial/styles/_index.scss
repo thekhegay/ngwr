@@ -18,10 +18,12 @@
   --wr-speed-dial-size: 3.25rem;
   --wr-speed-dial-action-size: 2.5rem;
   --wr-speed-dial-gap: var(--wr-space-md);
+  --wr-speed-dial-font-family: var(--wr-font-family-base);
+  --wr-speed-dial-action-border: var(--wr-border-base);
 
   position: relative;
   display: inline-block;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-speed-dial-font-family);
 
   // Safe-area opt-in: pad the host toward the fan direction so a consumer who
   // pins the FAB to that edge clears the notch / home indicator. env() is 0
@@ -201,7 +203,7 @@
     // its own and was never meant to be: `--wr-border-base` measures 1.41:1
     // on the dark canvas, which is the one contrast figure the project has
     // decided to live with. The shadow is what has to carry it.
-    border: 1px solid var(--wr-border-base);
+    border: 1px solid var(--wr-speed-dial-action-border);
     border-radius: 50%;
     background: var(--wr-color-surface);
     color: var(--wr-color-on-surface);

@@ -2,52 +2,69 @@
 @use '../../../popover/styles'; // the `.wr-tooltip` chip the hover tooltip renders into
 
 .wr-bar-chart {
+  --wr-bar-chart-font-family: var(--wr-font-family-base);
+
   display: block;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-bar-chart-font-family);
   color: var(--wr-color-on-surface);
 
   &__plot {
+    --wr-bar-chart-plot-gap: var(--wr-space-sm);
+    --wr-bar-chart-plot-border: var(--wr-border-base);
+
     display: flex;
     align-items: flex-end;
-    gap: var(--wr-space-sm);
-    border-bottom: 1px solid var(--wr-border-base);
+    gap: var(--wr-bar-chart-plot-gap);
+    border-bottom: 1px solid var(--wr-bar-chart-plot-border);
   }
 
   &__column {
+    --wr-bar-chart-column-gap: var(--wr-space-xs);
+
     flex: 1 1 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
     height: 100%;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-bar-chart-column-gap);
     min-width: 0;
   }
 
   &__value {
-    font-size: var(--wr-text-xs);
+    --wr-bar-chart-value-font-size: var(--wr-text-xs);
+    --wr-bar-chart-value-line-height: var(--wr-leading-none);
+
+    font-size: var(--wr-bar-chart-value-font-size);
     color: var(--wr-color-on-surface-muted);
     font-variant-numeric: tabular-nums;
-    line-height: 1;
+    line-height: var(--wr-bar-chart-value-line-height);
   }
 
   &__bar {
+    --wr-bar-chart-bar-radius: var(--wr-border-radius-sm);
+
     width: 100%;
-    border-radius: 2px 2px 0 0;
+    border-radius: var(--wr-bar-chart-bar-radius) var(--wr-bar-chart-bar-radius) 0 0;
     transition: height var(--wr-duration-slow) var(--wr-ease-out);
     min-height: 1px;
   }
 
   &__labels {
+    --wr-bar-chart-labels-gap: var(--wr-space-sm);
+    --wr-bar-chart-labels-margin-top: var(--wr-space-sm);
+
     display: flex;
-    gap: var(--wr-space-sm);
-    margin-top: var(--wr-space-sm);
+    gap: var(--wr-bar-chart-labels-gap);
+    margin-top: var(--wr-bar-chart-labels-margin-top);
   }
 
   &__label {
+    --wr-bar-chart-label-font-size: var(--wr-text-xs);
+
     flex: 1 1 0;
     text-align: center;
-    font-size: var(--wr-text-xs);
+    font-size: var(--wr-bar-chart-label-font-size);
     color: var(--wr-color-on-surface-muted);
     overflow: hidden;
     text-overflow: ellipsis;

@@ -410,7 +410,8 @@ describe('the sidebar stylesheet', () => {
   };
 
   /**
-   * The five-step spacing scale, read from the theme layer rather than restated.
+   * The theme's length scales — spacing, type sizes and their paired leadings —
+   * read from the layer rather than restated.
    *
    * These assertions are about ARITHMETIC — that an inset is non-zero, that the
    * gap a last group cancels is real — so a value arriving as
@@ -419,16 +420,50 @@ describe('the sidebar stylesheet', () => {
    * which is the thing it exists to refuse.
    */
   const SCALE: Readonly<Record<string, string>> = Object.fromEntries(
-    [...read('projects/lib/theme/styles/_variables.scss').matchAll(/(--wr-space-[a-z]+):\s*([^;]+);/g)].map(m => [
-      m[1],
-      m[2].trim(),
-    ])
+    [
+      ...read('projects/lib/theme/styles/_variables.scss').matchAll(
+        /(--wr-(?:space|text|leading)-[\w-]+):\s*([^;]+);/g
+      ),
+    ].map(m => [m[1], m[2].trim()])
   );
 
+  /**
+   * Every `--wr-sidebar-*` hook the stylesheet declares, to its value.
+   *
+   * The component publishes a hook per painted value and the rules read those
+   * rather than the global tokens, so resolving one step is no longer enough:
+   * `padding-block` arrives as `var(--wr-sidebar-item-padding-y)`, whose value
+   * is `var(--wr-space-xs)`, whose value is `0.25rem`. These assertions are
+   * about ARITHMETIC, so every step has to be followed — a resolver that gave
+   * up and waved the string through would keep the spec green on a padding of
+   * zero, which is the thing it exists to refuse.
+   */
+  const HOOKS: Readonly<Record<string, string>> = Object.fromEntries(
+    [...code.matchAll(/(--wr-sidebar-[\w-]+):\s*([^;]+);/g)].map(m => [m[1], m[2].trim()])
+  );
+
+  /** A value with every `var()` hop followed, for comparing two declarations. */
+  const resolve = (value: string): string => {
+    let out = value;
+    for (let step = 0; step < 8; step++) {
+      const ref = /^var\(\s*(--wr-[\w-]+)\s*\)$/.exec(out);
+      if (!ref) break;
+      const next = SCALE[ref[1]] ?? HOOKS[ref[1]];
+      if (next === undefined) return out;
+      out = next;
+    }
+    return out;
+  };
+
   const rem = (value: string): number => {
-    const token = /^var\(\s*(--wr-space-[a-z]+)\s*\)$/.exec(value);
-    const resolved = token ? SCALE[token[1]] : value;
-    if (token && resolved === undefined) throw new Error(`No \`${token[1]}\` in the theme layer`);
+    let resolved = value;
+    for (let step = 0; step < 8; step++) {
+      const ref = /^var\(\s*(--wr-[\w-]+)\s*\)$/.exec(resolved);
+      if (!ref) break;
+      const next = SCALE[ref[1]] ?? HOOKS[ref[1]];
+      if (next === undefined) throw new Error(`No \`${ref[1]}\` in the theme layer or this stylesheet`);
+      resolved = next;
+    }
 
     const match = /^([\d.]+)rem$/.exec(resolved);
     if (!match) throw new Error(`Expected a rem length, got \`${value}\``);
@@ -460,15 +495,18 @@ describe('the sidebar stylesheet', () => {
   });
 
   it('rounds each row tint with the corner a dropdown item uses', () => {
-    const corner = dropdownItem['--wr-dropdown-item-radius'];
+    // Compared RESOLVED, not spelled: each row now paints its own
+    // `--wr-sidebar-*-radius` hook so a consumer can retune one row type, and
+    // what has to stay equal is the corner the two components end up drawing.
+    const corner = resolve(dropdownItem['--wr-dropdown-item-radius']);
 
     expect(corner).toBe('var(--wr-border-radius-sm)');
-    for (const row of [entry, toggle, item]) expect(row['border-radius']).toBe(corner);
+    for (const row of [entry, toggle, item]) expect(resolve(row['border-radius'])).toBe(corner);
   });
 
   it('gives the group toggle the type of the link beside it, since a <button> inherits none', () => {
     expect(toggle['font']).toBe('inherit');
-    expect(toggle['font-size']).toBe(entry['font-size']);
+    expect(resolve(toggle['font-size'])).toBe(resolve(entry['font-size']));
     expect(rem(toggle['line-height'])).toBe(rem(entry['line-height']));
     expect(paddingBlock(toggle['padding'])).toBe(paddingBlock(entry['padding']));
   });

@@ -74,6 +74,8 @@
 .wr-drawer__panel {
   --wr-drawer-bg: var(--wr-color-surface);
   --wr-drawer-shadow: var(--wr-shadow-modal);
+  --wr-drawer-font-family: var(--wr-font-family-base);
+  --wr-drawer-radius: var(--wr-border-radius-lg);
 
   display: flex;
   flex-direction: column;
@@ -94,7 +96,7 @@
   background: var(--wr-drawer-bg);
   color: var(--wr-color-on-surface);
   box-shadow: var(--wr-drawer-shadow);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-drawer-font-family);
   overflow: hidden;
 
   &--left {
@@ -121,27 +123,27 @@
   // round the edge against the viewport instead of the one facing the content.
   &--rounded.wr-drawer__panel--bottom {
     // rtl-ok: symmetric pair on the block-start edge — identical under RTL
-    border-top-left-radius: var(--wr-border-radius-lg);
+    border-top-left-radius: var(--wr-drawer-radius);
     // rtl-ok: symmetric pair on the block-start edge — identical under RTL
-    border-top-right-radius: var(--wr-border-radius-lg);
+    border-top-right-radius: var(--wr-drawer-radius);
   }
   &--rounded.wr-drawer__panel--top {
     // rtl-ok: symmetric pair on the block-end edge — identical under RTL
-    border-bottom-left-radius: var(--wr-border-radius-lg);
+    border-bottom-left-radius: var(--wr-drawer-radius);
     // rtl-ok: symmetric pair on the block-end edge — identical under RTL
-    border-bottom-right-radius: var(--wr-border-radius-lg);
+    border-bottom-right-radius: var(--wr-drawer-radius);
   }
   &--rounded.wr-drawer__panel--left {
     // rtl-ok: physical `position` — inner edge of a physically left-anchored panel
-    border-top-right-radius: var(--wr-border-radius-lg);
+    border-top-right-radius: var(--wr-drawer-radius);
     // rtl-ok: physical `position` — inner edge of a physically left-anchored panel
-    border-bottom-right-radius: var(--wr-border-radius-lg);
+    border-bottom-right-radius: var(--wr-drawer-radius);
   }
   &--rounded.wr-drawer__panel--right {
     // rtl-ok: physical `position` — inner edge of a physically right-anchored panel
-    border-top-left-radius: var(--wr-border-radius-lg);
+    border-top-left-radius: var(--wr-drawer-radius);
     // rtl-ok: physical `position` — inner edge of a physically right-anchored panel
-    border-bottom-left-radius: var(--wr-border-radius-lg);
+    border-bottom-left-radius: var(--wr-drawer-radius);
   }
 
   // Safe-area padding on the trailing edge. `env(safe-area-inset-*)` is defined
@@ -165,13 +167,23 @@
 
 .wr-drawer {
   &__title {
+    --wr-drawer-title-padding-y: var(--wr-space-lg);
+    --wr-drawer-title-padding-x: var(--wr-space-xl);
+    --wr-drawer-title-font-size: var(--wr-text-lg);
+    --wr-drawer-title-font-weight: var(--wr-font-weight-semibold);
+    // The 1rem text box, not the one paired with an 18px font: `__close` is
+    // centred on this line box by hand (see `inset-block-start` below), so the
+    // two are a solved pair.
+    --wr-drawer-title-line-height: var(--wr-text-base-leading);
+    --wr-drawer-title-border: var(--wr-border-base);
+
     margin: 0;
-    padding: var(--wr-space-lg) var(--wr-space-xl);
+    padding: var(--wr-drawer-title-padding-y) var(--wr-drawer-title-padding-x);
     color: var(--wr-color-on-surface);
-    font-size: var(--wr-text-lg);
-    font-weight: 600;
-    line-height: 1.5rem;
-    border-bottom: 1px solid var(--wr-border-base);
+    font-size: var(--wr-drawer-title-font-size);
+    font-weight: var(--wr-drawer-title-font-weight);
+    line-height: var(--wr-drawer-title-line-height);
+    border-bottom: 1px solid var(--wr-drawer-title-border);
   }
 
   // No title to sit beside, so the corner chrome needs its own room.
@@ -187,6 +199,10 @@
   // Built-in dismiss (×) in the panel's top-right corner — rendered by the
   // component template, appended by `WrDrawerManager` for service drawers.
   &__close {
+    --wr-drawer-close-padding: var(--wr-space-xs);
+    --wr-drawer-close-radius: var(--wr-border-radius-sm);
+    --wr-drawer-close-font-size: var(--wr-text-base);
+
     position: absolute;
     // Centre on the title's first line: 1rem of padding, then a 1.5rem text box.
     inset-block-start: 1.75rem;
@@ -197,17 +213,17 @@
     appearance: none;
     background: transparent;
     border: 0;
-    padding: var(--wr-space-xs);
+    padding: var(--wr-drawer-close-padding);
     color: var(--wr-color-on-surface-muted);
     cursor: pointer;
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-drawer-close-radius);
     transition:
       color var(--wr-transition-base),
       background var(--wr-transition-base);
 
     // Sized via font-size, not `--wr-icon-size`: the glyph is a bare
     // `.wr-icon__svg`, which measures itself in `em`.
-    font-size: 1rem;
+    font-size: var(--wr-drawer-close-font-size);
     line-height: 0;
 
     // `$positioned: true` — the default sets `position: relative` under
@@ -230,19 +246,29 @@
   }
 
   &__content {
+    --wr-drawer-content-padding-y: var(--wr-space-lg);
+    --wr-drawer-content-padding-x: var(--wr-space-xl);
+    --wr-drawer-content-font-size: var(--wr-text-base);
+    --wr-drawer-content-line-height: var(--wr-text-base-leading);
+
     flex: 1 1 auto;
-    padding: var(--wr-space-lg) var(--wr-space-xl);
+    padding: var(--wr-drawer-content-padding-y) var(--wr-drawer-content-padding-x);
     overflow: auto;
-    font-size: var(--wr-text-base);
-    line-height: 1.5rem;
+    font-size: var(--wr-drawer-content-font-size);
+    line-height: var(--wr-drawer-content-line-height);
   }
 
   &__footer {
+    --wr-drawer-footer-gap: var(--wr-space-sm);
+    --wr-drawer-footer-padding-y: var(--wr-space-md);
+    --wr-drawer-footer-padding-x: var(--wr-space-xl);
+    --wr-drawer-footer-border: var(--wr-border-base);
+
     display: flex;
     align-items: center;
-    gap: var(--wr-space-sm);
-    padding: var(--wr-space-md) var(--wr-space-xl);
-    border-top: 1px solid var(--wr-border-base);
+    gap: var(--wr-drawer-footer-gap);
+    padding: var(--wr-drawer-footer-padding-y) var(--wr-drawer-footer-padding-x);
+    border-top: 1px solid var(--wr-drawer-footer-border);
 
     &--start {
       justify-content: flex-start;

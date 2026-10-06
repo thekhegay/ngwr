@@ -10,6 +10,17 @@
   --wr-select-padding-x: var(--wr-control-padding-x-md);
   --wr-select-font-size: var(--wr-control-font-size-md);
   --wr-select-line-height: var(--wr-control-line-height-md);
+  --wr-select-font-family: var(--wr-font-family-base);
+  --wr-select-trigger-gap: var(--wr-space-sm);
+  --wr-select-tag-input-padding: var(--wr-space-xs);
+  --wr-select-chips-gap: var(--wr-space-xs);
+  --wr-select-chip-gap: var(--wr-space-xs);
+  --wr-select-chip-padding-block: var(--wr-space-xs);
+  --wr-select-chip-padding-inline-start: var(--wr-space-sm);
+  --wr-select-chip-padding-inline-end: var(--wr-space-xs);
+  --wr-select-chip-font-size: var(--wr-text-sm);
+  --wr-select-chip-line-height: var(--wr-leading-snug);
+  --wr-select-clear-radius: var(--wr-border-radius-pill);
   // The floor that keeps a bare `<wr-select>` from collapsing to its
   // placeholder. Despite the name it is a DEFAULT width rather than a minimum:
   // an explicit `width`, `width: 100%` in a narrow parent, a `minmax(0, 1fr)`
@@ -103,7 +114,7 @@
   &__trigger {
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-select-trigger-gap);
     width: 100%;
     // Not the floor — that lives on the host, where a width can beat it. Zero
     // lets the trigger follow the host down and the value / placeholder
@@ -116,7 +127,7 @@
     @include theme.smooth-br(var(--wr-select-radius));
     padding: calc(var(--wr-select-padding-y) * var(--wr-density-y, 1))
       calc(var(--wr-select-padding-x) * var(--wr-density-x, 1));
-    font-family: var(--wr-font-family-base);
+    font-family: var(--wr-select-font-family);
     font-size: var(--wr-select-font-size);
     line-height: var(--wr-select-line-height);
     cursor: pointer;
@@ -286,7 +297,7 @@
     max-width: 100%;
     border: 0;
     outline: 0;
-    padding: var(--wr-space-xs) var(--wr-space-xs);
+    padding: var(--wr-select-tag-input-padding);
     background: transparent;
     color: inherit;
     font: inherit;
@@ -319,18 +330,18 @@
     flex: 1 1 auto;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-select-chips-gap);
     min-width: 0;
   }
 
   &__chip {
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-select-chip-gap);
     max-width: 100%;
     // Roomier on the label side, tighter where the remove (×) sits.
-    padding-block: var(--wr-space-xs);
-    padding-inline: var(--wr-space-sm) var(--wr-space-xs);
+    padding-block: var(--wr-select-chip-padding-block);
+    padding-inline: var(--wr-select-chip-padding-inline-start) var(--wr-select-chip-padding-inline-end);
     // Not a pill: a chip is a shape nested INSIDE the trigger, so it repeats the
     // trigger's own corner and scales with `size` along with it (5 / 6 / 7px for
     // sm / md / lg). `--rounded` sets `--wr-select-radius` to the pill token, so
@@ -341,8 +352,8 @@
     // `-ink`, not the raw intent: the chip paints the hue on its own soft tint,
     // where the base lands at 4.17:1.
     color: var(--wr-color-primary-ink);
-    font-size: var(--wr-text-sm);
-    line-height: 1.4;
+    font-size: var(--wr-select-chip-font-size);
+    line-height: var(--wr-select-chip-line-height);
     user-select: none;
   }
 
@@ -398,7 +409,7 @@
     width: 1.125rem;
     height: 1.125rem;
     margin-inline-end: -0.25rem;
-    border-radius: 999px;
+    border-radius: var(--wr-select-clear-radius);
     color: var(--wr-color-on-surface-muted);
     cursor: pointer;
     transition:
@@ -413,7 +424,9 @@
 }
 
 .wr-select-overlay {
-  padding-top: var(--wr-space-xs);
+  --wr-select-overlay-padding-top: var(--wr-space-xs);
+
+  padding-top: var(--wr-select-overlay-padding-top);
 }
 
 .wr-select-panel {
@@ -422,17 +435,29 @@
   --wr-select-panel-radius: var(--wr-border-radius-base);
   --wr-select-panel-shadow: var(--wr-shadow-overlay);
   --wr-select-panel-max-height: 16rem;
+  --wr-select-panel-padding: var(--wr-space-xs);
+  --wr-select-panel-font-family: var(--wr-font-family-base);
+  // Shared by the loading and the empty row — one padding for the panel's
+  // status text, whichever of the two is rendered.
+  --wr-select-panel-message-padding: var(--wr-space-md);
   // Option sizing — default md. --sm/--lg are set from the trigger size because
   // the panel is portaled into an overlay and can't inherit the host size class.
   --wr-option-font-size: var(--wr-control-font-size-md);
   --wr-option-line-height: var(--wr-control-line-height-md);
-  --wr-option-padding-y: 0.4375rem;
-  --wr-option-padding-x: 0.625rem;
+  --wr-option-padding-y: var(--wr-space-sm);
+  --wr-option-padding-x: var(--wr-space-md);
+  // The panel's row rhythm. Literal, and the only one left here: the ramp is
+  // 2 / 3 / 4px, and only `--lg` lands on a step — it IS `--wr-space-xs`.
+  // Taking that one alone collapses `--lg` into the 3px base, and moving all
+  // three onto the scale means 4 / 8 / 12, which doubles-to-quadruples the
+  // rhythm of every row in the panel. So all three stay literal.
   --wr-option-gap: 0.1875rem;
   // Space between an option's own bits — an icon or checkbox and its label.
   // `--wr-option-gap` above is the panel's row rhythm, a different axis; without
   // this one, a projected `<wr-icon>` sat flush against the text.
-  --wr-option-inline-gap: 0.5rem;
+  --wr-option-inline-gap: var(--wr-space-sm);
+  --wr-option-radius: var(--wr-border-radius-sm);
+  --wr-option-font-weight: var(--wr-font-weight-medium);
 
   display: flex;
   flex-direction: column;
@@ -444,32 +469,32 @@
   border: 1px solid var(--wr-select-panel-border);
   @include theme.smooth-br(var(--wr-select-panel-radius));
   box-shadow: var(--wr-select-panel-shadow);
-  padding: var(--wr-space-xs);
+  padding: var(--wr-select-panel-padding);
   max-height: var(--wr-select-panel-max-height);
   overflow-y: auto;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-select-panel-font-family);
 
   &--sm {
     --wr-option-font-size: var(--wr-control-font-size-sm);
     --wr-option-line-height: var(--wr-control-line-height-sm);
-    --wr-option-padding-y: 0.3125rem;
-    --wr-option-padding-x: 0.5rem;
+    --wr-option-padding-y: var(--wr-space-xs);
+    --wr-option-padding-x: var(--wr-space-sm);
     --wr-option-gap: 0.125rem;
-    --wr-option-inline-gap: 0.375rem;
+    --wr-option-inline-gap: var(--wr-space-xs);
   }
 
   &--lg {
     --wr-option-font-size: var(--wr-control-font-size-lg);
     --wr-option-line-height: var(--wr-control-line-height-lg);
-    --wr-option-padding-y: 0.5rem;
-    --wr-option-padding-x: 0.75rem;
+    --wr-option-padding-y: var(--wr-space-md);
+    --wr-option-padding-x: var(--wr-space-lg);
     --wr-option-gap: 0.25rem;
-    --wr-option-inline-gap: 0.625rem;
+    --wr-option-inline-gap: var(--wr-space-md);
   }
 
   &__loading,
   &__empty {
-    padding: var(--wr-space-md) var(--wr-space-md);
+    padding: var(--wr-select-panel-message-padding);
     color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-option-font-size);
     text-align: center;
@@ -481,7 +506,7 @@
   align-items: center;
   gap: var(--wr-option-inline-gap, 0.5rem);
   padding: var(--wr-option-padding-y) var(--wr-option-padding-x);
-  border-radius: var(--wr-border-radius-sm);
+  border-radius: var(--wr-option-radius);
   color: var(--wr-color-on-surface);
   font-size: var(--wr-option-font-size);
   line-height: var(--wr-option-line-height);
@@ -498,7 +523,7 @@
     // Text on the intent's own `-soft` tint: `-ink`, by calibration.
     // Bare measured 4.17:1 light / 3.65:1 dark.
     color: var(--wr-color-primary-ink);
-    font-weight: 500;
+    font-weight: var(--wr-option-font-weight);
   }
 
   &--disabled {
@@ -585,6 +610,13 @@
 }
 
 .wr-option-group {
+  --wr-option-group-border: var(--wr-border-base);
+  --wr-option-group-margin-top: var(--wr-space-xs);
+  --wr-option-group-padding-top: var(--wr-space-xs);
+  --wr-option-group-label-padding: var(--wr-space-sm) var(--wr-space-md) var(--wr-space-xs);
+  --wr-option-group-label-font-size: var(--wr-text-xs);
+  --wr-option-group-label-font-weight: var(--wr-font-weight-semibold);
+
   display: flex;
   flex-direction: column;
   gap: var(--wr-option-gap);
@@ -598,10 +630,10 @@
   }
 
   &__label {
-    padding: var(--wr-space-sm) var(--wr-space-md) var(--wr-space-xs);
+    padding: var(--wr-option-group-label-padding);
     color: var(--wr-color-on-surface-muted);
-    font-size: var(--wr-text-xs);
-    font-weight: 600;
+    font-size: var(--wr-option-group-label-font-size);
+    font-weight: var(--wr-option-group-label-font-weight);
     letter-spacing: 0.04em;
     text-transform: uppercase;
   }
@@ -613,9 +645,9 @@
   // search field, where the field's own border already does the job.
   .wr-option + &,
   + .wr-option-group {
-    border-top: 1px solid var(--wr-border-base);
-    margin-top: var(--wr-space-xs);
-    padding-top: var(--wr-space-xs);
+    border-top: 1px solid var(--wr-option-group-border);
+    margin-top: var(--wr-option-group-margin-top);
+    padding-top: var(--wr-option-group-padding-top);
   }
 }
 
@@ -625,13 +657,14 @@
 // compact desktop sizing above.
 @media (pointer: coarse) {
   .wr-select__chips {
-    gap: var(--wr-space-sm);
+    --wr-select-chips-gap: var(--wr-space-sm);
   }
 
   .wr-select__chip {
-    gap: var(--wr-space-sm);
-    padding-block: var(--wr-space-sm);
-    padding-inline: var(--wr-space-md) var(--wr-space-sm);
+    --wr-select-chip-gap: var(--wr-space-sm);
+    --wr-select-chip-padding-block: var(--wr-space-sm);
+    --wr-select-chip-padding-inline-start: var(--wr-space-md);
+    --wr-select-chip-padding-inline-end: var(--wr-space-sm);
   }
 
   .wr-select__chip-remove,

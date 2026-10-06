@@ -1,9 +1,20 @@
 @use '../../theme/styles' as theme;
 
 .wr-anchor {
+  --wr-anchor-font-family: var(--wr-font-family-base);
+  --wr-anchor-border: var(--wr-border-base);
+  --wr-anchor-list-gap: var(--wr-space-xs);
+  --wr-anchor-list-nested-margin-top: var(--wr-space-xs);
+  --wr-anchor-link-padding-y: var(--wr-space-xs);
+  --wr-anchor-link-padding-x: var(--wr-space-sm);
+  --wr-anchor-link-radius: var(--wr-border-radius-sm);
+  --wr-anchor-link-font-size: var(--wr-text-sm);
+  --wr-anchor-link-line-height: var(--wr-leading-snug);
+  --wr-anchor-link-active-font-weight: var(--wr-font-weight-semibold);
+
   display: block;
-  font-family: var(--wr-font-family-base);
-  border-inline-start: 1.5px solid var(--wr-border-base);
+  font-family: var(--wr-anchor-font-family);
+  border-inline-start: 1.5px solid var(--wr-anchor-border);
   // NOT on the spacing scale: the active rail at `inset-inline-start: -1rem`
   // below is solved against this 14px indent plus the host's 1.5px border, so
   // the 1.5px bar lands at -0.5px and overlaps the rail it replaces. The
@@ -17,10 +28,10 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-anchor-list-gap);
 
     &--nested {
-      margin-top: var(--wr-space-xs);
+      margin-top: var(--wr-anchor-list-nested-margin-top);
       padding-inline-start: 0.875rem;
     }
   }
@@ -28,11 +39,11 @@
   &__link {
     position: relative;
     display: block;
-    padding: var(--wr-space-xs) var(--wr-space-sm);
-    border-radius: var(--wr-border-radius-sm);
+    padding: var(--wr-anchor-link-padding-y) var(--wr-anchor-link-padding-x);
+    border-radius: var(--wr-anchor-link-radius);
     color: var(--wr-color-on-surface-muted);
-    font-size: var(--wr-text-sm);
-    line-height: var(--wr-leading-snug);
+    font-size: var(--wr-anchor-link-font-size);
+    line-height: var(--wr-anchor-link-line-height);
     transition:
       color var(--wr-transition-base),
       background var(--wr-transition-base);
@@ -55,7 +66,7 @@
     &--active {
       // Text, on the page surface — `-ink` is the token for the intent AS text.
       color: var(--wr-color-primary-ink);
-      font-weight: var(--wr-font-weight-semibold);
+      font-weight: var(--wr-anchor-link-active-font-weight);
 
       &::before {
         background: var(--wr-color-primary);

@@ -20,13 +20,13 @@
     display: block;
     min-width: 14rem;
     max-width: 22rem;
-    padding: var(--wr-space-lg) var(--wr-space-lg);
+    padding: var(--wr-popconfirm-padding);
     background: var(--wr-color-surface);
-    border: 1px solid var(--wr-border-base);
-    border-radius: var(--wr-border-radius-base);
+    border: 1px solid var(--wr-popconfirm-border);
+    border-radius: var(--wr-popconfirm-radius);
     box-shadow: var(--wr-shadow-overlay);
     color: var(--wr-color-on-surface);
-    font-family: var(--wr-font-family-base);
+    font-family: var(--wr-popconfirm-font-family);
     animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
     // rtl-ok: scale-in growth corner — `transform-origin` takes no logical keywords
     transform-origin: top left;
@@ -34,16 +34,25 @@
 }
 
 .wr-popconfirm {
+  --wr-popconfirm-padding: var(--wr-space-lg);
+  --wr-popconfirm-border: var(--wr-border-base);
+  --wr-popconfirm-radius: var(--wr-border-radius-base);
+  --wr-popconfirm-font-family: var(--wr-font-family-base);
+  --wr-popconfirm-message-margin-block-end: var(--wr-space-md);
+  --wr-popconfirm-message-font-size: var(--wr-text-sm);
+  --wr-popconfirm-message-line-height: var(--wr-text-sm-leading);
+  --wr-popconfirm-actions-gap: var(--wr-space-sm);
+
   &__message {
-    margin: 0 0 var(--wr-space-md);
-    font-size: var(--wr-text-sm);
-    line-height: 1.25rem;
+    margin: 0 0 var(--wr-popconfirm-message-margin-block-end);
+    font-size: var(--wr-popconfirm-message-font-size);
+    line-height: var(--wr-popconfirm-message-line-height);
   }
 
   &__actions {
     display: flex;
     justify-content: flex-end;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-popconfirm-actions-gap);
   }
 }
 
@@ -58,6 +67,11 @@
   $pane: '.wr-popconfirm-overlay',
   $panel: '> .wr-popconfirm',
   $background: var(--wr-color-surface),
-  $border: var(--wr-border-base),
-  $placements-used: (top, bottom, left, right)
+  $border: var(--wr-popconfirm-border),
+  $placements-used: (
+    top,
+    bottom,
+    left,
+    right,
+  )
 );

@@ -67,26 +67,40 @@
 }
 
 .wr-context-menu {
+  --wr-context-menu-border: var(--wr-border-base);
+  --wr-context-menu-radius: var(--wr-border-radius-base);
+
   min-width: 10rem;
+  // Solved, not picked: the item's focus ring sits 2px out and is 2px wide, so
+  // this is the 4px that ring needs with a pixel to spare — the clearance the
+  // item's `:focus-visible` comment below relies on. Rounding it to a spacing
+  // step would spend that pixel.
   padding: 0.3125rem;
   background: var(--wr-color-surface, #fff);
-  border: 1px solid var(--wr-border-base);
+  border: 1px solid var(--wr-context-menu-border);
   // Soft rounded corners — smooth-br opts into native `corner-shape:
   // squircle` where supported, and falls back to plain
   // border-radius elsewhere.
-  @include theme.smooth-br(var(--wr-border-radius-base));
+  @include theme.smooth-br(var(--wr-context-menu-radius));
   box-shadow: var(--wr-shadow-overlay);
 }
 
 .wr-context-menu-item {
+  --wr-context-menu-item-gap: var(--wr-space-sm);
+  --wr-context-menu-item-padding-y: var(--wr-space-sm);
+  --wr-context-menu-item-padding-x: var(--wr-space-md);
+  --wr-context-menu-item-radius: var(--wr-border-radius-sm);
+  --wr-context-menu-item-font-size: var(--wr-text-sm);
+  --wr-context-menu-item-chevron-margin-inline-start: var(--wr-space-xs);
+
   display: flex;
   align-items: center;
-  gap: var(--wr-space-sm);
+  gap: var(--wr-context-menu-item-gap);
   width: 100%;
-  padding: var(--wr-space-sm) var(--wr-space-md);
-  @include theme.smooth-br(var(--wr-border-radius-sm));
+  padding: var(--wr-context-menu-item-padding-y) var(--wr-context-menu-item-padding-x);
+  @include theme.smooth-br(var(--wr-context-menu-item-radius));
   color: var(--wr-color-on-surface);
-  font-size: var(--wr-text-sm);
+  font-size: var(--wr-context-menu-item-font-size);
   cursor: pointer;
   user-select: none;
   transition:
@@ -136,7 +150,7 @@
     width: 0.8125rem;
     height: 0.8125rem;
     color: var(--wr-color-on-surface-muted);
-    margin-inline-start: var(--wr-space-xs);
+    margin-inline-start: var(--wr-context-menu-item-chevron-margin-inline-start);
   }
 
   &--has-submenu:hover &__chevron,
@@ -156,10 +170,13 @@
 
 // Horizontal separator between groups of items.
 .wr-context-menu-divider {
+  --wr-context-menu-divider-margin-y: var(--wr-space-xs);
+  --wr-context-menu-divider-bg: var(--wr-border-base);
+
   display: block;
   height: 1px;
-  margin: var(--wr-space-xs) 0;
-  background: var(--wr-border-base);
+  margin: var(--wr-context-menu-divider-margin-y) 0;
+  background: var(--wr-context-menu-divider-bg);
 }
 
 // Touch long-press opens the menu; suppress the native iOS callout + text

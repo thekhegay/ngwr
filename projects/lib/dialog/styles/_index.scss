@@ -64,7 +64,18 @@
   --wr-dialog-shadow: var(--wr-shadow-modal);
   --wr-dialog-min-width: 18rem;
   --wr-dialog-padding-y: var(--wr-space-lg);
-  --wr-dialog-padding-x: 1.25rem;
+  --wr-dialog-padding-x: var(--wr-space-xl);
+  --wr-dialog-border: var(--wr-border-base);
+  --wr-dialog-font-family: var(--wr-font-family-base);
+  --wr-dialog-title-font-size: var(--wr-text-lg);
+  --wr-dialog-title-font-weight: var(--wr-font-weight-semibold);
+  --wr-dialog-title-line-height: var(--wr-text-base-leading);
+  --wr-dialog-content-font-size: var(--wr-text-base);
+  --wr-dialog-content-line-height: var(--wr-text-base-leading);
+  --wr-dialog-close-padding: var(--wr-space-xs);
+  --wr-dialog-close-radius: var(--wr-border-radius-sm);
+  --wr-dialog-close-font-size: var(--wr-text-base);
+  --wr-dialog-footer-gap: var(--wr-space-sm);
 
   display: flex;
   flex-direction: column;
@@ -90,7 +101,7 @@
   @include theme.smooth-br(var(--wr-dialog-radius));
   box-shadow: var(--wr-dialog-shadow);
   overflow: hidden;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-dialog-font-family);
   color: var(--wr-color-on-surface);
 
   animation: wr-dialog-enter 0.2s ease-out;
@@ -132,10 +143,10 @@
     margin: 0;
     padding: var(--wr-dialog-padding-y) var(--wr-dialog-padding-x);
     color: var(--wr-color-on-surface);
-    font-size: var(--wr-text-lg);
-    font-weight: 600;
-    line-height: 1.5rem;
-    border-bottom: 1px solid var(--wr-border-base);
+    font-size: var(--wr-dialog-title-font-size);
+    font-weight: var(--wr-dialog-title-font-weight);
+    line-height: var(--wr-dialog-title-line-height);
+    border-bottom: 1px solid var(--wr-dialog-border);
   }
 
   // Built-in dismiss (×), parked in the panel's top-right corner. The service
@@ -152,10 +163,10 @@
     appearance: none;
     background: transparent;
     border: 0;
-    padding: var(--wr-space-xs);
+    padding: var(--wr-dialog-close-padding);
     color: var(--wr-color-on-surface-muted);
     cursor: pointer;
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-dialog-close-radius);
     transition:
       color var(--wr-transition-base),
       background var(--wr-transition-base);
@@ -164,7 +175,7 @@
     // rather than `--wr-icon-size` (which only drives `<wr-icon>` hosts). Gives a
     // deterministic 16px ✕ in a 24px box instead of inheriting whatever the
     // surrounding text happens to be.
-    font-size: 1rem;
+    font-size: var(--wr-dialog-close-font-size);
     line-height: 0;
 
     // `$positioned: true` — the default would set `position: relative` under
@@ -194,16 +205,16 @@
     padding: var(--wr-dialog-padding-y) var(--wr-dialog-padding-x);
     overflow: auto;
     color: var(--wr-color-on-surface);
-    font-size: var(--wr-text-base);
-    line-height: 1.5rem;
+    font-size: var(--wr-dialog-content-font-size);
+    line-height: var(--wr-dialog-content-line-height);
   }
 
   &__footer {
     display: flex;
     align-items: center;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-dialog-footer-gap);
     padding: calc(var(--wr-dialog-padding-y) * 0.75) var(--wr-dialog-padding-x);
-    border-top: 1px solid var(--wr-border-base);
+    border-top: 1px solid var(--wr-dialog-border);
 
     &--start {
       justify-content: flex-start;

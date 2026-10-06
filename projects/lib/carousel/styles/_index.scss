@@ -1,6 +1,12 @@
 @use '../../theme/styles' as theme;
 
 .wr-carousel {
+  --wr-carousel-font-family: var(--wr-font-family-base);
+  --wr-carousel-dots-gap: var(--wr-space-sm);
+  // The pill the active dot stretches into. The resting dot is a circle, which
+  // is a percentage and off the radius scale.
+  --wr-carousel-dot-active-radius: var(--wr-border-radius-pill);
+
   position: relative;
   display: block;
   // Always claim the full row even when nested in a flex-row demo wrapper.
@@ -8,7 +14,7 @@
   width: 100%;
   min-width: 0;
   overflow: hidden;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-carousel-font-family);
 
   // The host is the sized box — the documented recipe gives it a `height` or an
   // `aspect-ratio` — but the height has to be HANDED DOWN, one definite parent
@@ -104,7 +110,7 @@
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-carousel-dots-gap);
   }
 
   &__dot {
@@ -130,7 +136,7 @@
 
     &--active {
       width: 1.25rem;
-      border-radius: var(--wr-border-radius-pill);
+      border-radius: var(--wr-carousel-dot-active-radius);
       background: var(--wr-color-surface);
     }
   }

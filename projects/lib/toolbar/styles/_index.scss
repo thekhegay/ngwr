@@ -1,9 +1,17 @@
 @use '../../theme/styles' as theme;
 
 .wr-toolbar {
+  --wr-toolbar-gap: var(--wr-space-md);
+  --wr-toolbar-padding-y: var(--wr-space-sm);
+  --wr-toolbar-padding-x: var(--wr-space-lg);
+  --wr-toolbar-border: var(--wr-border-base);
+  --wr-toolbar-radius: var(--wr-border-radius-base);
+  --wr-toolbar-font-family: var(--wr-font-family-base);
+  --wr-toolbar-zone-gap: var(--wr-space-sm);
+
   display: flex;
   align-items: center;
-  gap: var(--wr-space-md);
+  gap: var(--wr-toolbar-gap);
   // Make sure the toolbar always claims the full available row, both when
   // its parent is a block and when it's a flex row item (doc snippets,
   // grid cells). Without this the host shrinks to its content width and
@@ -12,12 +20,12 @@
   width: 100%;
   min-width: 0;
   min-height: 3rem;
-  padding: var(--wr-space-sm) var(--wr-space-lg);
+  padding: var(--wr-toolbar-padding-y) var(--wr-toolbar-padding-x);
   background: var(--wr-color-surface);
-  border: 1px solid var(--wr-border-base);
-  @include theme.smooth-br(var(--wr-border-radius-base));
+  border: 1px solid var(--wr-toolbar-border);
+  @include theme.smooth-br(var(--wr-toolbar-radius));
   box-shadow: var(--wr-shadow-xs);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-toolbar-font-family);
   color: var(--wr-color-on-surface);
 
   // Opt-in (`responsive`): query the toolbar's own width so the zones stack
@@ -35,7 +43,7 @@
     align-items: center;
     // Density-aware: `touch` widens it so adjacent controls do not crowd a
     // fingertip, `sm` tightens it. `md` resolves to the 8px it always was.
-    gap: calc(0.5rem * var(--wr-density-gap, 1));
+    gap: calc(var(--wr-toolbar-zone-gap) * var(--wr-density-gap, 1));
     min-width: 0;
 
     &:empty {

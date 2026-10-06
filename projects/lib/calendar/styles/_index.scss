@@ -17,17 +17,37 @@
   // `--wr-color-primary-ink`, so a consumer overriding `--wr-calendar-accent` can
   // carry the text role with it; the same reason `-rgb` and `-contrast` are here.
   --wr-calendar-accent-ink: var(--wr-color-primary-ink);
+  --wr-calendar-font-family: var(--wr-font-family-base);
+  --wr-calendar-gap: var(--wr-space-sm);
+  --wr-calendar-padding: var(--wr-space-md);
+  --wr-calendar-header-gap: var(--wr-space-sm);
+  --wr-calendar-label-padding-x: var(--wr-space-sm);
+  --wr-calendar-label-font-size: var(--wr-text-sm);
+  --wr-calendar-label-font-weight: var(--wr-font-weight-semibold);
+  --wr-calendar-label-line-height: var(--wr-text-base-leading);
+  --wr-calendar-weekday-font-size: var(--wr-text-xs);
+  --wr-calendar-weekday-font-weight: var(--wr-font-weight-semibold);
+  --wr-calendar-weekday-line-height: var(--wr-text-base-leading);
+  --wr-calendar-weekday-letter-spacing: var(--wr-tracking-wider);
+  --wr-calendar-body-gap: var(--wr-space-sm);
+  --wr-calendar-grid-gap: var(--wr-space-xs);
+  --wr-calendar-day-font-size: var(--wr-text-sm);
+  --wr-calendar-day-font-weight: var(--wr-font-weight-semibold);
+  --wr-calendar-months-gap: var(--wr-space-xs);
+  --wr-calendar-years-gap: var(--wr-space-xs);
+  --wr-calendar-chip-font-size: var(--wr-text-sm);
+  --wr-calendar-chip-font-weight: var(--wr-font-weight-semibold);
 
   display: inline-flex;
   flex-direction: column;
-  gap: var(--wr-space-sm);
+  gap: var(--wr-calendar-gap);
   width: var(--wr-calendar-width);
-  padding: var(--wr-space-md);
+  padding: var(--wr-calendar-padding);
   background: var(--wr-calendar-bg);
   border: 1px solid var(--wr-calendar-border);
   @include theme.smooth-br(var(--wr-calendar-radius));
   color: var(--wr-calendar-color);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-calendar-font-family);
   outline: none;
   user-select: none;
 
@@ -35,7 +55,7 @@
   &__header {
     display: flex;
     align-items: center;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-calendar-header-gap);
   }
 
   &__label {
@@ -43,13 +63,13 @@
     appearance: none;
     background: transparent;
     border: 0;
-    padding: 0 var(--wr-space-sm);
+    padding: 0 var(--wr-calendar-label-padding-x);
     color: inherit;
     text-align: center;
     font-family: inherit;
-    font-size: var(--wr-text-sm);
-    font-weight: 600;
-    line-height: 1.5rem;
+    font-size: var(--wr-calendar-label-font-size);
+    font-weight: var(--wr-calendar-label-font-weight);
+    line-height: var(--wr-calendar-label-line-height);
     border-radius: var(--wr-calendar-day-radius);
     cursor: pointer;
     transition:
@@ -124,11 +144,11 @@
   &__weekday {
     text-align: center;
     color: var(--wr-calendar-muted);
-    font-size: var(--wr-text-xs);
-    font-weight: 600;
-    line-height: 1.5rem;
+    font-size: var(--wr-calendar-weekday-font-size);
+    font-weight: var(--wr-calendar-weekday-font-weight);
+    line-height: var(--wr-calendar-weekday-line-height);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: var(--wr-calendar-weekday-letter-spacing);
   }
 
   // Day grid. `__body` exists so the weekday row and the week rows share a
@@ -137,13 +157,13 @@
   &__body {
     display: flex;
     flex-direction: column;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-calendar-body-gap);
   }
 
   &__grid {
     display: flex;
     flex-direction: column;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-calendar-grid-gap);
   }
 
   &__week {
@@ -160,7 +180,7 @@
     margin: 0;
     height: var(--wr-calendar-cell-size);
     font-family: inherit;
-    font-size: var(--wr-text-sm);
+    font-size: var(--wr-calendar-day-font-size);
     line-height: var(--wr-calendar-cell-size);
     color: var(--wr-calendar-color);
     border-radius: var(--wr-calendar-day-radius);
@@ -189,7 +209,7 @@
       // Text (a 14px/600 day number), so the ink companion. The ring above
       // keeps the bare accent: a 1px border is a graphic, held to 3:1.
       color: var(--wr-calendar-accent-ink);
-      font-weight: 600;
+      font-weight: var(--wr-calendar-day-font-weight);
     }
 
     &--in-range {
@@ -205,7 +225,7 @@
     &--selected {
       background: var(--wr-calendar-accent);
       color: var(--wr-calendar-accent-contrast);
-      font-weight: 600;
+      font-weight: var(--wr-calendar-day-font-weight);
     }
 
     &:disabled {
@@ -228,13 +248,13 @@
   &__months {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--wr-space-xs);
+    gap: var(--wr-calendar-months-gap);
   }
 
   &__years {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: var(--wr-space-xs);
+    gap: var(--wr-calendar-years-gap);
   }
 
   &__chip {
@@ -245,7 +265,7 @@
     margin: 0;
     height: 2.5rem;
     font-family: inherit;
-    font-size: var(--wr-text-sm);
+    font-size: var(--wr-calendar-chip-font-size);
     line-height: 2.5rem;
     color: var(--wr-calendar-color);
     border-radius: var(--wr-calendar-day-radius);
@@ -268,13 +288,13 @@
       // Same pairing as `__day--today`: the month / year label is text, the 1px
       // ring is a graphic and keeps the bare accent.
       color: var(--wr-calendar-accent-ink);
-      font-weight: 600;
+      font-weight: var(--wr-calendar-chip-font-weight);
     }
 
     &--selected {
       background: var(--wr-calendar-accent);
       color: var(--wr-calendar-accent-contrast);
-      font-weight: 600;
+      font-weight: var(--wr-calendar-chip-font-weight);
     }
 
     &:disabled {

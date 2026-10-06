@@ -17,10 +17,16 @@
   --wr-breadcrumbs-current-color: var(--wr-color-on-surface);
   --wr-breadcrumbs-link-color: var(--wr-color-primary-ink);
   --wr-breadcrumbs-separator-color: rgba(var(--wr-color-on-surface-rgb), 0.3);
+  --wr-breadcrumbs-font-family: var(--wr-font-family-base);
+  --wr-breadcrumbs-font-size: var(--wr-text-sm);
+  --wr-breadcrumbs-link-gap: var(--wr-space-sm);
+  --wr-breadcrumbs-link-radius: var(--wr-border-radius-sm);
+  --wr-breadcrumbs-current-gap: var(--wr-space-sm);
+  --wr-breadcrumbs-current-font-weight: var(--wr-font-weight-semibold);
 
   display: block;
-  font-family: var(--wr-font-family-base);
-  font-size: var(--wr-text-sm);
+  font-family: var(--wr-breadcrumbs-font-family);
+  font-size: var(--wr-breadcrumbs-font-size);
   color: var(--wr-breadcrumbs-color);
 
   &__nav {
@@ -53,10 +59,10 @@
   &__link {
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-breadcrumbs-link-gap);
     color: var(--wr-breadcrumbs-link-color);
     text-decoration: none;
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-breadcrumbs-link-radius);
     transition: color 0.15s ease;
 
     &:hover {
@@ -72,9 +78,9 @@
   &__current {
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-breadcrumbs-current-gap);
     color: var(--wr-breadcrumbs-current-color);
-    font-weight: 600;
+    font-weight: var(--wr-breadcrumbs-current-font-weight);
   }
 
   &__icon {

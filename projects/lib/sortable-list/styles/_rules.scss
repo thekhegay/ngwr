@@ -20,6 +20,9 @@
 @use '../../theme/styles/focus';
 
 .wr-sortable-list {
+  --wr-sortable-list-gap: var(--wr-space-sm);
+  --wr-sortable-list-placeholder-radius: var(--wr-border-radius-base);
+
   display: block;
 
   &__list {
@@ -28,10 +31,12 @@
     // Row spacing belongs to the list, not the row templates — margins
     // inside a row get measured into the drag preview and read as a
     // white rim around the floating card.
-    gap: var(--wr-sortable-list-gap, 0.5rem);
+    gap: var(--wr-sortable-list-gap);
   }
 
   &__item {
+    --wr-sortable-list-item-font-family: var(--wr-font-family-base);
+
     cursor: grab;
     user-select: none;
     // No transform transition here — the floating preview clones this
@@ -131,7 +136,14 @@
 .cdk-drag-preview.wr-sortable-list__item {
   box-sizing: border-box;
   color: var(--wr-color-on-surface);
-  font-family: var(--wr-font-family-base);
+  // The clone is reparented to `<body>`, so it carries the row's own class but
+  // no ancestor of this component. The hook therefore resolves on the clone
+  // ITSELF, from the `.wr-sortable-list__item` declaration it brought with it,
+  // and the fallback is belt and braces for a clone that somehow lost the
+  // class. It is NOT a rescue for a host-level override: the row declares this
+  // hook unconditionally, so an override on the host is shadowed in the live
+  // list too, not only here.
+  font-family: var(--wr-sortable-list-item-font-family, var(--wr-font-family-base));
   // The preview must track the cursor 1:1 — never animate its transform.
   transition: none;
   // The lift-off shadow follows the row template's rendered shape
@@ -148,7 +160,7 @@
   opacity: 0.35;
   // Subtle dashed outline so users see where the item came from.
   background: var(--wr-color-fill-strong);
-  border-radius: var(--wr-border-radius-base);
+  border-radius: var(--wr-sortable-list-placeholder-radius);
   outline: 1px dashed rgba(var(--wr-color-on-surface-rgb), 0.25);
   outline-offset: -1px;
 }

@@ -1,8 +1,28 @@
 @use '../../theme/styles' as theme;
 
 .wr-descriptions {
+  --wr-descriptions-font-family: var(--wr-font-family-base);
+  --wr-descriptions-border: var(--wr-border-base);
+  --wr-descriptions-radius: var(--wr-border-radius-base);
+  --wr-descriptions-title-font-size: var(--wr-text-base);
+  --wr-descriptions-title-font-weight: var(--wr-font-weight-semibold);
+  --wr-descriptions-title-margin-bottom: var(--wr-space-md);
+  --wr-descriptions-list-row-gap: var(--wr-space-sm);
+  --wr-descriptions-list-column-gap: var(--wr-space-sm);
+  --wr-descriptions-row-gap: var(--wr-space-xs);
+  // The row's padding once it HAS one — the plain stacked list draws no cell
+  // box. `--bordered` reads it on the row, and `--bordered --inline` on the
+  // label / value, which are the cells there (the row is `display: contents`).
+  --wr-descriptions-row-padding-y: var(--wr-space-md);
+  --wr-descriptions-row-padding-x: var(--wr-space-lg);
+  --wr-descriptions-label-font-size: var(--wr-text-xs);
+  --wr-descriptions-label-font-weight: var(--wr-font-weight-medium);
+  --wr-descriptions-label-letter-spacing: var(--wr-tracking-wide);
+  --wr-descriptions-value-font-size: var(--wr-text-sm);
+  --wr-descriptions-value-line-height: var(--wr-leading-normal);
+
   display: block;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-descriptions-font-family);
   color: var(--wr-color-on-surface);
 
   // Opt-in (`responsive`): query the box's own width so inline layouts reflow
@@ -16,9 +36,9 @@
   }
 
   &__title {
-    font-size: var(--wr-text-base);
-    font-weight: var(--wr-font-weight-semibold);
-    margin-bottom: var(--wr-space-md);
+    font-size: var(--wr-descriptions-title-font-size);
+    font-weight: var(--wr-descriptions-title-font-weight);
+    margin-bottom: var(--wr-descriptions-title-margin-bottom);
   }
 
   &__list {
@@ -26,36 +46,42 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-descriptions-list-row-gap) var(--wr-descriptions-list-column-gap);
   }
 
   &__row {
     display: flex;
     flex-direction: column;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-descriptions-row-gap);
     padding: 0;
   }
 
   &__label {
-    font-size: var(--wr-text-xs);
-    font-weight: var(--wr-font-weight-medium);
+    font-size: var(--wr-descriptions-label-font-size);
+    font-weight: var(--wr-descriptions-label-font-weight);
     color: var(--wr-color-on-surface-muted);
     text-transform: uppercase;
-    letter-spacing: var(--wr-tracking-wide);
+    letter-spacing: var(--wr-descriptions-label-letter-spacing);
   }
 
   &__value {
     margin: 0;
-    font-size: var(--wr-text-sm);
-    line-height: var(--wr-leading-normal);
+    font-size: var(--wr-descriptions-value-font-size);
+    line-height: var(--wr-descriptions-value-line-height);
     color: var(--wr-color-on-surface);
   }
 
   // Inline
+  &--inline {
+    --wr-descriptions-list-column-gap: var(--wr-space-lg);
+    --wr-descriptions-label-font-size: var(--wr-text-sm);
+    --wr-descriptions-label-letter-spacing: var(--wr-tracking-normal);
+  }
+
   &--inline &__list {
     display: grid;
     grid-template-columns: minmax(8rem, max-content) 1fr;
-    gap: var(--wr-space-sm) var(--wr-space-lg);
+    gap: var(--wr-descriptions-list-row-gap) var(--wr-descriptions-list-column-gap);
     align-items: baseline;
   }
 
@@ -65,21 +91,21 @@
 
   &--inline &__label {
     text-transform: none;
-    letter-spacing: var(--wr-tracking-normal);
-    font-weight: var(--wr-font-weight-medium);
-    font-size: var(--wr-text-sm);
+    letter-spacing: var(--wr-descriptions-label-letter-spacing);
+    font-weight: var(--wr-descriptions-label-font-weight);
+    font-size: var(--wr-descriptions-label-font-size);
   }
 
   // Bordered
   &--bordered &__list {
     gap: 0;
-    border: 1px solid var(--wr-border-base);
-    border-radius: var(--wr-border-radius-base);
+    border: 1px solid var(--wr-descriptions-border);
+    border-radius: var(--wr-descriptions-radius);
     overflow: hidden;
   }
 
   &--bordered &__row {
-    padding: var(--wr-space-md) var(--wr-space-lg);
+    padding: var(--wr-descriptions-row-padding-y) var(--wr-descriptions-row-padding-x);
   }
 
   // Nesting this as `& + &` expands BOTH sides in full —
@@ -87,7 +113,7 @@
   // which asks for a `--bordered` HOST as a row's sibling and can never match, so
   // the stacked bordered card shipped with no dividers at all. Name the sibling.
   &--bordered &__row + &__row {
-    border-top: 1px solid var(--wr-border-base);
+    border-top: 1px solid var(--wr-descriptions-border);
   }
 
   &--bordered#{&}--inline &__list {
@@ -102,8 +128,8 @@
 
   &--bordered#{&}--inline &__label,
   &--bordered#{&}--inline &__value {
-    padding: var(--wr-space-md) var(--wr-space-lg);
-    border-top: 1px solid var(--wr-border-base);
+    padding: var(--wr-descriptions-row-padding-y) var(--wr-descriptions-row-padding-x);
+    border-top: 1px solid var(--wr-descriptions-border);
   }
 
   &--bordered#{&}--inline &__row:first-child &__label,
@@ -113,7 +139,7 @@
 
   &--bordered#{&}--inline &__label {
     background: var(--wr-color-fill);
-    border-inline-end: 1px solid var(--wr-border-base);
+    border-inline-end: 1px solid var(--wr-descriptions-border);
   }
 }
 
@@ -125,7 +151,7 @@
   .wr-descriptions--inline .wr-descriptions__list {
     display: flex;
     flex-direction: column;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-descriptions-list-row-gap);
     // The grid layout above aligns its two columns on `baseline`, which is
     // correct there and wrong here: once the list is a COLUMN flex container
     // the cross axis is the width, so `baseline` sizes each row to its own
@@ -137,7 +163,7 @@
   .wr-descriptions--inline .wr-descriptions__row {
     display: flex;
     flex-direction: column;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-descriptions-row-gap);
   }
 
   // Bordered + inline reverts to the plain bordered stacked rows: the card
@@ -152,12 +178,12 @@
   .wr-descriptions--bordered.wr-descriptions--inline .wr-descriptions__row {
     display: flex;
     flex-direction: column;
-    gap: var(--wr-space-xs);
-    padding: var(--wr-space-md) var(--wr-space-lg);
+    gap: var(--wr-descriptions-row-gap);
+    padding: var(--wr-descriptions-row-padding-y) var(--wr-descriptions-row-padding-x);
   }
 
   .wr-descriptions--bordered.wr-descriptions--inline .wr-descriptions__row + .wr-descriptions__row {
-    border-top: 1px solid var(--wr-border-base);
+    border-top: 1px solid var(--wr-descriptions-border);
   }
 
   .wr-descriptions--bordered.wr-descriptions--inline .wr-descriptions__label,

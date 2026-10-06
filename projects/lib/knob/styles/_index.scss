@@ -1,8 +1,10 @@
 @use '../../theme/styles' as theme;
 
 .wr-knob {
+  --wr-knob-font-family: var(--wr-font-family-base);
+
   display: inline-block;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-knob-font-family);
   color: var(--wr-color-on-surface);
 
   &__surface {
@@ -34,21 +36,28 @@
   }
 
   &__text {
+    --wr-knob-text-font-size: var(--wr-text-xl);
+    --wr-knob-text-font-weight: var(--wr-font-weight-semibold);
+
     position: absolute;
     inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: var(--wr-text-xl);
-    font-weight: var(--wr-font-weight-semibold);
+    font-size: var(--wr-knob-text-font-size);
+    font-weight: var(--wr-knob-text-font-weight);
     font-variant-numeric: tabular-nums;
   }
 
   &__suffix {
-    margin-inline-start: var(--wr-space-xs);
-    font-size: var(--wr-text-sm);
+    --wr-knob-suffix-margin-inline-start: var(--wr-space-xs);
+    --wr-knob-suffix-font-size: var(--wr-text-sm);
+    --wr-knob-suffix-font-weight: var(--wr-font-weight-medium);
+
+    margin-inline-start: var(--wr-knob-suffix-margin-inline-start);
+    font-size: var(--wr-knob-suffix-font-size);
     color: var(--wr-color-on-surface-muted);
-    font-weight: var(--wr-font-weight-medium);
+    font-weight: var(--wr-knob-suffix-font-weight);
   }
 
   // A read-only dial still reads its value out, so it keeps the visual and only

@@ -2,8 +2,16 @@
 @use '../../../popover/styles'; // the `.wr-tooltip` chip the hover tooltip renders into
 
 .wr-gauge {
+  --wr-gauge-font-family: var(--wr-font-family-base);
+  --wr-gauge-text-padding-bottom: var(--wr-space-sm);
+  --wr-gauge-text-font-size: var(--wr-text-xl);
+  --wr-gauge-text-font-weight: var(--wr-font-weight-semibold);
+  --wr-gauge-suffix-margin-inline-start: var(--wr-space-xs);
+  --wr-gauge-suffix-font-size: var(--wr-text-sm);
+  --wr-gauge-suffix-font-weight: var(--wr-font-weight-medium);
+
   display: inline-block;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-gauge-font-family);
   color: var(--wr-color-on-surface);
 
   &__surface {
@@ -23,16 +31,16 @@
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    padding-bottom: var(--wr-space-sm);
-    font-size: var(--wr-text-xl);
-    font-weight: var(--wr-font-weight-semibold);
+    padding-bottom: var(--wr-gauge-text-padding-bottom);
+    font-size: var(--wr-gauge-text-font-size);
+    font-weight: var(--wr-gauge-text-font-weight);
     font-variant-numeric: tabular-nums;
   }
 
   &__suffix {
-    margin-inline-start: var(--wr-space-xs);
-    font-size: var(--wr-text-sm);
+    margin-inline-start: var(--wr-gauge-suffix-margin-inline-start);
+    font-size: var(--wr-gauge-suffix-font-size);
     color: var(--wr-color-on-surface-muted);
-    font-weight: var(--wr-font-weight-medium);
+    font-weight: var(--wr-gauge-suffix-font-weight);
   }
 }

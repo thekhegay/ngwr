@@ -17,8 +17,10 @@
 .wr-checkbox {
   --wr-checkbox-size: 1.125rem; // md box (18px)
   --wr-checkbox-radius: var(--wr-control-radius-md);
+  --wr-checkbox-font-family: var(--wr-font-family-base);
   --wr-checkbox-font-size: var(--wr-text-sm);
   --wr-checkbox-line-height: var(--wr-control-line-height-md);
+  --wr-checkbox-label-gap: var(--wr-space-sm);
   --wr-checkbox-bg: var(--wr-color-surface);
   --wr-checkbox-border: var(--wr-border-base);
   --wr-checkbox-mark: transparent;
@@ -27,14 +29,14 @@
   display: inline-flex;
   vertical-align: middle;
   color: var(--wr-checkbox-color);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-checkbox-font-family);
   font-size: var(--wr-checkbox-font-size);
   line-height: var(--wr-checkbox-line-height);
 
   &__label {
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-checkbox-label-gap);
     cursor: pointer;
     user-select: none;
   }
@@ -153,7 +155,9 @@
 }
 
 .wr-checkbox-group {
+  --wr-checkbox-group-gap: var(--wr-space-sm);
+
   display: inline-flex;
   flex-direction: column;
-  gap: var(--wr-space-sm);
+  gap: var(--wr-checkbox-group-gap);
 }

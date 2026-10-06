@@ -1,24 +1,33 @@
 @use '../../../theme/styles' as theme;
 
 .wr-line-chart {
+  --wr-line-chart-font-family: var(--wr-font-family-base);
+
   display: block;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-line-chart-font-family);
   color: var(--wr-color-on-surface);
 
   &__legend {
+    --wr-line-chart-legend-margin-bottom: var(--wr-space-md);
+    --wr-line-chart-legend-row-gap: var(--wr-space-sm);
+    --wr-line-chart-legend-column-gap: var(--wr-space-lg);
+
     list-style: none;
-    margin: 0 0 var(--wr-space-md);
+    margin: 0 0 var(--wr-line-chart-legend-margin-bottom);
     padding: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: var(--wr-space-sm) var(--wr-space-lg);
+    gap: var(--wr-line-chart-legend-row-gap) var(--wr-line-chart-legend-column-gap);
   }
 
   &__legend-item {
+    --wr-line-chart-legend-item-gap: var(--wr-space-sm);
+    --wr-line-chart-legend-item-font-size: var(--wr-text-xs);
+
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-sm);
-    font-size: var(--wr-text-xs);
+    gap: var(--wr-line-chart-legend-item-gap);
+    font-size: var(--wr-line-chart-legend-item-font-size);
   }
 
   // A short line rather than a dot, because it now carries the series' dash
@@ -58,6 +67,12 @@
   }
 
   &__tooltip {
+    --wr-line-chart-tooltip-border: var(--wr-border-base);
+    --wr-line-chart-tooltip-radius: var(--wr-border-radius-base);
+    --wr-line-chart-tooltip-padding-y: var(--wr-space-sm);
+    --wr-line-chart-tooltip-padding-x: var(--wr-space-md);
+    --wr-line-chart-tooltip-font-size: var(--wr-text-xs);
+
     position: absolute;
     // Centred on its point, but never past either end of the plot — the x labels' clamp:
     // the shift is the smaller of half the box and the room actually left on that side,
@@ -72,25 +87,30 @@
       0.5rem
     );
     background: var(--wr-color-surface);
-    border: 1px solid var(--wr-border-base);
-    border-radius: var(--wr-border-radius-base);
+    border: 1px solid var(--wr-line-chart-tooltip-border);
+    border-radius: var(--wr-line-chart-tooltip-radius);
     box-shadow: var(--wr-shadow-sm);
-    padding: var(--wr-space-sm) var(--wr-space-md);
-    font-size: var(--wr-text-xs);
+    padding: var(--wr-line-chart-tooltip-padding-y) var(--wr-line-chart-tooltip-padding-x);
+    font-size: var(--wr-line-chart-tooltip-font-size);
     pointer-events: none;
     z-index: 1;
     min-width: 6rem;
   }
 
   &__tooltip-label {
-    font-weight: var(--wr-font-weight-semibold);
-    margin-bottom: var(--wr-space-xs);
+    --wr-line-chart-tooltip-label-font-weight: var(--wr-font-weight-semibold);
+    --wr-line-chart-tooltip-label-margin-bottom: var(--wr-space-xs);
+
+    font-weight: var(--wr-line-chart-tooltip-label-font-weight);
+    margin-bottom: var(--wr-line-chart-tooltip-label-margin-bottom);
   }
 
   &__tooltip-row {
+    --wr-line-chart-tooltip-row-gap: var(--wr-space-sm);
+
     display: flex;
     align-items: center;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-line-chart-tooltip-row-gap);
     font-variant-numeric: tabular-nums;
   }
 
@@ -100,13 +120,18 @@
   }
 
   &__tooltip-value {
-    font-weight: var(--wr-font-weight-semibold);
+    --wr-line-chart-tooltip-value-font-weight: var(--wr-font-weight-semibold);
+
+    font-weight: var(--wr-line-chart-tooltip-value-font-weight);
   }
 
   &__x-labels {
+    --wr-line-chart-x-labels-margin-top: var(--wr-space-xs);
+    --wr-line-chart-x-labels-font-size: var(--wr-text-xs);
+
     position: relative;
-    margin-top: var(--wr-space-xs);
-    font-size: var(--wr-text-xs);
+    margin-top: var(--wr-line-chart-x-labels-margin-top);
+    font-size: var(--wr-line-chart-x-labels-font-size);
     // The labels are absolutely positioned onto their points, so the strip has no
     // content of its own to give it a height. Without this it collapses and the
     // labels overlap whatever the page puts under the chart.

@@ -8,13 +8,15 @@
 .wr-circular-text {
   --wr-circular-text-size: 12rem;
   --wr-circular-text-radius: calc(var(--wr-circular-text-size) / 2);
+  --wr-circular-text-font-weight: var(--wr-font-weight-bold);
+  --wr-circular-text-char-line-height: var(--wr-leading-none);
 
   position: relative;
   display: inline-block;
   width: var(--wr-circular-text-size);
   height: var(--wr-circular-text-size);
   border-radius: 50%;
-  font-weight: 700;
+  font-weight: var(--wr-circular-text-font-weight);
   text-align: center;
   user-select: none;
   transition: transform 0.6s var(--wr-ease-spring);
@@ -47,7 +49,7 @@
     // rtl-ok: the negative half of the `left: 50%` centring pair, symmetric with `margin-top`
     margin-left: -0.5em;
     margin-top: -0.5em;
-    line-height: 1;
+    line-height: var(--wr-circular-text-char-line-height);
   }
 
   // Bonkers — scale the whole host on hover (rotation lives on inner,

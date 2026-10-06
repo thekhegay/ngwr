@@ -47,6 +47,7 @@ $arrow-gap: 0.5rem;
   --wr-dropdown-shadow: var(--wr-shadow-overlay);
   --wr-dropdown-min-width: 10rem;
   --wr-dropdown-padding: var(--wr-space-xs);
+  --wr-dropdown-font-family: var(--wr-font-family-base);
 
   display: flex;
   flex-direction: column;
@@ -56,7 +57,7 @@ $arrow-gap: 0.5rem;
   border: 1px solid var(--wr-dropdown-border);
   @include theme.smooth-br(var(--wr-dropdown-radius));
   box-shadow: var(--wr-dropdown-shadow);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-dropdown-font-family);
   // Match popover / popconfirm / context-menu open feel.
   animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
   // `transform-origin` has no logical keyword form, and the corner it names is
@@ -146,13 +147,16 @@ $arrow-gap: 0.5rem;
 .wr-dropdown-item {
   --wr-dropdown-item-padding-y: var(--wr-space-sm);
   --wr-dropdown-item-padding-x: var(--wr-space-md);
+  --wr-dropdown-item-gap: var(--wr-space-sm);
   --wr-dropdown-item-color: var(--wr-color-on-surface);
   --wr-dropdown-item-bg-hover: var(--wr-color-hover);
   --wr-dropdown-item-radius: var(--wr-border-radius-sm);
+  --wr-dropdown-item-font-size: var(--wr-text-sm);
+  --wr-dropdown-item-line-height: var(--wr-text-sm-leading);
 
   display: flex;
   align-items: center;
-  gap: var(--wr-space-sm);
+  gap: var(--wr-dropdown-item-gap);
   appearance: none;
   background: transparent;
   border: 0;
@@ -160,8 +164,8 @@ $arrow-gap: 0.5rem;
   border-radius: var(--wr-dropdown-item-radius);
   color: var(--wr-dropdown-item-color);
   font: inherit;
-  font-size: var(--wr-text-sm);
-  line-height: 1.25rem;
+  font-size: var(--wr-dropdown-item-font-size);
+  line-height: var(--wr-dropdown-item-line-height);
   text-align: start;
   white-space: nowrap;
   cursor: pointer;

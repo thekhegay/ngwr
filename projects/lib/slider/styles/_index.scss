@@ -8,17 +8,23 @@
   --wr-slider-thumb-size: 1rem;
   --wr-slider-track-height: 0.25rem;
   --wr-slider-label: var(--wr-color-on-surface-muted);
+  --wr-slider-font-family: var(--wr-font-family-base);
+  // The fill is the painted part of the track, so it repeats the same corner.
+  --wr-slider-track-radius: var(--wr-border-radius-pill);
+  --wr-slider-label-margin-top: var(--wr-space-sm);
+  --wr-slider-label-font-size: var(--wr-text-sm);
+  --wr-slider-label-line-height: var(--wr-text-sm-leading);
 
   display: block;
   width: 100%;
   min-width: 0;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-slider-font-family);
   padding: calc(var(--wr-slider-thumb-size) / 2) 0;
 
   &__track {
     position: relative;
     height: var(--wr-slider-track-height);
-    border-radius: var(--wr-border-radius-pill);
+    border-radius: var(--wr-slider-track-radius);
     background: var(--wr-slider-track);
     cursor: pointer;
     touch-action: none;
@@ -29,7 +35,7 @@
     top: 0;
     bottom: 0;
     background: var(--wr-slider-fill);
-    border-radius: var(--wr-border-radius-pill);
+    border-radius: var(--wr-slider-track-radius);
     pointer-events: none;
   }
 
@@ -78,10 +84,10 @@
   }
 
   &__label {
-    margin-top: var(--wr-space-sm);
+    margin-top: var(--wr-slider-label-margin-top);
     color: var(--wr-slider-label);
-    font-size: var(--wr-text-sm);
-    line-height: 1.125rem;
+    font-size: var(--wr-slider-label-font-size);
+    line-height: var(--wr-slider-label-line-height);
     font-variant-numeric: tabular-nums;
   }
 
