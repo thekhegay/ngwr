@@ -21,6 +21,11 @@
 @use 'ngwr/charts/line-chart';
 @use 'ngwr/charts/meter-group';
 @use 'ngwr/charts/sparkline';
+@use 'ngwr/sortable-list';
+@use 'ngwr/pagination';
+@use 'ngwr/tree';
+@use 'ngwr/graph';
+@use 'ngwr/virtual-scroll';
 @use 'ngwr/button';
 @use 'ngwr/speed-dial';
 @use 'ngwr/icon';
