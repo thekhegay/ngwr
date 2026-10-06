@@ -33,7 +33,8 @@ export default class ComparePageComponent {
   <img wrCompareAfter src="after.jpg" alt="" />
 </wr-compare>`,
 
-    text: `<wr-compare>
+    text: `<!-- With no image to size it, the height is yours — the layers fill the host. -->
+<wr-compare style="height: 12rem">
   <div wrCompareBefore>…before content…</div>
   <div wrCompareAfter>…after content…</div>
 </wr-compare>`,
