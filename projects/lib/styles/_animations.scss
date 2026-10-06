@@ -1,13 +1,20 @@
-// Animation utility classes — opt-in.
-//
-// Not loaded by the umbrella `ngwr` entry. Bring in explicitly:
+// Animation utility classes — opt-in. Bring in explicitly:
 //
 //   @use 'ngwr/animations';
 //
 // Duration / easing read from the `--wr-duration-*` / `--wr-ease-*`
-// tokens, so global timing tweaks land everywhere in one place.
+// tokens, so global timing tweaks land everywhere in one place — which is why
+// the token layer is loaded here rather than left to the consumer. Those reads
+// sit INSIDE the `animation` shorthand, so a name that resolves to nothing
+// takes the whole declaration with it: standalone, nine of the eleven
+// `.wr-animate-*` classes measured `animation-name: none`. Only `spin` and
+// `bounce` survived, and only because they hardcode `1s`. Sass deduplicates
+// within one compilation, so an app that also loads the theme or any component
+// pays nothing for this line.
+//
 // Respects `prefers-reduced-motion` — all animations collapse to a
 // single frame so users who opt out don't see motion.
+@use '../theme/styles';
 
 // Keyframes
 @keyframes wr-fade-in {
