@@ -37,6 +37,7 @@ import { ROOT_PATH } from '../lib/paths/root';
 
 const APP = resolve(ROOT_PATH, 'projects/showcase/app');
 const OUT_DIR = join(APP, '_core/generated');
+const LIB_DIR = resolve(ROOT_PATH, 'projects/lib');
 const OUT_FILE = join(OUT_DIR, 'install.ts');
 
 /** Entry points that ship a `styles/_index.scss`, so `@use` resolves. */
@@ -47,9 +48,50 @@ function styleEntryPoints(): Set<string> {
   return new Set([...body.matchAll(/"([^"]+)"/g)].map(m => m[1]));
 }
 
+/**
+ * Every class the library decorates as a `@Component`, `@Directive` or `@Pipe`
+ * — the only things Angular accepts in a standalone component's `imports`.
+ *
+ * It cannot come from the selector map: that one is built from SELECTORS, so it
+ * carries no pipes. A recipe that put `WrTPipe` outside `imports` would be as
+ * wrong as one that put `provideWrIcons` inside it.
+ */
+function declarables(): Set<string> {
+  const out = new Set<string>();
+  const walk = (dir: string): void => {
+    for (const name of readdirSync(dir)) {
+      const full = join(dir, name);
+      if (statSync(full).isDirectory()) {
+        if (name !== 'node_modules' && name !== 'schematics' && name !== 'mcp') walk(full);
+        continue;
+      }
+      if (!name.endsWith('.ts') || name.includes('.spec.')) continue;
+      const src = readFileSync(full, 'utf8');
+      for (const m of src.matchAll(/@(?:Component|Directive|Pipe)\s*\(/g)) {
+        const cls = /export class (\w+)/.exec(src.slice(m.index));
+        if (cls) out.add(cls[1]);
+      }
+    }
+  };
+  walk(LIB_DIR);
+  return out;
+}
+
 interface Entry {
   readonly path: string;
   readonly symbols: readonly string[];
+  /**
+   * The subset of `symbols` that may go in `imports: []`.
+   *
+   * The split is recorded HERE rather than left to the renderer, which is where
+   * a comment used to promise it happened and where nothing did it: every
+   * symbol went into `imports`, so 58 of the generated recipes opened with a
+   * `@Component({ imports: [provideWrIcons, WR_COLORS, …] })` that does not
+   * compile. The Installation block is the first thing a new reader copies, and
+   * `check:install` could not see it — it compares the committed file against
+   * the same generator.
+   */
+  readonly declarables: readonly string[];
   readonly styled: boolean;
 }
 
@@ -60,7 +102,7 @@ interface Entry {
  * and does not `@use` an entry point for one. A `/testing` subpath is skipped
  * too — a harness is public, and belongs in a spec rather than in an app.
  */
-function entriesOf(file: string, styled: Set<string>): Entry[] {
+function entriesOf(file: string, styled: Set<string>, declarable: Set<string>): Entry[] {
   // Template literals are STRIPPED first. A docs page is full of snippet
   // strings that contain `import { X } from 'ngwr/y'` as their own content,
   // and counting those made the map describe what a page PRINTS rather than
@@ -92,7 +134,10 @@ function entriesOf(file: string, styled: Set<string>): Entry[] {
   }
 
   return [...byPath]
-    .map(([path, names]) => ({ path, symbols: [...names].sort(), styled: styled.has(path) }))
+    .map(([path, names]) => {
+      const symbols = [...names].sort();
+      return { path, symbols, declarables: symbols.filter(n => declarable.has(n)), styled: styled.has(path) };
+    })
     .sort((a, b) => a.path.localeCompare(b.path));
 }
 
@@ -101,7 +146,11 @@ function serialize(map: Map<string, Entry[]>): string {
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([route, entries]) => {
       const body = entries
-        .map(e => `      { path: "${e.path}", symbols: [${e.symbols.map(s => `"${s}"`).join(', ')}], styled: ${e.styled} },`)
+        .map(
+          e =>
+            `      { path: "${e.path}", symbols: [${e.symbols.map(s => `"${s}"`).join(', ')}],` +
+            ` declarables: [${e.declarables.map(s => `"${s}"`).join(', ')}], styled: ${e.styled} },`
+        )
         .join('\n');
       return `  "${route}": [\n${body}\n  ],`;
     })
@@ -126,7 +175,15 @@ function serialize(map: Map<string, Entry[]>): string {
 /** One entry point a page renders out of. */
 export interface DocInstallEntry {
   readonly path: string;
+  /** Everything the page imports from this entry point — the \`import { … }\` line. */
   readonly symbols: readonly string[];
+  /**
+   * The subset Angular accepts in \`imports: []\` — a \`@Component\`,
+   * \`@Directive\` or \`@Pipe\`. A provider function, a service, a token or a
+   * plain helper is imported and then used somewhere else, and listing one here
+   * is a compile error rather than a style choice.
+   */
+  readonly declarables: readonly string[];
   /** Whether \`@use '<path>'\` resolves — an entry point with no stylesheet is a build error. */
   readonly styled: boolean;
 }
@@ -150,6 +207,7 @@ async function main(): Promise<void> {
   }
 
   const styled = styleEntryPoints();
+  const declarable = declarables();
   const map = new Map<string, Entry[]>();
 
   for (const [dir, forDir] of routes.byDirectory) {
@@ -163,7 +221,7 @@ async function main(): Promise<void> {
 
     const entries = readdirSync(abs)
       .filter(f => f.endsWith('.ts') && !f.endsWith('.routing.ts') && !f.endsWith('.spec.ts'))
-      .flatMap(f => entriesOf(join(abs, f), styled));
+      .flatMap(f => entriesOf(join(abs, f), styled, declarable));
 
     // Collapse duplicates across a directory's files, keeping the union.
     const merged = new Map<string, Set<string>>();
@@ -178,7 +236,10 @@ async function main(): Promise<void> {
     // need it to use the thing the page is about.
     const own = `ngwr/${route.split('/').pop() ?? ''}`;
     const rows = [...merged]
-      .map(([path, names]) => ({ path, symbols: [...names].sort(), styled: styled.has(path) }))
+      .map(([path, names]) => {
+      const symbols = [...names].sort();
+      return { path, symbols, declarables: symbols.filter(n => declarable.has(n)), styled: styled.has(path) };
+    })
       .sort((a, b) => (a.path === own ? -1 : b.path === own ? 1 : a.path.localeCompare(b.path)));
 
     if (rows.length > 0) map.set(route, rows);
