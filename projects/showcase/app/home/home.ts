@@ -195,12 +195,12 @@ export class SignupCard {
       description:
         'Color, radius, spacing, and duration come from `--wr-*` custom properties — and a token nothing paints with has to justify itself to the lint run. Re-skin one component or all of them.',
       accent: 'neutral',
-      spotlight: 'rgba(var(--wr-color-on-surface-muted-rgb, 113, 128, 150), 0.14)',
+      spotlight: 'rgba(var(--wr-color-on-surface-muted-rgb), 0.14)',
     },
     {
       icon: 'folder',
       title: 'Pay for what you import',
-      description: `${QUALITY.entryPoints} entry points, each its own ng-packagr build. What you don't import never lands in your bundle — the SCSS opts in per component too.`,
+      description: `${QUALITY.entryPoints} entry points, each one tree-shakable on its own. What you don't import never lands in your bundle — the SCSS opts in per component too.`,
       accent: 'success',
       spotlight: 'rgba(var(--wr-color-success-rgb), 0.14)',
     },

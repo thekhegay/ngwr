@@ -8,7 +8,6 @@
 
 .ngwr-home {
   display: block;
-  --hero-accent: rgb(99, 102, 241);
 }
 
 /* Hero wrapper (plain — backgrounds removed) */
@@ -306,7 +305,12 @@
 
   &__mark {
     flex: 0 0 auto;
-    color: var(--hero-accent);
+    // The theme's own primary, not a frozen indigo. This used to be a local
+    // `--hero-accent: rgb(99, 102, 241)` that no theme could reach, so after
+    // v15 re-tuned the dark base to #3567ff the tick sat beside it in a
+    // visibly different hue. The glyph is `aria-hidden`, so 3:1 applies and
+    // the token clears it in both themes.
+    color: var(--wr-color-primary);
     font-weight: 700;
     // The marker is a glyph on the first line of the sentence beside it, not a
     // row of its own, so it inherits the paragraph's line-height rather than
@@ -382,7 +386,7 @@
   }
 
   &:hover {
-    border-color: rgba(99, 102, 241, 0.4);
+    border-color: rgba(var(--wr-color-primary-rgb), 0.4);
   }
 
   &__icon {

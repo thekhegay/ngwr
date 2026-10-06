@@ -8,7 +8,9 @@
 @use '../lib/styles/typography';
 
 // Showcase-only fonts: declares the `@font-face` blocks and overrides
-// `--wr-font-family-*` to Geist and Geist Mono.
+// `--wr-font-family-base` to Inter and `--wr-font-family-mono` to Geist Mono.
+// No Geist Sans face is shipped — this comment claimed one for long enough to
+// send someone looking for it.
 @use 'styles/fonts';
 
 :root {
@@ -19,7 +21,7 @@
   // the ink role means the line only shows up on canvas-coloured swatches —
   // the ones that would otherwise dissolve into the page — and disappears on
   // ink-coloured ones that never needed bounding. Self-correcting in dark mode.
-  --doc-swatch-ring: inset 0 0 0 1px rgba(var(--wr-color-on-surface-rgb), 0.12);
+  --ngwr-doc-swatch-ring: inset 0 0 0 1px rgba(var(--wr-color-on-surface-rgb), 0.12);
 }
 
 *,
