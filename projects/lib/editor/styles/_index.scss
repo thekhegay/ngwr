@@ -33,13 +33,35 @@
   --wr-editor-max-height: none;
   --wr-editor-padding-y: var(--wr-space-sm);
   --wr-editor-padding-x: var(--wr-control-padding-x-md);
+  --wr-editor-font-family: var(--wr-font-family-base);
   --wr-editor-font-size: var(--wr-text-sm);
-  --wr-editor-line-height: 1.6;
+  --wr-editor-line-height: var(--wr-leading-relaxed);
   --wr-editor-toolbar-bg: var(--wr-color-fill-subtle);
   --wr-editor-toolbar-border: var(--wr-border-base);
-  --wr-editor-toolbar-gap: 0.125rem;
+  --wr-editor-toolbar-gap: var(--wr-space-xs);
+  --wr-editor-toolbar-padding: var(--wr-space-xs);
+  --wr-editor-separator-margin: var(--wr-space-xs);
   --wr-editor-tool-active-bg: var(--wr-color-primary-soft);
   --wr-editor-tool-active-color: var(--wr-color-primary-ink);
+  --wr-editor-task-radius: var(--wr-border-radius-sm);
+
+  // The rendered document — the elements ProseMirror and the static preview
+  // both draw, so one hook per role covers them together.
+  --wr-editor-content-heading-font-weight: var(--wr-font-weight-semibold);
+  --wr-editor-content-heading-line-height: var(--wr-leading-tight);
+  --wr-editor-content-h1-font-size: var(--wr-text-2xl);
+  --wr-editor-content-h2-font-size: var(--wr-text-xl);
+  --wr-editor-content-h3-font-size: var(--wr-text-lg);
+  --wr-editor-content-strong-font-weight: var(--wr-font-weight-semibold);
+  --wr-editor-content-code-font-family: var(--wr-font-family-mono, ui-monospace, monospace);
+  --wr-editor-content-code-radius: var(--wr-border-radius-sm);
+  --wr-editor-content-pre-padding: var(--wr-space-md);
+  --wr-editor-content-pre-radius: var(--wr-border-radius-base);
+  --wr-editor-content-table-font-size: var(--wr-text-sm);
+  --wr-editor-content-cell-padding-y: var(--wr-space-sm);
+  --wr-editor-content-cell-padding-x: var(--wr-space-md);
+  --wr-editor-content-th-font-weight: var(--wr-font-weight-semibold);
+  --wr-editor-content-image-radius: var(--wr-border-radius-sm);
 
   background: var(--wr-editor-bg);
   color: var(--wr-editor-color);
@@ -75,7 +97,7 @@
     flex-wrap: wrap;
     align-items: center;
     gap: var(--wr-editor-toolbar-gap);
-    padding: var(--wr-space-xs);
+    padding: var(--wr-editor-toolbar-padding);
     border-block-end: 1px solid var(--wr-editor-toolbar-border);
     background: var(--wr-editor-toolbar-bg);
     // The frame's corners, which the toolbar would otherwise square off.
@@ -86,8 +108,8 @@
   &__separator {
     align-self: stretch;
     inline-size: 1px;
-    margin-block: var(--wr-space-xs);
-    margin-inline: var(--wr-space-xs);
+    margin-block: var(--wr-editor-separator-margin);
+    margin-inline: var(--wr-editor-separator-margin);
     background: var(--wr-editor-toolbar-border);
   }
 
@@ -159,7 +181,7 @@
     overflow-y: auto;
     padding: calc(var(--wr-editor-padding-y) * var(--wr-density-y, 1))
       calc(var(--wr-editor-padding-x) * var(--wr-density-x, 1));
-    font-family: var(--wr-font-family-base);
+    font-family: var(--wr-editor-font-family);
     font-size: var(--wr-editor-font-size);
     line-height: var(--wr-editor-line-height);
     text-align: start;
@@ -234,24 +256,24 @@
     h2,
     h3 {
       margin-block: 1.25em 0.5em;
-      font-weight: var(--wr-font-weight-semibold);
-      line-height: 1.3;
+      font-weight: var(--wr-editor-content-heading-font-weight);
+      line-height: var(--wr-editor-content-heading-line-height);
     }
 
     h1 {
-      font-size: var(--wr-text-2xl);
+      font-size: var(--wr-editor-content-h1-font-size);
     }
 
     h2 {
-      font-size: var(--wr-text-xl);
+      font-size: var(--wr-editor-content-h2-font-size);
     }
 
     h3 {
-      font-size: var(--wr-text-lg);
+      font-size: var(--wr-editor-content-h3-font-size);
     }
 
     strong {
-      font-weight: var(--wr-font-weight-semibold);
+      font-weight: var(--wr-editor-content-strong-font-weight);
     }
 
     a {
@@ -262,19 +284,19 @@
 
     code {
       padding: 0.1em 0.3em;
-      border-radius: var(--wr-border-radius-sm);
+      border-radius: var(--wr-editor-content-code-radius);
       background: var(--wr-color-fill);
       // `-ink`: code on a tint is text, and the bare colour fails AA there.
       color: var(--wr-color-on-surface);
-      font-family: var(--wr-font-family-mono, ui-monospace, monospace);
+      font-family: var(--wr-editor-content-code-font-family);
       font-size: 0.9em;
     }
 
     pre {
       margin-block: 0 0.75em;
-      padding: var(--wr-space-md);
+      padding: var(--wr-editor-content-pre-padding);
       overflow-x: auto;
-      border-radius: var(--wr-border-radius-base);
+      border-radius: var(--wr-editor-content-pre-radius);
       background: var(--wr-color-fill);
       white-space: pre-wrap;
       tab-size: 2;
@@ -327,12 +349,12 @@
       border-collapse: collapse;
       width: 100%;
       margin-block: 0 0.75em;
-      font-size: var(--wr-text-sm);
+      font-size: var(--wr-editor-content-table-font-size);
     }
 
     th,
     td {
-      padding: var(--wr-space-sm) var(--wr-space-md);
+      padding: var(--wr-editor-content-cell-padding-y) var(--wr-editor-content-cell-padding-x);
       border: 1px solid var(--wr-border-base);
       vertical-align: top;
 
@@ -343,13 +365,13 @@
 
     th {
       background: var(--wr-color-fill-subtle);
-      font-weight: var(--wr-font-weight-semibold);
+      font-weight: var(--wr-editor-content-th-font-weight);
     }
 
     img {
       max-width: 100%;
       height: auto;
-      border-radius: var(--wr-border-radius-sm);
+      border-radius: var(--wr-editor-content-image-radius);
     }
   }
 
@@ -369,7 +391,7 @@
     block-size: 1em;
     margin-block-start: 0.3em;
     border: 1px solid var(--wr-border-base);
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-editor-task-radius);
     background: var(--wr-color-surface);
     user-select: none;
 
@@ -443,30 +465,37 @@
 // ---------------------------------------------------------------------------
 
 .wr-editor-link {
+  --wr-editor-link-body-gap: var(--wr-space-sm);
+  --wr-editor-link-body-padding: var(--wr-space-md);
+  --wr-editor-link-label-font-size: var(--wr-text-sm);
+  --wr-editor-link-label-font-weight: var(--wr-font-weight-medium);
+  --wr-editor-link-error-font-size: var(--wr-text-xs);
+  --wr-editor-link-actions-gap: var(--wr-space-sm);
+
   inline-size: min(22rem, calc(100vw - 2rem));
 
   &__body {
     display: flex;
     flex-direction: column;
-    gap: var(--wr-space-sm);
-    padding: var(--wr-space-md);
+    gap: var(--wr-editor-link-body-gap);
+    padding: var(--wr-editor-link-body-padding);
   }
 
   &__label {
-    font-size: var(--wr-text-sm);
-    font-weight: var(--wr-font-weight-medium);
+    font-size: var(--wr-editor-link-label-font-size);
+    font-weight: var(--wr-editor-link-label-font-weight);
     color: var(--wr-color-on-surface);
   }
 
   &__error {
     margin: 0;
-    font-size: var(--wr-text-xs);
+    font-size: var(--wr-editor-link-error-font-size);
     color: var(--wr-color-danger-ink);
   }
 
   &__actions {
     display: flex;
     justify-content: flex-end;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-editor-link-actions-gap);
   }
 }

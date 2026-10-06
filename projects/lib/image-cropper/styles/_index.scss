@@ -1,8 +1,10 @@
 @use '../../theme/styles' as theme;
 
 .wr-image-cropper {
+  --wr-image-cropper-font-family: var(--wr-font-family-base);
+
   display: block;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-image-cropper-font-family);
   user-select: none;
   touch-action: none;
 
@@ -143,11 +145,15 @@
   }
 
   &__empty {
-    padding: 2rem;
+    --wr-image-cropper-empty-padding: var(--wr-space-xl);
+    --wr-image-cropper-empty-border: var(--wr-border-base);
+    --wr-image-cropper-empty-radius: var(--wr-border-radius-base);
+
+    padding: var(--wr-image-cropper-empty-padding);
     text-align: center;
     color: var(--wr-color-on-surface-muted);
     background: var(--wr-color-hover);
-    border: 1px dashed var(--wr-border-base);
-    @include theme.smooth-br(var(--wr-border-radius-base));
+    border: 1px dashed var(--wr-image-cropper-empty-border);
+    @include theme.smooth-br(var(--wr-image-cropper-empty-radius));
   }
 }

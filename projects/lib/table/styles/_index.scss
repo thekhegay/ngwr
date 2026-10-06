@@ -20,7 +20,13 @@
 .wr-table {
   --wr-table-bg: var(--wr-color-surface);
   --wr-table-border: var(--wr-border-base);
+  --wr-table-radius: var(--wr-border-radius-base);
+  --wr-table-font-family: var(--wr-font-family-base);
+  --wr-table-font-size: var(--wr-text-sm);
+  --wr-table-line-height: var(--wr-text-sm-leading);
   --wr-table-head-bg: var(--wr-color-fill);
+  --wr-table-head-font-size: var(--wr-text-xs);
+  --wr-table-head-font-weight: var(--wr-font-weight-semibold);
   --wr-table-row-hover: var(--wr-color-fill-subtle);
   // Head casing. The library renders column titles as the author wrote them —
   // forcing `uppercase` mutates their content, and a header written "ID" or
@@ -46,6 +52,26 @@
     --wr-table-pin-shadow-ink: rgb(0 0 0 / 45%);
   }
 
+  --wr-table-resize-handle-bg: var(--wr-border-base);
+  --wr-table-tree-lead-margin-end: var(--wr-space-xs);
+  --wr-table-tree-toggle-radius: var(--wr-border-radius-sm);
+  --wr-table-expand-btn-padding: var(--wr-space-xs);
+  --wr-table-expand-btn-radius: var(--wr-border-radius-sm);
+  --wr-table-detail-padding: var(--wr-space-lg);
+  --wr-table-foot-cell-font-weight: var(--wr-font-weight-semibold);
+  --wr-table-empty-padding: var(--wr-space-xl);
+  --wr-table-pager-padding: var(--wr-space-md);
+
+  // Card mode (`--responsive` inside its own container query). Declared on the
+  // BASE rather than down in the `@container` block, because a custom property
+  // inherits: a consumer writing `.wr-table { --wr-table-card-row-padding-y: … }`
+  // reaches the `__tr` inside the query from here, and `gen:css-vars` can only
+  // read a default off a declaration that carries no modifier.
+  --wr-table-card-row-padding-y: var(--wr-space-sm);
+  --wr-table-card-cell-padding-y: var(--wr-space-xs);
+  --wr-table-card-cell-padding-x: var(--wr-space-lg);
+  --wr-table-card-cell-gap: var(--wr-space-lg);
+
   display: block;
   position: relative;
   // The table paints its own surface. Sticky pinned cells already fill with
@@ -57,9 +83,9 @@
   isolation: isolate;
   width: 100%;
   border: 1px solid var(--wr-table-border);
-  @include theme.smooth-br(var(--wr-border-radius-base));
+  @include theme.smooth-br(var(--wr-table-radius));
   overflow: hidden;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-table-font-family);
   color: var(--wr-color-on-surface);
 
   // Opt-in (`responsive`): query the table's own width so each row collapses to
@@ -77,8 +103,8 @@
   &__table {
     width: 100%;
     border-collapse: collapse;
-    font-size: var(--wr-text-sm);
-    line-height: 1.25rem;
+    font-size: var(--wr-table-font-size);
+    line-height: var(--wr-table-line-height);
   }
 
   &__th,
@@ -93,8 +119,8 @@
     position: relative;
     background: var(--wr-table-head-bg);
     color: var(--wr-color-on-surface-muted);
-    font-weight: 600;
-    font-size: var(--wr-text-xs);
+    font-weight: var(--wr-table-head-font-weight);
+    font-size: var(--wr-table-head-font-size);
     letter-spacing: var(--wr-table-head-letter-spacing);
     text-transform: var(--wr-table-head-transform);
     white-space: nowrap;
@@ -142,7 +168,7 @@
       inset-inline-start: auto;
       width: 2px;
       border-radius: 1px;
-      background: var(--wr-border-base);
+      background: var(--wr-table-resize-handle-bg);
       opacity: 0;
       transition: opacity var(--wr-transition-base);
     }
@@ -175,7 +201,7 @@
     display: inline-flex;
     align-items: center;
     vertical-align: middle;
-    margin-inline-end: var(--wr-space-xs);
+    margin-inline-end: var(--wr-table-tree-lead-margin-end);
     padding-inline-start: calc(var(--wr-table-depth, 0) * var(--wr-table-indent, 1.25rem));
   }
 
@@ -190,7 +216,7 @@
     padding: 0;
     background: transparent;
     border: 0;
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-table-tree-toggle-radius);
     color: var(--wr-color-on-surface-muted);
     cursor: pointer;
 
@@ -231,7 +257,7 @@
   // extra inline child would strand the chevron mid-row. Fold the lead into the
   // value side instead.
   &--responsive &__tree-lead {
-    margin-inline-end: var(--wr-space-sm);
+    --wr-table-tree-lead-margin-end: var(--wr-space-sm);
   }
 
   // --- Row selection --------------------------------------------------------
@@ -277,10 +303,10 @@
     align-items: center;
     justify-content: center;
     appearance: none;
-    padding: var(--wr-space-xs);
+    padding: var(--wr-table-expand-btn-padding);
     background: transparent;
     border: 0;
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-table-expand-btn-radius);
     color: var(--wr-color-on-surface-muted);
     cursor: pointer;
     transition: color var(--wr-transition-base);
@@ -306,7 +332,7 @@
   }
 
   &__detail-row > &__detail {
-    padding: var(--wr-space-lg) var(--wr-space-lg);
+    padding: var(--wr-table-detail-padding);
     background: var(--wr-color-fill-subtle);
     border-bottom: 1px solid var(--wr-table-border);
   }
@@ -328,7 +354,7 @@
     padding: calc(0.625rem * var(--wr-density-y, 1)) calc(0.875rem * var(--wr-density-x, 1));
     background: var(--wr-table-head-bg);
     border-top: 1px solid var(--wr-table-border);
-    font-weight: 600;
+    font-weight: var(--wr-table-foot-cell-font-weight);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
@@ -490,13 +516,13 @@
   &__empty {
     text-align: center;
     color: var(--wr-color-on-surface-muted);
-    padding: var(--wr-space-xl);
+    padding: var(--wr-table-empty-padding);
   }
 
   &__pager {
     display: flex;
     justify-content: flex-end;
-    padding: var(--wr-space-md) var(--wr-space-md);
+    padding: var(--wr-table-pager-padding);
     border-top: 1px solid var(--wr-table-border);
     background: var(--wr-table-head-bg);
   }
@@ -520,6 +546,13 @@
 
   // --- Row grouping ---------------------------------------------------------
   --wr-table-group-bg: var(--wr-color-fill-subtle);
+  --wr-table-group-inner-gap: var(--wr-space-sm);
+  --wr-table-group-toggle-gap: var(--wr-space-sm);
+  --wr-table-group-toggle-font-weight: var(--wr-font-weight-semibold);
+  --wr-table-group-count-padding-x: var(--wr-space-sm);
+  --wr-table-group-count-radius: var(--wr-border-radius-pill);
+  --wr-table-group-count-font-size: var(--wr-text-xs);
+  --wr-table-group-count-font-weight: var(--wr-font-weight-medium);
 
   &__group-cell {
     // NOTE: never add `overflow` here — the inner box below is `position: sticky`
@@ -538,7 +571,7 @@
     inset-inline-start: 0;
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-table-group-inner-gap);
     max-width: 100%;
     padding: calc(0.5rem * var(--wr-density-y, 1)) calc(0.875rem * var(--wr-density-x, 1));
   }
@@ -550,7 +583,7 @@
   &__group-toggle {
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-table-group-toggle-gap);
     min-width: 0; // lets the label shrink so the cell can't widen columns
     appearance: none;
     background: transparent;
@@ -558,7 +591,7 @@
     padding: 0;
     color: inherit;
     font: inherit;
-    font-weight: 600;
+    font-weight: var(--wr-table-group-toggle-font-weight);
     cursor: pointer;
   }
 
@@ -594,8 +627,8 @@
 
   &__group-count {
     flex: 0 0 auto;
-    padding: 0 0.375rem;
-    border-radius: var(--wr-border-radius-pill);
+    padding: 0 var(--wr-table-group-count-padding-x);
+    border-radius: var(--wr-table-group-count-radius);
     // `-subtle`, not `-strong`: this chip is the SECOND tint in the stack — it
     // sits on the group row, which already paints `--wr-table-group-bg`
     // (`-fill-subtle`) over the table's own surface. At `-strong` the pair
@@ -605,8 +638,8 @@
     // double-tint trap the event-calendar header comment records.
     background: var(--wr-color-fill-subtle);
     color: var(--wr-color-on-surface-muted);
-    font-size: var(--wr-text-xs);
-    font-weight: 500;
+    font-size: var(--wr-table-group-count-font-size);
+    font-weight: var(--wr-table-group-count-font-weight);
     font-variant-numeric: tabular-nums;
   }
 
@@ -719,7 +752,7 @@
 
   // One card per row.
   .wr-table--responsive .wr-table__tr {
-    padding: 0.375rem 0;
+    padding: var(--wr-table-card-row-padding-y) 0;
     border-bottom: 1px solid var(--wr-table-border);
   }
 
@@ -732,8 +765,8 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    gap: var(--wr-space-lg);
-    padding: var(--wr-space-xs) var(--wr-space-lg);
+    gap: var(--wr-table-card-cell-gap);
+    padding: var(--wr-table-card-cell-padding-y) var(--wr-table-card-cell-padding-x);
     border-bottom: 0;
     text-align: end;
   }
@@ -742,8 +775,8 @@
     content: attr(data-label);
     flex: 0 0 auto;
     color: var(--wr-color-on-surface-muted);
-    font-size: var(--wr-text-xs);
-    font-weight: 600;
+    font-size: var(--wr-table-head-font-size);
+    font-weight: var(--wr-table-head-font-weight);
     // Route through the same tokens as `&__th` instead of re-hard-coding the
     // treatment — card mode used to ignore `--wr-table-head-transform` entirely,
     // so a consumer who opted out still got capitals on mobile.
@@ -858,6 +891,11 @@
 }
 
 .wr-table-filter {
+  --wr-table-filter-trigger-gap: var(--wr-space-xs);
+  --wr-table-filter-count-padding-x: var(--wr-space-xs);
+  --wr-table-filter-count-radius: var(--wr-border-radius-pill);
+  --wr-table-filter-count-font-weight: var(--wr-font-weight-semibold);
+
   display: inline-flex;
   color: var(--wr-color-on-surface-muted);
 
@@ -871,7 +909,7 @@
   &__trigger {
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-table-filter-trigger-gap);
     appearance: none;
     background: transparent;
     border: 0;
@@ -899,8 +937,8 @@
     align-items: center;
     justify-content: center;
     min-width: 1rem;
-    padding: 0 var(--wr-space-xs);
-    border-radius: var(--wr-border-radius-pill);
+    padding: 0 var(--wr-table-filter-count-padding-x);
+    border-radius: var(--wr-table-filter-count-radius);
     background: var(--wr-color-primary);
     color: var(--wr-color-primary-contrast);
     font-size: 0.625rem; // 10px — intentional micro-count badge, below --wr-text-xs
@@ -912,29 +950,54 @@
     // than a length, so a consumer who enlarges the numeral gets a pill that
     // grows with it.
     line-height: 1.2;
-    font-weight: 600;
+    font-weight: var(--wr-table-filter-count-font-weight);
   }
 
   &__panel {
+    // The panel's own hooks, and every one its children read, are declared HERE
+    // rather than on `.wr-table-filter`: the panel is a `<wr-dropdown-menu>`
+    // template, so it renders into the CDK overlay container and inherits
+    // nothing from the trigger it opened from. This rule is the one addressable
+    // root the search field, the rows and the reset button all sit inside.
+    --wr-table-filter-panel-padding: var(--wr-space-sm);
+    --wr-table-filter-panel-gap: var(--wr-space-sm);
+    --wr-table-filter-search-padding: var(--wr-space-sm);
+    --wr-table-filter-search-radius: var(--wr-border-radius-sm);
+    --wr-table-filter-search-border: var(--wr-border-base);
+    --wr-table-filter-search-font-size: var(--wr-text-sm);
+    --wr-table-filter-item-gap: var(--wr-space-sm);
+    --wr-table-filter-item-padding: var(--wr-space-sm);
+    --wr-table-filter-item-radius: var(--wr-border-radius-sm);
+    --wr-table-filter-item-font-size: var(--wr-text-sm);
+    --wr-table-filter-check-radius: var(--wr-border-radius-sm);
+    --wr-table-filter-check-border: var(--wr-border-base);
+    --wr-table-filter-empty-padding-y: var(--wr-space-md);
+    --wr-table-filter-empty-padding-x: var(--wr-space-sm);
+    --wr-table-filter-empty-font-size: var(--wr-text-sm);
+    --wr-table-filter-reset-padding: var(--wr-space-sm);
+    --wr-table-filter-reset-radius: var(--wr-border-radius-sm);
+    --wr-table-filter-reset-font-size: var(--wr-text-sm);
+    --wr-table-filter-panel-font-family: var(--wr-font-family-base);
+
     display: flex;
     flex-direction: column;
     min-width: 12rem;
     max-width: 16rem;
-    padding: var(--wr-space-sm);
-    gap: var(--wr-space-sm);
-    font-family: var(--wr-font-family-base);
+    padding: var(--wr-table-filter-panel-padding);
+    gap: var(--wr-table-filter-panel-gap);
+    font-family: var(--wr-table-filter-panel-font-family);
   }
 
   &__search {
     appearance: none;
     width: 100%;
-    padding: var(--wr-space-sm) var(--wr-space-sm);
-    border: 1px solid var(--wr-border-base);
-    border-radius: var(--wr-border-radius-sm);
+    padding: var(--wr-table-filter-search-padding);
+    border: 1px solid var(--wr-table-filter-search-border);
+    border-radius: var(--wr-table-filter-search-radius);
     background: transparent;
     color: var(--wr-color-on-surface);
     font: inherit;
-    font-size: var(--wr-text-sm);
+    font-size: var(--wr-table-filter-search-font-size);
 
     // Written, where it used to be left to the browser: Chromium's own #757575
     // is one grey for both themes, 4.60:1 on white and 4.08:1 on the dark
@@ -954,15 +1017,15 @@
   &__item {
     display: flex;
     align-items: center;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-table-filter-item-gap);
     appearance: none;
     background: transparent;
     border: 0;
-    padding: var(--wr-space-sm) var(--wr-space-sm);
-    border-radius: var(--wr-border-radius-sm);
+    padding: var(--wr-table-filter-item-padding);
+    border-radius: var(--wr-table-filter-item-radius);
     color: var(--wr-color-on-surface);
     font: inherit;
-    font-size: var(--wr-text-sm);
+    font-size: var(--wr-table-filter-item-font-size);
     text-align: start;
     cursor: pointer;
 
@@ -977,8 +1040,8 @@
     justify-content: center;
     width: 1rem;
     height: 1rem;
-    border-radius: var(--wr-border-radius-sm);
-    border: 1px solid var(--wr-border-base);
+    border-radius: var(--wr-table-filter-check-radius);
+    border: 1px solid var(--wr-table-filter-check-border);
     color: transparent;
     transition: var(--wr-transition-base);
   }
@@ -997,9 +1060,9 @@
   }
 
   &__empty {
-    padding: var(--wr-space-md) var(--wr-space-sm);
+    padding: var(--wr-table-filter-empty-padding-y) var(--wr-table-filter-empty-padding-x);
     color: var(--wr-color-on-surface-muted);
-    font-size: var(--wr-text-sm);
+    font-size: var(--wr-table-filter-empty-font-size);
     text-align: center;
   }
 
@@ -1007,13 +1070,13 @@
     appearance: none;
     background: transparent;
     border: 0;
-    padding: var(--wr-space-sm) var(--wr-space-sm);
-    border-radius: var(--wr-border-radius-sm);
+    padding: var(--wr-table-filter-reset-padding);
+    border-radius: var(--wr-table-filter-reset-radius);
     // A real "Reset" text button, so `-ink`. The sort / filter GLYPHS above keep
     // the bare intent: graphics are held to 3:1, which they clear.
     color: var(--wr-color-primary-ink);
     font: inherit;
-    font-size: var(--wr-text-sm);
+    font-size: var(--wr-table-filter-reset-font-size);
     cursor: pointer;
     text-align: start;
 
@@ -1040,9 +1103,9 @@
   padding: calc(0.625rem * var(--wr-density-y, 1)) calc(0.875rem * var(--wr-density-x, 1));
   background: var(--wr-table-head-bg, var(--wr-color-fill));
   color: var(--wr-color-on-surface-muted);
-  font-family: var(--wr-font-family-base);
-  font-weight: 600;
-  font-size: var(--wr-text-xs);
+  font-family: var(--wr-table-font-family, var(--wr-font-family-base));
+  font-weight: var(--wr-table-head-font-weight, var(--wr-font-weight-semibold));
+  font-size: var(--wr-table-head-font-size, var(--wr-text-xs));
   letter-spacing: var(--wr-table-head-letter-spacing, var(--wr-tracking-normal));
   text-transform: var(--wr-table-head-transform, none);
   white-space: nowrap;

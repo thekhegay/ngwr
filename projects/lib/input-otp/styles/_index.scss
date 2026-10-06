@@ -7,8 +7,12 @@
   --wr-input-otp-focus: var(--wr-color-primary);
   --wr-input-otp-size: 2.5rem; // md cell (40px)
   --wr-input-otp-font: var(--wr-text-lg); // 18px
+  --wr-input-otp-font-family: var(--wr-font-family-base);
   --wr-input-otp-radius: var(--wr-control-radius-md);
-  --wr-input-otp-gap: 0.5rem;
+  --wr-input-otp-gap: var(--wr-space-sm);
+  --wr-input-otp-cell-font-family: var(--wr-font-family-mono, monospace);
+  --wr-input-otp-cell-font-weight: var(--wr-font-weight-medium);
+  --wr-input-otp-cell-line-height: var(--wr-leading-none);
 
   display: inline-flex;
   align-items: center;
@@ -20,17 +24,17 @@
   // purpose — a cell narrower than 40px is already under the 44px touch target,
   // and squeezing it to fit trades a visible defect for an unreachable one.
   flex-wrap: wrap;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-input-otp-font-family);
 
   &__cell {
     width: var(--wr-input-otp-size);
     height: var(--wr-input-otp-size);
     padding: 0;
     text-align: center;
-    font-family: var(--wr-font-family-mono, monospace);
+    font-family: var(--wr-input-otp-cell-font-family);
     font-size: var(--wr-input-otp-font);
-    font-weight: 500;
-    line-height: 1;
+    font-weight: var(--wr-input-otp-cell-font-weight);
+    line-height: var(--wr-input-otp-cell-line-height);
     color: var(--wr-input-otp-color);
     background: var(--wr-input-otp-bg);
     border: 1px solid var(--wr-input-otp-border);
@@ -70,18 +74,26 @@
   }
 
   // Sizes — cell, digit font, radius + gap scale together.
+  //
+  // The gap breaks its tie DOWNWARD where the others break upward, and that is
+  // the rule rather than an inconsistency: the ramp was 6 / 8 / 10px, and the
+  // nearest step to 6 is 8 — which is what `md` already carries, so rounding to
+  // nearest collapsed `sm` into `md` and left `size="sm"` indistinguishable
+  // from the default in the one dimension this block exists to scale. A tier
+  // that no longer differs is worse than a tier two pixels off, so `sm` takes
+  // `xs` and the ramp survives as 4 / 8 / 12.
   &--sm {
     --wr-input-otp-size: 2rem; // 32px
     --wr-input-otp-font: var(--wr-text-base); // 16px
     --wr-input-otp-radius: var(--wr-control-radius-sm);
-    --wr-input-otp-gap: 0.375rem;
+    --wr-input-otp-gap: var(--wr-space-xs);
   }
 
   &--lg {
     --wr-input-otp-size: 3rem; // 48px
     --wr-input-otp-font: var(--wr-text-xl); // 20px
     --wr-input-otp-radius: var(--wr-control-radius-lg);
-    --wr-input-otp-gap: 0.625rem;
+    --wr-input-otp-gap: var(--wr-space-md);
   }
 
   &--disabled {
