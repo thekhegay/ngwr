@@ -137,12 +137,116 @@ function templates(): string[] {
       if (entry === 'node_modules' || entry === '_generated') continue;
       const full = join(dir, entry);
       if (statSync(full).isDirectory()) walk(full);
-      else if (extname(full) === '.html') out.push(full);
+      else if (extname(full) === '.html' || extname(full) === '.ts') out.push(full);
     }
   };
   walk(SHOWCASE);
   return out;
 }
+
+/**
+ * A `.ts` file reduced to its template literals, everything else blanked out.
+ *
+ * **A SNIPPET is markup too, and it is the markup that gets copied.** This
+ * check read `.html` only, so `<wr-btn variant="outlined">` in a live demo was
+ * caught while the same line printed in a code block beside it was not — and a
+ * printed line is what a reader pastes into their own app. The gap was not
+ * hypothetical: thirty-two snippets taught `<button wr-btn>` with no `type`,
+ * which inside a form is a submit button, while every `.html` in the repo was
+ * held to the rule by `@angular-eslint`.
+ *
+ * Blanked rather than extracted so every offset still lines up with the real
+ * file and a finding keeps its line number. Only backtick literals are kept:
+ * scanning the whole file would read `Signal<WrFoo>` as an element.
+ */
+function templateLiteralsOnly(src: string): string {
+  const out: string[] = [];
+  const blank = (text: string): string => text.replace(/[^\n]/g, ' ');
+  let i = 0;
+  let depth = 0; // backtick nesting, so a literal inside `${…}` does not end the outer one
+  let literal = false;
+  let run = '';
+
+  const flushCode = (text: string): void => out.push(blank(text));
+
+  while (i < src.length) {
+    const ch = src[i];
+    if (!literal) {
+      const open = src.indexOf('`', i);
+      if (open === -1) {
+        flushCode(src.slice(i));
+        break;
+      }
+      flushCode(src.slice(i, open + 1));
+      literal = true;
+      depth = 1;
+      run = '';
+      i = open + 1;
+      continue;
+    }
+    if (ch === '\\') {
+      run += '  ';
+      i += 2;
+      continue;
+    }
+    if (ch === '$' && src[i + 1] === '{') {
+      // Skip the expression whole, counting braces AND backticks so a nested
+      // literal inside it cannot close the one we are in.
+      let j = i + 2;
+      let braces = 1;
+      let ticks = 0;
+      while (j < src.length && braces > 0) {
+        const c = src[j];
+        if (c === '\\') j++;
+        else if (c === '`') ticks = ticks === 0 ? 1 : 0;
+        else if (!ticks && c === '{') braces++;
+        else if (!ticks && c === '}') braces--;
+        j++;
+      }
+      run += blank(src.slice(i, j));
+      i = j;
+      continue;
+    }
+    if (ch === '`') {
+      depth--;
+      run += ' ';
+      i++;
+      if (depth === 0) {
+        // HTML comments are prose, not markup: a `-->` inside one ends the
+        // attribute soup of whatever element the scan was reading.
+        out.push(run.replace(/<!--[\s\S]*?-->/g, blank));
+        literal = false;
+      }
+      continue;
+    }
+    run += ch;
+    i++;
+  }
+  return out.join('');
+}
+
+/**
+ * Pages whose snippets name an older vocabulary ON PURPOSE — a migration guide
+ * prints the attribute it is telling you to rename, and a codemod's fixtures
+ * exist to carry the old spelling.
+ */
+const SNIPPET_EXEMPT = ['start/migration/', '_core/sandbox/'];
+
+/**
+ * Attributes owned by somebody other than ngwr, which a snippet may legitimately
+ * carry on an ngwr element.
+ *
+ * A snippet has no `imports` around it, so the check cannot tell which
+ * directives are in scope — and these are the ones the docs genuinely teach on
+ * ngwr elements: the template-driven forms pair, which `NgModel` and
+ * `RequiredValidator` declare, and the CDK's initial-focus marker. Listing them
+ * is narrower than skipping `.ts` files altogether, which is what hid thirty-two
+ * `<button wr-btn>` without a `type`.
+ */
+const FOREIGN_ATTRS = new Set(['name', 'required', 'cdkFocusInitial', 'ngModel', 'ngDefaultControl', 'form']);
+
+/** `<wr-select …>` is prose shorthand for "and the rest", not an attribute. */
+const ELLIPSIS = /^(?:\u2026|\.\.\.)$/;
 
 interface Finding {
   readonly file: string;
@@ -242,7 +346,10 @@ function main(): void {
   const ELEMENT = /<([a-zA-Z][\w-]*)((?:"[^"]*"|'[^']*'|[^>"'])*?)\/?>/g;
 
   for (const file of templates()) {
-    const src = readFileSync(file, 'utf8');
+    const raw = readFileSync(file, 'utf8');
+    const isTs = extname(file) === '.ts';
+    if (isTs && SNIPPET_EXEMPT.some(skip => file.includes(skip))) continue;
+    const src = isTs ? templateLiteralsOnly(raw) : raw;
     for (const el of src.matchAll(ELEMENT)) {
       const tag = el[1];
       const present = parseAttrs(el[2] ?? '');
@@ -259,11 +366,12 @@ function main(): void {
       }
       if (owners.length === 0) continue;
 
-      const accepted = new Set<string>([...NON_NGWR, ...slots]);
+      const accepted = new Set<string>([...NON_NGWR, ...slots, ...FOREIGN_ATTRS]);
       for (const o of owners) for (const n of inputs.get(o.symbol) ?? []) accepted.add(n);
       for (const n of NATIVE_BY_TAG[tag] ?? []) accepted.add(n);
       // An attribute SELECTOR is how a directive is applied, never an input.
       for (const n of Object.keys(attributes)) accepted.add(n);
+      for (const a of present) if (ELLIPSIS.test(a.name)) accepted.add(a.name);
 
       const line = src.slice(0, el.index).split('\n').length;
       for (const a of present) {

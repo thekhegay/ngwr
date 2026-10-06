@@ -72,8 +72,12 @@ providers: [
 ],
 
 // Per instance, either direction — the input wins over the provider:
-//   <wr-select [responsive]="false">    stays an anchored dropdown on a phone
-//   <wr-dropdown-menu responsive>       becomes a sheet with no provider at all
+//   <wr-select [responsive]="false">            stays anchored on a phone
+//   <button [wrDropdown]="menu" responsive>     becomes a sheet, no provider needed
+//
+// Mind WHERE it goes on a dropdown: "responsive" belongs to the TRIGGER
+// directive, not to <wr-dropdown-menu>. On the panel it is an ordinary
+// unknown attribute — it compiles, lands on the element and does nothing.
 //
 // If you load styles per component, the sheet's presentation is in this entry
 // point too:  @use 'ngwr/overlay';`,
