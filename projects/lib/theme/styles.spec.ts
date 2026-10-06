@@ -59,7 +59,6 @@ function loaded(entry: string): string[] {
   return [...seen];
 }
 
-/** Every `<name>/styles/_index.scss` under `projects/lib` — the public Sass entries. */
 /** Every `.scss` under `dir`, so a check can read the whole library at once. */
 function scssFiles(dir: string): string[] {
   const out: string[] = [];
@@ -75,19 +74,55 @@ function scssFiles(dir: string): string[] {
   return out;
 }
 
+/**
+ * Every public Sass entry, read from the `exports` map's `sass` conditions.
+ *
+ * **Not a directory walk, and that distinction is the whole reason this file's
+ * own invariant could sit here stated correctly while four of its subjects were
+ * broken.** The walk this replaced looked for `<dir>/styles/_index.scss`, which
+ * is the shape 108 of the entries happen to have — and the five utility sheets
+ * are `projects/lib/styles/_<name>.scss`, so `ngwr/grid`, `ngwr/reset`,
+ * `ngwr/animations`, `ngwr/typography-utilities` and `ngwr/breakpoints` were
+ * never enumerated at all. Three of the four that reference a token went on
+ * referencing one for several majors, and the fourth was broken on this branch
+ * by a spacing conversion, under a green run of this very spec.
+ *
+ * AGENTS.md already names the source of truth — "read from the `exports` map in
+ * `projects/lib/package.json`, not from the directory tree" — and
+ * `pnpm gen:exports` is what keeps it honest. `./theme` is skipped because it
+ * IS the layer.
+ */
 function styleEntries(): string[] {
-  const out: string[] = [];
-  const walk = (dir: string): void => {
-    for (const name of readdirSync(dir)) {
-      if (name === 'node_modules' || name === 'schematics' || name === 'mcp') continue;
-      const full = join(dir, name);
-      if (!statSync(full).isDirectory()) continue;
-      const index = join(full, 'styles/_index.scss');
-      if (existsSync(index)) out.push(index);
-      walk(full);
-    }
+  return Object.entries(styleExports())
+    .filter(([key]) => key !== './theme')
+    .map(([, target]) => join(LIB, target.replace(/^\.\//, '')));
+}
+
+/**
+ * The subset of {@link styleEntries} that belongs to a component.
+ *
+ * A utility sheet lives at `projects/lib/styles/_<name>.scss`, so going up two
+ * levels from it lands on the library root rather than on an entry's own
+ * folder. The check below keys by exactly that, and with the utility sheets in
+ * the list it read the root as one nameless entry and attributed every
+ * component in the library to it. A sheet with no component directory renders
+ * no component, which is the honest reason to leave it out rather than a
+ * special case.
+ */
+function componentStyleEntries(): string[] {
+  return styleEntries().filter(entry => dirname(dirname(entry)) !== LIB);
+}
+
+/** The `exports` keys that carry a `sass` condition, to the file each resolves to. */
+function styleExports(): Record<string, string> {
+  const manifest = JSON.parse(readFileSync(join(LIB, 'package.json'), 'utf8')) as {
+    exports: Record<string, { sass?: string } | string>;
   };
-  walk(LIB);
+  const out: Record<string, string> = {};
+  for (const [key, value] of Object.entries(manifest.exports)) {
+    const target = typeof value === 'string' ? undefined : value.sass;
+    if (target !== undefined) out[key] = target;
+  }
   return out;
 }
 
@@ -173,9 +208,65 @@ describe('a style entry point loads the token layer it paints with', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('checks a plausible number of entry points', () => {
-    // A resolver that quietly matched nothing would report the invariant as held.
-    expect(styleEntries().length).toBeGreaterThanOrEqual(105);
+  /**
+   * Three guards, and each one is a way this spec has already read green while
+   * being blind.
+   *
+   * The count is held against the MANIFEST rather than a floor. The floor it
+   * replaces was `>= 105` against a walk that found 109 of the 113 — four
+   * missing entries fitted inside the slack, which is exactly what a floor is
+   * for and exactly why it was the wrong instrument here.
+   */
+  it('enumerates every entry point the manifest advertises styles for', () => {
+    const exported = Object.keys(styleExports()).filter(key => key !== './theme');
+    expect(styleEntries()).toHaveLength(exported.length);
+    for (const entry of styleEntries()) {
+      expect(existsSync(entry), `${relative(LIB, entry)} is in the exports map and not on disk`).toBe(true);
+    }
+  });
+
+  /**
+   * The five whose shape the directory walk could not reach, BY NAME.
+   *
+   * A count is satisfiable by any 113 files. Naming these pins the one shape
+   * that was missing, and no resolver that matched nothing can satisfy it.
+   */
+  it('includes the utility sheets that do not live in a <name>/styles folder', () => {
+    const keys = Object.keys(styleExports());
+    for (const key of ['./grid', './reset', './animations', './typography-utilities', './breakpoints']) {
+      expect(keys, `${key} has no sass condition in the exports map`).toContain(key);
+    }
+    const files = styleEntries().map(f => relative(LIB, f));
+    for (const name of ['styles/_grid.scss', 'styles/_reset.scss', 'styles/_animations.scss']) {
+      expect(files, `${name} is not enumerated`).toContain(name);
+    }
+  });
+
+  /**
+   * That the DETECTOR is alive, not merely that the roster is complete.
+   *
+   * "No offenders" and "the rule stopped matching" print identically, and this
+   * repo has shipped the second: a `\b` after a hyphen made a spec pass with
+   * the rule it tested deleted. So the same predicate that judges the catalog
+   * is pointed at a sheet built to fail, in the spirit of `check:color-only`'s
+   * own `SELF_TEST`.
+   */
+  it('reports a sheet that reads a theme token without loading the layer', () => {
+    const canary = join(LIB, 'styles/_breakpoints.scss');
+    const files = loaded(canary);
+    expect(
+      files.some(f => f.startsWith(THEME_STYLES)),
+      'the canary must not load the theme'
+    ).toBe(false);
+
+    const own = new Set<string>();
+    for (const file of files) for (const m of code(file).matchAll(DECLARED)) own.add(m[1]);
+
+    // The shape the real check looks for, against a token the theme does declare.
+    const synthetic = '.wr-canary { font-size: var(--wr-text-2xl); }';
+    const referenced = [...synthetic.matchAll(REFERENCED)].map(m => m[1]);
+    expect(referenced).toEqual(['--wr-text-2xl']);
+    expect(referenced.filter(name => !own.has(name) && isTheme(name))).toEqual(['--wr-text-2xl']);
   });
 });
 
@@ -286,7 +377,7 @@ describe('an entry point loads the styles of the components it renders', () => {
 
   it('leaves no component rendering another entry point it never loads', () => {
     const owners = symbolOwners();
-    const entryOfStyle = new Map(styleEntries().map(e => [relative(LIB, dirname(dirname(e))), e]));
+    const entryOfStyle = new Map(componentStyleEntries().map(e => [relative(LIB, dirname(dirname(e))), e]));
     const offenders = new Set<string>();
 
     for (const [sub, entry] of entryOfStyle) {

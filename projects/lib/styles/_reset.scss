@@ -1,12 +1,26 @@
 // Opt-in CSS reset.
 //
-// Not loaded by the umbrella `ngwr` entry. Apps that don't already have a
-// reset (Tailwind preflight, normalize.css, etc.) can opt in via:
+// Apps that don't already have a reset (Tailwind preflight, normalize.css,
+// etc.) can opt in via:
 //
 //   @use 'ngwr/reset';
 //
-// Modest scope — boxes, margins, form-element inheritance, and a few
-// link/list cleanups. No opinionated typography or color.
+// Scope — boxes, margins, form-element inheritance, a few link/list cleanups,
+// and a heading scale read from the `--wr-text-*` tokens.
+//
+// **It loads the token layer, and standalone it was worse than loading no CSS
+// at all.** Twelve reads here name tokens only the theme declares, and an
+// invalid `var()` does not drop its declaration — it computes to `unset`, which
+// for an inherited property means INHERIT. So each rule won the cascade over
+// the UA stylesheet and then resolved to its parent: measured in Chromium, the
+// bare sheet flattened `h1`–`h6` to 16px apiece where the browser alone gives
+// 32 / 24 / 18.72 / 16 / 13.28 / 10.72, and turned `code` and `pre` from
+// monospace into the body serif. Someone adding this for `box-sizing` lost
+// their whole type scale and said nothing, because nothing in a build, a
+// console or a test has an opinion about a `var()` that resolves to nothing.
+// Sass deduplicates within one compilation, so an app that also loads the theme
+// or any component pays nothing for this line — verified byte-identical.
+@use '../theme/styles';
 
 *,
 *::before,

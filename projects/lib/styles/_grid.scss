@@ -4,8 +4,21 @@
 
 // Grid-scoped token. Declared here (not in theme) because grid is the
 // only consumer. Override on `:root` or any subtree to retune spacing.
+//
+// **The value stays a LITERAL, and that is not an unfinished conversion.** It
+// was `var(--wr-space-lg)` for part of v15, which reads a name only the theme
+// layer declares — and this sheet deliberately loads no theme, because
+// `/guides/grid` tells a reader "grid is its own entry point, and no component
+// pulls it in" and prints `@use 'ngwr/grid';` on its own. Standalone, that read
+// resolved to nothing, so the custom property became invalid at computed-value
+// time and took three declarations down with it: the container's two inline
+// paddings and `.grid`'s `gap`, measured at 0px and `normal` in Chromium.
+// `--wr-space-lg` IS `1rem`, so this is a restoration rather than an
+// approximation — byte-identical wherever the theme is present — and loading
+// 20 kB of token layer to resolve one token worth `1rem` is the wrong trade on
+// the one sheet whose docs promise it works alone.
 :root {
-  --wr-grid-gutter: var(--wr-space-lg);
+  --wr-grid-gutter: 1rem;
 }
 
 // Config
