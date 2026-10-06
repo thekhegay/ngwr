@@ -131,15 +131,34 @@ export class AppComponent {
     const bg = this.canvas();
     const dark = this.theme.resolved() === 'dark';
     const live = (t: string): string | null => this.read(t);
-    const rows: { name: string; value: string | null; ratio: string; note: string }[] = [
-      { name: '--wr-border-subtle', value: live('--wr-border-subtle'), ratio: '', note: 'the quiet end' },
-      { name: '--wr-border-base', value: live('--wr-border-base'), ratio: '', note: 'what 209 declarations draw' },
-      { name: '--wr-border-strong', value: live('--wr-border-strong'), ratio: '', note: 'the loud end' },
+    const rows: { name: string; value: string | null; ratio: string; note: string; decide: boolean }[] = [
       {
-        name: '(no token)',
+        name: '--wr-border-subtle',
+        value: live('--wr-border-subtle'),
+        ratio: '',
+        note: 'the quiet end',
+        decide: false,
+      },
+      {
+        name: '--wr-border-base',
+        value: live('--wr-border-base'),
+        ratio: '',
+        note: 'what 209 declarations draw — unchanged',
+        decide: false,
+      },
+      {
+        name: '--wr-border-strong',
+        value: live('--wr-border-strong'),
+        ratio: '',
+        note: 'WHAT SHIPS TODAY — the ramp’s own next step, short of 1.4.11',
+        decide: true,
+      },
+      {
+        name: '(not a token)',
         value: dark ? '#4d608a' : '#718cad',
         ratio: '',
-        note: 'what a control border needs for 1.4.11 — darker than the ramp’s own rhythm',
+        note: 'WHAT 1.4.11 WOULD NEED — darker than the ramp’s rhythm, so every control edge gets heavier',
+        decide: true,
       },
     ];
     return rows.map(r => ({ ...r, ratio: ratio(r.value, bg) }));

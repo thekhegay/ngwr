@@ -52,3 +52,59 @@
   padding: 0 0 0.5rem;
   color: var(--wr-color-on-surface-muted);
 }
+
+// The one thing on this page that is a decision rather than a report.
+.decide {
+  margin: 0 0 2rem;
+  padding: 1rem 1.25rem;
+  border: 2px solid var(--wr-color-danger);
+  border-radius: 0.75rem;
+  background: var(--wr-color-danger-soft);
+  color: var(--wr-color-on-surface);
+}
+.decide__tag {
+  display: inline-block;
+  margin: 0 0 0.5rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.3rem;
+  background: var(--wr-color-danger);
+  color: var(--wr-color-danger-contrast);
+  font: 600 11px/1.4 ui-monospace, monospace;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.decide p {
+  margin: 0.4rem 0 0;
+  max-width: 54rem;
+}
+.decide a {
+  color: var(--wr-color-danger-ink);
+}
+
+// A row that is part of the decision, not of the report.
+.pal__row--decide {
+  position: relative;
+}
+.pal__row--decide::before {
+  content: '';
+  position: absolute;
+  inset: -0.3rem -0.6rem;
+  border: 2px solid var(--wr-color-danger);
+  border-radius: 0.5rem;
+  pointer-events: none;
+}
+.pal__flag {
+  grid-column: 1 / -1;
+  padding: 0.1rem 0 0.6rem;
+  color: var(--wr-color-danger-ink);
+  font-weight: 600;
+}
+
+// Everything that is only context, quieted so the decision is what the eye
+// lands on.
+.pal--context {
+  opacity: 0.55;
+}
+.pal--context:hover {
+  opacity: 1;
+}
