@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { WrI18n } from 'ngwr/i18n';
-import { WrMeta, type WrMetaHandle } from 'ngwr/meta';
+import { WrMeta, WrMetaBinding, type WrMetaHandle } from 'ngwr/meta';
 
 import {
   DocApiComponent,
@@ -16,7 +16,15 @@ import {
 @Component({
   selector: 'ngwr-svc-meta-page',
   templateUrl: './meta.html',
-  imports: [WrButton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    WrButton,
+    WrMetaBinding,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
 export default class MetaServicePageComponent {
   private readonly metaService = inject(WrMeta);
@@ -24,6 +32,9 @@ export default class MetaServicePageComponent {
 
   private reactiveHandle: WrMetaHandle | null = null;
   protected readonly reactiveBound = signal(false);
+
+  /** Mounts the `[wrMeta]` block, so the directive's own lifecycle is what the demo shows. */
+  protected readonly directiveMounted = signal(false);
 
   constructor() {
     // The page's own `reactive` snippet tells a reader to pop the handle on

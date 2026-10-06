@@ -64,6 +64,19 @@ export class WrMeta {
   /** Last applied snapshot — used to diff against the next resolution. */
   private applied: WrMetaConfig = {};
 
+  /**
+   * The `<title>` that was in the document before this service ever wrote one,
+   * captured lazily on the first write.
+   *
+   * Popping back to a configuration with no title used to write `''`, which is
+   * the one restore that is always wrong: a blank tab, and in an app where
+   * something else also owns the title — Angular's `Title` from a route
+   * resolver, a server-rendered `<title>` — it silently erased that too. "Auto-
+   * revert" has to mean reverting to what was there, and only the first write
+   * knows what that was.
+   */
+  private titleBeforeFirstWrite: string | null = null;
+
   constructor() {
     // Apply defaults immediately on construction.
     this.apply();
@@ -190,13 +203,14 @@ export class WrMeta {
   private diffTitle(next: WrMetaConfig): void {
     if (next.title === this.applied.title && next.titleTemplate === this.applied.titleTemplate) return;
     if (next.title) {
+      this.titleBeforeFirstWrite ??= this.title.getTitle();
       // `{{ title }}` reads like Angular; `%s` stays for printf fans.
       const formatted = next.titleTemplate
         ? next.titleTemplate.replace(/\{\{\s*title\s*\}\}/g, next.title).replace('%s', next.title)
         : next.title;
       this.title.setTitle(formatted);
     } else if (this.applied.title) {
-      this.title.setTitle('');
+      this.title.setTitle(this.titleBeforeFirstWrite ?? '');
     }
   }
 

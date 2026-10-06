@@ -4,12 +4,11 @@
   [keywords]="['service', 'meta', 'head', 'SEO', 'WrMeta']"
   [labels]="['Service']"
 >
-  <ngwr-doc-section title="Push / pop">
+  <ngwr-doc-section
+    title="Push / pop"
+    description="`push()` hands back a handle; popping it restores whatever was underneath. The button below pushes a layer and pops it four seconds later."
+  >
     <ngwr-doc-code [code]="snippets.push" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Directive form">
-    <ngwr-doc-code [code]="snippets.directive" language="angular-html" />
     <ngwr-doc-snippet code="">
       <button
         type="button"
@@ -27,6 +26,38 @@
       <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)">
         Open devtools → Elements → &lt;head&gt; to watch tags update.
       </small>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Directive form"
+    description="`[wrMeta]` pushes on init, re-pushes when its value changes and pops on destroy — so a route component declares its `<head>` and never has to undo it. Mount and unmount the block below and watch the tab title follow."
+  >
+    <ngwr-doc-code [code]="snippets.directive" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.625rem; align-items: flex-start">
+        <wr-btn (click)="directiveMounted.set(!directiveMounted())">
+          {{ directiveMounted() ? 'Unmount the block' : 'Mount a block with [wrMeta]' }}
+        </wr-btn>
+
+        @if (directiveMounted()) {
+          <div
+            [wrMeta]="{ title: 'Pricing — pushed by [wrMeta]', description: 'Plans for every team.' }"
+            style="
+              padding: 0.75rem 1rem;
+              border: 1px dashed var(--wr-color-outline);
+              border-radius: 0.5rem;
+              background: var(--wr-color-fill-subtle);
+            "
+          >
+            This element carries <code>[wrMeta]</code>. The tab title is its title until it unmounts.
+          </div>
+        }
+
+        <small style="color: var(--wr-color-on-surface-muted)">
+          Nothing calls <code>pop()</code> — destroying the element does it.
+        </small>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

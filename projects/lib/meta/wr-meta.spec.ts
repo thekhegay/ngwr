@@ -111,8 +111,42 @@ describe('WrMeta', () => {
       meta.reset();
 
       // The defaults carry a template but no title, so there is nothing to
-      // render — " · ngwr" on its own is the bug this pins.
+      // render — " · ngwr" on its own is the bug this pins. Empty here because
+      // nothing had written a title before the service did; the test below is
+      // the case where something had.
       expect(document.title).toBe('');
+    });
+
+    it('pops back to the title that was there before it wrote one', () => {
+      // "Stack-based push/pop so route overrides auto-revert" has to mean
+      // REVERT. It used to write `''` on the way down, which blanks the tab —
+      // and in an app where something else also owns the title (Angular's own
+      // `Title` from a resolver, or a server-rendered `<title>`) it erased that
+      // too, silently and for the rest of the session.
+      document.title = 'Set by someone else';
+      const meta = setup();
+
+      const handle = meta.push({ title: 'Pricing' });
+      expect(document.title).toBe('Pricing');
+
+      handle.pop();
+      expect(document.title).toBe('Set by someone else');
+    });
+
+    it('remembers the title from its FIRST write, not from every one', () => {
+      // The floor is what was there before this service existed. A later pop
+      // must not restore some intermediate layer's title as if it were the
+      // document's own.
+      document.title = 'Original';
+      const meta = setup();
+
+      meta.push({ title: 'First' });
+      const second = meta.push({ title: 'Second' });
+      second.pop();
+      expect(document.title).toBe('First');
+
+      meta.reset();
+      expect(document.title).toBe('Original');
     });
   });
 
