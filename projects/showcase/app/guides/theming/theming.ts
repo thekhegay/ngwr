@@ -71,15 +71,25 @@ bootstrapApplication(AppComponent, {
   ],
 });`,
 
-    styles: `// styles.scss — the token layer first: design tokens, dark mode, density.
-// \`as *\` drops the \`theme.\` prefix from the SCSS mixins it forwards, so
-// \`@include media-up(md)\` and \`@include dark { ... }\` work unqualified.
+    styles: `// styles.scss — the token layer FIRST: design tokens and dark mode.
+// It has to be first, because only a module's first load can take \`with (...)\`.
+//
+// \`as *\` drops the \`theme.\` prefix from what this entry declares, so
+// \`@include dark { ... }\` and \`@include focus-ring\` work unqualified.
 @use 'ngwr/theme' as *;
+
+// Density is its OWN entry point — the theme layer emits no \`--wr-density-*\`
+// at all, so without this line \`provideWrDensity()\` and \`[wrDensity]\` have
+// no multipliers to set.
+@use 'ngwr/density';
+
+// Breakpoint mixins are their own entry too: \`media-up\` / \`media-down\` are
+// NOT in the theme layer.
+@use 'ngwr/breakpoints' as *;
 
 // Then one line per component you render.
 @use 'ngwr/button';
-@use 'ngwr/input';
-@use 'ngwr/theme';`,
+@use 'ngwr/input';`,
 
     paletteScss: `// Rebrand at compile time — configure the palette on the theme entry point.
 // NGWR re-derives -dark / -darker / -light / -lighter / -contrast variants.

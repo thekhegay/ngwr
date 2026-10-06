@@ -4,12 +4,7 @@ import { RouterLink } from '@angular/router';
 
 import { WrSlider } from 'ngwr/slider';
 
-import {
-  DocApiComponent,
-  DocPageComponent,
-  DocSectionComponent,
-  DocSnippetComponent,
-} from '#core/components';
+import { DocApiComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
 import { API } from '#core/generated/api';
 
 @Component({
