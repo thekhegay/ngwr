@@ -23,8 +23,9 @@
   // children of `<body>`, so at equal z-index the DOM order decides — and the
   // service appends a fresh cut-out on every step while the container stays put, so
   // from the second step on the dimming shadow painted OVER the tour's own card.
-  // `.wr-tour-overlay { z-index: 1001 }` cannot help: it sits on the pane INSIDE the
-  // container, whose own stacking context scopes it.
+  // A `z-index` on `.wr-tour-overlay` cannot help: that sits on the pane INSIDE
+  // the container, whose own stacking context scopes it — which is why the pane
+  // carries none.
   z-index: 999;
   pointer-events: none;
   border-radius: var(--wr-border-radius-base);
@@ -78,6 +79,5 @@
 }
 
 // The popup rides above the cut-out.
-.wr-tour-overlay {
-  z-index: 1001;
-}
+// No `z-index` on the pane — the comment above `.wr-tour-cutout` already said
+// one here "cannot help", and it was carrying 1001 anyway.
