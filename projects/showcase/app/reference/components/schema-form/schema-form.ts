@@ -218,6 +218,17 @@ const signupSchema = schema<Signup>(path => {
 });`,
 
     template: `<wr-schema-form [field]="signup" [columns]="2" />`,
+    // The Layout section used to print `template` as well — the same one-liner
+    // as Basic usage, which demonstrates neither of the two knobs its own
+    // description names.
+    layout: `// \`span\` on the spec, \`columns\` on the component.
+metadata(path.notes, WR_FIELD, () => ({ kind: 'textarea', label: 'Notes', span: 2 }));
+
+// Two columns: \`notes\` fills the row, everything else takes one cell.
+<wr-schema-form [field]="signup" [columns]="2" />
+
+// One column: the same spec still lines up — \`span\` is clamped to the grid.
+<wr-schema-form [field]="signup" [columns]="1" />`,
 
     reactive: `// The spec is a LogicFn, so it can read the rest of the form. An admin
 // sees a longer list, and nothing in the template knows about it.
