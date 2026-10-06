@@ -12,7 +12,7 @@ import { DocRichPipe, docRichToText } from '../doc-rich/doc-rich';
 import { DocSectionComponent } from '../doc-section/doc-section';
 
 import { CSS_VARS, type DocCssVarRoute, type DocCssVars } from '#core/generated/css-vars';
-import { INSTALL, type DocInstallRoute } from '#core/generated/install';
+import { INSTALL, type DocInstallEntry, type DocInstallRoute } from '#core/generated/install';
 import { MetaService } from '#core/services';
 import { releaseLabel } from '#core/utils';
 
@@ -174,18 +174,35 @@ export class DocPageComponent {
   private readonly routeKey = computed(() => this.router.url.split(/[?#]/)[0].replace(/^\/+|\/+$/g, ''));
 
   protected readonly install = computed<readonly DocCodeFile[] | null>(() => {
-    const entries = INSTALL[this.routeKey() as DocInstallRoute] as
-      readonly { path: string; symbols: readonly string[]; styled: boolean }[] | undefined;
+    // `DocInstallEntry`, not a restatement of its fields. The inline shape this
+    // replaces had gone stale the moment the generator grew `declarables`, and
+    // a structural cast is exactly the kind that goes stale silently.
+    const entries = INSTALL[this.routeKey() as DocInstallRoute] as readonly DocInstallEntry[] | undefined;
     if (!entries || entries.length === 0) return null;
 
     const withSymbols = entries.filter(e => e.symbols.length > 0);
     const imports = withSymbols.map(e => `import { ${e.symbols.join(', ')} } from '${e.path}';`).join('\n');
-    const declared = withSymbols.flatMap(e => e.symbols);
+    // Only a `@Component`, `@Directive` or `@Pipe` may go in `imports: []`.
+    // This used to be every symbol the page imported, which put provider
+    // functions, services, tokens and plain helpers in there and left 58 of
+    // the recipes opening with a line that does not compile —
+    // `@Component({ imports: [WrButton, provideWrIcons, lucideIcons, WR_COLORS] })`
+    // on the button page alone. The rest are still IMPORTED, because the page
+    // genuinely uses them; they are just used somewhere else, and the note
+    // below says so rather than leaving a reader to find out from tsc.
+    const declared = withSymbols.flatMap(e => e.declarables);
+    const rest = withSymbols.flatMap(e => e.symbols).filter(s => !declared.includes(s));
+    const note =
+      rest.length > 0
+        ? `\n\n// ${rest.join(', ')} — not declarables. A provide* function goes in` +
+          `\n// bootstrap or a component's \`providers\`, a service is injected, and a` +
+          `\n// token, constant or helper is used where you need it.`
+        : '';
 
     const ts =
       declared.length > 0
-        ? `${imports}\n\n@Component({ imports: [${declared.join(', ')}] })\nexport class MyComponent {}`
-        : imports;
+        ? `${imports}\n\n@Component({ imports: [${declared.join(', ')}] })\nexport class MyComponent {}${note}`
+        : `${imports}${note}`;
 
     // `ngwr/theme` leads and is not optional: every component entry loads the
     // token layer too and Sass emits it once, but only a module's FIRST load
