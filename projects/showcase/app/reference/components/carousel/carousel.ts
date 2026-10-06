@@ -39,7 +39,13 @@ export default class CarouselPageComponent {
     ink: `var(--wr-color-${intent}-contrast)`,
   }));
 
-  protected readonly snippet = `<wr-carousel [(active)]="i" autoplay>
+  // The height is in the snippet because the component cannot supply one: the
+  // viewport, the track and every slide are `height: 100%`, so a carousel with
+  // no height of its own collapses to a single line of text with the arrows and
+  // the dots overlapping it. The demo beside this always set one and the printed
+  // code never did, which is the shape of a snippet nobody pasted.
+  protected readonly snippet = `<!-- The height is yours: everything inside the carousel is \`height: 100%\`. -->
+<wr-carousel [(active)]="i" autoplay style="aspect-ratio: 16 / 9">
   <wr-carousel-slide>Slide 1</wr-carousel-slide>
   <wr-carousel-slide>Slide 2</wr-carousel-slide>
 </wr-carousel>`;
