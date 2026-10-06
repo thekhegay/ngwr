@@ -108,3 +108,53 @@
 .pal--context:hover {
   opacity: 1;
 }
+
+.hue {
+  display: grid;
+  grid-template-columns: 7rem 7rem auto 1fr;
+  gap: 0.35rem 1.25rem;
+  align-items: center;
+  font: 12px/1.5 ui-monospace, monospace;
+}
+.hue__name {
+  font-weight: 600;
+  color: var(--wr-color-on-surface);
+}
+.hue__cast {
+  color: var(--wr-color-on-surface-muted);
+}
+.hue__steps {
+  display: flex;
+  gap: 2px;
+}
+.hue__steps span {
+  width: 2.25rem;
+  height: 1.75rem;
+  border-radius: 0.2rem;
+}
+.hue__sample {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.hue__card {
+  display: grid;
+  place-items: center;
+  width: 9rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  background: var(--wr-color-surface);
+  color: var(--wr-color-on-surface-muted);
+  font: 12px/1 ui-monospace, monospace;
+}
+.hue__btn {
+  padding: 0.4rem 0.9rem;
+  border-radius: 0.5rem;
+  border: 0;
+  background: var(--wr-color-primary);
+  color: var(--wr-color-primary-contrast);
+  font: 600 12px/1 system-ui;
+}
+.hue--current {
+  position: relative;
+}

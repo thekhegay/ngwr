@@ -3,7 +3,7 @@ import { Component, ViewEncapsulation, computed, inject, signal } from '@angular
 import { WrButton } from 'ngwr/button';
 import { WrTheme } from 'ngwr/theme';
 
-import { INTENTS, PAIRS, TW } from './palette';
+import { INTENTS, NEUTRALS, PAIRS, TW } from './palette';
 
 interface Row {
   readonly label: string;
@@ -120,6 +120,31 @@ export class AppComponent {
   }
 
   protected readonly ramp = computed(() => this.rows(PAIRS));
+
+  /**
+   * The five neutral families at the steps that matter, for the hue call.
+   * Contrast is NOT a factor here — all five land within 0.02 of each other at
+   * the hairline and within 0.25 at muted text — so this is purely what it
+   * looks like beside our blue intents.
+   */
+  protected readonly neutrals = computed(() => {
+    this.tick();
+    const bg = this.canvas();
+    const current = 'gray';
+    return (Object.keys(NEUTRALS) as (keyof typeof NEUTRALS)[]).map(family => {
+      const steps = NEUTRALS[family];
+      const line = steps['300'];
+      const cast = parseInt(line.slice(5, 7), 16) - parseInt(line.slice(1, 3), 16);
+      return {
+        family,
+        current: family === current,
+        cast: cast > 0 ? `+${cast} blue` : cast < 0 ? `${-cast} warm` : 'neutral',
+        line,
+        ratio: ratio(line, bg),
+        steps: (['200', '300', '400', '600', '900'] as const).map(k => steps[k]),
+      };
+    });
+  });
 
   /**
    * The renamed border family, live, with the one step the ramp does not have.

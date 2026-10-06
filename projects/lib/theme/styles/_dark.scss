@@ -188,17 +188,21 @@ $dark-intents: (
   // `tone="primary"` fell from 4.78:1 to 4.40:1 — under AA, caught by
   // `check:contrast` as a new route over its dark baseline.
   //
-  // These values are slate in character anyway: a blue cast of 21-30 against
-  // the scale's own 21-36, with `gray-4` and `gray-6` one step off it.
-  --wr-color-gray-1: #0f1625;
+  // Re-tuned to the chosen family's hue at each step's OWN luminance, so the
+  // dark theme stops being bluer than the light one: the muted-text step went
+  // from 30 points of blue over red to 20, body text from 13 to 6. The tints
+  // barely move — at that luminance a cast is invisible — and every step's
+  // luminance is preserved to five decimal places, so no contrast ratio on the
+  // page changed.
+  --wr-color-gray-1: #101624;
   --wr-color-gray-2: #131a2b;
-  --wr-color-gray-3: #1a2234;
-  --wr-color-gray-4: #262f44;
-  --wr-color-gray-5: #9aa6b8;
-  --wr-color-gray-6: #e6ebf3;
-  --wr-color-gray-4-rgb: 38, 47, 68;
-  --wr-color-gray-5-rgb: 154, 166, 184;
-  --wr-color-gray-6-rgb: 230, 235, 243;
+  --wr-color-gray-3: #1a232f;
+  --wr-color-gray-4: #243040;
+  --wr-color-gray-5: #9ea6b2;
+  --wr-color-gray-6: #e9ebef;
+  --wr-color-gray-4-rgb: 36, 48, 64;
+  --wr-color-gray-5-rgb: 158, 166, 178;
+  --wr-color-gray-6-rgb: 233, 235, 239;
 
   // Canvas (was `--wr-color-white` in light mode)
   // Deeper than slate-900 so an elevated surface in slate-800 reads
