@@ -12,7 +12,7 @@
  *
  * - `hex`  — `#3969e2`, or `#3969e2ff` with alpha
  * - `rgba` — `rgb(57, 105, 226)`, or `rgba(57, 105, 226, 0.5)` with alpha
- * - `hsla` — `hsl(220, 73%, 56%)`, or `hsla(220, 73%, 56%, 0.5)` with alpha
+ * - `hsla` — `hsl(223, 74%, 55%)`, or `hsla(223, 74%, 55%, 0.5)` with alpha
  *
  * All three are also ACCEPTED on the way in, whichever one is set, so a
  * `[(value)]` binding round-trips its own output.
