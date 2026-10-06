@@ -76,10 +76,18 @@
       }
     }
 
+    // ONE dimming step, not two. This used to carry `--wr-disabled-opacity` on
+    // top of the muted colour, and the two compounded: 2.38:1 in light, 3.43:1
+    // in dark, against 4.63 and 7.33 for the colour alone. A nav row is TEXT a
+    // reader is meant to read — "Tokens (soon)" is information, not the label
+    // of a dead control — and the muted role already separates it from the
+    // full-strength rows around it, which are `--wr-color-on-surface`. The
+    // double dimming went unmeasured because every entry in the docs demo
+    // pointed at the same route, so the row rendered under the ACTIVE rule and
+    // this one never painted.
     &--disabled {
       color: var(--wr-color-on-surface-muted);
       pointer-events: none;
-      opacity: var(--wr-disabled-opacity);
     }
   }
 
@@ -252,10 +260,18 @@
       }
     }
 
+    // ONE dimming step, not two. This used to carry `--wr-disabled-opacity` on
+    // top of the muted colour, and the two compounded: 2.38:1 in light, 3.43:1
+    // in dark, against 4.63 and 7.33 for the colour alone. A nav row is TEXT a
+    // reader is meant to read — "Tokens (soon)" is information, not the label
+    // of a dead control — and the muted role already separates it from the
+    // full-strength rows around it, which are `--wr-color-on-surface`. The
+    // double dimming went unmeasured because every entry in the docs demo
+    // pointed at the same route, so the row rendered under the ACTIVE rule and
+    // this one never painted.
     &--disabled {
       color: var(--wr-color-on-surface-muted);
       pointer-events: none;
-      opacity: var(--wr-disabled-opacity);
     }
   }
 
