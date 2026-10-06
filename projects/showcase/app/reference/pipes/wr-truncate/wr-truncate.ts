@@ -44,8 +44,10 @@ export default class WrTruncatePipePage {
   ];
 
   protected readonly snippets = {
-    basic: `{{ longText | wrTruncate: 24 }}  <!-- "Lorem ipsum dolor sit a…" -->`,
-    ellipsis: `{{ longText | wrTruncate: 24 : ' [more]' }}`,
+    basic: `{{ longText | wrTruncate: 24 }}  <!-- "Lorem ipsum dolor sit am…" -->`,
+    ellipsis: `<!-- The ellipsis is APPENDED to the 24 characters, not counted inside
+     them, so the rendered string is 24 + its length. -->
+{{ longText | wrTruncate: 24 : ' [more]' }}`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

@@ -20,7 +20,7 @@ import type { WrNumberStyle } from './types';
  * @example
  * ```html
  * {{ 1234.5 | wrNumber }}                       <!-- "1,234.5"   -->
- * {{ 0.875  | wrNumber: 'percent' }}            <!-- "88%"       -->
+ * {{ 0.875  | wrNumber: 'percent' }}            <!-- "87.5%"     -->
  * {{ 19.99  | wrNumber: 'currency': 'USD' }}    <!-- "$19.99"    -->
  * {{ 19.99  | wrNumber: { minimumFractionDigits: 2 } }}
  * ```
