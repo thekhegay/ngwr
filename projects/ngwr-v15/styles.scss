@@ -14,6 +14,13 @@
 
 // One line per component you render. Add to this list as you add components —
 // that is the thing being checked.
+@use 'ngwr/charts/bar-chart';
+@use 'ngwr/charts/calendar-heatmap';
+@use 'ngwr/charts/donut-chart';
+@use 'ngwr/charts/gauge';
+@use 'ngwr/charts/line-chart';
+@use 'ngwr/charts/meter-group';
+@use 'ngwr/charts/sparkline';
 @use 'ngwr/button';
 @use 'ngwr/speed-dial';
 @use 'ngwr/icon';

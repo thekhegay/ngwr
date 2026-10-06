@@ -1,133 +1,69 @@
 <header class="bar">
-  <h1 class="bar__title">ngwr v15 sandbox — Buttons</h1>
-
+  <h1 class="bar__title">ngwr v15 sandbox — Charts</h1>
   <button wr-btn type="button" outlined size="sm" (click)="toggleTheme()">
     <wr-icon [name]="theme.resolved() === 'dark' ? 'sun' : 'moon'" />
     {{ theme.resolved() === 'dark' ? 'Light' : 'Dark' }}
   </button>
 </header>
 
-<!-- Every block is a snippet from its own docs page, copied as written. -->
 <main class="sandbox">
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Button — basic usage</h2>
-    <div class="sandbox__row">
-      <wr-btn>Default</wr-btn>
-      <button wr-btn type="button">Native button</button>
-      <a wr-btn>Anchor</a>
-    </div>
+    <h2 class="sandbox__heading">Bar Chart — basic</h2>
+    <wr-bar-chart [data]="bars" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Button — colors</h2>
-    <div class="sandbox__row">
-      <wr-btn>Default</wr-btn>
-      <wr-btn color="primary">Primary</wr-btn>
-      <wr-btn color="success">Success</wr-btn>
-      <wr-btn color="warning">Warning</wr-btn>
-      <wr-btn color="danger">Danger</wr-btn>
-      <wr-btn color="info">Info</wr-btn>
-    </div>
+    <h2 class="sandbox__heading">Bar Chart — tooltip off</h2>
+    <wr-bar-chart [data]="bars" [tooltip]="false" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Button — outlined</h2>
-    <div class="sandbox__row">
-      <wr-btn outlined>Default</wr-btn>
-      <wr-btn color="primary" outlined>Outlined</wr-btn>
-      <wr-btn color="danger" outlined>Danger</wr-btn>
-    </div>
+    <h2 class="sandbox__heading">Calendar Heatmap — basic</h2>
+    <wr-calendar-heatmap [data]="contributions" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Button — sizes</h2>
-    <div class="sandbox__row">
-      <wr-btn size="sm">Small</wr-btn>
-      <wr-btn size="md">Medium</wr-btn>
-      <wr-btn size="lg">Large</wr-btn>
-    </div>
+    <h2 class="sandbox__heading">Donut Chart — with center label</h2>
+    <wr-donut-chart [segments]="segments" centerLabel="Disk" centerValue="60%" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Button — shape</h2>
-    <div class="sandbox__row">
-      <wr-btn color="primary">Rounded (default)</wr-btn>
-      <wr-btn color="primary" shape="pill">Pill</wr-btn>
-      <wr-btn color="primary" shape="squircle">Squircle</wr-btn>
-    </div>
+    <h2 class="sandbox__heading">Donut Chart — solid pie</h2>
+    <wr-donut-chart [segments]="segments" thickness="0" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Button — with icon</h2>
-    <div class="sandbox__row">
-      <wr-btn icon="add" color="primary">Add</wr-btn>
-      <wr-btn icon="trash" color="danger" outlined>Delete</wr-btn>
-      <wr-btn icon="download" iconPosition="end">Download</wr-btn>
-    </div>
+    <h2 class="sandbox__heading">Gauge — basic</h2>
+    <wr-gauge [value]="72" suffix="%" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Button — disabled and loading</h2>
-    <div class="sandbox__row">
-      <wr-btn disabled>Disabled</wr-btn>
-      <wr-btn [loading]="loading()" [disabledWhenLoading]="false" color="primary" (click)="loading.set(!loading())">
-        Click to toggle
-      </wr-btn>
-    </div>
+    <h2 class="sandbox__heading">Gauge — custom range + color</h2>
+    <wr-gauge [value]="9.5" [min]="0" [max]="10" suffix="/10" valueColor="var(--wr-color-warning)" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Button — block</h2>
-    <wr-btn color="primary" block>Full width</wr-btn>
+    <h2 class="sandbox__heading">Gauge — no value readout</h2>
+    <wr-gauge [value]="72" suffix="%" [showValue]="false" ariaLabel="CPU" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Button Group — basic usage</h2>
-    <wr-btn-group>
-      <button wr-btn type="button">Left</button>
-      <button wr-btn type="button">Middle</button>
-      <button wr-btn type="button">Right</button>
-    </wr-btn-group>
+    <h2 class="sandbox__heading">Line Chart — multi-series</h2>
+    <wr-line-chart [series]="series" [xLabels]="labels" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Button Group — colored</h2>
-    <wr-btn-group>
-      <button wr-btn type="button" color="primary">Save</button>
-      <button wr-btn type="button" color="primary">Save &amp; Continue</button>
-    </wr-btn-group>
+    <h2 class="sandbox__heading">Meter Group — disk usage</h2>
+    <wr-meter-group [segments]="diskUsage" [max]="100" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Button Group — shape</h2>
-    <div class="sandbox__row">
-      <wr-btn-group shape="rounded">
-        <button wr-btn type="button">One</button>
-        <button wr-btn type="button">Two</button>
-        <button wr-btn type="button">Three</button>
-      </wr-btn-group>
-
-      <wr-btn-group shape="pill">
-        <button wr-btn type="button">One</button>
-        <button wr-btn type="button">Two</button>
-        <button wr-btn type="button">Three</button>
-      </wr-btn-group>
-
-      <!-- Group shape wins over child [shape] -->
-      <wr-btn-group shape="pill">
-        <button wr-btn type="button">Forced</button>
-        <button wr-btn type="button" shape="rounded">Pill anyway</button>
-      </wr-btn-group>
-    </div>
+    <h2 class="sandbox__heading">Sparkline — basic</h2>
+    <wr-sparkline [data]="[12, 14, 9, 17, 21, 18, 23]" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Speed Dial — basic usage and direction</h2>
-    <div class="sandbox__row" style="gap: 5rem; padding: 5rem 0">
-      @for (d of directions; track d) {
-        <wr-speed-dial [actions]="actions" [direction]="d" (pick)="onPick($event)" />
-      }
-    </div>
-    <p>Picked: {{ picked() }}</p>
+    <h2 class="sandbox__heading">Sparkline — filled area</h2>
+    <wr-sparkline [data]="data" [showArea]="true" color="var(--wr-color-success)" />
   </section>
 </main>
