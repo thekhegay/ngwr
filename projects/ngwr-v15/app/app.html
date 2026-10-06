@@ -1,5 +1,5 @@
 <header class="sandbox__bar">
-  <strong>ngwr v15 sandbox — toast stack</strong>
+  <strong>ngwr — proposed token scales</strong>
   <button wr-btn type="button" size="sm" outlined (click)="toggleTheme()">
     {{ theme.resolved() === 'dark' ? 'Dark' : 'Light' }}
   </button>
@@ -7,13 +7,69 @@
 
 <main class="sandbox">
   <section class="sandbox__block">
-    <h2>Burst</h2>
-    <div class="row">
-      <button wr-btn type="button" (click)="one()">One</button>
-      <button wr-btn type="button" color="primary" (click)="burst(2)">Two at once</button>
-      <button wr-btn type="button" color="primary" (click)="burst(3)">Three at once</button>
-      <button wr-btn type="button" color="danger" (click)="burst(8)">Eight at once</button>
-      <button wr-btn type="button" color="warning" (click)="stream()">Stream (overlapping)</button>
+    <h2>Padding / margin — five steps on a 4px grid</h2>
+    <p>The number on the right is how many of the catalog's 303 spacing literals already equal that step exactly.</p>
+    <div class="tok">
+      @for (s of space; track s.name) {
+        <div class="tok__row">
+          <span class="tok__name">--wr-space-{{ s.name }}</span>
+          <span class="tok__val">{{ s.value }}</span>
+          <span class="tok__pad" [style.padding]="s.value"><span>content</span></span>
+          <span class="tok__val">{{ s.uses }} uses</span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="sandbox__block">
+    <h2>Radius — outer, and the inner it implies</h2>
+    <p>Inner = outer − the padding between them, so a nested corner stays concentric instead of looking pinched.</p>
+    <div class="tok">
+      @for (r of radius; track r.name) {
+        <div class="tok__row">
+          <span class="tok__name">--wr-radius-{{ r.name }}</span>
+          <span class="tok__val">{{ r.value }}</span>
+          <span class="tok__card" [style.border-radius]="r.value"></span>
+          <span class="tok__nest" [style.border-radius]="r.value">
+            <div [style.border-radius]="`calc(${r.value} - var(--p-md))`"></div>
+          </span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="sandbox__block">
+    <h2>Shadow — five steps, each theme its own</h2>
+    <div class="tok">
+      @for (s of shadow; track s.name) {
+        <div class="tok__row">
+          <span class="tok__name">--wr-shadow-{{ s.name }}</span>
+          <span class="tok__val">{{ s.value }}</span>
+          <span class="tok__card" [style.box-shadow]="`var(--s-${s.name})`" style="border: 0"></span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="sandbox__block">
+    <h2>Border colours — contrast against the canvas, light / dark</h2>
+    <p>
+      The natural third step of the neutral scale reaches 2.56:1. A control border that meets WCAG 1.4.11 needs 3:1,
+      which is the fourth row — darker than the scale's own rhythm, which is the whole of the trade.
+    </p>
+    <div class="tok">
+      @for (b of borders; track b.name) {
+        <div class="tok__row">
+          <span class="tok__name">--wr-border-{{ b.name }}</span>
+          <span class="tok__swatch" [style.border]="`1px solid var(--b-${b.name})`"></span>
+          <span class="tok__val">{{ b.value }}</span>
+          <input
+            [style.border]="`1px solid var(--b-${b.name})`"
+            style="padding: 0.5rem 0.75rem; border-radius: 0.5rem; background: transparent; color: inherit"
+            placeholder="a control edge"
+          />
+        </div>
+      }
     </div>
   </section>
 </main>
