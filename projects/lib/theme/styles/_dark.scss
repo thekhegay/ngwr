@@ -174,17 +174,26 @@ $dark-intents: (
 // being re-typed next to it.
 
 #{dark-selector()} {
-  // The neutral ramp for the dark canvas. Set, not derived — see the note at the
-  // light declarations. Same values these roles composite to today.
-  --wr-color-gray-1: #0f1625;
-  --wr-color-gray-2: #131a2b;
-  --wr-color-gray-3: #1a2234;
-  --wr-color-gray-4: #262f44;
-  --wr-color-gray-5: #9aa6b8;
-  --wr-color-gray-6: #e6ebf3;
-  --wr-color-gray-4-rgb: 38, 47, 68;
-  --wr-color-gray-5-rgb: 154, 166, 184;
-  --wr-color-gray-6-rgb: 230, 235, 243;
+  // The same six positions, reading the fixed scale from the other end. This
+  // flip is the whole of what makes the role aliases theme-aware: they are
+  // declared once, against the positions, and never mention a theme.
+  //
+  // The old hand-picked values were already slate in character — a blue cast of
+  // 21-30 against the scale's own 21-36 — so this is a small move, not a change
+  // of temperature. Two positions shift a little and both shift the right way:
+  // `gray-4`, the hairline, goes from `#262f44` to `gray-700`, which lifts a
+  // control's edge from 1.41:1 to about 2:1 on the canvas; and `gray-6`, body
+  // text, goes from `#e6ebf3` to `gray-100`, a shade brighter.
+  --wr-color-gray-1: var(--wr-color-gray-950);
+  --wr-color-gray-2: var(--wr-color-gray-900);
+  --wr-color-gray-3: var(--wr-color-gray-800);
+  --wr-color-gray-4: var(--wr-color-gray-700);
+  --wr-color-gray-5: var(--wr-color-gray-400);
+  --wr-color-gray-6: var(--wr-color-gray-100);
+  // Channels, written out: gray-700, gray-400, gray-100.
+  --wr-color-gray-4-rgb: 51, 65, 85;
+  --wr-color-gray-5-rgb: 148, 163, 184;
+  --wr-color-gray-6-rgb: 241, 245, 249;
 
   // Canvas (was `--wr-color-white` in light mode)
   // Deeper than slate-900 so an elevated surface in slate-800 reads
