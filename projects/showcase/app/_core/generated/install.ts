@@ -615,7 +615,7 @@ export const INSTALL = {
       { path: "ngwr/media", symbols: ["WrMedia"], styled: false },
   ],
   "reference/services/meta": [
-      { path: "ngwr/meta", symbols: ["WrMeta"], styled: false },
+      { path: "ngwr/meta", symbols: ["WrMeta", "WrMetaBinding"], styled: false },
       { path: "ngwr/button", symbols: ["WrButton"], styled: true },
       { path: "ngwr/i18n", symbols: ["WrI18n"], styled: false },
   ],
