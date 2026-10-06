@@ -5,7 +5,6 @@ import { WrButton, WrButtonGroup } from 'ngwr/button';
 import {
   DocApiComponent,
   type DocApiRow,
-  DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
@@ -14,15 +13,7 @@ import {
 @Component({
   selector: 'ngwr-button-group-page',
   templateUrl: './button-group.html',
-  imports: [
-    WrButton,
-    WrButtonGroup,
-    DocPageComponent,
-    DocSectionComponent,
-    DocSnippetComponent,
-    DocCodeComponent,
-    DocApiComponent,
-  ],
+  imports: [WrButton, WrButtonGroup, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocApiComponent],
 })
 export default class ButtonGroupComponent {
   protected readonly snippets = {

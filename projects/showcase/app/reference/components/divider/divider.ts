@@ -3,19 +3,13 @@ import { Component } from '@angular/core';
 import { WrDivider } from 'ngwr/divider';
 import { WR_COLORS } from 'ngwr/theme';
 
-import {
-  DocApiComponent,
-  DocCodeComponent,
-  DocPageComponent,
-  DocSectionComponent,
-  DocSnippetComponent,
-} from '#core/components';
+import { DocApiComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
 import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-divider-page',
   templateUrl: './divider.html',
-  imports: [WrDivider, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [WrDivider, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocApiComponent],
 })
 export default class DividerComponent {
   protected readonly colors = WR_COLORS;

@@ -3,13 +3,7 @@ import { FormsModule } from '@angular/forms';
 
 import { WrRadio, WrRadioGroup } from 'ngwr/radio';
 
-import {
-  DocApiComponent,
-  DocCodeComponent,
-  DocPageComponent,
-  DocSectionComponent,
-  DocSnippetComponent,
-} from '#core/components';
+import { DocApiComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
 import { API } from '#core/generated/api';
 
 @Component({
@@ -22,7 +16,6 @@ import { API } from '#core/generated/api';
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
-    DocCodeComponent,
     DocApiComponent,
   ],
 })

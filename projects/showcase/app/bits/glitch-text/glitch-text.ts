@@ -4,7 +4,6 @@ import { WrGlitchText } from 'ngwr/bits/glitch-text';
 
 import {
   DocApiComponent,
-  DocCodeComponent,
   type DocControl,
   DocPageComponent,
   DocPlaygroundComponent,
@@ -21,7 +20,6 @@ import { API } from '#core/generated/api';
     DocPageComponent,
     DocSectionComponent,
     DocPlaygroundComponent,
-    DocCodeComponent,
     DocApiComponent,
     ReactbitsCredit,
   ],

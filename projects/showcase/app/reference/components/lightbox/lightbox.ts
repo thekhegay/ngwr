@@ -2,13 +2,7 @@ import { Component } from '@angular/core';
 
 import { WrLightbox } from 'ngwr/lightbox';
 
-import {
-  DocApiComponent,
-  DocCodeComponent,
-  DocPageComponent,
-  DocSectionComponent,
-  DocSnippetComponent,
-} from '#core/components';
+import { DocApiComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
 import { API } from '#core/generated/api';
 
 const LANDSCAPE = 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1600&q=80';
@@ -19,7 +13,7 @@ const PORTRAIT_THUMB = 'https://images.unsplash.com/photo-1500530855697-b586d89b
 @Component({
   selector: 'ngwr-lightbox-page',
   templateUrl: './lightbox.html',
-  imports: [WrLightbox, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [WrLightbox, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocApiComponent],
 })
 export default class LightboxPage {
   protected readonly landscape = LANDSCAPE;

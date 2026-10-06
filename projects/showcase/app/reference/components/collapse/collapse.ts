@@ -5,7 +5,6 @@ import { WrAccordion, WrCollapse, WrCollapseGroup } from 'ngwr/collapse';
 import {
   DocApiComponent,
   type DocApiRow,
-  DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
@@ -22,7 +21,6 @@ import { API } from '#core/generated/api';
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
-    DocCodeComponent,
     DocApiComponent,
   ],
 })

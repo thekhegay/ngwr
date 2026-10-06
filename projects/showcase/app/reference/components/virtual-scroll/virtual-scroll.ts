@@ -6,7 +6,6 @@ import {
   type DocApiRow,
   type DocControl,
   DocApiComponent,
-  DocCodeComponent,
   DocPageComponent,
   DocPlaygroundComponent,
   DocSectionComponent,
@@ -20,14 +19,7 @@ interface Row {
 @Component({
   selector: 'ngwr-virtual-scroll-page',
   templateUrl: './virtual-scroll.html',
-  imports: [
-    WrVirtualScroll,
-    DocPageComponent,
-    DocSectionComponent,
-    DocPlaygroundComponent,
-    DocCodeComponent,
-    DocApiComponent,
-  ],
+  imports: [WrVirtualScroll, DocPageComponent, DocSectionComponent, DocPlaygroundComponent, DocApiComponent],
 })
 export default class VirtualScrollPage {
   protected readonly count = signal(10_000);

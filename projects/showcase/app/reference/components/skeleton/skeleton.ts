@@ -3,19 +3,13 @@ import { Component } from '@angular/core';
 import { WrSkeleton } from 'ngwr/skeleton';
 import { WR_COLORS } from 'ngwr/theme';
 
-import {
-  DocApiComponent,
-  DocCodeComponent,
-  DocPageComponent,
-  DocSectionComponent,
-  DocSnippetComponent,
-} from '#core/components';
+import { DocApiComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
 import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-skeleton-page',
   templateUrl: './skeleton.html',
-  imports: [WrSkeleton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [WrSkeleton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocApiComponent],
 })
 export default class SkeletonComponent {
   protected readonly colors = WR_COLORS;

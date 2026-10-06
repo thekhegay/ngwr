@@ -6,7 +6,6 @@ import { parseHex, rgbToHsl } from 'ngwr/color-picker';
 import {
   DocApiComponent,
   type DocApiRow,
-  DocCodeComponent,
   type DocControl,
   DocPageComponent,
   DocPlaygroundComponent,
@@ -22,7 +21,6 @@ import {
     DocPageComponent,
     DocSectionComponent,
     DocPlaygroundComponent,
-    DocCodeComponent,
     DocApiComponent,
     ReactbitsCredit,
   ],

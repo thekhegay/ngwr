@@ -5,7 +5,6 @@ import { WrCircularText } from 'ngwr/bits/circular-text';
 import {
   DocApiComponent,
   type DocApiRow,
-  DocCodeComponent,
   type DocControl,
   DocPageComponent,
   DocPlaygroundComponent,
@@ -21,7 +20,6 @@ import {
     DocPageComponent,
     DocSectionComponent,
     DocPlaygroundComponent,
-    DocCodeComponent,
     DocApiComponent,
     ReactbitsCredit,
   ],

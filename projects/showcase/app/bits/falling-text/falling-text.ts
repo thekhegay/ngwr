@@ -5,7 +5,6 @@ import { WrFallingText } from 'ngwr/bits/falling-text';
 import {
   DocApiComponent,
   type DocApiRow,
-  DocCodeComponent,
   type DocControl,
   DocPageComponent,
   DocPlaygroundComponent,
@@ -21,7 +20,6 @@ import {
     DocPageComponent,
     DocSectionComponent,
     DocPlaygroundComponent,
-    DocCodeComponent,
     DocApiComponent,
     ReactbitsCredit,
   ],

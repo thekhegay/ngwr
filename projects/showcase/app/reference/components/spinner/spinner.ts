@@ -2,19 +2,13 @@ import { Component } from '@angular/core';
 
 import { WrSpinner } from 'ngwr/spinner';
 
-import {
-  DocApiComponent,
-  DocCodeComponent,
-  DocPageComponent,
-  DocSectionComponent,
-  DocSnippetComponent,
-} from '#core/components';
+import { DocApiComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
 import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-spinner-page',
   templateUrl: './spinner.html',
-  imports: [WrSpinner, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [WrSpinner, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocApiComponent],
 })
 export default class SpinnerComponent {
   protected readonly snippets = {

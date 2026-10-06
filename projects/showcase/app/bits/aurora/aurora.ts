@@ -5,7 +5,6 @@ import { WrAurora } from 'ngwr/bits/aurora';
 import {
   DocApiComponent,
   type DocApiRow,
-  DocCodeComponent,
   type DocControl,
   DocPageComponent,
   DocPlaygroundComponent,
@@ -16,15 +15,7 @@ import {
 @Component({
   selector: 'ngwr-aurora-page',
   templateUrl: './aurora.html',
-  imports: [
-    WrAurora,
-    DocPageComponent,
-    DocSectionComponent,
-    DocPlaygroundComponent,
-    DocCodeComponent,
-    DocApiComponent,
-    ReactbitsCredit,
-  ],
+  imports: [WrAurora, DocPageComponent, DocSectionComponent, DocPlaygroundComponent, DocApiComponent, ReactbitsCredit],
 })
 export default class AuroraPage {
   // Live demo state.
