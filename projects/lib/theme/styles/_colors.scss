@@ -464,26 +464,41 @@ $contrast-light: #ffffff !default;
   // and turns the backdrop into a white wash.
   --wr-color-backdrop-rgb: 0, 0, 0;
 
-  // The neutral ramp. Six steps from the faintest wash to body text, and the
-  // dark theme sets its own six rather than deriving them: a derived ramp has to
-  // be symmetric in what its ends are FOR, and this one is not — four of the six
-  // are tints crowded near the canvas while two are text. Values here are what
-  // the roles they replace paint today, composited on each theme's canvas, so
-  // nothing moves.
-  --wr-color-gray-1: #f7f9fb;
-  --wr-color-gray-2: #eff2f6;
-  --wr-color-gray-3: #e2e8ef;
-  --wr-color-gray-4: #cbd5e1;
-  --wr-color-gray-5: #5f6c7d;
-  --wr-color-gray-6: #0f172a;
+  // The neutral ramp the library PAINTS with. Six positions from the faintest
+  // wash to body text, and the dark theme sets its own six — that flip is what
+  // makes every role alias below theme-aware without being written twice.
+  //
+  // Each position now reads a step of the FIXED scale further down rather than
+  // carrying a hex of its own. The two ramps had drifted into two palettes: the
+  // fixed scale was already slate to the byte, the painted one was six
+  // hand-picked neighbours of it, and `gray-4` / `gray-6` happened to land on
+  // `gray-300` / `gray-900` exactly while the other four sat a byte or two off.
+  // One set of values, one indirection carrying the theme.
+  //
+  // The one position that MOVED rather than being renamed is `gray-5`, the
+  // muted-text step: it was `#5f6c7d`, between `gray-500` and `gray-600`, and
+  // tuned to clear AA by a hair — 4.63:1 on `#ebeff4`, the lightest surface the
+  // library paints. `gray-500` would read 4.12:1 there and FAIL, so this takes
+  // `gray-600` and reads 6.56:1. Muted prose gets darker; it also stops sitting
+  // one repaint away from failing.
+  --wr-color-gray-1: var(--wr-color-gray-50);
+  --wr-color-gray-2: var(--wr-color-gray-100);
+  --wr-color-gray-3: var(--wr-color-gray-200);
+  --wr-color-gray-4: var(--wr-color-gray-300);
+  --wr-color-gray-5: var(--wr-color-gray-600);
+  --wr-color-gray-6: var(--wr-color-gray-900);
 
   // Channel form, for the three steps a translucent rule reads through a role.
   // Only three, because a `-rgb` nothing composites over is a token with no
   // consumer. `theme/styles.spec.ts` holds each one to the channels of its own
   // step, in every theme and both contrast modes — they are written out rather
   // than derived in a loop so `check:tokens` can still match them by name.
+  // Channels for the three positions a translucent rule reads through a role.
+  // Literal rather than `var()`-composed, because a channel list cannot be
+  // derived from a colour in CSS — these are the same slate steps as above,
+  // written out: gray-300, gray-600, gray-900.
   --wr-color-gray-4-rgb: 203, 213, 225;
-  --wr-color-gray-5-rgb: 95, 108, 125;
+  --wr-color-gray-5-rgb: 71, 85, 105;
   --wr-color-gray-6-rgb: 15, 23, 42;
 
   // Neutral gray ramp — a FIXED primitive scale (slate). Each step is a stable
@@ -491,11 +506,16 @@ $contrast-light: #ffffff !default;
   // semantic neutrals, does NOT flip in dark mode. For theme-aware surface /
   // text jobs reach for the role aliases in `derived()` above instead.
   //
-  // unused-ok: and deliberately so — the sentence above IS the reason. A fixed
-  // ramp cannot serve a component that has to work in both themes, so the
-  // library paints with the flipping roles and ships this for consumers who want
-  // a stable step. Reaching for one of these inside a component would be the bug
-  // it exists to prevent.
+  // The painted ramp above reads six of these, one set per theme, so this scale
+  // is no longer only for consumers — it is the single source of the neutral
+  // values. A COMPONENT still must not reach for a step directly: a fixed step
+  // cannot serve markup that has to work in both themes, which is what the
+  // flipping positions and the role aliases are for.
+  //
+  // unused-ok: for the five steps no position or role picks — 700 and 800 are
+  // the dark theme's fill tints, 500 and 950 are read by `text-faint` and the
+  // dark canvas, and the set ships whole because a ramp with holes in it is
+  // worse than one whose ends are for consumers.
   --wr-color-gray-50: #f8fafc;
   --wr-color-gray-100: #f1f5f9;
   --wr-color-gray-200: #e2e8f0;
