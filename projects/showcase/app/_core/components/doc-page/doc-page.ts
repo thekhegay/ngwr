@@ -182,38 +182,27 @@ export class DocPageComponent {
 
     const withSymbols = entries.filter(e => e.symbols.length > 0);
     const imports = withSymbols.map(e => `import { ${e.symbols.join(', ')} } from '${e.path}';`).join('\n');
-    // Only a `@Component`, `@Directive` or `@Pipe` may go in `imports: []`.
-    // This used to be every symbol the page imported, which put provider
-    // functions, services, tokens and plain helpers in there and left 58 of
-    // the recipes opening with a line that does not compile —
-    // `@Component({ imports: [WrButton, provideWrIcons, lucideIcons, WR_COLORS] })`
-    // on the button page alone. The rest are still IMPORTED, because the page
-    // genuinely uses them; they are just used somewhere else, and the note
-    // below says so rather than leaving a reader to find out from tsc.
+    // Only a `@Component`, `@Directive` or `@Pipe` may go in `imports: []`, so
+    // a provider function or a service is imported and used elsewhere. There
+    // is no footnote saying which is which any more: the recipe now carries the
+    // page's OWN entry point alone, so everything in it belongs to the thing
+    // the page documents, and a reader is not asked to sort a demo's
+    // scaffolding out of their own installation.
     const declared = withSymbols.flatMap(e => e.declarables);
-    const rest = withSymbols.flatMap(e => e.symbols).filter(s => !declared.includes(s));
-    const note =
-      rest.length > 0
-        ? `\n\n// ${rest.join(', ')} — not declarables. A provide* function goes in` +
-          `\n// bootstrap or a component's \`providers\`, a service is injected, and a` +
-          `\n// token, constant or helper is used where you need it.`
-        : '';
 
     const ts =
       declared.length > 0
-        ? `${imports}\n\n@Component({ imports: [${declared.join(', ')}] })\nexport class MyComponent {}${note}`
-        : `${imports}${note}`;
+        ? `import { Component } from '@angular/core';\n${imports}\n\n` +
+          `@Component({ imports: [${declared.join(', ')}] })\nexport class MyComponent {}`
+        : imports;
 
-    // `ngwr/theme` leads and is not optional: every component entry loads the
-    // token layer too and Sass emits it once, but only a module's FIRST load
-    // can take `with (...)`, so it has to be the first ngwr line in the file.
+    // One line, and no `@use 'ngwr/theme'` above it: every component entry
+    // loads the token layer itself, measured — `@use 'ngwr/button'` alone emits
+    // the whole `:root` block, the dark block and the box-sizing reset. The
+    // theme line is needed only to CONFIGURE the layer, which is a different
+    // recipe and lives on the theming guide.
     const styled = entries.filter(e => e.styled);
-    const scss =
-      styled.length > 0
-        ? [`// styles.scss — the token layer first, then one line per component.`, `@use 'ngwr/theme';`]
-            .concat(styled.map(e => `@use '${e.path}';`))
-            .join('\n')
-        : '';
+    const scss = styled.map(e => `@use '${e.path}';`).join('\n');
 
     const files: DocCodeFile[] = [];
     if (ts) files.push({ label: 'TS', language: 'typescript', code: ts });

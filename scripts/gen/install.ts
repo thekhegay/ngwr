@@ -230,17 +230,29 @@ async function main(): Promise<void> {
       for (const s of e.symbols) set.add(s);
       merged.set(e.path, set);
     }
-    // The page's OWN entry point leads. A docs page imports whatever its demos
-    // render — the select page pulls `ngwr/avatar` for an option template — and
-    // a recipe that opens with somebody else's entry point reads as though you
-    // need it to use the thing the page is about.
+    // The recipe is the page's OWN entry point and nothing else.
+    //
+    // A docs page imports whatever its DEMOS render, which is a different set:
+    // the button page pulls `provideWrIcons`, `lucideIcons`, `WR_COLORS` and
+    // `WrTypography` to draw its own examples, and listing them turned
+    // "install a button" into five imports and a three-line footnote about
+    // which of them are not declarables. Leading with the own entry point was
+    // not enough — the rest were still printed, and a reader cannot tell a
+    // requirement from a demo's scaffolding.
+    //
+    // Where the folder name is not the entry point — `qr/` serving
+    // `/qrcode`, the pipes, utils and validator pages named after a function —
+    // nothing matches and the full list is kept, which is what those pages
+    // had before and still need.
     const own = `ngwr/${route.split('/').pop() ?? ''}`;
-    const rows = [...merged]
-      .map(([path, names]) => {
+    const all = [...merged].map(([path, names]) => {
       const symbols = [...names].sort();
       return { path, symbols, declarables: symbols.filter(n => declarable.has(n)), styled: styled.has(path) };
-    })
-      .sort((a, b) => (a.path === own ? -1 : b.path === own ? 1 : a.path.localeCompare(b.path)));
+    });
+    const mine = all.filter(e => e.path === own);
+    const rows = (mine.length > 0 ? mine : all).sort((a, b) =>
+      a.path === own ? -1 : b.path === own ? 1 : a.path.localeCompare(b.path)
+    );
 
     if (rows.length > 0) map.set(route, rows);
   }
