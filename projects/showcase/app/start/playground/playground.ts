@@ -209,9 +209,15 @@ bootstrapApplication(Demo, {
 }).catch(error => console.error(error));`,
 
     styles: `// src/styles.scss — the token layer, then only what the demo renders.
+// One line per entry point, and the sandbox writes the ones a component
+// depends on for its styles too: \`ngwr/select\` needs \`ngwr/icon\` for its
+// chevron, which no import in the TypeScript above names.
 @use 'ngwr/theme';
 @use 'ngwr/button';
-@use 'ngwr/input';`,
+@use 'ngwr/checkbox';
+@use 'ngwr/form';
+@use 'ngwr/input';
+@use 'ngwr/select';`,
   };
 
   /**
