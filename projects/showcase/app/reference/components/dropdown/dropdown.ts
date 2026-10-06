@@ -46,33 +46,33 @@ export default class DropdownComponent {
     basic: `<!-- An item EMITS a click and does not close the menu — a toggle row or a
      filter wants to stay open. Reach the trigger through its exportAs and
      close it yourself where that is what you want. -->
-<button wr-btn [wrDropdown]="menu" #d="wrDropdown">Actions</button>
+<button wr-btn type="button" [wrDropdown]="menu" #d="wrDropdown">Actions</button>
 
 <wr-dropdown-menu #menu>
   <wr-dropdown-item icon="copy-outline" (click)="copy(); d.close()">Copy</wr-dropdown-item>
   <wr-dropdown-item icon="download" (click)="download(); d.close()">Download</wr-dropdown-item>
   <wr-dropdown-item icon="trash" (click)="remove(); d.close()">Delete</wr-dropdown-item>
 </wr-dropdown-menu>`,
-    positions: `<button wr-btn [wrDropdown]="menu" position="top-start">Top start</button>`,
+    positions: `<button wr-btn type="button" [wrDropdown]="menu" position="top-start">Top start</button>`,
     arrow: `<!-- On by default -->
-<button wr-btn [wrDropdown]="menu">With arrow</button>
+<button wr-btn type="button" [wrDropdown]="menu">With arrow</button>
 
-<button wr-btn [wrDropdown]="menu" [arrow]="false">Without arrow</button>`,
-    hover: `<button wr-btn [wrDropdown]="menu" trigger="hover">Hover me</button>`,
+<button wr-btn type="button" [wrDropdown]="menu" [arrow]="false">Without arrow</button>`,
+    hover: `<button wr-btn type="button" [wrDropdown]="menu" trigger="hover">Hover me</button>`,
     disabled: `<wr-dropdown-item icon="cog" disabled>Disabled item</wr-dropdown-item>`,
     triggerId: `<!-- Your id stays on the element; the menu points at it. -->
-<button wr-btn id="row-actions" [wrDropdown]="menu">Actions</button>
+<button wr-btn type="button" id="row-actions" [wrDropdown]="menu">Actions</button>
 <!-- => <button id="row-actions" aria-haspopup="menu" …>
      <div role="menu" aria-labelledby="row-actions"> -->
 
 <!-- Bound and interpolated forms are honoured too. -->
-<button wr-btn [id]="'actions-' + row.id" [wrDropdown]="menu">Actions</button>
+<button wr-btn type="button" [id]="'actions-' + row.id" [wrDropdown]="menu">Actions</button>
 
 <!-- No id of your own: the fallback is generated, and is not a stable
      locator — it counts dropdown instances, so it differs between the
      prerendered page and the hydrated one.
      => <button id="wr-dropdown-trigger-3" …> -->
-<button wr-btn [wrDropdown]="menu">Actions</button>`,
+<button wr-btn type="button" [wrDropdown]="menu">Actions</button>`,
     scrollable: `import { CdkScrollable } from '@angular/cdk/scrolling';
 
 @Component({
@@ -83,7 +83,7 @@ export default class DropdownComponent {
          trigger. The window itself is always tracked; a nested scroller is not
          until it registers. -->
     <div class="side-panel" cdkScrollable>
-      <button wr-btn [wrDropdown]="menu">Actions</button>
+      <button wr-btn type="button" [wrDropdown]="menu">Actions</button>
     </div>
   \`,
 })

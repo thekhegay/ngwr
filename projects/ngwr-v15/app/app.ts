@@ -1,9 +1,8 @@
 import { Component, ViewEncapsulation, inject, signal } from '@angular/core';
 
-import { WrAvatar } from 'ngwr/avatar';
-import { WrButton } from 'ngwr/button';
+import { WrButton, WrButtonGroup } from 'ngwr/button';
 import { WrIcon } from 'ngwr/icon';
-import { WrOption, WrOptionGroup, WrOptionLeading, WrSelect } from 'ngwr/select';
+import { type WrSpeedDialAction, type WrSpeedDialDirection, WrSpeedDial } from 'ngwr/speed-dial';
 import { WrTheme } from 'ngwr/theme';
 
 /**
@@ -18,7 +17,7 @@ import { WrTheme } from 'ngwr/theme';
   templateUrl: './app.html',
   styleUrl: './app.scss',
   encapsulation: ViewEncapsulation.None,
-  imports: [WrAvatar, WrButton, WrIcon, WrOption, WrOptionGroup, WrOptionLeading, WrSelect],
+  imports: [WrButton, WrButtonGroup, WrIcon, WrSpeedDial],
 })
 export class AppComponent {
   protected readonly theme = inject(WrTheme);
@@ -27,41 +26,19 @@ export class AppComponent {
     this.theme.set(this.theme.resolved() === 'dark' ? 'light' : 'dark');
   }
 
-  // Basic usage
-  protected readonly size = signal<string | null>(null);
+  // --- Button -------------------------------------------------------------
+  protected readonly loading = signal(false);
 
-  // Groups
-  protected readonly framework = signal<string | null>(null);
-
-  // Multi mode
-  protected readonly tags = signal<readonly string[]>([]);
-
-  // Chip overflow + max items — four already chosen, maxItems is 4.
-  protected readonly manyTags = signal<readonly string[]>(['typescript', 'angular', 'rxjs', 'signals']);
-
-  // Search mode
-  protected readonly country = signal<string | null>(null);
-  protected readonly countries = ['Kazakhstan', 'Georgia', 'Germany', 'Portugal', 'Serbia', 'Turkey'];
-
-  // Searchable multi-select
-  protected readonly categories = signal<readonly string[]>([]);
-  protected readonly allCategories = ['Design', 'Engineering', 'Marketing', 'Operations', 'Research'];
-
-  // Leading visuals
-  protected readonly owner = signal<string | null>(null);
-  protected readonly people = [
-    { id: 'ada', name: 'Ada Lovelace' },
-    { id: 'alan', name: 'Alan Turing' },
-    { id: 'grace', name: 'Grace Hopper' },
+  // --- Speed Dial ---------------------------------------------------------
+  protected readonly actions: readonly WrSpeedDialAction[] = [
+    { id: 'copy', label: 'Copy', icon: 'copy' },
+    { id: 'download', label: 'Download', icon: 'download' },
+    { id: 'trash', label: 'Delete', icon: 'trash' },
   ];
+  protected readonly directions: readonly WrSpeedDialDirection[] = ['up', 'down', 'left', 'right'];
+  protected readonly picked = signal<string>('—');
 
-  protected readonly peopleIds = this.people.map(p => p.id);
-
-  // FORCED to `unknown`. `WrSelect` is not generic: `displayWith` is typed
-  // `(item: unknown) => string` and the `wrOptionLeading` value is `unknown`,
-  // so a helper typed `(id: string)` does not compile — TS2322 on the binding,
-  // TS2345 at every call in the template. The library's own avatar docs page
-  // carries the same three helpers widened the same way, with nothing saying why.
-  protected readonly personName = (id: unknown): string => this.people.find(p => p.id === id)?.name ?? String(id);
-  protected readonly personInitials = (id: unknown): string => this.personName(id).slice(0, 1);
+  protected onPick(action: WrSpeedDialAction): void {
+    this.picked.set(action.label);
+  }
 }

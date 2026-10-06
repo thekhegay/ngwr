@@ -268,7 +268,7 @@ constructor() {
 }`,
 
     hint: `<!-- Render the chord next to the action it triggers. -->
-<button wr-btn>
+<button wr-btn type="button">
   Search
   <wr-kbd>⌘</wr-kbd>
   <wr-kbd>K</wr-kbd>

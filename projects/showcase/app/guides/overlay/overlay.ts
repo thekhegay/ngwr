@@ -18,8 +18,8 @@ export default class OverlayPageComponent {
 <p>This cannot be undone.</p>
 
 <footer>
-  <button wr-btn cdkFocusInitial [wrDialogClose]="false">Cancel</button>
-  <button wr-btn color="danger" [wrDialogClose]="true">Delete</button>
+  <button wr-btn type="button" cdkFocusInitial [wrDialogClose]="false">Cancel</button>
+  <button wr-btn type="button" color="danger" [wrDialogClose]="true">Delete</button>
 </footer>`,
 
     setup: `import { bootstrapApplication } from '@angular/platform-browser';

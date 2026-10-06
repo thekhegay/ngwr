@@ -4,7 +4,7 @@ import {
   provideZonelessChangeDetection,
 } from '@angular/core';
 
-import { Check, ChevronDown, Moon, Sun, TriangleAlert, X } from 'lucide';
+import { Check, ChevronDown, Copy, Download, Moon, Plus, Sun, Trash2, TriangleAlert, X } from 'lucide';
 import { provideWrDateAdapter } from 'ngwr/date';
 import { provideWrDensity } from 'ngwr/density';
 import { provideWrIcons } from 'ngwr/icon';
@@ -38,7 +38,11 @@ export const appConfig: ApplicationConfig = {
     // Add icons here as demos need them — ngwr ships none.
     provideWrIcons(
       lucideIcons({
+        add: Plus,
         check: Check,
+        copy: Copy,
+        download: Download,
+        trash: Trash2,
         'chevron-down': ChevronDown,
         moon: Moon,
         sun: Sun,

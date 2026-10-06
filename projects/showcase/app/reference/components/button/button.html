@@ -53,7 +53,7 @@
 
   <ngwr-doc-section
     title="Shape"
-    description="`rounded` (default), `pill` or `squircle`. Where the browser has no `corner-shape`, a squircle falls back to a plain rounded corner."
+    description="All three set one radius, and two of them are the SAME corner. Every control in the library draws its corners with the shared `smooth-br` mixin, which opts into `corner-shape: squircle` wherever the browser has it — so `rounded` is already a squircle and the `squircle` value only picks a larger anchor radius (6px against 10px, which the property then scales). `pill` is the one that differs in kind: it opts back to `corner-shape: round`, because squircle maths does not degenerate into a pill at a huge radius, it draws something else. Where `corner-shape` is unsupported all three fall back to plain rounded corners — not just the squircle."
   >
     <ngwr-doc-snippet [code]="snippets.shape">
       <div class="ngwr-shape-grid">
