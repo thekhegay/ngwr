@@ -60,6 +60,9 @@ export class AppComponent {
     { now: 'lg', nowVal: '1rem', next: 'xl', nextVal: '1rem' },
   ];
 
+  /** Outer radii worth showing a nested corner at; padding between them is md (12px). */
+  protected readonly nested: readonly string[] = ['0.5rem', '0.75rem', '1rem', '1.5rem'];
+
   /** Named layers. The numbers today were chosen against each other. */
   protected readonly layers: readonly Step[] = [
     { name: 'base', value: '0' },

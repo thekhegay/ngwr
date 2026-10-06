@@ -22,7 +22,32 @@
   </section>
 
   <section class="sandbox__block">
-    <h2>Radius — outer, and the inner it implies</h2>
+    <h2>Radius — a corner inside a corner</h2>
+    <p>
+      Left of each pair: the same radius on both, which is what you get by reaching for one token twice. Right:
+      <code>inner = outer − padding</code>. The gap between the two curves is constant on the right and pinches shut at
+      the corner on the left, which is the whole of it. Padding between them is 12px in every case.
+    </p>
+    <div class="nest">
+      @for (r of nested; track r) {
+        <div class="nest__case nest__case--bad">
+          <div class="nest__outer" [style.border-radius]="r">
+            <div class="nest__inner" [style.border-radius]="r"></div>
+          </div>
+          <span>same {{ r }}</span>
+        </div>
+        <div class="nest__case">
+          <div class="nest__outer" [style.border-radius]="r">
+            <div class="nest__inner" [style.border-radius]="`max(0px, calc(${r} - var(--p-md)))`"></div>
+          </div>
+          <span>outer {{ r }} − 12px</span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="sandbox__block">
+    <h2>Radius — the scale, and the inner each step implies</h2>
     <p>Inner = outer − the padding between them, so a nested corner stays concentric instead of looking pinched.</p>
     <div class="tok">
       @for (r of radius; track r.name) {
