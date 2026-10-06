@@ -125,6 +125,7 @@ export default class AvatarComponent {
   searchable
   virtualScroll
   placeholder="Nobody"
+  ariaLabel="Assignees"
   [options]="peopleIds"
   [displayWith]="personName"
   [(value)]="assignees"

@@ -18,7 +18,8 @@ export default class QrComponent {
   protected readonly snippets = {
     basic: `<wr-qr value="https://ngwr.dev" />`,
     sized: `<wr-qr value="ngwr" [size]="240" level="H" color="#3969e2" />`,
-    interactive: `<wr-qr [value]="text()" [size]="200" />`,
+    interactive: `<wr-qr [value]="text()" [size]="180" />
+<input wrInput [(ngModel)]="text" placeholder="Type to encode" />`,
     icon: `<wr-qr value="https://ngwr.dev" [size]="180" level="H" iconUrl="/icon.svg" [iconSize]="40" />`,
   };
 
