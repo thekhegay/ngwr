@@ -81,9 +81,9 @@
 .wr-context-menu-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--wr-space-sm);
   width: 100%;
-  padding: 0.4375rem 0.625rem;
+  padding: var(--wr-space-sm) var(--wr-space-md);
   @include theme.smooth-br(var(--wr-border-radius-sm));
   color: var(--wr-color-on-surface);
   font-size: var(--wr-text-sm);
@@ -136,7 +136,7 @@
     width: 0.8125rem;
     height: 0.8125rem;
     color: var(--wr-color-on-surface-muted);
-    margin-inline-start: 0.25rem;
+    margin-inline-start: var(--wr-space-xs);
   }
 
   &--has-submenu:hover &__chevron,

@@ -17,7 +17,7 @@
 .wr-speed-dial {
   --wr-speed-dial-size: 3.25rem;
   --wr-speed-dial-action-size: 2.5rem;
-  --wr-speed-dial-gap: 0.625rem;
+  --wr-speed-dial-gap: var(--wr-space-md);
 
   position: relative;
   display: inline-block;

@@ -152,7 +152,7 @@
     appearance: none;
     background: transparent;
     border: 0;
-    padding: 0.25rem;
+    padding: var(--wr-space-xs);
     color: var(--wr-color-on-surface-muted);
     cursor: pointer;
     border-radius: var(--wr-border-radius-sm);
@@ -201,7 +201,7 @@
   &__footer {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--wr-space-sm);
     padding: calc(var(--wr-dialog-padding-y) * 0.75) var(--wr-dialog-padding-x);
     border-top: 1px solid var(--wr-color-outline);
 

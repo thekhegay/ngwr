@@ -166,7 +166,7 @@
 .wr-drawer {
   &__title {
     margin: 0;
-    padding: 1rem 1.25rem;
+    padding: var(--wr-space-lg) var(--wr-space-xl);
     color: var(--wr-color-on-surface);
     font-size: var(--wr-text-lg);
     font-weight: 600;
@@ -197,7 +197,7 @@
     appearance: none;
     background: transparent;
     border: 0;
-    padding: 0.25rem;
+    padding: var(--wr-space-xs);
     color: var(--wr-color-on-surface-muted);
     cursor: pointer;
     border-radius: var(--wr-border-radius-sm);
@@ -231,7 +231,7 @@
 
   &__content {
     flex: 1 1 auto;
-    padding: 1rem 1.25rem;
+    padding: var(--wr-space-lg) var(--wr-space-xl);
     overflow: auto;
     font-size: var(--wr-text-base);
     line-height: 1.5rem;
@@ -240,8 +240,8 @@
   &__footer {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.25rem;
+    gap: var(--wr-space-sm);
+    padding: var(--wr-space-md) var(--wr-space-xl);
     border-top: 1px solid var(--wr-color-outline);
 
     &--start {

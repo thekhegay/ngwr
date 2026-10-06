@@ -184,12 +184,12 @@
   }
 
   &__affix--prefix + .wr-input {
-    padding-inline-start: 0.25rem;
+    padding-inline-start: var(--wr-space-xs);
   }
 
   .wr-input:has(+ &__affix--suffix),
   .wr-input:has(+ wr-password-toggle) {
-    padding-inline-end: 0.25rem;
+    padding-inline-end: var(--wr-space-xs);
   }
 
   // The toggle's flex item is its HOST, not the `<button>`. The group stretches

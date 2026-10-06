@@ -104,12 +104,12 @@
     > li + li,
     > li > ul,
     > li > ol {
-      margin-top: 0.25rem;
+      margin-top: var(--wr-space-xs);
     }
 
     > li > ul,
     > li > ol {
-      padding-inline-start: 1.25rem;
+      padding-inline-start: var(--wr-space-xl);
     }
   }
 
@@ -132,7 +132,7 @@
     }
 
     dl#{&}--list dt {
-      margin-bottom: 0.25rem;
+      margin-bottom: var(--wr-space-xs);
       color: var(--wr-color-on-surface-muted);
     }
 
@@ -143,8 +143,8 @@
     }
 
     dl#{&}--list dd + dt {
-      margin-top: 0.75rem;
-      padding-top: 0.75rem;
+      margin-top: var(--wr-space-md);
+      padding-top: var(--wr-space-md);
       border-top: 1px solid var(--wr-color-outline);
     }
   }

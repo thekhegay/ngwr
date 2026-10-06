@@ -19,7 +19,7 @@ $header-padding-block: 0.25rem;
   flex: 1 1 100%;
   width: 100%;
   min-width: 0;
-  gap: 1rem;
+  gap: var(--wr-space-lg);
   font-family: var(--wr-font-family-base);
 
   // Opt-in (`responsive`): query the box's own width so a horizontal stepper
@@ -55,7 +55,7 @@ $header-padding-block: 0.25rem;
     display: flex;
     align-items: flex-start;
     flex: 1 1 auto;
-    gap: 0.75rem;
+    gap: var(--wr-space-md);
     min-width: 0;
 
     &--disabled {
@@ -91,7 +91,7 @@ $header-padding-block: 0.25rem;
     padding: $header-padding-block 0;
     display: inline-flex;
     align-items: flex-start;
-    gap: 0.625rem;
+    gap: var(--wr-space-md);
     color: var(--wr-color-on-surface);
     cursor: pointer;
     text-align: start;
@@ -235,7 +235,7 @@ $header-padding-block: 0.25rem;
     // Same y the centred version produced for a row of equal-height steps — and
     // unlike it, the same y when one step grows a hint line.
     margin-block-start: calc(#{$header-padding-block} + var(--wr-stepper-indicator-size) / 2 - 0.75px);
-    margin-inline: 0.5rem;
+    margin-inline: var(--wr-space-sm);
   }
 
   &--vertical &__connector {
@@ -252,7 +252,7 @@ $header-padding-block: 0.25rem;
     // physical `margin-left` is therefore the TRAILING side under `dir="rtl"`,
     // and the line paints flush against the row's right edge, half an indicator
     // (14px) clear of every circle it is supposed to join.
-    margin-block: 0.25rem;
+    margin-block: var(--wr-space-xs);
     margin-inline: calc(var(--wr-stepper-indicator-size) / 2) 0;
     align-self: stretch;
     flex: 0 0 auto;
@@ -292,7 +292,7 @@ $header-padding-block: 0.25rem;
     min-height: 1.25rem;
     height: auto;
     // Logical for the same reason as the `--vertical` rule above.
-    margin-block: 0.25rem;
+    margin-block: var(--wr-space-xs);
     margin-inline: calc(var(--wr-stepper-indicator-size) / 2) 0;
     align-self: stretch;
     flex: 0 0 auto;
