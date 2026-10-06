@@ -11,24 +11,13 @@
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
       <textarea
+        wrInput
         wrMention
         aria-label="Message with @mentions"
         [wrMentionItems]="users"
         [displayWith]="userDisplay"
         [(ngModel)]="basicText"
         rows="3"
-        style="
-          width: 100%;
-          padding: 0.5rem 0.75rem;
-          background: var(--wr-color-white);
-          color: var(--wr-color-on-surface);
-          border: 1px solid var(--wr-color-outline);
-          border-radius: 0.375rem;
-          font-family: inherit;
-          font-size: 0.875rem;
-          line-height: 1.4;
-          resize: vertical;
-        "
       ></textarea>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -40,24 +29,13 @@
     <ngwr-doc-code [code]="snippets.multi" language="angular-html" />
     <ngwr-doc-snippet code="">
       <textarea
+        wrInput
         wrMention
         aria-label="Message with # tags"
         [wrMentionItems]="tags"
         [triggers]="['#']"
         [(ngModel)]="multiText"
         rows="3"
-        style="
-          width: 100%;
-          padding: 0.5rem 0.75rem;
-          background: var(--wr-color-white);
-          color: var(--wr-color-on-surface);
-          border: 1px solid var(--wr-color-outline);
-          border-radius: 0.375rem;
-          font-family: inherit;
-          font-size: 0.875rem;
-          line-height: 1.4;
-          resize: vertical;
-        "
       ></textarea>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { WrInput } from 'ngwr/input';
 import { WrMention, type WrMentionItem } from 'ngwr/mention';
 
 import {
@@ -22,6 +23,7 @@ type User = WrMentionItem & {
   selector: 'ngwr-mention-page',
   templateUrl: './mention.html',
   imports: [
+    WrInput,
     FormsModule,
     WrMention,
     DocPageComponent,
@@ -55,6 +57,7 @@ export default class MentionPageComponent {
 
   protected readonly snippets = {
     basic: `<textarea
+  wrInput
   wrMention
   [wrMentionItems]="users"
   [(ngModel)]="text"
@@ -63,6 +66,7 @@ export default class MentionPageComponent {
 <!-- Type @ to open the picker. Arrows + Enter / Tab to commit, Esc to cancel. -->`,
 
     multi: `<textarea
+  wrInput
   wrMention
   [wrMentionItems]="tags"
   [triggers]="['#']"
@@ -70,6 +74,7 @@ export default class MentionPageComponent {
 ></textarea>`,
     a11y: `<!-- What the directive renders. You write none of this. -->
 <textarea
+  wrInput
   wrMention
   aria-autocomplete="list"      <!-- static: a permanent capability of the field, -->
   aria-haspopup="listbox"       <!-- announced on focus before you type a trigger -->

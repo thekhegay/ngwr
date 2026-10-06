@@ -405,6 +405,7 @@ export const INSTALL = {
   ],
   "reference/components/mention": [
       { path: "ngwr/mention", symbols: ["WrMention"], declarables: ["WrMention"], styled: true },
+      { path: "ngwr/input", symbols: ["WrInput"], declarables: ["WrInput"], styled: true },
   ],
   "reference/components/meter-group": [
       { path: "ngwr/charts/meter-group", symbols: ["WrMeterGroup"], declarables: ["WrMeterGroup"], styled: true },
