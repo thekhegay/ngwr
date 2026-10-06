@@ -3,7 +3,7 @@
 .wr-tag {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--wr-space-xs);
   vertical-align: middle;
 
   appearance: none;
@@ -17,8 +17,12 @@
   --wr-tag-bg: var(--wr-color-fill);
   --wr-tag-border: var(--wr-color-outline);
   --wr-tag-radius: var(--wr-border-radius-sm);
+  // NOT on the spacing scale: this is solved against the 22px box the comment
+  // below names, which is the shared `sm` control height — a tag sits beside an
+  // `sm` input. The scale's nearest step is 4px, which makes the tag 25px, stops
+  // `--wr-tag-min-height` binding, and breaks that alignment.
   --wr-tag-padding-y: 0.125rem;
-  --wr-tag-padding-x: 0.5rem;
+  --wr-tag-padding-x: var(--wr-space-sm);
   --wr-tag-font-size: var(--wr-text-xs);
   --wr-tag-font-weight: 500;
   // `normal`, not a fixed `1rem`: a 16px line box against the font's own 15px
@@ -46,7 +50,7 @@
   // Shape
   &--rounded {
     --wr-tag-radius: var(--wr-border-radius-pill);
-    --wr-tag-padding-x: 0.625rem;
+    --wr-tag-padding-x: var(--wr-space-md);
   }
 
   // Icon slot sizing

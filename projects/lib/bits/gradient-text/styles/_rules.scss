@@ -17,7 +17,7 @@
   overflow: hidden;
 
   &--border {
-    padding: 0.35rem 0.75rem;
+    padding: var(--wr-space-xs) var(--wr-space-md);
     border-radius: 1.25rem;
   }
 

@@ -24,7 +24,7 @@
 @use '../../textarea/styles' as textarea-styles; // WrTextarea
 
 .wr-schema-form {
-  --wr-schema-form-gap: 1rem;
+  --wr-schema-form-gap: var(--wr-space-lg);
 
   display: grid;
   gap: var(--wr-schema-form-gap);

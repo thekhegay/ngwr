@@ -17,7 +17,7 @@
 .wr-statistic {
   display: inline-flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--wr-space-xs);
   font-family: var(--wr-font-family-base);
   color: var(--wr-color-on-surface);
 
@@ -30,7 +30,7 @@
   &__value {
     display: inline-flex;
     align-items: baseline;
-    gap: 0.25rem;
+    gap: var(--wr-space-xs);
     font-size: var(--wr-text-3xl);
     font-weight: var(--wr-font-weight-semibold);
     line-height: var(--wr-leading-tight);
@@ -48,7 +48,7 @@
   &__delta {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: var(--wr-space-xs);
     font-size: var(--wr-text-xs);
     font-weight: var(--wr-font-weight-semibold);
     font-variant-numeric: tabular-nums;
@@ -77,7 +77,7 @@
 // descendant). The column count follows the GROUP's own inline size — not the
 // viewport — so it reflows correctly inside any column, card, or split pane.
 .wr-statistic-group {
-  --wr-statistic-group-gap: 1.5rem;
+  --wr-statistic-group-gap: var(--wr-space-xl);
 
   container: wr-statistic-group / inline-size;
   display: block;
@@ -114,6 +114,6 @@
 // viewport.
 @container wr-statistic-group (max-width: 28rem) {
   .wr-statistic-group__grid {
-    --wr-statistic-group-gap: 1rem;
+    --wr-statistic-group-gap: var(--wr-space-lg);
   }
 }
