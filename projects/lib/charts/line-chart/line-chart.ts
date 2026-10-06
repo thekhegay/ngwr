@@ -9,8 +9,27 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { Component, ElementRef, LOCALE_ID, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
 
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { round } from 'ngwr/utils';
 
 import type { WrLineSeries } from './types';
+
+/** How many gaps the y axis aims for. Five labels, four gaps. */
+const TICK_COUNT = 4;
+
+/**
+ * The smallest 1 / 2 / 2.5 / 5 × 10ⁿ at or above `raw` — the conventional
+ * nice-number ladder every plotting library uses to pick an axis step.
+ *
+ * `2.5` earns its place on the small end: without it a span that wants a step
+ * of 2.1 jumps to 5 and the axis loses half its labels.
+ */
+function niceStep(raw: number): number {
+  if (!Number.isFinite(raw) || raw <= 0) return 1;
+  const magnitude = 10 ** Math.floor(Math.log10(raw));
+  const normalised = raw / magnitude;
+  const nice = normalised <= 1 ? 1 : normalised <= 2 ? 2 : normalised <= 2.5 ? 2.5 : normalised <= 5 ? 5 : 10;
+  return nice * magnitude;
+}
 
 /**
  * Default series colours, in order.
@@ -138,14 +157,35 @@ export class WrLineChart {
     }))
   );
 
+  /**
+   * The axis bounds, SNAPPED to a readable step — and the snapping is the point.
+   *
+   * This used to be "the data's max plus 10%, divided into four", which lands on
+   * a round number almost never: seven integers between 3 and 35 gave an axis
+   * reading 38.2 / 28.7 / 19.1 / 9.6 / 0. The numbers were right and nobody can
+   * read them. A chart's axis is the one part of it a reader is supposed to do
+   * arithmetic against.
+   *
+   * So the step is rounded UP to the nearest 1, 2, 2.5 or 5 times a power of
+   * ten — the conventional nice-number ladder — and the bounds are then snapped
+   * outward to whole multiples of it. The same 3..35 now reads 0 / 10 / 20 / 30
+   * / 40. Snapping outward is what replaces the old 10% padding: the top tick is
+   * at or above the data, so the line never touches the frame.
+   */
   protected readonly bounds = computed(() => {
     const all = this.resolvedSeries().flatMap(s => s.data.filter(v => v !== null));
-    if (all.length === 0) return { min: 0, max: 1 };
-    const min = Math.min(...all);
-    const max = Math.max(...all);
-    if (min === max) return { min: min - 1, max: max + 1 };
-    // Pad upper bound by ~10% for breathing room.
-    return { min: Math.min(0, min), max: max + (max - min) * 0.1 };
+    if (all.length === 0) return { min: 0, max: 1, step: 0.25 };
+    const rawMin = Math.min(0, Math.min(...all));
+    const rawMax = Math.max(...all);
+    // A flat series has no span to divide, so give it one rather than a zero step.
+    const span = rawMax - rawMin || Math.abs(rawMax) || 1;
+    const step = niceStep(span / TICK_COUNT);
+    const min = Math.floor(rawMin / step) * step;
+    let max = Math.ceil(rawMax / step) * step;
+    // The data's peak sitting exactly on the frame reads as clipped, so lift the
+    // ceiling by one step when the snap did not already do it.
+    if (max === rawMax) max += step;
+    return { min, max, step };
   });
 
   protected readonly pointCount = computed(() => {
@@ -153,14 +193,22 @@ export class WrLineChart {
     return Math.max(maxLen, this.xLabels().length);
   });
 
-  /** Y-axis tick marks (5 of them). */
+  /**
+   * Y-axis tick marks, one per `step` from the top down — so every label is a
+   * whole multiple of a readable number rather than a quarter of whatever the
+   * data happened to reach.
+   */
   protected readonly yTicks = computed(() => {
-    const { min, max } = this.bounds();
-    const step = (max - min) / 4;
-    return [0, 1, 2, 3, 4].map(i => {
-      const value = max - i * step;
-      return { value, y: this.padding.top + ((max - value) / (max - min)) * this.plotHeight() };
-    });
+    const { min, max, step } = this.bounds();
+    const out: { value: number; y: number }[] = [];
+    // Floating-point: 0.1 + 0.2 walks past an exact bound, so count in integers
+    // and multiply, and stop on the count rather than on `value >= min`.
+    const count = Math.round((max - min) / step);
+    for (let i = 0; i <= count; i++) {
+      const value = round(max - i * step, 6);
+      out.push({ value, y: this.padding.top + ((max - value) / (max - min)) * this.plotHeight() });
+    }
+    return out;
   });
 
   protected readonly plotWidth = (): number => this.vbW - this.padding.left - this.padding.right;
@@ -286,16 +334,35 @@ export class WrLineChart {
    * Grouping is OFF deliberately: a tick is a short axis label, and `5,000k`
    * would be both wider and a change to what every existing chart draws.
    */
+  /**
+   * How many fraction digits a tick needs, taken from the STEP rather than from
+   * the value.
+   *
+   * It was a hard `1`, which is right for the common case and wrong below it: a
+   * series inside 0..1 steps by 0.25 and the labels came out `1 / 0.8 / 0.5 /
+   * 0.3 / 0` — four gaps printed as 0.2, 0.3, 0.2, 0.3 on an axis that is
+   * evenly spaced. An axis whose own labels disagree about their spacing is
+   * worse than a crowded one.
+   */
+  private readonly tickDigits = computed(() => {
+    const { step } = this.bounds();
+    for (let d = 0; d <= 6; d++) if (Math.abs(step * 10 ** d - Math.round(step * 10 ** d)) < 1e-9) return d;
+    return 6;
+  });
+
   protected formatTick(v: number): string {
+    // A CEILING rather than a fixed count, so trailing zeros are dropped: a
+    // 0.25 step wants two digits on 0.25 and none on 1, and `1.00` beside
+    // `0.25` reads as spurious precision.
     const digits = (n: number, fraction: number): string =>
       new Intl.NumberFormat(this.locale, {
         useGrouping: false,
-        minimumFractionDigits: fraction,
+        minimumFractionDigits: 0,
         maximumFractionDigits: fraction,
       }).format(n);
 
     if (Math.abs(v) >= 1000) return this.thousandsText({ value: digits(v / 1000, v % 1000 === 0 ? 0 : 1) });
-    return digits(v, v % 1 === 0 ? 0 : 1);
+    return digits(v, this.tickDigits());
   }
 
   protected readonly viewBox = computed(() => `0 0 ${this.vbW} ${this.vbH}`);
