@@ -1,115 +1,187 @@
 @use '../../theme/styles' as theme;
 
 .wr-typography {
+  --wr-typography-font-family: var(--wr-font-family-base);
+  --wr-typography-font-size: var(--wr-text-base);
+  --wr-typography-font-weight: var(--wr-font-weight-regular);
+  --wr-typography-line-height: var(--wr-leading-normal);
+  --wr-typography-letter-spacing: var(--wr-tracking-normal);
+  --wr-typography-padding-y: 0;
+  --wr-typography-padding-x: 0;
+  --wr-typography-radius: var(--wr-border-radius-sm);
+  --wr-typography-list-margin-top: var(--wr-space-xs);
+  --wr-typography-list-padding-start: var(--wr-space-xl);
+  --wr-typography-list-dt-margin-top: var(--wr-space-md);
+  --wr-typography-list-dt-margin-bottom: var(--wr-space-xs);
+  --wr-typography-list-dt-padding-top: var(--wr-space-md);
+  --wr-typography-list-dt-border: var(--wr-border-base);
+  --wr-typography-list-dd-font-size: var(--wr-text-lg);
+  --wr-typography-list-dd-font-weight: var(--wr-font-weight-medium);
+
   // Inherit the host element's native display (block for h1/p, inline for span).
   margin: 0;
   color: var(--wr-color-on-surface);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-typography-font-family);
 
   &--display {
     // Flowbite landing heading — 4xl that grows to 6xl on wide screens.
-    font-size: clamp(var(--wr-text-4xl), 6vw, 3.75rem);
-    font-weight: var(--wr-font-weight-extrabold);
-    line-height: var(--wr-leading-none);
-    letter-spacing: var(--wr-tracking-tight);
+    --wr-typography-font-size: clamp(var(--wr-text-4xl), 6vw, 3.75rem);
+    --wr-typography-font-weight: var(--wr-font-weight-extrabold);
+    --wr-typography-line-height: var(--wr-leading-none);
+    --wr-typography-letter-spacing: var(--wr-tracking-tight);
+
+    font-size: var(--wr-typography-font-size);
+    font-weight: var(--wr-typography-font-weight);
+    line-height: var(--wr-typography-line-height);
+    letter-spacing: var(--wr-typography-letter-spacing);
   }
 
   &--h1 {
-    font-size: var(--wr-text-5xl);
-    font-weight: var(--wr-font-weight-bold);
-    line-height: var(--wr-leading-none);
-    letter-spacing: var(--wr-tracking-tight);
+    --wr-typography-font-size: var(--wr-text-5xl);
+    --wr-typography-font-weight: var(--wr-font-weight-bold);
+    --wr-typography-line-height: var(--wr-leading-none);
+    --wr-typography-letter-spacing: var(--wr-tracking-tight);
+
+    font-size: var(--wr-typography-font-size);
+    font-weight: var(--wr-typography-font-weight);
+    line-height: var(--wr-typography-line-height);
+    letter-spacing: var(--wr-typography-letter-spacing);
   }
 
   &--h2 {
-    font-size: var(--wr-text-4xl);
-    font-weight: var(--wr-font-weight-bold);
-    line-height: var(--wr-text-4xl-leading);
-    letter-spacing: var(--wr-tracking-tight);
+    --wr-typography-font-size: var(--wr-text-4xl);
+    --wr-typography-font-weight: var(--wr-font-weight-bold);
+    --wr-typography-line-height: var(--wr-text-4xl-leading);
+    --wr-typography-letter-spacing: var(--wr-tracking-tight);
+
+    font-size: var(--wr-typography-font-size);
+    font-weight: var(--wr-typography-font-weight);
+    line-height: var(--wr-typography-line-height);
+    letter-spacing: var(--wr-typography-letter-spacing);
   }
 
   &--h3 {
-    font-size: var(--wr-text-3xl);
-    font-weight: var(--wr-font-weight-bold);
-    line-height: var(--wr-text-3xl-leading);
+    --wr-typography-font-size: var(--wr-text-3xl);
+    --wr-typography-font-weight: var(--wr-font-weight-bold);
+    --wr-typography-line-height: var(--wr-text-3xl-leading);
+
+    font-size: var(--wr-typography-font-size);
+    font-weight: var(--wr-typography-font-weight);
+    line-height: var(--wr-typography-line-height);
   }
 
   &--h4 {
-    font-size: var(--wr-text-2xl);
-    font-weight: var(--wr-font-weight-bold);
-    line-height: var(--wr-text-2xl-leading);
+    --wr-typography-font-size: var(--wr-text-2xl);
+    --wr-typography-font-weight: var(--wr-font-weight-bold);
+    --wr-typography-line-height: var(--wr-text-2xl-leading);
+
+    font-size: var(--wr-typography-font-size);
+    font-weight: var(--wr-typography-font-weight);
+    line-height: var(--wr-typography-line-height);
   }
 
   &--h5 {
-    font-size: var(--wr-text-xl);
-    font-weight: var(--wr-font-weight-bold);
-    line-height: var(--wr-text-xl-leading);
+    --wr-typography-font-size: var(--wr-text-xl);
+    --wr-typography-font-weight: var(--wr-font-weight-bold);
+    --wr-typography-line-height: var(--wr-text-xl-leading);
+
+    font-size: var(--wr-typography-font-size);
+    font-weight: var(--wr-typography-font-weight);
+    line-height: var(--wr-typography-line-height);
   }
 
   &--h6 {
-    font-size: var(--wr-text-lg);
-    font-weight: var(--wr-font-weight-bold);
-    line-height: var(--wr-text-lg-leading);
+    --wr-typography-font-size: var(--wr-text-lg);
+    --wr-typography-font-weight: var(--wr-font-weight-bold);
+    --wr-typography-line-height: var(--wr-text-lg-leading);
+
+    font-size: var(--wr-typography-font-size);
+    font-weight: var(--wr-typography-font-weight);
+    line-height: var(--wr-typography-line-height);
   }
 
   &--lead {
-    font-size: var(--wr-text-xl);
-    font-weight: var(--wr-font-weight-regular);
-    line-height: var(--wr-leading-relaxed);
+    --wr-typography-font-size: var(--wr-text-xl);
+    --wr-typography-font-weight: var(--wr-font-weight-regular);
+    --wr-typography-line-height: var(--wr-leading-relaxed);
+
+    font-size: var(--wr-typography-font-size);
+    font-weight: var(--wr-typography-font-weight);
+    line-height: var(--wr-typography-line-height);
     color: var(--wr-color-on-surface-muted);
   }
 
   &--body {
-    font-size: var(--wr-text-base);
-    font-weight: var(--wr-font-weight-regular);
-    line-height: var(--wr-leading-normal);
+    --wr-typography-font-size: var(--wr-text-base);
+    --wr-typography-font-weight: var(--wr-font-weight-regular);
+    --wr-typography-line-height: var(--wr-leading-normal);
+
+    font-size: var(--wr-typography-font-size);
+    font-weight: var(--wr-typography-font-weight);
+    line-height: var(--wr-typography-line-height);
   }
 
   &--small {
-    font-size: var(--wr-text-sm);
-    line-height: var(--wr-leading-normal);
+    --wr-typography-font-size: var(--wr-text-sm);
+    --wr-typography-line-height: var(--wr-leading-normal);
+
+    font-size: var(--wr-typography-font-size);
+    line-height: var(--wr-typography-line-height);
   }
 
   &--caption {
-    font-size: var(--wr-text-xs);
-    line-height: var(--wr-leading-normal);
+    --wr-typography-font-size: var(--wr-text-xs);
+    --wr-typography-line-height: var(--wr-leading-normal);
+
+    font-size: var(--wr-typography-font-size);
+    line-height: var(--wr-typography-line-height);
     color: var(--wr-color-on-surface-muted);
   }
 
   &--overline {
-    font-size: var(--wr-text-xs);
-    font-weight: var(--wr-font-weight-semibold);
+    --wr-typography-font-size: var(--wr-text-xs);
+    --wr-typography-font-weight: var(--wr-font-weight-semibold);
+    --wr-typography-letter-spacing: var(--wr-tracking-widest);
+
+    font-size: var(--wr-typography-font-size);
+    font-weight: var(--wr-typography-font-weight);
     text-transform: uppercase;
-    letter-spacing: var(--wr-tracking-widest);
+    letter-spacing: var(--wr-typography-letter-spacing);
     color: var(--wr-color-on-surface-muted);
   }
 
   &--code {
-    padding: 0.0625rem 0.375rem;
+    --wr-typography-padding-y: var(--wr-space-xs);
+    --wr-typography-padding-x: var(--wr-space-sm);
+
+    padding: var(--wr-typography-padding-y) var(--wr-typography-padding-x);
     background: var(--wr-color-fill-strong);
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-typography-radius);
     font-size: 0.875em;
   }
 
   // Lists — flowbite spacing and markers; element selector picks the
   // marker so one variant covers ul / ol / dl.
   &--list {
+    --wr-typography-font-size: var(--wr-text-base);
+    --wr-typography-line-height: var(--wr-leading-normal);
+
     // Browser default padding-inline-start doubles the indent next to
     // `inside` markers — the variant owns its own spacing.
     padding: 0;
-    font-size: var(--wr-text-base);
-    line-height: var(--wr-leading-normal);
+    font-size: var(--wr-typography-font-size);
+    line-height: var(--wr-typography-line-height);
     color: var(--wr-color-on-surface-muted);
 
     > li + li,
     > li > ul,
     > li > ol {
-      margin-top: var(--wr-space-xs);
+      margin-top: var(--wr-typography-list-margin-top);
     }
 
     > li > ul,
     > li > ol {
-      padding-inline-start: var(--wr-space-xl);
+      padding-inline-start: var(--wr-typography-list-padding-start);
     }
   }
 
@@ -132,20 +204,20 @@
     }
 
     dl#{&}--list dt {
-      margin-bottom: var(--wr-space-xs);
+      margin-bottom: var(--wr-typography-list-dt-margin-bottom);
       color: var(--wr-color-on-surface-muted);
     }
 
     dl#{&}--list dd {
-      font-size: var(--wr-text-lg);
-      font-weight: var(--wr-font-weight-medium);
+      font-size: var(--wr-typography-list-dd-font-size);
+      font-weight: var(--wr-typography-list-dd-font-weight);
       color: var(--wr-color-on-surface);
     }
 
     dl#{&}--list dd + dt {
-      margin-top: var(--wr-space-md);
-      padding-top: var(--wr-space-md);
-      border-top: 1px solid var(--wr-border-base);
+      margin-top: var(--wr-typography-list-dt-margin-top);
+      padding-top: var(--wr-typography-list-dt-padding-top);
+      border-top: 1px solid var(--wr-typography-list-dt-border);
     }
   }
 
@@ -169,7 +241,9 @@
   // typography that is reliably INTERACTIVE, and it had no `:focus-visible`
   // rule at all, so a keyboard reached it and nothing on screen said so.
   &--link {
-    font-weight: var(--wr-font-weight-medium);
+    --wr-typography-font-weight: var(--wr-font-weight-medium);
+
+    font-weight: var(--wr-typography-font-weight);
     color: var(--wr-color-primary-ink);
     text-decoration: underline;
     text-decoration-thickness: 1px;
@@ -244,6 +318,8 @@
   }
 
   &--mono {
-    font-family: var(--wr-font-family-mono, ui-monospace, monospace);
+    --wr-typography-font-family: var(--wr-font-family-mono, ui-monospace, monospace);
+
+    font-family: var(--wr-typography-font-family);
   }
 }

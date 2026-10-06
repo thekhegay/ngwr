@@ -6,19 +6,24 @@
   --wr-gradient-text-image: linear-gradient(to right, #5227ff, #ff9ffc, #b497cf, #5227ff);
   --wr-gradient-text-size: 300% 100%;
   --wr-gradient-text-duration: 8s;
+  --wr-gradient-text-font-weight: var(--wr-font-weight-medium);
+  --wr-gradient-text-line-height: var(--wr-leading-tight);
+  --wr-gradient-text-padding-y: var(--wr-space-xs);
+  --wr-gradient-text-padding-x: var(--wr-space-md);
+  --wr-gradient-text-radius: var(--wr-border-radius-lg);
 
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   margin: 0;
-  font-weight: 500;
-  line-height: 1.25;
+  font-weight: var(--wr-gradient-text-font-weight);
+  line-height: var(--wr-gradient-text-line-height);
   overflow: hidden;
 
   &--border {
-    padding: var(--wr-space-xs) var(--wr-space-md);
-    border-radius: 1.25rem;
+    padding: var(--wr-gradient-text-padding-y) var(--wr-gradient-text-padding-x);
+    border-radius: var(--wr-gradient-text-radius);
   }
 
   &__text {

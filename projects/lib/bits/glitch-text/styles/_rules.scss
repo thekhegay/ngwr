@@ -12,12 +12,13 @@
   --wr-glitch-text-after-duration: 3s;
   --wr-glitch-text-before-shadow: 5px 0 var(--wr-color-info);
   --wr-glitch-text-after-shadow: -5px 0 var(--wr-color-danger);
+  --wr-glitch-text-font-weight: var(--wr-font-weight-extrabold);
 
   position: relative;
   display: inline-block;
   white-space: nowrap;
   user-select: none;
-  font-weight: 900;
+  font-weight: var(--wr-glitch-text-font-weight);
   color: var(--wr-color-on-surface, #0f172a);
 
   // The decorative layer. Stretched over the label so the clones land exactly

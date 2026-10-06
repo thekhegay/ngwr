@@ -118,20 +118,25 @@
 }
 
 .wr-lightbox-viewer {
+  --wr-lightbox-viewer-gap: var(--wr-space-lg);
+  --wr-lightbox-viewer-padding: var(--wr-space-lg);
+
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--wr-space-lg);
+  gap: var(--wr-lightbox-viewer-gap);
   max-width: 95vw;
   max-height: 95vh;
   max-height: 95dvh;
-  padding: var(--wr-space-lg);
+  padding: var(--wr-lightbox-viewer-padding);
   animation: wr-lightbox-viewer-in 0.18s ease;
   outline: none;
   // Own the swipe-down-to-dismiss gesture; no scroll/zoom to defer to.
   touch-action: none;
 
   &__close {
+    --wr-lightbox-viewer-close-radius: var(--wr-border-radius-pill);
+
     // A bare `.wr-icon__svg` in a `<button>`: `1em`, and a button inherits no
     // font-size — so the ✕ came out at the browser's control font, about
     // 13.33px, inside a 36px circle, and at the surrounding text's size under
@@ -149,7 +154,7 @@
     height: 2.25rem;
     padding: 0;
     border: 0;
-    border-radius: 999px;
+    border-radius: var(--wr-lightbox-viewer-close-radius);
     background: rgba(var(--wr-color-surface-rgb), 0.12);
     color: rgba(var(--wr-color-surface-rgb), 0.9);
     cursor: pointer;
@@ -174,19 +179,24 @@
   }
 
   &__full {
+    --wr-lightbox-viewer-full-radius: var(--wr-border-radius-base);
+
     display: block;
     max-width: 100%;
     max-height: calc(95vh - 4rem);
     max-height: calc(95dvh - 4rem);
     object-fit: contain;
     cursor: zoom-out;
-    @include theme.smooth-br(0.5rem);
+    @include theme.smooth-br(var(--wr-lightbox-viewer-full-radius));
   }
 
   &__caption {
+    --wr-lightbox-viewer-caption-font-family: var(--wr-font-family-base);
+    --wr-lightbox-viewer-caption-font-size: var(--wr-text-sm);
+
     color: rgba(var(--wr-color-surface-rgb), 0.85);
-    font-family: var(--wr-font-family-base);
-    font-size: var(--wr-text-sm);
+    font-family: var(--wr-lightbox-viewer-caption-font-family);
+    font-size: var(--wr-lightbox-viewer-caption-font-size);
     text-align: center;
     max-width: 60ch;
   }
