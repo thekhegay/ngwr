@@ -193,7 +193,7 @@ export const CSS_VARS = {
       { name: "--wr-tag-font-weight", default: "500", scope: ".wr-tag" },
       { name: "--wr-tag-line-height", default: "normal", scope: ".wr-tag" },
       { name: "--wr-tag-min-height", default: "1.375rem", scope: ".wr-tag" },
-      { name: "--wr-tag-padding-x", default: "0.5rem", scope: ".wr-tag", overrides: 1 },
+      { name: "--wr-tag-padding-x", default: "var(--wr-space-sm)", scope: ".wr-tag", overrides: 1 },
       { name: "--wr-tag-padding-y", default: "0.125rem", scope: ".wr-tag" },
       { name: "--wr-tag-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-tag", overrides: 1 },
     ],
@@ -355,7 +355,7 @@ export const CSS_VARS = {
     vars: [
       { name: "--wr-divider-aside", default: "1rem", scope: ".wr-divider" },
       { name: "--wr-divider-color", default: "var(--wr-color-outline)", scope: ".wr-divider", overrides: 1 },
-      { name: "--wr-divider-gap", default: "0.75rem", scope: ".wr-divider" },
+      { name: "--wr-divider-gap", default: "var(--wr-space-md)", scope: ".wr-divider" },
       { name: "--wr-divider-style", default: "solid", scope: ".wr-divider", overrides: 2 },
       { name: "--wr-divider-width", default: "1px", scope: ".wr-divider" },
     ],
@@ -428,11 +428,11 @@ export const CSS_VARS = {
       { name: "--wr-graph-card-border", default: "var(--wr-color-outline)", scope: ".wr-graph" },
       { name: "--wr-graph-card-color", default: "var(--wr-color-on-surface)", scope: ".wr-graph" },
       { name: "--wr-graph-card-font-size", default: "var(--wr-text-sm)", scope: ".wr-graph" },
-      { name: "--wr-graph-card-padding", default: "0.5rem 0.75rem", scope: ".wr-graph" },
+      { name: "--wr-graph-card-padding", default: "var(--wr-space-sm) var(--wr-space-md)", scope: ".wr-graph" },
       { name: "--wr-graph-card-radius", default: "var(--wr-border-radius-base)", scope: ".wr-graph" },
       { name: "--wr-graph-edge-color", default: "color-mix(in srgb, var(--wr-color-on-surface-muted) 60%, var(--wr-color-surface))", scope: ".wr-graph" },
       { name: "--wr-graph-edge-width", default: "1px", scope: ".wr-graph" },
-      { name: "--wr-graph-padding", default: "1rem", scope: ".wr-graph" },
+      { name: "--wr-graph-padding", default: "var(--wr-space-lg)", scope: ".wr-graph" },
     ],
   },
   "reference/components/icon": {
@@ -552,7 +552,7 @@ export const CSS_VARS = {
   "reference/components/schema-form": {
     subpath: "ngwr/schema-form",
     vars: [
-      { name: "--wr-schema-form-gap", default: "1rem", scope: ".wr-schema-form" },
+      { name: "--wr-schema-form-gap", default: "var(--wr-space-lg)", scope: ".wr-schema-form" },
     ],
   },
   "reference/components/segmented": {
@@ -639,7 +639,7 @@ export const CSS_VARS = {
   "reference/components/statistic": {
     subpath: "ngwr/statistic",
     vars: [
-      { name: "--wr-statistic-group-gap", default: "1.5rem", scope: ".wr-statistic-group", overrides: 1 },
+      { name: "--wr-statistic-group-gap", default: "var(--wr-space-xl)", scope: ".wr-statistic-group", overrides: 1 },
     ],
   },
   "reference/components/stepper": {

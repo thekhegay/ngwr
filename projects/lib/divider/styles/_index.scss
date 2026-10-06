@@ -7,7 +7,7 @@
   --wr-divider-width: 1px;
   --wr-divider-color: var(--wr-color-outline);
   --wr-divider-style: solid;
-  --wr-divider-gap: 0.75rem;
+  --wr-divider-gap: var(--wr-space-md);
   --wr-divider-aside: 1rem;
 
   display: flex;

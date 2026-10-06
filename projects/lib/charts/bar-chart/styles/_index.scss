@@ -9,7 +9,7 @@
   &__plot {
     display: flex;
     align-items: flex-end;
-    gap: 0.5rem;
+    gap: var(--wr-space-sm);
     border-bottom: 1px solid var(--wr-color-outline);
   }
 
@@ -20,7 +20,7 @@
     align-items: center;
     justify-content: flex-end;
     height: 100%;
-    gap: 0.25rem;
+    gap: var(--wr-space-xs);
     min-width: 0;
   }
 
@@ -40,8 +40,8 @@
 
   &__labels {
     display: flex;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
+    gap: var(--wr-space-sm);
+    margin-top: var(--wr-space-sm);
   }
 
   &__label {

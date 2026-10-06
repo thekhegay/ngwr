@@ -104,7 +104,7 @@
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 0.375rem;
+    gap: var(--wr-space-sm);
   }
 
   &__dot {

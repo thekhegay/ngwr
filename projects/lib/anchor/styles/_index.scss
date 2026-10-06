@@ -4,6 +4,11 @@
   display: block;
   font-family: var(--wr-font-family-base);
   border-inline-start: 1.5px solid var(--wr-color-outline);
+  // NOT on the spacing scale: the active rail at `inset-inline-start: -1rem`
+  // below is solved against this 14px indent plus the host's 1.5px border, so
+  // the 1.5px bar lands at -0.5px and overlaps the rail it replaces. The
+  // scale's nearest step is 16px, which paints the bar at 1.5px and opens a
+  // gap between the marker and the rail at every nesting level.
   padding-inline-start: 0.875rem;
 
   &__list {
@@ -12,10 +17,10 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.125rem;
+    gap: var(--wr-space-xs);
 
     &--nested {
-      margin-top: 0.125rem;
+      margin-top: var(--wr-space-xs);
       padding-inline-start: 0.875rem;
     }
   }
@@ -23,7 +28,7 @@
   &__link {
     position: relative;
     display: block;
-    padding: 0.25rem 0.5rem;
+    padding: var(--wr-space-xs) var(--wr-space-sm);
     border-radius: var(--wr-border-radius-sm);
     color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-text-sm);
