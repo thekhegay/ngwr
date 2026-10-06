@@ -13,7 +13,7 @@
   // written here rather than in the theme.
   --wr-input-placeholder: var(--wr-color-placeholder);
   --wr-input-bg: var(--wr-color-surface);
-  --wr-input-border: var(--wr-color-outline);
+  --wr-input-border: var(--wr-border-base);
   --wr-input-radius: var(--wr-control-radius-md);
   --wr-input-ring: transparent;
   --wr-input-padding-y: var(--wr-control-padding-y-md);
@@ -95,7 +95,7 @@
 .wr-input-group {
   --wr-input-group-radius: var(--wr-control-radius-md);
   --wr-input-group-bg: var(--wr-color-surface);
-  --wr-input-group-border: var(--wr-color-outline);
+  --wr-input-group-border: var(--wr-border-base);
   --wr-input-group-ring: transparent;
   --wr-input-group-affix: var(--wr-color-on-surface-muted);
   --wr-input-group-padding-x: 0.75rem;

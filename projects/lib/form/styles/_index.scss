@@ -101,7 +101,7 @@
   // is set here rather than the component's border hook, the way the select's
   // is, so the error edge holds while the trigger is focused or open — both of
   // those set `border-color` directly and would otherwise paint it primary.
-  // color-ok: `danger` against the default `--wr-color-outline` separates in
+  // color-ok: `danger` against the default `--wr-border-base` separates in
   // LIGHTNESS, not only in hue — 3.11:1 in light — so unlike two intents
   // compared with each other this survives greyscale, and the error MESSAGE
   // the field renders below is the channel that does the real work.
@@ -132,7 +132,7 @@
   // 2.90:1 dark — so unlike two intents compared with each other, this cue
   // mostly survives a reader who cannot separate hue. Mostly: the dark figure
   // is under the 3:1 that WCAG 1.4.11 asks of a control boundary, which is the
-  // same shortfall `--wr-color-outline` carries by decision, and it is the
+  // same shortfall `--wr-border-base` carries by decision, and it is the
   // message underneath that does the load-bearing work either way.
   //
   // THE HOOK HAS TO LAND ON THE ELEMENT THAT READS IT. The checkbox declares
@@ -143,7 +143,7 @@
   // version of this block set the hook on the host only, and hovering an
   // invalid checkbox turned it back to primary. Naming the inner element takes
   // the selector to (0,4,0), which outranks the component's (0,3,0) hover.
-  // color-ok: `danger` against the default `--wr-color-outline` separates in
+  // color-ok: `danger` against the default `--wr-border-base` separates in
   // LIGHTNESS, not only in hue — 3.11:1 in light — so unlike two intents
   // compared with each other this survives greyscale, and the error MESSAGE
   // the field renders below is the channel that does the real work.
@@ -157,7 +157,7 @@
   // announcements of one group error is nine times the cost; an eye takes nine
   // red boxes in at once and reads one signal. The reason the ARIA rule exists
   // does not transfer to the visual channel.
-  // color-ok: `danger` against the default `--wr-color-outline` separates in
+  // color-ok: `danger` against the default `--wr-border-base` separates in
   // LIGHTNESS, not only in hue — 3.11:1 in light — so unlike two intents
   // compared with each other this survives greyscale, and the error MESSAGE
   // the field renders below is the channel that does the real work.
@@ -166,7 +166,7 @@
     --wr-checkbox-border: var(--wr-color-danger);
   }
 
-  // color-ok: `danger` against the default `--wr-color-outline` separates in
+  // color-ok: `danger` against the default `--wr-border-base` separates in
   // LIGHTNESS, not only in hue — 3.11:1 in light — so unlike two intents
   // compared with each other this survives greyscale, and the error MESSAGE
   // the field renders below is the channel that does the real work.

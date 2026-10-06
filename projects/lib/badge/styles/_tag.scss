@@ -15,7 +15,7 @@
   // ramp does the job the removed `medium` intent used to stand in for.
   --wr-tag-color: var(--wr-color-on-surface);
   --wr-tag-bg: var(--wr-color-fill);
-  --wr-tag-border: var(--wr-color-outline);
+  --wr-tag-border: var(--wr-border-base);
   --wr-tag-radius: var(--wr-border-radius-sm);
   // NOT on the spacing scale: this is solved against the 22px box the comment
   // below names, which is the shared `sm` control height — a tag sits beside an
@@ -109,11 +109,11 @@
 
   // `light` outlined, after the loop for the same reason the badge carries the
   // same rule: 30% of a surface tone is not a line. At full strength it IS
-  // `--wr-color-outline`, which is already this component's default border.
+  // `--wr-border-base`, which is already this component's default border.
   // color-ok: every outlined tag already draws a border — this only gives the
   // one intent that cannot tint one a literal colour. Telling two INTENTS
   // apart is the label's job, as the marker above the loop says.
   &--light.wr-tag--outlined {
-    --wr-tag-border: var(--wr-color-outline);
+    --wr-tag-border: var(--wr-border-base);
   }
 }

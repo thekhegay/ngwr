@@ -201,7 +201,7 @@ describe('WrCalendarHeatmap', () => {
 
     const negative = cellFor('2025-08-12')!;
     const light = cellFor('2025-08-13')!;
-    expect(negative.style.background).toBe('rgba(var(--wr-color-outline-rgb), 0.5)');
+    expect(negative.style.background).toBe('rgba(var(--wr-border-base-rgb), 0.5)');
     expect(negative.style.background).not.toBe(light.style.background);
   });
 

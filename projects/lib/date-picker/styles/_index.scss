@@ -89,7 +89,7 @@
 // color-ok: the colour is the SIGHTED half of a state that is not carried by
 // colour alone — the input takes `aria-invalid` and the reason is announced
 // through the picker's live region, or through the surrounding field's message.
-// `danger` against the default `--wr-color-outline` also separates in lightness
+// `danger` against the default `--wr-border-base` also separates in lightness
 // (3.11:1 light), so the cue survives greyscale.
 .wr-date-picker.wr-date-picker--invalid .wr-input-group,
 .wr-date-range-picker.wr-date-range-picker--invalid .wr-input-group {
@@ -121,7 +121,7 @@
 .wr-time-picker {
   --wr-time-picker-col-width: 3rem;
   --wr-time-picker-bg: var(--wr-color-surface);
-  --wr-time-picker-border: var(--wr-color-outline);
+  --wr-time-picker-border: var(--wr-border-base);
   --wr-time-picker-color: var(--wr-color-on-surface);
   --wr-time-picker-muted: var(--wr-color-on-surface-muted);
 
@@ -265,7 +265,7 @@
     justify-content: center;
     padding: var(--wr-space-md);
     background: var(--wr-color-surface);
-    border: 1px solid var(--wr-color-outline);
+    border: 1px solid var(--wr-border-base);
     border-top: 0;
     border-radius: 0 0 var(--wr-border-radius-base) var(--wr-border-radius-base);
   }
@@ -291,7 +291,7 @@
     gap: var(--wr-space-md) var(--wr-space-xl);
     padding: var(--wr-space-md);
     background: var(--wr-color-surface);
-    border: 1px solid var(--wr-color-outline);
+    border: 1px solid var(--wr-border-base);
     border-top: 0;
     border-radius: 0 0 var(--wr-border-radius-base) var(--wr-border-radius-base);
   }

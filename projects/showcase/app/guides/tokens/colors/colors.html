@@ -111,7 +111,7 @@
         flex-direction: column;
         gap: 0;
         background: var(--wr-color-white);
-        border: 1px solid var(--wr-color-border);
+        border: 1px solid var(--wr-border-strong);
         border-radius: 0.5rem;
         overflow: hidden;
       "
@@ -120,7 +120,7 @@
         style="
           padding: 0.625rem 0.875rem;
           color: var(--wr-color-on-surface);
-          border-bottom: 1px solid var(--wr-color-border-subtle);
+          border-bottom: 1px solid var(--wr-border-subtle);
           font-weight: 600;
         "
       >
@@ -130,7 +130,7 @@
         style="
           padding: 0.625rem 0.875rem;
           color: var(--wr-color-text-muted);
-          border-bottom: 1px solid var(--wr-color-border);
+          border-bottom: 1px solid var(--wr-border-strong);
         "
       >
         <code>--wr-color-text-muted</code> — de-emphasized label
@@ -143,7 +143,7 @@
           padding: 0.625rem 0.875rem;
           background: var(--wr-color-hover);
           color: var(--wr-color-on-surface);
-          border-top: 1px solid var(--wr-color-border-strong);
+          border-top: 1px solid var(--wr-border-strong);
         "
       >
         Row with <code>--wr-color-hover</code> tint (top edge is <code>-border-strong</code>)
@@ -173,8 +173,8 @@
       alpha over the hairline channel, which is the bug the scale exists to prevent. A fill is not a hairline: when 33
       declarations across 22 files hand-rolled this wash out of the outline channel, retuning outlines for their own job
       would have moved every one of them — and one measured pair in <code>wr-table</code> drops from 6.58:1 to 4.05:1
-      that way. Reach for <code>--wr-color-outline</code> when you are drawing a rule, and for these when you are
-      filling a shape.
+      that way. Reach for <code>--wr-border-base</code> when you are drawing a rule, and for these when you are filling
+      a shape.
     </p>
   </ngwr-doc-section>
 
@@ -205,7 +205,7 @@
           padding: 1rem;
           background: var(--wr-color-white);
           color: var(--wr-color-on-surface);
-          border: 1px solid var(--wr-color-border);
+          border: 1px solid var(--wr-border-strong);
           border-radius: 0.5rem;
         "
       >
@@ -222,7 +222,7 @@
           padding: 1rem;
           background: var(--wr-color-white);
           color: var(--wr-color-on-surface);
-          border: 1px solid var(--wr-color-border);
+          border: 1px solid var(--wr-border-strong);
           border-radius: 0.5rem;
         "
       >

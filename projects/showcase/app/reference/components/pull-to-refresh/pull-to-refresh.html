@@ -20,12 +20,12 @@
              of links or buttons would not need this. -->
         <wr-pull-to-refresh
           tabindex="0"
-          style="height: 16rem; border: 1px solid var(--wr-color-outline); border-radius: var(--wr-border-radius-base)"
+          style="height: 16rem; border: 1px solid var(--wr-border-base); border-radius: var(--wr-border-radius-base)"
           [refreshing]="loading()"
           (refresh)="reload()"
         >
           @for (item of items(); track item) {
-            <div style="padding: 0.875rem 1rem; border-bottom: 1px solid var(--wr-color-outline)">{{ item }}</div>
+            <div style="padding: 0.875rem 1rem; border-bottom: 1px solid var(--wr-border-base)">{{ item }}</div>
           }
         </wr-pull-to-refresh>
       </div>

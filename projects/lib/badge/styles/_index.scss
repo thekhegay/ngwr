@@ -103,7 +103,7 @@
   // intent. The neutral roles do the job the removed `medium` intent used to.
   --wr-badge-bg: var(--wr-color-fill);
   --wr-badge-color: var(--wr-color-on-surface);
-  --wr-badge-border: var(--wr-color-outline);
+  --wr-badge-border: var(--wr-border-base);
 
   // color-ok: a badge's colour is decoration or category, never the state —
   // the LABEL carries that. Four of the five intents share one lightness
@@ -141,7 +141,7 @@
   //
   // `light` is the one intent the recipe cannot serve: it is a surface tone by
   // definition, a hair off the page in either theme, so 30% of it over the page
-  // is nothing. At FULL strength it is `--wr-color-outline` — the hairline every
+  // is nothing. At FULL strength it is `--wr-border-base` — the hairline every
   // bordered surface in the library already draws — so it is reached by that
   // name, after the loop, rather than by an alpha that happens to land there.
   &--outlined {
@@ -165,7 +165,7 @@
     // near-surface tone, so without it the badge has no edge at all. A border
     // appearing is the channel; its colour is incidental.
     &.wr-badge--light {
-      box-shadow: inset 0 0 0 1px var(--wr-color-outline);
+      box-shadow: inset 0 0 0 1px var(--wr-border-base);
     }
   }
 }

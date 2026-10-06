@@ -12,7 +12,7 @@
 .card {
   display: block;
   overflow: hidden;
-  border: 1px solid var(--wr-color-outline);
+  border: 1px solid var(--wr-border-base);
   border-radius: var(--wr-border-radius-base);
 }
 
@@ -31,7 +31,7 @@
 
   // Divider lives only when there's source underneath.
   &:has(+ .code) {
-    border-bottom: 1px solid var(--wr-color-outline);
+    border-bottom: 1px solid var(--wr-border-base);
   }
 
   // A playground with nothing projected. `:empty` counts the Replay and
@@ -53,7 +53,7 @@
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  border: 1px solid var(--wr-color-outline);
+  border: 1px solid var(--wr-border-base);
   border-radius: 0.5rem;
   background: var(--wr-color-surface);
   color: var(--wr-color-on-surface);
@@ -121,7 +121,7 @@
   gap: 0.75rem;
   min-height: 2.75rem;
   padding: 0.625rem 0.875rem;
-  border: 1px solid var(--wr-color-outline);
+  border: 1px solid var(--wr-border-base);
   border-radius: 0.5rem;
   // A fill role, for the reason spelled out in `doc-code.scss`: the border
   // token darkens under `prefers-contrast: more`, so using it as a FILL made
@@ -194,7 +194,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.25rem 0.5rem;
-    border: 1px solid var(--wr-color-outline);
+    border: 1px solid var(--wr-border-base);
     border-radius: 0.375rem;
     background: var(--wr-color-surface);
     color: inherit;

@@ -171,7 +171,7 @@
     font-size: var(--wr-text-lg);
     font-weight: 600;
     line-height: 1.5rem;
-    border-bottom: 1px solid var(--wr-color-outline);
+    border-bottom: 1px solid var(--wr-border-base);
   }
 
   // No title to sit beside, so the corner chrome needs its own room.
@@ -242,7 +242,7 @@
     align-items: center;
     gap: var(--wr-space-sm);
     padding: var(--wr-space-md) var(--wr-space-xl);
-    border-top: 1px solid var(--wr-color-outline);
+    border-top: 1px solid var(--wr-border-base);
 
     &--start {
       justify-content: flex-start;

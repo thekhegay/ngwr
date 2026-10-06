@@ -15,7 +15,7 @@
 .wr-cascader {
   --wr-cascader-color: var(--wr-color-on-surface);
   --wr-cascader-bg: var(--wr-color-surface);
-  --wr-cascader-border: var(--wr-color-outline);
+  --wr-cascader-border: var(--wr-border-base);
   --wr-cascader-radius: var(--wr-control-radius-md);
   --wr-cascader-padding-y: var(--wr-control-padding-y-md);
   --wr-cascader-padding-x: var(--wr-control-padding-x-md);
@@ -238,7 +238,7 @@
 
   display: flex;
   background: var(--wr-color-surface);
-  border: 1px solid var(--wr-color-outline);
+  border: 1px solid var(--wr-border-base);
   border-radius: var(--wr-border-radius-base);
   box-shadow: var(--wr-shadow-overlay);
   font-family: var(--wr-font-family-base);
@@ -268,7 +268,7 @@
     gap: var(--wr-space-xs);
 
     + .wr-cascader__col {
-      border-inline-start: 1px solid var(--wr-color-outline);
+      border-inline-start: 1px solid var(--wr-border-base);
     }
   }
 

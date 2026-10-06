@@ -55,7 +55,7 @@
   // slicing a tile across columns.
   &__tile {
     --ngwr-cbento-bg: var(--wr-color-surface);
-    --ngwr-cbento-border: var(--wr-color-outline);
+    --ngwr-cbento-border: var(--wr-border-base);
     --ngwr-cbento-shadow: 0 1px 2px rgba(var(--wr-color-backdrop-rgb), 0.04);
 
     position: relative;
