@@ -46,7 +46,7 @@ export default class WrNumberPipePage {
 
   protected readonly snippets = {
     decimal: `{{ 1234.5 | wrNumber }}  <!-- "1,234.5" -->`,
-    percent: `{{ 0.875 | wrNumber: 'percent' }}  <!-- "88%" -->`,
+    percent: `{{ 0.875 | wrNumber: 'percent' }}  <!-- "87.5%" — two fraction digits, not rounded to whole -->`,
     currency: `{{ 19.99 | wrNumber: 'currency' : 'USD' }}  <!-- "$19.99" -->`,
     options: `{{ 19.9 | wrNumber: { minimumFractionDigits: 2 } }}      <!-- "19.90" -->
 {{ 1234567 | wrNumber: { notation: 'compact' } }}        <!-- "1.2M"  -->`,
