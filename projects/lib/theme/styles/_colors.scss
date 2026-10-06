@@ -244,21 +244,25 @@ $contrast-light: #ffffff !default;
   --wr-color-text-muted: var(--wr-color-gray-5);
   --wr-color-text-faint: var(--wr-color-gray-5);
 
-  // Semantic role aliases over the flipping neutrals — prefer these in new code
-  // for intent-free surface / text / outline jobs. They resolve through
-  // `white` / `dark` / `medium` / `light`, so they flip with the theme
-  // automatically.
+  // Semantic role aliases over the gray ramp — the only names a component
+  // should paint an intent-free surface, text or outline job with. They resolve
+  // through `--wr-color-gray-*`, which each theme SETS for itself, so one
+  // declaration here flips with the theme and a component never has to know.
   //
-  // Why roles at all: the neutrals do double duty. `--wr-color-dark` is both
-  // the `color="dark"` INTENT (a button variant, public API) and the default
-  // text colour; `--wr-color-white` is both the `color="light"`-adjacent
-  // surface and the page background. Reading `dark` in a component tells you
-  // nothing about which job it is doing. The roles name the job, so a future
-  // reader — and a future re-theme — can tell them apart. The intent scale
-  // stays exactly as it is; these sit on top of it.
+  // Why roles at all: the neutrals used to do double duty. `--wr-color-dark`
+  // was both the `color="dark"` INTENT — a button variant, public API — and the
+  // default text colour, and `--wr-color-white` was both the surface and the
+  // page background. Reading `dark` in a component told you nothing about which
+  // job it was doing. v15 finished the split: the four neutral intents
+  // (`secondary`, `light`, `medium`, `dark`) are gone, because the first was a
+  // second brand colour nobody had and the other three were fills wearing the
+  // names of surfaces, and what replaced them is the six-step ramp plus these
+  // roles. `migration-v15` rewrites each removed token to its successor.
   //
-  // Each role mirrors the literal 1:1, including the `-rgb` channel list so
-  // translucent fills (`rgba(var(--wr-color-surface-rgb), α)`) never have to
+  // A component paints with the ROLE and never with a ramp step: the step is
+  // the substrate, and reaching past the role is how a component ends up right
+  // in one theme only. Each role carries its `-rgb` channel list too, so a
+  // translucent fill (`rgba(var(--wr-color-surface-rgb), α)`) never has to
   // reach back down to a literal.
   --wr-color-surface: var(--wr-color-white);
   --wr-color-surface-rgb: var(--wr-color-white-rgb);
@@ -311,7 +315,7 @@ $contrast-light: #ffffff !default;
   // different alphas, so each alpha lives in ONE place. `-soft` is the
   // canonical low-alpha fill, `-soft-border` the matching hairline, and
   // `-soft-contrast` the readable same-hue text on it (deep in light,
-  // light in dark — follows `--wr-color-dark`). All theme-correct over any
+  // light in dark — follows `--wr-color-gray-6`). All theme-correct over any
   // background via the -rgb channels.
   @each $name in (primary, success, warning, danger, info) {
     --wr-color-#{$name}-soft: rgba(var(--wr-color-#{$name}-rgb), 0.12);
@@ -337,7 +341,7 @@ $contrast-light: #ffffff !default;
   // its bases are lighter for a dark canvas and that happens to be the
   // accessible direction.
   //
-  // Same recipe as `-soft-contrast`: mixing toward `--wr-color-dark` darkens in
+  // Same recipe as `-soft-contrast`: mixing toward `--wr-color-gray-6` darkens in
   // light and lightens in dark from ONE declaration, because that token itself
   // flips. The share is per intent rather than uniform — warning has to travel
   // furthest (a yellow readable on white is not yellow), and forcing every
@@ -365,7 +369,7 @@ $contrast-light: #ffffff !default;
   // is the losing direction. axe measured the old 86% at 4.48:1 on the sidebar's
   // own tint — under AA, never mind the target. 78% is the most saturated share
   // that reaches 5.0 there (5.04), and it only helps the light theme, where a
-  // lower share means MORE `--wr-color-dark` and a deeper ink on a pale tint.
+  // lower share means MORE `--wr-color-gray-6` and a deeper ink on a pale tint.
   // Solved against the exact pair axe resolved on the page (#4e79fd on #0f1a36),
   // because a hand-rolled composite of the tint over the canvas does not
   // reproduce what the browser paints — this file's own numbers are arithmetic,
@@ -474,7 +478,7 @@ $contrast-light: #ffffff !default;
   // Overlay dim — used by dialog / drawer / image preview / command
   // palette / image cropper for the behind-the-panel scrim. Always
   // black so the dim reads as "covered" regardless of theme. Don't
-  // wire to `--wr-color-dark-rgb` — that flips to light in dark mode
+  // wire to `--wr-color-gray-6-rgb` — that flips to light in dark mode
   // and turns the backdrop into a white wash.
   --wr-color-backdrop-rgb: 0, 0, 0;
 

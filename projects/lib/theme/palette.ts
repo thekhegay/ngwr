@@ -19,7 +19,7 @@
  *
  * ```css
  * --wr-color-primary-soft: rgba(var(--wr-color-primary-rgb), 0.12);
- * --wr-color-primary-ink: color-mix(in srgb, var(--wr-color-primary) 78%, var(--wr-color-dark));
+ * --wr-color-primary-ink: color-mix(in srgb, var(--wr-color-primary) 78%, var(--wr-color-gray-6));
  * ```
  *
  * so redefining the base and its channels re-resolves `-soft`, `-soft-border`,
