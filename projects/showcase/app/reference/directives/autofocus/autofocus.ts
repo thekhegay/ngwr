@@ -28,10 +28,13 @@ import {
   ],
 })
 export default class AutofocusPage {
-  protected readonly autofocusOn = signal(true);
-
-  /** Re-trigger even when focus was lost by clicking elsewhere — a plain
-   * boolean toggle would need two clicks to come back around to `true`. */
+  /**
+   * Starts falsy so the page does not steal the caret on arrival, and so the
+   * demo's one control drives the directive instead of calling `focus()`
+   * itself — the transition is the only thing `wrAutofocus` adds over the
+   * native attribute.
+   */
+  protected readonly autofocusOn = signal(false);
 
   protected readonly snippets = {
     usage: `<input wrAutofocus placeholder="Focused on init" />

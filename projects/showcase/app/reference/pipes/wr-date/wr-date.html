@@ -34,7 +34,7 @@
 
   <ngwr-doc-section
     title="Token strings"
-    description="A raw format string goes straight to the adapter, so the tokens are whichever ones THAT adapter knows — not a fixed language. The demo below runs on `WrNativeDateAdapter`, whose set is `yyyy yy MMMM MMM MM M dd d HH H hh h mm ss a` plus single-quoted literals. It has no weekday token: `EEEE` is not recognised and comes out verbatim. `ngwr/date/adapters/fns` forwards the pattern to date-fns untouched, so there the token set is date-fns's."
+    description="A raw format string goes straight to the adapter, so the tokens are whichever ones THAT adapter knows — not a fixed language. **Tokens need an adapter**, unlike the six named keys: with no `provideWrDateAdapter()` the `Intl` fallback knows the keys only, so a token string falls through to `shortDate` and the pattern is dropped with nothing reported — `'dd.MM.yyyy'` prints `3/15/26`. The demo below runs on `WrNativeDateAdapter`, whose set is `yyyy yy MMMM MMM MM M dd d HH H hh h mm ss a` plus single-quoted literals. It has no weekday token: `EEEE` is not recognised and comes out verbatim. `ngwr/date/adapters/fns` forwards the pattern to date-fns untouched, so there the token set is date-fns's."
   >
     <ngwr-doc-code [code]="snippets.tokens" language="angular-html" />
     <ngwr-doc-snippet code="">

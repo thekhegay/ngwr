@@ -32,7 +32,7 @@ export default class TypesCatalogPage {
         { name: 'SafeAny', description: 'Greppable, deliberate any.', url: ['/reference/interfaces', 'common'] },
         {
           name: 'WrColor',
-          description: 'Palette union behind every [color] input.',
+          description: 'Intent union — primary, success, warning, danger, info.',
           url: ['/reference/interfaces', 'theme'],
         },
         { name: 'WrThemeMode', description: 'light / dark / auto.', url: ['/reference/interfaces', 'theme'] },

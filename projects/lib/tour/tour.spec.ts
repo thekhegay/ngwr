@@ -167,6 +167,35 @@ describe('WrTour', () => {
     expect(actionLabels()).toEqual(['Skip tour', 'Done']);
   });
 
+  it('reads idle on every state signal, before a tour and after one', () => {
+    // `stop()` reset neither, so a finished tour left both holding whatever its
+    // last step had answered while `active`, `index`, `total` and `step` all
+    // reported idle — a "resume tour" affordance built off these read a tour
+    // that had ended. The resting pair is asymmetric on purpose: `isFirst` is
+    // `true` so `@if (!tour.isFirst())` around a Back button hides it when
+    // nothing is running.
+    const idle = (): unknown[] => [
+      tour.active(),
+      tour.index(),
+      tour.total(),
+      tour.step(),
+      tour.isFirst(),
+      tour.isLast(),
+    ];
+
+    expect(idle()).toEqual([false, -1, 0, null, true, false]);
+
+    tour.start(STEPS);
+    sync();
+    tour.next();
+    sync();
+    expect(tour.isLast()).toBe(true);
+
+    tour.stop();
+    sync();
+    expect(idle()).toEqual([false, -1, 0, null, true, false]);
+  });
+
   it('closes on Escape', () => {
     tour.start(STEPS);
     sync();

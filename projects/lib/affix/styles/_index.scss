@@ -1,12 +1,15 @@
-// Minimal styles — the directive does most of the work inline. We just
-// expose a class hook so consumers can style the "stuck" state.
+// Almost nothing — the directive does the work inline. This layer owns one
+// declaration, the stacking order below, and otherwise only exposes the class
+// hook a consumer styles the "stuck" state with.
 //
 // The directive sets `position: sticky; top: <offset>px` on the host and
 // toggles `wr-affix--active` via an IntersectionObserver sentinel.
 
 .wr-affix {
-  // No baseline styles intentionally — the host is the consumer's
-  // element. We only own the `position: sticky` (set inline) and the
-  // optional active modifier.
+  // The host is the consumer's element, so the only thing this layer owns is
+  // the stacking order: a pinned element has to sit above the content that
+  // scrolls under it. There is no token for it — out-specify `.wr-affix` to
+  // restack. `position: sticky` and `top` are set inline by the directive, and
+  // the active modifier is the consumer's to style.
   z-index: 10;
 }

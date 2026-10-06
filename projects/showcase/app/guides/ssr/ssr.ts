@@ -32,7 +32,7 @@ export default class SsrGuidePage {
     },
     {
       api: 'WrMedia.current()',
-      server: "'xs' — the walk from xxl down finds no match and falls through",
+      server: "'xs' — nothing matches, so the walk falls through to the narrowest key in the map",
       client: 'the real breakpoint',
     },
     {

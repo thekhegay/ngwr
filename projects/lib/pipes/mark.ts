@@ -43,7 +43,11 @@ export class WrMark implements PipeTransform {
   transform(value: string | null | undefined, query: string | null | undefined, caseSensitive = false): SafeHtml {
     if (value === null || value === undefined) return '';
     const text = String(value);
-    if (!query) return text;
+    // Escaped on this path too. The output is bound with `[innerHTML]`, so
+    // handing back the raw string let markup in `value` render as elements the
+    // moment the search box was cleared — the same value drawn as text while a
+    // query was typed, as an `<img>` when it was not.
+    if (!query) return escapeHtml(text);
 
     // Match the RAW text and escape the pieces afterwards, never the other way
     // round. Escaping first rewrites `&` as `&amp;`, and a query of `m` then lands

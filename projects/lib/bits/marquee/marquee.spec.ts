@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, type TemplateRef, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
@@ -136,6 +136,60 @@ describe('WrMarquee', () => {
     fixture.detectChanges();
 
     expect(root().querySelectorAll('.wr-marquee__item').length).toBe(0);
+  });
+});
+
+@Component({
+  imports: [WrMarquee],
+  template: `
+    <ng-template #tpl><span>Angular</span></ng-template>
+    <wr-marquee [items]="items()" />
+  `,
+})
+class NodeHost {
+  readonly tpl = viewChild<TemplateRef<unknown>>('tpl');
+  readonly items = signal<readonly WrMarqueeItem[]>([]);
+}
+
+/**
+ * `title` is declared on BOTH entry kinds, and it used to reach the DOM on only
+ * one of them: the image branch bound it and the node branch read it nowhere
+ * but the link's accessible-name fallback, so `{ node: tpl, title: 'Angular' }`
+ * showed no tooltip at all.
+ */
+describe('WrMarquee item tooltips', () => {
+  it('writes a node item’s title onto the item it renders', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(NodeHost);
+    fixture.detectChanges();
+
+    fixture.componentInstance.items.set([{ node: fixture.componentInstance.tpl()!, title: 'Angular' }]);
+    fixture.detectChanges();
+
+    const node = (fixture.nativeElement as HTMLElement).querySelector('.wr-marquee__node')!;
+    expect(node.getAttribute('title')).toBe('Angular');
+
+    fixture.componentInstance.items.set([{ node: fixture.componentInstance.tpl()! }]);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.wr-marquee__node')!.hasAttribute('title')).toBe(
+      false
+    );
+
+    fixture.destroy();
+  });
+
+  it('writes an image item’s title onto the image', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.items.set([{ src: '/a.png', alt: 'Acme', title: 'Acme Inc.' }]);
+    fixture.detectChanges();
+
+    const img = (fixture.nativeElement as HTMLElement).querySelector('img')!;
+    expect(img.getAttribute('title')).toBe('Acme Inc.');
+
+    fixture.destroy();
   });
 });
 

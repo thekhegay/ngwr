@@ -39,7 +39,11 @@
 
 <ng-template #content let-item>
   @if (isNodeItem(item)) {
-    <span class="wr-marquee__node" [attr.aria-hidden]="!!item.href && !item.ariaLabel">
+    <span
+      class="wr-marquee__node"
+      [attr.title]="item.title || null"
+      [attr.aria-hidden]="!!item.href && !item.ariaLabel"
+    >
       <ng-container *ngTemplateOutlet="item.node" />
     </span>
   } @else {

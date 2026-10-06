@@ -1,14 +1,113 @@
 <header class="sandbox__bar">
-  <strong>z-index on an overlay pane</strong>
+  <strong>ngwr palette — ours against Tailwind</strong>
   <button wr-btn type="button" size="sm" outlined (click)="toggleTheme()">
     {{ theme.resolved() === 'dark' ? 'Dark' : 'Light' }}
   </button>
 </header>
 
 <main class="sandbox">
+  <div class="decide">
+    <span class="decide__tag">decide this</span>
+    <h2 style="margin: 0">How strong should a control's border be?</h2>
+    <p>
+      Everything else on this page is a report — the ramp and the intents are already decided and shipped. The one open
+      question is the last two rows of <a href="#borders">Borders</a>, outlined in red: the scale's own next step reads
+      <strong>2.56:1</strong>, and WCAG 1.4.11 asks <strong>3:1</strong> of anything that identifies a control. Reaching
+      it needs a colour darker than the ramp's own rhythm, so control edges would read visibly heavier than every other
+      line on the page. That is the whole of the trade.
+    </p>
+    <p>Flip the theme with the button above — the numbers are measured against the live canvas, not transcribed.</p>
+  </div>
+
   <section class="sandbox__block">
-    <h2>Open the picker, then the dialog</h2>
-    <wr-date-picker [(value)]="picked" placeholder="1. open me" />
-    <button wr-btn type="button" color="primary" (click)="openDialog()">2. open a dialog</button>
+    <h2>Neutral ramp <span style="font: 400 13px/1 system-ui; opacity: 0.6">— decided, for reference</span></h2>
+    <p>
+      Ours is read out of the compiled theme, so this column is whatever the library actually ships, and the counterpart
+      flips with the theme — a dark theme reads the ramp from the other end. The ratio is against the live canvas. A row
+      says so when the two sides match to the byte; the two red rows are steps we do not have, and that is where a 3:1
+      control border would live.
+    </p>
+    <div class="pal pal--context">
+      <div class="pal__head">token</div>
+      <div class="pal__head">ngwr</div>
+      <div class="pal__head">Tailwind</div>
+      @for (r of ramp(); track r.theirsName) {
+        <div class="pal__label" [class.pal__gap]="!r.ours">{{ r.label }}</div>
+        <div class="pal__cell" [class.pal__gap]="!r.ours">
+          @if (r.ours) {
+            <span class="pal__swatch" [style.background]="r.ours"></span>
+            <span class="pal__hex" [class.pal__same]="r.same">{{ r.oursName }}</span>
+            <span class="pal__ratio">{{ r.oursRatio }}:1</span>
+          } @else {
+            <span class="pal__hex">no step</span>
+          }
+        </div>
+        <div class="pal__cell">
+          <span class="pal__swatch" [style.background]="r.theirs"></span>
+          <span class="pal__hex" [class.pal__same]="r.same">{{ r.theirsName }}</span>
+          <span class="pal__ratio">{{ r.theirsRatio }}:1</span>
+        </div>
+        <div class="pal__note">{{ r.note }}{{ r.same ? ' — identical to the byte' : '' }}</div>
+      }
+    </div>
+  </section>
+
+  <section class="sandbox__block">
+    <h2 id="borders">Borders — the renamed family, live</h2>
+    <p>
+      Four tokens became three. <code>base</code> is unchanged, so the 209 declarations that draw every hairline were
+      renamed without moving a pixel. The last row is not a token: it is what a control border would need to meet WCAG
+      1.4.11, and the ramp has no step there — the one below it reads 2.56:1 and the one above 4.76:1.
+    </p>
+    <div class="pal">
+      <div class="pal__head">token</div>
+      <div class="pal__head">value</div>
+      <div class="pal__head">on the canvas</div>
+      @for (b of borders(); track b.name) {
+        <div class="pal__label" [class.pal__row--decide]="b.decide">{{ b.name }}</div>
+        <div class="pal__cell" [class.pal__row--decide]="b.decide">
+          <span class="pal__swatch" [style.background]="b.value ?? 'transparent'"></span>
+          <span class="pal__hex">{{ b.value ?? '—' }}</span>
+        </div>
+        <div class="pal__cell" [class.pal__row--decide]="b.decide">
+          <span class="pal__ratio">{{ b.ratio }}:1</span>
+          <input
+            [style.border]="`1px solid ${b.value ?? 'transparent'}`"
+            style="padding: 0.4rem 0.6rem; border-radius: 0.4rem; background: transparent; color: inherit; width: 11rem"
+            placeholder="a control edge"
+          />
+        </div>
+        @if (b.decide) {
+          <div class="pal__flag">&uarr; {{ b.note }}</div>
+        } @else {
+          <div class="pal__note">{{ b.note }}</div>
+        }
+      }
+    </div>
+  </section>
+
+  <section class="sandbox__block">
+    <h2>Intents <span style="font: 400 13px/1 system-ui; opacity: 0.6">— decided, for reference</span></h2>
+    <p>
+      Ours are tuned so the label on a filled control can be white; theirs are not, which is most of the difference.
+    </p>
+    <div class="pal pal--context">
+      <div class="pal__head">intent</div>
+      <div class="pal__head">ngwr</div>
+      <div class="pal__head">Tailwind</div>
+      @for (r of intents(); track r.theirsName) {
+        <div class="pal__label">{{ r.label }}</div>
+        <div class="pal__cell">
+          <span class="pal__swatch" [style.background]="r.ours ?? 'transparent'"></span>
+          <span class="pal__hex" [class.pal__same]="r.same">{{ r.oursName }}</span>
+          <span class="pal__ratio">{{ r.oursRatio }}:1</span>
+        </div>
+        <div class="pal__cell">
+          <span class="pal__swatch" [style.background]="r.theirs"></span>
+          <span class="pal__hex" [class.pal__same]="r.same">{{ r.theirsName }}</span>
+          <span class="pal__ratio">{{ r.theirsRatio }}:1</span>
+        </div>
+      }
+    </div>
   </section>
 </main>
