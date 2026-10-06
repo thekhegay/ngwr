@@ -6,7 +6,6 @@ import { WrSlider } from 'ngwr/slider';
 
 import {
   DocApiComponent,
-  DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
@@ -23,7 +22,6 @@ import { API } from '#core/generated/api';
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
-    DocCodeComponent,
     DocApiComponent,
   ],
 })
