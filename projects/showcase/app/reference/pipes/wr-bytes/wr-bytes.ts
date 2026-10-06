@@ -41,7 +41,7 @@ export default class WrBytesPipePage {
   ];
 
   protected readonly snippets = {
-    basic: `{{ 1234 | wrBytes }}  <!-- "1.2 KB" -->`,
+    basic: `{{ 1234 | wrBytes }}  <!-- "1.2 kB" -->`,
     decimals: `{{ 1234567 | wrBytes: 0 }}  <!-- "1 MB" -->
 {{ 1234567 | wrBytes: 2 }}  <!-- "1.18 MB" -->`,
   };

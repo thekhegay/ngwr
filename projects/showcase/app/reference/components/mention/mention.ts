@@ -100,8 +100,28 @@ export default class MentionPageComponent {
     { name: 'label', description: 'Text inserted and shown in the panel.', type: 'string', required: true, sub: true },
     {
       name: '[key: string]',
-      description: 'Anything else your app needs back on (selected).',
+      description: 'Anything else your app needs back on `(wrMentionSelected)`.',
       type: 'unknown',
+      sub: true,
+    },
+    {
+      name: 'WrMentionCommit',
+      description: "The `(wrMentionSelected)` payload. Documented nowhere, so a reader had to infer `$event`'s shape.",
+      type: 'interface',
+    },
+    { name: 'item', description: 'The selected entry.', type: 'WrMentionItem', required: true, sub: true },
+    {
+      name: 'trigger',
+      description: "The character that opened the panel — `'@'`, `'#'`, whatever `triggers` listed.",
+      type: 'string',
+      required: true,
+      sub: true,
+    },
+    {
+      name: 'query',
+      description: 'The text typed after the trigger, before the commit. A SUBSTRING match, not a prefix one.',
+      type: 'string',
+      required: true,
       sub: true,
     },
   ];

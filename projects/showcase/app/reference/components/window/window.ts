@@ -259,14 +259,15 @@ ref.close(savedDocId);`,
       name: '(moved)',
       sub: true,
       description:
-        'The header was dragged. Silent for `moveTo()`, `center()` and the opening cascade — the caller already knows where it put the window.',
+        'Fires ONCE when a header drag ends — on `pointerup` or `pointercancel` — with the window’s final position, not once per pointer move: a host persisting the position wants the landing, not the path. Silent for `moveTo()`, `center()` and the opening cascade, where the caller already knows where it put the window.',
       type: '{ x: number; y: number }',
       default: '—',
     },
     {
       name: '(resized)',
       sub: true,
-      description: 'A resize handle was dragged. Silent for a programmatic resize, the same way `(moved)` is.',
+      description:
+        'The same shape for a resize handle: once, at the end of the drag, with the final box. It also fires when a header drag SNAPS the window to an edge, which resizes it — that is a user action with a landing, the same as a drag. Silent for a programmatic resize.',
       type: '{ width: number; height: number }',
       default: '—',
     },

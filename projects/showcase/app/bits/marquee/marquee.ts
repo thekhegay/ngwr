@@ -114,6 +114,7 @@ interface WrMarqueeNode {
   node: TemplateRef<unknown>;
   href?: string;
   ariaLabel?: string;
+  title?: string;
 }`;
 
   protected readonly typeRows: readonly DocApiRow[] = [
@@ -138,5 +139,11 @@ interface WrMarqueeNode {
     },
     { name: 'href', description: 'Wraps the template in a link.', type: 'string', sub: true },
     { name: 'ariaLabel', description: 'Accessible label for the link.', type: 'string', sub: true },
+    {
+      name: 'title',
+      description: 'Native tooltip on the item — the same field `WrMarqueeImage` carries, and it was missing here.',
+      type: 'string',
+      sub: true,
+    },
   ];
 }

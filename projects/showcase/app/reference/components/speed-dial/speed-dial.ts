@@ -59,9 +59,9 @@ export default class SpeedDialPageComponent {
   };
 
   protected readonly typeSnippet = `interface WrSpeedDialAction {
-  id: string;
-  label: string;
-  icon?: WrIconName;
+  readonly id: string;
+  readonly label: string;
+  readonly icon?: WrIconName;
 }
 
 type WrSpeedDialDirection = 'up' | 'down' | 'left' | 'right';`;
