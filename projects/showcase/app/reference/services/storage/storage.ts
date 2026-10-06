@@ -138,7 +138,8 @@ const value = env && (env.e === undefined || env.e >= Date.now()) ? env.v : null
     },
     {
       name: 'WR_STORAGE_ENGINE',
-      description: 'InjectionToken for the active `Storage` engine — override at any level to swap.',
+      description:
+        'InjectionToken for the active `Storage` engine. Provide it at bootstrap — `WrStorage` is root-provided and resolves its engine once, so a lazy route or a component re-providing the token reaches no existing `inject(WrStorage)`. A feature that needs its own engine provides its own `WrStorage` beside it.',
       type: 'InjectionToken<Storage>',
       default: 'localStorage / memory fallback',
     },

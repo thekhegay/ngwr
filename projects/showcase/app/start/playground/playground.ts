@@ -211,13 +211,16 @@ bootstrapApplication(Demo, {
     styles: `// src/styles.scss — the token layer, then only what the demo renders.
 // One line per entry point, and the sandbox writes the ones a component
 // depends on for its styles too: \`ngwr/select\` needs \`ngwr/icon\` for its
-// chevron, which no import in the TypeScript above names.
+// chevron and \`ngwr/button\` needs \`ngwr/spinner\` for its loading state,
+// neither of which any import in the TypeScript above names.
 @use 'ngwr/theme';
 @use 'ngwr/button';
 @use 'ngwr/checkbox';
 @use 'ngwr/form';
+@use 'ngwr/icon';
 @use 'ngwr/input';
-@use 'ngwr/select';`,
+@use 'ngwr/select';
+@use 'ngwr/spinner';`,
   };
 
   /**

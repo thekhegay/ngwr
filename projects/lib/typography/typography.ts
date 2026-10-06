@@ -13,7 +13,8 @@ import type { WrTypographyAlign, WrTypographyTone, WrTypographyVariant } from '.
 /**
  * Semantic typography directive. Attaches to any native element and
  * applies the visual treatment for the chosen `variant` (`h1`–`h6`,
- * `display`, `lead`, `body`, `small`, `caption`, `overline`, `code`).
+ * `display`, `lead`, `body`, `small`, `caption`, `overline`, `code`, `list`,
+ * `link`).
  *
  * Reads from the same `--wr-text-*` / `--wr-font-weight-*` / `--wr-leading-*`
  * tokens used by the opt-in typography utility classes — themeable by
@@ -40,12 +41,14 @@ export class WrTypography {
 
   /**
    * Color tone. `null` (default) keeps the variant's own color — the page ink
-   * for headings and body, the muted role for lead and caption, primary for
-   * links.
-   * Emphasis only: a tone never carries a state on its own. Four of the five
-   * intents share one lightness, and `success` against `danger` is 1.05:1 as
-   * text, so the words have to name the state (`500 Server Error`, not a red
-   * `Request`) — or reach for `<wr-alert>`, which draws a glyph per type.
+   * for headings and body, the muted role for `lead`, `caption`, `overline`
+   * and `list`, primary for links. `tone="base"` pulls a muted variant back to
+   * the page ink.
+   * Every other tone is emphasis only: a tone never carries a state on its
+   * own. Four of the five intents share one lightness, and `success` against
+   * `danger` is 1.05:1 as text, so the words have to name the state
+   * (`500 Server Error`, not a red `Request`) — or reach for `<wr-alert>`,
+   * which draws a glyph per type.
    */
   readonly tone = input<WrTypographyTone | null>(null);
 

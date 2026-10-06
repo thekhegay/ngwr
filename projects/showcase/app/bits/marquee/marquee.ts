@@ -127,6 +127,7 @@ interface WrMarqueeNode {
     { name: 'src', description: 'Image URL.', type: 'string', required: true, sub: true },
     { name: 'alt', description: 'Alt text.', type: 'string', sub: true },
     { name: 'href', description: 'Wraps the image in a link.', type: 'string', sub: true },
+    { name: 'title', description: 'Native tooltip on the image.', type: 'string', sub: true },
     { name: 'width / height', description: 'Intrinsic size hints.', type: 'number', sub: true },
     { name: 'srcSet / sizes', description: 'Responsive image attributes.', type: 'string', sub: true },
     { name: 'WrMarqueeNode', description: 'Template-driven entry.', type: 'interface' },
@@ -139,11 +140,6 @@ interface WrMarqueeNode {
     },
     { name: 'href', description: 'Wraps the template in a link.', type: 'string', sub: true },
     { name: 'ariaLabel', description: 'Accessible label for the link.', type: 'string', sub: true },
-    {
-      name: 'title',
-      description: 'Native tooltip on the item — the same field `WrMarqueeImage` carries, and it was missing here.',
-      type: 'string',
-      sub: true,
-    },
+    { name: 'title', description: 'Native tooltip on the rendered template.', type: 'string', sub: true },
   ];
 }

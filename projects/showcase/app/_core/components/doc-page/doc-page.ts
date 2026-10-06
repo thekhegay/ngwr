@@ -221,6 +221,19 @@ export class DocPageComponent {
     return files.length > 0 ? files : null;
   });
 
+  /**
+   * The section's own description, which follows whether an SCSS half was
+   * emitted. `ngwr/pipes`, `ngwr/validators`, `ngwr/utils` and `ngwr/date` carry
+   * no `sass` condition, so there is no second half to insist on — and insisting
+   * sends a careful reader looking for the line the page did not print, where
+   * `@use 'ngwr/pipes'` fails the Sass build outright rather than doing nothing.
+   */
+  protected readonly installDescription = computed(() =>
+    this.install()?.some(f => f.language === 'scss')
+      ? "The class goes in the component's `imports`, and the entry point goes in your global stylesheet. **Both halves are needed** — a component whose styles are not `@use`d renders unstyled, with nothing in the build to say so."
+      : "The class goes in the component's `imports`. This entry point ships no stylesheet, so there is no `@use` line to add."
+  );
+
   protected readonly cssVars = computed<DocCssVars | null>(() => {
     const route = this.routeKey();
     return Object.hasOwn(CSS_VARS, route) ? CSS_VARS[route as DocCssVarRoute] : null;

@@ -66,9 +66,10 @@ export default class TokensSizingPage {
   --wr-btn-radius: var(--wr-control-radius-sm);
 }`,
 
-    size: `<!-- One size scale everywhere — sm · md (default) · lg. The attribute
-     name differs on the input directive: it is \`size\`, so it cannot clash
-     with the native \`<input size>\`. -->
+    size: `<!-- One size scale everywhere — sm · md (default) · lg, under the same
+     \`size\` attribute on every control. On \`[wrInput]\` the directive claims
+     that attribute, so the native \`<input size>\` character-width hint is not
+     available on an ngwr input. -->
 <button wr-btn type="button" size="sm">Small</button>
 <button wr-btn type="button" size="md">Medium</button>
 <button wr-btn type="button" size="lg">Large</button>
@@ -77,16 +78,21 @@ export default class TokensSizingPage {
 <wr-select size="lg" placeholder="Large">…</wr-select>`,
 
     sizeType: `import { input } from '@angular/core';
+import { useConfigValue } from 'ngwr/config';
 
 // Each control re-exports its own size alias, but they share one shape.
 export type WrButtonSize = 'sm' | 'md' | 'lg';
 export type WrInputSize = 'sm' | 'md' | 'lg';
 export type WrSelectSize = 'sm' | 'md' | 'lg';
 
-// In the component the input defaults to 'md' and only emits a class
-// when it differs — so the base styles cover the common case.
-readonly size = input<WrButtonSize>('md');
-// host: const size = this.size();
+// The input itself is nullable, so an unset size can fall through to
+// \`provideWrConfig({ button: { size } })\` before it reaches 'md'.
+readonly size = input<WrButtonSize | null>(null);
+readonly resolvedSize = useConfigValue<WrButtonSize>(this.size, c => c.button?.size, 'md');
+
+// Only a resolved size other than 'md' emits a class — the base styles
+// cover the common case.
+// host: const size = this.resolvedSize();
 //       if (size !== 'md') parts.push(\`wr-btn--\${size}\`);`,
 
     radius: `:root {

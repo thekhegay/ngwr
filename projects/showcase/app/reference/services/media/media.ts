@@ -49,7 +49,8 @@ protected readonly current = this.media.current; // 'xs' | 'sm' | ...`,
     },
     {
       name: 'current',
-      description: 'Active breakpoint key — `xs` / `sm` / `md` / `lg` / `xl` / `xxl`.',
+      description:
+        'The largest breakpoint the viewport satisfies — `xs` / `sm` / `md` / `lg` / `xl` / `xxl` / `xga` / `fhd` / `rt`. The order is derived from the injected map, so a custom one through `provideWrMedia` is covered too.',
       type: 'Signal<WrBreakpoint>',
       default: '—',
     },

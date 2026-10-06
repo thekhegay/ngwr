@@ -72,7 +72,8 @@ const label = runInInjectionContext(injector, () => readI18nText('x', 'X'));`,
     },
     {
       name: 'use(locale)',
-      description: 'Switch the active locale. Ignored if outside `availableLocales`. Persists via WrStorage.',
+      description:
+        'Switch the active locale. Ignored if outside `availableLocales`. Persists via `WrStorage` under `storageKey`, and that persisted locale is what the next boot starts on.',
       type: '(locale: string) => void',
       default: '—',
     },
@@ -109,7 +110,7 @@ const label = runInInjectionContext(injector, () => readI18nText('x', 'X'));`,
     {
       name: 'provideWrI18n(options?)',
       description:
-        "Root provider. Pass `defaultLocale`, `availableLocales`, an optional `missingHandler`, and an optional `loader`. Every field is optional — called bare it takes `defaultLocale` from Angular's `LOCALE_ID`.",
+        "Root provider. Pass `defaultLocale`, `availableLocales`, a `storageKey`, an optional `missingHandler`, and an optional `loader`. Every field is optional — called bare it takes `defaultLocale` from Angular's `LOCALE_ID` and persists the locale `use()` switches to under `wr:i18n:locale`. A persisted locale that is still whitelisted wins over `defaultLocale` on boot, so pass `storageKey: null` for an app whose locale comes from the URL or the server rather than from the last visit.",
       type: '(options: ProvideWrI18nOptions = {}) => EnvironmentProviders',
       default: '—',
     },

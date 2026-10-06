@@ -4,16 +4,20 @@
   [keywords]="['wrAutofocus', 'autofocus', 'directive']"
   [labels]="['Directive']"
 >
-  <ngwr-doc-section title="Usage">
+  <ngwr-doc-section
+    title="Usage"
+    description="Focus follows the transition to truthy, and the directive never blurs: setting the binding back to `false` leaves the caret where it is, so focusing again takes a flip back to `true`."
+  >
     <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap">
-        <wr-btn (click)="demoInput.focus()">Focus input</wr-btn>
+        <wr-btn (click)="autofocusOn.set(!autofocusOn())">
+          {{ autofocusOn() ? 'Set the binding false' : 'Set the binding true' }}
+        </wr-btn>
         <input
-          #demoInput
           wrInput
           [wrAutofocus]="autofocusOn()"
-          placeholder="I focus when toggled on"
+          placeholder="I focus when the binding flips to true"
           style="max-width: 18rem"
         />
       </div>

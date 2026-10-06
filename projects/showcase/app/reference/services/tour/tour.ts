@@ -121,9 +121,9 @@ tour.isLast();  // nothing after it`,
     {
       name: 'isFirst',
       description:
-        'Nothing before this step. NOT `index() === 0`: a leading step whose target is missing is skipped, so the tour can open on a later index — reading the raw index put a Back button on the first card that did nothing.',
+        'Nothing before this step. NOT `index() === 0`: a leading step whose target is missing is skipped, so the tour can open on a later index — reading the raw index put a Back button on the first card that did nothing. `true` with no tour running, so `&#64;if (!tour.isFirst())` around a Back button hides it while idle.',
       type: 'Signal<boolean>',
-      default: 'false',
+      default: 'true',
       sub: true,
     },
     {

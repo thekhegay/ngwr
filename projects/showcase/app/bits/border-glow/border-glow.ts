@@ -85,7 +85,8 @@ export default class BorderGlowPage {
     },
     {
       name: 'glowIntensity',
-      description: 'Halo opacity multiplier (1 = full strength).',
+      description:
+        'Halo opacity multiplier (1 = full strength). Set a `glowColor` alongside it — the halo variables are built from the two together, so on the default palette this input paints nothing.',
       type: 'number',
       default: '1',
     },
@@ -110,7 +111,7 @@ export default class BorderGlowPage {
     {
       name: 'glowColor',
       description:
-        'Halo colour as `"H S L"` (HSL parts, no commas). Unset, the theme decides: a deep amber on light surfaces, pale amber on dark.',
+        'Halo colour as `"H S L"` (HSL parts, no commas). Unset, the theme decides: a deep amber on light surfaces, pale amber on dark — and `glowIntensity` has nothing to multiply until you set one.',
       type: 'string | null',
       default: 'null',
     },

@@ -1998,8 +1998,8 @@ export class MyWidgetHarness extends ComponentHarness {
     {
       name: 'getName()',
       description:
-        'Read off the radios, because that is where a bound `[name]` lands. A literal `name="size"` also survives on the group element — do not "simplify" a lookup into that trap.',
-      type: 'Promise<string | null>',
+        'Read off the radios, because that is where a bound `[name]` lands. A literal `name="size"` also survives on the group element — do not "simplify" a lookup into that trap. A group with no `<wr-radio>` children throws rather than answering.',
+      type: 'Promise<string>',
       default: '—',
     },
     {
@@ -2145,8 +2145,9 @@ export class MyWidgetHarness extends ComponentHarness {
     },
     {
       name: 'getValue()',
-      description: 'A number, or a `[low, high]` tuple on a range slider.',
-      type: 'Promise<number | [number, number]>',
+      description:
+        'A number, or a readonly `[low, high]` tuple on a range slider — the `WrSliderValue` the model holds.',
+      type: 'Promise<number | readonly [number, number]>',
       default: '—',
     },
     {

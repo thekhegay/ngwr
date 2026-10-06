@@ -37,7 +37,7 @@ export default class DirectivesTypographyPage {
       type: 'WrTypographyTone | null',
       default: 'null',
       description:
-        'Colour override. `null` emits no tone class at all, leaving each variant its own colour — body and headings read `--wr-color-on-surface`, `lead` / `caption` / `overline` are muted, `link` is primary. Set a tone only to depart from that — and for emphasis only: a tone never carries a state on its own, since `success` against `danger` is 1.05:1 as text. The words have to name the state.',
+        'Colour override. `null` emits no tone class at all, leaving each variant its own colour — body and headings read `--wr-color-on-surface`, `lead` / `caption` / `overline` / `list` are muted, `link` is primary. Use `tone="base"` to pull a muted variant back to the page ink. Every other tone is emphasis only: a tone never carries a state on its own, since `success` against `danger` is 1.05:1 as text. The words have to name the state.',
     },
     {
       name: 'align',
@@ -76,8 +76,9 @@ export default class DirectivesTypographyPage {
     },
     {
       name: 'list',
-      type: 'ul / ol / dl aware',
-      description: 'Applies to the list element itself; markers and nesting are styled from the element type.',
+      type: 'ul / ol / dl aware · muted',
+      description:
+        'Applies to the list element itself; markers and nesting are styled from the element type. Inside a `dl` the `dd` reads the page ink and the `dt` stays muted.',
     },
     { name: 'link', type: 'primary', description: 'Inline link styling.' },
   ];

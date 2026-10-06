@@ -96,9 +96,11 @@
       <code>dir="rtl"</code> — the tab strip, the calendar grid, the tree and a context menu's cascade all swap
       ArrowLeft and ArrowRight, while <wr-kbd size="sm">Home</wr-kbd> and <wr-kbd size="sm">End</wr-kbd> name a position
       and never do. And <strong>a composite widget is ONE tab stop</strong>: the arrows rove inside it, so tabbing
-      through a month does not mean tabbing through 42 cells. The exception is
-      <a routerLink="/reference/components/pagination">pagination</a>, and it is deliberate — a pager is a landmark of
-      independent destinations, not a composite.
+      through a month does not mean tabbing through 42 cells. Two widgets are deliberately outside that.
+      <a routerLink="/reference/components/pagination">Pagination</a>, because its items are independent destinations
+      rather than parts of one control. And a <a routerLink="/reference/components/tabs">tab</a> strip in router mode,
+      where each header is a real link: an enabled one carries its own tab stop, a disabled one is taken out of the
+      order entirely.
     </p>
 
     <p wrTypography variant="small" tone="muted">

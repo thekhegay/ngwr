@@ -176,7 +176,8 @@ export default class KeyboardGuidePage {
     },
     {
       title: 'Tabs',
-      caption: 'Focus is on a tab header. The strip is ONE tab stop; the arrows rove within it.',
+      caption:
+        'Focus is on a tab header. A content strip is ONE tab stop and the arrows rove within it; in router mode (`wrTabsRouting`) each enabled header is a link and keeps its own tab stop, so Tab walks the strip and the arrows rove as well.',
       rows: [
         {
           keys: ['ArrowRight', 'ArrowLeft'],

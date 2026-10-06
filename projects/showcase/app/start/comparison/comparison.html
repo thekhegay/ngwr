@@ -242,10 +242,10 @@
       given as a share rather than as totals, because the maintainer's total moves with every commit; the command below
       prints the exact figures. The rest move too, and a competitor's licensing terms are the vendor's to state — check
       them there before you rely on a row here. The ngwr column is measured in this repository and reproducible:
-      <code>find projects/lib -name ng-package.json</code> for the entry points, a grep for
-      <code>ControlValueAccessor</code>, and <code>git shortlog -sn --all</code> for the commits. That last one prints
-      seven rows, not one: the maintainer is four of them (an identity per machine and per email over four years), two
-      are bots, and one is the other human.
+      <code>grep -c '"default": "\./.*/public-api\.ts"' projects/lib/package.json</code> for the entry points — the
+      <code>exports</code> map is what declares one — a grep for <code>ControlValueAccessor</code>, and
+      <code>git shortlog -sn --all</code> for the commits. That last one prints seven rows, not one: the maintainer is
+      four of them (an identity per machine and per email over four years), two are bots, and one is the other human.
     </p>
 
     <p wrTypography>

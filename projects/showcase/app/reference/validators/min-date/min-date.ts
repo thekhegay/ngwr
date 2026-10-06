@@ -47,7 +47,7 @@ const start = new FormControl('', [
 ]);
 
 start.setValue('2025-12-31');
-start.errors; // { minDate: { min: Date(2026-01-01) } }`;
+start.errors; // { minDate: { min: '2026-01-01' } } — the bound, as configured`;
 
   protected readonly api: readonly DocApiRow[] = [
     {

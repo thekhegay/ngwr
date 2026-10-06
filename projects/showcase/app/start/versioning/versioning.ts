@@ -98,7 +98,7 @@ export default class VersioningPage {
       surface: 'Anything with a docs page',
       status: 'Yes',
       check:
-        'Every component, directive, pipe, service, util and validator under /reference, and every provideWr*() function. Their API tables are compared against the library on every pull request — names, types and defaults alike — so most drift between a page and the source is a red build rather than something you find at runtime.',
+        'Every component, directive, pipe, service, util and validator under /reference, and every provideWr*() function. Where the page FOLDER is the entry point — every service page, most component pages — its API table is compared against the library on every pull request, names, types and defaults alike, so drift there is a red build rather than something you find at runtime. The rest are named after the function or the type instead, which nothing resolves to an entry point: the pipes, the utils, the validators, the interface pages, four of the six directive pages and the components whose folder differs from their route. Read those signatures against the shipped types.',
     },
     {
       surface: '.wr-* class names',

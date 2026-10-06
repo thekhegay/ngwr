@@ -49,7 +49,7 @@ export default class WrMarkPipePage {
 <!-- Case-sensitive: -->
 <span [innerHTML]="row.name | wrMark: query() : true"></span>
 
-<!-- Empty / null query is a pass-through: -->
+<!-- Empty / null query skips the wrap; the text is still escaped: -->
 <span [innerHTML]="row.name | wrMark: null"></span>`,
 
     style: `/* The pipe emits a bare <mark>, so one element rule reaches every match. */
@@ -74,7 +74,7 @@ mark {
     },
     {
       name: 'query',
-      description: 'Search term. Empty / null leaves the value untouched.',
+      description: 'Search term. Empty / null skips the wrap, leaving the escaped text.',
       type: 'string | null | undefined',
       default: '—',
     },

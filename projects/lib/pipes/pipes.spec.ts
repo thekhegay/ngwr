@@ -193,4 +193,12 @@ describe('wrMark', () => {
     expect(html('abc', null)).toBe('abc');
     expect(html(null, 'a')).toBe('');
   });
+
+  it('escapes with no query too, so the rendering cannot flip on a keystroke', () => {
+    // The early return used to hand the raw string to `[innerHTML]`: with a
+    // query typed, `<img src=x>` drew as text, and with the box cleared the same
+    // value drew an element — whatever Angular's own sanitizer permits.
+    expect(html('<img src=x onerror=1>', '')).toBe('&lt;img src=x onerror=1&gt;');
+    expect(html('<b>bold</b>', null)).toBe('&lt;b&gt;bold&lt;/b&gt;');
+  });
 });

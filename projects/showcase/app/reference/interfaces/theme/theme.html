@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="Theme types"
-  description="Unions exported from `ngwr/theme` — the palette names every colored component accepts, and the mode values `WrTheme` works with."
+  description="Unions exported from `ngwr/theme` — the intent names the colored components share, and the mode values `WrTheme` works with."
   [keywords]="['types', 'WrColor', 'WrThemeMode', 'theme']"
   [labels]="['Type']"
 >
   <ngwr-doc-section
     title="WrColor"
-    description="The palette union behind every `[color]` input. Values map 1:1 to the `--wr-color-*` custom properties, so a custom palette automatically flows into components."
+    description="The intent union. Values map 1:1 to the `--wr-color-*` custom properties, so a custom palette automatically flows into every surface typed to it: `[color]` on `wr-badge`, `wr-tag`, `wr-btn`, `wr-divider`, `wr-progress` and `wr-skeleton`, `[confirmColor]` on `[wrPopconfirm]`, and a `WrCalendarEvent`&#39;s own `color`. A `[color]` elsewhere is a different type: `<wr-timeline-item>` takes `WrTimelineColor`, which swaps `info` for `neutral`, and `wr-qr`, the charts and `<wr-loading-bar>` take a raw CSS colour string."
   >
     <ngwr-doc-code [code]="snippets.color" language="angular-ts" />
     <ngwr-doc-snippet code="">

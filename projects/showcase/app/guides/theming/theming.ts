@@ -118,8 +118,10 @@ bootstrapApplication(AppComponent, {
 // light palette runs, on whatever element you include it on — and \`theme.dark\`
 // builds the selector from \`$theme-attribute\`, so it survives a renamed
 // attribute where a hand-written [data-theme='dark'] would not.
-@use 'ngwr/theme' as theme;
-
+//
+// Both come off the \`@use\` above: the URL's last component already binds the
+// namespace \`theme\`, so do NOT add a second \`@use 'ngwr/theme' as theme\` —
+// it fails with "There's already a module with namespace".
 @include theme.dark {
   // Seeded FOR the dark canvas, and measured: \`-contrast\` PICKS black or
   // white, so the fill decides its own label. #5b5bd6 takes white at 5.37:1

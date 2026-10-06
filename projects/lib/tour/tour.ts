@@ -111,13 +111,19 @@ export class WrTour {
   private readonly noStepAfter = signal(false);
 
   // The same question looking the other way. Settled in `goTo` for the same reason.
+  //
+  // `true` at rest, and the asymmetry with `noStepAfter` is deliberate: with no
+  // tour running there is no step, so both questions are vacuous, and the pair
+  // is set to whatever keeps a naive template honest. `@if (!tour.isFirst())`
+  // around a Back button is the obvious way to write it, and at `false` that
+  // button appears with no tour on screen.
   private readonly noStepBefore = signal(true);
 
   /**
    * Whether this is the last step the user will see. Not `index() === total() - 1`:
    * a trailing step whose target is missing is skipped, so comparing against the
    * raw count left the primary button reading "Next" on the final card and then
-   * ending the tour when it was pressed.
+   * ending the tour when it was pressed. `false` while no tour is running.
    */
   readonly isLast = computed(() => this.noStepAfter());
 
@@ -126,7 +132,8 @@ export class WrTour {
    * mirror of the reason above: a LEADING step whose target is missing is skipped,
    * so the tour opens on a later index and the raw one put a Back button on the
    * first card — one that did nothing at all, because `prev()` walks off the start
-   * and returns without moving.
+   * and returns without moving. `true` while no tour is running — see the signal
+   * it reads.
    */
   readonly isFirst = computed(() => this.noStepBefore());
 
@@ -166,6 +173,12 @@ export class WrTour {
     this.teardownStep();
     this.steps.set([]);
     this.cursor.set(-1);
+    // Back to their resting answers. Without this a finished tour left both
+    // holding whatever its last step said, so `isFirst` and `isLast` were the
+    // only two signals here that still described a tour that had ended — while
+    // `active`, `index`, `total` and `step` all reported idle.
+    this.noStepAfter.set(false);
+    this.noStepBefore.set(true);
     this.restoreFocus?.focus?.();
     this.restoreFocus = null;
   }
