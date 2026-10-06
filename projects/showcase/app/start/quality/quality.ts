@@ -47,7 +47,7 @@ const PR_GATE_NOTES: Readonly<Record<string, string>> = {
   'check:css-vars':
     'The --wr-<name>-* hooks each component page lists, regenerated from the stylesheets and compared against the committed copy. A hook a component grows cannot ship without its row.',
   'build:lib':
-    'ng-packagr over every secondary entry point, then the schematics, the MCP server and the AI assets. An entry point that does not compile in isolation fails here and nowhere else.',
+    '`@angular/build:library` over every secondary entry point, then the schematics, the MCP server and the AI assets. An entry point that does not compile in isolation fails here and nowhere else.',
   'build:showcase':
     'Every documentation route prerendered in Node. SSR breakage is a red build rather than a silent degrade: a component that touches the DOM outside afterNextRender cannot reach a release.',
   'check:theme':
