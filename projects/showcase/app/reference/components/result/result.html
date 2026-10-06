@@ -4,12 +4,13 @@
   [keywords]="['result', 'empty', '404', '403', '500', 'wr-result']"
 >
   <ngwr-doc-section title="Statuses">
-    <ngwr-doc-code [code]="snippet" language="angular-html" />
+    <ngwr-doc-code [code]="statuses" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div class="result-grid">
         <wr-result status="success" title="Submitted" />
         <wr-result status="warning" title="Heads up" />
         <wr-result status="error" title="Failed" />
+        <wr-result status="info" title="In review" />
         <wr-result status="empty" title="No projects" />
       </div>
     </ngwr-doc-snippet>

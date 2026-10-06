@@ -30,10 +30,15 @@ import { API } from '#core/generated/api';
   ],
 })
 export default class ResultPageComponent {
-  protected readonly install = `import { WrResult, WrResult404, WrResult403, WrResult500 } from 'ngwr/result';
-
-@Component({ imports: [WrResult, WrResult404, WrResult403, WrResult500] })
-export class MyComponent {}`;
+  // The Statuses section used to print the `snippet` below — a success result
+  // with a button, which says nothing about statuses and is the very next
+  // section's example. A reader copying the block under a heading gets what
+  // that heading promised.
+  protected readonly statuses = `<wr-result status="success" title="Submitted" />
+<wr-result status="warning" title="Heads up" />
+<wr-result status="error" title="Failed" />
+<wr-result status="info" title="In review" />
+<wr-result status="empty" title="No projects" />`;
 
   protected readonly snippet = `<wr-result status="success" title="Submitted!" description="We'll be in touch.">
   <button wr-btn type="button" color="primary" wrResultExtra>Continue</button>
