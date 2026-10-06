@@ -165,25 +165,33 @@ $contrast-light: #ffffff !default;
   // so the hover strength stays consistent everywhere.
   --wr-color-hover: var(--wr-color-gray-2);
 
-  // Border strengths — three, and the names say which is which.
+  // Border strengths — three OPAQUE steps, ascending, and the names say which
+  // is which.
   //
   // This was four tokens whose names did not: an opaque `--wr-color-outline`
   // that 209 declarations drew every hairline with, and three translucent
   // `--wr-color-border*` at 0.35 / 0.5 / 0.6 that almost nothing read. Nobody
-  // could tell from the names which one was the real border. The 0.5 middle
-  // had three readers and folded into `-strong`, the nearer of its neighbours.
+  // could tell from the names which one was the real border — and measured on
+  // the canvas, the one called `strong` was WEAKER than the one everything
+  // used: 0.6 of the hairline composited on white reads 1.26:1 against the
+  // opaque 1.48:1. The alphas were invisible to each other because the two
+  // halves sat in different namespaces, so nothing ever put them side by side.
   //
-  // `-base` is the one the catalog paints with and is unchanged — the rename
-  // moved 209 reads without moving a pixel. The other two are still translucent
-  // so they read on any surface, and they are the weaker and stronger ends
-  // offered to consumers. They were NOT the answer to the twenty-two files that
-  // hand-rolled `rgba(var(--wr-border-base-rgb), α)`: those were FILLS, and
-  // naming a fill after a hairline is how a token layer starts lying, so the
-  // `--wr-color-fill*` scale below absorbed them instead.
+  // Now they are steps of the ramp, which is what a strength scale has to be if
+  // the order is to hold on any ground. `-base` is unchanged — the rename moved
+  // 209 reads without moving a pixel. `-strong` is the one step the POSITIONAL
+  // ramp does not carry, so it reads the fixed scale directly and is the one
+  // member this file re-declares for dark.
   //
-  // unused-ok: for `-subtle`. `-strong` now has the avatar's ring.
-  --wr-border-subtle: rgba(var(--wr-color-gray-4-rgb), 0.35);
-  --wr-border-strong: rgba(var(--wr-color-gray-4-rgb), 0.6);
+  // It is NOT a 1.4.11 border: 2.56:1 in light, where the criterion asks 3:1.
+  // Reaching that needs `#718cad` / `#4d608a`, which is darker than the ramp's
+  // own rhythm and would leave control edges visibly heavier than every line
+  // beside them. That trade is recorded against `--wr-border-base` and is the
+  // maintainer's to reopen; this scale does not quietly pre-empt it.
+  //
+  // unused-ok: for `-subtle`. `-strong` has the avatar's ring.
+  --wr-border-subtle: var(--wr-color-gray-3);
+  --wr-border-strong: var(--wr-color-gray-400);
 
   // Scrim behind modals / drawers — always black so the dim reads as "covered"
   // regardless of theme.
