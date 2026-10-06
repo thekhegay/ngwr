@@ -63,7 +63,8 @@ export default class ColorPickerPageComponent {
     utils: `import { parseHex, toHex, rgbToHsl } from 'ngwr/color-picker';
 
 const rgb = parseHex('#3969e2');        // { r: 57, g: 105, b: 226, a: 1 }
-const hsl = rgbToHsl(rgb!);             // { h: 220, s: 0.74, l: 0.55, a: 1 }
+const hsl = rgbToHsl(rgb!);             // { h: 222.96, s: 0.744, l: 0.555, a: 1 }
+                                        // — unrounded; the hsla STRING rounds to hsl(223, 74%, 55%)
 const back = toHex(rgb!, true);         // '#3969e2ff'`,
     exportAs: `<button type="button" wrColorPickerTrigger [(value)]="brand" #swatch="wrColorPickerTrigger">
   Brand colour
