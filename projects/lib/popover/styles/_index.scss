@@ -45,7 +45,7 @@
   // Both halves are tokens, so an app that wants the inverted look back needs one
   // rule, not an override of every tooltip rule:
   //   .wr-tooltip { --wr-tooltip-bg: var(--wr-color-on-surface);
-  //                 --wr-tooltip-color: var(--wr-color-dark-contrast); }
+  //                 --wr-tooltip-color: var(--wr-color-surface); }
   --wr-tooltip-bg: var(--wr-color-surface);
   --wr-tooltip-color: var(--wr-color-on-surface);
   --wr-tooltip-border: var(--wr-border-base);
