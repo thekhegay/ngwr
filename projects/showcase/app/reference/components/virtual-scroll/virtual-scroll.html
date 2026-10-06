@@ -10,17 +10,13 @@
         [items]="rows()"
         [itemSize]="itemSize()"
         [height]="height()"
-        style="width: 100%; border: 1px solid var(--wr-color-outline); border-radius: 0.5rem"
+        style="width: 100%; border: 1px solid var(--wr-border-base); border-radius: 0.5rem"
       >
         <ng-template let-row let-i="index">
           <div
             [style.height.px]="itemSize()"
             [style.line-height.px]="itemSize()"
-            style="
-              padding: 0 1rem;
-              border-bottom: 1px solid var(--wr-color-outline);
-              font-variant-numeric: tabular-nums;
-            "
+            style="padding: 0 1rem; border-bottom: 1px solid var(--wr-border-base); font-variant-numeric: tabular-nums"
           >
             {{ i + 1 }}. {{ row.label }}
           </div>

@@ -26,7 +26,7 @@
   --wr-editor-color: var(--wr-color-on-surface);
   --wr-editor-placeholder: var(--wr-color-placeholder);
   --wr-editor-bg: var(--wr-color-surface);
-  --wr-editor-border: var(--wr-color-outline);
+  --wr-editor-border: var(--wr-border-base);
   --wr-editor-radius: var(--wr-control-radius-md);
   --wr-editor-ring: transparent;
   --wr-editor-min-height: 8rem;
@@ -36,7 +36,7 @@
   --wr-editor-font-size: var(--wr-text-sm);
   --wr-editor-line-height: 1.6;
   --wr-editor-toolbar-bg: var(--wr-color-fill-subtle);
-  --wr-editor-toolbar-border: var(--wr-color-outline);
+  --wr-editor-toolbar-border: var(--wr-border-base);
   --wr-editor-toolbar-gap: 0.125rem;
   --wr-editor-tool-active-bg: var(--wr-color-primary-soft);
   --wr-editor-tool-active-color: var(--wr-color-primary-ink);
@@ -293,7 +293,7 @@
       margin-block: 0 0.75em;
       margin-inline: 0;
       padding-inline-start: 1em;
-      border-inline-start: 3px solid var(--wr-color-outline);
+      border-inline-start: 3px solid var(--wr-border-base);
       color: var(--wr-color-on-surface-muted);
     }
 
@@ -320,7 +320,7 @@
     hr {
       margin-block: 1.25em;
       border: 0;
-      border-block-start: 1px solid var(--wr-color-outline);
+      border-block-start: 1px solid var(--wr-border-base);
     }
 
     table {
@@ -333,7 +333,7 @@
     th,
     td {
       padding: var(--wr-space-sm) var(--wr-space-md);
-      border: 1px solid var(--wr-color-outline);
+      border: 1px solid var(--wr-border-base);
       vertical-align: top;
 
       > p {
@@ -368,7 +368,7 @@
     inline-size: 1em;
     block-size: 1em;
     margin-block-start: 0.3em;
-    border: 1px solid var(--wr-color-outline);
+    border: 1px solid var(--wr-border-base);
     border-radius: var(--wr-border-radius-sm);
     background: var(--wr-color-surface);
     user-select: none;

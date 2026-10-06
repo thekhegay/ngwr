@@ -11,7 +11,7 @@
 }
 
 .ngwr-header {
-  --ngwr-header-border: var(--wr-color-border-subtle);
+  --ngwr-header-border: var(--wr-border-subtle);
   --ngwr-header-item-height: 2rem;
   --ngwr-header-item-width: var(--ngwr-header-item-height);
 
@@ -129,7 +129,7 @@
   }
 
   &__action {
-    --ngwr-header-action-border-color: var(--wr-color-border-subtle);
+    --ngwr-header-action-border-color: var(--wr-border-subtle);
     --ngwr-header-action-icon-color: var(--wr-color-on-surface);
     --ngwr-header-action-icon-bg: transparent;
 
@@ -397,7 +397,7 @@
     &-divider {
       height: 1px;
       margin: 0.5rem 0.75rem;
-      background: var(--wr-color-border-subtle);
+      background: var(--wr-border-subtle);
     }
   }
 

@@ -14,7 +14,7 @@
   min-width: 8rem;
   max-width: 22rem;
   background: var(--wr-color-surface);
-  border: 1px solid var(--wr-color-outline);
+  border: 1px solid var(--wr-border-base);
   @include theme.smooth-br(var(--wr-border-radius-base));
   box-shadow: var(--wr-shadow-overlay);
   font-family: var(--wr-font-family-base);
@@ -48,7 +48,7 @@
   //                 --wr-tooltip-color: var(--wr-color-dark-contrast); }
   --wr-tooltip-bg: var(--wr-color-surface);
   --wr-tooltip-color: var(--wr-color-on-surface);
-  --wr-tooltip-border: var(--wr-color-outline);
+  --wr-tooltip-border: var(--wr-border-base);
 
   position: relative;
   display: inline-block;
@@ -121,7 +121,7 @@
   $pane: '.wr-popover-overlay',
   $panel: '> *',
   $background: var(--wr-color-surface),
-  $border: var(--wr-color-outline)
+  $border: var(--wr-border-base)
 );
 
 // Tooltip: a known child, with the chip's border carried onto the arrow's outward

@@ -1,7 +1,7 @@
 @use '../../theme/styles' as theme;
 
 .wr-slider {
-  --wr-slider-track: var(--wr-color-outline);
+  --wr-slider-track: var(--wr-border-base);
   --wr-slider-fill: var(--wr-color-primary);
   --wr-slider-thumb: var(--wr-color-surface);
   --wr-slider-thumb-border: var(--wr-color-primary);

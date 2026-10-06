@@ -37,7 +37,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--wr-color-outline);
+    background: var(--wr-border-base);
     outline: 0;
     // Own the drag gesture — without this a coarse pointer can hand the
     // divider drag to the browser as a pan and fire pointercancel mid-drag.
@@ -69,7 +69,7 @@
 
   &__handle {
     background: var(--wr-color-surface);
-    border: 1px solid var(--wr-color-outline);
+    border: 1px solid var(--wr-border-base);
     box-shadow: var(--wr-shadow-sm);
     display: inline-block;
     flex: 0 0 auto;
@@ -91,7 +91,7 @@
     cursor: not-allowed;
 
     &:hover {
-      background: var(--wr-color-outline);
+      background: var(--wr-border-base);
     }
   }
 }

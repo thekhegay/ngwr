@@ -168,7 +168,7 @@
   &--combobox {
     --wr-tree-trigger-color: var(--wr-color-on-surface);
     --wr-tree-trigger-bg: var(--wr-color-surface);
-    --wr-tree-trigger-border: var(--wr-color-outline);
+    --wr-tree-trigger-border: var(--wr-border-base);
     // Combobox trigger on the md control contract (30px, radius 6) so it lines
     // up with select / input / button when used as a tree-select.
     --wr-tree-trigger-radius: var(--wr-control-radius-md);
@@ -397,7 +397,7 @@
 
 .wr-tree-panel {
   background: var(--wr-color-surface);
-  border: 1px solid var(--wr-color-outline);
+  border: 1px solid var(--wr-border-base);
   border-radius: var(--wr-border-radius-base);
   box-shadow: var(--wr-shadow-overlay);
   padding: var(--wr-space-sm);

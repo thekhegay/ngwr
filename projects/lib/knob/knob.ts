@@ -78,8 +78,8 @@ export class WrKnob implements FormValueControl<number> {
     transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 8)),
   });
 
-  /** Track (unfilled) color. @default rgba(var(--wr-color-outline-rgb), 0.6) */
-  readonly trackColor = input<string>('rgba(var(--wr-color-outline-rgb), 0.6)');
+  /** Track (unfilled) color. @default rgba(var(--wr-border-base-rgb), 0.6) */
+  readonly trackColor = input<string>('rgba(var(--wr-border-base-rgb), 0.6)');
 
   /** Filled-arc color. @default var(--wr-color-primary) */
   readonly valueColor = input<string>('var(--wr-color-primary)');

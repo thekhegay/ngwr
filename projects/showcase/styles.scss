@@ -15,7 +15,7 @@
 
 :root {
   // Hairline around colour swatches on the token / colour pages. Drawn INSIDE
-  // the swatch as ink at low alpha, not as a border in `--wr-color-border`:
+  // the swatch as ink at low alpha, not as a border in `--wr-border-strong`:
   // that token is deliberately translucent slate, so over a saturated or
   // near-black fill it reads as a grey halo rather than an edge. Keying it to
   // the ink role means the line only shows up on canvas-coloured swatches —
@@ -168,7 +168,7 @@ ngwr-doc-page :not(pre) > code {
   overflow-wrap: anywhere;
   padding: 0.125rem 0.3125rem;
   border-radius: var(--wr-border-radius-sm);
-  // A tint off the INK channel, not the border one. `--wr-color-outline` is a
+  // A tint off the INK channel, not the border one. `--wr-border-base` is a
   // border token and `prefers-contrast: more` darkens it on purpose, so a chip
   // painted from it got harder to read in the mode meant to help. It stays
   // TRANSLUCENT rather than taking an opaque fill role because a chip lands on
@@ -213,7 +213,7 @@ ngwr-doc-page :not(pre) > code {
 
   td {
     padding: 0.375rem 1.5rem 0.375rem 0;
-    border-bottom: 1px solid rgba(var(--wr-color-outline-rgb), 0.6);
+    border-bottom: 1px solid rgba(var(--wr-border-base-rgb), 0.6);
     color: var(--wr-color-on-surface);
     font-size: 0.875rem;
   }
@@ -297,7 +297,7 @@ samp {
     text-align: start;
     vertical-align: top;
     padding: 0.5rem 0.75rem 0.5rem 0;
-    border-block-end: 1px solid rgba(var(--wr-color-outline-rgb), 0.5);
+    border-block-end: 1px solid rgba(var(--wr-border-base-rgb), 0.5);
   }
 
   thead th {

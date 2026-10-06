@@ -108,17 +108,17 @@ export default class TokensColorsPage {
         'Generic subtle hover tint (icon buttons, list rows). Adapts in dark because each theme sets its own gray ramp.',
     },
     {
-      name: '--wr-color-border',
+      name: '--wr-border-strong',
       type: 'rgba(var(--wr-color-gray-4-rgb), 0.5)',
       description: 'Default divider / border. Translucent so it reads on any surface.',
     },
     {
-      name: '--wr-color-border-subtle',
+      name: '--wr-border-subtle',
       type: 'rgba(var(--wr-color-gray-4-rgb), 0.35)',
       description: 'Quieter hairline — for low-emphasis separators.',
     },
     {
-      name: '--wr-color-border-strong',
+      name: '--wr-border-strong',
       type: 'rgba(var(--wr-color-gray-4-rgb), 0.6)',
       description: 'Heavier border — for focused or emphasized edges.',
     },
@@ -174,10 +174,10 @@ export default class TokensColorsPage {
         'Placeholder text, in every field the library draws — `[wrInput]`, `wr-textarea`, `wr-input-otp`, the select, cascader and tree triggers, the command palette and the table filter. A placeholder is text, so it has to clear 4.5:1: this one is 5.34:1 on the light surface, 4.76:1 on a readonly field and 7.63:1 in dark. Written as the muted role, so dark mode and `prefers-contrast: more` carry it without a line of their own.',
     },
     {
-      name: '--wr-color-outline',
+      name: '--wr-border-base',
       type: 'var(--wr-color-gray-4)',
       description:
-        'The opaque hairline components draw 1px rules with — borders, dividers, table gridlines. Distinct from `--wr-color-border`, which is the same hue at 50% alpha so it reads over any fill; swapping one for the other changes appearance, not just naming.',
+        'The opaque hairline components draw 1px rules with — borders, dividers, table gridlines. Distinct from `--wr-border-strong`, which is the same hue at 50% alpha so it reads over any fill; swapping one for the other changes appearance, not just naming.',
     },
   ];
 
@@ -301,7 +301,7 @@ export default class TokensColorsPage {
     neutral: `/* Semantic neutrals — theme-correct surfaces, borders, muted text. */
 .card {
   background: var(--wr-color-surface);     /* page surface */
-  border: 1px solid var(--wr-color-outline);
+  border: 1px solid var(--wr-border-base);
   color: var(--wr-color-on-surface);       /* body text */
 }
 .card__meta  { color: var(--wr-color-on-surface-muted); }

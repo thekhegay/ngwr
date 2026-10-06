@@ -100,12 +100,25 @@ const REMOVED = ['secondary', 'light', 'medium', 'dark'] as const;
 const TOKEN_RENAMES: readonly (readonly [string, string])[] = [
   ['--wr-color-muted-text-rgb', '--wr-color-on-surface-muted-rgb'],
   ['--wr-color-muted-text', '--wr-color-on-surface-muted'],
-  ['--wr-color-light-rgb', '--wr-color-outline-rgb'],
-  ['--wr-color-light', '--wr-color-outline'],
+  // The hairline's own name moved twice in one release and only the END of
+  // that chain may appear here: `--wr-color-light` became `--wr-color-outline`
+  // first, and the whole border family then left the colour namespace. A rule
+  // pointing at the intermediate would hand an app a token nothing declares,
+  // which is the silent-drop this migration exists to prevent.
+  ['--wr-color-light-rgb', '--wr-border-base-rgb'],
+  ['--wr-color-light', '--wr-border-base'],
+  ['--wr-color-outline-rgb', '--wr-border-base-rgb'],
+  ['--wr-color-outline', '--wr-border-base'],
   ['--wr-color-dark-rgb', '--wr-color-on-surface-rgb'],
   ['--wr-color-dark', '--wr-color-on-surface'],
   ['--wr-color-medium-rgb', '--wr-color-on-surface-muted-rgb'],
   ['--wr-color-medium', '--wr-color-on-surface-muted'],
+  // Four border tokens became three. The translucent 0.5 middle folded into
+  // `-strong`, the nearer of its neighbours — a hair stronger on the one ring
+  // that read it. Longest first, as everywhere in this table.
+  ['--wr-color-border-subtle', '--wr-border-subtle'],
+  ['--wr-color-border-strong', '--wr-border-strong'],
+  ['--wr-color-border', '--wr-border-strong'],
 ];
 
 /**

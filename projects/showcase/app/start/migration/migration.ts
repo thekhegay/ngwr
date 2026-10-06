@@ -78,9 +78,9 @@ export default class MigrationPageComponent {
     v15: `# Tokens. The first two carry the identical value in both themes, so
 # every rule rewritten this way paints exactly as it did.
 - border: 1px solid var(--wr-color-light);
-+ border: 1px solid var(--wr-color-outline);
++ border: 1px solid var(--wr-border-base);
 - background: rgba(var(--wr-color-light-rgb), 0.4);
-+ background: rgba(var(--wr-color-outline-rgb), 0.4);
++ background: rgba(var(--wr-border-base-rgb), 0.4);
 - color: var(--wr-color-dark);
 + color: var(--wr-color-on-surface);
 - color: var(--wr-color-muted-text);

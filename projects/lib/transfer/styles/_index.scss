@@ -35,7 +35,7 @@
     flex-direction: column;
     flex: 1 1 var(--wr-transfer-pane-width);
     min-width: 0;
-    border: 1px solid var(--wr-color-outline);
+    border: 1px solid var(--wr-border-base);
     @include theme.smooth-br(var(--wr-border-radius-base));
     background: var(--wr-color-surface);
     overflow: hidden;
@@ -46,7 +46,7 @@
     align-items: center;
     gap: var(--wr-space-sm);
     padding: var(--wr-space-sm) var(--wr-space-md);
-    border-bottom: 1px solid var(--wr-color-outline);
+    border-bottom: 1px solid var(--wr-border-base);
     background: var(--wr-color-fill);
     // The checkbox and the count are intrinsically sized, so on a narrow pane
     // the title absorbed the entire shortfall: at 375px it was 26px of a 91px
@@ -82,7 +82,7 @@
 
   &__search {
     padding: var(--wr-space-sm) var(--wr-space-md);
-    border-bottom: 1px solid var(--wr-color-outline);
+    border-bottom: 1px solid var(--wr-border-base);
   }
 
   &__list {

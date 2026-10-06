@@ -19,7 +19,7 @@
 
 .wr-table {
   --wr-table-bg: var(--wr-color-surface);
-  --wr-table-border: var(--wr-color-outline);
+  --wr-table-border: var(--wr-border-base);
   --wr-table-head-bg: var(--wr-color-fill);
   --wr-table-row-hover: var(--wr-color-fill-subtle);
   // Head casing. The library renders column titles as the author wrote them —
@@ -142,7 +142,7 @@
       inset-inline-start: auto;
       width: 2px;
       border-radius: 1px;
-      background: var(--wr-color-outline);
+      background: var(--wr-border-base);
       opacity: 0;
       transition: opacity var(--wr-transition-base);
     }
@@ -929,7 +929,7 @@
     appearance: none;
     width: 100%;
     padding: var(--wr-space-sm) var(--wr-space-sm);
-    border: 1px solid var(--wr-color-outline);
+    border: 1px solid var(--wr-border-base);
     border-radius: var(--wr-border-radius-sm);
     background: transparent;
     color: var(--wr-color-on-surface);
@@ -978,7 +978,7 @@
     width: 1rem;
     height: 1rem;
     border-radius: var(--wr-border-radius-sm);
-    border: 1px solid var(--wr-color-outline);
+    border: 1px solid var(--wr-border-base);
     color: transparent;
     transition: var(--wr-transition-base);
   }

@@ -42,7 +42,7 @@
   padding: var(--wr-space-lg);
   background: var(--wr-color-surface);
   color: var(--wr-color-on-surface);
-  border: 1px solid var(--wr-color-outline);
+  border: 1px solid var(--wr-border-base);
   @include theme.smooth-br(var(--wr-border-radius-base));
   box-shadow: 0 12px 24px rgba(var(--wr-color-backdrop-rgb), 0.24);
   font-family: var(--wr-font-family-base);

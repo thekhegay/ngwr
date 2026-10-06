@@ -3,7 +3,7 @@
 .wr-anchor {
   display: block;
   font-family: var(--wr-font-family-base);
-  border-inline-start: 1.5px solid var(--wr-color-outline);
+  border-inline-start: 1.5px solid var(--wr-border-base);
   // NOT on the spacing scale: the active rail at `inset-inline-start: -1rem`
   // below is solved against this 14px indent plus the host's 1.5px border, so
   // the 1.5px bar lands at -0.5px and overlaps the rail it replaces. The

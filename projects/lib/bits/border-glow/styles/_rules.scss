@@ -43,7 +43,7 @@
   // CSS borders + `border-radius` leave 1px subpixel notches at the corners
   // where the mask layers meet the curve, but inset shadows hug the radius
   // pixel-perfect.
-  box-shadow: inset 0 0 0 1px var(--wr-border-glow-outline, var(--wr-color-outline, rgb(255 255 255 / 15%)));
+  box-shadow: inset 0 0 0 1px var(--wr-border-glow-outline, var(--wr-border-base, rgb(255 255 255 / 15%)));
 
   &::before,
   &::after,

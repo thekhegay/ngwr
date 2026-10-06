@@ -303,6 +303,27 @@ function danglingReads(lists: ReadonlyMap<string, LoopList>): { file: string; li
   const declared = new Set<string>();
   const scanned: { file: string; lines: string[] }[] = [];
 
+  // The namespaces the THEME LAYER owns entirely, which is what makes a
+  // dangling read in them reportable: a `var()` at a name nothing declares is
+  // invalid at computed-value time, so the browser drops the whole declaration
+  // holding it — `border: 1px solid var(--wr-border-gone)` draws no border at
+  // all, and nothing says so in the build, the console or a test.
+  //
+  // `--wr-border-*` joined `--wr-color-*` when the border family was renamed
+  // out of the colour namespace. Without it, 235 reads would have left this
+  // pass's cover in exchange for a better name, which is not a trade.
+  //
+  // The border half is an ENUMERATION and not a prefix, because the prefix is
+  // not the theme's to own: `wr-border-glow` is a component, and
+  // `--wr-border-glow-bg` is its hook. A greedy `--wr-border-[\w-]+` reported
+  // three of those as dangling theme reads the moment it was tried.
+  const BORDER_FAMILY = 'subtle|base|strong';
+  const THEME_TOKEN_DECL = new RegExp(`(--wr-(?:color-[\\w-]+|border-(?:${BORDER_FAMILY})(?:-rgb)?))\\s*:`, 'g');
+  const THEME_TOKEN_READ = new RegExp(
+    `var\\(\\s*(--wr-(?:color-[\\w-]+|border-(?:${BORDER_FAMILY})(?:-rgb)?))\\s*[,)]`,
+    'g'
+  );
+
   for (const [dir] of READ_SOURCES) {
     for (const file of files(dir, p => READ_EXTENSIONS.has(extname(p)) && !READ_SKIP.some(skip => p.startsWith(skip)))) {
       const src = withoutComments(readFileSync(file, 'utf8'));
@@ -310,7 +331,7 @@ function danglingReads(lists: ReadonlyMap<string, LoopList>): { file: string; li
       scanned.push({ file: relative(ROOT, file), lines });
       if (extname(file) === '.ts') continue;
       for (const line of lines) {
-        for (const m of line.matchAll(/(--wr-color-[\w-]+)\s*:/g)) declared.add(m[1]);
+        for (const m of line.matchAll(THEME_TOKEN_DECL)) declared.add(m[1]);
       }
     }
   }
@@ -322,7 +343,7 @@ function danglingReads(lists: ReadonlyMap<string, LoopList>): { file: string; li
       // — a dangling read inside a loop is reported at the interpolated source
       // line by the pass over the raw text, which sees the same `var(`.
       if (index >= lines.length) return;
-      for (const m of line.matchAll(/var\(\s*(--wr-color-[\w-]+)\s*[,)]/g)) {
+      for (const m of line.matchAll(THEME_TOKEN_READ)) {
         if (declared.has(m[1])) continue;
         out.push({ file, line: index + 1, name: m[1] });
       }

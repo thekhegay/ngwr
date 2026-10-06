@@ -135,7 +135,7 @@
     font-size: var(--wr-text-lg);
     font-weight: 600;
     line-height: 1.5rem;
-    border-bottom: 1px solid var(--wr-color-outline);
+    border-bottom: 1px solid var(--wr-border-base);
   }
 
   // Built-in dismiss (×), parked in the panel's top-right corner. The service
@@ -203,7 +203,7 @@
     align-items: center;
     gap: var(--wr-space-sm);
     padding: calc(var(--wr-dialog-padding-y) * 0.75) var(--wr-dialog-padding-x);
-    border-top: 1px solid var(--wr-color-outline);
+    border-top: 1px solid var(--wr-border-base);
 
     &--start {
       justify-content: flex-start;

@@ -73,7 +73,7 @@
   // Bordered
   &--bordered &__list {
     gap: 0;
-    border: 1px solid var(--wr-color-outline);
+    border: 1px solid var(--wr-border-base);
     border-radius: var(--wr-border-radius-base);
     overflow: hidden;
   }
@@ -87,7 +87,7 @@
   // which asks for a `--bordered` HOST as a row's sibling and can never match, so
   // the stacked bordered card shipped with no dividers at all. Name the sibling.
   &--bordered &__row + &__row {
-    border-top: 1px solid var(--wr-color-outline);
+    border-top: 1px solid var(--wr-border-base);
   }
 
   &--bordered#{&}--inline &__list {
@@ -103,7 +103,7 @@
   &--bordered#{&}--inline &__label,
   &--bordered#{&}--inline &__value {
     padding: var(--wr-space-md) var(--wr-space-lg);
-    border-top: 1px solid var(--wr-color-outline);
+    border-top: 1px solid var(--wr-border-base);
   }
 
   &--bordered#{&}--inline &__row:first-child &__label,
@@ -113,7 +113,7 @@
 
   &--bordered#{&}--inline &__label {
     background: var(--wr-color-fill);
-    border-inline-end: 1px solid var(--wr-color-outline);
+    border-inline-end: 1px solid var(--wr-border-base);
   }
 }
 
@@ -157,7 +157,7 @@
   }
 
   .wr-descriptions--bordered.wr-descriptions--inline .wr-descriptions__row + .wr-descriptions__row {
-    border-top: 1px solid var(--wr-color-outline);
+    border-top: 1px solid var(--wr-border-base);
   }
 
   .wr-descriptions--bordered.wr-descriptions--inline .wr-descriptions__label,

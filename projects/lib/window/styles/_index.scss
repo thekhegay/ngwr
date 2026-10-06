@@ -18,7 +18,7 @@
 
 .wr-window {
   --wr-window-bg: var(--wr-color-surface);
-  --wr-window-border: var(--wr-color-outline);
+  --wr-window-border: var(--wr-border-base);
   --wr-window-chrome-bg: var(--wr-color-hover);
   --wr-window-chrome-color: var(--wr-color-on-surface);
   --wr-window-radius: var(--wr-border-radius-base);
@@ -425,7 +425,7 @@
     gap: var(--wr-space-xs);
     padding: var(--wr-space-xs);
     background: var(--wr-color-surface);
-    border: 1px solid var(--wr-color-outline);
+    border: 1px solid var(--wr-border-base);
     @include theme.smooth-br(var(--wr-border-radius-base));
     box-shadow: var(--wr-shadow-overlay);
     pointer-events: auto;

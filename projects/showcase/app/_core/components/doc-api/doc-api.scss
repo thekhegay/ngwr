@@ -1,6 +1,6 @@
 :host {
   display: block;
-  border: 1px solid var(--wr-color-outline);
+  border: 1px solid var(--wr-border-base);
   border-radius: var(--wr-border-radius-base);
   overflow: hidden;
 }
@@ -83,7 +83,7 @@
 
   td {
     color: var(--wr-color-on-surface);
-    border-top: 1px solid var(--wr-color-outline);
+    border-top: 1px solid var(--wr-border-base);
   }
 
   code {

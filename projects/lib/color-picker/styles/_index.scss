@@ -22,7 +22,7 @@
   --wr-color-picker-radius: var(--wr-border-radius-base);
   --wr-color-picker-padding: var(--wr-space-md);
   --wr-color-picker-bg: var(--wr-color-surface);
-  --wr-color-picker-border: var(--wr-color-outline);
+  --wr-color-picker-border: var(--wr-border-base);
   --wr-color-picker-gap: 0.625rem;
 
   // Driven by host bindings on the component
@@ -217,7 +217,7 @@
       appearance: none;
       -moz-appearance: textfield;
       background: var(--wr-color-surface);
-      border: 1px solid var(--wr-color-outline);
+      border: 1px solid var(--wr-border-base);
       border-radius: var(--wr-border-radius-sm);
       padding: var(--wr-space-xs) var(--wr-space-sm);
       color: var(--wr-color-on-surface);

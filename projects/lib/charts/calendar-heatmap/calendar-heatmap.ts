@@ -124,8 +124,8 @@ export class WrCalendarHeatmap {
   /** Cell fill colour at full intensity. @default primary */
   readonly color = input<string>('var(--wr-color-primary)');
 
-  /** Background colour for zero-value days. @default rgba(var(--wr-color-outline-rgb), 0.5) */
-  readonly emptyColor = input<string>('rgba(var(--wr-color-outline-rgb), 0.5)');
+  /** Background colour for zero-value days. @default rgba(var(--wr-border-base-rgb), 0.5) */
+  readonly emptyColor = input<string>('rgba(var(--wr-border-base-rgb), 0.5)');
 
   /** Show the weekday + month labels around the grid. @default true */
   readonly showLabels = input(true, { transform: coerceBooleanProperty });

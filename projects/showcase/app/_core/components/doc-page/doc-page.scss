@@ -51,7 +51,7 @@
   // paint (the `medium` INTENT does not — 4.01:1 on the lightest one).
   wr-badge.since {
     background: none;
-    box-shadow: inset 0 0 0 1px var(--wr-color-outline);
+    box-shadow: inset 0 0 0 1px var(--wr-border-base);
     color: var(--wr-color-on-surface-muted);
     font-variant-numeric: tabular-nums;
   }

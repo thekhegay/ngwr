@@ -18,7 +18,7 @@
   // The default card, drawn when no `ng-template[wrGraphNode]` is given.
   --wr-graph-card-background: var(--wr-color-surface);
   --wr-graph-card-color: var(--wr-color-on-surface);
-  --wr-graph-card-border: var(--wr-color-outline);
+  --wr-graph-card-border: var(--wr-border-base);
   --wr-graph-card-radius: var(--wr-border-radius-base);
   --wr-graph-card-padding: var(--wr-space-sm) var(--wr-space-md);
   --wr-graph-card-font-size: var(--wr-text-sm);

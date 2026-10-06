@@ -1,7 +1,7 @@
 @use '../../theme/styles' as theme;
 
 .wr-tabs {
-  --wr-tabs-border: var(--wr-color-outline);
+  --wr-tabs-border: var(--wr-border-base);
   --wr-tabs-color: var(--wr-color-on-surface-muted);
   --wr-tabs-color-hover: var(--wr-color-on-surface);
   --wr-tabs-color-active: var(--wr-color-primary-ink);

@@ -134,7 +134,7 @@ $toast-colors: (
 
 .wr-toast {
   --wr-toast-bg: var(--wr-color-surface);
-  --wr-toast-border: var(--wr-color-outline);
+  --wr-toast-border: var(--wr-border-base);
   --wr-toast-accent: var(--wr-color-primary);
   --wr-toast-title: var(--wr-color-on-surface);
   --wr-toast-message: var(--wr-color-on-surface-muted);
@@ -303,7 +303,7 @@ $toast-colors: (
   pointer-events: auto;
   appearance: none;
   background: var(--wr-color-surface);
-  border: 1px solid var(--wr-color-outline);
+  border: 1px solid var(--wr-border-base);
   @include theme.smooth-br(var(--wr-border-radius-base));
   padding: var(--wr-space-sm) var(--wr-space-md);
   color: var(--wr-color-on-surface-muted);

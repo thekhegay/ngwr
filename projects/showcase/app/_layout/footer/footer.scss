@@ -4,7 +4,7 @@
   display: block;
   // Match the sidebar's right border so the two divider lines
   // visually connect when the docs layout shows both at once.
-  border-top: 1px solid var(--wr-color-border-subtle);
+  border-top: 1px solid var(--wr-border-subtle);
   background: var(--wr-color-surface);
 
   &__inner {
@@ -107,7 +107,7 @@
   // Bottom row: copyright + version
   &__bottom {
     padding: 1.25rem var(--wr-grid-gutter) 1.5rem;
-    border-top: 1px solid var(--wr-color-border-subtle);
+    border-top: 1px solid var(--wr-border-subtle);
     display: flex;
     align-items: center;
     justify-content: space-between;

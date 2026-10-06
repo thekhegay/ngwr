@@ -70,7 +70,7 @@
   min-width: 10rem;
   padding: 0.3125rem;
   background: var(--wr-color-surface, #fff);
-  border: 1px solid var(--wr-color-outline);
+  border: 1px solid var(--wr-border-base);
   // Soft rounded corners — smooth-br opts into native `corner-shape:
   // squircle` where supported, and falls back to plain
   // border-radius elsewhere.
@@ -159,7 +159,7 @@
   display: block;
   height: 1px;
   margin: var(--wr-space-xs) 0;
-  background: var(--wr-color-outline);
+  background: var(--wr-border-base);
 }
 
 // Touch long-press opens the menu; suppress the native iOS callout + text

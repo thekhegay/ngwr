@@ -13,7 +13,7 @@
     gap: var(--wr-space-md);
     padding: var(--wr-space-xl);
     background: var(--wr-color-surface);
-    border: 1.5px dashed var(--wr-color-outline);
+    border: 1.5px dashed var(--wr-border-base);
     @include theme.smooth-br(var(--wr-border-radius-base));
     color: var(--wr-color-on-surface);
     text-align: center;
@@ -115,7 +115,7 @@
     gap: var(--wr-space-md);
     padding: var(--wr-space-sm) var(--wr-space-md) var(--wr-space-sm) var(--wr-space-md);
     background: var(--wr-color-surface);
-    border: 1px solid var(--wr-color-outline);
+    border: 1px solid var(--wr-border-base);
     @include theme.smooth-br(var(--wr-border-radius-base));
     font-size: var(--wr-text-sm);
     line-height: 1.25rem;
