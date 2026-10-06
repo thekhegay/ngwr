@@ -64,7 +64,11 @@
   --wr-dialog-shadow: var(--wr-shadow-modal);
   --wr-dialog-min-width: 18rem;
   --wr-dialog-padding-y: var(--wr-space-lg);
-  --wr-dialog-padding-x: var(--wr-space-xl);
+  // One step down from `--wr-space-xl`. The conversion rounded the old 20px up
+  // to 24 and the panel read too roomy; 16 is the nearest step the other way
+  // and is below the original, which the five-step scale cannot avoid — it has
+  // no 20.
+  --wr-dialog-padding-x: var(--wr-space-lg);
   --wr-dialog-border: var(--wr-border-base);
   --wr-dialog-font-family: var(--wr-font-family-base);
   --wr-dialog-title-font-size: var(--wr-text-lg);

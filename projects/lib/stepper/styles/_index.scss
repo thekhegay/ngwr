@@ -190,7 +190,11 @@ $header-padding-block: 0.25rem;
   }
 
   &__label {
-    --wr-stepper-label-gap: var(--wr-space-xs);
+    // Literal, like `--wr-option-gap` in select: the label and its description
+    // sit 1px apart, and the scale starts at 4px — taking `--wr-space-xs` here
+    // quadrupled the distance and detached "Optional" from the step it belongs
+    // to. The hook stays, so the rhythm is still one override away.
+    --wr-stepper-label-gap: 0.0625rem;
     --wr-stepper-label-font-size: var(--wr-text-sm);
     --wr-stepper-label-font-weight: var(--wr-font-weight-medium);
 
