@@ -8,35 +8,93 @@
 </header>
 
 <!--
-  Drop whatever you are checking below, and remember the two halves: the class
-  goes in `imports` on this component, and the entry point goes in
-  `styles.scss`. If a component renders unstyled, the second half is what is
-  missing — which is exactly the thing worth catching.
+  Every block below is copied from /reference/components/select as written —
+  nothing added, nothing tidied. If something looks wrong here it is the
+  component or the page, not the sandbox.
 -->
 <main class="sandbox">
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Button</h2>
-    <div class="sandbox__row">
-      <wr-btn color="primary">Primary</wr-btn>
-      <wr-btn color="danger" outlined>Outlined</wr-btn>
-      <wr-btn color="primary" shape="pill">Pill</wr-btn>
-      <wr-btn color="primary" icon="check">With icon</wr-btn>
-      <wr-btn color="primary" loading>Loading</wr-btn>
-      <wr-btn color="primary" disabled>Disabled</wr-btn>
-    </div>
+    <h2 class="sandbox__heading">Basic usage</h2>
+    <wr-select placeholder="Pick a size" [(value)]="size">
+      <wr-option value="sm">Small</wr-option>
+      <wr-option value="md">Medium</wr-option>
+      <wr-option value="lg">Large</wr-option>
+      <wr-option value="xl" disabled>Extra large — out of stock</wr-option>
+    </wr-select>
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Badge</h2>
-    <div class="sandbox__row">
-      @for (c of colors; track c) {
-        <wr-badge [color]="c">{{ c }}</wr-badge>
+    <h2 class="sandbox__heading">Groups</h2>
+    <wr-select [(value)]="framework">
+      <wr-option-group label="Frontend">
+        <wr-option value="angular">Angular</wr-option>
+        <wr-option value="react">React</wr-option>
+        <wr-option value="vue">Vue</wr-option>
+      </wr-option-group>
+      <wr-option-group label="Backend">
+        <wr-option value="nest">NestJS</wr-option>
+        <wr-option value="fastify">Fastify</wr-option>
+      </wr-option-group>
+    </wr-select>
+  </section>
+
+  <section class="sandbox__block">
+    <h2 class="sandbox__heading">Disabled</h2>
+    <wr-select placeholder="Disabled" disabled />
+  </section>
+
+  <section class="sandbox__block">
+    <h2 class="sandbox__heading">Multi mode</h2>
+    <!-- clearable is opt-in: without it the trigger has no clear-all (×). -->
+    <wr-select mode="multi" clearable placeholder="Pick tags" [(value)]="tags">
+      <wr-option value="typescript">TypeScript</wr-option>
+      <wr-option value="angular">Angular</wr-option>
+      <wr-option value="rxjs">RxJS</wr-option>
+      <wr-option value="signals">Signals</wr-option>
+    </wr-select>
+  </section>
+
+  <section class="sandbox__block">
+    <h2 class="sandbox__heading">Chip overflow + max items</h2>
+    <!-- Four already selected and maxItems=4: a fifth pick does not commit. -->
+    <wr-select mode="multi" [maxTagCount]="2" [maxItems]="4" [(value)]="manyTags">
+      <wr-option value="typescript">TypeScript</wr-option>
+      <wr-option value="angular">Angular</wr-option>
+      <wr-option value="rxjs">RxJS</wr-option>
+      <wr-option value="signals">Signals</wr-option>
+      <wr-option value="cdk">CDK</wr-option>
+      <wr-option value="ssr">SSR</wr-option>
+    </wr-select>
+  </section>
+
+  <section class="sandbox__block">
+    <h2 class="sandbox__heading">Search mode</h2>
+    <!-- clearable is opt-in: it paints the × and gates Backspace-to-clear. -->
+    <wr-select mode="search" clearable placeholder="Search a country" [(value)]="country">
+      @for (c of countries; track c) {
+        <wr-option [value]="c">{{ c }}</wr-option>
       }
-    </div>
+    </wr-select>
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Alert</h2>
-    <wr-alert type="info" title="Info">The five intents and nothing else.</wr-alert>
+    <h2 class="sandbox__heading">Searchable multi-select</h2>
+    <!-- searchable is orthogonal to mode — this is multi + typeahead. -->
+    <wr-select mode="multi" searchable placeholder="Filter categories" [(value)]="categories">
+      @for (c of allCategories; track c) {
+        <wr-option [value]="c">{{ c }}</wr-option>
+      }
+    </wr-select>
+  </section>
+
+  <section class="sandbox__block">
+    <h2 class="sandbox__heading">Leading visuals</h2>
+    <wr-select placeholder="Assign an owner" [options]="peopleIds" [displayWith]="personName" [(value)]="owner">
+      <ng-template wrOptionLeading let-id let-placement="placement">
+        <wr-avatar shape="circle" [size]="placement === 'chip' ? 16 : 24" [alt]="personName(id)">{{
+          personInitials(id)
+        }}</wr-avatar>
+      </ng-template>
+    </wr-select>
   </section>
 </main>
