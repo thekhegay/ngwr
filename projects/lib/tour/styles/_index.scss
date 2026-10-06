@@ -18,6 +18,8 @@
 // around it with one enormous spread shadow — the target itself is never
 // covered, so it stays readable and clickable.
 .wr-tour__spotlight {
+  --wr-tour-spotlight-radius: var(--wr-border-radius-base);
+
   position: fixed;
   // Below CDK's `.cdk-overlay-container` (1000), deliberately. Both are fixed
   // children of `<body>`, so at equal z-index the DOM order decides — and the
@@ -28,7 +30,7 @@
   // carries none.
   z-index: 999;
   pointer-events: none;
-  border-radius: var(--wr-border-radius-base);
+  border-radius: var(--wr-tour-spotlight-radius);
   box-shadow: 0 0 0 9999px rgba(var(--wr-color-backdrop-rgb), 0.55);
   transition:
     top var(--wr-transition-base),
@@ -38,39 +40,53 @@
 }
 
 .wr-tour-popup {
+  --wr-tour-popup-padding: var(--wr-space-lg);
+  --wr-tour-popup-border: var(--wr-border-base);
+  --wr-tour-popup-radius: var(--wr-border-radius-base);
+  --wr-tour-popup-font-family: var(--wr-font-family-base);
+  --wr-tour-popup-progress-margin-bottom: var(--wr-space-sm);
+  --wr-tour-popup-progress-font-size: var(--wr-text-xs);
+  --wr-tour-popup-title-margin-bottom: var(--wr-space-sm);
+  --wr-tour-popup-title-font-size: var(--wr-text-base);
+  --wr-tour-popup-title-font-weight: var(--wr-font-weight-semibold);
+  --wr-tour-popup-content-margin-bottom: var(--wr-space-lg);
+  --wr-tour-popup-content-font-size: var(--wr-text-sm);
+  --wr-tour-popup-content-line-height: var(--wr-leading-normal);
+  --wr-tour-popup-actions-gap: var(--wr-space-sm);
+
   display: block;
   max-width: 20rem;
-  padding: var(--wr-space-lg);
+  padding: var(--wr-tour-popup-padding);
   background: var(--wr-color-surface);
   color: var(--wr-color-on-surface);
-  border: 1px solid var(--wr-border-base);
-  @include theme.smooth-br(var(--wr-border-radius-base));
+  border: 1px solid var(--wr-tour-popup-border);
+  @include theme.smooth-br(var(--wr-tour-popup-radius));
   box-shadow: 0 12px 24px rgba(var(--wr-color-backdrop-rgb), 0.24);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-tour-popup-font-family);
 
   &__progress {
-    margin: 0 0 var(--wr-space-sm);
-    font-size: var(--wr-text-xs);
+    margin: 0 0 var(--wr-tour-popup-progress-margin-bottom);
+    font-size: var(--wr-tour-popup-progress-font-size);
     color: var(--wr-color-on-surface-muted);
     font-variant-numeric: tabular-nums;
   }
 
   &__title {
-    margin: 0 0 var(--wr-space-sm);
-    font-size: var(--wr-text-base);
-    font-weight: var(--wr-font-weight-semibold);
+    margin: 0 0 var(--wr-tour-popup-title-margin-bottom);
+    font-size: var(--wr-tour-popup-title-font-size);
+    font-weight: var(--wr-tour-popup-title-font-weight);
   }
 
   &__content {
-    margin: 0 0 var(--wr-space-lg);
-    font-size: var(--wr-text-sm);
-    line-height: var(--wr-leading-normal);
+    margin: 0 0 var(--wr-tour-popup-content-margin-bottom);
+    font-size: var(--wr-tour-popup-content-font-size);
+    line-height: var(--wr-tour-popup-content-line-height);
   }
 
   &__actions {
     display: flex;
     align-items: center;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-tour-popup-actions-gap);
   }
 
   &__spacer {

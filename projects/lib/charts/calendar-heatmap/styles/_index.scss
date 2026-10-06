@@ -2,6 +2,12 @@
 @use '../../../popover/styles'; // the `.wr-tooltip` chip the hover tooltip renders into
 
 .wr-calendar-heatmap {
+  --wr-calendar-heatmap-font-family: var(--wr-font-family-base);
+  --wr-calendar-heatmap-grid-gap: var(--wr-space-sm);
+  --wr-calendar-heatmap-weekday-font-size: var(--wr-text-xs);
+  --wr-calendar-heatmap-weekday-line-height: var(--wr-leading-none);
+  --wr-calendar-heatmap-month-font-size: var(--wr-text-xs);
+
   display: inline-block;
   // A year is 53 columns of a FIXED cell size, so the grid has no reflow in it:
   // its intrinsic width is ~731px whatever the container, and without a cap it
@@ -18,7 +24,7 @@
   // given its room on `&__cells` below, since that is where the cell size is
   // legible.
   overflow-y: hidden;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-calendar-heatmap-font-family);
   color: var(--wr-color-on-surface-muted);
 
   &__grid {
@@ -27,38 +33,38 @@
       '. months'
       'weekdays cells';
     grid-template-columns: auto 1fr;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-calendar-heatmap-grid-gap);
   }
 
   &__weekdays {
     grid-area: weekdays;
     display: grid;
-    grid-template-rows: repeat(7, var(--wr-heatmap-cell-size));
-    gap: var(--wr-heatmap-cell-gap);
-    font-size: var(--wr-text-xs);
+    grid-template-rows: repeat(7, var(--wr-calendar-heatmap-cell-size));
+    gap: var(--wr-calendar-heatmap-cell-gap);
+    font-size: var(--wr-calendar-heatmap-weekday-font-size);
     color: var(--wr-color-on-surface-muted);
     align-items: center;
   }
 
   &__weekday {
-    line-height: 1;
-    height: var(--wr-heatmap-cell-size);
+    line-height: var(--wr-calendar-heatmap-weekday-line-height);
+    height: var(--wr-calendar-heatmap-cell-size);
     display: flex;
     align-items: center;
   }
 
   // The two grid cells that hold week columns get their own N-column
-  // sub-grids — `--wr-heatmap-columns` is set by the component.
+  // sub-grids — `--wr-calendar-heatmap-columns` is set by the component.
   &__months,
   &__cells {
     display: grid;
-    grid-template-columns: repeat(var(--wr-heatmap-columns, 53), var(--wr-heatmap-cell-size));
-    gap: var(--wr-heatmap-cell-gap);
+    grid-template-columns: repeat(var(--wr-calendar-heatmap-columns, 53), var(--wr-calendar-heatmap-cell-size));
+    gap: var(--wr-calendar-heatmap-cell-gap);
   }
 
   &__months {
     grid-area: months;
-    font-size: var(--wr-text-xs);
+    font-size: var(--wr-calendar-heatmap-month-font-size);
     color: var(--wr-color-on-surface-muted);
   }
 
@@ -69,17 +75,17 @@
 
   &__cells {
     grid-area: cells;
-    grid-template-rows: repeat(7, var(--wr-heatmap-cell-size));
+    grid-template-rows: repeat(7, var(--wr-calendar-heatmap-cell-size));
     // The bottom row sits on the host's own edge, and the host now clips its
     // block axis (see above) — so the 40% a hovered cell grows by, half of it
     // below the row, had nowhere to go. Reserve that half. Scaled from the cell
     // size rather than written as a length, because the size is an input.
-    padding-block-end: calc(var(--wr-heatmap-cell-size) * 0.2);
+    padding-block-end: calc(var(--wr-calendar-heatmap-cell-size) * 0.2);
   }
 
   &__cell {
-    width: var(--wr-heatmap-cell-size);
-    height: var(--wr-heatmap-cell-size);
+    width: var(--wr-calendar-heatmap-cell-size);
+    height: var(--wr-calendar-heatmap-cell-size);
     // 2px — intentional micro-radius for the tiny (~11px) cells; the control /
     // border-radius tokens (5px+) would read as near-circles at this size.
     border-radius: 2px;

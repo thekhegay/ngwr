@@ -1,9 +1,11 @@
 @use '../../theme/styles' as theme;
 
 .wr-qr {
+  --wr-qr-radius: var(--wr-border-radius-base);
+
   display: inline-block;
   line-height: 0;
-  @include theme.smooth-br(var(--wr-border-radius-base));
+  @include theme.smooth-br(var(--wr-qr-radius));
   overflow: hidden;
 
   > canvas {

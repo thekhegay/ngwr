@@ -18,6 +18,7 @@
   --wr-input-ring: transparent;
   --wr-input-padding-y: var(--wr-control-padding-y-md);
   --wr-input-padding-x: var(--wr-control-padding-x-md);
+  --wr-input-font-family: var(--wr-font-family-base);
   --wr-input-font-size: var(--wr-control-font-size-md);
   --wr-input-line-height: var(--wr-control-line-height-md);
 
@@ -34,7 +35,7 @@
   margin: 0;
   padding: calc(var(--wr-input-padding-y) * var(--wr-density-y, 1))
     calc(var(--wr-input-padding-x) * var(--wr-density-x, 1));
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-input-font-family);
   font-size: var(--wr-input-font-size);
   line-height: var(--wr-input-line-height);
   transition:
@@ -82,7 +83,7 @@
 
   &--rounded {
     --wr-input-radius: var(--wr-border-radius-pill);
-    --wr-input-padding-x: 1rem;
+    --wr-input-padding-x: var(--wr-control-padding-x-lg);
     corner-shape: round; // override squircle from smooth-br for pills
   }
 }
@@ -98,7 +99,13 @@
   --wr-input-group-border: var(--wr-border-base);
   --wr-input-group-ring: transparent;
   --wr-input-group-affix: var(--wr-color-on-surface-muted);
-  --wr-input-group-padding-x: 0.75rem;
+  --wr-input-group-padding-x: var(--wr-control-padding-x-md);
+  // The inner gutter the field keeps away from an adjacent affix.
+  --wr-input-group-affix-gap: var(--wr-space-xs);
+  --wr-input-group-font-family: var(--wr-font-family-base);
+  --wr-input-group-font-size: var(--wr-text-sm);
+  --wr-input-group-font-weight: var(--wr-font-weight-medium);
+  --wr-input-group-line-height: var(--wr-control-line-height-md);
 
   display: inline-flex;
   align-items: stretch;
@@ -119,7 +126,7 @@
 
   &--rounded {
     --wr-input-group-radius: var(--wr-border-radius-pill);
-    --wr-input-group-padding-x: 1rem;
+    --wr-input-group-padding-x: var(--wr-control-padding-x-lg);
     corner-shape: round; // override squircle from smooth-br for pills
   }
 
@@ -159,10 +166,10 @@
     flex: 0 0 auto;
     white-space: nowrap;
     user-select: none;
-    font-weight: 500;
-    font-family: var(--wr-font-family-base);
-    font-size: var(--wr-text-sm);
-    line-height: 1.25rem;
+    font-weight: var(--wr-input-group-font-weight);
+    font-family: var(--wr-input-group-font-family);
+    font-size: var(--wr-input-group-font-size);
+    line-height: var(--wr-input-group-line-height);
   }
 
   // Decorative affixes (`<span wrInputSuffix>USD</span>`) should let clicks
@@ -184,12 +191,12 @@
   }
 
   &__affix--prefix + .wr-input {
-    padding-inline-start: var(--wr-space-xs);
+    padding-inline-start: var(--wr-input-group-affix-gap);
   }
 
   .wr-input:has(+ &__affix--suffix),
   .wr-input:has(+ wr-password-toggle) {
-    padding-inline-end: var(--wr-space-xs);
+    padding-inline-end: var(--wr-input-group-affix-gap);
   }
 
   // The toggle's flex item is its HOST, not the `<button>`. The group stretches

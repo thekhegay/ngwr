@@ -3,7 +3,7 @@
 .wr-tag {
   display: inline-flex;
   align-items: center;
-  gap: var(--wr-space-xs);
+  gap: var(--wr-tag-gap);
   vertical-align: middle;
 
   appearance: none;
@@ -17,14 +17,16 @@
   --wr-tag-bg: var(--wr-color-fill);
   --wr-tag-border: var(--wr-border-base);
   --wr-tag-radius: var(--wr-border-radius-sm);
+  --wr-tag-gap: var(--wr-space-xs);
   // NOT on the spacing scale: this is solved against the 22px box the comment
   // below names, which is the shared `sm` control height — a tag sits beside an
   // `sm` input. The scale's nearest step is 4px, which makes the tag 25px, stops
   // `--wr-tag-min-height` binding, and breaks that alignment.
   --wr-tag-padding-y: 0.125rem;
   --wr-tag-padding-x: var(--wr-space-sm);
+  --wr-tag-font-family: var(--wr-font-family-base);
   --wr-tag-font-size: var(--wr-text-xs);
-  --wr-tag-font-weight: 500;
+  --wr-tag-font-weight: var(--wr-font-weight-medium);
   // `normal`, not a fixed `1rem`: a 16px line box against the font's own 15px
   // content area leaves half a pixel of leading per side, Blink floors it, and
   // the label paints 1px high — 3px above / 4px below, while an adornment icon
@@ -41,7 +43,7 @@
   border-radius: var(--wr-tag-radius);
   min-height: var(--wr-tag-min-height);
   padding: calc(var(--wr-tag-padding-y) * var(--wr-density-y, 1)) calc(var(--wr-tag-padding-x) * var(--wr-density-x, 1));
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-tag-font-family);
   font-size: var(--wr-tag-font-size);
   font-weight: var(--wr-tag-font-weight);
   line-height: var(--wr-tag-line-height);

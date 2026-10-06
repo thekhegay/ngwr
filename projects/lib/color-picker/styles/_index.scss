@@ -23,7 +23,8 @@
   --wr-color-picker-padding: var(--wr-space-md);
   --wr-color-picker-bg: var(--wr-color-surface);
   --wr-color-picker-border: var(--wr-border-base);
-  --wr-color-picker-gap: 0.625rem;
+  --wr-color-picker-gap: var(--wr-space-sm);
+  --wr-color-picker-font-family: var(--wr-font-family-base);
 
   // Driven by host bindings on the component
   --wr-color-picker-hue: hsl(0, 100%, 50%);
@@ -38,7 +39,7 @@
   border: 1px solid var(--wr-color-picker-border);
   @include theme.smooth-br(var(--wr-color-picker-radius));
   box-shadow: var(--wr-shadow-overlay);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-color-picker-font-family);
   user-select: none;
 
   // SV (saturation + value) canvas
@@ -185,21 +186,27 @@
 
   // Chrome: preview tile + format tabs
   &__chrome {
+    --wr-color-picker-chrome-gap: var(--wr-space-sm);
+
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-color-picker-chrome-gap);
   }
 
   &__tabs {
+    --wr-color-picker-tabs-font-size: var(--wr-text-xs);
+
     flex: 1 1 auto;
-    font-size: var(--wr-text-xs);
+    font-size: var(--wr-color-picker-tabs-font-size);
   }
 
   // Per-tab numeric inputs
   &__inputs {
+    --wr-color-picker-inputs-gap: var(--wr-space-xs);
+
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: var(--wr-space-xs);
+    gap: var(--wr-color-picker-inputs-gap);
   }
 
   &__inputs--hex {
@@ -207,23 +214,32 @@
   }
 
   &__field {
+    --wr-color-picker-field-gap: var(--wr-space-xs);
+    --wr-color-picker-field-border: var(--wr-border-base);
+    --wr-color-picker-field-radius: var(--wr-border-radius-sm);
+    --wr-color-picker-field-padding-y: var(--wr-space-xs);
+    --wr-color-picker-field-padding-x: var(--wr-space-sm);
+    --wr-color-picker-field-font-family: var(--wr-font-family-mono, monospace);
+    --wr-color-picker-field-font-size: var(--wr-text-xs);
+    --wr-color-picker-field-line-height: var(--wr-text-xs-leading);
+
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-color-picker-field-gap);
     min-width: 0;
 
     input {
       appearance: none;
       -moz-appearance: textfield;
       background: var(--wr-color-surface);
-      border: 1px solid var(--wr-border-base);
-      border-radius: var(--wr-border-radius-sm);
-      padding: var(--wr-space-xs) var(--wr-space-sm);
+      border: 1px solid var(--wr-color-picker-field-border);
+      border-radius: var(--wr-color-picker-field-radius);
+      padding: var(--wr-color-picker-field-padding-y) var(--wr-color-picker-field-padding-x);
       color: var(--wr-color-on-surface);
-      font-family: var(--wr-font-family-mono, monospace);
-      font-size: var(--wr-text-xs);
-      line-height: 1rem;
+      font-family: var(--wr-color-picker-field-font-family);
+      font-size: var(--wr-color-picker-field-font-size);
+      line-height: var(--wr-color-picker-field-line-height);
       text-align: center;
       outline: 0;
       min-width: 0;
@@ -251,17 +267,20 @@
   }
 
   &__field--wide input {
+    --wr-color-picker-field-font-size: var(--wr-text-sm);
+
     text-align: start;
     text-transform: lowercase;
-    padding: var(--wr-space-xs) var(--wr-space-sm);
-    font-size: var(--wr-text-sm);
+    padding: var(--wr-color-picker-field-padding-y) var(--wr-color-picker-field-padding-x);
   }
 
   &__field-label {
+    --wr-color-picker-field-label-font-weight: var(--wr-font-weight-semibold);
+
     text-align: center;
     color: var(--wr-color-on-surface-muted);
     font-size: 0.625rem; // 10px — intentional micro R/G/B/A channel label, below --wr-text-xs
-    font-weight: 600;
+    font-weight: var(--wr-color-picker-field-label-font-weight);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     user-select: none;
@@ -269,19 +288,23 @@
 
   // Swatches row
   &__swatches {
+    --wr-color-picker-swatches-gap: var(--wr-space-xs);
+
     display: grid;
     grid-template-columns: repeat(8, 1fr);
-    gap: var(--wr-space-xs);
+    gap: var(--wr-color-picker-swatches-gap);
   }
 
   &__swatch {
+    --wr-color-picker-swatch-radius: var(--wr-border-radius-sm);
+
     appearance: none;
     aspect-ratio: 1 / 1;
     // Use the dark token so the hairline tracks theme — fixed black at
     // 8% disappears against the dark-mode canvas, leaving swatches
     // bleeding into each other.
     border: 1px solid rgba(var(--wr-color-on-surface-rgb), 0.12);
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-color-picker-swatch-radius);
     cursor: pointer;
     padding: 0;
     transition:

@@ -16,8 +16,10 @@
 
 .wr-radio {
   --wr-radio-size: 1.125rem; // md (18px)
+  --wr-radio-font-family: var(--wr-font-family-base);
   --wr-radio-font-size: var(--wr-text-sm);
   --wr-radio-line-height: var(--wr-control-line-height-md);
+  --wr-radio-label-gap: var(--wr-space-sm);
   --wr-radio-bg: var(--wr-color-surface);
   --wr-radio-border: var(--wr-border-base);
   --wr-radio-dot: transparent;
@@ -26,14 +28,14 @@
   display: inline-flex;
   vertical-align: middle;
   color: var(--wr-radio-color);
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-radio-font-family);
   font-size: var(--wr-radio-font-size);
   line-height: var(--wr-radio-line-height);
 
   &__label {
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-radio-label-gap);
     cursor: pointer;
     user-select: none;
   }
@@ -140,7 +142,9 @@
 }
 
 .wr-radio-group {
+  --wr-radio-group-gap: var(--wr-space-sm);
+
   display: inline-flex;
   flex-direction: column;
-  gap: var(--wr-space-sm);
+  gap: var(--wr-radio-group-gap);
 }

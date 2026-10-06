@@ -2,11 +2,14 @@
 @use '../../../popover/styles'; // the `.wr-tooltip` chip the hover tooltip renders into
 
 .wr-donut-chart {
+  --wr-donut-chart-gap: var(--wr-space-lg);
+  --wr-donut-chart-font-family: var(--wr-font-family-base);
+
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--wr-space-lg);
-  font-family: var(--wr-font-family-base);
+  gap: var(--wr-donut-chart-gap);
+  font-family: var(--wr-donut-chart-font-family);
   color: var(--wr-color-on-surface);
 
   &__surface {
@@ -40,33 +43,46 @@
   }
 
   &__center-value {
-    font-size: var(--wr-text-2xl);
-    font-weight: var(--wr-font-weight-semibold);
-    line-height: var(--wr-leading-tight);
+    --wr-donut-chart-center-value-font-size: var(--wr-text-2xl);
+    --wr-donut-chart-center-value-font-weight: var(--wr-font-weight-semibold);
+    --wr-donut-chart-center-value-line-height: var(--wr-leading-tight);
+
+    font-size: var(--wr-donut-chart-center-value-font-size);
+    font-weight: var(--wr-donut-chart-center-value-font-weight);
+    line-height: var(--wr-donut-chart-center-value-line-height);
     font-variant-numeric: tabular-nums;
   }
 
   &__center-label {
-    margin-top: var(--wr-space-xs);
-    font-size: var(--wr-text-xs);
+    --wr-donut-chart-center-label-margin-top: var(--wr-space-xs);
+    --wr-donut-chart-center-label-font-size: var(--wr-text-xs);
+
+    margin-top: var(--wr-donut-chart-center-label-margin-top);
+    font-size: var(--wr-donut-chart-center-label-font-size);
     color: var(--wr-color-on-surface-muted);
   }
 
   &__legend {
+    --wr-donut-chart-legend-gap-y: var(--wr-space-sm);
+    --wr-donut-chart-legend-gap-x: var(--wr-space-lg);
+
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: var(--wr-space-sm) var(--wr-space-lg);
+    gap: var(--wr-donut-chart-legend-gap-y) var(--wr-donut-chart-legend-gap-x);
     justify-content: center;
   }
 
   &__legend-item {
+    --wr-donut-chart-legend-item-gap: var(--wr-space-sm);
+    --wr-donut-chart-legend-item-font-size: var(--wr-text-xs);
+
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-sm);
-    font-size: var(--wr-text-xs);
+    gap: var(--wr-donut-chart-legend-item-gap);
+    font-size: var(--wr-donut-chart-legend-item-font-size);
   }
 
   &__swatch {
@@ -76,7 +92,9 @@
   }
 
   &__legend-label {
-    font-weight: var(--wr-font-weight-medium);
+    --wr-donut-chart-legend-label-font-weight: var(--wr-font-weight-medium);
+
+    font-weight: var(--wr-donut-chart-legend-label-font-weight);
   }
 
   &__legend-value {

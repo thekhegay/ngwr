@@ -16,12 +16,24 @@
 @use '../../select/styles' as select-styles; // WrSelect
 
 .wr-pagination {
+  --wr-pagination-padding-block: var(--wr-space-sm);
+  --wr-pagination-font-family: var(--wr-font-family-base);
+  --wr-pagination-inner-gap: var(--wr-space-lg);
+  --wr-pagination-nav-gap: var(--wr-space-xs);
+  --wr-pagination-cell-padding-x: var(--wr-space-sm);
+  --wr-pagination-total-font-size: var(--wr-text-sm);
+  --wr-pagination-current-padding-x: var(--wr-space-sm);
+  --wr-pagination-current-font-size: var(--wr-text-sm);
+  // The radius `--square` leaves on the strip's end caps so it still reads as
+  // one grouped control.
+  --wr-pagination-cap-radius: var(--wr-border-radius-sm);
+
   display: block;
   // Breathing room of its own. A pager almost always sits right under a table or
   // list, and with a bare `display: block` and no padding its cells touched the
   // content above and below. Padding rather than margin so it stays inside the
   // component's own box and can't collapse into the consumer's spacing.
-  padding-block: var(--wr-space-sm);
+  padding-block: var(--wr-pagination-padding-block);
 
   &--disabled {
     opacity: var(--wr-disabled-opacity);
@@ -39,7 +51,7 @@
   &__inner {
     display: flex;
     align-items: center;
-    gap: var(--wr-space-lg);
+    gap: var(--wr-pagination-inner-gap);
     flex-wrap: wrap;
   }
 
@@ -55,14 +67,14 @@
 
   &__total {
     color: var(--wr-color-on-surface-muted);
-    font-family: var(--wr-font-family-base);
-    font-size: var(--wr-text-sm);
+    font-family: var(--wr-pagination-font-family);
+    font-size: var(--wr-pagination-total-font-size);
   }
 
   &__nav {
     display: flex;
     align-items: center;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-pagination-nav-gap);
     // `__inner` wraps, but the whole numbered strip is ONE of its children, so
     // that wrap could never help: at `size="lg"` the strip is 9 cells of 2.5rem
     // plus gaps = 392px, which at 375px left the last page number cut off at the
@@ -83,8 +95,8 @@
       height: var(--wr-pagination-cell, 2rem);
       padding-top: 0;
       padding-bottom: 0;
-      padding-inline-start: var(--wr-space-sm);
-      padding-inline-end: var(--wr-space-sm);
+      padding-inline-start: var(--wr-pagination-cell-padding-x);
+      padding-inline-end: var(--wr-pagination-cell-padding-x);
     }
   }
 
@@ -112,10 +124,10 @@
   &__current {
     display: none;
     align-items: center;
-    padding: 0 var(--wr-space-sm);
+    padding: 0 var(--wr-pagination-current-padding-x);
     color: var(--wr-color-on-surface);
-    font-family: var(--wr-font-family-base);
-    font-size: var(--wr-text-sm);
+    font-family: var(--wr-pagination-font-family);
+    font-size: var(--wr-pagination-current-font-size);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
@@ -156,12 +168,12 @@
     border-radius: 0;
   }
   &--square &__nav .wr-btn:first-child {
-    border-start-start-radius: var(--wr-border-radius-sm);
-    border-end-start-radius: var(--wr-border-radius-sm);
+    border-start-start-radius: var(--wr-pagination-cap-radius);
+    border-end-start-radius: var(--wr-pagination-cap-radius);
   }
   &--square &__nav .wr-btn:last-child {
-    border-start-end-radius: var(--wr-border-radius-sm);
-    border-end-end-radius: var(--wr-border-radius-sm);
+    border-start-end-radius: var(--wr-pagination-cap-radius);
+    border-end-end-radius: var(--wr-pagination-cap-radius);
   }
 }
 

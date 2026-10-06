@@ -67,9 +67,11 @@
   }
 
   &__separator {
+    --wr-date-range-picker-separator-padding-x: var(--wr-space-xs);
+
     display: inline-flex;
     align-items: center;
-    padding: 0 var(--wr-space-xs);
+    padding: 0 var(--wr-date-range-picker-separator-padding-x);
     color: var(--wr-color-on-surface-muted);
     user-select: none;
   }
@@ -115,10 +117,14 @@
 // Time-only mode attaches the bare stepper as the overlay content — it
 // has to bring the panel chrome the calendar otherwise provides.
 .wr-date-picker-overlay > .wr-time-picker {
-  padding: var(--wr-space-sm) var(--wr-space-md);
+  --wr-time-picker-overlay-padding-y: var(--wr-space-sm);
+  --wr-time-picker-overlay-padding-x: var(--wr-space-md);
+  --wr-time-picker-overlay-radius: var(--wr-border-radius-base);
+
+  padding: var(--wr-time-picker-overlay-padding-y) var(--wr-time-picker-overlay-padding-x);
   background: var(--wr-time-picker-bg);
   border: 1px solid var(--wr-time-picker-border);
-  border-radius: var(--wr-border-radius-base);
+  border-radius: var(--wr-time-picker-overlay-radius);
   box-shadow: var(--wr-shadow-overlay);
 }
 
@@ -134,22 +140,34 @@
   --wr-time-picker-border: var(--wr-border-base);
   --wr-time-picker-color: var(--wr-color-on-surface);
   --wr-time-picker-muted: var(--wr-color-on-surface-muted);
+  --wr-time-picker-font-family: var(--wr-font-family-base);
+  --wr-time-picker-gap: var(--wr-space-xs);
+  // The AM/PM label is drawn by `&__col--ampm &__label`, a modifier selector —
+  // its hooks are declared here so the documented default is the base one.
+  --wr-time-picker-label-radius: var(--wr-border-radius-sm);
+  --wr-time-picker-label-font-size: var(--wr-text-sm);
+  --wr-time-picker-label-font-weight: var(--wr-font-weight-semibold);
 
   display: inline-flex;
   align-items: center;
-  gap: var(--wr-space-xs);
-  font-family: var(--wr-font-family-base);
+  gap: var(--wr-time-picker-gap);
+  font-family: var(--wr-time-picker-font-family);
 
   // Each stepper column = ▲ button + input + ▼ button stacked vertically.
   &__col {
+    --wr-time-picker-col-gap: var(--wr-space-xs);
+
     display: inline-flex;
     flex-direction: column;
     align-items: stretch;
     width: var(--wr-time-picker-col-width);
-    gap: var(--wr-space-xs);
+    gap: var(--wr-time-picker-col-gap);
   }
 
   &__step {
+    --wr-time-picker-step-line-height: var(--wr-leading-none);
+    --wr-time-picker-step-radius: var(--wr-border-radius-sm);
+
     appearance: none;
     display: inline-flex;
     align-items: center;
@@ -159,13 +177,13 @@
     padding: 0;
     height: 1.25rem;
     color: var(--wr-time-picker-muted);
-    line-height: 1;
+    line-height: var(--wr-time-picker-step-line-height);
 
     svg {
       width: 0.875rem;
       height: 0.875rem;
     }
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-time-picker-step-radius);
     cursor: pointer;
     transition:
       color var(--wr-transition-base),
@@ -187,18 +205,24 @@
   }
 
   &__input {
+    --wr-time-picker-input-padding: var(--wr-space-xs);
+    --wr-time-picker-input-radius: var(--wr-border-radius-sm);
+    --wr-time-picker-input-font-size: var(--wr-text-sm);
+    --wr-time-picker-input-line-height: var(--wr-text-sm-leading);
+    --wr-time-picker-input-font-weight: var(--wr-font-weight-semibold);
+
     width: 100%;
-    padding: var(--wr-space-xs) var(--wr-space-xs);
+    padding: var(--wr-time-picker-input-padding);
     appearance: none;
     -moz-appearance: textfield;
     background: var(--wr-time-picker-bg);
     border: 1px solid var(--wr-time-picker-border);
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-time-picker-input-radius);
     color: var(--wr-time-picker-color);
-    font-family: var(--wr-font-family-base);
-    font-size: var(--wr-text-sm);
-    line-height: 1.25rem;
-    font-weight: 600;
+    font-family: var(--wr-time-picker-font-family);
+    font-size: var(--wr-time-picker-input-font-size);
+    line-height: var(--wr-time-picker-input-line-height);
+    font-weight: var(--wr-time-picker-input-font-weight);
     text-align: center;
     outline: 0;
     transition:
@@ -232,22 +256,27 @@
     height: 2rem;
     background: var(--wr-time-picker-bg);
     border: 1px solid var(--wr-time-picker-border);
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-time-picker-label-radius);
     color: var(--wr-time-picker-color);
-    font-family: var(--wr-font-family-base);
-    font-size: var(--wr-text-sm);
-    font-weight: 600;
+    font-family: var(--wr-time-picker-font-family);
+    font-size: var(--wr-time-picker-label-font-size);
+    font-weight: var(--wr-time-picker-label-font-weight);
     user-select: none;
   }
 
   &__sep {
+    --wr-time-picker-sep-font-size: var(--wr-text-lg);
+    --wr-time-picker-sep-font-weight: var(--wr-font-weight-semibold);
+    --wr-time-picker-sep-line-height: var(--wr-leading-none);
+    --wr-time-picker-sep-padding-top: var(--wr-space-sm);
+
     color: var(--wr-time-picker-muted);
-    font-size: var(--wr-text-lg);
-    font-weight: 600;
-    line-height: 1;
+    font-size: var(--wr-time-picker-sep-font-size);
+    font-weight: var(--wr-time-picker-sep-font-weight);
+    line-height: var(--wr-time-picker-sep-line-height);
     user-select: none;
     align-self: center;
-    padding-top: var(--wr-space-sm);
+    padding-top: var(--wr-time-picker-sep-padding-top);
   }
 
   &--disabled {
@@ -271,13 +300,17 @@
   }
 
   &__time {
+    --wr-date-time-panel-time-padding: var(--wr-space-md);
+    --wr-date-time-panel-time-border: var(--wr-border-base);
+    --wr-date-time-panel-time-radius: var(--wr-border-radius-base);
+
     display: flex;
     justify-content: center;
-    padding: var(--wr-space-md);
+    padding: var(--wr-date-time-panel-time-padding);
     background: var(--wr-color-surface);
-    border: 1px solid var(--wr-border-base);
+    border: 1px solid var(--wr-date-time-panel-time-border);
     border-top: 0;
-    border-radius: 0 0 var(--wr-border-radius-base) var(--wr-border-radius-base);
+    border-radius: 0 0 var(--wr-date-time-panel-time-radius) var(--wr-date-time-panel-time-radius);
   }
 }
 
@@ -295,26 +328,37 @@
   }
 
   &__times {
+    --wr-date-range-panel-times-gap-y: var(--wr-space-md);
+    --wr-date-range-panel-times-gap-x: var(--wr-space-xl);
+    --wr-date-range-panel-times-padding: var(--wr-space-md);
+    --wr-date-range-panel-times-border: var(--wr-border-base);
+    --wr-date-range-panel-times-radius: var(--wr-border-radius-base);
+
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: var(--wr-space-md) var(--wr-space-xl);
-    padding: var(--wr-space-md);
+    gap: var(--wr-date-range-panel-times-gap-y) var(--wr-date-range-panel-times-gap-x);
+    padding: var(--wr-date-range-panel-times-padding);
     background: var(--wr-color-surface);
-    border: 1px solid var(--wr-border-base);
+    border: 1px solid var(--wr-date-range-panel-times-border);
     border-top: 0;
-    border-radius: 0 0 var(--wr-border-radius-base) var(--wr-border-radius-base);
+    border-radius: 0 0 var(--wr-date-range-panel-times-radius) var(--wr-date-range-panel-times-radius);
   }
 
   &__time {
+    --wr-date-range-panel-time-gap: var(--wr-space-xs);
+
     display: inline-flex;
     flex-direction: column;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-date-range-panel-time-gap);
   }
 
   &__time-label {
+    --wr-date-range-panel-time-label-font-size: var(--wr-text-xs);
+    --wr-date-range-panel-time-label-font-weight: var(--wr-font-weight-semibold);
+
     color: var(--wr-color-on-surface-muted);
-    font-size: var(--wr-text-xs);
-    font-weight: 600;
+    font-size: var(--wr-date-range-panel-time-label-font-size);
+    font-weight: var(--wr-date-range-panel-time-label-font-weight);
   }
 }

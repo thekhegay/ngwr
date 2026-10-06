@@ -1,16 +1,33 @@
 @use '../../theme/styles' as theme;
 
 .wr-page-header {
+  --wr-page-header-border: var(--wr-border-base);
+  --wr-page-header-font-family: var(--wr-font-family-base);
+  --wr-page-header-gap: var(--wr-space-lg);
+  --wr-page-header-padding-y: var(--wr-space-xl);
+  --wr-page-header-breadcrumbs-font-size: var(--wr-text-sm);
+  --wr-page-header-main-gap-y: var(--wr-space-lg);
+  --wr-page-header-main-gap-x: var(--wr-space-xl);
+  --wr-page-header-heading-gap: var(--wr-space-sm);
+  --wr-page-header-title-font-size: var(--wr-text-3xl);
+  --wr-page-header-title-font-weight: var(--wr-font-weight-bold);
+  --wr-page-header-title-line-height: var(--wr-leading-tight);
+  --wr-page-header-subtitle-font-size: var(--wr-text-base);
+  --wr-page-header-subtitle-line-height: var(--wr-leading-normal);
+  --wr-page-header-actions-gap: var(--wr-space-sm);
+  --wr-page-header-extra-gap: var(--wr-space-md);
+  --wr-page-header-extra-padding-top: var(--wr-space-xs);
+
   display: flex;
   flex-direction: column;
-  gap: var(--wr-space-lg);
+  gap: var(--wr-page-header-gap);
   // Always claim the full row even when nested in a flex-row demo wrapper.
   flex: 1 1 100%;
   width: 100%;
   min-width: 0;
-  padding: var(--wr-space-xl) 0 var(--wr-space-xl);
-  border-bottom: 1px solid var(--wr-border-base);
-  font-family: var(--wr-font-family-base);
+  padding: var(--wr-page-header-padding-y) 0 var(--wr-page-header-padding-y);
+  border-bottom: 1px solid var(--wr-page-header-border);
+  font-family: var(--wr-page-header-font-family);
 
   // Opt-in (`responsive`): query the box's own width so the title + actions row
   // stacks when the header is too narrow to sit them side by side. The host is
@@ -20,7 +37,7 @@
   }
 
   &__breadcrumbs {
-    font-size: var(--wr-text-sm);
+    font-size: var(--wr-page-header-breadcrumbs-font-size);
     color: var(--wr-color-on-surface-muted);
 
     &:empty {
@@ -31,31 +48,31 @@
   &__main {
     display: flex;
     align-items: flex-end;
-    gap: var(--wr-space-lg) var(--wr-space-xl);
+    gap: var(--wr-page-header-main-gap-y) var(--wr-page-header-main-gap-x);
     flex-wrap: wrap;
   }
 
   &__heading {
     display: flex;
     flex-direction: column;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-page-header-heading-gap);
     flex: 1 1 auto;
     min-width: 0;
   }
 
   &__title {
     margin: 0;
-    font-size: var(--wr-text-3xl);
-    font-weight: var(--wr-font-weight-bold);
-    line-height: var(--wr-leading-tight);
+    font-size: var(--wr-page-header-title-font-size);
+    font-weight: var(--wr-page-header-title-font-weight);
+    line-height: var(--wr-page-header-title-line-height);
     letter-spacing: -0.015em;
     color: var(--wr-color-on-surface);
   }
 
   &__subtitle {
     margin: 0;
-    font-size: var(--wr-text-base);
-    line-height: var(--wr-leading-normal);
+    font-size: var(--wr-page-header-subtitle-font-size);
+    line-height: var(--wr-page-header-subtitle-line-height);
     color: var(--wr-color-on-surface-muted);
   }
 
@@ -64,7 +81,7 @@
     align-items: center;
     // Density-aware: `touch` widens it so adjacent actions do not crowd a
     // fingertip, `sm` tightens it. `md` resolves to the 8px it always was.
-    gap: calc(0.5rem * var(--wr-density-gap, 1));
+    gap: calc(var(--wr-page-header-actions-gap) * var(--wr-density-gap, 1));
     flex-wrap: wrap;
     flex: 0 0 auto;
 
@@ -76,9 +93,9 @@
   &__extra {
     display: flex;
     align-items: center;
-    gap: var(--wr-space-md);
+    gap: var(--wr-page-header-extra-gap);
     flex-wrap: wrap;
-    padding-top: var(--wr-space-xs);
+    padding-top: var(--wr-page-header-extra-padding-top);
 
     &:empty {
       display: none;

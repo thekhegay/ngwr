@@ -26,6 +26,9 @@
   --wr-segmented-font-size: var(--wr-text-sm);
   --wr-segmented-line-height: var(--wr-control-line-height-md);
   --wr-segmented-option-py: 0.125rem;
+  --wr-segmented-option-px: var(--wr-control-padding-x-md);
+  --wr-segmented-option-gap: var(--wr-space-sm);
+  --wr-segmented-font-family: var(--wr-font-family-base);
 
   --wr-segmented-thumb-index: 0;
   --wr-segmented-thumb-count: 1;
@@ -38,7 +41,7 @@
   background: var(--wr-segmented-bg);
   padding: var(--wr-segmented-padding);
   @include theme.smooth-br(var(--wr-segmented-radius));
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-segmented-font-family);
   font-size: var(--wr-segmented-font-size);
   line-height: var(--wr-segmented-line-height);
 
@@ -103,12 +106,12 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-segmented-option-gap);
     appearance: none;
     background: transparent;
     border: 0;
     // Height = line-height + 2×option-py + 2×track-padding (md → 30px); all scale per size.
-    padding: var(--wr-segmented-option-py) 0.75rem;
+    padding: var(--wr-segmented-option-py) var(--wr-segmented-option-px);
     // An option is a flex container, so its height is its tallest child: a label
     // carries the line box, an icon carries only its own 14px glyph. An
     // icon-only strip therefore sat 2 / 6 / 10px short of a labelled one at

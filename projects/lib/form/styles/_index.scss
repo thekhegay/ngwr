@@ -1,16 +1,21 @@
 @use '../../theme/styles' as theme;
 
 .wr-form-item {
+  --wr-form-item-gap: var(--wr-space-sm);
+  --wr-form-item-label-font-size: var(--wr-text-sm);
+  --wr-form-item-label-font-weight: var(--wr-font-weight-medium);
+  --wr-form-item-label-line-height: var(--wr-text-sm-leading);
+
   display: flex;
   flex-direction: column;
-  gap: var(--wr-space-sm);
+  gap: var(--wr-form-item-gap);
   width: 100%;
 
   > label {
     color: var(--wr-color-on-surface-muted);
-    font-size: var(--wr-text-sm);
-    font-weight: 500;
-    line-height: 1.25rem;
+    font-size: var(--wr-form-item-label-font-size);
+    font-weight: var(--wr-form-item-label-font-weight);
+    line-height: var(--wr-form-item-label-line-height);
     transition: color var(--wr-transition-base);
   }
 
@@ -33,26 +38,43 @@
 }
 
 .wr-form-error {
+  --wr-form-error-font-size: var(--wr-text-xs);
+  --wr-form-error-line-height: var(--wr-text-xs-leading);
+
   display: block;
   color: var(--wr-color-danger-ink);
-  font-size: var(--wr-text-xs);
-  line-height: 1rem;
+  font-size: var(--wr-form-error-font-size);
+  line-height: var(--wr-form-error-line-height);
 }
 
 .wr-form-field {
+  --wr-form-field-gap: var(--wr-space-sm);
+  --wr-form-field-font-family: var(--wr-font-family-base);
+  --wr-form-field-label-gap: var(--wr-space-xs);
+  --wr-form-field-label-font-size: var(--wr-text-sm);
+  --wr-form-field-label-font-weight: var(--wr-font-weight-medium);
+  --wr-form-field-label-line-height: var(--wr-text-sm-leading);
+  --wr-form-field-optional-font-size: var(--wr-text-sm);
+  --wr-form-field-optional-font-weight: var(--wr-font-weight-regular);
+  --wr-form-field-hint-font-size: var(--wr-text-xs);
+  --wr-form-field-hint-line-height: var(--wr-leading-tight);
+  --wr-form-field-errors-gap: var(--wr-space-xs);
+  --wr-form-field-error-font-size: var(--wr-text-sm);
+  --wr-form-field-error-line-height: var(--wr-leading-tight);
+
   display: flex;
   flex-direction: column;
-  gap: var(--wr-space-sm);
-  font-family: var(--wr-font-family-base);
+  gap: var(--wr-form-field-gap);
+  font-family: var(--wr-form-field-font-family);
 
   &__label {
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-form-field-label-gap);
     color: var(--wr-color-on-surface);
-    font-size: var(--wr-text-sm);
-    font-weight: 500;
-    line-height: 1.25rem;
+    font-size: var(--wr-form-field-label-font-size);
+    font-weight: var(--wr-form-field-label-font-weight);
+    line-height: var(--wr-form-field-label-line-height);
   }
 
   &__required {
@@ -61,8 +83,8 @@
 
   &__optional {
     color: var(--wr-color-on-surface-muted);
-    font-weight: 400;
-    font-size: var(--wr-text-sm);
+    font-weight: var(--wr-form-field-optional-font-weight);
+    font-size: var(--wr-form-field-optional-font-size);
   }
 
   &__control {
@@ -72,14 +94,14 @@
 
   &__hint {
     color: var(--wr-color-on-surface-muted);
-    font-size: var(--wr-text-xs);
-    line-height: 1.25;
+    font-size: var(--wr-form-field-hint-font-size);
+    line-height: var(--wr-form-field-hint-line-height);
   }
 
   &__errors {
     display: flex;
     flex-direction: column;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-form-field-errors-gap);
   }
 
   &__error--hidden {
@@ -88,8 +110,8 @@
 
   &__error {
     color: var(--wr-color-danger-ink);
-    font-size: var(--wr-text-sm);
-    line-height: 1.25;
+    font-size: var(--wr-form-field-error-font-size);
+    line-height: var(--wr-form-field-error-line-height);
   }
 
   // Visual states — invalid stripes the projected control too.

@@ -19,15 +19,22 @@
   // — the dark RGB flips to light in dark mode, which would turn the
   // drop-shadow into a top highlight.
   --wr-kbd-shadow: 0 var(--wr-kbd-depth) 0 rgba(var(--wr-color-backdrop-rgb), 0.25);
+  // Use the system UI stack first — symbol glyphs (⌘, ⇧, ⌥, ⌃) render
+  // properly in SF Pro / Segoe UI / Cantarell, but turn into mojibake
+  // boxes in many monospace fonts. Mono is the fallback for ASCII.
+  --wr-kbd-font-family: var(--wr-font-family-base, system-ui, sans-serif);
+  --wr-kbd-font-weight: var(--wr-font-weight-semibold);
+  --wr-kbd-line-height: var(--wr-leading-none);
+  // The `md` tier is the default: `sm` and `lg` re-declare these below, the way
+  // `--wr-kbd-radius` and `--wr-kbd-depth` already do.
+  --wr-kbd-font-size: var(--wr-text-sm);
+  --wr-kbd-padding-x: var(--wr-space-sm);
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  // Use the system UI stack first — symbol glyphs (⌘, ⇧, ⌥, ⌃) render
-  // properly in SF Pro / Segoe UI / Cantarell, but turn into mojibake
-  // boxes in many monospace fonts. Mono is the fallback for ASCII.
-  font-family: var(--wr-font-family-base, system-ui, sans-serif);
-  font-weight: 600;
+  font-family: var(--wr-kbd-font-family);
+  font-weight: var(--wr-kbd-font-weight);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
   color: var(--wr-kbd-color);
@@ -38,32 +45,36 @@
   border-bottom-color: var(--wr-kbd-border-bottom);
   border-radius: var(--wr-kbd-radius);
   box-shadow: var(--wr-kbd-shadow);
-  line-height: 1;
+  line-height: var(--wr-kbd-line-height);
   user-select: none;
   vertical-align: middle;
   white-space: nowrap;
 
   &--sm {
     --wr-kbd-radius: var(--wr-control-radius-sm);
+    --wr-kbd-font-size: var(--wr-text-xs);
+    --wr-kbd-padding-x: var(--wr-space-xs);
     min-width: 1.375rem;
     height: 1.375rem;
-    padding: 0 0.3125rem;
-    font-size: var(--wr-text-xs);
+    padding: 0 var(--wr-kbd-padding-x);
+    font-size: var(--wr-kbd-font-size);
   }
 
   &--md {
     min-width: 1.75rem;
     height: 1.75rem;
-    padding: 0 0.4375rem;
-    font-size: var(--wr-text-sm);
+    padding: 0 var(--wr-kbd-padding-x);
+    font-size: var(--wr-kbd-font-size);
   }
 
   &--lg {
     --wr-kbd-depth: 2px;
     --wr-kbd-radius: var(--wr-control-radius-lg);
+    --wr-kbd-font-size: var(--wr-text-base);
+    --wr-kbd-padding-x: var(--wr-space-md);
     min-width: 2.125rem;
     height: 2.125rem;
-    padding: 0 0.5625rem;
-    font-size: var(--wr-text-base);
+    padding: 0 var(--wr-kbd-padding-x);
+    font-size: var(--wr-kbd-font-size);
   }
 }

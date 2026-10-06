@@ -15,12 +15,22 @@
 @use '../../icon/styles' as icon-styles; // WrIcon
 
 .wr-empty {
+  --wr-empty-gap: var(--wr-space-sm);
+  --wr-empty-padding-y: var(--wr-space-xl);
+  --wr-empty-padding-x: var(--wr-space-lg);
+  --wr-empty-icon-margin-bottom: var(--wr-space-xs);
+  --wr-empty-title-font-size: var(--wr-text-base);
+  --wr-empty-title-font-weight: var(--wr-font-weight-semibold);
+  --wr-empty-description-font-size: var(--wr-text-sm);
+  --wr-empty-actions-gap: var(--wr-space-sm);
+  --wr-empty-actions-margin-top: var(--wr-space-sm);
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--wr-space-sm);
-  padding: 2rem 1rem;
+  gap: var(--wr-empty-gap);
+  padding: var(--wr-empty-padding-y) var(--wr-empty-padding-x);
   // Claim the parent's box so the empty state reads as "this whole area
   // has nothing" rather than a tiny pill floating top-left. Consumers
   // that want a compact inline empty can override `width`/`min-height`.
@@ -32,7 +42,7 @@
   &__icon {
     color: var(--wr-color-on-surface-muted);
     opacity: 0.6;
-    margin-bottom: var(--wr-space-xs);
+    margin-bottom: var(--wr-empty-icon-margin-bottom);
     // The built-in glyph is sized by `.wr-icon__svg` at 1em; a custom
     // `<wr-icon>` sizes through this var instead, so without it the two
     // branches of the same slot rendered at different sizes (15px vs 18px).
@@ -47,12 +57,12 @@
 
   &__title {
     color: var(--wr-color-on-surface);
-    font-size: var(--wr-text-base);
-    font-weight: var(--wr-font-weight-semibold);
+    font-size: var(--wr-empty-title-font-size);
+    font-weight: var(--wr-empty-title-font-weight);
   }
 
   &__description {
-    font-size: var(--wr-text-sm);
+    font-size: var(--wr-empty-description-font-size);
     color: var(--wr-color-on-surface-muted);
     max-width: 32rem;
 
@@ -62,9 +72,9 @@
   }
 
   &__actions {
-    margin-top: var(--wr-space-sm);
+    margin-top: var(--wr-empty-actions-margin-top);
     display: flex;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-empty-actions-gap);
 
     &:empty {
       display: none;

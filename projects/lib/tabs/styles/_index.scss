@@ -6,37 +6,41 @@
   --wr-tabs-color-hover: var(--wr-color-on-surface);
   --wr-tabs-color-active: var(--wr-color-primary-ink);
   --wr-tabs-indicator: var(--wr-color-primary);
+  --wr-tabs-font-family: var(--wr-font-family-base);
   --wr-tabs-font-size: var(--wr-control-font-size-md);
+  --wr-tabs-font-weight: var(--wr-font-weight-medium);
   --wr-tabs-line-height: var(--wr-control-line-height-md);
-  --wr-tabs-padding-y: 0.625rem;
+  --wr-tabs-padding-y: var(--wr-space-md);
   --wr-tabs-padding-x: var(--wr-space-lg);
+  --wr-tabs-strip-gap: var(--wr-space-xs);
+  --wr-tabs-panel-padding-top: var(--wr-space-lg);
 
   display: block;
   // Claim the full row even when nested in a flex-row demo wrapper.
   flex: 1 1 100%;
   width: 100%;
   min-width: 0;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-tabs-font-family);
 
   // Sizes — wire the (previously inert) `size` input to the control fonts.
   &--sm {
     --wr-tabs-font-size: var(--wr-control-font-size-sm);
     --wr-tabs-line-height: var(--wr-control-line-height-sm);
-    --wr-tabs-padding-y: 0.5rem;
+    --wr-tabs-padding-y: var(--wr-space-sm);
     --wr-tabs-padding-x: var(--wr-space-md);
   }
 
   &--lg {
     --wr-tabs-font-size: var(--wr-control-font-size-lg);
     --wr-tabs-line-height: var(--wr-control-line-height-lg);
-    --wr-tabs-padding-y: 0.75rem;
+    --wr-tabs-padding-y: var(--wr-space-lg);
     --wr-tabs-padding-x: var(--wr-space-xl);
   }
 
   &__strip {
     display: flex;
     align-items: stretch;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-tabs-strip-gap);
     // The hairline is an inset shadow, not `border-bottom` — the strip
     // clips overflow (see below), which would cut off tabs pulled down
     // with a negative margin; the shadow lets the active indicator paint
@@ -93,7 +97,7 @@
     color: var(--wr-tabs-color);
     font: inherit;
     font-size: var(--wr-tabs-font-size);
-    font-weight: 500;
+    font-weight: var(--wr-tabs-font-weight);
     line-height: var(--wr-tabs-line-height);
     border-bottom: 2px solid transparent;
     cursor: pointer;
@@ -107,7 +111,7 @@
     }
 
     // color-ok: the base tab already reserves `border-bottom: 2px solid
-  // transparent` (line 98), so colouring it paints an underline that no
+  // transparent` (line 102), so colouring it paints an underline that no
   // inactive tab carries — a mark appearing, not a hue swapped.
   &--active {
       color: var(--wr-tabs-color-active);
@@ -122,6 +126,6 @@
   }
 
   &__panel {
-    padding-top: var(--wr-space-lg);
+    padding-top: var(--wr-tabs-panel-padding-top);
   }
 }

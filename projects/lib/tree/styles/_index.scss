@@ -2,25 +2,64 @@
 
 .wr-tree {
   --wr-tree-indent: 1.25rem;
+  --wr-tree-font-family: var(--wr-font-family-base);
+  --wr-tree-font-size: var(--wr-text-sm);
+  --wr-tree-list-padding-y: var(--wr-space-xs);
+  --wr-tree-row-gap: var(--wr-space-sm);
+  --wr-tree-row-padding-y: var(--wr-space-xs);
+  --wr-tree-row-padding-x: var(--wr-space-sm);
+  --wr-tree-row-radius: var(--wr-border-radius-sm);
+  --wr-tree-row-selected-font-weight: var(--wr-font-weight-medium);
+  --wr-tree-toggle-radius: var(--wr-border-radius-sm);
+  // The combobox trigger's own hooks live on the BASE rather than inside
+  // `&--combobox`, although nothing paints them until that modifier is on.
+  // `.wr-tree` and `.wr-tree--combobox` are the same element, so the modifier's
+  // rules resolve them from here either way — and declaring them here is what
+  // makes the host an override point and what lets `gen:css-vars` read a
+  // default at all. Four of them were added on the base and the rest were still
+  // down in the modifier, so one element answered "where does a trigger hook
+  // live" two ways and the docs table showed two scopes for it.
+  --wr-tree-trigger-color: var(--wr-color-on-surface);
+  --wr-tree-trigger-bg: var(--wr-color-surface);
+  --wr-tree-trigger-border: var(--wr-border-base);
+  // On the md control contract (30px, radius 6) so it lines up with select /
+  // input / button when used as a tree-select.
+  --wr-tree-trigger-radius: var(--wr-control-radius-md);
+  --wr-tree-trigger-padding-y: var(--wr-control-padding-y-md);
+  --wr-tree-trigger-padding-x: var(--wr-control-padding-x-md);
+  --wr-tree-trigger-font-size: var(--wr-control-font-size-md);
+  --wr-tree-trigger-line-height: var(--wr-control-line-height-md);
+  --wr-tree-trigger-font-family: var(--wr-font-family-base);
+  --wr-tree-trigger-gap: var(--wr-space-sm);
+  --wr-tree-trigger-multi-padding-y: var(--wr-space-xs);
+  --wr-tree-trigger-multi-padding-x: var(--wr-space-sm);
+  --wr-tree-chips-gap: var(--wr-space-xs);
+  --wr-tree-chip-gap: var(--wr-space-xs);
+  --wr-tree-chip-padding-block: var(--wr-control-padding-y-sm);
+  --wr-tree-chip-padding-inline-start: var(--wr-space-sm);
+  --wr-tree-chip-padding-inline-end: var(--wr-space-xs);
+  --wr-tree-chip-font-size: var(--wr-text-sm);
+  --wr-tree-chip-line-height: var(--wr-leading-snug);
+  --wr-tree-clear-radius: var(--wr-border-radius-pill);
 
   display: block;
-  font-family: var(--wr-font-family-base);
-  font-size: var(--wr-text-sm);
+  font-family: var(--wr-tree-font-family);
+  font-size: var(--wr-tree-font-size);
   color: var(--wr-color-on-surface);
 
   &__list {
     list-style: none;
     margin: 0;
-    padding: var(--wr-space-xs) 0;
+    padding: var(--wr-tree-list-padding-y) 0;
   }
 
   &__row {
     display: flex;
     align-items: center;
-    gap: var(--wr-space-sm);
-    padding: var(--wr-space-xs) var(--wr-space-sm);
+    gap: var(--wr-tree-row-gap);
+    padding: var(--wr-tree-row-padding-y) var(--wr-tree-row-padding-x);
     padding-inline-start: calc(0.5rem + var(--wr-tree-depth, 0) * var(--wr-tree-indent));
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-tree-row-radius);
     cursor: pointer;
     user-select: none;
     outline: 0;
@@ -41,7 +80,7 @@
     // wash and nothing else. The weight is what a reader without hue has.
     &--selected {
       background: var(--wr-color-primary-soft);
-      font-weight: var(--wr-font-weight-medium);
+      font-weight: var(--wr-tree-row-selected-font-weight);
       // Text on the `-soft` tint: `-ink`. Bare measured 4.19:1 light / 3.63:1 dark.
       color: var(--wr-color-primary-ink);
     }
@@ -108,7 +147,7 @@
     justify-content: center;
     color: var(--wr-color-on-surface-muted);
     cursor: pointer;
-    border-radius: var(--wr-border-radius-sm);
+    border-radius: var(--wr-tree-toggle-radius);
     transition: transform var(--wr-transition-base);
 
     &:hover:not(:disabled) {
@@ -166,16 +205,6 @@
   //
 
   &--combobox {
-    --wr-tree-trigger-color: var(--wr-color-on-surface);
-    --wr-tree-trigger-bg: var(--wr-color-surface);
-    --wr-tree-trigger-border: var(--wr-border-base);
-    // Combobox trigger on the md control contract (30px, radius 6) so it lines
-    // up with select / input / button when used as a tree-select.
-    --wr-tree-trigger-radius: var(--wr-control-radius-md);
-    --wr-tree-trigger-padding-y: var(--wr-control-padding-y-md);
-    --wr-tree-trigger-padding-x: var(--wr-control-padding-x-md);
-    --wr-tree-trigger-font-size: var(--wr-control-font-size-md);
-    --wr-tree-trigger-line-height: var(--wr-control-line-height-md);
     --wr-tree-panel-max-height: 18rem;
     // Trigger width floor, the same contract as `--wr-select-min-width`.
     // Despite the name it is a DEFAULT width rather than a minimum: an explicit
@@ -231,7 +260,7 @@
   &__trigger {
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-tree-trigger-gap);
     width: 100%;
     // Not the floor — that lives on the host, where a width can beat it. Zero
     // lets the trigger follow the host down and the label's ellipsis take the
@@ -248,7 +277,7 @@
     // measured 35.59px and this one stayed at 30.
     padding: calc(var(--wr-tree-trigger-padding-y) * var(--wr-density-y, 1))
       calc(var(--wr-tree-trigger-padding-x) * var(--wr-density-x, 1));
-    font-family: var(--wr-font-family-base);
+    font-family: var(--wr-tree-trigger-font-family);
     font-size: var(--wr-tree-trigger-font-size);
     line-height: var(--wr-tree-trigger-line-height);
     cursor: pointer;
@@ -303,7 +332,7 @@
     justify-content: center;
     width: 1.125rem;
     height: 1.125rem;
-    border-radius: 999px;
+    border-radius: var(--wr-tree-clear-radius);
     color: var(--wr-color-on-surface-muted);
     cursor: pointer;
     transition:
@@ -321,7 +350,7 @@
   &--multi &__trigger {
     flex-wrap: wrap;
     align-items: center;
-    padding: var(--wr-space-xs) var(--wr-space-sm);
+    padding: var(--wr-tree-trigger-multi-padding-y) var(--wr-tree-trigger-multi-padding-x);
     // Empty / one-row floor = single-mode height (+2px for the border), so it
     // has to carry the same density multiplier the single-mode padding does —
     // otherwise the two modes stop agreeing the moment density leaves `md`.
@@ -335,18 +364,18 @@
     flex: 1 1 auto;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-tree-chips-gap);
     min-width: 0;
   }
 
   &__chip {
     display: inline-flex;
     align-items: center;
-    gap: var(--wr-space-xs);
+    gap: var(--wr-tree-chip-gap);
     max-width: 100%;
     // Roomier on the label side, tighter where the remove (×) sits.
-    padding-block: 0.125rem;
-    padding-inline: var(--wr-space-sm) var(--wr-space-xs);
+    padding-block: var(--wr-tree-chip-padding-block);
+    padding-inline: var(--wr-tree-chip-padding-inline-start) var(--wr-tree-chip-padding-inline-end);
     // Not a pill: a chip is a shape nested INSIDE the trigger, so it repeats the
     // trigger's own corner instead of deciding one for itself — and an override
     // of `--wr-tree-trigger-radius` carries the chips with it.
@@ -354,8 +383,8 @@
     background: var(--wr-color-primary-soft);
     // The chip wraps a label, so this paints text on the chip's own tint.
     color: var(--wr-color-primary-ink);
-    font-size: var(--wr-text-sm);
-    line-height: 1.4;
+    font-size: var(--wr-tree-chip-font-size);
+    line-height: var(--wr-tree-chip-line-height);
     user-select: none;
   }
 
@@ -392,15 +421,21 @@
 }
 
 .wr-tree-overlay {
-  padding-top: var(--wr-space-xs);
+  --wr-tree-overlay-padding-top: var(--wr-space-xs);
+
+  padding-top: var(--wr-tree-overlay-padding-top);
 }
 
 .wr-tree-panel {
+  --wr-tree-panel-border: var(--wr-border-base);
+  --wr-tree-panel-radius: var(--wr-border-radius-base);
+  --wr-tree-panel-padding: var(--wr-space-sm);
+
   background: var(--wr-color-surface);
-  border: 1px solid var(--wr-border-base);
-  border-radius: var(--wr-border-radius-base);
+  border: 1px solid var(--wr-tree-panel-border);
+  border-radius: var(--wr-tree-panel-radius);
   box-shadow: var(--wr-shadow-overlay);
-  padding: var(--wr-space-sm);
+  padding: var(--wr-tree-panel-padding);
   max-height: var(--wr-tree-panel-max-height, 18rem);
   overflow-y: auto;
 
@@ -417,8 +452,7 @@
 // the compact desktop rows above.
 @media (pointer: coarse) {
   .wr-tree__row {
-    padding-top: var(--wr-space-sm);
-    padding-bottom: var(--wr-space-sm);
+    --wr-tree-row-padding-y: var(--wr-space-sm);
   }
 
   .wr-tree__toggle {

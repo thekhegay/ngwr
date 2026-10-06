@@ -1,18 +1,31 @@
 @use '../../theme/styles' as theme;
 
 .wr-result {
+  --wr-result-font-family: var(--wr-font-family-base);
+  --wr-result-gap: var(--wr-space-md);
+  --wr-result-padding-y: var(--wr-space-xl);
+  --wr-result-padding-x: var(--wr-space-xl);
+  --wr-result-title-font-size: var(--wr-text-2xl);
+  --wr-result-title-font-weight: var(--wr-font-weight-semibold);
+  --wr-result-title-line-height: var(--wr-leading-tight);
+  --wr-result-title-letter-spacing: var(--wr-tracking-tight);
+  --wr-result-description-font-size: var(--wr-text-sm);
+  --wr-result-description-line-height: var(--wr-leading-relaxed);
+  --wr-result-extra-gap: var(--wr-space-sm);
+  --wr-result-extra-margin-top: var(--wr-space-sm);
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--wr-space-md);
-  padding: 2.5rem var(--wr-space-xl);
+  gap: var(--wr-result-gap);
+  padding: var(--wr-result-padding-y) var(--wr-result-padding-x);
   // Match `<wr-empty>` — claim the parent's box so the result reads as
   // a full-area state, not a compact tile floating top-left.
   width: 100%;
   min-height: 100%;
   text-align: center;
-  font-family: var(--wr-font-family-base);
+  font-family: var(--wr-result-font-family);
   color: var(--wr-color-on-surface);
 
   &__icon {
@@ -21,24 +34,24 @@
 
   &__title {
     margin: 0;
-    font-size: var(--wr-text-2xl);
-    font-weight: var(--wr-font-weight-semibold);
-    line-height: var(--wr-leading-tight);
-    letter-spacing: var(--wr-tracking-tight);
+    font-size: var(--wr-result-title-font-size);
+    font-weight: var(--wr-result-title-font-weight);
+    line-height: var(--wr-result-title-line-height);
+    letter-spacing: var(--wr-result-title-letter-spacing);
   }
 
   &__description {
     margin: 0;
     max-width: 32rem;
-    font-size: var(--wr-text-sm);
+    font-size: var(--wr-result-description-font-size);
     color: var(--wr-color-on-surface-muted);
-    line-height: var(--wr-leading-relaxed);
+    line-height: var(--wr-result-description-line-height);
   }
 
   &__extra {
-    margin-top: var(--wr-space-sm);
+    margin-top: var(--wr-result-extra-margin-top);
     display: flex;
-    gap: var(--wr-space-sm);
+    gap: var(--wr-result-extra-gap);
     flex-wrap: wrap;
     justify-content: center;
 
