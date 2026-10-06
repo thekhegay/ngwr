@@ -366,6 +366,29 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     !this.inputField.outer && this.announcement() ? this.statusId : null
   );
 
+  /**
+   * The surrounding field's own label, when it renders one — `null` otherwise,
+   * and `null` when `[ariaLabel]` was set deliberately.
+   *
+   * `aria-label` outranks a `<label for>` in the accname order, so without this
+   * a picker inside `<wr-form-field label="Delivery date">` announced its
+   * PLACEHOLDER, or the generic `datePicker.open` default, which on the TEXT
+   * INPUT reads as "Open calendar" — the name of the button beside it. Nothing
+   * catches that: the input has a name, so axe is satisfied, and it fails WCAG
+   * 2.5.3, where the visible label has to be IN the accessible name.
+   *
+   * Read through `inputField.outer` rather than through a second
+   * `useFormFieldAria()`, for the same reason `ownAriaInvalid` is: the picker
+   * feeds the field through `WrDateInputField` and must not bind a second
+   * writer beside it.
+   */
+  protected readonly labelledBy = computed(() =>
+    this.ariaLabel() ? null : (this.inputField.outer?.labelId?.() ?? null)
+  );
+
+  /** `null` once `aria-labelledby` is carrying the name — see {@link labelledBy}. */
+  protected readonly nameLabel = computed(() => (this.labelledBy() ? null : this.resolvedAriaLabel()));
+
   protected readonly classes = computed(() => {
     const parts = ['wr-date-picker', `wr-date-picker--${this.mode()}`];
     if (this.disabled()) parts.push('wr-date-picker--disabled');
