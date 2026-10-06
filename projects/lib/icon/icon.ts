@@ -35,6 +35,10 @@ import { type WrIconStripReport, sanitizeIcon } from './utils';
   },
 })
 export class WrIcon {
+  /**
+   * Name the icon was registered under in `provideWrIcons()`. An unregistered
+   * name renders nothing and logs in dev mode — ngwr ships no icons itself.
+   */
   readonly name = input.required<WrIconName>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);

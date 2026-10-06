@@ -32,6 +32,8 @@ export class WrResult404 {
   /** Bound by the shared template; not an input — a preset IS its status. */
   protected readonly status: WrResultStatus = 'warning';
 
+  /** The big figure. Defaults to `404`; override it for a localised or
+   * differently-worded page. */
   readonly title = input<string>('404');
 
   /** Body text. Falls back to `result.notFound` from WrI18n. */
@@ -55,6 +57,8 @@ export class WrResult403 {
   /** Bound by the shared template; not an input — a preset IS its status. */
   protected readonly status: WrResultStatus = 'error';
 
+  /** The big figure. Defaults to `403`; override it for a localised or
+   * differently-worded page. */
   readonly title = input<string>('403');
 
   /** Body text. Falls back to `result.forbidden` from WrI18n. */
@@ -78,6 +82,8 @@ export class WrResult500 {
   /** Bound by the shared template; not an input — a preset IS its status. */
   protected readonly status: WrResultStatus = 'error';
 
+  /** The big figure. Defaults to `500`; override it for a localised or
+   * differently-worded page. */
   readonly title = input<string>('500');
 
   /** Body text. Falls back to `result.serverError` from WrI18n. */

@@ -51,6 +51,10 @@ export class WrStatistic {
   private readonly platform = inject(WrPlatform);
   private readonly locale = inject(LOCALE_ID);
 
+  /**
+   * The caption above the figure — what the number counts. Keep it short; the
+   * value is the thing being read, and this names it.
+   */
   readonly label = input<string>('');
 
   /** The number (or string) to display in the main slot. */

@@ -35,6 +35,9 @@ import { DestroyRef, Directive, ElementRef, NgZone, inject, input } from '@angul
 export class WrSpotlight {
   /** Optional default coordinates when no pointer is over the host. */
   readonly resetX = input<string>('50%');
+  /**
+   * Vertical half of that resting position. Same units as `resetX`.
+   */
   readonly resetY = input<string>('50%');
 
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);

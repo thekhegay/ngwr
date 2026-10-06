@@ -61,6 +61,10 @@ const FALLBACK_COLORS = [
   host: { class: 'wr-donut-chart' },
 })
 export class WrDonutChart {
+  /**
+   * The slices, drawn clockwise from twelve o'clock. A segment with no `color`
+   * takes the next entry from the chart's fallback palette.
+   */
   readonly segments = input<readonly WrDonutSegment[]>([]);
 
   /**

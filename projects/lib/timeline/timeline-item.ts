@@ -22,8 +22,20 @@ import type { WrTimelineColor } from './types';
   host: { '[class]': 'classes()', '[attr.title]': 'null' },
 })
 export class WrTimelineItem {
+  /**
+   * The headline for this point on the line. Projected content goes below it as
+   * the body, so keep this to what happened.
+   */
   readonly title = input<string>('');
+  /**
+   * When it happened, already formatted — the component does no date formatting.
+   * Run a `Date` through the `wrDate` pipe on the way in.
+   */
   readonly time = input<string>('');
+  /**
+   * Tint of this item's dot. Decoration by default: it carries no meaning on its
+   * own, so say the state in the title as well if it is one.
+   */
   readonly color = input<WrTimelineColor>('primary');
 
   protected readonly classes = computed(() => `wr-timeline-item wr-timeline-item--${this.color()}`);

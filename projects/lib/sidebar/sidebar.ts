@@ -88,6 +88,10 @@ function matchesRoute(url: string, route: string): boolean {
   imports: [RouterLink, RouterLinkActive, WrIcon],
 })
 export class WrSidebar {
+  /**
+   * The navigation tree. Each entry may carry `children`, which the sidebar
+   * renders as a collapsible group and expands when a descendant is the active route.
+   */
   readonly entries = input<readonly WrSidebarEntry[]>([]);
 
   /**

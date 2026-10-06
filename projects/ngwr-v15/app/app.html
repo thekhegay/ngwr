@@ -1,63 +1,79 @@
-<header class="bar">
-  <h1 class="bar__title">ngwr v15 sandbox — Table &amp; Event Calendar</h1>
-  <button wr-btn type="button" outlined size="sm" (click)="toggleTheme()">
-    <wr-icon [name]="theme.resolved() === 'dark' ? 'sun' : 'moon'" />
-    {{ theme.resolved() === 'dark' ? 'Light' : 'Dark' }}
+<header class="sandbox__bar">
+  <strong>ngwr v15 sandbox — Feedback</strong>
+  <button wr-btn type="button" size="sm" variant="outlined" (click)="toggleTheme()">
+    {{ theme.resolved() === 'dark' ? 'Dark' : 'Light' }}
   </button>
 </header>
 
 <main class="sandbox">
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Table — basic usage</h2>
-    <wr-table [columns]="columns" [items]="rows" />
+    <h2>Alert — closable and no icon</h2>
+    <wr-alert title="Saved" type="success" closable (closed)="onClose()" />
+    <wr-alert title="Plain" message="No leading icon." [icon]="false" />
+    <wr-alert title="Offline" type="offline" closable />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Table — sort + filter + custom cell</h2>
-    <wr-table [columns]="columns" [items]="rows" [(sort)]="sort" (filterChange)="onFilter($event)">
-      <ng-template wrTableCell="role" let-value>
-        <wr-tag [color]="value === 'admin' ? 'danger' : 'info'">{{ value }}</wr-tag>
-      </ng-template>
-    </wr-table>
+    <h2>Empty</h2>
+    <wr-empty />
+    <wr-empty iconName="search" title="No results">
+      Try a different query or clear filters.
+      <ng-container wrEmptyActions>
+        <button wr-btn type="button" (click)="reset()">Reset filters</button>
+      </ng-container>
+    </wr-empty>
+    <wr-empty [icon]="false" title="No results">Try a different query.</wr-empty>
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Table — loading and empty</h2>
-    <wr-table [columns]="columns" [items]="[]" emptyLabel="No users yet" />
+    <h2>Progress</h2>
+    <wr-progress [value]="42" />
+    <wr-progress color="success" [value]="80" />
+    <wr-progress [value]="value()" />
+    <wr-slider [(value)]="value" />
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Table — row selection</h2>
-    <wr-table rowSelection="multiple" rowKey="email" [(selection)]="selected" [columns]="columns" [items]="rows" />
+    <h2>Skeleton and spinner</h2>
+    <wr-skeleton />
+    <wr-skeleton width="60%" />
+    <div class="row">
+      <wr-spinner size="sm" />
+      <wr-spinner />
+      <wr-spinner size="lg" />
+      <wr-spinner color="success" />
+    </div>
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Table — expandable rows</h2>
-    <wr-table rowKey="email" [(expanded)]="expanded" [columns]="columns" [items]="rows">
-      <ng-template wrTableExpand let-row>
-        <p>{{ row.name }} — {{ row.email }}</p>
-      </ng-template>
-    </wr-table>
+    <h2>Result — statuses</h2>
+    <div class="row">
+      <wr-result status="success" title="Submitted" />
+      <wr-result status="warning" title="Heads up" />
+      <wr-result status="error" title="Failed" />
+      <wr-result status="info" title="In review" />
+      <wr-result status="empty" title="No projects" />
+    </div>
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Table — row grouping with a custom header</h2>
-    <wr-table groupBy="role" [(collapsedGroups)]="collapsed" [columns]="columns" [items]="rows">
-      <ng-template wrTableGroupHeader let-value let-count="count">
-        <wr-tag color="primary" transparent>{{ value }}</wr-tag>
-        <small>{{ count }} users</small>
-      </ng-template>
-    </wr-table>
+    <h2>Result — action and presets</h2>
+    <wr-result status="success" title="Submitted!" description="We'll be in touch.">
+      <button wr-btn type="button" color="primary" wrResultExtra>Continue</button>
+    </wr-result>
+    <div class="row">
+      <wr-result-404 />
+      <wr-result-403 />
+      <wr-result-500 />
+    </div>
   </section>
 
   <section class="sandbox__block">
-    <h2 class="sandbox__heading">Table — CSV export</h2>
-    <wr-table #table [columns]="columns" [items]="rows" />
-    <wr-btn (click)="table.exportCsv({ filename: 'users.csv' })">Export CSV</wr-btn>
-  </section>
-
-  <section class="sandbox__block">
-    <h2 class="sandbox__heading">Event Calendar — month</h2>
-    <wr-event-calendar [events]="events()" (eventChange)="onEventChange($event)" />
+    <h2>Pull to refresh</h2>
+    <wr-pull-to-refresh style="height: 8rem" [refreshing]="loading()" (refresh)="reload()">
+      @for (item of items(); track item) {
+        <div>{{ item }}</div>
+      }
+    </wr-pull-to-refresh>
   </section>
 </main>

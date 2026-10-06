@@ -61,6 +61,10 @@ export class WrMeterGroup {
 
   protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'meterGroup.label', 'Meter');
 
+  /**
+   * The parts of the bar, in order. Values are summed and each segment is drawn
+   * as its share of that total, so they need not add up to anything in particular.
+   */
   readonly segments = input<readonly WrMeterSegment[]>([]);
 
   /** Explicit total. When `0` (default), `max = sum(values)`. @default 0 */

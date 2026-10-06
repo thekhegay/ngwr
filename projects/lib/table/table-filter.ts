@@ -65,6 +65,10 @@ export class WrTableFilter {
   protected readonly resolvedSearchLabel = useI18nText(this.searchLabel, 'table.search', 'Search');
   protected readonly resolvedResetLabel = useI18nText(this.resetLabel, 'table.reset', 'Reset');
 
+  /**
+   * The values the column can be filtered by. Shown as a checkbox list, so pass
+   * the distinct values rather than one entry per row.
+   */
   readonly items = input.required<readonly WrTableFilterItem[]>();
 
   /** Fires whenever the selection changes. */

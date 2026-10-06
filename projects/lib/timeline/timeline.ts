@@ -27,6 +27,10 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
   host: { '[class]': 'classes()' },
 })
 export class WrTimeline {
+  /**
+   * Which way the line runs. `horizontal` lays the items out in a row and suits a
+   * short, fixed set of steps; a feed of unknown length wants the default.
+   */
   readonly orientation = input<'vertical' | 'horizontal'>('vertical');
 
   protected readonly classes = computed(() => `wr-timeline wr-timeline--${this.orientation()}`);

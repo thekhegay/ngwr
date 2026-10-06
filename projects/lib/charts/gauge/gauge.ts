@@ -44,7 +44,13 @@ export class WrGauge {
   readonly value = input.required<number, unknown>({
     transform: (v: unknown): number => coerceNumberProperty(v, 0),
   });
+  /**
+   * Low end of the scale — where the arc starts. Values below it clamp here.
+   */
   readonly min = input(0, { transform: (v: unknown): number => coerceNumberProperty(v, 0) });
+  /**
+   * High end of the scale — where the arc completes. Values above it clamp here.
+   */
   readonly max = input(100, { transform: (v: unknown): number => coerceNumberProperty(v, 100) });
 
   /** Diameter in CSS pixels. @default 160 */
@@ -55,12 +61,24 @@ export class WrGauge {
     transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 10)),
   });
 
+  /**
+   * Colour of the unfilled arc behind the value. Any CSS colour; the default is
+   * the outline token at 60%, which reads as a hairline in both themes.
+   */
   readonly trackColor = input<string>('rgba(var(--wr-color-outline-rgb), 0.6)');
+  /**
+   * Colour of the filled arc. Any CSS colour — pass an intent token to tie it to
+   * a threshold, e.g. `var(--wr-color-danger)` once the value crosses one.
+   */
   readonly valueColor = input<string>('var(--wr-color-primary)');
 
   /** Show the value text in the center. @default true */
   readonly showValue = input(true, { transform: coerceBooleanProperty });
 
+  /**
+   * Unit printed immediately after the number — `%`, `/10`, ` GB`. It goes into
+   * the accessible text too, so the gauge is announced the way it reads.
+   */
   readonly suffix = input<string>('');
 
   /**

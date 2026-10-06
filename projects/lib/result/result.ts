@@ -35,8 +35,20 @@ import type { WrResultStatus } from './types';
   host: { '[class]': 'classes()', '[attr.title]': 'null' },
 })
 export class WrResult {
+  /**
+   * The headline — the outcome in a few words. Pair it with `description` for the
+   * detail; a result with neither renders the illustration alone.
+   */
   readonly title = input<string>('');
+  /**
+   * Secondary line under the title. Say what happens next, not what went wrong
+   * again — the title has already said it.
+   */
   readonly description = input<string>('');
+  /**
+   * Which illustration and tint to draw. `empty` is the quiet one, for a list with
+   * nothing in it rather than for something that failed.
+   */
   readonly status = input<WrResultStatus>('info');
 
   protected readonly classes = computed(() => `wr-result wr-result--${this.status()}`);

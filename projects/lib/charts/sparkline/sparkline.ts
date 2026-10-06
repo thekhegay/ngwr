@@ -29,6 +29,10 @@ import { useChartTooltip } from 'ngwr/popover';
   host: { class: 'wr-sparkline' },
 })
 export class WrSparkline {
+  /**
+   * The values, left to right. Evenly spaced — a sparkline carries no x axis, so
+   * pass an already-ordered series rather than points with their own timestamps.
+   */
   readonly data = input<readonly number[]>([]);
 
   /**

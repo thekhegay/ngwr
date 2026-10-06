@@ -26,7 +26,15 @@ import { Directive, ElementRef, PLATFORM_ID, afterEveryRender, effect, inject, i
   host: { '[style.overflow]': "'hidden'", '[style.resize]': "'none'", '(input)': 'onInput()' },
 })
 export class WrAutosize {
+  /**
+   * Smallest height, in rendered rows. The textarea never shrinks below it,
+   * so a field that starts empty still reserves the room.
+   */
   readonly minRows = input(1, { transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 1)) });
+  /**
+   * Largest height, in rendered rows. `0` — the default — lets it grow without
+   * a ceiling; any other value caps the height and the textarea scrolls past it.
+   */
   readonly maxRows = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
 
   private readonly el = inject<ElementRef<HTMLTextAreaElement>>(ElementRef);
