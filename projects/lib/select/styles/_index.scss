@@ -133,6 +133,22 @@
     &:disabled {
       cursor: not-allowed;
     }
+
+    // A strut, so an EMPTY trigger is as tall as a full one. Neither the value
+    // nor the placeholder span is rendered when there is no value and no
+    // `placeholder`, which leaves the flex row holding nothing but the 14px
+    // chevron: the control came out 24px against the 30px of every neighbour,
+    // and a form with one unset select showed a visibly short box. Not a
+    // `min-height` on the trigger itself — `box-sizing: border-box` would count
+    // the padding into it and the floor would never bind. A zero-width item
+    // that is one line tall costs nothing horizontally and binds only when the
+    // row is otherwise empty, so the chip and search triggers, which carry
+    // taller content, are untouched.
+    &::before {
+      content: '';
+      flex: 0 0 0;
+      min-height: var(--wr-select-line-height);
+    }
   }
 
   // color-ok: opening attaches the panel and flips the chevron 180deg, so the
