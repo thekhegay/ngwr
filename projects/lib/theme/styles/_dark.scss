@@ -287,6 +287,17 @@ $dark-intents: (
   // `colors.derived()` for why a `var()` in a custom property cannot do this on
   // its own.
   @include colors.derived;
+
+  // AFTER `derived()`, and that order is the whole of it: `-strong` is declared
+  // inside that mixin, so a hand-written line above the include is overwritten
+  // by it — which is how this first shipped, with the light value leaking into
+  // dark at 7.34:1 where the light side reads 2.56.
+  //
+  // It is the one role reading the FIXED scale rather than a flipping position,
+  // because the positional ramp has no step between the hairline and muted
+  // text — so it is also the one role this theme has to re-point by hand.
+  // 2.48:1 on the dark canvas, against the light side's 2.56:1.
+  --wr-border-strong: var(--wr-color-gray-600);
   @include variables.derived-focus-ring;
 
   color-scheme: dark;

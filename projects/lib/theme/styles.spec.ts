@@ -179,6 +179,66 @@ describe('a style entry point loads the token layer it paints with', () => {
   });
 });
 
+describe('the border strengths really ascend', () => {
+  /**
+   * A strength scale whose middle step is the strongest is a scale that lies,
+   * and this one did: `-strong` was `rgba(gray-4, 0.6)` while `-base` was the
+   * OPAQUE `gray-4`, so composited on the canvas `strong` read 1.26:1 against
+   * `base`'s 1.48:1. Nothing caught it because the two halves lived in
+   * different namespaces — `--wr-color-outline` and `--wr-color-border-strong`
+   * — so nothing ever put them side by side.
+   *
+   * Resolved through the ramp rather than read as literals: every one of the
+   * three is a `var()` now, and a spec that accepted a string would pass on the
+   * inversion it exists to refuse.
+   */
+  const CANVAS = { light: '#ffffff', dark: '#0b1120' } as const;
+
+  function ramp(theme: 'light' | 'dark'): Map<string, string> {
+    const src = code(join(THEME_STYLES, theme === 'dark' ? '_dark.scss' : '_colors.scss'));
+    const out = new Map<string, string>();
+    for (const m of src.matchAll(/(--wr-color-gray-[\w-]+|--wr-border-[a-z]+):\s*([^;]+);/g)) {
+      out.set(m[1], m[2].trim());
+    }
+    // The dark file re-declares only part of the ramp; the rest inherits.
+    if (theme === 'dark') {
+      for (const [k, v] of ramp('light')) if (!out.has(k)) out.set(k, v);
+    }
+    return out;
+  }
+
+  /** `var(--x)` chased to a `#rrggbb`, or `null` when it is not a plain hex. */
+  function hex(name: string, scale: Map<string, string>, depth = 0): string | null {
+    if (depth > 6) return null;
+    const raw = scale.get(name);
+    if (raw === undefined) return null;
+    if (/^#[0-9a-f]{6}$/i.test(raw)) return raw;
+    const ref = /^var\(\s*(--[\w-]+)\s*\)$/.exec(raw);
+    return ref ? hex(ref[1], scale, depth + 1) : null;
+  }
+
+  function contrast(fg: string, bg: string): number {
+    const lum = (h: string): number => {
+      const ch = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255);
+      const f = (c: number): number => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+      return 0.2126 * f(ch[0]) + 0.7152 * f(ch[1]) + 0.0722 * f(ch[2]);
+    };
+    const [a, b] = [lum(fg), lum(bg)];
+    return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  }
+
+  it.each(['light', 'dark'] as const)('subtle < base < strong in the %s theme', theme => {
+    const scale = ramp(theme);
+    const seen = (['--wr-border-subtle', '--wr-border-base', '--wr-border-strong'] as const).map(name => {
+      const value = hex(name, scale);
+      expect(value, `${name} does not resolve to a hex in ${theme}`).not.toBeNull();
+      return { name, ratio: contrast(value!, CANVAS[theme]) };
+    });
+
+    expect(seen.map(s => s.name)).toEqual([...seen].sort((a, b) => a.ratio - b.ratio).map(s => s.name));
+  });
+});
+
 describe('an entry point loads the styles of the components it renders', () => {
   /**
    * The same invariant as the token one above, one level up — and v15 is what
