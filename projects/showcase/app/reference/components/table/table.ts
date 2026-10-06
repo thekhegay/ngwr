@@ -553,6 +553,7 @@ interface WrTableColumn {
   resizable?: boolean;
   width?: number;
   summary?: WrTableSummary;
+  class?: WrClassInput;
 }
 
 interface WrTableFilterItem<T = unknown> {
