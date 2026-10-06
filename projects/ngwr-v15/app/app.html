@@ -10,14 +10,47 @@
     <span class="decide__tag">decide this</span>
     <h2 style="margin: 0">How strong should a control's border be?</h2>
     <p>
-      Everything else on this page is a report — the ramp and the intents are already decided and shipped. The one open
-      question is the last two rows of <a href="#borders">Borders</a>, outlined in red: the scale's own next step reads
-      <strong>2.56:1</strong>, and WCAG 1.4.11 asks <strong>3:1</strong> of anything that identifies a control. Reaching
-      it needs a colour darker than the ramp's own rhythm, so control edges would read visibly heavier than every other
-      line on the page. That is the whole of the trade.
+      The one open call on this page. Everything else is a report: the ramp, the intents and the neutral hue are settled
+      and shipped.
     </p>
-    <p>Flip the theme with the button above — the numbers are measured against the live canvas, not transcribed.</p>
+    <p>
+      The two rows <strong>outlined in red</strong> further down, in <a href="#borders">Borders</a>, are the choice. The
+      scale's own next step reads <strong>2.56:1</strong> where WCAG 1.4.11 asks <strong>3:1</strong> of anything that
+      identifies a control. Reaching it needs a colour darker than the ramp's rhythm, so every control edge would read
+      visibly heavier than every other line on the page.
+    </p>
+    <p>Flip the theme with the button above — every number is measured against the live canvas, not transcribed.</p>
   </div>
+
+  <section class="sandbox__block">
+    <h2 id="hue">Neutral hue <span style="font: 400 13px/1 system-ui; opacity: 0.6">— decided: gray</span></h2>
+    <p>
+      Slate shipped before this and was the bluest of the five — 22 points of blue over red on the hairline, which is
+      what read as light blue on an outline. <strong>gray</strong> is half that at 10, and the dark ramp was re-tuned to
+      the same hue at each step's own luminance: muted text went from 30 to 20, body text from 13 to 6. Contrast did not
+      move — the five families land within 0.02 of each other at the hairline, and the re-tune preserved every luminance
+      to five decimal places.
+    </p>
+    <div class="hue">
+      @for (n of neutrals(); track n.family) {
+        <span class="hue__name">{{ n.family }}{{ n.current ? ' ·' : '' }}</span>
+        <span class="hue__cast">{{ n.cast }}</span>
+        <span class="hue__steps">
+          @for (s of n.steps; track s) {
+            <span [style.background]="s"></span>
+          }
+        </span>
+        <span class="hue__sample">
+          <span class="hue__card" [style.border]="`1px solid ${n.line}`">{{ n.line }}</span>
+          <button type="button" class="hue__btn">Save</button>
+          <span class="pal__ratio">{{ n.ratio }}:1</span>
+          @if (n.current) {
+            <span style="color: var(--wr-color-danger-ink); font-weight: 600">&larr; ships today</span>
+          }
+        </span>
+      }
+    </div>
+  </section>
 
   <section class="sandbox__block">
     <h2>Neutral ramp <span style="font: 400 13px/1 system-ui; opacity: 0.6">— decided, for reference</span></h2>

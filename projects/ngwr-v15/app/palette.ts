@@ -1,3 +1,12 @@
+/** The five neutral families, for the hue decision. Blue cast falls left to right. */
+export const NEUTRALS = {
+  slate: { '200': '#e2e8f0', '300': '#cbd5e1', '400': '#94a3b8', '600': '#475569', '900': '#0f172a' },
+  gray: { '200': '#e5e7eb', '300': '#d1d5db', '400': '#9ca3af', '600': '#4b5563', '900': '#111827' },
+  zinc: { '200': '#e4e4e7', '300': '#d4d4d8', '400': '#a1a1aa', '600': '#52525b', '900': '#18181b' },
+  neutral: { '200': '#e5e5e5', '300': '#d4d4d4', '400': '#a3a3a3', '600': '#525252', '900': '#171717' },
+  stone: { '200': '#e7e5e4', '300': '#d6d3d1', '400': '#a8a29e', '600': '#57534e', '900': '#1c1917' },
+} as const;
+
 /** Tailwind's default scales — the only literals on the page; everything on the
  *  ngwr side is read out of the compiled theme at runtime. */
 export const TW = {
