@@ -77,8 +77,11 @@
   >
     <ul>
       <li>
-        <code>ngwr</code> and <code>&#64;angular/cdk</code> installed, with <code>&#64;use 'ngwr';</code> in
-        <code>src/styles.scss</code> — the whole token layer and every component's styles from one import.
+        <code>ngwr</code> and <code>&#64;angular/cdk</code> installed, with <code>src/styles.scss</code> written for the
+        demo: <code>&#64;use 'ngwr/theme'</code> and then one line per entry point it renders, plus the ones those
+        depend on for their own styles. There is no <code>&#64;use 'ngwr'</code> to fall back on — v15 removed it, and
+        this sandbox is where that started: the umbrella compiled every component's CSS to paint two elements, 287 kB
+        against the 56 kB these lines come to.
       </li>
       <li>
         A zoneless bootstrap: <code>provideZonelessChangeDetection()</code>, plus <code>provideWrOverlay()</code> —

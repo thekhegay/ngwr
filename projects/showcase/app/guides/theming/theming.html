@@ -13,7 +13,7 @@
 
   <ngwr-doc-section
     title="Load the stylesheet"
-    description="One umbrella for everything, or pick individual entry-points if you bundle by component."
+    description="One `@use` per thing you render, with `ngwr/theme` on the first line. **There is no `@use 'ngwr'`** — v15 removed the umbrella, because a sheet that compiles every component in the catalog to paint a page using four of them is the opposite of what a per-entry-point library is for. The token layer is emitted once however many component lines you write, and `density` and `breakpoints` are separate entry points of their own."
   >
     <ngwr-doc-code [code]="snippets.styles" language="scss" />
   </ngwr-doc-section>

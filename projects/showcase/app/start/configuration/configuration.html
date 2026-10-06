@@ -20,7 +20,7 @@
 
   <ngwr-doc-section
     title="Responsive overlays"
-    description="`provideWrResponsiveOverlays()` — from `ngwr/overlay`, the same entry point as `provideWrOverlay()`, not from the component's own — makes dialog, select, dropdown and popover present as a full-width bottom-sheet under the breakpoint, and the command palette go full-screen. A per-component `responsive` input overrides it either way, so a page can opt one panel out. The sheet's own presentation lives in the `ngwr/overlay` **stylesheet** as well — if you load styles per component rather than through the umbrella, `&#64;use 'ngwr/overlay'` is what makes a sheet look like one. See the [mobile guide](/guides/mobile) for the rest of the touch story."
+    description="`provideWrResponsiveOverlays()` — from `ngwr/overlay`, the same entry point as `provideWrOverlay()`, not from the component's own — makes dialog, select, dropdown and popover present as a full-width bottom-sheet under the breakpoint, and the command palette go full-screen. A per-component `responsive` input overrides it either way, so a page can opt one panel out. The sheet's own presentation lives in the `ngwr/overlay` **stylesheet** as well — `&#64;use 'ngwr/overlay'` in your global stylesheet is what makes a sheet look like one. See the [mobile guide](/guides/mobile) for the rest of the touch story."
   >
     <ngwr-doc-code [code]="snippets.responsiveOverlays" language="angular-ts" />
   </ngwr-doc-section>
