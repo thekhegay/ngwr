@@ -179,6 +179,90 @@ describe('a style entry point loads the token layer it paints with', () => {
   });
 });
 
+describe('an entry point loads the styles of the components it renders', () => {
+  /**
+   * The same invariant as the token one above, one level up — and v15 is what
+   * exposed it. Removing the `@use 'ngwr'` umbrella means a consumer writes one
+   * `@use` per component they PLACE, and they never learn about the components a
+   * component places inside itself. Measured when this was written: 47 pairs.
+   * `@use 'ngwr/date-picker'` gave a date field with a raw browser input — grey,
+   * square, 2px inset — because the picker renders `[wrInput]` and loaded none of
+   * `ngwr/input`; `@use 'ngwr/table'` gave unstyled checkboxes and an unstyled
+   * pager; `@use 'ngwr/schema-form'` drew ten controls and styled none of them.
+   *
+   * Nothing said so. The component renders, the markup is right, every gate is
+   * green, and the only symptom is on screen.
+   *
+   * Read from the `imports: []` of each entry point's own components, because
+   * that is the list Angular itself resolves a template against — a class scan
+   * would miss `[wrInput]`, which adds `.wr-input` at runtime and appears in no
+   * template as text. An entry point that ships no stylesheet is skipped: there
+   * is nothing to load.
+   */
+  /** Every exported `Wr*` symbol to the entry point that exports it. */
+  function symbolOwners(): Map<string, string> {
+    const out = new Map<string, string>();
+    const walk = (dir: string): void => {
+      for (const name of readdirSync(dir)) {
+        if (name === 'node_modules' || name === 'testing') continue;
+        const full = join(dir, name);
+        if (statSync(full).isDirectory()) {
+          walk(full);
+          continue;
+        }
+        if (name !== 'public-api.ts') continue;
+        const sub = relative(LIB, dirname(full));
+        for (const m of readFileSync(full, 'utf8').matchAll(/export \{([^}]*)\} from/g)) {
+          for (const raw of m[1].split(',')) {
+            const symbol = raw.replace(/\btype\b/, '').trim();
+            if (/^Wr[A-Za-z0-9]+$/.test(symbol)) out.set(symbol, sub);
+          }
+        }
+      }
+    };
+    walk(LIB);
+    return out;
+  }
+
+  it('leaves no component rendering another entry point it never loads', () => {
+    const owners = symbolOwners();
+    const entryOfStyle = new Map(styleEntries().map(e => [relative(LIB, dirname(dirname(e))), e]));
+    const offenders = new Set<string>();
+
+    for (const [sub, entry] of entryOfStyle) {
+      const loadedFiles = new Set(loaded(entry));
+      const walk = (dir: string): void => {
+        for (const name of readdirSync(dir)) {
+          if (name === 'node_modules' || name === 'testing') continue;
+          const full = join(dir, name);
+          if (statSync(full).isDirectory()) {
+            walk(full);
+            continue;
+          }
+          if (!name.endsWith('.ts') || name.endsWith('.spec.ts')) continue;
+          const list = /imports:\s*\[([^\]]*)\]/.exec(readFileSync(full, 'utf8'))?.[1];
+          if (list === undefined) continue;
+          for (const raw of list.split(',')) {
+            const from = owners.get(raw.trim());
+            if (from === undefined || from === sub) continue;
+            const theirs = entryOfStyle.get(from);
+            if (theirs === undefined || loadedFiles.has(theirs)) continue;
+            offenders.add(`ngwr/${sub} renders ${raw.trim()} and never loads ngwr/${from}`);
+          }
+        }
+      };
+      walk(join(LIB, sub));
+    }
+
+    expect([...offenders].sort()).toEqual([]);
+  });
+
+  it('finds the components an entry point renders', () => {
+    // A symbol map that quietly matched nothing would report the invariant held.
+    expect(symbolOwners().size).toBeGreaterThanOrEqual(150);
+  });
+});
+
 describe('a bare .wr-icon__svg is sized by the entry point that draws it', () => {
   /**
    * The CLASS version of the invariant above, and it shipped broken.
