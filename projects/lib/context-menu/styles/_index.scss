@@ -158,7 +158,7 @@
 .wr-context-menu-divider {
   display: block;
   height: 1px;
-  margin: 0.25rem 0;
+  margin: var(--wr-space-xs) 0;
   background: var(--wr-color-outline);
 }
 

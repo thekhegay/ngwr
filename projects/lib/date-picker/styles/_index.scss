@@ -69,7 +69,7 @@
   &__separator {
     display: inline-flex;
     align-items: center;
-    padding: 0 0.25rem;
+    padding: 0 var(--wr-space-xs);
     color: var(--wr-color-on-surface-muted);
     user-select: none;
   }
