@@ -20,7 +20,7 @@ import { DocsSearch, PrimaryColor, SiteDirection } from '#core/services';
 import { HOME, ROUTES } from '#routes';
 
 interface NavLink {
-  readonly url: string[];
+  readonly url: string;
   readonly label: string;
 }
 
@@ -193,12 +193,12 @@ export class Header {
    * the job you are actually doing.
    */
   protected readonly nav: readonly NavLink[] = [
-    { url: [HOME.url, ROUTES.docs.url], label: 'Docs' },
-    { url: [HOME.url, ROUTES.guides.url], label: 'Guides' },
-    { url: [HOME.url, ROUTES.reference.url], label: 'Reference' },
-    { url: [HOME.url, ROUTES.icons.url], label: 'Icons' },
-    { url: [HOME.url, ROUTES.charts.url], label: 'Charts' },
-    { url: [HOME.url, ROUTES.bits.url], label: 'Bits' },
+    { url: ROUTES.docs.url, label: 'Docs' },
+    { url: ROUTES.guides.url, label: 'Guides' },
+    { url: ROUTES.reference.url, label: 'Reference' },
+    { url: ROUTES.icons.url, label: 'Icons' },
+    { url: ROUTES.charts.url, label: 'Charts' },
+    { url: ROUTES.bits.url, label: 'Bits' },
   ];
   protected readonly actions: readonly ActionLink[] = [
     { url: 'https://github.com/thekhegay/ngwr', icon: 'github', modifier: 'github', label: 'GitHub' },
