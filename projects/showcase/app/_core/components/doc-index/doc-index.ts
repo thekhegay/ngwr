@@ -1,13 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
-import type { SidebarLink } from '../../../_layout/sidebar/sidebar.types';
 import { DocPageComponent } from '../doc-page/doc-page';
 import { DocSectionComponent } from '../doc-section/doc-section';
 
 import type { DocIndexData, DocIndexSection } from './types';
 
 import { isNewLink } from '#core/utils';
+import type { SidebarLink } from '#types';
 
 /**
  * A section's table of contents, as a real page.
@@ -66,10 +66,9 @@ export default class DocIndexComponent {
     if (!this.page) throw new Error('ngwr-doc-index: the route carries no `data.index`. See DocIndexData.');
 
     const base = `/${this.route.snapshot.pathFromRoot.flatMap(r => r.url.map(s => s.path)).join('/')}`;
-    const under = (url: readonly string[] | undefined): boolean => {
+    const under = (url: string | undefined): boolean => {
       if (!url) return false;
-      const href = url.join('/');
-      return href === base || href.startsWith(`${base}/`);
+      return url === base || url.startsWith(`${base}/`);
     };
 
     const sections: DocIndexSection[] = [];

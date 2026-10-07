@@ -1,14 +1,14 @@
 import type { Routes } from '@angular/router';
 
-import { routes } from '#routing';
+import { ROUTES } from '#routes';
 
-const a = routes.bits;
+const a = ROUTES.bits;
 
 /** Effects that wrap a block of content. Folder only — the URL stays `/bits/<slug>`. */
 export const BLOCK_ROUTES = [
-  { path: a.borderGlow, loadComponent: () => import('./border-glow/border-glow') },
-  { path: a.marquee, loadComponent: () => import('./marquee/marquee') },
-  { path: a.spotlightCard, loadComponent: () => import('./spotlight-card/spotlight-card') },
-  { path: a.starBorder, loadComponent: () => import('./star-border/star-border') },
-  { path: a.tiltCard, loadComponent: () => import('./tilt-card/tilt-card') },
+  { path: a.borderGlow.path, loadComponent: () => import('./border-glow/border-glow') },
+  { path: a.marquee.path, loadComponent: () => import('./marquee/marquee') },
+  { path: a.spotlightCard.path, loadComponent: () => import('./spotlight-card/spotlight-card') },
+  { path: a.starBorder.path, loadComponent: () => import('./star-border/star-border') },
+  { path: a.tiltCard.path, loadComponent: () => import('./tilt-card/tilt-card') },
 ] satisfies Routes;

@@ -1,8 +1,8 @@
 import { RenderMode, type ServerRoute } from '@angular/ssr';
 
-import { routes } from '#routing';
+import { ROUTES } from '#routes';
 
-const icons = routes.icons;
+const icons = ROUTES.icons;
 
 /**
  * Per-route render modes for the static prerender (`outputMode: 'static'`).
@@ -26,7 +26,7 @@ const icons = routes.icons;
  * The `**` entry below reads as "prerender everything else", and for the app's
  * own `**` route — the not-found page added in `routing.ts` — it is not what
  * happens: `@angular/build` skips any extracted route whose path contains `*`,
- * both from the prerender pass and from `prerendered-routes.json`. So the 404
+ * both from the prerender pass and from `prerendered-ROUTES.json.url`. So the 404
  * is client-rendered whatever this file says, no `.md` twin is generated for
  * it, and it stays out of the sitemap. It is a soft 404 by construction — the
  * SPA fallback answers 200 with the shell — and a real status code would have
@@ -60,12 +60,12 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'docs/getting-started/**', renderMode: RenderMode.Client },
   { path: 'docs/core/**', renderMode: RenderMode.Client },
 
-  { path: `${icons.index}/${icons.tabler}`, renderMode: RenderMode.Client },
-  { path: `${icons.index}/${icons.phosphor}`, renderMode: RenderMode.Client },
-  { path: `${icons.index}/${icons.heroicons}`, renderMode: RenderMode.Client },
-  { path: `${icons.index}/${icons.iconoir}`, renderMode: RenderMode.Client },
-  { path: `${icons.index}/${icons.radix}`, renderMode: RenderMode.Client },
-  { path: `${icons.index}/${icons.bootstrap}`, renderMode: RenderMode.Client },
+  { path: `${icons.path}/${icons.tabler.path}`, renderMode: RenderMode.Client },
+  { path: `${icons.path}/${icons.phosphor.path}`, renderMode: RenderMode.Client },
+  { path: `${icons.path}/${icons.heroicons.path}`, renderMode: RenderMode.Client },
+  { path: `${icons.path}/${icons.iconoir.path}`, renderMode: RenderMode.Client },
+  { path: `${icons.path}/${icons.radix.path}`, renderMode: RenderMode.Client },
+  { path: `${icons.path}/${icons.bootstrap.path}`, renderMode: RenderMode.Client },
 
   { path: '**', renderMode: RenderMode.Prerender },
 ];

@@ -31,7 +31,7 @@ export default class TypographyCodePage {
     mono: `<p wrTypography [mono]="true">
   Forces monospace on any variant — useful for ids, paths, version tags.
 </p>`,
-    tones: `<code wrTypography variant="code" tone="primary">routes.docs.installation</code>
+    tones: `<code wrTypography variant="code" tone="primary">ROUTES.docs.installation.url</code>
 <code wrTypography variant="code" tone="success">200 OK</code>
 <code wrTypography variant="code" tone="danger">500 Server Error</code>`,
   };

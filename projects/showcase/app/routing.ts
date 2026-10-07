@@ -9,7 +9,7 @@ import {
   REFERENCE_SIDEBAR,
 } from './_layout/sidebar/configs';
 
-import { routes } from '#routing';
+import { ROUTES } from '#routes';
 
 export const routing: Routes = [
   {
@@ -25,36 +25,36 @@ export const routing: Routes = [
       // `reference` = look one API up. Icons, charts and bits stay separate:
       // browsable catalogs, the chart family, and the reactbits ports.
       {
-        path: routes.docs.index,
+        path: ROUTES.docs.path,
         data: { sidebar: DOCS_SIDEBAR },
         loadChildren: () => import('./docs/routing'),
       },
       {
-        path: routes.guides.index,
+        path: ROUTES.guides.path,
         data: { sidebar: GUIDES_SIDEBAR },
-        loadChildren: () => import('./guides/guides.routing'),
+        loadChildren: () => import('./guides/routing'),
       },
       // One sidebar for the whole section, attached here rather than per
       // cluster: components, directives, pipes, services, utils, validators
       // and interfaces are siblings in it, so the nav must not change shape
       // as the reader moves between them.
       {
-        path: routes.reference.index,
+        path: ROUTES.reference.path,
         data: { sidebar: REFERENCE_SIDEBAR },
-        loadChildren: () => import('./reference/reference.routing'),
+        loadChildren: () => import('./reference/routing'),
       },
       {
-        path: routes.charts.index,
+        path: ROUTES.charts.path,
         data: { sidebar: CHARTS_SIDEBAR },
         loadChildren: () => import('./charts/routing'),
       },
       {
-        path: routes.icons.index,
+        path: ROUTES.icons.path,
         data: { sidebar: ICONS_SIDEBAR },
-        loadChildren: () => import('./icons/icons.routing'),
+        loadChildren: () => import('./icons/routing'),
       },
       {
-        path: routes.bits.index,
+        path: ROUTES.bits.path,
         data: { sidebar: BITS_SIDEBAR },
         loadChildren: () => import('./bits/routing'),
       },
@@ -134,7 +134,10 @@ export const routing: Routes = [
       { path: 'docs/getting-started/:page', redirectTo: ({ params }) => `/docs/${params['page']}` },
       { path: 'docs/getting-started', redirectTo: '/docs/installation' },
       { path: 'docs/core/color', redirectTo: '/guides/tokens/colors' },
-      { path: 'docs/core/directives/:page', redirectTo: ({ params }) => `/reference/directives/${params['page']}` },
+      {
+        path: 'docs/core/directives/:page',
+        redirectTo: ({ params }) => `/reference/directives/${params['page']}`,
+      },
       { path: 'docs/core/directives', redirectTo: '/reference/directives' },
       { path: 'docs/core/pipes/:page', redirectTo: ({ params }) => `/reference/pipes/${params['page']}` },
       { path: 'docs/core/pipes', redirectTo: '/reference/pipes' },

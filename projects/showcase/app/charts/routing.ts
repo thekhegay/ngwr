@@ -1,17 +1,17 @@
 import type { Routes } from '@angular/router';
 
-import { routes } from '#routing';
+import { ROUTES } from '#routes';
 
-const charts = routes.charts;
+const charts = ROUTES.charts;
 
 /** The chart components, their own cluster rather than a group under `reference`. */
 export default [
-  { path: '', pathMatch: 'full', redirectTo: charts.barChart },
-  { path: charts.barChart, loadComponent: () => import('./bar-chart/bar-chart') },
-  { path: charts.calendarHeatmap, loadComponent: () => import('./calendar-heatmap/calendar-heatmap') },
-  { path: charts.donutChart, loadComponent: () => import('./donut-chart/donut-chart') },
-  { path: charts.gauge, loadComponent: () => import('./gauge/gauge') },
-  { path: charts.lineChart, loadComponent: () => import('./line-chart/line-chart') },
-  { path: charts.meterGroup, loadComponent: () => import('./meter-group/meter-group') },
-  { path: charts.sparkline, loadComponent: () => import('./sparkline/sparkline') },
+  { path: '', pathMatch: 'full', redirectTo: charts.barChart.path },
+  { path: charts.barChart.path, loadComponent: () => import('./bar-chart/bar-chart') },
+  { path: charts.calendarHeatmap.path, loadComponent: () => import('./calendar-heatmap/calendar-heatmap') },
+  { path: charts.donutChart.path, loadComponent: () => import('./donut-chart/donut-chart') },
+  { path: charts.gauge.path, loadComponent: () => import('./gauge/gauge') },
+  { path: charts.lineChart.path, loadComponent: () => import('./line-chart/line-chart') },
+  { path: charts.meterGroup.path, loadComponent: () => import('./meter-group/meter-group') },
+  { path: charts.sparkline.path, loadComponent: () => import('./sparkline/sparkline') },
 ] satisfies Routes;
