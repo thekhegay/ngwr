@@ -1,8 +1,48 @@
 <ngwr-doc-page
   title="Introduction"
-  description="Where ngwr fits next to the established Angular UI libraries, where it does not, and what gates a change to it."
-  [keywords]="['comparison', 'angular ui library', 'alternatives', 'signal forms', 'zoneless']"
+  description="An Angular UI library built on signals: standalone, zoneless, Signal Forms-native, server-rendered and themed with CSS variables. Free and open source."
+  [keywords]="['angular ui library', 'signal forms', 'zoneless', 'standalone components', 'ssr']"
 >
+  <ngwr-doc-section title="Why ngwr">
+    <ul wrTypography variant="list">
+      <li>
+        <strong>Signal Forms, natively.</strong> Every value control binds with
+        <code wrTypography variant="code">[formField]</code> — there is no
+        <code wrTypography variant="code">ControlValueAccessor</code> anywhere in the library.
+      </li>
+      <li>
+        <strong>Signals and zoneless.</strong> Standalone components,
+        <code wrTypography variant="code">input()</code> and
+        <code wrTypography variant="code">model()</code> throughout, and no zone.js required.
+      </li>
+      <li>
+        <strong>Only what you use.</strong> {{ quality.entryPoints }} entry points, one per component — you import and
+        <code wrTypography variant="code">&#64;use</code> what you render and nothing else.
+      </li>
+      <li>
+        <strong>Yours to restyle.</strong> Every value is a CSS variable: override a token to change the whole app, or a
+        component's own hook to change one.
+      </li>
+      <li>
+        <strong>Server-rendered.</strong> Components render under SSR and hydration — every page of these docs is
+        prerendered.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="CLI" description="One command installs the package, its peers and the providers you pick.">
+    <ngwr-doc-code [code]="snippets.cli" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="AI ready">
+    <p wrTypography variant="body">
+      The catalog ships as an agent <a wrTypography variant="link" [routerLink]="skills">skill</a>, an
+      <a wrTypography variant="link" href="/llms-full.txt">llms-full.txt</a>, and an
+      <a wrTypography variant="link" [routerLink]="mcp">MCP server</a> inside the package — all generated from the
+      library source, so an assistant reads the API you actually installed.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section
     title="Counted, not claimed"
     description="The counters below are written by `scripts/gen/quality.ts`, which counts the repository during the showcase build, and every sentence further down that repeats one of them binds the same value. None of them is typed in by hand — that is the only way a page like this is still true a year after it was written."
