@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@use 'prose';
 
 .wr-typography {
   --wr-typography-font-family: var(--wr-font-family-base);

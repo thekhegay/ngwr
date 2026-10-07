@@ -31,6 +31,7 @@ import type { ShikiLang } from '#core/shiki';
  */
 @Component({
   selector: 'ngwr-doc-snippet',
+  host: { class: 'wr-not-prose' },
   templateUrl: './doc-snippet.html',
   styleUrl: './doc-snippet.scss',
   imports: [DocCodeComponent],
