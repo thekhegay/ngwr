@@ -1,11 +1,11 @@
 import type { Routes } from '@angular/router';
 
-import { routes } from '#routing';
+import { ROUTES } from '#routes';
 
-const a = routes.bits;
+const a = ROUTES.bits;
 
 /** Full-bleed canvas backdrops. Folder only — the URL stays `/bits/<slug>`. */
 export const BACKGROUND_ROUTES = [
-  { path: a.aurora, loadComponent: () => import('./aurora/aurora') },
-  { path: a.waves, loadComponent: () => import('./waves/waves') },
+  { path: a.aurora.path, loadComponent: () => import('./aurora/aurora') },
+  { path: a.waves.path, loadComponent: () => import('./waves/waves') },
 ] satisfies Routes;

@@ -1,15 +1,16 @@
-import type { SidebarGroup } from '../sidebar.types';
+import { ROUTES } from '#routes';
+import type { SidebarGroup } from '#types';
 
 /** The Pipes group of the Reference sidebar — one row per pipe. */
 export const PIPES_GROUP: SidebarGroup = {
   title: 'Pipes',
   children: [
-    { title: 'wrBytes', url: ['/reference/pipes', 'wr-bytes'] },
-    { title: 'wrDate', url: ['/reference/pipes', 'wr-date'] },
-    { title: 'wrMark', url: ['/reference/pipes', 'wr-mark'] },
-    { title: 'wrNumber', url: ['/reference/pipes', 'wr-number'] },
-    { title: 'wrPlural', url: ['/reference/pipes', 'wr-plural'] },
-    { title: 'wrRange', url: ['/reference/pipes', 'wr-range'] },
-    { title: 'wrTruncate', url: ['/reference/pipes', 'wr-truncate'] },
+    ROUTES.reference.pipes.wrBytes,
+    ROUTES.reference.pipes.wrDate,
+    ROUTES.reference.pipes.wrMark,
+    ROUTES.reference.pipes.wrNumber,
+    ROUTES.reference.pipes.wrPlural,
+    ROUTES.reference.pipes.wrRange,
+    ROUTES.reference.pipes.wrTruncate,
   ],
 };

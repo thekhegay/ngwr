@@ -1,4 +1,5 @@
-import type { SidebarGroup } from '../sidebar.types';
+import { ROUTES } from '#routes';
+import type { SidebarGroup } from '#types';
 
 /**
  * Sidebar for `/bits/*` — animated UI effects. Mix of in-house ngwr
@@ -11,43 +12,36 @@ import type { SidebarGroup } from '../sidebar.types';
 export const BITS_SIDEBAR: readonly SidebarGroup[] = [
   {
     title: 'Backgrounds',
-    children: [
-      { title: 'Aurora', url: ['/bits', 'aurora'] },
-      { title: 'Waves', url: ['/bits', 'waves'] },
-    ],
+    children: [ROUTES.bits.aurora, ROUTES.bits.waves],
   },
   {
     title: 'Blocks',
     children: [
-      { title: 'Border Glow', url: ['/bits', 'border-glow'] },
-      { title: 'Marquee', url: ['/bits', 'marquee'] },
-      { title: 'Spotlight Card', url: ['/bits', 'spotlight-card'] },
-      { title: 'Star Border', url: ['/bits', 'star-border'] },
-      { title: 'Tilt Card', url: ['/bits', 'tilt-card'] },
+      ROUTES.bits.borderGlow,
+      ROUTES.bits.marquee,
+      ROUTES.bits.spotlightCard,
+      ROUTES.bits.starBorder,
+      ROUTES.bits.tiltCard,
     ],
   },
   {
     title: 'Effects',
-    children: [
-      { title: 'Click Spark', url: ['/bits', 'click-spark'] },
-      { title: 'Confetti', url: ['/bits', 'confetti'] },
-      { title: 'Splash Cursor', url: ['/bits', 'splash-cursor'] },
-    ],
+    children: [ROUTES.bits.clickSpark, ROUTES.bits.confetti, ROUTES.bits.splashCursor],
   },
   {
     title: 'Text',
     children: [
-      { title: 'Blur Text', url: ['/bits', 'blur-text'] },
-      { title: 'Circular Text', url: ['/bits', 'circular-text'] },
-      { title: 'Decrypt Text', url: ['/bits', 'decrypt-text'] },
-      { title: 'Falling Text', url: ['/bits', 'falling-text'] },
-      { title: 'Fuzzy Text', url: ['/bits', 'fuzzy-text'] },
-      { title: 'Glitch Text', url: ['/bits', 'glitch-text'] },
-      { title: 'Gradient Text', url: ['/bits', 'gradient-text'] },
-      { title: 'Rotating Text', url: ['/bits', 'rotating-text'] },
-      { title: 'Shiny Text', url: ['/bits', 'shiny-text'] },
-      { title: 'Split Text', url: ['/bits', 'split-text'] },
-      { title: 'Typewriter', url: ['/bits', 'typewriter'] },
+      ROUTES.bits.blurText,
+      ROUTES.bits.circularText,
+      ROUTES.bits.decryptText,
+      ROUTES.bits.fallingText,
+      ROUTES.bits.fuzzyText,
+      ROUTES.bits.glitchText,
+      ROUTES.bits.gradientText,
+      ROUTES.bits.rotatingText,
+      ROUTES.bits.shinyText,
+      ROUTES.bits.splitText,
+      ROUTES.bits.typewriter,
     ],
   },
 ];

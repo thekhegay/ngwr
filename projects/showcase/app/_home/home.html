@@ -48,7 +48,7 @@
             wr-btn
             color="primary"
             size="lg"
-            [routerLink]="routes.docs.index"
+            [routerLink]="routes.docs.url"
             icon="arrow-forward"
             iconPosition="end"
           >
@@ -68,7 +68,7 @@
           </a>
         </div>
 
-        <a class="ngwr-home-hero__compare" [routerLink]="[routes.index, routes.docs.index, routes.docs.introduction]">
+        <a class="ngwr-home-hero__compare" [routerLink]="[home.url, routes.docs.url, routes.docs.introduction.url]">
           <span class="ngwr-home-hero__compare-label">How it compares to the other Angular UI libraries</span>
           <wr-icon name="arrow-forward" />
         </a>
@@ -304,7 +304,7 @@
             wr-btn
             outlined
             size="lg"
-            [routerLink]="[routes.index, routes.bits.index]"
+            [routerLink]="[home.url, routes.bits.url]"
             icon="arrow-forward"
             iconPosition="end"
           >

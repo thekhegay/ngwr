@@ -68,9 +68,10 @@ const ROUTES_JSON = join(DIST, 'prerendered-routes.json');
  * `versioning` folded into Migration, `quality` into Introduction and
  * `schematics` into Installation. A floor is only worth having if it tracks
  * the export it guards, so it moves down when pages are removed on purpose
- * and never to make a red run green.
+ * and never to make a red run green. 209 is 210 less the charts cluster's own
+ * index redirect, which `/reference/components` no longer carries.
  */
-const MIN_PAGES = 210;
+const MIN_PAGES = 209;
 
 /**
  * Doc pages that will never have a twin, named so the decision is on the record.

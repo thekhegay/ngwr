@@ -5,10 +5,11 @@ import { NGWR_VERSION } from 'ngwr/version';
 import { describe, expect, it } from 'vitest';
 
 import * as SIDEBARS from '../../_layout/sidebar/configs';
-import type { SidebarGroup } from '../../_layout/sidebar/sidebar.types';
 import { SINCE } from '../generated/since';
 
 import { isNewIn, isNewLink, releaseLabel, routeKey, sinceOf } from './since';
+
+import type { SidebarGroup } from '#types';
 
 describe('the docs "new" rule', () => {
   it('marks a version on the current minor line', () => {
@@ -58,7 +59,7 @@ describe('the docs "new" rule', () => {
   });
 
   it('keys a nav link by its route', () => {
-    expect(routeKey(['/reference/components', 'graph'])).toBe('reference/components/graph');
+    expect(routeKey('/reference/components/graph')).toBe('reference/components/graph');
   });
 
   it('answers nothing for a page that declares nothing', () => {
@@ -70,8 +71,8 @@ describe('the docs "new" rule', () => {
   });
 
   it('marks the graph link and not its neighbours', () => {
-    expect(isNewLink(['/reference/components', 'graph'], '14.4.0')).toBe(true);
-    expect(isNewLink(['/reference/components', 'button'], '14.4.0')).toBe(false);
+    expect(isNewLink('/reference/components/graph', '14.4.0')).toBe(true);
+    expect(isNewLink('/reference/components/button', '14.4.0')).toBe(false);
     expect(isNewLink(undefined, '14.4.0')).toBe(false);
   });
 });
@@ -82,8 +83,8 @@ describe('the docs "new" rule', () => {
  * `REFERENCE_SIDEBAR` under seven cluster aliases, so a row reached through it
  * would otherwise be counted eight times.
  */
-function navRows(): readonly { readonly title: string; readonly url?: readonly string[] }[] {
-  const rows = new Map<string, { title: string; url?: readonly string[] }>();
+function navRows(): readonly { readonly title: string; readonly url?: string }[] {
+  const rows = new Map<string, { title: string; url?: string }>();
   for (const config of Object.values(SIDEBARS as Record<string, readonly SidebarGroup[]>)) {
     for (const group of config) {
       if (group.url) rows.set(routeKey(group.url), { title: group.title, url: group.url });

@@ -17,7 +17,7 @@ import { NGWR_VERSION_TOKEN } from 'ngwr/version';
 
 import { BRAND_ICONS } from '#core/icons';
 import { DocsSearch, PrimaryColor, SiteDirection } from '#core/services';
-import { routes } from '#routing';
+import { HOME, ROUTES } from '#routes';
 
 interface NavLink {
   readonly url: string[];
@@ -38,11 +38,11 @@ interface ActionLink {
  * lands on the 404 shell.
  */
 const SUGGESTION_ROUTES: Readonly<Record<string, string>> = {
-  's:install': `/${routes.docs.index}/${routes.docs.installation}`,
-  's:forms': `/${routes.guides.index}/${routes.guides.forms}`,
-  's:theming': `/${routes.guides.index}/${routes.guides.theming}`,
-  's:components': `/${routes.reference.index}/${routes.reference.components}`,
-  's:migration': `/${routes.docs.index}/${routes.docs.migration}`,
+  's:install': `/${ROUTES.docs.url}/${ROUTES.docs.installation.url}`,
+  's:forms': `/${ROUTES.guides.url}/${ROUTES.guides.forms.url}`,
+  's:theming': `/${ROUTES.guides.url}/${ROUTES.guides.theming.url}`,
+  's:components': `/${ROUTES.reference.url}/${ROUTES.reference.components.url}`,
+  's:migration': `/${ROUTES.docs.url}/${ROUTES.docs.migration.url}`,
 };
 
 /** First major with an archived docs snapshot — nothing older was ever frozen. */
@@ -76,6 +76,7 @@ function archivedMajors(current: number): readonly number[] {
   ],
 })
 export class Header {
+  protected readonly home = HOME;
   private readonly docsSearch = inject(DocsSearch);
   private readonly router = inject(Router);
 
@@ -183,7 +184,7 @@ export class Header {
     { value: 'lg', label: 'lg' },
   ];
 
-  protected readonly routes = routes;
+  protected readonly routes = ROUTES;
   /**
    * Five doors, ordered by what the reader is doing. The previous thirteen
    * mirrored how the code is organised (Components / Directives / Pipes /
@@ -192,12 +193,12 @@ export class Header {
    * the job you are actually doing.
    */
   protected readonly nav: readonly NavLink[] = [
-    { url: [routes.index, routes.docs.index], label: 'Docs' },
-    { url: [routes.index, routes.guides.index], label: 'Guides' },
-    { url: [routes.index, routes.reference.index], label: 'Reference' },
-    { url: [routes.index, routes.icons.index], label: 'Icons' },
-    { url: [routes.index, routes.charts.index], label: 'Charts' },
-    { url: [routes.index, routes.bits.index], label: 'Bits' },
+    { url: [HOME.url, ROUTES.docs.url], label: 'Docs' },
+    { url: [HOME.url, ROUTES.guides.url], label: 'Guides' },
+    { url: [HOME.url, ROUTES.reference.url], label: 'Reference' },
+    { url: [HOME.url, ROUTES.icons.url], label: 'Icons' },
+    { url: [HOME.url, ROUTES.charts.url], label: 'Charts' },
+    { url: [HOME.url, ROUTES.bits.url], label: 'Bits' },
   ];
   protected readonly actions: readonly ActionLink[] = [
     { url: 'https://github.com/thekhegay/ngwr', icon: 'github', modifier: 'github', label: 'GitHub' },

@@ -5,7 +5,7 @@ import { BLOCK_ROUTES } from './blocks/routing';
 import { EFFECT_ROUTES } from './effects/routing';
 import { TEXT_ROUTES } from './text/routing';
 
-import { routes } from '#routing';
+import { ROUTES } from '#routes';
 
 /**
  * The bits cluster, assembled from one routing file per sidebar group.
@@ -14,7 +14,7 @@ import { routes } from '#routing';
  * `/bits/<slug>`, so a link published before the regrouping still resolves.
  */
 export default [
-  { path: '', pathMatch: 'full', redirectTo: routes.bits.aurora },
+  { path: '', pathMatch: 'full', redirectTo: ROUTES.bits.aurora.path },
   ...BACKGROUND_ROUTES,
   ...BLOCK_ROUTES,
   ...EFFECT_ROUTES,

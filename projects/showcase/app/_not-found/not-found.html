@@ -6,8 +6,8 @@
 -->
 <main class="ngwr-not-found">
   <wr-result-404 description="That page has moved or never existed. The links below are the fastest way back.">
-    <a wr-btn color="primary" wrResultExtra [routerLink]="routes.index">Go home</a>
-    <a wr-btn outlined wrResultExtra [routerLink]="[routes.index, routes.reference.index]">Browse the reference</a>
+    <a wr-btn color="primary" wrResultExtra [routerLink]="home.url">Go home</a>
+    <a wr-btn outlined wrResultExtra [routerLink]="[home.url, routes.reference.url]">Browse the reference</a>
   </wr-result-404>
 </main>
 

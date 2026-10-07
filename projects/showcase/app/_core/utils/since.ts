@@ -87,9 +87,9 @@ export function releaseLabel(version: string): string {
   return `v${version.trim().replace(/^(\d+\.\d+)\.0$/, '$1')}`;
 }
 
-/** `['/reference/components', 'graph']` → `'reference/components/graph'`, the key the generated map uses. */
-export function routeKey(url: readonly string[]): string {
-  return url.join('/').replace(/^\/+|\/+$/g, '');
+/** `'/reference/components/graph'` → `'reference/components/graph'`, the key the generated map uses. */
+export function routeKey(url: string): string {
+  return url.replace(/^\/+|\/+$/g, '');
 }
 
 /**
@@ -108,7 +108,7 @@ export function sinceOf(route: string): string | null {
  * Used by both surfaces that list the same links — the sidebar and the cluster
  * index pages — so the two cannot disagree about what is new.
  */
-export function isNewLink(url: readonly string[] | undefined, current: string = NGWR_VERSION): boolean {
+export function isNewLink(url: string | undefined, current: string = NGWR_VERSION): boolean {
   if (!url) return false;
   const since = sinceOf(routeKey(url));
   return since !== null && isNewIn(since, current);

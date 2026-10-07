@@ -326,7 +326,14 @@ const descriptions = ((): Map<string, string> => {
 
   for (const cluster of clusters) {
     const clusterDir = join(REFERENCE_DIR, cluster);
-    for (const name of dirsOnly(clusterDir)) take(name, read(join(clusterDir, name, `${name}.html`)));
+    // A page sits either directly in the cluster or one level down, inside the
+    // sidebar group folder `reference/components/` was split into. Walking
+    // only the top level found 43 of 119 descriptions.
+    for (const name of dirsOnly(clusterDir)) {
+      const direct = read(join(clusterDir, name, `${name}.html`));
+      if (direct) { take(name, direct); continue; }
+      for (const page of dirsOnly(join(clusterDir, name))) take(page, read(join(clusterDir, name, page, `${page}.html`)));
+    }
   }
   // `bits/` holds a folder per sidebar GROUP since v15, and the chart pages
   // left `reference/components/` for a cluster of their own. Both are one

@@ -28,7 +28,7 @@ import { DocCodeComponent } from '#core/components';
 import { QUALITY } from '#core/generated/quality';
 import { BRAND_ICONS } from '#core/icons';
 import { MetaService } from '#core/services';
-import { routes } from '#routing';
+import { HOME, ROUTES } from '#routes';
 
 interface WhyTile {
   readonly icon: string;
@@ -88,9 +88,10 @@ interface WhyTile {
   ],
 })
 export default class HomeComponent {
+  protected readonly home = HOME;
   protected readonly replayTick = signal(0);
 
-  protected readonly routes = routes;
+  protected readonly routes = ROUTES;
 
   /**
    * Counted by `pnpm gen:quality`, not typed here. The hero and the "Pay for

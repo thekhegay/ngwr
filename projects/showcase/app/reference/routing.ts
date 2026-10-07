@@ -12,9 +12,9 @@ import {
 } from '../_layout/sidebar/configs';
 
 import type { DocIndexData } from '#core/components';
-import { routes } from '#routing';
+import { ROUTES } from '#routes';
 
-const reference = routes.reference;
+const reference = ROUTES.reference;
 
 /**
  * The section root and each of the seven cluster roots render a catalog page
@@ -48,7 +48,7 @@ export default [
     ),
   },
   {
-    path: reference.components,
+    path: reference.components.path,
     data: {
       sidebar: COMPONENTS_SIDEBAR,
       ...index(
@@ -57,10 +57,10 @@ export default [
         ['angular components', 'ui catalog', 'ngwr components']
       ),
     },
-    loadChildren: () => import('./components/components.routing'),
+    loadChildren: () => import('./components/routing'),
   },
   {
-    path: reference.directives,
+    path: reference.directives.path,
     data: {
       sidebar: DIRECTIVES_SIDEBAR,
       ...index(
@@ -69,10 +69,10 @@ export default [
         ['angular directives', 'ngwr directives']
       ),
     },
-    loadChildren: () => import('./directives/directives.routing'),
+    loadChildren: () => import('./directives/routing'),
   },
   {
-    path: reference.pipes,
+    path: reference.pipes.path,
     data: {
       sidebar: PIPES_SIDEBAR,
       ...index(
@@ -81,10 +81,10 @@ export default [
         ['angular pipes', 'ngwr pipes']
       ),
     },
-    loadChildren: () => import('./pipes/pipes.routing'),
+    loadChildren: () => import('./pipes/routing'),
   },
   {
-    path: reference.services,
+    path: reference.services.path,
     data: {
       sidebar: SERVICES_SIDEBAR,
       ...index(
@@ -93,10 +93,10 @@ export default [
         ['angular services', 'ngwr services', 'inject']
       ),
     },
-    loadChildren: () => import('./services/services.routing'),
+    loadChildren: () => import('./services/routing'),
   },
   {
-    path: reference.utils,
+    path: reference.utils.path,
     data: {
       sidebar: UTILS_SIDEBAR,
       ...index(
@@ -105,10 +105,10 @@ export default [
         ['angular utils', 'ngwr utils', 'helpers']
       ),
     },
-    loadChildren: () => import('./utils/utils.routing'),
+    loadChildren: () => import('./utils/routing'),
   },
   {
-    path: reference.validators,
+    path: reference.validators.path,
     data: {
       sidebar: VALIDATORS_SIDEBAR,
       ...index(
@@ -117,10 +117,10 @@ export default [
         ['angular validators', 'ngwr validators', 'form validation']
       ),
     },
-    loadChildren: () => import('./validators/validators.routing'),
+    loadChildren: () => import('./validators/routing'),
   },
   {
-    path: reference.interfaces,
+    path: reference.interfaces.path,
     data: {
       sidebar: INTERFACES_SIDEBAR,
       ...index(
@@ -129,6 +129,6 @@ export default [
         ['angular types', 'ngwr interfaces', 'typescript']
       ),
     },
-    loadChildren: () => import('./interfaces/interfaces.routing'),
+    loadChildren: () => import('./interfaces/routing'),
   },
 ] satisfies Routes;

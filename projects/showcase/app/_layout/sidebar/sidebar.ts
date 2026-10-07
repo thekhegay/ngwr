@@ -6,9 +6,8 @@ import { filter, map, startWith } from 'rxjs';
 
 import { WrIcon } from 'ngwr/icon';
 
-import type { SidebarGroup, SidebarLink } from './sidebar.types';
-
 import { isNewLink } from '#core/utils';
+import type { SidebarGroup, SidebarLink } from '#types';
 
 /**
  * Section-aware sidebar. The active route declares its nav via
@@ -142,7 +141,7 @@ export class Sidebar {
    */
   private findGroupForUrl(url: string): string | null {
     for (const group of this.groups()) {
-      if (group.children?.some(l => l.url && url.startsWith(l.url.join('/')))) {
+      if (group.children?.some(l => l.url && url.startsWith(l.url))) {
         return group.title;
       }
     }

@@ -1,4 +1,5 @@
-import type { SidebarGroup } from '../sidebar.types';
+import { ROUTES } from '#routes';
+import type { SidebarGroup } from '#types';
 
 /**
  * Sidebar for `/guides/*` — how to do a job that spans several APIs. Each
@@ -15,53 +16,53 @@ import type { SidebarGroup } from '../sidebar.types';
  */
 export const GUIDES_SIDEBAR: readonly SidebarGroup[] = [
   // Make it look right.
-  { title: 'Theming', url: ['/guides', 'theming'] },
+  ROUTES.guides.theming,
   {
     title: 'Design tokens',
     children: [
-      { title: 'Colors', url: ['/guides/tokens', 'colors'] },
-      { title: 'Sizing', url: ['/guides/tokens', 'sizing'] },
-      { title: 'Typography', url: ['/guides/tokens', 'typography'] },
-      { title: 'Density', url: ['/guides/tokens', 'density'] },
-      { title: 'Motion', url: ['/guides/tokens', 'motion'] },
-      { title: 'Theme builder', url: ['/guides/tokens', 'builder'] },
+      ROUTES.guides.tokens.colors,
+      ROUTES.guides.tokens.sizing,
+      ROUTES.guides.tokens.typography,
+      ROUTES.guides.tokens.density,
+      ROUTES.guides.tokens.motion,
+      ROUTES.guides.tokens.builder,
     ],
   },
   {
     title: 'Typography',
     children: [
-      { title: 'Overview', url: ['/guides/typography', 'overview'] },
-      { title: 'Headings', url: ['/guides/typography', 'headings'] },
-      { title: 'Paragraphs', url: ['/guides/typography', 'paragraphs'] },
-      { title: 'Links', url: ['/guides/typography', 'links'] },
-      { title: 'Lists', url: ['/guides/typography', 'lists'] },
-      { title: 'Code', url: ['/guides/typography', 'code'] },
+      ROUTES.guides.typography.overview,
+      ROUTES.guides.typography.headings,
+      ROUTES.guides.typography.paragraphs,
+      ROUTES.guides.typography.links,
+      ROUTES.guides.typography.lists,
+      ROUTES.guides.typography.code,
       // Leaves the guide on purpose — the API table is maintained once, in
       // reference. Headings, Paragraphs and Code each used to carry a partial
       // copy, and they had drifted into contradicting each other.
-      { title: 'wrTypography API', url: ['/reference/directives', 'typography'] },
+      ROUTES.reference.directives.typography,
     ],
   },
-  { title: 'Grid', url: ['/guides', 'grid'] },
+  ROUTES.guides.grid,
   // Cross-cutting subsystems users typically meet later.
-  { title: 'Reactive forms', url: ['/guides', 'forms'] },
-  { title: 'Overlay', url: ['/guides', 'overlay'] },
-  { title: 'Mobile & responsive', url: ['/guides', 'mobile'] },
+  ROUTES.guides.forms,
+  ROUTES.guides.overlay,
+  ROUTES.guides.mobile,
   {
     title: 'Translations (i18n)',
     children: [
-      { title: 'Overview', url: ['/guides/translations', 'overview'] },
-      { title: 'Setup & loaders', url: ['/guides/translations', 'setup'] },
-      { title: 'Usage in templates', url: ['/guides/translations', 'usage'] },
-      { title: 'Interpolation', url: ['/guides/translations', 'interpolation'] },
-      { title: 'Scopes', url: ['/guides/translations', 'scopes'] },
+      ROUTES.guides.translations.overview,
+      ROUTES.guides.translations.setup,
+      ROUTES.guides.translations.usage,
+      ROUTES.guides.translations.interpolation,
+      ROUTES.guides.translations.scopes,
       // Same hand-off: the WrI18n table lives in reference, and the guide copy
       // that used to sit here had drifted ahead of the "real" one.
-      { title: 'WrI18n API', url: ['/reference/services', 'i18n'] },
+      ROUTES.reference.services.i18n,
     ],
   },
-  { title: 'Keyboard', url: ['/guides', 'keyboard'] },
-  { title: 'Server-side rendering', url: ['/guides', 'ssr'] },
-  { title: 'Testing', url: ['/guides', 'testing'] },
-  { title: 'Content Security Policy', url: ['/guides', 'csp'] },
+  ROUTES.guides.keyboard,
+  ROUTES.guides.ssr,
+  ROUTES.guides.testing,
+  ROUTES.guides.csp,
 ];
