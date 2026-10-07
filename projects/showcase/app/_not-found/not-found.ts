@@ -7,7 +7,7 @@ import { WrResult404 } from 'ngwr/result';
 import { Footer } from '../_layout/footer/footer';
 
 import { MetaService } from '#core/services';
-import { HOME, ROUTES } from '#routes';
+import { ROUTES, wrPath } from '#routes';
 
 /**
  * The `**` route's page.
@@ -28,8 +28,10 @@ import { HOME, ROUTES } from '#routes';
   imports: [RouterLink, WrButton, WrResult404, Footer],
 })
 export default class NotFound {
-  protected readonly home = HOME;
   protected readonly routes = ROUTES;
+
+  /** Absolute link from a node chain — the template cannot call a module function. */
+  protected readonly path = wrPath;
 
   constructor() {
     // The page is client-rendered by construction (see `app.routes.server.ts`),

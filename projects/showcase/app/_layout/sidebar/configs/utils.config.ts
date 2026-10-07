@@ -1,5 +1,10 @@
-import { ROUTES } from '#routes';
-import type { SidebarGroup } from '#types';
+import { ROUTES, wrPath, type WrRoute } from '#routes';
+import type { SidebarGroup, SidebarLink } from '#types';
+
+const base = [ROUTES.reference, ROUTES.reference.utils];
+
+/** A row takes its title and its link from the route node, so the two cannot disagree. */
+const link = (route: WrRoute): SidebarLink => ({ title: route.title, url: wrPath(...base, route) });
 
 /**
  * The Utils group of the Reference sidebar — one row per helper.
@@ -16,25 +21,25 @@ import type { SidebarGroup } from '#types';
 export const UTILS_GROUP: SidebarGroup = {
   title: 'Utils',
   children: [
-    ROUTES.reference.utils.badgeLog,
-    ROUTES.reference.utils.clamp,
-    ROUTES.reference.utils.debounce,
-    ROUTES.reference.utils.getFocusableElements,
-    ROUTES.reference.utils.getRootFontSize,
-    ROUTES.reference.utils.hasModifier,
-    ROUTES.reference.utils.isComposing,
-    ROUTES.reference.utils.isDefined,
-    ROUTES.reference.utils.isNonEmptyArray,
-    ROUTES.reference.utils.isObservable,
-    ROUTES.reference.utils.isPrintableKey,
-    ROUTES.reference.utils.keys,
-    ROUTES.reference.utils.noop,
-    ROUTES.reference.utils.numAttr,
-    ROUTES.reference.utils.randomId,
-    ROUTES.reference.utils.resolveCssSize,
-    ROUTES.reference.utils.round,
-    ROUTES.reference.utils.throttle,
-    ROUTES.reference.utils.toClassList,
-    ROUTES.reference.utils.trapFocus,
+    link(ROUTES.reference.utils.badgeLog),
+    link(ROUTES.reference.utils.clamp),
+    link(ROUTES.reference.utils.debounce),
+    link(ROUTES.reference.utils.getFocusableElements),
+    link(ROUTES.reference.utils.getRootFontSize),
+    link(ROUTES.reference.utils.hasModifier),
+    link(ROUTES.reference.utils.isComposing),
+    link(ROUTES.reference.utils.isDefined),
+    link(ROUTES.reference.utils.isNonEmptyArray),
+    link(ROUTES.reference.utils.isObservable),
+    link(ROUTES.reference.utils.isPrintableKey),
+    link(ROUTES.reference.utils.keys),
+    link(ROUTES.reference.utils.noop),
+    link(ROUTES.reference.utils.numAttr),
+    link(ROUTES.reference.utils.randomId),
+    link(ROUTES.reference.utils.resolveCssSize),
+    link(ROUTES.reference.utils.round),
+    link(ROUTES.reference.utils.throttle),
+    link(ROUTES.reference.utils.toClassList),
+    link(ROUTES.reference.utils.trapFocus),
   ],
 };

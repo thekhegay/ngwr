@@ -17,7 +17,7 @@ import { NGWR_VERSION_TOKEN } from 'ngwr/version';
 
 import { BRAND_ICONS } from '#core/icons';
 import { DocsSearch, PrimaryColor, SiteDirection } from '#core/services';
-import { HOME, ROUTES } from '#routes';
+import { ROUTES, wrPath } from '#routes';
 
 interface NavLink {
   readonly url: string;
@@ -38,11 +38,11 @@ interface ActionLink {
  * lands on the 404 shell.
  */
 const SUGGESTION_ROUTES: Readonly<Record<string, string>> = {
-  's:install': `/${ROUTES.docs.url}/${ROUTES.docs.installation.url}`,
-  's:forms': `/${ROUTES.guides.url}/${ROUTES.guides.forms.url}`,
-  's:theming': `/${ROUTES.guides.url}/${ROUTES.guides.theming.url}`,
-  's:components': `/${ROUTES.reference.url}/${ROUTES.reference.components.url}`,
-  's:migration': `/${ROUTES.docs.url}/${ROUTES.docs.migration.url}`,
+  's:install': wrPath(ROUTES.docs, ROUTES.docs.installation),
+  's:forms': wrPath(ROUTES.guides, ROUTES.guides.forms),
+  's:theming': wrPath(ROUTES.guides, ROUTES.guides.theming),
+  's:components': wrPath(ROUTES.reference, ROUTES.reference.components),
+  's:migration': wrPath(ROUTES.docs, ROUTES.docs.migration),
 };
 
 /** First major with an archived docs snapshot — nothing older was ever frozen. */
@@ -76,7 +76,6 @@ function archivedMajors(current: number): readonly number[] {
   ],
 })
 export class Header {
-  protected readonly home = HOME;
   private readonly docsSearch = inject(DocsSearch);
   private readonly router = inject(Router);
 
@@ -193,12 +192,12 @@ export class Header {
    * the job you are actually doing.
    */
   protected readonly nav: readonly NavLink[] = [
-    { url: ROUTES.docs.url, label: 'Docs' },
-    { url: ROUTES.guides.url, label: 'Guides' },
-    { url: ROUTES.reference.url, label: 'Reference' },
-    { url: ROUTES.icons.url, label: 'Icons' },
-    { url: ROUTES.charts.url, label: 'Charts' },
-    { url: ROUTES.bits.url, label: 'Bits' },
+    { url: wrPath(ROUTES.docs), label: ROUTES.docs.title },
+    { url: wrPath(ROUTES.guides), label: ROUTES.guides.title },
+    { url: wrPath(ROUTES.reference), label: ROUTES.reference.title },
+    { url: wrPath(ROUTES.icons), label: ROUTES.icons.title },
+    { url: wrPath(ROUTES.charts), label: ROUTES.charts.title },
+    { url: wrPath(ROUTES.bits), label: ROUTES.bits.title },
   ];
   protected readonly actions: readonly ActionLink[] = [
     { url: 'https://github.com/thekhegay/ngwr', icon: 'github', modifier: 'github', label: 'GitHub' },
