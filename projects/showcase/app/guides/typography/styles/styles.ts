@@ -2,9 +2,11 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, ElementRef, afterNextRender, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { WrButton, type WrButtonSize } from 'ngwr/button';
 import { WrTypography, type WrTypographyTone, type WrTypographyVariant } from 'ngwr/typography';
 
 import { DocPageComponent, DocSectionComponent } from '#core/components';
+import { CSS_VARS } from '#core/generated/css-vars';
 import { ROUTES, wrPath } from '#routes';
 
 interface StyleRow {
@@ -37,9 +39,51 @@ interface ProseRow {
   readonly meaning: string;
 }
 
+interface ControlRow {
+  readonly size: WrButtonSize;
+  readonly token: string;
+  readonly leading: string;
+  readonly meaning: string;
+}
+
+interface HookRow {
+  readonly token: string;
+  /** The default the library ships, from the generated hook map. */
+  readonly value: string;
+  readonly meaning: string;
+}
+
 interface ClassRow {
   readonly utility: string;
   readonly meaning: string;
+}
+
+/** The `ngwr/typography` hooks, as `pnpm gen:css-vars` reads them out of the stylesheet. */
+const TYPOGRAPHY_HOOKS = CSS_VARS['reference/directives/typography'].vars;
+
+/** When to reach for each `[wrTypography]` hook. Names and defaults come from the generated map. */
+const HOOK_MEANINGS: Readonly<Record<string, string>> = {
+  '--wr-typography-font-family': 'Typeface. The code variant and mono switch it to monospace.',
+  '--wr-typography-font-size': 'Size. Every sizing variant sets its own.',
+  '--wr-typography-font-weight': 'Weight.',
+  '--wr-typography-line-height': 'Line height.',
+  '--wr-typography-letter-spacing': 'Letter spacing. Display, h1, h2 and overline set their own.',
+  '--wr-typography-padding-y': 'Vertical padding of the code chip.',
+  '--wr-typography-padding-x': 'Horizontal padding of the code chip.',
+  '--wr-typography-radius': 'Corner radius of the code chip.',
+  '--wr-typography-list-margin-top': 'Gap between the items of a list.',
+  '--wr-typography-list-padding-start': 'Indent of a nested list.',
+  '--wr-typography-list-dt-margin-top': 'Space above each new term in a dl.',
+  '--wr-typography-list-dt-margin-bottom': 'Space between a term and its description.',
+  '--wr-typography-list-dt-padding-top': 'Space between a divider and the term under it.',
+  '--wr-typography-list-dt-border': 'The divider above each new term in a dl.',
+  '--wr-typography-list-dd-font-size': 'Size of a description in a dl.',
+  '--wr-typography-list-dd-font-weight': 'Weight of a description in a dl.',
+};
+
+/** The shipped default of a hook, or an empty string for one the map does not carry. */
+function hookDefault(token: string): string {
+  return TYPOGRAPHY_HOOKS.find(v => v.name === token)?.default ?? '';
 }
 
 /**
@@ -54,7 +98,7 @@ interface ClassRow {
   selector: 'ngwr-typography-styles-page',
   templateUrl: './styles.html',
   styleUrl: './styles.scss',
-  imports: [NgTemplateOutlet, RouterLink, WrTypography, DocPageComponent, DocSectionComponent],
+  imports: [NgTemplateOutlet, RouterLink, WrButton, WrTypography, DocPageComponent, DocSectionComponent],
 })
 export default class TypographyStylesPage {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -200,6 +244,8 @@ export default class TypographyStylesPage {
     },
   ];
 
+  protected readonly proseDefault = hookDefault;
+
   protected readonly prose: readonly ProseRow[] = [
     { token: '--wr-prose-body', sample: 'Paragraph text', meaning: 'Paragraphs and list items.' },
     { token: '--wr-prose-headings', sample: 'Heading', meaning: 'Headings h1 to h4 and table header labels.' },
@@ -228,6 +274,31 @@ export default class TypographyStylesPage {
     { token: '--wr-text-4xl', utility: '.wr-text-4xl', meaning: 'Large headings: h2 and the smallest display.' },
     { token: '--wr-text-5xl', utility: '.wr-text-5xl', meaning: 'Hero headlines: h1.' },
   ];
+
+  protected readonly controls: readonly ControlRow[] = [
+    {
+      size: 'sm',
+      token: '--wr-control-font-size-sm',
+      leading: '--wr-control-line-height-sm',
+      meaning: 'Text in small buttons, inputs, selects and tabs.',
+    },
+    {
+      size: 'md',
+      token: '--wr-control-font-size-md',
+      leading: '--wr-control-line-height-md',
+      meaning: 'Text in default buttons, inputs, selects and tabs.',
+    },
+    {
+      size: 'lg',
+      token: '--wr-control-font-size-lg',
+      leading: '--wr-control-line-height-lg',
+      meaning: 'Text in large buttons, inputs, selects and tabs.',
+    },
+  ];
+
+  protected readonly hooks: readonly HookRow[] = TYPOGRAPHY_HOOKS.filter(v =>
+    v.name.startsWith('--wr-typography-'),
+  ).map(v => ({ token: v.name, value: v.default, meaning: HOOK_MEANINGS[v.name] ?? '' }));
 
   protected readonly weights: readonly TokenRow[] = [
     { token: '--wr-font-weight-thin', utility: '.wr-font-thin', meaning: 'Very large, quiet display text. No component uses it.' },

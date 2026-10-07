@@ -74,6 +74,29 @@
     </div>
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Hooks">
+    <p>
+      A variant writes its values into hooks on the element. Set one on a single element, or on a container, to
+      restyle only there.
+    </p>
+
+    <div class="rows wr-not-prose">
+      @for (row of hooks; track row.token) {
+        <div class="row">
+          <div class="label">
+            <code wrTypography variant="code">{{ row.token }}</code>
+            <span wrTypography variant="small" tone="muted">{{ row.meaning }}</span>
+          </div>
+          <div class="body">
+            <div class="tokens">
+              <code wrTypography variant="code" tone="muted">{{ row.value }}</code>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Long-form text">
     <p>
       Put <code>.wr-prose</code> on a container of plain HTML — an article, a changelog, rendered markdown — and every
@@ -109,6 +132,9 @@
             } @else {
               <p class="specimen" [style.color]="'var(' + row.token + ')'">{{ row.sample }}</p>
             }
+            <div class="tokens">
+              <code wrTypography variant="code" tone="muted">{{ proseDefault(row.token) }}</code>
+            </div>
           </div>
         </div>
       }
@@ -141,6 +167,44 @@
           </div>
         </div>
       }
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Control text">
+    <p>
+      Buttons, inputs, selects and tabs read one size per control size instead of the scale. Change these to resize
+      the text in every control at once.
+    </p>
+
+    <div class="rows wr-not-prose">
+      @for (row of controls; track row.token) {
+        <div class="row">
+          <ng-container *ngTemplateOutlet="label; context: { $implicit: row }" />
+          <div class="body">
+            <div class="specimen" [attr.data-token]="row.token">
+              <button wr-btn type="button" [size]="row.size">Save changes</button>
+            </div>
+            <div class="tokens">
+              <code wrTypography variant="code" tone="muted">{{ row.leading }}</code>
+              <ng-container *ngTemplateOutlet="extras; context: { $implicit: row }" />
+            </div>
+          </div>
+        </div>
+      }
+      <div class="row">
+        <div class="label">
+          <code wrTypography variant="code">--wr-density-text</code>
+          <span wrTypography variant="small" tone="muted">
+            A text multiplier per density: 0.95 in sm, 1.05 in lg. Nothing in ngwr reads it — multiply your own sizes
+            by it.
+          </span>
+        </div>
+        <div class="body">
+          <p class="specimen" [style.font-size]="'calc(var(--wr-text-base) * var(--wr-density-text, 1))'">
+            {{ sample }}
+          </p>
+        </div>
+      </div>
     </div>
   </ngwr-doc-section>
 
