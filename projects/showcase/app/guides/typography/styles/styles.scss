@@ -1,0 +1,85 @@
+@use 'lib/styles/breakpoints' as bp;
+
+.rows {
+  border-top: 1px solid var(--wr-border-base);
+}
+
+// Name and meaning on the left, the style itself on the right with the tokens
+// it is made of underneath.
+.row {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  align-items: start;
+  gap: var(--wr-space-xl);
+  padding: var(--wr-space-lg) 0;
+  border-bottom: 1px solid var(--wr-border-base);
+
+  @include bp.media-down(md) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--wr-space-sm);
+  }
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--wr-space-xs);
+  min-width: 0;
+  font-size: var(--wr-text-sm);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wr-space-sm);
+  min-width: 0;
+}
+
+.specimen {
+  min-width: 0;
+  margin: 0;
+  color: var(--wr-color-on-surface);
+
+  &__line {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &--paragraph {
+    max-width: 20rem;
+    font-size: var(--wr-text-sm);
+  }
+
+  &--rule {
+    height: 0.25rem;
+    margin-block: var(--wr-space-sm);
+    border-radius: var(--wr-border-radius-pill);
+  }
+}
+
+.tokens {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wr-space-xs) var(--wr-space-sm);
+  font-size: var(--wr-text-sm);
+}
+
+// A frame around the prose sample, so it reads as an example rather than as
+// more of the page.
+.prose-sample {
+  margin-block: var(--wr-space-xl);
+  padding: var(--wr-space-xl);
+  border: 1px solid var(--wr-border-base);
+  border-radius: var(--wr-border-radius-lg);
+
+  > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+}
