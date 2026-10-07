@@ -65,11 +65,14 @@ A pnpm + Angular CLI monorepo with three projects:
   is in `app/_core/` (alias `#core/*`).
 - **`projects/lib/theme/`** — the styling foundation: design tokens (CSS custom
   properties, `--wr-*`) and SCSS mixins under `theme/styles/`. Not a component.
-- **`projects/ngwr-v15/`** — a sandbox app, and the only consumer in this repo
-  that is shaped like a real one: a plain zoneless Angular app with no router,
-  no hydration and no docs scaffolding, so a component that looks wrong there
-  is the component rather than something the showcase does around it. It exists
-  to check the documentation against reality — `pnpm dev:sandbox`.
+- **`projects/sandbox/`** — a scratch app for trying components by hand, and
+  the only consumer in this repo shaped like a real one: a plain zoneless
+  Angular app with no router, no hydration and no docs scaffolding, so a
+  component that looks wrong there is the component rather than something the
+  showcase does around it. `pnpm dev:sandbox`.
+  **It is GITIGNORED — only its `angular.json` entry is tracked**, because it
+  is throwaway by definition and its contents are whatever someone is testing
+  this week. A fresh clone has the serve target and no files; create them.
   **It resolves `ngwr` through `node_modules/ngwr`, a symlink at
   `projects/lib`**, written by `scripts/build/link-lib.ts` from `postinstall`.
   The TypeScript `paths` map would be enough for imports and is NOT enough for
