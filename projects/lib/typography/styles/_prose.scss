@@ -107,8 +107,8 @@ $skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
   }
 
   :where(hr)#{$skip} {
-    border-color: var(--wr-prose-hr);
-    border-top-width: 1px;
+    border: 0;
+    border-top: 1px solid var(--wr-prose-hr);
     margin-top: 3em;
     margin-bottom: 3em;
   }
@@ -150,9 +150,12 @@ $skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
     line-height: 1.6;
   }
 
+  // The original leaves the size to Tailwind's preflight, which resets every
+  // heading to inherit. `ngwr/reset` gives h4 a size of its own, so say 1em.
   :where(h4)#{$skip} {
     color: var(--wr-prose-headings);
     font-weight: 600;
+    font-size: 1em;
     margin-top: 1.5em;
     margin-bottom: 0.5em;
     line-height: 1.5;
