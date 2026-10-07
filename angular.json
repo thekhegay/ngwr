@@ -231,6 +231,49 @@
           }
         }
       }
+    },
+    "sandbox": {
+      "projectType": "application",
+      "root": "projects/sandbox",
+      "sourceRoot": "projects/sandbox",
+      "prefix": "sb",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "projects/sandbox/main.ts",
+            "index": "projects/sandbox/index.html",
+            "tsConfig": "projects/sandbox/tsconfig.app.json",
+            "polyfills": [],
+            "styles": [
+              "projects/sandbox/styles.scss"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "sourceMap": true,
+              "extractLicenses": false
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "sandbox:build:production"
+            },
+            "development": {
+              "buildTarget": "sandbox:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
     }
   }
 }
