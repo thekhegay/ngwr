@@ -14,8 +14,8 @@ import {
 } from '#core/components';
 
 @Component({
-  selector: 'ngwr-gs-agent-skill-page',
-  templateUrl: './agent-skill.html',
+  selector: 'ngwr-docs-skills-page',
+  templateUrl: './skills.html',
   imports: [
     RouterLink,
     WrTypography,
@@ -26,7 +26,7 @@ import {
     DocSeeAlsoComponent,
   ],
 })
-export default class AgentSkillGuidePageComponent {
+export default class SkillsPage {
   protected readonly snippets = {
     layout: `node_modules/ngwr/skills/ngwr/
 ├── SKILL.md                  # ~1 page: frontmatter + the rules that are not guessable

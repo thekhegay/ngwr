@@ -19,18 +19,6 @@ export const COMPONENT_GROUPS: readonly SidebarGroup[] = [
     ],
   },
   {
-    title: 'Charts',
-    children: [
-      { title: 'Bar Chart', url: ['/reference/components', 'bar-chart'] },
-      { title: 'Calendar Heatmap', url: ['/reference/components', 'calendar-heatmap'] },
-      { title: 'Donut Chart', url: ['/reference/components', 'donut-chart'] },
-      { title: 'Gauge', url: ['/reference/components', 'gauge'] },
-      { title: 'Line Chart', url: ['/reference/components', 'line-chart'] },
-      { title: 'Meter Group', url: ['/reference/components', 'meter-group'] },
-      { title: 'Sparkline', url: ['/reference/components', 'sparkline'] },
-    ],
-  },
-  {
     title: 'Data',
     children: [
       { title: 'Sortable List', url: ['/reference/components', 'sortable-list'] },

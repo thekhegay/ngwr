@@ -22,7 +22,7 @@
       "#root": ["./projects/showcase/app/_root/root"],
       "#layout": ["./projects/showcase/app/_layout/layout"],
       "#core/*": ["./projects/showcase/app/_core/*"],
-      "#routing": ["./projects/showcase/app/routing.ts"],
+      "#routing": ["./projects/showcase/app/_core/constants/routes.ts"],
     },
   },
   "angularCompilerOptions": {

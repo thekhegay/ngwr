@@ -34,7 +34,7 @@
  * a map that quietly covers most of the pages reads exactly like a complete one.
  */
 
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -52,8 +52,26 @@ const SPECIFIER = /\bimport\(\s*["']([^"']+)["']\s*\)/;
 const ALIASES: Readonly<Record<string, string>> = {
   '#root': '_root/root',
   '#layout': '_layout/layout',
-  '#routing': 'routing',
+  '#routing': '_core/constants/routes',
 };
+
+/**
+ * The subdirectories of `dir` that hold a `routing.ts` of their own.
+ *
+ * A cluster is assembled from one routing file per sidebar group, and the
+ * groups SPREAD their arrays into the cluster's `routing.ts`. A spread is
+ * plain data, so by the time this walk sees a route there is nothing left to
+ * say which file wrote it — and its `loadComponent` specifier is relative to
+ * the GROUP file, not to the cluster file the walk is holding. Rather than
+ * make the groups spell a path that would be wrong for the bundler, resolution
+ * falls back to these directories.
+ */
+function groupDirs(dir: string): string[] {
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir, { withFileTypes: true })
+    .filter(e => e.isDirectory() && existsSync(join(dir, e.name, 'routing.ts')))
+    .map(e => join(dir, e.name));
+}
 
 /** Resolve an `import()` specifier to a `.ts` file, or `null` when it names something outside the app. */
 function fileFor(specifier: string, from: string): string | null {
@@ -66,7 +84,19 @@ function fileFor(specifier: string, from: string): string | null {
         ? `${resolve(dirname(from), specifier)}.ts`
         : null;
 
-  return candidate !== null && existsSync(candidate) ? candidate : null;
+  if (candidate !== null && existsSync(candidate)) return candidate;
+
+  // A relative specifier the cluster file cannot resolve may belong to one of
+  // its groups. Ambiguity is a problem rather than a guess, so a specifier
+  // that resolves under two groups returns null and is reported.
+  if (specifier.startsWith('.')) {
+    const hits = groupDirs(dirname(from))
+      .map(g => `${resolve(g, specifier)}.ts`)
+      .filter(f => existsSync(f));
+    if (hits.length === 1) return hits[0];
+  }
+
+  return null;
 }
 
 /** The routes a lazily-loaded routing module exports — `default`, or `routing` for the entry file. */

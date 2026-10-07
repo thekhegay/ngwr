@@ -203,6 +203,28 @@
       }
     }
 
+    &--stackblitz {
+      // StackBlitz brand blue. 3.97:1 on white as a GRAPHIC, which is what the
+      // criterion asks of one (3:1); the label is the `aria-label`, not the
+      // mark, so it is not held to text contrast.
+      --ngwr-header-action-icon-color: #1389fd;
+
+      &:hover {
+        --ngwr-header-action-icon-color: #fff;
+        --ngwr-header-action-icon-bg: #1389fd;
+      }
+
+      // The brand blue holds on the dark canvas (#0b1120) at 4.46:1, so unlike
+      // GitHub's black it needs no lift — only the hover pair, which keeps the
+      // brand surface and flips the glyph the way the siblings do.
+      :host-context([data-theme='dark']) & {
+        &:hover {
+          --ngwr-header-action-icon-color: #fff;
+          --ngwr-header-action-icon-bg: #1389fd;
+        }
+      }
+    }
+
     &--settings {
       // Strip the default <button> chrome so it matches the anchor
       // siblings (GitHub / npm).

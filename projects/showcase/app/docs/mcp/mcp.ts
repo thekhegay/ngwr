@@ -14,7 +14,7 @@ import {
 } from '#core/components';
 
 @Component({
-  selector: 'ngwr-gs-mcp-page',
+  selector: 'ngwr-docs-mcp-page',
   templateUrl: './mcp.html',
   imports: [
     RouterLink,
@@ -26,7 +26,7 @@ import {
     DocSeeAlsoComponent,
   ],
 })
-export default class McpGuidePageComponent {
+export default class McpPage {
   protected readonly snippets = {
     claudeCode: `# From your project root. The server is a bin in the package you already
 # depend on, so there is nothing extra to install.
