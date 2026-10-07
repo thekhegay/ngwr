@@ -222,6 +222,73 @@
           "defaultConfiguration": "development"
         }
       }
+    },
+    "showcase-v15": {
+      "projectType": "application",
+      "root": "projects/showcase-v15",
+      "sourceRoot": "projects/showcase-v15",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "outputPath": {
+              "base": "dist/showcase-v15",
+              "browser": "",
+              "media": "assets"
+            },
+            "index": "projects/showcase-v15/index.html",
+            "browser": "projects/showcase-v15/main.ts",
+            "server": "projects/showcase-v15/main.server.ts",
+            "outputMode": "static",
+            "polyfills": [],
+            "tsConfig": "projects/showcase-v15/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "styles": [
+              "projects/showcase-v15/styles.scss"
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "projects"
+              ]
+            }
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "all",
+              "extractLicenses": false,
+              "sourceMap": false
+            },
+            "development": {
+              "optimization": false,
+              "sourceMap": true,
+              "extractLicenses": false
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "showcase-v15:build:production"
+            },
+            "development": {
+              "buildTarget": "showcase-v15:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/showcase-v15/**/*.ts",
+              "projects/showcase-v15/**/*.html"
+            ]
+          }
+        }
+      }
     }
   }
 }
