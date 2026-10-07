@@ -87,3 +87,8 @@ llms-full.txt
 !/README.md
 !/ROADMAP.md
 !/SECURITY.md
+
+# Scratch sandbox app — a throwaway place to try components. Served by
+# `ng serve sandbox`; its angular.json entry is tracked so the target exists,
+# the code deliberately is not.
+/projects/sandbox/
