@@ -2,8 +2,14 @@ import { Component, computed, signal } from '@angular/core';
 import { FormField, form } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 
+import { WrAlert } from 'ngwr/alert';
+import { WrTag } from 'ngwr/badge';
 import { WrCheckbox } from 'ngwr/checkbox';
+import { WrDescriptionItem, WrDescriptions } from 'ngwr/descriptions';
 import { WrRating } from 'ngwr/rating';
+import { WrStatistic, WrStatisticGroup } from 'ngwr/statistic';
+import { WrTable, WrTableCell } from 'ngwr/table';
+import type { WrTableColumns } from 'ngwr/table';
 import { WrTypography } from 'ngwr/typography';
 import { NGWR_VERSION } from 'ngwr/version';
 
@@ -43,15 +49,107 @@ interface ComparisonRow extends Record<LibraryKey, string> {
   readonly readAt?: string;
 }
 
+/** One row of a gate table — the script a workflow runs, and what it catches. */
+interface GateRow {
+  readonly gate: string;
+  readonly catches: string;
+}
+
+/** One row of the majors table. */
+interface MajorRow {
+  readonly version: string;
+  readonly broke: string;
+  readonly codemod: string;
+}
+
+/**
+ * What each pull-request gate catches, keyed by the script name.
+ *
+ * The LIST is not written here — it comes from `QUALITY.prGates`, parsed out of
+ * `ci.yml`. A gate added to the workflow therefore appears on this page whether
+ * or not anyone wrote a sentence for it, spelled as the command it runs. That
+ * fallback is the point: a page that under-explains a gate is untidy, a page
+ * that advertises a gate CI stopped running is the one failure this whole file
+ * exists to avoid.
+ */
+const PR_GATE_NOTES: Readonly<Record<string, string>> = {
+  lint: 'ESLint, Stylelint and the repository gates in one chain — colour-list parity, unexplained physical CSS, dead design tokens and colour-only state rules. Every stage is listed below.',
+  'test:coverage':
+    'The vitest suite, with coverage. Specs sit beside the code they cover and assert the rendered DOM — roles, ARIA state, and the .wr-* classes, which are public API — rather than component internals.',
+  'check:api-docs':
+    'A documented input the component no longer has, a default the docs invented, a page with no API table at all. A page is keyed to an entry point by its FOLDER name, so it is held only where the folder is the entry point: every service page and most component pages, names, types and defaults alike. A pipe, util or validator page is named after the function, and nothing resolves that to an entry point — nor the interface pages, four of the six directive pages, or the handful of components whose folder differs from their route. Read those signatures against the shipped types.',
+  'check:llms':
+    'The generated AI assets — llms-full.txt and the agent skill — against coverage floors. Missing frontmatter, or a catalog table with nothing but a header, fails the build.',
+  'check:css-vars':
+    'The --wr-<name>-* hooks each component page lists, regenerated from the stylesheets and compared against the committed copy. A hook a component grows cannot ship without its row.',
+  'build:lib':
+    '`@angular/build:library` over every secondary entry point, then the schematics, the MCP server and the AI assets. An entry point that does not compile in isolation fails here and nowhere else.',
+  'build:showcase':
+    'Every documentation route prerendered in Node. SSR breakage is a red build rather than a silent degrade: a component that touches the DOM outside afterNextRender cannot reach a release.',
+  'check:theme':
+    'wrThemeTokens(), the runtime palette recipe, against the compiled stylesheet — token by token. Two implementations of one recipe drift the moment either is edited.',
+  'check:a11y':
+    'axe over the prerendered HTML: accessible names, ARIA validity, roles, id references, landmark and heading structure. Fails on any serious or critical violation, and the baseline is empty.',
+};
+
+/** The `&&` chain inside `pnpm lint`, in the same shape and for the same reason. */
+const LINT_STAGE_NOTES: Readonly<Record<string, string>> = {
+  'ng lint': 'ESLint over the library, then the showcase — templates included.',
+  'eslint scripts':
+    'The same rules over the build and release tooling — TypeScript that never ships to npm, and that every gate on this page runs through.',
+  'lint:styles': 'Stylelint over every stylesheet in both projects.',
+  'check:colors':
+    'The TypeScript colour list against the SCSS palette map. They drifted once: v8 shipped --wr-color-info and its whole modifier class while color="info" stayed a template type error.',
+  'check:rtl':
+    'A direction-dependent CSS property written in physical form with no rtl-ok: reason above it. Plenty of them are correct — the rule is that the reason is written down.',
+  'check:tokens':
+    'A --wr-* token nothing paints with. A say-why gate rather than a do-not gate: an intentionally unused token carries unused-ok: and the reason.',
+  'check:color-only':
+    'A state or intent modifier whose own declarations are all colour, with no color-ok: reason above the selector. WCAG 1.4.1 has no axe rule, so this reads the stylesheets instead — @each loops included.',
+};
+
+/** The nightly workflow. `build:showcase` is on it because the browser checks read what it writes. */
+const NIGHTLY_NOTES: Readonly<Record<string, string>> = {
+  'build:showcase': 'Not a check. The browser checks below read dist/showcase and cannot start without it.',
+  'check:contrast':
+    "axe's color-contrast and target-size rules in a real Chromium, both themes, every canonical route — the two rules check:a11y has to switch off.",
+  'check:state-a11y':
+    'The full axe rule set inside a state you have to create: a hover, a focus ring, an open overlay. Neither static gate can reach one.',
+  'check:layout':
+    'The measured box of a set of load-bearing components in both themes, against a committed baseline. It catches a token or density change that silently resizes controls, and says nothing about colour, shadows or radii.',
+  'check:rtl-layout':
+    'Every route rendered both ways, failing only where the RTL pass overflows sideways and the LTR pass does not. Differential, so there is no baseline of pixel positions to rot.',
+};
+
+/**
+ * `4060` to `4,060`, hand-rolled rather than `toLocaleString`.
+ *
+ * The page is prerendered in Node and hydrated in the browser, and the two
+ * resolve their default locale independently — a separator that disagrees is a
+ * hydration text mismatch on a page whose entire argument is that its numbers
+ * are trustworthy.
+ */
+function grouped(value: number): string {
+  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
 @Component({
-  selector: 'ngwr-gs-comparison-page',
-  templateUrl: './comparison.html',
-  styleUrl: './comparison.scss',
+  selector: 'ngwr-gs-introduction-page',
+  templateUrl: './introduction.html',
+  styleUrl: './introduction.scss',
   imports: [
     FormField,
     RouterLink,
+    WrAlert,
     WrCheckbox,
+    WrDescriptionItem,
+    WrDescriptions,
     WrRating,
+    WrStatistic,
+    WrStatisticGroup,
+    WrTable,
+    WrTableCell,
+    WrTag,
     WrTypography,
     DocPageComponent,
     DocSectionComponent,
@@ -60,7 +158,7 @@ interface ComparisonRow extends Record<LibraryKey, string> {
     DocSeeAlsoComponent,
   ],
 })
-export default class ComparisonPage {
+export default class IntroductionPage {
   /**
    * The ngwr column, counted rather than typed.
    *
@@ -345,30 +443,136 @@ git show v12.0.0:package.json | grep zone.js                                    
     { label: 'TS', language: 'angular-ts', code: this.snippets.demoTs },
   ];
 
+  /**
+   * The two places the count is rendered, hedged together or not at all.
+   *
+   * `testCasesAreExact` is false once the suite holds a call site that stands
+   * for an unknown number of cases — a parameterised form, or an `it()` in a
+   * loop. The generator names the file and carries on rather than failing a
+   * documentation build over a legal spec, so the hedge has to live here: a
+   * figure that is silently a floor is exactly the kind of number this page
+   * exists to not print.
+   */
+  protected readonly testCasesLabel = QUALITY.testCasesAreExact ? 'Test cases' : 'Test cases (at least)';
+
+  protected readonly testCasesPhrase = QUALITY.testCasesAreExact
+    ? `${grouped(QUALITY.testCases)} cases`
+    : `At least ${grouped(QUALITY.testCases)} cases`;
+
+  /** `12.0.0` to `v12` — the major line, which is what a reader deciding on the library cares about. */
+  protected readonly majorLine = `v${QUALITY.version.split('.')[0]}`;
+
+  /** Components plus directives — the classes a consumer can actually put in `imports: []`. */
+  protected readonly publicClasses = QUALITY.components + QUALITY.directives;
+
+  protected readonly gateColumns: WrTableColumns = {
+    gate: { title: 'Gate', width: 168 },
+    catches: { title: 'What it catches' },
+  };
+
+  protected readonly stageColumns: WrTableColumns = {
+    gate: { title: 'Stage', width: 168 },
+    catches: { title: 'What it catches' },
+  };
+
+  protected readonly majorColumns: WrTableColumns = {
+    version: { title: 'Major', width: 88 },
+    broke: { title: 'What broke' },
+    codemod: { title: 'Codemod', width: 120 },
+  };
+
+  protected readonly prGateRows: readonly GateRow[] = QUALITY.prGates.map(gate => ({
+    gate: gate.name,
+    catches: PR_GATE_NOTES[gate.name] ?? gate.command,
+  }));
+
+  protected readonly lintStageRows: readonly GateRow[] = QUALITY.lintStages.map(stage => ({
+    gate: stage.name,
+    catches: LINT_STAGE_NOTES[stage.name] ?? stage.command,
+  }));
+
+  protected readonly nightlyRows: readonly GateRow[] = QUALITY.nightlyGates.map(gate => ({
+    gate: gate.name,
+    catches: NIGHTLY_NOTES[gate.name] ?? gate.command,
+  }));
+
+  /**
+   * The majors, and whether each one shipped a codemod.
+   *
+   * Deliberately hand-written: `migrations.json` would give the list of
+   * codemods, but the interesting half of this table is the majors that ship
+   * NONE, and an absence has nothing to read it from. Add a row when a major
+   * ships — until then `majorLine` above will name a version this table does
+   * not have, which is a visible failure rather than a silent one.
+   */
+  protected readonly majorRows: readonly MajorRow[] = [
+    {
+      version: 'v14',
+      broke:
+        'Six names moved to one word per concept — closeable to closable, totalItems to total, currentPage to page, and [wrInput]’s wrSize to size. Router integration became opt-in for wr-loading-bar and routed tabs. A named date format refuses input it cannot read, and wr-pagination ofLabel is gone.',
+      codemod: 'Partial',
+    },
+    {
+      version: 'v13',
+      broke:
+        'readonly and invalid reach every control, and [id] on checkbox, radio and switch stopped landing on the host — getElementById now returns the inner input, which is what the input always documented.',
+      codemod: 'Reports',
+    },
+    {
+      version: 'v12',
+      broke:
+        'The three date entry points nested under ngwr/date. readI18nText() returns a Signal, so every read needs a call.',
+      codemod: 'Partial',
+    },
+    {
+      version: 'v11',
+      broke:
+        'Five colour intents deepened past the point where a filled control takes a white label instead of a black one.',
+      codemod: 'None',
+    },
+    {
+      version: 'v10',
+      broke: 'Contrast on the -contrast tokens, table header casing, tooltip theming.',
+      codemod: 'None',
+    },
+    {
+      version: 'v9',
+      broke:
+        'A checkbox’s group identity moved from value to checkboxValue. Lucide icon keys register verbatim. info joined the colour union.',
+      codemod: 'Yes',
+    },
+    {
+      version: 'v8',
+      broke:
+        'Density values renamed from compact / default / comfortable to sm / md / lg. Pagination dropped xs and xl. Two unreliable components removed.',
+      codemod: 'Yes',
+    },
+    {
+      version: 'v7',
+      broke:
+        'Ten standalone entry points consolidated into shared components with modes — the autocomplete became a wr-select, the tooltip a wr-popover.',
+      codemod: 'Yes',
+    },
+  ];
+
   protected readonly seeAlso: readonly DocSeeAlsoLink[] = [
     {
       kind: 'Guide',
-      title: 'Quality',
-      url: ['/start', 'quality'],
-      description: 'The gates behind the accessibility and testing rows, in numbers.',
-    },
-    {
-      kind: 'Guide',
-      title: 'Playground',
-      url: ['/start', 'playground'],
-      description: 'Try the claim in a real Angular 22 app before installing anything.',
-    },
-    {
-      kind: 'Guide',
       title: 'Migration',
-      url: ['/start', 'migration'],
+      url: ['/docs', 'migration'],
       description: 'What each major broke, and which of them ship a codemod.',
     },
     {
       kind: 'Guide',
-      title: 'Versioning & support',
-      url: ['/start', 'versioning'],
-      description: 'The release cadence, the semver rule that is enforced, and how long a major is patched.',
+      title: 'Testing',
+      url: ['/guides', 'testing'],
+      description: 'The CDK harnesses, and how to drive ngwr components from your own specs.',
+    },
+    {
+      kind: 'Guide',
+      title: 'Colour tokens',
+      url: ['/guides', 'tokens', 'colors'],
+      description: 'The contrast and ink split, and where the ratios quoted above come from.',
     },
   ];
 }

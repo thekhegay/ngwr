@@ -230,7 +230,7 @@ function templateLiteralsOnly(src: string): string {
  * prints the attribute it is telling you to rename, and a codemod's fixtures
  * exist to carry the old spelling.
  */
-const SNIPPET_EXEMPT = ['start/migration/', '_core/sandbox/'];
+const SNIPPET_EXEMPT = ['docs/migration/', '_core/sandbox/'];
 
 /**
  * Attributes owned by somebody other than ngwr, which a snippet may legitimately

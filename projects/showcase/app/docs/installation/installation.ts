@@ -121,7 +121,7 @@ ng add ngwr
 # The prompts cover: styles mode, date adapter, density preset, theme.
 # Answer "System" to the theme prompt (or pass --theme=system) — that is the
 # answer that wires provideWrTheme(), and the default, "None", does not.
-# See the Schematics page for the full list of flags.`,
+# See "Non-interactive flags" below for the full list.`,
     install: `pnpm add ngwr @angular/cdk
 # or
 npm install ngwr @angular/cdk
@@ -300,15 +300,169 @@ export class App {}`,
     info: #3b82f6,
   ),
 );`,
+    // Schematics ----------------------------------------------------------
+    // `ngAddShort` is the Schematics page's own `ngAdd`, renamed: the Quick
+    // start section above already owns that key with a longer snippet.
+    ngAddShort: `# Drop-in install — prompts for styles, date adapter, density, theme.
+ng add ngwr`,
+    ngAddPrompts: `# Sample run (defaults shown in brackets):
+?  How should ngwr styles be wired?
+   ❯ Theme — one \`@use 'ngwr/theme';\` import (recommended)
+     None — wire styles yourself
+
+?  Wire a date adapter? (Used by calendar / date-picker.)
+   ❯ None — skip (you can add later)
+     Native — built-in Date, no extra deps
+     date-fns — small, modular
+     Luxon — Intl-backed, locale-rich
+
+?  Pick a default density
+   ❯ None — use lib defaults (md)
+     sm — tight spacing
+     lg — relaxed spacing
+
+?  Theme starter?
+   ❯ None — stay on lib defaults
+     Light
+     Dark
+     System — auto-switch via prefers-color-scheme`,
+    ngAddFlags: `# Skip prompts:
+ng add ngwr --styles=theme --dateAdapter=date-fns --density=lg --theme=system
+
+# "None" is spelled \`none\` — it is a real enum value, not an empty flag:
+ng add ngwr --styles=none --dateAdapter=none --density=none --theme=none
+
+# Every accepted value:
+#   --styles       theme | none                      (default: theme)
+#   --dateAdapter  none | native | date-fns | luxon  (default: none)
+#   --density      none | sm | lg                    (default: none)
+#   --theme        none | light | dark | system      (default: none)
+#
+# Those four defaults are also what a non-interactive run picks — so
+# \`--theme=system\` is the flag that gets you provideWrTheme() in the
+# printed snippet. Omit it and no theme provider is printed at all.
+
+# CI / monorepo — skip the install task:
+ng add ngwr --skipPeerInstall`,
+    iconSet: `# Generate a tree-shaken icon barrel under src/app/icons.ts.
+ng g ngwr:icon-set                                  # defaults to the "basic" set
+ng g ngwr:icon-set checkout --set=forms             # named file + curated set
+ng g ngwr:icon-set --icons=plus,trash,checkmark     # explicit list
+ng g ngwr:icon-set --set=navigation --icons=star,heart   # combine both`,
+    iconSetOutput: `// src/app/icons.ts (generated)
+import { Check, Copy, Pencil, Plus, Search, Trash2, X } from 'lucide';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+
+export const APP_ICONS = lucideIcons({
+  checkmark: Check,
+  close: X,
+  add: Plus,
+  edit: Pencil,
+  trash: Trash2,
+  search: Search,
+  copy: Copy,
+});
+
+// Then wire into bootstrap:
+import { provideWrIcons } from 'ngwr/icon';
+import { APP_ICONS } from './icons';
+
+providers: [provideWrIcons(APP_ICONS)],`,
+    use: `# Add the import + splice into a component's @Component imports array.
+ng g ngwr:use WrButton --path src/app/pages/checkout/checkout.ts
+ng g ngwr:use WrSelect --path src/app/pages/checkout/checkout.ts
+
+# Recognizes every public Wr* export the scan finds, mapped to the entry
+# point it comes from.`,
+    useBefore: `// Before: src/app/pages/checkout/checkout.ts
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-checkout',
+  templateUrl: './checkout.html',
+  imports: [],
+})
+export class CheckoutPage {}`,
+    useAfter: `// After running \`ng g ngwr:use WrButton …\`:
+import { Component } from '@angular/core';
+import { WrButton } from 'ngwr/button';
+
+@Component({
+  selector: 'app-checkout',
+  templateUrl: './checkout.html',
+  imports: [WrButton],
+})
+export class CheckoutPage {}`,
+    provider: `# Splice a provideWr*() call into bootstrapApplication's providers array.
+ng g ngwr:provider overlay
+ng g ngwr:provider toast
+ng g ngwr:provider date-adapter
+
+# Available: overlay | icons | toast | i18n | date-adapter | density |
+#            storage | theme
+#
+# cookie is not here because it has no provider: inject WrCookie. Neither is
+# loading-bar, whose only provider is the opt-in router adapter. Add
+# provideWrLoadingBarRouter() from 'ngwr/loading-bar/router' by hand if
+# navigations should drive the bar; manual start() / complete() need nothing.`,
+    componentStyle: `# Append \`@use 'ngwr/<name>';\` to the project's global stylesheet.
+# Pairs with \`--styles=none\` on \`ng add\`.
+ng g ngwr:component-style button
+ng g ngwr:component-style select
+ng g ngwr:component-style theme    # always include the theme first`,
+    page: `# Scaffold a starter page wired up with ngwr components.
+ng g ngwr:page form signup
+ng g ngwr:page table users
+ng g ngwr:page dashboard overview
+
+# Creates <name>.ts + <name>.html + <name>.scss under
+# <sourceRoot>/app/pages/<name>/`,
+    update: `# One command from any earlier major: installs the latest release and runs
+# every migration newer than your installed version, in order. Never target a
+# 7.x, 8.x or 9.x release.
+ng update ngwr
+
+# The example below is v7's, the largest pure rewrite in the collection.
+# v14's own rewrites are six renames; the rest of it reports.`,
+    updateMap: `// Templates: 11 element / attribute rewrites across .html
+<wr-autocomplete …>     →  <wr-select mode="search" …>
+<wr-chips-input …>      →  <wr-select mode="tag" …>
+<wr-select [multi] …>   →  <wr-select mode="multi" …>   ([multi]="false" just drops)
+<wr-time-picker …>      →  <wr-date-picker mode="time" …>
+<wr-date-time-picker …> →  <wr-date-picker mode="datetime" …>
+[wrTooltip]="…"         →  [wrPopover]="…" mode="tooltip"
+<wr-tree-select …>      →  <wr-tree openOn="overlay" …>
+<wr-bottom-sheet …>     →  <wr-drawer position="bottom" …>
+<wr-count-up-text …>    →  <wr-count-up …>
+<wr-image …>            →  <wr-lightbox …>
+<wr-animated-text …>    →  <wr-typewriter …> | <wr-decrypt-text …> | <wr-split-text …>
+                           (picked from mode=, and the renamed inputs go with it;
+                            the attribute form <h1 wr-animated-text> is left alone)
+
+// Imports (.ts): module-path + symbol renames
+'ngwr/autocomplete'     →  'ngwr/select'         (WrAutocomplete    → WrSelect)
+'ngwr/chips-input'      →  'ngwr/select'         (WrChipsInput      → WrSelect)
+'ngwr/time-picker'      →  'ngwr/date-picker'    (WrTimePicker      → WrDatePicker)
+'ngwr/date-time-picker' →  'ngwr/date-picker'    (WrDateTimePicker  → WrDatePicker)
+'ngwr/tooltip'          →  'ngwr/popover'        (WrTooltip         → WrPopover)
+'ngwr/tree-select'      →  'ngwr/tree'           (WrTreeSelect      → WrTree)
+'ngwr/bottom-sheet'     →  'ngwr/drawer'         (WrBottomSheet     → WrDrawer)
+'ngwr/count-up-text'    →  'ngwr/counter'        (WrCountUpText     → WrCountUp)
+'ngwr/image'            →  'ngwr/lightbox'       (WrImage           → WrLightbox)
+'ngwr/animated-text'    →  'ngwr/bits/typewriter'     (WrAnimatedText    → WrTypewriter)
+'ngwr/count-up'         →  'ngwr/counter'        (entry merged; symbol unchanged)
+'ngwr/tag'              →  'ngwr/badge'          (entry merged; symbol unchanged)
+'ngwr/form-field'       →  'ngwr/form'           (entry merged; symbol unchanged)
+
+// …plus one call rewrite: WrValidators.email → Validators.email (it moved to
+// @angular/forms; add that import yourself).
+
+// Stylesheets: @use / @import / @forward
+@use 'ngwr/autocomplete';   →  @use 'ngwr/select';
+// …same set as imports.`,
   };
 
   protected readonly seeAlso: readonly DocSeeAlsoLink[] = [
-    {
-      kind: 'Guide',
-      title: 'Versioning & support',
-      url: ['/start', 'versioning'],
-      description: 'What the peer range promises, how long a major is patched, and why a minor cannot break you.',
-    },
     {
       kind: 'Guide',
       title: 'Theming',
@@ -318,14 +472,8 @@ export class App {}`,
     {
       kind: 'Guide',
       title: 'Configuration',
-      url: ['/start', 'configuration'],
+      url: ['/docs', 'configuration'],
       description: 'Every provideWr*() in one place — what each one buys and what it costs to skip.',
-    },
-    {
-      kind: 'Guide',
-      title: 'Schematics',
-      url: ['/start', 'schematics'],
-      description: 'The full ng add / ng generate collection, including the non-interactive flags.',
     },
   ];
 }

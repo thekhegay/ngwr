@@ -108,7 +108,50 @@ export const INSTALL = {
       { path: "ngwr/bits/waves", symbols: ["WrWaves"], declarables: ["WrWaves"], styled: true },
       { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
   ],
-  "guides/agent-skill": [
+  "charts/bar-chart": [
+      { path: "ngwr/charts/bar-chart", symbols: ["WrBarChart"], declarables: ["WrBarChart"], styled: true },
+  ],
+  "charts/calendar-heatmap": [
+      { path: "ngwr/charts/calendar-heatmap", symbols: ["WrCalendarHeatmap"], declarables: ["WrCalendarHeatmap"], styled: true },
+  ],
+  "charts/donut-chart": [
+      { path: "ngwr/charts/donut-chart", symbols: ["WrDonutChart"], declarables: ["WrDonutChart"], styled: true },
+  ],
+  "charts/gauge": [
+      { path: "ngwr/charts/gauge", symbols: ["WrGauge"], declarables: ["WrGauge"], styled: true },
+  ],
+  "charts/line-chart": [
+      { path: "ngwr/charts/line-chart", symbols: ["WrLineChart"], declarables: ["WrLineChart"], styled: true },
+  ],
+  "charts/meter-group": [
+      { path: "ngwr/charts/meter-group", symbols: ["WrMeterGroup"], declarables: ["WrMeterGroup"], styled: true },
+  ],
+  "charts/sparkline": [
+      { path: "ngwr/charts/sparkline", symbols: ["WrSparkline"], declarables: ["WrSparkline"], styled: true },
+  ],
+  "docs/installation": [
+      { path: "ngwr/alert", symbols: ["WrAlert"], declarables: ["WrAlert"], styled: true },
+      { path: "ngwr/table", symbols: ["WrTable", "WrTableCell"], declarables: ["WrTable", "WrTableCell"], styled: true },
+      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
+  ],
+  "docs/introduction": [
+      { path: "ngwr/alert", symbols: ["WrAlert"], declarables: ["WrAlert"], styled: true },
+      { path: "ngwr/badge", symbols: ["WrTag"], declarables: ["WrTag"], styled: true },
+      { path: "ngwr/checkbox", symbols: ["WrCheckbox"], declarables: ["WrCheckbox"], styled: true },
+      { path: "ngwr/descriptions", symbols: ["WrDescriptionItem", "WrDescriptions"], declarables: ["WrDescriptionItem", "WrDescriptions"], styled: true },
+      { path: "ngwr/rating", symbols: ["WrRating"], declarables: ["WrRating"], styled: true },
+      { path: "ngwr/statistic", symbols: ["WrStatistic", "WrStatisticGroup"], declarables: ["WrStatistic", "WrStatisticGroup"], styled: true },
+      { path: "ngwr/table", symbols: ["WrTable", "WrTableCell"], declarables: ["WrTable", "WrTableCell"], styled: true },
+      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
+      { path: "ngwr/version", symbols: ["NGWR_VERSION"], declarables: [], styled: false },
+  ],
+  "docs/mcp-server": [
+      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
+  ],
+  "docs/migration": [
+      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
+  ],
+  "docs/skills": [
       { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
   ],
   "guides/csp": [
@@ -125,9 +168,6 @@ export const INSTALL = {
   ],
   "guides/keyboard": [
       { path: "ngwr/keyboard", symbols: ["WrKbd"], declarables: ["WrKbd"], styled: true },
-  ],
-  "guides/mcp": [
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
   ],
   "guides/mobile": [
       { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
@@ -214,9 +254,6 @@ export const INSTALL = {
   "reference/components/badge": [
       { path: "ngwr/badge", symbols: ["WrBadge", "WrTag"], declarables: ["WrBadge", "WrTag"], styled: true },
   ],
-  "reference/components/bar-chart": [
-      { path: "ngwr/charts/bar-chart", symbols: ["WrBarChart"], declarables: ["WrBarChart"], styled: true },
-  ],
   "reference/components/breadcrumbs": [
       { path: "ngwr/breadcrumbs", symbols: ["WrBreadcrumbs", "WrBreadcrumbsItem"], declarables: ["WrBreadcrumbs", "WrBreadcrumbsItem"], styled: true },
   ],
@@ -231,9 +268,6 @@ export const INSTALL = {
   ],
   "reference/components/calendar": [
       { path: "ngwr/calendar", symbols: ["WrCalendar"], declarables: ["WrCalendar"], styled: true },
-  ],
-  "reference/components/calendar-heatmap": [
-      { path: "ngwr/charts/calendar-heatmap", symbols: ["WrCalendarHeatmap"], declarables: ["WrCalendarHeatmap"], styled: true },
   ],
   "reference/components/card": [
       { path: "ngwr/card", symbols: ["WrCard", "WrCardFooter", "WrCardHeader"], declarables: ["WrCard", "WrCardFooter", "WrCardHeader"], styled: true },
@@ -277,9 +311,6 @@ export const INSTALL = {
   "reference/components/divider": [
       { path: "ngwr/divider", symbols: ["WrDivider"], declarables: ["WrDivider"], styled: true },
   ],
-  "reference/components/donut-chart": [
-      { path: "ngwr/charts/donut-chart", symbols: ["WrDonutChart"], declarables: ["WrDonutChart"], styled: true },
-  ],
   "reference/components/drawer": [
       { path: "ngwr/drawer", symbols: ["WR_DRAWER_DATA", "WrDrawer", "WrDrawerClose", "WrDrawerContent", "WrDrawerFooter", "WrDrawerManager", "WrDrawerRef", "WrDrawerTitle"], declarables: ["WrDrawer", "WrDrawerClose", "WrDrawerContent", "WrDrawerFooter", "WrDrawerTitle"], styled: true },
   ],
@@ -305,9 +336,6 @@ export const INSTALL = {
       { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
       { path: "ngwr/form", symbols: ["WrFormError", "WrFormField"], declarables: ["WrFormError", "WrFormField"], styled: true },
       { path: "ngwr/input", symbols: ["WrInput"], declarables: ["WrInput"], styled: true },
-  ],
-  "reference/components/gauge": [
-      { path: "ngwr/charts/gauge", symbols: ["WrGauge"], declarables: ["WrGauge"], styled: true },
   ],
   "reference/components/graph": [
       { path: "ngwr/graph", symbols: ["WrGraph", "WrGraphNodeTemplate"], declarables: ["WrGraph", "WrGraphNodeTemplate"], styled: true },
@@ -339,9 +367,6 @@ export const INSTALL = {
   "reference/components/lightbox": [
       { path: "ngwr/lightbox", symbols: ["WrLightbox"], declarables: ["WrLightbox"], styled: true },
   ],
-  "reference/components/line-chart": [
-      { path: "ngwr/charts/line-chart", symbols: ["WrLineChart"], declarables: ["WrLineChart"], styled: true },
-  ],
   "reference/components/list": [
       { path: "ngwr/list", symbols: ["WrList", "WrListItem"], declarables: ["WrList", "WrListItem"], styled: true },
   ],
@@ -350,9 +375,6 @@ export const INSTALL = {
   ],
   "reference/components/mention": [
       { path: "ngwr/mention", symbols: ["WrMention"], declarables: ["WrMention"], styled: true },
-  ],
-  "reference/components/meter-group": [
-      { path: "ngwr/charts/meter-group", symbols: ["WrMeterGroup"], declarables: ["WrMeterGroup"], styled: true },
   ],
   "reference/components/page-header": [
       { path: "ngwr/page-header", symbols: ["WrPageHeader"], declarables: ["WrPageHeader"], styled: true },
@@ -405,9 +427,6 @@ export const INSTALL = {
   ],
   "reference/components/sortable-list": [
       { path: "ngwr/sortable-list", symbols: ["WrDragHandle", "WrSortableItem", "WrSortableList"], declarables: ["WrDragHandle", "WrSortableItem", "WrSortableList"], styled: true },
-  ],
-  "reference/components/sparkline": [
-      { path: "ngwr/charts/sparkline", symbols: ["WrSparkline"], declarables: ["WrSparkline"], styled: true },
   ],
   "reference/components/speed-dial": [
       { path: "ngwr/speed-dial", symbols: ["WrSpeedDial"], declarables: ["WrSpeedDial"], styled: true },
@@ -586,42 +605,6 @@ export const INSTALL = {
   "reference/validators/url": [
       { path: "ngwr/input", symbols: ["WrInput"], declarables: ["WrInput"], styled: true },
       { path: "ngwr/validators", symbols: ["WrValidators"], declarables: [], styled: false },
-  ],
-  "start/comparison": [
-      { path: "ngwr/checkbox", symbols: ["WrCheckbox"], declarables: ["WrCheckbox"], styled: true },
-      { path: "ngwr/rating", symbols: ["WrRating"], declarables: ["WrRating"], styled: true },
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-      { path: "ngwr/version", symbols: ["NGWR_VERSION"], declarables: [], styled: false },
-  ],
-  "start/installation": [
-      { path: "ngwr/alert", symbols: ["WrAlert"], declarables: ["WrAlert"], styled: true },
-      { path: "ngwr/table", symbols: ["WrTable", "WrTableCell"], declarables: ["WrTable", "WrTableCell"], styled: true },
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
-  "start/migration": [
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
-  "start/playground": [
-      { path: "ngwr/alert", symbols: ["WrAlert"], declarables: ["WrAlert"], styled: true },
-      { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
-      { path: "ngwr/checkbox", symbols: ["WrCheckbox"], declarables: ["WrCheckbox"], styled: true },
-      { path: "ngwr/form", symbols: ["WrFormField"], declarables: ["WrFormField"], styled: true },
-      { path: "ngwr/input", symbols: ["WrInput"], declarables: ["WrInput"], styled: true },
-      { path: "ngwr/select", symbols: ["WrOption", "WrSelect"], declarables: ["WrOption", "WrSelect"], styled: true },
-  ],
-  "start/quality": [
-      { path: "ngwr/alert", symbols: ["WrAlert"], declarables: ["WrAlert"], styled: true },
-      { path: "ngwr/badge", symbols: ["WrTag"], declarables: ["WrTag"], styled: true },
-      { path: "ngwr/descriptions", symbols: ["WrDescriptionItem", "WrDescriptions"], declarables: ["WrDescriptionItem", "WrDescriptions"], styled: true },
-      { path: "ngwr/statistic", symbols: ["WrStatistic", "WrStatisticGroup"], declarables: ["WrStatistic", "WrStatisticGroup"], styled: true },
-      { path: "ngwr/table", symbols: ["WrTable", "WrTableCell"], declarables: ["WrTable", "WrTableCell"], styled: true },
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
-  "start/versioning": [
-      { path: "ngwr/alert", symbols: ["WrAlert"], declarables: ["WrAlert"], styled: true },
-      { path: "ngwr/badge", symbols: ["WrTag"], declarables: ["WrTag"], styled: true },
-      { path: "ngwr/table", symbols: ["WrTable", "WrTableCell"], declarables: ["WrTable", "WrTableCell"], styled: true },
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
   ],
 } satisfies Record<string, readonly DocInstallEntry[]>;
 

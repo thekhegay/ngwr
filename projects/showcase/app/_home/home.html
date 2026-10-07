@@ -48,7 +48,7 @@
             wr-btn
             color="primary"
             size="lg"
-            [routerLink]="routes.start.index"
+            [routerLink]="routes.docs.index"
             icon="arrow-forward"
             iconPosition="end"
           >
@@ -59,14 +59,16 @@
             wr-btn
             outlined
             size="lg"
-            [routerLink]="[routes.index, routes.start.index, routes.start.playground]"
+            href="https://stackblitz.com/github/thekhegay/ngwr-starter"
+            target="_blank"
+            rel="noreferrer"
             icon="play"
           >
             Try it in the browser
           </a>
         </div>
 
-        <a class="ngwr-home-hero__compare" [routerLink]="[routes.index, routes.start.index, routes.start.comparison]">
+        <a class="ngwr-home-hero__compare" [routerLink]="[routes.index, routes.docs.index, routes.docs.introduction]">
           <span class="ngwr-home-hero__compare-label">How it compares to the other Angular UI libraries</span>
           <wr-icon name="arrow-forward" />
         </a>

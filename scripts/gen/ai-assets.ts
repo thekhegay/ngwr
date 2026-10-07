@@ -45,6 +45,7 @@ import { ROOT_PATH } from '../lib/paths/root';
 const LIB_DIR = join(ROOT_PATH, 'projects/lib');
 const SHOWCASE_APP = join(ROOT_PATH, 'projects/showcase/app');
 const REFERENCE_DIR = join(SHOWCASE_APP, 'reference');
+const CHARTS_DIR = join(SHOWCASE_APP, 'charts');
 const BITS_DIR = join(SHOWCASE_APP, 'bits');
 
 /**
@@ -327,7 +328,15 @@ const descriptions = ((): Map<string, string> => {
     const clusterDir = join(REFERENCE_DIR, cluster);
     for (const name of dirsOnly(clusterDir)) take(name, read(join(clusterDir, name, `${name}.html`)));
   }
-  for (const name of dirsOnly(BITS_DIR)) take(name, read(join(BITS_DIR, name, `${name}.html`)));
+  // `bits/` holds a folder per sidebar GROUP since v15, and the chart pages
+  // left `reference/components/` for a cluster of their own. Both are one
+  // level deeper than they were, so a flat walk finds nothing — which is how
+  // the description count silently fell from 119 to 91.
+  for (const group of dirsOnly(BITS_DIR)) {
+    const groupDir = join(BITS_DIR, group);
+    for (const name of dirsOnly(groupDir)) take(name, read(join(groupDir, name, `${name}.html`)));
+  }
+  for (const name of dirsOnly(CHARTS_DIR)) take(name, read(join(CHARTS_DIR, name, `${name}.html`)));
 
   return map;
 })();
