@@ -18,6 +18,7 @@ import type { DocApiRow } from './types';
 @Component({
   imports: [DocRichPipe],
   selector: 'ngwr-doc-api',
+  host: { class: 'wr-not-prose' },
   templateUrl: './doc-api.html',
   styleUrl: './doc-api.scss',
 })

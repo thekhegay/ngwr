@@ -1,28 +1,41 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { BookOpen, Heart, Sparkles } from 'lucide';
 import { WrAlert } from 'ngwr/alert';
+import { WrButton } from 'ngwr/button';
+import { WrCard } from 'ngwr/card';
 import { WrDescriptionItem, WrDescriptions } from 'ngwr/descriptions';
+import { provideWrIcons, WrIcon } from 'ngwr/icon';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrStatistic, WrStatisticGroup } from 'ngwr/statistic';
 import { WrTypography } from 'ngwr/typography';
 
 import { DocPageComponent, DocSectionComponent } from '#core/components';
 import { QUALITY } from '#core/generated/quality';
+import { BRAND_ICONS } from '#core/icons';
 import { ROUTES, wrPath } from '#routes';
 
 @Component({
   selector: 'ngwr-docs-introduction-page',
   templateUrl: './introduction.html',
+  styleUrl: './introduction.scss',
   imports: [
     RouterLink,
     WrAlert,
+    WrButton,
+    WrCard,
     WrDescriptionItem,
     WrDescriptions,
+    WrIcon,
     WrStatistic,
     WrStatisticGroup,
     WrTypography,
     DocPageComponent,
     DocSectionComponent,
+  ],
+  providers: [
+    provideWrIcons([...BRAND_ICONS, ...lucideIcons({ sparkles: Sparkles, 'book-open': BookOpen, heart: Heart })]),
   ],
 })
 export default class IntroductionPage {
