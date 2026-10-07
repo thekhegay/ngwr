@@ -1,10 +1,5 @@
-import { ROUTES, wrPath, type WrRoute } from '#routes';
-import type { SidebarGroup, SidebarLink } from '#types';
-
-const base = [ROUTES.reference, ROUTES.reference.validators];
-
-/** A row takes its title and its link from the route node, so the two cannot disagree. */
-const link = (route: WrRoute): SidebarLink => ({ title: route.title, url: wrPath(...base, route) });
+import { ROUTES, wrLink } from '#routes';
+import type { SidebarGroup } from '#types';
 
 /**
  * The Validators group of the Reference sidebar — one row per `WrValidators`
@@ -14,16 +9,16 @@ const link = (route: WrRoute): SidebarLink => ({ title: route.title, url: wrPath
 export const VALIDATORS_GROUP: SidebarGroup = {
   title: 'Validators',
   children: [
-    link(ROUTES.reference.validators.cardNumber),
-    link(ROUTES.reference.validators.cvc),
-    link(ROUTES.reference.validators.hexColor),
-    link(ROUTES.reference.validators.iban),
-    link(ROUTES.reference.validators.match),
-    link(ROUTES.reference.validators.matchFields),
-    link(ROUTES.reference.validators.maxDate),
-    link(ROUTES.reference.validators.minDate),
-    link(ROUTES.reference.validators.noWhitespace),
-    link(ROUTES.reference.validators.oneOf),
-    link(ROUTES.reference.validators.urlValidator),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.cardNumber),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.cvc),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.hexColor),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.iban),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.match),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.matchFields),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.maxDate),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.minDate),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.noWhitespace),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.oneOf),
+    wrLink(ROUTES.reference, ROUTES.reference.validators, ROUTES.reference.validators.urlValidator),
   ],
 };
