@@ -17,13 +17,24 @@
           <p wrTypography variant="caption" tone="muted">Form field + input + button</p>
         </header>
         <!--
-          Every field opts out of the password manager. An email beside two
-          password fields is a signup form to every browser heuristic, so this
-          demo was offering to save a credential and filling a visitor's real
-          one into a tile on a marketing page. `new-password` is the value that
-          stops BOTH halves on a password field — `off` is widely ignored there
-          — and the fields around it are what the heuristic groups, so they opt
-          out too.
+          No `type="password"` here, and that is the whole fix. An email beside
+          two password fields is a signup form to every browser heuristic, so
+          this tile was filling a visitor's real credential into a marketing
+          page and offering to save a fake one on the way out.
+
+          `autocomplete="new-password"` was the first attempt and it only
+          solves HALF: it suppresses autofill, while the offer to SAVE is a
+          separate heuristic that keys on a password-typed field having been
+          given a value — no `autocomplete` value turns that off, which is why
+          the prompt kept appearing on navigation away from the home page.
+
+          So the two secret fields are plain text masked by
+          `-webkit-text-security`, supported in Chromium, Safari and Firefox
+          112+. A password manager has nothing to recognise, the dots still
+          read as a password to a person, and `autocomplete="off"` on every
+          field keeps the surrounding group out of the autofill half too.
+          Nothing here is a real login, so losing the native reveal control and
+          the manager integration costs the demo nothing.
         -->
         <div class="ngwr-cbento__tile-body ngwr-cbento__signin">
           <wr-form-field label="Full name" required>
@@ -41,8 +52,9 @@
           <wr-form-field label="Password" hint="At least 12 characters." required>
             <input
               wrInput
-              type="password"
-              autocomplete="new-password"
+              type="text"
+              class="ngwr-cbento__secret"
+              autocomplete="off"
               [ngModel]="signupPassword()"
               (ngModelChange)="signupPassword.set($event)"
             />
@@ -50,8 +62,9 @@
           <wr-form-field label="Confirm password" required>
             <input
               wrInput
-              type="password"
-              autocomplete="new-password"
+              type="text"
+              class="ngwr-cbento__secret"
+              autocomplete="off"
               [ngModel]="signupConfirm()"
               (ngModelChange)="signupConfirm.set($event)"
             />

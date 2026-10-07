@@ -10,8 +10,22 @@
         [formGroup]="form"
         style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: 20rem"
       >
-        <input wrInput formControlName="password" placeholder="password" type="password" autocomplete="new-password" />
-        <input wrInput formControlName="confirm" placeholder="confirm" type="password" autocomplete="new-password" />
+        <input
+          wrInput
+          formControlName="password"
+          placeholder="password"
+          type="text"
+          style="-webkit-text-security: disc"
+          autocomplete="off"
+        />
+        <input
+          wrInput
+          formControlName="confirm"
+          placeholder="confirm"
+          type="text"
+          style="-webkit-text-security: disc"
+          autocomplete="off"
+        />
         <code style="font-size: 0.8125rem">confirm.errors: {{ form.controls.confirm.errors | json }}</code>
       </div>
     </ngwr-doc-snippet>
