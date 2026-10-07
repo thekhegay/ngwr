@@ -39,7 +39,21 @@
 }
 
 .content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  // Block flow, not a flex column: prose spaces its elements with margins that
+  // are meant to collapse, and a flex column adds them up instead.
+  display: flow-root;
+
+  // Demos, code blocks, API tables, alerts — whatever prose does not style
+  // still needs room around it.
+  > ::ng-deep :not(p, ul, ol, h3, h4, blockquote, hr, table, pre, figure) {
+    margin-block: 1.5rem;
+  }
+
+  > ::ng-deep :first-child {
+    margin-top: 0;
+  }
+
+  > ::ng-deep :last-child {
+    margin-bottom: 0;
+  }
 }

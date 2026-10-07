@@ -6,18 +6,16 @@
   <ngwr-doc-section title="Why ngwr">
     <ul>
       <li>
-        <strong>Signal Forms, natively.</strong> Every value control binds with
-        <code wrTypography variant="code">[formField]</code> — there is no
-        <code wrTypography variant="code">ControlValueAccessor</code> anywhere in the library.
+        <strong>Signal Forms, natively.</strong> Every value control binds with <code>[formField]</code> — there is no
+        <code>ControlValueAccessor</code> anywhere in the library.
       </li>
       <li>
-        <strong>Signals and zoneless.</strong> Standalone components,
-        <code wrTypography variant="code">input()</code> and
-        <code wrTypography variant="code">model()</code> throughout, and no zone.js required.
+        <strong>Signals and zoneless.</strong> Standalone components, <code>input()</code> and <code>model()</code>
+        throughout, and no zone.js required.
       </li>
       <li>
         <strong>Only what you use.</strong> {{ quality.entryPoints }} entry points, one per component — you import and
-        <code wrTypography variant="code">&#64;use</code> what you render and nothing else.
+        <code>&#64;use</code> what you render and nothing else.
       </li>
       <li>
         <strong>Yours to restyle.</strong> Every value is a CSS variable: override a token to change the whole app, or a
@@ -30,11 +28,14 @@
     </ul>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Counted, not claimed"
-    description="The counters below are written by `scripts/gen/quality.ts`, which counts the repository during the showcase build, and every sentence further down that repeats one of them binds the same value. None of them is typed in by hand — that is the only way a page like this is still true a year after it was written."
-  >
-    <wr-statistic-group min="10rem">
+  <ngwr-doc-section title="Counted, not claimed">
+    <p>
+      The counters below are written by <code>scripts/gen/quality.ts</code>, which counts the repository during the
+      showcase build. None of them is typed in by hand — that is the only way a page like this is still true a year
+      after it was written.
+    </p>
+
+    <wr-statistic-group class="wr-not-prose" min="10rem">
       <wr-statistic label="Entry points" [value]="quality.entryPoints" />
       <wr-statistic label="Components + directives" [value]="publicClasses" />
       <wr-statistic [label]="testCasesLabel" [value]="quality.testCases" />
@@ -45,120 +46,82 @@
     </wr-statistic-group>
 
     <p>
-      Every counter says what it measured. Test cases are declared <code>it()</code> call sites, which equals the real
-      figure only while nothing mints cases at runtime — so a parameterised form (<code>it.each</code>) or a call site
-      inside a loop makes the generator print the file and line and label this figure a floor, and the page then reads
-      “at least”. A spec file that yields zero cases still fails the build outright, because that is not a way of
-      writing tests, it is what a broken comment-stripper looks like. “Documentation pages” counts routes that render
-      one: the layout shell and the <code>**</code> 404 both declare a component and neither is a page, so neither is in
-      the {{ quality.docRoutes }}. The version is read from <code>projects/lib/package.json</code> and cross-checked
-      against the <code>NGWR_VERSION</code> constant, which is a separate copy; a mismatch fails the build rather than
-      picking a side. The single runtime dependency is <code>{{ quality.runtimeDependencies.join(', ') }}</code
+      Test cases are declared <code>it()</code> call sites. A parameterised form like <code>it.each</code>, or a call
+      inside a loop, makes the figure a floor, and the label then reads “at least”.
+    </p>
+    <p>
+      “Documentation pages” counts routes that render one — the layout shell and the <code>**</code> 404 are not pages,
+      so neither is in the {{ quality.docRoutes }}.
+    </p>
+    <p>
+      The version is read from <code>projects/lib/package.json</code> and cross-checked against
+      <code>NGWR_VERSION</code>; a mismatch fails the build. The single runtime dependency is
+      <code>{{ quality.runtimeDependencies.join(', ') }}</code
       >.
     </p>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Accessibility"
-    description="Three sweeps, because no single one of them reaches the whole surface. The last two rows of each block are the ones that matter: what the gate is blind to, and what it has already been told to accept."
-  >
-    <h3 wrTypography variant="h5"><code>check:a11y</code></h3>
+  <ngwr-doc-section title="Accessibility">
+    <p>Three sweeps, because no single one of them reaches the whole surface.</p>
 
-    <wr-descriptions inline bordered responsive>
-      <wr-description-item label="Runs"
-        >Every pull request. axe over the prerendered HTML, in JSDOM.</wr-description-item
-      >
-      <wr-description-item label="Sees">
-        The structural half: accessible names, ARIA validity, roles, references to ids that must exist, landmark and
-        heading structure. It fails on any serious or critical violation and the baseline is empty. That class is real —
-        the audit it was written after found an unnamed speed-dial trigger, icon-only segmented options, and a dialog
-        promising an <code>aria-modal</code> it did not honour.
-      </wr-description-item>
-      <wr-description-item label="Cannot see">
-        Anything that depends on computed style. JSDOM loads no stylesheets and does no layout, so
-        <code>color-contrast</code> and <code>target-size</code> are switched off explicitly rather than left to report
-        noise. And prerendered HTML holds no hover, no focus ring and nothing inside an overlay.
-      </wr-description-item>
-      <wr-description-item label="Already accepted">
-        Nothing. <code>scripts/baselines/a11y.json</code> is <code>&#123;&#125;</code>, so there is no allowance to hide
-        a regression in — which is exactly why the two blocks below have to state theirs.
-      </wr-description-item>
-    </wr-descriptions>
+    <h3><code>check:a11y</code></h3>
+    <ul>
+      <li><strong>Runs.</strong> On every pull request: axe over the prerendered HTML, in JSDOM.</li>
+      <li>
+        <strong>Sees.</strong> Accessible names, ARIA validity, roles, id references, landmark and heading structure. It
+        fails on any serious or critical violation.
+      </li>
+      <li>
+        <strong>Cannot see.</strong> Anything that depends on computed style — JSDOM loads no stylesheets — and nothing
+        in a hover, a focus ring or an overlay.
+      </li>
+      <li><strong>Accepted.</strong> Nothing. The baseline is empty.</li>
+    </ul>
 
-    <h3 wrTypography variant="h5"><code>check:contrast</code></h3>
+    <h3><code>check:contrast</code></h3>
+    <ul>
+      <li><strong>Runs.</strong> Nightly, in a real Chromium with real CSS, in both themes, on every route.</li>
+      <li>
+        <strong>Sees.</strong> Colour contrast and target size, the two rules the structural sweep cannot run — and
+        placeholder text, which axe itself never measures.
+      </li>
+      <li>
+        <strong>Cannot see.</strong> Hovers, focus rings and overlays. It gates on routes per rule, so a new violation
+        on a route that already fails passes silently.
+      </li>
+      <li>
+        <strong>Accepted.</strong> A few decided trades in <code>scripts/baselines/contrast.json</code> — the calendar's
+        out-of-month days, the carousel dots, the table header's sort and filter controls — each with its reason.
+      </li>
+    </ul>
 
-    <wr-descriptions inline bordered responsive>
-      <wr-description-item label="Runs"
-        >Nightly. A real Chromium, real CSS, both themes, every canonical route.</wr-description-item
-      >
-      <wr-description-item label="Sees">
-        Exactly the two rules the structural sweep has to disable. It reports axe's own measured ratio instead of
-        re-deriving one, emulates <code>prefers-reduced-motion</code> so an animation caught mid-flight cannot report a
-        failure that describes a single frame, and pins the clock so a demo built from <code>new Date()</code> cannot
-        move its own route count overnight. It also measures what axe never does: placeholder text. axe reads an empty
-        field's typed-text colour, which is how input placeholders at 2.91:1 passed as 17.85:1, so every field showing
-        its placeholder gets that colour copied onto its text for one scoped pass.
-      </wr-description-item>
-      <wr-description-item label="Cannot see">
-        A page at rest is all it measures, so hovers, focus rings and overlay contents stay out of reach. And it gates
-        on route counts per rule, not on nodes —
-        <strong>a brand-new violation on a route that already fails passes silently.</strong> Not hypothetical:
-        deepening the dark primary broke <code>wr-calendar__day--today</code> at 4.06:1 on a route already baselined for
-        something else, and the sweep printed “no new violations”. Change a token, measure the elements you changed.
-      </wr-description-item>
-      <wr-description-item label="Already accepted">
-        The entries in <code>scripts/baselines/contrast.json</code>, one per rule, theme and
-        <code>prefers-contrast</code> mode, each allowing a number of routes rather than of nodes. The worst is
-        <code>wr-calendar__day--out-of-month</code> at <strong>2.23:1</strong> — enabled buttons the arrow keys reach,
-        so the exemption for inactive controls does not apply to them, and it is <code>opacity: 0.55</code> rather than
-        the colour that drops the ratio. The rest are the carousel's 8×8 pagination dots, the swatch grid on
-        <a routerLink="/guides/tokens/colors">Colour tokens</a> (which labels every shade of a ramp with a token
-        calibrated for the base shade), disabled controls axe cannot recognise as disabled because the attribute sits on
-        a custom element, and the table header's sort and filter controls on a fine pointer — 12×12 apiece and 6px
-        apart, a decided trade rather than debt, because widening them for every pointer moves the caret and the funnel
-        apart in every desktop table. Every entry carries the reason it was accepted.
-      </wr-description-item>
-    </wr-descriptions>
+    <h3><code>check:state-a11y</code></h3>
+    <ul>
+      <li><strong>Runs.</strong> Nightly, driving a curated table of states with the full axe rule set inside each.</li>
+      <li>
+        <strong>Sees.</strong> States a user has to create: a hover, a focus ring, an open dialog, a select panel.
+      </li>
+      <li>
+        <strong>Cannot see.</strong> Whatever is not in the table — so a full run prints its own coverage, and a state
+        that fails to paint fails the run.
+      </li>
+      <li>
+        <strong>Accepted.</strong> The same calendar days and target sizes as above, in
+        <code>scripts/baselines/state-a11y.json</code>.
+      </li>
+    </ul>
 
-    <h3 wrTypography variant="h5"><code>check:state-a11y</code></h3>
-
-    <wr-descriptions inline bordered responsive>
-      <wr-description-item label="Runs">
-        Nightly. A curated table of states, driven in a browser, with the full axe rule set inside each one.
-      </wr-description-item>
-      <wr-description-item label="Sees">
-        The states a user has to create: a hover, a focus ring, an open dialog, a select panel, a context menu. Seven
-        real AA failures were found there by hand, every one long-standing and every one under a green run. Colour is
-        not all of it — the structural rules had never run inside an overlay either, which is how a
-        <code>role="button"</code> span nested inside a real <code>&lt;button&gt;</code> survived in the window taskbar,
-        on a tab that only exists while a window is minimized.
-      </wr-description-item>
-      <wr-description-item label="Cannot see">
-        Whatever is not in the table. A curated list that stopped growing looks exactly like one that covers the
-        catalog, so a full run prints its own coverage — state-dependent classes in the built stylesheet against the
-        classes it actually painted — and a state that failed to paint fails the run, because a clean axe result over an
-        element that never rendered is indistinguishable from a pass.
-      </wr-description-item>
-      <wr-description-item label="Already accepted">
-        The entries in <code>scripts/baselines/state-a11y.json</code>, one per state and theme, come down to a few
-        decisions rather than a pile of problems: the same out-of-month calendar days as above (2.23:1 light, 3.11:1
-        dark) reached through two separate states, and <code>target-size</code> on the window chrome's 14×14
-        traffic-light buttons and on the carousel dots again. Each is a design call with the alternative costed in the
-        file — not a finding nobody looked at.
-      </wr-description-item>
-    </wr-descriptions>
-
-    <wr-alert
-      type="info"
-      title="And one failure no gate reports at all."
-      message="--wr-border-base measures 1.48:1 in light and 1.41:1 in dark, against the 3:1 WCAG 1.4.11 asks of anything that identifies a control. Fifteen of its declarations are control boundaries where the criterion applies; the rest are cards, dividers and table rules, which it does not reach. Both fixes were costed — darkening the one token repaints every rule that uses it, and splitting out a control-border token leaves control edges visibly darker than every line beside them — and the maintainer chose to keep the hairline. No gate reports it, because axe ships no non-text-contrast rule."
-    />
-
-    <wr-alert
-      type="info"
-      title="Colour is never the only channel — and no runtime gate can check that."
-      message="WCAG 1.4.1 has no axe rule, and the five intents cannot carry it on their own: four share one luminance to within 1.06:1, and success against danger is 1.004:1, because they were tuned to take the same white label. So the components that report a state draw a shape for it — alert and toast a glyph per type, timeline a silhouette per dot — while the colour of a tag, a badge or a typography tone is decoration or category, and the words have to say the state; a tag that must stand for a status on its own takes an icon. A source check, check:color-only, holds every colour-only rule in the library to a written reason. It reads ngwr's stylesheets, not your templates."
-    />
+    <h3>What no gate reports</h3>
+    <p>
+      <code>--wr-border-base</code> measures 1.48:1 in light and 1.41:1 in dark, under the 3:1 WCAG 1.4.11 asks of a
+      control boundary. Both fixes were costed and the lighter hairline was kept; axe has no non-text-contrast rule, so
+      nothing reports it.
+    </p>
+    <p>
+      Colour is never the only channel. Components that report a state draw a shape for it — alert and toast a glyph,
+      timeline a silhouette — while a tag or badge colour is decoration, and the words carry the state.
+      <code>check:color-only</code> holds every colour-only rule in the library to a written reason.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="AI ready">

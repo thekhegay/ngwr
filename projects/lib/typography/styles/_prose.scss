@@ -6,25 +6,24 @@
 //
 // Selectors use `:where()` the way the original does, so a class on an element
 // inside still wins over the prose default. Two departures: list markers and
-// bold text take the primary colour rather than gray, and the backticks the
-// original draws around inline `code` are left out, since ngwr draws inline
-// code as a chip.
+// bold text take the primary colour rather than gray, and inline `code` is a
+// chip rather than the original's backtick-wrapped bold.
 
 $skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
 
 .wr-prose {
   --wr-prose-body: var(--wr-color-gray-700);
-  --wr-prose-headings: var(--wr-color-gray-900);
+  --wr-prose-headings: var(--wr-color-on-surface);
   --wr-prose-lead: var(--wr-color-gray-600);
-  --wr-prose-links: var(--wr-color-gray-900);
+  --wr-prose-links: var(--wr-color-on-surface);
   --wr-prose-bold: var(--wr-color-primary-ink);
   --wr-prose-counters: var(--wr-color-gray-500);
   --wr-prose-bullets: var(--wr-color-primary);
   --wr-prose-hr: var(--wr-color-gray-200);
-  --wr-prose-quotes: var(--wr-color-gray-900);
+  --wr-prose-quotes: var(--wr-color-on-surface);
   --wr-prose-quote-borders: var(--wr-color-gray-200);
   --wr-prose-captions: var(--wr-color-gray-500);
-  --wr-prose-code: var(--wr-color-gray-900);
+  --wr-prose-code: var(--wr-color-on-surface);
   --wr-prose-th-borders: var(--wr-color-gray-300);
   --wr-prose-td-borders: var(--wr-color-gray-200);
 
@@ -33,19 +32,17 @@ $skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
   font-size: 1rem;
   line-height: 1.75;
 
-  // The fixed gray scale is not re-declared by the dark theme, so the inverted
-  // values are written here, step for step as the original's `prose-invert`.
+  // Headings, links, quotes and code take `on-surface`, which each theme sets.
+  // The fixed gray scale is not re-declared by the dark theme, so the rest is
+  // inverted here, step for step as the original's `prose-invert`. Not
+  // `--wr-color-white`: the dark theme turns that into the canvas.
   @include theme.dark {
     --wr-prose-body: var(--wr-color-gray-300);
-    --wr-prose-headings: var(--wr-color-white);
     --wr-prose-lead: var(--wr-color-gray-400);
-    --wr-prose-links: var(--wr-color-white);
     --wr-prose-counters: var(--wr-color-gray-400);
     --wr-prose-hr: var(--wr-color-gray-700);
-    --wr-prose-quotes: var(--wr-color-gray-100);
     --wr-prose-quote-borders: var(--wr-color-gray-700);
     --wr-prose-captions: var(--wr-color-gray-400);
-    --wr-prose-code: var(--wr-color-white);
     --wr-prose-th-borders: var(--wr-color-gray-600);
     --wr-prose-td-borders: var(--wr-color-gray-700);
   }
@@ -161,6 +158,11 @@ $skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
     line-height: 1.5;
   }
 
+  // A heading hands its spacing to what follows it, not the other way round.
+  :where(hr + *, h2 + *, h3 + *, h4 + *)#{$skip} {
+    margin-top: 0;
+  }
+
   :where(figcaption)#{$skip} {
     color: var(--wr-prose-captions);
     font-size: 0.875em;
@@ -169,9 +171,30 @@ $skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
   }
 
   :where(code)#{$skip} {
+    padding: 0.125rem 0.375rem;
+    border-radius: var(--wr-border-radius-sm);
+    background: var(--wr-color-fill);
     color: var(--wr-prose-code);
-    font-weight: 600;
+    font-family: var(--wr-font-family-mono);
     font-size: 0.875em;
+    font-weight: 500;
+  }
+
+  :where(h2 code)#{$skip} {
+    font-size: 0.875em;
+  }
+
+  :where(h3 code)#{$skip} {
+    font-size: 0.9em;
+  }
+
+  :where(a code, h1 code, h2 code, h3 code, h4 code, strong code)#{$skip} {
+    color: inherit;
+  }
+
+  :where(pre code)#{$skip} {
+    padding: 0;
+    background: none;
   }
 
   :where(table)#{$skip} {
