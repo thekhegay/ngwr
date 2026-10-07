@@ -5,8 +5,8 @@ import { DOC_SECTION_TITLE } from '../doc-section/doc-section';
 
 import type { DocCodeFile } from './types';
 
-import { buildComponentTs, isTemplateLanguage } from '#core/sandbox';
 import type { ShikiLang } from '#core/shiki';
+import { buildComponentTs, isTemplateLanguage } from '#core/snippet';
 
 interface ExampleInputs {
   /** The markup the demo renders, as the page passed it. */

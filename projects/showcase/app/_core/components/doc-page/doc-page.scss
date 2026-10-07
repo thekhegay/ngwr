@@ -1,24 +1,68 @@
 @use 'lib/styles/breakpoints' as bp;
 
 :host {
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
+  display: grid;
+  // The page, then the "On this page" rail. The rail is a FIXED track rather
+  // than `auto`, so the prose column does not reflow as a section title grows
+  // — a reader scrolling a long page would otherwise watch the text move.
+  grid-template-columns: minmax(0, 1fr) 14rem;
+  align-items: start;
+  column-gap: 3rem;
+  row-gap: 2.5rem;
   padding: 1.5rem;
-  max-width: 64rem;
+  max-width: 78rem;
   margin: 0 auto;
+
+  // Below `xl` the rail would take the prose under 40rem, which is where a
+  // code block starts wrapping. It drops out entirely rather than moving
+  // inline: a table of contents above the content is a list to scroll past.
+  @include bp.media-down(xl) {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 64rem;
+  }
 
   // Reclaim the side gutters on phones — 1.5rem each edge is ~13% of a
   // 375px viewport. Vertical rhythm tightens a touch to match.
   @include bp.media-down(sm) {
-    gap: 2rem;
+    row-gap: 2rem;
     padding: 1.25rem 1rem;
   }
 }
 
-.header {
+.header,
+.content {
+  grid-column: 1;
   display: flex;
   flex-direction: column;
+}
+
+.content {
+  gap: 2.5rem;
+}
+
+.toc {
+  grid-column: 2;
+  grid-row: 1 / -1;
+  position: sticky;
+  top: 5.5rem;
+  max-height: calc(100vh - 7rem);
+  overflow-y: auto;
+
+  @include bp.media-down(xl) {
+    display: none;
+  }
+
+  &__title {
+    margin: 0 0 var(--wr-space-sm);
+    color: var(--wr-color-on-surface-muted);
+    font-size: var(--wr-text-xs);
+    font-weight: var(--wr-font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: var(--wr-tracking-wide);
+  }
+}
+
+.header {
   gap: 0.5rem;
 }
 
@@ -81,10 +125,4 @@
   font-size: 1.125rem;
   font-weight: 400;
   line-height: 1.625rem;
-}
-
-.content {
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
 }
