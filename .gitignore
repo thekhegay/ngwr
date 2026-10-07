@@ -92,3 +92,4 @@ llms-full.txt
 # `ng serve sandbox`; its angular.json entry is tracked so the target exists,
 # the code deliberately is not.
 /projects/sandbox/
+/projects/ngwr-v15/
