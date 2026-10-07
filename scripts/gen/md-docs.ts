@@ -62,8 +62,15 @@ const ROUTES_JSON = join(DIST, 'prerendered-routes.json');
  * every increment. 216 is that plus `/start/versioning`, `/guides/forms`,
  * `/guides/ssr`, `/reference/components/graph` and `/reference/components/schema-form`,
  * none of which raised it, and `/reference/components/editor`, which did.
+ *
+ * 210 is the first LOWERING, and it is deliberate: v15 cut four pages from the
+ * docs cluster — `playground` became a StackBlitz link in the header,
+ * `versioning` folded into Migration, `quality` into Introduction and
+ * `schematics` into Installation. A floor is only worth having if it tracks
+ * the export it guards, so it moves down when pages are removed on purpose
+ * and never to make a red run green.
  */
-const MIN_PAGES = 214;
+const MIN_PAGES = 210;
 
 /**
  * Doc pages that will never have a twin, named so the decision is on the record.

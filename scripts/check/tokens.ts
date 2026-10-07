@@ -100,7 +100,7 @@ const READ_EXTENSIONS: ReadonlySet<string> = new Set(['.scss', '.html', '.ts']);
  */
 const READ_SKIP: readonly string[] = [
   join(ROOT, 'projects/lib/schematics'),
-  join(ROOT, 'projects/showcase/app/start/migration'),
+  join(ROOT, 'projects/showcase/app/docs/migration'),
 ];
 
 /**

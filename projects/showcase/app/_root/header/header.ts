@@ -38,12 +38,11 @@ interface ActionLink {
  * lands on the 404 shell.
  */
 const SUGGESTION_ROUTES: Readonly<Record<string, string>> = {
-  's:install': `/${routes.start.index}/${routes.start.installation}`,
+  's:install': `/${routes.docs.index}/${routes.docs.installation}`,
   's:forms': `/${routes.guides.index}/${routes.guides.forms}`,
   's:theming': `/${routes.guides.index}/${routes.guides.theming}`,
   's:components': `/${routes.reference.index}/${routes.reference.components}`,
-  's:playground': `/${routes.start.index}/${routes.start.playground}`,
-  's:migration': `/${routes.start.index}/${routes.start.migration}`,
+  's:migration': `/${routes.docs.index}/${routes.docs.migration}`,
 };
 
 /** First major with an archived docs snapshot — nothing older was ever frozen. */
@@ -102,7 +101,6 @@ export class Header {
     { id: 's:forms', label: 'Signal Forms', description: 'The wedge, and what it replaces', group: 'Start here' },
     { id: 's:theming', label: 'Theming', description: 'Tokens, light / dark, your own palette', group: 'Start here' },
     { id: 's:components', label: 'Components', description: 'The full catalog', group: 'Browse' },
-    { id: 's:playground', label: 'Playground', description: 'Try it in the browser', group: 'Browse' },
     { id: 's:migration', label: 'Migration guide', description: 'Every step back to v6', group: 'Browse' },
   ].map(item => ({ ...item, action: (): void => void this.router.navigate([SUGGESTION_ROUTES[item.id]]) }));
 
@@ -194,15 +192,24 @@ export class Header {
    * the job you are actually doing.
    */
   protected readonly nav: readonly NavLink[] = [
-    { url: [routes.index, routes.start.index], label: 'Start' },
+    { url: [routes.index, routes.docs.index], label: 'Docs' },
     { url: [routes.index, routes.guides.index], label: 'Guides' },
     { url: [routes.index, routes.reference.index], label: 'Reference' },
     { url: [routes.index, routes.icons.index], label: 'Icons' },
+    { url: [routes.index, routes.charts.index], label: 'Charts' },
     { url: [routes.index, routes.bits.index], label: 'Bits' },
   ];
   protected readonly actions: readonly ActionLink[] = [
     { url: 'https://github.com/thekhegay/ngwr', icon: 'github', modifier: 'github', label: 'GitHub' },
     { url: 'https://www.npmjs.com/package/ngwr', icon: 'npm', modifier: 'npm', label: 'npm' },
+    // Replaces the Playground page: the same thing, run where a reader can
+    // actually edit it, instead of a tile on a docs site pretending to.
+    {
+      url: 'https://stackblitz.com/github/thekhegay/ngwr-starter',
+      icon: 'stackblitz',
+      modifier: 'stackblitz',
+      label: 'Playground on StackBlitz',
+    },
   ];
 
   /** Mobile nav sheet — the inline nav collapses to a burger below `xl`. */

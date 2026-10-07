@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Installation"
-  description="Install NGWR, wire it into your Angular app, and start using components."
-  [keywords]="['install', 'setup', 'getting started']"
+  description="Install NGWR, wire it into your Angular app, start using components, and the schematics that do the wiring for you."
+  [keywords]="['install', 'setup', 'getting started', 'schematics', 'ng-add', 'ng-generate', 'ng-update', 'cli']"
   [labels]="['Getting started']"
 >
   <ngwr-doc-section
@@ -19,9 +19,8 @@
       An open-ended range means your package manager will not stop you installing ngwr beside an Angular that did not
       exist when the release was cut — nothing more; and no TypeScript peer and no <code>engines</code> field are
       declared here at all, because the package ships pre-compiled bundles and the versions that matter are the ones
-      your Angular names. <a routerLink="/start/versioning">Versioning &amp; support</a> covers all of it: what to do
-      the day a new Angular major lands, how long each line keeps getting security fixes, and the semver rule — a
-      breaking change can no longer ride a minor, because the release script refuses the bump.
+      your Angular names. And the semver rule — a breaking change can no longer ride a minor, because the release script
+      refuses the bump.
     </p>
   </ngwr-doc-section>
 
@@ -41,7 +40,7 @@
 
   <ngwr-doc-section
     title="Bootstrap"
-    description="Two providers are what separate a working first run from a broken one. `provideWrTheme()` is the one to not skip: it writes `[data-theme]` on `<html>`, and without it the light tokens stay put — so a visitor whose OS is in dark mode reads near-black text on the browser's dark canvas. `provideWrOverlay()` gives ngwr's overlays their own container instead of the one every CDK consumer shares, and installs the visual-viewport watcher that lets a mobile bottom-sheet clear the on-screen keyboard; panels still open without it. The rest of the catalog's providers are optional — see [Configuration](/start/configuration)."
+    description="Two providers are what separate a working first run from a broken one. `provideWrTheme()` is the one to not skip: it writes `[data-theme]` on `<html>`, and without it the light tokens stay put — so a visitor whose OS is in dark mode reads near-black text on the browser's dark canvas. `provideWrOverlay()` gives ngwr's overlays their own container instead of the one every CDK consumer shares, and installs the visual-viewport watcher that lets a mobile bottom-sheet clear the on-screen keyboard; panels still open without it. The rest of the catalog's providers are optional — see [Configuration](/docs/configuration)."
   >
     <ngwr-doc-code [code]="snippets.appConfig" language="angular-ts" />
   </ngwr-doc-section>
@@ -234,13 +233,88 @@
       <strong>Four markdown files ship, and they are not the docs.</strong> <code>README.md</code>,
       <code>skills/ngwr/SKILL.md</code> and its two <code>references/</code> files. There is no
       <code>CHANGELOG.md</code> and no migration guide in the package: the release notes live on
-      <a routerLink="/start/migration">/start/migration</a> and in the GitHub releases, so an air-gapped checkout of
+      <a routerLink="/docs/migration">/docs/migration</a> and in the GitHub releases, so an air-gapped checkout of
       <code>node_modules</code> does not carry them. The
       <strong>markdown twin of a docs page is a URL, not a file</strong> — append <code>.md</code> to any page on this
       site (<code>/reference/components/select.md</code>) and the server renders it. The MCP server hands those URLs to
       your agent as text and never fetches them: it reads only files inside its own installed package and makes no
       network requests.
     </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Schematics"
+    description="Angular CLI tooling shipped with ngwr — `ng add`, five generators, and an `ng update` migration for every major that needs one: v7, v8, v9, v12, v13 and v14. v10 and v11 ship none on purpose, because their breaks were painted colour and an empty codemod would say they were handled."
+  />
+
+  <ngwr-doc-section
+    title="ng add ngwr"
+    description="One-shot install. Installs `@angular/cdk`, optionally a date adapter (date-fns or Luxon), appends `@use 'ngwr/theme';` to the global stylesheet, and prints a tailored bootstrap snippet with the providers you picked."
+  >
+    <ngwr-doc-code [code]="snippets.ngAddShort" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Interactive prompts" description="What the prompts look like:">
+    <ngwr-doc-code [code]="snippets.ngAddPrompts" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Non-interactive flags">
+    <ngwr-doc-code [code]="snippets.ngAddFlags" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="ng g ngwr:icon-set"
+    description="Scaffold a tree-shaken icon barrel file. Pick a curated set (basic / navigation / forms / feedback) or pass an explicit list. Combine both for a custom mix."
+  >
+    <ngwr-doc-code [code]="snippets.iconSet" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="What it writes">
+    <ngwr-doc-code [code]="snippets.iconSetOutput" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="ng g ngwr:use"
+    description="Add an `import { WrFoo }` line and splice `WrFoo` into the `@Component({ imports: [...] })` array of an existing component file. The symbols it recognizes come from a map generated by a public-api scan at build time, so it cannot drift from what the package exports."
+  >
+    <ngwr-doc-code [code]="snippets.use" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Before / after">
+    <ngwr-doc-code [code]="snippets.useBefore" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.useAfter" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="ng g ngwr:provider"
+    description="Splice a `provideWr*()` call into your bootstrap providers array. Useful for adding a single subsystem after the initial `ng add`."
+  >
+    <ngwr-doc-code [code]="snippets.provider" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="ng g ngwr:component-style"
+    description="Append `@use 'ngwr/<name>';` to the project's global stylesheet. Pairs with the `--styles=none` choice on `ng add` — opt into ngwr styles per component instead of pulling the whole bundle."
+  >
+    <ngwr-doc-code [code]="snippets.componentStyle" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="ng g ngwr:page"
+    description="Scaffold a starter page wired up with ngwr components. Three presets — form (form-field + input + button), table (table + pagination), dashboard (card grid + statistic)."
+  >
+    <ngwr-doc-code [code]="snippets.page" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="ng update"
+    description="One `ng update ngwr` from any earlier major installs the latest release and runs every migration newer than your installed version, in order — do not step through the majors, and never target a 7.x, 8.x or 9.x release, whose schematics die with `exports is not defined in ES module scope` ([the migration guide](/docs/migration) has why, and the recovery). Each migration touches every `.html`, `.ts` and `.scss` in the workspace (excluding `node_modules`, `dist`, and the rest). Regex-based — verify with `git diff` afterwards. Some migrations only REPORT: where a fix needs a decision a codemod cannot make, it names the files and leaves them to you rather than guessing. There is one of these per MAJOR and never for anything else, which is a rule rather than a habit: a breaking change cannot ride a minor or a patch, because the release script refuses that bump."
+  >
+    <ngwr-doc-code [code]="snippets.update" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="What gets rewritten">
+    <ngwr-doc-code [code]="snippets.updateMap" language="bash" />
   </ngwr-doc-section>
 
   <ngwr-doc-see-also [links]="seeAlso" />

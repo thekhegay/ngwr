@@ -1,8 +1,9 @@
 export { BITS_SIDEBAR } from './bits.config';
+export { CHARTS_SIDEBAR } from './charts.config';
+export { DOCS_SIDEBAR } from './docs.config';
 export { GUIDES_SIDEBAR } from './guides.config';
 export { ICONS_SIDEBAR } from './icons.config';
 export { REFERENCE_SIDEBAR } from './reference.config';
-export { START_SIDEBAR } from './start.config';
 
 /**
  * Reference has ONE sidebar, and `/reference` attaches it (see `routing.ts`).

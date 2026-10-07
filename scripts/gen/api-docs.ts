@@ -313,18 +313,20 @@ function pages(): Map<string, string> {
  * against the density DIRECTIVE, `guides/tokens/typography` against
  * `wrTypography` — whose real reference page is `reference/directives/typography`.
  */
-const COMPARED_CLUSTERS = ['reference/', 'bits/'];
+const COMPARED_CLUSTERS = ['reference/', 'bits/', 'charts/'];
 
 /**
  * `…/reference/components/button/button.ts` → `button`; `''` outside the
  * clusters above.
  *
  * The folder name is not always the entry point any more. v15 nested two
- * groups, so the chart pages under `reference/components/` document
- * `charts/<name>` and every page under `bits/` documents `bits/<name>` — and
- * a bare folder name matches no entry, which drops the page out of the
- * comparison in silence. `NESTED` is resolved against the real catalogue
- * rather than hard-coded, so a third group costs nothing.
+ * groups, so a chart page documents `charts/<name>` and every page under
+ * `bits/` documents `bits/<name>` — and a bare folder name matches no entry,
+ * which drops the page out of the comparison in silence. `NESTED` is resolved
+ * against the real catalogue rather than hard-coded, so a third group costs
+ * nothing. The charts moved out of `reference/components/` into a cluster of
+ * their own, and `bits/` grew group folders, so the page's parent directory is
+ * no longer the entry name either — see the walk below.
  */
 const NESTED = ['charts', 'bits'] as const;
 

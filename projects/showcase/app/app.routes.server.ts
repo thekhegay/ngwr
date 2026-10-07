@@ -50,8 +50,15 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'validators/**', renderMode: RenderMode.Client },
   { path: 'interfaces/**', renderMode: RenderMode.Client },
   { path: 'types/**', renderMode: RenderMode.Client },
-  // `/docs/*` is the pre-v7 prefix; same shape, same reason.
-  { path: 'docs/**', renderMode: RenderMode.Client },
+  // `/start/*` is the pre-v15 prefix for what is now `/docs`; parameterised,
+  // so it is client-rendered like every other redirect rule.
+  { path: 'start/**', renderMode: RenderMode.Client },
+  // The pre-v7 `docs/*` redirects, named one sub-prefix at a time rather than
+  // as `docs/**`: `/docs` is a REAL cluster since v15, and a blanket rule here
+  // would stop every page in it prerendering.
+  { path: 'docs/components/**', renderMode: RenderMode.Client },
+  { path: 'docs/getting-started/**', renderMode: RenderMode.Client },
+  { path: 'docs/core/**', renderMode: RenderMode.Client },
 
   { path: `${icons.index}/${icons.tabler}`, renderMode: RenderMode.Client },
   { path: `${icons.index}/${icons.phosphor}`, renderMode: RenderMode.Client },

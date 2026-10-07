@@ -55,7 +55,7 @@ export const QUALITY = {
   entryPointsWithSpecs: 226,
 
   /** Documentation pages the showcase's route tables declare — routes with a `loadComponent`, minus the layout shell (it has `children`) and the `**` 404, neither of which is a page. NOT the prerendered-route count either: `app.routes.server.ts` sends the raw-SVG icon galleries and the legacy redirects to the client. */
-  docRoutes: 221,
+  docRoutes: 217,
 
   /** Locale catalogs the package ships, as the subpath each is imported from — `ngwr/i18n/de`. Counted from the folders under `projects/lib/i18n` that hold a catalog, so a locale added or removed moves this on its own. Region codes appear only where the script genuinely differs; every other code is a language, which a region `LOCALE_ID` falls back to. */
   locales: ["ar", "cs", "de", "en", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "sv", "tr", "uk", "vi", "zh", "zh-TW"],

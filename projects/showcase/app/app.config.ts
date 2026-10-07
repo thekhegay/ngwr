@@ -18,9 +18,10 @@ import { provideWrOverlay } from 'ngwr/overlay';
 import { provideWrTheme } from 'ngwr/theme';
 import { provideEnvironmentNgxMask } from 'ngx-mask';
 
+import { routing } from './routing';
+
 import { COMMON_ICONS } from '#core/icons';
 import { shikiMarkdownHighlighter } from '#core/shiki';
-import { routing } from '#routing';
 
 /**
  * Providers shared by the browser entry (`main.ts`) and the prerender entry
