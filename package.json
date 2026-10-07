@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "ng serve --o",
-    "dev:sandbox": "ng serve ngwr-v15 --o",
+    "dev:sandbox": "ng serve sandbox --o",
     "test": "ng test lib",
     "test:coverage": "ng test lib --coverage --coverage-reporters lcovonly text-summary",
     "test:watch": "ng test lib --watch",
