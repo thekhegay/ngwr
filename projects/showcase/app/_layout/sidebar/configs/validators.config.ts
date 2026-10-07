@@ -1,5 +1,10 @@
-import { ROUTES } from '#routes';
-import type { SidebarGroup } from '#types';
+import { ROUTES, wrPath, type WrRoute } from '#routes';
+import type { SidebarGroup, SidebarLink } from '#types';
+
+const base = [ROUTES.reference, ROUTES.reference.validators];
+
+/** A row takes its title and its link from the route node, so the two cannot disagree. */
+const link = (route: WrRoute): SidebarLink => ({ title: route.title, url: wrPath(...base, route) });
 
 /**
  * The Validators group of the Reference sidebar — one row per `WrValidators`
@@ -9,16 +14,16 @@ import type { SidebarGroup } from '#types';
 export const VALIDATORS_GROUP: SidebarGroup = {
   title: 'Validators',
   children: [
-    ROUTES.reference.validators.cardNumber,
-    ROUTES.reference.validators.cvc,
-    ROUTES.reference.validators.hexColor,
-    ROUTES.reference.validators.iban,
-    ROUTES.reference.validators.match,
-    ROUTES.reference.validators.matchFields,
-    ROUTES.reference.validators.maxDate,
-    ROUTES.reference.validators.minDate,
-    ROUTES.reference.validators.noWhitespace,
-    ROUTES.reference.validators.oneOf,
-    ROUTES.reference.validators.urlValidator,
+    link(ROUTES.reference.validators.cardNumber),
+    link(ROUTES.reference.validators.cvc),
+    link(ROUTES.reference.validators.hexColor),
+    link(ROUTES.reference.validators.iban),
+    link(ROUTES.reference.validators.match),
+    link(ROUTES.reference.validators.matchFields),
+    link(ROUTES.reference.validators.maxDate),
+    link(ROUTES.reference.validators.minDate),
+    link(ROUTES.reference.validators.noWhitespace),
+    link(ROUTES.reference.validators.oneOf),
+    link(ROUTES.reference.validators.urlValidator),
   ],
 };

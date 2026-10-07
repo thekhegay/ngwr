@@ -28,7 +28,7 @@ import { DocCodeComponent } from '#core/components';
 import { QUALITY } from '#core/generated/quality';
 import { BRAND_ICONS } from '#core/icons';
 import { MetaService } from '#core/services';
-import { HOME, ROUTES } from '#routes';
+import { ROUTES, wrPath } from '#routes';
 
 interface WhyTile {
   readonly icon: string;
@@ -88,10 +88,12 @@ interface WhyTile {
   ],
 })
 export default class HomeComponent {
-  protected readonly home = HOME;
   protected readonly replayTick = signal(0);
 
   protected readonly routes = ROUTES;
+
+  /** Absolute link from a node chain — the template cannot call a module function. */
+  protected readonly path = wrPath;
 
   /**
    * Counted by `pnpm gen:quality`, not typed here. The hero and the "Pay for

@@ -1,15 +1,12 @@
-import type { WrRoute } from '../constants/routes';
-
 /**
  * One leaf link inside a {@link SidebarGroup}.
  *
- * A row is normally a {@link WrRoute} straight out of `ROUTES` — the node
- * already carries both the title and the URL, which is what stops the nav and
- * the route tree disagreeing. The optional fields are for the two cases a node
- * cannot express: a row shown under a different name than the page's own
- * title, and a planned page with no route yet.
+ * Built from a {@link WrRoute} by each config's own `link()` helper, which is
+ * what stops the nav and the route tree disagreeing: the title and the path
+ * come from the same node. A node carries only its own segment, so the helper
+ * is also the one place its cluster prefix is written.
  */
-export interface SidebarLink extends Partial<WrRoute> {
+export interface SidebarLink {
   readonly title: string;
   readonly url?: string;
   /** Renders as a non-interactive "coming soon" row. */
