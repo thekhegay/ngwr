@@ -1,10 +1,5 @@
-import { ROUTES, wrPath, type WrRoute } from '#routes';
-import type { SidebarGroup, SidebarLink } from '#types';
-
-const base = [ROUTES.bits];
-
-/** A row takes its title and its link from the route node, so the two cannot disagree. */
-const link = (route: WrRoute): SidebarLink => ({ title: route.title, url: wrPath(...base, route) });
+import { ROUTES, wrLink } from '#routes';
+import type { SidebarGroup } from '#types';
 
 /**
  * Sidebar for `/bits/*` — animated UI effects. Mix of in-house ngwr
@@ -17,36 +12,40 @@ const link = (route: WrRoute): SidebarLink => ({ title: route.title, url: wrPath
 export const BITS_SIDEBAR: readonly SidebarGroup[] = [
   {
     title: 'Backgrounds',
-    children: [link(ROUTES.bits.aurora), link(ROUTES.bits.waves)],
+    children: [wrLink(ROUTES.bits, ROUTES.bits.aurora), wrLink(ROUTES.bits, ROUTES.bits.waves)],
   },
   {
     title: 'Blocks',
     children: [
-      link(ROUTES.bits.borderGlow),
-      link(ROUTES.bits.marquee),
-      link(ROUTES.bits.spotlightCard),
-      link(ROUTES.bits.starBorder),
-      link(ROUTES.bits.tiltCard),
+      wrLink(ROUTES.bits, ROUTES.bits.borderGlow),
+      wrLink(ROUTES.bits, ROUTES.bits.marquee),
+      wrLink(ROUTES.bits, ROUTES.bits.spotlightCard),
+      wrLink(ROUTES.bits, ROUTES.bits.starBorder),
+      wrLink(ROUTES.bits, ROUTES.bits.tiltCard),
     ],
   },
   {
     title: 'Effects',
-    children: [link(ROUTES.bits.clickSpark), link(ROUTES.bits.confetti), link(ROUTES.bits.splashCursor)],
+    children: [
+      wrLink(ROUTES.bits, ROUTES.bits.clickSpark),
+      wrLink(ROUTES.bits, ROUTES.bits.confetti),
+      wrLink(ROUTES.bits, ROUTES.bits.splashCursor),
+    ],
   },
   {
     title: 'Text',
     children: [
-      link(ROUTES.bits.blurText),
-      link(ROUTES.bits.circularText),
-      link(ROUTES.bits.decryptText),
-      link(ROUTES.bits.fallingText),
-      link(ROUTES.bits.fuzzyText),
-      link(ROUTES.bits.glitchText),
-      link(ROUTES.bits.gradientText),
-      link(ROUTES.bits.rotatingText),
-      link(ROUTES.bits.shinyText),
-      link(ROUTES.bits.splitText),
-      link(ROUTES.bits.typewriter),
+      wrLink(ROUTES.bits, ROUTES.bits.blurText),
+      wrLink(ROUTES.bits, ROUTES.bits.circularText),
+      wrLink(ROUTES.bits, ROUTES.bits.decryptText),
+      wrLink(ROUTES.bits, ROUTES.bits.fallingText),
+      wrLink(ROUTES.bits, ROUTES.bits.fuzzyText),
+      wrLink(ROUTES.bits, ROUTES.bits.glitchText),
+      wrLink(ROUTES.bits, ROUTES.bits.gradientText),
+      wrLink(ROUTES.bits, ROUTES.bits.rotatingText),
+      wrLink(ROUTES.bits, ROUTES.bits.shinyText),
+      wrLink(ROUTES.bits, ROUTES.bits.splitText),
+      wrLink(ROUTES.bits, ROUTES.bits.typewriter),
     ],
   },
 ];

@@ -1,10 +1,5 @@
-import { ROUTES, wrPath, type WrRoute } from '#routes';
-import type { SidebarGroup, SidebarLink } from '#types';
-
-const base = [ROUTES.icons];
-
-/** A row takes its title and its link from the route node, so the two cannot disagree. */
-const link = (route: WrRoute): SidebarLink => ({ title: route.title, url: wrPath(...base, route) });
+import { ROUTES, wrLink } from '#routes';
+import type { SidebarGroup } from '#types';
 
 /**
  * Sidebar for `/icons/*`. Flat list — Overview at the top, then every
@@ -12,13 +7,13 @@ const link = (route: WrRoute): SidebarLink => ({ title: route.title, url: wrPath
  * ngwr ships an adapter or recipe for at a glance.
  */
 export const ICONS_SIDEBAR: readonly SidebarGroup[] = [
-  link(ROUTES.icons.overview),
-  link(ROUTES.icons.bootstrap),
-  link(ROUTES.icons.feather),
-  link(ROUTES.icons.heroicons),
-  link(ROUTES.icons.iconoir),
-  link(ROUTES.icons.lucide),
-  link(ROUTES.icons.phosphor),
-  link(ROUTES.icons.radix),
-  link(ROUTES.icons.tabler),
+  wrLink(ROUTES.icons, ROUTES.icons.overview),
+  wrLink(ROUTES.icons, ROUTES.icons.bootstrap),
+  wrLink(ROUTES.icons, ROUTES.icons.feather),
+  wrLink(ROUTES.icons, ROUTES.icons.heroicons),
+  wrLink(ROUTES.icons, ROUTES.icons.iconoir),
+  wrLink(ROUTES.icons, ROUTES.icons.lucide),
+  wrLink(ROUTES.icons, ROUTES.icons.phosphor),
+  wrLink(ROUTES.icons, ROUTES.icons.radix),
+  wrLink(ROUTES.icons, ROUTES.icons.tabler),
 ];

@@ -1,10 +1,5 @@
-import { ROUTES, wrPath, type WrRoute } from '#routes';
-import type { SidebarGroup, SidebarLink } from '#types';
-
-const base = [ROUTES.reference, ROUTES.reference.utils];
-
-/** A row takes its title and its link from the route node, so the two cannot disagree. */
-const link = (route: WrRoute): SidebarLink => ({ title: route.title, url: wrPath(...base, route) });
+import { ROUTES, wrLink } from '#routes';
+import type { SidebarGroup } from '#types';
 
 /**
  * The Utils group of the Reference sidebar — one row per helper.
@@ -21,25 +16,25 @@ const link = (route: WrRoute): SidebarLink => ({ title: route.title, url: wrPath
 export const UTILS_GROUP: SidebarGroup = {
   title: 'Utils',
   children: [
-    link(ROUTES.reference.utils.badgeLog),
-    link(ROUTES.reference.utils.clamp),
-    link(ROUTES.reference.utils.debounce),
-    link(ROUTES.reference.utils.getFocusableElements),
-    link(ROUTES.reference.utils.getRootFontSize),
-    link(ROUTES.reference.utils.hasModifier),
-    link(ROUTES.reference.utils.isComposing),
-    link(ROUTES.reference.utils.isDefined),
-    link(ROUTES.reference.utils.isNonEmptyArray),
-    link(ROUTES.reference.utils.isObservable),
-    link(ROUTES.reference.utils.isPrintableKey),
-    link(ROUTES.reference.utils.keys),
-    link(ROUTES.reference.utils.noop),
-    link(ROUTES.reference.utils.numAttr),
-    link(ROUTES.reference.utils.randomId),
-    link(ROUTES.reference.utils.resolveCssSize),
-    link(ROUTES.reference.utils.round),
-    link(ROUTES.reference.utils.throttle),
-    link(ROUTES.reference.utils.toClassList),
-    link(ROUTES.reference.utils.trapFocus),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.badgeLog),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.clamp),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.debounce),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.getFocusableElements),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.getRootFontSize),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.hasModifier),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.isComposing),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.isDefined),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.isNonEmptyArray),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.isObservable),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.isPrintableKey),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.keys),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.noop),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.numAttr),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.randomId),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.resolveCssSize),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.round),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.throttle),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.toClassList),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.trapFocus),
   ],
 };

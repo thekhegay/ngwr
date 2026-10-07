@@ -1,10 +1,5 @@
-import { ROUTES, wrPath, type WrRoute } from '#routes';
-import type { SidebarGroup, SidebarLink } from '#types';
-
-const base = [ROUTES.docs];
-
-/** A row takes its title and its link from the route node, so the two cannot disagree. */
-const link = (route: WrRoute): SidebarLink => ({ title: route.title, url: wrPath(...base, route) });
+import { ROUTES, wrLink } from '#routes';
+import type { SidebarGroup } from '#types';
 
 /**
  * Sidebar for `/docs/*` — everything about getting the library INTO an app,
@@ -17,10 +12,10 @@ const link = (route: WrRoute): SidebarLink => ({ title: route.title, url: wrPath
 // then come back for a major. Skills and the MCP server sit last because they
 // are read by an agent rather than by the person installing.
 export const DOCS_SIDEBAR: readonly SidebarGroup[] = [
-  link(ROUTES.docs.introduction),
-  link(ROUTES.docs.installation),
-  link(ROUTES.docs.configuration),
-  link(ROUTES.docs.migration),
-  link(ROUTES.docs.skills),
-  link(ROUTES.docs.mcp),
+  wrLink(ROUTES.docs, ROUTES.docs.introduction),
+  wrLink(ROUTES.docs, ROUTES.docs.installation),
+  wrLink(ROUTES.docs, ROUTES.docs.configuration),
+  wrLink(ROUTES.docs, ROUTES.docs.migration),
+  wrLink(ROUTES.docs, ROUTES.docs.skills),
+  wrLink(ROUTES.docs, ROUTES.docs.mcp),
 ];

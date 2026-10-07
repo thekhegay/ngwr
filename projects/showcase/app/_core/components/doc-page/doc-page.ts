@@ -32,6 +32,8 @@ const CLUSTER_CATEGORY: Readonly<Record<string, string>> = {
 const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
   components: 'Components',
   bits: 'Bits',
+  charts: 'Charts',
+  docs: 'Docs',
   directives: 'Directives',
   icons: 'Icons',
   pipes: 'Pipes',
@@ -42,7 +44,6 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
   tokens: 'Design tokens',
   utils: 'Utils',
   validators: 'Validators',
-  start: 'Start',
 };
 
 /**
