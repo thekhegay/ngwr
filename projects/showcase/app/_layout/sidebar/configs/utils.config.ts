@@ -1,4 +1,5 @@
-import type { SidebarGroup } from '../sidebar.types';
+import { ROUTES } from '#routes';
+import type { SidebarGroup } from '#types';
 
 /**
  * The Utils group of the Reference sidebar — one row per helper.
@@ -15,25 +16,25 @@ import type { SidebarGroup } from '../sidebar.types';
 export const UTILS_GROUP: SidebarGroup = {
   title: 'Utils',
   children: [
-    { title: 'badgeLog', url: ['/reference/utils', 'badge-log'] },
-    { title: 'clamp', url: ['/reference/utils', 'clamp'] },
-    { title: 'debounce', url: ['/reference/utils', 'debounce'] },
-    { title: 'getFocusableElements', url: ['/reference/utils', 'get-focusable-elements'] },
-    { title: 'getRootFontSize', url: ['/reference/utils', 'get-root-font-size'] },
-    { title: 'hasModifier', url: ['/reference/utils', 'has-modifier'] },
-    { title: 'isComposing', url: ['/reference/utils', 'is-composing'] },
-    { title: 'isDefined', url: ['/reference/utils', 'is-defined'] },
-    { title: 'isNonEmptyArray', url: ['/reference/utils', 'is-non-empty-array'] },
-    { title: 'isObservable', url: ['/reference/utils', 'is-observable'] },
-    { title: 'isPrintableKey', url: ['/reference/utils', 'is-printable-key'] },
-    { title: 'KEYS', url: ['/reference/utils', 'keys'] },
-    { title: 'noop', url: ['/reference/utils', 'noop'] },
-    { title: 'numAttr', url: ['/reference/utils', 'num-attr'] },
-    { title: 'randomId', url: ['/reference/utils', 'random-id'] },
-    { title: 'resolveCssSize', url: ['/reference/utils', 'resolve-css-size'] },
-    { title: 'round', url: ['/reference/utils', 'round'] },
-    { title: 'throttle', url: ['/reference/utils', 'throttle'] },
-    { title: 'toClassList', url: ['/reference/utils', 'to-class-list'] },
-    { title: 'trapFocus', url: ['/reference/utils', 'trap-focus'] },
+    ROUTES.reference.utils.badgeLog,
+    ROUTES.reference.utils.clamp,
+    ROUTES.reference.utils.debounce,
+    ROUTES.reference.utils.getFocusableElements,
+    ROUTES.reference.utils.getRootFontSize,
+    ROUTES.reference.utils.hasModifier,
+    ROUTES.reference.utils.isComposing,
+    ROUTES.reference.utils.isDefined,
+    ROUTES.reference.utils.isNonEmptyArray,
+    ROUTES.reference.utils.isObservable,
+    ROUTES.reference.utils.isPrintableKey,
+    ROUTES.reference.utils.keys,
+    ROUTES.reference.utils.noop,
+    ROUTES.reference.utils.numAttr,
+    ROUTES.reference.utils.randomId,
+    ROUTES.reference.utils.resolveCssSize,
+    ROUTES.reference.utils.round,
+    ROUTES.reference.utils.throttle,
+    ROUTES.reference.utils.toClassList,
+    ROUTES.reference.utils.trapFocus,
   ],
 };

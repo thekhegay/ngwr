@@ -1,4 +1,5 @@
-import type { SidebarGroup } from '../sidebar.types';
+import { ROUTES } from '#routes';
+import type { SidebarGroup } from '#types';
 
 /**
  * Sidebar for `/docs/*` — everything about getting the library INTO an app,
@@ -11,10 +12,10 @@ import type { SidebarGroup } from '../sidebar.types';
 // then come back for a major. Skills and the MCP server sit last because they
 // are read by an agent rather than by the person installing.
 export const DOCS_SIDEBAR: readonly SidebarGroup[] = [
-  { title: 'Introduction', url: ['/docs', 'introduction'] },
-  { title: 'Installation', url: ['/docs', 'installation'] },
-  { title: 'Configuration', url: ['/docs', 'configuration'] },
-  { title: 'Migration', url: ['/docs', 'migration'] },
-  { title: 'Skills', url: ['/docs', 'skills'] },
-  { title: 'MCP Server', url: ['/docs', 'mcp-server'] },
+  ROUTES.docs.introduction,
+  ROUTES.docs.installation,
+  ROUTES.docs.configuration,
+  ROUTES.docs.migration,
+  ROUTES.docs.skills,
+  ROUTES.docs.mcp,
 ];

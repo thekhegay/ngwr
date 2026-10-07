@@ -1,5 +1,3 @@
-import type { SidebarGroup } from '../sidebar.types';
-
 import { COMPONENT_GROUPS } from './components.config';
 import { DIRECTIVES_GROUP } from './directives.config';
 import { INTERFACES_GROUP } from './interfaces.config';
@@ -7,6 +5,8 @@ import { PIPES_GROUP } from './pipes.config';
 import { SERVICES_GROUP } from './services.config';
 import { UTILS_GROUP } from './utils.config';
 import { VALIDATORS_GROUP } from './validators.config';
+
+import type { SidebarGroup } from '#types';
 
 /**
  * The one sidebar every `/reference/*` page gets.

@@ -1,4 +1,4 @@
-import type { SidebarGroup, SidebarLink } from '../../../_layout/sidebar/sidebar.types';
+import type { SidebarGroup, SidebarLink } from '#types';
 
 /**
  * What a `DocIndexComponent` route carries in `data.index`.

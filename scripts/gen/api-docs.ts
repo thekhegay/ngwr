@@ -1287,7 +1287,7 @@ function wrongTypes(
  * library does not offer.
  */
 const DELIBERATE_MISMATCH: ReadonlySet<string> = new Set([
-  'projects/showcase/app/reference/components/window/window.ts',
+  'projects/showcase/app/reference/components/overlays/window/window.ts',
 ]);
 
 /**
@@ -1418,9 +1418,9 @@ const EXPRESSION_DEFAULTS: ReadonlySet<string> = new Set([
  * appearing is a line in a diff saying which page added it.
  */
 const SELECTOR_ROWS: ReadonlySet<string> = new Set([
-  'projects/showcase/app/reference/components/dialog/dialog.ts [wrDialogClose]',
-  'projects/showcase/app/reference/components/drawer/drawer.ts [wrDrawerClose]="value?"',
-  'projects/showcase/app/reference/components/table/table.ts [wrTableCell]',
+  'projects/showcase/app/reference/components/overlays/dialog/dialog.ts [wrDialogClose]',
+  'projects/showcase/app/reference/components/overlays/drawer/drawer.ts [wrDrawerClose]="value?"',
+  'projects/showcase/app/reference/components/data/table/table.ts [wrTableCell]',
   'projects/showcase/app/reference/services/density/density.ts [wrDensity]',
 ]);
 

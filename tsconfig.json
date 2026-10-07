@@ -22,7 +22,10 @@
       "#root": ["./projects/showcase/app/_root/root"],
       "#layout": ["./projects/showcase/app/_layout/layout"],
       "#core/*": ["./projects/showcase/app/_core/*"],
-      "#routing": ["./projects/showcase/app/_core/constants/routes.ts"],
+      "#routes": ["./projects/showcase/app/_core/constants/routes.ts"],
+      "#types": ["./projects/showcase/app/_core/types/index.ts"],
+      "#sidebar/*": ["./projects/showcase/app/_layout/sidebar/*"],
+      "#routing": ["./projects/showcase/app/routing.ts"],
     },
   },
   "angularCompilerOptions": {
