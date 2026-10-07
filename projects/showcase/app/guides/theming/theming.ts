@@ -2,7 +2,6 @@ import { Component, inject } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { WrTheme, type WrThemeMode } from 'ngwr/theme';
-import { WrTypography } from 'ngwr/typography';
 
 import {
   DocCodeComponent,
@@ -18,7 +17,6 @@ import {
   templateUrl: './theming.html',
   imports: [
     WrButton,
-    WrTypography,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,

@@ -4,7 +4,7 @@
   [keywords]="['agent skill', 'skill.md', 'claude', 'cursor', 'ai', 'llms.txt', 'agents.md']"
 >
   <ngwr-doc-section title="What it is">
-    <p wrTypography>
+    <p>
       Everything else this library ships for agents answers <em>what exists</em>. The
       <a [routerLink]="['/guides', 'mcp']">MCP server</a> makes the catalog askable,
       <a href="https://ngwr.dev/llms-full.txt" target="_blank" rel="noreferrer noopener">llms-full.txt</a> lists every
@@ -14,7 +14,7 @@
       <code>ControlValueAccessor</code> anywhere in the library. An agent discovers those by shipping something broken.
     </p>
 
-    <p wrTypography>
+    <p>
       The skill is where they live. It follows the
       <a href="https://code.claude.com/docs/en/skills" target="_blank" rel="noreferrer noopener">Agent Skills</a>
       layout — a <code>SKILL.md</code> with YAML frontmatter, plus reference files loaded only when needed — and ships
@@ -26,7 +26,7 @@
   <ngwr-doc-section title="Where it is" description="Three files, in the package you already installed.">
     <ngwr-doc-code [code]="snippets.layout" language="bash" />
 
-    <p wrTypography>
+    <p>
       The same tree is served from the docs site at
       <a href="https://ngwr.dev/skills/ngwr/SKILL.md" target="_blank" rel="noreferrer noopener"
         >ngwr.dev/skills/ngwr/SKILL.md</a
@@ -37,14 +37,14 @@
   <ngwr-doc-section title="Using it" description="Point your agent at the copy in node_modules, or commit one.">
     <ngwr-doc-code [code]="snippets.install" language="bash" />
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       Copying it in pins the skill to the version you installed, which is the point — a skill describing a catalog you
       do not have is worse than none. Re-copy it when you upgrade, or symlink and let the package own it.
     </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="What SKILL.md says">
-    <p wrTypography>
+    <p>
       Roughly a page, deliberately. The format's whole idea is progressive disclosure: the short file is always in
       context, the reference files are opened when they are needed, and a skill that inlines a row for every entry point
       has spent its budget on something the agent could have looked up.
@@ -54,19 +54,19 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="It is generated, so it cannot drift">
-    <p wrTypography>
+    <p>
       <code>scripts/gen/ai-assets.ts</code> writes the skill and <code>llms-full.txt</code> from one pass over the
       library source, on every build of the library and of this site. The provider table it prints is imported from the
       MCP server's own — one list, two readers, rather than two lists that agree until someone edits one.
     </p>
 
-    <p wrTypography>
+    <p>
       <code>pnpm check:llms</code> gates it in CI, and checks the OUTPUT rather than the inputs: a
       <code>SKILL.md</code> missing the frontmatter an agent reads to decide whether to load it, or a catalog table with
       a header and nothing under it, passes every input floor and is useless to its one reader.
     </p>
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       Never hand-edit the generated files — they are rewritten on every build. <code>llms-full.txt</code> is not in git;
       the skill is, so a build that changes the catalog leaves a diff under <code>skills/ngwr/</code> to commit with it.
       Edit the generator.

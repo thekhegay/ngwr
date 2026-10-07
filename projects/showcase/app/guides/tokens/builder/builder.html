@@ -4,7 +4,7 @@
   [keywords]="['theme builder', 'palette', 'seed colour', 'tokens']"
 >
   <ngwr-doc-section title="Seeds">
-    <p wrTypography>
+    <p>
       One hex per intent is all a theme is. The four shades and the label colour are derived from it by
       <code>wrThemeTokens()</code> — the same function that generates the shipped presets, and the one
       <code>pnpm check:theme</code> proves against the compiled stylesheet. The tint and ink layer (<code>-soft</code>,
@@ -46,7 +46,7 @@
       <button wr-btn outlined type="button" (click)="reset()">Reset</button>
     </div>
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       "Apply" writes the tokens onto <code>&lt;html&gt;</code>, so the preview is the whole site — this page, the
       header, the sidebar, every component below. A builder that previews into an isolated box can be wrong about the
       thing you are actually choosing. Reload to drop it.

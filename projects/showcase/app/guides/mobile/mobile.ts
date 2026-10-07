@@ -1,14 +1,12 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { WrTypography } from 'ngwr/typography';
-
 import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
 
 @Component({
   selector: 'ngwr-mobile-page',
   templateUrl: './mobile.html',
-  imports: [RouterLink, WrTypography, DocPageComponent, DocSectionComponent, DocCodeComponent],
+  imports: [RouterLink, DocPageComponent, DocSectionComponent, DocCodeComponent],
 })
 export default class MobilePageComponent {
   protected readonly snippets = {

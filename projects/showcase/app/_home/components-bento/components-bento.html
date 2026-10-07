@@ -124,21 +124,21 @@
         <div class="ngwr-cbento__tile-body ngwr-cbento__settings">
           <div class="ngwr-cbento__setting">
             <div>
-              <p wrTypography variant="small">Push notifications</p>
+              <p>Push notifications</p>
               <p wrTypography variant="caption" tone="muted">Real-time activity</p>
             </div>
             <wr-switch ariaLabel="Push notifications" [checked]="notifPush()" (checkedChange)="notifPush.set($event)" />
           </div>
           <div class="ngwr-cbento__setting">
             <div>
-              <p wrTypography variant="small">Daily digest</p>
+              <p>Daily digest</p>
               <p wrTypography variant="caption" tone="muted">8:00 AM summary</p>
             </div>
             <wr-switch ariaLabel="Daily digest" [checked]="notifDigest()" (checkedChange)="notifDigest.set($event)" />
           </div>
           <div class="ngwr-cbento__setting">
             <div>
-              <p wrTypography variant="small">Beta features</p>
+              <p>Beta features</p>
               <p wrTypography variant="caption" tone="muted">Early access</p>
             </div>
             <wr-switch ariaLabel="Beta features" [checked]="notifBeta()" (checkedChange)="notifBeta.set($event)" />
@@ -190,7 +190,7 @@
             <span role="img" class="ngwr-cbento__avatar-more" aria-label="4 more">+4</span>
           </div>
           <div class="ngwr-cbento__avatars-meta">
-            <p wrTypography variant="small">8 collaborators</p>
+            <p>8 collaborators</p>
             <wr-badge color="success">Synced</wr-badge>
           </div>
         </div>
@@ -361,7 +361,7 @@
                  printed next to it. It takes the name. -->
             <wr-avatar url="images/image_1.webp" size="3rem" [alt]="profileName" />
             <div>
-              <p wrTypography variant="small">{{ profileName }}</p>
+              <p>{{ profileName }}</p>
               <p wrTypography variant="caption" tone="muted">Founding engineer</p>
             </div>
           </div>

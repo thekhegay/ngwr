@@ -9,7 +9,7 @@
   >
     <ngwr-doc-code [code]="snippets.update" language="bash" />
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       <strong>Never target a 7.x, 8.x or 9.x release</strong> — not with <code>ng update ngwr&#64;7</code>,
       <code>&#64;8</code> or <code>&#64;9</code>, not with <code>ng add</code>, not with any <code>ng g ngwr:*</code>.
       Every release from 7.0.0 to 9.1.0 ships CommonJS schematics under a <code>package.json</code> that declares
@@ -21,7 +21,7 @@
       else — and does not apply to ngwr.
     </p>
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       <strong>If an <code>ng update ngwr&#64;9</code> already failed with that error</strong>, it had moved
       <code>package.json</code> and your lockfile to 9.x when the migration step crashed, and nothing moved them back:
       the CLI restores <code>package.json</code> only when the install itself fails. A later
@@ -36,7 +36,7 @@
     </p>
     <ngwr-doc-code [code]="snippets.recover" language="bash" />
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       <strong>If <code>ng update ngwr</code> hung on 14.5.0 or earlier</strong>, it was the v14 migration: up to 14.5.0
       it could hang on an ordinary template, and the only way out was to kill the command. By then
       <code>package.json</code> was on 14.x and any earlier migration in that run had already written its changes, so
@@ -47,7 +47,7 @@
     </p>
     <ngwr-doc-code [code]="snippets.recoverV14" language="bash" />
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       <strong>Two things that stop the first run, and neither is ngwr.</strong> Under pnpm 11 a fresh install can exit 1
       with <code>ERR_PNPM_IGNORED_BUILDS</code> — its default is to refuse dependency build scripts until the workspace
       allows them — and a release published within the last day is held back by pnpm's minimum release age, so
@@ -56,7 +56,7 @@
       it twice costs nothing.
     </p>
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       <strong>Upgrading is also the moment to read the range you pinned.</strong> A breaking change can no longer arrive
       in a minor or a patch — the release script refuses that bump — so a caret range on a major is a safe range, which
       it was not when 12.2.0 shipped one. <a routerLink="/start/versioning">Versioning &amp; support</a> has that rule,
@@ -69,7 +69,7 @@
     title="v14 to v15 — the palette is five intents"
     description="`secondary`, `light`, `medium` and `dark` are gone. The first was a second brand colour, which a library cannot pick for you. The other three were neutral FILLS wearing the names of surfaces, and what replaced them is a six-step gray ramp read through roles that name the job — `--wr-color-surface`, `-on-surface`, `-on-surface-muted`, `-outline`, `-hover`, `-fill`, `-fill-subtle`, `-fill-strong`, `-placeholder`. Paint with the role, never with a ramp step: the step is the substrate, and reaching past the role is how a rule ends up right in one theme only."
   >
-    <p wrTypography variant="small" tone="muted">
+    <p>
       <strong>The silent half is a <code>var()</code> at a token that no longer exists.</strong> It is invalid at
       computed-value time, so the browser drops the whole declaration holding it — a
       <code>border: 1px solid var(--wr-color-light)</code> draws no border at all, a background stays transparent — and
@@ -78,7 +78,7 @@
       its nine gates green. <code>ng update ngwr@15</code> rewrites the four families that have a successor, so the
       common case needs nothing from you.
     </p>
-    <p wrTypography variant="small" tone="muted">
+    <p>
       <strong>A removed intent in a template fails loudly, or not at all.</strong> With <code>strictTemplates</code> —
       the CLI default — a static <code>color="secondary"</code> is a compile error naming the five values that remain.
       Without it the string binds, the component writes a class no rule matches, and the element renders neutral in
@@ -87,7 +87,7 @@
       and <code>light</code> / <code>medium</code> / <code>dark</code> were fills, so dropping the attribute to get the
       neutral variant is a visual change rather than a rename.
     </p>
-    <p wrTypography variant="small" tone="muted">
+    <p>
       <strong>A compile-time rebrand has to drop the removed keys.</strong> A
       <code>&#64;use 'ngwr/theme' with ($base-colors: (…))</code> map still naming one of the four stops the Sass build
       with the key in the message. The neutrals are no longer seeded there at all: they are the gray ramp, and each
@@ -100,7 +100,7 @@
     description="It moved to an entry point of its own as well: `ngwr/drag-drop` became `ngwr/sortable-list`, import path and `@use` alike, every symbol keeping its name — the codemod rewrites that half. `<wr-sortable-list>` no longer owns the loop. Write your own and project one `<wr-sortable-item>` per row, which gives a row somewhere to carry its own markup instead of forcing every per-row decision onto an input of the list. `trackBy` is gone with the loop — the track expression is yours now."
   >
     <ngwr-doc-code [code]="snippets.v15Sortable" language="diff" />
-    <p wrTypography variant="small" tone="muted">
+    <p>
       Not rewritten by the codemod: turning a template into a loop needs the array name and a track key, and only you
       know both. It names every file instead. The list renders nothing until you migrate, which reads as empty data
       rather than as a missed step.
@@ -112,7 +112,7 @@
     description="Each is reported by `ng update`, file by file, and none is rewritten: nothing the library can write means what the removed thing meant in the same place."
   >
     <ngwr-doc-code [code]="snippets.v15Removed" language="diff" />
-    <p wrTypography variant="small" tone="muted">
+    <p>
       <strong><code>ngwr/squircle</code></strong> was deprecated in v14 and is removed. Use
       <code>shape="squircle"</code> on <code>&lt;wr-btn&gt;</code>, <code>&lt;wr-avatar&gt;</code> and
       <code>&lt;wr-badge&gt;</code>, or the <code>smooth-br</code> mixin from <code>&#64;use 'ngwr/theme'</code>
@@ -121,13 +121,13 @@
       radius, smoothing, corners or border inputs. An import or an <code>&#64;use</code> fails the build; a leftover
       <code>wrSquircle</code> attribute is inert and silent.
     </p>
-    <p wrTypography variant="small" tone="muted">
+    <p>
       <strong><code>&lt;wr-action-sheet&gt;</code></strong> is removed, with its test harness. ngwr is not a mobile
       library, and the sheet was a preset over <code>&lt;wr-drawer position="bottom" rounded&gt;</code> — two of its
       three ingredients went with it. Write the drawer directly; the rows, their order and the cancel group are markup
       only you have.
     </p>
-    <p wrTypography variant="small" tone="muted">
+    <p>
       <strong><code>&lt;wr-drawer showHandle&gt;</code></strong> is removed, and swipe-to-dismiss with it, for the same
       reason. The drawer still closes on the backdrop, on Escape, and through its own dismiss button
       (<code>closable</code>, on by default) — so for most drawers deleting the attribute is the whole migration. A
@@ -146,7 +146,7 @@
     title="v13 to v14 — the three that fail silently"
     description="Read this section even if your build is green, because these are the three changes nothing will tell you about. Everything else in v14 is either rewritten for you or caught by the compiler; these three compile, run, and quietly do something other than what they did in v13."
   >
-    <p wrTypography variant="small" tone="muted">
+    <p>
       <strong><code>&lt;wr-loading-bar&gt;</code> no longer follows the router.</strong> The subscription is opt-in now
       — add <code>provideWrLoadingBarRouter()</code> from <code>ngwr/loading-bar/router</code> to your application
       providers. Without it the bar still works for manual <code>start()</code> / <code>complete()</code> and simply
@@ -154,7 +154,7 @@
       stays at 0%. This project's own site shipped an empty bar for the length of a release by missing precisely this.
       <code>ng update</code> lists every file that renders one.
     </p>
-    <p wrTypography variant="small" tone="muted">
+    <p>
       <strong>A translated <code>pagination.of</code> stops being read.</strong> The whole “1–10 of 235” line is one
       <code>pagination.range</code> template now, so a catalog that still defines <code>of</code> keeps a key nothing
       looks up — and that one line reverts to English while every other string in the same catalog goes on working,
@@ -162,7 +162,7 @@
       <code>pagination.compact</code>, whose shapes are in the diff below. <code>common.of</code> is a different key and
       is untouched — it is still shipped, and still unread.
     </p>
-    <p wrTypography variant="small" tone="muted">
+    <p>
       <strong>A date the field cannot parse now returns null instead of a wrong date.</strong> The one change here with
       no codemod entry at all, because there is no token to detect. It turns a wrong answer into no answer, so a host
       that relied on <code>new Date()</code>'s leniency sees the committed value stay put where it used to change — and

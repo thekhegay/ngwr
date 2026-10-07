@@ -7,7 +7,6 @@ import {
   type WrCalendarView,
 } from 'ngwr/event-calendar';
 import { WrKbd } from 'ngwr/keyboard';
-import { WrTypography } from 'ngwr/typography';
 
 import {
   DocApiComponent,
@@ -33,7 +32,6 @@ function at(dayOffset: number, hour: number, minutes = 0): Date {
   imports: [
     WrEventCalendar,
     WrKbd,
-    WrTypography,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
