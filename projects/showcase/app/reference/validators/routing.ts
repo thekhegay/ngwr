@@ -10,7 +10,7 @@ export default [
   { path: '', pathMatch: 'full', loadComponent: () => import('#core/components/doc-index/doc-index') },
   { path: v.noWhitespace.path, loadComponent: () => import('./no-whitespace/no-whitespace') },
   { path: v.hexColor.path, loadComponent: () => import('./hex-color/hex-color') },
-  { path: v.url.path, loadComponent: () => import('./url/url') },
+  { path: v.urlValidator.path, loadComponent: () => import('./url/url') },
   { path: v.cardNumber.path, loadComponent: () => import('./card-number/card-number') },
   { path: v.cvc.path, loadComponent: () => import('./cvc/cvc') },
   { path: v.iban.path, loadComponent: () => import('./iban/iban') },

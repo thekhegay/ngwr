@@ -19,6 +19,6 @@ export const VALIDATORS_GROUP: SidebarGroup = {
     ROUTES.reference.validators.minDate,
     ROUTES.reference.validators.noWhitespace,
     ROUTES.reference.validators.oneOf,
-    ROUTES.reference.validators.url,
+    ROUTES.reference.validators.urlValidator,
   ],
 };
