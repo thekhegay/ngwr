@@ -2,10 +2,8 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { BookOpen, Heart, Sparkles } from 'lucide';
-import { WrAlert } from 'ngwr/alert';
 import { WrButton } from 'ngwr/button';
 import { WrCard } from 'ngwr/card';
-import { WrDescriptionItem, WrDescriptions } from 'ngwr/descriptions';
 import { provideWrIcons, WrIcon } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrStatistic, WrStatisticGroup } from 'ngwr/statistic';
@@ -22,11 +20,8 @@ import { ROUTES, wrPath } from '#routes';
   styleUrl: './introduction.scss',
   imports: [
     RouterLink,
-    WrAlert,
     WrButton,
     WrCard,
-    WrDescriptionItem,
-    WrDescriptions,
     WrIcon,
     WrStatistic,
     WrStatisticGroup,
