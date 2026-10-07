@@ -6,6 +6,10 @@
   // than `auto`, so the prose column does not reflow as a section title grows
   // — a reader scrolling a long page would otherwise watch the text move.
   grid-template-columns: minmax(0, 1fr) 14rem;
+  // Header, then content. The rail spans BOTH: with no explicit rows,
+  // `grid-row: 1 / -1` collapsed to row 1, the header row grew to the rail's
+  // full height, and the content started a screen further down.
+  grid-template-rows: auto 1fr;
   align-items: start;
   column-gap: 3rem;
   row-gap: 2.5rem;
@@ -42,7 +46,7 @@
 
 .toc {
   grid-column: 2;
-  grid-row: 1 / -1;
+  grid-row: 1 / 3;
   position: sticky;
   top: 5.5rem;
   max-height: calc(100vh - 7rem);
