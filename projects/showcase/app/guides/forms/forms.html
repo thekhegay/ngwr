@@ -163,8 +163,6 @@
     <ngwr-doc-snippet
       title="Try it"
       description="Both buttons write 300 ms after the click, so neither write rides the change-detection pass the click itself causes. The first repaints the fields; the second moves the model and leaves them showing the old values — until you press **Read the model**, whose click runs the pass they were waiting for."
-      [framable]="false"
-      [sandboxable]="false"
     >
       <form [formGroup]="form" style="display: flex; flex-direction: column; gap: 1rem; max-width: 24rem">
         <wr-form-field label="Email">

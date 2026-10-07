@@ -1,6 +1,7 @@
-import { Component, computed, effect, inject, input } from '@angular/core';
+import { Component, computed, contentChildren, effect, inject, input, viewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { WrAnchor, type WrAnchorLink } from 'ngwr/anchor';
 import { WrBadge } from 'ngwr/badge';
 import type { WrColor } from 'ngwr/theme';
 import { WrTypography } from 'ngwr/typography';
@@ -71,7 +72,7 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
  * ```
  */
 @Component({
-  imports: [DocCodeComponent, DocCssVarsComponent, DocRichPipe, DocSectionComponent, WrBadge, WrTypography],
+  imports: [DocCodeComponent, DocCssVarsComponent, DocRichPipe, DocSectionComponent, WrAnchor, WrBadge, WrTypography],
   selector: 'ngwr-doc-page',
   templateUrl: './doc-page.html',
   styleUrl: './doc-page.scss',
@@ -81,6 +82,30 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
   host: { '[attr.title]': 'null' },
 })
 export class DocPageComponent {
+  /**
+   * "On this page", built from the sections the page renders.
+   *
+   * Two sources, because the shell renders two of the sections itself:
+   * `contentChildren` sees what the PAGE projected, `viewChildren` the
+   * Installation and CSS-variables blocks this template adds. Reading only the
+   * projected ones would list a page's own headings and silently omit the two
+   * a reader is most likely to be looking for.
+   *
+   * Order follows the DOM: Installation first, the page's own sections next,
+   * CSS variables last — which is why the view list is split around the
+   * projected one rather than concatenated after it.
+   */
+  private readonly projected = contentChildren(DocSectionComponent);
+  private readonly own = viewChildren(DocSectionComponent);
+
+  protected readonly tocLinks = computed<readonly WrAnchorLink[]>(() => {
+    const shell = this.own();
+    const install = shell.filter(s => s.title() === 'Installation');
+    const cssVars = shell.filter(s => s.title() === 'CSS variables');
+    const all = [...install, ...this.projected(), ...cssVars];
+    return all.map(s => ({ id: s.anchorId(), label: s.title() }));
+  });
+
   /** Page title. Used as the H1 and in the document title. */
   readonly title = input.required<string>();
 

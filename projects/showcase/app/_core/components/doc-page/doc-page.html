@@ -51,3 +51,10 @@
     </ngwr-doc-section>
   }
 </div>
+
+@if (tocLinks().length > 1) {
+  <aside class="toc" aria-labelledby="toc-heading">
+    <p class="toc__title" id="toc-heading">On this page</p>
+    <wr-anchor [links]="tocLinks()" [offset]="96" />
+  </aside>
+}

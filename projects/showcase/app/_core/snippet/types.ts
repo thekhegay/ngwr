@@ -6,7 +6,7 @@ import type { ShikiLang } from '#core/shiki';
  * instead of restating its own snippet in a second place.
  *
  * Structurally identical to `DocCodeFile`, and declared separately anyway: a
- * `readonly DocCodeFile[]` passes straight in, while `#core/sandbox` stays free
+ * `readonly DocCodeFile[]` passes straight in, while `#core/snippet` stays free
  * of a dependency on `#core/components` that would point back at it.
  */
 export interface SandboxFile {
