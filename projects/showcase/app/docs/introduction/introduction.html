@@ -30,19 +30,6 @@
     </ul>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="CLI" description="One command installs the package, its peers and the providers you pick.">
-    <ngwr-doc-code [code]="snippets.cli" language="bash" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="AI ready">
-    <p wrTypography variant="body">
-      The catalog ships as an agent <a wrTypography variant="link" [routerLink]="skills">skill</a>, an
-      <a wrTypography variant="link" href="/llms-full.txt">llms-full.txt</a>, and an
-      <a wrTypography variant="link" [routerLink]="mcp">MCP server</a> inside the package — all generated from the
-      library source, so an assistant reads the API you actually installed.
-    </p>
-  </ngwr-doc-section>
-
   <ngwr-doc-section
     title="Counted, not claimed"
     description="The counters below are written by `scripts/gen/quality.ts`, which counts the repository during the showcase build, and every sentence further down that repeats one of them binds the same value. None of them is typed in by hand — that is the only way a page like this is still true a year after it was written."
@@ -172,5 +159,14 @@
       title="Colour is never the only channel — and no runtime gate can check that."
       message="WCAG 1.4.1 has no axe rule, and the five intents cannot carry it on their own: four share one luminance to within 1.06:1, and success against danger is 1.004:1, because they were tuned to take the same white label. So the components that report a state draw a shape for it — alert and toast a glyph per type, timeline a silhouette per dot — while the colour of a tag, a badge or a typography tone is decoration or category, and the words have to say the state; a tag that must stand for a status on its own takes an icon. A source check, check:color-only, holds every colour-only rule in the library to a written reason. It reads ngwr's stylesheets, not your templates."
     />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="AI ready">
+    <p wrTypography variant="body">
+      The catalog ships as an agent <a wrTypography variant="link" [routerLink]="skills">skill</a>, an
+      <a wrTypography variant="link" href="/llms-full.txt">llms-full.txt</a>, and an
+      <a wrTypography variant="link" [routerLink]="mcp">MCP server</a> inside the package — all generated from the
+      library source, so an assistant reads the API you actually installed.
+    </p>
   </ngwr-doc-section>
 </ngwr-doc-page>
