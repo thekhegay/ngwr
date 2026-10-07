@@ -65,23 +65,6 @@ A pnpm + Angular CLI monorepo with three projects:
   is in `app/_core/` (alias `#core/*`).
 - **`projects/lib/theme/`** — the styling foundation: design tokens (CSS custom
   properties, `--wr-*`) and SCSS mixins under `theme/styles/`. Not a component.
-- **`projects/sandbox/`** — a scratch app for trying components by hand, and
-  the only consumer in this repo shaped like a real one: a plain zoneless
-  Angular app with no router, no hydration and no docs scaffolding, so a
-  component that looks wrong there is the component rather than something the
-  showcase does around it. `pnpm dev:sandbox`.
-  **It is GITIGNORED — only its `angular.json` entry is tracked**, because it
-  is throwaway by definition and its contents are whatever someone is testing
-  this week. A fresh clone has the serve target and no files; create them.
-  **It resolves `ngwr` through `node_modules/ngwr`, a symlink at
-  `projects/lib`**, written by `scripts/build/link-lib.ts` from `postinstall`.
-  The TypeScript `paths` map would be enough for imports and is NOT enough for
-  styles: `@use 'ngwr/button'` is resolved by finding a real package and
-  reading the `sass` condition out of its `exports`, so without the link the
-  sandbox could not spell its styles the way the docs tell a consumer to —
-  which is the one thing it is for. A symlink rather than a pnpm workspace
-  member, because making `projects/lib` a member would pull its peers into the
-  install graph and rewrite what `--frozen-lockfile` verifies in CI.
 - **`scripts/`** — build/release tooling, run via `tsx`, **one directory per
   verb since v15**: `build/` (lib, showcase, schematics, MCP server, icon sets,
   dist-asset copy), `check/` (every gate), `gen/` (every generated file),

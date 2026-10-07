@@ -20,7 +20,7 @@
  * only the static spelling is checked here.
  */
 
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { extname, join, resolve } from 'node:path';
 import { exit } from 'node:process';
 
@@ -30,19 +30,6 @@ import { info } from '../lib/log/info';
 const ROOT = resolve(import.meta.dirname, '../..');
 const LIB = join(ROOT, 'projects/lib');
 const SHOWCASE = join(ROOT, 'projects/showcase');
-/**
- * The scratch sandbox, scanned ONLY when it is on disk.
- *
- * It is gitignored, so CI has no such directory and this walk finds nothing
- * there — which is fine as long as nobody mistakes that for coverage. The two
- * tracked projects above are what the gate really holds; the sandbox is a
- * bonus for whoever is editing it, and it has earned that much:
- * `<wr-btn variant="outlined">` was written in one during the v15 docs walk,
- * compiled clean under `strictTemplates` (a static attribute matching no input
- * is not an error), rendered a solid button where an outlined one was meant,
- * and `pnpm lint` stayed green. The input is `outlined`.
- */
-const SANDBOX = join(ROOT, 'projects/sandbox');
 const SELECTOR_MAP = join(SHOWCASE, 'app/_core/generated/selectors.ts');
 
 /** Attributes any element may carry, so they are never a component's business. */
@@ -154,7 +141,6 @@ function templates(): string[] {
     }
   };
   walk(SHOWCASE);
-  if (existsSync(SANDBOX)) walk(SANDBOX);
   return out;
 }
 

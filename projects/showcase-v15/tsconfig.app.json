@@ -1,9 +1,0 @@
-{
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "outDir": "../../out-tsc/showcase-v15",
-    "types": ["node"]
-  },
-  "files": ["main.ts", "main.server.ts"],
-  "include": ["**/*.d.ts"]
-}
