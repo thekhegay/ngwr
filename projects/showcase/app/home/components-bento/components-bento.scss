@@ -88,6 +88,20 @@
 
   // Per-tile micro-layouts
 
+  // The sign-up tile's two secret fields. They are `type="text"`, not
+  // `type="password"`, so that no password manager recognises them — see the
+  // comment in the template. This is what puts the dots back.
+  //
+  // `-webkit-text-security` is the prefixed property every engine implements
+  // under that name: Chromium and Safari have had it for years, Firefox since
+  // 112. The unprefixed `text-security` is specified and shipped by nobody, so
+  // it is not worth writing. Where it is unsupported the field shows its text,
+  // which on a marketing demo holding a made-up string is the harmless end of
+  // the trade — the alternative is the credential prompt this replaced.
+  &__secret {
+    -webkit-text-security: disc;
+  }
+
   &__signin {
     &-row {
       display: flex;

@@ -51,6 +51,21 @@
   >
     <ngwr-doc-snippet [code]="snippets.password">
       <wr-input-group>
+        <!--
+          The ONE real `type="password"` left in the showcase, and it stays:
+          this section documents the password input and its reveal control, so
+          faking the type with `-webkit-text-security` would demonstrate
+          something the library does not ship.
+
+          `new-password` suppresses autofill. It does NOT suppress the offer to
+          SAVE — that heuristic keys on a password-typed field having been
+          given a value, and no `autocomplete` value turns it off. The field
+          ships EMPTY, so a manager has nothing to offer until a reader types
+          into it themselves, which is the trade this page is worth. The home
+          page's sign-up tile was the version that could not be defended: it
+          prefilled two of these and prompted on the way out, having asked
+          nobody.
+        -->
         <input
           wrInput
           type="password"
