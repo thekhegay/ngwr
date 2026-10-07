@@ -152,6 +152,7 @@
   }
 
   &--code {
+    --wr-typography-font-family: var(--wr-font-family-mono);
     --wr-typography-padding-y: var(--wr-space-xs);
     --wr-typography-padding-x: var(--wr-space-sm);
 
