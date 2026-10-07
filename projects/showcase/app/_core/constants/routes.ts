@@ -38,6 +38,11 @@ export function wrPath(...nodes: readonly WrRoute[]): string {
     .join('/')}`;
 }
 
+/** `wrLink(ROUTES.bits, ROUTES.bits.aurora)` → `{ title: 'Aurora', url: '/bits/aurora' }`. */
+export function wrLink(...nodes: readonly WrRoute[]): { readonly title: string; readonly url: string } {
+  return { title: nodes[nodes.length - 1].title, url: wrPath(...nodes) };
+}
+
 export const ROUTES = {
   /** The site root. */
   home: { path: '', title: 'ngwr' },

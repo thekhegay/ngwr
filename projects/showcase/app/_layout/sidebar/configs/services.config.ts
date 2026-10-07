@@ -1,27 +1,22 @@
-import { ROUTES, wrPath, type WrRoute } from '#routes';
-import type { SidebarGroup, SidebarLink } from '#types';
-
-const base = [ROUTES.reference, ROUTES.reference.services];
-
-/** A row takes its title and its link from the route node, so the two cannot disagree. */
-const link = (route: WrRoute): SidebarLink => ({ title: route.title, url: wrPath(...base, route) });
+import { ROUTES, wrLink } from '#routes';
+import type { SidebarGroup } from '#types';
 
 /** The Services group of the Reference sidebar — one row per injectable. */
 export const SERVICES_GROUP: SidebarGroup = {
   title: 'Services',
   children: [
-    link(ROUTES.reference.services.clipboard),
-    link(ROUTES.reference.services.cookie),
-    link(ROUTES.reference.services.density),
-    link(ROUTES.reference.services.hotkey),
-    link(ROUTES.reference.services.i18n),
-    link(ROUTES.reference.services.loadingBar),
-    link(ROUTES.reference.services.media),
-    link(ROUTES.reference.services.meta),
-    link(ROUTES.reference.services.platform),
-    link(ROUTES.reference.services.scroll),
-    link(ROUTES.reference.services.storage),
-    link(ROUTES.reference.services.theme),
-    link(ROUTES.reference.services.tour),
+    wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.clipboard),
+    wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.cookie),
+    wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.density),
+    wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.hotkey),
+    wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.i18n),
+    wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.loadingBar),
+    wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.media),
+    wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.meta),
+    wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.platform),
+    wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.scroll),
+    wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.storage),
+    wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.theme),
+    wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.tour),
   ],
 };

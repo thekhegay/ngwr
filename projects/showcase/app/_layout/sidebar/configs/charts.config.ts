@@ -1,18 +1,13 @@
-import { ROUTES, wrPath, type WrRoute } from '#routes';
-import type { SidebarGroup, SidebarLink } from '#types';
-
-const base = [ROUTES.charts];
-
-/** A row takes its title and its link from the route node, so the two cannot disagree. */
-const link = (route: WrRoute): SidebarLink => ({ title: route.title, url: wrPath(...base, route) });
+import { ROUTES, wrLink } from '#routes';
+import type { SidebarGroup } from '#types';
 
 /** Sidebar for `/charts/*`. Alphabetical — no chart leads the others. */
 export const CHARTS_SIDEBAR: readonly SidebarGroup[] = [
-  link(ROUTES.charts.barChart),
-  link(ROUTES.charts.calendarHeatmap),
-  link(ROUTES.charts.donutChart),
-  link(ROUTES.charts.gauge),
-  link(ROUTES.charts.lineChart),
-  link(ROUTES.charts.meterGroup),
-  link(ROUTES.charts.sparkline),
+  wrLink(ROUTES.charts, ROUTES.charts.barChart),
+  wrLink(ROUTES.charts, ROUTES.charts.calendarHeatmap),
+  wrLink(ROUTES.charts, ROUTES.charts.donutChart),
+  wrLink(ROUTES.charts, ROUTES.charts.gauge),
+  wrLink(ROUTES.charts, ROUTES.charts.lineChart),
+  wrLink(ROUTES.charts, ROUTES.charts.meterGroup),
+  wrLink(ROUTES.charts, ROUTES.charts.sparkline),
 ];
