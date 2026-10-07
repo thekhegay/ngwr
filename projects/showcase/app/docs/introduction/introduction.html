@@ -4,7 +4,7 @@
   [keywords]="['angular ui library', 'signal forms', 'zoneless', 'standalone components', 'ssr']"
 >
   <ngwr-doc-section title="Why ngwr">
-    <ul wrTypography variant="list">
+    <ul>
       <li>
         <strong>Signal Forms, natively.</strong> Every value control binds with
         <code wrTypography variant="code">[formField]</code> — there is no
@@ -162,11 +162,50 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="AI ready">
-    <p wrTypography variant="body">
-      The catalog ships as an agent <a wrTypography variant="link" [routerLink]="skills">skill</a>, an
-      <a wrTypography variant="link" href="/llms-full.txt">llms-full.txt</a>, and an
-      <a wrTypography variant="link" [routerLink]="mcp">MCP server</a> inside the package — all generated from the
-      library source, so an assistant reads the API you actually installed.
+    <p>
+      ngwr is built so an assistant can work with it as well as a person can — consistent patterns, documentation
+      generated from the source, and an MCP server inside the package.
     </p>
+
+    <div class="intro-cards wr-not-prose">
+      <wr-card>
+        <div class="intro-card__head">
+          <wr-icon name="sparkles" />
+          <h3 wrTypography variant="h6">Predictable patterns</h3>
+        </div>
+        <p wrTypography variant="small" tone="muted">
+          Every component has the same shape: signal inputs, <code wrTypography variant="code">model()</code> for
+          two-way values, BEM classes and one entry point — so generated code reads like code a person wrote.
+        </p>
+      </wr-card>
+
+      <wr-card>
+        <div class="intro-card__head">
+          <wr-icon name="book-open" />
+          <h3 wrTypography variant="h6">Docs an agent can read</h3>
+        </div>
+        <p wrTypography variant="small" tone="muted">
+          An <a wrTypography variant="link" [routerLink]="skills">agent skill</a>,
+          <a wrTypography variant="link" href="/llms-full.txt">llms-full.txt</a> and an
+          <a wrTypography variant="link" [routerLink]="mcp">MCP server</a> ship with the package, generated from the
+          library source, so an assistant reads the API you installed.
+        </p>
+      </wr-card>
+    </div>
   </ngwr-doc-section>
+
+  <div class="intro-support wr-not-prose">
+    <div class="intro-support__mark">
+      <wr-icon name="ngwr" />
+      <wr-icon name="heart" class="intro-support__heart" />
+    </div>
+    <h2 wrTypography variant="h5">Support Open Source</h2>
+    <p wrTypography variant="body" tone="muted">
+      ngwr is free, MIT-licensed and built in the open. If it saves you time, a star on GitHub is the simplest way to
+      help it reach more Angular developers.
+    </p>
+    <a wr-btn color="primary" icon="github" href="https://github.com/thekhegay/ngwr" target="_blank" rel="noreferrer">
+      Star on GitHub
+    </a>
+  </div>
 </ngwr-doc-page>

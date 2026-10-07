@@ -42,6 +42,8 @@
 
 .content {
   gap: 2.5rem;
+  // `.wr-prose` caps its measure at 65ch; this column also holds demos and tables.
+  max-width: none;
 }
 
 .toc {
@@ -125,8 +127,8 @@
   }
 
   margin: 0;
-  color: var(--wr-color-on-surface-muted);
-  font-size: 1.125rem;
+  color: var(--wr-color-gray-500);
+  font-size: var(--wr-text-base);
   font-weight: 400;
-  line-height: 1.625rem;
+  line-height: var(--wr-text-base-leading);
 }

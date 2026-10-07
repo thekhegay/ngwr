@@ -1,0 +1,214 @@
+@use '../../theme/styles' as theme;
+
+// Long-form text, ported from `@tailwindcss/typography` (the base `prose`
+// size). Put `.wr-prose` on a container; mark anything inside it that is not
+// text — a demo, a code block, a table of data — with `.wr-not-prose`.
+//
+// Selectors use `:where()` the way the original does, so a class on an element
+// inside still wins over the prose default. Two departures: list markers and
+// bold text take the primary colour rather than gray, and the backticks the
+// original draws around inline `code` are left out, since ngwr draws inline
+// code as a chip.
+
+$skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
+
+.wr-prose {
+  --wr-prose-body: var(--wr-color-gray-700);
+  --wr-prose-headings: var(--wr-color-gray-900);
+  --wr-prose-lead: var(--wr-color-gray-600);
+  --wr-prose-links: var(--wr-color-gray-900);
+  --wr-prose-bold: var(--wr-color-primary-ink);
+  --wr-prose-counters: var(--wr-color-gray-500);
+  --wr-prose-bullets: var(--wr-color-primary);
+  --wr-prose-hr: var(--wr-color-gray-200);
+  --wr-prose-quotes: var(--wr-color-gray-900);
+  --wr-prose-quote-borders: var(--wr-color-gray-200);
+  --wr-prose-captions: var(--wr-color-gray-500);
+  --wr-prose-code: var(--wr-color-gray-900);
+  --wr-prose-th-borders: var(--wr-color-gray-300);
+  --wr-prose-td-borders: var(--wr-color-gray-200);
+
+  color: var(--wr-prose-body);
+  max-width: 65ch;
+  font-size: 1rem;
+  line-height: 1.75;
+
+  // The fixed gray scale is not re-declared by the dark theme, so the inverted
+  // values are written here, step for step as the original's `prose-invert`.
+  @include theme.dark {
+    --wr-prose-body: var(--wr-color-gray-300);
+    --wr-prose-headings: var(--wr-color-white);
+    --wr-prose-lead: var(--wr-color-gray-400);
+    --wr-prose-links: var(--wr-color-white);
+    --wr-prose-counters: var(--wr-color-gray-400);
+    --wr-prose-hr: var(--wr-color-gray-700);
+    --wr-prose-quotes: var(--wr-color-gray-100);
+    --wr-prose-quote-borders: var(--wr-color-gray-700);
+    --wr-prose-captions: var(--wr-color-gray-400);
+    --wr-prose-code: var(--wr-color-white);
+    --wr-prose-th-borders: var(--wr-color-gray-600);
+    --wr-prose-td-borders: var(--wr-color-gray-700);
+  }
+
+  :where(p)#{$skip} {
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+    // `ngwr/reset` sets `p { line-height }` on the element, which beats the
+    // 1.75 this container hands down. Take it back.
+    line-height: inherit;
+  }
+
+  :where(.wr-prose-lead)#{$skip} {
+    color: var(--wr-prose-lead);
+    font-size: 1.25em;
+    line-height: 1.6;
+    margin-top: 1.2em;
+    margin-bottom: 1.2em;
+  }
+
+  :where(a)#{$skip} {
+    color: var(--wr-prose-links);
+    text-decoration: underline;
+    font-weight: 500;
+  }
+
+  :where(strong)#{$skip} {
+    color: var(--wr-prose-bold);
+    font-weight: 600;
+  }
+
+  :where(ol, ul)#{$skip} {
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+    padding-inline-start: 1.625em;
+  }
+
+  :where(ol)#{$skip} {
+    list-style-type: decimal;
+  }
+
+  :where(ul)#{$skip} {
+    list-style-type: disc;
+  }
+
+  :where(li)#{$skip} {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+
+  :where(ol > li, ul > li)#{$skip} {
+    padding-inline-start: 0.375em;
+  }
+
+  :where(ol > li)#{$skip}::marker {
+    font-weight: 400;
+    color: var(--wr-prose-counters);
+  }
+
+  :where(ul > li)#{$skip}::marker {
+    color: var(--wr-prose-bullets);
+  }
+
+  :where(hr)#{$skip} {
+    border-color: var(--wr-prose-hr);
+    border-top-width: 1px;
+    margin-top: 3em;
+    margin-bottom: 3em;
+  }
+
+  :where(blockquote)#{$skip} {
+    font-weight: 500;
+    font-style: italic;
+    color: var(--wr-prose-quotes);
+    border-inline-start: 0.25rem solid var(--wr-prose-quote-borders);
+    margin-top: 1.6em;
+    margin-bottom: 1.6em;
+    padding-inline-start: 1em;
+  }
+
+  :where(h1)#{$skip} {
+    color: var(--wr-prose-headings);
+    font-weight: 800;
+    font-size: 2.25em;
+    margin-top: 0;
+    margin-bottom: 0.8888889em;
+    line-height: 1.1111111;
+  }
+
+  :where(h2)#{$skip} {
+    color: var(--wr-prose-headings);
+    font-weight: 700;
+    font-size: 1.5em;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    line-height: 1.3333333;
+  }
+
+  :where(h3)#{$skip} {
+    color: var(--wr-prose-headings);
+    font-weight: 600;
+    font-size: 1.25em;
+    margin-top: 1.6em;
+    margin-bottom: 0.6em;
+    line-height: 1.6;
+  }
+
+  :where(h4)#{$skip} {
+    color: var(--wr-prose-headings);
+    font-weight: 600;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    line-height: 1.5;
+  }
+
+  :where(figcaption)#{$skip} {
+    color: var(--wr-prose-captions);
+    font-size: 0.875em;
+    line-height: 1.4285714;
+    margin-top: 0.8571429em;
+  }
+
+  :where(code)#{$skip} {
+    color: var(--wr-prose-code);
+    font-weight: 600;
+    font-size: 0.875em;
+  }
+
+  :where(table)#{$skip} {
+    width: 100%;
+    table-layout: auto;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    font-size: 0.875em;
+    line-height: 1.7142857;
+  }
+
+  :where(thead)#{$skip} {
+    border-bottom: 1px solid var(--wr-prose-th-borders);
+  }
+
+  :where(thead th)#{$skip} {
+    color: var(--wr-prose-headings);
+    font-weight: 600;
+    vertical-align: bottom;
+    padding-inline: 0.5714286em;
+    padding-bottom: 0.5714286em;
+  }
+
+  :where(tbody tr)#{$skip} {
+    border-bottom: 1px solid var(--wr-prose-td-borders);
+  }
+
+  :where(tbody td)#{$skip} {
+    vertical-align: baseline;
+    padding: 0.5714286em;
+  }
+
+  > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+}

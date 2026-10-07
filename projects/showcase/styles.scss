@@ -3,6 +3,7 @@
 @use 'styles/components';
 
 // Opt-in utilities the showcase relies on.
+@use '../lib/styles/reset';
 @use '../lib/styles/grid';
 @use '../lib/styles/animations';
 @use '../lib/styles/typography';
@@ -22,12 +23,6 @@
   // the ones that would otherwise dissolve into the page — and disappears on
   // ink-coloured ones that never needed bounding. Self-correcting in dark mode.
   --ngwr-doc-swatch-ring: inset 0 0 0 1px rgba(var(--wr-color-on-surface-rgb), 0.12);
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
 }
 
 html,
@@ -112,21 +107,11 @@ html.cdk-global-scrollblock {
   }
 }
 
+// Margin, font family, smoothing and the link reset come from `ngwr/reset`.
 body {
-  margin: 0;
-  font-family: var(--wr-font-family-base);
   font-size: 0.9375rem;
-  line-height: 1.5;
   color: var(--wr-color-on-surface);
   background: var(--wr-color-surface);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
 }
 
 button {

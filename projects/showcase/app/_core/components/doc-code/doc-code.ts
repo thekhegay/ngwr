@@ -52,6 +52,7 @@ let docCodeUid = 0;
   templateUrl: './doc-code.html',
   styleUrl: './doc-code.scss',
   host: {
+    class: 'wr-not-prose',
     '[attr.data-empty]': 'tabs().length === 0 ? "" : null',
     // Reflected for `scripts/gen/md-docs.ts`, which fences the block by it. A
     // static `language="ts"` already lands in the DOM; a bound one does not,

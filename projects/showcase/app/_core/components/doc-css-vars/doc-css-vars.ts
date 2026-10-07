@@ -17,6 +17,7 @@ import type { DocCssVarRow } from './types';
  */
 @Component({
   selector: 'ngwr-doc-css-vars',
+  host: { class: 'wr-not-prose' },
   templateUrl: './doc-css-vars.html',
   styleUrl: './doc-css-vars.scss',
 })

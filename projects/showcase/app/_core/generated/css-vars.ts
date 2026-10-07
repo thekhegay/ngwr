@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1273 hook(s) across 9 page(s). A property is here only when the
+ * 1287 hook(s) across 9 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 23 declaration(s) are one component setting
@@ -140,6 +140,20 @@ export const CSS_VARS = {
   "reference/directives/typography": {
     subpath: "ngwr/typography",
     vars: [
+      { name: "--wr-prose-body", default: "var(--wr-color-gray-700)", scope: ".wr-prose", overrides: 1 },
+      { name: "--wr-prose-bold", default: "var(--wr-color-primary-ink)", scope: ".wr-prose" },
+      { name: "--wr-prose-bullets", default: "var(--wr-color-primary)", scope: ".wr-prose" },
+      { name: "--wr-prose-captions", default: "var(--wr-color-gray-500)", scope: ".wr-prose", overrides: 1 },
+      { name: "--wr-prose-code", default: "var(--wr-color-gray-900)", scope: ".wr-prose", overrides: 1 },
+      { name: "--wr-prose-counters", default: "var(--wr-color-gray-500)", scope: ".wr-prose", overrides: 1 },
+      { name: "--wr-prose-headings", default: "var(--wr-color-gray-900)", scope: ".wr-prose", overrides: 1 },
+      { name: "--wr-prose-hr", default: "var(--wr-color-gray-200)", scope: ".wr-prose", overrides: 1 },
+      { name: "--wr-prose-lead", default: "var(--wr-color-gray-600)", scope: ".wr-prose", overrides: 1 },
+      { name: "--wr-prose-links", default: "var(--wr-color-gray-900)", scope: ".wr-prose", overrides: 1 },
+      { name: "--wr-prose-quote-borders", default: "var(--wr-color-gray-200)", scope: ".wr-prose", overrides: 1 },
+      { name: "--wr-prose-quotes", default: "var(--wr-color-gray-900)", scope: ".wr-prose", overrides: 1 },
+      { name: "--wr-prose-td-borders", default: "var(--wr-color-gray-200)", scope: ".wr-prose", overrides: 1 },
+      { name: "--wr-prose-th-borders", default: "var(--wr-color-gray-300)", scope: ".wr-prose", overrides: 1 },
       { name: "--wr-typography-font-family", default: "var(--wr-font-family-base)", scope: ".wr-typography", overrides: 1 },
       { name: "--wr-typography-font-size", default: "var(--wr-text-base)", scope: ".wr-typography", overrides: 13 },
       { name: "--wr-typography-font-weight", default: "var(--wr-font-weight-regular)", scope: ".wr-typography", overrides: 11 },

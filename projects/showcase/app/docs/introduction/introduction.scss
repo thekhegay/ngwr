@@ -1,0 +1,54 @@
+.intro-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--wr-space-lg);
+  margin-top: var(--wr-space-xl);
+}
+
+.intro-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--wr-space-sm);
+  margin-bottom: var(--wr-space-sm);
+
+  wr-icon {
+    color: var(--wr-color-primary);
+    font-size: 1.25rem;
+  }
+}
+
+.intro-support {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--wr-space-md);
+  padding: var(--wr-space-xl);
+  border: 1px dashed var(--wr-border-base);
+  border-radius: var(--wr-border-radius-lg);
+  text-align: center;
+
+  p {
+    max-width: 36rem;
+    margin: 0;
+  }
+
+  &__mark {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--wr-space-xs);
+    padding: var(--wr-space-sm) var(--wr-space-md);
+    border-radius: var(--wr-border-radius-pill);
+    background: var(--wr-color-fill);
+    color: var(--wr-color-on-surface);
+    font-size: 1.5rem;
+  }
+
+  &__heart {
+    color: var(--wr-color-danger);
+    font-size: 1.125rem;
+
+    ::ng-deep svg {
+      fill: currentColor;
+    }
+  }
+}
