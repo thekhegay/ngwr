@@ -2,7 +2,6 @@ import { Component, signal } from '@angular/core';
 
 import { WrCalendar, type WrCalendarRange } from 'ngwr/calendar';
 import { WrKbd } from 'ngwr/keyboard';
-import { WrTypography } from 'ngwr/typography';
 
 import {
   DocApiComponent,
@@ -19,7 +18,6 @@ import { API } from '#core/generated/api';
   imports: [
     WrCalendar,
     WrKbd,
-    WrTypography,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,

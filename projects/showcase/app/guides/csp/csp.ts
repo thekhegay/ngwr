@@ -1,7 +1,5 @@
 import { Component } from '@angular/core';
 
-import { WrTypography } from 'ngwr/typography';
-
 import {
   DocApiComponent,
   type DocApiRow,
@@ -15,14 +13,7 @@ import {
 @Component({
   selector: 'ngwr-gs-csp-page',
   templateUrl: './csp.html',
-  imports: [
-    WrTypography,
-    DocPageComponent,
-    DocSectionComponent,
-    DocCodeComponent,
-    DocApiComponent,
-    DocSeeAlsoComponent,
-  ],
+  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent, DocSeeAlsoComponent],
 })
 export default class CspGuidePageComponent {
   protected readonly snippets = {

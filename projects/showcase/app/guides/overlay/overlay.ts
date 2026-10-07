@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
 
 import { WrKbd } from 'ngwr/keyboard';
-import { WrTypography } from 'ngwr/typography';
 
 import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
 
 @Component({
   selector: 'ngwr-overlay-page',
   templateUrl: './overlay.html',
-  imports: [WrKbd, WrTypography, DocPageComponent, DocSectionComponent, DocCodeComponent],
+  imports: [WrKbd, DocPageComponent, DocSectionComponent, DocCodeComponent],
 })
 export default class OverlayPageComponent {
   protected readonly snippets = {

@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { WrTypography } from 'ngwr/typography';
-
 import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSeeAlsoComponent } from '#core/components';
 import type { DocSeeAlsoLink } from '#core/components';
 
@@ -16,7 +14,7 @@ interface ServerAnswer {
 @Component({
   selector: 'ngwr-ssr-page',
   templateUrl: './ssr.html',
-  imports: [RouterLink, WrTypography, DocPageComponent, DocSectionComponent, DocCodeComponent, DocSeeAlsoComponent],
+  imports: [RouterLink, DocPageComponent, DocSectionComponent, DocCodeComponent, DocSeeAlsoComponent],
 })
 export default class SsrGuidePage {
   /**

@@ -129,9 +129,6 @@ export const INSTALL = {
   "charts/sparkline": [
       { path: "ngwr/charts/sparkline", symbols: ["WrSparkline"], declarables: ["WrSparkline"], styled: true },
   ],
-  "guides/csp": [
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
   "guides/forms": [
       { path: "ngwr/alert", symbols: ["WrAlert"], declarables: ["WrAlert"], styled: true },
       { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
@@ -144,30 +141,18 @@ export const INSTALL = {
   "guides/keyboard": [
       { path: "ngwr/keyboard", symbols: ["WrKbd"], declarables: ["WrKbd"], styled: true },
   ],
-  "guides/mobile": [
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
   "guides/overlay": [
       { path: "ngwr/keyboard", symbols: ["WrKbd"], declarables: ["WrKbd"], styled: true },
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
-  "guides/ssr": [
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
-  "guides/testing": [
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
   ],
   "guides/theming": [
       { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
       { path: "ngwr/theme", symbols: ["WrTheme"], declarables: [], styled: true },
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
   ],
   "guides/tokens/builder": [
       { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
       { path: "ngwr/color-picker", symbols: ["WrColorPickerTrigger"], declarables: ["WrColorPickerTrigger"], styled: true },
       { path: "ngwr/segmented", symbols: ["WrSegmented"], declarables: ["WrSegmented"], styled: true },
       { path: "ngwr/theme", symbols: ["WR_COLORS", "WrTheme", "wrThemeTokens"], declarables: [], styled: true },
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
   ],
   "guides/tokens/colors": [
       { path: "ngwr/theme", symbols: ["WR_COLORS"], declarables: [], styled: true },
