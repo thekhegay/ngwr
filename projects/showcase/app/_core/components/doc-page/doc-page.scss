@@ -13,7 +13,7 @@
   align-items: start;
   column-gap: 3rem;
   row-gap: 2.5rem;
-  padding: 1.5rem;
+  padding: 3rem 1.5rem 1.5rem;
   max-width: 78rem;
   margin: 0 auto;
 
@@ -29,7 +29,7 @@
   // 375px viewport. Vertical rhythm tightens a touch to match.
   @include bp.media-down(sm) {
     row-gap: 2rem;
-    padding: 1.25rem 1rem;
+    padding: 2rem 1rem 1.25rem;
   }
 }
 
