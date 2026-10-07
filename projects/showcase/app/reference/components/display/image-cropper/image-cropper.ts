@@ -4,7 +4,6 @@ import { WrAlert } from 'ngwr/alert';
 import { WrButton } from 'ngwr/button';
 import { type WrImageLoadError, WrImageCropper } from 'ngwr/image-cropper';
 import { WrKbd } from 'ngwr/keyboard';
-import { WrTypography } from 'ngwr/typography';
 
 import {
   DocApiComponent,
@@ -23,7 +22,6 @@ import {
     WrButton,
     WrImageCropper,
     WrKbd,
-    WrTypography,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,

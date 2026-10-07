@@ -46,7 +46,7 @@
         <pre class="editor-demo__value" tabindex="0" role="region" aria-label="JSON value">{{ json() | json }}</pre>
       </div>
     </ngwr-doc-snippet>
-    <p wrTypography variant="small" tone="muted">
+    <p>
       A document with nothing written in it is <code>''</code> in the two string formats and <code>null</code> in
       <code>json</code>, so a <code>required()</code> rule sees an empty editor as empty —
       <code>'&lt;p&gt;&lt;/p&gt;'</code> would be a non-empty string. That holds for everything that only looks written:
@@ -97,7 +97,7 @@
         <wr-editor ariaLabel="Locked notes" disabled [value]="html()" />
       </div>
     </ngwr-doc-snippet>
-    <p wrTypography variant="small" tone="muted">
+    <p>
       What the read-only rendering gives you: the structure survives. Headings, lists and tables are announced as
       headings, lists and tables, where a <code>role="textbox"</code> would have made every one of them presentational —
       which is the whole point of showing a document rather than editing one. It is one focusable
@@ -107,7 +107,7 @@
       <code>wr-editor--readonly</code>. A pure viewer should pass <code>[toolbar]="false"</code> — the toolbar is drawn
       and inert otherwise, since not one of its tools can apply.
     </p>
-    <p wrTypography variant="small" tone="muted">
+    <p>
       It is lazy, not permanent. Bind <code>readonly</code> to something that changes and the editor mounts the moment
       it goes false, behaving from then on exactly like one that never was read-only; setting it again keeps that
       mounted view, undo history and all, rather than throwing a live session away to save one view. So an "edit" button
@@ -206,14 +206,14 @@
       </table>
     </div>
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       The toolbar is one tab stop. <wr-kbd size="sm">Tab</wr-kbd> reaches it once, the arrow keys move between tools
       (mirrored under <code>dir="rtl"</code>), <wr-kbd size="sm">Home</wr-kbd> and <wr-kbd size="sm">End</wr-kbd> jump
       to either end, and a tool that cannot apply is skipped. After a tool runs from the keyboard, focus stays on it —
       unless the tool just disabled itself, when the text takes it. <wr-kbd size="sm">Escape</wr-kbd> is not bound, so
       an editor inside a dialog still lets the dialog close.
     </p>
-    <p wrTypography variant="small" tone="muted">
+    <p>
       On Windows, <code>Ctrl + Alt</code> is AltGr, and on the layouts that type characters with it the
       <code>Mod + Alt</code> chords type those instead — <code>AltGr + 0</code> is <code>&#125;</code> on a German
       keyboard and <code>AltGr + C</code> is <code>ć</code> on a Polish one. That is deliberate: taking the chord by
@@ -232,7 +232,7 @@
         <pre class="editor-demo__value" tabindex="0" role="region" aria-label="Bound value">{{ untrusted() }}</pre>
       </div>
     </ngwr-doc-snippet>
-    <p wrTypography variant="small" tone="muted">
+    <p>
       The block above keeps showing the hostile string you bound, and that is deliberate: the editor draws the cleaned
       document but writes nothing back until someone edits it, at which point the model holds the cleaned HTML. A value
       the editor cannot read at all — JSON that breaks the schema, say — is refused outright: the document already on
@@ -241,7 +241,7 @@
       can read arrives, the editor is read-only and carries <code>wr-editor--refused</code>: the model still holds the
       refused value, and a keystroke would otherwise write the document on screen over it.
     </p>
-    <p wrTypography variant="small" tone="muted">
+    <p>
       On a page that enforces Trusted Types, an HTML value is parsed through the page's default policy when there is
       one, and otherwise through a policy named <code>ngwr-editor</code>; paste goes through ProseMirror's own
       <code>ProseMirrorClipboard</code>. A <code>trusted-types</code> allowlist with no default policy names both. Where
@@ -261,7 +261,7 @@
     description="The eight ProseMirror packages come to about 67 kB gzipped (221 kB minified) with every export kept, before tree-shaking. They land in the chunk that imports `ngwr/editor` and nowhere else, so a lazy route already keeps them off every other page; `@defer` keeps them off the first paint of the page that holds the editor as well."
   >
     <ngwr-doc-code [code]="snippets.defer" language="angular-html" />
-    <p wrTypography variant="small" tone="muted">
+    <p>
       The server side needs no deferral. Under SSR and prerendering ProseMirror never starts: the editor renders a
       static preview of the document from the same sanitised tree, with the same metrics as the live surface so the swap
       does not move a line, and replaces it with the editable surface once the page is running in a browser.

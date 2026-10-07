@@ -5,7 +5,6 @@ import { FormField, form, required } from '@angular/forms/signals';
 import { WrEditor, type WrEditorTool, type WrEditorValue } from 'ngwr/editor';
 import { WrFormField } from 'ngwr/form';
 import { WrKbd } from 'ngwr/keyboard';
-import { WrTypography } from 'ngwr/typography';
 
 import {
   DocApiComponent,
@@ -93,7 +92,6 @@ const COMMENT_TOOLS: readonly WrEditorTool[] = [
     WrEditor,
     WrFormField,
     WrKbd,
-    WrTypography,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,

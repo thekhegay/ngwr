@@ -4,7 +4,6 @@ import { WrButton } from 'ngwr/button';
 import { WrColorPickerTrigger } from 'ngwr/color-picker';
 import { WrSegmented } from 'ngwr/segmented';
 import { WR_COLORS, WrTheme, wrThemeTokens, type WrColor } from 'ngwr/theme';
-import { WrTypography } from 'ngwr/typography';
 
 import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSeeAlsoComponent } from '#core/components';
 import type { DocSeeAlsoLink } from '#core/components';
@@ -50,7 +49,6 @@ const DEFAULTS: Readonly<Record<WrColor, string>> = {
   templateUrl: './builder.html',
   styleUrl: './builder.scss',
   imports: [
-    WrTypography,
     WrButton,
     WrColorPickerTrigger,
     WrSegmented,

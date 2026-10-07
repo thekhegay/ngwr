@@ -37,7 +37,7 @@
       <li>Otherwise nothing moves, and the trap still holds.</li>
     </ol>
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       Which means the two drawer forms differ, and the difference is DOM order rather than policy:
       <code>&lt;wr-drawer&gt;</code> renders its ✕ in its own template, above the projected content, so the ✕ is the
       first tabbable and takes focus; <code>WrDialog</code> and <code>WrDrawerManager</code> append the ✕ AFTER the
@@ -91,7 +91,7 @@
       </table>
     </div>
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       A fifth path is not a dismissal: with <code>closeOnNavigation</code> left on, a route change disposes the overlay
       so a modal cannot outlive the page it was opened over. And
       <strong>a dismissal is not distinguishable from</strong> <code>close(undefined)</code> — both resolve

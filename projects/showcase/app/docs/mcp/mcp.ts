@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { WrTypography } from 'ngwr/typography';
-
 import {
   DocApiComponent,
   type DocApiRow,
@@ -16,15 +14,7 @@ import {
 @Component({
   selector: 'ngwr-docs-mcp-page',
   templateUrl: './mcp.html',
-  imports: [
-    RouterLink,
-    WrTypography,
-    DocPageComponent,
-    DocSectionComponent,
-    DocCodeComponent,
-    DocApiComponent,
-    DocSeeAlsoComponent,
-  ],
+  imports: [RouterLink, DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent, DocSeeAlsoComponent],
 })
 export default class McpPage {
   protected readonly snippets = {

@@ -4,7 +4,7 @@
   [keywords]="['mcp', 'model context protocol', 'agent', 'ai', 'claude', 'cursor', 'ngwr-mcp']"
 >
   <ngwr-doc-section title="What it is for">
-    <p wrTypography>
+    <p>
       The package already ships everything an agent needs to know: a
       <code>.d.ts</code> per entry point, the whole catalog as
       <a href="https://ngwr.dev/llms-full.txt" target="_blank" rel="noreferrer noopener">llms-full.txt</a>, and the
@@ -19,7 +19,7 @@
       <code>ngwr-table.d.ts</code> is the record holder.
     </p>
 
-    <p wrTypography>
+    <p>
       <code>ngwr-mcp</code> is a
       <a href="https://modelcontextprotocol.io" target="_blank" rel="noreferrer noopener">Model Context Protocol</a>
       server that closes exactly that gap. It speaks JSON-RPC 2.0 over stdio, has no dependencies of its own, and ships
@@ -30,7 +30,7 @@
   <ngwr-doc-section title="Claude Code" description="A command, or a file you check in.">
     <ngwr-doc-code [code]="snippets.claudeCode" language="bash" />
 
-    <p wrTypography>
+    <p>
       The equivalent as a file — <code>.mcp.json</code> at the project root is the shared, committed form, so a
       teammate's agent starts with the same catalog rather than none:
     </p>
@@ -41,9 +41,7 @@
   <ngwr-doc-section title="Claude Desktop">
     <ngwr-doc-code [code]="snippets.claudeDesktop" language="typescript" />
 
-    <p wrTypography variant="small" tone="muted">
-      Restart the app after editing the file — the config is read at start-up.
-    </p>
+    <p>Restart the app after editing the file — the config is read at start-up.</p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Cursor">
@@ -54,7 +52,7 @@
     title="Pinning it to your installed copy"
     description="`npx` falls back to the latest; `node` runs only the one your app resolves."
   >
-    <p wrTypography>
+    <p>
       <code>npx -y -p ngwr ngwr-mcp</code> runs the ngwr your project has installed. Where there is none, it fetches the
       newest published version. That is fine for asking what the library can do, and wrong when the answers have to
       match your lockfile: an agent told about an input that only exists in a later major will write code that does not
@@ -63,7 +61,7 @@
 
     <ngwr-doc-code [code]="snippets.pinned" language="typescript" />
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       The path is relative to the working directory the client launches the server in, which for Claude Code is the
       project root. Inside a project, <code>npx</code> runs this same file from the installed copy. Outside one, as in
       Claude Desktop, <code>-p ngwr</code> fetches ngwr into the npx cache and runs the server from there.
@@ -73,7 +71,7 @@
   <ngwr-doc-section title="The four tools">
     <ngwr-doc-api [rows]="tools" />
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       Four, and deliberately not more. Each one answers a question an agent actually has when it meets the library: what
       is there, how do I use this one, what does it take, what do I have to install. A tool per docs page would be a
       worse version of <code>fetch</code> — the pages are prerendered HTML with a markdown twin at every URL, and any
@@ -84,11 +82,11 @@
   <ngwr-doc-section title="search_ngwr" description="Start here — it is the tool that turns a need into a name.">
     <ngwr-doc-code [code]="snippets.searchRequest" language="bash" />
 
-    <p wrTypography>What comes back as <code>content[0].text</code>:</p>
+    <p>What comes back as <code>content[0].text</code>:</p>
 
     <ngwr-doc-code [code]="snippets.searchResponse" language="markdown" />
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       Two things to read out of that. The scoring is why <code>ngwr/date-picker</code> is first for a query that names
       none of its words exactly — its selector <code>wr-date-range-picker</code> carries "range" and "picker". And the
       <code>/testing</code> entry points are in the same catalog, so a harness can surface next to the component it
@@ -101,7 +99,7 @@
 
     <ngwr-doc-code [code]="snippets.componentResponse" language="markdown" />
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       The last two lines are the hand-off. This tool is deliberately a summary — when an agent needs the prose, the
       demos and the API tables, the markdown twin of the docs page is a better answer than anything the server could
       re-state, and it is one <code>fetch</code> away.
@@ -113,7 +111,7 @@
 
     <ngwr-doc-code [code]="snippets.apiResponse" language="markdown" />
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       Required-ness and the template alias come from the <code>ɵcmp</code> declaration rather than from the member's
       type, which is the only place either is actually written down: <code>input()</code> and
       <code>input.required()</code> both emit <code>InputSignal&lt;T&gt;</code>. Signal wrappers are unwrapped, so a
@@ -127,7 +125,7 @@
 
     <ngwr-doc-code [code]="snippets.setupResponse" language="markdown" />
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       Section 4 only appears for symbols that need it, and the list behind it is short on purpose: these are the
       providers a component cannot be made to work without. <code>WrDateAdapter</code> is the clearest one — it is an
       abstract class with no root fallback, so a date picker without <code>provideWrDateAdapter()</code> fails at
@@ -136,13 +134,13 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="What it will not do" description="Worth knowing before you wire it into an agent loop.">
-    <p wrTypography>
+    <p>
       <strong>It returns commands; it never runs them.</strong> <code>get_ngwr_setup</code> hands back the
       <code>ng add</code> and <code>ng g ngwr:use</code> lines as text. Running them is your agent's decision and your
       approval, through whatever your client already asks you for.
     </p>
 
-    <p wrTypography>
+    <p>
       <strong>It never reaches outside its own package.</strong> No network, no commands, and the only files it opens
       are four inside its own installed package: <code>llms-full.txt</code>,
       <code>schematics/use/symbol-map.json</code>, <code>types/*.d.ts</code>, and its own <code>package.json</code> —
@@ -153,12 +151,12 @@
       cannot fetch a docs page for you. It hands out the URL and lets the agent fetch it.
     </p>
 
-    <p wrTypography>
+    <p>
       <strong>It answers for the version it was launched from.</strong> Under <code>npx</code> outside a project, that
       is the latest published release, not necessarily yours — see the pinning section above.
     </p>
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       A tool that THROWS answers with <code>isError: true</code> and a sentence saying what went wrong, rather than a
       JSON-RPC error — a failed call should leave the conversation intact and tell the agent enough to retry. A
       malformed REQUEST is the other way round: an unknown tool name or a wrong argument type comes back as
@@ -171,7 +169,7 @@
   <ngwr-doc-section title="Driving it by hand" description="Useful when a client says only that the server failed.">
     <ngwr-doc-code [code]="snippets.byHand" language="bash" />
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       Stdout carries the protocol and nothing else, which is why diagnostics go to stderr: one stray
       <code>console.log</code> in that process corrupts the stream and the client drops the connection. If you fork the
       server or wrap it, keep that rule.
@@ -179,7 +177,7 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="It ships no second copy of the catalog">
-    <p wrTypography>
+    <p>
       The design constraint the server was built under: it adds no new source of truth. Every answer above is read at
       request time out of files the tarball already contains for other reasons —
       <code>llms-full.txt</code> is generated from library source on every build,
@@ -188,13 +186,13 @@
       for your editor.
     </p>
 
-    <p wrTypography>
+    <p>
       That is the whole reason to trust it. An embedded index would be a fourth copy of the catalog to keep in step with
       the library, and — being the copy nobody's build fails over — the first one to go stale. What the server adds is
       not data. It is the ability to ask.
     </p>
 
-    <p wrTypography variant="small" tone="muted">
+    <p>
       It is hand-rolled on the protocol rather than built on the MCP SDK for the same reason the library has one runtime
       dependency: an SDK would put a dependency tree behind every <code>npm i ngwr</code> for a feature most consumers
       never run. A tools-only server is four methods and a framing rule.

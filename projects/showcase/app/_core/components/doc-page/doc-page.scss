@@ -2,47 +2,38 @@
 
 :host {
   display: grid;
-  // The page, then the "On this page" rail. The rail is a FIXED track rather
-  // than `auto`, so the prose column does not reflow as a section title grows
-  // — a reader scrolling a long page would otherwise watch the text move.
   grid-template-columns: minmax(0, 1fr) 14rem;
-  // Header, then content. The rail spans BOTH: with no explicit rows,
-  // `grid-row: 1 / -1` collapsed to row 1, the header row grew to the rail's
-  // full height, and the content started a screen further down.
   grid-template-rows: auto 1fr;
   align-items: start;
   column-gap: 3rem;
   row-gap: 2.5rem;
-  padding: 3rem 1.5rem 1.5rem;
   max-width: 78rem;
   margin: 0 auto;
+  padding: 3rem 1.5rem 1.5rem;
 
-  // Below `xl` the rail would take the prose under 40rem, which is where a
-  // code block starts wrapping. It drops out entirely rather than moving
-  // inline: a table of contents above the content is a list to scroll past.
   @include bp.media-down(xl) {
     grid-template-columns: minmax(0, 1fr);
     max-width: 64rem;
   }
 
-  // Reclaim the side gutters on phones — 1.5rem each edge is ~13% of a
-  // 375px viewport. Vertical rhythm tightens a touch to match.
   @include bp.media-down(sm) {
     row-gap: 2rem;
     padding: 2rem 1rem 1.25rem;
   }
 }
 
-.header,
+.header {
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .content {
   grid-column: 1;
   display: flex;
   flex-direction: column;
-}
-
-.content {
   gap: 2.5rem;
-  // `.wr-prose` caps its measure at 65ch; this column also holds demos and tables.
   max-width: none;
 }
 
@@ -68,37 +59,11 @@
   }
 }
 
-.header {
-  gap: 0.5rem;
-}
-
 .labels {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.375rem;
-  margin-bottom: 0.25rem;
+  gap: var(--wr-space-xs);
 
-  // Soft tinted chips — the badge's solid fills and pill padding are too
-  // loud for header metadata; retune through its custom-prop knobs.
-  wr-badge {
-    --wr-badge-padding-x: 0.5rem;
-    --wr-badge-padding-y: 0.1875rem;
-    --wr-badge-font-size: 0.6875rem;
-    --wr-badge-font-weight: 500;
-  }
-
-  wr-badge.wr-badge--danger {
-    // A soft tint, so the text is the intent-as-text case and wants `-ink`.
-    // The bare intent measured 3.12:1 against this background at 11px.
-    background: rgba(var(--wr-color-danger-rgb), 0.12);
-    color: var(--wr-color-danger-ink);
-  }
-
-  // The version chip. Outlined rather than tinted, and last in the row: the
-  // chips beside it say what the thing IS, and this one says when it arrived —
-  // a fill would put the two categories in one visual class. `-muted` is the
-  // role alias for quiet prose, which holds 4.63:1 on every surface the docs
-  // paint (the `medium` INTENT does not — 4.01:1 on the lightest one).
   wr-badge.since {
     background: none;
     box-shadow: inset 0 0 0 1px var(--wr-border-base);
@@ -108,27 +73,23 @@
 }
 
 .title {
-  letter-spacing: -0.5px;
+  letter-spacing: var(--wr-tracking-tight);
 }
 
 .description {
-  // Inline code from the wrDocRich pipe arrives via [innerHTML], so it
-  // never gets the scoping attribute — pierce the emulated encapsulation
-  // or the chips render as bare mono text.
-  ::ng-deep code {
-    display: inline-block;
-    padding: 0.125rem 0.3125rem;
-    border-radius: var(--wr-border-radius-sm);
-    background: rgba(var(--wr-color-on-surface-rgb), 0.07);
-    color: var(--wr-color-on-surface);
-    line-height: 1.25;
-    font-family: var(--wr-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-    font-size: 0.8125rem;
-  }
-
   margin: 0;
   color: var(--wr-color-gray-500);
   font-size: var(--wr-text-base);
-  font-weight: 400;
+  font-weight: var(--wr-font-weight-regular);
   line-height: var(--wr-text-base-leading);
+
+  // Arrives via [innerHTML], so it carries no scoping attribute.
+  ::ng-deep code {
+    padding: 0.125rem 0.3125rem;
+    border-radius: var(--wr-border-radius-sm);
+    background: var(--wr-color-fill);
+    color: var(--wr-color-on-surface);
+    font-family: var(--wr-font-family-mono);
+    font-size: 0.875em;
+  }
 }
