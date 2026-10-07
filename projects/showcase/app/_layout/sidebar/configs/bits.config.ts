@@ -1,5 +1,10 @@
-import { ROUTES } from '#routes';
-import type { SidebarGroup } from '#types';
+import { ROUTES, wrPath, type WrRoute } from '#routes';
+import type { SidebarGroup, SidebarLink } from '#types';
+
+const base = [ROUTES.bits];
+
+/** A row takes its title and its link from the route node, so the two cannot disagree. */
+const link = (route: WrRoute): SidebarLink => ({ title: route.title, url: wrPath(...base, route) });
 
 /**
  * Sidebar for `/bits/*` — animated UI effects. Mix of in-house ngwr
@@ -12,36 +17,36 @@ import type { SidebarGroup } from '#types';
 export const BITS_SIDEBAR: readonly SidebarGroup[] = [
   {
     title: 'Backgrounds',
-    children: [ROUTES.bits.aurora, ROUTES.bits.waves],
+    children: [link(ROUTES.bits.aurora), link(ROUTES.bits.waves)],
   },
   {
     title: 'Blocks',
     children: [
-      ROUTES.bits.borderGlow,
-      ROUTES.bits.marquee,
-      ROUTES.bits.spotlightCard,
-      ROUTES.bits.starBorder,
-      ROUTES.bits.tiltCard,
+      link(ROUTES.bits.borderGlow),
+      link(ROUTES.bits.marquee),
+      link(ROUTES.bits.spotlightCard),
+      link(ROUTES.bits.starBorder),
+      link(ROUTES.bits.tiltCard),
     ],
   },
   {
     title: 'Effects',
-    children: [ROUTES.bits.clickSpark, ROUTES.bits.confetti, ROUTES.bits.splashCursor],
+    children: [link(ROUTES.bits.clickSpark), link(ROUTES.bits.confetti), link(ROUTES.bits.splashCursor)],
   },
   {
     title: 'Text',
     children: [
-      ROUTES.bits.blurText,
-      ROUTES.bits.circularText,
-      ROUTES.bits.decryptText,
-      ROUTES.bits.fallingText,
-      ROUTES.bits.fuzzyText,
-      ROUTES.bits.glitchText,
-      ROUTES.bits.gradientText,
-      ROUTES.bits.rotatingText,
-      ROUTES.bits.shinyText,
-      ROUTES.bits.splitText,
-      ROUTES.bits.typewriter,
+      link(ROUTES.bits.blurText),
+      link(ROUTES.bits.circularText),
+      link(ROUTES.bits.decryptText),
+      link(ROUTES.bits.fallingText),
+      link(ROUTES.bits.fuzzyText),
+      link(ROUTES.bits.glitchText),
+      link(ROUTES.bits.gradientText),
+      link(ROUTES.bits.rotatingText),
+      link(ROUTES.bits.shinyText),
+      link(ROUTES.bits.splitText),
+      link(ROUTES.bits.typewriter),
     ],
   },
 ];
