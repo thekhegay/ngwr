@@ -129,31 +129,6 @@ export const INSTALL = {
   "charts/sparkline": [
       { path: "ngwr/charts/sparkline", symbols: ["WrSparkline"], declarables: ["WrSparkline"], styled: true },
   ],
-  "docs/installation": [
-      { path: "ngwr/alert", symbols: ["WrAlert"], declarables: ["WrAlert"], styled: true },
-      { path: "ngwr/table", symbols: ["WrTable", "WrTableCell"], declarables: ["WrTable", "WrTableCell"], styled: true },
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
-  "docs/introduction": [
-      { path: "ngwr/alert", symbols: ["WrAlert"], declarables: ["WrAlert"], styled: true },
-      { path: "ngwr/badge", symbols: ["WrTag"], declarables: ["WrTag"], styled: true },
-      { path: "ngwr/checkbox", symbols: ["WrCheckbox"], declarables: ["WrCheckbox"], styled: true },
-      { path: "ngwr/descriptions", symbols: ["WrDescriptionItem", "WrDescriptions"], declarables: ["WrDescriptionItem", "WrDescriptions"], styled: true },
-      { path: "ngwr/rating", symbols: ["WrRating"], declarables: ["WrRating"], styled: true },
-      { path: "ngwr/statistic", symbols: ["WrStatistic", "WrStatisticGroup"], declarables: ["WrStatistic", "WrStatisticGroup"], styled: true },
-      { path: "ngwr/table", symbols: ["WrTable", "WrTableCell"], declarables: ["WrTable", "WrTableCell"], styled: true },
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-      { path: "ngwr/version", symbols: ["NGWR_VERSION"], declarables: [], styled: false },
-  ],
-  "docs/mcp-server": [
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
-  "docs/migration": [
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
-  "docs/skills": [
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
   "guides/csp": [
       { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
   ],
