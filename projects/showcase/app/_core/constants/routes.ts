@@ -107,6 +107,7 @@ export const ROUTES = {
       path: 'typography',
       title: 'Typography',
       overview: { path: 'overview', title: 'Overview' },
+      styles: { path: 'styles', title: 'Styles' },
       headings: { path: 'headings', title: 'Headings' },
       paragraphs: { path: 'paragraphs', title: 'Paragraphs' },
       lists: { path: 'lists', title: 'Lists' },

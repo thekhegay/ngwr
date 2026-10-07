@@ -7,6 +7,7 @@ const t = ROUTES.guides.typography;
 export default [
   { path: '', pathMatch: 'full', redirectTo: t.overview.path },
   { path: t.overview.path, loadComponent: () => import('./overview/overview') },
+  { path: t.styles.path, loadComponent: () => import('./styles/styles') },
   { path: t.headings.path, loadComponent: () => import('./headings/headings') },
   { path: t.paragraphs.path, loadComponent: () => import('./paragraphs/paragraphs') },
   { path: t.lists.path, loadComponent: () => import('./lists/lists') },

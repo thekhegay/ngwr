@@ -1,4 +1,4 @@
-import { ROUTES } from '#routes';
+import { ROUTES, wrLink } from '#routes';
 import type { SidebarGroup } from '#types';
 
 /**
@@ -16,53 +16,54 @@ import type { SidebarGroup } from '#types';
  */
 export const GUIDES_SIDEBAR: readonly SidebarGroup[] = [
   // Make it look right.
-  ROUTES.guides.theming,
+  wrLink(ROUTES.guides, ROUTES.guides.theming),
   {
     title: 'Design tokens',
     children: [
-      ROUTES.guides.tokens.colors,
-      ROUTES.guides.tokens.sizing,
-      ROUTES.guides.tokens.typography,
-      ROUTES.guides.tokens.density,
-      ROUTES.guides.tokens.motion,
-      ROUTES.guides.tokens.builder,
+      wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.colors),
+      wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.sizing),
+      wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.typography),
+      wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.density),
+      wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.motion),
+      wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.builder),
     ],
   },
   {
     title: 'Typography',
     children: [
-      ROUTES.guides.typography.overview,
-      ROUTES.guides.typography.headings,
-      ROUTES.guides.typography.paragraphs,
-      ROUTES.guides.typography.links,
-      ROUTES.guides.typography.lists,
-      ROUTES.guides.typography.code,
+      wrLink(ROUTES.guides, ROUTES.guides.typography, ROUTES.guides.typography.overview),
+      wrLink(ROUTES.guides, ROUTES.guides.typography, ROUTES.guides.typography.styles),
+      wrLink(ROUTES.guides, ROUTES.guides.typography, ROUTES.guides.typography.headings),
+      wrLink(ROUTES.guides, ROUTES.guides.typography, ROUTES.guides.typography.paragraphs),
+      wrLink(ROUTES.guides, ROUTES.guides.typography, ROUTES.guides.typography.links),
+      wrLink(ROUTES.guides, ROUTES.guides.typography, ROUTES.guides.typography.lists),
+      wrLink(ROUTES.guides, ROUTES.guides.typography, ROUTES.guides.typography.code),
       // Leaves the guide on purpose — the API table is maintained once, in
       // reference. Headings, Paragraphs and Code each used to carry a partial
       // copy, and they had drifted into contradicting each other.
-      ROUTES.reference.directives.typography,
+      wrLink(ROUTES.reference, ROUTES.reference.directives, ROUTES.reference.directives.typography),
     ],
   },
-  ROUTES.guides.grid,
+  wrLink(ROUTES.guides, ROUTES.guides.grid),
   // Cross-cutting subsystems users typically meet later.
-  ROUTES.guides.forms,
-  ROUTES.guides.overlay,
-  ROUTES.guides.mobile,
+  wrLink(ROUTES.guides, ROUTES.guides.forms),
+  wrLink(ROUTES.guides, ROUTES.guides.overlay),
+  wrLink(ROUTES.guides, ROUTES.guides.mobile),
   {
     title: 'Translations (i18n)',
     children: [
-      ROUTES.guides.translations.overview,
-      ROUTES.guides.translations.setup,
-      ROUTES.guides.translations.usage,
-      ROUTES.guides.translations.interpolation,
-      ROUTES.guides.translations.scopes,
+      wrLink(ROUTES.guides, ROUTES.guides.translations, ROUTES.guides.translations.overview),
+      wrLink(ROUTES.guides, ROUTES.guides.translations, ROUTES.guides.translations.setup),
+      wrLink(ROUTES.guides, ROUTES.guides.translations, ROUTES.guides.translations.usage),
+      wrLink(ROUTES.guides, ROUTES.guides.translations, ROUTES.guides.translations.interpolation),
+      wrLink(ROUTES.guides, ROUTES.guides.translations, ROUTES.guides.translations.scopes),
       // Same hand-off: the WrI18n table lives in reference, and the guide copy
       // that used to sit here had drifted ahead of the "real" one.
-      ROUTES.reference.services.i18n,
+      wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.i18n),
     ],
   },
-  ROUTES.guides.keyboard,
-  ROUTES.guides.ssr,
-  ROUTES.guides.testing,
-  ROUTES.guides.csp,
+  wrLink(ROUTES.guides, ROUTES.guides.keyboard),
+  wrLink(ROUTES.guides, ROUTES.guides.ssr),
+  wrLink(ROUTES.guides, ROUTES.guides.testing),
+  wrLink(ROUTES.guides, ROUTES.guides.csp),
 ];
