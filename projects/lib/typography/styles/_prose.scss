@@ -5,9 +5,10 @@
 // text — a demo, a code block, a table of data — with `.wr-not-prose`.
 //
 // Selectors use `:where()` the way the original does, so a class on an element
-// inside still wins over the prose default. Two departures: list markers and
-// bold text take the primary colour rather than gray, and inline `code` is a
-// chip rather than the original's backtick-wrapped bold.
+// inside still wins over the prose default. Where it departs: list markers and
+// bold text take the primary colour rather than gray, inline `code` is a chip
+// rather than the original's backtick-wrapped bold, and headings are tighter
+// to their text, with h5 and h6 set as well.
 
 $skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
 
@@ -123,46 +124,69 @@ $skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
     padding-inline-start: 1em;
   }
 
-  :where(h1)#{$skip} {
+  // Headings sit closer to the text they introduce than to the text before
+  // them: a short margin and a tight line below, the long margin above. The
+  // original sizes h1–h3 and leaves the rest to Tailwind's preflight, which
+  // resets every heading to inherit; `ngwr/reset` gives h4–h6 sizes of their
+  // own, so all six are set here, each a step below the last.
+  :where(h1, h2, h3, h4, h5, h6)#{$skip} {
     color: var(--wr-prose-headings);
+    margin-bottom: 0.5em;
+  }
+
+  :where(h1)#{$skip} {
     font-weight: 800;
     font-size: 2.25em;
     margin-top: 0;
-    margin-bottom: 0.8888889em;
     line-height: 1.1111111;
   }
 
   :where(h2)#{$skip} {
-    color: var(--wr-prose-headings);
     font-weight: 700;
     font-size: 1.5em;
     margin-top: 2em;
-    margin-bottom: 1em;
-    line-height: 1.3333333;
+    line-height: 1.25;
   }
 
   :where(h3)#{$skip} {
-    color: var(--wr-prose-headings);
     font-weight: 600;
     font-size: 1.25em;
     margin-top: 1.6em;
-    margin-bottom: 0.6em;
-    line-height: 1.6;
+    line-height: 1.4;
   }
 
-  // The original leaves the size to Tailwind's preflight, which resets every
-  // heading to inherit. `ngwr/reset` gives h4 a size of its own, so say 1em.
   :where(h4)#{$skip} {
-    color: var(--wr-prose-headings);
+    font-weight: 600;
+    font-size: 1.125em;
+    margin-top: 1.5em;
+    line-height: 1.4;
+  }
+
+  :where(h5)#{$skip} {
     font-weight: 600;
     font-size: 1em;
     margin-top: 1.5em;
-    margin-bottom: 0.5em;
     line-height: 1.5;
   }
 
-  // A heading hands its spacing to what follows it, not the other way round.
-  :where(hr + *, h2 + *, h3 + *, h4 + *)#{$skip} {
+  :where(h6)#{$skip} {
+    font-weight: 600;
+    font-size: 0.875em;
+    margin-top: 1.5em;
+    line-height: 1.5;
+  }
+
+  // What follows a heading sits close to it: text, or a deeper heading. A
+  // heading of a higher level starts a new section and keeps its margin.
+  :where(hr + *)#{$skip},
+  :where(h1, h2, h3, h4, h5, h6) + :where(:not(h1, h2, h3, h4, h5, h6))#{$skip},
+  :where(
+      h1 + h2, h1 + h3, h1 + h4, h1 + h5, h1 + h6,
+      h2 + h3, h2 + h4, h2 + h5, h2 + h6,
+      h3 + h4, h3 + h5, h3 + h6,
+      h4 + h5, h4 + h6,
+      h5 + h6
+    )#{$skip} {
     margin-top: 0;
   }
 
