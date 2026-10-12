@@ -1033,7 +1033,11 @@ because `release:prepare` did not run `gen:quality`. `release.yml` runs it now,
 in its own step after the bump. Don't bump the
 version by hand either — releases are cut from Actions, by running the "Release
 PR" workflow with its `bump` input, which runs `release:prepare` /
-`release:body` and opens a `chore(release)` PR.
+`release:body` and opens a `chore(release)` PR. Merging it does not put the
+version in front of users: `publish.yml` runs `npm stage publish`, and the
+trusted publisher on npmjs.com allows staging only, so the release is live once
+the maintainer approves it with 2FA (`npm stage approve` or the package's
+Staged Packages tab). A compromised run can stage a version and cannot ship one.
 
 **Whether a major ships a codemod is decided by one rule, and the rule is about
 the SHAPE of the break rather than its size: a codemod runs when the new form

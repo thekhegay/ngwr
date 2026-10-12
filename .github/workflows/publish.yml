@@ -97,23 +97,24 @@ jobs:
           make_latest: ${{ needs.detect.outputs.is_rc == 'false' }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Assert npm supports Trusted Publishing
+      - name: Assert npm supports staged publishing
         run: |
-          floor=11.5.1
+          floor=11.15.0
           have=$(npm --version)
           echo "npm $have, bundled with node $(node --version)"
           IFS=. read -r fa fb fc <<<"$floor"
           IFS=. read -r ha hb hc <<<"${have%%-*}"
           if (( ha < fa || (ha == fa && (hb < fb || (hb == fb && hc < fc))) )); then
-            echo "::error::npm $have is below the $floor floor for OIDC Trusted Publishing — raise node-version, or install an exact npm version, but never npm@latest."
+            echo "::error::npm $have is below the $floor floor for npm stage — raise node-version, or install an exact npm version, but never npm@latest."
             exit 1
           fi
 
-      - name: Publish to npm (Trusted Publisher)
+      # Staged: the version goes live once a maintainer approves it with 2FA.
+      - name: Stage on npm (Trusted Publisher)
         working-directory: dist/lib
         run: |
           tag=$([[ "${{ needs.detect.outputs.is_rc }}" == "true" ]] && echo "next" || echo "latest")
-          npm publish --access public --provenance --tag "$tag"
+          npm stage publish --access public --provenance --tag "$tag"
 
   find-superseded-major:
     name: Find the major being superseded
