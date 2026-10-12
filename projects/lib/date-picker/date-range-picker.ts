@@ -563,6 +563,15 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     this.revealFor(next);
   };
 
+  /**
+   * Focus the START field — what Signal Forms calls to focus this control, and
+   * the end a range is read from. The calendar stays shut: focus alone has never
+   * opened it, only a click on a field, the trigger, or Alt+ArrowDown.
+   */
+  focus(options?: FocusOptions): void {
+    this.startEl().nativeElement.focus(options);
+  }
+
   /** Called by an input's click — opens the overlay if it isn't open already. */
   protected openOnInput(end: RangeEnd): void {
     if (this.disabled() || this.readonly() || this.overlayRef) return;

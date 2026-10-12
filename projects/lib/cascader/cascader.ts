@@ -284,6 +284,14 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     });
   }
 
+  /**
+   * Focus the trigger — what Signal Forms calls to focus this control. The
+   * panel stays shut: ArrowDown or a click opens it, the way it does after Tab.
+   */
+  focus(options?: FocusOptions): void {
+    this.host.nativeElement.querySelector<HTMLElement>('.wr-cascader__trigger')?.focus(options);
+  }
+
   // Template handlers
 
   protected onTriggerClick(): void {

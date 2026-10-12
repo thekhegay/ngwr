@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormField, form } from '@angular/forms/signals';
 
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -781,5 +782,46 @@ describe('WrCascader width floor', () => {
 
   it('lets the trigger follow the host down', () => {
     expect(rules().get('.wr-cascader__trigger')).toMatchObject({ width: '100%', 'min-width': '0' });
+  });
+});
+
+/**
+ * `focusBoundControl()` is how a Signal Forms field takes the user to its
+ * control. Without a `focus()` of its own the directive calls `focus()` on the
+ * HOST, and `<wr-cascader>` is not focusable, so nothing moved. The trigger is
+ * the tab stop, and focusing it is not a request to browse: the panel stays shut.
+ */
+describe('WrCascader focused by its bound field', () => {
+  @Component({
+    imports: [FormField, WrCascader],
+    template: `<wr-cascader ariaLabel="Place" [options]="options" [formField]="f.place" />`,
+  })
+  class FocusHost {
+    readonly options = OPTIONS;
+    private readonly model = signal<{ place: string[] }>({ place: [] });
+    readonly f = form(this.model);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<FocusHost>>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(FocusHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('focuses the trigger, without opening the panel', () => {
+    fixture.componentInstance.f.place().focusBoundControl();
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const trigger = root.querySelector<HTMLButtonElement>('.wr-cascader__trigger')!;
+    expect(document.activeElement).toBe(trigger);
+    expect(root.querySelector('wr-cascader')!.contains(document.activeElement)).toBe(true);
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(document.querySelector('[role="tree"]')).toBeNull();
   });
 });

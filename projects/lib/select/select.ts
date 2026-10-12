@@ -1021,6 +1021,35 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   /** Search-mode inline input. Present only when `mode="search"`. @internal */
   protected readonly searchInputEl = viewChild<ElementRef<HTMLInputElement>>('searchInput');
 
+  /** The button trigger — every shape without a text field of its own. @internal */
+  private readonly triggerEl = viewChild<ElementRef<HTMLButtonElement>>('trigger');
+
+  /** Set for the length of a `focus()` call, so the field takes focus and nothing opens. @internal */
+  private quietFocus = false;
+
+  /**
+   * Focus the control's tab stop — what Signal Forms calls to focus this
+   * control: the search field, the chip field, or the trigger button, whichever
+   * the current shape draws.
+   *
+   * The panel stays shut. A text field opens it when the USER arrives, since
+   * they are about to type; a form focusing its first invalid field is pointing
+   * at it, and a listbox over the rest of the form is not what that asked for.
+   */
+  focus(options?: FocusOptions): void {
+    const field = this.searchInputEl() ?? this.tagInputEl();
+    if (!field) {
+      this.triggerEl()?.nativeElement.focus(options);
+      return;
+    }
+    this.quietFocus = true;
+    try {
+      field.nativeElement.focus(options);
+    } finally {
+      this.quietFocus = false;
+    }
+  }
+
   protected focusTagInput(): void {
     this.tagInputEl()?.nativeElement.focus();
   }
@@ -1112,9 +1141,10 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   protected onSearchFocus(): void {
     if (this.isDisabled()) return;
     // Focus is tracked even while read-only — the field still takes it, and
-    // `searchDisplay()` keys off it — but nothing opens.
+    // `searchDisplay()` keys off it — but nothing opens. The same holds for a
+    // focus that `focus()` asked for, which is the form's and not the user's.
     this.searchHasFocus.set(true);
-    if (this.isReadonly()) return;
+    if (this.isReadonly() || this.quietFocus) return;
     if (!this.meetsMinChars()) return;
     if (!this.open()) {
       this.seedActiveIndex();

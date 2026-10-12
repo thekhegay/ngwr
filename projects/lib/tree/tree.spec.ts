@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormField, form } from '@angular/forms/signals';
 
 import { Subject } from 'rxjs';
 
@@ -1274,5 +1275,93 @@ describe('WrTree overlay trigger width floor', () => {
   it('leaves the inline tree a block with no spacer', () => {
     expect(rules().get('.wr-tree')).toMatchObject({ display: 'block' });
     expect(rules().has('.wr-tree::after')).toBe(false);
+  });
+});
+
+/**
+ * `focusBoundControl()` is how a Signal Forms field takes the user to its
+ * control. Without a `focus()` of its own the directive calls `focus()` on the
+ * HOST, and `<wr-tree>` is not focusable, so nothing moved. Where focus lands is
+ * where Tab would land: the row holding the roving tab stop inline, the list
+ * itself while windowed, and the trigger in overlay mode — which stays shut.
+ */
+describe('WrTree focused by its bound field', () => {
+  @Component({
+    imports: [FormField, WrTree],
+    template: `
+      <wr-tree
+        ariaLabel="Folder"
+        [nodes]="nodes"
+        [openOn]="openOn()"
+        [virtualScroll]="virtual()"
+        [formField]="f.folder"
+      />
+    `,
+  })
+  class FocusHost {
+    readonly nodes = NODES;
+    readonly openOn = signal<'inline' | 'overlay'>('inline');
+    readonly virtual = signal(false);
+    private readonly model = signal<{ folder: string | null }>({ folder: null });
+    readonly f = form(this.model);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<FocusHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const rows = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('[role="treeitem"]')];
+
+  const build = (setUp?: (host: FocusHost) => void): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(FocusHost);
+    setUp?.(fixture.componentInstance);
+    fixture.detectChanges();
+  };
+
+  const focusField = (): void => {
+    fixture.componentInstance.f.folder().focusBoundControl();
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('focuses the row holding the tab stop', () => {
+    build();
+    focusField();
+
+    expect(document.activeElement).toBe(rows()[0]);
+    expect(rows()[0].getAttribute('tabindex')).toBe('0');
+    expect(root().querySelector('wr-tree')!.contains(document.activeElement)).toBe(true);
+  });
+
+  it('follows the tab stop once the cursor has moved', async () => {
+    build();
+    rows()[0].focus();
+    rows()[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    await fixture.whenStable();
+    (document.activeElement as HTMLElement).blur();
+
+    focusField();
+
+    expect(document.activeElement).toBe(rows()[1]);
+    expect(rows()[1].getAttribute('tabindex')).toBe('0');
+  });
+
+  it('focuses the list while windowed, where the list is the tab stop', () => {
+    build(h => h.virtual.set(true));
+    focusField();
+
+    expect(document.activeElement).toBe(root().querySelector('.wr-tree__list'));
+  });
+
+  it('focuses the trigger in overlay mode, without opening the panel', () => {
+    build(h => h.openOn.set('overlay'));
+    focusField();
+
+    const trigger = root().querySelector<HTMLButtonElement>('.wr-tree__trigger')!;
+    expect(document.activeElement).toBe(trigger);
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(document.querySelector('.wr-tree-panel')).toBeNull();
   });
 });

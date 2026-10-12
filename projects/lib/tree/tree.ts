@@ -684,6 +684,21 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     }
   }
 
+  /**
+   * Focus the tree — what Signal Forms calls to focus this control. Focus goes
+   * where Tab would put it: the row holding the roving tab stop, or the list
+   * itself while it is windowed, since the list is the tab stop then. In overlay
+   * mode that is the trigger, and the panel stays shut.
+   */
+  focus(options?: FocusOptions): void {
+    const host = this.host.nativeElement;
+    let stop: HTMLElement | null;
+    if (this.isOverlay()) stop = host.querySelector<HTMLElement>('.wr-tree__trigger');
+    else if (this.virtualized()) stop = host.querySelector<HTMLElement>('.wr-tree__list');
+    else stop = host.querySelector<HTMLElement>(`[data-tree-index="${this.cursorIndex()}"]`);
+    stop?.focus(options);
+  }
+
   // Overlay-mode trigger handlers
 
   protected onTriggerClick(): void {

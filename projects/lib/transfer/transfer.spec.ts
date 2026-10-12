@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormField, disabled, form, readonly } from '@angular/forms/signals';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -369,5 +370,93 @@ describe('WrTransfer', () => {
     const names = [...root().querySelectorAll('.wr-transfer__head input')].map(i => i.getAttribute('aria-label'));
 
     expect(names).toEqual(['Available — Select all', 'Selected — Select all']);
+  });
+});
+
+/**
+ * `focusBoundControl()` is how a Signal Forms field takes the user to its
+ * control. Without a `focus()` of its own the directive calls `focus()` on the
+ * HOST — a `role="group"` with no tab stop — so nothing moved. The landing is
+ * the left pane's filter when there is one, otherwise the first row that can be
+ * ticked, and never the select-all box ahead of both.
+ */
+describe('WrTransfer focused by its bound field', () => {
+  @Component({
+    imports: [FormField, WrTransfer],
+    template: `<wr-transfer [items]="items" [searchable]="searchable()" [formField]="f.granted" />`,
+  })
+  class FocusHost {
+    readonly items = ITEMS;
+    readonly searchable = signal(false);
+    readonly locked = signal(false);
+    readonly off = signal(false);
+    readonly model = signal<{ granted: string[] }>({ granted: [] });
+    readonly f = form(this.model, p => {
+      readonly(p.granted, () => this.locked());
+      disabled(p.granted, () => this.off());
+    });
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<FocusHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const pane = (side: 0 | 1): HTMLElement => root().querySelectorAll<HTMLElement>('.wr-transfer__pane')[side];
+
+  const build = (setUp?: (host: FocusHost) => void): void => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(FocusHost);
+    setUp?.(fixture.componentInstance);
+    fixture.detectChanges();
+  };
+
+  const focusField = (): void => {
+    fixture.componentInstance.f.granted().focusBoundControl();
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('focuses the first row of the left pane', () => {
+    build();
+    focusField();
+
+    expect(document.activeElement).toBe(pane(0).querySelector('.wr-transfer__item input'));
+    expect(root().querySelector('wr-transfer')!.contains(document.activeElement)).toBe(true);
+  });
+
+  it('focuses the left pane’s filter when the panes are searchable', () => {
+    build(h => h.searchable.set(true));
+    focusField();
+
+    expect(document.activeElement).toBe(pane(0).querySelector('.wr-transfer__search input'));
+  });
+
+  it('skips a row that cannot be ticked', () => {
+    // Everything but the disabled row is already on the right, so the left pane
+    // has nothing to act on and the first live row is on the other side.
+    build(h => h.model.set({ granted: ['read', 'write', 'delete'] }));
+    focusField();
+
+    expect(document.activeElement).toBe(pane(1).querySelector('.wr-transfer__item input'));
+  });
+
+  it('still lands on a row while read-only, which keeps its tab stop', () => {
+    build(h => h.locked.set(true));
+    focusField();
+
+    const row = pane(0).querySelector<HTMLInputElement>('.wr-transfer__item input')!;
+    expect(row.getAttribute('aria-readonly')).toBe('true');
+    expect(document.activeElement).toBe(row);
+  });
+
+  it('leaves focus where it was while disabled', () => {
+    build(h => {
+      h.searchable.set(true);
+      h.off.set(true);
+    });
+    focusField();
+
+    expect(root().querySelector('.wr-transfer__search input')!.hasAttribute('disabled')).toBe(true);
+    expect(root().querySelector('wr-transfer')!.contains(document.activeElement)).toBe(false);
   });
 });
