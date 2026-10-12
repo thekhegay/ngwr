@@ -7,7 +7,18 @@
 
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, inject, input, model, output, signal } from '@angular/core';
+import {
+  Component,
+  type ElementRef,
+  ViewEncapsulation,
+  computed,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
@@ -106,6 +117,8 @@ export class WrRating implements FormValueControl<number | null> {
    */
   protected readonly focusable = computed(() => !this.disabled());
 
+  private readonly row = viewChild.required<ElementRef<HTMLElement>>('row');
+
   /**
    * What we actually render — hover wins while hovering.
    *
@@ -189,6 +202,16 @@ export class WrRating implements FormValueControl<number | null> {
   /** Fill ratio for slot `i` in `[0, 1]` — drives the CSS clip width. */
   protected fillFor(i: number): number {
     return clamp(this.displayValue() - i, 0, 1);
+  }
+
+  /**
+   * Focus the rating — what Signal Forms calls to focus this control. The
+   * `role="slider"` row takes it, since the host has no tab stop of its own. A
+   * read-only rating still does, and a disabled one refuses: its row keeps a
+   * `tabindex="-1"` a script could focus, so the refusal is made here.
+   */
+  focus(options?: FocusOptions): void {
+    if (this.focusable()) this.row().nativeElement.focus(options);
   }
 
   // Template handlers

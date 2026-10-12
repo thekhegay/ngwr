@@ -6,7 +6,17 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, forwardRef, input, model, output } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  ViewEncapsulation,
+  computed,
+  forwardRef,
+  inject,
+  input,
+  model,
+  output,
+} from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
@@ -92,6 +102,17 @@ export class WrCheckboxGroup implements FormValueControl<unknown[]>, WrCheckboxG
 
   /** Effective readonly state (WrCheckboxGroupContext). */
   readonly isReadonly = computed(() => this.readonly());
+
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  /**
+   * Focus the group — what Signal Forms calls to focus this control. The first
+   * enabled box takes it, which is where Tab lands: the host is a `role="group"`
+   * with no tab stop of its own, and a disabled box has none either.
+   */
+  focus(options?: FocusOptions): void {
+    this.host.nativeElement.querySelector<HTMLInputElement>('.wr-checkbox__input:not(:disabled)')?.focus(options);
+  }
 
   // WrCheckboxGroupContext
 

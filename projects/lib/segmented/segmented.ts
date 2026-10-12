@@ -273,6 +273,15 @@ export class WrSegmented<T = unknown> implements FormValueControl<T | null> {
     };
   });
 
+  /**
+   * Focus the strip — what Signal Forms calls to focus this control. The first
+   * enabled segment takes it, which is where Tab lands: the `role="group"` host
+   * has no tab stop of its own, and a disabled segment has none either.
+   */
+  focus(options?: FocusOptions): void {
+    this.host.nativeElement.querySelector<HTMLButtonElement>('.wr-segmented__option:not(:disabled)')?.focus(options);
+  }
+
   protected isSelected(option: WrSegmentedOption<T>): boolean {
     return this.value() === option.value;
   }

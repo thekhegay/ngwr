@@ -6,7 +6,16 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, input, model, output } from '@angular/core';
+import {
+  Component,
+  type ElementRef,
+  ViewEncapsulation,
+  computed,
+  input,
+  model,
+  output,
+  viewChild,
+} from '@angular/core';
 import type { FormCheckboxControl } from '@angular/forms/signals';
 
 import { useConfigValue } from 'ngwr/config';
@@ -98,6 +107,8 @@ export class WrSwitch implements FormCheckboxControl {
   /** Emitted on blur so a bound field can mark itself touched. */
   readonly touch = output<void>();
 
+  private readonly native = viewChild.required<ElementRef<HTMLInputElement>>('native');
+
   protected readonly classes = computed(() => {
     const parts = ['wr-switch'];
     const size = this.resolvedSize();
@@ -107,6 +118,15 @@ export class WrSwitch implements FormCheckboxControl {
     else if (this.readonly()) parts.push('wr-switch--readonly');
     return parts.join(' ');
   });
+
+  /**
+   * Focus the switch — what Signal Forms calls to focus this control. The native
+   * input takes it, since the host has no tab stop of its own; a disabled switch
+   * refuses, as a disabled input always does.
+   */
+  focus(options?: FocusOptions): void {
+    this.native().nativeElement.focus(options);
+  }
 
   // Template handlers
 

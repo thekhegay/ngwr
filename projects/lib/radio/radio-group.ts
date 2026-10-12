@@ -6,7 +6,17 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, forwardRef, input, model, output } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  ViewEncapsulation,
+  computed,
+  forwardRef,
+  inject,
+  input,
+  model,
+  output,
+} from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
@@ -94,6 +104,23 @@ export class WrRadioGroup implements FormValueControl<unknown>, WrRadioGroupCont
 
   /** Effective readonly state (WrRadioGroupContext). */
   readonly isReadonly = computed(() => this.readonly());
+
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  /**
+   * Focus the group — what Signal Forms calls to focus this control. The radio
+   * Tab lands on takes it: the checked one, or the first enabled one while
+   * nothing is checked. The `role="radiogroup"` host has no tab stop of its own,
+   * and a disabled radio has none either — so a checked radio that is disabled
+   * hands focus to the first enabled one too, where Tab would skip the group.
+   */
+  focus(options?: FocusOptions): void {
+    const host = this.host.nativeElement;
+    const radio =
+      host.querySelector<HTMLInputElement>('.wr-radio__input:checked:not(:disabled)') ??
+      host.querySelector<HTMLInputElement>('.wr-radio__input:not(:disabled)');
+    radio?.focus(options);
+  }
 
   // WrRadioGroupContext
 

@@ -1,7 +1,7 @@
 import { Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { FormField, form } from '@angular/forms/signals';
+import { FormField, disabled, form, readonly } from '@angular/forms/signals';
 
 import { Subject } from 'rxjs';
 
@@ -381,5 +381,76 @@ describe('WrRating', () => {
       const state = field.componentInstance.form.score();
       expect([state.value(), state.dirty()]).toEqual([0, true]);
     });
+  });
+});
+
+/**
+ * `focusBoundControl()` is how a form puts the user on a field — the first
+ * invalid one after a failed submit, typically. Signal Forms asks the bound
+ * component for `focus()` and otherwise focuses the HOST, which here is an
+ * element with no tab stop: the call did nothing. A disabled rating has left the
+ * tab order, and a form asking for it must not put it back.
+ */
+@Component({
+  imports: [WrRating, FormField],
+  template: `<wr-rating [formField]="review.score" />`,
+})
+class FocusHost {
+  readonly locked = signal(false);
+  readonly frozen = signal(false);
+  readonly model = signal<{ score: number | null }>({ score: null });
+  readonly review = form(this.model, path => {
+    disabled(path.score, () => this.locked());
+    readonly(path.score, () => this.frozen());
+  });
+}
+
+describe('WrRating under focusBoundControl()', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<FocusHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const slider = (): HTMLElement => root().querySelector<HTMLElement>('[role="slider"]')!;
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(FocusHost);
+    // Attached, or `focus()` moves nothing: an element outside the document
+    // cannot be the active one, and every assertion here would read `<body>`.
+    document.body.appendChild(root());
+    await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    root().remove();
+    fixture.destroy();
+  });
+
+  it('focuses the slider', () => {
+    fixture.componentInstance.review.score().focusBoundControl();
+
+    expect(document.activeElement).toBe(slider());
+  });
+
+  it('still focuses the slider while read-only', async () => {
+    fixture.componentInstance.frozen.set(true);
+    await fixture.whenStable();
+
+    fixture.componentInstance.review.score().focusBoundControl();
+
+    expect(slider().getAttribute('aria-readonly')).toBe('true');
+    expect(document.activeElement).toBe(slider());
+  });
+
+  it('leaves focus alone while disabled', async () => {
+    fixture.componentInstance.locked.set(true);
+    await fixture.whenStable();
+
+    fixture.componentInstance.review.score().focusBoundControl();
+
+    // The slider keeps `tabindex="-1"` while disabled, which a script CAN focus —
+    // so the refusal has to be the component's, not the DOM's.
+    expect(slider().getAttribute('tabindex')).toBe('-1');
+    expect(document.activeElement).not.toBe(slider());
   });
 });
