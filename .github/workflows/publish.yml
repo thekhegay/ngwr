@@ -70,6 +70,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # A feat or fix merged after the release PR was cut would ship with no
+      # CHANGELOG line. The cure is the Release PR workflow again, same bump.
+      - name: Check the changelog names everything that ships
+        run: pnpm release:check
+
       - run: pnpm lint
 
       - run: pnpm build:lib

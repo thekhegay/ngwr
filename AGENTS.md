@@ -1043,7 +1043,10 @@ configuration on the package allows a direct publish. ngwr.dev deploys from the
 same push, and the `production` environment that deploy runs in requires the
 maintainer's approval too: approve the npm stage first and the deploy second,
 or the site, its "Added in" marks and its StackBlitz sandbox run one version
-ahead of npm.
+ahead of npm. Before any of that, `publish.yml` runs `pnpm release:check`: the
+CHANGELOG section is written when the release PR is cut, so a feat or fix
+merged into main afterwards would ship in the tag with no line anywhere, and
+the job refuses until the Release PR workflow is run again with the same bump.
 
 **Whether a major ships a codemod is decided by one rule, and the rule is about
 the SHAPE of the break rather than its size: a codemod runs when the new form

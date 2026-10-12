@@ -12,20 +12,14 @@
  * is left out.
  */
 
-import { execFileSync } from 'node:child_process';
 import { env } from 'node:process';
 
 import { ghApi } from '../github/gh-api';
+import { previousTag } from '../version/previous-tag';
 
 export function releaseFooter(repo: string, version: string): string {
   const tag = `v${version}`;
-  // Without the suffix setting git sorts `v1.2.0-rc.1` above `v1.2.0`, so the
-  // release after a stable one that had candidates would compare against an rc.
-  const previous = execFileSync('git', ['-c', 'versionsort.suffix=-rc.', 'tag', '--sort=-v:refname'], {
-    encoding: 'utf8',
-  })
-    .split('\n')
-    .find(t => /^v\d+\.\d+\.\d+(-rc\.\d+)?$/.test(t) && t !== tag);
+  const previous = previousTag(version);
 
   const notes = ghApi([
     '--method',

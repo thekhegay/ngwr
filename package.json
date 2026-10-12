@@ -32,6 +32,7 @@
     "postinstall": "node scripts/build-icon-sets.mjs",
     "release:prepare": "tsx scripts/release-prepare.ts",
     "release:body": "tsx scripts/release-body.ts",
+    "release:check": "tsx scripts/release-check.ts",
     "prepare": "simple-git-hooks",
     "check:state-a11y": "tsx scripts/check-state-a11y.ts",
     "check:registry": "tsx scripts/check-registry.ts",
