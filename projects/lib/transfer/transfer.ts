@@ -301,6 +301,24 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
   private readonly injector = inject(Injector);
 
   /**
+   * Focus the transfer — what Signal Forms calls to focus this control. The
+   * host is a `group` with no tab stop of its own, so focus goes to the left
+   * pane's filter when the panes are searchable, otherwise to the first row that
+   * can still be ticked — on the right, once nothing on the left can be.
+   *
+   * The pane's select-all box comes first in the tab order and is passed over
+   * on purpose: it acts on every row at once, and a form pointing at the field
+   * is asking for a choice. A disabled transfer has nothing left to focus.
+   */
+  focus(options?: FocusOptions): void {
+    this.host.nativeElement
+      .querySelector<HTMLInputElement>(
+        '.wr-transfer__search input:not([disabled]), .wr-transfer__item input:not([disabled])'
+      )
+      ?.focus(options);
+  }
+
+  /**
    * Keep focus in the widget after a move.
    *
    * A move empties the pane's staging set, which is exactly what disables the

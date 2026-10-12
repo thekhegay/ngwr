@@ -638,6 +638,15 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     this.reveal();
   };
 
+  /**
+   * Focus the text field — what Signal Forms calls to focus this control. The
+   * calendar stays shut: focus alone has never opened it, only a click on the
+   * field, the trigger, or Alt+ArrowDown.
+   */
+  focus(options?: FocusOptions): void {
+    this.inputEl().nativeElement.focus(options);
+  }
+
   /** Called by the input's click — opens the overlay if it isn't open already. */
   protected openOnInput(): void {
     if (this.disabled() || this.overlayRef) return;

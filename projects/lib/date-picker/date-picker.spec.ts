@@ -1755,3 +1755,42 @@ describe('WrDatePicker refusals and forms', () => {
     fixture.destroy();
   });
 });
+
+/**
+ * `focusBoundControl()` is how a Signal Forms field takes the user to its
+ * control. Without a `focus()` of its own the directive calls `focus()` on the
+ * HOST, and `<wr-date-picker>` is not focusable, so nothing moved. The text
+ * field is the tab stop, and focusing it does not open the calendar.
+ */
+describe('WrDatePicker focused by its bound field', () => {
+  @Component({
+    imports: [FormField, WrDatePicker],
+    template: `<wr-date-picker format="dd.MM.yyyy" [formField]="f.due" />`,
+  })
+  class FocusHost {
+    private readonly model = signal<{ due: Date | null }>({ due: null });
+    readonly f = form(this.model);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<FocusHost>>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    fixture = TestBed.createComponent(FocusHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('focuses the text field, without opening the calendar', () => {
+    fixture.componentInstance.f.due().focusBoundControl();
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(document.activeElement).toBe(root.querySelector('input.wr-input'));
+    expect(root.querySelector('wr-date-picker')!.contains(document.activeElement)).toBe(true);
+    expect(root.querySelector('.wr-date-picker__trigger')!.getAttribute('aria-expanded')).toBe('false');
+    expect(document.querySelector('wr-calendar')).toBeNull();
+  });
+});

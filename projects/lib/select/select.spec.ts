@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, type EnvironmentProviders, type Type, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { FormField, form, required } from '@angular/forms/signals';
+import { FormField, disabled, form, readonly, required } from '@angular/forms/signals';
 
 import { provideWrConfig } from 'ngwr/config';
 import { WrFormField } from 'ngwr/form';
@@ -2976,5 +2976,125 @@ describe('WrSelect panelClass', () => {
 
     expect(pane().classList.contains('first')).toBe(true);
     expect(pane().classList.contains('second')).toBe(false);
+  });
+});
+
+/**
+ * `focusBoundControl()` is how a Signal Forms field takes the user to its
+ * control — the first invalid one on submit, typically. Without a `focus()` of
+ * its own the directive calls `focus()` on the HOST, and `<wr-select>` is not
+ * focusable, so nothing moved and nothing said so. The tab stop differs by
+ * shape, so every shape is checked, and none of them may open the panel: the
+ * form is pointing at the field, not starting a query in it.
+ */
+describe('WrSelect focused by its bound field', () => {
+  @Component({
+    imports: [FormField, WrSelect, WrOption],
+    template: `
+      <wr-select ariaLabel="Size" [mode]="mode()" [searchable]="searchable()" [formField]="f.size">
+        <wr-option value="sm">Small</wr-option>
+        <wr-option value="md">Medium</wr-option>
+      </wr-select>
+    `,
+  })
+  class FocusHost {
+    readonly mode = signal<WrSelectMode>('single');
+    readonly searchable = signal(false);
+    readonly locked = signal(false);
+    readonly off = signal(false);
+    // `null` in every shape: the multi shapes read a null write as no chips.
+    private readonly model = signal<{ size: string | null }>({ size: null });
+    readonly f = form(this.model, p => {
+      readonly(p.size, () => this.locked());
+      disabled(p.size, () => this.off());
+    });
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<FocusHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-select')!;
+
+  const build = (mode: WrSelectMode, searchable = false, setUp?: (host: FocusHost) => void): void => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(FocusHost);
+    fixture.componentInstance.mode.set(mode);
+    fixture.componentInstance.searchable.set(searchable);
+    setUp?.(fixture.componentInstance);
+    fixture.detectChanges();
+  };
+
+  const focusField = (): void => {
+    fixture.componentInstance.f.size().focusBoundControl();
+    fixture.detectChanges();
+  };
+
+  afterEach(() => {
+    fixture.destroy();
+    TestBed.resetTestingModule();
+  });
+
+  it('focuses the trigger button', () => {
+    build('single');
+    focusField();
+
+    expect(document.activeElement).toBe(root().querySelector('button.wr-select__trigger'));
+    expect(host().contains(document.activeElement)).toBe(true);
+  });
+
+  it('focuses the search field, without opening the panel', () => {
+    build('search');
+    focusField();
+
+    const field = root().querySelector<HTMLInputElement>('.wr-select__search-input')!;
+    expect(document.activeElement).toBe(field);
+    expect(field.getAttribute('aria-expanded')).toBe('false');
+    expect(document.querySelector('.wr-select-panel')).toBeNull();
+  });
+
+  it('focuses the chip field of a searchable multi, without opening the panel', () => {
+    build('multi', true);
+    focusField();
+
+    const field = root().querySelector<HTMLInputElement>('.wr-select__tag-input')!;
+    expect(document.activeElement).toBe(field);
+    expect(field.getAttribute('aria-expanded')).toBe('false');
+    expect(document.querySelector('.wr-select-panel')).toBeNull();
+  });
+
+  it('focuses the draft field in tag mode', () => {
+    build('tag');
+    focusField();
+
+    expect(document.activeElement).toBe(root().querySelector('.wr-select__tag-input'));
+  });
+
+  it('still opens a search field the user tabs into', () => {
+    // The quiet path is for the form's call alone; a focus that is not one keeps
+    // opening the panel, which is what a user arriving at the field expects.
+    build('search');
+    const field = root().querySelector<HTMLInputElement>('.wr-select__search-input')!;
+    field.focus();
+    fixture.detectChanges();
+
+    expect(field.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('focuses a read-only search field, which keeps its tab stop', () => {
+    build('search', false, h => h.locked.set(true));
+    focusField();
+
+    const field = root().querySelector<HTMLInputElement>('.wr-select__search-input')!;
+    expect(field.readOnly).toBe(true);
+    expect(document.activeElement).toBe(field);
+    expect(document.querySelector('.wr-select-panel')).toBeNull();
+  });
+
+  it('leaves focus where it was while disabled', () => {
+    build('single', false, h => h.off.set(true));
+    focusField();
+
+    expect(root().querySelector<HTMLButtonElement>('button.wr-select__trigger')!.disabled).toBe(true);
+    expect(host().contains(document.activeElement)).toBe(false);
   });
 });

@@ -1199,3 +1199,43 @@ class SignalRangeHost {
   });
   readonly f = form(this.model);
 }
+
+/**
+ * `focusBoundControl()` is how a Signal Forms field takes the user to its
+ * control. Without a `focus()` of its own the directive calls `focus()` on the
+ * HOST, and `<wr-date-range-picker>` is not focusable, so nothing moved. A range
+ * starts where it is read from — the START field — and the calendar stays shut.
+ */
+describe('WrDateRangePicker focused by its bound field', () => {
+  @Component({
+    imports: [FormField, WrDateRangePicker],
+    template: `<wr-date-range-picker format="dd.MM.yyyy" [formField]="f.trip" />`,
+  })
+  class FocusHost {
+    private readonly model = signal<{ trip: WrDateRange | null }>({ trip: null });
+    readonly f = form(this.model);
+  }
+
+  let fixture: ComponentFixture<FocusHost>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    fixture = TestBed.createComponent(FocusHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('focuses the start field, without opening the calendar', () => {
+    fixture.componentInstance.f.trip().focusBoundControl();
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const [start] = root.querySelectorAll<HTMLInputElement>('.wr-date-range-picker__input');
+    expect(document.activeElement).toBe(start);
+    expect(root.querySelector('wr-date-range-picker')!.contains(document.activeElement)).toBe(true);
+    expect(root.querySelector('.wr-date-picker__trigger')!.getAttribute('aria-expanded')).toBe('false');
+    expect(document.querySelector('wr-calendar')).toBeNull();
+  });
+});
