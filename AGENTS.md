@@ -1040,8 +1040,10 @@ the package's Staged Packages tab). What makes a compromised run unable to ship
 is the trusted publisher on npmjs.com having direct `npm publish` switched off;
 every configuration may stage by default, so that holds only while no
 configuration on the package allows a direct publish. ngwr.dev deploys from the
-same push, so between merge and approval the site, its "Added in" marks and its
-StackBlitz sandbox are one version ahead of npm.
+same push, and the `production` environment that deploy runs in requires the
+maintainer's approval too: approve the npm stage first and the deploy second,
+or the site, its "Added in" marks and its StackBlitz sandbox run one version
+ahead of npm.
 
 **Whether a major ships a codemod is decided by one rule, and the rule is about
 the SHAPE of the break rather than its size: a codemod runs when the new form
