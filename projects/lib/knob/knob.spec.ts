@@ -1,10 +1,11 @@
 import { Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormField, disabled, form, readonly } from '@angular/forms/signals';
 
 import { Subject } from 'rxjs';
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrKnob } from './knob';
 
@@ -458,5 +459,69 @@ describe('WrKnob', () => {
     drag(100, -100);
 
     expect([ltr, value()]).toEqual([67, 67]);
+  });
+});
+
+/**
+ * `focusBoundControl()` is how a Signal Forms app sends the user to a field —
+ * the first invalid one after a failed submit, typically. It calls the bound
+ * control's own `focus()`, and the host element's when there is none; this host
+ * carries no tab stop, so without the method the call landed nowhere.
+ */
+describe('WrKnob focusBoundControl', () => {
+  @Component({
+    imports: [FormField, WrKnob],
+    template: `<wr-knob [formField]="form.volume" />`,
+  })
+  class FocusHost {
+    readonly off = signal(false);
+    readonly locked = signal(false);
+    readonly form = form(signal({ volume: 40 }), path => {
+      disabled(path.volume, () => this.off());
+      readonly(path.volume, () => this.locked());
+    });
+  }
+
+  let fixture: ComponentFixture<FocusHost>;
+
+  const host = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-knob')!;
+  const surface = (): HTMLElement => host().querySelector<HTMLElement>('[role="slider"]')!;
+
+  beforeEach(async () => {
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(FocusHost);
+    await fixture.whenStable();
+  });
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('focuses the dial, passing the options through', () => {
+    const spy = vi.spyOn(surface(), 'focus');
+
+    fixture.componentInstance.form.volume().focusBoundControl({ preventScroll: true });
+
+    expect(document.activeElement).toBe(surface());
+    expect(spy).toHaveBeenCalledWith({ preventScroll: true });
+  });
+
+  it('still focuses a read-only dial, which keeps its tab stop', async () => {
+    fixture.componentInstance.locked.set(true);
+    await fixture.whenStable();
+
+    fixture.componentInstance.form.volume().focusBoundControl();
+
+    expect(document.activeElement).toBe(surface());
+  });
+
+  // The surface keeps `tabindex="-1"` while disabled, which a script can still
+  // focus — so this holds only because the method checks, as a disabled native
+  // control refuses the same call.
+  it('leaves a disabled dial alone', async () => {
+    fixture.componentInstance.off.set(true);
+    await fixture.whenStable();
+
+    fixture.componentInstance.form.volume().focusBoundControl();
+
+    expect(host().contains(document.activeElement)).toBe(false);
   });
 });

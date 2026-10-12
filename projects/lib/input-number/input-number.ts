@@ -8,6 +8,7 @@
 import { type BooleanInput, coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import {
   Component,
+  type ElementRef,
   LOCALE_ID,
   ViewEncapsulation,
   computed,
@@ -17,6 +18,7 @@ import {
   model,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
@@ -207,6 +209,8 @@ export class WrInputNumber implements FormValueControl<number | null> {
   /** Whether the input is focused. While true, the input handlers own `text`. */
   protected readonly focused = signal(false);
 
+  private readonly field = viewChild.required<ElementRef<HTMLInputElement>>('input');
+
   protected readonly interactive = computed(() => !this.disabled() && !this.readonly());
 
   protected readonly atMin = computed(() => {
@@ -288,6 +292,15 @@ export class WrInputNumber implements FormValueControl<number | null> {
       // validation to judge.
       this.text.set(this.format(v));
     });
+  }
+
+  /**
+   * Focus the text field — what Signal Forms calls to focus this control, from
+   * `focusBoundControl()`. The host is a plain element, so without this the
+   * call landed on something that cannot take focus and nothing moved.
+   */
+  focus(options?: FocusOptions): void {
+    this.field().nativeElement.focus(options);
   }
 
   // Template handlers

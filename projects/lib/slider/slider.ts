@@ -214,6 +214,7 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   private highSeeded = false;
 
   protected readonly track = viewChild.required<ElementRef<HTMLElement>>('track');
+  private readonly lowThumb = viewChild.required<ElementRef<HTMLButtonElement>>('lowThumb');
 
   /**
    * Ambient reading direction. Optional so a bare `TestBed` — or any consumer
@@ -298,6 +299,16 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
       this.high.set(this.highSeeded ? this.clampToBounds(untracked(this.high)) : this.maxValue());
       this.highSeeded = true;
     });
+  }
+
+  /**
+   * Focus the slider — what Signal Forms calls to focus this control, from
+   * `focusBoundControl()`. The host carries no tab stop, so the call goes to
+   * the thumb, and in range mode to the LOWER one: the first in the tab order,
+   * and the one that carries the field's id and error description.
+   */
+  focus(options?: FocusOptions): void {
+    this.lowThumb().nativeElement.focus(options);
   }
 
   // Interaction
