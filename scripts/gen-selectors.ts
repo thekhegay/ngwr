@@ -16,6 +16,12 @@
  * Runs as the first step of `build:showcase`, and the output is committed so a
  * clean checkout type-checks before anything is generated.
  *
+ * Keep the root `package.json` out of it. `check:selectors` holds the committed
+ * copy to this output inside `pnpm lint`, so a devDependency's version written
+ * here turns every Dependabot bump of it red until someone regenerates — which
+ * is what `lucide`'s range did, on every lucide release. The sandbox imports
+ * that range from the manifest itself (`sandbox/project.ts`).
+ *
  * The scan lives in `scripts/lib/build-selector-map.ts` — read its header
  * before changing anything here; the completeness assertion and the
  * comment-aware brace matcher are both load-bearing and both were paid for.
@@ -337,36 +343,6 @@ function styleDependencies(entries: readonly EntryPoint[], map: WrSelectorMap): 
 }
 
 /**
- * The `lucide` range this repository builds against, read from the root
- * `package.json` verbatim.
- *
- * The sandbox has to write a version into every generated project's
- * `package.json`, and it runs in a browser that cannot read this manifest — so
- * the range has to travel to it as a constant. It was a hand-kept literal in
- * `sandbox/project.ts` until it drifted twice in one day behind Dependabot
- * bumps; reading the manifest here is what makes the next bump arrive in the
- * sandbox on its own.
- *
- * Throws rather than falling back to a default: a plausible-looking wrong
- * version in every generated project is the exact failure being removed, and
- * it would fail in the container minutes later with nothing pointing here.
- */
-function lucideRange(): string {
-  const manifest = JSON.parse(readFileSync(resolve(ROOT_PATH, 'package.json'), 'utf8')) as {
-    dependencies?: Record<string, string>;
-    devDependencies?: Record<string, string>;
-  };
-  const range = manifest.dependencies?.['lucide'] ?? manifest.devDependencies?.['lucide'];
-  if (!range) {
-    throw new Error(
-      'gen:selectors — no `lucide` in the root package.json (dependencies or devDependencies). ' +
-        'The sandbox pins the icon set from it: restore the dependency, or drop LUCIDE_VERSION here and in sandbox/project.ts.'
-    );
-  }
-  return range;
-}
-
-/**
  * Per entry point, the OPTIONAL peer dependencies its own source imports, with
  * the range `projects/lib/package.json` declares for each.
  *
@@ -431,7 +407,6 @@ function serialize(
   map: WrSelectorMap,
   styles: readonly string[],
   deps: Record<string, readonly string[]>,
-  lucide: string,
   peers: Record<string, Record<string, string>>
 ): string {
   return `/**
@@ -516,18 +491,6 @@ ${Object.entries(deps)
 };
 
 /**
- * The \`lucide\` range from this repository's own \`package.json\`, for the
- * \`package.json\` a generated sandbox project ships when a snippet draws an
- * icon.
- *
- * The sandbox needs a version and runs in a browser, which cannot read the
- * repository's manifest — so it is baked in here instead. Nothing to keep in
- * step: bump \`lucide\` and re-run \`pnpm gen:selectors\`, which \`build:showcase\`
- * does first thing.
- */
-export const LUCIDE_VERSION = ${JSON.stringify(lucide)};
-
-/**
  * Per entry point, the optional peer dependencies it imports and the range the
  * library declares for each — what a generated sandbox project has to add to
  * its \`package.json\` when a snippet reaches that entry point, since installing
@@ -554,9 +517,8 @@ function main(): void {
   const entries = entryPoints();
   const styles = styleEntryPoints(entries);
   const deps = styleDependencies(entries, map);
-  const lucide = lucideRange();
   const peers = optionalPeerDependencies(entries);
-  const next = serialize(map, styles, deps, lucide, peers);
+  const next = serialize(map, styles, deps, peers);
   const path = relative(ROOT_PATH, OUT_FILE);
 
   if (check) {
@@ -565,7 +527,7 @@ function main(): void {
       console.error(`\n✘ ${path} is out of date with projects/lib. Run \`pnpm gen:selectors\` and commit the result.\n`);
       process.exit(1);
     }
-    console.log(`✓ ${path} — ${Object.keys(map.tags).length} tags, ${styles.length} style entry points, lucide ${lucide}, up to date`);
+    console.log(`✓ ${path} — ${Object.keys(map.tags).length} tags, ${styles.length} style entry points, up to date`);
 
     return;
   }
@@ -577,8 +539,7 @@ function main(): void {
     `✓ ${relative(ROOT_PATH, OUT_FILE)} — ${Object.keys(map.tags).length} tags, ` +
       `${Object.keys(map.attributes).length} attributes from ${stats.mapped} declarations, ` +
       `${styles.length} style entry points, ` +
-      `${Object.keys(deps).length} with style dependencies, ${Object.keys(peers).length} with optional peers, ` +
-      `lucide ${lucide}`
+      `${Object.keys(deps).length} with style dependencies, ${Object.keys(peers).length} with optional peers`
   );
   console.log(
     `  ${stats.files} files, ${stats.declarations} declarations` +

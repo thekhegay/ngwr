@@ -402,18 +402,6 @@ export const STYLE_DEPENDENCIES: Readonly<Record<string, readonly string[]>> = {
 };
 
 /**
- * The `lucide` range from this repository's own `package.json`, for the
- * `package.json` a generated sandbox project ships when a snippet draws an
- * icon.
- *
- * The sandbox needs a version and runs in a browser, which cannot read the
- * repository's manifest — so it is baked in here instead. Nothing to keep in
- * step: bump `lucide` and re-run `pnpm gen:selectors`, which `build:showcase`
- * does first thing.
- */
-export const LUCIDE_VERSION = "^1.55.0";
-
-/**
  * Per entry point, the optional peer dependencies it imports and the range the
  * library declares for each — what a generated sandbox project has to add to
  * its `package.json` when a snippet reaches that entry point, since installing

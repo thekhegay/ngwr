@@ -3,27 +3,24 @@ import { VERSION as NG_VERSION } from '@angular/core';
 
 import { NGWR_VERSION } from 'ngwr/version';
 
+import { devDependencies } from '../../../../../package.json';
+
 import { readComponentSource } from './component-source';
 import { renderIconsFile } from './demo-icons';
 import { isTemplateLanguage, isTypeScriptLanguage } from './languages';
 import { scanTemplate, type SandboxField, type TemplateScan } from './resolve';
 import type { SandboxFile, SandboxProject } from './types';
 
-import {
-  LUCIDE_VERSION,
-  OPTIONAL_PEER_DEPENDENCIES,
-  STYLE_DEPENDENCIES,
-  STYLE_ENTRY_POINTS,
-} from '#core/generated/selectors';
+import { OPTIONAL_PEER_DEPENDENCIES, STYLE_DEPENDENCIES, STYLE_ENTRY_POINTS } from '#core/generated/selectors';
 
 /**
  * Builds a bootable Angular 22 workspace out of a docs snippet.
  *
  * Pure and DOM-free on purpose — the form POST lives next door in
- * `stackblitz.ts`, so everything decided here can be reasoned about (and one
- * day asserted) without a browser. The two callers of the module are the
- * sandbox service and, eventually, whatever wants to write the same project to
- * disk.
+ * `stackblitz.ts`, so everything decided here can be reasoned about and
+ * asserted without a browser (`project.spec.ts`). The two callers of the
+ * module are the sandbox service and, eventually, whatever wants to write the
+ * same project to disk.
  *
  * Three tiers, tried in order, and the third one always succeeds:
  *
@@ -99,15 +96,22 @@ const TYPESCRIPT = '~6.0.0';
  * The icon set the generated `src/app/icons.ts` imports from, shipped only when
  * a snippet actually draws an icon.
  *
- * Generated, unlike `TYPESCRIPT` above, because the two constraints have
- * different sources: TypeScript's comes from `@angular/compiler-cli`'s peer
- * range, which is not in this repository's manifest, while lucide's IS — it is
- * the devDependency the docs site itself builds against. So `pnpm
- * gen:selectors` reads it and emits it, and a Dependabot bump reaches the
- * sandbox with no second copy to update. It was a literal beside a "keep it in
- * step" note until it drifted twice in one day.
+ * Read, unlike `TYPESCRIPT` above, because the two constraints have different
+ * sources: TypeScript's comes from `@angular/compiler-cli`'s peer range, which
+ * is not in this repository's manifest, while lucide's IS — it is the
+ * devDependency the docs site itself builds against. So the range is imported
+ * from the root `package.json` and the bundler inlines it at build time: a
+ * Dependabot bump reaches the sandbox with nothing to regenerate. The import is
+ * named so esbuild drops every other top-level key; `devDependencies` itself
+ * comes along whole, about 1.4 kB in the lazy chunk `SandboxService` loads on
+ * hover. Dropping `lucide` from it is a type error here rather than a wrong
+ * version in every generated project.
+ *
+ * It was a literal beside a "keep it in step" note until it drifted twice in
+ * one day, and then a constant in the generated selector map, where
+ * `check:selectors` failed every lucide bump until someone re-ran the generator.
  */
-const LUCIDE = LUCIDE_VERSION;
+const LUCIDE = devDependencies.lucide;
 
 /** Element the generated app mounts when the sandbox synthesises the component. */
 const ROOT_SELECTOR = 'demo-root';
