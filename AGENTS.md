@@ -1034,10 +1034,14 @@ in its own step after the bump. Don't bump the
 version by hand either — releases are cut from Actions, by running the "Release
 PR" workflow with its `bump` input, which runs `release:prepare` /
 `release:body` and opens a `chore(release)` PR. Merging it does not put the
-version in front of users: `publish.yml` runs `npm stage publish`, and the
-trusted publisher on npmjs.com allows staging only, so the release is live once
-the maintainer approves it with 2FA (`npm stage approve` or the package's
-Staged Packages tab). A compromised run can stage a version and cannot ship one.
+version on npm: `publish.yml` runs `npm stage publish`, and the version is
+installable once the maintainer approves it with 2FA (`npm stage approve` or
+the package's Staged Packages tab). What makes a compromised run unable to ship
+is the trusted publisher on npmjs.com having direct `npm publish` switched off;
+every configuration may stage by default, so that holds only while no
+configuration on the package allows a direct publish. ngwr.dev deploys from the
+same push, so between merge and approval the site, its "Added in" marks and its
+StackBlitz sandbox are one version ahead of npm.
 
 **Whether a major ships a codemod is decided by one rule, and the rule is about
 the SHAPE of the break rather than its size: a codemod runs when the new form
