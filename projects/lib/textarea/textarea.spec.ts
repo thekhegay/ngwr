@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormField, form, readonly } from '@angular/forms/signals';
 
 import { Subject } from 'rxjs';
 
@@ -500,5 +501,59 @@ describe('WrTextarea inside a form field', () => {
     fixture.detectChanges();
 
     expect(native().getAttribute('aria-label')).toBe('Describe the product');
+  });
+});
+
+/**
+ * `focusBoundControl()` is how a form puts the user on a field — the first
+ * invalid one after a failed submit, typically. Signal Forms asks the bound
+ * component for `focus()` and otherwise focuses the HOST, which here is a
+ * wrapper with no tab stop: the call did nothing and the caret went nowhere.
+ */
+@Component({
+  imports: [FormField, WrTextarea],
+  template: `<wr-textarea placeholder="Notes" [formField]="note.text" />`,
+})
+class FocusHost {
+  readonly frozen = signal(false);
+  readonly model = signal({ text: '' });
+  readonly note = form(this.model, path => {
+    readonly(path.text, () => this.frozen());
+  });
+}
+
+describe('WrTextarea under focusBoundControl()', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<FocusHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(FocusHost);
+    // Attached, or `focus()` moves nothing: an element outside the document
+    // cannot be the active one, and every assertion here would read `<body>`.
+    document.body.appendChild(root());
+    await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    root().remove();
+    fixture.destroy();
+  });
+
+  it('focuses the native textarea', () => {
+    fixture.componentInstance.note.text().focusBoundControl();
+
+    expect(document.activeElement).toBe(root().querySelector('.wr-textarea__native'));
+  });
+
+  it('still focuses the native textarea while read-only', async () => {
+    fixture.componentInstance.frozen.set(true);
+    await fixture.whenStable();
+
+    fixture.componentInstance.note.text().focusBoundControl();
+
+    expect(document.activeElement).toBe(root().querySelector('.wr-textarea__native[readonly]'));
   });
 });

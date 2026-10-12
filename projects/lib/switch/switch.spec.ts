@@ -1,5 +1,6 @@
 import { Component, type EnvironmentProviders, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormField, disabled, form } from '@angular/forms/signals';
 
 import { provideWrConfig } from 'ngwr/config';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -205,5 +206,59 @@ describe('WrSwitch with an author-supplied id', () => {
   it('still labels the control', () => {
     expect(label().htmlFor).toBe('sw');
     expect(input().labels).toHaveLength(1);
+  });
+});
+
+/**
+ * `focusBoundControl()` is how a form puts the user on a field — the first
+ * invalid one after a failed submit, typically. Signal Forms asks the bound
+ * component for `focus()` and otherwise focuses the HOST, which here is an
+ * element with no tab stop: the call did nothing and focus stayed where it was.
+ */
+@Component({
+  imports: [FormField, WrSwitch],
+  template: `<wr-switch [formField]="prefs.alerts">Alerts</wr-switch>`,
+})
+class FocusHost {
+  readonly locked = signal(false);
+  readonly model = signal({ alerts: false });
+  readonly prefs = form(this.model, path => {
+    disabled(path.alerts, () => this.locked());
+  });
+}
+
+describe('WrSwitch under focusBoundControl()', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<FocusHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(FocusHost);
+    // Attached, or `focus()` moves nothing: an element outside the document
+    // cannot be the active one, and every assertion here would read `<body>`.
+    document.body.appendChild(root());
+    await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    root().remove();
+    fixture.destroy();
+  });
+
+  it('focuses the native input', () => {
+    fixture.componentInstance.prefs.alerts().focusBoundControl();
+
+    expect(document.activeElement).toBe(root().querySelector('input.wr-switch__input'));
+  });
+
+  it('leaves focus alone while disabled', async () => {
+    fixture.componentInstance.locked.set(true);
+    await fixture.whenStable();
+
+    fixture.componentInstance.prefs.alerts().focusBoundControl();
+
+    expect(root().contains(document.activeElement)).toBe(false);
   });
 });

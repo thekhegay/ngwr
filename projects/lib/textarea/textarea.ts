@@ -210,6 +210,15 @@ export class WrTextarea implements FormValueControl<string> {
     });
   }
 
+  /**
+   * Focus the textarea — what Signal Forms calls to focus this control. The
+   * native `<textarea>` takes it, since the host has no tab stop of its own; a
+   * disabled one refuses, as a disabled `<textarea>` always does.
+   */
+  focus(options?: FocusOptions): void {
+    this.native().nativeElement.focus(options);
+  }
+
   // Template handlers
 
   protected onInput(event: Event): void {

@@ -1,5 +1,6 @@
 import { Component, type EnvironmentProviders, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormField, disabled, form, readonly } from '@angular/forms/signals';
 
 import { provideWrConfig } from 'ngwr/config';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -260,5 +261,99 @@ describe('WrRadio with an author-supplied id', () => {
   it('still labels the control', () => {
     expect(label().htmlFor).toBe('rad');
     expect(input().labels).toHaveLength(1);
+  });
+});
+
+/**
+ * `focusBoundControl()` is how a form puts the user on a field — the first
+ * invalid one after a failed submit, typically. Signal Forms asks the bound
+ * component for `focus()` and otherwise focuses the HOST, which here is a
+ * `role="radiogroup"` element with no tab stop: the call did nothing. The radio
+ * it lands on is the one Tab would: the checked one, else the first enabled.
+ */
+@Component({
+  imports: [FormField, WrRadio, WrRadioGroup],
+  template: `
+    <wr-radio-group [formField]="order.size">
+      <wr-radio value="sm" disabled>Small</wr-radio>
+      <wr-radio value="md">Medium</wr-radio>
+      <wr-radio value="lg">Large</wr-radio>
+    </wr-radio-group>
+  `,
+})
+class FocusHost {
+  readonly locked = signal(false);
+  readonly frozen = signal(false);
+  readonly model = signal<{ size: string | null }>({ size: null });
+  readonly order = form(this.model, path => {
+    disabled(path.size, () => this.locked());
+    readonly(path.size, () => this.frozen());
+  });
+}
+
+describe('WrRadioGroup under focusBoundControl()', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<FocusHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const inputs = (): HTMLInputElement[] => [...root().querySelectorAll<HTMLInputElement>('input.wr-radio__input')];
+  const order = (): FocusHost['order'] => fixture.componentInstance.order;
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(FocusHost);
+    // Attached, or `focus()` moves nothing: an element outside the document
+    // cannot be the active one, and every assertion here would read `<body>`.
+    document.body.appendChild(root());
+    await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    root().remove();
+    fixture.destroy();
+  });
+
+  it('focuses the first enabled radio when nothing is checked', () => {
+    order().size().focusBoundControl();
+
+    expect(document.activeElement).toBe(inputs()[1]);
+  });
+
+  it('focuses the checked radio', async () => {
+    fixture.componentInstance.model.set({ size: 'lg' });
+    await fixture.whenStable();
+
+    order().size().focusBoundControl();
+
+    expect(document.activeElement).toBe(inputs()[2]);
+  });
+
+  it('falls back to the first enabled radio when the checked one is disabled', async () => {
+    fixture.componentInstance.model.set({ size: 'sm' });
+    await fixture.whenStable();
+
+    order().size().focusBoundControl();
+
+    expect(inputs()[0].checked).toBe(true);
+    expect(document.activeElement).toBe(inputs()[1]);
+  });
+
+  it('still focuses the checked radio while read-only', async () => {
+    fixture.componentInstance.model.set({ size: 'lg' });
+    fixture.componentInstance.frozen.set(true);
+    await fixture.whenStable();
+
+    order().size().focusBoundControl();
+
+    expect(document.activeElement).toBe(inputs()[2]);
+  });
+
+  it('leaves focus alone while the group is disabled', async () => {
+    fixture.componentInstance.locked.set(true);
+    await fixture.whenStable();
+
+    order().size().focusBoundControl();
+
+    expect(root().contains(document.activeElement)).toBe(false);
   });
 });

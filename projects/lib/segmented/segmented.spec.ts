@@ -470,3 +470,65 @@ describe('WrSegmented under the classic forms bridge', () => {
     expect(fixture.componentInstance.reactive.touched).toBe(true);
   });
 });
+
+/**
+ * `focusBoundControl()` is how a form puts the user on a field — the first
+ * invalid one after a failed submit, typically. Signal Forms asks the bound
+ * component for `focus()` and otherwise focuses the HOST, which here is a
+ * `role="group"` element with no tab stop: the call did nothing. The segment it
+ * lands on is the one Tab would reach first, which a disabled one is not.
+ */
+@Component({
+  imports: [FormField, WrSegmented],
+  template: `<wr-segmented [options]="options" [formField]="schedule.range" />`,
+})
+class FocusHost {
+  readonly options: readonly WrSegmentedOption<string>[] = [
+    { value: 'day', label: 'Day', disabled: true },
+    { value: 'week', label: 'Week' },
+    { value: 'month', label: 'Month' },
+  ];
+
+  readonly locked = signal(false);
+  readonly model = signal({ range: 'month' });
+  readonly schedule = form(this.model, path => {
+    disabled(path.range, () => this.locked());
+  });
+}
+
+describe('WrSegmented under focusBoundControl()', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<FocusHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const segments = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-segmented__option')];
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(FocusHost);
+    // Attached, or `focus()` moves nothing: an element outside the document
+    // cannot be the active one, and every assertion here would read `<body>`.
+    document.body.appendChild(root());
+    await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    root().remove();
+    fixture.destroy();
+  });
+
+  it('focuses the first enabled segment', () => {
+    fixture.componentInstance.schedule.range().focusBoundControl();
+
+    expect(document.activeElement).toBe(segments()[1]);
+  });
+
+  it('leaves focus alone while disabled', async () => {
+    fixture.componentInstance.locked.set(true);
+    await fixture.whenStable();
+
+    fixture.componentInstance.schedule.range().focusBoundControl();
+
+    expect(root().contains(document.activeElement)).toBe(false);
+  });
+});

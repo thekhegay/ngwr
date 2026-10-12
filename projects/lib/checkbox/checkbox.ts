@@ -6,7 +6,17 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, inject, input, model, output } from '@angular/core';
+import {
+  Component,
+  type ElementRef,
+  ViewEncapsulation,
+  computed,
+  inject,
+  input,
+  model,
+  output,
+  viewChild,
+} from '@angular/core';
 import type { FormCheckboxControl } from '@angular/forms/signals';
 
 import { useConfigValue } from 'ngwr/config';
@@ -183,6 +193,8 @@ export class WrCheckbox implements FormCheckboxControl {
 
   private readonly group = inject(WR_CHECKBOX_GROUP, { optional: true });
 
+  private readonly native = viewChild.required<ElementRef<HTMLInputElement>>('native');
+
   /** Rendered "is checked" — reads the group when grouped, else the `checked` model. */
   protected readonly isChecked = computed(() =>
     this.group ? this.group.isSelected(this.checkboxValue()) : this.checked()
@@ -220,6 +232,15 @@ export class WrCheckbox implements FormCheckboxControl {
     else if (this.effectiveReadonly()) parts.push('wr-checkbox--readonly');
     return parts.join(' ');
   });
+
+  /**
+   * Focus the checkbox — what Signal Forms calls to focus this control. The
+   * native input takes it, since the host has no tab stop of its own; a disabled
+   * box refuses, as a disabled input always does.
+   */
+  focus(options?: FocusOptions): void {
+    this.native().nativeElement.focus(options);
+  }
 
   // Template handlers
 

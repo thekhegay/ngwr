@@ -1,5 +1,6 @@
 import { Component, computed, type EnvironmentProviders, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormField, disabled, form, readonly } from '@angular/forms/signals';
 
 import { provideWrConfig } from 'ngwr/config';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -444,5 +445,89 @@ describe('WrCheckbox with an author-supplied id', () => {
   it('still labels the control', () => {
     expect(label().htmlFor).toBe('cb');
     expect(input().labels).toHaveLength(1);
+  });
+});
+
+/**
+ * `focusBoundControl()` is how a form puts the user on a field — the first
+ * invalid one after a failed submit, typically. Signal Forms asks the bound
+ * component for `focus()` and otherwise focuses the HOST, which here is an
+ * element with no tab stop: the call did nothing and focus stayed where it was.
+ * In a group the GROUP is the bound control, and the box it lands on is the one
+ * Tab would reach first.
+ */
+@Component({
+  imports: [FormField, WrCheckbox, WrCheckboxGroup],
+  template: `
+    <wr-checkbox [formField]="settings.agree">I agree</wr-checkbox>
+    <wr-checkbox-group [formField]="settings.features">
+      <wr-checkbox checkboxValue="autosave" disabled>Autosave</wr-checkbox>
+      <wr-checkbox checkboxValue="alerts">Alerts</wr-checkbox>
+    </wr-checkbox-group>
+  `,
+})
+class FocusHost {
+  readonly locked = signal(false);
+  readonly frozen = signal(false);
+  readonly model = signal<{ agree: boolean; features: string[] }>({ agree: false, features: [] });
+  readonly settings = form(this.model, path => {
+    disabled(path.agree, () => this.locked());
+    disabled(path.features, () => this.locked());
+    readonly(path.features, () => this.frozen());
+  });
+}
+
+describe('WrCheckbox and WrCheckboxGroup under focusBoundControl()', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<FocusHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const inputs = (): HTMLInputElement[] => [...root().querySelectorAll<HTMLInputElement>('input.wr-checkbox__input')];
+  const settings = (): FocusHost['settings'] => fixture.componentInstance.settings;
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(FocusHost);
+    // Attached, or `focus()` moves nothing: an element outside the document
+    // cannot be the active one, and every assertion here would read `<body>`.
+    document.body.appendChild(root());
+    await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    root().remove();
+    fixture.destroy();
+  });
+
+  it('focuses the native input of a bound checkbox', () => {
+    settings().agree().focusBoundControl();
+
+    expect(document.activeElement).toBe(inputs()[0]);
+  });
+
+  it('focuses the first enabled box of a bound group', () => {
+    settings().features().focusBoundControl();
+
+    expect(document.activeElement).toBe(inputs()[2]);
+  });
+
+  it('still focuses a read-only group, which keeps every tab stop', async () => {
+    fixture.componentInstance.frozen.set(true);
+    await fixture.whenStable();
+
+    settings().features().focusBoundControl();
+
+    expect(document.activeElement).toBe(inputs()[2]);
+  });
+
+  it('leaves focus alone while disabled, alone or in a group', async () => {
+    fixture.componentInstance.locked.set(true);
+    await fixture.whenStable();
+
+    settings().agree().focusBoundControl();
+    expect(root().contains(document.activeElement)).toBe(false);
+
+    settings().features().focusBoundControl();
+    expect(root().contains(document.activeElement)).toBe(false);
   });
 });
