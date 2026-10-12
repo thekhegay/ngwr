@@ -678,10 +678,14 @@ because every one of them once passed a colour-only rule green) `&&`
 `check:selectors` (`scripts/gen-selectors.ts --check` — the committed
 `#core/generated/selectors.ts` against what the generator produces now, the same
 `--check` shape `gen-css-vars.ts` and `gen-api-docs.ts` use. It reads source and
-`package.json` only, which is why it is a lint stage where `check:css-vars` is a
-CI step. Before it existed the generator wrote the file unconditionally, so a
-run meant to inspect the drift created it instead, and a stale copy sat in the
-tree for two days after a `lucide` bump) — and the last
+`projects/lib/package.json` only, which is why it is a lint stage where
+`check:css-vars` is a CI step. Before it existed the generator wrote the file
+unconditionally, so a run meant to inspect the drift created it instead, and a
+stale copy sat in the tree for two days after a `lucide` bump. **Keep the root
+`package.json` out of the generated map**: it carried `lucide`'s range for the
+sandbox, so every Dependabot bump of it failed this stage until someone
+regenerated. The sandbox imports that range from the manifest instead
+(`sandbox/project.ts`), and the bundler inlines it) — and the last
 stages are the ones that most often turn a green-looking run red. The first stage prints
 `All files pass linting.` even when a _later_ stage fails — so **verify by exit
 code, never by grepping the output**:
