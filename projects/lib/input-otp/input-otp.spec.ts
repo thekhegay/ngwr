@@ -1,13 +1,14 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, type EnvironmentProviders, type Type, signal } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormField, form } from '@angular/forms/signals';
 
 import { Subject } from 'rxjs';
 
 import { provideWrConfig } from 'ngwr/config';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrInputOtp } from './input-otp';
 import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
@@ -506,5 +507,66 @@ describe('WrInputOtp under an IME', () => {
 
     expect(event.defaultPrevented).toBe(false);
     expect(document.activeElement).toBe(box);
+  });
+});
+
+/**
+ * `focusBoundControl()` is how a Signal Forms app sends the user to a field —
+ * the first invalid one after a failed submit, typically. It calls the bound
+ * control's own `focus()`, and the host element's when there is none; this host
+ * is a `role="group"` with no tab stop, so without the method the call landed
+ * nowhere. The box it picks is the one the user would type into next.
+ */
+describe('WrInputOtp focusBoundControl', () => {
+  @Component({
+    imports: [FormField, WrInputOtp],
+    template: `<wr-input-otp [formField]="form.code" length="4" />`,
+  })
+  class FocusHost {
+    readonly model = signal({ code: '' });
+    readonly form = form(this.model);
+  }
+
+  let fixture: ComponentFixture<FocusHost>;
+
+  const boxes = (): HTMLInputElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>('wr-input-otp input'),
+  ];
+
+  const focusWith = async (code: string): Promise<void> => {
+    fixture.componentInstance.model.set({ code });
+    await fixture.whenStable();
+    fixture.componentInstance.form.code().focusBoundControl();
+  };
+
+  beforeEach(async () => {
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(FocusHost);
+    await fixture.whenStable();
+  });
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('focuses the first box while the code is empty, passing the options through', () => {
+    const spy = vi.spyOn(boxes()[0], 'focus');
+
+    fixture.componentInstance.form.code().focusBoundControl({ preventScroll: true });
+
+    expect(document.activeElement).toBe(boxes()[0]);
+    expect(spy).toHaveBeenCalledWith({ preventScroll: true });
+  });
+
+  it('focuses the first empty box of a partial code', async () => {
+    await focusWith('12');
+
+    expect(document.activeElement).toBe(boxes()[2]);
+  });
+
+  it('focuses the first box of a complete code, its character selected', async () => {
+    await focusWith('1234');
+    const first = boxes()[0];
+
+    expect(document.activeElement).toBe(first);
+    expect([first.selectionStart, first.selectionEnd]).toEqual([0, 1]);
   });
 });

@@ -3,7 +3,8 @@ import { join } from 'node:path';
 
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormField, disabled, form, readonly } from '@angular/forms/signals';
 
 import { Subject } from 'rxjs';
 
@@ -772,5 +773,68 @@ describe('the two tracks, as the stylesheet declares them', () => {
   it('leaves the SV canvas physical, with the reason still on it', () => {
     expect(rule('thumb')).toMatch(/rtl-ok:/);
     expect(rule('thumb')).toMatch(/^\s*left:\s*0;/m);
+  });
+});
+
+/**
+ * `focusBoundControl()` is how a Signal Forms app sends the user to a field —
+ * the first invalid one after a failed submit, typically. It calls the bound
+ * control's own `focus()`, and the host element's when there is none; this host
+ * carries no tab stop, so without the method the call landed nowhere.
+ */
+describe('WrColorPicker focusBoundControl', () => {
+  @Component({
+    imports: [FormField, WrColorPicker],
+    template: `<wr-color-picker [formField]="form.brand" />`,
+  })
+  class FocusHost {
+    readonly off = signal(false);
+    readonly locked = signal(false);
+    readonly form = form(signal({ brand: '#ff8800' }), path => {
+      disabled(path.brand, () => this.off());
+      readonly(path.brand, () => this.locked());
+    });
+  }
+
+  let fixture: ComponentFixture<FocusHost>;
+
+  const host = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-color-picker')!;
+  const sv = (): HTMLElement => host().querySelector<HTMLElement>('.wr-color-picker__sv')!;
+
+  beforeEach(async () => {
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(FocusHost);
+    await fixture.whenStable();
+  });
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('focuses the saturation surface, the first stop, passing the options through', () => {
+    const spy = vi.spyOn(sv(), 'focus');
+
+    fixture.componentInstance.form.brand().focusBoundControl({ preventScroll: true });
+
+    expect(document.activeElement).toBe(sv());
+    expect(spy).toHaveBeenCalledWith({ preventScroll: true });
+  });
+
+  it('still focuses a read-only picker, whose surfaces keep their tab stop', async () => {
+    fixture.componentInstance.locked.set(true);
+    await fixture.whenStable();
+
+    fixture.componentInstance.form.brand().focusBoundControl();
+
+    expect(document.activeElement).toBe(sv());
+  });
+
+  // Every surface drops to `tabindex="-1"` while disabled, which a script can
+  // still focus — so this holds only because the method checks.
+  it('leaves a disabled picker alone', async () => {
+    fixture.componentInstance.off.set(true);
+    await fixture.whenStable();
+
+    fixture.componentInstance.form.brand().focusBoundControl();
+
+    expect(host().contains(document.activeElement)).toBe(false);
   });
 });

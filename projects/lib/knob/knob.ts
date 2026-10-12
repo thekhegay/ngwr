@@ -16,6 +16,7 @@ import {
   input,
   model,
   output,
+  viewChild,
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
@@ -177,6 +178,7 @@ export class WrKnob implements FormValueControl<number> {
   });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly surface = viewChild.required<ElementRef<HTMLElement>>('surface');
 
   constructor() {
     // Keep the value within `[min, max]` even when written externally (via
@@ -186,6 +188,17 @@ export class WrKnob implements FormValueControl<number> {
       const clamped = clamp(this.value(), this.minValue(), this.maxValue());
       if (clamped !== this.value()) this.value.set(clamped);
     });
+  }
+
+  /**
+   * Focus the dial — what Signal Forms calls to focus this control, from
+   * `focusBoundControl()`. The host carries no tab stop, so the call goes to
+   * the `role="slider"` surface. A disabled dial is left alone: its surface
+   * keeps `tabindex="-1"`, which a script could still focus, and a disabled
+   * native control refuses the same call.
+   */
+  focus(options?: FocusOptions): void {
+    if (this.focusable()) this.surface().nativeElement.focus(options);
   }
 
   // Pointer / keyboard

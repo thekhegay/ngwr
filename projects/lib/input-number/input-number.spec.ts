@@ -1,12 +1,13 @@
 import { Component, type EnvironmentProviders, signal } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormField, form } from '@angular/forms/signals';
 
 import { provideWrConfig } from 'ngwr/config';
 import { WrFormField } from 'ngwr/form';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import type { WrInputSize } from 'ngwr/input';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrInputNumber } from './input-number';
 
@@ -622,5 +623,37 @@ describe('WrInputNumber forwards every documented size to its field', () => {
     // `md` is the base, exactly as on the field: the ABSENCE of both modifiers.
     if (size === 'md') expect(host.className).not.toMatch(/wr-input-number--(sm|md|lg)/);
     else expect(host.classList).toContain(`wr-input-number--${size}`);
+  });
+});
+
+/**
+ * `focusBoundControl()` is how a Signal Forms app sends the user to a field —
+ * the first invalid one after a failed submit, typically. It calls the bound
+ * control's own `focus()`, and the host element's when there is none; this host
+ * is a plain element with no tab stop, so without the method the call landed
+ * nowhere and focus stayed where it was.
+ */
+describe('WrInputNumber focusBoundControl', () => {
+  @Component({
+    imports: [FormField, WrInputNumber],
+    template: `<wr-input-number [formField]="form.qty" />`,
+  })
+  class FocusHost {
+    readonly form = form(signal<{ qty: number | null }>({ qty: 3 }));
+  }
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('moves focus into the text field, passing the options through', async () => {
+    const fixture = TestBed.createComponent(FocusHost);
+    await fixture.whenStable();
+    const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-input-number')!;
+    const input = host.querySelector<HTMLInputElement>('input')!;
+    const spy = vi.spyOn(input, 'focus');
+
+    fixture.componentInstance.form.qty().focusBoundControl({ preventScroll: true });
+
+    expect(document.activeElement).toBe(input);
+    expect(spy).toHaveBeenCalledWith({ preventScroll: true });
   });
 });

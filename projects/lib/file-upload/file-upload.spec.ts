@@ -1,9 +1,10 @@
 import { Component, signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormField, disabled, form, readonly } from '@angular/forms/signals';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrFileUpload } from './file-upload';
 import type { WrFileUploadRejection } from './interfaces';
@@ -291,5 +292,68 @@ describe('WrFileUpload — the size is localizable', () => {
       fixture.detectChanges();
       expect(sizeText(), `${bytes} bytes`).toBe(expected);
     }
+  });
+});
+
+/**
+ * `focusBoundControl()` is how a Signal Forms app sends the user to a field —
+ * the first invalid one after a failed submit, typically. It calls the bound
+ * control's own `focus()`, and the host element's when there is none; this host
+ * carries no tab stop, so without the method the call landed nowhere.
+ */
+describe('WrFileUpload focusBoundControl', () => {
+  @Component({
+    imports: [FormField, WrFileUpload],
+    template: `<wr-file-upload [formField]="form.attachment" />`,
+  })
+  class FocusHost {
+    readonly off = signal(false);
+    readonly locked = signal(false);
+    readonly form = form(signal<{ attachment: File | readonly File[] | null }>({ attachment: null }), path => {
+      disabled(path.attachment, () => this.off());
+      readonly(path.attachment, () => this.locked());
+    });
+  }
+
+  let fixture: ComponentFixture<FocusHost>;
+
+  const zone = (): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-file-upload__zone')!;
+
+  beforeEach(async () => {
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(FocusHost);
+    await fixture.whenStable();
+  });
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('focuses the drop zone, not the hidden file input, passing the options through', () => {
+    const spy = vi.spyOn(zone(), 'focus');
+
+    fixture.componentInstance.form.attachment().focusBoundControl({ preventScroll: true });
+
+    expect(document.activeElement).toBe(zone());
+    expect(spy).toHaveBeenCalledWith({ preventScroll: true });
+  });
+
+  it('still focuses a read-only zone, which keeps its tab stop', async () => {
+    fixture.componentInstance.locked.set(true);
+    await fixture.whenStable();
+
+    fixture.componentInstance.form.attachment().focusBoundControl();
+
+    expect(document.activeElement).toBe(zone());
+  });
+
+  // The zone keeps `tabindex="0"` while disabled, so the DOM would take the
+  // call — this holds only because the method checks.
+  it('leaves a disabled zone alone', async () => {
+    fixture.componentInstance.off.set(true);
+    await fixture.whenStable();
+
+    fixture.componentInstance.form.attachment().focusBoundControl();
+
+    expect(document.activeElement).not.toBe(zone());
   });
 });

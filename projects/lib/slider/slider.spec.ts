@@ -3,14 +3,16 @@ import type { Type } from '@angular/core';
 import { Component, signal } from '@angular/core';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
+import { FormField, form } from '@angular/forms/signals';
 
 import { Subject } from 'rxjs';
 
 import { WrFormField } from 'ngwr/form';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { WrSliderValue } from './interfaces';
 import { WrSlider } from './slider';
 
 @Component({
@@ -676,5 +678,52 @@ describe('WrSlider inside a form field', () => {
     const root = build(Host).nativeElement as HTMLElement;
 
     expect(root.querySelector('.wr-slider__thumb--low')!.getAttribute('id')).toBeNull();
+  });
+});
+
+/**
+ * `focusBoundControl()` is how a Signal Forms app sends the user to a field —
+ * the first invalid one after a failed submit, typically. It calls the bound
+ * control's own `focus()`, and the host element's when there is none; this host
+ * carries no tab stop, so without the method the call landed nowhere.
+ */
+describe('WrSlider focusBoundControl', () => {
+  @Component({
+    imports: [FormField, WrSlider],
+    template: `
+      <wr-slider class="single" [formField]="form.volume" />
+      <wr-slider class="span" range [formField]="form.price" />
+    `,
+  })
+  class FocusHost {
+    readonly form = form(signal<{ volume: WrSliderValue; price: WrSliderValue }>({ volume: 40, price: [20, 80] }));
+  }
+
+  let fixture: ComponentFixture<FocusHost>;
+
+  const lowThumb = (slider: string): HTMLButtonElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(`.${slider} .wr-slider__thumb--low`)!;
+
+  beforeEach(async () => {
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(FocusHost);
+    await fixture.whenStable();
+  });
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('focuses the thumb, passing the options through', () => {
+    const spy = vi.spyOn(lowThumb('single'), 'focus');
+
+    fixture.componentInstance.form.volume().focusBoundControl({ preventScroll: true });
+
+    expect(document.activeElement).toBe(lowThumb('single'));
+    expect(spy).toHaveBeenCalledWith({ preventScroll: true });
+  });
+
+  it('focuses the lower thumb of a range, the first in the tab order', () => {
+    fixture.componentInstance.form.price().focusBoundControl();
+
+    expect(document.activeElement).toBe(lowThumb('span'));
   });
 });

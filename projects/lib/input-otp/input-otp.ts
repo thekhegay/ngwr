@@ -202,6 +202,18 @@ export class WrInputOtp implements FormValueControl<string> {
     });
   }
 
+  /**
+   * Focus the strip — what Signal Forms calls to focus this control, from
+   * `focusBoundControl()`. The host is a `role="group"` with no tab stop of its
+   * own, so the call goes to a box: the first EMPTY one, where the next
+   * character belongs, or the first box once the code is complete, its
+   * character selected so a keystroke replaces it.
+   */
+  focus(options?: FocusOptions): void {
+    const empty = this.cells().indexOf('');
+    this.focusCell(empty === -1 ? 0 : empty, options);
+  }
+
   // Template handlers
 
   protected onInput(event: Event, index: number): void {
@@ -339,11 +351,11 @@ export class WrInputOtp implements FormValueControl<string> {
     }
   }
 
-  private focusCell(i: number): void {
+  private focusCell(i: number, options?: FocusOptions): void {
     if (i < 0 || i >= this.length()) return;
     const el = this.cellRefs()[i]?.nativeElement;
     if (!el) return;
-    el.focus();
+    el.focus(options);
     el.select();
   }
 

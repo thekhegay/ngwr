@@ -8,7 +8,19 @@
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { DecimalPipe } from '@angular/common';
-import { Component, ViewEncapsulation, computed, effect, inject, input, model, output, signal } from '@angular/core';
+import {
+  Component,
+  type ElementRef,
+  ViewEncapsulation,
+  computed,
+  effect,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
@@ -250,6 +262,8 @@ export class WrColorPicker implements FormValueControl<string> {
    */
   private lastEmitted: string | null = null;
 
+  private readonly area = viewChild.required<ElementRef<HTMLElement>>('area');
+
   constructor() {
     // External writes (via `[formField]` / `[(value)]`) flow the incoming hex
     // string back into the HSV source of truth. Our own emits are skipped via
@@ -270,6 +284,18 @@ export class WrColorPicker implements FormValueControl<string> {
       this.a.set(hsv.a);
       this.hexInput.set(toHex(rgb, this.alpha()));
     });
+  }
+
+  /**
+   * Focus the picker — what Signal Forms calls to focus this control, from
+   * `focusBoundControl()`. The host carries no tab stop, so the call goes to the
+   * saturation surface: the first stop in the tab order, always rendered
+   * whichever notation tab is showing, and it announces the field's error
+   * description with it. A disabled picker is left alone, since its surfaces
+   * drop to `tabindex="-1"`, which a script could still focus.
+   */
+  focus(options?: FocusOptions): void {
+    if (!this.disabled()) this.area().nativeElement.focus(options);
   }
 
   // Drag handlers

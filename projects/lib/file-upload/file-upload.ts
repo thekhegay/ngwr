@@ -165,6 +165,7 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
   readonly touch = output<void>();
 
   protected readonly picker = viewChild.required<ElementRef<HTMLInputElement>>('picker');
+  private readonly zone = viewChild.required<ElementRef<HTMLElement>>('zone');
 
   protected readonly files = signal<readonly File[]>([]);
   protected readonly dragging = signal(false);
@@ -247,6 +248,17 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
         this.files.set(next);
       });
     });
+  }
+
+  /**
+   * Focus the drop zone — what Signal Forms calls to focus this control, from
+   * `focusBoundControl()`. The zone is the control: the real file input beside
+   * it is hidden and out of the tab order, and the host has no tab stop. A
+   * read-only zone still takes it; a disabled one is left alone, as a disabled
+   * native control refuses the same call.
+   */
+  focus(options?: FocusOptions): void {
+    if (!this.disabled()) this.zone().nativeElement.focus(options);
   }
 
   // Template handlers
