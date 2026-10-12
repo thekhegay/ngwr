@@ -50,6 +50,8 @@ jobs:
     permissions:
       contents: write
       id-token: write
+      # The release body names the pull request behind each entry.
+      pull-requests: read
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -73,6 +75,8 @@ jobs:
       - run: pnpm build:lib
 
       - name: Generate release body
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: pnpm release:body --output=.release-body.md
 
       - name: Create git tag

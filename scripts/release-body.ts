@@ -8,7 +8,9 @@
 /**
  * Builds the GitHub Release body for the most recent `CHANGELOG.md` section.
  * Rewrites the `###` group headings with emojis (🚀 Features, 🐛 Bug Fixes, …)
- * so the published release matches the look in the docs.
+ * so the published release matches the look in the docs, names the author and
+ * pull request behind each entry, and ends with GitHub's New Contributors list
+ * and compare link. Needs `gh`, which reads `GH_TOKEN` in CI.
  *
  * Usage:
  *   pnpm release:body                       # → stdout
@@ -20,11 +22,21 @@ import { resolve } from 'node:path';
 import { argv } from 'node:process';
 
 import { extractLatestSection } from './lib/changelog/extract-latest-section';
+import { releaseFooter } from './lib/changelog/release-footer';
 import { withEmojiHeadings } from './lib/changelog/with-emoji-headings';
+import { withPullRequests } from './lib/changelog/with-pull-requests';
+import { repoSlug } from './lib/github/gh-api';
 import { out } from './lib/log/out';
 import { ROOT_PATH } from './lib/paths/root';
+import { readCurrentVersion } from './lib/version/read-current';
 
-const body = withEmojiHeadings(extractLatestSection());
+const repo = repoSlug();
+const body = [
+  withEmojiHeadings(withPullRequests(extractLatestSection(), repo)),
+  releaseFooter(repo, readCurrentVersion()),
+]
+  .filter(Boolean)
+  .join('\n\n');
 
 const output = argv.find(a => a.startsWith('--output='))?.split('=')[1];
 if (output) {

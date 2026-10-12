@@ -52,6 +52,8 @@ jobs:
         run: pnpm gen:quality
 
       - name: Generate release body
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: pnpm release:body --output=.release-body.md
 
       - name: Create release PR
