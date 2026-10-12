@@ -570,7 +570,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
    * `registry` — they do not care about order — and a registration with no element
    * keeps its place, since the sort is stable.
    */
-  protected readonly orderedRegistry = computed<readonly WrSelectOptionRegistration[]>(() => {
+  private readonly orderedRegistry = computed<readonly WrSelectOptionRegistration[]>(() => {
     const list = this.registry();
     if (list.length < 2) return list;
     return [...list].sort((a, b) => {
@@ -1438,6 +1438,12 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     this.open.set(false);
   }
 
+  /**
+   * Adds a `<wr-option>` to the registry and returns its unregister function.
+   * Public only because `WrSelectContext` requires it: the one caller is the
+   * option itself, through `WR_SELECT`, which is why `WrSelectOptionRegistration`
+   * is not exported from `ngwr/select`. @internal
+   */
   registerOption(reg: WrSelectOptionRegistration): () => void {
     this.registry.update(list => [...list, reg]);
     return () => this.registry.update(list => list.filter(o => o.id !== reg.id));
