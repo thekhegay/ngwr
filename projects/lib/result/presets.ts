@@ -26,6 +26,10 @@ import { WrResult } from './result';
   selector: 'wr-result-404',
   templateUrl: './presets.html',
   encapsulation: ViewEncapsulation.None,
+  // `title` is an input, and a static `title=` that feeds an input is ALSO
+  // written onto the host, where the browser draws it as a native tooltip over
+  // the whole component. A bound `[title]` never did.
+  host: { '[attr.title]': 'null' },
   imports: [WrResult],
 })
 export class WrResult404 {
@@ -49,6 +53,8 @@ export class WrResult404 {
   selector: 'wr-result-403',
   templateUrl: './presets.html',
   encapsulation: ViewEncapsulation.None,
+  // See `WrResult404`: a static `title=` feeds the input AND lands on the host.
+  host: { '[attr.title]': 'null' },
   imports: [WrResult],
 })
 export class WrResult403 {
@@ -72,6 +78,8 @@ export class WrResult403 {
   selector: 'wr-result-500',
   templateUrl: './presets.html',
   encapsulation: ViewEncapsulation.None,
+  // See `WrResult404`: a static `title=` feeds the input AND lands on the host.
+  host: { '[attr.title]': 'null' },
   imports: [WrResult],
 })
 export class WrResult500 {

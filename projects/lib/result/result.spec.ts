@@ -104,6 +104,24 @@ describe('the status presets', () => {
   it('passes [wrResultExtra] through wr-result-500', () => {
     expectProjected(Host500);
   });
+
+  /**
+   * `title` is an input, and a STATIC attribute that feeds an input is also
+   * written onto the host, where the browser draws it as a native tooltip over
+   * the whole component. A bound `[title]` never did, so the two spellings
+   * differed for no visible reason.
+   */
+  it('keeps a static title off the wr-result-404 host', () => {
+    expectTitleOnHeadingOnly(Title404, 'wr-result-404');
+  });
+
+  it('keeps a static title off the wr-result-403 host', () => {
+    expectTitleOnHeadingOnly(Title403, 'wr-result-403');
+  });
+
+  it('keeps a static title off the wr-result-500 host', () => {
+    expectTitleOnHeadingOnly(Title500, 'wr-result-500');
+  });
 });
 
 function expectProjected(host: new (...args: never[]) => unknown): void {
@@ -112,6 +130,26 @@ function expectProjected(host: new (...args: never[]) => unknown): void {
 
   expect((fixture.nativeElement as HTMLElement).querySelector('#extra')).not.toBeNull();
 }
+
+function expectTitleOnHeadingOnly(host: new (...args: never[]) => unknown, selector: string): void {
+  const fixture = TestBed.createComponent(host);
+  fixture.detectChanges();
+  const root = fixture.nativeElement as HTMLElement;
+
+  expect(root.querySelector(selector)!.hasAttribute('title')).toBe(false);
+  // Nor anywhere inside it: the inner `<wr-result>` would draw the same tooltip.
+  expect(root.querySelector('[title]')).toBeNull();
+  expect(root.querySelector('.wr-result__title')!.textContent.trim()).toBe('Lost?');
+}
+
+@Component({ imports: [WrResult404], template: `<wr-result-404 title="Lost?" />` })
+class Title404 {}
+
+@Component({ imports: [WrResult403], template: `<wr-result-403 title="Lost?" />` })
+class Title403 {}
+
+@Component({ imports: [WrResult500], template: `<wr-result-500 title="Lost?" />` })
+class Title500 {}
 
 @Component({
   imports: [WrResult404],
