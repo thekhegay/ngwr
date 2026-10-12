@@ -10,7 +10,7 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrIcons, svgIcon } from 'ngwr/icon';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { WrSidebarEntry } from './interfaces';
+import type { WrSidebarActiveOptions, WrSidebarEntry } from './public-api';
 import { WrSidebar } from './sidebar';
 
 /** Minimal valid SVG: the registry rejects markup with no root element. */
@@ -319,12 +319,15 @@ describe('WrSidebar', () => {
   });
 
   it("passes an entry's own activeOptions to the router, on a top-level entry and a nested one", async () => {
+    // Typed through the entry point, so the spec stops compiling if the type is
+    // dropped from `public-api.ts` again: it was the field's type and not importable.
+    const exact: WrSidebarActiveOptions = { exact: true };
     fixture.componentInstance.entries.set([
-      { title: 'Home', url: ['/'], activeOptions: { exact: true } },
+      { title: 'Home', url: ['/'], activeOptions: exact },
       {
         title: 'Data & charts',
         defaultOpen: true,
-        children: [{ title: 'Tab', url: ['/tab'], activeOptions: { exact: true } }],
+        children: [{ title: 'Tab', url: ['/tab'], activeOptions: exact }],
       },
     ]);
     fixture.detectChanges();
