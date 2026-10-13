@@ -84,7 +84,7 @@ describe('WrTableFilter', () => {
     fixture.detectChanges();
 
     expect(badge()?.textContent?.trim()).toBe('1');
-    expect(trigger().getAttribute('aria-label')).toBe('Filter column (1)');
+    expect(trigger().getAttribute('aria-label')).toBe('Filter column, 1');
   });
 
   it('counts back down, and drops the badge at zero', () => {

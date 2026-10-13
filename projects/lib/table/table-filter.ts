@@ -84,11 +84,13 @@ export class WrTableFilter {
   /**
    * The trigger's name: the filter label, plus the count it shows once something
    * is selected. The count is visible text on the button, so leaving it out of
-   * the name breaks WCAG 2.5.3 (Label in Name) for a speech-input user.
+   * the name breaks WCAG 2.5.3 (Label in Name) for a speech-input user. Joined
+   * with a comma, not wrapped in parentheses: axe reads `(1)` as a token that
+   * does not contain `1`, measured in Chromium against axe-core 4.14.
    */
   protected readonly triggerName = computed(() => {
     const count = this.selectedCount();
-    return count > 0 ? `${this.resolvedFilterLabel()} (${count})` : this.resolvedFilterLabel();
+    return count > 0 ? `${this.resolvedFilterLabel()}, ${count}` : this.resolvedFilterLabel();
   });
 
   protected readonly classes = computed(() => {
