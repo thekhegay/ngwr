@@ -134,7 +134,10 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
   );
 
   /** The `dropZoneLabel` override, or `null` so the visible copy names the zone. */
-  protected readonly zoneName = computed(() => this.dropZoneLabel() || null);
+  protected readonly zoneName = computed(() => {
+    const label = this.dropZoneLabel();
+    return label === '' ? null : label;
+  });
 
   /** Primary call-to-action label. Falls back to `fileUpload.browse`. */
   readonly pickLabel = input<string | null>(null);
