@@ -481,8 +481,20 @@ describe('WrEventCalendar', () => {
 
     // And the grid still names every cell it drew.
     expect(cells().length).toBe(48 * 7);
-    expect(cells().every(c => (c.getAttribute('aria-label') ?? '').length > 0)).toBe(true);
+    expect(cells().every(c => (c.querySelector('.wr-event-calendar__sr-only')?.textContent ?? '').length > 0)).toBe(
+      true
+    );
     format.mockRestore();
+  });
+
+  it('names a month cell by its content, so the events it shows are part of its name', () => {
+    // A cell `aria-label` would REPLACE its content as the name, leaving out the
+    // event titles a sighted user reads in it (WCAG 2.5.3, Label in Name).
+    setView('month');
+    const cell = root().querySelector<HTMLElement>('.wr-event-calendar__cell--day')!;
+
+    expect(cell.hasAttribute('aria-label')).toBe(false);
+    expect(cell.querySelector('.wr-event-calendar__sr-only')?.textContent?.trim().length).toBeGreaterThan(0);
   });
 
   it('carries the public BEM classes', () => {
@@ -924,7 +936,7 @@ describe('WrEventCalendar composes its strings from the catalog', () => {
     // be given an all-day event before the band exists to be named.
     await mount('week', [...EVENTS, { id: 'ooo', title: 'Offsite day', start: AT(14), end: AT(14), allDay: true }]);
     const labels = [...root().querySelectorAll('[role="gridcell"]')]
-      .map(cell => cell.getAttribute('aria-label'))
+      .map(cell => cell.querySelector('.wr-event-calendar__sr-only')?.textContent ?? null)
       .filter(label => label !== null);
 
     // The date now leads both, where the component used to put the time and the

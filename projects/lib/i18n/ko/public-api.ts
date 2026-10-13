@@ -150,7 +150,6 @@ export const wrKo: WrI18nCatalog = {
   fileUpload: {
     browse: '클릭하여 파일 선택',
     dropZone: '또는 여기에 파일을 끌어다 놓으세요',
-    dropZoneLabel: '파일 업로드 영역 — 클릭하거나 파일을 끌어다 놓으세요',
     removeFile: '파일 제거',
     invalid: '지원하지 않는 파일 형식',
     tooBig: '파일 크기 초과',

@@ -98,8 +98,8 @@ describe('WrFileUploadHarness', () => {
   });
 
   it('reads the accessible name rather than the copy inside the zone', async () => {
-    // `dropZoneLabel` becomes the zone's `aria-label`, which OVERRIDES the visible
-    // text for a screen reader — so the two really are different answers.
+    // `dropZoneLabel` becomes the zone's `aria-label` and replaces the name built
+    // from the visible copy, so the two really are different answers.
     const upload = await single();
 
     expect(await upload.getLabel()).toBe('Avatar');

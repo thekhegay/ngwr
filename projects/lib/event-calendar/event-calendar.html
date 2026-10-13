@@ -103,7 +103,6 @@
             class="wr-event-calendar__cell wr-event-calendar__cell--day"
             [class.wr-event-calendar__cell--muted]="!cell.inMonth"
             [class.wr-event-calendar__cell--today]="cell.isToday"
-            [attr.aria-label]="cell.label"
             [attr.tabindex]="isCursor(index, -1) ? 0 : -1"
             [attr.data-cell-date]="stamp(cell.date)"
             [attr.data-cell-minutes]="-1"
@@ -112,6 +111,7 @@
             (click)="onCellClick(cell.date, -1)"
             (keydown)="onGridKeyDown($event)"
           >
+            <span class="wr-event-calendar__sr-only">{{ cell.label }}</span>
             <span class="wr-event-calendar__daynum" aria-hidden="true">{{ cell.day }}</span>
 
             @for (chip of cell.bands; track chip.key) {
@@ -168,7 +168,6 @@
           <div
             role="gridcell"
             class="wr-event-calendar__cell wr-event-calendar__cell--allday"
-            [attr.aria-label]="cell.label"
             [attr.tabindex]="isCursor(c, -1) ? 0 : -1"
             [attr.data-cell-date]="stamp(cell.date)"
             [attr.data-cell-minutes]="-1"
@@ -177,6 +176,7 @@
             (click)="onCellClick(cell.date, -1)"
             (keydown)="onGridKeyDown($event)"
           >
+            <span class="wr-event-calendar__sr-only">{{ cell.label }}</span>
             @for (chip of cell.bands; track chip.key) {
               <ng-container [ngTemplateOutlet]="band" [ngTemplateOutletContext]="{ $implicit: chip, offset: '0rem' }" />
             }
@@ -193,7 +193,6 @@
             role="gridcell"
             class="wr-event-calendar__cell wr-event-calendar__cell--slot"
             [class.wr-event-calendar__cell--major]="row.major"
-            [attr.aria-label]="cell.label"
             [attr.tabindex]="isCursor(c, row.minutes) ? 0 : -1"
             [attr.data-cell-date]="stamp(cell.date)"
             [attr.data-cell-minutes]="row.minutes"
@@ -202,6 +201,7 @@
             (click)="onCellClick(cell.date, row.minutes)"
             (keydown)="onGridKeyDown($event)"
           >
+            <span class="wr-event-calendar__sr-only">{{ cell.label }}</span>
             @for (chip of cell.chips; track chip.key) {
               <button
                 type="button"

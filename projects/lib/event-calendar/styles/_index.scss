@@ -311,6 +311,20 @@
     z-index: -1;
   }
 
+  // The cell's date for a screen reader. It is text inside the cell rather than the
+  // cell's `aria-label`, because a label would REPLACE the cell's content as its
+  // name: the event titles and the "+N more" a sighted user reads would be missing
+  // from it (WCAG 2.5.3, Label in Name).
+  &__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   &__daynum {
     display: inline-flex;
     align-items: center;

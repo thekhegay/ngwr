@@ -148,7 +148,6 @@ export const wrCs: WrI18nCatalog = {
   fileUpload: {
     browse: 'Kliknutím vyberte',
     dropZone: 'nebo sem přetáhněte soubory',
-    dropZoneLabel: 'Zóna pro nahrání souborů — klikněte nebo přetáhněte soubory',
     removeFile: 'Odebrat soubor',
     invalid: 'Nepodporovaný typ souboru',
     tooBig: 'Soubor je příliš velký',

@@ -158,7 +158,6 @@ export const wrUk: WrI18nCatalog = {
   fileUpload: {
     browse: 'Натисніть, щоб вибрати',
     dropZone: 'або перетягніть файли сюди',
-    dropZoneLabel: 'Зона завантаження файлів — натисніть або перетягніть',
     removeFile: 'Вилучити файл',
     invalid: 'Тип файлу не підтримується',
     tooBig: 'Файл завеликий',

@@ -152,7 +152,6 @@ export const wrDe: WrI18nCatalog = {
   fileUpload: {
     browse: 'Zum Auswählen klicken',
     dropZone: 'oder Dateien hierher ziehen',
-    dropZoneLabel: 'Ablagebereich für Dateien — klicken oder Dateien hierher ziehen',
     removeFile: 'Datei entfernen',
     invalid: 'Nicht unterstützter Dateityp',
     tooBig: 'Datei zu groß',

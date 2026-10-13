@@ -152,7 +152,6 @@ export const wrNl: WrI18nCatalog = {
   fileUpload: {
     browse: 'Klik om te bladeren',
     dropZone: 'of sleep bestanden hierheen',
-    dropZoneLabel: 'Uploadzone — klik of sleep bestanden hierheen',
     removeFile: 'Bestand verwijderen',
     invalid: 'Niet-ondersteund bestandstype',
     tooBig: 'Bestand is te groot',

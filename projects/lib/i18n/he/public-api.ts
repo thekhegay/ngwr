@@ -153,7 +153,6 @@ export const wrHe: WrI18nCatalog = {
   fileUpload: {
     browse: 'לחצו לבחירת קובץ',
     dropZone: 'או גררו קבצים לכאן',
-    dropZoneLabel: 'אזור העלאת קבצים — לחיצה או גרירת קבצים',
     removeFile: 'הסרת הקובץ',
     invalid: 'סוג קובץ לא נתמך',
     tooBig: 'הקובץ גדול מדי',

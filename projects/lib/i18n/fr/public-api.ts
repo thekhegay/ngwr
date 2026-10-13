@@ -153,7 +153,6 @@ export const wrFr: WrI18nCatalog = {
   fileUpload: {
     browse: 'Cliquez pour parcourir',
     dropZone: 'ou déposez vos fichiers ici',
-    dropZoneLabel: 'Zone de dépôt de fichiers — cliquez ou déposez des fichiers',
     removeFile: 'Retirer le fichier',
     invalid: 'Type de fichier non pris en charge',
     tooBig: 'Fichier trop volumineux',

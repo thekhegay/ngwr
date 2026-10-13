@@ -239,9 +239,16 @@ export class WrEventCalendarHarness extends ComponentHarness {
     await (await this.requireCell(day, minutes, 'clickCell')).click();
   }
 
-  /** A cell's accessible name — the date, and the time for a slot. */
+  /**
+   * A cell's date, and the time for a slot — the visually hidden text that leads
+   * its accessible name. The cell has no `aria-label`: one would replace its
+   * content as the name and drop the events it shows.
+   */
   async getCellLabel(day: Date, minutes = -1): Promise<string | null> {
-    return (await this.requireCell(day, minutes, 'getCellLabel')).getAttribute('aria-label');
+    const cell = await this.requireCell(day, minutes, 'getCellLabel');
+    const index = await cell.getAttribute('data-cell-index');
+    const label = await this.locatorForOptional(`[data-cell-index="${index}"] .wr-event-calendar__sr-only`)();
+    return label ? label.text() : null;
   }
 
   /** The chips inside ONE cell, which is where a chip's event starts. */

@@ -148,13 +148,25 @@ export class WrFileUploadHarness extends ComponentHarness {
    * The accessible name of the trigger — what a screen-reader user is told this
    * control is.
    *
-   * Read from the zone's `aria-label` (the `dropZoneLabel` input) rather than from
-   * the copy inside it, because that label OVERRIDES the copy: the visible "Click
-   * to browse" is not the accessible name, and a harness that returned it would
-   * describe a control nobody is announced.
+   * The `dropZoneLabel` override when one is set, read off `aria-label`. Otherwise
+   * the text of what `aria-labelledby` points at, in order: the field's label
+   * inside a `<wr-form-field>`, then the zone's visible copy. Resolved through the
+   * ids rather than read off the zone's own text, because the field's label sits
+   * outside the zone.
    */
   async getLabel(): Promise<string> {
-    return (await (await this.zone()).getAttribute('aria-label')) ?? '';
+    const zone = await this.zone();
+    const override = await zone.getAttribute('aria-label');
+    if (override) return override;
+
+    const ids = ((await zone.getAttribute('aria-labelledby')) ?? '').split(/\s+/).filter(Boolean);
+    const root = this.documentRootLocatorFactory();
+    const parts = await Promise.all(ids.map(async id => (await root.locatorForOptional(`[id="${id}"]`)())?.text()));
+    return parts
+      .filter((part): part is string => !!part)
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
   /** The visible call-to-action line — the `pickLabel` input. */

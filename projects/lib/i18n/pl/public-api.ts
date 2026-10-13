@@ -159,7 +159,6 @@ export const wrPl: WrI18nCatalog = {
   fileUpload: {
     browse: 'Kliknij, aby wybrać',
     dropZone: 'lub upuść pliki tutaj',
-    dropZoneLabel: 'Obszar przesyłania plików — kliknij lub upuść pliki',
     removeFile: 'Usuń plik',
     invalid: 'Nieobsługiwany typ pliku',
     tooBig: 'Plik jest za duży',

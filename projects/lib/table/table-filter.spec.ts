@@ -76,6 +76,17 @@ describe('WrTableFilter', () => {
     expect(host().className).toContain('wr-table-filter--active');
   });
 
+  it('puts the count it shows into its name (WCAG 2.5.3)', () => {
+    expect(trigger().getAttribute('aria-label')).toBe('Filter column');
+
+    open();
+    options()[0].click();
+    fixture.detectChanges();
+
+    expect(badge()?.textContent?.trim()).toBe('1');
+    expect(trigger().getAttribute('aria-label')).toBe('Filter column (1)');
+  });
+
   it('counts back down, and drops the badge at zero', () => {
     open();
     options()[0].click();

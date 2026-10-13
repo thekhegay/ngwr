@@ -11,8 +11,8 @@ import type { BaseHarnessFilters } from '@angular/cdk/testing';
 export interface WrFileUploadHarnessFilters extends BaseHarnessFilters {
   /**
    * Match the drop zone's accessible name — a string is an exact match, a RegExp
-   * is tested. This is `dropZoneLabel`, not the visible CTA: the zone carries an
-   * `aria-label`, so the copy inside it is not what identifies the control.
+   * is tested. That is `dropZoneLabel` when set, otherwise the field's label and
+   * the zone's visible copy, as `WrFileUploadHarness.getLabel()` reads them.
    */
   readonly label?: string | RegExp;
   /** Match only single-file (`false`) or only multi-file (`true`) uploads. */

@@ -216,7 +216,6 @@ export const wrEn: WrI18nCatalog = {
   fileUpload: {
     browse: 'Click to browse',
     dropZone: 'or drop files here',
-    dropZoneLabel: 'File upload drop zone — click or drop files',
     removeFile: 'Remove file',
     invalid: 'Unsupported file type',
     tooBig: 'File too large',
