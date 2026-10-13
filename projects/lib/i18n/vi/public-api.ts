@@ -152,7 +152,6 @@ export const wrVi: WrI18nCatalog = {
   fileUpload: {
     browse: 'Nhấn để chọn tệp',
     dropZone: 'hoặc kéo thả tệp vào đây',
-    dropZoneLabel: 'Vùng tải tệp lên — nhấn hoặc kéo thả tệp',
     removeFile: 'Xóa tệp',
     invalid: 'Loại tệp không được hỗ trợ',
     tooBig: 'Tệp quá lớn',

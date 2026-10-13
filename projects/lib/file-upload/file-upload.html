@@ -25,7 +25,7 @@
       stroke-linejoin="round"
     />
   </svg>
-  <div class="wr-file-upload__hint">
+  <div class="wr-file-upload__hint" [id]="hintId">
     <strong>{{ resolvedPick() }}</strong>
     <span>{{ resolvedDrop() }}</span>
     @if (helperText()) {

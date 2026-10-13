@@ -25,6 +25,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
 import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { randomId } from 'ngwr/utils';
 
 import type { WrFileUploadRejection, WrFileUploadRejectionReason } from './interfaces';
 
@@ -115,18 +116,25 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
   /** The surrounding `<wr-form-field>`'s error state. @internal */
   protected readonly fieldAria = useFormFieldAria();
 
+  /** id of the zone's visible copy, which names it. @internal */
+  protected readonly hintId = randomId('wr-file-upload-hint');
+
   /**
-   * The field's label names the drop zone, when there is one.
+   * The zone's name, as `aria-labelledby`: the field's label when a
+   * `<wr-form-field>` wraps it, then the zone's own visible copy.
    *
    * The zone is a `div[role="button"]`, so `<wr-form-field>`'s `<label for>`
-   * cannot reach it and named nothing at all — the zone announced only its own
-   * generic "drop files here" copy. `aria-labelledby` is the direction that
-   * works for a role. The zone copy stays as the label when no field wraps it.
+   * cannot reach it, and `aria-labelledby` is the direction that works for a
+   * role. The visible copy is always part of the name (WCAG 2.5.3, Label in
+   * Name): a speech-input user says what they see, and a name without it leaves
+   * "Click to browse" matching nothing. `null` while `dropZoneLabel` overrides.
    */
-  protected readonly labelledBy = computed(() => this.fieldAria.labelledBy());
+  protected readonly labelledBy = computed(() =>
+    this.dropZoneLabel() ? null : [this.fieldAria.labelledBy(), this.hintId].filter(Boolean).join(' ')
+  );
 
-  /** `null` while the field's label carries the name, or both are announced. */
-  protected readonly zoneName = computed(() => (this.labelledBy() ? null : this.resolvedDropZone()));
+  /** The `dropZoneLabel` override, or `null` so the visible copy names the zone. */
+  protected readonly zoneName = computed(() => this.dropZoneLabel() || null);
 
   /** Primary call-to-action label. Falls back to `fileUpload.browse`. */
   readonly pickLabel = input<string | null>(null);
@@ -134,7 +142,12 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
   /** Secondary instruction below the CTA. Falls back to `fileUpload.dropZone`. */
   readonly dropLabel = input<string | null>(null);
 
-  /** Drop-zone host aria-label. Falls back to `fileUpload.dropZoneLabel`. */
+  /**
+   * Overrides the drop zone's accessible name. Unset, the zone is named by its
+   * visible copy, after the field's label inside a `<wr-form-field>`. An
+   * override must contain that copy, or speech input cannot reach the control
+   * (WCAG 2.5.3).
+   */
   readonly dropZoneLabel = input<string | null>(null);
 
   /** Remove-file button aria-label. Falls back to `fileUpload.removeFile`. */
@@ -142,11 +155,6 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
 
   protected readonly resolvedPick = useI18nText(this.pickLabel, 'fileUpload.browse', 'Click to browse');
   protected readonly resolvedDrop = useI18nText(this.dropLabel, 'fileUpload.dropZone', 'or drop files here');
-  protected readonly resolvedDropZone = useI18nText(
-    this.dropZoneLabel,
-    'fileUpload.dropZoneLabel',
-    'File upload drop zone — click or drop files'
-  );
   protected readonly resolvedRemove = useI18nText(this.removeFileLabel, 'fileUpload.removeFile', 'Remove file');
 
   /** Optional helper text shown below the labels (e.g. accepted formats). */

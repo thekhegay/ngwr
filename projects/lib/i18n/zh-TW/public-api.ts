@@ -150,7 +150,6 @@ export const wrZhTw: WrI18nCatalog = {
   fileUpload: {
     browse: '點選以瀏覽檔案',
     dropZone: '或將檔案拖放至此',
-    dropZoneLabel: '檔案上傳區，點選或拖放檔案',
     removeFile: '移除檔案',
     invalid: '不支援的檔案類型',
     tooBig: '檔案過大',

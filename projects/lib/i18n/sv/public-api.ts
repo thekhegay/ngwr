@@ -148,7 +148,6 @@ export const wrSv: WrI18nCatalog = {
   fileUpload: {
     browse: 'Klicka för att bläddra',
     dropZone: 'eller släpp filer här',
-    dropZoneLabel: 'Släppzon för filuppladdning — klicka eller släpp filer',
     removeFile: 'Ta bort filen',
     invalid: 'Filtypen stöds inte',
     tooBig: 'Filen är för stor',

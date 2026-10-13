@@ -150,7 +150,6 @@ export const wrRu: WrI18nCatalog = {
   fileUpload: {
     browse: 'Нажмите, чтобы выбрать',
     dropZone: 'или перетащите файлы сюда',
-    dropZoneLabel: 'Зона загрузки файлов — нажмите или перетащите',
     removeFile: 'Удалить файл',
     invalid: 'Неподдерживаемый тип файла',
     tooBig: 'Файл слишком большой',

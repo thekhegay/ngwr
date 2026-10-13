@@ -94,6 +94,14 @@ describe('WrFileUpload', () => {
 
   afterEach(() => fixture.destroy());
 
+  it('names the zone by its visible copy, so speech input can say what it sees', () => {
+    const hint = root().querySelector<HTMLElement>('.wr-file-upload__hint')!;
+
+    expect(zone().hasAttribute('aria-label')).toBe(false);
+    expect(zone().getAttribute('aria-labelledby')).toBe(hint.id);
+    expect(hint.textContent).toContain('Click to browse');
+  });
+
   it('hides the real picker behind its own drop zone', () => {
     // The `<input type="file">` is never operated directly — the styled zone is
     // the control, and the input is the mechanism behind it.

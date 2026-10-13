@@ -148,7 +148,6 @@ export const wrEs: WrI18nCatalog = {
   fileUpload: {
     browse: 'Haz clic para seleccionar',
     dropZone: 'o arrastra los archivos aquí',
-    dropZoneLabel: 'Zona de carga de archivos — haz clic o arrastra archivos',
     removeFile: 'Quitar archivo',
     invalid: 'Tipo de archivo no admitido',
     tooBig: 'Archivo demasiado grande',

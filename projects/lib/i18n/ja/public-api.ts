@@ -150,7 +150,6 @@ export const wrJa: WrI18nCatalog = {
   fileUpload: {
     browse: 'クリックしてファイルを選択',
     dropZone: 'またはファイルをここにドロップ',
-    dropZoneLabel: 'ファイルのドロップ領域。クリックまたはファイルをドロップ',
     removeFile: 'ファイルを削除',
     invalid: '対応していないファイル形式',
     tooBig: 'ファイルサイズが大きすぎます',

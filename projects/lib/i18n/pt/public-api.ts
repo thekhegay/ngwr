@@ -151,7 +151,6 @@ export const wrPt: WrI18nCatalog = {
   fileUpload: {
     browse: 'Clique para procurar',
     dropZone: 'ou arraste os ficheiros para aqui',
-    dropZoneLabel: 'Zona de carregamento de ficheiros — clique ou arraste ficheiros',
     removeFile: 'Remover ficheiro',
     invalid: 'Tipo de ficheiro não suportado',
     tooBig: 'Ficheiro demasiado grande',

@@ -153,7 +153,6 @@ export const wrTr: WrI18nCatalog = {
   fileUpload: {
     browse: 'Seçmek için tıklayın',
     dropZone: 'veya dosyaları buraya bırakın',
-    dropZoneLabel: 'Dosya yükleme alanı — tıklayın veya dosya bırakın',
     removeFile: 'Dosyayı kaldır',
     invalid: 'Desteklenmeyen dosya türü',
     tooBig: 'Dosya çok büyük',

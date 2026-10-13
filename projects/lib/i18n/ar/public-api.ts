@@ -154,7 +154,6 @@ export const wrAr: WrI18nCatalog = {
   fileUpload: {
     browse: 'انقر للاستعراض',
     dropZone: 'أو أفلت الملفات هنا',
-    dropZoneLabel: 'منطقة إفلات الملفات — انقر أو أفلت الملفات',
     removeFile: 'إزالة الملف',
     invalid: 'نوع ملف غير مدعوم',
     tooBig: 'حجم الملف كبير جدًا',

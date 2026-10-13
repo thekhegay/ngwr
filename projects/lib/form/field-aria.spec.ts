@@ -210,9 +210,15 @@ describe('a field label over a role-based control', () => {
     const named = field.querySelector('[aria-labelledby],[aria-label]');
     const by = named?.getAttribute('aria-labelledby');
     if (!by) return named?.getAttribute('aria-label') ?? null;
-    return root.querySelector(`[id="${by}"]`)?.textContent?.trim() ?? null;
+    return by
+      .split(/\s+/)
+      .map(id => root.querySelector(`[id="${id}"]`)?.textContent?.trim() ?? '')
+      .filter(Boolean)
+      .join(' ');
   };
 
+  // The file upload's zone is a button whose visible copy is part of its name too
+  // (WCAG 2.5.3), so its name STARTS with the field label rather than equalling it.
   it('names each one with the field label, and lets an explicit ariaLabel win', () => {
     const fixture = TestBed.createComponent(RoleHost);
     fixture.detectChanges();
@@ -223,7 +229,7 @@ describe('a field label over a role-based control', () => {
       'Overall satisfaction',
       'Volume',
       'One-time code',
-      'Attachments',
+      expect.stringMatching(/^Attachments Click to browse/),
       'Explicit wins',
     ]);
   });

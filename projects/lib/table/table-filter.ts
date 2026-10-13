@@ -81,6 +81,16 @@ export class WrTableFilter {
     return this.items().filter(i => i.selected).length;
   });
 
+  /**
+   * The trigger's name: the filter label, plus the count it shows once something
+   * is selected. The count is visible text on the button, so leaving it out of
+   * the name breaks WCAG 2.5.3 (Label in Name) for a speech-input user.
+   */
+  protected readonly triggerName = computed(() => {
+    const count = this.selectedCount();
+    return count > 0 ? `${this.resolvedFilterLabel()} (${count})` : this.resolvedFilterLabel();
+  });
+
   protected readonly classes = computed(() => {
     const parts = ['wr-table-filter'];
     if (this.selectedCount() > 0) parts.push('wr-table-filter--active');

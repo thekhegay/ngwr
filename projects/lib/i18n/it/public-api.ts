@@ -152,7 +152,6 @@ export const wrIt: WrI18nCatalog = {
   fileUpload: {
     browse: 'Fai clic per scegliere',
     dropZone: 'oppure trascina i file qui',
-    dropZoneLabel: 'Area di caricamento file — fai clic o trascina i file',
     removeFile: 'Rimuovi file',
     invalid: 'Tipo di file non supportato',
     tooBig: 'File troppo grande',

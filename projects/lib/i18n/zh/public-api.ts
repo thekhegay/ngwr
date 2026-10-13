@@ -148,7 +148,6 @@ export const wrZh: WrI18nCatalog = {
   fileUpload: {
     browse: '点击选择文件',
     dropZone: '或将文件拖放到此处',
-    dropZoneLabel: '文件拖放区域，点击或拖放文件',
     removeFile: '移除文件',
     invalid: '不支持的文件类型',
     tooBig: '文件过大',

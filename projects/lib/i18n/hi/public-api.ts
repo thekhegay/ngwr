@@ -148,7 +148,6 @@ export const wrHi: WrI18nCatalog = {
   fileUpload: {
     browse: 'चुनने के लिए क्लिक करें',
     dropZone: 'या फ़ाइलें यहां छोड़ें',
-    dropZoneLabel: 'फ़ाइल अपलोड ज़ोन — क्लिक करें या फ़ाइलें छोड़ें',
     removeFile: 'फ़ाइल हटाएं',
     invalid: 'असमर्थित फ़ाइल प्रकार',
     tooBig: 'फ़ाइल बहुत बड़ी है',

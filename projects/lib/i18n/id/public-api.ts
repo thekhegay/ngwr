@@ -148,7 +148,6 @@ export const wrId: WrI18nCatalog = {
   fileUpload: {
     browse: 'Klik untuk memilih file',
     dropZone: 'atau letakkan file di sini',
-    dropZoneLabel: 'Area unggah file — klik atau letakkan file',
     removeFile: 'Hapus file',
     invalid: 'Jenis file tidak didukung',
     tooBig: 'File terlalu besar',
