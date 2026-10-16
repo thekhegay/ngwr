@@ -15,8 +15,8 @@ listed at the bottom are still the faster path for bulk API lookups.
 
 ## Install
 
-Preferred — the schematic installs ngwr + its peers, adds `@use 'ngwr'` to your
-global styles, and prints a tailored provider snippet to paste into bootstrap:
+Preferred — the schematic installs ngwr + its peers, adds `@use 'ngwr/theme'` to
+your global styles, and prints a tailored provider snippet to paste into bootstrap:
 
 ```
 ng add ngwr
@@ -53,13 +53,12 @@ directive, pipe, util and validator pages share `ngwr/directives`, `ngwr/pipes`,
 one. Mind the ones that do not match the selector: `<wr-btn>` and
 `<wr-btn-group>` are `ngwr/button`, `<wr-tag>` is `ngwr/badge`, `<wr-option>` is
 `ngwr/select`, `<wr-accordion>` is `ngwr/collapse`, `<wr-form-field>` is
-`ngwr/form`, `<wr-sortable-list>` is `ngwr/drag-drop`, `<wr-kbd>` is
-`ngwr/keyboard`, `<wr-count-up>` is `ngwr/counter`, and `[wrAutofocus]`,
-`[wrAutosize]`, `[wrClickOutside]` and `[wrCopyToClipboard]` are
-`ngwr/directives`.
+`ngwr/form`, `<wr-kbd>` is `ngwr/keyboard`, `<wr-count-up>` is `ngwr/counter`,
+and `[wrAutofocus]`, `[wrAutosize]`, `[wrClickOutside]` and
+`[wrCopyToClipboard]` are `ngwr/directives`.
 
-Styles: `@use 'ngwr'` (everything, over 300 kB of minified CSS) or
-`@use 'ngwr/<name>'` per component in your global SCSS. **Per component, the
+Styles: `@use 'ngwr/theme'` first, then `@use 'ngwr/<name>'` per component in
+your global SCSS; there is no `@use 'ngwr'` umbrella. **Per component, the
 theme tokens come with each entry but the other components it renders do not**,
 and nothing warns — the control just paints wrong. Always add `ngwr/icon` (the
 inline chevrons, carets and sort arrows are bare SVGs sized by `.wr-icon__svg`),
@@ -90,7 +89,8 @@ Add from their entry points as needed:
   app with none.
 - `provideWrIcons(lucideIcons({ check: Check }))` — icon registry (`ngwr/icon`,
   adapters under `ngwr/icon/adapters/*`).
-- `provideWrTheme()` — `--wr-*` design tokens. `provideWrDensity()` — sizing.
+- `provideWrDensity()` — sizing. The theme needs no provider: the `--wr-*`
+  tokens are plain CSS, and dark mode follows `color-scheme` (Theme, below).
 - `provideWrConfig({ button: { size: 'sm' }, select: { rounded: true } })`
   (`ngwr/config`) — app-wide component DEFAULTS. A value bound on the element always
   wins, and a bound `false` beats a configured `true`, so a config never has to be
@@ -114,10 +114,10 @@ one element at a time; a step whose target is missing is skipped, not floated.
 
 ## Schematics — let `ng` wire it
 
-- `ng add ngwr` — installs peers, adds `@use 'ngwr'` to styles, prints provider setup.
+- `ng add ngwr` — installs peers, adds `@use 'ngwr/theme'` to styles, prints provider setup.
 - `ng g ngwr:use WrFoo --path src/app/x.ts` — adds the import + splices `WrFoo` into that
   component's `@Component` imports.
-- `ng g ngwr:provider <overlay|icons|toast|i18n|date-adapter|density|theme|…>` —
+- `ng g ngwr:provider <overlay|icons|toast|i18n|date-adapter|density|…>` —
   adds the matching `provideWr*()` to bootstrap.
 - `ng g ngwr:icon-set` — scaffolds a tree-shaken icon barrel.
 - `ng g ngwr:component-style <name>` — appends `@use 'ngwr/<name>'` (opt-in styles).
@@ -136,8 +136,20 @@ half is where the silent failures are. Every breaking change, newest first, each
 with a diff: https://ngwr.dev/start/migration
 
 Names older majors used, which code written for them (and a model trained on
-that code) still spells. The migration for each major rewrites them:
+that code) still spells. The migration for each major up to v14 rewrites them;
+v15 ships none, so its names move by hand:
 
+- v15: `ngwr/drag-drop` is `ngwr/sortable-list`, and the list no longer owns its
+  loop — write your own, one `<wr-sortable-item>` per row, with no `trackBy`;
+  every chart and animation entry point is nested, so `ngwr/bar-chart` is
+  `ngwr/charts/bar-chart` and `ngwr/aurora` is `ngwr/bits/aurora`;
+  `--wr-color-light` and `--wr-color-outline` are `--wr-border-base`,
+  `--wr-color-border` and `--wr-color-border-strong` are `--wr-border-strong`,
+  `--wr-color-border-subtle` is `--wr-border-subtle`, `--wr-color-dark` is
+  `--wr-color-on-surface`, and `--wr-color-medium` and `--wr-color-muted-text`
+  are `--wr-color-on-surface-muted`; `[wrTypography]`'s `tone="dark"` and
+  `tone="medium"` are `tone="base"` and `tone="muted"`, and
+  `<wr-timeline-item color="medium">` is `color="neutral"`.
 - v14: `<wr-alert closeable>` is `closable`; `[wrInput]`'s `wrSize` is `size`;
   `<wr-table [totalItems]>` is `[total]`; `<wr-pagination [(currentPage)]>` and
   `(currentPageChange)` are `[(page)]` and `(pageChange)`;
@@ -156,6 +168,11 @@ that code) still spells. The migration for each major rewrites them:
 
 Changes no migration rewrites. All but the last fail silently:
 
+- Dark mode is `color-scheme` plus `light-dark()` (v15): `[data-theme]` and
+  every `-rgb` token are gone, so a `[data-theme='dark']` selector matches
+  nothing and a leftover `var(--wr-…-rgb)` drops the whole declaration holding
+  it (see Theme, below). The same major removed the `secondary`, `light`,
+  `medium` and `dark` intents; which intent each use becomes is the app's call.
 - `<wr-pagination ofLabel>` is gone (v14), and the `pagination.of` catalog key
   with it. The range is one `pagination.range` template with `{{from}}` /
   `{{to}}` / `{{total}}` placeholders, and a catalog still carrying the old key
@@ -205,8 +222,8 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-event-calendar` (see Scheduling below), `wr-graph` (read-only layered
   diagram: `nodes` plus `{ from, to }` parent-to-child `edges`, each node a
   default card or an `ng-template wrGraphNode`), `wr-virtual-scroll`,
-  `wr-sortable-list` (drag-to-reorder, with `[wrDragHandle]` — both in
-  ngwr/drag-drop).
+  `wr-sortable-list` (drag-to-reorder, one `<wr-sortable-item>` per row from
+  your own loop, with `[wrDragHandle]` — all in ngwr/sortable-list).
 - **Charts** — `wr-line-chart`, `wr-bar-chart`, `wr-donut-chart`,
   `wr-sparkline`, `wr-gauge`, `wr-calendar-heatmap`, `wr-meter-group`, each its
   own entry point, themed through the `--wr-*` tokens and each with a hover
@@ -274,15 +291,28 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   (`shortDate`, `time`, …) parses through the same `Intl` formatter that printed
   it, so input it cannot read returns null and leaves the committed value alone.
   A field that must accept a specific pattern takes an explicit token `[format]`.
-- **Theme** — CSS custom properties `--wr-color-*`, `--wr-border-radius-*`, … set
-  by `provideWrTheme()`. Two contrast tokens per intent, easy to confuse:
+- **Theme** — CSS custom properties `--wr-color-*`, `--wr-border-radius-*`, …
+  from `@use 'ngwr/theme'`, no provider. Dark mode is `color-scheme` plus
+  `light-dark()`: `:root` declares `color-scheme: light dark`, so the page
+  follows the OS with no JavaScript, and `WrTheme.set('light' | 'dark' | 'auto')`
+  forces or releases it by writing `color-scheme` on `<html>`. `WrTheme` applies
+  a stored choice or a non-`auto` `defaultMode` when it is first injected, so
+  inject it once at boot or ship `wrThemePrePaintScript()`. There is no
+  `[data-theme]`, no `theme.dark` mixin and no `-rgb` token: write your own dark
+  values as `color: light-dark(#0f172a, #e6ebf3)`, and a translucent tint as
+  `color-mix(in srgb, var(--wr-color-primary) 12%, transparent)`, never
+  `rgba(var(--wr-color-primary-rgb), 0.12)`. A canvas cannot draw a
+  `light-dark()` value, and `getPropertyValue()` returns it unresolved, so read
+  a colour for canvas from an element's computed `color` —
+  `resolveCssColor()` (`ngwr/utils`) does exactly that. Two contrast tokens
+  per intent, easy to confuse:
   `--wr-color-<intent>-contrast` is the label ON a filled intent;
   `--wr-color-<intent>-ink` is the intent used AS text on a surface or its own
   `-soft` tint. A bare `--wr-color-<intent>` as text clears AA on a plain light
-  surface for every intent but `warning` and `light`, but still fails on the `-soft`
+  surface for every intent but `warning`, but still fails on the `-soft`
   tint — which is exactly where outlined / ghost / tinted variants paint it, so use
-  `-ink` there. For muted prose use `--wr-color-on-surface-muted`, not the `medium`
-  intent, and for placeholder text `--wr-color-placeholder` (never
+  `-ink` there. For muted prose use `--wr-color-on-surface-muted`, and for
+  placeholder text `--wr-color-placeholder` (never
   `--wr-color-text-faint`, which is decorative only). An intent colour on a tag,
   badge or typography tone is decoration or category: the words carry the state.
 - **SSR** — everything renders on the server; the library contains no
@@ -292,10 +322,12 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   one that returns early) — guard them with `afterNextRender` or `WrPlatform`'s
   `isBrowser`. `WrMedia` has no viewport to measure, so `matches()` is `false`
   and `current()` is `'xs'` until hydration: reflow with the `responsive`
-  container-query modifiers rather than a template branch. And a server has no
-  `localStorage`, so a dark-mode visitor sees a light page until the bundle
-  boots — `wrThemePrePaintScript()` (`ngwr/theme`) is the blocking `<head>`
-  reader that closes it: https://ngwr.dev/guides/ssr
+  container-query modifiers rather than a template branch. The scheme needs
+  nothing on the server when it follows the OS, since that is CSS; a visitor
+  who CHOSE light or dark has that choice in `localStorage`, which a server
+  cannot read, so `wrThemePrePaintScript()` (`ngwr/theme`) is the blocking
+  `<head>` reader that applies it before first paint:
+  https://ngwr.dev/guides/ssr
 - **Mobile** — overlays collapse to sheets (`provideWrResponsiveOverlays()`), a
   `responsive` input reflows layout components, a `touch` density preset enlarges
   controls, and `WrHaptics` (ngwr/platform) fires vibration feedback.
@@ -365,8 +397,9 @@ is meant to be checkable rather than taken on trust:
 
 The honest shape of the project, since these pages say it too: one maintainer,
 MIT, eight majors between 2026-06-12 (v7.0.0) and 2026-09-04 (v14.0.0), a
-codemod for every break a codemod can repair and a reported diagnosis for the
-rest, no commercial support.
+codemod for every break a codemod can repair up to v14 and a reported diagnosis
+for the rest, no commercial support. v15 ships no codemod: its migration guide
+lists every change to make by hand.
 
 Public API is three surfaces and all three move only in a major: the exported
 TypeScript, the `.wr-*` BEM class names (every component ships
@@ -375,9 +408,8 @@ TSDoc means not API and survives into the published types, so
 `grep -rn "@internal" node_modules/ngwr/types` answers it. A few helpers are
 exported, unmarked and undocumented — `wrAppendOverlayClose`, `wrMirrorOffsets`,
 `wrPresentAsSheet`, `wrFollowDirection`, `WrOutsideClick`, `useConfigValue`,
-`useFormFieldAria`, `wrContrastFor`, `wrIntentTokens`,
-`isSafeCssValue`, and a handful of `WR_*` context tokens such as `WR_STEPPER` —
-and carry no stability statement; do not build on them.
+`useFormFieldAria`, `isSafeCssValue`, and a handful of `WR_*` context tokens
+such as `WR_STEPPER` — and carry no stability statement; do not build on them.
 
 ## Resources (machine-readable)
 
