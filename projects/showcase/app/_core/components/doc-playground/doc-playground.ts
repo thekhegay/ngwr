@@ -54,7 +54,7 @@ import type { ShikiLang } from '#core/shiki';
  */
 @Component({
   selector: 'ngwr-doc-playground',
-  host: { class: 'wr-not-prose' },
+  host: { class: 'wr-not-typeset' },
   templateUrl: './doc-playground.html',
   styleUrl: './doc-playground.scss',
   imports: [DocCodeComponent, FormsModule, WrColorPickerTrigger, WrInput, WrOption, WrSelect, WrSlider, WrSwitch],

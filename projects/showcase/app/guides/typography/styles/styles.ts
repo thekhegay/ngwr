@@ -31,7 +31,7 @@ interface TokenRow {
   readonly meaning: string;
 }
 
-interface ProseRow {
+interface TypesetRow {
   readonly token: string;
   readonly sample: string;
   /** Drawn as a rule rather than as text — the hook colours a border. */
@@ -244,23 +244,23 @@ export default class TypographyStylesPage {
     },
   ];
 
-  protected readonly proseDefault = hookDefault;
+  protected readonly typesetDefault = hookDefault;
 
-  protected readonly prose: readonly ProseRow[] = [
-    { token: '--wr-prose-body', sample: 'Paragraph text', meaning: 'Paragraphs and list items.' },
-    { token: '--wr-prose-headings', sample: 'Heading', meaning: 'Headings h1 to h4 and table header labels.' },
-    { token: '--wr-prose-lead', sample: 'Intro paragraph', meaning: 'An opening paragraph marked .wr-prose-lead.' },
-    { token: '--wr-prose-bold', sample: 'Bold text', meaning: 'Strong text. Set it to the body colour for plain bold.' },
-    { token: '--wr-prose-links', sample: 'Link', meaning: 'Links. Set it to give links your brand colour.' },
-    { token: '--wr-prose-code', sample: 'inline code', meaning: 'Inline code. The chip behind it stays the fill colour.' },
-    { token: '--wr-prose-bullets', sample: '● ● ●', meaning: 'Bullets of an unordered list.' },
-    { token: '--wr-prose-counters', sample: '1. 2. 3.', meaning: 'Numbers of an ordered list.' },
-    { token: '--wr-prose-quotes', sample: 'Quoted text', meaning: 'Blockquote text.' },
-    { token: '--wr-prose-quote-borders', sample: '', line: true, meaning: 'The bar beside a blockquote.' },
-    { token: '--wr-prose-captions', sample: 'Figure caption', meaning: 'Figure captions.' },
-    { token: '--wr-prose-hr', sample: '', line: true, meaning: 'Horizontal rules between sections.' },
-    { token: '--wr-prose-th-borders', sample: '', line: true, meaning: 'The rule under a table header.' },
-    { token: '--wr-prose-td-borders', sample: '', line: true, meaning: 'The rules between table rows.' },
+  protected readonly typeset: readonly TypesetRow[] = [
+    { token: '--wr-typeset-body', sample: 'Paragraph text', meaning: 'Paragraphs and list items.' },
+    { token: '--wr-typeset-headings', sample: 'Heading', meaning: 'Headings h1 to h4 and table header labels.' },
+    { token: '--wr-typeset-lead', sample: 'Intro paragraph', meaning: 'An opening paragraph marked .wr-typeset-lead.' },
+    { token: '--wr-typeset-bold', sample: 'Bold text', meaning: 'Strong text. Set it to the body colour for plain bold.' },
+    { token: '--wr-typeset-links', sample: 'Link', meaning: 'Links. Set it to give links your brand colour.' },
+    { token: '--wr-typeset-code', sample: 'inline code', meaning: 'Inline code. The chip behind it stays the fill colour.' },
+    { token: '--wr-typeset-bullets', sample: '● ● ●', meaning: 'Bullets of an unordered list.' },
+    { token: '--wr-typeset-counters', sample: '1. 2. 3.', meaning: 'Numbers of an ordered list.' },
+    { token: '--wr-typeset-quotes', sample: 'Quoted text', meaning: 'Blockquote text.' },
+    { token: '--wr-typeset-quote-borders', sample: '', line: true, meaning: 'The bar beside a blockquote.' },
+    { token: '--wr-typeset-captions', sample: 'Figure caption', meaning: 'Figure captions.' },
+    { token: '--wr-typeset-hr', sample: '', line: true, meaning: 'Horizontal rules between sections.' },
+    { token: '--wr-typeset-th-borders', sample: '', line: true, meaning: 'The rule under a table header.' },
+    { token: '--wr-typeset-td-borders', sample: '', line: true, meaning: 'The rules between table rows.' },
   ];
 
   protected readonly sizes: readonly TokenRow[] = [

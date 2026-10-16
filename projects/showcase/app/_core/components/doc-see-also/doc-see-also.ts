@@ -20,7 +20,7 @@ import type { DocSeeAlsoLink } from './types';
  */
 @Component({
   selector: 'ngwr-doc-see-also',
-  host: { class: 'wr-not-prose' },
+  host: { class: 'wr-not-typeset' },
   templateUrl: './doc-see-also.html',
   styleUrl: './doc-see-also.scss',
   imports: [RouterLink],

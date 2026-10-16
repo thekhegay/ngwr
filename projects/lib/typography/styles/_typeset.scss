@@ -1,34 +1,34 @@
 @use '../../theme/styles' as theme;
 
 // Long-form text, ported from `@tailwindcss/typography` (the base `prose`
-// size). Put `.wr-prose` on a container; mark anything inside it that is not
-// text — a demo, a code block, a table of data — with `.wr-not-prose`.
+// size). Put `.wr-typeset` on a container; mark anything inside it that is not
+// text — a demo, a code block, a table of data — with `.wr-not-typeset`.
 //
 // Selectors use `:where()` the way the original does, so a class on an element
-// inside still wins over the prose default. Where it departs: list markers and
+// inside still wins over the default set here. Where it departs: list markers and
 // bold text take the primary colour rather than gray, inline `code` is a chip
 // rather than the original's backtick-wrapped bold, and headings are tighter
 // to their text, with h5 and h6 set as well.
 
-$skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
+$skip: ':not(:where(.wr-not-typeset, .wr-not-typeset *))';
 
-.wr-prose {
-  --wr-prose-body: var(--wr-color-gray-700);
-  --wr-prose-headings: var(--wr-color-on-surface);
-  --wr-prose-lead: var(--wr-color-gray-600);
-  --wr-prose-links: var(--wr-color-on-surface);
-  --wr-prose-bold: var(--wr-color-primary-ink);
-  --wr-prose-counters: var(--wr-color-gray-500);
-  --wr-prose-bullets: var(--wr-color-primary);
-  --wr-prose-hr: var(--wr-color-gray-200);
-  --wr-prose-quotes: var(--wr-color-on-surface);
-  --wr-prose-quote-borders: var(--wr-color-gray-200);
-  --wr-prose-captions: var(--wr-color-gray-500);
-  --wr-prose-code: var(--wr-color-on-surface);
-  --wr-prose-th-borders: var(--wr-color-gray-300);
-  --wr-prose-td-borders: var(--wr-color-gray-200);
+.wr-typeset {
+  --wr-typeset-body: var(--wr-color-gray-700);
+  --wr-typeset-headings: var(--wr-color-on-surface);
+  --wr-typeset-lead: var(--wr-color-gray-600);
+  --wr-typeset-links: var(--wr-color-on-surface);
+  --wr-typeset-bold: var(--wr-color-primary-ink);
+  --wr-typeset-counters: var(--wr-color-gray-500);
+  --wr-typeset-bullets: var(--wr-color-primary);
+  --wr-typeset-hr: var(--wr-color-gray-200);
+  --wr-typeset-quotes: var(--wr-color-on-surface);
+  --wr-typeset-quote-borders: var(--wr-color-gray-200);
+  --wr-typeset-captions: var(--wr-color-gray-500);
+  --wr-typeset-code: var(--wr-color-on-surface);
+  --wr-typeset-th-borders: var(--wr-color-gray-300);
+  --wr-typeset-td-borders: var(--wr-color-gray-200);
 
-  color: var(--wr-prose-body);
+  color: var(--wr-typeset-body);
   max-width: 65ch;
   font-size: 1rem;
   line-height: 1.75;
@@ -38,14 +38,14 @@ $skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
   // inverted here, step for step as the original's `prose-invert`. Not
   // `--wr-color-white`: the dark theme turns that into the canvas.
   @include theme.dark {
-    --wr-prose-body: var(--wr-color-gray-300);
-    --wr-prose-lead: var(--wr-color-gray-400);
-    --wr-prose-counters: var(--wr-color-gray-400);
-    --wr-prose-hr: var(--wr-color-gray-700);
-    --wr-prose-quote-borders: var(--wr-color-gray-700);
-    --wr-prose-captions: var(--wr-color-gray-400);
-    --wr-prose-th-borders: var(--wr-color-gray-600);
-    --wr-prose-td-borders: var(--wr-color-gray-700);
+    --wr-typeset-body: var(--wr-color-gray-300);
+    --wr-typeset-lead: var(--wr-color-gray-400);
+    --wr-typeset-counters: var(--wr-color-gray-400);
+    --wr-typeset-hr: var(--wr-color-gray-700);
+    --wr-typeset-quote-borders: var(--wr-color-gray-700);
+    --wr-typeset-captions: var(--wr-color-gray-400);
+    --wr-typeset-th-borders: var(--wr-color-gray-600);
+    --wr-typeset-td-borders: var(--wr-color-gray-700);
   }
 
   :where(p)#{$skip} {
@@ -56,8 +56,8 @@ $skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
     line-height: inherit;
   }
 
-  :where(.wr-prose-lead)#{$skip} {
-    color: var(--wr-prose-lead);
+  :where(.wr-typeset-lead)#{$skip} {
+    color: var(--wr-typeset-lead);
     font-size: 1.25em;
     line-height: 1.6;
     margin-top: 1.2em;
@@ -65,13 +65,13 @@ $skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
   }
 
   :where(a)#{$skip} {
-    color: var(--wr-prose-links);
+    color: var(--wr-typeset-links);
     text-decoration: underline;
     font-weight: 500;
   }
 
   :where(strong)#{$skip} {
-    color: var(--wr-prose-bold);
+    color: var(--wr-typeset-bold);
     font-weight: 600;
   }
 
@@ -100,16 +100,16 @@ $skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
 
   :where(ol > li)#{$skip}::marker {
     font-weight: 400;
-    color: var(--wr-prose-counters);
+    color: var(--wr-typeset-counters);
   }
 
   :where(ul > li)#{$skip}::marker {
-    color: var(--wr-prose-bullets);
+    color: var(--wr-typeset-bullets);
   }
 
   :where(hr)#{$skip} {
     border: 0;
-    border-top: 1px solid var(--wr-prose-hr);
+    border-top: 1px solid var(--wr-typeset-hr);
     margin-top: 3em;
     margin-bottom: 3em;
   }
@@ -117,8 +117,8 @@ $skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
   :where(blockquote)#{$skip} {
     font-weight: 500;
     font-style: italic;
-    color: var(--wr-prose-quotes);
-    border-inline-start: 0.25rem solid var(--wr-prose-quote-borders);
+    color: var(--wr-typeset-quotes);
+    border-inline-start: 0.25rem solid var(--wr-typeset-quote-borders);
     margin-top: 1.6em;
     margin-bottom: 1.6em;
     padding-inline-start: 1em;
@@ -130,7 +130,7 @@ $skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
   // resets every heading to inherit; `ngwr/reset` gives h4–h6 sizes of their
   // own, so all six are set here, each a step below the last.
   :where(h1, h2, h3, h4, h5, h6)#{$skip} {
-    color: var(--wr-prose-headings);
+    color: var(--wr-typeset-headings);
     margin-bottom: 0.5em;
   }
 
@@ -191,7 +191,7 @@ $skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
   }
 
   :where(figcaption)#{$skip} {
-    color: var(--wr-prose-captions);
+    color: var(--wr-typeset-captions);
     font-size: 0.875em;
     line-height: 1.4285714;
     margin-top: 0.8571429em;
@@ -201,7 +201,7 @@ $skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
     padding: 0.125rem 0.375rem;
     border-radius: var(--wr-border-radius-sm);
     background: var(--wr-color-fill);
-    color: var(--wr-prose-code);
+    color: var(--wr-typeset-code);
     font-family: var(--wr-font-family-mono);
     font-size: 0.875em;
     font-weight: 500;
@@ -234,11 +234,11 @@ $skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
   }
 
   :where(thead)#{$skip} {
-    border-bottom: 1px solid var(--wr-prose-th-borders);
+    border-bottom: 1px solid var(--wr-typeset-th-borders);
   }
 
   :where(thead th)#{$skip} {
-    color: var(--wr-prose-headings);
+    color: var(--wr-typeset-headings);
     font-weight: 600;
     vertical-align: bottom;
     padding-inline: 0.5714286em;
@@ -246,7 +246,7 @@ $skip: ':not(:where(.wr-not-prose, .wr-not-prose *))';
   }
 
   :where(tbody tr)#{$skip} {
-    border-bottom: 1px solid var(--wr-prose-td-borders);
+    border-bottom: 1px solid var(--wr-typeset-td-borders);
   }
 
   :where(tbody td)#{$skip} {
