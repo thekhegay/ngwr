@@ -27,9 +27,10 @@
  * The scan lives in `scripts/lib/build-css-var-map.ts`; read its header before
  * changing anything here. This file only decides which PAGE shows what, and
  * there is one rule: a page's directory name is its entry point's directory
- * name. `reference/components/button-group` and `reference/components/form-field`
- * name no entry point and get no section — correctly, since neither
- * `.wr-btn-group` nor `.wr-form-field` publishes a hook of its own.
+ * name, at any depth below its cluster. `reference/components/button-group` and
+ * `reference/components/form-field` name no entry point and get no section —
+ * correctly, since neither `.wr-btn-group` nor `.wr-form-field` publishes a hook
+ * of its own.
  *
  * A component whose page cannot be found is REPORTED rather than dropped
  * silently, and rather than thrown over: `check:api-docs` already fails on an
@@ -39,13 +40,14 @@
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import { exit } from 'node:process';
 
 import { buildCssVarMap, type WrCssVarEntry, type WrCssVarMap } from '../lib/build-css-var-map';
+import { buildPageRoutes } from '../lib/page-routes';
 import { ROOT_PATH } from '../lib/paths/root';
 
 const OUT_DIR = resolve(ROOT_PATH, 'projects/showcase/app/_core/generated');
 const OUT_FILE = join(OUT_DIR, 'css-vars.ts');
-const APP_ROOT = resolve(ROOT_PATH, 'projects/showcase/app');
 
 /**
  * Where a page for an entry point may live, most specific first.
@@ -62,30 +64,65 @@ const CLUSTERS = [
   'reference/pipes',
 ] as const;
 
+/** A page directory and the one route it is served at. */
+interface Page {
+  readonly dir: string;
+  readonly route: string;
+}
+
 /**
  * `alert` → `reference/components/alert`, or `null` when no page documents it.
  *
- * Two shapes, because an entry point's PATH is not its route. A nested one is
- * served from wherever its cluster lives: `bits/aurora` has a page at
- * `bits/aurora`, and `charts/bar-chart` at `reference/components/bar-chart` —
- * beside every other component. So the path as written is tried first, and
- * then each cluster against the LAST segment.
+ * The answer is a ROUTE, because `<ngwr-doc-page>` looks the section up by the
+ * URL it is rendered at — and a page's directory stopped being its route when the
+ * showcase moved pages into one folder per sidebar group:
+ * `reference/components/feedback/alert/` serves `/reference/components/alert`.
+ * So the page is found by its DIRECTORY NAME anywhere below a cluster, and the
+ * route comes from the router's own tree (`buildPageRoutes`), never from the path.
  *
- * This used to join every entry onto a cluster list that still named
- * `animations`, the directory `bits/` replaced. Nothing failed: the join found
- * no page for a bit OR for a chart, both dropped out of the map, and
- * `check:css-vars` compared the committed copy against the same wrong output
- * and passed. A generator and its own gate agreeing is the one shape a
- * generated file cannot catch.
+ * A nested entry point is looked for under its own cluster first — `bits/aurora`
+ * under `bits/`, `charts/bar-chart` under `charts/` — and then under each of
+ * {@link CLUSTERS} in order, which is where a flat one lives.
+ *
+ * This used to test `existsSync(cluster/name)`, and the grouping left it finding
+ * nine pages where there were eighty: every grouped page fell out of the map, and
+ * `check:css-vars` compared the committed copy against the same short output and
+ * passed. A generator and its own gate agreeing is the one shape a generated
+ * file cannot catch — the second time here, after `animations` became `bits`.
  */
-function routeOf(entry: string): string | null {
-  if (existsSync(join(APP_ROOT, entry))) return entry;
-  const name = entry.slice(entry.lastIndexOf('/') + 1);
-  for (const cluster of CLUSTERS) {
-    const route = `${cluster}/${name}`;
-    if (existsSync(join(APP_ROOT, route))) return route;
+function routeOf(entry: string, pages: ReadonlyMap<string, readonly Page[]>): string | null {
+  const slash = entry.lastIndexOf('/');
+  const name = entry.slice(slash + 1);
+  const candidates = pages.get(name) ?? [];
+  const own = slash === -1 ? [] : [entry.slice(0, entry.indexOf('/'))];
+  for (const cluster of [...own, ...CLUSTERS]) {
+    const hit = candidates.find(p => p.dir.startsWith(`${cluster}/`));
+    if (hit) return hit.route;
   }
   return null;
+}
+
+/**
+ * Every page directory served at exactly one route, grouped by directory name.
+ * One directory behind several routes — the icon galleries, a cluster's catalog —
+ * documents no single entry point.
+ */
+async function pagesByName(): Promise<Map<string, Page[]>> {
+  const routes = await buildPageRoutes();
+  if (routes.problems.length > 0) {
+    console.error('\n✘ the route walk is short, so the map would be too:\n');
+    for (const p of routes.problems) console.error(`    ${p}`);
+    exit(1);
+  }
+  const byName = new Map<string, Page[]>();
+  for (const [dir, forDir] of routes.byDirectory) {
+    if (forDir.length !== 1) continue;
+    const name = dir.slice(dir.lastIndexOf('/') + 1);
+    const list = byName.get(name) ?? [];
+    list.push({ dir, route: forDir[0] });
+    byName.set(name, list);
+  }
+  return byName;
 }
 
 function rows(entry: WrCssVarEntry): string {
@@ -200,24 +237,26 @@ function duplicatedTables(): string[] {
       }
     }
   };
-  // Only `reference/components` and `bits`. The `/guides/tokens/*` pages
+  // Only `reference/components`, `charts` and `bits`. The `/guides/tokens/*` pages
   // document the THEME layer — `--wr-text-*`, `--wr-duration-*`, the colour
   // ramp — which the generator does not catalogue, because it reads each
   // component's own `--wr-<name>-*` hooks. Those tables are the only record
   // of the token layer and must stay hand-written.
   walk(join(ROOT_PATH, 'projects/showcase/app/reference/components'));
+  walk(join(ROOT_PATH, 'projects/showcase/app/charts'));
   walk(join(ROOT_PATH, 'projects/showcase/app/bits'));
   return out;
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const check = process.argv.includes('--check');
   const map = buildCssVarMap();
+  const pages = await pagesByName();
 
   const byRoute = new Map<string, WrCssVarEntry>();
   const homeless: string[] = [];
   for (const entry of map.entries) {
-    const route = routeOf(entry.entry);
+    const route = routeOf(entry.entry, pages);
     if (route) byRoute.set(route, entry);
     else homeless.push(`${entry.subpath} (${entry.vars.length} hook(s))`);
   }
@@ -266,4 +305,4 @@ function main(): void {
   }
 }
 
-main();
+await main();
