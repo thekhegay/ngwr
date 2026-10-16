@@ -205,7 +205,7 @@ export class Header {
     // Replaces the Playground page: the same thing, run where a reader can
     // actually edit it, instead of a tile on a docs site pretending to.
     {
-      url: 'https://stackblitz.com/github/thekhegay/ngwr/tree/main/projects/starter',
+      url: 'https://stackblitz.com/github/thekhegay/ngwr/tree/main/projects/starter?file=src/app/app.ts',
       icon: 'stackblitz',
       modifier: 'stackblitz',
       label: 'Playground on StackBlitz',
