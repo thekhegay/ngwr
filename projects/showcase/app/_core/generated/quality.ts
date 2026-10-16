@@ -43,10 +43,10 @@ export const QUALITY = {
   directives: 38,
 
   /** `*.spec.ts` files under `projects/lib`, harness specs included. They sit beside the code they cover, and `tsconfig.lib.json` excludes them from the package. */
-  specFiles: 301,
+  specFiles: 300,
 
   /** Test cases those files DECLARE — `it(…)` / `test(…)` call sites, counted after comments and string bodies are stripped. */
-  testCases: 5458,
+  testCases: 5444,
 
   /** Whether `testCases` is a total or a floor. A parameterised form (`it.each`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page says "at least" rather than failing a documentation build over a legal spec. */
   testCasesAreExact: false,
@@ -55,7 +55,7 @@ export const QUALITY = {
   entryPointsWithSpecs: 226,
 
   /** Documentation pages the showcase's route tables declare — routes with a `loadComponent`, minus the layout shell (it has `children`) and the `**` 404, neither of which is a page. NOT the prerendered-route count either: `app.routes.server.ts` sends the raw-SVG icon galleries and the legacy redirects to the client. */
-  docRoutes: 216,
+  docRoutes: 217,
 
   /** Locale catalogs the package ships, as the subpath each is imported from — `ngwr/i18n/de`. Counted from the folders under `projects/lib/i18n` that hold a catalog, so a locale added or removed moves this on its own. Region codes appear only where the script genuinely differs; every other code is a language, which a region `LOCALE_ID` falls back to. */
   locales: ["ar", "cs", "de", "en", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "sv", "tr", "uk", "vi", "zh", "zh-TW"],
@@ -86,7 +86,6 @@ export const QUALITY = {
     { name: "check:css-vars", command: "tsx scripts/gen/css-vars.ts --check" },
     { name: "build:lib", command: "tsx scripts/build/lib.ts" },
     { name: "build:showcase", command: "tsx scripts/build/showcase.ts" },
-    { name: "check:theme", command: "tsx scripts/check/theme-parity.ts" },
     { name: "check:a11y", command: "tsx scripts/check/a11y.ts" },
   ],
 

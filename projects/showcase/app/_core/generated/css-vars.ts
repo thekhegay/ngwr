@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1288 hook(s) across 92 page(s). A property is here only when the
+ * 1282 hook(s) across 91 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 23 declaration(s) are one component setting
@@ -37,42 +37,34 @@ export interface DocCssVars {
  * cast it needs can only name a route this file still carries.
  */
 export const CSS_VARS = {
-  "bits/aurora": {
-    subpath: "ngwr/bits/aurora",
-    vars: [
-      { name: "--wr-aurora-stop-1", default: "#6366f1", scope: ".wr-aurora", overrides: 1 },
-      { name: "--wr-aurora-stop-2", default: "#10b981", scope: ".wr-aurora", overrides: 1 },
-      { name: "--wr-aurora-stop-3", default: "#6366f1", scope: ".wr-aurora", overrides: 1 },
-    ],
-  },
   "bits/border-glow": {
     subpath: "ngwr/bits/border-glow",
     vars: [
       { name: "--wr-border-glow-angle", default: "45deg", scope: ".wr-border-glow" },
-      { name: "--wr-border-glow-color", default: "hsl(40deg 90% 45% / 100%)", scope: ".wr-border-glow", overrides: 1 },
-      { name: "--wr-border-glow-color-10", default: "hsl(40deg 90% 45% / 10%)", scope: ".wr-border-glow", overrides: 1 },
-      { name: "--wr-border-glow-color-20", default: "hsl(40deg 90% 45% / 20%)", scope: ".wr-border-glow", overrides: 1 },
-      { name: "--wr-border-glow-color-30", default: "hsl(40deg 90% 45% / 30%)", scope: ".wr-border-glow", overrides: 1 },
-      { name: "--wr-border-glow-color-40", default: "hsl(40deg 90% 45% / 40%)", scope: ".wr-border-glow", overrides: 1 },
-      { name: "--wr-border-glow-color-50", default: "hsl(40deg 90% 45% / 50%)", scope: ".wr-border-glow", overrides: 1 },
-      { name: "--wr-border-glow-color-60", default: "hsl(40deg 90% 45% / 60%)", scope: ".wr-border-glow", overrides: 1 },
+      { name: "--wr-border-glow-color", default: "light-dark(hsl(40deg 90% 45% / 100%), hsl(40deg 80% 80% / 100%))", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-color-10", default: "light-dark(hsl(40deg 90% 45% / 10%), hsl(40deg 80% 80% / 10%))", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-color-20", default: "light-dark(hsl(40deg 90% 45% / 20%), hsl(40deg 80% 80% / 20%))", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-color-30", default: "light-dark(hsl(40deg 90% 45% / 30%), hsl(40deg 80% 80% / 30%))", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-color-40", default: "light-dark(hsl(40deg 90% 45% / 40%), hsl(40deg 80% 80% / 40%))", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-color-50", default: "light-dark(hsl(40deg 90% 45% / 50%), hsl(40deg 80% 80% / 50%))", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-color-60", default: "light-dark(hsl(40deg 90% 45% / 60%), hsl(40deg 80% 80% / 60%))", scope: ".wr-border-glow" },
       { name: "--wr-border-glow-color-sensitivity", default: "calc(var(--wr-border-glow-edge-sensitivity) + 20)", scope: ".wr-border-glow" },
       { name: "--wr-border-glow-cone-spread", default: "25", scope: ".wr-border-glow" },
       { name: "--wr-border-glow-edge-proximity", default: "0", scope: ".wr-border-glow" },
       { name: "--wr-border-glow-edge-sensitivity", default: "30", scope: ".wr-border-glow" },
-      { name: "--wr-border-glow-edge-shadow", default: "inset 0 0 0 1px var(--wr-border-glow-color), inset 0 0 1px 0 var(--wr-border-glow-color-60), inset 0 0 3px 0 var(--wr-border-glow-color-50), inset 0 0 6px 0 var(--wr-border-glow-color-40), inset 0 0 15px 0 var(--wr-border-glow-color-30), inset 0 0 25px 2px var(--wr-border-glow-color-20), inset 0 0 50px 2px var(--wr-border-glow-color-10), 0 0 1px 0 var(--wr-border-glow-color-60), 0 0 3px 0 var(--wr-border-glow-color-50), 0 0 6px 0 var(--wr-border-glow-color-40), 0 0 15px 0 var(--wr-border-glow-color-30), 0 0 25px 2px var(--wr-border-glow-color-20), 0 0 50px 2px var(--wr-border-glow-color-10)", scope: "[data-theme='dark'] .wr-border-glow", base: false },
-      { name: "--wr-border-glow-fill-blend", default: "soft-light", scope: "[data-theme='dark'] .wr-border-glow", base: false },
-      { name: "--wr-border-glow-fill-scale", default: "1", scope: "[data-theme='dark'] .wr-border-glow", base: false },
-      { name: "--wr-border-glow-gradient-base", default: "linear-gradient(hsl(262deg 70% 50%) 0 100%)", scope: ".wr-border-glow", overrides: 1 },
-      { name: "--wr-border-glow-gradient-five", default: "radial-gradient(at 86% 85%, hsl(186deg 90% 38%) 0px, transparent 50%)", scope: ".wr-border-glow", overrides: 1 },
-      { name: "--wr-border-glow-gradient-four", default: "radial-gradient(at 41% 38%, hsl(192deg 90% 40%) 0px, transparent 50%)", scope: ".wr-border-glow", overrides: 1 },
-      { name: "--wr-border-glow-gradient-one", default: "radial-gradient(at 80% 55%, hsl(268deg 80% 50%) 0px, transparent 50%)", scope: ".wr-border-glow", overrides: 1 },
-      { name: "--wr-border-glow-gradient-seven", default: "radial-gradient(at 51% 4%, hsl(12deg 90% 50%) 0px, transparent 50%)", scope: ".wr-border-glow", overrides: 1 },
-      { name: "--wr-border-glow-gradient-six", default: "radial-gradient(at 82% 18%, hsl(40deg 95% 45%) 0px, transparent 50%)", scope: ".wr-border-glow", overrides: 1 },
-      { name: "--wr-border-glow-gradient-three", default: "radial-gradient(at 8% 6%, hsl(136deg 70% 38%) 0px, transparent 50%)", scope: ".wr-border-glow", overrides: 1 },
-      { name: "--wr-border-glow-gradient-two", default: "radial-gradient(at 69% 34%, hsl(349deg 85% 52%) 0px, transparent 50%)", scope: ".wr-border-glow", overrides: 1 },
-      { name: "--wr-border-glow-halo-blend", default: "plus-lighter", scope: "[data-theme='dark'] .wr-border-glow", base: false },
-      { name: "--wr-border-glow-outline", default: "rgb(255 255 255 / 15%)", scope: "[data-theme='dark'] .wr-border-glow", base: false },
+      { name: "--wr-border-glow-edge-shadow", default: "inset 0 0 0 1px var(--wr-border-glow-color), inset 0 0 1px 0 light-dark(transparent, var(--wr-border-glow-color-60)), inset 0 0 3px 0 light-dark(transparent, var(--wr-border-glow-color-50)), inset 0 0 6px 0 light-dark(transparent, var(--wr-border-glow-color-40)), inset 0 0 15px 0 light-dark(transparent, var(--wr-border-glow-color-30)), inset 0 0 25px 2px light-dark(transparent, var(--wr-border-glow-color-20)), inset 0 0 50px 2px light-dark(transparent, var(--wr-border-glow-color-10)), 0 0 1px 0 var(--wr-border-glow-color-60), 0 0 3px 0 var(--wr-border-glow-color-50), 0 0 6px 0 var(--wr-border-glow-color-40), 0 0 15px 0 var(--wr-border-glow-color-30), 0 0 25px 2px var(--wr-border-glow-color-20), 0 0 50px 2px var(--wr-border-glow-color-10)", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-fill-blend", default: "normal", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-fill-scale", default: "0.25", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-gradient-base", default: "linear-gradient(light-dark(hsl(262deg 70% 50%), #c299ff) 0 100%)", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-gradient-five", default: "radial-gradient(at 86% 85%, light-dark(hsl(186deg 90% 38%), hsl(186deg 100% 74%)) 0px, transparent 50%)", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-gradient-four", default: "radial-gradient(at 41% 38%, light-dark(hsl(192deg 90% 40%), hsl(192deg 100% 64%)) 0px, transparent 50%)", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-gradient-one", default: "radial-gradient(at 80% 55%, light-dark(hsl(268deg 80% 50%), hsl(268deg 100% 76%)) 0px, transparent 50%)", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-gradient-seven", default: "radial-gradient(at 51% 4%, light-dark(hsl(12deg 90% 50%), hsl(12deg 100% 72%)) 0px, transparent 50%)", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-gradient-six", default: "radial-gradient(at 82% 18%, light-dark(hsl(40deg 95% 45%), hsl(52deg 100% 65%)) 0px, transparent 50%)", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-gradient-three", default: "radial-gradient(at 8% 6%, light-dark(hsl(136deg 70% 38%), hsl(136deg 100% 78%)) 0px, transparent 50%)", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-gradient-two", default: "radial-gradient(at 69% 34%, light-dark(hsl(349deg 85% 52%), hsl(349deg 100% 74%)) 0px, transparent 50%)", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-halo-blend", default: "normal", scope: ".wr-border-glow" },
+      { name: "--wr-border-glow-outline", default: "light-dark(var(--wr-border-base), rgb(255 255 255 / 15%))", scope: ".wr-border-glow" },
       { name: "--wr-border-glow-padding", default: "40px", scope: ".wr-border-glow" },
       { name: "--wr-border-glow-radius", default: "28px", scope: ".wr-border-glow" },
     ],
@@ -120,10 +112,10 @@ export const CSS_VARS = {
   "bits/shiny-text": {
     subpath: "ngwr/bits/shiny-text",
     vars: [
-      { name: "--wr-shiny-text-base", default: "var(--wr-color-on-surface-muted, #8594a4)", scope: ".wr-shiny-text", overrides: 1 },
+      { name: "--wr-shiny-text-base", default: "light-dark(var(--wr-color-on-surface-muted, #8594a4), #b5b5b5)", scope: ".wr-shiny-text" },
       { name: "--wr-shiny-text-motion", default: "1", scope: ".wr-shiny-text" },
       { name: "--wr-shiny-text-progress", default: "0", scope: "from", base: false, overrides: 1 },
-      { name: "--wr-shiny-text-shine", default: "var(--wr-color-on-surface, #0f172a)", scope: ".wr-shiny-text", overrides: 1 },
+      { name: "--wr-shiny-text-shine", default: "light-dark(var(--wr-color-on-surface, #0f172a), #ffffff)", scope: ".wr-shiny-text" },
     ],
   },
   "bits/spotlight-card": {
@@ -132,7 +124,7 @@ export const CSS_VARS = {
       { name: "--wr-spotlight-card-border", default: "var(--wr-border-base)", scope: ".wr-spotlight-card" },
       { name: "--wr-spotlight-card-padding", default: "var(--wr-space-xl)", scope: ".wr-spotlight-card" },
       { name: "--wr-spotlight-card-radius", default: "var(--wr-border-radius-lg)", scope: ".wr-spotlight-card" },
-      { name: "--wr-spotlight-color", default: "rgba(var(--wr-color-on-surface-rgb), 0.15)", scope: ".wr-spotlight-card", overrides: 1 },
+      { name: "--wr-spotlight-color", default: "light-dark(color-mix(in srgb, var(--wr-color-on-surface) 15%, transparent), color-mix(in srgb, var(--wr-color-on-surface) 22%, transparent))", scope: ".wr-spotlight-card" },
       { name: "--wr-spotlight-x", default: "50%", scope: ".wr-spotlight-card" },
       { name: "--wr-spotlight-y", default: "50%", scope: ".wr-spotlight-card" },
     ],
@@ -140,11 +132,10 @@ export const CSS_VARS = {
   "bits/star-border": {
     subpath: "ngwr/bits/star-border",
     vars: [
-      { name: "--wr-star-border-color", default: "var(--wr-color-primary)", scope: ".wr-star-border", overrides: 1 },
-      { name: "--wr-star-border-opacity", default: "1", scope: ".wr-star-border", overrides: 1 },
+      { name: "--wr-star-border-color", default: "light-dark(var(--wr-color-primary), #ffffff)", scope: ".wr-star-border" },
+      { name: "--wr-star-border-opacity", default: "1", scope: ".wr-star-border" },
       { name: "--wr-star-border-radius", default: "20px", scope: ".wr-star-border" },
       { name: "--wr-star-border-speed", default: "6s", scope: ".wr-star-border" },
-      { name: "--wr-star-border-stop", default: "16%", scope: ".wr-star-border", overrides: 1 },
     ],
   },
   "bits/tilt-card": {
@@ -152,7 +143,6 @@ export const CSS_VARS = {
     vars: [
       { name: "--wr-tilt-card-padding", default: "var(--wr-space-xl)", scope: ".wr-tilt-card" },
       { name: "--wr-tilt-card-radius", default: "var(--wr-border-radius-base)", scope: ".wr-tilt-card" },
-      { name: "--wr-tilt-glare-color", default: "rgb(255 255 255 / 25%)", scope: "[data-theme='dark'] .wr-tilt-glare", base: false },
     ],
   },
   "bits/typewriter": {
@@ -164,7 +154,7 @@ export const CSS_VARS = {
   "bits/waves": {
     subpath: "ngwr/bits/waves",
     vars: [
-      { name: "--wr-waves-line-color", default: "rgba(var(--wr-color-on-surface-rgb), 0.12)", scope: ".wr-waves", overrides: 1 },
+      { name: "--wr-waves-line-color", default: "light-dark(color-mix(in srgb, var(--wr-color-on-surface) 12%, transparent), rgb(255 255 255 / 14%))", scope: ".wr-waves" },
       { name: "--wr-waves-x-gap", default: "10px", scope: ".wr-waves" },
     ],
   },
@@ -305,7 +295,7 @@ export const CSS_VARS = {
       { name: "--wr-badge-padding-y", default: "var(--wr-space-xs)", scope: ".wr-badge", overrides: 2 },
       { name: "--wr-badge-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-badge", overrides: 1 },
       { name: "--wr-tag-bg", default: "var(--wr-color-fill)", scope: ".wr-tag", overrides: 3 },
-      { name: "--wr-tag-border", default: "var(--wr-border-base)", scope: ".wr-tag", overrides: 4 },
+      { name: "--wr-tag-border", default: "var(--wr-border-base)", scope: ".wr-tag", overrides: 3 },
       { name: "--wr-tag-color", default: "var(--wr-color-on-surface)", scope: ".wr-tag", overrides: 3 },
       { name: "--wr-tag-font-family", default: "var(--wr-font-family-base)", scope: ".wr-tag" },
       { name: "--wr-tag-font-size", default: "var(--wr-text-xs)", scope: ".wr-tag" },
@@ -321,7 +311,7 @@ export const CSS_VARS = {
   "reference/components/breadcrumbs": {
     subpath: "ngwr/breadcrumbs",
     vars: [
-      { name: "--wr-breadcrumbs-color", default: "rgba(var(--wr-color-on-surface-rgb), 0.6)", scope: ".wr-breadcrumbs" },
+      { name: "--wr-breadcrumbs-color", default: "color-mix(in srgb, var(--wr-color-on-surface) 60%, transparent)", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-current-color", default: "var(--wr-color-on-surface)", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-current-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-current-gap", default: "var(--wr-space-sm)", scope: ".wr-breadcrumbs" },
@@ -332,7 +322,7 @@ export const CSS_VARS = {
       { name: "--wr-breadcrumbs-link-gap", default: "var(--wr-space-sm)", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-link-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-separator", default: "'/'", scope: ".wr-breadcrumbs" },
-      { name: "--wr-breadcrumbs-separator-color", default: "rgba(var(--wr-color-on-surface-rgb), 0.3)", scope: ".wr-breadcrumbs" },
+      { name: "--wr-breadcrumbs-separator-color", default: "color-mix(in srgb, var(--wr-color-on-surface) 30%, transparent)", scope: ".wr-breadcrumbs" },
     ],
   },
   "reference/components/burger": {
@@ -375,7 +365,6 @@ export const CSS_VARS = {
       { name: "--wr-calendar-accent", default: "var(--wr-color-primary)", scope: ".wr-calendar" },
       { name: "--wr-calendar-accent-contrast", default: "var(--wr-color-primary-contrast)", scope: ".wr-calendar" },
       { name: "--wr-calendar-accent-ink", default: "var(--wr-color-primary-ink)", scope: ".wr-calendar" },
-      { name: "--wr-calendar-accent-rgb", default: "var(--wr-color-primary-rgb)", scope: ".wr-calendar" },
       { name: "--wr-calendar-bg", default: "var(--wr-color-surface)", scope: ".wr-calendar" },
       { name: "--wr-calendar-body-gap", default: "var(--wr-space-sm)", scope: ".wr-calendar" },
       { name: "--wr-calendar-border", default: "var(--wr-border-base)", scope: ".wr-calendar" },
@@ -500,6 +489,7 @@ export const CSS_VARS = {
       { name: "--wr-color-picker-bg", default: "var(--wr-color-surface)", scope: ".wr-color-picker" },
       { name: "--wr-color-picker-border", default: "var(--wr-border-base)", scope: ".wr-color-picker" },
       { name: "--wr-color-picker-chrome-gap", default: "var(--wr-space-sm)", scope: ".wr-color-picker__chrome" },
+      { name: "--wr-color-picker-color", default: "rgb(0 0 0)", scope: ".wr-color-picker" },
       { name: "--wr-color-picker-field-border", default: "var(--wr-border-base)", scope: ".wr-color-picker__field" },
       { name: "--wr-color-picker-field-font-family", default: "var(--wr-font-family-mono, monospace)", scope: ".wr-color-picker__field" },
       { name: "--wr-color-picker-field-font-size", default: "var(--wr-text-xs)", scope: ".wr-color-picker__field", overrides: 1 },
@@ -515,7 +505,6 @@ export const CSS_VARS = {
       { name: "--wr-color-picker-inputs-gap", default: "var(--wr-space-xs)", scope: ".wr-color-picker__inputs" },
       { name: "--wr-color-picker-padding", default: "var(--wr-space-md)", scope: ".wr-color-picker" },
       { name: "--wr-color-picker-radius", default: "var(--wr-border-radius-base)", scope: ".wr-color-picker" },
-      { name: "--wr-color-picker-rgb", default: "0, 0, 0", scope: ".wr-color-picker" },
       { name: "--wr-color-picker-slider-height", default: "0.75rem", scope: ".wr-color-picker" },
       { name: "--wr-color-picker-sv-height", default: "10rem", scope: ".wr-color-picker" },
       { name: "--wr-color-picker-swatch-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-color-picker__swatch" },
@@ -973,8 +962,8 @@ export const CSS_VARS = {
     subpath: "ngwr/keyboard",
     vars: [
       { name: "--wr-kbd-bg", default: "var(--wr-color-surface)", scope: ".wr-kbd" },
-      { name: "--wr-kbd-border", default: "rgba(var(--wr-color-on-surface-rgb), 0.18)", scope: ".wr-kbd" },
-      { name: "--wr-kbd-border-bottom", default: "rgba(var(--wr-color-on-surface-rgb), 0.32)", scope: ".wr-kbd" },
+      { name: "--wr-kbd-border", default: "color-mix(in srgb, var(--wr-color-on-surface) 18%, transparent)", scope: ".wr-kbd" },
+      { name: "--wr-kbd-border-bottom", default: "color-mix(in srgb, var(--wr-color-on-surface) 32%, transparent)", scope: ".wr-kbd" },
       { name: "--wr-kbd-color", default: "var(--wr-color-on-surface)", scope: ".wr-kbd" },
       { name: "--wr-kbd-depth", default: "1px", scope: ".wr-kbd", overrides: 1 },
       { name: "--wr-kbd-font-family", default: "var(--wr-font-family-base, system-ui, sans-serif)", scope: ".wr-kbd" },
@@ -983,7 +972,7 @@ export const CSS_VARS = {
       { name: "--wr-kbd-line-height", default: "var(--wr-leading-none)", scope: ".wr-kbd" },
       { name: "--wr-kbd-padding-x", default: "var(--wr-space-sm)", scope: ".wr-kbd", overrides: 2 },
       { name: "--wr-kbd-radius", default: "var(--wr-control-radius-md)", scope: ".wr-kbd", overrides: 2 },
-      { name: "--wr-kbd-shadow", default: "0 var(--wr-kbd-depth) 0 rgba(var(--wr-color-backdrop-rgb), 0.25)", scope: ".wr-kbd" },
+      { name: "--wr-kbd-shadow", default: "0 var(--wr-kbd-depth) 0 color-mix(in srgb, var(--wr-color-backdrop) 25%, transparent)", scope: ".wr-kbd" },
     ],
   },
   "reference/components/knob": {
@@ -1011,7 +1000,7 @@ export const CSS_VARS = {
   "reference/components/list": {
     subpath: "ngwr/list",
     vars: [
-      { name: "--wr-list-active-bg", default: "rgba(var(--wr-color-primary-rgb), 0.08)", scope: ".wr-list" },
+      { name: "--wr-list-active-bg", default: "color-mix(in srgb, var(--wr-color-primary) 8%, transparent)", scope: ".wr-list" },
       { name: "--wr-list-bg", default: "transparent", scope: ".wr-list" },
       { name: "--wr-list-divider-color", default: "var(--wr-border-base)", scope: ".wr-list" },
       { name: "--wr-list-font-family", default: "var(--wr-font-family-base)", scope: ".wr-list" },
@@ -1489,7 +1478,7 @@ export const CSS_VARS = {
       { name: "--wr-table-head-transform", default: "none", scope: ".wr-table" },
       { name: "--wr-table-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-table" },
       { name: "--wr-table-pager-padding", default: "var(--wr-space-md)", scope: ".wr-table" },
-      { name: "--wr-table-pin-shadow-ink", default: "rgb(0 0 0 / 18%)", scope: ".wr-table", overrides: 1 },
+      { name: "--wr-table-pin-shadow-ink", default: "light-dark(rgb(0 0 0 / 18%), rgb(0 0 0 / 45%))", scope: ".wr-table" },
       { name: "--wr-table-radius", default: "var(--wr-border-radius-base)", scope: ".wr-table" },
       { name: "--wr-table-resize-handle-bg", default: "var(--wr-border-base)", scope: ".wr-table" },
       { name: "--wr-table-row-hover", default: "var(--wr-color-fill-subtle)", scope: ".wr-table" },
@@ -1725,21 +1714,21 @@ export const CSS_VARS = {
   "reference/directives/typography": {
     subpath: "ngwr/typography",
     vars: [
-      { name: "--wr-typeset-body", default: "var(--wr-color-gray-700)", scope: ".wr-typeset", overrides: 1 },
+      { name: "--wr-typeset-body", default: "light-dark(var(--wr-color-gray-700), var(--wr-color-gray-300))", scope: ".wr-typeset" },
       { name: "--wr-typeset-bold", default: "var(--wr-color-primary-ink)", scope: ".wr-typeset" },
       { name: "--wr-typeset-bullets", default: "var(--wr-color-primary)", scope: ".wr-typeset" },
-      { name: "--wr-typeset-captions", default: "var(--wr-color-gray-500)", scope: ".wr-typeset", overrides: 1 },
+      { name: "--wr-typeset-captions", default: "light-dark(var(--wr-color-gray-500), var(--wr-color-gray-400))", scope: ".wr-typeset" },
       { name: "--wr-typeset-code", default: "var(--wr-color-on-surface)", scope: ".wr-typeset" },
-      { name: "--wr-typeset-counters", default: "var(--wr-color-gray-500)", scope: ".wr-typeset", overrides: 1 },
+      { name: "--wr-typeset-counters", default: "light-dark(var(--wr-color-gray-500), var(--wr-color-gray-400))", scope: ".wr-typeset" },
       { name: "--wr-typeset-headings", default: "var(--wr-color-on-surface)", scope: ".wr-typeset" },
-      { name: "--wr-typeset-hr", default: "var(--wr-color-gray-200)", scope: ".wr-typeset", overrides: 1 },
-      { name: "--wr-typeset-lead", default: "var(--wr-color-gray-600)", scope: ".wr-typeset", overrides: 1 },
+      { name: "--wr-typeset-hr", default: "light-dark(var(--wr-color-gray-200), var(--wr-color-gray-700))", scope: ".wr-typeset" },
+      { name: "--wr-typeset-lead", default: "light-dark(var(--wr-color-gray-600), var(--wr-color-gray-400))", scope: ".wr-typeset" },
       { name: "--wr-typeset-links", default: "var(--wr-color-on-surface)", scope: ".wr-typeset" },
       { name: "--wr-typeset-pre-bg", default: "var(--wr-color-fill)", scope: ".wr-typeset" },
-      { name: "--wr-typeset-quote-borders", default: "var(--wr-color-gray-200)", scope: ".wr-typeset", overrides: 1 },
+      { name: "--wr-typeset-quote-borders", default: "light-dark(var(--wr-color-gray-200), var(--wr-color-gray-700))", scope: ".wr-typeset" },
       { name: "--wr-typeset-quotes", default: "var(--wr-color-on-surface)", scope: ".wr-typeset" },
-      { name: "--wr-typeset-td-borders", default: "var(--wr-color-gray-200)", scope: ".wr-typeset", overrides: 1 },
-      { name: "--wr-typeset-th-borders", default: "var(--wr-color-gray-300)", scope: ".wr-typeset", overrides: 1 },
+      { name: "--wr-typeset-td-borders", default: "light-dark(var(--wr-color-gray-200), var(--wr-color-gray-700))", scope: ".wr-typeset" },
+      { name: "--wr-typeset-th-borders", default: "light-dark(var(--wr-color-gray-300), var(--wr-color-gray-600))", scope: ".wr-typeset" },
       { name: "--wr-typography-font-family", default: "var(--wr-font-family-base)", scope: ".wr-typography", overrides: 2 },
       { name: "--wr-typography-font-size", default: "var(--wr-text-base)", scope: ".wr-typography", overrides: 13 },
       { name: "--wr-typography-font-weight", default: "var(--wr-font-weight-regular)", scope: ".wr-typography", overrides: 11 },
