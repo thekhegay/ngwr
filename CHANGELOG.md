@@ -1,5 +1,23 @@
 # Changelog
 
+## [14.12.0](https://github.com/thekhegay/ngwr/compare/v14.11.0...v14.12.0) (2026-10-16)
+
+### Features
+
+* overlay and composite controls take focus from their bound field ([df0ace0](https://github.com/thekhegay/ngwr/commit/df0ace00a055d3d7f78f3d6f6fa2e49da8cc84fb))
+* seven form controls take focus when signal forms asks them to ([4935d62](https://github.com/thekhegay/ngwr/commit/4935d62bb12047d91e29e474d214f7b7b33e04be))
+* six more value controls take focus from their bound field ([3da6b21](https://github.com/thekhegay/ngwr/commit/3da6b216771e002bd6758edff7c9984a6ebb367d))
+
+### Bug Fixes
+
+* **a11y:** names include the visible text on the drop zone, calendar cells and filter trigger ([dc3493e](https://github.com/thekhegay/ngwr/commit/dc3493e2095fbae8f7eabb24c0557576d9ee3a42))
+* export the sidebar active-options type, keep select registration internal ([d5044c1](https://github.com/thekhegay/ngwr/commit/d5044c1249e65ea84de4392d146f0a80b327ddeb))
+* **result:** a static title no longer lands on a preset's host as a tooltip ([71c2210](https://github.com/thekhegay/ngwr/commit/71c2210fee67115435708c63972c459fbb76c853))
+* **styles:** two colour declarations were invalid and painted black ([fd30546](https://github.com/thekhegay/ngwr/commit/fd30546e6c83b533867396179c1c2977d094ea51))
+* **table:** join the filter count with a comma so axe finds it in the name ([1d45fcb](https://github.com/thekhegay/ngwr/commit/1d45fcbc7ce1697cec30c7b7f49f5cb21298bb06))
+* **theme:** declare the sass api at the public entry so editors resolve it ([f761993](https://github.com/thekhegay/ngwr/commit/f76199381ba1b553b96ea8318818169108e95fc3))
+* **theme:** make the dark mixin usable in component stylesheets ([5ebcc32](https://github.com/thekhegay/ngwr/commit/5ebcc3277322599009ba4488840c5d6f28a58d10))
+
 ## [14.11.0](https://github.com/thekhegay/ngwr/compare/v14.10.0...v14.11.0) (2026-09-29)
 
 ### Features
