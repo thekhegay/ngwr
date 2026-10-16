@@ -6,7 +6,7 @@
 >
   <ngwr-doc-section
     title="Palette"
-    description="Five intents, each with four generated shades, an `-rgb` channel and a `-contrast` label. Plus the fixed gray ramp, which does not flip in dark mode — use the role aliases below for a neutral that does."
+    description="Five intents, each with four generated shades and a `-contrast` label. Plus the fixed gray ramp, which does not flip in dark mode — use the role aliases below for a neutral that does."
   >
     <div class="ngwr-palette">
       @for (intent of intents; track intent) {
@@ -55,10 +55,10 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="The -rgb channel"
-    description="Each intent ships `--wr-color-{intent}-rgb` — the raw `R, G, B` triple. Compose any alpha you need at the call site with `rgba()`."
+    title="Alpha at the call site"
+    description="Mix any token toward `transparent` with `color-mix()` for the alpha you need. It works on every token, not only the intents, and follows dark mode, because the token it mixes does."
   >
-    <ngwr-doc-code [code]="snippets.rgb" language="scss" />
+    <ngwr-doc-code [code]="snippets.alpha" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -196,7 +196,7 @@
 
   <ngwr-doc-section
     title="How dark mode flips"
-    description="Opt in with `[data-theme='dark']` on `<html>`, which `provideWrTheme()` writes. Each theme sets its own neutral ramp, and four of the five intents are re-tuned for the deep canvas. Build with the tokens and you write no dark-mode overrides."
+    description="Every token that differs between the schemes is declared once as `light-dark(light, dark)`, and `color-scheme` picks the side. The theme sets `light dark` on `:root`, so the page follows the OS; `color-scheme: dark` on any element flips its whole subtree. Build with the tokens and you write no dark-mode overrides."
   >
     <div style="display: flex; gap: 1rem; flex-wrap: wrap">
       <div
@@ -216,8 +216,8 @@
       </div>
 
       <div
-        data-theme="dark"
         style="
+          color-scheme: dark;
           flex: 1 1 14rem;
           padding: 1rem;
           background: var(--wr-color-white);
@@ -228,7 +228,7 @@
       >
         <strong>Same markup, forced dark</strong>
         <p style="margin: 0.5rem 0 0; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
-          surface flips to <code>#0b1120</code>, text to <code>#e6ebf3</code>
+          <code>color-scheme: dark</code> on this card, nothing else
         </p>
       </div>
     </div>

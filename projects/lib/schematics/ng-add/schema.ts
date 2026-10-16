@@ -19,9 +19,6 @@ export interface Schema {
   /** Default density wired via `provideWrDensity`. */
   density?: 'none' | 'sm' | 'lg';
 
-  /** Theme starter applied to `<html data-wr-theme="...">`. */
-  theme?: 'none' | 'light' | 'dark' | 'system';
-
   /** Skip the NodePackageInstallTask (peers won't be installed). */
   skipPeerInstall?: boolean;
 }

@@ -282,7 +282,7 @@
 
     &:hover {
       color: var(--wr-color-primary-ink);
-      background: rgba(var(--wr-color-primary-rgb), 0.06);
+      background: color-mix(in srgb, var(--wr-color-primary) 6%, transparent);
 
       .wr-sidebar__icon {
         color: var(--wr-color-primary);

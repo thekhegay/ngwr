@@ -54,7 +54,7 @@ export default class WrMarkPipePage {
 
     style: `/* The pipe emits a bare <mark>, so one element rule reaches every match. */
 mark {
-  background: rgba(var(--wr-color-warning-rgb), 0.4);
+  background: color-mix(in srgb, var(--wr-color-warning) 40%, transparent);
   /* Named, not inherited: the two hosts this pipe is for — a wr-select
      suggestion and a wr-command-palette item — paint their secondary lines
      with --wr-color-on-surface-muted, which over this tint is 4.25:1 in light

@@ -9,6 +9,7 @@ export default [
   // see `reference.routing.ts` for why, and for the `data.index` it inherits.
   { path: '', pathMatch: 'full', loadComponent: () => import('#core/components/doc-index/doc-index') },
   { path: utils.resolveCssSize.path, loadComponent: () => import('./resolve-css-size/resolve-css-size') },
+  { path: utils.resolveCssColor.path, loadComponent: () => import('./resolve-css-color/resolve-css-color') },
   { path: utils.getRootFontSize.path, loadComponent: () => import('./get-root-font-size/get-root-font-size') },
   { path: utils.randomId.path, loadComponent: () => import('./random-id/random-id') },
   { path: utils.isDefined.path, loadComponent: () => import('./is-defined/is-defined') },

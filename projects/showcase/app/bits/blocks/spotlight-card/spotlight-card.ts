@@ -33,8 +33,8 @@ export default class SpotlightCardPage {
   // Prefilled from the theme's resolved spotlight colour after first
   // render, so the picker shows a working value right away.
   // Empty until the reader picks one, for the reason `aurora` records: the
-  // one-shot read froze a ROLE token — `rgba(var(--wr-color-on-surface-rgb),
-  // 0.15)` light, `0.22` dark — so a dark card loaded in light got a near-black
+  // one-shot read froze a ROLE token — a 15% (light) or 22% (dark) wash of
+  // `--wr-color-on-surface` — so a dark card loaded in light got a near-black
   // glow on a near-black surface and the demo looked broken.
   protected readonly spotlightColor = signal('');
   protected readonly radius = signal(80);
@@ -61,7 +61,7 @@ import { WrSpotlight } from 'ngwr/bits/spotlight-card';
 // Then in your CSS:
 // background: radial-gradient(
 //   400px circle at var(--wr-spotlight-x, 50%) var(--wr-spotlight-y, 50%),
-//   rgba(var(--wr-color-primary-rgb), 0.15),
+//   color-mix(in srgb, var(--wr-color-primary) 15%, transparent),
 //   transparent 60%
 // );`,
   };

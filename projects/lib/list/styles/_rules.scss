@@ -20,7 +20,7 @@
   --wr-list-radius: var(--wr-border-radius-base);
   --wr-list-bg: transparent;
   --wr-list-hover-bg: var(--wr-color-hover);
-  --wr-list-active-bg: rgba(var(--wr-color-primary-rgb), 0.08);
+  --wr-list-active-bg: color-mix(in srgb, var(--wr-color-primary) 8%, transparent);
   --wr-list-font-family: var(--wr-font-family-base);
   --wr-list-font-size: var(--wr-text-sm);
 
@@ -92,7 +92,7 @@
     display: inline-flex;
     align-items: center;
     flex: 0 0 auto;
-    color: rgba(var(--wr-color-on-surface-rgb), 0.65);
+    color: color-mix(in srgb, var(--wr-color-on-surface) 65%, transparent);
 
     &:empty {
       display: none;

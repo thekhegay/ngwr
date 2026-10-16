@@ -301,7 +301,7 @@
   // underneath both.
   &--open &__trigger {
     border-color: var(--wr-color-primary);
-    box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--wr-color-primary) 15%, transparent);
   }
 
   &__value,
@@ -340,7 +340,7 @@
       color 0.12s ease;
 
     &:hover {
-      background: rgba(var(--wr-color-on-surface-rgb), 0.06);
+      background: color-mix(in srgb, var(--wr-color-on-surface) 6%, transparent);
       color: var(--wr-color-on-surface);
     }
   }
@@ -415,8 +415,8 @@
   }
 
   &__chip--more {
-    background: rgba(var(--wr-color-on-surface-rgb), 0.08);
-    color: rgba(var(--wr-color-on-surface-rgb), 0.7);
+    background: color-mix(in srgb, var(--wr-color-on-surface) 8%, transparent);
+    color: color-mix(in srgb, var(--wr-color-on-surface) 70%, transparent);
   }
 }
 

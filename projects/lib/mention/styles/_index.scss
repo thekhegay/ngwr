@@ -67,7 +67,7 @@
     position: relative;
 
     &:hover {
-      background: rgba(var(--wr-color-primary-rgb), 0.08);
+      background: color-mix(in srgb, var(--wr-color-primary) 8%, transparent);
     }
 
     // The keyboard cursor is NOT the hover tint — the two were one selector,
@@ -76,7 +76,7 @@
     // surface in light and 1.08:1 in dark, which is the same grey to a reader
     // who cannot separate hue; the bar is what actually says "here".
     &--active {
-      background: rgba(var(--wr-color-primary-rgb), 0.08);
+      background: color-mix(in srgb, var(--wr-color-primary) 8%, transparent);
 
       &::before {
         content: '';

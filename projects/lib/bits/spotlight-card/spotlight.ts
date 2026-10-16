@@ -22,7 +22,7 @@ import { DestroyRef, Directive, ElementRef, NgZone, inject, input } from '@angul
  * .card {
  *   background: radial-gradient(
  *     400px circle at var(--wr-spotlight-x, 50%) var(--wr-spotlight-y, 50%),
- *     rgba(var(--wr-color-primary-rgb), 0.15),
+ *     color-mix(in srgb, var(--wr-color-primary) 15%, transparent),
  *     transparent 60%
  *   );
  * }

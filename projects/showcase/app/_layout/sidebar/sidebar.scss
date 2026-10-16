@@ -145,7 +145,7 @@
 
     &--active {
       color: var(--wr-color-primary-ink);
-      background: rgba(var(--wr-color-primary-rgb), 0.1);
+      background: color-mix(in srgb, var(--wr-color-primary) 10%, transparent);
       pointer-events: none;
 
       .ngwr-sidebar__icon {
@@ -196,7 +196,7 @@
 
     &:hover {
       color: var(--wr-color-primary-ink);
-      background: rgba(var(--wr-color-primary-rgb), 0.06);
+      background: color-mix(in srgb, var(--wr-color-primary) 6%, transparent);
 
       .ngwr-sidebar__icon {
         color: var(--wr-color-primary-ink);
@@ -208,7 +208,7 @@
       // bare token lands at 4.28:1 there — under AA by a hair, on every page,
       // because one link is always active.
       color: var(--wr-color-primary-ink);
-      background: rgba(var(--wr-color-primary-rgb), 0.1);
+      background: color-mix(in srgb, var(--wr-color-primary) 10%, transparent);
       pointer-events: none;
 
       &::before {
@@ -224,7 +224,7 @@
       // Muted role at 0.8, not the `medium` intent at 0.7: the old pair
       // composited to 2.10:1. WCAG exempts disabled controls, but 3.54:1 is
       // still legible, and the state already reads from the missing hover.
-      color: rgba(var(--wr-color-on-surface-muted-rgb), 0.8);
+      color: color-mix(in srgb, var(--wr-color-on-surface-muted) 80%, transparent);
       pointer-events: none;
       cursor: default;
 

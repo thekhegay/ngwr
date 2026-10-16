@@ -3,14 +3,11 @@
 // projected content sits on a token-themed inner panel above them.
 
 .wr-star-border {
-  // Light surfaces get a primary comet; dark theme flips to the classic
-  // white (see block below). `[color]` overrides both inline. The light
-  // comet gets a wider core + full opacity — a thin 10% tail washes out
-  // to gray on white surfaces.
-  --wr-star-border-color: var(--wr-color-primary);
+  // Light surfaces get a primary comet; dark flips to the classic white.
+  // `[color]` overrides both inline.
+  --wr-star-border-color: light-dark(var(--wr-color-primary), #ffffff);
   --wr-star-border-speed: 6s;
   --wr-star-border-radius: 20px;
-  --wr-star-border-stop: 16%;
   --wr-star-border-opacity: 1;
 
   display: inline-block;
@@ -28,7 +25,18 @@
     height: 50%;
     opacity: var(--wr-star-border-opacity);
     border-radius: 50%;
-    background: radial-gradient(circle, var(--wr-star-border-color), transparent var(--wr-star-border-stop));
+    // The light comet gets a wider core, fading out at 16%: the classic thin
+    // tail ends at 10% and washes out to gray on a white surface. A stop is a
+    // length, which `light-dark()` cannot carry, so the two tails are one
+    // three-stop ray. Light keeps 37.5% of the colour at 10% — exactly where a
+    // straight fade to 16% passes — and dark has already reached transparent
+    // there, so each scheme draws the gradient it drew as its own stop.
+    background: radial-gradient(
+      circle,
+      var(--wr-star-border-color),
+      light-dark(color-mix(in srgb, var(--wr-star-border-color) 37.5%, transparent), transparent) 10%,
+      transparent 16%
+    );
     animation: wr-star-border-bottom var(--wr-star-border-speed) linear infinite alternate;
     z-index: 0;
 

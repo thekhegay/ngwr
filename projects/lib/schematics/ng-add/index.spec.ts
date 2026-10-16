@@ -146,7 +146,6 @@ describe('ng-add', () => {
       {
         ...BASE,
         dateAdapter: 'luxon',
-        theme: 'system',
         density: 'sm',
       }
     );
@@ -154,8 +153,10 @@ describe('ng-add', () => {
     const snippet = logs.find(line => line.includes('bootstrapApplication'))!;
     expect(snippet).toContain("import { WrLuxonAdapter } from 'ngwr/date/adapters/luxon';");
     expect(snippet).toContain('provideWrDateAdapter({ adapter: WrLuxonAdapter })');
-    expect(snippet).toContain("provideWrTheme({ defaultMode: 'auto' })");
     expect(snippet).toContain("provideWrDensity({ defaultDensity: 'sm' })");
+    // v15 deleted `provideWrTheme`: the scheme follows the OS with no provider and
+    // `WrTheme` is root-provided, so a snippet naming it would not compile.
+    expect(snippet).not.toContain('provideWrTheme');
     // Every provider named in the snippet has an import above it — the pairing
     // that broke once already, when the icon block imported bare glyph names
     // `ngwr/icon` has never exported.

@@ -1,2 +1,3 @@
 export { getRootFontSize } from './get-root-font-size';
 export { getFocusableElements, trapFocus } from './focus';
+export { resolveCssColor } from './resolve-css-color';

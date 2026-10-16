@@ -26,7 +26,7 @@
  * What is checkable is a source fact: does a non-colour declaration exist.
  *
  * What it does NOT do is ban colour-only state. Plenty is correct — a
- * `--wr-color-danger` border against the default `--wr-color-outline` differs
+ * `--wr-color-danger` border against the default `--wr-border-base` differs
  * in LIGHTNESS, not only in hue; a sequential heat scale that ramps opacity
  * over one hue survives greyscale intact; and a modifier whose channel lives in
  * a SIBLING rule (a `::before` tick, a moving thumb, a different glyph in the
@@ -49,7 +49,7 @@
  * Some markers record a DECISION rather than point at a channel, and say so:
  * `wr-tag`, `wr-badge` and `wr-typography`'s tones LABEL rather than report,
  * so their colour is decoration or category and the author's words carry the
- * state. AGENTS.md keeps that as a decided trade beside the `--wr-color-outline`
+ * state. AGENTS.md keeps that as a decided trade beside the `--wr-border-base`
  * one, with the alternatives that were costed and not taken.
  *
  * LOOPS ARE UNROLLED. Most of the catalog paints its five intents from an
@@ -243,10 +243,16 @@ const COLOUR_VALUE =
  * `darken()` included. Anchoring every colour test at the start of the value
  * passed `0 0 0 2px var(--wr-color-primary)` and `1px solid var(--wr-color-danger)`
  * as not-colour, which the name check this replaced had reported.
- * `--wr-color-picker-*` is the colour picker's own geometry, not a colour.
+ *
+ * `--wr-color-picker-*` are the colour picker's own hooks, and the `--wr-color-`
+ * prefix is the component's name there, not a promise of a colour: most of them
+ * are geometry (`-thumb-size`, `-radius`, `-gap`), so a `calc()` over one is not
+ * colour. The five that DO hold one — `-bg`, `-border`, `-field-border`, `-hue`
+ * and `-color`, the swatch the alpha ramp fades into — end on a colour word, and
+ * the lookahead keeps exactly those counting.
  */
 const HOLDS_COLOUR =
-  /#[\da-f]{3,8}\b|var\(\s*--wr-color-(?!picker-)|\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color-mix|light-dark|(?:repeating-)?(?:linear|radial|conic)-gradient|mix|lighten|darken|saturate|desaturate|transparentize|opacify|fade-in|fade-out|adjust-hue|complement|grayscale|invert|color\.[\w-]+)\(|\b(?:transparent|currentcolor)\b/i;
+  /#[\da-f]{3,8}\b|var\(\s*--wr-color-(?!picker-(?![\w-]*(?:color|hue|bg|border)\s*[,)]))|\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color-mix|light-dark|(?:repeating-)?(?:linear|radial|conic)-gradient|mix|lighten|darken|saturate|desaturate|transparentize|opacify|fade-in|fade-out|adjust-hue|complement|grayscale|invert|color\.[\w-]+)\(|\b(?:transparent|currentcolor)\b/i;
 
 /** Numbers and lengths and nothing else — `90 207`, `2px`, `0 0 1px` — which no colour is. */
 const MEASURE = /^[-+\d.\s]+(?:[a-z%]+)?(?:\s+[-+\d.]+(?:[a-z%]+)?)*$/i;
@@ -818,6 +824,15 @@ const SELF_TEST: readonly { readonly why: string; readonly scss: string; readonl
       &--open { --wr-zz-stroke: 90 207; }
     }`,
     found: 0,
+    unread: 0,
+  },
+  {
+    why: "the colour picker's hooks, one holding a colour and one holding a size",
+    scss: `.wr-zz {
+      &--selected { --wr-zz-ring: 0 0 0 2px var(--wr-color-picker-color); }
+      &--active { --wr-zz-inset: calc(var(--wr-color-picker-thumb-size) / -2); }
+    }`,
+    found: 1,
     unread: 0,
   },
 ];

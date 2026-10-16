@@ -224,7 +224,7 @@ export class DocPageComponent {
 
     // One line, and no `@use 'ngwr/theme'` above it: every component entry
     // loads the token layer itself, measured — `@use 'ngwr/button'` alone emits
-    // the whole `:root` block, the dark block and the box-sizing reset. The
+    // the whole `:root` block, both schemes in it, and the box-sizing reset. The
     // theme line is needed only to CONFIGURE the layer, which is a different
     // recipe and lives on the theming guide.
     const styled = entries.filter(e => e.styled);

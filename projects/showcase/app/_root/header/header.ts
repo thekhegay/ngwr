@@ -16,7 +16,7 @@ import { WrTheme, type WrThemeMode } from 'ngwr/theme';
 import { NGWR_VERSION_TOKEN } from 'ngwr/version';
 
 import { BRAND_ICONS } from '#core/icons';
-import { DocsSearch, PrimaryColor, SiteDirection } from '#core/services';
+import { DocsSearch, SiteDirection } from '#core/services';
 import { ROUTES, wrPath } from '#routes';
 
 interface NavLink {
@@ -137,7 +137,6 @@ export class Header {
 
   protected readonly theme = inject(WrTheme);
   protected readonly density = inject(WrDensity);
-  protected readonly primary = inject(PrimaryColor);
   protected readonly direction = inject(SiteDirection);
 
   /** Current major (e.g. `v8`) shown on the version-switcher trigger. */

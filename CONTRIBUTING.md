@@ -174,8 +174,8 @@ Then:
   `pnpm lint; echo $?` and trust the code, not the output. CI gates every PR on
   the steps in [`ci.yml`](./.github/workflows/ci.yml), which today are `lint`,
   `test:coverage`, `check:api-docs`, `check:llms`, `check:css-vars`,
-  `build:lib`, `build:showcase`, `check:theme` and `check:a11y`; the last two
-  need the prerendered site, which is why they sit after the showcase build.
+  `build:lib`, `build:showcase` and `check:a11y`; the last one needs the
+  prerendered site, which is why it sits after the showcase build.
   The browser checks need a real Chromium and hundreds of page loads, so they
   run nightly instead ([`nightly.yml`](./.github/workflows/nightly.yml)):
   `check:contrast`, `check:state-a11y`, `check:layout` and `check:rtl-layout`.

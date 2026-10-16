@@ -2,13 +2,13 @@
 // positioned ancestor; all the visuals live in the fragment shader.
 
 .wr-aurora {
-  // Theme-default colour stops (overridden by `[colorStops]`): vivid
-  // indigo → emerald on light surfaces; dark restores the neon
-  // reactbits palette — see `_dark.scss`, which is loaded by the public Sass
-  // entry only.
-  --wr-aurora-stop-1: #6366f1;
-  --wr-aurora-stop-2: #10b981;
-  --wr-aurora-stop-3: #6366f1;
+  // Theme-default colour stops (overridden by `[colorStops]`): vivid indigo
+  // and emerald on light surfaces, the neon reactbits palette on dark. The
+  // shader cannot read a `light-dark()`, so `aurora.ts` resolves each stop
+  // through `resolveCssColor` before it reaches a uniform.
+  --wr-aurora-stop-1: light-dark(#6366f1, #5227ff);
+  --wr-aurora-stop-2: light-dark(#10b981, #7cff67);
+  --wr-aurora-stop-3: light-dark(#6366f1, #5227ff);
 
   position: absolute;
   inset: 0;

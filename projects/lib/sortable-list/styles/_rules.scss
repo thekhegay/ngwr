@@ -66,7 +66,7 @@
     }
 
     // Held, and visibly so. This state used to carry one declaration —
-    // `box-shadow: 0 6px 12px rgba(var(--wr-color-backdrop-rgb), 0.22)` — and it
+    // a 22% backdrop-black `box-shadow: 0 6px 12px` — and it
     // could never apply: a row is always FOCUSED while it is held, the shared
     // focus ring emits a `box-shadow` halo of its own, and `:focus-visible`
     // beats a plain modifier on specificity. So held-and-focused rendered
@@ -112,7 +112,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: rgba(var(--wr-color-on-surface-rgb), 0.45);
+  color: color-mix(in srgb, var(--wr-color-on-surface) 45%, transparent);
   transition: color 0.15s ease;
 
   // Coarse pointers: a 44px grab area around the grip glyph.
@@ -149,9 +149,9 @@
   // The lift-off shadow follows the row template's rendered shape
   // (drop-shadow, not box-shadow) so the preview box itself never shows
   // as a white slab around the card. Backdrop token stays black in dark
-  // mode — `--wr-color-on-surface-rgb` would flip and glow instead.
-  filter: drop-shadow(0 8px 12px rgba(var(--wr-color-backdrop-rgb), 0.24))
-    drop-shadow(0 2px 3px rgba(var(--wr-color-backdrop-rgb), 0.16));
+  // mode — `--wr-color-on-surface` would flip and glow instead.
+  filter: drop-shadow(0 8px 12px color-mix(in srgb, var(--wr-color-backdrop) 24%, transparent))
+    drop-shadow(0 2px 3px color-mix(in srgb, var(--wr-color-backdrop) 16%, transparent));
   // CDK sets pointer-events to none on the preview; we keep visuals only.
 }
 
@@ -161,7 +161,7 @@
   // Subtle dashed outline so users see where the item came from.
   background: var(--wr-color-fill-strong);
   border-radius: var(--wr-sortable-list-placeholder-radius);
-  outline: 1px dashed rgba(var(--wr-color-on-surface-rgb), 0.25);
+  outline: 1px dashed color-mix(in srgb, var(--wr-color-on-surface) 25%, transparent);
   outline-offset: -1px;
 }
 

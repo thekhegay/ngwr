@@ -22,7 +22,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr } from 'ngwr/utils';
+import { numAttr, resolveCssColor } from 'ngwr/utils';
 
 import type { WrClickSparkEasing } from './types';
 
@@ -68,9 +68,10 @@ const EASINGS: Readonly<Record<WrClickSparkEasing, (t: number) => number>> = {
 })
 export class WrClickSpark {
   /**
-   * Spark line colour. Accepts any CSS colour, or a `var(--wr-…)` token which is
-   * resolved against the host so it tracks the theme. The default flips with the
-   * theme — dark sparks in light mode, light sparks in dark.
+   * Spark line colour. Accepts any CSS colour — a literal, a `var(--wr-…)`
+   * token, `light-dark()` — resolved against the host on every frame, so it
+   * tracks the colour scheme. The default flips with it: dark sparks in light
+   * mode, light sparks in dark.
    * @default 'var(--wr-color-on-surface)'
    */
   readonly sparkColor = input('var(--wr-color-on-surface)');
@@ -137,17 +138,13 @@ export class WrClickSpark {
   // Internals
 
   /**
-   * Canvas `strokeStyle` can't read CSS custom properties, so a `var(--wr-…)`
-   * token is resolved against the host's computed style here. Plain colours
-   * pass through untouched. Falls back to a dark literal if the custom
-   * property resolves to nothing.
+   * Canvas `strokeStyle` reads neither a custom property nor `light-dark()`,
+   * so the colour is resolved through the cascade first, against the canvas,
+   * which inherits everything the host sets. Falls back to a dark literal when
+   * the token is set nowhere or the input is not a colour.
    */
   private resolveColor(): string {
-    const color = this.sparkColor();
-    const match = /^var\((--[\w-]+)\)$/.exec(color.trim());
-    if (!match) return color;
-    const resolved = getComputedStyle(this.host.nativeElement).getPropertyValue(match[1]).trim();
-    return resolved || '#0f172a';
+    return resolveCssColor(this.canvasRef().nativeElement, this.sparkColor(), '#0f172a');
   }
 
   private syncCanvasSize(): void {

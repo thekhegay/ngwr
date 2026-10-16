@@ -42,8 +42,8 @@
  *   was already failing passes silently — that is not hypothetical, it is how
  *   `wr-calendar__day--today` slipped through at 4.06:1. Here every allowed
  *   failure is listed by its own axe target, and anything not listed is new.
- * - **Both themes.** `-ink` is a `color-mix` toward `--wr-color-dark`, which
- *   flips per theme; one theme is half the surface.
+ * - **Both themes.** `-ink` is a `color-mix` toward `--wr-color-gray-6`, which
+ *   is a `light-dark()` pair; one theme is half the surface.
  * - **`:hover` is forced through CDP, not the mouse.** A real pointer has one
  *   position, so a hover state under another overlay, off-screen, or behind a
  *   scroll is unreachable — and moving the mouse to reach it changes what else
@@ -73,7 +73,7 @@ import { exit } from 'node:process';
 import type { AxeResults, ImpactValue } from 'axe-core';
 import { chromium, type Browser, type CDPSession, type Page } from 'playwright';
 
-import { DIST_SHOWCASE as DIST, requireBuiltShowcase, serveDist } from '../lib/dist-site';
+import { DIST_SHOWCASE as DIST, paintedScheme, requireBuiltShowcase, serveDist } from '../lib/dist-site';
 import { err } from '../lib/log/err';
 import { info } from '../lib/log/info';
 import { ROOT_PATH } from '../lib/paths/root';
@@ -389,9 +389,9 @@ async function audit(
 ): Promise<readonly Failure[]> {
   await page.goto(`${origin}${state.route}`, { waitUntil: 'networkidle' });
 
-  const applied = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
+  const applied = await paintedScheme(page);
   if (applied !== theme) {
-    err(`\n✘ state-a11y: ${state.route} came up as "${applied ?? 'unset'}" with "${theme}" requested.\n`);
+    err(`\n✘ state-a11y: ${state.route} came up as "${applied ?? 'neither'}" with "${theme}" requested.\n`);
     exit(1);
   }
 
@@ -615,6 +615,9 @@ async function main(): Promise<void> {
         if (forHere.length === 0) continue;
 
         const context = await browser.newContext({
+          // The entire theme switch: `:root` declares `color-scheme: light
+          // dark`, so the emulated preference picks every token's side from
+          // the first paint, with nothing to seed and one load per state.
           colorScheme: theme,
           // Without this an animation caught mid-flight reports a frame rather
           // than a design — and every one of these states is mid-animation the
@@ -650,9 +653,6 @@ async function main(): Promise<void> {
         // same long-approved design call. Re-record them in the same commit.
         await context.clock.setFixedTime(new Date('2026-08-12T10:00:00Z'));
 
-        // Seeded BEFORE the first paint, so one load per state is enough: the
-        // theme service reads storage on bootstrap and there is nothing to undo.
-        await context.addInitScript(t => localStorage.setItem('wr-theme', t), theme);
         const page = await context.newPage();
 
         info(`  ${theme} / ${viewport}: ${forHere.length} states`);

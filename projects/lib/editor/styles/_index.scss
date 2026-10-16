@@ -75,7 +75,7 @@
 
   &--focused {
     --wr-editor-border: var(--wr-color-primary);
-    --wr-editor-ring: rgba(var(--wr-color-primary-rgb), 0.15);
+    --wr-editor-ring: color-mix(in srgb, var(--wr-color-primary) 15%, transparent);
   }
 
   &--readonly &__surface {

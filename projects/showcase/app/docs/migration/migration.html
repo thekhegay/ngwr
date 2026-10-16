@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Migration guide"
-  description="How to move between major versions of ngwr. Each major does one of three things here, and which one depends on what it broke. **v7, v8, v9, v12, v14 and v15 REWRITE**: their breaking changes are in code, so `ng update` edits your templates, TypeScript and stylesheets in place — the tables below document what moved if you'd rather do it by hand. **v15 also reports**, because half of what it broke is a colour decision only you can make: a removed intent has no mechanical replacement, while the neutral tokens it replaced do. **v13 REPORTS**: its one breaking change is a selector that stops matching, which no codemod can fix for you (only you know which element you meant) but which is worth a file list, because nothing anywhere errors. **v10 and v11 ship neither**, deliberately: they broke painted COLOUR — contrast on `--wr-color-*-contrast`, table header casing and tooltip theming in v10, five deepened intents in v11 — and no codemod can repair a screenshot. An empty one would only have told you your visual regressions were handled when they were not."
+  description="How to move between major versions of ngwr. Each major does one of three things here, and which one depends on what it broke. **v7, v8, v9, v12 and v14 REWRITE**: their breaking changes are in code, so `ng update` edits your templates, TypeScript and stylesheets in place — the tables below document what moved if you'd rather do it by hand. **v13 REPORTS**: its one breaking change is a selector that stops matching, which no codemod can fix for you (only you know which element you meant) but which is worth a file list, because nothing anywhere errors. **v10 and v11 ship neither**, deliberately: they broke painted COLOUR — contrast on `--wr-color-*-contrast`, table header casing and tooltip theming in v10, five deepened intents in v11 — and no codemod can repair a screenshot. An empty one would only have told you your visual regressions were handled when they were not. **v15 ships no codemod at all**: every change it makes is described in its sections below, with the old form beside the new one."
   [keywords]="['migration', 'ng update', 'upgrade', 'breaking changes', 'codemod', 'schematics']"
 >
   <ngwr-doc-section
@@ -67,7 +67,7 @@
 
   <ngwr-doc-section
     title="v14 to v15 — the palette is five intents"
-    description="`secondary`, `light`, `medium` and `dark` are gone. The first was a second brand colour, which a library cannot pick for you. The other three were neutral FILLS wearing the names of surfaces, and what replaced them is a six-step gray ramp read through roles that name the job — `--wr-color-surface`, `-on-surface`, `-on-surface-muted`, `-outline`, `-hover`, `-fill`, `-fill-subtle`, `-fill-strong`, `-placeholder`. Paint with the role, never with a ramp step: the step is the substrate, and reaching past the role is how a rule ends up right in one theme only."
+    description="`secondary`, `light`, `medium` and `dark` are gone. The first was a second brand colour, which a library cannot pick for you. The other three were neutral FILLS wearing the names of surfaces, and what replaced them is a six-step gray ramp read through roles that name the job — `--wr-color-surface`, `-on-surface`, `-on-surface-muted`, `-hover`, `-fill`, `-fill-subtle`, `-fill-strong`, `-placeholder`, and the border family `--wr-border-subtle`, `-base`, `-strong`. Paint with the role, never with a ramp step: the step is the substrate, and reaching past the role is how a rule ends up right in one theme only."
   >
     <p>
       <strong>The silent half is a <code>var()</code> at a token that no longer exists.</strong> It is invalid at
@@ -75,17 +75,19 @@
       <code>border: 1px solid var(--wr-color-light)</code> draws no border at all, a background stays transparent — and
       nothing says so in the build, the console or a test. A dropped declaration is indistinguishable from a rule nobody
       wrote. This repository found 220 of them in its own docs site after the cut, across 71 files, with every one of
-      its nine gates green. <code>ng update ngwr@15</code> rewrites the four families that have a successor, so the
-      common case needs nothing from you.
+      its nine gates green. Every removed neutral token that has a successor is listed under the renames below —
+      <code>--wr-color-light</code>, <code>-dark</code>, <code>-medium</code>, <code>-muted-text</code>,
+      <code>-outline</code> and the three <code>--wr-color-border*</code> — so search your stylesheets and templates for
+      every name in that list.
     </p>
     <p>
       <strong>A removed intent in a template fails loudly, or not at all.</strong> With <code>strictTemplates</code> —
       the CLI default — a static <code>color="secondary"</code> is a compile error naming the five values that remain.
       Without it the string binds, the component writes a class no rule matches, and the element renders neutral in
-      silence. The codemod lists every one either way, and rewrites none: whether a <code>secondary</code> button should
-      become <code>primary</code>, <code>danger</code> or a colour you declare yourself is a decision only you can make,
-      and <code>light</code> / <code>medium</code> / <code>dark</code> were fills, so dropping the attribute to get the
-      neutral variant is a visual change rather than a rename.
+      silence. Whether a <code>secondary</code> button should become <code>primary</code>, <code>danger</code> or a
+      colour you declare yourself is a decision only you can make, and <code>light</code> / <code>medium</code> /
+      <code>dark</code> were fills, so dropping the attribute to get the neutral variant is a visual change rather than
+      a rename.
     </p>
     <p>
       <strong>A compile-time rebrand has to drop the removed keys.</strong> A
@@ -96,27 +98,111 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="v14 to v15 — dark mode is color-scheme"
+    description="The `[data-theme]` attribute is gone. The theme declares `color-scheme: light dark` on `:root`, and every token that differs between the schemes is declared once as `light-dark(light, dark)` — so the page follows the OS with no JavaScript, and `color-scheme: dark` on any element flips its subtree. That is the default for every app now, including one that never called `provideWrTheme()` and used to stay light; to pin it, write `:root { color-scheme: light; }` after the `@use 'ngwr/theme'` line."
+  >
+    <ngwr-doc-code [code]="snippets.v15Scheme" language="diff" />
+    <p>
+      <strong>A selector keyed on the attribute matches nothing, and says nothing.</strong> Every
+      <code>[data-theme='dark']</code> rule in your CSS, every <code>&#64;include theme.dark</code>, every
+      <code>theme.dark-selector()</code> and every <code>with ($theme-attribute: …)</code> has to go: the mixins and the
+      variable are removed, so those are build errors, while a hand-written selector compiles and quietly stops
+      applying. Write the dark value beside the light one with <code>light-dark()</code> instead. It takes colours only
+      — <code>light-dark(1px, 2px)</code> is invalid — and it works in a component stylesheet as written, with no
+      <code>:host-context()</code> twin.
+    </p>
+    <p>
+      <strong><code>provideWrTheme()</code> is removed.</strong> <code>WrTheme</code> is root-provided and keeps its API
+      — <code>mode</code>, <code>resolved</code>, <code>set()</code>, <code>toggle()</code> — so delete the call; to
+      change <code>defaultMode</code> or <code>storageKey</code>, provide <code>WR_THEME_CONFIG</code> instead. The
+      <code>attribute</code> option is gone from both the config and <code>wrThemePrePaintScript()</code>, which now
+      writes <code>color-scheme</code> on <code>&lt;html&gt;</code> for a stored <code>light</code> or
+      <code>dark</code> choice, or for a non-<code>auto</code> <code>defaultMode</code> passed to it, and nothing for
+      <code>auto</code>. Code that read the attribute reads <code>WrTheme.resolved()</code>.
+    </p>
+    <p>
+      <strong>Without the provider, nothing creates <code>WrTheme</code> at boot.</strong>
+      <code>provideWrTheme()</code> did, and that is what applied a stored choice and a non-<code>auto</code>
+      <code>defaultMode</code> on the first screen. Now both apply when <code>WrTheme</code> is first injected, so an
+      app whose toggle sits behind a lazy route follows the OS until that route opens — silently. Inject it once at
+      boot, in the root component or with <code>provideEnvironmentInitializer(() =&gt; inject(WrTheme))</code>, or ship
+      <code>wrThemePrePaintScript()</code> with the same options, which also lands before the first paint of a
+      prerendered page.
+    </p>
+    <p>
+      <strong>Forcing the page's scheme yourself is fine.</strong> <code>&lt;html style="color-scheme: dark"&gt;</code>,
+      or the same property written from your own code, holds alongside <code>WrTheme</code>: in <code>auto</code> the
+      service leaves an author-written value alone, and only a <code>light</code> or <code>dark</code> mode — picked,
+      stored or configured — writes over it.
+    </p>
+    <p>
+      <strong>Every <code>-rgb</code> channel token is removed</strong> — the intents', the neutrals', the backdrop's
+      and the component hooks <code>--wr-calendar-accent-rgb</code> and <code>--wr-color-picker-rgb</code>. A
+      <code>var()</code> at one is invalid at computed-value time, so the declaration holding it is dropped in silence,
+      like the removed neutrals above. Mix the colour toward <code>transparent</code> instead: the alpha becomes the
+      percentage, and it paints the same. The scrim's channel has a colour token now, <code>--wr-color-backdrop</code>;
+      the calendar's is <code>--wr-calendar-accent</code> itself; the picker's is <code>--wr-color-picker-color</code>,
+      a whole colour.
+    </p>
+    <p>
+      <strong>Code that reads a token in TypeScript gets the declared text.</strong>
+      <code>getPropertyValue('--wr-color-primary')</code> returns <code>light-dark(…)</code> unresolved, and a canvas
+      cannot paint that: a 2D context refuses it, and Firefox accepts it and always paints the light side. Hand a canvas
+      the colour the cascade computes instead, with
+      <a routerLink="/reference/utils/resolve-css-color"><code>resolveCssColor</code></a> from <code>ngwr/utils</code>.
+    </p>
+    <p>
+      <strong>Three bits draw differently in dark.</strong> Their dark-only rules are gone with the attribute, and a
+      blend mode, a length and a strength are not colours, so <code>light-dark()</code> cannot switch them: each now has
+      one value for both schemes. <code>--wr-star-border-stop</code> is removed: the ray's fade is fixed, a 10% / 16%
+      tail in light and 10% in dark, so an override of it does nothing — set the ray's <code>background</code> on
+      <code>.wr-star-border .wr-star-border__ray</code> instead, two classes because the component's own stylesheet
+      loads after yours. <code>wr-border-glow</code>'s <code>--wr-border-glow-halo-blend</code>,
+      <code>-fill-blend</code> and <code>-fill-scale</code> default to <code>normal</code>, <code>normal</code> and
+      <code>0.25</code> in both schemes, where dark used <code>plus-lighter</code>, <code>soft-light</code> and
+      <code>1</code>; and the <code>wr-tilt-card</code> glare blends normally, where dark used 25% white under
+      <code>overlay</code>. To bring the old dark look back, set those yourself on a page or section you know is dark.
+    </p>
+    <p>
+      <strong>The runtime palette is removed</strong>: <code>wrThemeTokens()</code>, <code>wrIntentTokens()</code>,
+      <code>wrContrastFor()</code> and the theme builder page that used them. Rebrand at build time, through
+      <code>$base-colors</code>, or <code>theme.rebrand()</code> on <code>:root</code> or a subtree — see
+      <a routerLink="/guides/theming">Theming</a>.
+    </p>
+    <p>
+      <strong>The browser floor rises</strong> to the one <code>light-dark()</code> sets: Chrome 123, Firefox 120,
+      Safari 17.5. Below it every colour that differs between the schemes resolves to nothing.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15 — charts and bits moved, and the Sass umbrella is gone"
+    description="The seven charts moved from `ngwr/<name>` to `ngwr/charts/<name>`, and the 21 animation components to `ngwr/bits/<name>` — import, `@use` and `/testing` paths alike, every symbol keeping its name. `@use 'ngwr'` no longer resolves: write `@use 'ngwr/theme'` first, then one `@use` per entry point you render. Each component's page shows its two lines under Installation."
+  >
+    <ngwr-doc-code [code]="snippets.v15Paths" language="diff" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="v14 to v15 — the sortable list projects its rows"
-    description="It moved to an entry point of its own as well: `ngwr/drag-drop` became `ngwr/sortable-list`, import path and `@use` alike, every symbol keeping its name — the codemod rewrites that half. `<wr-sortable-list>` no longer owns the loop. Write your own and project one `<wr-sortable-item>` per row, which gives a row somewhere to carry its own markup instead of forcing every per-row decision onto an input of the list. `trackBy` is gone with the loop — the track expression is yours now."
+    description="It moved to an entry point of its own as well: `ngwr/drag-drop` became `ngwr/sortable-list`, import path and `@use` alike, every symbol keeping its name. `<wr-sortable-list>` no longer owns the loop. Write your own and project one `<wr-sortable-item>` per row, which gives a row somewhere to carry its own markup instead of forcing every per-row decision onto an input of the list. `trackBy` is gone with the loop — the track expression is yours now."
   >
     <ngwr-doc-code [code]="snippets.v15Sortable" language="diff" />
     <p>
-      Not rewritten by the codemod: turning a template into a loop needs the array name and a track key, and only you
-      know both. It names every file instead. The list renders nothing until you migrate, which reads as empty data
-      rather than as a missed step.
+      The list renders nothing until you migrate, which reads as empty data rather than as a missed step — so search for
+      every <code>&lt;wr-sortable-list&gt;</code> that still holds an <code>&lt;ng-template&gt;</code>.
     </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="v14 to v15 — three things are gone"
-    description="Each is reported by `ng update`, file by file, and none is rewritten: nothing the library can write means what the removed thing meant in the same place."
+    description="Nothing the library offers means what the removed thing meant in the same place, so each one is a decision rather than a rename."
   >
     <ngwr-doc-code [code]="snippets.v15Removed" language="diff" />
     <p>
       <strong><code>ngwr/squircle</code></strong> was deprecated in v14 and is removed. Use
       <code>shape="squircle"</code> on <code>&lt;wr-btn&gt;</code>, <code>&lt;wr-avatar&gt;</code> and
       <code>&lt;wr-badge&gt;</code>, or the <code>smooth-br</code> mixin from <code>&#64;use 'ngwr/theme'</code>
-      anywhere else. They are not the same thing, which is why this is not rewritten for you: the native
+      anywhere else. They are not the same thing: the native
       <code>corner-shape</code> falls back to a plain rounded corner where a browser has not shipped it, and it takes no
       radius, smoothing, corners or border inputs. An import or an <code>&#64;use</code> fails the build; a leftover
       <code>wrSquircle</code> attribute is inert and silent.
@@ -131,13 +217,13 @@
       <strong><code>&lt;wr-drawer showHandle&gt;</code></strong> is removed, and swipe-to-dismiss with it, for the same
       reason. The drawer still closes on the backdrop, on Escape, and through its own dismiss button
       (<code>closable</code>, on by default) — so for most drawers deleting the attribute is the whole migration. A
-      bound <code>[showHandle]</code> is a compile error; a bare one is inert, which is why the codemod names it.
+      bound <code>[showHandle]</code> is a compile error; a bare one is inert, so search for it.
     </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="v14 to v15 — what the codemod rewrites"
-    description="Two kinds, and both pass the same test: the new form means what the old one meant in the same place. The neutral TOKENS, where three of the four successors carry the identical value in both themes, so a rewritten stylesheet paints to the pixel. And two VALUES that were named after an intent while always painting a neutral role — `[wrTypography]`'s `tone` and `<wr-timeline-item>`'s `color` — which move onto the name of what they do, together with the BEM class each emits."
+    title="v14 to v15 — renames"
+    description="Two kinds, and both are a rename: the new form means what the old one meant in the same place. The neutral TOKENS, where `--wr-color-light`, `-outline`, `-dark` and `-muted-text` move onto a successor carrying the identical value in both themes, so a renamed rule paints to the pixel, while `-medium` and the three translucent `--wr-color-border*` land on the nearest opaque step. And two VALUES that were named after an intent while always painting a neutral role — `[wrTypography]`'s `tone` and `<wr-timeline-item>`'s `color` — which move onto the name of what they do, together with the BEM class each emits."
   >
     <ngwr-doc-code [code]="snippets.v15" language="diff" />
   </ngwr-doc-section>

@@ -56,7 +56,7 @@
 
     &:hover {
       border-color: var(--wr-color-primary);
-      background: rgba(var(--wr-color-primary-rgb), 0.04);
+      background: color-mix(in srgb, var(--wr-color-primary) 4%, transparent);
     }
 
     &:active {

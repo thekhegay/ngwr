@@ -70,7 +70,7 @@
     justify-content: center;
     border: 0;
     border-radius: 50%;
-    background: rgba(var(--wr-color-surface-rgb), 0.85);
+    background: color-mix(in srgb, var(--wr-color-surface) 85%, transparent);
     color: var(--wr-color-on-surface);
     cursor: pointer;
     box-shadow: var(--wr-shadow-sm);
@@ -118,7 +118,7 @@
     height: 0.5rem;
     border: 0;
     border-radius: 50%;
-    background: rgba(var(--wr-color-surface-rgb), 0.55);
+    background: color-mix(in srgb, var(--wr-color-surface) 55%, transparent);
     // The dot's fill IS the surface, so this ring is the whole of its visible
     // boundary — and WCAG 1.4.11 asks 3:1 of the thing that identifies a
     // control and its state. Fixed black could never carry that in both
@@ -127,7 +127,7 @@
     // `--wr-shadow-*` family does, and 0.55 is the alpha that clears the bar on
     // the bare canvas in both — measured 4.00:1 light, 5.35:1 dark. Same shape
     // as `.wr-color-picker__swatch`'s ring, which learned this first.
-    box-shadow: 0 0 0 1px rgba(var(--wr-color-on-surface-rgb), 0.55);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--wr-color-on-surface) 55%, transparent);
     cursor: pointer;
     transition:
       width var(--wr-transition-base),

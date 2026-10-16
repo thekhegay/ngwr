@@ -92,7 +92,7 @@ function hasAlphaDigits(hex: string): boolean {
     role: 'group',
     '[attr.aria-labelledby]': 'labelledBy()',
     '[style.--wr-color-picker-hue]': 'hueCss()',
-    '[style.--wr-color-picker-rgb]': 'rgbCss()',
+    '[style.--wr-color-picker-color]': 'opaqueCss()',
   },
   // The picker is the control a `<wr-form-field>` wraps; the `<wr-segmented>` tab
   // strip in its own template is a part, not a control. Without this shield the
@@ -178,10 +178,14 @@ export class WrColorPicker implements FormValueControl<string> {
   /** SV canvas background colour (full-saturation hue). */
   protected readonly hueCss = computed(() => `hsl(${this.h()}, 100%, 50%)`);
 
-  /** RGB string used for the alpha-slider gradient. */
-  protected readonly rgbCss = computed(() => {
+  /**
+   * The current colour at full opacity, the far end of the alpha slider's ramp.
+   * A whole colour rather than a channel list, so the stylesheet fades it with
+   * `transparent` instead of splicing channels into `rgba()`.
+   */
+  protected readonly opaqueCss = computed(() => {
     const { r, g, b } = this.rgb();
-    return `${r}, ${g}, ${b}`;
+    return `rgb(${r} ${g} ${b})`;
   });
 
   /**

@@ -183,7 +183,7 @@
   // riding on how a flex container propagates decorations.
   &__compare-label {
     text-decoration: underline;
-    text-decoration-color: rgba(var(--wr-color-primary-rgb), 0.4);
+    text-decoration-color: color-mix(in srgb, var(--wr-color-primary) 40%, transparent);
     text-underline-offset: 3px;
     transition: text-decoration-color var(--wr-transition-base);
   }
@@ -351,7 +351,7 @@
   overflow-wrap: anywhere;
   padding: 0.125rem 0.3125rem;
   border-radius: var(--wr-border-radius-sm);
-  background: rgba(var(--wr-color-on-surface-rgb), 0.07);
+  background: color-mix(in srgb, var(--wr-color-on-surface) 7%, transparent);
   color: var(--wr-color-on-surface);
   line-height: 1.25;
   font-family: var(--wr-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
@@ -386,7 +386,7 @@
   }
 
   &:hover {
-    border-color: rgba(var(--wr-color-primary-rgb), 0.4);
+    border-color: color-mix(in srgb, var(--wr-color-primary) 40%, transparent);
   }
 
   &__icon {
@@ -398,26 +398,26 @@
     justify-content: center;
     margin-bottom: 0.5rem;
     color: var(--wr-color-primary-ink);
-    background: rgba(var(--wr-color-primary-rgb), 0.18);
+    background: color-mix(in srgb, var(--wr-color-primary) 18%, transparent);
     --wr-icon-size: 1.125rem;
 
     &[data-accent='success'] {
-      background: rgba(var(--wr-color-success-rgb), 0.18);
+      background: color-mix(in srgb, var(--wr-color-success) 18%, transparent);
       color: var(--wr-color-success-ink);
     }
     &[data-accent='warning'] {
-      background: rgba(var(--wr-color-warning-rgb), 0.18);
+      background: color-mix(in srgb, var(--wr-color-warning) 18%, transparent);
       color: var(--wr-color-warning-ink);
     }
     &[data-accent='danger'] {
-      background: rgba(var(--wr-color-danger-rgb), 0.18);
+      background: color-mix(in srgb, var(--wr-color-danger) 18%, transparent);
       color: var(--wr-color-danger-ink);
     }
     // `info` paints its own token. It used to borrow primary's, which made the
     // tile declaring `accent: 'info'` byte-identical to the primary one and
     // meant the `info` intent was never reached on the page that shows it off.
     &[data-accent='info'] {
-      background: rgba(var(--wr-color-info-rgb), 0.18);
+      background: color-mix(in srgb, var(--wr-color-info) 18%, transparent);
       color: var(--wr-color-info-ink);
     }
     // The quiet tile. `secondary` until v15 deleted that intent, after which
@@ -425,11 +425,11 @@
     // longer had — and carrying a hard-coded RGB fallback for a token that
     // does exist, so the fallback could only ever mask a typo.
     &[data-accent='neutral'] {
-      background: rgba(var(--wr-color-on-surface-muted-rgb), 0.18);
+      background: color-mix(in srgb, var(--wr-color-on-surface-muted) 18%, transparent);
       color: var(--wr-color-on-surface-muted);
     }
     &[data-accent='primary'] {
-      background: rgba(var(--wr-color-primary-rgb), 0.18);
+      background: color-mix(in srgb, var(--wr-color-primary) 18%, transparent);
       color: var(--wr-color-primary-ink);
     }
   }
@@ -477,7 +477,7 @@
     font-weight: 700;
     letter-spacing: -0.01em;
     background:
-      radial-gradient(circle at 50% 0%, rgba(var(--wr-color-primary-rgb), 0.08), transparent 70%),
+      radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--wr-color-primary) 8%, transparent), transparent 70%),
       var(--wr-color-fill-subtle);
     color: var(--wr-color-on-surface);
     text-align: center;

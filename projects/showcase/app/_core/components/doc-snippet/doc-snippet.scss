@@ -144,10 +144,11 @@
   background: var(--wr-color-surface);
   border: 1px solid var(--wr-border-base);
   border-radius: 2rem;
-  // The token, not a hand-rolled black alpha. `_dark.scss` raises every shadow
-  // alpha on the deep canvas for exactly this reason — a light-mode alpha
-  // vanishes there — and a literal takes none of it. The light geometry is
-  // `0 20px 48px` against the `0 24px 48px` this was, so light barely moves.
+  // The token, not a hand-rolled black alpha. The theme raises every shadow's
+  // alpha on the dark side of its `light-dark()` for exactly this reason — a
+  // light-mode alpha vanishes there — and a literal takes none of it. The
+  // light geometry is `0 20px 48px` against the `0 24px 48px` this was, so
+  // light barely moves.
   box-shadow: var(--wr-shadow-modal);
 }
 

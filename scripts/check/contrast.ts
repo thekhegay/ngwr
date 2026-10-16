@@ -21,9 +21,9 @@
  * structural gate stays cheap.
  *
  * Both themes, every run. The two are separate colour systems — the `-ink` ramp
- * is a `color-mix` toward `--wr-color-dark`, which itself flips per theme — so a
- * token that passes in one can fail in the other, and only checking the default
- * would hide half the surface.
+ * is a `color-mix` toward `--wr-color-gray-6`, which is itself a `light-dark()`
+ * pair — so a token that passes in one can fail in the other, and checking only
+ * one would hide half the surface.
  *
  * PLACEHOLDERS ARE MEASURED BY A SWAP, because axe never measures them. It
  * reads an empty field's `color`, which is the TYPED text, so an input whose
@@ -60,7 +60,7 @@ import { exit } from 'node:process';
 import type { AxeResults, ImpactValue } from 'axe-core';
 import { chromium, type Browser, type Page } from 'playwright';
 
-import { prerenderedRoutes, serveDist } from '../lib/dist-site';
+import { paintedScheme, prerenderedRoutes, serveDist } from '../lib/dist-site';
 import { err } from '../lib/log/err';
 import { info } from '../lib/log/info';
 import { ROOT_PATH } from '../lib/paths/root';
@@ -178,15 +178,12 @@ async function audit(
 ): Promise<void> {
   await page.goto(`${origin}${route}`, { waitUntil: 'networkidle' });
 
-  // The app's own theme service decides `data-theme` from storage, so seeding
-  // it is what makes the pass deterministic — `emulateMedia` alone only steers
-  // the `auto` mode, and a persisted choice would override it.
-  await page.evaluate(t => localStorage.setItem('wr-theme', t), theme);
-  await page.reload({ waitUntil: 'networkidle' });
-
-  const applied = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
+  // One load per route: the context's `colorScheme` is the whole switch, so
+  // there is no storage to seed and nothing to reload. What the emulation
+  // cannot promise is that the page obeyed it, and that is the probe's job.
+  const applied = await paintedScheme(page);
   if (applied !== theme) {
-    err(`\n✘ contrast: ${route} came up as "${applied ?? 'unset'}" with "${theme}" requested — refusing to report a theme that was never painted.\n`);
+    err(`\n✘ contrast: ${route} came up as "${applied ?? 'neither'}" with "${theme}" requested — refusing to report a theme that was never painted.\n`);
     exit(1);
   }
 
@@ -296,9 +293,10 @@ async function main(): Promise<void> {
 
   try {
     browser = await chromium.launch();
-    // One context per theme, and `colorScheme` set on it: a page that renders
-    // before the seeded storage is read still starts from the right side, so a
-    // first-paint flash cannot be captured as a violation.
+    // One context per theme, and `colorScheme` set on it, which is the entire
+    // theme switch: `:root` declares `color-scheme: light dark`, so every token
+    // resolves to the emulated side from the first paint and there is no flash
+    // to capture as a violation.
     for (const theme of themes) for (const mode of modes) {
       // `reducedMotion` is what makes the pass deterministic. Every animation
       // component short-circuits to its final state under it, so nothing is

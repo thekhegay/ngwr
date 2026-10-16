@@ -47,7 +47,7 @@
   }
 
   &__cell {
-    background: rgba(var(--wr-color-primary-rgb), 0.1);
+    background: color-mix(in srgb, var(--wr-color-primary) 10%, transparent);
     // The role token, not an intent. 12px mono needs 4.5:1, and against this
     // tint the ink ramp reaches 4.49 — AA by one hundredth, which is a coin
     // toss the next token tweak decides rather than a margin. `-dark` clears

@@ -34,13 +34,13 @@
     &:hover,
     &:focus-visible {
       border-color: var(--wr-color-primary);
-      background: rgba(var(--wr-color-primary-rgb), 0.04);
+      background: color-mix(in srgb, var(--wr-color-primary) 4%, transparent);
     }
   }
 
   &--dragging &__zone {
     border-color: var(--wr-color-primary);
-    background: rgba(var(--wr-color-primary-rgb), 0.08);
+    background: color-mix(in srgb, var(--wr-color-primary) 8%, transparent);
     // Text on the drag tint — same role as the hint above, same token. The border
     // stays the bare intent: it is a graphic, and 3:1 is its bar.
     color: var(--wr-color-primary-ink);
@@ -180,7 +180,7 @@
 
     &:hover:not(:disabled) {
       color: var(--wr-color-danger, var(--wr-color-primary));
-      background: rgba(var(--wr-color-primary-rgb), 0.08);
+      background: color-mix(in srgb, var(--wr-color-primary) 8%, transparent);
     }
 
     &:disabled {

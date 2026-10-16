@@ -15,7 +15,6 @@ import { provideWrIcons } from 'ngwr/icon';
 import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router';
 import { provideWrMarkdownHighlighter } from 'ngwr/markdown';
 import { provideWrOverlay } from 'ngwr/overlay';
-import { provideWrTheme } from 'ngwr/theme';
 import { provideEnvironmentNgxMask } from 'ngx-mask';
 
 import { routing } from './routing';
@@ -63,7 +62,6 @@ export const appConfig: ApplicationConfig = {
     // during prerender, so the static HTML ships plain code and gains colour on
     // hydration.
     provideWrMarkdownHighlighter(shikiMarkdownHighlighter),
-    provideWrTheme(),
     provideWrDensity(),
     provideWrI18n({ availableLocales: ['en', 'ru'], defaultLocale: 'en' }),
     // ngwr's own strings as a base, so the loader carries only the demo's keys —

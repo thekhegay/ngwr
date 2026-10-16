@@ -85,8 +85,8 @@ const STYLE_SIZES = {
   everythingGzip: '46 kB',
   crud: '94 kB',
   crudGzip: '14 kB',
-  theme: '24 kB',
-  themeGzip: '4 kB',
+  theme: '15 kB',
+  themeGzip: '3 kB',
 } as const;
 
 @Component({
@@ -118,9 +118,7 @@ export default class InstallationPageComponent {
     ngAdd: `# Recommended — runs the schematic that wires everything up for you.
 ng add ngwr
 
-# The prompts cover: styles mode, date adapter, density preset, theme.
-# Answer "System" to the theme prompt (or pass --theme=system) — that is the
-# answer that wires provideWrTheme(), and the default, "None", does not.
+# The prompts cover: styles mode, date adapter, density preset.
 # See "Non-interactive flags" below for the full list.`,
     install: `pnpm add ngwr @angular/cdk
 # or
@@ -139,7 +137,6 @@ import { type ApplicationConfig, provideBrowserGlobalErrorListeners } from '@ang
 import { provideRouter } from '@angular/router';
 
 import { provideWrOverlay } from 'ngwr/overlay';
-import { provideWrTheme } from 'ngwr/theme';
 
 import { routes } from './app.routes';
 
@@ -153,10 +150,8 @@ export const appConfig: ApplicationConfig = {
     // visual-viewport watcher mobile sheets need. Panels open without it —
     // they just share a DOM root with every other CDK consumer.
     provideWrOverlay(),
-    // Writes [data-theme] on <html>. Without it the attribute is never set,
-    // the light tokens stay, and a visitor whose OS is in dark mode gets
-    // near-black text on the browser's dark canvas.
-    provideWrTheme(),           // defaults to { defaultMode: 'auto' }
+    // No theme provider: the stylesheet follows the OS through color-scheme,
+    // and WrTheme is root-provided — inject it where a toggle needs it.
   ],
 };`,
     rootEntry: `// ✗ There is no barrel. TS2305 — 'ngwr' has no exported member 'WrButton'.
@@ -180,7 +175,7 @@ export default [
   },
 ];`,
     globalStyles: `// styles.scss — the token layer FIRST, then one line per component.
-@use 'ngwr/theme';    // :root tokens, the dark block, color-scheme
+@use 'ngwr/theme';    // :root tokens for both schemes, color-scheme
 @use 'ngwr/density';  // the --wr-density-* multipliers
 
 @use 'ngwr/button';
@@ -202,7 +197,7 @@ gzip -9 -c check.css | wc -c   # over the wire`,
     perComponent: `// The theme layer goes first. Every component entry loads it too and Sass
 // de-duplicates, so it is emitted once — but only the FIRST load of a module
 // can take \`with (...)\`, which is what makes the order matter.
-@use 'ngwr/theme' with ($theme-attribute: 'data-color-mode');
+@use 'ngwr/theme';    // the line that takes with ($base-colors: …), if any
 @use 'ngwr/density';  // the --wr-density-* multipliers; nothing else declares them
 @use 'ngwr/icon';     // .wr-icon__svg — sizes every inline chevron and caret
 @use 'ngwr/overlay';  // .wr-overlay-sheet — the responsive bottom sheet
@@ -290,7 +285,7 @@ export class App {}`,
 }`,
     overridePalette: `// Or override the whole palette at SCSS compile time.
 // Configuring a Sass map REPLACES it, so list every intent you want to exist —
-// an omitted key leaves \`--wr-color-<intent>\` undefined in light mode.
+// an omitted key leaves \`--wr-color-<intent>\` undefined in both schemes.
 @use 'ngwr/theme' with (
   $base-colors: (
     primary: #6366f1,
@@ -303,7 +298,7 @@ export class App {}`,
     // Schematics ----------------------------------------------------------
     // `ngAddShort` is the Schematics page's own `ngAdd`, renamed: the Quick
     // start section above already owns that key with a longer snippet.
-    ngAddShort: `# Drop-in install — prompts for styles, date adapter, density, theme.
+    ngAddShort: `# Drop-in install — prompts for styles, date adapter, density.
 ng add ngwr`,
     ngAddPrompts: `# Sample run (defaults shown in brackets):
 ?  How should ngwr styles be wired?
@@ -319,28 +314,20 @@ ng add ngwr`,
 ?  Pick a default density
    ❯ None — use lib defaults (md)
      sm — tight spacing
-     lg — relaxed spacing
-
-?  Theme starter?
-   ❯ None — stay on lib defaults
-     Light
-     Dark
-     System — auto-switch via prefers-color-scheme`,
+     lg — relaxed spacing`,
     ngAddFlags: `# Skip prompts:
-ng add ngwr --styles=theme --dateAdapter=date-fns --density=lg --theme=system
+ng add ngwr --styles=theme --dateAdapter=date-fns --density=lg
 
 # "None" is spelled \`none\` — it is a real enum value, not an empty flag:
-ng add ngwr --styles=none --dateAdapter=none --density=none --theme=none
+ng add ngwr --styles=none --dateAdapter=none --density=none
 
 # Every accepted value:
 #   --styles       theme | none                      (default: theme)
 #   --dateAdapter  none | native | date-fns | luxon  (default: none)
 #   --density      none | sm | lg                    (default: none)
-#   --theme        none | light | dark | system      (default: none)
 #
-# Those four defaults are also what a non-interactive run picks — so
-# \`--theme=system\` is the flag that gets you provideWrTheme() in the
-# printed snippet. Omit it and no theme provider is printed at all.
+# Those three defaults are also what a non-interactive run picks. There is no
+# theme flag: the stylesheet follows the OS with nothing in providers.
 
 # CI / monorepo — skip the install task:
 ng add ngwr --skipPeerInstall`,
@@ -399,9 +386,10 @@ ng g ngwr:provider toast
 ng g ngwr:provider date-adapter
 
 # Available: overlay | icons | toast | i18n | date-adapter | density |
-#            storage | theme
+#            storage
 #
 # cookie is not here because it has no provider: inject WrCookie. Neither is
+# theme — WrTheme is root-provided and the stylesheet follows the OS. Nor is
 # loading-bar, whose only provider is the opt-in router adapter. Add
 # provideWrLoadingBarRouter() from 'ngwr/loading-bar/router' by hand if
 # navigations should drive the bar; manual start() / complete() need nothing.`,

@@ -44,7 +44,7 @@ import { argv, exit, stdout } from 'node:process';
 
 import { chromium, type Browser } from 'playwright';
 
-import { requireBuiltShowcase, serveDist } from '../lib/dist-site';
+import { paintedScheme, requireBuiltShowcase, serveDist } from '../lib/dist-site';
 import { LAYOUT_TARGETS, type LayoutTarget } from '../lib/layout/targets';
 
 const BASELINE = resolve('scripts/baselines/layout.json');
@@ -97,13 +97,23 @@ async function measure(
       `(KHTML, like Gecko) HeadlessChrome/${browser.version()} Safari/537.36`,
   });
   await context.clock.setFixedTime(new Date('2026-08-12T10:00:00Z'));
-  await context.addInitScript(t => localStorage.setItem('wr-theme', t), theme);
 
   const out: Baseline = {};
   const page = await context.newPage();
 
   for (const target of targets) {
     await page.goto(`${origin}${target.route}`, { waitUntil: 'networkidle' });
+
+    // The context's `colorScheme` is the whole theme switch, and the probe is
+    // what proves the page obeyed it. Without one a run in the wrong scheme
+    // files its boxes under the other key and says nothing — and since the two
+    // schemes record identical boxes today, nobody would ever notice.
+    const applied = await paintedScheme(page);
+    if (applied !== theme) {
+      log(`\n✘ layout: ${target.route} came up as "${applied ?? 'neither'}" with "${theme}" requested — refusing to record a theme that was never painted.`);
+      exit(1);
+    }
+
     const locator = page.locator(target.selector);
     const count = await locator.count();
 

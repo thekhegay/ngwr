@@ -25,7 +25,6 @@ export const GUIDES_SIDEBAR: readonly SidebarGroup[] = [
       wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.typography),
       wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.density),
       wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.motion),
-      wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.builder),
     ],
   },
   {

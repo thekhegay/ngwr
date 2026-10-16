@@ -36,7 +36,7 @@
   // share one lightness and the bar has no second channel for a status.
   @each $name in theme.$colors {
     &--#{$name} {
-      --wr-progress-track: rgba(var(--wr-color-#{$name}-rgb), 0.2);
+      --wr-progress-track: color-mix(in srgb, var(--wr-color-#{$name}) 20%, transparent);
       --wr-progress-bar: var(--wr-color-#{$name});
     }
   }

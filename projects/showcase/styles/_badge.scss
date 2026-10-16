@@ -11,8 +11,8 @@
 /// it happens to wear.
 ///
 /// **Both fills are OPAQUE, and that is load-bearing rather than taste.** The
-/// first version of this mark was translucent — `rgba(var(--wr-color-light-rgb),
-/// 0.6)` under `--wr-color-on-surface-muted` — so it was measured against
+/// first version of this mark was translucent — a 60% wash of the old `light`
+/// intent under `--wr-color-on-surface-muted` — so it was measured against
 /// whatever it landed on: 4.25:1 on the plain surface, 4.02:1 inside the active
 /// row's primary tint, and something else again over the catalog link's hover
 /// tint. All three under the 4.5:1 this size is held to, and one of them in a

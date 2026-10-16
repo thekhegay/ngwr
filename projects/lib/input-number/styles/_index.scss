@@ -100,13 +100,13 @@
 
     &:hover:not(:disabled) {
       color: var(--wr-color-primary);
-      background: rgba(var(--wr-color-primary-rgb), 0.08);
+      background: color-mix(in srgb, var(--wr-color-primary) 8%, transparent);
     }
 
     // Pressed state — clearer feedback on click + held auto-repeat.
     &:active:not(:disabled) {
       color: var(--wr-color-primary);
-      background: rgba(var(--wr-color-primary-rgb), 0.18);
+      background: color-mix(in srgb, var(--wr-color-primary) 18%, transparent);
     }
 
     // Suppress the focus ring from mouse clicks — buttons are tabindex="-1"

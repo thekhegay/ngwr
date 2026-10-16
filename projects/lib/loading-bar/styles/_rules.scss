@@ -20,7 +20,7 @@
     width: 0;
     height: 2px;
     background: var(--wr-color-primary);
-    box-shadow: 0 0 8px rgba(var(--wr-color-primary-rgb), 0.6);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--wr-color-primary) 60%, transparent);
     transition:
       width 0.15s ease-out,
       opacity 0.2s ease;

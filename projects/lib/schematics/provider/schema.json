@@ -6,7 +6,7 @@
   "properties": {
     "name": {
       "type": "string",
-      "enum": ["overlay", "icons", "toast", "i18n", "date-adapter", "density", "storage", "theme"],
+      "enum": ["overlay", "icons", "toast", "i18n", "date-adapter", "density", "storage"],
       "description": "Provider to add.",
       "$default": {
         "$source": "argv",
@@ -43,10 +43,6 @@
           {
             "value": "storage",
             "label": "storage — swappable engine + TTL"
-          },
-          {
-            "value": "theme",
-            "label": "theme — light/dark/auto mode"
           }
         ]
       }

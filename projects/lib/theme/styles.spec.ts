@@ -8,16 +8,16 @@ import { describe, expect, it } from 'vitest';
  *
  * Everything here is a SOURCE assertion, and that is a limit rather than a
  * shortcut: jsdom applies no stylesheet cascade, so no rendered-DOM spec in this
- * repo can see a token resolve, a dark block win, or a focus ring paint. The
- * house rule `palette.spec.ts` states — "a unit test cannot see Sass, so it must
- * not pretend to" — holds here too. What a file scan CAN hold is the structural
- * half, which is where all three of these defects lived: a stylesheet that
- * references a token layer it never loads, a dark block keyed on an attribute
- * name the consumer has renamed, and a documented token nothing includes.
+ * repo can see a token resolve, a `light-dark()` pick its side, or a focus ring
+ * paint. A unit test cannot see Sass, so it must not pretend to. What a file
+ * scan CAN hold is the structural half, which is where these defects lived: a
+ * stylesheet that references a token layer it never loads, a dark rule keyed on
+ * a selector instead of on the scheme, a channel-list token read after it was
+ * gone, and a documented token nothing includes.
  *
- * The compiled result is covered elsewhere: `pnpm check:theme` reads the BUILT
- * stylesheet, and `pnpm build:showcase` compiles the umbrella, so a mixin that
- * does not parse fails there rather than here.
+ * The compiled result is covered elsewhere: `sass-entry.spec.ts` compiles the
+ * token layer, and `pnpm build:showcase` compiles every entry point, so a mixin
+ * that does not parse fails there rather than here.
  */
 const LIB = join(process.cwd(), 'projects/lib');
 const THEME_STYLES = join(LIB, 'theme/styles');
@@ -124,28 +124,6 @@ function styleExports(): Record<string, string> {
     if (target !== undefined) out[key] = target;
   }
   return out;
-}
-
-/** Component file to the stylesheet its `styleUrl` names. */
-function styleUrls(): Map<string, string> {
-  const found = new Map<string, string>();
-  const walk = (dir: string): void => {
-    for (const name of readdirSync(dir)) {
-      if (name === 'node_modules') continue;
-      const full = join(dir, name);
-      if (statSync(full).isDirectory()) {
-        walk(full);
-        continue;
-      }
-      if (!name.endsWith('.ts') || name.endsWith('.spec.ts')) continue;
-      const url = /styleUrl:\s*'\.\/([\w.-]+\.scss)'/.exec(readFileSync(full, 'utf8'))?.[1];
-      if (url === undefined) continue;
-      const scss = join(dirname(full), url);
-      if (existsSync(scss)) found.set(relative(LIB, full), scss);
-    }
-  };
-  walk(LIB);
-  return found;
 }
 
 const DECLARED = /(--wr-[a-z0-9-]+)\s*:/g;
@@ -281,19 +259,24 @@ describe('the border strengths really ascend', () => {
    *
    * Resolved through the ramp rather than read as literals: every one of the
    * three is a `var()` now, and a spec that accepted a string would pass on the
-   * inversion it exists to refuse.
+   * inversion it exists to refuse. Each scheme is the matching argument of the
+   * `light-dark()` a token is declared with, or the one value where the two
+   * schemes agree.
    */
   const CANVAS = { light: '#ffffff', dark: '#0b1120' } as const;
 
-  function ramp(theme: 'light' | 'dark'): Map<string, string> {
-    const src = code(join(THEME_STYLES, theme === 'dark' ? '_dark.scss' : '_colors.scss'));
+  /** `light-dark(a, b)` read as `a` or `b`; any other value is the same in both schemes. */
+  function side(value: string, scheme: 'light' | 'dark'): string {
+    const pair = /^light-dark\(\s*((?:var\([^()]*\)|[^,()])+?)\s*,\s*((?:var\([^()]*\)|[^,()])+?)\s*\)$/.exec(value);
+    if (!pair) return value;
+    return scheme === 'light' ? pair[1] : pair[2];
+  }
+
+  function ramp(scheme: 'light' | 'dark'): Map<string, string> {
+    const src = code(join(THEME_STYLES, '_colors.scss'));
     const out = new Map<string, string>();
     for (const m of src.matchAll(/(--wr-color-gray-[\w-]+|--wr-border-[a-z]+):\s*([^;]+);/g)) {
-      out.set(m[1], m[2].trim());
-    }
-    // The dark file re-declares only part of the ramp; the rest inherits.
-    if (theme === 'dark') {
-      for (const [k, v] of ramp('light')) if (!out.has(k)) out.set(k, v);
+      out.set(m[1], side(m[2].trim(), scheme));
     }
     return out;
   }
@@ -318,12 +301,12 @@ describe('the border strengths really ascend', () => {
     return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
   }
 
-  it.each(['light', 'dark'] as const)('subtle < base < strong in the %s theme', theme => {
-    const scale = ramp(theme);
+  it.each(['light', 'dark'] as const)('subtle < base < strong in the %s scheme', scheme => {
+    const scale = ramp(scheme);
     const seen = (['--wr-border-subtle', '--wr-border-base', '--wr-border-strong'] as const).map(name => {
       const value = hex(name, scale);
-      expect(value, `${name} does not resolve to a hex in ${theme}`).not.toBeNull();
-      return { name, ratio: contrast(value!, CANVAS[theme]) };
+      expect(value, `${name} does not resolve to a hex in ${scheme}`).not.toBeNull();
+      return { name, ratio: contrast(value!, CANVAS[scheme]) };
     });
 
     expect(seen.map(s => s.name)).toEqual([...seen].sort((a, b) => a.ratio - b.ratio).map(s => s.name));
@@ -474,46 +457,53 @@ describe('a bare .wr-icon__svg is sized by the entry point that draws it', () =>
   });
 });
 
-describe('the dark block is keyed on the configured attribute', () => {
+describe('the colour scheme is one switch', () => {
   /**
-   * `provideWrTheme({ attribute: 'data-color-mode' })` has a Sass half — `@use
-   * 'ngwr' with ($theme-attribute: 'data-color-mode')` — and only the configured
-   * name is emitted, because keeping `data-theme` as a second selector re-couples
-   * ngwr to whatever design system already owns it. Seven component stylesheets
-   * wrote the literal anyway, so their dark values were the one part of the
-   * catalog a rename silently failed to carry.
+   * v15 moved dark mode from a `[data-theme='dark']` selector to the CSS
+   * standard: `color-scheme: light dark` on `:root`, and every value that differs
+   * between the schemes written as a `light-dark()`. The two cannot be mixed. A
+   * rule keyed on the attribute matches nothing once `WrTheme` stops writing it;
+   * a `@media (prefers-color-scheme: …)` answers the OS while `WrTheme` has
+   * forced the other scheme inline; and either one ignores a subtree that sets
+   * its own `color-scheme`. None of the three fails a build or a test — the
+   * page simply paints the wrong scheme in one place.
    */
-  it('is written with `dark-selector()` everywhere outside the theme layer', () => {
+  const files = scssFiles(LIB);
+
+  it('keys no rule on a theme attribute or a dark helper', () => {
     const offenders: string[] = [];
 
-    for (const [, scss] of styleUrls()) {
-      for (const file of loaded(scss)) {
-        if (code(file).includes('[data-theme')) offenders.push(relative(LIB, file));
-      }
-    }
-    for (const entry of styleEntries()) {
-      for (const file of loaded(entry)) {
-        if (file.startsWith(THEME_STYLES)) continue;
-        if (code(file).includes('[data-theme')) offenders.push(relative(LIB, file));
+    for (const file of files) {
+      const src = code(file);
+      if (/\[data-theme|dark-selector\(|@include\s+(?:[\w-]+\.)?dark(?![\w-])|\$theme-attribute/.test(src)) {
+        offenders.push(relative(LIB, file));
       }
     }
 
-    expect([...new Set(offenders)]).toEqual([]);
+    expect(offenders).toEqual([]);
   });
 
-  it('is never inlined into a component bundle', () => {
-    // The second half, and the one a `dark-selector()` sweep alone would miss. A
-    // `styleUrl` is compiled when the LIBRARY is built, where `$theme-attribute`
-    // can only be the default — and Angular appends that copy AFTER the app's
-    // linked stylesheet, so a bundled dark block does not merely miss the rename,
-    // it outranks the correctly-named rule beside it under the very attribute the
-    // rename exists to escape.
+  it('never answers prefers-color-scheme from a stylesheet', () => {
+    const offenders = files.filter(file => /prefers-color-scheme/.test(code(file))).map(file => relative(LIB, file));
+
+    expect(offenders).toEqual([]);
+  });
+
+  /**
+   * A custom property registered as `<color>` resolves its `light-dark()` where
+   * it is DECLARED, so one that inherits from `:root` carries the root's scheme
+   * into a subtree that set its own — measured in every engine. A
+   * non-inheriting one declared on a component host resolves per host, which is
+   * the safe form, and the one a canvas component reaches for when it needs a
+   * resolved colour.
+   */
+  it('registers no inheriting colour property', () => {
     const offenders: string[] = [];
 
-    for (const [component, scss] of styleUrls()) {
-      for (const file of loaded(scss)) {
-        if (/dark-selector\(\)|@include\s+(?:[\w-]+\.)?dark\b/.test(code(file))) {
-          offenders.push(`${component} reaches ${relative(LIB, file)}`);
+    for (const file of files) {
+      for (const m of code(file).matchAll(/@property\s+(--[\w-]+)\s*\{([^}]*)\}/g)) {
+        if (/syntax\s*:\s*['"]<color>['"]/.test(m[2]) && !/inherits\s*:\s*false/.test(m[2])) {
+          offenders.push(`${relative(LIB, file)}: ${m[1]}`);
         }
       }
     }
@@ -521,47 +511,31 @@ describe('the dark block is keyed on the configured attribute', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('reaches every component that has one, from the public Sass entry only', () => {
-    const withDark = styleEntries().filter(entry =>
-      loaded(entry).some(f => !f.startsWith(THEME_STYLES) && code(f).includes('dark-selector()'))
-    );
-
-    // The seven that carried the literal. Named by entry point rather than by
-    // first path segment: they live under `bits/` since v15, and a
-    // segment read would answer `bits` seven times and still pass.
-    expect(withDark.map(f => relative(LIB, f).replace(/\/styles\/.*$/, '')).sort()).toEqual([
-      'bits/aurora',
-      'bits/border-glow',
-      'bits/shiny-text',
-      'bits/spotlight-card',
-      'bits/star-border',
-      'bits/tilt-card',
-      'bits/waves',
-    ]);
+  it('finds the stylesheets it judges', () => {
+    // A walk that quietly matched nothing would report every rule as clean.
+    expect(files.length).toBeGreaterThanOrEqual(120);
   });
 });
 
-describe('a channel-list token is never used in slash form', () => {
+describe('no channel-list token survives', () => {
   /**
-   * `--wr-color-*-rgb` holds `95, 108, 125` — three comma-separated numbers, not a
-   * colour. CSS Color 4 allows `rgb(r g b / a)` with SPACES or the legacy
-   * `rgba(r, g, b, a)` with commas, and mixing the two is invalid: `rgb(95, 108,
-   * 125 / 30%)` parses as nothing and the declaration is dropped.
+   * `--wr-color-*-rgb` held three bare numbers so a rule could write
+   * `rgba(var(--x-rgb), a)`. v15 removed every one, because three numbers are
+   * not a colour and `light-dark()` holds only colours: a channel list could
+   * never follow the scheme, so a dark subtree read the light channels. A
+   * translucent fill is `color-mix(in srgb, var(--x) N%, transparent)`, which
+   * computes to the same pixel.
    *
-   * It shipped twice — `.wr-card__spinner`'s ring and `.wr-loading-bar__fill`'s
-   * glow — and both painted black for as long as they existed. Nothing caught it:
-   * stylelint's `color-function-notation` and `alpha-value-notation` are null on
-   * purpose, `check:contrast` measures text and target size, and a dropped
-   * declaration leaves no trace in a build log. Measured in Chromium before the
-   * fix: `rgb(var(--ch) / 30%)` computes to `rgb(0, 0, 0)`.
+   * A read left behind is the worst kind of leftover: `var()` at a name nothing
+   * declares is invalid at computed-value time, the browser drops the WHOLE
+   * declaration, and `border: 1px solid rgba(var(--gone-rgb), 0.3)` draws no
+   * border with nothing in the build, the console or a test to say so.
    */
-  it('has no `rgb(var(--…-rgb) / a)` anywhere in the library', () => {
+  it('has no `-rgb` token declared or read anywhere in the library', () => {
     const offenders: string[] = [];
 
     for (const file of scssFiles(LIB)) {
-      const src = code(file);
-
-      for (const m of src.matchAll(/rgba?\(\s*var\(--wr-[\w-]+-rgb\)\s*\/[^)]*\)/g)) {
+      for (const m of code(file).matchAll(/--wr-[\w-]+-rgb\b(?!-)/g)) {
         offenders.push(`${relative(LIB, file)}: ${m[0]}`);
       }
     }
@@ -707,14 +681,17 @@ describe('rebrand()', () => {
     // literally in `:root` for `check:tokens`, which resolves an `@each` against
     // the list it iterates and cannot follow a mixin parameter. Separate means
     // they can drift, and a shade added to one and not the other is exactly the
-    // half-recoloured subtree this mixin exists to end.
+    // half-recoloured subtree this mixin exists to end. Six: the base, its
+    // `-contrast` and four shades — the `-rgb` that made it seven left in v15.
     const root = /@each \$name, \$base in \$base-colors \{([\s\S]*?)\n {2}\}/.exec(colors)?.[1];
-    const rebrand = /@mixin rebrand\(\$colors\) \{([\s\S]*?)\n {2}\}/.exec(colors)?.[1];
+    const rebrand = /@mixin rebrand\(.*?\) \{[\s\S]*?@each \$name, \$base in \$colors \{([\s\S]*?)\n {2}\}/.exec(
+      colors
+    )?.[1];
 
     expect(root).toBeDefined();
     expect(rebrand).toBeDefined();
     expect(suffixes(rebrand!)).toEqual(suffixes(root!));
-    expect(suffixes(root!)).toHaveLength(7);
+    expect(suffixes(root!)).toHaveLength(6);
   });
 
   it('re-includes the composed tokens on the element it lands on', () => {
@@ -724,7 +701,14 @@ describe('rebrand()', () => {
     // THAT DECLARES IT — so declared at `:root` they inherit into a recoloured
     // subtree as the page's own literal, and an outlined button drew a pink
     // border around blue text.
-    expect(/@mixin rebrand\(\$colors\) \{[\s\S]*?\n {2}@include derived;\n\}/.test(colors)).toBe(true);
+    //
+    // Read inside the mixin's own body — up to the brace that closes it at
+    // column 0 — because `:root` includes `derived` too, and a lazy match from
+    // the mixin's head would find that one if this one went missing.
+    const body = /@mixin rebrand\(.*?\) \{([\s\S]*?)\n\}/.exec(colors)?.[1];
+
+    expect(body).toBeDefined();
+    expect(body).toContain('\n  @include derived;');
   });
 
   it('refuses an intent the token set has no room for', () => {

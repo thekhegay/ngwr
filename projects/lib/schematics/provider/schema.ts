@@ -8,11 +8,11 @@
 /**
  * Providers this schematic can splice into a bootstrap.
  *
- * `loading-bar` and `cookie` are deliberately absent: those entry points ship the
- * injectable services `WrLoadingBar` / `WrCookie` and no provider function, so
- * there is nothing to add to `providers`.
+ * `loading-bar`, `cookie` and `theme` are deliberately absent: those entry points
+ * ship the injectable services `WrLoadingBar` / `WrCookie` / `WrTheme` and no
+ * provider function, so there is nothing to add to `providers`.
  */
-export type ProviderName = 'overlay' | 'icons' | 'toast' | 'i18n' | 'date-adapter' | 'density' | 'storage' | 'theme';
+export type ProviderName = 'overlay' | 'icons' | 'toast' | 'i18n' | 'date-adapter' | 'density' | 'storage';
 
 /** Inputs accepted by `ng g ngwr:provider`. Mirrors `schema.json`. */
 export interface Schema {

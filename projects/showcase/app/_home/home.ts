@@ -171,7 +171,7 @@ export class SignupCard {
       description:
         "Twenty value controls implement a Signal Forms interface, so `[formField]` binds to the component's own value or checked model. No `ControlValueAccessor` anywhere in the library.",
       accent: 'primary',
-      spotlight: 'rgba(var(--wr-color-primary-rgb), 0.14)',
+      spotlight: 'color-mix(in srgb, var(--wr-color-primary) 14%, transparent)',
     },
     {
       icon: 'terminal',
@@ -179,7 +179,7 @@ export class SignupCard {
       description:
         'Not zoneless-compatible — zoneless in the source. Signal inputs, signal state, `afterNextRender()` for DOM work, and zero `@NgModule`s or `@Input()` decorators.',
       accent: 'info',
-      spotlight: 'rgba(var(--wr-color-primary-rgb), 0.14)',
+      spotlight: 'color-mix(in srgb, var(--wr-color-primary) 14%, transparent)',
     },
     {
       icon: 'shield-checkmark',
@@ -187,7 +187,7 @@ export class SignupCard {
       description:
         'Three axe gates run against the built site: structure on every PR, painted contrast and in-overlay states nightly. A serious violation is a red build.',
       accent: 'danger',
-      spotlight: 'rgba(var(--wr-color-danger-rgb), 0.14)',
+      spotlight: 'color-mix(in srgb, var(--wr-color-danger) 14%, transparent)',
     },
     {
       icon: 'eye',
@@ -198,22 +198,22 @@ export class SignupCard {
       description:
         'Color, radius, spacing, and duration come from `--wr-*` custom properties — and a token nothing paints with has to justify itself to the lint run. Re-skin one component or all of them.',
       accent: 'neutral',
-      spotlight: 'rgba(var(--wr-color-on-surface-muted-rgb), 0.14)',
+      spotlight: 'color-mix(in srgb, var(--wr-color-on-surface-muted) 14%, transparent)',
     },
     {
       icon: 'folder',
       title: 'Pay for what you import',
       description: `${QUALITY.entryPoints} entry points, each one tree-shakable on its own. What you don't import never lands in your bundle — the SCSS opts in per component too.`,
       accent: 'success',
-      spotlight: 'rgba(var(--wr-color-success-rgb), 0.14)',
+      spotlight: 'color-mix(in srgb, var(--wr-color-success) 14%, transparent)',
     },
     {
       icon: 'moon',
       title: 'Dark mode is first-class',
       description:
-        '`[data-theme]` flips at the root or any subtree. `prefers-color-scheme` is one provider option, not a hardcoded check.',
+        'Plain CSS `color-scheme`: it follows the OS with no JavaScript and flips at the root or on any subtree, because each token that differs between light and dark carries both sides in `light-dark()`.',
       accent: 'warning',
-      spotlight: 'rgba(var(--wr-color-warning-rgb), 0.16)',
+      spotlight: 'color-mix(in srgb, var(--wr-color-warning) 16%, transparent)',
     },
   ];
 

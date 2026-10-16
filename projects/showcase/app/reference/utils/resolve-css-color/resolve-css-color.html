@@ -1,0 +1,26 @@
+<ngwr-doc-page
+  title="resolveCssColor"
+  since="15.0.0"
+  description="Resolve any CSS colour — a `var()`, `light-dark()`, `color-mix()` — against an element to the colour the cascade computes there, as a string a canvas `fillStyle` or `strokeStyle` can paint with. Browser only: call it from `afterNextRender` or a frame callback, never during a server render."
+  [keywords]="['resolveCssColor', 'canvas', 'color', 'light-dark', 'color-mix', 'css variables', 'utils']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="Pass the element you draw for — a `<canvas>` is ideal — the expression, and a fallback for when nothing resolves."
+  >
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+    <ngwr-doc-code [code]="formsSnippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="A 2D context and a WebGL uniform read no CSS: they refuse a `var()`, and every theme token that differs between the schemes is a `light-dark()`, which `getPropertyValue()` hands back as declared text. The cascade is what resolves it, so this sets the expression on a hidden probe inside the element and reads the computed colour back — custom properties and the colour scheme, a subtree's own `color-scheme` included, resolve as they would for the element itself. The probe is kept per expression, so resolving the same colour every frame costs a style read, not a DOM write."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

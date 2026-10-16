@@ -1,14 +1,19 @@
 // Cursor-tracked spotlight card (reactbits port). The `--wr-spotlight-x/y`
 // vars come from the host's mousemove handler; `--wr-spotlight-color` is
 // set inline from the `[spotlightColor]` input when provided — otherwise
-// the theme picks the default below. `--wr-color-on-surface-rgb` flips between
-// themes (dark on light surfaces, light on dark), so a single tint reads
-// as a dark-ish glow in light mode and a light beam in dark mode.
+// the theme picks the default below. `--wr-color-on-surface` flips between
+// schemes (dark on light surfaces, light on dark), so one tint reads as a
+// dark-ish glow in light mode and a light beam in dark mode; the dark side
+// takes a touch more alpha so the beam reads as bright as the classic
+// spotlight on the navy surface.
 
 .wr-spotlight-card {
   --wr-spotlight-x: 50%;
   --wr-spotlight-y: 50%;
-  --wr-spotlight-color: rgba(var(--wr-color-on-surface-rgb), 0.15);
+  --wr-spotlight-color: light-dark(
+    color-mix(in srgb, var(--wr-color-on-surface) 15%, transparent),
+    color-mix(in srgb, var(--wr-color-on-surface) 22%, transparent)
+  );
   --wr-spotlight-card-radius: var(--wr-border-radius-lg);
   --wr-spotlight-card-border: var(--wr-border-base);
   --wr-spotlight-card-padding: var(--wr-space-xl);

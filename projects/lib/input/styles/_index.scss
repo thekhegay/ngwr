@@ -49,7 +49,7 @@
 
   &:focus {
     --wr-input-border: var(--wr-color-primary);
-    --wr-input-ring: rgba(var(--wr-color-primary-rgb), 0.15);
+    --wr-input-ring: color-mix(in srgb, var(--wr-color-primary) 15%, transparent);
   }
 
   &:disabled,
@@ -121,7 +121,7 @@
 
   &:focus-within {
     --wr-input-group-border: var(--wr-color-primary);
-    --wr-input-group-ring: rgba(var(--wr-color-primary-rgb), 0.15);
+    --wr-input-group-ring: color-mix(in srgb, var(--wr-color-primary) 15%, transparent);
   }
 
   &--rounded {

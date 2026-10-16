@@ -40,7 +40,7 @@
 
     &:hover {
       border-color: var(--wr-color-primary);
-      box-shadow: 0 4px 12px rgba(var(--wr-color-primary-rgb), 0.08);
+      box-shadow: 0 4px 12px color-mix(in srgb, var(--wr-color-primary) 8%, transparent);
     }
 
     &:focus-visible {
@@ -56,7 +56,7 @@
     // pinned to the top-left of a `--wr-border-radius-base` card, so `sm` reads
     // as nested inside it where a stadium reads as pasted on.
     border-radius: var(--wr-border-radius-sm);
-    background: rgba(var(--wr-color-on-surface-muted-rgb), 0.1);
+    background: color-mix(in srgb, var(--wr-color-on-surface-muted) 10%, transparent);
     color: var(--wr-color-on-surface-muted);
     font-size: 0.5625rem;
     font-weight: 600;
@@ -64,11 +64,11 @@
     letter-spacing: 0.05em;
     text-transform: uppercase;
 
-    // Kind-specific tints. The `-soft` token IS `rgba(var(--wr-color-<intent>-rgb),
-    // 0.12)` — `_colors.scss` tokenised the trio precisely to stop that
-    // expression being written out at a spread of alphas — so these name it
-    // rather than restate it, and `warning` joins them instead of sitting
-    // 0.04 away for no recorded reason.
+    // Kind-specific tints. The `-soft` token IS a 12% `color-mix()` of the
+    // intent toward `transparent` — `_colors.scss` tokenised the trio precisely
+    // to stop that expression being written out at a spread of alphas — so
+    // these name it rather than restate it, and `warning` joins them instead of
+    // sitting 0.04 away for no recorded reason.
     &[data-kind='Service'] {
       background: var(--wr-color-primary-soft);
       color: var(--wr-color-primary-ink);

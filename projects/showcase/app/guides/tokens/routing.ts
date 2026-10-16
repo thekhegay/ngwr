@@ -11,5 +11,7 @@ export default [
   { path: t.typography.path, loadComponent: () => import('./typography/typography') },
   { path: t.density.path, loadComponent: () => import('./density/density') },
   { path: t.motion.path, loadComponent: () => import('./motion/motion') },
-  { path: t.builder.path, loadComponent: () => import('./builder/builder') },
+  // The theme builder exported a runtime palette from `wrThemeTokens()`, which
+  // v15 removed: a palette is chosen at build time through `$base-colors` now.
+  { path: 'builder', redirectTo: t.colors.path },
 ] satisfies Routes;

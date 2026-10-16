@@ -130,25 +130,9 @@ interface Frame {
   readonly conditional: boolean;
 }
 
-/**
- * The one interpolation the library writes into a selector, and what it compiles
- * to under the default configuration.
- *
- * `theme.dark-selector()` returns `[data-theme='dark']`, built from
- * `$theme-attribute` so a consumer can rename the attribute. Nine component
- * stylesheets key their dark block on it, and the scanner is a text scan: left
- * as `#{…}` the selector carries neither the `[` nor the `--` that
- * {@link isBaseSelector} looks for, so a dark override reads as the component's
- * own base rule and its value is published as the DEFAULT — which is how
- * `--wr-aurora-stop-1` briefly documented itself as the dark `#5227ff`.
- * Substituting the default keeps the row identical to the one a hand-written
- * literal produced, which is what a reader of the docs page wants either way.
- */
-const DARK_SELECTOR = /#\{\s*(?:[\w-]+\.)?dark-selector\(\)\s*\}/g;
-
 /** `&--open` under `.wr-select` → `.wr-select--open`; `.a` under `.b` → `.b .a`. */
 function resolveSelector(parent: string, own: string): string {
-  const head = own.split(',')[0].trim().replace(DARK_SELECTOR, "[data-theme='dark']");
+  const head = own.split(',')[0].trim();
   if (!parent) return head.replaceAll('&', '').trim() || head;
   if (head.includes('&')) return head.replaceAll('&', parent);
   return `${parent} ${head}`;
@@ -200,7 +184,15 @@ function declarationsIn(file: string): { declarations: RawDeclaration[]; blocks:
     const scope = stack.length > 0 ? stack[stack.length - 1].selector : '';
     out.push({
       name,
-      value: text.slice(colon + 1).trim().replace(/\s+/g, ' '),
+      // Collapsed to one line, and tidied inside the parentheses: a
+      // `light-dark(` pair with a colour per line is the usual way a themed
+      // hook is written, and collapsing alone printed `light-dark( #fff, #000 )`.
+      value: text
+        .slice(colon + 1)
+        .trim()
+        .replace(/\s+/g, ' ')
+        .replace(/\( /g, '(')
+        .replace(/ \)/g, ')'),
       scope,
       base:
         scope !== '' &&
@@ -263,12 +255,15 @@ function declarationsIn(file: string): { declarations: RawDeclaration[]; blocks:
     // entering it on the `#` left `depth` at 0 and the `while` ended the run
     // after one character. The `{` then reached the block branch below and
     // opened a frame, the `}` closed it, and a rule whose selector STARTS with an
-    // interpolation — `#{theme.dark-selector()} .wr-aurora` — came out as a bare
-    // `.wr-aurora` at the top level. Nothing failed: the dark override read as
-    // the component's own base rule, and `--wr-aurora-stop-1` published the dark
-    // `#5227ff` as its documented default. Interpolation had until now only ever
-    // appeared mid-token (`--wr-color-#{$name}-dark`), where the resulting
-    // frame's declarations were rejected by the `--wr-*` name test anyway.
+    // interpolation — `#{theme.dark-selector()} .wr-aurora`, the shape every
+    // bit's dark block had before v15 moved dark values into `light-dark()` —
+    // came out as a bare `.wr-aurora` at the top level. Nothing failed: the dark
+    // override read as the component's own base rule, and `--wr-aurora-stop-1`
+    // published the dark `#5227ff` as its documented default. Interpolation had
+    // until then only ever appeared mid-token (`--wr-color-#{$name}-dark`), where
+    // the resulting frame's declarations were rejected by the `--wr-*` name test
+    // anyway — and a selector still starts with one today (`#{&}` in the
+    // markdown sheet, `#{$pane}` in the overlay arrow), so the order stays.
     if (ch === '#' && src[index + 1] === '{') {
       buffer += ch;
       index++;
@@ -486,7 +481,12 @@ export function buildCssVarMap(): WrCssVarMap {
 export interface WrCssVar {
   /** The property, with its leading dashes: `--wr-alert-bg`. */
   readonly name: string;
-  /** The value shipped where {@link scope} declares it, verbatim from the SCSS. */
+  /**
+   * The value shipped where {@link scope} declares it, verbatim from the SCSS.
+   * A `light-dark()` pair is kept whole: which side applies is decided where
+   * the hook is read, by that element's `color-scheme`, so neither side alone
+   * is the default.
+   */
   readonly value: string;
   /** The selector the value above is declared on: `.wr-alert`, `:root`. */
   readonly scope: string;

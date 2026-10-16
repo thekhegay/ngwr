@@ -13,10 +13,10 @@
 .wr-breadcrumbs {
   --wr-breadcrumbs-separator: '/';
   --wr-breadcrumbs-gap: var(--wr-space-sm);
-  --wr-breadcrumbs-color: rgba(var(--wr-color-on-surface-rgb), 0.6);
+  --wr-breadcrumbs-color: color-mix(in srgb, var(--wr-color-on-surface) 60%, transparent);
   --wr-breadcrumbs-current-color: var(--wr-color-on-surface);
   --wr-breadcrumbs-link-color: var(--wr-color-primary-ink);
-  --wr-breadcrumbs-separator-color: rgba(var(--wr-color-on-surface-rgb), 0.3);
+  --wr-breadcrumbs-separator-color: color-mix(in srgb, var(--wr-color-on-surface) 30%, transparent);
   --wr-breadcrumbs-font-family: var(--wr-font-family-base);
   --wr-breadcrumbs-font-size: var(--wr-text-sm);
   --wr-breadcrumbs-link-gap: var(--wr-space-sm);

@@ -71,7 +71,7 @@
 
     padding: 0.5rem var(--wr-grid-gutter);
 
-    background: rgba(var(--wr-color-surface-rgb), 0.85);
+    background: color-mix(in srgb, var(--wr-color-surface) 85%, transparent);
     border-bottom: 1px solid var(--wr-border-subtle);
     backdrop-filter: blur(8px);
   }
@@ -99,7 +99,7 @@
 
     &:hover {
       color: var(--wr-color-primary-ink);
-      background: rgba(var(--wr-color-primary-rgb), 0.1);
+      background: color-mix(in srgb, var(--wr-color-primary) 10%, transparent);
     }
 
     &:focus-visible {

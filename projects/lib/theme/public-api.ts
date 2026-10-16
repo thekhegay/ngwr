@@ -1,9 +1,7 @@
 export { WR_COLORS } from './colors';
-export { wrContrastFor, wrIntentTokens, wrThemeTokens } from './palette';
 export type { WrColor } from './colors';
 
 export { WrTheme } from './services/wr-theme';
-export { provideWrTheme } from './provide-wr-theme';
 export { wrThemePrePaintScript, type WrThemePrePaintOptions } from './pre-paint';
 export {
   WR_THEME_CONFIG,

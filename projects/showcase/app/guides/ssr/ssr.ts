@@ -50,7 +50,8 @@ export default class SsrGuidePage {
     },
     {
       api: 'WrTheme.resolved()',
-      server: "'light' under the default config — no localStorage, no prefers-color-scheme",
+      server:
+        "'light' under the default config — no localStorage, no prefers-color-scheme; the page itself still follows the OS",
       client: 'the persisted or preferred theme',
     },
     {
@@ -88,7 +89,6 @@ bootstrapApplication(AppComponent, {
     provideZonelessChangeDetection(),
     provideClientHydration(withEventReplay()),
     provideWrOverlay(),
-    provideWrTheme(),
   ],
 });`,
 
@@ -145,6 +145,7 @@ constructor() {
 
     theme: `import { wrThemePrePaintScript } from 'ngwr/theme';
 
+// Only for an app with a light / dark toggle — auto needs nothing.
 // Emit into <head>, above every stylesheet.
 const html = template.replace('<!--theme-->', \`<script>\${wrThemePrePaintScript()}</script>\`);`,
   };
@@ -154,7 +155,7 @@ const html = template.replace('<!--theme-->', \`<script>\${wrThemePrePaintScript
       kind: 'Service',
       title: 'WrTheme',
       url: ['/reference/services', 'theme'],
-      description: 'The pre-paint script that closes the light-theme flash, with its options.',
+      description: 'The pre-paint script for an explicit theme choice, with its options.',
     },
     {
       kind: 'Service',
