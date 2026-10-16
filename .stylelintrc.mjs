@@ -104,5 +104,7 @@ export default {
     '_old/**/*',
     '.angular/**/*',
     'projects/showcase/styles/_fonts.scss',
+    // A consumer app on ngwr from npm, not library source.
+    'projects/starter/**/*',
   ],
 };
