@@ -108,12 +108,24 @@
       <h3>Release notes</h3>
       <p>
         Version 15 moves charts and bits into their own folders. <strong>Import paths change</strong>; component names
-        do not. Run <code>ng update ngwr</code> and read the <a [routerLink]="overview">typography overview</a>.
+        do not. The <a [routerLink]="overview">typography overview</a> has the rest.
       </p>
       <ul>
         <li>Charts live under <code>ngwr/charts</code>.</li>
         <li>Bits live under <code>ngwr/bits</code>.</li>
       </ul>
+      <dl>
+        <dt>Entry point</dt>
+        <dd>A path you import from, such as <code>ngwr/button</code>.</dd>
+        <dt>Bit</dt>
+        <dd>An animation or visual effect, such as a text reveal.</dd>
+      </dl>
+      <p>Update with one command:</p>
+      <pre><code>ng update ngwr</code></pre>
+      <figure>
+        <img src="/icon.svg" alt="The ngwr mark" width="64" height="64" />
+        <figcaption>The mark, as a figure with a caption.</figcaption>
+      </figure>
       <blockquote>Nothing to do if you only use form controls.</blockquote>
     </div>
 
