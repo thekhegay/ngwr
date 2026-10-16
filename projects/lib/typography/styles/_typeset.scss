@@ -7,8 +7,9 @@
 // Selectors use `:where()` the way the original does, so a class on an element
 // inside still wins over the default set here. Where it departs: list markers and
 // bold text take the primary colour rather than gray, inline `code` is a chip
-// rather than the original's backtick-wrapped bold, and headings are tighter
-// to their text, with h5 and h6 set as well.
+// rather than the original's backtick-wrapped bold, a `pre` block sits on the
+// fill colour rather than a dark slab, and headings are tighter to their text,
+// with h5 and h6 set as well.
 
 $skip: ':not(:where(.wr-not-typeset, .wr-not-typeset *))';
 
@@ -25,6 +26,7 @@ $skip: ':not(:where(.wr-not-typeset, .wr-not-typeset *))';
   --wr-typeset-quote-borders: var(--wr-color-gray-200);
   --wr-typeset-captions: var(--wr-color-gray-500);
   --wr-typeset-code: var(--wr-color-on-surface);
+  --wr-typeset-pre-bg: var(--wr-color-fill);
   --wr-typeset-th-borders: var(--wr-color-gray-300);
   --wr-typeset-td-borders: var(--wr-color-gray-200);
 
@@ -105,6 +107,25 @@ $skip: ':not(:where(.wr-not-typeset, .wr-not-typeset *))';
 
   :where(ul > li)#{$skip}::marker {
     color: var(--wr-typeset-bullets);
+  }
+
+  :where(dl)#{$skip} {
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+  }
+
+  :where(dt)#{$skip} {
+    color: var(--wr-typeset-headings);
+    font-weight: 600;
+    margin-top: 1.25em;
+  }
+
+  // A browser indents `dd` with a 40px margin; the indent here is the list's
+  // own, so a definition lines up with list text.
+  :where(dd)#{$skip} {
+    margin-top: 0.5em;
+    margin-inline-start: 0;
+    padding-inline-start: 1.625em;
   }
 
   :where(hr)#{$skip} {
@@ -190,6 +211,28 @@ $skip: ':not(:where(.wr-not-typeset, .wr-not-typeset *))';
     margin-top: 0;
   }
 
+  :where(img, picture, video, figure)#{$skip} {
+    margin-top: 2em;
+    margin-bottom: 2em;
+  }
+
+  :where(img, video)#{$skip} {
+    max-width: 100%;
+    height: auto;
+  }
+
+  // A browser gives `figure` a 40px margin on each side.
+  :where(figure)#{$skip} {
+    margin-inline: 0;
+  }
+
+  // Inside a figure the figure carries the margin. Before `figcaption`, which
+  // takes its own back.
+  :where(figure > *, picture > img)#{$skip} {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
   :where(figcaption)#{$skip} {
     color: var(--wr-typeset-captions);
     font-size: 0.875em;
@@ -219,9 +262,29 @@ $skip: ':not(:where(.wr-not-typeset, .wr-not-typeset *))';
     color: inherit;
   }
 
+  :where(pre)#{$skip} {
+    overflow-x: auto;
+    padding: 0.8571429em 1.1428571em;
+    border-radius: var(--wr-border-radius-base);
+    background: var(--wr-typeset-pre-bg);
+    color: var(--wr-typeset-code);
+    font-family: var(--wr-font-family-mono);
+    font-size: 0.875em;
+    line-height: 1.7142857;
+    margin-top: 1.7142857em;
+    margin-bottom: 1.7142857em;
+  }
+
+  // The block already is the chip: code inside it takes the block's size,
+  // colour and weight instead of shrinking a second time.
   :where(pre code)#{$skip} {
     padding: 0;
+    border-radius: 0;
     background: none;
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
   }
 
   :where(table)#{$skip} {

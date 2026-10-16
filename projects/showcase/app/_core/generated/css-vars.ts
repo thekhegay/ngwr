@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1287 hook(s) across 92 page(s). A property is here only when the
+ * 1288 hook(s) across 92 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 23 declaration(s) are one component setting
@@ -1735,6 +1735,7 @@ export const CSS_VARS = {
       { name: "--wr-typeset-hr", default: "var(--wr-color-gray-200)", scope: ".wr-typeset", overrides: 1 },
       { name: "--wr-typeset-lead", default: "var(--wr-color-gray-600)", scope: ".wr-typeset", overrides: 1 },
       { name: "--wr-typeset-links", default: "var(--wr-color-on-surface)", scope: ".wr-typeset" },
+      { name: "--wr-typeset-pre-bg", default: "var(--wr-color-fill)", scope: ".wr-typeset" },
       { name: "--wr-typeset-quote-borders", default: "var(--wr-color-gray-200)", scope: ".wr-typeset", overrides: 1 },
       { name: "--wr-typeset-quotes", default: "var(--wr-color-on-surface)", scope: ".wr-typeset" },
       { name: "--wr-typeset-td-borders", default: "var(--wr-color-gray-200)", scope: ".wr-typeset", overrides: 1 },

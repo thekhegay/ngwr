@@ -34,7 +34,7 @@ interface TokenRow {
 interface TypesetRow {
   readonly token: string;
   readonly sample: string;
-  /** Drawn as a rule rather than as text — the hook colours a border. */
+  /** Drawn as a bar rather than as text — the hook colours a border or a background. */
   readonly line?: boolean;
   readonly meaning: string;
 }
@@ -253,6 +253,7 @@ export default class TypographyStylesPage {
     { token: '--wr-typeset-bold', sample: 'Bold text', meaning: 'Strong text. Set it to the body colour for plain bold.' },
     { token: '--wr-typeset-links', sample: 'Link', meaning: 'Links. Set it to give links your brand colour.' },
     { token: '--wr-typeset-code', sample: 'inline code', meaning: 'Inline code. The chip behind it stays the fill colour.' },
+    { token: '--wr-typeset-pre-bg', sample: '', line: true, meaning: 'The background of a code block.' },
     { token: '--wr-typeset-bullets', sample: '● ● ●', meaning: 'Bullets of an unordered list.' },
     { token: '--wr-typeset-counters', sample: '1. 2. 3.', meaning: 'Numbers of an ordered list.' },
     { token: '--wr-typeset-quotes', sample: 'Quoted text', meaning: 'Blockquote text.' },
