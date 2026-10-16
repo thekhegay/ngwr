@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Styles"
   description="Every text style ngwr ships, the token behind it and when to use it."
-  [keywords]="['typography', 'type scale', 'font size', 'font weight', 'line height', 'tokens', 'prose']"
+  [keywords]="['typography', 'type scale', 'font size', 'font weight', 'line height', 'tokens', 'typeset', 'prose']"
 >
   <ngwr-doc-section title="Text styles">
     <p>
@@ -9,7 +9,7 @@
       changing a token restyles every variant that uses it.
     </p>
 
-    <div class="rows wr-not-prose">
+    <div class="rows wr-not-typeset">
       @for (row of styles; track row.variant) {
         <div class="row">
           <div class="label">
@@ -56,7 +56,7 @@
       wrong.
     </p>
 
-    <div class="rows wr-not-prose">
+    <div class="rows wr-not-typeset">
       @for (row of tones; track row.tone) {
         <div class="row">
           <div class="label">
@@ -80,7 +80,7 @@
       restyle only there.
     </p>
 
-    <div class="rows wr-not-prose">
+    <div class="rows wr-not-typeset">
       @for (row of hooks; track row.token) {
         <div class="row">
           <div class="label">
@@ -99,12 +99,12 @@
 
   <ngwr-doc-section title="Long-form text">
     <p>
-      Put <code>.wr-prose</code> on a container of plain HTML — an article, a changelog, rendered markdown — and every
+      Put <code>.wr-typeset</code> on a container of plain HTML — an article, a changelog, rendered markdown — and every
       element inside is sized and spaced for reading. Mark anything inside it that is not text with
-      <code>.wr-not-prose</code>.
+      <code>.wr-not-typeset</code>.
     </p>
 
-    <div class="prose-sample">
+    <div class="typeset-sample">
       <h3>Release notes</h3>
       <p>
         Version 15 moves charts and bits into their own folders. <strong>Import paths change</strong>; component names
@@ -117,10 +117,10 @@
       <blockquote>Nothing to do if you only use form controls.</blockquote>
     </div>
 
-    <p>Each colour in a prose block comes from its own hook, set on the container:</p>
+    <p>Each colour in a <code>.wr-typeset</code> block comes from its own hook, set on the container:</p>
 
-    <div class="rows wr-not-prose">
-      @for (row of prose; track row.token) {
+    <div class="rows wr-not-typeset">
+      @for (row of typeset; track row.token) {
         <div class="row">
           <div class="label">
             <code wrTypography variant="code">{{ row.token }}</code>
@@ -133,7 +133,7 @@
               <p class="specimen" [style.color]="'var(' + row.token + ')'">{{ row.sample }}</p>
             }
             <div class="tokens">
-              <code wrTypography variant="code" tone="muted">{{ proseDefault(row.token) }}</code>
+              <code wrTypography variant="code" tone="muted">{{ typesetDefault(row.token) }}</code>
             </div>
           </div>
         </div>
@@ -147,7 +147,7 @@
       sizes from here.
     </p>
 
-    <div class="rows wr-not-prose">
+    <div class="rows wr-not-typeset">
       @for (row of sizes; track row.token) {
         <div class="row">
           <ng-container *ngTemplateOutlet="label; context: { $implicit: row }" />
@@ -176,7 +176,7 @@
       the text in every control at once.
     </p>
 
-    <div class="rows wr-not-prose">
+    <div class="rows wr-not-typeset">
       @for (row of controls; track row.token) {
         <div class="row">
           <ng-container *ngTemplateOutlet="label; context: { $implicit: row }" />
@@ -211,7 +211,7 @@
   <ngwr-doc-section title="Weight">
     <p>Body text is regular. Each step up is for something the eye should find first.</p>
 
-    <div class="rows wr-not-prose">
+    <div class="rows wr-not-typeset">
       @for (row of weights; track row.token) {
         <div class="row">
           <ng-container *ngTemplateOutlet="label; context: { $implicit: row }" />
@@ -233,7 +233,7 @@
   <ngwr-doc-section title="Line height">
     <p>Unitless, so it follows the font size it sits on. Short lines can take less; long paragraphs need more.</p>
 
-    <div class="rows wr-not-prose">
+    <div class="rows wr-not-typeset">
       @for (row of leading; track row.token) {
         <div class="row">
           <ng-container *ngTemplateOutlet="label; context: { $implicit: row }" />
@@ -255,7 +255,7 @@
   <ngwr-doc-section title="Letter spacing">
     <p>In <code>em</code>, so it scales with the text. Tighten large headings, open up small uppercase labels.</p>
 
-    <div class="rows wr-not-prose">
+    <div class="rows wr-not-typeset">
       @for (row of tracking; track row.token) {
         <div class="row">
           <ng-container *ngTemplateOutlet="label; context: { $implicit: row }" />
@@ -277,7 +277,7 @@
   <ngwr-doc-section title="Font family">
     <p>System fonts by default. Set these two on <code>:root</code> to use your own typeface everywhere.</p>
 
-    <div class="rows wr-not-prose">
+    <div class="rows wr-not-typeset">
       @for (row of families; track row.token) {
         <div class="row">
           <ng-container *ngTemplateOutlet="label; context: { $implicit: row }" />
@@ -295,7 +295,7 @@
   <ngwr-doc-section title="Line breaking">
     <p>Three classes with no token behind them: they change where a line breaks, not how it looks.</p>
 
-    <div class="rows wr-not-prose">
+    <div class="rows wr-not-typeset">
       @for (row of breaking; track row.utility) {
         <div class="row">
           <div class="label">
