@@ -1,0 +1,17 @@
+// The theme first, then one line per entry point the app renders. Add a line
+// when you add a component: `@use 'ngwr/select';` for `<wr-select>`, and so on.
+@use 'ngwr/theme';
+@use 'ngwr/button';
+@use 'ngwr/checkbox';
+@use 'ngwr/form';
+@use 'ngwr/input';
+
+body {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--wr-color-surface);
+  color: var(--wr-color-on-surface);
+}

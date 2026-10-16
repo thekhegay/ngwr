@@ -63,6 +63,14 @@ A pnpm + Angular CLI monorepo with three projects:
   and the animation / visual-effect components under `app/bits/`. Shared
   doc scaffolding (the `<ngwr-doc-*>` components, services, shiki highlighting)
   is in `app/_core/` (alias `#core/*`).
+- **`projects/starter/`** — the StackBlitz starter the docs header and home page
+  link to (`stackblitz.com/github/thekhegay/ngwr/tree/main/projects/starter`). A
+  standalone npm app on ngwr FROM NPM, with its own `package.json`, `angular.json`
+  and `tsconfig.json`: it is not in the root `angular.json`, the root `pnpm
+  install` does not install it, and stylelint skips it. Keep it to what boots in
+  StackBlitz's container — a `development` configuration that `serve` defaults
+  to, and one `@use` per rendered entry point after `ngwr/theme` — and move its
+  `ngwr` range when a major ships.
 - **`projects/lib/theme/`** — the styling foundation: design tokens (CSS custom
   properties, `--wr-*`) and SCSS mixins under `theme/styles/`. Not a component.
 - **`scripts/`** — build/release tooling, run via `tsx`, **one directory per
