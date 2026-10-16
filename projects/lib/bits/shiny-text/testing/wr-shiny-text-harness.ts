@@ -57,8 +57,8 @@ function stopColour(stop: string): string {
  *
  * **Both gradient reads come off the inline `style` attribute**, not through computed
  * style. Unset colours fall through to the literal `var(--wr-shiny-text-base)` /
- * `var(--wr-shiny-text-shine)` tokens, which is exactly what makes the dark-theme
- * override work — and a computed read resolves those tokens in a real browser while
+ * `var(--wr-shiny-text-shine)` tokens, which is exactly what lets the default follow
+ * the colour scheme — and a computed read resolves those tokens in a real browser while
  * handing them back verbatim in a unit test. Reading what the component wrote gives the
  * same answer in both places.
  *

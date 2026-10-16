@@ -53,7 +53,7 @@ export default class ThemeTypesPage {
     },
     {
       name: 'WrResolvedTheme',
-      description: 'What is actually applied to the DOM after resolving `auto`.',
+      description: 'The scheme in effect once `auto` is resolved.',
       type: "'light' | 'dark'",
       default: '—',
     },

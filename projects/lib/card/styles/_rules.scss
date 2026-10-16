@@ -78,14 +78,14 @@
     align-items: center;
     justify-content: center;
     @include theme.smooth-br(var(--wr-card-radius));
-    background: rgba(var(--wr-color-surface-rgb), 0.5);
+    background: color-mix(in srgb, var(--wr-color-surface) 50%, transparent);
     pointer-events: none;
   }
 
   &__spinner {
     width: 1.5rem;
     height: 1.5rem;
-    border: 2px solid rgba(var(--wr-color-on-surface-muted-rgb), 0.3);
+    border: 2px solid color-mix(in srgb, var(--wr-color-on-surface-muted) 30%, transparent);
     border-top-color: var(--wr-color-primary);
     border-radius: 50%;
     animation: wr-card-spin 0.7s linear infinite;

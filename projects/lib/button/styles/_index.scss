@@ -277,7 +277,7 @@
         // identical to it, which is the price of a label anyone can read.
         --wr-btn-color: var(--wr-color-#{$name}-ink);
         --wr-btn-bg: transparent;
-        --wr-btn-border: rgba(var(--wr-color-#{$name}-rgb), 0.4);
+        --wr-btn-border: color-mix(in srgb, var(--wr-color-#{$name}) 40%, transparent);
 
         &:hover {
           --wr-btn-color: var(--wr-color-#{$name}-contrast);
@@ -335,7 +335,7 @@
       // convert to. The seam lands on the wrong edge under RTL; fixing it needs a
       // `[dir]` rule or a real border, which is beyond a property-level rewrite.
       // rtl-ok: box-shadow has no logical equivalent — see above
-      box-shadow: inset -1px 0 0 rgba(var(--wr-color-black-rgb), 0.2);
+      box-shadow: inset -1px 0 0 color-mix(in srgb, var(--wr-color-black) 20%, transparent);
 
       &:hover,
       &:focus-visible {

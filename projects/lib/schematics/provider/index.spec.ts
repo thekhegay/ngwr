@@ -127,12 +127,12 @@ describe('ng g ngwr:provider', () => {
   });
 
   it('still patches main.ts when the providers array is there', async () => {
-    const { tree, logs } = await run(workspace({ '/src/main.ts': INLINE_MAIN }), { name: 'theme' });
+    const { tree, logs } = await run(workspace({ '/src/main.ts': INLINE_MAIN }), { name: 'density' });
 
     const main = tree.readText('/src/main.ts');
-    expect(main).toContain("import { provideWrTheme } from 'ngwr/theme';");
-    expect(main).toContain('providers: [provideWrTheme()]');
-    expect(logs).toContain('✓ Added provideWrTheme() to src/main.ts.');
+    expect(main).toContain("import { provideWrDensity } from 'ngwr/density';");
+    expect(main).toContain('providers: [provideWrDensity()]');
+    expect(logs).toContain('✓ Added provideWrDensity() to src/main.ts.');
   });
 
   it('writes nothing and reports nothing added when no file holds a providers array', async () => {

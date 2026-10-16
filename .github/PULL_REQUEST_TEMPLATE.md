@@ -22,7 +22,7 @@ PR title MUST follow conventional commits, e.g.:
 - [ ] `pnpm build:showcase` passes
 - [ ] Docs page updated if the public API changed
 
-<!-- CI runs five more gates on top of those: check:api-docs, check:llms,
-     check:css-vars and, after build:showcase, check:theme and check:a11y.
-     Nine in total — run the ones your change touches before pushing. -->
+<!-- CI runs four more gates on top of those: check:api-docs, check:llms,
+     check:css-vars and, after build:showcase, check:a11y.
+     Eight in total — run the ones your change touches before pushing. -->
 

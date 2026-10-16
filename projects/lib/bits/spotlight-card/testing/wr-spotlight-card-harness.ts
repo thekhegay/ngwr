@@ -115,11 +115,11 @@ export class WrSpotlightCardHarness extends ComponentHarness {
    * The highlight colour the author asked for, or `null` when they left it to the theme.
    *
    * `null` IS the contract for an unset `[spotlightColor]`, not a gap in it. The
-   * stylesheet's own default is `rgba(var(--wr-color-on-surface-rgb), .15)`, and that
-   * token flips per theme — which is what makes one component read as a dark glow on a
-   * light surface and a light beam on a dark one. A card that started writing a concrete
-   * colour here would look right in whichever theme it was authored against and wrong in
-   * the other, and this is the only method that can tell.
+   * stylesheet's own default is a `light-dark()` over `--wr-color-on-surface`, and that
+   * token flips per colour scheme — which is what makes one component read as a dark glow
+   * on a light surface and a light beam on a dark one. A card that started writing a
+   * concrete colour here would look right in whichever scheme it was authored against and
+   * wrong in the other, and this is the only method that can tell.
    */
   async getSpotlightColor(): Promise<string | null> {
     return (await this.vars()).get('--wr-spotlight-color') ?? null;

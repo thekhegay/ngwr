@@ -222,7 +222,7 @@ describe('the published manifest', () => {
  *
  * `@use` deduplicates per compilation, and a component's `styleUrl` is its own
  * compilation — so a `styleUrl` whose SCSS pulls in `theme/styles` carries a
- * byte-identical second copy of the `:root` token block, the `[data-theme]` block
+ * byte-identical second copy of the `:root` token block, its high-contrast twin
  * and the `wr-` box-sizing reset, which ng-packagr embeds in the FESM bundle as a
  * string and the app build ships as JavaScript. Twenty entry points did: 42 KB
  * apiece, 328 token declarations and two `:root` blocks inside the main chunk of an
@@ -235,15 +235,13 @@ describe('the published manifest', () => {
  * `#3969e2` on `:root` for as long as one of the twenty was on the page.
  *
  * So the invariant is about content, not about a file name: nothing a `styleUrl`
- * reaches may declare `:root` or the namespace reset. Those two, and not the dark
- * block, which the theme's own `_dark.scss` opens with a top-level `:root` anyway
- * — so it is caught either way. A COMPONENT'S dark block is a separate question
- * and `theme/styles.spec.ts` owns it: seven of them wrote `[data-theme='dark']
- * .wr-star-border` and were described here as a legitimate scoped rule, which
- * they were not. Compiled at library build time, the attribute in one can only
- * ever be the default, so it misses a rename and then outranks the correctly
- * named rule beside it. They are keyed on `dark-selector()` now, and loaded from
- * the public Sass entry rather than from the `styleUrl`.
+ * reaches may declare `:root` or the namespace reset. Dark mode adds no third
+ * pattern: both schemes live in those same `:root` declarations as `light-dark()`,
+ * switched by `color-scheme`, so there is no separate dark block to inline. A
+ * component's own dark values are written the same way, inside its own
+ * declarations, so they may sit in a `styleUrl` like any other rule — with no
+ * selector naming a theme, there is nothing compiled at library build time that a
+ * consumer could have configured differently.
  * `theme/styles/_focus.scss` passes and is deliberately still reachable — it emits
  * `.wr-*:focus-visible` rules rather than the global layer, and it is the only place
  * the shared ring mixin lives, so the five components that draw one take it from

@@ -27,7 +27,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr } from 'ngwr/utils';
+import { numAttr, resolveCssColor } from 'ngwr/utils';
 
 const VERT = `#version 300 es
 in vec2 position;
@@ -139,14 +139,36 @@ void main() {
 }
 `;
 
-function hexToRgb01(hex: string): [number, number, number] {
-  let val = hex.replace('#', '');
-  if (val.length === 3) val = val[0] + val[0] + val[1] + val[1] + val[2] + val[2];
-  return [
-    Number.parseInt(val.slice(0, 2), 16) / 255,
-    Number.parseInt(val.slice(2, 4), 16) / 255,
-    Number.parseInt(val.slice(4, 6), 16) / 255,
-  ];
+/** What a stop falls back to when it cannot be read: the reactbits palette. */
+const DEFAULT_STOPS = ['#5227ff', '#7cff67', '#5227ff'] as const;
+
+/**
+ * A resolved colour as the shader's 0–1 channels, or `null` for a form it does
+ * not read. Alpha is dropped: the uniform is a `vec3`, and the shader fades the
+ * ribbon through its own alpha.
+ *
+ * A computed colour comes back in one of two shapes — `rgb()` / `rgba()` with
+ * 0–255 channels for a legacy colour, `color(srgb r g b / a)` with 0–1 channels
+ * for a `color-mix()` — and neither is the hex this used to parse, which turned
+ * a `light-dark()` hook into `NaN` uniforms. Hex stays for the literal
+ * fallbacks in `DEFAULT_STOPS`.
+ */
+function toRgb01(color: string): [number, number, number] | null {
+  const value = color.trim().toLowerCase();
+  const fn = /^(rgba?|color)\(\s*(srgb\s+)?([^)]*)\)$/.exec(value);
+  if (fn && (fn[1] !== 'color' || fn[2] !== undefined)) {
+    const scale = fn[1] === 'color' ? 1 : 255;
+    const channels = fn[3]
+      .split(/[\s,/]+/)
+      .slice(0, 3)
+      .map(part => (part === 'none' ? 0 : Number.parseFloat(part) / scale));
+    if (channels.length !== 3 || !channels.every(Number.isFinite)) return null;
+    return channels.map(channel => Math.min(1, Math.max(0, channel))) as [number, number, number];
+  }
+  const hex = /^#([\da-f]{3,4}|[\da-f]{6}|[\da-f]{8})$/.exec(value)?.[1];
+  if (hex === undefined) return null;
+  const full = hex.length <= 4 ? [...hex].map(digit => digit + digit).join('') : hex;
+  return [0, 2, 4].map(at => Number.parseInt(full.slice(at, at + 2), 16) / 255) as [number, number, number];
 }
 
 /**
@@ -175,9 +197,10 @@ function hexToRgb01(hex: string): [number, number, number] {
 })
 export class WrAurora {
   /**
-   * Exactly three colour stops, ramped left → right. When unset, the
-   * theme decides: deep violet/emerald on light, the neon reactbits
-   * palette on dark.
+   * Exactly three colour stops, ramped left → right — any CSS colour each, a
+   * `var()` token or a `light-dark()` pair included. Alpha is ignored; the
+   * ribbon fades through its own. When unset, the theme decides: deep
+   * violet/emerald on light, the neon reactbits palette on dark.
    */
   readonly colorStops = input<readonly string[] | null>(null);
 
@@ -296,29 +319,36 @@ export class WrAurora {
   private pushUniforms(): void {
     const gl = this.gl;
     if (!gl) return;
-    const stops = this.resolveStops();
     const flat = new Float32Array(9);
-    for (let i = 0; i < 3; i++) {
-      const [r, g, b] = hexToRgb01(stops[Math.min(i, stops.length - 1)] ?? '#5227ff');
-      flat[i * 3] = r;
-      flat[i * 3 + 1] = g;
-      flat[i * 3 + 2] = b;
-    }
+    for (let i = 0; i < 3; i++) flat.set(this.resolveStop(i), i * 3);
     gl.uniform3fv(this.uniforms['uColorStops'], flat);
     gl.uniform1f(this.uniforms['uAmplitude'], this.amplitude());
     gl.uniform1f(this.uniforms['uBlend'], this.blend());
   }
 
-  /** Explicit input wins; otherwise the theme's `--wr-aurora-stop-*` vars. */
-  private resolveStops(): readonly string[] {
+  /**
+   * Stop `index` as shader channels. Explicit input wins; otherwise the theme's
+   * `--wr-aurora-stop-*` hook, which holds a `light-dark()` pair no uniform can
+   * take, so either is resolved through the cascade first. Read every frame, so
+   * a colour-scheme change reaches the ribbon on the next one.
+   */
+  private resolveStop(index: number): [number, number, number] {
     const explicit = this.colorStops();
-    if (explicit !== null) return explicit;
-    const style = getComputedStyle(this.host.nativeElement);
-    return [
-      style.getPropertyValue('--wr-aurora-stop-1').trim() || '#5227ff',
-      style.getPropertyValue('--wr-aurora-stop-2').trim() || '#7cff67',
-      style.getPropertyValue('--wr-aurora-stop-3').trim() || '#5227ff',
-    ];
+    const fallback = DEFAULT_STOPS[index];
+    const expression =
+      explicit === null
+        ? `var(--wr-aurora-stop-${index + 1})`
+        : (explicit[Math.min(index, explicit.length - 1)] ?? fallback);
+    const canvas = this.canvasRef().nativeElement;
+    const resolved = resolveCssColor(canvas, expression, fallback);
+    // A colour authored in another space — `oklch()`, `lab()`, `display-p3` —
+    // computes to itself; mixing it into sRGB is what brings it to a form the
+    // parser reads.
+    return (
+      toRgb01(resolved) ??
+      toRgb01(resolveCssColor(canvas, `color-mix(in srgb, ${resolved} 100%, transparent)`, fallback)) ??
+      toRgb01(fallback)!
+    );
   }
 
   private draw(time: number): void {

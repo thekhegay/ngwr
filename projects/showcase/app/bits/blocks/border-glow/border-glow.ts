@@ -104,7 +104,7 @@ export default class BorderGlowPage {
     },
     {
       name: 'fillOpacity',
-      description: 'Strength of the soft-light interior fill near edges (0..1).',
+      description: 'Strength of the interior fill near edges (0..1).',
       type: 'number',
       default: '0.5',
     },

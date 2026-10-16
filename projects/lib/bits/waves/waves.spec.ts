@@ -46,6 +46,8 @@ const reducedMotion = {
 let thrown: unknown[];
 /** `clearRect` calls, one per pass of `drawLines()`. */
 let painted: number;
+/** The `strokeStyle` each pass of `drawLines()` closed its path with. */
+let strokes: string[];
 /** Frames the page asked for, held rather than fired. */
 let frames: FrameRequestCallback[];
 /** `disconnect()` calls on the resize observer. */
@@ -54,15 +56,20 @@ let disconnects: number;
 /**
  * Enough of a 2D context for `boot()` to reach its last line, and nothing more.
  *
- * Every call is a no-op but `clearRect`, which opens each pass of `drawLines()`
- * and is therefore the count of what was painted. jsdom also has no
- * `ResizeObserver`, which `boot()` installs a few lines after the context, so the
- * spec supplies the smallest one it can disconnect.
+ * Every call is a no-op but two: `clearRect`, which opens each pass of
+ * `drawLines()` and is therefore the count of what was painted, and `stroke()`,
+ * which closes it and reads back the `strokeStyle` the component had just
+ * assigned. jsdom also has no `ResizeObserver`, which `boot()` installs a few
+ * lines after the context, so the spec supplies the smallest one it can
+ * disconnect.
  */
 const withContext = (): void => {
   const ctx: Record<string, unknown> = {
     clearRect: () => {
       painted++;
+    },
+    stroke: () => {
+      strokes.push(String(ctx['strokeStyle']));
     },
   };
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
@@ -120,6 +127,7 @@ describe('WrWaves', () => {
   beforeEach(async () => {
     thrown = [];
     painted = 0;
+    strokes = [];
     disconnects = 0;
     frames = [];
     await mount();
@@ -194,6 +202,20 @@ describe('WrWaves', () => {
 
     expect(painted).toBeGreaterThan(0);
     expect(waves()!.classList.contains('wr-waves--painted')).toBe(true);
+  });
+
+  it('strokes with the line colour resolved, never with text a canvas cannot read', async () => {
+    withContext();
+    await mount();
+    // The theme declares the hook as a `light-dark()` pair, and no canvas reads
+    // one: Chromium and WebKit refuse it and keep the previous stroke, Firefox
+    // paints the light half in every scheme. jsdom resolves the light half, as a
+    // browser does with no dark scheme in effect.
+    waves()!.style.setProperty('--wr-waves-line-color', 'light-dark(rgb(1, 2, 3), rgb(4, 5, 6))');
+
+    runFrame();
+
+    expect(strokes).toEqual(['rgb(1, 2, 3)']);
   });
 
   it('tears down the listeners, the observer and the frame it installed', async () => {

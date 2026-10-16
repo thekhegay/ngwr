@@ -71,7 +71,7 @@
 
   <ngwr-doc-section
     title="Theme"
-    description="Light / dark / auto with optional `localStorage` persistence. Inject `WrTheme` to read or toggle at runtime — `theme.set('dark')`, `theme.toggle()`."
+    description="No provider: the theme follows the OS through `color-scheme` out of the box. Inject `WrTheme` to read or switch it at runtime — `theme.set('dark')`, `theme.toggle()` — and override `WR_THEME_CONFIG` only to change the default mode or the storage key. A default other than `auto` applies when `WrTheme` is first injected, so inject it once at boot or ship [`wrThemePrePaintScript()`](/reference/services/theme) with the same options."
   >
     <ngwr-doc-code [code]="snippets.theme" language="angular-ts" />
   </ngwr-doc-section>

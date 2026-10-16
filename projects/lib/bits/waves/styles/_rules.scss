@@ -1,9 +1,14 @@
 // Wave-field background (reactbits port). The host fills its nearest
 // positioned ancestor; the line colour is theme-aware via
-// `--wr-waves-line-color` unless `[lineColor]` overrides it.
+// `--wr-waves-line-color` unless `[lineColor]` overrides it. A canvas cannot
+// read a `light-dark()`, so `waves.ts` resolves the hook through
+// `resolveCssColor` before it strokes with it.
 
 .wr-waves {
-  --wr-waves-line-color: rgba(var(--wr-color-on-surface-rgb), 0.12);
+  --wr-waves-line-color: light-dark(
+    color-mix(in srgb, var(--wr-color-on-surface) 12%, transparent),
+    rgb(255 255 255 / 14%)
+  );
   // Mirrors the `xGap` input; the component publishes it so the stand-in below
   // lands on the same pitch as the real grid.
   --wr-waves-x-gap: 10px;

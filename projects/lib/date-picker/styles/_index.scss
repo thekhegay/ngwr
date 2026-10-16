@@ -237,7 +237,7 @@
 
     &:focus {
       border-color: var(--wr-color-primary);
-      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--wr-color-primary) 15%, transparent);
     }
 
     &:disabled {

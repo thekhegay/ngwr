@@ -4,8 +4,8 @@ import { DOCUMENT, PLATFORM_ID, Service, inject } from '@angular/core';
 
 /**
  * Read by the pre-paint script in `index.html` as well, which is why the value
- * is stored as the bare string rather than through `WrStorage`'s JSON envelope —
- * the same shape `ngwr-primary` uses. Change the key in both places or neither.
+ * is stored as the bare string rather than through `WrStorage`'s JSON envelope.
+ * Change the key in both places or neither.
  */
 const STORAGE_KEY = 'ngwr-direction';
 

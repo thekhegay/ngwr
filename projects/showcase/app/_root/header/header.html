@@ -101,24 +101,6 @@
             (valueChange)="onDirectionChange($event)"
           />
         </div>
-
-        <div class="ngwr-header__settings-group">
-          <span class="ngwr-header__settings-label" id="ngwr-settings-primary">Primary Color</span>
-          <div class="ngwr-header__swatches" role="radiogroup" aria-labelledby="ngwr-settings-primary">
-            @for (preset of primary.presets; track preset.id) {
-              <button
-                type="button"
-                class="ngwr-header__swatch"
-                [class.ngwr-header__swatch--active]="primary.current() === preset.id"
-                [style.--ngwr-swatch-color]="preset.hex"
-                [attr.aria-label]="preset.label"
-                [attr.aria-checked]="primary.current() === preset.id"
-                role="radio"
-                (click)="primary.set(preset.id)"
-              ></button>
-            }
-          </div>
-        </div>
       </div>
     </wr-dropdown-menu>
 

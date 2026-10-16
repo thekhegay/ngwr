@@ -100,7 +100,6 @@ export const ROUTES = {
       typography: { path: 'typography', title: 'Typography' },
       density: { path: 'density', title: 'Density' },
       motion: { path: 'motion', title: 'Motion' },
-      builder: { path: 'builder', title: 'Theme builder' },
     },
     color: { path: 'color', title: 'Colour' },
     typography: {
@@ -269,6 +268,7 @@ export const ROUTES = {
       numAttr: { path: 'num-attr', title: 'numAttr' },
       toClassList: { path: 'to-class-list', title: 'toClassList' },
       resolveCssSize: { path: 'resolve-css-size', title: 'resolveCssSize' },
+      resolveCssColor: { path: 'resolve-css-color', title: 'resolveCssColor' },
       getRootFontSize: {
         path: 'get-root-font-size',
         title: 'getRootFontSize',

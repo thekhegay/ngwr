@@ -29,7 +29,6 @@ import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { provideWrDateAdapter } from 'ngwr/date';
 import { provideWrDensity } from 'ngwr/density';
 import { provideWrConfig } from 'ngwr/config';
-import { provideWrTheme } from 'ngwr/theme';
 
 import { AppComponent } from './app/app';
 import { routes } from './app/app.routes';
@@ -43,7 +42,6 @@ bootstrapApplication(AppComponent, {
     provideWrOverlay(),
     provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 })),
     provideWrToastConfig({ position: 'top-end', duration: 4000 }),
-    provideWrTheme({ defaultMode: 'auto' }),
     provideWrDensity({ defaultDensity: 'lg' }),
     provideWrConfig({ button: { size: 'sm' }, input: { size: 'sm' } }),
     provideWrDateAdapter(),
@@ -161,18 +159,26 @@ providers: [provideWrDensity({ defaultDensity: 'sm' })],
 //     --wr-density-x: 0.9;   /* horizontal padding */
 //   }`,
 
-    theme: `import { provideWrTheme } from 'ngwr/theme';
+    theme: `import { inject, provideEnvironmentInitializer } from '@angular/core';
 
-// 'light' | 'dark' | 'auto' — auto follows prefers-color-scheme.
-// Resolved theme is mirrored to <html data-theme="..."> and persisted in
-// localStorage under \`storageKey\`. Inject WrTheme to read or change it
-// at runtime.
+import { DEFAULT_WR_THEME_CONFIG, WR_THEME_CONFIG, WrTheme } from 'ngwr/theme';
+
+// Nothing to provide for the defaults: the page follows the OS through
+// color-scheme, and WrTheme is root-provided. Override the token only to
+// change them — 'light' | 'dark' | 'auto', and the localStorage key the
+// choice persists under (null turns persistence off).
 providers: [
-  provideWrTheme({
-    defaultMode: 'auto',
-    storageKey: 'wr-theme',
-    attribute: 'data-theme',
-  }),
+  {
+    provide: WR_THEME_CONFIG,
+    useValue: { ...DEFAULT_WR_THEME_CONFIG, defaultMode: 'dark', storageKey: 'app-theme' },
+  },
+  // A default other than 'auto' — and a stored choice — applies when WrTheme
+  // is first injected, and nothing injects it for you: with the toggle behind
+  // a lazy route, the page follows the OS until someone opens that route.
+  // Inject it once at boot, or ship the pre-paint script with the same
+  // options, which also lands before the first paint of a prerendered page:
+  //   wrThemePrePaintScript({ defaultMode: 'dark', storageKey: 'app-theme' })
+  provideEnvironmentInitializer(() => inject(WrTheme)),
 ],`,
 
     loadingBar: `import { WrLoadingBar, WrLoadingBarComponent } from 'ngwr/loading-bar';
@@ -215,7 +221,7 @@ providers: [provideWrStorage({ engine: sessionStorage, prefix: 'app:' })],`,
       title: 'Server-side rendering',
       url: ['/guides', 'ssr'],
       description:
-        'What these providers do during a server render — including the two overlay calls that are not no-ops there, and the pre-paint script that closes the light-theme flash.',
+        'What these providers do during a server render — including the two overlay calls that are not no-ops there, and the pre-paint script that applies an explicit theme choice before first paint.',
     },
     {
       kind: 'Guide',

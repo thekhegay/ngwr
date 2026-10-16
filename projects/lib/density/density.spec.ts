@@ -24,9 +24,10 @@ describe('WrDensity', () => {
     return density;
   };
 
-  // `data-wr-density`, not `data-density` — the theme service uses the bare
-  // `data-theme`, this one carries the library prefix. Both are public API that
-  // consumer stylesheets select on, so the difference is load bearing.
+  // `data-wr-density`, not `data-density` — it carries the library prefix so it
+  // cannot collide with another design system's attribute on the same `<html>`.
+  // It is public API that consumer stylesheets select on, so the name is load
+  // bearing.
   const attr = (name = 'data-wr-density'): string | null => document.documentElement.getAttribute(name);
 
   beforeEach(() => {

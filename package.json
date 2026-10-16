@@ -22,7 +22,6 @@
     "gen:install": "tsx scripts/gen/install.ts",
     "check:install": "tsx scripts/gen/install.ts --check",
     "gen:exports": "tsx scripts/gen/exports.ts",
-    "gen:design-tokens": "tsx scripts/gen/design-tokens.ts",
     "check:css-vars": "tsx scripts/gen/css-vars.ts --check",
     "check:attrs": "tsx scripts/check/unknown-attrs.ts",
     "check:selectors": "tsx scripts/gen/selectors.ts --check",
@@ -39,7 +38,6 @@
     "release:check": "tsx scripts/release/check.ts",
     "prepare": "simple-git-hooks",
     "check:state-a11y": "tsx scripts/check/state-a11y.ts",
-    "check:theme": "tsx scripts/check/theme-parity.ts",
     "check:tokens": "tsx scripts/check/tokens.ts"
   },
   "simple-git-hooks": {

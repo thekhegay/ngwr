@@ -55,14 +55,6 @@ const DENSITY_PROVIDER: Record<NonNullable<Schema['density']>, string | null> = 
   lg: "provideWrDensity({ defaultDensity: 'lg' })",
 };
 
-/** Theme preset → `provideWrTheme(...)` call. */
-const THEME_PROVIDER: Record<NonNullable<Schema['theme']>, string | null> = {
-  none: null,
-  light: "provideWrTheme({ defaultMode: 'light' })",
-  dark: "provideWrTheme({ defaultMode: 'dark' })",
-  system: "provideWrTheme({ defaultMode: 'auto' })",
-};
-
 const STYLES_DIRECTIVE_SCSS = "@use 'ngwr/theme';";
 
 /**
@@ -127,11 +119,11 @@ function installPeerDeps(options: Schema, context: SchematicContext): Rule {
  * The theme layer and NOT the components, because v15 removed the `@use 'ngwr'`
  * umbrella: a sheet that compiled all 228 component stylesheets for a page
  * rendering two of them was measured here at 287 kB against 44 kB. What a
- * project does want globally is the token layer — `:root`, the dark block, the
- * box-sizing reset — which every component sheet loads anyway, so writing it
- * first costs nothing and buys the one thing order matters for: this is the
- * line that can carry `with ($theme-attribute: ...)`, and only the first load
- * of a module can be configured. Components go in per component, through
+ * project does want globally is the token layer — `:root` with both schemes in
+ * it, the box-sizing reset — which every component sheet loads anyway, so
+ * writing it first costs nothing and buys the one thing order matters for: this
+ * is the line that can carry `with ($base-colors: ...)`, and only the first
+ * load of a module can be configured. Components go in per component, through
  * `ng g ngwr:component-style <name>`.
  */
 function registerStyles(options: Schema): Rule {
@@ -206,7 +198,6 @@ function printNextSteps(options: Schema, context: SchematicContext): Rule {
   return (tree: Tree) => {
     const adapter = options.dateAdapter ?? 'none';
     const density = options.density ?? 'none';
-    const theme = options.theme ?? 'none';
 
     // `ngwr/icon` exports only WrIcon / provideWrIcons / svgIcon — there are no
     // bare icon exports, so the old `{ plus, trash }` import did not compile.
@@ -236,12 +227,6 @@ function printNextSteps(options: Schema, context: SchematicContext): Rule {
       providers.push(densityCall);
     }
 
-    const themeCall = THEME_PROVIDER[theme];
-    if (themeCall) {
-      imports.push("import { provideWrTheme } from 'ngwr/theme';");
-      providers.push(themeCall);
-    }
-
     const importBlock = imports.join('\n');
     const providerBlock = providers.map(p => `      ${p},`).join('\n');
 
@@ -258,6 +243,9 @@ ${providerBlock}
     ],
   });
 
+Light and dark follow the operating system with no provider. To let the user
+choose, inject WrTheme from 'ngwr/theme' and call set('light' | 'dark' | 'auto').
+
 ${snapshotSummary(options)}
 Browse the full catalog at https://ngwr.dev.
 `;
@@ -272,7 +260,6 @@ function snapshotSummary(options: Schema): string {
   lines.push(`  • styles      = ${options.styles ?? 'theme'}`);
   lines.push(`  • dateAdapter = ${options.dateAdapter ?? 'none'}`);
   lines.push(`  • density     = ${options.density ?? 'none'}`);
-  lines.push(`  • theme       = ${options.theme ?? 'none'}`);
   return `${lines.join('\n')}\n\n`;
 }
 

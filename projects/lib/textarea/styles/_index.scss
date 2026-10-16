@@ -31,7 +31,7 @@
 
   &--focused {
     --wr-textarea-border: var(--wr-color-primary);
-    --wr-textarea-ring: rgba(var(--wr-color-primary-rgb), 0.15);
+    --wr-textarea-ring: color-mix(in srgb, var(--wr-color-primary) 15%, transparent);
   }
 
   &--disabled {

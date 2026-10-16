@@ -90,7 +90,7 @@
     display: inline-block;
     padding: 0.125rem 0.3125rem;
     border-radius: var(--wr-border-radius-sm);
-    background: rgba(var(--wr-color-on-surface-rgb), 0.07);
+    background: color-mix(in srgb, var(--wr-color-on-surface) 7%, transparent);
     color: var(--wr-color-on-surface);
     line-height: 1.25;
     font-family: var(--wr-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
@@ -118,7 +118,7 @@
 .required {
   padding: 0.125rem 0.3125rem;
   border-radius: var(--wr-border-radius-sm);
-  background: rgba(var(--wr-color-danger-rgb), 0.12);
+  background: color-mix(in srgb, var(--wr-color-danger) 12%, transparent);
   // Danger as TEXT on its own tint wants the ink ramp — the bare intent is
   // 3.12:1 against this 10px label, on every page with a required row.
   color: var(--wr-color-danger-ink);
@@ -148,7 +148,7 @@
   // L-bend: a stroke down the reading-start edge, turning under the row. All
   // three sides are logical so the glyph mirrors to `┘` in RTL instead of being
   // drawn at the far end of the cell facing the wrong way.
-  border-inline-start: 1px solid rgba(var(--wr-color-on-surface-muted-rgb), 0.4);
-  border-bottom: 1px solid rgba(var(--wr-color-on-surface-muted-rgb), 0.4);
+  border-inline-start: 1px solid color-mix(in srgb, var(--wr-color-on-surface-muted) 40%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--wr-color-on-surface-muted) 40%, transparent);
   border-end-start-radius: 0.25rem;
 }

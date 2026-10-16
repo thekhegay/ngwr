@@ -7,7 +7,8 @@
 
 /**
  * Serving and enumerating the prerendered showcase, for the checks that drive
- * a real browser over it.
+ * a real browser over it — and asking a loaded page which colour scheme it
+ * painted, which three of them need before they measure anything.
  *
  * Four of them did this themselves — `check:contrast`, `check:state-a11y`,
  * `check:layout` and `check:rtl-layout` — with four copies of the same static
@@ -28,6 +29,8 @@ import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs';
 import { createServer, type Server } from 'node:http';
 import { extname, join, resolve } from 'node:path';
 import { exit } from 'node:process';
+
+import type { Page } from 'playwright';
 
 import { err } from './log/err';
 
@@ -137,5 +140,37 @@ function prerenderedRoutes(label: string): string[] {
     .sort();
 }
 
-export { DIST as DIST_SHOWCASE, prerenderedRoutes, requireBuiltShowcase, serveDist };
-export type { DistServer, MissingBehaviour };
+/** The side of every `light-dark()` a page resolves to. */
+type PaintedScheme = 'light' | 'dark';
+
+/**
+ * Which colour scheme a loaded page actually paints in, or `null` for neither.
+ *
+ * The sweeps switch theme through the context's `colorScheme` emulation and
+ * nothing else: the theme layer declares `color-scheme: light dark` on `:root`,
+ * so with no mode chosen every token's `light-dark()` resolves to the side the
+ * emulated preference names, from the first paint. That is a setting on the
+ * CONTEXT, though, and the page can overrule it without a word — a persisted
+ * `WrTheme` mode or an inline `color-scheme` both beat the preference — so the
+ * checks ask the CSS rather than trusting what they passed in. The probe is a
+ * `light-dark()` of two colours nothing else paints, read back as the computed
+ * `color` of a throwaway element under `<body>`, where the tokens are read.
+ * `null` is an engine that resolved neither, which fails the run as surely as
+ * the wrong side would: every token in the theme is written in that function.
+ *
+ * No named inner function, on purpose: esbuild's keep-names transform wraps one
+ * in a `__name(…)` call that does not exist inside the page.
+ */
+function paintedScheme(page: Page): Promise<PaintedScheme | null> {
+  return page.evaluate<PaintedScheme | null>(() => {
+    const probe = document.createElement('i');
+    probe.style.color = 'light-dark(rgb(0, 0, 1), rgb(0, 0, 2))';
+    document.body.append(probe);
+    const painted = getComputedStyle(probe).color;
+    probe.remove();
+    return painted === 'rgb(0, 0, 1)' ? 'light' : painted === 'rgb(0, 0, 2)' ? 'dark' : null;
+  });
+}
+
+export { DIST as DIST_SHOWCASE, paintedScheme, prerenderedRoutes, requireBuiltShowcase, serveDist };
+export type { DistServer, MissingBehaviour, PaintedScheme };

@@ -28,7 +28,7 @@
 
   // Driven by host bindings on the component
   --wr-color-picker-hue: hsl(0, 100%, 50%);
-  --wr-color-picker-rgb: 0, 0, 0;
+  --wr-color-picker-color: rgb(0 0 0);
 
   display: inline-flex;
   flex-direction: column;
@@ -53,7 +53,7 @@
     background:
       linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent),
       var(--wr-color-picker-hue);
-    box-shadow: inset 0 0 0 1px rgba(var(--wr-color-black-rgb), 0.06);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--wr-color-black) 6%, transparent);
   }
 
   // Hue + alpha sliders
@@ -64,7 +64,7 @@
     border-radius: var(--wr-color-picker-slider-height);
     cursor: ew-resize;
     touch-action: none;
-    box-shadow: inset 0 0 0 1px rgba(var(--wr-color-black-rgb), 0.06);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--wr-color-black) 6%, transparent);
 
     // Coarse pointers: a taller track is easier to drag than the 0.75rem
     // default. A symmetric 44px hit area would overlap the SV panel above it,
@@ -113,7 +113,7 @@
 
   &__slider--alpha {
     background-image:
-      linear-gradient(to right, rgba(var(--wr-color-picker-rgb), 0), rgba(var(--wr-color-picker-rgb), 1)),
+      linear-gradient(to right, transparent, var(--wr-color-picker-color)),
       conic-gradient(#cdd2dd 25%, #fff 0 50%, #cdd2dd 0 75%, #fff 0);
     background-size:
       auto,
@@ -123,7 +123,7 @@
     // direction, and re-declaring it would be a second copy to keep in step.
     [dir='rtl'] & {
       background-image:
-        linear-gradient(to left, rgba(var(--wr-color-picker-rgb), 0), rgba(var(--wr-color-picker-rgb), 1)),
+        linear-gradient(to left, transparent, var(--wr-color-picker-color)),
         conic-gradient(#cdd2dd 25%, #fff 0 50%, #cdd2dd 0 75%, #fff 0);
     }
   }
@@ -144,8 +144,8 @@
     border-radius: 50%;
     border: 2px solid #fff;
     box-shadow:
-      0 0 0 1px rgba(var(--wr-color-black-rgb), 0.3),
-      0 1px 2px rgba(var(--wr-color-black-rgb), 0.25);
+      0 0 0 1px color-mix(in srgb, var(--wr-color-black) 30%, transparent),
+      0 1px 2px color-mix(in srgb, var(--wr-color-black) 25%, transparent);
     pointer-events: none;
     background: transparent;
   }
@@ -180,7 +180,7 @@
     background-size:
       auto,
       8px 8px;
-    box-shadow: inset 0 0 0 1px rgba(var(--wr-color-black-rgb), 0.06);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--wr-color-black) 6%, transparent);
     color: transparent; // background-image already set inline via [style.background]
   }
 
@@ -255,7 +255,7 @@
 
       &:focus {
         border-color: var(--wr-color-primary);
-        box-shadow: 0 0 0 2px rgba(var(--wr-color-primary-rgb), 0.15);
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--wr-color-primary) 15%, transparent);
       }
 
       &:disabled {
@@ -303,7 +303,7 @@
     // Use the dark token so the hairline tracks theme — fixed black at
     // 8% disappears against the dark-mode canvas, leaving swatches
     // bleeding into each other.
-    border: 1px solid rgba(var(--wr-color-on-surface-rgb), 0.12);
+    border: 1px solid color-mix(in srgb, var(--wr-color-on-surface) 12%, transparent);
     border-radius: var(--wr-color-picker-swatch-radius);
     cursor: pointer;
     padding: 0;
@@ -313,7 +313,7 @@
 
     &:hover:not(:disabled) {
       transform: scale(1.08);
-      box-shadow: 0 0 0 2px rgba(var(--wr-color-primary-rgb), 0.25);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--wr-color-primary) 25%, transparent);
     }
 
     &:focus-visible {

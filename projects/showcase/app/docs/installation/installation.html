@@ -22,6 +22,12 @@
       your Angular names. And the semver rule — a breaking change can no longer ride a minor, because the release script
       refuses the bump.
     </p>
+
+    <p>
+      <strong>The browser floor comes from the stylesheet</strong>: dark mode is CSS <code>light-dark()</code>, which
+      needs Chrome 123, Firefox 120 or Safari 17.5. Below those, every colour that differs between the light and dark
+      schemes resolves to nothing, so the page loses it rather than falling back to the light side.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -40,7 +46,7 @@
 
   <ngwr-doc-section
     title="Bootstrap"
-    description="Two providers are what separate a working first run from a broken one. `provideWrTheme()` is the one to not skip: it writes `[data-theme]` on `<html>`, and without it the light tokens stay put — so a visitor whose OS is in dark mode reads near-black text on the browser's dark canvas. `provideWrOverlay()` gives ngwr's overlays their own container instead of the one every CDK consumer shares, and installs the visual-viewport watcher that lets a mobile bottom-sheet clear the on-screen keyboard; panels still open without it. The rest of the catalog's providers are optional — see [Configuration](/docs/configuration)."
+    description="One provider is worth adding on day one. Dark mode needs none: the theme stylesheet follows the OS through `color-scheme`, and `WrTheme`, the service behind a light / dark toggle, is root-provided. `provideWrOverlay()` gives ngwr's overlays their own container instead of the one every CDK consumer shares, and installs the visual-viewport watcher that lets a mobile bottom-sheet clear the on-screen keyboard; panels still open without it. The rest of the catalog's providers are optional — see [Configuration](/docs/configuration)."
   >
     <ngwr-doc-code [code]="snippets.appConfig" language="angular-ts" />
   </ngwr-doc-section>
@@ -54,7 +60,7 @@
 
   <ngwr-doc-section
     title="Global styles"
-    description="One `@use` per thing you render, in your global stylesheet, with `ngwr/theme` on the first line. **There is no `@use 'ngwr'`** — the package ships no umbrella, because a sheet that compiles every component in the catalog to paint a page using four of them is the opposite of what a per-entry-point library is for. Each component entry loads the token layer itself and Sass de-duplicates it, so the tokens are emitted once no matter how many lines you write; the theme line is still first, because only a module's FIRST load can take `with (...)`, and that is where `$theme-attribute` goes. Utilities are opt-in on top."
+    description="One `@use` per thing you render, in your global stylesheet, with `ngwr/theme` on the first line. **There is no `@use 'ngwr'`** — the package ships no umbrella, because a sheet that compiles every component in the catalog to paint a page using four of them is the opposite of what a per-entry-point library is for. Each component entry loads the token layer itself and Sass de-duplicates it, so the tokens are emitted once no matter how many lines you write; the theme line is still first, because only a module's FIRST load can take `with (...)`, and that is where `$base-colors` goes. Utilities are opt-in on top."
   >
     <ngwr-doc-code [code]="snippets.globalStyles" language="scss" />
 
@@ -73,13 +79,11 @@
 
     <p>
       <strong>One declaration in that CSS is not a <code>--wr-*</code></strong
-      >, and it is worth knowing about before you go looking for it: the token layer sets
-      <code>color-scheme: light</code> on <code>:root</code>, and the dark block sets <code>color-scheme: dark</code> on
-      the theme attribute. That is what keeps native scrollbars, <code>&lt;textarea&gt;</code> and date / colour inputs
-      matching the theme you are painting — without it, an app running ngwr's light theme on a dark-mode machine got
-      dark native controls on light surfaces. The consequence to know: load the stylesheet and skip
-      <code>provideWrTheme()</code> and the UA canvas is pinned light, because nothing ever writes the attribute the
-      dark block keys on.
+      >, and it is the whole dark-mode switch: the token layer sets <code>color-scheme: light dark</code> on
+      <code>:root</code>. Every token that differs between the schemes is a <code>light-dark()</code>, so the page —
+      native scrollbars, <code>&lt;textarea&gt;</code> and date / colour inputs included — follows the OS with no
+      JavaScript. <code>WrTheme</code> pins one side by writing <code>color-scheme</code> on <code>&lt;html&gt;</code>,
+      and any element can do the same for its own subtree.
     </p>
   </ngwr-doc-section>
 
@@ -220,7 +224,7 @@
 
   <ngwr-doc-section
     title="Override the palette at compile time"
-    description="If you'd rather change the source-of-truth colors and let NGWR regenerate every variant (contrast / dark / light / rgb), configure the SCSS module."
+    description="If you'd rather change the source-of-truth colors and let NGWR regenerate every variant (contrast / dark / light), configure the SCSS module. That map moves the light scheme only; the dark side of each intent comes from the second map of `theme.rebrand()` — see [Theming](/guides/theming)."
   >
     <ngwr-doc-code [code]="snippets.overridePalette" language="scss" />
   </ngwr-doc-section>

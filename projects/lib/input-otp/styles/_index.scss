@@ -55,7 +55,7 @@
     &:focus {
       outline: none;
       border-color: var(--wr-input-otp-focus);
-      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--wr-color-primary) 15%, transparent);
     }
 
     // A read-only box still takes focus, still answers the arrow keys and still

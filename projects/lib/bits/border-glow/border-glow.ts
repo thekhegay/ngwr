@@ -115,8 +115,9 @@ function animateValue(opts: AnimateOptions): () => void {
  * along the card's perimeter, brightening as the cursor approaches an edge.
  *
  * - Outer halo via stacked `box-shadow` on an inner `.edge-light` element.
- * - Inner "soft bloom" via `mix-blend-mode: soft-light` for content near the
- *   edges (subtle; control via `[fillOpacity]`).
+ * - Inner bloom near the edges, painted with a normal blend by default and
+ *   overridable through `--wr-border-glow-fill-blend` (subtle; control the
+ *   strength via `[fillOpacity]`).
  * - Optional `[animated]` mode performs a one-shot sweep on mount, useful
  *   for drawing attention to a freshly-rendered card.
  *
@@ -167,7 +168,7 @@ export class WrBorderGlow {
   /** How sharply the halo fades as the cursor leaves the edge. Lower = wider falloff. @default 30 */
   readonly edgeSensitivity = input(30, { transform: numAttr(30) });
 
-  /** Strength of the soft-light interior fill near edges. @default 0.5 */
+  /** Strength of the interior bloom near edges (blend: `--wr-border-glow-fill-blend`). @default 0.5 */
   readonly fillOpacity = input(0.5, { transform: numAttr(0.5) });
 
   /**

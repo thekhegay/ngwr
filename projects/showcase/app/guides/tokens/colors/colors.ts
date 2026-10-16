@@ -54,21 +54,21 @@ export default class TokensColorsPage {
     { suffix: '-lighter', label: 'lighter' },
   ];
 
-  /** The four soft-set tokens, with the alpha each is baked at. */
+  /** The four soft-set tokens, with the share of the intent each is mixed at. */
   protected readonly softTokens: readonly DocApiRow[] = [
     {
       name: '--wr-color-{intent}-soft',
-      type: 'rgba(var(--wr-color-{intent}-rgb), 0.12)',
+      type: 'color-mix(in srgb, var(--wr-color-{intent}) 12%, transparent)',
       description: 'Canonical low-alpha fill. The tinted surface behind soft badges, alerts, selected rows.',
     },
     {
       name: '--wr-color-{intent}-soft-border',
-      type: 'rgba(var(--wr-color-{intent}-rgb), 0.3)',
+      type: 'color-mix(in srgb, var(--wr-color-{intent}) 30%, transparent)',
       description: 'Matching hairline for a soft fill — the 1px border that pairs with `-soft`.',
     },
     {
       name: '--wr-color-{intent}-active',
-      type: 'rgba(var(--wr-color-{intent}-rgb), 0.2)',
+      type: 'color-mix(in srgb, var(--wr-color-{intent}) 20%, transparent)',
       description: 'Pressed / active tint — one notch stronger than `-soft` for the held state.',
     },
     {
@@ -93,7 +93,7 @@ export default class TokensColorsPage {
   protected readonly neutralTokens: readonly DocApiRow[] = [
     {
       name: '--wr-color-white',
-      type: '#ffffff → #0b1120 (dark)',
+      type: 'light-dark(#ffffff, #0b1120)',
       description: 'The page surface. Flips to a deep slate canvas in dark mode.',
     },
     {
@@ -108,30 +108,25 @@ export default class TokensColorsPage {
         'Generic subtle hover tint (icon buttons, list rows). Adapts in dark because each theme sets its own gray ramp.',
     },
     {
-      name: '--wr-border-strong',
-      type: 'rgba(var(--wr-color-gray-4-rgb), 0.5)',
-      description: 'Default divider / border. Translucent so it reads on any surface.',
-    },
-    {
       name: '--wr-border-subtle',
-      type: 'rgba(var(--wr-color-gray-4-rgb), 0.35)',
+      type: 'var(--wr-color-gray-3)',
       description: 'Quieter hairline — for low-emphasis separators.',
     },
     {
       name: '--wr-border-strong',
-      type: 'rgba(var(--wr-color-gray-4-rgb), 0.6)',
+      type: 'light-dark(var(--wr-color-gray-400), var(--wr-color-gray-600))',
       description: 'Heavier border — for focused or emphasized edges.',
     },
     {
       name: '--wr-color-overlay',
-      type: 'rgba(var(--wr-color-backdrop-rgb), 0.45)',
-      description: 'Modal / drawer scrim. Built on `-backdrop-rgb` so it stays a black dim in both themes.',
+      type: 'color-mix(in srgb, var(--wr-color-backdrop) 45%, transparent)',
+      description: 'Modal / drawer scrim. Built on `--wr-color-backdrop` so it stays a black dim in both themes.',
     },
     {
-      name: '--wr-color-backdrop-rgb',
-      type: '0, 0, 0',
+      name: '--wr-color-backdrop',
+      type: '#000000',
       description:
-        'Always-black channel for scrims. Not wired to `--wr-color-on-surface-rgb`, which would flip to a white wash in dark.',
+        'Always-black base for scrims. Not wired to `--wr-color-on-surface`, which would turn the dim into a white wash in dark.',
     },
     {
       name: '--wr-color-text-muted',
@@ -224,7 +219,7 @@ export default class TokensColorsPage {
     },
     {
       name: '--wr-focus-ring-halo',
-      type: 'rgba(var(--wr-color-primary-rgb), 0.25)',
+      type: 'color-mix(in srgb, var(--wr-color-primary) 25%, transparent)',
       description:
         'The soft second channel. It used to be the ONLY channel, at 1.41:1 light / 1.31:1 dark, alongside an `outline: none` — so no part of the indicator met the bar.',
     },
@@ -278,9 +273,9 @@ export default class TokensColorsPage {
   background: var(--wr-color-danger-active);         /* α 0.20 */
 }`,
 
-    rgb: `/* The -rgb channel composes any alpha you need at the call site. */
+    alpha: `/* Any token at any alpha: mix it toward transparent where you use it. */
 .ring {
-  box-shadow: 0 0 0 4px rgba(var(--wr-color-primary-rgb), 0.2);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--wr-color-primary) 20%, transparent);
 }`,
 
     gray: `/* Fixed slate primitive — does NOT flip; pick a step by job. */
@@ -330,27 +325,34 @@ export class Palette {
   readonly colors = WR_COLORS;
 }`,
 
-    dark: `/* The neutrals swap roles; four intents are re-tuned for the canvas
-   (primary, success, warning, danger). Only info keeps its light value.
-   Each theme SETS its own six-step ramp rather than deriving one:
-   --wr-color-white  = page surface   → #0b1120 in dark
-   --wr-color-gray-6 = body text      → #e6ebf3 in dark
-   --wr-color-gray-5 = muted text     → #9aa6b8 in dark
-   --wr-color-gray-4 = borders/tints  → #262f44 in dark
-   --wr-color-gray-1 = faintest wash  → #0f1625 in dark
+    dark: `/* What the theme declares, once, on :root. Each token that differs
+   between the schemes carries both sides; the neutral ramp is SET per scheme
+   rather than derived, and four intents are re-tuned for the dark canvas.
+   :root {
+     color-scheme: light dark;
+     --wr-color-white: light-dark(#ffffff, #0b1120);   page surface
+     …
+   }
 
    Read them through the roles — --wr-color-on-surface, -on-surface-muted,
-   -outline — rather than the steps: the role names the job, and lighter is
+   --wr-border-base — rather than the steps: the role names the job, and lighter is
    what makes text legible on a dark canvas, the opposite direction from a
    fill. */
-[data-theme='dark'] {
-  /* set automatically by provideWrTheme(); shown here for reference */
-}
 
 /* So this card needs NO dark-mode override — the tokens carry it: */
 .card {
   background: var(--wr-color-surface);   /* light page / dark canvas */
   color: var(--wr-color-on-surface);     /* dark ink   / light ink   */
+}
+
+/* And a subtree takes the other scheme by saying so: */
+.promo {
+  color-scheme: dark;
+}
+
+/* Your own colours follow the same way: */
+.callout {
+  border-color: light-dark(#c7d2fe, #3730a3);
 }`,
   };
 
@@ -359,7 +361,7 @@ export class Palette {
       kind: 'Guide',
       title: 'Theming',
       url: ['/guides', 'theming'],
-      description: 'Wiring `provideWrTheme()`, the dark-mode toggle, and rebranding the palette at build or runtime.',
+      description: 'Dark mode through `color-scheme`, the `WrTheme` toggle, and rebranding the palette through Sass.',
     },
     {
       kind: 'Guide',

@@ -6,8 +6,8 @@
 .wr-kbd {
   // Override these on `:root` / a scope to retheme every keycap at once.
   --wr-kbd-bg: var(--wr-color-surface);
-  --wr-kbd-border: rgba(var(--wr-color-on-surface-rgb), 0.18);
-  --wr-kbd-border-bottom: rgba(var(--wr-color-on-surface-rgb), 0.32);
+  --wr-kbd-border: color-mix(in srgb, var(--wr-color-on-surface) 18%, transparent);
+  --wr-kbd-border-bottom: color-mix(in srgb, var(--wr-color-on-surface) 32%, transparent);
   --wr-kbd-color: var(--wr-color-on-surface);
   --wr-kbd-radius: var(--wr-control-radius-md);
   // The bevel — chunky bottom border plus drop shadow — is what sells the
@@ -15,10 +15,10 @@
   // fixed px while the cap grew 22 -> 28 -> 34px, so at `lg` the same 3px of
   // depth read as a hairline under a third more keycap.
   --wr-kbd-depth: 1px;
-  // Shadow uses the always-black backdrop token, not `--wr-color-on-surface-rgb`
-  // — the dark RGB flips to light in dark mode, which would turn the
+  // Shadow uses the always-black backdrop token, not `--wr-color-on-surface`
+  // — that one flips to light in dark mode, which would turn the
   // drop-shadow into a top highlight.
-  --wr-kbd-shadow: 0 var(--wr-kbd-depth) 0 rgba(var(--wr-color-backdrop-rgb), 0.25);
+  --wr-kbd-shadow: 0 var(--wr-kbd-depth) 0 color-mix(in srgb, var(--wr-color-backdrop) 25%, transparent);
   // Use the system UI stack first — symbol glyphs (⌘, ⇧, ⌥, ⌃) render
   // properly in SF Pro / Segoe UI / Cantarell, but turn into mojibake
   // boxes in many monospace fonts. Mono is the fallback for ASCII.

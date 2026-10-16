@@ -44,7 +44,7 @@
     box-sizing: border-box;
     border: 1px solid var(--wr-color-surface);
     cursor: move;
-    box-shadow: 0 0 0 1px rgba(var(--wr-color-primary-rgb), 0.6);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--wr-color-primary) 60%, transparent);
 
     &:focus-visible {
       @include theme.focus-ring;
@@ -73,7 +73,7 @@
     background: var(--wr-color-surface);
     border: 1px solid var(--wr-color-primary);
     border-radius: 50%;
-    box-shadow: 0 0 0 1px rgba(var(--wr-color-black-rgb), 0.15);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--wr-color-black) 15%, transparent);
     box-sizing: border-box;
 
     // Position each handle by its edge / corner. The whole set stays physical:

@@ -24,6 +24,8 @@ interface ProviderSpec {
 // too, but neither ships a provider — they expose the injectable services
 // `WrLoadingBar` / `WrCookie` and need no bootstrap wiring at all, so offering
 // to splice a provider for them only ever produced code that would not compile.
+// `ngwr/theme` is absent for the same reason since v15: `WrTheme` is
+// root-provided and the scheme follows the OS with nothing in `providers`.
 const PROVIDERS: Record<ProviderName, ProviderSpec> = {
   overlay: { subpath: 'ngwr/overlay', factory: 'provideWrOverlay', call: 'provideWrOverlay()' },
   icons: {
@@ -51,7 +53,6 @@ const PROVIDERS: Record<ProviderName, ProviderSpec> = {
   },
   density: { subpath: 'ngwr/density', factory: 'provideWrDensity', call: 'provideWrDensity()' },
   storage: { subpath: 'ngwr/storage', factory: 'provideWrStorage', call: 'provideWrStorage()' },
-  theme: { subpath: 'ngwr/theme', factory: 'provideWrTheme', call: 'provideWrTheme()' },
 };
 
 function provider(options: Schema): Rule {

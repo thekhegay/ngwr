@@ -45,9 +45,9 @@ const LANGUAGES: Readonly<Record<string, ShikiLang>> = {
  * serving the palette that was current when the block first rendered. `shiki`'s
  * `defaultColor: 'light-dark()'` sidesteps the problem by making the colour
  * itself theme-aware: `light-dark(#A0111F, #FF9492)` is resolved by the browser
- * against the `color-scheme` the theme layer already sets on `:root`
- * (`light` in `_colors.scss`, `dark` in `_dark.scss`), so one cached span is
- * correct in both themes and a theme flip needs no re-highlight at all.
+ * against the `color-scheme` in effect — the theme layer's `light dark` on
+ * `:root`, or the side `WrTheme` pins — so one cached span is correct in both
+ * themes and a theme flip needs no re-highlight at all.
  *
  * Where `light-dark()` is unsupported the declaration is simply dropped and the
  * span inherits the code block's own colour — the same result as no highlighter.

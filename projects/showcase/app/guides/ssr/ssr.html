@@ -107,16 +107,17 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="The theme flash"
-    description="A server has no `localStorage` and no `prefers-color-scheme`, so every prerendered page ships the same theme attribute — `light` under the default config — and a dark-mode visitor sees a white page until the bundle boots. No provider can close that window: by the time Angular runs, the browser has painted."
+    title="The theme on a prerendered page"
+    description="A prerendered page carries no theme of its own: the server writes no `color-scheme`, and the stylesheet's `light dark` lets the browser pick the visitor's OS side before its first paint. So `auto` needs no script. Only an EXPLICIT choice can flash — the server cannot read the `localStorage` it was saved to, and by the time Angular runs the browser has painted."
   >
     <ngwr-doc-code [code]="snippets.theme" language="angular-ts" />
 
     <p>
-      <code>wrThemePrePaintScript()</code> emits the blocking reader for <code>&lt;head&gt;</code>, spelling the
-      persisted mode exactly the way <code>WrTheme</code> and <code>WrStorage</code> agree to write it. The options, the
-      full output and the CSP note live on the <a routerLink="/reference/services/theme">WrTheme page</a> — this section
-      exists so you find it from here.
+      <code>wrThemePrePaintScript()</code> emits the blocking reader for <code>&lt;head&gt;</code>: it reads the
+      persisted mode exactly the way <code>WrTheme</code> and <code>WrStorage</code> write it, and for
+      <code>light</code> or <code>dark</code> sets <code>color-scheme</code> on <code>&lt;html&gt;</code> before the
+      first paint. The options, the full output and the CSP note live on the
+      <a routerLink="/reference/services/theme">WrTheme page</a> — this section exists so you find it from here.
     </p>
   </ngwr-doc-section>
 

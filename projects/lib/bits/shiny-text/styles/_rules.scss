@@ -31,10 +31,10 @@
 
 .wr-shiny-text {
   // Theme-default sweep (overridden by `[color]` / `[shineColor]`):
-  // gray base with a dark shine on light surfaces; dark theme restores
-  // the reactbits gray-with-white-flash below.
-  --wr-shiny-text-base: var(--wr-color-on-surface-muted, #8594a4);
-  --wr-shiny-text-shine: var(--wr-color-on-surface, #0f172a);
+  // gray base with a dark shine on light surfaces, the reactbits
+  // gray-with-white-flash on dark.
+  --wr-shiny-text-base: light-dark(var(--wr-color-on-surface-muted, #8594a4), #b5b5b5);
+  --wr-shiny-text-shine: light-dark(var(--wr-color-on-surface, #0f172a), #ffffff);
 
   // Overridden per host by the component; 1 means "no rest", which is the
   // default `delay: 0` and the right answer for a bare stylesheet consumer.
@@ -104,7 +104,7 @@
   background: linear-gradient(
     110deg,
     var(--wr-color-on-surface) 30%,
-    rgba(var(--wr-color-primary-rgb), 0.9) 50%,
+    color-mix(in srgb, var(--wr-color-primary) 90%, transparent) 50%,
     var(--wr-color-on-surface) 70%
   );
   background-size: 200% 100%;

@@ -34,9 +34,9 @@
     // so the shimmer is visible over the reserved area while loading.
     background: linear-gradient(
       90deg,
-      rgba(var(--wr-color-surface-rgb), 0) 0%,
-      rgba(var(--wr-color-surface-rgb), 0.45) 50%,
-      rgba(var(--wr-color-surface-rgb), 0) 100%
+      transparent 0%,
+      color-mix(in srgb, var(--wr-color-surface) 45%, transparent) 50%,
+      transparent 100%
     );
     background-size: 200% 100%;
     animation: wr-lightbox-shimmer 1.4s linear infinite;
@@ -110,7 +110,7 @@
 }
 
 .wr-lightbox-backdrop {
-  background: rgba(var(--wr-color-backdrop-rgb), 0.85);
+  background: color-mix(in srgb, var(--wr-color-backdrop) 85%, transparent);
 }
 
 .wr-lightbox-overlay {
@@ -155,8 +155,13 @@
     padding: 0;
     border: 0;
     border-radius: var(--wr-lightbox-viewer-close-radius);
-    background: rgba(var(--wr-color-surface-rgb), 0.12);
-    color: rgba(var(--wr-color-surface-rgb), 0.9);
+    // White in BOTH schemes, as a literal. The control sits on the backdrop,
+    // which is black in both, while every role token follows the scheme:
+    // `--wr-color-surface`, which this used to read, is near-black in dark, so
+    // the button, its focus ring and the caption below all but vanished into
+    // the backdrop — and `--wr-color-white` turns into the dark canvas too.
+    background: rgb(255 255 255 / 12%);
+    color: rgb(255 255 255 / 90%);
     cursor: pointer;
     transition:
       background 0.15s ease,
@@ -165,7 +170,7 @@
     @include theme.touch-target($positioned: true); // 36px -> 44px tap area on touch
 
     &:hover {
-      background: rgba(var(--wr-color-surface-rgb), 0.2);
+      background: rgb(255 255 255 / 20%);
     }
 
     &:active {
@@ -173,7 +178,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid rgba(var(--wr-color-surface-rgb), 0.9);
+      outline: 2px solid rgb(255 255 255 / 90%);
       outline-offset: 2px;
     }
   }
@@ -194,7 +199,8 @@
     --wr-lightbox-viewer-caption-font-family: var(--wr-font-family-base);
     --wr-lightbox-viewer-caption-font-size: var(--wr-text-sm);
 
-    color: rgba(var(--wr-color-surface-rgb), 0.85);
+    // On the backdrop, so white in both schemes — see `__close`.
+    color: rgb(255 255 255 / 85%);
     font-family: var(--wr-lightbox-viewer-caption-font-family);
     font-size: var(--wr-lightbox-viewer-caption-font-size);
     text-align: center;

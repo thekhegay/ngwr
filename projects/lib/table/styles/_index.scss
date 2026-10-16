@@ -42,16 +42,11 @@
   // because it has to be raised for the dark canvas and the geometry cannot
   // come from `--wr-shadow-*` — the offset leans per direction, so the two
   // rules below differ only in the sign. The alphas mirror `--wr-shadow-sm`,
-  // whose own dark value goes from 15% to 45% under the note in `_dark.scss`:
-  // "Black shadows at light-mode alphas vanish on the deep canvas". This was
-  // a hard `rgba(0, 0, 0, 0.18)` with no dark counterpart, so on the deep
-  // canvas the one cue that a column is pinned all but disappeared.
-  --wr-table-pin-shadow-ink: rgb(0 0 0 / 18%);
-
-  @include theme.dark {
-    --wr-table-pin-shadow-ink: rgb(0 0 0 / 45%);
-  }
-
+  // whose own dark side goes from 15% to 45% because black shadows at
+  // light-mode alphas vanish on the deep canvas. This was a hard
+  // `rgba(0, 0, 0, 0.18)` with no dark counterpart, so on the deep canvas the
+  // one cue that a column is pinned all but disappeared.
+  --wr-table-pin-shadow-ink: light-dark(rgb(0 0 0 / 18%), rgb(0 0 0 / 45%));
   --wr-table-resize-handle-bg: var(--wr-border-base);
   --wr-table-tree-lead-margin-end: var(--wr-space-xs);
   --wr-table-tree-toggle-radius: var(--wr-border-radius-sm);
@@ -533,7 +528,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(var(--wr-color-surface-rgb), 0.7);
+    background: color-mix(in srgb, var(--wr-color-surface) 70%, transparent);
     backdrop-filter: blur(2px);
     // Above the pinned sticky cells (th z-index 2), so loading veils them too.
     z-index: 3;
@@ -1110,7 +1105,7 @@
   text-transform: var(--wr-table-head-transform, none);
   white-space: nowrap;
   border-radius: var(--wr-border-radius-sm);
-  box-shadow: 0 8px 12px rgba(var(--wr-color-backdrop-rgb), 0.24);
+  box-shadow: 0 8px 12px color-mix(in srgb, var(--wr-color-backdrop) 24%, transparent);
   // The preview must track the cursor 1:1 — never animate its transform.
   transition: none;
 }

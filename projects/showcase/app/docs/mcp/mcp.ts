@@ -133,7 +133,7 @@ Docs: https://ngwr.dev/reference/components/alert`,
 
 ## 1. Install
 ng add ngwr
-(prompts for styles, date adapter, density and theme, and prints a bootstrap snippet)
+(prompts for styles, date adapter and density, and prints a bootstrap snippet)
 
 ## 2. Wire each symbol into the component that uses it
 ng g ngwr:use WrSelect --path src/app/some.component.ts   # ngwr/select

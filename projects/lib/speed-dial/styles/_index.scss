@@ -209,7 +209,7 @@
     color: var(--wr-color-on-surface);
     cursor: pointer;
     // The token, like the TRIGGER forty lines above — not a hand-rolled alpha.
-    // This used to be `rgba(var(--wr-color-backdrop-rgb), 0.18)`, which is the
+    // This used to be a hand-rolled 18% backdrop-black shadow, which is the
     // LIGHT theme's figure hard-coded into both: `--wr-shadow-float` is 18% in
     // light and 55% in dark precisely because a floating surface needs more
     // separation there. With an 18% black shadow on a near-black canvas, a fill

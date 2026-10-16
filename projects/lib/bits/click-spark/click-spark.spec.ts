@@ -334,6 +334,21 @@ describe('WrClickSpark', () => {
     expect([...new Set(strokes)]).toEqual(['rgb(1, 2, 3)']);
   });
 
+  it('resolves a token that holds a `light-dark()` pair', async () => {
+    withContext();
+    await mount();
+    // The theme declares its colours this way, and no canvas reads one: Chromium
+    // and WebKit refuse it and keep the previous stroke, Firefox paints the light
+    // half in every scheme. jsdom resolves the light half, as a browser does with
+    // no dark scheme in effect.
+    host().style.setProperty('--wr-color-on-surface', 'light-dark(rgb(1, 2, 3), rgb(4, 5, 6))');
+
+    const t0 = clickAt();
+    runFrame(t0, 1);
+
+    expect([...new Set(strokes)]).toEqual(['rgb(1, 2, 3)']);
+  });
+
   it('falls back to a dark literal when the token resolves to nothing', async () => {
     withContext();
     await mount();
@@ -346,7 +361,21 @@ describe('WrClickSpark', () => {
     expect([...new Set(strokes)]).toEqual(['#0f172a']);
   });
 
-  it('passes a plain colour through untouched', async () => {
+  it('falls back to the same literal for a spark colour that is not a colour', async () => {
+    withContext();
+    await mount();
+    // A canvas ignores a string it cannot parse and keeps whatever it stroked
+    // with last, which is black on a fresh context — invisible on a dark page.
+    fixture.componentInstance.sparkColor.set('not-a-colour');
+    fixture.detectChanges();
+
+    const t0 = clickAt();
+    runFrame(t0, 1);
+
+    expect([...new Set(strokes)]).toEqual(['#0f172a']);
+  });
+
+  it('paints a plain colour as the colour it names', async () => {
     withContext();
     await mount();
     fixture.componentInstance.sparkColor.set('#ff0000');
@@ -355,7 +384,8 @@ describe('WrClickSpark', () => {
     const t0 = clickAt();
     runFrame(t0, 1);
 
-    expect([...new Set(strokes)]).toEqual(['#ff0000']);
+    // Resolved like any other input, so it reaches the canvas in computed form.
+    expect([...new Set(strokes)]).toEqual(['rgb(255, 0, 0)']);
   });
 
   it('tears down the frame loop and the observer it installed', async () => {

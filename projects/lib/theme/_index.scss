@@ -19,52 +19,32 @@
 // `@use 'ngwr/theme'` is what the docs have always told people to write, so the
 // fix goes here rather than into a second entry point they would have to learn.
 // The cost is that every wrapper repeats a signature, which is a place for two
-// declarations to drift — so this stays the set a consumer writes in a COMPONENT
-// stylesheet, and everything else keeps coming through the forward.
+// declarations to drift — so this stays the set a consumer calls from their own
+// stylesheets, and everything else keeps coming through the forward. `rebrand()`
+// and `contrast()` joined it in v15, when a compile-time rebrand became the way
+// to carry a brand colour into the dark scheme.
 //
 // Two ordering rules, both load-bearing:
 //
 // `@forward` comes FIRST. It is the load that accepts configuration, so
-// `@use 'ngwr/theme' with ($theme-attribute: 'data-color-mode')` reaches the module
-// through it. Put the `@use` above and Sass refuses the whole build with "This
-// module was already loaded, so it can't be configured using with".
+// `@use 'ngwr/theme' with ($base-colors: (…))` reaches the module through it.
+// Put the `@use` above and Sass refuses the whole build with "This module was
+// already loaded, so it can't be configured using with".
 //
 // `hide` names exactly what is re-declared below. Without it the forwarded
 // original and the wrapper collide under one name.
 //
-// A VARIABLE cannot be wrapped — `$theme-attribute` has to stay forwarded to
-// stay configurable, so it is the one member that keeps resolving only in the
+// A VARIABLE cannot be wrapped — `$base-colors`, `$contrast-dark`,
+// `$contrast-light` and `$ink-mix-more` have to stay forwarded to stay
+// configurable, so they are the members that keep resolving only in the
 // compiler and not in the editor.
-@forward 'styles' hide dark, dark-selector, smooth-br, touch-target, focus-ring;
+//
+// There is no dark-mode helper here, and that is the v15 design rather than a
+// gap: a dark value is the second argument of a `light-dark()` in any
+// declaration, in a global stylesheet and a component stylesheet alike, with
+// no selector for encapsulation to rewrite.
+@forward 'styles' hide smooth-br, touch-target, focus-ring, rebrand, contrast;
 @use 'styles' as base;
-
-/// The dark-theme selector, for a stylesheet that has to build its own.
-///
-/// @example scss
-///   #{theme.dark-selector()} .my-thing { ... }
-@function dark-selector() {
-  @return base.dark-selector();
-}
-
-/// Wrap a declaration block so it only applies in dark mode, honouring
-/// `$theme-attribute`. Works in a global stylesheet and in an Angular component
-/// stylesheet alike — see the docblock on the implementation for how.
-///
-/// @example scss
-///   @use 'ngwr/theme' as theme;
-///
-///   .my-card {
-///     background: #fff;
-///
-///     @include theme.dark {
-///       background: #0b1120;
-///     }
-///   }
-@mixin dark {
-  @include base.dark {
-    @content;
-  }
-}
 
 /// iOS-style smooth corners, degrading to a plain radius where `corner-shape`
 /// is unsupported.
@@ -81,4 +61,16 @@
 /// `--wr-focus-ring-*`.
 @mixin focus-ring {
   @include base.focus-ring;
+}
+
+/// Re-emit an intent's whole token set on the current selector, from one seed —
+/// or from two, the second for the dark scheme.
+@mixin rebrand($colors, $dark: ()) {
+  @include base.rebrand($colors, $dark);
+}
+
+/// The label colour a fill gets: whichever of `$contrast-dark` /
+/// `$contrast-light` scores higher against `$c` on WCAG contrast ratio.
+@function contrast($c) {
+  @return base.contrast($c);
 }

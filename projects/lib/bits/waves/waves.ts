@@ -29,7 +29,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr } from 'ngwr/utils';
+import { numAttr, resolveCssColor } from 'ngwr/utils';
 
 // Perlin noise (Stefan Gustavson's reference permutation)
 /* eslint-disable no-bitwise -- permutation-table hashing is inherently bitwise */
@@ -157,7 +157,7 @@ interface WavePoint {
   },
 })
 export class WrWaves {
-  /** Line stroke colour. When unset, the theme decides. */
+  /** Line stroke colour, any CSS colour. When unset, the theme decides. */
   readonly lineColor = input<string | null>(null);
 
   /** Background fill behind the lines. @default 'transparent' */
@@ -411,12 +411,15 @@ export class WrWaves {
     ctx.stroke();
   }
 
-  /** Explicit input wins; otherwise the theme's `--wr-waves-line-color`. */
+  /**
+   * Explicit input wins; otherwise the theme's `--wr-waves-line-color`. Either
+   * is resolved through the cascade before it reaches `strokeStyle`, which
+   * reads neither a custom property nor the `light-dark()` the hook holds.
+   * Called on every draw, so a colour-scheme change lands on the next frame.
+   */
   private resolveLineColor(): string {
-    const explicit = this.lineColor();
-    if (explicit !== null) return explicit;
-    const themed = getComputedStyle(this.host.nativeElement).getPropertyValue('--wr-waves-line-color').trim();
-    return themed || 'rgba(15, 23, 42, 0.12)';
+    const expression = this.lineColor() ?? 'var(--wr-waves-line-color)';
+    return resolveCssColor(this.canvasRef().nativeElement, expression, 'rgba(15, 23, 42, 0.12)');
   }
 
   private updateMouse(x: number, y: number): void {

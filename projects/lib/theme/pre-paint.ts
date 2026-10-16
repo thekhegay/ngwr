@@ -10,18 +10,13 @@ import { DEFAULT_WR_THEME_CONFIG, type WrThemeMode } from './wr-theme-config';
 /** Options for {@link wrThemePrePaintScript}. All optional — defaults mirror the services. */
 export interface WrThemePrePaintOptions {
   /**
-   * The key {@link WrTheme} persists the mode under — `provideWrTheme({ storageKey })`.
+   * The key {@link WrTheme} persists the mode under — `storageKey` in
+   * `WR_THEME_CONFIG`.
    * @default 'wr-theme'
    */
   readonly storageKey?: string;
   /**
-   * The attribute written on `<html>` — `provideWrTheme({ attribute })`, which
-   * has to agree with `@use 'ngwr/theme' with ($theme-attribute: '…')`.
-   * @default 'data-theme'
-   */
-  readonly attribute?: string;
-  /**
-   * What to resolve when nothing is persisted — `provideWrTheme({ defaultMode })`.
+   * What to apply when nothing is persisted — `defaultMode` in `WR_THEME_CONFIG`.
    * @default 'auto'
    */
   readonly defaultMode?: WrThemeMode;
@@ -42,32 +37,35 @@ export interface WrThemePrePaintOptions {
 }
 
 /**
- * Source of the blocking script that resolves the theme BEFORE first paint.
+ * Source of the blocking script that applies a persisted theme BEFORE first
+ * paint.
  *
- * A server has no `localStorage` and no `prefers-color-scheme`, so every
- * server-rendered or prerendered page ships the same attribute — `light` under
- * the default config — and a dark-mode visitor sees a white page until the
- * client bundle boots and {@link WrTheme}'s effect corrects it. That window is
- * milliseconds on localhost and seconds on a slow connection, and it is not
- * something the service can close from inside the application: by the time
- * Angular runs, the paint has happened.
+ * `auto` needs no script: the stylesheet declares `color-scheme: light dark`, so
+ * a page follows the OS from its first frame. What a server cannot know is a
+ * CHOICE — it has no `localStorage` — so a visitor who picked dark on a light OS
+ * sees a light page until the client bundle boots and {@link WrTheme}'s effect
+ * writes the scheme. That window is milliseconds on localhost and seconds on a
+ * slow connection, and it is not something the service can close from inside
+ * the application: by the time Angular runs, the paint has happened.
  *
  * The only fix is a script that runs before the first paint, and the only thing
  * it needs to know is how {@link WrTheme} and `WrStorage` agree to spell the
  * persisted mode. That agreement — the key, the prefix, the JSON envelope
- * `{ v, e }`, the expiry, the `auto` fallback — is what this function writes
- * out, so an app never has to re-derive it from the bundle and never has to keep
- * a hand-copied version in step with a library upgrade.
+ * `{ v, e }`, the expiry, the default-mode fallback — is what this function
+ * writes out, so an app never has to re-derive it from the bundle and never has
+ * to keep a hand-copied version in step with a library upgrade. What it writes is
+ * what the service writes: `color-scheme` inline on `<html>` for `light` or
+ * `dark`, and nothing for `auto`.
  *
  * Returns the JS source WITHOUT a `<script>` wrapper, so it can be inlined into
  * `index.html`, emitted from an SSR template, or hashed for a CSP
  * `script-src 'sha256-…'`. It is plain ES5 with no dependency on the app bundle,
  * and every step is wrapped so a blocked `localStorage` (private mode, a
- * sandboxed iframe) leaves the prerendered default in place rather than throwing
+ * sandboxed iframe) leaves the page on the OS scheme rather than throwing
  * before anything has rendered.
  *
- * Pass the same values given to `provideWrTheme()` / `provideWrStorage()`; the
- * defaults here are the defaults there.
+ * Pass the same values the app gives `WR_THEME_CONFIG` / `provideWrStorage()`;
+ * the defaults here are the defaults there.
  *
  * @example
  * ```ts
@@ -82,15 +80,13 @@ export interface WrThemePrePaintOptions {
  */
 export function wrThemePrePaintScript(options: WrThemePrePaintOptions = {}): string {
   const key = (options.storagePrefix ?? '') + (options.storageKey ?? DEFAULT_WR_THEME_CONFIG.storageKey ?? 'wr-theme');
-  const attribute = options.attribute ?? DEFAULT_WR_THEME_CONFIG.attribute;
   const defaultMode = options.defaultMode ?? DEFAULT_WR_THEME_CONFIG.defaultMode;
   const json = options.json ?? true;
 
   // Every interpolated value goes through JSON.stringify rather than into a
-  // quoted literal: a key or an attribute name is a configuration string, and a
-  // hand-rolled `'${x}'` turns an apostrophe in one into a syntax error at best.
+  // quoted literal: a key is a configuration string, and a hand-rolled `'${x}'`
+  // turns an apostrophe in one into a syntax error at best.
   const k = JSON.stringify(key);
-  const a = JSON.stringify(attribute);
   const d = JSON.stringify(defaultMode);
 
   // Reading the envelope mirrors `WrStorage.get`, including its fall-throughs:
@@ -110,9 +106,7 @@ export function wrThemePrePaintScript(options: WrThemePrePaintOptions = {}): str
     `try{r=window.localStorage.getItem(${k});}catch(e){}` +
     `if(r!==null){${read}}` +
     `if(m!=="light"&&m!=="dark"&&m!=="auto")m=${d};` +
-    `var dark=m==="dark"||(m==="auto"&&typeof window.matchMedia==="function"&&` +
-    `window.matchMedia("(prefers-color-scheme: dark)").matches);` +
-    `document.documentElement.setAttribute(${a},dark?"dark":"light");` +
+    `if(m==="light"||m==="dark")document.documentElement.style.colorScheme=m;` +
     `}catch(e){}})();`
   );
 }

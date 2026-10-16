@@ -3,20 +3,6 @@
 // These are the canonical knobs every component reads from. Consumers
 // override them on `:root` (or any subtree) without touching SCSS.
 
-/// The tokens here that are composed out of one the THEME re-tunes, kept in a
-/// mixin so `_dark.scss` can re-declare them on the themed element. See the long
-/// note above `colors.derived()`: a `var()` inside a custom property is
-/// substituted where it is DECLARED, so a `:root` composition inherits into a
-/// scoped `[data-theme="dark"]` subtree as the light literal.
-///
-/// Only the ring. The other compositions in this file — `--wr-control-font-size-*`,
-/// `--wr-transition-*`, `--wr-overlay-*` — read sizes and durations, which no
-/// theme flips, so freezing them is the same value either way.
-@mixin derived-focus-ring() {
-  --wr-focus-ring-color: var(--wr-color-primary);
-  --wr-focus-ring-halo: rgba(var(--wr-color-primary-rgb), 0.25);
-}
-
 :root {
   // Spacing — one scale for padding, margin AND gap.
   //
@@ -97,11 +83,20 @@
   // consistent across the catalog and dark mode can strengthen every
   // shadow in one place. Functional hairlines (switch knob, splitter
   // grip, color-picker rings) stay local — they aid contrast, not depth.
-  --wr-shadow-xs: 0 1px 2px rgb(0 0 0 / 5%);
-  --wr-shadow-sm: 0 2px 8px rgb(0 0 0 / 15%);
-  --wr-shadow-overlay: 0 8px 24px rgb(0 0 0 / 12%), 0 2px 4px rgb(0 0 0 / 6%);
-  --wr-shadow-float: 0 8px 24px rgb(0 0 0 / 18%);
-  --wr-shadow-modal: 0 20px 48px rgb(0 0 0 / 25%);
+  //
+  // Each layer's colour is a `light-dark()`: black at light-mode alphas
+  // vanishes on the deep canvas, so dark keeps the geometry and uses much
+  // stronger ink, and panels keep reading as layers. `-modal` is the one whose
+  // GEOMETRY differs as well, and `light-dark()` holds only a colour — so it is
+  // two layers, each `transparent` in the other scheme, which reproduces both
+  // shadows exactly rather than averaging them into one neither scheme had.
+  --wr-shadow-xs: 0 1px 2px light-dark(rgb(0 0 0 / 5%), rgb(0 0 0 / 35%));
+  --wr-shadow-sm: 0 2px 8px light-dark(rgb(0 0 0 / 15%), rgb(0 0 0 / 45%));
+  --wr-shadow-overlay:
+    0 8px 24px light-dark(rgb(0 0 0 / 12%), rgb(0 0 0 / 50%)), 0 2px 4px light-dark(rgb(0 0 0 / 6%), rgb(0 0 0 / 35%));
+  --wr-shadow-float: 0 8px 24px light-dark(rgb(0 0 0 / 18%), rgb(0 0 0 / 55%));
+  --wr-shadow-modal:
+    0 20px 48px light-dark(rgb(0 0 0 / 25%), transparent), 0 24px 56px light-dark(transparent, rgb(0 0 0 / 60%));
 
   // Disabled
   //
@@ -144,10 +139,14 @@
   // insets its outline (`outline-offset: -2px`, the idiom for a row inside an
   // `overflow: hidden` container) keeps the halo outside, where its own clipping
   // hides it.
-  // `-color` and `-halo` are composed off `--wr-color-primary`, so they live in
-  // `derived-focus-ring()` at the top of this file, included at the end of `:root`.
+  //
+  // `-color` and `-halo` read `--wr-color-primary`, which is a `light-dark()`,
+  // so they follow the scheme with no second declaration. The halo is a mix
+  // toward `transparent`, the 25% tint it always was.
   --wr-focus-ring-width: 2px;
   --wr-focus-ring-offset: 2px;
+  --wr-focus-ring-color: var(--wr-color-primary);
+  --wr-focus-ring-halo: color-mix(in srgb, var(--wr-color-primary) 25%, transparent);
 
   // Z-index scale
   //
@@ -236,8 +235,6 @@
   --wr-tracking-wide: 0.025em;
   --wr-tracking-wider: 0.05em;
   --wr-tracking-widest: 0.1em;
-
-  @include derived-focus-ring;
 }
 
 // Shared open animation for overlay panels. Every overlay component

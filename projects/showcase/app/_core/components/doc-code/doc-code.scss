@@ -1,8 +1,8 @@
 :host {
   --ngwr-doc-code-padding: 1rem;
   --ngwr-doc-code-radius: var(--wr-border-radius-base);
-  // A FILL role, deliberately not `rgba(var(--wr-border-base-rgb), 0.2)`,
-  // which is what this was. `--wr-border-base` is a BORDER token, and
+  // A FILL role, deliberately not a 20% wash of `--wr-border-base`, which is
+  // what this was. `--wr-border-base` is a BORDER token, and
   // `prefers-contrast: more` darkens it on purpose so hairlines stay visible —
   // which turned the code well from `#f5f7f9` into `#e3e8ef` and dropped the
   // shiki comment colour (`#66707b`, fixed by the theme and not a `--wr-*`)
@@ -37,11 +37,10 @@
 // The strip and the code body are ONE control, so they share one surface: the
 // strip paints nothing and lets the host's `--ngwr-doc-code-bg` through, and a
 // hairline rule is what separates header from body. It used to carry its own
-// `rgba(var(--wr-color-dark-rgb), 0.04)` over a host tinted with
-// `rgba(var(--wr-color-light-rgb), 0.2)` — two different fills, mixed from two
-// different bases, so the block read as two mismatched slabs stacked with no
-// boundary between them (worst in dark, where one tint is warm-neutral over a
-// blue one).
+// 4% wash of the old `dark` intent over a host tinted 20% with the old `light`
+// one — two different fills, mixed from two different bases, so the block read
+// as two mismatched slabs stacked with no boundary between them (worst in dark,
+// where one tint is warm-neutral over a blue one).
 //
 // The rule is an inset shadow rather than `border-bottom` so the active tab's
 // own 2px indicator paints directly OVER the line instead of stacking above
@@ -137,18 +136,14 @@
 
 // Shiki ships both `github-light-high-contrast` and `github-dark-high-contrast`
 // palettes as CSS vars
-// (`--shiki-light` / `--shiki-dark`) per token. Toggle which one wins
-// against the active theme so syntax highlighting tracks the rest of
-// the UI instead of staying stuck on light colors over the dark canvas.
+// (`--shiki-light` / `--shiki-dark`) per token. `light-dark()` picks the one
+// matching the `color-scheme` in effect, so syntax highlighting tracks the
+// rest of the UI — a subtree forced to `color-scheme: dark` included —
+// instead of staying stuck on light colors over the dark canvas.
 :host ::ng-deep .shiki,
 :host ::ng-deep .shiki span {
-  color: var(--shiki-light);
+  color: light-dark(var(--shiki-light), var(--shiki-dark));
   background-color: transparent;
-}
-
-:host-context([data-theme='dark']) ::ng-deep .shiki,
-:host-context([data-theme='dark']) ::ng-deep .shiki span {
-  color: var(--shiki-dark);
 }
 
 .copy {
@@ -165,7 +160,7 @@
   padding: 0;
   border: 0;
   border-radius: var(--wr-border-radius-sm);
-  background: rgba(var(--wr-color-on-surface-rgb), 0.25);
+  background: color-mix(in srgb, var(--wr-color-on-surface) 25%, transparent);
   // The ink's own partner, NOT `--wr-color-white`. The scrim is 25% of the INK
   // channel, so it composites toward the SURFACE — and `--wr-color-white` is
   // the token for the opposite case, a label on a dark fill. Both flip with
@@ -187,7 +182,7 @@
     opacity var(--wr-transition-base);
 
   &:hover {
-    background: rgba(var(--wr-color-primary-rgb), 0.375);
+    background: color-mix(in srgb, var(--wr-color-primary) 37.5%, transparent);
   }
 }
 

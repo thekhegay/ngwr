@@ -43,9 +43,10 @@ import { describe, expect, it } from 'vitest';
  * guess: reading a rule BODY says nothing about the cascade. A later rule
  * setting `min-inline-size: 0` on either control would defeat everything here
  * and leave every assertion green — demonstrated, not feared. Resolving it
- * properly means compiling the sheet, which `pnpm check:theme` does for the
- * token layer and which would cost this file a `sass` dependency the workspace
- * does not declare. The cheap half is pinned instead: this stylesheet holds
+ * properly means compiling the sheet, the way `theme/sass-entry.spec.ts` does
+ * for the token layer through the `sass` that `@angular/build` resolves, and
+ * then reading the cascade out of the output, which nothing here does yet. The
+ * cheap half is pinned instead: this stylesheet holds
  * exactly one `(pointer: coarse)` block and exactly two `touch-target`
  * includes, so an override cannot be added silently.
  */

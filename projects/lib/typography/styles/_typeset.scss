@@ -1,5 +1,3 @@
-@use '../../theme/styles' as theme;
-
 // Long-form text, ported from `@tailwindcss/typography` (the base `prose`
 // size). Put `.wr-typeset` on a container; mark anything inside it that is not
 // text — a demo, a code block, a table of data — with `.wr-not-typeset`.
@@ -14,41 +12,30 @@
 $skip: ':not(:where(.wr-not-typeset, .wr-not-typeset *))';
 
 .wr-typeset {
-  --wr-typeset-body: var(--wr-color-gray-700);
+  // Headings, links, quotes and code take `on-surface`, which each scheme sets.
+  // The fixed gray scale is the same in both, so the rest carries its own dark
+  // step, inverted step for step as the original's `prose-invert`. Not
+  // `--wr-color-white`: in dark that is the canvas.
+  --wr-typeset-body: light-dark(var(--wr-color-gray-700), var(--wr-color-gray-300));
   --wr-typeset-headings: var(--wr-color-on-surface);
-  --wr-typeset-lead: var(--wr-color-gray-600);
+  --wr-typeset-lead: light-dark(var(--wr-color-gray-600), var(--wr-color-gray-400));
   --wr-typeset-links: var(--wr-color-on-surface);
   --wr-typeset-bold: var(--wr-color-primary-ink);
-  --wr-typeset-counters: var(--wr-color-gray-500);
+  --wr-typeset-counters: light-dark(var(--wr-color-gray-500), var(--wr-color-gray-400));
   --wr-typeset-bullets: var(--wr-color-primary);
-  --wr-typeset-hr: var(--wr-color-gray-200);
+  --wr-typeset-hr: light-dark(var(--wr-color-gray-200), var(--wr-color-gray-700));
   --wr-typeset-quotes: var(--wr-color-on-surface);
-  --wr-typeset-quote-borders: var(--wr-color-gray-200);
-  --wr-typeset-captions: var(--wr-color-gray-500);
+  --wr-typeset-quote-borders: light-dark(var(--wr-color-gray-200), var(--wr-color-gray-700));
+  --wr-typeset-captions: light-dark(var(--wr-color-gray-500), var(--wr-color-gray-400));
   --wr-typeset-code: var(--wr-color-on-surface);
   --wr-typeset-pre-bg: var(--wr-color-fill);
-  --wr-typeset-th-borders: var(--wr-color-gray-300);
-  --wr-typeset-td-borders: var(--wr-color-gray-200);
+  --wr-typeset-th-borders: light-dark(var(--wr-color-gray-300), var(--wr-color-gray-600));
+  --wr-typeset-td-borders: light-dark(var(--wr-color-gray-200), var(--wr-color-gray-700));
 
   color: var(--wr-typeset-body);
   max-width: 65ch;
   font-size: 1rem;
   line-height: 1.75;
-
-  // Headings, links, quotes and code take `on-surface`, which each theme sets.
-  // The fixed gray scale is not re-declared by the dark theme, so the rest is
-  // inverted here, step for step as the original's `prose-invert`. Not
-  // `--wr-color-white`: the dark theme turns that into the canvas.
-  @include theme.dark {
-    --wr-typeset-body: var(--wr-color-gray-300);
-    --wr-typeset-lead: var(--wr-color-gray-400);
-    --wr-typeset-counters: var(--wr-color-gray-400);
-    --wr-typeset-hr: var(--wr-color-gray-700);
-    --wr-typeset-quote-borders: var(--wr-color-gray-700);
-    --wr-typeset-captions: var(--wr-color-gray-400);
-    --wr-typeset-th-borders: var(--wr-color-gray-600);
-    --wr-typeset-td-borders: var(--wr-color-gray-700);
-  }
 
   :where(p)#{$skip} {
     margin-top: 1.25em;

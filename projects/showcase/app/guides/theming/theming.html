@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="Theming"
-  description="ngwr is themed entirely with CSS custom properties — no SCSS rebuild required for most changes. Wire up the providers, load the stylesheet, and you get light + dark out of the box with a palette you can rebrand at compile time or at runtime."
-  [keywords]="['theme', 'theming', 'dark mode', 'palette', 'rebrand', 'css variables']"
+  description="ngwr is themed entirely with CSS custom properties. Load the stylesheet and you get light and dark out of the box, following the OS through `color-scheme`; switch it with `WrTheme`, put any subtree in the other scheme, write your own dark values with `light-dark()`, and rebrand the palette at compile time."
+  [keywords]="['theme', 'theming', 'dark mode', 'color-scheme', 'light-dark', 'palette', 'rebrand', 'css variables']"
   [labels]="['Core']"
 >
   <ngwr-doc-section
     title="Wire it up"
-    description="Two providers: theme (mode + persistence) and density (spacing scale)."
+    description="One provider, for the spacing scale. The theme needs none: dark mode is CSS, and `WrTheme` is root-provided."
   >
     <ngwr-doc-code [code]="snippets.provider" language="angular-ts" />
   </ngwr-doc-section>
@@ -20,7 +20,7 @@
 
   <ngwr-doc-section
     title="Light / dark / auto"
-    description="`mode` is what the user picked. `resolved()` is what the DOM actually has — `auto` resolves through `prefers-color-scheme`. Writes `data-theme` on `<html>` and persists via WrStorage."
+    description="The theme declares `color-scheme: light dark` on `:root`, so the page follows the OS with no JavaScript. `WrTheme` is the switch on top: `mode` is what the user picked and `resolved()` the scheme in effect. An explicit pick is written as `color-scheme` on `<html>` and persisted through `WrStorage`; `auto` clears it again. On a prerendered page `auto` needs nothing, and an explicit pick needs the [pre-paint script](/reference/services/theme) to land before first paint."
   >
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
@@ -40,38 +40,56 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Renaming the theme attribute"
-    description="`provideWrTheme({ attribute })` moves the attribute `WrTheme` writes on `&lt;html&gt;` — useful when another design system on the page already owns `data-theme`. It has a second half: a CSS selector cannot read a provider value, so the stylesheet takes the same name as the Sass variable `$theme-attribute`, and **the two must be set to the same string**. Set only the provider and dark mode silently never applies — the service reports `resolved() === 'dark'`, the attribute lands on `&lt;html&gt;`, and nothing matches it. In development `WrTheme` compares the two and warns when they disagree; the compiled stylesheet publishes what it keys on as `--wr-theme-attribute` so it can."
+    title="One subtree in the other scheme"
+    description="`color-scheme` inherits, and every token resolves its `light-dark()` where it is USED — so `color-scheme: dark` on any element puts its whole subtree in the dark palette with nothing re-declared, whatever the page around it is doing."
   >
-    <ngwr-doc-code [code]="snippets.attribute" language="scss" />
+    <ngwr-doc-snippet code="">
+      <div
+        style="
+          color-scheme: dark;
+          display: flex;
+          gap: 0.75rem;
+          align-items: center;
+          flex-wrap: wrap;
+          padding: 1rem;
+          border-radius: 0.5rem;
+          background: var(--wr-color-surface);
+          color: var(--wr-color-on-surface);
+        "
+      >
+        <span>Always dark</span>
+        <button wr-btn type="button" color="primary">Primary</button>
+        <button wr-btn type="button">Default</button>
+      </div>
+    </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="snippets.subtree" language="angular-html" />
+    <p>
+      <strong>Overlays follow the ROOT scheme, not the subtree's.</strong> A select, dropdown or dialog opened from
+      inside renders its panel into the overlay container at the end of <code>&lt;body&gt;</code>, outside the element
+      that set the scheme. When the panel has to match, hand it the scheme through the overlay's
+      <code>panelClass</code>.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Dark mode in a component stylesheet"
-    description="The same mixin, and it emits TWO rules to get there. Angular's emulated encapsulation appends `_ngcontent-…` to every compound of a selector, the ancestor included, so a plain `[data-theme=\'dark\'] .login` is shimmed into `[data-theme=dark][_ngcontent-x] .login[_ngcontent-x]` — and `&lt;html&gt;` carries no such attribute, so the rule compiles, ships, and matches nothing. `:host-context()` is the one form Angular leaves the ancestor untagged in, so the mixin writes both and lets whichever cannot match in a given compilation sit inert. Two rules rather than one selector list, deliberately: `:host-context()` is Chromium-only, and an unknown pseudo-class invalidates the whole list it sits in, so sharing one would take the working arm down with it wherever the pseudo-class reaches a browser instead of being compiled away."
+    title="Your own dark values"
+    description="Write both sides in one declaration with `light-dark()`. It works the same in a global stylesheet and in a component stylesheet — there is no selector for Angular's encapsulation to rewrite — and it follows a forced scheme or a dark subtree the way the tokens do. It takes colours only: `light-dark(1px, 2px)` is invalid, so a value that is not a colour cannot differ between the schemes."
   >
     <ngwr-doc-code [code]="snippets.componentDark" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Rebrand — at compile time"
-    description="Configure the palette on the token layer's own `@use`, which has to be the first ngwr line in the file. NGWR re-derives all variants (dark, darker, light, lighter, contrast) — **in the light theme, which is the whole of what `$base-colors` configures.** Dark mode does not follow, and that is a boundary rather than an oversight: the dark intents are hand-tuned for the dark canvas, not lightened from the light ones. `success` and `danger` are moved 33% and 21% so their labels can go white on a dark ground, `warning` is deliberately left where it is because white cannot reach it at any tone worth shipping, and `primary` is deepened for the same flip — a direction no formula would take on its own. Deriving dark from your seed would swap a visibly wrong colour for an invisible failing contrast ratio, so the library refuses to guess and hands you the same arithmetic instead: `theme.rebrand()`, wrapped in `theme.dark`. Pick the dark seed FOR the dark canvas — usually lighter than the light one — and measure it."
+    description="Configure the palette on the token layer's own `@use`, which has to be the first ngwr line in the file. NGWR re-derives all variants (dark, darker, light, lighter, contrast) — **for the light scheme, which is the whole of what `$base-colors` configures.** The dark side does not follow, and that is a boundary rather than an oversight: the dark intents are hand-tuned for the dark canvas, not lightened from the light ones. `success` and `danger` are moved 33% and 21% so their labels can go white on a dark ground, `warning` is deliberately left where it is because white cannot reach it at any tone worth shipping, and `primary` is deepened for the same flip — a direction no formula would take on its own. Deriving dark from your seed would swap a visibly wrong colour for an invisible failing contrast ratio, so the library refuses to guess and hands you the same arithmetic instead: `theme.rebrand()` on `:root`, whose second argument is the dark side. Pick the dark seed FOR the dark canvas — usually lighter than the light one — and measure it."
   >
     <ngwr-doc-code [code]="snippets.paletteScss" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Rebrand — one subtree"
-    description="Recolouring a section is `theme.rebrand()` on that selector, and hand-writing the three obvious properties is not enough — it leaves every derived token on the page's own hue, in two different ways. The four shades (`-dark`, `-darker`, `-light`, `-lighter`) are Sass arithmetic resolved at compile time, so no runtime value reaches them and a pink button turns blue on hover, which paints `-dark`. The tint and ink family (`-soft`, `-soft-border`, `-soft-contrast`, `-active`, `-ink`) IS written in terms of `var()` — but a custom property's references are substituted on the element that declares it, and those are declared on `:root`, so what inherits into your section is the substituted literal. An outlined button inside a pink `.marketing` drew a pink border around blue text. The mixin does both halves: it recomputes the shades and re-includes the composed tokens on your element, where they resolve against your base."
+    description="Recolouring a section is `theme.rebrand()` on that selector, and hand-writing the two obvious properties is not enough — it leaves every derived token on the page's own hue, in two different ways. The four shades (`-dark`, `-darker`, `-light`, `-lighter`) are Sass arithmetic resolved at compile time, so no runtime value reaches them and a pink button turns blue on hover, which paints `-dark`. The tint and ink family (`-soft`, `-soft-border`, `-soft-contrast`, `-active`, `-ink`) IS written in terms of `var()` — but a custom property's references are substituted on the element that declares it, and those are declared on `:root`, so what inherits into your section is the substituted literal. An outlined button inside a pink `.marketing` drew a pink border around blue text. The mixin does both halves: it recomputes the shades and re-includes the composed tokens on your element, where they resolve against your base. An intent you name only in the first map takes its seed in BOTH schemes; name it in the second as well to give the subtree a dark side. It is compile-time, so the seed has to be known when your stylesheet is built — there is no runtime rebrand, because the four shades are Sass arithmetic that no value set in the browser can reach."
   >
     <ngwr-doc-code [code]="snippets.paletteScoped" language="scss" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Rebrand — at runtime"
-    description="Override the CSS variables on `:root`. Set the base color, the `-rgb` channel — components use it for `rgba()` rings and tints — and the `-contrast`, which is the one the compile-time path derives for you and this one does not: it was baked from the old fill, so a runtime base change leaves the label behind. Re-pick it the way the theme does, by taking whichever of black or white scores higher against the new fill. On `:root` the tint and ink family re-resolves by itself, because it is declared on the same element you are overriding; the four shades still cannot, so set those too — or let `wrThemeTokens()` compute all seven from one hex, which is what it is for."
-  >
-    <ngwr-doc-code [code]="snippets.paletteRoot" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section

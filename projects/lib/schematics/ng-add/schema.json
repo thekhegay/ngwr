@@ -18,7 +18,7 @@
         "none"
       ],
       "default": "theme",
-      "description": "How to wire ngwr styles. `theme` appends `@use 'ngwr/theme';` to the project's global stylesheet \u2014 the token layer, which is the line that can carry `with ($theme-attribute: ...)`. `none` skips. Component styles are opt-in either way, via `ng g ngwr:component-style <name>`: there is no umbrella entry point.",
+      "description": "How to wire ngwr styles. `theme` appends `@use 'ngwr/theme';` to the project's global stylesheet \u2014 the token layer, which is the line that can carry `with ($base-colors: ...)`. `none` skips. Component styles are opt-in either way, via `ng g ngwr:component-style <name>`: there is no umbrella entry point.",
       "x-prompt": {
         "message": "How should ngwr styles be wired?",
         "type": "list",
@@ -91,39 +91,6 @@
           {
             "value": "lg",
             "label": "lg \u2014 relaxed spacing"
-          }
-        ]
-      }
-    },
-    "theme": {
-      "type": "string",
-      "enum": [
-        "none",
-        "light",
-        "dark",
-        "system"
-      ],
-      "default": "none",
-      "description": "Theme starter for `data-theme` on `<html>`. `system` auto-switches via `prefers-color-scheme`.",
-      "x-prompt": {
-        "message": "Theme starter?",
-        "type": "list",
-        "items": [
-          {
-            "value": "none",
-            "label": "None \u2014 stay on lib defaults"
-          },
-          {
-            "value": "light",
-            "label": "Light"
-          },
-          {
-            "value": "dark",
-            "label": "Dark"
-          },
-          {
-            "value": "system",
-            "label": "System \u2014 auto-switch via prefers-color-scheme"
           }
         ]
       }

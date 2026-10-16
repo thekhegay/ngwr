@@ -31,6 +31,7 @@ export const UTILS_GROUP: SidebarGroup = {
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.noop),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.numAttr),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.randomId),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.resolveCssColor),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.resolveCssSize),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.round),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.throttle),

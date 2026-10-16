@@ -48,6 +48,4 @@ jobs:
 
       - run: pnpm build:showcase
 
-      - run: pnpm check:theme
-
       - run: pnpm check:a11y

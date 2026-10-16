@@ -11,9 +11,8 @@
  *
  * Why this exists: adding a token is free and using one is not, and the gap
  * between the two is invisible to every other gate. `pnpm test` does not render,
- * `check:a11y` runs in JSDOM with no stylesheets, `check:colors` compares the
- * intent list against `WR_COLORS` and never looks at a role, and `check:theme`
- * asks whether `wrThemeTokens()` reproduces the compiled values — none of them
+ * `check:a11y` runs in JSDOM with no stylesheets, and `check:colors` compares
+ * the intent list against `WR_COLORS` and never looks at a role — none of them
  * can tell a carefully derived token from a decorative one.
  *
  * So the layer accumulated them. When this check was first written it found six
@@ -52,8 +51,8 @@
  * `scripts/lib/scss-loops.ts`, the same module `check:color-only` unrolls its
  * per-intent rules through, so the two gates cannot read one loop two ways.
  * Both directions read SCSS, which is what makes
- * the check work without a build — it belongs in `pnpm lint` rather than beside
- * `check:theme`, which needs the compiled stylesheet.
+ * the check work without a build — it belongs in `pnpm lint` rather than in a
+ * CI step after one.
  */
 
 import { readdirSync, readFileSync, statSync } from 'node:fs';
@@ -86,13 +85,14 @@ const READ_EXTENSIONS: ReadonlySet<string> = new Set(['.scss', '.html', '.ts']);
 /**
  * Two exclusions, and they are the same exclusion twice.
  *
- * A codemod's whole job is the old vocabulary: `migration-v15` carries a table
- * mapping `--wr-color-light` to `--wr-color-outline`, and its spec feeds it
- * fixtures holding every deleted name — including the orphan shades it must
- * REFUSE to rewrite, which by construction can never resolve. Scanning those is
- * asking a migration to stop naming what it migrates.
+ * A codemod's whole job is the old vocabulary: a token rename is a table
+ * mapping each deleted name to its successor, and its spec feeds it fixtures
+ * holding every deleted name — including any it must REFUSE to rewrite, which
+ * by construction can never resolve. Scanning those is asking a migration to
+ * stop naming what it migrates. No shipped migration renames a token today
+ * (v15 ships none), and the skip is what lets the next one.
  *
- * `/start/migration` is the consumer-facing half of exactly that. Its diff
+ * `/docs/migration` is the consumer-facing half of exactly that. Its diff
  * snippets show the removed name on the `-` line and its successor on the `+`
  * one, so every dangling read there is the page doing its job. Nothing else in
  * the showcase gets this: the page is the one surface whose subject is the
@@ -293,11 +293,11 @@ function consumers(): string {
  * TypeScript.** `rebrand()` re-emits an intent's whole set on a subtree and a
  * demo may set one on a wrapper, so the theme layer is not the only place a
  * name can come from. But every `--wr-color-…:` in a `.ts` file in this repo is
- * inside a printed snippet — `/guides/theming` shows a dark block declaring
- * `--wr-color-dark: #f5f6f8`, which is a picture of the OLD palette — and
- * counting those made the check answer that every read of a deleted token
- * resolved. It found 136 of them once the snippets stopped vouching for names
- * nothing declares.
+ * inside a printed snippet — `/guides/theming` once showed a dark block
+ * declaring `--wr-color-dark: #f5f6f8`, which was a picture of the OLD palette
+ * — and counting those made the check answer that every read of a deleted
+ * token resolved. It found 136 of them once the snippets stopped vouching for
+ * names nothing declares.
  */
 function danglingReads(lists: ReadonlyMap<string, LoopList>): { file: string; line: number; name: string }[] {
   const declared = new Set<string>();
@@ -317,6 +317,11 @@ function danglingReads(lists: ReadonlyMap<string, LoopList>): { file: string; li
   // not the theme's to own: `wr-border-glow` is a component, and
   // `--wr-border-glow-bg` is its hook. A greedy `--wr-border-[\w-]+` reported
   // three of those as dangling theme reads the moment it was tried.
+  //
+  // The `-rgb` arm outlived the tokens it was written for, deliberately: v15
+  // removed every channel list, and the arm is what keeps a leftover
+  // `rgba(var(--wr-border-base-rgb), …)` on this pass's books as a dangling
+  // read. A `--wr-color-…-rgb` needs no arm, since `[\w-]+` already takes it.
   const BORDER_FAMILY = 'subtle|base|strong';
   const THEME_TOKEN_DECL = new RegExp(`(--wr-(?:color-[\\w-]+|border-(?:${BORDER_FAMILY})(?:-rgb)?))\\s*:`, 'g');
   const THEME_TOKEN_READ = new RegExp(

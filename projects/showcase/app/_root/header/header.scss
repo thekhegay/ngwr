@@ -22,14 +22,13 @@
 
   padding: 0.5rem var(--wr-grid-gutter);
 
-  background: rgba(var(--wr-color-surface-rgb), 0.5);
+  background: color-mix(in srgb, var(--wr-color-surface) 50%, transparent);
   border-bottom: 1px solid var(--ngwr-header-border);
   backdrop-filter: blur(8px);
 
   &__logo {
     --ngwr-header-logo-bg: transparent;
-    // The droplet mark (`__bg`) is painted in the live primary color, so
-    // picking a preset in the settings panel recolors the logo in real time.
+    // The droplet mark (`__bg`) is painted in the primary color.
     // The inner blob (`__icon`) takes the LABEL token for that fill, which is
     // what `-contrast` is: it picks whichever of black and white scores higher
     // and lands on white for every shipped primary. It used to read
@@ -55,7 +54,7 @@
     padding: 0.25rem;
 
     &:hover {
-      --ngwr-header-logo-bg: rgba(var(--wr-color-primary-rgb), 0.125);
+      --ngwr-header-logo-bg: color-mix(in srgb, var(--wr-color-primary) 12.5%, transparent);
     }
 
     &-mark {
@@ -103,7 +102,7 @@
 
       &:hover {
         --ngwr-header-nav-link-color: var(--wr-color-primary-ink);
-        --ngwr-header-nav-link-bg: rgba(var(--wr-color-primary-rgb), 0.1);
+        --ngwr-header-nav-link-bg: color-mix(in srgb, var(--wr-color-primary) 10%, transparent);
       }
 
       // Active route — soft neutral pill (light token at low opacity)
@@ -160,46 +159,29 @@
     // }
 
     &--github {
-      --ngwr-header-action-icon-color: #24292e;
+      // GitHub brand black (#24292e) sits ~on the dark canvas (#0b1120), so
+      // the dark side rests the silhouette on plain white and mirrors the
+      // hover pair. Literals, not `--wr-color-white` / `-black`: the brand
+      // colour is fixed, so its label is too. 14.67:1 either way round.
+      --ngwr-header-action-icon-color: light-dark(#24292e, #fff);
 
-      // A literal, not `--wr-color-white`: the surface is GitHub's fixed
-      // brand black, so its label cannot flip with the theme. 14.67:1.
       &:hover {
-        --ngwr-header-action-icon-color: #fff;
-        --ngwr-header-action-icon-bg: #24292e;
-      }
-
-      // GitHub brand black (#24292e) sits ~on the dark canvas (#0b1120)
-      // → invisible. Rest the silhouette on plain white (literal — the
-      // --wr-color-white token flips to the canvas color in dark mode),
-      // and mirror the hover surface/glyph pair the light-mode rule uses.
-      // :host-context, not `[data-theme] &` — the theme attribute lives
-      // on <html>, outside this component's encapsulation scope.
-      :host-context([data-theme='dark']) & {
-        --ngwr-header-action-icon-color: #fff;
-
-        &:hover {
-          --ngwr-header-action-icon-color: #24292e;
-          --ngwr-header-action-icon-bg: #fff;
-        }
+        --ngwr-header-action-icon-color: light-dark(#fff, #24292e);
+        --ngwr-header-action-icon-bg: light-dark(#24292e, #fff);
       }
     }
 
     &--npm {
-      --ngwr-header-action-icon-color: #cb0201;
+      // npm brand red is dark enough that its chroma reads as muddy against
+      // the slate-900-ish canvas, so the dark side lifts the RESTING glyph to
+      // a brighter red.
+      --ngwr-header-action-icon-color: light-dark(#cb0201, #ff5050);
 
-      // Same as GitHub: npm's brand red does not flip, so neither does its
-      // label. 5.92:1, and the dark theme now needs no second rule for it.
+      // The hover pair does not flip: npm's brand red is fixed, so its white
+      // label is too. 5.92:1 in both schemes.
       &:hover {
         --ngwr-header-action-icon-color: #fff;
         --ngwr-header-action-icon-bg: #cb0201;
-      }
-
-      // npm brand red is dark enough that its chroma reads as muddy
-      // against the slate-900-ish canvas. Lift the resting glyph to
-      // a brighter red; hover keeps the brand-red surface.
-      :host-context([data-theme='dark']) & {
-        --ngwr-header-action-icon-color: #ff5050;
       }
     }
 
@@ -209,19 +191,11 @@
       // mark, so it is not held to text contrast.
       --ngwr-header-action-icon-color: #1389fd;
 
+      // The brand blue holds on the dark canvas (#0b1120) at 4.46:1, so unlike
+      // GitHub's black it needs no dark side at all.
       &:hover {
         --ngwr-header-action-icon-color: #fff;
         --ngwr-header-action-icon-bg: #1389fd;
-      }
-
-      // The brand blue holds on the dark canvas (#0b1120) at 4.46:1, so unlike
-      // GitHub's black it needs no lift — only the hover pair, which keeps the
-      // brand surface and flips the glyph the way the siblings do.
-      :host-context([data-theme='dark']) & {
-        &:hover {
-          --ngwr-header-action-icon-color: #fff;
-          --ngwr-header-action-icon-bg: #1389fd;
-        }
       }
     }
 
@@ -314,48 +288,6 @@
     }
   }
 
-  // Primary-color swatches — circular preset buttons; the chosen one gets a
-  // ring. Each swatch's own color comes from the inline `--ngwr-swatch-color`
-  // (the preset hex — feature data, not a theme token).
-  &__swatches {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  &__swatch {
-    appearance: none;
-    cursor: pointer;
-
-    width: 1.5rem;
-    height: 1.5rem;
-    padding: 0;
-
-    border: none;
-    border-radius: 50%;
-
-    background: var(--ngwr-swatch-color);
-
-    box-shadow: 0 0 0 1px rgba(var(--wr-color-on-surface-rgb), 0.12);
-
-    transition: var(--wr-transition-base);
-
-    &:hover {
-      transform: scale(1.1);
-    }
-
-    &--active {
-      box-shadow:
-        0 0 0 2px var(--wr-color-surface),
-        0 0 0 4px var(--ngwr-swatch-color);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--wr-color-primary);
-      outline-offset: 2px;
-    }
-  }
-
   // The animated menu toggle replaces the inline nav below `xl`. It opens
   // the drawer; the matching close toggle lives inside the drawer panel
   // (`&__sheet-top`) so it renders in the overlay's top layer, above the
@@ -406,7 +338,7 @@
 
       &:hover {
         color: var(--wr-color-primary-ink);
-        background: rgba(var(--wr-color-primary-rgb), 0.1);
+        background: color-mix(in srgb, var(--wr-color-primary) 10%, transparent);
       }
 
       &--active,
@@ -511,7 +443,7 @@
   //  padding: 0 0.5rem 0 0.75rem;
   //  border: 1px solid var(--ngwr-header-border);
   //  border-radius: var(--wr-border-radius-base);
-  //  background: rgba(var(--wr-color-light-rgb), 0.35);
+  //  background: color-mix(in srgb, var(--wr-color-light) 35%, transparent);
   //  color: var(--wr-color-on-surface-muted);
   //  font-size: var(--wr-text-sm);
   //  cursor: pointer;
@@ -629,11 +561,7 @@
     --wr-icon-size: 0.75rem;
 
     width: calc(var(--wr-icon-size) * 4.3924);
-    color: #003dff;
-  }
-
-  :host-context([data-theme='dark']) & .wr-icon {
-    color: #fff;
+    color: light-dark(#003dff, #fff);
   }
 
   &:hover,

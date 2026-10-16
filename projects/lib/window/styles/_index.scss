@@ -209,7 +209,7 @@
       width: 0.875rem; // 14px — bigger than the prior 12px to match native
       height: 0.875rem;
       border-radius: 50%;
-      color: rgba(var(--wr-color-black-rgb), 0.55); // glyph color (revealed on hover)
+      color: color-mix(in srgb, var(--wr-color-black) 55%, transparent); // glyph color (revealed on hover)
 
       &--close,
       &--close:hover {
@@ -398,7 +398,7 @@
   position: fixed;
   pointer-events: none;
   z-index: var(--wr-z-window, 1100);
-  background: rgba(var(--wr-color-primary-rgb), 0.18);
+  background: color-mix(in srgb, var(--wr-color-primary) 18%, transparent);
   border: 2px solid var(--wr-color-primary);
   border-radius: var(--wr-window-snap-hint-radius);
   transition: all 0.12s ease;

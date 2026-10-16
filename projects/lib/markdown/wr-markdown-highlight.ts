@@ -137,9 +137,10 @@ export class WrMarkdownHighlight {
    *
    * @example
    * ```ts
+   * const theme = inject(WrTheme);
    * const highlight = inject(WrMarkdownHighlight);
    * effect(() => {
-   *   theme.current();
+   *   theme.resolved();
    *   highlight.invalidate();
    * });
    * ```

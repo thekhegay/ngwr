@@ -31,7 +31,7 @@
   z-index: 999;
   pointer-events: none;
   border-radius: var(--wr-tour-spotlight-radius);
-  box-shadow: 0 0 0 9999px rgba(var(--wr-color-backdrop-rgb), 0.55);
+  box-shadow: 0 0 0 9999px color-mix(in srgb, var(--wr-color-backdrop) 55%, transparent);
   transition:
     top var(--wr-transition-base),
     left var(--wr-transition-base),
@@ -61,7 +61,7 @@
   color: var(--wr-color-on-surface);
   border: 1px solid var(--wr-tour-popup-border);
   @include theme.smooth-br(var(--wr-tour-popup-radius));
-  box-shadow: 0 12px 24px rgba(var(--wr-color-backdrop-rgb), 0.24);
+  box-shadow: 0 12px 24px color-mix(in srgb, var(--wr-color-backdrop) 24%, transparent);
   font-family: var(--wr-tour-popup-font-family);
 
   &__progress {

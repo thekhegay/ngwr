@@ -10,12 +10,12 @@
   --wr-calendar-day-radius: var(--wr-border-radius-sm);
   --wr-calendar-cell-size: 2rem;
   --wr-calendar-accent: var(--wr-color-primary);
-  --wr-calendar-accent-rgb: var(--wr-color-primary-rgb);
   --wr-calendar-accent-contrast: var(--wr-color-primary-contrast);
   // The accent used AS TEXT — a different direction from `-contrast`, which is the
   // label ON an accent fill. Its own companion rather than a hard-coded
   // `--wr-color-primary-ink`, so a consumer overriding `--wr-calendar-accent` can
-  // carry the text role with it; the same reason `-rgb` and `-contrast` are here.
+  // carry the text role with it; the same reason `-contrast` is here. The range
+  // tints need no companion: they mix the accent itself, so they follow it.
   --wr-calendar-accent-ink: var(--wr-color-primary-ink);
   --wr-calendar-font-family: var(--wr-font-family-base);
   --wr-calendar-gap: var(--wr-space-sm);
@@ -213,12 +213,12 @@
     }
 
     &--in-range {
-      background: rgba(var(--wr-calendar-accent-rgb), 0.12);
+      background: color-mix(in srgb, var(--wr-calendar-accent) 12%, transparent);
       border-radius: 0;
     }
 
     &--range-preview {
-      background: rgba(var(--wr-calendar-accent-rgb), 0.06);
+      background: color-mix(in srgb, var(--wr-calendar-accent) 6%, transparent);
       border-radius: 0;
     }
 

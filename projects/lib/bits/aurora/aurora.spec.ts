@@ -54,13 +54,16 @@ let painted: number;
 let frames: FrameRequestCallback[];
 /** `disconnect()` calls on the resize observer. */
 let disconnects: number;
+/** The last colour-stop uniform, flattened to nine 0–1 channels. */
+let stops: number[];
 
 /**
  * Enough of WebGL2 for `boot()` to reach its last line, and nothing more.
  *
- * Every call is a no-op, except two: `getShaderParameter` answers that the shader
+ * Every call is a no-op, except three: `getShaderParameter` answers that the shader
  * compiled, because a stub that says otherwise makes the component log a shader
- * error that is the stub's fault and not the code's; and `drawArrays` is counted.
+ * error that is the stub's fault and not the code's; `drawArrays` is counted; and
+ * `uniform3fv` keeps the colour stops, the one uniform whose value comes from CSS.
  * jsdom also has no `ResizeObserver`, which `boot()` installs one line after the
  * context, so the spec supplies the smallest one it can disconnect.
  */
@@ -69,6 +72,9 @@ const withContext = (): void => {
     getShaderParameter: () => true,
     drawArrays: () => {
       painted++;
+    },
+    uniform3fv: (_location: unknown, data: Float32Array) => {
+      stops = Array.from(data);
     },
   };
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
@@ -130,6 +136,7 @@ describe('WrAurora', () => {
     painted = 0;
     disconnects = 0;
     frames = [];
+    stops = [];
     await mount();
   });
 
@@ -192,6 +199,25 @@ describe('WrAurora', () => {
     // The other half of the same branch. Without it the test above would pass on
     // a component that never draws anything at all.
     expect(painted).toBeGreaterThan(first);
+  });
+
+  it('feeds the shader resolved stops, never text a uniform cannot hold', async () => {
+    withContext();
+    await mount();
+    // The theme declares each stop as a `light-dark()` pair, and the old hex-only
+    // parser turned that into `NaN` channels. What reaches the uniform has to be
+    // the computed colour, in either shape a browser hands back: `rgb()` with
+    // 0–255 channels, and `color(srgb …)` with 0–1 channels for a `color-mix()`.
+    // jsdom resolves a `light-dark()` to its light half, as a browser does with no
+    // dark scheme in effect.
+    const aurora = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-aurora')!;
+    aurora.style.setProperty('--wr-aurora-stop-1', 'light-dark(rgb(255, 0, 0), rgb(0, 0, 0))');
+    aurora.style.setProperty('--wr-aurora-stop-2', 'color-mix(in srgb, rgb(0, 0, 255) 50%, transparent)');
+    aurora.style.setProperty('--wr-aurora-stop-3', '#00ff00');
+
+    runFrame();
+
+    expect(stops).toEqual([1, 0, 0, 0, 0, 1, 0, 1, 0]);
   });
 
   it('tears down the listener, the observer and the frame it installed', async () => {

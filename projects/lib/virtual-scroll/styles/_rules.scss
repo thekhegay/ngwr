@@ -22,7 +22,7 @@
       height: 0.5rem;
     }
     &::-webkit-scrollbar-thumb {
-      background: rgba(var(--wr-color-on-surface-rgb), 0.2);
+      background: color-mix(in srgb, var(--wr-color-on-surface) 20%, transparent);
       border-radius: var(--wr-virtual-scroll-thumb-radius);
     }
   }

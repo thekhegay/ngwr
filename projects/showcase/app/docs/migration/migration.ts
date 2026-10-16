@@ -75,12 +75,12 @@ export default class MigrationPageComponent {
 - <button [attr.aria-label]="label">
 + <button [attr.aria-label]="label()">`,
 
-    v15: `# Tokens. The first two carry the identical value in both themes, so
-# every rule rewritten this way paints exactly as it did.
+    v15: `# Tokens. The first four carry the identical value in both themes, so
+# every rule renamed this way paints exactly as it did.
 - border: 1px solid var(--wr-color-light);
 + border: 1px solid var(--wr-border-base);
-- background: rgba(var(--wr-color-light-rgb), 0.4);
-+ background: rgba(var(--wr-border-base-rgb), 0.4);
+- border: 1px solid var(--wr-color-outline);
++ border: 1px solid var(--wr-border-base);
 - color: var(--wr-color-dark);
 + color: var(--wr-color-on-surface);
 - color: var(--wr-color-muted-text);
@@ -90,6 +90,15 @@ export default class MigrationPageComponent {
 # the role replacing it is calibrated as TEXT.
 - color: var(--wr-color-medium);
 + color: var(--wr-color-on-surface-muted);
+
+# The translucent border strengths are opaque steps of the ramp now, in the
+# order their names promise — the old "strong" was weaker than the outline.
+- border-color: var(--wr-color-border);
++ border-color: var(--wr-border-strong);
+- border-color: var(--wr-color-border-strong);
++ border-color: var(--wr-border-strong);
+- border-color: var(--wr-color-border-subtle);
++ border-color: var(--wr-border-subtle);
 
 # Two values that were named after a removed intent and never painted one.
 - <p wrTypography tone="dark">Heading</p>
@@ -103,19 +112,60 @@ export default class MigrationPageComponent {
 - .wr-typography--tone-medium { ... }
 + .wr-typography--tone-muted { ... }
 
-# NOT rewritten. There is no replacement a codemod can pick.
+# No one-for-one replacement: pick the colour yourself.
   <wr-btn color="secondary">Go</wr-btn>
   <wr-tag color="dark">Archived</wr-tag>
   var(--wr-color-secondary-ink)
   var(--wr-color-light-lighter)`,
 
-    v15Sortable: `# The entry point moved. Rewritten for you, both specifiers.
+    v15Scheme: `# Dark overrides: one declaration with both sides, no selector.
+- .hero { background: #fff; }
+- [data-theme='dark'] .hero { background: #0b1120; }
++ .hero { background: light-dark(#fff, #0b1120); }
+
+- .panel {
+-   --app-panel: var(--wr-color-gray-100);
+-   @include theme.dark { --app-panel: var(--wr-color-gray-800); }
+- }
++ .panel { --app-panel: light-dark(var(--wr-color-gray-100), var(--wr-color-gray-800)); }
+
+# Forcing a scheme: color-scheme, on the root or on any subtree.
+- <html data-theme="dark">
++ <html style="color-scheme: dark">
+- <section data-theme="dark">…</section>
++ <section style="color-scheme: dark">…</section>
+
+# The provider. WrTheme needs none; the config moved to its token. The
+# provider also created the service at boot, which is what applied 'dark'
+# before anything injected it — keep that with one initializer.
+- provideWrTheme({ defaultMode: 'dark', attribute: 'data-mode' }),
++ { provide: WR_THEME_CONFIG, useValue: { ...DEFAULT_WR_THEME_CONFIG, defaultMode: 'dark' } },
++ provideEnvironmentInitializer(() => inject(WrTheme)),
+
+# Channels: mix toward transparent, the alpha becomes the percentage.
+- box-shadow: 0 0 0 4px rgba(var(--wr-color-primary-rgb), 0.2);
++ box-shadow: 0 0 0 4px color-mix(in srgb, var(--wr-color-primary) 20%, transparent);
+- background: rgba(var(--wr-color-backdrop-rgb), 0.45);
++ background: color-mix(in srgb, var(--wr-color-backdrop) 45%, transparent);
+- background: rgba(var(--wr-color-light-rgb), 0.4);
++ background: color-mix(in srgb, var(--wr-border-base) 40%, transparent);`,
+
+    v15Paths: `- import { WrBarChart } from 'ngwr/bar-chart';
++ import { WrBarChart } from 'ngwr/charts/bar-chart';
+- import { WrAurora } from 'ngwr/aurora';
++ import { WrAurora } from 'ngwr/bits/aurora';
+
+- @use 'ngwr';
++ @use 'ngwr/theme';
++ @use 'ngwr/charts/bar-chart';
++ @use 'ngwr/bits/aurora';`,
+    v15Sortable: `# The entry point moved, both specifiers.
 - import { WrSortableList } from 'ngwr/drag-drop';
 + import { WrSortableList, WrSortableItem } from 'ngwr/sortable-list';
 - @use 'ngwr/drag-drop';
 + @use 'ngwr/sortable-list';
 
-# The row did not. This half is yours.
+# And the row moved into your template.
   <wr-sortable-list [(items)]="rows" (reorder)="onReorder($event)">
 -   <ng-template let-row let-i="index">
 -     <div class="row">{{ i + 1 }}. {{ row.label }}</div>
@@ -152,8 +202,8 @@ export default class MigrationPageComponent {
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
 # One command, whatever major you are on: ng update installs the latest
 # release and applies every migration newer than the version you had, oldest
-# first. From v6 that is every migration in the collection. v10 and v11 ship
-# none, so there is nothing to skip.
+# first. From v6 that is every migration in the collection. v10, v11 and v15
+# ship none, so there is nothing to skip — v15's changes are yours to make.
 # Never target a 7.x, 8.x or 9.x release: their schematics do not load.
 #
 # v14 rewrites its six renames and REPORTS the rest.
