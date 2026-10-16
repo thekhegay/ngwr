@@ -54,7 +54,7 @@ markup to write. Template-driven and reactive forms bind too, with limits the
 - One import path per component (`ngwr/button`, `ngwr/select`). The only
   runtime dependency is `tslib`.
 - [Theming](https://ngwr.dev/guides/theming) through `--wr-*` CSS custom
-  properties, with light and dark modes.
+  properties, with light and dark modes that follow `color-scheme`.
 - Keyboard and screen reader support based on the WAI-ARIA patterns.
 - Translatable built-in labels and right-to-left layouts.
 - Angular CDK [test harnesses](https://ngwr.dev/guides/testing) for the form
@@ -91,7 +91,7 @@ are listed in the [installation guide](https://ngwr.dev/start/installation).
 One `@use` per thing you render, with the token layer on the first line. There
 is no umbrella entry point: each component brings the theme with it and Sass
 emits it once, but only a module's first load can take `with ()`, which is
-where `$theme-attribute` and `$base-colors` go.
+where `$base-colors` goes.
 
 ```scss
 // styles.scss

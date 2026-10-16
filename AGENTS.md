@@ -111,8 +111,8 @@ mechanical: rules go in `styles/_rules.scss`, never in `_index.scss`.** Twenty-s
 components have a `styleUrl`, and a component stylesheet is its OWN Sass
 compilation — `@use` deduplicates within one compilation, not across them — so a
 `_index.scss` that both `@use`s the theme and holds the rules inlines a second
-copy of `:root`, the dark block and the box-sizing reset into the FESM bundle, at
-35–42 kB apiece. It also wins the cascade over the app's own palette, since
+copy of `:root` and the box-sizing reset into the FESM bundle, at 35–42 kB
+apiece when it was measured. It also wins the cascade over the app's own palette, since
 Angular appends component `<style>` blocks after the linked stylesheet: twenty
 components were quietly reverting a documented `@use 'ngwr/theme' with
 ($base-colors: …)` customisation. So `_index.scss` is the public entry (`@use
@@ -193,8 +193,8 @@ one component folder. Reach for them instead of hand-rolling:
   drive the `--wr-density-*` multipliers.
 - **Breakpoints** (`ngwr/media` + SCSS) — `WrMedia.matches('md')` returns a
   `Signal<boolean>`; SCSS mixin API via `@use 'ngwr/breakpoints'`.
-- **Theme** (`ngwr/theme`) — `provideWrTheme()` sets the `--wr-*` token layer
-  (see Styling). Global CSS is `@use 'ngwr/theme'` plus one `@use 'ngwr/<name>'`
+- **Theme** (`ngwr/theme`) — the `--wr-*` token layer is plain CSS and needs no
+  provider (see Styling). Global CSS is `@use 'ngwr/theme'` plus one `@use 'ngwr/<name>'`
   per component. **There is no umbrella and v15 removed it**: the root `exports`
   key carries no `sass` condition, so `@use 'ngwr'` does not resolve. It
   compiled every component stylesheet for whatever a page rendered — measured
@@ -209,47 +209,55 @@ one component folder. Reach for them instead of hand-rolling:
   loud: a module can be configured only at its first load, so
   `@use 'ngwr/theme' with (...)` below any component entry fails the build with
   "This module was already loaded".
-  **`provideWrTheme({ attribute })` has a Sass half and both must be set**, since
-  a CSS selector cannot read a provider value: the dark block keys on
-  `$theme-attribute` (`theme/styles/_dark.scss`, default `'data-theme'`), so a
-  renamed attribute means `@use 'ngwr/theme' with ($theme-attribute: '...')` as
-  well, on the first ngwr line in the file.
-  Only the configured name is emitted — keeping the default as a second selector
-  would re-couple ngwr to whatever other design system owns `data-theme`, which
-  is the collision the rename exists to escape. The two disagreeing used to be
-  the perfect silent failure (service reports `dark`, attribute written, page
-  stays light), so the compiled theme publishes the name it keys on as
-  `--wr-theme-attribute` and `WrTheme` warns on a mismatch in dev mode; an ABSENT
-  marker is silent on purpose, because it means "no ngwr stylesheet loaded",
-  which is every consumer's unit-test run. Style your own dark overrides with the
-  `theme.dark` mixin (or `dark-selector()`) rather than a hand-written
-  `[data-theme='dark']`. Seven animation stylesheets hardcoded that literal until
-  v14.1 and were wrong under a renamed attribute; each now keys on
-  `dark-selector()` from its own `styles/_dark.scss`, which the public Sass entry
-  loads and the component's `styleUrl` does not — a `styleUrl` is compiled when
-  the LIBRARY is built, so the attribute in it can only ever be the default, and
-  Angular appends that copy after the app's linked sheet, where it would outrank
-  the correctly named rule. `theme/styles.spec.ts` gates both halves.
-  **`theme.dark` emits TWO rules and the second is what makes it usable in a
-  CONSUMER's component stylesheet** — emulated encapsulation appends
-  `_ngcontent-…` to every compound of a selector, the ancestor included, so a
-  plain `[data-theme='dark'] .card` ships as
-  `[data-theme=dark][_ngcontent-x] .card[_ngcontent-x]` and `<html>` has no such
-  attribute: it compiled, shipped, and matched nothing for as long as the mixin
-  existed, and the showcase's own header worked around it by hand rather than
-  carrying the fix back. `:host-context()` is the one form Angular leaves the
-  ancestor untagged in, so both are written and the arm that cannot match in a
-  given compilation is inert. They are two RULES rather than one comma list
-  because `:host-context()` is Chromium-only and an unknown pseudo-class
-  invalidates the list it sits in — one list would have taken the working arm
-  down with it in Firefox and Safari, everywhere the pseudo-class reaches a
-  browser instead of being compiled away. `theme/dark-mixin.spec.ts` compiles the
-  mixin and pins all of it, including the two shapes a single `selector.replace`
-  or a bare `#{&}` would get wrong. Two things it cannot fix and the docs state
-  instead: a component stylesheet is its OWN Sass compilation, so a renamed
-  `$theme-attribute` has to be re-stated in every one of them, and `@use
-  'ngwr/theme'` there brings a second, shimmed-dead copy of the token layer with
-  it — 24 kB minified.
+  **Dark mode is the CSS standard since v15: `color-scheme` plus
+  `light-dark()`.** The theme declares `color-scheme: light dark` on `:root`, so
+  a page follows the OS with no JavaScript at all, and every token that differs
+  between the schemes is declared ONCE, as `light-dark(<light>, <dark>)`, with
+  both sides tuned by hand and independently — the dark palette is not derived
+  from the light one. Forcing a scheme is one inline style on `<html>`:
+  `WrTheme`, a root service with no provider, writes `color-scheme: light` or
+  `dark` for an explicit mode, clears its own write for `auto` (an author's
+  `<html>` scheme is left alone), keeps the choice in `WrStorage`, and writes
+  NOTHING on the server, so a prerendered page carries no inline style and an
+  OS-dark visitor gets dark from the first paint. With no provider there is no
+  environment initializer either, so the service is created on first
+  `inject()`, and that is when a stored choice or a non-`auto` `defaultMode`
+  lands — an app injects it once at boot, or a page whose first screen never
+  asks for it paints the OS scheme. `wrThemePrePaintScript()` replays the same
+  choice (a stored `light` / `dark`, else a non-`auto` `defaultMode` passed to
+  it) before the bundle boots. `color-scheme` replaced a `[data-theme='dark']`
+  block, and the defect there was the ancestor SELECTOR, not the attribute — a
+  class dies the same way: emulated encapsulation tags every compound of a
+  selector, the ancestor included, so `[data-theme='dark'] .card` in a
+  consumer's component stylesheet compiled, shipped and matched nothing, and
+  the workarounds (a `:host-context()` twin on every `theme.dark` rule, an
+  attribute name set in a provider AND in Sass, a dev-mode mismatch warning)
+  were all about that one selector. `light-dark()` is a VALUE, so it needs no ancestor, passes through
+  encapsulation untouched and resolves per element: a `color-scheme: dark` on
+  any subtree flips every token read under it with no re-declaration. Do not
+  bring an ancestor selector back. `theme.dark`, `dark-selector()` and
+  `$theme-attribute` are gone with no replacement helper — a consumer writes
+  `light-dark()` in its own declarations. Four switches were not colours and so
+  could not move (`wr-border-glow`'s two blend modes and fill scale,
+  `wr-tilt-card`'s glare blend); each carries one value chosen to read on both
+  canvases, with the reason at the line.
+  **What `light-dark()` will not do, measured in Chromium, Chrome, WebKit and
+  Firefox.** A canvas never takes it: Chromium and WebKit ignore the string and
+  keep the previous colour, while Firefox accepts it and paints the LIGHT side
+  on a dark page — so canvas and WebGL code resolves the colour first, through
+  a probe element's computed `color`, which comes back as `rgb(…)` or
+  `color(srgb r g b / a)` with 0–1 channels and never as hex. That probe is
+  `resolveCssColor(context, expression, fallback)` in `ngwr/utils`, which
+  `wr-aurora`, `wr-waves` and `wr-click-spark` share — use it rather than a
+  second copy. It is not `getPropertyValue('--wr-…')`, which returns the raw
+  declared text, `light-dark(#fff, #000)` included, in either scheme. Never register a theme
+  token with `@property … { syntax: '<color>' }` on `:root`: a registered
+  colour resolves where it is declared, and every subtree with its own
+  `color-scheme` silently keeps the root's value. It holds colours only —
+  `light-dark(1px, 2px)` is invalid and the property falls back to its initial
+  value. And an overlay follows the ROOT scheme, not its trigger's: the CDK
+  container sits under `<body>`, so a dropdown opened from a
+  `color-scheme: dark` card renders in whatever `<html>` resolves to.
   **The public Sass entry is `theme/_index.scss`, it DECLARES its API rather
   than forwarding it, and both halves of that were measured rather than
   guessed.** Editors do not read the `sass` condition of `exports`: they resolve
@@ -265,43 +273,42 @@ one component folder. Reach for them instead of hand-rolling:
   `node_modules` as well as for a bare specifier, so it is not the specifier;
   `@forward … show` does not help; and marking the directory Not Excluded or a
   Test Source Root does not either. What DOES resolve is a member the resolved
-  file declares itself — so `dark`, `dark-selector`, `smooth-br`,
-  `touch-target` and `focus-ring` are re-declared there as one-line wrappers.
+  file declares itself — so `smooth-br`, `touch-target` and `focus-ring` are
+  re-declared there as one-line wrappers. They are the set a consumer reaches
+  for in a COMPONENT stylesheet, and that `@use` still brings a second,
+  shimmed-dead copy of the token layer along, because a component stylesheet
+  is its own Sass compilation.
   Three rules hold it together and each one is a build error or a silent loss if
   broken: `@forward` comes BEFORE `@use`, because the forward is the load that
-  accepts configuration and the other order makes `@use 'ngwr/theme' with
-  ($theme-attribute: …)` refuse to compile; the forward `hide`s exactly the
-  wrapped names, or each collides with its own original; and a VARIABLE cannot
-  be wrapped, so `$theme-attribute` stays forwarded and stays the one member
-  that resolves in the compiler and not in the editor. The cost is a second copy
-  of every signature, which is why `theme/sass-entry.spec.ts` compiles the entry
-  and holds each wrapper's parameter list against the implementation's as well
-  as pinning the `exports` target, the `hide` list and the load order.
+  accepts configuration and the other order makes
+  `@use 'ngwr/theme' with ($base-colors: …)` refuse to compile; the forward
+  `hide`s exactly the wrapped names, or each collides with its own original;
+  and a VARIABLE cannot be wrapped, so `$base-colors` and the other `!default`
+  variables stay forwarded and are the members that resolve in the compiler and
+  not in the editor. The cost is a second copy of every signature, which is why
+  `theme/sass-entry.spec.ts` compiles the entry and holds each wrapper's
+  parameter list against the implementation's as well as pinning the `exports`
+  target, the `hide` list and the load order.
   **An escaped quote inside an interpolated string stops a language server
-  reading the rest of the file**, and that was the first half of the same bug:
-  `@return '[#{$theme-attribute}=\'dark\']'` sits sixteen lines above
-  `@mixin dark`, and WebStorm reported "Cannot find mixin" until it was written
-  with double quotes instead. Sass emits the identical string either way, so
-  nothing downstream moved. There were exactly two in the library and neither is
-  left; prefer double quotes for any Sass string that has to contain one.
-  **`wrThemeTokens()` is the palette recipe in TypeScript** — the same arithmetic
-  as `_colors.scss`, for a theme chosen at RUNTIME (a builder, a tenant colour). It emits **seven tokens per intent, not twelve**: the tint and
-  ink layer is written in terms of `var()`, so redefining the base and its `-rgb`
-  re-resolves `-soft`, `-soft-border`, `-soft-contrast`, `-active` and `-ink` on
-  its own, and emitting those would freeze values the stylesheet is meant to keep
-  deriving. `-contrast` IS re-derived, because it PICKS black or white and a
-  re-tuned intent otherwise keeps the label of the colour it replaced. Only the
-  LIGHT recipe — `_dark.scss` is hand-tuned (`color.scale(…, 70%)` where light
-  uses `color.adjust(…, 5%)`), so a dark seed gives a consistent dark palette, not
-  the shipped one. `pnpm check:theme` reads the BUILT stylesheet and compares every
-  shipped token (35 across the five intents when this was written — the run
-  prints both figures); it caught a missing second modulo in `hslToRgb` on its first
-  run (`((h % 360) + 360) / 60` reads as normalisation and sends 222° to sector
-  9.7 instead of 3.7, so only greys survived). `/guides/tokens/builder` exports
-  the tokens as a CSS block. **What this does not cover:** `-ink` shares are
-  calibrated against the SHIPPED bases, so a far-off seed inherits shares that no
-  longer guarantee 5:1, and `check:theme` will not notice — it compares the
-  shipped intents, not an arbitrary seed.
+  reading the rest of the file** — WebStorm reported "Cannot find mixin" for a
+  mixin declared sixteen lines below such a string until the string was
+  rewritten with double quotes, and Sass emits the identical string either way.
+  Prefer double quotes for any Sass string that has to contain one.
+  **Rebranding is compile-time only since v15.**
+  `@use 'ngwr/theme' with ($base-colors: …)` moves the LIGHT side alone,
+  because the dark intents are hand-tuned rather than derived and no formula
+  reproduces the tuning; `rebrand($colors, $dark)` carries a rebrand into both
+  schemes, its second map being the dark seeds. It re-declares every `-ink`
+  too, so it also re-emits the `prefers-contrast: more` shares from
+  `$ink-mix-more`: a `:root` rebrand comes later in source than the theme's
+  high-contrast block, at the same specificity, and without its own copy would
+  switch the 7:1 ink layer off for every intent on the page. `wrThemeTokens()`,
+  its `check:theme` gate, `gen:design-tokens` and the `/guides/tokens/builder`
+  page were deleted together: a TypeScript copy of the Sass palette arithmetic
+  needed a gate of its own to stay honest, for a runtime rebrand nothing used.
+  One limit outlived them: the `-ink` shares are calibrated against the SHIPPED
+  bases, so a seed far from them inherits shares that no longer guarantee 5:1 —
+  measure it.
 - **Date adapters** (`ngwr/date`, plus `ngwr/date/adapters/{fns,luxon}`) —
   `provideWrDateAdapter(...)` powers calendar + every date-picker mode. The three
   were `ngwr/date-adapter{,-fns,-luxon}` until v12: flat and hyphenated while
@@ -359,9 +366,8 @@ one component folder. Reach for them instead of hand-rolling:
   of those. `trackBy` went with the loop. The entry point moved with the
   component in the same release — `ngwr/drag-drop` became
   `ngwr/sortable-list`, because drag and drop is a broader idea than one
-  sortable list and the name is wanted for it. `migration-v15` rewrites the
-  import path and the `@use`, which is what a codemod moves without reading
-  the code around it.
+  sortable list and the name is wanted for it. v15 ships no codemod (see
+  Versioning), so the import path and the `@use` move by hand.
 - **Virtual scrolling** — `wr-table`, `wr-tree` and `wr-select` (search mode)
   use hand-rolled spacer-row windowing and switch to `aria-activedescendant`
   while virtual. `ngwr/virtual-scroll` is a _separate_ public component wrapping
@@ -526,7 +532,6 @@ controls projected into it — the controls themselves do not grow with it.
 | RTL source gate   | `pnpm check:rtl` (physical direction-dependent CSS with no `rtl-ok:` reason — a `pnpm lint` stage)  |
 | Dead-token gate   | `pnpm check:tokens` (a `--wr-*` nothing paints with, unless it says `unused-ok:` — a `pnpm lint` stage) |
 | Colour-only gate  | `pnpm check:color-only` (a state modifier, hand-written or unrolled from an `@each`, whose own declarations are all colour, with no `color-ok:` reason; a loop whose list it cannot resolve, or a modifier still interpolated after unrolling, needs one too — a `pnpm lint` stage) |
-| Theme parity      | `pnpm check:theme` (`wrThemeTokens()` vs the compiled `_colors.scss` — a CI step after `build:showcase`) |
 | RTL layout sweep  | `pnpm check:rtl-layout` (Chromium, LTR vs RTL overflow per route — **nightly**, not a PR gate)      |
 | Layout geometry   | `pnpm check:layout` (box sizes vs `layout-baseline.json`; `--update` re-records — **nightly**)        |
 | API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
@@ -534,7 +539,6 @@ controls projected into it — the controls themselves do not grow with it.
 | Selector map      | `pnpm gen:selectors` (every `@Component` / `@Directive` selector → symbol + subpath, for the sandbox); `check:selectors` gates the committed copy — a `pnpm lint` stage |
 | Component hooks   | `pnpm gen:css-vars` (the `--wr-<name>-*` each component publishes → the docs' CSS-variables tables); `check:css-vars` gates the committed copy |
 | Quality numbers   | `pnpm gen:quality` (entry points, harnesses, specs, gates — what `/start/quality` binds to)          |
-| Design tokens     | `pnpm gen:design-tokens` (the palette as W3C DTCG, one file per theme, read from the BUILT stylesheet — needs `build:showcase` first) |
 | Unit tests        | `pnpm test` (`ng test lib` — vitest via `@angular/build:unit-test`); `pnpm test:watch` |
 
 `pnpm test` runs **vitest** through Angular's `@angular/build:unit-test`
@@ -546,7 +550,7 @@ sit **next to the code they cover** (`math/math.spec.ts`, not a `test/` tree).
 **Codecov is wired and the number is real** — `pnpm test:coverage` writes
 `coverage/lib/lcov.info`, CI uploads it with the `CODECOV_TOKEN` secret, and
 `codecov.yml` keeps both statuses `informational: true` on purpose: the gates
-that fail a build are the nine above, and a coverage service is a badge and a PR
+that fail a build are the eight below, and a coverage service is a badge and a PR
 comment. Read the report as a POINTER rather than a target — its one real catch
 so far was `utils/css-size`, a pure-logic module with no spec at all sitting
 inside a layer this paragraph called covered. The pure-logic layer is now 100%
@@ -588,7 +592,7 @@ vitest's `-t`, so `--filter dialog` silently runs the handful of tests whose
 NAMES contain "dialog" and reports green. To run one file, pass its path to the
 builder's `include`; to be sure of a change, run the whole suite — it is
 seconds. **`pnpm lint`, `pnpm test`, the two builds, `check:api-docs`,
-`check:llms`, `check:css-vars`, `check:theme` and `check:a11y` are the nine
+`check:llms`, `check:css-vars` and `check:a11y` are the eight
 gates**, and a green run still does not mean
 a component behaves — the suite is broad now but shallow in places (see above).
 
@@ -808,12 +812,12 @@ are value-set identities, and no binding changes.
 
 **CI gates on `pnpm lint` + `pnpm test:coverage` + `pnpm check:api-docs` +
 `pnpm check:llms` + `pnpm check:css-vars` + `pnpm build:lib` +
-`pnpm build:showcase` + `pnpm check:theme` + `pnpm check:a11y`** — `test:coverage`
+`pnpm build:showcase` + `pnpm check:a11y`** — `test:coverage`
 is `pnpm test` instrumented, so the suite runs once and feeds Codecov. The list
 as CI runs it is `prGates` in `#core/generated/quality`, parsed from `ci.yml`, and
-all nine must be green (a silently
-failed lint stage once slipped past and blocked a publish). The last two need the
-prerendered site, which is why they sit after `build:showcase` rather than in the
+all eight must be green (a silently
+failed lint stage once slipped past and blocked a publish). The last one needs the
+prerendered site, which is why it sits after `build:showcase` rather than in the
 lint chain. The publish job re-runs `pnpm lint` + `pnpm build:lib` before
 shipping. Conventional-commit subjects are checked locally (commitlint
 `commit-msg` hook) and PR titles on CI.
@@ -845,21 +849,28 @@ against them, so don't rename or restructure them casually. The `--wr-*` CSS
 custom properties are public too.
 
 **Styling.** Component styles live in `styles/_index.scss`, themed through
-**CSS custom properties** (`--wr-*`), not encapsulation. The token layer (set
-by `provideWrTheme()`): five intent colors
+**CSS custom properties** (`--wr-*`), not encapsulation. The token layer
+(`@use 'ngwr/theme'`, plain CSS on `:root`): five intent colors
 `--wr-color-{primary,success,warning,danger,info}`,
-each with `-contrast / -light / -lighter / -dark / -darker / -rgb`, plus the
+each with `-contrast / -light / -lighter / -dark / -darker`, plus the
 soft set (`-soft / -soft-border / -soft-contrast / -active`) and `-ink`. **The
 neutrals are not intents** — v15 cut `secondary`, `light`, `medium` and `dark`,
 because the first was a second brand colour nobody had and the other three were
 fills wearing the names of surfaces. What replaced them is a six-step gray ramp
 (`--wr-color-gray-1` … `-6`, faintest wash to body text) that each theme SETS
 rather than mirrors, plus the semantic role aliases that resolve through it
-(`--wr-color-{surface,on-surface,on-surface-muted,placeholder,outline,hover,fill,fill-subtle,fill-strong}`).
+(`--wr-color-{surface,on-surface,on-surface-muted,placeholder,hover,fill,fill-subtle,fill-strong}`
+and the border family `--wr-border-{subtle,base,strong}`).
 A component paints with the ROLE, never with a ramp step: the step is the
 substrate, and reaching past the role is how a component ends up right in one
-theme only. Only `gray-4`, `-5` and `-6` carry a `-rgb` companion, since a
-channel list nothing composites over is a token with no consumer; plus
+theme only. **A token that differs between the schemes is declared once, as
+`light-dark(<light>, <dark>)`**, and everything derived from one (`-soft`,
+`-ink`, the role aliases) is written in terms of `var()`, so it re-resolves per
+scheme with no dark copy. **There are no `-rgb` channel lists since v15**: a
+channel list cannot be a `light-dark()` value, and
+`color-mix(in srgb, var(--wr-color-primary) 12%, transparent)` paints the same
+as the `rgba(var(--wr-color-primary-rgb), 0.12)` it replaced. Note that it
+computes to `color(srgb …)` with 0–1 channels, not to `rgba(…)`. Plus
 `--wr-border-radius-{sm,base,lg,pill}`, `--wr-text-*`, `--wr-font-weight-*`,
 `--wr-duration-*`, `--wr-ease-*`. Pull mixins and tokens from `ngwr/theme`.
 The TS `WR_COLORS` list and the SCSS `$base-colors` map must stay in sync —
@@ -899,7 +910,7 @@ draws no border at all, and nothing says so in the build, the console or a test.
 v15 is why the pass exists: cutting four intents left **220 reads across 71
 files**, nine of them in the SHIPPED library — `wr-gauge`, `wr-knob`,
 `wr-calendar-heatmap` and `wr-line-chart` each drew a neutral track or grid line
-through a token that no longer existed — and every one of the nine gates was
+through a token that no longer existed — and every gate was
 green. Scope: only the `--wr-color-*` namespace, which the theme layer owns
 entirely; a read in a template or in TypeScript counts, unlike in the first pass,
 because an inline `style` is a live rule and a printed snippet is advice someone
@@ -984,15 +995,17 @@ class name. **A property-name grep does not find them all.** `wr-calendar` paint
 today's day number through its own theming hook — `--wr-calendar-accent`, which
 defaults to `var(--wr-color-primary)` — so no search for the token's name reaches
 it. It measured 4.06:1 in dark and now has an `--wr-calendar-accent-ink` companion
-beside the existing `-rgb` and `-contrast` ones, so overriding the hook carries the
-text role with it. Sweeping every component-local alias that resolves to a bare
-intent turned up exactly one other, `--wr-alert-close`, and it is a non-issue: an
-`<svg>`, and every variant already overrides the default with `-ink`. Two more
-shapes a grep also misses and neither is actionable — `wr-shiny-text` uses
-`rgba(var(--wr-color-primary-rgb), 0.9)` as a gradient stop under
-`background-clip: text`, where there is no `-ink-rgb` to swap in, and the chart
-components take `input<string>('var(--wr-color-primary)')` as a consumer-facing
-default that specs pin. `.wr-date-picker__trigger`, `.wr-table-sort--asc`,
+beside the existing `-contrast` one, so overriding the hook carries the
+text role with it (and its tints, which `color-mix` the hook itself). Sweeping
+every component-local alias that resolves to a bare intent turned up exactly
+one other, `--wr-alert-close`, and it is a non-issue: an `<svg>`, and every
+variant already overrides the default with `-ink`. Two more
+shapes a grep also misses — `wr-shiny-text` mixes the bare `--wr-color-primary`
+into a gradient stop under `background-clip: text`, which stayed bare only
+because there was no `-ink-rgb` to swap in (with `color-mix` the swap is one
+word, and has not been measured), and the chart components take
+`input<string>('var(--wr-color-primary)')` as a consumer-facing default that
+specs pin. `.wr-date-picker__trigger`, `.wr-table-sort--asc`,
 `.wr-input-number__step` and all five `.wr-sidebar__icon` rules contain nothing but
 an `<svg>`, and WCAG holds a graphic to 3:1, which `#3567ff` clears on the dark
 canvas at 3.87. Deepening those would restyle the light theme for no accessibility
@@ -1047,8 +1060,8 @@ actually paint it, it still fails everywhere (1.60–4.17 in light, 3.65–4.84 
 dark). That tint is what `-ink` is calibrated against, so those variants take
 `-ink` regardless of how the bare intent scores on white. `-ink` and
 `-soft-contrast` are `color-mix`es toward `--wr-color-gray-6`, the ramp's ink
-step, which each theme sets for itself — so one declaration darkens in light and
-lightens in dark. For muted prose the role alias `--wr-color-on-surface-muted`
+step, which is itself a `light-dark()` pair — so one declaration darkens in light
+and lightens in dark. For muted prose the role alias `--wr-color-on-surface-muted`
 is the answer, and v15 removed the trap that used to sit beside it: the `medium`
 INTENT was a fill reading 4.63:1 on pure white and only 4.01:1 on the lightest
 surface the library paints (`#ebeff4`), where the muted role still holds 4.63:1.
@@ -1195,25 +1208,14 @@ that sequence is a position rather than an oversight:
   native attribute and rewriting one that was never ngwr's would silently
   rebind a character-width hint. The published v13 changelog cannot be edited;
   the docs that repeated it were corrected.
-- **v15 ships `migration-v15`, and the split falls somewhere new: the TOKENS
-  are rewritten and the INTENTS are not**, though one change removed both. Three
-  of the four deleted neutral families have a successor carrying the IDENTICAL
-  value in both themes — `--wr-color-light` to `--wr-color-outline`,
-  `--wr-color-dark` to `--wr-color-on-surface`, `--wr-color-muted-text` to
-  `--wr-color-on-surface-muted`, each with its `-rgb` companion — so a rewritten
-  stylesheet paints to the pixel, and `--wr-color-medium` moves one step of the
-  ramp because it was a FILL where the role replacing it is calibrated as TEXT.
-  Rewriting those is not optional: a dangling `var()` drops its whole
-  declaration silently, which is the failure the repo found 220 of in itself.
-  Every use of a removed INTENT is reported instead — `secondary` was a second
-  BRAND colour and no library can pick an app's, while `light` / `medium` /
-  `dark` were fills and what replaced them is a set of roles, so
-  `<wr-btn color="dark">` is not `<wr-btn>`. The intent detector is deliberately
-  NOT anchored to an element, the opposite call from every v14 rule: `color`
-  carrying one of those four values is ngwr's vocabulary and nobody else's, and
-  the alternative is a component list that is wrong the moment the catalog
-  grows. Nothing here steps over a tag, so `IN_TAG` is absent — the timing cases
-  stay anyway, as the guard for whoever adds the first element-scoped rule.
+- **v15 ships none, and the shape rule did not decide that.** A
+  `migration-v15` was written — it rewrote the neutral-token renames, the
+  sortable-list path and two value renames, and reported every removed intent —
+  and the maintainer deleted it on 2026-10-16 under the rule set on 2026-10-02:
+  ngwr has one consumer, so a removal is deleted outright, with no deprecation
+  and no codemod, and the migration guide describes every change instead. Do
+  not write a migration rule unless the maintainer asks for one; the shape rule
+  above still says what such a rule may rewrite if one is asked for.
 - **v14 ships `migration-v14`, split down the middle of the rule**, and that
   split is the thing to copy. It REWRITES the six renames — on `<wr-alert>`
   from `closeable` to `closable`, on `<wr-table>` from `totalItems` to `total`,
@@ -1494,10 +1496,12 @@ there is no baseline of pixel positions to rot, and it catches what neither
 one shipped catch was the slider thumb centring itself with a physical
 `translate(-50%)` against an inset that had become logical.
 
-**`--wr-color-outline` fails WCAG 1.4.11 on control borders, and that is a
-DECIDED trade — do not re-report it.** Measured: `#cbd5e1` on white is **1.48:1**
-and `#262f44` on `#0b1120` is **1.41:1**, against the 3:1 the criterion asks of
-anything that identifies a control. The token carries 107 declarations across 57
+**`--wr-border-base` fails WCAG 1.4.11 on control borders, and that is a
+DECIDED trade — do not re-report it.** It was `--wr-color-outline` until v15 and
+resolves through `--wr-color-gray-4`: measured, its light side `gray-300`
+(`#d1d5db`) on white is **1.47:1** and its dark side `#243040` on `#0b1120` is
+**1.41:1**, against the 3:1 the criterion asks of anything that identifies a
+control. The token carries 107 declarations across 57
 entry points, and only **16** are control boundaries where 1.4.11 applies
 (`input`, `input-group`, `textarea`, `select`, `checkbox`, `radio`, the switch
 track, the slider rail, `button`, `cascader`, the tree trigger, `input-otp`,
@@ -1514,9 +1518,13 @@ line beside them. The maintainer chose to keep the current hairline.
 
 Worth knowing if it is ever reopened: `#7e97b5` clears 3:1 on white but only
 reaches 2.60:1 on `#ebeff4`, the lightest surface the library paints, so the
-honest light value is `#718cad` (3.00 on that tint, 3.47 on white). **No gate
-reports this** — axe ships no non-text-contrast rule, so `check:contrast` runs
-`color-contrast` and `target-size` and neither sees a border. Five sweeps
+honest light value is `#718cad` (3.00 on that tint, 3.47 on white). That value,
+with `#566b9b` on the dark side (3.56:1 on the canvas), is what
+`theme/styles/_contrast.scss` switches the hairline to under
+`prefers-contrast: more`, where the reader has asked for the other side of the
+trade. **No gate reports the default** — axe ships no non-text-contrast rule, so
+`check:contrast` runs `color-contrast` and `target-size` and neither sees a
+border. Five sweeps
 rediscovered it from first principles; this paragraph exists so a sixth does not.
 
 **The table header's two controls fail WCAG 2.5.8 for a FINE pointer, and that
@@ -1587,9 +1595,8 @@ NEUTRAL tones are named for the job rather than for a colour since v15 — `base
 and `muted`, which were `dark` and `medium` and always painted
 `--wr-color-on-surface` and `-on-surface-muted` rather than the intents they
 were named after. `wr-timeline-item`'s quiet dot moved the same way, from
-`medium` to `neutral`. Both are rewritten by `migration-v15`, because there the
-new name means what the old one meant in the same place, which a `color` naming
-a removed intent does not. **Five intents give four tones, and `info` is the one
+`medium` to `neutral`. v15 ships no codemod, so both move by hand; the
+migration guide lists them. **Five intents give four tones, and `info` is the one
 left out**: it is the same blue as `primary` to every reader, so as emphasis it
 would be a second name for one appearance — the same reason it is absent from
 the chart components' default series list. `wr-btn`
@@ -1810,7 +1817,7 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
 (`collection.json` + a dir per generator), built by `scripts/build/schematics.ts`
 (which also generates `use/symbol-map.json` from a public-api scan):
 
-- `ng add ngwr` — prompts for styles / dateAdapter / density / theme, installs
+- `ng add ngwr` — prompts for styles / dateAdapter / density, installs
   peers, prints a tailored bootstrap snippet.
 - `ng g ngwr:use WrFoo --path path/to/cmp.ts` — adds the import + splices it into
   the component's `@Component` imports. Only `symbol` is positional; `path` is a
@@ -1840,11 +1847,10 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
   **v9 `<wr-checkbox>` from `value` to `checkboxValue`**, **v12 from
   `ngwr/date-adapter*` to `ngwr/date/adapters/*`**, **v14 the six vocabulary
   renames, plus a report for the router / locale / `ofLabel` changes no codemod
-  should guess at**, **v15 the four neutral token families, plus a report for
-  every use of a removed intent**), plus **v13, which reports every host-`id` selector on
+  should guess at**), plus **v13, which reports every host-`id` selector on
   `<wr-checkbox>` / `<wr-radio>` / `<wr-switch>` and rewrites nothing** — all
   registered in `schematics/migrations.json`. There is deliberately no
-  `migration-v10` or `-v11`; see Versioning for the rule that decides it.
+  `migration-v10`, `-v11` or `-v15`; see Versioning for why each is absent.
 
 **A codemod pattern that steps over quoted values must use the quote-safe form,
 `(?:"[^"]*"|'[^']*'|[^>"'])*?`, and carry a timing spec.** The ambiguous

@@ -5,7 +5,8 @@ TypeScript and stylesheets in place. Commit first, run the migration, then
 review with `git diff` — a handful of edge cases always need a manual
 touch-up. Not every major has one that rewrites: v10's and v11's breaking
 changes are purely visual and carry no codemod, as the v10 section below
-explains, and v13's migration only reports.
+explains, v13's migration only reports, and v15 ships none — its section lists
+every change to make by hand.
 
 ```bash
 # One command, from whatever major you are on. It installs the latest release,
@@ -14,7 +15,7 @@ ng update ngwr
 ```
 
 **Do not step through the majors.** From 8.x that one command runs every migration from v9 on; from
-6.x, every one from v7 on. v10 and v11 ship none, so there is nothing to skip. Sections are
+6.x, every one from v7 on. v10, v11 and v15 ship none, so there is nothing to skip. Sections are
 newest-first, and where a major has a codemod its section names it as a step that command runs —
 read every section between your version and the latest, because the codemods also REPORT what they
 cannot rewrite.
@@ -78,35 +79,119 @@ history is readable without leaving the repository.
 
 ## v14 to v15
 
-The palette went from nine intents to five. `secondary`, `light`, `medium` and `dark` are gone;
-what replaced the last three is a six-step neutral gray ramp read through role aliases that name
-the job — `--wr-color-surface`, `-on-surface`, `-on-surface-muted`, `-outline`, `-hover`, `-fill`,
-`-fill-subtle`, `-fill-strong`, `-placeholder`. The v15 migration **rewrites the token renames**,
-because three of the four successors carry the identical value in both themes, and rewriting them
-is not optional: a `var()` at a name nothing declares is invalid at computed-value time, so the
-browser drops the whole declaration — a border that never draws, with no error anywhere. It
-**reports every use of a removed intent** instead, because `<wr-btn color="dark">` and `<wr-btn>`
-are different buttons and only you know which you meant.
+**v15 ships no codemod.** `ng update ngwr` installs it and runs nothing for this step, so every
+change below is yours to make. Most of them fail silently — a selector that stops matching, a
+`var()` at a token nothing declares — so search for each one rather than waiting for the build.
 
-The sortable list moved to an entry point of its own, `ngwr/drag-drop` to `ngwr/sortable-list`
-(rewritten, every symbol keeping its name), and no longer owns its loop — write your own and
-project one `<wr-sortable-item>` per row. That half is reported, not rewritten: a loop needs the
-array name and a track key.
+### Dark mode follows `color-scheme`
 
-**Three things were removed outright, and all three are reported by file.** `ngwr/squircle`, which
-v14 deprecated: use `shape="squircle"` on `<wr-btn>` / `<wr-avatar>` / `<wr-badge>`, or the
-`smooth-br` mixin from `@use 'ngwr/theme'`. They are not equivalent, which is why nothing is
-rewritten — the native `corner-shape` falls back to a plain rounded corner where a browser has not
-shipped it, and takes no radius or border inputs. `<wr-action-sheet>`, with its test harness: ngwr
-is not a mobile library, and the sheet was a preset over `<wr-drawer position="bottom" rounded>`,
-which is what to write instead. And `<wr-drawer showHandle>`, the grab handle and the
-swipe-to-dismiss it gated, for the same reason — the drawer still closes on the backdrop, on
-Escape and through its own dismiss button, so deleting the attribute is usually the whole
-migration.
+The theme switches by the CSS standard now: `:root` declares `color-scheme: light dark`, and every
+token that differs between the schemes is one `light-dark(<light>, <dark>)` value. So **the default
+follows the OS**, with no JavaScript. A page that is not ready for dark writes
+`:root { color-scheme: light; }` in its own stylesheet.
+
+- **`[data-theme]` is gone.** Nothing writes the attribute and no rule reads it, so a
+  `[data-theme='dark']` selector of your own matches nothing. Force a scheme with
+  `WrTheme.set('light' | 'dark')` — `'auto'` hands it back to the OS — or write `color-scheme`
+  yourself: on `<html>` for the page, on any element for its subtree. `WrTheme` in `'auto'` leaves
+  a `color-scheme` you wrote on `<html>` alone; `set('light')` or `set('dark')` writes over it.
+- **`theme.dark`, `dark-selector()` and `$theme-attribute` are removed**, with no replacement
+  helper. Write the dark value in the declaration itself: `color: light-dark(#0f172a, #e6ebf3)`.
+  `light-dark()` takes colours only.
+- **Every `-rgb` token is removed**, theme and component alike. Replace
+  `rgba(var(--wr-color-primary-rgb), 0.12)` with
+  `color-mix(in srgb, var(--wr-color-primary) 12%, transparent)`. `--wr-color-backdrop-rgb` becomes
+  the colour `--wr-color-backdrop`, `--wr-calendar-accent-rgb` goes in favour of
+  `--wr-calendar-accent`, and `--wr-color-picker-rgb` is now `--wr-color-picker-color`, holding a
+  whole colour. A leftover read drops its whole declaration, with no error.
+- **Three animation components changed a hook or a blend.** `--wr-star-border-stop` is removed:
+  the ray's fade is fixed, at 10% then 16% in light and 10% in dark, so override the gradient on
+  `.wr-star-border__ray` instead. `<wr-border-glow>`'s `--wr-border-glow-halo-blend`,
+  `--wr-border-glow-fill-blend` and `--wr-border-glow-fill-scale` now default to `normal`,
+  `normal` and `0.25` in both schemes; set them to `plus-lighter`, `soft-light` and `1` on a dark
+  page to restore the old additive look. `[wrTilt]`'s glare blends `normal` in both schemes too,
+  where light used `multiply` and dark `overlay`, so a `--wr-tilt-glare-color` of your own now
+  paints at face value.
+- **`provideWrTheme()` is removed.** `WrTheme` is root-provided, so delete the call. To change the
+  storage key or the default mode, provide `WR_THEME_CONFIG` yourself; its `attribute` field is
+  gone, and so is `wrThemePrePaintScript()`'s `attribute` option. **The service is now created on
+  first `inject()`**, not at boot, and that is when it applies a stored choice or a non-`auto`
+  `defaultMode` — so an app whose first screen injects nothing paints the OS scheme. Inject it once
+  at boot (in the root component, or `provideEnvironmentInitializer(() => inject(WrTheme))`), or
+  ship `wrThemePrePaintScript()` with the same options. The script writes `color-scheme` on
+  `<html>` for a stored `light` or `dark` choice, or for a non-`auto` `defaultMode` passed to it,
+  and nothing for `auto`.
+- **`wrThemeTokens()`, `wrIntentTokens()` and `wrContrastFor()` are removed**, and runtime
+  rebranding with them. Rebrand at compile time: `@use 'ngwr/theme' with ($base-colors: (…))`
+  moves the light side, and `@include theme.rebrand($colors, $dark)` moves both, its second map
+  being the dark seeds.
+- **Code that reads a token in TypeScript gets the raw text.** `getPropertyValue('--wr-color-…')`
+  returns `light-dark(…)` unresolved; read an element's computed `color` instead, and always do so
+  before handing a colour to a canvas, which cannot draw `light-dark()`. `resolveCssColor()` from
+  `ngwr/utils` is that read: it takes an element, any colour expression and a fallback.
+- **The browser floor is Chrome 123, Firefox 120 and Safari 17.5**, the first releases with
+  `light-dark()`. Below them themed colours are lost outright rather than degraded.
+
+### The palette is five intents
+
+`secondary`, `light`, `medium` and `dark` are gone. What replaced the last three is a six-step
+neutral gray ramp read through role aliases that name the job — `--wr-color-surface`,
+`-on-surface`, `-on-surface-muted`, `-hover`, `-fill`, `-fill-subtle`, `-fill-strong`,
+`-placeholder`, and the border family `--wr-border-subtle`, `-base`, `-strong`. Rename these:
+
+| v14                                             | v15                           |
+| ----------------------------------------------- | ----------------------------- |
+| `--wr-color-light`, `--wr-color-outline`        | `--wr-border-base`            |
+| `--wr-color-border`, `--wr-color-border-strong` | `--wr-border-strong`          |
+| `--wr-color-border-subtle`                      | `--wr-border-subtle`          |
+| `--wr-color-dark`                               | `--wr-color-on-surface`       |
+| `--wr-color-medium`, `--wr-color-muted-text`    | `--wr-color-on-surface-muted` |
+
+Their `-rgb` companions have no successor (see `color-mix` above), and neither do the shades and
+tints of a removed intent. A `color` naming a removed intent is a compile error under
+`strictTemplates` and renders neutral without it; which intent it should become, if any, is your
+call — `<wr-btn color="dark">` and `<wr-btn>` are different buttons. A `.wr-*--secondary` (or
+`--light`, `--medium`, `--dark`) selector stops matching, and a `$base-colors` map still carrying
+one of the four keys stops the Sass build.
+
+Two values named after a removed intent moved to the name of what they paint, BEM class included:
+`[wrTypography]`'s `tone="dark"` is `tone="base"` and `tone="medium"` is `tone="muted"`
+(`.wr-typography--tone-base`, `--tone-muted`), and `<wr-timeline-item color="medium">` is
+`color="neutral"` (`.wr-timeline-item--neutral`).
+
+### Charts and bits moved, and the Sass umbrella is gone
+
+- **The seven charts and the 21 animation components moved under two folders.** Each import
+  path changes from `ngwr/<name>` to `ngwr/charts/<name>` (bar-chart, calendar-heatmap,
+  donut-chart, gauge, line-chart, meter-group, sparkline) or `ngwr/bits/<name>` (aurora,
+  blur-text, border-glow, circular-text, click-spark, confetti, decrypt-text, falling-text,
+  fuzzy-text, glitch-text, gradient-text, marquee, rotating-text, shiny-text, splash-cursor,
+  split-text, spotlight-card, star-border, tilt-card, typewriter, waves). The `@use` path and
+  the `/testing` harness path move the same way, and every symbol keeps its name.
+- **`@use 'ngwr'` no longer resolves.** Write `@use 'ngwr/theme'` first, then one `@use` per
+  entry point you render, for example `@use 'ngwr/button';`. The page for each component shows
+  its own two lines under Installation.
+
+### The sortable list
+
+It moved to an entry point of its own: `ngwr/drag-drop` is `ngwr/sortable-list`, in imports and
+in the `@use`, every symbol keeping its name. It no longer owns its loop — write your own and
+project one `<wr-sortable-item>` per row; `trackBy` went with the loop.
+
+### Removed outright
+
+`ngwr/squircle`, which v14 deprecated: use `shape="squircle"` on `<wr-btn>` / `<wr-avatar>` /
+`<wr-badge>`, or the `smooth-br` mixin from `@use 'ngwr/theme'`. They are not equivalent — the
+native `corner-shape` falls back to a plain rounded corner where a browser has not shipped it, and
+takes no radius or border inputs. `<wr-action-sheet>`, with its test harness: ngwr is not a mobile
+library, and the sheet was a preset over `<wr-drawer position="bottom" rounded>`, which is what to
+write instead. And `<wr-drawer showHandle>`, the grab handle and the swipe-to-dismiss it gated, for
+the same reason — the drawer still closes on the backdrop, on Escape and through its own dismiss
+button, so deleting the attribute is usually the whole migration.
 
 A leftover import or `@use` fails the build and a bound `[showHandle]` is a compile error, but a
 bare `wrSquircle` attribute, a `<wr-action-sheet>` without `strictTemplates` and a
-`.wr-drawer__handle` selector are all silent. That is what the file list is for.
+`.wr-drawer__handle` selector are all silent.
 
 ---
 
