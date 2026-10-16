@@ -148,12 +148,6 @@ export const INSTALL = {
       { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
       { path: "ngwr/theme", symbols: ["WrTheme"], declarables: [], styled: true },
   ],
-  "guides/tokens/builder": [
-      { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
-      { path: "ngwr/color-picker", symbols: ["WrColorPickerTrigger"], declarables: ["WrColorPickerTrigger"], styled: true },
-      { path: "ngwr/segmented", symbols: ["WrSegmented"], declarables: ["WrSegmented"], styled: true },
-      { path: "ngwr/theme", symbols: ["WR_COLORS", "WrTheme", "wrThemeTokens"], declarables: [], styled: true },
-  ],
   "guides/tokens/colors": [
       { path: "ngwr/theme", symbols: ["WR_COLORS"], declarables: [], styled: true },
   ],
@@ -191,6 +185,10 @@ export const INSTALL = {
       { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
   ],
   "guides/typography/paragraphs": [
+      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
+  ],
+  "guides/typography/styles": [
+      { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
       { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
   ],
   "icons/feather": [

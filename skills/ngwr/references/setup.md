@@ -6,13 +6,12 @@
 ng add ngwr
 ```
 
-Prompts for styles, date adapter, density and theme, installs the peers, and
-prints a bootstrap snippet tailored to the answers.
+Prompts for styles, date adapter and density, installs the peers, and prints a
+bootstrap snippet tailored to the answers.
 
 ## Bootstrap
 
 ```ts
-import { provideWrTheme } from 'ngwr/theme';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { provideWrIcons } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
@@ -20,7 +19,6 @@ import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 bootstrapApplication(App, {
   providers: [
     provideZonelessChangeDetection(),
-    provideWrTheme(),
     provideWrOverlay(),
     provideWrIcons(lucideIcons({ check, chevronDown })),
   ],
@@ -41,11 +39,26 @@ installs `WrVisualViewport`, which publishes `--wr-keyboard-inset`.
 There is no `@use 'ngwr'` umbrella: compiling every component stylesheet for a
 page that renders a handful was measured at 287 kB against 44 kB. Only a
 module's FIRST load can be configured, so the theme line goes above the
-components or `with ($theme-attribute: …)` fails the build.
+components or `@use 'ngwr/theme' with ($base-colors: …)` fails the build.
 
 Resolved through the `sass` condition in the package's `exports` map. Entry
 points that ship no stylesheet (the `/testing` harnesses, `ngwr/utils`) have no
 `@use` target — importing one fails the build.
+
+## Light and dark
+
+The theme follows `color-scheme`, with no provider and no script: `:root`
+declares `color-scheme: light dark`, so a page follows the OS, and every token
+that differs between the two is one `light-dark(<light>, <dark>)` value.
+`color-scheme: dark` on any element switches that subtree.
+`inject(WrTheme).set('dark')` from `ngwr/theme` switches the whole page and
+remembers the choice; `'light'` forces the other side and `'auto'` hands it
+back to the OS. The service applies a remembered choice, or a non-`auto`
+`defaultMode` from `WR_THEME_CONFIG`, when it is first injected. Inject it
+once at boot, in the root component, or ship `wrThemePrePaintScript()` in
+`<head>` with the same values; otherwise a page whose first screen never
+injects it paints the OS scheme. Write your own dark values with `light-dark()` as well —
+there is no theme attribute to key a selector on.
 
 ## Providers with no default
 

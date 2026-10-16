@@ -46,7 +46,7 @@ export const API = {
   ],
   // <wr-aurora>
   WrAurora: [
-    { name: "colorStops", description: "Exactly three colour stops, ramped left → right. When unset, the theme decides: deep violet/emerald on light, the neon reactbits palette on dark.", type: "readonly string[] | null", default: "null" },
+    { name: "colorStops", description: "Exactly three colour stops, ramped left → right — any CSS colour each, a `var()` token or a `light-dark()` pair included. Alpha is ignored; the ribbon fades through its own. When unset, the theme decides: deep violet/emerald on light, the neon reactbits palette on dark.", type: "readonly string[] | null", default: "null" },
     { name: "amplitude", description: "Wave height multiplier.", type: "number", default: "1" },
     { name: "blend", description: "Softness of the aurora's lower edge, 0..1.", type: "number", default: "0.5" },
     { name: "speed", description: "Time multiplier.", type: "number", default: "1" },
@@ -110,7 +110,7 @@ export const API = {
     { name: "glowIntensity", description: "Halo opacity multiplier (1 = full strength). Applies only alongside an explicit `glowColor`: the halo variables are built from the two together, so on the default palette this input is read and never reaches a declaration.", type: "number", default: "1" },
     { name: "coneSpread", description: "Width of the lit cone as a percentage of the perimeter.", type: "number", default: "25" },
     { name: "edgeSensitivity", description: "How sharply the halo fades as the cursor leaves the edge. Lower = wider falloff.", type: "number", default: "30" },
-    { name: "fillOpacity", description: "Strength of the soft-light interior fill near edges.", type: "number", default: "0.5" },
+    { name: "fillOpacity", description: "Strength of the interior bloom near edges (blend: `--wr-border-glow-fill-blend`).", type: "number", default: "0.5" },
     { name: "glowColor", description: "Halo colour as `'H S L'` (HSL parts, no commas). When unset, the theme decides: a deep amber on light surfaces, pale amber on dark. Note `glowIntensity` only applies alongside an explicit `glowColor`.", type: "string | null", default: "null" },
     { name: "colors", description: "Mesh-gradient palette for the colored border slice. When unset, the theme decides: deep tones on light, pastels on dark.", type: "readonly string[] | null", default: "null" },
     { name: "animated", description: "Play a one-shot perimeter sweep on mount, then fade out.", type: "boolean", default: "false" },
@@ -170,7 +170,7 @@ export const API = {
     { name: "cellSize", description: "Cell side in CSS pixels.", type: "number", default: "11" },
     { name: "cellGap", description: "Pixel gap between cells.", type: "number", default: "2" },
     { name: "color", description: "Cell fill colour at full intensity.", type: "string", default: "primary" },
-    { name: "emptyColor", description: "Background colour for zero-value days.", type: "string", default: "rgba(var(--wr-border-base-rgb), 0.5)" },
+    { name: "emptyColor", description: "Background colour for zero-value days.", type: "string", default: "color-mix(in srgb, var(--wr-border-base) 50%, transparent)" },
     { name: "showLabels", description: "Show the weekday + month labels around the grid.", type: "boolean", default: "true" },
     { name: "tooltip", description: "Show a tooltip with the day and its count on hover. It is the sentence the square's `title` carried, so the `title` is written only while this is off — or the browser would open a second copy a moment later.", type: "boolean", default: "true" },
   ],
@@ -247,7 +247,7 @@ export const API = {
   ],
   // <wr-click-spark>
   WrClickSpark: [
-    { name: "sparkColor", description: "Spark line colour. Accepts any CSS colour, or a `var(--wr-…)` token which is resolved against the host so it tracks the theme. The default flips with the theme — dark sparks in light mode, light sparks in dark.", type: "string", default: "'var(--wr-color-on-surface)'" },
+    { name: "sparkColor", description: "Spark line colour. Accepts any CSS colour — a literal, a `var(--wr-…)` token, `light-dark()` — resolved against the host on every frame, so it tracks the colour scheme. The default flips with it: dark sparks in light mode, light sparks in dark.", type: "string", default: "'var(--wr-color-on-surface)'" },
     { name: "sparkSize", description: "Length of each spark line in pixels (at t=0; tapers to 0 at t=1).", type: "number", default: "10" },
     { name: "sparkRadius", description: "Distance each spark travels from origin in pixels.", type: "number", default: "15" },
     { name: "sparkCount", description: "Number of sparks per click (evenly distributed around the circle).", type: "number", default: "8" },
@@ -600,7 +600,7 @@ export const API = {
     { name: "max", description: "High end of the scale — where the arc completes. Values above it clamp here.", type: "number", default: "100" },
     { name: "size", description: "Diameter in CSS pixels.", type: "number", default: "160" },
     { name: "strokeWidth", description: "Arc stroke thickness in viewBox units (out of 100).", type: "number", default: "10" },
-    { name: "trackColor", description: "Colour of the unfilled arc behind the value. Any CSS colour; the default is the outline token at 60%, which reads as a hairline in both themes.", type: "string", default: "'rgba(var(--wr-border-base-rgb), 0.6)'" },
+    { name: "trackColor", description: "Colour of the unfilled arc behind the value. Any CSS colour; the default is the outline token at 60%, which reads as a hairline in both themes.", type: "string", default: "'color-mix(in srgb, var(--wr-border-base) 60%, transparent)'" },
     { name: "valueColor", description: "Colour of the filled arc. Any CSS colour — pass an intent token to tie it to a threshold, e.g. `var(--wr-color-danger)` once the value crosses one.", type: "string", default: "'var(--wr-color-primary)'" },
     { name: "showValue", description: "Show the value text in the center.", type: "boolean", default: "true" },
     { name: "suffix", description: "Unit printed immediately after the number — `%`, `/10`, ` GB`. It goes into the accessible text too, so the gauge is announced the way it reads.", type: "string", default: "''" },
@@ -710,7 +710,7 @@ export const API = {
     { name: "step", description: "Step granularity.", type: "number", default: "1" },
     { name: "size", description: "Dial diameter in CSS pixels.", type: "number", default: "120" },
     { name: "strokeWidth", description: "Stroke width of the dial arc, in CSS pixels.", type: "number", default: "8" },
-    { name: "trackColor", description: "Track (unfilled) color.", type: "string", default: "rgba(var(--wr-border-base-rgb), 0.6)" },
+    { name: "trackColor", description: "Track (unfilled) color.", type: "string", default: "color-mix(in srgb, var(--wr-border-base) 60%, transparent)" },
     { name: "valueColor", description: "Filled-arc color.", type: "string", default: "var(--wr-color-primary)" },
     { name: "showValue", description: "Show the value text in the center.", type: "boolean", default: "true" },
     { name: "suffix", description: "Optional suffix appended to the center text (e.g. `'%'`).", type: "string", default: "''" },
@@ -1405,7 +1405,7 @@ export const API = {
   ],
   // <wr-waves>
   WrWaves: [
-    { name: "lineColor", description: "Line stroke colour. When unset, the theme decides.", type: "string | null", default: "null" },
+    { name: "lineColor", description: "Line stroke colour, any CSS colour. When unset, the theme decides.", type: "string | null", default: "null" },
     { name: "backgroundColor", description: "Background fill behind the lines.", type: "string", default: "'transparent'" },
     { name: "waveSpeedX", description: "Horizontal noise drift per ms.", type: "number", default: "0.0125" },
     { name: "waveSpeedY", description: "Vertical noise drift per ms.", type: "number", default: "0.005" },
