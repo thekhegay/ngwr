@@ -85,7 +85,6 @@ root barrel for components.
 | `ngwr/command-palette` | `import { WrCommandPalette } from 'ngwr/command-palette'` | `wr-command-palette` |
 | `ngwr/command-palette/testing` | `import { WrCommandPaletteGroupHarness } from 'ngwr/command-palette/testing'` | — |
 | `ngwr/compare` | `import { WrCompare } from 'ngwr/compare'` | `wr-compare` |
-| `ngwr/config` | `import { provideWrConfig } from 'ngwr/config'` | — |
 | `ngwr/context-menu` | `import { WrContextMenu } from 'ngwr/context-menu'` | `wr-context-menu-divider` `wr-context-menu-item` `wr-context-menu` `[wrContextMenu]` |
 | `ngwr/context-menu/testing` | `import { WrContextMenuHarness } from 'ngwr/context-menu/testing'` | — |
 | `ngwr/cookie` | `import { WrCookie } from 'ngwr/cookie'` | — |

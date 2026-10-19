@@ -135,8 +135,8 @@ export const API = {
   ],
   // <wr-btn, button[wr-btn], a[wr-btn]>
   WrButton: [
-    { name: "color", description: "Color variant. Omit for the neutral default style. Deliberately NOT configurable app-wide: the library's own chrome binds `[color]=\"isCurrent ? 'primary' : null\"`, where `null` means neutral, and a configured intent would repaint every one of those buttons. See `WrConfig`.", type: "WrColor | null", default: "null" },
-    { name: "size", description: "Size variant. Unset, it resolves through `provideWrConfig({ button: { size } })` and then to `md`.", type: "WrButtonSize | null", default: "'md'" },
+    { name: "color", description: "Color variant. Omit for the neutral default style.", type: "WrColor | null", default: "null" },
+    { name: "size", description: "Size variant.", type: "WrButtonSize", default: "'md'" },
     { name: "shape", description: "Corner treatment — `rounded`, `pill` or `squircle`. `null` (default) falls back to `rounded`. Inside a `<wr-btn-group shape=\"…\">`, the group's shape ALWAYS wins over this input — the group enforces a consistent corner treatment across its members.", type: "WrButtonShape | null", default: "null" },
     { name: "icon", description: "Icon name to render alongside the label. The icon is hidden while `loading` is `true` so the spinner can take its place.", type: "WrIconName | null", default: "null" },
     { name: "iconPosition", description: "Position of the icon relative to the label.", type: "WrButtonIconPosition", default: "'start'" },
@@ -224,7 +224,7 @@ export const API = {
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
     { name: "disabled", description: "Disable the checkbox. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse edits while staying focusable and submittable. Bound automatically from the field's readonly state when used with `[formField]`. A native `<input type=\"checkbox\">` ignores the `readonly` attribute, so this cancels the click's activation behaviour instead — which covers Space too, since a checkbox turns Space into a click — and mirrors the state as `aria-readonly`, which role `checkbox` supports.", type: "boolean", default: "false" },
-    { name: "size", description: "Control size — shares the `--wr-control-*` contract. Unset falls back to the `checkbox.size` app default from `provideWrConfig()`.", type: "WrCheckboxSize | null", default: "'md'" },
+    { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrCheckboxSize", default: "'md'" },
     { name: "icon", description: "Optional icon name rendered inside the box when checked, in place of the default checkmark. Use any registered NGWR icon.", type: "WrIconName | null", default: "null" },
     { name: "indeterminate", description: "Show the indeterminate (\"mixed\") state — a dash instead of a check. Visual only and controlled: set it yourself for a parent \"select all\" whose children are partly checked, and clear it on the next toggle. Takes visual precedence over `checked`; the native input reports `aria-checked=\"mixed\"`. A click the host does not answer still toggles `checked` underneath, and the dash and the mixed state both stay until the binding turns `false`.", type: "boolean", default: "false" },
   ],
@@ -501,7 +501,7 @@ export const API = {
     { name: "readonly", description: "Refuse edits while the text stays reachable, selectable and announced. Bound automatically from the field's readonly state when used with `[formField]`. Set before the editor mounts, it means ProseMirror is never started: the document is drawn as ordinary markup in a focusable `role=\"group\"` that keeps the tab stop and carries the editor's name, so a viewer costs no editor and the structure of what it shows is still announced. `aria-readonly` is deliberately absent there — ARIA does not allow it on `group`, and `aria-disabled`, the only attribute that would apply, means something else — so the cue is the `wr-editor--readonly` class. The toolbar goes inert, since none of its tools can apply; a pure viewer binds `[toolbar]=\"false\"`. A view that is already mounted stays mounted, refuses typing, paste, drop, the shortcuts and every toolbar command, and reports `aria-readonly` on its surface as before.", type: "boolean", default: "false" },
     { name: "placeholder", description: "Hint shown while the document is empty, and exposed as `aria-placeholder`.", type: "string", default: "''" },
     { name: "ariaLabel", description: "Accessible name of the text — of the surface, or of the document a read-only editor draws in its place. Falls back to the surrounding `<wr-form-field>`'s label, then to `editor.label`.", type: "string | null", default: "null" },
-    { name: "format", description: "What `value` holds — see {@link WrEditorFormat}. Unset, it falls back to `provideWrConfig({ editor: { format } })`. Changing it re-reads `value` in the new format.", type: "WrEditorFormat | null", default: "'html'" },
+    { name: "format", description: "What `value` holds — see {@link WrEditorFormat}. Changing it re-reads `value` in the new format.", type: "WrEditorFormat", default: "'html'" },
     { name: "toolbar", description: "The toolbar's tools, in order, with `'|'` between groups; `false` hides it. `underline` is left out in `markdown` format, which cannot store it.", type: "readonly WrEditorTool[] | false", default: "WR_EDITOR_TOOLBAR" },
   ],
   // <wr-empty>
@@ -657,12 +657,12 @@ export const API = {
   ],
   // <input[wrInput], textarea[wrInput]>
   WrInput: [
-    { name: "size", description: "Control size. Unset, it falls back to `provideWrConfig({ input: { size } })`.", type: "WrInputSize | null", default: "'md'" },
-    { name: "rounded", description: "Pill-shaped corners. Unset, it falls back to `provideWrConfig({ input: { rounded } })`; `[rounded]=\"false\"` turns a configured `true` back off.", type: "boolean | null", default: "false" },
+    { name: "size", description: "Control size.", type: "WrInputSize", default: "'md'" },
+    { name: "rounded", description: "Pill-shaped corners.", type: "boolean", default: "false" },
   ],
   // <wr-input-group>
   WrInputGroup: [
-    { name: "rounded", description: "Pill-shaped corners. Unset, it falls back to `provideWrConfig({ input: { rounded } })` — the same key the inner `[wrInput]` reads.", type: "boolean | null", default: "false" },
+    { name: "rounded", description: "Pill-shaped corners.", type: "boolean", default: "false" },
   ],
   // <wr-input-number>
   WrInputNumber: [
@@ -671,8 +671,8 @@ export const API = {
     { name: "step", description: "Step used by stepper buttons + arrow keys.", type: "number", default: "1" },
     { name: "decimals", description: "Fixed number of decimals. Rounds the value as it is COMMITTED, and fixes the digits shown once the field reformats on blur. `null` keeps the entered precision and formats with up to 20. Clamped to 0–100, the range `Intl.NumberFormat`'s `minimumFractionDigits` / `maximumFractionDigits` accept — because it is the one numeric input on this component that had no transform, and the value goes straight into the formatter, which THROWS a `RangeError` outside that range rather than degrading. A `[decimals]=\"-1\"` bound from a config object took the whole component down on blur.", type: "number | null", default: "null" },
     { name: "showSteppers", description: "Render the ▲▼ stepper column.", type: "boolean", default: "true" },
-    { name: "size", description: "Control size — forwarded to the field, and shares the `--wr-control-*` contract. Unset falls back to the `inputNumber.size` app default from `provideWrConfig()`, then to the `input.size` one, then to `md`.", type: "WrInputSize | null", default: "'md'" },
-    { name: "rounded", description: "Pill-shaped corners. Unset falls back to the `inputNumber.rounded` app default from `provideWrConfig()`, then to the `input.rounded` one; `[rounded]=\"false\"` turns a configured `true` back off.", type: "boolean | null", default: "false" },
+    { name: "size", description: "Control size — forwarded to the field's `[size]`, and shares the `--wr-control-*` contract.", type: "WrInputSize", default: "'md'" },
+    { name: "rounded", description: "Pill-shaped corners — forwarded to the group AND the field.", type: "boolean", default: "false" },
     { name: "prefix", description: "Optional prefix label (e.g. `\"$\"`).", type: "string", default: "''" },
     { name: "suffix", description: "Optional suffix label (e.g. `\"kg\"`).", type: "string", default: "''" },
     { name: "placeholder", description: "Placeholder shown when the input is empty.", type: "string", default: "''" },
@@ -689,7 +689,7 @@ export const API = {
     { name: "ariaLabel", description: "Accessible name of the whole strip. Falls back to `inputOtp.label`.", type: "string | null", default: "null" },
     { name: "length", description: "Number of cells to render. Clamped to `[1, 20]`.", type: "number", default: "6" },
     { name: "mode", description: "Character set per cell.", type: "WrInputOtpMode", default: "'numeric'" },
-    { name: "size", description: "Control size — shares the `--wr-control-*` contract. Unset falls back to the `inputOtp.size` app default from `provideWrConfig()`.", type: "WrInputOtpSize | null", default: "'md'" },
+    { name: "size", description: "Control size — shares the `--wr-control-*` contract. A box carries no size of its own: the host modifier sets `--wr-input-otp-size` / `-font` / `-radius` / `-gap` and every box reads them from the cascade, so one value sizes the whole strip however many boxes `length` renders.", type: "WrInputOtpSize", default: "'md'" },
     { name: "mask", description: "Mask the typed characters like a password.", type: "boolean", default: "false" },
     { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse edits while every box stays focusable and the code still submits. Bound automatically from the field's readonly state when used with `[formField]`. Each box is a real text input, so this is the native `readonly` attribute — arrow keys, Home / End and selection keep working, which is the whole difference from `disabled`. Paste is cancelled too, since a `paste` still reaches a read-only input even though typing does not.", type: "boolean", default: "false" },
@@ -771,8 +771,8 @@ export const API = {
   WrMarkdown: [
     { name: "value", description: "The markdown source.", type: "string", default: "''" },
     { name: "streaming", description: "The source is a prefix of a longer document. Turns on partial-safe parsing — an open fence renders as code, a half-typed `**bold` renders as bold rather than as asterisks — and marks the host with `.wr-markdown--streaming`, which paints a caret after the last block.", type: "boolean", default: "false" },
-    { name: "copyable", description: "Show a copy button on finished code blocks. Falls back to `markdown.copyable` from `provideWrConfig()`, then `false`. Only CLOSED blocks get one: mid-stream the code is not all there, and a button that copies half a snippet is worse than no button.", type: "boolean | null", default: "null" },
-    { name: "linkTarget", description: "Where links open. `_blank` also sets `rel=\"noopener noreferrer\"`, which is not optional — a target without it hands the opener to a page whose URL came from the document being rendered. Falls back to `markdown.linkTarget` from `provideWrConfig()`, then no target.", type: "'_blank' | '_self' | null", default: "null" },
+    { name: "copyable", description: "Show a copy button on finished code blocks. Only CLOSED blocks get one: mid-stream the code is not all there, and a button that copies half a snippet is worse than no button.", type: "boolean", default: "false" },
+    { name: "linkTarget", description: "Where links open. `_blank` also sets `rel=\"noopener noreferrer\"`, which is not optional — a target without it hands the opener to a page whose URL came from the document being rendered. `null` sets no target.", type: "'_blank' | '_self' | null", default: "null" },
     { name: "headingIds", description: "Put a slugged `id` on every heading, so the document can be linked into.", type: "boolean", default: "true" },
     { name: "headingIdPrefix", description: "Namespace for the generated heading ids, and for the in-document `#fragment` links that point at them. Defaults to `'user-content-'`, which is what GitHub emits for untrusted markdown, and for the same reason: without a namespace a document that happens to contain `# Search` renders `id=\"search\"` and steals it from the page around it. That is not cosmetic — a `<label for=\"search\">` silently stops labelling its input, and `getElementById` starts answering with a heading. Anchors written INSIDE the document keep working, because a bare `#fragment` href gets the same prefix. Set it to `''` for a document you author yourself and want clean anchors for.", type: "string", default: "'user-content-'" },
     { name: "copyLabel", description: "Accessible name of the copy button. Falls back to `markdown.copy`, then `'Copy code'`.", type: "string | null", default: "null" },
@@ -914,7 +914,7 @@ export const API = {
     { name: "id", description: "Stable id used to associate the native input with its label. Lands on the inner `<input>`; the host never keeps it.", type: "string", default: "randomId('wr-radio')" },
     { name: "value", description: "Value selected when this radio is checked.", type: "unknown", required: true },
     { name: "icon", description: "Optional icon name rendered inside the dot when checked, in place of the default solid circle. Use any registered NGWR icon.", type: "WrIconName | null", default: "null" },
-    { name: "size", description: "Control size — shares the `--wr-control-*` contract. Set per option (the group has no `size`); unset falls back to the `radio.size` app default from `provideWrConfig()`.", type: "WrRadioSize | null", default: "'md'" },
+    { name: "size", description: "Control size — shares the `--wr-control-*` contract. Set per option; the group has no `size`.", type: "WrRadioSize", default: "'md'" },
     { name: "disabled", description: "Disable just this option. The group can also be disabled as a whole via `<wr-radio-group disabled>`; either source disables this radio.", type: "boolean", default: "false" },
   ],
   // <wr-radio-group>
@@ -991,8 +991,8 @@ export const API = {
     { name: "ariaLabel", description: "Accessible name of the trigger. Falls back to the placeholder, then to `select.label` — `role=\"combobox\"` on an empty trigger otherwise has no name at all, which is the common case before anything is selected.", type: "string | null", default: "null" },
     { name: "disabled", description: "Disable the select. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse changes while the trigger stays focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. The panel is where every edit happens, so a read-only select does not open — and with it go the clear button, the chip ×, the tag draft and the search query. The text-input shapes take the native `readonly` attribute, which is what keeps them focusable and selectable where `disabled` would not; every shape mirrors `aria-readonly`, which role `combobox` supports.", type: "boolean", default: "false" },
-    { name: "rounded", description: "Pill-shaped corners on the trigger. Unset falls back to the `select.rounded` app default from `provideWrConfig()`; `[rounded]=\"false\"` turns a configured `true` back off.", type: "boolean | null", default: "false" },
-    { name: "size", description: "Control size — shares the `--wr-control-*` contract. Unset falls back to the `select.size` app default from `provideWrConfig()`.", type: "WrSelectSize | null", default: "'md'" },
+    { name: "rounded", description: "Pill-shaped corners on the trigger.", type: "boolean", default: "false" },
+    { name: "size", description: "Control size — shares the `--wr-control-*` contract. Read by the trigger's host classes AND by the overlay panel, which builds its size modifier separately.", type: "WrSelectSize", default: "'md'" },
     { name: "responsive", description: "Present the option panel as a full-width bottom-sheet on small viewports instead of an anchored dropdown. `undefined` follows the app-wide `provideWrResponsiveOverlays()` setting; `true`/`false` overrides it.", type: "boolean | undefined", default: "undefined" },
     { name: "mode", description: "Behavior mode. `<wr-select>` is the unified combobox primitive — pick the shape via `[mode]`: - `'single'` (default) — one value, no input. Classic dropdown. - `'multi'` — array value, chips on the trigger. - `'search'` — type-ahead with sync filter or async loader. - `'tag'` — free-text + chips.", type: "WrSelectMode | null", default: "null" },
     { name: "searchable", description: "Add a type-ahead filter without changing the value shape — the missing multi-with-search combination, since `[mode]` picks exactly one shape: ```html <wr-select mode=\"multi\" searchable [(value)]=\"categories\">…</wr-select> ``` On `multi` the trigger keeps its chips and grows an inline text field (the shape `tag` mode already uses); on `single` it is equivalent to `mode=\"search\"`. Every search input (`[options]`, `[loader]`, `[debounceMs]`, `[minChars]`, `[virtualScroll]`, the `(searchChange)` output, …) applies either way. Ignored in `tag` mode, which owns its own input.", type: "boolean", default: "false" },
@@ -1204,7 +1204,7 @@ export const API = {
     { name: "id", description: "Stable id used to associate the native input with its label. Lands on the inner `<input>`; the host never keeps it.", type: "string", default: "randomId('wr-switch')" },
     { name: "disabled", description: "Disable the switch. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse edits while staying focusable and submittable. Bound automatically from the field's readonly state when used with `[formField]`. A native checkbox ignores the `readonly` attribute, so this cancels the click's activation behaviour instead — which covers Space too, since the key arrives as a click — and mirrors the state as `aria-readonly`, which role `switch` supports.", type: "boolean", default: "false" },
-    { name: "size", description: "Control size — shares the `--wr-control-*` contract. Unset falls back to the `switch.size` app default from `provideWrConfig()`.", type: "WrSwitchSize | null", default: "'md'" },
+    { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrSwitchSize", default: "'md'" },
     { name: "checked", description: "On / off state. Bound by `[formField]`, or two-way via `[(checked)]`.", type: "boolean", default: "false" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
@@ -1297,7 +1297,7 @@ export const API = {
   WrTextarea: [
     { name: "placeholder", description: "Native placeholder text.", type: "string", default: "''" },
     { name: "ariaLabel", description: "Accessible name for the field. Falls back to the placeholder — the native `<textarea>` lives inside the component, so a `<label for>` outside cannot reach it.", type: "string | null", default: "null" },
-    { name: "size", description: "Control size — shares the `--wr-control-*` contract. Unset, it falls back to `provideWrConfig({ textarea: { size } })`.", type: "WrTextareaSize | null", default: "'md'" },
+    { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrTextareaSize", default: "'md'" },
     { name: "rows", description: "Visible row count.", type: "number", default: "3" },
     { name: "resizable", description: "Allow user resize via the corner grip.", type: "boolean", default: "true" },
     { name: "resize", description: "Resize direction of the corner grip (the grip icon adapts).", type: "WrTextareaResize", default: "'vertical'" },
