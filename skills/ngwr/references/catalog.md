@@ -159,7 +159,6 @@ root barrel for components.
 | `ngwr/loading-bar/router` | `import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router'` | — |
 | `ngwr/markdown` | `import { WrMarkdown } from 'ngwr/markdown'` | `wr-markdown` |
 | `ngwr/markdown/testing` | `import { WrMarkdownCodeBlockHarness } from 'ngwr/markdown/testing'` | — |
-| `ngwr/media` | `import { WrMedia } from 'ngwr/media'` | — |
 | `ngwr/mention` | `import { WrMention } from 'ngwr/mention'` | `wr-mention-panel` `[wrMention]` |
 | `ngwr/mention/testing` | `import { WrMentionHarness } from 'ngwr/mention/testing'` | — |
 | `ngwr/meta` | `import { WrMeta } from 'ngwr/meta'` | `[wrMeta]` |

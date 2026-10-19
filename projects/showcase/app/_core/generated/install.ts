@@ -493,9 +493,6 @@ export const INSTALL = {
   "reference/services/loading-bar": [
       { path: "ngwr/loading-bar", symbols: ["WrLoadingBar"], declarables: [], styled: true },
   ],
-  "reference/services/media": [
-      { path: "ngwr/media", symbols: ["WrMedia"], declarables: [], styled: false },
-  ],
   "reference/services/meta": [
       { path: "ngwr/meta", symbols: ["WrMeta", "WrMetaBinding"], declarables: ["WrMetaBinding"], styled: false },
   ],
