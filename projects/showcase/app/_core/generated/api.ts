@@ -565,7 +565,7 @@ export const API = {
     { name: "optional", description: "Show an \"optional\" marker next to the label — the word comes from `optionalLabel`. Mutually exclusive with `required`.", type: "boolean", default: "false" },
     { name: "optionalLabel", description: "Word inside the optional marker's parentheses. Falls back to `form.optional`, then `'optional'`. The parentheses are the template's, so no locale has to repeat punctuation.", type: "string | null", default: "null" },
     { name: "controlId", description: "Force a specific id on the label's `for` attribute. Auto-generated otherwise, and adopted by the projected `wrInput` unless that element already carries an `id` of its own.", type: "string", default: "`wr-form-field-${++uid}`" },
-    { name: "autoErrors", description: "Render a catalog message for any error the markup does not already answer. On by default: a field with no `<wr-form-error>` at all is the common case, and an empty error block helps nobody. Turn it off for a field whose copy is entirely hand-written.", type: "boolean", default: "true" },
+    { name: "autoErrors", description: "Render a message for any error the markup does not already answer: the validator's own `message`, else `validation.<key>` from the app's i18n catalog. ngwr ships no error texts, so a key neither of them answers renders nothing, and dev mode warns once for it. On by default: a field with no `<wr-form-error>` at all is the common case. Turn it off for a field whose copy is entirely hand-written.", type: "boolean", default: "true" },
   ],
   // <wr-form-item>
   WrFormItem: [

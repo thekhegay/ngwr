@@ -51,6 +51,10 @@ guess gets backwards.
   `email` on an ngwr control is silently ignored and the form submits — so put
   validators on the `FormControl`. It also ignores `updateOn`, and a
   `{ emitEvent: false }` write needs `markForCheck()`.
+- **ngwr ships no validation copy.** For an error no `<wr-form-error key>`
+  claims, `<wr-form-field>` shows the validator's own message
+  (`required(path.email, { message: '…' })`), else `validation.<key>` from the
+  APP's i18n catalog. With neither, nothing renders and only dev mode warns.
 - **`<wr-checkbox>` group identity is `checkboxValue`, not `value`.**
   `value` is reserved for the form value, so a leftover `value="x"` lands on the
   host as a plain DOM attribute, every box in the group keeps the default
@@ -102,7 +106,7 @@ cause.
   — without it the bar never responds to navigation; it only moves for manual start() / complete()
   — needed by: `WrLoadingBar`
 - `provideWrI18n() + provideWrI18nBaseCatalogs({ en: wrEn }) + provideWrI18nStaticLoader({ en: { … } }) // from 'ngwr/i18n' + 'ngwr/i18n/en'`
-  — the pipe and directive read from a catalog you provide. Register ngwr's with `provideWrI18nBaseCatalogs`, never spread it into yours: a spread is shallow, so any namespace you share with ngwr, e.g. `common`, `validation`, `table`, keeps only the side spread last, and the other side's keys stop resolving with nothing logged — ngwr's components fall back to English and a `wrT` read of a lost key renders the raw key
+  — the pipe and directive read from a catalog you provide. Register ngwr's with `provideWrI18nBaseCatalogs`, never spread it into yours: a spread is shallow, so any namespace you share with ngwr, e.g. `common` or `table`, keeps only the side spread last, and the other side's keys stop resolving with nothing logged — ngwr's components fall back to English and a `wrT` read of a lost key renders the raw key
   — needed by: `WrTPipe`, `WrTDirective`, `WrI18n`
 
 ## Testing

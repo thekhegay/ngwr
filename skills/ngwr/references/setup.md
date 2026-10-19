@@ -80,7 +80,7 @@ Without it the bar never responds to navigation; it only moves for manual start(
 
 ### `provideWrI18n() + provideWrI18nBaseCatalogs({ en: wrEn }) + provideWrI18nStaticLoader({ en: { … } }) // from 'ngwr/i18n' + 'ngwr/i18n/en'`
 
-The pipe and directive read from a catalog you provide. Register ngwr's with `provideWrI18nBaseCatalogs`, never spread it into yours: a spread is shallow, so any namespace you share with ngwr, e.g. `common`, `validation`, `table`, keeps only the side spread last, and the other side's keys stop resolving with nothing logged — ngwr's components fall back to English and a `wrT` read of a lost key renders the raw key. Needed by `WrTPipe`, `WrTDirective`, `WrI18n`.
+The pipe and directive read from a catalog you provide. Register ngwr's with `provideWrI18nBaseCatalogs`, never spread it into yours: a spread is shallow, so any namespace you share with ngwr, e.g. `common` or `table`, keeps only the side spread last, and the other side's keys stop resolving with nothing logged — ngwr's components fall back to English and a `wrT` read of a lost key renders the raw key. Needed by `WrTPipe`, `WrTDirective`, `WrI18n`.
 
 ## Optional, app-wide
 
@@ -95,6 +95,6 @@ The pipe and directive read from a catalog you provide. Register ngwr's with `pr
   under `@media (pointer: coarse)` instead.
 - `provideWrResponsiveOverlays()` — overlays present as bottom sheets under the
   breakpoint (640px by default). Per-component opt-out with `[responsive]="false"`.
-- `provideWrFormErrors({ … })` — one place for validation copy; `<wr-form-field>`
-  resolves a message per error key through it, then the i18n catalog, then a
-  built-in fallback.
+- A `validation` namespace in your own i18n catalog — ngwr ships no validation
+  copy. `<wr-form-field>` reads `validation.<key>` for an error whose validator
+  carries no `{ message }`, with the error payload as params.
