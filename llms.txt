@@ -62,10 +62,10 @@ Styles: `@use 'ngwr/theme'` first, then `@use 'ngwr/<name>'` per component in
 your global SCSS; there is no `@use 'ngwr'` umbrella. **Per component, the
 theme tokens come with each entry but the other components it renders do not**,
 and nothing warns — the control just paints wrong. Always add `ngwr/icon` (the
-inline chevrons, carets and sort arrows are bare SVGs sized by `.wr-icon__svg`),
-`ngwr/density` (nothing else declares the `--wr-density-*` multipliers, so
-`provideWrDensity()` silently does nothing without it) and `ngwr/overlay` (the
-responsive bottom sheet). Then follow what a component renders:
+inline chevrons, carets and sort arrows are bare SVGs sized by `.wr-icon__svg`)
+and `ngwr/density` (nothing else declares the `--wr-density-*` multipliers, so
+`provideWrDensity()` silently does nothing without it). Then follow what a
+component renders:
 `ngwr/table` needs checkbox / dropdown / pagination / spinner, `ngwr/pagination`
 needs button / select, `ngwr/date-picker` needs calendar / input,
 `ngwr/editor` needs button / input / popover, and a service
@@ -80,14 +80,14 @@ Add from their entry points as needed:
 - `provideWrOverlay()` — strongly recommended for any overlay (dialog / select /
   dropdown / popover / toast / drawer): gives ngwr its own CDK overlay container
   so it never collides with other CDK consumers, and installs the visual-viewport
-  tracker mobile sheets need to clear the on-screen keyboard. Without it overlays
-  still work, falling back to CDK's shared root container — but
-  `--wr-keyboard-inset` stays 0 and sheets won't lift above the keyboard. Add
-  `provideWrResponsiveOverlays()` for mobile sheets — both from `ngwr/overlay`,
-  not from the component's own entry point. Optional does not mean free: what it
-  references is CDK's overlay module, the heaviest dependency in the catalog, so
-  it is near-zero in an app with any overlay on screen and the whole of it in an
-  app with none.
+  tracker that publishes `--wr-keyboard-inset`. Without it overlays still work,
+  falling back to CDK's shared root container — but `--wr-keyboard-inset` stays
+  0. It comes from `ngwr/overlay`, not from the component's own entry point.
+  Optional does not mean free: what it references is CDK's overlay module, the
+  heaviest dependency in the catalog, so it is near-zero in an app with any
+  overlay on screen and the whole of it in an app with none. Overlays always
+  float; a sheet on a phone is a `<wr-drawer position="bottom">` you open
+  yourself.
 - `provideWrIcons(lucideIcons({ check: Check }))` — icon registry (`ngwr/icon`,
   which holds `lucideIcons()` too; every other set, feather included, registers
   its raw SVG with `svgIcon()`).
@@ -334,9 +334,9 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   cannot read, so `wrThemePrePaintScript()` (`ngwr/theme`) is the blocking
   `<head>` reader that applies it before first paint:
   https://ngwr.dev/guides/ssr
-- **Mobile** — overlays collapse to sheets (`provideWrResponsiveOverlays()`), a
-  `responsive` input reflows layout components, a `touch` density preset enlarges
-  controls, and `WrHaptics` (ngwr/platform) fires vibration feedback.
+- **Mobile** — a `responsive` input reflows layout components, a `touch` density
+  preset enlarges controls, and `WrHaptics` (ngwr/platform) fires vibration
+  feedback.
 - **Large datasets** — `virtualScroll` is an opt-in input on `wr-table`,
   `wr-tree` and `wr-select` (search mode), alongside the standalone
   `wr-virtual-scroll` wrapper.
@@ -413,8 +413,8 @@ TypeScript, the `.wr-*` BEM class names (every component ships
 TSDoc means not API and survives into the published types, so
 `grep -rn "@internal" node_modules/ngwr/types` answers it. A few helpers are
 exported, unmarked and undocumented — `wrAppendOverlayClose`, `wrMirrorOffsets`,
-`wrPresentAsSheet`, `wrFollowDirection`, `WrOutsideClick`, `useFormFieldAria`,
-`isSafeCssValue`, and a handful of `WR_*` context tokens such as `WR_STEPPER` —
+`wrFollowDirection`, `WrOutsideClick`, `useFormFieldAria`, `isSafeCssValue`, and
+a handful of `WR_*` context tokens such as `WR_STEPPER` —
 and carry no stability statement; do not build on them.
 
 ## Resources (machine-readable)

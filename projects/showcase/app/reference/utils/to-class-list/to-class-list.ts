@@ -25,7 +25,7 @@ toClassList('a', null, false, '  ', 'a'); // ['a']`;
 //   classList.add('p-4 rounded')  →  InvalidCharacterError
 //
 // So every ngwr overlay routes its classes through this first.
-panelClass: toClassList('wr-select-overlay', asSheet && 'wr-overlay-sheet', this.panelClass());`;
+panelClass: toClassList('wr-dropdown-overlay', this.arrow() && 'wr-dropdown-overlay--arrow', this.panelClass());`;
 
   protected readonly api: readonly DocApiRow[] = [
     {

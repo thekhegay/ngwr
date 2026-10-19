@@ -1,5 +1,4 @@
 @use '../../theme/styles' as theme;
-@use '../../overlay/styles'; // shared .wr-overlay-sheet for responsive mode
 
 // CDK Overlay base styles are usually loaded once by the consumer.
 // We re-emit the minimal `cdk-overlay-*` rules so a standalone `@use

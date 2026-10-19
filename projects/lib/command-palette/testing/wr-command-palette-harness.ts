@@ -95,23 +95,6 @@ export class WrCommandPaletteHarness extends ComponentHarness {
     return dialog ? dialog.getAttribute('aria-label') : null;
   }
 
-  /**
-   * Whether this opening is presented full-screen instead of as a centred modal.
-   *
-   * Read from the `--sheet` modifier, which is public API: `responsive` is an
-   * input that never reaches the DOM, and the decision also folds in the viewport
-   * width — so the class is the only place the outcome exists. `false` while closed.
-   *
-   * That width is sampled when the palette last RECOMPUTED the decision, which is
-   * when `responsive` or the app-wide `provideWrResponsiveOverlays()` config
-   * changes — not when the palette opens. So a spec that narrows the viewport and
-   * then opens sees nothing move until one of those two changes as well.
-   */
-  async isPresentedAsSheet(): Promise<boolean> {
-    const dialog = await this.dialog();
-    return dialog !== null && (await dialog.hasClass('wr-command-palette--sheet'));
-  }
-
   /** The search box's placeholder — `placeholder`, or the catalogue fallback. */
   async getPlaceholder(): Promise<string> {
     return (await this.searchInput('getPlaceholder')).getProperty<string>('placeholder');

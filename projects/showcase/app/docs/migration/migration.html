@@ -295,6 +295,19 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="v14 to v15 — no responsive bottom sheets"
+    description="`provideWrResponsiveOverlays()`, `WR_RESPONSIVE_OVERLAYS`, `wrPresentAsSheet` and the `WrResponsiveOverlaysConfig` type are removed from `ngwr/overlay`, and so is its stylesheet, which held only the sheet. The `responsive` input on `<wr-select>`, `[wrDropdown]`, `[wrPopover]` and `<wr-command-palette>` goes with them, as do the `responsive` option of `WrDialog.open()`, `WrPopoverHarness.isSheet()` and `WrCommandPaletteHarness.isPresentedAsSheet()` (`WrDrawerHarness.isSheet()` stays). Overlays always float now: on a phone a select, dropdown or popover stays anchored to its trigger, and a dialog or command palette stays a centred modal. An app that wants a sheet there opens a `<wr-drawer position=&quot;bottom&quot;>` itself."
+  >
+    <ngwr-doc-code [code]="snippets.v15Sheets" language="diff" />
+    <p>
+      The import, the <code>&#64;use</code> and the harness calls fail the build, and so do a bound
+      <code>[responsive]</code> and an inline <code>&#123; responsive: true &#125;</code>. A bare
+      <code>responsive</code> attribute is inert, and a rule on <code>.wr-overlay-sheet</code>,
+      <code>.wr-overlay-backdrop</code> or <code>.wr-command-palette--sheet</code> matches nothing, so search for both.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="v14 to v15 — renames"
     description="Two kinds, and both are a rename: the new form means what the old one meant in the same place. The neutral TOKENS, where `--wr-color-light`, `-outline`, `-dark` and `-muted-text` move onto a successor carrying the identical value in both themes, so a renamed rule paints to the pixel, while `-medium` and the three translucent `--wr-color-border*` land on the nearest opaque step. And two VALUES that were named after an intent while always painting a neutral role — `[wrTypography]`'s `tone` and `<wr-timeline-item>`'s `color` — which move onto the name of what they do, together with the BEM class each emits."
   >

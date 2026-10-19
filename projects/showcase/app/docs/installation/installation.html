@@ -46,7 +46,7 @@
 
   <ngwr-doc-section
     title="Bootstrap"
-    description="One provider is worth adding on day one. Dark mode needs none: the theme stylesheet follows the OS through `color-scheme`, and `WrTheme`, the service behind a light / dark toggle, is root-provided. `provideWrOverlay()` gives ngwr's overlays their own container instead of the one every CDK consumer shares, and installs the visual-viewport watcher that lets a mobile bottom-sheet clear the on-screen keyboard; panels still open without it. The rest of the catalog's providers are optional — see [Configuration](/docs/configuration)."
+    description="One provider is worth adding on day one. Dark mode needs none: the theme stylesheet follows the OS through `color-scheme`, and `WrTheme`, the service behind a light / dark toggle, is root-provided. `provideWrOverlay()` gives ngwr's overlays their own container instead of the one every CDK consumer shares, and installs the visual-viewport watcher behind `--wr-keyboard-inset`; panels still open without it. The rest of the catalog's providers are optional — see [Configuration](/docs/configuration)."
   >
     <ngwr-doc-code [code]="snippets.appConfig" language="angular-ts" />
   </ngwr-doc-section>
@@ -65,9 +65,9 @@
     <ngwr-doc-code [code]="snippets.globalStyles" language="scss" />
 
     <p>
-      <strong>What it costs, since <code>ng new</code> warns at 500 kB.</strong> The fifteen entries a typical CRUD
+      <strong>What it costs, since <code>ng new</code> warns at 500 kB.</strong> The fourteen entries a typical CRUD
       screen needs (theme, density, button, input, form, icon, select, checkbox, table, pagination, dialog, toast,
-      overlay, spinner, dropdown) compile and minify to about <strong>{{ styleSizes.crud }}</strong> /
+      spinner, dropdown) compile and minify to about <strong>{{ styleSizes.crud }}</strong> /
       {{ styleSizes.crudGzip }} gzipped; the theme token layer alone is {{ styleSizes.theme }} /
       {{ styleSizes.themeGzip }}. The whole catalog, for comparison, is <strong>{{ styleSizes.everything }}</strong> /
       {{ styleSizes.everythingGzip }} — that figure is why there is nothing to <code>&#64;use</code> that gives you all
@@ -94,15 +94,13 @@
     <ngwr-doc-code [code]="snippets.perComponent" language="scss" />
 
     <p>
-      <strong>Three entries you will not think to add, and every app wants all three.</strong>
+      <strong>Two entries you will not think to add, and every app wants both.</strong>
       <code>ngwr/icon</code> — a large part of the catalog renders either a <code>&lt;wr-icon&gt;</code> or a bare
       inline <code>&lt;svg class="wr-icon__svg"&gt;</code> — select and cascader chevrons, table sort and expand arrows,
       tree twisties, accordion carets, the alert and toast status marks — and this entry is the only thing that sizes
       them. <code>ngwr/density</code> — the <code>--wr-density-*</code> multipliers live there and nowhere else; every
       reader falls back to <code>1</code>, so without it geometry is correct at <code>md</code> and
-      <code>provideWrDensity()</code> / <code>[wrDensity]</code> silently do nothing at all. <code>ngwr/overlay</code> —
-      <code>.wr-overlay-sheet</code>, the mobile bottom-sheet presentation shared by dialog, select, dropdown and
-      popover.
+      <code>provideWrDensity()</code> / <code>[wrDensity]</code> silently do nothing at all.
     </p>
 
     <p>
@@ -126,8 +124,8 @@
     <p>
       Below: everything a component renders <em>beyond</em> <code>ngwr/icon</code>, which the paragraph above already
       settles. The list is DIRECT, so follow it through — <code>&lt;wr-table&gt;</code> pulls
-      <code>ngwr/pagination</code>, which pulls <code>ngwr/select</code>, which pulls <code>ngwr/overlay</code>. A
-      component not listed here needs only its own entry.
+      <code>ngwr/pagination</code>, which pulls <code>ngwr/select</code>. A component not listed here needs only its
+      own entry.
     </p>
 
     <wr-table responsive [columns]="styleDepColumns" [items]="styleDepRows">

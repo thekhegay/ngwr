@@ -161,19 +161,6 @@ class ClearableMinCharsHost {
 @Component({
   imports: [WrSelect, WrOption],
   template: `
-    <wr-select responsive placeholder="Pick a size" ariaLabel="Size" [(value)]="size">
-      <wr-option value="sm">Small</wr-option>
-      <wr-option value="md">Medium</wr-option>
-    </wr-select>
-  `,
-})
-class SheetHost {
-  readonly size = signal<unknown>(null);
-}
-
-@Component({
-  imports: [WrSelect, WrOption],
-  template: `
     <wr-select mode="search" placeholder="Find a size" ariaLabel="Size" [options]="dynamic" [(value)]="size">
       <wr-option value="a">Projected A</wr-option>
       <wr-option value="b">Projected B</wr-option>
@@ -1409,50 +1396,6 @@ describe('WrSelect with a minimum query length', () => {
     fixture.detectChanges();
 
     expect(field().value).toBe('');
-  });
-});
-
-describe('WrSelect as a bottom sheet', () => {
-  let fixture: ReturnType<typeof TestBed.createComponent<SheetHost>>;
-  let width: number;
-
-  const trigger = (): HTMLElement =>
-    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('[role="combobox"]')!;
-
-  beforeEach(() => {
-    // `wrPresentAsSheet` decides on `window.innerWidth` against a 640px default.
-    width = window.innerWidth;
-    Object.defineProperty(window, 'innerWidth', { value: 390, configurable: true });
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
-    fixture = TestBed.createComponent(SheetHost);
-    fixture.detectChanges();
-  });
-
-  afterEach(() => {
-    fixture.destroy();
-    Object.defineProperty(window, 'innerWidth', { value: width, configurable: true });
-  });
-
-  it('dims behind the sheet with the class that has the styles', () => {
-    // The sheet asked for a `wr-select-backdrop` that no stylesheet defines, and
-    // naming a custom class also drops CDK's own dark default — so the scrim was
-    // invisible while still swallowing every click meant for the page behind it.
-    // `wr-dropdown` and `wr-popover` both use the shared class, and this
-    // component's stylesheet already imports it.
-    trigger().click();
-    fixture.detectChanges();
-
-    const backdrop = document.querySelector('.cdk-overlay-backdrop');
-    expect(backdrop).not.toBeNull();
-    expect(backdrop!.classList.contains('wr-overlay-backdrop')).toBe(true);
-  });
-
-  it('presents the panel as a sheet', () => {
-    trigger().click();
-    fixture.detectChanges();
-
-    expect(document.querySelector('.wr-overlay-sheet')).not.toBeNull();
   });
 });
 
@@ -2700,49 +2643,6 @@ describe('WrSelect follows a direction flip while its panel is open', () => {
     flipTo('ltr');
 
     expect(overlayHost().getAttribute('dir')).toBe('ltr');
-  });
-});
-
-/**
- * The sheet is a GLOBAL overlay: its geometry is direction-free (full width,
- * pinned to the bottom edge), and its CONTENT is not. So it follows for the
- * same reason and through the same call — a check-boxed multi list that mirrors
- * on the page behind a sheet that does not is the same defect wearing a
- * different position strategy.
- */
-describe('WrSelect as a bottom sheet follows a direction flip', () => {
-  let fixture: ReturnType<typeof TestBed.createComponent<SheetHost>>;
-  let width: number;
-
-  const trigger = (): HTMLElement =>
-    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('[role="combobox"]')!;
-  const overlayHost = (): HTMLElement => document.querySelector<HTMLElement>('.wr-overlay-sheet')!.parentElement!;
-
-  beforeEach(() => {
-    // `wrPresentAsSheet` decides on `window.innerWidth` against a 640px default.
-    width = window.innerWidth;
-    Object.defineProperty(window, 'innerWidth', { value: 390, configurable: true });
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
-    fixture = TestBed.createComponent(SheetHost);
-    fixture.detectChanges();
-  });
-
-  afterEach(() => {
-    fixture.destroy();
-    Object.defineProperty(window, 'innerWidth', { value: width, configurable: true });
-  });
-
-  it('rewrites the open sheet’s `dir`', () => {
-    trigger().click();
-    fixture.detectChanges();
-    expect(overlayHost().getAttribute('dir')).toBe('ltr');
-
-    TestBed.inject(Directionality).valueSignal.set('rtl');
-    TestBed.tick();
-    fixture.detectChanges();
-
-    expect(overlayHost().getAttribute('dir')).toBe('rtl');
   });
 });
 

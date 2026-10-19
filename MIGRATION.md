@@ -290,6 +290,34 @@ A named key has to become its width: `md` is `(min-width: 768px)`, and the rest 
 prerenders the same arm it did. `current()` has no equivalent: observe the widths you branch on
 and pick the largest that matches.
 
+### No responsive bottom sheets
+
+`provideWrResponsiveOverlays()`, `WR_RESPONSIVE_OVERLAYS`, `wrPresentAsSheet` and the
+`WrResponsiveOverlaysConfig` type are removed from `ngwr/overlay`, and so is its stylesheet, which
+held only the sheet. The `responsive` input on `<wr-select>`, `[wrDropdown]`, `[wrPopover]` and
+`<wr-command-palette>` goes with them, as do the `responsive` option of `WrDialog.open()`,
+`WrPopoverHarness.isSheet()` and `WrCommandPaletteHarness.isPresentedAsSheet()`
+(`WrDrawerHarness.isSheet()` stays). Overlays always float now: on a phone a select, dropdown or
+popover stays anchored to its trigger, and a dialog or command palette stays a centred modal. An
+app that wants a sheet there opens a `<wr-drawer position="bottom">` itself.
+
+```diff
+- import { provideWrOverlay, provideWrResponsiveOverlays } from 'ngwr/overlay';
+- provideWrResponsiveOverlays({ breakpoint: 768 }),
++ import { provideWrOverlay } from 'ngwr/overlay';
+- @use 'ngwr/overlay';
+- <wr-select responsive [(value)]="size">…</wr-select>
++ <wr-select [(value)]="size">…</wr-select>
+- this.dialog.open(EditProfile, { responsive: true });
++ this.dialog.open(EditProfile);
++ <wr-drawer position="bottom" rounded [(open)]="filtersOpen">…</wr-drawer>
+```
+
+The import, the `@use` and the harness calls fail the build, and so do a bound `[responsive]` and
+an inline `{ responsive: true }`. A bare `responsive` attribute is inert, and a rule on
+`.wr-overlay-sheet`, `.wr-overlay-backdrop` or `.wr-command-palette--sheet` matches nothing, so
+search for both.
+
 ---
 
 ## v13 to v14

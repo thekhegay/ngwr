@@ -24,11 +24,9 @@ interface StyleDepRow {
  * Derived by reading every template and host binding in `projects/lib` for a
  * `.wr-*` class whose base rule is declared in a different entry point's
  * `styles/`, unioned with every cross-entry symbol that reaches a component's
- * `imports: []`. Two edges a template scan alone misses are folded in by hand
- * and named in the `why` column: the responsive bottom sheet (`.wr-overlay-sheet`
- * lives in `ngwr/overlay`, and dialog / select / dropdown / popover all wear it)
- * and the pager's page-size changer, which is a `<wr-select>` even in a template
- * that never turns it on.
+ * `imports: []`. One edge a template scan alone misses is folded in by hand
+ * and named in the `why` column: the pager's page-size changer, which is a
+ * `<wr-select>` even in a template that never turns it on.
  *
  * DIRECT edges only — `table` lists `pagination`, and `pagination`'s own row
  * carries `select`. Spelling every closure out would put nine entries on the
@@ -40,8 +38,6 @@ const STYLE_DEPS: readonly StyleDepRow[] = [
   { component: 'button', needs: 'ngwr/spinner', why: 'the [loading] state' },
   { component: 'color-picker', needs: 'ngwr/segmented', why: 'the HEX / RGB / HSL strip' },
   { component: 'date-picker', needs: 'ngwr/calendar, ngwr/input', why: 'the popup panel and the field it opens from' },
-  { component: 'dialog', needs: 'ngwr/overlay', why: 'the responsive bottom-sheet presentation' },
-  { component: 'dropdown', needs: 'ngwr/overlay', why: 'the responsive bottom-sheet presentation' },
   {
     component: 'editor',
     needs: 'ngwr/button, ngwr/input, ngwr/popover',
@@ -51,9 +47,7 @@ const STYLE_DEPS: readonly StyleDepRow[] = [
   { component: 'input-number', needs: 'ngwr/input', why: 'the field under the steppers' },
   { component: 'pagination', needs: 'ngwr/button, ngwr/select', why: 'the page cells, and the size changer' },
   { component: 'popconfirm', needs: 'ngwr/button', why: 'confirm and cancel' },
-  { component: 'popover', needs: 'ngwr/overlay', why: 'the responsive bottom-sheet presentation' },
   { component: 'pull-to-refresh', needs: 'ngwr/spinner', why: 'the release indicator' },
-  { component: 'select', needs: 'ngwr/overlay', why: 'the responsive bottom-sheet presentation' },
   { component: 'statistic', needs: 'ngwr/counter', why: 'the animated value' },
   {
     component: 'table',
@@ -147,8 +141,8 @@ export const appConfig: ApplicationConfig = {
 
     // ngwr ---------------------------------------------------------------
     // Isolates ngwr's overlays in their own container, and installs the
-    // visual-viewport watcher mobile sheets need. Panels open without it —
-    // they just share a DOM root with every other CDK consumer.
+    // visual-viewport watcher behind --wr-keyboard-inset. Panels open without
+    // it — they just share a DOM root with every other CDK consumer.
     provideWrOverlay(),
     // No theme provider: the stylesheet follows the OS through color-scheme,
     // and WrTheme is root-provided — inject it where a toggle needs it.
@@ -200,7 +194,6 @@ gzip -9 -c check.css | wc -c   # over the wire`,
 @use 'ngwr/theme';    // the line that takes with ($base-colors: …), if any
 @use 'ngwr/density';  // the --wr-density-* multipliers; nothing else declares them
 @use 'ngwr/icon';     // .wr-icon__svg — sizes every inline chevron and caret
-@use 'ngwr/overlay';  // .wr-overlay-sheet — the responsive bottom sheet
 
 @use 'ngwr/button';
 @use 'ngwr/select';   // its panel is a <wr-option> list, so this covers both

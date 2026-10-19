@@ -19,12 +19,13 @@ import type { WrClassInput } from '../types';
  * writes: a Tailwind user reaches for a space-separated string before an array.
  *
  * `false` is accepted so a call site can spell a conditional class inline
- * (`asSheet && 'wr-overlay-sheet'`) instead of building an array first.
+ * (`this.arrow() && 'wr-dropdown-overlay--arrow'`) instead of building an array
+ * first.
  *
  * @example
  * ```ts
- * toClassList('wr-select-overlay', asSheet && 'wr-overlay-sheet', this.panelClass());
- * // ['wr-select-overlay', 'wr-overlay-sheet', 'p-4', 'rounded-xl']
+ * toClassList('wr-dropdown-overlay', this.arrow() && 'wr-dropdown-overlay--arrow', this.panelClass());
+ * // ['wr-dropdown-overlay', 'wr-dropdown-overlay--arrow', 'p-4', 'rounded-xl']
  * ```
  */
 export function toClassList(...values: readonly (WrClassInput | false)[]): string[] {

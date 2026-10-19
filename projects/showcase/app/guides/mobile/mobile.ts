@@ -10,22 +10,6 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/c
 })
 export default class MobilePageComponent {
   protected readonly snippets = {
-    overlaysProvider: `import { provideWrOverlay, provideWrResponsiveOverlays } from 'ngwr/overlay';
-
-bootstrapApplication(AppComponent, {
-  providers: [
-    provideWrOverlay(),
-    // App-wide opt-in: on viewports at or below the breakpoint, dialog /
-    // select / dropdown / popover collapse to a bottom-sheet, and the
-    // command-palette goes full-screen. Defaults to 640px.
-    provideWrResponsiveOverlays({ breakpoint: 640 }),
-  ],
-});`,
-    overlaysInput: `<!-- Or opt in one overlay at a time, without the global provider -->
-<wr-select responsive [(value)]="size">…</wr-select>
-
-// Dialog is service-opened, so pass it as an option:
-this.dialog.open(EditProfile, { responsive: true });`,
     containerQuery: `<!-- Reflows on its OWN width (a container query), not the viewport — so it
      adapts inside a narrow card or split pane even on a wide screen. -->
 <wr-descriptions responsive inline bordered>…</wr-descriptions>

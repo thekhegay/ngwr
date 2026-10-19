@@ -1318,9 +1318,9 @@ export class MyWidgetHarness extends ComponentHarness {
       default: '—',
     },
     {
-      name: 'getPosition() / isSheet()',
-      description: 'The placement modifier, and whether it collapsed to a bottom sheet on a small viewport.',
-      type: 'Promise<WrPopoverPosition | null> | Promise<boolean>',
+      name: 'getPosition()',
+      description: 'The placement modifier.',
+      type: 'Promise<WrPopoverPosition | null>',
       default: '—',
     },
   ];
@@ -1339,7 +1339,7 @@ export class MyWidgetHarness extends ComponentHarness {
       default: '—',
     },
     {
-      name: 'getPosition() / isSheet() / isRounded() / hasSafeArea() / hasHandle()',
+      name: 'getPosition() / isSheet() / isRounded() / hasSafeArea()',
       description: 'Which edge it came from and how it is presented.',
       type: 'Promise<…>',
       default: '—',
@@ -2341,7 +2341,7 @@ export class MyWidgetHarness extends ComponentHarness {
       default: '—',
     },
     {
-      name: 'getRole() / isModal() / getLabel() / isPresentedAsSheet() / getEmptyText() / focus() / blur() / isSearchInputFocused()',
+      name: 'getRole() / isModal() / getLabel() / getEmptyText() / focus() / blur() / isSearchInputFocused()',
       description: 'Shape, state and focus.',
       type: 'Promise<…>',
       default: '—',

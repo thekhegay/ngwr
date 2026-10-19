@@ -122,13 +122,9 @@ type Theme = (typeof THEMES)[number];
  * The desktop viewport every other gate uses, and the phone one none of them
  * does.
  *
- * `wrPresentAsSheet` turns select, dropdown, popover, dialog and drawer into
- * bottom sheets at 640px and under — a different panel, a different backdrop
- * and a different set of `.wr-overlay-sheet` rules — and both existing gates
- * load every page at 1280 wide, so not one pixel of that presentation has ever
- * been measured. A state opts in with `viewport: 'mobile'`; the size is the
- * iPhone-ish 390×844 rather than something just under the breakpoint, because a
- * sheet that only works at 639px is not the thing being shipped.
+ * Both existing gates load every page at 1280 wide, so nothing they report says
+ * what a phone gets. A state opts in with `viewport: 'mobile'`; the size is the
+ * iPhone-ish 390×844.
  */
 const VIEWPORTS = {
   desktop: { width: 1280, height: 900 },
@@ -606,10 +602,9 @@ async function main(): Promise<void> {
       `(KHTML, like Gecko) HeadlessChrome/${browser.version()} Safari/537.36`;
 
     for (const theme of themes) {
-      // One context per viewport, not one page resized between states: a sheet
-      // is decided when the overlay OPENS, and `wrPresentAsSheet` reads
-      // `window.innerWidth` at that moment — a resize afterwards leaves a
-      // floating panel on a phone-sized page, which is a layout nobody ships.
+      // One context per viewport, not one page resized between states:
+      // `hasTouch` and `isMobile` below are context options, fixed when the
+      // context is created, and a resize cannot change them.
       for (const viewport of ['desktop', 'mobile'] as const) {
         const forHere = targets.filter(state => (state.viewport ?? 'desktop') === viewport);
         if (forHere.length === 0) continue;
@@ -627,7 +622,7 @@ async function main(): Promise<void> {
           // Playwright derives `navigator.userAgentData.platform` from this
           // string, which is the first source ngwr's own `detectOs()` reads.
           userAgent,
-          // A sheet is what a TOUCH device gets, and some of the reflow is
+          // A phone is a TOUCH device, and some of the library's geometry is
           // gated on `pointer: coarse` rather than on width alone.
           hasTouch: viewport === 'mobile',
           isMobile: viewport === 'mobile',

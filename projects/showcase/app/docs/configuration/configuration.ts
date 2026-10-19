@@ -56,27 +56,6 @@ bootstrapApplication(AppComponent, {
 // fall back to CDK's shared root container.
 providers: [provideWrOverlay()],`,
 
-    responsiveOverlays: `// Same entry point as provideWrOverlay() — NOT ngwr/dialog, and not the
-// subpath of whichever component you were reading about when you met it.
-import { provideWrOverlay, provideWrResponsiveOverlays } from 'ngwr/overlay';
-
-providers: [
-  provideWrOverlay(),
-  provideWrResponsiveOverlays(),                // breakpoint defaults to 640
-  // provideWrResponsiveOverlays({ breakpoint: 768 }),
-],
-
-// Per instance, either direction — the input wins over the provider:
-//   <wr-select [responsive]="false">            stays anchored on a phone
-//   <button [wrDropdown]="menu" responsive>     becomes a sheet, no provider needed
-//
-// Mind WHERE it goes on a dropdown: "responsive" belongs to the TRIGGER
-// directive, not to <wr-dropdown-menu>. On the panel it is an ordinary
-// unknown attribute — it compiles, lands on the element and does nothing.
-//
-// If you load styles per component, the sheet's presentation is in this entry
-// point too:  @use 'ngwr/overlay';`,
-
     icons: `import { Check, Plus, Trash2 } from 'lucide';
 import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 
@@ -204,7 +183,7 @@ providers: [provideWrStorage({ engine: sessionStorage, prefix: 'app:' })],`,
       title: 'Mobile & responsive',
       url: ['/guides', 'mobile'],
       description:
-        'The rest of the touch story behind `provideWrResponsiveOverlays()`: sheets, the keyboard inset, and the `touch` density preset.',
+        'The touch story beside these providers: touch targets, the `touch` density preset and container-query reflow.',
     },
     {
       kind: 'Guide',

@@ -27,7 +27,6 @@ const ITEMS: readonly WrCommandItem[] = [
       [items]="items()"
       [(open)]="open"
       [trigger]="null"
-      [responsive]="responsive()"
       (picked)="picked.push($event.id)"
     />
   `,
@@ -35,7 +34,6 @@ const ITEMS: readonly WrCommandItem[] = [
 class Host {
   readonly items = signal<readonly WrCommandItem[]>(ITEMS);
   readonly open = signal(true);
-  readonly responsive = signal<boolean | undefined>(undefined);
   readonly picked: string[] = [];
 }
 
@@ -288,19 +286,6 @@ describe('WrCommandPalette', () => {
     const bare = root().querySelector<HTMLElement>('.wr-command-palette__group')!;
     expect(bare.getAttribute('role')).toBe('none');
     expect(bare.hasAttribute('aria-labelledby')).toBe(false);
-  });
-
-  it('keeps what the user typed when the presentation changes under it', () => {
-    // The reset-on-open effect used to read `responsive()` as well, so a bound
-    // signal flipping mid-search re-ran the whole body and cleared the query.
-    type('file');
-    expect(labels()).toEqual(['Open file', 'Save file']);
-
-    fixture.componentInstance.responsive.set(true);
-    fixture.detectChanges();
-
-    expect(input().value).toBe('file');
-    expect(labels()).toEqual(['Open file', 'Save file']);
   });
 
   it('still resets the search on each fresh opening', () => {

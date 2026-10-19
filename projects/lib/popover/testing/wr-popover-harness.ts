@@ -293,8 +293,8 @@ export class WrPopoverHarness extends ContentContainerComponentHarness {
   }
 
   /**
-   * Where the panel sits relative to the trigger, or `null` when it is presented
-   * as a sheet and has no anchor.
+   * Where the panel sits relative to the trigger, or `null` when the pane
+   * carries no placement class.
    *
    * The APPLIED position, not the requested one: CDK flips a placement that does
    * not fit to the next in its fallback chain and swaps the modifier class with
@@ -311,11 +311,6 @@ export class WrPopoverHarness extends ContentContainerComponentHarness {
     const classes = (await (await this.panel()).getAttribute('class')) ?? '';
     const modifier = /wr-(?:popover|tooltip)-overlay--([a-z-]+)/.exec(classes);
     return modifier ? (modifier[1] as WrPopoverPosition) : null;
-  }
-
-  /** Whether the popover is presented as a full-width bottom sheet instead of an anchored panel. */
-  async isSheet(): Promise<boolean> {
-    return (await this.panel()).hasClass('wr-overlay-sheet');
   }
 
   /**

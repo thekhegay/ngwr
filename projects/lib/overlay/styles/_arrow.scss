@@ -13,15 +13,12 @@
 // against a CDK pane that carries a `--<placement>` modifier written by
 // `wrPopoverPositions()` / a directive's `panelClass`, and the eight-to-twelve
 // placement names it keys off are `WR_POPOVER_POSITIONS`. That is the overlay
-// layer's vocabulary, and `overlay/styles` is already where the cross-overlay
-// presentation lives (`.wr-overlay-sheet`, `.wr-overlay-backdrop`). Promoting it
-// to `ngwr/theme` would advertise it to every component in the catalog as
-// something general, which it is not.
+// layer's vocabulary. Promoting it to `ngwr/theme` would advertise it to every
+// component in the catalog as something general, which it is not.
 //
-// It is deliberately NOT `@forward`ed from `overlay/styles/_index.scss`, so
-// `@use 'ngwr/overlay'` gains no new public API and this file emits no CSS of
-// its own — a component `@use`s it by relative path and pays only for the rules
-// its own `anchored-arrow()` call generates.
+// It is a private partial rather than a public `@use 'ngwr/overlay'` entry, and
+// emits no CSS of its own — a component `@use`s it by relative path and pays
+// only for the rules its own `anchored-arrow()` call generates.
 
 /// Side of the square's box. Half of it shows; the rest is under the panel.
 $size: 6px;
@@ -209,14 +206,6 @@ $placements: (
           pointer-events: none;
         }
       }
-    }
-
-    // Responsive bottom-sheet mode detaches the panel from its trigger and docks
-    // it to the bottom of the screen, so there is nothing left to point at.
-    // Emitted for every caller, not only the ones that support sheets today: the
-    // arrow is what would be wrong there, so the arrow is what should know.
-    &.wr-overlay-sheet #{$panel}::after {
-      content: none;
     }
   }
 

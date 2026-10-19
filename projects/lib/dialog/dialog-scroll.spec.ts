@@ -26,9 +26,9 @@ import { describe, expect, it } from 'vitest';
  *   scrolls    |  false | true
  *   footer bot |   1741 |  851   (viewport 883)
  *
- * plus the narrow-viewport sheet path, a dialog with neither title nor footer, a
- * dialog shorter than the screen (which must NOT stretch), and a consumer's own
- * `:host` background / padding / border surviving intact.
+ * plus a dialog with neither title nor footer, a dialog shorter than the screen
+ * (which must NOT stretch), and a consumer's own `:host` background / padding /
+ * border surviving intact.
  *
  * What is left for a unit test is the thing a refactor can silently take away:
  * the rule's existence. Comments are stripped first, so the assertions cannot be

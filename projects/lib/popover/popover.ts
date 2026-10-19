@@ -7,7 +7,6 @@
 
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
-import { type BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 import type { ComponentRef, TemplateRef } from '@angular/core';
@@ -28,14 +27,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
-import {
-  WR_OVERLAY,
-  WR_RESPONSIVE_OVERLAYS,
-  WrOutsideClick,
-  wrFollowDirection,
-  wrMirrorOffsets,
-  wrPresentAsSheet,
-} from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
 import { KEYS, numAttr, toClassList, type WrClassInput } from 'ngwr/utils';
 
 import { WrCurrentKeystroke } from './internal/keystroke';
@@ -155,16 +147,6 @@ export class WrPopover {
   readonly hideDelay = input(60, { transform: numAttr(60) });
 
   /**
-   * Popover mode only — present the panel as a full-width bottom-sheet on
-   * small viewports instead of an anchored panel. `undefined` follows the
-   * app-wide `provideWrResponsiveOverlays()` setting; `true`/`false`
-   * overrides it. Tooltips never become sheets. @default undefined
-   */
-  readonly responsive = input<boolean | undefined, BooleanInput>(undefined, {
-    transform: (v: BooleanInput): boolean | undefined => (v == null ? undefined : coerceBooleanProperty(v)),
-  });
-
-  /**
    * Popover mode only — accessible name of the panel. `role="dialog"` with no
    * name announces as a bare "dialog", so the catalog's `popover.label` is used
    * when nothing is given. A popover has no universal name; whenever the panel
@@ -194,7 +176,6 @@ export class WrPopover {
   private readonly overlay = inject(WR_OVERLAY);
   private readonly dir = inject(Directionality, { optional: true });
   private readonly outsideClick = inject(WrOutsideClick);
-  private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
@@ -428,37 +409,23 @@ export class WrPopover {
     const tooltip = this.isTooltip();
     const position = this.resolvedPosition();
 
-    // Sheet presentation is popover-only — tooltips are transient labels and
-    // never dock to the bottom. On small viewports (when opted in) detach
-    // from the trigger and slide the panel up from the bottom edge.
-    const asSheet = !tooltip && wrPresentAsSheet(this.responsive(), this.responsiveConfig);
     const paneClass = tooltip ? 'wr-tooltip-overlay' : 'wr-popover-overlay';
 
-    // Kept as its own binding rather than inlined into the ternary: it is the
-    // half a direction flip has to rebuild, and a sheet — anchored to nothing —
-    // has no list at all, which is what `null` says here.
-    const connected = asSheet
-      ? null
-      : this.overlay
-          .position()
-          .flexibleConnectedTo(this.host)
-          .withPositions(wrMirrorOffsets(wrPopoverPositions(position, paneClass), this.isRtl()))
-          .withPush(true);
-
-    const positionStrategy = connected ?? this.overlay.position().global().centerHorizontally().bottom('0');
+    // Kept as its own binding: it is the half a direction flip has to rebuild.
+    const connected = this.overlay
+      .position()
+      .flexibleConnectedTo(this.host)
+      .withPositions(wrMirrorOffsets(wrPopoverPositions(position, paneClass), this.isRtl()))
+      .withPush(true);
 
     // The `--<placement>` half is no longer set here: each fallback position
     // carries its own, so the pane names the placement it landed on instead of
-    // the one that was requested, and the arrow follows a flip. A sheet has no
-    // anchor and so no placement class at all.
-    const overlayClass = toClassList(paneClass, asSheet && 'wr-overlay-sheet', this.panelClass());
+    // the one that was requested, and the arrow follows a flip.
+    const overlayClass = toClassList(paneClass, this.panelClass());
 
     this.overlayRef = this.overlay.create({
-      positionStrategy,
-      scrollStrategy: asSheet ? this.scrollStrategies.block() : this.scrollStrategies.reposition(),
-      width: asSheet ? '100%' : undefined,
-      hasBackdrop: asSheet,
-      backdropClass: asSheet ? 'wr-overlay-backdrop' : undefined,
+      positionStrategy: connected,
+      scrollStrategy: this.scrollStrategies.reposition(),
       panelClass: overlayClass,
     });
 
@@ -468,18 +435,9 @@ export class WrPopover {
     // laying themselves out the other way. Rebuilding the list matters as much
     // as the attribute: `wrMirrorOffsets` turned the 8px gap around at open, and
     // an unmirrored offset puts a side-placed panel back on top of its trigger.
-    // A sheet has no list, and `connected?.` is what says so — the arguments are
-    // never evaluated for one.
     wrFollowDirection(this.overlayRef, this.dir, this.injector, direction =>
-      connected?.withPositions(wrMirrorOffsets(wrPopoverPositions(position, paneClass), direction === 'rtl'))
+      connected.withPositions(wrMirrorOffsets(wrPopoverPositions(position, paneClass), direction === 'rtl'))
     );
-
-    if (asSheet) {
-      this.overlayRef
-        .backdropClick()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => this.isOpen.set(false));
-    }
 
     const content = this.content();
 

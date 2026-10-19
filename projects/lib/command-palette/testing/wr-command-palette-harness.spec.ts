@@ -5,7 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { WrCommandPalette, type WrCommandItem } from 'ngwr/command-palette';
 import { provideWrIcons, svgIcon } from 'ngwr/icon';
 import { WrPlatform } from 'ngwr/platform';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrCommandPaletteHarness } from './wr-command-palette-harness';
 
@@ -26,7 +26,6 @@ const FOLDER_SVG = '<svg viewBox="0 0 24 24"><title>Folder icon</title><path d="
       emptyText="Nothing matches"
       [items]="items()"
       [(open)]="open"
-      [responsive]="responsive()"
       (picked)="picked.push($event.id)"
     />
   `,
@@ -35,7 +34,6 @@ class Host {
   readonly ran: string[] = [];
   readonly picked: string[] = [];
   readonly open = signal(false);
-  readonly responsive = signal<boolean | undefined>(undefined);
 
   /**
    * Two groups, INTERLEAVED in source order on purpose: the palette buckets by
@@ -135,9 +133,6 @@ describe('WrCommandPaletteHarness', () => {
   afterEach(() => {
     fixture.destroy();
     delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView;
-    // `stubGlobal` is not undone on its own; a narrow viewport left behind would
-    // make the NEXT file's overlays present as sheets.
-    vi.unstubAllGlobals();
   });
 
   it('opens on its global hotkey and closes on Escape', async () => {
@@ -204,9 +199,8 @@ describe('WrCommandPaletteHarness', () => {
     await expect(palette.blur()).rejects.toThrow(/palette is closed/);
     await expect(palette.isSearchInputFocused()).rejects.toThrow(/palette is closed/);
 
-    // The readers a spec uses to ASK whether it is showing answer instead of throwing.
+    // The reader a spec uses to ASK whether it is showing answers instead of throwing.
     expect(await palette.isOpen()).toBe(false);
-    expect(await palette.isPresentedAsSheet()).toBe(false);
   });
 
   it('groups the commands in the order the groups first appear', async () => {
@@ -496,25 +490,6 @@ describe('WrCommandPaletteHarness', () => {
 
     await palette.focus();
     expect(await palette.isSearchInputFocused()).toBe(true);
-  });
-
-  it('reports the full-screen presentation', async () => {
-    // `responsive` never reaches the DOM, and the decision also reads
-    // `window.innerWidth` — jsdom's default 1024 is a desktop, so a narrow viewport
-    // has to be stubbed in for the sheet branch to be reachable at all.
-    vi.stubGlobal('innerWidth', 500);
-
-    const palette = await loader.getHarness(WrCommandPaletteHarness);
-    await palette.open();
-    expect(await palette.isPresentedAsSheet()).toBe(false);
-
-    fixture.componentInstance.responsive.set(true);
-    await fixture.whenStable();
-    expect(await palette.isPresentedAsSheet()).toBe(true);
-
-    fixture.componentInstance.responsive.set(false);
-    await fixture.whenStable();
-    expect(await palette.isPresentedAsSheet()).toBe(false);
   });
 });
 

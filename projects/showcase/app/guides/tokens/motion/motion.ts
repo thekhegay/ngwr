@@ -92,7 +92,7 @@ export default class TokensMotionPage {
       name: '--wr-overlay-duration',
       type: 'var(--wr-duration-base)',
       description:
-        'Open / close timing for the anchored panels — dropdown, popover / tooltip, context menu, popconfirm — and the responsive bottom-sheet.',
+        'Open / close timing for the anchored panels — dropdown, popover / tooltip, context menu, popconfirm.',
     },
     {
       name: '--wr-overlay-ease',

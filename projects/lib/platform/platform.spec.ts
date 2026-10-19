@@ -236,8 +236,8 @@ describe('platform services', () => {
       stubViewport({ height: 500, offsetTop: 0 });
       const vv = setup();
 
-      // 800 layout - 500 visible = a 300px keyboard. Overlays read this to sit
-      // above it, so a wrong number puts a bottom sheet under the keyboard.
+      // 800 layout - 500 visible = a 300px keyboard. A surface reads this to sit
+      // above it, so a wrong number puts that surface under the keyboard.
       expect(vv.bottomInset()).toBe(300);
       expect(inset()).toBe('300px');
     });

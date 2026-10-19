@@ -13,13 +13,7 @@ import { Location, isPlatformBrowser } from '@angular/common';
 import { EnvironmentInjector, Service, Injector, PLATFORM_ID, afterEveryRender, inject } from '@angular/core';
 
 import { WrI18n } from 'ngwr/i18n';
-import {
-  WR_OVERLAY,
-  WR_RESPONSIVE_OVERLAYS,
-  wrAppendOverlayClose,
-  wrFollowDirection,
-  wrPresentAsSheet,
-} from 'ngwr/overlay';
+import { WR_OVERLAY, wrAppendOverlayClose, wrFollowDirection } from 'ngwr/overlay';
 import { toClassList } from 'ngwr/utils';
 
 import { WrDialogRef } from './dialog-ref';
@@ -58,7 +52,6 @@ export class WrDialog {
   private readonly parentInjector = inject(EnvironmentInjector);
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-  private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
   private readonly i18n = inject(WrI18n, { optional: true });
   private readonly dir = inject(Directionality, { optional: true });
   // Resolvable wherever the CDK's own `Overlay` is — it injects the same thing
@@ -66,20 +59,14 @@ export class WrDialog {
   private readonly location = inject(Location);
 
   open<C, R = unknown, D = unknown>(component: ComponentType<C>, options: WrDialogOptions<D> = {}): WrDialogRef<C, R> {
-    // On small viewports (when opted in) present as a slide-up sheet pinned
-    // to the bottom edge, full-width, instead of a centred modal.
-    const asSheet = wrPresentAsSheet(options.responsive, this.responsiveConfig);
-    const panelClasses = toClassList(DEFAULT_PANEL_CLASS, options.panelClass, asSheet && 'wr-overlay-sheet');
-
-    const position = this.overlay.position().global().centerHorizontally();
     const overlayRef: OverlayRef = this.overlay.create({
-      positionStrategy: asSheet ? position.bottom('0') : position.centerVertically(),
+      positionStrategy: this.overlay.position().global().centerHorizontally().centerVertically(),
       scrollStrategy: this.scrollStrategies.block(),
       hasBackdrop: true,
       backdropClass: DEFAULT_BACKDROP_CLASS,
-      panelClass: panelClasses,
-      width: asSheet ? '100%' : options.width,
-      maxWidth: asSheet ? '100%' : options.maxWidth,
+      panelClass: toClassList(DEFAULT_PANEL_CLASS, options.panelClass),
+      width: options.width,
+      maxWidth: options.maxWidth,
     });
 
     // The CDK captures the direction as a string at create and never looks

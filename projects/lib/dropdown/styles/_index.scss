@@ -1,5 +1,4 @@
 @use '../../theme/styles' as theme;
-@use '../../overlay/styles'; // shared .wr-overlay-sheet / .wr-overlay-backdrop for responsive mode
 @use '../../overlay/styles/arrow';
 
 // Styles for the entry points this component's own markup renders.
@@ -138,8 +137,7 @@ $arrow-gap: 0.5rem;
 );
 
 // `[arrow]="false"` — the directive leaves `--arrow` off the pane and the square
-// is never generated. The mixin's own sheet rule covers `responsive`, which gets
-// no `--arrow` either.
+// is never generated.
 .wr-dropdown-overlay:not(.wr-dropdown-overlay--arrow) > .wr-dropdown-menu::after {
   content: none;
 }

@@ -19,8 +19,8 @@ import { DestroyRef, PLATFORM_ID, Service, type Signal, inject, signal } from '@
  * - `offsetTop` — how far the visual viewport is pushed/scrolled down.
  *
  * While active it also mirrors `bottomInset` onto `--wr-keyboard-inset` on the
- * document root, so purely presentational surfaces (the responsive overlay
- * sheet, the command-palette sheet) can lift above the keyboard with CSS alone.
+ * document root, so purely presentational surfaces can lift above the keyboard
+ * with CSS alone.
  *
  * @see https://ngwr.dev/reference/services/platform
  */

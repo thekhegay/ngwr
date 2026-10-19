@@ -593,52 +593,10 @@ export const STATES: readonly State[] = [
     target: demo('.wr-textarea__resize'),
     scope: demo('.wr-textarea-wrap, .wr-textarea'),
   },
-  // ── Bottom sheets. `wrPresentAsSheet` swaps the whole presentation at 640px
-  // and under, and both other gates load every page at 1280 wide, so none of
-  // this markup has ever been measured — a different panel, a different
-  // backdrop, and a `.wr-overlay-sheet` class that exists nowhere else.
+  // ── A phone. Every other gate loads each page at 1280 wide, so nothing
+  // measures what a 390px screen with a touch pointer gets.
   {
-    id: 'sheet/select',
-    route: `${REF}/select`,
-    viewport: 'mobile',
-    steps: [{ click: demo('wr-select[responsive] .wr-select__trigger') }, { wait: 300 }],
-    target: '.wr-overlay-sheet .wr-option',
-    scope: '.wr-overlay-sheet',
-  },
-  {
-    id: 'sheet/dropdown',
-    route: `${REF}/dropdown`,
-    viewport: 'mobile',
-    steps: [{ click: demo('.wr-dropdown-trigger[responsive]') }, { wait: 300 }],
-    target: '.wr-overlay-sheet .wr-dropdown-item',
-    scope: '.wr-overlay-sheet',
-  },
-  {
-    id: 'sheet/popover',
-    route: `${REF}/popover`,
-    viewport: 'mobile',
-    steps: [{ click: demo('.wr-popover-trigger[responsive]') }, { wait: 300 }],
-    target: '.wr-overlay-sheet',
-    scope: '.wr-overlay-sheet',
-  },
-  {
-    id: 'sheet/command-palette',
-    route: `${REF}/command-palette`,
-    viewport: 'mobile',
-    steps: [{ click: demo('.wr-btn:has-text("Open palette")') }, { wait: 300 }],
-    target: '.wr-command-palette__option--active',
-    scope: '.wr-command-palette',
-  },
-  {
-    id: 'sheet/dialog',
-    route: `${REF}/dialog`,
-    viewport: 'mobile',
-    steps: [{ click: demo('.wr-btn:has-text("Open responsive dialog")') }, { wait: 300 }],
-    target: '.wr-dialog-panel',
-    scope: '.wr-dialog-panel',
-  },
-  {
-    id: 'sheet/drawer',
+    id: 'drawer/mobile',
     route: `${REF}/drawer`,
     viewport: 'mobile',
     steps: [{ click: demo('.wr-btn:has-text("Open drawer")') }, { wait: 300 }],
@@ -921,8 +879,8 @@ export interface State {
   /** What axe runs over. Defaults to `target`; widen it to cover a whole panel. */
   readonly scope?: string;
   /**
-   * `'mobile'` runs the state at 390×844 with touch on, which is what turns a
-   * responsive overlay into a bottom sheet. Defaults to `'desktop'`.
+   * `'mobile'` runs the state at 390×844 with touch on, which is what a phone
+   * gets. Defaults to `'desktop'`.
    */
   readonly viewport?: 'desktop' | 'mobile';
   readonly note?: string;

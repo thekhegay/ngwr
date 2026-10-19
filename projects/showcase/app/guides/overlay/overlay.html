@@ -6,7 +6,7 @@
 >
   <ngwr-doc-section
     title="Why this exists"
-    description="CDK creates a single overlay container at the document root, and every CDK consumer (NGWR, Angular Material, NG-ZORRO) attaches its overlays to that one element. Styling collisions are the usual symptom — z-index wars, shared `.cdk-overlay-pane` rules. `provideWrOverlay()` replaces two tokens NGWR components inject instead of CDK's own: `WR_OVERLAY_CONTAINER` with a `WrOverlayContainer` subclass that tags its element `.wr-overlay-container`, and `WR_OVERLAY` with a fresh `Overlay` built in a child injector bound to that container. It also installs `WrVisualViewport`, which publishes `--wr-keyboard-inset` so a bottom-sheet can lift clear of the on-screen keyboard."
+    description="CDK creates a single overlay container at the document root, and every CDK consumer (NGWR, Angular Material, NG-ZORRO) attaches its overlays to that one element. Styling collisions are the usual symptom — z-index wars, shared `.cdk-overlay-pane` rules. `provideWrOverlay()` replaces two tokens NGWR components inject instead of CDK's own: `WR_OVERLAY_CONTAINER` with a `WrOverlayContainer` subclass that tags its element `.wr-overlay-container`, and `WR_OVERLAY` with a fresh `Overlay` built in a child injector bound to that container. It also installs `WrVisualViewport`, which publishes the on-screen keyboard's height as `--wr-keyboard-inset` for your own styles to read."
   >
     <ngwr-doc-code [code]="snippets.setup" language="angular-ts" />
   </ngwr-doc-section>

@@ -101,33 +101,17 @@
 
   <ngwr-doc-section
     title="Reduced motion"
-    description="The theme layer ships one `@media (prefers-reduced-motion: reduce)` block covering the always-on chrome — the enter animations on dialog, drawer, dropdown, popconfirm, toast, the lightbox viewer and the responsive bottom sheet, plus the skeleton and lightbox shimmers. You get it with the stylesheet; there is nothing to opt into. What it does is decided per animation rather than globally: an enter animation is removed (the panel still arrives, it just does not travel), a decorative shimmer is removed, a **spinner is slowed rather than stopped** — a frozen spinner reads as hung, not as calm — and the toast's progress bar keeps running, because it is a countdown and a bar frozen full would state something untrue. Override any of it on the same classes; the block is `!important` only because the theme layer loads before every component stylesheet."
+    description="The theme layer ships one `@media (prefers-reduced-motion: reduce)` block covering the always-on chrome — the enter animations on dialog, drawer, dropdown, popconfirm, toast and the lightbox viewer, plus the skeleton and lightbox shimmers. You get it with the stylesheet; there is nothing to opt into. What it does is decided per animation rather than globally: an enter animation is removed (the panel still arrives, it just does not travel), a decorative shimmer is removed, a **spinner is slowed rather than stopped** — a frozen spinner reads as hung, not as calm — and the toast's progress bar keeps running, because it is a countdown and a bar frozen full would state something untrue. Override any of it on the same classes; the block is `!important` only because the theme layer loads before every component stylesheet."
   />
 
   <ngwr-doc-section
     title="Every !important in the library"
-    description="Thirty-eight declarations, and knowing where they are is the difference between an override that works and an afternoon. **Eighteen are the reduced-motion block above** and its per-component counterparts — `marquee`, `star-border`, `glitch-text`, `shiny-text`, `gradient-text` and the `ngwr/animations` utility classes — where `!important` is structural: the theme layer loads before every component stylesheet, so an ordinary rule there loses to the animation it is trying to remove. **The other twenty sit on seven selectors, and fifteen of them are fighting an inline style rather than your CSS** — CDK's, written onto the pane after attach and re-written on every reposition, which no ordinary rule at any specificity can reach. Two are `.wr-window--no-anim`, the window's own opt-out modifier, doing to its subtree what you would do by hand. The last three are ProseMirror's own rule for the `img.ProseMirror-separator` it inserts into `wr-editor`, restated because ngwr does not ship ProseMirror's stylesheet: the image has to stay inline, borderless and marginless whatever a page's `img` rules say, `ngwr/reset` among them."
+    description="Twenty-five declarations, and knowing where they are is the difference between an override that works and an afternoon. **Seventeen are the reduced-motion block above** and its per-component counterparts — `marquee`, `star-border`, `glitch-text`, `shiny-text`, `gradient-text` and the `ngwr/animations` utility classes — where `!important` is structural: the theme layer loads before every component stylesheet, so an ordinary rule there loses to the animation it is trying to remove. **The other eight sit on five selectors, and three of them are fighting an inline style rather than your CSS** — CDK's, written onto the pane after attach, which no ordinary rule at any specificity can reach. Two are `.wr-window--no-anim`, the window's own opt-out modifier, doing to its subtree what you would do by hand. The last three are ProseMirror's own rule for the `img.ProseMirror-separator` it inserts into `wr-editor`, restated because ngwr does not ship ProseMirror's stylesheet: the image has to stay inline, borderless and marginless whatever a page's `img` rules say, `ngwr/reset` among them."
   >
     <ngwr-doc-code [code]="snippets.importantList" language="scss" />
 
     <p>
-      <strong>Overriding the bottom sheet takes an <code>!important</code> of your own</strong>, in a stylesheet that
-      loads after ngwr's, at equal or higher specificity — that is the whole trick, and a rule on the BEM class without
-      it simply does nothing. Twelve of the twenty are on <code>.wr-overlay-sheet</code>, the presentation dialog,
-      select, dropdown and popover share on small viewports: eight on the sheet itself (width, min / max width, the two
-      <code>max-height</code> declarations, the top-only radius, the keyboard lift and the slide-up animation) and four
-      stretching its direct children and squaring their bottom corners. Reach for the sheet's own tokens first —
-      <code>--wr-overlay-duration</code> and <code>--wr-overlay-ease</code> are read from <code>var()</code>, so a
-      custom property beats the declaration without any specificity fight at all.
-    </p>
-
-    <ngwr-doc-code [code]="snippets.importantOverride" language="scss" />
-
-    <p>
-      <strong>One of the twelve cannot be beaten by a plain rule at any specificity.</strong>
-      <code>margin-bottom</code> on the sheet is fighting an inline style: all four sheet users pin the pane with a CDK
-      <code>GlobalPositionStrategy</code>, whose <code>apply()</code> writes <code>margin-bottom: 0px</code> onto that
-      very element on every reposition. The same is true of the three <code>position</code> declarations —
+      <strong>Those three are <code>position</code> declarations.</strong>
       <code>.wr-context-menu-overlay</code>, <code>.wr-dialog-panel</code> and <code>.wr-drawer__panel</code> each undo
       an inline <code>position: static</code> that CDK re-applies after attach. If you need different geometry there,
       change what the strategy is given rather than what the rule says: the panel width and the radius are ordinary

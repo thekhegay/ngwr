@@ -33,7 +33,7 @@
 
   <ngwr-doc-section
     title="WrVisualViewport"
-    description="A second `ngwr/platform` service tracking `window.visualViewport` — the slice of the layout viewport still visible once the on-screen keyboard is accounted for. `provideWrOverlay()` eagerly instantiates it, so responsive overlay sheets and the command-palette lift above the keyboard out of the box; inject it directly for custom handling. Try it on a phone — focus a text field and watch the value change."
+    description="A second `ngwr/platform` service tracking `window.visualViewport` — the slice of the layout viewport still visible once the on-screen keyboard is accounted for. `provideWrOverlay()` eagerly instantiates it, so `--wr-keyboard-inset` on the document root follows the keyboard for your own styles to read; inject it directly for custom handling. Try it on a phone — focus a text field and watch the value change."
   >
     <ngwr-doc-code [code]="snippets.viewport" language="angular-ts" />
     <ngwr-doc-snippet code="">

@@ -44,10 +44,4 @@ export interface WrDialogOptions<D = unknown> {
    * splitting happens here.
    */
   readonly panelClass?: WrClassInput;
-  /**
-   * Present as a full-width bottom-sheet on small viewports instead of a
-   * centred modal. `undefined` follows the app-wide
-   * `provideWrResponsiveOverlays()` setting; `true`/`false` overrides it.
-   */
-  readonly responsive?: boolean;
 }

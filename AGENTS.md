@@ -135,9 +135,12 @@ These live in their own entry points — an agent won't find them by mirroring
 one component folder. Reach for them instead of hand-rolling:
 
 - **Overlays** (`ngwr/overlay`) — `provideWrOverlay()` gives an isolated CDK
-  overlay container (never collides with Material / NG-ZORRO). Mobile sheets via
-  `provideWrResponsiveOverlays()` + a per-component `responsive` input. **Every
-  open overlay follows a runtime direction change through
+  overlay container (never collides with Material / NG-ZORRO). Overlays always
+  float: v15 deleted the responsive bottom sheet (`provideWrResponsiveOverlays()`,
+  `wrPresentAsSheet` and the `responsive` switch on five overlays) for the reason
+  the Mobile primitives bullet gives, and a sheet on a phone is a bottom
+  `wr-drawer` the app opens itself. **Every open overlay follows a runtime
+  direction change through
   `wrFollowDirection(overlayRef, dir, injector, reposition?)`** — the CDK reads
   the direction once, as a string, when the overlay is created and never looks
   again, so a new overlay calls this right after `overlay.create(...)`, passing
@@ -190,10 +193,9 @@ one component folder. Reach for them instead of hand-rolling:
   overrides: `size`, `rounded`, `format`, `copyable` and `linkTarget` take the
   concrete default written in their `input()`, and the template reads the input
   directly. Do not bring back a config provider that fills a nullable input; an
-  app that wants another value binds it, or wraps the component in its own. Two
-  things are not that pattern and stay: the `*Label` inputs, which `useI18nText`
-  fills from the catalog (see Strings & i18n), and `responsive`, whose
-  `undefined` still follows `provideWrResponsiveOverlays()`.
+  app that wants another value binds it, or wraps the component in its own. One
+  thing is not that pattern and stays: the `*Label` inputs, which `useI18nText`
+  fills from the catalog (see Strings & i18n).
 - **Density** (`ngwr/density`) — `provideWrDensity()`, the `[wrDensity]`
   directive, `WrDensity` service; values sm / md / lg / touch
   drive the `--wr-density-*` multipliers.
@@ -1104,7 +1106,7 @@ no bullet recap, no `-m "$(cat <<EOF…)"` heredocs — aim for **≤80 chars**,
 shorter — house style; commitlint hard-caps the header at 100 and enforces the
 lowercase subject. **No AI / assistant attribution** anywhere (commits,
 code, files): no `Co-Authored-By`, no "Generated with…". e.g.
-`feat(select): responsive bottom-sheet on mobile`.
+`feat(select): leading visual on options`.
 
 **Git flow.** **Never push to `main`.** Branch _before_ you start work (not
 after committing) → short commit → **push the feature branch** → open a PR; the
@@ -1421,9 +1423,9 @@ The rules if you touch it, and each one is a bug it already had:
   `reducedMotion` used not to stop an overlay's enter animation, and mid-flight
   the dialog reported its own title at 3.68:1 — a half-faded panel over a
   half-faded backdrop. Since v13 `theme/styles/_motion.scss` removes that
-  animation on the ten overlay selectors it names, so that particular reading
+  animation on the nine overlay selectors it names, so that particular reading
   cannot recur; the settle-wait still has to exist, because that block names
-  ten selectors and not every animation, and because transitions and the
+  nine selectors and not every animation, and because transitions and the
   toast's progress bar sit outside it either way. The check is five identical
   samples of every ANCESTOR's opacity and transform (the pane animates, not the
   panel) plus a count of running colour-affecting animations. Every CDK pane
@@ -1453,10 +1455,11 @@ The rules if you touch it, and each one is a bug it already had:
   cannot be true of both: the first nightly run died on a click for a button the
   Linux chrome deliberately does not have. Per-OS variation is covered by states
   that pin `os` on the component instead.
-- **`viewport: 'mobile'` is how a bottom sheet gets measured**, and it gets its
-  own browser context rather than a resize: `wrPresentAsSheet` reads
-  `window.innerWidth` when the overlay OPENS, so resizing afterwards leaves a
-  floating panel on a phone-sized page.
+- **`viewport: 'mobile'` is how a phone gets measured** — 390×844 with touch
+  on — and it gets its own browser context rather than a resize: `hasTouch` and
+  `isMobile` are fixed when a context is created, and some of the library's
+  geometry is gated on `pointer: coarse` rather than on width, so a resized
+  desktop page measures a layout no phone ships.
 - **A scope resolves as the target's ANCESTOR.** A docs page renders the same
   component several times, so `.first()` picks the wrong instance: one state
   clicked a checkbox in the third table and measured the first. The resolved
@@ -1996,10 +1999,9 @@ because it is guidance rather than a plan.
   every page. Those are covered by `theme/styles/_motion.scss`, one shared
   `@media (prefers-reduced-motion: reduce)` block, and NOT by per-component
   rules: the theme layer is loaded before every component stylesheet, so each
-  declaration there is `!important` out of necessity rather than habit, and
-  `.wr-overlay-sheet` needs its class doubled besides, because its own animation
-  is `!important` too. What reduced motion means is decided per animation — an
-  enter animation is removed (every one of them ends on the element's resting
+  declaration there is `!important` out of necessity rather than habit. What
+  reduced motion means is decided per animation — an enter animation is
+  removed (every one of them ends on the element's resting
   state, so nothing is left mid-flight), a decorative infinite shimmer is
   removed, a SPINNER is slowed rather than stopped (a frozen spinner reads as
   hung, not as calm), and the toast's progress bar is deliberately left running,

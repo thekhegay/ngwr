@@ -6,7 +6,7 @@
  */
 
 import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
-import { type BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
@@ -31,7 +31,6 @@ import { debounce, skip, timer } from 'rxjs';
 import { WrHotkey, type WrHotkeyHandle, type WrHotkeySpec } from 'ngwr/hotkey';
 import { readI18nText, useI18nText } from 'ngwr/i18n';
 import { WrIcon } from 'ngwr/icon';
-import { WR_RESPONSIVE_OVERLAYS, wrPresentAsSheet } from 'ngwr/overlay';
 import { isComposing } from 'ngwr/utils';
 
 import type { WrCommandItem } from './types';
@@ -131,17 +130,6 @@ export class WrCommandPalette {
   /** Auto-close on `(picked)`. Set false to keep open. @default true */
   readonly closeOnPick = input(true, { transform: coerceBooleanProperty });
 
-  /**
-   * Present the palette full-screen on small viewports instead of a centred
-   * modal. `undefined` follows the app-wide `provideWrResponsiveOverlays()`
-   * setting; `true`/`false` overrides it. The palette docks to the top (it
-   * auto-focuses its input, so the on-screen keyboard stays clear).
-   * @default undefined
-   */
-  readonly responsive = input<boolean | undefined, BooleanInput>(undefined, {
-    transform: (v: BooleanInput): boolean | undefined => (v == null ? undefined : coerceBooleanProperty(v)),
-  });
-
   /** Fires when the user commits an item (Enter / click). */
   readonly picked = output<WrCommandItem>();
 
@@ -193,8 +181,6 @@ export class WrCommandPalette {
 
   protected readonly activeIndex = signal(0);
 
-  /** Whether the current opening is presented full-screen. Decided on open. */
-  protected readonly presentAsSheet = signal(false);
   protected readonly inputEl = viewChild<ElementRef<HTMLInputElement>>('input');
   protected readonly panelEl = viewChild<ElementRef<HTMLElement>>('panel');
 
@@ -223,7 +209,6 @@ export class WrCommandPalette {
   });
 
   private readonly hotkeys = inject(WrHotkey);
-  private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
   private readonly destroyRef = inject(DestroyRef);
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -317,23 +302,6 @@ export class WrCommandPalette {
       if (!this.open()) return;
       this.query.set('');
       this.activeIndex.set(0);
-    });
-
-    // Sheet presentation, kept OUT of the reset above: reading `responsive()`
-    // there made the reset depend on it, so a `[responsive]` bound to a signal
-    // that flipped while the palette was open wiped whatever the user had
-    // typed.
-    //
-    // It depends on `open()` as well, and that is the half that was missing.
-    // `wrPresentAsSheet` reads `window.innerWidth`, which is not a signal — so
-    // with `responsive()` as the only dependency the width was sampled once,
-    // when the component was created. A palette mounted in the app shell on a
-    // wide window and opened later on a narrow one got the modal, and no
-    // resize ever changed it. Re-reading on every open is what the other four
-    // overlays get for free by deciding inside their open path.
-    effect(() => {
-      this.open();
-      this.presentAsSheet.set(wrPresentAsSheet(this.responsive(), this.responsiveConfig));
     });
 
     // Focus trap + restore.

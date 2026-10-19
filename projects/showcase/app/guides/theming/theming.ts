@@ -208,44 +208,21 @@ theme.resolved();          // 'light' | 'dark' — the scheme in effect
   --wr-color-gray-6: light-dark(var(--wr-color-gray-900), #f5f6f8);
 }`,
 
-    importantList: `// Every !important outside the reduced-motion blocks — 20 declarations on
-// seven selectors, and CDK's inline styles are what fifteen of them fight.
+    importantList: `// Every !important outside the reduced-motion blocks — 8 declarations on
+// five selectors, and CDK's inline styles are what three of them fight.
 
-.wr-overlay-sheet                             // 8 — the mobile bottom sheet
-.wr-overlay-sheet > *:not(.wr-dialog__close)  // 4 — its direct children
 .wr-context-menu-overlay { position: fixed }  // 1 — undoes inline position: static
 .wr-dialog-panel        { position: relative }// 1 — same, so the × can be parked
 .wr-drawer__panel       { position: relative }// 1 — same, service-opened drawers
 .wr-window--no-anim, .wr-window--no-anim *    // 2 — the component's own opt-out
 .wr-editor__surface img.ProseMirror-separator // 3 — ProseMirror's own rule
 
-// And inside @media (prefers-reduced-motion: reduce), 18 more: the theme
+// And inside @media (prefers-reduced-motion: reduce), 17 more: the theme
 // layer's shared block plus marquee, star-border, glitch-text, shiny-text,
 // gradient-text and the ngwr/animations utilities.
 //
 // Re-count them against the version you installed:
 //   grep -rn '!important;' node_modules/ngwr --include='*.scss'`,
-
-    importantOverride: `// styles.scss — after the ngwr entries, so source order is already on your side.
-@use 'ngwr/theme';
-@use 'ngwr/overlay';
-
-// A plain rule loses. This is not a specificity problem; it is the !important.
-.wr-overlay-sheet {
-  max-height: 70dvh;              // ✗ never applies
-}
-
-// Match it. Equal specificity + !important + later in the cascade wins.
-.wr-overlay-sheet {
-  max-height: 70dvh !important;   // ✓
-  border-radius: 1.5rem 1.5rem 0 0 !important;
-}
-
-// Better where a token exists: var() resolves before the cascade cares.
-.wr-overlay-sheet {
-  --wr-overlay-duration: 0.32s;
-  --wr-overlay-ease: cubic-bezier(0.32, 0.72, 0, 1);
-}`,
 
     component: `/* Components also expose per-instance vars — override on the element.
    No need to ship a full theme just to nudge one widget. */

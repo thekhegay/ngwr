@@ -58,7 +58,7 @@
 
   <ngwr-doc-section
     title="Overlay timing"
-    description="The anchored panels — dropdown, popover / tooltip, context menu, popconfirm — plus the responsive bottom-sheet route their open animation through this one pair instead of their own timing, so retuning it moves all of them at once. Dialog, drawer and toast still carry a hardcoded duration of their own; overriding the pair does not reach them."
+    description="The anchored panels — dropdown, popover / tooltip, context menu, popconfirm — route their open animation through this one pair instead of their own timing, so retuning it moves all of them at once. Dialog, drawer and toast still carry a hardcoded duration of their own; overriding the pair does not reach them."
   >
     <ngwr-doc-api [rows]="overlayTokens" />
   </ngwr-doc-section>

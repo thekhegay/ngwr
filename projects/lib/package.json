@@ -657,7 +657,6 @@
       "default": "./meta/public-api.ts"
     },
     "./overlay": {
-      "sass": "./overlay/styles/_index.scss",
       "default": "./overlay/public-api.ts"
     },
     "./page-header": {

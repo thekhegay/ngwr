@@ -256,6 +256,23 @@ export default class MigrationPageComponent {
 + import { map } from 'rxjs';
 + protected readonly isMd = toSignal(inject(BreakpointObserver).observe('(min-width: 768px)').pipe(map(s => s.matches)), { initialValue: false });`,
 
+    v15Sheets: `# The provider, its token, the helper and the config type are gone.
+- import { provideWrOverlay, provideWrResponsiveOverlays } from 'ngwr/overlay';
+- provideWrResponsiveOverlays({ breakpoint: 768 }),
++ import { provideWrOverlay } from 'ngwr/overlay';
+
+# ngwr/overlay has no stylesheet any more: it held only the sheet.
+- @use 'ngwr/overlay';
+
+# The per-overlay switch is gone too. Delete it: the panel floats on every screen.
+- <wr-select responsive [(value)]="size">…</wr-select>
++ <wr-select [(value)]="size">…</wr-select>
+- this.dialog.open(EditProfile, { responsive: true });
++ this.dialog.open(EditProfile);
+
+# A sheet on phones is a bottom drawer you open yourself.
++ <wr-drawer position="bottom" rounded [(open)]="filtersOpen">…</wr-drawer>`,
+
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
 # One command, whatever major you are on: ng update installs the latest
 # release and applies every migration newer than the version you had, oldest
