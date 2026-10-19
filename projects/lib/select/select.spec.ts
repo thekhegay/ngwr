@@ -9,7 +9,6 @@ import { FormField, disabled, form, readonly, required } from '@angular/forms/si
 import { WrFormField } from 'ngwr/form';
 import { WrTPipe, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrOption } from './option';
@@ -20,9 +19,8 @@ import type { WrSelectMode, WrSelectSize } from './types';
 /**
  * The panel is a CDK overlay, so its options land in the overlay container
  * rather than in the fixture's own DOM — every query for an option has to go
- * through the document. That is also why this spec provides `provideWrOverlay`:
- * without it the container is CDK's shared root, which the next spec file would
- * then inherit along with anything left in it.
+ * through the document. That container is ngwr's own and belongs to the
+ * TestBed's root injector, so the next spec file never inherits what is left in it.
  */
 @Component({
   imports: [WrSelect, WrOption],
@@ -380,7 +378,6 @@ describe('WrSelect', () => {
   };
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -414,7 +411,7 @@ describe('WrSelect', () => {
 
   it('puts the panel in a container of its own, not CDK’s shared root', () => {
     openPanel();
-    // `provideWrOverlay()` exists so ngwr overlays cannot collide with
+    // ngwr overlays are isolated by default so they cannot collide with
     // Material's or NG-ZORRO's — a shared container is how z-index wars start.
     expect(document.querySelector('.wr-overlay-container')).toBeTruthy();
   });
@@ -546,7 +543,6 @@ describe('WrSelect in multi mode', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(MultiHost);
     fixture.detectChanges();
   });
@@ -643,7 +639,6 @@ describe('WrSelect in search mode', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(SearchHost);
     fixture.detectChanges();
   });
@@ -823,7 +818,6 @@ describe('WrSelect panel: what the listbox owns', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(PanelStateHost);
     fixture.detectChanges();
     field().click();
@@ -926,7 +920,6 @@ describe('WrSelect with an async loader that fails', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(LoaderHost);
     fixture.detectChanges();
     field().click();
@@ -989,7 +982,6 @@ describe('WrSelect with an async loader that fails', () => {
 describe('WrSelect clearing a search selection from the keyboard', () => {
   const build = <T>(host: Type<T>): ReturnType<typeof TestBed.createComponent<T>> => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(host);
     fixture.detectChanges();
     return fixture;
@@ -1075,7 +1067,6 @@ describe('WrSelect in tag mode', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TagHost);
     fixture.detectChanges();
   });
@@ -1158,7 +1149,6 @@ describe('WrSelect tag paste splitting', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TagSeparatorsHost);
     fixture.detectChanges();
   });
@@ -1238,7 +1228,6 @@ describe('WrSelect in tag mode with a cap and duplicates', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TagLimitsHost);
     fixture.detectChanges();
   });
@@ -1331,7 +1320,6 @@ describe('WrSelect with a minimum query length', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(MinCharsHost);
     fixture.detectChanges();
   });
@@ -1416,7 +1404,6 @@ describe('WrSelect with both dynamic and projected options', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(MixedHost);
     fixture.detectChanges();
     field().dispatchEvent(new Event('focus'));
@@ -1480,7 +1467,6 @@ describe('WrSelect size and shape', () => {
 
   const mount = (): HTMLElement => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(ShapeHost);
     fixture.detectChanges();
     return (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-select')!;
@@ -1528,7 +1514,6 @@ describe('WrSelect rounded attribute', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(RoundedAttrHost);
     fixture.detectChanges();
   });
@@ -1605,7 +1590,6 @@ describe('WrSelect inside a form field', () => {
   afterEach(() => TestBed.resetTestingModule());
 
   const build = (component: Type<unknown>): ReturnType<typeof TestBed.createComponent> => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(component);
     fixture.detectChanges();
     return fixture;
@@ -1736,7 +1720,6 @@ describe('WrSelect with virtualScroll over grouped projected options', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(GroupedVirtualHost);
     fixture.detectChanges();
     field().dispatchEvent(new Event('focus'));
@@ -1778,7 +1761,6 @@ describe('WrSelect overflow chip', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
       ],
@@ -1791,7 +1773,6 @@ describe('WrSelect overflow chip', () => {
   };
 
   it('keeps its English wording when no catalog is configured', () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(OverflowMultiHost);
     fixture.detectChanges();
 
@@ -1828,7 +1809,6 @@ describe('WrSelect trigger label vs. option text that changes', () => {
     (fixture.nativeElement as HTMLElement).querySelector('.wr-select__value')!.textContent.trim();
 
   it('re-reads the selected option label when the option re-renders', async () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(RelabelHost);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -1847,7 +1827,6 @@ describe('WrSelect trigger label vs. option text that changes', () => {
   });
 
   it('re-reads it in multi mode too, where the label rides a chip', async () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(RelabelMultiHost);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -1867,7 +1846,6 @@ describe('WrSelect trigger label vs. option text that changes', () => {
   it('follows a catalog that lands after the first pass, the way pagination’s size changer does', async () => {
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
       ],
@@ -1997,7 +1975,6 @@ describe('WrSelect panel scrolling', () => {
       },
     });
 
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(LongHost);
     fixture.detectChanges();
   });
@@ -2140,7 +2117,6 @@ describe('WrSelect announces its autocomplete behaviour', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(ModeHost);
     fixture.detectChanges();
   });
@@ -2244,7 +2220,6 @@ describe('WrSelect virtual scrolling over a dynamic list', () => {
     });
 
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(VirtualHost);
     fixture.detectChanges();
     field().dispatchEvent(new Event('focus'));
@@ -2430,7 +2405,6 @@ describe('WrSelect with freeText', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(FreeTextHost);
     fixture.detectChanges();
     field().dispatchEvent(new Event('focus'));
@@ -2489,7 +2463,6 @@ describe('WrSelect with freeText', () => {
 describe('WrSelect edge paths in multi and tag mode', () => {
   const mount = <T>(host: Type<T>): ReturnType<typeof TestBed.createComponent<T>> => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(host);
     fixture.detectChanges();
     return fixture;
@@ -2600,7 +2573,6 @@ describe('WrSelect follows a direction flip while its panel is open', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -2704,7 +2676,6 @@ describe('WrSelect width floor', () => {
     ['a tag trigger', TagHost, 'DIV'],
     ['a multi trigger', MultiHost, 'BUTTON'],
   ] as const)('renders %s as the host’s only element', (_, type: Type<unknown>, tag) => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(type);
     fixture.detectChanges();
 
@@ -2799,7 +2770,6 @@ describe('WrSelect panelClass', () => {
   };
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(PanelClassHost);
     fixture.detectChanges();
   });
@@ -2887,7 +2857,6 @@ describe('WrSelect focused by its bound field', () => {
   const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-select')!;
 
   const build = (mode: WrSelectMode, searchable = false, setUp?: (host: FocusHost) => void): void => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(FocusHost);
     fixture.componentInstance.mode.set(mode);
     fixture.componentInstance.searchable.set(searchable);

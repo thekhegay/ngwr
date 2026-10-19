@@ -50,7 +50,7 @@ const SECTION = {
   overlay: [
     '## ngwr/overlay',
     "- import: `import { WrOutsideClick } from 'ngwr/overlay'`",
-    '- exports: provideWrOverlay, WrOutsideClick, WR_OVERLAY',
+    '- exports: WrOutsideClick, WrOverlayContainer, WR_OVERLAY',
   ],
   english: ['## ngwr/i18n/en', "- import: `import { wrEn } from 'ngwr/i18n/en'`", '- exports: wrEn'],
 };
@@ -70,7 +70,7 @@ const SYMBOL_MAP = {
   WrAlert: 'ngwr/alert',
   WrBadge: 'ngwr/badge',
   WrTag: 'ngwr/badge',
-  provideWrOverlay: 'ngwr/overlay',
+  WrOverlayContainer: 'ngwr/overlay',
 };
 
 /**
@@ -125,7 +125,7 @@ describe('parseCatalog', () => {
     // stray empty string in the middle of a rendered answer.
     expect(entry.selectors).toEqual([]);
     expect(entry.description).toBe('');
-    expect(entry.exports).toEqual(['provideWrOverlay', 'WrOutsideClick', 'WR_OVERLAY']);
+    expect(entry.exports).toEqual(['WrOutsideClick', 'WrOverlayContainer', 'WR_OVERLAY']);
   });
 
   it('keeps a nested entry point path whole', () => {

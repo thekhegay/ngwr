@@ -7,7 +7,6 @@ import { FormField, form, required } from '@angular/forms/signals';
 import { WrEditor, type WrEditorJson, type WrEditorMarkJson, type WrEditorTool, type WrEditorValue } from 'ngwr/editor';
 import { WrFormField } from 'ngwr/form';
 import { WrInputHarness } from 'ngwr/input/testing';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrEditorHarness } from './wr-editor-harness';
@@ -106,7 +105,6 @@ describe('WrEditorHarness', () => {
   beforeEach(async () => {
     removeStubs = installLayoutStubs();
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -397,7 +395,6 @@ describe('WrEditorHarness inside a Signal Forms field', () => {
 
   it('reads the field invalid once the editor has been touched', async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(FormHost);
     fixture.detectChanges();
     const editor = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrEditorHarness);
@@ -427,7 +424,6 @@ describe('WrEditorHarness on an editor that was read-only before it could mount'
 
   const readOnly = async (value: WrEditorValue): Promise<[Host, WrEditorHarness, () => void]> => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(Host);
     fixture.componentInstance.readonly.set(true);
     fixture.componentInstance.body.set(value);

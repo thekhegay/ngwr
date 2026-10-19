@@ -34,9 +34,8 @@ const BACKDROP_CLASS = 'wr-drawer-backdrop';
  * the markup (opening a chat panel from a toolbar action, from an effect, from
  * a route guard) or when you need the close result.
  *
- * Uses `WR_OVERLAY` so it composes cleanly with `provideWrOverlay()`
- * — drawers render into NGWR's own overlay container and never collide
- * with other CDK consumers (Material, NG-ZORRO, etc.).
+ * Uses `WR_OVERLAY`, so drawers render into NGWR's own overlay container
+ * and never collide with other CDK consumers (Material, NG-ZORRO, etc.).
  *
  * @example
  * ```ts

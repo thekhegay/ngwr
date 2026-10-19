@@ -10,9 +10,10 @@
  *
  * `loading-bar`, `cookie` and `theme` are deliberately absent: those entry points
  * ship the injectable services `WrLoadingBar` / `WrCookie` / `WrTheme` and no
- * provider function, so there is nothing to add to `providers`.
+ * provider function, so there is nothing to add to `providers`. `overlay` is
+ * absent since v15 for the same reason: its isolated container is the default.
  */
-export type ProviderName = 'overlay' | 'icons' | 'toast' | 'i18n' | 'date-adapter' | 'density' | 'storage';
+export type ProviderName = 'icons' | 'toast' | 'i18n' | 'date-adapter' | 'density' | 'storage';
 
 /** Inputs accepted by `ng g ngwr:provider`. Mirrors `schema.json`. */
 export interface Schema {

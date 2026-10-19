@@ -78,7 +78,6 @@ bootstrapApplication(AppComponent, {
   providers: [
     provideZonelessChangeDetection(),
     provideClientHydration(withEventReplay()),
-    provideWrOverlay(),
   ],
 });`,
 

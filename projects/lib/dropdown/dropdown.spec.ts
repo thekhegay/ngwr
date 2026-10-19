@@ -5,7 +5,6 @@ import { Directionality } from '@angular/cdk/bidi';
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDropdown } from './dropdown';
@@ -22,8 +21,8 @@ import {
 /**
  * The menu is a CDK overlay rendered from a template portal, so it lands in the
  * overlay container rather than in the fixture — every query for an item goes
- * through the document. `provideWrOverlay()` keeps that container out of the next
- * spec file's.
+ * through the document. That container belongs to the TestBed's root injector, so
+ * it never outlives this file.
  */
 @Component({
   imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
@@ -97,7 +96,6 @@ describe('WrDropdown', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -541,7 +539,6 @@ describe('WrDropdown template reference', () => {
 
   it('publishes the instance as `wrDropdown`', () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
 
     const fixture = TestBed.createComponent(ExportHost);
     fixture.detectChanges();
@@ -592,7 +589,6 @@ describe('WrDropdown pane position', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(PositionHost);
     fixture.detectChanges();
   });
@@ -716,7 +712,6 @@ describe('WrDropdown when the requested placement does not fit', () => {
       return rect({ x: 0, y: 0, width: 0, height: 0 });
     });
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(FlipHost);
     fixture.detectChanges();
   });
@@ -916,7 +911,6 @@ describe('WrDropdown nested inside another menu', () => {
     });
 
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(NestedHost);
     fixture.detectChanges();
 
@@ -1052,7 +1046,6 @@ describe('WrDropdown across a direction flip', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     ambient = TestBed.inject(Directionality);
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
@@ -1133,7 +1126,6 @@ describe('WrDropdown destroyed while open', () => {
       warnings.push(args.map(String).join(' '));
     });
 
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(TeardownHost);
     fixture.detectChanges();
     (fixture.nativeElement as HTMLElement).querySelector('button')!.click();

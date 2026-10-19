@@ -2,7 +2,6 @@ import { Dir, type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrDrawerFooter, WrDrawerTitle } from './directives';
@@ -58,8 +57,8 @@ class TitleHost {
 /**
  * The declarative half of the drawer — the imperative `WrDrawerManager` has its
  * own suite. The panel mounts into the CDK overlay container rather than the
- * fixture, so everything inside it is queried off `document`, and
- * `provideWrOverlay()` keeps this file's container out of the next one's.
+ * fixture, so everything inside it is queried off `document`; the container
+ * belongs to the TestBed's root injector, so it never outlives this file.
  *
  * `position` is a real mode axis, not a style flag: `bottom` is how the drawer
  * doubles as a bottom sheet, and each side lands its own overlay class that
@@ -85,7 +84,6 @@ describe('WrDrawer', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -115,7 +113,6 @@ describe('WrDrawer', () => {
 
   it('names the dialog from whichever title is in the panel right now', async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const titled = TestBed.createComponent(TitleHost);
     titled.detectChanges();
 
@@ -377,7 +374,6 @@ describe('WrDrawer follows a direction change while it is open', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(DirHost);
     dir = TestBed.inject(Directionality);
     fixture.detectChanges();
@@ -421,7 +417,7 @@ describe('WrDrawer follows a direction change while it is open', () => {
  * it: the panel is appended to the overlay container on `<body>`, and the CDK
  * stamps it with the direction it read from the APPLICATION's `Directionality`
  * — `createOverlayRef` resolves that off the `Overlay`'s own injector, which
- * `provideWrOverlay()` parents to the environment one, where a node-level
+ * `WR_OVERLAY` parents to the environment one, where a node-level
  * `[dir]` never appears. The follower reads that same instance, and these two
  * cases are what hold it there: an island must not rewrite a panel one pass
  * after it opened, and must not shadow a real application flip either.
@@ -457,7 +453,6 @@ describe('WrDrawer follows the application, not a scoped [dir] island', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(IslandHost);
     app = TestBed.inject(Directionality);
     fixture.detectChanges();

@@ -6,7 +6,6 @@ import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrTour } from './tour';
@@ -65,7 +64,7 @@ describe('WrTour', () => {
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideWrOverlay(), { provide: ConfigurableFocusTrapFactory, useValue: { create: createTrap } }],
+      providers: [{ provide: ConfigurableFocusTrapFactory, useValue: { create: createTrap } }],
     });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
@@ -269,7 +268,6 @@ describe('WrTour when its injector goes away mid-tour', () => {
   it('takes the cut-out and the document listener with it', () => {
     Element.prototype.scrollIntoView = (): undefined => undefined;
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
 
@@ -355,7 +353,6 @@ describe('WrTour when the direction flips mid-step', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         {
           provide: ConfigurableFocusTrapFactory,
           useValue: {

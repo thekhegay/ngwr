@@ -3,7 +3,6 @@ import { TestBed } from '@angular/core/testing';
 
 import { type WrI18nCatalog, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrEn } from 'ngwr/i18n/en';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrPagination } from './pagination';
@@ -540,7 +539,6 @@ describe('WrPagination size changer', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(SizeChangerHost);
     fixture.detectChanges();
   });
@@ -600,7 +598,6 @@ describe('WrPagination — the range is one catalog template', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'xx', availableLocales: ['xx'] }),
         provideWrI18nStaticLoader({ xx: catalog }),
       ],
@@ -664,7 +661,6 @@ describe('WrPagination — the range is one catalog template', () => {
 
   it('falls back to the English template with no catalog at all', () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.componentInstance.showTotal.set(true);
     fixture.detectChanges();

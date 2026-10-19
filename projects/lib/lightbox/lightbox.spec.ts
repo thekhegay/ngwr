@@ -7,7 +7,6 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrLightbox } from './lightbox';
@@ -33,7 +32,8 @@ class Host {
 
 /**
  * The viewer is a CDK overlay, so it is queried off the document rather than the
- * fixture, and `provideWrOverlay()` keeps that container out of the next spec file's.
+ * fixture, and that container belongs to the TestBed's root injector, so it never
+ * outlives this file.
  *
  * The loading state is the interesting half: `--loading` both animates a shimmer and
  * sets `opacity: 0` on the thumbnail, so whatever clears it is the difference between
@@ -59,7 +59,6 @@ describe('WrLightbox', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -193,7 +192,6 @@ describe('WrLightbox under a localized catalog', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
       ],
@@ -296,7 +294,6 @@ describe('WrLightbox follows a direction change while the viewer is open', () =>
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(DirHost);
     dir = TestBed.inject(Directionality);
     fixture.detectChanges();
@@ -343,7 +340,6 @@ describe('WrLightbox follows the application, not a scoped [dir] island', () => 
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(IslandHost);
     fixture.detectChanges();
   });

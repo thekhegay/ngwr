@@ -5,19 +5,24 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { OverlayContainer } from '@angular/cdk/overlay';
+import type { OverlayContainer } from '@angular/cdk/overlay';
 import { InjectionToken, inject } from '@angular/core';
 
+import { WrOverlayContainer } from '../wr-overlay-container';
+
 /**
- * Injection token for the overlay container NGWR components should use.
+ * Injection token for the overlay container NGWR components render into.
  *
- * Defaults to CDK's `OverlayContainer` — i.e. the same root element every
- * CDK consumer shares. Call `provideWrOverlay()` to replace it with an
- * isolated instance so NGWR overlays don't collide with other libraries.
+ * Isolated by default: a `WrOverlayContainer`, tagged `.wr-overlay-container`,
+ * and never CDK's root `OverlayContainer`. Every CDK consumer that shares the
+ * root one (Angular Material, NG-ZORRO) shares its element too, and with it
+ * the z-index stacking, the `.cdk-overlay-pane` rules and the lifecycle — so
+ * one library's overlays end up under, restyled by or torn down with
+ * another's. CDK's root container is left untouched for them.
  *
  * @internal
  */
 export const WR_OVERLAY_CONTAINER = new InjectionToken<OverlayContainer>('WR_OVERLAY_CONTAINER', {
   providedIn: 'root',
-  factory: () => inject(OverlayContainer),
+  factory: () => inject(WrOverlayContainer),
 });

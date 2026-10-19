@@ -3,7 +3,6 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrCascader, type WrCascaderOption } from 'ngwr/cascader';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrCascaderHarness } from './wr-cascader-harness';
@@ -79,8 +78,8 @@ class TwoHost {
 /**
  * The panel is a template portal in the overlay container, so none of the columns
  * this spec reads are reachable from the fixture — which is why the harness scopes
- * every panel read by the id the trigger publishes as `aria-controls`. The spec
- * provides `provideWrOverlay()` to keep its container out of the next file's.
+ * every panel read by the id the trigger publishes as `aria-controls`. The
+ * container belongs to the TestBed's root injector, so it never outlives this file.
  */
 describe('WrCascaderHarness', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -90,7 +89,6 @@ describe('WrCascaderHarness', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -472,7 +470,6 @@ describe('WrCascaderHarness — two on one page', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TwoHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);

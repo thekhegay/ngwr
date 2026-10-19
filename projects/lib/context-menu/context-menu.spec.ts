@@ -7,7 +7,6 @@ import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrContextMenu } from './context-menu';
@@ -52,7 +51,8 @@ class Host {
  * tracks `aria-expanded`, and Enter on it must OPEN rather than activate.
  *
  * Every panel lands in the CDK overlay container, so nothing is queried from
- * the fixture; `provideWrOverlay()` keeps this file's container private.
+ * the fixture; that container belongs to the TestBed's root injector, so it
+ * never outlives this file.
  */
 describe('WrContextMenu', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -98,7 +98,6 @@ describe('WrContextMenu', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -583,7 +582,6 @@ describe('WrContextMenu placement', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     (fixture.nativeElement as HTMLElement)
@@ -647,10 +645,7 @@ describe('WrContextMenu under dir="rtl"', () => {
     vi.useFakeTimers();
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [
-        provideWrOverlay(),
-        { provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } },
-      ],
+      providers: [{ provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } }],
     });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
@@ -755,7 +750,6 @@ describe('WrContextMenu across a direction flip', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     ambient = TestBed.inject(Directionality);
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
@@ -868,7 +862,6 @@ describe('WrContextMenu template reference', () => {
 
   it('publishes the trigger and the panel under different names', () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
 
     const fixture = TestBed.createComponent(ExportHost);
     fixture.detectChanges();
@@ -916,7 +909,6 @@ describe('WrContextMenu panelClass', () => {
   };
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(PanelClassHost);
     fixture.detectChanges();
   });

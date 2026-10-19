@@ -1,7 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrBarChart } from './bar-chart';
@@ -180,7 +179,6 @@ describe('WrBarChart tooltip', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TooltipHost);
     fixture.detectChanges();
   });
@@ -255,7 +253,6 @@ describe('WrBarChart tooltip anchor', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     Object.defineProperty(doc, 'clientWidth', { configurable: true, value: 1024 });
     Object.defineProperty(doc, 'clientHeight', { configurable: true, value: 768 });
     fixture = TestBed.createComponent(AnchorHost);

@@ -259,9 +259,9 @@ export class WrToast {
    * for the rest of its duration, and no further `show()` is coming to fix it.
    *
    * Observing the host's own parent rather than a container resolved from the
-   * injector keeps this correct whether or not `provideWrOverlay()` is installed
-   * — the host is in whichever container it was actually appended to. Re-showing
-   * a popover moves nothing in the DOM, so this cannot re-trigger itself.
+   * injector keeps this correct even for an app that rebinds `WR_OVERLAY` — the
+   * host is in whichever container it was actually appended to. Re-showing a
+   * popover moves nothing in the DOM, so this cannot re-trigger itself.
    */
   private watchForNewerOverlays(): void {
     const parent = this.overlayRef?.hostElement.parentElement;

@@ -12,7 +12,6 @@ import { WrFileUpload } from 'ngwr/file-upload';
 import { WrInputNumber } from 'ngwr/input-number';
 import { WrInputOtp } from 'ngwr/input-otp';
 import { WrKnob } from 'ngwr/knob';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { WrRadio, WrRadioGroup } from 'ngwr/radio';
 import { WrRating } from 'ngwr/rating';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
@@ -385,7 +384,7 @@ describe('every value control, as a form control', () => {
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-GB' })],
+      providers: [provideWrDateAdapter({ locale: 'en-GB' })],
     });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();

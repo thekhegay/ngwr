@@ -4,7 +4,6 @@ import { TestBed } from '@angular/core/testing';
 
 import { WrDropdown, WrDropdownItem, WrDropdownMenu } from 'ngwr/dropdown';
 import { provideWrIcons, svgIcon } from 'ngwr/icon';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrDropdownHarness } from './wr-dropdown-harness';
@@ -86,8 +85,8 @@ class NestedHost {}
  * The menu is a template portal in the overlay container, so nothing this spec
  * asserts about items is reachable from the fixture — which is the whole reason the
  * harness scopes its item queries by the id the trigger publishes as
- * `aria-controls`. `provideWrOverlay()` keeps this file's container out of the next
- * one's.
+ * `aria-controls`. The container belongs to the TestBed's root injector, so it never
+ * outlives this file.
  */
 describe('WrDropdownHarness', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -96,7 +95,7 @@ describe('WrDropdownHarness', () => {
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideWrOverlay(), provideWrIcons([svgIcon('copy', COPY_SVG)])],
+      providers: [provideWrIcons([svgIcon('copy', COPY_SVG)])],
     });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
@@ -276,7 +275,6 @@ describe('WrDropdownHarness — hover trigger', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(HoverHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -323,7 +321,6 @@ describe('WrDropdownHarness — two on one page', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TwoHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -355,7 +352,6 @@ describe('WrDropdownHarness — a dropdown inside a dropdown', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(NestedHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);

@@ -46,7 +46,7 @@
 
   <ngwr-doc-section
     title="Bootstrap"
-    description="One provider is worth adding on day one. Dark mode needs none: the theme stylesheet follows the OS through `color-scheme`, and `WrTheme`, the service behind a light / dark toggle, is root-provided. `provideWrOverlay()` gives ngwr's overlays their own container instead of the one every CDK consumer shares, and installs the visual-viewport watcher behind `--wr-keyboard-inset`; panels still open without it. The rest of the catalog's providers are optional — see [Configuration](/docs/configuration)."
+    description="No provider is needed on day one. Dark mode needs none: the theme stylesheet follows the OS through `color-scheme`, and `WrTheme`, the service behind a light / dark toggle, is root-provided. Overlays need none either: they render into a container of ngwr's own rather than the one every other CDK consumer shares. The catalog's providers belong to the features that need them — see [Configuration](/docs/configuration)."
   >
     <ngwr-doc-code [code]="snippets.appConfig" language="angular-ts" />
   </ngwr-doc-section>
@@ -208,7 +208,7 @@
 
   <ngwr-doc-section
     title="What an entry point pulls in with it"
-    description="Two things worth knowing before you budget. An entry point brings its static imports whether or not you use the feature, so a bare `<wr-table>` still carries the checkbox, dropdown, pagination and spinner it can show. And `provideWrOverlay()` pulls CDK's overlay module, which is the heaviest thing here — free once any overlay is on the page. Measure your own build with the commands below."
+    description="Two things worth knowing before you budget. An entry point brings its static imports whether or not you use the feature, so a bare `<wr-table>` still carries the checkbox, dropdown, pagination and spinner it can show. And every overlay component pulls CDK's overlay module, which is the heaviest thing here — paid once, however many overlays the page renders. Measure your own build with the commands below."
   >
     <ngwr-doc-code [code]="snippets.measureJs" language="bash" />
   </ngwr-doc-section>

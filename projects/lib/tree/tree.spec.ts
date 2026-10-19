@@ -10,7 +10,6 @@ import { Subject } from 'rxjs';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrTree } from './tree';
@@ -113,7 +112,6 @@ describe('WrTree', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -243,7 +241,6 @@ describe('WrTree row semantics', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.componentInstance.expanded.set(['src']);
     fixture.detectChanges();
@@ -292,7 +289,6 @@ describe('WrTree keyboard cursor', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.componentInstance.expanded.set(['src', 'app']);
     fixture.detectChanges();
@@ -339,7 +335,6 @@ describe('WrTree with defaultExpandAll', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(ExpandAllHost);
     fixture.detectChanges();
   });
@@ -432,7 +427,6 @@ describe('WrTree arrow keys follow the reading direction', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         // `Directionality` reads the document once at construction, so a fake is
         // the honest way to put the component in an RTL page.
         { provide: Directionality, useValue: { value: direction, change: new Subject<Direction>() } },
@@ -610,7 +604,6 @@ describe('WrTree in overlay mode', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(OverlayHost);
     fixture.detectChanges();
   });
@@ -725,7 +718,7 @@ describe('WrTree placeholder', () => {
   afterEach(() => TestBed.resetTestingModule());
 
   const mount = async (providers: unknown[]): Promise<HTMLElement> => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), ...(providers as never[])] });
+    TestBed.configureTestingModule({ providers: providers as never[] });
     const fixture = TestBed.createComponent(PlaceholderHost);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -798,7 +791,6 @@ describe('WrTree teardown while windowed', () => {
     }
     vi.stubGlobal('ResizeObserver', StubObserver);
 
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(DirHost);
     fixture.componentInstance.virtual.set(true);
     fixture.detectChanges();
@@ -847,7 +839,7 @@ describe('WrTree — the overflow chip is localizable', () => {
 
   const mount = (providers: unknown[]): void => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), ...providers] as never });
+    TestBed.configureTestingModule({ providers: providers as never });
     fixture = TestBed.createComponent(OverflowHost);
     fixture.detectChanges();
   };
@@ -906,7 +898,6 @@ describe('WrTree reports an inline pick to a bound field', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(ValueHost);
     fixture.detectChanges();
   });
@@ -1030,7 +1021,6 @@ describe('WrTree overlay trigger — clearing from the keyboard', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(KeyboardClearHost);
     fixture.detectChanges();
   });
@@ -1136,7 +1126,6 @@ describe('WrTree in overlay mode follows a direction flip while open', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(OverlayHost);
     fixture.detectChanges();
   });
@@ -1233,7 +1222,6 @@ const rules = (): Map<string, Record<string, string>> => {
  */
 describe('WrTree overlay trigger width floor', () => {
   it('renders the trigger as the combobox host’s only element', () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(OverlayHost);
     fixture.detectChanges();
 
@@ -1313,7 +1301,6 @@ describe('WrTree focused by its bound field', () => {
 
   const build = (setUp?: (host: FocusHost) => void): void => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(FocusHost);
     setUp?.(fixture.componentInstance);
     fixture.detectChanges();

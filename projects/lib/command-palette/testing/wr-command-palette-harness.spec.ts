@@ -103,11 +103,10 @@ class CustomTriggerHost {
 }
 
 /**
- * Unlike every other overlay harness in the library, this spec provides no
- * `provideWrOverlay()`: the palette portals nothing. Its whole `role="dialog"`
- * renders inside `<wr-command-palette>`, so there is no shared container to keep
- * out of the next file — and host-scoped queries are all the isolation two
- * palettes need.
+ * Unlike every other overlay harness in the library, this spec reads nothing off
+ * the overlay container: the palette portals nothing. Its whole `role="dialog"`
+ * renders inside `<wr-command-palette>`, so host-scoped queries are all the
+ * isolation two palettes need.
  *
  * What DOES leak across files here is the trigger: `WrHotkey` binds `mod+k` on the
  * document, and only the fixture being destroyed takes the listener down again. So

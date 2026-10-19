@@ -4,7 +4,6 @@ import { TestBed } from '@angular/core/testing';
 
 import { WrButton } from 'ngwr/button';
 import { WrButtonHarness } from 'ngwr/button/testing';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { WrPopover } from 'ngwr/popover';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -58,8 +57,8 @@ class BoundModeHost {
 /**
  * `[wrPopover]` renders into a CDK overlay, so nothing this spec asserts about a
  * panel is reachable from the fixture — which is exactly why the harness scopes
- * its panel queries by the id the trigger publishes. `provideWrOverlay()` keeps
- * the container out of the next spec file's.
+ * its panel queries by the id the trigger publishes. The container belongs to the
+ * TestBed's root injector, so it never outlives this file.
  *
  * Real timers throughout, deliberately: the tooltip's show / hide delays and the
  * hover popover's grace period are real `setTimeout`s, and under zoneless change
@@ -75,7 +74,6 @@ describe('WrPopoverHarness', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -265,7 +263,6 @@ describe('WrPopoverHarness — two panels open at once', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TwoHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -316,7 +313,6 @@ describe('WrPopoverHarness — mode bound rather than set statically', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(BoundModeHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);

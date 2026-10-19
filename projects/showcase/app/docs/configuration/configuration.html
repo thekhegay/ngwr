@@ -13,9 +13,9 @@
 
   <ngwr-doc-section
     title="Overlay"
-    description="`provideWrOverlay()` backs every overlay component — dialog, drawer, popover, dropdown, select, tooltip, menus, pickers — with an overlay container and an `Overlay` instance of NGWR's own. Both tokens fall back to CDK's root instances, so panels still open without it; what you lose is the isolation from other CDK consumers and the `--wr-keyboard-inset` property that tracks the on-screen keyboard. Call it once. **“Optional” here means the app still works, not that it is free:** what the provider references is CDK's overlay module, which is the largest single dependency anything in this catalog reaches for. In an app that renders any overlay component the module is already in the graph and the provider adds close to nothing; in an app that renders none, it is the whole of it — so skipping it as a size decision only pays off in an app with no dialog, no select and no dropdown, which is the app that was never going to call it."
+    description="No provider. Every overlay component — dialog, drawer, popover, dropdown, select, tooltip, menus, pickers — renders into an overlay container of ngwr's own, tagged `.wr-overlay-container`, apart from the one Angular Material, NG-ZORRO and plain CDK overlays share. That class is the styling hook: scope an override to it and it reaches ngwr's panels alone. The [Overlay guide](/guides/overlay) has the rest."
   >
-    <ngwr-doc-code [code]="snippets.overlay" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.overlay" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section

@@ -4,7 +4,6 @@ import { TestBed } from '@angular/core/testing';
 
 import { WrContextMenu, WrContextMenuDivider, WrContextMenuItem, WrContextMenuPanel } from 'ngwr/context-menu';
 import { provideWrIcons, svgIcon } from 'ngwr/icon';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrContextMenuHarness } from './wr-context-menu-harness';
@@ -92,8 +91,8 @@ class SeparatorHost {}
  * Every menu is a template portal in the overlay container, so nothing this spec
  * asserts about a menu is reachable from the fixture — which is the whole reason
  * the harness scopes its queries by the id the target publishes as
- * `aria-controls`. `provideWrOverlay()` keeps this file's container out of the
- * next one's.
+ * `aria-controls`. The container belongs to the TestBed's root injector, so it
+ * never outlives this file.
  *
  * Real timers throughout, deliberately: the long-press hold, the submenu hover,
  * the outside-press guard and the exit animation are all real `setTimeout`s in
@@ -111,7 +110,7 @@ describe('WrContextMenuHarness', () => {
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideWrOverlay(), provideWrIcons([svgIcon('copy', COPY_SVG)])],
+      providers: [provideWrIcons([svgIcon('copy', COPY_SVG)])],
     });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
@@ -322,7 +321,7 @@ describe('WrContextMenuHarness — submenus', () => {
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideWrOverlay(), provideWrIcons([svgIcon('copy', COPY_SVG)])],
+      providers: [provideWrIcons([svgIcon('copy', COPY_SVG)])],
     });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
@@ -413,7 +412,6 @@ describe('WrContextMenuHarness — two menus at once', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TwoHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -466,7 +464,6 @@ describe('WrContextMenuHarness — a separator the consumer wrote', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(SeparatorHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);

@@ -8,13 +8,13 @@
 /**
  * Providers a symbol cannot work without.
  *
- * Hard-coded, and the list is short on purpose: these are the five cases where
+ * Hard-coded, and the list is short on purpose: these are the four cases where
  * the component compiles, renders nothing useful, and gives no error that names
  * the cause. Everything else is discoverable from the docs page.
  *
  * It sits in its own file because two things ship it: `get_ngwr_setup` in the
  * MCP server, and the generated agent skill (`scripts/gen/ai-assets.ts`), which
- * writes the same five rules into `skills/ngwr/SKILL.md`. One table, imported
+ * writes the same four rules into `skills/ngwr/SKILL.md`. One table, imported
  * twice — the alternative is two lists that agree until one of them is edited.
  */
 interface RequiredProvider {
@@ -25,11 +25,6 @@ interface RequiredProvider {
 }
 
 const REQUIRED_PROVIDERS: readonly RequiredProvider[] = [
-  {
-    test: /^Wr(Dialog|Drawer|Toast|Popover|Popconfirm|ContextMenu|Select|Dropdown|CommandPalette|Cascader|Mention|DatePicker|Tour|Lightbox|Editor)/,
-    provider: "provideWrOverlay() // from 'ngwr/overlay'",
-    why: 'gives ngwr overlays their own container, so they never collide with other CDK overlays',
-  },
   {
     test: /^WrIcon/,
     provider: "provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon'",

@@ -1,26 +1,24 @@
 <ngwr-doc-page
   title="Overlay"
-  description="Every floating component in NGWR (dialog, drawer, dropdown, select, tooltip, popover, popconfirm, toast) is built on Angular CDK's overlay primitives. `provideWrOverlay()` gives them an overlay container and an `Overlay` instance of their own, so they never share a DOM root — or a z-index stack — with another CDK consumer."
+  description="Every floating component in NGWR (dialog, drawer, dropdown, select, tooltip, popover, popconfirm, toast) is built on Angular CDK's overlay primitives, and renders into an overlay container and an `Overlay` instance of its own, with no provider to call — so it never shares a DOM root with another CDK consumer."
   [keywords]="['overlay', 'cdk', 'isolation']"
   [labels]="['Core']"
 >
   <ngwr-doc-section
     title="Why this exists"
-    description="CDK creates a single overlay container at the document root, and every CDK consumer (NGWR, Angular Material, NG-ZORRO) attaches its overlays to that one element. Styling collisions are the usual symptom — z-index wars, shared `.cdk-overlay-pane` rules. `provideWrOverlay()` replaces two tokens NGWR components inject instead of CDK's own: `WR_OVERLAY_CONTAINER` with a `WrOverlayContainer` subclass that tags its element `.wr-overlay-container`, and `WR_OVERLAY` with a fresh `Overlay` built in a child injector bound to that container. It also installs `WrVisualViewport`, which publishes the on-screen keyboard's height as `--wr-keyboard-inset` for your own styles to read."
-  >
-    <ngwr-doc-code [code]="snippets.setup" language="angular-ts" />
-  </ngwr-doc-section>
+    description="CDK creates a single overlay container at the document root, and every CDK consumer (Angular Material, NG-ZORRO, plain CDK code) attaches its overlays to that one element. Styling collisions are the usual symptom — z-index wars, shared `.cdk-overlay-pane` rules. NGWR components inject two root tokens of their own instead of CDK's: `WR_OVERLAY_CONTAINER`, a `WrOverlayContainer` subclass that tags its element `.wr-overlay-container`, and `WR_OVERLAY`, a fresh `Overlay` built in a child injector bound to that container. Those are the tokens' defaults, so there is nothing to register."
+  />
 
   <ngwr-doc-section
     title="Scope styles to NGWR overlays"
-    description="After provideWrOverlay() is registered, the overlay root element has both the standard `.cdk-overlay-container` class and `.wr-overlay-container`. Use the second to scope your overrides:"
+    description="NGWR's overlay root element has both the standard `.cdk-overlay-container` class and `.wr-overlay-container`. Use the second to scope your overrides:"
   >
     <ngwr-doc-code [code]="snippets.scopeCss" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Caveats"
-    description="CDK's own root `Overlay` and `OverlayContainer` are left untouched, so other libraries keep the container they already had — the isolation is NGWR moving out, not NGWR taking over. What the call does not do is isolate two OTHER libraries from each other. And it is not load-bearing: both tokens fall back to CDK's root instances, so overlays still open without it — they just land in the shared container, and the keyboard inset is never published."
+    description="CDK's own root `Overlay` and `OverlayContainer` are left untouched, so other libraries keep the container they already had — the isolation is NGWR moving out, not NGWR taking over. What it does not do is isolate two OTHER libraries from each other. And it holds for NGWR's own overlays only: a panel your own code opens with CDK's `Overlay` lands in the shared container, beside Material's."
   />
 
   <ngwr-doc-section

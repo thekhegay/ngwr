@@ -34,7 +34,7 @@ import { TOOLS, callTool, validateArguments, type ToolSpec } from './tools.js';
  * The six entry points are chosen for the shapes the tools have to survive:
  * two selectors on one entry point (`badge`), a service-only entry point with
  * no selector, no description and no declarations (`overlay`), an entry point
- * whose symbol needs two providers (`date-picker`), a non-class export
+ * whose symbol needs a provider (`date-picker`), a non-class export
  * (`WrBadgeSize`), one component with a full surface (`select`), and a nested
  * harness entry point that ships no stylesheet (`select/testing`).
  */
@@ -65,7 +65,7 @@ const CATALOG = [
   '',
   '## ngwr/overlay',
   "- import: `import { WrOutsideClick } from 'ngwr/overlay'`",
-  '- exports: provideWrOverlay, WrOutsideClick',
+  '- exports: WrOutsideClick, WrOverlayContainer',
   '',
   '## ngwr/select',
   "- import: `import { WrSelect } from 'ngwr/select'`",
@@ -87,7 +87,7 @@ const SYMBOL_MAP = {
   WrTag: 'ngwr/badge',
   WrDatePicker: 'ngwr/date-picker',
   WrOutsideClick: 'ngwr/overlay',
-  provideWrOverlay: 'ngwr/overlay',
+  WrOverlayContainer: 'ngwr/overlay',
   WrSelect: 'ngwr/select',
   // No `WrSelectHarness`, and no `WrAlertType` / `WrBadgeSize`, because the real
   // map has neither: `build-symbol-map.ts` scans `projects/lib` one level deep
@@ -252,9 +252,9 @@ describe('callTool — search_ngwr', () => {
   });
 
   it('leaves out the selector line for an entry point with nothing to bind', () => {
-    const answer = callTool(catalog, 'search_ngwr', { query: 'provideWrOverlay' });
+    const answer = callTool(catalog, 'search_ngwr', { query: 'WrOverlayContainer' });
 
-    // `ngwr/overlay` is providers and a directive token; printing an empty
+    // `ngwr/overlay` is services, tokens and helpers; printing an empty
     // `selector:` would invite an agent to write a tag that does not exist.
     expect(answer).toBe(['## ngwr/overlay', "import: import { WrOutsideClick } from 'ngwr/overlay'"].join('\n'));
   });
@@ -456,7 +456,7 @@ describe('callTool — get_ngwr_api', () => {
   });
 
   it('says when an entry point ships no declarations at all', () => {
-    expect(callTool(catalog, 'get_ngwr_api', { symbol: 'provideWrOverlay' })).toBe(
+    expect(callTool(catalog, 'get_ngwr_api', { symbol: 'WrOverlayContainer' })).toBe(
       'ngwr/overlay ships no declarations, so there is no API to read.'
     );
   });
@@ -496,10 +496,11 @@ describe('callTool — get_ngwr_setup', () => {
   it('names every provider a symbol cannot work without', () => {
     const answer = callTool(catalog, 'get_ngwr_setup', { symbols: ['WrDatePicker'] });
 
-    // A date picker with neither provider compiles, renders, and does nothing —
-    // no error names the cause, which is the whole reason this section exists.
+    // A date picker with no adapter compiles, renders, and does nothing — no
+    // error names the cause, which is the whole reason this section exists.
     expect(answer).toContain('## 4. Providers these need');
-    expect(answer).toContain("provideWrOverlay() // from 'ngwr/overlay'");
+    // Its panel needs nothing: ngwr's overlays are isolated by default.
+    expect(answer).not.toContain('provideWrOverlay');
     // The whole line, entry-point comment included. The old pin matched the call
     // prefix only, and under it the table shipped `provideWrDateAdapter(wrDateFnsAdapter)`
     // — a symbol ngwr has never exported — for as long as nobody pasted it.
@@ -542,13 +543,13 @@ describe('callTool — get_ngwr_setup', () => {
   });
 
   it('gives no provider advice for a symbol it could not resolve', () => {
-    const answer = callTool(catalog, 'get_ngwr_setup', { symbols: ['WrDialog'] });
+    const answer = callTool(catalog, 'get_ngwr_setup', { symbols: ['WrCalendar'] });
 
-    // `WrDialog` matches the overlay rule by name, but it is not in this
+    // `WrCalendar` matches the date-adapter rule by name, but it is not in this
     // catalog — advice about a symbol the install does not have is noise, and
     // the missing line is the honest answer.
     expect(answer).not.toContain('## 4. Providers these need');
-    expect(answer).toContain('Not in the catalog: WrDialog. Try search_ngwr.');
+    expect(answer).toContain('Not in the catalog: WrCalendar. Try search_ngwr.');
   });
 
   it('asks for a symbol when given none', () => {

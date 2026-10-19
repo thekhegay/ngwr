@@ -3,7 +3,6 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrColorPicker, WrColorPickerTrigger, type WrColorFormat } from 'ngwr/color-picker';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrColorPickerHarness } from './wr-color-picker-harness';
@@ -252,7 +251,8 @@ describe('WrColorPickerHarness', () => {
 /**
  * The overlay flavour. The trigger is an element in the fixture and the picker is a
  * portal in the NGWR overlay container, so the harness has to cross between them —
- * `provideWrOverlay()` keeps this file's container out of the next one's.
+ * and that container belongs to the TestBed's root injector, so it never
+ * outlives this file.
  */
 describe('WrColorPickerTriggerHarness', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<TriggerHost>>;
@@ -263,7 +263,6 @@ describe('WrColorPickerTriggerHarness', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TriggerHost);
     fixture.detectChanges();
     await fixture.whenStable();

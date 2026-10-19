@@ -15,7 +15,6 @@ import {
   type WrDrawerRef,
   WrDrawerTitle,
 } from 'ngwr/drawer';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDrawerHarness } from './wr-drawer-harness';
@@ -103,7 +102,7 @@ class MixedHost {
  * The declarative flavour. `<wr-drawer>` leaves nothing but a `display: none` host
  * in the template — the panel is a template portal in the overlay container — so
  * the harness comes from the DOCUMENT ROOT here too, not from the fixture loader.
- * `provideWrOverlay()` keeps this file's container out of the next one's.
+ * The container belongs to the TestBed's root injector, so it never outlives this file.
  */
 describe('WrDrawerHarness — <wr-drawer>', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -119,7 +118,6 @@ describe('WrDrawerHarness — <wr-drawer>', () => {
     stubLayout();
 
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     rootLoader = TestbedHarnessEnvironment.documentRootLoader(fixture);
@@ -336,7 +334,6 @@ describe('WrDrawerHarness — WrDrawerManager.open()', () => {
     stubLayout();
 
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(ServiceHost);
     fixture.detectChanges();
     rootLoader = TestbedHarnessEnvironment.documentRootLoader(fixture);
@@ -486,7 +483,6 @@ describe('WrDrawerHarness — two drawers open at once', () => {
     stubLayout();
 
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(MixedHost);
     fixture.detectChanges();
     rootLoader = TestbedHarnessEnvironment.documentRootLoader(fixture);

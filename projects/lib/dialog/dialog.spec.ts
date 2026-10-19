@@ -5,7 +5,6 @@ import { Component, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDialog } from './dialog';
@@ -17,9 +16,9 @@ import type { WrDialogOptions } from './types';
 /**
  * `WrDialog` is a service, so there is no element to render in a host template:
  * the dialog is a component mounted into a CDK overlay, and every assertion goes
- * through `document` rather than the fixture. The spec provides
- * `provideWrOverlay()` for the same reason `select.spec.ts` does — its container
- * is torn down with the injector instead of leaking into the next spec file.
+ * through `document` rather than the fixture. Its container belongs to the
+ * TestBed's root injector, so it is torn down with the injector instead of
+ * leaking into the next spec file.
  */
 interface ConfirmData {
   readonly message: string;
@@ -102,7 +101,6 @@ describe('WrDialog', () => {
       new DOMRect(0, 0, 120, 32),
     ] as unknown as DOMRectList);
 
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -121,8 +119,8 @@ describe('WrDialog', () => {
 
     expect(panel()).toBeTruthy();
     expect(panel()!.textContent).toContain('Delete item');
-    // The isolated container is the point of `provideWrOverlay()`: an ngwr
-    // dialog must never share a stacking context with Material or NG-ZORRO.
+    // ngwr overlays are isolated by default: an ngwr dialog must never share a
+    // stacking context with Material or NG-ZORRO.
     expect(document.querySelector('.wr-overlay-container')?.contains(panel())).toBe(true);
     expect((fixture.nativeElement as HTMLElement).contains(panel())).toBe(false);
   });
@@ -300,7 +298,6 @@ describe('WrDialog', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'en', availableLocales: ['en'] }),
         provideWrI18nStaticLoader({ en: { dialog: { close: 'Zavrit' } } }),
       ],
@@ -562,7 +559,6 @@ describe('WrDialog follows a direction change while a dialog is open', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     dir = TestBed.inject(Directionality);
     fixture.detectChanges();

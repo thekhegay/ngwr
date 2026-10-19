@@ -4,7 +4,6 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideWrDateAdapter } from 'ngwr/date';
 import { WrDatePicker, WrDateRangePicker, type WrDateRange } from 'ngwr/date-picker';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrDatePickerHarness } from './wr-date-picker-harness';
@@ -91,9 +90,10 @@ class RangeHost {
  * The picker is a text field plus a popup, and the popup is a CDK overlay — the
  * calendar and the time steppers land in the overlay container, not in the
  * fixture, which is the whole reason the harness scopes its panel queries by the
- * id the trigger publishes as `aria-controls`. `provideWrOverlay()` keeps this
- * file's container out of the next one's, and `provideWrDateAdapter()` is
- * mandatory: without an adapter the picker cannot format or parse anything.
+ * id the trigger publishes as `aria-controls`. The container belongs to the
+ * TestBed's root injector, so it never outlives this file, and
+ * `provideWrDateAdapter()` is mandatory: without an adapter the picker cannot
+ * format or parse anything.
  *
  * The locale is pinned to `en-US` so the grid's first day of week and the month
  * names are stable, and the hosts pass an explicit token `format` — the named
@@ -105,7 +105,7 @@ describe('WrDatePickerHarness', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'en-US' })] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -420,7 +420,7 @@ describe('WrDatePickerHarness — time mode', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'en-US' })] });
     fixture = TestBed.createComponent(Host);
     fixture.componentInstance.mode.set('time');
     fixture.componentInstance.format.set('HH:mm');
@@ -528,7 +528,7 @@ describe('WrDatePickerHarness — datetime mode', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'en-US' })] });
     fixture = TestBed.createComponent(Host);
     fixture.componentInstance.mode.set('datetime');
     fixture.componentInstance.format.set('dd.MM.yyyy HH:mm');
@@ -563,7 +563,7 @@ describe('WrDatePickerHarness — today', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'en-US' })] });
     fixture = TestBed.createComponent(TodayHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -586,7 +586,7 @@ describe('WrDatePickerHarness — two on one page', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'en-US' })] });
     fixture = TestBed.createComponent(TwoHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -674,7 +674,7 @@ describe('WrDateRangePickerHarness', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'en-US' })] });
     fixture = TestBed.createComponent(RangeHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -838,7 +838,7 @@ describe('WrDateRangePickerHarness — datetime mode', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'en-US' })] });
     fixture = TestBed.createComponent(RangeHost);
     fixture.componentInstance.mode.set('datetime');
     fixture.componentInstance.format.set('dd.MM.yyyy HH:mm');

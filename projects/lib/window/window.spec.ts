@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { WrWindowManager } from 'ngwr/window';
 import type { WrWindowChromeSize, WrWindowOs, WrWindowSize, WrWindowSnap } from 'ngwr/window';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -41,7 +40,6 @@ describe('WrWindow drag lifecycle', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     manager = TestBed.inject(WrWindowManager);
     manager.open(Body, { title: 'Untitled', os: 'windows', x: 100, y: 100, width: 480, height: 320 });
     TestBed.tick();
@@ -110,7 +108,6 @@ describe('WrWindow presentational inputs', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     manager = TestBed.inject(WrWindowManager);
   });
 
@@ -219,7 +216,6 @@ describe('WrWindow snapping', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     manager = TestBed.inject(WrWindowManager);
   });
 
@@ -389,7 +385,6 @@ describe('WrWindow resize geometry', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     manager = TestBed.inject(WrWindowManager);
   });
 

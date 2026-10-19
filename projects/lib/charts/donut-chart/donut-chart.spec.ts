@@ -6,7 +6,6 @@ import { Subject } from 'rxjs';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDonutChart } from './donut-chart';
@@ -235,7 +234,6 @@ describe('WrDonutChart tooltip', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TooltipHost);
     fixture.detectChanges();
   });
@@ -344,7 +342,6 @@ describe('WrDonutChart tooltip anchor', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     Object.defineProperty(root, 'clientWidth', { configurable: true, value: 1024 });
     Object.defineProperty(root, 'clientHeight', { configurable: true, value: 768 });
   });

@@ -4,7 +4,6 @@ import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useChartTooltip } from './chart-tooltip';
@@ -74,7 +73,8 @@ class Host {
 
 /**
  * The tooltip renders into a CDK overlay, so every query for it goes through the
- * document and `provideWrOverlay()` keeps its container out of the next file.
+ * document, and its container belongs to the TestBed's root injector, so it never
+ * outlives this file.
  *
  * What jsdom cannot say on its own: WHERE the chip lands. Every rect is 0×0 and the
  * document has no size, so the cases about placement give the document a size and the
@@ -122,7 +122,6 @@ describe('useChartTooltip', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     settle();
   });
@@ -595,10 +594,7 @@ describe('useChartTooltip under dir="rtl"', () => {
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [
-        provideWrOverlay(),
-        { provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } },
-      ],
+      providers: [{ provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } }],
     });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();

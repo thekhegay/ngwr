@@ -4,7 +4,6 @@ import { TestBed } from '@angular/core/testing';
 import { WR_DATE_LOCALE } from 'ngwr/date';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrCalendarHeatmap } from './calendar-heatmap';
@@ -60,7 +59,7 @@ describe('WrCalendarHeatmap', () => {
 
   const mount = (locale = 'en-GB'): void => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [{ provide: WR_DATE_LOCALE, useValue: locale }, provideWrOverlay()] });
+    TestBed.configureTestingModule({ providers: [{ provide: WR_DATE_LOCALE, useValue: locale }] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   };
@@ -265,7 +264,7 @@ describe('WrCalendarHeatmap tooltip', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [{ provide: WR_DATE_LOCALE, useValue: 'en-GB' }, provideWrOverlay()] });
+    TestBed.configureTestingModule({ providers: [{ provide: WR_DATE_LOCALE, useValue: 'en-GB' }] });
     fixture = TestBed.createComponent(TooltipHost);
     fixture.detectChanges();
   });

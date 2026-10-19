@@ -76,17 +76,13 @@ https://ngwr.dev/start/installation
 
 Add from their entry points as needed:
 
-- `provideWrOverlay()` — strongly recommended for any overlay (dialog / select /
-  dropdown / popover / toast / drawer): gives ngwr its own CDK overlay container
-  so it never collides with other CDK consumers, and installs the visual-viewport
-  tracker that publishes `--wr-keyboard-inset`. Without it overlays still work,
-  falling back to CDK's shared root container — but `--wr-keyboard-inset` stays
-  0. It comes from `ngwr/overlay`, not from the component's own entry point.
-  Optional does not mean free: what it references is CDK's overlay module, the
-  heaviest dependency in the catalog, so it is near-zero in an app with any
-  overlay on screen and the whole of it in an app with none. Overlays always
-  float; a sheet on a phone is a `<wr-drawer position="bottom">` you open
-  yourself.
+- `provideWrOverlay()` is gone (v15), because overlays need no provider: every
+  overlay (dialog / select / dropdown / popover / toast / drawer) renders into
+  ngwr's own CDK overlay container, `.wr-overlay-container`, so it never
+  collides with Material, NG-ZORRO or other CDK consumers. `WrVisualViewport`
+  and `--wr-keyboard-inset` went with it; read `window.visualViewport` for the
+  keyboard inset. Overlays always float; a sheet on a phone is a
+  `<wr-drawer position="bottom">` you open yourself.
 - `provideWrIcons(lucideIcons({ check: Check }))` — icon registry (`ngwr/icon`,
   which holds `lucideIcons()` too; every other set, feather included, registers
   its raw SVG with `svgIcon()`).
@@ -114,7 +110,7 @@ one element at a time; a step whose target is missing is skipped, not floated.
 - `ng add ngwr` — installs peers, adds `@use 'ngwr/theme'` to styles, prints provider setup.
 - `ng g ngwr:use WrFoo --path src/app/x.ts` — adds the import + splices `WrFoo` into that
   component's `@Component` imports.
-- `ng g ngwr:provider <overlay|icons|toast|i18n|date-adapter|density|…>` —
+- `ng g ngwr:provider <icons|toast|i18n|date-adapter|density|storage>` —
   adds the matching `provideWr*()` to bootstrap.
 - `ng g ngwr:icon-set` — scaffolds a tree-shaken icon barrel.
 - `ng g ngwr:component-style <name>` — appends `@use 'ngwr/<name>'` (opt-in styles).

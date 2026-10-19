@@ -22,8 +22,9 @@ import type { Schema } from './schema';
  * The case that matters is the one `ng new` has produced since v17 — `main.ts`
  * bootstraps and `app/app.config.ts` holds the providers. Against it the
  * schematic used to write the import into `main.ts`, splice no call anywhere,
- * and log `✓ Added provideWrOverlay() to src/main.ts.`; the app then had no
- * overlay container and every dialog and select panel rendered nowhere.
+ * and log `✓ Added <call> to src/main.ts.` over an app whose providers had not
+ * changed — for the overlay provider, while there was one, that left every
+ * dialog and select panel rendering nowhere.
  */
 
 const ANGULAR_JSON = JSON.stringify({
@@ -99,17 +100,17 @@ function workspace(files: Readonly<Record<string, string>>): Tree {
 describe('ng g ngwr:provider', () => {
   it('patches app.config.ts when main.ts only bootstraps', async () => {
     const { tree, logs } = await run(workspace({ '/src/main.ts': SPLIT_MAIN, '/src/app/app.config.ts': APP_CONFIG }), {
-      name: 'overlay',
+      name: 'i18n',
     });
 
     const config = tree.readText('/src/app/app.config.ts');
-    expect(config).toContain("import { provideWrOverlay } from 'ngwr/overlay';");
-    expect(config).toContain('provideRouter(routes), provideWrOverlay()');
+    expect(config).toContain("import { provideWrI18n } from 'ngwr/i18n';");
+    expect(config).toContain('provideRouter(routes), provideWrI18n()');
     // The entry file is not the one that owns the array, so it must come out of
     // this untouched — an import there compiles and does nothing.
     expect(tree.readText('/src/main.ts')).toBe(SPLIT_MAIN);
     // The path is the workspace-relative one the CLI prints, not the tree key.
-    expect(logs).toContain('✓ Added provideWrOverlay() to src/app/app.config.ts.');
+    expect(logs).toContain('✓ Added provideWrI18n() to src/app/app.config.ts.');
   });
 
   it('brings the icon imports along to the file it patches', async () => {
@@ -151,7 +152,7 @@ import { AppModule } from './app/app.module';
 
 platformBrowserDynamic().bootstrapModule(AppModule);
 `;
-    const { tree, logs } = await run(workspace({ '/src/main.ts': module }), { name: 'overlay' });
+    const { tree, logs } = await run(workspace({ '/src/main.ts': module }), { name: 'i18n' });
 
     expect(tree.readText('/src/main.ts')).toBe(module);
     expect(logs.some(line => line.startsWith('✓ Added'))).toBe(false);
@@ -162,13 +163,13 @@ platformBrowserDynamic().bootstrapModule(AppModule);
 
   it('is a no-op the second time', async () => {
     const first = await run(workspace({ '/src/main.ts': SPLIT_MAIN, '/src/app/app.config.ts': APP_CONFIG }), {
-      name: 'overlay',
+      name: 'i18n',
     });
     const patched = first.tree.readText('/src/app/app.config.ts');
 
-    const { tree, logs } = await run(first.tree, { name: 'overlay' });
+    const { tree, logs } = await run(first.tree, { name: 'i18n' });
 
     expect(tree.readText('/src/app/app.config.ts')).toBe(patched);
-    expect(logs).toContain('ngwr:provider: src/app/app.config.ts already has provideWrOverlay — no changes.');
+    expect(logs).toContain('ngwr:provider: src/app/app.config.ts already has provideWrI18n — no changes.');
   });
 });

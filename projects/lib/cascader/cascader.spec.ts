@@ -6,7 +6,6 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormField, form } from '@angular/forms/signals';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrCascader } from './cascader';
@@ -96,7 +95,6 @@ describe('WrCascader', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -651,7 +649,6 @@ describe('WrCascader follows a direction flip while its panel is open', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -746,7 +743,6 @@ const rules = (): Map<string, Record<string, string>> => {
  */
 describe('WrCascader width floor', () => {
   it('renders the trigger as the host’s only element', () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
 
@@ -806,7 +802,6 @@ describe('WrCascader focused by its bound field', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(FocusHost);
     fixture.detectChanges();
   });

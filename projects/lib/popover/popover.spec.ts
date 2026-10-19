@@ -6,7 +6,6 @@ import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 
 import { WrDrawerManager } from 'ngwr/drawer';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrPopover } from './popover';
@@ -15,7 +14,7 @@ import { WR_POPOVER_FALLBACKS, WR_POPOVER_POSITIONS, type WrPopoverPosition, wrP
 /**
  * `[wrPopover]` renders its panel into a CDK overlay, so nothing it opens is
  * reachable from the fixture — every query for a panel goes through the
- * document. `provideWrOverlay()` keeps that container isolated so it cannot
+ * document. That container belongs to the TestBed's root injector, so it cannot
  * leak into the next spec file.
  *
  * The directive is really two components in one: `mode="popover"` (template
@@ -114,7 +113,6 @@ describe('WrPopover', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -149,7 +147,7 @@ describe('WrPopover', () => {
 
     it('puts the panel in the isolated overlay container, not in the fixture', () => {
       open();
-      // `provideWrOverlay()` exists so ngwr panels cannot land in the same
+      // ngwr overlays are isolated by default, so a panel cannot land in the same
       // container as Material's or NG-ZORRO's.
       expect(root().querySelector('.panel-body')).toBeNull();
       expect(document.querySelector('.wr-overlay-container .panel-body')?.textContent).toContain(
@@ -763,10 +761,7 @@ describe('WrPopover under dir="rtl"', () => {
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [
-        provideWrOverlay(),
-        { provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } },
-      ],
+      providers: [{ provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } }],
     });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
@@ -901,7 +896,6 @@ describe('WrPopover template reference', () => {
 
   it('publishes the instance as `wrPopover`', () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
 
     const fixture = TestBed.createComponent(ExportHost);
     fixture.detectChanges();
@@ -955,7 +949,6 @@ describe('WrPopover when the direction flips while it is open', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     dir = TestBed.inject(Directionality);

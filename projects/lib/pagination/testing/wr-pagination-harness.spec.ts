@@ -5,7 +5,6 @@ import { TestBed } from '@angular/core/testing';
 
 import { WrI18n, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { WrPagination, type WrPaginationSize } from 'ngwr/pagination';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -93,9 +92,6 @@ describe('WrPaginationHarness', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    // The size changer's panel is a portal in the overlay container — an isolated
-    // one, so it cannot outlive this file.
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -454,7 +450,6 @@ describe('WrPaginationHarness — localized', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
       ],
@@ -506,7 +501,6 @@ describe('WrPaginationHarness — a catalog that drops the size placeholder', ()
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'en', availableLocales: ['en'] }),
         // A translation of `pagination.perPage` without its `{{size}}` — every
         // option then reads the same, and the page size leaves the screen entirely.

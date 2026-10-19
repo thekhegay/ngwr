@@ -8,7 +8,6 @@ import { Subject } from 'rxjs';
 import { WrFormField } from 'ngwr/form';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { type MockInstance, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrEditor } from './editor';
@@ -136,7 +135,6 @@ describe('WrEditor', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         { provide: ErrorHandler, useValue: { handleError: (error: unknown) => thrown.push(error) } },
         ...(providers as never[]),
       ],

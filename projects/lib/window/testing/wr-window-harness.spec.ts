@@ -4,7 +4,6 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { WrWindowManager, WrWindowTaskbar } from 'ngwr/window';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -26,8 +25,8 @@ class Host {
 /**
  * A window is always a service call — `WrWindow` is not exported — so every window
  * harness comes from the DOCUMENT ROOT loader, while the taskbar is an element in the
- * fixture and comes from the normal one. `provideWrOverlay()` keeps this file's
- * container out of the next one's.
+ * fixture and comes from the normal one. The container belongs to the TestBed's root
+ * injector, so it never outlives this file.
  */
 describe('WrWindowHarness', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -36,7 +35,7 @@ describe('WrWindowHarness', () => {
 
   const mount = (providers: unknown[] = []): void => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), ...(providers as never[])] });
+    TestBed.configureTestingModule({ providers: providers as never[] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);

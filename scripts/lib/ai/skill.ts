@@ -134,7 +134,7 @@ guess gets backwards.
 \`\`\`bash
 ng add ngwr                                          # prompts, installs peers, prints bootstrap
 ng g ngwr:use WrSelect --path src/app/some.ts        # adds the import AND the @Component entry
-ng g ngwr:provider overlay                           # splices a provider into bootstrap
+ng g ngwr:provider icons                             # splices a provider into bootstrap
 \`\`\`
 
 \`--path\` is a NAMED option on \`ngwr:use\`; only the symbol is positional, and
@@ -160,9 +160,8 @@ await select.open();
 await select.selectOption({ text: 'Angular' });
 \`\`\`
 
-Overlay panels render into the overlay container, NOT the fixture — provide
-\`provideWrOverlay()\` in the test and load those harnesses from
-\`TestbedHarnessEnvironment.documentRootLoader(fixture)\`.
+Overlay panels render into ngwr's overlay container, NOT the fixture — load
+those harnesses from \`TestbedHarnessEnvironment.documentRootLoader(fixture)\`.
 
 ## Reference files
 
@@ -174,10 +173,11 @@ Overlay panels render into the overlay container, NOT the fixture — provide
 /**
  * Turn the provider table's regular expression back into names.
  *
- * The table matches symbols, and a raw `/^Wr(Dialog|Drawer|…)/` in a document
- * meant for reading is noise. This unpacks the one shape the table uses; if a
- * rule ever needs a different one, it renders the source and stays honest
- * rather than printing a confident half-list.
+ * The table matches symbols, and a raw `/^WrDatePicker|^WrCalendar|…/` in a
+ * document meant for reading is noise. This unpacks the shapes the table uses —
+ * bare alternatives, or one `^Wr(A|B|…)` group; if a rule ever needs a
+ * different one, it renders the source and stays honest rather than printing a
+ * confident half-list.
  */
 function describeTest(test: RegExp): string {
   const source = test.source;
@@ -236,22 +236,20 @@ bootstrap snippet tailored to the answers.
 ## Bootstrap
 
 \`\`\`ts
-import { provideWrOverlay } from 'ngwr/overlay';
 import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 import { Check, ChevronDown } from 'lucide';
 
 bootstrapApplication(App, {
   providers: [
     provideZonelessChangeDetection(),
-    provideWrOverlay(),
     provideWrIcons(lucideIcons({ check: Check, 'chevron-down': ChevronDown })),
   ],
 });
 \`\`\`
 
-\`provideWrOverlay()\` gives ngwr its OWN CDK overlay container, which is what
-keeps it from colliding with Material or NG-ZORRO in the same app. It also
-installs \`WrVisualViewport\`, which publishes \`--wr-keyboard-inset\`.
+ngwr's overlays render into their OWN CDK overlay container with no provider,
+which is what keeps them from colliding with Material or NG-ZORRO in the same
+app.
 
 ## Styles
 

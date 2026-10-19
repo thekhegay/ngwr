@@ -26,9 +26,8 @@ const DEFAULT_BACKDROP_CLASS = 'wr-dialog-backdrop';
 /**
  * Opens dialog components in an isolated NGWR overlay.
  *
- * Uses `WR_OVERLAY` so it composes cleanly with `provideWrOverlay()`
- * — dialogs render into NGWR's own overlay container and never collide
- * with other CDK consumers (Material, NG-ZORRO, etc.).
+ * Uses `WR_OVERLAY`, so dialogs render into NGWR's own overlay container
+ * and never collide with other CDK consumers (Material, NG-ZORRO, etc.).
  *
  * @example
  * ```ts

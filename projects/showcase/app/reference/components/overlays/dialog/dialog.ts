@@ -114,8 +114,8 @@ ref.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(ok => { … });`,
 <!-- Without \`cdkFocusInitial\` the first tabbable element wins — here the same
      input, since the ✕ is appended AFTER your content and comes last. A panel
      of plain text focuses nothing; Escape still closes it. -->`,
-    topLayer: `// The overlay container is isolated, and that is what \`provideWrOverlay()\`
-// promises — not a place in your z-index scale. These do nothing:
+    topLayer: `// ngwr's overlay container is isolated from other CDK consumers, and that is
+// all it promises — not a place in your z-index scale. These do nothing:
 //
 //   .wr-overlay-container .cdk-overlay-pane { z-index: 1100; }
 //   header { z-index: 100000; }

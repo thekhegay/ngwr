@@ -122,15 +122,13 @@ yarn add ngwr @angular/cdk
 
 # Only if you register Lucide icons with lucideIcons() (\`ng add\` installs it for you):
 npm install lucide`,
-    appConfig: `// src/app/app.config.ts — the file \`ng new\` generates. Add the ngwr providers
-// to the array that is already there.
+    appConfig: `// src/app/app.config.ts — the file \`ng new\` generates. ngwr's providers go
+// into the array that is already there, as the features that need them arrive.
 //
 // Angular 22 scaffolds a zoneless app, so there is no
 // provideZonelessChangeDetection() in this file and none is needed.
 import { type ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
-
-import { provideWrOverlay } from 'ngwr/overlay';
 
 import { routes } from './app.routes';
 
@@ -140,12 +138,10 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
 
     // ngwr ---------------------------------------------------------------
-    // Isolates ngwr's overlays in their own container, and installs the
-    // visual-viewport watcher behind --wr-keyboard-inset. Panels open without
-    // it — they just share a DOM root with every other CDK consumer.
-    provideWrOverlay(),
-    // No theme provider: the stylesheet follows the OS through color-scheme,
-    // and WrTheme is root-provided — inject it where a toggle needs it.
+    // Nothing on day one. Overlays render into ngwr's own container with no
+    // call, and there is no theme provider: the stylesheet follows the OS
+    // through color-scheme, and WrTheme is root-provided — inject it where a
+    // toggle needs it.
   ],
 };`,
     rootEntry: `// ✗ There is no barrel. TS2305 — 'ngwr' has no exported member 'WrButton'.
@@ -371,18 +367,17 @@ import { WrButton } from 'ngwr/button';
 })
 export class CheckoutPage {}`,
     provider: `# Splice a provideWr*() call into bootstrapApplication's providers array.
-ng g ngwr:provider overlay
 ng g ngwr:provider toast
 ng g ngwr:provider date-adapter
 
-# Available: overlay | icons | toast | i18n | date-adapter | density |
-#            storage
+# Available: icons | toast | i18n | date-adapter | density | storage
 #
 # cookie is not here because it has no provider: inject WrCookie. Neither is
 # theme — WrTheme is root-provided and the stylesheet follows the OS. Nor is
 # loading-bar, whose only provider is the opt-in router adapter. Add
 # provideWrLoadingBarRouter() from 'ngwr/loading-bar/router' by hand if
-# navigations should drive the bar; manual start() / complete() need nothing.`,
+# navigations should drive the bar; manual start() / complete() need nothing.
+# And overlay needs no call: ngwr's overlays are isolated by default.`,
     componentStyle: `# Append \`@use 'ngwr/<name>';\` to the project's global stylesheet.
 # Pairs with \`--styles=none\` on \`ng add\`.
 ng g ngwr:component-style button

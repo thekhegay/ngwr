@@ -25,9 +25,9 @@ interface ProviderSpec {
 // `WrLoadingBar` / `WrCookie` and need no bootstrap wiring at all, so offering
 // to splice a provider for them only ever produced code that would not compile.
 // `ngwr/theme` is absent for the same reason since v15: `WrTheme` is
-// root-provided and the scheme follows the OS with nothing in `providers`.
+// root-provided and the scheme follows the OS with nothing in `providers`. So is
+// `ngwr/overlay`: its isolated container is the tokens' default, with no call.
 const PROVIDERS: Record<ProviderName, ProviderSpec> = {
-  overlay: { subpath: 'ngwr/overlay', factory: 'provideWrOverlay', call: 'provideWrOverlay()' },
   icons: {
     // `ngwr/icon` ships no icons — there are no bare icon exports. The glyphs
     // come from the app's own `lucide` install through `lucideIcons()`, exactly
@@ -73,8 +73,8 @@ function provider(options: Schema): Rule {
     // splice found no array the buffer already differed from the original and
     // the `next === original` guard below could not catch it: the file was
     // overwritten with an unused import and reported as `✓ Added <call>`. On a
-    // stock app that made `ng g ngwr:provider overlay` print success and leave
-    // it with no overlay container.
+    // stock app that made `ng g ngwr:provider` print success and leave the
+    // providers exactly as they were.
     const spliced = ensureProviderCall(original, spec.call);
     if (spliced === null) {
       context.logger.info(`ngwr:provider: no providers array in ${filePath}.`);

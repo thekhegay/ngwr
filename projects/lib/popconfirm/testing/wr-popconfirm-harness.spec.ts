@@ -6,7 +6,6 @@ import { WrButton } from 'ngwr/button';
 import { WrButtonHarness } from 'ngwr/button/testing';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { WrPopconfirm, type WrPopconfirmPosition } from 'ngwr/popconfirm';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -101,7 +100,7 @@ class RussianHost {}
  * `[wrPopconfirm]` renders its dialog into the CDK overlay container, so nothing
  * the harness reads about a panel is reachable from the fixture — which is why it
  * scopes every panel query by the `aria-controls` id the trigger publishes.
- * `provideWrOverlay()` keeps that container out of the next spec file's.
+ * The container belongs to the TestBed's root injector, so it never outlives this file.
  */
 describe('WrPopconfirmHarness', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -114,7 +113,6 @@ describe('WrPopconfirmHarness', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -370,7 +368,6 @@ describe('WrPopconfirmHarness — two dialogs open at once', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TwoHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -479,7 +476,6 @@ describe('WrPopconfirmHarness under a localized catalog', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
       ],

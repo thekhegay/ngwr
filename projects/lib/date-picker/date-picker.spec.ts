@@ -9,7 +9,6 @@ import type { WrDateFormat } from 'ngwr/date';
 import { WrFormField } from 'ngwr/form';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDatePicker } from './date-picker';
@@ -38,10 +37,10 @@ const REFUSAL_COPY: (Provider | EnvironmentProviders)[] = [
 /**
  * The picker is a text field plus a popover, and the popover is a CDK overlay —
  * the calendar / time panel land in the overlay container, not in the fixture,
- * so every query for panel content goes through the document. `provideWrOverlay`
- * keeps that container private to this file (a shared CDK root would hand its
- * leftovers to the next spec), and `provideWrDateAdapter` is mandatory: without
- * an adapter the picker cannot format or parse anything.
+ * so every query for panel content goes through the document. That container
+ * belongs to the TestBed's root injector, so it never outlives this file, and
+ * `provideWrDateAdapter` is mandatory: without an adapter the picker cannot
+ * format or parse anything.
  *
  * The locale is pinned to `en-US` so the grid's first day of week is stable, and
  * the host passes an explicit token `format` — the named keys (`shortDate`, …)
@@ -123,7 +122,7 @@ describe('WrDatePicker', () => {
   };
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'en-US' })] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -875,7 +874,6 @@ describe('WrDatePicker under a localized catalog', () => {
     TestBed.configureTestingModule({
       providers: [
         provideWrDateAdapter(),
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
       ],
@@ -928,7 +926,7 @@ describe('WrDatePicker retyping its own value', () => {
     providers: (Provider | EnvironmentProviders)[] = []
   ): ReturnType<typeof TestBed.createComponent<Host>> => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale }), ...providers] });
+    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale }), ...providers] });
     const fixture = TestBed.createComponent(Host);
     // `null` is the case that broke: the picker then derives a NAMED format from the mode.
     fixture.componentInstance.format.set(null);
@@ -1042,7 +1040,7 @@ describe('WrDatePicker renders every documented named format', () => {
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })],
+      providers: [provideWrDateAdapter({ locale: 'en-US' })],
     });
     fixture = TestBed.createComponent(FormatHost);
     fixture.detectChanges();
@@ -1126,7 +1124,7 @@ describe('WrDatePicker follows a direction flip while its panel is open', () => 
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'en-US' })] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -1255,7 +1253,7 @@ describe('WrDatePicker refusing typed text', () => {
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
-      providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' }), ...REFUSAL_COPY],
+      providers: [provideWrDateAdapter({ locale: 'en-US' }), ...REFUSAL_COPY],
     });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
@@ -1554,7 +1552,7 @@ describe('WrDatePicker inputError', () => {
 
   it('hands a host the reason the picker is SHOWING, so a rendered message agrees with the border', async () => {
     TestBed.configureTestingModule({
-      providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' }), ...REFUSAL_COPY],
+      providers: [provideWrDateAdapter({ locale: 'en-US' }), ...REFUSAL_COPY],
     });
     const fixture = TestBed.createComponent(ErrorReadingHost);
     fixture.detectChanges();
@@ -1596,7 +1594,7 @@ describe('WrDatePicker inputError', () => {
     // ngwr ships no error texts: without `validation.minDate` in the app's catalog the
     // refusal stands — the value is kept, the field is invalid — and `message` is
     // simply absent rather than an English default or the key itself.
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'en-US' })] });
     const fixture = TestBed.createComponent(ErrorReadingHost);
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
@@ -1669,7 +1667,7 @@ describe('WrDatePicker refusals and forms', () => {
     providers: (Provider | EnvironmentProviders)[] = REFUSAL_COPY
   ): Promise<ComponentFixture<T>> => {
     TestBed.configureTestingModule({
-      providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' }), ...providers],
+      providers: [provideWrDateAdapter({ locale: 'en-US' }), ...providers],
     });
     const fixture = TestBed.createComponent(cmp);
     fixture.detectChanges();
@@ -1881,7 +1879,7 @@ describe('WrDatePicker focused by its bound field', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'en-US' })] });
     fixture = TestBed.createComponent(FocusHost);
     fixture.detectChanges();
   });

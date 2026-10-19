@@ -4,7 +4,6 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrPopconfirm } from './popconfirm';
@@ -34,8 +33,8 @@ class Host {
  * trigger, and everything about its contract follows from that: the panel is the
  * ONLY way to confirm or cancel, so a keyboard user has to be able to reach it.
  * The panel lives in the CDK overlay container, not in the fixture, so it is
- * queried off the document — and `provideWrOverlay()` keeps that container out of
- * the next spec file's.
+ * queried off the document — and that container belongs to the TestBed's root
+ * injector, so it never outlives this file.
  */
 describe('WrPopconfirm', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -71,7 +70,6 @@ describe('WrPopconfirm', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -194,7 +192,6 @@ describe('WrPopconfirm under a localized catalog', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
       ],
@@ -230,7 +227,6 @@ describe('WrPopconfirm template reference', () => {
 
   it('publishes the instance as `wrPopconfirm`', () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
 
     const fixture = TestBed.createComponent(ExportHost);
     fixture.detectChanges();
@@ -300,7 +296,6 @@ describe('WrPopconfirm across a direction flip', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     ambient = TestBed.inject(Directionality);
     fixture = TestBed.createComponent(SideHost);
     fixture.detectChanges();

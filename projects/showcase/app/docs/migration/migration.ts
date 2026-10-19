@@ -256,9 +256,8 @@ export default class MigrationPageComponent {
 + protected readonly isMd = toSignal(inject(BreakpointObserver).observe('(min-width: 768px)').pipe(map(s => s.matches)), { initialValue: false });`,
 
     v15Sheets: `# The provider, its token, the helper and the config type are gone.
-- import { provideWrOverlay, provideWrResponsiveOverlays } from 'ngwr/overlay';
+- import { provideWrResponsiveOverlays } from 'ngwr/overlay';
 - provideWrResponsiveOverlays({ breakpoint: 768 }),
-+ import { provideWrOverlay } from 'ngwr/overlay';
 
 # ngwr/overlay has no stylesheet any more: it held only the sheet.
 - @use 'ngwr/overlay';
@@ -303,6 +302,20 @@ export default class MigrationPageComponent {
 # A stored document to show: a read-only editor mounts no ProseMirror.
 - <wr-markdown [value]="notes" />
 + <wr-editor readonly [toolbar]="false" [value]="notes" />`,
+
+    v15Overlay: `# Isolation is the default. Delete the call; nothing else changes.
+- import { provideWrOverlay } from 'ngwr/overlay';
+- provideWrOverlay(),
+
+# The service and the property it published are gone.
+- import { WrVisualViewport } from 'ngwr/platform';
+- protected readonly keyboard = inject(WrVisualViewport).bottomInset;
+- padding-bottom: var(--wr-keyboard-inset, 0px);
+
+# Read the browser's own visual viewport where you need the inset, in the
+# browser only, and again on its resize and scroll events.
++ const vv = window.visualViewport;
++ const inset = vv ? Math.max(0, document.documentElement.clientHeight - vv.height - vv.offsetTop) : 0;`,
 
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
 # One command, whatever major you are on: ng update installs the latest

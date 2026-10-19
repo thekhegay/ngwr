@@ -21,17 +21,11 @@ export default class OverlayPageComponent {
   <button wr-btn type="button" color="danger" [wrDialogClose]="true">Delete</button>
 </footer>`,
 
-    setup: `import { bootstrapApplication } from '@angular/platform-browser';
-import { provideWrOverlay } from 'ngwr/overlay';
-
-bootstrapApplication(AppComponent, {
-  providers: [
-    provideWrOverlay(),
-  ],
-});`,
     scopeCss: `// Scope custom overlay styles to NGWR overlays so other libs aren't affected.
+// Not a z-index: CDK 22 promotes overlays into the top layer, which no
+// z-index reaches.
 .wr-overlay-container .cdk-overlay-pane {
-  z-index: 1100;
+  font-size: var(--wr-text-sm);
 }`,
     components: `// Overlay-based building blocks shipped by the lib:
 import { WrDialog }      from 'ngwr/dialog';

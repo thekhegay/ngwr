@@ -3,7 +3,6 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrMention, type WrMentionCommit, type WrMentionItem } from 'ngwr/mention';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrMentionHarness } from './wr-mention-harness';
@@ -91,8 +90,8 @@ class TwoHost {
  * The panel is a ComponentPortal in the shared overlay container, so nothing this
  * spec asserts about a suggestion is reachable from the fixture — which is why the
  * harness scopes both its single-element and its list queries by the id the field
- * publishes as `aria-controls`. `provideWrOverlay()` keeps this file's container out
- * of the next one's.
+ * publishes as `aria-controls`. The container belongs to the TestBed's root injector,
+ * so it never outlives this file.
  *
  * Real timers throughout: the close on blur is a real `setTimeout` inside the
  * directive, and under zoneless change detection nothing flushes it for us.
@@ -110,7 +109,6 @@ describe('WrMentionHarness', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -412,7 +410,6 @@ describe('WrMentionHarness — custom display, value and filter', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(CustomHost);
     fixture.detectChanges();
     mention = await TestbedHarnessEnvironment.loader(fixture).getHarness(
@@ -450,7 +447,6 @@ describe('WrMentionHarness — two fields on one page', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TwoHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);

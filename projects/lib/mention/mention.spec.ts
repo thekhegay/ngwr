@@ -3,7 +3,6 @@ import { Component, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrDialog } from 'ngwr/dialog';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrMention } from './mention';
@@ -93,7 +92,6 @@ describe('WrMention', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -183,7 +181,6 @@ describe('WrMention', () => {
 
     it('takes a custom filter over the substring default', () => {
       TestBed.resetTestingModule();
-      TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
       const prefixed = TestBed.createComponent(PrefixHost);
       prefixed.detectChanges();
 
@@ -486,7 +483,6 @@ describe('WrMention inside a dialog', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Shell);
     fixture.detectChanges();
     fixture.componentInstance.dialog.open(DialogBody);
@@ -563,7 +559,6 @@ describe('WrMention when the direction flips while the panel is up', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     dir = TestBed.inject(Directionality);

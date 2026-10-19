@@ -8,7 +8,6 @@ import { TestBed } from '@angular/core/testing';
 import { WrDialog, WrDialogContent, type WrDialogRef } from 'ngwr/dialog';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { provideWrToastConfig } from './provide-wr-toast-config';
@@ -18,8 +17,8 @@ import { WrToast } from './services/toast';
  * Toast has no template of its own — a consumer injects `WrToast` and calls
  * `show()`, and the stack is rendered by an internal host that the service
  * attaches to a CDK overlay. So every query goes through the document (the
- * host is not inside any fixture), and this spec provides `provideWrOverlay()`
- * so its container does not leak into the next spec file.
+ * host is not inside any fixture), and its container belongs to the TestBed's
+ * root injector, so it does not leak into the next spec file.
  *
  * Timers are faked for the whole file: auto-dismiss is core to the component,
  * and a real `setTimeout` left behind by a still-open toast would fire against
@@ -29,7 +28,7 @@ describe('WrToast', () => {
   let toast: WrToast;
 
   const setup = (extra: EnvironmentProviders[] = []): WrToast => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), ...extra] });
+    TestBed.configureTestingModule({ providers: extra });
     return TestBed.inject(WrToast);
   };
 
@@ -519,7 +518,6 @@ describe('WrToast labels', () => {
   it('takes every one of them from the catalog', async () => {
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
       ],
@@ -544,7 +542,6 @@ describe('WrToast labels', () => {
   it('still lets provideWrToastConfig win over the catalog', () => {
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
         provideWrToastConfig({ labels: { close: 'Dismiss', copy: 'Copy', copied: 'Copied', closeAll: 'Clear' } }),
@@ -559,7 +556,6 @@ describe('WrToast labels', () => {
   });
 
   it('falls back to English when no catalog is registered', () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     toast = TestBed.inject(WrToast);
 
     toast.show({ message: 'One' });
@@ -716,7 +712,6 @@ describe('WrToast stacking', () => {
       },
     });
 
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     toast = TestBed.inject(WrToast);
     dialog = TestBed.inject(WrDialog);
     openDialogs = [];
@@ -833,7 +828,6 @@ describe('provideWrToastConfig outside the root injector', () => {
     // reaches.
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     const root = TestBed.inject(EnvironmentInjector);
     // A child environment injector is what a lazy route creates.
     // `createEnvironmentInjector` runs ENVIRONMENT_INITIALIZER itself.
@@ -848,7 +842,7 @@ describe('provideWrToastConfig outside the root injector', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
     TestBed.configureTestingModule({
-      providers: [provideWrOverlay(), provideWrToastConfig({ position: 'bottom' })],
+      providers: [provideWrToastConfig({ position: 'bottom' })],
     });
     TestBed.inject(WrToast);
 
@@ -880,7 +874,6 @@ describe('WrToast follows a direction change while the stack is up', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     toast = TestBed.inject(WrToast);
     dir = TestBed.inject(Directionality);
   });
@@ -948,7 +941,6 @@ describe('WrToast per-toast class', () => {
   const items = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('.wr-toast')];
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     toast = TestBed.inject(WrToast);
   });
 

@@ -134,12 +134,20 @@ as it is an `interface`. Cross-cutting types live in `ngwr/utils/types`
 These live in their own entry points — an agent won't find them by mirroring
 one component folder. Reach for them instead of hand-rolling:
 
-- **Overlays** (`ngwr/overlay`) — `provideWrOverlay()` gives an isolated CDK
-  overlay container (never collides with Material / NG-ZORRO). Overlays always
-  float: v15 deleted the responsive bottom sheet (`provideWrResponsiveOverlays()`,
-  `wrPresentAsSheet` and the `responsive` switch on five overlays) for the reason
-  the Mobile primitives bullet gives, and a sheet on a phone is a bottom
-  `wr-drawer` the app opens itself. **Every open overlay follows a runtime
+- **Overlays** (`ngwr/overlay`) — isolated from every other CDK consumer with
+  no call since v15: `WR_OVERLAY_CONTAINER` and `WR_OVERLAY` are root tokens
+  whose DEFAULT factories build a `WrOverlayContainer` (tagged
+  `.wr-overlay-container`) and a fresh CDK `Overlay` bound to it in a child
+  injector, while CDK's own root `Overlay` / `OverlayContainer` stay untouched
+  for Material, NG-ZORRO and plain CDK code. `provideWrOverlay()` made that
+  opt-in and is gone: an app that never called it shared NG-ZORRO's container,
+  which is the collision that decided it. **A new overlay injects `WR_OVERLAY`,
+  never CDK's `Overlay`** — CDK's lands it in the shared container, and nothing
+  fails to say so. Overlays always float: v15 deleted the responsive bottom
+  sheet (`provideWrResponsiveOverlays()`, `wrPresentAsSheet` and the
+  `responsive` switch on five overlays) for the reason the Mobile primitives
+  bullet gives, and a sheet on a phone is a bottom `wr-drawer` the app opens
+  itself. **Every open overlay follows a runtime
   direction change through
   `wrFollowDirection(overlayRef, dir, injector, reposition?)`** — the CDK reads
   the direction once, as a string, when the overlay is created and never looks
@@ -432,13 +440,14 @@ one component folder. Reach for them instead of hand-rolling:
   `Range.getClientRects` — ProseMirror throws from a
   DOM listener after the document has already changed, so without the stub a spec
   passes for the wrong reason.
-- **Mobile primitives** (`ngwr/platform`, …) — `WrHaptics`,
-  `ngwr/pull-to-refresh`, and `WrVisualViewport` (publishes
-  `--wr-keyboard-inset`, installed by `provideWrOverlay()`). The set is
-  deliberately small and v15 made it smaller: `ngwr/action-sheet` is gone and
-  `wr-drawer`'s swipe-to-dismiss grab handle with it, because ngwr is not a
-  mobile library and a mobile-only affordance has to earn the surface it adds
-  to a component every desktop app also uses.
+- **Mobile primitives** (`ngwr/platform`, …) — `WrHaptics` and
+  `ngwr/pull-to-refresh`. The set is deliberately small and v15 made it
+  smaller: `ngwr/action-sheet` is gone and `wr-drawer`'s swipe-to-dismiss grab
+  handle with it, because ngwr is not a mobile library and a mobile-only
+  affordance has to earn the surface it adds to a component every desktop app
+  also uses. `WrVisualViewport` and the `--wr-keyboard-inset` it published went
+  too, once the command-palette sheet, its last reader, had gone; an app that
+  needs the keyboard inset reads `window.visualViewport` itself.
 
 **Forms.** Value components are **Signal Forms-native** — twenty public
 controls implement `FormValueControl` or `FormCheckboxControl`, so
@@ -631,8 +640,9 @@ thing with `await fixture.whenStable()` alone.
 SERVICE that mounts into an overlay, or `projects/lib/select/select.spec.ts` for
 a component with an overlay — that panel
 renders into the overlay container, not the fixture, so options are queried off
-`document` and the spec provides `provideWrOverlay()` to keep its container out
-of the next file's. A tiny
+`document`. The container needs no provider: `WR_OVERLAY_CONTAINER` is
+root-provided, so each TestBed's root injector builds its own and removes it on
+teardown, and one file's container never reaches the next file's. A tiny
 `@Component` host uses the component the way a consumer would, and the
 assertions read the RENDERED DOM — roles, ARIA state, and the `.wr-*` classes,
 which are public API. A spec that reaches into component internals passes

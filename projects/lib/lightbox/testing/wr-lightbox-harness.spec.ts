@@ -3,7 +3,6 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrLightbox } from 'ngwr/lightbox';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrLightboxHarness } from './wr-lightbox-harness';
@@ -41,8 +40,8 @@ class TwoHost {}
 
 /**
  * The thumbnail is in the fixture and the viewer is an overlay, so the harness has to
- * cross between them; `provideWrOverlay()` keeps this file's container out of the next
- * one's.
+ * cross between them; the container belongs to the TestBed's root injector, so it never
+ * outlives this file.
  */
 describe('WrLightboxHarness', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -52,7 +51,6 @@ describe('WrLightboxHarness', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -205,7 +203,6 @@ describe('WrLightboxHarness — two lightboxes on one page', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TwoHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);

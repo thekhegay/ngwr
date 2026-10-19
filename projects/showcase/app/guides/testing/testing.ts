@@ -178,7 +178,7 @@ it('builds up a multi selection', async () => {
 
     datePicker: `// A picker needs a date adapter, the same one your app provides.
 TestBed.configureTestingModule({
-  providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })],
+  providers: [provideWrDateAdapter({ locale: 'en-US' })],
 });
 
 it('picks a departure date', async () => {

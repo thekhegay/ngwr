@@ -2,7 +2,6 @@ import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrColorPickerTrigger } from './color-picker-trigger';
@@ -32,8 +31,8 @@ class Host {
  * would only make it harder to leave.
  *
  * The panel lives in the NGWR overlay container rather than in the fixture, so
- * it is queried off the document — and `provideWrOverlay()` keeps this file's
- * container out of the next one's.
+ * it is queried off the document — and that container belongs to the TestBed's
+ * root injector, so it never outlives this file.
  */
 describe('[wrColorPickerTrigger] focus', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -56,7 +55,6 @@ describe('[wrColorPickerTrigger] focus', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -135,7 +133,6 @@ describe('WrColorPickerTrigger template reference', () => {
 
   it('publishes the instance as `wrColorPickerTrigger`', () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
 
     const fixture = TestBed.createComponent(ExportHost);
     fixture.detectChanges();
@@ -210,7 +207,6 @@ describe('[wrColorPickerTrigger] follows a direction flip while its panel is ope
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });

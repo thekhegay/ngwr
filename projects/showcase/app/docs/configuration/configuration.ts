@@ -21,7 +21,6 @@ import { provideZonelessChangeDetection } from '@angular/core';
 
 import { Plus, Trash2 } from 'lucide';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 import { provideWrToastConfig } from 'ngwr/toast';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
@@ -37,7 +36,6 @@ bootstrapApplication(AppComponent, {
     provideRouter(routes),
 
     // ngwr ---------------------------------------------------------------
-    provideWrOverlay(),
     provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 })),
     provideWrToastConfig({ position: 'top-end', duration: 4000 }),
     provideWrDensity({ defaultDensity: 'lg' }),
@@ -47,14 +45,14 @@ bootstrapApplication(AppComponent, {
   ],
 });`,
 
-    overlay: `import { provideWrOverlay } from 'ngwr/overlay';
-
-// Backs every overlay component — dialog, drawer, popover, tooltip,
-// dropdown, select, mention, command-palette, context-menu, and every
-// picker. Gives them their own overlay container + Overlay instance, so
-// they never share a DOM root with Material / NG-ZORRO. Without it they
-// fall back to CDK's shared root container.
-providers: [provideWrOverlay()],`,
+    overlay: `// styles.scss — nothing to provide. ngwr's overlays render into a container of
+// their own, tagged .wr-overlay-container beside CDK's .cdk-overlay-container,
+// so a rule scoped to it reaches ngwr's panels and none of Material's,
+// NG-ZORRO's or your own CDK overlays'. Not a z-index, though: CDK 22 promotes
+// overlays into the browser's top layer, which no z-index reaches.
+.wr-overlay-container .cdk-overlay-pane {
+  font-size: var(--wr-text-sm);
+}`,
 
     icons: `import { Check, Plus, Trash2 } from 'lucide';
 import { lucideIcons, provideWrIcons } from 'ngwr/icon';

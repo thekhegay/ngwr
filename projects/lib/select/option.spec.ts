@@ -1,7 +1,6 @@
 import { Component, DestroyRef, inject, input, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrOption } from './option';
@@ -199,7 +198,6 @@ describe('WrOption leading visual', () => {
     live = 0;
     created = 0;
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(LeadingHost);
     await fixture.whenStable();
   });
@@ -351,7 +349,6 @@ describe('WrOption leading visual — search-shaped triggers', () => {
     live = 0;
     created = 0;
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(LeadingHost);
     fixture.componentInstance.mode.set('search');
     await fixture.whenStable();
@@ -504,7 +501,6 @@ describe('WrOption label input', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(LabelHost);
     await fixture.whenStable();
   });
@@ -595,7 +591,6 @@ describe('WrSelect select-wide leading template', () => {
     live = 0;
     created = 0;
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(DefaultLeadingHost);
     await fixture.whenStable();
   });
@@ -708,7 +703,6 @@ describe('WrSelect scroll seed with leading visuals', () => {
     });
 
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(LongLeadingHost);
     await fixture.whenStable();
   });
@@ -764,7 +758,6 @@ describe('WrSelect leading visual under virtual scroll', () => {
     });
 
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(VirtualLeadingHost);
     await fixture.whenStable();
   });

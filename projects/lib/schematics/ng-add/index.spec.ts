@@ -156,16 +156,13 @@ describe('ng-add', () => {
     // v15 deleted `provideWrTheme`: the scheme follows the OS with no provider and
     // `WrTheme` is root-provided, so a snippet naming it would not compile.
     expect(snippet).not.toContain('provideWrTheme');
+    // Nor `provideWrOverlay`: ngwr's overlays are isolated from other CDK
+    // consumers by default, and the import would name an export that is gone.
+    expect(snippet).not.toContain('provideWrOverlay');
     // Every provider named in the snippet has an import above it — the pairing
     // that broke once already, when the icon block imported bare glyph names
     // `ngwr/icon` has never exported.
-    for (const symbol of [
-      'provideWrOverlay',
-      'provideWrIcons',
-      'lucideIcons',
-      'provideWrDateAdapter',
-      'provideWrDensity',
-    ]) {
+    for (const symbol of ['provideWrIcons', 'lucideIcons', 'provideWrDateAdapter', 'provideWrDensity']) {
       expect(snippet, symbol).toMatch(new RegExp(`import \\{[^}]*\\b${symbol}\\b[^}]*\\} from`));
     }
     // The converter ships in `ngwr/icon` itself since v15.

@@ -302,9 +302,8 @@ popover stays anchored to its trigger, and a dialog or command palette stays a c
 app that wants a sheet there opens a `<wr-drawer position="bottom">` itself.
 
 ```diff
-- import { provideWrOverlay, provideWrResponsiveOverlays } from 'ngwr/overlay';
+- import { provideWrResponsiveOverlays } from 'ngwr/overlay';
 - provideWrResponsiveOverlays({ breakpoint: 768 }),
-+ import { provideWrOverlay } from 'ngwr/overlay';
 - @use 'ngwr/overlay';
 - <wr-select responsive [(value)]="size">…</wr-select>
 + <wr-select [(value)]="size">…</wr-select>
@@ -382,6 +381,27 @@ The imports, the `@use` and a bound `[format]` fail the build. A static `format=
 and an HTML or markdown string that reaches `value` untyped is refused like any value the editor
 cannot read: the editor stays empty and read-only with `wr-editor--refused`, and only dev mode
 says why. A form model whose editor field started as `''` starts as `null` now.
+
+### No overlay provider, and no keyboard inset
+
+`provideWrOverlay()` is removed from `ngwr/overlay`, because what it did is the default now: every
+ngwr overlay renders into a container of its own, `.wr-overlay-container`, apart from the one
+Angular Material, NG-ZORRO and plain CDK overlays share, with no call. `WR_OVERLAY`,
+`WR_OVERLAY_CONTAINER` and `WrOverlayContainer` stay. `WrVisualViewport` is removed from
+`ngwr/platform`, with the `--wr-keyboard-inset` property it published on the document root, which
+nothing in ngwr read any more. `WrPlatform` and `WrHaptics` are unchanged.
+
+```diff
+- import { provideWrOverlay } from 'ngwr/overlay';
+- provideWrOverlay(),
+- import { WrVisualViewport } from 'ngwr/platform';
+- padding-bottom: var(--wr-keyboard-inset, 0px);
++ const vv = window.visualViewport; // in the browser, again on its resize and scroll events
++ const inset = vv ? Math.max(0, document.documentElement.clientHeight - vv.height - vv.offsetTop) : 0;
+```
+
+The imports fail the build. A `var(--wr-keyboard-inset, 0px)` does not: it falls back to its
+default and stays there, so search your stylesheets for it.
 
 ---
 

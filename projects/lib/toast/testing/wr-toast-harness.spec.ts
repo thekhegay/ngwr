@@ -2,7 +2,6 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrOverlay } from 'ngwr/overlay';
 import { WrToast } from 'ngwr/toast';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -28,7 +27,6 @@ describe('WrToastHarness', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     rootLoader = TestbedHarnessEnvironment.documentRootLoader(fixture);

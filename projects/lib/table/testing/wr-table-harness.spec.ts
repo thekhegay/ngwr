@@ -4,7 +4,6 @@ import { TestBed } from '@angular/core/testing';
 
 import { WrButton } from 'ngwr/button';
 import { WrButtonHarness } from 'ngwr/button/testing';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { WrTable, WrTableCell, WrTableExpand, type WrTableColumns, type WrTableSortState } from 'ngwr/table';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -164,10 +163,6 @@ class TwoHost {
  * several cases below assert against the RAW `tbody tr` count on purpose: a harness
  * that queried that would answer with rows that have no cells, and every count in
  * a consumer's spec would be quietly wrong.
- *
- * `provideWrOverlay()` is here because the `Role` column is filterable: its header
- * renders a `wr-dropdown` trigger, and an isolated container keeps anything the
- * dropdown creates out of the next spec file.
  */
 describe('WrTableHarness', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -177,7 +172,6 @@ describe('WrTableHarness', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -366,7 +360,6 @@ describe('WrTableHarness — row selection', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.componentInstance.rowSelection.set('multiple');
     fixture.detectChanges();
@@ -469,7 +462,6 @@ describe('WrTableHarness — detail rows', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(ExpandHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -577,7 +569,6 @@ describe('WrTableHarness — tree rows', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(TreeHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -647,7 +638,6 @@ describe('WrTableHarness — group bands', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(GroupHost);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);

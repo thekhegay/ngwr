@@ -165,8 +165,8 @@ export class WrDrawer {
    * ENVIRONMENT injector rather than this component's.
    *
    * That is where the CDK read it: `createOverlayRef` takes `Directionality`
-   * from the `Overlay`'s own injector, which `provideWrOverlay()` parents to
-   * the application's, so a node-level CDK `[dir]` is never in the chain. A
+   * from the `Overlay`'s own injector, which `WR_OVERLAY` parents to the
+   * application's, so a node-level CDK `[dir]` is never in the chain. A
    * panel is not IN that island either — it is appended to the overlay
    * container on `<body>` — so following the node injector would not follow the
    * ref at all: it would rewrite a correctly-stamped panel to the island's

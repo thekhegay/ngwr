@@ -195,11 +195,10 @@ function printNextSteps(options: Schema, context: SchematicContext): Rule {
     // icon package, through `lucideIcons()` for lucide or `svgIcon()` for a set
     // that ships SVG.
     const imports: string[] = [
-      "import { provideWrOverlay } from 'ngwr/overlay';",
       "import { provideWrIcons, lucideIcons } from 'ngwr/icon';",
       "import { Plus, Trash2 } from 'lucide';",
     ];
-    const providers: string[] = ['provideWrOverlay()', 'provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 }))'];
+    const providers: string[] = ['provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 }))'];
 
     const adapterCall = DATE_ADAPTER_PROVIDER[adapter];
     if (adapterCall) {

@@ -55,7 +55,6 @@ const NON_DECLARABLE: Readonly<Record<string, string>> = {
   WrToastRef: 'a class',
   WrTour: 'a service',
   WrValidators: 'a constant',
-  WrVisualViewport: 'a service',
   WrWindowManager: 'a service',
   WrWindowRef: 'a class',
 };

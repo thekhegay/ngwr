@@ -3,5 +3,4 @@ export { wrFollowDirection } from './wr-follow-direction';
 export { wrMirrorOffsets } from './wr-mirror-offsets';
 export { WrOutsideClick } from './wr-outside-click';
 export { WrOverlayContainer } from './wr-overlay-container';
-export { provideWrOverlay } from './provide-wr-overlay';
 export { WR_OVERLAY, WR_OVERLAY_CONTAINER } from './tokens';

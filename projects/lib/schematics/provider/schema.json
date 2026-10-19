@@ -6,7 +6,7 @@
   "properties": {
     "name": {
       "type": "string",
-      "enum": ["overlay", "icons", "toast", "i18n", "date-adapter", "density", "storage"],
+      "enum": ["icons", "toast", "i18n", "date-adapter", "density", "storage"],
       "description": "Provider to add.",
       "$default": {
         "$source": "argv",
@@ -16,10 +16,6 @@
         "message": "Which provider?",
         "type": "list",
         "items": [
-          {
-            "value": "overlay",
-            "label": "overlay — required for every overlay-backed component"
-          },
           {
             "value": "icons",
             "label": "icons — register a tree-shaken icon set"

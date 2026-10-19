@@ -4,7 +4,6 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrTableFilter } from './table-filter';
@@ -52,7 +51,6 @@ describe('WrTableFilter', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -189,7 +187,6 @@ describe('WrTableFilter panel copy', () => {
   const reset = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-table-filter__reset');
 
   it('names the search box, and names it with the placeholder it shows', () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     openPanel(Host);
 
     expect(search().getAttribute('aria-label')).toBe('Search');
@@ -199,7 +196,6 @@ describe('WrTableFilter panel copy', () => {
   it('comes from the catalog, not from the template', async () => {
     TestBed.configureTestingModule({
       providers: [
-        provideWrOverlay(),
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
       ],
@@ -219,7 +215,6 @@ describe('WrTableFilter panel copy', () => {
   });
 
   it('lets a binding win over both', () => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     openPanel(LabelledHost);
 
     expect(search().placeholder).toBe('Find a role');

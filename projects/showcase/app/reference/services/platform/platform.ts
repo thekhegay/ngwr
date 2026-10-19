@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
-import { WrHaptics, WrPlatform, WrVisualViewport } from 'ngwr/platform';
+import { WrHaptics, WrPlatform } from 'ngwr/platform';
 
 import {
   DocApiComponent,
@@ -29,16 +29,12 @@ import {
 })
 export default class PlatformServicePageComponent {
   private readonly platformService = inject(WrPlatform);
-  private readonly visualViewport = inject(WrVisualViewport);
   protected readonly haptics = inject(WrHaptics);
   protected readonly hapticsSupported = this.haptics.supported;
 
   protected readonly prefersDark = this.platformService.prefersDark;
   protected readonly prefersReducedMotion = this.platformService.prefersReducedMotion;
   protected readonly isBrowser = this.platformService.isBrowser;
-
-  protected readonly bottomInset = this.visualViewport.bottomInset;
-  protected readonly offsetTop = this.visualViewport.offsetTop;
 
   protected readonly snippets = {
     usage: `private readonly platform = inject(WrPlatform);
@@ -49,15 +45,6 @@ if (this.platform.isBrowser) {
 
 protected readonly dark = this.platform.prefersDark;       // Signal<boolean>
 protected readonly reduce = this.platform.prefersReducedMotion;`,
-    viewport: `private readonly vv = inject(WrVisualViewport);
-
-// Height (px) the on-screen keyboard hides at the bottom — 0 when there
-// is none, on the server, or in browsers without the VisualViewport API.
-protected readonly keyboard = this.vv.bottomInset;         // Signal<number>
-
-// Also mirrored onto the document root as \`--wr-keyboard-inset\`, so purely
-// presentational surfaces can lift above the keyboard with CSS alone:
-//   padding-bottom: max(env(safe-area-inset-bottom), var(--wr-keyboard-inset, 0px));`,
     haptics: `private readonly haptics = inject(WrHaptics);
 
 onConfirmDelete(): void {
@@ -91,22 +78,6 @@ protected readonly canBuzz = this.haptics.supported;`,
       name: 'prefersReducedMotion',
       description: 'Signal mirroring `(prefers-reduced-motion: reduce)`.',
       type: 'Signal<boolean>',
-      default: '—',
-    },
-  ];
-
-  protected readonly viewportApi: readonly DocApiRow[] = [
-    {
-      name: 'bottomInset',
-      description:
-        'Height (px) the on-screen keyboard / browser chrome hides at the viewport bottom. `0` when nothing covers it, on the server, or without the API.',
-      type: 'Signal<number>',
-      default: '—',
-    },
-    {
-      name: 'offsetTop',
-      description: "The visual viewport's top offset (px).",
-      type: 'Signal<number>',
       default: '—',
     },
   ];

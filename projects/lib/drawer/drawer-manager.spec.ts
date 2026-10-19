@@ -4,7 +4,6 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
-import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrDrawerManager } from './drawer-manager';
@@ -24,11 +23,10 @@ describe('WrDrawerManager', () => {
     TestBed.configureTestingModule({
       providers: withCatalog
         ? [
-            provideWrOverlay(),
             provideWrI18n({ defaultLocale: 'en', availableLocales: ['en'] }),
             provideWrI18nStaticLoader({ en: { drawer: { close: 'Dismiss the panel' } } }),
           ]
-        : [provideWrOverlay()],
+        : [],
     });
     return TestBed.inject(WrDrawerManager);
   };
@@ -171,7 +169,6 @@ describe('WrDrawerManager follows a direction change while a drawer is open', ()
 
   const setup = (): void => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
     manager = TestBed.inject(WrDrawerManager);
     dir = TestBed.inject(Directionality);
   };
