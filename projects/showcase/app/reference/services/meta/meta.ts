@@ -70,6 +70,20 @@ export default class MetaServicePageComponent {
   }
 
   protected readonly snippets = {
+    defaults: `import { provideWr } from 'ngwr';
+import { withMeta } from 'ngwr/meta';
+
+// The baseline every route starts from; push() and [wrMeta] layer on top.
+providers: [
+  provideWr(
+    withMeta({
+      titleTemplate: '{{ title }} · My app',
+      description: 'What the app does, in one line.',
+      og: { siteName: 'My app', type: 'website' },
+      twitter: { card: 'summary_large_image' },
+    }),
+  ),
+],`,
     push: `private readonly meta = inject(WrMeta);
 
 ngOnInit() {
@@ -122,7 +136,7 @@ ngOnInit() {
     { name: 'pop()', description: 'Pop the most recently pushed layer.', type: '() => void', default: '—' },
     {
       name: 'reset()',
-      description: 'Clear all overrides, restore defaults registered via provideWrMeta.',
+      description: 'Clear all overrides, restore the defaults registered through `withMeta()`.',
       type: '() => void',
       default: '—',
     },

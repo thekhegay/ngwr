@@ -2,10 +2,11 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormField, form, readonly, requiredError, validate } from '@angular/forms/signals';
 
+import { provideWr } from 'ngwr';
 import { WrCascader, type WrCascaderOption } from 'ngwr/cascader';
 import { WrCheckbox, WrCheckboxGroup } from 'ngwr/checkbox';
 import { WrColorPicker } from 'ngwr/color-picker';
-import { provideWrDateAdapter } from 'ngwr/date';
+import { withDates } from 'ngwr/date';
 import { WrDatePicker, WrDateRangePicker, type WrDateRange } from 'ngwr/date-picker';
 import { WrEditor, type WrEditorJson } from 'ngwr/editor';
 import { WrFileUpload } from 'ngwr/file-upload';
@@ -384,7 +385,7 @@ describe('every value control, as a form control', () => {
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideWrDateAdapter({ locale: 'en-GB' })],
+      providers: [provideWr(withDates({ locale: 'en-GB' }))],
     });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();

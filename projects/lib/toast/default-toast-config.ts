@@ -8,10 +8,9 @@
 import type { WrToastConfig } from './types';
 
 /**
- * Library defaults applied when no {@link provideWrToastConfig} call is
- * registered. Merged shallowly with the consumer's overrides (the `labels`
- * sub-object is merged separately so callers can override one string at a
- * time).
+ * Library defaults applied when no {@link withToast} feature is registered.
+ * Merged shallowly with the consumer's overrides (the `labels` sub-object is
+ * merged separately so callers can override one string at a time).
  */
 export const DEFAULT_TOAST_CONFIG: WrToastConfig = {
   position: 'top-end',

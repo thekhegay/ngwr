@@ -18,10 +18,11 @@ export default class MobilePageComponent {
 <wr-toolbar responsive>…</wr-toolbar>
 <wr-pagination responsive [(page)]="page" [total]="200" />
 <wr-table responsive [columns]="cols" [items]="rows" />`,
-    density: `import { provideWrDensity } from 'ngwr/density';
+    density: `import { provideWr } from 'ngwr';
+import { withDensity } from 'ngwr/density';
 
 // App-wide default — sm | md | lg | touch.
-provideWrDensity({ defaultDensity: 'touch' });
+provideWr(withDensity({ defaultDensity: 'touch' }));
 
 // …or scope it to a subtree with the directive:
 // <section wrDensity="touch">…</section>`,

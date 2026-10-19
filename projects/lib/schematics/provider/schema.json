@@ -22,7 +22,7 @@
           },
           {
             "value": "toast",
-            "label": "toast — global toast service"
+            "label": "toast — withToast() in provideWr(): global toast defaults"
           },
           {
             "value": "i18n",
@@ -30,11 +30,11 @@
           },
           {
             "value": "density",
-            "label": "density — sm / md / lg scale"
+            "label": "density — withDensity() in provideWr(): sm / md / lg scale"
           },
           {
             "value": "storage",
-            "label": "storage — swappable engine + TTL"
+            "label": "storage — withStorage() in provideWr(): swappable engine + TTL"
           }
         ]
       }

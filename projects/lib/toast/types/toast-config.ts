@@ -9,7 +9,7 @@ import type { WrToastMode } from './toast-mode';
 import type { WrToastPosition } from './toast-position';
 
 /**
- * Global toast configuration registered through {@link provideWrToastConfig}.
+ * Global toast configuration registered through `provideWr(withToast(...))`.
  *
  * Per-toast {@link WrToastOptions} can override individual fields at call
  * time (`position`, `duration`, `showProgress`, `showCopy`).

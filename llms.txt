@@ -42,12 +42,13 @@ or tested against, and nothing warns. There is no `engines` field and no
 TypeScript peer either: both come from your Angular. What that range does and
 does not promise: https://ngwr.dev/start/versioning
 
-**There is no root barrel: `import { X } from 'ngwr'` is always wrong.** The root
-entry point exports nothing, so an IDE auto-import from it gives `TS2305` and no
-hint. Every symbol comes from its entry point — `import { WrButton } from
-'ngwr/button'` — and for most components the entry point is the last segment of
-the docs URL. Not for all of them: `/reference/components/qrcode` is `ngwr/qr`,
-`form-field` is `ngwr/form` and `button-group` is `ngwr/button`, while the
+**There is no root barrel: `import { X } from 'ngwr'` is wrong for every
+component.** The root entry point exports only `provideWr()`, so an IDE
+auto-import of a component from it gives `TS2305` and no hint. Every symbol
+comes from its entry point — `import { WrButton } from 'ngwr/button'` — and for
+most components the entry point is the last segment of the docs URL. Not for
+all of them: `/reference/components/qrcode` is `ngwr/qr`, `form-field` is
+`ngwr/form` and `button-group` is `ngwr/button`, while the
 directive, pipe, util and validator pages share `ngwr/directives`, `ngwr/pipes`,
 `ngwr/utils` and `ngwr/validators`. Each page's import snippet names the right
 one. Mind the ones that do not match the selector: `<wr-btn>` and
@@ -63,7 +64,7 @@ theme tokens come with each entry but the other components it renders do not**,
 and nothing warns — the control just paints wrong. Always add `ngwr/icon` (the
 inline chevrons, carets and sort arrows are bare SVGs sized by `.wr-icon__svg`)
 and `ngwr/density` (nothing else declares the `--wr-density-*` multipliers, so
-`provideWrDensity()` silently does nothing without it). Then follow what a
+`withDensity()` silently does nothing without it). Then follow what a
 component renders:
 `ngwr/table` needs checkbox / dropdown / pagination / spinner, `ngwr/pagination`
 needs button / select, `ngwr/date-picker` needs calendar / input,
@@ -74,7 +75,35 @@ https://ngwr.dev/start/installation
 
 ## Providers (main.ts)
 
-Add from their entry points as needed:
+App-wide configuration is ONE call, `provideWr()` from `ngwr` (the root entry
+point's only export), taking a feature per setting, each imported from the entry
+point it configures — only the features an app imports are bundled:
+
+```ts
+import { provideWr } from 'ngwr';
+import { withDensity } from 'ngwr/density';
+import { withToast } from 'ngwr/toast';
+import { withDates } from 'ngwr/date';
+
+providers: [
+  provideWr(
+    withDensity({ defaultDensity: 'sm' }),
+    withToast({ duration: 6000 }),
+    withDates({ locale: 'ru-RU' }),
+  ),
+],
+```
+
+The features are `withDensity` (`ngwr/density`), `withTheme` (`ngwr/theme`),
+`withToast` (`ngwr/toast`), `withDates` (`ngwr/date`), `withStorage`
+(`ngwr/storage`) and `withMeta` (`ngwr/meta`). Every one is optional, the same
+feature twice throws in dev mode, and all but `withDates` configure a root
+service, so they belong at bootstrap rather than in a route. The theme needs no
+feature: the `--wr-*` tokens are plain CSS and dark mode follows
+`color-scheme`; `withTheme()` only changes the default and boots `WrTheme`
+(Theme, below). There is no `provideWrDensity()`, `provideWrToastConfig()`,
+`provideWrStorage()`, `provideWrMeta()` or `provideWrDateAdapter()` since v15.
+The rest are calls of their own, added from their entry points as needed:
 
 - `provideWrOverlay()` is gone (v15), because overlays need no provider: every
   overlay (dialog / select / dropdown / popover / toast / drawer) renders into
@@ -86,8 +115,6 @@ Add from their entry points as needed:
 - `provideWrIcons(lucideIcons({ check: Check }))` — icon registry (`ngwr/icon`,
   which holds `lucideIcons()` too; every other set, feather included, registers
   its raw SVG with `svgIcon()`).
-- `provideWrDensity()` — sizing. The theme needs no provider: the `--wr-*`
-  tokens are plain CSS, and dark mode follows `color-scheme` (Theme, below).
 - `ngwr/config` and `provideWrConfig()` are gone (v15): `size` and `rounded`
   default to the value written on the input. Bind them where you want another
   value, or wrap the component in your own.
@@ -99,9 +126,9 @@ Add from their entry points as needed:
   components fall back to English and a `wrT` read renders the raw key.
 - Calendar, event calendar and date-picker need no date provider:
   `WrDateAdapter` resolves to the native adapter (`Date` + `Intl`, locale from
-  `LOCALE_ID`). `provideWrDateAdapter({ locale })` (`ngwr/date`) pins another
+  `LOCALE_ID`). `provideWr(withDates({ locale }))` (`ngwr/date`) pins another
   locale; for another date library, extend `WrDateAdapter` and pass the class as
-  `provideWrDateAdapter({ adapter })`.
+  `withDates({ adapter })`.
 
 Injected rather than provided: `WrTour` (`ngwr/tour`) runs a guided onboarding
 tour — `tour.start([{ target: '[data-tour="save"]', content: '…' }])` spotlights
@@ -112,8 +139,9 @@ one element at a time; a step whose target is missing is skipped, not floated.
 - `ng add ngwr` — installs peers, adds `@use 'ngwr/theme'` to styles, prints provider setup.
 - `ng g ngwr:use WrFoo --path src/app/x.ts` — adds the import + splices `WrFoo` into that
   component's `@Component` imports.
-- `ng g ngwr:provider <icons|toast|i18n|density|storage>` —
-  adds the matching `provideWr*()` to bootstrap.
+- `ng g ngwr:provider <icons|toast|i18n|density|storage>` — adds
+  `provideWrIcons()` / `provideWrI18n()`, or the `withToast()` / `withDensity()` /
+  `withStorage()` feature of `provideWr()`, to bootstrap.
 - `ng g ngwr:icon-set` — scaffolds a tree-shaken icon barrel.
 - `ng g ngwr:component-style <name>` — appends `@use 'ngwr/<name>'` (opt-in styles).
 - `ng g ngwr:page <form|table|dashboard>` — starter page wired with ngwr.
@@ -141,8 +169,12 @@ v15 ships none, so its names move by hand:
   register feather's own SVG files with `svgIcon()`;
   `ngwr/date/adapters/fns` and `ngwr/date/adapters/luxon` are gone — use the
   native adapter, or your own `WrDateAdapter` subclass, and note that a date-fns
-  token `[format]` (`EEEE`, `PPP`) prints verbatim on the native one; a bare
-  `provideWrDateAdapter()` is redundant, since the native adapter is the default;
+  token `[format]` (`EEEE`, `PPP`) prints verbatim on the native one;
+  `provideWrDensity`, `provideWrToastConfig`, `provideWrStorage`, `provideWrMeta`
+  and `provideWrDateAdapter` are `withDensity`, `withToast`, `withStorage`,
+  `withMeta` and `withDates`, passed to one `provideWr()` from `ngwr` (a bare
+  `provideWrDateAdapter()` just goes: the native adapter is the default), and a
+  `WR_THEME_CONFIG` provider is `withTheme()`, which also boots `WrTheme`;
   every chart and animation entry point is nested, so `ngwr/bar-chart` is
   `ngwr/charts/bar-chart` and `ngwr/aurora` is `ngwr/bits/aurora`;
   `--wr-color-light` and `--wr-color-outline` are `--wr-border-base`,
@@ -288,17 +320,19 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
 - **i18n** — `{{ 'key' | wrT }}` (pipe from `ngwr/i18n`). The locale defaults to
   Angular's `LOCALE_ID`, not the browser, for both copy and dates; an app that
   wants the browser's tag writes
-  `provideWrDateAdapter({ locale: navigator.language })`. A named date format
+  `provideWr(withDates({ locale: navigator.language }))`. A named date format
   (`shortDate`, `time`, …) parses through the same `Intl` formatter that printed
   it, so input it cannot read returns null and leaves the committed value alone.
   A field that must accept a specific pattern takes an explicit token `[format]`.
 - **Theme** — CSS custom properties `--wr-color-*`, `--wr-border-radius-*`, …
-  from `@use 'ngwr/theme'`, no provider. Dark mode is `color-scheme` plus
+  from `@use 'ngwr/theme'`, no provider needed. Dark mode is `color-scheme` plus
   `light-dark()`: `:root` declares `color-scheme: light dark`, so the page
   follows the OS with no JavaScript, and `WrTheme.set('light' | 'dark' | 'auto')`
   forces or releases it by writing `color-scheme` on `<html>`. `WrTheme` applies
-  a stored choice or a non-`auto` `defaultMode` when it is first injected, so
-  inject it once at boot or ship `wrThemePrePaintScript()`. There is no
+  a stored choice or a non-`auto` `defaultMode` when it is first injected;
+  `provideWr(withTheme({ defaultMode, storageKey }))` configures it and creates
+  it at boot, and `wrThemePrePaintScript()` with the same options covers the
+  first paint of a prerendered page. There is no
   `[data-theme]`, no `theme.dark` mixin and no `-rgb` token: write your own dark
   values as `color: light-dark(#0f172a, #e6ebf3)`, and a translucent tint as
   `color-mix(in srgb, var(--wr-color-primary) 12%, transparent)`, never

@@ -141,11 +141,15 @@ export const appConfig: ApplicationConfig = {
     // Nothing on day one. Overlays render into ngwr's own container with no
     // call, and there is no theme provider: the stylesheet follows the OS
     // through color-scheme, and WrTheme is root-provided — inject it where a
-    // toggle needs it.
+    // toggle needs it. App-wide settings, once you want any, are one call:
+    //   provideWr(withDensity({ defaultDensity: 'sm' }), withTheme({ defaultMode: 'dark' })),
   ],
 };`,
     rootEntry: `// ✗ There is no barrel. TS2305 — 'ngwr' has no exported member 'WrButton'.
 import { WrButton } from 'ngwr';
+
+// ✓ The root exports one thing: the call app-wide configuration goes through.
+import { provideWr } from 'ngwr';
 
 // ✓ Always the entry point, which is the last segment of the docs URL.
 import { WrButton } from 'ngwr/button';        // /reference/components/button
@@ -159,7 +163,15 @@ export default [
     rules: {
       'no-restricted-imports': [
         'error',
-        { paths: [{ name: 'ngwr', message: 'Import from an entry point: ngwr/button, ngwr/select, …' }] },
+        {
+          paths: [
+            {
+              name: 'ngwr',
+              allowImportNames: ['provideWr'],
+              message: 'Import from an entry point: ngwr/button, ngwr/select, …',
+            },
+          ],
+        },
       ],
     },
   },
@@ -362,20 +374,25 @@ import { WrButton } from 'ngwr/button';
   imports: [WrButton],
 })
 export class CheckoutPage {}`,
-    provider: `# Splice a provideWr*() call into bootstrapApplication's providers array.
+    provider: `# Splice a provider into bootstrapApplication's providers array.
 ng g ngwr:provider toast
 ng g ngwr:provider density
 
 # Available: icons | toast | i18n | density | storage
 #
+# toast, density and storage are features of provideWr() — withToast(),
+# withDensity(), withStorage() — spliced into the provideWr(...) already in
+# the array, or into a new one. icons and i18n stay calls of their own.
+#
 # cookie is not here because it has no provider: inject WrCookie. Neither is
-# theme — WrTheme is root-provided and the stylesheet follows the OS. Nor is
+# theme — WrTheme is root-provided and the stylesheet follows the OS; add
+# withTheme() to provideWr() by hand to change the default. Nor is
 # loading-bar, whose only provider is the opt-in router adapter. Add
 # provideWrLoadingBarRouter() from 'ngwr/loading-bar/router' by hand if
 # navigations should drive the bar; manual start() / complete() need nothing.
 # And overlay needs no call: ngwr's overlays are isolated by default. Nor does
 # date-adapter: the native adapter is the default, so add
-# provideWrDateAdapter({ locale }) or ({ adapter }) by hand when you need one.`,
+# withDates({ locale }) or ({ adapter }) to provideWr() by hand when you need one.`,
     componentStyle: `# Append \`@use 'ngwr/<name>';\` to the project's global stylesheet.
 # Pairs with \`--styles=none\` on \`ng add\`.
 ng g ngwr:component-style button
@@ -444,7 +461,8 @@ ng update ngwr
       kind: 'Guide',
       title: 'Configuration',
       url: ['/docs', 'configuration'],
-      description: 'Every provideWr*() in one place — what each one buys and what it costs to skip.',
+      description:
+        'provideWr() and its features, icons and i18n in one place — what each one buys and what it costs to skip.',
     },
   ];
 }

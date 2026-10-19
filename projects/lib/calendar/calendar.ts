@@ -51,7 +51,7 @@ const YEAR_COLS = 4;
  * `<wr-date-picker>` inside an overlay.
  *
  * Uses {@link WrDateAdapter} for all date math and formatting — the native
- * one unless {@link provideWrDateAdapter} registers another.
+ * one unless `provideWr(withDates(...))` registers another.
  *
  * @example
  * ```html

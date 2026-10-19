@@ -16,15 +16,15 @@ export type WrResolvedTheme = 'light' | 'dark';
 /**
  * Configuration for {@link WrTheme}. Nothing has to provide it — the token
  * defaults to {@link DEFAULT_WR_THEME_CONFIG} — and an app that wants another
- * default mode or storage key provides {@link WR_THEME_CONFIG} itself.
+ * default mode or storage key passes it to `withTheme()`.
  *
- * A non-`auto` `defaultMode` is applied when {@link WrTheme} is first injected,
- * not when this is provided: inject the service once at boot, or ship
- * `wrThemePrePaintScript()` with the same options.
+ * A non-`auto` `defaultMode` is applied when {@link WrTheme} is created, which
+ * `withTheme()` does at boot; ship `wrThemePrePaintScript()` with the same
+ * options to apply it before first paint as well.
  *
  * @example
  * ```ts
- * { provide: WR_THEME_CONFIG, useValue: { ...DEFAULT_WR_THEME_CONFIG, storageKey: 'my-app-theme' } }
+ * provideWr(withTheme({ storageKey: 'my-app-theme' }))
  * ```
  */
 export interface WrThemeConfig {
@@ -43,19 +43,19 @@ export const DEFAULT_WR_THEME_CONFIG: WrThemeConfig = {
  * Provides {@link WrThemeConfig}. Optional — the factory returns
  * {@link DEFAULT_WR_THEME_CONFIG}.
  *
- * Providing it applies nothing on its own, because there is no provider to run
- * an initializer: a stored choice or a non-`auto` `defaultMode` lands when
- * {@link WrTheme} is first injected. Inject it once at boot — in the root
- * component, or with `provideEnvironmentInitializer(() => inject(WrTheme))` —
- * or ship `wrThemePrePaintScript()` with the same options, which applies the
- * same choice before first paint and so prevents the flash as well.
+ * Set it with `withTheme()`, which merges the fields you pass with the defaults
+ * and creates {@link WrTheme} at boot. Provided by hand the token applies
+ * nothing on its own: a stored choice or a non-`auto` `defaultMode` lands only
+ * when the service is first injected. Ship `wrThemePrePaintScript()` with the
+ * same options to apply the same choice before first paint and so prevent the
+ * flash as well.
  *
  * @example
  * ```ts
- * providers: [
- *   { provide: WR_THEME_CONFIG, useValue: { ...DEFAULT_WR_THEME_CONFIG, defaultMode: 'dark' } },
- *   provideEnvironmentInitializer(() => inject(WrTheme)),
- * ]
+ * import { provideWr } from 'ngwr';
+ * import { withTheme } from 'ngwr/theme';
+ *
+ * providers: [provideWr(withTheme({ defaultMode: 'dark' }))]
  * ```
  */
 export const WR_THEME_CONFIG = new InjectionToken<WrThemeConfig>('WR_THEME_CONFIG', {

@@ -1,6 +1,6 @@
 export { WrDensity } from './density';
 export { WrDensityDirective } from './density.directive';
-export { provideWrDensity } from './provide-wr-density';
+export { withDensity } from './with-density';
 export {
   WR_DENSITY_CONFIG,
   DEFAULT_WR_DENSITY_CONFIG,

@@ -1,9 +1,10 @@
 import { LOCALE_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWr } from 'ngwr';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { provideWrDateAdapter } from '../provide-wr-date-adapter';
+import { withDates } from '../with-dates';
 
 import { WR_DATE_LOCALE } from './wr-date-locale.token';
 
@@ -25,19 +26,19 @@ describe('WR_DATE_LOCALE', () => {
     expect(TestBed.inject(WR_DATE_LOCALE)).toBe('ru-RU');
   });
 
-  it('takes LOCALE_ID through a no-argument provideWrDateAdapter()', () => {
+  it('takes LOCALE_ID through a no-argument withDates()', () => {
     // The exact shape the provider's example used to show, and the exact shape
     // the audit reproduced against: no `locale` option anywhere, everything else
     // Russian.
     TestBed.configureTestingModule({
-      providers: [{ provide: LOCALE_ID, useValue: 'ru-RU' }, provideWrDateAdapter()],
+      providers: [{ provide: LOCALE_ID, useValue: 'ru-RU' }, provideWr(withDates())],
     });
     expect(TestBed.inject(WR_DATE_LOCALE)).toBe('ru-RU');
   });
 
   it('lets an explicit locale option beat LOCALE_ID', () => {
     TestBed.configureTestingModule({
-      providers: [{ provide: LOCALE_ID, useValue: 'ru-RU' }, provideWrDateAdapter({ locale: 'fi-FI' })],
+      providers: [{ provide: LOCALE_ID, useValue: 'ru-RU' }, provideWr(withDates({ locale: 'fi-FI' }))],
     });
     expect(TestBed.inject(WR_DATE_LOCALE)).toBe('fi-FI');
   });

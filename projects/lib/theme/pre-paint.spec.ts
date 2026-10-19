@@ -3,7 +3,8 @@ import { join } from 'node:path';
 
 import { TestBed } from '@angular/core/testing';
 
-import { WrStorage, provideWrStorage } from 'ngwr/storage';
+import { provideWr } from 'ngwr';
+import { WrStorage, withStorage } from 'ngwr/storage';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { wrThemePrePaintScript } from './pre-paint';
@@ -221,7 +222,7 @@ describe('wrThemePrePaintScript', () => {
     /** `WrTheme` needs no provider — only storage is configured, the way an app would. */
     const boot = (prefix = ''): WrTheme => {
       TestBed.resetTestingModule();
-      TestBed.configureTestingModule({ providers: [provideWrStorage({ prefix })] });
+      TestBed.configureTestingModule({ providers: [provideWr(withStorage({ prefix }))] });
       const theme = TestBed.inject(WrTheme);
       TestBed.tick();
       return theme;

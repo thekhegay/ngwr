@@ -4,7 +4,8 @@ import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
-import { provideWrDateAdapter } from 'ngwr/date';
+import { provideWr } from 'ngwr';
+import { withDates } from 'ngwr/date';
 import { type WrI18nCatalog, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrEn } from 'ngwr/i18n/en';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -53,7 +54,7 @@ describe('WrCalendar keyboard focus', () => {
   ];
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideWrDateAdapter()] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
     fixture = TestBed.createComponent(Host);
   });
 
@@ -163,7 +164,7 @@ describe('WrCalendar keyboard focus', () => {
 describe('WrCalendar autoFocus', () => {
   const cell = (): HTMLElement | null => document.querySelector('.wr-calendar__day--focused');
 
-  beforeEach(() => TestBed.configureTestingModule({ providers: [provideWrDateAdapter()] }));
+  beforeEach(() => TestBed.configureTestingModule({ providers: [provideWr(withDates())] }));
 
   it('takes focus in range mode with neither end picked', async () => {
     // The seed reads `date() ?? range()[0] ?? today()`, so range mode leans on
@@ -230,7 +231,7 @@ describe('WrCalendar header and chip keys', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateAdapter()] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
     fixture = TestBed.createComponent(WritebackHost);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -321,7 +322,7 @@ describe('WrCalendar month and year listbox keys', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateAdapter()] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -464,7 +465,7 @@ describe('WrCalendar under dir="rtl"', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrDateAdapter(),
+        provideWr(withDates()),
         { provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } },
       ],
     });
@@ -544,7 +545,7 @@ describe('WrCalendar — header and cell names', () => {
         // `longDate` is `Intl` with `{ year, month: 'long', day }`, so the exact
         // strings below are the native adapter's. A subclass may write the same
         // date another way, and that would be correct for it.
-        provideWrDateAdapter(),
+        provideWr(withDates()),
         ...(catalog
           ? [
               provideWrI18n({ defaultLocale: 'xx', availableLocales: ['xx'] }),

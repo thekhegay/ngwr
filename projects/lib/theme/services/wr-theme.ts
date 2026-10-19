@@ -38,14 +38,14 @@ function isThemeMode(v: unknown): v is WrThemeMode {
  * inline `color-scheme` on `<html>` outranks the stylesheet's, so an explicit
  * choice is one property, and clearing it hands the page back to the OS.
  *
- * Root-provided, with no provider to call. Change the default mode or storage
- * key by providing {@link WR_THEME_CONFIG}.
+ * Root-provided, so nothing has to provide it. Change the default mode or
+ * storage key with `provideWr(withTheme({ … }))`.
  *
  * **Nothing creates it until something injects it**, and that is when a stored
  * choice or a non-`auto` `defaultMode` is applied. An app whose theme toggle
- * sits behind a lazy route would follow the OS until that route loads. So
- * inject it once at boot — in the root component, or with
- * `provideEnvironmentInitializer(() => inject(WrTheme))` — or ship
+ * sits behind a lazy route would follow the OS until that route loads. So boot
+ * it with `provideWr(withTheme())`, whose initializer injects it at startup —
+ * or inject it once in the root component — and ship
  * {@link wrThemePrePaintScript} with the same options, which applies the same
  * choice before first paint and so prevents the flash as well.
  *

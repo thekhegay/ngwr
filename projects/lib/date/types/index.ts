@@ -3,9 +3,9 @@ import type { Type } from '@angular/core';
 import type { WrDateAdapter } from '../wr-date-adapter';
 
 /**
- * Options for {@link provideWrDateAdapter}.
+ * Options for `withDates()`.
  */
-interface WrDateAdapterOptions {
+interface WrDatesOptions {
   /**
    * Adapter class. Default: {@link WrNativeDateAdapter}.
    *
@@ -28,4 +28,4 @@ interface WrDateAdapterOptions {
 }
 
 export type { WrDateFormat } from './wr-date-format';
-export type { WrDateAdapterOptions };
+export type { WrDatesOptions };

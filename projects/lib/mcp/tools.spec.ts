@@ -523,7 +523,7 @@ describe('callTool — get_ngwr_setup', () => {
     // `WrDateAdapter` resolves to `WrNativeDateAdapter` with nothing provided, so
     // a provider line here would only be pasted to change nothing.
     expect(answer).not.toContain('## 4. Providers these need');
-    expect(answer).not.toContain('provideWrDateAdapter');
+    expect(answer).not.toContain('withDates');
     // Nor for its panel: ngwr's overlays are isolated by default.
     expect(answer).not.toContain('provideWrOverlay');
   });

@@ -35,7 +35,7 @@ type ActiveEntry = WrToastOptions & {
  * Opens toast notifications in a single shared overlay.
  *
  * Global defaults come from {@link WR_TOAST_CONFIG}; register
- * {@link provideWrToastConfig} once at bootstrap to customise. Each
+ * `provideWr(withToast(...))` once at bootstrap to customise. Each
  * `show()` call accepts per-toast overrides via {@link WrToastOptions}.
  *
  * @example

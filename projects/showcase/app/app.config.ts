@@ -6,7 +6,8 @@ import {
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 
-import { provideWrDensity } from 'ngwr/density';
+import { provideWr } from 'ngwr';
+import { withDensity } from 'ngwr/density';
 import { provideWrI18n, provideWrI18nBaseCatalogs, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrEn } from 'ngwr/i18n/en';
 import { wrRu } from 'ngwr/i18n/ru';
@@ -52,7 +53,7 @@ export const appConfig: ApplicationConfig = {
     // without re-registering. Page-level `provideWrIcons(...)` adds on
     // top (the lib merges root + element-level multi-providers).
     provideWrIcons([...COMMON_ICONS]),
-    provideWrDensity(),
+    provideWr(withDensity()),
     provideWrI18n({ availableLocales: ['en', 'ru'], defaultLocale: 'en' }),
     // ngwr's own strings as a base, so the loader carries only the site's keys —
     // the form every docs page recommends, rather than a shallow spread. The

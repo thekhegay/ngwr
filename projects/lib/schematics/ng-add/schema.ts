@@ -13,7 +13,7 @@ export interface Schema {
   /** How to wire styles. `theme` = `@use 'ngwr/theme';`, `none` = skip. */
   styles?: 'theme' | 'none';
 
-  /** Default density wired via `provideWrDensity`. */
+  /** Default density wired via `provideWr(withDensity())`. */
   density?: 'none' | 'sm' | 'lg';
 
   /** Skip the NodePackageInstallTask (peers won't be installed). */

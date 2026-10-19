@@ -1,9 +1,10 @@
-import { LOCALE_ID, Service, type Type } from '@angular/core';
+import { EnvironmentInjector, LOCALE_ID, Service, type Type, createEnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWr } from 'ngwr';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { provideWrDateAdapter } from './provide-wr-date-adapter';
+import { withDates } from './with-dates';
 import { WrDateAdapter, WrNativeDateAdapter } from './wr-date-adapter';
 
 /** A consumer's own adapter, decorated the way the base class asks. */
@@ -26,7 +27,7 @@ class UndecoratedAdapter extends (WrDateAdapter as unknown as new () => object) 
  * mode and the event calendar threw `NullInjectorError` in an app that had not
  * called `provideWrDateAdapter()`, although the adapter that call registered is
  * the only one ngwr ships. Injected with nothing provided it is now the native
- * adapter, and the provider stays for the two things only an app can say:
+ * adapter, and `withDates()` carries the two things only an app can say:
  * another adapter, or another locale.
  */
 describe('WrDateAdapter default', () => {
@@ -50,8 +51,8 @@ describe('WrDateAdapter default', () => {
     expect(TestBed.inject(WrDateAdapter).getMonthNames('long')[2]).toBe('март');
   });
 
-  it('gives way to an adapter passed to provideWrDateAdapter', () => {
-    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ adapter: FixedClockAdapter })] });
+  it('gives way to an adapter passed to withDates', () => {
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ adapter: FixedClockAdapter }))] });
     const adapter = TestBed.inject(WrDateAdapter);
 
     expect(adapter).toBeInstanceOf(FixedClockAdapter);
@@ -66,8 +67,24 @@ describe('WrDateAdapter default', () => {
     // which is why the base class asks for a decorator.
     vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const adapter = UndecoratedAdapter as unknown as Type<WrDateAdapter<unknown>>;
-    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ adapter })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ adapter }))] });
 
     expect(TestBed.inject(WrDateAdapter)).toBeInstanceOf(UndecoratedAdapter);
+  });
+
+  it('builds an adapter of its own when withDates() sits in a route', () => {
+    // The root default lives in the root injector and reads the root's locale,
+    // so a route pinning another one needs a second adapter — which is why the
+    // native class is registered even when only `locale` is passed.
+    TestBed.configureTestingModule({ providers: [{ provide: LOCALE_ID, useValue: 'en-US' }] });
+    const route = createEnvironmentInjector(
+      [provideWr(withDates({ locale: 'ru-RU' }))],
+      TestBed.inject(EnvironmentInjector)
+    );
+
+    expect(route.get(WrDateAdapter)).not.toBe(TestBed.inject(WrDateAdapter));
+    expect(route.get(WrDateAdapter).getMonthNames('long')[2]).toBe('март');
+    expect(TestBed.inject(WrDateAdapter).getMonthNames('long')[2]).toBe('March');
+    route.destroy();
   });
 });

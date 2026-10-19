@@ -50,6 +50,12 @@ export default class DensityServicePage {
   }
 
   protected readonly snippets = {
+    provider: `import { provideWr } from 'ngwr';
+import { withDensity } from 'ngwr/density';
+
+// In the application's providers, not a route's. Also creates WrDensity at
+// boot, so the default (or the stored choice) is on <html> from the start.
+providers: [provideWr(withDensity({ defaultDensity: 'sm' }))],`,
     directive: `<!-- Scope an override to a subtree — descendants get sm, the rest of the app keeps the global value. -->
 <aside wrDensity="sm">
   <wr-list ...></wr-list>

@@ -27,6 +27,17 @@ interface WrStorageConfig {
   readonly ttl?: number;
 }
 
+/** Options for `withStorage()`: the {@link WrStorageConfig} fields plus the engine. */
+interface WrStorageOptions extends WrStorageConfig {
+  /**
+   * Storage engine. Either an instance (eager) or a factory (lazy —
+   * called inside the injection context the first time `WR_STORAGE_ENGINE`
+   * is read). Defaults to `WR_STORAGE_ENGINE`'s factory
+   * (`localStorage` with in-memory fallback).
+   */
+  readonly engine?: WrStorageEngine | (() => WrStorageEngine);
+}
+
 /** Fully-resolved config (all defaults filled). @internal */
 type WrStorageConfigResolved = Required<WrStorageConfig>;
 
@@ -61,4 +72,4 @@ interface WrStorageEnvelope<T = unknown> {
   readonly e?: number;
 }
 
-export type { WrStorageEngine, WrStorageConfig, WrStorageConfigResolved, WrStorageEnvelope };
+export type { WrStorageEngine, WrStorageConfig, WrStorageOptions, WrStorageConfigResolved, WrStorageEnvelope };

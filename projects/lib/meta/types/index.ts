@@ -27,7 +27,7 @@ export interface WrMetaTwitter {
 /**
  * Declarative description of `<head>` metadata. Every field is optional —
  * unset values inherit from the layer below or fall back to defaults
- * registered via {@link provideWrMeta}.
+ * registered via `provideWr(withMeta(...))`.
  */
 export interface WrMetaConfig {
   readonly title?: string;

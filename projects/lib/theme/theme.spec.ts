@@ -1,10 +1,12 @@
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrStorage, createMemoryStorage } from 'ngwr/storage';
+import { provideWr } from 'ngwr';
+import { createMemoryStorage, withStorage } from 'ngwr/storage';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrTheme } from './services/wr-theme';
+import { withTheme } from './with-theme';
 import { DEFAULT_WR_THEME_CONFIG, WR_THEME_CONFIG, type WrThemeConfig } from './wr-theme-config';
 
 /**
@@ -56,15 +58,14 @@ describe('WrTheme', () => {
   };
 
   /**
-   * Storage is provided because the spec has to read what was persisted. The
-   * THEME is not: nothing has to provide it, and a config is only given where a
-   * test wants a non-default one — the way an app would.
+   * Storage is configured because the spec has to read what was persisted, and
+   * the theme through `withTheme()` — the way an app would. Nothing has to
+   * provide the theme at all; the "needs no provider" case holds that.
    */
   const setup = (config: Partial<WrThemeConfig> = {}, platform: 'browser' | 'server' = 'browser'): WrTheme => {
     TestBed.configureTestingModule({
       providers: [
-        provideWrStorage({ engine: () => engine }),
-        { provide: WR_THEME_CONFIG, useValue: { ...DEFAULT_WR_THEME_CONFIG, ...config } },
+        provideWr(withStorage({ engine: () => engine }), withTheme(config)),
         ...(platform === 'server' ? [{ provide: PLATFORM_ID, useValue: 'server' }] : []),
       ],
     });
@@ -243,9 +244,9 @@ describe('WrTheme', () => {
     // write `[data-theme]` before anything injected it. The stylesheet follows
     // the OS on its own now, so `auto` needs nothing written. A stored choice or
     // a non-`auto` default still does, and lands when the service is first
-    // injected — which is why the docs say to inject it once at boot or ship
-    // the pre-paint script.
-    TestBed.configureTestingModule({ providers: [provideWrStorage({ engine: () => engine })] });
+    // injected — which `withTheme()` does at boot (below), and the pre-paint
+    // script does before first paint.
+    TestBed.configureTestingModule({ providers: [provideWr(withStorage({ engine: () => engine }))] });
     const theme = TestBed.inject(WrTheme);
     TestBed.tick();
 
@@ -255,6 +256,45 @@ describe('WrTheme', () => {
     theme.set('dark');
     TestBed.tick();
     expect(engine.getItem(DEFAULT_WR_THEME_CONFIG.storageKey!)).not.toBeNull();
+  });
+
+  it('merges a partial withTheme() config over the defaults', () => {
+    TestBed.configureTestingModule({
+      providers: [provideWr(withStorage({ engine: () => engine }), withTheme({ defaultMode: 'dark' }))],
+    });
+
+    expect(TestBed.inject(WR_THEME_CONFIG)).toEqual({ ...DEFAULT_WR_THEME_CONFIG, defaultMode: 'dark' });
+  });
+
+  it('lands a stored choice at boot through withTheme(), with nothing injecting the service', () => {
+    // What used to take an `inject(WrTheme)` in the root component: the feature's
+    // initializer creates the service when the injector is built, so a returning
+    // visitor's choice is on `<html>` after the first tick. Nothing here asks for
+    // `WrTheme`.
+    engine.setItem(DEFAULT_WR_THEME_CONFIG.storageKey!, JSON.stringify({ v: 'dark' }));
+    TestBed.configureTestingModule({ providers: [provideWr(withStorage({ engine: () => engine }), withTheme())] });
+    TestBed.tick();
+
+    expect(scheme()).toBe('dark');
+  });
+
+  it('lands a non-auto defaultMode at boot through withTheme()', () => {
+    TestBed.configureTestingModule({
+      providers: [provideWr(withStorage({ engine: () => engine }), withTheme({ defaultMode: 'light' }))],
+    });
+    TestBed.tick();
+
+    expect(scheme()).toBe('light');
+  });
+
+  it('leaves a stored choice unapplied without withTheme() until something injects the service', () => {
+    // The control for the two above: the same storage and the same tick with no
+    // feature write nothing, so it is the initializer that painted.
+    engine.setItem(DEFAULT_WR_THEME_CONFIG.storageKey!, JSON.stringify({ v: 'dark' }));
+    TestBed.configureTestingModule({ providers: [provideWr(withStorage({ engine: () => engine }))] });
+    TestBed.tick();
+
+    expect(scheme()).toBe('');
   });
 
   it('writes nothing on the server, so the prerendered <html> carries no inline scheme', () => {

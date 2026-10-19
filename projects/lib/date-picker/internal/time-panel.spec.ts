@@ -1,7 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrDateAdapter } from 'ngwr/date';
+import { provideWr } from 'ngwr';
+import { withDates } from 'ngwr/date';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -31,7 +32,7 @@ describe('WrTimePanel accessible names', () => {
   beforeEach(() => localStorage.clear());
 
   const mount = async (providers: unknown[] = []): Promise<ReturnType<typeof TestBed.createComponent<Host>>> => {
-    TestBed.configureTestingModule({ providers: [provideWrDateAdapter(), ...(providers as never[])] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates()), ...(providers as never[])] });
     const fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -119,7 +120,7 @@ class TwoWayHost {
 describe('WrTimePanel numerals and separator', () => {
   const mount = (locale: string): ReturnType<typeof TestBed.createComponent<Host>> => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale }))] });
     const fixture = TestBed.createComponent(Host);
     fixture.componentInstance.value.set(new Date(2025, 0, 15, 14, 30, 5));
     fixture.detectChanges();
@@ -149,7 +150,7 @@ describe('WrTimePanel numerals and separator', () => {
     // An Arabic keyboard sends `٠٩`, which `Number()` reads as NaN — the handler used to
     // drop it silently. A Latin keyboard on the same page sends `09`.
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'ar-SA' })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'ar-SA' }))] });
     const fixture = TestBed.createComponent(TwoWayHost);
     fixture.detectChanges();
     const hours = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('.wr-time-picker__input')!;

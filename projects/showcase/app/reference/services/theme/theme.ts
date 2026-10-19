@@ -50,24 +50,23 @@ this.theme.toggle();
 
 protected readonly resolved = this.theme.resolved; // Signal<'light' | 'dark'>
 protected readonly mode = this.theme.mode;         // Signal<'light' | 'dark' | 'auto'>`,
-    config: `import { DEFAULT_WR_THEME_CONFIG, WR_THEME_CONFIG } from 'ngwr/theme';
+    config: `import { provideWr } from 'ngwr';
+import { withTheme } from 'ngwr/theme';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    {
-      provide: WR_THEME_CONFIG,
-      useValue: { ...DEFAULT_WR_THEME_CONFIG, defaultMode: 'dark', storageKey: 'app-theme' },
-    },
+    // Any field you omit keeps its default.
+    provideWr(withTheme({ defaultMode: 'dark', storageKey: 'app-theme' })),
   ],
 });`,
     prePaintCustom: `import { wrThemePrePaintScript } from 'ngwr/theme';
 
 // Same script, for an app that moved the key, the default or the prefix.
-// Pass the same values you gave WR_THEME_CONFIG / provideWrStorage():
+// Pass the same values you gave withTheme() / withStorage():
 wrThemePrePaintScript({
-  storageKey: 'app-theme',   // WR_THEME_CONFIG.storageKey
-  defaultMode: 'dark',       // WR_THEME_CONFIG.defaultMode
-  storagePrefix: 'myapp:',   // provideWrStorage({ prefix })
+  storageKey: 'app-theme',   // withTheme({ storageKey })
+  defaultMode: 'dark',       // withTheme({ defaultMode })
+  storagePrefix: 'myapp:',   // withStorage({ prefix })
 });
 
 // It returns the JS source with NO <script> wrapper, so an SSR template can
@@ -96,14 +95,21 @@ const hash = createHash('sha256').update(source).digest('base64');
     {
       name: 'WR_THEME_CONFIG',
       description:
-        'Injection token holding `defaultMode` and `storageKey`. Defaults to `DEFAULT_WR_THEME_CONFIG`; override it in the application providers.',
+        'Injection token holding `defaultMode` and `storageKey`. Defaults to `DEFAULT_WR_THEME_CONFIG`; set it through `withTheme()` in the application providers.',
       type: 'InjectionToken<WrThemeConfig>',
+      default: '—',
+    },
+    {
+      name: 'withTheme(config?)',
+      description:
+        'The `provideWr()` feature: sets `WR_THEME_CONFIG`, merged with the defaults, and creates `WrTheme` at boot.',
+      type: "(config?: Partial<WrThemeConfig>) => WrFeature<'theme'>",
       default: '—',
     },
     {
       name: 'wrThemePrePaintScript(options?)',
       description:
-        'Source of the blocking script that applies an explicit choice before first paint. Takes the `storageKey` / `defaultMode` you gave `WR_THEME_CONFIG`, plus `storagePrefix` and `json` from `provideWrStorage()`.',
+        'Source of the blocking script that applies an explicit choice before first paint. Takes the `storageKey` / `defaultMode` you gave `withTheme()`, plus `storagePrefix` and `json` from `withStorage()`.',
       type: '(options?: WrThemePrePaintOptions) => string',
       default: '—',
     },

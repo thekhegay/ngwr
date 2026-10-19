@@ -1,11 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 
-import { createMemoryStorage, provideWrStorage } from 'ngwr/storage';
+import { provideWr } from 'ngwr';
+import { createMemoryStorage, withStorage } from 'ngwr/storage';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { WrDensity } from './density';
 import type { WrDensityConfig } from './density-config';
-import { provideWrDensity } from './provide-wr-density';
+import { withDensity } from './with-density';
 
 /**
  * Density is a token multiplier published as an attribute on `<html>`, so the
@@ -17,7 +18,7 @@ describe('WrDensity', () => {
 
   const setup = (config: Partial<WrDensityConfig> = {}): WrDensity => {
     TestBed.configureTestingModule({
-      providers: [provideWrStorage({ engine: () => engine }), provideWrDensity(config)],
+      providers: [provideWr(withStorage({ engine: () => engine }), withDensity(config))],
     });
     const density = TestBed.inject(WrDensity);
     TestBed.tick();
@@ -99,5 +100,35 @@ describe('WrDensity', () => {
 
     expect(attr('data-size')).toBe('lg');
     expect(attr('data-wr-density')).toBeNull();
+  });
+
+  it('is booted by withDensity, with nothing injecting it', () => {
+    // The service is tree-shakable, so without the feature's initializer nothing
+    // creates it and `defaultDensity` never reaches the page. Nothing asks for
+    // `WrDensity` here: the tick only builds the injector and flushes the root
+    // effects.
+    TestBed.configureTestingModule({
+      providers: [provideWr(withStorage({ engine: () => engine }), withDensity({ defaultDensity: 'touch' }))],
+    });
+    TestBed.tick();
+
+    expect(attr()).toBe('touch');
+  });
+
+  it('restores a stored choice at boot, with nothing injecting it', () => {
+    engine.setItem('wr-density', JSON.stringify({ v: 'lg' }));
+    TestBed.configureTestingModule({ providers: [provideWr(withStorage({ engine: () => engine }), withDensity())] });
+    TestBed.tick();
+
+    expect(attr()).toBe('lg');
+  });
+
+  it('stays unwritten without the feature until something injects it', () => {
+    // The control for the two above: the same tick with only storage configured
+    // leaves `<html>` alone, so it is the initializer that wrote the attribute.
+    TestBed.configureTestingModule({ providers: [provideWr(withStorage({ engine: () => engine }))] });
+    TestBed.tick();
+
+    expect(attr()).toBeNull();
   });
 });

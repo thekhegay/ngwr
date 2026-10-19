@@ -18,6 +18,7 @@
     "target": "ES2022",
     "module": "ES2022",
     "paths": {
+      "ngwr": ["./projects/lib/public-api.ts"],
       "ngwr/*": ["./projects/lib/*"],
       "#root": ["./projects/showcase/app/_root/root"],
       "#layout": ["./projects/showcase/app/_layout/layout"],

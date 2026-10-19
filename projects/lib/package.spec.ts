@@ -215,6 +215,30 @@ describe('the published manifest', () => {
 });
 
 /**
+ * The root entry point is `provideWr()`, and every feature it takes comes from
+ * the entry point that feature configures — `withDensity()` from `ngwr/density`,
+ * typed by `WrFeature` in `ngwr/utils`. So the dependency runs one way only:
+ * the root may import a secondary entry point, never the reverse. A secondary
+ * entry point importing `ngwr` closes a cycle through the root, which the
+ * library build has no reason to notice and a consumer's bundler then has to
+ * untangle.
+ */
+describe('the root entry point', () => {
+  it('is imported by no shipped source', () => {
+    const offenders = sources(LIB)
+      .filter(file => {
+        const src = readFileSync(file, 'utf8')
+          .replace(/\/\*[\s\S]*?\*\//g, '')
+          .replace(/(^|\s)\/\/[^\n]*/g, '$1');
+        return /\bfrom\s*['"]ngwr['"]|\bimport\s*\(\s*['"]ngwr['"]/.test(src);
+      })
+      .map(file => relative(LIB, file));
+
+    expect(offenders).toEqual([]);
+  });
+});
+
+/**
  * A component stylesheet must never reach the EMITTING theme layer.
  *
  * `@use` deduplicates per compilation, and a component's `styleUrl` is its own

@@ -20,7 +20,7 @@ function isEnvelope(x: unknown): x is WrStorageEnvelope {
  * Reactive key/value storage on top of any `Storage`-compatible engine.
  *
  * - **Swap engines** through {@link WR_STORAGE_ENGINE} or
- *   {@link provideWrStorage}. Default: `localStorage` with an in-memory
+ *   `provideWr(withStorage(...))`. Default: `localStorage` with an in-memory
  *   fallback for SSR / private mode.
  * - **Namespacing** via `prefix` (config) — every key is transparently
  *   prefixed on read / write.

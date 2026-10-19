@@ -165,7 +165,7 @@ interface DragState {
  * drag, emitting the same `eventChange`.
  *
  * Date math and formatting go through {@link WrDateAdapter} — the native one
- * unless `provideWrDateAdapter(...)` registers another.
+ * unless `provideWr(withDates(...))` registers another.
  *
  * @example
  * ```html

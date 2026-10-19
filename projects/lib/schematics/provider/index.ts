@@ -12,23 +12,34 @@ import type { ProviderName, Schema } from './schema';
 
 interface ProviderSpec {
   readonly subpath: string;
+  /** What `call` invokes, imported from `subpath`. */
   readonly factory: string;
-  /** Call expression spliced into the providers array. */
+  /** Call expression spliced in. */
   readonly call: string;
   /** Extra imports needed to make `call` compile. */
   readonly extras?: readonly (readonly [string, string])[];
+  /**
+   * A `provideWr()` feature: `call` goes INSIDE the array's `provideWr(...)`,
+   * which is added — with its import from `ngwr` — when the array has none.
+   * Two `provideWr()` calls would compile, so splicing into the one that is
+   * there is what keeps app-wide configuration in one place.
+   */
+  readonly feature?: boolean;
 }
+
+/** The root entry point's single call that carries every feature. */
+const PROVIDE_WR = 'provideWr';
 
 // Every entry here has to name a factory that `ngwr` actually exports, with a
 // call that type-checks. `ngwr/loading-bar` and `ngwr/cookie` used to be listed
 // too, but neither ships a provider — they expose the injectable services
 // `WrLoadingBar` / `WrCookie` and need no bootstrap wiring at all, so offering
 // to splice a provider for them only ever produced code that would not compile.
-// `ngwr/theme` is absent for the same reason since v15: `WrTheme` is
-// root-provided and the scheme follows the OS with nothing in `providers`. So is
-// `ngwr/overlay`: its isolated container is the tokens' default, with no call.
-// And `ngwr/date`: its native adapter is the default, so a bare call only
-// registers it again; a locale or a custom adapter is the app's to write.
+// `ngwr/overlay` is absent since v15: its isolated container is the tokens'
+// default, with no call. And of the `provideWr()` features, `withTheme()`,
+// `withMeta()` and `withDates()` are not offered: each exists to carry a value
+// only the app knows — a scheme and its storage key, `<head>` defaults, a
+// locale or an adapter.
 const PROVIDERS: Record<ProviderName, ProviderSpec> = {
   icons: {
     // `ngwr/icon` ships no icons — there are no bare icon exports. The glyphs
@@ -42,15 +53,11 @@ const PROVIDERS: Record<ProviderName, ProviderSpec> = {
       ['Plus, Trash2', 'lucide'],
     ],
   },
-  // `provideWrToastConfig` takes a required config object, so the call cannot be bare.
-  toast: {
-    subpath: 'ngwr/toast',
-    factory: 'provideWrToastConfig',
-    call: 'provideWrToastConfig({})',
-  },
+  // `withToast` takes a required config object, so the call cannot be bare.
+  toast: { subpath: 'ngwr/toast', factory: 'withToast', call: 'withToast({})', feature: true },
   i18n: { subpath: 'ngwr/i18n', factory: 'provideWrI18n', call: 'provideWrI18n()' },
-  density: { subpath: 'ngwr/density', factory: 'provideWrDensity', call: 'provideWrDensity()' },
-  storage: { subpath: 'ngwr/storage', factory: 'provideWrStorage', call: 'provideWrStorage()' },
+  density: { subpath: 'ngwr/density', factory: 'withDensity', call: 'withDensity()', feature: true },
+  storage: { subpath: 'ngwr/storage', factory: 'withStorage', call: 'withStorage()', feature: true },
 };
 
 function provider(options: Schema): Rule {
@@ -72,15 +79,18 @@ function provider(options: Schema): Rule {
     // overwritten with an unused import and reported as `✓ Added <call>`. On a
     // stock app that made `ng g ngwr:provider` print success and leave the
     // providers exactly as they were.
-    const spliced = ensureProviderCall(original, spec.call);
+    const spliced = spec.feature ? ensureFeature(original, spec.call) : ensureProviderCall(original, spec.call);
     if (spliced === null) {
       context.logger.info(`ngwr:provider: no providers array in ${filePath}.`);
       context.logger.info(printSnippet(spec));
       return tree;
     }
 
-    let next = spliced;
+    let next = spliced.source;
 
+    // `provideWr` first, so a fresh pair lands in the order a reader expects:
+    // the call, then the feature it carries.
+    if (spec.feature) next = ensureImport(next, PROVIDE_WR, 'ngwr');
     next = ensureImport(next, spec.factory, spec.subpath);
     // Drive the extra imports off `extras` rather than special-casing a provider
     // name here: the two used to drift apart, and the hard-coded branch was
@@ -95,13 +105,22 @@ function provider(options: Schema): Rule {
     }
 
     tree.overwrite(filePath, next);
-    context.logger.info(`✓ Added ${spec.call} to ${filePath}.`);
+    const where = spliced.into ? `${spliced.into} in ${filePath}` : filePath;
+    context.logger.info(`✓ Added ${spliced.added} to ${where}.`);
     return tree;
   };
 }
 
-/** The providers array of a `bootstrapApplication` call or an `ApplicationConfig`. */
-const PROVIDERS_ARRAY = /(\bproviders\s*:\s*\[)([\s\S]*?)(\])/m;
+/** Where the providers array of a `bootstrapApplication` call or an `ApplicationConfig` opens. */
+const PROVIDERS_OPEN = /\bproviders\s*:\s*\[/;
+
+/** A splice, and what it added where — for the log line. */
+interface Splice {
+  readonly source: string;
+  readonly added: string;
+  /** The call it went inside, when that is not the providers array itself. */
+  readonly into?: string;
+}
 
 /**
  * The file that actually holds `providers: [ … ]`.
@@ -120,7 +139,7 @@ const PROVIDERS_ARRAY = /(\bproviders\s*:\s*\[)([\s\S]*?)(\])/m;
 async function resolveTargetFile(tree: Tree, options: Schema): Promise<string | null> {
   const entry = await resolveEntryFile(tree, options);
   if (!entry) return null;
-  if (PROVIDERS_ARRAY.test(tree.readText(entry))) return entry;
+  if (findProvidersArray(tree.readText(entry))) return entry;
 
   return followConfigImport(tree, entry) ?? entry;
 }
@@ -133,7 +152,7 @@ function followConfigImport(tree: Tree, entry: string): string | null {
     // TypeScript module specifiers carry no extension; `.ts` is the only one
     // `ng new` produces for this file, and a wrong guess just misses.
     const candidate = normalisePath(`${dir}${specifier}.ts`);
-    if (tree.exists(candidate) && PROVIDERS_ARRAY.test(tree.readText(candidate))) return candidate;
+    if (tree.exists(candidate) && findProvidersArray(tree.readText(candidate))) return candidate;
   }
 
   return null;
@@ -193,22 +212,123 @@ function ensureImport(source: string, symbol: string, subpath: string): string {
   return `${newLine}${source}`;
 }
 
-/** The source with `call` spliced in, or `null` when there is no array to splice into. */
-function ensureProviderCall(source: string, call: string): string | null {
-  const match = PROVIDERS_ARRAY.exec(source);
+/** The source with `call` spliced into the providers array, or `null` when there is no array. */
+function ensureProviderCall(source: string, call: string): Splice | null {
+  const array = findProvidersArray(source);
   // `null`, not the untouched source: "nothing to do" and "already done" are
   // different answers, and returning the same value for both is what let the
   // caller report a successful edit it had not made.
+  if (!array) return null;
+
+  const body = source.slice(array.start, array.end);
+  if (calls(body, call)) return { source, added: call };
+
+  return { source: replaceRange(source, array.start, array.end, appendItem(body, call)), added: call };
+}
+
+/**
+ * The source with `feature` inside the array's `provideWr(...)`, or a new
+ * `provideWr(feature)` at the end of the array when it has none; `null` when
+ * there is no array.
+ */
+function ensureFeature(source: string, feature: string): Splice | null {
+  const array = findProvidersArray(source);
+  if (!array) return null;
+
+  const body = source.slice(array.start, array.end);
+  const at = new RegExp(`\\b${PROVIDE_WR}\\s*\\(`).exec(body);
+  if (!at) {
+    const call = `${PROVIDE_WR}(${feature})`;
+    return { source: replaceRange(source, array.start, array.end, appendItem(body, call)), added: call };
+  }
+
+  const inside = { added: feature, into: `${PROVIDE_WR}()` };
+  const open = array.start + at.index + at[0].length - 1;
+  const close = closingIndex(source, open);
+  // An unbalanced call is not one to edit; the caller prints the snippet.
+  if (close === -1) return null;
+
+  const args = source.slice(open + 1, close);
+  if (calls(args, feature)) return { source, ...inside };
+
+  return { source: replaceRange(source, open + 1, close, appendItem(args, feature)), ...inside };
+}
+
+/** `source` with the text between `start` and `end` replaced by `text`. */
+function replaceRange(source: string, start: number, end: number, text: string): string {
+  return `${source.slice(0, start)}${text}${source.slice(end)}`;
+}
+
+/** Whether `list` already calls what `call` calls. */
+function calls(list: string, call: string): boolean {
+  return new RegExp(`\\b${escapeRegExp(call.split('(')[0])}\\s*\\(`).test(list);
+}
+
+/**
+ * Where `providers: [ … ]` sits: the index just past its `[`, and that of the
+ * `]` matching it.
+ *
+ * Bracket-matched rather than read up to the first `]`, which is what this used
+ * to do: an array holding `importProvidersFrom([…])` ended inside that inner
+ * array, and the call was spliced in there.
+ */
+function findProvidersArray(source: string): { readonly start: number; readonly end: number } | null {
+  const match = PROVIDERS_OPEN.exec(source);
   if (!match) return null;
 
-  // Already present?
-  const callBase = call.split('(')[0];
-  if (new RegExp(`\\b${escapeRegExp(callBase)}\\s*\\(`).test(match[2])) return source;
+  const start = match.index + match[0].length;
+  const end = closingIndex(source, start - 1);
+  return end === -1 ? null : { start, end };
+}
 
-  const trimmed = match[2].replace(/\s+$/, '');
-  const sep = trimmed.length && !trimmed.endsWith(',') ? ', ' : trimmed.length ? ' ' : '';
-  const replaced = `${match[1]}${trimmed}${sep}${call}${match[3]}`;
-  return source.replace(match[0], replaced);
+/**
+ * The index of the bracket closing the one at `open`, or -1 when it never
+ * closes. String literals and comments are skipped; a `${…}` inside a template
+ * literal and a regular-expression literal are not, which no providers array
+ * `ng new` writes contains.
+ */
+function closingIndex(source: string, open: number): number {
+  let depth = 0;
+  for (let i = open; i < source.length; i++) {
+    const char = source[i];
+    if (char === '"' || char === "'" || char === '`') {
+      // Past the closing quote, stepping over every escaped character.
+      for (i++; i < source.length && source[i] !== char; i++) {
+        if (source[i] === '\\') i++;
+      }
+    } else if (char === '/' && source[i + 1] === '/') {
+      i = source.indexOf('\n', i);
+      if (i === -1) return -1;
+    } else if (char === '/' && source[i + 1] === '*') {
+      i = source.indexOf('*/', i + 2);
+      if (i === -1) return -1;
+      i++;
+    } else if (char === '(' || char === '[' || char === '{') {
+      depth++;
+    } else if (char === ')' || char === ']' || char === '}') {
+      depth--;
+      if (depth === 0) return i;
+    }
+  }
+
+  return -1;
+}
+
+/**
+ * `list` — the inside of an array or of a call's parentheses — with `item` as
+ * its last element, in the layout it already has: one element per line gets
+ * a line of its own at the same indent, keeping a trailing comma; anything
+ * else stays inline.
+ */
+function appendItem(list: string, item: string): string {
+  const content = list.replace(/\s+$/, '');
+  if (!content.trim()) return item;
+
+  const comma = content.endsWith(',');
+  if (!/^[^\S\n]*\n/.test(list)) return `${content}${comma ? ' ' : ', '}${item}`;
+
+  const indent = /^\s*/.exec(content.slice(content.lastIndexOf('\n') + 1))?.[0] ?? '';
+  return `${content}${comma ? '' : ','}\n${indent}${item}${comma ? ',' : ''}${list.slice(content.length)}`;
 }
 
 function escapeRegExp(value: string): string {
@@ -222,7 +342,9 @@ function printSnippet(spec: ProviderSpec): string {
   // Grouped by module, so an extra from the factory's own entry point
   // (`lucideIcons` beside `provideWrIcons`) joins its line rather than
   // printing a second import of `ngwr/icon` — the shape `ensureImport` writes.
-  const bySubpath = new Map<string, string[]>([[spec.subpath, [spec.factory]]]);
+  const bySubpath = new Map<string, string[]>();
+  if (spec.feature) bySubpath.set('ngwr', [PROVIDE_WR]);
+  bySubpath.set(spec.subpath, [spec.factory]);
   for (const [symbols, subpath] of spec.extras ?? []) {
     bySubpath.set(subpath, [...(bySubpath.get(subpath) ?? []), symbols]);
   }
@@ -236,9 +358,9 @@ ngwr:provider — copy this into your bootstrap:
 ${imports}
 
   bootstrapApplication(AppComponent, {
-    providers: [/* …, */ ${spec.call}],
+    providers: [/* …, */ ${spec.feature ? `${PROVIDE_WR}(${spec.call})` : spec.call}],
   });
-`;
+${spec.feature ? `\n  Already calling ${PROVIDE_WR}()? Add ${spec.call} inside it instead.\n` : ''}`;
 }
 
 export default provider;

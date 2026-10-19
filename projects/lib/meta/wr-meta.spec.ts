@@ -1,10 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWr } from 'ngwr';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { provideWrMeta } from './provide-wr-meta';
 import type { WrMetaConfig } from './types';
+import { withMeta } from './with-meta';
 import { WrMeta } from './wr-meta';
 import { WrMetaBinding } from './wr-meta-binding';
 
@@ -41,7 +42,7 @@ describe('WrMeta', () => {
   let originalHead: ChildNode[];
 
   const setup = (defaults: WrMetaConfig = {}): WrMeta => {
-    TestBed.configureTestingModule({ providers: [provideWrMeta(defaults)] });
+    TestBed.configureTestingModule({ providers: [provideWr(withMeta(defaults))] });
     return TestBed.inject(WrMeta);
   };
 
@@ -73,7 +74,7 @@ describe('WrMeta', () => {
       expect(document.title).toBe('Pricing');
     });
 
-    it('runs the title through the template registered by provideWrMeta', () => {
+    it('runs the title through the template registered by withMeta', () => {
       setup({ titleTemplate: '{{ title }} · ngwr' }).set({ title: 'Pricing' });
 
       expect(document.title).toBe('Pricing · ngwr');

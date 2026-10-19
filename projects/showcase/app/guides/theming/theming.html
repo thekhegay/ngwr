@@ -6,7 +6,7 @@
 >
   <ngwr-doc-section
     title="Wire it up"
-    description="One provider, for the spacing scale. The theme needs none: dark mode is CSS, and `WrTheme` is root-provided."
+    description="One `provideWr()` call, with a feature for the spacing scale and, optionally, one for the theme. Dark mode itself needs nothing: it is CSS, and `WrTheme` is root-provided. `withTheme()` picks another default mode or storage key, and creates `WrTheme` at boot so a stored choice applies on the first screen."
   >
     <ngwr-doc-code [code]="snippets.provider" language="angular-ts" />
   </ngwr-doc-section>
@@ -20,7 +20,7 @@
 
   <ngwr-doc-section
     title="Light / dark / auto"
-    description="The theme declares `color-scheme: light dark` on `:root`, so the page follows the OS with no JavaScript. `WrTheme` is the switch on top: `mode` is what the user picked and `resolved()` the scheme in effect. An explicit pick is written as `color-scheme` on `<html>` and persisted through `WrStorage`; `auto` clears it again. On a prerendered page `auto` needs nothing, and an explicit pick needs the [pre-paint script](/reference/services/theme) to land before first paint."
+    description="The theme declares `color-scheme: light dark` on `:root`, so the page follows the OS with no JavaScript. `WrTheme` is the switch on top: `mode` is what the user picked and `resolved()` the scheme in effect. An explicit pick is written as `color-scheme` on `<html>` and persisted through `WrStorage`; `auto` clears it again. `provideWr(withTheme({ defaultMode }))` sets the default and boots the service, so a stored pick applies at startup. On a prerendered page `auto` needs nothing, and an explicit pick needs the [pre-paint script](/reference/services/theme) to land before first paint."
   >
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
@@ -159,7 +159,7 @@
 
   <ngwr-doc-section
     title="Where to go next"
-    description="Theming wires the system up; the tokens are catalogued one family per page. [Colors](/guides/tokens/colors) — intents, the soft set, semantic neutrals and how dark mode flips. [Sizing](/guides/tokens/sizing) — the control-sizing contract and the radius scale. [Typography](/guides/tokens/typography) — the type scale, families and weights. [Density](/guides/tokens/density) — the spacing scale, `provideWrDensity()` and the `[wrDensity]` subtree override. [Motion](/guides/tokens/motion) — easings, durations and the overlay timing hook."
+    description="Theming wires the system up; the tokens are catalogued one family per page. [Colors](/guides/tokens/colors) — intents, the soft set, semantic neutrals and how dark mode flips. [Sizing](/guides/tokens/sizing) — the control-sizing contract and the radius scale. [Typography](/guides/tokens/typography) — the type scale, families and weights. [Density](/guides/tokens/density) — the spacing scale, `withDensity()` and the `[wrDensity]` subtree override. [Motion](/guides/tokens/motion) — easings, durations and the overlay timing hook."
   />
 
   <ngwr-doc-see-also [links]="related" />

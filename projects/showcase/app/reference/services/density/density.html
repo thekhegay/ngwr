@@ -66,29 +66,31 @@
   >
     <ngwr-doc-code [code]="snippets.tokens" language="scss" />
     <p>
-      <strong>Why not <code>:root</code>.</strong> <code>provideWrDensity()</code> writes
-      <code>data-wr-density</code> on <code>&lt;html&gt;</code> — including the default <code>md</code> — and the
-      library&#39;s own <code>[data-wr-density='md']</code> block re-declares all four multipliers to <code>1</code>.
-      Two things go wrong with <code>:root</code>, and only the first is about specificity. On
-      <code>&lt;html&gt;</code> the two selectors are both one simple selector &mdash; a pseudo-class and an attribute
-      score the same &mdash; so whichever is written later wins, and the library&#39;s stylesheet usually is. The second
-      has no cascade in it at all: a custom property is INHERITED, and an element that declares one for itself beats
-      anything it would otherwise inherit. A subtree carrying <code>[wrDensity]</code> matches the library&#39;s own
-      <code>[data-wr-density='sm']</code> block directly, so it keeps the shipped multipliers whatever
-      <code>&lt;html&gt;</code> says. The symptom is a retune that half applies in the direction you would not guess:
-      the page may pick it up and every <code>[wrDensity]</code> island ignores it. Declare on the attribute selector
-      and both problems vanish, because you are then re-declaring the same block the library does.
+      <strong>Why not <code>:root</code>.</strong> <code>withDensity()</code> writes <code>data-wr-density</code> on
+      <code>&lt;html&gt;</code> — including the default <code>md</code> — and the library&#39;s own
+      <code>[data-wr-density='md']</code> block re-declares all four multipliers to <code>1</code>. Two things go wrong
+      with <code>:root</code>, and only the first is about specificity. On <code>&lt;html&gt;</code> the two selectors
+      are both one simple selector &mdash; a pseudo-class and an attribute score the same &mdash; so whichever is
+      written later wins, and the library&#39;s stylesheet usually is. The second has no cascade in it at all: a custom
+      property is INHERITED, and an element that declares one for itself beats anything it would otherwise inherit. A
+      subtree carrying <code>[wrDensity]</code> matches the library&#39;s own <code>[data-wr-density='sm']</code> block
+      directly, so it keeps the shipped multipliers whatever <code>&lt;html&gt;</code> says. The symptom is a retune
+      that half applies in the direction you would not guess: the page may pick it up and every
+      <code>[wrDensity]</code> island ignores it. Declare on the attribute selector and both problems vanish, because
+      you are then re-declaring the same block the library does.
     </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Where the provider goes"
-    description="`WrDensity` is root-provided — one instance per application, holding one active level — and it reads `WR_DENSITY_CONFIG` from the root injector. So `provideWrDensity()` belongs in the application's own providers: put it in a lazy route and the service never sees it, leaving `defaultDensity`, `storageKey` and a renamed `attribute` at their bootstrap values with nothing reported. To vary density by feature, use the `[wrDensity]` directive on the subtree, which is what it is for — it writes the attribute on its own element and needs no provider at all."
-  />
+    title="Where the feature goes"
+    description="`WrDensity` is root-provided — one instance per application, holding one active level — and it reads `WR_DENSITY_CONFIG` from the root injector. So `withDensity()` belongs in the application's own `provideWr()` call: put it in a lazy route and the service never sees it, leaving `defaultDensity`, `storageKey` and a renamed `attribute` at their bootstrap values with nothing reported. To vary density by feature, use the `[wrDensity]` directive on the subtree, which is what it is for — it writes the attribute on its own element and needs no provider at all."
+  >
+    <ngwr-doc-code [code]="snippets.provider" language="angular-ts" />
+  </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Why ngwr provides this"
-    description="Compact/comfortable spacing usually ends up as ad-hoc CSS overrides per screen. Density tokens flip the whole catalog (or a subtree) through one provider switch."
+    description="Compact/comfortable spacing usually ends up as ad-hoc CSS overrides per screen. Density tokens flip the whole catalog (or a subtree) through one switch."
   />
 
   <ngwr-doc-section title="API">

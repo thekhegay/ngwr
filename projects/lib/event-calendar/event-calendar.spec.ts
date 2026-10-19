@@ -7,7 +7,8 @@ import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
-import { WrDateAdapter, provideWrDateAdapter } from 'ngwr/date';
+import { provideWr } from 'ngwr';
+import { WrDateAdapter, withDates } from 'ngwr/date';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -87,7 +88,7 @@ describe('WrEventCalendar', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateAdapter()] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
@@ -230,7 +231,7 @@ describe('WrEventCalendar', () => {
 
     const mountGb = (view: WrCalendarView): void => {
       TestBed.resetTestingModule();
-      TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'en-GB' })] });
+      TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-GB' }))] });
       gb = TestBed.createComponent(Host);
       gb.componentInstance.view.set(view);
       gb.detectChanges();
@@ -410,7 +411,7 @@ describe('WrEventCalendar', () => {
 
     it('refuses to move anything in a read-only calendar', () => {
       TestBed.resetTestingModule();
-      TestBed.configureTestingModule({ providers: [provideWrDateAdapter()] });
+      TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
       const readOnly = TestBed.createComponent(ReadOnlyHost);
       readOnly.detectChanges();
 
@@ -529,7 +530,7 @@ describe('WrEventCalendar under dir="rtl"', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrDateAdapter(),
+        provideWr(withDates()),
         { provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } },
       ],
     });
@@ -625,7 +626,7 @@ describe('WrEventCalendar lanes a cluster along the inline axis', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateAdapter()] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
     fixture = TestBed.createComponent(OverlapHost);
     fixture.detectChanges();
   });
@@ -683,7 +684,7 @@ describe('WrEventCalendar sizes a row for the lanes its chips fill', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateAdapter()] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
     fixture = TestBed.createComponent(StackedHost);
     fixture.detectChanges();
   });
@@ -890,7 +891,7 @@ describe('WrEventCalendar composes its strings from the catalog', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrDateAdapter(),
+        provideWr(withDates()),
         provideWrI18n({ defaultLocale: 'xx', availableLocales: ['xx'] }),
         provideWrI18nStaticLoader({ xx: CATALOG }),
       ],

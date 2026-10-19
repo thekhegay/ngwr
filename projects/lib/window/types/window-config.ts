@@ -19,8 +19,8 @@ export type WrWindowPersistMode = 'position' | 'size' | 'all';
  * Persistence configuration — drop into `WrWindowConfig.storage`.
  *
  * Reads and writes happen through the consumer's `WrStorage` instance.
- * Override the underlying engine at any injector level with
- * `provideWrStorage({ engine: window.sessionStorage })` when you want
+ * Swap the underlying engine at bootstrap with
+ * `provideWr(withStorage({ engine: window.sessionStorage }))` when you want
  * session-scoped persistence instead of the default `localStorage`.
  */
 export interface WrWindowStorageConfig {

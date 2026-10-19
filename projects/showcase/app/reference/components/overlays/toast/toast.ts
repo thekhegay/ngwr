@@ -57,25 +57,28 @@ export default class ToastPageComponent {
 
   protected readonly snippets = {
     config: `import { bootstrapApplication } from '@angular/platform-browser';
-import { provideWrToastConfig } from 'ngwr/toast';
+import { provideWr } from 'ngwr';
+import { withToast } from 'ngwr/toast';
 
 import { AppComponent } from './app/app';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideWrToastConfig({
-      position: 'bottom-end',
-      duration: 5000,
-      showProgress: true,
-      showCopy: true,
-      maxStack: 5,
-      labels: {
-        close: 'Закрыть',
-        copy: 'Копировать',
-        copied: 'Скопировано',
-        closeAll: 'Закрыть все',
-      },
-    }),
+    provideWr(
+      withToast({
+        position: 'bottom-end',
+        duration: 5000,
+        showProgress: true,
+        showCopy: true,
+        maxStack: 5,
+        labels: {
+          close: 'Закрыть',
+          copy: 'Копировать',
+          copied: 'Скопировано',
+          closeAll: 'Закрыть все',
+        },
+      }),
+    ),
   ],
 });`,
 
@@ -113,7 +116,7 @@ await this.upload();
 ref.dismiss();
 
 // Route-level providers do NOT reach the service — this is ignored:
-//   { path: 'admin', providers: [provideWrToastConfig({ position: 'bottom' })] }
+//   { path: 'admin', providers: [provideWr(withToast({ position: 'bottom' }))] }
 // Pass the value per call instead:
 this.toast.show({ message: 'Saved', position: 'bottom' });`,
   };

@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Configuration"
-  description="Every ngwr provider in one reference. Wire what you use at bootstrap — the rest is tree-shaken away."
-  [keywords]="['configuration', 'providers', 'bootstrap', 'provideWr']"
+  description="Every ngwr provider in one reference. App-wide settings go through one `provideWr()` call; wire what you use at bootstrap and the rest is tree-shaken away."
+  [keywords]="['configuration', 'providers', 'bootstrap', 'provideWr', 'features']"
   [labels]="['Getting started']"
 >
   <ngwr-doc-section
@@ -9,6 +9,13 @@
     description="A full-featured `main.ts` showing every common ngwr provider. Delete what you don't need."
   >
     <ngwr-doc-code [code]="snippets.bootstrap" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="provideWr and features"
+    description="App-wide configuration is one `provideWr()` call from `ngwr`, taking a feature for each thing you configure: `withDensity`, `withToast`, `withTheme`, `withDates`, `withStorage`, `withMeta`. Import each from its own entry point, and only the ones you configure — every service works with no feature at all. Pass them at bootstrap; `withDates()` is the one that also works in a route's `providers`. Icons, i18n and the loading-bar router stay calls of their own."
+  >
+    <ngwr-doc-code [code]="snippets.provideWr" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -27,7 +34,7 @@
 
   <ngwr-doc-section
     title="Toast"
-    description="Stack of dismissible notifications, defaulting to the top-end corner. Inject `WrToast` and call `show(...)` from anywhere — the provider only sets defaults, so it is optional. Call it at bootstrap: `WrToast` is root-provided and reads its config once from the root injector, so a route-level call is never read, and says so in dev mode."
+    description="Stack of dismissible notifications, defaulting to the top-end corner. Inject `WrToast` and call `show(...)` from anywhere — `withToast()` only sets defaults, so it is optional. Pass it at bootstrap: `WrToast` is root-provided and reads its config once from the root injector, so a route-level `withToast()` is never read, and says so in dev mode."
   >
     <ngwr-doc-code [code]="snippets.toast" language="angular-ts" />
   </ngwr-doc-section>
@@ -41,23 +48,30 @@
 
   <ngwr-doc-section
     title="Date adapter"
-    description="No call needed: `wr-calendar`, `wr-event-calendar` and every `wr-date-picker` mode use the native adapter, over `Date` and `Intl`, in the locale `LOCALE_ID` names. Call `provideWrDateAdapter()` for one of two things. `{ locale }` pins the dates to another locale. `{ adapter }` runs them on another date library: extend `WrDateAdapter<Date>` (the components hold and compare native `Date` values), do the arithmetic, formatting and parsing through that library, and pass your class."
+    description="No call needed: `wr-calendar`, `wr-event-calendar` and every `wr-date-picker` mode use the native adapter, over `Date` and `Intl`, in the locale `LOCALE_ID` names. Add `withDates()` for one of two things. `{ locale }` pins the dates to another locale. `{ adapter }` runs them on another date library: extend `WrDateAdapter<Date>` (the components hold and compare native `Date` values), do the arithmetic, formatting and parsing through that library, and pass your class."
   >
     <ngwr-doc-code [code]="snippets.dateAdapter" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Density"
-    description="One knob for app-wide sizing. The provider picks a preset; the per-axis multipliers behind the presets are CSS custom properties, so a value between two presets is a `:root` override rather than a config field."
+    description="One knob for app-wide sizing. `withDensity()` picks a preset; the per-axis multipliers behind the presets are CSS custom properties, so a value between two presets is a `:root` override rather than a config field."
   >
     <ngwr-doc-code [code]="snippets.density" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Theme"
-    description="No provider: the theme follows the OS through `color-scheme` out of the box. Inject `WrTheme` to read or switch it at runtime — `theme.set('dark')`, `theme.toggle()` — and override `WR_THEME_CONFIG` only to change the default mode or the storage key. A default other than `auto` applies when `WrTheme` is first injected, so inject it once at boot or ship [`wrThemePrePaintScript()`](/reference/services/theme) with the same options."
+    description="Nothing to configure: the theme follows the OS through `color-scheme` out of the box. Inject `WrTheme` to read or switch it at runtime — `theme.set('dark')`, `theme.toggle()`. `withTheme()` changes the default mode or the storage key and creates `WrTheme` at boot, so a stored choice applies on the first screen. For a prerendered page, ship [`wrThemePrePaintScript()`](/reference/services/theme) with the same options as well."
   >
     <ngwr-doc-code [code]="snippets.theme" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Meta"
+    description="App-wide defaults for `WrMeta`: a title template and the Open Graph and Twitter fields every route starts from. A route overrides them with `WrMeta.push()` or the `[wrMeta]` directive."
+  >
+    <ngwr-doc-code [code]="snippets.meta" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -76,7 +90,7 @@
 
   <ngwr-doc-section
     title="Storage"
-    description="Swappable engine (local / session / memory / custom) with TTL and a reactive watch signal."
+    description="Swappable engine (local / session / memory / custom) with TTL and a reactive watch signal. `withStorage()` sets the engine, a key prefix and a default TTL."
   >
     <ngwr-doc-code [code]="snippets.storage" language="angular-ts" />
   </ngwr-doc-section>

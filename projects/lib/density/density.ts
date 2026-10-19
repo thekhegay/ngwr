@@ -27,6 +27,9 @@ function isDensity(v: unknown): v is WrDensityValue {
  *   descendants read the override instead of the global value.
  * - **Persisted** via {@link WrStorage} (swap the engine globally if you
  *   need a different store).
+ * - **Booted at startup** by `provideWr(withDensity(...))`, which also sets
+ *   the default. Without it nothing writes the attribute until something
+ *   injects this service.
  *
  * @example
  * ```ts

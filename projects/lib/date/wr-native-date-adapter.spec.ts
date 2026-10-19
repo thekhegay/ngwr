@@ -1,8 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 
+import { provideWr } from 'ngwr';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { provideWrDateAdapter } from './provide-wr-date-adapter';
+import { withDates } from './with-dates';
 import { WrDateAdapter, type WrNativeDateAdapter } from './wr-date-adapter';
 
 /**
@@ -26,7 +27,7 @@ describe('WrNativeDateAdapter', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'en-GB' })] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-GB' }))] });
     adapter = TestBed.inject(WrDateAdapter) as WrNativeDateAdapter;
   });
 
@@ -258,7 +259,7 @@ describe('WrNativeDateAdapter', () => {
 
     const adapterFor = (locale: string): WrNativeDateAdapter => {
       TestBed.resetTestingModule();
-      TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale })] });
+      TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale }))] });
       return TestBed.inject(WrDateAdapter) as WrNativeDateAdapter;
     };
 
@@ -396,7 +397,7 @@ describe('WrNativeDateAdapter', () => {
   describe('the month token declines beside a day', () => {
     const adapterFor = (locale: string): WrNativeDateAdapter => {
       TestBed.resetTestingModule();
-      TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale })] });
+      TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale }))] });
       return TestBed.inject(WrDateAdapter) as WrNativeDateAdapter;
     };
 
@@ -430,7 +431,7 @@ describe('WrNativeDateAdapter', () => {
   describe('the meridiem token and non-Latin digits', () => {
     const adapterFor = (locale: string): WrNativeDateAdapter => {
       TestBed.resetTestingModule();
-      TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale })] });
+      TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale }))] });
       return TestBed.inject(WrDateAdapter) as WrNativeDateAdapter;
     };
 
@@ -466,7 +467,7 @@ describe('WrNativeDateAdapter', () => {
   describe('under a different locale', () => {
     it('follows the locale it was given', () => {
       TestBed.resetTestingModule();
-      TestBed.configureTestingModule({ providers: [provideWrDateAdapter({ locale: 'en-US' })] });
+      TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
       const us = TestBed.inject(WrDateAdapter) as WrNativeDateAdapter;
 
       expect(us.getFirstDayOfWeek()).toBe(0);

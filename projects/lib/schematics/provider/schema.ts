@@ -8,11 +8,16 @@
 /**
  * Providers this schematic can splice into a bootstrap.
  *
- * `loading-bar`, `cookie` and `theme` are deliberately absent: those entry points
- * ship the injectable services `WrLoadingBar` / `WrCookie` / `WrTheme` and no
- * provider function, so there is nothing to add to `providers`. `overlay` and
- * `date-adapter` are absent since v15 for the same reason: the isolated
- * container and the native adapter are the defaults.
+ * `toast`, `density` and `storage` are `provideWr()` features since v15: the
+ * schematic adds `withToast()` / `withDensity()` / `withStorage()` inside the
+ * `provideWr(...)` already in `providers`, or adds `provideWr(withX())` when
+ * there is none. `icons` and `i18n` stay calls of their own.
+ *
+ * `loading-bar` and `cookie` are deliberately absent: those entry points ship
+ * the injectable services `WrLoadingBar` / `WrCookie` and no provider function,
+ * so there is nothing to add to `providers`. `overlay` is absent since v15 for
+ * the same reason: the isolated container is the default. `theme`, `meta` and
+ * `date` have features, and exist to carry values only the app knows.
  */
 export type ProviderName = 'icons' | 'toast' | 'i18n' | 'density' | 'storage';
 

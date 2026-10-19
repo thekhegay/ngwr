@@ -52,7 +52,9 @@ A pnpm + Angular CLI monorepo with three projects:
   measures — so every honest method would answer identically for a working component
   and a broken one. Do not "finish the set" by adding them.
   Built with **`@angular/build:library`**, not ng-packagr. TS path mapping:
-  `ngwr/*` → `./projects/lib/*`.
+  `ngwr/*` → `./projects/lib/*`, plus the bare `ngwr` → `./projects/lib/public-api.ts`
+  (`provideWr`) — without it the showcase resolves the root through the
+  `node_modules/ngwr` symlink as an external package and never compiles it.
 - **`projects/showcase/`** — the docs site (**ngwr.dev**): live demos + API
   docs, and where components are dogfooded. Docs are organised into five
   top-level clusters — **start / guides / reference / icons / animations**: API
@@ -134,6 +136,28 @@ as it is an `interface`. Cross-cutting types live in `ngwr/utils/types`
 These live in their own entry points — an agent won't find them by mirroring
 one component folder. Reach for them instead of hand-rolling:
 
+- **App-wide configuration is ONE call since v15: `provideWr(...features)`**,
+  in the shape Angular gives `provideRouter(routes, withX())` —
+  `provideWr(withDensity(), withToast({ duration: 6000 }), withTheme(), withDates(), withStorage(), withMeta())`.
+  `provideWr` is the only export of the ROOT entry point
+  (`projects/lib/provide-wr.ts`, re-exported by `public-api.ts`): it flattens
+  the features through `makeEnvironmentProviders`, works at bootstrap and in a
+  route's `providers`, and throws in dev mode when one feature kind is passed
+  twice. Each `withX()` lives in the entry point it configures, and the
+  `WrFeature` type with its `wrFeature(kind, providers)` builder lives in
+  `ngwr/utils`, so no secondary entry point imports the root one
+  (`package.spec.ts` fails on a shipped source that does). Features and
+  not one options object, because an object that can configure everything has
+  to import everything: a feature is a function, and the ones an app does not
+  import are not bundled. The five `provideWrX()` config functions it replaced
+  — density, toast config, storage, meta, date adapter — were deleted outright.
+  What stays its own call is what chains or costs an import:
+  `provideWrIcons()`, the i18n providers and `provideWrLoadingBarRouter()`. A
+  new app-wide setting is a `withX()` in its own entry point, never a new
+  `provideWrX()` and never a key on `provideWr`. A feature that configures a
+  ROOT service (`withDensity`, `withToast`, `withTheme`, …) is read once from
+  the root injector, so in a route it does nothing — only `withDates()` scopes
+  to a route, and `withToast()` warns in dev mode.
 - **Overlays** (`ngwr/overlay`) — isolated from every other CDK consumer with
   no call since v15: `WR_OVERLAY_CONTAINER` and `WR_OVERLAY` are root tokens
   whose DEFAULT factories build a `WrOverlayContainer` (tagged
@@ -203,9 +227,10 @@ one component folder. Reach for them instead of hand-rolling:
   app that wants another value binds it, or wraps the component in its own. One
   thing is not that pattern and stays: the `*Label` inputs, which `useI18nText`
   fills from the catalog (see Strings & i18n).
-- **Density** (`ngwr/density`) — `provideWrDensity()`, the `[wrDensity]`
+- **Density** (`ngwr/density`) — `provideWr(withDensity())`, the `[wrDensity]`
   directive, `WrDensity` service; values sm / md / lg / touch
-  drive the `--wr-density-*` multipliers.
+  drive the `--wr-density-*` multipliers. The feature also creates `WrDensity`
+  at boot, which is what writes `[data-wr-density]` on `<html>`.
 - **Breakpoints** (SCSS) — the mixin API via `@use 'ngwr/breakpoints'`
   (`media-up` / `media-down`). v15 removed the TypeScript service with
   `ngwr/media`: nothing in the library read it, and an app wanting a breakpoint
@@ -216,12 +241,14 @@ one component folder. Reach for them instead of hand-rolling:
   key carries no `sass` condition, so `@use 'ngwr'` does not resolve. It
   compiled every component stylesheet for whatever a page rendered — measured
   here at 287 kB against 44 kB for the entry points one demo draws, and an
-  out-of-memory error inside StackBlitz. The key itself still exists, pointing
-  at the empty `public-api.ts`, because `@angular/build:library` refuses a
-  manifest whose `exports` has no `.`. The one consumer that really does want
-  every sheet is the showcase, and its aggregate is
-  `projects/showcase/styles/_components.scss`, written by `pnpm gen:exports`
-  off the same walk — not a hand-kept list, which is what it was for 110 lines.
+  out-of-memory error inside StackBlitz. The key itself still exists, and since
+  v15 it carries TypeScript only — `provideWr()` and nothing from the catalog
+  (before that it pointed at an empty `public-api.ts`, kept because
+  `@angular/build:library` refuses a manifest whose `exports` has no `.`). The
+  one consumer that really does want every sheet is the showcase, and its
+  aggregate is `projects/showcase/styles/_components.scss`, written by
+  `pnpm gen:exports` off the same walk — not a hand-kept list, which is what it
+  was for 110 lines.
   Removing the umbrella made `@use` ORDER load-bearing, and Sass says so out
   loud: a module can be configured only at its first load, so
   `@use 'ngwr/theme' with (...)` below any component entry fails the build with
@@ -236,14 +263,15 @@ one component folder. Reach for them instead of hand-rolling:
   `dark` for an explicit mode, clears its own write for `auto` (an author's
   `<html>` scheme is left alone), keeps the choice in `WrStorage`, and writes
   NOTHING on the server, so a prerendered page carries no inline style and an
-  OS-dark visitor gets dark from the first paint. With no provider there is no
-  environment initializer either, so the service is created on first
-  `inject()`, and that is when a stored choice or a non-`auto` `defaultMode`
-  lands — an app injects it once at boot, or a page whose first screen never
-  asks for it paints the OS scheme. `wrThemePrePaintScript()` replays the same
-  choice (a stored `light` / `dark`, else a non-`auto` `defaultMode` passed to
-  it) before the bundle boots. `color-scheme` replaced a `[data-theme='dark']`
-  block, and the defect there was the ancestor SELECTOR, not the attribute — a
+  OS-dark visitor gets dark from the first paint. With no provider the service
+  is created on first `inject()`, and that is when a stored choice or a
+  non-`auto` `defaultMode` lands — so a page whose first screen never asks for
+  it paints the OS scheme. `provideWr(withTheme({ defaultMode, storageKey }))`
+  sets `WR_THEME_CONFIG` and adds the environment initializer that creates it
+  at boot, the same thing `withDensity()` does for `WrDensity`.
+  `wrThemePrePaintScript()` replays the same choice (a stored `light` / `dark`,
+  else a non-`auto` `defaultMode` passed to it) before the bundle boots.
+  `color-scheme` replaced a `[data-theme='dark']` block, and the defect there was the ancestor SELECTOR, not the attribute — a
   class dies the same way: emulated encapsulation tags every compound of a
   selector, the ancestor included, so `[data-theme='dark'] .card` in a
   consumer's component stylesheet compiled, shipped and matched nothing, and
@@ -330,15 +358,16 @@ one component folder. Reach for them instead of hand-rolling:
   event calendar and every date-picker mode, and since v15 it needs no provider:
   injected with nothing provided, it resolves to `WrNativeDateAdapter`, over
   `Date` and `Intl`, in the `WR_DATE_LOCALE` locale (which is `LOCALE_ID`).
-  `provideWrDateAdapter({ locale, adapter })` stays for a pinned locale or an
-  adapter of the app's own. **The base class and the native one share one
-  module, and that is load-bearing**: the base's injectable default names the
+  `provideWr(withDates({ locale, adapter }))` is for a pinned locale or an
+  adapter of the app's own, and the one feature that also works in a route's
+  `providers`, where it gives that subtree an adapter of its own. **The base
+  class and the native one share one module, and that is load-bearing**: the base's injectable default names the
   subclass, so with each in its own file the base would import the file that
   extends it — an ES-module cycle that breaks at evaluation. Do not split them.
   `WrNativeDateAdapter` is the only implementation ngwr ships. **v15 deleted
   `ngwr/date/adapters/{fns,luxon}`** and the `date-fns` / `luxon` optional
   peers with them: an app on another date library extends `WrDateAdapter` and
-  passes the class as `provideWrDateAdapter({ adapter })`. The entry points
+  passes the class as `withDates({ adapter })`. The entry points
   were `ngwr/date-adapter{,-fns,-luxon}` until v12: flat and hyphenated while
   `ngwr/icon` already nested its implementations (v15 folded those back into
   `ngwr/icon`), so the catalog spelled one idea two ways. `migration-v12`
@@ -1861,11 +1890,16 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
 (which also generates `use/symbol-map.json` from a public-api scan):
 
 - `ng add ngwr` — prompts for styles / density, installs peers, prints a
-  tailored bootstrap snippet.
+  tailored bootstrap snippet; a picked density arrives as
+  `provideWr(withDensity({ defaultDensity }))`.
 - `ng g ngwr:use WrFoo --path path/to/cmp.ts` — adds the import + splices it into
   the component's `@Component` imports. Only `symbol` is positional; `path` is a
   named option, so passing it bare fails with `Unknown argument`.
-- `ng g ngwr:provider <name>` — splices a provider into bootstrap.
+- `ng g ngwr:provider <name>` — splices a provider into bootstrap: `density`,
+  `toast` and `storage` as features INSIDE the array's `provideWr(...)` (added,
+  with its import from `ngwr`, when there is none), `icons` and `i18n` as calls
+  of their own. `withTheme()`, `withMeta()` and `withDates()` are not offered:
+  each carries a value only the app knows.
 - `ng g ngwr:icon-set` / `ngwr:component-style` / `ngwr:page` — icon barrel /
   per-component `@use` / starter pages.
 - `ng update ngwr@<latest major>` — ONE command from any earlier major. The CLI

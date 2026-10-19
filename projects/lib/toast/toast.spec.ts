@@ -5,13 +5,14 @@ import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, EnvironmentInjector, type EnvironmentProviders, createEnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWr } from 'ngwr';
 import { WrDialog, WrDialogContent, type WrDialogRef } from 'ngwr/dialog';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { provideWrToastConfig } from './provide-wr-toast-config';
 import { WrToast } from './services/toast';
+import { withToast } from './with-toast';
 
 /**
  * Toast has no template of its own — a consumer injects `WrToast` and calls
@@ -386,23 +387,25 @@ describe('WrToast', () => {
     });
   });
 
-  describe('with provideWrToastConfig', () => {
+  describe('configured through withToast', () => {
     beforeEach(() => {
       toast = setup([
-        provideWrToastConfig({
-          position: 'bottom-end',
-          mode: 'list',
-          duration: 1000,
-          showProgress: false,
-          showCopy: true,
-          maxStack: 2,
-          closeAllThreshold: 2,
-          // A partial `labels` — `copied` is deliberately left to the default.
-          // The runtime merge always supported this, but the parameter was
-          // `Partial<WrToastConfig>`, which is shallow, so overriding a single
-          // string was a compile error. Passing a subset here is the guard.
-          labels: { close: 'Закрыть', copy: 'Копировать', closeAll: 'Закрыть все' },
-        }),
+        provideWr(
+          withToast({
+            position: 'bottom-end',
+            mode: 'list',
+            duration: 1000,
+            showProgress: false,
+            showCopy: true,
+            maxStack: 2,
+            closeAllThreshold: 2,
+            // A partial `labels` — `copied` is deliberately left to the default.
+            // The runtime merge always supported this, but the parameter was
+            // `Partial<WrToastConfig>`, which is shallow, so overriding a single
+            // string was a compile error. Passing a subset here is the guard.
+            labels: { close: 'Закрыть', copy: 'Копировать', closeAll: 'Закрыть все' },
+          })
+        ),
       ]);
     });
 
@@ -539,12 +542,12 @@ describe('WrToast labels', () => {
     }
   });
 
-  it('still lets provideWrToastConfig win over the catalog', () => {
+  it('still lets withToast win over the catalog', () => {
     TestBed.configureTestingModule({
       providers: [
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
-        provideWrToastConfig({ labels: { close: 'Dismiss', copy: 'Copy', copied: 'Copied', closeAll: 'Clear' } }),
+        provideWr(withToast({ labels: { close: 'Dismiss', copy: 'Copy', copied: 'Copied', closeAll: 'Clear' } })),
       ],
     });
     toast = TestBed.inject(WrToast);
@@ -812,7 +815,7 @@ describe('WrToast stacking', () => {
   });
 });
 
-describe('provideWrToastConfig outside the root injector', () => {
+describe('withToast outside the root injector', () => {
   afterEach(() => {
     TestBed.resetTestingModule();
     vi.restoreAllMocks();
@@ -821,7 +824,7 @@ describe('provideWrToastConfig outside the root injector', () => {
   it('warns when it lands somewhere WrToast will never read it', () => {
     // The silent misconfiguration this exists to name: `WrToast` is
     // root-provided, so it resolves WR_TOAST_CONFIG once from the root. A
-    // route-level `provideWrToastConfig({ position: 'bottom' })` therefore does
+    // route-level `withToast({ position: 'bottom' })` therefore does
     // nothing at all, and used to do it without a word — an adoption audit spent
     // an hour finding out. `provideWrIcons()` chains per route, so the
     // asymmetry is real and worth a warning rather than a paragraph nobody
@@ -831,10 +834,10 @@ describe('provideWrToastConfig outside the root injector', () => {
     const root = TestBed.inject(EnvironmentInjector);
     // A child environment injector is what a lazy route creates.
     // `createEnvironmentInjector` runs ENVIRONMENT_INITIALIZER itself.
-    const child = createEnvironmentInjector([provideWrToastConfig({ position: 'bottom' })], root);
+    const child = createEnvironmentInjector([provideWr(withToast({ position: 'bottom' }))], root);
 
     expect(warn).toHaveBeenCalledTimes(1);
-    expect(warn.mock.calls[0]?.[0]).toContain('provideWrToastConfig()');
+    expect(warn.mock.calls[0]?.[0]).toContain('withToast()');
     child.destroy();
   });
 
@@ -842,7 +845,7 @@ describe('provideWrToastConfig outside the root injector', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
     TestBed.configureTestingModule({
-      providers: [provideWrToastConfig({ position: 'bottom' })],
+      providers: [provideWr(withToast({ position: 'bottom' }))],
     });
     TestBed.inject(WrToast);
 

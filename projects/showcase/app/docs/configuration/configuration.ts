@@ -21,10 +21,12 @@ import { provideZonelessChangeDetection } from '@angular/core';
 
 import { Plus, Trash2 } from 'lucide';
 
+import { provideWr } from 'ngwr';
+import { withDensity } from 'ngwr/density';
 import { lucideIcons, provideWrIcons } from 'ngwr/icon';
-import { provideWrToastConfig } from 'ngwr/toast';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
-import { provideWrDensity } from 'ngwr/density';
+import { withTheme } from 'ngwr/theme';
+import { withToast } from 'ngwr/toast';
 
 import { AppComponent } from './app/app';
 import { routes } from './app/app.routes';
@@ -35,13 +37,31 @@ bootstrapApplication(AppComponent, {
     provideRouter(routes),
 
     // ngwr ---------------------------------------------------------------
+    provideWr(
+      withDensity({ defaultDensity: 'lg' }),
+      withToast({ position: 'top-end', duration: 4000 }),
+      withTheme({ defaultMode: 'dark' }),
+    ),
     provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 })),
-    provideWrToastConfig({ position: 'top-end', duration: 4000 }),
-    provideWrDensity({ defaultDensity: 'lg' }),
     provideWrI18n(),
     provideWrI18nStaticLoader({ en: { /* … */ } }),
   ],
 });`,
+
+    provideWr: `import { provideWr } from 'ngwr';
+import { withDates } from 'ngwr/date';
+import { withDensity } from 'ngwr/density';
+
+// One call, one feature per thing you configure, each imported from the
+// entry point it configures. A feature you do not import is not bundled.
+providers: [
+  provideWr(
+    withDensity({ defaultDensity: 'sm' }),
+    withDates({ locale: 'ru-RU' }),
+  ),
+],
+
+// The same feature twice throws in dev mode: merge the two option objects.`,
 
     overlay: `// styles.scss — nothing to provide. ngwr's overlays render into a container of
 // their own, tagged .wr-overlay-container beside CDK's .cdk-overlay-container,
@@ -60,12 +80,13 @@ import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 // \`WrIconDef\` at runtime, so unused Lucide icons get dropped by the bundler.
 providers: [provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2, check: Check }))],`,
 
-    toast: `import { provideWrToastConfig } from 'ngwr/toast';
+    toast: `import { provideWr } from 'ngwr';
+import { withToast } from 'ngwr/toast';
 
 // Defaults for the global toast service. Call \`inject(WrToast).show(...)\`
 // anywhere — the service itself needs no provider.
 // position: 'top-start' | 'top' | 'top-end' | 'bottom-start' | 'bottom' | 'bottom-end'
-providers: [provideWrToastConfig({ position: 'bottom-end', maxStack: 5 })],`,
+providers: [provideWr(withToast({ position: 'bottom-end', maxStack: 5 }))],`,
 
     i18n: `import { provideWrI18n, provideWrI18nBaseCatalogs, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrEn } from 'ngwr/i18n/en';
@@ -83,11 +104,12 @@ providers: [
   }),
 ],`,
 
-    dateAdapter: `import { provideWrDateAdapter } from 'ngwr/date';
+    dateAdapter: `import { provideWr } from 'ngwr';
+import { withDates } from 'ngwr/date';
 
 // Nothing to provide for the native adapter: it formats in LOCALE_ID's locale.
 // Pin the dates to another one:
-providers: [provideWrDateAdapter({ locale: 'ru-RU' })],
+providers: [provideWr(withDates({ locale: 'ru-RU' }))],
 
 // Or bring your own, over the date library the app already uses. Extend
 // WrDateAdapter<Date> and do the math, formatting and parsing through that
@@ -108,14 +130,15 @@ export class AppDateAdapter extends WrDateAdapter<Date> {
   parse(value: string, format: WrDateFormat | (string & {})): Date | null { /* … */ }
 }
 
-providers: [provideWrDateAdapter({ adapter: AppDateAdapter })],`,
+providers: [provideWr(withDates({ adapter: AppDateAdapter }))],`,
 
-    density: `import { provideWrDensity } from 'ngwr/density';
+    density: `import { provideWr } from 'ngwr';
+import { withDensity } from 'ngwr/density';
 
 // App-wide default density: 'sm' | 'md' (default) | 'lg' | 'touch'.
 // The other two fields are storageKey and attribute — a preset is the only
-// knob the provider takes.
-providers: [provideWrDensity({ defaultDensity: 'sm' })],
+// knob the feature takes.
+providers: [provideWr(withDensity({ defaultDensity: 'sm' }))],
 
 // Fine-grained is CSS, not config: a preset is only a set of multipliers, so
 // a value between two presets is a stylesheet override, on :root or a subtree.
@@ -124,26 +147,32 @@ providers: [provideWrDensity({ defaultDensity: 'sm' })],
 //     --wr-density-x: 0.9;   /* horizontal padding */
 //   }`,
 
-    theme: `import { inject, provideEnvironmentInitializer } from '@angular/core';
-
-import { DEFAULT_WR_THEME_CONFIG, WR_THEME_CONFIG, WrTheme } from 'ngwr/theme';
+    theme: `import { provideWr } from 'ngwr';
+import { withTheme } from 'ngwr/theme';
 
 // Nothing to provide for the defaults: the page follows the OS through
-// color-scheme, and WrTheme is root-provided. Override the token only to
-// change them — 'light' | 'dark' | 'auto', and the localStorage key the
-// choice persists under (null turns persistence off).
+// color-scheme, and WrTheme is root-provided. Add the feature to change them —
+// 'light' | 'dark' | 'auto', and the localStorage key the choice persists
+// under (null turns persistence off). It also creates WrTheme at boot, so a
+// stored choice or a default other than 'auto' applies on the first screen.
+providers: [provideWr(withTheme({ defaultMode: 'dark', storageKey: 'app-theme' }))],
+
+// A prerendered page paints before the bundle boots. Ship the pre-paint
+// script with the same options to apply the choice before that first paint:
+//   wrThemePrePaintScript({ defaultMode: 'dark', storageKey: 'app-theme' })`,
+
+    meta: `import { provideWr } from 'ngwr';
+import { withMeta } from 'ngwr/meta';
+
+// App-wide defaults for WrMeta. A route or component overrides them with
+// \`inject(WrMeta).push(...)\` or the [wrMeta] directive.
 providers: [
-  {
-    provide: WR_THEME_CONFIG,
-    useValue: { ...DEFAULT_WR_THEME_CONFIG, defaultMode: 'dark', storageKey: 'app-theme' },
-  },
-  // A default other than 'auto' — and a stored choice — applies when WrTheme
-  // is first injected, and nothing injects it for you: with the toggle behind
-  // a lazy route, the page follows the OS until someone opens that route.
-  // Inject it once at boot, or ship the pre-paint script with the same
-  // options, which also lands before the first paint of a prerendered page:
-  //   wrThemePrePaintScript({ defaultMode: 'dark', storageKey: 'app-theme' })
-  provideEnvironmentInitializer(() => inject(WrTheme)),
+  provideWr(
+    withMeta({
+      titleTemplate: '{{ title }} · My app',
+      og: { siteName: 'My app', type: 'website' },
+    }),
+  ),
 ],`,
 
     loadingBar: `import { WrLoadingBar, WrLoadingBarComponent } from 'ngwr/loading-bar';
@@ -171,13 +200,14 @@ export class AppComponent {
 // fallbacks.
 private readonly cookie = inject(WrCookie);`,
 
-    storage: `import { provideWrStorage } from 'ngwr/storage';
+    storage: `import { provideWr } from 'ngwr';
+import { withStorage } from 'ngwr/storage';
 
 // Swappable engine + TTL + watch signal. Defaults to localStorage in the
 // browser and an in-memory store on the server (and in private mode, where
 // setItem throws). Inject \`WrStorage\` to use it.
 // \`engine\` takes a Storage INSTANCE, or a factory called lazily.
-providers: [provideWrStorage({ engine: sessionStorage, prefix: 'app:' })],`,
+providers: [provideWr(withStorage({ engine: sessionStorage, prefix: 'app:' }))],`,
   };
 
   protected readonly related: readonly DocSeeAlsoLink[] = [

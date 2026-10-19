@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="WrTheme"
-  description="Light / dark switch. An explicit choice is written as `color-scheme` on `<html>` and persisted; `auto` clears it, so the theme's own `color-scheme: light dark` follows the OS. Needs no provider — inject it where the toggle lives."
+  description="Light / dark switch. An explicit choice is written as `color-scheme` on `<html>` and persisted; `auto` clears it, so the theme's own `color-scheme: light dark` follows the OS. Needs no provider — inject it where the toggle lives, or configure it with `withTheme()`."
   [keywords]="['service', 'theme', 'dark mode', 'color-scheme', 'WrTheme']"
   [labels]="['Service']"
 >
@@ -24,13 +24,14 @@
 
   <ngwr-doc-section
     title="Configuration"
-    description="There is no provider. Dark mode itself is CSS — the theme declares `color-scheme: light dark` on `:root` — so a page follows the OS before anything is injected, and the service only matters once someone picks a side. To change its defaults, override `WR_THEME_CONFIG` in the application's own providers: `defaultMode` (`'auto'`) and `storageKey` (`'wr-theme'`; `null` turns persistence off)."
+    description="Optional. Dark mode itself is CSS — the theme declares `color-scheme: light dark` on `:root` — so a page follows the OS before anything is injected. To change the defaults, pass `withTheme()` to `provideWr()` in the application's own providers: `defaultMode` (`'auto'`) and `storageKey` (`'wr-theme'`; `null` turns persistence off)."
   >
     <ngwr-doc-code [code]="snippets.config" language="angular-ts" />
     <p>
-      A <code>defaultMode</code> other than <code>auto</code> is applied by the service, so it takes effect once
-      something injects <code>WrTheme</code> — a header toggle usually does, or inject it in the root component — and on
-      a prerendered page by the pre-paint script below, given the same value.
+      <code>withTheme()</code> also creates <code>WrTheme</code> at boot, so a stored choice or a
+      <code>defaultMode</code> other than <code>auto</code> applies on the first screen even when no component injects
+      the service yet. Without the feature that happens on the first <code>inject(WrTheme)</code>. On a prerendered page
+      the pre-paint script below covers the first paint, given the same values.
     </p>
   </ngwr-doc-section>
 
@@ -58,17 +59,18 @@
 
   <ngwr-doc-section
     title="One service per application, one scheme per document"
-    description="`WrTheme` is root-provided: one instance for the whole application, reading `WR_THEME_CONFIG` once from the root injector — so the token provided in a lazy route's `providers` is never looked at. Configure it at bootstrap."
+    description="`WrTheme` is root-provided: one instance for the whole application, reading `WR_THEME_CONFIG` once from the root injector — so `withTheme()` in a lazy route's `providers` is never looked at. Configure it at bootstrap."
   >
     <p>
       The document, though, has exactly one <code>&lt;html&gt;</code> — and that matters if you run
       <strong>two Angular applications on one page</strong> (a micro-frontend shell plus a widget). Each gets its own
       <code>WrTheme</code>, and the service applies its mode the moment it is constructed, so a second application
       becomes a writer simply by injecting it: last writer wins, and each <code>resolved()</code> keeps reporting its
-      own answer. <strong>Exactly one application on the page injects <code>WrTheme</code>.</strong> The others need
-      nothing: the scheme and the whole <code>--wr-*</code> layer live on the document, so their components are already
-      themed. Code that needs the current scheme reads <code>WrTheme.resolved</code> in the application that owns it and
-      hands the value on, rather than constructing a second owner.
+      own answer. <strong>Exactly one application on the page owns <code>WrTheme</code>:</strong> it injects the service
+      or passes <code>withTheme()</code>, whose initializer injects it at boot. The others need nothing: the scheme and
+      the whole <code>--wr-*</code> layer live on the document, so their components are already themed. Code that needs
+      the current scheme reads <code>WrTheme.resolved</code> in the application that owns it and hands the value on,
+      rather than constructing a second owner.
     </p>
   </ngwr-doc-section>
 

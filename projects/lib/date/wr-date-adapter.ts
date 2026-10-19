@@ -202,7 +202,7 @@ function tokenToRegex(token: string, digits: string): string {
  * `Date`, `Intl.DateTimeFormat`, the locale from {@link WR_DATE_LOCALE}), so the
  * date components need no provider. For another library, subclass this,
  * decorate the subclass with `@Service()` and register it via
- * `provideWrDateAdapter({ adapter: MyAdapter })`. An undecorated subclass still
+ * `provideWr(withDates({ adapter: MyAdapter }))`. An undecorated subclass still
  * resolves, but Angular warns in dev mode that it inherits this class's
  * injectable definition.
  *
@@ -219,7 +219,7 @@ function tokenToRegex(token: string, digits: string): string {
   // classes share the module because a base importing the file that extends it
   // is a cycle that fails at evaluation. `@Injectable` rather than
   // `@Service({ factory })`: a `@Service` factory ignores the type it is asked
-  // to build, so an undecorated subclass passed to `provideWrDateAdapter` would
+  // to build, so an undecorated subclass passed to `withDates()` would
   // quietly come back as the native adapter instead of itself.
   // eslint-disable-next-line @angular-eslint/no-forward-ref
   useExisting: forwardRef(() => WrNativeDateAdapter),

@@ -6,7 +6,7 @@
 >
   <ngwr-doc-section
     title="Global config"
-    description="Register `provideWrToastConfig` once at bootstrap to set defaults — position, duration, progress bar, copy button, max stack, label strings (i18n). Any field you omit falls back to the library default; the `labels` sub-object is merged separately so you can override a single string at a time."
+    description="Pass `withToast()` to `provideWr()` once at bootstrap to set defaults — position, duration, progress bar, copy button, max stack, label strings (i18n). Any field you omit falls back to the library default; the `labels` sub-object is merged separately so you can override a single string at a time."
   >
     <ngwr-doc-code [code]="snippets.config" language="angular-ts" />
   </ngwr-doc-section>
@@ -64,7 +64,7 @@
 
   <ngwr-doc-section
     title="Layout mode"
-    description="`stack` (default, Sonner-style) cascades toasts behind the newest and fans out on hover. `list` renders them as a classic vertical column. Switch the global default via `provideWrToastConfig({ mode: 'list' })` or at runtime via `toast.setMode()`."
+    description="`stack` (default, Sonner-style) cascades toasts behind the newest and fans out on hover. `list` renders them as a classic vertical column. Switch the global default via `withToast({ mode: 'list' })` or at runtime via `toast.setMode()`."
   >
     <ngwr-doc-snippet code="">
       <div style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap">
@@ -111,9 +111,9 @@
     <ngwr-doc-code [code]="snippets.scope" language="typescript" />
     <p>
       Because the service is root-provided, so is its configuration:
-      <code>provideWrToastConfig()</code> in a lazy route&#39;s <code>providers</code> is <em>ignored</em> — the service
-      reads the root token, and a route-level one is simply never consulted. Nothing warns. Register it once at
-      bootstrap; to vary a value per feature, pass it per call, where every field of the config is also accepted.
+      <code>withToast()</code> in a lazy route&#39;s <code>providers</code> is <em>ignored</em> — the service reads the
+      root token, and a route-level one is never consulted; dev mode warns about it. Register it once at bootstrap; to
+      vary a value per feature, pass it per call, where every field of the config is also accepted.
     </p>
   </ngwr-doc-section>
 
@@ -130,7 +130,7 @@
 
   <ngwr-doc-section
     title="WrToastConfig"
-    description="Global configuration registered through `provideWrToastConfig`. These values back every `WrToastOptions` field that isn't overridden at call time."
+    description="Global configuration registered through `withToast()`. These values back every `WrToastOptions` field that isn't overridden at call time."
   >
     <ngwr-doc-api [rows]="configApi" />
   </ngwr-doc-section>

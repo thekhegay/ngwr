@@ -46,14 +46,14 @@
 
   <ngwr-doc-section
     title="Bootstrap"
-    description="No provider is needed on day one. Dark mode needs none: the theme stylesheet follows the OS through `color-scheme`, and `WrTheme`, the service behind a light / dark toggle, is root-provided. Overlays need none either: they render into a container of ngwr's own rather than the one every other CDK consumer shares. The catalog's providers belong to the features that need them — see [Configuration](/docs/configuration)."
+    description="No provider is needed on day one. Dark mode needs none: the theme stylesheet follows the OS through `color-scheme`, and `WrTheme`, the service behind a light / dark toggle, is root-provided. Overlays need none either: they render into a container of ngwr's own rather than the one every other CDK consumer shares. When you do configure something app-wide, it goes into one `provideWr()` call with a feature per setting — see [Configuration](/docs/configuration)."
   >
     <ngwr-doc-code [code]="snippets.appConfig" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Every import is a subpath — the root is empty on purpose"
-    description="`import { WrButton } from 'ngwr'` does not work, and it fails in a way an IDE will happily write for you. There is no barrel: the root entry point exports nothing (`export {}` in `public-api.ts`, an empty FESM module in the tarball), because a barrel re-exporting every entry point in the catalog is a barrel every consumer's bundler has to prove it can shake. So the compiler answers `TS2305: Module '&quot;ngwr&quot;' has no exported member 'WrButton'`, which names the symbol and not the mistake. **The symbol always comes from the entry point, and the entry point is the last segment of the component's docs URL** — `/reference/components/select` is `ngwr/select`. The one lint rule below turns a wrong auto-import into a red squiggle instead of a build error."
+    title="Every import is a subpath — the root holds only provideWr"
+    description="`import { WrButton } from 'ngwr'` does not work, and it fails in a way an IDE will happily write for you. There is no barrel: the root entry point exports `provideWr()` and nothing from the catalog, because a barrel re-exporting every entry point in the catalog is a barrel every consumer's bundler has to prove it can shake. So the compiler answers `TS2305: Module '&quot;ngwr&quot;' has no exported member 'WrButton'`, which names the symbol and not the mistake. **The symbol always comes from the entry point, and the entry point is the last segment of the component's docs URL** — `/reference/components/select` is `ngwr/select`. The one lint rule below turns a wrong auto-import into a red squiggle instead of a build error, and still lets `provideWr` through."
   >
     <ngwr-doc-code [code]="snippets.rootEntry" language="typescript" />
   </ngwr-doc-section>
@@ -100,7 +100,7 @@
       tree twisties, accordion carets, the alert and toast status marks — and this entry is the only thing that sizes
       them. <code>ngwr/density</code> — the <code>--wr-density-*</code> multipliers live there and nowhere else; every
       reader falls back to <code>1</code>, so without it geometry is correct at <code>md</code> and
-      <code>provideWrDensity()</code> / <code>[wrDensity]</code> silently do nothing at all.
+      <code>withDensity()</code> / <code>[wrDensity]</code> silently do nothing at all.
     </p>
 
     <p>
@@ -289,7 +289,7 @@
 
   <ngwr-doc-section
     title="ng g ngwr:provider"
-    description="Splice a `provideWr*()` call into your bootstrap providers array. Useful for adding a single subsystem after the initial `ng add`."
+    description="Splice a provider into your bootstrap providers array — a feature of `provideWr()` for density, toast and storage, a call of its own for icons and i18n. Useful for adding a single subsystem after the initial `ng add`."
   >
     <ngwr-doc-code [code]="snippets.provider" language="bash" />
   </ngwr-doc-section>

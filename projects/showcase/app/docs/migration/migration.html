@@ -114,20 +114,20 @@
     <p>
       <strong><code>provideWrTheme()</code> is removed.</strong> <code>WrTheme</code> is root-provided and keeps its API
       — <code>mode</code>, <code>resolved</code>, <code>set()</code>, <code>toggle()</code> — so delete the call; to
-      change <code>defaultMode</code> or <code>storageKey</code>, provide <code>WR_THEME_CONFIG</code> instead. The
+      change <code>defaultMode</code> or <code>storageKey</code>, pass <code>withTheme()</code> to
+      <code>provideWr()</code> instead (see the <code>provideWr()</code> section below). The
       <code>attribute</code> option is gone from both the config and <code>wrThemePrePaintScript()</code>, which now
       writes <code>color-scheme</code> on <code>&lt;html&gt;</code> for a stored <code>light</code> or
       <code>dark</code> choice, or for a non-<code>auto</code> <code>defaultMode</code> passed to it, and nothing for
       <code>auto</code>. Code that read the attribute reads <code>WrTheme.resolved()</code>.
     </p>
     <p>
-      <strong>Without the provider, nothing creates <code>WrTheme</code> at boot.</strong>
-      <code>provideWrTheme()</code> did, and that is what applied a stored choice and a non-<code>auto</code>
-      <code>defaultMode</code> on the first screen. Now both apply when <code>WrTheme</code> is first injected, so an
-      app whose toggle sits behind a lazy route follows the OS until that route opens — silently. Inject it once at
-      boot, in the root component or with <code>provideEnvironmentInitializer(() =&gt; inject(WrTheme))</code>, or ship
-      <code>wrThemePrePaintScript()</code> with the same options, which also lands before the first paint of a
-      prerendered page.
+      <strong><code>withTheme()</code> creates <code>WrTheme</code> at boot, as the old provider did.</strong>
+      That is what applies a stored choice and a non-<code>auto</code> <code>defaultMode</code> on the first screen.
+      Delete the call without adding the feature and both apply only when <code>WrTheme</code> is first injected, so an
+      app whose toggle sits behind a lazy route follows the OS until that route opens — silently. On a prerendered page,
+      ship <code>wrThemePrePaintScript()</code> with the same options as well: it lands before the first paint, which
+      nothing in the bundle can.
     </p>
     <p>
       <strong>Forcing the page's scheme yourself is fine.</strong> <code>&lt;html style="color-scheme: dark"&gt;</code>,
@@ -370,17 +370,35 @@
 
   <ngwr-doc-section
     title="v14 to v15 — dates need no provider"
-    description="`WrDateAdapter` resolves to `WrNativeDateAdapter` when nothing provides one, so `<wr-calendar>`, `<wr-event-calendar>` and every `<wr-date-picker>` mode work with no call, in the locale `LOCALE_ID` names. `provideWrDateAdapter()` stays for the two things it still adds: `{ locale }` pins the dates to another locale, and `{ adapter }` swaps in a `WrDateAdapter<Date>` subclass of your own. `ng add` no longer asks about a date adapter and takes no `--dateAdapter` flag."
+    description="`WrDateAdapter` resolves to `WrNativeDateAdapter` when nothing provides one, so `<wr-calendar>`, `<wr-event-calendar>` and every `<wr-date-picker>` mode work with no call, in the locale `LOCALE_ID` names. `provideWrDateAdapter()` is removed; `withDates()`, a feature of `provideWr()`, carries the two things it still added: `{ locale }` pins the dates to another locale, and `{ adapter }` swaps in a `WrDateAdapter<Date>` subclass of your own. `ng add` no longer asks about a date adapter and takes no `--dateAdapter` flag."
   >
     <ngwr-doc-code [code]="snippets.v15DateDefault" language="diff" />
     <p>
-      A bare call left in place breaks nothing: it registers the same adapter. One thing renders differently. A
+      A bare <code>provideWrDateAdapter()</code> fails the build now, and deleting it is the whole change. One thing
+      renders differently. A
       <code>wrDate</code> pipe in an app that never provided an adapter used to fall back to <code>Intl</code>'s
       <code>dateStyle</code> / <code>timeStyle</code> shorthands, and now formats through the native adapter, so
       <code>shortDate</code> prints <code>3/15/2026</code> where it printed <code>3/15/26</code> and
       <code>time</code> prints <code>02:30 PM</code> where it printed <code>2:30 PM</code> (the date-time keys change
       the same way), and a token string such as <code>'dd.MM.yyyy'</code> is honoured where it used to fall back to
       <code>shortDate</code>.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15 — one provideWr() call"
+    description="`provideWrDensity()`, `provideWrToastConfig()`, `provideWrStorage()`, `provideWrMeta()` and `provideWrDateAdapter()` are removed. App-wide configuration is one `provideWr()` call from `ngwr`, taking a feature per setting — `withDensity()`, `withToast()`, `withStorage()`, `withMeta()` and `withDates()` — each from the entry point the old function came from, with the same options. `provideWrTheme()`, removed above, is `withTheme()` from `ngwr/theme`: it sets `WR_THEME_CONFIG`, merged with the defaults, and creates `WrTheme` at boot. `provideWrIcons()`, the i18n providers and `provideWrLoadingBarRouter()` are unchanged."
+  >
+    <ngwr-doc-code [code]="snippets.v15Features" language="diff" />
+    <p>
+      Every removed call fails the build, so the compiler finds them. The features keep the rules the functions had:
+      <code>withDensity()</code>, <code>withToast()</code> and <code>withTheme()</code> configure root-provided
+      services, so they belong in the application's providers, and in a lazy route they are never read;
+      <code>withDates()</code> also works in a route's <code>providers</code>. A <code>WR_THEME_CONFIG</code> you
+      provide yourself still works, but <code>withTheme()</code> sets it and boots the service in one call. Passing the
+      same feature twice throws in dev mode. Two option types are renamed with their functions:
+      <code>WrDateAdapterOptions</code> is <code>WrDatesOptions</code>, and <code>ProvideWrStorageOptions</code> is
+      <code>WrStorageOptions</code>.
     </p>
   </ngwr-doc-section>
 

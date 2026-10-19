@@ -30,11 +30,11 @@ const BASE_PEERS: readonly (readonly [string, string])[] = [
   ['lucide', '>=1.0.0'],
 ];
 
-/** Default density → `provideWrDensity(...)` call. */
-const DENSITY_PROVIDER: Record<NonNullable<Schema['density']>, string | null> = {
+/** Default density → the `withDensity(...)` feature passed to `provideWr()`. */
+const DENSITY_FEATURE: Record<NonNullable<Schema['density']>, string | null> = {
   none: null,
-  sm: "provideWrDensity({ defaultDensity: 'sm' })",
-  lg: "provideWrDensity({ defaultDensity: 'lg' })",
+  sm: "withDensity({ defaultDensity: 'sm' })",
+  lg: "withDensity({ defaultDensity: 'lg' })",
 };
 
 const STYLES_DIRECTIVE_SCSS = "@use 'ngwr/theme';";
@@ -177,21 +177,24 @@ function printNextSteps(options: Schema, context: SchematicContext): Rule {
   return (tree: Tree) => {
     const density = options.density ?? 'none';
 
+    const imports: string[] = [];
+    const providers: string[] = [];
+
+    // App-wide options are features of ONE `provideWr()` call from the root
+    // entry point, each imported from the entry point it configures — so the
+    // call is printed only when a prompt answer gave it a feature to carry.
+    const densityFeature = DENSITY_FEATURE[density];
+    if (densityFeature) {
+      imports.push("import { provideWr } from 'ngwr';", "import { withDensity } from 'ngwr/density';");
+      providers.push(`provideWr(${densityFeature})`);
+    }
+
     // `ngwr/icon` ships no icons — there are no bare icon exports, so the old
     // `{ plus, trash }` import did not compile. Glyphs come from the app's own
     // icon package, through `lucideIcons()` for lucide or `svgIcon()` for a set
     // that ships SVG.
-    const imports: string[] = [
-      "import { provideWrIcons, lucideIcons } from 'ngwr/icon';",
-      "import { Plus, Trash2 } from 'lucide';",
-    ];
-    const providers: string[] = ['provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 }))'];
-
-    const densityCall = DENSITY_PROVIDER[density];
-    if (densityCall) {
-      imports.push("import { provideWrDensity } from 'ngwr/density';");
-      providers.push(densityCall);
-    }
+    imports.push("import { provideWrIcons, lucideIcons } from 'ngwr/icon';", "import { Plus, Trash2 } from 'lucide';");
+    providers.push('provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 }))');
 
     const importBlock = imports.join('\n');
     const providerBlock = providers.map(p => `      ${p},`).join('\n');
@@ -210,7 +213,9 @@ ${providerBlock}
   });
 
 Light and dark follow the operating system with no provider. To let the user
-choose, inject WrTheme from 'ngwr/theme' and call set('light' | 'dark' | 'auto').
+choose, inject WrTheme from 'ngwr/theme' and call set('light' | 'dark' | 'auto'),
+and pass withTheme() from 'ngwr/theme' to provideWr() from 'ngwr' so a stored
+choice lands at boot.
 
 ${snapshotSummary(options)}
 Browse the full catalog at https://ngwr.dev.

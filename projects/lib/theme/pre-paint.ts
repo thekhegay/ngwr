@@ -11,24 +11,24 @@ import { DEFAULT_WR_THEME_CONFIG, type WrThemeMode } from './wr-theme-config';
 export interface WrThemePrePaintOptions {
   /**
    * The key {@link WrTheme} persists the mode under — `storageKey` in
-   * `WR_THEME_CONFIG`.
+   * `withTheme()`.
    * @default 'wr-theme'
    */
   readonly storageKey?: string;
   /**
-   * What to apply when nothing is persisted — `defaultMode` in `WR_THEME_CONFIG`.
+   * What to apply when nothing is persisted — `defaultMode` in `withTheme()`.
    * @default 'auto'
    */
   readonly defaultMode?: WrThemeMode;
   /**
-   * `WrStorage`'s key prefix — `provideWrStorage({ prefix })`. The script reads
+   * `WrStorage`'s key prefix — `withStorage({ prefix })`. The script reads
    * the raw key, so a prefixed app has to pass the same string here.
    * @default ''
    */
   readonly storagePrefix?: string;
   /**
    * Whether `WrStorage` wraps values in its JSON envelope —
-   * `provideWrStorage({ json })`. The emitted reader accepts both shapes either
+   * `withStorage({ json })`. The emitted reader accepts both shapes either
    * way; this only decides which one it tries first, and is here so the option
    * cannot be silently forgotten when an app turns the envelope off.
    * @default true
@@ -64,7 +64,7 @@ export interface WrThemePrePaintOptions {
  * sandboxed iframe) leaves the page on the OS scheme rather than throwing
  * before anything has rendered.
  *
- * Pass the same values the app gives `WR_THEME_CONFIG` / `provideWrStorage()`;
+ * Pass the same values the app gives `withTheme()` / `withStorage()`;
  * the defaults here are the defaults there.
  *
  * @example

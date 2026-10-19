@@ -55,10 +55,10 @@ export default class StorageServicePage {
 
   protected readonly snippets = {
     swap: `// Swap the engine globally (e.g. sessionStorage for a tab-only app):
-provideWrStorage({ engine: sessionStorage })
+provideWr(withStorage({ engine: sessionStorage }))
 
 // Or lazily — useful when wrapping with encryption / IndexedDB / a worker bridge:
-provideWrStorage({ engine: () => new EncryptedStorage(localStorage, key) })
+provideWr(withStorage({ engine: () => new EncryptedStorage(localStorage, key) }))
 
 // Or directly via the token, at BOOTSTRAP. \`WrStorage\` is root-provided and
 // resolves its engine once, when the singleton is first constructed — a token
@@ -79,7 +79,7 @@ const theme = this.store.watch<'light' | 'dark'>('theme', 'light');
 effect(() => console.log('theme is', theme()));`,
     format: `import type { WrStorageEnvelope } from 'ngwr/storage';
 
-// provideWrStorage({ prefix: 'myapp:' })
+// provideWr(withStorage({ prefix: 'myapp:' }))
 store.set('theme', 'dark');
 // localStorage['myapp:theme'] === '{"v":"dark"}'
 
@@ -131,9 +131,9 @@ const value = env && (env.e === undefined || env.e >= Date.now()) ? env.v : null
       default: '—',
     },
     {
-      name: 'provideWrStorage(opts?)',
-      description: 'Configure prefix, json, ttl, and swap the engine.',
-      type: '(opts?) => EnvironmentProviders',
+      name: 'withStorage(options?)',
+      description: 'The `provideWr()` feature: configure prefix, json, ttl, and swap the engine.',
+      type: "(options?: WrStorageOptions) => WrFeature<'storage'>",
       default: '—',
     },
     {

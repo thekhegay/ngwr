@@ -77,10 +77,10 @@ function main(): void {
   // sheets for a two-element page is the opposite of what this package is for
   // — measured here at 287 kB against 44 kB for the entry points one demo
   // actually renders. The key itself has to exist all the same: the library
-  // builder refuses a manifest whose `exports` has no `.`. It points at the
-  // placeholder `public-api.ts`, which exports nothing, so a TypeScript
-  // `import … from 'ngwr'` resolves to an empty module rather than to a path
-  // that is not there.
+  // builder refuses a manifest whose `exports` has no `.`. Since v15 it is a
+  // real TypeScript entry as well, carrying `provideWr()`, and the only thing
+  // it carries: every feature passed to it lives in the entry point it
+  // configures, so nothing here grows with the catalog.
   exportsMap['.'] = { default: './public-api.ts' };
 
   for (const name of entryPoints(LIB)) {

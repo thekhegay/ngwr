@@ -150,23 +150,42 @@ describe('ng-add', () => {
     );
 
     const snippet = logs.find(line => line.includes('bootstrapApplication'))!;
-    expect(snippet).toContain("provideWrDensity({ defaultDensity: 'sm' })");
+    // A feature of the one `provideWr()` call since v15, which replaced
+    // `provideWrDensity()` and its four siblings.
+    expect(snippet).toContain("provideWr(withDensity({ defaultDensity: 'sm' }))");
+    expect(snippet).not.toContain('provideWrDensity');
     // v15 deleted `provideWrTheme`: the scheme follows the OS with no provider and
     // `WrTheme` is root-provided, so a snippet naming it would not compile.
     expect(snippet).not.toContain('provideWrTheme');
     // Nor `provideWrOverlay`: ngwr's overlays are isolated from other CDK
     // consumers by default, and the import would name an export that is gone.
     expect(snippet).not.toContain('provideWrOverlay');
-    // Or `provideWrDateAdapter`: the date components run on the native adapter
-    // with nothing provided, so the line would register what is already there.
-    expect(snippet).not.toContain('provideWrDateAdapter');
+    // Or a date feature: the date components run on the native adapter with
+    // nothing provided, so the line would register what is already there.
+    expect(snippet).not.toContain('withDates');
     // Every provider named in the snippet has an import above it — the pairing
     // that broke once already, when the icon block imported bare glyph names
     // `ngwr/icon` has never exported.
-    for (const symbol of ['provideWrIcons', 'lucideIcons', 'provideWrDensity']) {
+    for (const symbol of ['provideWr', 'withDensity', 'provideWrIcons', 'lucideIcons']) {
       expect(snippet, symbol).toMatch(new RegExp(`import \\{[^}]*\\b${symbol}\\b[^}]*\\} from`));
     }
+    // `provideWr` is the ROOT entry point's, and each feature comes from the
+    // entry point it configures.
+    expect(snippet).toContain("import { provideWr } from 'ngwr';");
+    expect(snippet).toContain("import { withDensity } from 'ngwr/density';");
     // The converter ships in `ngwr/icon` itself since v15.
     expect(snippet).toContain("import { provideWrIcons, lucideIcons } from 'ngwr/icon';");
+  });
+
+  it('prints no provideWr() call when no answer gave it a feature', async () => {
+    const { logs } = await run({ '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': '' }, BASE);
+
+    const snippet = logs.find(line => line.includes('bootstrapApplication'))!;
+    // An empty `provideWr()` registers nothing, so the snippet would only teach
+    // an import to paste for no effect. Matched as a providers LINE: the theme
+    // advice below the snippet names `provideWr()` in prose.
+    expect(snippet).not.toMatch(/^\s*provideWr\(/m);
+    expect(snippet).not.toContain("from 'ngwr';");
+    expect(snippet).toContain('provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 }))');
   });
 });

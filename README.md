@@ -91,7 +91,7 @@ the [installation guide](https://ngwr.dev/start/installation).
 ## Styles
 
 One `@use` per thing you render, with the token layer on the first line. There
-is no umbrella entry point: each component brings the theme with it and Sass
+is no umbrella stylesheet: each component brings the theme with it and Sass
 emits it once, but only a module's first load can take `with ()`, which is
 where `$base-colors` goes.
 
@@ -112,6 +112,28 @@ Utilities are opt-in and come with nothing:
 @use 'ngwr/typography-utilities'; // .wr-text-*, .wr-font-* classes
 @use 'ngwr/breakpoints' as bp; // Sass mixins only, no CSS output
 ```
+
+## Configuration
+
+Nothing has to be configured. When you want app-wide settings, they go through
+one `provideWr()` call, with a feature for each thing you set, imported from
+its own entry point:
+
+```ts
+import { provideWr } from 'ngwr';
+import { withDensity } from 'ngwr/density';
+import { withTheme } from 'ngwr/theme';
+
+providers: [
+  provideWr(
+    withDensity({ defaultDensity: 'sm' }),
+    withTheme({ defaultMode: 'dark' }),
+  ),
+],
+```
+
+Icons and translations have calls of their own. The
+[configuration guide](https://ngwr.dev/docs/configuration) lists every feature.
 
 ## Upgrading
 

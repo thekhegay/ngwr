@@ -42,7 +42,7 @@
         "lg"
       ],
       "default": "none",
-      "description": "Default density wired via `provideWrDensity()`. `none` uses lib defaults (md).",
+      "description": "Default density wired via `provideWr(withDensity())`. `none` uses lib defaults (md).",
       "x-prompt": {
         "message": "Pick a default density",
         "type": "list",

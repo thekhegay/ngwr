@@ -100,13 +100,14 @@ export default class TokensDensityPage {
 
   protected readonly snippets = {
     provider: `import { bootstrapApplication } from '@angular/platform-browser';
-import { provideWrDensity } from 'ngwr/density';
+import { provideWr } from 'ngwr';
+import { withDensity } from 'ngwr/density';
 
 bootstrapApplication(AppComponent, {
   providers: [
     // All fields optional — merged with defaults.
     // defaultDensity: 'md', storageKey: 'wr-density', attribute: 'data-wr-density'
-    provideWrDensity({ defaultDensity: 'sm' }),
+    provideWr(withDensity({ defaultDensity: 'sm' })),
   ],
 });`,
 
@@ -156,7 +157,7 @@ export class DensityToggle {
       kind: 'Guide',
       title: 'Theming',
       url: ['/guides', 'theming'],
-      description: 'Wiring `provideWrDensity()` alongside the theme.',
+      description: 'Wiring `withDensity()` alongside the theme.',
     },
   ];
 }

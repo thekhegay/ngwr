@@ -2,7 +2,8 @@ import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { createMemoryStorage, provideWrStorage } from 'ngwr/storage';
+import { provideWr } from 'ngwr';
+import { createMemoryStorage, withStorage } from 'ngwr/storage';
 // Through the ENTRY POINT, deliberately: `readLayout()`'s element type was declared
 // unexported in the service file, so a consumer compiled with `declaration: true`
 // — every downstream Angular library — could not store the result on an exported
@@ -28,7 +29,7 @@ describe('WrWindowManager', () => {
   const setup = (): WrWindowManager => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideWrStorage({ engine: () => engine })],
+      providers: [provideWr(withStorage({ engine: () => engine }))],
     });
     const created = TestBed.inject(WrWindowManager);
     TestBed.tick();
@@ -516,7 +517,7 @@ describe('WrWindowManager follows a direction change while a window is open', ()
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [provideWrStorage({ engine: () => createMemoryStorage() })],
+      providers: [provideWr(withStorage({ engine: () => createMemoryStorage() }))],
     });
     manager = TestBed.inject(WrWindowManager);
     dir = TestBed.inject(Directionality);

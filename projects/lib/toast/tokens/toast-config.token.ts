@@ -13,7 +13,7 @@ import type { WrToastConfig } from '../types';
 /**
  * Holds the global {@link WrToastConfig} used by {@link WrToast}.
  * The default factory returns {@link DEFAULT_TOAST_CONFIG} so the service
- * works out of the box; override via {@link provideWrToastConfig}.
+ * works out of the box; override via `provideWr(withToast(...))`.
  */
 export const WR_TOAST_CONFIG = new InjectionToken<WrToastConfig>('WR_TOAST_CONFIG', {
   providedIn: 'root',

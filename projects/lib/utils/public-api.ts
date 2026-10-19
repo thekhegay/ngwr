@@ -36,3 +36,7 @@ export type { WrKey } from './keyboard';
 
 // Log
 export { badgeLog } from './log';
+
+// Feature
+export { wrFeature } from './feature';
+export type { WrFeature } from './feature';

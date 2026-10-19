@@ -59,13 +59,19 @@ this.dialog.open(EditCard, { panelClass: 'max-w-3xl' });
 this.toast.show({ message: 'Saved', class: 'w-96' });`,
 
     provider: `import { bootstrapApplication } from '@angular/platform-browser';
-import { provideWrDensity } from 'ngwr/density';
+import { provideWr } from 'ngwr';
+import { withDensity } from 'ngwr/density';
+import { withTheme } from 'ngwr/theme';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    // Nothing for the theme: the stylesheet follows the OS through
-    // color-scheme, and WrTheme is root-provided — inject it for a toggle.
-    provideWrDensity({ defaultDensity: 'md' }),  // 'sm' | 'md' | 'lg' | 'touch'
+    provideWr(
+      withDensity({ defaultDensity: 'md' }),  // 'sm' | 'md' | 'lg' | 'touch'
+      // Optional: the stylesheet follows the OS through color-scheme with no
+      // feature at all. This one picks another default, and creates WrTheme
+      // at boot so a stored choice applies on the first screen.
+      withTheme({ defaultMode: 'dark' }),     // 'light' | 'dark' | 'auto' (default)
+    ),
   ],
 });`,
 
@@ -77,7 +83,7 @@ bootstrapApplication(AppComponent, {
 @use 'ngwr/theme' as *;
 
 // Density is its OWN entry point — the theme layer emits no \`--wr-density-*\`
-// at all, so without this line \`provideWrDensity()\` and \`[wrDensity]\` have
+// at all, so without this line \`withDensity()\` and \`[wrDensity]\` have
 // no multipliers to set.
 @use 'ngwr/density';
 

@@ -165,8 +165,10 @@ export default tsEslint.config(
             // import-x started calling it internal and 409 files were suddenly
             // in the wrong group. Nothing about where the code lives moved, so
             // the classification is pinned rather than the files rewritten.
+            // The bare `ngwr` (`provideWr`) is listed on its own because
+            // `ngwr/**` does not match a specifier with no slash.
             {
-              pattern: 'ngwr/**',
+              pattern: '{ngwr,ngwr/**}',
               group: 'external',
             },
           ],

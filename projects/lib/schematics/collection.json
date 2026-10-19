@@ -18,7 +18,7 @@
       "schema": "./use/schema.json"
     },
     "provider": {
-      "description": "Add a `provideWr*()` call to your bootstrap providers (icons / toast / i18n / density / storage).",
+      "description": "Add a provider to your bootstrap: `provideWrIcons()` / `provideWrI18n()`, or a `withToast()` / `withDensity()` / `withStorage()` feature inside `provideWr()`.",
       "factory": "./provider/index#default",
       "schema": "./provider/schema.json"
     },

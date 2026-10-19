@@ -184,7 +184,7 @@ export class WrMeta {
     this.apply();
   }
 
-  /** Clear all overrides, restore the defaults registered via `provideWrMeta`. */
+  /** Clear all overrides, restore the defaults registered via `withMeta()`. */
   reset(): void {
     this.stack.set([this.defaults]);
     this.apply();

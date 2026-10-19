@@ -83,7 +83,8 @@ const read = (path: string): string => (existsSync(path) ? readFileSync(path, 'u
  * points) and reports well under half of what
  * the package publishes. `projects/lib/public-api.ts` is the PRIMARY entry point and
  * is excluded: its key would be the empty string and its import specifier a
- * bare `ngwr`.
+ * bare `ngwr`. Its one export, `provideWr()`, is taught by the skill's setup
+ * reference instead, beside the `with*()` features listed here per entry point.
  */
 function findEntries(): string[] {
   const out: string[] = [];

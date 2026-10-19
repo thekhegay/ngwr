@@ -178,7 +178,7 @@ it('builds up a multi selection', async () => {
 
     datePicker: `// The native adapter needs no provider. Pin the locale the assertions are written in.
 TestBed.configureTestingModule({
-  providers: [provideWrDateAdapter({ locale: 'en-US' })],
+  providers: [provideWr(withDates({ locale: 'en-US' }))],
 });
 
 it('picks a departure date', async () => {

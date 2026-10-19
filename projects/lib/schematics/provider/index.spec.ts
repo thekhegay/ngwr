@@ -140,9 +140,82 @@ describe('ng g ngwr:provider', () => {
     const { tree, logs } = await run(workspace({ '/src/main.ts': INLINE_MAIN }), { name: 'density' });
 
     const main = tree.readText('/src/main.ts');
-    expect(main).toContain("import { provideWrDensity } from 'ngwr/density';");
-    expect(main).toContain('providers: [provideWrDensity()]');
-    expect(logs).toContain('✓ Added provideWrDensity() to src/main.ts.');
+    // A feature, so it arrives inside the root entry point's `provideWr()` —
+    // which the array did not have, so the call comes with it.
+    expect(main).toContain("import { provideWr } from 'ngwr';");
+    expect(main).toContain("import { withDensity } from 'ngwr/density';");
+    expect(main).toContain('providers: [provideWr(withDensity())]');
+    expect(logs).toContain('✓ Added provideWr(withDensity()) to src/main.ts.');
+  });
+
+  it('adds a feature to the provideWr() call that is already there', async () => {
+    const config = `import { ApplicationConfig } from '@angular/core';
+import { provideWr } from 'ngwr';
+import { withDensity } from 'ngwr/density';
+
+export const appConfig: ApplicationConfig = {
+  providers: [provideRouter(routes), provideWr(withDensity({ defaultDensity: 'sm' }))],
+};
+`;
+    const { tree, logs } = await run(workspace({ '/src/main.ts': SPLIT_MAIN, '/src/app/app.config.ts': config }), {
+      name: 'storage',
+    });
+
+    const patched = tree.readText('/src/app/app.config.ts');
+    // One `provideWr()`, carrying both — a second call would compile, and
+    // splitting app-wide configuration across two is what it exists to stop.
+    expect(patched).toContain("provideWr(withDensity({ defaultDensity: 'sm' }), withStorage())");
+    expect(patched.match(/provideWr\(/g)).toHaveLength(1);
+    expect(patched.match(/from 'ngwr';/g)).toHaveLength(1);
+    expect(patched).toContain("import { withStorage } from 'ngwr/storage';");
+    expect(logs).toContain('✓ Added withStorage() to provideWr() in src/app/app.config.ts.');
+  });
+
+  it('keeps a one-feature-per-line provideWr() in that layout', async () => {
+    const config = `import { provideWr } from 'ngwr';
+import { withDensity } from 'ngwr/density';
+
+export const appConfig = {
+  providers: [
+    provideRouter(routes),
+    provideWr(
+      withDensity(),
+    ),
+  ],
+};
+`;
+    const { tree } = await run(workspace({ '/src/main.ts': SPLIT_MAIN, '/src/app/app.config.ts': config }), {
+      name: 'toast',
+    });
+
+    expect(tree.readText('/src/app/app.config.ts')).toContain(
+      ['    provideWr(', '      withDensity(),', '      withToast({}),', '    ),'].join('\n')
+    );
+  });
+
+  it('splices into the providers array, not into an array nested inside it', async () => {
+    // The array used to be read up to its first `]`, which here is the end of
+    // `importProvidersFrom([…])`: the call landed inside that, as a module.
+    const config = `export const appConfig = {
+  providers: [importProvidersFrom([LegacyModule]), provideRouter(routes)],
+};
+`;
+    const { tree } = await run(workspace({ '/src/main.ts': SPLIT_MAIN, '/src/app/app.config.ts': config }), {
+      name: 'i18n',
+    });
+
+    expect(tree.readText('/src/app/app.config.ts')).toContain(
+      'providers: [importProvidersFrom([LegacyModule]), provideRouter(routes), provideWrI18n()]'
+    );
+  });
+
+  it('prints provideWr() with its import when it cannot patch a feature in', async () => {
+    const { logs } = await run(workspace({ '/src/main.ts': 'export {};\n' }), { name: 'density' });
+
+    const snippet = logs.join('\n');
+    expect(snippet).toContain("import { provideWr } from 'ngwr';");
+    expect(snippet).toContain("import { withDensity } from 'ngwr/density';");
+    expect(snippet).toContain('providers: [/* …, */ provideWr(withDensity())]');
   });
 
   it('writes nothing and reports nothing added when no file holds a providers array', async () => {
@@ -159,6 +232,16 @@ platformBrowserDynamic().bootstrapModule(AppModule);
     expect(logs).toContain('ngwr:provider: no providers array in src/main.ts.');
     // The snippet is all the user gets, so it has to be printed instead.
     expect(logs.join('\n')).toContain('bootstrapApplication(AppComponent, {');
+  });
+
+  it('is a no-op the second time for a feature too', async () => {
+    const first = await run(workspace({ '/src/main.ts': INLINE_MAIN }), { name: 'toast' });
+    const patched = first.tree.readText('/src/main.ts');
+
+    const { tree, logs } = await run(first.tree, { name: 'toast' });
+
+    expect(tree.readText('/src/main.ts')).toBe(patched);
+    expect(logs).toContain('ngwr:provider: src/main.ts already has withToast — no changes.');
   });
 
   it('is a no-op the second time', async () => {

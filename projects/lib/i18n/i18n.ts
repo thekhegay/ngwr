@@ -92,8 +92,8 @@ export function wrInterpolate(template: string, params: WrI18nParams | undefined
  * calendar, because the date token defaulted to `navigator.language`. The
  * precedence is now stated, highest first:
  *
- * 1. **A subsystem's own explicit option.** `provideWrDateAdapter({ locale })`
- *    pins dates; `provideWrI18n({ defaultLocale })` pins the catalog. The most
+ * 1. **A subsystem's own explicit option.** `withDates({ locale })` pins
+ *    dates; `provideWrI18n({ defaultLocale })` pins the catalog. The most
  *    specific statement wins, because it can only have been deliberate.
  * 2. **`WrI18n.locale()` — the runtime value.** The only one of the three that
  *    can change without a reload, so it is what a language switcher writes.

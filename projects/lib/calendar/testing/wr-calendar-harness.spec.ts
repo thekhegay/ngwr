@@ -2,8 +2,9 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWr } from 'ngwr';
 import { WrCalendar, type WrCalendarMode, type WrCalendarRange } from 'ngwr/calendar';
-import { provideWrDateAdapter } from 'ngwr/date';
+import { withDates } from 'ngwr/date';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -52,7 +53,7 @@ describe('WrCalendarHarness', () => {
 
   const mount = (providers: unknown[] = []): void => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateAdapter(), ...(providers as never[])] });
+    TestBed.configureTestingModule({ providers: [provideWr(withDates()), ...(providers as never[])] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);

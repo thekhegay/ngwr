@@ -87,6 +87,13 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="App-wide defaults"
+    description="Pass `withMeta()` to `provideWr()` at bootstrap for the title template and the fields every route starts from. `reset()` returns to them."
+  >
+    <ngwr-doc-code [code]="snippets.defaults" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Why ngwr provides this"
     description="Angular's `Title` and `Meta` are low-level setters — every app rebuilds the same canonical-URL / OpenGraph / Twitter-card plumbing on top. `WrMeta` is that layer, with a title template and per-route overrides."
   />

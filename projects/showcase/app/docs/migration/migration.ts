@@ -135,12 +135,11 @@ export default class MigrationPageComponent {
 - <section data-theme="dark">…</section>
 + <section style="color-scheme: dark">…</section>
 
-# The provider. WrTheme needs none; the config moved to its token. The
-# provider also created the service at boot, which is what applied 'dark'
-# before anything injected it — keep that with one initializer.
+# The provider. WrTheme needs none; its options moved to a provideWr()
+# feature, which also creates the service at boot — what applied 'dark'
+# before anything injected it.
 - provideWrTheme({ defaultMode: 'dark', attribute: 'data-mode' }),
-+ { provide: WR_THEME_CONFIG, useValue: { ...DEFAULT_WR_THEME_CONFIG, defaultMode: 'dark' } },
-+ provideEnvironmentInitializer(() => inject(WrTheme)),
++ provideWr(withTheme({ defaultMode: 'dark' })),
 
 # Channels: mix toward transparent, the alpha becomes the percentage.
 - box-shadow: 0 0 0 4px rgba(var(--wr-color-primary-rgb), 0.2);
@@ -280,14 +279,15 @@ export default class MigrationPageComponent {
 
 # The native adapter needs no package and no call: it follows LOCALE_ID.
 # Pin a locale only where that is not the one you want.
-+ import { provideWrDateAdapter } from 'ngwr/date';
-+ provideWrDateAdapter({ locale: 'ru' }),
++ import { provideWr } from 'ngwr';
++ import { withDates } from 'ngwr/date';
++ provideWr(withDates({ locale: 'ru' })),
 
 # Or keep your date library, behind an adapter of your own.
 + import { WrDateAdapter } from 'ngwr/date';
 + @Service()
 + export class AppDateAdapter extends WrDateAdapter<Date> { /* the abstract members */ }
-+ provideWrDateAdapter({ adapter: AppDateAdapter }),`,
++ provideWr(withDates({ adapter: AppDateAdapter })),`,
 
     v15Markdown: `# The entry point is gone, with everything it exported.
 - import { WrMarkdown, provideWrMarkdownHighlighter } from 'ngwr/markdown';
@@ -322,13 +322,51 @@ export default class MigrationPageComponent {
 - import { provideWrDateAdapter } from 'ngwr/date';
 - provideWrDateAdapter(),
 
-# A locale or an adapter of your own still goes through the provider.
-  provideWrDateAdapter({ locale: 'ru' }),
-  provideWrDateAdapter({ adapter: AppDateAdapter }),
+# A locale or an adapter of your own is a feature of provideWr().
+- provideWrDateAdapter({ locale: 'ru' }),
++ provideWr(withDates({ locale: 'ru' })),
+- provideWrDateAdapter({ adapter: AppDateAdapter }),
++ provideWr(withDates({ adapter: AppDateAdapter })),
 
 # ng add takes no date adapter flag.
 - ng add ngwr --styles=theme --dateAdapter=native
 + ng add ngwr --styles=theme`,
+
+    v15Features: `# One call, a feature per setting, each from the entry point the old
+# function came from and taking the same options.
+- import { provideWrDensity } from 'ngwr/density';
+- import { provideWrToastConfig } from 'ngwr/toast';
+- import { provideWrStorage } from 'ngwr/storage';
+- import { provideWrMeta } from 'ngwr/meta';
+- import { provideWrDateAdapter } from 'ngwr/date';
++ import { provideWr } from 'ngwr';
++ import { withDensity } from 'ngwr/density';
++ import { withToast } from 'ngwr/toast';
++ import { withStorage } from 'ngwr/storage';
++ import { withMeta } from 'ngwr/meta';
++ import { withDates } from 'ngwr/date';
+
+  providers: [
+-   provideWrDensity({ defaultDensity: 'sm' }),
+-   provideWrToastConfig({ duration: 6000 }),
+-   provideWrStorage({ prefix: 'app:' }),
+-   provideWrMeta({ titleTemplate: '{{ title }} · My app' }),
+-   provideWrDateAdapter({ locale: 'ru-RU' }),
++   provideWr(
++     withDensity({ defaultDensity: 'sm' }),
++     withToast({ duration: 6000 }),
++     withStorage({ prefix: 'app:' }),
++     withMeta({ titleTemplate: '{{ title }} · My app' }),
++     withDates({ locale: 'ru-RU' }),
++   ),
+    provideWrIcons(lucideIcons({ check: Check })),   // unchanged
+    provideWrI18n(),                                  // unchanged
+  ]
+
+# provideWrTheme() is a feature too, passed to the same provideWr() call
+# (its attribute option is gone).
+- provideWrTheme({ defaultMode: 'dark' }),
++ withTheme({ defaultMode: 'dark' }),   // from 'ngwr/theme'`,
 
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
 # One command, whatever major you are on: ng update installs the latest
