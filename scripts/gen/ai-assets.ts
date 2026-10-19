@@ -78,9 +78,9 @@ const read = (path: string): string => (existsSync(path) ? readFileSync(path, 'u
  *
  * Discovery is by `public-api.ts`, which is what the exports map points at
  * from — a directory scan one level deep misses every nested one (the
- * `i18n/<locale>` catalogs, `date/adapters/{fns,luxon}`, the v14 router opt-ins
- * `loading-bar/router` and `tabs/router`, `charts/*`, `bits/*` and the
- * `<name>/testing` harness entry points) and reports well under half of what
+ * `i18n/<locale>` catalogs, the v14 router opt-ins `loading-bar/router` and
+ * `tabs/router`, `charts/*`, `bits/*` and the `<name>/testing` harness entry
+ * points) and reports well under half of what
  * the package publishes. `projects/lib/public-api.ts` is the PRIMARY entry point and
  * is excluded: its key would be the empty string and its import specifier a
  * bare `ngwr`.
@@ -435,12 +435,17 @@ function render(entries: readonly Entry[]): string {
  * 222 is the third: v15 deleted `ngwr/media`, whose breakpoint signal the CDK's
  * `BreakpointObserver` already provides. It had a docs page, so the description
  * floor drops with it, from 119 to 118.
+ *
+ * 220 is the fourth: v15 deleted the two date adapter entry points,
+ * `ngwr/date/adapters/{fns,luxon}`, and their optional peers with them; an app on
+ * another date library subclasses `WrDateAdapter`. Neither had a docs page, so
+ * the description floor stays at 118.
  */
-const MIN_ENTRIES = 222;
+const MIN_ENTRIES = 220;
 const MIN_DESCRIBED = 118;
-const MIN_WITH_EXPORTS = 222;
+const MIN_WITH_EXPORTS = 220;
 /** Rows in the skill's catalog table — one per entry point, plus the header. */
-const MIN_SKILL_ROWS = 222;
+const MIN_SKILL_ROWS = 220;
 
 /** A tag, an attribute, or a tag with an attribute — the three shapes the library declares. */
 const SELECTOR_SHAPE = /^[a-z][a-z\d-]*(\[[A-Za-z][\w-]*\])?$|^\[[A-Za-z][\w-]*\]$/;

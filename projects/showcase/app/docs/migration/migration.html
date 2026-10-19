@@ -308,6 +308,34 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="v14 to v15 — no date-fns or Luxon adapter"
+    description="`ngwr/date/adapters/fns` and `ngwr/date/adapters/luxon` are removed, with `WrDateFnsAdapter`, `provideWrDateFnsAdapter()`, `WR_DATE_FNS_LOCALE`, `WrLuxonAdapter` and `provideWrLuxonAdapter()`, and `date-fns` and `luxon` are no longer optional peers. `ngwr/date` is unchanged: `provideWrDateAdapter()` without an `adapter` gives the native one, over `Date` and `Intl`. To stay on another date library, extend `WrDateAdapter<Date>` (the components hold and compare native `Date` values), do the arithmetic, formatting and parsing through that library, and pass the class as `adapter`."
+  >
+    <ngwr-doc-code [code]="snippets.v15Dates" language="diff" />
+    <p>
+      <strong>The imports fail the build. A token format written for date-fns does not.</strong> That adapter handed a
+      <code>[format]</code> pattern to date-fns untouched, while the native one reads
+      <code>yyyy yy MMMM MMM MM M dd d HH H hh h mm ss a</code> and prints anything else verbatim, so
+      <code>EEEE</code> or <code>PPP</code> reach the field as letters, and <code>do</code> as <code>15o</code>. A
+      named format (<code>shortDate</code>, <code>time</code>, …) prints through <code>Intl</code> now, so its exact
+      string can change as well. The Luxon adapter translated the native tokens but handed every other letter to
+      Luxon, so a Luxon-only token (<code>EEEE</code>, <code>ccc</code>, <code>DDD</code>) now prints verbatim too,
+      and <code>MMMM</code> beside a day token is declined where Luxon printed the standalone form.
+    </p>
+    <p>
+      <strong>An adapter of your own implements what <code>WrDateAdapter</code> declares abstract</strong>:
+      <code>today</code>, <code>clone</code>, <code>createDate</code>, <code>isValid</code>, the getters from
+      <code>getYear</code> to <code>getSeconds</code>, <code>addYears</code>, <code>addMonths</code>,
+      <code>addDays</code>, <code>setTime</code>, <code>isSameDay</code>, <code>isSameMonth</code>,
+      <code>compareDate</code>, <code>format</code>, <code>parse</code>, <code>getFirstDayOfWeek</code>,
+      <code>getDayOfWeekNames</code> and <code>getMonthNames</code>. Months are 0-based, as on <code>Date</code>, and
+      <code>parse</code> has to read back whatever <code>format</code> printed for the same key; returning
+      <code>null</code> refuses the input and leaves the committed value alone.
+      <a routerLink="/docs/configuration">Configuration</a> has the skeleton.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="v14 to v15 — renames"
     description="Two kinds, and both are a rename: the new form means what the old one meant in the same place. The neutral TOKENS, where `--wr-color-light`, `-outline`, `-dark` and `-muted-text` move onto a successor carrying the identical value in both themes, so a renamed rule paints to the pixel, while `-medium` and the three translucent `--wr-color-border*` land on the nearest opaque step. And two VALUES that were named after an intent while always painting a neutral role — `[wrTypography]`'s `tone` and `<wr-timeline-item>`'s `color` — which move onto the name of what they do, together with the BEM class each emits."
   >
@@ -401,7 +429,8 @@
       <strong>The date entry points nest under `ngwr/date`.</strong> `ngwr/icon` already nested its implementations at
       `ngwr/icon/adapters/lucide` and `…/feather` (v15 later removed both), while the date ones were flat and
       hyphenated — one idea spelled two ways depending on which feature you reached for. Only the import specifier changes: every exported symbol
-      keeps its name, and these entry points ship no styles, so no `@use` path moves with them.
+      keeps its name, and these entry points ship no styles, so no `@use` path moves with them. v15 later removed the
+      two library adapters, leaving `ngwr/date` and its native one.
     </p>
     <ngwr-doc-api [rows]="dateEntryRows" />
     <ngwr-doc-code [code]="snippets.dateEntry" language="diff" />

@@ -26,7 +26,7 @@ import { WrNativeDateAdapter } from './wr-native-date-adapter';
  *   providers: [
  *     provideWrDateAdapter(),                 // native adapter, LOCALE_ID
  *     // provideWrDateAdapter({ locale: 'ru-RU' }),        // pin the dates
- *     // provideWrDateAdapter({ adapter: MyDateFnsAdapter, locale: 'fr' }),
+ *     // provideWrDateAdapter({ adapter: MyDateAdapter, locale: 'fr' }), // your own subclass
  *   ],
  * });
  * ```

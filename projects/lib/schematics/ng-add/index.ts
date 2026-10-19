@@ -30,23 +30,16 @@ const BASE_PEERS: readonly (readonly [string, string])[] = [
   ['lucide', '>=1.0.0'],
 ];
 
-/** Extra peers contributed by the `dateAdapter` choice. */
-const DATE_ADAPTER_PEERS: Record<NonNullable<Schema['dateAdapter']>, readonly (readonly [string, string])[]> = {
-  none: [],
-  native: [],
-  // Keep these identical to `peerDependencies` in projects/lib/package.json.
-  // They had drifted to `>=` unions, which reduce to an uncapped `>=3.0.0` and
-  // would happily install a future major the library does not support.
-  'date-fns': [['date-fns', '^3.0.0 || ^4.0.0']],
-  luxon: [['luxon', '^3.0.0']],
-};
-
-/** Adapter classes named in the next-steps snippet for each choice. */
+/**
+ * The provider call named in the next-steps snippet for each `dateAdapter` choice.
+ *
+ * Native is the only adapter ngwr ships, so no choice adds a peer. An app on
+ * another date library subclasses `WrDateAdapter` and passes it as
+ * `provideWrDateAdapter({ adapter })`.
+ */
 const DATE_ADAPTER_PROVIDER: Record<NonNullable<Schema['dateAdapter']>, string | null> = {
   none: null,
   native: 'provideWrDateAdapter()',
-  'date-fns': 'provideWrDateAdapter({ adapter: WrDateFnsAdapter })',
-  luxon: 'provideWrDateAdapter({ adapter: WrLuxonAdapter })',
 };
 
 /** Default density → `provideWrDensity(...)` call. */
@@ -90,17 +83,14 @@ function ngAdd(options: Schema): Rule {
 }
 
 /**
- * Adds peer deps for the user's choices and schedules a single install
- * task (unless `--skipPeerInstall` was passed).
+ * Adds the base peers and schedules a single install task (unless
+ * `--skipPeerInstall` was passed). No prompt answer adds one of its own.
  */
 function installPeerDeps(options: Schema, context: SchematicContext): Rule {
   if (options.skipPeerInstall) return (tree: Tree) => tree;
 
   return (tree: Tree) => {
-    const deps = [...BASE_PEERS, ...DATE_ADAPTER_PEERS[options.dateAdapter ?? 'none']];
-    if (!deps.length) return tree;
-
-    for (const [name, version] of deps) {
+    for (const [name, version] of BASE_PEERS) {
       addPackageJsonDependency(tree, {
         type: NodeDependencyType.Default,
         name,
@@ -214,11 +204,6 @@ function printNextSteps(options: Schema, context: SchematicContext): Rule {
     const adapterCall = DATE_ADAPTER_PROVIDER[adapter];
     if (adapterCall) {
       imports.push("import { provideWrDateAdapter } from 'ngwr/date';");
-      if (adapter === 'date-fns') {
-        imports.push("import { WrDateFnsAdapter } from 'ngwr/date/adapters/fns';");
-      } else if (adapter === 'luxon') {
-        imports.push("import { WrLuxonAdapter } from 'ngwr/date/adapters/luxon';");
-      }
       providers.push(adapterCall);
     }
 

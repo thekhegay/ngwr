@@ -9,12 +9,12 @@ import type { WrDateFormat } from './types';
 
 /**
  * Abstraction over a date object so the calendar, date picker and time picker
- * can work with `Date`, `date-fns`, `luxon`, or any other library a consumer
- * prefers — without changing component code.
+ * can work with `Date` or any other library a consumer prefers — without
+ * changing component code.
  *
- * Default implementation: {@link WrNativeDateAdapter} (native `Date`,
- * `Intl.DateTimeFormat`). Register a different adapter via
- * `provideWrDateAdapter({ adapter: MyAdapter })`.
+ * The one implementation ngwr ships is {@link WrNativeDateAdapter} (native
+ * `Date`, `Intl.DateTimeFormat`). For another library, subclass this and
+ * register it via `provideWrDateAdapter({ adapter: MyAdapter })`.
  *
  * Used as both the type and the DI token — `inject(WrDateAdapter)` works
  * directly thanks to Angular's class-as-token resolution.

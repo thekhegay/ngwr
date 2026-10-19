@@ -5,7 +5,6 @@ import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 
 import { provideWrDateAdapter } from 'ngwr/date';
-import { provideWrDateFnsAdapter } from 'ngwr/date/adapters/fns';
 import { type WrI18nCatalog, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrEn } from 'ngwr/i18n/en';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -54,7 +53,7 @@ describe('WrCalendar keyboard focus', () => {
   ];
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter()] });
+    TestBed.configureTestingModule({ providers: [provideWrDateAdapter()] });
     fixture = TestBed.createComponent(Host);
   });
 
@@ -164,7 +163,7 @@ describe('WrCalendar keyboard focus', () => {
 describe('WrCalendar autoFocus', () => {
   const cell = (): HTMLElement | null => document.querySelector('.wr-calendar__day--focused');
 
-  beforeEach(() => TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter()] }));
+  beforeEach(() => TestBed.configureTestingModule({ providers: [provideWrDateAdapter()] }));
 
   it('takes focus in range mode with neither end picked', async () => {
     // The seed reads `date() ?? range()[0] ?? today()`, so range mode leans on
@@ -231,7 +230,7 @@ describe('WrCalendar header and chip keys', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter()] });
+    TestBed.configureTestingModule({ providers: [provideWrDateAdapter()] });
     fixture = TestBed.createComponent(WritebackHost);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -322,7 +321,7 @@ describe('WrCalendar month and year listbox keys', () => {
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter()] });
+    TestBed.configureTestingModule({ providers: [provideWrDateAdapter()] });
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -465,7 +464,7 @@ describe('WrCalendar under dir="rtl"', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideWrDateFnsAdapter(),
+        provideWrDateAdapter(),
         { provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } },
       ],
     });
@@ -542,10 +541,9 @@ describe('WrCalendar — header and cell names', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        // The NATIVE adapter here, not the date-fns one the specs above use:
-        // `longDate` is `Intl` with `{ year, month: 'long', day }`, where
-        // date-fns's `PPP` writes an ordinal ("January 15th, 2026"). Both are
-        // correct for their adapter; this file needs one exact string.
+        // `longDate` is `Intl` with `{ year, month: 'long', day }`, so the exact
+        // strings below are the native adapter's. A subclass may write the same
+        // date another way, and that would be correct for it.
         provideWrDateAdapter(),
         ...(catalog
           ? [
@@ -606,8 +604,8 @@ describe('WrCalendar — header and cell names', () => {
 
   it('picks the weekday by calendar day, not by column index', async () => {
     // `getDayOfWeekNames` returns COLUMN order — index 0 is the locale's first
-    // day of the week, which date-fns's default en-US makes Sunday and most
-    // locales make Monday. Indexing it with `getDayOfWeek()` (0 = Sunday)
+    // day of the week, which en-US makes Sunday and most locales make
+    // Monday. Indexing it with `getDayOfWeek()` (0 = Sunday)
     // directly is off by one in every Monday-first locale, and reads plausibly
     // in en-US, which is where it would have been checked.
     await mount(wrEn);

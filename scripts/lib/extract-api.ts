@@ -299,7 +299,7 @@ function filesByEntry(): Map<string, string[]> {
  * One entry point's own files, NOT its nested entry points'.
  *
  * `bits/` and `charts/` are plain folders holding other entry points, and
- * `date/` holds `date/adapters/fns` — so a recursive walk from one entry
+ * `tabs/` holds `tabs/router` — so a recursive walk from one entry
  * would hand it the members of its neighbours.
  */
 function walkShallow(dir: string, acc: string[]): void {

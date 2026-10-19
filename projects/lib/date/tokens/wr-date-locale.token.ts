@@ -29,14 +29,11 @@ import { InjectionToken, LOCALE_ID, inject } from '@angular/core';
  * this. `WrI18n`'s class docs carry the full precedence and `use()` warns about
  * the gap in dev mode.
  *
- * **How far it reaches depends on the adapter, and the difference matters.**
- * The native and luxon adapters thread it through everything. The date-fns
- * adapter cannot: date-fns resolves its patterns against a `Locale` OBJECT, not
- * a tag, so this token drives only the parts that go through `Intl` (the month
- * and weekday names) and the OBJECT drives `format` / `parse`. Pass it as
- * `provideWrDateFnsAdapter({ dateFnsLocale: ru })` — with only a tag the calendar
- * headings localize and the field does not, which the adapter warns about once
- * in dev mode.
+ * **How far it reaches is up to the adapter.** The native one threads it through
+ * everything. A subclass over a library that resolves its patterns against a
+ * locale OBJECT rather than a tag (date-fns is the common case) has to map the
+ * tag onto that object itself — otherwise the month and weekday names, which go
+ * through `Intl`, localize and the field's own text does not.
  */
 export const WR_DATE_LOCALE = new InjectionToken<string>('WR_DATE_LOCALE', {
   providedIn: 'root',

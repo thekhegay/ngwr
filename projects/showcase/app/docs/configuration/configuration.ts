@@ -92,13 +92,26 @@ providers: [
 // Native Date adapter — zero extra deps.
 providers: [provideWrDateAdapter()],
 
-// Or date-fns:
-import { WrDateFnsAdapter } from 'ngwr/date/adapters/fns';
-providers: [provideWrDateAdapter({ adapter: WrDateFnsAdapter })],
+// Or your own, over the date library the app already uses. Extend
+// WrDateAdapter<Date> and do the math, formatting and parsing through that
+// library: the components hold and compare native Date values. Implement what
+// it declares abstract; isNamedFormat() tells a named key from a token string.
+import { Service } from '@angular/core';
+import { WrDateAdapter, type WrDateFormat } from 'ngwr/date';
 
-// Or Luxon:
-import { WrLuxonAdapter } from 'ngwr/date/adapters/luxon';
-providers: [provideWrDateAdapter({ adapter: WrLuxonAdapter })],`,
+@Service()
+export class AppDateAdapter extends WrDateAdapter<Date> {
+  today(): Date { /* … */ }
+  createDate(year: number, month: number, day: number): Date { /* month is 0-based */ }
+  // …clone, isValid, the getters from getYear to getSeconds, addYears /
+  // addMonths / addDays / setTime, isSameDay / isSameMonth / compareDate,
+  // getFirstDayOfWeek, getDayOfWeekNames, getMonthNames, and:
+  format(date: Date, format: WrDateFormat | (string & {})): string { /* … */ }
+  // Must read back whatever format() printed; null refuses the input.
+  parse(value: string, format: WrDateFormat | (string & {})): Date | null { /* … */ }
+}
+
+providers: [provideWrDateAdapter({ adapter: AppDateAdapter })],`,
 
     density: `import { provideWrDensity } from 'ngwr/density';
 

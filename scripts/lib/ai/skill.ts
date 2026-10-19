@@ -167,7 +167,7 @@ Overlay panels render into the overlay container, NOT the fixture — provide
 ## Reference files
 
 - \`references/catalog.md\` — every entry point with import line and selectors.
-- \`references/setup.md\` — bootstrap, styles, theme, i18n, date adapters.
+- \`references/setup.md\` — bootstrap, styles, theme, i18n, the date adapter.
 `;
 }
 
@@ -296,6 +296,9 @@ ${providers.map(p => `### \`${p.provider}\`\n\n${p.why[0].toUpperCase()}${p.why.
   control with fixed geometry (checkbox, switch, radio, slider, rating,
   segmented) does not move; its ≥44px target comes from the \`touch-target\` mixin
   under \`@media (pointer: coarse)\` instead.
+- Another date library: subclass \`WrDateAdapter\` from \`ngwr/date\` and pass it
+  as \`provideWrDateAdapter({ adapter: MyDateAdapter })\`. ngwr ships only the
+  native adapter.
 - A \`validation\` namespace in your own i18n catalog — ngwr ships no validation
   copy. \`<wr-form-field>\` reads \`validation.<key>\` for an error whose validator
   carries no \`{ message }\`, with the error payload as params.

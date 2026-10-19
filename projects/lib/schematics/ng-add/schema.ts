@@ -14,7 +14,7 @@ export interface Schema {
   styles?: 'theme' | 'none';
 
   /** Date adapter wired via `provideWrDateAdapter`. */
-  dateAdapter?: 'none' | 'native' | 'date-fns' | 'luxon';
+  dateAdapter?: 'none' | 'native';
 
   /** Default density wired via `provideWrDensity`. */
   density?: 'none' | 'sm' | 'lg';

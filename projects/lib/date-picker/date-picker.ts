@@ -200,8 +200,8 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     const m = this.mode();
     if (m === 'datetime') return 'shortDateTime';
     // `time`, not `shortTime` — the latter is not a member of WrDateFormat, so
-    // adapters fell through to treating it as a raw token pattern. date-fns then
-    // threw on the unescaped letters; the native adapter degraded silently.
+    // adapters fell through to treating it as a raw token pattern. One backed by
+    // date-fns threw on the unescaped letters; the native adapter degraded silently.
     if (m === 'time') return 'time';
     return 'shortDate';
   });

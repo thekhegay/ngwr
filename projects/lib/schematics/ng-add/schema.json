@@ -38,12 +38,10 @@
       "type": "string",
       "enum": [
         "none",
-        "native",
-        "date-fns",
-        "luxon"
+        "native"
       ],
       "default": "none",
-      "description": "Wire a date adapter for calendar / date-picker. `none` skips. `native` uses the built-in Date adapter (no extra deps). `date-fns` / `luxon` auto-install the corresponding peer.",
+      "description": "Wire a date adapter for calendar / date-picker. `none` skips. `native` uses the built-in Date adapter (no extra deps). For another date library, subclass `WrDateAdapter` and pass it as `provideWrDateAdapter({ adapter })`.",
       "x-prompt": {
         "message": "Wire a date adapter? (Used by calendar / date-picker.)",
         "type": "list",
@@ -55,14 +53,6 @@
           {
             "value": "native",
             "label": "Native \u2014 built-in Date, no extra deps"
-          },
-          {
-            "value": "date-fns",
-            "label": "date-fns \u2014 small, modular"
-          },
-          {
-            "value": "luxon",
-            "label": "Luxon \u2014 Intl-backed, locale-rich"
           }
         ]
       }

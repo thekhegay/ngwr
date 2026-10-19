@@ -41,7 +41,7 @@
 
   <ngwr-doc-section
     title="Date adapter"
-    description="Required by `wr-calendar`, `wr-event-calendar`, `wr-date-picker` (every mode). Native adapter ships zero peer deps; date-fns and Luxon adapters live under separate subpaths."
+    description="Required by `wr-calendar`, `wr-event-calendar`, `wr-date-picker` (every mode). ngwr ships one adapter, the native one over `Date` and `Intl`, with no peer dependency. To run on another date library, extend `WrDateAdapter<Date>` (the components hold and compare native `Date` values), do the arithmetic, formatting and parsing through that library, and pass your class as `adapter`."
   >
     <ngwr-doc-code [code]="snippets.dateAdapter" language="angular-ts" />
   </ngwr-doc-section>

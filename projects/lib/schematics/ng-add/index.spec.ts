@@ -145,14 +145,13 @@ describe('ng-add', () => {
       { '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': '' },
       {
         ...BASE,
-        dateAdapter: 'luxon',
+        dateAdapter: 'native',
         density: 'sm',
       }
     );
 
     const snippet = logs.find(line => line.includes('bootstrapApplication'))!;
-    expect(snippet).toContain("import { WrLuxonAdapter } from 'ngwr/date/adapters/luxon';");
-    expect(snippet).toContain('provideWrDateAdapter({ adapter: WrLuxonAdapter })');
+    expect(snippet).toContain('provideWrDateAdapter(),');
     expect(snippet).toContain("provideWrDensity({ defaultDensity: 'sm' })");
     // v15 deleted `provideWrTheme`: the scheme follows the OS with no provider and
     // `WrTheme` is root-provided, so a snippet naming it would not compile.
@@ -160,7 +159,13 @@ describe('ng-add', () => {
     // Every provider named in the snippet has an import above it — the pairing
     // that broke once already, when the icon block imported bare glyph names
     // `ngwr/icon` has never exported.
-    for (const symbol of ['provideWrOverlay', 'provideWrIcons', 'lucideIcons']) {
+    for (const symbol of [
+      'provideWrOverlay',
+      'provideWrIcons',
+      'lucideIcons',
+      'provideWrDateAdapter',
+      'provideWrDensity',
+    ]) {
       expect(snippet, symbol).toMatch(new RegExp(`import \\{[^}]*\\b${symbol}\\b[^}]*\\} from`));
     }
     // The converter ships in `ngwr/icon` itself since v15.

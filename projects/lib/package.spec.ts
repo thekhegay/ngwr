@@ -165,10 +165,9 @@ describe('the published manifest', () => {
   it('marks a peer optional only when whole entry points, not the core, need it', () => {
     // `@angular/router` is optional because only tabs, sidebar, breadcrumbs and
     // loading-bar import it — an app with no routing installs nothing extra. The
-    // two date libraries are the same shape: pick one, or neither. The eight
-    // ProseMirror packages are imported by `ngwr/editor` and nothing else, so an
-    // app without a rich-text field installs none of them — which is also why no
-    // other entry point may import `ngwr/editor`. Only the packages the editor
+    // eight ProseMirror packages are imported by `ngwr/editor` and nothing else,
+    // so an app without a rich-text field installs none of them — which is also
+    // why no other entry point may import `ngwr/editor`. Only the packages the editor
     // imports BY NAME are listed: `prosemirror-transform` arrives as their own
     // dependency, and declaring it would fail the "imported" check below.
     // `@angular/forms` is NOT here: `ngwr/form` imports NgControl and every value
@@ -180,8 +179,6 @@ describe('the published manifest', () => {
 
     expect(optional).toEqual([
       '@angular/router',
-      'date-fns',
-      'luxon',
       'prosemirror-commands',
       'prosemirror-history',
       'prosemirror-inputrules',
@@ -200,8 +197,8 @@ describe('the published manifest', () => {
     // `icon/lucide.ts` imports nothing but its own types, and the only
     // `from 'lucide'` in the tree is inside a template literal that
     // `ng g ngwr:icon-set` writes into the CONSUMER's project. Compare
-    // `date/adapters/fns`, which really does `import { … } from 'date-fns'` and
-    // is therefore really a peer.
+    // `ngwr/editor`, which really does `import { … } from 'prosemirror-state'`
+    // and is therefore really a peer.
     //
     // A range on a package the library never loads is not a hint, it is a
     // resolvable constraint: npm 7+ installs optional peers when present and

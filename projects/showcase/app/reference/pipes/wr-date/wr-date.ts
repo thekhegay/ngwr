@@ -97,7 +97,7 @@ export default class WrDatePipePage {
       kind: 'Guide',
       title: 'Date adapters',
       url: ['/start', 'configuration'],
-      description: 'Wire date-fns or Luxon to unlock token strings.',
+      description: 'Provide the native adapter, or your own, to unlock token strings.',
     },
   ];
 }

@@ -149,7 +149,7 @@ ng g ngwr:use WrDatePicker --path src/app/some.component.ts   # ngwr/date-picker
 ## 4. Providers these need
 provideWrOverlay() // from 'ngwr/overlay'
    why: gives ngwr overlays their own container, so they never collide with other CDK overlays
-provideWrDateFnsAdapter() // from 'ngwr/date/adapters/fns'
+provideWrDateAdapter() // from 'ngwr/date'
    why: every date mode goes through an adapter; there is no built-in default
 `,
   };

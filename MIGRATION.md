@@ -318,6 +318,42 @@ an inline `{ responsive: true }`. A bare `responsive` attribute is inert, and a 
 `.wr-overlay-sheet`, `.wr-overlay-backdrop` or `.wr-command-palette--sheet` matches nothing, so
 search for both.
 
+### No date-fns or Luxon adapter
+
+`ngwr/date/adapters/fns` and `ngwr/date/adapters/luxon` are removed, with `WrDateFnsAdapter`,
+`provideWrDateFnsAdapter()`, `WR_DATE_FNS_LOCALE`, `WrLuxonAdapter` and `provideWrLuxonAdapter()`,
+and `date-fns` and `luxon` are no longer optional peers. `ngwr/date` is unchanged:
+`provideWrDateAdapter()` without an `adapter` gives the native one, over `Date` and `Intl`. To stay
+on another date library, extend `WrDateAdapter<Date>` (the components hold and compare native `Date`
+values), do the arithmetic, formatting and parsing through that library, and pass the class as
+`adapter`.
+
+```diff
+- import { provideWrDateFnsAdapter } from 'ngwr/date/adapters/fns';
+- provideWrDateFnsAdapter({ dateFnsLocale: ru }),
+- import { provideWrLuxonAdapter } from 'ngwr/date/adapters/luxon';
+- provideWrLuxonAdapter({ locale: 'ru' }),
++ import { provideWrDateAdapter } from 'ngwr/date';
++ provideWrDateAdapter({ locale: 'ru' }),
++ provideWrDateAdapter({ adapter: AppDateAdapter }), // class AppDateAdapter extends WrDateAdapter<Date>
+```
+
+An adapter of your own implements what `WrDateAdapter` declares abstract: `today`, `clone`,
+`createDate`, `isValid`, the getters from `getYear` to `getSeconds`, `addYears`, `addMonths`,
+`addDays`, `setTime`, `isSameDay`, `isSameMonth`, `compareDate`, `format`, `parse`,
+`getFirstDayOfWeek`, `getDayOfWeekNames` and `getMonthNames`. Months are 0-based, as on `Date`,
+and `parse` has to read back whatever `format` printed for the same key; returning `null` refuses
+the input and leaves the committed value alone.
+
+The imports fail the build. A token format written for date-fns does not: that adapter handed a
+`[format]` pattern to date-fns untouched, while the native one reads
+`yyyy yy MMMM MMM MM M dd d HH H hh h mm ss a` and prints anything else verbatim, so `EEEE` or
+`PPP` reach the field as letters, and `do` as `15o`. A named format (`shortDate`, `time`, …) prints
+through `Intl` now, so its exact string can change as well. The Luxon adapter translated the native
+tokens but handed every other letter to Luxon, so a Luxon-only token (`EEEE`, `ccc`, `DDD`) now
+prints verbatim too, and `MMMM` beside a day token is declined where Luxon printed the standalone
+form.
+
 ---
 
 ## v13 to v14
@@ -359,8 +395,8 @@ from the source.
 ## v11 to v12
 
 Two breaking changes needing opposite treatment. The three date entry points moved —
-`ngwr/date-adapter` to `ngwr/date`, and the two adapters under `ngwr/date/adapters/*` — which is
-pure import paths, so the v12 migration, a step of `ng update ngwr`, rewrites all of it. And `readI18nText()` returns
+`ngwr/date-adapter` to `ngwr/date`, and the two adapters under `ngwr/date/adapters/*` (v15 later
+removed both) — which is pure import paths, so the v12 migration, a step of `ng update ngwr`, rewrites all of it. And `readI18nText()` returns
 `Signal<string>` instead of `string`, so every call site needs a `()`. That one is deliberately not
 codemodded: adding parentheses means knowing which identifiers hold the result, and a wrong guess
 is a silent behaviour change, whereas the type error names every site for you.

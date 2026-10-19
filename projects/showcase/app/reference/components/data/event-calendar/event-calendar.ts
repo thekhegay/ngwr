@@ -82,10 +82,8 @@ import { provideWrDateAdapter } from 'ngwr/date';
 
 bootstrapApplication(App, { providers: [provideWrDateAdapter()] });
 
-// …or hand it date-fns, if the app already has it:
-import { provideWrDateFnsAdapter } from 'ngwr/date/adapters/fns';
-
-bootstrapApplication(App, { providers: [provideWrDateFnsAdapter()] });`,
+// …or your own WrDateAdapter subclass, over the date library the app already uses:
+bootstrapApplication(App, { providers: [provideWrDateAdapter({ adapter: AppDateAdapter })] });`,
     basic: `<wr-event-calendar [events]="events()" [(view)]="view" [(date)]="anchor" />`,
     events: `protected readonly events = signal<readonly WrCalendarEvent[]>([
   { id: 1, title: 'Design review', start: at(0, 10), end: at(0, 11, 30), color: 'primary' },

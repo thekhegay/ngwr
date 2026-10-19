@@ -37,12 +37,10 @@ const REQUIRED_PROVIDERS: readonly RequiredProvider[] = [
   },
   {
     test: /^WrDatePicker|^WrCalendar|^WrEventCalendar/,
-    // The one-line wrapper, not `provideWrDateAdapter({ adapter: WrDateFnsAdapter })`:
-    // both compile, but this is one import from one entry point, and it is the form
-    // the docs recommend. It used to read `provideWrDateAdapter(wrDateFnsAdapter)`,
-    // which is wrong three ways at once — `ngwr/date/adapters/fns` exports neither
-    // identifier, and the real `provideWrDateAdapter` takes an options object.
-    provider: "provideWrDateFnsAdapter() // from 'ngwr/date/adapters/fns'",
+    // The no-argument call, which registers the native adapter — the only one ngwr
+    // ships, so the line needs nothing else installed. An app on another date
+    // library passes its own `WrDateAdapter` subclass as `{ adapter }`.
+    provider: "provideWrDateAdapter() // from 'ngwr/date'",
     why: 'every date mode goes through an adapter; there is no built-in default',
   },
   {

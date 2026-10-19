@@ -9,8 +9,8 @@ interface WrDateAdapterOptions {
   /**
    * Adapter class. Default: {@link WrNativeDateAdapter}.
    *
-   * Pass a custom subclass to swap implementations (`WrDateFnsAdapter`,
-   * `WrLuxonAdapter`, …).
+   * Pass your own {@link WrDateAdapter} subclass to work with another date
+   * library — ngwr ships no adapter but the native one.
    */
   readonly adapter?: Type<WrDateAdapter<unknown>>;
 

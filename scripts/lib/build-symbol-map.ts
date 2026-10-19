@@ -80,10 +80,10 @@ function symbolsIn(entry: string): readonly string[] {
  * Every entry point under `projects/lib`, at ANY depth.
  *
  * Recursive, and it has to be: entry points nest (`ngwr/i18n/en`,
- * `ngwr/date/adapters/fns`, `ngwr/charts/bar-chart`, every `<name>/testing`),
- * and a top-level-only scan silently left them all out. The `ngwr/date` rename
- * would have taken the two date adapters that way — the old flat
- * `date-adapter-fns` was visible only by accident of being top-level.
+ * `ngwr/tabs/router`, `ngwr/charts/bar-chart`, every `<name>/testing`), and a
+ * top-level-only scan silently left them all out. The v12 `ngwr/date` rename
+ * would have taken the two date adapters it nested that way — the old flat
+ * `date-adapter-fns` had been visible only by accident of being top-level.
  */
 function entryPointsUnder(dir: string, prefix = ''): string[] {
   const out: string[] = [];

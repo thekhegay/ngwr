@@ -196,9 +196,9 @@ function tokenToRegex(token: string, digits: string): string {
 
 /**
  * Reference {@link WrDateAdapter} implementation backed by the native `Date`
- * object and `Intl.DateTimeFormat`. Zero external dependencies. Suitable for
- * most apps — swap to a `date-fns` / `luxon` adapter only when you need
- * timezone-aware math or richer parsing.
+ * object and `Intl.DateTimeFormat`. Zero external dependencies, and the only
+ * adapter ngwr ships. An app that needs timezone-aware math or richer parsing
+ * subclasses {@link WrDateAdapter} over its own date library instead.
  */
 @Service()
 export class WrNativeDateAdapter extends WrDateAdapter<Date> {

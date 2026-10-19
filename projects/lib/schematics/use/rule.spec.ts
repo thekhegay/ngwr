@@ -104,9 +104,9 @@ const stripComments = (source: string): string => source.replace(/\/\*[\s\S]*?\*
  * Reproduced rather than imported because the generator writes its output
  * straight into `dist`, and a spec that read the built file would only be true
  * of the last build. Reproducing it means the RECURSION has to match too: both
- * sides were one level deep until `ngwr/date/adapters/*` existed, and a shallow
- * scan would now quietly drop the two date adapters from this comparison while
- * the shipped map still carried them.
+ * sides were one level deep until nested entry points existed, and a shallow
+ * scan would now quietly drop `WrConfetti` (`ngwr/bits/confetti`) from this
+ * comparison while the shipped map still carried it.
  */
 function entryPointsUnder(dir: string, prefix = ''): string[] {
   const out: string[] = [];

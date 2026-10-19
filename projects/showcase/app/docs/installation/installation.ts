@@ -300,23 +300,21 @@ ng add ngwr`,
 ?  Wire a date adapter? (Used by calendar / date-picker.)
    ❯ None — skip (you can add later)
      Native — built-in Date, no extra deps
-     date-fns — small, modular
-     Luxon — Intl-backed, locale-rich
 
 ?  Pick a default density
    ❯ None — use lib defaults (md)
      sm — tight spacing
      lg — relaxed spacing`,
     ngAddFlags: `# Skip prompts:
-ng add ngwr --styles=theme --dateAdapter=date-fns --density=lg
+ng add ngwr --styles=theme --dateAdapter=native --density=lg
 
 # "None" is spelled \`none\` — it is a real enum value, not an empty flag:
 ng add ngwr --styles=none --dateAdapter=none --density=none
 
 # Every accepted value:
-#   --styles       theme | none                      (default: theme)
-#   --dateAdapter  none | native | date-fns | luxon  (default: none)
-#   --density      none | sm | lg                    (default: none)
+#   --styles       theme | none          (default: theme)
+#   --dateAdapter  none | native         (default: none)
+#   --density      none | sm | lg        (default: none)
 #
 # Those three defaults are also what a non-interactive run picks. There is no
 # theme flag: the stylesheet follows the OS with nothing in providers.

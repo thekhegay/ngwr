@@ -84,9 +84,6 @@ importers:
       '@types/jsdom':
         specifier: ^30.0.0
         version: 30.0.0
-      '@types/luxon':
-        specifier: ^3.7.6
-        version: 3.7.6
       '@types/node':
         specifier: ^26.6.5
         version: 26.6.5
@@ -111,9 +108,6 @@ importers:
       conventional-changelog-conventionalcommits:
         specifier: ^10.4.1
         version: 10.4.1
-      date-fns:
-        specifier: ^4.4.0
-        version: 4.4.0
       eslint:
         specifier: ^10.13.0
         version: 10.13.0(jiti@2.6.1)(supports-color@10.2.2)
@@ -141,9 +135,6 @@ importers:
       lucide:
         specifier: ^1.59.0
         version: 1.59.0
-      luxon:
-        specifier: ^3.7.2
-        version: 3.7.2
       playwright:
         specifier: ^1.64.1
         version: 1.64.1
@@ -2027,9 +2018,6 @@ packages:
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
-  '@types/luxon@3.7.6':
-    resolution: {integrity: sha512-6KSjliQAXK8ZLgFQO4B7iE4Rpf/B3rItzCFuXezBY/XIAGxOdLd7vRNK9/StRPwiS/yJsVbB7HKpW46B8tcEuQ==}
-
   '@types/mdast@4.0.4':
     resolution: {integrity: sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA==}
 
@@ -2674,9 +2662,6 @@ packages:
   data-urls@8.0.0:
     resolution: {integrity: sha512-JQUCCK+/CAGbGGx618PlFZMXH81Jtj7t73CHv9dd/zVWvxgGT2zLFRjnKb+Ng46GIwcy+f7f88qd4duqllK+WQ==}
     engines: {node: ^22.14.0 || >=24.0.0}
-
-  date-fns@4.4.0:
-    resolution: {integrity: sha512-+1UMbeh68lH1SegH83CGWwpb6OHHbpSgr3+s5Eww5M4CAgswBpoWS0AjTOfEJ33HiYKz1hdj/KTFprzXHmq/6w==}
 
   debug@2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
@@ -3373,10 +3358,6 @@ packages:
 
   lucide@1.59.0:
     resolution: {integrity: sha512-0KTOAFYlTuLHdJOqnRCuPhscU29xtx/QnlHyrOfK0FynDhuPm50O3BH/e4wRnOS67ph0z7uovveCVcXUPLTPBw==}
-
-  luxon@3.7.2:
-    resolution: {integrity: sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew==}
-    engines: {node: '>=12'}
 
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
@@ -5986,8 +5967,6 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
-  '@types/luxon@3.7.6': {}
-
   '@types/mdast@4.0.4':
     dependencies:
       '@types/unist': 3.0.3
@@ -6604,8 +6583,6 @@ snapshots:
       whatwg-url: 17.2.0
     transitivePeerDependencies:
       - '@noble/hashes'
-
-  date-fns@4.4.0: {}
 
   debug@2.6.9(supports-color@10.2.2):
     dependencies:
@@ -7301,8 +7278,6 @@ snapshots:
   lru-cache@11.5.3: {}
 
   lucide@1.59.0: {}
-
-  luxon@3.7.2: {}
 
   magic-string@0.30.21:
     dependencies:

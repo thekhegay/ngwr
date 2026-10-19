@@ -6,7 +6,7 @@
 >
   <ngwr-doc-section
     title="Requirements"
-    description="**Angular 22 is the floor**, and it is a floor with no ceiling: `@angular/core`, `@angular/common`, `@angular/forms`, `@angular/platform-browser` and the `@angular/cdk` peer are all declared `>=22.0.0`, alongside rxjs 7. More peers are optional and marked as such, so nothing installs them for you until you reach for the feature: `@angular/router` (`wr-sidebar`, `wr-breadcrumbs`, and the two opt-in router adapters `ngwr/tabs/router` and `ngwr/loading-bar/router`, so a plain `wr-tabs` or `wr-loading-bar` does not import it), `date-fns` or `luxon` (their date adapters), and the `prosemirror-*` packages behind `wr-editor`. No icon set is a peer: `lucideIcons()` and `svgIcon()` take the icon data as an argument, so `lucide` is yours to install only if you use it. `tslib` is the only real dependency."
+    description="**Angular 22 is the floor**, and it is a floor with no ceiling: `@angular/core`, `@angular/common`, `@angular/forms`, `@angular/platform-browser` and the `@angular/cdk` peer are all declared `>=22.0.0`, alongside rxjs 7. More peers are optional and marked as such, so nothing installs them for you until you reach for the feature: `@angular/router` (`wr-sidebar`, `wr-breadcrumbs`, and the two opt-in router adapters `ngwr/tabs/router` and `ngwr/loading-bar/router`, so a plain `wr-tabs` or `wr-loading-bar` does not import it) and the `prosemirror-*` packages behind `wr-editor`. No icon set is a peer: `lucideIcons()` and `svgIcon()` take the icon data as an argument, so `lucide` is yours to install only if you use it. `tslib` is the only real dependency."
   >
     <wr-alert
       type="warning"
@@ -251,7 +251,7 @@
 
   <ngwr-doc-section
     title="ng add ngwr"
-    description="One-shot install. Installs `@angular/cdk`, optionally a date adapter (date-fns or Luxon), appends `@use 'ngwr/theme';` to the global stylesheet, and prints a tailored bootstrap snippet with the providers you picked."
+    description="One-shot install. Installs `@angular/cdk`, appends `@use 'ngwr/theme';` to the global stylesheet, and prints a tailored bootstrap snippet with the providers you picked, `provideWrDateAdapter()` included if you choose the native date adapter."
   >
     <ngwr-doc-code [code]="snippets.ngAddShort" language="bash" />
   </ngwr-doc-section>

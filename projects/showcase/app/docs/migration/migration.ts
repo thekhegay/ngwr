@@ -21,12 +21,12 @@ export default class MigrationPageComponent {
     },
     {
       name: "'ngwr/date-adapter-fns'",
-      description: 'The date-fns implementation.',
+      description: 'The date-fns implementation. v15 removed it.',
       type: "→ 'ngwr/date/adapters/fns'",
     },
     {
       name: "'ngwr/date-adapter-luxon'",
-      description: 'The luxon implementation.',
+      description: 'The luxon implementation. v15 removed it.',
       type: "→ 'ngwr/date/adapters/luxon'",
     },
   ];
@@ -272,6 +272,23 @@ export default class MigrationPageComponent {
 
 # A sheet on phones is a bottom drawer you open yourself.
 + <wr-drawer position="bottom" rounded [(open)]="filtersOpen">…</wr-drawer>`,
+
+    v15Dates: `# Both entry points are gone, with everything they exported.
+- import { ru } from 'date-fns/locale/ru';
+- import { provideWrDateFnsAdapter } from 'ngwr/date/adapters/fns';
+- provideWrDateFnsAdapter({ dateFnsLocale: ru }),
+- import { provideWrLuxonAdapter } from 'ngwr/date/adapters/luxon';
+- provideWrLuxonAdapter({ locale: 'ru' }),
+
+# The native adapter needs no package. Leave out locale to follow LOCALE_ID.
++ import { provideWrDateAdapter } from 'ngwr/date';
++ provideWrDateAdapter({ locale: 'ru' }),
+
+# Or keep your date library, behind an adapter of your own.
++ import { WrDateAdapter } from 'ngwr/date';
++ @Service()
++ export class AppDateAdapter extends WrDateAdapter<Date> { /* the abstract members */ }
++ provideWrDateAdapter({ adapter: AppDateAdapter }),`,
 
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
 # One command, whatever major you are on: ng update installs the latest

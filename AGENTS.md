@@ -18,10 +18,10 @@ A pnpm + Angular CLI monorepo with three projects:
   component. Read from the `exports` map in `projects/lib/package.json`, not
   from the directory tree: `styles/` and
   `schematics/` are not entry points, and the nested ones are the twenty-two
-  `ngwr/i18n/<locale>`, `ngwr/date/adapters/{fns,luxon}`, the two
-  opt-in router adapters `ngwr/loading-bar/router` and `ngwr/tabs/router` that v14
-  added, and the CDK test harnesses (`testingEntryPoints` in the same file), which
-  cover the form controls (`button`, `input`, `textarea`,
+  `ngwr/i18n/<locale>`, the two opt-in router adapters
+  `ngwr/loading-bar/router` and `ngwr/tabs/router` that v14 added, and the CDK
+  test harnesses (`testingEntryPoints` in the same file), which cover the form
+  controls (`button`, `input`, `textarea`,
   `checkbox`, `switch`, `radio`, `select`, `input-number`, `input-otp`, `slider`,
   `rating`, `file-upload`, `color-picker`, `knob`, `form`, `segmented`, `editor`), the overlays
   (`date-picker`, `dropdown`, `popover`, `dialog`, `drawer`, `toast`,
@@ -319,8 +319,13 @@ one component folder. Reach for them instead of hand-rolling:
   One limit outlived them: the `-ink` shares are calibrated against the SHIPPED
   bases, so a seed far from them inherits shares that no longer guarantee 5:1 —
   measure it.
-- **Date adapters** (`ngwr/date`, plus `ngwr/date/adapters/{fns,luxon}`) —
-  `provideWrDateAdapter(...)` powers calendar + every date-picker mode. The three
+- **Date adapters** (`ngwr/date`) — `provideWrDateAdapter(...)` powers the
+  calendar and every date-picker mode, and it is still required: `WrDateAdapter`
+  is abstract with no root fallback. `WrNativeDateAdapter`, over `Date` and `Intl`,
+  is the only implementation ngwr ships. **v15 deleted
+  `ngwr/date/adapters/{fns,luxon}`** and the `date-fns` / `luxon` optional
+  peers with them: an app on another date library extends `WrDateAdapter` and
+  passes the class as `provideWrDateAdapter({ adapter })`. The entry points
   were `ngwr/date-adapter{,-fns,-luxon}` until v12: flat and hyphenated while
   `ngwr/icon` already nested its implementations (v15 folded those back into
   `ngwr/icon`), so the catalog spelled one idea two ways. `migration-v12`
@@ -1135,14 +1140,17 @@ code. Don't re-add the cache.
 Kept here as history, because both still shape the catalog a reader sees today;
 for what breaks on the CURRENT upgrade, read the Versioning section below.
 
-**One — the date entry points moved.** `ngwr/date-adapter` → `ngwr/date`,
-`ngwr/date-adapter-fns` → `ngwr/date/adapters/fns`, `ngwr/date-adapter-luxon` →
-`ngwr/date/adapters/luxon`, so the catalog nests implementations under their
-feature the way `ngwr/icon/adapters/*` did until v15 removed them. Import
-paths only — every symbol keeps its name, and these entry points ship no
-styles, so no `@use` path moves with them. `migration-v12` rewrites all of it,
-which is what makes this a codemod rather than a release note: a path is
-exactly what a codemod can move without reading the code around it.
+**One — the date entry points moved**, from `ngwr/date-adapter` to
+`ngwr/date`, from `ngwr/date-adapter-fns` to `ngwr/date/adapters/fns` and from
+`ngwr/date-adapter-luxon` to `ngwr/date/adapters/luxon`, so the catalog nests
+implementations under their feature the way `ngwr/icon/adapters/*` did until
+v15 removed them. Import paths only — every symbol keeps its name, and these
+entry points ship no styles, so no `@use` path moves with them. `migration-v12`
+rewrites all of it, which is what makes this a codemod rather than a release
+note: a path is exactly what a codemod can move without reading the code around
+it. v15 then removed the two date adapters, leaving `ngwr/date` alone, and the
+codemod still rewrites to their paths — which fail the build rather than
+resolve to anything.
 
 **Two — `readI18nText()` returns `Signal<string>`.** Exported from `ngwr/i18n`,
 it returned `string`, so every call site needs a `()`. A fix rather than a
@@ -1293,10 +1301,11 @@ affected — `storage-engine.ts` already falls back to memory on a missing
 nightly `legacy-node` job runs `pnpm test` and `build:lib` on each; without it
 two thirds of the range would be a claim nothing checks. That job earned its
 keep immediately: `Intl.Locale.prototype.getWeekInfo` does not exist on Node 22,
-and the date adapters' fallback spec ASSERTED it did before deleting it, so a
-test written to prove the fallback works was red on the one runtime where the
-fallback is the live path. It now removes the method only where there is one and
-runs the same expectations either way.
+and the date-fns and Luxon adapters' fallback specs ASSERTED it did before
+deleting it, so a test written to prove the fallback works was red on the one
+runtime where the fallback is the live path. They removed the method only where
+there was one after that, and went with those adapters in v15;
+`WrNativeDateAdapter.getFirstDayOfWeek` carries the same fallback.
 
 **Docs prose.** In changelogs / docs, write "from X to Y" — not "X → Y" (no
 arrow) — for version and before/after descriptions.
@@ -1867,7 +1876,8 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
   Migrations, one dir per major under
   `schematics/migrations/` (v7 tag rewrites, v8 density/pagination renames,
   **v9 `<wr-checkbox>` from `value` to `checkboxValue`**, **v12 from
-  `ngwr/date-adapter*` to `ngwr/date/adapters/*`**, **v14 the six vocabulary
+  `ngwr/date-adapter*` to `ngwr/date` and `ngwr/date/adapters/*`** (v15 removed
+  the adapters it rewrites to), **v14 the six vocabulary
   renames, plus a report for the router / locale / `ofLabel` changes no codemod
   should guess at**), plus **v13, which reports every host-`id` selector on
   `<wr-checkbox>` / `<wr-radio>` / `<wr-switch>` and rewrites nothing** — all
@@ -1986,7 +1996,7 @@ because it is guidance rather than a plan.
   `wr-date-picker` already followed for a partial entry. A host that relied on
   `new Date()`'s leniency passes an explicit token `[format]`. Pinned by
   `date/wr-native-date-adapter.spec.ts` ("refuses a string in another locale
-  rather than guessing at it") and the two library adapters' equivalents.
+  rather than guessing at it").
 - `wr-calendar-heatmap` leaves four of its seven weekday rows blank on
   purpose — seven labels do not fit.
 - Every animation component honours `prefers-reduced-motion`; the one with no
