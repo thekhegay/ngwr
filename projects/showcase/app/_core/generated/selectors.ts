@@ -302,7 +302,6 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/loading-bar",
   "ngwr/markdown",
   "ngwr/mention",
-  "ngwr/overlay",
   "ngwr/page-header",
   "ngwr/pagination",
   "ngwr/popconfirm",

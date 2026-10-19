@@ -91,8 +91,6 @@ The pipe and directive read from a catalog you provide. Register ngwr's with `pr
   control with fixed geometry (checkbox, switch, radio, slider, rating,
   segmented) does not move; its ≥44px target comes from the `touch-target` mixin
   under `@media (pointer: coarse)` instead.
-- `provideWrResponsiveOverlays()` — overlays present as bottom sheets under the
-  breakpoint (640px by default). Per-component opt-out with `[responsive]="false"`.
 - A `validation` namespace in your own i18n catalog — ngwr ships no validation
   copy. `<wr-form-field>` reads `validation.<key>` for an error whose validator
   carries no `{ message }`, with the error payload as params.
