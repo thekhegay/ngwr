@@ -46,7 +46,7 @@ const LIB_ROOT = resolve(ROOT_PATH, 'projects/lib');
  * where each one's templates live.
  */
 interface EntryPoint {
-  /** The public subpath: `ngwr/button`, `ngwr/icon/adapters/lucide`. */
+  /** The public subpath: `ngwr/button`, `ngwr/date/adapters/fns`. */
   readonly subpath: string;
   /** Its directory under `projects/lib`. */
   readonly dir: string;

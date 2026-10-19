@@ -10,9 +10,9 @@ import type { WrIconName } from './icon-name';
 /**
  * Shape of an icon registered with the icon registry.
  *
- * **ngwr ships no icons.** Every `WrIconDef` comes from an adapter —
- * `lucideIcons()` / `featherIcons()` — or from `svgIcon()` over raw SVG, so
- * the set an app pays for is the set it registers.
+ * **ngwr ships no icons.** Every `WrIconDef` comes from `svgIcon()` over
+ * raw SVG, or from `lucideIcons()` over Lucide's IconNode tuples, so the set
+ * an app pays for is the set it registers.
  *
  * @example
  * ```ts

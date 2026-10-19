@@ -1,6 +1,6 @@
 /**
- * Shared browser page for SVG-only icon sources (Tabler, Phosphor,
- * Heroicons, Iconoir, Bootstrap).
+ * Shared browser page for SVG-only icon sources (Feather, Tabler, Phosphor,
+ * Heroicons, Iconoir, Radix, Bootstrap).
  *
  * Each route imports a generated `<set>.json` catalog (built by
  * `scripts/build/icon-sets.mjs`) and passes it in alongside a spec

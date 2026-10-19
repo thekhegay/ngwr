@@ -15,10 +15,12 @@ const icons = ROUTES.icons;
  *    route. Prerendering a parameterised path requires `getPrerenderParams`;
  *    since these URLs only bounce to `/interfaces/*`, client rendering is
  *    cheaper than enumerating them.
- * 2. The raw-SVG icon galleries — each inlines up to `VISIBLE_CAP` (240)
+ * 2. Six raw-SVG icon galleries — each inlines up to `VISIBLE_CAP` (240)
  *    arbitrary, alphabetically-first SVGs whose search is client-only, so the
- *    static HTML would carry weight with no SEO value. The adapter pages
- *    (overview / lucide / feather) stay prerendered: those are real docs.
+ *    static HTML would carry weight with no SEO value. The overview and lucide
+ *    pages stay prerendered as real docs. Feather's page is the same
+ *    `svgIcon()` gallery as the six and stays prerendered only because it was
+ *    before v15, when it documented an adapter.
  *
  * Client-rendered routes emit no HTML and fall through to the existing nginx
  * SPA fallback, exactly as today.

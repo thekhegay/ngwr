@@ -238,8 +238,7 @@ interface WrIconStripReport {
  *    is inspected.
  * 2. **Only the first `<svg>` survives.** An icon IS an SVG element, so
  *    everything beside the root is dropped — which is what makes
- *    `</svg><img src=x onerror=…>` inert regardless of what the payload says,
- *    and it is the same shape as the `feather()` shell escape.
+ *    `</svg><img src=x onerror=…>` inert regardless of what the payload says.
  * 3. **Rebuilt, not filtered.** Every element and attribute that lands in the
  *    document is one this file created from an allowlist. Nothing is
  *    transferred from the parsed tree, so there is no attribute an unfamiliar

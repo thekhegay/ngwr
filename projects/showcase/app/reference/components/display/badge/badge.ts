@@ -2,8 +2,7 @@ import { Component } from '@angular/core';
 
 import { Check, CircleCheck, OctagonAlert } from 'lucide';
 import { type WrBadgeShape, WrBadge, WrTag } from 'ngwr/badge';
-import { provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 import { WR_COLORS } from 'ngwr/theme';
 
 import {
@@ -51,8 +50,7 @@ export default class BadgeComponent {
 <wr-tag color="primary" outlined rounded>Beta</wr-tag>
 <wr-tag color="warning" loading>Saving</wr-tag>`,
     statusIcons: `import { CircleCheck, OctagonAlert } from 'lucide';
-import { provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 
 @Component({
   providers: [provideWrIcons(lucideIcons({ 'circle-check': CircleCheck, 'octagon-alert': OctagonAlert }))],

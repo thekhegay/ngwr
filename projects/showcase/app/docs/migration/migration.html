@@ -194,6 +194,25 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="v14 to v15 — the icon adapters are gone"
+    description="`ngwr/icon/adapters/lucide` and `ngwr/icon/adapters/feather` are removed. `lucideIcons()`, `lucide()` and the `LucideIconNode` type moved into `ngwr/icon` under the same names, so for Lucide the import path is the whole change. Feather has no helper any more: register its own SVG files with `svgIcon()`, the way every other set is registered."
+  >
+    <ngwr-doc-code [code]="snippets.v15Icons" language="diff" />
+    <p>
+      In an Angular CLI app <code>?raw</code> needs <code>"loader": &#123; ".svg": "text" &#125;</code> in the build
+      options and a <code>declare module '*.svg?raw' &#123; const svg: string; export default svg; &#125;</code>. Or
+      skip the build option: import the file as
+      <code>import plusSvg from 'feather-icons/dist/icons/plus.svg' with &#123; loader: 'text' &#125;;</code> and
+      declare <code>'*.svg'</code> instead.
+    </p>
+    <p>
+      A Feather glyph no longer carries <code>wr-icon__svg</code>: its files bring their own
+      <code>feather feather-&lt;name&gt;</code> classes. Inside <code>&lt;wr-icon&gt;</code> it renders the same, so
+      only a stylesheet of yours that reached the glyph through that class needs <code>.wr-icon svg</code> instead.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="v14 to v15 — three things are gone"
     description="Nothing the library offers means what the removed thing meant in the same place, so each one is a decision rather than a rename."
   >
@@ -340,9 +359,9 @@
     description="Two breaking changes, and they need opposite treatment. The entry-point move is pure import paths, so the v12 migration rewrites all of it. The i18n helper is a type change, which no codemod should guess at — but the compiler points at every call site, so it is a mechanical fix you can trust your build to find."
   >
     <p wrTypography variant="small" tone="muted">
-      <strong>The date entry points nest under `ngwr/date`.</strong> `ngwr/icon` has always nested its implementations
-      at `ngwr/icon/adapters/lucide` and `…/feather`, while the date ones were flat and hyphenated — one idea spelled
-      two ways depending on which feature you reached for. Only the import specifier changes: every exported symbol
+      <strong>The date entry points nest under `ngwr/date`.</strong> `ngwr/icon` already nested its implementations at
+      `ngwr/icon/adapters/lucide` and `…/feather` (v15 later removed both), while the date ones were flat and
+      hyphenated — one idea spelled two ways depending on which feature you reached for. Only the import specifier changes: every exported symbol
       keeps its name, and these entry points ship no styles, so no `@use` path moves with them.
     </p>
     <ngwr-doc-api [rows]="dateEntryRows" />

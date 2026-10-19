@@ -79,12 +79,11 @@ function symbolsIn(entry: string): readonly string[] {
 /**
  * Every entry point under `projects/lib`, at ANY depth.
  *
- * Recursive, and it has to be: seventy-four entry points are nested
- * (`ngwr/i18n/en`, `ngwr/icon/adapters/lucide`, every `<name>/testing`), and a
- * top-level-only scan silently left them all out. `ng g ngwr:use lucideIcons`
- * answered "unknown symbol" for as long as this map has existed, and the
- * `ngwr/date` rename would have taken the two date adapters the same way — the
- * old flat `date-adapter-fns` was visible only by accident of being top-level.
+ * Recursive, and it has to be: entry points nest (`ngwr/i18n/en`,
+ * `ngwr/date/adapters/fns`, `ngwr/charts/bar-chart`, every `<name>/testing`),
+ * and a top-level-only scan silently left them all out. The `ngwr/date` rename
+ * would have taken the two date adapters that way — the old flat
+ * `date-adapter-fns` was visible only by accident of being top-level.
  */
 function entryPointsUnder(dir: string, prefix = ''): string[] {
   const out: string[] = [];

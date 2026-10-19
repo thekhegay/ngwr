@@ -6,8 +6,7 @@ import { filter } from 'rxjs';
 
 import { Menu } from 'lucide';
 import { WrDrawer } from 'ngwr/drawer';
-import { provideWrIcons, WrIcon } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 
 import { Footer } from './footer/footer';
 import { Sidebar } from './sidebar/sidebar';

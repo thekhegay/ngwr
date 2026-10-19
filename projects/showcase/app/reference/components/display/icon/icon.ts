@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 
 import { Plus, Trash } from 'lucide';
-import { provideWrIcons, WrIcon } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 
 import {
   DocApiComponent,
@@ -33,8 +32,7 @@ export default class IconComponent {
   protected readonly snippets = {
     register: `// 1. Bring icons from any source — Lucide, Tabler, your own SVGs, …
 import { Plus, Trash } from 'lucide';
-import { provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 
 bootstrapApplication(AppComponent, {
   providers: [provideWrIcons(lucideIcons({ plus: Plus, trash: Trash }))],

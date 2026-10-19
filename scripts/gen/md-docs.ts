@@ -76,10 +76,10 @@ const MIN_PAGES = 209;
 /**
  * Doc pages that will never have a twin, named so the decision is on the record.
  *
- * The six raw-SVG icon galleries are `RenderMode.Client` on purpose (see
+ * Six of the raw-SVG icon galleries are `RenderMode.Client` on purpose (see
  * `app.routes.server.ts`): prerendering one means up to 240 inlined arbitrary
- * SVGs — the two adapter galleries that DO prerender weigh ~230 KB each — to
- * produce a twin under a kilobyte, because the grid is dropped from the export
+ * SVGs — the lucide and feather galleries, which DO prerender, weigh ~230 KB
+ * each — to produce a twin under a kilobyte, because the grid is dropped from the export
  * anyway. That is the wrong trade, and re-deriving a twin from `app/` instead
  * is exactly the drift this generator exists to avoid. So they get none.
  *

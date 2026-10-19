@@ -33,7 +33,8 @@ Requires Angular / CDK `>= 22.0.0` (peers: `@angular/cdk`, `@angular/common`,
 Optional: `@angular/router`, which `wr-sidebar`, a breadcrumb `routerLink` and
 the two router adapters need; `date-fns` / `luxon` for their date adapters; and
 the eight `prosemirror-*` packages that only `ngwr/editor` imports. Icon sets
-such as `lucide` are not peers, since the adapters take the icon data). On
+such as `lucide` are not peers, since `lucideIcons()` and `svgIcon()` take the
+icon data). On
 Angular 21 or older the INSTALL succeeds — every package manager treats an unmet
 peer as a warning — and the `ng build` fails instead, in
 the linker, with `Unsupported enum value for [object Object]`. The floor is real
@@ -88,7 +89,8 @@ Add from their entry points as needed:
   it is near-zero in an app with any overlay on screen and the whole of it in an
   app with none.
 - `provideWrIcons(lucideIcons({ check: Check }))` — icon registry (`ngwr/icon`,
-  adapters under `ngwr/icon/adapters/*`).
+  which holds `lucideIcons()` too; every other set, feather included, registers
+  its raw SVG with `svgIcon()`).
 - `provideWrDensity()` — sizing. The theme needs no provider: the `--wr-*`
   tokens are plain CSS, and dark mode follows `color-scheme` (Theme, below).
 - `provideWrConfig({ button: { size: 'sm' }, select: { rounded: true } })`
@@ -141,6 +143,9 @@ v15 ships none, so its names move by hand:
 
 - v15: `ngwr/drag-drop` is `ngwr/sortable-list`, and the list no longer owns its
   loop — write your own, one `<wr-sortable-item>` per row, with no `trackBy`;
+  `ngwr/icon/adapters/lucide` is `ngwr/icon` (`lucideIcons`, `lucide` and
+  `LucideIconNode` keep their names), and `ngwr/icon/adapters/feather` is gone —
+  register feather's own SVG files with `svgIcon()`;
   every chart and animation entry point is nested, so `ngwr/bar-chart` is
   `ngwr/charts/bar-chart` and `ngwr/aurora` is `ngwr/bits/aurora`;
   `--wr-color-light` and `--wr-color-outline` are `--wr-border-base`,

@@ -15,8 +15,7 @@ import { WrSpotlightCard } from 'ngwr/bits/spotlight-card';
 import { WrTypewriter } from 'ngwr/bits/typewriter';
 import { WrWaves } from 'ngwr/bits/waves';
 import { WrButton } from 'ngwr/button';
-import { provideWrIcons, WrIcon } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import type { WrColor } from 'ngwr/theme';
 import { WrTypography } from 'ngwr/typography';
 

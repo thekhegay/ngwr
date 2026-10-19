@@ -126,7 +126,7 @@ npm install ngwr @angular/cdk
 # or
 yarn add ngwr @angular/cdk
 
-# Only if you plan to use the lucide icon adapter (\`ng add\` installs it for you):
+# Only if you register Lucide icons with lucideIcons() (\`ng add\` installs it for you):
 npm install lucide`,
     appConfig: `// src/app/app.config.ts — the file \`ng new\` generates. Add the ngwr providers
 // to the array that is already there.
@@ -245,8 +245,7 @@ export class App {}`,
 import { Component } from '@angular/core';
 import { Check } from 'lucide';
 import { WrButton } from 'ngwr/button';
-import { provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 
 @Component({
   selector: 'app-root',
@@ -338,7 +337,7 @@ ng g ngwr:icon-set --icons=plus,trash,checkmark     # explicit list
 ng g ngwr:icon-set --set=navigation --icons=star,heart   # combine both`,
     iconSetOutput: `// src/app/icons.ts (generated)
 import { Check, Copy, Pencil, Plus, Search, Trash2, X } from 'lucide';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons } from 'ngwr/icon';
 
 export const APP_ICONS = lucideIcons({
   checkmark: Check,

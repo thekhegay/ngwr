@@ -178,6 +178,35 @@ It moved to an entry point of its own: `ngwr/drag-drop` is `ngwr/sortable-list`,
 in the `@use`, every symbol keeping its name. It no longer owns its loop — write your own and
 project one `<wr-sortable-item>` per row; `trackBy` went with the loop.
 
+### The icon adapters are gone
+
+`ngwr/icon/adapters/lucide` and `ngwr/icon/adapters/feather` are removed. `lucideIcons()`,
+`lucide()` and the `LucideIconNode` type moved into `ngwr/icon` under the same names, so for
+Lucide the import path is the whole change. Feather has no helper any more: register its own SVG
+files with `svgIcon()`, the way every other set is registered.
+
+```diff
+- import { lucideIcons } from 'ngwr/icon/adapters/lucide';
++ import { lucideIcons } from 'ngwr/icon';
+
+- import featherSource from 'feather-icons/dist/icons.json';
+- import { featherIcons } from 'ngwr/icon/adapters/feather';
+- provideWrIcons(featherIcons({ plus: featherSource.plus }));
++ import plusSvg from 'feather-icons/dist/icons/plus.svg?raw';
++ import { svgIcon } from 'ngwr/icon';
++ provideWrIcons([svgIcon('plus', plusSvg)]);
+```
+
+In an Angular CLI app `?raw` needs `"loader": { ".svg": "text" }` in the build options and a
+`declare module '*.svg?raw' { const svg: string; export default svg; }`. Or skip the build
+option: import the file as
+`import plusSvg from 'feather-icons/dist/icons/plus.svg' with { loader: 'text' };` and declare
+`'*.svg'` instead.
+
+A Feather glyph no longer carries `wr-icon__svg`: its files bring their own
+`feather feather-<name>` classes. Inside `<wr-icon>` it renders the same, so only a stylesheet of
+yours that reached the glyph through that class needs `.wr-icon svg` instead.
+
 ### Removed outright
 
 `ngwr/squircle`, which v14 deprecated: use `shape="squircle"` on `<wr-btn>` / `<wr-avatar>` /

@@ -6,7 +6,7 @@
 >
   <ngwr-doc-section
     title="Requirements"
-    description="**Angular 22 is the floor**, and it is a floor with no ceiling: `@angular/core`, `@angular/common`, `@angular/forms`, `@angular/platform-browser` and the `@angular/cdk` peer are all declared `>=22.0.0`, alongside rxjs 7. More peers are optional and marked as such, so nothing installs them for you until you reach for the feature: `@angular/router` (`wr-sidebar`, `wr-breadcrumbs`, and the two opt-in router adapters `ngwr/tabs/router` and `ngwr/loading-bar/router`, so a plain `wr-tabs` or `wr-loading-bar` does not import it), `date-fns` or `luxon` (their date adapters), and the `prosemirror-*` packages behind `wr-editor`. No icon set is a peer: the icon adapters take the icon data as an argument, so `lucide` is yours to install only if you use it. `tslib` is the only real dependency."
+    description="**Angular 22 is the floor**, and it is a floor with no ceiling: `@angular/core`, `@angular/common`, `@angular/forms`, `@angular/platform-browser` and the `@angular/cdk` peer are all declared `>=22.0.0`, alongside rxjs 7. More peers are optional and marked as such, so nothing installs them for you until you reach for the feature: `@angular/router` (`wr-sidebar`, `wr-breadcrumbs`, and the two opt-in router adapters `ngwr/tabs/router` and `ngwr/loading-bar/router`, so a plain `wr-tabs` or `wr-loading-bar` does not import it), `date-fns` or `luxon` (their date adapters), and the `prosemirror-*` packages behind `wr-editor`. No icon set is a peer: `lucideIcons()` and `svgIcon()` take the icon data as an argument, so `lucide` is yours to install only if you use it. `tslib` is the only real dependency."
   >
     <wr-alert
       type="warning"
@@ -39,7 +39,7 @@
 
   <ngwr-doc-section
     title="Manual install"
-    description="If you'd rather wire things yourself, install the package + the CDK peer. Unlike `ng add`, this does not pull `lucide` — add it when you want the lucide icon adapter."
+    description="If you'd rather wire things yourself, install the package + the CDK peer. Unlike `ng add`, this does not pull `lucide` — add it when you register Lucide icons with `lucideIcons()`."
   >
     <ngwr-doc-code [code]="snippets.install" language="bash" />
   </ngwr-doc-section>

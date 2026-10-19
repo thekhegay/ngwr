@@ -4,7 +4,7 @@ import type { SidebarGroup } from '#types';
 /**
  * Sidebar for `/icons/*`. Flat list — Overview at the top, then every
  * supported icon set as its own entry so visitors can see which sets
- * ngwr ships an adapter or recipe for at a glance.
+ * ngwr has a recipe for at a glance.
  */
 export const ICONS_SIDEBAR: readonly SidebarGroup[] = [
   wrLink(ROUTES.icons, ROUTES.icons.overview),

@@ -3,8 +3,7 @@ import { Component } from '@angular/core';
 import { Copy, Download, ExternalLink, Settings, Trash2 } from 'lucide';
 import { WrButton } from 'ngwr/button';
 import { WrDropdown, WrDropdownItem, WrDropdownMenu } from 'ngwr/dropdown';
-import { provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 
 import {
   DocApiComponent,

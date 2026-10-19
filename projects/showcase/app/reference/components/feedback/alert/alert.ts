@@ -2,8 +2,7 @@ import { Component } from '@angular/core';
 
 import { Sparkles } from 'lucide';
 import { WrAlert, type WrAlertType } from 'ngwr/alert';
-import { provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 
 import { DocApiComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
 import { API } from '#core/generated/api';

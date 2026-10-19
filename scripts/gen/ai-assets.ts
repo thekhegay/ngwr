@@ -77,11 +77,11 @@ const read = (path: string): string => (existsSync(path) ? readFileSync(path, 'u
  * Every secondary entry point, keyed by its import subpath.
  *
  * Discovery is by `public-api.ts`, which is what the exports map points at
- * from — a directory scan one level deep misses the one hundred nested ones
- * (the twenty-two `i18n/<locale>`, `icon/adapters/{lucide,feather}`,
- * `date/adapters/{fns,luxon}`, the v14 router opt-ins `loading-bar/router` and
- * `tabs/router`, and the seventy-two `<name>/testing` harness entry points) and
- * reports 129 where the package publishes 229. `projects/lib/public-api.ts` is the PRIMARY entry point and
+ * from — a directory scan one level deep misses every nested one (the
+ * `i18n/<locale>` catalogs, `date/adapters/{fns,luxon}`, the v14 router opt-ins
+ * `loading-bar/router` and `tabs/router`, `charts/*`, `bits/*` and the
+ * `<name>/testing` harness entry points) and reports well under half of what
+ * the package publishes. `projects/lib/public-api.ts` is the PRIMARY entry point and
  * is excluded: its key would be the empty string and its import specifier a
  * bare `ngwr`.
  */
@@ -424,12 +424,16 @@ function render(entries: readonly Entry[]): string {
  * and `schema-form` took the package to 227, so twenty-three entry points could
  * vanish unreported. Raised to the catalog as it stood when `ngwr/editor` and
  * its harness landed.
+ *
+ * 224 is the first lowering, and a deliberate one: v15 deleted the two icon
+ * adapter entry points, `ngwr/icon/adapters/{lucide,feather}`, when the lucide
+ * converter moved into `ngwr/icon`.
  */
-const MIN_ENTRIES = 226;
+const MIN_ENTRIES = 224;
 const MIN_DESCRIBED = 119;
-const MIN_WITH_EXPORTS = 226;
+const MIN_WITH_EXPORTS = 224;
 /** Rows in the skill's catalog table — one per entry point, plus the header. */
-const MIN_SKILL_ROWS = 226;
+const MIN_SKILL_ROWS = 224;
 
 /** A tag, an attribute, or a tag with an attribute — the three shapes the library declares. */
 const SELECTOR_SHAPE = /^[a-z][a-z\d-]*(\[[A-Za-z][\w-]*\])?$|^\[[A-Za-z][\w-]*\]$/;

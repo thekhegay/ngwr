@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 
 import { Folder, House, Settings } from 'lucide';
-import { provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 import { WrSidebar, type WrSidebarEntry } from 'ngwr/sidebar';
 
 import {

@@ -32,7 +32,7 @@ const REQUIRED_PROVIDERS: readonly RequiredProvider[] = [
   },
   {
     test: /^WrIcon/,
-    provider: "provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon' + 'ngwr/icon/adapters/lucide'",
+    provider: "provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon'",
     why: 'icons resolve by name from a registry you populate',
   },
   {

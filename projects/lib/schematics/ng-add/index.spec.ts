@@ -161,7 +161,9 @@ describe('ng-add', () => {
     // that broke once already, when the icon block imported bare glyph names
     // `ngwr/icon` has never exported.
     for (const symbol of ['provideWrOverlay', 'provideWrIcons', 'lucideIcons']) {
-      expect(snippet, symbol).toContain(`import { ${symbol} }`.slice(0, 20));
+      expect(snippet, symbol).toMatch(new RegExp(`import \\{[^}]*\\b${symbol}\\b[^}]*\\} from`));
     }
+    // The converter ships in `ngwr/icon` itself since v15.
+    expect(snippet).toContain("import { provideWrIcons, lucideIcons } from 'ngwr/icon';");
   });
 });

@@ -22,8 +22,7 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { Plus, Trash2 } from 'lucide';
 
 import { provideWrOverlay } from 'ngwr/overlay';
-import { provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 import { provideWrToastConfig } from 'ngwr/toast';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { provideWrDateAdapter } from 'ngwr/date';
@@ -81,11 +80,10 @@ providers: [
 // point too:  @use 'ngwr/overlay';`,
 
     icons: `import { Check, Plus, Trash2 } from 'lucide';
-import { provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 
 // Register a tree-shaken icon set. Only the icons you list are bundled —
-// the Lucide adapter takes the imported icon data and wraps it as
+// lucideIcons() takes the imported icon data and wraps it as
 // \`WrIconDef\` at runtime, so unused Lucide icons get dropped by the bundler.
 providers: [provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2, check: Check }))],`,
 

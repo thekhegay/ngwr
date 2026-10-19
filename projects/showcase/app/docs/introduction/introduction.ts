@@ -4,8 +4,7 @@ import { RouterLink } from '@angular/router';
 import { BookOpen, Heart, Sparkles } from 'lucide';
 import { WrButton } from 'ngwr/button';
 import { WrCard } from 'ngwr/card';
-import { provideWrIcons, WrIcon } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import { WrStatistic, WrStatisticGroup } from 'ngwr/statistic';
 import { WrTypography } from 'ngwr/typography';
 

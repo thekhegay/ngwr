@@ -2,8 +2,7 @@ import { Component, type TemplateRef, computed, signal, viewChild } from '@angul
 
 import { Atom, Code, Flame, GitBranch, Globe, Package, Send } from 'lucide';
 import { WrMarquee, type WrMarqueeItem } from 'ngwr/bits/marquee';
-import { WrIcon, provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 
 import {
   DocApiComponent,

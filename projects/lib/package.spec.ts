@@ -195,10 +195,10 @@ describe('the published manifest', () => {
 
   it('declares a peer only for a package the shipped source imports', () => {
     // The other direction of the check above, and the one `lucide` failed for as
-    // long as it was listed. An ICON set is not a peer dependency: the adapters
-    // take the icon data as an ARGUMENT — `lucideIcons({ Plus })`, `feather(…)`
-    // — so `icon/adapters/lucide/adapter.ts` imports nothing but `WrIconDef`,
-    // and the only `from 'lucide'` in the tree is inside a template literal that
+    // long as it was listed. An ICON set is not a peer dependency: `lucideIcons()`
+    // takes the icon data as an ARGUMENT — `lucideIcons({ Plus })` — so
+    // `icon/lucide.ts` imports nothing but its own types, and the only
+    // `from 'lucide'` in the tree is inside a template literal that
     // `ng g ngwr:icon-set` writes into the CONSUMER's project. Compare
     // `date/adapters/fns`, which really does `import { … } from 'date-fns'` and
     // is therefore really a peer.

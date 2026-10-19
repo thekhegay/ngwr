@@ -1,8 +1,7 @@
 import { Component, signal } from '@angular/core';
 
 import { Plus, Search, Settings } from 'lucide';
-import { provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 import { WrSpeedDial, type WrSpeedDialAction, type WrSpeedDialDirection } from 'ngwr/speed-dial';
 

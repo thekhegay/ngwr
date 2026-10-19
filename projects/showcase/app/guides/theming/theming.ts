@@ -275,7 +275,8 @@ theme.resolved();          // 'light' | 'dark' — the scheme in effect
       kind: 'Guide',
       title: 'Icons',
       url: ['/icons'],
-      description: 'Registering icon sets, the adapters, and the `ng g ngwr:icon-set` schematic.',
+      description:
+        'Registering icon sets with `svgIcon()` and `lucideIcons()`, and the `ng g ngwr:icon-set` schematic.',
     },
   ];
 }

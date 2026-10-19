@@ -179,6 +179,18 @@ export default class MigrationPageComponent {
 - imports: [WrSortableList]
 + imports: [WrSortableList, WrSortableItem]`,
 
+    v15Icons: `# Lucide: the import path is the whole change.
+- import { lucideIcons } from 'ngwr/icon/adapters/lucide';
++ import { lucideIcons } from 'ngwr/icon';
+
+# Feather: its own SVG files, through svgIcon().
+- import featherSource from 'feather-icons/dist/icons.json';
+- import { featherIcons } from 'ngwr/icon/adapters/feather';
+- provideWrIcons(featherIcons({ plus: featherSource.plus }));
++ import plusSvg from 'feather-icons/dist/icons/plus.svg?raw';
++ import { svgIcon } from 'ngwr/icon';
++ provideWrIcons([svgIcon('plus', plusSvg)]);`,
+
     v15Removed: `# The squircle directive. Deprecated in v14, gone in v15.
 - import { WrSquircle } from 'ngwr/squircle';
 - <wr-btn wrSquircle [radius]="14">Save</wr-btn>

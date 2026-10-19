@@ -1,7 +1,12 @@
-<ngwr-doc-page title="Lucide" [description]="lede()" [keywords]="['icons', 'lucide']" [labels]="['Adapter', 'ISC']">
+<ngwr-doc-page
+  title="Lucide"
+  [description]="lede()"
+  [keywords]="['icons', 'lucide']"
+  [labels]="['lucideIcons()', 'ISC']"
+>
   <ngwr-doc-section
     title="Wire icons"
-    description="Use the `lucide` / `lucideIcons` adapter from `ngwr/icon/adapters/lucide`. Tree-shakes per icon — only what you import ships."
+    description="Pass the icons you import from `lucide` to `lucideIcons()` from `ngwr/icon`. Tree-shakes per icon — only what you import ships."
   >
     <ngwr-doc-code [code]="usage" language="angular-ts" />
   </ngwr-doc-section>

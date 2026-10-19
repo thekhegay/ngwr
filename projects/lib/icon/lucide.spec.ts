@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { lucide, lucideIcons, type LucideIconNode } from './adapter';
+import { lucide, lucideIcons } from './lucide';
+import type { LucideIconNode } from './types';
 
 /** What `lucide` hands out: `[tag, attrs]` tuples for the inner SVG children. */
 const PLUS: LucideIconNode = [
@@ -9,18 +10,18 @@ const PLUS: LucideIconNode = [
 ];
 
 /**
- * The adapter is a string builder, and the string is the whole product: it is inlined
+ * The converter is a string builder, and the string is the whole product: it is inlined
  * into the DOM by `WrIcon`, so a lost attribute is an icon that renders at the wrong
  * size, in the wrong colour, or not at all.
  *
  * Two things are worth pinning above all. The envelope has to stay
  * byte-for-byte what upstream's own `createElement` emits, or a Lucide icon beside a
  * hand-written one stops matching. And the registered name is the key VERBATIM —
- * every other adapter behaves that way, and a helper that quietly kebab-cased or
+ * `svgIcon()` behaves that way, and a helper that quietly kebab-cased or
  * lower-cased its keys would break `<wr-icon name>` lookups that look correct in the
  * source.
  */
-describe('lucide adapter', () => {
+describe('lucide converter', () => {
   it('wraps the children in the upstream envelope', () => {
     const { data } = lucide('plus', PLUS);
 
@@ -134,7 +135,7 @@ describe('lucide adapter', () => {
       // `onerror` is a valid attribute name, so `onerror="…"` is its only
       // honest serialisation — escaping cannot express the difference. What
       // keeps it out of the DOM is `<wr-icon>` rebuilding from an allowlist;
-      // pinned here so nobody reads this adapter as the control.
+      // pinned here so nobody reads this converter as the control.
       const node: LucideIconNode = [['image', { href: 'x', onerror: `window.__hit('lucide-attr-name')` }]];
 
       expect(lucide('evil', node).data).toContain('onerror=');

@@ -14,8 +14,7 @@ import {
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 
 import { Check, Copy } from 'lucide';
-import { provideWrIcons, WrIcon } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 
 import type { DocCodeFile } from './types';
 

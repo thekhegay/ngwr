@@ -5,32 +5,23 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { WrIconDef } from 'ngwr/icon';
-
-/**
- * Shape of a `lucide` icon export — an array of `[tag, attrs]` tuples
- * representing the inner SVG children. The outer `<svg>` wrapper is
- * added by the adapter when converting to a {@link WrIconDef}.
- */
-type LucideIconNode = readonly (readonly [string, Record<string, string | number | undefined>])[];
+import type { LucideIconNode, WrIconDef } from './types';
 
 /**
  * Default SVG attributes Lucide applies to every icon. Kept identical
  * to what the `lucide` package's `createElement` would emit so visual
  * parity with upstream is preserved.
+ *
+ * Concatenated literals rather than `[…].join(' ')`: a module-level call is a
+ * side effect to the bundler, and this file ships in `ngwr/icon`, so the join
+ * would stay in every app that registers only raw SVG.
  */
-const SVG_ATTRS = [
-  'xmlns="http://www.w3.org/2000/svg"',
-  'width="24"',
-  'height="24"',
-  'viewBox="0 0 24 24"',
-  'fill="none"',
-  'stroke="currentColor"',
-  'stroke-width="2"',
-  'stroke-linecap="round"',
-  'stroke-linejoin="round"',
-  'class="wr-icon__svg lucide"',
-].join(' ');
+const SVG_ATTRS =
+  'xmlns="http://www.w3.org/2000/svg" ' +
+  'width="24" height="24" viewBox="0 0 24 24" ' +
+  'fill="none" stroke="currentColor" stroke-width="2" ' +
+  'stroke-linecap="round" stroke-linejoin="round" ' +
+  'class="wr-icon__svg lucide"';
 
 /**
  * Wrap a single Lucide icon in the {@link WrIconDef} envelope. Use this
@@ -40,7 +31,7 @@ const SVG_ATTRS = [
  * @example
  * ```ts
  * import { Plus } from 'lucide';
- * import { lucide } from 'ngwr/icon/adapters/lucide';
+ * import { lucide, provideWrIcons } from 'ngwr/icon';
  *
  * provideWrIcons([lucide('plus', Plus)]);
  * ```
@@ -53,9 +44,13 @@ function lucide(name: string, children: LucideIconNode): WrIconDef {
 /**
  * Wrap a bag of Lucide icons in one shot. Keys become the registered
  * names **verbatim** — exactly what you pass to `<wr-icon name>` — matching
- * the singular `lucide()` helper and the other adapters. Kebab-case by
+ * the singular `lucide()` helper and `svgIcon()`. Kebab-case by
  * convention, so quote multi-word keys (`'chevron-down'`). Values are the
  * upstream IconNode tuples.
+ *
+ * Lucide is the one set with a converter here because it is the one that
+ * ships no SVG markup at all; every other set, Feather included, registers
+ * its own SVG through `svgIcon()`.
  *
  * Tree-shaking: every `Plus`, `Trash`, … import lives in *your* file
  * — ngwr ships only this wrapper, not the icon data. Unused icons in
@@ -64,7 +59,7 @@ function lucide(name: string, children: LucideIconNode): WrIconDef {
  * @example
  * ```ts
  * import { Plus, Trash, ChevronDown } from 'lucide';
- * import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+ * import { lucideIcons, provideWrIcons } from 'ngwr/icon';
  *
  * bootstrapApplication(AppComponent, {
  *   providers: [
@@ -107,4 +102,4 @@ function renderChild([tag, attrs]: readonly [string, Record<string, string | num
   return `<${tag} ${rendered}/>`;
 }
 
-export { lucide, lucideIcons, type LucideIconNode };
+export { lucide, lucideIcons };

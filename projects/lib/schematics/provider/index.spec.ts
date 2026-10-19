@@ -112,18 +112,27 @@ describe('ng g ngwr:provider', () => {
     expect(logs).toContain('✓ Added provideWrOverlay() to src/app/app.config.ts.');
   });
 
-  it('brings the icon adapter imports along to the file it patches', async () => {
+  it('brings the icon imports along to the file it patches', async () => {
     const { tree } = await run(workspace({ '/src/main.ts': SPLIT_MAIN, '/src/app/app.config.ts': APP_CONFIG }), {
       name: 'icons',
     });
 
     const config = tree.readText('/src/app/app.config.ts');
     // All three, in the file that holds the call — the failure this replaces
-    // planted them in `main.ts` with no call anywhere to use them.
-    expect(config).toContain("import { provideWrIcons } from 'ngwr/icon';");
-    expect(config).toContain("import { lucideIcons } from 'ngwr/icon/adapters/lucide';");
+    // planted them in `main.ts` with no call anywhere to use them. The converter
+    // lives in `ngwr/icon` itself, so it joins the factory's import line.
+    expect(config).toContain("import { provideWrIcons, lucideIcons } from 'ngwr/icon';");
     expect(config).toContain("import { Plus, Trash2 } from 'lucide';");
     expect(config).toContain('provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 }))');
+  });
+
+  it('prints the icon imports as one line per module when it cannot patch', async () => {
+    const { logs } = await run(workspace({ '/src/main.ts': 'export {};\n' }), { name: 'icons' });
+
+    const snippet = logs.join('\n');
+    expect(snippet).toContain("import { provideWrIcons, lucideIcons } from 'ngwr/icon';");
+    expect(snippet).toContain("import { Plus, Trash2 } from 'lucide';");
+    expect(snippet.match(/from 'ngwr\/icon'/g)).toHaveLength(1);
   });
 
   it('still patches main.ts when the providers array is there', async () => {

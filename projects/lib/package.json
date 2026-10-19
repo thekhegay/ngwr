@@ -581,12 +581,6 @@
       "sass": "./icon/styles/_index.scss",
       "default": "./icon/public-api.ts"
     },
-    "./icon/adapters/feather": {
-      "default": "./icon/adapters/feather/public-api.ts"
-    },
-    "./icon/adapters/lucide": {
-      "default": "./icon/adapters/lucide/public-api.ts"
-    },
     "./image-cropper": {
       "sass": "./image-cropper/styles/_index.scss",
       "default": "./image-cropper/public-api.ts"

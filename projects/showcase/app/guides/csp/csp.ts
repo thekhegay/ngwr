@@ -83,7 +83,7 @@ Content-Security-Policy:
     {
       name: 'connect-src',
       description:
-        'Only what your own app fetches. The library makes no network calls of its own — `WrI18nHttpLoader` uses whatever URL you configure, and the icon adapters take the icon data as an argument rather than fetching it.',
+        'Only what your own app fetches. The library makes no network calls of its own — `WrI18nHttpLoader` uses whatever URL you configure, and `lucideIcons()` and `svgIcon()` take the icon data as an argument rather than fetching it.',
       type: 'directive',
       default: "'self'",
     },

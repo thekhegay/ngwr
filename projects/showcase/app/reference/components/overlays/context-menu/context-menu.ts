@@ -2,8 +2,7 @@ import { Component } from '@angular/core';
 
 import { FileText, Settings, Trash2 } from 'lucide';
 import { WrContextMenu, WrContextMenuDivider, WrContextMenuItem, WrContextMenuPanel } from 'ngwr/context-menu';
-import { provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 import { WrKbd } from 'ngwr/keyboard';
 
 import {

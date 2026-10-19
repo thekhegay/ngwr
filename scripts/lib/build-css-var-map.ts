@@ -77,7 +77,7 @@ interface RawDeclaration {
 }
 
 interface EntryPoint {
-  /** Path under `projects/lib`: `alert`, `icon/adapters/lucide`. */
+  /** Path under `projects/lib`: `alert`, `charts/bar-chart`. */
   readonly entry: string;
   readonly dir: string;
 }

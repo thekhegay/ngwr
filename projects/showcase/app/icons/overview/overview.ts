@@ -29,22 +29,16 @@ bootstrapApplication(AppComponent, {
 // Pair with a bundler's raw-svg import (Vite: \`?raw\`, Webpack:
 // \`raw-loader\`, esbuild: \`--loader:.svg=text\`).
 import { svgIcon, provideWrIcons } from 'ngwr/icon';
-import plusSvg from '@tabler/icons/icons/plus.svg?raw';
+import plusSvg from '@tabler/icons/icons/outline/plus.svg?raw';
+import trashSvg from 'feather-icons/dist/icons/trash-2.svg?raw';
 
-provideWrIcons([svgIcon('plus', plusSvg)]);`,
+provideWrIcons([svgIcon('plus', plusSvg), svgIcon('trash', trashSvg)]);`,
 
     lucide: `// Lucide ships per-icon JS exports (\`IconNode\` tuples).
 import { Plus, Trash, ChevronDown } from 'lucide';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 
 provideWrIcons(lucideIcons({ plus: Plus, trash: Trash, 'chevron-down': ChevronDown }));`,
-
-    feather: `// Feather ships inner-SVG strings under \`dist/icons.json\`.
-// The adapter wraps each with Feather's default <svg> chrome.
-import featherSource from 'feather-icons/dist/icons.json';
-import { featherIcons } from 'ngwr/icon/adapters/feather';
-
-provideWrIcons(featherIcons({ plus: featherSource.plus, trash: featherSource.trash }));`,
 
     schematic: `# Scaffold an icon set with the schematic — generates a typed barrel
 # under src/app/icons.ts that you import from your bootstrap.

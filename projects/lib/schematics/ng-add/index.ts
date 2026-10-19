@@ -16,8 +16,9 @@ import type { Schema } from './schema';
  * Base peers, regardless of prompt answers.
  *
  * `lucide` is here because the bootstrap snippet this schematic prints registers
- * icons through the lucide adapter — leaving it out made the very first snippet
- * a consumer pastes fail to resolve.
+ * icons through `lucideIcons()`, which converts glyphs the app imports from
+ * `lucide` itself — leaving it out made the very first snippet a consumer pastes
+ * fail to resolve.
  *
  * `@angular/forms` is a REQUIRED peer in `projects/lib/package.json` and is
  * deliberately NOT here: every `ng new` app already depends on it, so installing
@@ -199,13 +200,13 @@ function printNextSteps(options: Schema, context: SchematicContext): Rule {
     const adapter = options.dateAdapter ?? 'none';
     const density = options.density ?? 'none';
 
-    // `ngwr/icon` exports only WrIcon / provideWrIcons / svgIcon — there are no
-    // bare icon exports, so the old `{ plus, trash }` import did not compile.
-    // Icons come from an adapter (lucide / feather) or from svgIcon().
+    // `ngwr/icon` ships no icons — there are no bare icon exports, so the old
+    // `{ plus, trash }` import did not compile. Glyphs come from the app's own
+    // icon package, through `lucideIcons()` for lucide or `svgIcon()` for a set
+    // that ships SVG.
     const imports: string[] = [
       "import { provideWrOverlay } from 'ngwr/overlay';",
-      "import { provideWrIcons } from 'ngwr/icon';",
-      "import { lucideIcons } from 'ngwr/icon/adapters/lucide';",
+      "import { provideWrIcons, lucideIcons } from 'ngwr/icon';",
       "import { Plus, Trash2 } from 'lucide';",
     ];
     const providers: string[] = ['provideWrOverlay()', 'provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 }))'];

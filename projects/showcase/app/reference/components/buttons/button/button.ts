@@ -2,8 +2,7 @@ import { Component, signal } from '@angular/core';
 
 import { Copy, Download, Plus, Trash2, TriangleAlert } from 'lucide';
 import { WrButton, type WrButtonShape } from 'ngwr/button';
-import { provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 import { WR_COLORS } from 'ngwr/theme';
 import { WrTypography } from 'ngwr/typography';
 

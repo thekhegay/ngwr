@@ -2,8 +2,7 @@ import { Component, DestroyRef, afterNextRender, inject, signal } from '@angular
 
 import { Check, Copy } from 'lucide';
 import { WrButton } from 'ngwr/button';
-import { provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 import { WrMarkdown } from 'ngwr/markdown';
 import { WrPlatform } from 'ngwr/platform';
 

@@ -9,7 +9,7 @@
  * Any icon name registered via {@link provideWrIcons}.
  *
  * Kept as a string alias so consumers can pass any name they've wired
- * — there are no built-ins shipped by ngwr. Bring an icon set via one
- * of the adapters under `ngwr/icon/adapters/<set>` or via `svgIcon()`.
+ * — there are no built-ins shipped by ngwr. Bring an icon set via
+ * `svgIcon()`, or `lucideIcons()` for Lucide.
  */
 export type WrIconName = string;

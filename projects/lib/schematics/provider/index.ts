@@ -29,13 +29,14 @@ interface ProviderSpec {
 const PROVIDERS: Record<ProviderName, ProviderSpec> = {
   overlay: { subpath: 'ngwr/overlay', factory: 'provideWrOverlay', call: 'provideWrOverlay()' },
   icons: {
-    // `ngwr/icon` exports only WrIcon / provideWrIcons / svgIcon — there are no
-    // bare icon exports. Icons come from an adapter, exactly as `ng add` wires them.
+    // `ngwr/icon` ships no icons — there are no bare icon exports. The glyphs
+    // come from the app's own `lucide` install through `lucideIcons()`, exactly
+    // as `ng add` wires them.
     subpath: 'ngwr/icon',
     factory: 'provideWrIcons',
     call: 'provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 }))',
     extras: [
-      ['lucideIcons', 'ngwr/icon/adapters/lucide'],
+      ['lucideIcons', 'ngwr/icon'],
       ['Plus, Trash2', 'lucide'],
     ],
   },
@@ -221,10 +222,16 @@ function printSnippet(spec: ProviderSpec): string {
   // This runs when no bootstrap file could be resolved, so the snippet is all the
   // user gets — it has to include `extras`, or the printed code references symbols
   // it never imports. That was exactly the gap `extras` was declared to close.
-  const imports = [
-    `  import { ${spec.factory} } from '${spec.subpath}';`,
-    ...(spec.extras ?? []).map(([symbols, subpath]) => `  import { ${symbols} } from '${subpath}';`),
-  ].join('\n');
+  // Grouped by module, so an extra from the factory's own entry point
+  // (`lucideIcons` beside `provideWrIcons`) joins its line rather than
+  // printing a second import of `ngwr/icon` — the shape `ensureImport` writes.
+  const bySubpath = new Map<string, string[]>([[spec.subpath, [spec.factory]]]);
+  for (const [symbols, subpath] of spec.extras ?? []) {
+    bySubpath.set(subpath, [...(bySubpath.get(subpath) ?? []), symbols]);
+  }
+  const imports = [...bySubpath]
+    .map(([subpath, symbols]) => `  import { ${symbols.join(', ')} } from '${subpath}';`)
+    .join('\n');
 
   return `
 ngwr:provider — copy this into your bootstrap:

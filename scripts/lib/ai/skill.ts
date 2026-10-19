@@ -237,14 +237,14 @@ bootstrap snippet tailored to the answers.
 
 \`\`\`ts
 import { provideWrOverlay } from 'ngwr/overlay';
-import { provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { Check, ChevronDown } from 'lucide';
 
 bootstrapApplication(App, {
   providers: [
     provideZonelessChangeDetection(),
     provideWrOverlay(),
-    provideWrIcons(lucideIcons({ check, chevronDown })),
+    provideWrIcons(lucideIcons({ check: Check, 'chevron-down': ChevronDown })),
   ],
 });
 \`\`\`

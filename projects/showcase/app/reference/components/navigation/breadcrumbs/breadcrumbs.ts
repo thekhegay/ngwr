@@ -2,8 +2,7 @@ import { Component, computed, signal } from '@angular/core';
 
 import { Folder, Home as HomeIcon } from 'lucide';
 import { WrBreadcrumbs, WrBreadcrumbsItem } from 'ngwr/breadcrumbs';
-import { provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 
 import {
   type DocApiRow,
