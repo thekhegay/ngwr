@@ -34,29 +34,6 @@
         ]
       }
     },
-    "dateAdapter": {
-      "type": "string",
-      "enum": [
-        "none",
-        "native"
-      ],
-      "default": "none",
-      "description": "Wire a date adapter for calendar / date-picker. `none` skips. `native` uses the built-in Date adapter (no extra deps). For another date library, subclass `WrDateAdapter` and pass it as `provideWrDateAdapter({ adapter })`.",
-      "x-prompt": {
-        "message": "Wire a date adapter? (Used by calendar / date-picker.)",
-        "type": "list",
-        "items": [
-          {
-            "value": "none",
-            "label": "None \u2014 skip (you can add later)"
-          },
-          {
-            "value": "native",
-            "label": "Native \u2014 built-in Date, no extra deps"
-          }
-        ]
-      }
-    },
     "density": {
       "type": "string",
       "enum": [

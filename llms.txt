@@ -97,9 +97,11 @@ Add from their entry points as needed:
   with ngwr, e.g. `common`, `form`, `table`, keeps only the side spread
   last, and the other side's keys stop resolving with nothing logged — ngwr's
   components fall back to English and a `wrT` read renders the raw key.
-- `provideWrDateAdapter()` — calendar + date-picker (`ngwr/date`). The native
-  adapter is the only one ngwr ships; for another date library, extend
-  `WrDateAdapter` and pass the class as `provideWrDateAdapter({ adapter })`.
+- Calendar, event calendar and date-picker need no date provider:
+  `WrDateAdapter` resolves to the native adapter (`Date` + `Intl`, locale from
+  `LOCALE_ID`). `provideWrDateAdapter({ locale })` (`ngwr/date`) pins another
+  locale; for another date library, extend `WrDateAdapter` and pass the class as
+  `provideWrDateAdapter({ adapter })`.
 
 Injected rather than provided: `WrTour` (`ngwr/tour`) runs a guided onboarding
 tour — `tour.start([{ target: '[data-tour="save"]', content: '…' }])` spotlights
@@ -110,7 +112,7 @@ one element at a time; a step whose target is missing is skipped, not floated.
 - `ng add ngwr` — installs peers, adds `@use 'ngwr/theme'` to styles, prints provider setup.
 - `ng g ngwr:use WrFoo --path src/app/x.ts` — adds the import + splices `WrFoo` into that
   component's `@Component` imports.
-- `ng g ngwr:provider <icons|toast|i18n|date-adapter|density|storage>` —
+- `ng g ngwr:provider <icons|toast|i18n|density|storage>` —
   adds the matching `provideWr*()` to bootstrap.
 - `ng g ngwr:icon-set` — scaffolds a tree-shaken icon barrel.
 - `ng g ngwr:component-style <name>` — appends `@use 'ngwr/<name>'` (opt-in styles).
@@ -139,7 +141,8 @@ v15 ships none, so its names move by hand:
   register feather's own SVG files with `svgIcon()`;
   `ngwr/date/adapters/fns` and `ngwr/date/adapters/luxon` are gone — use the
   native adapter, or your own `WrDateAdapter` subclass, and note that a date-fns
-  token `[format]` (`EEEE`, `PPP`) prints verbatim on the native one;
+  token `[format]` (`EEEE`, `PPP`) prints verbatim on the native one; a bare
+  `provideWrDateAdapter()` is redundant, since the native adapter is the default;
   every chart and animation entry point is nested, so `ngwr/bar-chart` is
   `ngwr/charts/bar-chart` and `ngwr/aurora` is `ngwr/bits/aurora`;
   `--wr-color-light` and `--wr-color-outline` are `--wr-border-base`,

@@ -27,6 +27,8 @@ interface ProviderSpec {
 // `ngwr/theme` is absent for the same reason since v15: `WrTheme` is
 // root-provided and the scheme follows the OS with nothing in `providers`. So is
 // `ngwr/overlay`: its isolated container is the tokens' default, with no call.
+// And `ngwr/date`: its native adapter is the default, so a bare call only
+// registers it again; a locale or a custom adapter is the app's to write.
 const PROVIDERS: Record<ProviderName, ProviderSpec> = {
   icons: {
     // `ngwr/icon` ships no icons — there are no bare icon exports. The glyphs
@@ -47,11 +49,6 @@ const PROVIDERS: Record<ProviderName, ProviderSpec> = {
     call: 'provideWrToastConfig({})',
   },
   i18n: { subpath: 'ngwr/i18n', factory: 'provideWrI18n', call: 'provideWrI18n()' },
-  'date-adapter': {
-    subpath: 'ngwr/date',
-    factory: 'provideWrDateAdapter',
-    call: 'provideWrDateAdapter()',
-  },
   density: { subpath: 'ngwr/density', factory: 'provideWrDensity', call: 'provideWrDensity()' },
   storage: { subpath: 'ngwr/storage', factory: 'provideWrStorage', call: 'provideWrStorage()' },
 };

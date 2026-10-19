@@ -38,9 +38,9 @@ const REFUSAL_COPY: (Provider | EnvironmentProviders)[] = [
  * The picker is a text field plus a popover, and the popover is a CDK overlay —
  * the calendar / time panel land in the overlay container, not in the fixture,
  * so every query for panel content goes through the document. That container
- * belongs to the TestBed's root injector, so it never outlives this file, and
- * `provideWrDateAdapter` is mandatory: without an adapter the picker cannot
- * format or parse anything.
+ * belongs to the TestBed's root injector, so it never outlives this file.
+ * `provideWrDateAdapter({ locale: 'en-US' })` pins the locale; the native
+ * adapter itself needs no provider.
  *
  * The locale is pinned to `en-US` so the grid's first day of week is stable, and
  * the host passes an explicit token `format` — the named keys (`shortDate`, …)

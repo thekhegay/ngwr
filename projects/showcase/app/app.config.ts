@@ -6,7 +6,6 @@ import {
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 
-import { provideWrDateAdapter } from 'ngwr/date';
 import { provideWrDensity } from 'ngwr/density';
 import { provideWrI18n, provideWrI18nBaseCatalogs, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrEn } from 'ngwr/i18n/en';
@@ -53,7 +52,6 @@ export const appConfig: ApplicationConfig = {
     // without re-registering. Page-level `provideWrIcons(...)` adds on
     // top (the lib merges root + element-level multi-providers).
     provideWrIcons([...COMMON_ICONS]),
-    provideWrDateAdapter(),
     provideWrDensity(),
     provideWrI18n({ availableLocales: ['en', 'ru'], defaultLocale: 'en' }),
     // ngwr's own strings as a base, so the loader carries only the site's keys —

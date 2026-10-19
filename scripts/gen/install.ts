@@ -124,10 +124,10 @@ function entriesOf(file: string, styled: Set<string>, declarable: Set<string>): 
       if (/^type\s/.test(trimmed)) continue;
       const name = trimmed.split(/\s+as\s+/)[0].trim();
       // Everything a consumer writes, not just the declarables: a utils page
-      // imports `clamp`, a date page `provideWrDateAdapter`, and a recipe that
-      // listed only `Wr*` classes rendered no Installation at all on the
-      // twenty-one utils pages. Which of these go in `imports: []` is decided
-      // where it is rendered — a class by its name, everything else a call.
+      // imports `clamp`, and a recipe that listed only `Wr*` classes rendered no
+      // Installation at all on the twenty-one utils pages. Which of these go in
+      // `imports: []` is decided where it is rendered — a class by its name,
+      // everything else a call.
       if (/^[A-Za-z_$]/.test(name)) set.add(name);
     }
     if (set.size > 0) byPath.set(path, set);

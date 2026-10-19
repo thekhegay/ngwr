@@ -642,3 +642,32 @@ describe('WrCalendar — header and cell names', () => {
     expect(fifteenth!.getAttribute('aria-label')).toBe('Thursday, January 15, 2026');
   });
 });
+
+/**
+ * `WrDateAdapter` defaults to the native adapter since v15, so a calendar needs
+ * no date provider at all. Without one it used to throw `NullInjectorError`
+ * before it drew a single cell.
+ */
+describe('WrCalendar with no date provider', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  afterEach(() => fixture.destroy());
+
+  it('draws the month on the native adapter', async () => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    await Promise.resolve();
+    await Promise.resolve();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const fifteenth = [...root.querySelectorAll<HTMLElement>('.wr-calendar__day')].find(
+      d => d.textContent.trim() === '15' && !d.classList.contains('wr-calendar__day--out-of-month')
+    );
+
+    expect(root.querySelector('.wr-calendar__label')!.textContent.trim()).toBe('January 2026');
+    expect(fifteenth!.getAttribute('aria-label')).toBe('Thursday, January 15, 2026');
+  });
+});

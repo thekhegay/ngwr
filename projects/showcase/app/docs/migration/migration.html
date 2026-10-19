@@ -310,7 +310,7 @@
 
   <ngwr-doc-section
     title="v14 to v15 — no date-fns or Luxon adapter"
-    description="`ngwr/date/adapters/fns` and `ngwr/date/adapters/luxon` are removed, with `WrDateFnsAdapter`, `provideWrDateFnsAdapter()`, `WR_DATE_FNS_LOCALE`, `WrLuxonAdapter` and `provideWrLuxonAdapter()`, and `date-fns` and `luxon` are no longer optional peers. `ngwr/date` is unchanged: `provideWrDateAdapter()` without an `adapter` gives the native one, over `Date` and `Intl`. To stay on another date library, extend `WrDateAdapter<Date>` (the components hold and compare native `Date` values), do the arithmetic, formatting and parsing through that library, and pass the class as `adapter`."
+    description="`ngwr/date/adapters/fns` and `ngwr/date/adapters/luxon` are removed, with `WrDateFnsAdapter`, `provideWrDateFnsAdapter()`, `WR_DATE_FNS_LOCALE`, `WrLuxonAdapter` and `provideWrLuxonAdapter()`, and `date-fns` and `luxon` are no longer optional peers. `ngwr/date` keeps the native adapter, over `Date` and `Intl`, which now needs no provider at all. To stay on another date library, extend `WrDateAdapter<Date>` (the components hold and compare native `Date` values), do the arithmetic, formatting and parsing through that library, and pass the class as `adapter`."
   >
     <ngwr-doc-code [code]="snippets.v15Dates" language="diff" />
     <p>
@@ -365,6 +365,22 @@
     <p>
       The imports fail the build. A <code>var(--wr-keyboard-inset, 0px)</code> does not: it falls back to its default
       and stays there, so search your stylesheets for it.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15 — dates need no provider"
+    description="`WrDateAdapter` resolves to `WrNativeDateAdapter` when nothing provides one, so `<wr-calendar>`, `<wr-event-calendar>` and every `<wr-date-picker>` mode work with no call, in the locale `LOCALE_ID` names. `provideWrDateAdapter()` stays for the two things it still adds: `{ locale }` pins the dates to another locale, and `{ adapter }` swaps in a `WrDateAdapter<Date>` subclass of your own. `ng add` no longer asks about a date adapter and takes no `--dateAdapter` flag."
+  >
+    <ngwr-doc-code [code]="snippets.v15DateDefault" language="diff" />
+    <p>
+      A bare call left in place breaks nothing: it registers the same adapter. One thing renders differently. A
+      <code>wrDate</code> pipe in an app that never provided an adapter used to fall back to <code>Intl</code>'s
+      <code>dateStyle</code> / <code>timeStyle</code> shorthands, and now formats through the native adapter, so
+      <code>shortDate</code> prints <code>3/15/2026</code> where it printed <code>3/15/26</code> and
+      <code>time</code> prints <code>02:30 PM</code> where it printed <code>2:30 PM</code> (the date-time keys change
+      the same way), and a token string such as <code>'dd.MM.yyyy'</code> is honoured where it used to fall back to
+      <code>shortDate</code>.
     </p>
   </ngwr-doc-section>
 

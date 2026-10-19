@@ -326,10 +326,16 @@ one component folder. Reach for them instead of hand-rolling:
   One limit outlived them: the `-ink` shares are calibrated against the SHIPPED
   bases, so a seed far from them inherits shares that no longer guarantee 5:1 —
   measure it.
-- **Date adapters** (`ngwr/date`) — `provideWrDateAdapter(...)` powers the
-  calendar and every date-picker mode, and it is still required: `WrDateAdapter`
-  is abstract with no root fallback. `WrNativeDateAdapter`, over `Date` and `Intl`,
-  is the only implementation ngwr ships. **v15 deleted
+- **Date adapters** (`ngwr/date`) — `WrDateAdapter` powers the calendar, the
+  event calendar and every date-picker mode, and since v15 it needs no provider:
+  injected with nothing provided, it resolves to `WrNativeDateAdapter`, over
+  `Date` and `Intl`, in the `WR_DATE_LOCALE` locale (which is `LOCALE_ID`).
+  `provideWrDateAdapter({ locale, adapter })` stays for a pinned locale or an
+  adapter of the app's own. **The base class and the native one share one
+  module, and that is load-bearing**: the base's injectable default names the
+  subclass, so with each in its own file the base would import the file that
+  extends it — an ES-module cycle that breaks at evaluation. Do not split them.
+  `WrNativeDateAdapter` is the only implementation ngwr ships. **v15 deleted
   `ngwr/date/adapters/{fns,luxon}`** and the `date-fns` / `luxon` optional
   peers with them: an app on another date library extends `WrDateAdapter` and
   passes the class as `provideWrDateAdapter({ adapter })`. The entry points
@@ -1792,12 +1798,12 @@ the narrowing safe: `@use` on an entry point with no `styles/_index.scss`
 (`ngwr/date`, `ngwr/utils`) is a build error, not a no-op.
 
 Two more traps it caught, worth keeping in mind for anything that generates a
-bootstrap: a provider whose absence is a `NullInjectorError`
-(`provideWrDateAdapter`, and `Router`, which `projects/lib/sidebar/sidebar.ts`
-injects non-optionally) cannot be inferred from markup, so all of them are
-emitted unconditionally and only `provideWrIcons` is gated, because it is the
-only one that costs an npm package; and `provideRouter([])` alone throws
-`NG04002` on bootstrap, so it carries `withDisabledInitialNavigation()`.
+bootstrap: a provider whose absence is a `NullInjectorError` (`Router`, which
+`projects/lib/sidebar/sidebar.ts` injects non-optionally) cannot be inferred
+from markup, so it is emitted unconditionally and only `provideWrIcons` is
+gated, because it is the only one that costs an npm package; and
+`provideRouter([])` alone throws `NG04002` on bootstrap, so it carries
+`withDisabledInitialNavigation()`.
 **One observation is not a guarantee** — if you change what the generator emits,
 watch one boot again rather than assuming.
 
@@ -1854,8 +1860,8 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
 (`collection.json` + a dir per generator), built by `scripts/build/schematics.ts`
 (which also generates `use/symbol-map.json` from a public-api scan):
 
-- `ng add ngwr` — prompts for styles / dateAdapter / density, installs
-  peers, prints a tailored bootstrap snippet.
+- `ng add ngwr` — prompts for styles / density, installs peers, prints a
+  tailored bootstrap snippet.
 - `ng g ngwr:use WrFoo --path path/to/cmp.ts` — adds the import + splices it into
   the component's `@Component` imports. Only `symbol` is positional; `path` is a
   named option, so passing it bare fails with `Unknown argument`.

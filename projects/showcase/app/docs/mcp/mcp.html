@@ -127,9 +127,9 @@
 
     <p>
       Section 4 only appears for symbols that need it, and the list behind it is short on purpose: these are the
-      providers a component cannot be made to work without. <code>WrDateAdapter</code> is the clearest one — it is an
-      abstract class with no root fallback, so a date picker without <code>provideWrDateAdapter()</code> fails at
-      injection rather than rendering something almost right.
+      providers whose absence a component cannot explain. <code>provideWrLoadingBarRouter()</code> is the clearest one —
+      without it <code>&lt;wr-loading-bar&gt;</code> compiles, renders and never moves for a navigation, and nothing
+      says why.
     </p>
   </ngwr-doc-section>
 

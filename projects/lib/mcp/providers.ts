@@ -8,13 +8,15 @@
 /**
  * Providers a symbol cannot work without.
  *
- * Hard-coded, and the list is short on purpose: these are the four cases where
+ * Hard-coded, and the list is short on purpose: these are the three cases where
  * the component compiles, renders nothing useful, and gives no error that names
- * the cause. Everything else is discoverable from the docs page.
+ * the cause. Everything else is discoverable from the docs page. The date
+ * components left it in v15, when `WrDateAdapter` gained the native adapter as
+ * its default.
  *
  * It sits in its own file because two things ship it: `get_ngwr_setup` in the
  * MCP server, and the generated agent skill (`scripts/gen/ai-assets.ts`), which
- * writes the same four rules into `skills/ngwr/SKILL.md`. One table, imported
+ * writes the same three rules into `skills/ngwr/SKILL.md`. One table, imported
  * twice — the alternative is two lists that agree until one of them is edited.
  */
 interface RequiredProvider {
@@ -29,14 +31,6 @@ const REQUIRED_PROVIDERS: readonly RequiredProvider[] = [
     test: /^WrIcon/,
     provider: "provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon'",
     why: 'icons resolve by name from a registry you populate',
-  },
-  {
-    test: /^WrDatePicker|^WrCalendar|^WrEventCalendar/,
-    // The no-argument call, which registers the native adapter — the only one ngwr
-    // ships, so the line needs nothing else installed. An app on another date
-    // library passes its own `WrDateAdapter` subclass as `{ adapter }`.
-    provider: "provideWrDateAdapter() // from 'ngwr/date'",
-    why: 'every date mode goes through an adapter; there is no built-in default',
   },
   {
     // The bar itself needs no provider — `start()` / `complete()` work bare — so

@@ -50,8 +50,8 @@ const YEAR_COLS = 4;
  * date-range selection (`mode="range"`). Reusable on its own; consumed by
  * `<wr-date-picker>` inside an overlay.
  *
- * Uses {@link WrDateAdapter} for all date math and formatting — register
- * one via {@link provideWrDateAdapter} at bootstrap.
+ * Uses {@link WrDateAdapter} for all date math and formatting — the native
+ * one unless {@link provideWrDateAdapter} registers another.
  *
  * @example
  * ```html

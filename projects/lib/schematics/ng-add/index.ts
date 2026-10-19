@@ -30,18 +30,6 @@ const BASE_PEERS: readonly (readonly [string, string])[] = [
   ['lucide', '>=1.0.0'],
 ];
 
-/**
- * The provider call named in the next-steps snippet for each `dateAdapter` choice.
- *
- * Native is the only adapter ngwr ships, so no choice adds a peer. An app on
- * another date library subclasses `WrDateAdapter` and passes it as
- * `provideWrDateAdapter({ adapter })`.
- */
-const DATE_ADAPTER_PROVIDER: Record<NonNullable<Schema['dateAdapter']>, string | null> = {
-  none: null,
-  native: 'provideWrDateAdapter()',
-};
-
 /** Default density → `provideWrDensity(...)` call. */
 const DENSITY_PROVIDER: Record<NonNullable<Schema['density']>, string | null> = {
   none: null,
@@ -187,7 +175,6 @@ function registerStyles(options: Schema): Rule {
  */
 function printNextSteps(options: Schema, context: SchematicContext): Rule {
   return (tree: Tree) => {
-    const adapter = options.dateAdapter ?? 'none';
     const density = options.density ?? 'none';
 
     // `ngwr/icon` ships no icons — there are no bare icon exports, so the old
@@ -199,12 +186,6 @@ function printNextSteps(options: Schema, context: SchematicContext): Rule {
       "import { Plus, Trash2 } from 'lucide';",
     ];
     const providers: string[] = ['provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 }))'];
-
-    const adapterCall = DATE_ADAPTER_PROVIDER[adapter];
-    if (adapterCall) {
-      imports.push("import { provideWrDateAdapter } from 'ngwr/date';");
-      providers.push(adapterCall);
-    }
 
     const densityCall = DENSITY_PROVIDER[density];
     if (densityCall) {
@@ -242,9 +223,8 @@ Browse the full catalog at https://ngwr.dev.
 
 function snapshotSummary(options: Schema): string {
   const lines: string[] = ['Selected:'];
-  lines.push(`  • styles      = ${options.styles ?? 'theme'}`);
-  lines.push(`  • dateAdapter = ${options.dateAdapter ?? 'none'}`);
-  lines.push(`  • density     = ${options.density ?? 'none'}`);
+  lines.push(`  • styles  = ${options.styles ?? 'theme'}`);
+  lines.push(`  • density = ${options.density ?? 'none'}`);
   return `${lines.join('\n')}\n\n`;
 }
 

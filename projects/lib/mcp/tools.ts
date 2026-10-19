@@ -342,7 +342,7 @@ function setup(catalog: Catalog, symbols: readonly string[]): string {
     '',
     '## 1. Install',
     'ng add ngwr',
-    '(prompts for styles, date adapter and density, and prints a bootstrap snippet)',
+    '(prompts for styles and density, and prints a bootstrap snippet)',
     '',
     '## 2. Wire each symbol into the component that uses it',
     ...resolved.map(hit => {

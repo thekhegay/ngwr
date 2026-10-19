@@ -9,7 +9,7 @@ import { WR_DATE_LOCALE } from './wr-date-locale.token';
 
 /**
  * The token used to default to `navigator.language`, and the provider's own
- * first JSDoc example is the no-argument call — so the documented path was the
+ * first JSDoc example was the no-argument call — so the documented path was the
  * broken one. An app on `LOCALE_ID: 'ru-RU'` with every string translated still
  * drew `March 2026` and a week starting on Sunday, because the calendar was
  * asking the browser what language the application is in.
@@ -26,8 +26,9 @@ describe('WR_DATE_LOCALE', () => {
   });
 
   it('takes LOCALE_ID through a no-argument provideWrDateAdapter()', () => {
-    // The exact shape from the provider's example, and the exact shape the audit
-    // reproduced against: no `locale` option anywhere, everything else Russian.
+    // The exact shape the provider's example used to show, and the exact shape
+    // the audit reproduced against: no `locale` option anywhere, everything else
+    // Russian.
     TestBed.configureTestingModule({
       providers: [{ provide: LOCALE_ID, useValue: 'ru-RU' }, provideWrDateAdapter()],
     });

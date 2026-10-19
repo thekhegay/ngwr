@@ -92,8 +92,8 @@ class RangeHost {
  * fixture, which is the whole reason the harness scopes its panel queries by the
  * id the trigger publishes as `aria-controls`. The container belongs to the
  * TestBed's root injector, so it never outlives this file, and
- * `provideWrDateAdapter()` is mandatory: without an adapter the picker cannot
- * format or parse anything.
+ * `provideWrDateAdapter({ locale: 'en-US' })` pins the locale the assertions are
+ * written in; the native adapter itself needs no provider.
  *
  * The locale is pinned to `en-US` so the grid's first day of week and the month
  * names are stable, and the hosts pass an explicit token `format` — the named

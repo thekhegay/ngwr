@@ -20,7 +20,7 @@ import { TOOLS, callTool, validateArguments, type ToolSpec } from './tools.js';
  * The fixture is a temp directory laid out like an installed `ngwr` — the four
  * kinds of file `Catalog` reads and nothing else:
  *
- *   llms-full.txt                     six entry points, in the generator's format
+ *   llms-full.txt                     seven entry points, in the generator's format
  *   package.json                      the `exports` map, which says who ships a stylesheet
  *   schematics/use/symbol-map.json    symbol → entry point, as the schematics write it
  *   types/ngwr-{alert,badge,select}.d.ts
@@ -31,12 +31,13 @@ import { TOOLS, callTool, validateArguments, type ToolSpec } from './tools.js';
  * string here, where against the real catalog it changes every time someone
  * adds an input.
  *
- * The six entry points are chosen for the shapes the tools have to survive:
+ * The seven entry points are chosen for the shapes the tools have to survive:
  * two selectors on one entry point (`badge`), a service-only entry point with
  * no selector, no description and no declarations (`overlay`), an entry point
- * whose symbol needs a provider (`date-picker`), a non-class export
- * (`WrBadgeSize`), one component with a full surface (`select`), and a nested
- * harness entry point that ships no stylesheet (`select/testing`).
+ * whose symbol needs a provider (`loading-bar`) and one whose symbol stopped
+ * needing one in v15 (`date-picker`), a non-class export (`WrBadgeSize`), one
+ * component with a full surface (`select`), and a nested harness entry point
+ * that ships no stylesheet (`select/testing`).
  */
 
 const CATALOG = [
@@ -63,6 +64,12 @@ const CATALOG = [
   '- exports: WrDatePicker',
   '- Date, time and datetime in one component, over a pluggable adapter.',
   '',
+  '## ngwr/loading-bar',
+  "- import: `import { WrLoadingBar } from 'ngwr/loading-bar'`",
+  '- selector: `wr-loading-bar`',
+  '- exports: WrLoadingBar, WrLoadingState, WrLoadingBarComponent',
+  '- Top-of-page progress bar with a `start()` / `complete()` slot API.',
+  '',
   '## ngwr/overlay',
   "- import: `import { WrOutsideClick } from 'ngwr/overlay'`",
   '- exports: WrOutsideClick, WrOverlayContainer',
@@ -86,6 +93,8 @@ const SYMBOL_MAP = {
   WrBadge: 'ngwr/badge',
   WrTag: 'ngwr/badge',
   WrDatePicker: 'ngwr/date-picker',
+  WrLoadingBar: 'ngwr/loading-bar',
+  WrLoadingBarComponent: 'ngwr/loading-bar',
   WrOutsideClick: 'ngwr/overlay',
   WrOverlayContainer: 'ngwr/overlay',
   WrSelect: 'ngwr/select',
@@ -108,6 +117,7 @@ const EXPORTS = {
   './alert': { sass: './alert/styles/_index.scss' },
   './badge': { sass: './badge/styles/_index.scss' },
   './date-picker': { sass: './date-picker/styles/_index.scss' },
+  './loading-bar': { sass: './loading-bar/styles/_index.scss' },
   './overlay': { sass: './overlay/styles/_index.scss' },
   './select': { sass: './select/styles/_index.scss' },
 };
@@ -205,8 +215,9 @@ beforeAll(() => {
   writeFileSync(join(root, 'types', 'ngwr-select.d.ts'), SELECT_TYPES);
   writeFileSync(join(root, 'types', 'ngwr-badge.d.ts'), BADGE_TYPES);
   writeFileSync(join(root, 'types', 'ngwr-alert.d.ts'), ALERT_TYPES);
-  // No declarations for `overlay`, `date-picker` or `select/testing`: an entry
-  // point whose declarations are missing has to answer, not throw.
+  // No declarations for `overlay`, `date-picker`, `loading-bar` or
+  // `select/testing`: an entry point whose declarations are missing has to
+  // answer, not throw.
 
   catalog = new Catalog(root);
 });
@@ -278,12 +289,12 @@ describe('callTool — search_ngwr', () => {
   });
 
   it('honours a limit, and falls back to a sane one for a nonsense limit', () => {
-    // `wr` is in every selector and every export, so all six entry points hit.
-    expect(hits(callTool(catalog, 'search_ngwr', { query: 'wr' }))).toBe(6);
+    // `wr` is in every selector and every export, so all seven entry points hit.
+    expect(hits(callTool(catalog, 'search_ngwr', { query: 'wr' }))).toBe(7);
     expect(hits(callTool(catalog, 'search_ngwr', { query: 'wr', limit: 2 }))).toBe(2);
     // Zero means "unset", not "no results" — a client sending its default 0
     // should still get an answer.
-    expect(hits(callTool(catalog, 'search_ngwr', { query: 'wr', limit: 0 }))).toBe(6);
+    expect(hits(callTool(catalog, 'search_ngwr', { query: 'wr', limit: 0 }))).toBe(7);
     // Negative cannot mean fewer than one.
     expect(hits(callTool(catalog, 'search_ngwr', { query: 'wr', limit: -4 }))).toBe(1);
   });
@@ -476,7 +487,7 @@ describe('callTool — get_ngwr_setup', () => {
         '',
         '## 1. Install',
         'ng add ngwr',
-        '(prompts for styles, date adapter and density, and prints a bootstrap snippet)',
+        '(prompts for styles and density, and prints a bootstrap snippet)',
         '',
         '## 2. Wire each symbol into the component that uses it',
         'ng g ngwr:use WrBadge --path src/app/some.component.ts   # ngwr/badge',
@@ -494,18 +505,27 @@ describe('callTool — get_ngwr_setup', () => {
   });
 
   it('names every provider a symbol cannot work without', () => {
-    const answer = callTool(catalog, 'get_ngwr_setup', { symbols: ['WrDatePicker'] });
+    const answer = callTool(catalog, 'get_ngwr_setup', { symbols: ['WrLoadingBarComponent'] });
 
-    // A date picker with no adapter compiles, renders, and does nothing — no
-    // error names the cause, which is the whole reason this section exists.
+    // A loading bar with no router adapter compiles, renders, and never moves for
+    // navigation — no error names the cause, which is the whole reason this
+    // section exists.
     expect(answer).toContain('## 4. Providers these need');
-    // Its panel needs nothing: ngwr's overlays are isolated by default.
-    expect(answer).not.toContain('provideWrOverlay');
     // The whole line, entry-point comment included. The old pin matched the call
     // prefix only, and under it the table shipped `provideWrDateAdapter(wrDateFnsAdapter)`
     // — a symbol ngwr has never exported — for as long as nobody pasted it.
-    expect(answer).toContain("provideWrDateAdapter() // from 'ngwr/date'");
-    expect(answer).toContain('why: every date mode goes through an adapter; there is no built-in default');
+    expect(answer).toContain("provideWrLoadingBarRouter() // from 'ngwr/loading-bar/router'");
+  });
+
+  it('asks nothing of a date picker, which runs on the native adapter by default', () => {
+    const answer = callTool(catalog, 'get_ngwr_setup', { symbols: ['WrDatePicker'] });
+
+    // `WrDateAdapter` resolves to `WrNativeDateAdapter` with nothing provided, so
+    // a provider line here would only be pasted to change nothing.
+    expect(answer).not.toContain('## 4. Providers these need');
+    expect(answer).not.toContain('provideWrDateAdapter');
+    // Nor for its panel: ngwr's overlays are isolated by default.
+    expect(answer).not.toContain('provideWrOverlay');
   });
 
   it('offers a plain import, not `ng g ngwr:use`, for a symbol the schematic would refuse', () => {
@@ -543,13 +563,13 @@ describe('callTool — get_ngwr_setup', () => {
   });
 
   it('gives no provider advice for a symbol it could not resolve', () => {
-    const answer = callTool(catalog, 'get_ngwr_setup', { symbols: ['WrCalendar'] });
+    const answer = callTool(catalog, 'get_ngwr_setup', { symbols: ['WrIcon'] });
 
-    // `WrCalendar` matches the date-adapter rule by name, but it is not in this
-    // catalog — advice about a symbol the install does not have is noise, and
-    // the missing line is the honest answer.
+    // `WrIcon` matches the icon rule by name, but it is not in this catalog —
+    // advice about a symbol the install does not have is noise, and the missing
+    // line is the honest answer.
     expect(answer).not.toContain('## 4. Providers these need');
-    expect(answer).toContain('Not in the catalog: WrCalendar. Try search_ngwr.');
+    expect(answer).toContain('Not in the catalog: WrIcon. Try search_ngwr.');
   });
 
   it('asks for a symbol when given none', () => {

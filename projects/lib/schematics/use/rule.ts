@@ -31,7 +31,7 @@ const NON_DECLARABLE: Readonly<Record<string, string>> = {
   WrClipboard: 'a service',
   WrConfetti: 'a service',
   WrCookie: 'a service',
-  WrDateAdapter: 'an abstract class',
+  WrDateAdapter: 'a service',
   WrDensity: 'a service',
   WrDialog: 'a service',
   WrDialogRef: 'a class',

@@ -24,7 +24,6 @@ import { Plus, Trash2 } from 'lucide';
 import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 import { provideWrToastConfig } from 'ngwr/toast';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
-import { provideWrDateAdapter } from 'ngwr/date';
 import { provideWrDensity } from 'ngwr/density';
 
 import { AppComponent } from './app/app';
@@ -39,7 +38,6 @@ bootstrapApplication(AppComponent, {
     provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 })),
     provideWrToastConfig({ position: 'top-end', duration: 4000 }),
     provideWrDensity({ defaultDensity: 'lg' }),
-    provideWrDateAdapter(),
     provideWrI18n(),
     provideWrI18nStaticLoader({ en: { /* … */ } }),
   ],
@@ -87,10 +85,11 @@ providers: [
 
     dateAdapter: `import { provideWrDateAdapter } from 'ngwr/date';
 
-// Native Date adapter — zero extra deps.
-providers: [provideWrDateAdapter()],
+// Nothing to provide for the native adapter: it formats in LOCALE_ID's locale.
+// Pin the dates to another one:
+providers: [provideWrDateAdapter({ locale: 'ru-RU' })],
 
-// Or your own, over the date library the app already uses. Extend
+// Or bring your own, over the date library the app already uses. Extend
 // WrDateAdapter<Date> and do the math, formatting and parsing through that
 // library: the components hold and compare native Date values. Implement what
 // it declares abstract; isNamedFormat() tells a named key from a token string.

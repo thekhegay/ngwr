@@ -321,11 +321,10 @@ search for both.
 
 `ngwr/date/adapters/fns` and `ngwr/date/adapters/luxon` are removed, with `WrDateFnsAdapter`,
 `provideWrDateFnsAdapter()`, `WR_DATE_FNS_LOCALE`, `WrLuxonAdapter` and `provideWrLuxonAdapter()`,
-and `date-fns` and `luxon` are no longer optional peers. `ngwr/date` is unchanged:
-`provideWrDateAdapter()` without an `adapter` gives the native one, over `Date` and `Intl`. To stay
-on another date library, extend `WrDateAdapter<Date>` (the components hold and compare native `Date`
-values), do the arithmetic, formatting and parsing through that library, and pass the class as
-`adapter`.
+and `date-fns` and `luxon` are no longer optional peers. `ngwr/date` keeps the native adapter, over
+`Date` and `Intl`, which now needs no provider at all. To stay on another date library, extend
+`WrDateAdapter<Date>` (the components hold and compare native `Date` values), do the arithmetic,
+formatting and parsing through that library, and pass the class as `adapter`.
 
 ```diff
 - import { provideWrDateFnsAdapter } from 'ngwr/date/adapters/fns';
@@ -334,7 +333,7 @@ values), do the arithmetic, formatting and parsing through that library, and pas
 - provideWrLuxonAdapter({ locale: 'ru' }),
 + import { provideWrDateAdapter } from 'ngwr/date';
 + provideWrDateAdapter({ locale: 'ru' }),
-+ provideWrDateAdapter({ adapter: AppDateAdapter }), // class AppDateAdapter extends WrDateAdapter<Date>
++ provideWrDateAdapter({ adapter: AppDateAdapter }), // @Service() class AppDateAdapter extends WrDateAdapter<Date>
 ```
 
 An adapter of your own implements what `WrDateAdapter` declares abstract: `today`, `clone`,
@@ -402,6 +401,31 @@ nothing in ngwr read any more. `WrPlatform` and `WrHaptics` are unchanged.
 
 The imports fail the build. A `var(--wr-keyboard-inset, 0px)` does not: it falls back to its
 default and stays there, so search your stylesheets for it.
+
+### Dates need no provider
+
+`WrDateAdapter` resolves to `WrNativeDateAdapter` when nothing provides one, so `<wr-calendar>`,
+`<wr-event-calendar>` and every `<wr-date-picker>` mode work with no call, in the locale
+`LOCALE_ID` names. `provideWrDateAdapter()` stays for the two things it still adds: `{ locale }`
+pins the dates to another locale, and `{ adapter }` swaps in a `WrDateAdapter<Date>` subclass of
+your own. `ng add` no longer asks about a date adapter and takes no `--dateAdapter` flag. A
+subclass of your own now wants `@Service()`: undecorated, it inherits the base's injectable
+definition, and Angular warns about that in dev mode.
+
+```diff
+- provideWrDateAdapter(), // a bare call is the default now: delete it, and its import if nothing else uses it
+  provideWrDateAdapter({ locale: 'ru' }), // a locale or your own adapter still goes through the provider
+  provideWrDateAdapter({ adapter: AppDateAdapter }),
+- ng add ngwr --styles=theme --dateAdapter=native
++ ng add ngwr --styles=theme
+```
+
+A bare call left in place breaks nothing: it registers the same adapter. One thing renders
+differently. A `wrDate` pipe in an app that never provided an adapter used to fall back to
+`Intl`'s `dateStyle` / `timeStyle` shorthands, and now formats through the native adapter, so
+`shortDate` prints `3/15/2026` where it printed `3/15/26` and `time` prints `02:30 PM` where it
+printed `2:30 PM` (the date-time keys change the same way), and a token string such as
+`'dd.MM.yyyy'` is honoured where it used to fall back to `shortDate`.
 
 ---
 

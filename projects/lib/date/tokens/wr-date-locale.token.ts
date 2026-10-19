@@ -13,8 +13,8 @@ import { InjectionToken, LOCALE_ID, inject } from '@angular/core';
  * option.
  *
  * **It used to default to `navigator.language`, and that was wrong in the
- * documented case.** The provider's own first example is the no-argument call,
- * so the path a reader copies was the broken one: an app that set
+ * documented case.** The provider's own first example was the no-argument call,
+ * so the path a reader copied was the broken one: an app that set
  * `LOCALE_ID: 'ru-RU'` and translated every string still rendered `March 2026`,
  * `SUN MON TUE …` and a week starting on Sunday, because the calendar was
  * asking the browser rather than the application. `navigator.language` is the

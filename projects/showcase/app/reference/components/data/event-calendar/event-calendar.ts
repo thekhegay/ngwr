@@ -77,12 +77,10 @@ export default class EventCalendarComponent {
   protected readonly api = API.WrEventCalendar;
 
   protected readonly snippets = {
-    provider: `// The native adapter needs no package and covers the common case:
+    provider: `// Nothing to provide for the native adapter. To run on the date library the
+// app already uses, pass your own WrDateAdapter subclass:
 import { provideWrDateAdapter } from 'ngwr/date';
 
-bootstrapApplication(App, { providers: [provideWrDateAdapter()] });
-
-// …or your own WrDateAdapter subclass, over the date library the app already uses:
 bootstrapApplication(App, { providers: [provideWrDateAdapter({ adapter: AppDateAdapter })] });`,
     basic: `<wr-event-calendar [events]="events()" [(view)]="view" [(date)]="anchor" />`,
     events: `protected readonly events = signal<readonly WrCalendarEvent[]>([

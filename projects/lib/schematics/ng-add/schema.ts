@@ -13,9 +13,6 @@ export interface Schema {
   /** How to wire styles. `theme` = `@use 'ngwr/theme';`, `none` = skip. */
   styles?: 'theme' | 'none';
 
-  /** Date adapter wired via `provideWrDateAdapter`. */
-  dateAdapter?: 'none' | 'native';
-
   /** Default density wired via `provideWrDensity`. */
   density?: 'none' | 'sm' | 'lg';
 

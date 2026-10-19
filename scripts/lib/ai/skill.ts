@@ -173,7 +173,7 @@ those harnesses from \`TestbedHarnessEnvironment.documentRootLoader(fixture)\`.
 /**
  * Turn the provider table's regular expression back into names.
  *
- * The table matches symbols, and a raw `/^WrDatePicker|^WrCalendar|…/` in a
+ * The table matches symbols, and a raw `/^WrTPipe$|^WrTDirective$|…/` in a
  * document meant for reading is noise. This unpacks the shapes the table uses —
  * bare alternatives, or one `^Wr(A|B|…)` group; if a rule ever needs a
  * different one, it renders the source and stays honest rather than printing a
@@ -230,8 +230,8 @@ function setupMd(providers: readonly RequiredProvider[]): string {
 ng add ngwr
 \`\`\`
 
-Prompts for styles, date adapter and density, installs the peers, and prints a
-bootstrap snippet tailored to the answers.
+Prompts for styles and density, installs the peers, and prints a bootstrap
+snippet tailored to the answers.
 
 ## Bootstrap
 
@@ -294,9 +294,11 @@ ${providers.map(p => `### \`${p.provider}\`\n\n${p.why[0].toUpperCase()}${p.why.
   control with fixed geometry (checkbox, switch, radio, slider, rating,
   segmented) does not move; its ≥44px target comes from the \`touch-target\` mixin
   under \`@media (pointer: coarse)\` instead.
-- Another date library: subclass \`WrDateAdapter\` from \`ngwr/date\` and pass it
-  as \`provideWrDateAdapter({ adapter: MyDateAdapter })\`. ngwr ships only the
-  native adapter.
+- \`provideWrDateAdapter({ locale: 'fr' })\` from \`ngwr/date\` — pins the dates
+  to another locale. The calendar, the date pickers and the event calendar need
+  no provider: they run on the native adapter (\`Date\` and \`Intl\`) in
+  \`LOCALE_ID\`. Another date library: subclass \`WrDateAdapter\`, decorate it
+  with \`@Service()\` and pass it as \`{ adapter: MyDateAdapter }\`.
 - A \`validation\` namespace in your own i18n catalog — ngwr ships no validation
   copy. \`<wr-form-field>\` reads \`validation.<key>\` for an error whose validator
   carries no \`{ message }\`, with the error payload as params.

@@ -145,13 +145,11 @@ describe('ng-add', () => {
       { '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': '' },
       {
         ...BASE,
-        dateAdapter: 'native',
         density: 'sm',
       }
     );
 
     const snippet = logs.find(line => line.includes('bootstrapApplication'))!;
-    expect(snippet).toContain('provideWrDateAdapter(),');
     expect(snippet).toContain("provideWrDensity({ defaultDensity: 'sm' })");
     // v15 deleted `provideWrTheme`: the scheme follows the OS with no provider and
     // `WrTheme` is root-provided, so a snippet naming it would not compile.
@@ -159,10 +157,13 @@ describe('ng-add', () => {
     // Nor `provideWrOverlay`: ngwr's overlays are isolated from other CDK
     // consumers by default, and the import would name an export that is gone.
     expect(snippet).not.toContain('provideWrOverlay');
+    // Or `provideWrDateAdapter`: the date components run on the native adapter
+    // with nothing provided, so the line would register what is already there.
+    expect(snippet).not.toContain('provideWrDateAdapter');
     // Every provider named in the snippet has an import above it — the pairing
     // that broke once already, when the icon block imported bare glyph names
     // `ngwr/icon` has never exported.
-    for (const symbol of ['provideWrIcons', 'lucideIcons', 'provideWrDateAdapter', 'provideWrDensity']) {
+    for (const symbol of ['provideWrIcons', 'lucideIcons', 'provideWrDensity']) {
       expect(snippet, symbol).toMatch(new RegExp(`import \\{[^}]*\\b${symbol}\\b[^}]*\\} from`));
     }
     // The converter ships in `ngwr/icon` itself since v15.

@@ -182,6 +182,17 @@ describe('REQUIRED_PROVIDERS', () => {
     }
   });
 
+  it('asks nothing of the date components, which run on the native adapter by default', () => {
+    // `WrDateAdapter` resolves to `WrNativeDateAdapter` with nothing provided, so a
+    // rule here would have every agent paste a provider that changes nothing.
+    for (const symbol of ['WrCalendar', 'WrDatePicker', 'WrDateRangePicker', 'WrEventCalendar']) {
+      expect(
+        REQUIRED_PROVIDERS.filter(required => required.test.test(symbol)).map(required => required.provider),
+        symbol
+      ).toEqual([]);
+    }
+  });
+
   it('names only identifiers those entry points actually export', () => {
     for (const required of REQUIRED_PROVIDERS) {
       const exported = new Set<string>();

@@ -127,28 +127,28 @@ Inline status banner. Use for feedback messages — saved/failed/notice etc.
 \`\`\`
 Docs: https://ngwr.dev/reference/components/alert`,
 
-    setupRequest: `{"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"get_ngwr_setup","arguments":{"symbols":["WrSelect","WrDatePicker"]}}}`,
+    setupRequest: `{"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"get_ngwr_setup","arguments":{"symbols":["WrSelect","WrIcon"]}}}`,
 
     setupResponse: `# Setting these up
 
 ## 1. Install
 ng add ngwr
-(prompts for styles, date adapter and density, and prints a bootstrap snippet)
+(prompts for styles and density, and prints a bootstrap snippet)
 
 ## 2. Wire each symbol into the component that uses it
 ng g ngwr:use WrSelect --path src/app/some.component.ts   # ngwr/select
-ng g ngwr:use WrDatePicker --path src/app/some.component.ts   # ngwr/date-picker
+ng g ngwr:use WrIcon --path src/app/some.component.ts   # ngwr/icon
 
 \`--path\` is a NAMED option, not positional — passing it bare fails with \`Unknown argument\`.
 
 ## 3. Styles
 @use 'ngwr/theme';   // the token layer, first — then per component:
 @use 'ngwr/select';
-@use 'ngwr/date-picker';
+@use 'ngwr/icon';
 
 ## 4. Providers these need
-provideWrDateAdapter() // from 'ngwr/date'
-   why: every date mode goes through an adapter; there is no built-in default
+provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon'
+   why: icons resolve by name from a registry you populate
 `,
   };
 

@@ -59,7 +59,7 @@ export default class WrDatePipePage {
         'mediumDateTime',
         'dd.MM.yyyy',
         // Token strings only, and only tokens `WrNativeDateAdapter` has — the
-        // showcase provides that adapter, and an unknown token (`EEEE`) is
+        // showcase runs on that adapter, and an unknown token (`EEEE`) is
         // emitted verbatim rather than refused, so a bad option here reads as a
         // broken pipe.
         'd MMMM yyyy',
@@ -79,8 +79,7 @@ export default class WrDatePipePage {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'wrDate',
-      description:
-        'Delegates to WrDateAdapter when provided; falls back to Intl.DateTimeFormat with the same named keys.',
+      description: 'Formats through WrDateAdapter: the native adapter, or the one the app provides.',
       type: "(value: Date | string | number | null | undefined, format: WrDateFormat | string = 'shortDate') => string",
       default: '—',
     },
@@ -97,7 +96,7 @@ export default class WrDatePipePage {
       kind: 'Guide',
       title: 'Date adapters',
       url: ['/start', 'configuration'],
-      description: 'Provide the native adapter, or your own, to unlock token strings.',
+      description: 'Pin the date locale, or bring an adapter of your own.',
     },
   ];
 }

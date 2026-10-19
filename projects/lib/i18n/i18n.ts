@@ -107,10 +107,11 @@ export function wrInterpolate(template: string, params: WrI18nParams | undefined
  *
  * **What a runtime switch reaches, and what it does not.** `use()` repaints
  * every catalog string. It does not move `LOCALE_ID`, which is a constant, so
- * anything keyed on it — `wrDate` / `wrNumber` / `wrPlural`, `wr-input-number`,
+ * anything keyed on it — `wrNumber` / `wrPlural`, `wr-input-number`,
  * `wr-statistic`, `wr-counter` — and anything keyed on `WR_DATE_LOCALE` — the
- * date adapter, and so `wr-calendar` and `wr-date-picker` — stays where it was.
- * `use()` says so once in dev mode rather than leaving it to be discovered.
+ * date adapter, and so `wr-calendar`, `wr-date-picker` and `wrDate` — stays
+ * where it was. `use()` says so once in dev mode rather than leaving it to be
+ * discovered.
  *
  * @example
  * ```ts

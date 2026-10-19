@@ -164,8 +164,8 @@ interface DragState {
  * focused chip, `Alt` + arrows move the event — the keyboard equivalent of the
  * drag, emitting the same `eventChange`.
  *
- * Date math and formatting go through {@link WrDateAdapter}; register one with
- * `provideWrDateAdapter(...)` at bootstrap.
+ * Date math and formatting go through {@link WrDateAdapter} — the native one
+ * unless `provideWrDateAdapter(...)` registers another.
  *
  * @example
  * ```html

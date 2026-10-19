@@ -112,7 +112,7 @@ export default class InstallationPageComponent {
     ngAdd: `# Recommended — runs the schematic that wires everything up for you.
 ng add ngwr
 
-# The prompts cover: styles mode, date adapter, density preset.
+# The prompts cover: styles mode, density preset.
 # See "Non-interactive flags" below for the full list.`,
     install: `pnpm add ngwr @angular/cdk
 # or
@@ -286,34 +286,30 @@ export class App {}`,
     // Schematics ----------------------------------------------------------
     // `ngAddShort` is the Schematics page's own `ngAdd`, renamed: the Quick
     // start section above already owns that key with a longer snippet.
-    ngAddShort: `# Drop-in install — prompts for styles, date adapter, density.
+    ngAddShort: `# Drop-in install — prompts for styles and density.
 ng add ngwr`,
     ngAddPrompts: `# Sample run (defaults shown in brackets):
 ?  How should ngwr styles be wired?
    ❯ Theme — one \`@use 'ngwr/theme';\` import (recommended)
      None — wire styles yourself
 
-?  Wire a date adapter? (Used by calendar / date-picker.)
-   ❯ None — skip (you can add later)
-     Native — built-in Date, no extra deps
-
 ?  Pick a default density
    ❯ None — use lib defaults (md)
      sm — tight spacing
      lg — relaxed spacing`,
     ngAddFlags: `# Skip prompts:
-ng add ngwr --styles=theme --dateAdapter=native --density=lg
+ng add ngwr --styles=theme --density=lg
 
 # "None" is spelled \`none\` — it is a real enum value, not an empty flag:
-ng add ngwr --styles=none --dateAdapter=none --density=none
+ng add ngwr --styles=none --density=none
 
 # Every accepted value:
 #   --styles       theme | none          (default: theme)
-#   --dateAdapter  none | native         (default: none)
 #   --density      none | sm | lg        (default: none)
 #
-# Those three defaults are also what a non-interactive run picks. There is no
-# theme flag: the stylesheet follows the OS with nothing in providers.
+# Those two defaults are also what a non-interactive run picks. There is no
+# theme flag: the stylesheet follows the OS with nothing in providers, and no
+# date adapter flag: the native one needs no provider.
 
 # CI / monorepo — skip the install task:
 ng add ngwr --skipPeerInstall`,
@@ -368,16 +364,18 @@ import { WrButton } from 'ngwr/button';
 export class CheckoutPage {}`,
     provider: `# Splice a provideWr*() call into bootstrapApplication's providers array.
 ng g ngwr:provider toast
-ng g ngwr:provider date-adapter
+ng g ngwr:provider density
 
-# Available: icons | toast | i18n | date-adapter | density | storage
+# Available: icons | toast | i18n | density | storage
 #
 # cookie is not here because it has no provider: inject WrCookie. Neither is
 # theme — WrTheme is root-provided and the stylesheet follows the OS. Nor is
 # loading-bar, whose only provider is the opt-in router adapter. Add
 # provideWrLoadingBarRouter() from 'ngwr/loading-bar/router' by hand if
 # navigations should drive the bar; manual start() / complete() need nothing.
-# And overlay needs no call: ngwr's overlays are isolated by default.`,
+# And overlay needs no call: ngwr's overlays are isolated by default. Nor does
+# date-adapter: the native adapter is the default, so add
+# provideWrDateAdapter({ locale }) or ({ adapter }) by hand when you need one.`,
     componentStyle: `# Append \`@use 'ngwr/<name>';\` to the project's global stylesheet.
 # Pairs with \`--styles=none\` on \`ng add\`.
 ng g ngwr:component-style button

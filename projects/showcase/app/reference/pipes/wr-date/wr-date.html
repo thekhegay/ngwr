@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="wrDate"
-  description="Uses `WrDateAdapter` when `provideWrDateAdapter()` is wired up; otherwise falls back to `Intl.DateTimeFormat` with the same named format keys."
+  description="Formats through `WrDateAdapter`, which is the native adapter unless your app provides its own, so the named keys and token strings both work with nothing to set up."
   [keywords]="['pipe', 'wrDate', 'date', 'format', 'intl']"
   [labels]="['Pipe']"
 >
   <ngwr-doc-section
     title="Named keys"
-    description="Six locale-aware presets resolve with or without an adapter, but not to the same string: with `provideWrDateAdapter()` they are the adapter’s own option sets (`3/15/2026`, `02:30 PM`), and without one the pipe falls back to `Intl`’s `dateStyle` / `timeStyle` shorthands, which abbreviate the year and drop the leading zero (`3/15/26`, `2:30 PM`). Provide an adapter wherever the exact rendering matters."
+    description="Six locale-aware presets, printed as the adapter’s own option sets: `3/15/2026` and `02:30 PM` in `en-US`."
   >
     <ngwr-doc-code [code]="snippets.named" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -34,7 +34,7 @@
 
   <ngwr-doc-section
     title="Token strings"
-    description="A raw format string goes straight to the adapter, so the tokens are whichever ones THAT adapter knows — not a fixed language. **Tokens need an adapter**, unlike the six named keys: with no `provideWrDateAdapter()` the `Intl` fallback knows the keys only, so a token string falls through to `shortDate` and the pattern is dropped with nothing reported — `'dd.MM.yyyy'` prints `3/15/26`. The demo below runs on `WrNativeDateAdapter`, whose set is `yyyy yy MMMM MMM MM M dd d HH H hh h mm ss a` plus single-quoted literals. It has no weekday token: `EEEE` is not recognised and comes out verbatim. An adapter of your own decides its own set — one that forwards the pattern to another date library takes that library's tokens."
+    description="A raw format string goes straight to the adapter, so the tokens are whichever ones THAT adapter knows — not a fixed language. The demo below runs on `WrNativeDateAdapter`, whose set is `yyyy yy MMMM MMM MM M dd d HH H hh h mm ss a` plus single-quoted literals. It has no weekday token: `EEEE` is not recognised and comes out verbatim. An adapter of your own decides its own set — one that forwards the pattern to another date library takes that library's tokens."
   >
     <ngwr-doc-code [code]="snippets.tokens" language="angular-html" />
     <ngwr-doc-snippet code="">

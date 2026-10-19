@@ -3,8 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { provideWrDateAdapter } from './provide-wr-date-adapter';
-import { WrDateAdapter } from './wr-date-adapter';
-import type { WrNativeDateAdapter } from './wr-native-date-adapter';
+import { WrDateAdapter, type WrNativeDateAdapter } from './wr-date-adapter';
 
 /**
  * This adapter is what every date component computes with — the calendar grid, both

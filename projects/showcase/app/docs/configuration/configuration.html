@@ -41,7 +41,7 @@
 
   <ngwr-doc-section
     title="Date adapter"
-    description="Required by `wr-calendar`, `wr-event-calendar`, `wr-date-picker` (every mode). ngwr ships one adapter, the native one over `Date` and `Intl`, with no peer dependency. To run on another date library, extend `WrDateAdapter<Date>` (the components hold and compare native `Date` values), do the arithmetic, formatting and parsing through that library, and pass your class as `adapter`."
+    description="No call needed: `wr-calendar`, `wr-event-calendar` and every `wr-date-picker` mode use the native adapter, over `Date` and `Intl`, in the locale `LOCALE_ID` names. Call `provideWrDateAdapter()` for one of two things. `{ locale }` pins the dates to another locale. `{ adapter }` runs them on another date library: extend `WrDateAdapter<Date>` (the components hold and compare native `Date` values), do the arithmetic, formatting and parsing through that library, and pass your class."
   >
     <ngwr-doc-code [code]="snippets.dateAdapter" language="angular-ts" />
   </ngwr-doc-section>

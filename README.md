@@ -85,8 +85,8 @@ npm install ngwr @angular/cdk
 yarn add ngwr @angular/cdk
 ```
 
-The optional packages (a date library, an icon set, ProseMirror for the editor)
-are listed in the [installation guide](https://ngwr.dev/start/installation).
+The optional packages (an icon set, ProseMirror for the editor) are listed in
+the [installation guide](https://ngwr.dev/start/installation).
 
 ## Styles
 

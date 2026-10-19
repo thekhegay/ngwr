@@ -278,7 +278,8 @@ export default class MigrationPageComponent {
 - import { provideWrLuxonAdapter } from 'ngwr/date/adapters/luxon';
 - provideWrLuxonAdapter({ locale: 'ru' }),
 
-# The native adapter needs no package. Leave out locale to follow LOCALE_ID.
+# The native adapter needs no package and no call: it follows LOCALE_ID.
+# Pin a locale only where that is not the one you want.
 + import { provideWrDateAdapter } from 'ngwr/date';
 + provideWrDateAdapter({ locale: 'ru' }),
 
@@ -316,6 +317,18 @@ export default class MigrationPageComponent {
 # browser only, and again on its resize and scroll events.
 + const vv = window.visualViewport;
 + const inset = vv ? Math.max(0, document.documentElement.clientHeight - vv.height - vv.offsetTop) : 0;`,
+
+    v15DateDefault: `# A bare call registered what is now the default. Delete it.
+- import { provideWrDateAdapter } from 'ngwr/date';
+- provideWrDateAdapter(),
+
+# A locale or an adapter of your own still goes through the provider.
+  provideWrDateAdapter({ locale: 'ru' }),
+  provideWrDateAdapter({ adapter: AppDateAdapter }),
+
+# ng add takes no date adapter flag.
+- ng add ngwr --styles=theme --dateAdapter=native
++ ng add ngwr --styles=theme`,
 
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
 # One command, whatever major you are on: ng update installs the latest

@@ -176,7 +176,7 @@ it('builds up a multi selection', async () => {
   expect(await menu.isOpen()).toBe(true);
 });`,
 
-    datePicker: `// A picker needs a date adapter, the same one your app provides.
+    datePicker: `// The native adapter needs no provider. Pin the locale the assertions are written in.
 TestBed.configureTestingModule({
   providers: [provideWrDateAdapter({ locale: 'en-US' })],
 });
