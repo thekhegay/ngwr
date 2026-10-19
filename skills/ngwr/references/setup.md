@@ -13,14 +13,14 @@ bootstrap snippet tailored to the answers.
 
 ```ts
 import { provideWrOverlay } from 'ngwr/overlay';
-import { provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { lucideIcons, provideWrIcons } from 'ngwr/icon';
+import { Check, ChevronDown } from 'lucide';
 
 bootstrapApplication(App, {
   providers: [
     provideZonelessChangeDetection(),
     provideWrOverlay(),
-    provideWrIcons(lucideIcons({ check, chevronDown })),
+    provideWrIcons(lucideIcons({ check: Check, 'chevron-down': ChevronDown })),
   ],
 });
 ```
@@ -66,7 +66,7 @@ there is no theme attribute to key a selector on.
 
 Gives ngwr overlays their own container, so they never collide with other CDK overlays. Needed by `WrDialog`, `WrDrawer`, `WrToast`, `WrPopover`, `WrPopconfirm`, `WrContextMenu`, `WrSelect`, `WrDropdown`, `WrCommandPalette`, `WrCascader`, `WrMention`, `WrDatePicker`, `WrTour`, `WrLightbox`, `WrEditor`.
 
-### `provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon' + 'ngwr/icon/adapters/lucide'`
+### `provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon'`
 
 Icons resolve by name from a registry you populate. Needed by `WrIcon`.
 

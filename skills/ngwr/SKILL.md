@@ -5,7 +5,7 @@ description: Build Angular UIs with the ngwr component library (standalone, sign
 
 # ngwr
 
-An Angular 22 UI library: 226 tree-shakable entry points, 112 of them shipping a selector.
+An Angular 22 UI library: 224 tree-shakable entry points, 112 of them shipping a selector.
 Standalone, signals-first, zoneless, `ViewEncapsulation.None`. One runtime
 dependency (`tslib`).
 
@@ -96,7 +96,7 @@ cause.
 - `provideWrOverlay() // from 'ngwr/overlay'`
   — gives ngwr overlays their own container, so they never collide with other CDK overlays
   — needed by: `WrDialog`, `WrDrawer`, `WrToast`, `WrPopover`, `WrPopconfirm`, `WrContextMenu`, `WrSelect`, `WrDropdown`, `WrCommandPalette`, `WrCascader`, `WrMention`, `WrDatePicker`, `WrTour`, `WrLightbox`, `WrEditor`
-- `provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon' + 'ngwr/icon/adapters/lucide'`
+- `provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon'`
   — icons resolve by name from a registry you populate
   — needed by: `WrIcon`
 - `provideWrDateFnsAdapter() // from 'ngwr/date/adapters/fns'`

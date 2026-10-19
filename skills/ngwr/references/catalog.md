@@ -141,8 +141,6 @@ root barrel for components.
 | `ngwr/i18n/zh` | `import { wrZh } from 'ngwr/i18n/zh'` | — |
 | `ngwr/i18n/zh-TW` | `import { wrZhTw } from 'ngwr/i18n/zh-TW'` | — |
 | `ngwr/icon` | `import { WrIcon } from 'ngwr/icon'` | `wr-icon` |
-| `ngwr/icon/adapters/feather` | `import { feather } from 'ngwr/icon/adapters/feather'` | — |
-| `ngwr/icon/adapters/lucide` | `import { lucide } from 'ngwr/icon/adapters/lucide'` | — |
 | `ngwr/image-cropper` | `import { WrImageCropper } from 'ngwr/image-cropper'` | `wr-image-cropper` |
 | `ngwr/image-cropper/testing` | `import { WrImageCropperHarness } from 'ngwr/image-cropper/testing'` | — |
 | `ngwr/input` | `import { WrInput } from 'ngwr/input'` | `[wrInputPrefix]` `[wrInputSuffix]` `input[wrInput]` `textarea[wrInput]` `wr-input-group` `wr-password-toggle` |

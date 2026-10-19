@@ -33,8 +33,7 @@ export interface DocInstallEntry {
 export const INSTALL = {
   "": [
       { path: "ngwr/drawer", symbols: ["WrDrawer"], declarables: ["WrDrawer"], styled: true },
-      { path: "ngwr/icon", symbols: ["WrIcon", "provideWrIcons"], declarables: ["WrIcon"], styled: true },
-      { path: "ngwr/icon/adapters/lucide", symbols: ["lucideIcons"], declarables: [], styled: false },
+      { path: "ngwr/icon", symbols: ["WrIcon", "lucideIcons", "provideWrIcons"], declarables: ["WrIcon"], styled: true },
   ],
   "**": [
       { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
@@ -77,8 +76,7 @@ export const INSTALL = {
   ],
   "bits/marquee": [
       { path: "ngwr/bits/marquee", symbols: ["WrMarquee"], declarables: ["WrMarquee"], styled: true },
-      { path: "ngwr/icon", symbols: ["WrIcon", "provideWrIcons"], declarables: ["WrIcon"], styled: true },
-      { path: "ngwr/icon/adapters/lucide", symbols: ["lucideIcons"], declarables: [], styled: false },
+      { path: "ngwr/icon", symbols: ["WrIcon", "lucideIcons", "provideWrIcons"], declarables: ["WrIcon"], styled: true },
   ],
   "bits/rotating-text": [
       { path: "ngwr/bits/rotating-text", symbols: ["WrRotatingText"], declarables: ["WrRotatingText"], styled: true },
@@ -174,8 +172,7 @@ export const INSTALL = {
       { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
   ],
   "guides/typography/links": [
-      { path: "ngwr/icon", symbols: ["WrIcon", "provideWrIcons"], declarables: ["WrIcon"], styled: true },
-      { path: "ngwr/icon/adapters/lucide", symbols: ["lucideIcons"], declarables: [], styled: false },
+      { path: "ngwr/icon", symbols: ["WrIcon", "lucideIcons", "provideWrIcons"], declarables: ["WrIcon"], styled: true },
       { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
   ],
   "guides/typography/lists": [
@@ -191,11 +188,8 @@ export const INSTALL = {
       { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
       { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
   ],
-  "icons/feather": [
-      { path: "ngwr/icon/adapters/feather", symbols: ["feather"], declarables: [], styled: false },
-  ],
   "icons/lucide": [
-      { path: "ngwr/icon/adapters/lucide", symbols: ["lucide"], declarables: [], styled: false },
+      { path: "ngwr/icon", symbols: ["lucide"], declarables: [], styled: true },
   ],
   "reference/components/alert": [
       { path: "ngwr/alert", symbols: ["WrAlert"], declarables: ["WrAlert"], styled: true },
@@ -299,7 +293,7 @@ export const INSTALL = {
       { path: "ngwr/graph", symbols: ["WrGraph", "WrGraphNodeTemplate"], declarables: ["WrGraph", "WrGraphNodeTemplate"], styled: true },
   ],
   "reference/components/icon": [
-      { path: "ngwr/icon", symbols: ["WrIcon", "provideWrIcons"], declarables: ["WrIcon"], styled: true },
+      { path: "ngwr/icon", symbols: ["WrIcon", "lucideIcons", "provideWrIcons"], declarables: ["WrIcon"], styled: true },
   ],
   "reference/components/image-cropper": [
       { path: "ngwr/image-cropper", symbols: ["WrImageCropper"], declarables: ["WrImageCropper"], styled: true },
