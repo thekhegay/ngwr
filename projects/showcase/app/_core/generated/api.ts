@@ -493,14 +493,13 @@ export const API = {
   ],
   // <wr-editor>
   WrEditor: [
-    { name: "value", description: "The document. A string in `html` and `markdown` format, a {@link WrEditorJson} tree in `json`; `''` / `null` when nothing is written. Bound by `[formField]`, or two-way via `[(value)]`.", type: "WrEditorValue", default: "null" },
+    { name: "value", description: "The document as a {@link WrEditorJson} tree; `null` when nothing is written. Bound by `[formField]`, or two-way via `[(value)]`.", type: "WrEditorValue", default: "null" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
     { name: "disabled", description: "Disable the editor and its toolbar. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse edits while the text stays reachable, selectable and announced. Bound automatically from the field's readonly state when used with `[formField]`. Set before the editor mounts, it means ProseMirror is never started: the document is drawn as ordinary markup in a focusable `role=\"group\"` that keeps the tab stop and carries the editor's name, so a viewer costs no editor and the structure of what it shows is still announced. `aria-readonly` is deliberately absent there — ARIA does not allow it on `group`, and `aria-disabled`, the only attribute that would apply, means something else — so the cue is the `wr-editor--readonly` class. The toolbar goes inert, since none of its tools can apply; a pure viewer binds `[toolbar]=\"false\"`. A view that is already mounted stays mounted, refuses typing, paste, drop, the shortcuts and every toolbar command, and reports `aria-readonly` on its surface as before.", type: "boolean", default: "false" },
     { name: "placeholder", description: "Hint shown while the document is empty, and exposed as `aria-placeholder`.", type: "string", default: "''" },
     { name: "ariaLabel", description: "Accessible name of the text — of the surface, or of the document a read-only editor draws in its place. Falls back to the surrounding `<wr-form-field>`'s label, then to `editor.label`.", type: "string | null", default: "null" },
-    { name: "format", description: "What `value` holds — see {@link WrEditorFormat}. Changing it re-reads `value` in the new format.", type: "WrEditorFormat", default: "'html'" },
-    { name: "toolbar", description: "The toolbar's tools, in order, with `'|'` between groups; `false` hides it. `underline` is left out in `markdown` format, which cannot store it.", type: "readonly WrEditorTool[] | false", default: "WR_EDITOR_TOOLBAR" },
+    { name: "toolbar", description: "The toolbar's tools, in order, with `'|'` between groups; `false` hides it.", type: "readonly WrEditorTool[] | false", default: "WR_EDITOR_TOOLBAR" },
   ],
   // <wr-empty>
   WrEmpty: [
@@ -764,19 +763,6 @@ export const API = {
   WrLoadingBarComponent: [
     { name: "color", description: "Bar colour. Defaults to the primary brand colour.", type: "string", default: "'var(--wr-color-primary)'" },
     { name: "height", description: "Bar height.", type: "string", default: "'2px'" },
-  ],
-  // <wr-markdown>
-  WrMarkdown: [
-    { name: "value", description: "The markdown source.", type: "string", default: "''" },
-    { name: "streaming", description: "The source is a prefix of a longer document. Turns on partial-safe parsing — an open fence renders as code, a half-typed `**bold` renders as bold rather than as asterisks — and marks the host with `.wr-markdown--streaming`, which paints a caret after the last block.", type: "boolean", default: "false" },
-    { name: "copyable", description: "Show a copy button on finished code blocks. Only CLOSED blocks get one: mid-stream the code is not all there, and a button that copies half a snippet is worse than no button.", type: "boolean", default: "false" },
-    { name: "linkTarget", description: "Where links open. `_blank` also sets `rel=\"noopener noreferrer\"`, which is not optional — a target without it hands the opener to a page whose URL came from the document being rendered. `null` sets no target.", type: "'_blank' | '_self' | null", default: "null" },
-    { name: "headingIds", description: "Put a slugged `id` on every heading, so the document can be linked into.", type: "boolean", default: "true" },
-    { name: "headingIdPrefix", description: "Namespace for the generated heading ids, and for the in-document `#fragment` links that point at them. Defaults to `'user-content-'`, which is what GitHub emits for untrusted markdown, and for the same reason: without a namespace a document that happens to contain `# Search` renders `id=\"search\"` and steals it from the page around it. That is not cosmetic — a `<label for=\"search\">` silently stops labelling its input, and `getElementById` starts answering with a heading. Anchors written INSIDE the document keep working, because a bare `#fragment` href gets the same prefix. Set it to `''` for a document you author yourself and want clean anchors for.", type: "string", default: "'user-content-'" },
-    { name: "copyLabel", description: "Accessible name of the copy button. Falls back to `markdown.copy`, then `'Copy code'`.", type: "string | null", default: "null" },
-    { name: "copiedLabel", description: "Announced after a successful copy. Falls back to `markdown.copied`, then `'Copied'`.", type: "string | null", default: "null" },
-    { name: "taskDoneLabel", description: "Read out for a checked task item. Falls back to `markdown.taskDone`, then `'Done:'`.", type: "string | null", default: "null" },
-    { name: "taskTodoLabel", description: "Read out for an unchecked task item. Falls back to `markdown.taskTodo`, then `'To do:'`.", type: "string | null", default: "null" },
   ],
   // <wr-marquee>
   WrMarquee: [

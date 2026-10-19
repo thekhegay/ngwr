@@ -322,9 +322,6 @@ export const INSTALL = {
   "reference/components/list": [
       { path: "ngwr/list", symbols: ["WrList", "WrListItem"], declarables: ["WrList", "WrListItem"], styled: true },
   ],
-  "reference/components/markdown": [
-      { path: "ngwr/markdown", symbols: ["WrMarkdown"], declarables: ["WrMarkdown"], styled: true },
-  ],
   "reference/components/mention": [
       { path: "ngwr/mention", symbols: ["WrMention"], declarables: ["WrMention"], styled: true },
   ],

@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1282 hook(s) across 91 page(s). A property is here only when the
+ * 1258 hook(s) across 90 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 23 declaration(s) are one component setting
@@ -1010,35 +1010,6 @@ export const CSS_VARS = {
       { name: "--wr-list-item-padding-x", default: "var(--wr-space-lg)", scope: ".wr-list" },
       { name: "--wr-list-item-padding-y", default: "var(--wr-space-md)", scope: ".wr-list", overrides: 1 },
       { name: "--wr-list-radius", default: "var(--wr-border-radius-base)", scope: ".wr-list" },
-    ],
-  },
-  "reference/components/markdown": {
-    subpath: "ngwr/markdown",
-    vars: [
-      { name: "--wr-markdown-cell-border", default: "var(--wr-border-base)", scope: ".wr-markdown__th" },
-      { name: "--wr-markdown-cell-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-markdown__th" },
-      { name: "--wr-markdown-cell-padding-x", default: "var(--wr-space-md)", scope: ".wr-markdown__th" },
-      { name: "--wr-markdown-cell-padding-y", default: "var(--wr-space-sm)", scope: ".wr-markdown__th" },
-      { name: "--wr-markdown-code-font-family", default: "var(--wr-font-family-mono, ui-monospace, monospace)", scope: ".wr-markdown__code" },
-      { name: "--wr-markdown-code-inline-font-family", default: "var(--wr-font-family-mono, ui-monospace, monospace)", scope: ".wr-markdown__code-inline" },
-      { name: "--wr-markdown-code-inline-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-markdown__code-inline" },
-      { name: "--wr-markdown-code-line-height", default: "var(--wr-leading-relaxed)", scope: ".wr-markdown__code" },
-      { name: "--wr-markdown-copy-border", default: "var(--wr-border-base)", scope: ".wr-markdown__copy" },
-      { name: "--wr-markdown-copy-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-markdown__copy" },
-      { name: "--wr-markdown-font-size", default: "var(--wr-text-base)", scope: ".wr-markdown" },
-      { name: "--wr-markdown-heading-font-size", default: "var(--wr-text-base)", scope: ".wr-markdown__heading", overrides: 4 },
-      { name: "--wr-markdown-heading-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-markdown__heading" },
-      { name: "--wr-markdown-heading-line-height", default: "var(--wr-leading-tight)", scope: ".wr-markdown__heading" },
-      { name: "--wr-markdown-image-radius", default: "var(--wr-border-radius-base)", scope: ".wr-markdown__image" },
-      { name: "--wr-markdown-line-height", default: "var(--wr-leading-relaxed)", scope: ".wr-markdown" },
-      { name: "--wr-markdown-pre-padding", default: "var(--wr-space-md)", scope: ".wr-markdown__pre" },
-      { name: "--wr-markdown-pre-radius", default: "var(--wr-border-radius-base)", scope: ".wr-markdown__pre" },
-      { name: "--wr-markdown-quote-border", default: "var(--wr-border-base)", scope: ".wr-markdown__quote" },
-      { name: "--wr-markdown-rule-border", default: "var(--wr-border-base)", scope: ".wr-markdown__rule" },
-      { name: "--wr-markdown-strong-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-markdown__strong" },
-      { name: "--wr-markdown-table-font-size", default: "var(--wr-text-sm)", scope: ".wr-markdown__table" },
-      { name: "--wr-markdown-task-border", default: "var(--wr-border-base)", scope: ".wr-markdown__task" },
-      { name: "--wr-markdown-task-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-markdown__task" },
     ],
   },
   "reference/components/mention": {
