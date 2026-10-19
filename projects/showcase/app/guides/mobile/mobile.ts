@@ -47,15 +47,20 @@ provideWrDensity({ defaultDensity: 'touch' });
        carousel   swipe left/right → change slide -->`,
     safeArea: `<!-- Edge-anchored drawers can pad the system safe-area inset -->
 <wr-drawer position="bottom" safeArea>…</wr-drawer>`,
-    media: `import { inject } from '@angular/core';
-import { WrMedia } from 'ngwr/media';
+    media: `import { BreakpointObserver } from '@angular/cdk/layout';
+import { inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 
 export class Toolbar {
-  private readonly media = inject(WrMedia);
+  private readonly breakpoints = inject(BreakpointObserver);
 
-  // Signals — recompute when the viewport crosses a breakpoint.
-  protected readonly isMd = this.media.matches('md');
-  protected readonly isWide = this.media.matches('(min-width: 1200px)');
+  // Signals — recompute when the viewport crosses the width. 768px is the
+  // \`md\` key of the SCSS breakpoint map, so the two agree.
+  protected readonly isMd = toSignal(
+    this.breakpoints.observe('(min-width: 768px)').pipe(map(state => state.matches)),
+    { initialValue: false }
+  );
 }`,
 
     mediaSsr: `<!-- Reflows in CSS. Same markup on the server and in the browser, so

@@ -46,7 +46,6 @@ const NON_DECLARABLE: Readonly<Record<string, string>> = {
   WrLoadingBar: 'a service',
   WrLuxonAdapter: 'a service',
   WrMarkdownHighlight: 'a service',
-  WrMedia: 'a service',
   WrMeta: 'a service',
   WrNativeDateAdapter: 'a service',
   WrOutsideClick: 'a service',

@@ -268,6 +268,28 @@ The import fails the build. Deleting the call is what is silent: every control i
 back to its own default — `md`, the standard radius, HTML for `<wr-editor>`, no copy button or link
 target on `<wr-markdown>` — so bind each key the call set before you remove it.
 
+### No breakpoint service
+
+`ngwr/media` is removed, with `WrMedia`, `provideWrMedia()`, `WR_BREAKPOINTS`,
+`DEFAULT_WR_BREAKPOINTS` and the `WrBreakpoint` / `WrBreakpointMap` types. For a breakpoint
+signal, use the CDK's `BreakpointObserver` from `@angular/cdk/layout`, a peer ngwr already
+requires. The SCSS mixins in `@use 'ngwr/breakpoints'` are unchanged.
+
+```diff
+- import { WrMedia } from 'ngwr/media';
+- protected readonly isMd = inject(WrMedia).matches('md');
++ import { BreakpointObserver } from '@angular/cdk/layout';
++ import { toSignal } from '@angular/core/rxjs-interop';
++ import { map } from 'rxjs';
++ protected readonly isMd = toSignal(inject(BreakpointObserver).observe('(min-width: 768px)').pipe(map(s => s.matches)), { initialValue: false });
+```
+
+A named key has to become its width: `md` is `(min-width: 768px)`, and the rest of the map is the
+`$breakpoints` list in `ngwr/breakpoints`. A query string `matches()` accepted passes to
+`observe()` unchanged. Both answer `false` on the server, so a template that branched on one
+prerenders the same arm it did. `current()` has no equivalent: observe the widths you branch on
+and pick the largest that matches.
+
 ---
 
 ## v13 to v14

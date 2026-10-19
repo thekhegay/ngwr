@@ -197,8 +197,10 @@ one component folder. Reach for them instead of hand-rolling:
 - **Density** (`ngwr/density`) — `provideWrDensity()`, the `[wrDensity]`
   directive, `WrDensity` service; values sm / md / lg / touch
   drive the `--wr-density-*` multipliers.
-- **Breakpoints** (`ngwr/media` + SCSS) — `WrMedia.matches('md')` returns a
-  `Signal<boolean>`; SCSS mixin API via `@use 'ngwr/breakpoints'`.
+- **Breakpoints** (SCSS) — the mixin API via `@use 'ngwr/breakpoints'`
+  (`media-up` / `media-down`). v15 removed the TypeScript service with
+  `ngwr/media`: nothing in the library read it, and an app wanting a breakpoint
+  signal uses the CDK's `BreakpointObserver` or `matchMedia` itself.
 - **Theme** (`ngwr/theme`) — the `--wr-*` token layer is plain CSS and needs no
   provider (see Styling). Global CSS is `@use 'ngwr/theme'` plus one `@use 'ngwr/<name>'`
   per component. **There is no umbrella and v15 removed it**: the root `exports`
@@ -580,7 +582,7 @@ failure a control like that can have.
 Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
 `ngwr/pipes`, the colour maths), the validation-copy contract
 (`ngwr/form`), most of the service layer (`ngwr/hotkey`, `ngwr/i18n`,
-`ngwr/media`, `ngwr/platform`, `ngwr/storage`, `ngwr/overlay`, `ngwr/density`,
+`ngwr/platform`, `ngwr/storage`, `ngwr/overlay`, `ngwr/density`,
 `WrWindowManager`, `ngwr/scroll`) and EVERY component with a
 page under `reference/components`, and **every entry point now has one**. (How
 many spec files and how many cases is re-counted by `pnpm gen:quality` into

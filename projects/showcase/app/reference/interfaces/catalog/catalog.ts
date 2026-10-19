@@ -167,7 +167,6 @@ export default class TypesCatalogPage {
         { name: 'WrMetaConfig', description: 'Title template + tag defaults.', url: ['/reference/services', 'meta'] },
         { name: 'WrStorageConfig', description: 'Prefix + engine selection.', url: ['/reference/services', 'storage'] },
         { name: 'WrCookieOptions', description: 'Expiry / path / SameSite.', url: ['/reference/services', 'cookie'] },
-        { name: 'WrBreakpoint', description: 'Named responsive breakpoint.', url: ['/reference/services', 'media'] },
         { name: 'WrPluralForms', description: 'CLDR plural category map.', url: ['/reference/pipes', 'wr-plural'] },
       ],
     },

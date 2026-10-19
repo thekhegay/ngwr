@@ -325,9 +325,10 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   nothing from it. Two calls are NOT no-ops there and ship an overlay into a
   cached page: `WrToast.show()` and `WrDialog.open()` (`WrTour.start()` is the
   one that returns early) — guard them with `afterNextRender` or `WrPlatform`'s
-  `isBrowser`. `WrMedia` has no viewport to measure, so `matches()` is `false`
-  and `current()` is `'xs'` until hydration: reflow with the `responsive`
-  container-query modifiers rather than a template branch. The scheme needs
+  `isBrowser`. A breakpoint signal has no viewport to measure (ngwr ships none
+  since v15 removed `ngwr/media`; the CDK's `BreakpointObserver` answers `false`
+  until hydration): reflow with the `responsive` container-query modifiers
+  rather than a template branch. The scheme needs
   nothing on the server when it follows the OS, since that is CSS; a visitor
   who CHOSE light or dark has that choice in `localStorage`, which a server
   cannot read, so `wrThemePrePaintScript()` (`ngwr/theme`) is the blocking

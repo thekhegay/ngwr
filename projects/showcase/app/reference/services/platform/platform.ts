@@ -153,12 +153,5 @@ protected readonly canBuzz = this.haptics.supported;`,
       description:
         'What every browser-shaped API in the library answers during a server render, which two overlay calls are NOT no-ops there, and the two markup shapes that break hydration.',
     },
-    {
-      kind: 'Service',
-      title: 'WrMedia',
-      url: ['/reference/services', 'media'],
-      description:
-        'Breakpoint signals. Like the probes here they never throw on the server — and like them they answer a default rather than the truth.',
-    },
   ];
 }

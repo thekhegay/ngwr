@@ -22,7 +22,7 @@ export default class Layout {
   /**
    * Below `md` the sidebar moves into an off-canvas drawer. Both shapes are
    * always in the DOM and `layout.scss` picks one per breakpoint — see the
-   * note there for why this is CSS rather than a `WrMedia` signal.
+   * note there for why this is CSS rather than a `matchMedia` signal.
    */
   protected readonly sidebarOpen = signal(false);
 

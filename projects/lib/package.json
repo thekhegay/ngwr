@@ -646,9 +646,6 @@
     "./markdown/testing": {
       "default": "./markdown/testing/public-api.ts"
     },
-    "./media": {
-      "default": "./media/public-api.ts"
-    },
     "./mention": {
       "sass": "./mention/styles/_index.scss",
       "default": "./mention/public-api.ts"

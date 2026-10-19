@@ -248,7 +248,6 @@ export const ROUTES = {
       theme: { path: 'theme', title: 'WrTheme' },
       scroll: { path: 'scroll', title: 'WrScroll' },
       hotkey: { path: 'hotkey', title: 'WrHotkey' },
-      media: { path: 'media', title: 'WrMedia' },
       platform: { path: 'platform', title: 'WrPlatform' },
       meta: { path: 'meta', title: 'WrMeta' },
       storage: { path: 'storage', title: 'WrStorage' },

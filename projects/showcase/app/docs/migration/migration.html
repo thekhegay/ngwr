@@ -281,6 +281,20 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="v14 to v15 — no breakpoint service"
+    description="`ngwr/media` is removed, with `WrMedia`, `provideWrMedia()`, `WR_BREAKPOINTS`, `DEFAULT_WR_BREAKPOINTS` and the `WrBreakpoint` / `WrBreakpointMap` types. For a breakpoint signal, use the CDK's `BreakpointObserver` from `@angular/cdk/layout` — a peer ngwr already requires. The SCSS mixins in `@use 'ngwr/breakpoints'` are unchanged."
+  >
+    <ngwr-doc-code [code]="snippets.v15Media" language="diff" />
+    <p>
+      A named key has to become its width: <code>md</code> is <code>(min-width: 768px)</code>, and the rest of the map
+      is the <code>$breakpoints</code> list in <code>ngwr/breakpoints</code>. A query string
+      <code>matches()</code> accepted passes to <code>observe()</code> unchanged. Both answer <code>false</code> on the
+      server, so a template that branched on one prerenders the same arm it did. <code>current()</code> has no
+      equivalent: observe the widths you branch on and pick the largest that matches.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="v14 to v15 — renames"
     description="Two kinds, and both are a rename: the new form means what the old one meant in the same place. The neutral TOKENS, where `--wr-color-light`, `-outline`, `-dark` and `-muted-text` move onto a successor carrying the identical value in both themes, so a renamed rule paints to the pixel, while `-medium` and the three translucent `--wr-color-border*` land on the nearest opaque step. And two VALUES that were named after an intent while always painting a neutral role — `[wrTypography]`'s `tone` and `<wr-timeline-item>`'s `color` — which move onto the name of what they do, together with the BEM class each emits."
   >

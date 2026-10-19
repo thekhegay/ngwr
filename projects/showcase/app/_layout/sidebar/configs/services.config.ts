@@ -11,7 +11,6 @@ export const SERVICES_GROUP: SidebarGroup = {
     wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.hotkey),
     wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.i18n),
     wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.loadingBar),
-    wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.media),
     wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.meta),
     wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.platform),
     wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.scroll),

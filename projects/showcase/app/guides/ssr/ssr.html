@@ -42,7 +42,7 @@
 
   <ngwr-doc-section
     title="Reflow in CSS, not in a template branch"
-    description="`WrMedia` has no viewport to measure on the server, so a template that branches on it prerenders the narrow arm every time and swaps the subtree out after hydration — a visible relayout, and a hydration mismatch for anything structural. The `responsive` modifiers reflow through a container query instead: one DOM on both sides, resolved by the browser after the markup has already matched."
+    description="A breakpoint signal has no viewport to measure on the server (the CDK's `BreakpointObserver` answers `false` there, and `window.matchMedia` does not exist), so a template that branches on one prerenders the narrow arm every time and swaps the subtree out after hydration — a visible relayout, and a hydration mismatch for anything structural. The `responsive` modifiers reflow through a container query instead: one DOM on both sides, resolved by the browser after the markup has already matched."
   >
     <ngwr-doc-code [code]="snippets.layout" language="angular-html" />
   </ngwr-doc-section>

@@ -246,6 +246,16 @@ export default class MigrationPageComponent {
 + <wr-select rounded>…</wr-select>
 + <wr-editor format="markdown" [(value)]="notes" />`,
 
+    v15Media: `# The entry point is gone, with everything it exported.
+- import { WrMedia } from 'ngwr/media';
+- protected readonly isMd = inject(WrMedia).matches('md');
+
+# The CDK observes the same query, and toSignal makes it a signal.
++ import { BreakpointObserver } from '@angular/cdk/layout';
++ import { toSignal } from '@angular/core/rxjs-interop';
++ import { map } from 'rxjs';
++ protected readonly isMd = toSignal(inject(BreakpointObserver).observe('(min-width: 768px)').pipe(map(s => s.matches)), { initialValue: false });`,
+
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
 # One command, whatever major you are on: ng update installs the latest
 # release and applies every migration newer than the version you had, oldest

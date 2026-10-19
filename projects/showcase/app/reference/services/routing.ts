@@ -12,7 +12,6 @@ export default [
   { path: services.tour.path, loadComponent: () => import('./tour/tour') },
   { path: services.scroll.path, loadComponent: () => import('./scroll/scroll') },
   { path: services.hotkey.path, loadComponent: () => import('./hotkey/hotkey') },
-  { path: services.media.path, loadComponent: () => import('./media/media') },
   { path: services.platform.path, loadComponent: () => import('./platform/platform') },
   { path: services.meta.path, loadComponent: () => import('./meta/meta') },
   { path: services.storage.path, loadComponent: () => import('./storage/storage') },

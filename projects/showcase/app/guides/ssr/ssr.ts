@@ -24,16 +24,6 @@ export default class SsrGuidePage {
    */
   protected readonly answers: readonly ServerAnswer[] = [
     {
-      api: 'WrMedia.matches(q)',
-      server: 'always false — there is no matchMedia to ask',
-      client: 'the real match, and it keeps updating',
-    },
-    {
-      api: 'WrMedia.current()',
-      server: "'xs' — nothing matches, so the walk falls through to the narrowest key in the map",
-      client: 'the real breakpoint',
-    },
-    {
       api: 'WrPlatform.isBrowser / isServer',
       server: 'false / true',
       client: 'true / false',
@@ -122,10 +112,10 @@ bootstrapApplication(AppComponent, {
 <wr-table responsive [columns]="cols" [items]="rows" />
 <wr-pagination responsive [(page)]="page" [total]="total()" />
 
-<!-- Server-hostile: WrMedia answers false on the server, so the prerendered
-     HTML is always the narrow branch and the wide one appears only after
-     hydration has swapped the subtree out. -->
-@if (media.matches('md')()) {
+<!-- Server-hostile: the CDK's BreakpointObserver answers false on the server,
+     so the prerendered HTML is always the narrow branch and the wide one
+     appears only after hydration has swapped the subtree out. -->
+@if (isMd()) {
   <aside class="filters">…</aside>
 }`,
 
@@ -156,12 +146,6 @@ const html = template.replace('<!--theme-->', \`<script>\${wrThemePrePaintScript
       title: 'WrTheme',
       url: ['/reference/services', 'theme'],
       description: 'The pre-paint script for an explicit theme choice, with its options.',
-    },
-    {
-      kind: 'Service',
-      title: 'WrMedia',
-      url: ['/reference/services', 'media'],
-      description: 'Breakpoint signals — the API this page says answers `false` on the server.',
     },
     {
       kind: 'Service',
