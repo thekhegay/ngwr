@@ -258,15 +258,15 @@ own.
 
 ```diff
 - import { provideWrConfig } from 'ngwr/config';
-- provideWrConfig({ button: { size: 'sm' }, select: { rounded: true }, editor: { format: 'markdown' } }),
+- provideWrConfig({ button: { size: 'sm' }, select: { rounded: true } }),
 + <wr-btn size="sm">Save</wr-btn>
 + <wr-select rounded>…</wr-select>
-+ <wr-editor format="markdown" [(value)]="notes" />
 ```
 
 The import fails the build. Deleting the call is what is silent: every control it reached goes
-back to its own default — `md`, the standard radius, HTML for `<wr-editor>`, no copy button or link
-target on `<wr-markdown>` — so bind each key the call set before you remove it.
+back to its own default — `md` and the standard radius — so bind each key the call set before you
+remove it. An `editor` or `markdown` key has nothing left to bind; the markdown section below
+says what replaces both.
 
 ### No breakpoint service
 
@@ -353,6 +353,35 @@ through `Intl` now, so its exact string can change as well. The Luxon adapter tr
 tokens but handed every other letter to Luxon, so a Luxon-only token (`EEEE`, `ccc`, `DDD`) now
 prints verbatim too, and `MMMM` beside a day token is declined where Luxon printed the standalone
 form.
+
+### No markdown, and the editor holds JSON
+
+`ngwr/markdown` is removed: `<wr-markdown>`, `parseMarkdown()`, `parseInlines()`, `plainText()`,
+`serializeMarkdown()`, `safeMarkdownUrl()`, `provideWrMarkdownHighlighter()`,
+`WR_MARKDOWN_HIGHLIGHTER`, the `WrMarkdown*` and `WrHighlight*` types, the harnesses in
+`ngwr/markdown/testing`, `@use 'ngwr/markdown'` and the `markdown.*` keys in every catalog.
+`<wr-editor>` loses `format` and the `WrEditorFormat` type: its value is always the document as a
+`WrEditorJson` tree, and `null` when nothing is written.
+
+```diff
+- import { WrMarkdown, provideWrMarkdownHighlighter } from 'ngwr/markdown';
+- @use 'ngwr/markdown';
+- <wr-markdown [value]="notes" />
+- <wr-editor format="markdown" [(value)]="notes" />
++ <wr-editor [(value)]="notes" />
++ <wr-editor readonly [toolbar]="false" [value]="notes" />
+```
+
+An app that stores HTML or markdown converts at its own boundary, in both directions: the tree is
+ProseMirror's own `toJSON()` shape, so a ProseMirror `Schema` declaring the same nodes, with
+`DOMSerializer` and `DOMParser` from `prosemirror-model`, reads and writes it. A read-only editor
+renders a stored document without mounting ProseMirror, which is what most `<wr-markdown>` uses
+become.
+
+The imports, the `@use` and a bound `[format]` fail the build. A static `format="…"` is inert,
+and an HTML or markdown string that reaches `value` untyped is refused like any value the editor
+cannot read: the editor stays empty and read-only with `wr-editor--refused`, and only dev mode
+says why. A form model whose editor field started as `''` starts as `null` now.
 
 ---
 

@@ -92,10 +92,9 @@ Add from their entry points as needed:
   its raw SVG with `svgIcon()`).
 - `provideWrDensity()` — sizing. The theme needs no provider: the `--wr-*`
   tokens are plain CSS, and dark mode follows `color-scheme` (Theme, below).
-- `ngwr/config` and `provideWrConfig()` are gone (v15): `size`, `rounded`,
-  `format`, `copyable` and `linkTarget` default to the value written on the
-  input. Bind them where you want another value, or wrap the component in your
-  own.
+- `ngwr/config` and `provideWrConfig()` are gone (v15): `size` and `rounded`
+  default to the value written on the input. Bind them where you want another
+  value, or wrap the component in your own.
 - `provideWrI18n(...)` + `provideWrI18nBaseCatalogs({ en: wrEn })` +
   `provideWrI18nStaticLoader(...)` — localization. ngwr's catalogs go in as a
   BASE, never spread into yours: a spread is shallow, so any namespace you share
@@ -213,12 +212,12 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   value is the whole path), `[wrMention]` (ngwr/mention, on a textarea or input),
   `wr-file-upload`, `wr-form-field` (in ngwr/form), `wr-color-picker`,
   `wr-transfer` (dual listbox; the value is the RIGHT pane), `wr-editor`
-  (ngwr/editor — rich text on ProseMirror, an optional peer; `format` makes the
-  value an HTML string, a markdown string or a JSON tree, and every value is
-  sanitised through the schema; a value it cannot read is refused and the editor
-  keeps its document), `wr-schema-form` (ngwr/schema-form; draws a form from the
-  `WR_FIELD` metadata on a Signal Forms schema, and skips a field that carries
-  none).
+  (ngwr/editor — rich text on ProseMirror, an optional peer; the value is the
+  document as a JSON tree, `null` when empty, validated against the schema; a
+  value it cannot read is refused and the editor keeps its document; an app that
+  stores HTML or markdown converts at its own boundary), `wr-schema-form`
+  (ngwr/schema-form; draws a form from the `WR_FIELD` metadata on a Signal Forms
+  schema, and skips a field that carries none).
 - **Data** — `wr-table` (column pin/resize/drag-reorder, row selection,
   expandable rows, grouping, tree rows (`childrenKey`), summary rows,
   CSV export, virtualized body),
@@ -238,14 +237,9 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-page-header`, `wr-card`, `wr-divider`, `wr-carousel`, `wr-collapse`,
   `wr-splitter`, `wr-toolbar`, `wr-window`, `wr-descriptions`, `wr-statistic`,
   `wr-avatar`, `wr-badge` and `wr-tag` (both ngwr/badge), `wr-qr` (ngwr/qr),
-  `wr-lightbox`, `wr-image-cropper`, `wr-compare`, `wr-pull-to-refresh`,
-  `wr-markdown` (renders markdown as DOM, never as HTML — raw HTML in the source
-  is escaped; `[streaming]` for a partial document;
-  `provideWrMarkdownHighlighter()` takes coloured spans, not markup). The same
-  entry point exports `parseMarkdown()`, which returns the block tree, and
-  `serializeMarkdown()`, which writes a tree back as markdown: the pair
-  round-trips, and what this dialect cannot express is normalised rather than
-  guessed at.
+  `wr-lightbox`, `wr-image-cropper`, `wr-compare`, `wr-pull-to-refresh`. There
+  is no markdown renderer since v15: a stored rich-text document is shown by
+  `<wr-editor readonly>`, which mounts no ProseMirror.
 - **Navigation** — `wr-tabs`, `wr-stepper`, `wr-breadcrumbs`, `wr-anchor`,
   `wr-sidebar` (follows the active route by injecting `Router`),
   `wr-back-top`, `[wrAffix]`, `wr-dropdown-menu` (with its `[wrDropdown]`
@@ -353,7 +347,7 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `toast`, `context-menu`, `popconfirm`, `command-palette`, `cascader`,
   `mention`), the data views (`table`, `tree`, `graph`), the navigation and
   disclosure set (`tabs`, `stepper`, `carousel`, `pagination`, `collapse`,
-  `transfer`), `markdown`, `splitter`, `speed-dial`, `lightbox`, `tour`,
+  `transfer`), `splitter`, `speed-dial`, `lightbox`, `tour`,
   `calendar`, `event-calendar`, `window`, `image-cropper`, and every animation
   but three. `WrCalendarDayHarness` ships under two entry points, since a date
   picker's popup IS a calendar. `aurora`, `click-spark`, `confetti` and
@@ -371,7 +365,7 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   group / item, `WrRadioGroupHarness` + radio, `WrSliderHarness` + thumb,
   `WrInputOtpHarness` + box, `WrRatingHarness` + item, `WrContextMenuHarness` +
   item (submenus included), `WrMentionHarness` + option, `WrTransferHarness` +
-  pane / item, `WrMarkdownHarness` + code block.
+  pane / item.
   A unit test has no layout, so anything a mouse would drag (slider, rating,
   file-upload's drop zone) is driven by the KEYBOARD or by real events, never by
   coordinates. Guide: https://ngwr.dev/guides/testing

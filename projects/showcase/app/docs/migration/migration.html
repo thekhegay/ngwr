@@ -275,8 +275,9 @@
     <ngwr-doc-code [code]="snippets.v15Config" language="diff" />
     <p>
       The import fails the build. Deleting the call is what is silent: every control it reached goes back to its own
-      default — <code>md</code>, the standard radius, HTML for <code>&lt;wr-editor&gt;</code>, no copy button or link
-      target on <code>&lt;wr-markdown&gt;</code> — so bind each key the call set before you remove it.
+      default — <code>md</code> and the standard radius — so bind each key the call set before you remove it. An
+      <code>editor</code> or <code>markdown</code> key has nothing left to bind; the markdown section below says what
+      replaces both.
     </p>
   </ngwr-doc-section>
 
@@ -332,6 +333,27 @@
       <code>parse</code> has to read back whatever <code>format</code> printed for the same key; returning
       <code>null</code> refuses the input and leaves the committed value alone.
       <a routerLink="/docs/configuration">Configuration</a> has the skeleton.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15 — no markdown, and the editor holds JSON"
+    description="`ngwr/markdown` is removed: `<wr-markdown>`, `parseMarkdown()`, `parseInlines()`, `plainText()`, `serializeMarkdown()`, `safeMarkdownUrl()`, `provideWrMarkdownHighlighter()`, `WR_MARKDOWN_HIGHLIGHTER`, the `WrMarkdown*` and `WrHighlight*` types, the harnesses in `ngwr/markdown/testing`, `@use 'ngwr/markdown'` and the `markdown.*` keys in every catalog. `<wr-editor>` loses `format` and the `WrEditorFormat` type: its value is always the document as a `WrEditorJson` tree, and `null` when nothing is written."
+  >
+    <ngwr-doc-code [code]="snippets.v15Markdown" language="diff" />
+    <p>
+      <strong>An app that stores HTML or markdown converts at its own boundary</strong>, in both directions: the tree is
+      ProseMirror's own <code>toJSON()</code> shape, so a ProseMirror <code>Schema</code> declaring the same nodes, with
+      <code>DOMSerializer</code> and <code>DOMParser</code> from <code>prosemirror-model</code>, reads and writes it. A
+      read-only editor renders a stored document without mounting ProseMirror, which is what most
+      <code>&lt;wr-markdown&gt;</code> uses become.
+    </p>
+    <p>
+      The imports, the <code>&#64;use</code> and a bound <code>[format]</code> fail the build. A static
+      <code>format="…"</code> is inert, and an HTML or markdown string that reaches <code>value</code> untyped is refused
+      like any value the editor cannot read: the editor stays empty and read-only with <code>wr-editor--refused</code>,
+      and only dev mode says why. A form model whose editor field started as <code>''</code> starts as
+      <code>null</code> now.
     </p>
   </ngwr-doc-section>
 

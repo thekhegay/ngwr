@@ -292,12 +292,6 @@ export const wrUk: WrI18nCatalog = {
   popover: {
     label: 'Спливна панель',
   },
-  markdown: {
-    copy: 'Копіювати код',
-    copied: 'Скопійовано',
-    taskDone: 'Виконано:',
-    taskTodo: 'Не виконано:',
-  },
   editor: {
     label: 'Форматований текст',
     toolbar: 'Форматування',

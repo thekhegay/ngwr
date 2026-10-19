@@ -51,8 +51,8 @@ expect(forReview).toEqual([]);`,
     install: `// The harnesses live beside the components they drive, one entry point each.
 // ${QUALITY.testingEntryPoints} so far, publishing ${QUALITY.harnessClasses} harness classes: every form control,
 // every overlay, the three data views, the whole navigation / disclosure set,
-// every chart, eighteen of the twenty-one animations, <wr-markdown>, and the
-// standalone widgets — calendar, event-calendar, window, image-cropper, tour,
+// every chart, eighteen of the twenty-one animations, and the standalone
+// widgets — calendar, event-calendar, window, image-cropper, tour,
 // lightbox, speed-dial, splitter.
 import { WrButtonHarness } from 'ngwr/button/testing';
 import { WrInputHarness } from 'ngwr/input/testing';
@@ -645,7 +645,10 @@ it('announces the hierarchy', async () => {
   // Two questions: what the surface draws, and what the model holds.
   expect(await body.getText()).toBe('Release notes');
   expect(await body.isToolPressed('Bold')).toBe(true);
-  expect(fixture.componentInstance.body()).toBe('<p><strong>Release notes</strong></p>');
+  expect(fixture.componentInstance.body()).toEqual({
+    type: 'doc',
+    content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Release notes', marks: [{ type: 'strong' }] }] }],
+  });
 
   // A refused address leaves the panel open with its message.
   await body.setLink('javascript:alert(1)');
@@ -760,33 +763,6 @@ it('walks focus without moving the selection', async () => {
   await expect(transfer.moveTo('target')).rejects.toThrow(/nothing staged/);
 });`,
 
-    markdown: `import { WrMarkdownHarness } from 'ngwr/markdown/testing';
-
-const md = await loader.getHarness(WrMarkdownHarness);
-
-expect(await md.getHeadings()).toEqual([
-  { level: 1, text: 'Release notes', id: 'user-content-release-notes' },
-]);
-
-// Links carry what a reviewer actually cares about. \`rel\` is only set when
-// the host opts into a target — this one renders linkTarget="_blank".
-const [link] = await md.getLinks();
-expect(link.href).toBe('https://ngwr.dev');
-expect(link.rel).toBe('noopener noreferrer');
-
-// Code blocks are their own harness.
-const block = await md.getCodeBlock({ language: 'ts' });
-expect(await block.getCode()).toBe('const a = 1;');
-expect(await block.canCopy()).toBe(true);
-await block.copy();
-
-// Task state is a field, not something to parse out of the text.
-expect(await md.getTaskItems()).toEqual([
-  { text: 'ship it', checked: true, stateLabel: 'Done:' },
-]);
-
-// Mid-stream, the host says so.
-expect(await md.isStreaming()).toBe(true);`,
     own: `import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 export class MyWidgetHarness extends ComponentHarness {
@@ -2760,69 +2736,6 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'Panel: getRegionId() / isRegionBound() / isContentHidden()',
       description: 'The `aria-controls` pairing between header and region, checked in both directions.',
       type: 'Promise<…>',
-      default: '—',
-    },
-  ];
-
-  protected readonly markdownApi: readonly DocApiRow[] = [
-    {
-      name: 'getText()',
-      description: 'The whole document as prose, whitespace collapsed, hidden task labels left out.',
-      type: 'Promise<string>',
-      default: '—',
-    },
-    {
-      name: 'getHeadings()',
-      description:
-        'Level, text and id per heading. The level comes from the element, so it also asserts that a real `<h2>` was rendered rather than a styled div.',
-      type: 'Promise<WrMarkdownHarnessHeading[]>',
-      default: '—',
-    },
-    {
-      name: 'getLinks()',
-      description:
-        'Text, `href`, `title`, `target` and `rel`. A `_blank` without `rel="noopener noreferrer"` is the assertion worth writing.',
-      type: 'Promise<WrMarkdownHarnessLink[]>',
-      default: '—',
-    },
-    {
-      name: 'getCodeBlocks(filters?)',
-      description:
-        'Every fenced block, nested ones included. `getCodeBlock(filters?)` returns the first match and throws naming the languages present.',
-      type: 'Promise<WrMarkdownCodeBlockHarness[]>',
-      default: '—',
-    },
-    {
-      name: 'getTaskItems()',
-      description: 'Text, checked state and the screen-reader label that carries it.',
-      type: 'Promise<WrMarkdownHarnessTaskItem[]>',
-      default: '—',
-    },
-    {
-      name: 'getTables()',
-      description:
-        'Headers, rows and per-column alignment, read from the inline style the renderer wrote rather than from computed style — a `<th>` centres by default, which would make "no alignment" indistinguishable from `center`.',
-      type: 'Promise<WrMarkdownHarnessTable[]>',
-      default: '—',
-    },
-    {
-      name: 'getParagraphs() / getListItems() / getQuotes() / getInlineCode() / getImages() / getRuleCount()',
-      description: 'The rest of the document, each in the terms a reader would use.',
-      type: 'Promise<string[]> etc.',
-      default: '—',
-    },
-    {
-      name: 'isStreaming() / isEmpty()',
-      description:
-        '`isStreaming()` reads the host modifier that paints the caret. `isEmpty()` means nothing rendered at all, which is not the same as no text.',
-      type: 'Promise<boolean>',
-      default: '—',
-    },
-    {
-      name: 'WrMarkdownCodeBlockHarness',
-      description:
-        '`getLanguage()`, `getCode()` (exact, never trimmed), `isHighlighted()`, `canCopy()`, `getCopyLabel()`, `copy()`.',
-      type: 'ComponentHarness',
       default: '—',
     },
   ];

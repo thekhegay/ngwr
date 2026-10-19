@@ -294,12 +294,6 @@ export const wrPl: WrI18nCatalog = {
   popover: {
     label: 'Okno podręczne',
   },
-  markdown: {
-    copy: 'Kopiuj kod',
-    copied: 'Skopiowano',
-    taskDone: 'Zrobione:',
-    taskTodo: 'Do zrobienia:',
-  },
   editor: {
     label: 'Tekst sformatowany',
     toolbar: 'Formatowanie',

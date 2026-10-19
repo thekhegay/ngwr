@@ -13,9 +13,9 @@
 // stick. Under `auto` the browser sizes by content volume, and the two failure
 // modes are opposite ends of the same fault: on `/bits/circular-text` —
 // three short descriptions and one long union — it handed Type 413px and
-// Description 319px, so the widest column was the one nobody reads; on
-// `/reference/components/markdown`, whose descriptions come from the library's
-// own JSDoc, it handed Description 727px and left Name 75px and Type 83px, which
+// Description 319px, so the widest column was the one nobody reads; on the
+// markdown page v15 removed, whose descriptions came from the library's own
+// JSDoc, it handed Description 727px and left Name 75px and Type 83px, which
 // is where `boolean` rendered as `boolea` / `n` and `headingIdPrefix` as three
 // stacked fragments. Neither is a wrapping bug — both are one column's content
 // deciding another column's width.

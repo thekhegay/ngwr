@@ -365,14 +365,6 @@ export const wrEn: WrI18nCatalog = {
   popover: {
     label: 'Popover',
   },
-  markdown: {
-    copy: 'Copy code',
-    copied: 'Copied',
-    // Read before a task item's text, so a screen reader gets the state that the
-    // checkbox glyph carries visually.
-    taskDone: 'Done:',
-    taskTodo: 'To do:',
-  },
   // `<wr-editor>`. `heading` is one template for the three levels, and
   // `shortcut` joins a label to its key chord in a tooltip, so a locale owns
   // the punctuation (ja and zh use full-width brackets). The three `key*`
@@ -404,6 +396,8 @@ export const wrEn: WrI18nCatalog = {
     keyCtrl: 'Ctrl',
     keyShift: 'Shift',
     keyAlt: 'Alt',
+    // Read before a task item's text, so a screen reader gets the state that the
+    // checkbox glyph carries visually.
     taskDone: 'Done:',
     taskTodo: 'To do:',
   },

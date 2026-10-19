@@ -4,7 +4,7 @@ import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormField, form, required } from '@angular/forms/signals';
 
-import { WrEditor, type WrEditorFormat, type WrEditorTool, type WrEditorValue } from 'ngwr/editor';
+import { WrEditor, type WrEditorJson, type WrEditorMarkJson, type WrEditorTool, type WrEditorValue } from 'ngwr/editor';
 import { WrFormField } from 'ngwr/form';
 import { WrInputHarness } from 'ngwr/input/testing';
 import { provideWrOverlay } from 'ngwr/overlay';
@@ -30,6 +30,15 @@ function installLayoutStubs(): () => void {
   };
 }
 
+// The value is the document as ProseMirror's `toJSON()` writes it: no `content`
+// on an empty node, no `marks` on unmarked text.
+const doc = (...content: WrEditorJson[]): WrEditorJson => ({ type: 'doc', content });
+const para = (...content: WrEditorJson[]): WrEditorJson =>
+  content.length ? { type: 'paragraph', content } : { type: 'paragraph' };
+const text = (value: string, ...marks: WrEditorMarkJson[]): WrEditorJson =>
+  marks.length ? { type: 'text', text: value, marks } : { type: 'text', text: value };
+const link = (href: string): WrEditorMarkJson => ({ type: 'link', attrs: { href, title: null } });
+
 @Component({
   imports: [WrEditor, WrFormField],
   template: `
@@ -37,23 +46,32 @@ function installLayoutStubs(): () => void {
       <wr-editor
         placeholder="Write the release notes"
         [(value)]="body"
-        [format]="format()"
         [readonly]="readonly()"
         [disabled]="disabled()"
         (touch)="touched = touched + 1"
       />
     </wr-form-field>
-    <wr-editor ariaLabel="Summary" format="markdown" [(value)]="summary" [toolbar]="summaryTools" />
-    <wr-editor ariaLabel="Notes" [toolbar]="false" value="<p>Plain</p>" />
+    <wr-editor ariaLabel="Summary" [(value)]="summary" [toolbar]="summaryTools" />
+    <wr-editor ariaLabel="Notes" [toolbar]="false" [value]="notes" />
   `,
 })
 class Host {
-  readonly body = signal<WrEditorValue>('<p>Hello</p>');
-  readonly summary = signal<WrEditorValue>('- [x] shipped\n- [ ] announced');
-  readonly format = signal<WrEditorFormat>('html');
+  readonly body = signal<WrEditorValue>(doc(para(text('Hello'))));
+  readonly summary = signal<WrEditorValue>(
+    doc({
+      type: 'bullet_list',
+      attrs: { tight: true },
+      content: [
+        { type: 'list_item', attrs: { checked: true }, content: [para(text('shipped'))] },
+        { type: 'list_item', attrs: { checked: false }, content: [para(text('announced'))] },
+      ],
+    })
+  );
+  readonly notes = doc(para(text('Plain')));
   readonly readonly = signal(false);
   readonly disabled = signal(false);
-  readonly summaryTools: readonly WrEditorTool[] = ['bold', 'underline', 'italic', '|', 'undo', 'redo'];
+  // Bold twice: what is drawn is each tool once.
+  readonly summaryTools: readonly WrEditorTool[] = ['bold', 'underline', 'italic', 'bold', '|', 'undo', 'redo'];
   touched = 0;
 }
 
@@ -67,7 +85,7 @@ class Host {
   `,
 })
 class FormHost {
-  readonly model = signal({ description: '' });
+  readonly model = signal<{ description: WrEditorValue }>({ description: null });
   readonly f = form(this.model, path => required(path.description));
 }
 
@@ -148,41 +166,20 @@ describe('WrEditorHarness', () => {
       const editor = await body();
       await editor.setText('Release notes');
 
-      expect(fixture.componentInstance.body()).toBe('<p>Release notes</p>');
+      expect(fixture.componentInstance.body()).toEqual(doc(para(text('Release notes'))));
       expect(await editor.getText()).toBe('Release notes');
     });
 
-    it('writes an emptied document as the empty string', async () => {
+    it('writes an emptied document as null, so `required` sees it as empty', async () => {
       await (await body()).setText('');
 
-      expect(fixture.componentInstance.body()).toBe('');
+      expect(fixture.componentInstance.body()).toBeNull();
     });
 
     it('writes one paragraph, a line break in the text becoming a hard break', async () => {
       await (await body()).setText('one\ntwo');
 
-      expect(fixture.componentInstance.body()).toBe('<p>one<br>two</p>');
-    });
-
-    it('writes an emptied json document as null', async () => {
-      fixture.componentInstance.body.set(null);
-      fixture.componentInstance.format.set('json');
-      const editor = await body();
-      await editor.setText('Tree');
-      await editor.setText('');
-
-      expect(fixture.componentInstance.body()).toBeNull();
-    });
-
-    it('writes in whichever format is bound', async () => {
-      fixture.componentInstance.format.set('json');
-      const editor = await body();
-      await editor.setText('Tree');
-
-      expect(fixture.componentInstance.body()).toEqual({
-        type: 'doc',
-        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Tree' }] }],
-      });
+      expect(fixture.componentInstance.body()).toEqual(doc(para(text('one'), { type: 'hard_break' }, text('two'))));
     });
 
     it('pastes plain text over the selection', async () => {
@@ -190,7 +187,7 @@ describe('WrEditorHarness', () => {
       await editor.selectAll();
       await editor.paste('Pasted');
 
-      expect(fixture.componentInstance.body()).toBe('<p>Pasted</p>');
+      expect(fixture.componentInstance.body()).toEqual(doc(para(text('Pasted'))));
     });
 
     it('pastes html through the schema, so nothing executable survives', async () => {
@@ -200,7 +197,7 @@ describe('WrEditorHarness', () => {
         '<p onclick="alert(1)"><a href="javascript:alert(1)">bad</a> <b>kept</b></p><iframe></iframe>'
       );
 
-      expect(fixture.componentInstance.body()).toBe('<p>bad <strong>kept</strong></p>');
+      expect(fixture.componentInstance.body()).toEqual(doc(para(text('bad '), text('kept', { type: 'strong' }))));
     });
 
     it('drives the keymap with a modifier', async () => {
@@ -208,7 +205,7 @@ describe('WrEditorHarness', () => {
       await editor.selectAll();
       await editor.pressKey('b', { control: true });
 
-      expect(fixture.componentInstance.body()).toBe('<p><strong>Hello</strong></p>');
+      expect(fixture.componentInstance.body()).toEqual(doc(para(text('Hello', { type: 'strong' }))));
       expect(await editor.isToolPressed('Bold')).toBe(true);
     });
 
@@ -217,14 +214,14 @@ describe('WrEditorHarness', () => {
       await editor.selectAll();
       await editor.pressKey(TestKey.BACKSPACE);
 
-      expect(fixture.componentInstance.body()).toBe('');
+      expect(fixture.componentInstance.body()).toBeNull();
     });
 
     it('refuses a printable key with no modifier rather than dropping it', async () => {
       const editor = await body();
 
       await expect(editor.pressKey('x')).rejects.toThrow(/would be typed, not pressed/);
-      expect(fixture.componentInstance.body()).toBe('<p>Hello</p>');
+      expect(fixture.componentInstance.body()).toEqual(doc(para(text('Hello'))));
     });
   });
 
@@ -242,11 +239,11 @@ describe('WrEditorHarness', () => {
       fixture.componentInstance.readonly.set(true);
       const editor = await body();
       await editor.paste('Pasted');
-      expect(fixture.componentInstance.body()).toBe('<p>Hello</p>');
+      expect(fixture.componentInstance.body()).toEqual(doc(para(text('Hello'))));
 
       fixture.componentInstance.readonly.set(false);
       await editor.paste('Pasted ');
-      expect(fixture.componentInstance.body()).toBe('<p>Pasted Hello</p>');
+      expect(fixture.componentInstance.body()).toEqual(doc(para(text('Pasted Hello'))));
     });
 
     it('treats a disabled editor as out of reach', async () => {
@@ -275,12 +272,12 @@ describe('WrEditorHarness', () => {
   });
 
   describe('the toolbar', () => {
-    it('lists the drawn tools — underline gone in markdown — and its own name', async () => {
+    it('lists the drawn tools — a duplicate drawn once — and its own name', async () => {
       const editor = await summary();
 
       expect(await editor.hasToolbar()).toBe(true);
       expect(await editor.getToolbarLabel()).toBe('Formatting');
-      expect(await editor.getToolLabels()).toEqual(['Bold', 'Italic', 'Undo', 'Redo']);
+      expect(await editor.getToolLabels()).toEqual(['Bold', 'Underline', 'Italic', 'Undo', 'Redo']);
     });
 
     it('says so when there is no toolbar at all', async () => {
@@ -296,7 +293,9 @@ describe('WrEditorHarness', () => {
       await editor.selectAll();
       await (await editor.getTool('Heading 2')).click();
 
-      expect(fixture.componentInstance.body()).toBe('<h2>Hello</h2>');
+      expect(fixture.componentInstance.body()).toEqual(
+        doc({ type: 'heading', attrs: { level: 2 }, content: [text('Hello')] })
+      );
       expect(await editor.isToolPressed('Heading 2')).toBe(true);
       expect(await editor.isToolPressed(/^Paragraph$/)).toBe(false);
       expect(await editor.getToolShortcuts('Heading 2')).toBe('Control+Alt+2');
@@ -321,7 +320,7 @@ describe('WrEditorHarness', () => {
     it('names what is drawn when a tool is not', async () => {
       const editor = await summary();
 
-      await expect(editor.getTool('Underline')).rejects.toThrow(/no tool is named Underline.*"Bold"/);
+      await expect(editor.getTool('Heading 2')).rejects.toThrow(/no tool is named Heading 2.*"Bold"/);
     });
 
     it('reads the roving tab stop, and loses it when nothing applies', async () => {
@@ -339,9 +338,7 @@ describe('WrEditorHarness', () => {
       await editor.selectAll();
       await editor.setLink('https://example.com');
 
-      expect(fixture.componentInstance.body()).toBe(
-        '<p><a href="https://example.com" rel="noopener noreferrer nofollow">Hello</a></p>'
-      );
+      expect(fixture.componentInstance.body()).toEqual(doc(para(text('Hello', link('https://example.com')))));
       expect(await editor.isLinkPanelOpen()).toBe(false);
     });
 
@@ -352,7 +349,7 @@ describe('WrEditorHarness', () => {
 
       expect(await editor.isLinkPanelOpen()).toBe(true);
       expect(await editor.getLinkError()).toBe('This address cannot be used as a link.');
-      expect(fixture.componentInstance.body()).toBe('<p>Hello</p>');
+      expect(fixture.componentInstance.body()).toEqual(doc(para(text('Hello'))));
     });
 
     it('hands back the panel as a content container', async () => {
@@ -365,11 +362,11 @@ describe('WrEditorHarness', () => {
     });
 
     it('removes a link, and refuses when there is none to remove', async () => {
-      fixture.componentInstance.body.set('<p><a href="https://example.com">Hello</a></p>');
+      fixture.componentInstance.body.set(doc(para(text('Hello', link('https://example.com')))));
       const editor = await body();
       await editor.selectAll();
       await editor.removeLink();
-      expect(fixture.componentInstance.body()).toBe('<p>Hello</p>');
+      expect(fixture.componentInstance.body()).toEqual(doc(para(text('Hello'))));
 
       await editor.selectAll();
       await expect(editor.removeLink()).rejects.toThrow(/not in a link/);
@@ -411,7 +408,7 @@ describe('WrEditorHarness inside a Signal Forms field', () => {
     expect(await editor.isInvalid()).toBe(true);
 
     await editor.setText('Filled');
-    expect(fixture.componentInstance.model().description).toBe('<p>Filled</p>');
+    expect(fixture.componentInstance.model().description).toEqual(doc(para(text('Filled'))));
     expect(await editor.isInvalid()).toBe(false);
     fixture.destroy();
   });
@@ -441,7 +438,9 @@ describe('WrEditorHarness on an editor that was read-only before it could mount'
   };
 
   it('reads the document, refuses everything that needs a view, and mounts once the rule is lifted', async () => {
-    const [host, editor, destroy] = await readOnly('<h2>Shipped</h2><p>Hello</p>');
+    const [host, editor, destroy] = await readOnly(
+      doc({ type: 'heading', attrs: { level: 2 }, content: [text('Shipped')] }, para(text('Hello')))
+    );
 
     expect(await editor.isMounted()).toBe(false);
     expect(await editor.isReadonly()).toBe(true);
@@ -460,12 +459,12 @@ describe('WrEditorHarness on an editor that was read-only before it could mount'
     host.readonly.set(false);
     expect(await editor.isMounted()).toBe(true);
     await editor.setText('Written');
-    expect(host.body()).toBe('<p>Written</p>');
+    expect(host.body()).toEqual(doc(para(text('Written'))));
     destroy();
   });
 
   it('announces no placeholder, since a read-only editor draws none to announce', async () => {
-    const [, editor, destroy] = await readOnly('');
+    const [, editor, destroy] = await readOnly(null);
 
     expect(await editor.getText()).toBe('');
     expect(await editor.getPlaceholder()).toBeNull();

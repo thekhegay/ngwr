@@ -285,12 +285,6 @@ export const wrIt: WrI18nCatalog = {
   popover: {
     label: 'Riquadro a comparsa',
   },
-  markdown: {
-    copy: 'Copia il codice',
-    copied: 'Copiato',
-    taskDone: 'Fatto:',
-    taskTodo: 'Da fare:',
-  },
   editor: {
     label: 'Testo formattato',
     toolbar: 'Formattazione',

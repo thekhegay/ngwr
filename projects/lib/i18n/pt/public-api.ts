@@ -278,12 +278,6 @@ export const wrPt: WrI18nCatalog = {
   popover: {
     label: 'Painel emergente',
   },
-  markdown: {
-    copy: 'Copiar código',
-    copied: 'Copiado',
-    taskDone: 'Concluído:',
-    taskTodo: 'Por fazer:',
-  },
   editor: {
     label: 'Texto formatado',
     toolbar: 'Formatação',

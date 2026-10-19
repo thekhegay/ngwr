@@ -286,15 +286,6 @@ export const wrFr: WrI18nCatalog = {
   popover: {
     label: 'Fenêtre contextuelle',
   },
-  markdown: {
-    copy: 'Copier le code',
-    copied: 'Copié',
-    // En français un deux-points est précédé d'une espace insécable, et c'est
-    // bien U+00A0 qui se trouve dans ces deux valeurs — invisible à la relecture,
-    // à ne pas remplacer par une espace ordinaire. Idem dans `mention`.
-    taskDone: 'Fait :',
-    taskTodo: 'À faire :',
-  },
   editor: {
     label: 'Texte enrichi',
     toolbar: 'Mise en forme',
@@ -333,6 +324,9 @@ export const wrFr: WrI18nCatalog = {
   },
   mention: {
     listbox: 'Mentions',
+    // En français un deux-points est précédé d'une espace insécable, et c'est
+    // bien U+00A0 qui se trouve dans ces deux valeurs — invisible à la relecture,
+    // à ne pas remplacer par une espace ordinaire.
     available: 'Correspondances disponibles : {{count}}',
     inserted: 'Inséré : {{label}}',
   },

@@ -288,12 +288,6 @@ export const wrDe: WrI18nCatalog = {
   popover: {
     label: 'Popover',
   },
-  markdown: {
-    copy: 'Code kopieren',
-    copied: 'Kopiert',
-    taskDone: 'Erledigt:',
-    taskTodo: 'Offen:',
-  },
   editor: {
     label: 'Formatierter Text',
     toolbar: 'Formatierung',

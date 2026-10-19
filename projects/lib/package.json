@@ -625,13 +625,6 @@
     "./loading-bar/router": {
       "default": "./loading-bar/router/public-api.ts"
     },
-    "./markdown": {
-      "sass": "./markdown/styles/_index.scss",
-      "default": "./markdown/public-api.ts"
-    },
-    "./markdown/testing": {
-      "default": "./markdown/testing/public-api.ts"
-    },
     "./mention": {
       "sass": "./mention/styles/_index.scss",
       "default": "./mention/public-api.ts"

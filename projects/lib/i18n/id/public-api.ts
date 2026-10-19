@@ -274,12 +274,6 @@ export const wrId: WrI18nCatalog = {
   popover: {
     label: 'Panel sembulan',
   },
-  markdown: {
-    copy: 'Salin kode',
-    copied: 'Tersalin',
-    taskDone: 'Selesai:',
-    taskTodo: 'Belum selesai:',
-  },
   editor: {
     label: 'Teks berformat',
     toolbar: 'Pemformatan',

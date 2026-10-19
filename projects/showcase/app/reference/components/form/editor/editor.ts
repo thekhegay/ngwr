@@ -19,16 +19,7 @@ import { API } from '#core/generated/api';
 
 // Every demo value below is invented.
 
-const HTML_VALUE = '<h2>Release notes</h2><p>The editor writes <strong>HTML</strong> back on every edit.</p>';
-
-const MARKDOWN_VALUE = `## Checklist
-
-Markdown in, **markdown** out — the dialect \`<wr-markdown>\` renders.
-
-- [x] Write the changelog
-- [ ] Tag the release`;
-
-const JSON_VALUE: WrEditorValue = {
+const AGENDA: WrEditorValue = {
   type: 'doc',
   content: [
     { type: 'heading', attrs: { level: 3 }, content: [{ type: 'text', text: 'Agenda' }] },
@@ -38,7 +29,7 @@ const JSON_VALUE: WrEditorValue = {
       content: [
         {
           type: 'list_item',
-          attrs: { checked: null },
+          attrs: { checked: true },
           content: [
             {
               type: 'paragraph',
@@ -51,25 +42,13 @@ const JSON_VALUE: WrEditorValue = {
         },
         {
           type: 'list_item',
-          attrs: { checked: null },
+          attrs: { checked: false },
           content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Hiring plan' }] }],
         },
       ],
     },
   ],
 };
-
-/**
- * Hostile on purpose: an event handler, an inline style, a `<font>`, a script, an
- * iframe, a `javascript:` link and an image whose source is one, and a fourth-level
- * heading the schema clamps. What the editor draws is what survives.
- */
-const UNTRUSTED_VALUE =
-  '<h4 onclick="alert(1)">A fourth-level heading</h4>' +
-  '<p style="color: red">Styled <b>bold</b>, <font color="red">a font tag</font>, ' +
-  '<a href="javascript:alert(1)">a script link</a> and <a href="https://ngwr.dev" target="_blank">a real one</a>.</p>' +
-  '<script>alert(1)</script><iframe src="https://example.com"></iframe>' +
-  '<p><img src="javascript:alert(1)" alt="refused" onerror="alert(1)">After the image.</p>';
 
 const COMMENT_TOOLS: readonly WrEditorTool[] = [
   'bold',
@@ -100,20 +79,58 @@ const COMMENT_TOOLS: readonly WrEditorTool[] = [
   ],
 })
 export default class EditorPageComponent {
-  protected readonly html = signal<WrEditorValue>(HTML_VALUE);
-  protected readonly markdown = signal<WrEditorValue>(MARKDOWN_VALUE);
-  protected readonly json = signal<WrEditorValue>(JSON_VALUE);
-  protected readonly untrusted = signal<WrEditorValue>(UNTRUSTED_VALUE);
-  protected readonly comment = signal<WrEditorValue>('');
+  protected readonly agenda = signal<WrEditorValue>(AGENDA);
+  protected readonly comment = signal<WrEditorValue>(null);
 
   protected readonly commentTools = COMMENT_TOOLS;
 
-  private readonly model = signal({ description: '' });
+  private readonly model = signal<{ description: WrEditorValue }>({ description: null });
   protected readonly ticket = form(this.model, path => {
     required(path.description);
   });
 
   protected readonly snippets = {
+    value: `// "Hello, **world**" — one paragraph, two text nodes, one mark.
+const value: WrEditorValue = {
+  type: 'doc',
+  content: [
+    {
+      type: 'paragraph',
+      content: [
+        { type: 'text', text: 'Hello, ' },
+        { type: 'text', text: 'world', marks: [{ type: 'strong' }] },
+      ],
+    },
+  ],
+};`,
+    html: `import { DOMSerializer, Node, type Schema } from 'prosemirror-model';
+
+import type { WrEditorJson } from 'ngwr/editor';
+
+// \`schema\` is your own, declaring the nodes and marks WrEditorJson lists.
+export function toHtml(value: WrEditorJson, schema: Schema, document: Document): string {
+  const doc = Node.fromJSON(schema, value);
+  const host = document.createElement('div');
+  host.append(DOMSerializer.fromSchema(schema).serializeFragment(doc.content, { document }));
+  return host.innerHTML;
+}`,
+    refused: `// Refused whole: the link's address is one the URL check never lets through,
+// so the editor keeps what it had and warns in dev mode.
+protected readonly imported = signal<WrEditorValue>({
+  type: 'doc',
+  content: [
+    {
+      type: 'paragraph',
+      content: [
+        {
+          type: 'text',
+          text: 'a script link',
+          marks: [{ type: 'link', attrs: { href: 'javascript:alert(1)', title: null } }],
+        },
+      ],
+    },
+  ],
+});`,
     peers: `# ProseMirror is an optional peer: installing ngwr does not bring it along.
 pnpm add prosemirror-model prosemirror-state prosemirror-view prosemirror-commands \\
   prosemirror-keymap prosemirror-history prosemirror-schema-list prosemirror-inputrules
@@ -136,7 +153,7 @@ readonly tools: readonly WrEditorTool[] = WR_EDITOR_TOOLBAR.filter(
     defer: `<!-- ProseMirror lands in the chunk that imports ngwr/editor, and in no other.
      @defer moves that chunk off the first load as well. -->
 @defer (on viewport) {
-  <wr-editor format="markdown" [formField]="form.body" />
+  <wr-editor [formField]="form.body" />
 } @placeholder {
   <div class="editor-placeholder" aria-hidden="true"></div>
 }`,
@@ -158,69 +175,11 @@ readonly tools: readonly WrEditorTool[] = WR_EDITOR_TOOLBAR.filter(
 >…</div>`,
   };
 
-  protected readonly htmlFiles: readonly DocCodeFile[] = [
+  protected readonly basicFiles: readonly DocCodeFile[] = [
     {
       label: 'HTML',
       language: 'angular-html',
-      code: `<wr-editor ariaLabel="Release notes" placeholder="What changed?" [(value)]="notes" />
-<pre>{{ notes() }}</pre>`,
-    },
-    {
-      label: 'TS',
-      language: 'angular-ts',
-      code: `import { Component, signal } from '@angular/core';
-
-import { WrEditor, type WrEditorValue } from 'ngwr/editor';
-
-@Component({
-  selector: 'app-release-notes',
-  templateUrl: './release-notes.html',
-  imports: [WrEditor],
-})
-export class ReleaseNotes {
-  // format defaults to 'html', so the value is an HTML string.
-  protected readonly notes = signal<WrEditorValue>(
-    '<h2>Release notes</h2><p>The editor writes <strong>HTML</strong> back on every edit.</p>'
-  );
-}`,
-    },
-  ];
-
-  protected readonly markdownFiles: readonly DocCodeFile[] = [
-    {
-      label: 'HTML',
-      language: 'angular-html',
-      code: `<wr-editor ariaLabel="Checklist" format="markdown" [(value)]="checklist" />
-<pre>{{ checklist() }}</pre>`,
-    },
-    {
-      label: 'TS',
-      language: 'angular-ts',
-      code: `import { Component, signal } from '@angular/core';
-
-import { WrEditor, type WrEditorValue } from 'ngwr/editor';
-
-@Component({
-  selector: 'app-checklist',
-  templateUrl: './checklist.html',
-  imports: [WrEditor],
-})
-export class Checklist {
-  protected readonly checklist = signal<WrEditorValue>(\`## Checklist
-
-Markdown in, **markdown** out — the dialect \\\`<wr-markdown>\\\` renders.
-
-- [x] Write the changelog
-- [ ] Tag the release\`);
-}`,
-    },
-  ];
-
-  protected readonly jsonFiles: readonly DocCodeFile[] = [
-    {
-      label: 'HTML',
-      language: 'angular-html',
-      code: `<wr-editor ariaLabel="Agenda" format="json" [(value)]="agenda" />
+      code: `<wr-editor ariaLabel="Agenda" placeholder="What is on the agenda?" [(value)]="agenda" />
 <pre>{{ agenda() | json }}</pre>`,
     },
     {
@@ -247,7 +206,7 @@ export class Agenda {
         content: [
           {
             type: 'list_item',
-            attrs: { checked: null },
+            attrs: { checked: true },
             content: [
               {
                 type: 'paragraph',
@@ -260,7 +219,7 @@ export class Agenda {
           },
           {
             type: 'list_item',
-            attrs: { checked: null },
+            attrs: { checked: false },
             content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Hiring plan' }] }],
           },
         ],
@@ -294,7 +253,7 @@ export class Comment {
   protected readonly tools: readonly WrEditorTool[] = [
     'bold', 'italic', 'code', '|', 'bulletList', 'orderedList', '|', 'link',
   ];
-  protected readonly comment = signal<WrEditorValue>('');
+  protected readonly comment = signal<WrEditorValue>(null);
 }`,
     },
   ];
@@ -303,8 +262,8 @@ export class Comment {
     {
       label: 'HTML',
       language: 'angular-html',
-      code: `<wr-form-field label="Description" hint="Markdown. Required.">
-  <wr-editor format="markdown" placeholder="Describe the change" [formField]="ticket.description" />
+      code: `<wr-form-field label="Description" hint="Required.">
+  <wr-editor placeholder="Describe the change" [formField]="ticket.description" />
 </wr-form-field>
 <pre>{{ ticket.description().value() | json }}</pre>`,
     },
@@ -315,7 +274,7 @@ export class Comment {
 import { Component, signal } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
 
-import { WrEditor } from 'ngwr/editor';
+import { WrEditor, type WrEditorValue } from 'ngwr/editor';
 import { WrFormField } from 'ngwr/form';
 
 @Component({
@@ -324,42 +283,11 @@ import { WrFormField } from 'ngwr/form';
   imports: [FormField, JsonPipe, WrEditor, WrFormField],
 })
 export class Ticket {
-  // A plain string field binds to the editor's value model as it is.
-  private readonly model = signal({ description: '' });
+  // Typed as the editor's value: null while nothing is written.
+  private readonly model = signal<{ description: WrEditorValue }>({ description: null });
   protected readonly ticket = form(this.model, path => {
     required(path.description, { message: 'Describe the change.' });
   });
-}`,
-    },
-  ];
-
-  protected readonly untrustedFiles: readonly DocCodeFile[] = [
-    {
-      label: 'HTML',
-      language: 'angular-html',
-      code: `<wr-editor ariaLabel="Imported content" [(value)]="imported" />
-<pre>{{ imported() }}</pre>`,
-    },
-    {
-      label: 'TS',
-      language: 'angular-ts',
-      code: `import { Component, signal } from '@angular/core';
-
-import { WrEditor, type WrEditorValue } from 'ngwr/editor';
-
-@Component({
-  selector: 'app-imported',
-  templateUrl: './imported.html',
-  imports: [WrEditor],
-})
-export class Imported {
-  protected readonly imported = signal<WrEditorValue>(
-    '<h4 onclick="alert(1)">A fourth-level heading</h4>' +
-      '<p style="color: red">Styled <b>bold</b>, <font color="red">a font tag</font>, ' +
-      '<a href="javascript:alert(1)">a script link</a> and <a href="https://ngwr.dev" target="_blank">a real one</a>.</p>' +
-      '<script>alert(1)</script><iframe src="https://example.com"></iframe>' +
-      '<p><img src="javascript:alert(1)" alt="refused" onerror="alert(1)">After the image.</p>'
-  );
 }`,
     },
   ];
@@ -368,21 +296,15 @@ export class Imported {
 
   protected readonly typeRows: readonly DocApiRow[] = [
     {
-      name: 'WrEditorFormat',
-      description:
-        'What `value` holds. `html` — an HTML string, rebuilt from the schema on the way out. `markdown` — the dialect `ngwr/markdown` reads, written back by `serializeMarkdown`; it has no underline. `json` — the document as a `WrEditorJson` tree.',
-      type: `'html' | 'markdown' | 'json'`,
-    },
-    {
       name: 'WrEditorValue',
       description:
-        "The `value` model. An empty document is `''` in the two string formats and `null` in `json`, so `required()` reports an empty editor as empty. `null` and `''` both read as an empty document in every format.",
-      type: 'string | WrEditorJson | null',
+        'The `value` model: the document as a `WrEditorJson` tree, `null` for an empty one, so `required()` reports an empty editor as empty.',
+      type: 'WrEditorJson | null',
     },
     {
       name: 'WrEditorJson',
       description:
-        'The document as plain data — the shape ProseMirror writes, declared so no ProseMirror type reaches the public API. A bound tree is validated, not trusted: anything the schema does not allow refuses the whole value.',
+        'The document as plain data — the shape ProseMirror writes, declared so no ProseMirror type reaches the public API. A bound tree is validated, not trusted: anything the schema does not allow, or a link or image address the URL check refuses, refuses the whole value.',
       type: 'interface',
     },
     {
@@ -418,7 +340,7 @@ export class Imported {
     {
       name: 'WrEditorTool',
       description:
-        "One entry of the `toolbar` input. `underline` is dropped in `markdown` format, and `'|'` draws a separator between two groups.",
+        "One entry of the `toolbar` input. `'|'` draws a separator between two groups.",
       type: `'bold' | 'italic' | 'underline' | 'strike' | 'code' | 'paragraph' | 'heading1' | 'heading2' | 'heading3' | 'bulletList' | 'orderedList' | 'blockquote' | 'codeBlock' | 'link' | 'horizontalRule' | 'undo' | 'redo' | '|'`,
     },
     {

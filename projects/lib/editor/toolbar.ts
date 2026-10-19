@@ -14,8 +14,6 @@ import type { WrEditorTool } from './types';
  * ```ts
  * readonly tools = WR_EDITOR_TOOLBAR.filter(tool => tool !== 'code');
  * ```
- *
- * `underline` is dropped in `markdown` format whether it is listed or not.
  */
 export const WR_EDITOR_TOOLBAR: readonly WrEditorTool[] = [
   'bold',

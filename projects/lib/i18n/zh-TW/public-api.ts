@@ -281,12 +281,6 @@ export const wrZhTw: WrI18nCatalog = {
   popover: {
     label: '快顯面板',
   },
-  markdown: {
-    copy: '複製程式碼',
-    copied: '已複製',
-    taskDone: '已完成：',
-    taskTodo: '待完成：',
-  },
   editor: {
     label: '豐富文字',
     toolbar: '格式設定',

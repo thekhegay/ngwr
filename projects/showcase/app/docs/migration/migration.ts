@@ -239,12 +239,11 @@ export default class MigrationPageComponent {
 
     v15Config: `# The entry point is gone, with everything it exported.
 - import { provideWrConfig } from 'ngwr/config';
-- provideWrConfig({ button: { size: 'sm' }, select: { rounded: true }, editor: { format: 'markdown' } }),
+- provideWrConfig({ button: { size: 'sm' }, select: { rounded: true } }),
 
 # Bind the input wherever you want a value other than its default.
 + <wr-btn size="sm">Save</wr-btn>
-+ <wr-select rounded>…</wr-select>
-+ <wr-editor format="markdown" [(value)]="notes" />`,
++ <wr-select rounded>…</wr-select>`,
 
     v15Media: `# The entry point is gone, with everything it exported.
 - import { WrMedia } from 'ngwr/media';
@@ -289,6 +288,21 @@ export default class MigrationPageComponent {
 + @Service()
 + export class AppDateAdapter extends WrDateAdapter<Date> { /* the abstract members */ }
 + provideWrDateAdapter({ adapter: AppDateAdapter }),`,
+
+    v15Markdown: `# The entry point is gone, with everything it exported.
+- import { WrMarkdown, provideWrMarkdownHighlighter } from 'ngwr/markdown';
+- provideWrMarkdownHighlighter(highlight),
+- @use 'ngwr/markdown';
+
+# The editor reads and writes one shape: the document as a WrEditorJson tree.
+- <wr-editor format="markdown" [(value)]="notes" />
++ <wr-editor [(value)]="notes" />
+- protected readonly notes = signal<WrEditorValue>('');
++ protected readonly notes = signal<WrEditorValue>(null);
+
+# A stored document to show: a read-only editor mounts no ProseMirror.
+- <wr-markdown [value]="notes" />
++ <wr-editor readonly [toolbar]="false" [value]="notes" />`,
 
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
 # One command, whatever major you are on: ng update installs the latest

@@ -225,8 +225,9 @@ interface WrIconStripReport {
  * `onload` on the root, an `<image onerror>`, an `<img>` smuggled in after a
  * closed `</svg>`, and anything inside a `<foreignObject>` — with the app's own
  * origin, in a production build. The library already refuses exactly this next
- * door: `<wr-markdown>` escapes raw HTML because its input is untrusted by
- * construction and one `<img onerror>` is the whole cost of being wrong. Icon
+ * door: `<wr-editor>` parses a pasted clipboard inert and rebuilds it from its
+ * schema, because its input is untrusted by construction and one
+ * `<img onerror>` is the whole cost of being wrong. Icon
  * data arrives from `provideWrIcons()`, which a multi-tenant app or a fetched
  * icon pack fills at runtime, so it is untrusted the same way.
  *

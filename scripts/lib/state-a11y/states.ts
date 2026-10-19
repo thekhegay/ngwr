@@ -566,13 +566,6 @@ export const STATES: readonly State[] = [
     scope: demo('.wr-input-number'),
   },
   {
-    id: 'markdown/copy-button',
-    route: `${REF}/markdown`,
-    steps: [{ hover: demo('.wr-markdown__copy') }],
-    target: demo('.wr-markdown__copy'),
-    scope: demo('.wr-markdown'),
-  },
-  {
     id: 'event-calendar/month',
     route: `${REF}/event-calendar`,
     steps: [{ hover: demo('.wr-event-calendar__daynum') }],
@@ -655,12 +648,6 @@ export const STATES: readonly State[] = [
     route: `${REF}/table`,
     steps: [],
     target: demo('.wr-table__tree-toggle'),
-  },
-  {
-    id: 'markdown/task-checked',
-    route: `${REF}/markdown`,
-    steps: [],
-    target: demo('.wr-markdown__task--checked'),
   },
   {
     id: 'sortable-list/handle',
@@ -805,7 +792,7 @@ export const STATES: readonly State[] = [
     id: 'editor/tool-active',
     route: `${REF}/editor`,
     // No step: the first demo opens on a heading, and ProseMirror puts the caret
-    // at the start of the document, so Heading 2 is pressed from the first frame.
+    // at the start of the document, so Heading 3 is pressed from the first frame.
     steps: [],
     target: demo('.wr-editor__tool--active'),
     scope: demo('.wr-editor__toolbar'),

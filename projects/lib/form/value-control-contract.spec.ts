@@ -7,7 +7,7 @@ import { WrCheckbox, WrCheckboxGroup } from 'ngwr/checkbox';
 import { WrColorPicker } from 'ngwr/color-picker';
 import { provideWrDateAdapter } from 'ngwr/date';
 import { WrDatePicker, WrDateRangePicker, type WrDateRange } from 'ngwr/date-picker';
-import { WrEditor } from 'ngwr/editor';
+import { WrEditor, type WrEditorJson } from 'ngwr/editor';
 import { WrFileUpload } from 'ngwr/file-upload';
 import { WrInputNumber } from 'ngwr/input-number';
 import { WrInputOtp } from 'ngwr/input-otp';
@@ -49,9 +49,7 @@ interface Model {
   colorPicker: string;
   datePicker: Date | null;
   dateRangePicker: WrDateRange | null;
-  // A plain `string`, narrower than the editor's `WrEditorValue` model — which is
-  // exactly how an app binds it, so this line is also the type check that it can.
-  editor: string;
+  editor: WrEditorJson | null;
   fileUpload: File | readonly File[] | null;
   inputNumber: number | null;
   inputOtp: string;
@@ -66,6 +64,12 @@ interface Model {
   transfer: string[];
   tree: string | null;
 }
+
+/** One paragraph of text, so the editor has something for Enter to split. */
+const DRAFT: WrEditorJson = {
+  type: 'doc',
+  content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Draft' }] }],
+};
 
 @Component({
   imports: [
@@ -212,7 +216,7 @@ class Host {
     // Not empty: Enter on an empty editor writes nothing — two empty paragraphs
     // are still nothing written — so the key the gestures below press needs text
     // to split.
-    editor: '<p>Draft</p>',
+    editor: DRAFT,
     fileUpload: null,
     inputNumber: null,
     inputOtp: '',
@@ -695,7 +699,7 @@ describe('every value control, as a form control', () => {
       expect(model().rating).not.toBeNull();
       expect(model().colorPicker).not.toBe('#336699');
       expect(model().inputOtp).toBe('7');
-      expect(model().editor).not.toBe('<p>Draft</p>');
+      expect(model().editor).not.toEqual(DRAFT);
       expect(q('select', '.wr-select__trigger').getAttribute('aria-expanded')).toBe('true');
       expect(q('cascader', '.wr-cascader__trigger').getAttribute('aria-expanded')).toBe('true');
       expect(q<HTMLInputElement>('file-upload', 'input.wr-file-upload__picker').disabled).toBe(false);
@@ -773,7 +777,7 @@ describe('every value control, as a form control', () => {
     it('refuses a key that would split a paragraph in the editor', () => {
       press(q('editor', '.wr-editor__surface'), 'Enter');
 
-      expect(model().editor).toBe('<p>Draft</p>');
+      expect(model().editor).toEqual(DRAFT);
       expect(q('editor', '.wr-editor__surface').getAttribute('contenteditable')).toBe('false');
     });
 

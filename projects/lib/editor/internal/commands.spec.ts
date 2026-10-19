@@ -1,4 +1,4 @@
-import type { Node } from 'prosemirror-model';
+import { DOMSerializer, type Node, DOMParser as PmDOMParser } from 'prosemirror-model';
 import { type Command, EditorState, TextSelection } from 'prosemirror-state';
 import { describe, expect, it } from 'vitest';
 
@@ -12,21 +12,30 @@ import {
   toolActive,
   toolCommand,
 } from './commands';
-import { readHtml, writeHtml } from './html';
 import { MAX_NESTING, editorSchema, nestingOf } from './schema';
 
 /**
  * The toolbar's commands on a bare `EditorState` — no view, so nothing here
- * depends on jsdom's missing layout. A position is put where the text says with
- * `[` … `]` markers in the source HTML, which is read, stripped and turned into
+ * depends on jsdom's missing layout. The documents are written as HTML only
+ * because it is the shortest notation for them: read and printed by the
+ * schema's own DOM rules, which the schema's spec covers. A position is put
+ * where the text says with `[` … `]` markers, which are stripped and turned into
  * a selection.
  */
-const schema = editorSchema('html');
+const schema = editorSchema();
+
+function parse(html: string): Node {
+  const template = document.createElement('template');
+  template.innerHTML = html;
+  const doc = PmDOMParser.fromSchema(schema).parse(template.content);
+  doc.check();
+  return doc;
+}
 
 function stateOf(html: string, canEdit = true): EditorState {
   const from = html.indexOf('[');
   const to = html.indexOf(']');
-  const doc = readHtml(html.replace('[', '').replace(']', ''), document, schema);
+  const doc = parse(html.replace('[', '').replace(']', ''));
   const state = EditorState.create({ doc, plugins: editorPlugins(schema, { apple: false, canEdit: () => canEdit }) });
   if (from < 0) return state;
   const text = (at: number): number => positionOfText(doc, textIndex(html, at));
@@ -60,13 +69,17 @@ function positionOfText(doc: Node, index: number): number {
   return found >= 0 ? found : doc.content.size - 1;
 }
 
-function run(command: Command | null, state: EditorState): EditorState {
+function run(command: Command, state: EditorState): EditorState {
   let next = state;
-  command!(state, tr => (next = state.apply(tr)));
+  command(state, tr => (next = state.apply(tr)));
   return next;
 }
 
-const html = (state: EditorState): string => writeHtml(state.doc, document);
+function html(state: EditorState): string {
+  const container = document.createElement('div');
+  container.appendChild(DOMSerializer.fromSchema(schema).serializeFragment(state.doc.content));
+  return container.innerHTML;
+}
 
 describe('marks', () => {
   it('toggles bold over a selection and reports it pressed', () => {
@@ -76,12 +89,15 @@ describe('marks', () => {
     expect(html(run(toolCommand('bold', schema), state))).toBe('<p>abcd</p>');
   });
 
-  it('cannot apply a mark inside a code block, whose content allows none', () => {
-    expect(toolCommand('bold', schema)!(stateOf('<pre><code>a[b]c</code></pre>'))).toBe(false);
+  it('toggles underline like any other mark', () => {
+    const state = run(toolCommand('underline', schema), stateOf('<p>a[bc]d</p>'));
+    expect(html(state)).toBe('<p>a<u>bc</u>d</p>');
+    expect(toolActive('underline', state)).toBe(true);
+    expect(html(run(toolCommand('underline', schema), state))).toBe('<p>abcd</p>');
   });
 
-  it('has no underline command in markdown, which has no underline mark', () => {
-    expect(toolCommand('underline', editorSchema('markdown'))).toBeNull();
+  it('cannot apply a mark inside a code block, whose content allows none', () => {
+    expect(toolCommand('bold', schema)(stateOf('<pre><code>a[b]c</code></pre>'))).toBe(false);
   });
 });
 
@@ -127,16 +143,16 @@ describe('blocks', () => {
 
   it('inserts a rule, and refuses one inside a table cell rather than splitting the table', () => {
     expect(html(run(toolCommand('horizontalRule', schema), stateOf('<p>ab[]</p>')))).toContain('<hr>');
-    expect(toolCommand('horizontalRule', schema)!(stateOf('<table><tr><td>a[b]</td></tr></table>'))).toBe(false);
+    expect(toolCommand('horizontalRule', schema)(stateOf('<table><tr><td>a[b]</td></tr></table>'))).toBe(false);
   });
 });
 
 describe('history', () => {
   it('undoes and redoes, and reports neither as available before there is anything', () => {
     const start = stateOf('<p>a[b]c</p>');
-    expect(toolCommand('undo', schema)!(start)).toBe(false);
+    expect(toolCommand('undo', schema)(start)).toBe(false);
     const bold = run(toolCommand('bold', schema), start);
-    expect(toolCommand('undo', schema)!(bold)).toBe(true);
+    expect(toolCommand('undo', schema)(bold)).toBe(true);
     const undone = run(toolCommand('undo', schema), bold);
     expect(html(undone)).toBe('<p>abc</p>');
     expect(html(run(toolCommand('redo', schema), undone))).toBe('<p>a<strong>b</strong>c</p>');

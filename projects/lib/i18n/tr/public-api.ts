@@ -292,12 +292,6 @@ export const wrTr: WrI18nCatalog = {
   popover: {
     label: 'Açılır panel',
   },
-  markdown: {
-    copy: 'Kodu kopyala',
-    copied: 'Kopyalandı',
-    taskDone: 'Tamamlandı:',
-    taskTodo: 'Yapılacak:',
-  },
   editor: {
     label: 'Zengin metin',
     toolbar: 'Biçimlendirme',

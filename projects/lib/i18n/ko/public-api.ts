@@ -283,12 +283,6 @@ export const wrKo: WrI18nCatalog = {
   popover: {
     label: '팝오버',
   },
-  markdown: {
-    copy: '코드 복사',
-    copied: '복사됨',
-    taskDone: '완료:',
-    taskTodo: '할 일:',
-  },
   editor: {
     label: '서식 있는 텍스트',
     toolbar: '서식',

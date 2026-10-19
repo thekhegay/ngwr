@@ -376,7 +376,7 @@
   }
 
   // Task items — the box is presentational and the state is read from the words
-  // beside it, the way `<wr-markdown>` draws them.
+  // beside it: a real checkbox would be an unlabelled control inside the text.
   &__item--task {
     display: flex;
     gap: 0.5em;

@@ -274,12 +274,6 @@ export const wrHi: WrI18nCatalog = {
   popover: {
     label: 'पॉपओवर',
   },
-  markdown: {
-    copy: 'कोड कॉपी करें',
-    copied: 'कॉपी हो गया',
-    taskDone: 'पूरा हुआ:',
-    taskTodo: 'करना बाकी:',
-  },
   editor: {
     label: 'फ़ॉर्मैट किया गया टेक्स्ट',
     toolbar: 'फ़ॉर्मैटिंग',

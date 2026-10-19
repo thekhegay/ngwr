@@ -284,12 +284,6 @@ export const wrRu: WrI18nCatalog = {
   popover: {
     label: 'Всплывающая панель',
   },
-  markdown: {
-    copy: 'Скопировать код',
-    copied: 'Скопировано',
-    taskDone: 'Сделано:',
-    taskTodo: 'Не сделано:',
-  },
   editor: {
     label: 'Форматированный текст',
     toolbar: 'Форматирование',

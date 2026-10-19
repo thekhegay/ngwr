@@ -90,8 +90,7 @@ const TOGGLES: ReadonlySet<WrEditorCommandTool> = new Set<WrEditorCommandTool>([
 // State
 // ---------------------------------------------------------------------------
 
-function markActive(state: EditorState, type: MarkType | undefined): boolean {
-  if (!type) return false;
+function markActive(state: EditorState, type: MarkType): boolean {
   const { empty, from, to, $from } = state.selection;
   if (empty) return !!type.isInSet(state.storedMarks ?? $from.marks());
   return state.doc.rangeHasMark(from, to, type);
@@ -175,23 +174,22 @@ function toolActive(tool: WrEditorCommandTool, state: EditorState): boolean {
 // Commands
 // ---------------------------------------------------------------------------
 
-/** What a tool does, or `null` for one the schema cannot carry (underline in markdown). */
-function toolCommand(tool: WrEditorCommandTool, schema: Schema): Command | null {
+/** What a tool does. */
+function toolCommand(tool: WrEditorCommandTool, schema: Schema): Command {
   const { marks, nodes } = schema;
-  const mark = (type: MarkType | undefined): Command | null => (type ? toggleMark(type) : null);
   const heading = (level: 1 | 2 | 3): Command => toggleBlock(nodes['heading'], nodes['paragraph'], { level });
 
   switch (tool) {
     case 'bold':
-      return mark(marks['strong']);
+      return toggleMark(marks['strong']);
     case 'italic':
-      return mark(marks['em']);
+      return toggleMark(marks['em']);
     case 'underline':
-      return mark(marks['underline']);
+      return toggleMark(marks['underline']);
     case 'strike':
-      return mark(marks['strike']);
+      return toggleMark(marks['strike']);
     case 'code':
-      return mark(marks['code']);
+      return toggleMark(marks['code']);
     // The link tool opens a panel; `setLink` is its command.
     case 'link':
       return toggleMark(marks['link'], { href: '#' });
@@ -472,8 +470,7 @@ function editorPlugins(
 ): Plugin[] {
   const { nodes } = schema;
   const keys: Record<string, Command> = {};
-  const bind = (combo: string, command: Command | null): void => {
-    if (!command) return;
+  const bind = (combo: string, command: Command): void => {
     keys[combo] = command;
     // `event.key` is upper case under Shift or Caps Lock, and ProseMirror
     // matches on it; bound twice, the way `prosemirror-example-setup` does.
@@ -502,9 +499,9 @@ function editorPlugins(
       filterTransaction: (tr, state) => {
         if (!tr.docChanged) return true;
         if (!options.canEdit()) return false;
-        // `MAX_NESTING` is the deepest markdown reads back with its structure. A
-        // document that already nests deeper (a bound HTML or JSON value) is kept
-        // as it is; what is refused is an edit that makes it deeper still.
+        // `MAX_NESTING` is the deepest an edit may take a document. One that
+        // already nests deeper (a bound value) is kept as it is; what is refused
+        // is an edit that makes it deeper still.
         const depth = nestingOf(tr.doc);
         return depth <= MAX_NESTING || depth <= nestingOf(state.doc);
       },

@@ -294,12 +294,6 @@ export const wrAr: WrI18nCatalog = {
   popover: {
     label: 'لوحة منبثقة',
   },
-  markdown: {
-    copy: 'نسخ الكود',
-    copied: 'تم النسخ',
-    taskDone: 'تم:',
-    taskTodo: 'لم يتم:',
-  },
   editor: {
     label: 'نص منسق',
     toolbar: 'التنسيق',

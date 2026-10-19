@@ -440,12 +440,17 @@ function render(entries: readonly Entry[]): string {
  * `ngwr/date/adapters/{fns,luxon}`, and their optional peers with them; an app on
  * another date library subclasses `WrDateAdapter`. Neither had a docs page, so
  * the description floor stays at 118.
+ *
+ * 218 is the fifth: v15 deleted `ngwr/markdown` and its harness entry point,
+ * `ngwr/markdown/testing`, and `<wr-editor>` keeps one value format, the JSON
+ * tree. The component had a docs page, so the description floor drops with it,
+ * from 118 to 117.
  */
-const MIN_ENTRIES = 220;
-const MIN_DESCRIBED = 118;
-const MIN_WITH_EXPORTS = 220;
+const MIN_ENTRIES = 218;
+const MIN_DESCRIBED = 117;
+const MIN_WITH_EXPORTS = 218;
 /** Rows in the skill's catalog table — one per entry point, plus the header. */
-const MIN_SKILL_ROWS = 220;
+const MIN_SKILL_ROWS = 218;
 
 /** A tag, an attribute, or a tag with an attribute — the three shapes the library declares. */
 const SELECTOR_SHAPE = /^[a-z][a-z\d-]*(\[[A-Za-z][\w-]*\])?$|^\[[A-Za-z][\w-]*\]$/;

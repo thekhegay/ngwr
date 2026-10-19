@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Editor"
-  description="Rich-text editor on ProseMirror, with a formatting toolbar, a link panel, keyboard shortcuts and markdown-style block shortcuts. The value is an HTML string, a markdown string or the document as JSON, and whatever arrives is treated as untrusted and rebuilt from the editor's own schema. A signal-forms native control; ProseMirror is an optional peer dependency that only an app importing `ngwr/editor` installs."
-  [keywords]="['editor', 'wr-editor', 'rich text', 'wysiwyg', 'prosemirror', 'markdown editor', 'html editor']"
+  description="Rich-text editor on ProseMirror, with a formatting toolbar, a link panel, keyboard shortcuts and markdown-style block shortcuts. The value is the document as a JSON tree, and whatever arrives is validated against the editor's own schema rather than trusted. A signal-forms native control; ProseMirror is an optional peer dependency that only an app importing `ngwr/editor` installs."
+  [keywords]="['editor', 'wr-editor', 'rich text', 'wysiwyg', 'prosemirror', 'json']"
   [labels]="['Component', 'Standalone', 'Signal Forms', 'SSR-safe']"
   since="14.9.0"
 >
@@ -14,51 +14,36 @@
 
   <ngwr-doc-section
     title="Basic usage"
-    description="`[(value)]` is the document. By default it is an HTML string, and every edit writes a fresh one back — the block under the editor shows exactly what the model holds. Until the first edit that is the string the host wrote; the editor reads it, but never writes a normalised copy back on load, which would mark a pristine form dirty."
+    description="`[(value)]` is the document as a `WrEditorJson` tree — the shape ProseMirror's own `toJSON()` writes — and every edit writes a fresh one back: the block under the editor shows exactly what the model holds. Until the first edit that is the tree the host wrote; the editor reads it, but never writes a normalised copy back on load, which would mark a pristine form dirty."
   >
-    <ngwr-doc-snippet [files]="htmlFiles">
+    <ngwr-doc-snippet [files]="basicFiles">
       <div class="editor-demo">
-        <wr-editor ariaLabel="Release notes" placeholder="What changed?" [(value)]="html" />
-        <pre class="editor-demo__value" tabindex="0" role="region" aria-label="HTML value">{{ html() }}</pre>
-      </div>
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Markdown"
-    description='`format="markdown"` reads and writes the dialect `ngwr/markdown` parses and `<wr-markdown>` renders, so a document written here displays the same way there. Markdown has no underline, so in this format the underline tool, its shortcut and the mark itself are absent — a pasted `<u>` cannot show on screen and then vanish on save. The serializer writes one canonical spelling, so the first edit may respell what you bound (`*` bullets become `-`) without changing the document.'
-  >
-    <ngwr-doc-snippet [files]="markdownFiles">
-      <div class="editor-demo">
-        <wr-editor ariaLabel="Checklist" format="markdown" [(value)]="markdown" />
-        <pre class="editor-demo__value" tabindex="0" role="region" aria-label="Markdown value">{{ markdown() }}</pre>
-      </div>
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="JSON"
-    description='`format="json"` hands you the document as a `WrEditorJson` tree — the shape to store when the content is going to be read by code rather than by a browser. A bound tree is VALIDATED, not repaired: an unknown node or mark, an attribute outside its set, a broken content rule or a link the URL policy refuses, and the whole value is refused. The editor keeps the document it had, warns in dev mode, and stays read-only until it is given a value it can read.'
-  >
-    <ngwr-doc-snippet [files]="jsonFiles">
-      <div class="editor-demo">
-        <wr-editor ariaLabel="Agenda" format="json" [(value)]="json" />
-        <pre class="editor-demo__value" tabindex="0" role="region" aria-label="JSON value">{{ json() | json }}</pre>
+        <wr-editor ariaLabel="Agenda" placeholder="What is on the agenda?" [(value)]="agenda" />
+        <pre class="editor-demo__value" tabindex="0" role="region" aria-label="JSON value">{{ agenda() | json }}</pre>
       </div>
     </ngwr-doc-snippet>
     <p>
-      A document with nothing written in it is <code>''</code> in the two string formats and <code>null</code> in
-      <code>json</code>, so a <code>required()</code> rule sees an empty editor as empty —
-      <code>'&lt;p&gt;&lt;/p&gt;'</code> would be a non-empty string. That holds for everything that only looks written:
-      empty lines, a few spaces, or a list, quote or heading chosen with no text in it. An image or a horizontal line
-      counts as content. Changing <code>format</code> at runtime re-reads <code>value</code> in the new format; if it
-      cannot, the document on screen is kept and edits are written in the new format from then on.
+      Each node names its <code>type</code>, block nodes carry their children in <code>content</code>, and text carries
+      its formatting as <code>marks</code>. A paragraph reading "Hello, <strong>world</strong>" is this:
+    </p>
+    <ngwr-doc-code [code]="snippets.value" language="typescript" />
+    <p>
+      A document with nothing written in it is <code>null</code>, so a <code>required()</code> rule sees an empty editor
+      as empty. That holds for everything that only looks written: empty lines, a few spaces, or a list, quote or
+      heading chosen with no text in it. An image or a horizontal line counts as content.
     </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Storing HTML or markdown"
+    description="The editor writes one shape. An app that stores HTML or markdown converts at its own boundary, in both directions, and `prosemirror-model` — already installed for the editor — does the HTML half: a `Schema` declaring the node and mark names `WrEditorJson` lists, then `DOMSerializer` to write and `DOMParser` to read. Markdown needs a serializer of your choosing over the same tree."
+  >
+    <ngwr-doc-code [code]="snippets.html" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Toolbar"
-    description="`toolbar` is the list of tools, in order, with `'|'` between groups; `false` removes the toolbar and leaves the shortcuts. Separators are drawn only between two groups, and a tool the format cannot store is dropped. A tool the selection cannot use is disabled rather than hidden, so the toolbar does not reflow under the caret."
+    description="`toolbar` is the list of tools, in order, with `'|'` between groups; `false` removes the toolbar and leaves the shortcuts. Separators are drawn only between two groups. A tool the selection cannot use is disabled rather than hidden, so the toolbar does not reflow under the caret."
   >
     <ngwr-doc-snippet [files]="toolbarFiles">
       <div class="editor-demo">
@@ -71,12 +56,12 @@
 
   <ngwr-doc-section
     title="Signal Forms"
-    description="`[formField]` writes the editor's own `value` model — no `ControlValueAccessor` in between — and a plain `string` field binds to it as it is. Inside a `<wr-form-field>` the label names the text surface through `aria-labelledby` (a contenteditable is not labelable, so `<label for>` cannot reach it), and the hint or error describes it. `touch` fires once focus leaves the whole control, not when it moves to the editor's own toolbar or link panel — so the error below appears when you leave the field empty, not while you pick a heading."
+    description="`[formField]` writes the editor's own `value` model — no `ControlValueAccessor` in between — and a field typed `WrEditorValue` binds to it as it is, starting at `null`. Inside a `<wr-form-field>` the label names the text surface through `aria-labelledby` (a contenteditable is not labelable, so `<label for>` cannot reach it), and the hint or error describes it. `touch` fires once focus leaves the whole control, not when it moves to the editor's own toolbar or link panel — so the error below appears when you leave the field empty, not while you pick a heading."
   >
     <ngwr-doc-snippet [files]="formFiles">
       <div class="editor-demo">
-        <wr-form-field label="Description" hint="Markdown. Required.">
-          <wr-editor format="markdown" placeholder="Describe the change" [formField]="ticket.description" />
+        <wr-form-field label="Description" hint="Required.">
+          <wr-editor placeholder="Describe the change" [formField]="ticket.description" />
         </wr-form-field>
         <pre class="editor-demo__value" tabindex="0" role="region" aria-label="Field value">{{
           ticket.description().value() | json
@@ -91,8 +76,8 @@
   >
     <ngwr-doc-snippet [code]="snippets.states" language="angular-html">
       <div class="editor-demo editor-demo--pair">
-        <wr-editor ariaLabel="Published notes" readonly [toolbar]="false" [value]="html()" />
-        <wr-editor ariaLabel="Locked notes" disabled [value]="html()" />
+        <wr-editor ariaLabel="Published notes" readonly [toolbar]="false" [value]="agenda()" />
+        <wr-editor ariaLabel="Locked notes" disabled [value]="agenda()" />
       </div>
     </ngwr-doc-snippet>
     <p>
@@ -134,7 +119,7 @@
               <wr-kbd size="sm">Mod + B</wr-kbd> · <wr-kbd size="sm">Mod + I</wr-kbd> ·
               <wr-kbd size="sm">Mod + U</wr-kbd>
             </td>
-            <td>Bold, italic, underline. Underline does nothing in <code>markdown</code> format.</td>
+            <td>Bold, italic, underline.</td>
           </tr>
           <tr>
             <td><wr-kbd size="sm">Mod + Shift + S</wr-kbd> · <wr-kbd size="sm">Mod + E</wr-kbd></td>
@@ -222,34 +207,25 @@
 
   <ngwr-doc-section
     title="Untrusted input"
-    description="Every value is treated as untrusted, in all three formats, and so is a paste. HTML is parsed without executing anything — into an inert template, never through `innerHTML` on a live node — and only what the schema knows is rebuilt from it: no script, style, class, event handler, iframe or unknown tag survives, while the text inside an unknown tag is kept. Links and images go through the same `safeMarkdownUrl` policy `<wr-markdown>` uses, so a `javascript:` or `data:` address never becomes a live link: in HTML and markdown the link is dropped and its text kept, and in JSON the whole value is refused. A fourth- to sixth-level heading becomes a third-level one."
+    description="A bound tree is VALIDATED, not repaired: an unknown node or mark, an attribute outside its set, a broken content rule, or a link or image whose address the editor's URL check refuses — `javascript:`, a `data:` link, a `data:` image that is not PNG, JPEG, GIF, WebP or AVIF, and the like — and the whole value is refused. A paste is untrusted too, and goes through ProseMirror's own clipboard parser against the same schema: from a pasted page no script, style, class, event handler, iframe or unknown tag survives, while the text inside an unknown tag is kept, a link the URL check refuses keeps its text and loses the link, and a fourth- to sixth-level heading becomes a third-level one."
   >
-    <ngwr-doc-snippet [files]="untrustedFiles">
-      <div class="editor-demo">
-        <wr-editor ariaLabel="Imported content" [(value)]="untrusted" />
-        <pre class="editor-demo__value" tabindex="0" role="region" aria-label="Bound value">{{ untrusted() }}</pre>
-      </div>
-    </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="snippets.refused" language="angular-ts" />
     <p>
-      The block above keeps showing the hostile string you bound, and that is deliberate: the editor draws the cleaned
-      document but writes nothing back until someone edits it, at which point the model holds the cleaned HTML. A value
-      the editor cannot read at all — JSON that breaks the schema, say — is refused outright: the document already on
-      screen stays, a dev-mode warning names the reason, and nothing is written back, the same rule
-      <code>wr-input-number</code> and <code>wr-date-picker</code> follow for input they cannot parse. Until a value it
-      can read arrives, the editor is read-only and carries <code>wr-editor--refused</code>: the model still holds the
-      refused value, and a keystroke would otherwise write the document on screen over it.
+      A refused value changes nothing on screen: the document already there stays, a dev-mode warning names the reason,
+      and nothing is written back, the same rule <code>wr-input-number</code> and <code>wr-date-picker</code> follow for
+      input they cannot parse. Until a value it can read arrives, the editor is read-only and carries
+      <code>wr-editor--refused</code>: the model still holds the refused value, and a keystroke would otherwise write
+      the document on screen over it.
     </p>
     <p>
-      On a page that enforces Trusted Types, an HTML value is parsed through the page's default policy when there is
-      one, and otherwise through a policy named <code>ngwr-editor</code>; paste goes through ProseMirror's own
-      <code>ProseMirrorClipboard</code>. A <code>trusted-types</code> allowlist with no default policy names both. Where
-      neither can be created, HTML values are refused as unreadable.
+      On a page that enforces Trusted Types, paste goes through ProseMirror's own <code>ProseMirrorClipboard</code>
+      policy, so a <code>trusted-types</code> allowlist with no default policy names it.
     </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Accessibility"
-    description='The text surface is a `role="textbox"` with `aria-multiline="true"`, named by `ariaLabel`, else the surrounding field&apos;s label, else the `editor.label` catalog entry. A read-only editor has no surface at all: the document it draws instead is a focusable `role="group"` carrying that same name and id, so what it shows keeps its own headings, lists and tables in the accessibility tree. `aria-placeholder` is present only while the document is empty, the moment the placeholder is drawn — and never on a read-only editor, which takes no input and could not announce one from a group anyway. The toolbar follows the APG toolbar pattern, with `aria-pressed` on every toggle and a visible cue besides colour for a pressed tool. The link panel is a labelled dialog whose address field announces a refused URL through `aria-invalid` and a `role="alert"` message. A task item&apos;s box is presentational, with its state as screen-reader text beside it, as in `<wr-markdown>`. Every label comes from the `editor.*` catalog, in all twenty-two languages.'
+    description='The text surface is a `role="textbox"` with `aria-multiline="true"`, named by `ariaLabel`, else the surrounding field&apos;s label, else the `editor.label` catalog entry. A read-only editor has no surface at all: the document it draws instead is a focusable `role="group"` carrying that same name and id, so what it shows keeps its own headings, lists and tables in the accessibility tree. `aria-placeholder` is present only while the document is empty, the moment the placeholder is drawn — and never on a read-only editor, which takes no input and could not announce one from a group anyway. The toolbar follows the APG toolbar pattern, with `aria-pressed` on every toggle and a visible cue besides colour for a pressed tool. The link panel is a labelled dialog whose address field announces a refused URL through `aria-invalid` and a `role="alert"` message. A task item&apos;s box is presentational, with its state as screen-reader text beside it. Every label comes from the `editor.*` catalog, in all twenty-two languages.'
   >
     <ngwr-doc-code [code]="snippets.a11y" language="html" />
   </ngwr-doc-section>
@@ -261,21 +237,21 @@
     <ngwr-doc-code [code]="snippets.defer" language="angular-html" />
     <p>
       The server side needs no deferral. Under SSR and prerendering ProseMirror never starts: the editor renders a
-      static preview of the document from the same sanitised tree, with the same metrics as the live surface so the swap
+      static preview of the document from the same validated tree, with the same metrics as the live surface so the swap
       does not move a line, and replaces it with the editable surface once the page is running in a browser.
     </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="What it does not do"
-    description="Tables survive every format and their text is editable, but there is no way to insert a table, a row or a column, and no merging. Images survive too, with no way to insert or upload one. A task item's box shows its state and cannot be toggled. There are no colours, fonts, sizes or alignment, no headings past level three, no mentions, no collaborative editing, and no way to extend the schema or add a tool of your own."
+    description="Tables in a bound value survive and their text is editable, but there is no way to insert a table, a row or a column, and no merging. Images survive too, with no way to insert or upload one. A task item's box shows its state and cannot be toggled. There are no colours, fonts, sizes or alignment, no headings past level three, no mentions, no collaborative editing, and no way to extend the schema or add a tool of your own."
   />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Types" description="The value shapes and the toolbar vocabulary.">
+  <ngwr-doc-section title="Types" description="The value shape and the toolbar vocabulary.">
     <ngwr-doc-api [rows]="typeRows" />
   </ngwr-doc-section>
 </ngwr-doc-page>

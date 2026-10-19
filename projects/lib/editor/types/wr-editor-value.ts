@@ -8,12 +8,11 @@
 import type { WrEditorJson } from './wr-editor-json';
 
 /**
- * The `value` model of `<wr-editor>`: a string in `html` and `markdown` format,
- * a {@link WrEditorJson} tree in `json` format.
+ * The `value` model of `<wr-editor>`: the document as a {@link WrEditorJson}
+ * tree.
  *
- * An empty document is written as `''` in the two string formats and as `null`
- * in `json`, so a Signal Forms `required()` rule reports an empty editor as
- * empty — `'<p></p>'` would be a non-empty string. `null` and `''` are both
- * read as an empty document in every format.
+ * An empty document is written as `null`, so a Signal Forms `required()` rule
+ * reports an empty editor as empty — a tree holding one empty paragraph would
+ * read as filled in. `null` is read as an empty document.
  */
-export type WrEditorValue = string | WrEditorJson | null;
+export type WrEditorValue = WrEditorJson | null;

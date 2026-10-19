@@ -274,12 +274,6 @@ export const wrSv: WrI18nCatalog = {
   popover: {
     label: 'Popover',
   },
-  markdown: {
-    copy: 'Kopiera kod',
-    copied: 'Kopierat',
-    taskDone: 'Klart:',
-    taskTodo: 'Att göra:',
-  },
   editor: {
     label: 'Formaterad text',
     toolbar: 'Formatering',

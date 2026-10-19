@@ -274,12 +274,6 @@ export const wrEs: WrI18nCatalog = {
   popover: {
     label: 'Panel emergente',
   },
-  markdown: {
-    copy: 'Copiar código',
-    copied: 'Copiado',
-    taskDone: 'Hecho:',
-    taskTodo: 'Pendiente:',
-  },
   editor: {
     label: 'Texto enriquecido',
     toolbar: 'Formato',

@@ -8,8 +8,7 @@
 /**
  * One entry of `<wr-editor>`'s `toolbar` input.
  *
- * - Marks: `bold`, `italic`, `underline` (absent in `markdown` format, which
- *   cannot express it), `strike`, `code`.
+ * - Marks: `bold`, `italic`, `underline`, `strike`, `code`.
  * - Blocks: `paragraph`, `heading1`, `heading2`, `heading3`, `bulletList`,
  *   `orderedList`, `blockquote`, `codeBlock`.
  * - Inserts: `link` (opens the link panel), `horizontalRule`.

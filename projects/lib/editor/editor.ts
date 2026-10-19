@@ -36,7 +36,6 @@ import { WrButton } from 'ngwr/button';
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrInput } from 'ngwr/input';
-import { safeMarkdownUrl } from 'ngwr/markdown';
 import { WrPlatform } from 'ngwr/platform';
 import { WrPopover } from 'ngwr/popover';
 import { isComposing } from 'ngwr/utils';
@@ -59,24 +58,16 @@ import {
 import { TOOL_ICONS } from './internal/icons';
 import { WrEditorLinkField } from './internal/link-field';
 import { listItemView } from './internal/list-item-view';
+import { safeUrl } from './internal/safe-url';
 import { editorSchema, isEmptyDoc } from './internal/schema';
 import { WR_EDITOR_TOOLBAR } from './toolbar';
-import type { WrEditorFormat, WrEditorJson, WrEditorMarkJson, WrEditorTool, WrEditorValue } from './types';
+import type { WrEditorJson, WrEditorMarkJson, WrEditorTool, WrEditorValue } from './types';
 
 let nextId = 0;
 
 function warn(message: string): void {
   // eslint-disable-next-line no-console -- dev-mode validation
   console.warn(`[NGWR] <wr-editor>: ${message}`);
-}
-
-/** A document's JSON with every mark the target schema does not know dropped. */
-function withoutMarks(node: WrEditorJson, known: Readonly<Record<string, unknown>>): WrEditorJson {
-  return {
-    ...node,
-    ...(node.marks ? { marks: node.marks.filter(mark => mark.type in known) } : {}),
-    ...(node.content ? { content: node.content.map(child => withoutMarks(child, known)) } : {}),
-  };
 }
 
 /** One toolbar button's state at the current selection. */
@@ -95,14 +86,19 @@ interface WrToolState {
  * so `[formField]` binds straight to its `value` model — no
  * `ControlValueAccessor` in between. `[(value)]` works standalone.
  *
- * The value is an HTML string, a markdown string or the document as JSON, chosen
- * by `format`. Whatever arrives is treated as untrusted and rebuilt from the
- * editor's schema, so only what the schema allows survives, and links and images
- * go through `safeMarkdownUrl` in all three. A value the editor cannot read is
- * refused — the document it already shows is kept, a warning names the reason in
- * dev mode, and nothing is written back. Until a value it CAN read arrives the
+ * The value is the document as a {@link WrEditorJson} tree, `null` when nothing
+ * is written. Whatever arrives is treated as untrusted and checked against the
+ * editor's schema — every node, mark and attribute, every link and image URL —
+ * and is read whole or not at all. A value the editor cannot read is refused:
+ * the document it already shows is kept, a warning names the reason in dev
+ * mode, and nothing is written back. Until a value it CAN read arrives the
  * editor is read-only and carries `wr-editor--refused`: the model still holds the
  * refused value, and an edit would write the document on screen over it.
+ *
+ * A paste is the other way content arrives, and it is not a value: ProseMirror
+ * parses the clipboard's HTML through the schema's own rules, so whatever the
+ * schema does not name is dropped, a link with a refused URL keeps its text and
+ * loses the URL, and an image with one is left out.
  *
  * **`readonly` never mounts ProseMirror.** The document is drawn as ordinary
  * Angular markup instead — the same rendering the server prerenders — so a page
@@ -114,10 +110,8 @@ interface WrToolState {
  * again keeps the mounted view — throwing a live session's undo history away to
  * save one view would cost more than the view.
  *
- * Headings stop at three levels: an h4–h6 read from HTML or markdown becomes an
- * h3 rather than a paragraph. Underline exists in `html` and `json` only —
- * markdown cannot spell it, so in that format the tool, the shortcut and the mark
- * itself are absent.
+ * Headings stop at three levels: a pasted h4–h6 becomes an h3 rather than a
+ * paragraph, and a value holding one is refused.
  *
  * ProseMirror is an OPTIONAL peer dependency: only an app that imports
  * `ngwr/editor` installs `prosemirror-model`, `-state`, `-view`, `-commands`,
@@ -126,10 +120,10 @@ interface WrToolState {
  * @example
  * ```html
  * <!-- signal forms -->
- * <wr-editor format="markdown" placeholder="Describe the change" [formField]="form.body" />
+ * <wr-editor placeholder="Describe the change" [formField]="form.body" />
  *
  * <!-- standalone two-way binding -->
- * <wr-editor [(value)]="html" />
+ * <wr-editor [(value)]="doc" />
  * ```
  *
  * @see https://ngwr.dev/reference/components/editor
@@ -154,8 +148,7 @@ interface WrToolState {
 })
 export class WrEditor implements FormValueControl<WrEditorValue> {
   /**
-   * The document. A string in `html` and `markdown` format, a
-   * {@link WrEditorJson} tree in `json`; `''` / `null` when nothing is written.
+   * The document as a {@link WrEditorJson} tree; `null` when nothing is written.
    * Bound by `[formField]`, or two-way via `[(value)]`.
    */
   readonly value = model<WrEditorValue>(null);
@@ -208,16 +201,7 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   readonly ariaLabel = input<string | null>(null);
 
   /**
-   * What `value` holds — see {@link WrEditorFormat}. Changing it re-reads
-   * `value` in the new format.
-   *
-   * @default 'html'
-   */
-  readonly format = input<WrEditorFormat>('html');
-
-  /**
    * The toolbar's tools, in order, with `'|'` between groups; `false` hides it.
-   * `underline` is left out in `markdown` format, which cannot store it.
    *
    * @default WR_EDITOR_TOOLBAR
    */
@@ -294,8 +278,6 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   private readonly linkPopover = viewChild<WrPopover>('linkPopover');
 
   private view: EditorView | null = null;
-  /** The format the live document was read in, which is the format it is written in. */
-  private viewFormat: WrEditorFormat = 'html';
   /**
    * The value the live document was last read from or written as. A write from
    * outside that equals it is the document already on screen — an echo of the
@@ -349,17 +331,15 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   // Toolbar
 
   /**
-   * The bound tools as drawn: underline dropped where the format cannot store
-   * it, and separators only BETWEEN two groups — a leading, trailing or doubled
-   * one would be left behind by that filter or by a hand-built list.
+   * The bound tools as drawn: each tool once, and separators only BETWEEN two
+   * groups — a list filtered from `WR_EDITOR_TOOLBAR`, or built by hand, can
+   * leave a leading, trailing or doubled one behind.
    */
   protected readonly tools = computed<readonly WrEditorTool[]>(() => {
     const bound = this.toolbar();
     if (!bound) return [];
-    const markdown = this.format() === 'markdown';
     const out: WrEditorTool[] = [];
     for (const tool of bound) {
-      if (markdown && tool === 'underline') continue;
       if (tool === '|' && (out.length === 0 || out[out.length - 1] === '|')) continue;
       if (tool !== '|' && out.includes(tool)) continue;
       out.push(tool);
@@ -378,7 +358,7 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   });
 
   private readonly commands = computed(() => {
-    const schema = editorSchema(this.format());
+    const schema = editorSchema();
     return new Map(this.buttons().map(tool => [tool, toolCommand(tool, schema)]));
   });
 
@@ -424,7 +404,7 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
     const state = this.editorState();
     if (state) return isEmptyDoc(state.doc);
     const value = this.value();
-    return value === null || value === undefined || value === '';
+    return value === null || value === undefined;
   });
 
   /** The task-item words, handed to ProseMirror through its node views. */
@@ -451,18 +431,18 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   /**
    * The value rendered by Angular rather than by ProseMirror: on the server, for
    * the first browser frame, and — for as long as it lasts — in the static mode,
-   * where no mount is coming. Read from the doc JSON, so it shows exactly what
-   * the schema kept: the same sanitised document the editor would mount.
+   * where no mount is coming. The value goes through the schema and back out,
+   * so it shows exactly the document the editor would mount — defaults filled
+   * in, undeclared attributes gone — and nothing for a value it refuses.
    */
   protected readonly preview = computed<WrEditorJson | null>(() => {
     if (this.mounted()) return null;
-    const format = this.format();
     try {
-      return readValue(this.value(), format, editorSchema(format), this.document).toJSON() as WrEditorJson;
+      return readValue(this.value(), editorSchema()).toJSON() as WrEditorJson;
     } catch (error) {
       // The browser warns from `sync()` — at the mount, or at the write itself
       // while read-only; the server has neither to wait for.
-      if (!this.isBrowser && isDevMode()) this.warnRefused(format, error);
+      if (!this.isBrowser && isDevMode()) this.warnRefused(error);
       return null;
     }
   });
@@ -481,8 +461,7 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
     // value is the document already on screen — see `lastSerialized`.
     effect(() => {
       const value = this.value();
-      const format = this.format();
-      untracked(() => this.sync(value, format));
+      untracked(() => this.sync(value));
     });
 
     // `editable` and the placeholder are functions ProseMirror asks on every
@@ -708,7 +687,7 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
       this.removeLink();
       return;
     }
-    const href = draft ? safeMarkdownUrl(draft, 'link') : null;
+    const href = draft ? safeUrl(draft, 'link') : null;
     if (!href) {
       this.linkField.invalid.set(true);
       this.focusLinkInput();
@@ -770,15 +749,14 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
     const surface = this.surface();
     if (!surface) return;
     this.apple.set((this.platform.userAgent ?? '').toLowerCase().includes('mac'));
-    const format = untracked(this.format);
     const value = untracked(this.value);
-    const schema = editorSchema(format);
+    const schema = editorSchema();
     let doc: Node;
     try {
-      doc = readValue(value, format, schema, this.document);
+      doc = readValue(value, schema);
     } catch (error) {
       // Never twice for a refusal the static path has already named.
-      if (isDevMode() && !this.refusalWarned) this.warnRefused(format, error);
+      if (isDevMode() && !this.refusalWarned) this.warnRefused(error);
       doc = schema.topNodeType.createAndFill()!;
       // An empty document over a stored value: see `refused`.
       this.refused.set(true);
@@ -796,7 +774,6 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
         handleKeyDown: (_view, event) => this.onSurfaceKeydown(event),
       }
     );
-    this.viewFormat = format;
     this.lastSerialized = value;
     this.editorState.set(state);
     this.mounted.set(true);
@@ -807,14 +784,12 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   }
 
   private createState(doc: Node): EditorState {
-    const current = this.view?.state;
     const plugins =
-      current?.schema === doc.type.schema
-        ? current.plugins
-        : editorPlugins(doc.type.schema, {
-            apple: untracked(this.apple),
-            canEdit: () => untracked(() => this.canEdit()),
-          });
+      this.view?.state.plugins ??
+      editorPlugins(doc.type.schema, {
+        apple: untracked(this.apple),
+        canEdit: () => untracked(() => this.canEdit()),
+      });
     return EditorState.create({ doc, plugins });
   }
 
@@ -831,7 +806,7 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   }
 
   private emit(doc: Node): void {
-    const out = writeValue(doc, this.viewFormat, this.document);
+    const out = writeValue(doc);
     if (out === this.lastSerialized) return;
     this.lastSerialized = out;
     this.value.set(out);
@@ -840,16 +815,17 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   /**
    * Bring an outside write into the view.
    *
-   * Compared as DOCUMENTS, never as strings: `<b>` comes back as `<strong>`, so a
-   * normalised string differs from what the consumer wrote while the documents
-   * are equal — and an equal document is left alone, selection and history
-   * included. A different one replaces the state wholesale, history with it,
-   * which is right for a form reset or a server load: undo back into content the
-   * app replaced would be wrong. The normalised form is never written back —
-   * that would mark the field dirty on load. A write that arrives mid-composition
-   * (IME) replaces the composition too: the model is the source of truth.
+   * Compared as DOCUMENTS, never as values: a tree that leaves a default
+   * attribute out, or carries one the schema does not declare, differs from what
+   * the editor would write while the documents are equal — and an equal document
+   * is left alone, selection and history included. A different one replaces the
+   * state wholesale, history with it, which is right for a form reset or a server
+   * load: undo back into content the app replaced would be wrong. The normalised
+   * form is never written back — that would mark the field dirty on load. A write
+   * that arrives mid-composition (IME) replaces the composition too: the model is
+   * the source of truth.
    */
-  private sync(value: WrEditorValue, format: WrEditorFormat): void {
+  private sync(value: WrEditorValue): void {
     const view = this.view;
     if (!view) {
       // Nothing to bring it into. `preview()` redraws it either way; what it
@@ -857,30 +833,24 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
       // no mount is coming to do that — so the check happens here instead.
       // Before a mount that IS coming it is `mount()` that reports, and on the
       // server `preview()` does, each exactly once.
-      if (this.isBrowser && untracked(this.readonly)) this.readStatically(value, format);
+      if (this.isBrowser && untracked(this.readonly)) this.readStatically(value);
       return;
     }
-    if (format === this.viewFormat && value === this.lastSerialized) return;
+    if (value === this.lastSerialized) return;
 
-    const schema = editorSchema(format);
     let doc: Node;
     try {
-      doc = readValue(value, format, schema, this.document);
+      doc = readValue(value, editorSchema());
     } catch (error) {
-      if (isDevMode()) this.warnRefused(format, error);
-      // Only the format moved, and the screen still shows this very value read
-      // in the old one: carried across, an edit converts it and loses nothing.
-      // Any other refusal leaves the model holding what the screen does not show.
-      const carried = format !== this.viewFormat && value === this.lastSerialized && !this.refused();
-      if (format !== this.viewFormat) this.switchFormat(format, schema);
-      this.refused.set(!carried);
+      if (isDevMode()) this.warnRefused(error);
+      // The model now holds what the screen does not show.
+      this.refused.set(true);
       return;
     }
 
     this.refused.set(false);
     this.lastSerialized = value;
-    if (format === this.viewFormat && doc.eq(view.state.doc)) return;
-    this.viewFormat = format;
+    if (doc.eq(view.state.doc)) return;
     this.replaceState(doc);
   }
 
@@ -894,37 +864,18 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
    * The parsed document is dropped; `preview()` reads its own. The cost is one
    * extra parse per write, and only while read-only, where a write is rare.
    */
-  private readStatically(value: WrEditorValue, format: WrEditorFormat): void {
+  private readStatically(value: WrEditorValue): void {
     try {
-      readValue(value, format, editorSchema(format), this.document);
+      readValue(value, editorSchema());
       this.refused.set(false);
       this.refusalWarned = false;
     } catch (error) {
       if (isDevMode()) {
-        this.warnRefused(format, error);
+        this.warnRefused(error);
         this.refusalWarned = true;
       }
       this.refused.set(true);
     }
-  }
-
-  /**
-   * A new format whose value could not be read: keep the document, moved into
-   * the new format's schema — markdown's lacks underline, so that mark is
-   * dropped on the way. What is written from here on is in the new format.
-   */
-  private switchFormat(format: WrEditorFormat, schema: EditorState['schema']): void {
-    const view = this.view!;
-    this.viewFormat = format;
-    if (view.state.schema === schema) return;
-    let doc: Node;
-    try {
-      doc = schema.nodeFromJSON(withoutMarks(view.state.doc.toJSON() as WrEditorJson, schema.marks));
-      doc.check();
-    } catch {
-      doc = schema.topNodeType.createAndFill()!;
-    }
-    this.replaceState(doc);
   }
 
   private replaceState(doc: Node): void {
@@ -988,11 +939,11 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
     return panel.contains(node) || node === panel.closest('.cdk-overlay-pane');
   }
 
-  private warnRefused(format: WrEditorFormat, error: unknown): void {
+  private warnRefused(error: unknown): void {
     const reason = error instanceof Error ? error.message : String(error);
     warn(
-      `the bound value could not be read as ${format} and was ignored — the editor keeps the document it had and ` +
-        `refuses edits until it is given a value it can read, so the stored one is not overwritten. ${reason}`
+      'the bound value could not be read and was ignored — the editor keeps the document it had and refuses ' +
+        `edits until it is given a value it can read, so the stored one is not overwritten. ${reason}`
     );
   }
 }

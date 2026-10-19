@@ -278,12 +278,6 @@ export const wrJa: WrI18nCatalog = {
   popover: {
     label: 'ポップオーバー',
   },
-  markdown: {
-    copy: 'コードをコピー',
-    copied: 'コピーしました',
-    taskDone: '完了：',
-    taskTodo: '未完了：',
-  },
   editor: {
     label: 'リッチテキスト',
     toolbar: '書式設定',

@@ -15,9 +15,9 @@ import type { WrCommandItem } from 'ngwr/command-palette';
  * Docs search, over Algolia, with no client library.
  *
  * A search is one POST with two headers, so `algoliasearch` would buy nothing a
- * dozen lines do not — and this repository hand-rolls a markdown parser rather
- * than take a dependency, so a search client for one endpoint is not where the
- * line moves. It also keeps the site's only network call first-party in shape:
+ * dozen lines do not — and this repository hand-rolls its doc-description
+ * markup rather than take a dependency, so a search client for one endpoint is
+ * not where the line moves. It also keeps the site's only network call first-party in shape:
  * `connect-src` widens, `script-src` does not, which is the difference between
  * this and the stock DocSearch widget.
  *

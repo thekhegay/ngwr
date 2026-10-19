@@ -12,7 +12,7 @@ import { provideWrOverlay } from 'ngwr/overlay';
 import { type MockInstance, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrEditor } from './editor';
-import type { WrEditorFormat, WrEditorJson, WrEditorTool, WrEditorValue } from './types';
+import type { WrEditorJson, WrEditorMarkJson, WrEditorTool, WrEditorValue } from './types';
 
 /**
  * jsdom lays nothing out, and ProseMirror measures: once the editor has focus,
@@ -25,7 +25,7 @@ import type { WrEditorFormat, WrEditorJson, WrEditorTool, WrEditorValue } from '
  *
  * With them in place nothing geometric is assertable — every rect is 0×0 — so
  * nothing here asserts a caret position, a scroll or a size. What is asserted is
- * the model (the serialized value is the contract) and the rendered DOM.
+ * the model (the value is the contract) and the rendered DOM.
  */
 function installLayoutStubs(): () => void {
   const range = Range.prototype as Partial<Range>;
@@ -39,12 +39,26 @@ function installLayoutStubs(): () => void {
   };
 }
 
+// The value is the document as ProseMirror's `toJSON()` writes it: no `content`
+// on an empty node, no `marks` on unmarked text, every declared attribute.
+const doc = (...content: WrEditorJson[]): WrEditorJson => ({ type: 'doc', content });
+const para = (...content: WrEditorJson[]): WrEditorJson =>
+  content.length ? { type: 'paragraph', content } : { type: 'paragraph' };
+const text = (value: string, ...marks: WrEditorMarkJson[]): WrEditorJson =>
+  marks.length ? { type: 'text', text: value, marks } : { type: 'text', text: value };
+const heading = (level: 1 | 2 | 3, ...content: WrEditorJson[]): WrEditorJson => ({
+  type: 'heading',
+  attrs: { level },
+  content,
+});
+const strong: WrEditorMarkJson = { type: 'strong' };
+const link = (href: string): WrEditorMarkJson => ({ type: 'link', attrs: { href, title: null } });
+
 @Component({
   imports: [WrEditor],
   template: `
     <wr-editor
       [(value)]="value"
-      [format]="format()"
       [placeholder]="placeholder()"
       [ariaLabel]="ariaLabel()"
       [readonly]="readonly()"
@@ -56,8 +70,7 @@ function installLayoutStubs(): () => void {
   `,
 })
 class Host {
-  readonly value = signal<WrEditorValue>('<p>Hello</p>');
-  readonly format = signal<WrEditorFormat>('html');
+  readonly value = signal<WrEditorValue>(doc(para(text('Hello'))));
   readonly placeholder = signal('');
   readonly ariaLabel = signal<string | null>(null);
   readonly readonly = signal(false);
@@ -174,12 +187,12 @@ describe('WrEditor', () => {
   describe('on the server', () => {
     /**
      * `afterNextRender` never runs there, so ProseMirror never mounts and the
-     * preview is the page. It is rendered by Angular from the sanitised
-     * document, and it is what a prerendered route and a first paint show.
+     * preview is the page. It is rendered by Angular from the document as the
+     * schema reads it, and it is what a prerendered route and a first paint show.
      */
     it('renders the static preview and keeps the surface hidden', async () => {
       await mount(
-        h => h.value.set('<h2>T</h2><p><strong>b</strong> <a href="javascript:x">js</a> <a href="/ok">ok</a></p>'),
+        h => h.value.set(doc(heading(2, text('T')), para(text('b', strong), text(' '), text('ok', link('/ok'))))),
         [{ provide: PLATFORM_ID, useValue: 'server' }]
       );
 
@@ -190,14 +203,29 @@ describe('WrEditor', () => {
       expect(surface().hidden).toBe(true);
       expect(surface().hasAttribute('contenteditable')).toBe(false);
     });
+
+    it('renders nothing for a value it refuses, and says why once', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      await mount(
+        h => h.value.set(doc(para(text('js', link('javascript:alert(1)'))))),
+        [{ provide: PLATFORM_ID, useValue: 'server' }]
+      );
+
+      expect(root().querySelector('.wr-editor__preview')).toBeNull();
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(String(warn.mock.calls[0][0])).toContain('refused link URL');
+      warn.mockRestore();
+    });
   });
 
-  describe('html format', () => {
-    it('writes an edit back to the model', async () => {
-      await mount();
+  describe('the value', () => {
+    it('writes an edit back to the model as a fresh tree, leaving the bound one alone', async () => {
+      const value = doc(para(text('Hello')));
+      await mount(h => h.value.set(value));
       await type('Hello!');
 
-      expect(host().value()).toBe('<p>Hello!</p>');
+      expect(host().value()).toEqual(doc(para(text('Hello!'))));
+      expect(value).toEqual(doc(para(text('Hello'))));
     });
 
     it('drives the keymap: select all, then bold', async () => {
@@ -207,8 +235,24 @@ describe('WrEditor', () => {
       fixture.detectChanges();
 
       expect(bold.defaultPrevented).toBe(true);
-      expect(host().value()).toBe('<p><strong>Hello</strong></p>');
+      expect(host().value()).toEqual(doc(para(text('Hello', strong))));
       expect(tool('Bold').getAttribute('aria-pressed')).toBe('true');
+    });
+
+    it('underlines with the tool and with Mod-U alike', async () => {
+      await mount();
+      key(surface(), { key: 'a', ctrlKey: true });
+      const underline = key(surface(), { key: 'u', ctrlKey: true });
+      fixture.detectChanges();
+
+      expect(underline.defaultPrevented).toBe(true);
+      expect(host().value()).toEqual(doc(para(text('Hello', { type: 'underline' }))));
+      expect(tool('Underline').getAttribute('aria-pressed')).toBe('true');
+      expect(tool('Underline').getAttribute('aria-keyshortcuts')).toBe('Control+U');
+
+      tool('Underline').click();
+      fixture.detectChanges();
+      expect(host().value()).toEqual(doc(para(text('Hello'))));
     });
 
     it('applies a toolbar command', async () => {
@@ -217,19 +261,19 @@ describe('WrEditor', () => {
       tool('Heading 1').click();
       fixture.detectChanges();
 
-      expect(host().value()).toBe('<h1>Hello</h1>');
+      expect(host().value()).toEqual(doc(heading(1, text('Hello'))));
       expect(tool('Heading 1').getAttribute('aria-pressed')).toBe('true');
     });
 
-    it('writes an emptied document as the empty string', async () => {
+    it('writes an emptied document as null, so `required` sees it as empty', async () => {
       await mount();
       key(surface(), { key: 'a', ctrlKey: true });
       key(surface(), { key: 'Backspace' });
 
-      expect(host().value()).toBe('');
+      expect(host().value()).toBeNull();
     });
 
-    it('sanitises a paste the same way as a bound value', async () => {
+    it('sanitises a paste through the schema, keeping the text of a refused link', async () => {
       await mount();
       const paste = new Event('paste', { bubbles: true, cancelable: true });
       Object.defineProperty(paste, 'clipboardData', {
@@ -245,37 +289,39 @@ describe('WrEditor', () => {
       surface().dispatchEvent(paste);
 
       expect(surface().querySelector('[onclick], [onerror], a')).toBeNull();
-      expect(host().value()).toBe('<p>bad <img src="x" alt=""></p>');
+      expect(host().value()).toEqual(
+        doc(para(text('bad '), { type: 'image', attrs: { src: 'x', alt: '', title: null } }))
+      );
     });
   });
 
   describe('outside writes', () => {
     it('replace the document', async () => {
       await mount();
-      host().value.set('<p>Replaced</p>');
+      host().value.set(doc(para(text('Replaced'))));
       fixture.detectChanges();
 
       expect(surface().textContent).toBe('Replaced');
     });
 
     it('leave an EQUAL document alone, and never write the normalised form back', async () => {
-      await mount(h => h.value.set('<p><strong>Hi</strong></p>'));
+      await mount(h => h.value.set(doc(para(text('Hi', strong)))));
       key(surface(), { key: 'a', ctrlKey: true });
-      host().value.set('<p><b>Hi</b></p>');
+      // An attribute the schema does not declare is dropped on the way in, so
+      // this reads as the document already on screen.
+      const written = doc({ type: 'paragraph', attrs: { align: 'center' }, content: [text('Hi', strong)] });
+      host().value.set(written);
       fixture.detectChanges();
 
       // Same document: nothing re-parsed into the view, so the selection (all
       // of it) survives and Bold still reads pressed.
-      expect(host().value()).toBe('<p><b>Hi</b></p>');
+      expect(host().value()).toBe(written);
       expect(tool('Bold').getAttribute('aria-pressed')).toBe('true');
     });
 
     it('refuse what cannot be read, keep the committed document and warn', async () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-      await mount(h => {
-        h.format.set('json');
-        h.value.set({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Kept' }] }] });
-      });
+      await mount(h => h.value.set(doc(para(text('Kept')))));
       const garbage = { type: 'doc', content: [{ type: 'iframe' }] } as WrEditorJson;
       host().value.set(garbage);
       fixture.detectChanges();
@@ -283,7 +329,7 @@ describe('WrEditor', () => {
       expect(surface().textContent).toBe('Kept');
       expect(host().value()).toBe(garbage);
       expect(warn).toHaveBeenCalledTimes(1);
-      expect(String(warn.mock.calls[0][0])).toContain('could not be read as json');
+      expect(String(warn.mock.calls[0][0])).toContain('could not be read and was ignored');
       warn.mockRestore();
     });
   });
@@ -295,10 +341,6 @@ describe('WrEditor', () => {
    * with a dev-mode warning as the only sign.
    */
   describe('a refused value', () => {
-    const doc = (text: string): WrEditorJson => ({
-      type: 'doc',
-      content: [{ type: 'paragraph', content: [{ type: 'text', text }] }],
-    });
     // Written by another ProseMirror schema: h4 is outside this one's three.
     const foreign: WrEditorJson = {
       type: 'doc',
@@ -312,10 +354,7 @@ describe('WrEditor', () => {
     afterEach(() => warn.mockRestore());
 
     it('at mount leaves the editor read-only, so an edit cannot overwrite the stored value', async () => {
-      await mount(h => {
-        h.format.set('json');
-        h.value.set(foreign);
-      });
+      await mount(h => h.value.set(foreign));
 
       expect(surface().getAttribute('contenteditable')).toBe('false');
       expect(surface().getAttribute('aria-readonly')).toBe('true');
@@ -329,10 +368,7 @@ describe('WrEditor', () => {
     });
 
     it('after a write keeps the previous record on screen and refuses edits over the new one', async () => {
-      await mount(h => {
-        h.format.set('json');
-        h.value.set(doc('Record A body'));
-      });
+      await mount(h => h.value.set(doc(para(text('Record A body')))));
       host().value.set(foreign);
       fixture.detectChanges();
 
@@ -342,124 +378,36 @@ describe('WrEditor', () => {
     });
 
     it('lifts once a value the editor can read arrives', async () => {
-      await mount(h => {
-        h.format.set('json');
-        h.value.set(foreign);
-      });
-      host().value.set(doc('Readable'));
+      await mount(h => h.value.set(foreign));
+      host().value.set(doc(para(text('Readable'))));
       fixture.detectChanges();
 
       expect(surface().getAttribute('contenteditable')).toBe('true');
       expect(root().querySelector('wr-editor')!.classList).not.toContain('wr-editor--refused');
       await type('Readable!');
-      expect(host().value()).toEqual(doc('Readable!'));
-    });
-  });
-
-  describe('changing format', () => {
-    it('re-reads the value, and keeps the document when the new format cannot read it', async () => {
-      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-      await mount();
-      // Still an HTML string, now under `json`: refused, so the document stays and
-      // what is written from here on is JSON.
-      host().format.set('json');
-      fixture.detectChanges();
-      expect(surface().textContent).toBe('Hello');
-      expect(warn).toHaveBeenCalledTimes(1);
-
-      await type('Hello!');
-      expect(host().value()).toEqual({
-        type: 'doc',
-        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Hello!' }] }],
-      });
-      warn.mockRestore();
-    });
-  });
-
-  describe('markdown format', () => {
-    it('reads and writes markdown', async () => {
-      await mount(h => {
-        h.format.set('markdown');
-        h.value.set('Hello **world**');
-      });
-      expect(surface().querySelector('strong')?.textContent).toBe('world');
-
-      key(surface(), { key: 'a', ctrlKey: true });
-      key(surface(), { key: 'i', ctrlKey: true });
-
-      // The serializer's one canonical nesting, not the shortest spelling.
-      expect(host().value()).toBe('*Hello* ***world***');
+      expect(host().value()).toEqual(doc(para(text('Readable!'))));
     });
 
-    it('drops the underline tool and its shortcut, which markdown cannot store', async () => {
-      await mount(h => {
-        h.format.set('markdown');
-        h.value.set('text');
-      });
-      key(surface(), { key: 'a', ctrlKey: true });
-      key(surface(), { key: 'u', ctrlKey: true });
-
-      expect(tool('Underline')).toBeUndefined();
-      expect(host().value()).toBe('text');
-    });
-
-    it('refuses a javascript: link, keeping its label', async () => {
-      await mount(h => {
-        h.format.set('markdown');
-        h.value.set('[x](javascript:alert(1))');
-      });
+    it('refuses a whole document over one javascript: link, rather than dropping the link', async () => {
+      await mount(h => h.value.set(doc(para(text('x', link('javascript:alert(1)'))))));
 
       expect(surface().querySelector('a')).toBeNull();
-      expect(surface().textContent).toBe('x');
-    });
-  });
-
-  describe('json format', () => {
-    const doc = (text: string): WrEditorJson => ({
-      type: 'doc',
-      content: [{ type: 'paragraph', content: [{ type: 'text', text }] }],
-    });
-
-    it('reads a document and writes a fresh one on edit', async () => {
-      const value = doc('Hello');
-      await mount(h => {
-        h.format.set('json');
-        h.value.set(value);
-      });
-      await type('Hello!');
-
-      expect(host().value()).toEqual(doc('Hello!'));
-    });
-
-    it('writes an emptied document as null, so `required` sees it as empty', async () => {
-      await mount(h => {
-        h.format.set('json');
-        h.value.set(doc('Hello'));
-      });
-      key(surface(), { key: 'a', ctrlKey: true });
-      key(surface(), { key: 'Backspace' });
-
-      expect(host().value()).toBeNull();
-    });
-
-    it('refuses a document holding a javascript: link as a whole', async () => {
-      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-      await mount(h => {
-        h.format.set('json');
-        h.value.set({
-          type: 'doc',
-          content: [
-            {
-              type: 'paragraph',
-              content: [{ type: 'text', text: 'x', marks: [{ type: 'link', attrs: { href: 'javascript:alert(1)' } }] }],
-            },
-          ],
-        });
-      });
-
-      expect(surface().querySelector('a')).toBeNull();
+      expect(root().querySelector('wr-editor')!.classList).toContain('wr-editor--refused');
       expect(warn).toHaveBeenCalledTimes(1);
-      warn.mockRestore();
+      expect(String(warn.mock.calls[0][0])).toContain('refused link URL');
+    });
+
+    // A tree stored as JSON text and bound unparsed, or an HTML or markdown
+    // string kept from before: the one mistake the warning names outright.
+    it('refuses a string, and says that is what it is', async () => {
+      const stored = '<p>Stored</p>' as unknown as WrEditorValue;
+      await mount(h => h.value.set(stored));
+
+      expect(surface().getAttribute('contenteditable')).toBe('false');
+      expect(root().querySelector('wr-editor')!.classList).toContain('wr-editor--refused');
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(String(warn.mock.calls[0][0])).toContain('not a string');
+      expect(host().value()).toBe(stored);
     });
   });
 
@@ -475,7 +423,15 @@ describe('WrEditor', () => {
     it('draws the document — structure and all — and creates no view', async () => {
       await mount(h => {
         h.readonly.set(true);
-        h.value.set('<h2>Shipped</h2><ul><li>One</li><li>Two</li></ul>');
+        h.value.set(
+          doc(heading(2, text('Shipped')), {
+            type: 'bullet_list',
+            content: [
+              { type: 'list_item', content: [para(text('One'))] },
+              { type: 'list_item', content: [para(text('Two'))] },
+            ],
+          })
+        );
       });
 
       expect(statik().querySelector('h2')?.textContent).toBe('Shipped');
@@ -505,7 +461,7 @@ describe('WrEditor', () => {
 
     it('re-renders a value written while it is read-only', async () => {
       await mount(h => h.readonly.set(true));
-      host().value.set('<p>Written from elsewhere</p>');
+      host().value.set(doc(para(text('Written from elsewhere'))));
       fixture.detectChanges();
 
       expect(statik().textContent).toContain('Written from elsewhere');
@@ -526,7 +482,7 @@ describe('WrEditor', () => {
       expect(root().querySelector('.wr-editor__preview')).toBeNull();
       key(surface(), { key: 'a', ctrlKey: true });
       key(surface(), { key: 'b', ctrlKey: true });
-      expect(host().value()).toBe('<p><strong>Hello</strong></p>');
+      expect(host().value()).toEqual(doc(para(text('Hello', strong))));
 
       const mounted = surface();
       host().readonly.set(true);
@@ -545,14 +501,13 @@ describe('WrEditor', () => {
       key(surface(), { key: 'z', ctrlKey: true });
 
       // The round trip kept the view, so it kept the history in it.
-      expect(host().value()).toBe('<p>Hello</p>');
+      expect(host().value()).toEqual(doc(para(text('Hello'))));
     });
 
     it('refuses a value it cannot read, and says so once even if it mounts later', async () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
       await mount(h => {
         h.readonly.set(true);
-        h.format.set('json');
         // Written by another schema: h4 is outside this one's three levels.
         h.value.set({
           type: 'doc',
@@ -561,7 +516,7 @@ describe('WrEditor', () => {
       });
 
       expect(warn).toHaveBeenCalledTimes(1);
-      expect(String(warn.mock.calls[0][0])).toContain('could not be read as json');
+      expect(String(warn.mock.calls[0][0])).toContain('could not be read and was ignored');
       expect(root().querySelector('wr-editor')!.classList).toContain('wr-editor--refused');
       expect(statik().textContent?.trim()).toBe('');
 
@@ -601,32 +556,42 @@ describe('WrEditor', () => {
   });
 
   describe('keyboard', () => {
-    const table = '<p>intro</p><table><tr><th><p>H</p></th></tr><tr><td><p>cell</p></td></tr></table>';
+    const cell = (type: 'table_header' | 'table_cell', value: string): WrEditorJson => ({
+      type,
+      attrs: { align: null },
+      content: [para(text(value))],
+    });
+    const row = (...cells: WrEditorJson[]): WrEditorJson => ({ type: 'table_row', content: cells });
+    const table: WrEditorJson = {
+      type: 'table',
+      content: [row(cell('table_header', 'H')), row(cell('table_cell', 'cell'))],
+    };
+    const intro = para(text('intro'));
+    const outro = para(text('outro'));
 
     it('leaves a table that ends the document with ArrowDown on its last line', async () => {
-      await mount(h => h.value.set(table));
+      await mount(h => h.value.set(doc(intro, table)));
       await caretIn('cell', 4);
       const down = key(surface(), { key: 'ArrowDown' });
       await type('after', surface().querySelector(':scope > p:last-child')!);
 
       expect(down.defaultPrevented).toBe(true);
-      expect(host().value()).toBe(
-        '<p>intro</p><table><tbody><tr><th><p>H</p></th></tr><tr><td><p>cell</p></td></tr></tbody></table><p>after</p>'
-      );
+      expect(host().value()).toEqual(doc(intro, table, para(text('after'))));
     });
 
     it('leaves a table that opens the document with ArrowUp on its first line', async () => {
-      await mount(h => h.value.set('<table><tr><td><p>cell</p></td></tr></table><p>outro</p>'));
+      const single: WrEditorJson = { type: 'table', content: [row(cell('table_cell', 'cell'))] };
+      await mount(h => h.value.set(doc(single, outro)));
       await caretIn('cell', 0);
       const up = key(surface(), { key: 'ArrowUp' });
       fixture.detectChanges();
 
       expect(up.defaultPrevented).toBe(true);
-      expect(host().value()).toBe('<p></p><table><tbody><tr><td><p>cell</p></td></tr></tbody></table><p>outro</p>');
+      expect(host().value()).toEqual(doc(para(), single, outro));
     });
 
     it('lets ArrowDown move as usual when there is text after the table', async () => {
-      await mount(h => h.value.set(`${table}<p>outro</p>`));
+      await mount(h => h.value.set(doc(intro, table, outro)));
       await caretIn('cell', 4);
       const down = key(surface(), { key: 'ArrowDown' });
 
@@ -634,29 +599,36 @@ describe('WrEditor', () => {
     });
 
     it('leaves a table from anywhere in it with Mod-Enter', async () => {
-      await mount(h => h.value.set(`${table}<p>outro</p>`));
+      await mount(h => h.value.set(doc(intro, table, outro)));
       await caretIn('H', 0);
       key(surface(), { key: 'Enter', ctrlKey: true });
       fixture.detectChanges();
 
-      expect(host().value()).toBe(
-        '<p>intro</p><table><tbody><tr><th><p>H</p></th></tr><tr><td><p>cell</p></td></tr></tbody></table>' +
-          '<p></p><p>outro</p>'
-      );
+      expect(host().value()).toEqual(doc(intro, table, para(), outro));
     });
 
     // Windows German types `[` and `]` as AltGr+8 / AltGr+9, which the browser
     // reports as Ctrl+Alt; macOS German as Option+5 / Option+6 under ⌘.
     it('indents and outdents a list item with a bracket typed through AltGr', async () => {
-      await mount(h => h.value.set('<ul><li><p>a</p></li><li><p>b</p></li></ul>'));
+      const list = (...items: WrEditorJson[]): WrEditorJson => ({
+        type: 'bullet_list',
+        attrs: { tight: true },
+        content: items,
+      });
+      const item = (value: string, ...rest: WrEditorJson[]): WrEditorJson => ({
+        type: 'list_item',
+        attrs: { checked: null },
+        content: [para(text(value)), ...rest],
+      });
+      await mount(h => h.value.set(doc(list(item('a'), item('b')))));
       await caretIn('b', 1);
       key(surface(), { key: ']', ctrlKey: true, altKey: true });
       fixture.detectChanges();
-      expect(host().value()).toBe('<ul><li><p>a</p><ul><li><p>b</p></li></ul></li></ul>');
+      expect(host().value()).toEqual(doc(list(item('a', list(item('b'))))));
 
       key(surface(), { key: '[', ctrlKey: true, altKey: true });
       fixture.detectChanges();
-      expect(host().value()).toBe('<ul><li><p>a</p></li><li><p>b</p></li></ul>');
+      expect(host().value()).toEqual(doc(list(item('a'), item('b'))));
     });
   });
 
@@ -717,7 +689,7 @@ describe('WrEditor', () => {
 
       expect(tool('Undo').disabled).toBe(false);
       tool('Undo').click();
-      expect(host().value()).toBe('<p>Hello</p>');
+      expect(host().value()).toEqual(doc(para(text('Hello'))));
     });
 
     it('keeps keyboard focus on a tool, and hands it to the text once the tool stops applying', async () => {
@@ -733,7 +705,7 @@ describe('WrEditor', () => {
       tool('Undo').focus();
       tool('Undo').click();
       fixture.detectChanges();
-      expect(host().value()).toBe('<p>Hello</p>');
+      expect(host().value()).toEqual(doc(para(text('Hello'))));
       expect(tool('Undo').disabled).toBe(true);
       expect(document.activeElement).toBe(surface());
     });
@@ -793,7 +765,7 @@ describe('WrEditor', () => {
       await fixture.whenStable();
       await submit('https://example.com');
 
-      expect(host().value()).toBe('<p><a href="https://example.com" rel="noopener noreferrer nofollow">Hello</a></p>');
+      expect(host().value()).toEqual(doc(para(text('Hello', link('https://example.com')))));
       expect(panel()).toBeNull();
     });
 
@@ -808,7 +780,7 @@ describe('WrEditor', () => {
       expect(error.getAttribute('role')).toBe('alert');
       expect(input().getAttribute('aria-invalid')).toBe('true');
       expect(input().getAttribute('aria-describedby')).toBe(error.id);
-      expect(host().value()).toBe('<p>Hello</p>');
+      expect(host().value()).toEqual(doc(para(text('Hello'))));
     });
 
     /**
@@ -892,7 +864,7 @@ describe('WrEditor', () => {
   describe('the placeholder', () => {
     it('decorates the empty paragraph and is exposed as aria-placeholder', async () => {
       await mount(h => {
-        h.value.set('');
+        h.value.set(null);
         h.placeholder.set('Write something');
       });
 
@@ -930,12 +902,14 @@ describe('WrEditor inside a form field', () => {
   @Component({
     imports: [WrEditor, WrFormField],
     template: `
-      <wr-form-field label="Body" hint="Markdown is fine">
-        <wr-editor value="<p>x</p>" />
+      <wr-form-field label="Body" hint="Keep it short">
+        <wr-editor [value]="value" />
       </wr-form-field>
     `,
   })
-  class FieldHost {}
+  class FieldHost {
+    readonly value = doc(para(text('x')));
+  }
 
   let removeStubs: () => void;
   beforeEach(() => (removeStubs = installLayoutStubs()));
@@ -952,9 +926,7 @@ describe('WrEditor inside a form field', () => {
     const label = document.getElementById(surface.getAttribute('aria-labelledby')!);
     expect(label?.textContent?.trim()).toContain('Body');
     expect(surface.hasAttribute('aria-label')).toBe(false);
-    expect(document.getElementById(surface.getAttribute('aria-describedby')!)?.textContent).toContain(
-      'Markdown is fine'
-    );
+    expect(document.getElementById(surface.getAttribute('aria-describedby')!)?.textContent).toContain('Keep it short');
     expect(surface.hasAttribute('aria-invalid')).toBe(false);
     fixture.destroy();
   });

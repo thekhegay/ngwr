@@ -274,12 +274,6 @@ export const wrCs: WrI18nCatalog = {
   popover: {
     label: 'Vyskakovací panel',
   },
-  markdown: {
-    copy: 'Kopírovat kód',
-    copied: 'Zkopírováno',
-    taskDone: 'Splněno:',
-    taskTodo: 'Nesplněno:',
-  },
   editor: {
     label: 'Formátovaný text',
     toolbar: 'Formátování',

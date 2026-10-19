@@ -16,7 +16,6 @@ export const DISPLAY_ROUTES = [
   { path: components.icon.path, loadComponent: () => import('./icon/icon') },
   { path: components.lightbox.path, loadComponent: () => import('./lightbox/lightbox') },
   { path: components.imageCropper.path, loadComponent: () => import('./image-cropper/image-cropper') },
-  { path: components.markdown.path, loadComponent: () => import('./markdown/markdown') },
   { path: components.qrCode.path, loadComponent: () => import('./qr/qr') },
   { path: components.statistic.path, loadComponent: () => import('./statistic/statistic') },
   { path: components.timeline.path, loadComponent: () => import('./timeline/timeline') },

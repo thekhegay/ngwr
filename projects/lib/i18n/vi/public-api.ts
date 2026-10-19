@@ -289,12 +289,6 @@ export const wrVi: WrI18nCatalog = {
   popover: {
     label: 'Bảng bật lên',
   },
-  markdown: {
-    copy: 'Sao chép mã',
-    copied: 'Đã sao chép',
-    taskDone: 'Đã xong:',
-    taskTodo: 'Chưa xong:',
-  },
   editor: {
     label: 'Văn bản có định dạng',
     toolbar: 'Định dạng',

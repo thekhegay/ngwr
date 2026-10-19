@@ -35,7 +35,7 @@ interface CatalogEntry {
  *
  * What it adds on top is the part none of those files have: a way to ASK. An
  * agent that does not already know an entry point's name cannot use a `.d.ts`,
- * and reading ~57 KB of catalog to answer "what renders markdown" is the cost this
+ * and reading ~57 KB of catalog to answer "what edits rich text" is the cost this
  * exists to remove.
  */
 class Catalog {

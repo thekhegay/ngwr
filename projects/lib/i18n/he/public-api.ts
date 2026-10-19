@@ -294,12 +294,6 @@ export const wrHe: WrI18nCatalog = {
   popover: {
     label: 'חלונית קופצת',
   },
-  markdown: {
-    copy: 'העתקת הקוד',
-    copied: 'הועתק',
-    taskDone: 'בוצע:',
-    taskTodo: 'לביצוע:',
-  },
   editor: {
     label: 'טקסט מעוצב',
     toolbar: 'עיצוב',

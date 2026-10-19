@@ -13,7 +13,6 @@ import { wrEn } from 'ngwr/i18n/en';
 import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrIcons } from 'ngwr/icon';
 import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router';
-import { provideWrMarkdownHighlighter } from 'ngwr/markdown';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { provideEnvironmentNgxMask } from 'ngx-mask';
 
@@ -21,7 +20,6 @@ import { VALIDATION_EN, VALIDATION_RU } from './app.validation';
 import { routing } from './routing';
 
 import { COMMON_ICONS } from '#core/icons';
-import { shikiMarkdownHighlighter } from '#core/shiki';
 
 /**
  * Providers shared by the browser entry (`main.ts`) and the prerender entry
@@ -58,11 +56,6 @@ export const appConfig: ApplicationConfig = {
     // top (the lib merges root + element-level multi-providers).
     provideWrIcons([...COMMON_ICONS]),
     provideWrDateAdapter(),
-    // Colour for every fenced code block `<wr-markdown>` renders. Returns
-    // coloured SPANS rather than HTML — see the adapter — and answers `null`
-    // during prerender, so the static HTML ships plain code and gains colour on
-    // hydration.
-    provideWrMarkdownHighlighter(shikiMarkdownHighlighter),
     provideWrDensity(),
     provideWrI18n({ availableLocales: ['en', 'ru'], defaultLocale: 'en' }),
     // ngwr's own strings as a base, so the loader carries only the site's keys —

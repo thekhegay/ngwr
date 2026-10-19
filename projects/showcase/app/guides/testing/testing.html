@@ -699,10 +699,10 @@
     <ngwr-doc-code [code]="snippets.editor" language="typescript" />
 
     <p>
-      The value is an HTML string, a markdown string or a JSON tree, written by the editor's codec and never by the DOM,
-      so the harness does not pretend to read it — a string rebuilt from the surface would be a fourth format that
-      agrees with none of the three. Typing is refused for the reason <code>pressKey()</code> gives: a browser inserts
-      the character into a contenteditable and ProseMirror reads the change, and jsdom inserts nothing.
+      The value is a JSON tree, written by the editor from its document and never by the DOM, so the harness does not
+      pretend to read it — a tree rebuilt from the surface would be a second value that need not agree with the first.
+      The spec reads the model instead. Typing is refused for the reason <code>pressKey()</code> gives: a browser
+      inserts the character into a contenteditable and ProseMirror reads the change, and jsdom inserts nothing.
       <code>setText()</code> writes the surface the way the CDK defines writing a contenteditable, which ProseMirror
       reads as a real change, so the edit reaches the model through the editor's own path.
     </p>
@@ -800,27 +800,6 @@
     <ngwr-doc-code [code]="snippets.transfer" language="typescript" />
 
     <ngwr-doc-api [rows]="transferApi" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Markdown" description="A rendered document, read the way a reader sees it.">
-    <ngwr-doc-code [code]="snippets.markdown" language="typescript" />
-
-    <p>
-      The harness answers in terms of the DOCUMENT rather than the markup that produced it — headings with their level
-      and id, links with their <code>href</code> and <code>rel</code>, task items with their checked state. That is
-      deliberate: the parser has its own spec, and a harness that re-asserted the tree would test the same thing twice
-      while missing the half that only the DOM can answer.
-    </p>
-
-    <p>
-      Two details worth copying if you write something similar. Prose reads exclude the hidden task-state labels, so an
-      assertion on an item's text does not have to know that <code>Done:</code> is spliced in front of it — the state is
-      a field of its own instead. And a code block's text is read exactly, never trimmed: a snippet's leading
-      indentation and blank lines are its content, and a harness that collapsed them would pass on a component that had
-      destroyed them.
-    </p>
-
-    <ngwr-doc-api [rows]="markdownApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section

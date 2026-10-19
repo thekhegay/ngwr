@@ -44,7 +44,6 @@ export const COMPONENT_GROUPS: readonly SidebarGroup[] = [
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.imageCropper),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.keyboard),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.lightbox),
-      wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.markdown),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.qrCode),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.statistic),
       wrLink(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.timeline),

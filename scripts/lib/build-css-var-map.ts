@@ -263,7 +263,7 @@ function declarationsIn(file: string): { declarations: RawDeclaration[]; blocks:
     // until then only ever appeared mid-token (`--wr-color-#{$name}-dark`), where
     // the resulting frame's declarations were rejected by the `--wr-*` name test
     // anyway — and a selector still starts with one today (`#{&}` in the
-    // markdown sheet, `#{$pane}` in the overlay arrow), so the order stays.
+    // typography sheet, `#{$pane}` in the overlay arrow), so the order stays.
     if (ch === '#' && src[index + 1] === '{') {
       buffer += ch;
       index++;

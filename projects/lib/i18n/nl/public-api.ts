@@ -285,12 +285,6 @@ export const wrNl: WrI18nCatalog = {
   popover: {
     label: 'Zwevend paneel',
   },
-  markdown: {
-    copy: 'Code kopiëren',
-    copied: 'Gekopieerd',
-    taskDone: 'Klaar:',
-    taskTodo: 'Te doen:',
-  },
   editor: {
     label: 'Opgemaakte tekst',
     toolbar: 'Opmaak',

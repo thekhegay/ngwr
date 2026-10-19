@@ -29,7 +29,7 @@ A pnpm + Angular CLI monorepo with three projects:
   the data views (`table`, `tree`, `graph`), the navigation / disclosure set (`tabs`,
   `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`,
   `lightbox`, `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`,
-  `markdown`, **every chart** and **eighteen of the twenty-one bits** — each at
+  **every chart** and **eighteen of the twenty-one bits** — each at
   `ngwr/<name>/testing`. Charts and bits are NESTED since v15:
   `ngwr/charts/bar-chart`, `ngwr/bits/aurora`, harnesses at
   `ngwr/charts/bar-chart/testing`. Twenty-eight folders that used to sit beside
@@ -190,9 +190,8 @@ one component folder. Reach for them instead of hand-rolling:
   happens to be. Reach for `navigator.language` only by writing it explicitly.
 - **`ngwr/config` is gone (v15).** `provideWrConfig()`, `WR_CONFIG` and
   `useConfigValue()` are removed because ngwr does not ship app-wide default
-  overrides: `size`, `rounded`, `format`, `copyable` and `linkTarget` take the
-  concrete default written in their `input()`, and the template reads the input
-  directly. Do not bring back a config provider that fills a nullable input; an
+  overrides: `size` and `rounded` take the concrete default written in their
+  `input()`, and the template reads the input directly. Do not bring back a config provider that fills a nullable input; an
   app that wants another value binds it, or wraps the component in its own. One
   thing is not that pattern and stays: the `*Label` inputs, which `useI18nText`
   fills from the catalog (see Strings & i18n).
@@ -391,17 +390,11 @@ one component folder. Reach for them instead of hand-rolling:
   CDK viewport can't host `<tr>` / role-owned list children). Cascader is
   deferred (no container-owned arrow-nav model); mention is excluded (capped at
   `maxResults` ≈ 8).
-- **Markdown** (`ngwr/markdown`) — `<wr-markdown [value]="…">` renders markdown as
-  DOM, never as HTML. **Raw HTML in the source is escaped**, and that is a
-  deliberate limit rather than an unfinished feature: the input is untrusted by
-  construction, and one `<img onerror>` is the whole cost of being wrong.
-  `[streaming]` makes a partial document render like a whole one (its spec pins
-  the property that makes it safe to leave on — a finished stream parses
-  identically with the flag and without it). `provideWrMarkdownHighlighter()`
-  takes a function returning coloured SPANS (`{ text, color }` per line), not
-  markup: highlighted HTML would need `bypassSecurityTrustHtml` and put the
-  `[innerHTML]` hole back in the one component whose entire input is untrusted.
-  Hand-rolled parser, so no new runtime dependency.
+- **`ngwr/markdown` is gone (v15).** `<wr-markdown>`, its hand-rolled parser
+  and serializer and `provideWrMarkdownHighlighter()` went together: rendering
+  untrusted input and keeping a parser correct are surface ngwr does not need,
+  and a document an app has stored is shown by `<wr-editor readonly>`, which
+  mounts no ProseMirror.
 - **Rich text** (`ngwr/editor`) — `<wr-editor>` is ProseMirror behind a Signal
   Forms value control, and ProseMirror is an OPTIONAL peer: eight `prosemirror-*`
   packages in `peerDependencies` + `peerDependenciesMeta`, which `package.spec.ts`
@@ -409,11 +402,14 @@ one component folder. Reach for them instead of hand-rolling:
   `ngwr/editor` the only entry point that imports them** — a static import
   anywhere else (a `schema-form` kind, a `form` helper) forces the peers on every
   consumer of that entry point, which is why router support was split out in v14.
-  `format` picks the value: an HTML string, a markdown string (read and written
-  through `ngwr/markdown`'s own parser and `serializeMarkdown`, so no
-  `prosemirror-markdown` or `markdown-it`) or a JSON tree. Every value and every
-  paste is untrusted: HTML is parsed inert and rebuilt from the schema, links and
-  images go through `safeMarkdownUrl`, and JSON is validated and refused whole.
+  **The value has ONE format since v15: the document as a `WrEditorJson` tree,
+  `null` when empty.** `format` went with the HTML and markdown codecs, so the
+  schema no longer varies and underline is always there; an app that stores HTML
+  or markdown converts at its own boundary. Every value and every paste is
+  untrusted: a bound tree is validated against the schema and refused whole,
+  never repaired; a paste goes through ProseMirror's own clipboard parser against
+  that schema; and links and images pass the editor's own URL check — internal,
+  with the rules `safeMarkdownUrl` had — on the way in and again in `toDOM`.
   `new EditorView` runs only after render; the server draws a static
   preview BESIDE the mount surface, never inside it, since `{ mount }` wipes its
   children. **`readonly` does not mount at all**, and that static rendering IS

@@ -174,7 +174,6 @@ export const ROUTES = {
       inputOtp: { path: 'input-otp', title: 'Input OTP' },
       keyboard: { path: 'keyboard', title: 'Keyboard' },
       knob: { path: 'knob', title: 'Knob' },
-      markdown: { path: 'markdown', title: 'Markdown' },
       mention: { path: 'mention', title: 'Mention' },
       pageHeader: { path: 'page-header', title: 'Page Header' },
       result: { path: 'result', title: 'Result' },

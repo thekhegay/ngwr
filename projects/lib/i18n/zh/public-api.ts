@@ -272,12 +272,6 @@ export const wrZh: WrI18nCatalog = {
   popover: {
     label: '弹出面板',
   },
-  markdown: {
-    copy: '复制代码',
-    copied: '已复制',
-    taskDone: '已完成：',
-    taskTodo: '待办：',
-  },
   editor: {
     label: '富文本',
     toolbar: '格式',
