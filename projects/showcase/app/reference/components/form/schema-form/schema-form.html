@@ -6,7 +6,7 @@
 >
   <ngwr-doc-section
     title="Basic usage"
-    description="Describe each field once, next to its rules. `<wr-schema-form>` walks the field tree, draws the control the `kind` names inside a `<wr-form-field>`, and lets the schema own everything else — the `*` marker, the disabled state, the error copy."
+    description="Describe each field once, next to its rules. `<wr-schema-form>` walks the field tree, draws the control the `kind` names inside a `<wr-form-field>`, and lets the schema own everything else — the `*` marker, the disabled state, and the error copy, through each rule's `{ message }` or your catalog's `validation.<key>`."
   >
     <ngwr-doc-snippet [code]="snippets.basic" language="angular-ts">
       <div style="max-width: 34rem">

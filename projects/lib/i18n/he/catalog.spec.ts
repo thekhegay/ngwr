@@ -38,9 +38,9 @@ import { expectCatalogContract } from '../catalog-contract';
  *
  * `common.ok` is deliberately NOT here: Hebrew Windows, macOS, iOS and Android
  * all label that button «אישור», so leaving it as `OK` would be the
- * untranslated string rather than the correct one. `validation.iban` and
- * `qr.label` look English at a glance and are not here either — each carries an
- * initialism Hebrew keeps in Latin, and the prose around it IS translated.
+ * untranslated string rather than the correct one. `qr.label` looks English at
+ * a glance and is not here either — it carries an initialism Hebrew keeps in
+ * Latin, and the prose around it IS translated.
  *
  * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Hebrew
  * keyboard prints.

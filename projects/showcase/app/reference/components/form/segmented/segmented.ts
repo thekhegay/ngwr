@@ -70,7 +70,7 @@ export class ScheduleComponent {
 
   private readonly model = signal({ range: '' });
   protected readonly schedule = form(this.model, path => {
-    required(path.range);
+    required(path.range, { message: 'Pick a range.' });
   });
 }`,
   };

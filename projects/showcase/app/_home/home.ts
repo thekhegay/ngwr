@@ -139,11 +139,11 @@ export class SignupCard {
 
   // \`signup.email\` writes the input's value and \`signup.agree\` the checkbox's
   // \`checked\` model. No ControlValueAccessor — there is not one in the library.
-  // The "required" and "not an email" copy comes from the i18n catalog, so no
-  // <wr-form-error> has to be written unless this field wants its own wording.
+  // Each rule carries its own message and <wr-form-field> shows it, so no
+  // <wr-form-error> has to be written.
   protected readonly signup = form(this.model, path => {
-    required(path.email);
-    email(path.email);
+    required(path.email, { message: 'Enter your work email.' });
+    email(path.email, { message: 'That is not an email address.' });
   });
 
   protected reserve(): void {}

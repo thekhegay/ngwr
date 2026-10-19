@@ -10,10 +10,10 @@
  *
  * - `projected` — a `<wr-form-error key="…">` the consumer wrote. It is its own
  *   element, so this one IS distinguishable.
- * - `resolved` — the field rendered it from the copy chain
- *   (`provideWrFormErrors()` → the `ngwr/i18n` `validation.*` catalog → the
- *   built-in English sentence). All three links render the same `<div>`, so the
- *   DOM cannot say which of them answered — compare the TEXT if you need to know.
+ * - `resolved` — the field rendered it for an error no markup claimed, from the
+ *   validator's own `message` or else `validation.<key>` in the app's i18n
+ *   catalog. Both render the same `<div>`, so the DOM cannot say which of them
+ *   answered — compare the TEXT if you need to know.
  */
 export type WrFormFieldErrorSource = 'projected' | 'resolved';
 

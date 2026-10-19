@@ -94,29 +94,6 @@ export const wrDe: WrI18nCatalog = {
   form: {
     optional: 'optional',
   },
-  validation: {
-    required: 'Dieses Feld ist erforderlich.',
-    requiredTrue: 'Dieses Feld muss aktiviert sein.',
-    email: 'Geben Sie eine gültige E-Mail-Adresse ein.',
-    minlength: 'Geben Sie mindestens {{requiredLength}} Zeichen ein.',
-    maxlength: 'Geben Sie höchstens {{requiredLength}} Zeichen ein.',
-    min: 'Geben Sie {{min}} oder mehr ein.',
-    max: 'Geben Sie {{max}} oder weniger ein.',
-    pattern: 'Dieser Wert hat nicht das erwartete Format.',
-    noWhitespace: 'Dieser Wert darf keine Leerzeichen enthalten.',
-    hexColor: 'Geben Sie eine Hex-Farbe ein, z. B. #1a2b3c.',
-    url: 'Geben Sie eine gültige URL ein.',
-    cardNumber: 'Geben Sie eine gültige Kartennummer ein.',
-    cvc: 'Geben Sie den {{length}}-stelligen Sicherheitscode ein.',
-    iban: 'Geben Sie eine gültige IBAN ein.',
-    match: 'Die beiden Werte stimmen nicht überein.',
-    matchFields: 'Diese Felder stimmen nicht überein.',
-    oneOf: 'Wählen Sie einen der zulässigen Werte.',
-    minDate: 'Wählen Sie ein späteres Datum.',
-    maxDate: 'Wählen Sie ein früheres Datum.',
-    dateFormat: 'Erwartetes Format: {{example}}',
-    dateFilter: 'Dieses Datum ist nicht verfügbar.',
-  },
   select: {
     // Accessible name of a `role="combobox"`, so a noun rather than the command
     // `Auswählen` — the placeholder below is the one that prompts an action.

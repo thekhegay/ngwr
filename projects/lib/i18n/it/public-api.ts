@@ -94,31 +94,6 @@ export const wrIt: WrI18nCatalog = {
   form: {
     optional: 'facoltativo',
   },
-  validation: {
-    required: 'Campo obbligatorio.',
-    requiredTrue: 'Questa casella deve essere selezionata.',
-    email: 'Inserisci un indirizzo email valido.',
-    // Count last in both: "almeno {{n}} caratteri" is wrong at one, and there is
-    // no plural machinery here. Same reason the `cvc` message splits in two.
-    minlength: 'Numero minimo di caratteri: {{requiredLength}}.',
-    maxlength: 'Numero massimo di caratteri: {{requiredLength}}.',
-    min: 'Inserisci un valore maggiore o uguale a {{min}}.',
-    max: 'Inserisci un valore minore o uguale a {{max}}.',
-    pattern: 'Il valore non è nel formato previsto.',
-    noWhitespace: 'Il valore non può contenere spazi.',
-    hexColor: 'Inserisci un colore esadecimale, ad es. #1a2b3c.',
-    url: 'Inserisci un URL valido.',
-    cardNumber: 'Inserisci un numero di carta valido.',
-    cvc: 'Inserisci il codice di sicurezza. Cifre richieste: {{length}}.',
-    iban: 'Inserisci un IBAN valido.',
-    match: 'I due valori non coincidono.',
-    matchFields: 'I campi non coincidono.',
-    oneOf: 'Scegli uno dei valori consentiti.',
-    minDate: 'Scegli una data successiva.',
-    maxDate: 'Scegli una data precedente.',
-    dateFormat: 'Formato previsto: {{example}}',
-    dateFilter: 'Questa data non è disponibile.',
-  },
   select: {
     label: 'Seleziona',
     placeholder: 'Seleziona…',

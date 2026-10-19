@@ -97,32 +97,6 @@ export const wrPl: WrI18nCatalog = {
   form: {
     optional: 'opcjonalnie',
   },
-  validation: {
-    required: 'To pole jest wymagane.',
-    requiredTrue: 'To pole musi być zaznaczone.',
-    email: 'Wpisz poprawny adres e-mail.',
-    minlength: 'Minimalna liczba znaków: {{requiredLength}}.',
-    maxlength: 'Maksymalna liczba znaków: {{requiredLength}}.',
-    min: 'Wpisz {{min}} lub więcej.',
-    max: 'Wpisz {{max}} lub mniej.',
-    pattern: 'Wartość ma nieprawidłowy format.',
-    noWhitespace: 'Wartość nie może zawierać spacji.',
-    hexColor: 'Wpisz kolor w formacie szesnastkowym, np. #1a2b3c.',
-    url: 'Wpisz poprawny adres URL.',
-    cardNumber: 'Wpisz poprawny numer karty.',
-    cvc: 'Wpisz {{length}}-cyfrowy kod zabezpieczający.',
-    iban: 'Wpisz poprawny numer IBAN.',
-    // „Nie są zgodne” to zwrot, którym polskie formularze mówią o niepasujących
-    // do siebie polach — „nie są takie same” brzmi jak porównanie samych pól,
-    // a nie ich wartości.
-    match: 'Wartości nie są zgodne.',
-    matchFields: 'Pola nie są zgodne.',
-    oneOf: 'Wybierz jedną z dozwolonych wartości.',
-    minDate: 'Wybierz późniejszą datę.',
-    maxDate: 'Wybierz wcześniejszą datę.',
-    dateFormat: 'Oczekiwany format: {{example}}',
-    dateFilter: 'Ta data jest niedostępna.',
-  },
   select: {
     // Dostępna nazwa elementu `role="combobox"`, więc rzeczownik, a nie polecenie
     // „Wybierz” — czytnik ekranu odczytuje ją jak etykietę pola, a do działania

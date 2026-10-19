@@ -1,13 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule, type ValidationErrors } from '@angular/forms';
-import { FormField, form, required } from '@angular/forms/signals';
+import { FormField, form, validate } from '@angular/forms/signals';
 
 import { WrInput } from 'ngwr/input';
 import { WrTextarea } from 'ngwr/textarea';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { provideWrFormErrors } from './form-errors';
 import { WrFormField } from './form-field';
 
 /**
@@ -46,6 +45,13 @@ class ReactiveHost {
   readonly elsewhere = signal(0);
 }
 
+/**
+ * How many times a field has read a message — a getter on the error payload, so
+ * each read is one resolution. ngwr ships no copy of its own, so the validator's
+ * `message` is the one source a spec can count through without a catalog.
+ */
+const reads = { n: 0 };
+
 @Component({
   imports: [FormField, WrFormField, WrTextarea],
   template: `
@@ -59,14 +65,37 @@ class SignalHost {
   readonly elsewhere = signal(0);
   private readonly model = signal({ bio: '' });
   readonly profile = form(this.model, path => {
-    required(path.bio);
+    validate(path.bio, ({ value }) =>
+      value()
+        ? undefined
+        : {
+            kind: 'required',
+            get message(): string {
+              return `required ${++reads.n}`;
+            },
+          }
+    );
   });
 }
 
-const refused = (): ValidationErrors => ({ pattern: { requiredPattern: 'x' } });
+/** A validator that carries its own sentence, the way an app writes one. */
+const refused = (): ValidationErrors => ({ pattern: { requiredPattern: 'x', message: 'Use letters only.' } });
+
+/** The same rule, with a message that counts how often the field reads it. */
+const counted = (requiredPattern: string): ValidationErrors => ({
+  pattern: {
+    requiredPattern,
+    get message(): string {
+      return `resolved ${++reads.n}`;
+    },
+  },
+});
 
 describe('WrFormField and errors that change without an event', () => {
-  afterEach(() => TestBed.resetTestingModule());
+  afterEach(() => {
+    TestBed.resetTestingModule();
+    reads.n = 0;
+  });
 
   const mount = (): ReturnType<typeof TestBed.createComponent<ReactiveHost>> => {
     TestBed.configureTestingModule({});
@@ -94,7 +123,7 @@ describe('WrFormField and errors that change without an event', () => {
       const el = field(fixture, key);
       expect(control.errors).not.toBeNull();
       expect(el.classList.contains('wr-form-field--invalid')).toBe(true);
-      expect(message(el)).toBe('This value is not in the expected format.');
+      expect(message(el)).toBe('Use letters only.');
       expect(el.querySelector('input, textarea')!.getAttribute('aria-invalid')).toBe('true');
       fixture.destroy();
     });
@@ -106,7 +135,7 @@ describe('WrFormField and errors that change without an event', () => {
       control.markAsTouched();
       control.updateValueAndValidity();
       fixture.detectChanges();
-      expect(message(field(fixture, key))).toBe('This value is not in the expected format.');
+      expect(message(field(fixture, key))).toBe('Use letters only.');
 
       control.removeValidators(refused);
       control.updateValueAndValidity({ emitEvent: false });
@@ -121,16 +150,13 @@ describe('WrFormField and errors that change without an event', () => {
   }
 
   it('re-resolves a silent change on the next pass that reaches the field, and nothing else', () => {
-    // Counted through the app's own message function. Each pass changes something
+    // Counted through the validator's own message. Each pass changes something
     // unrelated on the same view, which is what refreshes it under zoneless change
     // detection; a pass with nothing dirty refreshes nothing at all.
-    let resolved = 0;
-    TestBed.configureTestingModule({
-      providers: [provideWrFormErrors({ pattern: () => `resolved ${++resolved}` })],
-    });
+    TestBed.configureTestingModule({});
     const fixture = TestBed.createComponent(ReactiveHost);
     const control = fixture.componentInstance.name;
-    control.addValidators(refused);
+    control.addValidators(() => counted('x'));
     control.markAsTouched();
     control.updateValueAndValidity();
     fixture.detectChanges();
@@ -139,19 +165,19 @@ describe('WrFormField and errors that change without an event', () => {
       fixture.detectChanges();
     };
     pass();
-    const settled = resolved;
+    const settled = reads.n;
     expect(settled).toBeGreaterThan(0);
 
     for (let i = 0; i < 5; i++) pass();
-    expect(resolved).toBe(settled);
+    expect(reads.n).toBe(settled);
 
     // A silent swap of one error for another keeps the status INVALID, so the control
     // dirties nothing on the page by itself. The next pass that reaches the field —
     // here an unrelated change; in `wr-date-picker`'s case its own refusal turning
     // visible — used to re-render the memoised message. It now re-resolves it.
-    control.setErrors({ pattern: { requiredPattern: 'y' } }, { emitEvent: false });
+    control.setErrors(counted('y'), { emitEvent: false });
     pass();
-    expect(resolved).toBe(settled + 1);
+    expect(reads.n).toBe(settled + 1);
     expect(field(fixture, 'native').querySelector('.wr-form-field__error')?.textContent?.trim()).toBe(
       `resolved ${settled + 1}`
     );
@@ -161,10 +187,7 @@ describe('WrFormField and errors that change without an event', () => {
   it('leaves a Signal Forms field to its own signals, and does not re-resolve on every pass', async () => {
     // The interop control builds a fresh `errors` object on every read, so comparing
     // it by reference would call it changed on every pass.
-    let resolved = 0;
-    TestBed.configureTestingModule({
-      providers: [provideWrFormErrors({ required: () => `required ${++resolved}` })],
-    });
+    TestBed.configureTestingModule({});
     const fixture = TestBed.createComponent(SignalHost);
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
@@ -173,13 +196,13 @@ describe('WrFormField and errors that change without an event', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     expect(el.querySelector('.wr-form-field__error')?.textContent?.trim()).toMatch(/^required \d+$/);
-    const settled = resolved;
+    const settled = reads.n;
 
     for (let i = 0; i < 5; i++) {
       fixture.componentInstance.elsewhere.update(n => n + 1);
       fixture.detectChanges();
     }
-    expect(resolved).toBe(settled);
+    expect(reads.n).toBe(settled);
     fixture.destroy();
   });
 });

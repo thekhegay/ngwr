@@ -94,29 +94,6 @@ export const wrTr: WrI18nCatalog = {
   form: {
     optional: 'isteğe bağlı',
   },
-  validation: {
-    required: 'Bu alan zorunludur.',
-    requiredTrue: 'Bu alan işaretlenmelidir.',
-    email: 'Geçerli bir e-posta adresi girin.',
-    minlength: 'En az {{requiredLength}} karakter girin.',
-    maxlength: 'En fazla {{requiredLength}} karakter girin.',
-    min: 'En az {{min}} girin.',
-    max: 'En fazla {{max}} girin.',
-    pattern: 'Bu değer beklenen biçimde değil.',
-    noWhitespace: 'Bu değer boşluk içeremez.',
-    hexColor: 'Onaltılık renk kodu girin, örn. #1a2b3c.',
-    url: 'Geçerli bir URL girin.',
-    cardNumber: 'Geçerli bir kart numarası girin.',
-    cvc: '{{length}} haneli güvenlik kodunu girin.',
-    iban: 'Geçerli bir IBAN girin.',
-    match: 'İki değer eşleşmiyor.',
-    matchFields: 'Bu alanlar eşleşmiyor.',
-    oneOf: 'İzin verilen değerlerden birini seçin.',
-    minDate: 'Daha ileri bir tarih seçin.',
-    maxDate: 'Daha erken bir tarih seçin.',
-    dateFormat: 'Beklenen biçim: {{example}}',
-    dateFilter: 'Bu tarih seçilemez.',
-  },
   select: {
     // `role="combobox"` denetiminin erişilebilir adı, yani buyruk değil ad
     // olmalı: ekran okuyucu “Seç” diye bir komut değil, “Seçim” diye bir

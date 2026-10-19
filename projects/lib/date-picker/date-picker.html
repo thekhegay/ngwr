@@ -57,6 +57,7 @@
 <!--
   Why a typed entry was refused, for a screen reader: written when the refusal is
   shown (Enter, or leaving the field) and emptied when the text is corrected. Silent
-  inside a <wr-form-field> bound to the same control, whose message says it instead.
+  inside a <wr-form-field> bound to the same control, whose message says it instead,
+  and silent when the app's catalog has no `validation.*` sentence for the refusal.
 -->
 <span class="wr-date-picker__sr-only" role="status" [id]="statusId">{{ announcement() }}</span>

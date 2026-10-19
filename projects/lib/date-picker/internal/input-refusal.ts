@@ -20,7 +20,7 @@ import { transformedValue } from '@angular/forms/signals';
 
 import { WrDateAdapter } from 'ngwr/date';
 import { WR_FORM_FIELD, type WrFormFieldContext } from 'ngwr/form';
-import { useI18nFormatter } from 'ngwr/i18n';
+import { type WrI18nParams, useI18nFormatter } from 'ngwr/i18n';
 
 import type { WrDateInputError } from '../types';
 
@@ -34,12 +34,23 @@ export interface WrDateInputBounds {
   readonly filter: ((date: Date) => boolean) | null;
 }
 
-/** Builds each kind of {@link WrDateInputError}, with its sentence already resolved. */
+/** Builds each kind of {@link WrDateInputError}, with its sentence when the app has one. */
 export interface WrDateInputRefusals {
   /** The text does not read as a date in `format`. */
   unreadable(format: string): WrDateInputError;
   /** Why `date` would be refused by `bounds`, or `null` when it would not be. */
   outOfBounds(date: Date, bounds: WrDateInputBounds): WrDateInputError | null;
+}
+
+/**
+ * The app's own sentence for one refusal key, or `undefined` when its catalog has
+ * none. ngwr ships no error texts: an empty fallback is what a miss comes back as,
+ * and it is dropped here so no reader is handed a blank string to announce. It
+ * wraps the formatter rather than taking the key, so each key stays a literal at
+ * its `useI18nFormatter` call, where the i18n spec reads it.
+ */
+function orNothing(format: (params?: WrI18nParams) => string): (params?: WrI18nParams) => string | undefined {
+  return params => format(params) || undefined;
 }
 
 /**
@@ -53,13 +64,14 @@ export interface WrDateInputRefusals {
  */
 export function useDateInputRefusals(): WrDateInputRefusals {
   const adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
-  // The same keys and the same English as `WR_FORM_ERROR_FALLBACKS`: the message a
-  // picker announces on its own and the one a surrounding field renders are one
-  // sentence, whichever of the two ends up saying it.
-  const formatText = useI18nFormatter('validation.dateFormat', 'Expected format: {{example}}');
-  const minText = useI18nFormatter('validation.minDate', 'Choose a later date.');
-  const maxText = useI18nFormatter('validation.maxDate', 'Choose an earlier date.');
-  const filterText = useI18nFormatter('validation.dateFilter', 'This date is not available.');
+  // The `validation.*` keys a surrounding field reads too, so the message a picker
+  // announces on its own and the one the field renders are one sentence, whichever
+  // of the two ends up saying it. A refusal is raised either way; it carries a
+  // `message` only when the app's catalog has the key.
+  const formatText = orNothing(useI18nFormatter('validation.dateFormat', ''));
+  const minText = orNothing(useI18nFormatter('validation.minDate', ''));
+  const maxText = orNothing(useI18nFormatter('validation.maxDate', ''));
+  const filterText = orNothing(useI18nFormatter('validation.dateFilter', ''));
 
   return {
     unreadable(format) {
@@ -164,8 +176,9 @@ export function useFormParseErrors<T>(
  * error, and `<wr-form-field>` shows an error only once its control is touched or
  * dirty; a reactive `FormControl` learns of it through `updateValueAndValidity` with
  * `emitEvent: false`, which the field does not hear until the control's next event.
- * Until the field says it, the picker does — so the refusal is never silent,
- * whichever of the two ends up announcing it.
+ * Until the field says it, the picker does — so a refusal the app has words for is
+ * never silent, whichever of the two ends up announcing it. One it has no words for
+ * is still invalid, and points at nothing: an empty live region describes nothing.
  *
  * With no field around the picker, there is nothing to stand between and `context` is
  * `null`: the input's `wrInput` then writes neither attribute, and the picker binds
@@ -195,7 +208,11 @@ export class WrDateInputField {
     this.source.set(source);
   }
 
-  /** Whether the field is already rendering a message for this kind of error. */
+  /**
+   * Whether the field has this kind of error showing, and so renders whatever copy
+   * exists for it. That is the picker's own sentence when it has one: the field
+   * reads an error's `message` first, and the refusal it reads is this one.
+   */
   saysAlready(error: WrDateInputError): boolean {
     return this.outer?.errorKeys().includes(error.kind) ?? false;
   }
@@ -215,7 +232,8 @@ export class WrDateInputField {
       }),
       describedBy: computed(() => {
         const own = this.described();
-        const ids = [outer.describedBy(), own && !this.saysAlready(own) ? this.statusId : null].filter(Boolean);
+        const speaks = own?.message && !this.saysAlready(own);
+        const ids = [outer.describedBy(), speaks ? this.statusId : null].filter(Boolean);
         return ids.length ? ids.join(' ') : null;
       }),
     };

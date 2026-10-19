@@ -652,16 +652,16 @@ it('announces the hierarchy', async () => {
   expect(await body.getLinkError()).toBe('This address cannot be used as a link.');
 });`,
 
-    formField: `it('shows a message the app never wrote', async () => {
+    formField: `it('shows the message the rule carries', async () => {
   const field = await loader.getHarness(WrFormFieldHarness);
   const email = await loader.getHarness(WrInputHarness);
 
   await email.setValue('nope');
   await email.blur();
 
-  // No <wr-form-error> in the template: the copy comes from the i18n catalog
-  // through provideWrFormErrors(), which is the whole point of the component.
-  expect(await field.getErrorText('email')).toBeTruthy();
+  // No <wr-form-error> in the template: the copy is the rule's own
+  // email(path.email, { message: 'Enter a valid email address.' }).
+  expect(await field.getErrorText('email')).toBe('Enter a valid email address.');
   expect(await field.isInvalid()).toBe(true);
 
   // And the control is actually wired to it — a message nothing points at is
@@ -2527,7 +2527,7 @@ export class MyWidgetHarness extends ComponentHarness {
     {
       name: 'getSuppressedErrorKeys() / hasEmptyErrorBlock()',
       description:
-        'Keys in error with no copy to show. That combination is the failure this component exists to prevent — a field that knows it is invalid and cannot say why.',
+        'Keys in error with no copy to show — a field that knows it is invalid and cannot say why. ngwr ships no validation copy, so this is what a key with no `{ message }`, no `validation.<key>` in the app catalog and no `<wr-form-error>` looks like.',
       type: 'Promise<…>',
       default: '—',
     },

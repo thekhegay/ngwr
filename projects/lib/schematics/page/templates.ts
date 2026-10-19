@@ -30,14 +30,14 @@ function renderForm(dashName: string, pascalName: string): Rendered {
 import { FormsModule } from '@angular/forms';
 
 import { WrButton } from 'ngwr/button';
-import { WrFormField } from 'ngwr/form';
+import { WrFormError, WrFormField } from 'ngwr/form';
 import { WrInput } from 'ngwr/input';
 
 @Component({
   selector: 'app-${dashName}',
   templateUrl: './${dashName}.html',
   styleUrl: './${dashName}.scss',
-  imports: [FormsModule, WrButton, WrFormField, WrInput],
+  imports: [FormsModule, WrButton, WrFormError, WrFormField, WrInput],
 })
 export default class ${pascalName} {
   protected readonly name = signal('');
@@ -63,10 +63,12 @@ export default class ${pascalName} {
 
   <wr-form-field label="Name" required>
     <input wrInput [(ngModel)]="name" name="name" required />
+    <wr-form-error key="required">Enter your name.</wr-form-error>
   </wr-form-field>
 
   <wr-form-field label="Email" required>
     <input wrInput type="email" [(ngModel)]="email" name="email" required />
+    <wr-form-error key="required">Enter your email.</wr-form-error>
   </wr-form-field>
 
   <button wr-btn color="primary" type="submit" [loading]="submitting()">

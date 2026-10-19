@@ -62,7 +62,7 @@ bootstrapApplication(AppComponent, {
     }),
     // ngwr's strings, looked up key by key underneath yours. Not a
     // \`{ ...wrEn, ...yours }\` spread: it is shallow, so any namespace you share
-    // with ngwr, e.g. \`common\`, \`validation\`, \`table\`, keeps only one side's keys.
+    // with ngwr, e.g. \`common\`, \`form\`, \`table\`, keeps only one side's keys.
     provideWrI18nBaseCatalogs({ en: wrEn, ru: wrRu }),
     provideWrI18nStaticLoader({
       en: { app: { title: 'My app' } },

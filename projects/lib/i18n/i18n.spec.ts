@@ -59,8 +59,6 @@ describe('the shipped catalogs', () => {
     // A key added to one locale and forgotten in the other resolves to the key
     // ITSELF for those users — `t()` returns the key on a miss — so the UI
     // quietly starts announcing `datePicker.panel` instead of a sentence.
-    // `form-errors.spec.ts` guards only the `validation.*` subtree; this is the
-    // whole catalog.
     const en = flatKeys(wrEn);
     const ru = flatKeys(wrRu);
 
@@ -284,7 +282,7 @@ describe('WrI18n locale chain', () => {
  *
  * A loader REPLACES ngwr's catalog for a locale, so the obvious way to keep
  * ngwr's strings is `{ ...wrRu, ...yours }`. A spread is shallow: any top-level
- * namespace both sides define (`common`, `validation`, `table`, … wrEn has
+ * namespace both sides define (`common`, `form`, `table`, … wrEn has
  * dozens) keeps only the keys of the side spread last, and the other side's
  * keys stop resolving with nothing logged. The base catalogs are walked PER KEY
  * after the loader's catalog misses, which is why they keep both halves.
@@ -517,7 +515,10 @@ describe('the shipped catalogs', () => {
     expect(keysOf(wrEn).filter(key => !key.includes('.'))).toEqual([]);
 
     const have = new Set(keysOf(wrEn));
-    expect([...asked].filter(key => !have.has(key)).sort()).toEqual([]);
+    // ngwr reads `validation.*` from the APP's catalog and ships none of it.
+    const appOwned = (key: string): boolean => key.startsWith('validation.');
+    expect([...have].filter(appOwned), 'validation copy shipped in an ngwr catalog').toEqual([]);
+    expect([...asked].filter(key => !have.has(key) && !appOwned(key)).sort()).toEqual([]);
 
     // And the inverse, which is the half that was missing. A shipped key nothing
     // reads is not a translation — it is a promise to a consumer that their

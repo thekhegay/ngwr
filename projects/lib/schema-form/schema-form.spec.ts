@@ -31,12 +31,13 @@ const ROLES = [
   { value: 'user', label: 'User', disabled: true },
 ];
 
+// ngwr ships no error texts, so every rule that can fail carries its own.
 const profileSchema = schema<Profile>(path => {
-  required(path.workEmail);
+  required(path.workEmail, { message: 'Enter your work address.' });
   metadata(path.workEmail, WR_FIELD, () => ({ kind: 'input', type: 'email', hint: 'Work address only.' }));
   metadata(path.bio, WR_FIELD, () => ({ kind: 'textarea', placeholder: 'A sentence or two', span: 2 }));
-  min(path.age, 18);
-  max(path.age, 120);
+  min(path.age, 18, { message: 'You must be 18 or over.' });
+  max(path.age, 120, { message: 'Enter 120 or less.' });
   metadata(path.age, WR_FIELD, () => ({ kind: 'number' }));
   metadata(path.role, WR_FIELD, () => ({ kind: 'select', options: ROLES }));
   metadata(path.plan, WR_FIELD, () => ({ kind: 'radio', options: ROLES }));
@@ -109,9 +110,9 @@ describe('WrSchemaForm', () => {
 
     // The whole chain in one assertion: a schema rule raised an error on the
     // field, `[formField]` carried it to the control, and `<wr-form-field>`
-    // resolved the copy with no `<wr-form-error>` written anywhere.
+    // rendered the rule's own message with no `<wr-form-error>` written anywhere.
     expect(el.querySelector('.wr-form-field--invalid')).toBeTruthy();
-    expect(el.querySelector('[data-key="max"]')?.textContent?.trim()).toBeTruthy();
+    expect(el.querySelector('[data-key="max"]')?.textContent?.trim()).toBe('Enter 120 or less.');
   });
 
   it('renders the control each kind names', () => {

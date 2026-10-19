@@ -65,10 +65,10 @@ export default class SchemaFormPage {
   protected readonly signup = form(
     this.model,
     schema<Signup>(path => {
-      required(path.fullName);
+      required(path.fullName, { message: 'Enter your name.' });
       metadata(path.fullName, WR_FIELD, () => ({ kind: 'input', placeholder: 'Ada Lovelace' }));
 
-      required(path.workEmail);
+      required(path.workEmail, { message: 'Enter a work email for the invoice.' });
       metadata(path.workEmail, WR_FIELD, () => ({
         kind: 'input',
         type: 'email',
@@ -203,10 +203,10 @@ interface Signup {
 }
 
 const signupSchema = schema<Signup>(path => {
-  required(path.fullName);
+  required(path.fullName, { message: 'Enter your name.' });
   metadata(path.fullName, WR_FIELD, () => ({ kind: 'input', placeholder: 'Ada Lovelace' }));
 
-  required(path.workEmail);
+  required(path.workEmail, { message: 'Enter a work email for the invoice.' });
   metadata(path.workEmail, WR_FIELD, () => ({
     kind: 'input',
     type: 'email',

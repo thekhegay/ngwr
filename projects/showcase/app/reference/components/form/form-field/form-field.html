@@ -32,7 +32,7 @@
 
   <ngwr-doc-section
     title="Messages without markup"
-    description="With no `<wr-form-error>` projected, the field renders the message the validator reports — resolved from the `ngwr/i18n` `validation.*` catalog, so it is already localized. Submit to see it."
+    description="ngwr ships no validation copy. For an error no `<wr-form-error key>` claims, the field shows the validator's own `{ message }`, else `validation.<key>` from your app's i18n catalog. With neither, nothing renders for that key, and dev mode warns once per field and key. This demo projects no markup and passes no messages, so what it shows is this site's own catalog. Submit to see it."
   >
     <ngwr-doc-snippet [code]="snippets.auto">
       <form
@@ -54,10 +54,24 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="App-wide overrides"
-    description="`provideWrFormErrors()` replaces only the keys you name. A projected `<wr-form-error key>` still wins over it — per-field copy beats app-wide copy."
+    title="A message on the validator"
+    description="Signal Forms rules take `{ message }`, and the field renders it as written, so the sentence lives beside the rule it explains. A custom validator does the same by putting a `message` string on its error object."
   >
-    <ngwr-doc-code [code]="snippets.provider" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.message" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="A message in your catalog"
+    description="A `validation.<key>` entry answers that error on every field, in every locale you load. The error payload fills the placeholders, and Signal Forms' `minLength` / `maxLength` read the `minlength` / `maxlength` entries, with the bound as `requiredLength`."
+  >
+    <ngwr-doc-code [code]="snippets.catalog" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="A message in the markup"
+    description="A projected `<wr-form-error key>` claims its key on that one field and wins over both of the above. The keys it does not claim keep resolving."
+  >
+    <ngwr-doc-code [code]="snippets.markup" language="angular-html" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Optional marker" description="Use `optional` for the inverse — fields users can skip.">

@@ -326,13 +326,14 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
 
   /**
    * The live region's text: every refusal on show that a surrounding `<wr-form-field>`
-   * is not already rendering a message for, each sentence once.
+   * is not already rendering a message for, each sentence once. A refusal the app's
+   * catalog has no sentence for adds nothing.
    */
   protected readonly announcement = computed(() => {
     if (this.silenced()) return '';
     const messages = this.shownErrors()
       .filter((error): error is WrDateInputError => !!error && !this.inputField.saysAlready(error))
-      .map(error => error.message);
+      .flatMap(error => (error.message ? [error.message] : []));
     return [...new Set(messages)].join(' ');
   });
 
@@ -344,17 +345,19 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
    * writer beside `wrInput`, and binds these only with no field around it. The END
    * input is hidden from the field on purpose (see `wrDateRangeEnd`), so its `wrInput`
    * never writes either attribute and the picker always owns them: an unreadable end
-   * date marks the end field, not only the start.
+   * date marks the end field, not only the start. Each end points at the region only
+   * when its OWN refusal has a sentence — the region is shared, and an end the app has
+   * no words for must not be described by the other end's.
    */
   protected readonly startAriaInvalid = computed<'true' | null>(() =>
     !this.inputField.outer && this.shownErrors()[0] ? 'true' : null
   );
   protected readonly endAriaInvalid = computed<'true' | null>(() => (this.shownErrors()[1] ? 'true' : null));
   protected readonly startDescribedBy = computed(() =>
-    !this.inputField.outer && this.shownErrors()[0] && this.announcement() ? this.statusId : null
+    !this.inputField.outer && this.shownErrors()[0]?.message && this.announcement() ? this.statusId : null
   );
   protected readonly endDescribedBy = computed(() =>
-    this.shownErrors()[1] && this.announcement() ? this.statusId : null
+    this.shownErrors()[1]?.message && this.announcement() ? this.statusId : null
   );
 
   protected readonly classes = computed(() => {

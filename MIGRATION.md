@@ -193,6 +193,33 @@ A leftover import or `@use` fails the build and a bound `[showHandle]` is a comp
 bare `wrSquircle` attribute, a `<wr-action-sheet>` without `strictTemplates` and a
 `.wr-drawer__handle` selector are all silent.
 
+### ngwr ships no validation copy
+
+`provideWrFormErrors()`, `WR_FORM_ERRORS`, `WR_FORM_ERROR_FALLBACKS` and the
+`WrFormErrorContext`, `WrFormErrorMessage` and `WrFormErrorMessages` types are removed, and
+ngwr's catalogs no longer carry a `validation` namespace. For an error no
+`<wr-form-error key>` claims, `<wr-form-field>` shows, in order:
+
+1. the validator's own message — `required(path.email, { message: 'Enter your email.' })`, or a
+   `message` string on a custom validator's error object;
+2. `validation.<key>` from **your** i18n catalog, with the error payload as params
+   (`'Minimum length is {{requiredLength}}.'`);
+3. nothing. Dev mode logs one warning per field and key naming the three ways to supply copy:
+   `{ message }` on the validator, `validation.<key>` in your catalog, or
+   `<wr-form-error key="…">`.
+
+A projected `<wr-form-error key>` still claims its key on that field. A field that leaned on
+ngwr's sentences is still marked invalid and shows no message, and a production build says
+nothing — so search for every `<wr-form-field>` without a `<wr-form-error>` and give each of its
+errors a source. A `provideWrFormErrors()` map becomes a `validation` namespace in each locale
+your loader serves; a function message becomes a template over the payload, and one that read the
+field's `label` moves onto that field's validator as `{ message }`.
+
+The date picker's refusals have no English default either: `<wr-date-picker>` and
+`<wr-date-range-picker>` word a refused entry from `validation.dateFormat`, `minDate`, `maxDate`
+and `dateFilter` in your catalog, with the example date as the `example` param. Without those keys
+a refusal still shows as a danger border and `aria-invalid`, with no sentence.
+
 ---
 
 ## v13 to v14

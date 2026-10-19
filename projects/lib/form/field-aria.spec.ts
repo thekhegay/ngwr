@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { FormField, form, minLength, required } from '@angular/forms/signals';
 
 import { WrFileUpload } from 'ngwr/file-upload';
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { WrInputOtp } from 'ngwr/input-otp';
 import { WrKnob } from 'ngwr/knob';
 import { WrRating } from 'ngwr/rating';
@@ -47,7 +48,7 @@ class Host {
 
   private readonly model = signal({ bio: '' });
   readonly profile = form(this.model, path => {
-    required(path.bio);
+    required(path.bio, { message: 'Tell us a little about yourself.' });
   });
 }
 
@@ -109,7 +110,7 @@ describe('useFormFieldAria', () => {
 
     expect(root().querySelector(`#${CSS.escape(hintId)}`)).toBeNull();
     expect(control().getAttribute('aria-describedby')).not.toBe(hintId);
-    expect(description()).toBe('This field is required.');
+    expect(description()).toBe('Tell us a little about yourself.');
     expect(control().getAttribute('aria-invalid')).toBe('true');
   });
 
@@ -146,13 +147,11 @@ class BareHost {}
 /**
  * Signal Forms spells its length rules `minLength` / `maxLength` and carries the
  * bound under the same name; reactive forms spell them `minlength` /
- * `maxlength` and carry it as `requiredLength`. Nothing bridged the two, so the
- * key missed the app's own map, all twenty-two i18n catalogs and the built-in
- * fallbacks in turn — and `resolve` returns `''` for a miss, which the caller
- * filters out. A field over its length limit was invalid, marked invalid, and
- * rendered an empty error block.
- *
- * The flagship forms flavour of this library, saying nothing.
+ * `maxlength` and carry it as `requiredLength`. The field restates the first as
+ * the second before it reads the app's catalog, so one `validation.minlength`
+ * entry answers both spellings, with `{{requiredLength}}` filled either way.
+ * Without that a Signal Forms field over its length limit went red and said
+ * nothing, in an app whose catalog had the sentence all along.
  */
 describe('a Signal Forms length error', () => {
   @Component({
@@ -168,15 +167,23 @@ describe('a Signal Forms length error', () => {
 
   afterEach(() => TestBed.resetTestingModule());
 
-  it('renders the sentence, with its number', async () => {
+  it('reads the app catalog under the classic key, with its number', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'en', availableLocales: ['en'] }),
+        provideWrI18nStaticLoader({ en: { validation: { minlength: 'At least {{requiredLength}} characters.' } } }),
+      ],
+    });
     const fixture = TestBed.createComponent(LengthHost);
     fixture.detectChanges();
+    // The static loader resolves asynchronously even for an object literal.
+    await fixture.whenStable();
     fixture.componentInstance.f.bio().markAsTouched();
     fixture.detectChanges();
     await fixture.whenStable();
 
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(text).toContain('Minimum length is 5');
+    expect(text).toContain('At least 5 characters.');
   });
 });
 /**

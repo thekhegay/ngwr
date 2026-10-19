@@ -499,11 +499,20 @@ contradicts the field's type — TypeScript cannot hold a metadata string agains
 it — so the component warns in dev mode off the runtime value, and says nothing
 while that value is still empty.
 
-Validation copy is centralized:
-`<wr-form-field>` resolves a message per error key through
-`provideWrFormErrors()` → the `ngwr/i18n` `validation.*` catalog → a built-in
-fallback, so a field needs no `<wr-form-error>` markup unless it wants
-field-specific wording.
+**ngwr ships no validation copy.** For an error no projected
+`<wr-form-error key>` claims, `<wr-form-field>` renders the error's own
+`message` (Signal Forms rules take `{ message }`), else `validation.<key>` from
+the APP's i18n catalog with the error payload as params — the key after
+`normalizeError` folds Signal Forms' `minLength` / `maxLength` onto
+`minlength` / `maxlength`. With neither it renders nothing for that key, and dev
+mode warns once per field and key, naming the three ways to supply copy. v15
+removed `provideWrFormErrors()`, `WR_FORM_ERRORS`, the English
+`WR_FORM_ERROR_FALLBACKS` and every catalog's `validation` namespace, and the
+date picker's refusals read `validation.dateFormat` / `minDate` / `maxDate` /
+`dateFilter` from the app's catalog with no default either. Do not add a
+sentence back anywhere in the library: a validator or a control reports a key
+and a payload, and the words are the app's. The showcase supplies its own in
+`projects/showcase/app/app.validation.ts`, the way a consumer would.
 
 **Responsive / touch.** Adaptive components take a `responsive` opt-in modifier
 (container-query reflow). Touch ergonomics use the `touch-target` SCSS mixin
@@ -1308,7 +1317,8 @@ choose them deliberately and don't rename them on a whim.
 
 **Strings & i18n.** Never hard-code user-facing text. Expose overridable `*Label`
 inputs and route built-in strings (including ARIA labels) through the `ngwr/i18n`
-catalog (`wrT`) so consuming apps can localize.
+catalog (`wrT`) so consuming apps can localize. Validation messages are the
+exception: the library ships none at all (see Forms).
 
 **Two a11y gates, and they see different things.** `pnpm check:a11y` runs axe in
 JSDOM over the prerendered HTML: no stylesheets, no layout, so it turns

@@ -56,7 +56,8 @@ export default class FormComponent {
 <!-- <wr-form-field> — the default choice. It reads the projected control's
      NgControl, so it decides for itself when to show an error (touched or
      dirty), generates the <label for> target, wires aria-describedby, and
-     renders the validator's message with no <wr-form-error> at all.
+     renders the validator's \`{ message }\`, or \`validation.<key>\` from
+     your app's i18n catalog, with no <wr-form-error> at all.
      Its own page has the full API. -->
 <wr-form-field label="Email" hint="We'll never share it." required>
   <input wrInput formControlName="email" />

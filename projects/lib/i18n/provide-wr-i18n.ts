@@ -58,7 +58,7 @@ export function provideWrI18n(options: ProvideWrI18nOptions = {}): EnvironmentPr
  * A loader serves only the catalog you pass it, and ngwr registers none of its
  * own. Pass only your own keys here and register ngwr's catalogs with
  * {@link provideWrI18nBaseCatalogs} — not `{ ...wrRu, ...yours }`. A spread is
- * shallow, so any namespace you share with ngwr, e.g. `common`, `validation`,
+ * shallow, so any namespace you share with ngwr, e.g. `common`, `form`,
  * `table`, keeps only the keys of the side spread last, and the other side's
  * keys stop resolving with nothing logged: ngwr's components fall back to their
  * English defaults, and a `wrT` read of a lost key renders the raw key under the

@@ -102,7 +102,7 @@ Add from their entry points as needed:
 - `provideWrI18n(...)` + `provideWrI18nBaseCatalogs({ en: wrEn })` +
   `provideWrI18nStaticLoader(...)` — localization. ngwr's catalogs go in as a
   BASE, never spread into yours: a spread is shallow, so any namespace you share
-  with ngwr, e.g. `common`, `validation`, `table`, keeps only the side spread
+  with ngwr, e.g. `common`, `form`, `table`, keeps only the side spread
   last, and the other side's keys stop resolving with nothing logged — ngwr's
   components fall back to English and a `wrT` read renders the raw key.
 - `provideWrDateAdapter(...)` — calendar + date-picker (`ngwr/date/adapters/fns`
@@ -274,6 +274,10 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   control showing the old value; `<wr-select>` compares object values by `===`
   with no `compareWith`. What the bridge carries, what it drops, and what a form
   does about each: https://ngwr.dev/guides/forms
+  ngwr ships no validation copy. For an error no `<wr-form-error key>` claims,
+  `<wr-form-field>` shows the validator's own `{ message }`, else
+  `validation.<key>` from YOUR i18n catalog; with neither it shows nothing, and
+  only dev mode warns.
 - **Icons** — register via `provideWrIcons`, render `<wr-icon name="check" />`.
 - **Router** — only what is about routes touches `@angular/router`:
   `wr-sidebar` injects `Router` to follow the active route, and

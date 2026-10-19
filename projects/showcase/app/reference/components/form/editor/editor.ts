@@ -331,7 +331,7 @@ export class Ticket {
   // A plain string field binds to the editor's value model as it is.
   private readonly model = signal({ description: '' });
   protected readonly ticket = form(this.model, path => {
-    required(path.description);
+    required(path.description, { message: 'Describe the change.' });
   });
 }`,
     },

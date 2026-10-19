@@ -222,6 +222,34 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="v14 to v15 — ngwr ships no validation copy"
+    description="`provideWrFormErrors()`, `WR_FORM_ERRORS`, `WR_FORM_ERROR_FALLBACKS` and the `WrFormErrorContext`, `WrFormErrorMessage` and `WrFormErrorMessages` types are removed, and ngwr's catalogs no longer carry a `validation` namespace. For an error no `<wr-form-error key>` claims, `<wr-form-field>` shows the validator's own `{ message }`, else `validation.<key>` from your app's i18n catalog with the error payload as params — and with neither, nothing."
+  >
+    <ngwr-doc-code [code]="snippets.v15Validation" language="diff" />
+    <p>
+      <strong>A field that leaned on ngwr's sentences is silent now.</strong> It is still marked invalid, with
+      <code>aria-invalid</code> on the control, and shows no message. Dev mode logs one warning per field and key naming
+      the three ways to supply one; a production build says nothing, so search for every
+      <code>&lt;wr-form-field&gt;</code> without a <code>&lt;wr-form-error&gt;</code> and give each of its errors a
+      source.
+    </p>
+    <p>
+      <strong>A <code>provideWrFormErrors()</code> map moves into your catalog</strong>, as a <code>validation</code>
+      namespace in each locale your loader serves. A function message becomes a template whose params are the error
+      payload, so <code>requiredLength</code> reaches a <code>minlength</code> sentence as a placeholder. The field
+      <code>label</code> a function could read has no equivalent: a sentence that names its field goes on that field's
+      validator as <code>&#123; message &#125;</code>.
+    </p>
+    <p>
+      <strong>The date picker's refusals have no English default.</strong> <code>&lt;wr-date-picker&gt;</code> and
+      <code>&lt;wr-date-range-picker&gt;</code> word a refused entry from <code>validation.dateFormat</code>,
+      <code>minDate</code>, <code>maxDate</code> and <code>dateFilter</code> in your catalog, with the example date as
+      the <code>example</code> param. Without those keys a refusal still shows as a danger border and
+      <code>aria-invalid</code>, with no sentence.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="v14 to v15 — renames"
     description="Two kinds, and both are a rename: the new form means what the old one meant in the same place. The neutral TOKENS, where `--wr-color-light`, `-outline`, `-dark` and `-muted-text` move onto a successor carrying the identical value in both themes, so a renamed rule paints to the pixel, while `-medium` and the three translucent `--wr-color-border*` land on the nearest opaque step. And two VALUES that were named after an intent while always painting a neutral role — `[wrTypography]`'s `tone` and `<wr-timeline-item>`'s `color` — which move onto the name of what they do, together with the BEM class each emits."
   >

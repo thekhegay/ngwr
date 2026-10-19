@@ -11,9 +11,11 @@
  * A picker never guesses: text it cannot read, or a date the calendar would
  * refuse, leaves the bound value exactly as it was. This is the reason it
  * refused, in the shape Angular's forms carry an error — `kind` is the key
- * `<wr-form-field>` resolves a message for (`validation.<kind>` in the
- * `ngwr/i18n` catalogs), and `message` is that sentence already resolved, for
- * a template that renders errors itself.
+ * `<wr-form-field>` resolves a message for, and `message` is that sentence
+ * already resolved from `validation.<kind>` in the APP's i18n catalog, for a
+ * template that renders errors itself. ngwr ships no error texts, so `message`
+ * is absent when the app's catalog has no such key: the refusal still stands,
+ * and the picker announces nothing for it.
  *
  * - `dateFormat` — the text does not read as a date in the field's format.
  *   `example` is a date written in that format, for the message to show.
@@ -24,10 +26,10 @@
  * and `WrValidators.maxDate`, so one app-wide message covers both.
  */
 export type WrDateInputError =
-  | { readonly kind: 'dateFormat'; readonly message: string; readonly example: string }
-  | { readonly kind: 'minDate'; readonly message: string; readonly date: Date; readonly min: Date }
-  | { readonly kind: 'maxDate'; readonly message: string; readonly date: Date; readonly max: Date }
-  | { readonly kind: 'dateFilter'; readonly message: string; readonly date: Date };
+  | { readonly kind: 'dateFormat'; readonly message?: string; readonly example: string }
+  | { readonly kind: 'minDate'; readonly message?: string; readonly date: Date; readonly min: Date }
+  | { readonly kind: 'maxDate'; readonly message?: string; readonly date: Date; readonly max: Date }
+  | { readonly kind: 'dateFilter'; readonly message?: string; readonly date: Date };
 
 /** A {@link WrDateInputError} from one end of a `<wr-date-range-picker>`. */
 export type WrDateRangeInputError = WrDateInputError & { readonly end: 'start' | 'end' };

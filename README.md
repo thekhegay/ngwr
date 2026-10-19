@@ -37,14 +37,16 @@ export class SignupCard {
   private readonly model = signal({ email: '', agree: false });
 
   readonly signup = form(this.model, path => {
-    required(path.email);
-    email(path.email);
+    required(path.email, { message: 'Enter your work email.' });
+    email(path.email, { message: 'That is not an email address.' });
   });
 }
 ```
 
-`<wr-form-field>` shows the validation messages itself, so there is no error
-markup to write. Template-driven and reactive forms bind too, with limits the
+`<wr-form-field>` shows each rule's `message`, so there is no error markup to
+write. ngwr ships no validation copy of its own: for a rule without a message,
+the field reads `validation.<key>` from your i18n catalog. Template-driven and
+reactive forms bind too, with limits the
 [forms guide](https://ngwr.dev/guides/forms) lists.
 
 ## Features

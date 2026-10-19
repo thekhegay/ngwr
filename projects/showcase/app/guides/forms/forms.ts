@@ -327,7 +327,7 @@ categoryId.setValue(2);`,
       kind: 'Validator',
       title: 'WrValidators',
       url: ['/reference', 'validators'],
-      description: 'The extra validators, and the error keys `<wr-form-field>` already has copy for.',
+      description: 'The extra validators, and the error key each one reports — the key your copy is written against.',
     },
     {
       kind: 'Guide',

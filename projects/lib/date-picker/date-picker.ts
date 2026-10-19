@@ -320,11 +320,15 @@ export class WrDatePicker implements FormValueControl<Date | null> {
    * dirty. Read this through a template reference when the picker is bound with
    * `[(value)]` alone and the reason should be on screen.
    *
+   * `message` comes from `validation.<kind>` in the app's i18n catalog and is absent
+   * without one — ngwr ships no error texts — so a template either relies on that
+   * catalog or words the refusal by its `kind`.
+   *
    * @example
    * ```html
    * <wr-date-picker #due [(value)]="due" format="dd.MM.yyyy" />
    * @if (due.inputError(); as error) {
-   *   <small>{{ error.message }}</small>
+   *   <small>{{ error.message ?? 'Type a date like 31.12.2026.' }}</small>
    * }
    * ```
    */
@@ -345,12 +349,13 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   /**
    * What the picker's own live region says: the refusal on show, unless a surrounding
    * `<wr-form-field>` is already rendering a message for it — that message is a
-   * `role="alert"`, and a second voice would repeat it.
+   * `role="alert"`, and a second voice would repeat it. Nothing when the app's
+   * catalog has no sentence for the refusal: an empty region is better than a key.
    */
   protected readonly announcement = computed(() => {
     const shown = this.inputError();
     if (!shown || this.silenced() || this.inputField.saysAlready(shown)) return '';
-    return shown.message;
+    return shown.message ?? '';
   });
 
   /**

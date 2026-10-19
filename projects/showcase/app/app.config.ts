@@ -17,6 +17,7 @@ import { provideWrMarkdownHighlighter } from 'ngwr/markdown';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { provideEnvironmentNgxMask } from 'ngx-mask';
 
+import { VALIDATION_EN, VALIDATION_RU } from './app.validation';
 import { routing } from './routing';
 
 import { COMMON_ICONS } from '#core/icons';
@@ -64,12 +65,13 @@ export const appConfig: ApplicationConfig = {
     provideWrMarkdownHighlighter(shikiMarkdownHighlighter),
     provideWrDensity(),
     provideWrI18n({ availableLocales: ['en', 'ru'], defaultLocale: 'en' }),
-    // ngwr's own strings as a base, so the loader carries only the demo's keys —
-    // the form every docs page recommends, rather than a shallow spread.
+    // ngwr's own strings as a base, so the loader carries only the site's keys —
+    // the form every docs page recommends, rather than a shallow spread. The
+    // validation copy is ours: ngwr ships none.
     provideWrI18nBaseCatalogs({ en: wrEn, ru: wrRu }),
     provideWrI18nStaticLoader({
-      en: { app: { title: 'ngwr i18n demo', hello: 'Hello, {{name}}!' } },
-      ru: { app: { title: 'Демо ngwr i18n', hello: 'Привет, {{name}}!' } },
+      en: { app: { title: 'ngwr i18n demo', hello: 'Hello, {{name}}!' }, validation: VALIDATION_EN },
+      ru: { app: { title: 'Демо ngwr i18n', hello: 'Привет, {{name}}!' }, validation: VALIDATION_RU },
     }),
     // third-party — for the integration guide
     provideEnvironmentNgxMask(),

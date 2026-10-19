@@ -124,7 +124,7 @@ const label = runInInjectionContext(injector, () => readI18nText('x', 'X'));`,
     {
       name: 'provideWrI18nBaseCatalogs(catalogs)',
       description:
-        "Register ngwr's shipped catalogs (`wrEn`, `wrRu`, …) underneath the loader, keyed by locale. The lookup walks them key by key once the loader's catalog misses, so your keys win and a namespace both sides define keeps both halves. Use it instead of `{ ...wrEn, ...yours }`: a spread is shallow, so any namespace you share with ngwr, e.g. `common`, `validation`, `table`, keeps only the side spread last, and the other side's keys stop resolving with nothing logged.",
+        "Register ngwr's shipped catalogs (`wrEn`, `wrRu`, …) underneath the loader, keyed by locale. The lookup walks them key by key once the loader's catalog misses, so your keys win and a namespace both sides define keeps both halves. Use it instead of `{ ...wrEn, ...yours }`: a spread is shallow, so any namespace you share with ngwr, e.g. `common`, `form`, `table`, keeps only the side spread last, and the other side's keys stop resolving with nothing logged.",
       type: '(catalogs: WrI18nBaseCatalogs) => Provider',
       default: '—',
     },

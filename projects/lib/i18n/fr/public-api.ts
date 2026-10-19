@@ -94,32 +94,6 @@ export const wrFr: WrI18nCatalog = {
   form: {
     optional: 'facultatif',
   },
-  validation: {
-    required: 'Ce champ est obligatoire.',
-    requiredTrue: 'Cette case doit être cochée.',
-    email: 'Saisissez une adresse e-mail valide.',
-    // Le nombre en dernier dans les deux : « au moins {{requiredLength}}
-    // caractères » est faux à un, le français mettant le nom au singulier à
-    // zéro comme à un, et il n'existe ici aucune machinerie de pluriel.
-    minlength: 'Nombre minimal de caractères : {{requiredLength}}.',
-    maxlength: 'Nombre maximal de caractères : {{requiredLength}}.',
-    min: 'Saisissez {{min}} ou plus.',
-    max: 'Saisissez {{max}} ou moins.',
-    pattern: "Cette valeur n'est pas au format attendu.",
-    noWhitespace: "Cette valeur ne peut pas contenir d'espaces.",
-    hexColor: 'Saisissez une couleur hexadécimale, par ex. #1a2b3c.',
-    url: 'Saisissez une URL valide.',
-    cardNumber: 'Saisissez un numéro de carte valide.',
-    cvc: 'Saisissez le code de sécurité à {{length}} chiffres.',
-    iban: 'Saisissez un IBAN valide.',
-    match: 'Les deux valeurs ne correspondent pas.',
-    matchFields: 'Ces champs ne correspondent pas.',
-    oneOf: "Choisissez l'une des valeurs autorisées.",
-    minDate: 'Choisissez une date ultérieure.',
-    maxDate: 'Choisissez une date antérieure.',
-    dateFormat: 'Format attendu : {{example}}',
-    dateFilter: "Cette date n'est pas disponible.",
-  },
   select: {
     label: 'Sélectionner',
     placeholder: 'Sélectionner…',

@@ -47,7 +47,7 @@
 
   <ngwr-doc-section
     title="Pair it with match"
-    description="`<wr-form-field>` renders messages for the one control projected into it, so a group-level error is not something it can show. Run both: `matchFields` on the group makes the form correct from the first frame, and `match` on the confirm control supplies the per-field sentence once the field is touched. They do not conflict — different error keys, different hosts."
+    description="`<wr-form-field>` renders messages for the one control projected into it, so a group-level error is not something it can show. Run both: `matchFields` on the group makes the form correct from the first frame, and `match` on the confirm control puts a `match` error on that field once it is touched, worded by your `validation.match` catalog entry or a `<wr-form-error key=&quot;match&quot;>`. They do not conflict — different error keys, different hosts."
   >
     <ngwr-doc-code [code]="pairing" language="angular-ts" />
   </ngwr-doc-section>

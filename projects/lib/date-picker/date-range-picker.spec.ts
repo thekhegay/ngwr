@@ -6,11 +6,24 @@ import { FormField, form } from '@angular/forms/signals';
 
 import { provideWrDateAdapter } from 'ngwr/date';
 import { WrFormField } from 'ngwr/form';
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrDateRangePicker } from './date-range-picker';
 import type { WrDateRange } from './types';
+
+/**
+ * The app's copy for the refusals the cases below read aloud. ngwr ships no error
+ * texts, so a refusal is announced only in words the app's catalog supplies under
+ * `validation.<kind>`; the sibling single-picker spec explains the wait it needs.
+ */
+const REFUSAL_COPY = [
+  provideWrI18n({ defaultLocale: 'en', availableLocales: ['en'] }),
+  provideWrI18nStaticLoader({
+    en: { validation: { dateFormat: 'Expected format: {{example}}', minDate: 'Choose a later date.' } },
+  }),
+];
 
 /**
  * Sibling of `date-picker.spec.ts`, and the same overlay caveat applies: the
@@ -765,10 +778,14 @@ describe('WrDateRangePicker refusing typed text', () => {
     return id ? (document.getElementById(id)?.textContent?.trim() ?? `<missing #${id}>`) : null;
   };
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+  beforeEach(async () => {
+    TestBed.configureTestingModule({
+      providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' }), ...REFUSAL_COPY],
+    });
     fixture = TestBed.createComponent(Host);
     fixture.componentInstance.period.set([new Date(2025, 0, 10), new Date(2025, 0, 20)]);
+    fixture.detectChanges();
+    await fixture.whenStable();
     fixture.detectChanges();
   });
 
@@ -974,6 +991,35 @@ describe('WrDateRangePicker refusing typed text', () => {
       expect(invalid(endField())).toBeNull();
       expect(announced()).toBe('');
     });
+  });
+});
+
+describe('WrDateRangePicker refusing typed text the app has no copy for', () => {
+  it('marks the end invalid and announces nothing, rather than an English default', () => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    const fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.period.set([new Date(2025, 0, 10), new Date(2025, 0, 20)]);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const [start, end] = [...root.querySelectorAll<HTMLInputElement>('input.wr-input')];
+
+    start.value = 'soon';
+    start.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    end.value = '07.09.19';
+    end.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    end.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    fixture.detectChanges();
+
+    expect(start.getAttribute('aria-invalid')).toBe('true');
+    expect(end.getAttribute('aria-invalid')).toBe('true');
+    expect(fixture.componentInstance.period()?.map(d => d?.getDate())).toEqual([10, 20]);
+    // No sentence for either end, so the region stays empty and nothing points at it.
+    expect(root.querySelector('[role="status"]')!.textContent.trim()).toBe('');
+    expect(start.hasAttribute('aria-describedby')).toBe(false);
+    expect(end.hasAttribute('aria-describedby')).toBe(false);
+    fixture.destroy();
   });
 });
 

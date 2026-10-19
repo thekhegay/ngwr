@@ -105,6 +105,10 @@ guess gets backwards.
   \`email\` on an ngwr control is silently ignored and the form submits — so put
   validators on the \`FormControl\`. It also ignores \`updateOn\`, and a
   \`{ emitEvent: false }\` write needs \`markForCheck()\`.
+- **ngwr ships no validation copy.** For an error no \`<wr-form-error key>\`
+  claims, \`<wr-form-field>\` shows the validator's own message
+  (\`required(path.email, { message: '…' })\`), else \`validation.<key>\` from the
+  APP's i18n catalog. With neither, nothing renders and only dev mode warns.
 - **\`<wr-checkbox>\` group identity is \`checkboxValue\`, not \`value\`.**
   \`value\` is reserved for the form value, so a leftover \`value="x"\` lands on the
   host as a plain DOM attribute, every box in the group keeps the default
@@ -296,9 +300,9 @@ ${providers.map(p => `### \`${p.provider}\`\n\n${p.why[0].toUpperCase()}${p.why.
   under \`@media (pointer: coarse)\` instead.
 - \`provideWrResponsiveOverlays()\` — overlays present as bottom sheets under the
   breakpoint (640px by default). Per-component opt-out with \`[responsive]="false"\`.
-- \`provideWrFormErrors({ … })\` — one place for validation copy; \`<wr-form-field>\`
-  resolves a message per error key through it, then the i18n catalog, then a
-  built-in fallback.
+- A \`validation\` namespace in your own i18n catalog — ngwr ships no validation
+  copy. \`<wr-form-field>\` reads \`validation.<key>\` for an error whose validator
+  carries no \`{ message }\`, with the error payload as params.
 `;
 }
 

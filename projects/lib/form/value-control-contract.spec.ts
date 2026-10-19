@@ -238,8 +238,11 @@ class Host {
   // which is why `checkbox-group`, `knob`, `slider` and `transfer` looked immune
   // to invalidity. That is Angular's semantics, not a property of these
   // controls, and every one of them can still be failed by another validator.
+  // It carries its own `message` because ngwr ships no error texts: without one
+  // the field would render nothing for the cases below to find.
   readonly f = form(this.model, path => {
-    const fails = (): ReturnType<typeof requiredError> | undefined => (this.failing() ? requiredError() : undefined);
+    const fails = (): ReturnType<typeof requiredError> | undefined =>
+      this.failing() ? requiredError({ message: 'Required.' }) : undefined;
     const locked = (): boolean => this.locked();
 
     readonly(path.cascader, locked);

@@ -121,7 +121,7 @@ WrValidators.matchFields('a', 'b', 'c');`;
       kind: 'Validator',
       title: 'match',
       url: ['/reference/validators', 'match'],
-      description: 'The child-level half of the pairing — what gives a field its message.',
+      description: 'The child-level half of the pairing — the error a field can show a message for.',
     },
     {
       kind: 'Component',

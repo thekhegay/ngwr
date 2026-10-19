@@ -46,7 +46,7 @@ export default class FormFieldPage {
     bio: new FormControl('', { nonNullable: true }),
   });
 
-  /** Zero-config demo: no `<wr-form-error>` at all, messages come from the catalog. */
+  /** No `<wr-form-error>` and no `{ message }`: the copy is this site's own `validation.*` catalog. */
   protected readonly autoForm = new FormGroup({
     handle: new FormControl('', {
       nonNullable: true,
@@ -95,8 +95,8 @@ export default class FormFieldPage {
 
 <!-- Errors only render after the control is touched OR dirty,
      so the user doesn't see red on first paint. -->`,
-    auto: `<!-- No <wr-form-error> at all. wr-form-field renders the message the
-     validator reports, from the ngwr/i18n \`validation.*\` catalog. -->
+    auto: `<!-- No <wr-form-error> and no { message }: the field reads
+     validation.required, .minlength and .min from the app's i18n catalog. -->
 <wr-form-field label="Handle" required>
   <input wrInput formControlName="handle" />
 </wr-form-field>
@@ -104,17 +104,49 @@ export default class FormFieldPage {
 <wr-form-field label="Age">
   <input wrInput formControlName="age" type="number" />
 </wr-form-field>`,
-    provider: `import { provideWrFormErrors } from 'ngwr/form';
+    message: `import { Component, signal } from '@angular/core';
+import { FormField, email, form, required } from '@angular/forms/signals';
+import { WrFormField } from 'ngwr/form';
+import { WrInput } from 'ngwr/input';
 
-bootstrapApplication(App, {
-  providers: [
-    provideWrFormErrors({
-      // Only the keys you name — the rest keep resolving through the catalog.
-      required: 'Please fill this in.',
-      minlength: ({ error }) => \`At least \${(error as { requiredLength: number }).requiredLength} characters.\`,
-    }),
-  ],
-});`,
+@Component({
+  imports: [FormField, WrFormField, WrInput],
+  template: \`
+    <wr-form-field label="Work email" required>
+      <input wrInput type="email" [formField]="signup.email" />
+    </wr-form-field>
+  \`,
+})
+export class Signup {
+  private readonly model = signal({ email: '' });
+
+  protected readonly signup = form(this.model, path => {
+    required(path.email, { message: 'Enter your work email.' });
+    email(path.email, { message: 'That is not an email address.' });
+  });
+}`,
+    catalog: `provideWrI18nStaticLoader({
+  en: {
+    validation: {
+      required: 'This field is required.',
+      // Filled from the error payload: { requiredLength, actualLength }.
+      minlength: 'Minimum length is {{requiredLength}}.',
+      min: 'Enter {{min}} or more.',
+    },
+  },
+  ru: {
+    validation: {
+      required: 'Обязательное поле.',
+      minlength: 'Не короче {{requiredLength}} символов.',
+      min: 'Не меньше {{min}}.',
+    },
+  },
+}),`,
+    markup: `<wr-form-field label="Handle" required>
+  <input wrInput formControlName="handle" />
+  <!-- This field's own sentence for \`required\`; \`minlength\` still resolves. -->
+  <wr-form-error key="required">Pick a handle.</wr-form-error>
+</wr-form-field>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -129,7 +161,7 @@ bootstrapApplication(App, {
     {
       name: 'autoErrors',
       description:
-        'Resolve a message per error key through `provideWrFormErrors()`, then the i18n `validation.*` catalog, then a built-in fallback. Turn it off to write every message by hand.',
+        'Render a message for each error no `<wr-form-error key>` claims: the validator&rsquo;s `{ message }`, else `validation.<key>` from the app&rsquo;s i18n catalog. Turn it off to write every message by hand.',
       type: 'boolean',
       default: 'true',
     },

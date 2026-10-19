@@ -78,7 +78,9 @@ export default class DatePickerPageComponent {
 
     refused: `<!-- Typed text the picker will not commit leaves the value alone, stays in the
      field, and is shown as invalid on Enter or blur. inputError() holds the reason
-     while it is on show, so this message appears and clears with the border. -->
+     while it is on show, so this message appears and clears with the border. Its
+     text is your catalog's validation.dateFormat ('Expected format: {{example}}'),
+     .minDate, .maxDate or .dateFilter — ngwr ships none of them. -->
 <wr-date-picker #dueField [(value)]="due" format="dd.MM.yyyy" [min]="today" />
 
 @if (dueField.inputError(); as error) {

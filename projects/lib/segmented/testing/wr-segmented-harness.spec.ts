@@ -536,7 +536,7 @@ class FieldHost {
 
   readonly model = signal({ range: '' });
   readonly schedule = form(this.model, path => {
-    required(path.range);
+    required(path.range, { message: 'Pick a range.' });
   });
 }
 

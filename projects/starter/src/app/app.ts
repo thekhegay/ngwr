@@ -43,10 +43,11 @@ export class App {
   private readonly model = signal({ email: '', agree: false });
 
   // `[formField]` binds straight to the control's own value or checked model.
-  // The "required" and "not an email" messages come from ngwr's built-in copy.
+  // ngwr ships no validation copy, so each rule carries the message
+  // <wr-form-field> shows.
   protected readonly signup = form(this.model, path => {
-    required(path.email);
-    email(path.email);
+    required(path.email, { message: 'Enter your work email.' });
+    email(path.email, { message: 'That is not an email address.' });
   });
 
   protected readonly reserved = signal(false);

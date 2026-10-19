@@ -93,7 +93,7 @@
           A value control here is not a wrapper around a native element that reports back through an accessor. It
           implements <code>FormValueControl</code> or <code>FormCheckboxControl</code>, so the field binds to the
           component's own <code>value</code> / <code>checked</code> model directly — and
-          <code>&lt;wr-form-field&gt;</code> already knows how to word the error.
+          <code>&lt;wr-form-field&gt;</code> shows the message each rule carries, with no error markup to write.
         </p>
 
         <!-- Two elements per row and no bare text nodes, because the row is a flex
@@ -167,7 +167,7 @@
         </div>
         <p class="ngwr-section__head-aside">
           Nothing here carries a compatibility layer from the NgModule era. The bookkeeping that is left — focus traps,
-          virtual scroll, density tokens, error copy — is handled inside the primitive.
+          virtual scroll, density tokens, error wiring — is handled inside the primitive.
         </p>
       </div>
 

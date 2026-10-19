@@ -725,13 +725,14 @@
     <ngwr-doc-code [code]="snippets.formField" language="typescript" />
 
     <p>
-      <code>&lt;wr-form-field&gt;</code> resolves a message per error key through
-      <a routerLink="/reference/components/form">provideWrFormErrors()</a>, then the <code>ngwr/i18n</code>
-      <code>validation.*</code> catalog, then a built-in fallback — so a field needs no
-      <code>&lt;wr-form-error&gt;</code> markup to say something useful. The two questions worth asserting are whether a
-      message is showing AND whether the control points at it: a message nothing references is decoration a screen
-      reader never reads, which is what <code>getAnnouncedDescription()</code> and <code>hasEmptyErrorBlock()</code> are
-      for.
+      ngwr ships no validation copy. For an error no <code>&lt;wr-form-error key&gt;</code> claims,
+      <a routerLink="/reference/components/form-field"><code>&lt;wr-form-field&gt;</code></a> shows the validator's own
+      <code>message</code>, else <code>validation.&lt;key&gt;</code> from your app's i18n catalog — so a spec sees only the
+      copy it provides: the rule's message, or a catalog handed to its <code>TestBed</code>. A key with none of the
+      three renders nothing. The two questions worth asserting are
+      whether a message is showing AND whether the control points at it: a message nothing references is decoration a
+      screen reader never reads, which is what <code>getAnnouncedDescription()</code> and
+      <code>hasEmptyErrorBlock()</code> are for.
     </p>
   </ngwr-doc-section>
 

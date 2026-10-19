@@ -121,8 +121,8 @@ function warnOnKindMismatch(f: WrRenderedField): void {
  *
  * ```ts
  * const profile = form(model, path => {
- *   required(path.email);
- *   email(path.email);
+ *   required(path.email, { message: 'Enter your email.' });
+ *   email(path.email, { message: 'That is not an email address.' });
  *   metadata(path.email, WR_FIELD, () => ({ kind: 'input', type: 'email' }));
  *   metadata(path.role, WR_FIELD, () => ({ kind: 'select', options: ROLES }));
  * });
@@ -130,6 +130,10 @@ function warnOnKindMismatch(f: WrRenderedField): void {
  * ```html
  * <wr-schema-form [field]="profile" [columns]="2" />
  * ```
+ *
+ * The error messages are the rules' own: each field's `<wr-form-field>` shows a
+ * validator's `message`, else `validation.<key>` from the app's i18n catalog.
+ * ngwr ships no error texts, so a rule with neither renders no message.
  *
  * **A field with no `WR_FIELD` metadata is skipped**, silently and on purpose: a
  * schema may describe more than one screen renders, and guessing a control from

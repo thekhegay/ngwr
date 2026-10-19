@@ -1665,7 +1665,7 @@ describe('WrSelect rounded attribute', () => {
 class FieldHost {
   private readonly model = signal({ country: '' });
   readonly profile = form(this.model, path => {
-    required(path.country);
+    required(path.country, { message: 'Choose a country.' });
   });
 }
 

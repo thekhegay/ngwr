@@ -199,6 +199,32 @@ export default class MigrationPageComponent {
 - <wr-drawer position="bottom" showHandle>…</wr-drawer>
 + <wr-drawer position="bottom">…</wr-drawer>`,
 
+    v15Validation: `# The provider, its token and the built-in English are gone.
+- import { provideWrFormErrors } from 'ngwr/form';
+- provideWrFormErrors({ required: 'Please fill this in.' }),
+
+# One rule, one sentence: put it on the validator.
+- required(path.email);
++ required(path.email, { message: 'Please fill this in.' });
+
+# Every field, every locale: put it in your own catalog. The error payload
+# fills the placeholders, and the date picker reads its refusals from here too.
++ provideWrI18nStaticLoader({
++   en: {
++     validation: {
++       required: 'Please fill this in.',
++       minlength: 'Minimum length is {{requiredLength}}.',
++       dateFormat: 'Expected format: {{example}}',
++       minDate: 'Choose a later date.',
++       maxDate: 'Choose an earlier date.',
++       dateFilter: 'This date is not available.',
++     },
++   },
++ }),
+
+# One field, its own sentence: project it, as before.
++ <wr-form-error key="required">Please fill this in.</wr-form-error>`,
+
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
 # One command, whatever major you are on: ng update installs the latest
 # release and applies every migration newer than the version you had, oldest
