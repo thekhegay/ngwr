@@ -96,9 +96,6 @@ cause.
 - `provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon'`
   — icons resolve by name from a registry you populate
   — needed by: `WrIcon`
-- `provideWrDateAdapter() // from 'ngwr/date'`
-  — every date mode goes through an adapter; there is no built-in default
-  — needed by: `WrDatePicker`, `WrCalendar`, `WrEventCalendar`
 - `provideWrLoadingBarRouter() // from 'ngwr/loading-bar/router'`
   — without it the bar never responds to navigation; it only moves for manual start() / complete()
   — needed by: `WrLoadingBar`

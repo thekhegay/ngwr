@@ -6,8 +6,8 @@
 ng add ngwr
 ```
 
-Prompts for styles, date adapter and density, installs the peers, and prints a
-bootstrap snippet tailored to the answers.
+Prompts for styles and density, installs the peers, and prints a bootstrap
+snippet tailored to the answers.
 
 ## Bootstrap
 
@@ -64,10 +64,6 @@ there is no theme attribute to key a selector on.
 
 Icons resolve by name from a registry you populate. Needed by `WrIcon`.
 
-### `provideWrDateAdapter() // from 'ngwr/date'`
-
-Every date mode goes through an adapter; there is no built-in default. Needed by `WrDatePicker`, `WrCalendar`, `WrEventCalendar`.
-
 ### `provideWrLoadingBarRouter() // from 'ngwr/loading-bar/router'`
 
 Without it the bar never responds to navigation; it only moves for manual start() / complete(). Needed by `WrLoadingBar`.
@@ -85,9 +81,11 @@ The pipe and directive read from a catalog you provide. Register ngwr's with `pr
   control with fixed geometry (checkbox, switch, radio, slider, rating,
   segmented) does not move; its ≥44px target comes from the `touch-target` mixin
   under `@media (pointer: coarse)` instead.
-- Another date library: subclass `WrDateAdapter` from `ngwr/date` and pass it
-  as `provideWrDateAdapter({ adapter: MyDateAdapter })`. ngwr ships only the
-  native adapter.
+- `provideWrDateAdapter({ locale: 'fr' })` from `ngwr/date` — pins the dates
+  to another locale. The calendar, the date pickers and the event calendar need
+  no provider: they run on the native adapter (`Date` and `Intl`) in
+  `LOCALE_ID`. Another date library: subclass `WrDateAdapter`, decorate it
+  with `@Service()` and pass it as `{ adapter: MyDateAdapter }`.
 - A `validation` namespace in your own i18n catalog — ngwr ships no validation
   copy. `<wr-form-field>` reads `validation.<key>` for an error whose validator
   carries no `{ message }`, with the error payload as params.
