@@ -80,7 +80,7 @@ guess gets backwards.
 ```bash
 ng add ngwr                                          # prompts, installs peers, prints bootstrap
 ng g ngwr:use WrSelect --path src/app/some.ts        # adds the import AND the @Component entry
-ng g ngwr:provider overlay                           # splices a provider into bootstrap
+ng g ngwr:provider icons                             # splices a provider into bootstrap
 ```
 
 `--path` is a NAMED option on `ngwr:use`; only the symbol is positional, and
@@ -93,9 +93,6 @@ the `imports` entry would not — `inject()` it instead.
 Each of these compiles fine and then does nothing, with no error naming the
 cause.
 
-- `provideWrOverlay() // from 'ngwr/overlay'`
-  — gives ngwr overlays their own container, so they never collide with other CDK overlays
-  — needed by: `WrDialog`, `WrDrawer`, `WrToast`, `WrPopover`, `WrPopconfirm`, `WrContextMenu`, `WrSelect`, `WrDropdown`, `WrCommandPalette`, `WrCascader`, `WrMention`, `WrDatePicker`, `WrTour`, `WrLightbox`, `WrEditor`
 - `provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon'`
   — icons resolve by name from a registry you populate
   — needed by: `WrIcon`
@@ -120,9 +117,8 @@ await select.open();
 await select.selectOption({ text: 'Angular' });
 ```
 
-Overlay panels render into the overlay container, NOT the fixture — provide
-`provideWrOverlay()` in the test and load those harnesses from
-`TestbedHarnessEnvironment.documentRootLoader(fixture)`.
+Overlay panels render into ngwr's overlay container, NOT the fixture — load
+those harnesses from `TestbedHarnessEnvironment.documentRootLoader(fixture)`.
 
 ## Reference files
 

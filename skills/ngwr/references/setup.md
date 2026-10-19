@@ -12,22 +12,20 @@ bootstrap snippet tailored to the answers.
 ## Bootstrap
 
 ```ts
-import { provideWrOverlay } from 'ngwr/overlay';
 import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 import { Check, ChevronDown } from 'lucide';
 
 bootstrapApplication(App, {
   providers: [
     provideZonelessChangeDetection(),
-    provideWrOverlay(),
     provideWrIcons(lucideIcons({ check: Check, 'chevron-down': ChevronDown })),
   ],
 });
 ```
 
-`provideWrOverlay()` gives ngwr its OWN CDK overlay container, which is what
-keeps it from colliding with Material or NG-ZORRO in the same app. It also
-installs `WrVisualViewport`, which publishes `--wr-keyboard-inset`.
+ngwr's overlays render into their OWN CDK overlay container with no provider,
+which is what keeps them from colliding with Material or NG-ZORRO in the same
+app.
 
 ## Styles
 
@@ -61,10 +59,6 @@ injects it paints the OS scheme. Write your own dark values with `light-dark()` 
 there is no theme attribute to key a selector on.
 
 ## Providers with no default
-
-### `provideWrOverlay() // from 'ngwr/overlay'`
-
-Gives ngwr overlays their own container, so they never collide with other CDK overlays. Needed by `WrDialog`, `WrDrawer`, `WrToast`, `WrPopover`, `WrPopconfirm`, `WrContextMenu`, `WrSelect`, `WrDropdown`, `WrCommandPalette`, `WrCascader`, `WrMention`, `WrDatePicker`, `WrTour`, `WrLightbox`, `WrEditor`.
 
 ### `provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon'`
 

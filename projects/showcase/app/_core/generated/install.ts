@@ -494,7 +494,7 @@ export const INSTALL = {
       { path: "ngwr/meta", symbols: ["WrMeta", "WrMetaBinding"], declarables: ["WrMetaBinding"], styled: false },
   ],
   "reference/services/platform": [
-      { path: "ngwr/platform", symbols: ["WrHaptics", "WrPlatform", "WrVisualViewport"], declarables: [], styled: false },
+      { path: "ngwr/platform", symbols: ["WrHaptics", "WrPlatform"], declarables: [], styled: false },
   ],
   "reference/services/scroll": [
       { path: "ngwr/scroll", symbols: ["WrScroll"], declarables: [], styled: false },
