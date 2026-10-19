@@ -24,7 +24,6 @@ import {
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
-import { useConfigValue } from 'ngwr/config';
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 
 /**
@@ -77,17 +76,8 @@ export class WrTextarea implements FormValueControl<string> {
     return placeholder ? placeholder : null;
   });
 
-  /**
-   * Control size — shares the `--wr-control-*` contract. Unset, it falls back to
-   * `provideWrConfig({ textarea: { size } })`. @default 'md'
-   */
-  readonly size = input<WrTextareaSize | null>(null);
-
-  // `null` as the input's own default, not `'md'`: with a literal sitting there,
-  // "the template said nothing" and "the template said md" are the same value, so no
-  // app-wide default could ever apply. The effective default is the last argument
-  // below, which is where the old inline one moved to.
-  protected readonly resolvedSize = useConfigValue(this.size, c => c.textarea?.size, 'md');
+  /** Control size — shares the `--wr-control-*` contract. @default 'md' */
+  readonly size = input<WrTextareaSize>('md');
 
   /** Visible row count. @default 3 */
   readonly rows = input(3, { transform: (v: unknown): number => coerceNumberProperty(v, 3) });
@@ -170,7 +160,7 @@ export class WrTextarea implements FormValueControl<string> {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-textarea'];
-    const size = this.resolvedSize();
+    const size = this.size();
     if (size !== 'md') parts.push(`wr-textarea--${size}`);
     if (this.autosize()) parts.push('wr-textarea--no-resize');
     const resize = this.effectiveResize();

@@ -120,10 +120,6 @@ pnpm add prosemirror-model prosemirror-state prosemirror-view prosemirror-comman
 # or
 npm install prosemirror-model prosemirror-state prosemirror-view prosemirror-commands \\
   prosemirror-keymap prosemirror-history prosemirror-schema-list prosemirror-inputrules`,
-    config: `import { provideWrConfig } from 'ngwr/config';
-
-// Every <wr-editor> that binds no [format] of its own now reads and writes markdown.
-providers: [provideWrConfig({ editor: { format: 'markdown' } })];`,
     toolbar: `import { WR_EDITOR_TOOLBAR, type WrEditorTool } from 'ngwr/editor';
 
 // Built from the default rather than retyped — this drops the two code tools.

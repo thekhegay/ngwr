@@ -43,7 +43,7 @@
           class="wr-markdown__link"
           [href]="hrefOf(node.href)"
           [attr.title]="node.title"
-          [attr.target]="resolvedLinkTarget()"
+          [attr.target]="linkTarget()"
           [attr.rel]="linkRel()"
           ><ng-container [ngTemplateOutlet]="inlineList" [ngTemplateOutletContext]="{ $implicit: node.children }"
         /></a>
@@ -151,7 +151,7 @@
             [style.text-decoration]="span.fontStyle === 'underline' ? 'underline' : null"
           >{{ span.text }}</span>}</span>@if (!$last) {{{ newline }}}}} @else {{{ block.code }}}</code></pre>
 
-          @if (resolvedCopyable() && block.closed) {
+          @if (copyable() && block.closed) {
             <button
               type="button"
               class="wr-markdown__copy"

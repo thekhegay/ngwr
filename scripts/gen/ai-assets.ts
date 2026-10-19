@@ -428,12 +428,15 @@ function render(entries: readonly Entry[]): string {
  * 224 is the first lowering, and a deliberate one: v15 deleted the two icon
  * adapter entry points, `ngwr/icon/adapters/{lucide,feather}`, when the lucide
  * converter moved into `ngwr/icon`.
+ *
+ * 223 is the second: v15 deleted `ngwr/config`, since the library no longer
+ * ships app-wide default overrides.
  */
-const MIN_ENTRIES = 224;
+const MIN_ENTRIES = 223;
 const MIN_DESCRIBED = 119;
-const MIN_WITH_EXPORTS = 224;
+const MIN_WITH_EXPORTS = 223;
 /** Rows in the skill's catalog table — one per entry point, plus the header. */
-const MIN_SKILL_ROWS = 224;
+const MIN_SKILL_ROWS = 223;
 
 /** A tag, an attribute, or a tag with an attribute — the three shapes the library declares. */
 const SELECTOR_SHAPE = /^[a-z][a-z\d-]*(\[[A-Za-z][\w-]*\])?$|^\[[A-Za-z][\w-]*\]$/;

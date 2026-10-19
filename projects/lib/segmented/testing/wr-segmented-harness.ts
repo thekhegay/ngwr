@@ -243,10 +243,7 @@ export class WrSegmentedHarness extends ComponentHarness {
    *
    * `md` is the component's own default and earns NO modifier class, so a bare host
    * IS `md` — the absence is the answer rather than a missing one. Read from the
-   * class instead of the input, which is also why this reports what was rendered:
-   * unlike the form controls, `<wr-segmented>` does not resolve its size through
-   * `provideWrConfig()`, so an app-wide default set there does not reach it and this
-   * will say so.
+   * class instead of the input, so this reports what was rendered.
    */
   async getSize(): Promise<WrSegmentedSize> {
     const host = await this.host();

@@ -29,9 +29,8 @@ import type { WrPaginationHarnessFilters } from './types';
  * **Which page is current has two answers, and this reads the ARIA one.** The
  * current cell is also PAINTED — the template binds
  * `[color]="isCurrent(page) ? 'primary' : null"`, so `.wr-btn--primary` sits on it
- * too. But colour is a theming decision (`ngwr/config` names this very binding as
- * the reason it ships no app-wide `color` default), while `aria-current="page"` is
- * the navigation contract: it is what a screen-reader user hears, what the
+ * too. But colour is a theming decision, while `aria-current="page"` is the
+ * navigation contract: it is what a screen-reader user hears, what the
  * component's own spec pins, and the only one of the two that still means
  * "you are here" after a restyle. A harness that read the class would be reporting
  * on the paint.
@@ -123,14 +122,8 @@ export class WrPaginationHarness extends ComponentHarness {
    *
    * The modifier is always emitted — `sm` included — so the fall-through below is
    * only ever reached for the default, and a size the strip is not wearing cannot
-   * come back from here.
-   *
-   * The STRIP resolves nothing through `provideWrConfig()`, which is worth knowing
-   * before an app-wide default is blamed for a cell size: the pager passes its own
-   * `size` down to every `<wr-btn>` explicitly, so a configured `button.size` never
-   * reaches a cell. The page-size changer is the exception and not covered by this
-   * value — it is a bare `<wr-select>`, so `provideWrConfig({ select: … })` does
-   * reach it.
+   * come back from here. The page-size changer is not covered by this value: it is
+   * a bare `<wr-select>` at its own default size.
    */
   async getSize(): Promise<WrPaginationSize> {
     const host = await this.host();

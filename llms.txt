@@ -93,14 +93,10 @@ Add from their entry points as needed:
   its raw SVG with `svgIcon()`).
 - `provideWrDensity()` — sizing. The theme needs no provider: the `--wr-*`
   tokens are plain CSS, and dark mode follows `color-scheme` (Theme, below).
-- `provideWrConfig({ button: { size: 'sm' }, select: { rounded: true } })`
-  (`ngwr/config`) — app-wide component DEFAULTS. A value bound on the element always
-  wins, and a bound `false` beats a configured `true`, so a config never has to be
-  escaped. Covers `size` on the form controls, `rounded` on `input` / `inputNumber`
-  / `select`, `format` on `editor` (what the app stores: HTML, markdown or JSON),
-  and `linkTarget` / `copyable` on `markdown`. There is deliberately no
-  `color` key — a bound `[color]="null"` means "no intent", which a default cannot
-  express without inventing a sentinel.
+- `ngwr/config` and `provideWrConfig()` are gone (v15): `size`, `rounded`,
+  `format`, `copyable` and `linkTarget` default to the value written on the
+  input. Bind them where you want another value, or wrap the component in your
+  own.
 - `provideWrI18n(...)` + `provideWrI18nBaseCatalogs({ en: wrEn })` +
   `provideWrI18nStaticLoader(...)` — localization. ngwr's catalogs go in as a
   BASE, never spread into yours: a spread is shallow, so any namespace you share
@@ -416,9 +412,9 @@ TypeScript, the `.wr-*` BEM class names (every component ships
 TSDoc means not API and survives into the published types, so
 `grep -rn "@internal" node_modules/ngwr/types` answers it. A few helpers are
 exported, unmarked and undocumented — `wrAppendOverlayClose`, `wrMirrorOffsets`,
-`wrPresentAsSheet`, `wrFollowDirection`, `WrOutsideClick`, `useConfigValue`,
-`useFormFieldAria`, `isSafeCssValue`, and a handful of `WR_*` context tokens
-such as `WR_STEPPER` — and carry no stability statement; do not build on them.
+`wrPresentAsSheet`, `wrFollowDirection`, `WrOutsideClick`, `useFormFieldAria`,
+`isSafeCssValue`, and a handful of `WR_*` context tokens such as `WR_STEPPER` —
+and carry no stability statement; do not build on them.
 
 ## Resources (machine-readable)
 

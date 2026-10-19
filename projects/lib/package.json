@@ -397,9 +397,6 @@
       "sass": "./compare/styles/_index.scss",
       "default": "./compare/public-api.ts"
     },
-    "./config": {
-      "default": "./config/public-api.ts"
-    },
     "./context-menu": {
       "sass": "./context-menu/styles/_index.scss",
       "default": "./context-menu/public-api.ts"

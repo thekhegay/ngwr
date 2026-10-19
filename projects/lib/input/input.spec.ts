@@ -1,7 +1,6 @@
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrConfig } from 'ngwr/config';
 import { WrFormField } from 'ngwr/form';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -164,14 +163,9 @@ describe('WrInput inside a form field', () => {
 });
 
 /**
- * Two fields on purpose: one that binds nothing, so an app-wide default has room
- * to apply, and one that binds — because the only thing that makes a global
- * config safe is that a template can still override it. The group is here too,
- * since it owns the border once it wraps the input — and it appears in all three
- * forms (unbound, bound, bare attribute) for the same reason the field does: it
- * carries its OWN `rounded` input, resolved by its own lookup, so a case that only
- * ever leaves it unbound says nothing about whether a template can still override
- * the config there.
+ * The field and the group each carry their OWN `rounded` input — the group owns
+ * the border once it wraps an input — so both appear bound, unbound and in the
+ * bare attribute form.
  */
 @Component({
   imports: [WrInput, WrInputGroup],
@@ -189,142 +183,61 @@ describe('WrInput inside a form field', () => {
     </wr-input-group>
   `,
 })
-class ConfigHost {
-  readonly size = signal<WrInputSize | null>(null);
-  readonly rounded = signal<boolean | null>(null);
-  readonly groupRounded = signal<boolean | null>(null);
+class ShapeHost {
+  readonly size = signal<WrInputSize>('md');
+  readonly rounded = signal(false);
+  readonly groupRounded = signal(false);
 }
 
-describe('WrInput defaults from provideWrConfig', () => {
-  let fixture: ReturnType<typeof TestBed.createComponent<ConfigHost>>;
+describe('WrInput size and shape', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<ShapeHost>>;
 
-  const mount = (providers: unknown[] = []): ConfigHost => {
+  const mount = (): ShapeHost => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: providers as never[] });
-    fixture = TestBed.createComponent(ConfigHost);
+    fixture = TestBed.createComponent(ShapeHost);
     fixture.detectChanges();
     return fixture.componentInstance;
   };
 
   const at = (placeholder: string): HTMLInputElement =>
     (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>(`input[placeholder="${placeholder}"]`)!;
-  const group = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-input-group')!;
   /** The group wrapping a given field — the groups differ only by what they bind. */
   const groupOf = (placeholder: string): HTMLElement => at(placeholder).closest('wr-input-group')!;
 
   afterEach(() => fixture.destroy());
 
-  it('renders exactly as before when no config is provided', () => {
-    // The invariant the whole change rests on: an unbound field is `md` and square,
-    // which means no modifier class at all.
+  it('renders `md` and square with no modifier class', () => {
     mount();
 
     expect(at('Unbound').className).toBe('wr-input');
-    expect(group().className).toBe('wr-input-group');
+    expect(at('Bound').className).toBe('wr-input');
+    expect(groupOf('Unbound').className).toBe('wr-input-group');
+    expect(groupOf('Bound group').className).toBe('wr-input-group');
   });
 
-  it('takes size and shape from the config when the template says nothing', () => {
-    mount([provideWrConfig({ input: { size: 'sm', rounded: true } })]);
-
-    expect(at('Unbound').classList.contains('wr-input--sm')).toBe(true);
-    expect(at('Unbound').classList.contains('wr-input--rounded')).toBe(true);
-    // The group has to follow, or the pill radius lands on an input whose chrome the
-    // group already took over and the visible corner stays square.
-    expect(group().classList.contains('wr-input-group--rounded')).toBe(true);
-  });
-
-  it('lets a bound value beat the config', () => {
-    const host = mount([provideWrConfig({ input: { size: 'sm', rounded: true } })]);
+  it('turns bound values into modifiers, and drops them again for the defaults', () => {
+    const host = mount();
     host.size.set('lg');
+    host.rounded.set(true);
+    host.groupRounded.set(true);
     fixture.detectChanges();
 
-    expect(at('Bound').classList.contains('wr-input--lg')).toBe(true);
-    expect(at('Bound').classList.contains('wr-input--sm')).toBe(false);
-  });
+    expect(at('Bound').className).toBe('wr-input wr-input--lg wr-input--rounded');
+    expect(groupOf('Bound group').className).toBe('wr-input-group wr-input-group--rounded');
 
-  it('lets a bound `false` turn a configured `rounded` back off', () => {
-    // The case that decides whether the config is escapable at all: `false` is a
-    // value, not an absence, so it must not fall through to the configured `true`.
-    const host = mount([provideWrConfig({ input: { rounded: true } })]);
+    host.size.set('md');
     host.rounded.set(false);
+    host.groupRounded.set(false);
     fixture.detectChanges();
 
-    expect(at('Bound').classList.contains('wr-input--rounded')).toBe(false);
-    // …and the field next to it, which bound nothing, still takes the config.
-    expect(at('Unbound').classList.contains('wr-input--rounded')).toBe(true);
+    expect(at('Bound').className).toBe('wr-input');
+    expect(groupOf('Bound group').className).toBe('wr-input-group');
   });
 
-  it('still reads a bare `rounded` attribute as true', () => {
-    // The transform maps only `null` / `undefined` to "not set". A valueless
-    // attribute arrives as `''`, which is a value the author wrote — folding it in
-    // with the absences would silently un-round every consumer using this form.
+  it('reads a bare `rounded` attribute as true, on the field and on the group', () => {
     mount();
 
     expect(at('Attribute').classList.contains('wr-input--rounded')).toBe(true);
-  });
-
-  it('ignores a config that names other components', () => {
-    mount([provideWrConfig({ textarea: { size: 'sm' }, select: { rounded: true } })]);
-
-    expect(at('Unbound').className).toBe('wr-input');
-  });
-
-  it('goes back to the config when a binding is cleared', () => {
-    const host = mount([provideWrConfig({ input: { size: 'sm' } })]);
-    host.size.set('lg');
-    fixture.detectChanges();
-    expect(at('Bound').classList.contains('wr-input--lg')).toBe(true);
-
-    host.size.set(null);
-    fixture.detectChanges();
-    expect(at('Bound').classList.contains('wr-input--sm')).toBe(true);
-  });
-
-  it('goes back to the config when a `rounded` binding is cleared', () => {
-    // `rounded`'s own clearing path, not `size`'s: it is the one that goes through
-    // the null-preserving transform, and a transform that folded `null` into `false`
-    // would leave this field permanently square with no way to ask for the default
-    // back. Every other case here still passes with that folding in place.
-    const host = mount([provideWrConfig({ input: { rounded: true } })]);
-    host.rounded.set(false);
-    fixture.detectChanges();
-    expect(at('Bound').classList.contains('wr-input--rounded')).toBe(false);
-
-    host.rounded.set(null);
-    fixture.detectChanges();
-    expect(at('Bound').classList.contains('wr-input--rounded')).toBe(true);
-  });
-
-  it('lets a bound `false` on the group beat a configured `rounded`', () => {
-    // The group resolves the config itself, so it needs its own escape hatch: an
-    // author who squares one group off must not be overruled by the app-wide value.
-    const host = mount([provideWrConfig({ input: { rounded: true } })]);
-    host.groupRounded.set(false);
-    fixture.detectChanges();
-
-    expect(groupOf('Bound group').classList.contains('wr-input-group--rounded')).toBe(false);
-    // …while the group beside it, which binds nothing, still takes the config.
-    expect(group().classList.contains('wr-input-group--rounded')).toBe(true);
-  });
-
-  it('hands the group back to the config when its own binding is cleared', () => {
-    const host = mount([provideWrConfig({ input: { rounded: true } })]);
-    host.groupRounded.set(false);
-    fixture.detectChanges();
-    expect(groupOf('Bound group').classList.contains('wr-input-group--rounded')).toBe(false);
-
-    host.groupRounded.set(null);
-    fixture.detectChanges();
-    expect(groupOf('Bound group').classList.contains('wr-input-group--rounded')).toBe(true);
-  });
-
-  it('leaves a null-bound group as before and still reads its bare attribute as true', () => {
-    // The group's half of the invariant, with no config in play: `[rounded]="null"`
-    // renders the bare class list it always did, and `<wr-input-group rounded>` — the
-    // documented attribute form — still rounds. Nothing else here exercises either.
-    mount();
-
-    expect(groupOf('Bound group').className).toBe('wr-input-group');
     expect(groupOf('Attribute group').className).toBe('wr-input-group wr-input-group--rounded');
   });
 });
@@ -381,8 +294,8 @@ describe('WrPasswordToggle', () => {
 
 /**
  * Every documented `[size]`. `md` is the default and deliberately emits no
- * modifier — `resolvedSize` falls back to it and the base class is already that
- * size — so the assertion for it is the ABSENCE of the other two, not a class.
+ * modifier — the base class is already that size — so the assertion for it is
+ * the ABSENCE of the other two, not a class.
  */
 describe('WrInput emits a modifier for every documented size', () => {
   @Component({
@@ -390,7 +303,7 @@ describe('WrInput emits a modifier for every documented size', () => {
     template: `<input wrInput [size]="size()" />`,
   })
   class SizeHost {
-    readonly size = signal<WrInputSize | null>(null);
+    readonly size = signal<WrInputSize>('md');
   }
 
   const SIZES: readonly WrInputSize[] = ['sm', 'md', 'lg'];

@@ -27,7 +27,6 @@ import { provideWrToastConfig } from 'ngwr/toast';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { provideWrDateAdapter } from 'ngwr/date';
 import { provideWrDensity } from 'ngwr/density';
-import { provideWrConfig } from 'ngwr/config';
 
 import { AppComponent } from './app/app';
 import { routes } from './app/app.routes';
@@ -42,7 +41,6 @@ bootstrapApplication(AppComponent, {
     provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 })),
     provideWrToastConfig({ position: 'top-end', duration: 4000 }),
     provideWrDensity({ defaultDensity: 'lg' }),
-    provideWrConfig({ button: { size: 'sm' }, input: { size: 'sm' } }),
     provideWrDateAdapter(),
     provideWrI18n(),
     provideWrI18nStaticLoader({ en: { /* … */ } }),
@@ -122,26 +120,6 @@ providers: [provideWrDateAdapter({ adapter: WrDateFnsAdapter })],
 // Or Luxon:
 import { WrLuxonAdapter } from 'ngwr/date/adapters/luxon';
 providers: [provideWrDateAdapter({ adapter: WrLuxonAdapter })],`,
-
-    config: `import { provideWrConfig } from 'ngwr/config';
-
-// App-wide component defaults. Every field is a DEFAULT, not an override: a value
-// bound on the element always wins, so a config is never something a template has
-// to fight its way out of.
-provideWrConfig({
-  button: { size: 'sm' },
-  input: { size: 'sm' },
-  select: { size: 'sm', rounded: true },
-  checkbox: { size: 'sm' },
-});
-
-// <wr-btn>Save</wr-btn>              -> small
-// <wr-btn size="lg">Save</wr-btn>    -> large; the binding wins
-// <wr-select [rounded]="false" />    -> square again; \`false\` is a value, not an absence
-
-// There is deliberately no \`color\` key. The lib's own chrome binds
-// [color]="isCurrent ? 'primary' : null", and \`null\` means "the template said
-// nothing" — a configured intent would repaint every one of those buttons.`,
 
     density: `import { provideWrDensity } from 'ngwr/density';
 

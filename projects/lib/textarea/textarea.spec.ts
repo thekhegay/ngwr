@@ -8,7 +8,6 @@ import { FormField, form, readonly } from '@angular/forms/signals';
 
 import { Subject } from 'rxjs';
 
-import { provideWrConfig } from 'ngwr/config';
 import { WrFormField } from 'ngwr/form';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -334,85 +333,6 @@ describe('WrTextarea resizing under a reading direction', () => {
     it('turns the diagonal cursor over with it', () => {
       expect(rule).toMatch(/\[dir='rtl'\] & \{[^}]*cursor:\s*nesw-resize/);
     });
-  });
-});
-
-/**
- * Two fields on purpose: one that binds no size, so an app-wide default has room to
- * apply, and one that binds — because what makes a global config safe is that a
- * template can still override it.
- */
-@Component({
-  imports: [WrTextarea],
-  template: `
-    <wr-textarea placeholder="Unbound" />
-    <wr-textarea placeholder="Bound" [size]="size()" />
-  `,
-})
-class ConfigHost {
-  readonly size = signal<WrTextareaSize | null>(null);
-}
-
-describe('WrTextarea defaults from provideWrConfig', () => {
-  let fixture: ReturnType<typeof TestBed.createComponent<ConfigHost>>;
-
-  const mount = (providers: unknown[] = []): ConfigHost => {
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: providers as never[] });
-    fixture = TestBed.createComponent(ConfigHost);
-    fixture.detectChanges();
-    return fixture.componentInstance;
-  };
-
-  const at = (placeholder: string): HTMLElement => {
-    const native = (fixture.nativeElement as HTMLElement).querySelector<HTMLTextAreaElement>(
-      `textarea[placeholder="${placeholder}"]`
-    )!;
-    // The modifier classes live on the component host, not on the native element.
-    return native.closest('wr-textarea')!;
-  };
-
-  afterEach(() => fixture.destroy());
-
-  it('renders exactly as before when no config is provided', () => {
-    // The invariant the whole change rests on: `md` earns no modifier, so an
-    // unbound field's class list is bare.
-    mount();
-
-    expect(at('Unbound').className).toBe('wr-textarea');
-  });
-
-  it('takes its size from the config when the template says nothing', () => {
-    mount([provideWrConfig({ textarea: { size: 'sm' } })]);
-
-    expect(at('Unbound').classList.contains('wr-textarea--sm')).toBe(true);
-  });
-
-  it('lets a bound size beat the config', () => {
-    const host = mount([provideWrConfig({ textarea: { size: 'sm' } })]);
-    host.size.set('lg');
-    fixture.detectChanges();
-
-    expect(at('Bound').classList.contains('wr-textarea--lg')).toBe(true);
-    expect(at('Bound').classList.contains('wr-textarea--sm')).toBe(false);
-    // The field beside it bound nothing, so it still takes the configured default.
-    expect(at('Unbound').classList.contains('wr-textarea--sm')).toBe(true);
-  });
-
-  it('goes back to the config when the binding is cleared', () => {
-    const host = mount([provideWrConfig({ textarea: { size: 'sm' } })]);
-    host.size.set('lg');
-    fixture.detectChanges();
-
-    host.size.set(null);
-    fixture.detectChanges();
-    expect(at('Bound').classList.contains('wr-textarea--sm')).toBe(true);
-  });
-
-  it('ignores a config that names other components', () => {
-    mount([provideWrConfig({ input: { size: 'sm' } })]);
-
-    expect(at('Unbound').className).toBe('wr-textarea');
   });
 });
 

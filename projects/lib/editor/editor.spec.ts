@@ -5,7 +5,6 @@ import { By } from '@angular/platform-browser';
 
 import { Subject } from 'rxjs';
 
-import { provideWrConfig } from 'ngwr/config';
 import { WrFormField } from 'ngwr/form';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
@@ -58,7 +57,7 @@ function installLayoutStubs(): () => void {
 })
 class Host {
   readonly value = signal<WrEditorValue>('<p>Hello</p>');
-  readonly format = signal<WrEditorFormat | null>(null);
+  readonly format = signal<WrEditorFormat>('html');
   readonly placeholder = signal('');
   readonly ariaLabel = signal<string | null>(null);
   readonly readonly = signal(false);
@@ -957,36 +956,6 @@ describe('WrEditor inside a form field', () => {
       'Markdown is fine'
     );
     expect(surface.hasAttribute('aria-invalid')).toBe(false);
-    fixture.destroy();
-  });
-});
-
-describe('WrEditor defaults from provideWrConfig', () => {
-  @Component({
-    imports: [WrEditor],
-    template: `
-      <wr-editor class="unbound" value="**b**" />
-      <wr-editor class="bound" value="**b**" [format]="format()" />
-    `,
-  })
-  class ConfigHost {
-    readonly format = signal<WrEditorFormat | null>('html');
-  }
-
-  let removeStubs: () => void;
-  beforeEach(() => (removeStubs = installLayoutStubs()));
-  afterEach(() => removeStubs());
-
-  it('reads the configured format, and a bound one wins', async () => {
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrConfig({ editor: { format: 'markdown' } })] });
-    const fixture = TestBed.createComponent(ConfigHost);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    const root = fixture.nativeElement as HTMLElement;
-
-    expect(root.querySelector('.unbound strong')?.textContent).toBe('b');
-    expect(root.querySelector('.bound .wr-editor__surface')?.textContent).toBe('**b**');
     fixture.destroy();
   });
 });

@@ -2,11 +2,10 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, type EnvironmentProviders, type Type, signal } from '@angular/core';
+import { Component, type Type, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormField, disabled, form, readonly, required } from '@angular/forms/signals';
 
-import { provideWrConfig } from 'ngwr/config';
 import { WrFormField } from 'ngwr/form';
 import { WrTPipe, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
@@ -313,9 +312,9 @@ class TagLimitsHost {
     </wr-select>
   `,
 })
-class ConfigHost {
-  readonly size = signal<WrSelectSize | null>(null);
-  readonly rounded = signal<boolean | null>(null);
+class ShapeHost {
+  readonly size = signal<WrSelectSize>('md');
+  readonly rounded = signal(false);
 }
 
 @Component({
@@ -1529,22 +1528,17 @@ describe('WrSelect with both dynamic and projected options', () => {
 });
 
 /**
- * `provideWrConfig()` is a FALLBACK, not an override: the app-wide `select.size` /
- * `select.rounded` apply only where the template said nothing, and a bound value
- * still wins. Two things are specific to this component. The panel lives in the
- * overlay and builds its size modifier SEPARATELY from the trigger's host class,
- * so both are asserted — a resolved value read in only one of the two places is
- * exactly the half-configured state this pins down. And `rounded` is a boolean:
- * `[rounded]="false"` has to turn a configured `true` back off, which is the case a
- * `??` at the call site would get wrong.
+ * The panel lives in the overlay and builds its size modifier SEPARATELY from the
+ * trigger's host class, so both are asserted — a size read in only one of the two
+ * places is exactly the half-sized state this pins down.
  */
-describe('WrSelect + provideWrConfig', () => {
-  let fixture: ReturnType<typeof TestBed.createComponent<ConfigHost>>;
+describe('WrSelect size and shape', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<ShapeHost>>;
 
-  const mount = (providers: EnvironmentProviders[] = []): HTMLElement => {
+  const mount = (): HTMLElement => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), ...providers] });
-    fixture = TestBed.createComponent(ConfigHost);
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(ShapeHost);
     fixture.detectChanges();
     return (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-select')!;
   };
@@ -1558,62 +1552,31 @@ describe('WrSelect + provideWrConfig', () => {
 
   afterEach(() => fixture.destroy());
 
-  it('renders the md default on trigger and panel when nothing is configured', () => {
+  it('renders the md default on trigger and panel with no modifier class', () => {
     const host = mount();
 
     expect(host.className).toBe('wr-select');
     expect([...panel().classList]).toEqual(['wr-select-panel']);
   });
 
-  it('takes the configured size on both the trigger and the overlay panel', () => {
-    const host = mount([provideWrConfig({ select: { size: 'sm' } })]);
-
-    expect(host.classList.contains('wr-select--sm')).toBe(true);
-    expect(panel().classList.contains('wr-select-panel--sm')).toBe(true);
-  });
-
-  it('lets a bound size beat the configured one, panel included', () => {
-    const host = mount([provideWrConfig({ select: { size: 'sm' } })]);
+  it('carries a bound size on both the trigger and the overlay panel', () => {
+    const host = mount();
     fixture.componentInstance.size.set('lg');
     fixture.detectChanges();
 
     expect(host.classList.contains('wr-select--lg')).toBe(true);
-    expect(host.classList.contains('wr-select--sm')).toBe(false);
-
-    const p = panel();
-    expect(p.classList.contains('wr-select-panel--lg')).toBe(true);
-    expect(p.classList.contains('wr-select-panel--sm')).toBe(false);
+    expect(panel().classList.contains('wr-select-panel--lg')).toBe(true);
   });
 
-  it('takes the configured rounded when the template binds none', () => {
-    expect(mount([provideWrConfig({ select: { rounded: true } })]).classList.contains('wr-select--rounded')).toBe(true);
-  });
+  it('rounds the trigger when bound, and squares it again for `false`', () => {
+    const host = mount();
+    fixture.componentInstance.rounded.set(true);
+    fixture.detectChanges();
+    expect(host.classList.contains('wr-select--rounded')).toBe(true);
 
-  it('lets a bound `false` turn a configured `rounded` back off', () => {
-    const host = mount([provideWrConfig({ select: { rounded: true } })]);
     fixture.componentInstance.rounded.set(false);
     fixture.detectChanges();
-
-    // The escape hatch: a global default a template cannot refuse is the failure
-    // mode this whole design exists to avoid.
     expect(host.classList.contains('wr-select--rounded')).toBe(false);
-  });
-
-  it('lets an explicitly bound `md` beat the configured size, panel included', () => {
-    const host = mount([provideWrConfig({ select: { size: 'sm' } })]);
-    fixture.componentInstance.size.set('md');
-    fixture.detectChanges();
-
-    // The size counterpart of `[rounded]="false"` above: `md` is the one bound
-    // value that renders as the ABSENCE of a class, so an implementation that
-    // treats it as "not set" is indistinguishable from a correct one in every
-    // other test here.
-    expect(host.className).toBe('wr-select');
-    expect([...panel().classList]).toEqual(['wr-select-panel']);
-  });
-
-  it('ignores a config that names other components', () => {
-    expect(mount([provideWrConfig({ input: { size: 'sm', rounded: true } })]).className).toBe('wr-select');
   });
 });
 
@@ -1630,8 +1593,6 @@ describe('WrSelect rounded attribute', () => {
   afterEach(() => fixture.destroy());
 
   it('still reads a bare `rounded` as true', () => {
-    // Coercion has to keep running: the null-preserving transform buys `rounded`
-    // an "unset" state, and must not cost the bare-attribute form its meaning.
     const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-select')!;
 
     expect(host.classList.contains('wr-select--rounded')).toBe(true);

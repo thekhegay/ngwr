@@ -78,21 +78,18 @@ export default class TokensSizingPage {
 <wr-select size="lg" placeholder="Large">…</wr-select>`,
 
     sizeType: `import { input } from '@angular/core';
-import { useConfigValue } from 'ngwr/config';
 
 // Each control re-exports its own size alias, but they share one shape.
 export type WrButtonSize = 'sm' | 'md' | 'lg';
 export type WrInputSize = 'sm' | 'md' | 'lg';
 export type WrSelectSize = 'sm' | 'md' | 'lg';
 
-// The input itself is nullable, so an unset size can fall through to
-// \`provideWrConfig({ button: { size } })\` before it reaches 'md'.
-readonly size = input<WrButtonSize | null>(null);
-readonly resolvedSize = useConfigValue<WrButtonSize>(this.size, c => c.button?.size, 'md');
+// The default lives in the input itself.
+readonly size = input<WrButtonSize>('md');
 
-// Only a resolved size other than 'md' emits a class — the base styles
-// cover the common case.
-// host: const size = this.resolvedSize();
+// Only a size other than 'md' emits a class — the base styles cover the
+// common case.
+// host: const size = this.size();
 //       if (size !== 'md') parts.push(\`wr-btn--\${size}\`);`,
 
     radius: `:root {

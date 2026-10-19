@@ -52,10 +52,8 @@
       <code>'&lt;p&gt;&lt;/p&gt;'</code> would be a non-empty string. That holds for everything that only looks written:
       empty lines, a few spaces, or a list, quote or heading chosen with no text in it. An image or a horizontal line
       counts as content. Changing <code>format</code> at runtime re-reads <code>value</code> in the new format; if it
-      cannot, the document on screen is kept and edits are written in the new format from then on. An app that stores
-      one format everywhere sets it once:
+      cannot, the document on screen is kept and edits are written in the new format from then on.
     </p>
-    <ngwr-doc-code [code]="snippets.config" language="typescript" />
   </ngwr-doc-section>
 
   <ngwr-doc-section

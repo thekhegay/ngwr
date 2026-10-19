@@ -828,9 +828,9 @@ describe('provideWrToastConfig outside the root injector', () => {
     // root-provided, so it resolves WR_TOAST_CONFIG once from the root. A
     // route-level `provideWrToastConfig({ position: 'bottom' })` therefore does
     // nothing at all, and used to do it without a word — an adoption audit spent
-    // an hour finding out. `provideWrConfig()` IS read per route and
-    // `provideWrIcons()` chains, so the asymmetry is real and worth a warning
-    // rather than a paragraph nobody reaches.
+    // an hour finding out. `provideWrIcons()` chains per route, so the
+    // asymmetry is real and worth a warning rather than a paragraph nobody
+    // reaches.
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
     TestBed.configureTestingModule({ providers: [provideWrOverlay()] });

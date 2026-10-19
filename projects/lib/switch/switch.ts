@@ -18,7 +18,6 @@ import {
 } from '@angular/core';
 import type { FormCheckboxControl } from '@angular/forms/signals';
 
-import { useConfigValue } from 'ngwr/config';
 import { useFormFieldAria } from 'ngwr/form';
 import { randomId } from 'ngwr/utils';
 
@@ -92,14 +91,8 @@ export class WrSwitch implements FormCheckboxControl {
   /** The surrounding `<wr-form-field>`'s error state. @internal */
   protected readonly fieldAria = useFormFieldAria();
 
-  /**
-   * Control size — shares the `--wr-control-*` contract. Unset falls back to the
-   * `switch.size` app default from `provideWrConfig()`. @default 'md'
-   */
-  readonly size = input<WrSwitchSize | null>(null);
-
-  /** `size`, then the app config, then `md`. @internal */
-  protected readonly resolvedSize = useConfigValue(this.size, c => c.switch?.size, 'md');
+  /** Control size — shares the `--wr-control-*` contract. @default 'md' */
+  readonly size = input<WrSwitchSize>('md');
 
   /** On / off state. Bound by `[formField]`, or two-way via `[(checked)]`. */
   readonly checked = model<boolean>(false);
@@ -111,7 +104,7 @@ export class WrSwitch implements FormCheckboxControl {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-switch'];
-    const size = this.resolvedSize();
+    const size = this.size();
     if (size !== 'md') parts.push(`wr-switch--${size}`);
     if (this.checked()) parts.push('wr-switch--checked');
     if (this.disabled()) parts.push('wr-switch--disabled');

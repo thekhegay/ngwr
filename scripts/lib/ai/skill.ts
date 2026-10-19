@@ -289,8 +289,6 @@ there is no theme attribute to key a selector on.
 ${providers.map(p => `### \`${p.provider}\`\n\n${p.why[0].toUpperCase()}${p.why.slice(1)}. Needed by ${describeTest(p.test)}.\n`).join('\n')}
 ## Optional, app-wide
 
-- \`provideWrConfig({ button: { size: 'sm' } })\` — component defaults. A bound
-  value always wins, including a bound \`false\` over a configured \`true\`.
 - \`provideWrDensity({ defaultDensity: 'sm' })\` — one control size for the whole
   app; \`'sm' | 'md' | 'lg' | 'touch'\`. It scales the paddings of the ten
   stylesheets that read the multipliers — button, input, textarea, select,

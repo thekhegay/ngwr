@@ -3,7 +3,6 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrConfig } from 'ngwr/config';
 import { WrI18n, provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
@@ -537,33 +536,5 @@ describe('WrPaginationHarness — a catalog that drops the size placeholder', ()
 
     await expect(pager.getPageSize()).rejects.toThrow(/reads "per page", which names no number/);
     await expect(pager.setPageSize(20)).rejects.toThrow(/no option offers 20/);
-  });
-});
-
-describe('WrPaginationHarness — under an app-wide button size', () => {
-  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
-  let loader: HarnessLoader;
-
-  beforeEach(() => {
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrConfig({ button: { size: 'lg' } })] });
-    fixture = TestBed.createComponent(Host);
-    fixture.detectChanges();
-    loader = TestbedHarnessEnvironment.loader(fixture);
-  });
-
-  afterEach(() => fixture.destroy());
-
-  it('reports the size the strip actually renders at', async () => {
-    const pager = await loader.getHarness(WrPaginationHarness);
-    const classes = [...(fixture.nativeElement as HTMLElement).querySelectorAll('.wr-pagination__page')].map(
-      cell => cell.className
-    );
-
-    // A configured `button.size` cannot reach a cell: the pager passes its own
-    // size down explicitly, so the bound value wins over the config every time.
-    expect(await pager.getSize()).toBe('sm');
-    expect(classes.every(name => name.includes('wr-btn--sm'))).toBe(true);
-    expect(classes.some(name => name.includes('wr-btn--lg'))).toBe(false);
   });
 });

@@ -18,7 +18,6 @@ import {
   input,
 } from '@angular/core';
 
-import { useConfigValue } from 'ngwr/config';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WrSpinner } from 'ngwr/spinner';
 import type { WrColor } from 'ngwr/theme';
@@ -77,21 +76,12 @@ export class WrButton {
   /**
    * Color variant. Omit for the neutral default style.
    *
-   * Deliberately NOT configurable app-wide: the library's own chrome binds
-   * `[color]="isCurrent ? 'primary' : null"`, where `null` means neutral, and a
-   * configured intent would repaint every one of those buttons. See `WrConfig`.
-   *
    * @default null
    */
   readonly color = input<WrColor | null>(null);
 
-  /**
-   * Size variant. Unset, it resolves through
-   * `provideWrConfig({ button: { size } })` and then to `md`.
-   *
-   * @default 'md'
-   */
-  readonly size = input<WrButtonSize | null>(null);
+  /** Size variant. @default 'md' */
+  readonly size = input<WrButtonSize>('md');
 
   /**
    * Corner treatment — `rounded`, `pill` or `squircle`. `null` (default) falls
@@ -136,15 +126,11 @@ export class WrButton {
 
   private readonly group = inject(WR_BUTTON_GROUP, { optional: true });
 
-  /** The size, or the app-wide default, or `md`. @see useConfigValue */
-  protected readonly resolvedSize = useConfigValue<WrButtonSize>(this.size, c => c.button?.size, 'md');
-
   /**
    * Resolved shape. Inside a `<wr-btn-group>`, the group ALWAYS wins — child
    * `[shape]` is ignored entirely so the group reads as one coherent control.
    * Outside a group, the button's own `[shape]` is used, falling back to
-   * `rounded`. Not config-resolved: see `WrConfig` for why a boolean cannot
-   * express this three-valued input.
+   * `rounded`.
    */
   protected readonly resolvedShape = computed<WrButtonShape>(() =>
     this.group ? (this.group.shape() ?? 'rounded') : (this.shape() ?? 'rounded')
@@ -276,7 +262,7 @@ export class WrButton {
     const color = this.color();
     if (color) parts.push(`wr-btn--${color}`);
 
-    const size = this.resolvedSize();
+    const size = this.size();
     if (size !== 'md') parts.push(`wr-btn--${size}`);
 
     const shape = this.resolvedShape();

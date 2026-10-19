@@ -118,8 +118,8 @@ export class MyForm {}`,
       type: 'attribute',
       default: '—',
     },
-    { name: 'size', description: 'Control size.', type: `'sm' | 'md' | 'lg' | null`, default: `'md'` },
-    { name: 'rounded', description: 'Pill-shaped corners.', type: 'boolean | null', default: 'false' },
+    { name: 'size', description: 'Control size.', type: `'sm' | 'md' | 'lg'`, default: `'md'` },
+    { name: 'rounded', description: 'Pill-shaped corners.', type: 'boolean', default: 'false' },
   ];
 
   protected readonly groupApi: readonly DocApiRow[] = [
@@ -129,7 +129,7 @@ export class MyForm {}`,
       type: 'component',
       default: '—',
     },
-    { name: 'rounded', description: 'Pill-shaped corners.', type: 'boolean | null', default: 'false' },
+    { name: 'rounded', description: 'Pill-shaped corners.', type: 'boolean', default: 'false' },
   ];
 
   protected readonly affixApi: readonly DocApiRow[] = [

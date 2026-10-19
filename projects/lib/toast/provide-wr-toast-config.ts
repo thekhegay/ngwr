@@ -39,13 +39,12 @@ import type { WrToastConfig } from './types';
  * });
  * ```
  *
- * **Bootstrap only, and the three ngwr providers differ here.** {@link WrToast}
+ * **Bootstrap only, and the two ngwr providers differ here.** {@link WrToast}
  * is root-provided, so it reads this token once from the ROOT injector — a
  * `provideWrToastConfig()` in a route's `providers` is never seen, and used to
  * be ignored in silence. It now warns in dev mode instead. By contrast
- * `provideWrConfig()` IS read per route, because components resolve it from
- * their own injector, and `provideWrIcons()` works at any level and chains, so
- * a route may add icons to the set its parent registered.
+ * `provideWrIcons()` works at any level and chains, so a route may add icons to
+ * the set its parent registered.
  */
 export function provideWrToastConfig(
   config: Partial<Omit<WrToastConfig, 'labels'>> & { readonly labels?: Partial<WrToastConfig['labels']> }

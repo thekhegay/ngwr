@@ -11,9 +11,7 @@ import type { BaseHarnessFilters } from '@angular/cdk/testing';
  * The sizes a strip renders — the `size` input as the host actually paints it.
  *
  * `md` is the default and carries no modifier class, so it is read as the ABSENCE
- * of the other two. `<wr-tabs>` resolves this input on its own rather than through
- * `provideWrConfig()`, so what the harness reports and what the consumer wrote are
- * the same thing here.
+ * of the other two.
  */
 export type WrTabsHarnessSize = 'sm' | 'md' | 'lg';
 

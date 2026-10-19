@@ -50,7 +50,7 @@ function installLayoutStubs(): () => void {
 class Host {
   readonly body = signal<WrEditorValue>('<p>Hello</p>');
   readonly summary = signal<WrEditorValue>('- [x] shipped\n- [ ] announced');
-  readonly format = signal<WrEditorFormat | null>(null);
+  readonly format = signal<WrEditorFormat>('html');
   readonly readonly = signal(false);
   readonly disabled = signal(false);
   readonly summaryTools: readonly WrEditorTool[] = ['bold', 'underline', 'italic', '|', 'undo', 'redo'];

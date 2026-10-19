@@ -29,7 +29,7 @@ const FENCE = '```';
 class Host {
   readonly value = signal('');
   readonly streaming = signal(false);
-  readonly copyable = signal<boolean | null>(null);
+  readonly copyable = signal(false);
   readonly linkTarget = signal<'_blank' | '_self' | null>(null);
   readonly headingIds = signal(true);
 }

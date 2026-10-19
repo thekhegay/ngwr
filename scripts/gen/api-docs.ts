@@ -972,8 +972,9 @@ function unwrapped(member: string): string {
  *     has drawn a distinction, or is sloppy, and either way it should be seen.
  *
  * `null` is deliberately NOT on this list. It is a value with per-component
- * semantics — fall back to config, render a `<span>` instead of an `<a>`, keep
- * "unset" distinct from `false` — and six rows are failing on exactly that.
+ * semantics — fall back to the i18n catalog, render a `<span>` instead of an
+ * `<a>`, keep "unset" distinct from `false` — and six rows are failing on
+ * exactly that.
  */
 function dropsUndefined(source: ApiRow, sourceMembers: readonly string[]): boolean {
   if (source.kind !== 'input' && source.kind !== 'model') return false;

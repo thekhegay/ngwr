@@ -8,7 +8,6 @@
 import { Component, InjectionToken, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrConfig } from 'ngwr/config';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { provideWrMarkdownHighlighter } from './provide-wr-markdown';
@@ -45,7 +44,7 @@ import { WrMarkdownHighlight } from './wr-markdown-highlight';
 class Host {
   readonly value = signal('');
   readonly streaming = signal(false);
-  readonly copyable = signal<boolean | null>(null);
+  readonly copyable = signal(false);
   readonly linkTarget = signal<'_blank' | '_self' | null>(null);
   readonly headingIds = signal(true);
   readonly headingIdPrefix = signal('user-content-');
@@ -513,55 +512,6 @@ describe('WrMarkdown — highlighting', () => {
     // The template asks on every change detection; the cache is what stops a
     // grammar engine running on every keystroke of a stream.
     expect(highlighter.mock.calls.length).toBe(calls);
-  });
-});
-
-describe('WrMarkdown — config defaults', () => {
-  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
-  const q = <T extends Element>(selector: string): T | null =>
-    (fixture.nativeElement as HTMLElement).querySelector<T>(selector);
-
-  const mount = async (value: string): Promise<void> => {
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({
-      providers: [provideWrConfig({ markdown: { linkTarget: '_blank', copyable: true } })],
-    });
-    fixture = TestBed.createComponent(Host);
-    fixture.componentInstance.value.set(value);
-    fixture.detectChanges();
-    await fixture.whenStable();
-  };
-
-  afterEach(() => fixture.destroy());
-
-  it('takes both defaults from provideWrConfig', async () => {
-    await mount(`[x](https://a.b)\n\n${FENCE}\na\n${FENCE}`);
-
-    // Whether links open in a new tab, and whether code carries a copy button,
-    // are app-wide policy — which is the test a config key has to pass.
-    expect(q('a')!.getAttribute('target')).toBe('_blank');
-    expect(q('button.wr-markdown__copy')).not.toBeNull();
-  });
-
-  it('lets a bound value win over the configured one', async () => {
-    await mount('[x](https://a.b)');
-    fixture.componentInstance.linkTarget.set('_self');
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    expect(q('a')!.getAttribute('target')).toBe('_self');
-  });
-
-  it('lets a bound false turn a configured true back off', async () => {
-    await mount(`${FENCE}\na\n${FENCE}`);
-    fixture.componentInstance.copyable.set(false);
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    // The NG-ZORRO lesson, and the reason `useConfigValue` checks for `null`
-    // rather than for falsiness: a config nobody can escape is a config that
-    // every template has to re-state.
-    expect(q('button.wr-markdown__copy')).toBeNull();
   });
 });
 

@@ -25,7 +25,6 @@ import {
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
-import { useConfigValue } from 'ngwr/config';
 import { useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { isComposing } from 'ngwr/utils';
@@ -83,20 +82,12 @@ export class WrInputOtp implements FormValueControl<string> {
   readonly mode = input<WrInputOtpMode>('numeric');
 
   /**
-   * Control size — shares the `--wr-control-*` contract. Unset falls back to the
-   * `inputOtp.size` app default from `provideWrConfig()`. @default 'md'
+   * Control size — shares the `--wr-control-*` contract. A box carries no size
+   * of its own: the host modifier sets `--wr-input-otp-size` / `-font` /
+   * `-radius` / `-gap` and every box reads them from the cascade, so one value
+   * sizes the whole strip however many boxes `length` renders. @default 'md'
    */
-  readonly size = input<WrInputOtpSize | null>(null);
-
-  /**
-   * `size`, then the app config, then `md`.
-   *
-   * Read ONCE, here: a box carries no size of its own — the host modifier sets
-   * `--wr-input-otp-size` / `-font` / `-radius` / `-gap` and every box reads them
-   * from the cascade — so one resolution sizes the whole strip however many boxes
-   * `length` renders.
-   */
-  protected readonly resolvedSize = useConfigValue(this.size, c => c.inputOtp?.size, 'md');
+  readonly size = input<WrInputOtpSize>('md');
 
   /** Mask the typed characters like a password. @default false */
   readonly mask = input(false, { transform: coerceBooleanProperty });
@@ -166,7 +157,7 @@ export class WrInputOtp implements FormValueControl<string> {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-input-otp'];
-    const size = this.resolvedSize();
+    const size = this.size();
     if (size !== 'md') parts.push(`wr-input-otp--${size}`);
     if (this.disabled()) parts.push('wr-input-otp--disabled');
     else if (this.readonly()) parts.push('wr-input-otp--readonly');

@@ -50,7 +50,6 @@ import {
   timer,
 } from 'rxjs';
 
-import { useConfigValue } from 'ngwr/config';
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrFollowDirection, wrPresentAsSheet } from 'ngwr/overlay';
@@ -261,32 +260,15 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
    */
   readonly readonly = input(false, { transform: coerceBooleanProperty });
 
-  /**
-   * Pill-shaped corners on the trigger. Unset falls back to the `select.rounded`
-   * app default from `provideWrConfig()`; `[rounded]="false"` turns a configured
-   * `true` back off. @default false
-   */
-  readonly rounded = input<boolean | null, BooleanInput>(null, {
-    // Null-preserving, like `responsive` below: the plain `coerceBooleanProperty`
-    // folds `null` into `false`, which would make "not set" and "set to false"
-    // the same value — and a config default nothing could ever supply.
-    transform: (v: BooleanInput): boolean | null => (v == null ? null : coerceBooleanProperty(v)),
-  });
+  /** Pill-shaped corners on the trigger. @default false */
+  readonly rounded = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * Control size — shares the `--wr-control-*` contract. Unset falls back to the
-   * `select.size` app default from `provideWrConfig()`. @default 'md'
+   * Control size — shares the `--wr-control-*` contract. Read by the trigger's
+   * host classes AND by the overlay panel, which builds its size modifier
+   * separately. @default 'md'
    */
-  readonly size = input<WrSelectSize | null>(null);
-
-  /** `rounded`, then the app config, then `false`. @internal */
-  protected readonly resolvedRounded = useConfigValue(this.rounded, c => c.select?.rounded, false);
-
-  /**
-   * `size`, then the app config, then `md`. Read by the trigger's host classes AND
-   * by the overlay panel, which builds its size modifier separately.
-   */
-  protected readonly resolvedSize = useConfigValue(this.size, c => c.select?.size, 'md');
+  readonly size = input<WrSelectSize>('md');
 
   /**
    * Present the option panel as a full-width bottom-sheet on small
@@ -788,8 +770,8 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   protected readonly classes = computed(() => {
     const parts = ['wr-select'];
     if (this.open()) parts.push('wr-select--open');
-    if (this.resolvedRounded()) parts.push('wr-select--rounded');
-    const size = this.resolvedSize();
+    if (this.rounded()) parts.push('wr-select--rounded');
+    const size = this.size();
     if (size !== 'md') parts.push(`wr-select--${size}`);
     if (this.isMulti()) parts.push('wr-select--multi');
     if (this.isTag()) parts.push('wr-select--tag');

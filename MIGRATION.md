@@ -249,6 +249,25 @@ The date picker's refusals have no English default either: `<wr-date-picker>` an
 and `dateFilter` in your catalog, with the example date as the `example` param. Without those keys
 a refusal still shows as a danger border and `aria-invalid`, with no sentence.
 
+### No app-wide component defaults
+
+`ngwr/config` is removed, with `provideWrConfig()`, `WR_CONFIG`, `useConfigValue()` and the
+`WrConfig` types. A component's default is the one written on its input, and nothing app-wide
+changes it: bind the input wherever you want another value, or wrap the component in one of your
+own.
+
+```diff
+- import { provideWrConfig } from 'ngwr/config';
+- provideWrConfig({ button: { size: 'sm' }, select: { rounded: true }, editor: { format: 'markdown' } }),
++ <wr-btn size="sm">Save</wr-btn>
++ <wr-select rounded>…</wr-select>
++ <wr-editor format="markdown" [(value)]="notes" />
+```
+
+The import fails the build. Deleting the call is what is silent: every control it reached goes
+back to its own default — `md`, the standard radius, HTML for `<wr-editor>`, no copy button or link
+target on `<wr-markdown>` — so bind each key the call set before you remove it.
+
 ---
 
 ## v13 to v14

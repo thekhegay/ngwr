@@ -161,7 +161,6 @@ export default class TypesCatalogPage {
     {
       title: 'Services & config',
       items: [
-        { name: 'WrConfig', description: 'App-wide component defaults.', url: ['/start', 'configuration'] },
         { name: 'WrThemeConfig', description: 'Default mode + storage key.', url: ['/reference/services', 'theme'] },
         { name: 'WrScrollOptions', description: 'Scroll target + behavior.', url: ['/reference/services', 'scroll'] },
         { name: 'WrHotkeySpec', description: 'Key combo descriptor.', url: ['/reference/services', 'hotkey'] },

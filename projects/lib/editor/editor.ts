@@ -33,7 +33,6 @@ import {
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { WrButton } from 'ngwr/button';
-import { useConfigValue } from 'ngwr/config';
 import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrInput } from 'ngwr/input';
@@ -209,18 +208,12 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   readonly ariaLabel = input<string | null>(null);
 
   /**
-   * What `value` holds — see {@link WrEditorFormat}. Unset, it falls back to
-   * `provideWrConfig({ editor: { format } })`. Changing it re-reads `value` in
-   * the new format.
+   * What `value` holds — see {@link WrEditorFormat}. Changing it re-reads
+   * `value` in the new format.
    *
    * @default 'html'
    */
-  readonly format = input<WrEditorFormat | null>(null);
-
-  // `null` as the input's own default, not `'html'`, so "the template said
-  // nothing" stays distinguishable from "the template said html" and an app-wide
-  // default can apply.
-  protected readonly resolvedFormat = useConfigValue(this.format, c => c.editor?.format, 'html');
+  readonly format = input<WrEditorFormat>('html');
 
   /**
    * The toolbar's tools, in order, with `'|'` between groups; `false` hides it.
@@ -363,7 +356,7 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   protected readonly tools = computed<readonly WrEditorTool[]>(() => {
     const bound = this.toolbar();
     if (!bound) return [];
-    const markdown = this.resolvedFormat() === 'markdown';
+    const markdown = this.format() === 'markdown';
     const out: WrEditorTool[] = [];
     for (const tool of bound) {
       if (markdown && tool === 'underline') continue;
@@ -385,7 +378,7 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   });
 
   private readonly commands = computed(() => {
-    const schema = editorSchema(this.resolvedFormat());
+    const schema = editorSchema(this.format());
     return new Map(this.buttons().map(tool => [tool, toolCommand(tool, schema)]));
   });
 
@@ -463,7 +456,7 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
    */
   protected readonly preview = computed<WrEditorJson | null>(() => {
     if (this.mounted()) return null;
-    const format = this.resolvedFormat();
+    const format = this.format();
     try {
       return readValue(this.value(), format, editorSchema(format), this.document).toJSON() as WrEditorJson;
     } catch (error) {
@@ -488,7 +481,7 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
     // value is the document already on screen — see `lastSerialized`.
     effect(() => {
       const value = this.value();
-      const format = this.resolvedFormat();
+      const format = this.format();
       untracked(() => this.sync(value, format));
     });
 
@@ -777,7 +770,7 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
     const surface = this.surface();
     if (!surface) return;
     this.apple.set((this.platform.userAgent ?? '').toLowerCase().includes('mac'));
-    const format = untracked(this.resolvedFormat);
+    const format = untracked(this.format);
     const value = untracked(this.value);
     const schema = editorSchema(format);
     let doc: Node;

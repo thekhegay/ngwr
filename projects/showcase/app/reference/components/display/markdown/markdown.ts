@@ -313,16 +313,6 @@ bootstrapApplication(App, {
 
 <!-- Off entirely, e.g. when several documents share one page. -->
 <wr-markdown [value]="doc" [headingIds]="false" />`,
-    config: `import { provideWrConfig } from 'ngwr/config';
-
-// App-wide policy rather than per-instance taste: whether rendered links leave
-// the tab, and whether code blocks carry a copy button, are decided once.
-provideWrConfig({
-  markdown: { linkTarget: '_blank', copyable: true },
-});
-
-// <wr-markdown [value]="doc" />                     -> copyable, links open in a new tab
-// <wr-markdown [value]="doc" [copyable]="false" />  -> the binding wins; \`false\` is a value`,
     parse: `import { parseMarkdown, parseInlines, plainText, safeMarkdownUrl, serializeMarkdown } from 'ngwr/markdown';
 
 // The same tree the component renders — useful for a summary, a search index,

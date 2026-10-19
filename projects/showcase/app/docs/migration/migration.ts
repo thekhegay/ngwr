@@ -237,6 +237,15 @@ export default class MigrationPageComponent {
 # One field, its own sentence: project it, as before.
 + <wr-form-error key="required">Please fill this in.</wr-form-error>`,
 
+    v15Config: `# The entry point is gone, with everything it exported.
+- import { provideWrConfig } from 'ngwr/config';
+- provideWrConfig({ button: { size: 'sm' }, select: { rounded: true }, editor: { format: 'markdown' } }),
+
+# Bind the input wherever you want a value other than its default.
++ <wr-btn size="sm">Save</wr-btn>
++ <wr-select rounded>…</wr-select>
++ <wr-editor format="markdown" [(value)]="notes" />`,
+
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
 # One command, whatever major you are on: ng update installs the latest
 # release and applies every migration newer than the version you had, oldest

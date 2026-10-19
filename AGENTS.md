@@ -185,15 +185,15 @@ one component folder. Reach for them instead of hand-rolling:
   `navigator.language` or a literal `'en'`, so an app that sets `LOCALE_ID`
   correctly stops formatting dates in whatever language the visitor's browser
   happens to be. Reach for `navigator.language` only by writing it explicitly.
-- **Component defaults** (`ngwr/config`) — `provideWrConfig({ button: { size: 'sm' } })`
-  sets what a component falls back to when a template says nothing. A bound value
-  always WINS (config is a default, never an override — the NG-ZORRO
-  `NzConfigService` lesson), and a bound `false` beats a configured `true`, so
-  nothing has to be re-stated to escape it. Components read theirs with
-  `useConfigValue(this.size, c => c.button?.size, 'md')`, the same shape as
-  `useI18nText`. Adding a key means widening `WrConfig` AND resolving it at the
-  component — an input whose default moved to `null` and is still read raw renders
-  nothing.
+- **`ngwr/config` is gone (v15).** `provideWrConfig()`, `WR_CONFIG` and
+  `useConfigValue()` are removed because ngwr does not ship app-wide default
+  overrides: `size`, `rounded`, `format`, `copyable` and `linkTarget` take the
+  concrete default written in their `input()`, and the template reads the input
+  directly. Do not bring back a config provider that fills a nullable input; an
+  app that wants another value binds it, or wraps the component in its own. Two
+  things are not that pattern and stay: the `*Label` inputs, which `useI18nText`
+  fills from the catalog (see Strings & i18n), and `responsive`, whose
+  `undefined` still follows `provideWrResponsiveOverlays()`.
 - **Density** (`ngwr/density`) — `provideWrDensity()`, the `[wrDensity]`
   directive, `WrDensity` service; values sm / md / lg / touch
   drive the `--wr-density-*` multipliers.

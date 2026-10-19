@@ -99,9 +99,7 @@ export class WrMarkdownCodeBlockHarness extends ComponentHarness {
    * Whether this block offers a copy button.
    *
    * Two conditions, and both are the component's policy rather than an accident:
-   * `copyable` has to be on (bound, or defaulted through
-   * `provideWrConfig({ markdown: { copyable: true } })`), and the fence has to be
-   * CLOSED. Mid-stream a block's code is not all there, and a button that copies
+   * `copyable` has to be on, and the fence has to be CLOSED. Mid-stream a block's code is not all there, and a button that copies
    * half a snippet is worse than no button.
    */
   async canCopy(): Promise<boolean> {
@@ -138,8 +136,7 @@ export class WrMarkdownCodeBlockHarness extends ComponentHarness {
     if (!button) {
       throw new Error(
         'WrMarkdownCodeBlockHarness.copy(): this block has no copy button. Either `copyable` is off — it ' +
-          'falls back to `markdown.copyable` from provideWrConfig(), then to false — or the fence is still ' +
-          'open, and <wr-markdown> only offers one on a CLOSED block.'
+          'defaults to false — or the fence is still open, and <wr-markdown> only offers one on a CLOSED block.'
       );
     }
     await button.click();

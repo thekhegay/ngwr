@@ -5,11 +5,10 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { type BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, DestroyRef, ViewEncapsulation, computed, effect, inject, input, signal } from '@angular/core';
 
-import { useConfigValue } from 'ngwr/config';
 import { WrCopyToClipboard } from 'ngwr/directives';
 import { useI18nText } from 'ngwr/i18n';
 
@@ -86,24 +85,19 @@ export class WrMarkdown {
   /**
    * Show a copy button on finished code blocks.
    *
-   * Falls back to `markdown.copyable` from `provideWrConfig()`, then `false`.
    * Only CLOSED blocks get one: mid-stream the code is not all there, and a
    * button that copies half a snippet is worse than no button.
+   *
+   * @default false
    */
-  readonly copyable = input<boolean | null, BooleanInput>(null, {
-    // `null` survives, because it is what "the template said nothing" means to
-    // `useConfigValue` — but a bare `copyable` attribute has to reach `true`, and
-    // without a transform it arrives as `''` and does not compile under
-    // `strictTemplates`. The component's own JSDoc example was the proof.
-    transform: value => (value == null ? null : coerceBooleanProperty(value)),
-  });
+  readonly copyable = input(false, { transform: coerceBooleanProperty });
 
   /**
    * Where links open. `_blank` also sets `rel="noopener noreferrer"`, which is
    * not optional — a target without it hands the opener to a page whose URL came
-   * from the document being rendered.
+   * from the document being rendered. `null` sets no target.
    *
-   * Falls back to `markdown.linkTarget` from `provideWrConfig()`, then no target.
+   * @default null
    */
   readonly linkTarget = input<'_blank' | '_self' | null>(null);
 
@@ -142,12 +136,6 @@ export class WrMarkdown {
   /** Read out for an unchecked task item. Falls back to `markdown.taskTodo`, then `'To do:'`. */
   readonly taskTodoLabel = input<string | null>(null);
 
-  protected readonly resolvedCopyable = useConfigValue(this.copyable, config => config.markdown?.copyable, false);
-  protected readonly resolvedLinkTarget = useConfigValue<'_blank' | '_self' | null>(
-    this.linkTarget,
-    config => config.markdown?.linkTarget,
-    null
-  );
   protected readonly resolvedCopyLabel = useI18nText(this.copyLabel, 'markdown.copy', 'Copy code');
   protected readonly resolvedCopiedLabel = useI18nText(this.copiedLabel, 'markdown.copied', 'Copied');
   protected readonly resolvedTaskDoneLabel = useI18nText(this.taskDoneLabel, 'markdown.taskDone', 'Done:');
@@ -167,7 +155,7 @@ export class WrMarkdown {
   protected readonly blocks = computed(() => parseMarkdown(this.value(), { streaming: this.streaming() }));
 
   /** `rel` is bound, not hard-coded, so a same-tab link does not carry a pointless one. */
-  protected readonly linkRel = computed(() => (this.resolvedLinkTarget() === '_blank' ? 'noopener noreferrer' : null));
+  protected readonly linkRel = computed(() => (this.linkTarget() === '_blank' ? 'noopener noreferrer' : null));
 
   /**
    * Which code block last got copied, held by IDENTITY.
