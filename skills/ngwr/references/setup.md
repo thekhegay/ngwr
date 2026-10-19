@@ -52,11 +52,12 @@ that differs between the two is one `light-dark(<light>, <dark>)` value.
 `inject(WrTheme).set('dark')` from `ngwr/theme` switches the whole page and
 remembers the choice; `'light'` forces the other side and `'auto'` hands it
 back to the OS. The service applies a remembered choice, or a non-`auto`
-`defaultMode` from `WR_THEME_CONFIG`, when it is first injected. Inject it
-once at boot, in the root component, or ship `wrThemePrePaintScript()` in
-`<head>` with the same values; otherwise a page whose first screen never
-injects it paints the OS scheme. Write your own dark values with `light-dark()` as well —
-there is no theme attribute to key a selector on.
+`defaultMode` passed to `withTheme()`, when it is first injected, and
+`provideWr(withTheme())` injects it at boot; without that, a page whose first
+screen never injects it paints the OS scheme. Ship `wrThemePrePaintScript()`
+in `<head>` with the same values to apply the choice before first paint.
+Write your own dark values with `light-dark()` as well — there is no theme
+attribute to key a selector on.
 
 ## Providers with no default
 
@@ -74,18 +75,41 @@ The pipe and directive read from a catalog you provide. Register ngwr's with `pr
 
 ## Optional, app-wide
 
-- `provideWrDensity({ defaultDensity: 'sm' })` — one control size for the whole
-  app; `'sm' | 'md' | 'lg' | 'touch'`. It scales the paddings of the ten
-  stylesheets that read the multipliers — button, input, textarea, select,
-  cascader, tree, list, table, badge/tag, editor — so `touch` grows those together. A
-  control with fixed geometry (checkbox, switch, radio, slider, rating,
-  segmented) does not move; its ≥44px target comes from the `touch-target` mixin
-  under `@media (pointer: coarse)` instead.
-- `provideWrDateAdapter({ locale: 'fr' })` from `ngwr/date` — pins the dates
-  to another locale. The calendar, the date pickers and the event calendar need
-  no provider: they run on the native adapter (`Date` and `Intl`) in
+App-wide options are features of ONE `provideWr()` call from `ngwr`, each
+imported from the entry point it configures, so an app bundles only the ones it
+uses. Each feature goes in once; in dev mode a repeat throws.
+
+```ts
+import { provideWr } from 'ngwr';
+import { withDates } from 'ngwr/date';
+import { withDensity } from 'ngwr/density';
+
+bootstrapApplication(App, {
+  providers: [provideWr(withDensity({ defaultDensity: 'sm' }), withDates({ locale: 'fr' }))],
+});
+```
+
+- `withDensity({ defaultDensity: 'sm' })` from `ngwr/density` — one control
+  size for the whole app; `'sm' | 'md' | 'lg' | 'touch'`. It scales the
+  paddings of the ten stylesheets that read the multipliers — button, input,
+  textarea, select, cascader, tree, list, table, badge/tag, editor — so
+  `touch` grows those together. A control with fixed geometry (checkbox,
+  switch, radio, slider, rating, segmented) does not move; its ≥44px target
+  comes from the `touch-target` mixin under `@media (pointer: coarse)`
+  instead.
+- `withDates({ locale: 'fr' })` from `ngwr/date` — pins the dates to another
+  locale. The calendar, the date pickers and the event calendar need no
+  provider: they run on the native adapter (`Date` and `Intl`) in
   `LOCALE_ID`. Another date library: subclass `WrDateAdapter`, decorate it
-  with `@Service()` and pass it as `{ adapter: MyDateAdapter }`.
+  with `@Service()` and pass it as `{ adapter: MyDateAdapter }`. The one
+  feature that also works in a route's `providers`, for that subtree.
+- `withTheme({ defaultMode: 'dark' })` from `ngwr/theme` — the default
+  scheme and its storage key, and `WrTheme` created at boot.
+- `withToast({ … })` from `ngwr/toast`, `withStorage({ … })` from
+  `ngwr/storage` and `withMeta({ … })` from `ngwr/meta` — toast defaults,
+  the storage engine, prefix and TTL, and `<head>` defaults for every route.
+  Like density and theme they configure a root service, so they belong at
+  bootstrap.
 - A `validation` namespace in your own i18n catalog — ngwr ships no validation
   copy. `<wr-form-field>` reads `validation.<key>` for an error whose validator
   carries no `{ message }`, with the error payload as params.
