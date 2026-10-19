@@ -5,7 +5,7 @@ description: Build Angular UIs with the ngwr component library (standalone, sign
 
 # ngwr
 
-An Angular 22 UI library: 222 tree-shakable entry points, 112 of them shipping a selector.
+An Angular 22 UI library: 220 tree-shakable entry points, 112 of them shipping a selector.
 Standalone, signals-first, zoneless, `ViewEncapsulation.None`. One runtime
 dependency (`tslib`).
 
@@ -99,7 +99,7 @@ cause.
 - `provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon'`
   — icons resolve by name from a registry you populate
   — needed by: `WrIcon`
-- `provideWrDateFnsAdapter() // from 'ngwr/date/adapters/fns'`
+- `provideWrDateAdapter() // from 'ngwr/date'`
   — every date mode goes through an adapter; there is no built-in default
   — needed by: `WrDatePicker`, `WrCalendar`, `WrEventCalendar`
 - `provideWrLoadingBarRouter() // from 'ngwr/loading-bar/router'`
@@ -127,4 +127,4 @@ Overlay panels render into the overlay container, NOT the fixture — provide
 ## Reference files
 
 - `references/catalog.md` — every entry point with import line and selectors.
-- `references/setup.md` — bootstrap, styles, theme, i18n, date adapters.
+- `references/setup.md` — bootstrap, styles, theme, i18n, the date adapter.

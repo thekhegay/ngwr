@@ -404,8 +404,6 @@ export const STYLE_DEPENDENCIES: Readonly<Record<string, readonly string[]>> = {
  */
 export const OPTIONAL_PEER_DEPENDENCIES: Readonly<Record<string, Readonly<Record<string, string>>>> = {
   "ngwr/breadcrumbs": { "@angular/router": ">=22.0.0" },
-  "ngwr/date/adapters/fns": { "date-fns": "^3.0.0 || ^4.0.0" },
-  "ngwr/date/adapters/luxon": { "luxon": "^3.0.0" },
   "ngwr/editor": { "prosemirror-commands": "^1.7.2", "prosemirror-history": "^1.5.0", "prosemirror-inputrules": "^1.5.1", "prosemirror-keymap": "^1.2.3", "prosemirror-model": "^1.25.8", "prosemirror-schema-list": "^1.5.1", "prosemirror-state": "^1.4.4", "prosemirror-view": "^1.42.3" },
   "ngwr/loading-bar/router": { "@angular/router": ">=22.0.0" },
   "ngwr/sidebar": { "@angular/router": ">=22.0.0" },

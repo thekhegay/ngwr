@@ -92,8 +92,6 @@ root barrel for components.
 | `ngwr/date` | `import { WrDateAdapter } from 'ngwr/date'` | — |
 | `ngwr/date-picker` | `import { WrDatePicker } from 'ngwr/date-picker'` | `wr-date-picker` `wr-date-range-picker` |
 | `ngwr/date-picker/testing` | `import { WrDatePickerDayHarness } from 'ngwr/date-picker/testing'` | — |
-| `ngwr/date/adapters/fns` | `import { WrDateFnsAdapter } from 'ngwr/date/adapters/fns'` | — |
-| `ngwr/date/adapters/luxon` | `import { WrLuxonAdapter } from 'ngwr/date/adapters/luxon'` | — |
 | `ngwr/density` | `import { WrDensity } from 'ngwr/density'` | `[wrDensity]` |
 | `ngwr/descriptions` | `import { WrDescriptions } from 'ngwr/descriptions'` | `wr-description-item` `wr-descriptions` |
 | `ngwr/dialog` | `import { WrDialog } from 'ngwr/dialog'` | `[wrDialogClose]` `[wrDialogContent]` `[wrDialogFooter]` `[wrDialogTitle]` |

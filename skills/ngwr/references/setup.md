@@ -70,7 +70,7 @@ Gives ngwr overlays their own container, so they never collide with other CDK ov
 
 Icons resolve by name from a registry you populate. Needed by `WrIcon`.
 
-### `provideWrDateFnsAdapter() // from 'ngwr/date/adapters/fns'`
+### `provideWrDateAdapter() // from 'ngwr/date'`
 
 Every date mode goes through an adapter; there is no built-in default. Needed by `WrDatePicker`, `WrCalendar`, `WrEventCalendar`.
 
@@ -91,6 +91,9 @@ The pipe and directive read from a catalog you provide. Register ngwr's with `pr
   control with fixed geometry (checkbox, switch, radio, slider, rating,
   segmented) does not move; its ≥44px target comes from the `touch-target` mixin
   under `@media (pointer: coarse)` instead.
+- Another date library: subclass `WrDateAdapter` from `ngwr/date` and pass it
+  as `provideWrDateAdapter({ adapter: MyDateAdapter })`. ngwr ships only the
+  native adapter.
 - A `validation` namespace in your own i18n catalog — ngwr ships no validation
   copy. `<wr-form-field>` reads `validation.<key>` for an error whose validator
   carries no `{ message }`, with the error payload as params.
