@@ -7,6 +7,7 @@ interface ScaleStep {
   readonly token: string;
   readonly value: string;
   readonly px: string;
+  readonly leading: string;
 }
 
 @Component({
@@ -16,17 +17,17 @@ interface ScaleStep {
   imports: [DocCodeComponent, DocPageComponent, DocSectionComponent, DocSeeAlsoComponent],
 })
 export default class TokensTypographyPage {
-  /** The `--wr-text-*` font-size scale, in source order (1rem = 16px). */
+  /** The `--wr-text-*` font-size scale with its `-leading` pair, in source order (1rem = 16px). */
   protected readonly scale: readonly ScaleStep[] = [
-    { token: '--wr-text-xs', value: '0.75rem', px: '12px' },
-    { token: '--wr-text-sm', value: '0.875rem', px: '14px' },
-    { token: '--wr-text-base', value: '1rem', px: '16px' },
-    { token: '--wr-text-lg', value: '1.125rem', px: '18px' },
-    { token: '--wr-text-xl', value: '1.25rem', px: '20px' },
-    { token: '--wr-text-2xl', value: '1.5rem', px: '24px' },
-    { token: '--wr-text-3xl', value: '1.875rem', px: '30px' },
-    { token: '--wr-text-4xl', value: '2.25rem', px: '36px' },
-    { token: '--wr-text-5xl', value: '3rem', px: '48px' },
+    { token: '--wr-text-xs', value: '0.75rem', px: '12px', leading: '1rem' },
+    { token: '--wr-text-sm', value: '0.875rem', px: '14px', leading: '1.25rem' },
+    { token: '--wr-text-base', value: '1rem', px: '16px', leading: '1.5rem' },
+    { token: '--wr-text-lg', value: '1.125rem', px: '18px', leading: '1.75rem' },
+    { token: '--wr-text-xl', value: '1.25rem', px: '20px', leading: '1.75rem' },
+    { token: '--wr-text-2xl', value: '1.5rem', px: '24px', leading: '2rem' },
+    { token: '--wr-text-3xl', value: '1.875rem', px: '30px', leading: '2.25rem' },
+    { token: '--wr-text-4xl', value: '2.25rem', px: '36px', leading: '2.5rem' },
+    { token: '--wr-text-5xl', value: '3rem', px: '48px', leading: '1' },
   ];
 
   protected readonly snippets = {

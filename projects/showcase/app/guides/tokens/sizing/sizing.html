@@ -58,6 +58,29 @@
     <ngwr-doc-code [code]="snippets.usage" language="scss" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Spacing" description="One scale for padding, margin and gap.">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Token</th>
+          <th scope="col">Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of spaceTokens; track t.name) {
+          <tr>
+            <td>
+              <code>{{ t.name }}</code>
+            </td>
+            <td>
+              <code>{{ t.value }}</code>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Radius" description="Panels and overlays use these; for a circle use `50%`.">
     <table>
       <thead>

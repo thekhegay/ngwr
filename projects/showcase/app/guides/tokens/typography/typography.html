@@ -14,13 +14,13 @@
   ]"
   [labels]="['Tokens', 'Reference']"
 >
-  <ngwr-doc-section title="Type scale">
+  <ngwr-doc-section title="Type scale" description="Each size has a line height: `--wr-text-{size}-leading`.">
     <div class="scale">
       @for (step of scale; track step.token) {
         <div class="scale__row">
           <div class="scale__meta">
             <code class="scale__token">{{ step.token }}</code>
-            <span class="scale__value">{{ step.value }} · {{ step.px }}</span>
+            <span class="scale__value">{{ step.value }} · {{ step.px }} · leading {{ step.leading }}</span>
           </div>
           <div class="scale__sample" [style.font-size]="`var(${step.token})`">Ag</div>
         </div>

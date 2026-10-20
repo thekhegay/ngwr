@@ -34,6 +34,14 @@ export default class TokensSizingPage {
     { name: '--wr-control-radius-{size}', value: '5px / 6px / 7px' },
   ];
 
+  protected readonly spaceTokens: readonly Token[] = [
+    { name: '--wr-space-xs', value: '0.25rem' },
+    { name: '--wr-space-sm', value: '0.5rem' },
+    { name: '--wr-space-md', value: '0.75rem' },
+    { name: '--wr-space-lg', value: '1rem' },
+    { name: '--wr-space-xl', value: '1.5rem' },
+  ];
+
   protected readonly radiusTokens: readonly Token[] = [
     { name: '--wr-border-radius-sm', value: '0.375rem', use: 'Rows inside a panel' },
     { name: '--wr-border-radius-base', value: '0.625rem', use: 'Cards, dropdowns, dialogs, toasts' },
