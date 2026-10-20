@@ -1,10 +1,10 @@
 <ngwr-doc-page
   title="oneOf"
-  description="Value must strict-equal one of the whitelisted options. Empty values pass."
+  description="Accept only values from a list."
   [keywords]="['oneOf', 'enum', 'whitelist', 'validator', 'wr-validators']"
   [labels]="['Validator']"
 >
-  <ngwr-doc-section title="Live demo" description="Try `xs`, `sm`, `md`, `lg`, or `xl` — anything else fails.">
+  <ngwr-doc-section title="Live demo" description="Try `xs`, `sm`, `md`, `lg` or `xl`. Anything else fails.">
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: 18rem">
         <input wrInput [formControl]="control" placeholder="xs | sm | md | lg | xl" />
@@ -16,11 +16,6 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Whitelist checks via `Validators.pattern` mean escaping every alternative into a regex. This takes the allowed values as plain data."
-  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

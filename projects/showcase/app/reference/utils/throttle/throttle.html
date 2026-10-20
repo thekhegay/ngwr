@@ -1,18 +1,11 @@
 <ngwr-doc-page
   title="throttle"
-  description="Wrap a callback so it fires at most every `waitMs`, honouring both the leading and trailing edge. Returns a function with a `.cancel()` method for safe teardown."
+  description="Runs a callback at most once every `waitMs`, on the leading and the trailing edge."
   [keywords]="['throttle', 'rate limit', 'utils']"
   [labels]="['Util']"
 >
-  <ngwr-doc-section title="Usage">
+  <ngwr-doc-section title="Usage" description="Call `.cancel()` on teardown to drop a pending call.">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Hand-rolled throttles almost always forget the trailing edge — so the final scroll position / drag coordinate is silently dropped. ngwr's version handles both edges and exposes `.cancel()` so component teardown stays clean."
-  >
-    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

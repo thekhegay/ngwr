@@ -39,14 +39,13 @@ import { WrValidators } from 'ngwr/validators';
 
 const iban = new FormControl('', [WrValidators.iban]);
 
-iban.setValue('GB82 WEST 1234 5698 7654 32'); // → valid (passes mod-97)`;
+iban.setValue('GB82 WEST 1234 5698 7654 32'); // valid`;
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'signature', description: 'Static — drop into a `validators` array.', type: 'ValidatorFn', default: '—' },
+    { name: 'signature', description: 'Add it to a `validators` array.', type: 'ValidatorFn', default: '—' },
     {
       name: 'checks',
-      description:
-        'Structure (2 letters + 2 digits + alphanumerics) and ISO 13616 mod-97. Per-country length tables are **not** enforced.',
+      description: 'Structure and the ISO 13616 mod-97 checksum. The length per country is not checked.',
       type: '—',
       default: '—',
     },
@@ -63,13 +62,12 @@ iban.setValue('GB82 WEST 1234 5698 7654 32'); // → valid (passes mod-97)`;
       kind: 'Component',
       title: 'wr-input',
       url: ['/reference/components', 'input'],
-      description: 'Host control for account entry.',
     },
     {
       kind: 'Validator',
       title: 'cardNumber',
       url: ['/reference/validators', 'card-number'],
-      description: 'Sibling rule for card payments.',
+      description: 'Card numbers.',
     },
   ];
 }

@@ -58,10 +58,7 @@ export default class WrDatePipePage {
         'shortDateTime',
         'mediumDateTime',
         'dd.MM.yyyy',
-        // Token strings only, and only tokens `WrNativeDateAdapter` has — the
-        // showcase runs on that adapter, and an unknown token (`EEEE`) is
-        // emitted verbatim rather than refused, so a bad option here reads as a
-        // broken pipe.
+        // Only tokens the native adapter knows; an unknown one prints as is.
         'd MMMM yyyy',
       ],
     },
@@ -79,7 +76,7 @@ export default class WrDatePipePage {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'wrDate',
-      description: 'Formats through WrDateAdapter: the native adapter, or the one the app provides.',
+      description: 'Formats through `WrDateAdapter`: the native one, or your own.',
       type: "(value: Date | string | number | null | undefined, format: WrDateFormat | string = 'shortDate') => string",
       default: '—',
     },
@@ -90,13 +87,13 @@ export default class WrDatePipePage {
       kind: 'Component',
       title: 'wr-date-picker',
       url: ['/reference/components', 'date-picker'],
-      description: 'Produces the Date values this pipe renders.',
+      description: 'Pick the date.',
     },
     {
       kind: 'Guide',
       title: 'Date adapters',
-      url: ['/start', 'configuration'],
-      description: 'Pin the date locale, or bring an adapter of your own.',
+      url: ['/docs', 'configuration'],
+      description: 'Pin the locale or bring your own.',
     },
   ];
 }

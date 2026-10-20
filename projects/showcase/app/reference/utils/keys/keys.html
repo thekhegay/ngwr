@@ -1,18 +1,11 @@
 <ngwr-doc-page
   title="KEYS"
-  description="Canonical `KeyboardEvent.key` constants — avoid magic strings in keydown handlers. The `WrKey` type is the union of every value, useful for narrowly-typed key callbacks."
+  description="`KeyboardEvent.key` constants, plus the `WrKey` union of their values."
   [keywords]="['KEYS', 'WrKey', 'keyboard', 'utils']"
   [labels]="['Util']"
 >
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="`KeyboardEvent.key` is the standard, but the values are surprising: arrow keys are `'ArrowUp'` (not `'Up'`), space is `' '` (a literal space, not `'Space'`), and a typo like `'Esacpe'` silently never matches. `KEYS` gives you autocomplete, spec-correct values, and `WrKey` as a union for type-safe function signatures."
-  >
-    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

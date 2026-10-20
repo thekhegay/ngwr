@@ -61,7 +61,7 @@ export default class CalendarHeatmapPageComponent {
     },
     {
       name: 'value',
-      description: 'Magnitude — bucketed into intensity steps.',
+      description: 'Count for the day, shown as a shade.',
       type: 'number',
       required: true,
       sub: true,

@@ -1,10 +1,10 @@
 <ngwr-doc-page
   title="WrTheme"
-  description="Light / dark switch. An explicit choice is written as `color-scheme` on `<html>` and persisted; `auto` clears it, so the theme's own `color-scheme: light dark` follows the OS. Needs no provider — inject it where the toggle lives, or configure it with `withTheme()`."
+  description="Switch between light, dark and auto, and keep the choice."
   [keywords]="['service', 'theme', 'dark mode', 'color-scheme', 'WrTheme']"
   [labels]="['Service']"
 >
-  <ngwr-doc-section title="Usage">
+  <ngwr-doc-section title="Usage" description="Needs no provider: inject it where the toggle lives.">
     <ngwr-doc-code [code]="snippets.usage" language="angular-ts" />
     <ngwr-doc-snippet code="">
       <div style="font-family: var(--wr-font-family-base); font-size: 0.875rem; line-height: 1.5">
@@ -24,60 +24,28 @@
 
   <ngwr-doc-section
     title="Configuration"
-    description="Optional. Dark mode itself is CSS — the theme declares `color-scheme: light dark` on `:root` — so a page follows the OS before anything is injected. To change the defaults, pass `withTheme()` to `provideWr()` in the application's own providers: `defaultMode` (`'auto'`) and `storageKey` (`'wr-theme'`; `null` turns persistence off)."
+    description="`withTheme()` in `provideWr()` sets `defaultMode` and `storageKey`."
   >
     <ngwr-doc-code [code]="snippets.config" language="angular-ts" />
-    <p>
-      <code>withTheme()</code> also creates <code>WrTheme</code> at boot, so a stored choice or a
-      <code>defaultMode</code> other than <code>auto</code> applies on the first screen even when no component injects
-      the service yet. Without the feature that happens on the first <code>inject(WrTheme)</code>. On a prerendered page
-      the pre-paint script below covers the first paint, given the same values.
-    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="SSR: no flash of the wrong theme"
-    description="`auto` needs nothing: the server writes no style, and the browser resolves `color-scheme: light dark` against the OS before its first paint. An EXPLICIT choice is the case to cover — the server cannot read `localStorage`, so a visitor who picked dark on a light OS sees a light page until the client bundle boots."
+    description="Put this script in `<head>`, above the stylesheets, so a stored choice applies before the first paint."
   >
-    <p>
-      The fix is a blocking script in <code>&lt;head&gt;</code>, above every stylesheet.
-      <code>wrThemePrePaintScript()</code> emits one: it reads the persisted mode exactly the way
-      <code>WrTheme</code> and <code>WrStorage</code> write it — the key prefix, the JSON envelope and the TTL — falls
-      back to <code>defaultMode</code>, and for <code>light</code> or <code>dark</code> sets
-      <code>color-scheme</code> on <code>&lt;html&gt;</code>. <code>auto</code> writes nothing. This page's own output,
-      ready to paste:
-    </p>
     <ngwr-doc-code [code]="prePaint" language="html" />
-    <p>
-      It is plain ES5 with no dependency on the app bundle, and every step is wrapped: a blocked
-      <code>localStorage</code> (private mode, a sandboxed iframe) leaves the page on auto rather than throwing before
-      anything has rendered. The docs site you are reading runs this same script, and a spec in the library pins the two
-      to the same answers.
-    </p>
     <ngwr-doc-code [code]="snippets.prePaintCustom" language="typescript" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="One service per application, one scheme per document"
-    description="`WrTheme` is root-provided: one instance for the whole application, reading `WR_THEME_CONFIG` once from the root injector — so `withTheme()` in a lazy route's `providers` is never looked at. Configure it at bootstrap."
-  >
-    <p>
-      The document, though, has exactly one <code>&lt;html&gt;</code> — and that matters if you run
-      <strong>two Angular applications on one page</strong> (a micro-frontend shell plus a widget). Each gets its own
-      <code>WrTheme</code>, and the service applies its mode the moment it is constructed, so a second application
-      becomes a writer simply by injecting it: last writer wins, and each <code>resolved()</code> keeps reporting its
-      own answer. <strong>Exactly one application on the page owns <code>WrTheme</code>:</strong> it injects the service
-      or passes <code>withTheme()</code>, whose initializer injects it at boot. The others need nothing: the scheme and
-      the whole <code>--wr-*</code> layer live on the document, so their components are already themed. Code that needs
-      the current scheme reads <code>WrTheme.resolved</code> in the application that owns it and hands the value on,
-      rather than constructing a second owner.
-    </p>
+  <ngwr-doc-section title="Gotchas">
+    <ul>
+      <li>
+        Without <code>withTheme()</code>, a stored choice applies only once something injects <code>WrTheme</code>.
+      </li>
+      <li><code>withTheme()</code> in a route's providers is ignored.</li>
+      <li>With two Angular apps on one page, only one should inject <code>WrTheme</code>.</li>
+    </ul>
   </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Switching the scheme is one CSS property. What is left is the user's choice: persisting it, applying it before first paint, honouring `prefers-color-scheme` when there is none, and exposing the result as signals. `WrTheme` owns that lifecycle and nothing else."
-  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

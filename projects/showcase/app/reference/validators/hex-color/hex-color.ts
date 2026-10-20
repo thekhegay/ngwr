@@ -39,14 +39,14 @@ import { WrValidators } from 'ngwr/validators';
 
 const colour = new FormControl('', [WrValidators.hexColor]);
 
-colour.setValue('#1a2b3c');  // → valid
-colour.setValue('#xyz');     // → { hexColor: true }`;
+colour.setValue('#1a2b3c');  // valid
+colour.setValue('#xyz');     // { hexColor: true }`;
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'signature', description: 'Static — drop into a `validators` array.', type: 'ValidatorFn', default: '—' },
+    { name: 'signature', description: 'Add it to a `validators` array.', type: 'ValidatorFn', default: '—' },
     {
       name: 'accepted shapes',
-      description: '`#abc`, `#abcd`, `#a1b2c3`, `#a1b2c3d4` (case-insensitive). Hash required.',
+      description: '`#abc`, `#abcd`, `#a1b2c3`, `#a1b2c3d4`, any case. The `#` is required.',
       type: 'string',
       default: '—',
     },
@@ -63,13 +63,13 @@ colour.setValue('#xyz');     // → { hexColor: true }`;
       kind: 'Component',
       title: 'wr-color-picker',
       url: ['/reference/components', 'color-picker'],
-      description: 'Emits the hex strings this rule accepts.',
+      description: 'Pick a colour.',
     },
     {
       kind: 'Component',
       title: 'wr-input',
       url: ['/reference/components', 'input'],
-      description: 'For free-typed color values.',
+      description: 'Type a colour.',
     },
   ];
 }

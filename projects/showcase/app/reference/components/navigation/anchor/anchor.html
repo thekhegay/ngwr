@@ -1,11 +1,11 @@
 <ngwr-doc-page
   title="Anchor"
-  description="Scroll-spy in-page navigation. Click a link to smooth-scroll; the closest visible heading auto-highlights."
+  description="In-page links that highlight the section in view."
   [keywords]="['anchor', 'scroll-spy', 'wr-anchor']"
 >
   <ngwr-doc-section
     title="Demo"
-    description="The anchor below tracks the headings as you scroll the showcase page. Spacers between sections give the scroll-spy something to react to."
+    description="Pass `links` in document order; set `offset` to the height of a sticky header."
   >
     <ngwr-doc-code [code]="snippet" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -31,14 +31,11 @@
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
-  <!-- No `id` here: the demo above owns `anchor-api` (its scroll-spy links target
-       that h3), and a second element under the same id makes `getElementById` —
-       which is what `anchorScrolling` calls — answer with whichever comes first.
-       No other `<ngwr-doc-section>` on the site carries one. -->
-  <ngwr-doc-section title="API" description="Inputs of <wr-anchor>.">
+  <!-- No id: the demo's h3 owns `anchor-api`. -->
+  <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
-  <ngwr-doc-section title="Types" description="Data shapes used by the inputs above.">
+  <ngwr-doc-section title="Types">
     <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
     <ngwr-doc-api [rows]="typeRows" />
   </ngwr-doc-section>

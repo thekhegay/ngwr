@@ -20,18 +20,10 @@ toClassList('p-4 rounded-xl');            // ['p-4', 'rounded-xl']
 toClassList(['btn', 'p-4 rounded'], 'x'); // ['btn', 'p-4', 'rounded', 'x']
 toClassList('a', null, false, '  ', 'a'); // ['a']`;
 
-  protected readonly whySnippet = `// The CDK hands panelClass to classList.add() without splitting it:
-//   coerceArray('p-4 rounded')  →  ['p-4 rounded']
-//   classList.add('p-4 rounded')  →  InvalidCharacterError
-//
-// So every ngwr overlay routes its classes through this first.
-panelClass: toClassList('wr-dropdown-overlay', this.arrow() && 'wr-dropdown-overlay--arrow', this.panelClass());`;
-
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'toClassList',
-      description:
-        'Flattens class inputs into a de-duplicated token array, splitting on whitespace. Accepts false so a call site can inline a condition; skips null, undefined and empty tokens.',
+      description: 'Splits on whitespace and de-duplicates. Skips `false`, `null`, `undefined` and empty tokens.',
       type: '(...values: readonly (WrClassInput | false)[]) => string[]',
       default: '—',
     },

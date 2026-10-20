@@ -1,13 +1,10 @@
 <ngwr-doc-page
   title="Card"
-  description="Surface container with optional header / footer slots. Bordered by default; toggle hoverable for clickable lists and loading for in-place data refresh."
+  description="A surface that groups related content."
   [keywords]="['card', 'panel', 'surface', 'wr-card']"
   [labels]="['Component', 'Standalone']"
 >
-  <ngwr-doc-section
-    title="Basic usage"
-    description="Compose with `<wr-card-header>`, body content, and `<wr-card-footer>`. Both slots are optional."
-  >
+  <ngwr-doc-section title="Basic usage" description="`<wr-card-header>` and `<wr-card-footer>` are optional.">
     <ngwr-doc-snippet [code]="snippets.basic">
       <wr-card style="max-width: 22rem">
         <wr-card-header>
@@ -22,7 +19,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Without header / footer" description="Drop the slots to get a plain padded surface.">
+  <ngwr-doc-section title="Without header / footer">
     <ngwr-doc-snippet [code]="snippets.bare">
       <wr-card style="max-width: 22rem">
         <p style="margin: 0">Just a surface around content.</p>
@@ -32,7 +29,7 @@
 
   <ngwr-doc-section
     title="Variants"
-    description="Hoverable for clickable cards, no-border for embedded layouts, compact for dense tables. Loading overlays a spinner without unmounting the body."
+    description="`hoverable` for clickable cards, `compact` for tight layouts, `loading` covers the body with a spinner."
   >
     <ngwr-doc-snippet [code]="snippets.variants">
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem">

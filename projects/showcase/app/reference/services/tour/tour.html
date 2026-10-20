@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="WrTour"
-  description="Guided product tour — a spotlight over one element at a time plus a popup explaining it."
+  description="A guided tour that highlights one element at a time and explains it."
   [keywords]="['tour', 'onboarding', 'walkthrough', 'spotlight', 'wr-tour']"
   [labels]="['Service']"
 >
   <ngwr-doc-section
     title="Run a tour"
-    description="Steps are data, not markup: `start()` takes an array and the service owns the overlay, the cut-out, focus and the keyboard. Escape ends the tour and focus returns where it began. The demo below has a deliberate fourth step pointing at an element that is not on the page — it is skipped rather than shown floating, which is what keeps a tour alive when a feature sits behind a flag or a permission."
+    description="Pass the steps to `start()`. A step whose target is missing is skipped; Escape ends the tour."
   >
     <ngwr-doc-code [code]="snippets.start" language="angular-ts" />
     <ngwr-doc-snippet code="">
@@ -27,10 +27,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Reading the state"
-    description="Progress is exposed as signals, so a template can show its own progress bar or a “resume tour” affordance without subscribing to anything."
-  >
+  <ngwr-doc-section title="Reading the state" description="Progress is exposed as signals.">
     <ngwr-doc-code [code]="snippets.state" language="angular-ts" />
   </ngwr-doc-section>
 

@@ -1,10 +1,10 @@
 <ngwr-doc-page
   title="Stepper"
-  description="Multi-step wizard. Numbered headers with completed / active / pending states, content body for the active step. Two-way bind `[(active)]` to the step index."
+  description="A multi-step flow with numbered headers."
   [keywords]="['stepper', 'wizard', 'wr-stepper']"
   [labels]="['Composite']"
 >
-  <ngwr-doc-section title="Basic" description="Click any header to jump to that step.">
+  <ngwr-doc-section title="Basic" description="Bind `[(active)]` to the step index. A header click jumps to its step.">
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-stepper [(active)]="basic">
@@ -23,7 +23,7 @@
 
   <ngwr-doc-section
     title="Linear"
-    description="Headers past the latest completed step are locked. Use `next()` / `prev()` to navigate."
+    description="With `linear`, steps past the last `completed` one are locked. Move with `next()` and `prev()`."
   >
     <ngwr-doc-code [code]="snippets.linear" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -64,7 +64,7 @@
 
   <ngwr-doc-section
     title="Narrow container (container query)"
-    description="With `responsive`, a horizontal stepper queries its own width and drops to the vertical layout when its column is too narrow — even on a wide page. The box below is fixed at 340px."
+    description="With `responsive`, a horizontal stepper turns vertical when it is narrow."
   >
     <ngwr-doc-snippet code='<div style="width: 340px"><wr-stepper responsive>…</wr-stepper></div>'>
       <div style="width: 340px; max-width: 100%">

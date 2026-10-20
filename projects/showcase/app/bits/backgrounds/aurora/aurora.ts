@@ -63,13 +63,10 @@ export default class AuroraPage {
     { kind: 'slider', label: 'Speed', signal: this.speed, min: 0.1, max: 3, step: 0.1, precision: 1 },
   ];
 
-  protected readonly snippets = {};
-
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'colorStops',
-      description:
-        'Exactly three colour stops, ramped left → right. Unset, the theme decides: deep violet/emerald on light, the neon reactbits palette on dark.',
+      description: 'Three colour stops, from left to right. Unset, they follow the theme.',
       type: 'readonly string[] | null',
       default: 'null',
     },

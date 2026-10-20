@@ -55,8 +55,7 @@ export default class LayoutPageComponent {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: '<wr-layout>',
-      description:
-        'Flex container. Lays out as a column by default; switches to a row when a `<wr-layout-sider>` is among its direct children.',
+      description: 'A column; a row when a `<wr-layout-sider>` is a direct child.',
       type: 'component',
       default: '—',
     },

@@ -48,12 +48,10 @@ export default class WavesPage {
     { kind: 'slider', label: 'Y Gap', signal: this.yGap, min: 12, max: 80, step: 2 },
   ];
 
-  protected readonly snippets = {};
-
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'lineColor',
-      description: 'Line stroke colour. Unset, the theme decides: a dark tint on light, white-alpha on dark.',
+      description: 'Line colour. Unset, it follows the theme.',
       type: 'string | null',
       default: 'null',
     },

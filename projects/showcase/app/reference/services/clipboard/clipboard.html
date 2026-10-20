@@ -1,13 +1,10 @@
 <ngwr-doc-page
   title="WrClipboard"
-  description="Programmatic clipboard read and write. Uses `navigator.clipboard.writeText` when available, with a hidden-textarea + `execCommand` fallback for non-secure contexts."
+  description="Copy text to the clipboard and read it back."
   [keywords]="['clipboard', 'copy', 'paste', 'wr-clipboard', 'service']"
   [labels]="['Service']"
 >
-  <ngwr-doc-section
-    title="Live demo"
-    description="Type something, copy it, then click Paste to read it back. Permissions probe shows what the browser will allow."
-  >
+  <ngwr-doc-section title="Live demo" description="Copy writes the field; Paste reads the clipboard back.">
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start; min-width: 22rem">
         <input wrInput [(ngModel)]="draft" placeholder="Anything…" />
@@ -36,18 +33,9 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Read text">
-    <ngwr-doc-code [code]="snippets.read" language="angular-ts" />
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="angular-ts" />
   </ngwr-doc-section>
-
-  <ngwr-doc-section title="Check permissions">
-    <ngwr-doc-code [code]="snippets.perm" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="`navigator.clipboard` rejects outside secure contexts and needs a fallback path; this handles both and reports success so the UI can confirm the copy."
-  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

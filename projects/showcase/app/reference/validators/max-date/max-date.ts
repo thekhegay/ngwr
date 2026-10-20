@@ -49,14 +49,13 @@ const end = new FormControl('', [
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'signature',
-      description: 'Factory — call with a `Date` or any value `new Date(v)` accepts.',
+      description: 'Call it with a `Date`, an ISO string or epoch ms.',
       type: '(max: Date | string | number) => ValidatorFn',
       default: '—',
     },
     {
       name: 'error key',
-      description:
-        'On failure: `{ maxDate: { max: Date | string | number } }` — the bound echoed back exactly as configured, not coerced to a `Date`. Empty value passes.',
+      description: 'On failure: `{ maxDate: { max } }`, the bound as you passed it. Empty value passes.',
       type: '{ maxDate: { max } }',
       default: '—',
     },
@@ -67,19 +66,18 @@ const end = new FormControl('', [
       kind: 'Component',
       title: 'wr-date-picker',
       url: ['/reference/components', 'date-picker'],
-      description: 'Calendar-popup input - pair it with maxDate for range ceilings.',
     },
     {
       kind: 'Component',
       title: 'wr-calendar',
       url: ['/reference/components', 'calendar'],
-      description: 'Inline month view with its own [max] guard.',
+      description: 'Has its own [max] input.',
     },
     {
       kind: 'Validator',
       title: 'minDate',
       url: ['/reference/validators', 'min-date'],
-      description: 'The matching lower-bound rule.',
+      description: 'The lower bound.',
     },
   ];
 }

@@ -54,17 +54,15 @@ export default class TypewriterPage {
     { kind: 'text', label: 'Cursor', signal: this.cursorCharacter, placeholder: '|' },
   ];
 
-  protected readonly snippets = {};
-
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'text',
-      description: 'A single string to type. Use either `text` or `texts` — neither has a value on its own.',
+      description: 'A single string to type. Set this or `texts`.',
       type: 'string',
     },
     {
       name: 'texts',
-      description: 'Strings to cycle. Use either `text` or `texts` — neither has a value on its own.',
+      description: 'Strings to cycle. Set this or `text`.',
       type: 'readonly string[]',
     },
     { name: 'typingSpeed', description: 'Per-char typing speed in ms.', type: 'number', default: '50' },

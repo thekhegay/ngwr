@@ -53,8 +53,7 @@ export default class SpotlightCardPage {
   ];
 
   protected readonly snippets = {
-    directive: `// Directive variant — same package, drops on any element.
-import { WrSpotlight } from 'ngwr/bits/spotlight-card';
+    directive: `import { WrSpotlight } from 'ngwr/bits/spotlight-card';
 
 <div wrSpotlight class="card">…</div>
 
@@ -75,15 +74,13 @@ import { WrSpotlight } from 'ngwr/bits/spotlight-card';
     },
     {
       name: 'spotlightColor',
-      description:
-        'Highlight colour on `<wr-spotlight-card>`. Any CSS colour string. Unset, the theme decides: a dark-ish glow on light surfaces, a light glow on dark.',
+      description: 'Highlight colour. Unset, it follows the theme.',
       type: 'string | null',
       default: 'null',
     },
     {
       name: '[wrSpotlight]',
-      description:
-        'Directive variant — writes `--wr-spotlight-x/y` (in `%`) to any host based on pointer position. Pair with a radial-gradient/mask in your CSS.',
+      description: 'Writes `--wr-spotlight-x` / `-y` (in `%`) on any element. Pair with a gradient in your CSS.',
       type: 'directive',
       default: '—',
     },

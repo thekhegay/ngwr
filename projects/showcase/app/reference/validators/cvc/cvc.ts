@@ -44,20 +44,19 @@ const amex = new FormControl('', [WrValidators.cvc(4)]);  // 4 digits`;
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'signature',
-      description: 'Factory — call with the expected length.',
+      description: 'Call it with the digit count.',
       type: '(length?: number) => ValidatorFn',
       default: '—',
     },
     {
       name: 'length',
-      description: 'Exact digit count. 3 for Visa/MC/Discover, 4 for Amex.',
+      description: 'Exact digit count: 3, or 4 for Amex.',
       type: 'number',
       default: '3',
     },
     {
       name: 'error key',
-      description:
-        'On failure: `{ cvc: { length } }` — the digit count it wanted, so one message can serve both card families. Empty value passes.',
+      description: 'On failure: `{ cvc: { length } }`, the count it wanted. Empty value passes.',
       type: '{ cvc: { length: number } }',
       default: '—',
     },
@@ -68,13 +67,12 @@ const amex = new FormControl('', [WrValidators.cvc(4)]);  // 4 digits`;
       kind: 'Component',
       title: 'wr-input',
       url: ['/reference/components', 'input'],
-      description: 'Host control for the 3-4 digit code.',
     },
     {
       kind: 'Validator',
       title: 'cardNumber',
       url: ['/reference/validators', 'card-number'],
-      description: 'Sibling rule for the card number itself.',
+      description: 'The card number.',
     },
   ];
 }

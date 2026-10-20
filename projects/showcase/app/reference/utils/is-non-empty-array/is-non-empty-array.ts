@@ -17,28 +17,13 @@ export default class IsNonEmptyArrayPage {
   protected readonly snippet = `import { isNonEmptyArray } from 'ngwr/utils';
 
 if (isNonEmptyArray(rows)) {
-  // rows is [Row, ...Row[]] — \`rows[0]\` is non-nullable
-  highlight(rows[0]);
-}`;
-
-  protected readonly whySnippet = `// Native — with \`noUncheckedIndexedAccess\` enabled, length check
-// doesn't propagate to the indexed access.
-if (rows.length > 0) {
-  highlight(rows[0]);
-  //        ^? Row | undefined          ← still nullable!
-}
-
-// ngwr — narrows the tuple shape, so [0] is Row.
-if (isNonEmptyArray(rows)) {
-  highlight(rows[0]);
-  //        ^? Row                      ← clean
+  highlight(rows[0]); // Row, not Row | undefined
 }`;
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'isNonEmptyArray(value)',
-      description:
-        'Asserts the array has at least one element; narrows the type to `[T, ...T[]]` so index 0 is non-nullable. Takes `Maybe<T[]>`, so a `null` / `undefined` list needs no separate check.',
+      description: 'Narrows to `[T, ...T[]]`, so index 0 is not nullable. Accepts a `null` or `undefined` list too.',
       type: '<T>(value: Maybe<T[]>) => value is [T, ...T[]]',
       default: '—',
     },

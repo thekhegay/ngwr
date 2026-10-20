@@ -1,13 +1,10 @@
 <ngwr-doc-page
   title="Burger"
-  description="Animated menu toggle — three SVG strokes morph between a hamburger and a close mark. Two-way bindable, so it pairs naturally with a `<wr-drawer>`."
+  description="A menu button that morphs between a hamburger and a close mark."
   [keywords]="['burger', 'hamburger', 'menu-toggle', 'wr-burger']"
   [labels]="['Component', 'Standalone']"
 >
-  <ngwr-doc-section
-    title="Basic usage"
-    description="Click to morph between the hamburger and close marks. The `open` state is two-way bindable."
-  >
+  <ngwr-doc-section title="Basic usage" description="Bind `[(open)]`.">
     <ngwr-doc-snippet code="">
       <wr-burger [(open)]="open" />
       <span style="margin-inline-start: 1rem; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
@@ -17,10 +14,7 @@
     <ngwr-doc-code [code]="basicSnippet" language="angular-html" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="With a drawer"
-    description="The canonical pairing — bind the same signal to `<wr-burger>` and `<wr-drawer>`. The button morphs to a close mark while the menu is open, and tapping it again closes the menu."
-  >
+  <ngwr-doc-section title="With a drawer" description="Bind the same signal to `<wr-burger>` and `<wr-drawer>`.">
     <ngwr-doc-snippet code="">
       <wr-burger [(open)]="drawerOpen" />
       <wr-drawer [(open)]="drawerOpen" position="right" width="16rem">
@@ -34,17 +28,14 @@
     <ngwr-doc-code [code]="drawerSnippet" language="angular-html" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Styling"
-    description="Size, colors, stroke width, and morph duration are all CSS custom properties — override them inline or in a stylesheet."
-  >
+  <ngwr-doc-section title="Styling" description="Set the `--wr-burger-*` custom properties.">
     <ngwr-doc-snippet code="">
       <wr-burger [(open)]="open" style="--wr-burger-size: 3rem; --wr-burger-color-opened: var(--wr-color-danger)" />
     </ngwr-doc-snippet>
     <ngwr-doc-code [code]="stylingSnippet" language="angular-html" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Disabled" description="A disabled toggle ignores clicks and dims.">
+  <ngwr-doc-section title="Disabled">
     <ngwr-doc-snippet code="">
       <wr-burger [(open)]="disabledOpen" disabled />
     </ngwr-doc-snippet>

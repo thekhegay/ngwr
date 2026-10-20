@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="Falling Text"
-  description="Words fall like physical bodies — gravity, wall / floor collision, body-to-body bouncing, and cursor drag-to-pick-up. Words start at their typeset position and release into the simulator on trigger. Reactbits' original uses matter-js; this port ships a minimal in-house AABB physics simulator so there's no extra runtime dependency."
+  description="Words that fall like objects and can be dragged around."
   [keywords]="['falling-text', 'wr-falling-text', 'text animation', 'physics', 'reactbits']"
   [labels]="['Animation']"
 >
   <ngwr-reactbits-credit slug="falling-text" category="text-animations" />
 
-  <ngwr-doc-section title="Playground">
+  <ngwr-doc-section title="Playground" description="Give it a height; the words fall to its bottom edge.">
     <ngwr-doc-playground [code]="snippet()" [controls]="controls" [showReplay]="true" (replay)="replay()">
       @for (k of [replayKey()]; track k) {
         <wr-falling-text

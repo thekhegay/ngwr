@@ -1,18 +1,11 @@
 <ngwr-doc-page
   title="hasModifier"
-  description="Tiny predicate that reports whether any modifier key (Ctrl, Cmd, Alt, Shift, Meta) is held on a `KeyboardEvent` — handy for letting OS-level chords pass through your keydown handlers."
+  description="True when Ctrl, Cmd, Alt, Shift or Meta is held during a `KeyboardEvent`."
   [keywords]="['hasModifier', 'keyboard', 'utils']"
   [labels]="['Util']"
 >
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Almost every single-key shortcut (J/K nav, slash-to-search, type-to-jump) needs to back off when a chord is being typed — otherwise Cmd+K hits both the OS shortcut AND your handler. Spelling out `e.ctrlKey || e.metaKey || e.altKey || e.shiftKey` everywhere is noise; the helper makes the intent obvious."
-  >
-    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

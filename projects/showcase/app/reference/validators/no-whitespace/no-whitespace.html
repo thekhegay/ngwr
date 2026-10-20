@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="noWhitespace"
-  description="Reject any space, tab, or other whitespace inside the value. Empty values pass."
+  description="Reject a value with a space, tab or any other whitespace."
   [keywords]="['noWhitespace', 'username', 'validator', 'wr-validators']"
   [labels]="['Validator']"
 >
@@ -16,11 +16,6 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Angular's `required` happily accepts a string of spaces. This rejects whitespace anywhere in the value without you trimming the model on every keystroke."
-  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

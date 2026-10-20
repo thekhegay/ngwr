@@ -18,19 +18,14 @@ export default class NumAttrPage {
 
 readonly speed = input(4, { transform: numAttr(4) });
 
-// <wr-thing speed="12" />   → 12 (string attribute coerced)
-// <wr-thing [speed]="x" />  → x ?? 4`;
-
-  protected readonly whySnippet = `// Angular built-in: NaN fallback leaks into your math.
-readonly a = input(0, { transform: numberAttribute }); // 'abc' → NaN
-
-// ngwr: declared fallback.
-readonly b = input(4, { transform: numAttr(4) });      // 'abc' → 4`;
+// speed="12"     gives 12
+// speed="abc"    gives 4
+// [speed]="null" gives 4`;
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'numAttr',
-      description: 'Returns an input transform that coerces to number with a fallback.',
+      description: 'Returns an input transform: a number, or `fallback` for `null`, `undefined` and unparsable input.',
       type: '(fallback: number) => (value: unknown) => number',
       default: '—',
     },

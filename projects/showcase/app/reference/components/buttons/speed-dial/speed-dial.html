@@ -1,10 +1,10 @@
 <ngwr-doc-page
   title="Speed Dial"
-  description="Floating action button that fans out a set of secondary actions on click."
+  description="A floating button that opens a set of related actions."
   [keywords]="['speed-dial', 'fab', 'wr-speed-dial']"
   [labels]="['Component', 'Standalone']"
 >
-  <ngwr-doc-section title="Basic usage" description="Click the FAB to expand the fan.">
+  <ngwr-doc-section title="Basic usage" description="`(pick)` emits the action the user clicks.">
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="padding-top: 16rem; padding-bottom: 1rem; display: flex; justify-content: center">
@@ -20,7 +20,7 @@
 
   <ngwr-doc-section
     title="Direction"
-    description="Which way the fan opens. `up` is the default; pick the one that points away from the edge the dial sits against."
+    description="`direction` is `up` (default), `down`, `left` or `right`: point it away from the nearest edge."
   >
     <ngwr-doc-code [code]="snippets.direction" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -37,7 +37,7 @@
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Types" description="Data shapes used by the inputs and outputs above.">
+  <ngwr-doc-section title="Types">
     <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
     <ngwr-doc-api [rows]="typeRows" />
   </ngwr-doc-section>

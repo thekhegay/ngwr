@@ -57,8 +57,7 @@ export default class TiltCardPage {
   ];
 
   protected readonly snippets = {
-    directive: `// Directive variant — same package, drops on any element.
-import { WrTilt } from 'ngwr/bits/tilt-card';
+    directive: `import { WrTilt } from 'ngwr/bits/tilt-card';
 
 <img wrTilt [maxTilt]="10" [scale]="1.02" src="…" />`,
   };
@@ -70,7 +69,7 @@ import { WrTilt } from 'ngwr/bits/tilt-card';
     { name: 'glare', description: 'Add a moving glare highlight overlay.', type: 'boolean', default: 'false' },
     {
       name: '[wrTilt]',
-      description: 'Directive variant — same inputs as `<wr-tilt-card>`. Drops on any element.',
+      description: 'Same inputs as `<wr-tilt-card>`, on any element.',
       type: 'directive',
       default: '—',
     },

@@ -1,18 +1,11 @@
 <ngwr-doc-page
   title="getFocusableElements"
-  description="Enumerate focusable descendants of an element, in DOM ORDER. The selector drops what cannot take focus at all — a disabled control, a hidden input, `tabindex='-1'`, `contenteditable='false'` — and the filter then drops what is not rendered: no box (`display: none`, its own or an ancestor’s) or `visibility: hidden`. The element that currently holds focus is kept either way, because a trap has to know where it is standing. Positive `tabindex` values are NOT sorted: a trap that reordered them would disagree with the browser about everything outside it, and APG says not to use them."
+  description="Lists the focusable descendants of an element, in DOM order."
   [keywords]="['getFocusableElements', 'focus', 'a11y', 'utils']"
   [labels]="['Util']"
 >
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="The textbook `querySelectorAll('button, [href], …')` misses `[contenteditable]`, ignores visibility (returns `display:none` nodes), and includes disabled controls. Getting accessible focus management right means handling all three — easier to share one helper than copy-paste the selector and the filter into every dialog."
-  >
-    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

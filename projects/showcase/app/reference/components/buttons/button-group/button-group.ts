@@ -49,7 +49,7 @@ export default class ButtonGroupComponent {
     {
       name: 'shape',
       description:
-        'Corner treatment for every child `<wr-btn>`. Inside a group the group ALWAYS wins and a child&rsquo;s own `[shape]` is ignored — including when this is `null`, which gives every child `rounded` rather than leaving it alone.',
+        "Corners of every child button. A child's own `shape` is ignored; `null` gives every child `rounded`.",
       type: 'WrButtonShape | null',
       default: 'null',
     },

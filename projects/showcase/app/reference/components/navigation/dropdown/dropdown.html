@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="Dropdown"
-  description="Attach a floating menu to any trigger via the wrDropdown directive. Built on CDK Overlay — handles outside clicks, Escape, and edge collisions."
+  description="A menu that opens from any trigger."
   [keywords]="['dropdown', 'menu', 'wr-dropdown', 'overlay']"
   [labels]="['Directive', 'Components', 'CDK Overlay']"
 >
   <ngwr-doc-section
     title="Basic usage"
-    description="An item emits a `click` and nothing else — it does NOT close the menu, because a toggle row or a filter wants to stay open. Where picking should dismiss, take the trigger through its `exportAs` (`#d=\'wrDropdown\'`) and call `d.close()` alongside your handler."
+    description="Point `[wrDropdown]` at a `<wr-dropdown-menu>`. A click on an item does not close the menu; call `close()` on the trigger."
   >
     <ngwr-doc-snippet [code]="snippets.basic">
       <button type="button" wr-btn color="primary" [wrDropdown]="basicMenu">Actions</button>
@@ -18,10 +18,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Positions"
-    description="Eight anchor sides. A menu that does not fit flips to the opposite side — a `left` or `right` menu may also drop below or above its trigger — and the pane's `wr-dropdown-overlay--<placement>` class names the side it actually opened on."
-  >
+  <ngwr-doc-section title="Positions" description="Set `position`. A menu that does not fit flips to the other side.">
     <ngwr-doc-snippet [code]="snippets.positions">
       <button type="button" wr-btn [wrDropdown]="positionMenu" position="bottom-start">Bottom start</button>
       <button type="button" wr-btn [wrDropdown]="positionMenu" position="bottom">Bottom</button>
@@ -40,7 +37,7 @@
 
   <ngwr-doc-section
     title="Arrow"
-    description='The menu points at its trigger with the same arrow `wr-popover` and `wr-popconfirm` draw, and it follows a flip. It is on by default; `[arrow]="false"` takes it off and narrows the gap to the trigger from 0.5rem back to 0.25rem. Turn it off on a menu with `--wr-dropdown-padding: 0` or its own `overflow` clipping: the arrow reaches about 3px into the menu, over the first row, and clipping cuts its tip off.'
+    description='On by default. Set `[arrow]="false"` on a menu with no padding or with clipped overflow.'
   >
     <ngwr-doc-snippet [code]="snippets.arrow">
       <button type="button" wr-btn [wrDropdown]="arrowMenu">With arrow</button>
@@ -52,10 +49,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Hover trigger"
-    description="Opens on mouseenter; closes when the pointer leaves both trigger and menu."
-  >
+  <ngwr-doc-section title="Hover trigger" description="Closes when the pointer leaves both the trigger and the menu.">
     <ngwr-doc-snippet [code]="snippets.hover">
       <button type="button" wr-btn [wrDropdown]="hoverMenu" trigger="hover">Hover me</button>
       <wr-dropdown-menu #hoverMenu>
@@ -79,26 +73,21 @@
 
   <ngwr-doc-section
     title="Template reference"
-    description="The trigger exports itself as `wrDropdown` (the panel keeps `wrDropdownMenu`), so a template can open, close or read the menu from elsewhere."
+    description="The trigger exports `wrDropdown`, so the template can open, close or read the menu."
   >
     <ngwr-doc-code [code]="snippets.exportAs" language="angular-html" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="The trigger keeps its own id"
-    description="The menu names itself after its trigger (`aria-labelledby`), so the trigger needs an id. Yours wins — static, bound or interpolated alike — and `<label for>`, `document.getElementById`, an `aria-labelledby` aimed at it from elsewhere and any test id keep working. Only an element with no id of its own gets the generated `wr-dropdown-trigger-N` fallback."
+    description="Set your own `id` for tests: the generated one changes between pages."
   >
     <ngwr-doc-code [code]="snippets.triggerId" language="angular-html" />
-    <p>
-      Do not write a test locator against the generated id. It is a per-application counter, so it depends on how many
-      dropdowns were constructed before this one — which differs between a prerendered page and the same page after
-      hydration, and between one route and another. Give the trigger an id when you need to address it.
-    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Scrolling containers"
-    description="The menu is positioned against the trigger and repositions on scroll — but only for scroll containers the CDK knows about, plus the window. A panel anchored inside your own `overflow: auto` box stays where it was opened and drifts away from its trigger, because nothing told the CDK that box scrolls. The fix is one directive on the container, and it is the same rule for every anchored ngwr overlay: dropdown, popover, popconfirm, select, cascader, tree, the date pickers, and mention, tour, the colour-picker trigger and a context-menu submenu."
+    description="Add `cdkScrollable` to your own scrolling box, or the menu drifts from its trigger. Every anchored ngwr overlay needs it."
   >
     <ngwr-doc-code [code]="snippets.scrollable" language="angular-ts" />
   </ngwr-doc-section>

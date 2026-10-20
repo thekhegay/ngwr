@@ -48,28 +48,25 @@ const form = new FormGroup({
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'signature',
-      description: 'Factory — call with the sibling control name.',
+      description: 'Call it with the sibling control name.',
       type: '(name: string) => ValidatorFn',
       default: '—',
     },
     {
       name: 'lookup',
-      description:
-        'Looks up the sibling via `control.parent.get(name)`. Returns null when the parent or sibling is missing.',
+      description: 'Reads `control.parent.get(name)`. Passes when the parent or the sibling is missing.',
       type: '—',
       default: '—',
     },
     {
       name: 'error key',
-      description:
-        "On mismatch: `{ match: { target: 'password' } }`. There is no empty guard — a filled value against an empty one reports.",
+      description: "On mismatch: `{ match: { target: 'password' } }`. A filled value against an empty one fails.",
       type: '{ match: { target } }',
       default: '—',
     },
     {
       name: 'initial values',
-      description:
-        'Cannot report a mismatch until something revalidates the control — a control runs its validators before it has a parent, so the sibling lookup finds nothing. `formControlName` revalidates when it binds; a guard or a service reading `form.valid` first does not. Put `matchFields` on the group to close that window.',
+      description: 'Not reported until the control revalidates. Add `matchFields` to the group.',
       type: '—',
       default: '—',
     },
@@ -80,19 +77,18 @@ const form = new FormGroup({
       kind: 'Validator',
       title: 'matchFields',
       url: ['/reference/validators', 'match-fields'],
-      description: 'The group-level counterpart — reports a mismatch that was there from the start.',
+      description: 'The same check on the group.',
     },
     {
       kind: 'Component',
       title: 'wr-input',
       url: ['/reference/components', 'input'],
-      description: 'Password + confirm fields this rule usually guards.',
     },
     {
       kind: 'Component',
       title: 'wr-form-field',
       url: ['/reference/components', 'form-field'],
-      description: 'Label / hint / error scaffolding for the pair.',
+      description: 'Label and error.',
     },
   ];
 }

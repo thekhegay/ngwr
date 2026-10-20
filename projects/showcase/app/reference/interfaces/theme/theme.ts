@@ -38,7 +38,7 @@ export default class ThemeTypesPage {
     {
       name: 'WrColor',
       description:
-        'The five intent names. Six components type their `[color]` to it — `wr-badge`, `wr-tag`, `wr-btn`, `wr-divider`, `wr-progress` and `wr-skeleton`.',
+        'The five intents. `[color]` on six components takes it, as does `[confirmColor]` on `[wrPopconfirm]`.',
       // Derived from the real tuple rather than retyped. The hand-written
       // mirror that used to sit here fell a member behind the union it
       // documents — on the page that renders that same tuple as badges.
@@ -47,7 +47,7 @@ export default class ThemeTypesPage {
     },
     {
       name: 'WrThemeMode',
-      description: 'What the consumer asks `WrTheme` for — `auto` follows the OS.',
+      description: 'The mode you ask `WrTheme` for. `auto` follows the OS.',
       type: "'light' | 'dark' | 'auto'",
       default: '—',
     },
@@ -60,17 +60,7 @@ export default class ThemeTypesPage {
   ];
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
-    {
-      kind: 'Service',
-      title: 'WrTheme',
-      url: ['/reference/services', 'theme'],
-      description: 'Switches the mode and persists the choice.',
-    },
-    {
-      kind: 'Guide',
-      title: 'Configuration',
-      url: ['/start', 'configuration'],
-      description: 'Overriding the palette and theme tokens.',
-    },
+    { kind: 'Service', title: 'WrTheme', url: ['/reference/services', 'theme'] },
+    { kind: 'Guide', title: 'Theming', url: ['/guides', 'theming'] },
   ];
 }

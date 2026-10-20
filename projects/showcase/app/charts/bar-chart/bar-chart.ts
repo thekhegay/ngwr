@@ -30,8 +30,7 @@ export default class BarChartPageComponent {
 
   protected readonly snippets = {
     basic: `<wr-bar-chart [data]="bars" />`,
-    tooltip: `<!-- On by default; hover either chart below to compare. -->
-<wr-bar-chart [data]="bars" />
+    tooltip: `<wr-bar-chart [data]="bars" />
 <wr-bar-chart [data]="bars" [tooltip]="false" />`,
   };
 
@@ -53,8 +52,7 @@ export default class BarChartPageComponent {
       // uncoloured bar takes the chart's own `color` input and every bar comes
       // out the same. Saying `palette` here promised five different bars.
       name: 'color',
-      description:
-        "CSS color for this bar. Unset falls back to the chart's own `color` input, so by default every bar is the same.",
+      description: "CSS colour for this bar. Unset, it takes the chart's `color`.",
       type: 'string',
       default: 'the chart’s `color`',
       sub: true,

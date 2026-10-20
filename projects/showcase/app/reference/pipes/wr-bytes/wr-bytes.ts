@@ -49,8 +49,7 @@ export default class WrBytesPipePage {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'wrBytes',
-      description:
-        'Humanise byte counts using binary (1024-based) units. A `null` / `undefined` / empty value renders as an empty string, so a nullable field needs no guard around it.',
+      description: 'Formats bytes in 1024-based units. `null`, `undefined` and empty render as an empty string.',
       type: '(value: number | string | null | undefined, decimals = 1) => string',
       default: '—',
     },
@@ -61,13 +60,13 @@ export default class WrBytesPipePage {
       kind: 'Component',
       title: 'wr-file-upload',
       url: ['/reference/components', 'file-upload'],
-      description: 'Show human-readable sizes next to picked files.',
+      description: 'File sizes in a picker.',
     },
     {
       kind: 'Pipe',
       title: 'wrNumber',
       url: ['/reference/pipes', 'wr-number'],
-      description: 'General locale-aware number formatting.',
+      description: 'Any other number.',
     },
   ];
 }

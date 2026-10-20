@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Shiny Text"
-  description="Shimmer-over-text effect. A bright stripe sweeps across the text using `background-clip: text` + an animated `background-position`. Pure CSS port — no JS animation loop."
+  description="Text with a light stripe sweeping across it."
   [keywords]="['shiny-text', 'wr-shiny-text', 'text animation', 'reactbits']"
   [labels]="['Animation']"
 >
@@ -20,7 +20,10 @@
     </ngwr-doc-playground>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Directive variant ([wrShimmer])">
+  <ngwr-doc-section
+    title="Directive variant ([wrShimmer])"
+    description="`[wrShimmer]` adds the same sweep to any element."
+  >
     <ngwr-doc-code [code]="snippets.shimmer" language="angular-ts" />
     <ngwr-doc-snippet code="">
       <h2 wrShimmer style="margin: 0; font-size: 2rem; font-weight: 700">Premium</h2>

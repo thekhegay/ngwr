@@ -30,10 +30,6 @@ import { API } from '#core/generated/api';
   ],
 })
 export default class ResultPageComponent {
-  // The Statuses section used to print the `snippet` below — a success result
-  // with a button, which says nothing about statuses and is the very next
-  // section's example. A reader copying the block under a heading gets what
-  // that heading promised.
   protected readonly statuses = `<wr-result status="success" title="Submitted" />
 <wr-result status="warning" title="Heads up" />
 <wr-result status="error" title="Failed" />
@@ -44,9 +40,7 @@ export default class ResultPageComponent {
   <button wr-btn type="button" color="primary" wrResultExtra>Continue</button>
 </wr-result>`;
 
-  protected readonly presets = `<!-- Pre-built variants for the common HTTP statuses. Override
-     title / description for localisation. -->
-<wr-result-404 />
+  protected readonly presets = `<wr-result-404 />
 <wr-result-403 />
 <wr-result-500 />
 

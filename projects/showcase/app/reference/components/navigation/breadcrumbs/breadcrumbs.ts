@@ -45,41 +45,38 @@ export default class BreadcrumbsPage {
     { kind: 'text', label: 'Aria Label', signal: this.ariaLabel, placeholder: 'Breadcrumbs' },
   ];
 
-  protected readonly snippets = {};
-
   protected readonly api: readonly DocApiRow[] = [
     {
       name: '<wr-breadcrumbs>',
-      description: 'Container — renders `<nav aria-label><ol>…</ol></nav>`.',
+      description: 'Container. Renders `<nav aria-label><ol>…</ol></nav>`.',
       type: 'component',
       default: '—',
     },
     {
       name: 'separator',
       sub: true,
-      description: 'Glyph rendered between items via CSS `::before`. Any short string.',
+      description: 'Short string drawn between items.',
       type: 'string',
       default: "'/'",
     },
     {
       name: 'ariaLabel',
       sub: true,
-      description:
-        'Accessible name for the `nav` landmark. Falls back to the `breadcrumbs.label` catalog key, then `Breadcrumbs`.',
+      description: 'Name of the `nav` landmark. Falls back to `breadcrumbs.label`.',
       type: 'string | null',
       default: 'null',
     },
     {
       name: '<wr-breadcrumbs-item>',
       description:
-        'Single row. The host element IS the row — `<wr-breadcrumbs-item role="listitem">` — and holds an `<a class="wr-breadcrumbs__link">` when linked or an `<a class="wr-breadcrumbs__current" aria-current="page">` when it is the page you are on. Both are anchors; the current one simply has nowhere to go.',
+        'One item: `.wr-breadcrumbs__link` when linked, `.wr-breadcrumbs__current` (`aria-current="page"`) when not.',
       type: 'component',
       default: '—',
     },
     {
       name: 'icon',
       sub: true,
-      description: 'Optional leading icon (from the wr-icon registry) rendered inline before the label.',
+      description: 'Leading icon from the icon registry.',
       type: 'WrIconName | null',
       default: 'null',
     },

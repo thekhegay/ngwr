@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Page Header"
-  description="Top-of-page heading block with three projected slots — breadcrumbs, actions, extra (tags / metadata)."
+  description="A page title with slots for breadcrumbs, actions and tags."
   [keywords]="['page-header', 'wr-page-header']"
   [labels]="['Composite']"
 >
@@ -18,7 +18,7 @@
 
   <ngwr-doc-section
     title="Narrow container (container query)"
-    description="With `responsive`, the title + actions row stacks vertically when the header's own box is too narrow — a container query on its own width, not the viewport, so it adapts inside a split pane or sidebar even on a wide page. The box below is fixed at 380px."
+    description="With `responsive`, the actions move below the title when the header itself is narrow."
   >
     <ngwr-doc-snippet code='<div style="width: 380px"><wr-page-header responsive …>…</wr-page-header></div>'>
       <div style="width: 380px; max-width: 100%">
@@ -34,7 +34,7 @@
 
   <ngwr-doc-section
     title="All three slots"
-    description="`[wrPageHeaderBreadcrumbs]` is the row above the title, `[wrPageHeaderActions]` the right-hand side, and `[wrPageHeaderExtra]` the row of tags or metadata below. They are projection SELECTORS rather than directives, so nothing extra goes in `imports` — put the attribute on whatever element the slot should hold. The actions slot lays out a bare `<div>` for you; the extra row leaves a wrapper alone, which is why the tags below are projected through an `<ng-container>`."
+    description="Put `wrPageHeaderBreadcrumbs`, `wrPageHeaderActions` or `wrPageHeaderExtra` on any element; nothing to import. Project tags through an `<ng-container>`."
   >
     <ngwr-doc-code [code]="allSlots" language="angular-html" />
     <ngwr-doc-snippet code="">

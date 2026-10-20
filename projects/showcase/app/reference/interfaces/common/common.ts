@@ -20,36 +20,32 @@ export default class CommonTypesPage {
   return db.get(id) ?? null;
 }
 
-// Interop boundary where the shape genuinely isn't known —
-// unlike \`any\`, the intent is explicit and greppable.
+// A deliberate, searchable \`any\`.
 function fromLegacyBridge(payload: SafeAny): void {
   // narrow before use
 }
 
-// What every panelClass takes. A space-separated string is the
-// common case; an array is there for a list built in TypeScript.
+// What every panelClass takes.
 const extra: WrClassInput = wide() ? 'w-[40rem] shadow-2xl' : null;`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'Maybe<T>',
-      description:
-        'A value that may be absent — `T | null | undefined`. Pairs with [isDefined](/reference/utils/is-defined) to narrow back to `T`.',
+      description: '`T | null | undefined`. [isDefined](/reference/utils/is-defined) narrows it back to `T`.',
       type: 'type alias',
       default: '—',
     },
     {
       name: 'SafeAny',
-      description:
-        'Explicitly untyped value for interop boundaries. Same mechanics as `any`, but the name is searchable and signals intent.',
+      description: 'A deliberate `any` for interop boundaries, easy to search for.',
       type: 'type alias',
       default: '—',
     },
     {
       name: 'WrClassInput',
       description:
-        'Extra classes handed to a part ngwr renders itself — `string | readonly string[] | null | undefined`. The type every `panelClass` takes; [toClassList](/reference/utils/to-class-list) normalises one.',
+        'Extra classes for a part ngwr renders: `string | readonly string[] | null | undefined`. Every `panelClass` takes it; [toClassList](/reference/utils/to-class-list) normalises one.',
       type: 'type alias',
       default: '—',
     },

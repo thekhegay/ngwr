@@ -55,38 +55,29 @@ import { withTheme } from 'ngwr/theme';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    // Any field you omit keeps its default.
+    // Defaults: 'auto' and 'wr-theme'; storageKey: null stops persisting.
     provideWr(withTheme({ defaultMode: 'dark', storageKey: 'app-theme' })),
   ],
 });`,
     prePaintCustom: `import { wrThemePrePaintScript } from 'ngwr/theme';
 
-// Same script, for an app that moved the key, the default or the prefix.
-// Pass the same values you gave withTheme() / withStorage():
-wrThemePrePaintScript({
-  storageKey: 'app-theme',   // withTheme({ storageKey })
-  defaultMode: 'dark',       // withTheme({ defaultMode })
-  storagePrefix: 'myapp:',   // withStorage({ prefix })
-});
+// Pass the values you gave withTheme() and withStorage():
+wrThemePrePaintScript({ storageKey: 'app-theme', defaultMode: 'dark', storagePrefix: 'myapp:' });
 
-// It returns the JS source with NO <script> wrapper, so an SSR template can
-// inline it — and a CSP that forbids 'unsafe-inline' can hash it instead of
-// reaching for a nonce:
-const source = wrThemePrePaintScript();
-const hash = createHash('sha256').update(source).digest('base64');
-// Content-Security-Policy: script-src 'sha256-\${hash}'`,
+// It returns the source without <script>, so a strict CSP can hash it:
+const hash = createHash('sha256').update(wrThemePrePaintScript()).digest('base64');`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'mode',
-      description: "User-selected mode — `'light' | 'dark' | 'auto'`.",
+      description: 'The chosen mode: `light`, `dark` or `auto`.',
       type: 'Signal<WrThemeMode>',
       default: '—',
     },
     {
       name: 'resolved',
-      description: 'The scheme in effect — `auto` follows `prefers-color-scheme`.',
+      description: 'The scheme in effect; `auto` follows the OS.',
       type: "Signal<'light' | 'dark'>",
       default: '—',
     },
@@ -94,22 +85,20 @@ const hash = createHash('sha256').update(source).digest('base64');
     { name: 'toggle()', description: 'Flip between light and dark (skips auto).', type: '() => void', default: '—' },
     {
       name: 'WR_THEME_CONFIG',
-      description:
-        'Injection token holding `defaultMode` and `storageKey`. Defaults to `DEFAULT_WR_THEME_CONFIG`; set it through `withTheme()` in the application providers.',
+      description: 'Holds `defaultMode` and `storageKey`. Set it with `withTheme()`.',
       type: 'InjectionToken<WrThemeConfig>',
       default: '—',
     },
     {
       name: 'withTheme(config?)',
-      description:
-        'The `provideWr()` feature: sets `WR_THEME_CONFIG`, merged with the defaults, and creates `WrTheme` at boot.',
+      description: 'The `provideWr()` feature: sets `WR_THEME_CONFIG` and creates `WrTheme` at boot.',
       type: "(config?: Partial<WrThemeConfig>) => WrFeature<'theme'>",
       default: '—',
     },
     {
       name: 'wrThemePrePaintScript(options?)',
       description:
-        'Source of the blocking script that applies an explicit choice before first paint. Takes the `storageKey` / `defaultMode` you gave `withTheme()`, plus `storagePrefix` and `json` from `withStorage()`.',
+        'Source of the script that applies a stored choice before the first paint. Takes the `withTheme()` and `withStorage()` values.',
       type: '(options?: WrThemePrePaintOptions) => string',
       default: '—',
     },

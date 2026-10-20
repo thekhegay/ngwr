@@ -16,24 +16,15 @@ import {
 export default class GetRootFontSizePage {
   protected readonly snippet = `import { getRootFontSize } from 'ngwr/utils';
 
-const px = getRootFontSize();   // e.g. 16
-const remToPx = 2 * px;          // convert '2rem' to pixels
-
-// The fallback is what SSR (and an unparseable computed value) resolves to.
-const px14 = getRootFontSize(14);`;
-
-  protected readonly whySnippet = `// Native — verbose, easy to typo \`body\` instead of \`documentElement\`,
-// and crashes on SSR where \`document\` is undefined.
-const px = parseFloat(getComputedStyle(document.documentElement).fontSize);
-
-// ngwr — one call, SSR-safe (returns a sensible 16 when document isn't available).
-const px = getRootFontSize();`;
+const px = getRootFontSize();         // e.g. 16
+const remToPx = 2 * px;               // '2rem' in pixels
+const onServer = getRootFontSize(14); // 14 when there is no DOM`;
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'getRootFontSize(fallback?)',
       description:
-        'Pixel value of `:root` font-size. Useful for converting rem-based inputs to px in TS. `fallback` is returned when there is no DOM (SSR) or the computed value does not parse.',
+        'The `:root` font size in pixels. Returns `fallback` on the server or when the value does not parse.',
       type: '(fallback = 16) => number',
       default: '—',
     },

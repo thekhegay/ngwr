@@ -54,26 +54,20 @@ export default class StorageServicePage {
   }
 
   protected readonly snippets = {
-    swap: `// Swap the engine globally (e.g. sessionStorage for a tab-only app):
-provideWr(withStorage({ engine: sessionStorage }))
+    swap: `provideWr(withStorage({ engine: sessionStorage }))
 
-// Or lazily — useful when wrapping with encryption / IndexedDB / a worker bridge:
+// A factory, for a wrapper such as encrypted storage:
 provideWr(withStorage({ engine: () => new EncryptedStorage(localStorage, key) }))
 
-// Or directly via the token, at BOOTSTRAP. \`WrStorage\` is root-provided and
-// resolves its engine once, when the singleton is first constructed — a token
-// re-provided on a lazy route or a component reaches no \`inject(WrStorage)\`,
-// because that instance already exists. A feature that genuinely needs its own
-// engine provides its own \`WrStorage\` beside it.
+// Or the token, at bootstrap only:
 providers: [{ provide: WR_STORAGE_ENGINE, useValue: sessionStorage }]`,
     usage: `private readonly store = inject(WrStorage);
 
 this.store.set('user', { name: 'Ada' });
-this.store.get<{ name: string }>('user');         // → { name: 'Ada' }
+this.store.get<{ name: string }>('user'); // { name: 'Ada' }
 
-this.store.set('cart', items, { ttl: 60_000 });   // expires in 60s
-this.store.get('cart');                            // → null after 60s, and the key is dropped
-this.store.has('cart');                            // presence only — still true until something reads it
+this.store.set('cart', items, { ttl: 60_000 }); // gone after 60 s
+this.store.has('cart'); // ignores expiry
 
 const theme = this.store.watch<'light' | 'dark'>('theme', 'light');
 effect(() => console.log('theme is', theme()));`,
@@ -86,7 +80,7 @@ store.set('theme', 'dark');
 store.set('cart', [{ sku: 'a1' }], { ttl: 60_000 });
 // localStorage['myapp:cart'] === '{"v":[{"sku":"a1"}],"e":1767225600000}'
 
-// Reading the same key from outside Angular — a pre-paint script, a worker:
+// Reading it outside Angular:
 const raw = localStorage.getItem('myapp:theme');
 const env = raw === null ? null : (JSON.parse(raw) as WrStorageEnvelope<string>);
 const value = env && (env.e === undefined || env.e >= Date.now()) ? env.v : null;`,
@@ -101,20 +95,20 @@ const value = env && (env.e === undefined || env.e >= Date.now()) ? env.v : null
     },
     {
       name: 'set(key, value, opts?)',
-      description: 'Write a value. Per-call `ttl` (ms) overrides config default.',
+      description: 'Write a value. `ttl` (ms) overrides the configured default.',
       type: '<T>(k: string, v: T, opts?: { ttl?: number }) => void',
       default: '—',
     },
     { name: 'remove(key)', description: 'Remove the value at `key`.', type: '(k: string) => void', default: '—' },
     {
       name: 'clear()',
-      description: 'Clear all keys under our prefix (or everything when prefix is empty).',
+      description: 'Clear every key under the prefix, or every key when there is none.',
       type: '() => void',
       default: '—',
     },
     {
       name: 'has(key)',
-      description: 'Whether the key is present (ignoring expiry).',
+      description: 'Whether the key exists, ignoring expiry.',
       type: '(k: string) => boolean',
       default: '—',
     },
@@ -126,33 +120,32 @@ const value = env && (env.e === undefined || env.e >= Date.now()) ? env.v : null
     },
     {
       name: 'watch(key, fallback?)',
-      description: 'Reactive read. Updates on local writes and cross-tab `storage` events.',
+      description: 'Read as a signal. Follows writes from this tab and others.',
       type: '<T>(k: string, f?: T) => Signal<T | null>',
       default: '—',
     },
     {
       name: 'withStorage(options?)',
-      description: 'The `provideWr()` feature: configure prefix, json, ttl, and swap the engine.',
+      description: 'The `provideWr()` feature: `prefix`, `json`, `ttl` and `engine`.',
       type: "(options?: WrStorageOptions) => WrFeature<'storage'>",
       default: '—',
     },
     {
       name: 'WR_STORAGE_ENGINE',
       description:
-        'InjectionToken for the active `Storage` engine. Provide it at bootstrap — `WrStorage` is root-provided and resolves its engine once, so a lazy route or a component re-providing the token reaches no existing `inject(WrStorage)`. A feature that needs its own engine provides its own `WrStorage` beside it.',
+        'The active `Storage` engine. Provide it at bootstrap; a route or component provider is ignored unless it also provides `WrStorage`.',
       type: 'InjectionToken<Storage>',
       default: 'localStorage / memory fallback',
     },
     {
       name: 'createMemoryStorage()',
-      description: 'Map-backed `Storage` shim. Useful for tests.',
+      description: 'An in-memory `Storage`, for tests.',
       type: '() => Storage',
       default: '—',
     },
     {
       name: 'WrStorageEnvelope',
-      description:
-        'The on-disk format written while `json` is on — the value under `v`, plus an epoch-ms expiry `e` when a TTL applies.',
+      description: 'The stored format while `json` is on: value `v`, expiry `e` in epoch ms.',
       type: '{ readonly v: T; readonly e?: number }',
       default: '—',
     },
@@ -163,14 +156,13 @@ const value = env && (env.e === undefined || env.e >= Date.now()) ? env.v : null
       kind: 'Service',
       title: 'WrCookie',
       url: ['/reference/services', 'cookie'],
-      description:
-        'Same shape for `document.cookie`. Reach for cookies when you need expiry attributes / cross-subdomain reads.',
+      description: 'The same API for cookies.',
     },
     {
       kind: 'Service',
       title: 'WrTheme',
       url: ['/reference/services', 'theme'],
-      description: 'Built on top of WrStorage — your theme mode persists through whatever engine you swap in.',
+      description: 'Stores the theme here.',
     },
   ];
 }

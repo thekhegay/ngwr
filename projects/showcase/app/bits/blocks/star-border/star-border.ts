@@ -51,7 +51,7 @@ export default class StarBorderPage {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'color',
-      description: 'Ray colour. Unset, the theme decides: primary on light, white on dark.',
+      description: 'Ray colour. Unset, it follows the theme.',
       type: 'string | null',
       default: 'null',
     },

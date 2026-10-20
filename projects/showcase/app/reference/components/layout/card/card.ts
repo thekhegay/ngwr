@@ -44,8 +44,7 @@ export default class CardPage {
   </wr-card-footer>
 </wr-card>`,
 
-    bare: `<!-- Header / footer slots are optional. -->
-<wr-card>
+    bare: `<wr-card>
   <p>Just a surface around content.</p>
 </wr-card>`,
 
@@ -64,28 +63,26 @@ export default class CardPage {
     { name: 'bordered', description: '1px border around the surface.', type: 'boolean', default: 'true' },
     {
       name: 'hoverable',
-      description: 'Lift + drop-shadow on hover. Also sets `cursor: pointer`.',
+      description: 'Lift and shadow on hover, pointer cursor.',
       type: 'boolean',
       default: 'false',
     },
     {
       name: 'loading',
-      description: 'Overlay with a centred spinner + dim body. Sets `aria-busy`.',
+      description: 'Spinner over a dimmed body. Sets `aria-busy`.',
       type: 'boolean',
       default: 'false',
     },
-    { name: 'compact', description: 'Half-paddings for tight layouts.', type: 'boolean', default: 'false' },
+    { name: 'compact', description: 'Half the padding.', type: 'boolean', default: 'false' },
     {
       name: '<wr-card-header>',
-      description:
-        'Header slot. The element itself carries `.wr-card__header` — the content projected INTO it is left alone.',
+      description: 'Header slot (`.wr-card__header`).',
       type: 'component',
       default: '—',
     },
     {
       name: '<wr-card-footer>',
-      description:
-        'Footer slot. The element itself carries `.wr-card__footer` — the content projected INTO it is left alone.',
+      description: 'Footer slot (`.wr-card__footer`).',
       type: 'component',
       default: '—',
     },

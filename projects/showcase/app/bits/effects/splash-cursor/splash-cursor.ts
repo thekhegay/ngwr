@@ -56,12 +56,10 @@ export default class SplashCursorPage {
     { kind: 'toggle', label: 'Fullscreen overlay', signal: this.fullscreen },
   ];
 
-  protected readonly snippets = {};
-
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'fullscreen',
-      description: 'Viewport overlay, or fill the nearest positioned ancestor.',
+      description: 'Cover the viewport, or fill the nearest positioned parent.',
       type: 'boolean',
       default: 'true',
     },

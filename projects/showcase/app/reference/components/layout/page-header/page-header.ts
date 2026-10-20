@@ -49,8 +49,7 @@ export default class PageHeaderPageComponent {
     <wr-btn color="primary">Change plan</wr-btn>
   </div>
 
-  <!-- An ng-container, not a div: the extra row spaces its own children and
-       leaves a wrapper alone. -->
+  <!-- ng-container: the row does not space a wrapper's children. -->
   <ng-container wrPageHeaderExtra>
     <wr-tag color="success">Active</wr-tag>
     <wr-tag>Pro</wr-tag>

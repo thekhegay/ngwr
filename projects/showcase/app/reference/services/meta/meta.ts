@@ -73,7 +73,6 @@ export default class MetaServicePageComponent {
     defaults: `import { provideWr } from 'ngwr';
 import { withMeta } from 'ngwr/meta';
 
-// The baseline every route starts from; push() and [wrMeta] layer on top.
 providers: [
   provideWr(
     withMeta({
@@ -94,17 +93,13 @@ ngOnInit() {
   });
   this.destroyRef.onDestroy(() => handle.pop());
 }`,
-    directive: `<!-- Auto-pops on destroy. Perfect for route components. -->
-<div [wrMeta]="{ title: 'Pricing', description: 'Plans for every team.' }">
+    directive: `<div [wrMeta]="{ title: 'Pricing', description: 'Plans for every team.' }">
   …
 </div>`,
     reactive: `private readonly meta = inject(WrMeta);
 private readonly i18n = inject(WrI18n);
 
 ngOnInit() {
-  // \`i18n.t(...)\` tracks the active locale, so the document title
-  // re-renders automatically whenever the language changes — no
-  // manual re-set on \`NavigationEnd\` or a locale subscription.
   const handle = this.meta.bind(() => ({
     title: this.i18n.t('home.title'),
     description: this.i18n.t('home.description'),
@@ -122,41 +117,38 @@ ngOnInit() {
     },
     {
       name: 'push(config)',
-      description: 'Push a new layer. Returns `{ pop }` — call `.pop()` to remove.',
+      description: 'Push a layer. Returns `{ pop }`.',
       type: '(config: WrMetaConfig) => WrMetaHandle',
       default: '—',
     },
     {
       name: 'bind(factory)',
-      description:
-        'Reactive layer — re-applies whenever a signal read inside `factory` changes (e.g. `WrI18n.t()` on locale switch). Returns `{ pop }`.',
+      description: 'Push a layer that re-applies when a signal read in `factory` changes. Returns `{ pop }`.',
       type: '(factory: () => WrMetaConfig) => WrMetaHandle',
       default: '—',
     },
     { name: 'pop()', description: 'Pop the most recently pushed layer.', type: '() => void', default: '—' },
     {
       name: 'reset()',
-      description: 'Clear all overrides, restore the defaults registered through `withMeta()`.',
+      description: 'Clear every layer and restore the `withMeta()` defaults.',
       type: '() => void',
       default: '—',
     },
     {
       name: 'current()',
-      description:
-        'A SNAPSHOT of what is in `<head>` right now — a plain method, not a signal, so a template reading it does not re-render when the stack changes. Reach for it from code that is already running at the moment it asks.',
+      description: 'A snapshot of `<head>` now. Not a signal: a template should read `resolved()`.',
       type: '() => Readonly<WrMetaConfig>',
       default: '—',
     },
     {
       name: 'resolved()',
-      description:
-        'The same merged configuration, as a SIGNAL — the reactive half, and what a template or a `computed()` should read. It follows every `set()`, `push()` and `pop()`; `current()` only answers for the instant you call it.',
+      description: 'The merged configuration as a signal.',
       type: 'Signal<WrMetaConfig>',
       default: '—',
     },
     {
       name: '[wrMeta]',
-      description: 'Directive: pushes on init, re-pushes on input change, pops on destroy.',
+      description: 'Pushes on init, re-pushes on change, pops on destroy.',
       type: 'WrMetaConfig',
       default: '—',
     },

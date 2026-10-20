@@ -19,8 +19,7 @@ import { API } from '#core/generated/api';
 export default class BackTopPageComponent {
   protected readonly snippet = `<wr-back-top visibilityThreshold="400" [offset]="80" />`;
 
-  protected readonly customIcon = `<!-- Anything projected replaces the default arrow. A <wr-icon> needs
-     provideWrIcons() and the name registered; a bare <svg> needs neither. -->
+  protected readonly customIcon = `<!-- Register the icon with provideWrIcons(). -->
 <wr-back-top>
   <wr-icon name="arrow-up" />
 </wr-back-top>`;

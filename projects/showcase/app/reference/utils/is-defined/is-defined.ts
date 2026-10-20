@@ -17,22 +17,12 @@ export default class IsDefinedPage {
   protected readonly snippet = `import { isDefined } from 'ngwr/utils';
 
 const items: (string | null | undefined)[] = ['a', null, 'b', undefined];
-const present = items.filter(isDefined);   // string[] — narrowed`;
-
-  protected readonly whySnippet = `const items: (string | null | undefined)[] = ['a', null, 'b'];
-
-// Since TS 5.5 the inline arrow is inferred as a type predicate too.
-const a = items.filter(x => x !== null && x !== undefined);
-//    ^? string[]
-
-// Same result, named once, with Maybe<T> on the parameter.
-const b = items.filter(isDefined);
-//    ^? string[]`;
+const present = items.filter(isDefined); // string[]`;
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'isDefined(v)',
-      description: 'Type-narrowing guard that excludes `null` and `undefined`. Composes cleanly with `Array.filter`.',
+      description: 'Narrows out `null` and `undefined`. Pass it straight to `Array.filter`.',
       type: '<T>(v: T | null | undefined) => v is T',
       default: '—',
     },

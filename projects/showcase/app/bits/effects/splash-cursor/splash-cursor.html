@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Splash Cursor"
-  description="WebGL fluid simulation that splashes colourful dye wherever the pointer moves or clicks. Fullscreen click-through overlay by default, or contained in any positioned box — where the dye collides with the walls. Renders nothing under prefers-reduced-motion or without WebGL."
+  description="A fluid simulation that splashes colour where the pointer moves."
   [keywords]="['splash-cursor', 'wr-splash-cursor', 'fluid', 'webgl', 'reactbits']"
   [labels]="['Animation']"
 >
@@ -8,7 +8,7 @@
 
   <ngwr-doc-section
     title="Playground"
-    description="Move the pointer through the box — the dye swirls and bounces off the walls. Flip the fullscreen toggle to let it follow you across the whole page instead."
+    description="Move the pointer through the box, or turn on fullscreen to cover the page."
   >
     <ngwr-doc-playground [code]="snippet()" [controls]="controls">
       <div
@@ -45,6 +45,13 @@
         </p>
       </div>
     </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Gotchas">
+    <ul>
+      <li>With <code>fullscreen</code> off, it fills the nearest positioned parent.</li>
+      <li>It draws nothing with <code>prefers-reduced-motion</code> or without WebGL.</li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

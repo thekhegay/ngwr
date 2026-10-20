@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Alert"
-  description="Inline status banner — info, success, warning, danger, neutral, offline."
+  description="An inline status message."
   [keywords]="['alert', 'banner', 'wr-alert']"
   [labels]="['Component', 'Standalone']"
 >
@@ -30,10 +30,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Without title"
-    description="Omit `title` and the `message` renders as a single primary line."
-  >
+  <ngwr-doc-section title="Without title" description="Without a `title`, the `message` is the only line.">
     <ngwr-doc-snippet [code]="snippets.noTitle">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%">
         <wr-alert message="Your changes are live." type="success" />
@@ -42,7 +39,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Custom icon" description="Override the default per-type icon with `iconName`.">
+  <ngwr-doc-section title="Custom icon" description="`iconName` replaces the icon of the `type`.">
     <ngwr-doc-snippet [code]="snippets.customIcon">
       <div style="width: 100%">
         <wr-alert iconName="sparkles" title="What's new" message="Smarter search just landed." />
@@ -50,7 +47,10 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Closable">
+  <ngwr-doc-section
+    title="Closable"
+    description="`closable` adds a close button; `(closed)` fires when it hides the alert."
+  >
     <ngwr-doc-snippet [code]="snippets.closable">
       <div style="width: 100%">
         <wr-alert title="Saved" message="Your changes are live." type="success" closable />
@@ -58,7 +58,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Without icon" description='Pass `[icon]="false"` to suppress the leading status icon.'>
+  <ngwr-doc-section title="Without icon" description='`[icon]="false"` hides the icon.'>
     <ngwr-doc-snippet [code]="snippets.noIcon">
       <div style="width: 100%">
         <wr-alert title="Plain" message="No leading icon." [icon]="false" />

@@ -37,20 +37,20 @@ export default class AutosizePage {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: '[wrAutosize]',
-      description: 'Auto-grow <textarea> based on scrollHeight; bounded by minRows / maxRows.',
+      description: 'Grows the `<textarea>` with its content.',
       type: 'directive on textarea',
       default: '—',
     },
     {
       name: 'minRows',
-      description: 'Floor, in rows. The field never shrinks below it.',
+      description: 'Fewest rows.',
       type: 'number',
       default: '1',
       sub: true,
     },
     {
       name: 'maxRows',
-      description: 'Ceiling, in rows. `0` — the default — means no cap, and the field grows with its content.',
+      description: 'Most rows. `0` means no limit.',
       type: 'number',
       default: '0',
       sub: true,

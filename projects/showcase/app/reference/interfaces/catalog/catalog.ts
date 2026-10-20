@@ -93,23 +93,11 @@ export default class TypesCatalogPage {
     {
       title: 'Charts',
       items: [
-        { name: 'WrBarChartDatum', description: 'One bar of data.', url: ['/reference/components', 'bar-chart'] },
-        { name: 'WrLineSeries', description: 'One plotted line.', url: ['/reference/components', 'line-chart'] },
-        {
-          name: 'WrDonutSegment',
-          description: 'One slice of the ring.',
-          url: ['/reference/components', 'donut-chart'],
-        },
-        {
-          name: 'WrHeatmapDatum',
-          description: 'One contribution cell.',
-          url: ['/reference/components', 'calendar-heatmap'],
-        },
-        {
-          name: 'WrMeterSegment',
-          description: 'One meter-group segment.',
-          url: ['/reference/components', 'meter-group'],
-        },
+        { name: 'WrBarChartDatum', description: 'One bar of data.', url: ['/charts', 'bar-chart'] },
+        { name: 'WrLineSeries', description: 'One plotted line.', url: ['/charts', 'line-chart'] },
+        { name: 'WrDonutSegment', description: 'One slice of the ring.', url: ['/charts', 'donut-chart'] },
+        { name: 'WrHeatmapDatum', description: 'One contribution cell.', url: ['/charts', 'calendar-heatmap'] },
+        { name: 'WrMeterSegment', description: 'One meter-group segment.', url: ['/charts', 'meter-group'] },
       ],
     },
     {

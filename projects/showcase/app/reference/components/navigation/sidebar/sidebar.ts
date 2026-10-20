@@ -22,24 +22,8 @@ import {
 })
 export default class SidebarPage {
   /**
-   * Distinct destinations, and exactly ONE of them resolves here — the entry
-   * that is a visible CHILD of a group.
-   *
-   * Every entry used to name this page, so `routerLinkActive` matched all six at
-   * once and the active treatment was indistinguishable from the inactive one,
-   * the single thing the section exists to show. Pointing them at real routes
-   * fixed that and broke the other half: the only row left matching was
-   * `Dashboard`, a top-level entry, so nothing on the page carried
-   * `.wr-sidebar__item--active` and no group expanded for a reason a reader can
-   * see. `Settings` DID open — `Tokens (soon)` named this route — but a disabled
-   * entry renders as a `<span>`, which `routerLinkActive` never touches, so the
-   * group opened because of an inert row with no highlight on it. The page
-   * promises "active route auto-expands its containing group" directly above.
-   *
-   * So `Profile` is the one that resolves here: its group opens on load, the row
-   * inside it is highlighted, and the promise is demonstrated by something
-   * visible. `check:state-a11y` measures `.wr-sidebar__item--active` on this
-   * route and went unreachable for exactly as long as no child was active.
+   * Only `Profile`, a group child, points at this page: its group opens and its
+   * row is active. `check:state-a11y` measures `.wr-sidebar__item--active` here.
    */
   protected readonly entries: readonly WrSidebarEntry[] = [
     { title: 'Dashboard', icon: 'home', url: ['/reference/components', 'card'] },
@@ -66,8 +50,7 @@ export default class SidebarPage {
   protected readonly snippets = {
     template: `<wr-sidebar [entries]="entries" />`,
     activeOptions: `protected readonly entries: WrSidebarEntry[] = [
-  // Without this, \`/\` is a prefix of every URL, so Home paints as
-  // the current page everywhere — and the active row ignores the pointer.
+  // Without exact, '/' matches every URL
   { title: 'Home', url: ['/'], activeOptions: { exact: true } },
   { title: 'Orders', url: ['/orders'] }, // stays active on /orders/42
 ];`,
@@ -76,13 +59,13 @@ export default class SidebarPage {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'entries',
-      description: 'Flat items + expandable groups. Order preserved.',
+      description: 'Links and expandable groups, in order.',
       type: 'readonly WrSidebarEntry[]',
       default: '[]',
     },
     {
       name: 'ariaLabel',
-      description: 'Accessible name for the navigation landmark. Falls back to the `sidebar.label` catalog key.',
+      description: 'Name of the navigation landmark. Falls back to `sidebar.label`.',
       type: 'string | null',
       default: 'null',
     },
@@ -100,20 +83,19 @@ export default class SidebarPage {
     },
     {
       name: 'autoExpand',
-      description: 'Auto-expand the group containing the active route on navigation.',
+      description: 'Open the group holding the active route.',
       type: 'boolean',
       default: 'true',
     },
     {
       name: 'WrSidebarItem',
-      description:
-        "`{ title, url, icon?, badge?, disabled?, activeOptions? }` — a direct-link entry. `activeOptions` is the entry's `[routerLinkActiveOptions]`.",
+      description: '`{ title, url, icon?, badge?, disabled?, activeOptions? }`: a link.',
       type: 'interface',
       default: '—',
     },
     {
       name: 'WrSidebarGroup',
-      description: '`{ title, children, icon?, defaultOpen? }` — expand to reveal child items.',
+      description: '`{ title, children, icon?, defaultOpen? }`: a group of links.',
       type: 'interface',
       default: '—',
     },

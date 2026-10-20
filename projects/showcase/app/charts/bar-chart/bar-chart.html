@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Bar Chart"
-  description="Vertical bars, one series. Per-bar color overrides via the `color` field."
+  description="Vertical bars for one series of values."
   [keywords]="['bar-chart', 'wr-bar-chart']"
   [labels]="['Component']"
 >
@@ -12,10 +12,7 @@
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
-  <ngwr-doc-section
-    title="Tooltip"
-    description="Hover a bar for its label and value, in a tooltip pointing at the top of that bar. Pointer only: each bar's accessible name already carries both. Set `[tooltip]` to `false` to turn it off."
-  >
+  <ngwr-doc-section title="Tooltip" description='Set `[tooltip]="false"` to turn it off.'>
     <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; gap: 2rem; flex-wrap: wrap; width: 100%">
@@ -32,10 +29,10 @@
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
-  <ngwr-doc-section title="API" description="Inputs of &lt;wr-bar-chart&gt;.">
+  <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
-  <ngwr-doc-section title="Types" description="Data shapes used by the inputs above.">
+  <ngwr-doc-section title="Types">
     <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
     <ngwr-doc-api [rows]="typeRows" />
   </ngwr-doc-section>

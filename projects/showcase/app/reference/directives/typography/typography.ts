@@ -29,35 +29,31 @@ export default class DirectivesTypographyPage {
       name: 'variant',
       type: 'WrTypographyVariant',
       default: `'body'`,
-      description:
-        'The text role. Drives size, weight, leading and — for some variants — colour. `code` additionally implies `mono`.',
+      description: 'The text role: size, weight, leading and, for some variants, colour.',
     },
     {
       name: 'tone',
       type: 'WrTypographyTone | null',
       default: 'null',
-      description:
-        'Colour override. `null` emits no tone class at all, leaving each variant its own colour — body and headings read `--wr-color-on-surface`, `lead` / `caption` / `overline` / `list` are muted, `link` is primary. Use `tone="base"` to pull a muted variant back to the page ink. Every other tone is emphasis only: a tone never carries a state on its own, since `success` against `danger` is 1.05:1 as text. The words have to name the state.',
+      description: 'Colour override. `null` keeps the variant colour; `base` turns a muted variant to the page ink.',
     },
     {
       name: 'align',
       type: 'WrTypographyAlign | null',
       default: 'null',
-      description: 'Horizontal alignment. `null` emits no class, so the element inherits alignment from its container.',
+      description: 'Text alignment. `null` inherits it.',
     },
     {
       name: 'truncate',
       type: 'boolean',
       default: 'false',
-      description:
-        'Clip overflow to one line with an ellipsis. Coerced, so the bare attribute works. Forces `display: inline-block` on the host.',
+      description: 'One line with an ellipsis. Sets `display: inline-block`.',
     },
     {
       name: 'mono',
       type: 'boolean',
       default: 'false',
-      description:
-        'Switch to `--wr-font-family-mono`. Coerced, so the bare attribute works. Implied by `variant="code"`.',
+      description: 'Monospace font. On by default for `variant="code"`.',
     },
   ];
 
@@ -72,13 +68,12 @@ export default class DirectivesTypographyPage {
     {
       name: 'code',
       type: 'tinted inline chip · 0.875em',
-      description: 'Inline code. Implies `mono`; sized in `em` so it tracks its context.',
+      description: 'Inline code. Implies `mono`.',
     },
     {
       name: 'list',
       type: 'ul / ol / dl aware · muted',
-      description:
-        'Applies to the list element itself; markers and nesting are styled from the element type. Inside a `dl` the `dd` reads the page ink and the `dt` stays muted.',
+      description: 'Put it on the `ul`, `ol` or `dl` itself.',
     },
     { name: 'link', type: 'primary', description: 'Inline link styling.' },
   ];
@@ -92,23 +87,23 @@ export default class DirectivesTypographyPage {
     {
       name: 'wr-typography--{variant}',
       type: 'always',
-      description: 'One per variant — always emitted, since `variant` always resolves.',
+      description: 'One per variant.',
     },
     {
       name: 'wr-typography--tone-{tone}',
       type: 'when `tone` is set',
-      description: 'Omitted entirely when `tone` is `null`.',
+      description: 'Absent when `tone` is `null`.',
     },
     {
       name: 'wr-typography--align-{align}',
       type: 'when `align` is set',
-      description: 'Omitted entirely when `align` is `null`.',
+      description: 'Absent when `align` is `null`.',
     },
     { name: 'wr-typography--truncate', type: 'when `truncate`', description: 'Adds the ellipsis clamp.' },
     {
       name: 'wr-typography--mono',
       type: 'when `mono` or `variant="code"`',
-      description: 'The one implicit rule in the directive.',
+      description: 'Monospace font.',
     },
   ];
 
@@ -117,19 +112,19 @@ export default class DirectivesTypographyPage {
       kind: 'Guide',
       title: 'Typography guide',
       url: ['/guides/typography', 'overview'],
-      description: 'The variants applied to real headings, paragraphs, links, lists and code.',
+      description: 'The variants in use.',
     },
     {
       kind: 'Guide',
       title: 'Typography tokens',
       url: ['/guides/tokens', 'typography'],
-      description: 'The `--wr-text-*` scale and font primitives this directive reads.',
+      description: 'The --wr-text-* scale.',
     },
     {
       kind: 'Guide',
       title: 'Theming',
       url: ['/guides', 'theming'],
-      description: 'Retuning those tokens across the app.',
+      description: 'Change the tokens.',
     },
   ];
 }

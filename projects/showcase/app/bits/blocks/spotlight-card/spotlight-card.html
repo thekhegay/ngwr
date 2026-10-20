@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Spotlight Card"
-  description="Cursor-tracked spotlight card. A soft radial highlight follows the pointer, fading in on hover."
+  description="A card with a soft highlight that follows the pointer."
   [keywords]="['spotlight-card', 'wr-spotlight-card', 'reactbits']"
   [labels]="['Animation']"
 >
@@ -21,7 +21,10 @@
     </ngwr-doc-playground>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Directive variant ([wrSpotlight])">
+  <ngwr-doc-section
+    title="Directive variant ([wrSpotlight])"
+    description="`[wrSpotlight]` writes the pointer position to `--wr-spotlight-x` and `-y`; paint it with your own gradient."
+  >
     <ngwr-doc-code [code]="snippets.directive" language="angular-ts" />
     <ngwr-doc-snippet code="">
       <div

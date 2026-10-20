@@ -43,8 +43,7 @@ export default class LoadingBarServicePage {
   }
 
   protected readonly snippets = {
-    intercept: `// HttpInterceptor — start a slot per pending HTTP request.
-import { HttpInterceptorFn } from '@angular/common/http';
+    intercept: `import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { finalize } from 'rxjs';
 import { WrLoadingBar } from 'ngwr/loading-bar';
@@ -55,55 +54,58 @@ export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(finalize(() => bar.complete()));
 };`,
 
-    style: `<!-- Customise color + thickness via attributes. -->
-<wr-loading-bar color="var(--wr-color-warning)" height="3px" />`,
+    router: `import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router';
+
+providers: [provideRouter(routes), provideWrLoadingBarRouter()],`,
+
+    style: `<wr-loading-bar color="var(--wr-color-warning)" height="3px" />`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'WrLoadingBar',
-      description: 'Injectable service — the singleton every bar reads.',
+      description: 'Injectable service.',
       type: 'service',
       default: '—',
     },
     {
       name: 'start()',
-      description: 'Open a slot. While at least one slot is open, the bar trickles asymptotically toward 90%.',
+      description: 'Open a slot. The bar creeps toward 90% while any slot is open.',
       type: '() => void',
       default: '—',
       sub: true,
     },
     {
       name: 'complete()',
-      description: 'Close one slot. When the last closes, the bar fast-forwards to 100% then resets.',
+      description: 'Close a slot. The last one fills the bar and hides it.',
       type: '() => void',
       default: '—',
       sub: true,
     },
     {
       name: 'reset()',
-      description: 'Abort — clear every slot and hide the bar immediately, without animating to 100%.',
+      description: 'Clear every slot and hide the bar at once.',
       type: '() => void',
       default: '—',
       sub: true,
     },
     {
       name: 'progress',
-      description: 'Live progress signal `[0, 1]`. Useful for custom UIs.',
+      description: 'Progress from 0 to 1, for a custom indicator.',
       type: 'Signal<number>',
       default: '0',
       sub: true,
     },
     {
       name: 'state',
-      description: 'Computed lifecycle: `idle` / `running` / `completing`.',
+      description: '`idle`, `running` or `completing`.',
       type: 'Signal<WrLoadingState>',
       default: "'idle'",
       sub: true,
     },
     {
       name: '<wr-loading-bar>',
-      description: 'Visual element. Reads the singleton service.',
+      description: 'The bar itself.',
       type: 'component',
       default: '—',
     },

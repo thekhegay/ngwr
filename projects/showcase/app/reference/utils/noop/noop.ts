@@ -20,24 +20,10 @@ class MyService {
   private onChange: (v: string) => void = noop;
 }`;
 
-  protected readonly whySnippet = `// Inline — reads as unfinished, and each instance gets its own closure.
-class MyComponent {
-  onChange = () => {};
-}
-
-// noop — says the nothing is deliberate, and it is one shared reference.
-class MyComponent {
-  onChange = noop;
-}
-
-// Where the reference matters: the same function goes in and comes back out.
-el.addEventListener('scroll', noop);
-el.removeEventListener('scroll', noop);`;
-
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'noop()',
-      description: 'No-op function. Use as default for required callback slots.',
+      description: 'Does nothing. Use it as the default for a callback slot.',
       type: '() => void',
       default: '—',
     },

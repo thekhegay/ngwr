@@ -1,13 +1,10 @@
 <ngwr-doc-page
   title="Button"
-  description="Trigger an action. Renders as <wr-btn>, button[wr-btn], or a[wr-btn]."
+  description="A button for an action or a link."
   [keywords]="['button', 'wr-btn']"
   [labels]="['Component', 'Standalone']"
 >
-  <ngwr-doc-section
-    title="Basic usage"
-    description="The same selector matches a custom element, a native button, and an anchor."
-  >
+  <ngwr-doc-section title="Basic usage" description="Use it as `<wr-btn>`, `<button wr-btn>` or `<a wr-btn>`.">
     <ngwr-doc-snippet [code]="snippets.basic">
       <wr-btn>Default</wr-btn>
       <button type="button" wr-btn>Native button</button>
@@ -17,15 +14,12 @@
 
   <ngwr-doc-section
     title="Inside a form"
-    description="Use the native form for submit and reset: `<button wr-btn type=submit>`. The `<wr-btn>` element is a custom element, which no browser submits a form for, so it takes no `type` — bind the click instead."
+    description='`<wr-btn>` never submits a form: use `<button wr-btn type="submit">`, or bind the click.'
   >
     <ngwr-doc-code [code]="snippets.submit" language="html" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Colors"
-    description="Five intents, plus the default you get by setting no `color` at all. An intent ranks a button against the ones beside it — the label says what it does, so write `Delete`, not a red `OK`."
-  >
+  <ngwr-doc-section title="Colors" description="Leave `color` unset for the default.">
     <ngwr-doc-snippet [code]="snippets.colors">
       <wr-btn>default</wr-btn>
       @for (c of colors; track c) {
@@ -34,7 +28,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Outlined" description="Transparent fill with a coloured label and border.">
+  <ngwr-doc-section title="Outlined" description="`outlined` drops the fill and keeps a coloured border.">
     <ngwr-doc-snippet [code]="snippets.outlined">
       <wr-btn outlined>default</wr-btn>
       @for (c of colors; track c) {
@@ -51,10 +45,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Shape"
-    description="All three set one radius, and two of them are the SAME corner. Every control in the library draws its corners with the shared `smooth-br` mixin, which opts into `corner-shape: squircle` wherever the browser has it — so `rounded` is already a squircle and the `squircle` value only picks a larger anchor radius (6px against 10px, which the property then scales). `pill` is the one that differs in kind: it opts back to `corner-shape: round`, because squircle maths does not degenerate into a pill at a huge radius, it draws something else. Where `corner-shape` is unsupported all three fall back to plain rounded corners — not just the squircle."
-  >
+  <ngwr-doc-section title="Shape" description="`shape` is `rounded` (default), `pill` or `squircle`.">
     <ngwr-doc-snippet [code]="snippets.shape">
       <div class="ngwr-shape-grid">
         @for (s of shapes; track s) {
@@ -71,7 +62,7 @@
 
   <ngwr-doc-section
     title="With icon"
-    description="Pass any icon registered via provideWrIcons. iconPosition switches between start/end."
+    description="`icon` takes a name registered with `provideWrIcons()`; `iconPosition` is `start` (default) or `end`."
   >
     <ngwr-doc-snippet [code]="snippets.icon">
       <wr-btn icon="add" color="primary">Add</wr-btn>
@@ -91,7 +82,7 @@
 
   <ngwr-doc-section
     title="Loading"
-    description="The spinner overlays the label so layout stays put. By default pointer events are blocked while loading."
+    description='The spinner covers the label and blocks clicks; `[disabledWhenLoading]="false"` keeps the button clickable.'
   >
     <ngwr-doc-snippet [code]="snippets.loading">
       <wr-btn [loading]="loading()" [disabledWhenLoading]="false" color="primary" (click)="loading.set(!loading())">
@@ -102,7 +93,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Block" description="Fills the parent's width.">
+  <ngwr-doc-section title="Block" description="`block` fills the parent's width.">
     <ngwr-doc-snippet [code]="snippets.block">
       <div style="width: 100%">
         <wr-btn color="primary" block icon="checkmark">Full width</wr-btn>

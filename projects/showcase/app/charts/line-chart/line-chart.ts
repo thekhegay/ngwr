@@ -27,9 +27,7 @@ export default class LineChartPageComponent {
 
   protected readonly snippets = {
     basic: `<wr-line-chart [series]="series" [xLabels]="labels" />`,
-    tooltip: `<!-- On by default; hover either plot below to compare. Turning it off drops
-     the crosshair and the point markers with it. -->
-<wr-line-chart [series]="series" [xLabels]="labels" />
+    tooltip: `<wr-line-chart [series]="series" [xLabels]="labels" />
 <wr-line-chart [series]="series" [xLabels]="labels" [tooltip]="false" />`,
   };
 

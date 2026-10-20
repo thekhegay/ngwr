@@ -18,29 +18,13 @@ export default class ThrottlePage {
 
 const onScroll = throttle(() => trackScroll(), 100);
 window.addEventListener('scroll', onScroll);
-
-onScroll.cancel();   // teardown`;
-
-  protected readonly whySnippet = `// Native — most hand-rolled throttles forget the trailing edge.
-let lastRun = 0;
-function onScroll() {
-  const now = Date.now();
-  if (now - lastRun >= 100) {
-    lastRun = now;
-    trackScroll();
-  }
-}
-// → final scroll position is never reported (no trailing call).
-
-// ngwr — leading + trailing edge, with \`.cancel()\` for teardown.
-const onScroll = throttle(() => trackScroll(), 100);
 destroyRef.onDestroy(() => onScroll.cancel());`;
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'throttle(fn, waitMs)',
       description:
-        'Returns a wrapper that fires `fn` at most every `waitMs` (leading and trailing edge). Exposes `.cancel()` for teardown.',
+        'Returns a wrapper that calls `fn` at most every `waitMs`, on the leading and trailing edge. `.cancel()` drops a pending call.',
       type: '(fn, ms) => WrThrottledFn',
       default: '—',
     },

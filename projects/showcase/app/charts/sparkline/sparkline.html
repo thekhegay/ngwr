@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Sparkline"
-  description="Tiny inline trend line — no axes, no labels. Drop it next to a number to give context at a glance."
+  description="A small trend line with no axes, to sit beside a number."
   [keywords]="['sparkline', 'trend', 'wr-sparkline']"
   [labels]="['Component']"
 >
@@ -25,10 +25,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Tooltip"
-    description="Hover the line for the value of the nearest point, marked on the line, in a tooltip pointing at that mark and named by `ariaLabel` when one is given. Set `[tooltip]` to `false` to turn it off."
-  >
+  <ngwr-doc-section title="Tooltip" description='Set `[tooltip]="false"` to turn it off.'>
     <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; gap: 2rem; flex-wrap: wrap; width: 100%">

@@ -1,13 +1,10 @@
 <ngwr-doc-page
   title="WrCookie"
-  description="Thin, SSR-safe `document.cookie` wrapper modelled after `WrStorage`. Read, write, delete, and list cookies — with typed options for expiry, path, domain, secure, and SameSite."
+  description="Read, write and delete cookies, safely under SSR."
   [keywords]="['cookie', 'document.cookie', 'session', 'wr-cookie', 'service']"
   [labels]="['Service']"
 >
-  <ngwr-doc-section
-    title="Live demo"
-    description="Pick a key + value, save, and watch the cookie list update. Saved cookies use a 1-hour Max-Age."
-  >
+  <ngwr-doc-section title="Live demo" description="Saved cookies expire in an hour.">
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start; min-width: 22rem">
         <input wrInput [(ngModel)]="key" placeholder="key" />
@@ -30,18 +27,16 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Expiration">
+  <ngwr-doc-section
+    title="Expiration"
+    description="`expires` takes seconds or a `Date`; without it the cookie ends with the session."
+  >
     <ngwr-doc-code [code]="snippets.expires" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="List + clear">
     <ngwr-doc-code [code]="snippets.keys" language="angular-ts" />
   </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Cookie strings are easy to get wrong (encoding, expiry math, SameSite). A tiny typed reader/writer beats re-deriving `document.cookie` parsing per project — and it no-ops cleanly in SSR."
-  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

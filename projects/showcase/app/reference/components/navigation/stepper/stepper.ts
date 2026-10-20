@@ -79,8 +79,7 @@ export default class StepperPageComponent {
     },
     {
       name: 'responsive',
-      description:
-        'Drop a horizontal stepper to vertical when its own box is too narrow (container query, not viewport).',
+      description: 'Turn vertical when the stepper itself is narrow.',
       type: 'boolean',
       default: 'false',
     },

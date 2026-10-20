@@ -39,14 +39,14 @@ import { WrValidators } from 'ngwr/validators';
 
 const card = new FormControl('', [WrValidators.cardNumber]);
 
-card.setValue('4242 4242 4242 4242'); // Stripe test → valid
-card.setValue('1234567890123456');    // bad checksum → { cardNumber: true }`;
+card.setValue('4242 4242 4242 4242'); // valid
+card.setValue('1234567890123456');    // { cardNumber: true }`;
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'signature', description: 'Static — drop into a `validators` array.', type: 'ValidatorFn', default: '—' },
+    { name: 'signature', description: 'Add it to a `validators` array.', type: 'ValidatorFn', default: '—' },
     {
       name: 'accepted',
-      description: '13–19 digits with valid Luhn checksum. Spaces and dashes are stripped before checking.',
+      description: '13 to 19 digits, valid Luhn checksum. Spaces and dashes are ignored.',
       type: 'string',
       default: '—',
     },
@@ -63,19 +63,18 @@ card.setValue('1234567890123456');    // bad checksum → { cardNumber: true }`;
       kind: 'Component',
       title: 'wr-input',
       url: ['/reference/components', 'input'],
-      description: 'Host control for card entry.',
     },
     {
       kind: 'Validator',
       title: 'cvc',
       url: ['/reference/validators', 'cvc'],
-      description: 'Sibling rule for the security code.',
+      description: 'The security code.',
     },
     {
       kind: 'Validator',
       title: 'iban',
       url: ['/reference/validators', 'iban'],
-      description: 'Sibling rule for bank account numbers.',
+      description: 'Bank accounts.',
     },
   ];
 }

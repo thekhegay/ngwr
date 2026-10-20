@@ -37,7 +37,7 @@ export default class ClickOutsidePage {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: '(wrClickOutside)',
-      description: 'Emits when a mousedown event lands outside the host element.',
+      description: 'Emits on a mousedown outside the host.',
       type: 'MouseEvent',
       default: '—',
     },

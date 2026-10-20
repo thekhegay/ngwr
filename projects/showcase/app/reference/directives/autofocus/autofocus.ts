@@ -28,12 +28,7 @@ import {
   ],
 })
 export default class AutofocusPage {
-  /**
-   * Starts falsy so the page does not steal the caret on arrival, and so the
-   * demo's one control drives the directive instead of calling `focus()`
-   * itself — the transition is the only thing `wrAutofocus` adds over the
-   * native attribute.
-   */
+  /** Starts false so the page does not take focus on load. */
   protected readonly autofocusOn = signal(false);
 
   protected readonly snippets = {
@@ -44,7 +39,7 @@ export default class AutofocusPage {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: '[wrAutofocus]',
-      description: 'Focus host on init, or whenever the bound expression becomes truthy.',
+      description: 'Focus the host on init, or when the binding turns true.',
       type: 'boolean',
       default: 'true',
     },

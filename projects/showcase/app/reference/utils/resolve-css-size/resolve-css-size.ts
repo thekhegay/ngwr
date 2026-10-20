@@ -19,27 +19,12 @@ export default class ResolveCssSizePage {
 resolveCssSize(48);       // { cssValue: '48px',  pxValue: 48 }
 resolveCssSize('3rem');   // { cssValue: '3rem',  pxValue: 3 * rootFont }
 resolveCssSize('80%');    // { cssValue: '80%',   pxValue: null }
-resolveCssSize(null, { defaultValue: '6rem' }); // falls back`;
-
-  protected readonly whySnippet = `// Native — you need to handle every shape yourself.
-function pxForCss(raw: number | string | null): number | null {
-  if (raw == null) return null;
-  if (typeof raw === 'number') return raw;
-  if (raw.endsWith('px')) return parseFloat(raw);
-  if (raw.endsWith('rem')) {
-    const root = parseFloat(getComputedStyle(document.documentElement).fontSize);
-    return parseFloat(raw) * root;
-  }
-  return null; // '%', 'vh', 'em', … ignored — bug surface
-}
-
-// ngwr — one call, returns both the CSS value and the px equivalent.
-const { cssValue, pxValue } = resolveCssSize(raw);`;
+resolveCssSize(null, { defaultValue: '6rem' }); // uses the default`;
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'resolveCssSize(raw, options?)',
-      description: 'Resolves number / "12px" / "3rem" / "80%" to a CSS value + pixel equivalent (when computable).',
+      description: 'Resolves `48`, `"12px"`, `"3rem"` or `"80%"` to a CSS value and, when it can, pixels.',
       type: '(raw, options?) => ResolvedCssSize',
       default: '—',
     },
@@ -51,7 +36,7 @@ const { cssValue, pxValue } = resolveCssSize(raw);`;
     },
     {
       name: 'ResolveCssSizeOptions',
-      description: '`{ defaultValue?: unknown }` — used when raw is null/undefined.',
+      description: '`{ defaultValue?: unknown }`, used when `raw` is `null` or `undefined`.',
       type: 'interface',
       default: '—',
     },

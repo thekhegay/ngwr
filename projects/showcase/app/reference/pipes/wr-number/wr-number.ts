@@ -46,7 +46,7 @@ export default class WrNumberPipePage {
 
   protected readonly snippets = {
     decimal: `{{ 1234.5 | wrNumber }}  <!-- "1,234.5" -->`,
-    percent: `{{ 0.875 | wrNumber: 'percent' }}  <!-- "87.5%" — two fraction digits, not rounded to whole -->`,
+    percent: `{{ 0.875 | wrNumber: 'percent' }}  <!-- "87.5%" -->`,
     currency: `{{ 19.99 | wrNumber: 'currency' : 'USD' }}  <!-- "$19.99" -->`,
     options: `{{ 19.9 | wrNumber: { minimumFractionDigits: 2 } }}      <!-- "19.90" -->
 {{ 1234567 | wrNumber: { notation: 'compact' } }}        <!-- "1.2M"  -->`,
@@ -55,7 +55,7 @@ export default class WrNumberPipePage {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'wrNumber',
-      description: "Intl.NumberFormat via Angular's LOCALE_ID. Accepts a style shortcut or full options object.",
+      description: '`Intl.NumberFormat` in `LOCALE_ID`. Takes a style or an options object.',
       type: "(value: number | string | null | undefined, styleOrOptions: WrNumberStyle | Intl.NumberFormatOptions = 'decimal', currency = 'USD') => string",
       default: '—',
     },

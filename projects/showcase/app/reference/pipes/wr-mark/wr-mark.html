@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="wrMark"
-  description="Wrap every occurrence of a query in `<mark>` tags — useful for highlighting search-term matches in autocomplete results, lists, and table cells."
+  description="Highlight a search query in text with `<mark>`."
   [keywords]="['mark', 'highlight', 'search', 'autocomplete', 'wrMark']"
   [labels]="['Pipe']"
 >
   <ngwr-doc-section
     title="Live demo"
-    description="Type a query — every match in the paragraph and list lights up. Input is HTML-escaped before the wrap, so the pipe is safe to feed user-supplied values."
+    description="Bind the result with `[innerHTML]`. The text is escaped first, so user input is safe."
   >
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start; min-width: 22rem">
@@ -25,10 +25,7 @@
     <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Styling"
-    description="The pipe emits a bare `<mark>` with no class of its own, so a `mark { … }` rule styles every match — globally, or scoped to the host that renders the highlighted text."
-  >
+  <ngwr-doc-section title="Styling" description="The match is a bare `<mark>`, so a `mark` rule styles it.">
     <ngwr-doc-code [code]="snippets.style" language="scss" />
   </ngwr-doc-section>
 

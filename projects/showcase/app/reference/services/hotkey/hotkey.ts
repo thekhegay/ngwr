@@ -42,16 +42,11 @@ export default class HotkeyServicePageComponent {
   protected readonly snippets = {
     usage: `private readonly hotkeys = inject(WrHotkey);
 
-ngOnInit() {
-  const handle = this.hotkeys.bind('mod+k', () => this.openPalette(), {
-    preventDefault: true,
-    allowInInput: false,
-  });
-  this.destroyRef.onDestroy(() => handle.unbind());
-}
-
-// Or use the directive form:
-// <button [wrHotkey]="'mod+k'" (wrHotkeyMatch)="openPalette()">…</button>`,
+constructor() {
+  const handle = this.hotkeys.bind('mod+k', () => this.openPalette());
+  inject(DestroyRef).onDestroy(() => handle.unbind());
+}`,
+    directive: `<button [wrHotkey]="'mod+k'" (wrHotkeyMatch)="openPalette()">Search</button>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -75,37 +70,34 @@ ngOnInit() {
     },
     {
       name: 'WrHotkeyOptions',
-      description: "The third argument of `bind()`, and what the `[wrHotkey]` directive's own inputs mirror.",
+      description: 'The third argument of `bind()`.',
       type: 'interface',
       default: '—',
     },
     {
       name: 'element',
-      description:
-        'Scope the listener to one element instead of `document`. It has to be focusable or hold the focus for the binding to fire at all, so this usually comes with `tabindex="0"` on the host.',
+      description: 'Listen on this element instead of `document`. It must hold focus, so add `tabindex="0"`.',
       type: 'HTMLElement',
       default: 'document',
       sub: true,
     },
     {
       name: 'preventDefault',
-      description: 'Call `event.preventDefault()` on a match. Turn it off for a combo the browser should still handle.',
+      description: 'Call `event.preventDefault()` on a match.',
       type: 'boolean',
       default: 'true',
       sub: true,
     },
     {
       name: 'allowInInput',
-      description:
-        'Fire even while an `<input>`, a `<textarea>` or a contenteditable has focus. Off by default so a plain letter shortcut does not eat what someone is typing.',
+      description: 'Fire while an input, a textarea or a contenteditable has focus.',
       type: 'boolean',
       default: 'false',
       sub: true,
     },
     {
       name: 'priority',
-      description:
-        'Higher goes first. Bindings sharing a key dispatch in priority order, and a handler calling `event.preventDefault()` stops the lower ones — which is how a dialog takes Escape from the page behind it.',
+      description: 'Higher runs first; a handler calling `event.preventDefault()` stops the lower ones.',
       type: 'number',
       default: '0',
       sub: true,
@@ -119,19 +111,18 @@ ngOnInit() {
       kind: 'Guide',
       title: 'Keyboard',
       url: ['/guides', 'keyboard'],
-      description: 'How chords, keycaps and key primitives fit together in one task.',
     },
     {
       kind: 'Component',
       title: 'WrKbd',
       url: ['/reference/components', 'keyboard'],
-      description: 'Render the chord you just bound so users can discover it.',
+      description: 'Show the shortcut.',
     },
     {
       kind: 'Util',
       title: 'KEYS',
       url: ['/reference/utils', 'keys'],
-      description: 'Canonical `KeyboardEvent.key` constants for your own handlers.',
+      description: 'KeyboardEvent.key constants.',
     },
   ];
 }

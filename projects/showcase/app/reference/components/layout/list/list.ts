@@ -58,19 +58,17 @@ export default class ListPage {
     { kind: 'toggle', label: 'Interactive rows', signal: this.interactive },
   ];
 
-  protected readonly snippets = {};
-
   protected readonly api: readonly DocApiRow[] = [
     {
       name: '<wr-list>',
-      description: 'Container — renders `<ul role="list">` inside.',
+      description: 'Container. Renders `<ul role="list">`.',
       type: 'component',
       default: '—',
     },
     {
       name: 'bordered',
       sub: true,
-      description: 'Wrap in a card-style border + radius.',
+      description: 'Card-style border and radius.',
       type: 'boolean',
       default: 'false',
     },
@@ -98,15 +96,14 @@ export default class ListPage {
     {
       name: 'interactive',
       sub: true,
-      description:
-        'Hover + cursor pointer, a tab stop, and Enter/Space activation. The `listitem` role is there either way.',
+      description: 'Hover state, a tab stop and Enter / Space activation.',
       type: 'boolean',
       default: 'false',
     },
     {
       name: 'disabled',
       sub: true,
-      description: 'Visual disabled + suppresses interaction.',
+      description: 'Dims the row and blocks interaction.',
       type: 'boolean',
       default: 'false',
     },

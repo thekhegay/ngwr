@@ -47,19 +47,18 @@ const start = new FormControl('', [
 ]);
 
 start.setValue('2025-12-31');
-start.errors; // { minDate: { min: '2026-01-01' } } — the bound, as configured`;
+start.errors; // { minDate: { min: '2026-01-01' } }`;
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'signature',
-      description: 'Factory — call with a `Date` or any value `new Date(v)` accepts (ISO string, epoch ms).',
+      description: 'Call it with a `Date`, an ISO string or epoch ms.',
       type: '(min: Date | string | number) => ValidatorFn',
       default: '—',
     },
     {
       name: 'error key',
-      description:
-        'On failure: `{ minDate: { min: Date | string | number } }` — the bound echoed back exactly as configured, not coerced to a `Date`. Empty value passes.',
+      description: 'On failure: `{ minDate: { min } }`, the bound as you passed it. Empty value passes.',
       type: '{ minDate: { min } }',
       default: '—',
     },
@@ -70,19 +69,18 @@ start.errors; // { minDate: { min: '2026-01-01' } } — the bound, as configured
       kind: 'Component',
       title: 'wr-date-picker',
       url: ['/reference/components', 'date-picker'],
-      description: 'Calendar-popup input - pair it with minDate for range floors.',
     },
     {
       kind: 'Component',
       title: 'wr-calendar',
       url: ['/reference/components', 'calendar'],
-      description: 'Inline month view with its own [min] guard.',
+      description: 'Has its own [min] input.',
     },
     {
       kind: 'Validator',
       title: 'maxDate',
       url: ['/reference/validators', 'max-date'],
-      description: 'The matching upper-bound rule.',
+      description: 'The upper bound.',
     },
   ];
 }

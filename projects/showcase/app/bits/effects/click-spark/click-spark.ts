@@ -61,31 +61,28 @@ export default class ClickSparkPage {
     { kind: 'color', label: 'Color', signal: this.sparkColor },
   ];
 
-  protected readonly snippets = {};
-
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'sparkColor',
-      description:
-        'Spark stroke colour. Accepts any CSS colour or a var(--wr-…) token, which is resolved against the theme.',
+      description: 'Spark colour: any CSS colour or a `var(--wr-…)` token.',
       type: 'string',
       default: "'var(--wr-color-on-surface)'",
     },
     {
       name: 'sparkSize',
-      description: 'Length of each spark line in px at start; tapers to 0 over the duration.',
+      description: 'Starting length of each spark, in px.',
       type: 'number',
       default: '10',
     },
     {
       name: 'sparkRadius',
-      description: 'Distance each spark travels from the origin in px.',
+      description: 'How far each spark travels, in px.',
       type: 'number',
       default: '15',
     },
     {
       name: 'sparkCount',
-      description: 'Number of sparks per click, evenly distributed around the circle.',
+      description: 'Sparks per click.',
       type: 'number',
       default: '8',
     },
@@ -98,7 +95,7 @@ export default class ClickSparkPage {
     },
     {
       name: 'extraScale',
-      description: 'Multiplier on travel distance — bumps the radius without changing sparkRadius.',
+      description: 'Multiplier on how far sparks travel.',
       type: 'number',
       default: '1',
     },

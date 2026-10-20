@@ -1,12 +1,9 @@
 <ngwr-doc-page
   title="Back to Top"
-  description="Pinned floating button that appears once the user has scrolled past `visibilityThreshold` and scrolls to the top on click."
+  description="A floating button that scrolls the page back to the top."
   [keywords]="['back-top', 'scroll', 'wr-back-top']"
 >
-  <ngwr-doc-section
-    title="Demo"
-    description="Scroll down past 400px to reveal the button in the bottom-right corner. The sandbox below provides the scroll runway."
-  >
+  <ngwr-doc-section title="Demo" description="The button appears after `visibilityThreshold` pixels of scroll.">
     <ngwr-doc-code [code]="snippet" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div
@@ -31,10 +28,7 @@
     <wr-back-top visibilityThreshold="400" [offset]="80" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Your own glyph"
-    description="Project anything and it replaces the default arrow; the button, its position and its reveal threshold are unchanged. Source only here rather than a live demo — the button is fixed to one corner, so a second instance would land on top of the one above."
-  >
+  <ngwr-doc-section title="Your own glyph" description="Projected content replaces the arrow.">
     <ngwr-doc-code [code]="customIcon" language="angular-html" />
   </ngwr-doc-section>
 

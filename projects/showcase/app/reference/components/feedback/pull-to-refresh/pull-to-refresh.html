@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="Pull to Refresh"
-  description="Drag down from the top of a scrollable area to trigger a refresh — a touch gesture that lives beside native scrolling."
+  description="Pull down from the top of a scrolling list to refresh it."
   [keywords]="['pull-to-refresh', 'pull to refresh', 'refresh', 'mobile', 'gesture']"
   [labels]="['Component']"
 >
   <ngwr-doc-section
     title="Basic"
-    description="Pull down from the very top on a touch device and release past the threshold to fire `refresh`; a light haptic tap marks the arming point. It's a controlled spinner — bind `refreshing` and clear it when the work settles. No touch device handy? The button drives the same `refreshing` state programmatically."
+    description="Start the fetch on `(refresh)` and keep `refreshing` true until it settles; the button does the same without touch."
   >
     <ngwr-doc-code [code]="htmlSnippet" language="angular-html" />
     <ngwr-doc-code [code]="tsSnippet" language="angular-ts" />
@@ -15,9 +15,7 @@
         <div style="display: flex; justify-content: flex-end; margin-bottom: 0.5rem">
           <wr-btn size="sm" [disabled]="loading()" (click)="reload()">Refresh programmatically</wr-btn>
         </div>
-        <!-- The component is the scroll container here, and these rows are plain
-             text — so nothing inside can take the focus on its behalf. A real list
-             of links or buttons would not need this. -->
+        <!-- tabindex: the rows are plain text, so the scroll container takes focus itself -->
         <wr-pull-to-refresh
           tabindex="0"
           style="height: 16rem; border: 1px solid var(--wr-border-base); border-radius: var(--wr-border-radius-base)"

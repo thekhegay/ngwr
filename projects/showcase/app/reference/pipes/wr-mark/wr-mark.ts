@@ -43,22 +43,13 @@ export default class WrMarkPipePage {
   ];
 
   protected readonly snippets = {
-    usage: `<!-- The output is SafeHtml — bind with [innerHTML]. -->
-<span [innerHTML]="row.name | wrMark: query()"></span>
+    usage: `<span [innerHTML]="row.name | wrMark: query()"></span>
 
-<!-- Case-sensitive: -->
-<span [innerHTML]="row.name | wrMark: query() : true"></span>
+<!-- Case-sensitive -->
+<span [innerHTML]="row.name | wrMark: query() : true"></span>`,
 
-<!-- Empty / null query skips the wrap; the text is still escaped: -->
-<span [innerHTML]="row.name | wrMark: null"></span>`,
-
-    style: `/* The pipe emits a bare <mark>, so one element rule reaches every match. */
-mark {
+    style: `mark {
   background: color-mix(in srgb, var(--wr-color-warning) 40%, transparent);
-  /* Named, not inherited: the two hosts this pipe is for — a wr-select
-     suggestion and a wr-command-palette item — paint their secondary lines
-     with --wr-color-on-surface-muted, which over this tint is 4.25:1 in light
-     and 2.65:1 in dark. */
   color: var(--wr-color-on-surface);
   padding: 0 2px;
   border-radius: 2px;
@@ -86,8 +77,7 @@ mark {
     },
     {
       name: 'returns',
-      description:
-        'SafeHtml — bind with `[innerHTML]`. Input is HTML-escaped first so user-supplied values cannot inject markup.',
+      description: 'Bind with `[innerHTML]`. The text is escaped first.',
       type: 'SafeHtml',
       default: '—',
     },
@@ -98,13 +88,13 @@ mark {
       kind: 'Component',
       title: 'wr-select',
       url: ['/reference/components', 'select'],
-      description: 'Most common host — highlight the typed query inside each suggestion.',
+      description: 'Highlight in suggestions.',
     },
     {
       kind: 'Component',
       title: 'wr-command-palette',
       url: ['/reference/components', 'command-palette'],
-      description: 'Same pattern — visually link the query to the matching item label.',
+      description: 'Highlight in commands.',
     },
   ];
 }

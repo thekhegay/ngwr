@@ -64,8 +64,7 @@ reload(): void {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'refreshing',
-      description:
-        'Whether a refresh is in flight — drives the spinner. Set true in `refresh`, false when it resolves.',
+      description: 'Shows the spinner. Set it in `refresh` and clear it when the work settles.',
       type: 'boolean',
       default: 'false',
     },

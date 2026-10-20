@@ -43,21 +43,13 @@ if (this.platform.isBrowser) {
   localStorage.setItem('theme', 'dark');
 }
 
-protected readonly dark = this.platform.prefersDark;       // Signal<boolean>
-protected readonly reduce = this.platform.prefersReducedMotion;`,
+protected readonly dark = this.platform.prefersDark; // Signal<boolean>
+protected readonly reduce = this.platform.prefersReducedMotion; // Signal<boolean>`,
     haptics: `private readonly haptics = inject(WrHaptics);
 
-onConfirmDelete(): void {
-  this.haptics.warning();          // buzz before a destructive action
-}
-
-onToggle(): void {
-  this.haptics.selection();        // subtle tick on a switch / segmented change
-}
-
-// No-op off-device: false on the server, in browsers without the Vibration
-// API, and on iOS Safari (native-only haptics). Branch on \`supported\`.
-protected readonly canBuzz = this.haptics.supported;`,
+this.haptics.warning(); // before a destructive action
+this.haptics.selection(); // on a switch or segmented change
+this.haptics.supported; // false on the server and in iOS Safari`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -85,19 +77,19 @@ protected readonly canBuzz = this.haptics.supported;`,
   protected readonly hapticsApi: readonly DocApiRow[] = [
     {
       name: 'supported',
-      description: 'Whether the Vibration API is available (browser + `navigator.vibrate`; `false` on iOS Safari).',
+      description: 'Whether the Vibration API exists. `false` on iOS Safari.',
       type: 'boolean',
       default: '—',
     },
     {
       name: 'vibrate(pattern)',
-      description: 'Raw pattern — ms, or `[buzz, pause, …]`. Returns whether it fired; `0` / `[]` cancels.',
+      description: 'Vibrate for ms, or a `[buzz, pause, …]` pattern. `0` or `[]` cancels.',
       type: '(number | readonly number[]) => boolean',
       default: '—',
     },
     {
       name: 'impact(strength?)',
-      description: 'A physical tap — `light` / `medium` / `heavy`.',
+      description: 'A tap: `light`, `medium` or `heavy`.',
       type: "('light'|'medium'|'heavy') => boolean",
       default: "'medium'",
     },
@@ -109,7 +101,7 @@ protected readonly canBuzz = this.haptics.supported;`,
     },
     {
       name: 'success() / warning() / error()',
-      description: 'Notification pulses for completed / risky / failed actions.',
+      description: 'Pulses for a done, risky or failed action.',
       type: '() => boolean',
       default: '—',
     },
@@ -121,8 +113,6 @@ protected readonly canBuzz = this.haptics.supported;`,
       kind: 'Guide',
       title: 'Server-side rendering',
       url: ['/guides', 'ssr'],
-      description:
-        'What every browser-shaped API in the library answers during a server render, which two overlay calls are NOT no-ops there, and the two markup shapes that break hydration.',
     },
   ];
 }

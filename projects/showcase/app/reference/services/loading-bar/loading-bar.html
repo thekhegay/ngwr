@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="WrLoadingBar"
-  description="Top-of-page progress bar with a `start()` / `complete()` slot API for HTTP interceptors or any long-running task. Add `provideWrLoadingBarRouter()` and router navigations drive it as well — an opt-in, because that subscription is what would otherwise pull `@angular/router` into an app that never routes."
+  description="A progress bar at the top of the page for requests and other long tasks."
   [keywords]="['loading bar', 'progress', 'nprogress', 'wr-loading-bar', 'service']"
   [labels]="['Service']"
 >
   <ngwr-doc-section
     title="Live demo"
-    description="Click below — the bar at the top of this page ticks. This site adds `provideWrLoadingBarRouter()`, so changing page drives it too."
+    description="Each `start()` opens a slot and each `complete()` closes one; the bar runs while any slot is open."
   >
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start">
@@ -25,19 +25,21 @@
 
   <ngwr-doc-section
     title="HTTP interceptor"
-    description="Slot-counted — multiple concurrent requests stack, bar stays running until the last finishes."
+    description="Concurrent requests share one bar until the last one finishes."
   >
     <ngwr-doc-code [code]="snippets.intercept" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Styling">
-    <ngwr-doc-code [code]="snippets.style" language="angular-html" />
+  <ngwr-doc-section
+    title="Router navigation"
+    description="Add `provideWrLoadingBarRouter()`, or navigation never moves the bar."
+  >
+    <ngwr-doc-code [code]="snippets.router" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="The service owns the parts every app shell would otherwise rewrite: slot COUNTING, so concurrent requests share one bar instead of fighting over it; the asymptotic trickle toward 90% that keeps a long wait moving without promising an end; and the fast-forward-and-reset when the last slot closes. What it deliberately does NOT own is the router — `WrLoadingBar` injects nothing from `@angular/router`, so an app that never routes pays none of it, and an app that does adds `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`. Without that provider the bar still works for manual `start()` / `complete()` and simply never moves on navigation, which is a silence worth checking for."
-  />
+  <ngwr-doc-section title="Styling" description="Place one `<wr-loading-bar>` in the app shell.">
+    <ngwr-doc-code [code]="snippets.style" language="angular-html" />
+  </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

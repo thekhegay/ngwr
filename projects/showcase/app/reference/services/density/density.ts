@@ -50,19 +50,20 @@ export default class DensityServicePage {
   }
 
   protected readonly snippets = {
+    usage: `private readonly density = inject(WrDensity);
+
+this.density.set('touch');
+this.density.cycle();
+this.density.current(); // 'sm' | 'md' | 'lg' | 'touch'`,
     provider: `import { provideWr } from 'ngwr';
 import { withDensity } from 'ngwr/density';
 
-// In the application's providers, not a route's. Also creates WrDensity at
-// boot, so the default (or the stored choice) is on <html> from the start.
 providers: [provideWr(withDensity({ defaultDensity: 'sm' }))],`,
-    directive: `<!-- Scope an override to a subtree — descendants get sm, the rest of the app keeps the global value. -->
-<aside wrDensity="sm">
+    directive: `<aside wrDensity="sm">
   <wr-list ...></wr-list>
 </aside>`,
-    tokens: `/* Override the multipliers in your own stylesheet. */
-[data-wr-density='sm'] {
-  --wr-density-y: 0.5;     /* even tighter vertical padding */
+    tokens: `[data-wr-density='sm'] {
+  --wr-density-y: 0.5;
   --wr-density-x: 0.8;
 }`,
   };
@@ -71,7 +72,7 @@ providers: [provideWr(withDensity({ defaultDensity: 'sm' }))],`,
     { name: 'WrDensity', description: 'Injectable service.', type: 'service', default: '—' },
     {
       name: 'current',
-      description: 'Active density signal. Read-only — use `set(d)` / `cycle()` to write.',
+      description: 'Active density. Write it with `set()` or `cycle()`.',
       type: 'Signal<WrDensityValue>',
       default: "'md'",
       sub: true,
@@ -90,14 +91,14 @@ providers: [provideWr(withDensity({ defaultDensity: 'sm' }))],`,
     },
     {
       name: '[wrDensity]',
-      description: 'Attribute directive — scope a density override to one subtree.',
+      description: 'Give one subtree its own density.',
       type: 'Directive',
       default: '—',
     },
     {
       name: 'CSS tokens',
       description:
-        '`--wr-density-y` / `--wr-density-x` are the multipliers the ten density-aware controls put through `calc()` on their block and inline padding. `--wr-density-gap` scales the gap a LAYOUT component leaves between the controls projected into it — the controls themselves do not grow with it. `--wr-density-text` is published for your own `calc()` and nothing in the library reads it.',
+        '`--wr-density-y` and `--wr-density-x` scale control padding, `--wr-density-gap` the gaps in layout components. `--wr-density-text` is for your own `calc()`.',
       type: 'CSS custom property',
       default: '1',
     },
@@ -108,13 +109,11 @@ providers: [provideWr(withDensity({ defaultDensity: 'sm' }))],`,
       kind: 'Guide',
       title: 'Theming',
       url: ['/guides', 'theming'],
-      description: 'How density fits alongside palette, dark mode, and design-token overrides.',
     },
     {
       kind: 'Service',
       title: 'WrTheme',
       url: ['/reference/services', 'theme'],
-      description: 'Sibling — light / dark / auto. Pair both for a full appearance API.',
     },
   ];
 }

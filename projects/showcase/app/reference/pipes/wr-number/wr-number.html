@@ -1,24 +1,24 @@
 <ngwr-doc-page
   title="wrNumber"
-  description="Locale-aware number formatting via `Intl.NumberFormat`. Uses Angular's `LOCALE_ID`. Accepts a style shortcut (`'decimal' | 'percent' | 'currency'`) with optional currency code, or a full `Intl.NumberFormatOptions` object."
+  description="Format a number, percent or price in the app locale."
   [keywords]="['pipe', 'wrNumber', 'number', 'format', 'intl']"
   [labels]="['Pipe']"
 >
-  <ngwr-doc-section title="Decimal" description="Default style — grouped digits in the active locale.">
+  <ngwr-doc-section title="Decimal" description="The default: grouped digits.">
     <ngwr-doc-code [code]="snippets.decimal" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div>{{ 1234.5 | wrNumber }} · {{ 9876543.21 | wrNumber }}</div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Percent" description="Multiplies by 100 and appends the locale's percent sign.">
+  <ngwr-doc-section title="Percent" description="`'percent'` multiplies by 100.">
     <ngwr-doc-code [code]="snippets.percent" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div>{{ 0.875 | wrNumber: 'percent' }} · {{ 0.041 | wrNumber: 'percent' }}</div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Currency" description="Pass the ISO 4217 code as the second argument.">
+  <ngwr-doc-section title="Currency" description="`'currency'` takes the ISO 4217 code as the next argument.">
     <ngwr-doc-code [code]="snippets.currency" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div>
@@ -28,10 +28,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Custom options"
-    description="Anything `Intl.NumberFormat` understands — pass the options object directly."
-  >
+  <ngwr-doc-section title="Custom options" description="Pass any `Intl.NumberFormatOptions` object.">
     <ngwr-doc-code [code]="snippets.options" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div>{{ 19.9 | wrNumber: { minimumFractionDigits: 2 } }} · {{ 1234567 | wrNumber: { notation: 'compact' } }}</div>

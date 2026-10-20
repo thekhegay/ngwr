@@ -67,64 +67,59 @@ export default class BorderGlowPage {
     { kind: 'color', label: 'Glow Color', signal: this.glowColorHex, alpha: false },
   ];
 
-  protected readonly snippets = {};
-
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'backgroundColor',
-      description: 'Card background fill. Unset, it uses the theme surface token.',
+      description: 'Card fill. Unset, it uses the theme surface.',
       type: 'string | null',
       default: 'null',
     },
     { name: 'borderRadius', description: 'Corner radius in pixels.', type: 'number', default: '28' },
     {
       name: 'glowRadius',
-      description: 'Halo extent in pixels — how far the outer glow reaches past the card edge.',
+      description: 'How far the glow reaches past the edge, in px.',
       type: 'number',
       default: '40',
     },
     {
       name: 'glowIntensity',
-      description:
-        'Halo opacity multiplier (1 = full strength). Set a `glowColor` alongside it — the halo variables are built from the two together, so on the default palette this input paints nothing.',
+      description: 'Glow opacity multiplier. Does nothing without a `glowColor`.',
       type: 'number',
       default: '1',
     },
     {
       name: 'coneSpread',
-      description: 'Width of the lit cone as a percentage of the perimeter.',
+      description: 'Width of the lit part, as a % of the perimeter.',
       type: 'number',
       default: '25',
     },
     {
       name: 'edgeSensitivity',
-      description: 'How sharply the halo fades as the cursor leaves the edge. Lower = wider falloff.',
+      description: 'How fast the glow fades away from the edge. Lower is wider.',
       type: 'number',
       default: '30',
     },
     {
       name: 'fillOpacity',
-      description: 'Strength of the interior fill near edges (0..1).',
+      description: 'Strength of the inner fill near the edges, 0..1.',
       type: 'number',
       default: '0.5',
     },
     {
       name: 'glowColor',
-      description:
-        'Halo colour as `"H S L"` (HSL parts, no commas). Unset, the theme decides: a deep amber on light surfaces, pale amber on dark — and `glowIntensity` has nothing to multiply until you set one.',
+      description: 'Glow colour as `"H S L"`, no commas. Unset, it follows the theme.',
       type: 'string | null',
       default: 'null',
     },
     {
       name: 'colors',
-      description:
-        'Mesh-gradient palette for the visible border slice. Unset, the theme decides: deep tones on light, pastels on dark.',
+      description: 'Gradient colours of the lit border. Unset, they follow the theme.',
       type: 'readonly string[] | null',
       default: 'null',
     },
     {
       name: 'animated',
-      description: 'Play a one-shot perimeter sweep on mount, then fade out.',
+      description: 'Sweep the border once on mount.',
       type: 'boolean',
       default: 'false',
     },

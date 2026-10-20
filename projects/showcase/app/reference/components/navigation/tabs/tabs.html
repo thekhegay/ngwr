@@ -1,13 +1,10 @@
 <ngwr-doc-page
   title="Tabs"
-  description="Tabbed container. Use projected content for simple tabs, or set routerLink on children to switch into router mode."
+  description="Switch between panels, or between routes."
   [keywords]="['tabs', 'wr-tabs', 'wr-tab']"
   [labels]="['Component', 'Standalone']"
 >
-  <ngwr-doc-section
-    title="Content tabs"
-    description="Children project body content; parent renders an active-tab panel."
-  >
+  <ngwr-doc-section title="Content tabs" description="Bind `[(active)]` to a tab `key`.">
     <ngwr-doc-snippet [code]="snippets.basic">
       <div style="width: 100%">
         <wr-tabs [(active)]="active">
@@ -29,7 +26,7 @@
 
   <ngwr-doc-section
     title="Router tabs"
-    description="Set routerLink on any child to switch the whole strip into router mode. The parent skips its content panel — drop a <router-outlet> below."
+    description="Give tabs a `routerLink` and add `wrTabsRouting` from `ngwr/tabs/router`, or the strip throws. Put a `<router-outlet>` below."
   >
     <ngwr-doc-code [code]="snippets.router" language="angular-html" />
   </ngwr-doc-section>
@@ -47,7 +44,7 @@
 
   <ngwr-doc-section
     title="Router adapter — template reference"
-    description="`[wrTabsRouting]` exports itself under its own name, so a template can ask the router adapter the same questions the strip does."
+    description='`#routing="wrTabsRouting"` gives the template the adapter, for example `href()`.'
   >
     <ngwr-doc-code [code]="snippets.exportAs" language="angular-html" />
   </ngwr-doc-section>

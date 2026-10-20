@@ -35,7 +35,7 @@ export default class BurgerPage {
   protected readonly drawerSnippet = `<wr-burger [(open)]="menuOpen" />
 
 <wr-drawer [(open)]="menuOpen" position="right" width="16rem">
-  <!-- nav links… -->
+  …
 </wr-drawer>`;
 
   protected readonly stylingSnippet = `<wr-burger

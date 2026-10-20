@@ -28,8 +28,7 @@ import {
 export default class WrPluralPipePage {
   protected readonly count = signal(1);
 
-  // `wr-slider` publishes `number | [number, number]` — one thumb or two. This demo
-  // has one, and narrowing here beats a cast in the template.
+  // `wr-slider` emits a tuple in range mode; this demo has one thumb.
   protected setCount(value: number | readonly [number, number]): void {
     if (typeof value === 'number') this.count.set(value);
   }
@@ -51,14 +50,13 @@ export default class WrPluralPipePage {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'wrPlural',
-      description:
-        'Picks the word form for a count via `Intl.PluralRules`. Forms are keyed by CLDR category (`zero`/`one`/`two`/`few`/`many`/`other`); missing keys fall back to `other`.',
+      description: 'Picks the word form through `Intl.PluralRules`. A missing form falls back to `other`.',
       type: '(value: number | null | undefined, forms: WrPluralForms, options: WrPluralOptions = {}) => string',
       default: '—',
     },
     {
       name: 'options.includeValue',
-      description: 'Prefix the locale-formatted count before the word.',
+      description: 'Print the count before the word.',
       type: 'boolean',
       default: 'true',
     },

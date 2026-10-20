@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Calendar Heatmap"
-  description="Year-grid heatmap — the classic GitHub contributions layout."
+  description="A year of daily values as a grid of days."
   [keywords]="['calendar-heatmap', 'github', 'wr-calendar-heatmap']"
   [labels]="['Component']"
 >
@@ -10,16 +10,13 @@
       <wr-calendar-heatmap [data]="data" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
-  <ngwr-doc-section
-    title="Tooltip"
-    description="Hover a day for its date and count, formatted for the locale, in a tooltip pointing at that day — above it, or below it when there is no room. Set `[tooltip]` to `false` to fall back to the browser's own `title`, which carries the same sentence."
-  >
+  <ngwr-doc-section title="Tooltip" description='`[tooltip]="false"` falls back to the browser `title`.'>
     <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
   </ngwr-doc-section>
-  <ngwr-doc-section title="API" description="Inputs of &lt;wr-calendar-heatmap&gt;.">
+  <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
-  <ngwr-doc-section title="Types" description="Data shapes used by the inputs above.">
+  <ngwr-doc-section title="Types">
     <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
     <ngwr-doc-api [rows]="typeRows" />
   </ngwr-doc-section>

@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="WrMeta"
-  description="Centralised `<head>` manager — title, description, keywords, canonical, Open Graph and Twitter Card. Stack-based push/pop so route overrides auto-revert."
+  description="Set the page title, description and social tags, and restore them when a page leaves."
   [keywords]="['service', 'meta', 'head', 'SEO', 'WrMeta']"
   [labels]="['Service']"
 >
   <ngwr-doc-section
     title="Push / pop"
-    description="`push()` hands back a handle; popping it restores whatever was underneath. The button below pushes a layer and pops it four seconds later."
+    description="`push()` returns a handle; `pop()` on it restores what was underneath."
   >
     <ngwr-doc-code [code]="snippets.push" language="angular-ts" />
     <ngwr-doc-snippet code="">
@@ -31,7 +31,7 @@
 
   <ngwr-doc-section
     title="Directive form"
-    description="`[wrMeta]` pushes on init, re-pushes when its value changes and pops on destroy — so a route component declares its `<head>` and never has to undo it. Mount and unmount the block below and watch the tab title follow."
+    description="`[wrMeta]` pushes on init and pops on destroy, so nothing has to undo it."
   >
     <ngwr-doc-code [code]="snippets.directive" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -63,7 +63,7 @@
 
   <ngwr-doc-section
     title="Reactive title (i18n)"
-    description="`bind()` runs its factory inside an effect — read `WrI18n.t()` (or any signal) and the `<head>` re-renders on every locale switch, with no manual re-`set()`."
+    description="`bind()` re-applies whenever a signal its factory reads changes, such as the locale."
   >
     <ngwr-doc-code [code]="snippets.reactive" language="angular-ts" />
     <ngwr-doc-snippet code="">
@@ -88,15 +88,10 @@
 
   <ngwr-doc-section
     title="App-wide defaults"
-    description="Pass `withMeta()` to `provideWr()` at bootstrap for the title template and the fields every route starts from. `reset()` returns to them."
+    description="`withMeta()` sets the title template and the defaults every page starts from; `reset()` returns to them."
   >
     <ngwr-doc-code [code]="snippets.defaults" language="angular-ts" />
   </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Angular's `Title` and `Meta` are low-level setters — every app rebuilds the same canonical-URL / OpenGraph / Twitter-card plumbing on top. `WrMeta` is that layer, with a title template and per-route overrides."
-  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

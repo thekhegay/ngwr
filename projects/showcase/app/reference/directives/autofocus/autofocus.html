@@ -1,13 +1,10 @@
 <ngwr-doc-page
   title="wrAutofocus"
-  description="Moves DOM focus to the host on init. Bind a boolean to focus reactively whenever the expression becomes truthy."
+  description="Focus an element on init, or each time a binding turns true."
   [keywords]="['wrAutofocus', 'autofocus', 'directive']"
   [labels]="['Directive']"
 >
-  <ngwr-doc-section
-    title="Usage"
-    description="Focus follows the transition to truthy, and the directive never blurs: setting the binding back to `false` leaves the caret where it is, so focusing again takes a flip back to `true`."
-  >
+  <ngwr-doc-section title="Usage" description="Setting the binding back to `false` does not blur the element.">
     <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap">

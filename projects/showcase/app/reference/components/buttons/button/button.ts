@@ -50,14 +50,13 @@ export default class ButtonComponent {
 <button wr-btn type="button">Native button</button>
 <a wr-btn>Anchor</a>`,
     submit: `<form (ngSubmit)="save()">
-  <!-- Submits: a real <button>, with the type the platform reads. -->
+  <!-- Submits -->
   <button wr-btn type="submit" color="primary">Save</button>
 
-  <!-- Does NOT submit: <wr-btn> is a custom element. Bind the click. -->
+  <!-- Does not submit: bind the click -->
   <wr-btn (click)="save()" color="primary">Save</wr-btn>
 </form>`,
-    colors: `<!-- No color at all is the default button. -->
-<wr-btn>Default</wr-btn>
+    colors: `<wr-btn>Default</wr-btn>
 <wr-btn color="primary">Primary</wr-btn>
 <wr-btn color="success">Success</wr-btn>`,
     outlined: `<wr-btn outlined>Default</wr-btn>
@@ -65,8 +64,7 @@ export default class ButtonComponent {
     sizes: `<wr-btn size="sm">Small</wr-btn>
 <wr-btn size="md">Medium</wr-btn>
 <wr-btn size="lg">Large</wr-btn>`,
-    shape: `<!-- Three shapes -->
-<wr-btn color="primary">Rounded (default)</wr-btn>
+    shape: `<wr-btn color="primary">Rounded (default)</wr-btn>
 <wr-btn color="primary" shape="pill">Pill</wr-btn>
 <wr-btn color="primary" shape="squircle">Squircle</wr-btn>`,
     block: `<wr-btn color="primary" block>Full width</wr-btn>`,
@@ -74,9 +72,7 @@ export default class ButtonComponent {
 <wr-btn icon="trash" color="danger" outlined>Delete</wr-btn>
 <wr-btn icon="download" iconPosition="end">Download</wr-btn>`,
     disabled: `<wr-btn disabled>Disabled</wr-btn>`,
-    loading: `<!-- \`disabledWhenLoading\` is on by default, so a button that toggles its own
-     loading state would disable itself on the first click and never come back. -->
-<wr-btn [loading]="loading()" [disabledWhenLoading]="false" color="primary" (click)="loading.set(!loading())">
+    loading: `<wr-btn [loading]="loading()" [disabledWhenLoading]="false" color="primary" (click)="loading.set(!loading())">
   Click to toggle
 </wr-btn>`,
   };

@@ -1,18 +1,11 @@
 <ngwr-doc-page
   title="noop"
-  description="No-op function — safe default for required callback slots before the real handler is wired."
+  description="A shared function that does nothing, for a callback slot with no handler yet."
   [keywords]="['noop', 'utils']"
   [labels]="['Util']"
 >
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Mostly it is the NAME. An inline `() => {}` reads as a stub someone forgot to finish; `noop` says the nothing is deliberate, which is the whole point of a placeholder callback or an explicitly ignored hook. The identity is the smaller half and is real where something compares functions: one module-level reference instead of a fresh closure per instance, so an `effect` reading a function input does not re-run, a `removeEventListener` matches the handler it added, and a `Set` of callbacks does not grow a duplicate. None of this is about change detection — ngwr is zoneless and signal-driven, and nothing here dirty-checks a function."
-  >
-    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

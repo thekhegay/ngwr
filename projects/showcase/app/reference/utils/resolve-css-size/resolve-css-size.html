@@ -1,18 +1,14 @@
 <ngwr-doc-page
   title="resolveCssSize"
-  description="Normalise a size into a `{ cssValue, pxValue }` pair, so a component can render the string AND do arithmetic on the pixels. Four forms resolve to a number: a `number`, a bare numeric string, `px`, and `rem` (against the live root font size). A percentage keeps its `cssValue` and reports `pxValue: null`, because the box it is a percentage OF is not known here — and so does every other unit, `em`, `vh`, `ch` and `calc()` among them, which pass through verbatim. Branch on `pxValue !== null` before measuring."
+  description="Turns a size into a CSS value and, when it can, a pixel number."
   [keywords]="['resolveCssSize', 'css', 'utils']"
   [labels]="['Util']"
 >
-  <ngwr-doc-section title="Usage">
-    <ngwr-doc-code [code]="snippet" language="angular-ts" />
-  </ngwr-doc-section>
-
   <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Components that accept a size input often need both a CSS string (for `width:` / `height:`) AND a pixel number (for canvas math, ResizeObserver thresholds, intersection-observer roots). Parsing `'3rem'` to px, handling `null` defaults, supporting `%` / `vh` / `em` — the same 15 lines end up duplicated across every component that takes a `size` input."
+    title="Usage"
+    description="Only a number or numeric string, `px` and `rem` give a `pxValue`; anything else gives `null`, so check it before doing maths."
   >
-    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

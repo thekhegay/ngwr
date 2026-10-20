@@ -1,9 +1,12 @@
 <ngwr-doc-page
   title="Carousel"
-  description="Slide carousel with prev/next, dots, and optional autoplay. Autoplay holds while the pointer is over it, while focus is inside it, and while a drag is in flight — hovering is not a way to stop moving content for someone who never uses a mouse, which is what WCAG 2.2.2 asks for."
+  description="Slides with previous and next buttons, dots and optional autoplay."
   [keywords]="['carousel', 'slider', 'wr-carousel']"
 >
-  <ngwr-doc-section title="Basic">
+  <ngwr-doc-section
+    title="Basic"
+    description="Give the carousel a height: the slides fill it. Autoplay pauses on hover and focus."
+  >
     <ngwr-doc-code [code]="snippet" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-carousel
@@ -38,10 +41,7 @@
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="<wr-carousel-slide>"
-    description="One slide. It carries a `group` role whose roledescription the carousel's own catalog supplies, so a screen reader says “slide 2 of 5” rather than “group”."
-  >
+  <ngwr-doc-section title="<wr-carousel-slide>">
     <ngwr-doc-api [rows]="slideApi" />
   </ngwr-doc-section>
 </ngwr-doc-page>

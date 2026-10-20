@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Button Group"
-  description="Visually groups buttons by merging their borders."
+  description="Joins buttons into one control with shared borders."
   [keywords]="['button group', 'wr-btn-group']"
   [labels]="['Component', 'Standalone']"
 >
@@ -29,7 +29,7 @@
 
   <ngwr-doc-section
     title="Shape"
-    description="`shape` on the group enforces a corner treatment across every child `<wr-btn>` — child `[shape]` inputs are ignored so the group reads as one coherent control."
+    description="`shape` on the group sets every button's corners; a button's own `shape` is ignored."
   >
     <ngwr-doc-snippet [code]="snippets.shape">
       <wr-btn-group shape="rounded">

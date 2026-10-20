@@ -60,7 +60,7 @@ export default class TabsPageComponent {
     { name: 'key', description: 'Stable id.', type: 'string', default: 'auto' },
     {
       name: 'routerLink',
-      description: 'When set, the tab becomes a [routerLink] link; the parent skips its content panel.',
+      description: 'Makes the tab a link; the strip renders no panel.',
       type: 'string | readonly string[] | null',
       default: 'null',
     },

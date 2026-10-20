@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="url"
-  description="Parse with `new URL()` and optionally restrict by scheme. Empty values pass."
+  description="Check a URL, and optionally its scheme."
   [keywords]="['url', 'link', 'validator', 'wr-validators']"
   [labels]="['Validator']"
 >
@@ -22,14 +22,12 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Usage">
+  <ngwr-doc-section
+    title="Usage"
+    description="A scheme is required. `url({ requireProtocol: false })` also accepts `ngwr.dev`."
+  >
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Hand-rolled URL regexes via `Validators.pattern` are notoriously wrong. This defers to the platform `URL` parser and can restrict protocols. A scheme is required by default; pass `url({ requireProtocol: false })` to also accept bare domains like `ngwr.dev` (assuming `https`)."
-  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

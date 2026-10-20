@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Layout"
-  description="App-shell layout primitives. Container switches to row automatically when a sider is among its children — drop in header / sider / content / footer and it falls into place."
+  description="An app shell: header, sider, content and footer."
   [keywords]="['layout', 'shell', 'header', 'sider', 'wr-layout']"
   [labels]="['Composite']"
 >
@@ -17,7 +17,10 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Collapsible sider" description="Nested row layout — header on top, sider + content beneath.">
+  <ngwr-doc-section
+    title="Collapsible sider"
+    description="A `<wr-layout>` holding a `<wr-layout-sider>` becomes a row. Bind `[(collapsed)]` on the sider."
+  >
     <ngwr-doc-code [code]="snippets.withSider" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-layout

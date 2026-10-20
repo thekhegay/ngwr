@@ -20,9 +20,6 @@ clamp(140, 0, 100); // 100
 clamp(-3, 0, 100);  // 0
 clamp(42, 0, 100);  // 42`;
 
-  protected readonly whySnippet = `// Typical: keep a drag position inside its track.
-const x = clamp(pointerX - trackLeft, 0, trackWidth);`;
-
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'clamp',

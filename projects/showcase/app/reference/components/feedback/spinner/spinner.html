@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Spinner"
-  description="Inline loading indicator. Em-based sizing and inherits color from surrounding text."
+  description="An inline loading indicator."
   [keywords]="['spinner', 'loading', 'wr-spinner']"
   [labels]="['Component', 'Standalone']"
 >
@@ -10,7 +10,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Sizes">
+  <ngwr-doc-section title="Sizes" description="Sizes are in `em`, so the spinner scales with the text.">
     <ngwr-doc-snippet [code]="snippets.sizes">
       <wr-spinner size="sm" />
       <wr-spinner size="md" />
@@ -18,7 +18,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Color" description="The spinner uses currentColor — set color on the parent to tint it.">
+  <ngwr-doc-section title="Color" description="The spinner takes the text colour: set `color` on the parent.">
     <ngwr-doc-snippet [code]="snippets.color">
       <div style="color: var(--wr-color-primary)"><wr-spinner /></div>
       <div style="color: var(--wr-color-success)"><wr-spinner /></div>

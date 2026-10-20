@@ -42,9 +42,7 @@ import { API } from '#core/generated/api';
 })
 export default class DropdownComponent {
   protected readonly snippets = {
-    basic: `<!-- An item EMITS a click and does not close the menu — a toggle row or a
-     filter wants to stay open. Reach the trigger through its exportAs and
-     close it yourself where that is what you want. -->
+    basic: `<!-- Items do not close the menu: d.close() does. -->
 <button wr-btn type="button" [wrDropdown]="menu" #d="wrDropdown">Actions</button>
 
 <wr-dropdown-menu #menu>
@@ -59,28 +57,16 @@ export default class DropdownComponent {
 <button wr-btn type="button" [wrDropdown]="menu" [arrow]="false">Without arrow</button>`,
     hover: `<button wr-btn type="button" [wrDropdown]="menu" trigger="hover">Hover me</button>`,
     disabled: `<wr-dropdown-item icon="cog" disabled>Disabled item</wr-dropdown-item>`,
-    triggerId: `<!-- Your id stays on the element; the menu points at it. -->
+    triggerId: `<!-- The menu gets aria-labelledby="row-actions" -->
 <button wr-btn type="button" id="row-actions" [wrDropdown]="menu">Actions</button>
-<!-- => <button id="row-actions" aria-haspopup="menu" …>
-     <div role="menu" aria-labelledby="row-actions"> -->
 
-<!-- Bound and interpolated forms are honoured too. -->
-<button wr-btn type="button" [id]="'actions-' + row.id" [wrDropdown]="menu">Actions</button>
-
-<!-- No id of your own: the fallback is generated, and is not a stable
-     locator — it counts dropdown instances, so it differs between the
-     prerendered page and the hydrated one.
-     => <button id="wr-dropdown-trigger-3" …> -->
-<button wr-btn type="button" [wrDropdown]="menu">Actions</button>`,
+<!-- Bound ids work too -->
+<button wr-btn type="button" [id]="'actions-' + row.id" [wrDropdown]="menu">Actions</button>`,
     scrollable: `import { CdkScrollable } from '@angular/cdk/scrolling';
 
 @Component({
   imports: [CdkScrollable, WrDropdown, WrDropdownMenu, WrDropdownItem],
   template: \`
-    <!-- Without \`cdkScrollable\` the menu is placed once and stays there while
-         this box scrolls — it ends up floating over, or away from, its own
-         trigger. The window itself is always tracked; a nested scroller is not
-         until it registers. -->
     <div class="side-panel" cdkScrollable>
       <button wr-btn type="button" [wrDropdown]="menu">Actions</button>
     </div>

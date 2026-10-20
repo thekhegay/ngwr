@@ -1,32 +1,11 @@
 <ngwr-doc-page
   title="WrStorage"
-  description="Reactive key/value storage on top of any `Storage`-compatible engine. Swap the engine through DI (defaults to `localStorage` with an in-memory SSR / private-mode fallback). Built-in prefixing, TTL, and signal-based `watch()` for local + cross-tab updates."
+  description="Typed, reactive key-value storage over localStorage or any engine, safe under SSR."
   [keywords]="['storage', 'localStorage', 'sessionStorage', 'persistence', 'wr-storage', 'service']"
   [labels]="['Service']"
 >
-  <ngwr-doc-section title="Swap the engine">
-    <ngwr-doc-code [code]="snippets.swap" language="angular-ts" />
-  </ngwr-doc-section>
-
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippets.usage" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="What lands in storage"
-    description="`set()` writes an **envelope**, not the bare value: a JSON object with the value under `v`, plus an `e` expiry in epoch milliseconds when a TTL applies. That is a wire format rather than an implementation detail, because anything reading the same key from outside Angular has to unwrap it — a pre-paint theme script in `index.html`, a service worker, a native shell, a second framework on the same origin."
-  >
-    <ngwr-doc-code [code]="snippets.format" language="typescript" />
-    <p>
-      Three rules follow from it. A key holding anything else — a bare JSON value, or a string that is not JSON at all —
-      is returned as it stands, so keys written by non-ngwr code keep working. A value past its <code>e</code> reads as
-      absent and is removed on the next <code>get()</code>. And <code>prefix</code> is applied to the key on the way in,
-      so the raw key is <code>prefix + key</code> — an outside reader has to prepend it too.
-    </p>
-    <p>
-      Turning the envelope off with <code>json: false</code> stores <code>String(value)</code> verbatim, which is the
-      right choice when a key is shared with code you do not control — and gives up TTL and non-string values with it.
-    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Live demo">
@@ -55,9 +34,23 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Direct `localStorage` access throws in SSR and private-mode Safari, and stringly-typed keys drift. This wraps web storage with JSON (de)serialization, SSR no-ops, and typed reads."
-  />
+    title="Swap the engine"
+    description="Pass an engine to `withStorage()` at bootstrap; `WrStorage` reads it once."
+  >
+    <ngwr-doc-code [code]="snippets.swap" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="What lands in storage"
+    description="`set()` stores a JSON envelope: the value under `v`, plus an expiry `e` in epoch ms when a TTL applies."
+  >
+    <ngwr-doc-code [code]="snippets.format" language="typescript" />
+    <ul>
+      <li>The raw key is <code>prefix + key</code>; code outside Angular has to add the prefix too.</li>
+      <li>A key that holds no envelope is returned as stored.</li>
+      <li><code>json: false</code> stores <code>String(value)</code> and drops TTL.</li>
+    </ul>
+  </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

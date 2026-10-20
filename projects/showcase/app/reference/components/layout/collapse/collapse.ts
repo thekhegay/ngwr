@@ -29,14 +29,13 @@ export default class CollapsePageComponent {
     basic: `<wr-collapse title="Section title">
   Section body…
 </wr-collapse>`,
-    accordion: `<!-- Either form works. \`<wr-accordion>\` is the shorthand: it is
-     \`<wr-collapse-group accordion>\` with the flag baked in. -->
-<wr-accordion>
+    accordion: `<wr-accordion>
   <wr-collapse title="A">…</wr-collapse>
   <wr-collapse title="B">…</wr-collapse>
   <wr-collapse title="C">…</wr-collapse>
 </wr-accordion>
 
+<!-- Same as -->
 <wr-collapse-group accordion>
   <wr-collapse title="A">…</wr-collapse>
   <wr-collapse title="B">…</wr-collapse>

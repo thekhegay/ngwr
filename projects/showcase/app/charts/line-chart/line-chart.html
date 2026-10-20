@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Line Chart"
-  description="Multi-series line chart with a hover tooltip that snaps to the nearest x-axis tick."
+  description="One or more series of values as lines."
   [keywords]="['line-chart', 'wr-line-chart']"
   [labels]="['Component']"
 >
@@ -10,10 +10,7 @@
       <wr-line-chart style="width: 100%" [series]="series" [xLabels]="xLabels" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
-  <ngwr-doc-section
-    title="Tooltip"
-    description="Hover the plot for every series' value at the nearest x label. Set `[tooltip]` to `false` to drop the crosshair, the point markers and the tooltip together."
-  >
+  <ngwr-doc-section title="Tooltip" description='`[tooltip]="false"` also hides the crosshair and markers.'>
     <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; gap: 2rem; flex-wrap: wrap; width: 100%">
@@ -30,10 +27,10 @@
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
-  <ngwr-doc-section title="API" description="Inputs of &lt;wr-line-chart&gt;.">
+  <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
-  <ngwr-doc-section title="Types" description="Data shapes used by the inputs and outputs above.">
+  <ngwr-doc-section title="Types">
     <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
     <ngwr-doc-api [rows]="typeRows" />
   </ngwr-doc-section>

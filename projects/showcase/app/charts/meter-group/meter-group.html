@@ -1,24 +1,21 @@
 <ngwr-doc-page
   title="Meter Group"
-  description="Stacked-segment progress bar. Each segment is sized proportionally to its `value` relative to the sum (or the explicit `max`); legend listed underneath."
+  description="One bar split into labelled parts, with a legend."
   [keywords]="['meter', 'progress', 'wr-meter-group']"
   [labels]="['Display']"
 >
-  <ngwr-doc-section title="Disk usage">
+  <ngwr-doc-section title="Disk usage" description="Each segment takes its share of the sum, or of `max` when set.">
     <ngwr-doc-code [code]="snippet" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-meter-group style="width: 100%" [segments]="diskUsage" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Tooltip"
-    description="Hover a segment for its label and value — shown even with `[showValues]` off, which only decides what the legend prints. Set `[tooltip]` to `false` to fall back to the browser's own `title`, which carries the label only."
-  >
+  <ngwr-doc-section title="Tooltip" description='`[tooltip]="false"` falls back to the browser `title`.'>
     <ngwr-doc-code [code]="tooltipSnippet" language="angular-html" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Types" description="Data shapes used by the inputs and outputs above.">
+  <ngwr-doc-section title="Types">
     <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
     <ngwr-doc-api [rows]="typeRows" />
   </ngwr-doc-section>

@@ -1,9 +1,12 @@
 <ngwr-doc-page
   title="Splitter"
-  description="Resizable two-pane split. Drag the divider or focus it and use arrows. Two-way `[(position)]` (0–100)."
+  description="Two panes with a divider the user drags or moves with the arrow keys."
   [keywords]="['splitter', 'pane', 'wr-splitter']"
 >
-  <ngwr-doc-section title="Horizontal">
+  <ngwr-doc-section
+    title="Horizontal"
+    description="Give the splitter a height; bind `[(position)]`, a percentage from 0 to 100."
+  >
     <ngwr-doc-code [code]="snippet" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-splitter
@@ -18,7 +21,7 @@
 
   <ngwr-doc-section
     title="Vertical"
-    description="The divider becomes a horizontal bar and `position` is measured from the top. The two slot directives are unchanged — `wrSplitterStart` is the upper pane."
+    description="`wrSplitterStart` is the top pane; `position` is measured from the top."
   >
     <ngwr-doc-code [code]="verticalSnippet" language="angular-html" />
     <ngwr-doc-snippet code="">

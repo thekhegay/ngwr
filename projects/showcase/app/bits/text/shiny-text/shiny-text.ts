@@ -70,19 +70,19 @@ export default class ShinyTextPage {
     { name: 'disabled', description: 'Pause the animation.', type: 'boolean', default: 'false' },
     {
       name: 'speed',
-      description: 'Time for the bright stripe to traverse the text, in seconds.',
+      description: 'Seconds for one sweep.',
       type: 'number',
       default: '2',
     },
     {
       name: 'color',
-      description: 'Base text colour (outside the bright stripe). Unset, it falls back to `--wr-shiny-text-base`.',
+      description: 'Text colour outside the stripe. Unset, it uses `--wr-shiny-text-base`.',
       type: 'string | null',
       default: 'null',
     },
     {
       name: 'shineColor',
-      description: 'Bright stripe colour. Unset, it falls back to the theme token.',
+      description: 'Stripe colour. Unset, it follows the theme.',
       type: 'string | null',
       default: 'null',
     },
@@ -92,15 +92,13 @@ export default class ShinyTextPage {
     { name: 'direction', description: 'Sweep direction.', type: "'left' | 'right'", default: "'left'" },
     {
       name: 'delay',
-      description:
-        'Rest between sweeps, in seconds. Folded into the one animation rather than run as a second: the cycle lasts `speed + delay` and the easing puts the end of the motion at `speed` into it.',
+      description: 'Rest between sweeps, in seconds.',
       type: 'number',
       default: '0',
     },
     {
       name: '[wrShimmer]',
-      description:
-        'Lightweight directive variant — adds the `.wr-shimmer` host class for a continuous sweep over any element. Same package.',
+      description: 'Adds a continuous sweep to any element.',
       type: 'directive',
       default: '—',
     },

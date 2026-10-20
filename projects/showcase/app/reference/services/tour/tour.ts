@@ -62,22 +62,20 @@ export default class TourComponent {
   { target: '[data-tour="filter"]', content: 'Filters stack.', placement: 'right' },
   { target: '[data-tour="save"]', content: 'Nothing is saved until you press this.', placement: 'top' },
 ]);`,
-    state: `// Signals, so a template can react without a subscription.
-tour.active();  // is a tour running
-tour.index();   // 0-based step, -1 when idle
-tour.total();   // how many steps
-tour.step();    // the current WrTourStep | null
+    state: `tour.active(); // is a tour running
+tour.index(); // 0-based step, -1 when idle
+tour.total(); // step count
+tour.step(); // the current WrTourStep | null
 
-// Ends, and NOT index() === 0 / total() - 1: a step whose target is missing
-// is skipped, so the tour can open on index 1 and finish before the last.
-tour.isFirst(); // nothing before this step
-tour.isLast();  // nothing after it`,
+// Use these, not index() === 0: missing steps are skipped.
+tour.isFirst(); // no step before this one
+tour.isLast(); // no step after this one`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'WrTour',
-      description: 'Injectable service. No module, no component to place.',
+      description: 'Injectable service. No component to place.',
       type: 'service',
       default: '—',
     },
@@ -120,16 +118,14 @@ tour.isLast();  // nothing after it`,
     { name: 'total', description: 'Step count of the running tour.', type: 'Signal<number>', default: '0', sub: true },
     {
       name: 'isFirst',
-      description:
-        'Nothing before this step. NOT `index() === 0`: a leading step whose target is missing is skipped, so the tour can open on a later index — reading the raw index put a Back button on the first card that did nothing. `true` with no tour running, so `&#64;if (!tour.isFirst())` around a Back button hides it while idle.',
+      description: 'No step before this one. Use it, not `index() === 0`, since missing steps are skipped.',
       type: 'Signal<boolean>',
       default: 'true',
       sub: true,
     },
     {
       name: 'isLast',
-      description:
-        'Nothing after this step, by the same rule — the mirror of `isFirst`, and what decides whether the primary button says Next or Done.',
+      description: 'No step after this one; decides between Next and Done.',
       type: 'Signal<boolean>',
       default: 'false',
       sub: true,
@@ -144,8 +140,7 @@ tour.isLast();  // nothing after it`,
     { name: 'WrTourStep', description: 'One stop on the tour.', type: 'interface', default: '—' },
     {
       name: 'target',
-      description:
-        'CSS selector resolved when the step opens, or the element itself. A step matching nothing is SKIPPED.',
+      description: 'A CSS selector or the element. A step that matches nothing is skipped.',
       type: 'string | HTMLElement',
       sub: true,
     },
@@ -160,7 +155,7 @@ tour.isLast();  // nothing after it`,
     },
     {
       name: 'panelClass',
-      description: "Extra classes on this step's overlay pane. Per step, since each step builds its own.",
+      description: "Extra classes on this step's overlay pane.",
       type: 'WrClassInput',
       sub: true,
     },

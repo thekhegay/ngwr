@@ -33,8 +33,7 @@ export default class DonutChartPageComponent {
   protected readonly snippets = {
     basic: `<wr-donut-chart [segments]="segments" centerLabel="Disk" centerValue="60%" />`,
     solid: `<wr-donut-chart [segments]="segments" thickness="0" />`,
-    tooltip: `<!-- On by default; hover either ring below to compare. -->
-<wr-donut-chart [segments]="segments" />
+    tooltip: `<wr-donut-chart [segments]="segments" />
 <wr-donut-chart [segments]="segments" [tooltip]="false" />`,
   };
 
@@ -53,15 +52,14 @@ export default class DonutChartPageComponent {
     },
     {
       name: 'ariaLabel',
-      description:
-        'Accessible name of the chart. The ring is a `role="img"` named by this input — not `aria-hidden` — so with `showLegend` off it, the centre value and the centre label are what a screen reader gets. Falls back to the `donutChart.label` catalog key.',
+      description: 'Accessible name of the chart. Falls back to the `donutChart.label` catalog key.',
       type: 'string | null',
       default: 'null',
     },
     { name: 'size', description: 'Diameter in CSS pixels (min 48).', type: 'number', default: '200' },
     {
       name: 'thickness',
-      description: 'Inner-ring thickness as a % of radius. 0 = solid pie.',
+      description: 'Ring thickness as a % of the radius. `0` draws a solid pie.',
       type: 'number',
       default: '30',
     },
@@ -70,8 +68,7 @@ export default class DonutChartPageComponent {
     { name: 'centerLabel', description: 'Smaller label under the center value.', type: 'string', default: "''" },
     {
       name: 'tooltip',
-      description:
-        'Show a tooltip with the slice label and value on hover. Pointer only — the legend prints the same numbers.',
+      description: 'Show the slice label and value on hover.',
       type: 'boolean',
       default: 'true',
     },
@@ -80,7 +77,7 @@ export default class DonutChartPageComponent {
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrDonutSegment', description: 'One slice of the ring.', type: 'interface' },
     { name: 'label', description: 'Legend label.', type: 'string', required: true, sub: true },
-    { name: 'value', description: 'Slice magnitude — share of the total.', type: 'number', required: true, sub: true },
+    { name: 'value', description: 'Slice size, as a share of the total.', type: 'number', required: true, sub: true },
     { name: 'color', description: 'CSS color for the slice.', type: 'string', default: 'palette', sub: true },
   ];
 }
