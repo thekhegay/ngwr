@@ -22,7 +22,7 @@
             @if (isOptional(group)) {
               <span class="ngwr-sidebar__marks">
                 <span class="ngwr-sidebar__sep">,&nbsp;</span>
-                <small class="ngwr-sidebar__badge">optional</small>
+                <small class="ngwr-sidebar__badge">Optional</small>
               </span>
             }
           </span>
@@ -45,7 +45,7 @@
                       @if (link.disabled || !link.url) {
                         <span class="ngwr-sidebar__link ngwr-sidebar__link--disabled" aria-disabled="true">
                           <span class="ngwr-sidebar__link-title">{{ link.title }}</span>
-                          <small class="ngwr-sidebar__badge">soon</small>
+                          <small class="ngwr-sidebar__badge">Soon</small>
                         </span>
                       } @else {
                         <a
@@ -83,11 +83,11 @@
     <span class="ngwr-sidebar__marks">
       @if (isNew(row)) {
         <span class="ngwr-sidebar__sep">,&nbsp;</span>
-        <small class="ngwr-sidebar__badge ngwr-sidebar__badge--new">new</small>
+        <small class="ngwr-sidebar__badge ngwr-sidebar__badge--new">New</small>
       }
       @if (isOptional(row) && !inOptionalGroup) {
         <span class="ngwr-sidebar__sep">,&nbsp;</span>
-        <small class="ngwr-sidebar__badge">optional</small>
+        <small class="ngwr-sidebar__badge">Optional</small>
       }
     </span>
   }

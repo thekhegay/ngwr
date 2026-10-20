@@ -240,7 +240,7 @@
     color: var(--wr-color-on-surface-muted);
     font-size: 0.6875rem;
     font-weight: 500;
-    line-height: 1rem;
+    line-height: 0.875rem;
 
     &--new {
       color: var(--wr-color-primary-ink);
@@ -257,7 +257,6 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.125rem;
     min-width: 0;
   }
 
