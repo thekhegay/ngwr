@@ -272,11 +272,11 @@ export const CSS_VARS = {
     vars: [
       { name: "--wr-cascader-bg", default: "var(--wr-color-surface)", scope: ".wr-cascader", overrides: 1 },
       { name: "--wr-cascader-border", default: "var(--wr-color-outline)", scope: ".wr-cascader" },
-      { name: "--wr-cascader-col-width", default: "12rem", scope: ".wr-cascader" },
+      { name: "--wr-cascader-col-width", default: "12rem", scope: ".wr-cascader-panel" },
       { name: "--wr-cascader-color", default: "var(--wr-color-on-surface)", scope: ".wr-cascader", overrides: 1 },
       { name: "--wr-cascader-font-size", default: "var(--wr-control-font-size-md)", scope: ".wr-cascader", overrides: 2 },
       { name: "--wr-cascader-line-height", default: "var(--wr-control-line-height-md)", scope: ".wr-cascader", overrides: 2 },
-      { name: "--wr-cascader-max-height", default: "16rem", scope: ".wr-cascader" },
+      { name: "--wr-cascader-max-height", default: "16rem", scope: ".wr-cascader-panel" },
       { name: "--wr-cascader-min-width", default: "12rem", scope: ".wr-cascader" },
       { name: "--wr-cascader-opt-font", default: "var(--wr-control-font-size-md)", scope: ".wr-cascader-panel", overrides: 2 },
       { name: "--wr-cascader-opt-py", default: "0.5rem", scope: ".wr-cascader-panel", overrides: 2 },
