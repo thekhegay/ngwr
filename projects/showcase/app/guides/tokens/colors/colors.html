@@ -1,13 +1,10 @@
 <ngwr-doc-page
   title="Colors"
-  description="Every colour is a CSS custom property under `--wr-color-*`, in three layers: the intent palette, the soft set, and the semantic neutrals. Read tokens instead of hardcoding hex and dark mode comes for free."
+  description="The `--wr-color-*` tokens, and which one to use for fills, text and borders."
   [keywords]="['colors', 'tokens', 'palette', 'theme', 'dark mode', 'css variables', 'soft', 'contrast']"
   [labels]="['Tokens', 'Reference']"
 >
-  <ngwr-doc-section
-    title="Palette"
-    description="Five intents, each with four generated shades and a `-contrast` label. Plus the fixed gray ramp, which does not flip in dark mode — use the role aliases below for a neutral that does."
-  >
+  <ngwr-doc-section title="Intents" description="Five intents, each with the same set of tokens.">
     <div class="ngwr-palette">
       @for (intent of intents; track intent) {
         <div class="ngwr-palette__row">
@@ -26,219 +23,112 @@
           </div>
         </div>
       }
-
-      <div class="ngwr-palette__row">
-        <code class="ngwr-palette__name">gray</code>
-        <div class="ngwr-palette__swatches">
-          @for (step of grayRamp; track step) {
-            <div class="ngwr-palette__swatch">
-              <span
-                class="ngwr-palette__chip"
-                [style.background]="`var(--wr-color-gray-${step})`"
-                [title]="`--wr-color-gray-${step}`"
-              ></span>
-              <span class="ngwr-palette__label">{{ step }}</span>
-            </div>
-          }
-        </div>
-      </div>
     </div>
 
-    <ngwr-doc-code [code]="snippets.gray" language="scss" />
-  </ngwr-doc-section>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Token</th>
+          <th scope="col">Use</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of intentTokens; track t.name) {
+          <tr>
+            <td>
+              <code>{{ t.name }}</code>
+            </td>
+            <td>{{ t.use }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
 
-  <ngwr-doc-section
-    title="Using an intent"
-    description="Pair the base with its `-contrast` for solid surfaces. The shade variants give you hover / pressed states at compile time — no runtime Sass."
-  >
-    <ngwr-doc-code [code]="snippets.intent" language="scss" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Alpha at the call site"
-    description="Mix any token toward `transparent` with `color-mix()` for the alpha you need. It works on every token, not only the intents, and follows dark mode, because the token it mixes does."
-  >
-    <ngwr-doc-code [code]="snippets.alpha" language="scss" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Soft set"
-    description="Every intent also exposes a tinted fill, a matching hairline and a pressed tint. Text on that fill is `-ink`, which is calibrated against it; `-soft-contrast` is the older, flat 62% mix that predates `-ink` and was never measured — `warning-soft-contrast` reads 3.58:1 on its own tint, under AA. It is still public and still resolves, so nothing breaks, but reach for `-ink`."
-  >
     <div style="display: flex; flex-direction: column; gap: 0.5rem">
-      @for (intent of softIntents; track intent) {
+      @for (intent of intents; track intent) {
         <div
           [style.background]="`var(--wr-color-${intent}-soft)`"
           [style.border]="`1px solid var(--wr-color-${intent}-soft-border)`"
           [style.color]="`var(--wr-color-${intent}-ink)`"
-          style="
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.625rem 0.875rem;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-          "
+          style="padding: 0.625rem 0.875rem; border-radius: 0.5rem; font-size: 0.875rem"
         >
-          <span
-            [style.background]="`var(--wr-color-${intent})`"
-            style="width: 0.75rem; height: 0.75rem; flex: none; border-radius: 999px"
-          ></span>
-          <strong>{{ intent }}</strong>
-          <span> -soft fill · -soft-border hairline · -ink text </span>
+          <strong>{{ intent }}</strong> · -soft fill, -soft-border, -ink text
         </div>
       }
     </div>
-
-    <ngwr-doc-api [rows]="softTokens" />
-    <ngwr-doc-code [code]="snippets.soft" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Ink — the intent as text"
-    description="`-contrast` is the label ON a filled intent. `-ink` is the intent used AS text, on a surface or on its own soft tint."
+    title="Neutrals"
+    description="Use these for surfaces and text, not the fixed gray ramp: they follow dark mode, the ramp does not."
   >
-    <ngwr-doc-api [rows]="inkTokens" />
-  </ngwr-doc-section>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Token</th>
+          <th scope="col">Use</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of neutralTokens; track t.name) {
+          <tr>
+            <td>
+              <code>{{ t.name }}</code>
+            </td>
+            <td>{{ t.use }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
 
-  <ngwr-doc-section
-    title="Semantic neutrals"
-    description="Surfaces, dividers, scrims and muted text — one token per job, not one per intent. They resolve through the six-step neutral ramp, which each theme sets for itself, so they follow dark mode on their own."
-  >
-    <div
-      style="
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-        background: var(--wr-color-white);
-        border: 1px solid var(--wr-border-strong);
-        border-radius: 0.5rem;
-        overflow: hidden;
-      "
-    >
-      <div
-        style="
-          padding: 0.625rem 0.875rem;
-          color: var(--wr-color-on-surface);
-          border-bottom: 1px solid var(--wr-border-subtle);
-          font-weight: 600;
-        "
-      >
-        Surface on <code>--wr-color-white</code>, text in <code>--wr-color-on-surface</code>
-      </div>
-      <div
-        style="
-          padding: 0.625rem 0.875rem;
-          color: var(--wr-color-text-muted);
-          border-bottom: 1px solid var(--wr-border-strong);
-        "
-      >
-        <code>--wr-color-text-muted</code> — de-emphasized label
-      </div>
-      <div style="padding: 0.625rem 0.875rem; color: var(--wr-color-text-faint)">
-        <code>--wr-color-text-faint</code> — decorative only, never a placeholder
-      </div>
-      <div
-        style="
-          padding: 0.625rem 0.875rem;
-          background: var(--wr-color-hover);
-          color: var(--wr-color-on-surface);
-          border-top: 1px solid var(--wr-border-strong);
-        "
-      >
-        Row with <code>--wr-color-hover</code> tint (top edge is <code>-border-strong</code>)
-      </div>
+    <div class="ngwr-palette__swatches">
+      @for (step of grayRamp; track step) {
+        <div class="ngwr-palette__swatch">
+          <span
+            class="ngwr-palette__chip"
+            [style.background]="`var(--wr-color-gray-${step})`"
+            [title]="`--wr-color-gray-${step}`"
+          ></span>
+          <span class="ngwr-palette__label">gray-{{ step }}</span>
+        </div>
+      }
     </div>
+  </ngwr-doc-section>
 
-    <ngwr-doc-api [rows]="neutralTokens" />
-    <ngwr-doc-code [code]="snippets.neutral" language="scss" />
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Role aliases"
-    description="Reach for these first for any surface or text job. Each names what it is for rather than what colour it is, and follows the theme on its own."
+    title="Focus ring"
+    description="Text fields mark focus with their border instead, so these tokens do not reach them."
   >
-    <ngwr-doc-api [rows]="roleTokens" />
-    <ngwr-doc-code [code]="snippets.roles" language="scss" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Neutral fills"
-    description="The low-contrast wash a header, a track or a readonly field sits on — three steps, and not the same thing as a border."
-  >
-    <ngwr-doc-api [rows]="fillTokens" />
-
-    <p>
-      These are their own steps of the neutral ramp — <code>--wr-color-gray-1</code> to <code>-3</code> — rather than an
-      alpha over the hairline channel, which is the bug the scale exists to prevent. A fill is not a hairline: when 33
-      declarations across 22 files hand-rolled this wash out of the outline channel, retuning outlines for their own job
-      would have moved every one of them — and one measured pair in <code>wr-table</code> drops from 6.58:1 to 4.05:1
-      that way. Reach for <code>--wr-border-base</code> when you are drawing a rule, and for these when you are filling
-      a shape.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="The focus ring"
-    description="Four tokens for the keyboard focus ring. A text field marks focus differently, by raising its own border, so these do not recolour `wr-input` or `wr-textarea` — the snippet shows both."
-  >
-    <ngwr-doc-api [rows]="focusTokens" />
-
-    <p>
-      An outline rather than a shadow, for three reasons. It is exempt from layout, so focus never reflows the box.
-      <code>forced-colors</code> keeps it and drops every <code>box-shadow</code>, so a Windows contrast theme still
-      shows where you are. And it can carry a solid colour: the halo alone is a 25% tint of the primary over the page,
-      which measures <strong>1.41:1</strong> — a focus indicator has to reach 3:1.
-    </p>
-
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Token</th>
+          <th scope="col">Default</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of focusTokens; track t.name) {
+          <tr>
+            <td>
+              <code>{{ t.name }}</code>
+            </td>
+            <td>
+              <code>{{ t.value }}</code>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
     <ngwr-doc-code [code]="snippets.focus" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="How dark mode flips"
-    description="Every token that differs between the schemes is declared once as `light-dark(light, dark)`, and `color-scheme` picks the side. The theme sets `light dark` on `:root`, so the page follows the OS; `color-scheme: dark` on any element flips its whole subtree. Build with the tokens and you write no dark-mode overrides."
-  >
-    <div style="display: flex; gap: 1rem; flex-wrap: wrap">
-      <div
-        style="
-          flex: 1 1 14rem;
-          padding: 1rem;
-          background: var(--wr-color-white);
-          color: var(--wr-color-on-surface);
-          border: 1px solid var(--wr-border-strong);
-          border-radius: 0.5rem;
-        "
-      >
-        <strong>Same markup, current theme</strong>
-        <p style="margin: 0.5rem 0 0; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
-          surface = <code>--wr-color-white</code>, text = <code>--wr-color-on-surface</code>
-        </p>
-      </div>
-
-      <div
-        style="
-          color-scheme: dark;
-          flex: 1 1 14rem;
-          padding: 1rem;
-          background: var(--wr-color-white);
-          color: var(--wr-color-on-surface);
-          border: 1px solid var(--wr-border-strong);
-          border-radius: 0.5rem;
-        "
-      >
-        <strong>Same markup, forced dark</strong>
-        <p style="margin: 0.5rem 0 0; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
-          <code>color-scheme: dark</code> on this card, nothing else
-        </p>
-      </div>
-    </div>
-
-    <ngwr-doc-code [code]="snippets.dark" language="scss" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Iterating the palette"
-    description="Both lists track `$base-colors`, so a rebrand flows through. Use `$colors` to generate per-intent rules in SCSS, `WR_COLORS` when you need the intents at runtime."
+    title="Looping over the intents"
+    description="`theme.$colors` in Sass and `WR_COLORS` in TypeScript list the intents, a rebrand included."
   >
     <ngwr-doc-code [code]="snippets.iterateScss" language="scss" />
     <ngwr-doc-code [code]="snippets.iterateTs" language="angular-ts" />

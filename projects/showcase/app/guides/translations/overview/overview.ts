@@ -25,29 +25,27 @@ export default class TranslateOverviewPage {
     {
       url: ['/guides/translations', 'setup'] as const,
       title: 'Setup & loaders',
-      body: 'Wire `provideWrI18n` plus a static or HTTP catalog loader. Two-snippet bootstrap.',
+      body: 'Providers, loaders and the shipped catalogs.',
     },
     {
       url: ['/guides/translations', 'usage'] as const,
       title: 'Usage in templates',
-      body: 'Three call sites — `| wrT` pipe, `[wrT]` directive, or `inject(WrI18n)` for code.',
+      body: 'The wrT pipe, the wrT directive and the WrI18n service.',
     },
     {
       url: ['/guides/translations', 'scopes'] as const,
       title: 'Scopes',
-      body: 'Feature-scoped catalogs load on demand. Ship the root, lazy-load the rest.',
+      body: 'Load a feature’s catalog when the feature loads.',
     },
     {
       url: ['/guides/translations', 'interpolation'] as const,
       title: 'Interpolation',
-      body: '`{{name}}` placeholders and helper formatters for plurals, dates, numbers.',
+      body: 'Fill {{name}} placeholders with values.',
     },
     {
-      // Points OUT of the guide — the API table lives in reference, and is
-      // maintained in exactly one place. This card is the hand-off.
       url: ['/reference/services', 'i18n'] as const,
       title: 'API reference',
-      body: 'Every method, signal, provider and template helper on `WrI18n`.',
+      body: 'Every method, signal and provider.',
     },
   ];
 }

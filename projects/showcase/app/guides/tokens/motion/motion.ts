@@ -1,137 +1,63 @@
 import { Component } from '@angular/core';
 
-import {
-  DocApiComponent,
-  DocCodeComponent,
-  DocPageComponent,
-  DocSectionComponent,
-  DocSeeAlsoComponent,
-} from '#core/components';
-import type { DocApiRow, DocSeeAlsoLink } from '#core/components';
+import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSeeAlsoComponent } from '#core/components';
+import type { DocSeeAlsoLink } from '#core/components';
+
+interface Token {
+  readonly name: string;
+  readonly value: string;
+  readonly use?: string;
+}
 
 @Component({
   selector: 'ngwr-tokens-motion',
   templateUrl: './motion.html',
   styleUrl: './motion.scss',
-  imports: [DocApiComponent, DocCodeComponent, DocPageComponent, DocSectionComponent, DocSeeAlsoComponent],
+  imports: [DocCodeComponent, DocPageComponent, DocSectionComponent, DocSeeAlsoComponent],
 })
 export default class TokensMotionPage {
-  protected readonly easings: readonly DocApiRow[] = [
-    {
-      name: '--wr-ease-linear',
-      type: 'linear',
-      description: 'No easing. For continuous motion that should not accelerate — progress bars, spinners, marquees.',
-    },
-    {
-      name: '--wr-ease-out',
-      type: 'cubic-bezier(0.16, 1, 0.3, 1)',
-      description:
-        'The default for anything entering. Fast start, long settle — the element arrives quickly then eases into place.',
-    },
-    {
-      name: '--wr-ease-in',
-      type: 'cubic-bezier(0.7, 0, 0.84, 0)',
-      description: 'The mirror of `-out`, for anything leaving. Slow start, fast exit.',
-    },
-    {
-      name: '--wr-ease-in-out',
-      type: 'cubic-bezier(0.65, 0, 0.35, 1)',
-      description: 'Symmetric. For motion that starts and ends on screen — a toggle sliding between two states.',
-    },
-    {
-      name: '--wr-ease-spring',
-      type: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-      description:
-        'Overshoots past the target and settles back. Use sparingly — for playful, attention-drawing motion.',
-    },
+  protected readonly easings: readonly Token[] = [
+    { name: '--wr-ease-linear', value: 'linear', use: 'Progress bars, spinners, marquees' },
+    { name: '--wr-ease-out', value: 'cubic-bezier(0.16, 1, 0.3, 1)', use: 'Entering' },
+    { name: '--wr-ease-in', value: 'cubic-bezier(0.7, 0, 0.84, 0)', use: 'Leaving' },
+    { name: '--wr-ease-in-out', value: 'cubic-bezier(0.65, 0, 0.35, 1)', use: 'Moving between two states' },
+    { name: '--wr-ease-spring', value: 'cubic-bezier(0.34, 1.56, 0.64, 1)', use: 'Overshoot. Use sparingly' },
   ];
 
-  protected readonly durations: readonly DocApiRow[] = [
-    {
-      name: '--wr-duration-fast',
-      type: '0.1s',
-      description: 'Hover / focus feedback. Fast enough to feel instant.',
-    },
-    {
-      name: '--wr-duration-base',
-      type: '0.15s',
-      description: 'The default. State changes on controls — pressed, checked, selected.',
-    },
-    {
-      name: '--wr-duration-slow',
-      type: '0.3s',
-      description: 'Motion that covers distance — a drawer sliding, a panel expanding.',
-    },
-    {
-      name: '--wr-duration-slower',
-      type: '0.5s',
-      description: 'Deliberate, full-screen motion. Rare.',
-    },
+  protected readonly durations: readonly Token[] = [
+    { name: '--wr-duration-fast', value: '0.1s', use: 'Hover and focus feedback' },
+    { name: '--wr-duration-base', value: '0.15s', use: 'State changes: pressed, checked, selected' },
+    { name: '--wr-duration-slow', value: '0.3s', use: 'Travel: a drawer, an expanding panel' },
+    { name: '--wr-duration-slower', value: '0.5s', use: 'Full-screen motion' },
   ];
 
-  protected readonly transitions: readonly DocApiRow[] = [
-    {
-      name: '--wr-transition-short',
-      type: 'var(--wr-duration-fast) var(--wr-ease-out)',
-      description: 'Duration + easing for hover / focus feedback.',
-    },
-    {
-      name: '--wr-transition-base',
-      type: 'var(--wr-duration-base) var(--wr-ease-linear)',
-      description: 'Duration + easing for the common control state change.',
-    },
-    {
-      name: '--wr-transition-long',
-      type: 'var(--wr-duration-slow) var(--wr-ease-out)',
-      description: 'Duration + easing for motion that travels.',
-    },
+  protected readonly shorthands: readonly Token[] = [
+    { name: '--wr-transition-short', value: 'var(--wr-duration-fast) var(--wr-ease-out)' },
+    { name: '--wr-transition-base', value: 'var(--wr-duration-base) var(--wr-ease-linear)' },
+    { name: '--wr-transition-long', value: 'var(--wr-duration-slow) var(--wr-ease-out)' },
   ];
 
-  protected readonly overlayTokens: readonly DocApiRow[] = [
-    {
-      name: '--wr-overlay-duration',
-      type: 'var(--wr-duration-base)',
-      description:
-        'Open / close timing for the anchored panels — dropdown, popover / tooltip, context menu, popconfirm.',
-    },
-    {
-      name: '--wr-overlay-ease',
-      type: 'var(--wr-ease-out)',
-      description: 'Easing for the same set. Retune both here and that layer follows together.',
-    },
+  protected readonly overlayTokens: readonly Token[] = [
+    { name: '--wr-overlay-duration', value: 'var(--wr-duration-base)' },
+    { name: '--wr-overlay-ease', value: 'var(--wr-ease-out)' },
   ];
 
   protected readonly snippets = {
-    compose: `/* The shorthands carry duration + easing — NOT the property.
-   Name the property yourself, then hand it the token. */
-.my-control {
-  transition: background-color var(--wr-transition-base),
-              box-shadow var(--wr-transition-short);
+    usage: `.my-control {
+  transition: background-color var(--wr-transition-base);
 }
 
-/* Or compose the parts when you need a one-off pairing: */
 .my-drawer {
   transition: transform var(--wr-duration-slow) var(--wr-ease-out);
-}`,
-
-    retune: `/* Retune globally — every component that reads the tokens follows.
-   Halving the durations makes the whole UI feel snappier at a stroke. */
-:root {
-  --wr-duration-fast: 0.05s;
-  --wr-duration-base: 0.08s;
-  --wr-duration-slow: 0.15s;
 }
 
-/* Overlays share one timing hook, so the whole layer retunes together: */
+// Retune everything that reads the tokens
 :root {
-  --wr-overlay-duration: var(--wr-duration-slow);
+  --wr-duration-base: 0.08s;
   --wr-overlay-ease: var(--wr-ease-spring);
 }`,
 
-    reduced: `/* The .wr-animate-* utilities and the decorative components opt out for
-   themselves. For everything that reads the tokens, the durations ARE the
-   switch — one rule covers your styles and theirs together. */
-@media (prefers-reduced-motion: reduce) {
+    reduced: `@media (prefers-reduced-motion: reduce) {
   :root {
     --wr-duration-fast: 0.01ms;
     --wr-duration-base: 0.01ms;
@@ -139,31 +65,11 @@ export default class TokensMotionPage {
     --wr-duration-slower: 0.01ms;
     --wr-overlay-duration: 0.01ms;
   }
-
-  .my-drawer {
-    transition-duration: 0.01ms;
-  }
 }`,
   };
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
-    {
-      kind: 'Guide',
-      title: 'Theming',
-      url: ['/guides', 'theming'],
-      description: 'Retuning these tokens, and every other one, across the app.',
-    },
-    {
-      kind: 'Animation',
-      title: 'Animations',
-      url: ['/bits'],
-      description: 'The ready-made animated components that build on these curves.',
-    },
-    {
-      kind: 'Guide',
-      title: 'Overlay',
-      url: ['/guides', 'overlay'],
-      description: 'The panel layer whose timing these tokens drive.',
-    },
+    { kind: 'Guide', title: 'Theming', url: ['/guides', 'theming'] },
+    { kind: 'Animation', title: 'Animations', url: ['/bits'] },
   ];
 }

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { WrI18n, WrTDirective, WrTPipe } from 'ngwr/i18n';
 import { WrTypography } from 'ngwr/typography';
@@ -22,7 +22,6 @@ export default class TranslateUsagePage {
   private readonly i18n = inject(WrI18n);
   protected readonly locale = this.i18n.locale;
   protected readonly available = this.i18n.available();
-  protected readonly name = signal('Ada');
 
   protected use(locale: string): void {
     this.i18n.use(locale);
@@ -35,11 +34,10 @@ export default class TranslateUsagePage {
     directive: `<h1 [wrT]="'app.title'"></h1>
 <p [wrT]="'app.hello'" [wrTParams]="{ name: user().name }"></p>`,
     service: `const i18n = inject(WrI18n);
-i18n.use('ru');                                 // switch locale
-i18n.t('app.hello', { name: 'Ada' });           // → 'Привет, Ada!'
 
-// Reactive lookup — re-runs on locale change:
-const title = i18n.translate('app.title');
-effect(() => console.log(title()));`,
+i18n.use('ru');
+i18n.t('app.hello', { name: 'Ada' }); // 'Привет, Ada!'
+
+const title = i18n.translate('app.title'); // Signal<string>`,
   };
 }

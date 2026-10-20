@@ -4,21 +4,25 @@ import { WrButton } from 'ngwr/button';
 import { WrDensity, type WrDensityValue } from 'ngwr/density';
 
 import {
-  DocApiComponent,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSeeAlsoComponent,
   DocSnippetComponent,
 } from '#core/components';
-import type { DocApiRow, DocSeeAlsoLink } from '#core/components';
+import type { DocSeeAlsoLink } from '#core/components';
+
+interface Multiplier {
+  readonly name: string;
+  readonly values: string;
+  readonly use: string;
+}
 
 @Component({
   selector: 'ngwr-tokens-density',
   templateUrl: './density.html',
   imports: [
     WrButton,
-    DocApiComponent,
     DocCodeComponent,
     DocPageComponent,
     DocSectionComponent,
@@ -42,122 +46,50 @@ export default class TokensDensityPage {
     this.density.cycle();
   }
 
-  protected readonly multipliers: readonly DocApiRow[] = [
-    {
-      name: '--wr-density-y',
-      type: 'number',
-      default: '1',
-      description: 'Scales vertical padding (`padding-y`). The lever that changes control height.',
-    },
-    {
-      name: '--wr-density-x',
-      type: 'number',
-      default: '1',
-      description: 'Scales horizontal padding (`padding-x`).',
-    },
-    {
-      name: '--wr-density-text',
-      type: 'number',
-      default: '1',
-      description: 'Declared for consumers to read; no shipped component multiplies by it yet.',
-    },
-    {
-      name: '--wr-density-gap',
-      type: 'number',
-      default: '1',
-      description:
-        'Scales the space a layout component puts between the controls projected into it. Yours to read in your own `calc()` too.',
-    },
-  ];
-
-  protected readonly scale: readonly DocApiRow[] = [
-    {
-      name: 'sm',
-      type: 'y 0.55 · x 0.85',
-      default: 'text 0.95 · gap 0.8',
-      description: 'Compact — dense tables, toolbars, data-heavy screens.',
-    },
-    {
-      name: 'md',
-      type: 'y 1 · x 1',
-      default: 'text 1 · gap 1',
-      description: 'Default. Every multiplier resolves to `1` — the baseline control sizing.',
-    },
-    {
-      name: 'lg',
-      type: 'y 1.35 · x 1.15',
-      default: 'text 1.05 · gap 1.15',
-      description: 'Roomy — marketing pages, low-density forms.',
-    },
-    {
-      name: 'touch',
-      type: 'y 1.7 · x 1.25',
-      default: 'text 1 · gap 1.5',
-      description:
-        'Finger-friendly (~44px targets). Leans on `y` + `gap`; text stays at reading size since touch is about hit area, not legibility.',
-    },
+  protected readonly multipliers: readonly Multiplier[] = [
+    { name: '--wr-density-y', values: '0.55 / 1 / 1.35 / 1.7', use: 'Vertical padding, so control height' },
+    { name: '--wr-density-x', values: '0.85 / 1 / 1.15 / 1.25', use: 'Horizontal padding' },
+    { name: '--wr-density-gap', values: '0.8 / 1 / 1.15 / 1.5', use: 'Gaps in layout components' },
+    { name: '--wr-density-text', values: '0.95 / 1 / 1.05 / 1', use: 'Yours to read; no component uses it' },
   ];
 
   protected readonly snippets = {
-    provider: `import { bootstrapApplication } from '@angular/platform-browser';
-import { provideWr } from 'ngwr';
+    styles: `@use 'ngwr/theme';
+@use 'ngwr/density';`,
+
+    provider: `import { provideWr } from 'ngwr';
 import { withDensity } from 'ngwr/density';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    // All fields optional — merged with defaults.
-    // defaultDensity: 'md', storageKey: 'wr-density', attribute: 'data-wr-density'
-    provideWr(withDensity({ defaultDensity: 'sm' })),
+    provideWr(
+      withDensity({
+        defaultDensity: 'sm',          // default 'md'
+        storageKey: 'wr-density',      // null to not persist
+      }),
+    ),
   ],
 });`,
 
-    service: `import { Component, inject } from '@angular/core';
-import { WrDensity } from 'ngwr/density';
+    service: `const density = inject(WrDensity);
 
-@Component({ /* … */ })
-export class DensityToggle {
-  private readonly density = inject(WrDensity);
+density.set('lg');   // 'sm' | 'md' | 'lg' | 'touch'
+density.cycle();     // sm, md, lg, touch, sm, …
+density.current();   // 'sm' | 'md' | 'lg' | 'touch'`,
 
-  set() {
-    this.density.set('lg');   // switch globally — writes [data-wr-density] on <html>
-    this.density.cycle();     // sm → md → lg → touch → sm …
-    this.density.current();   // Signal<WrDensityValue> — read the active value
-  }
-}`,
-
-    directive: `<!-- The whole sidebar runs at sm; the rest of the app keeps its global density. -->
-<aside wrDensity="sm">
-  <wr-list ...></wr-list>
+    directive: `<aside wrDensity="sm">
+  <wr-list>…</wr-list>
 </aside>`,
 
-    consume: `// How a control reads the multipliers. The control declares its static
-// padding via the shared control-* contract, then multiplies by the
-// density scalar in calc() — so it tracks density without re-rendering.
-.wr-input {
-  padding: calc(var(--wr-input-padding-y) * var(--wr-density-y, 1))
-    calc(var(--wr-input-padding-x) * var(--wr-density-x, 1));
+    consume: `.my-control {
+  padding: calc(var(--wr-control-padding-y-md) * var(--wr-density-y, 1))
+    calc(var(--wr-control-padding-x-md) * var(--wr-density-x, 1));
+  gap: calc(0.5rem * var(--wr-density-gap, 1));
 }`,
   };
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
-    {
-      kind: 'Service',
-      title: 'WrDensity',
-      url: ['/reference/services', 'density'],
-      description: 'The runtime switcher behind these multipliers — `set()`, `cycle()` and the active signal.',
-    },
-    {
-      kind: 'Guide',
-      title: 'Control sizing',
-      url: ['/guides/tokens', 'sizing'],
-      description:
-        'The `--wr-control-*` paddings density scales — a control that does not read them will not track it.',
-    },
-    {
-      kind: 'Guide',
-      title: 'Theming',
-      url: ['/guides', 'theming'],
-      description: 'Wiring `withDensity()` alongside the theme.',
-    },
+    { kind: 'Service', title: 'WrDensity', url: ['/reference/services', 'density'] },
+    { kind: 'Guide', title: 'Sizing', url: ['/guides/tokens', 'sizing'] },
   ];
 }

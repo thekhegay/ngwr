@@ -1,14 +1,12 @@
 <ngwr-doc-page
   title="Styles"
-  description="Every text style ngwr ships, the token behind it and when to use it."
+  description="Pick a text style and see the tokens behind it."
   [keywords]="['typography', 'type scale', 'font size', 'font weight', 'line height', 'tokens', 'typeset', 'prose']"
 >
-  <ngwr-doc-section title="Text styles">
-    <p>
-      One directive, <code>[wrTypography]</code>, with a <code>variant</code> per role. A variant only reads tokens, so
-      changing a token restyles every variant that uses it.
-    </p>
-
+  <ngwr-doc-section
+    title="Text styles"
+    description="Set `variant` on `[wrTypography]`; each variant reads the tokens listed under it."
+  >
     <div class="rows wr-not-typeset">
       @for (row of styles; track row.variant) {
         <div class="row">
@@ -50,12 +48,10 @@
     </div>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Tones">
-    <p>
-      <code>tone</code> changes the colour and nothing else. It is emphasis: a word in red still has to say what went
-      wrong.
-    </p>
-
+  <ngwr-doc-section
+    title="Tones"
+    description="`tone` changes the colour only, so the words still have to name the state."
+  >
     <div class="rows wr-not-typeset">
       @for (row of tones; track row.tone) {
         <div class="row">
@@ -74,12 +70,7 @@
     </div>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Hooks">
-    <p>
-      A variant writes its values into hooks on the element. Set one on a single element, or on a container, to
-      restyle only there.
-    </p>
-
+  <ngwr-doc-section title="Hooks" description="Set a hook on an element or a container to restyle only there.">
     <div class="rows wr-not-typeset">
       @for (row of hooks; track row.token) {
         <div class="row">
@@ -97,13 +88,10 @@
     </div>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Long-form text">
-    <p>
-      Put <code>.wr-typeset</code> on a container of plain HTML — an article, a changelog, rendered markdown — and every
-      element inside is sized and spaced for reading. Mark anything inside it that is not text with
-      <code>.wr-not-typeset</code>.
-    </p>
-
+  <ngwr-doc-section
+    title="Long-form text"
+    description="Put `.wr-typeset` on a container of plain HTML; mark anything inside that is not text `.wr-not-typeset`."
+  >
     <div class="typeset-sample">
       <h3>Release notes</h3>
       <p>
@@ -129,7 +117,7 @@
       <blockquote>Nothing to do if you only use form controls.</blockquote>
     </div>
 
-    <p>Each colour in a <code>.wr-typeset</code> block comes from its own hook, set on the container:</p>
+    <p>Colour hooks, set on the container:</p>
 
     <div class="rows wr-not-typeset">
       @for (row of typeset; track row.token) {
@@ -153,12 +141,10 @@
     </div>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Size">
-    <p>
-      Nine steps from 12px to 48px, each with the line height it is meant to be set at. The variants above take their
-      sizes from here.
-    </p>
-
+  <ngwr-doc-section
+    title="Size"
+    description="Each step has a matching `-leading`; control text sizes are in [Sizing](/guides/tokens/sizing)."
+  >
     <div class="rows wr-not-typeset">
       @for (row of sizes; track row.token) {
         <div class="row">
@@ -182,47 +168,7 @@
     </div>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Control text">
-    <p>
-      Buttons, inputs, selects and tabs read one size per control size instead of the scale. Change these to resize
-      the text in every control at once.
-    </p>
-
-    <div class="rows wr-not-typeset">
-      @for (row of controls; track row.token) {
-        <div class="row">
-          <ng-container *ngTemplateOutlet="label; context: { $implicit: row }" />
-          <div class="body">
-            <div class="specimen" [attr.data-token]="row.token">
-              <button wr-btn type="button" [size]="row.size">Save changes</button>
-            </div>
-            <div class="tokens">
-              <code wrTypography variant="code" tone="muted">{{ row.leading }}</code>
-              <ng-container *ngTemplateOutlet="extras; context: { $implicit: row }" />
-            </div>
-          </div>
-        </div>
-      }
-      <div class="row">
-        <div class="label">
-          <code wrTypography variant="code">--wr-density-text</code>
-          <span wrTypography variant="small" tone="muted">
-            A text multiplier per density: 0.95 in sm, 1.05 in lg. Nothing in ngwr reads it — multiply your own sizes
-            by it.
-          </span>
-        </div>
-        <div class="body">
-          <p class="specimen" [style.font-size]="'calc(var(--wr-text-base) * var(--wr-density-text, 1))'">
-            {{ sample }}
-          </p>
-        </div>
-      </div>
-    </div>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Weight">
-    <p>Body text is regular. Each step up is for something the eye should find first.</p>
-
+  <ngwr-doc-section title="Weight" description="Regular for body text, heavier for what the eye should find first.">
     <div class="rows wr-not-typeset">
       @for (row of weights; track row.token) {
         <div class="row">
@@ -242,9 +188,7 @@
     </div>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Line height">
-    <p>Unitless, so it follows the font size it sits on. Short lines can take less; long paragraphs need more.</p>
-
+  <ngwr-doc-section title="Line height" description="Unitless; long paragraphs need more than short lines.">
     <div class="rows wr-not-typeset">
       @for (row of leading; track row.token) {
         <div class="row">
@@ -264,9 +208,7 @@
     </div>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Letter spacing">
-    <p>In <code>em</code>, so it scales with the text. Tighten large headings, open up small uppercase labels.</p>
-
+  <ngwr-doc-section title="Letter spacing" description="Tighten large headings, widen small uppercase labels.">
     <div class="rows wr-not-typeset">
       @for (row of tracking; track row.token) {
         <div class="row">
@@ -286,9 +228,7 @@
     </div>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Font family">
-    <p>System fonts by default. Set these two on <code>:root</code> to use your own typeface everywhere.</p>
-
+  <ngwr-doc-section title="Font family" description="System fonts by default; set these on `:root` to use your own.">
     <div class="rows wr-not-typeset">
       @for (row of families; track row.token) {
         <div class="row">
@@ -304,9 +244,7 @@
     </div>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Line breaking">
-    <p>Three classes with no token behind them: they change where a line breaks, not how it looks.</p>
-
+  <ngwr-doc-section title="Line breaking" description="Classes that change where a line breaks.">
     <div class="rows wr-not-typeset">
       @for (row of breaking; track row.utility) {
         <div class="row">

@@ -1,22 +1,19 @@
 <ngwr-doc-page
   title="Grid"
-  description="A 12-column CSS grid + container utilities, plus a media-query mixin you can use in your own SCSS."
+  description="Lay out a page with a 12-column grid, containers and breakpoint mixins."
   [keywords]="['grid', 'columns', 'breakpoints', 'responsive']"
 >
-  <ngwr-doc-section
-    title="Opt in"
-    description="Grid is its own entry point, and no component pulls it in. Add it to your global stylesheet."
-  >
+  <ngwr-doc-section title="Opt in" description="Grid is its own entry point. Add it to your global stylesheet.">
     <ngwr-doc-code [code]="snippets.optIn" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Breakpoints">
-    <table class="grid-table">
+    <table>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Min width</th>
-          <th>Container max-width</th>
+          <th scope="col">Name</th>
+          <th scope="col">Min width</th>
+          <th scope="col">Container max-width</th>
         </tr>
       </thead>
       <tbody>
@@ -35,7 +32,7 @@
 
   <ngwr-doc-section
     title="12-column grid"
-    description="Hover the rows below — each labelled span shows the 12-column slot it occupies."
+    description="Give each cell `col-<span>`, or `col-<breakpoint>-<span>` to apply from that breakpoint up."
   >
     <div class="grid-demo">
       @for (span of cols; track span) {
@@ -49,23 +46,20 @@
     <ngwr-doc-code [code]="snippets.grid" language="angular-html" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Container"
-    description="container-* caps width at the named breakpoint and up; below that it's fluid. container-fluid is always 100%."
-  >
+  <ngwr-doc-section title="Container" description="Caps the content width at each breakpoint.">
     <ngwr-doc-code [code]="snippets.container" language="angular-html" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Gutter"
-    description="The gap between grid cells (and container padding) is driven by a single CSS variable."
+    description="One custom property sets the gap between cells and the container padding."
   >
     <ngwr-doc-code [code]="snippets.gutter" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Media-query mixin"
-    description="You can use the same breakpoint mixins NGWR uses internally — pull them from the breakpoints sub-entry (no CSS emitted)."
+    description="The same breakpoints in your own SCSS. This entry emits no CSS."
   >
     <ngwr-doc-code [code]="snippets.mediaUp" language="scss" />
   </ngwr-doc-section>

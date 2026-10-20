@@ -1,10 +1,10 @@
 <ngwr-doc-page
   title="Usage in templates"
-  description="Three ways to read a translation — `| wrT` pipe, `[wrT]` directive, or `inject(WrI18n)` for code. All three react to locale changes automatically."
+  description="Read a translation with the `wrT` pipe, the `[wrT]` directive or the `WrI18n` service."
   [keywords]="['i18n', 'translate', 'pipe', 'directive', 'service']"
   [labels]="['Service']"
 >
-  <ngwr-doc-section title="Locale switcher" description="Flip the active locale to watch every demo below re-render.">
+  <ngwr-doc-section title="Locale switcher" description="Switch the locale to see the demos below update.">
     <ngwr-doc-snippet code="">
       <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap">
         <p wrTypography tone="muted">Active locale:</p>
@@ -29,10 +29,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Pipe"
-    description="`| wrT` — impure, re-evaluates on every CD cycle so locale + catalog changes propagate."
-  >
+  <ngwr-doc-section title="Pipe">
     <ngwr-doc-code [code]="snippets.pipe" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.5rem">
@@ -42,20 +39,18 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Directive"
-    description="`[wrT]` writes `textContent` of the host. Tidier when the entire element is a translation."
-  >
+  <ngwr-doc-section title="Directive" description="Replaces the element's text with the translation.">
     <ngwr-doc-code [code]="snippets.directive" language="angular-html" />
     <ngwr-doc-snippet code="">
       <p wrTypography wrT="common.save"></p>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Service"
-    description="`inject(WrI18n)` — `t()` for eager string lookup, `translate()` for reactive signal lookup."
-  >
+  <ngwr-doc-section title="Service" description="`t()` returns a string, `translate()` a signal.">
     <ngwr-doc-code [code]="snippets.service" language="typescript" />
+    <p>
+      <code>use()</code> switches text only. Dates and numbers follow Angular's <code>LOCALE_ID</code>, which needs a
+      reload.
+    </p>
   </ngwr-doc-section>
 </ngwr-doc-page>

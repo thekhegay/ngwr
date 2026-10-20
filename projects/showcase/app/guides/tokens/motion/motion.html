@@ -1,16 +1,14 @@
 <ngwr-doc-page
   title="Motion"
-  description="Easing curves, durations and the shorthands that pair them. A component reads these rather than picking its own numbers, so retuning one value re-times everything that reads it."
+  description="Easing and duration tokens for your transitions and animations."
   [keywords]="['motion', 'animation', 'transition', 'easing', 'duration', 'reduced motion']"
   [labels]="['Tokens']"
 >
   <ngwr-doc-section
-    title="Easing curves"
-    description="Pick by direction, not by taste: `-out` for entering, `-in` for leaving, `-in-out` for motion that stays on screen, `-linear` for anything continuous."
+    title="Easing"
+    description="`-out` for entering, `-in` for leaving, `-in-out` for moving on screen, `-linear` for continuous motion."
   >
-    <ngwr-doc-api [rows]="easings" />
-
-    <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 1rem">
+    <div style="display: flex; flex-wrap: wrap; gap: 1.5rem">
       @for (e of easings; track e.name) {
         <div style="display: flex; flex-direction: column; gap: 0.5rem">
           <code style="font-size: var(--wr-text-xs); color: var(--wr-color-on-surface-muted)">{{ e.name }}</code>
@@ -39,42 +37,115 @@
         </div>
       }
     </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Token</th>
+          <th scope="col">Value</th>
+          <th scope="col">Use</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of easings; track t.name) {
+          <tr>
+            <td>
+              <code>{{ t.name }}</code>
+            </td>
+            <td>
+              <code>{{ t.value }}</code>
+            </td>
+            <td>{{ t.use }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Durations"
-    description="Four steps. The rule of thumb: the more distance an element covers, the longer it may take — feedback should feel instant, travel should be readable."
-  >
-    <ngwr-doc-api [rows]="durations" />
+  <ngwr-doc-section title="Durations" description="The farther something moves, the longer it may take.">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Token</th>
+          <th scope="col">Value</th>
+          <th scope="col">Use</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of durations; track t.name) {
+          <tr>
+            <td>
+              <code>{{ t.name }}</code>
+            </td>
+            <td>
+              <code>{{ t.value }}</code>
+            </td>
+            <td>{{ t.use }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Transition shorthands"
-    description="Each pairs a duration with an easing. They deliberately omit the property — you name that at the call site, which is what lets one token serve `background-color`, `transform` and `opacity` alike."
-  >
-    <ngwr-doc-api [rows]="transitions" />
-    <ngwr-doc-code [code]="snippets.compose" language="scss" />
+  <ngwr-doc-section title="Shorthands" description="A duration and an easing in one token. You name the property.">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Token</th>
+          <th scope="col">Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of shorthands; track t.name) {
+          <tr>
+            <td>
+              <code>{{ t.name }}</code>
+            </td>
+            <td>
+              <code>{{ t.value }}</code>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Overlay timing"
-    description="The anchored panels — dropdown, popover / tooltip, context menu, popconfirm — route their open animation through this one pair instead of their own timing, so retuning it moves all of them at once. Dialog, drawer and toast still carry a hardcoded duration of their own; overriding the pair does not reach them."
+    description="Dropdown, popover, tooltip, context menu and popconfirm read these; dialog, drawer and toast do not."
   >
-    <ngwr-doc-api [rows]="overlayTokens" />
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Token</th>
+          <th scope="col">Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of overlayTokens; track t.name) {
+          <tr>
+            <td>
+              <code>{{ t.name }}</code>
+            </td>
+            <td>
+              <code>{{ t.value }}</code>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Retuning the feel"
-    description="Motion is a palette you can rebrand the same way as colour — override the tokens on `:root` and everything that reads them follows."
-  >
-    <ngwr-doc-code [code]="snippets.retune" language="scss" />
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Reduced motion"
-    description="Three layers cover it. The `.wr-animate-*` utilities drop to `animation: none`; the components whose motion is decorative or looping — marquee, typewriter, the text effects, burger, plus popover / context-menu / command-palette — opt out for themselves; and the theme layer gates the always-on chrome nobody opted into, which is where every overlay enter animation is switched off and the spinner is slowed rather than frozen. What is left is deliberate: CSS *transitions* — hover, focus and state changes across the catalog — are untouched, and so is the toast progress bar, which is a countdown. If your app treats the preference as absolute, kill the durations at the token layer, which is one rule for everything that reads them."
+    description="The theme stops overlay enter animations; zero the durations to stop transitions too."
   >
     <ngwr-doc-code [code]="snippets.reduced" language="scss" />
+    <p>The theme's own reduced-motion rules are <code>!important</code>, so an override of them has to be too.</p>
   </ngwr-doc-section>
 
   <ngwr-doc-see-also [links]="related" />

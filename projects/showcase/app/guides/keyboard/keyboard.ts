@@ -3,7 +3,6 @@ import { RouterLink } from '@angular/router';
 
 import { WrHotkeyBinding } from 'ngwr/hotkey';
 import { WrKbd } from 'ngwr/keyboard';
-import { WrTypography } from 'ngwr/typography';
 
 import {
   DocApiComponent,
@@ -19,20 +18,24 @@ import {
 
 /** One line of a component's keyboard contract. */
 interface KeyRow {
-  /** Interchangeable chords for this row — one keycap each, read as "or". */
+  /** Keys that do the same thing, one keycap each. */
   readonly keys: readonly string[];
-  /** What the component does with it. Backticks render as code. */
+  /** What they do. Backticks render as code. */
   readonly does: string;
-  /** When the row applies — blank when it always does. */
-  readonly when?: string;
 }
 
-/** One component's (or one mode's) contract, rendered as a single table. */
-interface KeyTable {
-  readonly title: string;
-  /** The table's own `<caption>`: which element has focus while these keys apply. */
-  readonly caption: string;
+/** One component's keyboard contract, rendered as one table row. */
+interface KeyContract {
+  readonly component: string;
+  readonly url: string;
   readonly rows: readonly KeyRow[];
+}
+
+/** One `ngwr/utils` keyboard helper. */
+interface KeyHelper {
+  readonly name: string;
+  readonly url: string;
+  readonly use: string;
 }
 
 @Component({
@@ -42,7 +45,6 @@ interface KeyTable {
     RouterLink,
     WrKbd,
     WrHotkeyBinding,
-    WrTypography,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -55,205 +57,84 @@ interface KeyTable {
 export default class KeyboardGuidePage {
   protected readonly hits = signal(0);
 
-  /**
-   * The keyboard contract of every component people write end-to-end tests
-   * against, one table per focused element.
-   *
-   * Deliberately NOT `<ngwr-doc-api>`: that table is the library's public API
-   * surface and `check:api-docs` holds every row in it to a real member, so a
-   * row named `ArrowDown` would be reported as an input that does not exist.
-   * These are plain tables and say so in their caption.
-   *
-   * Each row was read off the component's own `keydown` handler rather than
-   * observed in a browser, which is the difference between "this is what it
-   * did on my machine" and "this is what it is".
-   */
-  protected readonly contracts: readonly KeyTable[] = [
+  /** Read off each component's own `keydown` handler. */
+  protected readonly contracts: readonly KeyContract[] = [
     {
-      title: 'Dialog and drawer',
-      caption: 'Focus is anywhere inside the open overlay.',
+      component: 'Dialog, drawer',
+      url: '/reference/components/dialog',
       rows: [
-        {
-          keys: ['Escape'],
-          does: 'Closes, and focus returns to whatever was focused when it opened.',
-          when: 'Unless `closeOnEscape: false`. Focus does not have to be inside the overlay — the CDK routes the key to the topmost one.',
-        },
-        {
-          keys: ['Tab', 'Shift + Tab'],
-          does: 'Cycles inside the overlay. Focus cannot leave it while it is open.',
-        },
-        {
-          keys: ['Enter', 'Space'],
-          does: 'Activates the focused control, including the built-in ✕ and anything carrying `[wrDialogClose]` / `[wrDrawerClose]`.',
-        },
+        { keys: ['Esc'], does: 'closes and returns focus, unless `closeOnEscape: false`' },
+        { keys: ['Tab'], does: 'cycles inside; focus cannot leave' },
       ],
     },
     {
-      title: 'Select — closed, button trigger',
-      caption: 'Focus is on the `role="combobox"` trigger; the panel is closed.',
+      component: 'Select',
+      url: '/reference/components/select',
       rows: [
-        { keys: ['Enter', 'Space'], does: 'Opens the panel and seeds the cursor on the selected option.' },
-        { keys: ['ArrowDown', 'ArrowUp'], does: 'Opens the panel — same seeding, no step.' },
-        {
-          keys: ['Backspace'],
-          does: 'Removes the last chip.',
-          when: '`mode="multi"` with a selection. A single-mode button trigger has NO keyboard clear and renders no ✕ — see the searchable field below, and give an optional filter an explicit "Any" option.',
-        },
-        { keys: ['Tab'], does: 'Leaves the control. Nothing opens and nothing is committed.' },
+        { keys: ['Enter', 'Space', '↓', '↑'], does: 'open the panel' },
+        { keys: ['↑', '↓', 'Home', 'End'], does: 'move through the options' },
+        { keys: ['Enter'], does: 'selects (`Space` too, when there is no search field)' },
+        { keys: ['Esc', 'Tab'], does: 'close without selecting' },
+        { keys: ['Backspace'], does: 'removes the last chip, or clears an empty `clearable` search' },
       ],
     },
     {
-      title: 'Select — open panel',
-      caption: 'The panel is open; focus stays on the trigger and `aria-activedescendant` names the cursor.',
+      component: 'Dropdown, context menu',
+      url: '/reference/components/dropdown',
       rows: [
-        { keys: ['ArrowDown', 'ArrowUp'], does: 'Moves the cursor by one enabled option, wrapping at the ends.' },
-        { keys: ['Home', 'End'], does: 'First / last enabled option. **Both work**, in every mode.' },
-        {
-          keys: ['Enter'],
-          does: 'Selects the option under the cursor. A disabled or filtered-out option is refused.',
-        },
-        {
-          keys: ['Space'],
-          does: 'Selects, exactly like Enter.',
-          when: 'Button trigger only. In a searchable select Space belongs to the text field, or a two-word query could not be typed.',
-        },
-        { keys: ['Escape'], does: 'Closes the panel. Nothing is committed.' },
-        {
-          keys: ['Tab'],
-          does: 'Closes the panel AND lets focus leave. The option under the cursor is **not** committed — the cursor is seeded on open, so tabbing through would otherwise select a row nobody looked at.',
-        },
+        { keys: ['Enter', 'Space', '↓', '↑'], does: 'open and focus the first item' },
+        { keys: ['↑', '↓', 'Home', 'End'], does: 'move focus' },
+        { keys: ['→', '←'], does: 'open / close a context-menu submenu' },
+        { keys: ['Esc'], does: 'closes one level and returns focus' },
       ],
     },
     {
-      title: 'Select — searchable field',
-      caption: 'Focus is in the search `<input>` — `mode="search"`, `mode="tag"`, or a searchable multi.',
+      component: 'Tabs',
+      url: '/reference/components/tabs',
       rows: [
-        { keys: ['Printable keys'], does: 'Filter the options. The match is a **substring**, not a prefix.' },
-        {
-          keys: ['Backspace'],
-          does: 'On an EMPTY field, clears the selection.',
-          when: 'Single mode with `clearable`. This is the keyboard twin of the ✕, which is `tabindex="-1"` and unreachable by key.',
-        },
-        {
-          keys: ['Backspace'],
-          does: 'On an EMPTY query, removes the last chip.',
-          when: 'Any chip mode — a searchable `multi`, or `tag`.',
-        },
-        {
-          keys: ['Enter'],
-          does: 'Commits the typed string as the value when nothing is highlighted.',
-          when: '`freeText`. With a highlighted option, Enter selects that option instead.',
-        },
-        {
-          keys: ['ArrowDown', 'ArrowUp', 'Home', 'End', 'Escape', 'Tab'],
-          does: 'Exactly as in the open panel above.',
-        },
+        { keys: ['←', '→'], does: 'previous / next tab, wrapping' },
+        { keys: ['Home', 'End'], does: 'first / last tab' },
+        { keys: ['Enter', 'Space'], does: 'activate, in router mode (`wrTabsRouting`)' },
       ],
     },
     {
-      title: 'Dropdown and context menu',
-      caption: 'Focus is on the trigger, then on a menu item — a menu moves REAL focus, not a cursor.',
+      component: 'Tree',
+      url: '/reference/components/tree',
       rows: [
-        {
-          keys: ['Enter', 'Space', 'ArrowDown', 'ArrowUp'],
-          does: 'Opens the menu and focuses its first enabled item.',
-        },
-        { keys: ['ArrowDown', 'ArrowUp'], does: 'Next / previous enabled item, wrapping at both ends.' },
-        { keys: ['Home', 'End'], does: 'First / last item.' },
-        {
-          keys: ['ArrowRight'],
-          does: 'Opens the focused row’s submenu and focuses its first item. Under `dir="rtl"` this is ArrowLeft — the panes cascade the other way, so the key that opens has to follow them.',
-          when: '`<wr-context-menu>` with a submenu.',
-        },
-        {
-          keys: ['ArrowLeft'],
-          does: 'Closes the current submenu and returns focus to the row that owns it (ArrowRight under `dir="rtl"`).',
-          when: '`<wr-context-menu>`, inside a submenu.',
-        },
-        { keys: ['Escape'], does: 'Closes one level and returns focus to the trigger, or to the owning row.' },
-        { keys: ['Tab'], does: 'Closes and lets focus leave naturally.' },
+        { keys: ['↑', '↓'], does: 'previous / next visible row' },
+        { keys: ['→'], does: 'expands, or steps into the first child' },
+        { keys: ['←'], does: 'collapses, or jumps to the parent' },
+        { keys: ['Home', 'End'], does: 'first / last visible row' },
+        { keys: ['Enter', 'Space'], does: 'select; hold `Ctrl` / `⌘` to add' },
       ],
     },
     {
-      title: 'Tabs',
-      caption:
-        'Focus is on a tab header. A content strip is ONE tab stop and the arrows rove within it; in router mode (`wrTabsRouting`) each enabled header is a link and keeps its own tab stop, so Tab walks the strip and the arrows rove as well.',
+      component: 'Pagination',
+      url: '/reference/components/pagination',
       rows: [
-        {
-          keys: ['ArrowRight', 'ArrowLeft'],
-          does: 'Next / previous tab in VISUAL order, wrapping at both ends — so the pair swaps meaning under `dir="rtl"`.',
-        },
-        {
-          keys: ['Home', 'End'],
-          does: 'First / last tab. These name a position, so they read the same in both directions.',
-        },
-        {
-          keys: ['Enter', 'Space'],
-          does: 'Activates the focused tab.',
-          when: 'Router mode (`wrTabsRouting`) only — there the arrows move focus alone, because the route selects the tab. Otherwise activation already follows focus.',
-        },
+        { keys: ['Tab'], does: 'moves between cells; the arrows do nothing' },
+        { keys: ['Enter', 'Space'], does: 'go to that page' },
       ],
     },
     {
-      title: 'Tree',
-      caption: 'Focus is on the tree; a roving cursor names the current row.',
+      component: 'Table',
+      url: '/reference/components/table',
       rows: [
-        { keys: ['ArrowDown', 'ArrowUp'], does: 'Next / previous visible row. No wrap at the ends.' },
-        {
-          keys: ['ArrowRight'],
-          does: 'Expands a collapsed parent; on an already-open parent, steps into its first child.',
-        },
-        {
-          keys: ['ArrowLeft'],
-          does: 'Collapses an open parent; on a leaf or a closed node, jumps to the parent row.',
-        },
-        { keys: ['Home', 'End'], does: 'First / last visible row.' },
-        {
-          keys: ['Enter', 'Space'],
-          does: 'Selects the row. Holding `Ctrl` (or `Cmd`) adds to the selection instead of replacing it.',
-        },
-        { keys: ['Escape'], does: 'Closes the panel.', when: '`openOn="overlay"` only — the default is inline.' },
-      ],
-    },
-    {
-      title: 'Pagination',
-      caption:
-        'Focus is on one page cell. Every cell is its own tab stop — there is no roving cursor, and the arrows do nothing.',
-      rows: [
-        {
-          keys: ['Tab', 'Shift + Tab'],
-          does: 'Moves between the previous button, each page cell, the next button and the page-size select.',
-        },
-        {
-          keys: ['Enter', 'Space'],
-          does: 'Goes to that page. The cells are `<wr-btn role="button" tabindex="0">`, named `Go to page N`.',
-        },
-        {
-          keys: ['ArrowLeft', 'ArrowRight'],
-          does: 'Nothing. `<wr-pagination>` is a `role="navigation"` landmark of independent destinations, not a composite widget.',
-        },
-      ],
-    },
-    {
-      title: 'Table',
-      caption: 'Focus is inside `<wr-table>`. There is no grid cursor — the interactive parts are ordinary tab stops.',
-      rows: [
-        {
-          keys: ['Tab', 'Shift + Tab'],
-          does: 'Walks the sort buttons, the column filters, the selection checkboxes, the expand toggles and the footer pager, in DOM order.',
-        },
-        { keys: ['Enter', 'Space'], does: 'Activates whichever of those has focus.' },
-        {
-          keys: ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown'],
-          does: 'Scroll the body — the virtual viewport is itself a tab stop (`tabindex="0"`), so rows the window has not rendered yet stay reachable from the keyboard.',
-          when: '`virtualScroll` only.',
-        },
+        { keys: ['Tab'], does: 'walks the sort, filter, selection and expand controls' },
+        { keys: ['↑', '↓', 'PgUp', 'PgDn'], does: 'scroll a `virtualScroll` body' },
       ],
     },
   ];
 
+  protected readonly helpers: readonly KeyHelper[] = [
+    { name: 'KEYS', url: '/reference/utils/keys', use: 'Typed KeyboardEvent.key values.' },
+    { name: 'isComposing', url: '/reference/utils/is-composing', use: 'An input method is still converting.' },
+    { name: 'isPrintableKey', url: '/reference/utils/is-printable-key', use: 'The key types a character.' },
+    { name: 'hasModifier', url: '/reference/utils/has-modifier', use: 'Ctrl, Cmd, Alt or Shift is held.' },
+  ];
+
   protected readonly snippets = {
-    declarative: `<!-- Global by default: fires wherever focus is. -->
+    declarative: `<!-- Global: fires wherever focus is. -->
 <div [wrHotkey]="'mod+k'" (wrHotkeyMatch)="palette.open()">…</div>
 
 <!-- Scoped: only while focus is inside the host. -->
@@ -268,111 +149,63 @@ constructor() {
   inject(DestroyRef).onDestroy(() => handle.unbind());
 }`,
 
-    hint: `<!-- Render the chord next to the action it triggers. -->
-<button wr-btn type="button">
-  Search
-  <wr-kbd>⌘</wr-kbd>
-  <wr-kbd>K</wr-kbd>
-</button>`,
+    hint: `<wr-kbd>⌘</wr-kbd>
+<wr-kbd>K</wr-kbd>
+<wr-kbd size="sm">Ctrl</wr-kbd>
+<wr-kbd size="sm">K</wr-kbd>`,
 
     keys: `import { KEYS, hasModifier, isComposing, isPrintableKey } from 'ngwr/utils';
 
 protected onKeydown(event: KeyboardEvent): void {
-  // First, always: while an IME is converting, Enter, Escape and the arrows
-  // belong to its candidate window, not to you.
   if (isComposing(event)) return;
-
-  // Compare against the constant, not the magic string — it is searchable.
   if (event.key === KEYS.ESCAPE) return this.close();
 
-  // Type-to-search FIRST: \`isPrintableKey\` already rejects ctrl / meta / alt,
-  // and it accepts Shift — which it has to, or the buffer can never receive a
-  // capital letter. \`hasModifier\` counts Shift as a modifier, so guarding on
-  // it ahead of this returns on every shifted character.
+  // Before hasModifier, which counts Shift and would drop capitals.
   if (isPrintableKey(event)) {
     this.query.update(q => q + event.key);
     return;
   }
 
-  // Then let the browser keep its own chords (copy, reload, devtools…).
-  if (hasModifier(event)) return;
+  if (hasModifier(event)) return; // leave the browser's own shortcuts alone
 }`,
   };
 
-  /**
-   * `[wrHotkey]` has no page of its own — the service page documents the
-   * registry, and the directive is only mentioned there. Document it here.
-   */
+  /** `[wrHotkey]` has no page of its own, so its API is documented here. */
   protected readonly bindingApi: readonly DocApiRow[] = [
     {
       name: 'wrHotkey',
-      description: 'The chord to listen for. `mod` resolves to Cmd on macOS and Ctrl elsewhere.',
+      description: 'The chord, such as `mod+k`.',
       type: 'WrHotkeySpec',
     },
     {
       name: 'scoped',
-      description:
-        'Listen only while focus is inside the host element. Off by default — the binding is global, the same as `WrHotkey.bind()`.',
+      description: 'Listen only while focus is inside the host.',
       type: 'boolean',
       default: 'false',
     },
     {
       name: 'allowInInput',
-      description:
-        'Keep firing while an `<input>` / `<textarea>` / contenteditable has focus. Off by default so typing never triggers shortcuts.',
+      description: 'Also fire while an input, textarea or contenteditable has focus.',
       type: 'boolean',
       default: 'false',
     },
     {
       name: 'preventDefault',
-      description: 'Call `preventDefault()` on a match, so the browser does not also act on the chord.',
+      description: 'Stop the browser acting on the chord too.',
       type: 'boolean',
       default: 'true',
     },
     {
       name: '(wrHotkeyMatch)',
-      description: 'Emits the original `KeyboardEvent` when the chord matches.',
+      description: 'Emits the `KeyboardEvent` on a match.',
       type: 'KeyboardEvent',
       default: '—',
     },
   ];
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
-    {
-      kind: 'Service',
-      title: 'WrHotkey',
-      url: ['/reference/services', 'hotkey'],
-      description: 'The registry itself — bind and unbind chords imperatively.',
-    },
-    {
-      kind: 'Component',
-      title: 'WrKbd',
-      url: ['/reference/components', 'keyboard'],
-      description: 'The keycap chip used to render a chord next to its action.',
-    },
-    {
-      kind: 'Util',
-      title: 'KEYS',
-      url: ['/reference/utils', 'keys'],
-      description: 'Canonical `KeyboardEvent.key` constants — searchable instead of magic strings.',
-    },
-    {
-      kind: 'Util',
-      title: 'hasModifier',
-      url: ['/reference/utils', 'has-modifier'],
-      description: 'Is any modifier held? Use it to leave the browser’s own chords alone.',
-    },
-    {
-      kind: 'Util',
-      title: 'isPrintableKey',
-      url: ['/reference/utils', 'is-printable-key'],
-      description: 'Did the key produce a character? The type-ahead predicate.',
-    },
-    {
-      kind: 'Util',
-      title: 'isComposing',
-      url: ['/reference/utils', 'is-composing'],
-      description: 'Is an input method still converting? Return early before you read a key.',
-    },
+    { kind: 'Service', title: 'WrHotkey', url: ['/reference/services', 'hotkey'] },
+    { kind: 'Component', title: 'WrKbd', url: ['/reference/components', 'keyboard'] },
+    { kind: 'Guide', title: 'Overlay', url: ['/guides', 'overlay'] },
   ];
 }

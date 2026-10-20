@@ -1,13 +1,10 @@
 <ngwr-doc-page
   title="Headings & display"
-  description="The full heading ladder — display down to h6 — plus the oversized `display` variant for marketing hero rows."
+  description="Headings from `display` down to `h6`."
   [keywords]="['typography', 'headings', 'display', 'h1', 'h2', 'h3']"
   [labels]="['Directive']"
 >
-  <ngwr-doc-section
-    title="Scale"
-    description="Eight semantic sizes covering hero displays through compact h6 section headers. Tokens come from `--wr-text-*` and `--wr-leading-*` so a theme override re-tunes the whole ladder."
-  >
+  <ngwr-doc-section title="Scale" description="The variant sets the look; pick the tag for the page outline.">
     <ngwr-doc-code [code]="snippets.scale" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 1rem; align-items: flex-start">
@@ -22,10 +19,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Marketing pair"
-    description="Common combination: overline tag → display headline → lead subhead. The overline picks up a tone for emphasis."
-  >
+  <ngwr-doc-section title="Marketing pair" description="Overline, display and lead make a hero block.">
     <ngwr-doc-code [code]="snippets.pair" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; max-width: 36rem">

@@ -1,61 +1,76 @@
 <ngwr-doc-page
   title="Mobile & responsive"
-  description="NGWR adapts to touch and small screens — hit areas grow on touch, content respects device safe areas, and key layouts reflow to their container. Most of it is automatic; the rest is a one-line opt-in."
+  description="Make ngwr layouts work on touch screens and narrow containers."
   [keywords]="['mobile', 'responsive', 'touch', 'safe-area', 'container-query']"
   [labels]="['Guide']"
 >
   <ngwr-doc-section
     title="Adaptive layout components"
-    description="`descriptions`, `stepper`, `page-header`, `toolbar`, `pagination` and `table` can reflow based on their own width — a container query, not the viewport — so a two-column descriptions stacks, a horizontal stepper turns vertical, a page-header drops its actions below the title, a toolbar wraps, pagination collapses to a compact `current / total`, and a table becomes labelled cards whenever the box they live in is narrow, on any screen size. Opt in with `responsive`. (Tabs need no flag — the strip scrolls and shows an edge fade automatically when its headers overflow.)"
+    description="Add `responsive` to reflow on the component's own width, not the viewport."
   >
     <ngwr-doc-code [code]="snippets.containerQuery" language="angular-html" />
+
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Component</th>
+          <th scope="col">When narrow</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of reflows; track row.component) {
+          <tr>
+            <td>
+              <code>{{ row.component }}</code>
+            </td>
+            <td>{{ row.narrow }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Touch targets"
-    description="Small controls grow their hit area on touch devices, gated behind `@media (pointer: coarse)`. The shared `touch-target` mixin floors a full 44px with an invisible pseudo-element — the alert / dialog / drawer / lightbox close buttons, the slider thumb and knob dial, the colour-picker hue and alpha tracks, the splitter divider and the drag handle. The rest is hand-sized to stay clear of its neighbours: the select chip removes and clear, the cascader clear and the toast actions reach 32px and the tree toggle 28px, with their rows and chips opened up around them. Nothing to configure, and mouse / trackpad layouts stay untouched."
+    description="Small controls grow their hit area on touch screens; mouse layouts do not change."
   />
 
   <ngwr-doc-section
     title="Touch density"
-    description="For touch-first screens, the `touch` density preset scales the padding of every density-aware control at once — vertical ×1.7, horizontal ×1.25 — so button, input, textarea, select, cascader, the tree-select trigger, list rows, table cells, tags and the editor's writing surface grow together and keep a shared baseline. Controls with fixed geometry — checkbox, switch, radio, segmented, slider — are unaffected; reach for the touch targets above for those. `--wr-density-gap` widens the space a layout component puts between the controls projected into it (×1.5 under `touch`), and `--wr-density-text` is published for you to read in your own `calc()` — no shipped component multiplies by it yet. Set it app-wide with `provideWr(withDensity())`, or scope it to a subtree with the `wrDensity` directive."
+    description="`touch` enlarges padding on density-aware controls; checkbox, switch, radio, segmented and slider keep their size."
   >
     <ngwr-doc-code [code]="snippets.density" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Swipe gestures"
-    description="Touch dismissal and navigation feel native, with nothing to opt into: swipe a lightbox down to close, flick a toast sideways to dismiss it, and swipe a carousel left / right to change slides — the moving surface follows your finger and snaps back if you release before the threshold."
-  >
-    <ngwr-doc-code [code]="snippets.swipe" language="angular-html" />
+  <ngwr-doc-section title="Swipe gestures" description="Built in, no input needed.">
+    <ul>
+      <li>Lightbox: swipe down to close.</li>
+      <li>Toast: swipe sideways to dismiss.</li>
+      <li>Carousel: swipe left or right to change slides.</li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Safe areas"
-    description="Fixed surfaces honor `env(safe-area-inset-*)` so content clears notches, home indicators and rounded corners. The toast host and back-top do this automatically; the drawer opts in with `safeArea`. `env()` resolves to 0 on devices without insets, so desktop is unaffected."
+    description="Toast and back-top clear notches and home indicators by themselves. A drawer opts in with `safeArea`."
   >
     <ngwr-doc-code [code]="snippets.safeArea" language="angular-html" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Build your own"
-    description="For styles, `@use 'ngwr/breakpoints'` gives you the `media-up` / `media-down` mixins the grid utilities are built on. For a breakpoint in TypeScript, ngwr ships no service: the CDK's `BreakpointObserver` (from `@angular/cdk/layout`, which ngwr already depends on) turns a media query into an observable, and `toSignal` makes it a signal."
+    description="Use `media-up` / `media-down` from `ngwr/breakpoints` in SCSS, and the CDK's `BreakpointObserver` in TypeScript."
   >
-    <ngwr-doc-code [code]="snippets.media" language="angular-ts" />
+    <ngwr-doc-code
+      [files]="[
+        { label: 'SCSS', language: 'scss', code: snippets.mediaScss },
+        { label: 'TS', language: 'angular-ts', code: snippets.media },
+      ]"
+    />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="On the server there is no viewport"
-    description="`BreakpointObserver` is SSR-safe in the sense that it does not throw — not in the sense that it answers. There is no `matchMedia` to ask, so on the server every query reports `false`, and a template that branches on one prerenders the narrow arm for every visitor."
-  >
-    <ngwr-doc-code [code]="snippets.mediaSsr" language="angular-html" />
-
-    <p>
-      Which is why the <code>responsive</code> modifier is the first thing to reach for and a breakpoint signal the
-      second: a container query is CSS, so the markup is identical on both sides and the browser resolves the layout
-      after hydration has already matched. Where you do need the signal, treat the server's answer as the FIRST layout
-      rather than the wrong one — render the mobile arm, and let the wide one arrive. What every other ngwr API answers
-      on the server is on the <a routerLink="/guides/ssr">server-side rendering guide</a>.
-    </p>
-  </ngwr-doc-section>
+    description="Breakpoint queries are `false` on the server, so prefer `responsive` to a template branch ([SSR guide](/guides/ssr))."
+  />
 </ngwr-doc-page>

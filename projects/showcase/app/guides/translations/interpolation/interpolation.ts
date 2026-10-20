@@ -40,7 +40,8 @@ export default class TranslateInterpolationPage {
 <p>{{ 'app.items' | wrT: { count: selection().length } }}</p>`,
     formatter: `import { useI18nFormatter } from 'ngwr/i18n';
 
-const formatItems = useI18nFormatter('app.items');
-// formatItems({ count: 3 }) → '3 item(s) selected'`,
+const formatItems = useI18nFormatter('app.items', '{{count}} item(s) selected');
+
+formatItems({ count: 3 }); // '3 item(s) selected'`,
   };
 }

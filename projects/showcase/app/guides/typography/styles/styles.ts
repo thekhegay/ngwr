@@ -2,7 +2,6 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, ElementRef, afterNextRender, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { WrButton, type WrButtonSize } from 'ngwr/button';
 import { WrTypography, type WrTypographyTone, type WrTypographyVariant } from 'ngwr/typography';
 
 import { DocPageComponent, DocSectionComponent } from '#core/components';
@@ -36,13 +35,6 @@ interface TypesetRow {
   readonly sample: string;
   /** Drawn as a bar rather than as text — the hook colours a border or a background. */
   readonly line?: boolean;
-  readonly meaning: string;
-}
-
-interface ControlRow {
-  readonly size: WrButtonSize;
-  readonly token: string;
-  readonly leading: string;
   readonly meaning: string;
 }
 
@@ -98,7 +90,7 @@ function hookDefault(token: string): string {
   selector: 'ngwr-typography-styles-page',
   templateUrl: './styles.html',
   styleUrl: './styles.scss',
-  imports: [NgTemplateOutlet, RouterLink, WrButton, WrTypography, DocPageComponent, DocSectionComponent],
+  imports: [NgTemplateOutlet, RouterLink, WrTypography, DocPageComponent, DocSectionComponent],
 })
 export default class TypographyStylesPage {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -228,19 +220,19 @@ export default class TypographyStylesPage {
       tone: 'success',
       sample: 'Payment received',
       token: '--wr-color-success-ink',
-      meaning: 'Something went right. The words still have to say what.',
+      meaning: 'Something went right.',
     },
     {
       tone: 'warning',
       sample: 'Card expires in 3 days',
       token: '--wr-color-warning-ink',
-      meaning: 'Something needs attention. The words still have to say what.',
+      meaning: 'Something needs attention.',
     },
     {
       tone: 'danger',
       sample: 'Payment failed',
       token: '--wr-color-danger-ink',
-      meaning: 'Something went wrong. The words still have to name it.',
+      meaning: 'Something went wrong.',
     },
   ];
 
@@ -250,9 +242,17 @@ export default class TypographyStylesPage {
     { token: '--wr-typeset-body', sample: 'Paragraph text', meaning: 'Paragraphs and list items.' },
     { token: '--wr-typeset-headings', sample: 'Heading', meaning: 'Headings h1 to h4 and table header labels.' },
     { token: '--wr-typeset-lead', sample: 'Intro paragraph', meaning: 'An opening paragraph marked .wr-typeset-lead.' },
-    { token: '--wr-typeset-bold', sample: 'Bold text', meaning: 'Strong text. Set it to the body colour for plain bold.' },
+    {
+      token: '--wr-typeset-bold',
+      sample: 'Bold text',
+      meaning: 'Strong text. Set it to the body colour for plain bold.',
+    },
     { token: '--wr-typeset-links', sample: 'Link', meaning: 'Links. Set it to give links your brand colour.' },
-    { token: '--wr-typeset-code', sample: 'inline code', meaning: 'Inline code. The chip behind it stays the fill colour.' },
+    {
+      token: '--wr-typeset-code',
+      sample: 'inline code',
+      meaning: 'Inline code. The chip behind it stays the fill colour.',
+    },
     { token: '--wr-typeset-pre-bg', sample: '', line: true, meaning: 'The background of a code block.' },
     { token: '--wr-typeset-bullets', sample: '● ● ●', meaning: 'Bullets of an unordered list.' },
     { token: '--wr-typeset-counters', sample: '1. 2. 3.', meaning: 'Numbers of an ordered list.' },
@@ -266,8 +266,16 @@ export default class TypographyStylesPage {
 
   protected readonly sizes: readonly TokenRow[] = [
     { token: '--wr-text-xs', utility: '.wr-text-xs', meaning: 'Badges, tags, tooltips, hints and small controls.' },
-    { token: '--wr-text-sm', utility: '.wr-text-sm', meaning: 'Most UI text: controls, menus, tables, alerts, labels.' },
-    { token: '--wr-text-base', utility: '.wr-text-base', meaning: 'Body copy, dialog and drawer content, large controls.' },
+    {
+      token: '--wr-text-sm',
+      utility: '.wr-text-sm',
+      meaning: 'Most UI text: controls, menus, tables, alerts, labels.',
+    },
+    {
+      token: '--wr-text-base',
+      utility: '.wr-text-base',
+      meaning: 'Body copy, dialog and drawer content, large controls.',
+    },
     { token: '--wr-text-lg', utility: '.wr-text-lg', meaning: 'Small titles: dialogs, drawers, h6.' },
     { token: '--wr-text-xl', utility: '.wr-text-xl', meaning: 'Lead paragraphs, h5, and values on a gauge or knob.' },
     { token: '--wr-text-2xl', utility: '.wr-text-2xl', meaning: 'Section titles and big numbers, h4.' },
@@ -276,62 +284,77 @@ export default class TypographyStylesPage {
     { token: '--wr-text-5xl', utility: '.wr-text-5xl', meaning: 'Hero headlines: h1.' },
   ];
 
-  protected readonly controls: readonly ControlRow[] = [
-    {
-      size: 'sm',
-      token: '--wr-control-font-size-sm',
-      leading: '--wr-control-line-height-sm',
-      meaning: 'Text in small buttons, inputs, selects and tabs.',
-    },
-    {
-      size: 'md',
-      token: '--wr-control-font-size-md',
-      leading: '--wr-control-line-height-md',
-      meaning: 'Text in default buttons, inputs, selects and tabs.',
-    },
-    {
-      size: 'lg',
-      token: '--wr-control-font-size-lg',
-      leading: '--wr-control-line-height-lg',
-      meaning: 'Text in large buttons, inputs, selects and tabs.',
-    },
-  ];
-
   protected readonly hooks: readonly HookRow[] = TYPOGRAPHY_HOOKS.filter(v =>
-    v.name.startsWith('--wr-typography-'),
+    v.name.startsWith('--wr-typography-')
   ).map(v => ({ token: v.name, value: v.default, meaning: HOOK_MEANINGS[v.name] ?? '' }));
 
   protected readonly weights: readonly TokenRow[] = [
-    { token: '--wr-font-weight-thin', utility: '.wr-font-thin', meaning: 'Very large, quiet display text. No component uses it.' },
-    { token: '--wr-font-weight-light', utility: '.wr-font-light', meaning: 'Large, quiet text. No component uses it.' },
+    {
+      token: '--wr-font-weight-thin',
+      utility: '.wr-font-thin',
+      meaning: 'Very large, quiet display text.',
+    },
+    { token: '--wr-font-weight-light', utility: '.wr-font-light', meaning: 'Large, quiet text.' },
     { token: '--wr-font-weight-regular', utility: '.wr-font-regular', meaning: 'Body text — the default.' },
     { token: '--wr-font-weight-medium', utility: '.wr-font-medium', meaning: 'Buttons, tabs, tags, labels and links.' },
-    { token: '--wr-font-weight-semibold', utility: '.wr-font-semibold', meaning: 'Titles: dialogs, alerts, toasts, table headers.' },
+    {
+      token: '--wr-font-weight-semibold',
+      utility: '.wr-font-semibold',
+      meaning: 'Titles: dialogs, alerts, toasts, table headers.',
+    },
     { token: '--wr-font-weight-bold', utility: '.wr-font-bold', meaning: 'Headings h1 to h6 and page titles.' },
     { token: '--wr-font-weight-extrabold', utility: '.wr-font-extrabold', meaning: 'Display headlines.' },
   ];
 
   protected readonly leading: readonly TokenRow[] = [
-    { token: '--wr-leading-none', utility: '.wr-leading-none', meaning: 'One line that must sit tight: display, h1, keycaps.' },
+    {
+      token: '--wr-leading-none',
+      utility: '.wr-leading-none',
+      meaning: 'One line that must sit tight: display, h1, keycaps.',
+    },
     { token: '--wr-leading-tight', utility: '.wr-leading-tight', meaning: 'Headings and short helper lines.' },
-    { token: '--wr-leading-snug', utility: '.wr-leading-snug', meaning: 'Compact one-line items: chips, anchor links.' },
+    {
+      token: '--wr-leading-snug',
+      utility: '.wr-leading-snug',
+      meaning: 'Compact one-line items: chips, anchor links.',
+    },
     { token: '--wr-leading-normal', utility: '.wr-leading-normal', meaning: 'Body text — the default.' },
-    { token: '--wr-leading-relaxed', utility: '.wr-leading-relaxed', meaning: 'Long reading: articles, markdown, lead paragraphs.' },
-    { token: '--wr-leading-loose', utility: '.wr-leading-loose', meaning: 'Double spacing. No component uses it.' },
+    {
+      token: '--wr-leading-relaxed',
+      utility: '.wr-leading-relaxed',
+      meaning: 'Long reading: articles, markdown, lead paragraphs.',
+    },
+    { token: '--wr-leading-loose', utility: '.wr-leading-loose', meaning: 'Double spacing.' },
   ];
 
   protected readonly tracking: readonly TokenRow[] = [
-    { token: '--wr-tracking-tighter', utility: '.wr-tracking-tighter', meaning: 'Very large display text. No component uses it.' },
+    {
+      token: '--wr-tracking-tighter',
+      utility: '.wr-tracking-tighter',
+      meaning: 'Very large display text.',
+    },
     { token: '--wr-tracking-tight', utility: '.wr-tracking-tight', meaning: 'Big headings and large numbers.' },
     { token: '--wr-tracking-normal', utility: '.wr-tracking-normal', meaning: 'The default. Undoes a wider setting.' },
     { token: '--wr-tracking-wide', utility: '.wr-tracking-wide', meaning: 'Small labels and badges.' },
     { token: '--wr-tracking-wider', utility: '.wr-tracking-wider', meaning: 'Tiny labels, like calendar weekdays.' },
-    { token: '--wr-tracking-widest', utility: '.wr-tracking-widest', meaning: 'Uppercase eyebrows — the overline variant.' },
+    {
+      token: '--wr-tracking-widest',
+      utility: '.wr-tracking-widest',
+      meaning: 'Uppercase eyebrows — the overline variant.',
+    },
   ];
 
   protected readonly families: readonly TokenRow[] = [
-    { token: '--wr-font-family-base', utility: '.wr-font-base', meaning: "Every component's text. Set your typeface here." },
-    { token: '--wr-font-family-mono', utility: '.wr-font-mono', meaning: 'Code, OTP digits, hex values — characters that line up.' },
+    {
+      token: '--wr-font-family-base',
+      utility: '.wr-font-base',
+      meaning: "Every component's text. Set your typeface here.",
+    },
+    {
+      token: '--wr-font-family-mono',
+      utility: '.wr-font-mono',
+      meaning: 'Code, OTP digits, hex values — characters that line up.',
+    },
   ];
 
   protected readonly breaking: readonly ClassRow[] = [

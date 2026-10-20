@@ -41,7 +41,6 @@ export default class TypographyCodePage {
       kind: 'Directive',
       title: '[wrTypography]',
       url: ['/reference/directives', 'typography'],
-      description: 'Every input, the full variant union, and the classes the directive emits.',
     },
   ];
 }
