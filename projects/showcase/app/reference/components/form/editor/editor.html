@@ -7,9 +7,9 @@
 >
   <ngwr-doc-section
     title="Peer dependencies"
-    description="ProseMirror is an OPTIONAL peer: `ngwr` declares the eight packages and marks them optional, so nothing installs them until you do. No other entry point imports them, so an app that never reaches for `ngwr/editor` never pays for it."
+    description="ProseMirror is an optional peer: install it to use the editor."
   >
-    <ngwr-doc-code [code]="snippets.peers" language="bash" />
+    <ngwr-doc-install [packages]="prosemirror" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -218,8 +218,9 @@
       the document on screen over it.
     </p>
     <p>
-      On a page that enforces Trusted Types, paste goes through ProseMirror's own <code>ProseMirrorClipboard</code>
-      policy, so a <code>trusted-types</code> allowlist with no default policy names it.
+      On a page that enforces Trusted Types, paste goes through ProseMirror's own
+      <code>ProseMirrorClipboard</code> policy, so a <code>trusted-types</code> allowlist with no default policy names
+      it.
     </p>
   </ngwr-doc-section>
 

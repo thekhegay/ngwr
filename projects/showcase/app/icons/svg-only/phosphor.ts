@@ -15,7 +15,7 @@ const SPEC: SvgSetSpec = {
     'A flexible 6-weight icon family. 1500+ regular icons shown here — pick a weight by swapping the folder. Click any tile to copy the import snippet.',
   homepage: 'https://phosphoricons.com',
   license: 'MIT',
-  install: 'pnpm add @phosphor-icons/core',
+  packages: '@phosphor-icons/core',
   usage: `// Pick a weight: regular / thin / light / bold / fill / duotone.
 import plusSvg from '@phosphor-icons/core/assets/regular/plus.svg?raw';
 import trashSvg from '@phosphor-icons/core/assets/bold/trash.svg?raw';

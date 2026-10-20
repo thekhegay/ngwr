@@ -9,6 +9,7 @@ import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  DocInstallComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
@@ -30,6 +31,7 @@ import {
     DocSectionComponent,
     DocSnippetComponent,
     DocCodeComponent,
+    DocInstallComponent,
     DocApiComponent,
   ],
 })
@@ -64,10 +66,7 @@ export default class InputComponent {
   <wr-password-toggle [for]="pwInput" />
 </wr-input-group>`,
 
-    maskSetup: `// 1. Install ngx-mask as a peer dependency:
-//    pnpm add ngx-mask
-
-// 2. Provide it at bootstrap once (pass overrides for global defaults):
+    maskSetup: `// Provide it at bootstrap once (pass overrides for global defaults):
 import { provideEnvironmentNgxMask } from 'ngx-mask';
 
 bootstrapApplication(AppComponent, {

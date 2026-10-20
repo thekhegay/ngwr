@@ -13,7 +13,7 @@ const SPEC: SvgSetSpec = {
   description: 'The original minimal 24px stroke set. ~285 icons. Click any tile to copy the import snippet.',
   homepage: 'https://feathericons.com',
   license: 'MIT',
-  install: 'pnpm add feather-icons',
+  packages: 'feather-icons',
   usage: `import plusSvg from 'feather-icons/dist/icons/plus.svg?raw';
 import trashSvg from 'feather-icons/dist/icons/trash-2.svg?raw';
 import { provideWrIcons, svgIcon } from 'ngwr/icon';

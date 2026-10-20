@@ -13,15 +13,17 @@ import { Component, ChangeDetectionStrategy, computed, input } from '@angular/co
 
 import { IconGridComponent, type IconEntry } from '../_grid/icon-grid';
 
-import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
+import { DocCodeComponent, DocInstallComponent, DocPageComponent, DocSectionComponent } from '#core/components';
 
 export interface SvgSetSpec {
   readonly title: string;
   readonly description: string;
   readonly homepage: string;
   readonly license: string;
-  /** Shell snippet shown under "Install". */
-  readonly install: string;
+  /** npm packages to install, shown as package-manager tabs. */
+  readonly packages?: string;
+  /** A shell snippet instead, for a set that has no npm package. */
+  readonly install?: string;
   /** Angular TS snippet shown under "Wire icons". */
   readonly usage: string;
   /** Builds a per-icon import snippet (copied when a tile is clicked). */
@@ -32,7 +34,7 @@ export interface SvgSetSpec {
   selector: 'ngwr-svg-set-browser',
   templateUrl: './svg-set-browser.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DocCodeComponent, DocPageComponent, DocSectionComponent, IconGridComponent],
+  imports: [DocCodeComponent, DocInstallComponent, DocPageComponent, DocSectionComponent, IconGridComponent],
 })
 export class SvgSetBrowser {
   readonly spec = input.required<SvgSetSpec>();

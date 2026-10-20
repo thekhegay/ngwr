@@ -5,7 +5,7 @@ import { lucide } from 'ngwr/icon';
 
 import { IconGridComponent, type IconEntry } from '../_grid/icon-grid';
 
-import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
+import { DocCodeComponent, DocInstallComponent, DocPageComponent, DocSectionComponent } from '#core/components';
 
 let cached: readonly IconEntry[] | null = null;
 
@@ -49,7 +49,7 @@ function kebabToPascal(value: string): string {
 @Component({
   selector: 'ngwr-icons-lucide',
   templateUrl: './lucide.html',
-  imports: [DocCodeComponent, DocPageComponent, DocSectionComponent, IconGridComponent],
+  imports: [DocCodeComponent, DocInstallComponent, DocPageComponent, DocSectionComponent, IconGridComponent],
 })
 export default class LucideBrowser {
   /**
@@ -70,8 +70,6 @@ export default class LucideBrowser {
       `A modern, community-maintained Feather fork. ${this.icons().length} 24px stroke icons. ` +
       `Click any tile to copy the import snippet.`
   );
-
-  protected readonly install = 'pnpm add lucide';
 
   protected readonly usage = `import { Plus, Trash2 } from 'lucide';
 import { lucideIcons, provideWrIcons } from 'ngwr/icon';

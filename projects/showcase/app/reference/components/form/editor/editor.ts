@@ -11,6 +11,7 @@ import {
   type DocApiRow,
   DocCodeComponent,
   type DocCodeFile,
+  DocInstallComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
@@ -75,10 +76,14 @@ const COMMENT_TOOLS: readonly WrEditorTool[] = [
     DocSectionComponent,
     DocSnippetComponent,
     DocCodeComponent,
+    DocInstallComponent,
     DocApiComponent,
   ],
 })
 export default class EditorPageComponent {
+  protected readonly prosemirror =
+    'prosemirror-model prosemirror-state prosemirror-view prosemirror-commands prosemirror-keymap prosemirror-history prosemirror-schema-list prosemirror-inputrules';
+
   protected readonly agenda = signal<WrEditorValue>(AGENDA);
   protected readonly comment = signal<WrEditorValue>(null);
 
@@ -131,12 +136,6 @@ protected readonly imported = signal<WrEditorValue>({
     },
   ],
 });`,
-    peers: `# ProseMirror is an optional peer: installing ngwr does not bring it along.
-pnpm add prosemirror-model prosemirror-state prosemirror-view prosemirror-commands \\
-  prosemirror-keymap prosemirror-history prosemirror-schema-list prosemirror-inputrules
-# or
-npm install prosemirror-model prosemirror-state prosemirror-view prosemirror-commands \\
-  prosemirror-keymap prosemirror-history prosemirror-schema-list prosemirror-inputrules`,
     toolbar: `import { WR_EDITOR_TOOLBAR, type WrEditorTool } from 'ngwr/editor';
 
 // Built from the default rather than retyped — this drops the two code tools.
@@ -339,8 +338,7 @@ export class Ticket {
     },
     {
       name: 'WrEditorTool',
-      description:
-        "One entry of the `toolbar` input. `'|'` draws a separator between two groups.",
+      description: "One entry of the `toolbar` input. `'|'` draws a separator between two groups.",
       type: `'bold' | 'italic' | 'underline' | 'strike' | 'code' | 'paragraph' | 'heading1' | 'heading2' | 'heading3' | 'bulletList' | 'orderedList' | 'blockquote' | 'codeBlock' | 'link' | 'horizontalRule' | 'undo' | 'redo' | '|'`,
     },
     {

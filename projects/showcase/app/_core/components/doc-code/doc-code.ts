@@ -6,6 +6,7 @@ import {
   type ElementRef,
   inject,
   input,
+  model,
   resource,
   signal,
   untracked,
@@ -95,6 +96,9 @@ export class DocCodeComponent {
 
   protected readonly activeIndex = signal(0);
 
+  /** The selected tab's label, two-way: blocks bound to one value switch together. */
+  readonly tab = model<string | null>(null);
+
   protected readonly activeTab = computed(() => this.tabs()[this.activeIndex()] ?? null);
 
   /** A tab strip only exists once there is more than one file to choose from. */
@@ -169,6 +173,15 @@ export class DocCodeComponent {
     effect(() => {
       const next = this.highlighted.value();
       if (next != null) untracked(() => this.lastHtml.set(next));
+    });
+
+    // Follow an outside `tab` write: another block bound to the same value switched.
+    effect(() => {
+      const label = this.tab();
+      const i = label === null ? -1 : this.tabs().findIndex(t => t.label === label);
+      untracked(() => {
+        if (i >= 0 && i !== this.activeIndex()) this.activeIndex.set(i);
+      });
     });
 
     // Reset cached HTML + clamp index when the file list changes.
@@ -248,6 +261,7 @@ export class DocCodeComponent {
 
   protected select(i: number): void {
     this.activeIndex.set(i);
+    this.tab.set(this.tabs()[i]?.label ?? null);
   }
 
   protected async copy(): Promise<void> {
