@@ -290,6 +290,8 @@ $skip: ':not(:where(.wr-not-typeset, .wr-not-typeset *))';
   :where(thead th)#{$skip} {
     color: var(--wr-typeset-headings);
     font-weight: 600;
+    // A browser centres `th`; the cells under it start at the edge.
+    text-align: start;
     vertical-align: bottom;
     padding-inline: 0.5714286em;
     padding-bottom: 0.5714286em;
