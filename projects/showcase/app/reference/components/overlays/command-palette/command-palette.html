@@ -1,19 +1,19 @@
 <ngwr-doc-page
   title="Command Palette"
-  description="⌘K-style centred modal with a search input and filtered list of actions. Items group automatically, support icons, descriptions, and shortcut hints. Bind a global hotkey (default `mod+k`) or open it programmatically."
+  description="A ⌘K search box that finds and runs your app's actions."
   [keywords]="['command palette', 'cmd-k', 'spotlight', 'wr-command-palette']"
   [labels]="['Component', 'Standalone']"
 >
   <ngwr-doc-section
     title="Basic usage"
-    description="Drop a single palette at your app shell. The default hotkey `mod+k` (⌘K on macOS, Ctrl+K elsewhere) opens it. The `(picked)` output fires after the item's own `action()` callback if it has one."
+    description="Add one palette to your app shell; `mod+k` opens it. `(picked)` fires after the item's own `action()`."
   >
     <ngwr-doc-code [code]="snippets.template" language="angular-html" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Live demo"
-    description="Click the button or press ⌘⇧K / Ctrl+Shift+K. **Not ⌘K** — this site's own header binds that one at bootstrap, before a lazy route's, so two palettes claiming one chord means the first registered wins and the demo never opens. Type to filter. ↑/↓ to move, Enter to pick, Esc to close."
+    description="Press ⌘⇧K / Ctrl+Shift+K: the site header owns ⌘K, and when two palettes share a hotkey the first one wins."
   >
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start">
@@ -32,14 +32,14 @@
 
   <ngwr-doc-section
     title="Programmatic control"
-    description="Set `[(open)]` and pass `[trigger]` of `null` to disable the auto-bound hotkey when you want to open it from your own UI."
+    description='Bind `[(open)]`; `[trigger]="null"` turns off the hotkey.'
   >
     <ngwr-doc-code [code]="snippets.controlled" language="angular-html" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Backed by a server"
-    description="`[items]` does not have to be a fixed list. Bind `[(query)]` to read what the user typed, dispatch on `(searchChange)` — which fires once the query settles, not once per keystroke — and feed the answer back into `[items]`. Add `serverSearch` so the built-in substring filter steps aside: a backend that ranks or tolerates typos returns rows whose labels do not contain the query at all, and filtering them again on the client would throw away the good ones. `[loading]` swaps the empty row for “Searching…”, because a palette that reports “No results” between every keystroke and its answer is stating something that is not true yet."
+    description="Fetch on `(searchChange)` and feed the result into `[items]`. `serverSearch` turns off the built-in filter; `[loading]` shows “Searching…”."
   >
     <ngwr-doc-code [code]="snippets.server" language="angular-html" />
   </ngwr-doc-section>

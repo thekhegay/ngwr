@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="Table"
-  description="Data table with sortable / filterable headers and custom cell templates."
+  description="Rows of data with sorting, filtering, paging and custom cells."
   [keywords]="['table', 'wr-table']"
   [labels]="['Component', 'Directive', 'Standalone']"
 >
   <ngwr-doc-section
     title="Basic usage"
-    description="Define columns as a record keyed by row property names. Rows are plain objects."
+    description="Columns are a record keyed by row property; rows are plain objects."
   >
     <ngwr-doc-snippet [code]="snippets.basic">
       <div style="width: 100%">
@@ -17,7 +17,7 @@
 
   <ngwr-doc-section
     title="Sort + filter + custom cell"
-    description="Sortable columns cycle asc → desc → off. Filter dropdown emits the selected items via filterChange. Project an [wrTableCell] template to customize a column's rendering."
+    description="`[(sort)]` holds the sort, `filterChange` reports the filter, and `[wrTableCell]` replaces a column's cells."
   >
     <ngwr-doc-snippet [code]="snippets.custom">
       <div style="width: 100%">
@@ -34,7 +34,7 @@
 
   <ngwr-doc-section
     title="One column carrying both controls"
-    description="`sortable` and `filterItems` on the SAME column is the header the rest of the demos never build — two controls inside one `.wr-table__th-inner`, six pixels apart. It is also the only arrangement where WCAG 2.5.8 has anything to say: a lone 12px glyph passes on the criterion's spacing exception, and a pair of them does not. On a touch device each control grows a centred 24x24 hit area and the row opens its gap so the two cannot overlap; on a mouse or a trackpad the header is drawn exactly as it always was."
+    description="One column can have both `sortable` and `filterItems`. With a mouse, both controls are below the 24px minimum target size."
   >
     <ngwr-doc-snippet [code]="snippets.sortAndFilter">
       <div style="width: 100%">
@@ -46,59 +46,33 @@
         />
       </div>
     </ngwr-doc-snippet>
-    <p>
-      The two are separate controls with separate names — <code>.wr-table__sort-btn</code> cycles the sort,
-      <code>.wr-table-filter__trigger</code> opens the dropdown — so a keyboard walks onto each in turn and a finger
-      needs each to be its own box. Both grow one under <code>&#64;media (pointer: coarse)</code> only, through the same
-      <code>touch-target</code> mixin the rest of the library's small controls use; the glyphs inside never move, in
-      either case.
-    </p>
-    <p>
-      One consequence to know before you audit your own app: on a mouse these stay 12px, so an automated WCAG 2.5.8
-      check run with a fine pointer reports <code>target-size</code> on this pair. That is a deliberate trade rather
-      than an oversight — widening the boxes for every pointer would redraw a header that dense data tables are laid out
-      around — and it is recorded as such in the library's own contrast baseline. Space the column's controls yourself,
-      or give the column one of them, if your product needs the criterion met on the desktop too.
-    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Sorting is state, not a sort"
-    description="The header cycles asc → desc → off and writes the result into `[(sort)]`. That is all it does: the table never reorders `items`, in any mode — the same contract `groupBy` states about grouping. The rows in the demo above move because THIS page sorts them, and that comparator is the part a docs snippet usually leaves out, so it is spelled in full below. A table bound to a plain array with no comparator behind it shows the arrow flipping and the rows standing still, which reads as a broken control rather than as a contract."
+    description="The table never reorders `items`: sort them yourself from `sort()`."
   >
     <ngwr-doc-code [code]="snippets.sortState" language="angular-ts" />
-    <p>
-      <code>sort</code> is an <strong>array</strong>, not a single rule: each sortable header owns its own entry, a
-      second header appends rather than replaces, and array order is application order — first entry is the primary key.
-      A header cycled back to <em>off</em> drops its entry. That is why the comparator above loops instead of reading
-      <code>sort()[0]</code>.
-    </p>
-    <p>
-      The control is the sort button, not the whole cell: <code>.wr-table__sort-btn</code>, a real
-      <code>&lt;button&gt;</code> named from <code>sortLabel</code> (or the <code>table.sort</code> catalog key).
-      Clicking the title text or the header padding does nothing, so an end-to-end test drives the button —
-      <code>getByRole('button', &#123; name: 'Sort column' &#125;)</code> — and reads the result off the header's
-      <code>aria-sort</code>, which is <code>ascending</code> / <code>descending</code> / <code>none</code> on every
-      sortable column and absent on the rest.
-    </p>
-    <p>
-      Sorting also never touches <code>page</code>. Clicking a header on page 3 leaves you on page 3, and in server-side
-      mode that means the next request goes out with the new order and the old offset. Resetting to page 1 on a sort
-      change is a policy, not a default — write it in the handler that reacts to the sort, the same place you build the
-      query.
-    </p>
+    <ul>
+      <li><code>sort</code> is an array, one entry per sorted column; the first entry is the primary key.</li>
+      <li>
+        Only the sort button sorts, not the whole header. In tests, read the state from the header's
+        <code>aria-sort</code>.
+      </li>
+      <li>Sorting does not reset <code>page</code>. Reset it in your sort handler if you want.</li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="What a cell template can read"
-    description='A `[wrTableCell]` template gets three context members, and only the value is implicit. The row itself is `let-row="item"` — a bare `let-row` binds the value a second time, which is the quiet way to get an undefined in a click handler.'
+    description='`let-value` is the cell value and `let-row="item"` the row. A bare `let-row` binds the value again.'
   >
     <ngwr-doc-code [code]="snippets.cellContext" language="angular-html" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Row actions"
-    description="The column key is just a key — give the action column one nothing in the row answers to, leave its title empty, and read the row off the template context. Deleting here mutates the demo's own list; reload the section to get the rows back."
+    description='Give the action column a key no row property uses and an empty title, and read the row with `let-row="item"`.'
   >
     <ngwr-doc-snippet [code]="snippets.rowActions">
       <div style="width: 100%">
@@ -114,14 +88,14 @@
 
   <ngwr-doc-section
     title="Loading, empty — and error"
-    description="`[loading]` and `emptyLabel` are the two states the table draws itself. There is no error input, and that is deliberate: a failed request belongs to the page, not to the table. Render a `<wr-alert>` beside it and let the table show its empty state."
+    description="`[loading]` shows a spinner and `emptyLabel` the empty text. There is no error input: show a `<wr-alert>` beside the table."
   >
     <ngwr-doc-code [code]="snippets.states" language="angular-html" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Pagination"
-    description="Set `[pageSize]` for client-side pagination — the table slices rows automatically and renders a `<wr-pagination>` footer. Pass `[total]` to switch to server-side mode (you handle slicing)."
+    description="`[pageSize]` pages the rows and adds a pager. Add `[total]` to page on the server."
   >
     <ngwr-doc-snippet [code]="snippets.paginated">
       <div style="width: 100%">
@@ -132,30 +106,23 @@
 
   <ngwr-doc-section
     title="Server-side paging — what to bind, what fires"
-    description="Setting `[total]` switches the footer pager to server mode: the table stops slicing and renders whatever `items` you hand it. `page` is a `model()`, so the event it publishes is `(pageChange)` — that is the output to listen to, and there is no separately named one. Bind it either way: `[(page)]` when the page number is your own signal, or `[page]` + `(pageChange)` when the click has to go through a handler that builds the request."
+    description="With `[total]`, the table shows `items` as given. Listen to `(pageChange)`, or bind `[(page)]`."
   >
     <ngwr-doc-code [code]="snippets.serverHtml" language="angular-html" />
     <ngwr-doc-code [code]="snippets.serverTs" language="typescript" />
-    <p>
-      <strong><code>[pageSize]</code> is still required in server mode.</strong> It no longer slices anything, but the
-      footer renders only while <code>pageSize &gt; 0</code> and <code>total</code> exceeds it — a table given
-      <code>[total]</code> alone shows no pager at all, which looks like the server contract being ignored. Pass the
-      same number you send as the request&#39;s limit.
-    </p>
-    <p>
-      The footer is a plain <code>&lt;wr-pagination&gt;</code> with the page, size and total wired through — nothing
-      else. It carries no <code>showTotal</code> range label and no page-size changer, and the table exposes no input to
-      turn either on. When you need those, leave <code>pageSize</code> at <code>0</code> so the table renders no footer
-      of its own and put your own <code>&lt;wr-pagination&gt;</code> underneath: it is the same component, with
-      <code>showTotal</code>, <code>showSizeChanger</code> and <code>[(pageSize)]</code> available. That page also
-      documents the two behaviours a server-paged host meets first — what happens while <code>total</code> is still 0
-      between requests, and who clamps the page after a size change.
-    </p>
+    <ul>
+      <li><code>[pageSize]</code> is still required: without it no pager renders.</li>
+      <li>
+        The pager has no range label or size changer. For those, leave <code>pageSize</code> at 0 and add your own
+        <a routerLink="/reference/components/pagination"><code>&lt;wr-pagination&gt;</code></a
+        >.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Virtual scroll"
-    description="Set `virtualScroll` with a fixed `viewportHeight` to window thousands of rows — only the visible slice is in the DOM. It forces fixed column layout, assumes a uniform `rowHeight` (auto-measured by default), and falls back to the full render while grouping, tree rows, expandable rows, responsive cards or a pager is active. The table below holds 10,000 rows."
+    description="Set `virtualScroll` and `viewportHeight`; all rows share one height."
   >
     <ngwr-doc-code [code]="snippets.virtual" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -169,22 +136,18 @@
         />
       </div>
     </ngwr-doc-snippet>
-    <p>
-      <strong>The number to pass.</strong> A body row is one line of text plus the cell padding and the row rule —
-      <code>1.25rem</code> line-height, <code>0.625rem</code> of padding on each side multiplied by
-      <code>--wr-density-y</code>, and 1px of border. At a 16px root that is <strong>41px at <code>md</code></strong
-      >, and 32 / 48 / 55px at <code>sm</code> / <code>lg</code> / <code>touch</code>. Left at <code>0</code> the table
-      measures the first rendered row and uses that, so it is right without being told; the value matters when you pass
-      one, because the server has nothing to measure and falls back to a flat <strong>40</strong>. Passing 40 for an
-      <code>md</code> table is therefore off by a pixel per row — the prerendered window drifts a whole row every ~40 of
-      them, until the client measurement replaces it. A taller custom cell template moves these numbers, and the table
-      cannot know: measure once and pass what you measured.
-    </p>
+    <ul>
+      <li>Grouping, tree rows, expandable rows, <code>responsive</code> and a pager turn it off.</li>
+      <li>
+        For SSR, set <code>rowHeight</code>: 41 at <code>md</code>, 32 at <code>sm</code>, 48 at <code>lg</code>, 55 at
+        <code>touch</code>.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Row selection"
-    description="Set `rowSelection` to `'multiple'` (checkboxes + a select-all header) or `'single'`. Bind `[(selection)]` to the selected row keys, and `rowKey` to identify rows (a property name or a function)."
+    description="Set `rowSelection` to `'multiple'` or `'single'`, `rowKey` to a property or function, and bind `[(selection)]` to the selected keys."
   >
     <ngwr-doc-code [code]="snippets.selection" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -205,7 +168,7 @@
 
   <ngwr-doc-section
     title="Expandable rows"
-    description="Project an `<ng-template wrTableExpand let-row>` to reveal a detail panel per row — it adds a leading chevron column. Bind `[(expanded)]` (row keys) and set `rowKey`."
+    description="`<ng-template wrTableExpand let-row>` adds a detail panel per row. Set `rowKey` and bind `[(expanded)]`."
   >
     <ngwr-doc-code [code]="snippets.expandable" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -223,7 +186,7 @@
 
   <ngwr-doc-section
     title="Summary row"
-    description="Give a column a `summary` — a built-in aggregate (`'sum'` / `'avg'` / `'count'` / `'min'` / `'max'`) over its numeric values, or a function of all rows. A footer row appears with the results (computed over the current `items`)."
+    description="A column's `summary` adds a footer row: `'sum'`, `'avg'`, `'count'`, `'min'`, `'max'`, or a function of the rows."
   >
     <ngwr-doc-code [code]="snippets.summary" language="angular-ts" />
     <ngwr-doc-snippet code="">
@@ -235,7 +198,7 @@
 
   <ngwr-doc-section
     title="Row grouping"
-    description="Set `groupBy` to a row property (or a function) to gather rows under collapsible band headers. Grouping runs after pagination — sort by the same key, or use `pageSize = 0`, to keep each group whole. Bind `[(collapsedGroups)]` (keyed by group value) to control or persist collapse. Scroll a pinned table sideways and the group label stays pinned to the left edge like a frozen column."
+    description="Set `groupBy` to a property or function; `[(collapsedGroups)]` holds the collapsed groups. Grouping runs after paging, so sort by the same key or set `pageSize` to 0."
   >
     <ngwr-doc-code [code]="snippets.grouping" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -247,7 +210,7 @@
 
   <ngwr-doc-section
     title="Group subtotals"
-    description="Add `groupSummary` to repeat each column's `summary` aggregate as a subtotal row under every group, computed over that group's rows. The grand footer still totals the whole dataset — with client-side pagination the two describe different scopes, so pair `groupSummary` with `pageSize = 0`."
+    description="`groupSummary` adds a subtotal row under each group. Set `pageSize` to 0 with it, since the footer totals every row."
   >
     <ngwr-doc-code [code]="snippets.groupSummary" language="angular-ts" />
     <ngwr-doc-snippet code="">
@@ -259,7 +222,7 @@
 
   <ngwr-doc-section
     title="Custom group header"
-    description="Project an `<ng-template wrTableGroupHeader>` for a rich band label — it receives the group `value`, `label`, `rows`, `count`, `collapsed` and a `toggle()` callback. The chevron and the group checkbox are still rendered by the table, so the template may contain its own interactive content."
+    description="`<ng-template wrTableGroupHeader>` replaces the group label. It gets `value`, `count`, `collapsed`, `toggle()` and more."
   >
     <ngwr-doc-code [code]="snippets.groupHeader" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -276,7 +239,7 @@
 
   <ngwr-doc-section
     title="CSV export"
-    description="Call `exportCsv()` on the table (via a template ref) to download its rows — headers from the column titles, values from the row data, in the current column order. It covers the current `items`, so in server-side mode (`total` set) that's the current page. `{ selectedOnly: true }` exports just the selected rows; `toCsv()` returns the string instead of downloading."
+    description="`exportCsv()` downloads the current `items`, so one page in server mode. `toCsv()` returns the text; `{ selectedOnly: true }` exports the selection."
   >
     <ngwr-doc-code [code]="snippets.csv" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -291,7 +254,7 @@
 
   <ngwr-doc-section
     title="Pinned columns"
-    description="Set `pin: 'left'` or `pin: 'right'` on a column to freeze it against that edge while the rest scrolls horizontally. Several per side stack in order, and offsets are measured so columns of any width line up. Scroll the table below sideways — Name stays left, Status stays right."
+    description="`pin: 'left'` or `pin: 'right'` keeps a column in place while the rest scrolls sideways."
   >
     <ngwr-doc-code [code]="snippets.pinned" language="angular-ts" />
     <ngwr-doc-snippet code="">
@@ -303,7 +266,7 @@
 
   <ngwr-doc-section
     title="Resizable columns"
-    description="Set `resizable: true` for a drag handle on the header's right edge. The first drag freezes the current widths and switches the table to fixed layout so resizing is exact in both directions; `width` sets an initial px width."
+    description="`resizable: true` adds a drag handle to the header; `width` sets the starting width in px."
   >
     <ngwr-doc-code [code]="snippets.resizable" language="angular-ts" />
     <ngwr-doc-snippet code="">
@@ -315,7 +278,7 @@
 
   <ngwr-doc-section
     title="Reorderable columns"
-    description="Set `reorderable` to drag column headers into a new order. Bind `[(columnOrder)]` (an array of keys) to control or persist the arrangement. Pinned columns stay anchored — they aren't draggable."
+    description="With `reorderable`, headers can be dragged; `[(columnOrder)]` holds the order. Pinned columns do not move."
   >
     <ngwr-doc-code [code]="snippets.reorderable" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -327,7 +290,7 @@
 
   <ngwr-doc-section
     title="Narrow container (stacked cards)"
-    description="With `responsive`, each row collapses to a labelled card when the table's own box is too narrow for columns — a container query on its own width, so it adapts inside a split pane on any screen. Every cell shows its column title as a label. The box below is fixed at 360px."
+    description="With `responsive`, rows become labelled cards when the table's own box is narrow."
   >
     <ngwr-doc-snippet code='<div style="width: 360px"><wr-table responsive [columns]="columns" [items]="rows" /></div>'>
       <div style="width: 360px; max-width: 100%">
@@ -338,7 +301,7 @@
 
   <ngwr-doc-section
     title="Tree rows"
-    description="Set `childrenKey` to the property (or a function) holding each row&#39;s children and `items` becomes the roots. The forest is flattened into the same `&lt;tbody&gt;`, so child rows are ordinary `&lt;tr&gt;`s — column pin, resize, drag-reorder and `[wrTableCell]` templates all keep working at every depth. Open state reuses `[(expanded)]` and identity reuses `rowKey`. `treeColumn` picks which column carries the indent and chevron; without it the first rendered column does. `pageSize` pages the roots and the summary row aggregates every node, root and child alike. Selection is scoped to the rows ON SCREEN: the header checkbox sweeps what is rendered, so a collapsed subtree is left alone rather than silently selected, and expanding it first is what brings its children in. The table announces itself as a `treegrid` with `aria-level` / `aria-posinset` / `aria-setsize` per row. Three pairings are refused rather than half-supported: `groupBy` wins over `childrenKey`, since a group buckets a flat list and a forest has none; a projected `[wrTableExpand]` loses to tree rows, which already own the row&#39;s disclosure; and `virtualScroll` falls back to the full render, because expanding a parent re-anchors the window."
+    description="Set `childrenKey` and `items` become the roots. `rowKey` and `[(expanded)]` work as for expandable rows; `treeColumn` picks the indented column."
   >
     <ngwr-doc-code [code]="snippets.tree" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -355,9 +318,15 @@
         />
       </div>
     </ngwr-doc-snippet>
+    <ul>
+      <li><code>pageSize</code> pages the roots. Select all selects only the rows on screen.</li>
+      <li>
+        Tree rows do not combine with <code>groupBy</code>, <code>[wrTableExpand]</code> or <code>virtualScroll</code>.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Types" description="Data shapes used by the inputs and outputs above.">
+  <ngwr-doc-section title="Types">
     <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
     <ngwr-doc-api [rows]="typeRows" />
   </ngwr-doc-section>
@@ -366,11 +335,11 @@
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Templates" description="Projected templates the table renders in place of its defaults.">
+  <ngwr-doc-section title="Templates">
     <ngwr-doc-api [rows]="templatesApi" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Methods" description="Called on the component instance via a template reference.">
+  <ngwr-doc-section title="Methods" description="Call them through a template reference.">
     <ngwr-doc-api [rows]="methodsApi" />
   </ngwr-doc-section>
 

@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="Lightbox"
-  description="Image with click-to-zoom lightbox. Renders a thumbnail; clicking opens a full-size overlay viewer with backdrop, ESC + click-out to close."
+  description="An image that opens full size in an overlay when clicked."
   [keywords]="['lightbox', 'image', 'preview', 'zoom', 'wr-lightbox', 'wr-image']"
   [labels]="['Component', 'Standalone']"
 >
   <ngwr-doc-section
     title="Basic usage"
-    description="Click the image to open the lightbox. Escape, the backdrop, the × button — or the full image itself, which is styled `cursor: zoom-out` and has to mean it — all close it. The image is a redundant mouse affordance rather than a second tab stop, so nothing new lands in the keyboard path."
+    description="Click to open; Escape, the backdrop, the close button or the image itself closes it."
   >
     <ngwr-doc-snippet [code]="snippets.basic">
       <wr-lightbox [src]="landscape" alt="Mountain lake" aspectRatio="3 / 2" style="width: 18rem" />
@@ -15,14 +15,14 @@
 
   <ngwr-doc-section
     title="Separate thumbnail"
-    description="Provide a small `preview` URL for the thumbnail and a high-res `src` for the lightbox."
+    description="`preview` is the small thumbnail, `src` the full-size image."
   >
     <ngwr-doc-snippet [code]="snippets.preview">
       <wr-lightbox [src]="portrait" [preview]="portraitThumb" alt="Forest" aspectRatio="2 / 3" style="width: 12rem" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Caption" description="Optional caption rendered below the full image.">
+  <ngwr-doc-section title="Caption" description="`caption` shows under the full image.">
     <ngwr-doc-snippet [code]="snippets.caption">
       <wr-lightbox
         [src]="landscape"
@@ -35,10 +35,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Disable preview"
-    description="Setting `disablePreview` turns off the click-to-zoom behaviour — the image renders as a plain thumbnail."
-  >
+  <ngwr-doc-section title="Disable preview" description="`disablePreview` turns the zoom off and leaves a plain image.">
     <ngwr-doc-snippet [code]="snippets.disabled">
       <wr-lightbox
         [src]="portrait"

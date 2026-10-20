@@ -44,12 +44,9 @@ export default class CounterPageComponent {
     odometer: `<wr-counter [value]="123456" mode="odometer" />`,
     tween: `<wr-counter [value]="9.99" mode="tween" [decimals]="2" prefix="$" />`,
     minDigits: `<wr-counter [value]="42" [minIntegerDigits]="6" mode="odometer" />`,
-    countUp: `<!-- The spring path reads \`duration\` in SECONDS, not milliseconds, so it
-     needs its own value rather than the shared 1200ms default. -->
+    countUp: `<!-- With easing="spring", duration is in seconds. -->
 <wr-count-up [to]="1000" easing="spring" [duration]="2" trigger="visible" />`,
-    countDown: `<!-- \`direction="down"\` IS the swap — it reads \`to\` as the start and \`from\`
-     as the end — so the range is written the way up would write it. -->
-<wr-count-up [from]="0" [to]="60" direction="down" />`,
+    countDown: `<wr-count-up [from]="0" [to]="60" direction="down" />`,
   };
 
   protected readonly api = API.WrCounter;

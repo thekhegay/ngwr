@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="Transfer"
-  description="Dual listbox — two panes and the buttons that move rows between them. The RIGHT pane is the value."
+  description="Move items between two lists; the right one is the value."
   [keywords]="['transfer', 'dual listbox', 'picklist', 'shuttle', 'wr-transfer']"
   [labels]="['Component', 'Standalone']"
 >
   <ngwr-doc-section
     title="Basic usage"
-    description="`[items]` is the full set; `[(value)]` holds the values that ended up on the right, and everything else stays on the left. Ticking a row only stages it — the move commits when you press an arrow, so the value never contains a half-made choice. A `disabled` item can be neither ticked nor swept up by the header checkbox."
+    description="`[items]` is the full set and `[(value)]` the values on the right; ticked rows move when you press an arrow."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -21,7 +21,7 @@
 
   <ngwr-doc-section
     title="Search and titles"
-    description="`searchable` puts a filter above each pane; it narrows what you see, what the header checkbox sweeps and what an arrow commits, never what is already chosen. A row the filter hides stops counting as staged, so a move can only carry rows the pane is actually showing. `sourceTitle` / `targetTitle` name the panes — both fall back to the `ngwr/i18n` catalog, so they are localized without being set."
+    description="`searchable` adds a filter to each list; `sourceTitle` and `targetTitle` name them."
   >
     <ngwr-doc-code [code]="snippets.searchable" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -39,7 +39,7 @@
 
   <ngwr-doc-section
     title="In a form"
-    description="A Signal Forms native control — `[formField]` binds straight to `value`, with no `ControlValueAccessor` in between. `[(ngModel)]` and reactive forms keep working through Angular's bridge, and `(touch)` fires on every committed move so a bound field marks itself touched."
+    description="`[formField]` or [any Angular form](/guides/forms) binds the values on the right."
   >
     <ngwr-doc-code [code]="snippets.forms" language="angular-html" />
   </ngwr-doc-section>

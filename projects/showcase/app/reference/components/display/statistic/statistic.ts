@@ -39,13 +39,11 @@ export default class StatisticPageComponent {
   protected readonly countUpSnippet = `<wr-statistic label="Revenue" prefix="$" [value]="revenue()" [precision]="2" [delta]="delta()" />
 <wr-statistic label="Sessions" [value]="sessions()" />
 
-// numeric values count up from their previous value on every change.
 protected readonly revenue = signal(9512.4);
 protected readonly sessions = signal(48210);
 protected readonly delta = signal(12.4);
 
 constructor() {
-  // Live dashboard — randomize on a timer so the values keep counting.
   const id = setInterval(() => {
     this.revenue.set(Math.round(Math.random() * 5_000_00) / 100);
     this.sessions.set(Math.floor(Math.random() * 90_000));
@@ -125,7 +123,7 @@ protected readonly launchDate = new Date(Date.now() + 1000 * 60 * 60 * 36);`;
     },
     {
       name: '<wr-statistic-group>',
-      description: 'Responsive dashboard grid — reflows on its own width, not the viewport.',
+      description: 'Grid that reflows to its own width.',
       type: 'component',
       default: '—',
     },

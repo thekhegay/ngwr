@@ -86,13 +86,11 @@ export default class AvatarComponent {
 <wr-avatar url="/me.png" alt="Roman" shape="circle" />
 <wr-avatar url="/me.png" alt="Roman" shape="squircle" />`,
     initials: `<wr-avatar [size]="48" shape="circle">RK</wr-avatar>`,
-    initialsScale: `<!-- The text around each is 15px: the small ones cap it, 40px and up keep it. -->
-<wr-avatar shape="circle" [size]="16">ХР</wr-avatar>
+    initialsScale: `<wr-avatar shape="circle" [size]="16">ХР</wr-avatar>
 <wr-avatar shape="circle" [size]="24">ХР</wr-avatar>
 <wr-avatar shape="circle" [size]="40">ХР</wr-avatar>
 <wr-avatar shape="circle" size="6rem">ХР</wr-avatar>`,
-    initialsScaleCss: `/* A different share of the box, for one group of avatars. */
-.team .wr-avatar {
+    initialsScaleCss: `.team .wr-avatar {
   --wr-avatar-initials-scale: 0.3;
 }`,
     withImage: `<wr-avatar

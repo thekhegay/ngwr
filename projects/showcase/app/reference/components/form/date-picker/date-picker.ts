@@ -4,6 +4,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { WrButton } from 'ngwr/button';
 import { type WrDateRange, WrDatePicker, WrDateRangePicker } from 'ngwr/date-picker';
 import { WrFormError, WrFormField } from 'ngwr/form';
+import { WrKbd } from 'ngwr/keyboard';
 
 import {
   DocApiComponent,
@@ -25,6 +26,7 @@ import { API } from '#core/generated/api';
     WrFormField,
     WrFormError,
     WrButton,
+    WrKbd,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -48,7 +50,6 @@ export default class DatePickerPageComponent {
   protected readonly period = signal<WrDateRange | null>(null);
   protected readonly window = signal<WrDateRange | null>(null);
 
-  /** Reactive-forms demo — `formControlName` on the picker and on the range picker. */
   // Bound so the lint rule's unbound-method check stays satisfied.
   private readonly required = Validators.required.bind(Validators);
   protected readonly reactiveForm = new FormGroup({
@@ -76,23 +77,13 @@ export default class DatePickerPageComponent {
   [dateFilter]="isWeekday"
 />`,
 
-    refused: `<!-- Typed text the picker will not commit leaves the value alone, stays in the
-     field, and is shown as invalid on Enter or blur. inputError() holds the reason
-     while it is on show, so this message appears and clears with the border. Its
-     text is your catalog's validation.dateFormat ('Expected format: {{example}}'),
-     .minDate, .maxDate or .dateFilter — ngwr ships none of them. -->
-<wr-date-picker #dueField [(value)]="due" format="dd.MM.yyyy" [min]="today" />
+    refused: `<wr-date-picker #dueField [(value)]="due" format="dd.MM.yyyy" [min]="today" />
 
 @if (dueField.inputError(); as error) {
   <small>{{ error.message }}</small>
-}
+}`,
 
-<!-- Bound to a form, the same refusal is a parse error on the control from the
-     keystroke: { dateFormat: { example: '31.12.2026', … } }, { minDate: { min, … } },
-     { maxDate: { max, … } } or { dateFilter: { date, … } }. -->`,
-
-    time: `<!-- Time-only: HH:MM stepper with optional AM/PM -->
-<wr-date-picker mode="time" [(value)]="picked" />`,
+    time: `<wr-date-picker mode="time" [(value)]="picked" />`,
 
     time24: `<wr-date-picker mode="time" timeFormat="24h" [(value)]="picked" />`,
 
@@ -104,9 +95,7 @@ export default class DatePickerPageComponent {
   [(value)]="picked"
 />`,
 
-    datetime: `<!-- Date + time: calendar above, stepper below. Picking a date keeps the
-     overlay open so the user can set the time next. -->
-<wr-date-picker mode="datetime" [(value)]="when" />`,
+    datetime: `<wr-date-picker mode="datetime" [(value)]="when" />`,
 
     datetimeSeconds: `<wr-date-picker
   mode="datetime"
@@ -130,29 +119,17 @@ export class MyComponent {
   endPlaceholder="To"
 />`,
 
-    rangeDateTime: `<!-- One time stepper per end; picking dates keeps the overlay open. -->
-<wr-date-range-picker
+    rangeDateTime: `<wr-date-range-picker
   mode="datetime"
   timeFormat="24h"
   format="dd.MM.yyyy HH:mm"
   [(value)]="window"
 />`,
 
-    // The page carried no forms statement at all — not even the sentence the
-    // select and checkbox pages have — while the picker is needed in exactly
-    // the same forms. Verified against the library: `WrDatePicker` implements
-    // `FormValueControl<Date | null>` and `WrDateRangePicker`
-    // `FormValueControl<WrDateRange | null>`, so both bind through `value`.
-    forms: `<!-- Signal forms — the native path. -->
+    forms: `<!-- Signal Forms -->
 <wr-date-picker [formField]="form.due" />
 
-<!-- Reactive forms. No ControlValueAccessor exists in the library and none is
-     needed: Angular 22 binds the control's \`value\` model, relays its \`touch\`
-     output as markAsTouched(), and pushes \`disabled\` down from the control.
-     The control's value is a \`Date | null\` — the picker never emits a
-     half-typed date, so an unparseable field leaves the last valid one and
-     makes the control invalid with a \`dateFormat\` parse error until it is
-     corrected. -->
+<!-- Reactive forms -->
 <form [formGroup]="form">
   <wr-form-field label="Due date" required>
     <wr-date-picker formControlName="due" placeholder="Pick a date" />
@@ -160,10 +137,10 @@ export class MyComponent {
   </wr-form-field>
 </form>
 
-<!-- The range picker is the same control with a \`WrDateRange | null\` value. -->
+<!-- The range picker's value is WrDateRange | null. -->
 <wr-date-range-picker formControlName="period" />
 
-<!-- Template-driven — the same bridge. -->
+<!-- ngModel -->
 <wr-date-picker [(ngModel)]="due" name="due" />`,
     formsTs: `import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
@@ -187,8 +164,7 @@ export class MyComponent {
   protected readonly rangeApi: readonly DocApiRow[] = [
     {
       name: 'value',
-      description:
-        'The picked range as `[start, end]`. Either end may be `null` while half-picked; out-of-order ends are swapped on commit.',
+      description: 'The range as `[start, end]`. An end is `null` until picked; ends in the wrong order are swapped.',
       type: 'WrDateRange | null',
       default: 'null',
     },
@@ -200,8 +176,7 @@ export class MyComponent {
     },
     {
       name: 'format',
-      description:
-        'Display + parse format for both ends. When omitted, derived from `mode` (`shortDate` / `shortDateTime`).',
+      description: 'Format for both ends. Defaults to `shortDate` or `shortDateTime`, by `mode`.',
       type: 'WrDateFormat | string | null',
       default: 'null',
     },
@@ -210,14 +185,13 @@ export class MyComponent {
     { name: 'separator', description: 'Glyph rendered between the two inputs.', type: 'string', default: "'–'" },
     {
       name: 'minDate',
-      description:
-        'Earliest selectable date, both ends. Named `minDate` because signal forms reserve `min` for the value type — here a range.',
+      description: 'Earliest selectable date, for both ends. Not `min`, unlike `<wr-date-picker>`.',
       type: 'Date | null',
       default: 'null',
     },
     {
       name: 'maxDate',
-      description: 'Latest selectable date, both ends.',
+      description: 'Latest selectable date, for both ends.',
       type: 'Date | null',
       default: 'null',
     },
@@ -244,14 +218,13 @@ export class MyComponent {
     {
       name: 'panelAriaLabel',
       description:
-        'Accessible name of the popup. The trigger advertises `aria-haspopup="dialog"`, so the pane is a `role="dialog"` — and an unnamed dialog announces as a bare “dialog”. Defaults to the catalog’s `datePicker.panelRange*` string for the current `mode`.',
+        'Accessible name of the popup. Defaults to the catalog’s `datePicker.panelRange*` string for the `mode`.',
       type: 'string | null',
       default: 'null',
     },
     {
       name: 'panelClass',
-      description:
-        'Extra classes for the calendar panel’s overlay pane. The pane is appended to the overlay container rather than to this component, so nothing in your own template encloses it and no descendant rule written around the trigger can reach it — this input is the only per-instance handle on it. A space-separated string works as well as an array.',
+      description: 'Extra classes for the popup’s overlay pane, as a string or an array.',
       type: 'WrClassInput',
       default: 'null',
     },
@@ -263,8 +236,7 @@ export class MyComponent {
     },
     {
       name: 'readonly',
-      description:
-        'Read-only — neither the inputs nor the calendar can change the value, and the trigger does not open. Deliberately stricter than `<wr-date-picker>`, which does still open its popup: with two fields feeding one calendar there is no reading of &ldquo;untypeable&rdquo; that leaves the grid free to rewrite both ends.',
+      description: 'The value cannot change and the popup does not open. `<wr-date-picker>` still opens its popup.',
       type: 'boolean',
       default: 'false',
     },

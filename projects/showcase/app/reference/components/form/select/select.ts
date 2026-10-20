@@ -1,7 +1,6 @@
 import { JsonPipe } from '@angular/common';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 
 import { WrAvatar } from 'ngwr/avatar';
 import { WrButton } from 'ngwr/button';
@@ -24,7 +23,6 @@ import { API } from '#core/generated/api';
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    RouterLink,
     JsonPipe,
     WrSelect,
     WrOption,
@@ -88,15 +86,13 @@ export default class SelectComponent {
   </wr-option-group>
 </wr-select>`,
     disabled: `<wr-select placeholder="Disabled" disabled />`,
-    multi: `<!-- clearable is opt-in: without it the trigger has no clear-all (×). -->
-<wr-select mode="multi" clearable placeholder="Pick tags" [(value)]="tags">
+    multi: `<wr-select mode="multi" clearable placeholder="Pick tags" [(value)]="tags">
   <wr-option value="typescript">TypeScript</wr-option>
   <wr-option value="angular">Angular</wr-option>
   <wr-option value="rxjs">RxJS</wr-option>
   <wr-option value="signals">Signals</wr-option>
 </wr-select>`,
-    multiOverflow: `<!-- Four already selected and maxItems=4: a fifth pick does not commit. -->
-<wr-select mode="multi" [maxTagCount]="2" [maxItems]="4" [(value)]="manyTags">
+    multiOverflow: `<wr-select mode="multi" [maxTagCount]="2" [maxItems]="4" [(value)]="manyTags">
   <wr-option value="typescript">TypeScript</wr-option>
   <wr-option value="angular">Angular</wr-option>
   <wr-option value="rxjs">RxJS</wr-option>
@@ -106,7 +102,7 @@ export default class SelectComponent {
 </wr-select>`,
     tag: `<wr-select mode="tag" placeholder="Add a tag" [(value)]="freeTags" />
 
-<!-- With separators + validator + caps -->
+<!-- Custom separators, a validator and a cap -->
 <wr-select
   mode="tag"
   placeholder="Add email and press Enter or ,"
@@ -115,22 +111,13 @@ export default class SelectComponent {
   [validate]="isEmail"
   [maxItems]="5"
 />`,
-    // The page said "reactive forms keep working through Angular's bridge" and
-    // showed no example, next to a large claim that the library ships no
-    // `ControlValueAccessor` — so the honest reading was that `formControlName`
-    // would throw "No value accessor for form control". It does not: Angular 22
-    // binds a signal-forms control directly, through `value` / `valueChange`.
-    forms: `<!-- Signal forms — the native path. \`[formField]\` binds the field to
-     the component's own \`value\` model. -->
+    forms: `<!-- Signal Forms -->
 <wr-select [formField]="form.framework">
   <wr-option value="angular">Angular</wr-option>
   <wr-option value="react">React</wr-option>
 </wr-select>
 
-<!-- Reactive forms — no ControlValueAccessor anywhere, and none needed.
-     Angular 22 binds \`formControlName\` / \`[formControl]\` straight to the
-     control's \`value\` model, relays its \`touch\` output as markAsTouched(),
-     and writes \`disabled\` back down from the FormControl. -->
+<!-- Reactive forms -->
 <form [formGroup]="form">
   <wr-form-field label="Framework" required>
     <wr-select formControlName="framework" placeholder="Pick one">
@@ -141,7 +128,7 @@ export default class SelectComponent {
   </wr-form-field>
 </form>
 
-<!-- Template-driven — the same bridge. -->
+<!-- Template-driven -->
 <wr-select [(ngModel)]="framework" name="framework">…</wr-select>`,
     formsTs: `import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
@@ -157,15 +144,12 @@ export class MyComponent {
     framework: new FormControl<string | null>(null, Validators.required),
   });
 }`,
-    search: `<!-- clearable is opt-in: it paints the × and gates Backspace-to-clear. -->
-<wr-select mode="search" clearable placeholder="Search a country" [(value)]="country">
+    search: `<wr-select mode="search" clearable placeholder="Search a country" [(value)]="country">
   @for (c of countries; track c) {
     <wr-option [value]="c">{{ c }}</wr-option>
   }
 </wr-select>`,
-    leading: `<!-- The avatar is a TEMPLATE: nothing is created until the panel opens,
-     and only the selected value / chips draw one while it is closed. -->
-<wr-select placeholder="Assign to" [(value)]="assignee">
+    leading: `<wr-select placeholder="Assign to" [(value)]="assignee">
   @for (p of people; track p.id) {
     <wr-option [value]="p.id" [label]="p.name">
       <ng-template wrOptionLeading let-placement="placement">
@@ -176,19 +160,17 @@ export class MyComponent {
   }
 </wr-select>
 
-<!-- Search: the visual sits before the field while the field shows the label,
-     and steps aside while a query is on screen. Nothing else to wire. -->
+<!-- Search -->
 <wr-select mode="search" clearable placeholder="Search people" [(value)]="reviewer">
   @for (p of people; track p.id) { … the same options … }
 </wr-select>
 
-<!-- Multi: every selected chip draws its option's visual. -->
+<!-- Multi -->
 <wr-select mode="multi" searchable clearable placeholder="Add assignees" [(value)]="assignees">
   @for (p of people; track p.id) { … the same options … }
 </wr-select>
 
-<!-- Rows the select draws itself ([options], [loader], virtualScroll) take a
-     select-wide template — a direct child of <wr-select>. -->
+<!-- [options], [loader] and virtualScroll rows: a template directly in <wr-select>. -->
 <wr-select mode="search" virtualScroll [options]="people" [displayWith]="name">
   <ng-template wrOptionLeading let-person let-placement="placement">
     <wr-avatar shape="circle" [size]="avatarPx[placement]">{{ person.initials }}</wr-avatar>
@@ -199,17 +181,15 @@ import { WrOption, WrOptionLeading, type WrOptionLeadingPlacement, WrSelect } fr
 
 @Component({ imports: [WrSelect, WrOption, WrOptionLeading, WrAvatar] })
 export class AssigneePicker {
-  // One template, three surfaces — size it per placement.
+  // One template, three places: size it per placement.
   protected readonly avatarPx: Record<WrOptionLeadingPlacement, number> = { option: 24, value: 20, chip: 16 };
 }`,
-    searchableMulti: `<!-- searchable is orthogonal to mode — this is multi + typeahead. -->
-<wr-select mode="multi" searchable placeholder="Filter categories" [(value)]="categories">
+    searchableMulti: `<wr-select mode="multi" searchable placeholder="Filter categories" [(value)]="categories">
   @for (c of allCategories; track c) {
     <wr-option [value]="c">{{ c }}</wr-option>
   }
 </wr-select>`,
-    serverSearch: `<!-- Options live in the store; (searchChange) is the only wiring. -->
-<wr-select
+    serverSearch: `<wr-select
   mode="search"
   serverSearch
   placeholder="Search a country"
@@ -218,16 +198,11 @@ export class AssigneePicker {
   [(value)]="picked"
   (searchChange)="onSearch($event)"
 />`,
-    serverSearchTs: `// (searchChange) is debounced by [debounceMs] and fires on every settled
-// change — including '' when the field is cleared, so the store can reset.
+    serverSearchTs: `// Debounced by [debounceMs]; emits '' when the field is cleared.
 onSearch(query: string): void {
   this.store.dispatch(searchCountries({ query }));
-}
-
-// results()/pending() are plain store selectors.`,
-    virtual: `<!-- 5,000 options via the [options] data array + virtualScroll:
-     only ~one viewport of rows is ever in the DOM. -->
-<wr-select
+}`,
+    virtual: `<wr-select
   mode="search"
   virtualScroll
   placeholder="Search 5,000 items"
@@ -240,10 +215,7 @@ onSearch(query: string): void {
     <wr-option [value]="cat.id">{{ cat.name }}</wr-option>
   }
 </wr-select>`,
-    identityTs: `// The option matches when \`option.value === select.value\`, nothing more.
-
-// This never matches, and fails silently in both directions: the trigger shows
-// the placeholder, the form value stays {id: 2, …} and the form stays valid.
+    identityTs: `// Never matches: the trigger shows the placeholder, the form stays valid.
 const category = new FormControl<Category | null>(null);
 category.setValue({ id: 2, name: 'Laptops' });
 
@@ -350,8 +322,7 @@ categoryId.setValue(2);`,
   protected readonly outputsApi: readonly DocApiRow[] = [
     {
       name: '(searchChange)',
-      description:
-        "Debounced query, for server-side search. Fires on every settled change — including `''` when cleared, so a store can reset. `[minChars]` does not gate it.",
+      description: "Debounced query, for server-side search. Emits `''` when cleared; `[minChars]` does not gate it.",
       type: 'string',
       default: '—',
     },
@@ -380,8 +351,7 @@ categoryId.setValue(2);`,
     { name: 'disabled', description: 'Disable this option.', type: 'boolean', default: 'false' },
     {
       name: 'label',
-      description:
-        'What the select reports for this option — trigger, chip, chip remove label and search filter. Unset or empty, the option’s own text is used. The row’s accessible name stays the text it draws.',
+      description: 'What the trigger, chips and search use for this option. Defaults to the option’s text.',
       type: 'string | null',
       default: 'null',
     },
@@ -391,14 +361,13 @@ categoryId.setValue(2);`,
     {
       name: '[wrOptionLeading]',
       description:
-        'On an `<ng-template>` inside a `<wr-option>` (that option’s visual) or as a direct child of `<wr-select>` (the default for every row, and the only way to reach `[options]`, `[loader]` and virtual rows).',
+        'On an `<ng-template>` inside a `<wr-option>`, or directly in `<wr-select>` for every row, which `[options]`, `[loader]` and virtual rows need.',
       type: 'TemplateRef<WrOptionLeadingContext>',
     },
     { name: '$implicit', description: 'The option’s value — `let-value`.', type: 'T' },
     {
       name: 'placement',
-      description:
-        "Where this copy is drawn: `'option'` (a panel row), `'chip'` (a multi chip) or `'value'` (the selected value on a single-mode trigger — beside the label on a button trigger, before the input on a search-shaped one).",
+      description: "Where it is drawn: `'option'` (a panel row), `'chip'` (a multi chip) or `'value'` (the trigger).",
       type: "'option' | 'chip' | 'value'",
     },
   ];

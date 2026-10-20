@@ -1,5 +1,4 @@
 import { Component, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 import { WrRating } from 'ngwr/rating';
 
@@ -15,15 +14,7 @@ import { API } from '#core/generated/api';
 @Component({
   selector: 'ngwr-rating-page',
   templateUrl: './rating.html',
-  imports: [
-    RouterLink,
-    WrRating,
-    DocPageComponent,
-    DocSectionComponent,
-    DocSnippetComponent,
-    DocCodeComponent,
-    DocApiComponent,
-  ],
+  imports: [WrRating, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class RatingPageComponent {
   protected readonly basic = signal<number | null>(3);

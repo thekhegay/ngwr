@@ -134,41 +134,33 @@ export class AppRoot {
     basic: `const ref = manager.open(EditorComponent, {
   title: 'Untitled.md',
   size: 'md',
-  id: 'editor',                       // singleton: same id → same window
+  id: 'editor', // the same id reuses the open window
 });
 
 const result = await ref.afterClosed();`,
 
-    os: `manager.open(EditorComponent);                            // os: 'auto' (default)
-manager.open(EditorComponent, { os: 'macos' });
-manager.open(EditorComponent, { os: 'windows' });
-manager.open(EditorComponent, { os: 'linux' });`,
+    os: `manager.open(EditorComponent, { os: 'macos' }); // 'auto' | 'macos' | 'windows' | 'linux'`,
 
     persist: `manager.open(EditorComponent, {
-  id: 'editor',                              // stable id used by workspace save
+  id: 'editor',
   storage: {
-    key: 'editor',                           // wr:window:my-app:editor
+    key: 'editor',
     prefix: 'my-app',
-    persist: 'all',                          // 'position' | 'size' | 'all'
+    persist: 'all', // 'position' | 'size' | 'all'
   },
 });
 
-// Drop the persisted state when you need a fresh open:
+// Forget the saved geometry:
 manager.clearPersistedPosition({ key: 'editor', prefix: 'my-app' });`,
 
-    snap: `manager.open(EditorComponent, {
-  snap: 'all',  // drag to any edge to snap halves; corners give quarters
-});`,
+    snap: `manager.open(EditorComponent, { snap: 'all' });`,
 
-    taskbar: `<wr-window-taskbar />          <!-- bottom (default) -->
+    taskbar: `<wr-window-taskbar />
 <wr-window-taskbar position="top" />`,
 
-    workspace: `// snapshot every open window's geometry + state
-manager.saveLayout('default');
+    workspace: `manager.saveLayout('default');
 
-// later — for windows still open, geometry is re-applied in place. For
-// windows that were closed, the opener callback re-creates them and the
-// saved geometry is used as the seed instead of the cascade default.
+// The callback re-opens windows that are closed.
 manager.restoreLayout('default', (id, snap) => {
   if (id.startsWith('editor:')) {
     manager.open(EditorComponent, { id, title: snap.title });
@@ -177,11 +169,9 @@ manager.restoreLayout('default', (id, snap) => {
   }
 });
 
-// drop a snapshot
 manager.clearLayout('default');`,
 
-    refInside: `// Inside the projected component
-const ref = inject<WrWindowRef<MyComponent, MyResult>>(WR_WINDOW_REF);
+    refInside: `const ref = inject<WrWindowRef<MyComponent, MyResult>>(WR_WINDOW_REF);
 const data = inject<MyData>(WR_WINDOW_DATA);
 
 ref.beforeClose(async () => {
@@ -213,8 +203,7 @@ ref.close(savedDocId);`,
     {
       name: 'os',
       sub: true,
-      description:
-        "OS chrome preset. `'auto'` reads the user's platform from the browser and picks the right one (SSR-safe).",
+      description: "OS chrome preset. `'auto'` follows the user's platform.",
       type: "'auto' | 'macos' | 'windows' | 'linux'",
       default: "'auto'",
     },
@@ -228,20 +217,14 @@ ref.close(savedDocId);`,
     {
       name: 'chromeSize',
       sub: true,
-      description: 'Title-bar density. `sm` shrinks the bar + action dots for utility panels.',
+      description: 'Title-bar size.',
       type: "'sm' | 'md'",
       default: "'md'",
     },
     {
-      // `x` / `y` / `width` / `height` are READ-ONLY signals on the component,
-      // not bindings — the inputs that SEED them carry the `initial` prefix,
-      // and that is the half this row used to name. A static `x="40"` on
-      // `<wr-window>` is a legal HTML attribute on a custom element, so it
-      // compiled, landed on the host and positioned nothing.
       name: 'initialX / initialY / initialWidth / initialHeight',
       sub: true,
-      description:
-        'Explicit opening geometry in px. Read once, at open: the live `x` / `y` / `width` / `height` signals follow the user after that, so re-binding these does not move a window that is already on screen. Unset falls into the cascade.',
+      description: 'Opening geometry in px, read once at open. Unset uses the cascade.',
       type: 'number | null',
       default: 'null (cascade)',
     },
@@ -253,21 +236,17 @@ ref.close(savedDocId);`,
       default: '—',
     },
     {
-      // Both stay silent for a programmatic move or resize, and for the opening
-      // cascade: the caller already knows where it put the window. Documented
-      // here because the asymmetry reads as a missed event otherwise.
       name: '(moved)',
       sub: true,
       description:
-        'Fires ONCE when a header drag ends — on `pointerup` or `pointercancel` — with the window’s final position, not once per pointer move: a host persisting the position wants the landing, not the path. Silent for `moveTo()`, `center()` and the opening cascade, where the caller already knows where it put the window.',
+        'Fires once when a header drag ends, with the final position. Silent for `moveTo()`, `center()` and the opening cascade.',
       type: '{ x: number; y: number }',
       default: '—',
     },
     {
       name: '(resized)',
       sub: true,
-      description:
-        'The same shape for a resize handle: once, at the end of the drag, with the final box. It also fires when a header drag SNAPS the window to an edge, which resizes it — that is a user action with a landing, the same as a drag. Silent for a programmatic resize.',
+      description: 'Fires once when a resize or an edge snap ends, with the final size. Silent for `resizeTo()`.',
       type: '{ width: number; height: number }',
       default: '—',
     },
@@ -295,15 +274,14 @@ ref.close(savedDocId);`,
     {
       name: 'showMinimize / showMaximize',
       sub: true,
-      description:
-        'Render the corresponding chrome action. Omit to follow the chrome — every OS but Linux shows both, and the Linux preset is close-only by convention. Pass `true` to override that, which is what a Linux user needs before a window can reach the taskbar.',
+      description: 'Show that chrome action. By default every OS but Linux shows both.',
       type: 'boolean',
       default: 'per-OS',
     },
     {
       name: 'showClose',
       sub: true,
-      description: 'Render the close action. Not per-OS — every chrome closes.',
+      description: 'Show the close action.',
       type: 'boolean',
       default: 'true',
     },
@@ -324,7 +302,7 @@ ref.close(savedDocId);`,
     {
       name: 'animations',
       sub: true,
-      description: 'Open-fade + state transitions. Auto-disabled by `prefers-reduced-motion`.',
+      description: 'Open and state transitions. Off under `prefers-reduced-motion`.',
       type: 'boolean',
       default: 'true',
     },
@@ -345,8 +323,7 @@ ref.close(savedDocId);`,
     {
       name: 'panelClass',
       sub: true,
-      description:
-        'Extra classes on the overlay pane. The pane is a mount point — the chrome is `.wr-window` inside it.',
+      description: 'Extra classes on the overlay pane. The chrome is `.wr-window` inside it.',
       type: 'WrClassInput',
       default: '—',
     },
@@ -362,8 +339,7 @@ ref.close(savedDocId);`,
   protected readonly managerApi: readonly DocApiRow[] = [
     {
       name: 'WrWindowManager',
-      description:
-        'Singleton service — the only entry point for `<wr-window>`. Owns the stack, taskbar list, and workspace save.',
+      description: 'Opens windows and owns the stack, the taskbar list and saved layouts.',
       type: 'service',
       default: '—',
     },
@@ -418,16 +394,14 @@ ref.close(savedDocId);`,
     },
     {
       name: 'readLayout(name)',
-      description:
-        'Read a saved workspace without opening it — `null` when no snapshot is stored under that name. What `restoreLayout` reads, exposed so a host can check before it asks.',
+      description: 'Read a saved layout without applying it. `null` when none is saved.',
       type: '(name: string) => readonly WrWindowLayoutSnapshot[] | null',
       default: '—',
     },
     {
       name: 'restoreLayout(name, open?)',
       sub: true,
-      description:
-        'Apply a saved workspace by `id`. Matching open windows get geometry re-applied in place. For missing windows, the optional `open` callback is invoked to re-create them — they seed at the saved coords (no cascade flicker).',
+      description: 'Apply a saved layout by `id`. The `open` callback re-creates windows that are closed.',
       type: '(name, open?: (id, snap) => void) => void',
       default: '—',
     },

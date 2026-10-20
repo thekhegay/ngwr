@@ -1,17 +1,17 @@
 <ngwr-doc-page
   title="File Upload"
-  description="Drag-and-drop zone with click-to-browse and an optional file list. Value type is `File | readonly File[] | null`. Rejected files surface through the `(rejected)` output."
+  description="Pick files by dropping them on a zone or browsing."
   [keywords]="['file', 'upload', 'drop zone', 'wr-file-upload']"
   [labels]="['Signal Forms']"
 >
-  <ngwr-doc-section title="Single file" description="Default mode — last accepted file wins.">
+  <ngwr-doc-section title="Single file" description="The value is the last accepted `File`, or `null`.">
     <ngwr-doc-code [code]="snippets.single" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-file-upload [(value)]="single" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Multiple files" description="`multiple` enables additive selection; `maxFiles` caps it.">
+  <ngwr-doc-section title="Multiple files" description="`multiple` makes the value a `File[]`; `maxFiles` caps it.">
     <ngwr-doc-code [code]="snippets.multi" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-file-upload [(value)]="multi" [multiple]="true" [maxFiles]="5" />
@@ -20,7 +20,7 @@
 
   <ngwr-doc-section
     title="Constrained"
-    description="`accept` filters by extension or MIME; `maxSize` enforces a per-file byte cap. Rejected files come through `(rejected)`."
+    description="`accept` and `maxSize` (bytes) filter files; the rest arrive in `(rejected)`."
   >
     <ngwr-doc-code [code]="snippets.constrained" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -39,7 +39,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Types" description="Data shapes used by the inputs and outputs above.">
+  <ngwr-doc-section title="Types">
     <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
     <ngwr-doc-api [rows]="typeRows" />
   </ngwr-doc-section>

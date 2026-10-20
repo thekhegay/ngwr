@@ -48,10 +48,10 @@ export default class TransferComponent {
   [items]="permissions"
   [(value)]="granted"
 />`,
-    forms: `<!-- Signal Forms — the value is the right pane -->
+    forms: `<!-- Signal Forms -->
 <wr-transfer [items]="permissions" [formField]="form.granted" />
 
-<!-- Classic reactive forms keep working through Angular's bridge -->
+<!-- Reactive forms -->
 <wr-transfer [items]="permissions" [formControl]="granted" />`,
   };
 

@@ -1,10 +1,10 @@
 <ngwr-doc-page
   title="Knob"
-  description="Radial dial input. A signal-forms native control: the value is a `number`, snapped to `step` and clamped to `[min, max]`. Drag around the dial or use arrow keys (Shift = ×10); Home / End jump to the ends."
+  description="Pick a number by turning a dial."
   [keywords]="['knob', 'dial', 'wr-knob']"
   [labels]="['Signal Forms']"
 >
-  <ngwr-doc-section title="Basic">
+  <ngwr-doc-section title="Basic" description="Bind a number with `[(value)]` or [any Angular form](/guides/forms).">
     <ngwr-doc-code [code]="snippet" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: center">
@@ -16,7 +16,7 @@
 
   <ngwr-doc-section
     title="Size and stroke"
-    description="`size` is the dial's diameter in px (floored at 32) and `strokeWidth` the thickness of the arc. Both are plain numbers rather than CSS lengths, because the SVG geometry is computed from them."
+    description="`size` is the diameter and `strokeWidth` the arc thickness, both numbers in px."
   >
     <ngwr-doc-code [code]="sizeSnippet" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -30,7 +30,7 @@
 
   <ngwr-doc-section
     title="Without the readout"
-    description="Binding `showValue` to false hides the number in the middle and leaves the arc. The value is still announced — it lives on the dial's `aria-valuenow`, not in the text — so this is a visual choice rather than an accessibility one. Give the knob an `ariaLabel` either way; with no readout there is nothing on screen naming it."
+    description='`[showValue]="false"` hides the number; give the knob an `ariaLabel`.'
   >
     <ngwr-doc-code [code]="noValueSnippet" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -40,7 +40,7 @@
 
   <ngwr-doc-section
     title="Read-only and disabled"
-    description="Tab through both. A READ-ONLY dial keeps its tab stop and keeps announcing its value through `aria-readonly`; it only refuses the drag and the arrows. A DISABLED one leaves the tab order altogether. The distinction matters on a form that shows a computed figure beside the ones you can set."
+    description="Read-only keeps its tab stop and refuses changes; disabled leaves the tab order."
   >
     <ngwr-doc-code [code]="statesSnippet" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -50,6 +50,11 @@
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Keyboard"
+    description="Arrows move one step, Shift + arrow ten steps, Home / End jump to the ends."
+  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

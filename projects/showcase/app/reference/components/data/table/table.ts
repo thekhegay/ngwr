@@ -1,4 +1,5 @@
 import { Component, computed, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
@@ -129,6 +130,7 @@ const WIDE_ROWS: readonly Record<string, unknown>[] = [
   selector: 'ngwr-table-page',
   templateUrl: './table.html',
   imports: [
+    RouterLink,
     WrTable,
     WrTableCell,
     WrTableExpand,
@@ -164,9 +166,7 @@ export default class TablePageComponent {
     return sortRows(roles.length === 0 ? [...RAW_ROWS] : RAW_ROWS.filter(r => roles.includes(r.role)), this.sort());
   });
 
-  // One column with BOTH controls — the header arrangement no other demo on
-  // this page builds, and the only one WCAG 2.5.8 measures: two adjacent
-  // targets in one `.wr-table__th-inner`.
+  // One column with both a sort and a filter.
   protected readonly bothColumns: WrTableColumns = {
     name: { title: 'Name', sortable: true },
     email: { title: 'Email' },
@@ -280,8 +280,7 @@ export default class TablePageComponent {
     <wr-tag [color]="value === 'admin' ? 'danger' : 'info'">{{ value }}</wr-tag>
   </ng-template>
 </wr-table>`,
-    sortAndFilter: `// Nothing special to opt into: put both keys on the one column.
-const columns: WrTableColumns = {
+    sortAndFilter: `const columns: WrTableColumns = {
   name: { title: 'Name', sortable: true },
   email: { title: 'Email' },
   role: {
@@ -296,22 +295,10 @@ const columns: WrTableColumns = {
 };
 
 <wr-table [columns]="columns" [items]="rows()" [(sort)]="sort" (filterChange)="onFilter($event)" />`,
-    cellContext: `<!-- The cell template's context is \`WrTableCellContext\`: three names,
-     and only the first is implicit.
-
-       let-value             the cell value — item[columnKey]
-       let-row="item"        the WHOLE row object
-       let-col="column"      that column's own definition (title, width, …)
-
-     \`let-row\` alone binds \`$implicit\`, i.e. the value again — the row needs
-     the explicit \`="item"\`. -->
-<ng-template wrTableCell="role" let-value let-row="item" let-col="column">
+    cellContext: `<ng-template wrTableCell="role" let-value let-row="item" let-col="column">
   {{ col.title }}: {{ value }} — {{ row.email }}
 </ng-template>`,
-    rowActions: `// A column whose cells are buttons: give it a key of its own and no
-// title-bearing data behind it. \`let-row="item"\` is what the handler needs —
-// the cell value for an action column is \`undefined\`, and that is fine.
-const columns: WrTableColumns = {
+    rowActions: `const columns: WrTableColumns = {
   name: { title: 'Name' },
   email: { title: 'Email' },
   actions: { title: '', width: 96 },
@@ -322,30 +309,23 @@ const columns: WrTableColumns = {
     <wr-btn size="sm" color="danger" outlined (click)="remove(row)">Delete</wr-btn>
   </ng-template>
 </wr-table>`,
-    states: `<!-- Two states are built in. \`[loading]\` draws the spinner overlay;
-     \`items\` that is empty (or null) draws the empty row, whose copy is
-     \`emptyLabel\` — or the \`table.empty\` i18n key when you leave it unset. -->
-<wr-table [columns]="columns" [items]="rows()" [loading]="loading()" emptyLabel="No users yet" />
+    states: `<wr-table [columns]="columns" [items]="rows()" [loading]="loading()" emptyLabel="No users yet" />
 
-<!-- There is deliberately NO error input. A failed request is the page's
-     state, not the table's, so render it beside the table and pass the empty
-     list through: -->
+<!-- An error goes beside the table. -->
 @if (error(); as message) {
   <wr-alert type="danger" title="Could not load users" [message]="message" />
 }
 <wr-table [columns]="columns" [items]="rows()" [loading]="loading()" />`,
     paginated: `<wr-table [columns]="columns" [items]="rows" [pageSize]="5" [(page)]="page" />`,
-    sortState: `// The table writes \`sort\` and reads nothing back from your rows. Sorting
-// them is yours — this is the comparator the demo above runs.
-protected readonly sort = signal<readonly WrTableSortState[]>([]);
+    sortState: `protected readonly sort = signal<readonly WrTableSortState[]>([]);
 
 protected readonly rows = computed(() => {
   const rules = this.sort();
   if (rules.length === 0) return this.source();
 
   return [...this.source()].sort((a, b) => {
-    for (const { key, direction } of rules) {   // array order = application order
-      if (!direction) continue;                 // a header cycled back to "off"
+    for (const { key, direction } of rules) {
+      if (!direction) continue;
       const cmp = String(a[key] ?? '').localeCompare(String(b[key] ?? ''));
       if (cmp !== 0) return direction === 'asc' ? cmp : -cmp;
     }
@@ -353,15 +333,12 @@ protected readonly rows = computed(() => {
   });
 });
 
-// Server-side, the same array becomes query parameters — still no client sort.
+// Server-side, send it with the request instead.
 effect(() => {
   const [primary] = this.sort();
   this.load({ sortBy: primary?.key, order: primary?.direction });
 });`,
-    serverHtml: `<!-- \`[total]\` switches the pager to server mode; \`[pageSize]\` still has to
-     be there or no pager renders at all. \`page\` is a model, so the output
-     it publishes is \`(pageChange)\`. -->
-<wr-table
+    serverHtml: `<wr-table
   [columns]="columns"
   [items]="pageRows()"
   [total]="total()"
@@ -370,15 +347,10 @@ effect(() => {
   (pageChange)="onPage($event)"
   [(sort)]="sort"
 />`,
-    serverTs: `// The handler. Nothing is sliced for you — you fetch the window you were asked for.
-protected onPage(page: number): void {
+    serverTs: `protected onPage(page: number): void {
   this.page.set(page);
-  this.load();                 // limit: 20, skip: (page - 1) * 20
-}
-
-// Two-way binding works just as well when the page number is your own state:
-//   <wr-table [total]="total()" [pageSize]="20" [(page)]="page" />
-// …with an effect on \`page\` issuing the request.`,
+  this.load(); // limit: 20, skip: (page - 1) * 20
+}`,
     pinned: `const columns: WrTableColumns = {
   name:   { title: 'Name', pin: 'left' },
   email:  { title: 'Email' },
@@ -439,9 +411,7 @@ protected onPage(page: number): void {
   [columns]="columns"
   [items]="rows"
 />`,
-    tree: `<!-- \`childrenKey\` names the child array; \`items\` becomes the roots.
-     Open state reuses \`[(expanded)]\` and identity reuses \`rowKey\`. -->
-<wr-table
+    tree: `<wr-table
   rowKey="id"
   childrenKey="reports"
   treeColumn="name"
@@ -470,30 +440,27 @@ protected onPage(page: number): void {
     },
     {
       name: '[wrTableCell]',
-      description:
-        'Per-column cell template. The attribute value is the column key it overrides; import `WrTableCell`. Its context is `WrTableCellContext` — three names, listed below.',
+      description: 'Per-column cell template. The attribute value is the column key; import `WrTableCell`.',
       type: 'directive',
       default: '—',
     },
     {
       name: 'let-value',
-      description: 'The cell value, `item[columnKey]`. The implicit context member, so the name is yours to pick.',
+      description: 'The cell value, `item[columnKey]`.',
       type: 'unknown',
       default: '—',
       sub: true,
     },
     {
       name: 'let-row="item"',
-      description:
-        'The whole row object. Needs the explicit `="item"` — a bare `let-row` binds the implicit value instead. This is what a row-action button reads.',
+      description: 'The whole row. A bare `let-row` binds the cell value instead.',
       type: 'Record<string, unknown>',
       default: '—',
       sub: true,
     },
     {
       name: 'let-col="column"',
-      description:
-        'That column’s own definition — `title`, `width`, `pin`, `summary`, and the rest of `WrTableColumn`.',
+      description: 'The column definition.',
       type: 'WrTableColumn',
       default: '—',
       sub: true,

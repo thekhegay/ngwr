@@ -1,6 +1,5 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 
 import { WrInput, WrInputGroup, WrInputPrefix, WrInputSuffix, WrPasswordToggle } from 'ngwr/input';
 import { NgxMaskDirective } from 'ngx-mask';
@@ -20,7 +19,6 @@ import {
   templateUrl: './input.html',
   imports: [
     FormsModule,
-    RouterLink,
     NgxMaskDirective,
     WrInput,
     WrInputGroup,
@@ -66,19 +64,13 @@ export default class InputComponent {
   <wr-password-toggle [for]="pwInput" />
 </wr-input-group>`,
 
-    maskSetup: `// Provide it at bootstrap once (pass overrides for global defaults):
-import { provideEnvironmentNgxMask } from 'ngx-mask';
+    maskSetup: `import { provideEnvironmentNgxMask } from 'ngx-mask';
 
 bootstrapApplication(AppComponent, {
-  providers: [
-    provideEnvironmentNgxMask({
-      thousandSeparator: ',',
-      decimalMarker: '.',
-    }),
-  ],
+  providers: [provideEnvironmentNgxMask({ thousandSeparator: ',', decimalMarker: '.' })],
 });
 
-// 3. Import the directive in any standalone component:
+// In a component:
 import { NgxMaskDirective } from 'ngx-mask';
 
 @Component({
@@ -113,7 +105,7 @@ export class MyForm {}`,
   protected readonly directiveApi: readonly DocApiRow[] = [
     {
       name: 'wrInput',
-      description: 'Selector. Applies NGWR input styling to a native `<input>` or `<textarea>`.',
+      description: 'Styles a native `<input>` or `<textarea>`.',
       type: 'attribute',
       default: '—',
     },
@@ -124,7 +116,7 @@ export class MyForm {}`,
   protected readonly groupApi: readonly DocApiRow[] = [
     {
       name: 'wr-input-group',
-      description: 'Wrapper for the input + prefix/suffix/toggle siblings.',
+      description: 'Wraps the input with its affixes or toggle.',
       type: 'component',
       default: '—',
     },
@@ -134,13 +126,13 @@ export class MyForm {}`,
   protected readonly affixApi: readonly DocApiRow[] = [
     {
       name: '[wrInputPrefix]',
-      description: 'Marks an element as the affix before the input in reading order — left in LTR, right in RTL.',
+      description: 'The affix before the input: left in LTR, right in RTL.',
       type: 'attribute',
       default: '—',
     },
     {
       name: '[wrInputSuffix]',
-      description: 'Marks an element as the affix after the input in reading order — right in LTR, left in RTL.',
+      description: 'The affix after the input: right in LTR, left in RTL.',
       type: 'attribute',
       default: '—',
     },
@@ -150,14 +142,13 @@ export class MyForm {}`,
     { name: 'for', description: 'The linked password `<input>` reference.', type: 'HTMLInputElement', required: true },
     {
       name: 'showLabel',
-      description:
-        'Accessible name while the password is hidden — the button is icon-only. Falls back to the input.showPassword catalog key.',
+      description: 'Accessible name while the password is hidden. Defaults to the `input.showPassword` catalog key.',
       type: 'string | null',
       default: 'null',
     },
     {
       name: 'hideLabel',
-      description: 'Accessible name while the password is revealed. Falls back to the input.hidePassword catalog key.',
+      description: 'Accessible name while the password is shown. Defaults to the `input.hidePassword` catalog key.',
       type: 'string | null',
       default: 'null',
     },

@@ -66,21 +66,20 @@ export class BuildStatus {}`,
   protected readonly tagApi: readonly DocApiRow[] = [
     {
       name: 'color',
-      description:
-        'Intent colour — decoration or category. The label carries the state; see above. `null` paints the neutral gray.',
+      description: 'Intent colour. `null` is neutral gray.',
       type: 'WrColor | null',
       default: "'primary'",
     },
     {
       name: 'icon',
-      description: 'Icon rendered beside the label — the channel when a tag stands for a status on its own.',
+      description: 'Icon beside the label.',
       type: 'WrIconName | null',
       default: 'null',
     },
     { name: 'iconPosition', description: 'Which side the icon sits on.', type: `'start' | 'end'`, default: "'start'" },
     {
       name: 'outlined',
-      description: 'Coloured text and a soft ring on a 6% tint — the fill is what a tag keeps and a badge drops.',
+      description: 'Coloured text and ring on a light tint.',
       type: 'boolean',
       default: 'false',
     },

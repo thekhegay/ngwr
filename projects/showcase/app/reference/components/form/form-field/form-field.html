@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="Form Field"
-  description="The default wrapper for a form control: label + control + hint + validation errors. It reads the projected control's `NgControl`, so it decides for itself when to show an error (touched or dirty) and which message to show. `<wr-form-item>` is the bare alternative — layout only, no knowledge of the control — and has its own page."
+  description="Wraps a form control with a label, a hint and its error messages."
   [keywords]="['form field', 'label', 'hint', 'error', 'wr-form-field']"
   [labels]="['Component', 'Standalone']"
 >
   <ngwr-doc-section
     title="Basic usage"
-    description="Each `<wr-form-error>` is gated on the matching validator key. Errors appear once the control is touched or dirty — submit to see them all at once."
+    description="Add one `<wr-form-error key>` per validator; errors show once the control is touched or dirty."
   >
     <ngwr-doc-snippet [code]="snippets.basic">
       <form
@@ -32,7 +32,7 @@
 
   <ngwr-doc-section
     title="Messages without markup"
-    description="ngwr ships no validation copy. For an error no `<wr-form-error key>` claims, the field shows the validator's own `{ message }`, else `validation.<key>` from your app's i18n catalog. With neither, nothing renders for that key, and dev mode warns once per field and key. This demo projects no markup and passes no messages, so what it shows is this site's own catalog. Submit to see it."
+    description="Without `<wr-form-error>`, the field shows the rule's `{ message }`, else `validation.<key>` from your i18n catalog, else nothing."
   >
     <ngwr-doc-snippet [code]="snippets.auto">
       <form
@@ -55,26 +55,26 @@
 
   <ngwr-doc-section
     title="A message on the validator"
-    description="Signal Forms rules take `{ message }`, and the field renders it as written, so the sentence lives beside the rule it explains. A custom validator does the same by putting a `message` string on its error object."
+    description="Signal Forms rules take `{ message }`. A custom validator puts a `message` string on its error."
   >
     <ngwr-doc-code [code]="snippets.message" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="A message in your catalog"
-    description="A `validation.<key>` entry answers that error on every field, in every locale you load. The error payload fills the placeholders, and Signal Forms' `minLength` / `maxLength` read the `minlength` / `maxlength` entries, with the bound as `requiredLength`."
+    description="A `validation.<key>` entry covers that error on every field; `minLength` and `maxLength` read the `minlength` and `maxlength` keys."
   >
     <ngwr-doc-code [code]="snippets.catalog" language="typescript" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="A message in the markup"
-    description="A projected `<wr-form-error key>` claims its key on that one field and wins over both of the above. The keys it does not claim keep resolving."
+    description="`<wr-form-error key>` wins for its key on that field. Other keys still resolve."
   >
     <ngwr-doc-code [code]="snippets.markup" language="angular-html" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Optional marker" description="Use `optional` for the inverse — fields users can skip.">
+  <ngwr-doc-section title="Optional marker" description="`optional` marks a field users can skip.">
     <ngwr-doc-snippet [code]="snippets.optional">
       <form [formGroup]="form" style="max-width: 24rem">
         <wr-form-field label="Bio" optional hint="Up to 140 characters.">
@@ -85,32 +85,10 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="`required` is a marker, not a validator — and it is not automatic"
-    description="`<wr-form-field required>` draws the asterisk beside the label. It adds no validator, and no validator adds it: nothing on the FormControl reaches back to set it."
+    title="Required marker"
+    description="`required` only draws the asterisk. It adds no validator, and a validator does not set it: write both."
   >
-    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
-      This is the one place the two halves of a field have to be kept in step by hand.
-      <code>Validators.required</code> on a <code>FormControl</code> reaches an ngwr control as nothing at all — not a
-      <code>required</code> attribute, and not <code>aria-required</code>. Angular 22's bridge does offer
-      <code>required</code> to a control, but it lands only where the control declares an input of that name, and an
-      ngwr control declares exactly two: <code>disabled</code> and <code>readonly</code>. So
-      <strong>write the validator and the marker together</strong>, or a screen reader is told the field is optional
-      while the form refuses to submit without it. The same is true of a signal-forms <code>required()</code> rule.
-    </p>
-
     <ngwr-doc-code [code]="snippets.requiredPair" language="angular-html" />
-
-    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
-      The states that <em>do</em> reach the control, and the ones this component renders on their behalf, are listed on
-      <a routerLink="/guides/forms">the reactive-forms guide</a>. In short: this component reads <code>touched</code>,
-      <code>dirty</code> and <code>errors</code> off the projected <code>NgControl</code> and owns everything it draws
-      from them — the message, the <code>wr-form-field--invalid</code> class and the <code>aria-invalid</code> /
-      <code>aria-describedby</code> pair — because the control itself is never told about any of them.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Behavior notes">
-    <ngwr-doc-code [code]="snippets.notes" language="html" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

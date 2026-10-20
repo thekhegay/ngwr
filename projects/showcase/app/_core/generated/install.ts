@@ -193,7 +193,7 @@ export const INSTALL = {
       { path: "ngwr/descriptions", symbols: ["WrDescriptionItem", "WrDescriptions"], declarables: ["WrDescriptionItem", "WrDescriptions"], styled: true },
   ],
   "reference/components/dialog": [
-      { path: "ngwr/dialog", symbols: ["WR_DIALOG_DATA", "WrDialog", "WrDialogClose", "WrDialogContent", "WrDialogFooter", "WrDialogRef", "WrDialogTitle"], declarables: ["WrDialogClose", "WrDialogContent", "WrDialogFooter", "WrDialogTitle"], styled: true },
+      { path: "ngwr/dialog", symbols: ["WR_DIALOG_DATA", "WrDialog", "WrDialogClose", "WrDialogContent", "WrDialogFooter", "WrDialogTitle"], declarables: ["WrDialogClose", "WrDialogContent", "WrDialogFooter", "WrDialogTitle"], styled: true },
   ],
   "reference/components/divider": [
       { path: "ngwr/divider", symbols: ["WrDivider"], declarables: ["WrDivider"], styled: true },

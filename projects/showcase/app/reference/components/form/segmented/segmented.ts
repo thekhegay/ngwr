@@ -88,8 +88,7 @@ export class ScheduleComponent {
   protected readonly typeRows: readonly DocApiRow[] = [
     {
       name: 'ariaLabel',
-      description:
-        'Accessible name for an icon-only option. Without a `label` the button has no text at all, so assistive tech announced nothing; omitted, the option&rsquo;s `value` is the last resort.',
+      description: 'Accessible name for an icon-only option. Falls back to `value`.',
       type: 'string',
       default: '—',
     },

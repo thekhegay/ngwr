@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 
 import { WrSlider } from 'ngwr/slider';
 
@@ -10,15 +9,7 @@ import { API } from '#core/generated/api';
 @Component({
   selector: 'ngwr-slider-page',
   templateUrl: './slider.html',
-  imports: [
-    FormsModule,
-    RouterLink,
-    WrSlider,
-    DocPageComponent,
-    DocSectionComponent,
-    DocSnippetComponent,
-    DocApiComponent,
-  ],
+  imports: [FormsModule, WrSlider, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocApiComponent],
 })
 export default class SliderPageComponent {
   protected volume = 35;

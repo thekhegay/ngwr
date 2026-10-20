@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Badge"
-  description="Small status indicator with color variants and optional pill shape. Reach for `<wr-tag>` (in the same entry) when you need a richer label — icons, loading state, outlined / transparent styles."
+  description="A small label for a count or a status."
   [keywords]="['badge', 'tag', 'status', 'wr-badge', 'wr-tag']"
   [labels]="['Component', 'Standalone']"
 >
@@ -26,10 +26,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Shape"
-    description="`rounded` (default) keeps the small form-radius, `pill` rounds the ends fully, and `squircle` takes the iOS-style smooth corner where `corner-shape` is supported."
-  >
+  <ngwr-doc-section title="Shape" description="`shape` is `rounded` (default), `pill` or `squircle`.">
     <ngwr-doc-snippet [code]="snippets.shape">
       <div style="display: flex; flex-direction: column; gap: 0.75rem">
         @for (s of shapes; track s) {
@@ -44,7 +41,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Outlined" description="Transparent fill with a colored ring and text.">
+  <ngwr-doc-section title="Outlined" description="`outlined` drops the fill and keeps a coloured ring.">
     <ngwr-doc-snippet [code]="snippets.outlined">
       @for (c of colors; track c) {
         <wr-badge [color]="c" outlined>{{ c }}</wr-badge>
@@ -53,8 +50,8 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Tag — icons + loading"
-    description="`<wr-tag>` is the richer sibling. Same entry (`ngwr/badge`), but supports icons, loading state, and outlined / transparent variants."
+    title="Tag"
+    description="`<wr-tag>`, also from `ngwr/badge`, adds `icon`, `loading` and `transparent`."
   >
     <ngwr-doc-code [code]="snippets.tag" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -68,7 +65,7 @@
 
   <ngwr-doc-section
     title="Colour is not a label"
-    description="Four of the five intents are the same lightness — `success` against `danger` is 1.004:1 — so to a reader who cannot separate red from green a success tag and a danger tag are the same chip, and `primary` and `info` are the same blue to everyone. So the colour of a tag or a badge is decoration or category, and the words carry the state: write `Failed`, not a red `Build`. When a tag has to stand for a status on its own, give it an `icon` as well. Nothing ships built in, so register the icons you use; a badge has no icon, so its label has to do all of it."
+    description="Write the state in the label (`Failed`, not a red `Build`), and give a status tag an `icon` you register."
   >
     <ngwr-doc-code [code]="snippets.statusIcons" language="angular-ts" />
     <ngwr-doc-snippet [code]="snippets.status">
@@ -83,10 +80,7 @@
   <ngwr-doc-section title="API" description="Inputs of &lt;wr-badge&gt;.">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
-  <ngwr-doc-section
-    title="Tag API"
-    description="Inputs of &lt;wr-tag&gt;, demoed above and shipped from the same entry point."
-  >
+  <ngwr-doc-section title="Tag API" description="Inputs of &lt;wr-tag&gt;.">
     <ngwr-doc-api [rows]="tagApi" />
   </ngwr-doc-section>
 </ngwr-doc-page>

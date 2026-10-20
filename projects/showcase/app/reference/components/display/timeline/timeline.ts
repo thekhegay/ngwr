@@ -49,8 +49,7 @@ export default class TimelinePageComponent {
     { name: 'time', description: 'Muted timestamp shown above the title.', type: 'string', default: "''" },
     {
       name: 'color',
-      description:
-        'Dot color. Each value draws its own silhouette as well, because a 12px dot with no glyph beside it has nothing but colour otherwise. `neutral` is the quiet one, a hollow ring.',
+      description: 'Dot colour; each has its own shape too. `neutral` is a hollow ring.',
       type: "'primary' | 'success' | 'warning' | 'danger' | 'neutral'",
       default: "'primary'",
     },

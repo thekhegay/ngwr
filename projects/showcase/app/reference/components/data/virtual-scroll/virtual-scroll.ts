@@ -66,7 +66,7 @@ export default class VirtualScrollPage {
     },
     {
       name: 'height',
-      description: 'Viewport height — number = px, or any CSS length string.',
+      description: 'Viewport height: a number in px, or any CSS length.',
       type: 'number | string',
       default: '256',
     },
@@ -103,7 +103,7 @@ export default class VirtualScrollPage {
     {
       name: 'checkViewportSize()',
       description:
-        'Re-measure the viewport. The CDK watches the WINDOW through its `ViewportRuler`, so this is for a size change it cannot see — a split pane, a sidebar collapsing, or a parent that was `display: none` until now.',
+        'Re-measure the viewport after a size change the window does not see, such as a split pane or a parent that was hidden.',
       type: '() => void',
       default: '—',
     },

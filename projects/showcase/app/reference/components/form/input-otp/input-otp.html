@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="Input OTP"
-  description="Fixed-length one-time-code input. One cell per character, auto-advances focus on typing, handles paste of a full code, optional masking like a password field."
+  description="Enter a one-time code, one character per box."
   [keywords]="['otp', 'pin', 'code', 'verification', 'wr-input-otp']"
   [labels]="['Signal Forms', 'a11y']"
 >
   <ngwr-doc-section
     title="Basic (numeric, 6 cells)"
-    description="The default. `completed` fires once every cell holds a character — paste the value `123456` to try it."
+    description="`completed` fires when every box is filled; paste `123456` to try it."
   >
     <ngwr-doc-snippet [code]="snippets.basic" language="angular-html">
       <wr-input-otp [(value)]="code" (completed)="onCompleted($event)" />
@@ -18,22 +18,19 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Custom length">
+  <ngwr-doc-section title="Custom length" description="`length` sets the number of boxes.">
     <ngwr-doc-snippet [code]="snippets.length" language="angular-html">
       <wr-input-otp [(value)]="codeShort" length="4" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Alphanumeric" description="Letters and digits. Useful for invitation codes.">
+  <ngwr-doc-section title="Alphanumeric" description='`mode="alphanumeric"` accepts letters as well as digits.'>
     <ngwr-doc-snippet [code]="snippets.alpha" language="angular-html">
       <wr-input-otp [(value)]="alphaNumeric" mode="alphanumeric" length="8" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Masked"
-    description="Renders cells as `type='password'` — characters are hidden as you type."
-  >
+  <ngwr-doc-section title="Masked" description="`mask` hides the characters like a password field.">
     <ngwr-doc-snippet [code]="snippets.masked" language="angular-html">
       <wr-input-otp [(value)]="secret" mask />
     </ngwr-doc-snippet>
@@ -41,7 +38,7 @@
 
   <ngwr-doc-section
     title="Disabled and read-only"
-    description="Tab through both. A DISABLED strip is out of the tab order and submits nothing. A READ-ONLY one keeps every box focusable, keeps announcing the code, and still submits — each box is a real input, so the arrows, Home / End and selection all keep working; only typing and pasting are refused."
+    description="Disabled leaves the tab order and submits nothing; read-only keeps both and refuses typing and paste."
   >
     <ngwr-doc-code [code]="snippets.states" language="angular-html" />
     <ngwr-doc-snippet code="">

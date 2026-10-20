@@ -34,8 +34,7 @@ export default class CheckboxComponent {
   protected readonly sizes: readonly WrCheckboxSize[] = ['sm', 'md', 'lg'];
 
   protected readonly snippets = {
-    standalone: `<!-- signal-forms native: [(checked)], [formField], or classic [(ngModel)] -->
-<wr-checkbox [(checked)]="agree">I agree</wr-checkbox>`,
+    standalone: `<wr-checkbox [(checked)]="agree">I agree</wr-checkbox>`,
     group: `<wr-checkbox-group [(value)]="features">
   <wr-checkbox checkboxValue="autosave">Autosave</wr-checkbox>
   <wr-checkbox checkboxValue="notifications">Notifications</wr-checkbox>
@@ -43,31 +42,21 @@ export default class CheckboxComponent {
 </wr-checkbox-group>`,
     sizes: `<wr-checkbox size="sm" [(checked)]="agree">Small</wr-checkbox>
 <wr-checkbox size="lg" [(checked)]="agree">Large</wr-checkbox>`,
-    disabled: `<!-- disabled leaves the tab order and submits nothing;
-     readonly keeps both and refuses only the toggle. -->
-<wr-checkbox [disabled]="true">Disabled</wr-checkbox>
+    disabled: `<wr-checkbox [disabled]="true">Disabled</wr-checkbox>
 <wr-checkbox [readonly]="true">Read-only</wr-checkbox>`,
-    // No example existed for this, next to the library's loud "no
-    // ControlValueAccessor anywhere" — which reads as "reactive forms are not
-    // supported". They are: Angular 22 binds a signal-forms control directly.
-    forms: `<!-- Signal forms — the native path. -->
+    forms: `<!-- Signal Forms -->
 <wr-checkbox [formField]="form.agree">I agree</wr-checkbox>
 
-<!-- Reactive forms. A single <wr-checkbox> is a FormCheckboxControl, so the
-     control it binds holds a BOOLEAN — the checkbox's \`checked\` model, not
-     \`checkboxValue\` (which is group identity and stays out of forms). -->
+<!-- Reactive forms -->
 <form [formGroup]="form">
   <wr-checkbox formControlName="agree">I agree to the terms</wr-checkbox>
-
-  <!-- A <wr-checkbox-group> is a FormValueControl<unknown[]>, so ITS control
-       holds the array of checked \`checkboxValue\`s. -->
   <wr-checkbox-group formControlName="features">
     <wr-checkbox checkboxValue="autosave">Autosave</wr-checkbox>
     <wr-checkbox checkboxValue="notifications">Notifications</wr-checkbox>
   </wr-checkbox-group>
 </form>
 
-<!-- Template-driven — the same bridge. -->
+<!-- Template-driven -->
 <wr-checkbox [(ngModel)]="agree" name="agree">I agree</wr-checkbox>`,
     formsTs: `import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
@@ -83,8 +72,7 @@ export class MyComponent {
     features: new FormControl<string[]>(['autosave'], { nonNullable: true }),
   });
 }`,
-    indeterminate: `<!-- A parent "select all": mixed when only some children are checked. -->
-<wr-checkbox [checked]="allChecked()" (checkedChange)="toggleAll()" [indeterminate]="someChecked()">
+    indeterminate: `<wr-checkbox [checked]="allChecked()" (checkedChange)="toggleAll()" [indeterminate]="someChecked()">
   Select all
 </wr-checkbox>
 @for (p of permItems; track p) {

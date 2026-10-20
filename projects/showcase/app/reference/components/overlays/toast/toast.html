@@ -1,20 +1,17 @@
 <ngwr-doc-page
   title="Toast"
-  description="Stack of dismissible notifications anchored to a viewport corner. Service-driven; rendered in a single shared CDK overlay."
+  description="Short notifications that stack in a corner of the screen."
   [keywords]="['toast', 'notification', 'wr-toast']"
   [labels]="['Service', 'CDK Overlay']"
 >
   <ngwr-doc-section
     title="Global config"
-    description="Pass `withToast()` to `provideWr()` once at bootstrap to set defaults — position, duration, progress bar, copy button, max stack, label strings (i18n). Any field you omit falls back to the library default; the `labels` sub-object is merged separately so you can override a single string at a time."
+    description="Set defaults once with `withToast()` in `provideWr()`. Fields you omit keep the library default."
   >
     <ngwr-doc-code [code]="snippets.config" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Show a toast"
-    description="Toggle the demo controls below to preview progress bar and copy button on the fired toasts."
-  >
+  <ngwr-doc-section title="Show a toast" description="`show()` opens a toast and returns a ref with `dismiss()`.">
     <ngwr-doc-code [code]="snippets.show" language="angular-ts" />
 
     <ngwr-doc-snippet code="toast.show(...)">
@@ -32,10 +29,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Per-toast overrides"
-    description="Each call to `show()` accepts the same fields as the global config — handy for one-off positions, copy buttons, longer durations."
-  >
+  <ngwr-doc-section title="Per-toast overrides" description="`show()` takes every field of the global config.">
     <ngwr-doc-code [code]="snippets.overrides" language="angular-ts" />
     <ngwr-doc-snippet code="">
       <wr-btn (click)="fireCopy()">Show with copy button</wr-btn>
@@ -44,7 +38,7 @@
 
   <ngwr-doc-section
     title="Close all"
-    description="When the stack reaches `closeAllThreshold` (default 2), a pill-styled “Close all” button appears above the toasts — in `list` mode as soon as the count is reached, and in `stack` mode only once the deck is expanded by hover or focus, since there is nothing to close all of while the toasts are collapsed into one card."
+    description="“Close all” appears once `closeAllThreshold` toasts are open; in `stack` mode, when the stack is expanded."
   >
     <ngwr-doc-snippet code="">
       <wr-btn (click)="fireStack()">Open 3 toasts</wr-btn>
@@ -54,7 +48,7 @@
 
   <ngwr-doc-section
     title="Persistent toast"
-    description="Pass `duration: 0` to disable auto-dismiss — the user closes it manually. Progress bar is hidden automatically."
+    description="`duration: 0` turns off auto-dismiss and hides the progress bar."
   >
     <ngwr-doc-code [code]="snippets.persistent" language="angular-ts" />
     <ngwr-doc-snippet code="">
@@ -64,7 +58,7 @@
 
   <ngwr-doc-section
     title="Layout mode"
-    description="`stack` (default, Sonner-style) cascades toasts behind the newest and fans out on hover. `list` renders them as a classic vertical column. Switch the global default via `withToast({ mode: 'list' })` or at runtime via `toast.setMode()`."
+    description="`stack` (default) piles toasts up and fans them out on hover; `list` shows a column. Set it with `withToast({ mode })` or `setMode()`."
   >
     <ngwr-doc-snippet code="">
       <div style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap">
@@ -76,7 +70,7 @@
 
   <ngwr-doc-section
     title="Position"
-    description="Switch the corner the stack opens in. There is one host for every toast, so a per-call `position` moves the whole stack rather than that one toast — which is why the demo below sets the stack position first and then fires into it."
+    description="All toasts share one stack, so a per-call `position` moves the whole stack."
   >
     <ngwr-doc-code [code]="snippets.position" language="angular-ts" />
     <ngwr-doc-snippet code="">
@@ -88,32 +82,13 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Toasts, dialogs and the stacking order"
-    description="A toast raised from inside an open dialog is visible and clickable, and it takes deliberate machinery to keep it that way. There is one toast host overlay for the whole application: it is created with the first toast and disposed when the last one leaves, so its place in the browser&#39;s top layer would otherwise be frozen at whenever that first toast appeared — and the top layer is ordered by promotion time, not by `z-index`. Every dialog and drawer opened afterwards would paint over it, backdrop included."
-  >
-    <p>
-      So the host re-raises itself: on every <code>show()</code>, and again whenever another overlay joins the
-      container. Both directions are covered — a toast fired from a dialog&#39;s save handler, and a toast already on
-      screen when a dialog opens. Nothing to configure, and nothing to do from the calling side.
-    </p>
-    <p>
-      Two edges where it steps aside deliberately. It does not re-raise while focus is inside the toast host, because
-      re-showing a popover is specified to restore focus elsewhere — in practice the two never coincide, since a modal
-      traps focus. And on a platform with no top layer at all (and on the server) there is nothing to raise; the host
-      falls back to ordinary stacking within the overlay container.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
     title="Lifetime and scope"
-    description="`WrToast` is root-provided and its host is not attached to any component: a toast outlives the component that raised it, survives navigation, and dismisses itself on its own timer. That is deliberate — the point of a toast is to report on work whose screen may already be gone. `duration: 0` opts out, and then only a click or `dismiss()` removes it."
+    description="A toast outlives the component that raised it and survives navigation. Keep the ref to remove it early."
   >
     <ngwr-doc-code [code]="snippets.scope" language="typescript" />
     <p>
-      Because the service is root-provided, so is its configuration:
-      <code>withToast()</code> in a lazy route&#39;s <code>providers</code> is <em>ignored</em> — the service reads the
-      root token, and a route-level one is never consulted; dev mode warns about it. Register it once at bootstrap; to
-      vary a value per feature, pass it per call, where every field of the config is also accepted.
+      <code>withToast()</code> in a route's <code>providers</code> is ignored: set it at bootstrap, or pass the value
+      per call.
     </p>
   </ngwr-doc-section>
 
@@ -123,15 +98,12 @@
 
   <ngwr-doc-section
     title="WrToastOptions"
-    description="Per-call options accepted by `toast.show()`. Any omitted field falls back to the global `WrToastConfig`."
+    description="Per-call options for `show()`. Omitted fields fall back to `WrToastConfig`."
   >
     <ngwr-doc-api [rows]="optionsApi" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="WrToastConfig"
-    description="Global configuration registered through `withToast()`. These values back every `WrToastOptions` field that isn't overridden at call time."
-  >
+  <ngwr-doc-section title="WrToastConfig" description="Set once with `withToast()`.">
     <ngwr-doc-api [rows]="configApi" />
   </ngwr-doc-section>
 </ngwr-doc-page>

@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="Checkbox"
-  description="Two-state checkbox. Standalone (boolean) or inside <wr-checkbox-group> (array of values)."
+  description="A checkbox for one boolean, or a group of them for an array."
   [keywords]="['checkbox', 'wr-checkbox', 'wr-checkbox-group']"
   [labels]="['Component', 'Standalone']"
 >
   <ngwr-doc-section
     title="Standalone"
-    description="Signal-forms native — bind the boolean `checked` model via `[(checked)]`, `[formField]`, or classic `[(ngModel)]`."
+    description="Bind the boolean with `[(checked)]` or [any Angular form](/guides/forms)."
   >
     <ngwr-doc-snippet [code]="snippets.standalone">
       <wr-checkbox [(checked)]="agree">I agree to the terms</wr-checkbox>
@@ -16,7 +16,7 @@
 
   <ngwr-doc-section
     title="Inside a group"
-    description="The group manages an array of values. Each child contributes its value when checked."
+    description="Give each box a `checkboxValue`, not `value`; the group's `value` is the array of checked ones."
   >
     <ngwr-doc-snippet [code]="snippets.group">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%">
@@ -34,7 +34,7 @@
 
   <ngwr-doc-section
     title="Indeterminate"
-    description="A parent `[indeterminate]` shows the mixed state (a dash) when only some children are checked — the classic 'select all'. It's visual and controlled: you set it, and clear it on the next toggle."
+    description="`[indeterminate]` shows a dash for a partly checked parent. You set it and clear it."
   >
     <ngwr-doc-snippet [code]="snippets.indeterminate">
       <div style="display: flex; flex-direction: column; gap: 0.5rem">
@@ -50,10 +50,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Sizes"
-    description="`sm` / `md` / `lg` scale the box, its tick and the label together. The default is `md`."
-  >
+  <ngwr-doc-section title="Sizes" description="`sm`, `md` (default) or `lg`.">
     <ngwr-doc-code [code]="snippets.sizes" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap">
@@ -66,7 +63,7 @@
 
   <ngwr-doc-section
     title="Disabled and read-only"
-    description="Tab through all four. A DISABLED box leaves the tab order and submits nothing. A READ-ONLY one keeps its tab stop, keeps announcing its state through `aria-readonly`, and still submits — it simply refuses the toggle. The cue is `.wr-checkbox--readonly` and a default cursor, not the dimming `disabled` uses, because the two mean different things to the person reading the form."
+    description="Disabled leaves the tab order and submits nothing; read-only keeps its tab stop and submits, but refuses the toggle."
   >
     <ngwr-doc-snippet [code]="snippets.disabled">
       <div style="display: flex; flex-direction: column; gap: 0.5rem">
@@ -80,7 +77,7 @@
 
   <ngwr-doc-section
     title="Use it in a form"
-    description="Signal forms is the native path — `[formField]` binds the `checked` model directly. Reactive forms and `[(ngModel)]` go through [Angular 22's forms bridge](/guides/forms), which binds a signal-forms control with no `ControlValueAccessor` involved: the library ships none, and `formControlName` still works. That bridge is not an accessor, and the guide is what it carries and what it drops — `updateOn`, `required`, and a `{ emitEvent: false }` write that never repaints. Mind which model each half binds, too: a single checkbox is a boolean, the group is the array of `checkboxValue`s."
+    description="A single checkbox binds a boolean and the group an array; [Forms](/guides/forms) lists what reactive forms ignore."
   >
     <ngwr-doc-code [code]="snippets.forms" language="angular-html" />
     <ngwr-doc-code [code]="snippets.formsTs" language="angular-ts" />

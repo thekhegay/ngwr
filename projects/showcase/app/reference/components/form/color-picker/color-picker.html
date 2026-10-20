@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="Color Picker"
-  description="HSV canvas + hue / alpha sliders + HEX / RGB / HSL inputs + optional swatches. Use `<wr-color-picker>` inline or anchor it to a button with `[wrColorPickerTrigger]`."
+  description="Pick a colour inline, or from a button that opens the picker."
   [keywords]="['color', 'colour', 'picker', 'palette', 'hsv', 'hex', 'wr-color-picker']"
   [labels]="['Signal Forms', 'CDK Overlay']"
 >
   <ngwr-doc-section
     title="Basic"
-    description="Drag the canvas, hue strip, alpha strip. Switch HEX / RGB / HSL tabs. Bound through `[(value)]`."
+    description="Bind the colour string with `[(value)]` or [any Angular form](/guides/forms)."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -33,7 +33,7 @@
 
   <ngwr-doc-section
     title="No alpha"
-    description='Pass `[alpha]="false"` to hide the alpha slider and drop alpha from the value — 6-digit hex by default, or `rgb()` / `hsl()` when `format` asks for those.'
+    description='`[alpha]="false"` hides the alpha slider and drops alpha from the value.'
   >
     <ngwr-doc-code [code]="snippets.opaque" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -41,10 +41,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Swatches"
-    description="Pass `[swatches]` to render a clickable row of preset colours below the inputs."
-  >
+  <ngwr-doc-section title="Swatches" description="`[swatches]` adds a row of preset colours.">
     <ngwr-doc-code [code]="snippets.swatches" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-color-picker [(value)]="branded" [swatches]="palette" />
@@ -53,7 +50,7 @@
 
   <ngwr-doc-section
     title="Popover trigger"
-    description="Apply `[wrColorPickerTrigger]` to any clickable element. Opens the picker in an anchored overlay; two-way binds through `[(value)]`."
+    description="`[wrColorPickerTrigger]` on any button opens the picker in an overlay."
   >
     <ngwr-doc-code [code]="snippets.trigger" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -89,16 +86,13 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Color utilities"
-    description="Pure functions exported alongside the component. Useful when you need parsing / format conversion without rendering a picker."
-  >
+  <ngwr-doc-section title="Color utilities" description="Parse and convert colours without a picker.">
     <ngwr-doc-code [code]="snippets.utils" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Template reference"
-    description="`[wrColorPickerTrigger]` exports itself under its own name, so another control can open the swatch panel or read the colour back."
+    description="Export the trigger as `wrColorPickerTrigger` to open it or read its value from elsewhere."
   >
     <ngwr-doc-code [code]="snippets.exportAs" language="angular-html" />
   </ngwr-doc-section>

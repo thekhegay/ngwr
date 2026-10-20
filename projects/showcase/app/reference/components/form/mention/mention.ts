@@ -61,9 +61,7 @@ export default class MentionPageComponent {
   wrMention
   [wrMentionItems]="users"
   [(ngModel)]="text"
-></textarea>
-
-<!-- Type @ to open the picker. Arrows + Enter / Tab to commit, Esc to cancel. -->`,
+></textarea>`,
 
     multi: `<textarea
   wrInput
@@ -72,25 +70,6 @@ export default class MentionPageComponent {
   [triggers]="['#']"
   [(ngModel)]="text"
 ></textarea>`,
-    a11y: `<!-- What the directive renders. You write none of this. -->
-<textarea
-  wrInput
-  wrMention
-  aria-autocomplete="list"      <!-- static: a permanent capability of the field, -->
-  aria-haspopup="listbox"       <!-- announced on focus before you type a trigger -->
-  aria-controls="wr-mention-listbox-1"
-  aria-activedescendant="wr-mention-listbox-1-opt-2"   <!-- only while open -->
-></textarea>
-
-<!-- In the overlay: -->
-<ul id="wr-mention-listbox-1" role="listbox" aria-label="Mentions">
-  <li id="wr-mention-listbox-1-opt-0" role="option" aria-selected="false">Ada Lovelace</li>
-  <li id="wr-mention-listbox-1-opt-2" role="option" aria-selected="true">Grace Hopper</li>
-</ul>
-
-<!-- Plus a polite live region on <body>, because aria-expanded is not a
-     supported state of role=textbox — so "a list appeared" and "X was
-     inserted" have nowhere else to go:  "Matches available: 4" -->`,
   };
 
   protected readonly api = API.WrMention;
@@ -111,7 +90,7 @@ export default class MentionPageComponent {
     },
     {
       name: 'WrMentionCommit',
-      description: "The `(wrMentionSelected)` payload. Documented nowhere, so a reader had to infer `$event`'s shape.",
+      description: 'The `(wrMentionSelected)` payload.',
       type: 'interface',
     },
     { name: 'item', description: 'The selected entry.', type: 'WrMentionItem', required: true, sub: true },
@@ -124,7 +103,7 @@ export default class MentionPageComponent {
     },
     {
       name: 'query',
-      description: 'The text typed after the trigger, before the commit. A SUBSTRING match, not a prefix one.',
+      description: 'The text typed after the trigger, matched as a substring.',
       type: 'string',
       required: true,
       sub: true,

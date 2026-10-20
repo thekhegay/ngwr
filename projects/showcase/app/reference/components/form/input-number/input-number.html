@@ -1,10 +1,10 @@
 <ngwr-doc-page
   title="Number Input"
-  description="Numeric input with locale-aware formatting and ▲▼ stepper buttons. Value is `number | null`. Parses leniently while typing, re-formats with grouping + fixed decimals on blur."
+  description="A number field with stepper buttons and locale formatting."
   [keywords]="['number', 'input', 'stepper', 'numeric', 'wr-input-number']"
   [labels]="['Signal Forms']"
 >
-  <ngwr-doc-section title="Basic" description="Locale comes from Angular's `LOCALE_ID`.">
+  <ngwr-doc-section title="Basic" description="The value is `number | null`, formatted in Angular's `LOCALE_ID`.">
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-input-number ariaLabel="Quantity" [(value)]="basic" />
@@ -13,38 +13,17 @@
 
   <ngwr-doc-section
     title="Min / max / step"
-    description="`[min]` and `[max]` bound what this control's own edits produce — typing, the ▲▼ buttons, the arrow keys. Arrow keys bump by `step`, Shift+Arrow by `10 × step`."
+    description="Edits stay inside `[min]` / `[max]`; arrows move one `step`, Shift + arrow ten."
   >
     <ngwr-doc-code [code]="snippets.bounded" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-input-number ariaLabel="Percentage" [(value)]="bounded" [min]="0" [max]="100" [step]="5" />
     </ngwr-doc-snippet>
-
-    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
-      <strong>They do not clamp a value written in from outside.</strong> Set <code>500</code> on a field bound with
-      <code>[max]="100"</code> and the field shows <code>500</code> and the model keeps <code>500</code>; only the next
-      edit is pulled back into range. That asymmetry is deliberate, and the same rule <code>wr-slider</code> and
-      <code>wr-rating</code> follow for the model — they differ only in that a slider has nowhere to draw an
-      out-of-range value, so its thumb sits at the end of the track while its model keeps the number. Writing the clamp
-      back would erase the out-of-range value a <code>Validators.max</code> exists to report, and would mark a pristine
-      form dirty on first paint. Under <code>[formField]</code> it is not even possible to do better — binding
-      <code>[min]</code> beside <code>[formField]</code> is a compile error, so the bounds arrive only through the
-      schema's own <code>min()</code> / <code>max()</code> rules. See
-      <a routerLink="/guides/forms">the reactive-forms guide</a> for the whole table.
-    </p>
-
-    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
-      Two more things about what the field holds. While it has focus, typing owns the text — a typed
-      <code>500</code> is committed as <code>100</code> immediately and the text is only re-formatted from the model on
-      blur. And <strong>an emptied field is <code>null</code>, never <code>0</code></strong
-      >; text that does not parse yet (a lone <code>-</code>, a trailing <code>.</code>) leaves the committed number
-      alone.
-    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Prefix and decimals"
-    description="Round the committed value to a fixed number of decimals, and show it with that many on blur."
+    description="`decimals` rounds the value and shows that many places on blur."
   >
     <ngwr-doc-code [code]="snippets.price" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -59,11 +38,22 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Without steppers" description="Hide the ▲▼ column for a plain numeric input.">
+  <ngwr-doc-section title="Without steppers" description='`[showSteppers]="false"` hides the buttons.'>
     <ngwr-doc-code [code]="snippets.noSteppers" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-input-number ariaLabel="Value" [(value)]="noSteppers" [showSteppers]="false" />
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Gotchas">
+    <ul>
+      <li>An emptied field is <code>null</code>, not <code>0</code>.</li>
+      <li>
+        A value set from outside <code>[min]</code> / <code>[max]</code> is kept as is. Flag it with
+        <code>Validators.max</code>.
+      </li>
+      <li>With <code>[formField]</code>, set the bounds with the schema's <code>min()</code> / <code>max()</code>.</li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

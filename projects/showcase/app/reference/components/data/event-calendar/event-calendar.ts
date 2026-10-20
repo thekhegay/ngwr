@@ -77,8 +77,7 @@ export default class EventCalendarComponent {
   protected readonly api = API.WrEventCalendar;
 
   protected readonly snippets = {
-    provider: `// Nothing to provide for the native adapter. To run on the date library the
-// app already uses, pass your own WrDateAdapter subclass:
+    provider: `// Only for another date library:
 import { provideWr } from 'ngwr';
 import { withDates } from 'ngwr/date';
 
@@ -103,11 +102,7 @@ bootstrapApplication(App, { providers: [provideWr(withDates({ adapter: AppDateAd
     )
   );
 }`,
-    // The values the "The time grid" demo actually renders. This block was a
-    // copy of the drag demo's (editable, 8–19, 30): it advertised a capability
-    // that section's calendar does not have, and printed `slotMinutes`' own
-    // default for the one input the section exists to explain. `[views]="[]"`,
-    // `[(view)]` and `[(date)]` stay unprinted — page scaffolding, as elsewhere.
+    // The values the time-grid demo renders.
     time: `<wr-event-calendar
   view="week"
   [slotMinutes]="15"
@@ -115,9 +110,7 @@ bootstrapApplication(App, { providers: [provideWr(withDates({ adapter: AppDateAd
   [dayEndHour]="14"
   [events]="events()"
 />`,
-    template: `// The attribute is \`wrCalendarEvent\`; the class to import is WrCalendarEventTemplate.
-// imports: [WrEventCalendar, WrCalendarEventTemplate]
-
+    template: `<!-- imports: [WrEventCalendar, WrCalendarEventTemplate] -->
 <wr-event-calendar [events]="events()">
   <ng-template wrCalendarEvent let-event>
     <strong>{{ event.title }}</strong>

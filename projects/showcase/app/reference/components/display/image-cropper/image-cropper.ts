@@ -80,15 +80,13 @@ export default class ImageCropperPageComponent {
 protected readonly file = signal<File | null>(null);
 protected readonly lastError = signal<WrImageLoadError | null>(null);
 
-// \`type\` and \`name\` are what the file DECLARED — the browser's error event
-// carries no reason, so this is the most there is to explain it with.
+// The error has the file's name and type, not a reason.
 protected readonly message = computed(() => {
   const error = this.lastError();
   return \`\${error?.name ?? 'The file'} is not an image this browser can read.\`;
 });`,
 
-    maxOutputSize: `<!-- An avatar never needs more than 512 px, whatever the camera took. -->
-<wr-image-cropper [src]="file()" [aspectRatio]="1" [maxOutputSize]="512" (cropped)="upload($event)" />`,
+    maxOutputSize: `<wr-image-cropper [src]="file()" [aspectRatio]="1" [maxOutputSize]="512" (cropped)="upload($event)" />`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -115,8 +113,7 @@ protected readonly message = computed(() => {
     },
     {
       name: 'maxOutputSize',
-      description:
-        'Longest side of the exported image in pixels, for `(cropped)`, `toBlob()` and `toDataUrl()`. A larger crop is scaled down with its aspect ratio kept; a smaller one is never upscaled. `null`, or anything that is not a positive number, exports at the source resolution.',
+      description: 'Longest side of the exported image in pixels. `null` exports at the source resolution.',
       type: 'number | null',
       default: 'null',
     },
@@ -128,8 +125,7 @@ protected readonly message = computed(() => {
     },
     {
       name: '(loadError)',
-      description:
-        'Fires once when the browser cannot decode the current `src`, with `{ url, name, type, size }`. Nothing is rendered for it — show your own message. A new `src` clears the failure.',
+      description: 'Fires when the browser cannot decode `src`, with `{ url, name, type, size }`.',
       type: 'WrImageLoadError',
       default: '—',
     },
@@ -143,16 +139,14 @@ protected readonly message = computed(() => {
     },
     {
       name: 'status',
-      description:
-        "`'empty'`, `'loading'`, `'loaded'` or `'failed'`. Reset whenever `src` changes; `'failed'` also puts `wr-image-cropper--failed` on the host.",
+      description: "`'empty'`, `'loading'`, `'loaded'` or `'failed'`. Resets when `src` changes.",
       type: 'Signal<WrImageCropperStatus>',
       default: '—',
       sub: true,
     },
     {
       name: 'refresh()',
-      description:
-        'Re-measure the image and re-emit `(cropped)`. For a host that resized the cropper itself — a panel opening, a split moving — where no input changed.',
+      description: 'Re-measure and re-emit `(cropped)` after the cropper was resized.',
       type: '() => Promise<void>',
       default: '—',
     },

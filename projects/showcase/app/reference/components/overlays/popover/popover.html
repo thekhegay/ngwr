@@ -1,10 +1,10 @@
 <ngwr-doc-page
   title="Popover"
-  description='Anchored content panel. Project a template (popover) or pass a plain string (tooltip — use `mode="tooltip"`). Click or hover to open; a tooltip also answers a keyboard focus. Built on CDK Overlay.'
+  description="Show a template, or a text tooltip, next to its trigger."
   [keywords]="['popover', 'tooltip', 'wr-popover', 'overlay']"
   [labels]="['Directive', 'CDK Overlay']"
 >
-  <ngwr-doc-section title="Basic usage">
+  <ngwr-doc-section title="Basic usage" description="Pass an `<ng-template>` to `[wrPopover]`; a click opens it.">
     <ngwr-doc-snippet [code]="snippets.basic">
       <wr-btn color="primary" [wrPopover]="info">Details</wr-btn>
 
@@ -19,7 +19,10 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Hover trigger">
+  <ngwr-doc-section
+    title="Hover trigger"
+    description='`trigger="hover"` opens on hover and closes when the pointer leaves both trigger and panel.'
+  >
     <ngwr-doc-snippet [code]="snippets.hover">
       <wr-btn [wrPopover]="card" trigger="hover">Hover me</wr-btn>
 
@@ -31,7 +34,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Positions">
+  <ngwr-doc-section title="Positions" description="The panel flips when there is no room.">
     <ngwr-doc-snippet [code]="snippets.positions">
       <wr-btn [wrPopover]="hint" position="bottom-start">Bottom start</wr-btn>
       <wr-btn [wrPopover]="hint" position="top-end">Top end</wr-btn>
@@ -47,7 +50,7 @@
 
   <ngwr-doc-section
     title="Tooltip mode"
-    description='Pass a string + `mode="tooltip"` for a small dark hint panel. Opens on hover or on a KEYBOARD focus — never on a `.focus()` call, which is what a dialog or drawer does when it hands focus back to the trigger it was opened from. Dismisses when focus leaves, on pointer-leave, or Escape. Uses `aria-describedby` instead of `aria-haspopup`.'
+    description='Pass a string and `mode="tooltip"`. It opens on hover or keyboard focus.'
   >
     <ngwr-doc-snippet [code]="snippets.tooltip">
       <wr-btn color="primary" wrPopover="Save changes" mode="tooltip" position="top">Save</wr-btn>
@@ -64,14 +67,14 @@
 
   <ngwr-doc-section
     title="Template reference"
-    description="The directive exports itself as `wrPopover`, so a template can reach the instance and drive the panel from anywhere on the page."
+    description="Export as `wrPopover` to open or close the panel from another control."
   >
     <ngwr-doc-code [code]="snippets.exportAs" language="angular-html" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Scrolling containers"
-    description="The panel is anchored to the trigger and repositions while the page scrolls — but only for the window and for scroll containers the CDK has been told about. Inside your own `overflow: auto` box (a side panel, a scrollable card, a table body) the panel is placed once and then stays put, drifting away from its trigger as the box scrolls. Mark the container with `cdkScrollable` and it follows again. The same rule covers every anchored ngwr overlay: popover, tooltip mode, dropdown, popconfirm, select, cascader, tree and the date pickers, and equally the four that reposition without being listed here — mention, tour, the colour-picker trigger and a context-menu submenu."
+    description="Add `cdkScrollable` to your own scrolling box, or the panel stays put while it scrolls."
   >
     <ngwr-doc-code [code]="snippets.scrollable" language="angular-ts" />
   </ngwr-doc-section>

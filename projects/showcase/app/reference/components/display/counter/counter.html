@@ -1,10 +1,10 @@
 <ngwr-doc-page
   title="Counter"
-  description="Animated number display. Use **odometer** mode for rolling-digit motion (mechanical counter look) or **tween** mode for an eased count-up from the previous value."
+  description="An animated number: rolling digits or an eased count."
   [keywords]="['counter', 'odometer', 'count-up', 'animated number', 'wr-counter']"
   [labels]="['Display']"
 >
-  <ngwr-doc-section title="Odometer" description="Digits roll vertically. Reacts to any value change.">
+  <ngwr-doc-section title="Odometer" description="Digits roll on every change of `value`.">
     <ngwr-doc-code [code]="snippets.odometer" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; align-items: center; gap: 2rem; font-size: 3rem; font-weight: 600">
@@ -14,7 +14,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Tween" description="Eased single interpolation. Good for monetary values.">
+  <ngwr-doc-section title="Tween" description='`mode="tween"` eases from the old value to the new one.'>
     <ngwr-doc-code [code]="snippets.tween" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; align-items: center; gap: 2rem; font-size: 3rem; font-weight: 600">
@@ -24,7 +24,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Padded integer" description="Force a minimum number of integer digits.">
+  <ngwr-doc-section title="Padded integer" description="`minIntegerDigits` pads the number with leading zeros.">
     <ngwr-doc-code [code]="snippets.minDigits" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; align-items: center; gap: 2rem; font-size: 3rem; font-weight: 600">
@@ -35,8 +35,8 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Count up — spring + viewport trigger"
-    description="`<wr-count-up>` is the spring-physics sibling. Use it when you want viewport-triggered animation, started/completed outputs, or count-down."
+    title="Count up"
+    description='`<wr-count-up>` counts from `from` to `to` on load or, with `trigger="visible"`, when it scrolls into view.'
   >
     <ngwr-doc-code [code]="snippets.countUp" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -46,7 +46,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Count down" description="Swap direction without rewriting `from` / `to`.">
+  <ngwr-doc-section title="Count down" description='`direction="down"` counts from `to` to `from`.'>
     <ngwr-doc-code [code]="snippets.countDown" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; align-items: center; gap: 2rem; font-size: 3rem; font-weight: 600">

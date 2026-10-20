@@ -1,16 +1,20 @@
 <ngwr-doc-page
   title="Icon"
-  description="The icon renderer. Resolves a registered name from the `provideWrIcons` registry and inlines its SVG. ngwr ships no built-in icons — bring your own: `lucideIcons()` for Lucide, `svgIcon()` for any set that ships SVG files."
+  description="Renders an SVG icon you register by name; ngwr ships none of its own."
   [keywords]="['icon', 'wr-icon', 'svg']"
   [labels]="['Component']"
 >
-  <ngwr-doc-section title="Register icons">
+  <ngwr-doc-section
+    title="Register icons"
+    description="`lucideIcons()` for Lucide, `svgIcon()` for any set that ships SVG files."
+  >
+    <ngwr-doc-install packages="lucide" />
     <ngwr-doc-code [code]="snippets.register" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Use"
-    description="The rendered `<svg>` always carries `aria-hidden`, so an icon is decoration and never a name. A control with nothing but an icon in it has to carry its own accessible name on the INTERACTIVE host — `aria-label` on the `<button>`, not on the `<wr-icon>`, which a screen reader is already skipping."
+    description="The icon is hidden from screen readers, so an icon-only button needs its own `aria-label`."
   >
     <ngwr-doc-code [code]="snippets.use" language="angular-ts" />
     <ngwr-doc-snippet code="">
@@ -23,7 +27,7 @@
 
   <ngwr-doc-section
     title="Custom inline SVG"
-    description="When you need a one-off icon (your logo, a designer hand-off) wrap it with `svgIcon()`. Icon data is untrusted by construction and is REBUILT from an allowlist rather than inserted: `<style>`, `<image>`, `<foreignObject>`, `<a>`, filters and SMIL are dropped, and so is the `style` ATTRIBUTE — dev mode names what went. Reach for presentation attributes (`fill`, `stroke`, `stroke-width`) instead; not one icon in the shipped corpus needs a `style`."
+    description="Wrap a one-off SVG in `svgIcon()` and style it with `fill` and `stroke`: `style`, `<style>`, `<image>`, `<a>`, `<foreignObject>`, filters and SMIL are removed."
   >
     <ngwr-doc-code [code]="snippets.custom" language="angular-ts" />
   </ngwr-doc-section>

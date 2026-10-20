@@ -7,6 +7,7 @@ import {
   type DocApiRow,
   DocApiComponent,
   DocCodeComponent,
+  DocInstallComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
@@ -31,6 +32,7 @@ interface Task {
     DocSectionComponent,
     DocSnippetComponent,
     DocCodeComponent,
+    DocInstallComponent,
     DocApiComponent,
   ],
 })
@@ -50,12 +52,7 @@ export default class SortableListPage {
   }
 
   protected readonly snippets = {
-    peer: `npm install @angular/cdk`,
-    basic: `<!-- A row ships NO resting chrome — no padding, no border, no surface.
-     The component owns the array, the drag, the keyboard gesture and the live
-     region; what a row looks like is yours, which is why the markup below has
-     a \`.row\` of its own. Written bare, a row is text with a grab cursor. -->
-<wr-sortable-list [(items)]="rows" (reorder)="onReorder($event)">
+    basic: `<wr-sortable-list [(items)]="rows" (reorder)="onReorder($event)">
   @for (row of rows(); track row.id; let i = $index) {
     <wr-sortable-item>
       <div class="row">
@@ -74,9 +71,7 @@ export default class SortableListPage {
   border-radius: var(--wr-border-radius-base);
   background: var(--wr-color-surface);
 }`,
-    handle: `<!-- Same rule: the \`.row\` is yours. \`[wrDragHandle]\` narrows the grab
-     to one element, so the rest of the row stops being a drag surface. -->
-<wr-sortable-list [(items)]="rows">
+    handle: `<wr-sortable-list [(items)]="rows">
   @for (row of rows(); track row.id) {
     <wr-sortable-item>
       <div class="row">
@@ -103,13 +98,13 @@ export default class SortableListPage {
   protected readonly related: readonly DocApiRow[] = [
     {
       name: '<wr-sortable-item>',
-      description: 'One row. Project one per item of your own loop; it carries the drag and the tab stop.',
+      description: 'One row. Write one per item in your own loop.',
       type: 'component',
       default: '—',
     },
     {
       name: '[wrDragHandle]',
-      description: "Restrict drag start to a handle element. Composes CDK's `cdkDragHandle`.",
+      description: 'Only this element starts a drag.',
       type: 'directive',
       default: '—',
     },

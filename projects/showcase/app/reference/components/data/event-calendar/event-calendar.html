@@ -1,19 +1,19 @@
 <ngwr-doc-page
   title="Event calendar"
-  description="Month, week and day views of a set of events — draggable, resizable, keyboard-operable."
+  description="Month, week and day views of events the user can move and resize."
   [keywords]="['calendar', 'scheduler', 'events', 'agenda', 'wr-event-calendar']"
   [labels]="['Component', 'Standalone']"
 >
   <ngwr-doc-section
     title="Date adapter"
-    description="Every date calculation and label goes through `WrDateAdapter`. The native one is used with no provider, in the locale `LOCALE_ID` names; for another date library, extend `WrDateAdapter` yourself, as sketched under [Configuration](/docs/configuration)."
+    description="Uses `LOCALE_ID` with no provider; for another date library, pass a `WrDateAdapter` subclass ([Configuration](/docs/configuration))."
   >
     <ngwr-doc-code [code]="snippets.provider" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Views"
-    description="One component covers all three views. `view` and `date` are two-way bindable, so you can drive it from your own toolbar and set `hideHeader`."
+    description="`view` and `date` are two-way. To use your own toolbar, bind them and set `hideHeader`."
   >
     <ngwr-doc-code [code]="snippets.basic" language="html" />
     <ngwr-doc-snippet code="">
@@ -23,14 +23,14 @@
 
   <ngwr-doc-section
     title="Events"
-    description="`end` is exclusive, so 09:00–10:00 does not overlap an event starting at 10:00. `color` takes any intent; `editable: false` pins one event while the rest stay draggable."
+    description="`end` is exclusive. `color` takes any intent; `editable: false` locks one event."
   >
     <ngwr-doc-code [code]="snippets.events" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Drag to move and resize"
-    description="`events` is an input the calendar never writes to. A drag emits `eventChange` with where the event would land — apply it to your own state, or ignore it to cancel. Drag a chip below, or focus one and hold `Alt` with the arrow keys."
+    description="Set `editable`. The calendar never changes `events`: apply `eventChange` to your own state, or ignore it to cancel the drag."
   >
     <ngwr-doc-code [code]="snippets.editable" language="html" />
     <ngwr-doc-code [code]="snippets.apply" language="angular-ts" />
@@ -74,26 +74,23 @@
 
   <ngwr-doc-section
     title="Creating from empty space"
-    description="Clicking anywhere that is not a chip emits `slotClick` with that slot. From the keyboard it is `Enter` on an empty cell."
+    description="A click on an empty slot, or `Enter` on an empty cell, emits `slotClick`."
   >
     <ngwr-doc-code [code]="snippets.slot" language="html" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Custom chip contents"
-    description="An `<ng-template wrCalendarEvent>` replaces what a chip renders — the attribute belongs to `WrCalendarEventTemplate`, which has to be in the component’s `imports` for the template to bind at all. Position, sizing and drag stay with the calendar, so a custom template cannot break the geometry."
+    description="`<ng-template wrCalendarEvent>` replaces a chip's content. Add `WrCalendarEventTemplate` to `imports`, or the template is ignored."
   >
     <ngwr-doc-code [code]="snippets.template" language="html" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Keyboard"
-    description="The grid is one tab stop with a roving cursor; a chip is its own stop inside the cell. The two tables are separate because the arrow keys mean different things in each."
-  >
+  <ngwr-doc-section title="Keyboard" description="The grid is one tab stop; each chip is its own.">
     <div class="ngwr-keys">
       <table>
         <caption>
-          The grid. Focus is on a cell — the cursor cell, not a chip inside it.
+          On a cell
         </caption>
         <thead>
           <tr>
@@ -104,14 +101,11 @@
         <tbody>
           <tr>
             <td><wr-kbd size="sm">ArrowLeft</wr-kbd> <wr-kbd size="sm">ArrowRight</wr-kbd></td>
-            <td>Previous / next day, mirrored under <code>dir="rtl"</code>. Stops at the edges of the view.</td>
+            <td>Previous or next day.</td>
           </tr>
           <tr>
             <td><wr-kbd size="sm">ArrowUp</wr-kbd> <wr-kbd size="sm">ArrowDown</wr-kbd></td>
-            <td>
-              One week in month view, one <code>slotMinutes</code> row in week and day view. Holds position at the first
-              and last row rather than wrapping sideways.
-            </td>
+            <td>One week in month view, one slot in week and day view.</td>
           </tr>
           <tr>
             <td><wr-kbd size="sm">Home</wr-kbd> <wr-kbd size="sm">End</wr-kbd></td>
@@ -119,10 +113,7 @@
           </tr>
           <tr>
             <td><wr-kbd size="sm">Enter</wr-kbd> <wr-kbd size="sm">Space</wr-kbd></td>
-            <td>
-              On an empty cell, emits <code>slotClick</code> with the slot pointed at. On a cell holding events, focuses
-              the first chip instead.
-            </td>
+            <td>Emits <code>slotClick</code> on an empty cell, or focuses the first chip.</td>
           </tr>
         </tbody>
       </table>
@@ -131,7 +122,7 @@
     <div class="ngwr-keys">
       <table>
         <caption>
-          A chip. Focus is on the event itself.
+          On a chip
         </caption>
         <thead>
           <tr>
@@ -146,30 +137,17 @@
           </tr>
           <tr>
             <td><wr-kbd size="sm">Alt + arrows</wr-kbd></td>
-            <td>
-              MOVES the event — a day sideways, and a week (month view) or one <code>slotMinutes</code> step (week and
-              day view) vertically. Emits <code>eventChange</code> with <code>kind: 'move'</code>: the keyboard twin of
-              the drag, and like the drag it changes nothing until you apply it.
-            </td>
+            <td>Moves the event. Emits <code>eventChange</code> with <code>kind: 'move'</code>.</td>
           </tr>
           <tr>
             <td><wr-kbd size="sm">Shift + Alt + arrows</wr-kbd></td>
-            <td>
-              RESIZES it, moving the end alone — <code>kind: 'resize'</code>. A resize that would end at or before the
-              start is refused rather than inverting the event. This exists because the pointer's resize grab area is
-              <code>aria-hidden</code> and unfocusable on purpose; without it, lengthening an event would be a
-              mouse-only operation.
-            </td>
+            <td>Moves the end only. Emits <code>eventChange</code> with <code>kind: 'resize'</code>.</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <p>
-      Both chip gestures need <code>editable</code> on the calendar, and are refused for an individual event carrying
-      <code>editable: false</code> — the same pair of gates the pointer path checks, so the keyboard and the mouse allow
-      exactly the same set of edits.
-    </p>
+    <p>Chip keys need <code>editable</code> and skip events with <code>editable: false</code>.</p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

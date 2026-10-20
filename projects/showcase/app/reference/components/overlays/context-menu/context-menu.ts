@@ -69,12 +69,10 @@ export default class ContextMenuPageComponent {
   <wr-context-menu-item icon="trash" (click)="remove()">Delete</wr-context-menu-item>
 </wr-context-menu>
 
-<!-- Nested submenu — hover the parent item to open. Pressing → also opens it. -->
 <wr-context-menu #shareMenu>
   <wr-context-menu-item (click)="copyLink()">Copy link</wr-context-menu-item>
   <wr-context-menu-item (click)="emailLink()">Email…</wr-context-menu-item>
   <wr-context-menu-divider />
-  <!-- Submenus can themselves own submenus — the API is recursive. -->
   <wr-context-menu-item [submenu]="exportMenu">Export as…</wr-context-menu-item>
 </wr-context-menu>
 
@@ -85,15 +83,12 @@ export default class ContextMenuPageComponent {
 </wr-context-menu>`,
 
     custom: `<wr-context-menu #menu>
-  <!-- Anything projected between tags renders inline alongside items. -->
   <div class="my-header">
     <span class="my-header__title">readme.md</span>
     <span class="my-header__sub">2 KB · modified just now</span>
   </div>
   <wr-context-menu-divider />
 
-  <!-- Items also project their own content — drop in keyboard hints,
-       badges, or any inline element next to the label. -->
   <wr-context-menu-item icon="copy" (click)="copy()">
     Copy
     <span class="my-kbd">⌘C</span>
@@ -124,8 +119,7 @@ export default class ContextMenuPageComponent {
   protected readonly panelApi: readonly DocApiRow[] = [
     {
       name: 'panelClass',
-      description:
-        'Extra class(es) on the menu box. Only the inner element is portalled into the overlay, so a class on the tag would not travel — and every submenu is its own <wr-context-menu>, so each takes its own.',
+      description: 'Extra class(es) on the menu box. Each submenu takes its own.',
       type: 'WrClassInput',
       default: 'null',
     },
@@ -148,8 +142,7 @@ export default class ContextMenuPageComponent {
       name: 'submenu',
       type: 'WrContextMenuPanel | null',
       default: 'null',
-      description:
-        'Optional nested menu. Opens toward the reading direction — → in LTR, ← in RTL — on hover or that arrow key; the opposite arrow, or a click outside, closes it. Shows a chevron indicator.',
+      description: 'Nested menu. Opens on hover or the arrow key toward it.',
     },
   ];
 }

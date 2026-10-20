@@ -1,34 +1,34 @@
 <ngwr-doc-page
   title="Rating"
-  description="Star rating input with whole or half-step granularity. Value type is `number | null`; `[0, count]` bounds what the control's own edits produce. Keyboard: arrows step by `step`, Home / End jump to 0 / max, Delete / Backspace clears."
+  description="Rate something with stars, in whole or half steps."
   [keywords]="['rating', 'stars', 'review', 'wr-rating']"
   [labels]="['Signal Forms']"
 >
-  <ngwr-doc-section title="Basic">
+  <ngwr-doc-section
+    title="Basic"
+    description="Bind a `number | null` with `[(value)]` or [any Angular form](/guides/forms)."
+  >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-rating [(value)]="basic" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Half stars"
-    description='`step="0.5"` enables half-star granularity (hover the left half of a star).'
-  >
+  <ngwr-doc-section title="Half stars" description='`step="0.5"` allows half stars.'>
     <ngwr-doc-code [code]="snippets.halves" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-rating [(value)]="halves" step="0.5" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Custom count">
+  <ngwr-doc-section title="Custom count" description="`count` sets the number of stars.">
     <ngwr-doc-code [code]="snippets.tenStar" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-rating [(value)]="tenStar" [count]="10" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Read-only" description="Use to display an existing rating without interaction.">
+  <ngwr-doc-section title="Read-only" description="Shows a rating that cannot be changed.">
     <ngwr-doc-code [code]="snippets.readonlyDemo" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-rating [value]="readonlyValue()" step="0.5" [readonly]="true" />
@@ -36,22 +36,17 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Values outside the range"
-    description='`[0, count]` bounds what a click or an arrow key can produce. A value written from OUTSIDE — a form loaded from an API, a model seeded by a query string — is drawn and announced clamped, because a `role="slider"` cannot report a position past its own maximum, and is left in the model exactly as it stands.'
-  >
-    <p>
-      The control does not write the clamp back, and that is the same rule <code>wr-slider</code> and
-      <code>wr-input-number</code> follow. Under <code>[formField]</code> a write the component makes to its own value
-      is indistinguishable from the user moving the stars, so writing back would mark a pristine form dirty on first
-      paint — tripping unsaved-changes guards and opening every validator message before anything had been touched — and
-      would delete the out-of-range value that a <code>max()</code> rule exists to report. The first real interaction
-      commits an in-range number, and the two agree from then on.
-    </p>
-    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
-      <a routerLink="/guides/forms">The reactive-forms guide</a> has the same table for every value control, beside the
-      two bridge behaviours that catch people out more often: <code>updateOn</code> does not apply to an ngwr control,
-      and a <code>{{ '{' }} emitEvent: false {{ '}' }}</code> write does not repaint one.
-    </p>
+    title="Keyboard"
+    description="Arrows move one step, Home / End jump to 0 and the maximum, Delete / Backspace clears."
+  />
+
+  <ngwr-doc-section title="Gotchas">
+    <ul>
+      <li>
+        A value above <code>count</code> is drawn as full stars but stays in the model. Flag it with a
+        <code>max()</code> rule.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

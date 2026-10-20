@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="Tree"
-  description='Hierarchical list with expand / collapse, selection (single or multi), and full keyboard navigation. Renders inline (display widget) or as a `wr-select`-style combobox via `openOn="overlay"` (form-bound picker — replaces the standalone `wr-tree-select`).'
+  description="A nested list to browse and select from, inline or as a dropdown picker."
   [keywords]="['tree', 'tree-select', 'wr-tree', 'hierarchy', 'folders']"
   [labels]="['Composite']"
 >
   <ngwr-doc-section
     title="Single selection"
-    description="Click a row to select. Arrow keys navigate, ←/→ collapse/expand, Enter or Space selects, Home/End jump to ends."
+    description="Bind `[(selected)]` and `[(expanded)]` to arrays of node ids."
   >
     <ngwr-doc-code [code]="snippets.single" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -19,7 +19,7 @@
 
   <ngwr-doc-section
     title="Multi selection"
-    description="A PLAIN click still replaces the selection in multi mode — it only toggles when the row it lands on is the single one already selected. Cmd / Ctrl + click is what adds and removes, and Enter and Space on the focused row follow the same rule with the same modifier."
+    description="A plain click replaces the selection; Cmd or Ctrl + click adds and removes a row."
   >
     <ngwr-doc-code [code]="snippets.multi" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -32,7 +32,7 @@
 
   <ngwr-doc-section
     title="Combobox mode — single"
-    description='`openOn="overlay"` turns the tree into a `<wr-select>`-style trigger that opens a popover. Bind the `value` model with `[(value)]` or `[formField]`; classic `[(ngModel)]` / `[formControl]` keep working. Replaces the standalone `wr-tree-select`.'
+    description='`openOn="overlay"` makes the tree a dropdown picker. Bind `[(value)]` or `[formField]`.'
   >
     <ngwr-doc-code [code]="snippets.overlaySingle" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -51,7 +51,7 @@
 
   <ngwr-doc-section
     title="Combobox mode — multi + chips"
-    description="`maxTagCount` caps visible chips before collapsing into `+N more`. `defaultExpandAll` auto-expands every parent on first open."
+    description="`maxTagCount` caps the chips shown before `+N more`. `defaultExpandAll` opens every parent on first open."
   >
     <ngwr-doc-code [code]="snippets.overlayMulti" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -72,12 +72,12 @@
 
   <ngwr-doc-section
     title="Combobox mode — width"
-    description="A combobox trigger left to size itself is `12rem` wide, or wider when its content needs the room. That is a default rather than a minimum: an explicit `width`, `width: 100%` in a narrower parent, a grid cell and a flex item that has to shrink all win over it, and the label truncates. **Lower the default through `--wr-tree-trigger-min-width`, never through the trigger** — set it to `0` and a bare trigger is as wide as its content. A `min-width` on `.wr-tree__trigger`, the override that did this before the hook existed, no longer reaches it."
+    description="A trigger left to size itself is `12rem` wide. Change that with `--wr-tree-trigger-min-width`; a `min-width` on `.wr-tree__trigger` has no effect."
   />
 
   <ngwr-doc-section
     title="Virtual scroll"
-    description="Set `virtualScroll` to window a large tree — only ~one viewport of rows stays in the DOM. `rowHeight` (0 = auto-measure the first row) and `viewportHeight` size the window; keyboard nav switches to `aria-activedescendant` so Arrow / Home / End / Enter keep working across un-rendered rows. Works inline and in `openOn=overlay`. The tree below holds 5,020 nodes."
+    description="For a large tree, set `virtualScroll` and `viewportHeight`. `rowHeight` is measured when left at `0`."
   >
     <ngwr-doc-code [code]="snippets.virtual" language="angular-html" />
     <ngwr-doc-snippet code="">

@@ -36,11 +36,7 @@ export default class PopoverPageComponent {
 </ng-template>`,
     hover: `<wr-btn [wrPopover]="card" trigger="hover">Hover me</wr-btn>`,
     positions: `<wr-btn [wrPopover]="hint" position="right">Right</wr-btn>`,
-    tooltip: `<!-- Pass a string + mode="tooltip" — opens on hover or a keyboard
-     focus, closes when focus leaves / on pointer-leave / Escape. A .focus()
-     call opens nothing: that is an overlay handing focus back, not a user.
-     Uses aria-describedby. -->
-<wr-btn [wrPopover]="'Save changes'" mode="tooltip" position="top">Save</wr-btn>`,
+    tooltip: `<wr-btn [wrPopover]="'Save changes'" mode="tooltip" position="top">Save</wr-btn>`,
     tooltipDelays: `<wr-btn
   [wrPopover]="'Slow to appear'"
   mode="tooltip"
@@ -54,9 +50,6 @@ export default class PopoverPageComponent {
 @Component({
   imports: [CdkScrollable, WrPopover],
   template: \`
-    <!-- One attribute. Without it the panel is positioned when it opens and
-         never again for this box — the window is tracked automatically, a
-         nested scroller only once it registers itself. -->
     <div class="side-panel" cdkScrollable>
       <wr-btn [wrPopover]="info">Details</wr-btn>
     </div>
@@ -65,12 +58,7 @@ export default class PopoverPageComponent {
 export class PanelComponent {}`,
     exportAs: `<wr-btn [wrPopover]="card" #details="wrPopover">Details</wr-btn>
 
-<!-- Anywhere else in the same template. \`open()\` and \`close()\` from a
-     control OUTSIDE the trigger, never \`toggle()\`: the click that reaches
-     the button has already run the document outside-click listener, which
-     closed the panel — so \`toggle()\` reads \`false\` and flips it straight
-     back open. On the trigger itself there is no outside click and
-     \`toggle()\` is the right call. -->
+<!-- From another control use open() and close(), not toggle(). -->
 <wr-btn [disabled]="details.isOpen()" (click)="details.open()">Open</wr-btn>
 <wr-btn [disabled]="!details.isOpen()" (click)="details.close()">Close</wr-btn>`,
   };

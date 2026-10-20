@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="Mention"
-  description="`@`-style mention picker for `<textarea>` and `<input>`. Detects trigger characters at word boundaries, opens an overlay at the caret, commits the selection back into the field."
+  description="Suggest names or tags while typing `@` in a text field."
   [keywords]="['mention', 'autocomplete', 'wr-mention', 'tagging']"
   [labels]="['Directive']"
 >
   <ngwr-doc-section
     title="Basic"
-    description="Type `@` at the start or after a space to open the picker. Arrows navigate, Enter / Tab commits, Esc cancels."
+    description="Type `@` at the start of a word to open the list; arrows move, Enter or Tab inserts, Esc closes."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -24,7 +24,7 @@
 
   <ngwr-doc-section
     title="Custom trigger"
-    description="`triggers` accepts any character (or set of characters). Use `#` for tags, `:` for emoji, etc."
+    description="`triggers` sets the characters that open the list, such as `#` for tags."
   >
     <ngwr-doc-code [code]="snippets.multi" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -40,16 +40,9 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Types" description="Data shapes used by the inputs and outputs above.">
+  <ngwr-doc-section title="Types">
     <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
     <ngwr-doc-api [rows]="typeRows" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Accessibility"
-    description="The field keeps its native `role=\`textbox\`` — it holds prose, and the mention is a fragment inside it, not the field's value. It is deliberately **not** a `combobox`: that role is disallowed on `<textarea>` and would drop `aria-multiline`, so a screen reader would stop reporting the field as multi-line for the whole editing session. Nothing here is configurable, and nothing is required of you."
-  >
-    <ngwr-doc-code [code]="snippets.a11y" language="angular-html" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

@@ -73,8 +73,7 @@ export default class CommandPalettePage {
   [debounceMs]="250"
   (searchChange)="search($event)"
 />`,
-    template: `<!-- Drop at the root once; opens via global hotkey (default: mod+k). -->
-<wr-command-palette
+    template: `<wr-command-palette
   [items]="commands"
   trigger="mod+k"
   (picked)="onPicked($event)"
@@ -99,11 +98,8 @@ export default class CommandPalettePage {
       default: '—',
     },
     {
-      // Documented nowhere, and the only way to put anything of your own in the
-      // panel. A projection selector, so nothing goes in `imports`.
       name: '[wrCommandPaletteFooter]',
-      description:
-        'Projection slot for the strip under the list — a hint line, a link, a key legend. It sits OUTSIDE the listbox on purpose: a `role="listbox"` may own only `option` and `group` children, so anything of your own has to live beside it rather than in it.',
+      description: 'Slot for a strip under the list: a hint, a link, a key legend.',
       type: 'content slot',
       default: '—',
     },

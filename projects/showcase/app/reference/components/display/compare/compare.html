@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="Compare"
-  description="Before/after split with a draggable divider. Project anything (images, text, divs, components) via `[wrCompareBefore]` and `[wrCompareAfter]` attributes — the component stacks them and clips the after side."
+  description="A before and after view split by a draggable divider."
   [keywords]="['compare', 'slider', 'diff', 'before-after', 'wr-compare']"
   [labels]="['Composite']"
 >
   <ngwr-doc-section
     title="Image compare"
-    description="Drag the divider — or use ←/→ on the focused slider, with Shift for ten points at a time. The arrows follow the VISUAL axis, so in an RTL document ←/→ still move the divider the way they point."
+    description="Mark the layers `wrCompareBefore` and `wrCompareAfter`; drag the divider or use the arrow keys (Shift moves 10 points)."
   >
     <ngwr-doc-code [code]="snippets.images" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -27,10 +27,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Vertical split"
-    description="Drag the divider — or use ↑/↓ on the focused slider, which is the block axis and so is never mirrored by `dir`. Shift takes ten points at a time, and Home / End go to `minPosition` / `maxPosition` in either orientation."
-  >
+  <ngwr-doc-section title="Vertical split" description='`orientation="vertical"` splits top from bottom.'>
     <ngwr-doc-code [code]="snippets.vertical" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-compare
@@ -53,7 +50,7 @@
 
   <ngwr-doc-section
     title="Arbitrary content"
-    description="Works with any HTML. The `before` slot determines natural size; the `after` slot must occupy the same box."
+    description="Any content works; without an image to size it, set a height on `<wr-compare>`."
   >
     <ngwr-doc-code [code]="snippets.text" language="angular-html" />
     <ngwr-doc-snippet code="">

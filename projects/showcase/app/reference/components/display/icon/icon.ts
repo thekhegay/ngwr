@@ -6,6 +6,7 @@ import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import {
   DocApiComponent,
   DocCodeComponent,
+  DocInstallComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSeeAlsoComponent,
@@ -23,6 +24,7 @@ import { API } from '#core/generated/api';
     DocSectionComponent,
     DocSnippetComponent,
     DocCodeComponent,
+    DocInstallComponent,
     DocApiComponent,
     DocSeeAlsoComponent,
   ],
@@ -30,17 +32,14 @@ import { API } from '#core/generated/api';
 })
 export default class IconComponent {
   protected readonly snippets = {
-    register: `// 1. Bring icons from any source — Lucide, Tabler, your own SVGs, …
-import { Plus, Trash } from 'lucide';
+    register: `import { Plus, Trash } from 'lucide';
 import { lucideIcons, provideWrIcons } from 'ngwr/icon';
 
 bootstrapApplication(AppComponent, {
   providers: [provideWrIcons(lucideIcons({ plus: Plus, trash: Trash }))],
 });`,
 
-    use: `// 2. Reference by name in any template. The provider is app-wide; the
-// component still has to be imported wherever <wr-icon> is written.
-import { WrIcon } from 'ngwr/icon';
+    use: `import { WrIcon } from 'ngwr/icon';
 
 @Component({ imports: [WrIcon], templateUrl: './my.html' })
 export class MyComponent {}
@@ -58,18 +57,12 @@ provideWrIcons([
   protected readonly api = API.WrIcon;
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
-    {
-      kind: 'Guide',
-      title: 'Icons',
-      url: ['/icons'],
-      description:
-        'Browse and install the sets — Lucide, Feather, Tabler, Phosphor, Heroicons, Iconoir, Radix, Bootstrap.',
-    },
+    { kind: 'Guide', title: 'Icons', url: ['/icons'], description: 'Browse the icon sets.' },
     {
       kind: 'Guide',
       title: 'ng g ngwr:icon-set',
-      url: ['/start', 'schematics'],
-      description: 'Pair with the schematic for a one-shot scaffold of the icon barrel.',
+      url: ['/docs', 'installation'],
+      description: 'Scaffold an icon barrel.',
     },
   ];
 }

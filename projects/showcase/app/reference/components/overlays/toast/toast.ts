@@ -103,22 +103,9 @@ bootstrapApplication(AppComponent, {
 
     position: `this.toast.setPosition('bottom-end');`,
 
-    scope: `// The six positions, in full — \`WrToastPosition\` is a union of these and
-// nothing else. Both the global config and every \`show()\` call take one.
-type WrToastPosition =
-  | 'top-start' | 'top' | 'top-end'
-  | 'bottom-start' | 'bottom' | 'bottom-end';
-
-// A toast raised on the way out of a screen still appears, and dismisses
-// itself. Keep the handle only when you mean to remove it early.
-const ref = this.toast.show({ message: 'Uploading…', duration: 0 });
+    scope: `const ref = this.toast.show({ message: 'Uploading…', duration: 0 });
 await this.upload();
-ref.dismiss();
-
-// Route-level providers do NOT reach the service — this is ignored:
-//   { path: 'admin', providers: [provideWr(withToast({ position: 'bottom' }))] }
-// Pass the value per call instead:
-this.toast.show({ message: 'Saved', position: 'bottom' });`,
+ref.dismiss();`,
   };
 
   protected readonly serviceApi: readonly DocApiRow[] = [
@@ -132,14 +119,13 @@ this.toast.show({ message: 'Saved', position: 'bottom' });`,
     { name: 'dismissAll()', description: 'Removes every toast in the stack.', type: '() => void', default: '—' },
     {
       name: 'setPosition(position)',
-      description:
-        'Move the toast stack to a different corner. Affects future toasts, and persists across host re-creation.',
+      description: 'Move the stack to another corner.',
       type: '(WrToastPosition) => void',
       default: '—',
     },
     {
       name: 'setMode(mode)',
-      description: 'Switch the stack layout at runtime. Persists across host re-creation.',
+      description: 'Switch the stack layout.',
       type: '(WrToastMode) => void',
       default: '—',
     },
@@ -163,8 +149,7 @@ this.toast.show({ message: 'Saved', position: 'bottom' });`,
     { name: 'dismissible', description: 'Show close (×) button.', type: 'boolean', default: 'true' },
     {
       name: 'position',
-      description:
-        'Corner this toast opens in. The whole stack shares one host, so it is not per-toast: a different corner relocates the toasts already on screen along with this one.',
+      description: 'Corner of the stack. Moves the toasts already on screen too.',
       type: 'WrToastPosition',
       default: 'config.position',
     },
@@ -182,8 +167,7 @@ this.toast.show({ message: 'Saved', position: 'bottom' });`,
     },
     {
       name: 'class',
-      description:
-        "Extra classes on this toast's own box. Not the overlay pane — that holds the whole stack and outlives every toast in it.",
+      description: "Extra classes on this toast's box, not the overlay pane.",
       type: 'WrClassInput',
     },
   ];
@@ -197,7 +181,7 @@ this.toast.show({ message: 'Saved', position: 'bottom' });`,
     },
     {
       name: 'mode',
-      description: 'Layout for multiple toasts — a Sonner-style cascade, or a plain column.',
+      description: 'Layout for several toasts: a cascade or a column.',
       type: 'WrToastMode',
       default: "'stack'",
     },
@@ -218,14 +202,13 @@ this.toast.show({ message: 'Saved', position: 'bottom' });`,
     },
     {
       name: 'maxStack',
-      description:
-        'Max visible toasts. Nothing on screen is taken away to make room — past the cap the NEWEST waits in a FIFO queue and is promoted as visible ones dismiss, and its countdown only starts once it is visible. 0 = unlimited.',
+      description: 'Max visible toasts. Extra toasts wait in a queue. 0 = unlimited.',
       type: 'number',
       default: '5',
     },
     {
       name: 'labels',
-      description: 'Strings rendered in the UI — override individually for i18n.',
+      description: 'UI strings. Override any one of them.',
       type: '{ close; copy; copied; closeAll }',
       default: '—',
     },

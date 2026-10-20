@@ -91,13 +91,9 @@ export default class TreePageComponent {
   [nodes]="folders"
   [(selected)]="picked"
   selectionMode="multi"
-/>
+/>`,
 
-<!-- Cmd / Ctrl + click toggles individual selections. -->`,
-
-    overlaySingle: `<!-- Combobox shape — opens an overlay containing the tree.
-     A signal-forms native control (FormValueControl). Replaces wr-tree-select. -->
-<wr-tree
+    overlaySingle: `<wr-tree
   openOn="overlay"
   [nodes]="folders"
   selectionMode="single"
@@ -115,8 +111,7 @@ export default class TreePageComponent {
   [(value)]="picked"
 />`,
 
-    virtual: `<!-- 5,000+ nodes; only ~one viewport of rows stays in the DOM. -->
-<wr-tree
+    virtual: `<wr-tree
   [nodes]="bigTree"
   [(expanded)]="expanded"
   [(selected)]="picked"

@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="Context Menu"
-  description="Attach `[wrContextMenu]` to any element to open a `<wr-context-menu>` at the pointer position on right-click. Native browser menu is suppressed on the host."
+  description="A right-click menu for any element."
   [keywords]="['context menu', 'right click', 'menu', 'submenu', 'wr-context-menu']"
   [labels]="['Overlay']"
 >
   <ngwr-doc-section
     title="Opening it"
-    description="Three ways in, and only the first is a mouse. A RIGHT-CLICK, or anything else the browser turns into a `contextmenu` event. SHIFT+F10 or the Menu key, which is the keyboard path and why `[wrContextMenu]` belongs on a focusable region rather than on a bare `<div>`. And a 500 ms LONG-PRESS on touch, where there is no right button. The native browser menu is suppressed on the host for all of them. Once open, the arrows rove the items, Home / End jump to the ends, Enter or Space picks, and Escape closes — the overlay dispatcher routes the key, so it works wherever focus happens to be."
+    description="Opens on right-click, long press, Shift+F10 or the Menu key; put `[wrContextMenu]` on a focusable element."
   />
 
   <ngwr-doc-section title="Basic" description="Right-click the area below.">
@@ -22,10 +22,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Dividers"
-    description="Drop `<wr-context-menu-divider />` between items to visually group related actions. Useful for separating destructive actions from the rest."
-  >
+  <ngwr-doc-section title="Dividers" description="Put `<wr-context-menu-divider />` between items to group them.">
     <ngwr-doc-code [code]="snippets.divider" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div [wrContextMenu]="dividerMenu" class="ngwr-cm-demo">Right-click for grouped actions</div>
@@ -42,7 +39,7 @@
 
   <ngwr-doc-section
     title="Submenus"
-    description="Pass another `<wr-context-menu>` to `[submenu]` to nest a submenu off any item. Hover to open, or press the arrow the menu cascades toward — → in LTR, ← under RTL, since the panes mirror with the reading direction and a fixed key would ask an RTL reader to press toward the parent. The opposite arrow, or a click outside, closes it. Submenus can themselves contain submenus — the API is recursive."
+    description="Pass another `<wr-context-menu>` to `[submenu]`. It opens on hover or the arrow key toward it, and can nest further."
   >
     <ngwr-doc-code [code]="snippets.submenu" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -74,7 +71,7 @@
 
   <ngwr-doc-section
     title="Custom templates"
-    description="`<wr-context-menu>` projects any content between its tags — drop in arbitrary markup alongside items for headers, descriptions, keyboard hints, or fully bespoke rows."
+    description="The menu and its items render any content you project, such as a header or a key hint."
   >
     <ngwr-doc-code [code]="snippets.custom" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -105,7 +102,7 @@
 
   <ngwr-doc-section
     title="Template reference"
-    description="Two names, deliberately: the panel is `wrContextMenu` — that is what `<wr-context-menu #menu>` hands to the trigger — and the TRIGGER directive is `wrContextMenuTrigger`."
+    description="Export the trigger as `wrContextMenuTrigger` to close the menu from another control."
   >
     <ngwr-doc-code [code]="snippets.exportAs" language="angular-html" />
   </ngwr-doc-section>

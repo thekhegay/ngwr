@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Sortable List"
-  description="Drag-to-reorder list over the Angular CDK. Rows are `<wr-sortable-item>`, the new order comes back through two-way `[(items)]`, and `[wrDragHandle]` restricts the grab to one element."
+  description="A list the user reorders by drag or keyboard."
   [keywords]="[
     'sortable-list',
     'drag-drop',
@@ -12,16 +12,13 @@
   ]"
   [labels]="['Component']"
 >
-  <ngwr-doc-section
-    title="Peer dependencies"
-    description="The list is built on the Angular CDK, so `@angular/cdk` has to be installed — it is a peer dependency, not a bundled one."
-  >
-    <ngwr-doc-code [code]="snippets.peer" language="bash" />
+  <ngwr-doc-section title="Peer dependencies" description="Needs `@angular/cdk`.">
+    <ngwr-doc-install packages="@angular/cdk" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Basic usage"
-    description="You write the loop, so a row is ordinary markup — and ordinary markup is ALL it is: `<wr-sortable-item>` ships a grab cursor, a tab stop and a focus ring, and no padding, border or surface of its own. The list owns the array, the gesture, the keyboard path and the live region; what a row looks like is yours. Written bare it is text you can drag, which is why both the demo and the snippet below carry a `.row` of their own."
+    description="Bind `[(items)]` and write one `<wr-sortable-item>` per item in your own loop. A row has no padding, border or background: style it yourself."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-code [code]="snippets.basicStyles" language="scss" />
@@ -44,7 +41,7 @@
 
   <ngwr-doc-section
     title="With a drag handle"
-    description="Put `wrDragHandle` on one element inside the row and only that element starts a drag. There is no input for it — the directive is the switch."
+    description="Put `wrDragHandle` on one element in the row, and only that element starts a drag."
   >
     <ngwr-doc-code [code]="snippets.handle" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -64,10 +61,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Keyboard"
-    description="Every row is a tab stop. The CDK ships no key handling of its own, so without this the list would be unusable without a pointer."
-  >
+  <ngwr-doc-section title="Keyboard" description="Every row is a tab stop.">
     <ngwr-doc-api [rows]="keys" />
   </ngwr-doc-section>
 
@@ -75,7 +69,7 @@
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Related" description="The two symbols a row is built from.">
+  <ngwr-doc-section title="Related">
     <ngwr-doc-api [rows]="related" />
   </ngwr-doc-section>
 </ngwr-doc-page>

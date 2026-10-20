@@ -1,10 +1,13 @@
 <ngwr-doc-page
   title="Cascader"
-  description="Multi-level select. Drills through hierarchical categories one column at a time; picking a leaf commits the full path. A signal-forms native control — it implements `FormValueControl`, so `[formField]` binds straight to its `value` model (`readonly T[]`). `[(value)]` works standalone, and `[(ngModel)]` / reactive forms keep working through Angular's bridge."
+  description="Pick a path through nested options, one column per level."
   [keywords]="['cascader', 'wr-cascader', 'multi-level', 'select']"
   [labels]="['Component']"
 >
-  <ngwr-doc-section title="Basic">
+  <ngwr-doc-section
+    title="Basic"
+    description="Picking a leaf commits the whole path to `[(value)]` or [any Angular form](/guides/forms)."
+  >
     <ngwr-doc-code [code]="snippets.basic" language="angular-ts" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 30rem">
@@ -14,10 +17,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="changeOnSelect"
-    description="Commit a path on every click, including parent nodes. Useful for filters where any level is meaningful."
-  >
+  <ngwr-doc-section title="changeOnSelect" description="Commit on every click, parent levels included.">
     <ngwr-doc-code [code]="snippets.changeOnSelect" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 30rem">
@@ -31,7 +31,7 @@
 
   <ngwr-doc-section
     title="Width"
-    description="A cascader left to size itself is `12rem` wide, or wider when its path needs the room. That is a default rather than a minimum: an explicit `width`, `width: 100%` in a narrower parent, a grid cell and a flex item that has to shrink all win over it, and the path truncates. **Lower the default through `--wr-cascader-min-width`, never through the trigger** — set it to `0` and a bare cascader is as wide as its path. A `min-width` on `.wr-cascader__trigger`, the override that did this before the hook existed, no longer reaches it."
+    description="The default is `12rem`; change it with `--wr-cascader-min-width`, not a `min-width` on `.wr-cascader__trigger`."
   />
 
   <ngwr-doc-section title="API">

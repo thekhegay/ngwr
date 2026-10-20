@@ -1,10 +1,13 @@
 <ngwr-doc-page
   title="Switch"
-  description="Boolean toggle with an iOS-style slider. A signal-forms native control — it implements `FormCheckboxControl`, so `[formField]` binds straight to its `checked` model. `[(checked)]` works standalone, and `[(ngModel)]` / reactive forms keep working through [Angular 22's forms bridge](/guides/forms)."
+  description="Turn a setting on or off."
   [keywords]="['switch', 'toggle', 'wr-switch']"
   [labels]="['Component', 'Standalone']"
 >
-  <ngwr-doc-section title="Basic usage">
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Bind the boolean with `[(checked)]` or [any Angular form](/guides/forms)."
+  >
     <ngwr-doc-snippet [code]="snippets.basic">
       <wr-switch [(checked)]="enabled">Notifications</wr-switch>
       <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ enabled() }}</span>

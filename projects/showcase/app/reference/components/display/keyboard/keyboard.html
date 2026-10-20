@@ -1,10 +1,10 @@
 <ngwr-doc-page
   title="Keyboard"
-  description="Keycap chip for rendering keyboard shortcuts in copy. Stack with a plain `+` between caps for chords."
+  description="A keycap for showing a keyboard shortcut."
   [keywords]="['kbd', 'keyboard', 'keycap', 'shortcut', 'wr-kbd']"
   [labels]="['Display']"
 >
-  <ngwr-doc-section title="Basic">
+  <ngwr-doc-section title="Basic" description="Put a plain `+` between caps for a chord.">
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
       <p>Open the command palette: <wr-kbd>⌘</wr-kbd> + <wr-kbd>K</wr-kbd></p>
@@ -24,14 +24,11 @@
 
   <ngwr-doc-section
     title="Full keyboard"
-    description="Every cap rendered in a 60% ANSI-ish layout so glyphs, widths, and proportions can be eyeballed at once."
+    description="Lay caps out with flex or grid, and set the width of wide keys yourself."
   >
     <ngwr-doc-code [code]="snippets.layout" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <!-- Every cap is pinned by `flex: 0 0 Nrem` + `min-width`, so the block is a
-           hard 652px that can neither wrap nor shrink. Scroll the panel rather
-           than the document — below ~1000px it used to push the whole page
-           sideways by up to 318px. -->
+      <!-- Fixed-width rows: the panel scrolls, not the page. -->
       <div
         style="
           display: flex;
@@ -63,7 +60,7 @@
 
   <ngwr-doc-section
     title="Inside prose"
-    description="Caps sit inline in running text. Their size is fixed per `size` rather than inherited, so match it to the surrounding variant — `md` reads level with body copy, `sm` with `small`. The glyphs render from `--wr-font-family-base`, not the mono stack, because `⌘` `⇧` `⌥` `⌃` are missing from many monospace fonts and would fall back to tofu."
+    description="A cap does not take the size of the text around it: use `md` in body copy and `sm` in small text."
   >
     <ngwr-doc-code [code]="snippets.prose" language="angular-html" />
     <ngwr-doc-snippet code="">

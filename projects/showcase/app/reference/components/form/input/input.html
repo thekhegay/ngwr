@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Input"
-  description="Attribute directive applied to a native `<input>` (or `<textarea>`). Because the styling lives on the real input, third-party directives like `ngx-mask`, custom validators, and `[(ngModel)]` compose naturally on the same element."
+  description="A directive that styles a native `<input>` or `<textarea>`."
   [keywords]="['input', 'wrInput', 'mask', 'ngx-mask', 'text']"
   [labels]="['Directive', 'a11y']"
 >
@@ -11,10 +11,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Types"
-    description="Set any native `type` — text, number, email, search, tel, url, password."
-  >
+  <ngwr-doc-section title="Types" description="Set any native `type`.">
     <ngwr-doc-snippet [code]="snippets.types">
       <input wrInput type="email" placeholder="you@example.com" />
       <input wrInput type="number" placeholder="0" />
@@ -24,7 +21,7 @@
 
   <ngwr-doc-section
     title="Prefix & suffix"
-    description="Wrap in `<wr-input-group>` and mark sibling elements with `[wrInputPrefix]` / `[wrInputSuffix]`. The group owns the border and focus ring (via `:focus-within`)."
+    description="Wrap the input in `<wr-input-group>` and mark its siblings with `wrInputPrefix` or `wrInputSuffix`."
   >
     <ngwr-doc-snippet [code]="snippets.affixes">
       <wr-input-group>
@@ -47,25 +44,10 @@
 
   <ngwr-doc-section
     title="Password reveal"
-    description="`<wr-password-toggle>` flips its linked input's `type` attribute between `password` and `text`. Use a template ref to wire them up."
+    description="`<wr-password-toggle [for]>` switches its input between `password` and `text`."
   >
     <ngwr-doc-snippet [code]="snippets.password">
       <wr-input-group>
-        <!--
-          The ONE real `type="password"` left in the showcase, and it stays:
-          this section documents the password input and its reveal control, so
-          faking the type with `-webkit-text-security` would demonstrate
-          something the library does not ship.
-
-          `new-password` suppresses autofill. It does NOT suppress the offer to
-          SAVE — that heuristic keys on a password-typed field having been
-          given a value, and no `autocomplete` value turns it off. The field
-          ships EMPTY, so a manager has nothing to offer until a reader types
-          into it themselves, which is the trade this page is worth. The home
-          page's sign-up tile was the version that could not be defended: it
-          prefilled two of these and prompted on the way out, having asked
-          nobody.
-        -->
         <input
           wrInput
           type="password"
@@ -81,13 +63,10 @@
 
   <ngwr-doc-section
     title="Input masking — with ngx-mask"
-    description="ngwr does not ship a mask directive of its own, and deliberately does not wrap one either — a mask is input plumbing, not a look, so blessing the ecosystem's standard beats owning a second copy of it. `ngx-mask` is that standard: battle-tested, signal-compatible, MIT, and about 18 KB once minified and gzipped. Because `[wrInput]` is just a directive on the real `<input>`, it plugs in on the same element with zero ceremony."
+    description="ngwr ships no mask. Put `ngx-mask` on the same `<input>`."
   >
-    <h3 style="margin: 0.5rem 0">Setup</h3>
     <ngwr-doc-install packages="ngx-mask" />
     <ngwr-doc-code [code]="snippets.maskSetup" language="angular-ts" />
-
-    <h4 style="margin: 1.5rem 0 0.5rem">Common masks</h4>
     <ngwr-doc-snippet [code]="snippets.maskUsage">
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1rem">
         <label style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
@@ -120,10 +99,7 @@
       </div>
     </ngwr-doc-snippet>
 
-    <p style="margin: 1rem 0 0; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
-      Full token reference (custom patterns, dynamic masks, locale config) — see
-      <a href="https://jsdaddy.github.io/ngx-mask" target="_blank" rel="noopener">the ngx-mask docs</a>.
-    </p>
+    <p>Mask tokens: <a href="https://jsdaddy.github.io/ngx-mask" target="_blank" rel="noopener">ngx-mask docs</a>.</p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Disabled">
@@ -133,24 +109,9 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="In a form, this is the one that behaves natively"
-    description="`[wrInput]` styles a real `<input>`, so its form semantics are Angular's own — and they differ from every ngwr **component** in the catalog. Worth knowing before you mix the two in one `FormGroup`."
-  >
-    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
-      A native <code>&lt;input&gt;</code> binds through the <code>DefaultValueAccessor</code> Angular ships. Every ngwr
-      value component — <code>&lt;wr-select&gt;</code>, <code>&lt;wr-input-number&gt;</code>,
-      <code>&lt;wr-checkbox&gt;</code> and the rest — binds through
-      <a routerLink="/guides/forms">Angular 22's forms bridge</a> instead, because the library ships no
-      <code>ControlValueAccessor</code> at all. Two consequences show up as soon as both are in the same form.
-      <strong
-        ><code>updateOn: 'blur'</code> and <code>'submit'</code> hold here and are ignored by the components</strong
-      >, and
-      <strong
-        >a <code>{{ '{' }} emitEvent: false {{ '}' }}</code> write repaints this field and not them.</strong
-      >
-      Neither is a bug in either half; the guide explains both and what to do about them.
-    </p>
-  </ngwr-doc-section>
+    title="In a form"
+    description="Binds like any native input, so `updateOn` and `{ emitEvent: false }` work. See [Forms](/guides/forms)."
+  />
 
   <ngwr-doc-section title="[wrInput] directive">
     <ngwr-doc-api [rows]="directiveApi" />

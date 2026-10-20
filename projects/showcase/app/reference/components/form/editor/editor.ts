@@ -119,8 +119,7 @@ export function toHtml(value: WrEditorJson, schema: Schema, document: Document):
   host.append(DOMSerializer.fromSchema(schema).serializeFragment(doc.content, { document }));
   return host.innerHTML;
 }`,
-    refused: `// Refused whole: the link's address is one the URL check never lets through,
-// so the editor keeps what it had and warns in dev mode.
+    refused: `// Refused whole: the URL check never lets a javascript: link through.
 protected readonly imported = signal<WrEditorValue>({
   type: 'doc',
   content: [
@@ -138,40 +137,21 @@ protected readonly imported = signal<WrEditorValue>({
 });`,
     toolbar: `import { WR_EDITOR_TOOLBAR, type WrEditorTool } from 'ngwr/editor';
 
-// Built from the default rather than retyped — this drops the two code tools.
+// The default toolbar without the two code tools.
 readonly tools: readonly WrEditorTool[] = WR_EDITOR_TOOLBAR.filter(
   tool => tool !== 'code' && tool !== 'codeBlock'
 );`,
-    noToolbar: `<!-- No toolbar at all: the shortcuts and the block shortcuts still work. -->
+    noToolbar: `<!-- No toolbar; the shortcuts still work. -->
 <wr-editor ariaLabel="Notes" [toolbar]="false" [(value)]="notes" />`,
-    states: `<!-- A viewer: no ProseMirror is created for this one, and no toolbar is drawn. -->
+    states: `<!-- A viewer: no toolbar, no ProseMirror. -->
 <wr-editor ariaLabel="Published notes" readonly [toolbar]="false" [value]="notes" />
 
-<!-- Disabled mounts as usual, then leaves the tab order. -->
 <wr-editor ariaLabel="Locked notes" disabled [value]="notes" />`,
-    defer: `<!-- ProseMirror lands in the chunk that imports ngwr/editor, and in no other.
-     @defer moves that chunk off the first load as well. -->
-@defer (on viewport) {
+    defer: `@defer (on viewport) {
   <wr-editor [formField]="form.body" />
 } @placeholder {
   <div class="editor-placeholder" aria-hidden="true"></div>
 }`,
-    a11y: `<!-- What the editor exposes around its text, inside a <wr-form-field label="Description">. -->
-<div role="toolbar" aria-label="Formatting" aria-controls="wr-editor-0">
-  <button aria-label="Bold" aria-pressed="false" aria-keyshortcuts="Control+B" tabindex="0">…</button>
-  <button aria-label="Italic" aria-pressed="false" aria-keyshortcuts="Control+I" tabindex="-1">…</button>
-  <!-- … -->
-  <button aria-label="Insert link" aria-haspopup="dialog" aria-expanded="false" aria-keyshortcuts="Control+K" tabindex="-1">…</button>
-</div>
-<div
-  id="wr-editor-0"
-  role="textbox"
-  aria-multiline="true"
-  aria-labelledby="…the field's label…"
-  aria-describedby="…the field's hint or error…"
-  aria-placeholder="Describe the change"
-  contenteditable="true"
->…</div>`,
   };
 
   protected readonly basicFiles: readonly DocCodeFile[] = [
@@ -296,14 +276,12 @@ export class Ticket {
   protected readonly typeRows: readonly DocApiRow[] = [
     {
       name: 'WrEditorValue',
-      description:
-        'The `value` model: the document as a `WrEditorJson` tree, `null` for an empty one, so `required()` reports an empty editor as empty.',
+      description: 'The `value` model: a `WrEditorJson` tree, or `null` when empty.',
       type: 'WrEditorJson | null',
     },
     {
       name: 'WrEditorJson',
-      description:
-        'The document as plain data — the shape ProseMirror writes, declared so no ProseMirror type reaches the public API. A bound tree is validated, not trusted: anything the schema does not allow, or a link or image address the URL check refuses, refuses the whole value.',
+      description: 'The document as plain data, in the shape ProseMirror writes.',
       type: 'interface',
     },
     {

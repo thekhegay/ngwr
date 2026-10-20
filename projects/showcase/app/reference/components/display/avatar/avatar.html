@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Avatar"
-  description="Image avatar with a square, rounded, circle or squircle shape. Projected initials stand in while the image loads and when it fails."
+  description="A user's picture, with initials as the fallback."
   [keywords]="['avatar', 'profile', 'image', 'wr-avatar']"
   [labels]="['Component', 'Standalone']"
 >
@@ -10,10 +10,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Sizes"
-    description="Accepts a number (pixels), '48', '48px', or '3rem'. No percentages — avatars need a deterministic pixel size."
-  >
+  <ngwr-doc-section title="Sizes" description="`size` takes pixels (`48`, `'48px'`) or `rem`, not a percentage.">
     <ngwr-doc-snippet [code]="snippets.sizes">
       <wr-avatar [url]="sampleUrl" alt="" [size]="32" />
       <wr-avatar [url]="sampleUrl" alt="" size="4rem" />
@@ -21,10 +18,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Shape"
-    description="`rounded` (default) is a soft rounded square, `square` keeps hard corners. `circle` replaces the old `[rounded]` boolean. `squircle` uses `corner-shape: squircle` where supported."
-  >
+  <ngwr-doc-section title="Shape" description="`shape` is `rounded` (default), `square`, `circle` or `squircle`.">
     <ngwr-doc-snippet [code]="snippets.shape">
       <wr-avatar [url]="sampleUrl" alt="" size="4rem" shape="square" />
       <wr-avatar [url]="sampleUrl" alt="" size="4rem" shape="rounded" />
@@ -33,10 +27,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Initials fallback"
-    description="With no `[url]`, projected content fills the box, centred by the avatar's own flex layout."
-  >
+  <ngwr-doc-section title="Initials fallback" description="With no `url`, the projected content fills the avatar.">
     <ngwr-doc-snippet [code]="snippets.initials">
       <wr-avatar [size]="48" shape="circle">
         <span style="font-size: 0.875rem; font-weight: 600; color: var(--wr-color-on-surface-muted)">RK</span>
@@ -49,7 +40,7 @@
 
   <ngwr-doc-section
     title="Initials at every size"
-    description="Projected initials take the text size around the avatar, capped at `--wr-avatar-initials-scale` of the box — `0.375` by default, where the widest capital pairs (`ЖШ`, `WW`) still clear a circle. Where the surrounding size already fits, nothing changes: beside 15px text a `6rem` avatar keeps 15px initials, and a 16px one draws them at 6px instead of spilling past its own edge. Anything projected that is sized in `em` follows the cap too, a `<wr-icon>` included — pin a `px` or `rem` size on it to opt out. The host publishes the resolved box as `--wr-avatar-size`. The letters are inert — a click on them lands on whatever holds the avatar, and a text selection skips them."
+    description="Initials shrink to fit the box, up to `--wr-avatar-initials-scale` of its size (`0.375` by default)."
   >
     <ngwr-doc-snippet [code]="snippets.initialsScale">
       <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; width: 100%">
@@ -84,7 +75,7 @@
 
   <ngwr-doc-section
     title="Inside a chip and a tag"
-    description="Where a small avatar usually lives: a 16px circle in a multi-select chip and 24px in its option rows, and a 16px one in a small tag beside a link. Each sits in different text — the chip's 14px, the tag's 12px — and each draws initials sized to its own box. A click on the letters reaches whatever holds the avatar: the chip and the field around it, or the tag."
+    description="In a select, size the avatar by `placement`: 16px in a chip, 24px in an option row."
   >
     <ngwr-doc-snippet [files]="smallFiles">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 28rem">
@@ -126,7 +117,7 @@
 
   <ngwr-doc-section
     title="Initials behind an image"
-    description="Give an image and initials together and the initials are the fallback: they show while the image loads, then give way to it. With an `alt`, a screen reader hears the `alt` while an image is in play and the initials otherwise, never both. Without one the image is only named `Avatar`, so the initials stay announced beside it. They are projected into a `.wr-avatar__content` wrapper, and no spinner is drawn over them."
+    description="Give both a `url` and initials: the initials show until the image loads."
   >
     <ngwr-doc-snippet [code]="snippets.withImage">
       <wr-avatar
@@ -143,7 +134,7 @@
 
   <ngwr-doc-section
     title="Broken image"
-    description="A `[url]` that fails to load drops the broken `<img>` and the spinner, and the initials stay — the one state where an avatar is guaranteed to have something worth showing. A new `[url]` is a new attempt."
+    description="If `url` fails to load the initials stay, and a new `url` tries again."
   >
     <ngwr-doc-snippet [code]="snippets.broken">
       <wr-avatar
@@ -156,6 +147,16 @@
         RK
       </wr-avatar>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Gotchas">
+    <ul>
+      <li>
+        Projected content sized in <code>em</code>, a <code>&lt;wr-icon&gt;</code> too, shrinks with the initials. Give
+        it a <code>px</code> or <code>rem</code> size.
+      </li>
+      <li>Without <code>alt</code>, the image is announced as "Avatar". Set <code>alt</code> to the person's name.</li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

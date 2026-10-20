@@ -6,7 +6,6 @@ import { WrGraph, WrGraphNodeTemplate, type WrGraphEdge, type WrGraphNode } from
 import {
   DocApiComponent,
   type DocApiRow,
-  DocCodeComponent,
   type DocCodeFile,
   DocPageComponent,
   DocSectionComponent,
@@ -106,7 +105,6 @@ const PACKAGE_EDGES: readonly WrGraphEdge[] = [
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
-    DocCodeComponent,
     DocApiComponent,
   ],
 })
@@ -117,20 +115,6 @@ export default class GraphPageComponent {
   protected readonly teamEdges = TEAM_EDGES;
   protected readonly packageNodes = PACKAGE_NODES;
   protected readonly packageEdges = PACKAGE_EDGES;
-
-  protected readonly snippets = {
-    a11y: `<!-- What the team structure above exposes. The SVG holding the lines is aria-hidden,
-     and each <span> is visually hidden. -->
-<div role="group" tabindex="0" aria-label="Team structure">
-  <div role="list">
-    <div role="listitem">Platform <span>Children: Mira Okafor and Tomas Lindqvist.</span></div>
-    <!-- … -->
-    <div role="listitem">Noor Haddad Product designer <span>Parents: Design and Research.</span></div>
-    <!-- … -->
-    <div role="listitem">Dev Sandoval Engineer <span>Parents: Mira Okafor and Tomas Lindqvist.</span></div>
-  </div>
-</div>`,
-  };
 
   protected readonly workflowFiles: readonly DocCodeFile[] = [
     {
@@ -378,8 +362,7 @@ export class Dependencies {
     },
     {
       name: 'label',
-      description:
-        'The node’s name. The default card shows it, and every neighbour’s relation text reads it out — so a custom template should render it too.',
+      description: 'The node’s name, read by screen readers; render it in a custom template.',
       type: 'string',
       required: true,
       sub: true,
@@ -404,8 +387,7 @@ export class Dependencies {
     },
     {
       name: 'WrGraphEdge',
-      description:
-        'A parent-child link, drawn with its arrow at the child. Several edges between one pair, and edges that close a cycle, are both legal.',
+      description: 'A parent-child link; repeated edges and cycles are allowed.',
       type: 'interface',
     },
     {

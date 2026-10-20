@@ -60,8 +60,7 @@ export default class DrawerPageComponent {
 </wr-drawer>`,
     service: `import { WrDrawerManager } from 'ngwr/drawer';
 
-@Component({...})
-export class ToolbarComponent {
+export class Inbox {
   private readonly drawers = inject(WrDrawerManager);
 
   async openChat(threadId: string): Promise<void> {
@@ -74,37 +73,26 @@ export class ToolbarComponent {
     const sent = await ref.awaitClose(); // string | undefined
   }
 }`,
-    serviceContent: `// The opened component — same layout directives, no <wr-drawer> wrapper.
-import { WR_DRAWER_DATA, WrDrawerRef } from 'ngwr/drawer';
+    serviceContent: `import { WR_DRAWER_DATA, WrDrawerRef } from 'ngwr/drawer';
 
 @Component({...})
 export class ChatComponent {
   protected readonly data = inject<ChatData>(WR_DRAWER_DATA);
-  private readonly ref = inject(WrDrawerRef);
+  private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WrDrawerRef);
 
   send(): void {
     this.store.send(this.draft());
-    this.ref.close('sent');        // the caller's awaitClose() resolves
+    this.ref.close('sent');
   }
-}
-
-// The class token already types the generics — no cast, no WR_DRAWER_REF needed:
-private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WrDrawerRef);`,
-    focus: `<!-- Say where focus starts and the two forms stop differing. The attribute
-     needs no import — the focus trap looks it up by name. -->
-<wr-drawer [(open)]="open" position="right">
+}`,
+    focus: `<wr-drawer [(open)]="open" position="right">
   <h2 wrDrawerTitle>Filters</h2>
   <div wrDrawerContent>
     <wr-form-field label="Search">
       <input wrInput cdkFocusInitial [value]="query()" (input)="onQuery($event)" />
     </wr-form-field>
   </div>
-</wr-drawer>
-
-<!-- Unmarked:
-       <wr-drawer>          -> the ✕, which its template renders first
-       WrDrawerManager.open -> the first control, since its ✕ is appended last
-     Either way, closing returns focus to whatever was focused when it opened. -->`,
+</wr-drawer>`,
   };
 
   protected readonly drawerApi: readonly DocApiRow[] = [
@@ -147,8 +135,7 @@ private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WrDrawerRef);`
     { name: 'data', description: 'Payload exposed to the content via WR_DRAWER_DATA.', type: 'D', default: '—' },
     {
       name: 'closeOnNavigation',
-      description:
-        'Close the drawer when the router navigates. Turn it off only for a drawer that OWNS the navigation — a filter panel keeping its state in the query string.',
+      description: 'Close the drawer when the router navigates.',
       type: 'boolean',
       default: 'true',
     },
@@ -179,7 +166,7 @@ private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WrDrawerRef);`
     },
     {
       name: 'panelClass',
-      description: 'Extra class(es) on the panel — the same surface the service option of this name styles.',
+      description: 'Extra class(es) on the panel.',
       type: 'WrClassInput',
       default: 'null',
     },
@@ -191,7 +178,7 @@ private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WrDrawerRef);`
     },
     {
       name: 'panelClass',
-      description: 'Extra class(es) on the panel — the box that slides in, not the CDK pane around it.',
+      description: 'Extra class(es) on the box that slides in, not the CDK pane.',
       type: 'WrClassInput',
       default: '—',
     },
@@ -212,8 +199,7 @@ private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WrDrawerRef);`
     },
     {
       name: 'WR_DRAWER_REF',
-      description:
-        'The same ref under a second key, used by `[wrDrawerClose]`. Prefer `inject(WrDrawerRef)` — it already supports `{ optional: true }` and typed generics.',
+      description: 'The same ref, used by `[wrDrawerClose]`. Prefer `inject(WrDrawerRef)`.',
       type: 'InjectionToken<WrDrawerRef<C, R>>',
       default: '—',
     },
@@ -237,8 +223,7 @@ private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WrDrawerRef);`
     },
     {
       name: '[wrDrawerClose]="value?"',
-      description:
-        'Closes the parent drawer on click — the component or the service-opened one. For service drawers the optional value becomes the close result.',
+      description: 'Closes the drawer on click. The value is the close result of a service-opened drawer.',
       type: 'directive',
       default: '—',
     },

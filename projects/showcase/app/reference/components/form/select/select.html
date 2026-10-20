@@ -1,10 +1,10 @@
 <ngwr-doc-page
   title="Select"
-  description="Native-like select built on CDK Overlay. A signal-forms native control — it implements `FormValueControl`, so `[formField]` binds straight to its `value` model. `[(value)]` works standalone, and `[(ngModel)]` / reactive forms keep working through [Angular 22's forms bridge](/guides/forms)."
+  description="Pick one or several values from a list, with search and free-text tags."
   [keywords]="['select', 'wr-select', 'wr-option', 'overlay']"
   [labels]="['Component', 'Standalone', 'CDK Overlay']"
 >
-  <ngwr-doc-section title="Basic usage">
+  <ngwr-doc-section title="Basic usage" description="`[(value)]` holds the picked option's `value`.">
     <ngwr-doc-snippet [code]="snippets.basic">
       <div style="display: flex; flex-direction: column; gap: 0.5rem">
         <wr-select placeholder="Pick a size" [(value)]="size">
@@ -18,7 +18,7 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Groups" description="Use <wr-option-group> to label sections of related options.">
+  <ngwr-doc-section title="Groups" description="Label related options with `<wr-option-group>`.">
     <ngwr-doc-snippet [code]="snippets.groups">
       <div style="display: flex; flex-direction: column; gap: 0.5rem">
         <wr-select [(value)]="framework">
@@ -47,12 +47,12 @@
 
   <ngwr-doc-section
     title="Width"
-    description="A select left to size itself is `10rem` wide, or wider when its value needs the room. That is a default rather than a minimum: an explicit `width`, `width: 100%` in a narrower parent, a grid cell and a flex item that has to shrink all win over it, and the value truncates. **Lower the default through `--wr-select-min-width`, never through the trigger** — set it to `0` and a bare select is as wide as its content. A `min-width` on `.wr-select__trigger`, the override that did this before the hook existed, no longer reaches it."
+    description="A select is `10rem` wide by default. Change that with `--wr-select-min-width`; a `min-width` on `.wr-select__trigger` has no effect."
   />
 
   <ngwr-doc-section
     title="Multi mode"
-    description="Set the `mode` input to `'multi'` to switch the model to `T[]`. Each pick renders as a chip with a remove button; the panel stays open while you keep picking. Backspace on the closed trigger removes the last chip. Add `clearable` — opt-in, and what the demo below passes — for the clear-all (×) that appears once at least one chip is selected."
+    description="The `multi` mode makes the value an array, shown as chips. `clearable` adds a clear-all button."
   >
     <ngwr-doc-snippet [code]="snippets.multi">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
@@ -69,7 +69,7 @@
 
   <ngwr-doc-section
     title="Chip overflow + max items"
-    description="`[maxTagCount]` collapses extra chips into a `+N more` indicator on the trigger so long selections don’t wrap forever — it is purely how the trigger DRAWS the value. `[maxItems]` caps the array itself: at the cap an unselected option simply does not commit, and the one below is set to 4 with four already chosen, so picking a fifth is visibly refused. Deselecting always works, cap or not."
+    description="`[maxTagCount]` folds extra chips into `+N more`; `[maxItems]` caps how many can be picked."
   >
     <ngwr-doc-snippet [code]="snippets.multiOverflow">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
@@ -88,7 +88,7 @@
 
   <ngwr-doc-section
     title="Search mode"
-    description="The `search` mode turns the trigger into a text input that filters the projected `<wr-option>` children case-insensitively. `clearable` is opt-in and off by default; the demo below passes it, which is what puts the × on the trigger and makes Backspace on an empty field unset the value — the × was otherwise the only way to clear one here, which made it a mouse-only action. Replaces the removed `wr-autocomplete` for the common sync-filter case."
+    description="The `search` mode filters the options as you type. `clearable` adds a clear button and lets Backspace clear the value."
   >
     <ngwr-doc-snippet [code]="snippets.search">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
@@ -106,7 +106,7 @@
 
   <ngwr-doc-section
     title="Searchable multi-select"
-    description="`[mode]` picks one shape, so `searchable` exists alongside it: on `multi` the trigger keeps its chips and grows an inline text field. Type to filter, Enter to toggle the highlighted option, Backspace on an empty query to drop the last chip. The panel stays open so you can pick several matches without retyping."
+    description="Add `searchable` to `multi` for a filter field beside the chips."
   >
     <ngwr-doc-snippet [code]="snippets.searchableMulti">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
@@ -124,7 +124,7 @@
 
   <ngwr-doc-section
     title="Leading visuals and an explicit label"
-    description="An avatar, an icon or a colour dot goes in an `<ng-template wrOptionLeading>`, never straight into the option. Projected options are created with the page whether the panel is open or not, so an avatar written into each of 200 options is 200 components and 200 image requests before anyone opens the picker; a template is instantiated only where it is drawn — the rows of an OPEN panel (destroyed again on close, and only the rendered window under `virtualScroll`), each visible chip in `multi` mode, and the selected value on a trigger. A search-shaped trigger (`search` mode, a searchable single) draws it beside the input rather than inside it — an input holds a string — and only while that input is showing the selected label: focusing the field replaces the label with the query, so the visual steps aside and returns when the value does. Every copy is `aria-hidden` and skipped when the option’s text is read, so the trigger, the chips and the search filter read “Ada Lovelace”, never “AL Ada Lovelace”. When a row draws more than the name — a team, an email — set `label` as well: it is what the select reports and searches, while the row keeps announcing everything it shows."
+    description="Put an avatar or icon in an `<ng-template wrOptionLeading>`, not straight into the option. Set `label` when the row shows more than the name."
   >
     <ngwr-doc-code [code]="snippets.leading" language="angular-html" />
     <ngwr-doc-code [code]="snippets.leadingTs" language="angular-ts" />
@@ -205,7 +205,7 @@
 
   <ngwr-doc-section
     title="Server-side search"
-    description="`(searchChange)` is the hook when the options live somewhere else: it emits the debounced query, you dispatch, and the results come back through `[options]` with `[loading]` driving the panel's progress row. Add `serverSearch` so the built-in client-side filter stays out of the way — otherwise a ranked or fuzzy match whose label doesn't contain the query would be hidden again. The demo below fakes 700 ms of latency."
+    description="Fetch on `(searchChange)`, pass the results to `[options]` and `[loading]`, and add `serverSearch` to turn off the local filter."
   >
     <ngwr-doc-code [code]="snippets.serverSearch" language="angular-html" />
     <ngwr-doc-code [code]="snippets.serverSearchTs" language="typescript" />
@@ -228,13 +228,13 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Keyboard, and where the highlight goes"
-    description="Both panels are driven by `aria-activedescendant`, so the highlight moves without focus leaving the trigger. Arrow Down and Arrow Up step, Home and End jump to the ends, Enter picks the highlighted option, Escape closes and returns focus to the trigger, and typing filters in `search` mode. **The highlighted option is always scrolled into view**, in the plain panel as well as the virtual one — that held only for the virtual path until v14.0.1, so a keyboard user in a long non-virtual list drove a cursor they could not see."
+    title="Keyboard"
+    description="Arrow keys move the highlight, Home and End jump to the ends, Enter picks, Escape closes. Focus stays on the trigger."
   />
 
   <ngwr-doc-section
     title="Search mode — virtual scroll"
-    description="For large `[options]` arrays, add `virtualScroll` so only ~one viewport of rows stays in the DOM. It engages on the data-array path only (falls back to the full render when static `<wr-option>` children are projected); rows are navigated via `aria-activedescendant` and selected by value. Type to filter, Arrow / Home / End / Enter to pick. The list below holds 5,000 items."
+    description="Add `virtualScroll` for a long `[options]` array. Projected `<wr-option>`s are not virtualized."
   >
     <ngwr-doc-code [code]="snippets.virtual" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -255,7 +255,7 @@
 
   <ngwr-doc-section
     title="Tag mode"
-    description="The `tag` mode turns the trigger into a chip area with an inline input. Press one of `[separators]` (default: Enter or comma) to commit the draft. Backspace on an empty input removes the last chip. Replaces the removed `wr-chips-input`."
+    description="The `tag` mode turns typed text into chips. `[separators]` commit (Enter and comma by default), `[validate]` filters, `[maxItems]` caps."
   >
     <ngwr-doc-snippet [code]="snippets.tag">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 28rem">
@@ -279,7 +279,7 @@
 
   <ngwr-doc-section
     title="Use it in a form"
-    description="All three flavours bind the same `value` model. Signal forms is the native one — `[formField]` reaches it directly. Reactive forms and `[(ngModel)]` go through Angular 22's bridge, which binds a signal-forms control without a `ControlValueAccessor`: the library ships none, and `formControlName` still works. That bridge is not an accessor and does not behave like one — [the reactive-forms guide](/guides/forms) is what it carries, what it drops (`updateOn`, and a `{ emitEvent: false }` write), and what a host does about each. The demo is a reactive form — submit it empty to see the required error, then pick a value."
+    description="`[formField]`, `formControlName` and `[(ngModel)]` all bind `value`. See [Forms](/guides/forms)."
   >
     <ngwr-doc-code [code]="snippets.forms" language="angular-html" />
     <ngwr-doc-code [code]="snippets.formsTs" language="angular-ts" />
@@ -308,29 +308,10 @@
 
   <ngwr-doc-section
     title="How a value matches an option"
-    description="With `===`, against each `<wr-option [value]>`. There is no `compareWith` input and no identity key — so an object bound as the value has to be the *same reference* the option carries."
+    description="Values match with `===`, so a re-fetched object shows the placeholder: bind a primitive key."
   >
-    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
-      This is the one thing to get right before binding <code>&lt;wr-select&gt;</code> to server data.
-      <strong
-        >An object that arrives from a second request is structurally equal to the one in your options list and is not
-        the same reference</strong
-      >, so nothing matches: the trigger falls back to the placeholder while the form value stays exactly what you set,
-      and valid. A field that looks empty on a form that submits happily is a hard bug to read backwards, so the rule is
-      worth following by default — bind a primitive key.
-    </p>
-
     <ngwr-doc-code [code]="snippets.identity" language="angular-html" />
     <ngwr-doc-code [code]="snippets.identityTs" language="typescript" />
-
-    <p style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem; margin: 0">
-      If the value genuinely has to be the object, keep one canonical instance per id in whatever the options render
-      from, so the reference the form holds is the reference the option carries. In
-      <code>search</code> mode there is one softening worth knowing: a value with no rendered option falls back to
-      <code>displayWith(value)</code> for the trigger label, because a virtualized row may not exist yet — so a mismatch
-      there shows a label rather than the placeholder, and hides itself better.
-      <a routerLink="/guides/forms">The reactive-forms guide</a> covers this alongside the rest of the bridge.
-    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Select API">

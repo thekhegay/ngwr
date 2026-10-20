@@ -1,6 +1,5 @@
 import { Component, signal } from '@angular/core';
 import { form, max, metadata, min, minLength, required, schema } from '@angular/forms/signals';
-import { RouterLink } from '@angular/router';
 
 import { WrButton } from 'ngwr/button';
 import { WR_FIELD } from 'ngwr/form';
@@ -39,7 +38,6 @@ const PLANS = [
   selector: 'ngwr-schema-form-page',
   templateUrl: './schema-form.html',
   imports: [
-    RouterLink,
     WrButton,
     WrSchemaForm,
     DocPageComponent,
@@ -134,8 +132,7 @@ interface WrFieldSpec {
     },
     {
       name: 'kind',
-      description:
-        'Which control to draw. The one required member — and the one thing nothing can type-check against the field, so a `kind` that contradicts the value type warns in dev mode off the runtime value.',
+      description: 'Which control to draw. Dev mode warns when it does not fit the value type.',
       type: 'WrFieldKind',
       sub: true,
     },
@@ -170,8 +167,7 @@ interface WrFieldSpec {
     },
     {
       name: 'step',
-      description:
-        'Granularity for `number` and `slider`. The BOUNDS are deliberately absent: Angular refuses a `[min]` or `[max]` binding on a `[formField]`-bound control (NG8022), so they live in the schema as `min(path.x, 18)`. `step` is presentation and has no schema function, so it stays here.',
+      description: 'Granularity for `number` and `slider`. Set the bounds in the schema: `min(path.x, 18)`.',
       type: 'number',
       default: '1',
       sub: true,
@@ -218,34 +214,25 @@ const signupSchema = schema<Signup>(path => {
 });`,
 
     template: `<wr-schema-form [field]="signup" [columns]="2" />`,
-    // The Layout section used to print `template` as well — the same one-liner
-    // as Basic usage, which demonstrates neither of the two knobs its own
-    // description names.
-    layout: `// \`span\` on the spec, \`columns\` on the component.
-metadata(path.notes, WR_FIELD, () => ({ kind: 'textarea', label: 'Notes', span: 2 }));
+    layout: `metadata(path.notes, WR_FIELD, () => ({ kind: 'textarea', label: 'Notes', span: 2 }));
 
-// Two columns: \`notes\` fills the row, everything else takes one cell.
+// notes fills the row; in one column its span is clamped to 1.
 <wr-schema-form [field]="signup" [columns]="2" />
-
-// One column: the same spec still lines up — \`span\` is clamped to the grid.
 <wr-schema-form [field]="signup" [columns]="1" />`,
 
-    reactive: `// The spec is a LogicFn, so it can read the rest of the form. An admin
-// sees a longer list, and nothing in the template knows about it.
+    reactive: `// acme.com addresses see every plan.
 metadata(path.role, WR_FIELD, ctx => ({
   kind: 'select',
   options: ctx.stateOf(path.workEmail).value().endsWith('@acme.com') ? ALL_PLANS : PUBLIC_PLANS,
 }));`,
 
-    state: `// State lives in the schema, never in the spec.
-required(path.workEmail);          // draws the * beside the label
+    state: `required(path.workEmail); // draws the * beside the label
 disabled(path.seats, ({ valueOf }) => valueOf(path.role) === 'starter');
 hidden(path.notes, ({ valueOf }) => !valueOf(path.agree));
 min(path.seats, 1);
 max(path.seats, 500);
 
-// This does not compile — NG8022. The field owns the bound.
-// <wr-input-number [formField]="f.seats" [min]="1" />`,
+// Does not compile (NG8022): <wr-input-number [formField]="f.seats" [min]="1" />`,
 
     group: `<!-- \`address\` is a group: the parent draws none of it. -->
 <wr-schema-form [field]="signup" [columns]="2" />
@@ -262,25 +249,8 @@ max(path.seats, 500);
   };
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
-    {
-      kind: 'Component',
-      title: 'wr-form-field',
-      url: ['/reference/components', 'form-field'],
-      description:
-        'What this component draws around every field. Reach for it directly when you write the markup yourself.',
-    },
-    {
-      kind: 'Guide',
-      title: 'Forms',
-      url: ['/guides', 'forms'],
-      description: 'How Signal Forms binds to ngwr controls, and which states reach a control on their own.',
-    },
-    {
-      kind: 'Component',
-      title: 'wr-select',
-      url: ['/reference/components', 'select'],
-      description:
-        "What `kind: 'select'` renders — including the search and multi modes a hand-written field can ask for.",
-    },
+    { kind: 'Component', title: 'wr-form-field', url: ['/reference/components', 'form-field'] },
+    { kind: 'Guide', title: 'Forms', url: ['/guides', 'forms'] },
+    { kind: 'Component', title: 'wr-select', url: ['/reference/components', 'select'] },
   ];
 }

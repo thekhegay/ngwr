@@ -64,7 +64,6 @@ export default class ColorPickerPageComponent {
 
 const rgb = parseHex('#3969e2');        // { r: 57, g: 105, b: 226, a: 1 }
 const hsl = rgbToHsl(rgb!);             // { h: 222.96, s: 0.744, l: 0.555, a: 1 }
-                                        // — unrounded; the hsla STRING rounds to hsl(223, 74%, 55%)
 const back = toHex(rgb!, true);         // '#3969e2ff'`,
     exportAs: `<button type="button" wrColorPickerTrigger [(value)]="brand" #swatch="wrColorPickerTrigger">
   Brand colour
@@ -77,39 +76,33 @@ const back = toHex(rgb!, true);         // '#3969e2ff'`,
 
   protected readonly pickerApi: readonly DocApiRow[] = [
     {
-      // Documented on the trigger and nowhere on the picker itself, which is
-      // the half a `[formField]` or a `[(value)]` actually binds.
       name: 'value',
-      description:
-        'The selected colour as a string, in whatever `format` names. Bound by `[formField]`, or two-way via `[(value)]`. All three notations are read on the way IN, so a bound `rgb(…)` lands on the canvas whatever `format` says — only what is written back follows it.',
+      description: 'The colour, written in the `format` notation. Any notation is read on the way in.',
       type: 'string',
       default: "''",
     },
     {
       name: 'alpha',
-      description:
-        'Render the alpha slider and carry alpha in the emitted value — 8-digit hex, or the fourth argument of `rgba()` / `hsla()`.',
+      description: 'Show the alpha slider and keep alpha in the value.',
       type: 'boolean',
       default: 'true',
     },
     {
       name: 'format',
-      description:
-        'Which notation `value` is written in — `hex`, `rgba` or `hsla`. All three are read on the way IN whichever one is set, so a bound `rgb(…)` still lands on the canvas; the HEX field always shows canonical hex.',
+      description: 'The notation `value` is written in: `hex`, `rgba` or `hsla`.',
       type: 'WrColorFormat',
       default: "'hex'",
     },
     { name: 'disabled', description: 'Block interaction.', type: 'boolean', default: 'false' },
     {
       name: 'readonly',
-      description:
-        'Refuse changes while every surface stays focusable and the colour still submits — the sliders keep announcing their value, the numeric fields go natively read-only and the swatches go inert. Switching tabs still works: that changes the notation shown, not the colour.',
+      description: 'Refuse changes. Every part stays focusable and the colour still submits.',
       type: 'boolean',
       default: 'false',
     },
     {
       name: 'swatches',
-      description: 'Optional row of preset hex colours rendered below the inputs.',
+      description: 'Preset hex colours shown below the inputs.',
       type: 'readonly string[]',
       default: '[]',
     },
@@ -134,8 +127,7 @@ const back = toHex(rgb!, true);         // '#3969e2ff'`,
     { name: 'disabled', description: 'Disable the trigger itself.', type: 'boolean', default: 'false' },
     {
       name: 'panelClass',
-      description:
-        'Extra class(es) on the overlay pane. The pane lives in the overlay container, so this is the only per-instance handle on it.',
+      description: 'Class(es) on the overlay pane.',
       type: 'WrClassInput',
       default: 'null',
     },
@@ -161,13 +153,13 @@ const back = toHex(rgb!, true);         // '#3969e2ff'`,
     },
     {
       name: 'rgbToHsv / hsvToRgb',
-      description: 'RGB ↔ HSV conversions, alpha-preserving.',
+      description: 'Convert between RGB and HSV, keeping alpha.',
       type: 'function',
       default: '—',
     },
     {
       name: 'rgbToHsl / hslToRgb',
-      description: 'RGB ↔ HSL conversions, alpha-preserving.',
+      description: 'Convert between RGB and HSL, keeping alpha.',
       type: 'function',
       default: '—',
     },

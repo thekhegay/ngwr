@@ -24,59 +24,35 @@ export default class DialogPageComponent {
   protected readonly lastResult = signal<string>('—');
 
   protected readonly snippets = {
-    // Two components, two different imports — and the second half is the one a
-    // reader cannot derive. The API table below lists the layout directives by
-    // SELECTOR (\`[wrDialogTitle]\`), while \`imports: []\` takes the CLASS, so a
-    // page that named only \`WrDialog\` left the four class names spelled nowhere.
     open: `const ref = dialog.open(ConfirmComponent, {
   data: { title: 'Delete', message: 'Are you sure?' },
   width: '24rem',
 });
 
-const ok = await ref.awaitClose(); // result from <wr-btn wrDialogClose value>`,
-    template: `// Inside the opened component. Every attribute below is a directive:
-// imports: [WrDialogTitle, WrDialogContent, WrDialogFooter, WrDialogClose]
+const ok = await ref.awaitClose();`,
+    template: `<!-- Inside the opened component.
+     imports: [WrDialogTitle, WrDialogContent, WrDialogFooter, WrDialogClose] -->
 <h2 wrDialogTitle>Delete</h2>
 <div wrDialogContent>Are you sure?</div>
 <div wrDialogFooter>
   <wr-btn wrDialogClose>Cancel</wr-btn>
   <wr-btn color="danger" [wrDialogClose]="true">Delete</wr-btn>
 </div>`,
-    selfClose: `// Inside the opened component — close without a click.
-import { WR_DIALOG_DATA, WrDialogRef } from 'ngwr/dialog';
+    selfClose: `import { WR_DIALOG_DATA, WrDialogRef } from 'ngwr/dialog';
 
 @Component({...})
 export class EditUserComponent {
-  private readonly ref = inject(WrDialogRef);
+  private readonly ref = inject<WrDialogRef<EditUserComponent, boolean>>(WrDialogRef);
   protected readonly data = inject<EditUserData>(WR_DIALOG_DATA);
 
   save(): void {
     this.store.saveUser(this.form.value);
-    this.ref.close(true);            // the caller's awaitClose() resolves
+    this.ref.close(true);
   }
-}
-
-// The class token already types the generics — no cast, no WR_DIALOG_REF needed:
-private readonly ref = inject<WrDialogRef<EditUserComponent, boolean>>(WrDialogRef);`,
-    closeButton: `// The × comes for free — nothing to add. It sits in the panel's top-right
-// corner, is labelled from the \`dialog.close\` i18n key, and the title row
-// reserves the gutter so a long heading wraps instead of running under it.
-dialog.open(EditUserComponent);
-
-// Turn it off when the content already owns its dismiss, or when the dialog
-// must be resolved through its own actions:
-dialog.open(EditUserComponent, { closable: false });
-
-// Override just the accessible name:
+}`,
+    closeButton: `dialog.open(EditUserComponent, { closable: false });
 dialog.open(EditUserComponent, { closeLabel: 'Discard changes' });`,
-    lifetime: `// A dialog outlives the component that opened it. \`WrDialog\` is root-provided
-// and the panel's injector hangs off the root environment injector, so an
-// \`@if\` that removes the opener leaves the panel, its backdrop and the
-// \`cdk-global-scrollblock\` on the page. (Navigation is the one exception:
-// \`closeOnNavigation\` is on by default.) Close the ref when you go away.
-import { DestroyRef, inject } from '@angular/core';
-
-@Component({...})
+    lifetime: `@Component({...})
 export class MyComponent {
   private readonly dialog = inject(WrDialog);
   private readonly destroyRef = inject(DestroyRef);
@@ -85,21 +61,15 @@ export class MyComponent {
     const ref = this.dialog.open<ConfirmComponent, boolean>(ConfirmComponent);
     const stop = this.destroyRef.onDestroy(() => ref.close());
 
-    // awaitClose() is a Promise, so takeUntilDestroyed() does not apply to it —
-    // that operator takes an Observable. Two ways to not act on a stale result:
     const ok = await ref.awaitClose();
-    stop();                                  // nothing left to cancel
+    stop();
     if (ok) this.store.remove();
   }
 }
 
-// Or subscribe instead of awaiting, and takeUntilDestroyed() does apply —
-// \`ref.closed\` is an Observable, and the ref is the same one either way.
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
+// Or subscribe:
 ref.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(ok => { … });`,
-    focus: `<!-- Inside the opened component. Nothing to import: the focus trap looks
-     for the attribute by name, so a bare \`cdkFocusInitial\` is enough. -->
+    focus: `<!-- cdkFocusInitial needs no import. -->
 <h2 wrDialogTitle>Rename project</h2>
 <div wrDialogContent>
   <wr-form-field label="Name">
@@ -109,43 +79,11 @@ ref.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(ok => { … });`,
 <div wrDialogFooter>
   <wr-btn wrDialogClose>Cancel</wr-btn>
   <wr-btn color="primary" [wrDialogClose]="name()">Save</wr-btn>
-</div>
-
-<!-- Without \`cdkFocusInitial\` the first tabbable element wins — here the same
-     input, since the ✕ is appended AFTER your content and comes last. A panel
-     of plain text focuses nothing; Escape still closes it. -->`,
-    topLayer: `// ngwr's overlay container is isolated from other CDK consumers, and that is
-// all it promises — not a place in your z-index scale. These do nothing:
-//
-//   .wr-overlay-container .cdk-overlay-pane { z-index: 1100; }
-//   header { z-index: 100000; }
-//
-// To opt the whole application out of the top layer and back into ordinary
-// stacking, configure the CDK itself at bootstrap:
-import { OVERLAY_DEFAULT_CONFIG } from '@angular/cdk/overlay';
-
-bootstrapApplication(AppComponent, {
-  providers: [
-    { provide: OVERLAY_DEFAULT_CONFIG, useValue: { usePopover: false } },
-  ],
-});
-
-// Opting out is a real trade: overlays go back to being clipped by an
-// ancestor's \`overflow\` and to competing on z-index with everything else.`,
-    nested: `// A dialog that owns a form: keep the backdrop, ignore its clicks.
-const ref = this.dialog.open(EditUserComponent, {
-  closeOnBackdropClick: false,   // a click beside an open select cannot lose the form
-  // closeOnEscape stays true — Escape closes the select first, the dialog next.
-});`,
+</div>`,
     refResult: `const ref = this.dialog.open<ConfirmComponent, 'saved' | 'discarded'>(ConfirmComponent);
 
-// \`undefined\` is every dismissal: ✕, Escape, backdrop, navigation, and a bare
-// [wrDialogClose]. Give the outcomes you care about their own values.
-const result = await ref.awaitClose();   // 'saved' | 'discarded' | undefined
-if (result === undefined) return;        // dismissed — leave the page as it was
-
-// Or subscribe, when the caller is not an async method:
-ref.closed.subscribe(result => { … });   // emits once, then completes`,
+const result = await ref.awaitClose(); // 'saved' | 'discarded' | undefined
+if (result === undefined) return;      // dismissed`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -160,42 +98,36 @@ ref.closed.subscribe(result => { … });   // emits once, then completes`,
   protected readonly refApi: readonly DocApiRow[] = [
     {
       name: 'WrDialogRef<C, R>',
-      description:
-        'Returned by `open()`, and provided inside the dialog’s own injector. `C` is the opened component, `R` the close result.',
+      description: 'Returned by `open()` and injectable inside the dialog. `C` is the component, `R` the result.',
       type: 'class',
     },
     {
       name: 'close(result?)',
-      description:
-        'Dismiss the dialog, optionally with a result. Idempotent — a second call is a no-op, so a save handler racing the ✕ cannot emit twice.',
+      description: 'Close the dialog, optionally with a result. A second call does nothing.',
       type: '(result?: R) => void',
       sub: true,
     },
     {
       name: 'awaitClose()',
-      description:
-        'Resolves with the close result once the dialog is dismissed. A Promise, so `takeUntilDestroyed()` does not apply to it — see “Lifetime” above.',
+      description: 'Resolves with the close result.',
       type: '() => Promise<R | undefined>',
       sub: true,
     },
     {
       name: 'closed',
-      description:
-        'The same result as an Observable — emits once, then completes. A `ReplaySubject`, so subscribing after the dialog has already closed still gets the value rather than a bare completion.',
+      description: 'The same result as an Observable. Emits once, then completes; a late subscriber still gets it.',
       type: 'ReplaySubject<R | undefined>',
       sub: true,
     },
     {
       name: 'componentInstance',
-      description:
-        'The instantiated dialog component, for reading a signal on it or calling one of its methods. Throws while the dialog is still attaching — which is only reachable from the content’s own constructor.',
+      description: 'The opened component. Throws if read from its own constructor.',
       type: 'C',
       sub: true,
     },
     {
       name: 'overlayRef',
-      description:
-        'The underlying CDK `OverlayRef` — an escape hatch for the cases the options do not cover. Do not dispose it directly: that bypasses `closed`, leaves `awaitClose()` pending and never destroys the focus trap. Call `close()`.',
+      description: 'The underlying CDK `OverlayRef`. Never dispose it; call `close()`.',
       type: 'OverlayRef',
       sub: true,
     },
@@ -227,8 +159,7 @@ ref.closed.subscribe(result => { … });   // emits once, then completes`,
     { name: 'closeOnEscape', description: 'Close on Escape.', type: 'boolean', default: 'true', sub: true },
     {
       name: 'closeOnNavigation',
-      description:
-        'Close as soon as the URL changes — Back and `router.navigate()` alike. Turn it off only for a dialog that owns the navigation.',
+      description: 'Close when the URL changes.',
       type: 'boolean',
       default: 'true',
       sub: true,
@@ -271,8 +202,7 @@ ref.closed.subscribe(result => { … });   // emits once, then completes`,
     },
     {
       name: 'WR_DIALOG_REF',
-      description:
-        'The same ref under a second key, used by `[wrDialogClose]`. Prefer `inject(WrDialogRef)` — it already supports `{ optional: true }` and typed generics.',
+      description: 'The same ref, used by `[wrDialogClose]`. Prefer `inject(WrDialogRef)`.',
       type: 'InjectionToken<WrDialogRef<C, R>>',
       default: '—',
     },

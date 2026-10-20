@@ -31,17 +31,14 @@ import {
 export default class KeyboardPageComponent {
   protected readonly snippets = {
     basic: `<wr-kbd>⌘</wr-kbd> + <wr-kbd>K</wr-kbd>`,
-    prose: `<!-- wrTypography is a separate entry point: import { WrTypography } from
-     'ngwr/typography'. An unknown attribute on a native <p> is not a template
-     error, so without it the prose simply keeps the page's own styling. -->
+    prose: `<!-- wrTypography comes from ngwr/typography. -->
 <p wrTypography>
   Press <wr-kbd>⌘</wr-kbd> + <wr-kbd>P</wr-kbd> to open the command palette.
 </p>`,
     sizes: `<wr-kbd size="sm">Esc</wr-kbd>
 <wr-kbd size="md">Enter</wr-kbd>
 <wr-kbd size="lg">⌫</wr-kbd>`,
-    layout: `<!-- arrange caps in a grid via flex / grid -->
-<wr-kbd>Esc</wr-kbd>
+    layout: `<wr-kbd>Esc</wr-kbd>
 <wr-kbd>1</wr-kbd> <wr-kbd>2</wr-kbd> …
 <wr-kbd>⌃</wr-kbd> <wr-kbd>⌥</wr-kbd> <wr-kbd>⌘</wr-kbd> <wr-kbd>Space</wr-kbd>`,
   };
@@ -139,13 +136,13 @@ export default class KeyboardPageComponent {
       kind: 'Guide',
       title: 'Keyboard',
       url: ['/guides', 'keyboard'],
-      description: 'How chords, keycaps and key primitives fit together in one task.',
+      description: 'Shortcuts end to end.',
     },
     {
       kind: 'Service',
       title: 'WrHotkey',
       url: ['/reference/services', 'hotkey'],
-      description: 'Bind the chord this keycap advertises.',
+      description: 'Bind the shortcut.',
     },
   ];
 }
