@@ -47,7 +47,6 @@ export const INSTALL = {
   ],
   "bits/border-glow": [
       { path: "ngwr/bits/border-glow", symbols: ["WrBorderGlow"], declarables: ["WrBorderGlow"], styled: true },
-      { path: "ngwr/color-picker", symbols: ["parseHex", "rgbToHsl"], declarables: [], styled: true },
   ],
   "bits/circular-text": [
       { path: "ngwr/bits/circular-text", symbols: ["WrCircularText"], declarables: ["WrCircularText"], styled: true },
@@ -57,7 +56,6 @@ export const INSTALL = {
   ],
   "bits/confetti": [
       { path: "ngwr/bits/confetti", symbols: ["WrConfetti"], declarables: [], styled: false },
-      { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
   ],
   "bits/decrypt-text": [
       { path: "ngwr/bits/decrypt-text", symbols: ["WrDecryptText"], declarables: ["WrDecryptText"], styled: true },
@@ -76,7 +74,6 @@ export const INSTALL = {
   ],
   "bits/marquee": [
       { path: "ngwr/bits/marquee", symbols: ["WrMarquee"], declarables: ["WrMarquee"], styled: true },
-      { path: "ngwr/icon", symbols: ["WrIcon", "lucideIcons", "provideWrIcons"], declarables: ["WrIcon"], styled: true },
   ],
   "bits/rotating-text": [
       { path: "ngwr/bits/rotating-text", symbols: ["WrRotatingText"], declarables: ["WrRotatingText"], styled: true },
@@ -104,7 +101,6 @@ export const INSTALL = {
   ],
   "bits/waves": [
       { path: "ngwr/bits/waves", symbols: ["WrWaves"], declarables: ["WrWaves"], styled: true },
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
   ],
   "charts/bar-chart": [
       { path: "ngwr/charts/bar-chart", symbols: ["WrBarChart"], declarables: ["WrBarChart"], styled: true },

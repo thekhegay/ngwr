@@ -244,7 +244,10 @@ async function main(): Promise<void> {
     // `/qrcode`, the pipes, utils and validator pages named after a function —
     // nothing matches and the full list is kept, which is what those pages
     // had before and still need.
-    const own = `ngwr/${route.split('/').pop() ?? ''}`;
+    // Matched on the LAST segment, so a nested entry point is found too:
+    // `/bits/waves` documents `ngwr/bits/waves`, not a `ngwr/waves` that does not exist.
+    const last = route.split('/').pop() ?? '';
+    const own = [...merged.keys()].find(path => path.split('/').pop() === last) ?? `ngwr/${last}`;
     const all = [...merged].map(([path, names]) => {
       const symbols = [...names].sort();
       return { path, symbols, declarables: symbols.filter(n => declarable.has(n)), styled: styled.has(path) };
