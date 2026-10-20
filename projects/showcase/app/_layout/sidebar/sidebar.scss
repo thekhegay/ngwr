@@ -233,20 +233,25 @@
     }
   }
 
-  // A row's mark as plain text: grey for an aside (optional, soon), a colour
-  // for what a reader scans for (new, deprecated).
+  // A row's mark: a small soft pill. Grey for an aside (optional, soon), a
+  // tint for what a reader scans for (new, deprecated).
   &__badge {
     flex: 0 0 auto;
+    padding: 0 0.375rem;
+    border-radius: var(--wr-border-radius-pill);
+    background: var(--wr-color-fill);
     color: var(--wr-color-on-surface-muted);
-    font-size: 0.6875rem;
-    font-weight: 500;
+    font-size: 0.625rem;
+    font-weight: 600;
     line-height: 0.875rem;
 
     &--new {
+      background: var(--wr-color-primary-soft);
       color: var(--wr-color-primary-ink);
     }
 
     &--deprecated {
+      background: var(--wr-color-danger-soft);
       color: var(--wr-color-danger-ink);
     }
   }
