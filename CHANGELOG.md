@@ -1,5 +1,18 @@
 # Changelog
 
+## [14.12.1](https://github.com/thekhegay/ngwr/compare/v14.12.0...v14.12.1) (2026-10-20)
+
+### Bug Fixes
+
+* **a11y:** a labelled form field named ten of its controls with nothing ([0a2e31c](https://github.com/thekhegay/ngwr/commit/0a2e31cfb3a910ece0e70465da0316a939ed279c))
+* **affix:** watch the element the host sticks to, not the viewport ([4eec9b9](https://github.com/thekhegay/ngwr/commit/4eec9b9258f7af576858346fd6de4509e4b3f809))
+* **counter,icon,dialog,button:** examples that do not compile or do not run ([0924db2](https://github.com/thekhegay/ngwr/commit/0924db23256b7c27267c35a8f135478ac8518733))
+* **lib:** the empty-query mark, a stale tour step and the marquee node title ([606e3d1](https://github.com/thekhegay/ngwr/commit/606e3d12934a9adc13697b754b9f15410153ad41))
+* **lib:** the toast corner, the tab stop and the radio group's name ([5a53fac](https://github.com/thekhegay/ngwr/commit/5a53fac98c132c3d73672b5b99cae47802c9983b))
+* **lib:** three documented inputs and hooks that did nothing ([921b98c](https://github.com/thekhegay/ngwr/commit/921b98c94ad09341001da2d14b046693e4a3b946))
+* **table:** a filter with no column is named filter, not filter and a space ([fe10d44](https://github.com/thekhegay/ngwr/commit/fe10d4496cc702caf48a54d888176ff2a9ff46d7))
+* **table:** every sort and filter button announced the same name ([fb9e90a](https://github.com/thekhegay/ngwr/commit/fb9e90a5f609e68e93d9176edcdd08033a0a366a))
+
 ## [14.12.0](https://github.com/thekhegay/ngwr/compare/v14.11.0...v14.12.0) (2026-10-16)
 
 ### Features
