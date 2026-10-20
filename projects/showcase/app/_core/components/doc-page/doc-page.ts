@@ -306,8 +306,8 @@ export class DocPageComponent {
    */
   protected readonly installDescription = computed(() =>
     this.install()?.some(f => f.language === 'scss')
-      ? "The class goes in the component's `imports`, and the entry point goes in your global stylesheet. **Both halves are needed** — a component whose styles are not `@use`d renders unstyled, with nothing in the build to say so."
-      : "The class goes in the component's `imports`. This entry point ships no stylesheet, so there is no `@use` line to add."
+      ? 'Import the class, and `@use` the entry point in your global styles: without it the component renders unstyled.'
+      : 'Import the class. This entry point has no stylesheet.'
   );
 
   protected readonly cssVars = computed<DocCssVars | null>(() => {

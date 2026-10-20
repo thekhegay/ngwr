@@ -123,67 +123,6 @@ export const INSTALL = {
   "charts/sparkline": [
       { path: "ngwr/charts/sparkline", symbols: ["WrSparkline"], declarables: ["WrSparkline"], styled: true },
   ],
-  "guides/forms": [
-      { path: "ngwr/alert", symbols: ["WrAlert"], declarables: ["WrAlert"], styled: true },
-      { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
-      { path: "ngwr/form", symbols: ["WrFormError", "WrFormField"], declarables: ["WrFormError", "WrFormField"], styled: true },
-      { path: "ngwr/input", symbols: ["WrInput"], declarables: ["WrInput"], styled: true },
-      { path: "ngwr/select", symbols: ["WrOption", "WrSelect"], declarables: ["WrOption", "WrSelect"], styled: true },
-      { path: "ngwr/table", symbols: ["WrTable", "WrTableCell"], declarables: ["WrTable", "WrTableCell"], styled: true },
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
-  "guides/keyboard": [
-      { path: "ngwr/keyboard", symbols: ["WrKbd"], declarables: ["WrKbd"], styled: true },
-  ],
-  "guides/overlay": [
-      { path: "ngwr/keyboard", symbols: ["WrKbd"], declarables: ["WrKbd"], styled: true },
-  ],
-  "guides/theming": [
-      { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
-      { path: "ngwr/theme", symbols: ["WrTheme"], declarables: [], styled: true },
-  ],
-  "guides/tokens/colors": [
-      { path: "ngwr/theme", symbols: ["WR_COLORS"], declarables: [], styled: true },
-  ],
-  "guides/tokens/density": [
-      { path: "ngwr/density", symbols: ["WrDensity"], declarables: [], styled: true },
-  ],
-  "guides/translations/interpolation": [
-      { path: "ngwr/i18n", symbols: ["WrI18n", "WrTPipe"], declarables: ["WrTPipe"], styled: false },
-      { path: "ngwr/input", symbols: ["WrInput"], declarables: ["WrInput"], styled: true },
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
-  "guides/translations/overview": [
-      { path: "ngwr/i18n", symbols: ["WrI18n", "WrTPipe"], declarables: ["WrTPipe"], styled: false },
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
-  "guides/translations/usage": [
-      { path: "ngwr/i18n", symbols: ["WrI18n", "WrTDirective", "WrTPipe"], declarables: ["WrTDirective", "WrTPipe"], styled: false },
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
-  "guides/typography/code": [
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
-  "guides/typography/headings": [
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
-  "guides/typography/links": [
-      { path: "ngwr/icon", symbols: ["WrIcon", "lucideIcons", "provideWrIcons"], declarables: ["WrIcon"], styled: true },
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
-  "guides/typography/lists": [
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
-  "guides/typography/overview": [
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
-  "guides/typography/paragraphs": [
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
-  "guides/typography/styles": [
-      { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
-      { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
-  ],
   "icons/lucide": [
       { path: "ngwr/icon", symbols: ["lucide"], declarables: [], styled: true },
   ],

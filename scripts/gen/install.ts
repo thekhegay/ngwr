@@ -256,6 +256,8 @@ async function main(): Promise<void> {
     // A `/docs` page documents the library, not one entry point — its imports
     // are whatever its own demos need, so it gets no recipe at all.
     if (mine.length === 0 && route.startsWith('docs/')) continue;
+    // A guide spans several entry points, even one named after an entry point.
+    if (route.startsWith('guides/')) continue;
     const rows = (mine.length > 0 ? mine : all).sort((a, b) =>
       a.path === own ? -1 : b.path === own ? 1 : a.path.localeCompare(b.path)
     );
