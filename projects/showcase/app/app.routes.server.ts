@@ -1,5 +1,6 @@
 import { RenderMode, type ServerRoute } from '@angular/ssr';
 
+import { labelIndex } from '#core/utils';
 import { ROUTES } from '#routes';
 
 const icons = ROUTES.icons;
@@ -68,6 +69,12 @@ export const serverRoutes: ServerRoute[] = [
   { path: `${icons.path}/${icons.iconoir.path}`, renderMode: RenderMode.Client },
   { path: `${icons.path}/${icons.radix.path}`, renderMode: RenderMode.Client },
   { path: `${icons.path}/${icons.bootstrap.path}`, renderMode: RenderMode.Client },
+
+  {
+    path: 'labels/:label',
+    renderMode: RenderMode.Prerender,
+    getPrerenderParams: () => Promise.resolve([...labelIndex().keys()].map(label => ({ label }))),
+  },
 
   { path: '**', renderMode: RenderMode.Prerender },
 ];

@@ -59,6 +59,7 @@ const KIND: readonly (readonly [string, string])[] = [
   ['reference/pipes/', 'Pipe'],
   ['reference/utils/', 'Util'],
   ['reference/validators/', 'Validator'],
+  ['reference/interfaces/', 'Type'],
   ['charts/', 'Component'],
   ['bits/', 'Animation'],
   ['guides/', 'Guide'],
@@ -197,7 +198,31 @@ function pageTitle(dir: string): string | null {
   return null;
 }
 
-function serialize(deps: Map<string, Deps>, pages: Map<string, Page>, related: Map<string, string[]>): string {
+/** The static `[labels]="['A', 'B']"` on a page's `<ngwr-doc-page>`, or `[]`. */
+function pageLabels(dir: string): string[] {
+  for (const f of readdirSync(dir)) {
+    if (!f.endsWith('.html')) continue;
+    const src = readFileSync(join(dir, f), 'utf8');
+    const open = /<ngwr-doc-page\b[^>]*>/.exec(src)?.[0];
+    if (!open) continue;
+    const list = /\[labels\]="\[([^\]]*)\]"/.exec(open)?.[1];
+    return list ? [...list.matchAll(/'([^']+)'/g)].map(m => m[1]) : [];
+  }
+  return [];
+}
+
+interface RoutePage {
+  readonly title: string;
+  readonly kind: string | null;
+  readonly labels: readonly string[];
+}
+
+function serialize(
+  deps: Map<string, Deps>,
+  pages: Map<string, Page>,
+  related: Map<string, string[]>,
+  routePages: Map<string, RoutePage>
+): string {
   const sorted = <T>(m: Map<string, T>): [string, T][] => [...m].sort(([a], [b]) => a.localeCompare(b));
   const depsBody = sorted(deps)
     .filter(([, d]) => d.uses.length || d.usedBy.length || d.peers.length || d.addons.length)
@@ -208,6 +233,9 @@ function serialize(deps: Map<string, Deps>, pages: Map<string, Page>, related: M
     .join('\n');
   const relatedBody = sorted(related)
     .map(([route, eps]) => `  ${JSON.stringify(route)}: ${JSON.stringify(eps)},`)
+    .join('\n');
+  const routeBody = sorted(routePages)
+    .map(([route, page]) => `  ${JSON.stringify(route)}: ${JSON.stringify(page)},`)
     .join('\n');
   return `/**
  * @license
@@ -250,6 +278,13 @@ ${pageBody}
 export const DEMO_RELATED: Readonly<Record<string, readonly string[]>> = {
 ${relatedBody}
 };
+
+/** Route → its title, its kind (from the route) and the labels its page declares. */
+export const DOC_ROUTES: Readonly<
+  Record<string, { readonly title: string; readonly kind: string | null; readonly labels: readonly string[] }>
+> = {
+${routeBody}
+};
 `;
 }
 
@@ -277,12 +312,16 @@ async function main(): Promise<void> {
   // Entry point → page: the route whose last segment names it and whose demos import it.
   const pages = new Map<string, Page>();
   const importsByRoute = new Map<string, Set<string>>();
+  const routePages = new Map<string, RoutePage>();
   for (const [dir, forDir] of routes.byDirectory) {
     if (forDir.length !== 1) continue;
     const abs = join(APP, dir);
     if (!existsSync(abs) || !statSync(abs).isDirectory()) continue;
     const route = forDir[0];
     const kind = KIND.find(([prefix]) => route.startsWith(prefix))?.[1];
+    if (route.includes(':') || route === '') continue;
+    const title = pageTitle(abs);
+    if (title) routePages.set(route, { title, kind: kind ?? null, labels: pageLabels(abs) });
     if (!kind) continue;
     const imports = pageImports(abs, all);
     importsByRoute.set(route, imports);
@@ -306,7 +345,7 @@ async function main(): Promise<void> {
     if (extra.length > 0) related.set(page.route, extra.sort());
   }
 
-  const next = serialize(deps, pages, related);
+  const next = serialize(deps, pages, related, routePages);
   const shown = relative(ROOT_PATH, OUT_FILE);
   if (check) {
     const current = existsSync(OUT_FILE) ? readFileSync(OUT_FILE, 'utf8') : '';

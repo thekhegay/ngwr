@@ -1,6 +1,8 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
+import { DocLabelComponent } from '../doc-label/doc-label';
+
 import type { DocSeeAlsoKind, DocSeeAlsoLink } from './types';
 
 import { docPageOf, relatedOf } from '#core/utils';
@@ -25,7 +27,7 @@ import { docPageOf, relatedOf } from '#core/utils';
   host: { class: 'wr-not-typeset' },
   templateUrl: './doc-see-also.html',
   styleUrl: './doc-see-also.scss',
-  imports: [RouterLink],
+  imports: [DocLabelComponent, RouterLink],
 })
 export class DocSeeAlsoComponent {
   /** Optional section title. @default 'See also' */

@@ -1,8 +1,8 @@
 <header class="header">
-  @if (labels().length || addedIn() || optional()) {
+  @if (shownLabels().length || addedIn() || optional()) {
     <div class="labels">
-      @for (label of labels(); track label) {
-        <wr-badge size="sm" shape="pill" [color]="labelColor(label)">{{ label }}</wr-badge>
+      @for (label of shownLabels(); track label) {
+        <ngwr-doc-label [label]="label" />
       }
 
       <!--

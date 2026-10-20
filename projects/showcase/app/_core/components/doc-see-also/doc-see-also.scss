@@ -51,48 +51,6 @@
 
   &__kind {
     align-self: flex-start;
-    padding: 0.0625rem 0.375rem;
-    // A smaller sibling of the card's corner, not a pill: the kind label is
-    // pinned to the top-left of a `--wr-border-radius-base` card, so `sm` reads
-    // as nested inside it where a stadium reads as pasted on.
-    border-radius: var(--wr-border-radius-sm);
-    background: color-mix(in srgb, var(--wr-color-on-surface-muted) 10%, transparent);
-    color: var(--wr-color-on-surface-muted);
-    font-size: 0.5625rem;
-    font-weight: 600;
-    line-height: 0.875rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-
-    // Kind-specific tints. The `-soft` token IS a 12% `color-mix()` of the
-    // intent toward `transparent` — `_colors.scss` tokenised the trio precisely
-    // to stop that expression being written out at a spread of alphas — so
-    // these name it rather than restate it, and `warning` joins them instead of
-    // sitting 0.04 away for no recorded reason.
-    &[data-kind='Service'] {
-      background: var(--wr-color-primary-soft);
-      color: var(--wr-color-primary-ink);
-    }
-
-    &[data-kind='Component'] {
-      background: var(--wr-color-success-soft);
-      color: var(--wr-color-success-ink);
-    }
-
-    &[data-kind='Directive'] {
-      background: var(--wr-color-warning-soft);
-      color: var(--wr-color-warning-ink);
-    }
-
-    &[data-kind='Pipe'] {
-      background: var(--wr-color-info-soft);
-      color: var(--wr-color-info-ink);
-    }
-
-    &[data-kind='Validator'] {
-      background: var(--wr-color-danger-soft);
-      color: var(--wr-color-danger-ink);
-    }
   }
 
   &__name {

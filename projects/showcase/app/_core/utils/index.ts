@@ -1,5 +1,6 @@
 export { stripIndent } from './strip-indent';
 export { copyToClipboard } from './copy-to-clipboard';
 export { depsOf, docPageOf, entryOfRoute, relatedOf } from './deps';
+export { labelIndex, labelSlug, labelTone, pageLabels, type DocLabelTone, type DocLabelledPage } from './labels';
 export { isOptionalLink } from './optional';
 export { isNewIn, isNewLink, releaseLabel, routeKey, sinceOf } from './since';

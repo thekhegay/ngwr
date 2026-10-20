@@ -58,6 +58,12 @@ export const routing: Routes = [
         data: { sidebar: BITS_SIDEBAR },
         loadChildren: () => import('./bits/routing'),
       },
+      // A page label's own page: every page that carries it.
+      {
+        path: 'labels/:label',
+        data: { sidebar: REFERENCE_SIDEBAR },
+        loadComponent: () => import('./_labels/label-page'),
+      },
 
       // v15 moved `/start` to `/docs`, folded two pages into their neighbours,
       // deleted two, and gave the charts a cluster of their own. Every path

@@ -3,6 +3,7 @@ export { DocSectionComponent } from './doc-section/doc-section';
 export { DocSnippetComponent } from './doc-snippet/doc-snippet';
 export { DocCodeComponent } from './doc-code/doc-code';
 export { DocInstallComponent } from './doc-install/doc-install';
+export { DocLabelComponent } from './doc-label/doc-label';
 export type { DocCodeFile } from './doc-code/types';
 export { DocApiComponent } from './doc-api/doc-api';
 export type { DocApiRow } from './doc-api/types';

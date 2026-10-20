@@ -5,7 +5,9 @@
       @for (link of all(); track link.url.join('/')) {
         <li>
           <a class="see-also__card" [routerLink]="link.url">
-            <span class="see-also__kind" [attr.data-kind]="link.kind">{{ link.kind }}</span>
+            @if (link.kind) {
+              <ngwr-doc-label class="see-also__kind" [label]="link.kind" [link]="false" size="sm" />
+            }
             <span class="see-also__name">{{ link.title }}</span>
             @if (link.description) {
               <span class="see-also__desc">{{ link.description }}</span>

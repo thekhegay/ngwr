@@ -3,12 +3,12 @@ import { Router, RouterLink } from '@angular/router';
 
 import { WrAnchor, type WrAnchorLink } from 'ngwr/anchor';
 import { WrBadge } from 'ngwr/badge';
-import type { WrColor } from 'ngwr/theme';
 import { WrTypography } from 'ngwr/typography';
 
 import { DocCodeComponent } from '../doc-code/doc-code';
 import type { DocCodeFile } from '../doc-code/types';
 import { DocCssVarsComponent } from '../doc-css-vars/doc-css-vars';
+import { DocLabelComponent } from '../doc-label/doc-label';
 import { DocRichPipe, docRichToText } from '../doc-rich/doc-rich';
 import { DocSectionComponent } from '../doc-section/doc-section';
 import { DocSeeAlsoComponent } from '../doc-see-also/doc-see-also';
@@ -16,7 +16,7 @@ import { DocSeeAlsoComponent } from '../doc-see-also/doc-see-also';
 import { CSS_VARS, type DocCssVarRoute, type DocCssVars } from '#core/generated/css-vars';
 import { INSTALL, type DocInstallEntry, type DocInstallRoute } from '#core/generated/install';
 import { MetaService } from '#core/services';
-import { depsOf, docPageOf, entryOfRoute, isOptionalLink, releaseLabel } from '#core/utils';
+import { depsOf, docPageOf, entryOfRoute, isOptionalLink, pageLabels, releaseLabel } from '#core/utils';
 
 const FALLBACK_CATEGORY = 'Docs';
 
@@ -88,6 +88,7 @@ interface DepsRow {
   imports: [
     DocCodeComponent,
     DocCssVarsComponent,
+    DocLabelComponent,
     DocRichPipe,
     DocSectionComponent,
     DocSeeAlsoComponent,
@@ -254,6 +255,12 @@ export class DocPageComponent {
     return rows.length ? rows : null;
   });
 
+  /** The header chips: the page's kind from its route, then the traits it declares. */
+  protected readonly shownLabels = computed(() => {
+    const derived = pageLabels(this.router.url);
+    return derived.length ? derived : this.labels();
+  });
+
   /** Whether this page documents an opt-in part of ngwr. */
   protected readonly optional = computed(() => isOptionalLink(this.router.url));
 
@@ -350,10 +357,6 @@ export class DocPageComponent {
       const keywords = this.keywords();
       if (keywords.length) this.meta.setKeywords([...keywords]);
     });
-  }
-
-  protected labelColor(label: string): WrColor | null {
-    return label === 'Experimental' ? 'danger' : null;
   }
 
   private deriveCategoryFromUrl(): string {
