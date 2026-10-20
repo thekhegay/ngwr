@@ -1789,12 +1789,10 @@ galleries. `scripts/lib/page-routes.ts` answers what Angular actually serves
 each page directory at, by IMPORTING the routing tree (every `*.routing.ts`
 holds plain data, so `tsx` can load it and the array is the one the router
 uses); a template that no single route renders is REFUSED a version rather than
-keyed by walk order. The mark's own colours are one shared
-`showcase/styles/_badge.scss` rule in two tones — a filled `--wr-color-primary`
-chip for `new`, which is the mark a reader scans for, and the quiet outlined one
-for `soon` — and both fills are opaque on purpose: a translucent chip is
-measured against whatever row it lands in, which is three pairs to keep above AA
-and how the first version shipped at 4.02:1.
+keyed by walk order. The sidebar's marks are `<wr-sidebar>` word badges,
+chosen in `_layout/sidebar/entries.ts` — `New` in the primary tone, `Optional`
+and `Soon` neutral — and `showcase/styles/_badge.scss` draws the catalog
+index's marks only.
 
 **Distribution surfaces.** Three pages under `/start` exist for people who have
 not adopted the library yet, and they are held to a different standard than the

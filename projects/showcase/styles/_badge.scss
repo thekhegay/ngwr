@@ -1,5 +1,5 @@
 /// The docs' tiny row mark — "new" beside a nav row, "soon" beside a planned
-/// one — as one box, in two tones, included by the sidebar and the catalog page.
+/// one — as one box, in two tones, included by the catalog page.
 ///
 /// **One box and two tones, because the two marks say opposite things.** `new`
 /// is meant to be caught from across the page: it is the whole point of the
@@ -36,8 +36,7 @@
 /// failure on a route already in the baseline passes in silence.
 @mixin row-mark {
   padding: 0.0625rem 0.25rem;
-  // Tracks the row it sits in, which is `--wr-border-radius-sm` on both
-  // surfaces. Twin of the library's own `.wr-sidebar__badge`.
+  // Tracks the row it sits in, which is `--wr-border-radius-sm`.
   border-radius: var(--wr-border-radius-sm);
   font-size: 0.5625rem;
   font-weight: 600;

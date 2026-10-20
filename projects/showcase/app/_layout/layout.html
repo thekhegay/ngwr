@@ -16,7 +16,7 @@
     </div>
 
     <wr-drawer [(open)]="sidebarOpen" position="left" width="min(18rem, 85vw)">
-      <ngwr-sidebar />
+      <ngwr-sidebar #drawerNav touch />
     </wr-drawer>
 
     <router-outlet />

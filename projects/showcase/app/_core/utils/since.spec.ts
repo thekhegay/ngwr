@@ -1,10 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import type { WrSidebarEntry } from 'ngwr/sidebar';
 import { NGWR_VERSION } from 'ngwr/version';
 import { describe, expect, it } from 'vitest';
 
 import * as SIDEBARS from '../../_layout/sidebar/configs';
+import { sidebarEntries } from '../../_layout/sidebar/entries';
 import { SINCE } from '../generated/since';
 
 import { isNewIn, isNewLink, releaseLabel, routeKey, sinceOf } from './since';
@@ -100,14 +102,15 @@ function navRows(): readonly { readonly title: string; readonly url?: string }[]
  * The three surfaces that DRAW the rule above, and the generator that feeds it.
  *
  * The block above is the rule in isolation, and every one of its cases passes
- * with the feature deleted: strip the `@if` out of `doc-page.html`,
- * `sidebar.html` and `doc-index.html` and nothing renders, while `pnpm lint`,
- * `pnpm test` and `pnpm check:api-docs` all stay green. Same for the generator —
- * delete `scanSince()` and the committed map simply stops being re-derived,
- * which is the one failure `check:api-docs` was extended to catch.
+ * with the feature deleted: strip the `@if` out of `doc-page.html` or
+ * `doc-index.html`, or the badge out of the sidebar's `entries.ts`, and nothing
+ * renders, while `pnpm lint`, `pnpm test` and `pnpm check:api-docs` all stay
+ * green. Same for the generator — delete `scanSince()` and the committed map
+ * simply stops being re-derived, which is the one failure `check:api-docs` was
+ * extended to catch.
  *
- * **These read the templates as TEXT, and that is a constraint rather than a
- * preference.** The suite builds through `lib:build:development`, which is
+ * **The two page surfaces are read as TEXT, and that is a constraint rather
+ * than a preference.** The suite builds through `lib:build:development`, which is
  * ng-packagr and carries no `projects` Sass include path, so importing any
  * showcase component pulls in a `styleUrl` that opens `@use
  * 'lib/styles/breakpoints'` and the build fails before a single spec runs
@@ -115,9 +118,9 @@ function navRows(): readonly { readonly title: string; readonly url?: string }[]
  * these assertions cannot see a broken binding; what they can see, and what the
  * findings were about, is a hunk that is no longer there at all.
  *
- * The nav half is real behaviour, though: it runs the shipped sidebar configs
- * through the same `isNewLink()` both components call, so the set of marked
- * rows is derived here exactly as it is on the site.
+ * The nav half is real behaviour, though: the sidebar's marks are decided in
+ * `sidebarEntries()`, plain data with no component around it, so the shipped
+ * configs run through the very function that hands `<wr-sidebar>` its badges.
  */
 describe('the surfaces that draw it', () => {
   const read = (path: string): string => readFileSync(join(process.cwd(), path), 'utf8');
@@ -145,16 +148,30 @@ describe('the surfaces that draw it', () => {
     expect(marked).toEqual(['Graph', 'Editor', 'toClassList']);
   });
 
-  // Both branches of the sidebar template: a child row inside a group, and a
-  // top-level group that carries a `url` instead of `children` (the shape
-  // every /icons row has). The second had no mark at all, while the index pages list
-  // exactly those groups as ordinary links and marked them — the one way the two
-  // surfaces could disagree about what is new.
-  it('draws the mark in both sidebar branches, comma and all', () => {
-    const hunk =
-      /@if \(isNew\([a-z]+\)\) \{ <span class="ngwr-sidebar__sep">,&nbsp;<\/span> <small class="ngwr-sidebar__badge ngwr-sidebar__badge--new">new<\/small> \}/g;
+  // Both shapes a sidebar row comes in: a child row inside a group, and a
+  // top-level group that carries a `url` instead of `children` (the shape every
+  // /icons row has). The second had no mark at all once, while the index pages
+  // list exactly those groups as ordinary links and marked them — the one way
+  // the two surfaces could disagree about what is new.
+  it('gives the sidebar the same marks, in both row shapes', () => {
+    const titles = new Map<string, string>();
+    const visit = (entries: readonly WrSidebarEntry[]): void => {
+      for (const entry of entries) {
+        if ('children' in entry) visit(entry.children);
+        else if (entry.badge?.text === 'New') titles.set(entry.url.join('/'), entry.title);
+      }
+    };
+    for (const config of Object.values(SIDEBARS as Record<string, readonly SidebarGroup[]>)) {
+      visit(sidebarEntries(config, '14.4.0'));
+    }
+    const expected = navRows()
+      .filter(row => isNewLink(row.url, '14.4.0'))
+      .map(row => row.title);
 
-    expect(squashed('projects/showcase/app/_layout/sidebar/sidebar.html').match(hunk)).toHaveLength(2);
+    expect([...titles.values()].sort()).toEqual([...expected].sort());
+    expect(sidebarEntries([{ title: 'Graph', url: '/reference/components/graph' }], '14.4.0')).toEqual([
+      { title: 'Graph', url: ['/reference/components/graph'], badge: { text: 'New', tone: 'primary' } },
+    ]);
   });
 
   it('draws the same mark on the cluster index pages', () => {
@@ -171,10 +188,22 @@ describe('the surfaces that draw it', () => {
   // The tone is a modifier precisely so the difference cannot be lost to a later
   // tidy-up of "two rules that look the same".
   it('leaves the `soon` chip quiet — only `new` wears the loud tone', () => {
-    const html = squashed('projects/showcase/app/_layout/sidebar/sidebar.html');
+    const [group] = sidebarEntries(
+      [
+        {
+          title: 'Planned',
+          children: [
+            { title: 'Signature pad', disabled: true },
+            { title: 'Graph', url: '/reference/components/graph' },
+          ],
+        },
+      ],
+      '14.4.0'
+    );
+    const [soon, fresh] = 'children' in group ? group.children : [];
 
-    expect(html).toMatch(/<small class="ngwr-sidebar__badge">soon<\/small>/);
-    expect(html).not.toMatch(/ngwr-sidebar__badge--new">soon/);
+    expect(soon).toEqual({ title: 'Signature pad', url: [], disabled: true, badge: { text: 'Soon', tone: 'neutral' } });
+    expect(fresh).toMatchObject({ badge: { text: 'New', tone: 'primary' } });
   });
 
   it('prints the version on the page, beside the title rather than inside it', () => {
@@ -187,10 +216,10 @@ describe('the surfaces that draw it', () => {
   // One rule, not a copy per surface — the property `isNewLink()` exists for.
   it('runs both nav surfaces off the shared rule', () => {
     for (const file of [
-      'projects/showcase/app/_layout/sidebar/sidebar.ts',
+      'projects/showcase/app/_layout/sidebar/entries.ts',
       'projects/showcase/app/_core/components/doc-index/doc-index.ts',
     ]) {
-      expect(read(file)).toMatch(/import \{ isNewLink \} from '#core\/utils';/);
+      expect(read(file)).toMatch(/import \{[^}]*\bisNewLink\b[^}]*\} from '#core\/utils';/);
     }
   });
 
