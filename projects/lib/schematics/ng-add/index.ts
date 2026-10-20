@@ -26,7 +26,7 @@ import type { Schema } from './schema';
  * because a consumer can remove it; this list is about what `ng add` has to add.
  */
 const BASE_PEERS: readonly (readonly [string, string])[] = [
-  ['@angular/cdk', '>=22.0.0'],
+  ['@angular/cdk', '^22.0.0'],
   ['lucide', '>=1.0.0'],
 ];
 

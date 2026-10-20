@@ -41,12 +41,12 @@
     "url": "https://github.com/thekhegay/ngwr/issues"
   },
   "peerDependencies": {
-    "@angular/cdk": ">=22.0.0",
-    "@angular/common": ">=22.0.0",
-    "@angular/core": ">=22.0.0",
-    "@angular/forms": ">=22.0.0",
-    "@angular/platform-browser": ">=22.0.0",
-    "@angular/router": ">=22.0.0",
+    "@angular/cdk": "^22.0.0",
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@angular/forms": "^22.0.0",
+    "@angular/platform-browser": "^22.0.0",
+    "@angular/router": "^22.0.0",
     "rxjs": "^7.0.0",
     "prosemirror-commands": "^1.7.2",
     "prosemirror-history": "^1.5.0",

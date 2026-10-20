@@ -1307,6 +1307,16 @@ that sequence is a position rather than an oversight:
   A migration that pretended to have handled any of those would be worse than
   none, because the silence reads as "nothing to do".
 
+**The `@angular/*` peers are a caret on the major the repository builds with,
+never an open `>=`.** Angular's library guide supports an app only on the same
+or a newer Angular than the one that built the library, so the published
+package is built on the lowest major it promises. A newer framework major joins
+the range in a release once a CI job has run the suite on it; building on that
+major instead would break every app still on the one below. v14 shipped
+`>=22.0.0`, which promised every future major untested, and v15 closed it. The
+library builder does not force the move: `@angular/build:library` arrives in a
+minor of the current line, and its `@angular/compiler-cli` peer is that line.
+
 **Dependencies.** Check with `pnpm outdated` (one shot — don't query packages
 one by one). Angular **tooling** (`@angular/cli`, `@angular/build`,
 `@angular-devkit/*`, `@schematics/angular`) patches independently of the
