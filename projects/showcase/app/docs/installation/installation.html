@@ -1,323 +1,110 @@
 <ngwr-doc-page
   title="Installation"
-  description="Install NGWR, wire it into your Angular app, start using components, and the schematics that do the wiring for you."
+  description="Add ngwr to an Angular app."
   [keywords]="['install', 'setup', 'getting started', 'schematics', 'ng-add', 'ng-generate', 'ng-update', 'cli']"
   [labels]="['Getting started']"
 >
-  <ngwr-doc-section
-    title="Requirements"
-    description="**ngwr runs on Angular 22**: `@angular/core`, `@angular/common`, `@angular/forms`, `@angular/platform-browser` and the `@angular/cdk` peer are all declared `^22.0.0`, alongside rxjs 7. A new Angular major is added to that range in a release once ngwr has been tested on it. More peers are optional and marked as such, so nothing installs them for you until you reach for the feature: `@angular/router` (`wr-sidebar`, `wr-breadcrumbs`, and the two opt-in router adapters `ngwr/tabs/router` and `ngwr/loading-bar/router`, so a plain `wr-tabs` or `wr-loading-bar` does not import it) and the `prosemirror-*` packages behind `wr-editor`. No icon set is a peer: `lucideIcons()` and `svgIcon()` take the icon data as an argument, so `lucide` is yours to install only if you use it. `tslib` is the only real dependency."
-  >
-    <wr-alert
-      type="warning"
-      title="On Angular 21 or 20 the install succeeds and the build is what fails."
-      message="npm, pnpm and yarn all treat an unsatisfied peer as a warning rather than an error, so adding ngwr to an Angular 21 project prints “Issues with peer dependencies found” and exits 0. The failure surfaces later, in the Angular linker, as “Unsupported enum value for [object Object]” pointing at a line inside one of the fesm2022 bundles. The package’s service declarations carry minVersion 22.0.0, and a linker that predates that shape cannot read them. Read the peer warning at install time: the message you get at build time never mentions a version."
-    />
-
-    <p>
-      <strong>The missing upper bound is not a promise, and the floor is not the only compatibility question.</strong>
-      An open-ended range means your package manager will not stop you installing ngwr beside an Angular that did not
-      exist when the release was cut — nothing more; and no TypeScript peer and no <code>engines</code> field are
-      declared here at all, because the package ships pre-compiled bundles and the versions that matter are the ones
-      your Angular names. And the semver rule — a breaking change can no longer ride a minor, because the release script
-      refuses the bump.
-    </p>
-
-    <p>
-      <strong>The browser floor comes from the stylesheet</strong>: dark mode is CSS <code>light-dark()</code>, which
-      needs Chrome 123, Firefox 120 or Safari 17.5. Below those, every colour that differs between the light and dark
-      schemes resolves to nothing, so the page loses it rather than falling back to the light side.
-    </p>
+  <ngwr-doc-section title="Compatibility">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">ngwr</th>
+          <th scope="col">Angular</th>
+          <th scope="col">CDK</th>
+          <th scope="col">Node</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of compatibility; track row.ngwr) {
+          <tr>
+            <td>{{ row.ngwr }}</td>
+            <td>{{ row.angular }}</td>
+            <td>{{ row.cdk }}</td>
+            <td>{{ row.node }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <p>Browsers: Chrome 123, Firefox 120, Safari 17.5 and newer.</p>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Quick start"
-    description="`ng add` runs the schematic that installs peer deps (including `lucide`), wires `@use 'ngwr/theme';` into your global styles, and prints a tailored bootstrap snippet based on the prompts you answer. It prints those providers rather than writing them — copy them into `app.config.ts` yourself."
-  >
+  <ngwr-doc-section title="Install" description="`ng add` installs the peers and adds the theme to your global styles.">
     <ngwr-doc-code [code]="snippets.ngAdd" language="bash" />
+    <p>Or by hand:</p>
+    <ngwr-doc-install packages="ngwr @angular/cdk" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Manual install"
-    description="If you'd rather wire things yourself, install the package + the CDK peer. Unlike `ng add`, this does not pull `lucide` — add it when you register Lucide icons with `lucideIcons()`."
+    title="Styles"
+    description="In your global stylesheet: the theme first, then one line per component you render."
   >
-    <ngwr-doc-code [code]="snippets.install" language="bash" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Bootstrap"
-    description="No provider is needed on day one. Dark mode needs none: the theme stylesheet follows the OS through `color-scheme`, and `WrTheme`, the service behind a light / dark toggle, is root-provided. Overlays need none either: they render into a container of ngwr's own rather than the one every other CDK consumer shares. When you do configure something app-wide, it goes into one `provideWr()` call with a feature per setting — see [Configuration](/docs/configuration)."
-  >
-    <ngwr-doc-code [code]="snippets.appConfig" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Every import is a subpath — the root holds only provideWr"
-    description="`import { WrButton } from 'ngwr'` does not work, and it fails in a way an IDE will happily write for you. There is no barrel: the root entry point exports `provideWr()` and nothing from the catalog, because a barrel re-exporting every entry point in the catalog is a barrel every consumer's bundler has to prove it can shake. So the compiler answers `TS2305: Module '&quot;ngwr&quot;' has no exported member 'WrButton'`, which names the symbol and not the mistake. **The symbol always comes from the entry point, and the entry point is the last segment of the component's docs URL** — `/reference/components/select` is `ngwr/select`. The one lint rule below turns a wrong auto-import into a red squiggle instead of a build error, and still lets `provideWr` through."
-  >
-    <ngwr-doc-code [code]="snippets.rootEntry" language="typescript" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Global styles"
-    description="One `@use` per thing you render, in your global stylesheet, with `ngwr/theme` on the first line. **There is no `@use 'ngwr'`** — the package ships no umbrella, because a sheet that compiles every component in the catalog to paint a page using four of them is the opposite of what a per-entry-point library is for. Each component entry loads the token layer itself and Sass de-duplicates it, so the tokens are emitted once no matter how many lines you write; the theme line is still first, because only a module's FIRST load can take `with (...)`, and that is where `$base-colors` goes. Utilities are opt-in on top."
-  >
-    <ngwr-doc-code [code]="snippets.globalStyles" language="scss" />
-
-    <p>
-      <strong>What it costs, since <code>ng new</code> warns at 500 kB.</strong> The fourteen entries a typical CRUD
-      screen needs (theme, density, button, input, form, icon, select, checkbox, table, pagination, dialog, toast,
-      spinner, dropdown) compile and minify to about <strong>{{ styleSizes.crud }}</strong> /
-      {{ styleSizes.crudGzip }} gzipped; the theme token layer alone is {{ styleSizes.theme }} /
-      {{ styleSizes.themeGzip }}. The whole catalog, for comparison, is <strong>{{ styleSizes.everything }}</strong> /
-      {{ styleSizes.everythingGzip }} — that figure is why there is nothing to <code>&#64;use</code> that gives you all
-      of it. These are this release measured with the command below, not a budget: re-run it rather than trusting the
-      numbers a page was written with.
-    </p>
-
-    <ngwr-doc-code [code]="snippets.measureCss" language="bash" />
-
-    <p>
-      <strong>One declaration in that CSS is not a <code>--wr-*</code></strong
-      >, and it is the whole dark-mode switch: the token layer sets <code>color-scheme: light dark</code> on
-      <code>:root</code>. Every token that differs between the schemes is a <code>light-dark()</code>, so the page —
-      native scrollbars, <code>&lt;textarea&gt;</code> and date / colour inputs included — follows the OS with no
-      JavaScript. <code>WrTheme</code> pins one side by writing <code>color-scheme</code> on <code>&lt;html&gt;</code>,
-      and any element can do the same for its own subtree.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="The style entries you will forget"
-    description="A component's SCSS entry brings the theme layer with it — `@use 'ngwr/button'` emits the tokens too, deduped across the compilation — but it does not bring the other components this one renders, and that is the one real hazard of a per-entry-point library: nothing warns you, the control just renders wrong. A missing `ngwr/icon` is the loudest of them: an inline SVG with no `.wr-icon__svg` rule falls back to the browser's default replaced-element box, so a select's chevron renders at around 150px tall. The table below is the full set."
-  >
-    <ngwr-doc-code [code]="snippets.perComponent" language="scss" />
-
-    <p>
-      <strong>Two entries you will not think to add, and every app wants both.</strong>
-      <code>ngwr/icon</code> — a large part of the catalog renders either a <code>&lt;wr-icon&gt;</code> or a bare
-      inline <code>&lt;svg class="wr-icon__svg"&gt;</code> — select and cascader chevrons, table sort and expand arrows,
-      tree twisties, accordion carets, the alert and toast status marks — and this entry is the only thing that sizes
-      them. <code>ngwr/density</code> — the <code>--wr-density-*</code> multipliers live there and nowhere else; every
-      reader falls back to <code>1</code>, so without it geometry is correct at <code>md</code> and
-      <code>withDensity()</code> / <code>[wrDensity]</code> silently do nothing at all.
-    </p>
-
-    <p>
-      <strong>Then the entry point is named after itself, not after the selector.</strong> Mostly they agree, and where
-      they do not the surprises are worth reading once: <code>&lt;wr-btn&gt;</code> is
-      <code>&#64;use 'ngwr/button'</code>, <code>&lt;wr-tag&gt;</code> is <code>ngwr/badge</code>,
-      <code>&lt;wr-option&gt;</code> is <code>ngwr/select</code>, <code>&lt;wr-accordion&gt;</code> is
-      <code>ngwr/collapse</code>, <code>&lt;wr-form-field&gt;</code> is <code>ngwr/form</code>,
-      <code>&lt;wr-sortable-list&gt;</code> is <code>ngwr/sortable-list</code>, <code>&lt;wr-kbd&gt;</code> is
-      <code>ngwr/keyboard</code>, <code>&lt;wr-count-up&gt;</code> is <code>ngwr/counter</code>. The rule that always
-      holds: it is the last segment of the component's docs URL, the same string as its TypeScript subpath.
-    </p>
-
-    <p>
-      <strong>And a service mounts a component no template mentions.</strong>
-      <code>WrDialog.open()</code> needs <code>&#64;use 'ngwr/dialog'</code>, <code>WrToast.show()</code> needs
-      <code>ngwr/toast</code>, and <code>WrDrawerManager.open()</code> needs <code>ngwr/drawer</code> — a dialog without
-      its entry opens as unstyled content with no panel and no backdrop.
-    </p>
-
-    <p>
-      Below: everything a component renders <em>beyond</em> <code>ngwr/icon</code>, which the paragraph above already
-      settles. The list is DIRECT, so follow it through — <code>&lt;wr-table&gt;</code> pulls
-      <code>ngwr/pagination</code>, which pulls <code>ngwr/select</code>. A component not listed here needs only its
-      own entry.
-    </p>
-
-    <wr-table responsive [columns]="styleDepColumns" [items]="styleDepRows">
-      <ng-template wrTableCell="component" let-value>
-        <code wrTypography variant="code">{{ value }}</code>
-      </ng-template>
-      <ng-template wrTableCell="needs" let-value>
-        <code wrTypography variant="code">{{ value }}</code>
-      </ng-template>
-    </wr-table>
-
-    <p>
-      <strong>The subpath is the API; a deeper path into the package is not.</strong>
-      <code>&#64;use 'ngwr/button'</code> resolves through the <code>sass</code> condition in the package's
-      <code>exports</code> map, and that map is what a major has to keep working. A deep path like
-      <code>&#64;use 'ngwr/button/styles/index'</code> happens to compile anyway — Angular's Sass integration resolves
-      files inside a package directly rather than through <code>exports</code> — and nothing is promised about it: the
-      file layout under an entry point is free to move in any release, and Node's own resolution would have refused it.
-      Write the subpath.
-    </p>
-
-    <wr-alert
-      type="info"
-      title="Nothing here fails loudly."
-      message="A missing style entry is not a build error and not a console warning — it is a control that renders with no styling, or worse, one that renders almost right because the sheet it was leaning on came in through something else. Check the rendered control, not the build log. And none of this touches your JavaScript bundle, which is decided purely by what you import in TypeScript."
-    />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="What the opt-in utilities do"
-    description="None of these comes in with a component, and none is a no-op. `ngwr/grid` adds `.grid` / `.container` / `.col-*` and touches nothing else. `ngwr/reset` is the one to read before adopting: it is a reset in the modern sense, so it removes browser defaults from elements ngwr does not own, and two of those removals are routinely a surprise — links lose their underline (`a { color: inherit; text-decoration: none }`) and plain buttons lose their chrome (`button { background: none; border: 0; padding: 0 }`). It also sets heading sizes and weights from the type scale, which makes it more opinionated than the “box-sizing and body margin” it is usually reached for. It carries the token layer itself, so `@use 'ngwr/reset'` alone is enough — put it above a `@use 'ngwr/theme' with (…)` line, though, and Sass refuses the build, because a module can only be configured at its first load."
-  >
-    <ngwr-doc-code [code]="snippets.reset" language="scss" />
-
-    <p>
-      <strong>Adding or dropping it no longer resizes ngwr's own glyphs.</strong> An inline
-      <code>&lt;svg class="wr-icon__svg"&gt;</code> is <code>1em</code> of the font it lands in, and a
-      <code>&lt;button&gt;</code> inherits no font-size — it takes the browser's control font, 13.33px in Chromium. Four
-      rules in the library put a bare glyph in a button of its own: the alert dismiss, the two toast actions, the
-      password reveal and the lightbox close. Each drew that 13.33px on a page with no reset, and the surrounding text's
-      size under this one. They inherit the size explicitly now, so all four follow the text around them either way —
-      which on a page with no reset is a larger glyph than before, and the reason this is a fix rather than a
-      preference: 13.33px was the browser's number, not one anyone chose. <code>--wr-icon-size</code> never reached
-      them, and still does not: only a <code>&lt;wr-icon&gt;</code> host reads that hook.
-    </p>
-
-    <p>
-      <strong><code>ngwr/typography-utilities</code> adds utility classes for the type tokens and nothing else.</strong>
-      Size is <code>.wr-text-xs</code> to <code>.wr-text-5xl</code>, weight is <code>.wr-font-thin</code> to
-      <code>.wr-font-extrabold</code>, and the family is <code>.wr-font-base</code> or <code>.wr-font-mono</code>.
-      <code>.wr-leading-*</code> and <code>.wr-tracking-*</code> set line height and letter spacing, and
-      <code>.wr-text-balance</code>, <code>.wr-text-pretty</code> and <code>.wr-truncate</code> cover wrapping. Load it
-      with <code>&#64;use 'ngwr/typography-utilities'</code>, which carries the tokens every one of its classes reads,
-      so it needs nothing beside it. It is not <code>ngwr/typography</code>: that entry is the stylesheet of the
-      <code>wrTypography</code> component, which you &#64;use when you render it.
-    </p>
+    <ngwr-doc-code [code]="snippets.styles" language="scss" />
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Optional sheet</th>
+          <th scope="col">What it adds</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (sheet of optionalSheets; track sheet.use) {
+          <tr>
+            <td>
+              <code>{{ sheet.use }}</code>
+            </td>
+            <td>
+              @if (sheet.link) {
+                <a [routerLink]="sheet.link">{{ sheet.what }}</a>
+              } @else {
+                {{ sheet.what }}
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Use a component"
-    description="Import the component class into the standalone component's imports array. Nothing here needs a provider or an extra package."
+    description="Import each component from its own entry point: `ngwr/button`, not `ngwr`."
   >
     <ngwr-doc-code [code]="snippets.usage" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Use a component with an icon"
-    description="Icons are registered, not bundled wholesale: name the ones you use and the rest tree-shake away. This is the first snippet on the page that needs a package beyond `ngwr` + `@angular/cdk`. The registry holds `WrIconDef` values rather than component references, so the bundler drops every lucide export you did not name — but that is a claim about your **bundle**, not about your **build**."
+    title="Icons"
+    description="Install an icon set and register the icons you use. [All icon sets](/icons)."
   >
-    <ngwr-doc-code [code]="snippets.usageIcon" language="angular-ts" />
-
-    <wr-alert
-      type="info"
-      title="Importing from the lucide barrel costs build time, every build."
-      message="lucide has no exports map and ships one ES module per icon — over 3 500 of them — behind a single barrel. Naming one icon makes the bundler walk the whole barrel to prove the other 3 500 are unused: they are dropped from the output, having been read on the way there, and a cold Angular build goes from seconds to tens of seconds with no change in bundle bytes. Nothing about ngwr causes it and nothing about ngwr can fix it. If it hurts, register the SVG directly with svgIcon() from ngwr/icon — the route every other icon set on this site takes, tabler and phosphor and heroicons among them — which costs a string per icon and no barrel walk at all."
-    />
-
-    <ngwr-doc-code [code]="snippets.usageSvgIcon" language="angular-ts" />
+    <ngwr-doc-install packages="lucide" />
+    <ngwr-doc-code [code]="snippets.icons" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="What an entry point pulls in with it"
-    description="Two things worth knowing before you budget. An entry point brings its static imports whether or not you use the feature, so a bare `<wr-table>` still carries the checkbox, dropdown, pagination and spinner it can show. And every overlay component pulls CDK's overlay module, which is the heaviest thing here — paid once, however many overlays the page renders. Measure your own build with the commands below."
+    title="Configure"
+    description="Optional. One `provideWr()` call, one feature per setting. [Configuration](/docs/configuration)."
   >
-    <ngwr-doc-code [code]="snippets.measureJs" language="bash" />
+    <ngwr-doc-code [code]="snippets.configure" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Override design tokens"
-    description="Every visual is driven by --wr-* CSS variables. Override them anywhere — :root for app-wide, any subtree for scoped."
-  >
-    <ngwr-doc-code [code]="snippets.overrideTokens" language="scss" />
+  <ngwr-doc-section title="Schematics">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Command</th>
+          <th scope="col">What it does</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (s of schematics; track s.command) {
+          <tr>
+            <td>
+              <code>{{ s.command }}</code>
+            </td>
+            <td>{{ s.does }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
   </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Override the palette at compile time"
-    description="If you'd rather change the source-of-truth colors and let NGWR regenerate every variant (contrast / dark / light), configure the SCSS module. That map moves the light scheme only; the dark side of each intent comes from the second map of `theme.rebrand()` — see [Theming](/guides/theming)."
-  >
-    <ngwr-doc-code [code]="snippets.overridePalette" language="scss" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="What is in the package"
-    description="Worth a look before you vendor `node_modules` or go hunting for a file that is not there. `node_modules/ngwr` holds one FESM bundle per entry point under `fesm2022/`, a `.d.ts` per entry point under `types/` (`types/ngwr-date-picker.d.ts` — the fastest exact answer for any API question), the `.scss` sources every `@use 'ngwr/<name>'` resolves against, the `schematics/` collection `ng add` and `ng update` run, and the `ngwr-mcp` server under `mcp/`. **Roughly half the unpacked size is source maps** — one `.mjs.map` beside every `.mjs`, each carrying `sourcesContent` — which is why the unpacked package is roughly twice the size of the code it runs; they are what makes a stack trace inside ngwr readable, and nothing else reads them."
-  >
-    <p>
-      <strong>Four markdown files ship, and they are not the docs.</strong> <code>README.md</code>,
-      <code>skills/ngwr/SKILL.md</code> and its two <code>references/</code> files. There is no
-      <code>CHANGELOG.md</code> and no migration guide in the package: the release notes live on
-      <a routerLink="/docs/migration">/docs/migration</a> and in the GitHub releases, so an air-gapped checkout of
-      <code>node_modules</code> does not carry them. The
-      <strong>markdown twin of a docs page is a URL, not a file</strong> — append <code>.md</code> to any page on this
-      site (<code>/reference/components/select.md</code>) and the server renders it. The MCP server hands those URLs to
-      your agent as text and never fetches them: it reads only files inside its own installed package and makes no
-      network requests.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Schematics"
-    description="Angular CLI tooling shipped with ngwr — `ng add`, five generators, and an `ng update` migration for every major that needs one: v7, v8, v9, v12, v13 and v14. v10 and v11 ship none on purpose, because their breaks were painted colour and an empty codemod would say they were handled."
-  />
-
-  <ngwr-doc-section
-    title="ng add ngwr"
-    description="One-shot install. Installs `@angular/cdk`, appends `@use 'ngwr/theme';` to the global stylesheet, and prints a tailored bootstrap snippet with the providers you picked."
-  >
-    <ngwr-doc-code [code]="snippets.ngAddShort" language="bash" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Interactive prompts" description="What the prompts look like:">
-    <ngwr-doc-code [code]="snippets.ngAddPrompts" language="bash" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Non-interactive flags">
-    <ngwr-doc-code [code]="snippets.ngAddFlags" language="bash" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="ng g ngwr:icon-set"
-    description="Scaffold a tree-shaken icon barrel file. Pick a curated set (basic / navigation / forms / feedback) or pass an explicit list. Combine both for a custom mix."
-  >
-    <ngwr-doc-code [code]="snippets.iconSet" language="bash" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="What it writes">
-    <ngwr-doc-code [code]="snippets.iconSetOutput" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="ng g ngwr:use"
-    description="Add an `import { WrFoo }` line and splice `WrFoo` into the `@Component({ imports: [...] })` array of an existing component file. The symbols it recognizes come from a map generated by a public-api scan at build time, so it cannot drift from what the package exports."
-  >
-    <ngwr-doc-code [code]="snippets.use" language="bash" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Before / after">
-    <ngwr-doc-code [code]="snippets.useBefore" language="angular-ts" />
-    <ngwr-doc-code [code]="snippets.useAfter" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="ng g ngwr:provider"
-    description="Splice a provider into your bootstrap providers array — a feature of `provideWr()` for density, toast and storage, a call of its own for icons and i18n. Useful for adding a single subsystem after the initial `ng add`."
-  >
-    <ngwr-doc-code [code]="snippets.provider" language="bash" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="ng g ngwr:component-style"
-    description="Append `@use 'ngwr/<name>';` to the project's global stylesheet. Pairs with the `--styles=none` choice on `ng add` — opt into ngwr styles per component instead of pulling the whole bundle."
-  >
-    <ngwr-doc-code [code]="snippets.componentStyle" language="bash" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="ng g ngwr:page"
-    description="Scaffold a starter page wired up with ngwr components. Three presets — form (form-field + input + button), table (table + pagination), dashboard (card grid + statistic)."
-  >
-    <ngwr-doc-code [code]="snippets.page" language="bash" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="ng update"
-    description="One `ng update ngwr` from any earlier major installs the latest release and runs every migration newer than your installed version, in order — do not step through the majors, and never target a 7.x, 8.x or 9.x release, whose schematics die with `exports is not defined in ES module scope` ([the migration guide](/docs/migration) has why, and the recovery). Each migration touches every `.html`, `.ts` and `.scss` in the workspace (excluding `node_modules`, `dist`, and the rest). Regex-based — verify with `git diff` afterwards. Some migrations only REPORT: where a fix needs a decision a codemod cannot make, it names the files and leaves them to you rather than guessing. There is one of these per MAJOR and never for anything else, which is a rule rather than a habit: a breaking change cannot ride a minor or a patch, because the release script refuses that bump."
-  >
-    <ngwr-doc-code [code]="snippets.update" language="bash" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="What gets rewritten">
-    <ngwr-doc-code [code]="snippets.updateMap" language="bash" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-see-also [links]="seeAlso" />
 </ngwr-doc-page>
