@@ -4,30 +4,6 @@
   [keywords]="['install', 'setup', 'getting started', 'schematics', 'ng-add', 'ng-generate', 'ng-update', 'cli']"
   [labels]="['Getting started']"
 >
-  <ngwr-doc-section title="Compatibility">
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">ngwr</th>
-          <th scope="col">Angular</th>
-          <th scope="col">CDK</th>
-          <th scope="col">Node</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (row of compatibility; track row.ngwr) {
-          <tr>
-            <td>{{ row.ngwr }}</td>
-            <td>{{ row.angular }}</td>
-            <td>{{ row.cdk }}</td>
-            <td>{{ row.node }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-    <p>Browsers: Chrome 123, Firefox 120, Safari 17.5 and newer.</p>
-  </ngwr-doc-section>
-
   <ngwr-doc-section title="Install" description="`ng add` installs the peers and adds the theme to your global styles.">
     <ngwr-doc-code [code]="snippets.ngAdd" language="bash" />
     <p>Or by hand:</p>
@@ -106,5 +82,29 @@
         }
       </tbody>
     </table>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Compatibility">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">ngwr</th>
+          <th scope="col">Angular</th>
+          <th scope="col">CDK</th>
+          <th scope="col">Node</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of compatibility; track row.ngwr) {
+          <tr>
+            <td>{{ row.ngwr }}</td>
+            <td>{{ row.angular }}</td>
+            <td>{{ row.cdk }}</td>
+            <td>{{ row.node }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <p>Browsers: Chrome 123, Firefox 120, Safari 17.5 and newer.</p>
   </ngwr-doc-section>
 </ngwr-doc-page>

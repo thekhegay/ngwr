@@ -4,47 +4,23 @@
   [keywords]="['angular ui library', 'signal forms', 'zoneless', 'standalone components', 'ssr']"
 >
   <ngwr-doc-section title="What you get">
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Feature</th>
-          <th scope="col">What it means</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><a [routerLink]="paths.forms">Signal Forms</a></td>
-          <td>Every value control binds with <code>[formField]</code>.</td>
-        </tr>
-        <tr>
-          <td>Signals, zoneless</td>
-          <td>Standalone components with <code>input()</code> and <code>model()</code>. No zone.js.</td>
-        </tr>
-        <tr>
-          <td>Tree-shakable</td>
-          <td>One entry point per component. Import and <code>&#64;use</code> only what you render.</td>
-        </tr>
-        <tr>
-          <td><a [routerLink]="paths.theming">CSS variables</a></td>
-          <td>Restyle the app with tokens, or one component with its own hooks.</td>
-        </tr>
-        <tr>
-          <td><a [routerLink]="paths.ssr">SSR</a></td>
-          <td>Components render on the server and hydrate.</td>
-        </tr>
-        <tr>
-          <td><a [routerLink]="paths.testing">Test harnesses</a></td>
-          <td>CDK harnesses at <code>ngwr/&lt;name&gt;/testing</code>.</td>
-        </tr>
-        <tr>
-          <td>AI tooling</td>
-          <td>
-            An <a [routerLink]="paths.skills">agent skill</a>, <a href="/llms-full.txt">llms-full.txt</a> and an
-            <a [routerLink]="paths.mcp">MCP server</a>, generated from the source.
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <ul class="intro-features wr-not-typeset">
+      @for (feature of features; track feature.title) {
+        <li class="intro-feature">
+          <span class="intro-feature__icon" [attr.data-tone]="feature.tone">
+            <wr-icon [name]="feature.icon" />
+          </span>
+          <h3 class="intro-feature__title">
+            @if (feature.url) {
+              <a [routerLink]="feature.url">{{ feature.title }}</a>
+            } @else {
+              {{ feature.title }}
+            }
+          </h3>
+          <p class="intro-feature__text" [innerHTML]="feature.text | wrDocRich"></p>
+        </li>
+      }
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Next">
