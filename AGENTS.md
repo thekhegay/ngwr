@@ -603,6 +603,7 @@ controls projected into it — the controls themselves do not grow with it.
 | llms-full.txt     | `pnpm check:llms` (entry-point coverage floors for the generated AI asset)                           |
 | Selector map      | `pnpm gen:selectors` (every `@Component` / `@Directive` selector → symbol + subpath, for the sandbox); `check:selectors` gates the committed copy — a `pnpm lint` stage |
 | Component hooks   | `pnpm gen:css-vars` (the `--wr-<name>-*` each component publishes → the docs' CSS-variables tables); `check:css-vars` gates the committed copy |
+| Dependencies      | `pnpm gen:deps` (each entry point's peers, add-ons, what it is built on and used by → the docs' Dependencies section and See also); `--check` gates the committed copy |
 | Quality numbers   | `pnpm gen:quality` (entry points, harnesses, specs, gates — what `/start/quality` binds to)          |
 | Unit tests        | `pnpm test` (`ng test lib` — vitest via `@angular/build:unit-test`); `pnpm test:watch` |
 

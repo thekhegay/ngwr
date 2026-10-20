@@ -20,6 +20,7 @@
     "gen:selectors": "tsx scripts/gen/selectors.ts",
     "gen:css-vars": "tsx scripts/gen/css-vars.ts",
     "gen:install": "tsx scripts/gen/install.ts",
+    "gen:deps": "tsx scripts/gen/deps.ts",
     "check:install": "tsx scripts/gen/install.ts --check",
     "gen:exports": "tsx scripts/gen/exports.ts",
     "check:css-vars": "tsx scripts/gen/css-vars.ts --check",

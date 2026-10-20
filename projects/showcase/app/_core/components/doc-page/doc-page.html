@@ -40,7 +40,40 @@
     </ngwr-doc-section>
   }
 
+  @if (deps(); as rows) {
+    <ngwr-doc-section title="Dependencies">
+      <table class="deps">
+        <tbody>
+          @for (row of rows; track row.label) {
+            <tr>
+              <th scope="row">{{ row.label }}</th>
+              <td>
+                @for (item of row.items; track item.text; let last = $last) {
+                  @if (item.url) {
+                    <a [routerLink]="item.url">{{ item.text }}</a>
+                  } @else {
+                    <code>{{ item.text }}</code>
+                  }
+                  @if (item.note) {
+                    <span class="deps__note">({{ item.note }})</span>
+                  }
+                  @if (!last) {
+                    <span>, </span>
+                  }
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </ngwr-doc-section>
+  }
+
   <ng-content />
+
+  @if (!ownSeeAlso()) {
+    <ngwr-doc-see-also />
+  }
 
   <!--
     Last section on the page, and rendered by the shell rather than by the page:

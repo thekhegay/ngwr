@@ -1,5 +1,5 @@
-import { Component, computed, contentChildren, effect, inject, input, viewChildren } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, computed, contentChild, contentChildren, effect, inject, input, viewChildren } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 
 import { WrAnchor, type WrAnchorLink } from 'ngwr/anchor';
 import { WrBadge } from 'ngwr/badge';
@@ -10,12 +10,13 @@ import { DocCodeComponent } from '../doc-code/doc-code';
 import type { DocCodeFile } from '../doc-code/types';
 import { DocCssVarsComponent } from '../doc-css-vars/doc-css-vars';
 import { DocRichPipe, docRichToText } from '../doc-rich/doc-rich';
+import { DocSeeAlsoComponent } from '../doc-see-also/doc-see-also';
 import { DocSectionComponent } from '../doc-section/doc-section';
 
 import { CSS_VARS, type DocCssVarRoute, type DocCssVars } from '#core/generated/css-vars';
 import { INSTALL, type DocInstallEntry, type DocInstallRoute } from '#core/generated/install';
 import { MetaService } from '#core/services';
-import { isOptionalLink, releaseLabel } from '#core/utils';
+import { depsOf, docPageOf, entryOfRoute, isOptionalLink, releaseLabel } from '#core/utils';
 
 const FALLBACK_CATEGORY = 'Docs';
 
@@ -72,8 +73,29 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
  * </ngwr-doc-page>
  * ```
  */
+interface DepsItem {
+  readonly text: string;
+  readonly url?: string;
+  readonly note?: string;
+}
+
+interface DepsRow {
+  readonly label: string;
+  readonly items: readonly DepsItem[];
+}
+
 @Component({
-  imports: [DocCodeComponent, DocCssVarsComponent, DocRichPipe, DocSectionComponent, WrAnchor, WrBadge, WrTypography],
+  imports: [
+    DocCodeComponent,
+    DocCssVarsComponent,
+    DocRichPipe,
+    DocSectionComponent,
+    DocSeeAlsoComponent,
+    RouterLink,
+    WrAnchor,
+    WrBadge,
+    WrTypography,
+  ],
   selector: 'ngwr-doc-page',
   templateUrl: './doc-page.html',
   styleUrl: './doc-page.scss',
@@ -101,7 +123,7 @@ export class DocPageComponent {
 
   protected readonly tocLinks = computed<readonly WrAnchorLink[]>(() => {
     const shell = this.own();
-    const install = shell.filter(s => s.title() === 'Installation');
+    const install = shell.filter(s => s.title() === 'Installation' || s.title() === 'Dependencies');
     const cssVars = shell.filter(s => s.title() === 'CSS variables');
     const all = [...install, ...this.projected(), ...cssVars];
     return all.map(s => ({ id: s.anchorId(), label: s.title() }));
@@ -196,6 +218,42 @@ export class DocPageComponent {
    * recipe cannot disagree with the page it sits on, and a component that
    * moves entry point carries its install line with it.
    */
+  /** A page that writes its own `<ngwr-doc-see-also>`; the shell adds one otherwise. */
+  protected readonly ownSeeAlso = contentChild(DocSeeAlsoComponent);
+
+  /** The Dependencies table: what the documented entry point needs and what uses it. */
+  protected readonly deps = computed<readonly DepsRow[] | null>(() => {
+    const d = depsOf(entryOfRoute(this.router.url));
+    if (!d) return null;
+    const link = (ep: string): DepsItem => {
+      const page = docPageOf(ep);
+      return page ? { text: page.title, url: `/${page.route}` } : { text: `ngwr/${ep}` };
+    };
+    const rows: DepsRow[] = [];
+    for (const p of d.peers) {
+      const note = p.optional ? 'optional peer' : undefined;
+      if (p.pkg === '@angular/cdk') rows.push({ label: 'Angular CDK', items: p.parts.map(part => ({ text: part })) });
+      else if (p.pkg === 'prosemirror')
+        rows.push({
+          label: 'ProseMirror',
+          items: [{ text: 'prosemirror-*', note: `${p.parts.length} packages${p.optional ? ', optional peers' : ''}` }],
+        });
+      else rows.push({ label: p.pkg, items: [{ text: p.pkg, note }] });
+    }
+    if (d.addons.length) {
+      rows.push({
+        label: 'Add-on',
+        items: d.addons.map(a => ({
+          text: `ngwr/${a.path}`,
+          note: a.peers.length ? `needs ${a.peers.join(', ')}` : undefined,
+        })),
+      });
+    }
+    if (d.uses.length) rows.push({ label: 'Built on', items: d.uses.map(link) });
+    if (d.usedBy.length) rows.push({ label: 'Used by', items: d.usedBy.map(link) });
+    return rows.length ? rows : null;
+  });
+
   /** Whether this page documents an opt-in part of ngwr. */
   protected readonly optional = computed(() => isOptionalLink(this.router.url));
 

@@ -93,3 +93,16 @@
     font-size: 0.875em;
   }
 }
+
+.deps {
+  th {
+    width: 9rem;
+    text-align: start;
+    font-weight: var(--wr-font-weight-medium);
+    white-space: nowrap;
+  }
+
+  &__note {
+    color: var(--wr-color-on-surface-muted);
+  }
+}
