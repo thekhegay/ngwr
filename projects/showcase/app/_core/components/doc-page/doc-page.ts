@@ -10,8 +10,8 @@ import { DocCodeComponent } from '../doc-code/doc-code';
 import type { DocCodeFile } from '../doc-code/types';
 import { DocCssVarsComponent } from '../doc-css-vars/doc-css-vars';
 import { DocRichPipe, docRichToText } from '../doc-rich/doc-rich';
-import { DocSeeAlsoComponent } from '../doc-see-also/doc-see-also';
 import { DocSectionComponent } from '../doc-section/doc-section';
+import { DocSeeAlsoComponent } from '../doc-see-also/doc-see-also';
 
 import { CSS_VARS, type DocCssVarRoute, type DocCssVars } from '#core/generated/css-vars';
 import { INSTALL, type DocInstallEntry, type DocInstallRoute } from '#core/generated/install';

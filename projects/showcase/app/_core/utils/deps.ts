@@ -1,6 +1,6 @@
-import { DEMO_RELATED, DEPS, DOC_PAGES, type DocDeps } from '#core/generated/deps';
-
 import { routeKey } from './since';
+
+import { DEMO_RELATED, DEPS, DOC_PAGES, type DocDeps } from '#core/generated/deps';
 
 const ENTRY_BY_ROUTE = new Map(Object.entries(DOC_PAGES).map(([ep, page]) => [page.route, ep]));
 

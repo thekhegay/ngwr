@@ -1,9 +1,9 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
-import { docPageOf, relatedOf } from '#core/utils';
-
 import type { DocSeeAlsoKind, DocSeeAlsoLink } from './types';
+
+import { docPageOf, relatedOf } from '#core/utils';
 
 /**
  * "See also" block — renders a grid of related-page cards at the bottom
