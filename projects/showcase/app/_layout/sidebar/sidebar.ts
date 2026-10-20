@@ -6,7 +6,7 @@ import { filter, map, startWith } from 'rxjs';
 
 import { WrIcon } from 'ngwr/icon';
 
-import { isNewLink } from '#core/utils';
+import { isNewLink, isOptionalLink } from '#core/utils';
 import type { SidebarGroup, SidebarLink } from '#types';
 
 /**
@@ -105,6 +105,13 @@ export class Sidebar {
    */
   protected isNew(row: SidebarLink | SidebarGroup): boolean {
     return isNewLink(row.url);
+  }
+
+  /** Whether a row, or every child of a group, documents an opt-in part of ngwr. */
+  protected isOptional(row: SidebarLink | SidebarGroup): boolean {
+    const children = 'children' in row ? row.children : undefined;
+    if (children?.length) return children.every(c => isOptionalLink(c.url));
+    return isOptionalLink(row.url);
   }
 
   protected toggleGroup(title: string): void {

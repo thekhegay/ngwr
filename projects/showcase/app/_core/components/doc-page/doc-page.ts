@@ -15,7 +15,7 @@ import { DocSectionComponent } from '../doc-section/doc-section';
 import { CSS_VARS, type DocCssVarRoute, type DocCssVars } from '#core/generated/css-vars';
 import { INSTALL, type DocInstallEntry, type DocInstallRoute } from '#core/generated/install';
 import { MetaService } from '#core/services';
-import { releaseLabel } from '#core/utils';
+import { isOptionalLink, releaseLabel } from '#core/utils';
 
 const FALLBACK_CATEGORY = 'Docs';
 
@@ -196,6 +196,9 @@ export class DocPageComponent {
    * recipe cannot disagree with the page it sits on, and a component that
    * moves entry point carries its install line with it.
    */
+  /** Whether this page documents an opt-in part of ngwr. */
+  protected readonly optional = computed(() => isOptionalLink(this.router.url));
+
   /** The URL with its leading and trailing slashes off — how both generated maps are keyed. */
   private readonly routeKey = computed(() => this.router.url.split(/[?#]/)[0].replace(/^\/+|\/+$/g, ''));
 

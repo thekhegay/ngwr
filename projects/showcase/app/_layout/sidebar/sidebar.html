@@ -13,6 +13,10 @@
           <span class="ngwr-sidebar__sep">,&nbsp;</span>
           <small class="ngwr-sidebar__badge ngwr-sidebar__badge--new">new</small>
         }
+        @if (isOptional(group)) {
+          <span class="ngwr-sidebar__sep">,&nbsp;</span>
+          <small class="ngwr-sidebar__badge">optional</small>
+        }
       </a>
     } @else {
       <!-- Expandable group with children. -->
@@ -24,6 +28,10 @@
           (click)="toggleGroup(group.title)"
         >
           <span class="ngwr-sidebar__group-title">{{ group.title }}</span>
+          @if (isOptional(group)) {
+            <span class="ngwr-sidebar__sep">,&nbsp;</span>
+            <small class="ngwr-sidebar__badge">optional</small>
+          }
           <wr-icon name="chevron-down" style="--wr-icon-size: 14px" />
         </button>
 
@@ -59,6 +67,10 @@
                           @if (isNew(link)) {
                             <span class="ngwr-sidebar__sep">,&nbsp;</span>
                             <small class="ngwr-sidebar__badge ngwr-sidebar__badge--new">new</small>
+                          }
+                          @if (isOptional(link) && !isOptional(group)) {
+                            <span class="ngwr-sidebar__sep">,&nbsp;</span>
+                            <small class="ngwr-sidebar__badge">optional</small>
                           }
                         </a>
                       }
