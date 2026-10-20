@@ -254,6 +254,20 @@
     }
   }
 
+  // Title above, marks on the line under it.
+  &__label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.125rem;
+    min-width: 0;
+  }
+
+  &__marks {
+    display: flex;
+    gap: 0.25rem;
+  }
+
   // The comma between a row's title and its mark — read, never seen.
   &__sep {
     @include a11y.sr-only;

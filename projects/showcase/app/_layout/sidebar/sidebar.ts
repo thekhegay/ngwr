@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
@@ -21,7 +22,7 @@ import type { SidebarGroup, SidebarLink } from '#types';
   selector: 'ngwr-sidebar',
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
-  imports: [RouterLink, RouterLinkActive, WrIcon],
+  imports: [NgTemplateOutlet, RouterLink, RouterLinkActive, WrIcon],
 })
 export class Sidebar {
   private readonly router = inject(Router);
