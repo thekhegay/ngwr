@@ -1,6 +1,5 @@
 @use 'lib/styles/breakpoints' as bp;
 @use 'showcase/styles/a11y';
-@use 'showcase/styles/badge';
 
 :host {
   // Below `md` the host renders inside the layout's wr-drawer and just
@@ -234,28 +233,27 @@
     }
   }
 
-  // Two rows wear this: the `soon` chip on a planned page, and the `new` mark on
-  // a page from the current release line. Same box, opposite jobs — `soon` is an
-  // aside, `new` is the thing a reader is scanning for — so the tone is a
-  // modifier and the geometry is not. Neither ever carries a version number;
-  // that is the maintainer's rule for the second one.
-  //
-  // Both tones come from `showcase/styles/_badge.scss`, shared with the catalog
-  // page's own mark: only the BOX is local, because this one is a flex child of
-  // the row and that one is an inline chip after the link text. The colours are
-  // not a box question, and two copies of them is how both came to fail AA.
+  // A row's mark as plain text: grey for an aside (optional, soon), a colour
+  // for what a reader scans for (new, deprecated).
   &__badge {
-    @include badge.row-mark;
-    @include badge.row-mark-quiet;
     flex: 0 0 auto;
+    color: var(--wr-color-on-surface-muted);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1rem;
 
     &--new {
-      @include badge.row-mark-new;
+      color: var(--wr-color-primary-ink);
+    }
+
+    &--deprecated {
+      color: var(--wr-color-danger-ink);
     }
   }
 
   // Title above, marks on the line under it.
   &__label {
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -265,7 +263,7 @@
 
   &__marks {
     display: flex;
-    gap: 0.25rem;
+    gap: 0.5rem;
   }
 
   // The comma between a row's title and its mark — read, never seen.
