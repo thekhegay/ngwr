@@ -277,6 +277,8 @@ $skip: ':not(:where(.wr-not-typeset, .wr-not-typeset *))';
   :where(table)#{$skip} {
     width: 100%;
     table-layout: auto;
+    // Row borders draw only in the collapsed model.
+    border-collapse: collapse;
     margin-top: 2em;
     margin-bottom: 2em;
     font-size: 0.875em;
