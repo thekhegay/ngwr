@@ -85,7 +85,7 @@ export const ROUTES = {
     title: 'Guides',
     theming: { path: 'theming', title: 'Theming' },
     grid: { path: 'grid', title: 'Grid' },
-    forms: { path: 'forms', title: 'Reactive forms' },
+    forms: { path: 'forms', title: 'Forms' },
     overlay: { path: 'overlay', title: 'Overlay' },
     mobile: { path: 'mobile', title: 'Mobile & responsive' },
     keyboard: { path: 'keyboard', title: 'Keyboard' },

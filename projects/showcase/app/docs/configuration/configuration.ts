@@ -227,7 +227,7 @@ providers: [provideWr(withStorage({ engine: sessionStorage, prefix: 'app:' }))],
     },
     {
       kind: 'Guide',
-      title: 'Reactive forms',
+      title: 'Forms',
       url: ['/guides', 'forms'],
       description:
         "What Angular 22's bridge carries and what it drops, once these providers are in place and you bind a control.",
