@@ -331,12 +331,7 @@ export class DocPageComponent {
    * reader has to know before the table is usable.
    */
   protected cssVarsDescription(subpath: string): string {
-    return (
-      `Custom properties \`${subpath}\` publishes. Each default below is declared on the component's ` +
-      `own selector, so a \`:root\` override is shadowed by it — set them on that selector, on a ` +
-      'wrapper you scope yourself, or inline on the element. Unlike the BEM class names, these are ' +
-      'the supported way to restyle the component.'
-    );
+    return `Set these on the component's selector or a wrapper, not on \`:root\`: the defaults are declared on \`${subpath}\`'s own element.`;
   }
 
   constructor() {
