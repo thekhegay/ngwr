@@ -490,13 +490,22 @@ describe('every value control, as a form control', () => {
       expect(unreachable.map(p => p.key)).toEqual([]);
     });
 
+    /**
+     * Controls whose name is the field's label FOLLOWED by their own visible
+     * text. The upload zone shows "Click to browse or drop files here", and
+     * WCAG 2.5.3 wants visible text inside the accessible name, so the zone is
+     * labelled by the field and then by that text: the label leads, which is
+     * what this test is about, and the rest is not a generic default.
+     */
+    const LABEL_FIRST: ReadonlySet<string> = new Set(['file-upload']);
+
     it('does not let a placeholder or a generic default outrank it', () => {
       const named = (p: Probe): string => nameOf(field(p.key).querySelector(COMPOSITE_HOST[p.key] ?? p.aria)!);
 
       const wrong = PROBES.filter(p => {
         const expected =
           SELF_LABELLED[p.key] ?? PART_NAMED[p.key] ?? field(p.key).querySelector('label')?.textContent?.trim() ?? '';
-        return named(p) !== expected;
+        return LABEL_FIRST.has(p.key) ? !named(p).startsWith(expected) : named(p) !== expected;
       }).map(p => `${p.key}: ${named(p)}`);
 
       expect(wrong).toEqual([]);
