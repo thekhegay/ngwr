@@ -67,7 +67,7 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
  *   title="Badge"
  *   description="Small status indicator with color variants."
  *   [keywords]="['badge', 'wr-badge']"
- *   [labels]="['Component', 'Standalone']"
+ *   [labels]="['Component', 'CDK Overlay']"
  * >
  *   <ngwr-doc-section title="Basic usage">...</ngwr-doc-section>
  * </ngwr-doc-page>
