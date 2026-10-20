@@ -58,8 +58,10 @@ export class WrTableFilter {
 
   private readonly filterText = useI18nFormatter('table.filter', 'Filter {{column}}');
 
+  // Trimmed: a filter used on its own has no column, and "Filter " with the
+  // placeholder's trailing space is what a reader would otherwise hear.
   protected readonly resolvedFilterLabel = computed(
-    () => this.filterLabel() ?? this.filterText({ column: this.column() })
+    () => this.filterLabel() ?? this.filterText({ column: this.column() }).trim()
   );
   protected readonly resolvedNoMatchesLabel = useI18nText(this.noMatchesLabel, 'table.noMatches', 'No matches');
   protected readonly resolvedSearchLabel = useI18nText(this.searchLabel, 'table.search', 'Search');

@@ -12,7 +12,7 @@ import { WrTableFilter } from './table-filter';
 
 @Component({
   imports: [WrTableFilter],
-  template: `<wr-table-filter [items]="items()" (selectionChange)="emitted.set($event)" />`,
+  template: `<wr-table-filter [items]="items()" column="Role" (selectionChange)="emitted.set($event)" />`,
 })
 class Host {
   readonly items = signal<readonly WrTableFilterItem[]>([
@@ -77,14 +77,14 @@ describe('WrTableFilter', () => {
   });
 
   it('puts the count it shows into its name (WCAG 2.5.3)', () => {
-    expect(trigger().getAttribute('aria-label')).toBe('Filter column');
+    expect(trigger().getAttribute('aria-label')).toBe('Filter Role');
 
     open();
     options()[0].click();
     fixture.detectChanges();
 
     expect(badge()?.textContent?.trim()).toBe('1');
-    expect(trigger().getAttribute('aria-label')).toBe('Filter column, 1');
+    expect(trigger().getAttribute('aria-label')).toBe('Filter Role, 1');
   });
 
   it('counts back down, and drops the badge at zero', () => {
