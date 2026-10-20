@@ -1,15 +1,12 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { BookOpen, Heart, Sparkles } from 'lucide';
+import { Heart } from 'lucide';
 import { WrButton } from 'ngwr/button';
-import { WrCard } from 'ngwr/card';
 import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
-import { WrStatistic, WrStatisticGroup } from 'ngwr/statistic';
 import { WrTypography } from 'ngwr/typography';
 
 import { DocPageComponent, DocSectionComponent } from '#core/components';
-import { QUALITY } from '#core/generated/quality';
 import { BRAND_ICONS } from '#core/icons';
 import { ROUTES, wrPath } from '#routes';
 
@@ -17,30 +14,20 @@ import { ROUTES, wrPath } from '#routes';
   selector: 'ngwr-docs-introduction-page',
   templateUrl: './introduction.html',
   styleUrl: './introduction.scss',
-  imports: [
-    RouterLink,
-    WrButton,
-    WrCard,
-    WrIcon,
-    WrStatistic,
-    WrStatisticGroup,
-    WrTypography,
-    DocPageComponent,
-    DocSectionComponent,
-  ],
-  providers: [
-    provideWrIcons([...BRAND_ICONS, ...lucideIcons({ sparkles: Sparkles, 'book-open': BookOpen, heart: Heart })]),
-  ],
+  imports: [RouterLink, WrButton, WrIcon, WrTypography, DocPageComponent, DocSectionComponent],
+  providers: [provideWrIcons([...BRAND_ICONS, ...lucideIcons({ heart: Heart })])],
 })
 export default class IntroductionPage {
-  protected readonly quality = QUALITY;
-
-  protected readonly skills = wrPath(ROUTES.docs, ROUTES.docs.skills);
-  protected readonly mcp = wrPath(ROUTES.docs, ROUTES.docs.mcp);
-
-  /** A parameterised spec makes the count a floor, and the label says so. */
-  protected readonly testCasesLabel = QUALITY.testCasesAreExact ? 'Test cases' : 'Test cases (at least)';
-
-  /** Components plus directives — the classes a consumer puts in `imports: []`. */
-  protected readonly publicClasses = QUALITY.components + QUALITY.directives;
+  protected readonly paths = {
+    installation: wrPath(ROUTES.docs, ROUTES.docs.installation),
+    configuration: wrPath(ROUTES.docs, ROUTES.docs.configuration),
+    skills: wrPath(ROUTES.docs, ROUTES.docs.skills),
+    mcp: wrPath(ROUTES.docs, ROUTES.docs.mcp),
+    guides: wrPath(ROUTES.guides),
+    forms: wrPath(ROUTES.guides, ROUTES.guides.forms),
+    theming: wrPath(ROUTES.guides, ROUTES.guides.theming),
+    ssr: wrPath(ROUTES.guides, ROUTES.guides.ssr),
+    testing: wrPath(ROUTES.guides, ROUTES.guides.testing),
+    components: wrPath(ROUTES.reference, ROUTES.reference.components),
+  };
 }

@@ -1,591 +1,232 @@
 <ngwr-doc-page
   title="Migration guide"
-  description="How to move between major versions of ngwr. Each major does one of three things here, and which one depends on what it broke. **v7, v8, v9, v12 and v14 REWRITE**: their breaking changes are in code, so `ng update` edits your templates, TypeScript and stylesheets in place — the tables below document what moved if you'd rather do it by hand. **v13 REPORTS**: its one breaking change is a selector that stops matching, which no codemod can fix for you (only you know which element you meant) but which is worth a file list, because nothing anywhere errors. **v10 and v11 ship neither**, deliberately: they broke painted COLOUR — contrast on `--wr-color-*-contrast`, table header casing and tooltip theming in v10, five deepened intents in v11 — and no codemod can repair a screenshot. An empty one would only have told you your visual regressions were handled when they were not. **v15 ships no codemod at all**: every change it makes is described in its sections below, with the old form beside the new one."
+  description="Upgrade ngwr from any earlier major."
   [keywords]="['migration', 'ng update', 'upgrade', 'breaking changes', 'codemod', 'schematics']"
 >
-  <ngwr-doc-section
-    title="Run the codemod"
-    description="One `ng update ngwr`, from whatever major you are on: it installs the latest release, then runs every migration newer than the version you had installed, in order, rewriting templates, TypeScript and stylesheets in place. Commit first, run it, then review with `git diff`. Do not step through the majors."
-  >
+  <ng-template #changes let-rows let-head="head">
+    <table>
+      <thead>
+        <tr>
+          @for (h of head; track h) {
+            <th scope="col">{{ h }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows; track row.before) {
+          <tr>
+            <td [innerHTML]="row.before | wrDocRich"></td>
+            <td [innerHTML]="row.after | wrDocRich"></td>
+            @if (row.update) {
+              <td>{{ row.update }}</td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </ng-template>
+
+  <ngwr-doc-section title="Update" description="Commit first, then run one command from any major.">
     <ngwr-doc-code [code]="snippets.update" language="bash" />
-
-    <p>
-      <strong>Never target a 7.x, 8.x or 9.x release</strong> — not with <code>ng update ngwr&#64;7</code>,
-      <code>&#64;8</code> or <code>&#64;9</code>, not with <code>ng add</code>, not with any <code>ng g ngwr:*</code>.
-      Every release from 7.0.0 to 9.1.0 ships CommonJS schematics under a <code>package.json</code> that declares
-      <code>"type": "module"</code>, so Node loads them as ES modules and the command dies with
-      <code>exports is not defined in ES module scope</code>. 10.0.0 fixed the packaging. The one command above never
-      loads those files: the migrations it runs, v7, v8 and v9 included, are the ones shipped inside the release it
-      installs. The &ldquo;migrate each major version individually&rdquo; refusal the Angular CLI prints is for
-      Angular's own packages — it matches <code>&#64;angular/*</code> and <code>&#64;nguniversal/*</code> and nothing
-      else — and does not apply to ngwr.
-    </p>
-
-    <p>
-      <strong>If an <code>ng update ngwr&#64;9</code> already failed with that error</strong>, it had moved
-      <code>package.json</code> and your lockfile to 9.x when the migration step crashed, and nothing moved them back:
-      the CLI restores <code>package.json</code> only when the install itself fails. A later
-      <code>ng update ngwr</code> therefore starts from 9.x and silently skips the v9 migration — the
-      <code>&lt;wr-checkbox&gt;</code> rename below, whose leftovers raise no error either. Do not count on reverting
-      the bump: committing it, which is how most people get past <code>Repository is not clean</code>, makes it stick.
-      Run the skipped step by name instead. It works however <code>package.json</code> was left. <code>--name</code>
-      runs the migration shipped inside the release you installed and checks no version, and it rewrites only
-      <code>&lt;wr-checkbox&gt;</code> bindings, which none of v12, v13 or v14 touches. A failed <code>&#64;7</code> or
-      <code>&#64;8</code> leaves the same hole for that major, and for each later one you also tried: run each skipped
-      migration the same way, oldest first.
-    </p>
-    <ngwr-doc-code [code]="snippets.recover" language="bash" />
-
-    <p>
-      <strong>If <code>ng update ngwr</code> hung on 14.5.0 or earlier</strong>, it was the v14 migration: up to 14.5.0
-      it could hang on an ordinary template, and the only way out was to kill the command. By then
-      <code>package.json</code> was on 14.x and any earlier migration in that run had already written its changes, so
-      the project looks upgraded, but the v14 renames were never applied and a later <code>ng update ngwr</code> skips
-      them. Leftover <code>closeable</code>, <code>totalItems</code>, <code>currentPage</code> or <code>wrSize</code>
-      bindings compile without an error. 14.5.1 fixed the hang. Run the skipped step by name; it rewrites the six
-      renames, prints the v14 report again, and changes nothing in templates that are already migrated.
-    </p>
-    <ngwr-doc-code [code]="snippets.recoverV14" language="bash" />
-
-    <p>
-      <strong>Two things that stop the first run, and neither is ngwr.</strong> Under pnpm 11 a fresh install can exit 1
-      with <code>ERR_PNPM_IGNORED_BUILDS</code> — its default is to refuse dependency build scripts until the workspace
-      allows them — and a release published within the last day is held back by pnpm's minimum release age, so
-      <code>ng update ngwr</code> can land on the previous patch and report nothing to do. Both are package-manager
-      policy: allow the builds, or wait out the age window, then re-run. The migration itself is idempotent, so running
-      it twice costs nothing.
-    </p>
-
-    <p>
-      <strong>Upgrading is also the moment to read the range you pinned.</strong> A breaking change can no longer arrive
-      in a minor or a patch — the release script refuses that bump — so a caret range on a major is a safe range, which
-      it was not when 12.2.0 shipped one. <a routerLink="/start/versioning">Versioning &amp; support</a> has that rule,
-      how long the line you are leaving keeps getting security fixes, and what the open-ended Angular peer range does
-      and does not promise.
-    </p>
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: majors, head: ['Major', 'What ng update does'] }" />
+    <ul>
+      <li>
+        Never target a 7.x, 8.x or 9.x release with <code>ng update</code>, <code>ng add</code> or
+        <code>ng g ngwr:*</code>. Their schematics do not load.
+      </li>
+      <li>pnpm: on <code>ERR_PNPM_IGNORED_BUILDS</code>, allow the builds and run again.</li>
+      <li>pnpm holds a new release back for a day, so <code>ng update</code> may find nothing yet.</li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="v14 to v15 — the palette is five intents"
-    description="`secondary`, `light`, `medium` and `dark` are gone. The first was a second brand colour, which a library cannot pick for you. The other three were neutral FILLS wearing the names of surfaces, and what replaced them is a six-step gray ramp read through roles that name the job — `--wr-color-surface`, `-on-surface`, `-on-surface-muted`, `-hover`, `-fill`, `-fill-subtle`, `-fill-strong`, `-placeholder`, and the border family `--wr-border-subtle`, `-base`, `-strong`. Paint with the role, never with a ramp step: the step is the substrate, and reaching past the role is how a rule ends up right in one theme only."
+    title="If an update failed"
+    description="A failed or killed run skips its migration: update, commit, then run it by name."
   >
-    <p>
-      <strong>The silent half is a <code>var()</code> at a token that no longer exists.</strong> It is invalid at
-      computed-value time, so the browser drops the whole declaration holding it — a
-      <code>border: 1px solid var(--wr-color-light)</code> draws no border at all, a background stays transparent — and
-      nothing says so in the build, the console or a test. A dropped declaration is indistinguishable from a rule nobody
-      wrote. This repository found 220 of them in its own docs site after the cut, across 71 files, with every one of
-      its nine gates green. Every removed neutral token that has a successor is listed under the renames below —
-      <code>--wr-color-light</code>, <code>-dark</code>, <code>-medium</code>, <code>-muted-text</code>,
-      <code>-outline</code> and the three <code>--wr-color-border*</code> — so search your stylesheets and templates for
-      every name in that list.
-    </p>
-    <p>
-      <strong>A removed intent in a template fails loudly, or not at all.</strong> With <code>strictTemplates</code> —
-      the CLI default — a static <code>color="secondary"</code> is a compile error naming the five values that remain.
-      Without it the string binds, the component writes a class no rule matches, and the element renders neutral in
-      silence. Whether a <code>secondary</code> button should become <code>primary</code>, <code>danger</code> or a
-      colour you declare yourself is a decision only you can make, and <code>light</code> / <code>medium</code> /
-      <code>dark</code> were fills, so dropping the attribute to get the neutral variant is a visual change rather than
-      a rename.
-    </p>
-    <p>
-      <strong>A compile-time rebrand has to drop the removed keys.</strong> A
-      <code>&#64;use 'ngwr/theme' with ($base-colors: (…))</code> map still naming one of the four stops the Sass build
-      with the key in the message. The neutrals are no longer seeded there at all: they are the gray ramp, and each
-      theme sets its own six steps rather than mirroring the other's.
-    </p>
+    <ngwr-doc-code [code]="snippets.recover" language="bash" />
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: recovery, head: ['If', 'Migration'] }" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="v14 to v15" description="Needs Angular 22 and Chrome 123, Firefox 120 or Safari 17.5." />
+
+  <ngwr-doc-section
+    title="v14 to v15: providers"
+    description="One `provideWr()` call from `ngwr`, one feature per setting, with the same options."
+  >
+    <ngwr-doc-code [code]="snippets.v15Providers" language="diff" />
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Providers, head: ['Before', 'After'] }" />
+    <ul>
+      <li>
+        Put <code>withDensity()</code>, <code>withToast()</code> and <code>withTheme()</code> in the app providers. A
+        lazy route never reads them.
+      </li>
+      <li>
+        <code>provideWrIcons()</code>, the i18n providers and <code>provideWrLoadingBarRouter()</code> are unchanged.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="v14 to v15 — dark mode is color-scheme"
-    description="The `[data-theme]` attribute is gone. The theme declares `color-scheme: light dark` on `:root`, and every token that differs between the schemes is declared once as `light-dark(light, dark)` — so the page follows the OS with no JavaScript, and `color-scheme: dark` on any element flips its subtree. That is the default for every app now, including one that never called `provideWrTheme()` and used to stay light; to pin it, write `:root { color-scheme: light; }` after the `@use 'ngwr/theme'` line."
+    title="v14 to v15: imports and styles"
+    description="Symbols keep their names; only import, `@use` and `/testing` paths move."
+  >
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Paths, head: ['Before', 'After'] }" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15: colour tokens"
+    description="Neutral colours are role tokens now, such as `--wr-color-surface` and `--wr-border-base`."
+  >
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Tokens, head: ['Before', 'After'] }" />
+    <ul>
+      <li>
+        A <code>var()</code> at a removed token drops its whole declaration, with no error. Search for every name above.
+      </li>
+      <li>Without <code>strictTemplates</code>, a removed <code>color</code> value renders neutral, with no error.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15: dark mode"
+    description="`[data-theme]` is gone: the theme follows the OS through `color-scheme` and `light-dark()`."
   >
     <ngwr-doc-code [code]="snippets.v15Scheme" language="diff" />
-    <p>
-      <strong>A selector keyed on the attribute matches nothing, and says nothing.</strong> Every
-      <code>[data-theme='dark']</code> rule in your CSS, every <code>&#64;include theme.dark</code>, every
-      <code>theme.dark-selector()</code> and every <code>with ($theme-attribute: …)</code> has to go: the mixins and the
-      variable are removed, so those are build errors, while a hand-written selector compiles and quietly stops
-      applying. Write the dark value beside the light one with <code>light-dark()</code> instead. It takes colours only
-      — <code>light-dark(1px, 2px)</code> is invalid — and it works in a component stylesheet as written, with no
-      <code>:host-context()</code> twin.
-    </p>
-    <p>
-      <strong><code>provideWrTheme()</code> is removed.</strong> <code>WrTheme</code> is root-provided and keeps its API
-      — <code>mode</code>, <code>resolved</code>, <code>set()</code>, <code>toggle()</code> — so delete the call; to
-      change <code>defaultMode</code> or <code>storageKey</code>, pass <code>withTheme()</code> to
-      <code>provideWr()</code> instead (see the <code>provideWr()</code> section below). The
-      <code>attribute</code> option is gone from both the config and <code>wrThemePrePaintScript()</code>, which now
-      writes <code>color-scheme</code> on <code>&lt;html&gt;</code> for a stored <code>light</code> or
-      <code>dark</code> choice, or for a non-<code>auto</code> <code>defaultMode</code> passed to it, and nothing for
-      <code>auto</code>. Code that read the attribute reads <code>WrTheme.resolved()</code>.
-    </p>
-    <p>
-      <strong><code>withTheme()</code> creates <code>WrTheme</code> at boot, as the old provider did.</strong>
-      That is what applies a stored choice and a non-<code>auto</code> <code>defaultMode</code> on the first screen.
-      Delete the call without adding the feature and both apply only when <code>WrTheme</code> is first injected, so an
-      app whose toggle sits behind a lazy route follows the OS until that route opens — silently. On a prerendered page,
-      ship <code>wrThemePrePaintScript()</code> with the same options as well: it lands before the first paint, which
-      nothing in the bundle can.
-    </p>
-    <p>
-      <strong>Forcing the page's scheme yourself is fine.</strong> <code>&lt;html style="color-scheme: dark"&gt;</code>,
-      or the same property written from your own code, holds alongside <code>WrTheme</code>: in <code>auto</code> the
-      service leaves an author-written value alone, and only a <code>light</code> or <code>dark</code> mode — picked,
-      stored or configured — writes over it.
-    </p>
-    <p>
-      <strong>Every <code>-rgb</code> channel token is removed</strong> — the intents', the neutrals', the backdrop's
-      and the component hooks <code>--wr-calendar-accent-rgb</code> and <code>--wr-color-picker-rgb</code>. A
-      <code>var()</code> at one is invalid at computed-value time, so the declaration holding it is dropped in silence,
-      like the removed neutrals above. Mix the colour toward <code>transparent</code> instead: the alpha becomes the
-      percentage, and it paints the same. The scrim's channel has a colour token now, <code>--wr-color-backdrop</code>;
-      the calendar's is <code>--wr-calendar-accent</code> itself; the picker's is <code>--wr-color-picker-color</code>,
-      a whole colour.
-    </p>
-    <p>
-      <strong>Code that reads a token in TypeScript gets the declared text.</strong>
-      <code>getPropertyValue('--wr-color-primary')</code> returns <code>light-dark(…)</code> unresolved, and a canvas
-      cannot paint that: a 2D context refuses it, and Firefox accepts it and always paints the light side. Hand a canvas
-      the colour the cascade computes instead, with
-      <a routerLink="/reference/utils/resolve-css-color"><code>resolveCssColor</code></a> from <code>ngwr/utils</code>.
-    </p>
-    <p>
-      <strong>Three bits draw differently in dark.</strong> Their dark-only rules are gone with the attribute, and a
-      blend mode, a length and a strength are not colours, so <code>light-dark()</code> cannot switch them: each now has
-      one value for both schemes. <code>--wr-star-border-stop</code> is removed: the ray's fade is fixed, a 10% / 16%
-      tail in light and 10% in dark, so an override of it does nothing — set the ray's <code>background</code> on
-      <code>.wr-star-border .wr-star-border__ray</code> instead, two classes because the component's own stylesheet
-      loads after yours. <code>wr-border-glow</code>'s <code>--wr-border-glow-halo-blend</code>,
-      <code>-fill-blend</code> and <code>-fill-scale</code> default to <code>normal</code>, <code>normal</code> and
-      <code>0.25</code> in both schemes, where dark used <code>plus-lighter</code>, <code>soft-light</code> and
-      <code>1</code>; and the <code>wr-tilt-card</code> glare blends normally, where dark used 25% white under
-      <code>overlay</code>. To bring the old dark look back, set those yourself on a page or section you know is dark.
-    </p>
-    <p>
-      <strong>The runtime palette is removed</strong>: <code>wrThemeTokens()</code>, <code>wrIntentTokens()</code>,
-      <code>wrContrastFor()</code> and the theme builder page that used them. Rebrand at build time, through
-      <code>$base-colors</code>, or <code>theme.rebrand()</code> on <code>:root</code> or a subtree — see
-      <a routerLink="/guides/theming">Theming</a>.
-    </p>
-    <p>
-      <strong>The browser floor rises</strong> to the one <code>light-dark()</code> sets: Chrome 123, Firefox 120,
-      Safari 17.5. Below it every colour that differs between the schemes resolves to nothing.
-    </p>
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Scheme, head: ['Before', 'After'] }" />
+    <ul>
+      <li>A leftover <code>[data-theme]</code> selector compiles and matches nothing.</li>
+      <li>
+        To stay light, add <code>:root &#123; color-scheme: light; &#125;</code> after
+        <code>&#64;use 'ngwr/theme'</code>.
+      </li>
+      <li>
+        Add <code>withTheme()</code> so a stored choice applies at boot; on a prerendered page also ship
+        <code>wrThemePrePaintScript()</code>.
+      </li>
+      <li><code>light-dark()</code> takes colours only.</li>
+      <li>
+        In canvas code, read a token with
+        <a routerLink="/reference/utils/resolve-css-color"><code>resolveCssColor()</code></a
+        >, not <code>getPropertyValue()</code>.
+      </li>
+      <li>
+        For the old dark <code>wr-border-glow</code>, set <code>--wr-border-glow-halo-blend: plus-lighter</code>,
+        <code>--wr-border-glow-fill-blend: soft-light</code> and <code>--wr-border-glow-fill-scale: 1</code> on the dark
+        section.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="v14 to v15 — charts and bits moved, and the Sass umbrella is gone"
-    description="The seven charts moved from `ngwr/<name>` to `ngwr/charts/<name>`, and the 21 animation components to `ngwr/bits/<name>` — import, `@use` and `/testing` paths alike, every symbol keeping its name. `@use 'ngwr'` no longer resolves: write `@use 'ngwr/theme'` first, then one `@use` per entry point you render. Each component's page shows its two lines under Installation."
-  >
-    <ngwr-doc-code [code]="snippets.v15Paths" language="diff" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="v14 to v15 — the sortable list projects its rows"
-    description="It moved to an entry point of its own as well: `ngwr/drag-drop` became `ngwr/sortable-list`, import path and `@use` alike, every symbol keeping its name. `<wr-sortable-list>` no longer owns the loop. Write your own and project one `<wr-sortable-item>` per row, which gives a row somewhere to carry its own markup instead of forcing every per-row decision onto an input of the list. `trackBy` is gone with the loop — the track expression is yours now."
-  >
+  <ngwr-doc-section title="v14 to v15: components">
     <ngwr-doc-code [code]="snippets.v15Sortable" language="diff" />
-    <p>
-      The list renders nothing until you migrate, which reads as empty data rather than as a missed step — so search for
-      every <code>&lt;wr-sortable-list&gt;</code> that still holds an <code>&lt;ng-template&gt;</code>.
-    </p>
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Components, head: ['Before', 'After'] }" />
+    <ul>
+      <li>
+        A <code>&lt;wr-sortable-list&gt;</code> that still holds an <code>&lt;ng-template&gt;</code> renders nothing.
+      </li>
+      <li>
+        Bare <code>wrSquircle</code>, <code>showHandle</code>, <code>responsive</code> and
+        <code>format</code> attributes compile and do nothing. So do rules on <code>.wr-overlay-sheet</code>,
+        <code>.wr-overlay-backdrop</code> and <code>.wr-command-palette--sheet</code>.
+      </li>
+      <li>
+        <code>&lt;wr-editor&gt;</code> refuses an HTML or markdown string, and <code>''</code>: convert to
+        <code>WrEditorJson</code>, or <code>null</code> for empty.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="v14 to v15 — the icon adapters are gone"
-    description="`ngwr/icon/adapters/lucide` and `ngwr/icon/adapters/feather` are removed. `lucideIcons()`, `lucide()` and the `LucideIconNode` type moved into `ngwr/icon` under the same names, so for Lucide the import path is the whole change. Feather has no helper any more: register its own SVG files with `svgIcon()`, the way every other set is registered."
-  >
-    <ngwr-doc-code [code]="snippets.v15Icons" language="diff" />
-    <p>
-      In an Angular CLI app <code>?raw</code> needs <code>"loader": &#123; ".svg": "text" &#125;</code> in the build
-      options and a <code>declare module '*.svg?raw' &#123; const svg: string; export default svg; &#125;</code>. Or
-      skip the build option: import the file as
-      <code>import plusSvg from 'feather-icons/dist/icons/plus.svg' with &#123; loader: 'text' &#125;;</code> and
-      declare <code>'*.svg'</code> instead.
-    </p>
-    <p>
-      A Feather glyph no longer carries <code>wr-icon__svg</code>: its files bring their own
-      <code>feather feather-&lt;name&gt;</code> classes. Inside <code>&lt;wr-icon&gt;</code> it renders the same, so
-      only a stylesheet of yours that reached the glyph through that class needs <code>.wr-icon svg</code> instead.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="v14 to v15 — three things are gone"
-    description="Nothing the library offers means what the removed thing meant in the same place, so each one is a decision rather than a rename."
-  >
+  <ngwr-doc-section title="v14 to v15: removed entry points">
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Removed, head: ['Removed', 'Use instead'] }" />
     <ngwr-doc-code [code]="snippets.v15Removed" language="diff" />
-    <p>
-      <strong><code>ngwr/squircle</code></strong> was deprecated in v14 and is removed. Use
-      <code>shape="squircle"</code> on <code>&lt;wr-btn&gt;</code>, <code>&lt;wr-avatar&gt;</code> and
-      <code>&lt;wr-badge&gt;</code>, or the <code>smooth-br</code> mixin from <code>&#64;use 'ngwr/theme'</code>
-      anywhere else. They are not the same thing: the native
-      <code>corner-shape</code> falls back to a plain rounded corner where a browser has not shipped it, and it takes no
-      radius, smoothing, corners or border inputs. An import or an <code>&#64;use</code> fails the build; a leftover
-      <code>wrSquircle</code> attribute is inert and silent.
-    </p>
-    <p>
-      <strong><code>&lt;wr-action-sheet&gt;</code></strong> is removed, with its test harness. ngwr is not a mobile
-      library, and the sheet was a preset over <code>&lt;wr-drawer position="bottom" rounded&gt;</code> — two of its
-      three ingredients went with it. Write the drawer directly; the rows, their order and the cancel group are markup
-      only you have.
-    </p>
-    <p>
-      <strong><code>&lt;wr-drawer showHandle&gt;</code></strong> is removed, and swipe-to-dismiss with it, for the same
-      reason. The drawer still closes on the backdrop, on Escape, and through its own dismiss button
-      (<code>closable</code>, on by default) — so for most drawers deleting the attribute is the whole migration. A
-      bound <code>[showHandle]</code> is a compile error; a bare one is inert, so search for it.
-    </p>
+    <ul>
+      <li>
+        Deleting <code>provideWrConfig()</code> resets every control it set to <code>md</code> and the standard radius.
+        Bind those inputs first.
+      </li>
+      <li>
+        <code>WrMedia</code>'s <code>md</code> is <code>(min-width: 768px)</code>. The other widths are
+        <code>$breakpoints</code> in <code>ngwr/breakpoints</code>.
+      </li>
+      <li>A Feather glyph no longer has the <code>wr-icon__svg</code> class. Style <code>.wr-icon svg</code>.</li>
+      <li>A <code>var(--wr-keyboard-inset, 0px)</code> compiles and stays <code>0px</code>.</li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="v14 to v15 — ngwr ships no validation copy"
-    description="`provideWrFormErrors()`, `WR_FORM_ERRORS`, `WR_FORM_ERROR_FALLBACKS` and the `WrFormErrorContext`, `WrFormErrorMessage` and `WrFormErrorMessages` types are removed, and ngwr's catalogs no longer carry a `validation` namespace. For an error no `<wr-form-error key>` claims, `<wr-form-field>` shows the validator's own `{ message }`, else `validation.<key>` from your app's i18n catalog with the error payload as params — and with neither, nothing."
+    title="v14 to v15: validation messages"
+    description="ngwr ships no error text: `provideWrFormErrors()`, `WR_FORM_ERRORS`, `WR_FORM_ERROR_FALLBACKS` and the catalogs' `validation` keys are gone."
   >
     <ngwr-doc-code [code]="snippets.v15Validation" language="diff" />
-    <p>
-      <strong>A field that leaned on ngwr's sentences is silent now.</strong> It is still marked invalid, with
-      <code>aria-invalid</code> on the control, and shows no message. Dev mode logs one warning per field and key naming
-      the three ways to supply one; a production build says nothing, so search for every
-      <code>&lt;wr-form-field&gt;</code> without a <code>&lt;wr-form-error&gt;</code> and give each of its errors a
-      source.
-    </p>
-    <p>
-      <strong>A <code>provideWrFormErrors()</code> map moves into your catalog</strong>, as a <code>validation</code>
-      namespace in each locale your loader serves. A function message becomes a template whose params are the error
-      payload, so <code>requiredLength</code> reaches a <code>minlength</code> sentence as a placeholder. The field
-      <code>label</code> a function could read has no equivalent: a sentence that names its field goes on that field's
-      validator as <code>&#123; message &#125;</code>.
-    </p>
-    <p>
-      <strong>The date picker's refusals have no English default.</strong> <code>&lt;wr-date-picker&gt;</code> and
-      <code>&lt;wr-date-range-picker&gt;</code> word a refused entry from <code>validation.dateFormat</code>,
-      <code>minDate</code>, <code>maxDate</code> and <code>dateFilter</code> in your catalog, with the example date as
-      the <code>example</code> param. Without those keys a refusal still shows as a danger border and
-      <code>aria-invalid</code>, with no sentence.
-    </p>
+    <ul>
+      <li>
+        Without your text a field shows no message; only dev mode warns. <code>&lt;wr-form-error key&gt;</code> still
+        works.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="v14 to v15 — no app-wide component defaults"
-    description="`ngwr/config` is removed, with `provideWrConfig()`, `WR_CONFIG`, `useConfigValue()` and the `WrConfig` types. A component's default is the one written on its input, and nothing app-wide changes it: bind the input wherever you want another value, or wrap the component in one of your own."
+    title="v14 to v15: dates"
+    description="The native adapter needs no provider and follows `LOCALE_ID`."
   >
-    <ngwr-doc-code [code]="snippets.v15Config" language="diff" />
-    <p>
-      The import fails the build. Deleting the call is what is silent: every control it reached goes back to its own
-      default — <code>md</code> and the standard radius — so bind each key the call set before you remove it. An
-      <code>editor</code> or <code>markdown</code> key has nothing left to bind; the markdown section below says what
-      replaces both.
-    </p>
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Dates, head: ['Before', 'After'] }" />
+    <ul>
+      <li>
+        Native format tokens are <code>yyyy yy MMMM MMM MM M dd d HH H hh h mm ss a</code>. Others, such as date-fns'
+        <code>EEEE</code> or <code>PPP</code>, print as letters.
+      </li>
+      <li>Your own adapter: see <a routerLink="/docs/configuration">Configuration</a>.</li>
+    </ul>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="v14 to v15 — no breakpoint service"
-    description="`ngwr/media` is removed, with `WrMedia`, `provideWrMedia()`, `WR_BREAKPOINTS`, `DEFAULT_WR_BREAKPOINTS` and the `WrBreakpoint` / `WrBreakpointMap` types. For a breakpoint signal, use the CDK's `BreakpointObserver` from `@angular/cdk/layout` — a peer ngwr already requires. The SCSS mixins in `@use 'ngwr/breakpoints'` are unchanged."
-  >
-    <ngwr-doc-code [code]="snippets.v15Media" language="diff" />
-    <p>
-      A named key has to become its width: <code>md</code> is <code>(min-width: 768px)</code>, and the rest of the map
-      is the <code>$breakpoints</code> list in <code>ngwr/breakpoints</code>. A query string
-      <code>matches()</code> accepted passes to <code>observe()</code> unchanged. Both answer <code>false</code> on the
-      server, so a template that branched on one prerenders the same arm it did. <code>current()</code> has no
-      equivalent: observe the widths you branch on and pick the largest that matches.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="v14 to v15 — no responsive bottom sheets"
-    description="`provideWrResponsiveOverlays()`, `WR_RESPONSIVE_OVERLAYS`, `wrPresentAsSheet` and the `WrResponsiveOverlaysConfig` type are removed from `ngwr/overlay`, and so is its stylesheet, which held only the sheet. The `responsive` input on `<wr-select>`, `[wrDropdown]`, `[wrPopover]` and `<wr-command-palette>` goes with them, as do the `responsive` option of `WrDialog.open()`, `WrPopoverHarness.isSheet()` and `WrCommandPaletteHarness.isPresentedAsSheet()` (`WrDrawerHarness.isSheet()` stays). Overlays always float now: on a phone a select, dropdown or popover stays anchored to its trigger, and a dialog or command palette stays a centred modal. An app that wants a sheet there opens a `<wr-drawer position=&quot;bottom&quot;>` itself."
-  >
-    <ngwr-doc-code [code]="snippets.v15Sheets" language="diff" />
-    <p>
-      The import, the <code>&#64;use</code> and the harness calls fail the build, and so do a bound
-      <code>[responsive]</code> and an inline <code>&#123; responsive: true &#125;</code>. A bare
-      <code>responsive</code> attribute is inert, and a rule on <code>.wr-overlay-sheet</code>,
-      <code>.wr-overlay-backdrop</code> or <code>.wr-command-palette--sheet</code> matches nothing, so search for both.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="v14 to v15 — no date-fns or Luxon adapter"
-    description="`ngwr/date/adapters/fns` and `ngwr/date/adapters/luxon` are removed, with `WrDateFnsAdapter`, `provideWrDateFnsAdapter()`, `WR_DATE_FNS_LOCALE`, `WrLuxonAdapter` and `provideWrLuxonAdapter()`, and `date-fns` and `luxon` are no longer optional peers. `ngwr/date` keeps the native adapter, over `Date` and `Intl`, which now needs no provider at all. To stay on another date library, extend `WrDateAdapter<Date>` (the components hold and compare native `Date` values), do the arithmetic, formatting and parsing through that library, and pass the class as `adapter`."
-  >
-    <ngwr-doc-code [code]="snippets.v15Dates" language="diff" />
-    <p>
-      <strong>The imports fail the build. A token format written for date-fns does not.</strong> That adapter handed a
-      <code>[format]</code> pattern to date-fns untouched, while the native one reads
-      <code>yyyy yy MMMM MMM MM M dd d HH H hh h mm ss a</code> and prints anything else verbatim, so
-      <code>EEEE</code> or <code>PPP</code> reach the field as letters, and <code>do</code> as <code>15o</code>. A
-      named format (<code>shortDate</code>, <code>time</code>, …) prints through <code>Intl</code> now, so its exact
-      string can change as well. The Luxon adapter translated the native tokens but handed every other letter to
-      Luxon, so a Luxon-only token (<code>EEEE</code>, <code>ccc</code>, <code>DDD</code>) now prints verbatim too,
-      and <code>MMMM</code> beside a day token is declined where Luxon printed the standalone form.
-    </p>
-    <p>
-      <strong>An adapter of your own implements what <code>WrDateAdapter</code> declares abstract</strong>:
-      <code>today</code>, <code>clone</code>, <code>createDate</code>, <code>isValid</code>, the getters from
-      <code>getYear</code> to <code>getSeconds</code>, <code>addYears</code>, <code>addMonths</code>,
-      <code>addDays</code>, <code>setTime</code>, <code>isSameDay</code>, <code>isSameMonth</code>,
-      <code>compareDate</code>, <code>format</code>, <code>parse</code>, <code>getFirstDayOfWeek</code>,
-      <code>getDayOfWeekNames</code> and <code>getMonthNames</code>. Months are 0-based, as on <code>Date</code>, and
-      <code>parse</code> has to read back whatever <code>format</code> printed for the same key; returning
-      <code>null</code> refuses the input and leaves the committed value alone.
-      <a routerLink="/docs/configuration">Configuration</a> has the skeleton.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="v14 to v15 — no markdown, and the editor holds JSON"
-    description="`ngwr/markdown` is removed: `<wr-markdown>`, `parseMarkdown()`, `parseInlines()`, `plainText()`, `serializeMarkdown()`, `safeMarkdownUrl()`, `provideWrMarkdownHighlighter()`, `WR_MARKDOWN_HIGHLIGHTER`, the `WrMarkdown*` and `WrHighlight*` types, the harnesses in `ngwr/markdown/testing`, `@use 'ngwr/markdown'` and the `markdown.*` keys in every catalog. `<wr-editor>` loses `format` and the `WrEditorFormat` type: its value is always the document as a `WrEditorJson` tree, and `null` when nothing is written."
-  >
-    <ngwr-doc-code [code]="snippets.v15Markdown" language="diff" />
-    <p>
-      <strong>An app that stores HTML or markdown converts at its own boundary</strong>, in both directions: the tree is
-      ProseMirror's own <code>toJSON()</code> shape, so a ProseMirror <code>Schema</code> declaring the same nodes, with
-      <code>DOMSerializer</code> and <code>DOMParser</code> from <code>prosemirror-model</code>, reads and writes it. A
-      read-only editor renders a stored document without mounting ProseMirror, which is what most
-      <code>&lt;wr-markdown&gt;</code> uses become.
-    </p>
-    <p>
-      The imports, the <code>&#64;use</code> and a bound <code>[format]</code> fail the build. A static
-      <code>format="…"</code> is inert, and an HTML or markdown string that reaches <code>value</code> untyped is refused
-      like any value the editor cannot read: the editor stays empty and read-only with <code>wr-editor--refused</code>,
-      and only dev mode says why. A form model whose editor field started as <code>''</code> starts as
-      <code>null</code> now.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="v14 to v15 — no overlay provider, and no keyboard inset"
-    description="`provideWrOverlay()` is removed from `ngwr/overlay`, because what it did is the default now: every ngwr overlay renders into a container of its own, `.wr-overlay-container`, apart from the one Angular Material, NG-ZORRO and plain CDK overlays share, with no call. `WR_OVERLAY`, `WR_OVERLAY_CONTAINER` and `WrOverlayContainer` stay. `WrVisualViewport` is removed from `ngwr/platform`, with the `--wr-keyboard-inset` property it published on the document root, which nothing in ngwr read any more. `WrPlatform` and `WrHaptics` are unchanged."
-  >
-    <ngwr-doc-code [code]="snippets.v15Overlay" language="diff" />
-    <p>
-      The imports fail the build. A <code>var(--wr-keyboard-inset, 0px)</code> does not: it falls back to its default
-      and stays there, so search your stylesheets for it.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="v14 to v15 — dates need no provider"
-    description="`WrDateAdapter` resolves to `WrNativeDateAdapter` when nothing provides one, so `<wr-calendar>`, `<wr-event-calendar>` and every `<wr-date-picker>` mode work with no call, in the locale `LOCALE_ID` names. `provideWrDateAdapter()` is removed; `withDates()`, a feature of `provideWr()`, carries the two things it still added: `{ locale }` pins the dates to another locale, and `{ adapter }` swaps in a `WrDateAdapter<Date>` subclass of your own. `ng add` no longer asks about a date adapter and takes no `--dateAdapter` flag."
-  >
-    <ngwr-doc-code [code]="snippets.v15DateDefault" language="diff" />
-    <p>
-      A bare <code>provideWrDateAdapter()</code> fails the build now, and deleting it is the whole change. One thing
-      renders differently. A
-      <code>wrDate</code> pipe in an app that never provided an adapter used to fall back to <code>Intl</code>'s
-      <code>dateStyle</code> / <code>timeStyle</code> shorthands, and now formats through the native adapter, so
-      <code>shortDate</code> prints <code>3/15/2026</code> where it printed <code>3/15/26</code> and
-      <code>time</code> prints <code>02:30 PM</code> where it printed <code>2:30 PM</code> (the date-time keys change
-      the same way), and a token string such as <code>'dd.MM.yyyy'</code> is honoured where it used to fall back to
-      <code>shortDate</code>.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="v14 to v15 — one provideWr() call"
-    description="`provideWrDensity()`, `provideWrToastConfig()`, `provideWrStorage()`, `provideWrMeta()` and `provideWrDateAdapter()` are removed. App-wide configuration is one `provideWr()` call from `ngwr`, taking a feature per setting — `withDensity()`, `withToast()`, `withStorage()`, `withMeta()` and `withDates()` — each from the entry point the old function came from, with the same options. `provideWrTheme()`, removed above, is `withTheme()` from `ngwr/theme`: it sets `WR_THEME_CONFIG`, merged with the defaults, and creates `WrTheme` at boot. `provideWrIcons()`, the i18n providers and `provideWrLoadingBarRouter()` are unchanged."
-  >
-    <ngwr-doc-code [code]="snippets.v15Features" language="diff" />
-    <p>
-      Every removed call fails the build, so the compiler finds them. The features keep the rules the functions had:
-      <code>withDensity()</code>, <code>withToast()</code> and <code>withTheme()</code> configure root-provided
-      services, so they belong in the application's providers, and in a lazy route they are never read;
-      <code>withDates()</code> also works in a route's <code>providers</code>. A <code>WR_THEME_CONFIG</code> you
-      provide yourself still works, but <code>withTheme()</code> sets it and boots the service in one call. Passing the
-      same feature twice throws in dev mode. Two option types are renamed with their functions:
-      <code>WrDateAdapterOptions</code> is <code>WrDatesOptions</code>, and <code>ProvideWrStorageOptions</code> is
-      <code>WrStorageOptions</code>.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="v14 to v15 — the Angular peers stop at 22"
-    description="v14 declared its `@angular/*` peers as `>=22.0.0`, which also accepted every later major. v15 declares `^22.0.0`, so nothing changes for an app on Angular 22. A later Angular major is added to the range in a release once ngwr has been tested on it."
-  />
-
-  <ngwr-doc-section
-    title="v14 to v15 — renames"
-    description="Two kinds, and both are a rename: the new form means what the old one meant in the same place. The neutral TOKENS, where `--wr-color-light`, `-outline`, `-dark` and `-muted-text` move onto a successor carrying the identical value in both themes, so a renamed rule paints to the pixel, while `-medium` and the three translucent `--wr-color-border*` land on the nearest opaque step. And two VALUES that were named after an intent while always painting a neutral role — `[wrTypography]`'s `tone` and `<wr-timeline-item>`'s `color` — which move onto the name of what they do, together with the BEM class each emits."
-  >
-    <ngwr-doc-code [code]="snippets.v15" language="diff" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="v13 to v14 — the three that fail silently"
-    description="Read this section even if your build is green, because these are the three changes nothing will tell you about. Everything else in v14 is either rewritten for you or caught by the compiler; these three compile, run, and quietly do something other than what they did in v13."
-  >
-    <p>
-      <strong><code>&lt;wr-loading-bar&gt;</code> no longer follows the router.</strong> The subscription is opt-in now
-      — add <code>provideWrLoadingBarRouter()</code> from <code>ngwr/loading-bar/router</code> to your application
-      providers. Without it the bar still works for manual <code>start()</code> / <code>complete()</code> and simply
-      never moves for a navigation. Nothing throws, nothing warns, and the bar renders exactly as it did before: it just
-      stays at 0%. This project's own site shipped an empty bar for the length of a release by missing precisely this.
-      <code>ng update</code> lists every file that renders one.
-    </p>
-    <p>
-      <strong>A translated <code>pagination.of</code> stops being read.</strong> The whole “1–10 of 235” line is one
-      <code>pagination.range</code> template now, so a catalog that still defines <code>of</code> keeps a key nothing
-      looks up — and that one line reverts to English while every other string in the same catalog goes on working,
-      which is the version of this bug that survives a review. Replace it with <code>pagination.range</code> and
-      <code>pagination.compact</code>, whose shapes are in the diff below. <code>common.of</code> is a different key and
-      is untouched — it is still shipped, and still unread.
-    </p>
-    <p>
-      <strong>A date the field cannot parse now returns null instead of a wrong date.</strong> The one change here with
-      no codemod entry at all, because there is no token to detect. It turns a wrong answer into no answer, so a host
-      that relied on <code>new Date()</code>'s leniency sees the committed value stay put where it used to change — and
-      a value that stays put looks like a user who has not finished typing. Its own section below has the detail; read
-      it if any date in your app is typed rather than picked.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="v13 to v14 — the six renames"
-    description="Six names moved, and `ng update ngwr@14` rewrites every one of them: a rename is exactly what a codemod does well, since the new name means what the old one meant on the same element. `<wr-alert closeable>` becomes `closable`, matching the three places that already spelled it that way — and note that neither spelling ever raised a template error, because a bare attribute matching no input is just an attribute. `<wr-table [totalItems]>` and `<wr-pagination [(currentPage)]>` become `[total]` and `[(page)]`, so two components built to sit on the same screen stop using two words for each of the two concepts they share. `isDisabledWhenLoading` loses its prefix, leaving the library with no `is*` boolean at all. And the window's `chromeSize` moves from `compact`/`normal` to `sm`/`md` — the vocabulary v8 renamed everywhere else three majors ago. Sixth: `[wrInput]`'s size input is now plain `size`, like the other twenty-three components. It was spelled with a prefix to dodge the native `<input size>` attribute, which measures the field in characters and which `.wr-input`'s `width: 100%` has always overridden — so the clash it guarded against was never observable, and the cost of dropping it is that a native `size` on an ngwr input, which already did nothing, now does nothing under a different name."
-  >
-    <ngwr-doc-code [code]="snippets.v14Renames" language="diff" />
-    <p wrTypography variant="small" tone="muted">
-      Two things the codemod cannot reach. A component class reading one of these off a
-      <code>viewChild()</code> reference is a type error on upgrade, which is the loud failure and needs no help. The
-      quiet one is a test: <code>WrWindowHarness.getChromeSize()</code> answers <code>'sm'</code> /
-      <code>'md'</code> now, so an assertion on <code>'compact'</code> fails as a wrong value rather than as a wrong
-      type. The pagination harness filter moved with its input —
-      <code>WrPaginationHarness.with(&#123; currentPage: 3 &#125;)</code> becomes <code>&#123; page: 3 &#125;</code> —
-      and that one the codemod does rewrite.
-    </p>
-    <p wrTypography variant="small" tone="muted">
-      One correction, because the release notes said otherwise:
-      <strong>v13 announced this rename and did not make it</strong> — its subject line reads &ldquo;input size loses
-      its prefix&rdquo; while <code>wrSize</code> shipped unchanged in 13.0.0 and 13.0.1. It lands here, in v14. If you
-      already followed that note and wrote <code>size</code> on a v13 input, nothing broke loudly: <code>size</code> is
-      a legal native attribute, so the template compiled and the control quietly fell back to <code>md</code>. On v14
-      the same markup means what it says.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="v13 to v14 — routing is opt-in"
-    description="Router integration became opt-in, which is what buys back the 66–76 kB of `@angular/router` every app was paying for whether it routed or not. Beyond the renames above, `ng update ngwr@14` REPORTS rather than rewrites: each of these needs a decision a codemod cannot make — the provider belongs in a bootstrap file it cannot identify, and the tab adapter has to reach an `imports` array it would have to match to a template by convention — so it names the files and leaves them to you. One half of this fails loudly and one silently, and the diff says which."
-  >
+  <ngwr-doc-section title="v13 to v14">
+    <p><code>ng update</code> rewrites:</p>
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v14Rewrites, head: ['Before', 'After'] }" />
+    <p>By hand (<code>ng update</code> lists the files for most):</p>
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v14Manual, head: ['Before', 'After'] }" />
     <ngwr-doc-code [code]="snippets.v14" language="diff" />
+    <ul>
+      <li>Without <code>provideWrLoadingBarRouter()</code> the bar stays at 0% on navigation, with no error.</li>
+      <li>A catalog that still defines <code>pagination.of</code> shows that line in English.</li>
+      <li>
+        Date output changed too: <code>MMMM</code> declines beside a day, <code>a</code> prints the locale's marker, and
+        the calendar is always Gregorian.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="v13 to v14 — dates now refuse what they cannot read"
-    description="The third of the silent three, in full. A NAMED format (`shortDate`, `time`, …) used to parse through `new Date()`, which understands only Anglo-American forms: a German field printing `15.3.2026` read its own output back as **1 January 2001**, because `new Date('1')` is that date and the first keystroke committed. Parsing is now built from the same `Intl` formatter that printed the string, so it round-trips — and where it cannot read the input it returns null and LEAVES the committed value alone, the rule `wr-input-number` already followed. If your host relied on `new Date()`'s leniency (an ISO string in a `d.M.y` app, say), pass an explicit token `[format]`."
-  >
-    <ngwr-doc-code [code]="snippets.v14Dates" language="diff" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="v13 to v14 — locale comes from LOCALE_ID, and one input is gone"
-    description="`WR_DATE_LOCALE`, `WrI18n`'s `defaultLocale` and `availableLocales` now resolve from Angular's `LOCALE_ID` instead of the browser, so an app that sets `LOCALE_ID` correctly stops formatting dates in whatever language the visitor's browser happens to be; `DEFAULT_WR_I18N_CONFIG` lost the two fields that encoded the old default. And `<wr-pagination ofLabel>` is gone — the range is one `pagination.range` template rather than a word assembled in the middle of it. The codemod reports every one of these, including the static `ofLabel` form, which is the silent one."
-  />
-
-  <ngwr-doc-section
-    title="v12 to v13 — the host id"
-    description="One change reaches templates, and it is the kind that says nothing. `[id]` on `<wr-checkbox>`, `<wr-radio>` and `<wr-switch>` no longer lands on the HOST element — it goes to the inner `<input>`, which is where the input was always documented to put it. It only ever reached the host by accident: a static `id` was written there as a plain attribute AS WELL as fed to the input, so two elements carried the same id, `<label for>` resolved through `getElementById` to the unlabelable host (`input.labels` went from 1 to 0) and `document.getElementById` returned the wrong node. So a `<label for>` pointing at one of these got BETTER; what breaks is a selector anchored to the host, and CSS has no error for a selector that stops matching. The v13 migration rewrites nothing and lists every file holding one — whether `wr-checkbox#agree` should become `#agree` (the 16px tick) or `wr-checkbox:has(#agree)` (the whole row) is a decision only you can make. `<wr-checkbox-group>` and `<wr-radio-group>` keep their host id and are not affected. v13's other half — `readonly` and `invalid` reaching every control — is additive."
+    title="v12 to v13"
+    description="`[id]` on `<wr-checkbox>`, `<wr-radio>` and `<wr-switch>` lands on the inner `<input>`, not the host."
   >
     <ngwr-doc-code [code]="snippets.v13" language="diff" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="v11 to v12"
-    description="Two breaking changes, and they need opposite treatment. The entry-point move is pure import paths, so the v12 migration rewrites all of it. The i18n helper is a type change, which no codemod should guess at — but the compiler points at every call site, so it is a mechanical fix you can trust your build to find."
-  >
-    <p wrTypography variant="small" tone="muted">
-      <strong>The date entry points nest under `ngwr/date`.</strong> `ngwr/icon` already nested its implementations at
-      `ngwr/icon/adapters/lucide` and `…/feather` (v15 later removed both), while the date ones were flat and
-      hyphenated — one idea spelled two ways depending on which feature you reached for. Only the import specifier changes: every exported symbol
-      keeps its name, and these entry points ship no styles, so no `@use` path moves with them. v15 later removed the
-      two library adapters, leaving `ngwr/date` and its native one.
-    </p>
-    <ngwr-doc-api [rows]="dateEntryRows" />
-    <ngwr-doc-code [code]="snippets.dateEntry" language="diff" />
-
-    <p wrTypography variant="small" tone="muted">
-      <strong>`readI18nText()` returns `Signal&lt;string&gt;`.</strong> Add `()` at every read. This is a fix rather
-      than a refactor, and the reason matters if you have ever wondered why a component announced itself in the wrong
-      language: `WrI18n` writes every loader-backed catalog from a promise, which resolves a microtask AFTER the first
-      change-detection pass — so the old one-shot read froze the ENGLISH fallback for the life of the app. A
-      `&lt;wr-date-picker&gt;` said “Открыть календарь” on the field and “Open calendar” on the button beside it, off
-      the same key. A synchronous read cannot be correct against an asynchronous catalog, so the type had to move. Only
-      affects code that calls the helper directly; the `wrT` pipe, the `[wrT]` directive and `useI18nText` are
-      unchanged.
-    </p>
-    <ngwr-doc-code [code]="snippets.readI18n" language="diff" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="v8 to v9"
-    description="Three breaking changes. The codemod auto-fixes the checkbox rename; the other two are one-line manual edits — and both of those fail SILENTLY, so check them even if your build is green."
-  >
-    <p wrTypography variant="small" tone="muted">
-      <strong>`&lt;wr-checkbox&gt;` — `value` is now `checkboxValue`.</strong> The checkbox became a signal-forms native
-      `FormCheckboxControl`, whose contract reserves `value` for the form value — so its boolean state is the `checked`
-      model, and the group-membership identity moved to `checkboxValue`. Watch out: the static form fails silently.
-      `&lt;wr-checkbox value="x"&gt;` raises no template error, it just lands as a plain DOM attribute, leaving every
-      child of the group with the same `null` identity — so they all toggle together. The codemod rewrites `value` /
-      `[value]` / `[(value)]` scoped to the `&lt;wr-checkbox` tag, and deliberately leaves `&lt;wr-checkbox-group&gt;`'s
-      own `value` alone.
-    </p>
-    <ngwr-doc-api [rows]="checkboxRows" />
-    <ngwr-doc-code [code]="snippets.checkbox" language="diff" />
-
-    <p wrTypography variant="small" tone="muted">
-      <strong>Lucide icon names register verbatim.</strong> `lucideIcons()` no longer kebab-cases its keys, so a
-      `chevronDown` key now registers as `chevronDown`, not `chevron-down`. No codemod — and nothing errors, the icon
-      simply stops rendering. Either quote the key or update the usages.
-    </p>
-    <ngwr-doc-code [code]="snippets.lucide" language="diff" />
-
-    <p wrTypography variant="small" tone="muted">
-      <strong>`info` added to `WR_COLORS` / `WrColor`.</strong> Additive at runtime, but it widens the union — an
-      exhaustive `switch` over `WrColor` without a `default` will stop compiling until you handle the new member.
+    <p>
+      <code>&lt;wr-checkbox-group&gt;</code> and <code>&lt;wr-radio-group&gt;</code> keep their host <code>id</code>.
     </p>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="v7 to v8"
-    description="Three breaking changes. The codemod auto-fixes density + pagination and warns (with file paths) about the removed components, which have no automatic replacement."
-  >
-    <p wrTypography variant="small" tone="muted">
-      <strong>Density values renamed.</strong> `compact` / `default` / `comfortable` become `sm` / `md` / `lg`; `touch`
-      is unchanged and `md` is now the default. Affects `provideWrDensity`, the `wrDensity` directive, and the
-      `[data-wr-density]` selector.
-    </p>
-    <ngwr-doc-api [rows]="densityRows" />
-    <ngwr-doc-code [code]="snippets.density" language="diff" />
-    <ngwr-doc-code [code]="snippets.densityTpl" language="diff" />
-
-    <p wrTypography variant="small" tone="muted">
-      <strong>Pagination sizes trimmed.</strong> `WrPaginationSize` drops `xs` and `xl` — it is now `'sm' | 'md' |
-      'lg'`.
-    </p>
-    <ngwr-doc-api [rows]="paginationRows" />
-
-    <p wrTypography variant="small" tone="muted">
-      <strong>Removed components.</strong> `WrReveal` (the `wrReveal` directive in `ngwr/directives`) and
-      `WrScrambleText` (`ngwr/scramble-text`) were removed — both were unreliable. There is no drop-in replacement; the
-      codemod lists every file that uses them so you can swap them out.
-    </p>
-    <ngwr-doc-code [code]="snippets.removed" language="diff" />
+  <ngwr-doc-section title="v11 to v12">
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v12, head: ['Before', 'After', 'Codemod'] }" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="v6 to v7"
-    description="v7 consolidated ten standalone entry-points into shared components. The v7 migration rewrites the tags, TypeScript imports and SCSS `@use` paths — and it runs as the first step of the one `ng update ngwr` at the top of this page, so a v6 app does not climb the ladder one major at a time."
-  >
-    <p wrTypography variant="small" tone="muted">
-      Key renames: `wr-autocomplete` / `wr-chips-input` → `wr-select` (with `mode`); `wr-time-picker` /
-      `wr-date-time-picker` → `wr-date-picker`; `wr-tooltip` → `wr-popover`; `wr-tree-select` → `wr-tree`;
-      `wr-bottom-sheet` → `wr-drawer`; `wr-image` → `wr-lightbox`; `ngwr/tag` → `ngwr/badge`; `wr-animated-text` →
-      `wr-typewriter` / `wr-decrypt-text` / `wr-split-text` (per mode). See the
-      <a wrTypography routerLink="/start/schematics">Schematics</a> page for the full collection.
-    </p>
+  <ngwr-doc-section title="v8 to v9">
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v9, head: ['Before', 'After', 'Codemod'] }" />
+    <ul>
+      <li>
+        A static <code>value</code> left on <code>&lt;wr-checkbox&gt;</code> makes the whole group toggle together.
+      </li>
+      <li>
+        A camelCase Lucide key stops rendering with no error. Quote the key:
+        <code>'chevron-down': ChevronDown</code>.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="v7 to v8">
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v8, head: ['Before', 'After', 'Codemod'] }" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="v6 to v7" description="`ng update` rewrites the tags, imports and `@use` paths.">
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v7, head: ['Before', 'After'] }" />
   </ngwr-doc-section>
 </ngwr-doc-page>

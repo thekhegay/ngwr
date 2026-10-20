@@ -1,160 +1,59 @@
 <ngwr-doc-page
   title="Introduction"
-  description="An Angular UI library built on signals: standalone, zoneless, Signal Forms-native, server-rendered and themed with CSS variables. Free and open source."
+  description="A free, MIT-licensed Angular UI library built on signals."
   [keywords]="['angular ui library', 'signal forms', 'zoneless', 'standalone components', 'ssr']"
 >
-  <ngwr-doc-section title="Why ngwr">
-    <ul>
-      <li>
-        <strong>Signal Forms, natively.</strong> Every value control binds with <code>[formField]</code> — there is no
-        <code>ControlValueAccessor</code> anywhere in the library.
-      </li>
-      <li>
-        <strong>Signals and zoneless.</strong> Standalone components, <code>input()</code> and <code>model()</code>
-        throughout, and no zone.js required.
-      </li>
-      <li>
-        <strong>Only what you use.</strong> {{ quality.entryPoints }} entry points, one per component — you import and
-        <code>&#64;use</code> what you render and nothing else.
-      </li>
-      <li>
-        <strong>Yours to restyle.</strong> Every value is a CSS variable: override a token to change the whole app, or a
-        component's own hook to change one.
-      </li>
-      <li>
-        <strong>Server-rendered.</strong> Components render under SSR and hydration — every page of these docs is
-        prerendered.
-      </li>
-    </ul>
+  <ngwr-doc-section title="What you get">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Feature</th>
+          <th scope="col">What it means</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a [routerLink]="paths.forms">Signal Forms</a></td>
+          <td>Every value control binds with <code>[formField]</code>.</td>
+        </tr>
+        <tr>
+          <td>Signals, zoneless</td>
+          <td>Standalone components with <code>input()</code> and <code>model()</code>. No zone.js.</td>
+        </tr>
+        <tr>
+          <td>Tree-shakable</td>
+          <td>One entry point per component. Import and <code>&#64;use</code> only what you render.</td>
+        </tr>
+        <tr>
+          <td><a [routerLink]="paths.theming">CSS variables</a></td>
+          <td>Restyle the app with tokens, or one component with its own hooks.</td>
+        </tr>
+        <tr>
+          <td><a [routerLink]="paths.ssr">SSR</a></td>
+          <td>Components render on the server and hydrate.</td>
+        </tr>
+        <tr>
+          <td><a [routerLink]="paths.testing">Test harnesses</a></td>
+          <td>CDK harnesses at <code>ngwr/&lt;name&gt;/testing</code>.</td>
+        </tr>
+        <tr>
+          <td>AI tooling</td>
+          <td>
+            An <a [routerLink]="paths.skills">agent skill</a>, <a href="/llms-full.txt">llms-full.txt</a> and an
+            <a [routerLink]="paths.mcp">MCP server</a>, generated from the source.
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Counted, not claimed">
-    <p>
-      The counters below are written by <code>scripts/gen/quality.ts</code>, which counts the repository during the
-      showcase build. None of them is typed in by hand — that is the only way a page like this is still true a year
-      after it was written.
-    </p>
-
-    <wr-statistic-group class="wr-not-typeset" min="10rem">
-      <wr-statistic label="Entry points" [value]="quality.entryPoints" />
-      <wr-statistic label="Components + directives" [value]="publicClasses" />
-      <wr-statistic [label]="testCasesLabel" [value]="quality.testCases" />
-      <wr-statistic label="Spec files" [value]="quality.specFiles" />
-      <wr-statistic label="Test harnesses" [value]="quality.harnessClasses" />
-      <wr-statistic label="Documentation pages" [value]="quality.docRoutes" />
-      <wr-statistic label="Runtime dependencies" [value]="quality.runtimeDependencies.length" />
-    </wr-statistic-group>
-
-    <p>
-      Test cases are declared <code>it()</code> call sites. A parameterised form like <code>it.each</code>, or a call
-      inside a loop, makes the figure a floor, and the label then reads “at least”.
-    </p>
-    <p>
-      “Documentation pages” counts routes that render one — the layout shell and the <code>**</code> 404 are not pages,
-      so neither is in the {{ quality.docRoutes }}.
-    </p>
-    <p>
-      The version is read from <code>projects/lib/package.json</code> and cross-checked against
-      <code>NGWR_VERSION</code>; a mismatch fails the build. The single runtime dependency is
-      <code>{{ quality.runtimeDependencies.join(', ') }}</code
-      >.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Accessibility">
-    <p>Three sweeps, because no single one of them reaches the whole surface.</p>
-
-    <h3><code>check:a11y</code></h3>
+  <ngwr-doc-section title="Next">
     <ul>
-      <li><strong>Runs.</strong> On every pull request: axe over the prerendered HTML, in JSDOM.</li>
-      <li>
-        <strong>Sees.</strong> Accessible names, ARIA validity, roles, id references, landmark and heading structure. It
-        fails on any serious or critical violation.
-      </li>
-      <li>
-        <strong>Cannot see.</strong> Anything that depends on computed style — JSDOM loads no stylesheets — and nothing
-        in a hover, a focus ring or an overlay.
-      </li>
-      <li><strong>Accepted.</strong> Nothing. The baseline is empty.</li>
+      <li><a [routerLink]="paths.installation">Installation</a>: add ngwr to an app.</li>
+      <li><a [routerLink]="paths.configuration">Configuration</a>: set app-wide options.</li>
+      <li><a [routerLink]="paths.guides">Guides</a>: theming, forms, SSR and more.</li>
+      <li><a [routerLink]="paths.components">Components</a>: the full catalog.</li>
     </ul>
-
-    <h3><code>check:contrast</code></h3>
-    <ul>
-      <li><strong>Runs.</strong> Nightly, in a real Chromium with real CSS, in both themes, on every route.</li>
-      <li>
-        <strong>Sees.</strong> Colour contrast and target size, the two rules the structural sweep cannot run — and
-        placeholder text, which axe itself never measures.
-      </li>
-      <li>
-        <strong>Cannot see.</strong> Hovers, focus rings and overlays. It gates on routes per rule, so a new violation
-        on a route that already fails passes silently.
-      </li>
-      <li>
-        <strong>Accepted.</strong> A few decided trades in <code>scripts/baselines/contrast.json</code> — the calendar's
-        out-of-month days, the carousel dots, the table header's sort and filter controls — each with its reason.
-      </li>
-    </ul>
-
-    <h3><code>check:state-a11y</code></h3>
-    <ul>
-      <li><strong>Runs.</strong> Nightly, driving a curated table of states with the full axe rule set inside each.</li>
-      <li>
-        <strong>Sees.</strong> States a user has to create: a hover, a focus ring, an open dialog, a select panel.
-      </li>
-      <li>
-        <strong>Cannot see.</strong> Whatever is not in the table — so a full run prints its own coverage, and a state
-        that fails to paint fails the run.
-      </li>
-      <li>
-        <strong>Accepted.</strong> The same calendar days and target sizes as above, in
-        <code>scripts/baselines/state-a11y.json</code>.
-      </li>
-    </ul>
-
-    <h3>What no gate reports</h3>
-    <p>
-      <code>--wr-border-base</code> measures 1.48:1 in light and 1.41:1 in dark, under the 3:1 WCAG 1.4.11 asks of a
-      control boundary. Both fixes were costed and the lighter hairline was kept; axe has no non-text-contrast rule, so
-      nothing reports it.
-    </p>
-    <p>
-      Colour is never the only channel. Components that report a state draw a shape for it — alert and toast a glyph,
-      timeline a silhouette — while a tag or badge colour is decoration, and the words carry the state.
-      <code>check:color-only</code> holds every colour-only rule in the library to a written reason.
-    </p>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="AI ready">
-    <p>
-      ngwr is built so an assistant can work with it as well as a person can — consistent patterns, documentation
-      generated from the source, and an MCP server inside the package.
-    </p>
-
-    <div class="intro-cards wr-not-typeset">
-      <wr-card>
-        <div class="intro-card__head">
-          <wr-icon name="sparkles" />
-          <h3 wrTypography variant="h6">Predictable patterns</h3>
-        </div>
-        <p wrTypography variant="small" tone="muted">
-          Every component has the same shape: signal inputs, <code wrTypography variant="code">model()</code> for
-          two-way values, BEM classes and one entry point — so generated code reads like code a person wrote.
-        </p>
-      </wr-card>
-
-      <wr-card>
-        <div class="intro-card__head">
-          <wr-icon name="book-open" />
-          <h3 wrTypography variant="h6">Docs an agent can read</h3>
-        </div>
-        <p wrTypography variant="small" tone="muted">
-          An <a wrTypography variant="link" [routerLink]="skills">agent skill</a>,
-          <a wrTypography variant="link" href="/llms-full.txt">llms-full.txt</a> and an
-          <a wrTypography variant="link" [routerLink]="mcp">MCP server</a> ship with the package, generated from the
-          library source, so an assistant reads the API you installed.
-        </p>
-      </wr-card>
-    </div>
   </ngwr-doc-section>
 
   <div class="intro-support wr-not-typeset">
@@ -163,10 +62,7 @@
       <wr-icon name="heart" class="intro-support__heart" />
     </div>
     <h2 wrTypography variant="h5">Support Open Source</h2>
-    <p>
-      ngwr is free, MIT-licensed and built in the open. If it saves you time, a star on GitHub is the simplest way to
-      help it reach more Angular developers.
-    </p>
+    <p>If ngwr saves you time, star it on GitHub.</p>
     <a wr-btn color="primary" icon="github" href="https://github.com/thekhegay/ngwr" target="_blank" rel="noreferrer">
       Star on GitHub
     </a>

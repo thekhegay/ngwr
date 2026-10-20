@@ -1,98 +1,80 @@
 <ngwr-doc-page
   title="Configuration"
-  description="Every ngwr provider in one reference. App-wide settings go through one `provideWr()` call; wire what you use at bootstrap and the rest is tree-shaken away."
+  description="Set app-wide options at bootstrap."
   [keywords]="['configuration', 'providers', 'bootstrap', 'provideWr', 'features']"
   [labels]="['Getting started']"
 >
-  <ngwr-doc-section
-    title="Complete bootstrap"
-    description="A full-featured `main.ts` showing every common ngwr provider. Delete what you don't need."
-  >
-    <ngwr-doc-code [code]="snippets.bootstrap" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="provideWr and features"
-    description="App-wide configuration is one `provideWr()` call from `ngwr`, taking a feature for each thing you configure: `withDensity`, `withToast`, `withTheme`, `withDates`, `withStorage`, `withMeta`. Import each from its own entry point, and only the ones you configure — every service works with no feature at all. Pass them at bootstrap; `withDates()` is the one that also works in a route's `providers`. Icons, i18n and the loading-bar router stay calls of their own."
-  >
+  <ngwr-doc-section title="provideWr" description="Optional: pass only the features whose defaults you change.">
     <ngwr-doc-code [code]="snippets.provideWr" language="angular-ts" />
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Feature</th>
+          <th scope="col">Entry point</th>
+          <th scope="col">What it sets</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (f of features; track f.feature) {
+          <tr>
+            <td>
+              <code>{{ f.feature }}</code>
+            </td>
+            <td>
+              <code>{{ f.entry }}</code>
+            </td>
+            <td>{{ f.sets }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <ul>
+      <li>Pass features at bootstrap. Only <code>withDates()</code> also works in a route's <code>providers</code>.</li>
+      <li>The same feature twice throws in dev mode.</li>
+      <li>
+        On a prerendered page, also ship <a [routerLink]="themePath"><code>wrThemePrePaintScript()</code></a> with the
+        same options as <code>withTheme()</code>.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Overlay"
-    description="No provider. Every overlay component — dialog, drawer, popover, dropdown, select, tooltip, menus, pickers — renders into an overlay container of ngwr's own, tagged `.wr-overlay-container`, apart from the one Angular Material, NG-ZORRO and plain CDK overlays share. That class is the styling hook: scope an override to it and it reaches ngwr's panels alone. The [Overlay guide](/guides/overlay) has the rest."
+    title="Other providers"
+    description="Icons, i18n and the loading-bar router are calls of their own."
   >
-    <ngwr-doc-code [code]="snippets.overlay" language="scss" />
+    <ngwr-doc-code [code]="snippets.other" language="angular-ts" />
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Call</th>
+          <th scope="col">Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>provideWrIcons()</code></td>
+          <td>Works at any level. A route adds to its parent's icons. <a routerLink="/icons">Icon sets</a>.</td>
+        </tr>
+        <tr>
+          <td><code>provideWrI18nBaseCatalogs()</code></td>
+          <td>
+            Registers ngwr's strings under yours. Do not spread them into your catalog.
+            <a [routerLink]="i18nPath">Translations</a>.
+          </td>
+        </tr>
+        <tr>
+          <td><code>provideWrLoadingBarRouter()</code></td>
+          <td>Without it the loading bar never moves on navigation, and nothing warns.</td>
+        </tr>
+      </tbody>
+    </table>
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Icons"
-    description="Pass only the icon symbols you actually use — the rest tree-shake out. Scaffold a barrel file with `ng g ngwr:icon-set`. `provideWrIcons()` works at any level and chains, so a route adds to the set its parent registered rather than replacing it."
-  >
-    <ngwr-doc-code [code]="snippets.icons" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Toast"
-    description="Stack of dismissible notifications, defaulting to the top-end corner. Inject `WrToast` and call `show(...)` from anywhere — `withToast()` only sets defaults, so it is optional. Pass it at bootstrap: `WrToast` is root-provided and reads its config once from the root injector, so a route-level `withToast()` is never read, and says so in dev mode."
-  >
-    <ngwr-doc-code [code]="snippets.toast" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Internationalization (i18n)"
-    description="Catalog-driven translations with double-mustache interpolation, scopes, and a live locale switch. Pair `provideWrI18n` with either the static loader or `provideWrI18nHttpLoader`. See the [Internationalization primer](/guides/translations) for the full story."
-  >
-    <ngwr-doc-code [code]="snippets.i18n" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Date adapter"
-    description="No call needed: `wr-calendar`, `wr-event-calendar` and every `wr-date-picker` mode use the native adapter, over `Date` and `Intl`, in the locale `LOCALE_ID` names. Add `withDates()` for one of two things. `{ locale }` pins the dates to another locale. `{ adapter }` runs them on another date library: extend `WrDateAdapter<Date>` (the components hold and compare native `Date` values), do the arithmetic, formatting and parsing through that library, and pass your class."
+    title="Your own date adapter"
+    description="For another date library, extend `WrDateAdapter<Date>` and pass the class to `withDates()`."
   >
     <ngwr-doc-code [code]="snippets.dateAdapter" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Density"
-    description="One knob for app-wide sizing. `withDensity()` picks a preset; the per-axis multipliers behind the presets are CSS custom properties, so a value between two presets is a `:root` override rather than a config field."
-  >
-    <ngwr-doc-code [code]="snippets.density" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Theme"
-    description="Nothing to configure: the theme follows the OS through `color-scheme` out of the box. Inject `WrTheme` to read or switch it at runtime — `theme.set('dark')`, `theme.toggle()`. `withTheme()` changes the default mode or the storage key and creates `WrTheme` at boot, so a stored choice applies on the first screen. For a prerendered page, ship [`wrThemePrePaintScript()`](/reference/services/theme) with the same options as well."
-  >
-    <ngwr-doc-code [code]="snippets.theme" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Meta"
-    description="App-wide defaults for `WrMeta`: a title template and the Open Graph and Twitter fields every route starts from. A route overrides them with `WrMeta.push()` or the `[wrMeta]` directive."
-  >
-    <ngwr-doc-code [code]="snippets.meta" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Loading bar"
-    description="A top progress bar driven by `WrLoadingBar.start()` / `complete()`, which need no provider. Router navigations drive it only once you add `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`: then `NavigationStart` shows it and `NavigationEnd` / `Cancel` / `Error` hide it. Without that call the bar never moves for a navigation, and nothing warns. It is opt-in because the subscription is what brings `@angular/router` into the bundle."
-  >
-    <ngwr-doc-code [code]="snippets.loadingBar" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Cookie"
-    description="SSR-safe typed cookie service. Inject `WrCookie` and call `get(name)` / `set(name, value, opts)` / `remove(name)`."
-  >
-    <ngwr-doc-code [code]="snippets.cookie" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Storage"
-    description="Swappable engine (local / session / memory / custom) with TTL and a reactive watch signal. `withStorage()` sets the engine, a key prefix and a default TTL."
-  >
-    <ngwr-doc-code [code]="snippets.storage" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-see-also [links]="related" />

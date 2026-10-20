@@ -1,22 +1,3 @@
-.intro-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: var(--wr-space-lg);
-  margin-top: var(--wr-space-xl);
-}
-
-.intro-card__head {
-  display: flex;
-  align-items: center;
-  gap: var(--wr-space-sm);
-  margin-bottom: var(--wr-space-sm);
-
-  wr-icon {
-    color: var(--wr-color-primary);
-    font-size: 1.25rem;
-  }
-}
-
 .intro-support {
   display: flex;
   flex-direction: column;

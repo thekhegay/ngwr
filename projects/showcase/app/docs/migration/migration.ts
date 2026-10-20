@@ -1,225 +1,301 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { WrTypography } from 'ngwr/typography';
+import { DocCodeComponent, DocPageComponent, DocRichPipe, DocSectionComponent } from '#core/components';
 
-import { DocApiComponent, DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
-import type { DocApiRow } from '#core/components';
+/**
+ * One row of a migration table. Cells take `code`, [links](/x) and **bold**
+ * through `wrDocRich`.
+ */
+interface Change {
+  readonly before: string;
+  readonly after: string;
+  /** What `ng update` does with it, for the majors that ship a migration. */
+  readonly update?: string;
+}
 
 @Component({
   selector: 'ngwr-migration-page',
   templateUrl: './migration.html',
-  imports: [RouterLink, WrTypography, DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent],
+  imports: [NgTemplateOutlet, RouterLink, DocPageComponent, DocSectionComponent, DocCodeComponent, DocRichPipe],
 })
 export default class MigrationPageComponent {
-  /** v11 → v12 date entry-point moves. Import paths only; every symbol keeps its name. */
-  protected readonly dateEntryRows: readonly DocApiRow[] = [
+  /** What `ng update ngwr` does for each major, newest first. */
+  protected readonly majors: readonly Change[] = [
+    { before: 'v15', after: 'Nothing. Make the changes below by hand.' },
+    { before: 'v14', after: 'Rewrites six renames, lists files for the rest.' },
+    { before: 'v13', after: 'Lists files with a host `id` selector, rewrites nothing.' },
+    { before: 'v12', after: 'Rewrites the date import paths.' },
+    { before: 'v10, v11', after: 'Nothing. Colour changes only.' },
+    { before: 'v9', after: 'Rewrites `<wr-checkbox value>`.' },
+    { before: 'v8', after: 'Rewrites density and pagination sizes, lists removed components.' },
+    { before: 'v7', after: 'Rewrites tags, imports and `@use` paths.' },
+  ];
+
+  protected readonly recovery: readonly Change[] = [
     {
-      name: "'ngwr/date-adapter'",
-      description: 'The adapter contract, the locale token and `provideWrDateAdapter()`.',
-      type: "→ 'ngwr/date'",
+      before: '`ng update ngwr@7`, `@8` or `@9` failed with `exports is not defined in ES module scope`',
+      after: '`migration-v7`, `-v8`, `-v9`: each one that failed, oldest first',
+    },
+    { before: '`ng update ngwr` hung on 14.5.0 or earlier', after: '`migration-v14`' },
+  ];
+
+  protected readonly v15Providers: readonly Change[] = [
+    { before: '`provideWrDensity(o)`', after: '`withDensity(o)` from `ngwr/density`' },
+    { before: '`provideWrToastConfig(o)`', after: '`withToast(o)` from `ngwr/toast`' },
+    { before: '`provideWrStorage(o)`', after: '`withStorage(o)` from `ngwr/storage`' },
+    { before: '`provideWrMeta(o)`', after: '`withMeta(o)` from `ngwr/meta`' },
+    { before: '`provideWrTheme(o)`', after: '`withTheme(o)` from `ngwr/theme`' },
+    { before: '`provideWrDateAdapter(o)`', after: '`withDates(o)` from `ngwr/date`. Delete a call with no options.' },
+    { before: '`provideWrOverlay()`', after: 'Delete. Isolated overlays are the default.' },
+    { before: '`WrDateAdapterOptions`, `ProvideWrStorageOptions`', after: '`WrDatesOptions`, `WrStorageOptions`' },
+  ];
+
+  protected readonly v15Paths: readonly Change[] = [
+    {
+      before: '`ngwr/bar-chart`, `calendar-heatmap`, `donut-chart`, `gauge`, `line-chart`, `meter-group`, `sparkline`',
+      after: '`ngwr/charts/<name>`',
     },
     {
-      name: "'ngwr/date-adapter-fns'",
-      description: 'The date-fns implementation. v15 removed it.',
-      type: "→ 'ngwr/date/adapters/fns'",
+      before:
+        '`ngwr/aurora`, `blur-text`, `border-glow`, `circular-text`, `click-spark`, `confetti`, `decrypt-text`, `falling-text`, `fuzzy-text`, `glitch-text`, `gradient-text`, `marquee`, `rotating-text`, `shiny-text`, `splash-cursor`, `split-text`, `spotlight-card`, `star-border`, `tilt-card`, `typewriter`, `waves`',
+      after: '`ngwr/bits/<name>`',
+    },
+    { before: '`ngwr/drag-drop`', after: '`ngwr/sortable-list`' },
+    { before: '`ngwr/icon/adapters/lucide`', after: '`ngwr/icon`' },
+    { before: "`@use 'ngwr'`", after: "`@use 'ngwr/theme'` first, then one `@use` per entry point you render" },
+  ];
+
+  protected readonly v15Tokens: readonly Change[] = [
+    { before: '`--wr-color-light`, `--wr-color-outline`', after: '`--wr-border-base`' },
+    { before: '`--wr-color-dark`', after: '`--wr-color-on-surface`' },
+    { before: '`--wr-color-muted-text`, `--wr-color-medium`', after: '`--wr-color-on-surface-muted`' },
+    { before: '`--wr-color-border`, `--wr-color-border-strong`', after: '`--wr-border-strong`' },
+    { before: '`--wr-color-border-subtle`', after: '`--wr-border-subtle`' },
+    {
+      before: 'Every `-rgb` token, e.g. `rgba(var(--wr-color-primary-rgb), 0.2)`',
+      after: '`color-mix(in srgb, var(--wr-color-primary) 20%, transparent)`',
     },
     {
-      name: "'ngwr/date-adapter-luxon'",
-      description: 'The luxon implementation. v15 removed it.',
-      type: "→ 'ngwr/date/adapters/luxon'",
+      before: '`--wr-color-backdrop-rgb`',
+      after: '`color-mix(in srgb, var(--wr-color-backdrop) 45%, transparent)`',
+    },
+    { before: '`--wr-calendar-accent-rgb`', after: '`--wr-calendar-accent`' },
+    { before: '`--wr-color-picker-rgb`', after: '`--wr-color-picker-color`' },
+    {
+      before: '`color="secondary"`, `--wr-color-secondary-*`, and the same for `light`, `medium`, `dark`',
+      after: 'No replacement. Pick another intent or your own colour.',
+    },
+    { before: 'Those four keys in `$base-colors`', after: 'Delete them' },
+  ];
+
+  protected readonly v15Scheme: readonly Change[] = [
+    {
+      before:
+        '`theme.dark-selector()`, `$theme-attribute`, the `attribute` option of `provideWrTheme()` and `wrThemePrePaintScript()`',
+      after: 'Delete',
+    },
+    { before: 'Reading `data-theme` in code', after: '`WrTheme.resolved()`' },
+    {
+      before: '`wrThemeTokens()`, `wrIntentTokens()`, `wrContrastFor()`',
+      after: '`$base-colors` or `theme.rebrand()`, at build time. See [Theming](/guides/theming).',
+    },
+    { before: '`--wr-star-border-stop`', after: '`background` on `.wr-star-border .wr-star-border__ray`' },
+  ];
+
+  protected readonly v15Components: readonly Change[] = [
+    {
+      before: '`<wr-sortable-list>` with an `<ng-template>`',
+      after: 'Your own `@for` with one `<wr-sortable-item>` per row. `trackBy` is gone.',
+    },
+    {
+      before: '`wrSquircle` from `ngwr/squircle`',
+      after: '`shape="squircle"` on `wr-btn`, `wr-avatar`, `wr-badge`; the `theme.smooth-br()` mixin elsewhere',
+    },
+    { before: '`<wr-action-sheet>`', after: '`<wr-drawer position="bottom" rounded>` with your own rows' },
+    { before: '`<wr-drawer showHandle>`', after: 'Delete. Swipe-to-dismiss is gone.' },
+    {
+      before: '`responsive` on `wr-select`, `[wrDropdown]`, `[wrPopover]`, `wr-command-palette`, `WrDialog.open()`',
+      after: 'Delete. For a sheet on phones, open a `<wr-drawer position="bottom">`.',
+    },
+    {
+      before: '`WrPopoverHarness.isSheet()`, `WrCommandPaletteHarness.isPresentedAsSheet()`',
+      after: 'Delete',
+    },
+    { before: '`<wr-editor format>`', after: 'Delete. The value is a `WrEditorJson` tree, or `null` when empty.' },
+    { before: '`[wrTypography] tone="dark"`, `tone="medium"`', after: '`tone="base"`, `tone="muted"`' },
+    { before: '`.wr-typography--tone-dark`, `--tone-medium`', after: '`.wr-typography--tone-base`, `--tone-muted`' },
+    {
+      before: '`<wr-timeline-item color="medium">`, `.wr-timeline-item--medium`',
+      after: '`color="neutral"`, `.wr-timeline-item--neutral`',
     },
   ];
 
-  /** v8 → v9 checkbox input renames. */
-  protected readonly checkboxRows: readonly DocApiRow[] = [
+  protected readonly v15Removed: readonly Change[] = [
     {
-      name: 'value',
-      description: 'Renamed — the group-membership identity. `FormCheckboxControl` reserves `value`.',
-      type: '→ checkboxValue',
+      before: '`ngwr/config`: `provideWrConfig()`, `WR_CONFIG`, `useConfigValue()`',
+      after: 'Bind the input where you want another value',
     },
     {
-      name: 'checked',
-      description: 'Now the form value — a two-way `model()`. Bind `[(checked)]`, `[formField]` or `[(ngModel)]`.',
-      type: 'model<boolean>',
+      before: '`ngwr/media`: `WrMedia`, `provideWrMedia()`, `WR_BREAKPOINTS`',
+      after: '`BreakpointObserver` from `@angular/cdk/layout`',
+    },
+    { before: "`ngwr/markdown` and `@use 'ngwr/markdown'`", after: '`<wr-editor readonly [toolbar]="false">`' },
+    { before: '`ngwr/icon/adapters/feather`', after: "`svgIcon()` from `ngwr/icon`, with Feather's own SVG files" },
+    {
+      before: "`provideWrResponsiveOverlays()`, `WR_RESPONSIVE_OVERLAYS`, `wrPresentAsSheet`, `@use 'ngwr/overlay'`",
+      after: 'Delete',
+    },
+    { before: '`WrVisualViewport`, `--wr-keyboard-inset`', after: '`window.visualViewport`' },
+  ];
+
+  protected readonly v15Dates: readonly Change[] = [
+    {
+      before: '`ngwr/date/adapters/fns`, `ngwr/date/adapters/luxon`',
+      after: 'The native adapter, or your own `WrDateAdapter<Date>` passed as `withDates({ adapter })`',
+    },
+    { before: '`ng add ngwr --dateAdapter=…`', after: '`ng add ngwr`' },
+    { before: '`wrDate` with no provider, `shortDate`: `3/15/26`', after: '`3/15/2026`' },
+    { before: '`wrDate` with no provider, `time`: `2:30 PM`', after: '`02:30 PM`' },
+    { before: "`wrDate` with no provider, `'dd.MM.yyyy'`: falls back to `shortDate`", after: 'Honoured' },
+  ];
+
+  protected readonly v14Rewrites: readonly Change[] = [
+    { before: '`<wr-alert closeable>`', after: '`closable`' },
+    { before: '`<wr-table [totalItems]>`', after: '`[total]`' },
+    { before: '`<wr-pagination [(currentPage)]>`, `(currentPageChange)`', after: '`[(page)]`, `(pageChange)`' },
+    { before: '`WrPaginationHarness.with({ currentPage })`', after: '`{ page }`' },
+    { before: '`[isDisabledWhenLoading]`', after: '`[disabledWhenLoading]`' },
+    {
+      before: "`chromeSize: 'compact' | 'normal'`, `.wr-window--chrome-compact`",
+      after: "`'sm' | 'md'`, `.wr-window--chrome-sm`",
+    },
+    { before: '`[wrInput] wrSize`', after: '`size`' },
+  ];
+
+  protected readonly v14Manual: readonly Change[] = [
+    { before: "`WrWindowHarness.getChromeSize()`: `'compact'`", after: "`'sm'`" },
+    {
+      before: '`<wr-loading-bar>` follows the router on its own',
+      after: 'Add `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`',
+    },
+    {
+      before: '`<wr-tab routerLink>`',
+      after: 'Add `wrTabsRouting` on `<wr-tabs>` and `WrTabsRouting` from `ngwr/tabs/router`',
+    },
+    { before: '`pagination.of` key', after: '`pagination.range`, `pagination.compact`' },
+    { before: '`<wr-pagination ofLabel>`', after: 'Delete' },
+    {
+      before: '`WR_DATE_LOCALE`, `WrI18n` locales follow the browser',
+      after: 'Follow `LOCALE_ID`. `DEFAULT_WR_I18N_CONFIG` drops `defaultLocale`, `availableLocales`.',
+    },
+    {
+      before: 'Named date formats parse through `new Date()`',
+      after: 'Parse through `Intl` and refuse what they cannot read. For the old leniency, pass a token `[format]`.',
     },
   ];
 
-  /** v7 → v8 density value renames. */
-  protected readonly densityRows: readonly DocApiRow[] = [
-    { name: "'compact'", description: 'Renamed.', type: "→ 'sm'" },
-    { name: "'default'", description: 'Renamed — and is now the default.', type: "→ 'md'" },
-    { name: "'comfortable'", description: 'Renamed.', type: "→ 'lg'" },
-    { name: "'touch'", description: 'Unchanged.', type: "'touch'" },
+  protected readonly v12: readonly Change[] = [
+    { before: '`ngwr/date-adapter`', after: '`ngwr/date`', update: 'Rewrites' },
+    { before: '`ngwr/date-adapter-fns`', after: '`ngwr/date/adapters/fns` (removed in v15)', update: 'Rewrites' },
+    { before: '`ngwr/date-adapter-luxon`', after: '`ngwr/date/adapters/luxon` (removed in v15)', update: 'Rewrites' },
+    {
+      before: '`readI18nText()` returns `string`',
+      after: '`Signal<string>`: read it as `label()`',
+      update: 'No, the compiler finds each',
+    },
   ];
 
-  /** v7 → v8 pagination size renames. */
-  protected readonly paginationRows: readonly DocApiRow[] = [
-    { name: 'size="xs"', description: 'Dropped.', type: '→ "sm"' },
-    { name: 'size="xl"', description: 'Dropped.', type: '→ "lg"' },
+  protected readonly v9: readonly Change[] = [
+    { before: '`<wr-checkbox value>` in a group', after: '`checkboxValue`', update: 'Rewrites' },
+    { before: 'Checkbox state', after: 'The `checked` model: `[(checked)]` or `[formField]`', update: 'No' },
+    {
+      before: '`lucideIcons({ chevronDown })` registers `chevron-down`',
+      after: 'Registers `chevronDown`',
+      update: 'No',
+    },
+    { before: '`WrColor`', after: 'Adds `info`. An exhaustive `switch` needs the case.', update: 'No' },
+  ];
+
+  protected readonly v8: readonly Change[] = [
+    {
+      before: 'Density `compact`, `default`, `comfortable`',
+      after: '`sm`, `md` (the default), `lg`; `touch` unchanged',
+      update: 'Rewrites',
+    },
+    { before: '`WrPaginationSize` `xs`, `xl`', after: '`sm`, `lg`', update: 'Rewrites' },
+    { before: '`wrReveal`', after: 'Removed, no replacement', update: 'Lists files' },
+    { before: '`<wr-scramble-text>`', after: '`<wr-decrypt-text>`', update: 'Lists files' },
+  ];
+
+  protected readonly v7: readonly Change[] = [
+    { before: '`wr-autocomplete`, `wr-chips-input`', after: '`wr-select` with `mode`' },
+    { before: '`wr-time-picker`, `wr-date-time-picker`', after: '`wr-date-picker`' },
+    { before: '`wr-tooltip`', after: '`wr-popover`' },
+    { before: '`wr-tree-select`', after: '`wr-tree`' },
+    { before: '`wr-bottom-sheet`', after: '`wr-drawer`' },
+    { before: '`wr-image`', after: '`wr-lightbox`' },
+    { before: '`ngwr/tag`', after: '`ngwr/badge`' },
+    { before: '`wr-animated-text`', after: '`wr-typewriter`, `wr-decrypt-text` or `wr-split-text`, per mode' },
   ];
 
   protected readonly snippets = {
-    dateEntry: `// Import paths only — WrDateAdapter, WrDateFnsAdapter, WrLuxonAdapter,
-// provideWrDateAdapter and WR_DATE_LOCALE all keep their names.
-- import { provideWrDateAdapter } from 'ngwr/date-adapter';
-- import { WrDateFnsAdapter } from 'ngwr/date-adapter-fns';
-- import { WrLuxonAdapter } from 'ngwr/date-adapter-luxon';
-+ import { provideWrDateAdapter } from 'ngwr/date';
-+ import { WrDateFnsAdapter } from 'ngwr/date/adapters/fns';
-+ import { WrLuxonAdapter } from 'ngwr/date/adapters/luxon';`,
+    update: `ng update ngwr`,
 
-    readI18n: `// \`readI18nText\` returns a Signal now. Every read needs a call.
-  protected readonly label = readI18nText('datePicker.open', 'Open calendar');
+    recover: `ng update ngwr
+git commit -am "chore: update ngwr"
+ng update ngwr --migrate-only --name=migration-v14`,
 
-- <button [attr.aria-label]="label">
-+ <button [attr.aria-label]="label()">`,
+    v15Providers: `- provideWrDensity({ defaultDensity: 'sm' }),
+- provideWrToastConfig({ duration: 6000 }),
++ provideWr(
++   withDensity({ defaultDensity: 'sm' }),
++   withToast({ duration: 6000 }),
++ ),`,
 
-    v15: `# Tokens. The first four carry the identical value in both themes, so
-# every rule renamed this way paints exactly as it did.
-- border: 1px solid var(--wr-color-light);
-+ border: 1px solid var(--wr-border-base);
-- border: 1px solid var(--wr-color-outline);
-+ border: 1px solid var(--wr-border-base);
-- color: var(--wr-color-dark);
-+ color: var(--wr-color-on-surface);
-- color: var(--wr-color-muted-text);
-+ color: var(--wr-color-on-surface-muted);
-
-# --wr-color-medium moves one step of the neutral ramp. It was a FILL and
-# the role replacing it is calibrated as TEXT.
-- color: var(--wr-color-medium);
-+ color: var(--wr-color-on-surface-muted);
-
-# The translucent border strengths are opaque steps of the ramp now, in the
-# order their names promise — the old "strong" was weaker than the outline.
-- border-color: var(--wr-color-border);
-+ border-color: var(--wr-border-strong);
-- border-color: var(--wr-color-border-strong);
-+ border-color: var(--wr-border-strong);
-- border-color: var(--wr-color-border-subtle);
-+ border-color: var(--wr-border-subtle);
-
-# Two values that were named after a removed intent and never painted one.
-- <p wrTypography tone="dark">Heading</p>
-+ <p wrTypography tone="base">Heading</p>
-- <p wrTypography tone="medium">Caption</p>
-+ <p wrTypography tone="muted">Caption</p>
-- <wr-timeline-item color="medium">Archived</wr-timeline-item>
-+ <wr-timeline-item color="neutral">Archived</wr-timeline-item>
-
-# And the BEM class each of them emits.
-- .wr-typography--tone-medium { ... }
-+ .wr-typography--tone-muted { ... }
-
-# No one-for-one replacement: pick the colour yourself.
-  <wr-btn color="secondary">Go</wr-btn>
-  <wr-tag color="dark">Archived</wr-tag>
-  var(--wr-color-secondary-ink)
-  var(--wr-color-light-lighter)`,
-
-    v15Scheme: `# Dark overrides: one declaration with both sides, no selector.
-- .hero { background: #fff; }
+    v15Scheme: `- .hero { background: #fff; }
 - [data-theme='dark'] .hero { background: #0b1120; }
 + .hero { background: light-dark(#fff, #0b1120); }
 
 - .panel {
--   --app-panel: var(--wr-color-gray-100);
--   @include theme.dark { --app-panel: var(--wr-color-gray-800); }
+-   color: #111;
+-   @include theme.dark { color: #eee; }
 - }
-+ .panel { --app-panel: light-dark(var(--wr-color-gray-100), var(--wr-color-gray-800)); }
++ .panel { color: light-dark(#111, #eee); }
 
-# Forcing a scheme: color-scheme, on the root or on any subtree.
 - <html data-theme="dark">
-+ <html style="color-scheme: dark">
-- <section data-theme="dark">…</section>
-+ <section style="color-scheme: dark">…</section>
++ <html style="color-scheme: dark">`,
 
-# The provider. WrTheme needs none; its options moved to a provideWr()
-# feature, which also creates the service at boot — what applied 'dark'
-# before anything injected it.
-- provideWrTheme({ defaultMode: 'dark', attribute: 'data-mode' }),
-+ provideWr(withTheme({ defaultMode: 'dark' })),
-
-# Channels: mix toward transparent, the alpha becomes the percentage.
-- box-shadow: 0 0 0 4px rgba(var(--wr-color-primary-rgb), 0.2);
-+ box-shadow: 0 0 0 4px color-mix(in srgb, var(--wr-color-primary) 20%, transparent);
-- background: rgba(var(--wr-color-backdrop-rgb), 0.45);
-+ background: color-mix(in srgb, var(--wr-color-backdrop) 45%, transparent);
-- background: rgba(var(--wr-color-light-rgb), 0.4);
-+ background: color-mix(in srgb, var(--wr-border-base) 40%, transparent);`,
-
-    v15Paths: `- import { WrBarChart } from 'ngwr/bar-chart';
-+ import { WrBarChart } from 'ngwr/charts/bar-chart';
-- import { WrAurora } from 'ngwr/aurora';
-+ import { WrAurora } from 'ngwr/bits/aurora';
-
-- @use 'ngwr';
-+ @use 'ngwr/theme';
-+ @use 'ngwr/charts/bar-chart';
-+ @use 'ngwr/bits/aurora';`,
-    v15Sortable: `# The entry point moved, both specifiers.
-- import { WrSortableList } from 'ngwr/drag-drop';
+    v15Sortable: `- import { WrSortableList } from 'ngwr/drag-drop';
 + import { WrSortableList, WrSortableItem } from 'ngwr/sortable-list';
-- @use 'ngwr/drag-drop';
-+ @use 'ngwr/sortable-list';
 
-# And the row moved into your template.
-  <wr-sortable-list [(items)]="rows" (reorder)="onReorder($event)">
+  <wr-sortable-list [(items)]="rows">
 -   <ng-template let-row let-i="index">
--     <div class="row">{{ i + 1 }}. {{ row.label }}</div>
+-     <div>{{ i + 1 }}. {{ row.label }}</div>
 -   </ng-template>
 +   @for (row of rows(); track row.id; let i = $index) {
 +     <wr-sortable-item>{{ i + 1 }}. {{ row.label }}</wr-sortable-item>
 +   }
-  </wr-sortable-list>
+  </wr-sortable-list>`,
 
-# imports: [] takes the new component too.
-- imports: [WrSortableList]
-+ imports: [WrSortableList, WrSortableItem]`,
+    v15Removed: `# Breakpoints
+- protected readonly isMd = inject(WrMedia).matches('md');
++ protected readonly isMd = toSignal(
++   inject(BreakpointObserver).observe('(min-width: 768px)').pipe(map(s => s.matches)),
++   { initialValue: false },
++ );
 
-    v15Icons: `# Lucide: the import path is the whole change.
-- import { lucideIcons } from 'ngwr/icon/adapters/lucide';
-+ import { lucideIcons } from 'ngwr/icon';
-
-# Feather: its own SVG files, through svgIcon().
-- import featherSource from 'feather-icons/dist/icons.json';
-- import { featherIcons } from 'ngwr/icon/adapters/feather';
+# Feather
+# needs "loader": { ".svg": "text" } and declare module '*.svg?raw'
 - provideWrIcons(featherIcons({ plus: featherSource.plus }));
 + import plusSvg from 'feather-icons/dist/icons/plus.svg?raw';
-+ import { svgIcon } from 'ngwr/icon';
 + provideWrIcons([svgIcon('plus', plusSvg)]);`,
 
-    v15Removed: `# The squircle directive. Deprecated in v14, gone in v15.
-- import { WrSquircle } from 'ngwr/squircle';
-- <wr-btn wrSquircle [radius]="14">Save</wr-btn>
-+ <wr-btn shape="squircle">Save</wr-btn>
-# …or, on anything that is not an ngwr component:
-+ @use 'ngwr/theme';
-+ .card { @include theme.smooth-br(16px); }
-
-# The action sheet. It was a drawer with three inputs set — write the drawer.
-- <wr-action-sheet [(open)]="open" [actions]="actions" (action)="pick($event)" />
-+ <wr-drawer [(open)]="open" position="bottom" rounded>
-+   @for (a of actions; track a.id) {
-+     <wr-btn block (click)="pick(a)">{{ a.label }}</wr-btn>
-+   }
-+ </wr-drawer>
-
-# The drawer's grab handle, and the swipe it gated. Usually just delete it.
-- <wr-drawer position="bottom" showHandle>…</wr-drawer>
-+ <wr-drawer position="bottom">…</wr-drawer>`,
-
-    v15Validation: `# The provider, its token and the built-in English are gone.
-- import { provideWrFormErrors } from 'ngwr/form';
-- provideWrFormErrors({ required: 'Please fill this in.' }),
-
-# One rule, one sentence: put it on the validator.
-- required(path.email);
+    v15Validation: `# On one rule
 + required(path.email, { message: 'Please fill this in.' });
 
-# Every field, every locale: put it in your own catalog. The error payload
-# fills the placeholders, and the date picker reads its refusals from here too.
+# Or for every field, date picker included, in your own catalog
 + provideWrI18nStaticLoader({
 +   en: {
 +     validation: {
@@ -231,284 +307,24 @@ export default class MigrationPageComponent {
 +       dateFilter: 'This date is not available.',
 +     },
 +   },
-+ }),
++ }),`,
 
-# One field, its own sentence: project it, as before.
-+ <wr-form-error key="required">Please fill this in.</wr-form-error>`,
-
-    v15Config: `# The entry point is gone, with everything it exported.
-- import { provideWrConfig } from 'ngwr/config';
-- provideWrConfig({ button: { size: 'sm' }, select: { rounded: true } }),
-
-# Bind the input wherever you want a value other than its default.
-+ <wr-btn size="sm">Save</wr-btn>
-+ <wr-select rounded>…</wr-select>`,
-
-    v15Media: `# The entry point is gone, with everything it exported.
-- import { WrMedia } from 'ngwr/media';
-- protected readonly isMd = inject(WrMedia).matches('md');
-
-# The CDK observes the same query, and toSignal makes it a signal.
-+ import { BreakpointObserver } from '@angular/cdk/layout';
-+ import { toSignal } from '@angular/core/rxjs-interop';
-+ import { map } from 'rxjs';
-+ protected readonly isMd = toSignal(inject(BreakpointObserver).observe('(min-width: 768px)').pipe(map(s => s.matches)), { initialValue: false });`,
-
-    v15Sheets: `# The provider, its token, the helper and the config type are gone.
-- import { provideWrResponsiveOverlays } from 'ngwr/overlay';
-- provideWrResponsiveOverlays({ breakpoint: 768 }),
-
-# ngwr/overlay has no stylesheet any more: it held only the sheet.
-- @use 'ngwr/overlay';
-
-# The per-overlay switch is gone too. Delete it: the panel floats on every screen.
-- <wr-select responsive [(value)]="size">…</wr-select>
-+ <wr-select [(value)]="size">…</wr-select>
-- this.dialog.open(EditProfile, { responsive: true });
-+ this.dialog.open(EditProfile);
-
-# A sheet on phones is a bottom drawer you open yourself.
-+ <wr-drawer position="bottom" rounded [(open)]="filtersOpen">…</wr-drawer>`,
-
-    v15Dates: `# Both entry points are gone, with everything they exported.
-- import { ru } from 'date-fns/locale/ru';
-- import { provideWrDateFnsAdapter } from 'ngwr/date/adapters/fns';
-- provideWrDateFnsAdapter({ dateFnsLocale: ru }),
-- import { provideWrLuxonAdapter } from 'ngwr/date/adapters/luxon';
-- provideWrLuxonAdapter({ locale: 'ru' }),
-
-# The native adapter needs no package and no call: it follows LOCALE_ID.
-# Pin a locale only where that is not the one you want.
-+ import { provideWr } from 'ngwr';
-+ import { withDates } from 'ngwr/date';
-+ provideWr(withDates({ locale: 'ru' })),
-
-# Or keep your date library, behind an adapter of your own.
-+ import { WrDateAdapter } from 'ngwr/date';
-+ @Service()
-+ export class AppDateAdapter extends WrDateAdapter<Date> { /* the abstract members */ }
-+ provideWr(withDates({ adapter: AppDateAdapter })),`,
-
-    v15Markdown: `# The entry point is gone, with everything it exported.
-- import { WrMarkdown, provideWrMarkdownHighlighter } from 'ngwr/markdown';
-- provideWrMarkdownHighlighter(highlight),
-- @use 'ngwr/markdown';
-
-# The editor reads and writes one shape: the document as a WrEditorJson tree.
-- <wr-editor format="markdown" [(value)]="notes" />
-+ <wr-editor [(value)]="notes" />
-- protected readonly notes = signal<WrEditorValue>('');
-+ protected readonly notes = signal<WrEditorValue>(null);
-
-# A stored document to show: a read-only editor mounts no ProseMirror.
-- <wr-markdown [value]="notes" />
-+ <wr-editor readonly [toolbar]="false" [value]="notes" />`,
-
-    v15Overlay: `# Isolation is the default. Delete the call; nothing else changes.
-- import { provideWrOverlay } from 'ngwr/overlay';
-- provideWrOverlay(),
-
-# The service and the property it published are gone.
-- import { WrVisualViewport } from 'ngwr/platform';
-- protected readonly keyboard = inject(WrVisualViewport).bottomInset;
-- padding-bottom: var(--wr-keyboard-inset, 0px);
-
-# Read the browser's own visual viewport where you need the inset, in the
-# browser only, and again on its resize and scroll events.
-+ const vv = window.visualViewport;
-+ const inset = vv ? Math.max(0, document.documentElement.clientHeight - vv.height - vv.offsetTop) : 0;`,
-
-    v15DateDefault: `# A bare call registered what is now the default. Delete it.
-- import { provideWrDateAdapter } from 'ngwr/date';
-- provideWrDateAdapter(),
-
-# A locale or an adapter of your own is a feature of provideWr().
-- provideWrDateAdapter({ locale: 'ru' }),
-+ provideWr(withDates({ locale: 'ru' })),
-- provideWrDateAdapter({ adapter: AppDateAdapter }),
-+ provideWr(withDates({ adapter: AppDateAdapter })),
-
-# ng add takes no date adapter flag.
-- ng add ngwr --styles=theme --dateAdapter=native
-+ ng add ngwr --styles=theme`,
-
-    v15Features: `# One call, a feature per setting, each from the entry point the old
-# function came from and taking the same options.
-- import { provideWrDensity } from 'ngwr/density';
-- import { provideWrToastConfig } from 'ngwr/toast';
-- import { provideWrStorage } from 'ngwr/storage';
-- import { provideWrMeta } from 'ngwr/meta';
-- import { provideWrDateAdapter } from 'ngwr/date';
-+ import { provideWr } from 'ngwr';
-+ import { withDensity } from 'ngwr/density';
-+ import { withToast } from 'ngwr/toast';
-+ import { withStorage } from 'ngwr/storage';
-+ import { withMeta } from 'ngwr/meta';
-+ import { withDates } from 'ngwr/date';
-
-  providers: [
--   provideWrDensity({ defaultDensity: 'sm' }),
--   provideWrToastConfig({ duration: 6000 }),
--   provideWrStorage({ prefix: 'app:' }),
--   provideWrMeta({ titleTemplate: '{{ title }} · My app' }),
--   provideWrDateAdapter({ locale: 'ru-RU' }),
-+   provideWr(
-+     withDensity({ defaultDensity: 'sm' }),
-+     withToast({ duration: 6000 }),
-+     withStorage({ prefix: 'app:' }),
-+     withMeta({ titleTemplate: '{{ title }} · My app' }),
-+     withDates({ locale: 'ru-RU' }),
-+   ),
-    provideWrIcons(lucideIcons({ check: Check })),   // unchanged
-    provideWrI18n(),                                  // unchanged
-  ]
-
-# provideWrTheme() is a feature too, passed to the same provideWr() call
-# (its attribute option is gone).
-- provideWrTheme({ defaultMode: 'dark' }),
-+ withTheme({ defaultMode: 'dark' }),   // from 'ngwr/theme'`,
-
-    update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
-# One command, whatever major you are on: ng update installs the latest
-# release and applies every migration newer than the version you had, oldest
-# first. From v6 that is every migration in the collection. v10, v11 and v15
-# ship none, so there is nothing to skip — v15's changes are yours to make.
-# Never target a 7.x, 8.x or 9.x release: their schematics do not load.
-#
-# v14 rewrites its six renames and REPORTS the rest.
-# v13 only reports: it names the files, it edits nothing.
-# Read the output of both — the reports are the part that matters.
-ng update ngwr`,
-
-    recover: `# Only if an earlier ng update ngwr@9 died with
-# "exports is not defined in ES module scope".
-
-ng update ngwr                                      # skip if the latest is already installed
-# Commit that result first: ng update refuses a migration on a dirty tree too.
-ng update ngwr --migrate-only --name=migration-v9   # the step the range skipped`,
-
-    recoverV14: `# Only if an ng update ngwr on 14.5.0 or earlier hung in the v14 migration
-# and had to be killed.
-
-ng update ngwr                                       # skip if the latest is already installed
-# Commit that result first: ng update refuses a migration on a dirty tree too.
-ng update ngwr --migrate-only --name=migration-v14   # the step the hang skipped`,
-
-    v14Dates: `// A named format round-trips now. Nothing to change if you only
-// bind [(value)] — this is about what happens when a user TYPES.
-
-  <wr-date-picker [(value)]="d" format="shortDate" />
-
-- // de-DE: field shows 15.3.2026, user retypes it, model becomes 1 Jan 2001
-+ // de-DE: field shows 15.3.2026, user retypes it, model is 15 March 2026
-
-- // Unreadable input used to commit whatever new Date() made of it
-+ // Unreadable input now returns null and leaves the committed value alone
-
-// If you relied on new Date()'s leniency, name the shape you accept:
-+ <wr-date-picker [(value)]="d" format="yyyy-MM-dd" />
-
-// Also: MMMM declines beside a day token (ru "15 марта", not "15 март"),
-// the \`a\` token emits the locale's marker (ja 午後, ar م), and every Intl
-// call pins calendar: 'gregory' — so a th-TH app prints 2026, not 2569.`,
-
-    v13: `<!-- The binding is unchanged — the id just lands somewhere else. -->
-  <wr-checkbox id="agree">I agree</wr-checkbox>
-
-<!-- A selector anchored to the HOST stops matching, and nothing says so. -->
-- ::ng-deep wr-checkbox#agree { margin: 0; }
-+ ::ng-deep #agree { margin: 0; }              <!-- the inner input: the 16px tick -->
-+ ::ng-deep wr-checkbox:has(#agree) { … }      <!-- …or the whole row, if that is what you meant -->
-
-// Same shape in TypeScript and in a test locator.
-- document.querySelector('wr-checkbox#agree')
-+ document.getElementById('agree')   // the native input, as the input always documented
-
-<!-- The groups are NOT affected — they keep their host id. -->
-  wr-checkbox-group#filters { … }`,
-
-    v14Renames: `<!-- The size input matches the other twenty-three components. -->
-- <input wrInput wrSize="lg" />
-+ <input wrInput size="lg" />
-
-<!-- One dismiss spelling. wr-drawer, WrDrawerOptions and -->
-<!-- WrDialogOptions already said closable; wr-alert was the outlier. -->
-- <wr-alert type="danger" closeable />
-+ <wr-alert type="danger" closable />
-
-<!-- Table and pagination now use one word per concept. -->
-- <wr-table [totalItems]="count" [(page)]="page" />
-+ <wr-table [total]="count" [(page)]="page" />
-- <wr-pagination [total]="count" [(currentPage)]="page" />
-+ <wr-pagination [total]="count" [(page)]="page" />
-- <wr-pagination [currentPage]="p()" (currentPageChange)="p.set($event)" />
-+ <wr-pagination [page]="p()" (pageChange)="p.set($event)" />
-
-<!-- The only is-prefixed boolean in the library, against thirty-nine bare ones. -->
-- <button wr-btn loading [isDisabledWhenLoading]="false">Save</button>
-+ <button wr-btn loading [disabledWhenLoading]="false">Save</button>
-
-// The window chrome finishes the density rename v8 started.
-- manager.open(PanelComponent, { chromeSize: 'compact' })
-+ manager.open(PanelComponent, { chromeSize: 'sm' })
-- .wr-window--chrome-compact { … }
-+ .wr-window--chrome-sm { … }`,
-
-    v14: `// The loading bar no longer subscribes to the router on its own.
-// Without this it still works for start() / complete() and never moves
-// for navigation — nothing throws, which is what makes it worth checking.
-providers: [
+    v14: `providers: [
   provideRouter(routes),
-  provideWrLoadingBarRouter(),   // from 'ngwr/loading-bar/router'
++   provideWrLoadingBarRouter(),
 ]
 
-// A tab carrying routerLink needs the adapter on the strip.
-// This half DOES throw, so your build finds it for you.
-- imports: [WrTabs, WrTab]
-+ imports: [WrTabs, WrTab, WrTabsRouting]   // from 'ngwr/tabs/router'
 - <wr-tabs>
 + <wr-tabs wrTabsRouting>
 
-// The pagination range is one template now, not a word in the middle.
 - pagination: { of: 'von' }
-+ pagination: { range: '{{from}}–{{to}} von {{total}}' }`,
++ pagination: {
++   range: '{{from}}–{{to}} von {{total}}',
++   compact: '{{current}} / {{total}}',
++ }`,
 
-    checkbox: `<!-- Inside <wr-checkbox-group>: the identity input was renamed. -->
-- <wr-checkbox value="autosave">Autosave</wr-checkbox>
-+ <wr-checkbox checkboxValue="autosave">Autosave</wr-checkbox>
-
-<!-- Standalone: the boolean form value is the checked model. -->
-- <wr-checkbox [(ngModel)]="agree">I agree</wr-checkbox>
-+ <wr-checkbox [(checked)]="agree">I agree</wr-checkbox>
-
-<!-- The group itself keeps its own value input — do not rename it. -->
-  <wr-checkbox-group [(value)]="features">…</wr-checkbox-group>`,
-
-    lucide: `// Icon names are now registered VERBATIM — no kebab-casing.
-// A camelCase key used to register as 'chevron-down'; now it stays 'chevronDown'.
-- provideWrIcons(lucideIcons({ chevronDown: ChevronDown }))   // <wr-icon name="chevron-down">
-+ provideWrIcons(lucideIcons({ 'chevron-down': ChevronDown })) // keeps <wr-icon name="chevron-down">
-
-// …or leave the key and update the usages instead:
-+ provideWrIcons(lucideIcons({ chevronDown: ChevronDown }))   // <wr-icon name="chevronDown">`,
-
-    density: `// Provider
-- provideWrDensity({ defaultDensity: 'comfortable' })
-+ provideWrDensity({ defaultDensity: 'lg' })`,
-
-    densityTpl: `<!-- Directive + selector -->
-- <aside wrDensity="compact">…</aside>
-+ <aside wrDensity="sm">…</aside>
-
-- [data-wr-density='comfortable'] { … }
-+ [data-wr-density='lg'] { … }`,
-
-    removed: `<!-- WrReveal — removed, no replacement. Drop the directive + its inputs. -->
-- <div wrReveal [threshold]="0.5">…</div>
-+ <div>…</div>
-
-<!-- WrScrambleText — removed. Use <wr-decrypt-text> (or plain text). -->
-- <wr-scramble-text>Hover me</wr-scramble-text>
-+ <wr-decrypt-text text="Hover me" />`,
+    v13: `- wr-checkbox#agree { margin: 0; }
++ #agree { margin: 0; }                  /* the input */
++ wr-checkbox:has(#agree) { margin: 0; }  /* the whole row */`,
   };
 }
