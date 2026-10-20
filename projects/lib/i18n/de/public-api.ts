@@ -360,6 +360,9 @@ export const wrDe: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Seitenleiste',
+    containsCurrent: 'enthält die aktuelle Seite',
+    subpages: 'Unterseiten von {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Wird geladen',

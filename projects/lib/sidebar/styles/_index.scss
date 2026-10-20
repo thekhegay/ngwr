@@ -4,348 +4,409 @@
 //
 // v15 removed the `@use 'ngwr'` umbrella, which is what had been covering these:
 // a consumer now writes one `@use` per component they place, and never learns
-// about the ones a component places INSIDE itself. `@use 'ngwr/date-picker'`
-// alone gave a date field with a raw browser input — grey, square, 2px inset —
-// and `@use 'ngwr/table'` a table with unstyled checkboxes and pager. Nothing
-// says so: the component renders, the markup is right, and no build, console or
-// gate has an opinion about a missing rule.
-//
-// Sass deduplicates `@use` within a compilation, so an app that also loads one of
-// these by hand still emits it once.
+// about the ones a component places INSIDE itself. Sass deduplicates `@use`
+// within a compilation, so an app that also loads one of these by hand still
+// emits it once.
 @use '../../icon/styles' as icon-styles; // WrIcon
 
 .wr-sidebar {
   // The outer inset, what `--wr-dropdown-padding` is to a menu. Every row paints
-  // its hover and active tint across the host's full width, and at 0 that tint
-  // met whatever frames the nav: the bordered card of a demo, the border of a
-  // `wr-layout-sider`, which pads nothing either. 8px on every side keeps each
-  // tint, nested rows included, off the frame in both directions, and leaves an
-  // outset focus ring room inside a sider that clips (`overflow: hidden`). Where
-  // the container already provides the inset, set it to 0 on `.wr-sidebar`, not
-  // on the container: this declaration shadows anything inherited.
+  // its hover and current tint across the host's full width, and at 0 that tint
+  // met whatever frames the nav. Where the container already provides the inset,
+  // set it to 0 on `.wr-sidebar`, not on the container: this declaration shadows
+  // anything inherited.
   --wr-sidebar-padding: var(--wr-space-sm);
   --wr-sidebar-font-family: var(--wr-font-family-base);
-  --wr-sidebar-inner-gap: var(--wr-space-xs);
-  --wr-sidebar-entry-gap: var(--wr-space-sm);
-  --wr-sidebar-entry-padding-y: var(--wr-space-sm);
-  --wr-sidebar-entry-padding-x: var(--wr-space-md);
-  --wr-sidebar-entry-radius: var(--wr-border-radius-sm);
-  --wr-sidebar-entry-font-size: var(--wr-text-sm);
-  --wr-sidebar-entry-font-weight: var(--wr-font-weight-semibold);
-  --wr-sidebar-entry-line-height: var(--wr-text-sm-leading);
-  --wr-sidebar-group-toggle-gap: var(--wr-space-sm);
-  --wr-sidebar-group-toggle-padding-y: var(--wr-space-sm);
-  --wr-sidebar-group-toggle-padding-x: var(--wr-space-md);
-  --wr-sidebar-group-toggle-radius: var(--wr-border-radius-sm);
-  --wr-sidebar-group-toggle-font-size: var(--wr-text-sm);
-  --wr-sidebar-group-toggle-font-weight: var(--wr-font-weight-semibold);
-  --wr-sidebar-group-toggle-line-height: var(--wr-text-sm-leading);
-  --wr-sidebar-title-font-size: var(--wr-text-sm);
-  --wr-sidebar-title-font-weight: var(--wr-font-weight-semibold);
-  --wr-sidebar-list-margin-top: var(--wr-space-xs);
-  --wr-sidebar-list-margin-bottom: var(--wr-space-sm);
-  --wr-sidebar-list-margin-inline-start: var(--wr-space-sm);
-  --wr-sidebar-list-gap: var(--wr-space-xs);
-  --wr-sidebar-list-border: var(--wr-border-base);
-  --wr-sidebar-item-gap: var(--wr-space-sm);
-  --wr-sidebar-item-padding-y: var(--wr-space-sm);
-  --wr-sidebar-item-padding-x: var(--wr-space-md);
-  --wr-sidebar-item-radius: var(--wr-border-radius-sm);
-  --wr-sidebar-item-font-size: var(--wr-text-sm);
-  --wr-sidebar-item-font-weight: var(--wr-font-weight-medium);
-  --wr-sidebar-item-line-height: var(--wr-text-sm-leading);
-  --wr-sidebar-badge-padding-y: 0.125rem;
-  --wr-sidebar-badge-padding-x: var(--wr-space-sm);
-  --wr-sidebar-badge-radius: var(--wr-border-radius-sm);
-  --wr-sidebar-badge-font-size: var(--wr-text-xs);
+  // 2px between rows and above a nested list, 6px under an open group. 2px is
+  // below the scale's first step and 6px falls between xs and sm, so both stay
+  // literal.
+  --wr-sidebar-gap: 0.125rem;
+  --wr-sidebar-group-gap: 0.375rem;
+  // 6px around a 20px line is a 32px row; a second line makes it 48px. Under a
+  // coarse pointer the block below makes it 44px.
+  --wr-sidebar-row-height: 2rem;
+  --wr-sidebar-row-padding-y: 0.375rem;
+  --wr-sidebar-row-padding-x: var(--wr-space-sm);
+  --wr-sidebar-row-radius: var(--wr-border-radius-sm);
+  --wr-sidebar-row-font-size: var(--wr-text-sm);
+  --wr-sidebar-row-line-height: var(--wr-text-sm-leading);
+  --wr-sidebar-icon-size: 1rem;
+  --wr-sidebar-icon-gap: var(--wr-space-sm);
+  // Between the badge and the subtitle, and between the count, dot and arrow:
+  // 6px, between xs and sm, from the design.
+  --wr-sidebar-meta-gap: 0.375rem;
+  --wr-sidebar-subtitle-font-size: var(--wr-text-xs);
+  --wr-sidebar-subtitle-line-height: var(--wr-text-xs-leading);
+  // 9px on a 12px line with 4px corners: a mark on the line under the title,
+  // smaller than any text it sits beside. The count wears the same chip.
+  --wr-sidebar-badge-padding-x: var(--wr-space-xs);
+  --wr-sidebar-badge-radius: 0.25rem;
+  --wr-sidebar-badge-font-size: 0.5625rem;
+  --wr-sidebar-badge-line-height: 0.75rem;
   --wr-sidebar-badge-font-weight: var(--wr-font-weight-semibold);
-  --wr-sidebar-badge-line-height: var(--wr-text-xs-leading);
-  --wr-sidebar-badge-letter-spacing: var(--wr-tracking-wide);
+  // Quieter than the muted text and still 3:1 on the surface and on the hover
+  // fill, in both schemes: 3.6:1 and 3.3:1 in light, 4.3:1 and 4.0:1 in dark.
+  --wr-sidebar-chevron: color-mix(in srgb, var(--wr-color-on-surface-muted) 70%, transparent);
+  --wr-sidebar-chevron-size: 0.875rem;
+  // One light guide per nested list, the same colour on every level. The bar
+  // on the current page takes the guide's own width.
+  --wr-sidebar-guide: var(--wr-border-base);
+  --wr-sidebar-guide-width: 1px;
+  --wr-sidebar-guide-gap: var(--wr-space-sm);
 
   display: block;
   padding: var(--wr-sidebar-padding);
   font-family: var(--wr-sidebar-font-family);
   color: var(--wr-color-on-surface);
 
+  // A touch pointer gets 44px rows and a 44px split arrow. Keyed to the pointer,
+  // not to a container: a drawer on a laptop keeps the 32px a mouse needs.
+  @media (pointer: coarse) {
+    --wr-sidebar-row-height: 2.75rem;
+    --wr-sidebar-row-padding-y: 0.75rem;
+    --wr-sidebar-chevron-size: 1rem;
+  }
+
+  &__list,
   &__inner {
     display: flex;
     flex-direction: column;
-    gap: var(--wr-sidebar-inner-gap);
+    gap: var(--wr-sidebar-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  // A nested list draws its guide as its own border: under the parent's first
+  // letter, so 16px a level, or under the middle of the parent's icon, which
+  // lines the children up with the parent's title.
+  &__list {
+    margin-block: var(--wr-sidebar-gap) var(--wr-sidebar-group-gap);
+    margin-inline-start: calc(var(--wr-sidebar-row-padding-x) - var(--wr-sidebar-guide-width));
+    padding-inline-start: var(--wr-sidebar-guide-gap);
+    border-inline-start: var(--wr-sidebar-guide-width) solid var(--wr-sidebar-guide);
+
+    &--under-icon {
+      margin-inline-start: calc(
+        var(--wr-sidebar-row-padding-x) + var(--wr-sidebar-icon-size) / 2 - var(--wr-sidebar-guide-width)
+      );
+    }
+  }
+
+  // The 6px under an open group spaces it from the row after it. The last group
+  // of a list has no such row, and the margin would stack onto its parent's.
+  &__group:last-child > &__group-wrap > &__group-body > &__list {
+    margin-block-end: 0;
+  }
+
+  &__group-wrap {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows var(--wr-duration-slow) var(--wr-ease-out);
+  }
+
+  &__group-body {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  &__group--collapsed > &__group-wrap {
+    grid-template-rows: 0fr;
+  }
+
+  // Every row is one grid. Line 1: icon, title, then the count, dot and arrow.
+  // Line 2: the badge and the subtitle, from the title's column to the edge, so
+  // the badge's box starts where the title's text does.
+  &__row {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    width: 100%;
+    min-height: var(--wr-sidebar-row-height);
+    margin: 0;
+    padding: var(--wr-sidebar-row-padding-y) var(--wr-sidebar-row-padding-x);
+    border: 0;
+    border-radius: var(--wr-sidebar-row-radius);
+    background: transparent;
+    color: var(--wr-color-on-surface);
+    // A `<button>` inherits no type: the UA's 13.33px and `line-height: normal`
+    // made a group row shorter than the link beside it.
+    font: inherit;
+    font-size: var(--wr-sidebar-row-font-size);
+    font-weight: var(--wr-font-weight-regular);
+    line-height: var(--wr-sidebar-row-line-height);
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background var(--wr-transition-base),
+      color var(--wr-transition-base);
+
+    // Links and buttons only: a disabled row is a span and does nothing.
+    &:where(a, button):hover {
+      background: var(--wr-color-hover);
+
+      // color-ok: the grey chip IS the hover fill, so it steps up one on a
+      // hovered row to stay a chip; the state is the row's fill, not the chip.
+      .wr-sidebar__badge--neutral,
+      .wr-sidebar__count {
+        background: var(--wr-color-fill-strong);
+      }
+    }
+
+    &--group {
+      font-weight: var(--wr-font-weight-medium);
+
+      &.wr-sidebar__row--level-1 {
+        font-weight: var(--wr-font-weight-semibold);
+      }
+    }
+
+    &--active {
+      color: var(--wr-color-primary-ink);
+      font-weight: var(--wr-font-weight-semibold);
+      cursor: default;
+
+      .wr-sidebar__icon {
+        color: var(--wr-color-primary);
+      }
+
+      .wr-sidebar__subtitle {
+        color: inherit;
+      }
+    }
+
+    // color-ok: level 1 has no guide to carry the bar, so the current page there
+    // takes the tint, a lightness step against untinted rows (1.17:1 light,
+    // 1.12:1 dark), on top of the weight `&--active` sets. Its chips take the
+    // surface rather than a tint on the tint.
+    &--active.wr-sidebar__row--level-1 {
+      background: var(--wr-color-primary-soft);
+
+      .wr-sidebar__badge,
+      .wr-sidebar__count {
+        background: var(--wr-color-surface);
+      }
+    }
+
+    // color-ok: an ancestor of the current page only deepens its icon and arrow
+    // from the muted tones to full ink, a step in lightness. The cue is on the
+    // current row itself (weight and bar), and a collapsed holder draws a dot,
+    // in the template, and says "contains the current page".
+    &--ancestor,
+    &--holds-active {
+      .wr-sidebar__icon,
+      .wr-sidebar__chevron {
+        color: var(--wr-color-on-surface);
+      }
+
+      & + .wr-sidebar__toggle {
+        color: var(--wr-color-on-surface);
+      }
+    }
+
+    // color-ok: muted text against full ink, a lightness step (4.6:1 against
+    // 15:1 in light), on a row that is plain text: no hover, no tab stop, and a
+    // badge whose word says why (`Soon`).
+    &--disabled {
+      color: var(--wr-color-on-surface-muted);
+      cursor: default;
+    }
+  }
+
+  // Below level 1: no tint and no hover fill, but a bar ON the guide, as wide
+  // as the guide and as tall as the row. The list's padding plus the guide is
+  // exactly how far the guide sits behind the row's start.
+  &__list &__row--active {
+    background: transparent;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: calc(-1 * (var(--wr-sidebar-guide-gap) + var(--wr-sidebar-guide-width)));
+      inline-size: var(--wr-sidebar-guide-width);
+      background: var(--wr-color-primary);
+    }
   }
 
   &__icon {
-    flex: 0 0 auto;
+    --wr-icon-size: var(--wr-sidebar-icon-size);
+
+    grid-area: 1 / 1;
+    align-self: center;
+    margin-inline-end: var(--wr-sidebar-icon-gap);
     color: var(--wr-color-on-surface-muted);
     transition: color var(--wr-transition-base);
   }
 
-  // Direct-link entry (top level)
-  &__entry {
+  // One line, then an ellipsis. The full text stays in the DOM, so it is the
+  // accessible name, and becomes a tooltip when it is cut.
+  &__title {
+    grid-area: 1 / 2;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &__meta {
+    grid-area: 2 / 2 / 3 / -1;
     display: flex;
     align-items: center;
-    gap: var(--wr-sidebar-entry-gap);
-    padding: var(--wr-sidebar-entry-padding-y) var(--wr-sidebar-entry-padding-x);
-    border-radius: var(--wr-sidebar-entry-radius);
-    color: var(--wr-color-on-surface);
-    font-size: var(--wr-sidebar-entry-font-size);
-    font-weight: var(--wr-sidebar-entry-font-weight);
-    line-height: var(--wr-sidebar-entry-line-height);
-    text-decoration: none;
+    gap: var(--wr-sidebar-meta-gap);
+    min-width: 0;
+    min-height: var(--wr-sidebar-subtitle-line-height);
+  }
+
+  &__subtitle {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--wr-color-on-surface-muted);
+    font-size: var(--wr-sidebar-subtitle-font-size);
+    font-weight: var(--wr-font-weight-regular);
+    line-height: var(--wr-sidebar-subtitle-line-height);
+  }
+
+  &__end {
+    grid-area: 1 / 3;
+    display: flex;
+    align-items: center;
+    gap: var(--wr-sidebar-meta-gap);
+    height: var(--wr-sidebar-row-line-height);
+    margin-inline-start: var(--wr-space-sm);
+  }
+
+  &__badge,
+  &__count {
+    flex: none;
+    padding: 0 var(--wr-sidebar-badge-padding-x);
+    border-radius: var(--wr-sidebar-badge-radius);
+    background: var(--wr-color-fill);
+    color: var(--wr-color-on-surface-muted);
+    font-size: var(--wr-sidebar-badge-font-size);
+    font-weight: var(--wr-sidebar-badge-font-weight);
+    line-height: var(--wr-sidebar-badge-line-height);
+    white-space: nowrap;
+    transition: background var(--wr-transition-base);
+  }
+
+  &__count {
+    min-width: 1rem;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  // The badge LABELS, it does not report: the word is the meaning and the tone
+  // repeats it, the same decision `wr-tag` and `wr-badge` make.
+  &__badge {
+    // color-ok: the word (`New`) is the meaning; the tone repeats it.
+    &--primary {
+      background: var(--wr-color-primary-soft);
+      color: var(--wr-color-primary-ink);
+    }
+
+    // color-ok: the word (`Deprecated`) is the meaning; the tone repeats it.
+    &--danger {
+      background: var(--wr-color-danger-soft);
+      color: var(--wr-color-danger-ink);
+    }
+  }
+
+  &__dot {
+    flex: none;
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 50%;
+    background: var(--wr-color-primary);
+  }
+
+  // Points at the inline end while closed and turns down when open. `rotate`
+  // has no logical form, so right-to-left mirrors the closed arrow itself.
+  &__chevron {
+    flex: none;
+    width: var(--wr-sidebar-chevron-size);
+    height: var(--wr-sidebar-chevron-size);
+    color: var(--wr-sidebar-chevron);
+    transition:
+      transform var(--wr-transition-base),
+      color var(--wr-transition-base);
+  }
+
+  [aria-expanded='true'] &__chevron {
+    transform: rotate(90deg);
+  }
+
+  [aria-expanded='false']:dir(rtl) &__chevron {
+    transform: scaleX(-1);
+  }
+
+  // A group that is also a page: the title is a link and the arrow a button of
+  // its own, as tall as a row and square.
+  &__split {
+    position: relative;
+
+    > .wr-sidebar__row {
+      padding-inline-end: calc(var(--wr-sidebar-row-height) + var(--wr-space-sm));
+    }
+  }
+
+  &__toggle {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    display: grid;
+    place-items: center;
+    width: var(--wr-sidebar-row-height);
+    height: var(--wr-sidebar-row-height);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--wr-sidebar-row-radius);
+    background: transparent;
+    color: var(--wr-sidebar-chevron);
+    cursor: pointer;
     transition:
       background var(--wr-transition-base),
       color var(--wr-transition-base);
 
     &:hover {
-      background: var(--wr-color-hover);
-
-      .wr-sidebar__icon {
-        color: var(--wr-color-primary);
-      }
-    }
-
-    // color-ok: the resting entry paints no background, so the active one
-    // differs in LIGHTNESS as well as hue — a filled tint, 1.17:1 light and
-    // 1.12:1 dark against the surface under it, measured in the built showcase.
-    // Weak, and it is the whole cue: a top-level entry has no rail for the bar a
-    // nested `__item` draws, and `pointer-events: none` paints nothing.
-    &--active {
-      color: var(--wr-color-primary-ink);
-      background: var(--wr-color-primary-soft);
-      pointer-events: none;
-
-      .wr-sidebar__icon {
-        color: var(--wr-color-primary);
-      }
-
-      // The badge measured 3.97:1 on the active row. Its own outline wash over
-      // the primary tint is what broke the pairing: `-ink` is calibrated against
-      // `-soft` ITSELF, so the fix is to let the row's tint show through and
-      // inherit the colour that was calibrated for it.
-      .wr-sidebar__badge {
-        color: inherit;
-        background: transparent;
-      }
-    }
-
-    // ONE dimming step, not two. This used to carry `--wr-disabled-opacity` on
-    // top of the muted colour, and the two compounded: 2.38:1 in light, 3.43:1
-    // in dark, against 4.63 and 7.33 for the colour alone. A nav row is TEXT a
-    // reader is meant to read — "Tokens (soon)" is information, not the label
-    // of a dead control — and the muted role already separates it from the
-    // full-strength rows around it, which are `--wr-color-on-surface`. The
-    // double dimming went unmeasured because every entry in the docs demo
-    // pointed at the same route, so the row rendered under the ACTIVE rule and
-    // this one never painted.
-    &--disabled {
-      color: var(--wr-color-on-surface-muted);
-      pointer-events: none;
-    }
-  }
-
-  // Expandable group
-  &__group {
-    display: flex;
-    flex-direction: column;
-
-    &-toggle {
-      display: flex;
-      align-items: center;
-      gap: var(--wr-sidebar-group-toggle-gap);
-      width: 100%;
-      margin: 0;
-      padding: var(--wr-sidebar-group-toggle-padding-y) var(--wr-sidebar-group-toggle-padding-x);
-      background: transparent;
-      border: 0;
-      border-radius: var(--wr-sidebar-group-toggle-radius);
+      background: var(--wr-color-fill-strong);
       color: var(--wr-color-on-surface);
-      // A `<button>` inherits no type. The UA's 13.33px and `line-height: normal`
-      // made this row 33px under the 36px link beside it, and shrank the icon and
-      // the chevron, which size from `em` — so the same type as `__entry`.
-      font: inherit;
-      font-size: var(--wr-sidebar-group-toggle-font-size);
-      font-weight: var(--wr-sidebar-group-toggle-font-weight);
-      line-height: var(--wr-sidebar-group-toggle-line-height);
-      cursor: pointer;
-      text-align: start;
-      transition: background var(--wr-transition-base);
-
-      &:hover {
-        background: var(--wr-color-fill-strong);
-
-        .wr-sidebar__icon {
-          color: var(--wr-color-primary);
-        }
-      }
     }
 
-    &-wrap {
-      display: grid;
-      grid-template-rows: 1fr;
-      transition: grid-template-rows var(--wr-duration-slow) var(--wr-ease-out);
-    }
-
-    &-body {
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      overflow: hidden;
-    }
-
-    &--collapsed .wr-sidebar__group-wrap {
-      grid-template-rows: 0fr;
+    .wr-sidebar__chevron {
+      color: inherit;
     }
   }
 
-  &__title {
-    flex: 1 1 auto;
-    font-size: var(--wr-sidebar-title-font-size);
-    font-weight: var(--wr-sidebar-title-font-weight);
+  // The comma that ends a piece of the name when another follows. INLINE, not
+  // absolute like `__sr` below: a browser spaces every block boundary, an
+  // absolutely positioned box included, so an absolute comma was read as
+  // "Guides , 14". A 1px glyph on a zero line, clipped: no width to cut a title
+  // early, no height to grow its line, and still text every accessibility tree
+  // keeps.
+  &__comma {
+    font-size: 1px;
+    line-height: 0;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
-  &__chevron {
-    flex: 0 0 auto;
-    color: var(--wr-color-on-surface-muted);
-    transition: transform var(--wr-transition-base);
-  }
-
-  &__group--collapsed &__chevron {
-    // Disclosure affordance, and it IS reading-order: the collapsed chevron
-    // should point at the trailing edge — physically right in LTR, physically
-    // left under RTL, where the group header's own label sits to its right.
-    // `rotate` has no logical form, so the RTL sign is set by the rule below.
-    // rtl-ok: transform rotation has no logical equivalent — the RTL sign is the rule below
-    transform: rotate(-90deg);
-  }
-
-  [dir='rtl'] &__group--collapsed &__chevron {
-    transform: rotate(90deg);
-  }
-
-  // Child items (inside an expanded group)
-  &__list {
-    list-style: none;
-    margin: var(--wr-sidebar-list-margin-top) 0 var(--wr-sidebar-list-margin-bottom);
-    margin-inline-start: var(--wr-sidebar-list-margin-inline-start);
+  // The count's spoken form and "contains the current page": heard, not seen.
+  &__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
     padding: 0;
-    // Literal, and paired with the `__item::before` cursor bar below: that bar
-    // is pulled back to `-0.6875rem` so its 2px covers the 1px rail this
-    // padding stands off from. Both numbers have to move together, and `inset`
-    // is out of scope for the token sweep, so neither does.
-    padding-inline-start: 0.625rem;
-    display: flex;
-    flex-direction: column;
-    gap: var(--wr-sidebar-list-gap);
-    border-inline-start: 1px solid var(--wr-sidebar-list-border);
-  }
-
-  // The list's 6px bottom margin spaces an open group from the row after it. On
-  // the LAST group there is no such row, and the margin stacked onto the host's
-  // inset: 14px under the final nested row against 8px above the first row.
-  &__group:last-child &__list {
-    margin-block-end: 0;
-  }
-
-  &__item {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: var(--wr-sidebar-item-gap);
-    // 8px around the 20px line: a 36px row, the geometry of a dropdown item. At
-    // 5px the hover and active tint sat closer to the text than anywhere else in
-    // the nav, and a badge row came out 2px taller than its neighbours.
-    padding: var(--wr-sidebar-item-padding-y) var(--wr-sidebar-item-padding-x);
-    border-radius: var(--wr-sidebar-item-radius);
-    color: var(--wr-color-on-surface);
-    font-size: var(--wr-sidebar-item-font-size);
-    font-weight: var(--wr-sidebar-item-font-weight);
-    line-height: var(--wr-sidebar-item-line-height);
-    text-decoration: none;
-    transition:
-      color var(--wr-transition-base),
-      background var(--wr-transition-base);
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0.125rem;
-      bottom: 0.125rem;
-      inset-inline-start: -0.6875rem;
-      width: 2px;
-      border-radius: 1px;
-      background: transparent;
-      transition: background var(--wr-transition-base);
-    }
-
-    &-title {
-      flex: 1 1 auto;
-    }
-
-    &:hover {
-      color: var(--wr-color-primary-ink);
-      background: color-mix(in srgb, var(--wr-color-primary) 6%, transparent);
-
-      .wr-sidebar__icon {
-        color: var(--wr-color-primary);
-      }
-    }
-
-    // color-ok: the `::before` above is transparent on every other row, so this
-    // draws a 2px bar over the group's 1px rail beside the active row — a width
-    // the rail does not have, and 4.89:1 light / 4.07:1 dark against the
-    // surface. Under `prefers-contrast: more` the rail deepens to within 1.41:1
-    // of the bar in light and 1.14:1 in dark, and the width is what is left.
-    &--active {
-      color: var(--wr-color-primary-ink);
-      background: var(--wr-color-primary-soft);
-      pointer-events: none;
-
-      // Same reasoning as the flat entry above: `-ink` on the row's own tint is
-      // the calibrated pairing, and the badge's wash is what pushed it under.
-      .wr-sidebar__badge {
-        color: inherit;
-        background: transparent;
-      }
-
-      &::before {
-        background: var(--wr-color-primary);
-      }
-
-      .wr-sidebar__icon {
-        color: var(--wr-color-primary);
-      }
-    }
-
-    // ONE dimming step, not two. This used to carry `--wr-disabled-opacity` on
-    // top of the muted colour, and the two compounded: 2.38:1 in light, 3.43:1
-    // in dark, against 4.63 and 7.33 for the colour alone. A nav row is TEXT a
-    // reader is meant to read — "Tokens (soon)" is information, not the label
-    // of a dead control — and the muted role already separates it from the
-    // full-strength rows around it, which are `--wr-color-on-surface`. The
-    // double dimming went unmeasured because every entry in the docs demo
-    // pointed at the same route, so the row rendered under the ACTIVE rule and
-    // this one never painted.
-    &--disabled {
-      color: var(--wr-color-on-surface-muted);
-      pointer-events: none;
-    }
-  }
-
-  &__badge {
-    flex: 0 0 auto;
-    // 16px line plus 2px either side is the row's own 20px line box, so a badge
-    // never makes its row taller: it inherited the row's 20px line and came out
-    // 22px, which grew `__entry` from 36px to 38px and `__item` by the same 2px.
-    padding: var(--wr-sidebar-badge-padding-y) var(--wr-sidebar-badge-padding-x);
-    // The row's corner, not a pill: the badge sits inside `__entry` / `__item`,
-    // which both read `--wr-border-radius-sm`, and a stadium nested in a 6px row
-    // reads as a foreign shape rather than a part of it.
-    border-radius: var(--wr-sidebar-badge-radius);
-    background: var(--wr-color-fill-strong);
-    color: var(--wr-color-on-surface-muted);
-    font-size: var(--wr-sidebar-badge-font-size);
-    font-weight: var(--wr-sidebar-badge-font-weight);
-    line-height: var(--wr-sidebar-badge-line-height);
-    text-transform: uppercase;
-    letter-spacing: var(--wr-sidebar-badge-letter-spacing);
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
   }
 }

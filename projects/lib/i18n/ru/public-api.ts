@@ -357,6 +357,9 @@ export const wrRu: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Боковая панель',
+    containsCurrent: 'содержит текущую страницу',
+    subpages: 'Подстраницы: {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Загрузка',

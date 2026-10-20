@@ -350,6 +350,9 @@ export const wrPt: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Barra lateral',
+    containsCurrent: 'contém a página atual',
+    subpages: 'Subpáginas de {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'A carregar',

@@ -447,6 +447,11 @@ export const wrEn: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Sidebar',
+    containsCurrent: 'contains the current page',
+    subpages: 'Sub-pages of {{title}}',
+    // Heard, never seen: it joins a row's title, badge and count into one name
+    // ("Charts, New, 18 pages"), so a frozen comma is heard on every row.
+    separator: ',',
   },
   spinner: {
     label: 'Loading',

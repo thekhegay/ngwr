@@ -367,6 +367,9 @@ export const wrHe: WrI18nCatalog = {
   },
   sidebar: {
     label: 'סרגל צד',
+    containsCurrent: 'מכיל את הדף הנוכחי',
+    subpages: 'דפי משנה של {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'טוען',

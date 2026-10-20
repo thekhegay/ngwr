@@ -344,6 +344,9 @@ export const wrEs: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Barra lateral',
+    containsCurrent: 'contiene la página actual',
+    subpages: 'Subpáginas de {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Cargando',

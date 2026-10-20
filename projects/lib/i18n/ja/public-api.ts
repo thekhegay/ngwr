@@ -348,6 +348,9 @@ export const wrJa: WrI18nCatalog = {
   },
   sidebar: {
     label: 'サイドバー',
+    containsCurrent: '現在のページを含む',
+    subpages: '{{title}} のサブページ',
+    separator: '、',
   },
   spinner: {
     label: '読み込み中',

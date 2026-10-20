@@ -469,8 +469,8 @@ export const STATES: readonly State[] = [
   {
     id: 'sidebar/item-active',
     route: `${REF}/sidebar`,
-    steps: [{ hover: demo('.wr-sidebar__item--active') }],
-    target: demo('.wr-sidebar__item--active'),
+    steps: [{ hover: demo('.wr-sidebar__row--active') }],
+    target: demo('.wr-sidebar__row--active'),
     scope: demo('.wr-sidebar'),
   },
   {

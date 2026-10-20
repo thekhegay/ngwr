@@ -6,9 +6,10 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { wrJa } from 'ngwr/i18n/ja';
 import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrIcons, svgIcon } from 'ngwr/icon';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { WrSidebarActiveOptions, WrSidebarEntry } from './public-api';
 import { WrSidebar } from './sidebar';
@@ -39,21 +40,77 @@ const ENTRIES: readonly WrSidebarEntry[] = [
   },
 ];
 
+/** Three levels, every kind of row: icon, count, subtitle, both badge tones. */
+const NESTED: readonly WrSidebarEntry[] = [
+  { title: 'Home', url: ['/'], activeOptions: { exact: true } },
+  {
+    title: 'Components',
+    icon: 'folder',
+    count: 12,
+    countLabel: '12 pages',
+    children: [
+      {
+        title: 'Form',
+        subtitle: 'Signal Forms controls',
+        count: '99+',
+        children: [
+          { title: 'Input', url: ['/input'], badge: { text: 'New', tone: 'primary' } },
+          { title: 'Editor', url: ['/editor'], badge: { text: 'Optional' }, subtitle: 'ProseMirror peer' },
+          { title: 'Signature', url: [], disabled: true, badge: { text: 'Soon' } },
+        ],
+      },
+      { title: 'Graph', url: ['/graph'], badge: { text: 'Deprecated', tone: 'danger' } },
+    ],
+  },
+];
+
 @Component({
   imports: [WrSidebar],
-  template: `<wr-sidebar [entries]="entries()" [autoExpand]="autoExpand()" [ariaLabel]="ariaLabel()" />`,
+  template: `<wr-sidebar
+    [entries]="entries()"
+    [autoExpand]="autoExpand()"
+    [autoCollapse]="autoCollapse()"
+    [ariaLabel]="ariaLabel()"
+    [defaultGroupIcon]="defaultGroupIcon()"
+    [defaultItemIcon]="defaultItemIcon()"
+  />`,
 })
 class Host {
   readonly entries = signal<readonly WrSidebarEntry[]>(ENTRIES);
   readonly autoExpand = signal(true);
+  readonly autoCollapse = signal(false);
   readonly ariaLabel = signal<string | null>(null);
+  readonly defaultGroupIcon = signal<string | null>(null);
+  readonly defaultItemIcon = signal<string | null>(null);
+}
+
+/**
+ * The text a screen reader builds a row's name from: its text nodes, with every
+ * `aria-hidden` subtree left out and a space at every element boundary, the way
+ * a browser spaces block-level pieces. A small model of the accessible-name
+ * walk, so the visible count (hidden when it has a spoken form) and the subtitle
+ * (the description, not the name) drop out exactly as they do for assistive tech.
+ * A space before a comma is folded away here; whether the real name has one is
+ * asserted on the markup, in the naming spec.
+ */
+function spoken(el: Element): string {
+  let out = '';
+  const walk = (node: Node): void => {
+    if (node.nodeType === Node.TEXT_NODE) out += node.textContent;
+    else if (node instanceof Element && node.getAttribute('aria-hidden') !== 'true') {
+      out += ' ';
+      node.childNodes.forEach(walk);
+      out += ' ';
+    }
+  };
+  el.childNodes.forEach(walk);
+  return out.replace(/\s+/g, ' ').replace(/ ,/g, ',').trim();
 }
 
 /**
  * A real `Router` is provided rather than stubbed, because what drives the
- * auto-expand is `NavigationEnd` — and the URL matching is where the bug was.
- * Icons are registered so `<wr-icon>` has something to draw; an unregistered name
- * only logs, but a spec should not depend on that.
+ * current row and the auto-expand is `NavigationEnd`, and the URL matching is
+ * where the bugs were. Icons are registered so `<wr-icon>` has something to draw.
  */
 describe('WrSidebar', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -61,32 +118,48 @@ describe('WrSidebar', () => {
 
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
   const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-sidebar')!;
-  const toggles = (): HTMLButtonElement[] => [
-    ...root().querySelectorAll<HTMLButtonElement>('.wr-sidebar__group-toggle'),
-  ];
-  const toggleFor = (title: string): HTMLButtonElement => toggles().find(button => button.textContent.includes(title))!;
+  const rows = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-sidebar__row')];
+  /** A row's visible title: the title's own text, without the hidden comma inside it. */
+  const titleOf = (row: HTMLElement): string =>
+    [...(row.querySelector('.wr-sidebar__title')?.childNodes ?? [])]
+      .filter(node => node.nodeType === Node.TEXT_NODE)
+      .map(node => node.textContent)
+      .join('')
+      .trim();
+  /** Every row whose title is exactly `title`: `Tab` must not find `Tabs`. */
+  const rowsFor = (title: string): HTMLElement[] => rows().filter(row => titleOf(row) === title);
+  const rowFor = (title: string): HTMLElement => rowsFor(title)[0];
+  /** A group's disclosure: the whole row, or the split arrow beside its link. */
+  const toggleOf = (row: HTMLElement): HTMLButtonElement =>
+    row.classList.contains('wr-sidebar__row') && row.tagName === 'BUTTON'
+      ? (row as HTMLButtonElement)
+      : row.parentElement!.querySelector<HTMLButtonElement>(':scope > .wr-sidebar__toggle')!;
+  const toggleFor = (title: string): HTMLButtonElement => toggleOf(rowFor(title));
+  const toggles = (): HTMLButtonElement[] => [...root().querySelectorAll<HTMLButtonElement>('button[aria-controls]')];
   const bodyFor = (title: string): HTMLElement =>
     root().querySelector<HTMLElement>(`#${toggleFor(title).getAttribute('aria-controls')!}`)!;
   const isOpen = (title: string): boolean => toggleFor(title).getAttribute('aria-expanded') === 'true';
-  const entryFor = (title: string): HTMLAnchorElement =>
-    [...root().querySelectorAll<HTMLAnchorElement>('.wr-sidebar__entry')].find(link =>
-      link.textContent.includes(title)
-    )!;
-  const itemFor = (title: string): HTMLAnchorElement =>
-    [...root().querySelectorAll<HTMLAnchorElement>('.wr-sidebar__item')].find(link =>
-      link.textContent.includes(title)
-    )!;
+  const isCurrent = (title: string): boolean => rowFor(title).getAttribute('aria-current') === 'page';
+
+  const settle = async (): Promise<void> => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
 
   const mount = async (extra: unknown[] = []): Promise<void> => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
         provideRouter([
+          { path: '', pathMatch: 'full', component: Page },
           { path: 'tab', component: Page },
           { path: 'table', component: Page },
           { path: 'tabs', component: Page },
           { path: 'tabs/second', component: Page },
           { path: 'input', component: Page },
+          { path: 'editor', component: Page },
+          { path: 'graph', component: Page },
         ]),
         provideWrIcons([svgIcon('folder', ICON), svgIcon('caret-forward', ICON)]),
         ...(extra as never[]),
@@ -94,302 +167,666 @@ describe('WrSidebar', () => {
     });
     router = TestBed.inject(Router);
     fixture = TestBed.createComponent(Host);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
+    await settle();
   };
 
   const navigate = async (url: string): Promise<void> => {
     await router.navigateByUrl(url);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
+    await settle();
+  };
+
+  const show = async (entries: readonly WrSidebarEntry[]): Promise<void> => {
+    fixture.componentInstance.entries.set(entries);
+    await settle();
   };
 
   beforeEach(async () => mount());
   afterEach(() => fixture.destroy());
 
-  it('is one named navigation landmark, not two nested ones', () => {
-    // The host carries `role="navigation"`; the inner wrapper used to be a
-    // `<nav>` as well, which announced the same list twice.
-    expect(host().getAttribute('role')).toBe('navigation');
-    expect(host().getAttribute('aria-label')).toBe('Sidebar');
-    expect(host().querySelector('nav')).toBeNull();
-  });
-
-  it('takes a landmark name from the consumer', () => {
-    fixture.componentInstance.ariaLabel.set('Docs sections');
-    fixture.detectChanges();
-
-    expect(host().getAttribute('aria-label')).toBe('Docs sections');
-  });
-
-  it('renders flat items as links and groups as toggles', () => {
-    expect(root().querySelectorAll('.wr-sidebar__entry').length).toBe(2);
-    expect(root().querySelectorAll('a.wr-sidebar__entry').length).toBe(1);
-    expect(toggles().length).toBe(2);
-    expect(root().querySelectorAll('.wr-sidebar__item').length).toBe(4);
-  });
-
-  it('renders a child with no route as plain text rather than a dead link', () => {
-    const disabled = root().querySelector('.wr-sidebar__item--disabled')!;
-    expect(disabled.tagName).toBe('SPAN');
-    expect(disabled.textContent).toContain('Soon');
-  });
-
-  it('renders a disabled TOP-LEVEL entry as plain text too', () => {
-    // It used to be a live `<a [routerLink]>` wearing the `--disabled` class, and
-    // that class only paints: `pointer-events: none` blocks a mouse, never the
-    // keyboard, so the entry was still a tab stop and Enter still navigated.
-    const disabled = root().querySelector('.wr-sidebar__entry--disabled')!;
-    expect(disabled.tagName).toBe('SPAN');
-    expect(disabled.textContent).toContain('Archive');
-    expect(root().querySelector('a[href="/archive"]')).toBeNull();
-  });
-
-  it('opens a group on click and closes it again', () => {
-    expect(isOpen('Data & charts')).toBe(false);
-
-    toggleFor('Data & charts').click();
-    fixture.detectChanges();
-    expect(isOpen('Data & charts')).toBe(true);
-    expect(bodyFor('Data & charts').getAttribute('inert')).toBeNull();
-
-    toggleFor('Data & charts').click();
-    fixture.detectChanges();
-    expect(isOpen('Data & charts')).toBe(false);
-  });
-
-  it('keeps a collapsed group out of the tab order', () => {
-    expect(bodyFor('Data & charts').getAttribute('inert')).toBe('');
-  });
-
-  it('seeds a defaultOpen group', () => {
-    expect(isOpen('Forms')).toBe(true);
-  });
-
-  it('does not re-open a defaultOpen group the user collapsed', () => {
-    // Any later change to `entries` — a badge count, a filtered list — used to
-    // re-run the seeding and undo the collapse.
-    toggleFor('Forms').click();
-    fixture.detectChanges();
-    expect(isOpen('Forms')).toBe(false);
-
-    fixture.componentInstance.entries.set([...ENTRIES]);
-    fixture.detectChanges();
-    expect(isOpen('Forms')).toBe(false);
-  });
-
-  it('gives every group body an id its own toggle points at', () => {
-    for (const button of toggles()) {
-      const id = button.getAttribute('aria-controls')!;
-      // A trailing hyphen is what an empty slug used to leave behind, so the
-      // shape has to end on a real character — see the collision test below.
-      expect(id).toMatch(/^[a-z][a-z0-9-]*[a-z0-9]$/);
-      expect(root().querySelector(`#${id}`)).not.toBeNull();
-    }
-  });
-
-  it('keeps the ids apart for titles that slug to the same string', async () => {
-    // Ids used to be slugged from the TITLE, lowercased with every non-`[a-z0-9]`
-    // run collapsed — so `Data & charts` and `Data / charts` produced one string,
-    // and a title with no ASCII alphanumerics produced the EMPTY one. A Russian or
-    // Chinese sidebar therefore gave every group the same id and every toggle
-    // pointed at the first group's body.
-    const kids = [{ title: 'One', url: ['/input'] }];
-    fixture.componentInstance.entries.set([
-      { title: 'Компоненты', children: kids },
-      { title: 'Настройки', children: kids },
-      { title: '数据', children: kids },
-      { title: 'Data & charts', children: kids },
-      { title: 'Data / charts', children: kids },
-    ]);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    const bodies = [...root().querySelectorAll<HTMLElement>('.wr-sidebar__group-wrap')];
-    const ids = bodies.map(el => el.id);
-    expect(ids).toHaveLength(5);
-    expect(new Set(ids).size, `duplicate ids: ${ids.join(', ')}`).toBe(ids.length);
-
-    // Each toggle must resolve to its OWN body, not merely to some element.
-    const controlled = toggles().map(button =>
-      bodies.indexOf(root().querySelector<HTMLElement>(`#${button.getAttribute('aria-controls')}`)!)
-    );
-    expect(controlled).toEqual([0, 1, 2, 3, 4]);
-  });
-
-  it('keeps the ids unique across two sidebars on one page', () => {
-    @Component({
-      imports: [WrSidebar],
-      template: `<wr-sidebar [entries]="entries" /><wr-sidebar [entries]="entries" />`,
-    })
-    class TwoHost {
-      readonly entries = ENTRIES;
-    }
-
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({
-      providers: [provideRouter([]), provideWrIcons([svgIcon('folder', ICON)])],
+  describe('landmark', () => {
+    it('is one named navigation landmark, not two nested ones', () => {
+      // The host carries `role="navigation"`; the inner wrapper used to be a
+      // `<nav>` as well, which announced the same list twice.
+      expect(host().getAttribute('role')).toBe('navigation');
+      expect(host().getAttribute('aria-label')).toBe('Sidebar');
+      expect(host().querySelector('nav')).toBeNull();
     });
-    const two = TestBed.createComponent(TwoHost);
-    two.detectChanges();
 
-    const ids = [...(two.nativeElement as HTMLElement).querySelectorAll('.wr-sidebar__group-wrap')].map(el => el.id);
-    expect(new Set(ids).size).toBe(ids.length);
+    it('takes a landmark name from the consumer', () => {
+      fixture.componentInstance.ariaLabel.set('Docs sections');
+      fixture.detectChanges();
 
-    two.destroy();
+      expect(host().getAttribute('aria-label')).toBe('Docs sections');
+    });
+
+    it('draws the tree as nested lists', () => {
+      expect(host().querySelector(':scope > ul.wr-sidebar__inner')).not.toBeNull();
+      expect(root().querySelectorAll('ul.wr-sidebar__list').length).toBe(2);
+      for (const row of rows()) expect(row.parentElement!.closest('li')).not.toBeNull();
+    });
   });
 
-  it('expands the group that owns the current route', async () => {
-    await navigate('/table');
+  describe('rows', () => {
+    it('renders pages as links and groups as buttons', () => {
+      expect(root().querySelectorAll('a.wr-sidebar__row').length).toBe(4);
+      expect(root().querySelectorAll('button.wr-sidebar__row').length).toBe(2);
+      expect(rowFor('Data & charts').classList).toContain('wr-sidebar__row--group');
+      expect(rowFor('Data & charts').getAttribute('type')).toBe('button');
+    });
 
-    expect(isOpen('Data & charts')).toBe(true);
+    it('renders a page with no route, and a disabled page, as plain text rather than a dead link', () => {
+      // A live `<a [routerLink]>` wearing a `--disabled` class only paints:
+      // `pointer-events: none` blocks a mouse, never the keyboard.
+      for (const title of ['Soon', 'Archive']) {
+        expect(rowFor(title).tagName).toBe('SPAN');
+        expect(rowFor(title).classList).toContain('wr-sidebar__row--disabled');
+      }
+      expect(root().querySelector('a[href="/archive"]')).toBeNull();
+    });
+
+    it('marks every row with its level', async () => {
+      await show(NESTED);
+      toggleFor('Components').click();
+      fixture.detectChanges();
+      toggleFor('Form').click();
+      fixture.detectChanges();
+
+      expect(rowFor('Components').classList).toContain('wr-sidebar__row--level-1');
+      expect(rowFor('Form').classList).toContain('wr-sidebar__row--level-2');
+      expect(rowFor('Input').classList).toContain('wr-sidebar__row--level-3');
+    });
+
+    it('names a row by its title, then its badge, then its count, joined by commas', async () => {
+      await show(NESTED);
+
+      expect(spoken(rowFor('Components'))).toBe('Components, 12 pages');
+      expect(spoken(rowFor('Form'))).toBe('Form, 99+');
+      expect(spoken(rowFor('Input'))).toBe('Input, New');
+      expect(spoken(rowFor('Editor'))).toBe('Editor, Optional');
+      expect(spoken(rowFor('Graph'))).toBe('Graph, Deprecated');
+    });
+
+    it('ends each piece with its own hidden comma, so no block boundary lands before it', async () => {
+      // A separate comma element after the title was read as "Components , 12
+      // pages": a browser spaces every block boundary, and the title is one.
+      await show(NESTED);
+      const components = rowFor('Components');
+
+      expect(components.querySelector('.wr-sidebar__title')!.textContent).toBe('Components,');
+      expect(rowFor('Input').querySelector('.wr-sidebar__title')!.textContent).toBe('Input,');
+      expect(rowFor('Input').querySelector('.wr-sidebar__badge')!.textContent).toBe('New');
+      // Nothing follows a lone title, so nothing is appended to it.
+      expect(rowFor('Home').querySelector('.wr-sidebar__title')!.textContent).toBe('Home');
+    });
+
+    it('shows the count as written and says its label instead', async () => {
+      await show(NESTED);
+      const count = rowFor('Components').querySelector('.wr-sidebar__count')!;
+
+      expect(count.textContent.trim()).toBe('12');
+      expect(count.getAttribute('aria-hidden')).toBe('true');
+      // No label: the number IS what is said, so it is not hidden.
+      expect(rowFor('Form').querySelector('.wr-sidebar__count')!.hasAttribute('aria-hidden')).toBe(false);
+    });
+
+    it('describes a row by its subtitle rather than naming it', async () => {
+      await show(NESTED);
+      const row = rowFor('Form');
+      const subtitle = row.querySelector<HTMLElement>('.wr-sidebar__subtitle')!;
+
+      expect(subtitle.textContent.trim()).toBe('Signal Forms controls');
+      expect(subtitle.getAttribute('aria-hidden')).toBe('true');
+      expect(row.getAttribute('aria-describedby')).toBe(subtitle.id);
+      expect(root().querySelectorAll(`#${subtitle.id}`).length).toBe(1);
+      expect(rowFor('Graph').hasAttribute('aria-describedby')).toBe(false);
+    });
+
+    it("reads a disabled row's subtitle as text, since a span carries no description", async () => {
+      // A nameless generic's `aria-describedby` goes nowhere, and a hidden
+      // subtitle left the text out of the accessibility tree altogether.
+      await show([{ title: 'Signature pad', subtitle: 'Planned for the next minor release', url: [], disabled: true }]);
+      const row = rowFor('Signature pad');
+
+      expect(row.hasAttribute('aria-describedby')).toBe(false);
+      expect(row.querySelector('.wr-sidebar__subtitle')!.hasAttribute('aria-hidden')).toBe(false);
+      expect(spoken(row)).toBe('Signature pad Planned for the next minor release');
+    });
+
+    it('paints a badge in its tone, neutral when it names none', async () => {
+      await show(NESTED);
+      const badge = (title: string): Element => rowFor(title).querySelector('.wr-sidebar__badge')!;
+
+      expect(badge('Input').classList).toContain('wr-sidebar__badge--primary');
+      expect(badge('Editor').classList).toContain('wr-sidebar__badge--neutral');
+      expect(badge('Graph').classList).toContain('wr-sidebar__badge--danger');
+      expect(badge('Signature').textContent.trim()).toBe('Soon');
+    });
+
+    it('draws no icon unless an entry or a default names one', async () => {
+      expect(root().querySelector('wr-icon')).toBeNull();
+
+      fixture.componentInstance.defaultGroupIcon.set('folder');
+      await settle();
+
+      const icons = [...root().querySelectorAll('wr-icon.wr-sidebar__icon')];
+      expect(icons.length).toBe(2);
+      expect(icons.every(icon => icon.closest('.wr-sidebar__row')!.classList.contains('wr-sidebar__row--group'))).toBe(
+        true
+      );
+    });
+
+    it('draws the default page icon on pages only, disabled ones included', async () => {
+      fixture.componentInstance.defaultItemIcon.set('caret-forward');
+      await settle();
+
+      const icons = [...root().querySelectorAll('wr-icon.wr-sidebar__icon')];
+      expect(icons.length).toBe(6);
+      expect(icons.some(icon => icon.closest('.wr-sidebar__row')!.classList.contains('wr-sidebar__row--group'))).toBe(
+        false
+      );
+    });
+
+    it('hangs the guide under the icon when the parent row has one', async () => {
+      await show(NESTED);
+      const listOf = (title: string): Element =>
+        root().querySelector(`#${toggleFor(title).getAttribute('aria-controls')!} .wr-sidebar__list`)!;
+
+      expect(listOf('Components').classList).toContain('wr-sidebar__list--under-icon');
+      expect(listOf('Form').classList).not.toContain('wr-sidebar__list--under-icon');
+    });
+
+    it('puts a tooltip on a title or subtitle only when it is cut', async () => {
+      // jsdom lays nothing out, so the cut is stubbed: anything longer than ten
+      // characters reports more content than box.
+      const scroll = vi.spyOn(Element.prototype, 'scrollWidth', 'get').mockImplementation(function (this: Element) {
+        return this.textContent.trim().length > 10 ? 200 : 0;
+      });
+      try {
+        await show([
+          { title: 'Short', url: ['/table'] },
+          { title: 'A title far too long to fit', subtitle: 'And a long subtitle too', url: ['/tabs'] },
+        ]);
+
+        const long = rowFor('A title far too long to fit');
+        expect(long.querySelector('.wr-sidebar__title')!.getAttribute('title')).toBe('A title far too long to fit');
+        expect(long.querySelector('.wr-sidebar__subtitle')!.getAttribute('title')).toBe('And a long subtitle too');
+        expect(rowFor('Short').querySelector('.wr-sidebar__title')!.hasAttribute('title')).toBe(false);
+        // On the cut text, never on the row: a row's `title` would become its description.
+        expect(long.hasAttribute('title')).toBe(false);
+      } finally {
+        scroll.mockRestore();
+      }
+    });
+
+    it('warns in dev mode when an entry sits deeper than three levels, and still renders it', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      try {
+        await show([
+          {
+            title: 'One',
+            defaultOpen: true,
+            children: [
+              {
+                title: 'Two',
+                defaultOpen: true,
+                children: [{ title: 'Three', defaultOpen: true, children: [{ title: 'Four', url: ['/table'] }] }],
+              },
+            ],
+          },
+        ]);
+
+        expect(warn).toHaveBeenCalledTimes(1);
+        expect(String(warn.mock.calls[0][0])).toContain('level 4');
+        expect(rowFor('Four')).toBeDefined();
+      } finally {
+        warn.mockRestore();
+      }
+    });
   });
 
-  it('does not expand a group whose route is merely a prefix of this one', async () => {
-    // `/tabs` starts with `/tab`, so a bare `startsWith` matched the SHORTER
-    // sibling — and since the first match wins, the group that actually owns the
-    // route stayed shut while an unrelated one opened.
-    await mount();
-    fixture.componentInstance.entries.set([
-      { title: 'Tab group', children: [{ title: 'Tab', url: ['/tab'] }] },
-      { title: 'Tabs group', children: [{ title: 'Tabs', url: ['/tabs'] }] },
-    ]);
-    fixture.detectChanges();
-    await navigate('/tabs');
+  describe('groups', () => {
+    it('opens a group on click and closes it again', () => {
+      expect(isOpen('Data & charts')).toBe(false);
 
-    expect(isOpen('Tabs group')).toBe(true);
-    expect(isOpen('Tab group')).toBe(false);
+      toggleFor('Data & charts').click();
+      fixture.detectChanges();
+      expect(isOpen('Data & charts')).toBe(true);
+      expect(bodyFor('Data & charts').getAttribute('inert')).toBeNull();
+      expect(rowFor('Data & charts').closest('li')!.classList).not.toContain('wr-sidebar__group--collapsed');
+
+      toggleFor('Data & charts').click();
+      fixture.detectChanges();
+      expect(isOpen('Data & charts')).toBe(false);
+    });
+
+    it('keeps a collapsed group out of the tab order', () => {
+      expect(bodyFor('Data & charts').getAttribute('inert')).toBe('');
+      expect(rowFor('Data & charts').closest('li')!.classList).toContain('wr-sidebar__group--collapsed');
+    });
+
+    it('seeds a defaultOpen group', () => {
+      expect(isOpen('Forms')).toBe(true);
+    });
+
+    it('does not re-open a defaultOpen group the user collapsed', () => {
+      // Any later change to `entries` (a count, a filtered list) used to re-run
+      // the seeding and undo the collapse.
+      toggleFor('Forms').click();
+      fixture.detectChanges();
+      expect(isOpen('Forms')).toBe(false);
+
+      fixture.componentInstance.entries.set([...ENTRIES]);
+      fixture.detectChanges();
+      expect(isOpen('Forms')).toBe(false);
+    });
+
+    it('keeps the open state of two groups with the same title apart', async () => {
+      // Keyed by title alone, opening one "Overview" opened every "Overview".
+      await show([
+        {
+          title: 'Guides',
+          defaultOpen: true,
+          children: [{ title: 'Overview', children: [{ title: 'A', url: ['/table'] }] }],
+        },
+        {
+          title: 'Reference',
+          defaultOpen: true,
+          children: [{ title: 'Overview', children: [{ title: 'B', url: ['/tabs'] }] }],
+        },
+      ]);
+      const [first, second] = rowsFor('Overview');
+
+      toggleOf(first).click();
+      fixture.detectChanges();
+
+      expect(toggleOf(first).getAttribute('aria-expanded')).toBe('true');
+      expect(toggleOf(second).getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('gives every group body an id its own toggle points at', async () => {
+      await show(NESTED);
+      for (const button of toggles()) {
+        const id = button.getAttribute('aria-controls')!;
+        // A trailing hyphen is what an empty slug used to leave behind.
+        expect(id).toMatch(/^[a-z][a-z0-9-]*[a-z0-9]$/);
+        expect(root().querySelector(`#${id}`)!.classList).toContain('wr-sidebar__group-wrap');
+      }
+    });
+
+    it('keeps the ids apart for titles that slug to the same string', async () => {
+      // Ids used to be slugged from the TITLE, so `Data & charts` and `Data /
+      // charts` produced one string, and a title with no ASCII letters the EMPTY
+      // one: a Russian sidebar gave every group the same id.
+      const kids = [{ title: 'One', url: ['/input'] }];
+      await show([
+        { title: 'Компоненты', children: kids },
+        { title: 'Настройки', children: kids },
+        { title: '数据', children: kids },
+        { title: 'Data & charts', children: kids },
+        { title: 'Data / charts', children: kids },
+      ]);
+
+      const bodies = [...root().querySelectorAll<HTMLElement>('.wr-sidebar__group-wrap')];
+      const ids = bodies.map(el => el.id);
+      expect(ids).toHaveLength(5);
+      expect(new Set(ids).size, `duplicate ids: ${ids.join(', ')}`).toBe(ids.length);
+
+      // Each toggle must resolve to its OWN body, not merely to some element.
+      const controlled = toggles().map(button =>
+        bodies.indexOf(root().querySelector<HTMLElement>(`#${button.getAttribute('aria-controls')}`)!)
+      );
+      expect(controlled).toEqual([0, 1, 2, 3, 4]);
+    });
+
+    it('keeps the ids unique across two sidebars on one page', () => {
+      @Component({
+        imports: [WrSidebar],
+        template: `<wr-sidebar [entries]="entries" /><wr-sidebar [entries]="entries" />`,
+      })
+      class TwoHost {
+        readonly entries = NESTED;
+      }
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [provideRouter([]), provideWrIcons([svgIcon('folder', ICON)])],
+      });
+      const two = TestBed.createComponent(TwoHost);
+      two.detectChanges();
+
+      const ids = [...(two.nativeElement as HTMLElement).querySelectorAll('[id]')].map(el => el.id);
+      expect(ids.length).toBeGreaterThan(0);
+      expect(new Set(ids).size).toBe(ids.length);
+
+      two.destroy();
+    });
+
+    describe('a group that is also a page', () => {
+      const SPLIT: readonly WrSidebarEntry[] = [
+        { title: 'Tabs', url: ['/tabs'], children: [{ title: 'Second', url: ['/tabs', 'second'] }] },
+      ];
+
+      it('links its title and gives the arrow a button of its own', async () => {
+        await show(SPLIT);
+        const row = rowFor('Tabs');
+        const toggle = toggleFor('Tabs');
+
+        expect(row.tagName).toBe('A');
+        expect(row.getAttribute('href')).toBe('/tabs');
+        expect(row.hasAttribute('aria-expanded')).toBe(false);
+        expect(toggle).not.toBe(row);
+        expect(toggle.getAttribute('aria-label')).toBe('Sub-pages of Tabs');
+        expect(toggle.getAttribute('aria-expanded')).toBe('false');
+
+        toggle.click();
+        fixture.detectChanges();
+        expect(toggle.getAttribute('aria-expanded')).toBe('true');
+        expect(bodyFor('Tabs').hasAttribute('inert')).toBe(false);
+      });
+
+      it('is the current page on its own path only, since its children own the paths below', async () => {
+        await show(SPLIT);
+
+        await navigate('/tabs/second');
+        expect(isOpen('Tabs')).toBe(true);
+        expect(isCurrent('Second')).toBe(true);
+        expect(isCurrent('Tabs')).toBe(false);
+
+        await navigate('/tabs');
+        expect(isCurrent('Tabs')).toBe(true);
+        expect(isCurrent('Second')).toBe(false);
+      });
+    });
   });
 
-  it('matches a route with a query string or a fragment on it', async () => {
-    await navigate('/table?page=2');
+  describe('the current page', () => {
+    it('marks an entry current by path PREFIX when it says nothing, so `/` is current everywhere', async () => {
+      // The router's own default, and the reason `activeOptions` exists.
+      await navigate('/table');
 
-    expect(isOpen('Data & charts')).toBe(true);
+      expect(isCurrent('Home')).toBe(true);
+      expect(rowFor('Home').classList).toContain('wr-sidebar__row--active');
+      expect(isCurrent('Table')).toBe(true);
+      expect(isCurrent('Tabs')).toBe(false);
+    });
+
+    it("passes an entry's own activeOptions to the match, at level 1 and below", async () => {
+      // Typed through the entry point, so the spec stops compiling if the type
+      // is dropped from `public-api.ts` again.
+      const exact: WrSidebarActiveOptions = { exact: true };
+      await show([
+        { title: 'Home', url: ['/'], activeOptions: exact },
+        {
+          title: 'Data & charts',
+          defaultOpen: true,
+          children: [{ title: 'Tab', url: ['/tab'], activeOptions: exact }],
+        },
+      ]);
+
+      await navigate('/table');
+      expect(isCurrent('Home')).toBe(false);
+      expect(isCurrent('Tab')).toBe(false);
+
+      await navigate('/');
+      expect(isCurrent('Home')).toBe(true);
+
+      await navigate('/tab');
+      expect(isCurrent('Tab')).toBe(true);
+    });
+
+    it('keeps a prefix match for the entries that ask for nothing while a sibling asks for exact', async () => {
+      await show([
+        { title: 'Home', url: ['/'], activeOptions: { exact: true } },
+        { title: 'Tabs', url: ['/tabs'] },
+      ]);
+
+      await navigate('/tabs/second');
+
+      expect(isCurrent('Tabs')).toBe(true);
+      expect(isCurrent('Home')).toBe(false);
+    });
+
+    it('never marks a disabled page current', async () => {
+      await show([{ title: 'Table', url: ['/table'], disabled: true }]);
+      await navigate('/table');
+
+      expect(rowFor('Table').hasAttribute('aria-current')).toBe(false);
+      expect(rowFor('Table').classList).not.toContain('wr-sidebar__row--active');
+    });
+
+    it('gives a collapsed group holding the current page a dot, and says so', async () => {
+      fixture.componentInstance.autoExpand.set(false);
+      await show(NESTED);
+      await navigate('/input');
+      const components = rowFor('Components');
+
+      expect(isOpen('Components')).toBe(false);
+      expect(components.classList).toContain('wr-sidebar__row--holds-active');
+      expect(components.querySelector('.wr-sidebar__dot')!.getAttribute('aria-hidden')).toBe('true');
+      expect(spoken(components)).toBe('Components, 12 pages, contains the current page');
+      // Only the outermost collapsed group is visible, so only it carries the cue.
+      expect(rowFor('Form').classList).not.toContain('wr-sidebar__row--holds-active');
+
+      toggleFor('Components').click();
+      fixture.detectChanges();
+
+      expect(components.classList).toContain('wr-sidebar__row--ancestor');
+      expect(components.querySelector('.wr-sidebar__dot')).toBeNull();
+      expect(rowFor('Form').classList).toContain('wr-sidebar__row--holds-active');
+    });
+
+    it('marks every open group above the current page as its ancestor', async () => {
+      await show(NESTED);
+      await navigate('/input');
+
+      expect(rowFor('Components').classList).toContain('wr-sidebar__row--ancestor');
+      expect(rowFor('Form').classList).toContain('wr-sidebar__row--ancestor');
+      expect(root().querySelector('.wr-sidebar__row--holds-active')).toBeNull();
+      expect(root().querySelector('.wr-sidebar__dot')).toBeNull();
+    });
   });
 
-  it('leaves the groups alone when auto-expand is off', async () => {
-    await mount();
-    fixture.componentInstance.autoExpand.set(false);
-    fixture.detectChanges();
-    await navigate('/table');
+  describe('auto-expand', () => {
+    it('expands the group that owns the current route', async () => {
+      await navigate('/table');
 
-    expect(isOpen('Data & charts')).toBe(false);
+      expect(isOpen('Data & charts')).toBe(true);
+    });
+
+    it('expands every group above a route three levels down', async () => {
+      await show(NESTED);
+      await navigate('/input');
+
+      expect(isOpen('Components')).toBe(true);
+      expect(isOpen('Form')).toBe(true);
+      expect(bodyFor('Form').hasAttribute('inert')).toBe(false);
+    });
+
+    it('does not expand a group whose route is merely a prefix of this one', async () => {
+      // `/tabs` starts with `/tab`, so a bare `startsWith` matched the SHORTER
+      // sibling and the group that actually owns the route stayed shut.
+      await show([
+        { title: 'Tab group', children: [{ title: 'Tab', url: ['/tab'] }] },
+        { title: 'Tabs group', children: [{ title: 'Tabs', url: ['/tabs'] }] },
+      ]);
+      await navigate('/tabs');
+
+      expect(isOpen('Tabs group')).toBe(true);
+      expect(isOpen('Tab group')).toBe(false);
+    });
+
+    it('matches a route with a query string or a fragment on it', async () => {
+      await navigate('/table?page=2');
+
+      expect(isOpen('Data & charts')).toBe(true);
+    });
+
+    it('leaves the groups alone when auto-expand is off', async () => {
+      fixture.componentInstance.autoExpand.set(false);
+      fixture.detectChanges();
+      await navigate('/table');
+
+      expect(isOpen('Data & charts')).toBe(false);
+    });
+
+    it('expands the group once entries that arrived after the navigation name one', async () => {
+      // `[entries]` is routinely an HTTP result, so the first run matches
+      // nothing, and it used to record the URL as handled before it knew that.
+      await show([]);
+      await navigate('/table');
+
+      await show(ENTRIES);
+
+      expect(isOpen('Data & charts')).toBe(true);
+      expect(bodyFor('Data & charts').hasAttribute('inert')).toBe(false);
+    });
+
+    it('does not re-expand a group the user collapsed on the same route', async () => {
+      await navigate('/table');
+      toggleFor('Data & charts').click();
+      fixture.detectChanges();
+      expect(isOpen('Data & charts')).toBe(false);
+
+      // Same URL again: the guard is what keeps the collapse from being undone.
+      await navigate('/table');
+      expect(isOpen('Data & charts')).toBe(false);
+    });
+
+    it('re-opens a group closed by hand when the route comes back by way of a page no group holds', async () => {
+      // A URL no group holds used to leave the last URL recorded, so Back from a
+      // level-1 page found the route "already handled" and left the group shut,
+      // with the current link out of the tab order.
+      await navigate('/table');
+      toggleFor('Data & charts').click();
+      fixture.detectChanges();
+
+      await navigate('/');
+      await navigate('/table');
+
+      expect(isOpen('Data & charts')).toBe(true);
+    });
   });
 
-  it('expands the group once entries that arrived after the navigation name one', async () => {
-    // `[entries]` is routinely an HTTP result, so the first run of the effect
-    // matches nothing — and it used to record the URL as handled before it knew
-    // that, which suppressed the expansion permanently. On a deep link the group
-    // holding the active route stayed shut, and `inert` kept that link out of the
-    // tab order and the a11y tree until the user navigated away and back.
-    await mount();
-    fixture.componentInstance.entries.set([]);
-    fixture.detectChanges();
-    await navigate('/table');
+  describe('auto-collapse', () => {
+    const TWO: readonly WrSidebarEntry[] = [
+      { title: 'Data', children: [{ title: 'Table', url: ['/table'] }] },
+      { title: 'Forms', children: [{ title: 'Input', url: ['/input'] }] },
+    ];
 
-    fixture.componentInstance.entries.set(ENTRIES);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
+    beforeEach(async () => {
+      fixture.componentInstance.autoCollapse.set(true);
+      await show(TWO);
+    });
 
-    expect(isOpen('Data & charts')).toBe(true);
-    expect(bodyFor('Data & charts').hasAttribute('inert')).toBe(false);
-  });
+    it('closes the group the last navigation opened when the next one leaves it', async () => {
+      await navigate('/table');
+      expect(isOpen('Data')).toBe(true);
 
-  it('does not re-expand a group the user collapsed on the same route', async () => {
-    await navigate('/table');
-    toggleFor('Data & charts').click();
-    fixture.detectChanges();
-    expect(isOpen('Data & charts')).toBe(false);
+      await navigate('/input');
+      expect(isOpen('Forms')).toBe(true);
+      expect(isOpen('Data')).toBe(false);
 
-    // Same URL again: the guard is what keeps the collapse from being undone.
-    await navigate('/table');
-    expect(isOpen('Data & charts')).toBe(false);
-  });
+      // A page no group holds closes it too.
+      await navigate('/');
+      expect(isOpen('Forms')).toBe(false);
+    });
 
-  it('marks an entry active by path PREFIX when it says nothing, so `/` is active everywhere', async () => {
-    // The router's own default, and the reason `activeOptions` exists: every URL
-    // starts with `/`, so a "Home" entry paints as the current page on every page.
-    await navigate('/table');
+    it('never closes a group the user opened by hand', async () => {
+      toggleFor('Forms').click();
+      fixture.detectChanges();
 
-    expect(entryFor('Home').classList.contains('wr-sidebar__entry--active')).toBe(true);
-  });
+      await navigate('/input');
+      await navigate('/table');
 
-  it("passes an entry's own activeOptions to the router, on a top-level entry and a nested one", async () => {
-    // Typed through the entry point, so the spec stops compiling if the type is
-    // dropped from `public-api.ts` again: it was the field's type and not importable.
-    const exact: WrSidebarActiveOptions = { exact: true };
-    fixture.componentInstance.entries.set([
-      { title: 'Home', url: ['/'], activeOptions: exact },
-      {
-        title: 'Data & charts',
-        defaultOpen: true,
-        children: [{ title: 'Tab', url: ['/tab'], activeOptions: exact }],
-      },
-    ]);
-    fixture.detectChanges();
+      expect(isOpen('Forms')).toBe(true);
+      expect(isOpen('Data')).toBe(true);
+    });
 
-    await navigate('/table');
-    expect(entryFor('Home').classList.contains('wr-sidebar__entry--active')).toBe(false);
-    expect(itemFor('Tab').classList.contains('wr-sidebar__item--active')).toBe(false);
+    it('closes only the groups the next route leaves, at any depth', async () => {
+      await show(NESTED);
+      await navigate('/input');
+      await navigate('/graph');
 
-    await navigate('/');
-    expect(entryFor('Home').classList.contains('wr-sidebar__entry--active')).toBe(true);
+      expect(isOpen('Components')).toBe(true);
+      expect(isOpen('Form')).toBe(false);
+    });
 
-    await navigate('/tab');
-    expect(itemFor('Tab').classList.contains('wr-sidebar__item--active')).toBe(true);
-  });
+    it('keeps every visited group open when it is off', async () => {
+      fixture.componentInstance.autoCollapse.set(false);
+      await settle();
+      await navigate('/table');
+      await navigate('/input');
 
-  it('keeps a prefix match for the entries that ask for nothing while a sibling asks for exact', async () => {
-    fixture.componentInstance.entries.set([
-      { title: 'Home', url: ['/'], activeOptions: { exact: true } },
-      { title: 'Tabs', url: ['/tabs'] },
-    ]);
-    fixture.detectChanges();
-
-    await navigate('/tabs/second');
-
-    expect(entryFor('Tabs').classList.contains('wr-sidebar__entry--active')).toBe(true);
-    expect(entryFor('Home').classList.contains('wr-sidebar__entry--active')).toBe(false);
+      expect(isOpen('Data')).toBe(true);
+      expect(isOpen('Forms')).toBe(true);
+    });
   });
 });
 
 describe('WrSidebar under a localized catalog', () => {
-  it('names the landmark from the catalog', async () => {
+  it('names the landmark, the split arrow and the collapsed holder from the catalog', async () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        provideRouter([]),
+        provideRouter([{ path: 'table', component: Page }]),
         provideWrIcons([svgIcon('folder', ICON)]),
         provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
         provideWrI18nStaticLoader({ ru: wrRu }),
       ],
     });
     const fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.autoExpand.set(false);
+    fixture.componentInstance.entries.set([
+      { title: 'Таблицы', url: ['/tables'], children: [{ title: 'Таблица', url: ['/table'] }] },
+    ]);
+    fixture.detectChanges();
+    await TestBed.inject(Router).navigateByUrl('/table');
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const host = (fixture.nativeElement as HTMLElement).querySelector('wr-sidebar')!;
-    expect(host.getAttribute('aria-label')).toBe('Боковая панель');
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('wr-sidebar')!.getAttribute('aria-label')).toBe('Боковая панель');
+    expect(el.querySelector('.wr-sidebar__toggle')!.getAttribute('aria-label')).toBe('Подстраницы: Таблицы');
+    expect(el.querySelector('.wr-sidebar__row--holds-active')!.textContent).toContain('содержит текущую страницу');
+
+    fixture.destroy();
+  });
+
+  it("joins the pieces of a row's name with the catalog's separator", async () => {
+    // Heard on every row, so it is not frozen as an ASCII comma: Japanese joins
+    // with 、, the separator its catalog's other composed names use.
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([{ path: 'input', component: Page }]),
+        provideWrI18n({ defaultLocale: 'ja', availableLocales: ['ja'] }),
+        provideWrI18nStaticLoader({ ja: wrJa }),
+      ],
+    });
+    const fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.entries.set([
+      { title: '入力', url: ['/input'], badge: { text: '新規', tone: 'primary' }, count: 3 },
+    ]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.wr-sidebar__title')!.textContent).toBe('入力、');
+    expect(el.querySelector('.wr-sidebar__badge')!.textContent).toBe('新規、');
 
     fixture.destroy();
   });
 });
 
 /**
- * Row geometry lives in the stylesheet, and jsdom loads none — a spec that
- * measured a row would read 0x0 before the fix and after it. So these read the
- * declarations that decide the height, and the heights themselves were measured
- * in Chromium, in both themes: the group toggle went from 33px to the 36px of the
- * link above it, a nested item from 30px to 32px, and a badge stopped adding 2px
- * to its row (a top-level link carrying one measured 38px, a nested item 32px
- * beside 30px neighbours). The same goes for the outer inset: every row, nested
- * ones included, measured 0px from the frame around the nav, a bordered card or a
- * `wr-layout-sider`, and 8px after, in both themes and both directions.
+ * Row geometry lives in the stylesheet, and jsdom loads none: a spec that
+ * measured a row would read 0x0 whatever the CSS said. So these read the
+ * declarations that decide the geometry, and the geometry itself was measured
+ * in Chromium, in both schemes: 32px rows, 48px with a second line, 44px and
+ * 60px under a coarse pointer, a 16px indent per level, the guide under the
+ * parent's first letter or icon, and the current page's bar exactly on it.
  */
 describe('the sidebar stylesheet', () => {
   /** A stylesheet with its line comments dropped. */
@@ -401,7 +838,7 @@ describe('the sidebar stylesheet', () => {
 
   const code = read('projects/lib/sidebar/styles/_index.scss');
 
-  /** The block's OWN declarations — not those of the states nested inside it. */
+  /** The block's OWN declarations, not those of the states nested inside it. */
   const declarations = (selector: string, indent: number, source = code): Record<string, string> => {
     const pad = ' '.repeat(indent);
     const body = new RegExp(`\\n${pad}${selector} \\{\\n([\\s\\S]*?)\\n${pad}\\}`).exec(source)?.[1];
@@ -412,16 +849,7 @@ describe('the sidebar stylesheet', () => {
     return Object.fromEntries(own.map(line => line.trim().replace(/;$/, '').split(/:\s*/) as [string, string]));
   };
 
-  /**
-   * The theme's length scales — spacing, type sizes and their paired leadings —
-   * read from the layer rather than restated.
-   *
-   * These assertions are about ARITHMETIC — that an inset is non-zero, that the
-   * gap a last group cancels is real — so a value arriving as
-   * `var(--wr-space-sm)` has to be resolved, not waved through. Loosening the
-   * regex to accept any string would keep the spec green on a padding of zero,
-   * which is the thing it exists to refuse.
-   */
+  /** The theme's length scales: spacing, type sizes and their paired leadings. */
   const SCALE: Readonly<Record<string, string>> = Object.fromEntries(
     [
       ...read('projects/lib/theme/styles/_variables.scss').matchAll(
@@ -430,40 +858,27 @@ describe('the sidebar stylesheet', () => {
     ].map(m => [m[1], m[2].trim()])
   );
 
+  const host = declarations('\\.wr-sidebar', 0);
+  const coarse = declarations('@media \\(pointer: coarse\\)', 2);
+
+  /** Every `--wr-sidebar-*` hook the host declares, with the coarse-pointer overrides on top when asked. */
+  const hooks = (touch = false): Readonly<Record<string, string>> =>
+    Object.fromEntries(
+      Object.entries({ ...host, ...(touch ? coarse : {}) }).filter(([name]) => name.startsWith('--wr-sidebar-'))
+    );
+
   /**
-   * Every `--wr-sidebar-*` hook the stylesheet declares, to its value.
-   *
-   * The component publishes a hook per painted value and the rules read those
-   * rather than the global tokens, so resolving one step is no longer enough:
-   * `padding-block` arrives as `var(--wr-sidebar-item-padding-y)`, whose value
-   * is `var(--wr-space-xs)`, whose value is `0.25rem`. These assertions are
-   * about ARITHMETIC, so every step has to be followed — a resolver that gave
-   * up and waved the string through would keep the spec green on a padding of
-   * zero, which is the thing it exists to refuse.
+   * A length with every `var()` hop followed. These assertions are ARITHMETIC,
+   * so a value arriving as `var(--wr-space-sm)` has to be resolved, not waved
+   * through: a resolver that gave up would keep the spec green on a padding of 0.
    */
-  const HOOKS: Readonly<Record<string, string>> = Object.fromEntries(
-    [...code.matchAll(/(--wr-sidebar-[\w-]+):\s*([^;]+);/g)].map(m => [m[1], m[2].trim()])
-  );
-
-  /** A value with every `var()` hop followed, for comparing two declarations. */
-  const resolve = (value: string): string => {
-    let out = value;
-    for (let step = 0; step < 8; step++) {
-      const ref = /^var\(\s*(--wr-[\w-]+)\s*\)$/.exec(out);
-      if (!ref) break;
-      const next = SCALE[ref[1]] ?? HOOKS[ref[1]];
-      if (next === undefined) return out;
-      out = next;
-    }
-    return out;
-  };
-
-  const rem = (value: string): number => {
+  const rem = (value: string, touch = false): number => {
+    const own = hooks(touch);
     let resolved = value;
     for (let step = 0; step < 8; step++) {
       const ref = /^var\(\s*(--wr-[\w-]+)\s*\)$/.exec(resolved);
       if (!ref) break;
-      const next = SCALE[ref[1]] ?? HOOKS[ref[1]];
+      const next = SCALE[ref[1]] ?? own[ref[1]];
       if (next === undefined) throw new Error(`No \`${ref[1]}\` in the theme layer or this stylesheet`);
       resolved = next;
     }
@@ -473,14 +888,23 @@ describe('the sidebar stylesheet', () => {
     return Number(match[1]);
   };
 
-  /** `padding: <block> <inline>` → the block half. */
-  const paddingBlock = (value: string): number => rem(value.split(/\s+/)[0]);
+  /** A value with every `var()` hop followed, for comparing two declarations. */
+  const resolve = (value: string, source: Record<string, string>): string => {
+    let out = value;
+    for (let step = 0; step < 8; step++) {
+      const ref = /^var\(\s*(--wr-[\w-]+)\s*\)$/.exec(out);
+      if (!ref) break;
+      const next = source[ref[1]];
+      if (next === undefined) return out;
+      out = next;
+    }
+    return out;
+  };
 
-  const host = declarations('\\.wr-sidebar', 0);
-  const entry = declarations('&__entry', 2);
-  const toggle = declarations('&-toggle', 4);
-  const item = declarations('&__item', 2);
-  const badge = declarations('&__badge', 2);
+  const row = declarations('&__row', 2);
+  const meta = declarations('&__meta', 2);
+  const badge = declarations('&__badge,\\n  &__count', 2);
+  const list = declarations('&__list', 2);
   const dropdownItem = declarations('\\.wr-dropdown-item', 0, read('projects/lib/dropdown/styles/_index.scss'));
 
   it('insets every row from the edge of the host through its own padding hook', () => {
@@ -488,40 +912,76 @@ describe('the sidebar stylesheet', () => {
     expect(rem(host['--wr-sidebar-padding'])).toBeGreaterThan(0);
   });
 
-  it('ends an open last group on that inset rather than on its gap to a next row', () => {
-    const list = declarations('&__list', 2);
-    const lastList = declarations('&__group:last-child &__list', 2);
-
-    // The gap it cancels is real: `margin: <top> <inline> <bottom>`.
-    expect(rem(list['margin'].split(/\s+/)[2])).toBeGreaterThan(0);
-    expect(lastList['margin-block-end']).toBe('0');
+  it('reads every hook it declares', () => {
+    // A hook nothing reads is a promise a consumer's override cannot keep.
+    for (const name of Object.keys(hooks())) {
+      expect(code, `${name} is declared and never read`).toContain(`var(${name})`);
+    }
   });
 
-  it('rounds each row tint with the corner a dropdown item uses', () => {
-    // Compared RESOLVED, not spelled: each row now paints its own
-    // `--wr-sidebar-*-radius` hook so a consumer can retune one row type, and
-    // what has to stay equal is the corner the two components end up drawing.
-    const corner = resolve(dropdownItem['--wr-dropdown-item-radius']);
+  it('makes a row 32px, with its padding and line adding up to the declared height', () => {
+    const height = rem(hooks()['--wr-sidebar-row-height']);
+    const padding = rem(hooks()['--wr-sidebar-row-padding-y']);
+    const line = rem(hooks()['--wr-sidebar-row-line-height']);
+
+    expect(row['min-height']).toBe('var(--wr-sidebar-row-height)');
+    expect(row['padding']).toBe('var(--wr-sidebar-row-padding-y) var(--wr-sidebar-row-padding-x)');
+    expect(height).toBe(2);
+    expect(2 * padding + line).toBe(height);
+  });
+
+  it('makes a row 44px under a coarse pointer, by the same arithmetic', () => {
+    const height = rem(hooks(true)['--wr-sidebar-row-height'], true);
+    const padding = rem(hooks(true)['--wr-sidebar-row-padding-y'], true);
+    const line = rem(hooks(true)['--wr-sidebar-row-line-height'], true);
+
+    expect(height).toBe(2.75);
+    expect(2 * padding + line).toBe(height);
+  });
+
+  it('keeps a badge inside the line under the title', () => {
+    expect(meta['min-height']).toBe('var(--wr-sidebar-subtitle-line-height)');
+    expect(rem(badge['line-height'])).toBeLessThanOrEqual(rem(hooks()['--wr-sidebar-subtitle-line-height']));
+  });
+
+  it('indents a level by 16px when the parent has no icon', () => {
+    // margin to the guide, the guide, then the gap to the nested rows.
+    const guide = Number(/^(\d+)px$/.exec(hooks()['--wr-sidebar-guide-width'])![1]) / 16;
+    const margin = rem(hooks()['--wr-sidebar-row-padding-x']) - guide;
+
+    expect(list['margin-inline-start']).toBe('calc(var(--wr-sidebar-row-padding-x) - var(--wr-sidebar-guide-width))');
+    expect(list['padding-inline-start']).toBe('var(--wr-sidebar-guide-gap)');
+    expect(margin + guide + rem(hooks()['--wr-sidebar-guide-gap'])).toBe(1);
+  });
+
+  it('draws the current page bar exactly on the guide line', () => {
+    // The bar is pulled back by the list's own padding plus the guide, through
+    // the same two hooks the list reads, so neither side can move alone.
+    const active = /\n {2}&__list &__row--active \{\n([\s\S]*?)\n {2}\}/.exec(code)?.[1];
+    if (active === undefined) throw new Error('No `&__list &__row--active` block');
+    const bar = declarations('&::before', 4, `\n${active}\n`);
+
+    expect(bar['inset-inline-start']).toBe('calc(-1 * (var(--wr-sidebar-guide-gap) + var(--wr-sidebar-guide-width)))');
+    expect(bar['inline-size']).toBe('var(--wr-sidebar-guide-width)');
+    expect(list['padding-inline-start']).toBe('var(--wr-sidebar-guide-gap)');
+    expect(list['border-inline-start']).toBe('var(--wr-sidebar-guide-width) solid var(--wr-sidebar-guide)');
+  });
+
+  it('rounds each row with the corner a dropdown item uses', () => {
+    const corner = resolve(dropdownItem['--wr-dropdown-item-radius'], dropdownItem);
 
     expect(corner).toBe('var(--wr-border-radius-sm)');
-    for (const row of [entry, toggle, item]) expect(resolve(row['border-radius'])).toBe(corner);
+    expect(resolve(row['border-radius'], hooks())).toBe(corner);
   });
 
-  it('gives the group toggle the type of the link beside it, since a <button> inherits none', () => {
-    expect(toggle['font']).toBe('inherit');
-    expect(resolve(toggle['font-size'])).toBe(resolve(entry['font-size']));
-    expect(rem(toggle['line-height'])).toBe(rem(entry['line-height']));
-    expect(paddingBlock(toggle['padding'])).toBe(paddingBlock(entry['padding']));
+  it('gives a button row the type of a link row, since a <button> inherits none', () => {
+    expect(row['font']).toBe('inherit');
+    expect(row['font-size']).toBe('var(--wr-sidebar-row-font-size)');
+    expect(row['line-height']).toBe('var(--wr-sidebar-row-line-height)');
   });
 
-  it('keeps a badge inside the line box of every row it can sit in', () => {
-    const chip = rem(badge['line-height']) + 2 * paddingBlock(badge['padding']);
-
-    expect(chip).toBeLessThanOrEqual(rem(entry['line-height']));
-    expect(chip).toBeLessThanOrEqual(rem(item['line-height']));
-  });
-
-  it('insets a nested item by at least 6px around its line', () => {
-    expect(paddingBlock(item['padding'])).toBeGreaterThanOrEqual(0.375);
+  it('writes no physical direction anywhere', () => {
+    expect(code).not.toMatch(/\b(?:margin|padding|border)-(?:left|right)\b/);
+    expect(code).not.toMatch(/^\s*(?:left|right):/m);
   });
 });

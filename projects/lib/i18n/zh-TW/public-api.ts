@@ -351,6 +351,9 @@ export const wrZhTw: WrI18nCatalog = {
   },
   sidebar: {
     label: '側邊欄',
+    containsCurrent: '包含目前頁面',
+    subpages: '{{title}} 的子頁面',
+    separator: '，',
   },
   spinner: {
     label: '載入中',

@@ -362,6 +362,9 @@ export const wrFr: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Barre latérale',
+    containsCurrent: 'contient la page actuelle',
+    subpages: 'Sous-pages de {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Chargement',

@@ -344,6 +344,9 @@ export const wrId: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Bilah sisi',
+    containsCurrent: 'berisi halaman saat ini',
+    subpages: 'Subhalaman {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Memuat',

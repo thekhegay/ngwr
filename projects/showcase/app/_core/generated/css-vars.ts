@@ -13,10 +13,10 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1258 hook(s) across 90 page(s). A property is here only when the
+ * 1245 hook(s) across 90 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
- * declares it also owns it: 23 declaration(s) are one component setting
+ * declares it also owns it: 24 declaration(s) are one component setting
  * another's hook (`--wr-icon-size` inside its own `<wr-icon>`) and belong on
  * the owner's page, not on the setter's.
  */
@@ -1237,44 +1237,31 @@ export const CSS_VARS = {
   "reference/components/sidebar": {
     subpath: "ngwr/sidebar",
     vars: [
-      { name: "--wr-sidebar-badge-font-size", default: "var(--wr-text-xs)", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-badge-font-size", default: "0.5625rem", scope: ".wr-sidebar" },
       { name: "--wr-sidebar-badge-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-badge-letter-spacing", default: "var(--wr-tracking-wide)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-badge-line-height", default: "var(--wr-text-xs-leading)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-badge-padding-x", default: "var(--wr-space-sm)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-badge-padding-y", default: "0.125rem", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-badge-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-entry-font-size", default: "var(--wr-text-sm)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-entry-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-entry-gap", default: "var(--wr-space-sm)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-entry-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-entry-padding-x", default: "var(--wr-space-md)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-entry-padding-y", default: "var(--wr-space-sm)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-entry-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-badge-line-height", default: "0.75rem", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-badge-padding-x", default: "var(--wr-space-xs)", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-badge-radius", default: "0.25rem", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-chevron", default: "color-mix(in srgb, var(--wr-color-on-surface-muted) 70%, transparent)", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-chevron-size", default: "0.875rem", scope: ".wr-sidebar", overrides: 1 },
       { name: "--wr-sidebar-font-family", default: "var(--wr-font-family-base)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-group-toggle-font-size", default: "var(--wr-text-sm)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-group-toggle-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-group-toggle-gap", default: "var(--wr-space-sm)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-group-toggle-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-group-toggle-padding-x", default: "var(--wr-space-md)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-group-toggle-padding-y", default: "var(--wr-space-sm)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-group-toggle-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-inner-gap", default: "var(--wr-space-xs)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-item-font-size", default: "var(--wr-text-sm)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-item-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-item-gap", default: "var(--wr-space-sm)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-item-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-item-padding-x", default: "var(--wr-space-md)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-item-padding-y", default: "var(--wr-space-sm)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-item-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-list-border", default: "var(--wr-border-base)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-list-gap", default: "var(--wr-space-xs)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-list-margin-bottom", default: "var(--wr-space-sm)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-list-margin-inline-start", default: "var(--wr-space-sm)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-list-margin-top", default: "var(--wr-space-xs)", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-gap", default: "0.125rem", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-group-gap", default: "0.375rem", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-guide", default: "var(--wr-border-base)", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-guide-gap", default: "var(--wr-space-sm)", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-guide-width", default: "1px", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-icon-gap", default: "var(--wr-space-sm)", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-icon-size", default: "1rem", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-meta-gap", default: "0.375rem", scope: ".wr-sidebar" },
       { name: "--wr-sidebar-padding", default: "var(--wr-space-sm)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-title-font-size", default: "var(--wr-text-sm)", scope: ".wr-sidebar" },
-      { name: "--wr-sidebar-title-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-row-font-size", default: "var(--wr-text-sm)", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-row-height", default: "2rem", scope: ".wr-sidebar", overrides: 1 },
+      { name: "--wr-sidebar-row-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-row-padding-x", default: "var(--wr-space-sm)", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-row-padding-y", default: "0.375rem", scope: ".wr-sidebar", overrides: 1 },
+      { name: "--wr-sidebar-row-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-subtitle-font-size", default: "var(--wr-text-xs)", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-subtitle-line-height", default: "var(--wr-text-xs-leading)", scope: ".wr-sidebar" },
     ],
   },
   "reference/components/skeleton": {

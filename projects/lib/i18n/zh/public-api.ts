@@ -342,6 +342,9 @@ export const wrZh: WrI18nCatalog = {
   },
   sidebar: {
     label: '侧边栏',
+    containsCurrent: '包含当前页面',
+    subpages: '{{title}} 的子页面',
+    separator: '，',
   },
   spinner: {
     label: '加载中',

@@ -368,6 +368,9 @@ export const wrTr: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Kenar çubuğu',
+    containsCurrent: 'geçerli sayfayı içerir',
+    subpages: '{{title}} alt sayfaları',
+    separator: ',',
   },
   spinner: {
     label: 'Yükleniyor',

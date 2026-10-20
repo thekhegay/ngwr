@@ -361,6 +361,9 @@ export const wrVi: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Thanh bên',
+    containsCurrent: 'chứa trang hiện tại',
+    subpages: 'Trang con của {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Đang tải',

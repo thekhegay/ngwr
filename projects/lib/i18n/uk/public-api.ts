@@ -365,6 +365,9 @@ export const wrUk: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Бічна панель',
+    containsCurrent: 'містить поточну сторінку',
+    subpages: 'Підсторінки: {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Завантаження',

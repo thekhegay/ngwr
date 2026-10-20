@@ -367,6 +367,9 @@ export const wrPl: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Panel boczny',
+    containsCurrent: 'zawiera bieżącą stronę',
+    subpages: 'Podstrony: {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Ładowanie',

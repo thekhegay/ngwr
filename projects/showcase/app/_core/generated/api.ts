@@ -1019,11 +1019,12 @@ export const API = {
   ],
   // <wr-sidebar>
   WrSidebar: [
-    { name: "entries", description: "The navigation tree. Each entry may carry `children`, which the sidebar renders as a collapsible group and expands when a descendant is the active route.", type: "readonly WrSidebarEntry[]", default: "[]" },
-    { name: "ariaLabel", description: "Accessible name for the navigation landmark. Falls back to `sidebar.label`, then `'Sidebar'` — a page with a sidebar AND a table of contents has two navigation landmarks, and an unnamed one is announced as just \"navigation\".", type: "string | null", default: "null" },
-    { name: "defaultGroupIcon", description: "Default icon for entries without one.", type: "string", default: "'folder'" },
-    { name: "defaultItemIcon", description: "Default icon for items without one.", type: "string", default: "'caret-forward'" },
-    { name: "autoExpand", description: "Auto-expand the group containing the active route.", type: "boolean", default: "true" },
+    { name: "entries", description: "The navigation tree. An entry with `children` is a group, which opens on click and on its own when the current route is below it.", type: "readonly WrSidebarEntry[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name for the navigation landmark. Falls back to `sidebar.label`, then `'Sidebar'`: a page with a sidebar AND a table of contents has two navigation landmarks, and an unnamed one is announced as just \"navigation\".", type: "string | null", default: "null" },
+    { name: "defaultGroupIcon", description: "Icon for a group that names none. `null` draws no icon.", type: "string | null", default: "null" },
+    { name: "defaultItemIcon", description: "Icon for a page that names none. `null` draws no icon.", type: "string | null", default: "null" },
+    { name: "autoExpand", description: "Open every group above the current route, once per navigation: a group the user closes stays closed until the route changes.", type: "boolean", default: "true" },
+    { name: "autoCollapse", description: "Close the groups the previous navigation opened when the next one leaves them, so a long nav does not keep every visited section expanded. A group the user opened or closed by hand is never closed for them. Needs `autoExpand`.", type: "boolean", default: "false" },
   ],
   // <wr-skeleton>
   WrSkeleton: [

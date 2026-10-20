@@ -358,6 +358,9 @@ export const wrNl: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Zijbalk',
+    containsCurrent: 'bevat de huidige pagina',
+    subpages: "Subpagina's van {{title}}",
+    separator: ',',
   },
   spinner: {
     label: 'Laden',

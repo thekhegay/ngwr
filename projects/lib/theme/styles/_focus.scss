@@ -55,16 +55,12 @@
   outline-offset: -2px;
 }
 
-// Sidebar
-.wr-sidebar__entry:focus-visible,
-.wr-sidebar__group-toggle:focus-visible {
-  @include focus-ring;
-}
-
-// `.wr-sidebar__group-body` is `overflow: hidden` so the group can animate
-// `grid-template-rows` from 1fr to 0fr, and the item runs flush to its inline
-// end — an outset ring loses its whole inline-end stroke there.
-.wr-sidebar__item:focus-visible {
+// Sidebar — inset on every level. `.wr-sidebar__group-body` is `overflow: hidden`
+// so the group can animate `grid-template-rows` from 1fr to 0fr, and a nested row
+// runs flush to its inline end, so an outset ring loses its inline-end stroke
+// there; level 1 takes the same ring so the three levels draw one shape.
+.wr-sidebar__row:focus-visible,
+.wr-sidebar__toggle:focus-visible {
   @include focus-ring;
   outline-offset: -2px;
 }

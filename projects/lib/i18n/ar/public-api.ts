@@ -374,6 +374,9 @@ export const wrAr: WrI18nCatalog = {
   },
   sidebar: {
     label: 'الشريط الجانبي',
+    containsCurrent: 'تحتوي على الصفحة الحالية',
+    subpages: 'الصفحات الفرعية لـ {{title}}',
+    separator: '،',
   },
   spinner: {
     label: 'جارٍ التحميل',

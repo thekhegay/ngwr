@@ -344,6 +344,9 @@ export const wrHi: WrI18nCatalog = {
   },
   sidebar: {
     label: 'साइडबार',
+    containsCurrent: 'वर्तमान पृष्ठ शामिल है',
+    subpages: '{{title}} के उप-पृष्ठ',
+    separator: ',',
   },
   spinner: {
     label: 'लोड हो रहा है',

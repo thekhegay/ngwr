@@ -1,111 +1,153 @@
-<!-- A div, not a <nav>: the host already IS the navigation landmark, and two
+<!-- A list, not a <nav>: the host already IS the navigation landmark, and two
      nested ones announce the same list twice. -->
-<div class="wr-sidebar__inner">
-  @for (entry of entries(); track entry.title) {
-    @if (!isGroup(entry)) {
-      <!--
-        A span, not a greyed anchor, exactly as the nested branch below does it.
-        `--disabled` only paints: `pointer-events: none` stops a real pointer but
-        not the keyboard, so a disabled entry stayed in the tab order and Enter
-        navigated — `disabled` on a `WrSidebarItem` is documented as "no
-        navigation". An empty `url` is the same case: `[routerLink]="[]"` resolves
-        to the current route, which is a link that goes nowhere.
-      -->
-      @if (asItem(entry).disabled || !asItem(entry).url.length) {
-        <span class="wr-sidebar__entry wr-sidebar__entry--disabled">
-          @if (asItem(entry).icon || defaultItemIcon(); as name) {
-            <wr-icon class="wr-sidebar__icon" [name]="name" />
-          }
-          <span class="wr-sidebar__title">{{ entry.title }}</span>
-          @if (asItem(entry).badge) {
-            <small class="wr-sidebar__badge">{{ asItem(entry).badge }}</small>
-          }
-        </span>
-      } @else {
-        <a
-          class="wr-sidebar__entry"
-          routerLinkActive="wr-sidebar__entry--active"
-          [routerLink]="asItem(entry).url"
-          [routerLinkActiveOptions]="asItem(entry).activeOptions ?? defaultActiveOptions"
-        >
-          @if (asItem(entry).icon || defaultItemIcon(); as name) {
-            <wr-icon class="wr-sidebar__icon" [name]="name" />
-          }
-          <span class="wr-sidebar__title">{{ entry.title }}</span>
-          @if (asItem(entry).badge) {
-            <small class="wr-sidebar__badge">{{ asItem(entry).badge }}</small>
-          }
-        </a>
-      }
-    } @else {
-      <section class="wr-sidebar__group" [class.wr-sidebar__group--collapsed]="!isOpen(entry.title)">
-        <button
-          type="button"
-          class="wr-sidebar__group-toggle"
-          [attr.aria-expanded]="isOpen(entry.title)"
-          [attr.aria-controls]="groupBodyId($index)"
-          (click)="toggleGroup(entry.title)"
-        >
-          @if (asGroup(entry).icon || defaultGroupIcon(); as name) {
-            <wr-icon class="wr-sidebar__icon" [name]="name" />
-          }
-          <span class="wr-sidebar__title">{{ entry.title }}</span>
-          <!-- Inline chrome chevron — not user-customizable. -->
-          <svg
-            class="wr-icon__svg wr-sidebar__chevron"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
+<ul class="wr-sidebar__inner">
+  <ng-container [ngTemplateOutlet]="rows" [ngTemplateOutletContext]="{ $implicit: nodes() }" />
+</ul>
+
+<ng-template #rows let-list>
+  @for (node of asNodes(list); track node.key) {
+    <li
+      [class.wr-sidebar__group]="!!node.children"
+      [class.wr-sidebar__group--collapsed]="!!node.children && !node.open"
+    >
+      @if (node.children) {
+        @if (node.url) {
+          <!-- A group that is also a page: two targets, the title a link and the
+               arrow a button of its own. -->
+          <div class="wr-sidebar__split">
+            <a
+              [class]="node.rowClass"
+              [routerLink]="node.url"
+              [attr.aria-current]="node.active ? 'page' : null"
+              [attr.aria-describedby]="node.subtitleId"
+            >
+              <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{ $implicit: node }" />
+            </a>
+            <button
+              type="button"
+              class="wr-sidebar__toggle"
+              [attr.aria-expanded]="node.open"
+              [attr.aria-controls]="node.listId"
+              [attr.aria-label]="subpagesLabel({ title: node.title })"
+              (click)="toggle(node.key)"
+            >
+              <ng-container [ngTemplateOutlet]="chevron" />
+            </button>
+          </div>
+        } @else {
+          <button
+            type="button"
+            [class]="node.rowClass"
+            [attr.aria-expanded]="node.open"
+            [attr.aria-controls]="node.listId"
+            [attr.aria-describedby]="node.subtitleId"
+            (click)="toggle(node.key)"
           >
-            <path d="m6 9 6 6 6-6" />
-          </svg>
-        </button>
-        <div
-          class="wr-sidebar__group-wrap"
-          [attr.id]="groupBodyId($index)"
-          [attr.inert]="!isOpen(entry.title) ? '' : null"
-        >
+            <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{ $implicit: node }" />
+          </button>
+        }
+        <div class="wr-sidebar__group-wrap" [id]="node.listId" [attr.inert]="node.open ? null : ''">
           <div class="wr-sidebar__group-body">
-            <ul class="wr-sidebar__list">
-              @for (child of asGroup(entry).children; track child.title) {
-                <li>
-                  @if (child.disabled || !child.url.length) {
-                    <span class="wr-sidebar__item wr-sidebar__item--disabled">
-                      @if (child.icon || defaultItemIcon(); as name) {
-                        <wr-icon class="wr-sidebar__icon" [name]="name" />
-                      }
-                      <span class="wr-sidebar__item-title">{{ child.title }}</span>
-                      @if (child.badge) {
-                        <small class="wr-sidebar__badge">{{ child.badge }}</small>
-                      }
-                    </span>
-                  } @else {
-                    <a
-                      class="wr-sidebar__item"
-                      routerLinkActive="wr-sidebar__item--active"
-                      [routerLink]="child.url"
-                      [routerLinkActiveOptions]="child.activeOptions ?? defaultActiveOptions"
-                    >
-                      @if (child.icon || defaultItemIcon(); as name) {
-                        <wr-icon class="wr-sidebar__icon" [name]="name" />
-                      }
-                      <span class="wr-sidebar__item-title">{{ child.title }}</span>
-                      @if (child.badge) {
-                        <small class="wr-sidebar__badge">{{ child.badge }}</small>
-                      }
-                    </a>
-                  }
-                </li>
-              }
+            <ul class="wr-sidebar__list" [class.wr-sidebar__list--under-icon]="!!node.icon">
+              <ng-container [ngTemplateOutlet]="rows" [ngTemplateOutletContext]="{ $implicit: node.children }" />
             </ul>
           </div>
         </div>
-      </section>
-    }
+      } @else if (node.url) {
+        <a
+          [class]="node.rowClass"
+          [routerLink]="node.url"
+          [attr.aria-current]="node.active ? 'page' : null"
+          [attr.aria-describedby]="node.subtitleId"
+        >
+          <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{ $implicit: node }" />
+        </a>
+      } @else {
+        <!-- A span, not a greyed anchor: `pointer-events: none` stops a mouse and
+             never the keyboard, so a disabled link stayed a tab stop and Enter
+             navigated. An empty `url` is the same case. No `aria-describedby`: a
+             span is a nameless generic, so its subtitle is read as plain text. -->
+        <span [class]="node.rowClass">
+          <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{ $implicit: node }" />
+        </span>
+      }
+    </li>
   }
-</div>
+</ng-template>
+
+<!-- The inside of every row. The accessible name is the title, then the badge,
+     then the count, each piece ending in a hidden separator (`sidebar.separator`)
+     when another follows; on a link or a button the subtitle is the description,
+     and on a disabled row it is read as text. The separator sits INSIDE the piece
+     it follows, and inline: a browser puts a space at every block boundary, so a
+     comma element of its own was read as "Guides , 14". -->
+<ng-template #row let-value>
+  @let node = asNode(value);
+  @if (node.icon) {
+    <wr-icon class="wr-sidebar__icon" [name]="node.icon" />
+  }
+  <span class="wr-sidebar__title"
+    >{{ node.title }}<span class="wr-sidebar__comma">{{ node.titleTail }}</span></span
+  >
+  @if (node.badge || node.subtitle) {
+    <span class="wr-sidebar__meta">
+      @if (node.badge; as badge) {
+        <small
+          class="wr-sidebar__badge"
+          [class.wr-sidebar__badge--neutral]="badge.tone === 'neutral'"
+          [class.wr-sidebar__badge--primary]="badge.tone === 'primary'"
+          [class.wr-sidebar__badge--danger]="badge.tone === 'danger'"
+          >{{ badge.text }}<span class="wr-sidebar__comma">{{ node.badgeTail }}</span></small
+        >
+      }
+      @if (node.subtitle) {
+        <span
+          class="wr-sidebar__subtitle"
+          [attr.aria-hidden]="node.url || node.children ? 'true' : null"
+          [attr.id]="node.subtitleId"
+          >{{ node.subtitle }}</span
+        >
+      }
+    </span>
+  }
+  @if (node.count !== null || node.holdsActive || (node.children && !node.url)) {
+    <span class="wr-sidebar__end">
+      @if (node.count !== null) {
+        @if (node.countLabel) {
+          <small class="wr-sidebar__count" aria-hidden="true">{{ node.count }}</small>
+          <span class="wr-sidebar__sr">{{ node.countLabel }}{{ node.countTail }}</span>
+        } @else {
+          <small class="wr-sidebar__count"
+            >{{ node.count }}<span class="wr-sidebar__comma">{{ node.countTail }}</span></small
+          >
+        }
+      }
+      @if (node.holdsActive) {
+        <span class="wr-sidebar__dot" aria-hidden="true"></span>
+      }
+      @if (node.children && !node.url) {
+        <ng-container [ngTemplateOutlet]="chevron" />
+      }
+    </span>
+  }
+  @if (node.holdsActive) {
+    <span class="wr-sidebar__sr">{{ containsCurrentLabel() }}</span>
+  }
+</ng-template>
+
+<!-- Inline chrome, not user-customisable. Points at the inline end; turns down when open. -->
+<ng-template #chevron>
+  <svg
+    class="wr-sidebar__chevron"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="m9 18 6-6-6-6" />
+  </svg>
+</ng-template>

@@ -344,6 +344,9 @@ export const wrSv: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Sidopanel',
+    containsCurrent: 'innehåller den aktuella sidan',
+    subpages: 'Undersidor till {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Läser in',

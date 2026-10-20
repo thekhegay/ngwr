@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="Sidebar"
-  description="Navigation drawn from data: links and expandable groups."
+  description="Navigation drawn from data: pages and groups, three levels deep."
   [keywords]="['sidebar', 'navigation', 'nav', 'wr-sidebar']"
   [labels]="['Component']"
 >
   <ngwr-doc-section
     title="Basic usage"
-    description="Pass `[entries]`: links and groups. The group holding the active route opens."
+    description="Pass `[entries]`: pages and groups. Every group above the current route opens."
   >
     <ngwr-doc-snippet [code]="snippets.template">
       <div class="demo-sidebar">
@@ -20,8 +20,15 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Subtitle, badge and count"
+    description="Any row can take a one-line `subtitle`, a word `badge` under the title and a `count` at the end. Give a group a `url` to make it a page too."
+  >
+    <ngwr-doc-code [code]="snippets.rows" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Which route counts as active"
-    description="Entries match by URL prefix, so give `['/']` `activeOptions: { exact: true }`, or it is active, and not clickable, on every page."
+    description="Pages match by URL prefix, so give `['/']` `activeOptions: { exact: true }`, or it is the current page everywhere."
   >
     <ngwr-doc-code [code]="snippets.activeOptions" language="angular-ts" />
   </ngwr-doc-section>

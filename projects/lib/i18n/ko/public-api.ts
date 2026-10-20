@@ -356,6 +356,9 @@ export const wrKo: WrI18nCatalog = {
   },
   sidebar: {
     label: '사이드바',
+    containsCurrent: '현재 페이지 포함',
+    subpages: '{{title}} 하위 페이지',
+    separator: ',',
   },
   spinner: {
     label: '불러오는 중',

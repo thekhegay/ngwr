@@ -344,6 +344,9 @@ export const wrCs: WrI18nCatalog = {
   },
   sidebar: {
     label: 'Postranní panel',
+    containsCurrent: 'obsahuje aktuální stránku',
+    subpages: 'Podstránky položky {{title}}',
+    separator: ',',
   },
   spinner: {
     label: 'Načítání',

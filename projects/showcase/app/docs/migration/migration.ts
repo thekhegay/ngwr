@@ -130,6 +130,29 @@ export default class MigrationPageComponent {
       before: '`<wr-timeline-item color="medium">`, `.wr-timeline-item--medium`',
       after: '`color="neutral"`, `.wr-timeline-item--neutral`',
     },
+    {
+      before: "`WrSidebarItem` `badge: 'new'`, `badge: '12'`",
+      after: "`badge: { text: 'New', tone: 'primary' }` for a word, `count: 12` for a number",
+    },
+    {
+      before: '`WrSidebarGroup.children` holds `WrSidebarItem`s',
+      after: "A child can be a group: check `'children' in child` before reading `url`, `disabled` or `activeOptions`",
+    },
+    {
+      before: '`<wr-sidebar>` draws `folder` and `caret-forward` icons by default',
+      after: 'No icons by default. Bind `defaultGroupIcon` and `defaultItemIcon` to keep them.',
+    },
+    {
+      before:
+        '`.wr-sidebar__entry`, `__item`, `__group-toggle`, `__item-title`, `--active` and `--disabled` on the first two',
+      after:
+        '`.wr-sidebar__row`, `__title`, `.wr-sidebar__row--active`, `.wr-sidebar__row--disabled`; `.wr-sidebar__row--group` for `__group-toggle`',
+    },
+    {
+      before:
+        '`--wr-sidebar-entry-*`, `-item-*`, `-group-toggle-*`, `-title-*`, `-list-*`, `-inner-gap`, `-badge-padding-y`, `-badge-letter-spacing`',
+      after: '`--wr-sidebar-row-*`, `--wr-sidebar-gap`, `--wr-sidebar-guide*`, `--wr-sidebar-badge-*`',
+    },
   ];
 
   protected readonly v15Removed: readonly Change[] = [
