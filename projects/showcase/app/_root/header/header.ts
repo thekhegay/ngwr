@@ -65,7 +65,7 @@ function docVersionList(major: number, next: boolean): readonly DocVersion[] {
     archivedMajors(current).map(v => ({ label: `v${v}`, url: `${stable}/v${v}/`, active: false }));
   return next
     ? [
-        { label: `v${major} · next`, url: '/', active: true },
+        { label: 'next', url: '/', active: true },
         { label: `v${major - 1} · latest`, url: `${stable}/`, active: false },
         ...archived(major - 1),
       ]
