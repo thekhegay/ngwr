@@ -109,24 +109,22 @@ export class DocPageComponent {
   /**
    * "On this page", built from the sections the page renders.
    *
-   * Two sources, because the shell renders two of the sections itself:
+   * Two sources, because the shell renders some of the sections itself:
    * `contentChildren` sees what the PAGE projected, `viewChildren` the
-   * Installation and CSS-variables blocks this template adds. Reading only the
-   * projected ones would list a page's own headings and silently omit the two
-   * a reader is most likely to be looking for.
+   * Installation, CSS-variables and Dependencies blocks this template adds.
    *
    * Order follows the DOM: Installation first, the page's own sections next,
-   * CSS variables last — which is why the view list is split around the
-   * projected one rather than concatenated after it.
+   * then CSS variables and Dependencies — which is why the view list is split
+   * around the projected one rather than concatenated after it.
    */
   private readonly projected = contentChildren(DocSectionComponent);
   private readonly own = viewChildren(DocSectionComponent);
 
   protected readonly tocLinks = computed<readonly WrAnchorLink[]>(() => {
     const shell = this.own();
-    const install = shell.filter(s => s.title() === 'Installation' || s.title() === 'Dependencies');
-    const cssVars = shell.filter(s => s.title() === 'CSS variables');
-    const all = [...install, ...this.projected(), ...cssVars];
+    const install = shell.filter(s => s.title() === 'Installation');
+    const tail = shell.filter(s => s.title() === 'CSS variables' || s.title() === 'Dependencies');
+    const all = [...install, ...this.projected(), ...tail];
     return all.map(s => ({ id: s.anchorId(), label: s.title() }));
   });
 

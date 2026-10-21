@@ -4,7 +4,7 @@ import {
   provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { provideRouter, withInMemoryScrolling } from '@angular/router';
+import { provideRouter, withInMemoryScrolling, withNavigationErrorHandler } from '@angular/router';
 
 import { provideWr } from 'ngwr';
 import { withDensity } from 'ngwr/density';
@@ -19,6 +19,28 @@ import { VALIDATION_EN, VALIDATION_RU } from './app.validation';
 import { routing } from './routing';
 
 import { COMMON_ICONS } from '#core/icons';
+
+/**
+ * A tab opened before a deploy asks for lazy chunks the deploy removed, and the
+ * navigation fails. Load the URL afresh onto the new build instead — once per
+ * URL, so a chunk missing from the new build too cannot loop.
+ */
+function reloadOnStaleChunk(error: unknown, url: string): void {
+  const message = error instanceof Error ? error.message : String(error);
+  if (
+    typeof location === 'undefined' ||
+    !/dynamically imported module|Importing a module script failed/i.test(message)
+  ) {
+    return;
+  }
+  try {
+    if (sessionStorage.getItem('ngwr-stale-chunk') === url) return;
+    sessionStorage.setItem('ngwr-stale-chunk', url);
+  } catch {
+    // No storage to remember the attempt: reload anyway.
+  }
+  location.assign(url);
+}
 
 /**
  * Providers shared by the browser entry (`main.ts`) and the prerender entry
@@ -46,7 +68,11 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     // Reset to top on every forward navigation; back / forward restores
     // the previous position. `anchorScrolling` makes `#fragment` links work.
-    provideRouter(routing, withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' })),
+    provideRouter(
+      routing,
+      withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' }),
+      withNavigationErrorHandler(({ error, url }) => reloadOnStaleChunk(error, url))
+    ),
     // ngwr
     provideWrLoadingBarRouter(),
     // Default icon registry — names every showcase page can reference

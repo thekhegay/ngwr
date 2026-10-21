@@ -40,6 +40,20 @@
     </ngwr-doc-section>
   }
 
+  <ng-content />
+
+  <!--
+    Rendered by the shell rather than by the page, after its API: the catalogue
+    is generated, so a component that grows a hook gets the row without anyone
+    remembering to ask for it. `null` for every route that documents no entry
+    point, which is most of `/guides` and `/docs`.
+  -->
+  @if (cssVars(); as vars) {
+    <ngwr-doc-section title="CSS variables" [description]="cssVarsDescription(vars.subpath)">
+      <ngwr-doc-css-vars [rows]="vars.vars" />
+    </ngwr-doc-section>
+  }
+
   @if (deps(); as rows) {
     <ngwr-doc-section title="Dependencies">
       <table class="deps">
@@ -69,22 +83,8 @@
     </ngwr-doc-section>
   }
 
-  <ng-content />
-
   @if (!ownSeeAlso()) {
     <ngwr-doc-see-also />
-  }
-
-  <!--
-    Last section on the page, and rendered by the shell rather than by the page:
-    the catalogue is generated, so a component that grows a hook gets the row
-    without anyone remembering to ask for it. `null` for every route that
-    documents no entry point, which is most of `/guides` and `/start`.
-  -->
-  @if (cssVars(); as vars) {
-    <ngwr-doc-section title="CSS variables" [description]="cssVarsDescription(vars.subpath)">
-      <ngwr-doc-css-vars [rows]="vars.vars" />
-    </ngwr-doc-section>
   }
 </div>
 
