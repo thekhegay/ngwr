@@ -19,18 +19,14 @@ export interface Commit {
 
 /**
  * The commits on HEAD since `ref`, newest first, or the whole history when
- * `ref` is `null`.
- *
- * Records are NUL-separated by `git log -z`: a commit body legitimately contains
- * blank lines, so every text delimiter simple enough to write is also one a real
- * message can contain. `--no-show-signature` because `log.showSignature` prints
- * gpg's lines into the same stream, ahead of the hash.
+ * `ref` is `null`. `-z` because a body can contain any text delimiter;
+ * `--no-show-signature` because `log.showSignature` prints gpg lines into the stream.
  */
 export function commitsSince(ref: string | null): Commit[] {
   const range = ref ? `${ref}..HEAD` : 'HEAD';
   const log = execFileSync('git', ['log', '--no-show-signature', '-z', '--format=%H%n%s%n%b', range], {
     encoding: 'utf8',
-    // Bodies make a whole-history read several times the size of a subject list.
+    // A whole-history read with bodies outgrows the default buffer.
     maxBuffer: 256 * 1024 * 1024,
   });
 

@@ -31,14 +31,14 @@ import { LIB_PATH } from './paths/lib';
 import { blankTs } from './ts-lex';
 
 
-/** `export { WrFoo, WrBar as Baz, type Quux } from './…';`, the bare form included, with its specifier. */
+/** `export { WrFoo, WrBar as Baz, type Quux } from './…';`, the bare form included. */
 const EXPORT_LIST_RE = /export\s*(type\s*)?\{([^}]*)\}(?:\s*from\s*'([^']+)')?/g;
 const EXPORT_STAR_RE = /export\s+\*\s+from\s+'([^']+)'/g;
 const DECLARATION_RE =
   /^export\s+(?:declare\s+)?(?:abstract\s+)?(const|let|var|function|class|type|interface|enum)\s+(\w+)/gm;
 const SYMBOL_RE = /\b(Wr[A-Z][A-Za-z0-9_]*)\b/;
 
-/** Names `file` declares with a top-level `export const` / `class` / `type` / …, read with comments blanked. */
+/** Names `file` declares with a top-level `export const` / `class` / `type` / …. */
 function declaredIn(file: string): [name: string, isType: boolean][] {
   const out: [string, boolean][] = [];
   for (const m of blankTs(readFileSync(file, 'utf8'), false).matchAll(DECLARATION_RE)) {
@@ -51,8 +51,7 @@ function declaredIn(file: string): [name: string, isType: boolean][] {
 function symbolsIn(entry: string): readonly string[] {
   const out = new Set<string>();
   for (const exported of publicExports(entry)) {
-    // A type does not compile in `imports: [...]`, which is where `ng g
-    // ngwr:use` splices the symbol. Only listed names count here.
+    // A type does not compile in `imports: [...]`, where `ng g ngwr:use` splices the symbol.
     if (exported.isType || exported.via !== 'list') continue;
     const sym = SYMBOL_RE.exec(exported.name)?.[1];
     if (sym) out.add(sym);
@@ -64,21 +63,19 @@ function symbolsIn(entry: string): readonly string[] {
 export interface PublicExport {
   /** The name a consumer imports. */
   readonly name: string;
-  /** The name in the module it comes from, which differs only for `A as B`. */
+  /** The name in its source module; differs only for `A as B`. */
   readonly local: string;
-  /** `export type { … }`, `export { type … }`, or a declared type or interface: no value import can take it. */
+  /** `export type { … }`, `export { type … }`, or a declared type or interface. */
   readonly isType: boolean;
-  /** The specifier it is re-exported from; absent for a bare `export { … }` and for the barrel's own declarations. */
+  /** The re-export specifier; absent for a bare `export { … }` and the barrel's own declarations. */
   readonly from?: string;
-  /** An `export { … }` list, a name an `export * from` brings in, or one the barrel declares itself. */
+  /** An `export { … }` list, an `export * from`, or the barrel's own declaration. */
   readonly via: 'list' | 'star' | 'declared';
 }
 
 /**
- * Everything `projects/lib/<entry>/public-api.ts` exports, comments ignored: its
- * `export { … }` lists first, then what each `export * from './x'` brings in
- * (followed one hop, to `x.ts` or `x/index.ts`), then the barrel's own
- * declarations. A name is listed once, where it first appears.
+ * Everything `projects/lib/<entry>/public-api.ts` exports: `export { … }` lists,
+ * then `export * from` targets (one hop), then its own declarations; first wins.
  */
 export function publicExports(entry: string): PublicExport[] {
   const dir = resolve(LIB_PATH, entry);
@@ -105,8 +102,7 @@ export function publicExports(entry: string): PublicExport[] {
   for (const star of src.matchAll(EXPORT_STAR_RE)) {
     const from = star[1] ?? '';
     const base = from.replace(/\.js$/, '');
-    // A target this cannot find contributes nothing rather than failing every
-    // script that only reads the `export { … }` lists.
+    // An unresolved target adds nothing rather than failing scripts that read only the lists.
     const target = [join(dir, `${base}.ts`), join(dir, base, 'index.ts')].find(path => existsSync(path));
     for (const [name, isType] of target ? declaredIn(target) : []) {
       add({ name, local: name, isType, from, via: 'star' });

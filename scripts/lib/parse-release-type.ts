@@ -5,10 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-/**
- * Validates the value of `release:prepare`'s `--bump` flag, trimmed. Returns
- * `null` when it is missing or not a release type.
- */
+/** Validates `release:prepare`'s `--bump` value, trimmed; `null` when missing or unknown. */
 
 import type { ReleaseType } from './release-type';
 

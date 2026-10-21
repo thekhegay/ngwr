@@ -11,13 +11,13 @@ import { CHANGELOG_PATH } from '../paths/changelog';
 
 /** One `## ...` section of a changelog. */
 export interface ChangelogSection {
-  /** The H2 line itself, `## [14.12.0](…) (2026-10-16)`. */
+  /** The H2 line itself. */
   readonly heading: string;
-  /** Every line after it up to the next H2, joined and untrimmed. */
+  /** Every line up to the next H2, untrimmed. */
   readonly body: string;
 }
 
-/** The topmost `## ...` section of `source`, `CHANGELOG.md` by default, or `null` when it has none. */
+/** The topmost `## ...` section of `source` (`CHANGELOG.md` by default), or `null`. */
 export function latestSection(source = readFileSync(CHANGELOG_PATH, 'utf8')): ChangelogSection | null {
   const lines = source.split('\n');
   const start = lines.findIndex(line => /^##\s/.test(line));
@@ -28,9 +28,8 @@ export function latestSection(source = readFileSync(CHANGELOG_PATH, 'utf8')): Ch
 }
 
 /**
- * The topmost section of `CHANGELOG.md`, trimmed and without its heading: the
- * GitHub Release UI already shows the version as the title. Throws when there
- * is no section.
+ * The topmost section of `CHANGELOG.md`, trimmed and without its heading, which
+ * the GitHub Release already shows as its title. Throws when there is none.
  */
 export function extractLatestSection(): string {
   const section = latestSection();

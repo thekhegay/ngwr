@@ -26,8 +26,7 @@
  * `wr-table`'s `host: { … }` block — as the start of a string, loses balance,
  * and walks off the end of the file. A prototype dropped `wr-table` from the map
  * exactly that way: no error, just a missing entry. So the scan reads the file
- * through `ts-lex` (comments, the three quote forms, template substitutions and
- * regex literals) rather than through a regex.
+ * through `ts-lex` rather than through a regex.
  *
  * **A regex over text with no completeness assertion.** Every occurrence of
  * `@Component(` / `@Directive(` in code has to end in a record or an explicit
@@ -60,7 +59,7 @@ import { isWordChar, lexTs, TsClass, type TsToken } from './ts-lex';
  */
 const SKIP_DIRS = ['schematics', 'mcp', 'testing', 'node_modules'];
 
-/** The two decorators that carry a selector, which is all the map reads; {@link decoratedClasses} takes pipes too. */
+/** The decorators that carry a selector; {@link decoratedClasses} takes pipes too. */
 const SELECTOR_DECORATOR_RE = /@(Component|Directive)\s*\(/g;
 const DECORATOR_RE = /@(Component|Directive|Pipe)\s*\(/g;
 
@@ -80,11 +79,10 @@ function sourceFiles(dir: string): string[] {
  * Walk the decorator body from its opening `{` to the matching `}`, returning
  * the top-level `selector` literal (or `null`) and where the body ends.
  *
- * Driven by the file's tokens, keyed by where each starts: a comment or a
- * literal is stepped over whole, so `// don't` cannot unbalance the braces and a
- * `selector:` inside a doc comment is never seen. The key is only honoured at
- * depth 1 — `host: { … }` has no `selector`, but a nested object that grew one
- * must not be mistaken for the component's.
+ * Comments and literals are stepped over whole, so `// don't` cannot unbalance
+ * the braces. The key is only honoured at depth 1 — `host: { … }` has no
+ * `selector`, but a nested object that grew one must not be mistaken for the
+ * component's.
  */
 function readDecoratorBody(
   source: string,
@@ -229,8 +227,7 @@ function sortKeys(bucket: Record<string, WrSelectorTarget>): Record<string, WrSe
 
 /**
  * Every `@Component`, `@Directive` and `@Pipe` class declared in `file`, in
- * source order. A decorator in a comment or a string is not one, and one this
- * cannot read throws with the file and offset rather than going missing.
+ * source order. Throws on a decorator it cannot read rather than skipping it.
  */
 export function decoratedClasses(file: string): DecoratedClass[] {
   return declarationsIn(file, DECORATOR_RE).declarations;
@@ -240,7 +237,7 @@ export function decoratedClasses(file: string): DecoratedClass[] {
 export interface DecoratedClass {
   readonly klass: string;
   readonly kind: 'Component' | 'Directive' | 'Pipe';
-  /** The top-level `selector` literal, or `null` when there is none: every pipe, and abstract bases. */
+  /** The top-level `selector` literal; `null` for every pipe and for abstract bases. */
   readonly selector: string | null;
   /** Byte offset of the `@` — the coordinate every thrown error quotes. */
   readonly offset: number;

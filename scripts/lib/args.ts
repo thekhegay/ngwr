@@ -45,13 +45,9 @@ export interface ParseFlagsOptions {
 }
 
 /**
- * Parses `--name`, `--name=value` and `--name value` against `spec` with
- * `node:util`'s `parseArgs`, strictly.
- *
- * Anything `spec` does not declare is refused as `Unknown option(s): …` with
- * `Usage: <usage>` under it, and so are a positional, a boolean given a value,
- * a missing value and a `number` flag whose value is not a number. A repeated
- * flag keeps its FIRST value, as the `argv.find()` this replaces did.
+ * Parses `--name`, `--name=value` and `--name value` against `spec`, strictly:
+ * an unknown flag, a positional or a malformed value exits 1 with the usage
+ * line. A repeated flag keeps its FIRST value.
  */
 export function parseFlags<const T extends Readonly<Record<string, FlagSpec>>>(
   usage: string,
@@ -106,9 +102,8 @@ export function parseFlags<const T extends Readonly<Record<string, FlagSpec>>>(
 }
 
 /**
- * The values a `--theme=` style flag allows, narrowed to the one it names; an
- * empty or absent flag keeps them all. An unknown value exits with
- * `✘ <label>: unknown <noun> "<value>". Use a or b.`
+ * `all` narrowed to the one value a `--theme=` style flag names; an empty flag
+ * keeps them all and an unknown value exits 1.
  */
 export function pickOne<T extends string>(
   all: readonly T[],
@@ -153,8 +148,7 @@ export interface Narrowed<T> {
 
 /**
  * A sweep's items narrowed by a `--filter=` substring and an optional limit.
- * Nothing left exits with `✘ <label>: no <noun> matches "<filter>".`, or with
- * `message` when one is given — a sweep over nothing would print a pass.
+ * Nothing left exits 1, since a sweep over nothing would print a pass.
  */
 export function narrow<T>(items: readonly T[], options: NarrowOptions<T>): Narrowed<T> {
   const filter = options.filter ?? '';

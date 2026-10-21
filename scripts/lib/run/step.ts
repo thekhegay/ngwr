@@ -48,11 +48,7 @@ export function tsx(label: string, script: string, args: readonly string[] = [])
   step(label, execPath, ['--import', 'tsx', script, ...args]);
 }
 
-/**
- * Compile one TypeScript project with `tsc -p`, run by this Node from
- * typescript's own bin rather than through a `pnpm exec` that starts pnpm first.
- * A type error stops the pipeline with tsc's exit code, as any failed step does.
- */
+/** Compile one TypeScript project with `tsc -p`, run by this Node rather than through `pnpm exec`. */
 export function tsc(label: string, tsconfig: string): void {
   step(label, execPath, [createRequire(import.meta.url).resolve('typescript/bin/tsc'), '-p', tsconfig]);
 }

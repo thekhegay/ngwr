@@ -8,8 +8,7 @@
 import { execFileSync } from 'node:child_process';
 
 /**
- * The release tags, newest first: every `vX.Y.Z`, plus every `vX.Y.Z-rc.N`
- * with `includeRc`.
+ * The `vX.Y.Z` tags, newest first, candidates included with `includeRc`.
  *
  * Without the suffix setting git sorts `v1.2.0-rc.1` above `v1.2.0`, so the
  * release after a stable one that had candidates would compare against an rc.
@@ -22,11 +21,7 @@ function releaseTags(options: { readonly includeRc: boolean }): string[] {
     .filter(t => pattern.test(t));
 }
 
-/**
- * The newest STABLE release tag, or `null` when there is none: what the
- * breaking-change gate measures from, since a candidate is where a major is
- * staged.
- */
+/** The newest stable release tag, or `null`; candidates are skipped because a major is staged on them. */
 export function lastReleaseTag(): string | null {
   return releaseTags({ includeRc: false })[0] ?? null;
 }

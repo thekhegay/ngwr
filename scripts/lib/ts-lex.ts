@@ -8,10 +8,7 @@
 /**
  * One lexer for the scripts that read TypeScript as text: which characters are
  * code and which sit in a comment, a string, a template literal or a regex
- * literal. Each caller reads its own view off the same pass — the class mask,
- * blanked comments, the counting text `gen:quality` matches, or the template
- * literals alone — plus a regex blanker for the SCSS and HTML readers, which
- * this lexer would misread.
+ * literal. SCSS and HTML go through {@link blankComments} instead.
  */
 
 /** Words a `/` may follow and still open a regex literal: `return /x/`, `a in /x/`. */
@@ -49,7 +46,6 @@ function regexBySource(src: string, i: number): boolean {
   return REGEX_AFTER.has(src.slice(k + 1, j + 1));
 }
 
-/** Every character but a newline turned into a space. */
 function blankText(text: string): string {
   return text.replace(/[^\n]/g, ' ');
 }
@@ -62,8 +58,7 @@ export type TsTokenKind = 'line-comment' | 'block-comment' | 'string' | 'templat
 
 /**
  * A comment or a literal, from its opening delimiter to one past its closing
- * one. A template literal with substitutions is several pieces — `` `a${ ``,
- * `}b${`, `` }c` `` — and the code between them is not a token.
+ * one. A template with substitutions is several pieces: `` `a${ ``, `}b${`, `` }c` ``.
  */
 export interface TsToken {
   readonly kind: TsTokenKind;
@@ -75,7 +70,7 @@ export interface TsToken {
   readonly closed: boolean;
 }
 
-/** What {@link lexTs} returns: the tokens, and the class of every character. */
+/** What {@link lexTs} returns. */
 export interface TsLex {
   /** Every token that is not code, in source order. */
   readonly tokens: readonly TsToken[];
@@ -86,21 +81,16 @@ export interface TsLex {
 /** How {@link lexTs} reads the one ambiguous character, `/`. */
 export interface TsLexOptions {
   /**
-   * How a `/` is told from division. `'source'` (the default) looks back over
-   * whitespace in the raw text. `'tokens'` looks at the last token instead, so
-   * a comment is invisible to it and a run of words carries across whitespace,
-   * and the regex token ends at a line break and takes its flags: the rule
-   * `gen/quality.ts` counts with, kept exactly because its numbers are printed.
+   * `'source'` (the default) looks back over the raw text; `'tokens'` looks at
+   * the last token, ends a regex at a line break and takes its flags. `'tokens'`
+   * exists for `gen/quality.ts`, whose printed counts depend on it.
    */
   readonly regexRule?: 'source' | 'tokens';
 }
 
 /**
- * Lex `src` once into its non-code tokens and a per-index class mask.
- *
- * A `}` closes a `${` only at the brace depth the substitution opened at, so an
- * object literal inside one does not end it, and a template inside a
- * substitution is lexed like any other.
+ * Lex `src` once into its non-code tokens and a per-index class mask. A `}`
+ * closes a `${` only at the brace depth it opened at.
  */
 export function lexTs(src: string, options: TsLexOptions = {}): TsLex {
   const byTokens = options.regexRule === 'tokens';
@@ -223,10 +213,8 @@ export function lexTs(src: string, options: TsLexOptions = {}): TsLex {
 }
 
 /**
- * `src` with every comment — and, with `strings`, every string body — replaced
- * by spaces, index for index, newlines kept. A template literal's body is
- * blanked whole, substitutions included; a literal the file never closes is
- * left as it is.
+ * `src` with every comment, and with `strings` every string and template body,
+ * blanked index for index, newlines kept. Substitutions go with their template.
  */
 export function blankTs(src: string, strings: boolean): string {
   const out = src.split('');
@@ -250,9 +238,8 @@ export function blankTs(src: string, strings: boolean): string {
 }
 
 /**
- * `src` reduced to what `gen:quality` counts: comments dropped (a block comment
- * leaves one space), string and template bodies emptied, every regex literal
- * written `/RE/`. Offsets and line numbers do not survive.
+ * `src` with comments dropped, string and template bodies emptied and every
+ * regex written `/RE/`. Offsets and line numbers do not survive.
  */
 export function stripTs(src: string): string {
   let out = '';
@@ -274,10 +261,9 @@ export function stripTs(src: string): string {
 }
 
 /**
- * A `.ts` file reduced to the bodies of its top-level template literals,
- * everything else blanked index for index. Substitutions, escapes and
- * `<!-- -->` comments inside a body are blanked too; an escape takes its next
- * character with it, a newline included.
+ * `src` reduced to the bodies of its top-level template literals, everything
+ * else blanked index for index, substitutions, escapes and `<!-- -->` included.
+ * An escaped newline is blanked too, so lines after it shift up.
  */
 export function templateLiteralsOnly(src: string): string {
   let out = '';
@@ -322,10 +308,9 @@ export function templateLiteralsOnly(src: string): string {
 }
 
 /**
- * `src` with its block comments, whole-line `//` comments and, with `html`,
- * `<!-- -->` comments blanked, newlines kept so line numbers still hold. For
- * SCSS and HTML, where {@link blankTs} would read an unquoted
- * `url(http://…)` as a comment: a `//` counts only when it opens its line.
+ * SCSS or HTML `src` with block comments, whole-line `//` comments and, with
+ * `html`, `<!-- -->` comments blanked, newlines kept. A `//` counts only at the
+ * start of its line, so an unquoted `url(http://…)` survives.
  */
 export function blankComments(src: string, options: { html?: boolean } = {}): string {
   const out = src.replace(/\/\*[\s\S]*?\*\//g, blankText).replace(/^[ \t]*\/\/.*$/gm, blankText);

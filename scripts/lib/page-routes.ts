@@ -124,10 +124,7 @@ export interface WrPageRoutes {
    * the caller instead of being resolved by walk order.
    */
   readonly byDirectory: ReadonlyMap<string, readonly string[]>;
-  /**
-   * The directories in {@link byDirectory} whose routed component also carries
-   * `children`: a layout shell drawn around pages (`_layout`), not a page.
-   */
+  /** Directories in {@link byDirectory} whose component has `children`: a layout shell, not a page. */
   readonly shells: ReadonlySet<string>;
   /**
    * Anything the walk could not read. Non-empty means the map is short, and
@@ -206,10 +203,7 @@ export async function buildPageRoutes(): Promise<WrPageRoutes> {
   return { byDirectory, shells, problems };
 }
 
-/**
- * {@link buildPageRoutes}, or exit 1 with every problem on stderr: a short walk
- * builds a short map, and that reads exactly like a complete one.
- */
+/** {@link buildPageRoutes}, or exit 1 with every problem on stderr. */
 export async function requirePageRoutes(): Promise<WrPageRoutes> {
   const routes = await buildPageRoutes();
   if (routes.problems.length > 0) {
@@ -229,11 +223,7 @@ export interface WrSinglePage {
   readonly route: string;
 }
 
-/**
- * The directories of `byDirectory` served at exactly one route, in walk order,
- * dropping any that is not a directory on disk. One directory behind several
- * routes, the icon galleries or a cluster's catalog, documents no single page.
- */
+/** The directories of `byDirectory` served at exactly one route and present on disk, in walk order. */
 export function singleRoutePages(byDirectory: ReadonlyMap<string, readonly string[]>): WrSinglePage[] {
   const out: WrSinglePage[] = [];
   for (const [dir, routes] of byDirectory) {
@@ -251,10 +241,8 @@ export async function requireSingleRoutePages(): Promise<WrSinglePage[]> {
 }
 
 /**
- * How many routes render a page: every route in `byDirectory` except a layout
- * shell's ({@link WrPageRoutes.shells}) and the `**` 404, which nobody opens on
- * purpose and the builder never prerenders. A module mounted under two prefixes
- * counts once per prefix, as the router serves it.
+ * How many routes render a page: every route except a layout shell's and the
+ * `**` 404; a module mounted under two prefixes counts once per prefix.
  */
 export function docRouteCount(routes: WrPageRoutes): number {
   let count = 0;
@@ -266,9 +254,8 @@ export function docRouteCount(routes: WrPageRoutes): number {
 }
 
 /**
- * The clusters a page documents an entry point from, in the order that decides
- * which page an entry point gets when it has several: the two entry-point
- * groups first, then the reference clusters, guides last.
+ * The clusters a page documents an entry point from; the order decides which
+ * page an entry point with several gets.
  */
 export const DOC_CLUSTERS: readonly string[] = [
   'charts',
@@ -304,16 +291,14 @@ export interface WrDocPages {
 }
 
 export interface WrDocPagesOptions {
-  /** Keeps a page when it returns true, before any entry point picks its page. Defaults to every page. */
+  /** Filters pages before `byEntry` picks one per entry point. */
   readonly admit?: (page: WrDocPage) => boolean;
 }
 
 /**
- * Which entry point each page documents, by the DIRECTORY's name rather than
- * the route's, since `reference/components/display/qr/` serves `/qrcode`. A
- * name that is no entry point is looked up inside the groups that only hold
- * entry points (`bits`, `charts`); a page whose name matches none, or whose
- * route sits outside {@link DOC_CLUSTERS}, documents nothing.
+ * Which entry point each page documents, by the DIRECTORY's name, not the
+ * route's (`qr/` serves `/qrcode`), also tried under each group (`bits/<name>`).
+ * A page matching none, or outside {@link DOC_CLUSTERS}, is dropped.
  */
 export function docPages(
   pages: Iterable<{ readonly dir: string; readonly route: string }>,

@@ -6,9 +6,8 @@
  */
 
 /**
- * axe-core for the three a11y gates: its source, the impacts they fail on, a
- * runner for a Playwright page, a per-rule tally of what it reported, and a
- * one-line account of what it measured on a node.
+ * axe-core for the a11y gates: its source, the failing impacts, a Playwright
+ * runner, a per-rule tally and a one-line account of a measured node.
  */
 
 import { readFileSync } from 'node:fs';
@@ -18,11 +17,8 @@ import type { AxeResults, ImpactValue, NodeResult, Result, RuleObject, RunOption
 import type { Page } from 'playwright';
 
 /**
- * axe-core's own source, to evaluate inside a page or a JSDOM window.
- *
- * Importing it into Node does not work: axe captures `window` / `document` when
- * its module is evaluated, so pointing `globalThis` at a JSDOM window afterwards
- * throws "Required window or document globals not defined".
+ * axe-core's source, to evaluate inside a page or a JSDOM window. Importing it
+ * into Node does not work: axe captures `window` / `document` at module load.
  */
 const AXE_SOURCE = readFileSync(createRequire(import.meta.url).resolve('axe-core'), 'utf8');
 
@@ -34,32 +30,28 @@ function isFailingImpact(impact: ImpactValue | undefined): boolean {
   return FAILING_IMPACTS.includes(impact ?? 'minor');
 }
 
-/** The `axe` global, as evaluating `AXE_SOURCE` leaves it. Called with options alone, it runs on the document. */
+/** The `axe` global that `AXE_SOURCE` defines. */
 interface AxeRunner {
   readonly run: (context: unknown, options?: unknown) => Promise<AxeResults>;
 }
 
-/** A window that `AXE_SOURCE` has been evaluated in — the type to cast one to. */
+/** A window that `AXE_SOURCE` has been evaluated in. */
 interface AxeWindow {
   readonly axe: AxeRunner;
 }
 
-/** Where `runAxe` looks: a selector, or an include list. Both survive the trip into the page. */
+/** Where `runAxe` looks; it has to be serializable into the page. */
 type AxeContext = string | { readonly include: readonly string[] };
 
 /**
- * Runs axe inside a Playwright page and returns its results.
- *
- * `AXE_SOURCE` is injected only when the document has no axe yet, so a second
- * run on the same page reuses it. A `null` context calls axe with the options
- * alone, which is the whole document.
+ * Runs axe inside a Playwright page, injecting `AXE_SOURCE` once per document.
+ * A `null` context runs on the whole document.
  */
 async function runAxe(page: Page, context: AxeContext | null, options: RunOptions): Promise<AxeResults> {
   const loaded = await page.evaluate(() => typeof (window as unknown as Partial<AxeWindow>).axe?.run === 'function');
   if (!loaded) await page.addScriptTag({ content: AXE_SOURCE });
 
-  // No named function inside: esbuild's keep-names wraps one in a `__name`
-  // call, and the page has no `__name`.
+  // No named function inside: esbuild's keep-names adds a `__name` call the page lacks.
   return page.evaluate(
     async arg => {
       const runner = (window as unknown as AxeWindow).axe;
@@ -102,10 +94,8 @@ interface RecordOptions {
 }
 
 /**
- * Files one axe violation under `key`, which is also the finding's `rule`.
- *
- * Impact, help and URL come from the first violation filed under a key; a
- * later one adds its route and, while there is room, its nodes.
+ * Files one axe violation under `key`, the finding's `rule`. The first one under
+ * a key sets impact, help and URL; later ones add their route and nodes.
  */
 function recordViolation(
   into: Map<string, Finding>,
@@ -133,7 +123,7 @@ function recordViolation(
   into.set(key, found);
 }
 
-/** The part of an axe node `describeAxeNode` reads: its checks, whose `data` holds what axe measured. */
+/** The part of an axe node `describeAxeNode` reads. */
 interface AxeNodeChecks {
   readonly any?: readonly { readonly data?: unknown }[];
 }
@@ -152,13 +142,9 @@ interface AxeCheckData {
 }
 
 /**
- * What axe measured on a failing node, in one line, from its own check data.
- *
- * Printing axe's numbers beats re-deriving them: a `color-mix` colour comes back
- * as `color(srgb …)` with 0–1 channels, which re-derived maths turns into
- * nonsense. `'inline'` describes a contrast or a target-size node;
- * `'bracketed'` is ` [ratio, wants, colours, font]` with a leading space, and
- * empty for anything but a contrast node.
+ * What axe measured on a failing node, in one line, from axe's own numbers: a
+ * `color-mix` colour is `color(srgb …)` with 0–1 channels, so never re-derive.
+ * `'bracketed'` is ` [ratio, wants, colours, font]`, for contrast nodes only.
  */
 function describeAxeNode(node: AxeNodeChecks, form: 'inline' | 'bracketed' = 'inline'): string {
   const data = node.any?.find(c => c.data && typeof c.data === 'object')?.data as AxeCheckData | undefined;

@@ -7,9 +7,8 @@
 
 /**
  * Serving and enumerating the prerendered showcase, for the checks that drive
- * a real browser over it and the generators that read it after the build —
- * and asking a loaded page which colour scheme it painted, which three of the
- * checks need before they measure anything.
+ * a real browser over it and the generators that read it after the build, and
+ * asking a loaded page which colour scheme it painted.
  *
  * Four of them did this themselves — `check:contrast`, `check:state-a11y`,
  * `check:layout` and `check:rtl-layout` — with four copies of the same static
@@ -124,9 +123,9 @@ function requireBuiltShowcase(label: string): void {
 }
 
 /**
- * The file under `dist/showcase` that serves `route`: `html` is the route's own
- * `index.html`, any other extension the sibling twin (`/a/b` is `a/b.md`), and
- * the root's twin is `index.<ext>`, since the root has no parent to sit beside.
+ * The file under `dist/showcase` that serves `route`: `html` is its own
+ * `index.html`, any other extension the sibling twin (`/a/b` is `a/b.md`, and
+ * `/` is `index.md`).
  */
 function routeFile(route: string, ext: string): string {
   const rel = route.replace(/^\//, '');
@@ -136,7 +135,7 @@ function routeFile(route: string, ext: string): string {
 
 /** One route the build prerendered. */
 interface PrerenderedPage {
-  /** `/reference/components/button`, as the manifest spells it. */
+  /** With a leading slash, as the manifest spells it. */
   readonly route: string;
   /** Its `index.html`. */
   readonly file: string;
@@ -146,10 +145,8 @@ interface PrerenderedPage {
 
 /**
  * Every route in the build's manifest whose page is on disk, in manifest order.
- *
- * A route with no file is dropped rather than kept, because nothing serves it.
- * Stops the run when the manifest is missing; `followsBuild` words that for a
- * step `build:showcase` itself runs afterwards.
+ * Exits when the manifest is missing; `followsBuild` rewords the hint for a
+ * step that runs after the build.
  */
 function prerenderedPages(label: string, options: { readonly followsBuild?: boolean } = {}): PrerenderedPage[] {
   if (!existsSync(ROUTES_JSON)) {
@@ -193,10 +190,8 @@ interface DistBrowser {
 
 /**
  * Serves `dist/showcase`, launches Chromium, runs `sweep`, and closes both
- * whatever happens, a failed launch included.
- *
- * Playwright is imported here rather than at the top, so the generators that
- * read this module's page list never load it.
+ * whatever happens. Playwright is imported lazily so the generators that only
+ * read the page list never load it.
  */
 async function withDistBrowser<T>(missing: MissingBehaviour, sweep: (site: DistBrowser) => Promise<T>): Promise<T> {
   const { server, origin } = await serveDist(missing);
@@ -243,20 +238,14 @@ function paintedScheme(page: Page): Promise<PaintedScheme | null> {
   });
 }
 
-/** Who is refusing in `openInScheme`, and the clause after the mismatch, if any. */
+/** Who `openInScheme` names when it refuses, and why. */
 interface SchemeRefusal {
-  /** The check's own name, which opens the message. */
   readonly label: string;
-  /** `refusing to report a theme that was never painted`, without the dash or the stop. */
+  /** A clause appended after ` — `, without its own full stop. */
   readonly reason?: string;
 }
 
-/**
- * Loads `route` to network idle and stops the run unless it painted `scheme`.
- *
- * The message names the route rather than the URL, so it reads the same on
- * every port.
- */
+/** Loads `route` to network idle and exits unless it painted `scheme`. */
 async function openInScheme(
   page: Page,
   origin: string,

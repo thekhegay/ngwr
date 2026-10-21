@@ -26,14 +26,10 @@ const LICENSE = `/**
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */`;
 
-/** The showcase's `_core/generated` folder, which every committed generated map lives in. */
+/** The showcase's `_core/generated` folder. */
 export const GENERATED_DIR = resolve(ROOT_PATH, 'projects/showcase/app/_core/generated');
 
-/**
- * The license block and the eslint-disable line, then `doc` as given: the
- * file's own GENERATED comment, delimiters included, so a one-line doc stays
- * one line.
- */
+/** The license block and the eslint-disable line, then `doc` verbatim, comment delimiters included. */
 export function generatedHeader(doc: string): string {
   return `${LICENSE}\n\n/* eslint-disable */\n${doc}`;
 }
@@ -54,13 +50,7 @@ export interface EmitGeneratedOptions {
   readonly upToDate?: string;
 }
 
-/**
- * Writes a generated file, or with `check` compares it with the committed copy.
- *
- * A stale or missing file prints `✘ <path> is out of date …` on stderr and
- * exits 1; every `✓` line goes to stdout, where the generators have always
- * printed it.
- */
+/** Writes a generated file, or with `check` exits 1 when the committed copy is stale or missing. */
 export function emitGenerated(options: EmitGeneratedOptions): void {
   const path = relative(ROOT_PATH, options.file);
 
@@ -81,23 +71,16 @@ export function emitGenerated(options: EmitGeneratedOptions): void {
 }
 
 export interface LineDiffOptions {
-  /** The most lines printed per side; the rest are counted on one line. Omitted, every line is printed. */
+  /** The most lines printed per side; the rest are counted on one line. */
   readonly cap?: number;
-  /**
-   * Prints each differing line once, in the order it was first seen with both
-   * sides interleaved, rather than removed lines then added ones, repeated as
-   * often as they differ.
-   */
+  /** Prints each differing line once, both sides interleaved, instead of removed then added lines. */
   readonly distinct?: boolean;
 }
 
 /**
- * The `  - …` / `  + …` lines between a freshly generated text and the
- * committed one, compared as multisets of lines, each printed trimmed.
- *
- * Two texts holding the same lines in another order get one line naming the
- * first that moved, since the multiset comparison alone would say nothing.
- * Identical texts give no lines.
+ * The `  - …` / `  + …` lines between a fresh text and the committed one,
+ * compared as multisets of lines. A pure reorder gets one line naming the first
+ * line that moved.
  */
 export function lineDiff(fresh: string, committed: string, options: LineDiffOptions = {}): string[] {
   const freshLines = fresh.split('\n');

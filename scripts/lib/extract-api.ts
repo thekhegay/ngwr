@@ -298,9 +298,8 @@ function exportedClasses(files: Iterable<string>): Set<string> {
 }
 
 /**
- * The text between a `{` already consumed at `open` and the `}` that closes it,
- * or the rest of the file but its last character when none does. `code` has its
- * comments blanked, so a declaration matched inside one has no `{` and no body.
+ * The text between a `{` already consumed at `open` and the `}` that closes it.
+ * `code` must be comment-blanked, so a match inside a comment has no body.
  */
 function bodyAt(code: string, open: number): string {
   if (code[open - 1] !== '{') return '';
@@ -761,11 +760,10 @@ export function endOfString(text: string, start: number): number {
 }
 
 /**
- * Index of the first character from `start` on for which `stop` answers true,
- * or `text.length`. `depth` is the bracket depth after that character, over
- * `<` `(` `[` `{` (`angle: false` leaves `<` `>` out), and the `>` of `=>` is
- * not a closer. A quoted literal is stepped over whole and `stop` never sees
- * it, so a quote in a comment derails the walk: pass comment-blanked text.
+ * Index of the first character from `start` for which `stop` is true, or
+ * `text.length`; `depth` counts `<` `(` `[` `{` (no angles with `angle: false`).
+ * Quoted literals are skipped whole, so pass comment-blanked text: a quote in a
+ * comment derails the walk.
  */
 export function scanTopLevel(
   text: string,
@@ -794,7 +792,7 @@ export function scanTopLevel(
   return text.length;
 }
 
-/** `text` cut at every `separator` that sits at bracket depth zero and outside a quoted literal, untrimmed. */
+/** `text` cut at every top-level `separator`, untrimmed. */
 export function splitTopLevel(text: string, separator: string, options: { angle?: boolean } = {}): string[] {
   const out: string[] = [];
   for (let from = 0; ;) {
@@ -805,7 +803,7 @@ export function splitTopLevel(text: string, separator: string, options: { angle?
   }
 }
 
-/** Index of the `]`, `}` or `)` closing the bracket at `open`, stepping over quoted literals; `-1` if it never closes. */
+/** Index of the bracket closing the one at `open`, or `-1`; quoted literals are skipped. */
 export function closingBracket(src: string, open: number): number {
   const opener = src[open];
   const closer = opener === '[' ? ']' : opener === '(' ? ')' : '}';
@@ -826,9 +824,8 @@ export function closingBracket(src: string, open: number): number {
 }
 
 /**
- * `src` with every comment — and, with `strings`, every string body — blanked
- * index for index, newlines kept, so a commented-out member or a JSDoc
- * `@example` is never read as code while every offset still lines up with `src`.
+ * `src` with every comment (and, with `strings`, every string body) blanked
+ * index for index, so a JSDoc `@example` is never read as code.
  */
 export function blanked(src: string, strings: boolean): string {
   return blankTs(src, strings);
@@ -881,9 +878,8 @@ export interface UnreadMember {
  *     a permanent finding about a component no consumer can write.
  *
  * The class scan is looser than `decoratedClasses()` on purpose, for the same
- * reason: that one demands an inline object literal and `)` immediately before
- * the class, and refuses anything else. Here a decorator is followed to the next
- * `export class`, whatever sits between them.
+ * reason: that one refuses anything but an inline object literal. Here a
+ * decorator is followed to the next `export class`, whatever sits between them.
  */
 export function unreadMembers(read: ReadonlySet<string>): UnreadMember[] {
   const byEntry = filesByEntry();

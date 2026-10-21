@@ -12,21 +12,17 @@ import { err } from '../log/err';
 import { info } from '../log/info';
 
 export interface CopyIntoOptions {
-  /** What the log lines call the source: `README.md`, `skills/`, `use/schema.json`. */
+  /** What the log lines call the source: `README.md`. */
   readonly label: string;
   /** Skips a missing source with a line on stderr instead of throwing. */
   readonly optional?: boolean;
-  /** Appended to the skip line after a dash: `run scripts/gen/ai-assets.ts first.` */
+  /** Appended to the skip line after a dash. */
   readonly hint?: string;
 }
 
 /**
- * Copies a file, or a directory recursively, to `dst`, creating its parent,
- * and logs `✓ Copied <label> → <dst>`. Returns false when an optional source
- * was missing and nothing was copied.
- *
- * A missing source that is not optional throws from `copyFileSync`, the error
- * every caller already died with.
+ * Copies a file, or a directory recursively, to `dst`, creating its parent.
+ * Returns false when an optional source is missing; a required one throws.
  */
 export function copyInto(src: string, dst: string, options: CopyIntoOptions): boolean {
   const exists = existsSync(src);

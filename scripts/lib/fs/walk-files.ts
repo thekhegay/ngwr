@@ -13,26 +13,22 @@ const codeUnitOrder = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 
 export interface WalkFilesOptions {
   /** Directory names never entered, at any depth. Defaults to `node_modules`; `[]` enters everything. */
   readonly skipDirs?: readonly string[];
-  /** Also skips every directory whose name starts with a dot. Defaults to false. */
+  /** Also skips every directory whose name starts with a dot. */
   readonly skipDotDirs?: boolean;
-  /** Keeps a file when it returns true, given its absolute path. Defaults to every file. */
+  /** Keeps a file when it returns true for its absolute path. */
   readonly include?: (path: string) => boolean;
   /**
-   * Orders each directory's entry names before visiting them, files and
-   * subdirectories interleaved; `true` is the default code-unit sort. Omitted,
-   * entries come in `readdir` order.
+   * Orders each directory's entries, files and subdirectories interleaved;
+   * `true` is a code-unit sort, and omitted keeps `readdir` order.
    */
   readonly sort?: true | ((a: string, b: string) => number);
-  /** Descends into a symbolic link that points at a directory. Defaults to true; false treats every link as a file. */
+  /** Descends into a symbolic link to a directory. Defaults to true. */
   readonly followLinks?: boolean;
 }
 
 /**
- * Every file under `root`, depth first, as absolute paths.
- *
- * A file is listed where the walk meets it, before the entries that follow it
- * in its directory, so a sorted walk is in document order rather than grouped
- * by depth.
+ * Every file under `root`, depth first, as absolute paths. A sorted walk is in
+ * document order rather than grouped by depth.
  */
 export function walkFiles(root: string, options: WalkFilesOptions = {}): string[] {
   const skip = new Set(options.skipDirs ?? ['node_modules']);

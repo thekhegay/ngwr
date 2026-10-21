@@ -6,9 +6,8 @@
  */
 
 /**
- * What the generators read off a showcase docs page's own source: the
- * attributes of its `<ngwr-doc-page>` and the `ngwr/*` entry points its demos
- * import.
+ * What the generators read off a showcase docs page's source: its
+ * `<ngwr-doc-page>` attributes and the `ngwr/*` entry points its demos import.
  */
 
 import { readFileSync, readdirSync } from 'node:fs';
@@ -23,11 +22,8 @@ interface TagAttr {
 }
 
 /**
- * Splits one element's attribute soup.
- *
- * Hand-rolled rather than regexed, because the regex version matched a
- * BINDING'S VALUE as the next attribute's name: `[(open)]="sidebarOpen"` came
- * back as an attribute called `sidebarOpen`.
+ * Splits one element's attribute soup. Hand-rolled because a regex reads a
+ * binding's value (`[(open)]="sidebarOpen"`) as the next attribute's name.
  */
 function parseAttrs(soup: string): TagAttr[] {
   const out: TagAttr[] = [];
@@ -63,7 +59,7 @@ function parseAttrs(soup: string): TagAttr[] {
 /** The opening `<ngwr-doc-page` itself, never `<ngwr-doc-page-…>`. */
 const DOC_PAGE = /<ngwr-doc-page(?=[\s>])/g;
 
-/** The text of the tag opening at `at`, through its `>`, quoted values respected; `null` when it never closes. */
+/** The tag opening at `at`, through a `>` outside quotes (a value can hold one); `null` when it never closes. */
 function openingTag(html: string, at: number): string | null {
   let quote = '';
   for (let i = at; i < html.length; i++) {
@@ -82,12 +78,8 @@ function openingTag(html: string, at: number): string | null {
 }
 
 /**
- * The attributes of every `<ngwr-doc-page>` opening tag in a template, in
- * source order, by name as written; `null` for a tag that never closes.
- *
- * The tag's end is found by walking past quoted values, because a description
- * can hold a `>` and a `[^>]*` match cuts the tag there. A repeated name keeps
- * its first value, as the browser does.
+ * The attributes of every `<ngwr-doc-page>` opening tag, in source order;
+ * `null` for a tag that never closes. A repeated name keeps its first value.
  */
 function docPageTags(html: string): (ReadonlyMap<string, string> | null)[] {
   const tags: (ReadonlyMap<string, string> | null)[] = [];
@@ -107,12 +99,8 @@ function docPageTags(html: string): (ReadonlyMap<string, string> | null)[] {
 
 /**
  * Every `ngwr/*` entry point a page directory's demos import at runtime, with
- * the value symbols each one supplies, in first-seen order.
- *
- * Template literals are stripped first, since a page's snippet strings print
- * imports it never runs. `import type`, inline `type` members and `/testing`
- * subpaths are skipped, an alias counts under its imported name, and an entry
- * point left with no symbol is left out.
+ * the value symbols each supplies. Template literals are stripped first, since
+ * snippet strings print imports the page never runs.
  */
 function pageNgwrImports(dir: string): Map<string, Set<string>> {
   const out = new Map<string, Set<string>>();

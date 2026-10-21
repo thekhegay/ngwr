@@ -11,7 +11,7 @@ import { extname, join, relative, resolve } from 'node:path';
 import { walkFiles } from './fs/walk-files';
 import { LIB_PATH } from './paths/lib';
 
-/** Every entry point under `projects/lib`, as absolute folders, read once per run. */
+/** Every entry point's absolute folder, read once per run. */
 let entryDirs: ReadonlySet<string> | undefined;
 
 /** The `exports` map of the library's `package.json`. */
@@ -22,7 +22,7 @@ function exportsMap(libRoot: string): Record<string, unknown> {
   return manifest.exports ?? {};
 }
 
-/** The `exports` keys whose `condition` names a file matching `target`, without the `./`, sorted; never the root `.`. */
+/** The `exports` subpaths whose `condition` names a file matching `target`, sorted; never the root `.`. */
 function subpathsWith(libRoot: string, condition: string, target: RegExp): string[] {
   const names: string[] = [];
   for (const [key, value] of Object.entries(exportsMap(libRoot))) {
@@ -56,20 +56,14 @@ export function libEntryPoints(libRoot = LIB_PATH): string[] {
 }
 
 /**
- * The subpaths `@use 'ngwr/<name>'` resolves, by name, sorted: every `exports`
- * key carrying a `sass` condition. That includes the five stylesheet-only keys
- * (`animations`, `breakpoints`, `grid`, `reset`, `typography-utilities`), which
- * are not entry points.
+ * The subpaths `@use 'ngwr/<name>'` resolves, sorted: every `exports` key with a
+ * `sass` condition, stylesheet-only keys that are not entry points included.
  */
 export function libStyleEntryPoints(libRoot = LIB_PATH): string[] {
   return subpathsWith(libRoot, 'sass', /\.scss$/);
 }
 
-/**
- * The class an entry point is named after: `button` → `WrButton`,
- * `charts/bar-chart` → `WrBarChart`. Only the last segment counts, since a
- * nested entry's group is a folder and not part of any class name.
- */
+/** The class an entry point is named after, from its last segment: `charts/bar-chart` is `WrBarChart`. */
 export function wrClassName(entry: string): string {
   const leaf = entry.slice(entry.lastIndexOf('/') + 1);
   return `Wr${leaf
@@ -78,11 +72,7 @@ export function wrClassName(entry: string): string {
     .join('')}`;
 }
 
-/**
- * The locale catalogs, by code (`de`, `zh-TW`), sorted: every folder under
- * `projects/lib/i18n` that holds a `public-api.ts`. Read off the folder rather
- * than the exports map, which carries the same set under `i18n/<code>`.
- */
+/** The locale catalogs by code, sorted: every `projects/lib/i18n` folder holding a `public-api.ts`. */
 export function libLocales(libRoot = LIB_PATH): string[] {
   const root = join(libRoot, 'i18n');
   return readdirSync(root, { withFileTypes: true })
@@ -99,18 +89,16 @@ export interface EntryFilesOptions {
   /** Keeps `*.spec.ts`. Defaults to false. */
   readonly includeSpecs?: boolean;
   /**
-   * `true` (the default) sorts each folder's names before walking it, `'paths'`
-   * sorts the finished list of absolute paths, and `false` keeps `readdir` order.
-   * The two sorts differ where a file and a folder share a prefix: `a-b.ts`
-   * comes before `a/x.ts` as a path and after it as a walk.
+   * `true` (default) sorts each folder before walking it, `'paths'` sorts the
+   * finished list, `false` keeps `readdir` order. The two sorts disagree where
+   * a file and a folder share a prefix (`a-b.ts`, `a/x.ts`).
    */
   readonly sort?: boolean | 'paths';
 }
 
 /**
- * The files of one entry point (`tabs`, `charts/bar-chart`) as absolute paths,
- * leaving out the entry points nested inside it: `tabs/router`, every
- * `<name>/testing`. Nesting is judged against {@link libEntryPoints}, read once.
+ * The files of one entry point as absolute paths, leaving out the entry points
+ * nested inside it (`tabs/router`, every `<name>/testing`).
  */
 export function entryFiles(entry: string, options: EntryFilesOptions = {}): string[] {
   entryDirs ??= new Set(libEntryPoints().map(name => join(LIB_PATH, name)));
