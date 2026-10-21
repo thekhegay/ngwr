@@ -27,6 +27,18 @@ export function repoSlug(): string {
   return slug;
 }
 
-export function ghApi(args: readonly string[]): string {
-  return execFileSync('gh', ['api', ...args], { encoding: 'utf8' }).trim();
+/**
+ * A long release section makes hundreds of calls in a row, and GitHub's
+ * secondary rate limit answers some with an empty body; those are retried
+ * with a growing pause before the error is thrown.
+ */
+export function ghApi(args: readonly string[], attempts = 4): string {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return execFileSync('gh', ['api', ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+    } catch (error) {
+      if (attempt >= attempts) throw error;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 2000 * 2 ** (attempt - 1));
+    }
+  }
 }

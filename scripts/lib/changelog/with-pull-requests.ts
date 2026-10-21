@@ -15,6 +15,7 @@
  */
 
 import { ghApi } from '../github/gh-api';
+import { err } from '../log/err';
 
 const COMMIT_LINK = /\/commit\/([0-9a-f]{40})\)\)/;
 
@@ -27,18 +28,24 @@ export function withPullRequests(section: string, repo: string): string {
       const sha = link[1];
       const at = link.index + link[0].length;
 
-      const pr = ghApi([
-        `repos/${repo}/commits/${sha}/pulls`,
-        '--jq',
-        '[.[] | select(.merged_at != null and .base.ref == "main")][0] | if . then "\\(.user.login) \\(.number)" else "" end',
-      ]);
+      // The attribution is decoration: a lookup that still fails after its
+      // retries leaves the line as it was rather than failing the release.
       let by = '';
-      if (pr) {
-        const [login, number] = pr.split(' ');
-        by = ` by @${login} in #${number}`;
-      } else {
-        const login = ghApi([`repos/${repo}/commits/${sha}`, '--jq', '.author.login // ""']);
-        if (login) by = ` by @${login}`;
+      try {
+        const pr = ghApi([
+          `repos/${repo}/commits/${sha}/pulls`,
+          '--jq',
+          '[.[] | select(.merged_at != null and .base.ref == "main")][0] | if . then "\\(.user.login) \\(.number)" else "" end',
+        ]);
+        if (pr) {
+          const [login, number] = pr.split(' ');
+          by = ` by @${login} in #${number}`;
+        } else {
+          const login = ghApi([`repos/${repo}/commits/${sha}`, '--jq', '.author.login // ""']);
+          if (login) by = ` by @${login}`;
+        }
+      } catch {
+        err(`No author found for ${sha.slice(0, 7)}; its line goes without one.`);
       }
       return `${line.slice(0, at)}${by}${line.slice(at)}`;
     })
