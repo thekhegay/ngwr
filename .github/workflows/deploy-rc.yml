@@ -40,13 +40,16 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm build:showcase --base-href=/${{ github.ref_name }}-rc/
+      # As archive-docs.yml does: the sitemap and the markdown twins read the
+      # root URL space, and a preview under /vN-rc/ ships neither.
+      - run: pnpm exec tsx scripts/gen/ai-assets.ts
+
+      - run: pnpm exec tsx scripts/build/showcase-app.ts --base-href=/${{ github.ref_name }}-rc/
 
       - name: Mark the preview noindex
         run: |
           find dist/showcase -name '*.html' -print0 | xargs -0 sed -i \
             's|<head>|<head><meta name="robots" content="noindex, follow">|'
-          rm -f dist/showcase/sitemap.xml
 
       - name: Flag the preview as a release candidate
         env:
