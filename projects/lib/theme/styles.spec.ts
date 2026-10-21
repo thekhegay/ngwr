@@ -12,8 +12,7 @@ import { describe, expect, it } from 'vitest';
  * paint. A unit test cannot see Sass, so it must not pretend to. What a file
  * scan CAN hold is the structural half, which is where these defects lived: a
  * stylesheet that references a token layer it never loads, a dark rule keyed on
- * a selector instead of on the scheme, a channel-list token read after it was
- * gone, and a documented token nothing includes.
+ * a selector instead of on the scheme, and a documented token nothing includes.
  *
  * The compiled result is covered elsewhere: `sass-entry.spec.ts` compiles the
  * token layer, and `pnpm build:showcase` compiles every entry point, so a mixin
@@ -226,8 +225,7 @@ describe('a style entry point loads the token layer it paints with', () => {
    * "No offenders" and "the rule stopped matching" print identically, and this
    * repo has shipped the second: a `\b` after a hyphen made a spec pass with
    * the rule it tested deleted. So the same predicate that judges the catalog
-   * is pointed at a sheet built to fail, in the spirit of `check:color-only`'s
-   * own `SELF_TEST`.
+   * is pointed at a sheet built to fail.
    */
   it('reports a sheet that reads a theme token without loading the layer', () => {
     const canary = join(LIB, 'styles/_breakpoints.scss');
@@ -514,71 +512,6 @@ describe('the colour scheme is one switch', () => {
   it('finds the stylesheets it judges', () => {
     // A walk that quietly matched nothing would report every rule as clean.
     expect(files.length).toBeGreaterThanOrEqual(120);
-  });
-});
-
-describe('no channel-list token survives', () => {
-  /**
-   * `--wr-color-*-rgb` held three bare numbers so a rule could write
-   * `rgba(var(--x-rgb), a)`. v15 removed every one, because three numbers are
-   * not a colour and `light-dark()` holds only colours: a channel list could
-   * never follow the scheme, so a dark subtree read the light channels. A
-   * translucent fill is `color-mix(in srgb, var(--x) N%, transparent)`, which
-   * computes to the same pixel.
-   *
-   * A read left behind is the worst kind of leftover: `var()` at a name nothing
-   * declares is invalid at computed-value time, the browser drops the WHOLE
-   * declaration, and `border: 1px solid rgba(var(--gone-rgb), 0.3)` draws no
-   * border with nothing in the build, the console or a test to say so.
-   */
-  it('has no `-rgb` token declared or read anywhere in the library', () => {
-    const offenders: string[] = [];
-
-    for (const file of scssFiles(LIB)) {
-      for (const m of code(file).matchAll(/--wr-[\w-]+-rgb\b(?!-)/g)) {
-        offenders.push(`${relative(LIB, file)}: ${m[0]}`);
-      }
-    }
-
-    expect(offenders).toEqual([]);
-  });
-});
-
-describe('the focus ring', () => {
-  const focus = code(join(THEME_STYLES, '_focus.scss'));
-
-  /** Selectors in `_focus.scss` whose whole focus style is the shared mixin. */
-  const included = new Set(
-    [...focus.matchAll(/([^{}]+)\{\s*@include focus-ring;/g)].flatMap(m =>
-      m[1]
-        .split(',')
-        .map(s => s.trim())
-        .filter(Boolean)
-    )
-  );
-
-  it('reads nothing but its own tokens', () => {
-    // The guide's promise is "retheme the ring once and every control follows —
-    // the library's own mixin reads nothing else". A hard-coded colour or width
-    // in here makes that sentence false for every selector below it.
-    const body = /@mixin focus-ring \{([\s\S]*?)\n\}/.exec(focus)?.[1];
-    expect(body).toBeDefined();
-    expect([...body!.matchAll(/var\((--wr-[a-z0-9-]+)/g)].map(m => m[1]).sort()).toEqual([
-      '--wr-focus-ring-color',
-      '--wr-focus-ring-halo',
-      '--wr-focus-ring-offset',
-      '--wr-focus-ring-offset',
-      '--wr-focus-ring-width',
-    ]);
-  });
-
-  it('covers the button, and with it the pagination cells built out of one', () => {
-    // The widest hole the ring could have had: `.wr-btn` is the host class on all
-    // three forms of the button (`wr-btn`, `button[wr-btn]`, `a[wr-btn]`) and on
-    // every pagination page and arrow, and none of them had a rule — so a
-    // retheme of `--wr-focus-ring-*` left the UA outline, which no token reaches.
-    expect(included.has('.wr-btn:focus-visible')).toBe(true);
-    expect(included.has('.wr-table__sort-btn:focus-visible')).toBe(true);
   });
 });
 

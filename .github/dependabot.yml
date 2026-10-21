@@ -16,8 +16,6 @@ updates:
         versions: ['>=6.1']
       - dependency-name: 'vitest'
         versions: ['>=5']
-      - dependency-name: '@vitest/coverage-v8'
-        versions: ['>=5']
     assignees:
       - 'thekhegay'
     labels:

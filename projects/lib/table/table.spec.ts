@@ -1078,8 +1078,8 @@ describe('WrTableSort emits a modifier for every documented direction', () => {
  * larger one. What is asserted here is the arrangement: both controls, in that
  * row, in that order, beside the title. The geometry is not — jsdom applies no
  * stylesheet, so a rect here is 0x0 and a computed style is the initial value.
- * The declarations live in `table-header-target.spec.ts`, and the painted
- * numbers come from a real Chromium, with a fine pointer and with a coarse one.
+ * The painted numbers come from a real Chromium, with a fine pointer and with a
+ * coarse one.
  */
 describe('WrTable renders both header controls for a sortable, filterable column', () => {
   @Component({

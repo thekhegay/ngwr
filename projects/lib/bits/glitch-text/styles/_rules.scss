@@ -44,13 +44,11 @@
 
   // Always-on variant — clones animate continuously.
   &:not(&--hover-only) &__clones::before {
-    // rtl-ok: aberration offset paired with the physical x-offset in `--wr-glitch-text-before-shadow` (`5px 0`)
     left: -10px;
     text-shadow: var(--wr-glitch-text-before-shadow);
     animation: wr-glitch-text-tear var(--wr-glitch-text-before-duration) infinite linear alternate-reverse;
   }
   &:not(&--hover-only) &__clones::after {
-    // rtl-ok: aberration offset paired with the physical x-offset in `--wr-glitch-text-after-shadow` (`-5px 0`)
     left: 10px;
     text-shadow: var(--wr-glitch-text-after-shadow);
     animation: wr-glitch-text-tear var(--wr-glitch-text-after-duration) infinite linear alternate-reverse;
@@ -67,7 +65,6 @@
   &--hover-only:hover &__clones::before {
     content: attr(data-text);
     opacity: 1;
-    // rtl-ok: same decorative offset as the always-on variant, paired with a physical `text-shadow` x-offset
     left: -10px;
     text-shadow: var(--wr-glitch-text-before-shadow);
     animation: wr-glitch-text-tear var(--wr-glitch-text-before-duration) infinite linear alternate-reverse;
@@ -75,7 +72,6 @@
   &--hover-only:hover &__clones::after {
     content: attr(data-text);
     opacity: 1;
-    // rtl-ok: same decorative offset as the always-on variant, paired with a physical `text-shadow` x-offset
     left: 10px;
     text-shadow: var(--wr-glitch-text-after-shadow);
     animation: wr-glitch-text-tear var(--wr-glitch-text-after-duration) infinite linear alternate-reverse;

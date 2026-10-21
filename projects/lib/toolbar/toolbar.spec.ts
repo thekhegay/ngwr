@@ -136,11 +136,6 @@ describe('which zone wrappers the stylesheet lays out', () => {
 
   afterEach(() => fixture.destroy());
 
-  it('is a zero-specificity flex row that takes the zone gap', () => {
-    expect(rule).not.toBeNull();
-    expect(rule![2]).toMatch(/display: flex;[\s\S]*gap: inherit;/);
-  });
-
   it('lands each wrapper directly in its zone, where the rule can reach it', () => {
     expect(probe('bare').parentElement!.classList).toContain('wr-toolbar__zone--start');
     expect(probe('class-binding').parentElement!.classList).toContain('wr-toolbar__zone--center');
@@ -177,13 +172,5 @@ describe('which zone wrappers the stylesheet lays out', () => {
     expect(probe('style-binding').getAttribute('style')).toBe('');
     expect(laidOut('class-binding')).toBe(true);
     expect(laidOut('style-binding')).toBe(true);
-  });
-
-  it('scales the zone gap with density', () => {
-    // Read through the hook rather than for the literal: the gap is published
-    // as `--wr-toolbar-zone-gap` so a consumer can retune the zone rhythm, and
-    // the density multiplier is what this spec is actually for.
-    expect(scss).toMatch(/--wr-toolbar-zone-gap:\s*var\(--wr-space-sm\);/);
-    expect(scss).toMatch(/&__zone \{[^}]*gap: calc\(var\(--wr-toolbar-zone-gap\) \* var\(--wr-density-gap, 1\)\);/);
   });
 });

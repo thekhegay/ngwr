@@ -46,7 +46,6 @@
     // the edge fades are `left`/`right` gradients. The item gap is the seam of
     // that physical loop — it has to match the offset the track wraps at, so it
     // stays on the same axis the animation runs on.
-    // rtl-ok: seam gap of a physically-animated track (see the note above)
     margin-right: var(--wr-marquee-gap);
     font-size: var(--wr-marquee-height);
     line-height: 1;
@@ -55,7 +54,6 @@
   &__item:last-child {
     // Restates the interior gap on the last item so the join between two copies
     // of the sequence is spaced like the gaps inside it.
-    // rtl-ok: same physical loop axis as the interior gap above
     margin-right: var(--wr-marquee-gap);
   }
 
@@ -118,7 +116,6 @@
   }
 
   &--fade::before {
-    // rtl-ok: paired with the physical `linear-gradient(to right, …)` below, which has no logical form
     left: 0;
     background: linear-gradient(
       to right,
@@ -128,7 +125,6 @@
   }
 
   &--fade::after {
-    // rtl-ok: paired with the physical `linear-gradient(to left, …)` below, which has no logical form
     right: 0;
     background: linear-gradient(
       to left,

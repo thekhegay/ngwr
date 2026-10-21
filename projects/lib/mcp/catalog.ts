@@ -188,8 +188,8 @@ function defaultRoot(): string {
 /**
  * `llms-full.txt` into entries.
  *
- * The generator's format is fixed and checked by `pnpm check:llms`, so parsing it
- * is a contract between two files in the same repo rather than a guess at someone
+ * The generator's format is fixed (`scripts/gen/ai-assets.ts`), so parsing it is
+ * a contract between two files in the same repo rather than a guess at someone
  * else's output.
  */
 function parseCatalog(source: string | null): readonly CatalogEntry[] {

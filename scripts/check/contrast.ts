@@ -78,8 +78,7 @@ const PLACEHOLDER_PROBE = 'data-wr-placeholder-probe';
 
 /**
  * Routes showing a placeholder at rest, per theme and contrast mode, below which
- * a FULL sweep fails — set at the count when the probe landed, in the
- * `check:llms` idiom, with no slack.
+ * a FULL sweep fails — set at the count when the probe landed, with no slack.
  *
  * A probe that measures nothing prints the same green line as one that measured
  * everything and found it fine. Its query can stop matching, the demos that

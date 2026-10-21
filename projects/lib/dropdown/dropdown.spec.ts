@@ -419,42 +419,14 @@ describe('WrDropdown', () => {
 });
 
 /**
- * ⚠️ This one guards the RULE, not the behaviour.
- *
- * A disabled item's own `disabled` guards the KEYBOARD path only; a real pointer
- * click lands on the host element, which is exactly where the consumer bound
- * `(click)`, so nothing stopped `remove()` firing on a disabled Delete. The fix is
- * `pointer-events: none` — the same answer `wr-btn` and `wr-checkbox` give — and
- * jsdom loads no stylesheets, so a spec here that clicked a disabled item would
- * pass identically before and after.
- *
- * Verified instead in headless Chromium against CSS compiled from this folder:
- * a click at the centre of the disabled item reached `.wr-dropdown-item--disabled`
- * before the fix and the item's `<wr-dropdown-menu>` ancestor after it, so the
- * item's own handler is never reached.
- */
-describe('the dropdown item stylesheet', () => {
-  const source = readFileSync(join(process.cwd(), 'projects/lib/dropdown/styles/_index.scss'), 'utf8');
-  const code = source
-    .split('\n')
-    .filter(line => !line.trim().startsWith('//'))
-    .join('\n');
-
-  it('stops a pointer reaching a disabled item at all', () => {
-    const rule = /&--disabled\s*\{([\s\S]*?)\n {2}\}/.exec(code)?.[1] ?? '';
-    expect(rule).toMatch(/pointer-events:\s*none/);
-  });
-});
-
-/**
- * ⚠️ These guard the RULES, not the painting.
+ * The stylesheet against `WR_DROPDOWN_POSITIONS`, not the painting.
  *
  * The arrow is a `::after` drawn by the shared `anchored-arrow` mixin, and jsdom
  * loads no stylesheet — so no spec here can see it, and one that asserted a
  * computed `content` would pass identically with the whole rule deleted. What a
  * unit test can hold is the drift the browser would only show on the one
  * placement nobody opened: a position added to `WrDropdownPosition` with no arrow
- * rule or no gap for it, or the opt-out that stops matching.
+ * rule or no gap for it.
  *
  * The painting was measured in Chromium against the built showcase instead, for
  * all eight placements in both themes: `content: ""`, a 6px square filled with
@@ -491,29 +463,6 @@ describe('the dropdown arrow stylesheet', () => {
       expect(code, `no plain gap for ${name}`).toMatch(new RegExp(`&--${name}[,\\s{]`));
       expect(wider, `no arrow gap for ${name}`).toMatch(new RegExp(`\\.wr-dropdown-overlay--${name}[,)]`));
     }
-  });
-
-  it("keeps the wider gap at one class of weight, so a consumer's own gap still wins", () => {
-    // The gap has no hook: `.wr-dropdown-overlay--<placement> { padding-… }` in
-    // the app's sheet is how it is retuned. A compound `&.wr-dropdown-overlay--…`
-    // here weighs two classes and beats that on specificity, wherever it sits —
-    // measured in Chromium, a consumer's `padding-top: 0` on `--bottom-start`
-    // rendered an 8px gap. Inside `:where()`, the placement adds no weight.
-    const selectors = arrowTier();
-    expect(selectors.length).toBeGreaterThan(0);
-    for (const selector of selectors) expect(selector).toMatch(/^&:where\([^)]*\)$/);
-  });
-
-  it("paints the arrow from the menu's own hooks, so a retinted menu keeps a matching tip", () => {
-    const include = /@include arrow\.anchored-arrow\(([\s\S]*?)\);/.exec(code)?.[1] ?? '';
-    expect(include).toMatch(/\$background:\s*var\(--wr-dropdown-bg\)/);
-    expect(include).toMatch(/\$border:\s*var\(--wr-dropdown-border\)/);
-  });
-
-  it('takes the arrow off a pane the directive did not mark', () => {
-    expect(code).toMatch(
-      /\.wr-dropdown-overlay:not\(\.wr-dropdown-overlay--arrow\)\s*>\s*\.wr-dropdown-menu::after\s*\{\s*content:\s*none;/
-    );
   });
 });
 

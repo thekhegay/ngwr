@@ -264,9 +264,6 @@
     vertical-align: middle;
   }
 
-  // color-ok: the tick is the channel — a selected row's own `__td--select`
-  // cell holds a `<wr-checkbox>` bound to the same predicate as this class,
-  // and its mark appears. The tint is the reinforcement, not the signal.
   &__tr--selected,
   &__tr--selected:hover {
     background: var(--wr-color-primary-soft);
@@ -274,9 +271,6 @@
 
   // Pinned cells paint their own opaque background, so re-apply the selection
   // tint over it (same technique as the row-hover rule above).
-  // color-ok: the pinned cells repaint the row tint they sit in, and the row
-  // itself is marked by the selection checkbox in its `__td--select` cell —
-  // these follow that, they do not carry the state.
   &__tr--selected &__td--pin-left,
   &__tr--selected &__td--pin-right,
   &__tr--selected:hover &__td--pin-left,
@@ -399,13 +393,11 @@
   // way the offset pins, so the sign has to be set per direction by hand.
   &__th--pin-edge-left,
   &__td--pin-edge-left {
-    // rtl-ok: `box-shadow` has no logical form; the RTL sign is set explicitly below
     box-shadow: 0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
   }
 
   &__th--pin-edge-right,
   &__td--pin-edge-right {
-    // rtl-ok: `box-shadow` has no logical form; the RTL sign is set explicitly below
     box-shadow: -0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
   }
 
@@ -413,13 +405,11 @@
   // end-pinned group at the physical left, so both shadows point the other way.
   [dir='rtl'] &__th--pin-edge-left,
   [dir='rtl'] &__td--pin-edge-left {
-    // rtl-ok: this IS the RTL sign for the rule above
     box-shadow: -0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
   }
 
   [dir='rtl'] &__th--pin-edge-right,
   [dir='rtl'] &__td--pin-edge-right {
-    // rtl-ok: this IS the RTL sign for the rule above
     box-shadow: 0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
   }
 
@@ -444,8 +434,7 @@
     // measures. axe never sees the halo — an `::after` enters no rect, so it
     // reads 12x12 either way — but 24px between centres satisfies WCAG 2.5.8's
     // spacing exception exactly, and the pair passes. Narrow this and a coarse
-    // run reports both nodes again; `table-header-target.spec.ts` pins the
-    // value here so a PR catches it without a browser.
+    // run reports both nodes again.
     @media (pointer: coarse) {
       // NOT on the spacing scale, and the literal is the point: this gap is
       // what puts the sort and filter centres 24px apart, which is how the pair
@@ -895,9 +884,6 @@
   display: inline-flex;
   color: var(--wr-color-on-surface-muted);
 
-  // color-ok: the same `selectedCount() > 0` renders the `__count` numeral
-  // pill beside the funnel (table-filter.html:17) — a number appears where
-  // there was none.
   &--active {
     color: var(--wr-color-primary);
   }
@@ -1042,9 +1028,6 @@
     transition: var(--wr-transition-base);
   }
 
-  // color-ok: the tick APPEARS. The base `&__check` holds the same SVG at
-  // `color: transparent` (line 851), so this is a glyph arriving rather than
-  // a hue swapped.
   &__item--selected &__check {
     background: var(--wr-color-primary);
     border-color: var(--wr-color-primary);

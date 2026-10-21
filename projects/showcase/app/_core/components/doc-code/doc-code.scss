@@ -129,7 +129,6 @@
   // this the RTL toggle mirrors the snippets too, and a line like
   // `import { WrSlider } from 'ngwr/slider';` renders with its semicolon at the
   // start — bidi reordering applied to something that is not prose.
-  // rtl-ok: a code block is LTR by definition, not by reading order
   direction: ltr;
   text-align: left;
 }

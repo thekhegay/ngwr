@@ -14,7 +14,7 @@ import type { WrI18nCatalog } from './i18n-config';
  * What every shipped catalog owes the English one, in one place.
  *
  * **Not a `.spec.ts`, and that is load-bearing.** It was one, and a file that is
- * both a suite and a module twenty-two specs import does not survive being
+ * both a suite and a module several specs import does not survive being
  * collected: the importers pull it into the module cache first, its own
  * `describe` is attributed to whichever of them ran earliest, and vitest then
  * reports "No test suite found" for the file itself. So it is a plain module,
@@ -23,12 +23,12 @@ import type { WrI18nCatalog } from './i18n-config';
  * else here — move or rename it and that entry has to move with it, or the
  * library build starts trying to compile `vitest`.
  *
- * There are twenty-two of them. Written out per locale this would be twenty-two
- * copies of the same six assertions, which is a set that stops being updated
- * after the third — so each locale's own `catalog.spec.ts` is eight lines that
- * hand its catalog to `expectCatalogContract` with the two things only that
- * locale knows: the script its prose is written in, and which of its values are
- * correctly identical to English.
+ * Two catalogs run it, `en` and `ru`; the other twenty ship without a spec, so
+ * a new key does not wait on twenty translations before the suite goes green.
+ * Each locale's own `catalog.spec.ts` hands its catalog to
+ * `expectCatalogContract` with the two things only that locale knows: the
+ * script its prose is written in, and which of its values are correctly
+ * identical to English.
  *
  * **What this deliberately does NOT check, because no assertion could tell a
  * good translation from a bad one:** whether the copy reads naturally, whether

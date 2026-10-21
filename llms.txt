@@ -3,9 +3,7 @@
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
 > Over two hundred secondary entry points, built on `@angular/cdk` primitives.
 > The only runtime dependency is `tslib`. Docs and live demos: https://ngwr.dev
-> (the current counts of entry points, components, harnesses and tests are on
-> https://ngwr.dev/start/quality, generated from the repository). Source:
-> https://github.com/thekhegay/ngwr
+> Source: https://github.com/thekhegay/ngwr
 
 This file orients AI agents and LLMs that consume ngwr. For exact, current
 component APIs, read the bundled TypeScript types
@@ -371,7 +369,7 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-tree` and `wr-select` (search mode), alongside the standalone
   `wr-virtual-scroll` wrapper.
 - **Testing** — CDK component harnesses ship beside the components they drive, at
-  `ngwr/<name>/testing` (how many there are is on https://ngwr.dev/start/quality).
+  `ngwr/<name>/testing`.
   Every control, every overlay and every chart has one: the form controls
   (`button`, `input`, `textarea`, `checkbox`, `switch`, `radio`, `select`,
   `input-number`, `input-otp`, `slider`, `rating`, `file-upload`, `color-picker`,
@@ -410,17 +408,13 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
 
 ## Deciding whether to use it
 
-Four pages exist for the question before installation, and everything on them
+Three pages exist for the question before installation, and everything on them
 is meant to be checkable rather than taken on trust:
 
 - **Why ngwr, and when not to** — the wedge (the value controls are Signal
   Forms controls; no `ControlValueAccessor` in the library), a comparison against
   Material / PrimeNG / NG-ZORRO / Taiga / Spartan, and a per-competitor "choose
   something else if" section: https://ngwr.dev/start/comparison
-- **What gates a change** — the gates every PR must pass, three separate
-  accessibility sweeps and what each one cannot see, the nightly baselines and
-  what is accepted in them, plus what the test suite does NOT cover:
-  https://ngwr.dev/start/quality
 - **A live Signal Forms demo** you can read before installing anything:
   https://ngwr.dev/start/playground
 - **What a version number promises** — what a major is allowed to break, and the

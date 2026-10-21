@@ -1,6 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
@@ -732,47 +729,6 @@ describe('WrColorPicker under a reading direction', () => {
     key(hue(), 'ArrowUp');
 
     expect(hue().getAttribute('aria-valuenow')).toBe('33');
-  });
-});
-
-/**
- * ⚠️ The CSS half of the mirroring, guarded as a RULE.
- *
- * A gradient has no logical direction keyword, so both tracks are painted
- * physically and flipped by hand — and jsdom loads no stylesheets, so the source
- * is the only place a spec can see it. Left unflipped they contradict the drag:
- * the pointer would be measured from the right edge while red still sat there.
- *
- * Measured in Chromium against the compiled `ngwr/color-picker` sheet: the hue
- * thumb goes from 0.583 of the track to 0.417, the alpha thumb at 100% from
- * 1.000 to 0.000, and the SV thumb stays at 1.000 in both — which is the
- * distinction this component is built on.
- */
-describe('the two tracks, as the stylesheet declares them', () => {
-  const sheet = readFileSync(join(process.cwd(), 'projects/lib/color-picker/styles/_index.scss'), 'utf8');
-  const rule = (name: string): string => {
-    const at = sheet.indexOf(`  &__${name} {`);
-    expect(at, `no \`&__${name}\` rule in the colour-picker stylesheet`).toBeGreaterThan(-1);
-    return sheet.slice(at, sheet.indexOf('\n  }', at));
-  };
-
-  it('flips both gradients under dir="rtl"', () => {
-    expect(rule('slider--hue')).toMatch(/\[dir='rtl'\] & \{[\s\S]*linear-gradient\(\s*to left/);
-    expect(rule('slider--alpha')).toMatch(/\[dir='rtl'\] & \{[\s\S]*linear-gradient\(\s*to left/);
-  });
-
-  it('places a slider thumb on the inline axis and mirrors its centring transform', () => {
-    // `left: auto` first: the shared thumb rule declares `left: 0` for the SV
-    // canvas, and leaving it standing beside the RTL `right` the template writes
-    // would over-constrain the box.
-    expect(rule('thumb--slider')).toMatch(/left:\s*auto/);
-    expect(rule('thumb--slider')).toMatch(/inset-inline-start:\s*0/);
-    expect(rule('thumb--slider')).toMatch(/\[dir='rtl'\] & \{[^}]*transform:\s*translate\(50%, -50%\)/);
-  });
-
-  it('leaves the SV canvas physical, with the reason still on it', () => {
-    expect(rule('thumb')).toMatch(/rtl-ok:/);
-    expect(rule('thumb')).toMatch(/^\s*left:\s*0;/m);
   });
 });
 

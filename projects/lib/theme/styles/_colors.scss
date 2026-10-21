@@ -331,8 +331,6 @@ $ink-mix-more: (
   // input and checkbox edge visibly heavier than every other line on the page.
   // The maintainer weighed that and kept the lighter step, the same call
   // already recorded for `--wr-border-base` in AGENTS.md.
-  //
-  // unused-ok: for `-subtle`. `-strong` has the avatar's ring.
   --wr-border-subtle: var(--wr-color-gray-3);
   --wr-border-strong: light-dark(var(--wr-color-gray-400), var(--wr-color-gray-600));
 
@@ -372,16 +370,6 @@ $ink-mix-more: (
   // indicator. "Decorative by design" was true of the token and of none of the
   // three, so the grip and the spinner moved to `-on-surface-muted` and the
   // placeholder to `--wr-color-placeholder`.
-  //
-  // unused-ok: both, and for one reason. A custom property is public API, so a
-  // consumer with genuinely decorative text keeps something to reach for — but
-  // the library paints with neither, and new code should take the ROLE
-  // (`--wr-color-on-surface-muted`) rather than either of these older names.
-  // No gate can report a GRAPHIC drawn at a faint strength: axe ships no
-  // non-text-contrast rule. A placeholder painted with one is caught only where
-  // `check:contrast`'s probe can reach an at-rest `::placeholder`; every other
-  // placeholder rule is held to `--wr-color-placeholder` at the source, by
-  // `theme/styles.spec.ts`.
   --wr-color-text-muted: var(--wr-color-gray-5);
   --wr-color-text-faint: var(--wr-color-gray-5);
 
@@ -451,10 +439,6 @@ $ink-mix-more: (
   @each $name in (primary, success, warning, danger, info) {
     --wr-color-#{$name}-soft: color-mix(in srgb, var(--wr-color-#{$name}) 12%, transparent);
     --wr-color-#{$name}-soft-border: color-mix(in srgb, var(--wr-color-#{$name}) 30%, transparent);
-    // unused-ok: superseded in practice by `-ink`, which is calibrated to 5.0:1
-    // against this very tint while this one is a flat 62% mix that was never
-    // measured. Kept because it is public and predates `-ink`; do not reach for
-    // it in new code, and do not delete it in a minor.
     --wr-color-#{$name}-soft-contrast: color-mix(in srgb, var(--wr-color-#{$name}) 62%, var(--wr-color-gray-6));
     --wr-color-#{$name}-active: color-mix(in srgb, var(--wr-color-#{$name}) 20%, transparent);
   }
@@ -594,14 +578,6 @@ $ink-mix-more: (
     --wr-color-#{$name}-contrast: #{map.get($tokens, contrast)};
     --wr-color-#{$name}-dark: #{map.get($tokens, dark)};
     --wr-color-#{$name}-darker: #{map.get($tokens, darker)};
-    // unused-ok: `-light` and `-lighter`, for the reason their `:root` twins
-    // carry — hover and active DEEPEN an intent, so the catalog reads `-dark` /
-    // `-darker` and never these two, and a shade set with holes in it is worse
-    // than one half of which is for consumers. They are here rather than only
-    // there because a rebrand has to emit the SAME set the `:root` loop does: a
-    // subtree that redefines four shades out of six leaves a consumer's own
-    // `var(--wr-color-primary-lighter)` on the page palette, which is the
-    // half-recoloured subtree this mixin exists to end.
     --wr-color-#{$name}-light: #{map.get($tokens, light)};
     --wr-color-#{$name}-lighter: #{map.get($tokens, lighter)};
   }
@@ -701,12 +677,6 @@ $ink-mix-more: (
   // neutral values. A COMPONENT still must not reach for a step directly: a
   // fixed step cannot serve markup that has to work in both schemes, which is
   // what the positional ramp and the role aliases are for.
-  //
-  // unused-ok: for 800 and 950, the two steps nothing in the library paints
-  // with — the positions above, `--wr-border-strong` and the typeset's prose
-  // colours read the rest. Neither is a dark fill tint or the dark canvas, which
-  // are hand-tuned literals; both ship because a ramp with holes in it is worse
-  // than one whose ends are for consumers.
   --wr-color-gray-50: #f9fafb;
   --wr-color-gray-100: #f3f4f6;
   --wr-color-gray-200: #e5e7eb;
@@ -726,10 +696,6 @@ $ink-mix-more: (
     --wr-color-#{$name}-contrast: #{map.get($tokens, contrast)};
     --wr-color-#{$name}-dark: #{map.get($tokens, dark)};
     --wr-color-#{$name}-darker: #{map.get($tokens, darker)};
-    // unused-ok: the symmetric half. Hover and active DEEPEN an intent, so the
-    // catalog reads `-dark` / `-darker` and never these two — but a shade set
-    // with holes in it is worse than one half of which is for consumers, and the
-    // dark side re-derives all four for the same reason.
     --wr-color-#{$name}-light: #{map.get($tokens, light)};
     --wr-color-#{$name}-lighter: #{map.get($tokens, lighter)};
   }

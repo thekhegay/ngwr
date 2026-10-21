@@ -100,7 +100,6 @@
   // aesthetic choreography rather than layout, and the gradient it rides
   // (`--loading::after`) is symmetric about its midpoint, so a sweep that keeps
   // running left-to-right under RTL reads as a highlight, not a broken layout.
-  // rtl-ok: background-position has no logical equivalent — see above
   from {
     background-position: 200% 0;
   }

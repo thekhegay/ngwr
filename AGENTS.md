@@ -78,23 +78,19 @@ A pnpm + Angular CLI monorepo with three projects:
 - **`scripts/`** — build/release tooling, run via `tsx`, **one directory per
   verb since v15**: `build/` (lib, showcase, schematics, MCP server, icon sets,
   dist-asset copy), `check/` (standalone gates), `gen/` (every generated file),
-  `release/`, plus `baselines/` for the four recorded JSON files and `lib/` for
-  shared code. The name used to carry the verb as a prefix —
-  `scripts/check-rtl.ts` is now `scripts/check/rtl.ts`. A `check:x` script runs
-  either a file in `check/` or a generator's own `--check`, because a generator
-  that can verify its output is one file, not two: `check:selectors`,
-  `check:css-vars`, `check:install` and `check:api-docs` are
-  `gen/<name>.ts --check`, and `check:llms` is `gen/ai-assets.ts --check`. Two
-  check files differ from their script's name: `check:colors` runs
-  `check/color-parity.ts`, `check:attrs` runs `check/unknown-attrs.ts`.
-  **Four browser-driven checks share `scripts/lib/dist-site.ts`** — the static
-  server over `dist/showcase`, the route list, the "did you build it" guard.
-  They had four copies of each, and the MIME tables had drifted: `check:layout`
-  served an `.ico` as `application/octet-stream`. The one thing they genuinely
-  disagree on is the only parameter: `serveDist('spa' | '404')`. The contrast
-  and state sweeps fall back to the SPA shell because an unresolved path is a
-  client route; the two layout sweeps answer 404, because a target matching
-  nothing has to fail the run rather than silently measure the home page.
+  `release/`, plus `baselines/` for the recorded JSON files and `lib/` for
+  shared code. A `check:x` script runs either a file in `check/` or a
+  generator's own `--check`, because a generator that can verify its output is
+  one file, not two: `check:selectors`, `check:css-vars`, `check:install` and
+  `check:api-docs` are `gen/<name>.ts --check`. One check file differs from its
+  script's name: `check:attrs` runs `check/unknown-attrs.ts`.
+  **The three browser-driven checks share `scripts/lib/dist-site.ts`** — the
+  static server over `dist/showcase`, the route list, the "did you build it"
+  guard. The one thing they disagree on is the only parameter:
+  `serveDist('spa' | '404')`. The contrast and state sweeps fall back to the SPA
+  shell because an unresolved path is a client route; the layout sweep answers
+  404, because a target matching nothing has to fail the run rather than
+  silently measure the home page.
 
 ### Anatomy of an entry point — e.g. `projects/lib/alert/`
 
@@ -206,14 +202,16 @@ one component folder. Reach for them instead of hand-rolling:
   its language and never the reverse — `pt-BR` finds `pt`, while a bare `de`
   would never reach a `de-DE`; a region appears only where the script differs
   (`zh` is Simplified, `zh-TW` Traditional, and `zh-HK` / `zh-Hant` need mapping
-  by hand). Every catalog is held to the English key set, to its placeholder
-  set, and to being written in its own script by one shared
-  `expectCatalogContract` in `i18n/catalog-contract.ts` — **not a `.spec.ts`, and
-  that is load-bearing**: a file that is both a suite and a module twenty-two
-  specs import gets its own `describe` attributed to whichever importer ran
-  first, and vitest then reports "No test suite found" for the file itself. It
-  stays out of the package through `tsconfig.lib.json`'s `exclude`, which
-  `package.spec.ts` now READS rather than restating, so the two cannot disagree.
+  by hand). `en` and `ru` are held to the English key set, to their placeholder
+  set, and to being written in their own script by one shared
+  `expectCatalogContract` in `i18n/catalog-contract.ts`; the other twenty
+  catalogs have no spec since v15, so a new key does not wait on twenty
+  translations. The contract is **not a `.spec.ts`, and that is load-bearing**:
+  a file that is both a suite and a module other specs import gets its own
+  `describe` attributed to whichever importer ran first, and vitest then
+  reports "No test suite found" for the file itself. It stays out of the
+  package through `tsconfig.lib.json`'s `exclude`, which `package.spec.ts`
+  READS rather than restating, so the two cannot disagree.
   What no assertion covers is the thing most likely to be wrong: there is no
   plural machinery anywhere here, so a count has to be worded correctly for
   every value in languages with three or six plural forms, and only English
@@ -595,19 +593,16 @@ controls projected into it — the controls themselves do not grow with it.
 | Build the library | `pnpm build:lib`                                                                                    |
 | Build the docs    | `pnpm build:showcase`                                                                               |
 | Lint everything   | `pnpm lint`                                                                                         |
-| a11y sweep        | `pnpm check:a11y` (axe over `dist/showcase` — run `build:showcase` first)                           |
-| Contrast sweep    | `pnpm check:contrast` (axe in a real Chromium, both themes × both `prefers-contrast` modes — **nightly**, not a PR gate; `--theme=` / `--contrast=` narrow it) |
+| A tier by hand    | `pnpm check:nightly` / `pnpm check:release` (see Three tiers)                                       |
+| a11y sweep        | `pnpm check:a11y` (axe over `dist/showcase` — run `build:showcase` first — **nightly**)             |
+| Contrast sweep    | `pnpm check:contrast` (axe in a real Chromium, both themes × both `prefers-contrast` modes — **nightly**; `--theme=` / `--contrast=` narrow it) |
 | State a11y        | `pnpm check:state-a11y` (the FULL axe set INSIDE hovers / overlays — **nightly**)                   |
-| RTL source gate   | `pnpm check:rtl` (physical direction-dependent CSS with no `rtl-ok:` reason — a `pnpm lint` stage)  |
-| Dead-token gate   | `pnpm check:tokens` (a `--wr-*` nothing paints with, unless it says `unused-ok:` — a `pnpm lint` stage) |
-| Colour-only gate  | `pnpm check:color-only` (a state modifier, hand-written or unrolled from an `@each`, whose own declarations are all colour, with no `color-ok:` reason; a loop whose list it cannot resolve, or a modifier still interpolated after unrolling, needs one too — a `pnpm lint` stage) |
-| RTL layout sweep  | `pnpm check:rtl-layout` (Chromium, LTR vs RTL overflow per route — **nightly**, not a PR gate)      |
+| Dangling tokens   | `pnpm check:tokens` (a `var(--wr-color-…)` / `var(--wr-border-…)` at a token nothing declares — a `pnpm lint` stage) |
 | Layout geometry   | `pnpm check:layout` (box sizes vs `scripts/baselines/layout.json`; `--update` re-records — **nightly**)        |
 | API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
-| llms-full.txt     | `pnpm check:llms` (entry-point coverage floors for the generated AI asset)                           |
 | Selector map      | `pnpm gen:selectors` (every `@Component` / `@Directive` selector → symbol + subpath, for the docs' code tabs, `check:attrs` and `gen:install`); `check:selectors` gates the committed copy — a `pnpm lint` stage |
 | Component hooks   | `pnpm gen:css-vars` (the `--wr-<name>-*` each component publishes → the docs' CSS-variables tables); `check:css-vars` gates the committed copy |
-| Dependencies      | `pnpm gen:deps` (each entry point's peers, add-ons, what it is built on and used by → the docs' Dependencies section and See also); `--check` compares the committed copy, but no script or CI step runs it |
+| Dependencies      | `pnpm gen:deps` (each entry point's peers, add-ons, what it is built on and used by → the docs' Dependencies section and See also) |
 | Quality numbers   | `pnpm gen:quality` (entry points, harnesses, specs, gates → `#core/generated/quality`, which the home page and the translations guide bind to) |
 | Unit tests        | `pnpm test` (`ng test lib` — vitest via `@angular/build:unit-test`); `pnpm test:watch` |
 
@@ -617,26 +612,16 @@ builder — no `vitest.config.ts` and no `@analogjs/*`: the target lives in
 sit **next to the code they cover** (`math/math.spec.ts`, not a `test/` tree).
 `tsconfig.lib.json` excludes `**/*.spec.ts`, so nothing ships to npm.
 
-**Codecov is wired and the number is real** — `pnpm test:coverage` writes
-`coverage/lib/lcov.info`, CI uploads it with the `CODECOV_TOKEN` secret, and
-`codecov.yml` keeps both statuses `informational: true` on purpose: the gates
-that fail a build are the eight below, and a coverage service is a badge and a PR
-comment. Read the report as a POINTER rather than a target — its one real catch
-so far was `utils/css-size`, a pure-logic module with no spec at all sitting
-inside a layer this paragraph called covered. The pure-logic layer is now 100%
-line-covered but for one branch that cannot execute (`WrValidators.url`'s
-empty-host guard, explained at the line), and the two other documented
-unreachables — the `<template>` parser in `sanitizeIcon` and the no-`window`
-read in `getRootFontSize` — are now driven by specs that stub the SSR shape,
-because a sanitizer strict in the browser and lax on the server is the worst
-failure a control like that can have.
+There is no coverage service: v15 removed Codecov and `test:coverage`, and CI
+runs plain `pnpm test`.
 
 Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
 `ngwr/pipes`, the colour maths), the validation-copy contract
 (`ngwr/form`), most of the service layer (`ngwr/hotkey`, `ngwr/i18n`,
 `ngwr/platform`, `ngwr/storage`, `ngwr/overlay`, `ngwr/density`,
 `WrWindowManager`, `ngwr/scroll`) and EVERY component with a
-page under `reference/components`, and **every entry point now has one**. (How
+page under `reference/components`; every entry point has a spec but twenty
+`ngwr/i18n/<locale>` catalogs (see i18n above). (How
 many spec files and how many cases is re-counted by `pnpm gen:quality` into
 `#core/generated/quality` — read it there. This sentence used to restate both,
 and sat at `275 spec files, at least 4467 specs` for long enough to be wrong by
@@ -661,10 +646,9 @@ spec on `wr-table` says nothing about tree rows unless it exercises them.
 vitest's `-t`, so `--filter dialog` silently runs the handful of tests whose
 NAMES contain "dialog" and reports green. To run one file, pass its path to the
 builder's `include`; to be sure of a change, run the whole suite — it is
-seconds. **`pnpm lint`, `pnpm test`, the two builds, `check:api-docs`,
-`check:llms`, `check:css-vars` and `check:a11y` are the eight
-gates**, and a green run still does not mean
-a component behaves — the suite is broad now but shallow in places (see above).
+seconds. **`pnpm lint`, `pnpm test`, the two builds, `check:api-docs` and
+`check:css-vars` are the PR gates** (see Three tiers), and a green run still
+does not mean a component behaves — the suite is broad now but shallow in places (see above).
 
 **Deferred DOM work needs `afterNextRender`, not `queueMicrotask`.** Under
 zoneless CD the scheduler runs change detection in a MACROTASK, so a microtask
@@ -737,17 +721,16 @@ the first one decides every other question:
 `engines` carries the Node and pnpm ranges, `packageManager` the exact pnpm,
 `.nvmrc` the Node CI runs, and `devDependencies` the Angular and TypeScript the
 repo builds against. No version is restated in this file, in README.md or in
-CONTRIBUTING.md, and `package.spec.ts` fails if one reappears: a copy is a claim
-that goes stale silently, and CONTRIBUTING carried four wrong ones for exactly
-as long as it took someone to look.
+CONTRIBUTING.md: a copy is a claim that goes stale silently, and CONTRIBUTING
+carried four wrong ones for exactly as long as it took someone to look.
 
 The shape, which the manifest does not explain: the Node range is Angular's own,
 arm for arm, with the same majors and the same minimums, and one difference.
 Angular leaves its newest arm open-ended (`>=`) and `engines` closes it at that
 major (`^`), so `devEngines` refuses a Node major the repository has never run.
 Compare the two when Angular moves its range. `.nvmrc` and
-every workflow run the newest of them; a nightly matrix covers the LTS lines
-underneath.
+every workflow run the newest of them; the nightly covers Node 24, and since
+v15 nothing runs the Node 22 arm `engines` still accepts.
 
 **The version guard is `devEngines` in `package.json`, and `.npmrc` is empty on
 purpose.** It used to carry `engine-strict=true`, and pnpm reads no behavioural
@@ -758,9 +741,9 @@ the install carries on, so without `devEngines` the next failure is somewhere
 inside a build. What that
 file IS still read for is npm-compatible registry and auth config, which is why
 it is kept with a comment rather than deleted — it is where someone would
-otherwise re-add a setting that does nothing. `devEngines.runtime` refuses with a clear message, and
-`package.spec.ts` holds it to the same range `engines` advertises so the two
-cannot drift. **`devEngines.packageManager` is deliberately absent**: npm reads
+otherwise re-add a setting that does nothing. `devEngines.runtime` refuses with a clear message;
+keep its range equal to `engines` by hand, since v15 removed the spec that held
+the two together. **`devEngines.packageManager` is deliberately absent**: npm reads
 `devEngines` too, and an entry naming pnpm makes every npm invocation in the
 repo fail `EBADDEVENGINES` — including the `npx commitlint` in the commit-msg
 hook, which is how it was found, on the commit that added it. The pnpm version
@@ -800,26 +783,8 @@ they are installed.
 ### Linting — read before trusting a green run
 
 `pnpm lint` is **multi-stage**: `ng lint` (lib, then showcase) `&&`
-`eslint scripts` `&&` `stylelint` `&&` `check:colors`
-(`scripts/check/color-parity.ts`) `&&` `check:rtl` (`scripts/check/rtl.ts` — a
-physical, direction-dependent CSS property with no `rtl-ok:` reason within three
-lines above it) `&&` `check:tokens`
-(`scripts/check/tokens.ts` — a token declared in `theme/styles/` that nothing in
-`projects/lib` or the showcase's own stylesheets writes `var()` for) `&&`
-`check:color-only` (`scripts/check/color-only.ts` — a state or intent modifier
-whose OWN declarations are all colour, with no `color-ok:` reason in the
-comment block above the selector or above the `@each` that generates it; it
-unrolls every loop whose list it can read, through the lists `check:tokens`
-resolves from the same `scripts/lib/scss-loops.ts`, and fails on a loop it
-cannot read when that loop writes a modifier — and on any modifier still
-spelled as an interpolation once unrolling is done. It judges a custom property
-by the colour its VALUE holds rather than by its name, judges a state that
-declares nothing itself on the colour it puts on its children and `@if` /
-`@media` branches, counts `cursor` / `pointer-events` / `transition` as neither
-colour nor channel, reads a prefixed modifier (`--tone-danger`), and proves each
-of those readings on its own fixtures (`SELF_TEST`) before it judges the tree,
-because every one of them once passed a colour-only rule green) `&&`
-`check:selectors` (`scripts/gen/selectors.ts --check` — the committed
+`eslint scripts` `&&` `stylelint` `&&` `check:tokens` (`scripts/check/tokens.ts`
+— a `var()` read of a theme token nothing declares) `&&` `check:selectors` (`scripts/gen/selectors.ts --check` — the committed
 `#core/generated/selectors.ts` against what the generator produces now, the same
 `--check` shape `gen/css-vars.ts` and `gen/api-docs.ts` use. It reads source and
 `projects/lib/package.json` only, which is why it is a lint stage where
@@ -885,17 +850,25 @@ omit `default:` for those and that is the field the check keys on — 17 rows on
 ORDER and a different alias with identical arms are admitted deliberately: both
 are value-set identities, and no binding changes.
 
-**CI gates on `pnpm lint` + `pnpm test:coverage` + `pnpm check:api-docs` +
-`pnpm check:llms` + `pnpm check:css-vars` + `pnpm build:lib` +
-`pnpm build:showcase` + `pnpm check:a11y`** — `test:coverage`
-is `pnpm test` instrumented, so the suite runs once and feeds Codecov. The list
-as CI runs it is `prGates` in `#core/generated/quality`, parsed from `ci.yml`, and
-all eight must be green (a silently
-failed lint stage once slipped past and blocked a publish). The last one needs the
-prerendered site, which is why it sits after `build:showcase` rather than in the
-lint chain. The publish job re-runs `pnpm lint` + `pnpm build:lib` before
-shipping. Conventional-commit subjects are checked locally (commitlint
-`commit-msg` hook) and PR titles on CI.
+### Three tiers
+
+| Tier    | Workflow                                     | Runs                                                                                              |
+| ------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| PR      | `ci.yml`, every PR and push to `main`        | `lint`, `test`, `check:api-docs`, `check:css-vars`, `build:lib`, `build:showcase`                 |
+| Nightly | `nightly.yml`, 20:00 UTC                     | `build:showcase` once, then `check:a11y`, `check:contrast`, `check:state-a11y` and `check:layout` on its `dist/showcase`; `test` + `build:lib` on Node 24 |
+| Release | `release.yml`, before it cuts the release PR | `pnpm check:release`: the PR set plus the four site checks                                        |
+
+The nightly skips every job when `main` is still at the commit the last
+finished nightly checked; a manual dispatch always runs. A failed job opens one
+`Nightly failed` issue (or comments on the open one) with the date, the SHA,
+the run and the failed jobs, and the next green nightly closes it. The lists
+are parsed into `prGates` / `nightlyGates` in `#core/generated/quality`.
+`pnpm check:nightly` and `pnpm check:release` run a tier by hand (Playwright's
+Chromium needed; the Node 24 job has no local twin) — not to be confused with
+`release:check`, the CHANGELOG guard in `publish.yml`, which also re-runs
+`pnpm lint` + `pnpm build:lib` before it ships. Commit subjects are checked by
+the commitlint `commit-msg` hook; PR titles are not, since a rebase merge
+never puts one in the history.
 
 ## Conventions
 
@@ -949,16 +922,13 @@ computes to `color(srgb …)` with 0–1 channels, not to `rgba(…)`. Plus
 `--wr-border-radius-{sm,base,lg,pill}`, `--wr-text-*`, `--wr-font-weight-*`,
 `--wr-duration-*`, `--wr-ease-*`. Pull mixins and tokens from `ngwr/theme`.
 The TS `WR_COLORS` list and the SCSS `$base-colors` map must stay in sync —
-`scripts/check/color-parity.ts` (in `pnpm lint`) fails the build if they drift.
+`theme/sass-entry.spec.ts` fails if they drift.
 
-**The COMPONENT-scoped hooks are catalogued by `gen:css-vars`, and the
-catalogue is the gate `check:tokens` deliberately is not.** How many there are
-is printed by the run — do not re-type it here, which is how this line came to
-say 379 while `gen:css-vars` said 380. `check:tokens` reads
-`theme/styles/` only, calling a component's own `--wr-<name>-*` "a component's
-private surface" — true of the DECISION and not of the audience, since a
-consumer restyles a component through exactly those. They were documented
-nowhere until v14: the sanctioned, non-breaking route meant opening
+**The COMPONENT-scoped hooks are catalogued by `gen:css-vars`.** How many there
+are is printed by the run — do not re-type it here, which is how this line came
+to say 379 while `gen:css-vars` said 380. A consumer restyles a component
+through exactly those `--wr-<name>-*` hooks, and they were documented nowhere
+until v14: the sanctioned, non-breaking route meant opening
 `node_modules/ngwr/<name>/styles/_index.scss`, and a consumer who cannot find a
 hook overrides the internal BEM class instead — against a class-name stability
 statement that never meant to cover it. `scripts/lib/build-css-var-map.ts` reads
@@ -975,53 +945,23 @@ with no modifier, because a hook is typically re-declared by every variant.
 Exactly one hook is declared and never read — `--wr-density-text`, published
 for consumers' own `calc()` — and the generator prints it rather than listing it.
 
-**`check:tokens` asks its question in BOTH directions, and the second one is
-the dangerous half.** The first pass finds a token with no reader. The second
-finds a READER with no token — a `var(--wr-color-…)` at a name the theme never
-declares — and those are not the same check in mirror: a dead declaration is
-untidy, while a dangling read is invalid at computed-value time, so the browser
-drops the WHOLE declaration holding it. `border: 1px solid var(--wr-color-gone)`
+**`check:tokens` finds a READER with no token** — a `var(--wr-color-…)` at a
+name the theme never declares. A dangling read is invalid at computed-value
+time, so the browser drops the WHOLE declaration holding it. `border: 1px solid var(--wr-color-gone)`
 draws no border at all, and nothing says so in the build, the console or a test.
-v15 is why the pass exists: cutting four intents left **220 reads across 71
+v15 is why the check exists: cutting four intents left **220 reads across 71
 files**, nine of them in the SHIPPED library — `wr-gauge`, `wr-knob`,
 `wr-calendar-heatmap` and `wr-line-chart` each drew a neutral track or grid line
 through a token that no longer existed — and every gate was
 green. Scope: only the `--wr-color-*` namespace, which the theme layer owns
-entirely; a read in a template or in TypeScript counts, unlike in the first pass,
-because an inline `style` is a live rule and a printed snippet is advice someone
+entirely; a read in a template or in TypeScript counts, because an inline
+`style` is a live rule and a printed snippet is advice someone
 will paste; a declaration counts from a stylesheet or a template but NEVER from
 TypeScript, since every `--wr-color-…:` in a `.ts` file here is inside a printed
 snippet, and counting those made the check answer that every read of a deleted
 token resolved. `projects/lib/schematics` is skipped whole: a codemod's tables
-and fixtures name the old vocabulary on purpose.
-
-**A token nobody paints with is not a token, and `check:tokens` is a "say why"
-gate rather than a "don't" gate.** `--wr-*` properties are public API, so a token
-the library never reads can still be right to ship — the eleven
-`--wr-color-gray-*` steps are a FIXED ramp precisely so a component cannot use
-them, since a component has to work in both themes. What is not acceptable is
-that nobody decided, and that is what the layer had drifted into: on its first
-run the check found **37 declarations with no consumer**, including
-`--wr-color-border-subtle` / `-border-strong` sitting beside twenty-two files
-hand-rolling `rgba(var(--wr-color-outline-rgb), α)` at eight alphas, four of
-which compute to exactly those tokens. Mark an intentional one with
-`// unused-ok: <reason>`; the marker covers a contiguous run of declarations up
-to the next blank line, because a family is one decision — so a marker's sentence
-has to name WHICH of the run it excuses, or it states something false about the
-neighbours it happens to cover. **Interpolation is the trap, in both
-directions.** A component stylesheet writes `var(--wr-color-#{$name}-dark)`, so a
-matcher built on `[\w-]+` reports the whole shade set as dead; and a loop that
-writes one reference per intent still matches no concretely-named declaration,
-which is how the dark theme's hand-tuned `--wr-color-dark-dark` — the background
-the since-removed `.wr-btn--dark:hover` painted — came to carry a marker saying
-nothing paints with it. The check now resolves an `@each` to the list it actually iterates and
-expands the reference against it, scoped by brace depth, so a loop over three
-intents cannot vouch for the rest. Two more things do NOT count as painting
-with a token: the showcase's templates (a swatch with an inline `style`, a
-`var()` inside a printed SCSS snippet — counting those called three dead families
-alive) and a `var()` inside a CODE COMMENT, which is the same category and was
-the only thing keeping `--wr-color-outline-rgb` green. Only `projects/lib` and
-the showcase's own `.scss` count, comments stripped.
+and fixtures name the old vocabulary on purpose. Its other pass, a declared
+token nothing paints with, went in v15 with its `unused-ok:` markers.
 
 **A `::before` background is invisible to every contrast checker.** The case
 that taught it was `wr-squircle`, which painted its content fill on a
@@ -1227,8 +1167,8 @@ site's printed counts bind to — and it shipped stale on two consecutive releas
 because `release:prepare` did not run `gen:quality`. `release.yml` runs it now,
 in its own step after the bump. Don't bump the
 version by hand either — releases are cut from Actions, by running the "Release
-PR" workflow with its `bump` input, which runs `release:prepare` /
-`release:body` and opens a `chore(release)` PR. Merging it does not put the
+PR" workflow with its `bump` input, which runs `pnpm check:release`, then
+`release:prepare` / `release:body`, and opens a `chore(release)` PR. Merging it does not put the
 version on npm: `publish.yml` runs `npm stage publish`, and the version is
 installable once the maintainer approves it with 2FA (`npm stage approve` or
 the package's Staged Packages tab). What makes a compromised run unable to ship
@@ -1334,7 +1274,7 @@ Dependabot (grouped, checked daily) handles the PRs — one per group, and `grou
 the 6.0 line (a tilde range in `devDependencies`) — Angular 22's peer range is
 `typescript >=6.0 <6.1`, and TypeScript 7 is out. `.github/dependabot.yml`
 carries one `ignore` for it, `>=6.1`, which covers TypeScript 7 too, and holds
-`vitest` and `@vitest/coverage-v8` below 5 the same way: the unit-test target
+`vitest` below 5 the same way: the unit-test target
 runs through `@angular/build:unit-test`, and `@angular/build` declares a 4.x
 `vitest` peer. Revisit that one when the peer widens. If either bump appears in
 a PR anyway, it came from somewhere other than the bot; don't take it. The matching `@types/node` ignore is GONE — the types and the runtime moved
@@ -1357,15 +1297,11 @@ there — so a repo whose `engines` accepts both cannot set it statically. Upstr
 is not coming: vitest closed the collision as not planned. The LIBRARY was never
 affected — `storage-engine.ts` already falls back to memory on a missing
 `localStorage` — which is what makes this scaffolding rather than a product fix.
-`engines` still accepts 22 and 24 — both LTS, to April 2027 and 2028 — so the
-nightly `legacy-node` job runs `pnpm test` and `build:lib` on each; without it
-two thirds of the range would be a claim nothing checks. That job earned its
-keep immediately: `Intl.Locale.prototype.getWeekInfo` does not exist on Node 22,
-and the date-fns and Luxon adapters' fallback specs ASSERTED it did before
-deleting it, so a test written to prove the fallback works was red on the one
-runtime where the fallback is the live path. They removed the method only where
-there was one after that, and went with those adapters in v15;
-`WrNativeDateAdapter.getFirstDayOfWeek` carries the same fallback.
+`engines` still accepts 22 and 24 — both LTS, to April 2027 and 2028 — and the
+nightly `legacy-node` job runs `pnpm test` and `build:lib` on 24 only; v15
+dropped its Node 22 arm, so that third of the range is a claim nothing checks.
+`Intl.Locale.prototype.getWeekInfo` does not exist on Node 22, and
+`WrNativeDateAdapter.getFirstDayOfWeek` carries a fallback for it.
 
 **Docs prose.** In changelogs / docs, write "from X to Y" — not "X → Y" (no
 arrow) — for version and before/after descriptions.
@@ -1431,15 +1367,10 @@ its route floor.
 `--filter=<substring>` narrows it to a route while you iterate; the full sweep
 is minutes.
 
-It runs **nightly** (`.github/workflows/nightly.yml`), not on every PR: a
-browser and 392 page loads — 196 canonical routes across both themes, as the
-sweep stood when this was measured — took the PR job from ~5 minutes to nearly
-17. It is bigger now and the case is only stronger: `prefers-contrast: more` is
-a second axis, so a full sweep is routes × themes × contrast modes, and the run
-prints all three. What it catches is drift in painted colour rather than the
-kind of break a single PR needs told about mid-review. So a green PR says nothing about
-contrast — run it locally when you touch a token, a tint, or anything that
-paints text on an intent.
+It is not a PR gate (see Three tiers): at half today's size it took the PR job
+from ~5 minutes to nearly 17. So a green PR says nothing about contrast — run it
+locally when you touch a token, a tint, or anything that paints text on an
+intent.
 
 **`check:contrast` sweeps two axes: theme × `prefers-contrast`.** The second one
 arrived with D6 — the theme layer answers `prefers-contrast: more` in
@@ -1579,13 +1510,9 @@ extend it: **a target that matches nothing FAILS the run** rather than recording
 an empty array, which would then compare equal to itself forever; and the
 tolerance stays 1px, which is sub-pixel rounding and nothing else.
 
-`check:rtl-layout` is the other nightly job, and it is nightly for the same
-reason. It renders every route in a real Chromium under both directions and fails
-only where a page overflows sideways in RTL and not in LTR — differential, so
-there is no baseline of pixel positions to rot, and it catches what neither
-`check:rtl` (source only) nor `check:a11y` (JSDOM, no stylesheets) can see. Its
-one shipped catch was the slider thumb centring itself with a physical
-`translate(-50%)` against an inset that had become logical.
+v15 removed both RTL gates, `check:rtl` (a physical property with no `rtl-ok:`
+reason) and the nightly `check:rtl-layout`, with every `rtl-ok:` marker: none
+of the apps ngwr serves renders RTL.
 
 **`--wr-border-base` fails WCAG 1.4.11 on control borders, and that is a
 DECIDED trade — do not re-report it.** It was `--wr-color-outline` until v15 and
@@ -1655,8 +1582,8 @@ on exactly the 24px minimum. Measured against this branch's `dist/showcase` at
 `hasTouch`: two violation nodes fine, zero coarse, and two again the moment that
 gap is forced back to 0.375rem in the same coarse context. So the cheapest gate
 for the half that ships is an axe pass over this one route with `hasTouch: true`
-— it would catch a regression of the gap, which is otherwise pinned only at the
-source, in `table-header-target.spec.ts`. `document.elementFromPoint` is still
+— it would catch a regression of the gap, which nothing else pins.
+`document.elementFromPoint` is still
 the only check that sees the halo ITSELF, and a header below the fold answers
 `null` to every probe, which reads exactly like a dead hit area.
 
@@ -1699,11 +1626,9 @@ uses it as a status. Three alternatives were costed and not taken: an opt-in
 `icon` already gives), a glyph drawn by default (every existing status tag 18px
 wider and every category tag wrong — a visual break of the kind v10 and v11
 shipped as majors), and deprecating the intent tones (a major, for five demo
-uses whose words already carry the state). Each such rule carries a `color-ok:`
-naming its case, and `check:color-only` reads them now that it unrolls `@each`.
-axe ships no WCAG 1.4.1 rule, so that source check is the only gate this has,
-and it reads ngwr's stylesheets, never a consumer's template: a red tag whose
-words say nothing is still the app's to catch. The consumer-facing account is
+uses whose words already carry the state). axe ships no WCAG 1.4.1 rule, and
+v15 removed `check:color-only` with its `color-ok:` markers, so nothing gates
+this: a red tag whose words say nothing is the app's to catch. The consumer-facing account is
 the badge page's "Colour is not a label" section and the `WrTag.color`,
 `WrBadge.color` and `WrTypography.tone` JSDoc.
 
@@ -1740,7 +1665,8 @@ focus between rows needs the ring back, scoped to whatever roves.
 correct roles/states, keyboard navigation, and focus management; overlays use the
 CDK a11y primitives (focus trap) plus live-region announcements. `pnpm
 check:a11y` runs axe over the prerendered showcase and **fails on any serious or
-critical violation** — the baseline is empty, so a new one is a red build. A
+critical violation** — the baseline is empty, so a new one fails the nightly
+and the release check. A
 control with no projected text needs an `ariaLabel` input routed through the
 i18n catalog; an `aria-label` on a component's host element does not reach the
 native control inside it.
@@ -1822,8 +1748,8 @@ both from the one `collect()` pass in `scripts/gen/ai-assets.ts` — so the cata
 cannot say two different things in two files. The skill ships inside the npm
 tarball (copied by `copy-dist-assets.ts`) and is served at `/skills/ngwr/SKILL.md`;
 its provider table is imported from `projects/lib/mcp/providers.ts`, which the MCP
-server's `get_ngwr_setup` reads too. `check:llms` gates the skill as OUTPUT — no
-frontmatter, or a catalog table with only a header, fails the build. Hand-editing
+server's `get_ngwr_setup` reads too. The generator throws on a selector that is
+not a tag or an attribute (a harness predicate read as one). Hand-editing
 either is pointless, but only `llms-full.txt` is gitignored — `skills/ngwr/**` is
 TRACKED, so a build regenerates it into the working tree and the diff has to be
 committed like any other. Nothing gates that it was: the skill sat two entry
@@ -2051,8 +1977,8 @@ because it is guidance rather than a plan.
 - Escape does NOT depend on focus being inside an overlay:
   `overlayRef.keydownEvents()` is fed by CDK's `OverlayKeyboardDispatcher`,
   which keeps one document listener and routes to the topmost overlay.
-- Every shipped catalog is pinned to **the English key set** with no
-  empty values (`expectCatalogContract`, above) — empty is the worse case, since it resolves as a real
+- `wrRu` is pinned to **the English key set** with no
+  empty values (`expectCatalogContract`, above; the other twenty catalogs are not) — empty is the worse case, since it resolves as a real
   translation and reaches the DOM as a nameless control. Nothing had compared
   `wrEn` with `wrRu` before: `useI18nText` reads "translation === key" as
   missing and quietly serves the English default, so a Russian app rendered

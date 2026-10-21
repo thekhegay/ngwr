@@ -15,7 +15,6 @@
   // hold `left: 0` from CDK next to `inset-inline-start: 0` from here, which in
   // RTL over-constrains the same rect for no gain. Fidelity to the source we
   // mirror is worth more than a rename that changes nothing.
-  // rtl-ok: re-emitted CDK rule; full-viewport box, identical under RTL
   left: 0;
   width: 100%;
   height: 100%;

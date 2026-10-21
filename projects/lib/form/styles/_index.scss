@@ -19,11 +19,6 @@
     transition: color var(--wr-transition-base);
   }
 
-  // color-ok: `wr-form-item` lays out what it is given and prints nothing, so
-  // the channel is the `<wr-form-error>` text the author projects beside the
-  // control; the label and border colours repeat it. A row with `hasError` and
-  // no message is colour-only, and the author's to catch — `wr-form-field`
-  // resolves and prints the message itself.
   &--error {
     > label {
       color: var(--wr-color-danger-ink);
@@ -123,10 +118,6 @@
   // is set here rather than the component's border hook, the way the select's
   // is, so the error edge holds while the trigger is focused or open — both of
   // those set `border-color` directly and would otherwise paint it primary.
-  // color-ok: `danger` against the default `--wr-border-base` separates in
-  // LIGHTNESS, not only in hue — 3.11:1 in light — so unlike two intents
-  // compared with each other this survives greyscale, and the error MESSAGE
-  // the field renders below is the channel that does the real work.
   &--invalid &__control input,
   &--invalid &__control textarea,
   &--invalid &__control select,
@@ -165,10 +156,6 @@
   // version of this block set the hook on the host only, and hovering an
   // invalid checkbox turned it back to primary. Naming the inner element takes
   // the selector to (0,4,0), which outranks the component's (0,3,0) hover.
-  // color-ok: `danger` against the default `--wr-border-base` separates in
-  // LIGHTNESS, not only in hue — 3.11:1 in light — so unlike two intents
-  // compared with each other this survives greyscale, and the error MESSAGE
-  // the field renders below is the channel that does the real work.
   &--invalid &__control .wr-input-group {
     --wr-input-group-border: var(--wr-color-danger);
   }
@@ -179,19 +166,11 @@
   // announcements of one group error is nine times the cost; an eye takes nine
   // red boxes in at once and reads one signal. The reason the ARIA rule exists
   // does not transfer to the visual channel.
-  // color-ok: `danger` against the default `--wr-border-base` separates in
-  // LIGHTNESS, not only in hue — 3.11:1 in light — so unlike two intents
-  // compared with each other this survives greyscale, and the error MESSAGE
-  // the field renders below is the channel that does the real work.
   &--invalid &__control .wr-checkbox,
   &--invalid &__control .wr-checkbox .wr-checkbox__box {
     --wr-checkbox-border: var(--wr-color-danger);
   }
 
-  // color-ok: `danger` against the default `--wr-border-base` separates in
-  // LIGHTNESS, not only in hue — 3.11:1 in light — so unlike two intents
-  // compared with each other this survives greyscale, and the error MESSAGE
-  // the field renders below is the channel that does the real work.
   &--invalid &__control .wr-radio,
   &--invalid &__control .wr-radio .wr-radio__dot {
     --wr-radio-border: var(--wr-color-danger);

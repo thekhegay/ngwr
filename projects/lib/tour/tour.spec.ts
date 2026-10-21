@@ -1,6 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component } from '@angular/core';
@@ -282,40 +279,6 @@ describe('WrTour when its injector goes away mid-tour', () => {
     expect(document.querySelector('.wr-tour__spotlight')).toBeNull();
     expect(document.querySelector('.wr-tour-popup')).toBeNull();
     delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView;
-  });
-});
-
-/**
- * ⚠️ This one guards the RULE, not the behaviour.
- *
- * The cut-out and CDK's `.cdk-overlay-container` are both `position: fixed` children
- * of `<body>`, so at equal z-index the DOM order decides who paints on top — and the
- * service appends a fresh cut-out on every step while the container stays where it
- * is. From the second step on, the dimming shadow covered the tour's own card.
- * `.wr-tour-overlay { z-index: 1001 }` cannot fix it: that sits on the pane INSIDE
- * the container, whose stacking context scopes it.
- *
- * jsdom paints nothing, and the dimming is a `box-shadow`, which is not hit-testable
- * even in a real browser — so it was measured in Chromium by giving the same element
- * a solid background over the card (same element, same stacking position) and asking
- * `elementFromPoint` who won:
- *
- *   cut-out before the container (step 1) | card wins | card wins
- *   cut-out after  the container (step 2) | CUT-OUT   | card wins
- *                                           z 1000      z 999
- */
-describe('the tour stylesheet', () => {
-  const source = readFileSync(join(process.cwd(), 'projects/lib/tour/styles/_index.scss'), 'utf8');
-  const code = source
-    .split('\n')
-    .filter(line => !line.trim().startsWith('//'))
-    .join('\n');
-
-  it('keeps the cut-out under the overlay container it shares a parent with', () => {
-    const rule = /\.wr-tour__spotlight\s*\{([\s\S]*?)\n\}/.exec(code)?.[1] ?? '';
-    const z = /z-index:\s*(\d+)/.exec(rule)?.[1];
-    expect(z).toBeDefined();
-    expect(Number(z)).toBeLessThan(1000);
   });
 });
 

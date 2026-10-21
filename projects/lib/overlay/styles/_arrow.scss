@@ -147,20 +147,16 @@ $placements: (
 /// about the vertical axis and need nothing.
 @mixin faces($edge, $color) {
   @if $edge == bottom {
-    // rtl-ok: down-right face of a 45°-rotated square — fixed by the rotation
     border-right: 1px solid $color;
     border-bottom: 1px solid $color;
   } @else if $edge == top {
-    // rtl-ok: up-left face of a 45°-rotated square — fixed by the rotation
     border-left: 1px solid $color;
     border-top: 1px solid $color;
   } @else if $edge == right {
     border-top: 1px solid $color;
-    // rtl-ok: down-right face of a 45°-rotated square — fixed by the rotation
     border-right: 1px solid $color;
   } @else {
     border-bottom: 1px solid $color;
-    // rtl-ok: up-left face of a 45°-rotated square — fixed by the rotation
     border-left: 1px solid $color;
   }
 }
@@ -209,9 +205,6 @@ $placements: (
     }
   }
 
-  // color-ok: placements, not states — `$placements-used` is a mixin argument
-  // the gate cannot resolve, and every member is an edge plus an alignment
-  // (`top`, `bottom-start`, …) that `at()` turns into a position.
   @each $placement in $placements-used {
     $spec: map.get($placements, $placement);
 

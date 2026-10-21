@@ -43,16 +43,16 @@ export const QUALITY = {
   directives: 38,
 
   /** `*.spec.ts` files under `projects/lib`, harness specs included. They sit beside the code they cover, and `tsconfig.lib.json` excludes them from the package. */
-  specFiles: 292,
+  specFiles: 267,
 
   /** Test cases those files DECLARE — `it(…)` / `test(…)` call sites, counted after comments and string bodies are stripped. */
-  testCases: 5061,
+  testCases: 4945,
 
   /** Whether `testCases` is a total or a floor. A parameterised form (`it.each`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page says "at least" rather than failing a documentation build over a legal spec. */
   testCasesAreExact: false,
 
   /** Entry points owning at least one spec file. Compare against `entryPoints`: the claim is coverage of the catalog, not of every branch in it. */
-  entryPointsWithSpecs: 218,
+  entryPointsWithSpecs: 198,
 
   /** Documentation pages the showcase's route tables declare — routes with a `loadComponent`, minus the layout shell (it has `children`) and the `**` 404, neither of which is a page. NOT the prerendered-route count either: `app.routes.server.ts` sends the raw-SVG icon galleries and the legacy redirects to the client. */
   docRoutes: 216,
@@ -68,35 +68,30 @@ export const QUALITY = {
     { name: "ng lint", command: "ng lint" },
     { name: "eslint scripts", command: "eslint scripts" },
     { name: "lint:styles", command: "stylelint \"projects/**/*.scss\"" },
-    { name: "check:colors", command: "tsx scripts/check/color-parity.ts" },
-    { name: "check:rtl", command: "tsx scripts/check/rtl.ts" },
     { name: "check:tokens", command: "tsx scripts/check/tokens.ts" },
-    { name: "check:color-only", command: "tsx scripts/check/color-only.ts" },
+    { name: "check:selectors", command: "tsx scripts/gen/selectors.ts --check" },
     { name: "check:attrs", command: "tsx scripts/check/unknown-attrs.ts" },
     { name: "check:install", command: "tsx scripts/gen/install.ts --check" },
-    { name: "check:selectors", command: "tsx scripts/gen/selectors.ts --check" },
   ],
 
   /** Every `package.json` script `.github/workflows/ci.yml` runs on a pull request, in order. Parsed from the workflow, so a gate added or removed there moves this list. */
   prGates: [
-    { name: "lint", command: "ng lint && eslint scripts && pnpm lint:styles && pnpm check:colors && pnpm check:rtl && pnpm check:tokens && pnpm check:color-only && pnpm check:attrs && pnpm check:install && pnpm check:selectors" },
-    { name: "test:coverage", command: "ng test lib --coverage --coverage-reporters lcovonly text-summary" },
+    { name: "lint", command: "ng lint && eslint scripts && pnpm lint:styles && pnpm check:tokens && pnpm check:selectors && pnpm check:attrs && pnpm check:install" },
+    { name: "test", command: "ng test lib" },
     { name: "check:api-docs", command: "tsx scripts/gen/api-docs.ts --check" },
-    { name: "check:llms", command: "tsx scripts/gen/ai-assets.ts --check" },
     { name: "check:css-vars", command: "tsx scripts/gen/css-vars.ts --check" },
     { name: "build:lib", command: "tsx scripts/build/lib.ts" },
     { name: "build:showcase", command: "tsx scripts/build/showcase.ts" },
-    { name: "check:a11y", command: "tsx scripts/check/a11y.ts" },
   ],
 
-  /** The same, from `.github/workflows/nightly.yml`. `build:showcase` is on the list because the workflow runs it: all four browser checks read `dist/showcase` and cannot start without it. Those four each need a real browser and hundreds of page loads, which is what keeps them off the PR path — so a green PR says nothing about painted contrast, geometry or RTL overflow. `test` and `build:lib` are on the list for a different reason and are not a second opinion on the PR gate of the same name: they re-run on the LTS Node versions `engines` still accepts, which nothing else exercises. */
+  /** The same, from `.github/workflows/nightly.yml`, which runs only on a night `main` moved. `build:showcase` is on the list because the workflow runs it once and the four site checks read its `dist/showcase`; they are off the PR path, so a green PR says nothing about a11y, painted contrast or geometry. `test` and `build:lib` are not a second opinion on the PR gates of the same name: they re-run on Node 24, an older LTS line `engines` still accepts, which nothing else exercises. */
   nightlyGates: [
-    { name: "test", command: "ng test lib" },
-    { name: "build:lib", command: "tsx scripts/build/lib.ts" },
     { name: "build:showcase", command: "tsx scripts/build/showcase.ts" },
+    { name: "check:a11y", command: "tsx scripts/check/a11y.ts" },
     { name: "check:contrast", command: "tsx scripts/check/contrast.ts" },
     { name: "check:state-a11y", command: "tsx scripts/check/state-a11y.ts" },
     { name: "check:layout", command: "tsx scripts/check/layout.ts" },
-    { name: "check:rtl-layout", command: "tsx scripts/check/rtl-layout.ts" },
+    { name: "test", command: "ng test lib" },
+    { name: "build:lib", command: "tsx scripts/build/lib.ts" },
   ],
 } as const;

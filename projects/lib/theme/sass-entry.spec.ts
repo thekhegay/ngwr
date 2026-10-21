@@ -4,6 +4,8 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
+import { WR_COLORS } from './colors';
+
 /**
  * What `@use 'ngwr/theme'` GIVES a consumer, compiled rather than read.
  *
@@ -260,6 +262,20 @@ describe('the compiled token layer', () => {
     expect(declarations(root()).get('--wr-shadow-modal')).toBe(
       '0 20px 48px light-dark(rgb(0 0 0 / 25%), transparent), 0 24px 56px light-dark(transparent, rgb(0 0 0 / 60%))'
     );
+  });
+
+  it('lists the same intents as `WR_COLORS`, in the same order', () => {
+    // `$base-colors` generates every `--wr-color-<intent>*` token and every
+    // `--<intent>` modifier; `WR_COLORS` is what `WrColor` accepts. v8.0.0
+    // shipped `info` in the map and not in the array: CSS in the bundle that
+    // `color="info"` could not reach, because each half compiles on its own.
+    const css = compile("@use 'sass:map'; @use 'theme' as t; .probe { --keys: #{map.keys(t.$base-colors)}; }");
+    const keys = /--keys:\s*([^;]+);/
+      .exec(css)?.[1]
+      .split(',')
+      .map(key => key.trim());
+
+    expect(keys).toEqual([...WR_COLORS]);
   });
 
   /**

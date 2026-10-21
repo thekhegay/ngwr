@@ -54,11 +54,10 @@ Use the appropriate template:
 
 ## Commits
 
-We follow [Conventional Commits](https://www.conventionalcommits.org/). Both
-are enforced — PR titles by CI
-([`pr-title.yml`](./.github/workflows/pr-title.yml)) and every local commit by
-a commitlint `commit-msg` hook, installed via `simple-git-hooks` on
-`pnpm install`. Subjects must be lowercase; the header is capped at 100 chars.
+We follow [Conventional Commits](https://www.conventionalcommits.org/),
+enforced on every local commit by a commitlint `commit-msg` hook, installed via
+`simple-git-hooks` on `pnpm install`. Subjects must be lowercase; the header is
+capped at 100 chars.
 Types:
 
 | Type | When |
@@ -90,9 +89,8 @@ Scope is the component or area in kebab-case: `feat(button)`, `fix(select)`,
    files (`projects/showcase/app/_core/generated/*.ts` and `skills/ngwr/**`), so
    run `git status` afterwards and commit whatever moved. They are not the whole
    gate set: CI runs more, listed in the style guide.
-4. PR title must be a valid conventional commit (CI enforces this).
-5. Fill in the PR template — describe **what** changed and **why**.
-6. Merging is **rebase or merge commit** — squash merging is disabled on the
+4. Fill in the PR template — describe **what** changed and **why**.
+5. Merging is **rebase or merge commit** — squash merging is disabled on the
    repository, so `gh pr merge --squash` fails outright. Keep the branch to one
    focused commit and `--rebase` lands exactly that commit on `main`.
 
@@ -132,7 +130,7 @@ Then:
    `projects/showcase/app/reference/components/components.routing.ts`.
 6. Add the sidebar entry to
    `projects/showcase/app/_layout/sidebar/configs/components.config.ts`.
-7. Add a `<name>.spec.ts` beside the component. Every entry point in the catalog
+7. Add a `<name>.spec.ts` beside the component. Every component in the catalog
    has one, and the specs assert the rendered DOM — roles, ARIA state and the
    `.wr-*` classes — rather than component internals. Copy `projects/lib/tabs/`
    for a plain component, or `projects/lib/select/` for one with an overlay.
@@ -168,21 +166,17 @@ Then:
   `--wr-*` tokens; consumers can override per-instance.
 - **Verify lint by exit code.** `pnpm lint` is an `&&` chain: `ng lint`, then
   `eslint scripts`, `lint:styles` (stylelint) and the repo's own `check:*`
-  scripts. The `lint` script in `package.json` is the list, and `pnpm gen:quality`
-  renders it on [/start/quality](https://ngwr.dev/start/quality). The first
-  stage prints `All files pass linting.` even when a later stage fails, so run
-  `pnpm lint; echo $?` and trust the code, not the output. CI gates every PR on
-  the steps in [`ci.yml`](./.github/workflows/ci.yml), which today are `lint`,
-  `test:coverage`, `check:api-docs`, `check:llms`, `check:css-vars`,
-  `build:lib`, `build:showcase` and `check:a11y`; the last one needs the
-  prerendered site, which is why it sits after the showcase build.
-  The browser checks need a real Chromium and hundreds of page loads, so they
-  run nightly instead ([`nightly.yml`](./.github/workflows/nightly.yml)):
-  `check:contrast`, `check:state-a11y`, `check:layout` and `check:rtl-layout`.
-  A green PR therefore says nothing about painted contrast, box geometry or RTL
-  overflow. The nightly also re-runs the suite and the library build on the
-  older LTS Node lines `engines` still accepts, which nothing else exercises
-  now that every other job runs the `.nvmrc` version.
+  scripts; the `lint` script in `package.json` is the list. The first stage
+  prints `All files pass linting.` even when a later stage fails, so run
+  `pnpm lint; echo $?` and trust the code, not the output.
+- **Three tiers of checks.** Every PR runs the steps in
+  [`ci.yml`](./.github/workflows/ci.yml): `lint`, `test`, `check:api-docs`,
+  `check:css-vars`, `build:lib` and `build:showcase`. The site checks
+  (`check:a11y`, `check:contrast`, `check:state-a11y`, `check:layout`) run in
+  [`nightly.yml`](./.github/workflows/nightly.yml), only on a night `main`
+  moved, along with the suite and the library build on Node 24; a failure
+  opens a `Nightly failed` issue. The Release PR workflow runs everything
+  first. `pnpm check:nightly` and `pnpm check:release` run a tier locally.
 
 ## Setting up your editor
 

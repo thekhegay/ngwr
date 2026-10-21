@@ -86,9 +86,6 @@
     background: var(--wr-color-danger);
   }
 
-  // color-ok: `background: transparent` plus an inset ring makes this dot
-  // HOLLOW — a silhouette, like the three above it. Both declarations happen
-  // to be colour-valued, which is the one shape this gate cannot read.
   &--neutral &__dot {
     // Hollow, which reads as the quiet one. The second shadow keeps the 2px
     // surface halo every dot carries, so the ring does not swallow it.

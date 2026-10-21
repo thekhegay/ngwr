@@ -25,7 +25,6 @@ node_modules
 # misc
 *.log
 connect.lock
-coverage
 typings
 *.mjs.map
 

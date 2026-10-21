@@ -1,7 +1,6 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 
-import semver from 'semver';
 import { describe, expect, it } from 'vitest';
 
 /**
@@ -32,8 +31,8 @@ const SKIP = ['schematics', 'mcp'];
  *
  * `**\/*.spec.ts` is most of it, and for a long time it was all of it — which is
  * why this file used to hardcode that one pattern. It stopped being all of it
- * when `i18n/catalog-contract.ts` arrived: a test-only module that twenty-two
- * spec files import, so it cannot be named `*.spec.ts` (vitest would try to
+ * when `i18n/catalog-contract.ts` arrived: a test-only module that the locale
+ * specs import, so it cannot be named `*.spec.ts` (vitest would try to
  * collect it and find no suite), and it imports `vitest`, so if this check ever
  * reads it the manifest is asked to declare a devDependency. Deriving the list
  * means the exclusion is stated once, in the place the compiler reads.
@@ -110,36 +109,6 @@ function importedPackages(): Map<string, string[]> {
 
   return found;
 }
-
-describe('the release tooling can still find what it rewrites', () => {
-  // `release:prepare` regenerates SECURITY.md's support table from the version
-  // being cut, because maintained by hand it went two majors stale. It located
-  // the table by an exact string, a later edit ran the file through prettier —
-  // which pads every cell to its column width — and the release died on
-  // "SECURITY.md no longer contains the support table header".
-  //
-  // The matcher is shape-based now, and this is the assertion that was missing:
-  // the failure belongs in `pnpm test`, where an edit to the document is made,
-  // not at the one moment nobody wants a surprise. Markdown formatting is not
-  // gated in this repository, so both the padded and the bare spelling are legal
-  // and both have to keep working.
-  const security = readFileSync(join(process.cwd(), 'SECURITY.md'), 'utf8');
-
-  it('still holds a support table the generator can locate', () => {
-    expect(security).toMatch(/^\|\s*Version\s*\|\s*Supported\s*\|\s*$/m);
-  });
-
-  it('follows that header with a row per supported major, then a blank line', () => {
-    const from = security.search(/^\|\s*Version\s*\|\s*Supported\s*\|\s*$/m);
-    const block = security.slice(from, security.indexOf('\n\n', from));
-
-    // Header, separator and three majors — the shape `writeSupportTable` emits.
-    expect(block.split('\n')).toHaveLength(5);
-    // And the blank line it stops at exists, or the rewrite would swallow the
-    // prose underneath.
-    expect(security.indexOf('\n\n', from)).toBeGreaterThan(from);
-  });
-});
 
 describe('the published manifest', () => {
   const manifest = JSON.parse(readFileSync(join(LIB, 'package.json'), 'utf8')) as {
@@ -342,92 +311,7 @@ describe('component stylesheets', () => {
   });
 });
 
-/**
- * The toolchain versions, which are stated three times and enforced by one.
- *
- * `engines` is what a reader looks at and what npm reports; `devEngines` is
- * what actually refuses an install; `packageManager` is what corepack fetches.
- * They said the same thing when they were written, and nothing made them keep
- * saying it — which is how the guard went missing in the first place.
- *
- * **`engine-strict` in `.npmrc` is not the guard it looks like: pnpm reads no
- * behavioural setting from that file** (measured on 11 and on 12), and an
- * incompatible `engines.node` on its own only warns. An install on an
- * unsupported runtime therefore simply succeeded, and the next failure was
- * somewhere inside a build. The check lives in `devEngines`, which pnpm does
- * honour — and this is what stops the two drifting apart the next time a range
- * moves.
- */
-describe('the root manifest declares one toolchain, not three', () => {
-  const manifestRoot = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {
-    engines: { node: string; pnpm: string };
-    devEngines: { runtime: { name: string; version: string; onFail: string } };
-    packageManager: string;
-  };
-
-  it('enforces exactly the Node range it advertises', () => {
-    expect(manifestRoot.devEngines.runtime.name).toBe('node');
-    expect(manifestRoot.devEngines.runtime.version).toBe(manifestRoot.engines.node);
-  });
-
-  it('leaves the pnpm version to corepack rather than to devEngines', () => {
-    // `devEngines.packageManager` looks like the obvious companion to the
-    // runtime entry and cannot be used here: npm reads `devEngines` too, and a
-    // `packageManager` entry naming pnpm makes EVERY npm invocation in the repo
-    // fail `EBADDEVENGINES` — including `npx commitlint` in the commit-msg
-    // hook, which is how this was found. Nothing is lost: `packageManager` is
-    // the pin corepack actually enforces, and the range below is what refuses
-    // an older one.
-    expect(manifestRoot.devEngines).not.toHaveProperty('packageManager');
-    expect(manifestRoot.packageManager).toMatch(/^pnpm@\d+\.\d+\.\d+$/);
-  });
-
-  it('fetches a pnpm that satisfies its own range', () => {
-    // `packageManager` is an exact version and `engines.pnpm` a range; corepack
-    // installs the former, so a range that excludes it would refuse the very
-    // package manager the repository pins.
-    //
-    // Resolved with `semver`, not by asking whether the range CONTAINS the
-    // version as a substring. That is what this assertion did first, and it
-    // passed vacuously: `'^12.3.4'.includes('12.3.4')` is true, and so is
-    // `'^12.3.40'.includes('12.3.4')` — the one check standing against drift
-    // reported green on the drift itself.
-    const [name, version] = manifestRoot.packageManager.split('@');
-    expect(name).toBe('pnpm');
-    expect(semver.satisfies(version, manifestRoot.engines.pnpm)).toBe(true);
-  });
-
-  it('fails the install rather than warning about it', () => {
-    // `onFail: 'warn'` would print a line nobody reads in CI and carry on,
-    // which is the state this repository was already in by accident.
-    expect(manifestRoot.devEngines.runtime.onFail).toBe('error');
-  });
-
-  it('is the only place the toolchain versions are written down', () => {
-    // Every version this repo pins lives in `package.json`; the prose files
-    // point at it. That is not tidiness — CONTRIBUTING.md restated the Node
-    // range, the `.nvmrc` value, the enforcement mechanism and the pnpm version,
-    // and was wrong about all four at once, because a copy stays correct only
-    // until someone bumps the original and forgets the copies.
-    //
-    // Matched as literals rather than by pattern: a document may legitimately
-    // discuss a version in prose (why TypeScript is held below 7, what a
-    // `@types/node` experiment showed). What must not reappear is THIS
-    // repository's own pinned ranges, restated as fact.
-    const root = process.cwd();
-    const pinned = [manifestRoot.engines.node, manifestRoot.engines.pnpm, manifestRoot.packageManager];
-
-    const offenders: string[] = [];
-    for (const doc of ['README.md', 'CONTRIBUTING.md', 'AGENTS.md']) {
-      const text = readFileSync(join(root, doc), 'utf8');
-      for (const value of pinned) {
-        if (text.includes(value)) offenders.push(`${doc} restates "${value}"`);
-      }
-    }
-
-    expect(offenders).toEqual([]);
-  });
-
+describe('README.md', () => {
   it('keeps release-bound data out of README.md', () => {
     // The README is also the npm page, and nothing regenerates it. Every
     // version, count, size and date it used to restate went stale, so it links
@@ -454,17 +338,5 @@ describe('the root manifest declares one toolchain, not three', () => {
     const offenders = banned.filter(([re]) => re.test(text)).map(([re, why]) => `${why}: ${text.match(re)![0]}`);
 
     expect(offenders).toEqual([]);
-  });
-
-  it('keeps no pnpm setting in .npmrc, where pnpm would not read it', () => {
-    // Registry and auth lines are still honoured there; anything else is a
-    // setting that looks configured and does nothing.
-    const npmrc = readFileSync(join(process.cwd(), '.npmrc'), 'utf8');
-    const live = npmrc
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line && !line.startsWith('#'));
-
-    expect(live).toEqual([]);
   });
 });

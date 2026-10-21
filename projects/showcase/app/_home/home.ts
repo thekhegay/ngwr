@@ -184,7 +184,7 @@ export class SignupCard {
       icon: 'shield-checkmark',
       title: 'A11y is gated, not claimed',
       description:
-        'Three axe gates run against the built site: structure on every PR, painted contrast and in-overlay states nightly. A serious violation is a red build.',
+        'Three axe gates run against the built site, for structure, painted contrast and in-overlay states: every night main moves, and before every release. A serious violation is a red build.',
       accent: 'danger',
       spotlight: 'color-mix(in srgb, var(--wr-color-danger) 14%, transparent)',
     },

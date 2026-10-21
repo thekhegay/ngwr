@@ -76,12 +76,6 @@
   }
 
   // Colored variants
-  // color-ok: a tag's colour is decoration or category — the label carries the
-  // state (`Failed`, not a red `Build`), because four of the five intents share
-  // one lightness and `success` against `danger` is 1.004:1. When a tag has to
-  // stand for a status on its own, its `icon` input is the channel. Nothing is
-  // drawn per intent by default: tags are categories too, and a check on
-  // `Standalone` would say something false.
   @each $name in theme.$colors {
     &--#{$name} {
       --wr-tag-color: var(--wr-color-#{$name}-contrast);

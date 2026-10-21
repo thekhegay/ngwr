@@ -26,8 +26,8 @@
  *
  * What it catches: a token, a density multiplier or a padding change silently
  * resizing controls — the class of regression no other gate reports, because
- * `check:contrast` measures colour, `check:state-a11y` measures roles and names,
- * and `check:rtl-layout` only compares a page against its own mirror.
+ * `check:contrast` measures colour and `check:state-a11y` measures roles and
+ * names.
  *
  * What it does NOT catch, and nothing here pretends otherwise: colour, shadows,
  * border radii, and anything else that changes how a box is painted rather than

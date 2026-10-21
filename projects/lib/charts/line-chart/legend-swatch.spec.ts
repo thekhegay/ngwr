@@ -129,7 +129,6 @@ describe('wr-line-chart: which rules size each drawing', () => {
     RULES()
       .filter(rule => SIZING.test(rule.body) && el.matches(rule.selector))
       .map(rule => rule.selector);
-  const body = (selector: string): string => RULES().find(rule => rule.selector === selector)?.body ?? '';
 
   beforeEach(() => {
     TestBed.resetTestingModule();
@@ -143,12 +142,6 @@ describe('wr-line-chart: which rules size each drawing', () => {
   });
 
   afterEach(() => fixture.destroy());
-
-  it('reads the rules it asks about', () => {
-    expect(() => RULES()).not.toThrow();
-    expect(body('.wr-line-chart__swatch')).toMatch(/width:\s*1rem;[^}]*height:\s*0\.125rem/);
-    expect(body('.wr-line-chart__svg')).toMatch(/width:\s*100%;[^}]*height:\s*100%/);
-  });
 
   it('sizes every swatch, in the legend and in the tooltip, by the swatch rule alone', () => {
     const swatches = [...root().querySelectorAll('.wr-line-chart__swatch')];

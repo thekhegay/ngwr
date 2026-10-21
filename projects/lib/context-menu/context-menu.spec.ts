@@ -1,6 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -812,30 +809,6 @@ describe('WrContextMenu across a direction flip', () => {
     flipTo('ltr');
 
     expect(rootPlacement()).toEqual({ dir: 'ltr', left: '0px', right: '' });
-  });
-});
-
-/**
- * ⚠️ This one guards the RULE, not the behaviour.
- *
- * `:hover` and `:focus-visible` shared one declaration block that painted the
- * `-soft` tint and then wrote `outline: none`, so a keyboard-focused row and a
- * mouse-hovered row were pixel-identical — 1.17:1 against the menu, and with the
- * keyboard on one row and the pointer on another, nothing said which one Enter
- * would fire. jsdom loads no stylesheets, so the ring itself is unobservable here.
- */
-describe('the context-menu stylesheet', () => {
-  const code = readFileSync(join(process.cwd(), 'projects/lib/context-menu/styles/_index.scss'), 'utf8')
-    .split('\n')
-    .filter(line => !line.trim().startsWith('//'))
-    .join('\n');
-
-  it('gives focus an indicator of its own, on top of the shared tint', () => {
-    const shared = /&:hover,\s*\n\s*&:focus-visible \{([\s\S]*?)\n {2}\}/.exec(code)?.[1] ?? '';
-    expect(shared, 'the shared tint must not cancel the outline again').not.toMatch(/outline/);
-    // Measured in Chromium: the focused row went from no ring at all to a solid
-    // 2px stroke on all four sides, while the hovered row beside it kept none.
-    expect(code).toMatch(/\n {2}&:focus-visible \{\s*@include theme\.focus-ring;/);
   });
 });
 

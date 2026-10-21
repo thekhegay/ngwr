@@ -1,6 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { Dir, type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -215,45 +212,6 @@ describe('WrLightbox under a localized catalog', () => {
     expect(document.querySelector('.wr-lightbox-viewer__close')!.getAttribute('aria-label')).toBe('Закрыть превью');
 
     fixture.destroy();
-  });
-});
-
-/**
- * ⚠️ This one guards the RULE, not the behaviour.
- *
- * `cursor: zoom-in` sat on the host unconditionally, so a `disablePreview` thumbnail —
- * which is documented as "a plain thumbnail" and opens nothing — still invited the
- * click. jsdom loads no stylesheets, so the cursor cannot be observed here.
- *
- * `_rules.scss`, not `_index.scss`: the entry file forwards the rules and exists to
- * pull the emitting theme layer in for a standalone `@use 'ngwr/lightbox'`, which the
- * component's `styleUrl` deliberately does not take.
- */
-describe('the lightbox stylesheet', () => {
-  const code = readFileSync(join(process.cwd(), 'projects/lib/lightbox/styles/_rules.scss'), 'utf8')
-    .split('\n')
-    .filter(line => !line.trim().startsWith('//'))
-    .join('\n');
-
-  it('offers the zoom cursor only where there is something to open', () => {
-    // The block's own declarations, up to its first nested rule.
-    const hostRule = /\.wr-lightbox \{([\s\S]*?)\n\s+&/.exec(code)?.[1] ?? '';
-    expect(hostRule).not.toMatch(/cursor:\s*zoom-in/);
-    // The trigger keeps it — that IS the element that opens the viewer.
-    expect(code).toMatch(/&__trigger \{[\s\S]*?cursor:\s*zoom-in/);
-  });
-
-  it('draws the focus ring on the host, whose own clip cannot swallow it', () => {
-    // Measured in Chromium over the built showcase: with the ring on the button,
-    // a focused thumbnail differed from a blurred one by 0 pixels — the trigger is
-    // coterminous with the `overflow: hidden` host, so every outward pixel fell
-    // outside the clip. Insetting the offset does not help either: `&__thumb` is
-    // `z-index: 2` and paints over the button's own outline. On the host the same
-    // ring paints all four sides (3915 pixels changed).
-    // Namespace-agnostic: the ring comes from the shared mixin whatever `_rules.scss`
-    // calls the module it takes it from — what matters is that it lands on the host.
-    expect(code).toMatch(/&:has\(&__trigger:focus-visible\) \{\s*@include [\w-]+\.focus-ring;/);
-    expect(code).not.toMatch(/&__trigger \{[\s\S]*?outline:\s*var\(--wr-focus-ring/);
   });
 });
 

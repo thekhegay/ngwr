@@ -62,7 +62,6 @@ $arrow-gap: 0.5rem;
   // `transform-origin` has no logical keyword form, and the corner it names is
   // the scale-in choreography of `wr-overlay-in`, shared with popover /
   // popconfirm / context-menu. Mirroring it needs a direction-aware rule.
-  // rtl-ok: animation origin, no logical keyword form exists
   transform-origin: top left;
 }
 

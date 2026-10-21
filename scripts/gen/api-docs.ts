@@ -134,7 +134,7 @@
  * They are one defect wearing nine faces, and the rule underneath all nine is
  * that **a comparison that did not happen must not read as a comparison that
  * passed** — the same rule `check:state-a11y` learned about a state that never
- * painted and `check:llms` about an entry point nobody documented.
+ * painted.
  *
  * The first answer to it was a block of floors over what the run had SEEN, and a
  * third pass showed the instrument was wrong rather than the rule: a net sum

@@ -255,9 +255,8 @@ export class WrKnob implements FormValueControl<number> {
    * right-hand side of the arc in RTL, and swapping the keys would be the thing
    * that broke the mapping.
    *
-   * That is why nothing here injects `Directionality`, and why the stylesheet
-   * carries no `rtl-ok:` marker: there is no physical CSS in the value path at
-   * all, only fixed SVG geometry.
+   * That is why nothing here injects `Directionality`: there is no physical CSS
+   * in the value path at all, only fixed SVG geometry.
    */
   protected onKeydown(event: KeyboardEvent): void {
     if (!this.interactive()) return;

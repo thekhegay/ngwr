@@ -10,19 +10,17 @@
  * a real browser over it — and asking a loaded page which colour scheme it
  * painted, which three of them need before they measure anything.
  *
- * Four of them did this themselves — `check:contrast`, `check:state-a11y`,
- * `check:layout` and `check:rtl-layout` — with four copies of the same static
- * server, the same listen-on-an-ephemeral-port dance, and four MIME tables
- * that had drifted apart: `check:layout` served an `.ico` as
- * `application/octet-stream`, and only `check:rtl-layout` knew about `.xml`
- * and `.webmanifest`. The table here is their union.
+ * `check:contrast`, `check:state-a11y` and `check:layout` each did this
+ * themselves once, with their own copies of the same static server and MIME
+ * tables that had drifted apart: `check:layout` served an `.ico` as
+ * `application/octet-stream`. The table here is their union.
  *
- * The one thing the four did NOT agree on is deliberate and is the only
- * option: what to answer for a path that resolves to nothing. The contrast and
- * state sweeps fall back to the SPA shell, because an unresolved path there is
- * a client route whose prerendered twin may not exist. The two layout sweeps
- * answer 404, because a target that matches nothing has to fail the run rather
- * than measure the home page — which is the rule `check:layout` is built on.
+ * The one thing they do NOT agree on is deliberate and is the only option:
+ * what to answer for a path that resolves to nothing. The contrast and state
+ * sweeps fall back to the SPA shell, because an unresolved path there is a
+ * client route whose prerendered twin may not exist. The layout sweep answers
+ * 404, because a target that matches nothing has to fail the run rather than
+ * measure the home page — which is the rule `check:layout` is built on.
  */
 
 import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs';

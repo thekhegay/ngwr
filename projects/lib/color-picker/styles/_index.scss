@@ -139,7 +139,6 @@
     // computed from `(event.clientX - rect.left) / rect.width` against a canvas
     // that is a picture rather than a track and so does not mirror. The two
     // SLIDER thumbs take the logical inset below instead.
-    // rtl-ok: canvas geometry in physical pixels, centred by the physical translate
     left: 0;
     border-radius: 50%;
     border: 2px solid #fff;

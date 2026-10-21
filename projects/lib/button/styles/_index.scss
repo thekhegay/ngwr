@@ -102,7 +102,6 @@
 
   &__spin {
     position: absolute;
-    // rtl-ok: centred with a physical translate(-50%, -50%), so the pair must stay physical
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -247,10 +246,6 @@
   }
 
   // Color variants
-  // color-ok: a button's intent is emphasis, not a state — the label names the
-  // action and the intent only ranks it against its neighbours. A destructive
-  // button says `Delete`; a red `OK` is the author's colour-only cue, and no
-  // rule here can supply the word.
   @each $name in theme.$colors {
     &--#{$name} {
       --wr-btn-color: var(--wr-color-#{$name}-contrast);
@@ -327,14 +322,11 @@
   // borders. On hover/focus the segment raises its own border (z-index above
   // neighbours), which would otherwise double-paint that edge — so drop the
   // seam there and let the raised border own it cleanly.
-  // color-ok: not an intent cue — the seam is the same 20% black hairline for
-  // all five; the loop only picks WHICH segments are solid enough to need it.
   @each $name in theme.$colors {
     > .wr-btn--#{$name}:not(.wr-btn--outlined):not(:last-child) {
       // `box-shadow` offsets are physical by spec — there is no logical form to
       // convert to. The seam lands on the wrong edge under RTL; fixing it needs a
       // `[dir]` rule or a real border, which is beyond a property-level rewrite.
-      // rtl-ok: box-shadow has no logical equivalent — see above
       box-shadow: inset -1px 0 0 color-mix(in srgb, var(--wr-color-black) 20%, transparent);
 
       &:hover,

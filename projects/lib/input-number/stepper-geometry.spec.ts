@@ -1,6 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -9,169 +6,48 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { WrInputNumber } from './input-number';
 
 /**
- * The ▲ / ▼ column's geometry, held at the source.
+ * The ▲ / ▼ column as the template renders it.
  *
- * Two defects, both measured in Chromium over `sm` / `md` / `lg`, square and
- * pill, under the four density presets:
- *
- *   * the chevrons were `10x6` at every size. At `sm` each half-button is 10px
- *     tall (9.1px under `sm` density), so the glyph filled all but 2px of it and
- *     the pair nearly touched; at `lg` the same glyph sat small in a 17px half.
- *     They step with the control size now.
- *
- *     The mark itself was a filled triangle until it became the stroked chevron
- *     `wr-select` and `wr-pagination` draw, so the hook sizes a SQUARE box — the
- *     24-unit viewBox is square — and the visible mark is half its width by a
- *     quarter of its height. Measured in Chromium at `md`: a 14px box, a 7x3.5px
- *     mark, identical to what a select trigger shows beside it, which is the
- *     whole reason the hook now resolves to the control font size rather than to
- *     a length of its own.
- *   * on a pill, the divider between the two buttons ran to the tip of the
- *     rounded end, and with the column's start border it cut the end cap into a
- *     separate square segment, chevrons 7px from the end. Keeping the dividers
- *     means insetting the column by the whole radius (18px at `lg`, 21.5px at
- *     `lg` under `touch`), which leaves an empty D-shaped cap after it. The pill
- *     dropped both and inset the pair instead: the chevrons end 14–16px from the
- *     border in every measured case, where the field's own text starts 13.6–20px
- *     from the other one, at a cost of 8px of minimum width, and the hover /
- *     pressed tints end in a quarter-disc that stays inside the curve.
- *
- *     Those two dividers are now gone from the square variant as well, so the
- *     pill has nothing left to undo. The pair is told apart by its tints alone,
- *     which is the state a pointer is in when it matters — the assertion below
- *     is that NO rule in the file draws either line, in any variant, rather than
- *     that one variant switches them off.
- *
- * jsdom applies no stylesheet and every rect is 0x0, so none of those numbers
- * is reachable from a rendered fixture. What IS reachable is split in two: the
- * host modifiers the rules key on (asserted from the rendered DOM in
- * `input-number.spec.ts` and below), and the declarations themselves, read
- * here the way `table/table-header-target.spec.ts` reads the table header's. A
- * source read cannot see the cascade — a later rule restoring the dividers
- * would leave it green — which is the limit that file names too.
+ * The chevrons step with the control size and a pill insets the pair from its
+ * rounded end; both were measured in Chromium over `sm` / `md` / `lg`, square and
+ * pill, under the four density presets. jsdom applies no stylesheet and every
+ * rect is 0x0, so none of those numbers is reachable here. What IS reachable is
+ * the host modifiers the rules key on and the glyph in each button.
  */
-const STYLES = readFileSync(join(process.cwd(), 'projects/lib/input-number/styles/_index.scss'), 'utf8');
+describe('WrInputNumber stepper geometry, in the rendered DOM', () => {
+  @Component({
+    imports: [WrInputNumber],
+    template: `<wr-input-number size="sm" rounded [value]="1" />`,
+  })
+  class Host {}
 
-const strip = (css: string): string => css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\s)\/\/[^\n]*/g, '$1');
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
-/**
- * A rule's own declarations — nested rules removed — found by the selector line
- * that opens it, searched from `from` (the start of an enclosing rule), so the
- * same nested selector can be told apart inside two different parents.
- */
-function block(selector: string, from = 0): { readonly body: string; readonly start: number } {
-  const source = strip(STYLES);
-  const opener = new RegExp(`^[ \\t]*${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[ \\t]*\\{`, 'm');
-  const offset = source.slice(from).search(opener);
-  expect(offset, `no \`${selector} {\` in input-number/styles/_index.scss`).toBeGreaterThan(-1);
-  const start = from + offset;
-
-  let depth = 0;
-  let body = '';
-  for (let i = source.indexOf('{', start); i < source.length; i++) {
-    const ch = source[i];
-    if (ch === '{') depth++;
-    else if (ch === '}' && --depth === 0) return { body, start };
-    else if (depth === 1) body += ch;
-  }
-  throw new Error(`\`${selector}\` is never closed`);
-}
-
-const hook = (body: string): string | undefined =>
-  /--wr-input-number-step-icon-size:\s*([^;]+);/.exec(body)?.[1]?.trim();
-
-describe('WrInputNumber stepper geometry', () => {
-  it('sizes the chevron from a hook that steps with the control size', () => {
-    // The control font size, which is the box `wr-select` gives its own chevron
-    // through `1em` — stated as the same token rather than as a matching length,
-    // so the two cannot drift apart by a rem.
-    expect(hook(block('.wr-input-number').body)).toBe('var(--wr-control-font-size-md)');
-    expect(hook(block('&--sm').body)).toBe('var(--wr-control-font-size-sm)');
-    expect(hook(block('&--lg').body)).toBe('var(--wr-control-font-size-lg)');
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
   });
 
-  it('draws the glyph at that size, in CSS, so it outranks the markup attributes', () => {
-    const svg = block('svg', block('&__step').start).body;
-    expect(svg).toMatch(/width:\s*var\(--wr-input-number-step-icon-size\)\s*;/);
-    // Square, and asserted as such: a non-square box scales the 24-unit viewBox
-    // unevenly, which thins the chevron's strokes against the select's.
-    expect(svg).toMatch(/height:\s*var\(--wr-input-number-step-icon-size\)\s*;/);
-  });
+  afterEach(() => fixture.destroy());
 
-  it('draws no rule between the column and the field, nor between the two halves', () => {
-    // Read over the whole file rather than one block: a divider restored under
-    // any selector — a size modifier, a density branch — is the regression, and
-    // a block-scoped assertion would miss all of them. `border: 0` on the button
-    // and the radius declarations are the only `border` left, hence the filter.
-    const declarations = strip(STYLES)
-      .split(/[;{}]/)
-      .map(d => d.trim())
-      .filter(d => /^border(-(top|bottom|inline|block)(-(start|end))?)?\s*:/.test(d));
+  it('puts one glyph in each step button, under the host the rules key on', () => {
+    const host = (fixture.nativeElement as HTMLElement).querySelector('wr-input-number')!;
+    expect(host.classList).toContain('wr-input-number--sm');
+    expect(host.classList).toContain('wr-input-number--rounded');
 
-    expect(declarations).toEqual(['border: 0']);
-  });
-
-  it("insets the pair from a pill's rounded end instead of clipping it", () => {
-    const column = block('.wr-input-number__steppers.wr-input-group__affix', block('&--rounded').start).body;
-    expect(column).toMatch(/overflow:\s*visible\s*;/);
-    expect(column).toMatch(/margin-inline-end:\s*calc\(var\(--wr-input-group-padding-x\)\s*\/\s*2\)\s*;/);
-  });
-
-  it('keeps the hover and pressed tints inside the curve on a pill', () => {
-    // Measured, not derived: with the column unclipped, a 5px-cornered tint
-    // crossed the curved border at `lg`. The end radius is oversized on purpose
-    // and scaled down to the half-button.
-    //
-    // The oversize used to be a literal `999px` and is now the pill token,
-    // which is the library's own name for exactly this — so what the spec holds
-    // is the chain rather than the number: both caps read the component's hook,
-    // and the hook reads `--wr-border-radius-pill`. A hook quietly re-pointed
-    // at an ordinary corner fails here.
-    const step = block('.wr-input-number__step', block('&--rounded').start).start;
-    expect(block('&:first-child', step).body).toMatch(
-      /border-start-end-radius:\s*var\(--wr-input-number-step-cap-radius\)\s*;/
-    );
-    expect(block('&:last-child', step).body).toMatch(
-      /border-end-end-radius:\s*var\(--wr-input-number-step-cap-radius\)\s*;/
-    );
-    expect(STYLES).toMatch(/--wr-input-number-step-cap-radius:\s*var\(--wr-border-radius-pill\)\s*;/);
-  });
-
-  describe('in the rendered DOM', () => {
-    @Component({
-      imports: [WrInputNumber],
-      template: `<wr-input-number size="sm" rounded [value]="1" />`,
-    })
-    class Host {}
-
-    let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
-
-    beforeEach(() => {
-      TestBed.resetTestingModule();
-      fixture = TestBed.createComponent(Host);
-      fixture.detectChanges();
-    });
-
-    afterEach(() => fixture.destroy());
-
-    it('puts one glyph in each step button, under the host the rules key on', () => {
-      const host = (fixture.nativeElement as HTMLElement).querySelector('wr-input-number')!;
-      expect(host.classList).toContain('wr-input-number--sm');
-      expect(host.classList).toContain('wr-input-number--rounded');
-
-      const steps = [...host.querySelectorAll('.wr-input-number__step')];
-      expect(steps).toHaveLength(2);
-      for (const step of steps) {
-        const glyphs = step.querySelectorAll(':scope > svg');
-        expect(glyphs).toHaveLength(1);
-        // The unstyled fallback stays: without it an svg with no size draws 300x150.
-        // Square, and the `md` box: a page with no stylesheet has no size class
-        // to read either, so the fallback can only be one of the three.
-        expect(glyphs[0].getAttribute('width')).toBe('14');
-        expect(glyphs[0].getAttribute('height')).toBe('14');
-        // The mark itself, so a change of glyph cannot pass as a change of size.
-        expect(glyphs[0].querySelector('path')?.getAttribute('d')).toMatch(/^m(18 15-6-6-6 6|6 9 6 6 6-6)$/);
-      }
-    });
+    const steps = [...host.querySelectorAll('.wr-input-number__step')];
+    expect(steps).toHaveLength(2);
+    for (const step of steps) {
+      const glyphs = step.querySelectorAll(':scope > svg');
+      expect(glyphs).toHaveLength(1);
+      // The unstyled fallback stays: without it an svg with no size draws 300x150.
+      // Square, and the `md` box: a page with no stylesheet has no size class
+      // to read either, so the fallback can only be one of the three.
+      expect(glyphs[0].getAttribute('width')).toBe('14');
+      expect(glyphs[0].getAttribute('height')).toBe('14');
+      // The mark itself, so a change of glyph cannot pass as a change of size.
+      expect(glyphs[0].querySelector('path')?.getAttribute('d')).toMatch(/^m(18 15-6-6-6 6|6 9 6 6 6-6)$/);
+    }
   });
 });

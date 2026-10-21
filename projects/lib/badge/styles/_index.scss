@@ -105,11 +105,6 @@
   --wr-badge-color: var(--wr-color-on-surface);
   --wr-badge-border: var(--wr-border-base);
 
-  // color-ok: a badge's colour is decoration or category, never the state —
-  // the LABEL carries that. Four of the five intents share one lightness
-  // (`success` against `danger` is 1.004:1), so a badge whose words do not name
-  // the state tells a reader without hue nothing, and no palette can fix that
-  // without giving up the white labels the intents were tuned for.
   @each $name in theme.$colors {
     &--#{$name} {
       background-color: var(--wr-color-#{$name});
@@ -137,8 +132,6 @@
     // exactly that strength. An intent overrides it in the loop below.
     box-shadow: inset 0 0 0 1px var(--wr-badge-border);
 
-    // color-ok: the decision the filled loop above records — decoration or
-    // category, with the label carrying the state.
     @each $name in theme.$colors {
       &.wr-badge--#{$name} {
         color: var(--wr-color-#{$name}-ink);

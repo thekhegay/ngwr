@@ -56,7 +56,6 @@
   &__node {
     position: absolute;
     top: 0;
-    // rtl-ok: x is mirrored in TypeScript for RTL, so the origin stays the physical left edge
     left: 0;
   }
 

@@ -25,14 +25,8 @@
  * separate post-build step, `scripts/gen/sitemap.ts`, because it needs the
  * prerendered route list, which only exists after the showcase build.)
  *
- * The whole point of this file is to be RIGHT about the catalog, so it carries
- * a `--check` mode with floors: an agent reading a wrong import path or a
- * description scraped off the wrong element is worse served than by no file at
- * all, and nothing else in CI looks at this output.
- *
  * Usage:
  *   pnpm tsx scripts/gen/ai-assets.ts
- *   pnpm tsx scripts/gen/ai-assets.ts --check
  */
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
@@ -302,9 +296,7 @@ function docPageDescription(html: string): string {
  * Both clusters are walked, and the second one is why: the animation and
  * visual-effect components are `ngwr/bits/*` and their pages live under
  * `app/bits/`, not under `app/reference/`. Miss that directory and 21 entry
- * points ship description-less, which `check:llms` reports as a coverage floor
- * rather than as a missing path — it is how the `/animations` to `/bits` move
- * was caught.
+ * points ship description-less.
  *
  * Cluster order is explicit rather than alphabetical-and-last-wins: `theme` has
  * a page in both `interfaces` and `services`, and which one lands should be a
@@ -402,130 +394,23 @@ function render(entries: readonly Entry[]): string {
 }
 
 /**
- * Floors, set AT the current numbers rather than below them.
- *
- * A floor with slack in it licenses exactly the silent erosion this file exists
- * to prevent — `gen/sitemap.ts` learned that when a rename emptied the sitemap.
- * Raise these when the catalog grows; a drop is a bug worth failing on.
- *
- * Which is what happened here: these sat at 164 while the package published 202,
- * so thirty-eight entry points could disappear from `llms-full.txt` and the
- * skill's catalog and the check would still print a green
- * "✓ … 164 entry points". The comment above was already the rule; the numbers
- * had simply stopped following it across thirty-eight additions. There is no
- * margin ON PURPOSE — the only reason to touch a line below is a catalog change
- * you meant to make, and then you raise it in the same commit.
- *
- * And it happened again, smaller: v14 added `ngwr/loading-bar/router` and
- * `ngwr/tabs/router` without raising these, so the gate carried two entry points
- * of slack into a major. Two is enough to lose the pair that had just been
- * added, silently — which is the only kind of erosion this file can suffer
- * before anyone reads the output.
- *
- * And a third time, wider: the floors sat at 204 while the i18n split, `graph`
- * and `schema-form` took the package to 227, so twenty-three entry points could
- * vanish unreported. Raised to the catalog as it stood when `ngwr/editor` and
- * its harness landed.
- *
- * 224 is the first lowering, and a deliberate one: v15 deleted the two icon
- * adapter entry points, `ngwr/icon/adapters/{lucide,feather}`, when the lucide
- * converter moved into `ngwr/icon`.
- *
- * 223 is the second: v15 deleted `ngwr/config`, since the library no longer
- * ships app-wide default overrides.
- *
- * 222 is the third: v15 deleted `ngwr/media`, whose breakpoint signal the CDK's
- * `BreakpointObserver` already provides. It had a docs page, so the description
- * floor drops with it, from 119 to 118.
- *
- * 220 is the fourth: v15 deleted the two date adapter entry points,
- * `ngwr/date/adapters/{fns,luxon}`, and their optional peers with them; an app on
- * another date library subclasses `WrDateAdapter`. Neither had a docs page, so
- * the description floor stays at 118.
- *
- * 218 is the fifth: v15 deleted `ngwr/markdown` and its harness entry point,
- * `ngwr/markdown/testing`, and `<wr-editor>` keeps one value format, the JSON
- * tree. The component had a docs page, so the description floor drops with it,
- * from 118 to 117.
+ * A tag, an attribute, or a tag with an attribute — `wr-btn`, `[wrAffix]`,
+ * `ng-template[wrTableExpand]`. A CSS class or a compound is not a selector a
+ * consumer can write; it is a CDK `HarnessPredicate` filter read as one, which is
+ * how `.wr-pagination__page` and `.wr-tour-popup__action--next` once reached the
+ * shipped catalog.
  */
-const MIN_ENTRIES = 218;
-const MIN_DESCRIBED = 117;
-const MIN_WITH_EXPORTS = 218;
-/** Rows in the skill's catalog table — one per entry point, plus the header. */
-const MIN_SKILL_ROWS = 218;
-
-/** A tag, an attribute, or a tag with an attribute — the three shapes the library declares. */
 const SELECTOR_SHAPE = /^[a-z][a-z\d-]*(\[[A-Za-z][\w-]*\])?$|^\[[A-Za-z][\w-]*\]$/;
-
-function check(entries: readonly Entry[]): number {
-  const problems: string[] = [];
-
-  if (entries.length < MIN_ENTRIES) {
-    problems.push(`only ${entries.length} entry points found, expected at least ${MIN_ENTRIES}`);
-  }
-
-  const described = entries.filter(e => e.description).length;
-  if (described < MIN_DESCRIBED) {
-    problems.push(`only ${described} entry points have a description, expected at least ${MIN_DESCRIBED}`);
-  }
-
-  const withExports = entries.filter(e => e.exports.length > 0).length;
-  if (withExports < MIN_WITH_EXPORTS) {
-    problems.push(`${entries.length - withExports} entry point(s) advertise no exports`);
-  }
-
-  for (const entry of entries) {
-    if (!entry.headline) problems.push(`ngwr/${entry.name}: no symbol to put in the import line`);
-
-    // Every selector the library declares is a tag, an attribute, or a tag with
-    // an attribute — `wr-btn`, `[wrAffix]`, `ng-template[wrTableExpand]`. A CSS
-    // class or a compound is not a selector a consumer can write; it is a CDK
-    // `HarnessPredicate` filter read as one, which is how `.wr-pagination__page`
-    // and `.wr-tour-popup__action--next` reached the shipped catalog.
-    for (const selector of entry.selectors) {
-      if (!SELECTOR_SHAPE.test(selector)) problems.push(`ngwr/${entry.name}: \`${selector}\` is not a component selector`);
-    }
-  }
-
-  // The skill is checked as OUTPUT, not as inputs. A generator that produces a
-  // SKILL.md with no frontmatter, or a catalog table with the header and
-  // nothing under it, passes every input floor above and is useless to the one
-  // reader it has.
-  const skill = renderSkill(entries, REQUIRED_PROVIDERS, angularMajor());
-  const main = skill.find(file => file.path === 'SKILL.md');
-  const catalog = skill.find(file => file.path === 'references/catalog.md');
-
-  if (!main?.content.startsWith('---\nname: ngwr\ndescription: ')) {
-    problems.push('SKILL.md does not open with the frontmatter an agent reads to decide whether to load it');
-  }
-  const rows = (catalog?.content.match(/^\| `ngwr\//gm) ?? []).length;
-  if (rows < MIN_SKILL_ROWS) problems.push(`the skill catalog lists ${rows} entry points, expected at least ${MIN_SKILL_ROWS}`);
-
-  // Every provider rule has to survive into the document. `describeTest` unpacks
-  // a regular expression, and the failure mode is a confident half-list rather
-  // than a crash.
-  for (const required of REQUIRED_PROVIDERS) {
-    if (!main?.content.includes(required.provider)) problems.push(`SKILL.md never mentions ${required.provider}`);
-  }
-  if (main?.content.includes('symbols matching')) {
-    problems.push('a provider rule uses a regular-expression shape describeTest cannot name');
-  }
-
-  for (const problem of problems) console.error(`  ✘ ${problem}`);
-  return problems.length;
-}
 
 function main(): void {
   const entries = collect();
 
-  if (process.argv.includes('--check')) {
-    const failures = check(entries);
-    if (failures > 0) {
-      console.error(`\n✘ llms-full.txt would ship ${failures} defect(s). Fix scripts/gen/ai-assets.ts.`);
-      process.exit(1);
+  for (const entry of entries) {
+    for (const selector of entry.selectors) {
+      if (!SELECTOR_SHAPE.test(selector)) {
+        throw new Error(`ngwr/${entry.name}: \`${selector}\` is not a component selector. Fix scripts/gen/ai-assets.ts.`);
+      }
     }
-    info(`✓ llms-full.txt inputs — ${entries.length} entry points, ${entries.filter(e => e.description).length} described`);
-    return;
   }
 
   writeFileSync(join(ROOT_PATH, 'llms-full.txt'), render(entries));

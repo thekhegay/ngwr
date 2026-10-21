@@ -72,7 +72,6 @@
     // track. Both halves have to move together (a `[dir]` rule flipping the transform's
     // sign, or a direction-aware offset from segmented.ts), which is beyond a
     // property-level rewrite. Worth a second opinion when the TS side of G1 lands.
-    // rtl-ok: anchor half of an anchor + physical `translateX` pair — see above
     left: var(--wr-segmented-padding);
     width: calc((100% - 2 * var(--wr-segmented-padding)) / var(--wr-segmented-thumb-count));
     transform: translateX(calc(100% * var(--wr-segmented-thumb-index)));
@@ -144,9 +143,6 @@
       color: var(--wr-color-primary-ink);
     }
 
-    // color-ok: the selected option is named by POSITION — the thumb pill slides
-    // under it on `--wr-segmented-thumb-index`, and is hidden outright while
-    // nothing is picked. This declaration only re-inks the label above it.
     &--selected {
       color: var(--wr-segmented-selected-color);
     }

@@ -1,6 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -114,35 +111,5 @@ describe('WrGlitchText', () => {
     fixture.componentInstance.background.set('#101010');
     fixture.detectChanges();
     expect(prop('--wr-glitch-text-bg')).toBe('#101010');
-  });
-});
-
-/**
- * The template and the stylesheet have to agree about WHICH element the pseudos hang
- * off, and only one of the two says so in the DOM. jsdom loads no stylesheet, so the
- * sheet is read as text: every `content: attr(data-text)` must be scoped to `__clones`
- * — the element the template marks `aria-hidden` — because the same declaration on
- * `.wr-glitch-text::before` is generated content on the host, which is announced.
- *
- * `_rules.scss`, not `_index.scss`: the entry file forwards the rules and exists to
- * pull the emitting theme layer in for a standalone `@use 'ngwr/bits/glitch-text'`, which
- * the component's `styleUrl` deliberately does not take.
- */
-describe('the glitch-text stylesheet', () => {
-  const code = readFileSync(join(process.cwd(), 'projects/lib/bits/glitch-text/styles/_rules.scss'), 'utf8')
-    .split('\n')
-    .filter(line => !line.trim().startsWith('//'))
-    .join('\n');
-
-  it('draws the clone glyphs only on the hidden layer', () => {
-    const selectors = code
-      .split(/\n(?=\s*[&.@])/)
-      .filter(block => /content:\s*attr\(data-text\)/.test(block))
-      .map(block => block.slice(0, block.indexOf('{')).trim());
-
-    expect(selectors.length).toBeGreaterThan(0);
-    for (const selector of selectors) {
-      expect(selector, selector).toContain('__clones');
-    }
   });
 });

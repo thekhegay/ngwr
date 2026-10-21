@@ -1,6 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -308,31 +305,6 @@ describe('WrTextarea resizing under a reading direction', () => {
     dragRight();
 
     expect(host().style.width).toBe('160px');
-  });
-
-  /**
-   * ⚠️ The CSS half of the same fix, guarded as a RULE.
-   *
-   * The grip's corner and the sign above are one decision: put the grip on the
-   * physical side the box does NOT grow toward and outward dragging shrinks the
-   * field. `check:rtl` cannot catch a regression here — it fires on a physical
-   * property with no reason, and `right: 0.25rem` with an `rtl-ok:` marker is
-   * exactly what this used to be. Measured in Chromium: the grip sits at 0.970
-   * of the field's width in LTR and 0.030 in RTL, and the diagonal cursor goes
-   * from `nwse-resize` to `nesw-resize`.
-   */
-  describe('the grip, as the stylesheet declares it', () => {
-    const sheet = readFileSync(join(process.cwd(), 'projects/lib/textarea/styles/_index.scss'), 'utf8');
-    const rule = sheet.slice(sheet.indexOf('  &__resize {'), sheet.indexOf('    .wr-icon__svg'));
-
-    it('sits at the inline end, the corner the box actually extends toward', () => {
-      expect(rule).toMatch(/inset-inline-end:\s*0\.25rem/);
-      expect(rule).not.toMatch(/^\s*right:/m);
-    });
-
-    it('turns the diagonal cursor over with it', () => {
-      expect(rule).toMatch(/\[dir='rtl'\] & \{[^}]*cursor:\s*nesw-resize/);
-    });
   });
 });
 

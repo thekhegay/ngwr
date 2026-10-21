@@ -147,8 +147,6 @@
     &:where(a, button):hover {
       background: var(--wr-color-hover);
 
-      // color-ok: the grey chip IS the hover fill, so it steps up one on a
-      // hovered row to stay a chip; the state is the row's fill, not the chip.
       .wr-sidebar__badge--neutral,
       .wr-sidebar__count {
         background: var(--wr-color-fill-strong);
@@ -177,10 +175,6 @@
       }
     }
 
-    // color-ok: level 1 has no guide to carry the bar, so the current page there
-    // takes the tint, a lightness step against untinted rows (1.17:1 light,
-    // 1.12:1 dark), on top of the weight `&--active` sets. Its chips take the
-    // surface rather than a tint on the tint.
     &--active.wr-sidebar__row--level-1 {
       background: var(--wr-color-primary-soft);
 
@@ -190,10 +184,6 @@
       }
     }
 
-    // color-ok: an ancestor of the current page only deepens its icon and arrow
-    // from the muted tones to full ink, a step in lightness. The cue is on the
-    // current row itself (weight and bar), and a collapsed holder draws a dot,
-    // in the template, and says "contains the current page".
     &--ancestor,
     &--holds-active {
       .wr-sidebar__icon,
@@ -206,9 +196,6 @@
       }
     }
 
-    // color-ok: muted text against full ink, a lightness step (4.6:1 against
-    // 15:1 in light), on a row that is plain text: no hover, no tab stop, and a
-    // badge whose word says why (`Soon`).
     &--disabled {
       color: var(--wr-color-on-surface-muted);
       cursor: default;
@@ -304,13 +291,11 @@
   // The badge LABELS, it does not report: the word is the meaning and the tone
   // repeats it, the same decision `wr-tag` and `wr-badge` make.
   &__badge {
-    // color-ok: the word (`New`) is the meaning; the tone repeats it.
     &--primary {
       background: var(--wr-color-primary-soft);
       color: var(--wr-color-primary-ink);
     }
 
-    // color-ok: the word (`Deprecated`) is the meaning; the tone repeats it.
     &--danger {
       background: var(--wr-color-danger-soft);
       color: var(--wr-color-danger-ink);

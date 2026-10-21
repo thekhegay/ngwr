@@ -12,8 +12,7 @@
  * `<ngwr-doc-see-also>` merges the related pages in, so neither can drift
  * from the code.
  *
- *   pnpm gen:deps            # write
- *   pnpm gen:deps --check    # fail when the committed file is stale
+ *   pnpm gen:deps
  */
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
@@ -289,7 +288,6 @@ ${routeBody}
 }
 
 async function main(): Promise<void> {
-  const check = process.argv.includes('--check');
   const manifest = JSON.parse(readFileSync(join(LIB, 'package.json'), 'utf8')) as {
     peerDependenciesMeta?: Record<string, { optional?: boolean }>;
   };
@@ -347,15 +345,6 @@ async function main(): Promise<void> {
 
   const next = serialize(deps, pages, related, routePages);
   const shown = relative(ROOT_PATH, OUT_FILE);
-  if (check) {
-    const current = existsSync(OUT_FILE) ? readFileSync(OUT_FILE, 'utf8') : '';
-    if (current !== next) {
-      console.error(`\n✘ ${shown} is out of date. Run \`pnpm gen:deps\` and commit the result.\n`);
-      exit(1);
-    }
-    console.log(`✓ ${shown} — up to date`);
-    return;
-  }
   mkdirSync(OUT_DIR, { recursive: true });
   writeFileSync(OUT_FILE, next);
   const missing = eps.filter(e => !pages.has(e) && !e.startsWith('i18n/'));

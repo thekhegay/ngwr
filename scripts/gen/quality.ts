@@ -309,12 +309,11 @@ interface SpecFacts {
  * One thing still throws: a spec file with no cases in it at all. That is not a
  * test-authoring choice, it is the signature of `stripCode` having eaten
  * something, and a broken counter must not publish a number. The one legitimate
- * exception is a spec that DELEGATES its whole body to a shared contract —
- * every `i18n/<locale>/catalog.spec.ts` is eight lines handing its catalog to
- * `expectCatalogContract`, and twenty-two copies of the same eight assertions
- * would be worse in every way. Those are counted as an approximation rather
- * than a failure, the same treatment `it.each` gets and for the same reason:
- * one call site, several cases.
+ * exception is a spec that DELEGATES its whole body to a shared contract — an
+ * `i18n/<locale>/catalog.spec.ts` hands its catalog to `expectCatalogContract`
+ * rather than repeating the same assertions. Those are counted as an
+ * approximation rather than a failure, the same treatment `it.each` gets and
+ * for the same reason: one call site, several cases.
  */
 function specFacts(entryPoints: readonly string[]): SpecFacts {
   const owners = [...entryPoints].sort((a, b) => b.length - a.length);
@@ -738,7 +737,7 @@ ${gates(f.lintStages)}
 ${gates(f.prGates)}
   ],
 
-  /** The same, from \`.github/workflows/nightly.yml\`. \`build:showcase\` is on the list because the workflow runs it: all four browser checks read \`dist/showcase\` and cannot start without it. Those four each need a real browser and hundreds of page loads, which is what keeps them off the PR path — so a green PR says nothing about painted contrast, geometry or RTL overflow. \`test\` and \`build:lib\` are on the list for a different reason and are not a second opinion on the PR gate of the same name: they re-run on the LTS Node versions \`engines\` still accepts, which nothing else exercises. */
+  /** The same, from \`.github/workflows/nightly.yml\`, which runs only on a night \`main\` moved. \`build:showcase\` is on the list because the workflow runs it once and the four site checks read its \`dist/showcase\`; they are off the PR path, so a green PR says nothing about a11y, painted contrast or geometry. \`test\` and \`build:lib\` are not a second opinion on the PR gates of the same name: they re-run on Node 24, an older LTS line \`engines\` still accepts, which nothing else exercises. */
   nightlyGates: [
 ${gates(f.nightlyGates)}
   ],

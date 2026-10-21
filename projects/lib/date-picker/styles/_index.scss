@@ -88,11 +88,6 @@
 // is the group's, set exactly as `.wr-form-field--invalid` sets it, and at the
 // same (0,3,0) so a focused group's primary border does not win it back while
 // the user is correcting the text.
-// color-ok: the colour is the SIGHTED half of a state that is not carried by
-// colour alone — the input takes `aria-invalid` and the reason is announced
-// through the picker's live region, or through the surrounding field's message.
-// `danger` against the default `--wr-border-base` also separates in lightness
-// (3.11:1 light), so the cue survives greyscale.
 .wr-date-picker.wr-date-picker--invalid .wr-input-group,
 .wr-date-range-picker.wr-date-range-picker--invalid .wr-input-group {
   --wr-input-group-border: var(--wr-color-danger);

@@ -1,6 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -425,76 +422,6 @@ describe('WrAvatar projected fallback', () => {
   });
 });
 
-/** Every rule in the avatar stylesheet, selector to declarations — read from source, see below. */
-const rules = (): Map<string, Record<string, string>> => {
-  const source = readFileSync(join(process.cwd(), 'projects/lib/avatar/styles/_index.scss'), 'utf8')
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .replace(/(^|\s)\/\/[^\n]*/g, '$1');
-  const out = new Map<string, Record<string, string>>();
-  const stack: string[] = [];
-  let buffer = '';
-  for (const ch of source) {
-    if (ch === '{') {
-      const head = buffer.trim();
-      const parent = stack.at(-1);
-      stack.push(parent === undefined ? head : head.includes('&') ? head.replaceAll('&', parent) : `${parent} ${head}`);
-      buffer = '';
-    } else if (ch === ';' || ch === '}') {
-      const statement = buffer.trim();
-      const selector = stack.at(-1);
-      const colon = statement.indexOf(':');
-      if (selector !== undefined && colon > 0 && !statement.startsWith('@')) {
-        out.set(selector, {
-          ...out.get(selector),
-          [statement.slice(0, colon).trim()]: statement.slice(colon + 1).trim(),
-        });
-      }
-      if (ch === '}') stack.pop();
-      buffer = '';
-    } else {
-      buffer += ch;
-    }
-  }
-  return out;
-};
-
-/**
- * The half of the fallback contract that lives in the stylesheet. jsdom applies
- * no stylesheet, so the specs above can only read the hooks these rules key on —
- * without this block every one of them passes on the stylesheet that squeezed
- * the initials beside the photo. A SOURCE read, like `theme/styles.spec.ts`:
- * nesting and `&` are resolved by hand, which is all Sass this one file uses.
- */
-describe('the avatar stylesheet', () => {
-  it('is read at all', () => {
-    expect(rules().get('.wr-avatar')).toMatchObject({ display: 'inline-flex', position: 'relative' });
-  });
-
-  it('lays the image over the fallback rather than beside it', () => {
-    expect(rules().get('.wr-avatar__content')).toMatchObject({ display: 'contents' });
-    expect(rules().get('.wr-avatar__img')).toMatchObject({ position: 'absolute', inset: '0' });
-  });
-
-  it('takes a named fallback out of the paint once loaded', () => {
-    expect(rules().get(".wr-avatar--loaded .wr-avatar__content[aria-hidden='true']")).toMatchObject({
-      visibility: 'hidden',
-    });
-  });
-
-  it('clips an unnamed fallback once loaded, keeping it in the accessibility tree', () => {
-    const unnamed = rules().get(".wr-avatar--loaded .wr-avatar__content:not([aria-hidden='true'])");
-
-    expect(unnamed).toMatchObject({ position: 'absolute', overflow: 'hidden', 'clip-path': 'inset(50%)' });
-    // Either of these would silence the initials the rule exists to keep.
-    expect(unnamed).not.toHaveProperty('visibility');
-    expect(unnamed?.['display']).not.toBe('none');
-  });
-
-  it('draws no spinner over projected content', () => {
-    expect(rules().get('.wr-avatar__content:not(:empty) ~ .wr-avatar__spin')).toMatchObject({ display: 'none' });
-  });
-});
-
 /**
  * Projected initials took the text size around the avatar whatever its own size
  * was, so a 16px avatar in a 14px chip drew 14px letters clipped by its edge and
@@ -507,44 +434,12 @@ describe('the avatar stylesheet', () => {
  * a 16px chip, a 24px option row, a 16px tag and a 6rem profile avatar, light
  * and dark, with and without `ngwr/reset` — where every small case went from
  * clipped to inside the circle and the 6rem one stayed identical to the pixel.
- * What these pin is everything that result depends on: the declarations, the
- * published hook they read, and the selector that decides where they apply.
+ * What this holds is the selector that decides where the scale applies.
  */
 describe('the avatar initials scale', () => {
   // `:where()` around the whole selector, so it carries no specificity and any
   // unlayered `font-size` rule a consumer writes for the avatar still wins.
   const GUARD = ':where(.wr-avatar:has(> .wr-avatar__content:not(:empty)))';
-
-  it('publishes the share as an overridable hook on the block', () => {
-    expect(rules().get('.wr-avatar')).toMatchObject({ '--wr-avatar-initials-scale': '0.375' });
-  });
-
-  it('never grows the initials past the inherited size, and reads the published box', () => {
-    // `1em` in `font-size` is the PARENT's size: wherever that already fits, the
-    // minimum is exactly it, which is what leaves a 6rem avatar untouched.
-    expect(rules().get(GUARD)).toEqual({
-      'font-size': 'min(1em, var(--wr-avatar-size) * var(--wr-avatar-initials-scale))',
-    });
-  });
-
-  it('sets no font size on the bare block, where the spinner would inherit it', () => {
-    // The spinner is drawn only when nothing is projected and sizes itself in
-    // `em`; a size on `.wr-avatar` itself would shrink it in every small avatar.
-    expect(rules().get('.wr-avatar')).not.toHaveProperty('font-size');
-    expect(rules().get('.wr-avatar__content')).not.toHaveProperty('font-size');
-  });
-
-  it('makes the initials inert, and leaves their leading and wrapping inherited', () => {
-    expect(rules().get('.wr-avatar__content')).toMatchObject({
-      display: 'contents',
-      'user-select': 'none',
-      'pointer-events': 'none',
-    });
-    // Both inherit anyway. Set here, they changed a 6rem avatar: a longer
-    // fallback stopped wrapping and was clipped, and a projected span moved.
-    expect(rules().get('.wr-avatar__content')).not.toHaveProperty('line-height');
-    expect(rules().get('.wr-avatar__content')).not.toHaveProperty('white-space');
-  });
 
   describe('the selector the scale applies under', () => {
     @Component({

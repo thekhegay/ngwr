@@ -46,10 +46,6 @@
     );
   }
 
-  // color-ok: a skeleton is a PLACEHOLDER — there is no state to tell apart,
-  // and the thing that reports it is `aria-busy` on the host, not the tint. An
-  // intent here only matches the shape to the content about to load, which is
-  // decoration by construction: nothing a reader has to read off the colour.
   @each $name in theme.$colors {
     &--#{$name} {
       background: color-mix(in srgb, var(--wr-color-#{$name}) 50%, transparent);

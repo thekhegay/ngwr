@@ -218,8 +218,6 @@
     justify-content: center;
   }
 
-  // color-ok: this follows the active ROW, which carries the cursor bar —
-  // it re-inks a glyph that is on every option either way.
   &__option--active &__option-icon {
     color: var(--wr-color-primary);
   }
@@ -232,8 +230,6 @@
   // state that walks past prerendered HTML and a page at rest alike. Putting the chip
   // back on the surface restores the pairing the muted role is calibrated for, and
   // keeps the chip reading as a keycap rather than as part of the highlight.
-  // color-ok: same — the row is marked by its bar; this only restores the
-  // keycap's own surface, for the contrast reason written above.
   &__option--active &__option-shortcut {
     background: var(--wr-color-surface);
   }
