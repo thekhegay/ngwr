@@ -51,11 +51,19 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm exec tsx scripts/gen/ai-assets.ts || true
+      # The tag keeps its own layout: scripts/<verb>/x.ts since v15, scripts/<verb>-x.ts before.
+      - run: |
+          if [[ -f scripts/gen/ai-assets.ts ]]; then
+            pnpm exec tsx scripts/gen/ai-assets.ts
+          elif [[ -f scripts/gen-ai-assets.ts ]]; then
+            pnpm exec tsx scripts/gen-ai-assets.ts
+          fi
 
       - run: |
           if [[ -f scripts/build/showcase-app.ts ]]; then
             pnpm exec tsx scripts/build/showcase-app.ts --base-href=/${{ inputs.path }}/
+          elif [[ -f scripts/build-showcase-app.ts ]]; then
+            pnpm exec tsx scripts/build-showcase-app.ts --base-href=/${{ inputs.path }}/
           else
             pnpm exec ng build showcase --base-href=/${{ inputs.path }}/
           fi
