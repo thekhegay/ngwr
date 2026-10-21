@@ -1,7 +1,7 @@
 name: Deploy RC docs
 
 # A release candidate's docs, at /v<major>-rc/ beside the stable site. The
-# nginx block for archived majors already serves that path, and deploy.yml's
+# server block for archived majors already serves that path, and deploy.yml's
 # --delete leaves it alone; the stable X.0.0 deploy removes it.
 on:
   push:

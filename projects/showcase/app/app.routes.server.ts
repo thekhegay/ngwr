@@ -23,7 +23,7 @@ const icons = ROUTES.icons;
  *    `svgIcon()` gallery as the six and stays prerendered only because it was
  *    before v15, when it documented an adapter.
  *
- * Client-rendered routes emit no HTML and fall through to the existing nginx
+ * Client-rendered routes emit no HTML and fall through to the existing Angie
  * SPA fallback, exactly as today.
  *
  * The `**` entry below reads as "prerender everything else", and for the app's
