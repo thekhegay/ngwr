@@ -53,8 +53,7 @@ A pnpm + Angular CLI monorepo with three projects:
   and a broken one. Do not "finish the set" by adding them.
   Built with **`@angular/build:library`**, not ng-packagr. TS path mapping:
   `ngwr/*` → `./projects/lib/*`, plus the bare `ngwr` → `./projects/lib/public-api.ts`
-  (`provideWr`) — without it the showcase resolves the root through the
-  `node_modules/ngwr` symlink as an external package and never compiles it.
+  (`provideWr`).
 - **`projects/showcase/`** — the docs site (**ngwr.dev**): live demos + API
   docs, and where components are dogfooded. Docs are organised into five
   top-level clusters — **start / guides / reference / icons / animations**: API

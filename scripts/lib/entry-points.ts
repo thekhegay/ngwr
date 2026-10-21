@@ -40,8 +40,3 @@ export function libEntryPoints(libRoot = resolve('projects/lib')): string[] {
 
   return names.sort();
 }
-
-/** Whether `name` (`button`, `i18n/ru`) is a published secondary entry point. */
-export function isLibEntryPoint(name: string, libRoot?: string): boolean {
-  return libEntryPoints(libRoot).includes(name);
-}
