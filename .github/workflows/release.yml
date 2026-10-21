@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       bump:
-        description: 'Version bump (rc publishes to npm dist-tag `next`, everything else to `latest`; a vN branch takes rc only)'
+        description: 'Version bump (rc publishes to npm dist-tag `next`, everything else to `latest`; `next` takes rc only)'
         required: true
         type: choice
         default: patch
@@ -17,12 +17,12 @@ on:
 permissions:
   contents: read
 
-# main cuts every release; a next-major branch (v15) cuts its release candidates.
+# main cuts every release; `next` cuts the next major's release candidates.
 jobs:
   checks:
     name: Full check
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || (startsWith(github.ref, 'refs/heads/v') && inputs.bump == 'rc')
+    if: github.ref == 'refs/heads/main' || (github.ref == 'refs/heads/next' && inputs.bump == 'rc')
 
     steps:
       - uses: actions/checkout@v7

@@ -1189,14 +1189,13 @@ written when the release PR is cut, so a feat or fix merged into main
 afterwards would ship in the tag with no line anywhere, and the job refuses
 until the Release PR workflow is run again with the same bump.
 
-**A release candidate for the next major is cut from its branch** (`v15`):
-run the same workflow on that branch with `bump: rc`. With breaking commits
-since the last stable tag it computes `15.0.0-rc.0` (then `-rc.1`, …), opens
-the release PR against the branch, stages npm under the `next` dist-tag, and
-`deploy-rc.yml` puts the docs at `ngwr.dev/v15-rc/` — a path the server block
-for archived majors already serves and the stable deploy's `--delete` already
-skips. The SECURITY table moves only with the stable release, and the `15.0.0`
-deploy removes `/v15-rc/`. A stable version can only publish from `main`.
+**The next major lives on the `next` branch.** Its release candidates are cut
+by running the same workflow there with `bump: rc`: with breaking commits since
+the last stable tag it computes `15.0.0-rc.0` (then `-rc.1`, …), opens the
+release PR against `next` and stages npm under the `next` dist-tag. Every push
+to `next` redeploys `next.ngwr.dev` (`deploy-next.yml`, the `next` environment,
+no approval; the server marks the host noindex). The SECURITY table moves only
+with the stable release, and a stable version can only publish from `main`.
 
 **Whether a major ships a codemod is decided by one rule, and the rule is about
 the SHAPE of the break rather than its size: a codemod runs when the new form

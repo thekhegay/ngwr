@@ -58,13 +58,15 @@ interface DocVersion {
   readonly active: boolean;
 }
 
-function docVersionList(major: number, rc: boolean): readonly DocVersion[] {
+function docVersionList(major: number, next: boolean): readonly DocVersion[] {
+  // The next major is served from its own host, so its links back are absolute.
+  const stable = next ? 'https://ngwr.dev' : '';
   const archived = (current: number): DocVersion[] =>
-    archivedMajors(current).map(v => ({ label: `v${v}`, url: `/v${v}/`, active: false }));
-  return rc
+    archivedMajors(current).map(v => ({ label: `v${v}`, url: `${stable}/v${v}/`, active: false }));
+  return next
     ? [
-        { label: `v${major} · rc`, url: `/v${major}-rc/`, active: true },
-        { label: `v${major - 1} · latest`, url: '/', active: false },
+        { label: `v${major} · next`, url: '/', active: true },
+        { label: `v${major - 1} · latest`, url: `${stable}/`, active: false },
         ...archived(major - 1),
       ]
     : [{ label: `v${major} · latest`, url: '/', active: true }, ...archived(major)];
@@ -161,8 +163,8 @@ export class Header {
   /** Current major (e.g. `v8`) shown on the version-switcher trigger. */
   protected readonly major = `v${this.version.split('.')[0]}`;
 
-  /** A release candidate's docs are deployed at `/v<major>-rc/`, beside the previous major's stable site. */
-  protected readonly rc = this.version.includes('-rc.');
+  /** A prerelease is the next major, deployed at next.ngwr.dev beside the previous major's stable site. */
+  protected readonly next = this.version.includes('-');
 
   /**
    * Documentation versions, each a separate static deployment. The live site is
@@ -173,10 +175,10 @@ export class Header {
    * every major release, so the archives are exactly v7 … v(current − 1) — and a
    * hand-written list is precisely what went wrong before: v8 and v9 were
    * archived and deployed, but nobody added them here, so for two majors the
-   * snapshots existed on the server with nothing linking to them. On a release
-   * candidate, `latest` is the major below it.
+   * snapshots existed on the server with nothing linking to them. On the next
+   * major, `latest` is the major below it.
    */
-  protected readonly docVersions = docVersionList(Number(this.major.slice(1)), this.rc);
+  protected readonly docVersions = docVersionList(Number(this.major.slice(1)), this.next);
 
   /** Theme segmented — user choice (`auto` resolves via `prefers-color-scheme`). */
   protected readonly themeOptions: readonly WrSegmentedOption<WrThemeMode>[] = [

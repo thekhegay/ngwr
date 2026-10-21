@@ -37,18 +37,9 @@ jobs:
 
       - run: pnpm build:showcase
 
-      # X.0.0 replaces its release candidate's docs at /vX-rc/.
-      - id: rc
-        run: |
-          version=$(node -p "require('./projects/lib/package.json').version")
-          if [[ "$version" =~ ^([0-9]+)\.0\.0$ ]]; then echo "dir=v${BASH_REMATCH[1]}-rc" >> "$GITHUB_OUTPUT"; fi
-
       - uses: easingthemes/ssh-deploy@v6.0.3
         with:
           SCRIPT_BEFORE: ls
-          SCRIPT_AFTER: |
-            dir='${{ steps.rc.outputs.dir }}'
-            if [ -n "$dir" ]; then rm -rf "/var/www/ngwr-showcase/$dir"; fi
           # The exclude keeps --delete away from the archived /vN/ docs.
           ARGS: '-rlgoDzvc -i --delete --exclude=/v[0-9]*'
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
