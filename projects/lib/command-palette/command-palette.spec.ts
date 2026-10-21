@@ -23,12 +23,7 @@ const ITEMS: readonly WrCommandItem[] = [
 @Component({
   imports: [WrCommandPalette],
   template: `
-    <wr-command-palette
-      [items]="items()"
-      [(open)]="open"
-      [trigger]="null"
-      (picked)="picked.push($event.id)"
-    />
+    <wr-command-palette [items]="items()" [(open)]="open" [trigger]="null" (picked)="picked.push($event.id)" />
   `,
 })
 class Host {

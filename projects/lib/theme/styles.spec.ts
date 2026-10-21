@@ -482,7 +482,9 @@ describe('the colour scheme is one switch', () => {
   });
 
   it('never answers prefers-color-scheme from a stylesheet', () => {
-    const offenders = files.filter(file => /prefers-color-scheme/.test(code(file))).map(file => relative(LIB, file));
+    const offenders = files
+      .filter(file => code(file).includes('prefers-color-scheme'))
+      .map(file => relative(LIB, file));
 
     expect(offenders).toEqual([]);
   });

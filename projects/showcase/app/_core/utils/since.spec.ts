@@ -145,7 +145,7 @@ describe('the surfaces that draw it', () => {
       .filter(row => isNewLink(row.url, '14.4.0'))
       .map(row => row.title);
 
-    expect(marked).toEqual(['Graph', 'Editor', 'toClassList']);
+    expect(marked).toEqual(['Graph', 'Editor', 'resolveCssColor', 'toClassList']);
   });
 
   // Both shapes a sidebar row comes in: a child row inside a group, and a
@@ -231,6 +231,6 @@ describe('the surfaces that draw it', () => {
 
     expect(generator.match(/\bscanSince\(pageRoutes\)/g)).toHaveLength(2);
     expect(generator).toMatch(/\bstaleSince\(since\.versions\)/);
-    expect(generator).toMatch(/writeFileSync\(SINCE_FILE, serializeSince\(since\.versions\)\)/);
+    expect(generator).toMatch(/file: SINCE_FILE,\s*content: serializeSince\(since\.versions\)/);
   });
 });

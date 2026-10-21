@@ -79,7 +79,7 @@ describe('WR_OVERLAY', () => {
     TestBed.tick();
 
     const rootStamped = [...document.querySelectorAll('.cdk-overlay-container')].filter(
-      (element) => !element.classList.contains('wr-overlay-container')
+      element => !element.classList.contains('wr-overlay-container')
     );
     expect(rootStamped).toEqual([]);
     origin.remove();
@@ -88,7 +88,7 @@ describe('WR_OVERLAY', () => {
   // Under Karma, Jasmine, Jest or Mocha, CDK stamps its container
   // `platform="test"` and, creating one, removes every container so stamped.
   // Vitest defines none of those globals, so one is stubbed to reach that path.
-  it.each(['ngwr', 'cdk'] as const)('keeps both containers attached in a CDK test runner, %s first', (first) => {
+  it.each(['ngwr', 'cdk'] as const)('keeps both containers attached in a CDK test runner, %s first', first => {
     vi.stubGlobal('jasmine', {});
     const ngwr = (): HTMLElement => TestBed.inject(WR_OVERLAY_CONTAINER).getContainerElement();
     const cdk = (): HTMLElement => TestBed.inject(OverlayContainer).getContainerElement();

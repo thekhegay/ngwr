@@ -707,7 +707,8 @@ describe('WrSidebar', () => {
   describe('auto-collapse', () => {
     const TWO: readonly WrSidebarEntry[] = [
       { title: 'Data', children: [{ title: 'Table', url: ['/table'] }] },
-      { title: 'Forms', children: [{ title: 'Input', url: ['/input'] }] },
+      // Not `Forms`: the default entries seed that key open before these replace them.
+      { title: 'Controls', children: [{ title: 'Input', url: ['/input'] }] },
     ];
 
     beforeEach(async () => {
@@ -720,22 +721,22 @@ describe('WrSidebar', () => {
       expect(isOpen('Data')).toBe(true);
 
       await navigate('/input');
-      expect(isOpen('Forms')).toBe(true);
+      expect(isOpen('Controls')).toBe(true);
       expect(isOpen('Data')).toBe(false);
 
       // A page no group holds closes it too.
       await navigate('/');
-      expect(isOpen('Forms')).toBe(false);
+      expect(isOpen('Controls')).toBe(false);
     });
 
     it('never closes a group the user opened by hand', async () => {
-      toggleFor('Forms').click();
+      toggleFor('Controls').click();
       fixture.detectChanges();
 
       await navigate('/input');
       await navigate('/table');
 
-      expect(isOpen('Forms')).toBe(true);
+      expect(isOpen('Controls')).toBe(true);
       expect(isOpen('Data')).toBe(true);
     });
 
@@ -755,7 +756,7 @@ describe('WrSidebar', () => {
       await navigate('/input');
 
       expect(isOpen('Data')).toBe(true);
-      expect(isOpen('Forms')).toBe(true);
+      expect(isOpen('Controls')).toBe(true);
     });
   });
 });

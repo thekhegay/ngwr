@@ -12,8 +12,8 @@ import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { WrSliderValue } from './types';
 import { WrSlider } from './slider';
+import type { WrSliderValue } from './types';
 
 @Component({
   imports: [WrSlider],

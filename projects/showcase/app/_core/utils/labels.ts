@@ -1,10 +1,6 @@
-import { DOC_ROUTES } from '#core/generated/deps';
-
 import { routeKey } from './since';
 
-/** The colour a label wears: its kind's own, or neutral for a trait. */
-export type DocLabelTone =
-  'component' | 'directive' | 'service' | 'pipe' | 'util' | 'validator' | 'type' | 'guide' | 'animation' | 'neutral';
+import { DOC_ROUTES } from '#core/generated/deps';
 
 const KIND_TONES: Readonly<Record<string, DocLabelTone>> = {
   Component: 'component',
@@ -24,6 +20,10 @@ const KIND_ALIASES: Readonly<Record<string, string>> = {
   Directives: 'Directive',
   Interface: 'Type',
 };
+
+/** The colour a label wears: its kind's own, or neutral for a trait. */
+export type DocLabelTone =
+  'component' | 'directive' | 'service' | 'pipe' | 'util' | 'validator' | 'type' | 'guide' | 'animation' | 'neutral';
 
 /** A label's colour: a kind gets its own, every trait is neutral. */
 export function labelTone(label: string): DocLabelTone {

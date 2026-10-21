@@ -27,6 +27,17 @@ import type { WrDateInputError } from '../types';
 /** Per-picker live-region ids — see {@link WrDateInputField.statusId}. */
 let statusUid = 0;
 
+/**
+ * The app's own sentence for one refusal key, or `undefined` when its catalog has
+ * none. ngwr ships no error texts: an empty fallback is what a miss comes back as,
+ * and it is dropped here so no reader is handed a blank string to announce. It
+ * wraps the formatter rather than taking the key, so each key stays a literal at
+ * its `useI18nFormatter` call, where the i18n spec reads it.
+ */
+function orNothing(format: (params?: WrI18nParams) => string): (params?: WrI18nParams) => string | undefined {
+  return params => format(params) || undefined;
+}
+
 /** The constraints a typed date is held to — the same three the calendar disables days by. */
 export interface WrDateInputBounds {
   readonly min: Date | null | undefined;
@@ -40,17 +51,6 @@ export interface WrDateInputRefusals {
   unreadable(format: string): WrDateInputError;
   /** Why `date` would be refused by `bounds`, or `null` when it would not be. */
   outOfBounds(date: Date, bounds: WrDateInputBounds): WrDateInputError | null;
-}
-
-/**
- * The app's own sentence for one refusal key, or `undefined` when its catalog has
- * none. ngwr ships no error texts: an empty fallback is what a miss comes back as,
- * and it is dropped here so no reader is handed a blank string to announce. It
- * wraps the formatter rather than taking the key, so each key stays a literal at
- * its `useI18nFormatter` call, where the i18n spec reads it.
- */
-function orNothing(format: (params?: WrI18nParams) => string): (params?: WrI18nParams) => string | undefined {
-  return params => format(params) || undefined;
 }
 
 /**

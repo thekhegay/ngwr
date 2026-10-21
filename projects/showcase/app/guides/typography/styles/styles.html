@@ -128,9 +128,9 @@
           </div>
           <div class="body">
             @if (row.line) {
-              <div class="specimen specimen--rule" [style.background]="'var(' + row.token + ')'"></div>
+              <div class="specimen specimen--rule" [style.background]="`var(${row.token})`"></div>
             } @else {
-              <p class="specimen" [style.color]="'var(' + row.token + ')'">{{ row.sample }}</p>
+              <p class="specimen" [style.color]="`var(${row.token})`">{{ row.sample }}</p>
             }
             <div class="tokens">
               <code wrTypography variant="code" tone="muted">{{ typesetDefault(row.token) }}</code>
@@ -153,8 +153,8 @@
             <p
               class="specimen specimen__line"
               [attr.data-token]="row.token"
-              [style.font-size]="'var(' + row.token + ')'"
-              [style.line-height]="'var(' + row.token + '-leading)'"
+              [style.font-size]="`var(${row.token})`"
+              [style.line-height]="`var(${row.token}-leading)`"
             >
               {{ sample }}
             </p>
@@ -174,11 +174,7 @@
         <div class="row">
           <ng-container *ngTemplateOutlet="label; context: { $implicit: row }" />
           <div class="body">
-            <p
-              class="specimen specimen__line"
-              [attr.data-token]="row.token"
-              [style.font-weight]="'var(' + row.token + ')'"
-            >
+            <p class="specimen specimen__line" [attr.data-token]="row.token" [style.font-weight]="`var(${row.token})`">
               {{ sample }}
             </p>
             <div class="tokens"><ng-container *ngTemplateOutlet="extras; context: { $implicit: row }" /></div>
@@ -197,7 +193,7 @@
             <p
               class="specimen specimen--paragraph"
               [attr.data-token]="row.token"
-              [style.line-height]="'var(' + row.token + ')'"
+              [style.line-height]="`var(${row.token})`"
             >
               {{ paragraph }}
             </p>
@@ -217,7 +213,7 @@
             <p
               class="specimen specimen__line"
               [attr.data-token]="row.token"
-              [style.letter-spacing]="'var(' + row.token + ')'"
+              [style.letter-spacing]="`var(${row.token})`"
             >
               {{ sample }}
             </p>
@@ -234,7 +230,7 @@
         <div class="row">
           <ng-container *ngTemplateOutlet="label; context: { $implicit: row }" />
           <div class="body">
-            <p class="specimen" [attr.data-token]="row.token" [style.font-family]="'var(' + row.token + ')'">
+            <p class="specimen" [attr.data-token]="row.token" [style.font-family]="`var(${row.token})`">
               {{ sample }} 0123456789
             </p>
             <div class="tokens"><ng-container *ngTemplateOutlet="extras; context: { $implicit: row }" /></div>
@@ -253,7 +249,7 @@
             <span wrTypography variant="small" tone="muted">{{ row.meaning }}</span>
           </div>
           <div class="body">
-            <p class="specimen specimen--paragraph" [class]="row.utility.slice(1)">{{ paragraph }}</p>
+            <p [class]="['specimen', 'specimen--paragraph', row.utility.slice(1)]">{{ paragraph }}</p>
           </div>
         </div>
       }

@@ -54,7 +54,9 @@ describe('provideWr', () => {
         provideWr(
           wrFeature('boot', [
             { provide: FIRST, useValue: 'ready' },
-            provideEnvironmentInitializer(() => booted(inject(FIRST))),
+            provideEnvironmentInitializer(() => {
+              booted(inject(FIRST));
+            }),
           ])
         ),
       ],

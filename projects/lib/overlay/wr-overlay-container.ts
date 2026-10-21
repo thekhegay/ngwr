@@ -42,8 +42,10 @@ export class WrOverlayContainer extends OverlayContainer {
 
     if (this._platform.isBrowser || testing) {
       this._document
-        .querySelectorAll(`.${CONTAINER_CLASS}[${PLATFORM_ATTR}="server"], .${CONTAINER_CLASS}[${PLATFORM_ATTR}="test"]`)
-        .forEach((stale) => stale.remove());
+        .querySelectorAll(
+          `.${CONTAINER_CLASS}[${PLATFORM_ATTR}="server"], .${CONTAINER_CLASS}[${PLATFORM_ATTR}="test"]`
+        )
+        .forEach(stale => stale.remove());
     }
 
     const container = this._document.createElement('div');

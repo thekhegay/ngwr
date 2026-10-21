@@ -53,7 +53,7 @@ describe('WrDateAdapter default', () => {
 
   it('gives way to an adapter passed to withDates', () => {
     TestBed.configureTestingModule({ providers: [provideWr(withDates({ adapter: FixedClockAdapter }))] });
-    const adapter = TestBed.inject(WrDateAdapter);
+    const adapter = TestBed.inject<WrDateAdapter<Date>>(WrDateAdapter);
 
     expect(adapter).toBeInstanceOf(FixedClockAdapter);
     expect(adapter.today().getFullYear()).toBe(2000);

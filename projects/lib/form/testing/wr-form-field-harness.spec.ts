@@ -195,7 +195,9 @@ describe('WrFormFieldHarness', () => {
     // No markup and no catalog: the sentence rides on the rule itself, which is the
     // common case for Signal Forms. `resolved` is as precise as the DOM can be — a
     // message and a catalog entry render the identical element.
-    expect(await name.getErrors()).toEqual([{ key: 'required', text: 'Tell us what to call you.', source: 'resolved' }]);
+    expect(await name.getErrors()).toEqual([
+      { key: 'required', text: 'Tell us what to call you.', source: 'resolved' },
+    ]);
     expect(await name.getAnnouncedDescription()).toBe('Tell us what to call you.');
     expect(await name.isControlInvalid()).toBe(true);
   });
