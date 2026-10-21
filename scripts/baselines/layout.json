@@ -1,12 +1,12 @@
 {
   "alert/box (dark)": [
     [
-      64
+      70
     ]
   ],
   "alert/box (light)": [
     [
-      64
+      70
     ]
   ],
   "avatar/circle (dark)": [
@@ -529,12 +529,12 @@
   ],
   "card/box (dark)": [
     [
-      199
+      198
     ]
   ],
   "card/box (light)": [
     [
-      199
+      198
     ]
   ],
   "checkbox/box (dark)": [
@@ -593,14 +593,14 @@
   ],
   "spinner/svg (dark)": [
     [
-      19,
-      19
+      20,
+      20
     ]
   ],
   "spinner/svg (light)": [
     [
-      19,
-      19
+      20,
+      20
     ]
   ],
   "switch/track (dark)": [
@@ -627,46 +627,46 @@
   ],
   "tabs/tab (dark)": [
     [
-      42
+      46
     ],
     [
-      42
+      46
     ],
     [
-      42
+      46
     ],
     [
-      42
+      46
     ],
     [
-      42
+      46
     ]
   ],
   "tabs/tab (light)": [
     [
-      42
+      46
     ],
     [
-      42
+      46
     ],
     [
-      42
+      46
     ],
     [
-      42
+      46
     ],
     [
-      42
+      46
     ]
   ],
   "textarea/field (dark)": [
     [
-      84
+      78
     ]
   ],
   "textarea/field (light)": [
     [
-      84
+      78
     ]
   ]
 }

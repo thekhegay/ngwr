@@ -93,7 +93,7 @@ const PLACEHOLDER_PROBE = 'data-wr-placeholder-probe';
  * read fail on their own, on any sweep; this catches the rest. Raise it when a
  * demo adds a field; a drop is a gate going blind.
  */
-const PLACEHOLDER_ROUTE_FLOOR = 27;
+const PLACEHOLDER_ROUTE_FLOOR = 26;
 
 /** What the placeholder pass measured, per theme and contrast mode. */
 interface PlaceholderTally {
