@@ -1,5 +1,180 @@
 # Changelog
 
+## [15.0.0-rc.0](https://github.com/thekhegay/ngwr/compare/v14.12.1...v15.0.0-rc.0) (2026-10-21)
+
+### ⚠ BREAKING CHANGES
+
+* angular peers are ^22.0.0 rather than every later major
+* **lib:** animations become bits, and the scss umbrella is gone
+* **lib:** build with @angular/build:library instead of ng-packagr
+* **lib:** charts and animations nest under their own groups
+* **theme:** dark mode follows color-scheme and light-dark(), no -rgb tokens, no runtime palette
+* **lib:** drop ng-packagr, exports is the only entry-point source
+* drop the registry and the claude/gemini pointers
+* **theme:** every component publishes a hook per painted token
+* every entry point keeps its types in types/, not interfaces/
+* fewer checks, and ci split into pr, nightly and release tiers
+* **theme:** four border tokens become subtle / base / strong
+* **sortable-list:** its own entry point, ngwr/drag-drop is free again
+* **button:** neutral outlined variant, and migration-v15
+* **theme:** neutral roles resolve through a four-step gray ramp
+* **typography,timeline:** neutral values named for the job, not a removed intent
+* **form:** ngwr ships no validation copy, a message comes from the validator or the app catalog
+* **config:** ngwr/config is gone, a component default lives in its input
+* **markdown:** ngwr/markdown is gone, the editor value is the json tree only
+* **media:** ngwr/media is gone, the breakpoint mixins stay
+* **date:** no date-fns or luxon adapter, the native one stays
+* **overlay:** no responsive bottom sheets, overlays always float
+* **theme:** one five-step spacing scale for padding, margin and gap
+* one provider call with features replaces the config providers
+* **showcase:** one route tree with titles, and folders per sidebar group
+* **overlay:** overlays are always isolated, the overlay provider and the visual viewport are gone
+* **theme:** palette is five intents, neutrals are the gray ramp
+* **drag-drop:** rows are wr-sortable-item, the consumer owns the loop
+* squircle, the action sheet and the drawer's grab handle are gone
+* **showcase:** start becomes docs, charts gets a cluster, bits gets groups
+* **sidebar:** subtitle, toned badge, count and nested groups, in the new look
+* **icon:** the lucide converter lives in ngwr/icon, the adapter entry points are gone
+* **date:** the native adapter is the default, no provider needed
+* **theme:** the neutral ramp moves off slate onto the gray family
+* **schematics:** v15 ships no codemod, migration-v15 is gone
+
+### Features
+
+* **button:** neutral outlined variant, and migration-v15 ([f192e8c](https://github.com/thekhegay/ngwr/commit/f192e8cfe6564ceef09ee4880c6450798b11461c))
+* **config:** ngwr/config is gone, a component default lives in its input ([51c10cf](https://github.com/thekhegay/ngwr/commit/51c10cf9419da4208a4e8f962d6811f2735b9e33))
+* **date:** no date-fns or luxon adapter, the native one stays ([0a0ddbc](https://github.com/thekhegay/ngwr/commit/0a0ddbc097a39919abbdffee4c52e0d689e047e5))
+* **date:** the native adapter is the default, no provider needed ([8455e01](https://github.com/thekhegay/ngwr/commit/8455e01e1e85dad423a960e35d8dd285275d68a9))
+* **drag-drop:** rows are wr-sortable-item, the consumer owns the loop ([1d4b30c](https://github.com/thekhegay/ngwr/commit/1d4b30c12e68dafcc0eb9f49a0b669ab6273563d))
+* **form:** ngwr ships no validation copy, a message comes from the validator or the app catalog ([a7b4ea0](https://github.com/thekhegay/ngwr/commit/a7b4ea0e9970c1c08b0cb193fb8120db12d4b503))
+* **icon:** the lucide converter lives in ngwr/icon, the adapter entry points are gone ([7cdefc5](https://github.com/thekhegay/ngwr/commit/7cdefc51754dadecd6481de7b1c2a9aa223d017e))
+* **markdown:** ngwr/markdown is gone, the editor value is the json tree only ([c8a33a1](https://github.com/thekhegay/ngwr/commit/c8a33a146ebfdc69c955b1488199c82ee9398d2c))
+* **media:** ngwr/media is gone, the breakpoint mixins stay ([dc2cc1c](https://github.com/thekhegay/ngwr/commit/dc2cc1c27473bda5b7ecbd2f946282e70c63682d))
+* one provider call with features replaces the config providers ([6854a54](https://github.com/thekhegay/ngwr/commit/6854a5440e6eb6da92c0eda687069b8a5c2a9cc9))
+* **overlay:** no responsive bottom sheets, overlays always float ([3d3a0c4](https://github.com/thekhegay/ngwr/commit/3d3a0c4c2c1f6d1f9f7b4cf92358b315f05e2c6a))
+* **overlay:** overlays are always isolated, the overlay provider and the visual viewport are gone ([6e21abf](https://github.com/thekhegay/ngwr/commit/6e21abf2b38d04fb06d77839d52702e58fbb3b6e))
+* **showcase-v15:** a bare ssr app to rebuild the docs in ([d9aa95a](https://github.com/thekhegay/ngwr/commit/d9aa95aba20ab254d56f08fbd6050c190d4b7597))
+* **showcase:** a stackblitz starter in projects/starter, linked from the header and home ([8bd24de](https://github.com/thekhegay/ngwr/commit/8bd24de31b5d6e5eefe94299115bdcdea075a1c1))
+* **showcase:** an on-this-page rail, and the demos lose their own buttons ([2f96168](https://github.com/thekhegay/ngwr/commit/2f961688e3b9d457539602e197bec04aa122ea29))
+* **showcase:** geist and geist mono, bundled rather than copied ([1cc4147](https://github.com/thekhegay/ngwr/commit/1cc4147c298ea5a17ddfb5d12327098f5ace0aa4))
+* **showcase:** inter for text, geist mono for code ([0427f57](https://github.com/thekhegay/ngwr/commit/0427f5718e5a347d075708ad8e172d06435374f3))
+* **showcase:** the installation recipe is generated, and it says [@use](https://github.com/use) ([ccfe6c9](https://github.com/thekhegay/ngwr/commit/ccfe6c94e0376e69fdeff0147b36060eb5dcefb4))
+* **showcase:** the stackblitz starter opens on its component ([c298a4f](https://github.com/thekhegay/ngwr/commit/c298a4fdb700224a220332d6c91255517cd0ad92))
+* **sidebar:** subtitle, toned badge, count and nested groups, in the new look ([31baca3](https://github.com/thekhegay/ngwr/commit/31baca3f7035ff69e07ff421591dd43e26477a7e))
+* **sortable-list:** its own entry point, ngwr/drag-drop is free again ([501c581](https://github.com/thekhegay/ngwr/commit/501c5818a2647d6210f3d1bc1a56d51539d2a737))
+* squircle, the action sheet and the drawer's grab handle are gone ([1f3fd6e](https://github.com/thekhegay/ngwr/commit/1f3fd6ecba1ecb9ac90c950c93386b1f01f95214))
+* **theme:** a leading token per type size, so a size can be hung on its own ([cacd10b](https://github.com/thekhegay/ngwr/commit/cacd10b73d6d5099bf8091802cd36c91b4346c56))
+* **theme:** dark mode follows color-scheme and light-dark(), no -rgb tokens, no runtime palette ([91e2986](https://github.com/thekhegay/ngwr/commit/91e2986d8e3e5c4904c5fc76871136e31f7c7002))
+* **theme:** neutral roles resolve through a four-step gray ramp ([8548182](https://github.com/thekhegay/ngwr/commit/854818288b1b364657b118ffc77e6acbae1ac3dd))
+* **theme:** palette is five intents, neutrals are the gray ramp ([37fda58](https://github.com/thekhegay/ngwr/commit/37fda58e61ad65594348556557b6f0227cbc03a6))
+* **typography,timeline:** neutral values named for the job, not a removed intent ([cd3ea0a](https://github.com/thekhegay/ngwr/commit/cd3ea0a74f9ec3ba7bd77ce6d238749a1282f67d))
+* **typography:** a prose rule ported from tailwind, and the showcase takes ngwr/reset ([b7aede3](https://github.com/thekhegay/ngwr/commit/b7aede3a11bfd8cd03d034d9773b4f66849645d3))
+* **typography:** typeset styles code blocks, definition lists and figures ([562df04](https://github.com/thekhegay/ngwr/commit/562df04255bcbae43a69985a6163ef295005826b))
+
+### Bug Fixes
+
+* **affix:** watch the element the host sticks to, not the viewport ([f2f4dfe](https://github.com/thekhegay/ngwr/commit/f2f4dfe15abe8968973967bf3cb6f947db4b49dc))
+* **bar-chart:** the plot announced as its first bar, not as a chart ([4034d29](https://github.com/thekhegay/ngwr/commit/4034d29528deeeffd8a0c74dcd2b92339a176edd))
+* **bits:** fuzzy-text drew its two passes in two coordinate spaces ([2361788](https://github.com/thekhegay/ngwr/commit/23617889d59eb5ee94f7c05ac92fb01d592194c5))
+* **button:** an outlined label is text, so it takes -ink rather than the bare intent ([8b646d0](https://github.com/thekhegay/ngwr/commit/8b646d04ea28aaacf65bc35f2f4c9f218ad21476))
+* **charts:** the heatmap drew future days and one column too many ([9be8bac](https://github.com/thekhegay/ngwr/commit/9be8bac90e26a3ad447e6f2923c944232c91f397))
+* **counter,icon,dialog,button:** examples that do not compile or do not run ([753dbf9](https://github.com/thekhegay/ngwr/commit/753dbf9275374ef92ec4047d8cef9af65cdf4e3d))
+* **docs:** 44 public inputs shipped an api row that said nothing ([28519cf](https://github.com/thekhegay/ngwr/commit/28519cf44a30df7aeca8723c6c1fc2d039223c51))
+* **docs:** 58 install recipes put a provider or a token in imports ([5d67f5f](https://github.com/thekhegay/ngwr/commit/5d67f5f5ea116d89d2d1988d3098dd638671aa51))
+* **docs:** 85 markdown twins named the scss half of an install, never printed it ([bd74465](https://github.com/thekhegay/ngwr/commit/bd74465ad6abcca39810c30a9263bac5339636cd))
+* **docs:** css-variables tables find grouped pages through the route tree ([267bc2d](https://github.com/thekhegay/ngwr/commit/267bc2db7ea1d76736ecaafce149ea44ae153194))
+* **docs:** five guides still taught the [@use](https://github.com/use) 'ngwr' umbrella v15 removed ([eb96551](https://github.com/thekhegay/ngwr/commit/eb96551865f571b2e285855cadf8a6b8f7fe84ee))
+* **docs:** responsive on the dropdown panel is inert; the gate now reads snippets ([86ce22f](https://github.com/thekhegay/ngwr/commit/86ce22ff6378ec51cbbba0e40e0873487a63be76))
+* **docs:** slider and input-otp printed each snippet twice, in two quotings ([327597f](https://github.com/thekhegay/ngwr/commit/327597f54fed04b023077ad3f3a4ce7091bcaa8d))
+* **docs:** snippets, defaults and an output that fires once, not per move ([3e194fe](https://github.com/thekhegay/ngwr/commit/3e194fef1fa16ff7d2d2816532c914f155d8afa9))
+* **docs:** the audit's confirmed findings, and two library defects behind them ([53a6ecf](https://github.com/thekhegay/ngwr/commit/53a6ecf5e8a6c67dab4b9de13e0524cea98348fd))
+* **docs:** the css-variables tables for every bit were generated into nothing ([16ae395](https://github.com/thekhegay/ngwr/commit/16ae3959401a48f9ee209bcae12a5b199716b089))
+* **docs:** the install recipe printed the page's demos, not the install ([8b73cae](https://github.com/thekhegay/ngwr/commit/8b73cae18d48a2a72af14c1ba6d0cc41bbcf3189))
+* **docs:** the mention example shipped a raw browser textarea ([628a5b6](https://github.com/thekhegay/ngwr/commit/628a5b68c3301891e1485d5f41b40ae34ef17e07))
+* **docs:** the popconfirm snippet used a form the repo's own lint rejects ([da9fdcd](https://github.com/thekhegay/ngwr/commit/da9fdcd1c74036b5990a76d8eb4884ae94646421))
+* **docs:** the sidebar demo expanded a group from a row with no highlight ([476c449](https://github.com/thekhegay/ngwr/commit/476c44931ba3f4b6d2a7114d84475d3f10163b3d))
+* **docs:** three snippets drew a component the demo beside them had sized ([5336764](https://github.com/thekhegay/ngwr/commit/53367644a6025712e1360e0660e4a9338033026a))
+* **docs:** two duplicated hook tables, and the checkbox group's own jsdoc ([f21c12d](https://github.com/thekhegay/ngwr/commit/f21c12db83884a9ddf568b6b487b2e639f674e41))
+* **docs:** two sections printed a snippet from somewhere else on the page ([92beac9](https://github.com/thekhegay/ngwr/commit/92beac93386649d675bce51464d2dac3d61ce339))
+* **lib:** a frozen row index, a stale focus target and a silent read-only ([388894f](https://github.com/thekhegay/ngwr/commit/388894fa90bbb909ac115924bf91ef7bc4216ac5))
+* **lib:** a shrunk otp strands its value, and the palette samples width once ([17d04e4](https://github.com/thekhegay/ngwr/commit/17d04e496b6eea60ca021fc95479e5b44b97fe01))
+* **lib:** a static title no longer lands on the host as a tooltip ([7e7d8dd](https://github.com/thekhegay/ngwr/commit/7e7d8dd9e589a6f28d5e3c9118a35924b1773ce0))
+* **lib:** four documented inputs and hooks that did nothing ([fa2a299](https://github.com/thekhegay/ngwr/commit/fa2a2990b6d76098a0babbcad729b723af75594d))
+* **lib:** the toast corner, the tab stop and the radio group's name ([b01a05f](https://github.com/thekhegay/ngwr/commit/b01a05fb0f1227b6eecc4d859e7906891c662612))
+* **lib:** waves, confetti, the breakpoint walk and a leaked meta handle ([368e640](https://github.com/thekhegay/ngwr/commit/368e640e276efb8b63afb1fec6046eb15945d23c))
+* **line-chart:** the y axis read 38.2 / 28.7 / 19.1 on seven integers ([2f70b51](https://github.com/thekhegay/ngwr/commit/2f70b51e4f33c445c924d4a2d17b8876a373bf5d))
+* **mcp:** get_ngwr_api reads the inputs the library builder writes ([0b1582e](https://github.com/thekhegay/ngwr/commit/0b1582ecd9c087113162e65b65efd4bec1131b32))
+* **meta:** popping a title layer blanked the tab instead of reverting ([369bfb1](https://github.com/thekhegay/ngwr/commit/369bfb12c4c28bed66d9a6a850dd0b6586cd795c))
+* **popover:** toggle from the trigger, open and close from anywhere else ([8c4317a](https://github.com/thekhegay/ngwr/commit/8c4317a172c71fc0d7b9ec40f2fb2b389622d421))
+* **release:** a long section's author lookups retry and never fail the release ([40ee428](https://github.com/thekhegay/ngwr/commit/40ee4282d3ccfa4155d5f91a811c37e643ea1583))
+* **scripts:** the api comparison had lost every nested entry point ([555e703](https://github.com/thekhegay/ngwr/commit/555e7038ab8cecbd6de68c53d9e48afbffdac478))
+* **select:** a zero-width pseudo took the trigger gap as an indent ([798175a](https://github.com/thekhegay/ngwr/commit/798175aa17e29e1f9fc63fa8f92da5a47d8dcfd4))
+* **select:** the leading template's value is any, not unknown ([6e6eae3](https://github.com/thekhegay/ngwr/commit/6e6eae32ed63ecc9573662cbac1c3309480797bf))
+* **select:** the searchable multi had no chevron, and an empty trigger was short ([61d0064](https://github.com/thekhegay/ngwr/commit/61d0064a372cd797fa5acc9fffa2361649c192a7))
+* **shiny-text:** speed was half the stated value, with a pause nobody asked for ([5b318e1](https://github.com/thekhegay/ngwr/commit/5b318e1cafeb93e0fd4359c3554fd8aa625147e0))
+* **showcase:** a demo tile offered to save a password nobody typed ([70560eb](https://github.com/thekhegay/ngwr/commit/70560ebf78af7974b5ba2129fc154a6da7bcf8f9))
+* **showcase:** a double slash in the header, and the routes tree loses its factory ([c5d6e28](https://github.com/thekhegay/ngwr/commit/c5d6e281e2dfafa1bcca80c970ea3d04452f1bbf))
+* **showcase:** a nested entry point's install recipe names only itself ([bc85572](https://github.com/thekhegay/ngwr/commit/bc85572f6330d615a4be3f90ad25dbb652ea04b5))
+* **showcase:** code and playground surfaces take a fill role, not the border token ([c84bd33](https://github.com/thekhegay/ngwr/commit/c84bd33e4c8db826ab7b97f3af85f992564e4c2f))
+* **showcase:** colours that vanish on the dark canvas, and four dead rules ([c1f4efa](https://github.com/thekhegay/ngwr/commit/c1f4efa9704e461090279968ac7c832586cad2ab))
+* **showcase:** fills take a fill role, and the label chip is styled at all ([d0eb9ea](https://github.com/thekhegay/ngwr/commit/d0eb9ea054e081636cc1b2d76cfbce430eaf3d1c))
+* **showcase:** icons, the mark highlight and a console recipe that lied ([9078422](https://github.com/thekhegay/ngwr/commit/90784229c9a02ac7f16c4e5ad00516d5bc65991b))
+* **showcase:** muted doc text on the role, layout baseline re-recorded for v15 ([359786f](https://github.com/thekhegay/ngwr/commit/359786fc5173d61af8fba23bded97ebb67723e8d))
+* **showcase:** password demos opt out of the password manager ([4126c0f](https://github.com/thekhegay/ngwr/commit/4126c0f3d30f8f7b8946be81c839dd37efab4627))
+* **showcase:** six snippets a reader could not paste ([e2b9f9e](https://github.com/thekhegay/ngwr/commit/e2b9f9e01a9b2c2afa4d0afdc47b08975ee9f86c))
+* **showcase:** ten inert attributes, the copy glyph, and a gate for the class ([10599bb](https://github.com/thekhegay/ngwr/commit/10599bb2c69ac51018964e41ac3fa396c1be0256))
+* **showcase:** the copy button sits in the code, not on the tab strip ([828573b](https://github.com/thekhegay/ngwr/commit/828573bd970348112679f0aae664fa34b86b3cd6))
+* **showcase:** the header and the section column survive an overlay's scroll block ([861233e](https://github.com/thekhegay/ngwr/commit/861233eec52e10e3d279bd384cfc5364dbd7a188))
+* **showcase:** the inter roman is 4.1 too, matching the italic ([97e1d94](https://github.com/thekhegay/ngwr/commit/97e1d949bd39c155d5f8e9dbab74bf5e4b561e9a))
+* **showcase:** the selector scan reads regex literals, wr-breadcrumbs is back ([42e68c1](https://github.com/thekhegay/ngwr/commit/42e68c1c17b522a3a5db57fcc8244efebbc705c1))
+* **showcase:** tones on the styles page take their own colour ([fd7dbd9](https://github.com/thekhegay/ngwr/commit/fd7dbd9e1ad67bd67ec2174feed0a71be01741eb))
+* **sidebar:** a disabled nav row was dimmed twice, to 2.38:1 ([4aa47ac](https://github.com/thekhegay/ngwr/commit/4aa47ac41cc7ea4787aafdcbc2e8305184ef45e7))
+* **sortable-list:** a keyboard-held row looked exactly like a focused one ([86517ed](https://github.com/thekhegay/ngwr/commit/86517eda92c62a63f12b82f425c7f8d64dbba43a))
+* **speed-dial:** the action buttons hard-coded the light theme's float shadow ([b4c978f](https://github.com/thekhegay/ngwr/commit/b4c978f75e776fbe9cf2d4e33af8e52e22ae2b49))
+* **styles:** a component never loaded the styles of what it renders inside ([98394a6](https://github.com/thekhegay/ngwr/commit/98394a666ec819d9d5792672456d19e128a88122))
+* **table:** every sort and filter button announced the same name ([8854730](https://github.com/thekhegay/ngwr/commit/885473008374c07f7632b67c1dd7d842bed72764))
+* **theme:** a bare .wr-icon__svg was 0x0 in every app without ngwr/icon ([265c246](https://github.com/thekhegay/ngwr/commit/265c246f55afd1957486cbd37341fbfc98874190))
+* **theme:** every var() at a deleted token, and the gate that finds them ([fe23aae](https://github.com/thekhegay/ngwr/commit/fe23aae67cf1767d0d4df6f384efa646710dc6e8))
+* **theme:** four utility sheets read tokens they never loaded ([aacc289](https://github.com/thekhegay/ngwr/commit/aacc2894284639738740f5c4ecf4727396f7f2e1))
+* **theme:** the dark ramp stays hand-tuned, the scale has two steps where it needs three ([98d73f2](https://github.com/thekhegay/ngwr/commit/98d73f21c83dea89c07ebea2cc3e034f11a2c08f))
+* **theme:** the token named strong was weaker than base ([aed6bc3](https://github.com/thekhegay/ngwr/commit/aed6bc369b3ab97217bcd788c1e1b4988d12bb61))
+* **toast:** an arriving toast was drawn in slot 0 whatever its depth ([4e87fa8](https://github.com/thekhegay/ngwr/commit/4e87fa8544ed81305ab496a28757d6aa895172b1))
+* **typography:** a typeset table header starts at the edge, not centred ([83d80cf](https://github.com/thekhegay/ngwr/commit/83d80cfab64017d341ac7e8907229ab645228f6a))
+* **typography:** code variant sets mono, prose h4 and hr stop leaning on the reset ([afec832](https://github.com/thekhegay/ngwr/commit/afec832c86b007a657c35c7ed9635d5e7574d650))
+* **typography:** prose headings sit closer to their text, h5 and h6 get a size ([a5f3a00](https://github.com/thekhegay/ngwr/commit/a5f3a00cac97da32ad9eed252c8cc9e98e94f829))
+* **typography:** typeset tables draw their row borders ([48e8401](https://github.com/thekhegay/ngwr/commit/48e8401962b549bdc59e79f4b640a285fec78c20))
+* **utils:** a visibility-hidden control is not focusable, and nine utils docs ([abdc226](https://github.com/thekhegay/ngwr/commit/abdc22656feb9c131951450d51615f11ab30856a))
+
+### Reverts
+
+* **ci:** codecov comes back, coverage uploaded from pr ci ([ee253a3](https://github.com/thekhegay/ngwr/commit/ee253a3ccb6498f67fecadffe82294c61837feb7))
+* drop the sandbox and showcase-v15 scaffolds ([0fcc9e0](https://github.com/thekhegay/ngwr/commit/0fcc9e088eac27c9315ec687748cad33d286bf31))
+* keep the claude and gemini pointers ([5f65a76](https://github.com/thekhegay/ngwr/commit/5f65a7648f71c3c06a3ee8ca786e7e35a1624096))
+
+### Miscellaneous Chores
+
+* drop the registry and the claude/gemini pointers ([3e7e805](https://github.com/thekhegay/ngwr/commit/3e7e805a4be661a129343885efda52fcdeb17606))
+* fewer checks, and ci split into pr, nightly and release tiers ([9a00bbe](https://github.com/thekhegay/ngwr/commit/9a00bbec4b85b4f507be0ab196d2585b6fae9669))
+* **schematics:** v15 ships no codemod, migration-v15 is gone ([4b6e35a](https://github.com/thekhegay/ngwr/commit/4b6e35a73ecad139c1a047dfc24c45ac25a24a25))
+
+### Code Refactoring
+
+* every entry point keeps its types in types/, not interfaces/ ([31a0fe2](https://github.com/thekhegay/ngwr/commit/31a0fe2af84ee9ced4785f9c1375dfbddc7670da))
+* **lib:** animations become bits, and the scss umbrella is gone ([73ce2df](https://github.com/thekhegay/ngwr/commit/73ce2dfce61c820decdd9fda51ab29deb79384fc))
+* **lib:** charts and animations nest under their own groups ([b060d18](https://github.com/thekhegay/ngwr/commit/b060d18a7ecfe26a3d9deb9f70d83349878052ee))
+* **showcase:** one route tree with titles, and folders per sidebar group ([5bfc82a](https://github.com/thekhegay/ngwr/commit/5bfc82a07f0f757dc10ded1f4787c763d6be48e5))
+* **showcase:** start becomes docs, charts gets a cluster, bits gets groups ([2ba7321](https://github.com/thekhegay/ngwr/commit/2ba7321efdf7a0ed2d92d028631683376752a6f6))
+* **theme:** every component publishes a hook per painted token ([dd26f26](https://github.com/thekhegay/ngwr/commit/dd26f26210df82a452e85f8994895d72e38ef12d))
+* **theme:** four border tokens become subtle / base / strong ([c52c0f9](https://github.com/thekhegay/ngwr/commit/c52c0f9695ad2f019f56ebeb399705ec114d3a75))
+* **theme:** one five-step spacing scale for padding, margin and gap ([073a65f](https://github.com/thekhegay/ngwr/commit/073a65f8aa3f35ae9cb47f52fb46f4b385932694))
+* **theme:** the neutral ramp moves off slate onto the gray family ([98268ea](https://github.com/thekhegay/ngwr/commit/98268ea653fd001b97a7ed13dca42c17f8f4a30f))
+
+### Build System
+
+* angular peers are ^22.0.0 rather than every later major ([85d3903](https://github.com/thekhegay/ngwr/commit/85d39036827b15cfd91cda25bb5fb5b7ab7b8edb))
+* **lib:** build with @angular/build:library instead of ng-packagr ([4f28e36](https://github.com/thekhegay/ngwr/commit/4f28e36ee6cbf4ff1b74121d3427f89339e9da8c))
+* **lib:** drop ng-packagr, exports is the only entry-point source ([eddb6d8](https://github.com/thekhegay/ngwr/commit/eddb6d8fbd9a0ddabfa5c9adba356e8af86614f3))
+
 ## [14.12.1](https://github.com/thekhegay/ngwr/compare/v14.12.0...v14.12.1) (2026-10-20)
 
 ### Bug Fixes
