@@ -626,8 +626,9 @@ Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
 (`ngwr/form`), most of the service layer (`ngwr/hotkey`, `ngwr/i18n`,
 `ngwr/platform`, `ngwr/storage`, `ngwr/overlay`, `ngwr/density`,
 `WrWindowManager`, `ngwr/scroll`) and EVERY component with a
-page under `reference/components`; every entry point has a spec but twenty
-`ngwr/i18n/<locale>` catalogs (see i18n above). (How
+page under `reference/components`, and every entry point has a spec — the
+twenty `ngwr/i18n/<locale>` catalogs through one shared table (see i18n
+above). (How
 many spec files and how many cases is re-counted by `pnpm gen:quality` into
 `#core/generated/quality` — read it there. This sentence used to restate both,
 and sat at `275 spec files, at least 4467 specs` for long enough to be wrong by
@@ -735,8 +736,7 @@ arm for arm, with the same majors and the same minimums, and one difference.
 Angular leaves its newest arm open-ended (`>=`) and `engines` closes it at that
 major (`^`), so `devEngines` refuses a Node major the repository has never run.
 Compare the two when Angular moves its range. `.nvmrc` and
-every workflow run the newest of them; the nightly covers Node 24, and since
-v15 nothing runs the Node 22 arm `engines` still accepts.
+every workflow run the newest of them; the nightly covers Node 22 and 24.
 
 **The version guard is `devEngines` in `package.json`, and `.npmrc` is empty on
 purpose.** It used to carry `engine-strict=true`, and pnpm reads no behavioural
@@ -1303,9 +1303,8 @@ there — so a repo whose `engines` accepts both cannot set it statically. Upstr
 is not coming: vitest closed the collision as not planned. The LIBRARY was never
 affected — `storage-engine.ts` already falls back to memory on a missing
 `localStorage` — which is what makes this scaffolding rather than a product fix.
-`engines` still accepts 22 and 24 — both LTS, to April 2027 and 2028 — and the
-nightly `legacy-node` job runs `pnpm test` and `build:lib` on 24 only; v15
-dropped its Node 22 arm, so that third of the range is a claim nothing checks.
+`engines` still accepts 22 and 24 — both LTS, to April 2027 and 2028 — so the
+nightly `legacy-node` job runs `pnpm test` and `build:lib` on each.
 `Intl.Locale.prototype.getWeekInfo` does not exist on Node 22, and
 `WrNativeDateAdapter.getFirstDayOfWeek` carries a fallback for it.
 
@@ -1985,8 +1984,8 @@ because it is guidance rather than a plan.
 - Escape does NOT depend on focus being inside an overlay:
   `overlayRef.keydownEvents()` is fed by CDK's `OverlayKeyboardDispatcher`,
   which keeps one document listener and routes to the topmost overlay.
-- `wrRu` is pinned to **the English key set** with no
-  empty values (`expectCatalogContract`, above; the other twenty catalogs are not) — empty is the worse case, since it resolves as a real
+- Every shipped catalog is pinned to **the English key set** with no
+  empty values (`expectCatalogContract`, above) — empty is the worse case, since it resolves as a real
   translation and reaches the DOM as a nameless control. Nothing had compared
   `wrEn` with `wrRu` before: `useI18nText` reads "translation === key" as
   missing and quietly serves the English default, so a Russian app rendered
