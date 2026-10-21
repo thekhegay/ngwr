@@ -84,12 +84,12 @@ A pnpm + Angular CLI monorepo with three projects:
   one file, not two: `check:selectors`, `check:css-vars`, `check:install` and
   `check:api-docs` are `gen/<name>.ts --check`. One check file differs from its
   script's name: `check:attrs` runs `check/unknown-attrs.ts`.
-  **The three browser-driven checks share `scripts/lib/dist-site.ts`** — the
+  **The four browser-driven checks share `scripts/lib/dist-site.ts`** — the
   static server over `dist/showcase`, the route list, the "did you build it"
   guard. The one thing they disagree on is the only parameter:
   `serveDist('spa' | '404')`. The contrast and state sweeps fall back to the SPA
-  shell because an unresolved path is a client route; the layout sweep answers
-  404, because a target matching nothing has to fail the run rather than
+  shell because an unresolved path is a client route; the two layout sweeps
+  answer 404, because a target matching nothing has to fail the run rather than
   silently measure the home page.
 
 ### Anatomy of an entry point — e.g. `projects/lib/alert/`
