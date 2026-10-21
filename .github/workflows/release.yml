@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       bump:
-        description: 'Version bump (rc publishes to npm dist-tag `next`, everything else to `latest`)'
+        description: 'Version bump (rc publishes to npm dist-tag `next`, everything else to `latest`; a vN branch takes rc only)'
         required: true
         type: choice
         default: patch
@@ -17,11 +17,12 @@ on:
 permissions:
   contents: read
 
+# main cuts every release; a next-major branch (v15) cuts its release candidates.
 jobs:
   checks:
     name: Full check
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || (startsWith(github.ref, 'refs/heads/v') && inputs.bump == 'rc')
 
     steps:
       - uses: actions/checkout@v7
@@ -43,7 +44,6 @@ jobs:
     name: Cut release PR
     needs: checks
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     permissions:
       contents: write
       pull-requests: write
@@ -85,7 +85,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: release/v${{ steps.prepare.outputs.version }}
-          base: main
+          base: ${{ github.ref_name }}
           delete-branch: true
           commit-message: 'chore(release): v${{ steps.prepare.outputs.version }}'
           title: 'chore(release): v${{ steps.prepare.outputs.version }}'

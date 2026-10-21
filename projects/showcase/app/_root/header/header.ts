@@ -52,6 +52,24 @@ function archivedMajors(current: number): readonly number[] {
   return Array.from({ length: Math.max(0, current - OLDEST_ARCHIVED_MAJOR) }, (_, i) => current - 1 - i);
 }
 
+interface DocVersion {
+  readonly label: string;
+  readonly url: string;
+  readonly active: boolean;
+}
+
+function docVersionList(major: number, rc: boolean): readonly DocVersion[] {
+  const archived = (current: number): DocVersion[] =>
+    archivedMajors(current).map(v => ({ label: `v${v}`, url: `/v${v}/`, active: false }));
+  return rc
+    ? [
+        { label: `v${major} · rc`, url: `/v${major}-rc/`, active: true },
+        { label: `v${major - 1} · latest`, url: '/', active: false },
+        ...archived(major - 1),
+      ]
+    : [{ label: `v${major} · latest`, url: '/', active: true }, ...archived(major)];
+}
+
 @Component({
   selector: 'ngwr-header',
   templateUrl: './header.html',
@@ -138,8 +156,13 @@ export class Header {
   protected readonly density = inject(WrDensity);
   protected readonly direction = inject(SiteDirection);
 
+  private readonly version = String(inject(NGWR_VERSION_TOKEN));
+
   /** Current major (e.g. `v8`) shown on the version-switcher trigger. */
-  protected readonly major = `v${String(inject(NGWR_VERSION_TOKEN)).split('.')[0]}`;
+  protected readonly major = `v${this.version.split('.')[0]}`;
+
+  /** A release candidate's docs are deployed at `/v<major>-rc/`, beside the previous major's stable site. */
+  protected readonly rc = this.version.includes('-rc.');
 
   /**
    * Documentation versions, each a separate static deployment. The live site is
@@ -150,12 +173,10 @@ export class Header {
    * every major release, so the archives are exactly v7 … v(current − 1) — and a
    * hand-written list is precisely what went wrong before: v8 and v9 were
    * archived and deployed, but nobody added them here, so for two majors the
-   * snapshots existed on the server with nothing linking to them.
+   * snapshots existed on the server with nothing linking to them. On a release
+   * candidate, `latest` is the major below it.
    */
-  protected readonly docVersions: readonly { readonly label: string; readonly url: string }[] = [
-    { label: `${this.major} · latest`, url: '/' },
-    ...archivedMajors(Number(this.major.slice(1))).map(v => ({ label: `v${v}`, url: `/v${v}/` })),
-  ];
+  protected readonly docVersions = docVersionList(Number(this.major.slice(1)), this.rc);
 
   /** Theme segmented — user choice (`auto` resolves via `prefers-color-scheme`). */
   protected readonly themeOptions: readonly WrSegmentedOption<WrThemeMode>[] = [

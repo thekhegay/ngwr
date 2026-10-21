@@ -64,11 +64,10 @@ async function main(): Promise<void> {
   // came to ship a changelog with a breaking section: nothing connected the
   // commits to the number. An adopter on `^12.1.0` received it automatically.
   //
-  // `rc` is exempt: a release candidate is where a major is staged, and its
-  // own bump names the line it is a candidate for.
+  // `rc` is exempt: the breaking commits make it a candidate for the next major.
+  const since = lastReleaseTag();
+  const breaking = since ? breakingSince(since) : [];
   if (type === 'minor' || type === 'patch') {
-    const since = lastReleaseTag();
-    const breaking = since ? breakingSince(since) : [];
     if (breaking.length > 0) {
       err(`Refusing --bump=${type}: ${breaking.length} breaking commit(s) since ${since}.`);
       for (const subject of breaking) err(`  ${subject}`);
@@ -88,7 +87,7 @@ async function main(): Promise<void> {
     err('  Check the generated section and fix it in the release PR.');
   }
 
-  const next = nextVersion(current, type);
+  const next = nextVersion(current, type, breaking.length > 0);
 
   if (!next) {
     err(`Cannot compute next version from ${current} with bump=${type}`);
@@ -99,7 +98,8 @@ async function main(): Promise<void> {
   info(`✓ Bumped ${current} → ${next}`);
   info('✓ Synced NGWR_VERSION in projects/lib/version/version.ts');
 
-  if (writeSupportTable(next)) info('✓ SECURITY.md support table follows the release line');
+  // A candidate does not support its major yet; the stable release moves the table.
+  if (type !== 'rc' && writeSupportTable(next)) info('✓ SECURITY.md support table follows the release line');
 
   await regenerateChangelog();
   info('✓ CHANGELOG.md updated');
