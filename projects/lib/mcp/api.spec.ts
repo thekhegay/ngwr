@@ -386,6 +386,21 @@ describe('extractClass', () => {
     ]);
   });
 
+  it('unwraps the inline-import wrapper @angular/build:library writes', () => {
+    const declarations = `
+declare class WrBuilt {
+    readonly label: import("@angular/core").InputSignal<string | null>;
+    readonly open: import("@angular/core").ModelSignal<boolean>;
+    readonly closed: import("@angular/core").OutputEmitterRef<void>;
+}`;
+
+    expect(extractClass(declarations, 'WrBuilt')?.members.map(m => [m.name, m.kind, m.type])).toEqual([
+      ['label', 'input', 'string | null'],
+      ['open', 'model', 'boolean'],
+      ['closed', 'output', 'void'],
+    ]);
+  });
+
   it('sorts each member into the kind a template sees', () => {
     const kinds = Object.fromEntries(selectMembers().map(member => [member.name, member.kind]));
 

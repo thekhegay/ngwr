@@ -35,9 +35,10 @@ interface ApiClass {
  * `i0` for a couple of dozen of them, and matching the first alone hid every
  * binding in the `i0` files, `WrIcon` among them, whose single required input
  * is the entire component. `@angular/build:library` writes the wrapper as
- * `import("@angular/core").InputSignal<…>` instead, which this does not match.
+ * `import("@angular/core").InputSignal<…>`, so an inline import is a prefix too.
  */
-const SIGNAL_WRAPPER = /^(?:[A-Za-z_$][\w$]*\.)?(InputSignal|InputSignalWithTransform|ModelSignal|OutputEmitterRef)</;
+const SIGNAL_WRAPPER =
+  /^(?:[A-Za-z_$][\w$]*\.|import\("[^"]+"\)\.)?(InputSignal|InputSignalWithTransform|ModelSignal|OutputEmitterRef)</;
 
 /** Modifiers that may precede a member name in a `.d.ts`. */
 const MODIFIERS = new Set([
