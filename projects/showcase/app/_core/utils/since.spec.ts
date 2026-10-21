@@ -110,9 +110,9 @@ function navRows(): readonly { readonly title: string; readonly url?: string }[]
  * extended to catch.
  *
  * **The two page surfaces are read as TEXT, and that is a constraint rather
- * than a preference.** The suite builds through `lib:build:development`, which is
- * ng-packagr and carries no `projects` Sass include path, so importing any
- * showcase component pulls in a `styleUrl` that opens `@use
+ * than a preference.** The suite builds through `lib:build:development`, the
+ * library target, which carries no `projects` Sass include path, so importing
+ * any showcase component pulls in a `styleUrl` that opens `@use
  * 'lib/styles/breakpoints'` and the build fails before a single spec runs
  * (measured — the error names `doc-page.scss` and `doc-playground.scss`). So
  * these assertions cannot see a broken binding; what they can see, and what the

@@ -55,14 +55,16 @@ A pnpm + Angular CLI monorepo with three projects:
   `ngwr/*` → `./projects/lib/*`, plus the bare `ngwr` → `./projects/lib/public-api.ts`
   (`provideWr`).
 - **`projects/showcase/`** — the docs site (**ngwr.dev**): live demos + API
-  docs, and where components are dogfooded. Docs are organised into five
-  top-level clusters — **start / guides / reference / icons / animations**: API
+  docs, and where components are dogfooded. Docs are organised into six
+  top-level clusters — **docs / guides / reference / charts / icons / bits**:
+  getting-started under `app/docs/`, task guides under `app/guides/`, API
   pages under `app/reference/<cluster>/<name>/` (components, directives, pipes,
-  services, utils, validators, interfaces), task guides under `app/guides/`,
-  getting-started under `app/start/`, the icon-set browsers under `app/icons/`
-  and the animation / visual-effect components under `app/bits/`. Shared
-  doc scaffolding (the `<ngwr-doc-*>` components, services, shiki highlighting)
-  is in `app/_core/` (alias `#core/*`).
+  services, utils, validators, interfaces), the chart family under
+  `app/charts/`, the icon-set browsers under `app/icons/` and the animation /
+  visual-effect components under `app/bits/`; the pre-v15 `/start/*` URLs
+  redirect (`app/routing.ts`). Shared doc scaffolding (the `<ngwr-doc-*>`
+  components, services, shiki highlighting) is in `app/_core/` (alias
+  `#core/*`).
 - **`projects/starter/`** — the StackBlitz starter the docs header and home page
   link to (`stackblitz.com/github/thekhegay/ngwr/tree/main/projects/starter`). A
   standalone npm app on ngwr FROM NPM, with its own `package.json`, `angular.json`
@@ -606,7 +608,7 @@ controls projected into it — the controls themselves do not grow with it.
 | Selector map      | `pnpm gen:selectors` (every `@Component` / `@Directive` selector → symbol + subpath, for the docs' code tabs, `check:attrs` and `gen:install`); `check:selectors` gates the committed copy — a `pnpm lint` stage |
 | Component hooks   | `pnpm gen:css-vars` (the `--wr-<name>-*` each component publishes → the docs' CSS-variables tables); `check:css-vars` gates the committed copy |
 | Dependencies      | `pnpm gen:deps` (each entry point's peers, add-ons, what it is built on and used by → the docs' Dependencies section and See also); `--check` compares the committed copy, but no script or CI step runs it |
-| Quality numbers   | `pnpm gen:quality` (entry points, harnesses, specs, gates — what `/start/quality` binds to)          |
+| Quality numbers   | `pnpm gen:quality` (entry points, harnesses, specs, gates → `#core/generated/quality`, which the home page and the translations guide bind to) |
 | Unit tests        | `pnpm test` (`ng test lib` — vitest via `@angular/build:unit-test`); `pnpm test:watch` |
 
 `pnpm test` runs **vitest** through Angular's `@angular/build:unit-test`
@@ -1212,7 +1214,7 @@ NOT codemodded: adding `()` means knowing which identifiers hold the result, and
 a wrong guess is a silent behaviour change — whereas the type error names every
 site. `useI18nText`, the `wrT` pipe and the `[wrT]` directive are untouched.
 
-Both are still on the user-facing migration guide at `/start/migration`, which
+Both are still on the user-facing migration guide at `/docs/migration`, which
 carries every step back to v6. **The newest section is the one a consumer
 follows** (`ng update ngwr`) — the guide is ordered newest-first for that reason.
 
@@ -1220,8 +1222,8 @@ follows** (`ng update ngwr`) — the guide is ordered newest-first for that reas
 the `NGWR_VERSION` constant, the `SECURITY.md` support table and
 `CHANGELOG.md` are written by `release:prepare`, so read the version from there
 rather than from this file, and never hand-edit any of the four. A FIFTH copy
-is generated rather than written — `#core/generated/quality.ts`, which
-`/start/quality` binds to — and it shipped stale on two consecutive releases
+is generated rather than written — `#core/generated/quality.ts`, which the
+site's printed counts bind to — and it shipped stale on two consecutive releases
 because `release:prepare` did not run `gen:quality`. `release.yml` runs it now,
 in its own step after the bump. Don't bump the
 version by hand either — releases are cut from Actions, by running the "Release
@@ -1801,21 +1803,17 @@ chosen in `_layout/sidebar/entries.ts` — `New` in the primary tone, `Optional`
 and `Soon` neutral — and `showcase/styles/_badge.scss` draws the catalog
 index's marks only.
 
-**Distribution surfaces.** Three pages under `/start` exist for people who have
-not adopted the library yet, and they are held to a different standard than the
-rest of the docs: everything on them has to be checkable, because they are what a
-launch points at. `/start/comparison` argues the wedge (Signal Forms-native value
-controls, no `ControlValueAccessor` anywhere) and names, by competitor, when to
-choose something else; `/start/quality` is the gating story; `/start/playground`
-is the trial surface. **Numbers on those pages bind to
-`#core/generated/quality`, written by `pnpm gen:quality` from the repository** —
-typing one as a literal is how the page starts lying, and the comparison page is
-where a stale figure does the most damage. Two rules learned the hard way here:
-a claim about ngwr's own history must survive `git` (an early draft said
-"zoneless from the first commit", and v5.0.3 has sixteen `@NgModule`s, v6 one,
-with the zoneless bootstrap arriving in v6.1.0 and the last module deleted in
-v7); and a claim about a competitor must be reducible to something observable,
-which in practice means the npm `license` field or a linked issue, never a
+**Claims the site prints.** v15 deleted the comparison, quality and playground
+pages: `/start/comparison`, `/start/quality` and `/start/playground` redirect to
+`/docs/introduction`, and the trial surface is the StackBlitz starter. **A
+number the site shows binds to `#core/generated/quality`, written by
+`pnpm gen:quality` from the repository** — the home page's entry-point count,
+the translations guide's locale list; typed as a literal, it starts lying. Two
+rules from the old comparison page: a claim about ngwr's own history must
+survive `git` (an early draft said "zoneless from the first commit", and v5.0.3
+has sixteen `@NgModule`s, v6 one, with the zoneless bootstrap arriving in v6.1.0
+and the last module deleted in v7); a claim about a competitor must reduce to
+something observable — the npm `license` field or a linked issue, never a
 summary of someone's licensing terms.
 
 **AI assets.** `llms-full.txt` AND the agent skill (`skills/ngwr/SKILL.md` plus
@@ -2097,7 +2095,7 @@ rather than relying on timing. Touch _feel_ ultimately needs a real device.
 - **What exists** → https://ngwr.dev/reference/components, or
   `skills/ngwr/references/catalog.md` (generated from source).
 - **How to consume it** → [README.md](README.md) for install, and
-  https://ngwr.dev/start/installation for the detail.
+  https://ngwr.dev/docs/installation for the detail.
 - **Direction and priorities** → [ROADMAP.md](ROADMAP.md).
 - **A working example of any pattern** → the nearest existing entry point in
   `projects/lib/` and its showcase page. The catalog is large and consistent;

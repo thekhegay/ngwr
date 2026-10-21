@@ -28,14 +28,14 @@ interface ApiClass {
 }
 
 /**
- * Angular's signal wrappers, behind whichever namespace alias ng-packagr used.
+ * Angular's signal wrappers, behind an optional namespace alias.
  *
- * BOTH aliases, which is not decoration: ng-packagr writes `_angular_core` for
- * most of the shipped declarations and `i0` for a couple of dozen of them, and
- * which file gets which moves with every entry point added — so the rule is here
- * and the census deliberately is not. Matching the first alias alone hid every
- * binding in the `i0` files, `WrIcon` among them, whose single required input is
- * the entire component.
+ * Any alias, which is not decoration: ng-packagr, which built the library
+ * through v14, wrote `_angular_core` for most of the shipped declarations and
+ * `i0` for a couple of dozen of them, and matching the first alone hid every
+ * binding in the `i0` files, `WrIcon` among them, whose single required input
+ * is the entire component. `@angular/build:library` writes the wrapper as
+ * `import("@angular/core").InputSignal<…>` instead, which this does not match.
  */
 const SIGNAL_WRAPPER = /^(?:[A-Za-z_$][\w$]*\.)?(InputSignal|InputSignalWithTransform|ModelSignal|OutputEmitterRef)</;
 
@@ -79,7 +79,7 @@ const HIDDEN = new Set(['private', 'protected', 'static']);
  * `protected` declarations into prose.
  *
  * `typescript` would parse this properly and is not an option: this ships inside a
- * package whose only runtime dependency is `tslib`. A scanner over ng-packagr's
+ * package whose only runtime dependency is `tslib`. A scanner over the build's
  * OUTPUT — a generated, regular subset of the language — is the middle path, and
  * it is small enough to reason about.
  */

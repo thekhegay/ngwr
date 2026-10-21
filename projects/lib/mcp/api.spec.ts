@@ -16,7 +16,7 @@ import { type ApiMember, declaredClasses, extractClass } from './api.js';
  * The declaration reader's spec.
  *
  * Every fixture below is emitted-`.d.ts` shape, copied from what ng-packagr
- * actually writes into `dist/lib/types/`: four-space members, both namespace
+ * wrote into `dist/lib/types/` through v14: four-space members, both namespace
  * aliases (`_angular_core.` and `i0.`), `private` fields with no type,
  * constructors, getters, abstract members, and the `ɵcmp` line carrying the
  * input map. A scanner tested against tidied-up TypeScript would pass and then
@@ -29,7 +29,7 @@ import { type ApiMember, declaredClasses, extractClass } from './api.js';
  * inputs in the fixture differ in the map and are identical in the type.
  */
 
-/** A component as ng-packagr flattens it, panel class first so the name-prefix case is real. */
+/** A component as ng-packagr flattened it, panel class first so the name-prefix case is real. */
 const SELECT = `
 import * as _angular_core from '@angular/core';
 
@@ -147,9 +147,9 @@ declare class WrDialog {
 /**
  * An abstract base under the `i0` alias, carrying the shapes that got mangled.
  *
- * ng-packagr writes Angular as `i0` in 25 of the 167 shipped declaration files
- * and as `_angular_core` in the other 99, so a reader that knows only one of
- * them is blind to a sixth of the library. `rowKey` is `wr-table`'s own type,
+ * ng-packagr wrote Angular as `i0` in 25 of the 167 shipped declaration files
+ * and as `_angular_core` in the other 99, so a reader that knew only one of
+ * them was blind to a sixth of the library. `rowKey` is `wr-table`'s own type,
  * and `loading` is its own doc comment — the tag on the same line as the prose,
  * which JSDoc allows and a line-based reader misses.
  */
@@ -761,9 +761,10 @@ describe('extractClass', () => {
  * library it reads is full of the shape in question. They used to read
  * `dist/lib/types/*.d.ts` and skip when it was absent, which was never once
  * satisfied on CI — the suite runs before `build:lib` — so two tests read as
- * coverage while never executing. The class doc comment is what ng-packagr
- * copies into the declaration verbatim, and it is on disk in every checkout, so
- * the same two examples go through the same parser with nothing to skip.
+ * coverage while never executing. The class doc comment is what the library
+ * build copies into the declaration verbatim, and it is on disk in every
+ * checkout, so the same two examples go through the same parser with nothing to
+ * skip.
  */
 /**
  * The workspace root, found by walking UP from the process's working directory.

@@ -43,8 +43,7 @@
   }
 }
 
-.replay,
-.sandbox {
+.replay {
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
@@ -73,24 +72,6 @@
   &:focus-visible {
     outline: 2px solid var(--wr-color-primary);
     outline-offset: 2px;
-  }
-}
-
-// Left over from the StackBlitz button v15 removed: the template renders no
-// `.sandbox`, so this rule and the `.sandbox` half of the one above match
-// nothing. It sat 3.25rem in (the 2rem button, a 0.75rem gutter, a 0.5rem gap)
-// so it never overlapped Replay.
-.sandbox {
-  right: 3.25rem;
-  --wr-icon-size: 1rem;
-
-  &--alone {
-    right: 0.75rem;
-  }
-
-  &:disabled {
-    cursor: progress;
-    opacity: 0.5;
   }
 }
 

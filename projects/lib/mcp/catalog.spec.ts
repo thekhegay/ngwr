@@ -351,7 +351,7 @@ describe('Catalog', () => {
     const catalog = new Catalog(root);
 
     // `ngwr/i18n/en` ships as `types/ngwr-i18n-en.d.ts` — every slash becomes a
-    // dash, which is how ng-packagr flattens them.
+    // dash, which is how the library build flattens them.
     expect(catalog.types('ngwr/i18n/en')).toBe('declare const wrEn: object;\n');
     expect(catalog.types('ngwr/badge')).toBeNull();
   });

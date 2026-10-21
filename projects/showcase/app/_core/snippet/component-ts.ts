@@ -1,13 +1,11 @@
-import { scanTemplate, type SandboxField, type TemplateScan } from './resolve';
+import { scanTemplate, type SandboxField } from './resolve';
 
 /**
  * The TypeScript half of a snippet: a real component around the markup a page
  * shows, with the `imports` resolved from that markup against ngwr's selector
  * map.
  *
- * The docs page shows it on the TS tab beside the HTML. It used to have a
- * second caller, the StackBlitz sandbox v15 removed, which booted the same
- * file; the tab is the only caller now.
+ * The docs page shows it on the TS tab beside the HTML.
  *
  * What it cannot know is the data. A docs snippet is markup; the page owns the
  * values it reads, and the fields below are stubs named after what the markup
@@ -46,8 +44,9 @@ interface ComponentTsOptions {
   readonly doc: readonly string[];
 }
 
-/** Build the component, from a scan the caller already has or from the markup. */
-function buildComponentTs(options: ComponentTsOptions, scan: TemplateScan = scanTemplate(options.template)): string {
+/** Build the component from the markup. */
+function buildComponentTs(options: ComponentTsOptions): string {
+  const scan = scanTemplate(options.template);
   const symbols = [...scan.imports.values()].flat();
   const importLines = [...scan.imports.entries()].map(
     ([path, names]) => `import { ${names.join(', ')} } from '${path}';`
@@ -97,4 +96,4 @@ function buildComponentTs(options: ComponentTsOptions, scan: TemplateScan = scan
   ].join('\n');
 }
 
-export { buildComponentTs, jsdocSafe, SEEDS, type ComponentTsOptions };
+export { buildComponentTs, type ComponentTsOptions };

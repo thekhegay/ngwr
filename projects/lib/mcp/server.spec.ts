@@ -187,7 +187,7 @@ const TABLE_TYPES = [
   ' */',
   'declare class WrTable<T> {',
   ...Array.from({ length: 60 }, (_, index) => [
-    `    /** Binding ${index}: one of the many switches the table carries, documented the way ng-packagr emits it. */`,
+    `    /** Binding ${index}: one of the many switches the table carries, documented the way ng-packagr emitted it. */`,
     `    readonly binding${index}: _angular_core.InputSignal<readonly WrTableColumn[] | null>;`,
   ]).flat(),
   '}',

@@ -7,9 +7,9 @@ import { describe, expect, it } from 'vitest';
 /**
  * The manifest against the code, because nothing else compares them.
  *
- * ng-packagr only polices `dependencies` — an entry point can import a package
- * nobody declared and the build stays green, so the omission surfaces as
- * `ERR_MODULE_NOT_FOUND` in a consumer's app instead. That is how `@angular/forms`
+ * The library build does not hold imports to the manifest — an entry point can
+ * import a package nobody declared and the build stays green, so the omission
+ * surfaces as `ERR_MODULE_NOT_FOUND` in a consumer's app instead. That is how `@angular/forms`
  * (`NgControl` in `ngwr/form`) and `@angular/router` (`RouterLink` in tabs, sidebar,
  * breadcrumbs and loading-bar) shipped undeclared: every `ng new` app happens to
  * have both, so the hole is invisible until someone installs into an app that does
@@ -99,7 +99,8 @@ function importedPackages(): Map<string, string[]> {
       if (specifier.startsWith('.') || specifier.startsWith('node:')) continue;
       if (!SPECIFIER.test(specifier)) continue;
       // `ngwr/*` is this package importing its own sibling entry points — the TS
-      // path mapping resolves it in-tree and ng-packagr rewrites it at build.
+      // path mapping resolves it in-tree, and the build leaves it a bare import
+      // the published `exports` map answers.
       if (specifier === 'ngwr' || specifier.startsWith('ngwr/')) continue;
 
       const name = specifier.startsWith('@') ? specifier.split('/').slice(0, 2).join('/') : specifier.split('/')[0];
@@ -244,8 +245,8 @@ describe('the root entry point', () => {
  * `@use` deduplicates per compilation, and a component's `styleUrl` is its own
  * compilation — so a `styleUrl` whose SCSS pulls in `theme/styles` carries a
  * byte-identical second copy of the `:root` token block, its high-contrast twin
- * and the `wr-` box-sizing reset, which ng-packagr embeds in the FESM bundle as a
- * string and the app build ships as JavaScript. Twenty entry points did: 42 KB
+ * and the `wr-` box-sizing reset, which the library build embeds in the FESM
+ * bundle as a string and the app build ships as JavaScript. Twenty entry points did: 42 KB
  * apiece, 328 token declarations and two `:root` blocks inside the main chunk of an
  * app whose only ngwr component was `<wr-virtual-scroll>`.
  *

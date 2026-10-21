@@ -5,8 +5,8 @@ import type { SelectorRef } from '#core/generated/selectors';
  *
  * Hand-written, and the reason is worth recording: `SELECTORS` is generated
  * from `@Component` / `@Directive` only, so a `@Pipe` is invisible to it. That
- * makes this the one table here that can drift — a renamed pipe shows up as
- * an unresolved name, and the TS tab silently loses its import.
+ * makes this the one table here that can drift — a renamed pipe is simply not
+ * found, and the TS tab silently loses its import.
  * There are eight pipes in `projects/lib` (`grep -rn '@Pipe({' projects/lib`);
  * if that count moves, this list has to move with it.
  */

@@ -7,14 +7,15 @@
 
 /**
  * Measures how the library is gated and writes the numbers into the showcase,
- * so the page at `/start/quality` is a projection of the repository rather than
- * prose somebody has to remember to update.
+ * so a figure the site prints (the home page's entry-point count, the
+ * translations guide's locale list) is a projection of the repository rather
+ * than prose somebody has to remember to update.
  *
  *   pnpm gen:quality       write projects/showcase/app/_core/generated/quality.ts
  *
  * Every field is derived here, at generation time. Nothing is copied out of
- * AGENTS.md, README.md or ROADMAP.md — those are prose, they drift, and a trust
- * page carrying a stale figure is worse than one carrying no figure. The day
+ * AGENTS.md, README.md or ROADMAP.md — those are prose, they drift, and a page
+ * carrying a stale figure is worse than one carrying no figure. The day
  * this was written AGENTS.md said "seventy-four" nested entry points and the
  * tree held 76, which is the whole argument in one line.
  *
@@ -748,8 +749,7 @@ ${gates(f.nightlyGates)}
 /**
  * The locale catalogs, discovered the same way `gen/i18n-json.ts` discovers them
  * — a folder under `i18n/` holding a `public-api.ts` — rather than from a list
- * anyone maintains. `/start/comparison` argues against NG-ZORRO partly on this
- * number, which is the page where a stale figure costs the most.
+ * anyone maintains. The translations guide lists them from here.
  */
 function shippedLocales(): readonly string[] {
   const root = join(LIB, 'i18n');

@@ -1,22 +1,15 @@
 import { PIPES } from './pipes';
-import { checkWellFormed } from './well-formed';
 
 import { SELECTORS, type SelectorRef } from '#core/generated/selectors';
 
 /**
- * Turns a template fragment into everything a synthesised component needs:
- * the `imports: [...]` array, the fields the fragment reads, and the names
- * nothing can resolve. Since v15 removed the StackBlitz sandbox, nothing reads
- * `unresolved` or `blockers`: the "source fallback" the comments below mention
- * was the sandbox's.
+ * Turns a template fragment into what the TS tab's synthesised component
+ * needs: the `imports: [...]` array and the fields the fragment reads.
  *
  * This is a scanner, not a parser. It reads the fragment the way a person
  * skimming it would: tags, attribute names, and the expressions inside
- * bindings. That is enough for a docs excerpt and it is honest about the
- * shapes it cannot see; where it is unsure it reports the name as unresolved,
- * which drops the whole snippet to the source fallback rather than opening an
- * app that will not compile. Failing toward "shows the code" is the only
- * failure a visitor can act on.
+ * bindings. That is enough for a docs excerpt; a name it cannot place is left
+ * out of `imports` rather than guessed at.
  *
  * Known limits, all deliberate:
  *
@@ -26,9 +19,6 @@ import { SELECTORS, type SelectorRef } from '#core/generated/selectors';
  *   and gets stubbed. The docs are on `@if` / `@for` throughout, so this is a
  *   path for pasted third-party code, not for this site.
  * - **`ng-content` selectors and `exportAs` references** are not followed.
- * - **Whether the markup PARSES** is a separate question from whether its names
- *   resolve, and `well-formed.ts` answers it — a docs page can print markup it
- *   never meant to run.
  * - **A required input a snippet leaves out** is not detected. `SELECTORS` maps
  *   a selector to a symbol and says nothing about `input.required`, so
  *   `<wr-table [items]="rows">` with no `[columns]` resolves cleanly into a
@@ -43,12 +33,11 @@ import { SELECTORS, type SelectorRef } from '#core/generated/selectors';
 interface SandboxField {
   readonly name: string;
   /**
-   * How the stub has to behave for the template not to throw, and every kind
-   * past `value` is a blank page someone would otherwise have seen. `object`,
-   * because `{{ user.name }}` on a `null` seed is a TypeError. `list`, because
-   * `wr-table` iterates what it is given. `signal`, because a fragment that
-   * reads `x()` usually writes `x.set($event)` too, and a function has no
-   * `.set`.
+   * How the stub has to behave for the template not to throw once the TS tab's
+   * component is pasted into an app. `object`, because `{{ user.name }}` on a
+   * `null` seed is a TypeError. `list`, because `wr-table` iterates what it is
+   * given. `signal`, because a fragment that reads `x()` usually writes
+   * `x.set($event)` too, and a function has no `.set`.
    */
   readonly kind: 'value' | 'object' | 'list' | 'method' | 'signal';
 }
@@ -57,21 +46,6 @@ interface TemplateScan {
   /** Module path to the symbols imported from it, both sorted. */
   readonly imports: ReadonlyMap<string, readonly string[]>;
   readonly fields: readonly SandboxField[];
-  /** Names that resolve to nothing. Non-empty means: do not build an app. */
-  readonly unresolved: readonly string[];
-  /**
-   * Reasons a fragment cannot be synthesised even though every name resolved.
-   * Also fatal, and phrased as sentences because — unlike an unknown selector —
-   * they are not about a name the reader can look up.
-   */
-  readonly blockers: readonly string[];
-  /**
-   * An icon is drawn somewhere, so the bootstrap owes the app a
-   * `provideWrIcons()` and the manifest a `lucide`. The only need reported from
-   * here: every other provider the generated app installs is unconditional,
-   * because it costs an import line rather than an npm package (see `mainTs`).
-   */
-  readonly needsIcons: boolean;
 }
 
 /**
@@ -104,55 +78,6 @@ const NG_ATTRIBUTES: Readonly<Record<string, SelectorRef>> = {
   ngTemplateOutletContext: { symbol: 'CommonModule', path: '@angular/common' },
   ngComponentOutlet: { symbol: 'CommonModule', path: '@angular/common' },
 };
-
-/**
- * Form bindings a fragment can carry and a synthesised component cannot honour.
- *
- * Every one of them takes an object built in TypeScript the snippet does not
- * show — a `FieldTree` from `form()`, a `FormGroup` — and a stub is not one:
- * `[formGroup]="{}"` throws inside `FormGroupDirective` on the first change
- * detection and `[formField]="undefined"` inside `FormField`. Both are a blank
- * page, which is the failure this module exists to avoid, so a fragment that
- * binds one goes to the source fallback with the reason spelled out. Tier 1 —
- * a snippet that IS a whole component — has the TypeScript and is unaffected,
- * which is where the Signal Forms demos live.
- */
-const FORM_BINDINGS: Readonly<Record<string, string>> = {
-  formField: '`[formField]` binds a Signal Forms field tree, which the snippet builds in TypeScript it does not show.',
-  formRoot: '`[formRoot]` binds a Signal Forms field tree, which the snippet builds in TypeScript it does not show.',
-  formGroup: '`[formGroup]` binds a `FormGroup` the snippet does not show.',
-  formGroupName: '`formGroupName` needs a parent `FormGroup` the snippet does not show.',
-  formArrayName: '`formArrayName` needs a parent `FormArray` the snippet does not show.',
-  formControl: '`[formControl]` binds a `FormControl` the snippet does not show.',
-  formControlName: '`formControlName` needs a parent `FormGroup` the snippet does not show.',
-};
-
-/** Angular's own elements. They need no import and are not custom elements. */
-const NG_TAGS: ReadonlySet<string> = new Set(['ng-container', 'ng-template', 'ng-content']);
-
-/**
- * camelCase DOM properties a template legitimately binds on a plain element.
- *
- * Only needed for the unresolved-name test below: everywhere else an unknown
- * camelCase binding on a bare `<div>` is a directive nobody imported, and
- * Angular refuses to compile it. Kept short on purpose — a name missing here
- * costs a fallback, a name wrongly present costs a broken build.
- */
-const DOM_PROPERTIES: ReadonlySet<string> = new Set([
-  'ariaLabel',
-  'className',
-  'colSpan',
-  'contentEditable',
-  'innerHTML',
-  'innerText',
-  'maxLength',
-  'minLength',
-  'readOnly',
-  'rowSpan',
-  'srcObject',
-  'tabIndex',
-  'textContent',
-]);
 
 /**
  * Inputs across the catalog that take a collection.
@@ -238,8 +163,7 @@ function isObjectKey(expression: string, at: number, end: number): boolean {
  * The lookaround is load-bearing: without it `a || b` reports `b` as a pipe.
  * The first `|` fails (an identifier cannot start with `|`) and the scan simply
  * retries one character later, where `| b` matches perfectly — so `b` would be
- * looked up, missed, and reported as unresolved, dropping a working snippet to
- * the source fallback for a boolean.
+ * taken out of the expression and never stubbed as the field it is.
  */
 function takePipes(expression: string, into: Set<string>): string {
   return expression.replace(/(?<!\|)\|(?!\|)\s*([a-zA-Z_$][\w$]*)/g, (_match, name: string) => {
@@ -359,17 +283,9 @@ function scanTemplate(template: string): TemplateScan {
   const source = template.replace(/<!--[\s\S]*?-->/g, '');
 
   const refs = new Map<string, SelectorRef>();
-  const unresolved = new Set<string>();
-  const blockers = new Set<string>();
-  // `[(ngModel)]` inside a `<form>` needs a `name`, or NgModel throws NG01352
-  // on first render. Collected and judged at the end, because the `<form>` may
-  // be scanned after the control it wraps.
-  let sawForm = false;
-  let namelessNgModel = false;
   const pipes = new Set<string>();
   const reads = new Map<string, SandboxField['kind']>();
   const locals = new Set<string>();
-  let needsIcons = false;
 
   const use = (ref: SelectorRef): void => {
     refs.set(`${ref.path}#${ref.symbol}`, ref);
@@ -379,29 +295,8 @@ function scanTemplate(template: string): TemplateScan {
     const name = tag[1].toLowerCase();
     const attributes = tag[2];
 
-    if (name === 'wr-icon') needsIcons = true;
-    if (name === 'form') sawForm = true;
-
-    let hasNgModel = false;
-    let hasControlName = false;
-
     const element = lookup(SELECTORS.tags, name);
     if (element) use(element);
-    else if (name.includes('-') && !NG_TAGS.has(name)) unresolved.add(`<${name}>`);
-
-    // Whether anything on this element is a directive decides how strict the
-    // camelCase test below can be: on `<wr-btn>` or `<input wrInput>` a
-    // camelCase binding is an input of the thing that is already imported; on a
-    // bare `<div>` it is a directive nobody brought.
-    let elementHasDirective = element !== undefined;
-    const pending: string[] = [];
-    // `<button wr-btn icon="search">` renders a `<wr-icon>` the fragment never
-    // names, so a scan for the TAG alone leaves the generated app without a
-    // registry and the button without its glyph. Deferred rather than decided
-    // in place, because the attribute that identifies the directive may be read
-    // AFTER the icon one — `button[wr-btn]` is the documented spelling and the
-    // element itself resolves to nothing.
-    let iconAttribute = false;
 
     for (const attribute of attributes.matchAll(/([^\s=/]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/g)) {
       const raw = attribute[1];
@@ -417,9 +312,6 @@ function scanTemplate(template: string): TemplateScan {
       }
 
       const { name: plain, bound } = unwrapAttribute(raw);
-      if (plain === 'icon' || plain.endsWith('Icon')) iconAttribute = true;
-      if (plain === 'ngModel') hasNgModel = true;
-      if (plain === 'name' || plain === 'ngModelOptions') hasControlName = true;
       if (bound && value) {
         collectIdentifiers(value, pipes, reads);
         // `[items]="rows"` — a plural input taking a bare name is the one place
@@ -432,51 +324,9 @@ function scanTemplate(template: string): TemplateScan {
       }
       if (isHostBinding(plain)) continue;
 
-      const directive = lookup(SELECTORS.attributes, plain);
-      if (directive) {
-        use(directive);
-        elementHasDirective = true;
-        continue;
-      }
-
-      const blocker = lookup(FORM_BINDINGS, plain);
-      if (blocker !== undefined) {
-        blockers.add(blocker);
-        elementHasDirective = true;
-        continue;
-      }
-
-      const angular = lookup(NG_ATTRIBUTES, plain);
-      if (angular) {
-        use(angular);
-        elementHasDirective = true;
-        continue;
-      }
-
-      // A `wr`-prefixed name the map does not know gets no special treatment,
-      // and an early version that flagged it outright is why: it sent working
-      // snippets to the source fallback in bulk, for names that were never a
-      // problem. Two kinds hide there. `[wrMentionItems]` and
-      // `[wrAffixOffsetTop]` are INPUTS on a directive the same element already
-      // carries — Angular's own naming convention, and covered by the deferred
-      // test below. `wrToolbarStart`, `wrSplitterStart` and `wrCompareBefore`
-      // are not directives at all: they are bare projection markers the parent
-      // reads with `ng-content select`, so they need no import and compile as
-      // plain attributes.
-      if (bound && /[A-Z]/.test(plain) && !DOM_PROPERTIES.has(plain)) pending.push(plain);
+      const directive = lookup(SELECTORS.attributes, plain) ?? lookup(NG_ATTRIBUTES, plain);
+      if (directive) use(directive);
     }
-
-    if (hasNgModel && !hasControlName) namelessNgModel = true;
-    // Only where something on this element takes inputs: `icon` on a bare
-    // `<div>` is a plain attribute nothing reads.
-    if (elementHasDirective && iconAttribute) needsIcons = true;
-    if (!elementHasDirective) for (const name of pending) unresolved.add(`[${name}]`);
-  }
-
-  for (const problem of checkWellFormed(template)) blockers.add(problem);
-
-  if (sawForm && namelessNgModel) {
-    blockers.add('`[(ngModel)]` inside a `<form>` needs a `name`, and the snippet does not give one.');
   }
 
   for (const interpolation of source.matchAll(/\{\{([\s\S]*?)\}\}/g)) {
@@ -487,7 +337,6 @@ function scanTemplate(template: string): TemplateScan {
   for (const pipe of pipes) {
     const ref = lookup(PIPES, pipe);
     if (ref) use(ref);
-    else unresolved.add(`| ${pipe}`);
   }
 
   const imports = new Map<string, readonly string[]>();
@@ -509,9 +358,6 @@ function scanTemplate(template: string): TemplateScan {
   return {
     imports: new Map([...imports.entries()].sort(([a], [b]) => a.localeCompare(b))),
     fields,
-    unresolved: [...unresolved].sort((a, b) => a.localeCompare(b)),
-    blockers: [...blockers].sort((a, b) => a.localeCompare(b)),
-    needsIcons,
   };
 }
 

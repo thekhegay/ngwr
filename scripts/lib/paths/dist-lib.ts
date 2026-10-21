@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-/** Absolute path to the lib's ng-packagr build output. */
+/** Absolute path to the lib's build output (`@angular/build:library`). */
 
 import { resolve } from 'node:path';
 
