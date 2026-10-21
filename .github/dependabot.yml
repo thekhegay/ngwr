@@ -44,6 +44,29 @@ updates:
         patterns:
           - '@types/*'
 
+  # The StackBlitz starter installs ngwr from npm, outside the workspace.
+  - package-ecosystem: 'npm'
+    directory: '/projects/starter'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '08:00'
+      timezone: 'Asia/Almaty'
+    cooldown:
+      default-days: 1
+    ignore:
+      - dependency-name: 'typescript'
+        versions: ['>=6.1']
+    assignees:
+      - 'thekhegay'
+    labels:
+      - 'dependencies'
+      - 'type: chore'
+    groups:
+      starter:
+        patterns:
+          - '*'
+
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
