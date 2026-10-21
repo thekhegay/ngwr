@@ -30,10 +30,11 @@
  *   pnpm tsx scripts/build/schematics.ts
  */
 
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
-import { exit } from 'node:process';
+import { execPath, exit } from 'node:process';
 
 import { buildSymbolMap } from '../lib/build-symbol-map';
 import { err } from '../lib/log/err';
@@ -63,7 +64,10 @@ if (!existsSync(DIST_LIB_PATH)) {
 }
 
 info(`▸ Compiling schematics with ${TSCONFIG}`);
-execSync(`pnpm exec tsc -p ${TSCONFIG}`, { stdio: 'inherit' });
+// This Node runs tsc directly; `pnpm exec` would start pnpm first.
+execFileSync(execPath, [createRequire(import.meta.url).resolve('typescript/bin/tsc'), '-p', TSCONFIG], {
+  stdio: 'inherit',
+});
 
 for (const [src, dst] of ASSETS) {
   const from = resolve(SRC, src);

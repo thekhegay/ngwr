@@ -25,10 +25,11 @@
  *   pnpm tsx scripts/build/mcp.ts
  */
 
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { chmodSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
-import { exit } from 'node:process';
+import { execPath, exit } from 'node:process';
 
 import { err } from '../lib/log/err';
 import { info } from '../lib/log/info';
@@ -46,7 +47,10 @@ if (!existsSync(DIST_LIB_PATH)) {
 }
 
 info(`▸ Compiling the MCP server with ${TSCONFIG}`);
-execSync(`pnpm exec tsc -p ${TSCONFIG}`, { stdio: 'inherit' });
+// This Node runs tsc directly; `pnpm exec` would start pnpm first.
+execFileSync(execPath, [createRequire(import.meta.url).resolve('typescript/bin/tsc'), '-p', TSCONFIG], {
+  stdio: 'inherit',
+});
 
 if (!existsSync(ENTRY)) {
   err(`Expected ${ENTRY} after compiling.`);

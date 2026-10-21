@@ -8,7 +8,7 @@
     "test": "ng test lib",
     "test:coverage": "ng test lib --coverage --coverage-reporters lcovonly text-summary",
     "test:watch": "ng test lib --watch",
-    "lint": "ng lint && eslint scripts && pnpm lint:styles && pnpm check:colors && pnpm check:rtl && pnpm check:tokens && pnpm check:color-only && pnpm check:attrs && pnpm check:install && pnpm check:selectors",
+    "lint": "ng lint && eslint scripts && pnpm lint:styles && pnpm check:colors && pnpm check:rtl && pnpm check:tokens && pnpm check:color-only && pnpm check:selectors && pnpm check:attrs && pnpm check:install",
     "check:colors": "tsx scripts/check/color-parity.ts",
     "check:color-only": "tsx scripts/check/color-only.ts",
     "check:rtl": "tsx scripts/check/rtl.ts",

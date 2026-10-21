@@ -6,7 +6,7 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { exit, stderr } from 'node:process';
+import { execPath, exit, stderr } from 'node:process';
 
 /**
  * Run one step of a build pipeline, and stop the pipeline if it fails.
@@ -37,7 +37,10 @@ export function step(label: string, command: string, args: readonly string[]): v
   }
 }
 
-/** Run a repo script through tsx, which is how every step here is written. */
+/**
+ * Run a repo script through tsx, which is how every step here is written: this
+ * Node with tsx as its loader, rather than a `pnpm exec tsx` that starts pnpm first.
+ */
 export function tsx(label: string, script: string, args: readonly string[] = []): void {
-  step(label, 'pnpm', ['exec', 'tsx', script, ...args]);
+  step(label, execPath, ['--import', 'tsx', script, ...args]);
 }
