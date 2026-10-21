@@ -19,8 +19,9 @@
  * copy-dist-assets) and served from ngwr.dev. They come off ONE `collect()`, so
  * the catalog cannot say two different things in two files.
  *
- * Wired into `build:lib` + `build:showcase`. The output is generated
- * (gitignored) — never hand-edit it; edit this script. (The sitemap is a
+ * Wired into `build:lib` + `build:showcase`. Never hand-edit the output; edit
+ * this script. `llms-full.txt` is gitignored, while `skills/ngwr/` is tracked,
+ * so a regenerated skill is a diff to commit. (The sitemap is a
  * separate post-build step, `scripts/gen/sitemap.ts`, because it needs the
  * prerendered route list, which only exists after the showcase build.)
  *
@@ -404,7 +405,7 @@ function render(entries: readonly Entry[]): string {
  * Floors, set AT the current numbers rather than below them.
  *
  * A floor with slack in it licenses exactly the silent erosion this file exists
- * to prevent — `gen-sitemap.ts` learned that when a rename emptied the sitemap.
+ * to prevent — `gen/sitemap.ts` learned that when a rename emptied the sitemap.
  * Raise these when the catalog grows; a drop is a bug worth failing on.
  *
  * Which is what happened here: these sat at 164 while the package published 202,

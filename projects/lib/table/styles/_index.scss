@@ -484,8 +484,9 @@
     // and it was written, measured and REFUSED — it moves the caret and the
     // funnel apart on a mouse, and the maintainer chose to keep the geometry
     // 14.6.0 draws. So the coarse half ships, the fine-pointer failure is a
-    // decided trade recorded in AGENTS.md and in `scripts/contrast-baseline.json`,
-    // and the table's docs page says so to the reader. Do not re-report it.
+    // decided trade recorded in AGENTS.md and in
+    // `scripts/baselines/contrast.json`, and the table's docs page says so to
+    // the reader. Do not re-report it.
     //
     // 24px rather than the mixin's 44px default, which is a real constraint and
     // not a preference: the halo is centred on the control, so 44 reaches 22px

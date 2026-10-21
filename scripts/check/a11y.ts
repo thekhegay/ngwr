@@ -126,7 +126,8 @@ async function analyse(file: string, findings: Map<string, Finding>): Promise<vo
   // A window per page, deliberately. Reusing one window and swapping its
   // document is the obvious optimisation — it also degrades into an effective
   // hang somewhere past the first few dozen pages, whether or not `axe.teardown()`
-  // runs between them. 211 short-lived windows finish in well under a minute.
+  // runs between them. Short-lived windows get through the whole site in well
+  // under a minute.
   const dom = new JSDOM(html, { pretendToBeVisual: true, runScripts: 'outside-only' });
   const { window } = dom;
 
@@ -225,7 +226,7 @@ async function main(): Promise<void> {
  * Runs the scan in a child process and retries once if that child is killed by a
  * signal rather than exiting.
  *
- * 211 JSDOM windows, each compiling axe into its own V8 context, will very
+ * A JSDOM window per page, each compiling axe into its own V8 context, will very
  * occasionally take the process down with SIGSEGV — roughly one run in six here.
  * A crash carries no verdict, so treating it as a failure means a red build with
  * no rule to point at; treating it as a pass would be worse. Only a signal death

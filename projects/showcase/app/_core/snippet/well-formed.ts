@@ -10,11 +10,12 @@
  * the name scan alone cannot tell them apart from a demo.
  *
  * These three checks are the shapes that turned up when the site's template
- * snippets were run through the sandbox in bulk, each phrased as the Angular
- * error it prevents. They are deliberately conservative in the safe direction:
- * a false positive costs the source fallback, a false negative costs a blank
- * page. (No script reproduces that sweep, so no count is quoted for it — the
- * three examples above are named individually because those can be looked up.)
+ * snippets were run through the StackBlitz sandbox (removed in v15) in bulk,
+ * each phrased as the Angular error it prevents. They were conservative in the
+ * safe direction: a false positive cost the sandbox's source fallback, a false
+ * negative a blank page. (No script reproduces that sweep, so no count is
+ * quoted for it — the three examples above are named individually because
+ * those can be looked up.)
  */
 
 /**

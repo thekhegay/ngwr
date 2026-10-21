@@ -1,8 +1,13 @@
 import type { ShikiLang } from '#core/shiki';
 
+// Left over from the StackBlitz sandbox v15 removed. Nothing outside this
+// folder imports these types, and `SandboxFile` is read only by the equally
+// unused `canSandbox` in `languages.ts`. The comments below describe what the
+// sandbox did with them.
+
 /**
  * One source file exactly as the docs page shows it — the same shape
- * `<ngwr-doc-code>` renders, so a page hands the sandbox what it already has
+ * `<ngwr-doc-code>` renders, so a page handed the sandbox what it already had
  * instead of restating its own snippet in a second place.
  *
  * Structurally identical to `DocCodeFile`, and declared separately anyway: a
@@ -16,7 +21,7 @@ export interface SandboxFile {
   readonly code: string;
 }
 
-/** What a docs page asks the sandbox to open. */
+/** What a docs page asked the sandbox to open. */
 export interface SandboxRequest {
   /** Project title on StackBlitz. Usually the page + section heading. */
   readonly title: string;

@@ -76,7 +76,7 @@ interface Measurement {
  * script rewrites named functions through its own `__name` helper, which does not
  * exist in the browser — a callback with any nested helper dies on
  * `ReferenceError: __name is not defined` at the first call. Injecting a string
- * is how `check-contrast.ts` gets axe in, and it has the same immunity.
+ * is how `check/contrast.ts` gets axe in, and it has the same immunity.
  *
  * Element rects, NOT `scrollWidth`. The obvious measurement is wrong here, and
  * wrong in the one direction that matters: a document's scroll origin is its

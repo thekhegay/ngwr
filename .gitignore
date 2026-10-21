@@ -34,8 +34,8 @@ typings
 Thumbs.db
 
 # Icon reference sets — third-party SVG sources used for redesign work.
-# The top-level _svg/*.svg files (ngwr originals) stay tracked; only the
-# per-source subdirectories are ignored.
+# Only the folder's README.md is tracked; the per-source subdirectories are
+# ignored.
 projects/lib/icon/_svg/lucide/
 projects/lib/icon/_svg/phosphor/
 projects/lib/icon/_svg/tabler/
@@ -51,16 +51,16 @@ projects/lib/icon/_svg/heroicons/
 .gemini/
 .aider*
 
-# Generated AI assets. Both come from scripts/gen-ai-assets.ts, and only ONE of
+# Generated AI assets. Both come from scripts/gen/ai-assets.ts, and only ONE of
 # them is ignored — sitemap.xml is emitted straight into the (ignored) dist by
-# scripts/gen-sitemap.ts.
+# scripts/gen/sitemap.ts.
 #
 # `skills/` used to be listed here too, and it contradicted the repository: the
 # three files under `skills/ngwr/` are TRACKED on purpose, because the skill
 # ships inside the npm tarball and a stale committed copy is a real failure —
 # it once sat two entry points behind for a whole release. Since .gitignore
 # does not apply to files already tracked, the rule changed nothing for those
-# three and only armed a trap for the fourth: `gen-ai-assets.ts` deletes and
+# three and only armed a trap for the fourth: `gen/ai-assets.ts` deletes and
 # recreates that directory on every build, so a NEW reference file would have
 # been ignored, never committed, and shipped from disk by copy-dist-assets
 # while the repository knew nothing about it.

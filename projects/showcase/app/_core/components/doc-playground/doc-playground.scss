@@ -34,9 +34,9 @@
     border-bottom: 1px solid var(--wr-border-base);
   }
 
-  // A playground with nothing projected. `:empty` counts the Replay and
-  // sandbox buttons as content, so it has only ever matched a card with
-  // neither — which no page on the site is: all 29 usages project a demo
+  // A playground with nothing projected. `:empty` counts the Replay button as
+  // content, so it only matches a card with neither a demo nor Replay — which
+  // no page on the site is: all 29 usages project a demo
   // (`grep -ro '<ngwr-doc-playground' projects/showcase --include='*.html' | wc -l`).
   &:empty {
     display: none;
@@ -76,11 +76,10 @@
   }
 }
 
-// Two absolutely positioned buttons rather than a flex row: `.replay`'s corner
-// is the one every animation page already reads as "the control", so the
-// sandbox steps aside for it and only takes the corner when Replay is off.
-// 3.25rem = the 2rem button plus a 0.75rem gutter and a 0.5rem gap, which keeps
-// the two from overlapping — `target-size` measures the box a neighbour leaves.
+// Left over from the StackBlitz button v15 removed: the template renders no
+// `.sandbox`, so this rule and the `.sandbox` half of the one above match
+// nothing. It sat 3.25rem in (the 2rem button, a 0.75rem gutter, a 0.5rem gap)
+// so it never overlapped Replay.
 .sandbox {
   right: 3.25rem;
   --wr-icon-size: 1rem;

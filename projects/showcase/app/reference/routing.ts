@@ -24,8 +24,9 @@ const reference = ROUTES.reference;
  * costs: `/reference/components` answered with the Button page, so the list of
  * components existed only in the sidebar — unreachable from a search result,
  * and absent from the markdown twins entirely. A redirect also prerenders as a
- * meta-refresh stub, which `gen-md-docs.ts` skips, so `/reference/utils.md` and
- * its four siblings answered 200 with the SPA shell rather than markdown.
+ * meta-refresh stub, which `scripts/gen/md-docs.ts` skips, so
+ * `/reference/utils.md` and its four siblings answered 200 with the SPA shell
+ * rather than markdown.
  *
  * Every one of them lists `REFERENCE_SIDEBAR` — the component narrows it to the
  * links under the route's own path (see `doc-index.ts`), so there is one source

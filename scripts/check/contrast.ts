@@ -124,16 +124,10 @@ type ContrastMode = (typeof CONTRAST_MODES)[number];
 
 /**
  * axe is evaluated inside the page rather than imported here — same reason as
- * `check-a11y.ts`: it binds `window` / `document` at module evaluation time.
+ * `check/a11y.ts`: it binds `window` / `document` at module evaluation time.
  */
 const AXE_SOURCE = readFileSync(createRequire(import.meta.url).resolve('axe-core'), 'utf8');
 
-/**
- * The pages carry `<base href="/">`, so `file://` cannot resolve a single
- * stylesheet — without a server every page would be analysed unstyled, which is
- * the very thing this script exists to avoid. Hence ~40 lines of static server
- * rather than a dependency.
- */
 interface Finding {
   readonly rule: string;
   readonly impact: ImpactValue | null | undefined;
@@ -166,7 +160,6 @@ const readBaseline = (): Baseline => {
   }
 };
 
-/** Every canonical route, redirect stubs dropped. */
 async function audit(
   page: Page,
   origin: string,

@@ -5,8 +5,10 @@ import { SELECTORS, type SelectorRef } from '#core/generated/selectors';
 
 /**
  * Turns a template fragment into everything a synthesised component needs:
- * the `imports: [...]` array, the fields the fragment reads, and — the part
- * that decides whether a sandbox opens at all — the names nothing can resolve.
+ * the `imports: [...]` array, the fields the fragment reads, and the names
+ * nothing can resolve. Since v15 removed the StackBlitz sandbox, nothing reads
+ * `unresolved` or `blockers`: the "source fallback" the comments below mention
+ * was the sandbox's.
  *
  * This is a scanner, not a parser. It reads the fragment the way a person
  * skimming it would: tags, attribute names, and the expressions inside
@@ -29,8 +31,8 @@ import { SELECTORS, type SelectorRef } from '#core/generated/selectors';
  *   never meant to run.
  * - **A required input a snippet leaves out** is not detected. `SELECTORS` maps
  *   a selector to a symbol and says nothing about `input.required`, so
- *   `<wr-table [items]="rows">` with no `[columns]` resolves cleanly and then
- *   fails to compile in the sandbox. Closing it means teaching
+ *   `<wr-table [items]="rows">` with no `[columns]` resolves cleanly into a
+ *   component that would not compile. Closing it means teaching
  *   `scripts/lib/build-selector-map.ts` to emit required inputs.
  * - **Anything a `<script>`-side value supplies** — an `input()` on the page
  *   component, an injected service — cannot be recovered from the fragment, so

@@ -83,7 +83,8 @@ const TSCONFIG = resolve(ROOT, 'projects', 'lib', 'mcp', 'tsconfig.json');
 const PACKAGE_VERSION = '9.9.9-fixture';
 
 /**
- * The catalog the fixture answers from, in `gen-ai-assets.ts`'s own format.
+ * The catalog the fixture answers from, in `scripts/gen/ai-assets.ts`'s own
+ * format.
  *
  * Three entry points, chosen for what the wire tests ask of them: `select` for a
  * class with a full API surface, `table` for the biggest answer the server has,
@@ -208,8 +209,8 @@ beforeAll(() => {
   // a compiler that cannot be found must not read as a suite with nothing to do.
   execFileSync(process.execPath, [TSC, '-p', TSCONFIG, '--outDir', join(root, 'mcp')], { stdio: 'pipe' });
   // A `bin` has to name its interpreter and be executable, and tsc emits
-  // neither, so `build-mcp.ts` adds both after compiling. What ships is what
-  // should be under test.
+  // neither, so `scripts/build/mcp.ts` adds both after compiling. What ships is
+  // what should be under test.
   writeFileSync(server, `#!/usr/bin/env node\n${readFileSync(server, 'utf8')}`);
   chmodSync(server, 0o755);
 

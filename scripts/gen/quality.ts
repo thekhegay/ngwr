@@ -746,7 +746,7 @@ ${gates(f.nightlyGates)}
 }
 
 /**
- * The locale catalogs, discovered the same way `gen-i18n-json.ts` discovers them
+ * The locale catalogs, discovered the same way `gen/i18n-json.ts` discovers them
  * — a folder under `i18n/` holding a `public-api.ts` — rather than from a list
  * anyone maintains. `/start/comparison` argues against NG-ZORRO partly on this
  * number, which is the page where a stale figure costs the most.

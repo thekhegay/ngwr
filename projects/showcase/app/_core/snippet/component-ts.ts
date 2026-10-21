@@ -5,11 +5,9 @@ import { scanTemplate, type SandboxField, type TemplateScan } from './resolve';
  * shows, with the `imports` resolved from that markup against ngwr's selector
  * map.
  *
- * One builder with two callers, deliberately. The sandbox writes this file into
- * the StackBlitz project, and the docs page shows it on the TS tab beside the
- * HTML — and the whole value of the tab is that it is the same code the sandbox
- * would run. Two builders would be two answers to one question, and the one a
- * visitor reads would be the one nobody boots.
+ * The docs page shows it on the TS tab beside the HTML. It used to have a
+ * second caller, the StackBlitz sandbox v15 removed, which booted the same
+ * file; the tab is the only caller now.
  *
  * What it cannot know is the data. A docs snippet is markup; the page owns the
  * values it reads, and the fields below are stubs named after what the markup

@@ -17,7 +17,7 @@
  *
  * Runs AFTER `build:showcase`, converting the PRERENDERED HTML rather than the
  * page sources. That direction is deliberate, and is the same lesson
- * `gen-sitemap.ts` records: a generator that re-reads `app/` re-implements the
+ * `gen/sitemap.ts` records: a generator that re-reads `app/` re-implements the
  * docs IA and drifts the first time something is renamed. The rendered page
  * cannot drift from what shipped — if a section stops rendering, its markdown
  * disappears with it, and the floor check below turns that into a failed build.

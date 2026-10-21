@@ -16,12 +16,13 @@ import { REQUIRED_PROVIDERS } from './providers.js';
  * Every line in the provider table, checked against the library's real exports.
  *
  * This table is copy-paste code: `get_ngwr_setup` prints it, and
- * `gen-ai-assets.ts` writes the same strings into `skills/ngwr/SKILL.md`. Both
- * of those only ever checked that the string SURVIVES, which cannot tell a
- * snippet that compiles from one that does not — and under that check the date
- * rule shipped `provideWrDateAdapter(wrDateFnsAdapter)` from the since-deleted
- * date-fns entry point, naming two identifiers it never exported, with a call
- * shape the real `provideWrDateAdapter` would reject anyway.
+ * `scripts/gen/ai-assets.ts` writes the same strings into
+ * `skills/ngwr/SKILL.md`. Both of those only ever checked that the string
+ * SURVIVES, which cannot tell a snippet that compiles from one that does not —
+ * and under that check the date rule shipped
+ * `provideWrDateAdapter(wrDateFnsAdapter)` from the since-deleted date-fns
+ * entry point, naming two identifiers it never exported, with a call shape the
+ * real `provideWrDateAdapter` would reject anyway.
  *
  * So the assertion is the one a reader makes when they paste the line: does the
  * entry point named in the comment exist, and does it export what the code

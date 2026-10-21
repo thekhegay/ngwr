@@ -27,8 +27,8 @@ function toClassName(slug: string): string {
  *
  * Derived rather than authored, which is the whole point: a TS tab written by
  * hand on each of the hundred-odd pages would be a hundred chances to drift
- * from the demo beside it. The builder is the one the StackBlitz sandbox uses,
- * so the tab shows code known to boot rather than a plausible transcription.
+ * from the demo beside it. The builder resolves the `imports` from the markup
+ * against the generated selector map rather than transcribing them by hand.
  *
  * Returns the page's own `files` untouched when it passed any — a page that
  * lists its files has said what it wants shown — and `null` for a snippet that

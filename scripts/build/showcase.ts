@@ -12,12 +12,14 @@
  * because the order is not incidental — it splits in two around the build, and
  * the chain had no way to say so:
  *
- * **Before.** Four generators write TypeScript the app IMPORTS. `gen-selectors`
- * and `gen-css-vars` feed the sandbox and the CSS-variables tables,
- * `gen-quality` feeds every number on `/start/quality`, and `gen-ai-assets`
- * writes `llms-full.txt` and the agent skill. Run one of them after the build
- * and the site ships the previous run's data — a failure with no error, which is
- * the shape this repository keeps finding.
+ * **Before.** Four generators write what the site ships. Three write TypeScript
+ * the app IMPORTS — `gen:selectors` the map the code tabs resolve imports
+ * against, `gen:css-vars` the CSS-variables tables, `gen:quality` the numbers
+ * the home page and guides bind to — and `gen:ai-assets` writes `llms-full.txt`
+ * and the agent skill. Run one of them after the build and the site ships the
+ * previous run's data — a failure with no error, which is the shape this
+ * repository keeps finding. The other files in `_core/generated` are committed
+ * and are not rewritten here.
  *
  * **After.** Two generators read what the build PRODUCED. The sitemap and the
  * per-page markdown twins are both derived from the prerendered route list, so
@@ -25,7 +27,7 @@
  * an earlier version read `app/` instead, and a folder rename emptied it in
  * silence.
  *
- * `build-showcase-app.ts` is the middle step and stays its own file: it is the
+ * `build/showcase-app.ts` is the middle step and stays its own file: it is the
  * guarded `ng build showcase` — the one that fails the build on a prerender
  * error the Angular builder reports and then exits 0 about — and
  * `archive-docs.yml` calls it directly with its own `--base-href`, wanting the
@@ -41,7 +43,7 @@ import { tsx } from '../lib/run/step';
 
 const forwarded = argv.slice(2);
 
-// Inputs the app imports. Generated first, or the site is built from the last run's data.
+// Inputs the site ships. Generated first, or the site is built from the last run's data.
 tsx('gen:selectors', 'scripts/gen/selectors.ts');
 tsx('gen:css-vars', 'scripts/gen/css-vars.ts');
 tsx('gen:quality', 'scripts/gen/quality.ts');

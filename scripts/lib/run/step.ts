@@ -19,7 +19,7 @@ import { execPath, exit, stderr } from 'node:process';
  *
  * `stdio: 'inherit'` on purpose, so a pipeline looks exactly like the chain it
  * replaces: progress streams live, colour survives, and a step that wants to
- * read its own output (`build-showcase-app.ts` greps for prerender errors)
+ * read its own output (`build/showcase-app.ts` greps for prerender errors)
  * keeps doing that for itself rather than through here.
  */
 export function step(label: string, command: string, args: readonly string[]): void {

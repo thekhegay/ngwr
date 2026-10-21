@@ -48,7 +48,7 @@ const MATCH: IsActiveMatchOptions = {
  * Two mechanical edits per strip, both codemoddable: the symbol in `imports`,
  * and `wrTabsRouting` on the element. An attribute rather than a selector on
  * `wr-tabs` itself, for two reasons — where the router enters a template should
- * be visible in that template, and the sandbox's selector map keys a `wr-` tag
+ * be visible in that template, and the docs' selector map keys a `wr-` tag
  * even when it is qualified, so `wr-tabs[wrTabsRouting]` would be a second claim
  * on the `wr-tabs` tag. Putting it on an ANCESTOR of the strip also works: the
  * token is read through the element injector, which walks up.

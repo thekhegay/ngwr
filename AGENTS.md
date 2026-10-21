@@ -75,13 +75,16 @@ A pnpm + Angular CLI monorepo with three projects:
   properties, `--wr-*`) and SCSS mixins under `theme/styles/`. Not a component.
 - **`scripts/`** — build/release tooling, run via `tsx`, **one directory per
   verb since v15**: `build/` (lib, showcase, schematics, MCP server, icon sets,
-  dist-asset copy), `check/` (every gate), `gen/` (every generated file),
+  dist-asset copy), `check/` (standalone gates), `gen/` (every generated file),
   `release/`, plus `baselines/` for the four recorded JSON files and `lib/` for
   shared code. The name used to carry the verb as a prefix —
-  `scripts/check-rtl.ts` is now `scripts/check/rtl.ts` — and a `check:x` script
-  runs `scripts/check/x.ts` with one exception that is deliberate:
-  `check:selectors` is `gen/selectors.ts --check`, because a generator that can
-  verify its own output is one file, not two.
+  `scripts/check-rtl.ts` is now `scripts/check/rtl.ts`. A `check:x` script runs
+  either a file in `check/` or a generator's own `--check`, because a generator
+  that can verify its output is one file, not two: `check:selectors`,
+  `check:css-vars`, `check:install` and `check:api-docs` are
+  `gen/<name>.ts --check`, and `check:llms` is `gen/ai-assets.ts --check`. Two
+  check files differ from their script's name: `check:colors` runs
+  `check/color-parity.ts`, `check:attrs` runs `check/unknown-attrs.ts`.
   **Four browser-driven checks share `scripts/lib/dist-site.ts`** — the static
   server over `dist/showcase`, the route list, the "did you build it" guard.
   They had four copies of each, and the MIME tables had drifted: `check:layout`
@@ -597,12 +600,12 @@ controls projected into it — the controls themselves do not grow with it.
 | Dead-token gate   | `pnpm check:tokens` (a `--wr-*` nothing paints with, unless it says `unused-ok:` — a `pnpm lint` stage) |
 | Colour-only gate  | `pnpm check:color-only` (a state modifier, hand-written or unrolled from an `@each`, whose own declarations are all colour, with no `color-ok:` reason; a loop whose list it cannot resolve, or a modifier still interpolated after unrolling, needs one too — a `pnpm lint` stage) |
 | RTL layout sweep  | `pnpm check:rtl-layout` (Chromium, LTR vs RTL overflow per route — **nightly**, not a PR gate)      |
-| Layout geometry   | `pnpm check:layout` (box sizes vs `layout-baseline.json`; `--update` re-records — **nightly**)        |
+| Layout geometry   | `pnpm check:layout` (box sizes vs `scripts/baselines/layout.json`; `--update` re-records — **nightly**)        |
 | API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
 | llms-full.txt     | `pnpm check:llms` (entry-point coverage floors for the generated AI asset)                           |
-| Selector map      | `pnpm gen:selectors` (every `@Component` / `@Directive` selector → symbol + subpath, for the sandbox); `check:selectors` gates the committed copy — a `pnpm lint` stage |
+| Selector map      | `pnpm gen:selectors` (every `@Component` / `@Directive` selector → symbol + subpath, for the docs' code tabs, `check:attrs` and `gen:install`); `check:selectors` gates the committed copy — a `pnpm lint` stage |
 | Component hooks   | `pnpm gen:css-vars` (the `--wr-<name>-*` each component publishes → the docs' CSS-variables tables); `check:css-vars` gates the committed copy |
-| Dependencies      | `pnpm gen:deps` (each entry point's peers, add-ons, what it is built on and used by → the docs' Dependencies section and See also); `--check` gates the committed copy |
+| Dependencies      | `pnpm gen:deps` (each entry point's peers, add-ons, what it is built on and used by → the docs' Dependencies section and See also); `--check` compares the committed copy, but no script or CI step runs it |
 | Quality numbers   | `pnpm gen:quality` (entry points, harnesses, specs, gates — what `/start/quality` binds to)          |
 | Unit tests        | `pnpm test` (`ng test lib` — vitest via `@angular/build:unit-test`); `pnpm test:watch` |
 
@@ -816,18 +819,22 @@ of those readings on its own fixtures (`SELF_TEST`) before it judges the tree,
 because every one of them once passed a colour-only rule green) `&&`
 `check:selectors` (`scripts/gen/selectors.ts --check` — the committed
 `#core/generated/selectors.ts` against what the generator produces now, the same
-`--check` shape `gen-css-vars.ts` and `gen-api-docs.ts` use. It reads source and
+`--check` shape `gen/css-vars.ts` and `gen/api-docs.ts` use. It reads source and
 `projects/lib/package.json` only, which is why it is a lint stage where
 `check:css-vars` is a CI step. Before it existed the generator wrote the file
 unconditionally, so a run meant to inspect the drift created it instead, and a
 stale copy sat in the tree for two days after a `lucide` bump. **Keep the root
-`package.json` out of the generated map**: it carried `lucide`'s range for the
-sandbox, so every Dependabot bump of it failed this stage until someone
-regenerated. The sandbox imports that range from the manifest instead
-(`sandbox/project.ts`), and the bundler inlines it) — and the last
-stages are the ones that most often turn a green-looking run red. The first stage prints
-`All files pass linting.` even when a _later_ stage fails — so **verify by exit
-code, never by grepping the output**:
+`package.json` out of the generated map**: it once carried `lucide`'s range, so
+every Dependabot bump of it failed this stage until someone regenerated. It
+runs before the next two stages because both read that map) `&&` `check:attrs`
+(`scripts/check/unknown-attrs.ts` — a STATIC attribute on an ngwr element that
+is none of its inputs, which `strictTemplates` accepts because an unknown
+attribute on a custom element is legal HTML) `&&` `check:install`
+(`scripts/gen/install.ts --check` — the committed `#core/generated/install.ts`
+against the generator) — and the last stages are the ones that most often turn
+a green-looking run red. The first stage prints `All files pass linting.` even
+when a _later_ stage fails — so **verify by exit code, never by grepping the
+output**:
 
 ```sh
 pnpm lint; echo $?     # 0 = actually green
@@ -1228,11 +1235,11 @@ every configuration may stage by default, so that holds only while no
 configuration on the package allows a direct publish. ngwr.dev deploys from the
 same push, and the `production` environment that deploy runs in requires the
 maintainer's approval too: approve the npm stage first and the deploy second,
-or the site, its "Added in" marks and its StackBlitz sandbox run one version
-ahead of npm. Before any of that, `publish.yml` runs `pnpm release:check`: the
-CHANGELOG section is written when the release PR is cut, so a feat or fix
-merged into main afterwards would ship in the tag with no line anywhere, and
-the job refuses until the Release PR workflow is run again with the same bump.
+or the site and its "Added in" marks run one version ahead of npm. Before any
+of that, `publish.yml` runs `pnpm release:check`: the CHANGELOG section is
+written when the release PR is cut, so a feat or fix merged into main
+afterwards would ship in the tag with no line anywhere, and the job refuses
+until the Release PR workflow is run again with the same bump.
 
 **Whether a major ships a codemod is decided by one rule, and the rule is about
 the SHAPE of the break rather than its size: a codemod runs when the new form
@@ -1441,10 +1448,10 @@ baseline is keyed `${rule} (${theme}, ${mode})` and only a sweep that is full on
 BOTH axes may report an entry as gone.
 
 **`check:contrast` gates on ROUTE COUNTS per rule, not on nodes**, so a brand-new
-violation on a route already in `contrast-baseline.json` passes silently. That is
-not hypothetical: the dark `primary` deepening broke `wr-calendar__day--today`
-(4.06:1), the calendar route was already baselined for its
-`--out-of-month` days, the route count did not move, and the sweep printed
+violation on a route already in `scripts/baselines/contrast.json` passes
+silently. That is not hypothetical: the dark `primary` deepening broke
+`wr-calendar__day--today` (4.06:1), the calendar route was already baselined
+for its `--out-of-month` days, the route count did not move, and the sweep printed
 `✓ No new contrast or target-size violations`. It was found by probing the element
 directly. **When you change a token, measure the elements you changed** — a green
 sweep only means no NEW route started failing.
@@ -1631,11 +1638,12 @@ the pixel.
 The every-pointer version was written and measured first (a real 24px box on
 each control, the row's gap cancelled with a negative margin) and refused,
 because it spaces the caret and the funnel in every desktop table and dense data
-tables are laid out around that header. So `contrast-baseline.json` carries
-/reference/components/table on all four `target-size` keys, each from 1 to 2 —
-the other route is the carousel's dots — and the table's docs page states it for
-consumers. **A coarse-pointer axe run DOES measure the half that was fixed, and
-it measures it through the gap rather than through the halo.** The halo is an
+tables are laid out around that header. So `scripts/baselines/contrast.json`
+carries /reference/components/table on all four `target-size` keys, each from
+1 to 2 — the other route is the carousel's dots — and the table's docs page
+states it for consumers. **A coarse-pointer axe run DOES measure the half that
+was fixed, and it measures it through the gap rather than through the halo.**
+The halo is an
 `::after`, which enters no `getBoundingClientRect`, so axe reads the control's
 own 12x12 in both pointer modes and never sees it — but under a coarse pointer
 the pair PASSES `target-size` outright on 2.5.8's spacing exception, because the
@@ -1809,40 +1817,6 @@ with the zoneless bootstrap arriving in v6.1.0 and the last module deleted in
 v7); and a claim about a competitor must be reducible to something observable,
 which in practice means the npm `license` field or a linked issue, never a
 summary of someone's licensing terms.
-
-**The StackBlitz sandbox works, and the two things that broke it are worth
-knowing.** `projects/showcase/app/_core/sandbox/` turns any docs snippet into a
-complete Angular 22 workspace — three tiers (the snippet already is a component
-/ it is a template fragment whose `imports` resolve against `pnpm
-gen:selectors`' map / neither, so render the source and say why) — and hands it
-to StackBlitz by a plain form POST with no SDK dependency. It has been watched
-booting end to end: install, `ng serve`, bundle complete in ~26 s, demo painted.
-Cold path is about two and a half minutes.
-
-It failed twice first, and both causes were in the workspace this repo emits,
-not in the container. **One: no `development` configuration**, so `ng serve` ran
-the OPTIMIZED build every start — the dev server prints "Prebundling has been
-configured but will not be used because scripts optimization is enabled" — and
-that path dies in rolldown on rxjs's circular ESM
-(`rxjs/dist/esm/internal/scheduled/scheduled.js`). **Two: `@use 'ngwr';`**,
-which compiled every component stylesheet in the package for a two-element demo and hit an
-out-of-memory error; narrowed to the entry points the snippet renders, the CSS
-goes from 287 kB to 44 kB. That measurement is why v15 deleted the umbrella
-outright — the sandbox was simply the first consumer to pay for it. Both fixes are the right thing for a generated
-project anyway, which is the tell that they were defects rather than
-workarounds. `STYLE_ENTRY_POINTS` in the generated selector map is what makes
-the narrowing safe: `@use` on an entry point with no `styles/_index.scss`
-(`ngwr/date`, `ngwr/utils`) is a build error, not a no-op.
-
-Two more traps it caught, worth keeping in mind for anything that generates a
-bootstrap: a provider whose absence is a `NullInjectorError` (`Router`, which
-`projects/lib/sidebar/sidebar.ts` injects non-optionally) cannot be inferred
-from markup, so it is emitted unconditionally and only `provideWrIcons` is
-gated, because it is the only one that costs an npm package; and
-`provideRouter([])` alone throws `NG04002` on bootstrap, so it carries
-`withDisabledInitialNavigation()`.
-**One observation is not a guarantee** — if you change what the generator emits,
-watch one boot again rather than assuming.
 
 **AI assets.** `llms-full.txt` AND the agent skill (`skills/ngwr/SKILL.md` plus
 `references/{catalog,setup}.md`) regenerate from library source on every build,

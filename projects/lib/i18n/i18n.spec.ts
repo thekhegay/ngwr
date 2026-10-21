@@ -593,11 +593,11 @@ describe('the shipped catalogs', () => {
    * it — and this is what says so.
    *
    * A locale added without one is checked by nothing at all, and it would not
-   * look wrong from anywhere: the package builds, `gen-i18n-json.ts` discovers
-   * the folder on its own and emits its JSON, and the app renders whatever is
-   * in it. Same rule `check:layout` follows for a target that matches nothing —
-   * a gate that quietly stops looking at something is worse than one that
-   * fails.
+   * look wrong from anywhere: the package builds, `scripts/gen/i18n-json.ts`
+   * discovers the folder on its own and emits its JSON, and the app renders
+   * whatever is in it. Same rule `check:layout` follows for a target that
+   * matches nothing — a gate that quietly stops looking at something is worse
+   * than one that fails.
    *
    * Anchored on the workspace root walked up from `process.cwd()`, never on
    * `import.meta.url`: the builder bundles specs, and that URL points inside

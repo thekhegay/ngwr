@@ -20,10 +20,10 @@ import type { SidebarLink } from '#types';
  * a list answered with a single component out of eighty-four.
  *
  * It also closes a quieter defect. A redirect prerenders as a meta-refresh
- * stub, `gen-md-docs.ts` skips those, and the SPA fallback then answered
- * `/reference/validators.md` with 301 KB of `text/html` — HTTP 200, for a URL
- * whose whole convention promises markdown. A real page at the route gives the
- * generator something to convert.
+ * stub, `scripts/gen/md-docs.ts` skips those, and the SPA fallback then
+ * answered `/reference/validators.md` with 301 KB of `text/html` — HTTP 200,
+ * for a URL whose whole convention promises markdown. A real page at the route
+ * gives the generator something to convert.
  *
  * Content comes from route `data.index` (see {@link DocIndexData}); the groups
  * are the section's OWN sidebar config, narrowed to the links under this

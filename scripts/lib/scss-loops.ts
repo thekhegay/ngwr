@@ -14,7 +14,7 @@
  * names it stands for, so a concretely-named declaration can be seen as painted
  * with; `check:color-only` unrolls `&--#{$name}` into the nine modifiers it
  * emits, so each can be judged on its own declarations. The resolution used to
- * live inside `check-tokens.ts`, and a second copy in the colour gate would be
+ * live inside `check/tokens.ts`, and a second copy in the colour gate would be
  * two readings of one loop: a list one of them drops and the other expands is a
  * token called alive by the first and a rule the second never looks at, with
  * both runs green. So it lives here once and both import it.

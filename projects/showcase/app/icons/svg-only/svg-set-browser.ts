@@ -38,7 +38,7 @@ export interface SvgSetSpec {
 })
 export class SvgSetBrowser {
   readonly spec = input.required<SvgSetSpec>();
-  /** `{ name: rawSvg }` catalog produced by `build-icon-sets.mjs`. */
+  /** `{ name: rawSvg }` catalog produced by `scripts/build/icon-sets.mjs`. */
   readonly data = input.required<Record<string, string>>();
 
   protected readonly icons = computed<readonly IconEntry[]>(() =>

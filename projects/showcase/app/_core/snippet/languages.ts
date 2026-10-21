@@ -3,11 +3,9 @@ import type { SandboxFile } from './types';
 import type { ShikiLang } from '#core/shiki';
 
 /**
- * Which snippet languages can become a running app, and the reason this module
- * is deliberately tiny: the "Open in StackBlitz" button asks the question on
- * every docs page, so the answer has to be reachable without pulling in the
- * selector map or the project builder. Everything heavy sits behind the
- * dynamic import in {@link SandboxService.open}.
+ * Which snippet languages are template markup or TypeScript. `useExampleFiles`
+ * asks on every docs page whether a snippet gets a TS tab, so this stays free
+ * of the selector map.
  */
 
 /** Angular templates — the fragment shape most snippets on the site are. */
@@ -21,12 +19,9 @@ const isTemplateLanguage = (language: ShikiLang): boolean => TEMPLATE.has(langua
 const isTypeScriptLanguage = (language: ShikiLang): boolean => TYPESCRIPT.has(language);
 
 /**
- * Whether a sandbox is worth offering at all.
- *
- * `bash`, `scss`, `diff` and `markdown` snippets are not code an app can run —
- * a `ng add ngwr` transcript opened as an Angular project is noise, and an
- * empty preview pane reads as a broken feature rather than an inapplicable
- * one. So the button is absent there, not disabled: nothing to explain.
+ * Whether the StackBlitz button was worth offering for a snippet: only for
+ * template or TypeScript code, never for `bash`, `scss`, `diff` or `markdown`.
+ * Left over from the sandbox v15 removed; nothing imports it.
  */
 const canSandbox = (files: readonly SandboxFile[]): boolean =>
   files.some(f => f.code.trim().length > 0 && (isTemplateLanguage(f.language) || isTypeScriptLanguage(f.language)));

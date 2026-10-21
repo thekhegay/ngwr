@@ -21,12 +21,6 @@
   // Collapse when nothing is projected (a code-only snippet). The demo is now
   // wrapped for the phone frame, so `:empty` no longer matches — key off the
   // screen having no element children instead.
-  //
-  // This takes the actions row down with it, so a code-only snippet has no
-  // "Open in StackBlitz" affordance even when its source would run. Left that
-  // way deliberately: the alternative is a 2.75rem band of chrome over an empty
-  // box on every one of those pages, to reach a snippet the reader is looking
-  // at as reference rather than as a demo.
   &:not(:has(.demo__screen > *)) {
     display: none;
   }
@@ -46,7 +40,11 @@
   }
 }
 
-// Demo actions — StackBlitz, phone-frame preview ----------------------------
+// Demo actions ---------------------------------------------------------------
+//
+// Left over from the StackBlitz button and the phone-frame toggle v15 removed.
+// The template renders no `.demo__actions`, so these rules, the
+// `:has(.demo__actions)` band above and `.demo--framed` below match nothing.
 
 .demo__actions {
   position: absolute;
@@ -102,8 +100,8 @@
     box-shadow: 0 0 0 var(--wr-focus-ring-offset) var(--wr-focus-ring-halo);
   }
 
-  // Only reachable while the sandbox chunk is in flight — a fraction of a
-  // second, and only on the first click of a session.
+  // Was reachable only while the sandbox chunk loaded, on the first click of a
+  // session.
   &:disabled {
     cursor: progress;
     opacity: 0.35;

@@ -13,13 +13,13 @@
  * `ng build lib` reads or writes `dist/lib`, so the order is a real constraint
  * that the chain expressed only by being written down correctly.
  *
- * What the four steps add to the bundles ng-packagr emits: the AI assets
+ * What the four steps add to the bundles `ng build lib` emits: the AI assets
  * (`llms-full.txt` and the agent skill, both regenerated from library source so
  * the catalog cannot say two different things in two files), the loose files
  * `copy-dist-assets` places, `dist/lib/i18n/<locale>.json` for consumers on the
  * HTTP loader — who otherwise cannot serve ngwr's own strings at all — and the
- * two things built with their own compilers rather than ng-packagr's: the
- * schematics and the `ngwr-mcp` CLI.
+ * two things built with their own compilers rather than the library builder's:
+ * the schematics and the `ngwr-mcp` CLI.
  */
 
 import { step, tsx } from '../lib/run/step';

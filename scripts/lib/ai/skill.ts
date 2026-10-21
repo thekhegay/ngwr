@@ -8,7 +8,7 @@
 /**
  * The generated agent skill: `skills/ngwr/SKILL.md` plus two reference files.
  *
- * Same source as `llms-full.txt` — one `collect()` in `gen-ai-assets.ts` feeds
+ * Same source as `llms-full.txt` — one `collect()` in `gen/ai-assets.ts` feeds
  * both — so the catalog in the skill cannot drift from the catalog in the
  * package. That is the whole reason this is generated rather than written: a
  * hand-maintained skill is a fourth copy of the entry-point list, and the three
@@ -28,7 +28,7 @@
 
 import type { RequiredProvider } from '../../../projects/lib/mcp/providers';
 
-/** Just enough of `gen-ai-assets.ts`'s `Entry` to render the catalog. */
+/** Just enough of `gen/ai-assets.ts`'s `Entry` to render the catalog. */
 interface SkillEntry {
   readonly name: string;
   readonly selectors: readonly string[];

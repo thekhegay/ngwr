@@ -136,7 +136,6 @@ const AXE_SOURCE = readFileSync(createRequire(import.meta.url).resolve('axe-core
 /** `--probe`: collect unreachable states instead of stopping at the first. */
 const PROBE = process.argv.includes('--probe');
 
-/** Same static host as `check-contrast.ts`: `<base href="/">` rules out `file://`. */
 /**
  * `:hover` and `:focus-visible` through the devtools protocol.
  *
