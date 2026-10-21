@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "ng serve --o",
     "test": "ng test lib",
+    "test:coverage": "ng test lib --coverage --coverage-reporters lcovonly text-summary",
     "test:watch": "ng test lib --watch",
     "lint": "ng lint && eslint scripts && pnpm lint:styles && pnpm check:tokens && pnpm check:selectors && pnpm check:attrs && pnpm check:install",
     "check:nightly": "pnpm build:showcase && pnpm check:a11y && pnpm check:contrast && pnpm check:state-a11y && pnpm check:layout",
@@ -82,6 +83,7 @@
     "@types/jsdom": "^30.0.0",
     "@types/node": "^26.6.5",
     "@types/semver": "^7.8.0",
+    "@vitest/coverage-v8": "4.1.11",
     "angular-eslint": "^22.6.0",
     "axe-core": "^4.14.0",
     "bootstrap-icons": "^1.13.2",

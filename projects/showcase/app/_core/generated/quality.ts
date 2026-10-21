@@ -77,7 +77,7 @@ export const QUALITY = {
   /** Every `package.json` script `.github/workflows/ci.yml` runs on a pull request, in order. Parsed from the workflow, so a gate added or removed there moves this list. */
   prGates: [
     { name: "lint", command: "ng lint && eslint scripts && pnpm lint:styles && pnpm check:tokens && pnpm check:selectors && pnpm check:attrs && pnpm check:install" },
-    { name: "test", command: "ng test lib" },
+    { name: "test:coverage", command: "ng test lib --coverage --coverage-reporters lcovonly text-summary" },
     { name: "check:api-docs", command: "tsx scripts/gen/api-docs.ts --check" },
     { name: "check:css-vars", command: "tsx scripts/gen/css-vars.ts --check" },
     { name: "build:lib", command: "tsx scripts/build/lib.ts" },

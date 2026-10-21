@@ -30,7 +30,13 @@ jobs:
 
       - run: pnpm lint
 
-      - run: pnpm test
+      - run: pnpm test:coverage
+
+      - uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lib/lcov.info
+          fail_ci_if_error: false
 
       - run: pnpm check:api-docs
 

@@ -6,6 +6,7 @@ Signals-first UI components for Angular.
 [![npm version](https://img.shields.io/npm/v/ngwr?color=e21a62)](https://www.npmjs.com/package/ngwr)
 [![angular peer](https://img.shields.io/npm/dependency-version/ngwr/peer/@angular/core)](https://www.npmjs.com/package/ngwr)
 [![ci](https://img.shields.io/github/actions/workflow/status/thekhegay/ngwr/ci.yml?branch=main&label=ci)](https://github.com/thekhegay/ngwr/actions/workflows/ci.yml)
+[![coverage](https://codecov.io/gh/thekhegay/ngwr/branch/main/graph/badge.svg)](https://codecov.io/gh/thekhegay/ngwr)
 [![license](https://img.shields.io/npm/l/ngwr)](https://github.com/thekhegay/ngwr/blob/main/LICENSE)
 
 [Documentation](https://ngwr.dev) · [Getting started](https://ngwr.dev/start/installation) · [Playground](https://ngwr.dev/start/playground) · [Why ngwr](https://ngwr.dev/start/comparison) · [Changelog](https://github.com/thekhegay/ngwr/blob/main/CHANGELOG.md)

@@ -604,7 +604,7 @@ controls projected into it — the controls themselves do not grow with it.
 | Component hooks   | `pnpm gen:css-vars` (the `--wr-<name>-*` each component publishes → the docs' CSS-variables tables); `check:css-vars` gates the committed copy |
 | Dependencies      | `pnpm gen:deps` (each entry point's peers, add-ons, what it is built on and used by → the docs' Dependencies section and See also) |
 | Quality numbers   | `pnpm gen:quality` (entry points, harnesses, specs, gates → `#core/generated/quality`, which the home page and the translations guide bind to) |
-| Unit tests        | `pnpm test` (`ng test lib` — vitest via `@angular/build:unit-test`); `pnpm test:watch` |
+| Unit tests        | `pnpm test` (`ng test lib` — vitest via `@angular/build:unit-test`); `pnpm test:watch`; `pnpm test:coverage` is what PR CI runs, for Codecov |
 
 `pnpm test` runs **vitest** through Angular's `@angular/build:unit-test`
 builder — no `vitest.config.ts` and no `@analogjs/*`: the target lives in
@@ -612,8 +612,11 @@ builder — no `vitest.config.ts` and no `@analogjs/*`: the target lives in
 sit **next to the code they cover** (`math/math.spec.ts`, not a `test/` tree).
 `tsconfig.lib.json` excludes `**/*.spec.ts`, so nothing ships to npm.
 
-There is no coverage service: v15 removed Codecov and `test:coverage`, and CI
-runs plain `pnpm test`.
+**Codecov is wired and the number is real** — CI runs `pnpm test:coverage`
+(`pnpm test` instrumented, writing `coverage/lib/lcov.info`) and uploads it with
+the `CODECOV_TOKEN` secret. `codecov.yml` keeps both statuses
+`informational: true`: coverage is a badge and a PR comment, never a gate. Read
+the report as a pointer, not a target.
 
 Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
 `ngwr/pipes`, the colour maths), the validation-copy contract
