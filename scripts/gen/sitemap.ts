@@ -26,18 +26,16 @@
  * regenerate it without an extra step.
  */
 
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { exit } from 'node:process';
 
+import { DIST_SHOWCASE, prerenderedPages } from '../lib/dist-site';
 import { err } from '../lib/log/err';
 import { info } from '../lib/log/info';
-import { ROOT_PATH } from '../lib/paths/root';
 
 const SITE = 'https://ngwr.dev';
-const DIST = join(ROOT_PATH, 'dist/showcase');
-const ROUTES_JSON = join(DIST, 'prerendered-routes.json');
-const OUT = join(DIST, 'sitemap.xml');
+const OUT = join(DIST_SHOWCASE, 'sitemap.xml');
 
 /**
  * Sanity floor. The showcase has ~186 canonical pages; a result far below that
@@ -46,23 +44,14 @@ const OUT = join(DIST, 'sitemap.xml');
  */
 const MIN_EXPECTED = 100;
 
-if (!existsSync(ROUTES_JSON)) {
-  err(`\n✘ sitemap: ${ROUTES_JSON} not found. Run build:showcase first — this step must follow the build.\n`);
-  exit(1);
-}
-
-const routes = Object.keys(
-  (JSON.parse(readFileSync(ROUTES_JSON, 'utf8')) as { routes?: Record<string, unknown> }).routes ?? {}
-);
-
-const htmlFor = (route: string): string => {
-  const file = route === '/' ? join(DIST, 'index.html') : join(DIST, route.replace(/^\//, ''), 'index.html');
-  return existsSync(file) ? readFileSync(file, 'utf8') : '';
-};
+const pages = prerenderedPages('sitemap', { followsBuild: true });
 
 // A redirect stub renders as a meta-refresh page; its target is already a
 // canonical route in the list, so drop the stub rather than advertise a hop.
-const canonical = routes.filter(route => !htmlFor(route).includes('http-equiv="refresh"')).sort();
+const canonical = pages
+  .filter(page => page.redirectTo === null)
+  .map(page => page.route)
+  .sort();
 
 if (canonical.length < MIN_EXPECTED) {
   err(
@@ -83,4 +72,4 @@ ${body}
 `
 );
 
-info(`✓ sitemap.xml — ${canonical.length} URLs (${routes.length - canonical.length} redirect stubs excluded)`);
+info(`✓ sitemap.xml — ${canonical.length} URLs (${pages.length - canonical.length} redirect stubs excluded)`);

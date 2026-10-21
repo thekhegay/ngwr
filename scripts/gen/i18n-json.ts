@@ -23,26 +23,21 @@
  *   pnpm tsx scripts/gen/i18n-json.ts
  */
 
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { exit } from 'node:process';
 
+import { libLocales } from '../lib/entry-points';
 import { err } from '../lib/log/err';
 import { info } from '../lib/log/info';
-import { DIST_LIB_PATH } from '../lib/paths/dist-lib';
+import { DIST_LIB_PATH, requireBuiltLib } from '../lib/paths/dist-lib';
 import { ROOT_PATH } from '../lib/paths/root';
 
 const I18N_SRC = resolve(ROOT_PATH, 'projects/lib/i18n');
 
-if (!existsSync(DIST_LIB_PATH)) {
-  err(`dist/lib does not exist — run "pnpm build:lib" first.`);
-  exit(1);
-}
+requireBuiltLib('gen:i18n-json');
 
-/** Locale folders are the ones holding a catalog next to their public-api. */
-const locales = readdirSync(I18N_SRC, { withFileTypes: true })
-  .filter(e => e.isDirectory() && existsSync(resolve(I18N_SRC, e.name, 'public-api.ts')))
-  .map(e => e.name);
+const locales = libLocales();
 
 if (!locales.length) {
   err(`No locale catalogs found under ${I18N_SRC}`);

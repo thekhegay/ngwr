@@ -23,93 +23,108 @@
  * copy of a fact with two authorities already.
  */
 
-import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 
-import { ROOT_PATH } from './paths/root';
+import { libEntryPoints } from './entry-points';
+import { LIB_PATH } from './paths/lib';
+import { blankTs } from './ts-lex';
 
-const LIB_ROOT = resolve(ROOT_PATH, 'projects/lib');
 
-/**
- * Matches `export { WrFoo, WrBar as Baz, type Quux } from './…';` and bare-export
- * forms. The leading `type` is captured so type-only blocks can be skipped: this
- * map feeds `ng g ngwr:use`, which splices the symbol into a component's
- * `imports: [...]` array — a type there does not compile.
- */
-const EXPORT_RE = /export\s*(type\s*)?\{([^}]+)\}/g;
-const SYMBOL_RE = /\b(Wr[A-Z][A-Za-z0-9_]*)\b/g;
+/** `export { WrFoo, WrBar as Baz, type Quux } from './…';`, the bare form included, with its specifier. */
+const EXPORT_LIST_RE = /export\s*(type\s*)?\{([^}]*)\}(?:\s*from\s*'([^']+)')?/g;
+const EXPORT_STAR_RE = /export\s+\*\s+from\s+'([^']+)'/g;
+const DECLARATION_RE =
+  /^export\s+(?:declare\s+)?(?:abstract\s+)?(const|let|var|function|class|type|interface|enum)\s+(\w+)/gm;
+const SYMBOL_RE = /\b(Wr[A-Z][A-Za-z0-9_]*)\b/;
 
-/** Sub-directories that aren't actual public entry-points (no public-api.ts). */
-function isEntryPoint(dir: string): boolean {
-  try {
-    statSync(resolve(LIB_ROOT, dir, 'public-api.ts'));
-    statSync(resolve(LIB_ROOT, dir, 'public-api.ts'));
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/** Read all `Wr*` symbols re-exported from `<entry>/public-api.ts`. */
-function symbolsIn(entry: string): readonly string[] {
-  const file = resolve(LIB_ROOT, entry, 'public-api.ts');
-  const source = readFileSync(file, 'utf8');
-  const out = new Set<string>();
-  for (const match of source.matchAll(EXPORT_RE)) {
-    // `export type { … }` — every member is a type, skip the block.
-    if (match[1]) continue;
-
-    for (const member of match[2].split(',')) {
-      const trimmed = member.trim();
-      // `export { WrFoo, type WrFooSize }` — inline type members skipped too.
-      if (!trimmed || /^type\s/.test(trimmed)) continue;
-      // An alias re-export (`WrFoo as Bar`) publishes the alias, not the source.
-      const published = trimmed.split(/\s+as\s+/).pop() ?? trimmed;
-      const sym = SYMBOL_RE.exec(published);
-      SYMBOL_RE.lastIndex = 0;
-      if (sym) out.add(sym[1]);
-    }
-  }
-  // Also catch single-line `export { WrFoo } from '...';` and `export * …`.
-  // (The `*` form is intentionally dropped — we can't enumerate it without
-  // re-running tsc against the referenced file.)
-  return Array.from(out);
-}
-
-/**
- * Every entry point under `projects/lib`, at ANY depth.
- *
- * Recursive, and it has to be: entry points nest (`ngwr/i18n/en`,
- * `ngwr/tabs/router`, `ngwr/charts/bar-chart`, every `<name>/testing`), and a
- * top-level-only scan silently left them all out. The v12 `ngwr/date` rename
- * would have taken the two date adapters it nested that way — the old flat
- * `date-adapter-fns` had been visible only by accident of being top-level.
- */
-function entryPointsUnder(dir: string, prefix = ''): string[] {
-  const out: string[] = [];
-  for (const name of readdirSync(dir)) {
-    if (name.startsWith('.') || name === 'node_modules') continue;
-    const full = resolve(dir, name);
-    try {
-      if (!statSync(full).isDirectory()) continue;
-    } catch {
-      continue;
-    }
-    const entry = prefix ? `${prefix}/${name}` : name;
-    // `<name>/testing` is an entry point and its harnesses are public, but a
-    // harness is never something `ng g ngwr:use` splices into a component — it
-    // belongs in a spec. Pulling the seventy of them in would quadruple the
-    // schematic's non-declarable table for symbols nobody will ask it for.
-    if (name === 'testing') continue;
-    if (isEntryPoint(entry)) out.push(entry);
-    out.push(...entryPointsUnder(full, entry));
+/** Names `file` declares with a top-level `export const` / `class` / `type` / …, read with comments blanked. */
+function declaredIn(file: string): [name: string, isType: boolean][] {
+  const out: [string, boolean][] = [];
+  for (const m of blankTs(readFileSync(file, 'utf8'), false).matchAll(DECLARATION_RE)) {
+    if (m[2]) out.push([m[2], m[1] === 'type' || m[1] === 'interface']);
   }
   return out;
 }
 
+/** The `Wr*` value names `<entry>/public-api.ts` lists by name in an `export { … }`. */
+function symbolsIn(entry: string): readonly string[] {
+  const out = new Set<string>();
+  for (const exported of publicExports(entry)) {
+    // A type does not compile in `imports: [...]`, which is where `ng g
+    // ngwr:use` splices the symbol. Only listed names count here.
+    if (exported.isType || exported.via !== 'list') continue;
+    const sym = SYMBOL_RE.exec(exported.name)?.[1];
+    if (sym) out.add(sym);
+  }
+  return Array.from(out);
+}
+
+/** One name an entry point's `public-api.ts` publishes. */
+export interface PublicExport {
+  /** The name a consumer imports. */
+  readonly name: string;
+  /** The name in the module it comes from, which differs only for `A as B`. */
+  readonly local: string;
+  /** `export type { … }`, `export { type … }`, or a declared type or interface: no value import can take it. */
+  readonly isType: boolean;
+  /** The specifier it is re-exported from; absent for a bare `export { … }` and for the barrel's own declarations. */
+  readonly from?: string;
+  /** An `export { … }` list, a name an `export * from` brings in, or one the barrel declares itself. */
+  readonly via: 'list' | 'star' | 'declared';
+}
+
+/**
+ * Everything `projects/lib/<entry>/public-api.ts` exports, comments ignored: its
+ * `export { … }` lists first, then what each `export * from './x'` brings in
+ * (followed one hop, to `x.ts` or `x/index.ts`), then the barrel's own
+ * declarations. A name is listed once, where it first appears.
+ */
+export function publicExports(entry: string): PublicExport[] {
+  const dir = resolve(LIB_PATH, entry);
+  const file = join(dir, 'public-api.ts');
+  const src = blankTs(readFileSync(file, 'utf8'), false);
+  const out = new Map<string, PublicExport>();
+  const add = (record: PublicExport): void => {
+    if (!out.has(record.name)) out.set(record.name, record);
+  };
+
+  for (const list of src.matchAll(EXPORT_LIST_RE)) {
+    const from = list[3];
+    for (const member of (list[2] ?? '').split(',')) {
+      const trimmed = member.trim();
+      if (!trimmed) continue;
+      const inlineType = /^type\s/.test(trimmed);
+      const parts = trimmed.replace(/^type\s+/, '').split(/\s+as\s+/);
+      const name = (parts[parts.length - 1] ?? '').trim();
+      const local = (parts[0] ?? '').trim();
+      if (name) add({ name, local, isType: Boolean(list[1]) || inlineType, ...(from ? { from } : {}), via: 'list' });
+    }
+  }
+
+  for (const star of src.matchAll(EXPORT_STAR_RE)) {
+    const from = star[1] ?? '';
+    const base = from.replace(/\.js$/, '');
+    // A target this cannot find contributes nothing rather than failing every
+    // script that only reads the `export { … }` lists.
+    const target = [join(dir, `${base}.ts`), join(dir, base, 'index.ts')].find(path => existsSync(path));
+    for (const [name, isType] of target ? declaredIn(target) : []) {
+      add({ name, local: name, isType, from, via: 'star' });
+    }
+  }
+
+  for (const [name, isType] of declaredIn(file)) add({ name, local: name, isType, via: 'declared' });
+
+  return [...out.values()];
+}
+
 /** Build the full symbol → subpath map. */
 export function buildSymbolMap(): Record<string, string> {
-  const entries = entryPointsUnder(LIB_ROOT).sort();
+  // `<name>/testing` is an entry point and its harnesses are public, but a
+  // harness is never something `ng g ngwr:use` splices into a component — it
+  // belongs in a spec. Pulling the seventy of them in would quadruple the
+  // schematic's non-declarable table for symbols nobody will ask it for.
+  const entries = libEntryPoints().filter(entry => !entry.split('/').includes('testing'));
 
   const map: Record<string, string> = {};
   for (const entry of entries) {

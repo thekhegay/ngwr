@@ -41,11 +41,12 @@
  * to any of them.
  */
 
-import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { relative } from 'node:path';
 
-const ROOT = resolve(import.meta.dirname, '../..');
-const LIB = join(ROOT, 'projects/lib');
+import { walkFiles } from '../lib/fs/walk-files';
+import { LIB_PATH } from '../lib/paths/lib';
+import { ROOT_PATH } from '../lib/paths/root';
 
 /** How far above a declaration the marker may sit. */
 const MARKER_REACH = 3;
@@ -86,20 +87,10 @@ interface Finding {
   readonly text: string;
 }
 
-function scssFiles(dir: string): string[] {
-  const out: string[] = [];
-  for (const entry of readdirSync(dir)) {
-    const path = join(dir, entry);
-    if (statSync(path).isDirectory()) out.push(...scssFiles(path));
-    else if (entry.endsWith('.scss')) out.push(path);
-  }
-  return out;
-}
-
 function findings(): Finding[] {
   const found: Finding[] = [];
 
-  for (const file of scssFiles(LIB)) {
+  for (const file of walkFiles(LIB_PATH, { skipDirs: [], include: p => p.endsWith('.scss') })) {
     const lines = readFileSync(file, 'utf8').split('\n');
 
     lines.forEach((line, index) => {
@@ -117,7 +108,7 @@ function findings(): Finding[] {
       const context = lines.slice(Math.max(0, index - MARKER_REACH), index + 1).join('\n');
       if (context.includes(MARKER)) return;
 
-      found.push({ file: relative(ROOT, file), line: index + 1, text: line.trim() });
+      found.push({ file: relative(ROOT_PATH, file), line: index + 1, text: line.trim() });
     });
   }
 

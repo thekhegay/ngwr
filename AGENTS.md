@@ -86,11 +86,11 @@ A pnpm + Angular CLI monorepo with three projects:
   script's name: `check:attrs` runs `check/unknown-attrs.ts`.
   **The four browser-driven checks share `scripts/lib/dist-site.ts`** — the
   static server over `dist/showcase`, the route list, the "did you build it"
-  guard. The one thing they disagree on is the only parameter:
-  `serveDist('spa' | '404')`. The contrast and state sweeps fall back to the SPA
-  shell because an unresolved path is a client route; the two layout sweeps
-  answer 404, because a target matching nothing has to fail the run rather than
-  silently measure the home page.
+  guard, and `withDistBrowser`, which owns the server and the browser. The one
+  thing they disagree on is its only parameter: `'spa' | '404'`. The contrast
+  and state sweeps fall back to the SPA shell because an unresolved path is a
+  client route; the two layout sweeps answer 404, because a target matching
+  nothing has to fail the run rather than silently measure the home page.
 
 ### Anatomy of an entry point — e.g. `projects/lib/alert/`
 
@@ -377,9 +377,9 @@ one component folder. Reach for them instead of hand-rolling:
   rewrites the import paths and every symbol keeps its name. The rename
   surfaced a latent defect worth knowing about —
   `scripts/lib/build-symbol-map.ts` scanned only the TOP level, so the date
-  adapters were reachable only by the accident of being flat. It recurses now
-  and skips `<name>/testing`: a harness is public but never belongs in
-  `imports: []`.
+  adapters were reachable only by the accident of being flat. It reads the
+  entry points from the `exports` map now, nested ones included, and skips
+  `<name>/testing`: a harness is public but never belongs in `imports: []`.
 - **Router integration is OPT-IN since v14, and lives in two nested entry
   points** — `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`, and
   `WrTabsRouting` (the `[wrTabsRouting]` attribute on the strip) from

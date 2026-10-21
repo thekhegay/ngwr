@@ -6,7 +6,10 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { execPath, exit, stderr } from 'node:process';
+import { createRequire } from 'node:module';
+import { execPath, exit } from 'node:process';
+
+import { err } from '../log/err';
 
 /**
  * Run one step of a build pipeline, and stop the pipeline if it fails.
@@ -26,13 +29,13 @@ export function step(label: string, command: string, args: readonly string[]): v
   const { status, error } = spawnSync(command, [...args], { stdio: 'inherit', shell: false });
 
   if (error) {
-    stderr.write(`\n✘ ${label} could not start: ${error.message}\n`);
+    err(`\n✘ ${label} could not start: ${error.message}`);
     exit(1);
   }
   if (status !== 0) {
     // No summary of what came before: every step already printed its own
     // output, and a wrapper repeating it buries the message that matters.
-    stderr.write(`\n✘ ${label} failed (exit ${status ?? 'signal'}).\n`);
+    err(`\n✘ ${label} failed (exit ${status ?? 'signal'}).`);
     exit(status ?? 1);
   }
 }
@@ -43,4 +46,13 @@ export function step(label: string, command: string, args: readonly string[]): v
  */
 export function tsx(label: string, script: string, args: readonly string[] = []): void {
   step(label, execPath, ['--import', 'tsx', script, ...args]);
+}
+
+/**
+ * Compile one TypeScript project with `tsc -p`, run by this Node from
+ * typescript's own bin rather than through a `pnpm exec` that starts pnpm first.
+ * A type error stops the pipeline with tsc's exit code, as any failed step does.
+ */
+export function tsc(label: string, tsconfig: string): void {
+  step(label, execPath, [createRequire(import.meta.url).resolve('typescript/bin/tsc'), '-p', tsconfig]);
 }

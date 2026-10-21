@@ -31,13 +31,14 @@
  * inventing an input.
  */
 
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { existsSync, readFileSync, statSync } from 'node:fs';
+import { join, relative } from 'node:path';
 
-import { libEntryPoints } from './entry-points';
+import { decoratedClasses } from './build-selector-map';
+import { entryFiles, libEntryPoints } from './entry-points';
+import { LIB_PATH } from './paths/lib';
 import { ROOT_PATH } from './paths/root';
-
-const LIB = resolve(ROOT_PATH, 'projects/lib');
+import { blankTs } from './ts-lex';
 
 /**
  * `readonly foo = input<T>(…)` / `input.required<T>()` / `model<T>(…)` / `output<T>()`.
@@ -64,8 +65,6 @@ const MEMBER_RE =
  */
 const WEAK_MEMBER_RE =
   /(?:^|[;{}\s])(?<modifiers>(?:(?:private|protected|public|readonly|static|override|declare|abstract)\s+)*)(?<name>[A-Za-z_$][\w$]*)\s*(?::[^;=]*(?:=>[^;=]*)*)?=\s*(?<kind>input|model|output)\b(?!\w)/g;
-
-const CLASS_RE = /@(?<decorator>Component|Directive)\(\{(?<meta>[\s\S]*?)\}\)\s*export\s+class\s+(?<klass>\w+)/g;
 
 /** Everything a JSDoc block says, minus the tags. */
 function parseDoc(raw: string | undefined): { description: string; def?: string } {
@@ -95,14 +94,7 @@ function parseDoc(raw: string | undefined): { description: string; def?: string 
 function firstArg(args: string): string | undefined {
   const trimmed = args.trim();
   if (!trimmed) return undefined;
-  let depth = 0;
-  for (let i = 0; i < trimmed.length; i++) {
-    const c = trimmed[i];
-    if (c === '(' || c === '[' || c === '{') depth++;
-    else if (c === ')' || c === ']' || c === '}') depth--;
-    else if (c === ',' && depth === 0) return trimmed.slice(0, i).trim();
-  }
-  return trimmed;
+  return (splitTopLevel(trimmed, ',', { angle: false })[0] ?? '').trim();
 }
 
 /**
@@ -120,17 +112,7 @@ function firstArg(args: string): string | undefined {
  * and is one argument.
  */
 function firstGeneric(generic: string): string {
-  let depth = 0;
-  for (let i = 0; i < generic.length; i++) {
-    const c = generic[i];
-    // `=>` is not a closer. `input<((d: Date) => boolean) | null, unknown>()`
-    // would otherwise drive the depth negative and never split.
-    if (c === '>' && generic[i - 1] === '=') continue;
-    if (c === '<' || c === '(' || c === '[' || c === '{') depth++;
-    else if (c === '>' || c === ')' || c === ']' || c === '}') depth--;
-    else if (c === ',' && depth === 0) return generic.slice(0, i).trim();
-  }
-  return generic.trim();
+  return (splitTopLevel(generic, ',')[0] ?? '').trim();
 }
 
 /**
@@ -202,15 +184,15 @@ function extractFile(file: string, entry: string): ApiEntry[] {
   for (const c of src.matchAll(/^const\s+([A-Z][A-Z0-9_]*)\s*=\s*([^;\n]+);/gm))
     constants.set(c[1] ?? '', (c[2] ?? '').trim());
 
-  for (const cls of src.matchAll(CLASS_RE)) {
-    const klass = cls.groups?.['klass'] ?? '';
-    const selector = /selector:\s*'([^']+)'/.exec(cls.groups?.['meta'] ?? '')?.[1] ?? '';
+  const classes = decoratedClasses(file).filter(d => d.kind !== 'Pipe');
+  for (const [n, cls] of classes.entries()) {
+    const klass = cls.klass;
+    const selector = cls.selector ?? '';
 
-    // Members between this class's opening brace and the next class (or EOF).
-    const start = cls.index + cls[0].length;
-    const rest = src.slice(start);
-    const nextClass = /@(?:Component|Directive)\(\{/.exec(rest)?.index;
-    const body = nextClass === undefined ? rest : rest.slice(0, nextClass);
+    // Members between this class's name and the next decorated class (or EOF).
+    const head = /\bclass\s+\w+/.exec(src.slice(cls.bodyEnd));
+    const start = cls.bodyEnd + (head?.index ?? 0) + (head?.[0].length ?? 0);
+    const body = src.slice(start, classes[n + 1]?.offset ?? src.length);
 
     const rows: ApiRow[] = [];
     for (const m of body.matchAll(MEMBER_RE)) {
@@ -264,7 +246,6 @@ function extractFile(file: string, entry: string): ApiEntry[] {
   return out;
 }
 
-
 /**
  * Every entry point's `.ts` files, keyed by the entry point's NAME.
  *
@@ -282,41 +263,16 @@ function extractFile(file: string, entry: string): ApiEntry[] {
 function filesByEntry(): Map<string, string[]> {
   const out = new Map<string, string[]>();
 
-  for (const entry of libEntryPoints(LIB)) {
+  for (const entry of libEntryPoints()) {
     if (entry.endsWith('/testing')) continue;
-    const dir = join(LIB, entry);
+    const dir = join(LIB_PATH, entry);
     if (!existsSync(dir) || !statSync(dir).isDirectory()) continue;
 
-    const files: string[] = [];
-    walkShallow(dir, files);
-    out.set(entry, files);
+    // `internal/` is left out: code no consumer imports has no public API to document.
+    out.set(entry, entryFiles(entry, { sort: false }));
   }
 
   return out;
-}
-
-/**
- * One entry point's own files, NOT its nested entry points'.
- *
- * `bits/` and `charts/` are plain folders holding other entry points, and
- * `tabs/` holds `tabs/router` — so a recursive walk from one entry
- * would hand it the members of its neighbours.
- */
-function walkShallow(dir: string, acc: string[]): void {
-  for (const name of readdirSync(dir)) {
-    const full = join(dir, name);
-    if (statSync(full).isDirectory()) {
-      // A directory that is itself an entry point belongs to that entry point.
-      if (existsSync(join(full, 'public-api.ts'))) continue;
-      // `internal/` is the library's own marker for code no consumer imports —
-      // the popover's text panel, the date-picker's clock. Documenting their
-      // inputs would invent public API that does not exist.
-      if (name === 'internal') continue;
-      walkShallow(full, acc);
-    } else if (name.endsWith('.ts') && !name.endsWith('.spec.ts')) {
-      acc.push(full);
-    }
-  }
 }
 
 /**
@@ -341,15 +297,15 @@ function exportedClasses(files: Iterable<string>): Set<string> {
   return out;
 }
 
-/** The text between a `{` already consumed at `open` and the `}` that closes it. */
-function bodyAt(src: string, open: number): string {
-  let depth = 1;
-  let i = open;
-  for (; i < src.length && depth > 0; i++) {
-    if (src[i] === '{') depth++;
-    else if (src[i] === '}') depth--;
-  }
-  return src.slice(open, i - 1);
+/**
+ * The text between a `{` already consumed at `open` and the `}` that closes it,
+ * or the rest of the file but its last character when none does. `code` has its
+ * comments blanked, so a declaration matched inside one has no `{` and no body.
+ */
+function bodyAt(code: string, open: number): string {
+  if (code[open - 1] !== '{') return '';
+  const close = closingBracket(code, open - 1);
+  return code.slice(open, close < 0 ? code.length - 1 : close);
 }
 
 /** One property of an interface or object-literal type body. */
@@ -397,16 +353,11 @@ function readFields(body: string): FieldRead[] {
   for (const f of body.matchAll(/^[ \t]*(?:readonly\s+)?([A-Za-z_$][\w$]*)(\??)\s*:\s*/gm)) {
     if (depths[f.index ?? 0] !== 0) continue;
     const start = (f.index ?? 0) + f[0].length;
-    let depth = 0;
-    let j = start;
-    for (; j < body.length; j++) {
-      const c = body[j];
-      if (c === '>' && body[j - 1] === '=') continue;
-      if (c === '<' || c === '(' || c === '[' || c === '{') depth++;
-      else if (c === '>' || c === ')' || c === ']' || c === '}') depth--;
-      else if (depth === 0 && (c === ';' || c === ',')) break;
-      else if (depth === 0 && c === '\n' && startsMember(body, j + 1)) break;
-    }
+    const j = scanTopLevel(
+      body,
+      start,
+      (c, i, depth) => depth === 0 && (c === ';' || c === ',' || (c === '\n' && startsMember(body, i + 1)))
+    );
     // A leading `|` is prettier's punctuation for a wrapped union, not an arm —
     // the same reading `splitUnion()` takes.
     const type = unbrand(
@@ -517,12 +468,13 @@ export function extractPublicNames(): Map<string, ReadonlySet<string>> {
     const names = new Set<string>();
     for (const file of files) {
       const src = readFileSync(file, 'utf8');
+      const code = blanked(src, false);
 
       for (const m of src.matchAll(new RegExp(`${DOC}export\\s+function\\s+(\\w+)`, 'g'))) {
         if (!internal(m.groups?.['doc'])) names.add(m[2] ?? '');
       }
-      for (const m of src.matchAll(/selector:\s*'([^']+)'/g)) {
-        for (const attr of (m[1] ?? '').matchAll(/\[([A-Za-z][\w-]*)\]/g)) names.add(attr[1] ?? '');
+      for (const declared of decoratedClasses(file)) {
+        for (const attr of (declared.selector ?? '').matchAll(/\[([A-Za-z][\w-]*)\]/g)) names.add(attr[1] ?? '');
       }
 
       // Fields of every exported interface / object-literal type alias. Brace
@@ -530,14 +482,8 @@ export function extractPublicNames(): Map<string, ReadonlySet<string>> {
       // the first nested literal and drops every field after it.
       for (const m of src.matchAll(new RegExp(`${DOC}export\\s+(?:interface|type)\\s+\\w+[^{;]*\\{`, 'g'))) {
         if (internal(m.groups?.['doc'])) continue;
-        const open = (m.index ?? 0) + m[0].length;
-        let depth = 1;
-        let i = open;
-        for (; i < src.length && depth > 0; i++) {
-          if (src[i] === '{') depth++;
-          else if (src[i] === '}') depth--;
-        }
-        for (const f of src.slice(open, i).matchAll(/^\s*(?:readonly\s+)?(\w+)\??\s*:/gm)) names.add(f[1] ?? '');
+        for (const f of bodyAt(code, (m.index ?? 0) + m[0].length).matchAll(/^\s*(?:readonly\s+)?(\w+)\??\s*:/gm))
+          names.add(f[1] ?? '');
       }
     }
     out.set(entry, names);
@@ -573,10 +519,11 @@ export function extractPublicFields(): Map<string, ReadonlyMap<string, readonly 
     for (const file of files) {
       if (file.includes('/testing/')) continue;
       const src = readFileSync(file, 'utf8');
+      const code = blanked(src, false);
 
       for (const m of src.matchAll(new RegExp(`${DOC}export\\s+(?:interface|type)\\s+\\w+[^{;]*\\{`, 'g'))) {
         if (/@internal\b/.test(m.groups?.['doc'] ?? '')) continue;
-        for (const f of readFields(bodyAt(src, (m.index ?? 0) + m[0].length))) {
+        for (const f of readFields(bodyAt(code, (m.index ?? 0) + m[0].length))) {
           const known = fields.get(f.name) ?? [];
           if (!known.includes(f.type)) known.push(f.type);
           fields.set(f.name, known);
@@ -630,23 +577,9 @@ export function extractLibraryTypeNames(): ReadonlySet<string> {
  * `WrTypographyVariant` both have. It is punctuation, not an arm.
  */
 export function splitUnion(type: string): string[] {
-  const out: string[] = [];
-  let depth = 0;
-  let start = 0;
-
-  for (let i = 0; i < type.length; i++) {
-    const c = type[i];
-    if (c === '>' && type[i - 1] === '=') continue;
-    if (c === '<' || c === '(' || c === '[' || c === '{') depth++;
-    else if (c === '>' || c === ')' || c === ']' || c === '}') depth--;
-    else if (c === '|' && depth === 0) {
-      out.push(type.slice(start, i));
-      start = i + 1;
-    }
-  }
-  out.push(type.slice(start));
-
-  return out.map(m => m.trim()).filter(Boolean);
+  return splitTopLevel(type, '|')
+    .map(m => m.trim())
+    .filter(Boolean);
 }
 
 /**
@@ -712,7 +645,7 @@ export function unbrand(type: string): string {
  * harness filters, `'month' | 'week' | 'day'` in the event calendar's interfaces.
  * A harness filter is not the docs surface, and picking the wrong one gives a
  * confidently wrong answer to the one question this index exists to answer. The
- * filter is here rather than in `walk()`, which also feeds `extractPublicNames()`
+ * filter is here rather than in `filesByEntry()`, which also feeds `extractPublicNames()`
  * — whose `alsoPublic` set legitimately includes harness interface fields.
  *
  * **Generic declarations never enter.** The alias regex demands `=` immediately
@@ -730,28 +663,20 @@ export function extractTypeAliases(): Map<string, readonly string[]> {
   for (const files of filesByEntry().values()) {
     for (const file of files) {
       if (file.includes('/testing/')) continue;
-      const src = readFileSync(file, 'utf8');
+      const code = blanked(readFileSync(file, 'utf8'), false);
 
-      for (const m of src.matchAll(/(?:export\s+)?type\s+(Wr[A-Za-z0-9_]*)\s*=\s*/g)) {
+      for (const m of code.matchAll(/(?:export\s+)?type\s+(Wr[A-Za-z0-9_]*)\s*=\s*/g)) {
         // To the `;` at depth zero, so a union prettier spread over six lines is
         // one declaration rather than a first arm and five orphans.
         const start = (m.index ?? 0) + m[0].length;
-        let depth = 0;
-        let i = start;
-        for (; i < src.length; i++) {
-          const c = src[i];
-          if (c === '>' && src[i - 1] === '=') continue;
-          if (c === '<' || c === '(' || c === '[' || c === '{') depth++;
-          else if (c === '>' || c === ')' || c === ']' || c === '}') depth--;
-          else if (c === ';' && depth === 0) break;
-        }
-        record(m[1] ?? '', src.slice(start, i).replace(/\s+/g, ' ').trim());
+        const end = scanTopLevel(code, start, (c, _, depth) => c === ';' && depth === 0);
+        record(m[1] ?? '', code.slice(start, end).replace(/\s+/g, ' ').trim());
       }
 
       // The object literal a docs table would print for the interface — which is
       // exactly what `animations/typewriter` prints for the one live case.
-      for (const m of src.matchAll(/(?:export\s+)?interface\s+(Wr[A-Za-z0-9_]*)\s*\{/g)) {
-        const fields = readFields(bodyAt(src, (m.index ?? 0) + m[0].length));
+      for (const m of code.matchAll(/(?:export\s+)?interface\s+(Wr[A-Za-z0-9_]*)\s*\{/g)) {
+        const fields = readFields(bodyAt(code, (m.index ?? 0) + m[0].length));
         if (fields.length === 0) continue;
         record(m[1] ?? '', `{ ${fields.map(f => `${f.name}${f.optional ? '?' : ''}: ${f.type}`).join('; ')} }`);
       }
@@ -836,70 +761,77 @@ export function endOfString(text: string, start: number): number {
 }
 
 /**
- * `src` with every comment — and optionally every string BODY — replaced by
- * spaces, index for index, newlines kept.
- *
- * **A commented-out row was still a documented row, and it was still graded.**
- * `documentedRows()` split the raw file on `name:` before anything looked at a
- * `//`, so prefixing one row with `//` removed it from the rendered table and
- * left it in the gate: the page reported as fully documented, no counter moved,
- * and the commented row's own type and default were compared — a wrong value
- * parked behind a comment could FAIL a run about a table that no longer showed
- * it. Parking a row while renaming something is the most ordinary edit a
- * contributor makes, which is what put this first among the holes.
- *
- * The library side needs it just as much: a JSDoc `@example` block is prose that
- * looks exactly like source, and `unreadMembers()` reads declarations for a
- * living. An `@example` showing `size = input('md')` would otherwise be counted
- * as a member the extractor failed to read, on a component that has none.
- *
- * Blanking rather than deleting keeps every index valid, so the walks that read
- * a row's extent can be written against one string. `//` and `/*` are
- * unambiguous starts — an empty regex is spelled `/(?:)/` and a regex may not
- * begin with `*` — but a regex BODY may hold a quote (`/['"]/`), and one taken
- * as an opening quote used to swallow the rest of the file. An unterminated
- * quote is therefore stepped over as an ordinary character: the cost is one
- * mis-read character, where bailing out is a gate going quiet.
- *
- * `strings: true` additionally blanks string bodies — wanted wherever a scan
- * reads CODE and a string could spell the thing it is looking for.
+ * Index of the first character from `start` on for which `stop` answers true,
+ * or `text.length`. `depth` is the bracket depth after that character, over
+ * `<` `(` `[` `{` (`angle: false` leaves `<` `>` out), and the `>` of `=>` is
+ * not a closer. A quoted literal is stepped over whole and `stop` never sees
+ * it, so a quote in a comment derails the walk: pass comment-blanked text.
  */
-export function blanked(src: string, strings: boolean): string {
-  const out = src.split('');
-  let i = 0;
+export function scanTopLevel(
+  text: string,
+  start: number,
+  stop: (c: string, i: number, depth: number) => boolean,
+  options: { angle?: boolean } = {}
+): number {
+  const angle = options.angle ?? true;
+  let depth = 0;
 
-  while (i < src.length) {
-    const c = src[i];
-
-    if (c === '/' && src[i + 1] === '/') {
-      const nl = src.indexOf('\n', i);
-      const stop = nl < 0 ? src.length : nl;
-      for (let k = i; k < stop; k++) out[k] = ' ';
-      i = stop;
-      continue;
-    }
-    if (c === '/' && src[i + 1] === '*') {
-      const close = src.indexOf('*/', i + 2);
-      const stop = close < 0 ? src.length : close + 2;
-      for (let k = i; k < stop; k++) if (out[k] !== '\n') out[k] = ' ';
-      i = stop;
-      continue;
-    }
+  for (let i = start; i < text.length; i++) {
+    const c = text[i];
     if (c === "'" || c === '"' || c === '`') {
-      const end = endOfString(src, i);
-      if (end < 0) {
-        i++;
+      const end = endOfString(text, i);
+      if (end > 0) {
+        i = end - 1;
         continue;
       }
-      if (strings) for (let k = i + 1; k < end - 1; k++) if (out[k] !== '\n') out[k] = ' ';
-      i = end;
-      continue;
     }
-
-    i++;
+    if (angle && c === '>' && text[i - 1] === '=') continue;
+    if (c === '(' || c === '[' || c === '{' || (angle && c === '<')) depth++;
+    else if (c === ')' || c === ']' || c === '}' || (angle && c === '>')) depth--;
+    if (stop(c, i, depth)) return i;
   }
 
-  return out.join('');
+  return text.length;
+}
+
+/** `text` cut at every `separator` that sits at bracket depth zero and outside a quoted literal, untrimmed. */
+export function splitTopLevel(text: string, separator: string, options: { angle?: boolean } = {}): string[] {
+  const out: string[] = [];
+  for (let from = 0; ;) {
+    const at = scanTopLevel(text, from, (c, _, depth) => c === separator && depth === 0, options);
+    out.push(text.slice(from, at));
+    if (at >= text.length) return out;
+    from = at + 1;
+  }
+}
+
+/** Index of the `]`, `}` or `)` closing the bracket at `open`, stepping over quoted literals; `-1` if it never closes. */
+export function closingBracket(src: string, open: number): number {
+  const opener = src[open];
+  const closer = opener === '[' ? ']' : opener === '(' ? ')' : '}';
+  let depth = 0;
+
+  for (let i = open; i < src.length; i++) {
+    const c = src[i];
+    if (c === "'" || c === '"' || c === '`') {
+      const end = endOfString(src, i);
+      if (end > 0) i = end - 1;
+      continue;
+    }
+    if (c === opener) depth++;
+    else if (c === closer && --depth === 0) return i;
+  }
+
+  return -1;
+}
+
+/**
+ * `src` with every comment — and, with `strings`, every string body — blanked
+ * index for index, newlines kept, so a commented-out member or a JSDoc
+ * `@example` is never read as code while every offset still lines up with `src`.
+ */
+export function blanked(src: string, strings: boolean): string {
+  return blankTs(src, strings);
 }
 
 /** A member the library declares in a documented class that `MEMBER_RE` did not read. */
@@ -948,10 +880,9 @@ export interface UnreadMember {
  *     the same filter `extractApi()` applies, or the toast host's inputs become
  *     a permanent finding about a component no consumer can write.
  *
- * The class scan is looser than `CLASS_RE` on purpose, for the same reason: that
- * one demands `})` immediately before `export class`, so a decorator followed by
- * a comment, or one whose argument is not a plain object literal, takes the
- * whole class out of the extraction. Here a decorator is followed to the next
+ * The class scan is looser than `decoratedClasses()` on purpose, for the same
+ * reason: that one demands an inline object literal and `)` immediately before
+ * the class, and refuses anything else. Here a decorator is followed to the next
  * `export class`, whatever sits between them.
  */
 export function unreadMembers(read: ReadonlySet<string>): UnreadMember[] {

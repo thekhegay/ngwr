@@ -28,25 +28,18 @@
  *   pnpm check:install        fail if the committed copy is stale
  */
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
-import { exit } from 'node:process';
+import { basename, join } from 'node:path';
 
-import { buildPageRoutes } from '../lib/page-routes';
-import { ROOT_PATH } from '../lib/paths/root';
+import { STYLE_ENTRY_POINTS } from '../../projects/showcase/app/_core/generated/selectors';
+import { parseFlags } from '../lib/args';
+import { decoratedClasses } from '../lib/build-selector-map';
+import { pageNgwrImports } from '../lib/doc-page';
+import { walkFiles } from '../lib/fs/walk-files';
+import { emitGenerated, GENERATED_DIR, generatedHeader } from '../lib/generated';
+import { docPages, requireSingleRoutePages } from '../lib/page-routes';
+import { LIB_PATH } from '../lib/paths/lib';
 
-const APP = resolve(ROOT_PATH, 'projects/showcase/app');
-const OUT_DIR = join(APP, '_core/generated');
-const LIB_DIR = resolve(ROOT_PATH, 'projects/lib');
-const OUT_FILE = join(OUT_DIR, 'install.ts');
-
-/** Entry points that ship a `styles/_index.scss`, so `@use` resolves. */
-function styleEntryPoints(): Set<string> {
-  const src = readFileSync(join(OUT_DIR, 'selectors.ts'), 'utf8');
-  const start = src.indexOf('STYLE_ENTRY_POINTS');
-  const body = src.slice(start, src.indexOf('];', start));
-  return new Set([...body.matchAll(/"([^"]+)"/g)].map(m => m[1]));
-}
+const OUT_FILE = join(GENERATED_DIR, 'install.ts');
 
 /**
  * Every class the library decorates as a `@Component`, `@Directive` or `@Pipe`
@@ -57,24 +50,11 @@ function styleEntryPoints(): Set<string> {
  * wrong as one that put `provideWrIcons` inside it.
  */
 function declarables(): Set<string> {
-  const out = new Set<string>();
-  const walk = (dir: string): void => {
-    for (const name of readdirSync(dir)) {
-      const full = join(dir, name);
-      if (statSync(full).isDirectory()) {
-        if (name !== 'node_modules' && name !== 'schematics' && name !== 'mcp') walk(full);
-        continue;
-      }
-      if (!name.endsWith('.ts') || name.includes('.spec.')) continue;
-      const src = readFileSync(full, 'utf8');
-      for (const m of src.matchAll(/@(?:Component|Directive|Pipe)\s*\(/g)) {
-        const cls = /export class (\w+)/.exec(src.slice(m.index));
-        if (cls) out.add(cls[1]);
-      }
-    }
-  };
-  walk(LIB_DIR);
-  return out;
+  const files = walkFiles(LIB_PATH, {
+    skipDirs: ['node_modules', 'schematics', 'mcp'],
+    include: path => path.endsWith('.ts') && !basename(path).includes('.spec.'),
+  });
+  return new Set(files.flatMap(file => decoratedClasses(file).map(declared => declared.klass)));
 }
 
 interface Entry {
@@ -95,52 +75,6 @@ interface Entry {
   readonly styled: boolean;
 }
 
-/**
- * Every `ngwr/*` import in one page file, as entry point → symbols.
- *
- * Type-only imports are skipped: a consumer does not put a type in `imports: []`
- * and does not `@use` an entry point for one. A `/testing` subpath is skipped
- * too — a harness is public, and belongs in a spec rather than in an app.
- */
-function entriesOf(file: string, styled: Set<string>, declarable: Set<string>): Entry[] {
-  // Template literals are STRIPPED first. A docs page is full of snippet
-  // strings that contain `import { X } from 'ngwr/y'` as their own content,
-  // and counting those made the map describe what a page PRINTS rather than
-  // what it renders — the two agree until a page prints an example it does not
-  // demo, at which point the install recipe starts naming entry points the
-  // page never touches.
-  const src = readFileSync(file, 'utf8').replace(/`(?:\\.|[^`\\])*`/g, '``');
-  const byPath = new Map<string, Set<string>>();
-
-  for (const m of src.matchAll(/import\s+(type\s+)?\{([^}]*)\}\s+from\s+'(ngwr\/[^']+)'/g)) {
-    const [, typeOnly, names, path] = m;
-    if (typeOnly || path.endsWith('/testing')) continue;
-    const set = byPath.get(path) ?? new Set<string>();
-    for (const raw of names.split(',')) {
-      const trimmed = raw.trim();
-      // `import { WrButton, type WrButtonShape }` — the inline `type` is SKIPPED,
-      // not stripped. A type never goes in `imports: []`, and stripping the
-      // keyword let `WrButtonShape` through on the button page's own recipe.
-      if (/^type\s/.test(trimmed)) continue;
-      const name = trimmed.split(/\s+as\s+/)[0].trim();
-      // Everything a consumer writes, not just the declarables: a utils page
-      // imports `clamp`, and a recipe that listed only `Wr*` classes rendered no
-      // Installation at all on the twenty-one utils pages. Which of these go in
-      // `imports: []` is decided where it is rendered — a class by its name,
-      // everything else a call.
-      if (/^[A-Za-z_$]/.test(name)) set.add(name);
-    }
-    if (set.size > 0) byPath.set(path, set);
-  }
-
-  return [...byPath]
-    .map(([path, names]) => {
-      const symbols = [...names].sort();
-      return { path, symbols, declarables: symbols.filter(n => declarable.has(n)), styled: styled.has(path) };
-    })
-    .sort((a, b) => a.path.localeCompare(b.path));
-}
-
 function serialize(map: Map<string, Entry[]>): string {
   const rows = [...map]
     .sort(([a], [b]) => a.localeCompare(b))
@@ -156,21 +90,13 @@ function serialize(map: Map<string, Entry[]>): string {
     })
     .join('\n');
 
-  return `/**
- * @license
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
- */
-
-/* eslint-disable */
-/**
+  return `${generatedHeader(`/**
  * GENERATED by \`pnpm gen:install\` — do not edit.
  *
  * Route → what a consumer imports and what they \`@use\`, read from each docs
  * page's own imports. \`<ngwr-doc-page>\` renders the Installation section from
  * this, so a page cannot ship an install recipe that disagrees with the page.
- */
+ */`)}
 
 /** One entry point a page renders out of. */
 export interface DocInstallEntry {
@@ -197,39 +123,18 @@ export type DocInstallRoute = keyof typeof INSTALL;
 }
 
 async function main(): Promise<void> {
-  const check = process.argv.includes('--check');
-  const routes = await buildPageRoutes();
+  const { check } = parseFlags('gen:install [--check]', { check: { type: 'boolean', default: false } });
+  const pages = await requireSingleRoutePages();
+  const doc = docPages(pages);
 
-  if (routes.problems.length > 0) {
-    console.error('\n✘ the route walk is short, so the map would be too:\n');
-    for (const p of routes.problems) console.error(`    ${p}`);
-    exit(1);
-  }
-
-  const styled = styleEntryPoints();
+  const styled = new Set(STYLE_ENTRY_POINTS);
   const declarable = declarables();
   const map = new Map<string, Entry[]>();
 
-  for (const [dir, forDir] of routes.byDirectory) {
-    // One directory serving several routes cannot have one install recipe, and
-    // the pages that do — the icon galleries, the cluster catalogs — document
-    // no entry point anyway.
-    if (forDir.length !== 1) continue;
-    const route = forDir[0];
-    const abs = join(APP, dir);
-    if (!existsSync(abs) || !statSync(abs).isDirectory()) continue;
-
-    const entries = readdirSync(abs)
-      .filter(f => f.endsWith('.ts') && !f.endsWith('.routing.ts') && !f.endsWith('.spec.ts'))
-      .flatMap(f => entriesOf(join(abs, f), styled, declarable));
-
-    // Collapse duplicates across a directory's files, keeping the union.
-    const merged = new Map<string, Set<string>>();
-    for (const e of entries) {
-      const set = merged.get(e.path) ?? new Set<string>();
-      for (const s of e.symbols) set.add(s);
-      merged.set(e.path, set);
-    }
+  for (const { abs, route } of pages) {
+    // Every value the page imports, not only declarables: a utils page's recipe
+    // is `import { clamp }`, and a `Wr*`-only list left those pages without one.
+    const merged = pageNgwrImports(abs);
     // The recipe is the page's OWN entry point and nothing else.
     //
     // A docs page imports whatever its DEMOS render, which is a different set:
@@ -240,14 +145,11 @@ async function main(): Promise<void> {
     // not enough — the rest were still printed, and a reader cannot tell a
     // requirement from a demo's scaffolding.
     //
-    // Where the folder name is not the entry point — `qr/` serving
-    // `/qrcode`, the pipes, utils and validator pages named after a function —
-    // nothing matches and the full list is kept, which is what those pages
-    // had before and still need.
-    // Matched on the LAST segment, so a nested entry point is found too:
-    // `/bits/waves` documents `ngwr/bits/waves`, not a `ngwr/waves` that does not exist.
+    // The folder name decides, so `qr/` serving `/qrcode` finds `ngwr/qr` and
+    // `/bits/waves` finds `ngwr/bits/waves`. Only the pipes, utils and validator
+    // pages named after a function match nothing, and keep the full list.
     const last = route.split('/').pop() ?? '';
-    const own = [...merged.keys()].find(path => path.split('/').pop() === last) ?? `ngwr/${last}`;
+    const own = `ngwr/${doc.byRoute.get(route)?.entry ?? last}`;
     const all = [...merged].map(([path, names]) => {
       const symbols = [...names].sort();
       return { path, symbols, declarables: symbols.filter(n => declarable.has(n)), styled: styled.has(path) };
@@ -265,24 +167,15 @@ async function main(): Promise<void> {
     if (rows.length > 0) map.set(route, rows);
   }
 
-  const next = serialize(map);
-  const shown = relative(ROOT_PATH, OUT_FILE);
-
-  if (check) {
-    const current = existsSync(OUT_FILE) ? readFileSync(OUT_FILE, 'utf8') : '';
-    if (current !== next) {
-      console.error(`\n✘ ${shown} is out of date. Run \`pnpm gen:install\` and commit the result.\n`);
-      exit(1);
-    }
-    console.log(`✓ ${shown} — ${map.size} route(s), up to date`);
-    return;
-  }
-
-  mkdirSync(OUT_DIR, { recursive: true });
-  writeFileSync(OUT_FILE, next);
-  const styledCount = [...map.values()].flat().filter(e => e.styled).length;
-  const total = [...map.values()].flat().length;
-  console.log(`✓ ${shown} — ${map.size} route(s), ${total} entry point(s), ${styledCount} of them with a stylesheet`);
+  const entries = [...map.values()].flat();
+  emitGenerated({
+    file: OUT_FILE,
+    content: serialize(map),
+    check,
+    command: 'gen:install',
+    upToDate: `${map.size} route(s)`,
+    written: `${map.size} route(s), ${entries.length} entry point(s), ${entries.filter(e => e.styled).length} of them with a stylesheet`,
+  });
 }
 
 void main();

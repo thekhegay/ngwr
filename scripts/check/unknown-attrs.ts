@@ -20,17 +20,20 @@
  * only the static spelling is checked here.
  */
 
-import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { extname, join, resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { extname, join } from 'node:path';
 import { exit } from 'node:process';
 
+import { SELECTORS, type SelectorRef } from '../../projects/showcase/app/_core/generated/selectors';
+import { parseAttrs } from '../lib/doc-page';
+import { walkFiles } from '../lib/fs/walk-files';
 import { err } from '../lib/log/err';
 import { info } from '../lib/log/info';
+import { LIB_PATH } from '../lib/paths/lib';
+import { ROOT_PATH } from '../lib/paths/root';
+import { templateLiteralsOnly } from '../lib/ts-lex';
 
-const ROOT = resolve(import.meta.dirname, '../..');
-const LIB = join(ROOT, 'projects/lib');
-const SHOWCASE = join(ROOT, 'projects/showcase');
-const SELECTOR_MAP = join(SHOWCASE, 'app/_core/generated/selectors.ts');
+const SHOWCASE = join(ROOT_PATH, 'projects/showcase');
 
 /** Attributes any element may carry, so they are never a component's business. */
 const GLOBAL_ATTRS = new Set([
@@ -66,27 +69,6 @@ const NATIVE_BY_TAG: Readonly<Record<string, readonly string[]>> = {
   iframe: ['src', 'title', 'loading', 'allow', 'allowfullscreen', 'width', 'height', 'referrerpolicy', 'sandbox'],
 };
 
-interface Ref {
-  readonly symbol: string;
-  readonly path: string;
-}
-
-/** Reads the two buckets out of the generated map, which is plain data. */
-function selectorMap(): { tags: Record<string, Ref>; attributes: Record<string, Ref> } {
-  const src = readFileSync(SELECTOR_MAP, 'utf8');
-  const bucket = (name: string): Record<string, Ref> => {
-    const start = src.indexOf(`${name}: {`);
-    if (start === -1) throw new Error(`selector map has no \`${name}\` bucket`);
-    const out: Record<string, Ref> = {};
-    const body = src.slice(start, src.indexOf('\n  },', start));
-    for (const m of body.matchAll(/"([^"]+)":\s*\{\s*symbol:\s*"([^"]+)",\s*path:\s*"([^"]+)"/g)) {
-      out[m[1]] = { symbol: m[2], path: m[3] };
-    }
-    return out;
-  };
-  return { tags: bucket('tags'), attributes: bucket('attributes') };
-}
-
 /**
  * Declared input names per exported class, read from the library source.
  *
@@ -94,16 +76,10 @@ function selectorMap(): { tags: Record<string, Ref>; attributes: Record<string, 
  * — because the alias is what a template writes.
  */
 function inputsBySymbol(): Map<string, Set<string>> {
-  const files: string[] = [];
-  const walk = (dir: string): void => {
-    for (const entry of readdirSync(dir)) {
-      if (entry === 'node_modules' || entry === 'schematics') continue;
-      const full = join(dir, entry);
-      if (statSync(full).isDirectory()) walk(full);
-      else if (extname(full) === '.ts' && !full.endsWith('.spec.ts')) files.push(full);
-    }
-  };
-  walk(LIB);
+  const files = walkFiles(LIB_PATH, {
+    skipDirs: ['node_modules', 'schematics'],
+    include: p => extname(p) === '.ts' && !p.endsWith('.spec.ts'),
+  });
 
   const out = new Map<string, Set<string>>();
   for (const file of files) {
@@ -131,98 +107,10 @@ function inputsBySymbol(): Map<string, Set<string>> {
 }
 
 function templates(): string[] {
-  const out: string[] = [];
-  const walk = (dir: string): void => {
-    for (const entry of readdirSync(dir)) {
-      if (entry === 'node_modules' || entry === '_generated') continue;
-      const full = join(dir, entry);
-      if (statSync(full).isDirectory()) walk(full);
-      else if (extname(full) === '.html' || extname(full) === '.ts') out.push(full);
-    }
-  };
-  walk(SHOWCASE);
-  return out;
-}
-
-/**
- * A `.ts` file reduced to its template literals, everything else blanked out.
- *
- * **A SNIPPET is markup too, and it is the markup that gets copied.** This
- * check read `.html` only, so `<wr-btn variant="outlined">` in a live demo was
- * caught while the same line printed in a code block beside it was not — and a
- * printed line is what a reader pastes into their own app. The gap was not
- * hypothetical: thirty-two snippets taught `<button wr-btn>` with no `type`,
- * which inside a form is a submit button, while every `.html` in the repo was
- * held to the rule by `@angular-eslint`.
- *
- * Blanked rather than extracted so every offset still lines up with the real
- * file and a finding keeps its line number. Only backtick literals are kept:
- * scanning the whole file would read `Signal<WrFoo>` as an element.
- */
-function templateLiteralsOnly(src: string): string {
-  const out: string[] = [];
-  const blank = (text: string): string => text.replace(/[^\n]/g, ' ');
-  let i = 0;
-  let depth = 0; // backtick nesting, so a literal inside `${…}` does not end the outer one
-  let literal = false;
-  let run = '';
-
-  const flushCode = (text: string): void => out.push(blank(text));
-
-  while (i < src.length) {
-    const ch = src[i];
-    if (!literal) {
-      const open = src.indexOf('`', i);
-      if (open === -1) {
-        flushCode(src.slice(i));
-        break;
-      }
-      flushCode(src.slice(i, open + 1));
-      literal = true;
-      depth = 1;
-      run = '';
-      i = open + 1;
-      continue;
-    }
-    if (ch === '\\') {
-      run += '  ';
-      i += 2;
-      continue;
-    }
-    if (ch === '$' && src[i + 1] === '{') {
-      // Skip the expression whole, counting braces AND backticks so a nested
-      // literal inside it cannot close the one we are in.
-      let j = i + 2;
-      let braces = 1;
-      let ticks = 0;
-      while (j < src.length && braces > 0) {
-        const c = src[j];
-        if (c === '\\') j++;
-        else if (c === '`') ticks = ticks === 0 ? 1 : 0;
-        else if (!ticks && c === '{') braces++;
-        else if (!ticks && c === '}') braces--;
-        j++;
-      }
-      run += blank(src.slice(i, j));
-      i = j;
-      continue;
-    }
-    if (ch === '`') {
-      depth--;
-      run += ' ';
-      i++;
-      if (depth === 0) {
-        // HTML comments are prose, not markup: a `-->` inside one ends the
-        // attribute soup of whatever element the scan was reading.
-        out.push(run.replace(/<!--[\s\S]*?-->/g, blank));
-        literal = false;
-      }
-      continue;
-    }
-    run += ch;
-    i++;
-  }
-  return out.join('');
+  return walkFiles(SHOWCASE, {
+    skipDirs: ['node_modules', '_generated'],
+    include: p => extname(p) === '.html' || extname(p) === '.ts',
+  });
 }
 
 /**
@@ -267,52 +155,6 @@ const NON_NGWR = new Set([
   'ngProjectAs', 'routerLink', 'routerLinkActive', 'ngNonBindable', 'mask',
 ]);
 
-interface Attr {
-  readonly name: string;
-  readonly value: string;
-  /** A plain `name` or `name="v"` — never a binding, an output or a reference. */
-  readonly isStatic: boolean;
-}
-
-/**
- * Splits one element's attribute soup.
- *
- * Hand-rolled rather than regexed, because the regex version matched a
- * BINDING'S VALUE as the next attribute's name: `[(open)]="sidebarOpen"` came
- * back as an unknown attribute called `sidebarOpen`, and 200 of the first
- * run's 226 findings were that one mistake wearing different names.
- */
-function parseAttrs(soup: string): Attr[] {
-  const out: Attr[] = [];
-  let i = 0;
-  while (i < soup.length) {
-    while (i < soup.length && /\s/.test(soup[i])) i++;
-    if (i >= soup.length) break;
-
-    let name = '';
-    while (i < soup.length && !/[\s=]/.test(soup[i])) name += soup[i++];
-    if (name === '') break;
-
-    let value = '';
-    while (i < soup.length && /\s/.test(soup[i])) i++;
-    if (soup[i] === '=') {
-      i++;
-      while (i < soup.length && /\s/.test(soup[i])) i++;
-      const quote = soup[i];
-      if (quote === '"' || quote === "'") {
-        i++;
-        while (i < soup.length && soup[i] !== quote) value += soup[i++];
-        i++;
-      } else {
-        while (i < soup.length && !/\s/.test(soup[i])) value += soup[i++];
-      }
-    }
-
-    out.push({ name, value, isStatic: !/^[[(*#@]/.test(name) && !name.includes('.') });
-  }
-  return out;
-}
-
 /**
  * Attribute names the library projects content INTO — `<ng-content
  * select="[wrResultExtra]">`. A consumer writes them on an element to choose a
@@ -320,22 +162,15 @@ function parseAttrs(soup: string): Attr[] {
  */
 function projectionSlots(): Set<string> {
   const out = new Set<string>();
-  const walk = (dir: string): void => {
-    for (const entry of readdirSync(dir)) {
-      if (entry === 'node_modules') continue;
-      const full = join(dir, entry);
-      if (statSync(full).isDirectory()) walk(full);
-      else if (extname(full) === '.html' || extname(full) === '.ts') {
-        for (const m of readFileSync(full, 'utf8').matchAll(/select\s*=\s*["'`][^"'`]*\[([\w-]+)\]/g)) out.add(m[1]);
-      }
-    }
-  };
-  walk(LIB);
+  for (const full of walkFiles(LIB_PATH, { include: p => extname(p) === '.html' || extname(p) === '.ts' })) {
+    for (const m of readFileSync(full, 'utf8').matchAll(/select\s*=\s*["'`][^"'`]*\[([\w-]+)\]/g)) out.add(m[1]);
+  }
   return out;
 }
 
 function main(): void {
-  const { tags, attributes } = selectorMap();
+  const tags: Readonly<Record<string, SelectorRef>> = SELECTORS.tags;
+  const attributes: Readonly<Record<string, SelectorRef>> = SELECTORS.attributes;
   const inputs = inputsBySymbol();
   const slots = projectionSlots();
   const findings: Finding[] = [];
@@ -349,6 +184,9 @@ function main(): void {
     const raw = readFileSync(file, 'utf8');
     const isTs = extname(file) === '.ts';
     if (isTs && SNIPPET_EXEMPT.some(skip => file.includes(skip))) continue;
+    // A snippet is markup too, and it is the markup a reader pastes. Only its
+    // template literals are read, blanked in place so a finding keeps its line:
+    // the whole file would read `Signal<WrFoo>` as an element.
     const src = isTs ? templateLiteralsOnly(raw) : raw;
     for (const el of src.matchAll(ELEMENT)) {
       const tag = el[1];
@@ -356,7 +194,7 @@ function main(): void {
 
       // Everything that could own an input here: the tag's own component, plus
       // every attribute-selector directive written on the element.
-      const owners: Ref[] = [];
+      const owners: SelectorRef[] = [];
       if (tags[tag]) owners.push(tags[tag]);
       // `[wrDropdown]="menu"` applies the directive just as `wrDropdown` does,
       // so the lookup is on the bare name.
@@ -379,7 +217,7 @@ function main(): void {
         if (GLOBAL_ATTRS.has(a.name) || accepted.has(a.name)) continue;
         if (/^(aria|data|ng|let|i18n|xmlns|xlink)[-.:]?/.test(a.name)) continue;
         findings.push({
-          file: file.slice(ROOT.length + 1),
+          file: file.slice(ROOT_PATH.length + 1),
           line,
           tag,
           attr: a.name,

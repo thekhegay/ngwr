@@ -38,92 +38,40 @@
  * thing would only make one failure look like two.
  */
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
-import { exit } from 'node:process';
+import { readFileSync } from 'node:fs';
+import { join, relative } from 'node:path';
 
+import { parseFlags } from '../lib/args';
 import { buildCssVarMap, type WrCssVarEntry, type WrCssVarMap } from '../lib/build-css-var-map';
-import { buildPageRoutes } from '../lib/page-routes';
+import { walkFiles } from '../lib/fs/walk-files';
+import { emitGenerated, GENERATED_DIR, generatedHeader } from '../lib/generated';
+import { docPages, requireSingleRoutePages } from '../lib/page-routes';
 import { ROOT_PATH } from '../lib/paths/root';
+import { SHOWCASE_APP_PATH } from '../lib/paths/showcase-app';
 
-const OUT_DIR = resolve(ROOT_PATH, 'projects/showcase/app/_core/generated');
-const OUT_FILE = join(OUT_DIR, 'css-vars.ts');
+const OUT_FILE = join(GENERATED_DIR, 'css-vars.ts');
 
 /**
- * Where a page for an entry point may live, most specific first.
+ * The clusters a page may document an entry point from.
  *
  * `keyboard` has both `reference/components/keyboard` and `guides/keyboard`, and
- * the component page is the one that documents the component — so the order is
- * the tie-break, and `guides/` is deliberately absent from the list: a guide is
- * prose about a topic, not the reference page for an entry point.
+ * the component page is the one that documents the component — so `guides/` is
+ * deliberately absent: a guide is prose about a topic, not the reference page
+ * for an entry point.
+ *
+ * The page is found by its DIRECTORY NAME and the route comes from the router's
+ * own tree, never from a path test: `existsSync(cluster/name)` found nine pages
+ * of eighty once the showcase grouped them by sidebar group, and
+ * `check:css-vars` passed against the same short output.
  */
-const CLUSTERS = [
+const CLUSTERS: readonly string[] = [
+  'charts',
+  'bits',
   'reference/components',
   'reference/services',
   'reference/directives',
   'reference/pipes',
-] as const;
-
-/** A page directory and the one route it is served at. */
-interface Page {
-  readonly dir: string;
-  readonly route: string;
-}
-
-/**
- * `alert` → `reference/components/alert`, or `null` when no page documents it.
- *
- * The answer is a ROUTE, because `<ngwr-doc-page>` looks the section up by the
- * URL it is rendered at — and a page's directory stopped being its route when the
- * showcase moved pages into one folder per sidebar group:
- * `reference/components/feedback/alert/` serves `/reference/components/alert`.
- * So the page is found by its DIRECTORY NAME anywhere below a cluster, and the
- * route comes from the router's own tree (`buildPageRoutes`), never from the path.
- *
- * A nested entry point is looked for under its own cluster first — `bits/aurora`
- * under `bits/`, `charts/bar-chart` under `charts/` — and then under each of
- * {@link CLUSTERS} in order, which is where a flat one lives.
- *
- * This used to test `existsSync(cluster/name)`, and the grouping left it finding
- * nine pages where there were eighty: every grouped page fell out of the map, and
- * `check:css-vars` compared the committed copy against the same short output and
- * passed. A generator and its own gate agreeing is the one shape a generated
- * file cannot catch — the second time here, after `animations` became `bits`.
- */
-function routeOf(entry: string, pages: ReadonlyMap<string, readonly Page[]>): string | null {
-  const slash = entry.lastIndexOf('/');
-  const name = entry.slice(slash + 1);
-  const candidates = pages.get(name) ?? [];
-  const own = slash === -1 ? [] : [entry.slice(0, entry.indexOf('/'))];
-  for (const cluster of [...own, ...CLUSTERS]) {
-    const hit = candidates.find(p => p.dir.startsWith(`${cluster}/`));
-    if (hit) return hit.route;
-  }
-  return null;
-}
-
-/**
- * Every page directory served at exactly one route, grouped by directory name.
- * One directory behind several routes — the icon galleries, a cluster's catalog —
- * documents no single entry point.
- */
-async function pagesByName(): Promise<Map<string, Page[]>> {
-  const routes = await buildPageRoutes();
-  if (routes.problems.length > 0) {
-    console.error('\n✘ the route walk is short, so the map would be too:\n');
-    for (const p of routes.problems) console.error(`    ${p}`);
-    exit(1);
-  }
-  const byName = new Map<string, Page[]>();
-  for (const [dir, forDir] of routes.byDirectory) {
-    if (forDir.length !== 1) continue;
-    const name = dir.slice(dir.lastIndexOf('/') + 1);
-    const list = byName.get(name) ?? [];
-    list.push({ dir, route: forDir[0] });
-    byName.set(name, list);
-  }
-  return byName;
-}
+];
 
 function rows(entry: WrCssVarEntry): string {
   return entry.vars
@@ -153,15 +101,7 @@ ${rows(entry)}
     })
     .join('\n');
 
-  return `/**
- * @license
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
- */
-
-/* eslint-disable */
-/**
+  return `${generatedHeader(`/**
  * GENERATED by \`pnpm gen:css-vars\` from the library's stylesheets — do not edit.
  *
  * The \`--wr-*\` hooks each component publishes, keyed by the route of the page
@@ -174,7 +114,7 @@ ${rows(entry)}
  * declares it also owns it: ${map.delegated} declaration(s) are one component setting
  * another's hook (\`--wr-icon-size\` inside its own \`<wr-icon>\`) and belong on
  * the owner's page, not on the setter's.
- */
+ */`)}
 
 import type { DocCssVarRow } from '#core/components';
 
@@ -220,49 +160,45 @@ export type DocCssVarRoute = keyof typeof CSS_VARS;
  */
 function duplicatedTables(): string[] {
   const out: string[] = [];
-  const walk = (dir: string): void => {
-    for (const entry of readdirSync(dir)) {
-      if (entry === 'node_modules' || entry === 'generated') continue;
-      const full = join(dir, entry);
-      if (statSync(full).isDirectory()) walk(full);
-      else if (full.endsWith('.ts')) {
-        const src = readFileSync(full, 'utf8');
-        src.split('\n').forEach((line, i) => {
-          // Two spellings, because the first sweep only caught one. `CSS — …`
-          // is the prefixed form; a row naming the hook outright is the other,
-          // and `burger` and `cascader` were carrying five and two of those.
-          const hit = /name:\s*'CSS — /.test(line) || /name:\s*'--wr-[\w-]+'/.test(line);
-          if (hit) out.push(`${relative(ROOT_PATH, full)}:${i + 1}`);
-        });
-      }
-    }
-  };
   // Only `reference/components`, `charts` and `bits`. The `/guides/tokens/*` pages
   // document the THEME layer — `--wr-text-*`, `--wr-duration-*`, the colour
   // ramp — which the generator does not catalogue, because it reads each
   // component's own `--wr-<name>-*` hooks. Those tables are the only record
   // of the token layer and must stay hand-written.
-  walk(join(ROOT_PATH, 'projects/showcase/app/reference/components'));
-  walk(join(ROOT_PATH, 'projects/showcase/app/charts'));
-  walk(join(ROOT_PATH, 'projects/showcase/app/bits'));
+  for (const root of ['reference/components', 'charts', 'bits']) {
+    const files = walkFiles(join(SHOWCASE_APP_PATH, root), {
+      skipDirs: ['node_modules', 'generated'],
+      include: path => path.endsWith('.ts'),
+    });
+    for (const file of files) {
+      readFileSync(file, 'utf8')
+        .split('\n')
+        .forEach((line, i) => {
+          // Two spellings, because the first sweep only caught one. `CSS — …`
+          // is the prefixed form; a row naming the hook outright is the other,
+          // and `burger` and `cascader` were carrying five and two of those.
+          const hit = /name:\s*'CSS — /.test(line) || /name:\s*'--wr-[\w-]+'/.test(line);
+          if (hit) out.push(`${relative(ROOT_PATH, file)}:${i + 1}`);
+        });
+    }
+  }
   return out;
 }
 
 async function main(): Promise<void> {
-  const check = process.argv.includes('--check');
+  const { check } = parseFlags('gen:css-vars [--check]', { check: { type: 'boolean', default: false } });
   const map = buildCssVarMap();
-  const pages = await pagesByName();
+  const pages = docPages(await requireSingleRoutePages(), { admit: page => CLUSTERS.includes(page.cluster) });
 
   const byRoute = new Map<string, WrCssVarEntry>();
   const homeless: string[] = [];
   for (const entry of map.entries) {
-    const route = routeOf(entry.entry, pages);
+    const route = pages.byEntry.get(entry.entry)?.route;
     if (route) byRoute.set(route, entry);
     else homeless.push(`${entry.subpath} (${entry.vars.length} hook(s))`);
   }
 
   const next = serialize(map, byRoute);
-  const path = relative(ROOT_PATH, OUT_FILE);
 
   const duplicated = duplicatedTables();
   if (duplicated.length > 0) {
@@ -273,18 +209,14 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  if (check) {
-    const current = existsSync(OUT_FILE) ? readFileSync(OUT_FILE, 'utf8') : '';
-    if (current !== next) {
-      console.error(`\n✘ ${path} is out of date with projects/lib. Run \`pnpm gen:css-vars\` and commit the result.\n`);
-      process.exit(1);
-    }
-    console.log(`✓ ${path} — ${map.total} hook(s) across ${byRoute.size} page(s), up to date`);
-  } else {
-    if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
-    writeFileSync(OUT_FILE, next);
-    console.log(`✓ ${path} — ${map.total} hook(s) across ${byRoute.size} page(s)`);
-  }
+  emitGenerated({
+    file: OUT_FILE,
+    content: next,
+    check,
+    command: 'gen:css-vars',
+    against: 'projects/lib',
+    written: `${map.total} hook(s) across ${byRoute.size} page(s)`,
+  });
 
   console.log(
     `  ${map.entries.length} entry point(s) publish one; ${map.delegated} declaration(s) filed under the hook's owner.`

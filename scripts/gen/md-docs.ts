@@ -33,18 +33,15 @@
  */
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { exit } from 'node:process';
 
 import { JSDOM } from 'jsdom';
 
+import { prerenderedPages, routeFile } from '../lib/dist-site';
 import { err } from '../lib/log/err';
 import { info } from '../lib/log/info';
-import { ROOT_PATH } from '../lib/paths/root';
 
 const SITE = 'https://ngwr.dev';
-const DIST = join(ROOT_PATH, 'dist/showcase');
-const ROUTES_JSON = join(DIST, 'prerendered-routes.json');
 
 /**
  * Floor, set AT the current number rather than below it. Slack in a floor
@@ -99,9 +96,6 @@ const NO_TWIN: readonly string[] = [
   '/icons/radix',
   '/icons/bootstrap',
 ];
-
-/** The meta-refresh a redirect stub renders, and the route it points at. */
-const REDIRECT_RE = /<meta http-equiv="refresh" content="0; url=([^"]+)"/i;
 
 /** Elements whose subtree is rendered UI — kept off the page, not summarized. */
 const SKIP = new Set(['div.demo', 'div.controls', 'div.preview', 'ngwr-icon-grid']);
@@ -336,39 +330,24 @@ function render(document: Document, route: string): string | null {
 }
 
 function main(): void {
-  if (!existsSync(ROUTES_JSON)) {
-    err(`\n✘ md docs: ${ROUTES_JSON} not found. Run build:showcase first — this step must follow the build.\n`);
-    exit(1);
-  }
-
-  const routes = Object.keys(
-    (JSON.parse(readFileSync(ROUTES_JSON, 'utf8')) as { routes?: Record<string, unknown> }).routes ?? {}
-  );
-
   let written = 0;
   let bytes = 0;
   /** Routes that render a meta-refresh, with where they point. Handled after. */
   const moved = new Map<string, string>();
 
-  for (const route of routes) {
-    const html = route === '/' ? join(DIST, 'index.html') : join(DIST, route.replace(/^\//, ''), 'index.html');
-    if (!existsSync(html)) continue;
-
-    const source = readFileSync(html, 'utf8');
+  for (const { route, file, redirectTo } of prerenderedPages('md docs', { followsBuild: true })) {
     // Redirect stubs render a meta-refresh and nothing else.
-    const refresh = REDIRECT_RE.exec(source);
-    if (refresh) {
-      moved.set(route, refresh[1]);
+    if (redirectTo !== null) {
+      moved.set(route, redirectTo);
       continue;
     }
 
-    const markdown = render(new JSDOM(source).window.document, route);
+    const markdown = render(new JSDOM(readFileSync(file, 'utf8')).window.document, route);
     if (!markdown) continue;
 
     // `/reference/components/button` -> `…/button.md`, a sibling of its own
     // directory, so the URL an agent already holds works with `.md` appended.
-    const target = route === '/' ? join(DIST, 'index.md') : `${join(DIST, route.replace(/^\//, ''))}.md`;
-    writeFileSync(target, markdown);
+    writeFileSync(routeFile(route, 'md'), markdown);
     written++;
     bytes += Buffer.byteLength(markdown);
   }
@@ -382,17 +361,17 @@ function main(): void {
   // naming the new location is both honest and useful; the redirect the HTML
   // performs has no equivalent a markdown fetch can follow.
   for (const [route, to] of moved) {
-    const twin = `${join(DIST, to.replace(/^\//, ''))}.md`;
+    const twin = routeFile(to, 'md');
     const trail = existsSync(twin) ? `Markdown: ${SITE}${to}.md` : 'There is no markdown twin at the new location.';
     const body = `# Moved\n\n> This page has moved to ${SITE}${to}\n\n${trail}\n`;
-    writeFileSync(`${join(DIST, route.replace(/^\//, ''))}.md`, body);
+    writeFileSync(routeFile(route, 'md'), body);
   }
 
   // A recorded exemption that has quietly stopped applying is worse than no
   // record at all: it keeps asserting a decision someone already reversed. If
   // one of these prerenders again its twin was just written above, so the entry
   // has to go rather than sit there explaining an absence that isn't.
-  const stale = NO_TWIN.filter(route => existsSync(join(DIST, route.replace(/^\//, ''), 'index.html')));
+  const stale = NO_TWIN.filter(route => existsSync(routeFile(route, 'html')));
   if (stale.length > 0) {
     err(
       `\n✘ md docs: ${stale.join(', ')} now prerender, so NO_TWIN is stale.\n` +

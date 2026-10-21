@@ -44,9 +44,13 @@
 
 import { exit } from 'node:process';
 
-import { chromium, type Browser, type Page } from 'playwright';
+import type { Page } from 'playwright';
 
-import { prerenderedRoutes, serveDist } from '../lib/dist-site';
+import { narrow, parseFlags } from '../lib/args';
+import { newPinnedContext } from '../lib/browser-context';
+import { prerenderedRoutes, withDistBrowser } from '../lib/dist-site';
+import { err } from '../lib/log/err';
+import { info } from '../lib/log/info';
 
 /**
  * How far a box may escape the viewport before it counts.
@@ -57,9 +61,6 @@ import { prerenderedRoutes, serveDist } from '../lib/dist-site';
  * noise.
  */
 const TOLERANCE = 4;
-
-const info = (message: string): void => console.log(message);
-const err = (message: string): void => console.error(message);
 
 /** The prerendered site needs a real origin, or every page is analysed unstyled. */
 interface Measurement {
@@ -76,7 +77,7 @@ interface Measurement {
  * script rewrites named functions through its own `__name` helper, which does not
  * exist in the browser — a callback with any nested helper dies on
  * `ReferenceError: __name is not defined` at the first call. Injecting a string
- * is how `check/contrast.ts` gets axe in, and it has the same immunity.
+ * is how `runAxe` in `lib/axe.ts` gets axe in, and it has the same immunity.
  *
  * Element rects, NOT `scrollWidth`. The obvious measurement is wrong here, and
  * wrong in the one direction that matters: a document's scroll origin is its
@@ -154,31 +155,26 @@ async function measure(page: Page, origin: string, route: string, dir: 'ltr' | '
 }
 
 async function main(): Promise<void> {
-  const args = process.argv.slice(2);
-  const verbose = args.includes('--verbose');
-  const limit = Number(args.find(a => a.startsWith('--routes='))?.split('=')[1] ?? 0);
-  const filter = args.find(a => a.startsWith('--filter='))?.split('=')[1] ?? '';
+  const { verbose, routes, filter } = parseFlags('check:rtl-layout [--verbose] [--routes=<n>] [--filter=<substring>]', {
+    verbose: { type: 'boolean', default: false },
+    routes: { type: 'number', default: 0 },
+    filter: { type: 'string', default: '' },
+  });
 
-  const all = prerenderedRoutes('rtl-layout').filter(route => route.includes(filter));
-  if (all.length === 0) {
-    err(`\n✘ rtl-layout: no route matches "${filter}".\n`);
-    exit(1);
-  }
-  const targets = limit > 0 ? all.slice(0, limit) : all;
+  const { targets } = narrow(prerenderedRoutes('rtl-layout'), {
+    filter,
+    limit: routes,
+    label: 'rtl-layout',
+    noun: 'route',
+  });
 
-  const { server, origin } = await serveDist('404');
-  let browser: Browser | null = null;
   const failures: { route: string; ltr: number; rtl: number; culprit: string | null }[] = [];
 
-  try {
-    browser = await chromium.launch();
-    // `reducedMotion` for the same reason `check:contrast` sets it: an animation
-    // caught mid-flight can be translated well outside the viewport, and a
-    // measurement of one frame is not a measurement of the layout.
-    const context = await browser.newContext({
-      reducedMotion: 'reduce',
-      viewport: { width: 1280, height: 900 },
-    });
+  await withDistBrowser('404', async ({ browser, origin }) => {
+    // Reduced motion, for the same reason `check:contrast` wants it: an
+    // animation caught mid-flight can be translated well outside the viewport,
+    // and a measurement of one frame is not a measurement of the layout.
+    const context = await newPinnedContext(browser);
     const page = await context.newPage();
 
     info(`\nRTL layout — ${targets.length} routes, both directions\n`);
@@ -198,10 +194,7 @@ async function main(): Promise<void> {
     }
 
     await context.close();
-  } finally {
-    await browser?.close();
-    server.close();
-  }
+  });
 
   if (failures.length > 0) {
     err(`\n✘ ${failures.length} route${failures.length === 1 ? '' : 's'} have content escaping the viewport under dir="rtl":\n`);

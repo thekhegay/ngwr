@@ -29,19 +29,20 @@
  *   pnpm tsx scripts/gen/ai-assets.ts
  */
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
-import { dirname, join, relative } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { basename, dirname, join } from 'node:path';
 
 import { REQUIRED_PROVIDERS } from '../../projects/lib/mcp/providers';
 import { renderSkill } from '../lib/ai/skill';
+import { decoratedClasses } from '../lib/build-selector-map';
+import { publicExports, type PublicExport } from '../lib/build-symbol-map';
+import { docPageTags } from '../lib/doc-page';
+import { entryFiles, libEntryPoints, wrClassName } from '../lib/entry-points';
 import { info } from '../lib/log/info';
+import { docPages, requireSingleRoutePages } from '../lib/page-routes';
+import { LIB_PATH } from '../lib/paths/lib';
 import { ROOT_PATH } from '../lib/paths/root';
-
-const LIB_DIR = join(ROOT_PATH, 'projects/lib');
-const SHOWCASE_APP = join(ROOT_PATH, 'projects/showcase/app');
-const REFERENCE_DIR = join(SHOWCASE_APP, 'reference');
-const CHARTS_DIR = join(SHOWCASE_APP, 'charts');
-const BITS_DIR = join(SHOWCASE_APP, 'bits');
+import { SHOWCASE_APP_PATH } from '../lib/paths/showcase-app';
 
 /**
  * The Angular major the library is built against, read from its own peer range
@@ -49,84 +50,23 @@ const BITS_DIR = join(SHOWCASE_APP, 'bits');
  * an agent trusts is worse than none.
  */
 function angularMajor(): string {
-  const pkg = JSON.parse(read(join(LIB_DIR, 'package.json')) || '{}') as {
+  const pkg = JSON.parse(read(join(LIB_PATH, 'package.json')) || '{}') as {
     peerDependencies?: Record<string, string>;
   };
   const range = pkg.peerDependencies?.['@angular/core'] ?? '';
   return /(\d+)/.exec(range)?.[1] ?? '22';
 }
 
-const dirsOnly = (path: string): string[] =>
-  existsSync(path)
-    ? readdirSync(path, { withFileTypes: true })
-        .filter(entry => entry.isDirectory())
-        .map(entry => entry.name)
-        .sort()
-    : [];
-
 const read = (path: string): string => (existsSync(path) ? readFileSync(path, 'utf8') : '');
 
 // --- entry points ----------------------------------------------------------
 
 /**
- * Every secondary entry point, keyed by its import subpath.
- *
- * Discovery is by `public-api.ts`, which is what the exports map points at
- * from — a directory scan one level deep misses every nested one (the
- * `i18n/<locale>` catalogs, the v14 router opt-ins `loading-bar/router` and
- * `tabs/router`, `charts/*`, `bits/*` and the `<name>/testing` harness entry
- * points) and reports well under half of what
- * the package publishes. `projects/lib/public-api.ts` is the PRIMARY entry point and
- * is excluded: its key would be the empty string and its import specifier a
- * bare `ngwr`. Its one export, `provideWr()`, is taught by the skill's setup
+ * Every secondary entry point, `<name>/testing` included. The PRIMARY `ngwr` is
+ * not one: its one export, `provideWr()`, is taught by the skill's setup
  * reference instead, beside the `with*()` features listed here per entry point.
  */
-function findEntries(): string[] {
-  const out: string[] = [];
-  const walk = (dir: string): void => {
-    for (const name of readdirSync(dir)) {
-      const full = join(dir, name);
-      if (!statSync(full).isDirectory()) continue;
-      if (existsSync(join(full, 'public-api.ts'))) out.push(relative(LIB_DIR, full));
-      walk(full);
-    }
-  };
-  walk(LIB_DIR);
-  return out.sort();
-}
-
-const ENTRIES = findEntries();
-const ENTRY_DIRS = new Set(ENTRIES.map(e => join(LIB_DIR, e)));
-
-/**
- * `.ts` files that belong to THIS entry point.
- *
- * Two things have to be excluded or the output describes API that does not
- * exist: `internal/` (the popover's text panel, the date-picker's clock — no
- * consumer can import them), and any nested entry point, whose files belong to
- * its own block rather than its parent's.
- */
-function filesOf(entryDir: string): string[] {
-  const out: string[] = [];
-  const walk = (dir: string): void => {
-    for (const name of readdirSync(dir)) {
-      const full = join(dir, name);
-      if (statSync(full).isDirectory()) {
-        if (name === 'internal' || ENTRY_DIRS.has(full)) continue;
-        walk(full);
-      } else if (name.endsWith('.ts') && !name.endsWith('.spec.ts')) {
-        out.push(full);
-      }
-    }
-  };
-  walk(entryDir);
-  return out.sort();
-}
-
-/** Strip block and line comments so a `selector:` inside a JSDoc example is not read as real API. */
-function stripComments(src: string): string {
-  return src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
-}
+const ENTRIES = libEntryPoints();
 
 /**
  * The selectors an entry point gives a consumer to write.
@@ -142,84 +82,20 @@ function stripComments(src: string): string {
  * and `<wr-window>` — the latter one line above its own "There is no declarative
  * `<wr-window>` component".
  */
-const selectorsOf = (entryDir: string, exported: ReadonlySet<string>): string[] => {
+const selectorsOf = (entry: string, exported: ReadonlySet<string>): string[] => {
   const out = new Set<string>();
-  for (const file of filesOf(entryDir)) {
-    const src = stripComments(read(file));
-    for (const decorator of src.matchAll(/@(?:Component|Directive)\s*\(/g)) {
-      const from = (decorator.index ?? 0) + decorator[0].length;
-      const rest = src.slice(from);
-      // The decorator's object ends where its class begins, so the class name is
-      // the next `class X` and everything before it belongs to this decorator.
-      // Scanning to the class rather than balancing the parentheses is what
-      // keeps `host: { '(click)': '…' }` from being read as the end of the call.
-      const cls = /(?:export\s+)?(?:abstract\s+)?class\s+(\w+)/.exec(rest);
-      if (!cls?.[1] || !exported.has(cls[1])) continue;
-
-      const match = /selector:\s*'([^']+)'/.exec(rest.slice(0, cls.index));
+  for (const file of entryFiles(entry, { sort: 'paths' })) {
+    for (const declared of decoratedClasses(file)) {
+      if (declared.kind === 'Pipe' || !exported.has(declared.klass)) continue;
       // A multi-selector string like `input[wrInput], textarea[wrInput]` is one
       // declaration but two things a consumer can write.
-      for (const part of (match?.[1] ?? '').split(',')) {
+      for (const part of (declared.selector ?? '').split(',')) {
         const selector = part.trim();
         if (selector) out.add(selector);
       }
     }
   }
   return [...out];
-};
-
-/** Named exports declared in a file — the targets of an `export * from './x'`. */
-function declaredIn(file: string): [name: string, isType: boolean][] {
-  const src = stripComments(read(file));
-  const out: [string, boolean][] = [];
-  const re = /^export\s+(?:declare\s+)?(?:abstract\s+)?(const|let|var|function|class|type|interface|enum)\s+(\w+)/gm;
-  for (const m of src.matchAll(re)) {
-    if (m[2]) out.push([m[2], m[1] === 'type' || m[1] === 'interface']);
-  }
-  return out;
-}
-
-interface ExportedSymbol {
-  readonly name: string;
-  /** `export type { X }` or `export { type X }` — cannot appear in a value import. */
-  readonly isType: boolean;
-}
-
-const exportsOf = (entryDir: string): ExportedSymbol[] => {
-  const out = new Map<string, boolean>();
-  const apiFile = join(entryDir, 'public-api.ts');
-  const src = stripComments(read(apiFile));
-
-  for (const match of src.matchAll(/export\s+(type\s+)?\{([^}]+)\}/g)) {
-    const blockIsType = Boolean(match[1]);
-    for (const symbol of (match[2] ?? '').split(',')) {
-      const raw = symbol.trim();
-      if (!raw) continue;
-      const inlineType = /^type\s+/.test(raw);
-      const name = raw
-        .replace(/^type\s+/, '')
-        .split(/\s+as\s+/)
-        .pop()
-        ?.trim();
-      if (name && !out.has(name)) out.set(name, blockIsType || inlineType);
-    }
-  }
-
-  // `export * from './version'` — followed one hop, which is all the library
-  // uses. Without it `ngwr/version` advertises no exports and an import line
-  // reading `import { … }`.
-  for (const match of src.matchAll(/export\s+\*\s+from\s+'([^']+)'/g)) {
-    const target = join(entryDir, `${match[1]}.ts`);
-    const file = existsSync(target) ? target : join(entryDir, match[1] ?? '', 'index.ts');
-    for (const [name, isType] of declaredIn(file)) if (!out.has(name)) out.set(name, isType);
-  }
-
-  // `ngwr/i18n/{en,ru}` declare their catalog inline (`export const wrEn = …`)
-  // instead of re-exporting it, so the barrel itself has to be read for
-  // declarations too.
-  for (const [name, isType] of declaredIn(apiFile)) if (!out.has(name)) out.set(name, isType);
-
-  return [...out].map(([name, isType]) => ({ name, isType }));
 };
 
 /**
@@ -231,12 +107,8 @@ const exportsOf = (entryDir: string): ExportedSymbol[] => {
  * not even compile under `verbatimModuleSyntax`. Prefer the class named after
  * the entry point, then the first `Wr`-prefixed value.
  */
-function headlineExport(entry: string, exports: readonly ExportedSymbol[]): string | undefined {
-  const leaf = (entry.split('/').pop() ?? '')
-    .split('-')
-    .map(p => p.charAt(0).toUpperCase() + p.slice(1))
-    .join('');
-  const pascal = `Wr${leaf}`;
+function headlineExport(entry: string, exports: readonly PublicExport[]): string | undefined {
+  const pascal = wrClassName(entry);
 
   // Types are excluded outright: `import { Maybe } from 'ngwr/utils'` does not
   // compile under `verbatimModuleSyntax`, and an import line that does not
@@ -254,93 +126,16 @@ function headlineExport(entry: string, exports: readonly ExportedSymbol[]): stri
 
 // --- doc-page descriptions -------------------------------------------------
 
-/**
- * Read one attribute off the opening `<ngwr-doc-page …>` tag.
- *
- * Not a `[^>]*` regex: 25 doc pages carry a `>` INSIDE the description value
- * (the button page describes rendering as `<wr-btn>`), so a naive tag match
- * truncates mid-attribute and the value is lost. Scanning with quote awareness
- * finds the tag's real end, and both quote styles are accepted — pages whose
- * text contains a `"` use single quotes, and matching only double quotes is why
- * `donut-chart` and `popover` currently ship a description scraped off a
- * `<ngwr-doc-section>` further down the file.
- */
-function docPageDescription(html: string): string {
-  const start = html.indexOf('<ngwr-doc-page');
-  if (start === -1) return '';
+/** Every reference, chart and bits page, by the entry point it documents. */
+const PAGES = docPages(await requireSingleRoutePages(), { admit: page => page.cluster !== 'guides' });
 
-  let end = start;
-  let quote: string | null = null;
-  for (let i = start; i < html.length; i++) {
-    const c = html[i];
-    if (quote) {
-      if (c === quote) quote = null;
-    } else if (c === '"' || c === "'") {
-      quote = c;
-    } else if (c === '>') {
-      end = i;
-      break;
-    }
-  }
-  if (end <= start) return '';
-
-  const tag = html.slice(start, end);
-  const match = /\bdescription=("([^"]*)"|'([^']*)')/s.exec(tag);
-  const value = match?.[2] ?? match?.[3] ?? '';
-  return value.replace(/\s+/g, ' ').trim();
+/** The `description` on an entry point's `<ngwr-doc-page>`, whitespace collapsed; `''` when it has no page. */
+function descriptionOf(entry: string): string {
+  const page = PAGES.byEntry.get(entry);
+  if (!page) return '';
+  const html = read(join(SHOWCASE_APP_PATH, page.dir, `${basename(page.dir)}.html`));
+  return (docPageTags(html)[0]?.get('description') ?? '').replace(/\s+/g, ' ').trim();
 }
-
-/**
- * Entry name → doc-page description.
- *
- * Both clusters are walked, and the second one is why: the animation and
- * visual-effect components are `ngwr/bits/*` and their pages live under
- * `app/bits/`, not under `app/reference/`. Miss that directory and 21 entry
- * points ship description-less.
- *
- * Cluster order is explicit rather than alphabetical-and-last-wins: `theme` has
- * a page in both `interfaces` and `services`, and which one lands should be a
- * decision, not a side effect of `readdirSync` ordering.
- */
-const CLUSTER_PRIORITY = ['components', 'directives', 'pipes', 'services', 'utils', 'validators', 'interfaces'];
-
-const descriptions = ((): Map<string, string> => {
-  const map = new Map<string, string>();
-
-  const take = (name: string, html: string): void => {
-    const description = docPageDescription(html);
-    if (description && !map.has(name)) map.set(name, description);
-  };
-
-  const clusters = dirsOnly(REFERENCE_DIR).sort((a, b) => {
-    const ai = CLUSTER_PRIORITY.indexOf(a);
-    const bi = CLUSTER_PRIORITY.indexOf(b);
-    return (ai === -1 ? Number.MAX_SAFE_INTEGER : ai) - (bi === -1 ? Number.MAX_SAFE_INTEGER : bi);
-  });
-
-  for (const cluster of clusters) {
-    const clusterDir = join(REFERENCE_DIR, cluster);
-    // A page sits either directly in the cluster or one level down, inside the
-    // sidebar group folder `reference/components/` was split into. Walking
-    // only the top level found 43 of 119 descriptions.
-    for (const name of dirsOnly(clusterDir)) {
-      const direct = read(join(clusterDir, name, `${name}.html`));
-      if (direct) { take(name, direct); continue; }
-      for (const page of dirsOnly(join(clusterDir, name))) take(page, read(join(clusterDir, name, page, `${page}.html`)));
-    }
-  }
-  // `bits/` holds a folder per sidebar GROUP since v15, and the chart pages
-  // left `reference/components/` for a cluster of their own. Both are one
-  // level deeper than they were, so a flat walk finds nothing — which is how
-  // the description count silently fell from 119 to 91.
-  for (const group of dirsOnly(BITS_DIR)) {
-    const groupDir = join(BITS_DIR, group);
-    for (const name of dirsOnly(groupDir)) take(name, read(join(groupDir, name, `${name}.html`)));
-  }
-  for (const name of dirsOnly(CHARTS_DIR)) take(name, read(join(CHARTS_DIR, name, `${name}.html`)));
-
-  return map;
-})();
 
 // --- render ----------------------------------------------------------------
 
@@ -354,19 +149,16 @@ interface Entry {
 
 function collect(): Entry[] {
   return ENTRIES.map(name => {
-    const dir = join(LIB_DIR, name);
-    const exports = exportsOf(dir);
+    const exports = publicExports(name);
     // Types cannot carry a decorator, and a selector is only real if the class
     // behind it can be imported as a value.
-    const selectors = selectorsOf(dir, new Set(exports.filter(e => !e.isType).map(e => e.name)));
+    const selectors = selectorsOf(name, new Set(exports.filter(e => !e.isType).map(e => e.name)));
     return {
       name,
       selectors,
       exports: exports.map(e => e.name),
       headline: headlineExport(name, exports),
-      // Nested entry points have no page of their own; the leaf name is what a
-      // doc folder would be called.
-      description: descriptions.get(name.split('/').pop() ?? name) ?? '',
+      description: descriptionOf(name),
     };
   });
 }
@@ -408,7 +200,9 @@ function main(): void {
   for (const entry of entries) {
     for (const selector of entry.selectors) {
       if (!SELECTOR_SHAPE.test(selector)) {
-        throw new Error(`ngwr/${entry.name}: \`${selector}\` is not a component selector. Fix scripts/gen/ai-assets.ts.`);
+        throw new Error(
+          `ngwr/${entry.name}: \`${selector}\` is not a component selector. Fix scripts/gen/ai-assets.ts.`
+        );
       }
     }
   }

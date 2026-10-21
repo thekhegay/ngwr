@@ -43,17 +43,21 @@
  * a real diff — a gate added, an entry point shipped — into noise nobody reads.
  */
 
-import { readFileSync, readdirSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
-import { libEntryPoints } from '../lib/entry-points';
+import { decoratedClasses } from '../lib/build-selector-map';
+import { buildSymbolMap, publicExports } from '../lib/build-symbol-map';
+import { libEntryPoints, libLocales } from '../lib/entry-points';
+import { walkFiles } from '../lib/fs/walk-files';
+import { emitGenerated, GENERATED_DIR, generatedHeader } from '../lib/generated';
+import { docRouteCount, requirePageRoutes } from '../lib/page-routes';
+import { LIB_PATH } from '../lib/paths/lib';
 import { ROOT_PATH } from '../lib/paths/root';
+import { stripTs } from '../lib/ts-lex';
 
-const OUT_DIR = resolve(ROOT_PATH, 'projects/showcase/app/_core/generated');
-const OUT_FILE = join(OUT_DIR, 'quality.ts');
+const OUT_FILE = join(GENERATED_DIR, 'quality.ts');
 
-const LIB = resolve(ROOT_PATH, 'projects/lib');
-const SHOWCASE_APP = resolve(ROOT_PATH, 'projects/showcase/app');
 const CI_WORKFLOW = resolve(ROOT_PATH, '.github/workflows/ci.yml');
 const NIGHTLY_WORKFLOW = resolve(ROOT_PATH, '.github/workflows/nightly.yml');
 
@@ -72,18 +76,6 @@ function atLeast(n: number, floor: number, what: string): number {
   return n;
 }
 
-function walk(dir: string, onFile: (full: string) => void): void {
-  for (const item of readdirSync(dir, { withFileTypes: true })) {
-    const full = join(dir, item.name);
-    if (item.isDirectory()) {
-      if (item.name === 'node_modules' || item.name.startsWith('.')) continue;
-      walk(full, onFile);
-    } else {
-      onFile(full);
-    }
-  }
-}
-
 // ───── Entry points ─────
 
 /**
@@ -95,174 +87,7 @@ function walk(dir: string, onFile: (full: string) => void): void {
  * the new builder does not; they are deleted.
  */
 function secondaryEntryPoints(): string[] {
-  return libEntryPoints(LIB);
-}
-
-// ───── Source scanning ─────
-
-/**
- * TypeScript with its comments, string bodies and regex literals removed.
- *
- * Needed because the counters below match source text, and this repo's comments
- * are prose about the code: six comment lines in `projects/lib` end a sentence
- * with "…closes it (the next case pins that)", which a bare `\bit\s*\(` counts
- * as six tests that do not exist.
- *
- * Regex literals are the part worth writing out. `/['"]/` appears in specs, and
- * a stripper that reads that quote as a string opener swallows everything to the
- * next one — taking real `it(` calls with it, and silently. Telling a regex from
- * a division needs the previous significant token, which is why `prev` and
- * `word` are tracked: after `)` or an identifier a slash divides, after `return`
- * it opens a pattern.
- *
- * `keepStrings` emits string and template bodies verbatim instead of emptying
- * them. Exactly one caller wants that — `docRoutes()`, which has to tell
- * `path: '**'` from `path: ''` and would see the same thing for both once the
- * bodies are gone. Nothing that COUNTS may use it: emptying them is the whole
- * reason a `/['"]/` in a spec cannot swallow the `it(` calls after it.
- */
-const REGEX_KEYWORDS = new Set([
-  'return',
-  'typeof',
-  'instanceof',
-  'case',
-  'in',
-  'of',
-  'new',
-  'delete',
-  'void',
-  'do',
-  'else',
-  'yield',
-  'await',
-]);
-
-function stripCode(src: string, keepStrings = false): string {
-  const out: string[] = [];
-  // Mode stack rather than a flag: a template literal can hold `${…}` holding
-  // another template, and a single boolean loses the outer one.
-  const modes: ('code' | 'tpl')[] = ['code'];
-  const holeDepth: number[] = [];
-  let depth = 0;
-  let prev = '';
-  let word = '';
-  let i = 0;
-
-  const opensRegex = (): boolean => {
-    if (prev === '') return true;
-    if (/[)\]}]/.test(prev)) return false;
-    if (/[\w$]/.test(prev)) return REGEX_KEYWORDS.has(word);
-    return true;
-  };
-
-  while (i < src.length) {
-    const c = src[i] ?? '';
-    const n = src[i + 1] ?? '';
-
-    if (modes[modes.length - 1] === 'tpl') {
-      if (c === '\\') {
-        if (keepStrings) out.push(src.slice(i, i + 2));
-        i += 2;
-      } else if (c === '`') {
-        modes.pop();
-        out.push('`');
-        prev = '`';
-        word = '';
-        i++;
-      } else if (c === '$' && n === '{') {
-        modes.push('code');
-        holeDepth.push(depth);
-        depth++;
-        out.push('${');
-        prev = '{';
-        word = '';
-        i += 2;
-      } else {
-        if (keepStrings) out.push(c);
-        i++;
-      }
-      continue;
-    }
-
-    if (c === '/' && n === '/') {
-      while (i < src.length && src[i] !== '\n') i++;
-      continue;
-    }
-
-    if (c === '/' && n === '*') {
-      i += 2;
-      while (i < src.length && !(src[i] === '*' && src[i + 1] === '/')) i++;
-      i += 2;
-      out.push(' ');
-      continue;
-    }
-
-    if (c === '"' || c === "'") {
-      const from = i;
-      i++;
-      while (i < src.length && src[i] !== c) i += src[i] === '\\' ? 2 : 1;
-      i++;
-      out.push(keepStrings ? src.slice(from, i) : `${c}${c}`);
-      prev = c;
-      word = '';
-      continue;
-    }
-
-    if (c === '`') {
-      modes.push('tpl');
-      out.push('`');
-      prev = '`';
-      word = '';
-      i++;
-      continue;
-    }
-
-    if (c === '/' && opensRegex()) {
-      i++;
-      let inClass = false;
-      while (i < src.length) {
-        const ch = src[i];
-        if (ch === '\\') {
-          i += 2;
-          continue;
-        }
-        if (ch === '\n') break;
-        if (ch === '[') inClass = true;
-        else if (ch === ']') inClass = false;
-        else if (ch === '/' && !inClass) break;
-        i++;
-      }
-      i++;
-      while (i < src.length && /[a-z]/.test(src[i] ?? '')) i++;
-      out.push('/RE/');
-      prev = '/';
-      word = '';
-      continue;
-    }
-
-    if (c === '{') depth++;
-    if (c === '}') {
-      if (modes.length > 1 && depth === (holeDepth[holeDepth.length - 1] ?? -1) + 1) {
-        depth--;
-        holeDepth.pop();
-        modes.pop();
-        out.push('}');
-        prev = '}';
-        word = '';
-        i++;
-        continue;
-      }
-      depth--;
-    }
-
-    out.push(c);
-    if (/[\w$]/.test(c)) word += c;
-    else if (!/\s/.test(c)) word = '';
-    if (!/\s/.test(c)) prev = c;
-    i++;
-  }
-
-  return out.join('');
+  return libEntryPoints();
 }
 
 // ───── Specs ─────
@@ -274,7 +99,7 @@ const OPENS_LOOP = /\b(for|while)\s*\(|\.\s*(forEach|map|flatMap)\s*\(/;
 /**
  * A spec whose cases are declared by a shared contract it calls rather than by
  * `it()` in the file itself. Named explicitly rather than matched loosely: the
- * point of the zero-case throw is to catch a broken `stripCode`, and a pattern
+ * point of the zero-case throw is to catch a broken `stripTs`, and a pattern
  * like `/expect\w+Contract\(/` would eventually excuse exactly the file it was
  * written to catch.
  */
@@ -307,7 +132,7 @@ interface SpecFacts {
  * rather than throws.
  *
  * One thing still throws: a spec file with no cases in it at all. That is not a
- * test-authoring choice, it is the signature of `stripCode` having eaten
+ * test-authoring choice, it is the signature of `stripTs` having eaten
  * something, and a broken counter must not publish a number. The one legitimate
  * exception is a spec that DELEGATES its whole body to a shared contract — an
  * `i18n/<locale>/catalog.spec.ts` hands its catalog to `expectCatalogContract`
@@ -322,15 +147,17 @@ function specFacts(entryPoints: readonly string[]): SpecFacts {
   let files = 0;
   let cases = 0;
 
-  walk(LIB, full => {
-    if (!full.endsWith('.spec.ts')) return;
+  for (const full of walkFiles(LIB_PATH, { skipDotDirs: true, followLinks: false, include: p => p.endsWith('.spec.ts') })) {
     files++;
 
-    const rel = relative(LIB, full);
+    const rel = relative(LIB_PATH, full);
     const owner = owners.find(e => rel.startsWith(`${e}/`));
     if (owner !== undefined) withSpecs.add(owner);
 
-    const src = stripCode(readFileSync(full, 'utf8'));
+    // Comments out, since prose like "…(the next case pins that)" reads as an
+    // `it(` call; string bodies and regex literals too, so a `/['"]/` cannot open
+    // a string that swallows the real calls after it.
+    const src = stripTs(readFileSync(full, 'utf8'));
     if (PARAMETERISED.test(src)) {
       approximations.push(`${rel} uses a parameterised test form (it.each / it.for) — one call site, several cases.`);
     }
@@ -371,10 +198,10 @@ function specFacts(entryPoints: readonly string[]): SpecFacts {
     }
 
     if (inFile === 0 && !delegated) {
-      throw new Error(`${rel} declares no test cases — either the file is empty or \`stripCode\` swallowed it.`);
+      throw new Error(`${rel} declares no test cases — either the file is empty or \`stripTs\` swallowed it.`);
     }
     cases += inFile;
-  });
+  }
 
   for (const note of approximations) {
     console.warn(`gen:quality — ${note} \`testCases\` becomes a floor; the page will say "at least".`);
@@ -390,9 +217,6 @@ function specFacts(entryPoints: readonly string[]): SpecFacts {
 
 // ───── Public API ─────
 
-/** `@Component({…}) export class WrFoo` — the same shape `scripts/lib/extract-api.ts` reads. */
-const DECORATED = /@(Component|Directive)\(\{[\s\S]*?\}\)\s*export\s+class\s+(\w+)/g;
-
 interface PublicApi {
   readonly components: number;
   readonly directives: number;
@@ -407,31 +231,25 @@ interface PublicApi {
  * the catalog with three things nobody can type. `internal/` is skipped for the
  * same reason, and `testing/` because a harness is not a component.
  *
- * Read through `stripCode` for the same reason `specFacts` is: this repo's JSDoc
- * shows the API in use, and ten `@example` blocks already open with
- * `@Component({…})`. They miss today only because their example classes are
- * called `MyComponent` / `ConfirmComponent` and nothing exports those names — an
- * example that showed `export class WrFoo` would add itself to the catalog
- * silently, which is the shape of drift this whole file exists to refuse.
+ * A decorator in a comment is not counted: this repo's JSDoc shows the API in
+ * use, and ten `@example` blocks open with `@Component({…})`. One that showed
+ * `export class WrFoo` would otherwise add itself to the catalog silently, which
+ * is the shape of drift this whole file exists to refuse.
  */
 function publicApi(): PublicApi {
-  const sources: string[] = [];
-  const exported = new Set<string>();
-
-  walk(LIB, full => {
-    if (!full.endsWith('.ts') || full.endsWith('.spec.ts')) return;
-    if (/\/(testing|internal|schematics)\//.test(full)) return;
-    const src = stripCode(readFileSync(full, 'utf8'));
-    if (full.endsWith('/public-api.ts')) for (const m of src.matchAll(/\b(Wr[A-Za-z0-9_]*)\b/g)) exported.add(m[1] ?? '');
-    sources.push(src);
-  });
-
+  const exported = new Set(Object.keys(buildSymbolMap()));
   let components = 0;
   let directives = 0;
-  for (const src of sources) {
-    for (const m of src.matchAll(DECORATED)) {
-      if (!exported.has(m[2] ?? '')) continue;
-      if (m[1] === 'Component') components++;
+
+  const files = walkFiles(LIB_PATH, {
+    skipDotDirs: true,
+    followLinks: false,
+    include: p => p.endsWith('.ts') && !p.endsWith('.spec.ts') && !/\/(testing|internal|schematics)\//.test(p),
+  });
+  for (const full of files) {
+    for (const d of decoratedClasses(full)) {
+      if (d.kind === 'Pipe' || !exported.has(d.klass)) continue;
+      if (d.kind === 'Component') components++;
       else directives++;
     }
   }
@@ -469,20 +287,13 @@ function harnesses(testingEntryPoints: readonly string[]): Harnesses {
   const classes = new Set<string>();
 
   for (const entry of testingEntryPoints) {
-    const file = join(LIB, entry, 'public-api.ts');
+    const file = join(LIB_PATH, entry, 'public-api.ts');
     if (!existsSync(file)) throw new Error(`${entry} is in the exports map and has no public-api.ts — the file the builder compiles does not exist.`);
-    const src = readFileSync(file, 'utf8');
 
-    for (const block of src.matchAll(/export\s+(type\s+)?\{([^}]*)\}(?:\s*from\s*'([^']+)')?/g)) {
-      if (block[1]) continue;
-      for (const member of (block[2] ?? '').split(',')) {
-        const trimmed = member.trim();
-        if (!trimmed || /^type\s/.test(trimmed)) continue;
-        const exportedAs = (trimmed.split(/\s+as\s+/).pop() ?? '').trim();
-        if (!/^Wr[A-Za-z0-9]*Harness$/.test(exportedAs)) continue;
-        names.add(exportedAs);
-        classes.add(implementationOf(entry, exportedAs, trimmed, block[3]));
-      }
+    for (const exported of publicExports(entry)) {
+      if (exported.isType || exported.via !== 'list' || !/^Wr[A-Za-z0-9]*Harness$/.test(exported.name)) continue;
+      names.add(exported.name);
+      classes.add(implementationOf(entry, exported.name, exported.local, exported.from));
     }
   }
 
@@ -491,97 +302,14 @@ function harnesses(testingEntryPoints: readonly string[]): Harnesses {
 }
 
 /** The name the class is declared under, following one hop through a relative re-export. */
-function implementationOf(entry: string, exportedAs: string, member: string, from: string | undefined): string {
-  const local = member.split(/\s+as\s+/)[0]?.trim() ?? exportedAs;
+function implementationOf(entry: string, exportedAs: string, local: string, from: string | undefined): string {
   if (local !== exportedAs) return local;
   if (!from?.startsWith('.')) return exportedAs;
 
-  const module = resolve(LIB, entry, `${from}.ts`);
+  const module = resolve(LIB_PATH, entry, `${from}.ts`);
   if (!existsSync(module)) return exportedAs;
   const alias = new RegExp(String.raw`export\s*\{[^}]*?\b(\w+)\s+as\s+${exportedAs}\b`).exec(readFileSync(module, 'utf8'));
   return alias?.[1] ?? exportedAs;
-}
-
-// ───── Showcase routes ─────
-
-/**
- * Routes the showcase's own tables declare with a `loadComponent` — one rendered
- * page each.
- *
- * NOT the prerendered-route count, and the gap is not rounding: the wildcard 404
- * is never prerendered (`@angular/build` drops any extracted route whose path
- * holds a `*`), and `app.routes.server.ts` sends six raw-SVG icon galleries and
- * every parameterised legacy redirect to the client. The prerender output is the
- * authority on that number and it only exists after `build:showcase`, which runs
- * after this script.
- *
- * Two `loadComponent`s are NOT pages and are excluded, because a statistic
- * labelled "Documentation pages" must not count the chrome around them. A route
- * carrying `children` is a layout shell — `routing.ts` mounts `#layout` that way
- * and it renders navigation, not a page — and `path: '**'` is the 404, which
- * nobody navigates to on purpose and the builder never prerenders. Deciding
- * either one needs the route's OWN keys, so each match is read back to the
- * object literal it sits directly inside; a key belonging to a child route must
- * not speak for its parent.
- */
-function docRoutes(): number {
-  let found = 0;
-  walk(SHOWCASE_APP, full => {
-    if (!full.endsWith('.ts')) return;
-    // Strings kept: `path: '**'` is only distinguishable from `path: ''` while
-    // the body survives, and both shapes are in this file.
-    const src = stripCode(readFileSync(full, 'utf8'), true);
-    for (const m of src.matchAll(/\bloadComponent\s*:/g)) {
-      const route = ownKeysOf(src, m.index);
-      if (/(?:^|[{,\s])children\s*:/.test(route)) continue;
-      if (/(?:^|[{,\s])path\s*:\s*(['"`])\*\*\1/.test(route)) continue;
-      found++;
-    }
-  });
-  return atLeast(found, 100, 'doc routes');
-}
-
-/**
- * The object literal a match sits directly inside, with every nested brace,
- * bracket and paren group removed — so what is left is that object's own keys.
- *
- * The nesting is what makes this necessary rather than a regex: the layout
- * shell's `children` array holds two hundred route objects, and a scan that read
- * forward from the shell's opening brace would find every one of their keys and
- * attribute them all to the shell.
- */
-function ownKeysOf(src: string, at: number): string {
-  let depth = 0;
-  let start = -1;
-  for (let i = at - 1; i >= 0; i--) {
-    const c = src[i];
-    if (c === '}') depth++;
-    else if (c === '{') {
-      if (depth === 0) {
-        start = i;
-        break;
-      }
-      depth--;
-    }
-  }
-  if (start === -1) return '';
-
-  const out: string[] = [];
-  let level = 0;
-  for (let i = start; i < src.length; i++) {
-    const c = src[i] ?? '';
-    if (c === '{' || c === '[' || c === '(') {
-      level++;
-      continue;
-    }
-    if (c === '}' || c === ']' || c === ')') {
-      level--;
-      if (level === 0) break;
-      continue;
-    }
-    if (level === 1) out.push(c);
-  }
-  return out.join('');
 }
 
 // ───── Gates ─────
@@ -662,15 +390,7 @@ interface Facts {
 }
 
 function serialize(f: Facts): string {
-  return `/**
- * @license
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
- */
-
-/* eslint-disable */
-/**
+  return `${generatedHeader(`/**
  * GENERATED by \`pnpm gen:quality\` from the repository itself — do not edit.
  *
  * Every number here was counted at generation time: entry points from their
@@ -685,7 +405,7 @@ function serialize(f: Facts): string {
  * Every field below is read by the page. A generated field nothing binds is the
  * same dead weight \`check:tokens\` exists to catch: it reads as a measured fact
  * and is only ever a number in a file.
- */
+ */`)}
 
 export const QUALITY = {
   /** The published version, read from \`projects/lib/package.json\` — cross-checked against the \`NGWR_VERSION\` constant, which is a separate copy. */
@@ -746,23 +466,19 @@ ${gates(f.nightlyGates)}
 }
 
 /**
- * The locale catalogs, discovered the same way `gen/i18n-json.ts` discovers them
- * — a folder under `i18n/` holding a `public-api.ts` — rather than from a list
- * anyone maintains. The translations guide lists them from here.
+ * The locale catalogs, from `libLocales()`, the folder rule `gen/i18n-json.ts`
+ * uses, rather than from a list anyone maintains. The translations guide lists
+ * them from here.
  */
 function shippedLocales(): readonly string[] {
-  const root = join(LIB, 'i18n');
-  const found = readdirSync(root, { withFileTypes: true })
-    .filter(entry => entry.isDirectory() && existsSync(join(root, entry.name, 'public-api.ts')))
-    .map(entry => entry.name)
-    .sort();
+  const found = libLocales();
   atLeast(found.length, 2, 'locale catalogs');
   return found;
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const rootPkg = JSON.parse(readFileSync(resolve(ROOT_PATH, 'package.json'), 'utf8')) as { scripts?: Record<string, string> };
-  const libPkg = JSON.parse(readFileSync(join(LIB, 'package.json'), 'utf8')) as {
+  const libPkg = JSON.parse(readFileSync(join(LIB_PATH, 'package.json'), 'utf8')) as {
     version?: string;
     dependencies?: Record<string, string>;
   };
@@ -771,7 +487,7 @@ function main(): void {
   const version = libPkg.version ?? '';
   // Two copies of one fact, so the check is free: `release:prepare` writes both,
   // and a hand-edit to either is exactly the drift this whole file is against.
-  const constant = /NGWR_VERSION\s*=\s*'([^']+)'/.exec(readFileSync(join(LIB, 'version/version.ts'), 'utf8'))?.[1];
+  const constant = /NGWR_VERSION\s*=\s*'([^']+)'/.exec(readFileSync(join(LIB_PATH, 'version/version.ts'), 'utf8'))?.[1];
   if (!version || version !== constant) {
     throw new Error(`package.json says ${version || '(nothing)'} and NGWR_VERSION says ${constant ?? '(nothing)'} — run \`pnpm release:prepare\`, do not pick one.`);
   }
@@ -786,6 +502,7 @@ function main(): void {
   const lintScript = scripts['lint'];
   if (!lintScript) throw new Error('package.json has no `lint` script — the lint chain is the gate this page is mostly about.');
 
+  const routes = await requirePageRoutes();
   const facts: Facts = {
     version,
     entryPoints: entries.length,
@@ -797,7 +514,9 @@ function main(): void {
     testCases: specs.cases,
     testCasesAreExact: specs.casesAreExact,
     entryPointsWithSpecs: atLeast(specs.entryPoints.size, 100, 'entry points with specs'),
-    docRoutes: docRoutes(),
+    // Routes that render a page: not the prerender count, which exists only in
+    // `dist/showcase`, and neither the layout shell nor the `**` 404.
+    docRoutes: atLeast(docRouteCount(routes), 100, 'doc routes'),
     locales: shippedLocales(),
     runtimeDependencies: Object.keys(libPkg.dependencies ?? {}).sort(),
     lintStages: stagesOf(lintScript, scripts),
@@ -810,13 +529,14 @@ function main(): void {
   atLeast(facts.nightlyGates.length, 1, 'nightly gates');
   atLeast(facts.runtimeDependencies.length, 1, 'runtime dependencies');
 
-  if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
-  writeFileSync(OUT_FILE, serialize(facts));
-
-  console.log(
-    `✓ ${relative(ROOT_PATH, OUT_FILE)} — ${facts.entryPoints} entry points, ${facts.specFiles} spec files / ${facts.testCases} cases,` +
-      ` ${facts.prGates.length} PR gates, ${facts.nightlyGates.length} nightly`
-  );
+  emitGenerated({
+    file: OUT_FILE,
+    content: serialize(facts),
+    command: 'gen:quality',
+    written:
+      `${facts.entryPoints} entry points, ${facts.specFiles} spec files / ${facts.testCases} cases,` +
+      ` ${facts.prGates.length} PR gates, ${facts.nightlyGates.length} nightly`,
+  });
 }
 
-main();
+await main();

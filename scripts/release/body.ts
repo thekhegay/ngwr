@@ -19,8 +19,8 @@
 
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { argv } from 'node:process';
 
+import { parseFlags } from '../lib/args';
 import { extractLatestSection } from '../lib/changelog/extract-latest-section';
 import { releaseFooter } from '../lib/changelog/release-footer';
 import { withEmojiHeadings } from '../lib/changelog/with-emoji-headings';
@@ -30,6 +30,8 @@ import { out } from '../lib/log/out';
 import { ROOT_PATH } from '../lib/paths/root';
 import { readCurrentVersion } from '../lib/version/read-current';
 
+const { output } = parseFlags('release:body [--output=<file>]', { output: { type: 'string' } });
+
 const repo = repoSlug();
 const body = [
   withEmojiHeadings(withPullRequests(extractLatestSection(), repo)),
@@ -38,7 +40,6 @@ const body = [
   .filter(Boolean)
   .join('\n\n');
 
-const output = argv.find(a => a.startsWith('--output='))?.split('=')[1];
 if (output) {
   writeFileSync(resolve(ROOT_PATH, output), `${body}\n`);
 } else {

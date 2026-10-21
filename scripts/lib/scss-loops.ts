@@ -23,30 +23,7 @@
  * expanded.
  */
 
-import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { extname, join } from 'node:path';
-
-function scssFiles(dir: string): string[] {
-  const out: string[] = [];
-  for (const entry of readdirSync(dir)) {
-    if (entry === 'node_modules' || entry === 'dist') continue;
-    const path = join(dir, entry);
-    if (statSync(path).isDirectory()) out.push(...scssFiles(path));
-    else if (extname(path) === '.scss') out.push(path);
-  }
-  return out;
-}
-
-/**
- * A list declared inside a comment is not a list.
- *
- * Only a `//` that opens its line is stripped. A trailing `//` inside a
- * multi-line map would cost the member after it — none of the maps under
- * `projects/` carries one today.
- */
-function withoutComments(src: string): string {
-  return src.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
-}
+import { blankComments } from './ts-lex';
 
 /**
  * Members of `(a, b, c)` or `(a: 1, b: 2)`, as the `@each` binds them — or
@@ -94,7 +71,7 @@ export interface LoopList {
 export const EACH = /@each\s+\$([\w-]+)(?:\s*,\s*\$([\w-]+))?(?:\s*,\s*\$[\w-]+)*\s+in\s+([^{]+?)\s*\{/;
 
 /**
- * Every list an `@each` under `roots` can iterate, by BARE name.
+ * Every list an `@each` in the stylesheet `sources` can iterate, by BARE name.
  *
  * `theme.$colors` in a component and `$colors` in the theme are one list under
  * two spellings, so the namespace is dropped on the way in. Two files declaring
@@ -102,11 +79,6 @@ export const EACH = /@each\s+\$([\w-]+)(?:\s*,\s*\$([\w-]+))?(?:\s*,\s*\$[\w-]+)
  * drops the name rather than guessing — an expansion that is wrong is worse
  * than not expanding at all.
  */
-export function loopLists(roots: readonly string[]): Map<string, LoopList> {
-  return listsIn(roots.flatMap(root => scssFiles(root).map(file => readFileSync(file, 'utf8'))));
-}
-
-/** The same reading over stylesheet SOURCES rather than a tree. */
 export function listsIn(sources: readonly string[]): Map<string, LoopList> {
   const out = new Map<string, LoopList>();
   const dropped = new Set<string>();
@@ -119,7 +91,10 @@ export function listsIn(sources: readonly string[]): Map<string, LoopList> {
   };
 
   for (const source of sources) {
-    const src = withoutComments(source);
+    // A list declared inside a comment is not a list. Only a `//` that opens
+    // its line is blanked, so a trailing one inside a multi-line map would cost
+    // the member after it — none of the maps under `projects/` carries one.
+    const src = blankComments(source);
     // Every `$name: (` is looked at, and only a FLAT literal closed by its own
     // `)` is read. `[^)]*` used to cut a map of maps at its first `)`, so
     // overlay's `$placements` came back as `[top, center]` — a key and a value
@@ -149,7 +124,7 @@ export function listsIn(sources: readonly string[]): Map<string, LoopList> {
 
 /**
  * The list behind an `@each`'s expression — an inline `(a, b)`, over as many
- * lines as it likes, or a name `loopLists()` resolved — or `undefined` when it
+ * lines as it likes, or a name `listsIn()` resolved — or `undefined` when it
  * is neither.
  */
 export function resolveLoopList(expression: string, lists: ReadonlyMap<string, LoopList>): LoopList | undefined {

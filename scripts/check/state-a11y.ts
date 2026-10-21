@@ -66,20 +66,19 @@
  */
 
 import { readdirSync, readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import { exit } from 'node:process';
 
-import type { AxeResults, ImpactValue } from 'axe-core';
-import { chromium, type Browser, type CDPSession, type Page } from 'playwright';
+import type { CDPSession, Page } from 'playwright';
 
-import { DIST_SHOWCASE as DIST, paintedScheme, requireBuiltShowcase, serveDist } from '../lib/dist-site';
+import { narrow, parseFlags, pickOne } from '../lib/args';
+import { describeAxeNode, isFailingImpact, ruleToggles, runAxe } from '../lib/axe';
+import { readBaseline } from '../lib/baselines';
+import { newPinnedContext } from '../lib/browser-context';
+import { DIST_SHOWCASE as DIST, openInScheme, requireBuiltShowcase, withDistBrowser } from '../lib/dist-site';
 import { err } from '../lib/log/err';
 import { info } from '../lib/log/info';
-import { ROOT_PATH } from '../lib/paths/root';
 import { STATES, type State, type Step } from '../lib/state-a11y/states';
-
-const BASELINE_PATH = resolve(ROOT_PATH, 'scripts/baselines/state-a11y.json');
 
 /**
  * Everything axe knows, minus one.
@@ -113,28 +112,20 @@ const DISABLED_RULES = ['color-contrast-enhanced'];
  */
 const ALWAYS_ON = ['target-size'];
 const REQUIRED_RULES = ['color-contrast', 'target-size', 'nested-interactive'];
-const FAILING_IMPACTS: readonly ImpactValue[] = ['serious', 'critical'];
 
 const THEMES = ['light', 'dark'] as const;
 type Theme = (typeof THEMES)[number];
 
-/**
- * The desktop viewport every other gate uses, and the phone one none of them
- * does.
- *
- * Both existing gates load every page at 1280 wide, so nothing they report says
- * what a phone gets. A state opts in with `viewport: 'mobile'`; the size is the
- * iPhone-ish 390×844.
- */
-const VIEWPORTS = {
-  desktop: { width: 1280, height: 900 },
-  mobile: { width: 390, height: 844 },
-} as const;
-
-const AXE_SOURCE = readFileSync(createRequire(import.meta.url).resolve('axe-core'), 'utf8');
+/** Read at load rather than in `main`, because `PROBE` is. */
+const FLAGS = parseFlags('check:state-a11y [--verbose] [--probe] [--theme=<light|dark>] [--filter=<substring>]', {
+  verbose: { type: 'boolean', default: false },
+  probe: { type: 'boolean', default: false },
+  theme: { type: 'string' },
+  filter: { type: 'string', default: '' },
+});
 
 /** `--probe`: collect unreachable states instead of stopping at the first. */
-const PROBE = process.argv.includes('--probe');
+const PROBE = FLAGS.probe;
 
 /**
  * `:hover` and `:focus-visible` through the devtools protocol.
@@ -342,34 +333,6 @@ interface Failure {
 }
 
 /**
- * axe measured it already; re-deriving is where a `color-mix` result in
- * `color(srgb …)` form quietly turns into nonsense.
- *
- * Both rules, because a report that prints the ratio for one and bare markup
- * for the other makes half the findings unactionable — a `target-size` line
- * without the measured box says only that something is too small.
- */
-function describe(node: { any?: readonly { data?: unknown }[] }): string {
-  const data = node.any?.find(c => c.data && typeof c.data === 'object')?.data as
-    | {
-        fgColor?: string;
-        bgColor?: string;
-        contrastRatio?: number;
-        expectedContrastRatio?: string;
-        minSize?: number;
-        width?: number;
-        height?: number;
-      }
-    | undefined;
-  if (!data) return '';
-  if (data.contrastRatio) {
-    return `${data.contrastRatio}:1 (wants ${data.expectedContrastRatio ?? '?'}) ${data.fgColor ?? '?'} on ${data.bgColor ?? '?'}`;
-  }
-  if (data.width && data.height) return `${data.width}×${data.height}px (wants ${data.minSize ?? 24})`;
-  return '';
-}
-
-/**
  * Runs one state, in one theme, and returns what axe objected to inside it —
  * plus every `.wr-*` class the state actually painted, which is what the
  * coverage report at the end is built from.
@@ -382,13 +345,7 @@ async function audit(
   painted: Set<string>,
   unreachable: string[]
 ): Promise<readonly Failure[]> {
-  await page.goto(`${origin}${state.route}`, { waitUntil: 'networkidle' });
-
-  const applied = await paintedScheme(page);
-  if (applied !== theme) {
-    err(`\n✘ state-a11y: ${state.route} came up as "${applied ?? 'neither'}" with "${theme}" requested.\n`);
-    exit(1);
-  }
+  await openInScheme(page, origin, state.route, theme, { label: 'state-a11y' });
 
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('DOM.enable');
@@ -467,20 +424,10 @@ async function audit(
 
   const scope = '[data-wr-state-scope]';
 
-  await page.addScriptTag({ content: AXE_SOURCE });
-  const results = (await page.evaluate(
-    async ({ sel, off, on }: { sel: string; off: readonly string[]; on: readonly string[] }) => {
-      const runner = (window as unknown as { axe: { run: (c: unknown, o: unknown) => Promise<AxeResults> } }).axe;
-      return runner.run(sel, {
-        resultTypes: ['violations'],
-        rules: {
-          ...Object.fromEntries(off.map(id => [id, { enabled: false }])),
-          ...Object.fromEntries(on.map(id => [id, { enabled: true }])),
-        },
-      });
-    },
-    { sel: scope, off: DISABLED_RULES, on: ALWAYS_ON }
-  )) as AxeResults;
+  const results = await runAxe(page, scope, {
+    resultTypes: ['violations'],
+    rules: ruleToggles(DISABLED_RULES, ALWAYS_ON),
+  });
 
   // Did the rules this gate exists for actually execute? A rule that never ran
   // reports exactly like a rule that found nothing.
@@ -499,14 +446,14 @@ async function audit(
 
   const out: Failure[] = [];
   for (const violation of results.violations) {
-    if (!FAILING_IMPACTS.includes(violation.impact ?? 'minor')) continue;
+    if (!isFailingImpact(violation.impact)) continue;
     for (const node of violation.nodes) {
       out.push({
         state: state.id,
         theme,
         rule: violation.id,
         target: normalize(Array.isArray(node.target) ? node.target.join(' ') : String(node.target)),
-        detail: describe(node) || node.html.slice(0, 80),
+        detail: describeAxeNode(node) || node.html.slice(0, 80),
       });
     }
   }
@@ -514,14 +461,6 @@ async function audit(
 }
 
 type Baseline = Record<string, { readonly targets: readonly string[]; readonly note: string }>;
-
-const readBaseline = (): Baseline => {
-  try {
-    return JSON.parse(readFileSync(BASELINE_PATH, 'utf8')) as Baseline;
-  } catch {
-    return {};
-  }
-};
 
 /**
  * Every `.wr-*` class whose colour depends on a state — read from the library's
@@ -557,96 +496,52 @@ function stateClasses(): ReadonlySet<string> {
 }
 
 async function main(): Promise<void> {
-  const args = process.argv.slice(2);
-  const verbose = args.includes('--verbose');
-  const only = args.find(a => a.startsWith('--theme='))?.split('=')[1] as Theme | undefined;
-  const filter = args.find(a => a.startsWith('--filter='))?.split('=')[1] ?? '';
+  const { verbose, theme, filter } = FLAGS;
 
   requireBuiltShowcase('state-a11y');
 
-  const themes = only ? THEMES.filter(t => t === only) : THEMES;
-  if (only && themes.length === 0) {
-    err(`\n✘ state-a11y: unknown theme "${only}". Use light or dark.\n`);
-    exit(1);
-  }
+  const themes = pickOne(THEMES, theme, 'state-a11y', 'theme');
+  const { targets } = narrow(STATES, { filter, key: s => s.id, label: 'state-a11y', noun: 'state' });
 
-  const targets = STATES.filter(s => s.id.includes(filter));
-  if (targets.length === 0) {
-    err(`\n✘ state-a11y: no state matches "${filter}".\n`);
-    exit(1);
-  }
-
-  const { server, origin } = await serveDist('spa');
-  let browser: Browser | null = null;
   const failures: Failure[] = [];
   const painted = new Set<string>();
   const unreachable: string[] = [];
 
-  try {
-    browser = await chromium.launch();
-
-    // One user agent for every run, everywhere.
-    //
-    // The library sniffs the OS in two places, and both reach the DOM this gate
-    // measures: `wr-window` picks a chrome per platform (the Linux one is
-    // close-only unless `showMinimize` asks otherwise), and `WrHotkey` resolves
-    // `mod` to ⌘ or Ctrl, which changes the width of the command palette's
-    // shortcut chip. Left alone, the sweep paints one page on a laptop and a
-    // different one on ubuntu-latest, and a baseline cannot be true of both —
-    // the first nightly run failed on exactly that. The Chromium VERSION is
-    // kept real; only the platform token is fixed, and the per-OS chrome is
-    // covered by states that pin `os` on the component instead of hoping for it.
-    const userAgent =
-      `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 ` +
-      `(KHTML, like Gecko) HeadlessChrome/${browser.version()} Safari/537.36`;
-
+  await withDistBrowser('spa', async ({ browser, origin }) => {
     for (const theme of themes) {
       // One context per viewport, not one page resized between states:
-      // `hasTouch` and `isMobile` below are context options, fixed when the
-      // context is created, and a resize cannot change them.
+      // `hasTouch` and `isMobile` are context options, fixed when the context
+      // is created, and a resize cannot change them.
       for (const viewport of ['desktop', 'mobile'] as const) {
         const forHere = targets.filter(state => (state.viewport ?? 'desktop') === viewport);
         if (forHere.length === 0) continue;
 
-        const context = await browser.newContext({
-          // The entire theme switch: `:root` declares `color-scheme: light
-          // dark`, so the emulated preference picks every token's side from
-          // the first paint, with nothing to seed and one load per state.
+        // `colorScheme` is the entire theme switch: `:root` declares
+        // `color-scheme: light dark`, so the emulated preference picks every
+        // token's side from the first paint, with nothing to seed and one load
+        // per state. Reduced motion, because every one of these states is
+        // mid-animation the instant it opens. A phone is a TOUCH device, and
+        // some of the library's geometry is gated on `pointer: coarse` rather
+        // than on width alone.
+        //
+        // The user agent is pinned because the library sniffs the OS where it
+        // reaches the DOM this gate measures (`pinnedUserAgent` says where); the
+        // first nightly run failed on exactly that. The per-OS chrome is covered
+        // by states that pin `os` on the component instead of hoping for it.
+        //
+        // The clock is frozen for the same reason: a state that renders
+        // differently tomorrow cannot have a baseline. The event-calendar demo
+        // builds its events relative to `new Date()`, so the chips carry
+        // different titles and different modifier classes every day — and the
+        // baseline, which keys on the failing NODE, went red twice in a row on
+        // findings that were the same 20px design call wearing new
+        // `aria-label`s. The date-picker and calendar demos move the same way.
+        const context = await newPinnedContext(browser, {
           colorScheme: theme,
-          // Without this an animation caught mid-flight reports a frame rather
-          // than a design — and every one of these states is mid-animation the
-          // instant it opens.
-          reducedMotion: 'reduce',
-          viewport: VIEWPORTS[viewport],
-          // Playwright derives `navigator.userAgentData.platform` from this
-          // string, which is the first source ngwr's own `detectOs()` reads.
-          userAgent,
-          // A phone is a TOUCH device, and some of the library's geometry is
-          // gated on `pointer: coarse` rather than on width alone.
-          hasTouch: viewport === 'mobile',
-          isMobile: viewport === 'mobile',
+          mobile: viewport === 'mobile',
+          pinClock: true,
+          pinUserAgent: true,
         });
-        // Freeze the clock, for the same reason the user agent is pinned: a
-        // state that renders differently tomorrow cannot have a baseline.
-        //
-        // The event-calendar demo builds its events relative to `new Date()`,
-        // so the chips carry different titles and different modifier classes
-        // every day — and the baseline, which keys on the failing NODE, went
-        // red twice in a row on findings that were the same 20px design call
-        // wearing new `aria-label`s. The date-picker and calendar demos move
-        // the same way. Any fixed instant would do; a mid-week, mid-month one
-        // keeps every demo showing a full month with events on both sides of
-        // "today".
-        //
-        // MOVING THIS DATE EXPIRES FOUR BASELINE ENTRIES. Since v14 each calendar
-        // day carries an `aria-label`, and axe reports the shortest selector that
-        // is unique on the page — so the label won, and the four `color-contrast`
-        // entries for `date-picker/calendar` and `calendar/today-and-selected`
-        // are keyed on selectors naming these six days by date. Change the
-        // instant and the run reports twenty-four brand-new failures that are the
-        // same long-approved design call. Re-record them in the same commit.
-        await context.clock.setFixedTime(new Date('2026-08-12T10:00:00Z'));
-
         const page = await context.newPage();
 
         info(`  ${theme} / ${viewport}: ${forHere.length} states`);
@@ -657,12 +552,9 @@ async function main(): Promise<void> {
         await context.close();
       }
     }
-  } finally {
-    await browser?.close();
-    server.close();
-  }
+  });
 
-  const baseline = readBaseline();
+  const baseline = readBaseline<Baseline>('state-a11y');
 
   // Grouped by key and then by node. Six cells of one calendar row failing for
   // one reason is one thing to fix, and printing it six times — each with the

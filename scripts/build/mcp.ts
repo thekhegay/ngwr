@@ -25,32 +25,25 @@
  *   pnpm tsx scripts/build/mcp.ts
  */
 
-import { execFileSync } from 'node:child_process';
 import { chmodSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
-import { execPath, exit } from 'node:process';
+import { exit } from 'node:process';
 
 import { err } from '../lib/log/err';
 import { info } from '../lib/log/info';
-import { DIST_LIB_PATH } from '../lib/paths/dist-lib';
+import { DIST_LIB_PATH, requireBuiltLib } from '../lib/paths/dist-lib';
 import { ROOT_PATH } from '../lib/paths/root';
+import { tsc } from '../lib/run/step';
 
 const SRC = resolve(ROOT_PATH, 'projects/lib/mcp');
 const TSCONFIG = resolve(SRC, 'tsconfig.json');
 const DST = resolve(DIST_LIB_PATH, 'mcp');
 const ENTRY = resolve(DST, 'server.js');
 
-if (!existsSync(DIST_LIB_PATH)) {
-  err(`dist/lib does not exist — run "pnpm build:lib" first.`);
-  exit(1);
-}
+requireBuiltLib('build:mcp');
 
 info(`▸ Compiling the MCP server with ${TSCONFIG}`);
-// This Node runs tsc directly; `pnpm exec` would start pnpm first.
-execFileSync(execPath, [createRequire(import.meta.url).resolve('typescript/bin/tsc'), '-p', TSCONFIG], {
-  stdio: 'inherit',
-});
+tsc('tsc -p projects/lib/mcp', TSCONFIG);
 
 if (!existsSync(ENTRY)) {
   err(`Expected ${ENTRY} after compiling.`);

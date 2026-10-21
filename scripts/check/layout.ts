@@ -38,17 +38,17 @@
  *   pnpm check:layout --filter=button # one target while iterating
  */
 
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { argv, exit, stdout } from 'node:process';
+import { exit } from 'node:process';
 
-import { chromium, type Browser } from 'playwright';
+import type { Browser } from 'playwright';
 
-import { paintedScheme, requireBuiltShowcase, serveDist } from '../lib/dist-site';
+import { narrow, parseFlags } from '../lib/args';
+import { readBaselineStrict, writeBaseline } from '../lib/baselines';
+import { newPinnedContext } from '../lib/browser-context';
+import { openInScheme, requireBuiltShowcase, withDistBrowser } from '../lib/dist-site';
 import { LAYOUT_TARGETS, type LayoutTarget } from '../lib/layout/targets';
-
-const BASELINE = resolve('scripts/baselines/layout.json');
-const VIEWPORT = { width: 1280, height: 900 };
+import { err } from '../lib/log/err';
+import { info } from '../lib/log/info';
 
 /**
  * How far a box may move before it is a regression.
@@ -64,19 +64,6 @@ const TOLERANCE = 1;
 type Box = readonly number[];
 type Baseline = Record<string, readonly Box[]>;
 
-const log = (s = ''): void => void stdout.write(`${s}\n`);
-
-function parseArgs(): { readonly update: boolean; readonly filter: string } {
-  const args = argv.slice(2);
-  const unknown = args.filter(a => a !== '--update' && !a.startsWith('--filter='));
-  if (unknown.length > 0) {
-    log(`Unknown option(s): ${unknown.join(' ')}`);
-    log('Usage: check:layout [--update] [--filter=<substring>]');
-    exit(1);
-  }
-  return { update: args.includes('--update'), filter: args.find(a => a.startsWith('--filter='))?.split('=')[1] ?? '' };
-}
-
 async function measure(
   browser: Browser,
   origin: string,
@@ -88,31 +75,20 @@ async function measure(
   // reason: a page that renders differently tomorrow, or on another machine,
   // cannot have a baseline. The clock matters here too — the calendar and
   // event-calendar demos size themselves from today's date.
-  const context = await browser.newContext({
-    colorScheme: theme,
-    reducedMotion: 'reduce',
-    viewport: VIEWPORT,
-    userAgent:
-      `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 ` +
-      `(KHTML, like Gecko) HeadlessChrome/${browser.version()} Safari/537.36`,
-  });
-  await context.clock.setFixedTime(new Date('2026-08-12T10:00:00Z'));
+  const context = await newPinnedContext(browser, { colorScheme: theme, pinClock: true, pinUserAgent: true });
 
   const out: Baseline = {};
   const page = await context.newPage();
 
   for (const target of targets) {
-    await page.goto(`${origin}${target.route}`, { waitUntil: 'networkidle' });
-
     // The context's `colorScheme` is the whole theme switch, and the probe is
     // what proves the page obeyed it. Without one a run in the wrong scheme
     // files its boxes under the other key and says nothing — and since the two
     // schemes record identical boxes today, nobody would ever notice.
-    const applied = await paintedScheme(page);
-    if (applied !== theme) {
-      log(`\n✘ layout: ${target.route} came up as "${applied ?? 'neither'}" with "${theme}" requested — refusing to record a theme that was never painted.`);
-      exit(1);
-    }
+    await openInScheme(page, origin, target.route, theme, {
+      label: 'layout',
+      reason: 'refusing to record a theme that was never painted',
+    });
 
     const locator = page.locator(target.selector);
     const count = await locator.count();
@@ -145,53 +121,49 @@ async function measure(
 }
 
 async function main(): Promise<void> {
-  const { update, filter } = parseArgs();
+  const { update, filter } = parseFlags('check:layout [--update] [--filter=<substring>]', {
+    update: { type: 'boolean', default: false },
+    filter: { type: 'string', default: '' },
+  });
 
   requireBuiltShowcase('layout');
 
-  const targets = LAYOUT_TARGETS.filter(t => t.id.includes(filter));
-  if (targets.length === 0) {
-    log(`No layout target matches --filter=${filter}`);
-    exit(1);
-  }
+  const { targets } = narrow(LAYOUT_TARGETS, {
+    filter,
+    key: t => t.id,
+    message: `No layout target matches --filter=${filter}`,
+  });
 
-  const { server, origin } = await serveDist('404');
-  const browser = await chromium.launch();
   const missing: string[] = [];
   let measured: Baseline = {};
-  try {
+  await withDistBrowser('404', async ({ browser, origin }) => {
     for (const theme of ['light', 'dark'] as const) {
-      log(`  ${theme}: ${targets.length} target(s)`);
+      info(`  ${theme}: ${targets.length} target(s)`);
       measured = { ...measured, ...(await measure(browser, origin, theme, targets, missing)) };
     }
-  } finally {
-    await browser.close();
-    server.close();
-  }
+  });
 
   if (missing.length > 0) {
-    log();
-    missing.forEach(m => log(m));
-    log(`\n✘ ${missing.length} target(s) measured nothing. Fix the selector — an entry that finds no element is not a pass.`);
+    err('');
+    missing.forEach(m => err(m));
+    err(
+      `\n✘ ${missing.length} target(s) measured nothing. Fix the selector — an entry that finds no element is not a pass.`
+    );
     exit(1);
   }
 
   if (update) {
-    const merged: Baseline = existsSync(BASELINE)
-      ? { ...(JSON.parse(readFileSync(BASELINE, 'utf8')) as Baseline), ...measured }
-      : measured;
-    const sorted = Object.fromEntries(Object.entries(merged).sort(([a], [b]) => a.localeCompare(b)));
-    writeFileSync(BASELINE, `${JSON.stringify(sorted, null, 2)}\n`);
-    log(`\n✓ Recorded ${Object.keys(measured).length} entr(ies) into scripts/baselines/layout.json`);
+    writeBaseline('layout', { ...readBaselineStrict<Baseline>('layout'), ...measured });
+    info(`\n✓ Recorded ${Object.keys(measured).length} entr(ies) into scripts/baselines/layout.json`);
     return;
   }
 
-  if (!existsSync(BASELINE)) {
-    log('\nNo baseline yet. Run `pnpm check:layout --update` and commit the result.');
+  const baseline = readBaselineStrict<Baseline>('layout');
+  if (!baseline) {
+    err('\nNo baseline yet. Run `pnpm check:layout --update` and commit the result.');
     exit(1);
   }
 
-  const baseline = JSON.parse(readFileSync(BASELINE, 'utf8')) as Baseline;
   const problems: string[] = [];
 
   for (const [key, boxes] of Object.entries(measured)) {
@@ -216,13 +188,13 @@ async function main(): Promise<void> {
     });
   }
 
-  log();
+  info('');
   if (problems.length > 0) {
-    problems.forEach(p => log(p));
-    log(`\n✘ ${problems.length} layout change(s). Intended? \`pnpm check:layout --update\` and commit the diff.`);
+    problems.forEach(p => err(p));
+    err(`\n✘ ${problems.length} layout change(s). Intended? \`pnpm check:layout --update\` and commit the diff.`);
     exit(1);
   }
-  log(`✓ No layout drift (${Object.keys(measured).length} entries × ${TOLERANCE}px tolerance).`);
+  info(`✓ No layout drift (${Object.keys(measured).length} entries × ${TOLERANCE}px tolerance).`);
 }
 
 await main();

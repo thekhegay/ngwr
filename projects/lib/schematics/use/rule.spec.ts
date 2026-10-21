@@ -97,16 +97,16 @@ const LIB = resolve(workspaceRoot(), 'projects', 'lib');
 const stripComments = (source: string): string => source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
 
 /**
- * The symbol → subpath map exactly as `scripts/lib/build-symbol-map.ts` builds
- * it: `Wr*` value exports of every entry point at ANY depth except `testing`,
- * first one wins.
+ * The symbol → subpath map as `scripts/lib/build-symbol-map.ts` builds it:
+ * `Wr*` value exports of every entry point at ANY depth except `testing`,
+ * first one wins. The generator reads the entry points from the `exports` map;
+ * this walks the tree, which gives the same set.
  *
  * Reproduced rather than imported because the generator writes its output
  * straight into `dist`, and a spec that read the built file would only be true
- * of the last build. Reproducing it means the RECURSION has to match too: both
- * sides were one level deep until nested entry points existed, and a shallow
- * scan would now quietly drop `WrConfetti` (`ngwr/bits/confetti`) from this
- * comparison while the shipped map still carried it.
+ * of the last build. The walk has to reach nested entry points: a shallow one
+ * would quietly drop `WrConfetti` (`ngwr/bits/confetti`) from this comparison
+ * while the shipped map still carried it.
  */
 function entryPointsUnder(dir: string, prefix = ''): string[] {
   const out: string[] = [];

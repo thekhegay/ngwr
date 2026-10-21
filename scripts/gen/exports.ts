@@ -8,6 +8,9 @@
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
+import { LIB_PATH } from '../lib/paths/lib';
+import { ROOT_PATH } from '../lib/paths/root';
+
 /**
  * Writes `projects/lib/package.json`'s `exports` map from the entry-point tree.
  *
@@ -33,9 +36,8 @@ import { join, relative, resolve } from 'node:path';
  * `@forward` lines, and every entry point that moved left it stale.
  */
 
-const LIB = resolve('projects/lib');
-const MANIFEST = join(LIB, 'package.json');
-const SHOWCASE_AGGREGATE = resolve('projects/showcase/styles/_components.scss');
+const MANIFEST = join(LIB_PATH, 'package.json');
+const SHOWCASE_AGGREGATE = resolve(ROOT_PATH, 'projects/showcase/styles/_components.scss');
 
 /** Keys that are not entry points and must survive verbatim, in this order. */
 const PASSTHROUGH: readonly (readonly [string, unknown])[] = [
@@ -59,7 +61,7 @@ function entryPoints(dir: string, out: string[] = []): string[] {
     if (name.startsWith('.') || SKIP.has(name)) continue;
     const full = join(dir, name);
     if (!statSync(full).isDirectory()) continue;
-    if (readdirSync(full).includes('public-api.ts')) out.push(relative(LIB, full));
+    if (readdirSync(full).includes('public-api.ts')) out.push(relative(LIB_PATH, full));
     entryPoints(full, out);
   }
   return out;
@@ -83,7 +85,7 @@ function main(): void {
   // configures, so nothing here grows with the catalog.
   exportsMap['.'] = { default: './public-api.ts' };
 
-  for (const name of entryPoints(LIB)) {
+  for (const name of entryPoints(LIB_PATH)) {
     const key = `./${name.split('\\').join('/')}`;
     const entry: Record<string, string> = {};
     // `sass` comes FIRST, because Node resolves conditions in declaration order
@@ -97,8 +99,8 @@ function main(): void {
     const prev = previous[key];
     const kept = prev && typeof prev === 'object' ? (prev as Record<string, string>)['sass'] : undefined;
     const derived = `./${name}/styles/_index.scss`;
-    if (kept && existsSync(join(LIB, kept))) entry['sass'] = kept;
-    else if (existsSync(join(LIB, derived))) entry['sass'] = derived;
+    if (kept && existsSync(join(LIB_PATH, kept))) entry['sass'] = kept;
+    else if (existsSync(join(LIB_PATH, derived))) entry['sass'] = derived;
     entry['default'] = `./${name}/public-api.ts`;
     exportsMap[key] = entry;
   }
@@ -112,7 +114,7 @@ function main(): void {
     if (key in exportsMap) continue;
     if (PASSTHROUGH.some(([k]) => k === key)) continue;
     const target = typeof value === 'object' && value !== null ? (value as Record<string, string>)['sass'] : undefined;
-    if (!target || !existsSync(join(LIB, target))) continue;
+    if (!target || !existsSync(join(LIB_PATH, target))) continue;
     exportsMap[key] = { sass: target };
   }
 

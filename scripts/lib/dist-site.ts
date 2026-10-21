@@ -7,8 +7,9 @@
 
 /**
  * Serving and enumerating the prerendered showcase, for the checks that drive
- * a real browser over it — and asking a loaded page which colour scheme it
- * painted, which three of them need before they measure anything.
+ * a real browser over it and the generators that read it after the build —
+ * and asking a loaded page which colour scheme it painted, which three of the
+ * checks need before they measure anything.
  *
  * Four of them did this themselves — `check:contrast`, `check:state-a11y`,
  * `check:layout` and `check:rtl-layout` — with four copies of the same static
@@ -30,15 +31,19 @@ import { createServer, type Server } from 'node:http';
 import { extname, join, resolve } from 'node:path';
 import { exit } from 'node:process';
 
-import type { Page } from 'playwright';
+import type { Browser, Page } from 'playwright';
 
 import { err } from './log/err';
+import { ROOT_PATH } from './paths/root';
 
 /** The prerendered showcase, as `build:showcase` leaves it. */
-const DIST = resolve('dist/showcase');
+const DIST = resolve(ROOT_PATH, 'dist/showcase');
 
 /** The route manifest the Angular builder writes beside the pages. */
 const ROUTES_JSON = join(DIST, 'prerendered-routes.json');
+
+/** The meta-refresh a redirect stub renders, and the route it points at. */
+const REDIRECT_RE = /<meta http-equiv="refresh" content="0; url=([^"]+)"/i;
 
 /** The union of what the four sweeps used to carry separately. */
 const MIME: Readonly<Record<string, string>> = {
@@ -119,25 +124,91 @@ function requireBuiltShowcase(label: string): void {
 }
 
 /**
+ * The file under `dist/showcase` that serves `route`: `html` is the route's own
+ * `index.html`, any other extension the sibling twin (`/a/b` is `a/b.md`), and
+ * the root's twin is `index.<ext>`, since the root has no parent to sit beside.
+ */
+function routeFile(route: string, ext: string): string {
+  const rel = route.replace(/^\//, '');
+  if (ext === 'html') return join(DIST, rel, 'index.html');
+  return rel === '' ? join(DIST, `index.${ext}`) : `${join(DIST, rel)}.${ext}`;
+}
+
+/** One route the build prerendered. */
+interface PrerenderedPage {
+  /** `/reference/components/button`, as the manifest spells it. */
+  readonly route: string;
+  /** Its `index.html`. */
+  readonly file: string;
+  /** Where a redirect stub sends the reader, or `null` for a real page. */
+  readonly redirectTo: string | null;
+}
+
+/**
+ * Every route in the build's manifest whose page is on disk, in manifest order.
+ *
+ * A route with no file is dropped rather than kept, because nothing serves it.
+ * Stops the run when the manifest is missing; `followsBuild` words that for a
+ * step `build:showcase` itself runs afterwards.
+ */
+function prerenderedPages(label: string, options: { readonly followsBuild?: boolean } = {}): PrerenderedPage[] {
+  if (!existsSync(ROUTES_JSON)) {
+    const hint = options.followsBuild
+      ? 'Run build:showcase first — this step must follow the build.'
+      : 'Run `pnpm build:showcase` first.';
+    err(`\n✘ ${label}: ${ROUTES_JSON} not found. ${hint}\n`);
+    exit(1);
+  }
+
+  const manifest = JSON.parse(readFileSync(ROUTES_JSON, 'utf8')) as { routes?: Record<string, unknown> };
+  const pages: PrerenderedPage[] = [];
+
+  for (const route of Object.keys(manifest.routes ?? {})) {
+    const file = routeFile(route, 'html');
+    if (!existsSync(file)) continue;
+    pages.push({ route, file, redirectTo: REDIRECT_RE.exec(readFileSync(file, 'utf8'))?.[1] ?? null });
+  }
+  return pages;
+}
+
+/**
  * Every canonical prerendered route, sorted.
  *
  * Redirect stubs are dropped: a meta-refresh page is never painted, so
  * measuring one says nothing and would pad every route count the sweeps print.
  */
 function prerenderedRoutes(label: string): string[] {
-  if (!existsSync(ROUTES_JSON)) {
-    err(`\n✘ ${label}: ${ROUTES_JSON} not found. Run \`pnpm build:showcase\` first.\n`);
-    exit(1);
-  }
-
-  const manifest = JSON.parse(readFileSync(ROUTES_JSON, 'utf8')) as { routes?: Record<string, unknown> };
-
-  return Object.keys(manifest.routes ?? {})
-    .filter(route => {
-      const file = route === '/' ? join(DIST, 'index.html') : join(DIST, route.slice(1), 'index.html');
-      return existsSync(file) && !readFileSync(file, 'utf8').includes('http-equiv="refresh"');
-    })
+  return prerenderedPages(label)
+    .filter(page => page.redirectTo === null)
+    .map(page => page.route)
     .sort();
+}
+
+/** What a sweep gets inside `withDistBrowser`. */
+interface DistBrowser {
+  readonly browser: Browser;
+  /** `http://127.0.0.1:<port>`, serving `dist/showcase`. */
+  readonly origin: string;
+}
+
+/**
+ * Serves `dist/showcase`, launches Chromium, runs `sweep`, and closes both
+ * whatever happens, a failed launch included.
+ *
+ * Playwright is imported here rather than at the top, so the generators that
+ * read this module's page list never load it.
+ */
+async function withDistBrowser<T>(missing: MissingBehaviour, sweep: (site: DistBrowser) => Promise<T>): Promise<T> {
+  const { server, origin } = await serveDist(missing);
+  let browser: Browser | null = null;
+  try {
+    const { chromium } = await import('playwright');
+    browser = await chromium.launch();
+    return await sweep({ browser, origin });
+  } finally {
+    await browser?.close();
+    server.close();
+  }
 }
 
 /** The side of every `light-dark()` a page resolves to. */
@@ -172,5 +243,44 @@ function paintedScheme(page: Page): Promise<PaintedScheme | null> {
   });
 }
 
-export { DIST as DIST_SHOWCASE, paintedScheme, prerenderedRoutes, requireBuiltShowcase, serveDist };
-export type { DistServer, MissingBehaviour, PaintedScheme };
+/** Who is refusing in `openInScheme`, and the clause after the mismatch, if any. */
+interface SchemeRefusal {
+  /** The check's own name, which opens the message. */
+  readonly label: string;
+  /** `refusing to report a theme that was never painted`, without the dash or the stop. */
+  readonly reason?: string;
+}
+
+/**
+ * Loads `route` to network idle and stops the run unless it painted `scheme`.
+ *
+ * The message names the route rather than the URL, so it reads the same on
+ * every port.
+ */
+async function openInScheme(
+  page: Page,
+  origin: string,
+  route: string,
+  scheme: PaintedScheme,
+  refusal: SchemeRefusal
+): Promise<void> {
+  await page.goto(`${origin}${route}`, { waitUntil: 'networkidle' });
+
+  const applied = await paintedScheme(page);
+  if (applied === scheme) return;
+
+  const reason = refusal.reason ? ` — ${refusal.reason}` : '';
+  err(`\n✘ ${refusal.label}: ${route} came up as "${applied ?? 'neither'}" with "${scheme}" requested${reason}.\n`);
+  exit(1);
+}
+
+export {
+  DIST as DIST_SHOWCASE,
+  openInScheme,
+  prerenderedPages,
+  prerenderedRoutes,
+  requireBuiltShowcase,
+  routeFile,
+  withDistBrowser,
+};
+export type { DistBrowser, DistServer, MissingBehaviour, PaintedScheme, PrerenderedPage, SchemeRefusal };

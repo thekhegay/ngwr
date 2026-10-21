@@ -8,8 +8,9 @@
 /**
  * Prints a progress / status line to stderr.
  *
- * Bypasses `console.*` (banned by lint) and writes to stderr so the release
- * scripts can keep stdout clean for piped consumers.
+ * Stderr so that a script whose stdout is its result — `release:prepare` prints
+ * the next version, `release:body` the release notes — keeps stdout clean for
+ * whatever reads it.
  */
 
 import { stderr } from 'node:process';

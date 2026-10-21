@@ -22,15 +22,17 @@
  */
 
 import { appendFileSync } from 'node:fs';
-import { argv, env, exit } from 'node:process';
+import { env, exit } from 'node:process';
 
+import { parseFlags } from '../lib/args';
 import { regenerateChangelog } from '../lib/changelog/regenerate';
 import { err } from '../lib/log/err';
 import { info } from '../lib/log/info';
 import { out } from '../lib/log/out';
 import { parseReleaseType } from '../lib/parse-release-type';
-import { breakingSince, lastReleaseTag, truncatedBreakingNotes } from '../lib/version/breaking-since';
+import { breakingSince, truncatedBreakingNotes } from '../lib/version/breaking-since';
 import { nextVersion } from '../lib/version/next';
+import { lastReleaseTag } from '../lib/version/previous-tag';
 import { readCurrentVersion } from '../lib/version/read-current';
 import { writeSupportTable } from '../lib/version/support-table';
 import { writeVersion } from '../lib/version/write';
@@ -43,15 +45,13 @@ async function main(): Promise<void> {
   // CHANGELOG for real, prints its usual success lines, and leaves the tree
   // dirty in four files. Anything that looks like a safety net has to either
   // exist or say it does not.
-  const unknown = argv.slice(2).filter(a => !a.startsWith('--bump='));
-  if (unknown.length > 0) {
-    err(`Unknown option(s): ${unknown.join(' ')}`);
-    err('Usage: release:prepare --bump=<patch|minor|major|rc>');
-    err('There is no --dry-run: this script always writes.');
-    exit(1);
-  }
+  const { bump } = parseFlags(
+    'release:prepare --bump=<patch|minor|major|rc>',
+    { bump: { type: 'string' } },
+    { note: 'There is no --dry-run: this script always writes.' }
+  );
 
-  const type = parseReleaseType(argv);
+  const type = parseReleaseType(bump);
   if (!type) {
     err('Usage: release:prepare --bump=<patch|minor|major|rc>');
     exit(1);

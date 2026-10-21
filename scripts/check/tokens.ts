@@ -19,14 +19,17 @@
  * than in a CI step after one.
  */
 
-import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { extname, join, relative, resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { extname, join, relative } from 'node:path';
 
-import { EACH, type LoopList, loopLists, resolveLoopList } from '../lib/scss-loops';
+import { walkFiles } from '../lib/fs/walk-files';
+import { LIB_PATH } from '../lib/paths/lib';
+import { ROOT_PATH } from '../lib/paths/root';
+import { EACH, type LoopList, listsIn, resolveLoopList } from '../lib/scss-loops';
+import { blankComments } from '../lib/ts-lex';
 
-const ROOT = resolve(import.meta.dirname, '../..');
 /** Where a read counts from — everything, for the reason at `danglingReads`. */
-const READ_SOURCES: readonly (readonly [string])[] = [[join(ROOT, 'projects/lib')], [join(ROOT, 'projects/showcase')]];
+const READ_SOURCES: readonly string[] = [LIB_PATH, join(ROOT_PATH, 'projects/showcase')];
 const READ_EXTENSIONS: ReadonlySet<string> = new Set(['.scss', '.html', '.ts']);
 
 /**
@@ -46,32 +49,9 @@ const READ_EXTENSIONS: ReadonlySet<string> = new Set(['.scss', '.html', '.ts']);
  * vocabulary a release took away.
  */
 const READ_SKIP: readonly string[] = [
-  join(ROOT, 'projects/lib/schematics'),
-  join(ROOT, 'projects/showcase/app/docs/migration'),
+  join(ROOT_PATH, 'projects/lib/schematics'),
+  join(ROOT_PATH, 'projects/showcase/app/docs/migration'),
 ];
-
-function files(dir: string, keep: (path: string) => boolean): string[] {
-  const out: string[] = [];
-  for (const entry of readdirSync(dir)) {
-    if (entry === 'node_modules' || entry === 'dist') continue;
-    const path = join(dir, entry);
-    if (statSync(path).isDirectory()) out.push(...files(path, keep));
-    else if (keep(path)) out.push(path);
-  }
-  return out;
-}
-
-/**
- * A comment is documentation, not a read: a `var(--wr-…)` written inside a
- * comment — line, block or HTML — paints nothing. The line rule is anchored to
- * the start of a line, so a `https://` inside a TypeScript string survives.
- */
-function withoutComments(src: string): string {
-  return src
-    .replace(/\/\*[\s\S]*?\*\//g, ' ')
-    .replace(/^\s*\/\/.*$/gm, ' ')
-    .replace(/<!--[\s\S]*?-->/g, ' ');
-}
 
 /**
  * The concrete `var()` lines an interpolated one stands for.
@@ -158,9 +138,17 @@ function expansions(src: string, lists: ReadonlyMap<string, LoopList>): string[]
  * token resolved. It found 136 of them once the snippets stopped vouching for
  * names nothing declares.
  */
-function danglingReads(lists: ReadonlyMap<string, LoopList>): { file: string; line: number; name: string }[] {
+function danglingReads(): { file: string; line: number; name: string }[] {
   const declared = new Set<string>();
   const scanned: { file: string; lines: string[] }[] = [];
+  const sources = READ_SOURCES.flatMap(dir =>
+    walkFiles(dir, {
+      skipDirs: ['node_modules', 'dist'],
+      include: p => READ_EXTENSIONS.has(extname(p)) && !READ_SKIP.some(skip => p.startsWith(skip)),
+    }).map(file => ({ file, text: readFileSync(file, 'utf8') }))
+  );
+  // What each `@each` iterates, read from the stylesheets already in hand.
+  const lists = listsIn(sources.filter(({ file }) => extname(file) === '.scss').map(({ text }) => text));
 
   // The namespaces the THEME LAYER owns entirely, which is what makes a
   // dangling read in them reportable: a `var()` at a name nothing declares is
@@ -188,15 +176,14 @@ function danglingReads(lists: ReadonlyMap<string, LoopList>): { file: string; li
     'g'
   );
 
-  for (const [dir] of READ_SOURCES) {
-    for (const file of files(dir, p => READ_EXTENSIONS.has(extname(p)) && !READ_SKIP.some(skip => p.startsWith(skip)))) {
-      const src = withoutComments(readFileSync(file, 'utf8'));
-      const lines = [...src.split('\n'), ...expansions(src, lists)];
-      scanned.push({ file: relative(ROOT, file), lines });
-      if (extname(file) === '.ts') continue;
-      for (const line of lines) {
-        for (const m of line.matchAll(THEME_TOKEN_DECL)) declared.add(m[1]);
-      }
+  for (const { file, text } of sources) {
+    // A comment is documentation, not a read: a `var(--wr-…)` inside one paints nothing.
+    const src = blankComments(text, { html: true });
+    const lines = [...src.split('\n'), ...expansions(src, lists)];
+    scanned.push({ file: relative(ROOT_PATH, file), lines });
+    if (extname(file) === '.ts') continue;
+    for (const line of lines) {
+      for (const m of line.matchAll(THEME_TOKEN_DECL)) declared.add(m[1]);
     }
   }
 
@@ -217,7 +204,7 @@ function danglingReads(lists: ReadonlyMap<string, LoopList>): { file: string; li
   return out;
 }
 
-const dangling = danglingReads(loopLists(READ_SOURCES.map(([dir]) => dir)));
+const dangling = danglingReads();
 
 if (dangling.length > 0) {
   const names = [...new Set(dangling.map(d => d.name))].sort();

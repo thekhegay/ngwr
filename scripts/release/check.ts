@@ -19,13 +19,12 @@
  *   pnpm release:check
  */
 
-import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
 import { exit } from 'node:process';
 
+import { latestSection } from '../lib/changelog/extract-latest-section';
 import { err } from '../lib/log/err';
 import { info } from '../lib/log/info';
-import { CHANGELOG_PATH } from '../lib/paths/changelog';
+import { commitsSince } from '../lib/version/commits-since';
 import { previousTag } from '../lib/version/previous-tag';
 import { readCurrentVersion } from '../lib/version/read-current';
 
@@ -33,19 +32,16 @@ import { readCurrentVersion } from '../lib/version/read-current';
 const LISTED = /^[0-9a-f]{40} (feat|fix|perf|revert)(\([^)]*\))?!?:/;
 
 const version = readCurrentVersion();
-const lines = readFileSync(CHANGELOG_PATH, 'utf8').split('\n');
-const start = lines.findIndex(line => line.startsWith('## '));
-if (start < 0 || !lines[start].includes(`[${version}]`)) {
+const latest = latestSection();
+if (!latest?.heading.includes(`[${version}]`)) {
   err(`CHANGELOG.md does not open with a ${version} section. Run the Release PR workflow again.`);
   exit(1);
 }
-const end = lines.findIndex((line, i) => i > start && line.startsWith('## '));
-const section = lines.slice(start, end < 0 ? undefined : end).join('\n');
+const section = `${latest.heading}\n${latest.body}`;
 
 const since = previousTag(version);
-const range = since ? `${since}..HEAD` : 'HEAD';
-const missing = execFileSync('git', ['log', '--format=%H %s', range], { encoding: 'utf8' })
-  .split('\n')
+const missing = commitsSince(since ?? null)
+  .map(commit => `${commit.sha} ${commit.subject}`)
   .filter(line => LISTED.test(line))
   .filter(line => !section.includes(line.slice(0, 40)));
 

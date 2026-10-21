@@ -34,15 +34,18 @@
  * a map that quietly covers most of the pages reads exactly like a complete one.
  */
 
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
+import { exit } from 'node:process';
 import { pathToFileURL } from 'node:url';
 
 import type { Route } from '@angular/router';
 
+import { libEntryPoints } from './entry-points';
+import { err } from './log/err';
 import { ROOT_PATH } from './paths/root';
+import { SHOWCASE_APP_PATH as APP_ROOT } from './paths/showcase-app';
 
-const APP_ROOT = resolve(ROOT_PATH, 'projects/showcase/app');
 const ENTRY = join(APP_ROOT, 'routing.ts');
 
 /** The specifier inside `() => import('…')`, whatever the transpiler wrapped around it. */
@@ -122,6 +125,11 @@ export interface WrPageRoutes {
    */
   readonly byDirectory: ReadonlyMap<string, readonly string[]>;
   /**
+   * The directories in {@link byDirectory} whose routed component also carries
+   * `children`: a layout shell drawn around pages (`_layout`), not a page.
+   */
+  readonly shells: ReadonlySet<string>;
+  /**
    * Anything the walk could not read. Non-empty means the map is short, and
    * every caller must treat it as untrustworthy rather than as smaller.
    */
@@ -130,6 +138,7 @@ export interface WrPageRoutes {
 
 export async function buildPageRoutes(): Promise<WrPageRoutes> {
   const byDirectory = new Map<string, string[]>();
+  const shells = new Set<string>();
   const problems: string[] = [];
   /**
    * Guards a routing module that lazily reaches itself, which would otherwise
@@ -178,6 +187,7 @@ export async function buildPageRoutes(): Promise<WrPageRoutes> {
         const list = byDirectory.get(dir);
         if (list) list.push(full);
         else byDirectory.set(dir, [full]);
+        if (route.children) shells.add(dir);
       }
     }
   };
@@ -185,9 +195,155 @@ export async function buildPageRoutes(): Promise<WrPageRoutes> {
   seen.add(`${ENTRY}@`);
   const entry = routesOf((await import(pathToFileURL(ENTRY).href)) as unknown);
   if (entry === null) {
-    return { byDirectory, problems: [`${relative(ROOT_PATH, ENTRY)}  exports no \`routing\` array — nothing was walked`] };
+    return {
+      byDirectory,
+      shells,
+      problems: [`${relative(ROOT_PATH, ENTRY)}  exports no \`routing\` array — nothing was walked`],
+    };
   }
   await walk(entry, '', ENTRY);
 
-  return { byDirectory, problems };
+  return { byDirectory, shells, problems };
+}
+
+/**
+ * {@link buildPageRoutes}, or exit 1 with every problem on stderr: a short walk
+ * builds a short map, and that reads exactly like a complete one.
+ */
+export async function requirePageRoutes(): Promise<WrPageRoutes> {
+  const routes = await buildPageRoutes();
+  if (routes.problems.length > 0) {
+    err('\n✘ the route walk is short, so the map would be too:\n');
+    for (const p of routes.problems) err(`    ${p}`);
+    exit(1);
+  }
+  return routes;
+}
+
+/** A page directory the router serves at exactly one route. */
+export interface WrSinglePage {
+  /** Relative to `projects/showcase/app`, `/`-separated. */
+  readonly dir: string;
+  /** The same directory, absolute. */
+  readonly abs: string;
+  readonly route: string;
+}
+
+/**
+ * The directories of `byDirectory` served at exactly one route, in walk order,
+ * dropping any that is not a directory on disk. One directory behind several
+ * routes, the icon galleries or a cluster's catalog, documents no single page.
+ */
+export function singleRoutePages(byDirectory: ReadonlyMap<string, readonly string[]>): WrSinglePage[] {
+  const out: WrSinglePage[] = [];
+  for (const [dir, routes] of byDirectory) {
+    if (routes.length !== 1) continue;
+    const abs = join(APP_ROOT, dir);
+    if (!existsSync(abs) || !statSync(abs).isDirectory()) continue;
+    out.push({ dir, abs, route: routes[0] });
+  }
+  return out;
+}
+
+/** {@link requirePageRoutes}, as {@link singleRoutePages}. */
+export async function requireSingleRoutePages(): Promise<WrSinglePage[]> {
+  return singleRoutePages((await requirePageRoutes()).byDirectory);
+}
+
+/**
+ * How many routes render a page: every route in `byDirectory` except a layout
+ * shell's ({@link WrPageRoutes.shells}) and the `**` 404, which nobody opens on
+ * purpose and the builder never prerenders. A module mounted under two prefixes
+ * counts once per prefix, as the router serves it.
+ */
+export function docRouteCount(routes: WrPageRoutes): number {
+  let count = 0;
+  for (const [dir, list] of routes.byDirectory) {
+    if (routes.shells.has(dir)) continue;
+    count += list.filter(route => route !== '**' && !route.endsWith('/**')).length;
+  }
+  return count;
+}
+
+/**
+ * The clusters a page documents an entry point from, in the order that decides
+ * which page an entry point gets when it has several: the two entry-point
+ * groups first, then the reference clusters, guides last.
+ */
+export const DOC_CLUSTERS: readonly string[] = [
+  'charts',
+  'bits',
+  'reference/components',
+  'reference/services',
+  'reference/directives',
+  'reference/pipes',
+  'reference/utils',
+  'reference/validators',
+  'reference/interfaces',
+  'guides',
+];
+
+/** One page and the entry point its directory is named after. */
+export interface WrDocPage {
+  /** Relative to `projects/showcase/app`, `/`-separated. */
+  readonly dir: string;
+  readonly route: string;
+  /** `alert`, or `bits/aurora` for `bits/backgrounds/aurora`. */
+  readonly entry: string;
+  /** One of {@link DOC_CLUSTERS}: the route's first segment, or its first two under `reference/`. */
+  readonly cluster: string;
+}
+
+export interface WrDocPages {
+  /** Every admitted page, by directory. */
+  readonly byDir: ReadonlyMap<string, WrDocPage>;
+  /** Every admitted page, by route. */
+  readonly byRoute: ReadonlyMap<string, WrDocPage>;
+  /** One page per entry point, the first in {@link DOC_CLUSTERS} order, then walk order. */
+  readonly byEntry: ReadonlyMap<string, WrDocPage>;
+}
+
+export interface WrDocPagesOptions {
+  /** Keeps a page when it returns true, before any entry point picks its page. Defaults to every page. */
+  readonly admit?: (page: WrDocPage) => boolean;
+}
+
+/**
+ * Which entry point each page documents, by the DIRECTORY's name rather than
+ * the route's, since `reference/components/display/qr/` serves `/qrcode`. A
+ * name that is no entry point is looked up inside the groups that only hold
+ * entry points (`bits`, `charts`); a page whose name matches none, or whose
+ * route sits outside {@link DOC_CLUSTERS}, documents nothing.
+ */
+export function docPages(
+  pages: Iterable<{ readonly dir: string; readonly route: string }>,
+  options: WrDocPagesOptions = {}
+): WrDocPages {
+  const entries = new Set(libEntryPoints());
+  const groups = [...new Set([...entries].filter(e => e.includes('/')).map(e => e.slice(0, e.indexOf('/'))))].filter(
+    group => !entries.has(group)
+  );
+  const rank = (cluster: string): number => DOC_CLUSTERS.indexOf(cluster);
+
+  const byDir = new Map<string, WrDocPage>();
+  const byRoute = new Map<string, WrDocPage>();
+  const byEntry = new Map<string, WrDocPage>();
+
+  for (const { dir, route } of pages) {
+    const name = dir.slice(dir.lastIndexOf('/') + 1);
+    const entry = entries.has(name) ? name : groups.map(group => `${group}/${name}`).find(e => entries.has(e));
+    const segments = route.split('/');
+    const cluster = segments[0] === 'reference' ? segments.slice(0, 2).join('/') : segments[0];
+    if (entry === undefined || rank(cluster) === -1) continue;
+
+    const page: WrDocPage = { dir, route, entry, cluster };
+    if (options.admit && !options.admit(page)) continue;
+
+    byDir.set(dir, page);
+    byRoute.set(route, page);
+    const held = byEntry.get(entry);
+    if (!held || rank(cluster) < rank(held.cluster)) byEntry.set(entry, page);
+  }
+
+  return { byDir, byRoute, byEntry };
 }

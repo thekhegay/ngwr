@@ -52,20 +52,24 @@
  *   pnpm check:contrast --verbose          # list every failing node
  */
 
-import { readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
-import { resolve } from 'node:path';
 import { exit } from 'node:process';
 
-import type { AxeResults, ImpactValue } from 'axe-core';
-import { chromium, type Browser, type Page } from 'playwright';
+import type { Page } from 'playwright';
 
-import { paintedScheme, prerenderedRoutes, serveDist } from '../lib/dist-site';
+import { narrow, parseFlags, pickOne } from '../lib/args';
+import {
+  describeAxeNode,
+  isFailingImpact,
+  recordViolation,
+  runAxe,
+  type Finding,
+  type RecordOptions,
+} from '../lib/axe';
+import { readBaseline } from '../lib/baselines';
+import { newPinnedContext } from '../lib/browser-context';
+import { openInScheme, prerenderedRoutes, withDistBrowser } from '../lib/dist-site';
 import { err } from '../lib/log/err';
 import { info } from '../lib/log/info';
-import { ROOT_PATH } from '../lib/paths/root';
-
-const BASELINE_PATH = resolve(ROOT_PATH, 'scripts/baselines/contrast.json');
 
 /** The rules JSDOM cannot answer. This script exists for exactly these. */
 const PAINTED_RULES = ['color-contrast', 'target-size'] as const;
@@ -101,9 +105,6 @@ interface PlaceholderTally {
   indistinct: number;
 }
 
-/** Fail on these. `minor` / `moderate` are reported but do not fail. */
-const FAILING_IMPACTS: readonly ImpactValue[] = ['serious', 'critical'];
-
 const THEMES = ['light', 'dark'] as const;
 type Theme = (typeof THEMES)[number];
 
@@ -121,43 +122,14 @@ type Theme = (typeof THEMES)[number];
 const CONTRAST_MODES = ['no-preference', 'more'] as const;
 type ContrastMode = (typeof CONTRAST_MODES)[number];
 
-/**
- * axe is evaluated inside the page rather than imported here — same reason as
- * `check/a11y.ts`: it binds `window` / `document` at module evaluation time.
- */
-const AXE_SOURCE = readFileSync(createRequire(import.meta.url).resolve('axe-core'), 'utf8');
-
-interface Finding {
-  readonly rule: string;
-  readonly impact: ImpactValue | null | undefined;
-  readonly help: string;
-  readonly helpUrl: string;
-  readonly routes: Set<string>;
-  readonly nodes: string[];
-}
-
-/**
- * axe already measured the colours and the ratio it objected to — printing its
- * own numbers beats re-deriving them, and re-deriving is where a `color-mix`
- * result in `color(srgb …)` form quietly turns into nonsense.
- */
-function describe(node: { any?: readonly { data?: unknown }[] }): string {
-  const data = node.any?.find(c => c.data && typeof c.data === 'object')?.data as
-    | { fgColor?: string; bgColor?: string; contrastRatio?: number; expectedContrastRatio?: string; fontSize?: string; fontWeight?: string }
-    | undefined;
-  if (!data?.contrastRatio) return '';
-  return ` [${data.contrastRatio}:1, wants ${data.expectedContrastRatio ?? '?'}, ${data.fgColor ?? '?'} on ${data.bgColor ?? '?'}, ${data.fontSize ?? ''} ${data.fontWeight ?? ''}]`;
-}
+/** Two nodes from each violation, eight per rule, each with axe's own measurement. */
+const NODES: RecordOptions = {
+  perViolation: 2,
+  max: 8,
+  format: (node, route) => `${route} — ${node.html.slice(0, 100)}${describeAxeNode(node, 'bracketed')}`,
+};
 
 type Baseline = Record<string, { readonly routes: number; readonly note: string }>;
-
-const readBaseline = (): Baseline => {
-  try {
-    return JSON.parse(readFileSync(BASELINE_PATH, 'utf8')) as Baseline;
-  } catch {
-    return {};
-  }
-};
 
 async function audit(
   page: Page,
@@ -168,29 +140,24 @@ async function audit(
   into: Map<string, Finding>,
   tally: PlaceholderTally
 ): Promise<void> {
-  await page.goto(`${origin}${route}`, { waitUntil: 'networkidle' });
-
   // One load per route: the context's `colorScheme` is the whole switch, so
   // there is no storage to seed and nothing to reload. What the emulation
   // cannot promise is that the page obeyed it, and that is the probe's job.
-  const applied = await paintedScheme(page);
-  if (applied !== theme) {
-    err(`\n✘ contrast: ${route} came up as "${applied ?? 'neither'}" with "${theme}" requested — refusing to report a theme that was never painted.\n`);
-    exit(1);
+  await openInScheme(page, origin, route, theme, {
+    label: 'contrast',
+    reason: 'refusing to report a theme that was never painted',
+  });
+
+  const results = await runAxe(page, null, {
+    resultTypes: ['violations'],
+    // Only these two. Everything structural is `check:a11y`'s job, and
+    // reporting it twice would make one fix look like two regressions.
+    runOnly: { type: 'rule', values: [...PAINTED_RULES] },
+  });
+
+  for (const violation of results.violations) {
+    recordViolation(into, `${violation.id} (${theme}, ${mode})`, violation, route, NODES);
   }
-
-  await page.addScriptTag({ content: AXE_SOURCE });
-  const results = (await page.evaluate(async (enabled: readonly string[]) => {
-    const runner = (window as unknown as { axe: { run: (o: unknown) => Promise<AxeResults> } }).axe;
-    return runner.run({
-      resultTypes: ['violations'],
-      // Only these two. Everything structural is `check:a11y`'s job, and
-      // reporting it twice would make one fix look like two regressions.
-      runOnly: { type: 'rule', values: [...enabled] },
-    });
-  }, PAINTED_RULES)) as AxeResults;
-
-  for (const violation of results.violations) record(into, `${violation.id} (${theme}, ${mode})`, violation, route);
 
   // The placeholder pass, after the painted one on purpose: it repaints fields,
   // and the run above has to see the page as it ships. `:placeholder-shown` is
@@ -220,89 +187,54 @@ async function audit(
   if (probed.count === 0) return;
   tally.routes.add(route);
 
-  const placeholders = (await page.evaluate(async (selector: string) => {
-    const runner = (window as unknown as { axe: { run: (c: unknown, o: unknown) => Promise<AxeResults> } }).axe;
-    return runner.run(
-      { include: [selector] },
-      { resultTypes: ['violations'], runOnly: { type: 'rule', values: ['color-contrast'] } }
-    );
-  }, `[${PLACEHOLDER_PROBE}]`)) as AxeResults;
+  const placeholders = await runAxe(
+    page,
+    { include: [`[${PLACEHOLDER_PROBE}]`] },
+    { resultTypes: ['violations'], runOnly: { type: 'rule', values: ['color-contrast'] } }
+  );
 
   for (const violation of placeholders.violations) {
-    record(into, `${PLACEHOLDER_RULE} (${theme}, ${mode})`, violation, route, 'A placeholder, painted as the field text');
+    recordViolation(into, `${PLACEHOLDER_RULE} (${theme}, ${mode})`, violation, route, {
+      ...NODES,
+      prefix: 'A placeholder, painted as the field text',
+    });
   }
-}
-
-/** One axe violation into the per-rule tally, keyed the way the baseline is. */
-function record(into: Map<string, Finding>, key: string, violation: AxeResults['violations'][number], route: string, prefix = ''): void {
-  const found = into.get(key) ?? {
-    rule: key,
-    impact: violation.impact,
-    help: prefix ? `${prefix}: ${violation.help}` : violation.help,
-    helpUrl: violation.helpUrl,
-    routes: new Set<string>(),
-    nodes: [],
-  };
-  found.routes.add(route);
-  for (const node of violation.nodes.slice(0, 2)) {
-    if (found.nodes.length < 8) found.nodes.push(`${route} — ${node.html.slice(0, 100)}${describe(node)}`);
-  }
-  into.set(key, found);
 }
 
 async function main(): Promise<void> {
-  const args = process.argv.slice(2);
-  const verbose = args.includes('--verbose');
-  const only = args.find(a => a.startsWith('--theme='))?.split('=')[1] as Theme | undefined;
-  const onlyContrast = args.find(a => a.startsWith('--contrast='))?.split('=')[1] as ContrastMode | undefined;
-  const limit = Number(args.find(a => a.startsWith('--routes='))?.split('=')[1] ?? 0);
-  const filter = args.find(a => a.startsWith('--filter='))?.split('=')[1] ?? '';
+  const { verbose, theme, contrast, routes, filter } = parseFlags(
+    'check:contrast [--verbose] [--theme=<light|dark>] [--contrast=<no-preference|more>] [--routes=<n>] [--filter=<substring>]',
+    {
+      verbose: { type: 'boolean', default: false },
+      theme: { type: 'string' },
+      contrast: { type: 'string' },
+      routes: { type: 'number', default: 0 },
+      filter: { type: 'string', default: '' },
+    }
+  );
 
-  const themes = only ? THEMES.filter(t => t === only) : THEMES;
-  if (only && themes.length === 0) {
-    err(`\n✘ contrast: unknown theme "${only}". Use light or dark.\n`);
-    exit(1);
-  }
-
-  const modes = onlyContrast ? CONTRAST_MODES.filter(m => m === onlyContrast) : CONTRAST_MODES;
-  if (onlyContrast && modes.length === 0) {
-    err(`\n✘ contrast: unknown contrast mode "${onlyContrast}". Use no-preference or more.\n`);
-    exit(1);
-  }
+  const themes = pickOne(THEMES, theme, 'contrast', 'theme');
+  const modes = pickOne(CONTRAST_MODES, contrast, 'contrast', 'contrast mode');
 
   const everything = prerenderedRoutes('contrast');
-  const all = everything.filter(route => route.includes(filter));
-  if (all.length === 0) {
-    err(`\n✘ contrast: no route matches "${filter}".\n`);
-    exit(1);
-  }
-  const targets = limit > 0 ? all.slice(0, limit) : all;
+  const { targets } = narrow(everything, { filter, limit: routes, label: 'contrast', noun: 'route' });
 
-  const { server, origin } = await serveDist('spa');
-  let browser: Browser | null = null;
   const findings = new Map<string, Finding>();
   const placeholders = new Map<string, PlaceholderTally>();
 
-  try {
-    browser = await chromium.launch();
+  await withDistBrowser('spa', async ({ browser, origin }) => {
     // One context per theme, and `colorScheme` set on it, which is the entire
     // theme switch: `:root` declares `color-scheme: light dark`, so every token
     // resolves to the emulated side from the first paint and there is no flash
     // to capture as a violation.
     for (const theme of themes) for (const mode of modes) {
-      // `reducedMotion` is what makes the pass deterministic. Every animation
-      // component short-circuits to its final state under it, so nothing is
-      // ever measured mid-flight — a `wr-blur-text` piece caught at
-      // `opacity: 0; filter: blur(10px)` reports a contrast failure that
-      // describes a frame, not a design.
-      const context = await browser.newContext({
-        colorScheme: theme,
-        contrast: mode,
-        reducedMotion: 'reduce',
-        viewport: { width: 1280, height: 900 },
-      });
-
-      // Pin the clock, for the reason `check:state-a11y` pins it: the
+      // Reduced motion, which every pinned context gets, is what makes the pass
+      // deterministic. Every animation component short-circuits to its final
+      // state under it, so nothing is ever measured mid-flight — a
+      // `wr-blur-text` piece caught at `opacity: 0; filter: blur(10px)` reports
+      // a contrast failure that describes a frame, not a design.
+      //
+      // The clock is pinned for the reason `check:state-a11y` pins it: the
       // event-calendar demo builds its events relative to `new Date()`, so how
       // many chips a month cell holds — and therefore whether they trip
       // `target-size` at all — changes from one day to the next. This gate
@@ -310,10 +242,8 @@ async function main(): Promise<void> {
       // its own, which is worse than a failure: it means the allowance can only
       // ever be set to the loosest day, and on every other day it hides a real
       // regression behind the slack. The date-picker and calendar demos drift
-      // the same way. Same instant as the state sweep, so the two gates describe
-      // the same page.
-      await context.clock.setFixedTime(new Date('2026-08-12T10:00:00Z'));
-
+      // the same way.
+      const context = await newPinnedContext(browser, { colorScheme: theme, contrast: mode, pinClock: true });
       const page = await context.newPage();
 
       info(`  ${theme} / contrast ${mode}: ${targets.length} routes`);
@@ -323,18 +253,15 @@ async function main(): Promise<void> {
 
       await context.close();
     }
-  } finally {
-    await browser?.close();
-    server.close();
-  }
+  });
 
-  const baseline = readBaseline();
+  const baseline = readBaseline<Baseline>('contrast');
   const failures: string[] = [];
 
   for (const finding of [...findings.values()].sort((a, b) => b.routes.size - a.routes.size)) {
     const allowed = baseline[finding.rule]?.routes ?? 0;
     const count = finding.routes.size;
-    const failing = FAILING_IMPACTS.includes(finding.impact ?? 'minor');
+    const failing = isFailingImpact(finding.impact);
     const over = count > allowed;
 
     const line = `${finding.rule} — ${count} route(s), impact ${finding.impact ?? 'n/a'}`;
@@ -365,7 +292,7 @@ async function main(): Promise<void> {
   // Only a FULL sweep may claim a baselined rule is gone. A filtered or
   // truncated run has simply not looked at the routes it lives on, and telling
   // someone to delete a baseline entry on that evidence is worse than silence.
-  // Compare against EVERY route, not the filtered list — `all` is already
+  // Compare against EVERY route, not the filtered list — that one is already
   // narrowed, so measuring against it would call any filtered run complete.
   const complete =
     targets.length === everything.length && themes.length === THEMES.length && modes.length === CONTRAST_MODES.length;

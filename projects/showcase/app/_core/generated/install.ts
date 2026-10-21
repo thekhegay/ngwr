@@ -279,7 +279,6 @@ export const INSTALL = {
       { path: "ngwr/pull-to-refresh", symbols: ["WrPullToRefresh"], declarables: ["WrPullToRefresh"], styled: true },
   ],
   "reference/components/qrcode": [
-      { path: "ngwr/input", symbols: ["WrInput"], declarables: ["WrInput"], styled: true },
       { path: "ngwr/qr", symbols: ["WrQr"], declarables: ["WrQr"], styled: true },
   ],
   "reference/components/radio": [

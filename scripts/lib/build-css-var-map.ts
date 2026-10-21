@@ -49,12 +49,12 @@
  * from rather than picking one and calling it the default.
  */
 
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
-import { extname, join, relative, resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { relative } from 'node:path';
 
+import { entryFiles, libEntryPoints } from './entry-points';
 import { ROOT_PATH } from './paths/root';
-
-const LIB_ROOT = resolve(ROOT_PATH, 'projects/lib');
+import { blankComments } from './ts-lex';
 
 /**
  * Entry points whose stylesheet IS the token layer rather than a component.
@@ -64,9 +64,6 @@ const LIB_ROOT = resolve(ROOT_PATH, 'projects/lib');
  */
 const TOKEN_LAYER = new Set(['theme']);
 
-/** Directory names the walk never descends into. */
-const SKIP_DIRS = new Set(['node_modules', 'schematics', 'mcp']);
-
 interface RawDeclaration {
   readonly name: string;
   readonly value: string;
@@ -74,41 +71,6 @@ interface RawDeclaration {
   readonly base: boolean;
   readonly file: string;
   readonly line: number;
-}
-
-interface EntryPoint {
-  /** Path under `projects/lib`: `alert`, `charts/bar-chart`. */
-  readonly entry: string;
-  readonly dir: string;
-}
-
-/** Every secondary entry point under `projects/lib`, in path order. */
-function entryPoints(dir = LIB_ROOT, prefix = ''): EntryPoint[] {
-  const out: EntryPoint[] = [];
-  for (const name of readdirSync(dir).sort()) {
-    if (name.startsWith('.') || SKIP_DIRS.has(name)) continue;
-    const full = join(dir, name);
-    if (!statSync(full).isDirectory()) continue;
-    const entry = prefix ? `${prefix}/${name}` : name;
-    if (existsSync(join(full, 'public-api.ts')) && !TOKEN_LAYER.has(entry)) out.push({ entry, dir: full });
-    out.push(...entryPoints(full, entry));
-  }
-  return out;
-}
-
-/** Files under `dir` with one of `extensions`, without descending into `stopAt`. */
-function filesIn(dir: string, extensions: ReadonlySet<string>, stopAt: ReadonlySet<string>): string[] {
-  const out: string[] = [];
-  for (const name of readdirSync(dir).sort()) {
-    if (name.startsWith('.') || SKIP_DIRS.has(name)) continue;
-    const full = join(dir, name);
-    if (statSync(full).isDirectory()) {
-      if (!stopAt.has(full)) out.push(...filesIn(full, extensions, stopAt));
-      continue;
-    }
-    if (extensions.has(extname(name))) out.push(full);
-  }
-  return out;
 }
 
 /**
@@ -332,10 +294,7 @@ function declarationsIn(file: string): { declarations: RawDeclaration[]; blocks:
 
 /** `var(--wr-x)` and `getPropertyValue('--wr-x')`, comments stripped. */
 function readsIn(source: string): Set<string> {
-  const src = source
-    .replace(/\/\*[\s\S]*?\*\//g, ' ')
-    .replace(/^[ \t]*\/\/.*$/gm, ' ')
-    .replace(/<!--[\s\S]*?-->/g, ' ');
+  const src = blankComments(source, { html: true });
   const out = new Set<string>();
   for (const [, name] of src.matchAll(/var\(\s*(--wr-[a-z0-9-]+)/g)) out.add(name);
   for (const [, name] of src.matchAll(/getPropertyValue\(\s*['"`](--wr-[a-z0-9-]+)['"`]/g)) out.add(name);
@@ -357,18 +316,16 @@ function isTestSource(file: string): boolean {
 
 /** The catalogue, from the library's stylesheets and the code that reads them. */
 export function buildCssVarMap(): WrCssVarMap {
-  const eps = entryPoints();
-  const dirs = new Set(eps.map(e => e.dir));
+  const eps = libEntryPoints().filter(entry => !TOKEN_LAYER.has(entry));
 
   const declared = new Map<string, RawDeclaration[]>();
   const declarers = new Map<string, Set<string>>();
   const blocks = new Map<string, Set<string>>();
   const reads = new Set<string>();
 
-  for (const ep of eps) {
-    const nested = new Set([...dirs].filter(d => d !== ep.dir && d.startsWith(`${ep.dir}/`)));
-    const styles = filesIn(ep.dir, new Set(['.scss']), nested);
-    const code = filesIn(ep.dir, new Set(['.ts', '.html']), nested).filter(f => !isTestSource(f));
+  for (const entry of eps) {
+    const styles = entryFiles(entry, { extensions: ['.scss'], skipInternal: false });
+    const code = entryFiles(entry, { extensions: ['.ts', '.html'], skipInternal: false }).filter(f => !isTestSource(f));
 
     const own: RawDeclaration[] = [];
     const owned = new Set<string>();
@@ -380,11 +337,11 @@ export function buildCssVarMap(): WrCssVarMap {
     }
     for (const file of code) for (const name of readsIn(readFileSync(file, 'utf8'))) reads.add(name);
 
-    declared.set(ep.entry, own);
-    blocks.set(ep.entry, owned);
+    declared.set(entry, own);
+    blocks.set(entry, owned);
     for (const d of own) {
       if (!declarers.has(d.name)) declarers.set(d.name, new Set());
-      declarers.get(d.name)!.add(ep.entry);
+      declarers.get(d.name)!.add(entry);
     }
   }
 
@@ -396,7 +353,7 @@ export function buildCssVarMap(): WrCssVarMap {
   // `/guides/tokens/*` pages already carry is not a component's hook, wherever a
   // component happens to retune it.
   const themeTokens = new Set<string>();
-  for (const file of filesIn(join(LIB_ROOT, 'theme'), new Set(['.scss']), new Set())) {
+  for (const file of entryFiles('theme', { extensions: ['.scss'], skipInternal: false })) {
     const source = readFileSync(file, 'utf8');
     for (const name of readsIn(source)) reads.add(name);
     for (const d of declarationsIn(file).declarations) themeTokens.add(d.name);

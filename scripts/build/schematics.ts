@@ -30,17 +30,15 @@
  *   pnpm tsx scripts/build/schematics.ts
  */
 
-import { execFileSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import { execPath, exit } from 'node:process';
 
 import { buildSymbolMap } from '../lib/build-symbol-map';
-import { err } from '../lib/log/err';
+import { copyInto } from '../lib/fs/copy-into';
 import { info } from '../lib/log/info';
-import { DIST_LIB_PATH } from '../lib/paths/dist-lib';
+import { DIST_LIB_PATH, requireBuiltLib } from '../lib/paths/dist-lib';
 import { ROOT_PATH } from '../lib/paths/root';
+import { tsc } from '../lib/run/step';
 
 const SRC = resolve(ROOT_PATH, 'projects/lib/schematics');
 const TSCONFIG = resolve(SRC, 'tsconfig.json');
@@ -58,24 +56,12 @@ const ASSETS = [
   ['page/schema.json', 'page/schema.json'],
 ] as const;
 
-if (!existsSync(DIST_LIB_PATH)) {
-  err(`dist/lib does not exist — run "pnpm build:lib" first.`);
-  exit(1);
-}
+requireBuiltLib('build:schematics');
 
 info(`▸ Compiling schematics with ${TSCONFIG}`);
-// This Node runs tsc directly; `pnpm exec` would start pnpm first.
-execFileSync(execPath, [createRequire(import.meta.url).resolve('typescript/bin/tsc'), '-p', TSCONFIG], {
-  stdio: 'inherit',
-});
+tsc('tsc -p projects/lib/schematics', TSCONFIG);
 
-for (const [src, dst] of ASSETS) {
-  const from = resolve(SRC, src);
-  const to = resolve(DST, dst);
-  mkdirSync(dirname(to), { recursive: true });
-  copyFileSync(from, to);
-  info(`✓ Copied ${src} → ${to}`);
-}
+for (const [src, dst] of ASSETS) copyInto(resolve(SRC, src), resolve(DST, dst), { label: src });
 
 // The schematics are compiled to CommonJS (the Angular DevKit loads them with
 // `require`), but dist/lib/package.json declares `"type": "module"`, so Node

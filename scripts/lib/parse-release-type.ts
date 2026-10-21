@@ -6,18 +6,15 @@
  */
 
 /**
- * Parses the `--bump=<kind>` CLI flag used by the release helper scripts.
- * Returns `null` when the flag is missing or the value is unknown.
+ * Validates the value of `release:prepare`'s `--bump` flag, trimmed. Returns
+ * `null` when it is missing or not a release type.
  */
 
 import type { ReleaseType } from './release-type';
 
 const ALLOWED: readonly ReleaseType[] = ['patch', 'minor', 'major', 'rc'];
 
-export function parseReleaseType(argv: readonly string[]): ReleaseType | null {
-  const raw = argv
-    .find(a => a.startsWith('--bump='))
-    ?.split('=')[1]
-    ?.trim();
-  return raw && (ALLOWED as readonly string[]).includes(raw) ? (raw as ReleaseType) : null;
+export function parseReleaseType(raw: string | undefined): ReleaseType | null {
+  const value = raw?.trim();
+  return value && (ALLOWED as readonly string[]).includes(value) ? (value as ReleaseType) : null;
 }
