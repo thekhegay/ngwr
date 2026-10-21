@@ -43,10 +43,10 @@ export const QUALITY = {
   directives: 38,
 
   /** `*.spec.ts` files under `projects/lib`, harness specs included. They sit beside the code they cover, and `tsconfig.lib.json` excludes them from the package. */
-  specFiles: 267,
+  specFiles: 268,
 
   /** Test cases those files DECLARE — `it(…)` / `test(…)` call sites, counted after comments and string bodies are stripped. */
-  testCases: 4945,
+  testCases: 4946,
 
   /** Whether `testCases` is a total or a floor. A parameterised form (`it.each`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page says "at least" rather than failing a documentation build over a legal spec. */
   testCasesAreExact: false,
@@ -68,6 +68,7 @@ export const QUALITY = {
     { name: "ng lint", command: "ng lint" },
     { name: "eslint scripts", command: "eslint scripts" },
     { name: "lint:styles", command: "stylelint \"projects/**/*.scss\"" },
+    { name: "check:rtl", command: "tsx scripts/check/rtl.ts" },
     { name: "check:tokens", command: "tsx scripts/check/tokens.ts" },
     { name: "check:selectors", command: "tsx scripts/gen/selectors.ts --check" },
     { name: "check:attrs", command: "tsx scripts/check/unknown-attrs.ts" },
@@ -76,7 +77,7 @@ export const QUALITY = {
 
   /** Every `package.json` script `.github/workflows/ci.yml` runs on a pull request, in order. Parsed from the workflow, so a gate added or removed there moves this list. */
   prGates: [
-    { name: "lint", command: "ng lint && eslint scripts && pnpm lint:styles && pnpm check:tokens && pnpm check:selectors && pnpm check:attrs && pnpm check:install" },
+    { name: "lint", command: "ng lint && eslint scripts && pnpm lint:styles && pnpm check:rtl && pnpm check:tokens && pnpm check:selectors && pnpm check:attrs && pnpm check:install" },
     { name: "test:coverage", command: "ng test lib --coverage --coverage-reporters lcovonly text-summary" },
     { name: "check:api-docs", command: "tsx scripts/gen/api-docs.ts --check" },
     { name: "check:css-vars", command: "tsx scripts/gen/css-vars.ts --check" },
@@ -91,6 +92,7 @@ export const QUALITY = {
     { name: "check:contrast", command: "tsx scripts/check/contrast.ts" },
     { name: "check:state-a11y", command: "tsx scripts/check/state-a11y.ts" },
     { name: "check:layout", command: "tsx scripts/check/layout.ts" },
+    { name: "check:rtl-layout", command: "tsx scripts/check/rtl-layout.ts" },
     { name: "test", command: "ng test lib" },
     { name: "build:lib", command: "tsx scripts/build/lib.ts" },
   ],

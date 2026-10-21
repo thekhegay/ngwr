@@ -54,6 +54,7 @@
   // The drag + resize handlers write those signals on every pointer
   // move; animating each tick makes the window lag behind the cursor.
   animation: wr-window-in var(--wr-window-anim-duration) var(--wr-ease-out, ease-out);
+  // rtl-ok: scale-in growth corner — `transform-origin` takes no logical keywords
   transform-origin: top left;
 
   &--closed,
@@ -337,6 +338,7 @@
     &--l {
       top: 0;
       bottom: 0;
+      // rtl-ok: west grip — paired with the physical `left` the resize math writes
       right: 100%;
       width: var(--wr-window-handle-size);
       cursor: ew-resize;
@@ -344,6 +346,7 @@
     &--r {
       top: 0;
       bottom: 0;
+      // rtl-ok: east grip — paired with the physical `left` + width the resize math writes
       left: 100%;
       width: var(--wr-window-handle-size);
       cursor: ew-resize;
@@ -354,6 +357,7 @@
     // for the one axis it drops.
     &--tl {
       bottom: 100%;
+      // rtl-ok: north-west grip — `nwse-resize` names a screen diagonal
       right: 100%;
       width: var(--wr-window-handle-corner);
       height: var(--wr-window-handle-corner);
@@ -361,6 +365,7 @@
     }
     &--tr {
       bottom: 100%;
+      // rtl-ok: north-east grip — `nesw-resize` names a screen diagonal
       left: 100%;
       width: var(--wr-window-handle-corner);
       height: var(--wr-window-handle-corner);
@@ -368,6 +373,7 @@
     }
     &--bl {
       top: 100%;
+      // rtl-ok: south-west grip — `nesw-resize` names a screen diagonal
       right: 100%;
       width: var(--wr-window-handle-corner);
       height: var(--wr-window-handle-corner);
@@ -375,6 +381,7 @@
     }
     &--br {
       top: 100%;
+      // rtl-ok: south-east grip — `nwse-resize` names a screen diagonal
       left: 100%;
       width: var(--wr-window-handle-corner);
       height: var(--wr-window-handle-corner);
@@ -396,6 +403,10 @@
   border-radius: var(--wr-window-snap-hint-radius);
   transition: all 0.12s ease;
 
+  // rtl-ok: the `inset` shorthands below paint physical screen regions, not
+  // reading-order ones. `detectSnapTarget` picks `left` from `clientX <= 12`
+  // and `applySnap` answers with `x = 0`, so the hint has to cover the same
+  // half of the viewport the window is about to jump into.
   &[data-target='top'] {
     inset: 0;
   }
@@ -424,6 +435,7 @@
   --wr-window-taskbar-font-family: var(--wr-font-family-base);
 
   position: fixed;
+  // rtl-ok: centred with a physical translateX, so the pair must stay physical
   left: 50%;
   transform: translateX(-50%);
   z-index: var(--wr-z-window, 1100);

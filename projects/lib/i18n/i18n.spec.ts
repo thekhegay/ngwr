@@ -403,8 +403,8 @@ describe('WrI18n runtime-switch warning', () => {
 /**
  * What is left here is what only a walk of the SOURCE can answer: whether the
  * library asks for a key nobody ships, and whether it ships a key nobody asks
- * for. Key-set parity and empty values are `catalog-contract.ts`, which the
- * `en` and `ru` specs run.
+ * for. Key-set parity and empty values are `catalog-contract.ts`, which every
+ * shipped catalog runs.
  */
 describe('the shipped catalogs', () => {
   const keysOf = (node: unknown, prefix = ''): string[] =>

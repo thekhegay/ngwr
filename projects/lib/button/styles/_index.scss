@@ -102,6 +102,7 @@
 
   &__spin {
     position: absolute;
+    // rtl-ok: centred with a physical translate(-50%, -50%), so the pair must stay physical
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -333,6 +334,7 @@
       &:focus-visible {
         box-shadow: none;
       }
+      // rtl-ok: box-shadow has no logical equivalent — see above
     }
   }
 }

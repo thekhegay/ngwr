@@ -198,10 +198,9 @@ jobs:
           path: layout-report.txt
           retention-days: 30
 
-  legacy-node:
-    name: Node 24 (an older LTS line engines accepts)
-    needs: changed
-    if: needs.changed.outputs.run == 'true'
+  rtl-layout:
+    name: RTL layout
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
@@ -211,7 +210,46 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 26
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: showcase
+          path: dist/showcase
+
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - run: pnpm check:rtl-layout --verbose 2>&1 | tee rtl-layout-report.txt
+        shell: bash
+
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: rtl-layout-report
+          path: rtl-layout-report.txt
+          retention-days: 30
+
+  legacy-node:
+    name: Node ${{ matrix.node }} (an older LTS line engines accepts)
+    needs: changed
+    if: needs.changed.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
@@ -224,7 +262,7 @@ jobs:
   # job fails, closed by the next green nightly.
   report:
     name: Morning report
-    needs: [changed, build, a11y, contrast, state-a11y, layout, legacy-node]
+    needs: [changed, build, a11y, contrast, state-a11y, layout, rtl-layout, legacy-node]
     if: always() && needs.changed.outputs.run == 'true' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:

@@ -8,8 +8,8 @@
     "test": "ng test lib",
     "test:coverage": "ng test lib --coverage --coverage-reporters lcovonly text-summary",
     "test:watch": "ng test lib --watch",
-    "lint": "ng lint && eslint scripts && pnpm lint:styles && pnpm check:tokens && pnpm check:selectors && pnpm check:attrs && pnpm check:install",
-    "check:nightly": "pnpm build:showcase && pnpm check:a11y && pnpm check:contrast && pnpm check:state-a11y && pnpm check:layout",
+    "lint": "ng lint && eslint scripts && pnpm lint:styles && pnpm check:rtl && pnpm check:tokens && pnpm check:selectors && pnpm check:attrs && pnpm check:install",
+    "check:nightly": "pnpm build:showcase && pnpm check:a11y && pnpm check:contrast && pnpm check:state-a11y && pnpm check:layout && pnpm check:rtl-layout",
     "check:release": "pnpm lint && pnpm test && pnpm check:api-docs && pnpm check:css-vars && pnpm build:lib && pnpm check:nightly",
     "check:layout": "tsx scripts/check/layout.ts",
     "check:a11y": "tsx scripts/check/a11y.ts",
@@ -36,7 +36,9 @@
     "release:check": "tsx scripts/release/check.ts",
     "prepare": "simple-git-hooks",
     "check:state-a11y": "tsx scripts/check/state-a11y.ts",
-    "check:tokens": "tsx scripts/check/tokens.ts"
+    "check:tokens": "tsx scripts/check/tokens.ts",
+    "check:rtl": "tsx scripts/check/rtl.ts",
+    "check:rtl-layout": "tsx scripts/check/rtl-layout.ts"
   },
   "simple-git-hooks": {
     "commit-msg": "npx --no-install commitlint --edit $1"

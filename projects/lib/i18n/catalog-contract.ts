@@ -23,10 +23,9 @@ import type { WrI18nCatalog } from './i18n-config';
  * else here — move or rename it and that entry has to move with it, or the
  * library build starts trying to compile `vitest`.
  *
- * Two catalogs run it, `en` and `ru`; the other twenty ship without a spec, so
- * a new key does not wait on twenty translations before the suite goes green.
- * Each locale's own `catalog.spec.ts` hands its catalog to
- * `expectCatalogContract` with the two things only that locale knows: the
+ * Every shipped catalog runs it: `en` and `ru` from their own `catalog.spec.ts`,
+ * the other twenty from one table in `catalogs.spec.ts`. Each hands its catalog
+ * to `expectCatalogContract` with the two things only that locale knows: the
  * script its prose is written in, and which of its values are correctly
  * identical to English.
  *

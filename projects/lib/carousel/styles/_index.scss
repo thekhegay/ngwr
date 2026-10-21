@@ -106,6 +106,7 @@
   &__dots {
     position: absolute;
     bottom: 0.75rem;
+    // rtl-ok: centred with a physical translateX, so the pair must stay physical.
     left: 50%;
     transform: translateX(-50%);
     display: flex;

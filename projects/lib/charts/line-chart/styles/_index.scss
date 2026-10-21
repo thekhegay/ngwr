@@ -81,6 +81,7 @@
     // hung half its width past the chart — measured at 52px over the right edge in
     // Chromium, cut off by any container that clips and a sideways scroll on a phone for
     // any that does not.
+    // rtl-ok: the SVG's own x, and SVG coordinates do not flip with `direction`
     transform: translate(
       clamp(calc(var(--wr-line-chart-x, 50) * -1cqw), -50%, calc((100 - var(--wr-line-chart-x, 50)) * 1cqw - 100%)),
       0.5rem
@@ -144,6 +145,7 @@
 
   &__x-label {
     position: absolute;
+    // rtl-ok: the SVG's own x, and SVG coordinates do not flip with `direction`
     left: calc(var(--wr-line-chart-x, 50) * 1%);
     // Centred on the point it names, but never past either end of the strip: the shift
     // is the smaller of half the label and the room actually left on that side, so a

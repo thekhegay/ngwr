@@ -37,6 +37,7 @@
   // the directive pins to the pointer — it writes `top` / `left` inline from
   // `pageX`/`pageY`, physical pixels. Origin and those coordinates are one pair;
   // mirroring the menu around the cursor is a TS change, not a rename.
+  // rtl-ok: animation origin tied to the pointer coords the directive writes
   transform-origin: top left;
   transition:
     opacity var(--wr-overlay-duration) var(--wr-overlay-ease),

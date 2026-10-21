@@ -31,6 +31,7 @@ $toast-colors: (
   // `env(safe-area-inset-left/right)` report the device's own edges and do NOT
   // flip with direction, so each inset must stay on the side it describes. The
   // 1rem base is equal on both sides, so the shorthand reads the same either way.
+  // rtl-ok: physical shorthand carrying physical `env()` insets
   padding: calc(1rem + env(safe-area-inset-top)) calc(1rem + env(safe-area-inset-right))
     calc(1rem + env(safe-area-inset-bottom)) calc(1rem + env(safe-area-inset-left));
   pointer-events: none;
@@ -102,6 +103,7 @@ $toast-colors: (
 
   &--top {
     top: 0;
+    // rtl-ok: centred with a physical translateX, so the pair must stay physical
     left: 50%;
     transform: translateX(-50%);
   }
@@ -115,6 +117,7 @@ $toast-colors: (
   }
   &--bottom {
     bottom: 0;
+    // rtl-ok: centred with a physical translateX, so the pair must stay physical
     left: 50%;
     transform: translateX(-50%);
     flex-direction: column-reverse;
@@ -246,12 +249,14 @@ $toast-colors: (
     // end, which means it stays anchored at the reader's START: physically left
     // in LTR, physically right in RTL. Leaving it at `left` in both pinned the
     // remaining time to the side an RTL reader's eye leaves from.
+    // rtl-ok: origin is one half of a physical scaleX pair, mirrored below
     transform-origin: left;
     background: var(--wr-toast-accent);
     animation: wr-toast-progress linear forwards;
     animation-duration: var(--wr-toast-duration, 4000ms);
 
     [dir='rtl'] & {
+      // rtl-ok: the mirrored half of the pair above
       transform-origin: right;
     }
   }

@@ -399,11 +399,13 @@
   &__th--pin-edge-right,
   &__td--pin-edge-right {
     box-shadow: -0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
+    // rtl-ok: `box-shadow` has no logical form; the RTL sign is set explicitly below
   }
 
   // Under `dir="rtl"` the start-pinned group sits at the physical right and the
   // end-pinned group at the physical left, so both shadows point the other way.
   [dir='rtl'] &__th--pin-edge-left,
+    // rtl-ok: `box-shadow` has no logical form; the RTL sign is set explicitly below
   [dir='rtl'] &__td--pin-edge-left {
     box-shadow: -0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
   }
@@ -411,11 +413,13 @@
   [dir='rtl'] &__th--pin-edge-right,
   [dir='rtl'] &__td--pin-edge-right {
     box-shadow: 0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
+    // rtl-ok: this IS the RTL sign for the rule above
   }
 
   &__th-inner {
     display: inline-flex;
     align-items: center;
+    // rtl-ok: this IS the RTL sign for the rule above
     gap: 0.375rem;
 
     // The spacing of the header's controls, and it moves for a COARSE pointer

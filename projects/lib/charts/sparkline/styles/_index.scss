@@ -21,6 +21,7 @@
     border: 2px solid var(--wr-color-surface);
     border-radius: 50%;
     box-sizing: content-box;
+    // rtl-ok: SVG coordinates, see above
     transform: translate(-50%, -50%);
     pointer-events: none;
   }

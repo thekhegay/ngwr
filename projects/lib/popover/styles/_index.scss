@@ -23,6 +23,7 @@
   font-family: var(--wr-popover-font-family);
   color: var(--wr-color-on-surface);
   animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
+  // rtl-ok: scale-in growth corner — `transform-origin` takes no logical keywords
   transform-origin: top left;
 }
 
@@ -71,6 +72,7 @@
   line-height: var(--wr-tooltip-line-height);
   box-shadow: var(--wr-shadow-overlay);
   animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
+  // rtl-ok: scale-in growth corner — `transform-origin` takes no logical keywords
   transform-origin: top left;
 
   // The arrow itself comes from `arrow.anchored-arrow()` below. `position:
@@ -162,6 +164,7 @@
   .wr-chart-tooltip::after {
     inset-inline: auto;
     margin-inline: 0;
+    // rtl-ok: a length measured from the chip's physical left edge in viewport pixels
     left: calc(var(--wr-chart-tooltip-arrow, 50%) - #{arrow.$half});
   }
 }

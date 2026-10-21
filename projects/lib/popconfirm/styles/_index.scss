@@ -28,6 +28,7 @@
     color: var(--wr-color-on-surface);
     font-family: var(--wr-popconfirm-font-family);
     animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
+    // rtl-ok: scale-in growth corner — `transform-origin` takes no logical keywords
     transform-origin: top left;
   }
 }

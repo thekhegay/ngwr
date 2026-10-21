@@ -202,11 +202,12 @@ one component folder. Reach for them instead of hand-rolling:
   its language and never the reverse — `pt-BR` finds `pt`, while a bare `de`
   would never reach a `de-DE`; a region appears only where the script differs
   (`zh` is Simplified, `zh-TW` Traditional, and `zh-HK` / `zh-Hant` need mapping
-  by hand). `en` and `ru` are held to the English key set, to their placeholder
-  set, and to being written in their own script by one shared
-  `expectCatalogContract` in `i18n/catalog-contract.ts`; the other twenty
-  catalogs have no spec since v15, so a new key does not wait on twenty
-  translations. The contract is **not a `.spec.ts`, and that is load-bearing**:
+  by hand). Every catalog is held to the English key set, to its placeholder
+  set, and to being written in its own script by one shared
+  `expectCatalogContract` in `i18n/catalog-contract.ts` — `en` and `ru` from
+  their own specs, the other twenty from one table in `i18n/catalogs.spec.ts`,
+  which also fails on a locale folder the table does not name. The contract is
+  **not a `.spec.ts`, and that is load-bearing**:
   a file that is both a suite and a module other specs import gets its own
   `describe` attributed to whichever importer ran first, and vitest then
   reports "No test suite found" for the file itself. It stays out of the
@@ -597,6 +598,8 @@ controls projected into it — the controls themselves do not grow with it.
 | a11y sweep        | `pnpm check:a11y` (axe over `dist/showcase` — run `build:showcase` first — **nightly**)             |
 | Contrast sweep    | `pnpm check:contrast` (axe in a real Chromium, both themes × both `prefers-contrast` modes — **nightly**; `--theme=` / `--contrast=` narrow it) |
 | State a11y        | `pnpm check:state-a11y` (the FULL axe set INSIDE hovers / overlays — **nightly**)                   |
+| RTL source gate   | `pnpm check:rtl` (physical direction-dependent CSS with no `rtl-ok:` reason — a `pnpm lint` stage)  |
+| RTL layout sweep  | `pnpm check:rtl-layout` (Chromium, LTR vs RTL overflow per route — **nightly**)                     |
 | Dangling tokens   | `pnpm check:tokens` (a `var(--wr-color-…)` / `var(--wr-border-…)` at a token nothing declares — a `pnpm lint` stage) |
 | Layout geometry   | `pnpm check:layout` (box sizes vs `scripts/baselines/layout.json`; `--update` re-records — **nightly**)        |
 | API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
@@ -786,7 +789,7 @@ they are installed.
 ### Linting — read before trusting a green run
 
 `pnpm lint` is **multi-stage**: `ng lint` (lib, then showcase) `&&`
-`eslint scripts` `&&` `stylelint` `&&` `check:tokens` (`scripts/check/tokens.ts`
+`eslint scripts` `&&` `stylelint` `&&` `check:rtl` (`scripts/check/rtl.ts`, see RTL below) `&&` `check:tokens` (`scripts/check/tokens.ts`
 — a `var()` read of a theme token nothing declares) `&&` `check:selectors` (`scripts/gen/selectors.ts --check` — the committed
 `#core/generated/selectors.ts` against what the generator produces now, the same
 `--check` shape `gen/css-vars.ts` and `gen/api-docs.ts` use. It reads source and
@@ -858,8 +861,8 @@ are value-set identities, and no binding changes.
 | Tier    | Workflow                                     | Runs                                                                                              |
 | ------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | PR      | `ci.yml`, every PR and push to `main`        | `lint`, `test`, `check:api-docs`, `check:css-vars`, `build:lib`, `build:showcase`                 |
-| Nightly | `nightly.yml`, 20:00 UTC                     | `build:showcase` once, then `check:a11y`, `check:contrast`, `check:state-a11y` and `check:layout` on its `dist/showcase`; `test` + `build:lib` on Node 24 |
-| Release | `release.yml`, before it cuts the release PR | `pnpm check:release`: the PR set plus the four site checks                                        |
+| Nightly | `nightly.yml`, 20:00 UTC                     | `build:showcase` once, then `check:a11y`, `check:contrast`, `check:state-a11y`, `check:layout` and `check:rtl-layout` on its `dist/showcase`; `test` + `build:lib` on Node 22 and 24 |
+| Release | `release.yml`, before it cuts the release PR | `pnpm check:release`: the PR set plus the five site checks                                        |
 
 The nightly skips every job when `main` is still at the commit the last
 finished nightly checked; a manual dispatch always runs. A failed job opens one
@@ -867,7 +870,7 @@ finished nightly checked; a manual dispatch always runs. A failed job opens one
 the run and the failed jobs, and the next green nightly closes it. The lists
 are parsed into `prGates` / `nightlyGates` in `#core/generated/quality`.
 `pnpm check:nightly` and `pnpm check:release` run a tier by hand (Playwright's
-Chromium needed; the Node 24 job has no local twin) — not to be confused with
+Chromium needed; the Node 22 / 24 job has no local twin) — not to be confused with
 `release:check`, the CHANGELOG guard in `publish.yml`, which also re-runs
 `pnpm lint` + `pnpm build:lib` before it ships. Commit subjects are checked by
 the commitlint `commit-msg` hook; PR titles are not, since a rebase merge
@@ -1513,9 +1516,11 @@ extend it: **a target that matches nothing FAILS the run** rather than recording
 an empty array, which would then compare equal to itself forever; and the
 tolerance stays 1px, which is sub-pixel rounding and nothing else.
 
-v15 removed both RTL gates, `check:rtl` (a physical property with no `rtl-ok:`
-reason) and the nightly `check:rtl-layout`, with every `rtl-ok:` marker: none
-of the apps ngwr serves renders RTL.
+**RTL has two gates, because ngwr ships `ar` and `he` catalogs.** `check:rtl`
+(a `pnpm lint` stage) fails on a physical, direction-dependent property in a
+stylesheet with no `rtl-ok:` reason within three lines above it.
+`check:rtl-layout` (nightly) renders every route in both directions and fails
+where a page overflows sideways in RTL and not in LTR.
 
 **`--wr-border-base` fails WCAG 1.4.11 on control borders, and that is a
 DECIDED trade — do not re-report it.** It was `--wr-color-outline` until v15 and

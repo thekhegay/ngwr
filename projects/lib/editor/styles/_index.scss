@@ -302,7 +302,7 @@
       tab-size: 2;
       // Code is not prose: under RTL `foo();` would be reordered to `;foo()`.
       direction: ltr;
-      text-align: left;
+      text-align: left; // rtl-ok: pinned LTR above, so the physical side is the logical one
 
       code {
         padding: 0;
@@ -406,7 +406,7 @@
         width: 0.3em;
         height: 0.55em;
         border: solid var(--wr-color-primary-contrast);
-        border-width: 0 2px 2px 0;
+        border-width: 0 2px 2px 0; // rtl-ok: a tick is a glyph, not a layout — mirroring it would draw it backwards
         content: '';
         rotate: 45deg;
       }
