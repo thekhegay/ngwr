@@ -67,6 +67,11 @@ No component needs these:
 - `@use 'ngwr/animations';` — keyframes and animation classes. The animation
   COMPONENTS are the `ngwr/bits/*` entry points.
 
+`ngwr/reset`, `ngwr/typography-utilities` and `ngwr/animations` load the
+theme, so like a component line they go below a configured
+`@use 'ngwr/theme' with (…)`. Above it the build fails with "This module was
+already loaded".
+
 ## Light and dark
 
 The theme follows `color-scheme`, with no provider and no script: `:root`

@@ -145,12 +145,14 @@ function headlineExport(entry: string, exports: readonly PublicExport[]): string
  * - `form` has no `WrForm`, so the first `Wr` value won: `WrFormItem`, while the
  *   docs and every example present the entry point as `<wr-form-field>`.
  * - `overlay` has no `WrOverlay`, so it offered `WrOutsideClick`, one of the
- *   helpers `llms.txt` tells an agent not to build on. `WR_OVERLAY` is the one
- *   the overlay guide hands a consumer.
+ *   helpers `llms.txt` tells an agent not to build on. `WR_OVERLAY` and
+ *   `WR_OVERLAY_CONTAINER` are marked `@internal`, so neither may be offered
+ *   either. `WrOverlayContainer` is the one public, documented export: the
+ *   container whose `.wr-overlay-container` class is the styling hook.
  */
 const HEADLINES: Readonly<Record<string, string>> = {
   form: 'WrFormField',
-  overlay: 'WR_OVERLAY',
+  overlay: 'WrOverlayContainer',
 };
 
 // --- doc-page descriptions -------------------------------------------------
@@ -183,7 +185,7 @@ const UNPAGED: Readonly<Record<string, string>> = {
   'ngwr/directives':
     'Attribute directives for markup you already have: `[wrAutofocus]`, `textarea[wrAutosize]`, `[wrClickOutside]` and `[wrCopyToClipboard]`.',
   'ngwr/overlay':
-    "The container every ngwr panel renders into, kept apart from other CDK consumers with no provider. To open your own panel there, inject `WR_OVERLAY` rather than CDK's `Overlay`.",
+    "`WrOverlayContainer`, the container every ngwr panel renders into, kept apart from the one Angular Material, NG-ZORRO and plain CDK overlays share, with no provider. Style ngwr's overlays through its `.wr-overlay-container` class; no `z-index` reaches them, since CDK renders overlays in the top layer.",
   'ngwr/pipes':
     'Template formatting: `wrDate`, `wrNumber`, `wrBytes`, `wrPlural`, `wrRange`, `wrTruncate` and `wrMark` for search highlighting.',
   'ngwr/utils':

@@ -159,7 +159,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/mention` | `import { WrMention } from 'ngwr/mention'` | `wr-mention-panel` `[wrMention]` |
 | `ngwr/mention/testing` | `import { WrMentionHarness } from 'ngwr/mention/testing'` | — |
 | `ngwr/meta` | `import { WrMeta } from 'ngwr/meta'` | `[wrMeta]` |
-| `ngwr/overlay` | `import { WR_OVERLAY } from 'ngwr/overlay'` | — |
+| `ngwr/overlay` | `import { WrOverlayContainer } from 'ngwr/overlay'` | — |
 | `ngwr/page-header` | `import { WrPageHeader } from 'ngwr/page-header'` | `wr-page-header` |
 | `ngwr/pagination` | `import { WrPagination } from 'ngwr/pagination'` | `wr-pagination` |
 | `ngwr/pagination/testing` | `import { WrPaginationHarness } from 'ngwr/pagination/testing'` | — |

@@ -103,8 +103,10 @@ guess gets backwards.
   \`provideWrConfig()\`, \`provideWrOverlay()\` or \`provideWrDateAdapter()\`:
   overlays and dates need no provider, and a \`size\` or \`rounded\` default is
   bound on the input.
-- **Code written for v14 or older needs changes no codemod makes.** v15 ships no
-  migration; ${DOCS}/docs/migration lists every change.
+- **Code written for v14 or older: run \`ng update ngwr\`.** It runs
+  \`migration-v15\`, which rewrites the paths, the provider calls, the \`-rgb\`
+  reads and the renamed token reads, and lists by file and line what needs a
+  decision. ${DOCS}/docs/migration lists every change.
 - **The selector is not always the entry point name.** The button is
   \`wr-btn\`, not \`wr-button\`. Check \`references/catalog.md\` before writing a tag.
 - **Check for a MODE before reaching for another component.** The catalog is
@@ -329,6 +331,11 @@ No component needs these:
   your own SCSS.
 - \`@use 'ngwr/animations';\` — keyframes and animation classes. The animation
   COMPONENTS are the \`ngwr/bits/*\` entry points.
+
+\`ngwr/reset\`, \`ngwr/typography-utilities\` and \`ngwr/animations\` load the
+theme, so like a component line they go below a configured
+\`@use 'ngwr/theme' with (…)\`. Above it the build fails with "This module was
+already loaded".
 
 ## Light and dark
 

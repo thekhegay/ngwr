@@ -89,8 +89,10 @@ service opens — `WrDialog.open()` needs `ngwr/dialog`, `WrToast.show()`
 `ngwr/window` and `WrTour.start()` `ngwr/tour`. Optional sheets no component
 needs: `ngwr/reset`, `ngwr/grid`, `ngwr/typography-utilities`,
 `ngwr/breakpoints` (mixins for your own SCSS) and `ngwr/animations` (keyframes
-and animation classes; the animation components are `ngwr/bits/*`). Details:
-https://ngwr.dev/docs/installation
+and animation classes; the animation components are `ngwr/bits/*`).
+`ngwr/reset`, `ngwr/typography-utilities` and `ngwr/animations` load the theme,
+so they go below a configured `@use 'ngwr/theme' with (…)` like any component
+line. Details: https://ngwr.dev/docs/installation
 
 ## Providers (main.ts)
 
@@ -162,11 +164,14 @@ one element at a time; a step whose target is missing is skipped, not floated.
 - `ng g ngwr:use WrFoo --path src/app/x.ts` — adds the import + splices `WrFoo` into that
   component's `@Component` imports.
 - `ng g ngwr:provider <name>` — splices a provider into the app's providers:
-  `provideWrIcons()`, `provideWrI18n()`, or a feature such as `withToast()`,
-  `withDensity()` or `withStorage()` inside `provideWr()`. Density also needs
-  `@use 'ngwr/density'` in your styles.
+  `provideWrIcons()`, `provideWrI18n()` or `provideWrLoadingBarRouter()`, or a
+  feature inside `provideWr()`: `withToast()`, `withDensity()`, `withStorage()`
+  or `withTheme()`. Density also needs `@use 'ngwr/density'` in your styles.
 - `ng g ngwr:icon-set` — scaffolds a tree-shaken icon barrel.
-- `ng g ngwr:component-style <name>` — appends `@use 'ngwr/<name>'` (opt-in styles).
+- `ng g ngwr:component-style <name>` — adds `@use 'ngwr/<name>'` to the global
+  stylesheet, after the theme line and after the last `@use` already there.
+  Every component a template renders needs its line. A name from before v15
+  (`bar-chart`) lands on its nested entry point (`ngwr/charts/bar-chart`).
 - `ng g ngwr:page <form|table|dashboard>` — starter page wired with ngwr.
 - `ng update ngwr` — runs upgrade migrations.
 
@@ -176,15 +181,17 @@ Run `ng update ngwr` once, from whatever major the app is on. It installs the
 latest release and runs every migration between the installed version and that
 release, in order. Do not step through the majors, and never target a 7.x, 8.x or
 9.x release: their schematics die with `exports is not defined in ES module
-scope`. A migration rewrites what is a pure rename and REPORTS, by file, what
-needs a decision only the app can make. Read its output, because the reported
+scope`. A migration rewrites what is a pure rename and REPORTS, by file (by
+file and line for v15), what needs a decision only the app can make. Read its output, because the reported
 half is where the silent failures are. Every breaking change, newest first, each
 with a diff: https://ngwr.dev/docs/migration
 
 Names older majors used, which code written for them (and a model trained on
-that code) still spells. The migration for each major up to v14 rewrites them;
-v15 ships none, so its names move by hand. The lists below are the ones an
-agent most often meets; https://ngwr.dev/docs/migration is the complete list.
+that code) still spells. Each major's migration rewrites them, v15's included:
+`ng update ngwr` runs `migration-v15`, which moves the paths, the provider
+calls, the readable `-rgb` reads and the renamed token reads, and lists the
+rest. The lists below are the ones an agent most often meets;
+https://ngwr.dev/docs/migration is the complete list.
 
 - v15, providers: `provideWrDensity`, `provideWrToastConfig`,
   `provideWrStorage`, `provideWrMeta`, `provideWrTheme` and
@@ -215,15 +222,19 @@ agent most often meets; https://ngwr.dev/docs/migration is the complete list.
   `ngwr/action-sheet` (a `<wr-drawer position="bottom" rounded>` with your own
   rows). `@use 'ngwr'` and `@use 'ngwr/overlay'` no longer resolve.
 - v15, tokens: `--wr-color-light` and `--wr-color-outline` are
-  `--wr-border-base`, `--wr-color-border` and `--wr-color-border-strong` are
-  `--wr-border-strong`, `--wr-color-border-subtle` is `--wr-border-subtle`,
-  `--wr-color-dark` is `--wr-color-on-surface`, and `--wr-color-medium` and
-  `--wr-color-muted-text` are `--wr-color-on-surface-muted`. Every `-rgb`
-  token is gone: `--wr-calendar-accent-rgb` is `--wr-calendar-accent`,
-  `--wr-color-picker-rgb` is `--wr-color-picker-color`, and the rest become a
-  `color-mix()`. `wrThemeTokens()`, `wrIntentTokens()` and `wrContrastFor()`
-  are gone (rebrand at build time with `$base-colors` or `theme.rebrand()`), so
-  are `theme.dark-selector()` and `$theme-attribute`, and code that read
+  `--wr-border-base`; `--wr-color-border`, `--wr-color-border-subtle` and
+  `--wr-color-border-strong` are all `--wr-border-subtle`, or
+  `--wr-border-base` for a firmer line. `--wr-border-strong` is new, and darker
+  than any v14 border, so it replaces none of them. `--wr-color-dark`, and the
+  dark theme's `--wr-color-white-contrast`, are `--wr-color-on-surface`, and
+  `--wr-color-medium` and `--wr-color-muted-text` are
+  `--wr-color-on-surface-muted`. Every `-rgb` token is gone:
+  `--wr-color-backdrop-rgb` is the colour `--wr-color-backdrop`,
+  `--wr-calendar-accent-rgb` is `--wr-calendar-accent`, `--wr-color-picker-rgb`
+  is `--wr-color-picker-color`, and the rest become a `color-mix()`.
+  `wrThemeTokens()`, `wrIntentTokens()` and `wrContrastFor()` are gone (rebrand
+  at build time with `$base-colors` or `theme.rebrand()`), so are
+  `theme.dark-selector()` and `$theme-attribute`, and code that read
   `data-theme` reads `WrTheme.resolved()`.
 - v15, components: `[wrTypography]`'s `tone="dark"` and `tone="medium"` are
   `tone="base"` and `tone="muted"`; `<wr-timeline-item color="medium">` is
@@ -251,8 +262,8 @@ Changes no migration rewrites. All but the last fail silently:
 
 - Dark mode is `color-scheme` plus `light-dark()` (v15): `[data-theme]` and
   every `-rgb` token are gone, so a `[data-theme='dark']` selector matches
-  nothing and a leftover `var(--wr-…-rgb)` drops the whole declaration holding
-  it (see Theme, below). The same major removed the `secondary`, `light`,
+  nothing and a `var(--wr-…-rgb)` the codemod could not read drops the whole
+  declaration holding it (see Theme, below). The same major removed the `secondary`, `light`,
   `medium` and `dark` intents; which intent each use becomes is the app's call.
   Without `strictTemplates` a removed `color` value renders neutral, and a
   `var()` at any removed token drops its whole declaration.
@@ -265,10 +276,12 @@ Changes no migration rewrites. All but the last fail silently:
   and `<wr-editor>` refuses an HTML or markdown string, and `''`: its value is
   a `WrEditorJson` tree, or `null` when empty (v15).
 - `<wr-sidebar>` draws no icons by default (v15): bind `defaultGroupIcon` and
-  `defaultItemIcon` to keep them. Its classes and hooks were renamed in the same
-  release — `.wr-sidebar__entry` and `__item` are `.wr-sidebar__row`, and
-  `--wr-sidebar-entry-*` and `-item-*` are `--wr-sidebar-row-*` — so a rule on
-  the old names matches nothing.
+  `defaultItemIcon` to keep them. Its row classes were renamed in the same
+  release — `.wr-sidebar__entry` and `.wr-sidebar__item` are `.wr-sidebar__row`,
+  `.wr-sidebar__group-toggle` is `.wr-sidebar__row--group` and
+  `.wr-sidebar__item-title` is `.wr-sidebar__title` — so a rule on the old
+  names matches nothing. `--wr-sidebar-padding`, the only sidebar hook v14
+  published, is unchanged.
 - ngwr ships no validation text (v15). Without a validator's `{ message }` or a
   `validation.<key>` in your own catalog a field shows no error, and only dev
   mode warns.
@@ -498,9 +511,9 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   it mechanical fixes only.
 
 The shape of the project: one maintainer, MIT, no commercial support. Every
-major up to v14 ships a codemod for each break a codemod can repair, and a
-reported diagnosis for the rest. v15 ships no codemod: its migration guide
-lists every change to make by hand.
+major ships a codemod for each break a codemod can repair, and a reported
+diagnosis for the rest; `ng update ngwr` runs them all in order, v15's
+included.
 
 Public API is three surfaces and all three move only in a major: the exported
 TypeScript, the `.wr-*` BEM class names (every component ships
