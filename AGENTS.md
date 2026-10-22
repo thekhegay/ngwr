@@ -13,11 +13,12 @@ A pnpm + Angular CLI monorepo with three projects:
 - **`projects/lib/`** — the published package (`ngwr`). Almost every subfolder is
   a **tree-shakable secondary entry point** consumed as `ngwr/<name>`
   (`ngwr/button`, `ngwr/select`, `ngwr/overlay`, …). How many is `entryPoints`
-  in `#core/generated/quality`, which `pnpm gen:quality` counts from the tree.
-  Read it there: this line used to restate it and went stale with every new
-  component. Read from the `exports` map in `projects/lib/package.json`, not
+  in `#core/generated/quality`, which `pnpm gen:quality` counts from the
+  `exports` map in `projects/lib/package.json`. Read it there: this line used to
+  restate it and went stale with every new component. Count from that map, not
   from the directory tree: `styles/` and
-  `schematics/` are not entry points, and the nested ones are the twenty-two
+  `schematics/` are not entry points, and the nested ones are the charts and
+  bits (`ngwr/charts/<name>`, `ngwr/bits/<name>`), the twenty-two
   `ngwr/i18n/<locale>`, the two opt-in router adapters
   `ngwr/loading-bar/router` and `ngwr/tabs/router` that v14 added, and the CDK
   test harnesses (`testingEntryPoints` in the same file), which cover the form
@@ -45,7 +46,7 @@ A pnpm + Angular CLI monorepo with three projects:
   one exported twice, since a date-picker's popup IS a calendar and
   `ngwr/date-picker/testing` keeps the name it shipped as.
   **Four entry points are deliberately without one, and the reason is the same each
-  time**: `animations/aurora`, `animations/click-spark` and `animations/confetti`
+  time**: `bits/aurora`, `bits/click-spark` and `bits/confetti`
   draw into a canvas whose context is
   `null` under jsdom, and `virtual-scroll` is a thin wrapper over
   `cdk-virtual-scroll-viewport` whose whole observable behaviour is the window it
@@ -58,13 +59,14 @@ A pnpm + Angular CLI monorepo with three projects:
   docs, and where components are dogfooded. Docs are organised into six
   top-level clusters — **docs / guides / reference / charts / icons / bits**:
   getting-started under `app/docs/`, task guides under `app/guides/`, API
-  pages under `app/reference/<cluster>/<name>/` (components, directives, pipes,
-  services, utils, validators, interfaces), the chart family under
-  `app/charts/`, the icon-set browsers under `app/icons/` and the animation /
-  visual-effect components under `app/bits/`; the pre-v15 `/start/*` URLs
-  redirect (`app/routing.ts`). Shared doc scaffolding (the `<ngwr-doc-*>`
-  components, services, shiki highlighting) is in `app/_core/` (alias
-  `#core/*`).
+  pages under `app/reference/<cluster>/<name>/` (directives, pipes, services,
+  utils, validators, interfaces) and component pages one folder deeper, in
+  the sidebar group they sit under (`app/reference/components/<group>/<name>/`),
+  the chart family under `app/charts/<name>/`, the icon-set browsers under
+  `app/icons/` and the bits under `app/bits/<group>/<name>/`; the pre-v15
+  `/start/*` URLs redirect (`app/routing.ts`). Shared doc scaffolding (the
+  `<ngwr-doc-*>` components, services, shiki highlighting) is in `app/_core/`
+  (alias `#core/*`).
 - **`projects/starter/`** — the StackBlitz starter the docs header and home page
   link to (`stackblitz.com/github/thekhegay/ngwr/tree/main/projects/starter`). A
   standalone npm app on ngwr FROM NPM, with its own `package.json`, `angular.json`
@@ -121,6 +123,18 @@ components were quietly reverting a documented `@use 'ngwr/theme' with
 `./styles/rules`. `package.spec.ts` walks the `@use` / `@forward` closure of every
 `styleUrl` and fails on a theme-layer emission inside it, so getting this wrong is
 a red test rather than a silent 40 kB.
+
+**A component's `_index.scss` loads the styles of every ngwr component it
+renders.** With the umbrella gone (see Theme), a consumer writes one `@use` per
+component they place and never learns about the ones placed inside it:
+`@use 'ngwr/table'` alone gave unstyled checkboxes and an unstyled pager. So for
+each ngwr declarable in the component's `imports: []`, `_index.scss` adds one
+line such as `@use '../../checkbox/styles' as checkbox-styles; // WrCheckbox`,
+under the shared "Styles for the entry points this component's own markup
+renders" comment. It goes in `_index.scss` and never in `_rules.scss`, which the
+`styleUrl` shim would carry into the bundle. Sass deduplicates it within one
+compilation, and `theme/styles.spec.ts` fails with
+`ngwr/x renders WrY and never loads ngwr/y` when a line is missing.
 
 Public types live in each entry point's
 `types/` folder (an `index.ts` barrel re-exported through
@@ -253,13 +267,19 @@ one component folder. Reach for them instead of hand-rolling:
   one consumer that really does want every sheet is the showcase, and its
   aggregate is `projects/showcase/styles/_components.scss`, written by
   `pnpm gen:exports` off the same walk — not a hand-kept list, which is what it
-  was for 110 lines.
+  was for 110 lines. Removing it also made each component load the styles of
+  the components it renders (see the anatomy above).
   Removing the umbrella made `@use` ORDER load-bearing, and Sass says so out
   loud: a module can be configured only at its first load, so
   `@use 'ngwr/theme' with (...)` below any component entry fails the build with
   "This module was already loaded".
   **Dark mode is the CSS standard since v15: `color-scheme` plus
-  `light-dark()`.** The theme declares `color-scheme: light dark` on `:root`, so
+  `light-dark()`.** It also sets the browser floor, a v15 break of its own:
+  Chrome 123, Firefox 120 and Safari 17.5, the first releases with
+  `light-dark()`. Below the floor every themed colour is lost outright rather
+  than degraded. A CSS feature newer than those three has to degrade on them,
+  the way `smooth-br` falls back to a plain radius where `corner-shape` is
+  missing. The theme declares `color-scheme: light dark` on `:root`, so
   a page follows the OS with no JavaScript at all, and every token that differs
   between the schemes is declared ONCE, as `light-dark(<light>, <dark>)`, with
   both sides tuned by hand and independently — the dark palette is not derived
@@ -323,11 +343,12 @@ one component folder. Reach for them instead of hand-rolling:
   `node_modules` as well as for a bare specifier, so it is not the specifier;
   `@forward … show` does not help; and marking the directory Not Excluded or a
   Test Source Root does not either. What DOES resolve is a member the resolved
-  file declares itself — so `smooth-br`, `touch-target` and `focus-ring` are
-  re-declared there as one-line wrappers. They are the set a consumer reaches
-  for in a COMPONENT stylesheet, and that `@use` still brings a second,
-  shimmed-dead copy of the token layer along, because a component stylesheet
-  is its own Sass compilation.
+  file declares itself — so the mixins and functions a consumer reaches for in
+  a COMPONENT stylesheet are re-declared there as one-line wrappers, the
+  forward's `hide` list being the source for which ones (`smooth-br`,
+  `touch-target`, `focus-ring`, `rebrand` and `contrast` today). In a component
+  stylesheet that `@use` still brings a second, shimmed-dead copy of the token
+  layer along, because a component stylesheet is its own Sass compilation.
   Three rules hold it together and each one is a build error or a silent loss if
   broken: `@forward` comes BEFORE `@use`, because the forward is the load that
   accepts configuration and the other order makes
@@ -643,7 +664,7 @@ the rest — and five of them an `ErrorHandler` recorder besides, because what
 `afterNextRender` throws reaches neither `detectChanges()` nor `whenStable()`, so
 a boot that died reads as a pass without one. (`wr-confetti` is the exception and
 correctly so: a service, with no deferred boot to lose an error inside.) That
-carries the 63 specs across those six files past the early return, to frame
+carries the specs in those six files past the early return, to frame
 counts, spark and particle counts, the fuzz ramp, a `var(--wr-…)` colour resolved
 against the host, gravity bringing a particle back down, and teardown — while
 each keeps the null-context path it started as, one "survives a browser that will
@@ -656,7 +677,8 @@ vitest's `-t`, so `--filter dialog` silently runs the handful of tests whose
 NAMES contain "dialog" and reports green. To run one file, pass its path to the
 builder's `include`; to be sure of a change, run the whole suite — it is
 seconds. **`pnpm lint`, `pnpm test`, the two builds, `check:api-docs`,
-`check:css-vars` and `check:package` are the PR gates** (see Three tiers), and
+`check:css-vars` and `check:package` are the PR gates** for a PR into `main`
+(see Three tiers; a PR into `next` runs none of them), and
 a green run still does not mean a component behaves — the suite is broad now but shallow in places (see above).
 
 **Deferred DOM work needs `afterNextRender`, not `queueMicrotask`.** Under
@@ -862,7 +884,7 @@ are value-set identities, and no binding changes.
 
 | Tier    | Workflow                                     | Runs                                                                                              |
 | ------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| PR      | `ci.yml`, every PR and push to `main`        | `lint`, `test`, `check:api-docs`, `check:css-vars`, `build:lib`, `check:package`, `build:showcase` |
+| PR      | `ci.yml`, PRs into and pushes to `main`      | `lint`, `test`, `check:api-docs`, `check:css-vars`, `build:lib`, `check:package`, `build:showcase` |
 | Nightly | `nightly.yml`, 20:00 UTC                     | `build:showcase` once, then `check:a11y`, `check:contrast`, `check:state-a11y`, `check:layout` and `check:rtl-layout` on its `dist/showcase`; `test` + `build:lib` on Node 22 and 24 |
 | Release | `release.yml`, before it cuts the release PR | `pnpm check:release`: the PR set plus the five site checks                                        |
 
@@ -910,7 +932,13 @@ on a shipped import the manifest does not declare.
 (zoneless CD is signal-driven; only 2 legacy files in `window/` set it).
 Use `input()` / `model()` / `output()` / `signal()` / `computed()` / `effect()`
 / `afterNextRender()` / `viewChild()` / `inject()` — not decorators,
-constructor DI, or RxJS where a signal is clearer.
+constructor DI, or RxJS where a signal is clearer. A root service is
+`@Service()`, Angular 22's auto-provided decorator, never
+`@Injectable({ providedIn: 'root' })`. `@Injectable` stays only where
+`@Service` cannot do the job: on `WrDateAdapter`, which says why at the line
+(a `@Service` factory would ignore the subclass passed to `withDates()`), and
+on a class provided per element rather than at the root, such as
+`WrIconRegistry`.
 
 **Public API is wider than TS.** Lib components are `ViewEncapsulation.None`,
 and their **BEM `.wr-*` classes are part of the public API** — consumers style
@@ -940,10 +968,31 @@ channel list cannot be a `light-dark()` value, and
 `color-mix(in srgb, var(--wr-color-primary) 12%, transparent)` paints the same
 as the `rgba(var(--wr-color-primary-rgb), 0.12)` it replaced. Note that it
 computes to `color(srgb …)` with 0–1 channels, not to `rgba(…)`. Plus
-`--wr-border-radius-{sm,base,lg,pill}`, `--wr-text-*`, `--wr-font-weight-*`,
-`--wr-duration-*`, `--wr-ease-*`. Pull mixins and tokens from `ngwr/theme`.
+`--wr-space-{xs,sm,md,lg,xl}` (since v15 the ONE scale for padding, margin and
+gap), `--wr-border-radius-{sm,base,lg,pill}`, `--wr-text-*`,
+`--wr-leading-*`, `--wr-tracking-*`, `--wr-font-weight-*`, `--wr-shadow-*`,
+`--wr-control-*` (the size contract every form control reads), `--wr-z-*`,
+`--wr-duration-*` and `--wr-ease-*`; `theme/styles/_variables.scss` is the
+list. Pull mixins and tokens from `ngwr/theme`.
 The TS `WR_COLORS` list and the SCSS `$base-colors` map must stay in sync —
 `theme/sass-entry.spec.ts` fails if they drift.
+
+**A component paints only through its own hooks (v15).** The block declares one
+`--wr-<block>-*` variable per token it paints with, each defaulting to a role,
+space or other theme token, and its rules read only those variables:
+
+```scss
+.wr-card {
+  --wr-card-bg: var(--wr-color-surface);
+  --wr-card-padding-y: var(--wr-space-lg);
+
+  background: var(--wr-card-bg);
+}
+```
+
+A rule that reads `--wr-color-surface` or `--wr-space-lg` directly leaves the
+consumer no hook of the component's own to restyle it with, and the hooks are
+public API (see `gen:css-vars` below).
 
 **The COMPONENT-scoped hooks are catalogued by `gen:css-vars`.** How many there
 are is printed by the run — do not re-type it here, which is how this line came
@@ -966,16 +1015,18 @@ with no modifier, because a hook is typically re-declared by every variant.
 Exactly one hook is declared and never read — `--wr-density-text`, published
 for consumers' own `calc()` — and the generator prints it rather than listing it.
 
-**`check:tokens` finds a READER with no token** — a `var(--wr-color-…)` at a
-name the theme never declares. A dangling read is invalid at computed-value
-time, so the browser drops the WHOLE declaration holding it. `border: 1px solid var(--wr-color-gone)`
-draws no border at all, and nothing says so in the build, the console or a test.
+**`check:tokens` finds a READER with no token** — a `var(--wr-color-…)` or
+`var(--wr-border-…)` at a name the theme never declares. A dangling read is
+invalid at computed-value time, so the browser drops the WHOLE declaration
+holding it. `border: 1px solid var(--wr-color-gone)` draws no border at all,
+and nothing says so in the build, the console or a test.
 v15 is why the check exists: cutting four intents left **220 reads across 71
 files**, nine of them in the SHIPPED library — `wr-gauge`, `wr-knob`,
 `wr-calendar-heatmap` and `wr-line-chart` each drew a neutral track or grid line
 through a token that no longer existed — and every gate was
-green. Scope: only the `--wr-color-*` namespace, which the theme layer owns
-entirely; a read in a template or in TypeScript counts, because an inline
+green. Scope: the `--wr-color-*` namespace and the
+`--wr-border-{subtle,base,strong}` family, both owned by the theme layer; a
+read in a template or in TypeScript counts, because an inline
 `style` is a live rule and a printed snippet is advice someone
 will paste; a declaration counts from a stylesheet or a template but NEVER from
 TypeScript, since every `--wr-color-…:` in a `.ts` file here is inside a printed
@@ -1131,7 +1182,8 @@ merge and rebase are allowed, so `gh pr merge --squash` fails outright with
 `Squash merges are not allowed on this repository`; `--rebase` is the
 equivalent, and for the one-commit branch this flow produces it lands the same
 single linear commit. After a merge, resync local main:
-`git fetch --prune origin && git merge --ff-only origin/main`.
+`git fetch --prune origin && git merge --ff-only origin/main`. Work for the next
+major follows the same flow against `next` instead (see Versioning).
 
 **No assistant artifacts in the repo.** `.claude/` is gitignored; keep AI
 tooling files and AI mentions out of committed content. (`AGENTS.md` plus the
@@ -1148,8 +1200,10 @@ smallest diff that satisfies the request. Concretely:
 code. Don't re-add the cache.
 
 **v12 carried two BREAKING changes, and they are the reason it was a major.**
-Kept here as history, because both still shape the catalog a reader sees today;
-for what breaks on the CURRENT upgrade, read the Versioning section below.
+Kept here as history, because both still shape the catalog a reader sees today.
+What breaks on the CURRENT upgrade is listed in `MIGRATION.md` under "v14 to
+v15" and on `/docs/migration`; the Versioning section below covers release
+mechanics and codemod policy.
 
 **One — the date entry points moved**, from `ngwr/date-adapter` to
 `ngwr/date`, from `ngwr/date-adapter-fns` to `ngwr/date/adapters/fns` and from
@@ -1179,7 +1233,9 @@ Both are still on the user-facing migration guide at `/docs/migration`, which
 carries every step back to v6. **The newest section is the one a consumer
 follows** (`ng update ngwr`) — the guide is ordered newest-first for that reason.
 
-**Versioning.** **v14 is the current major line.** `projects/lib/package.json`,
+**Versioning.** **v14 is the stable line, on `main` and npm's `latest`; v15 is
+in release candidates, on `next` and npm's `next`.** When 15.0.0 ships, this
+sentence becomes "v15 is the current major line". `projects/lib/package.json`,
 the `NGWR_VERSION` constant, the `SECURITY.md` support table and
 `CHANGELOG.md` are written by `release:prepare`, so read the version from there
 rather than from this file, and never hand-edit any of the four. A FIFTH copy
@@ -1211,6 +1267,15 @@ release PR against `next` and stages npm under the `next` dist-tag. Every push
 to `next` redeploys `next.ngwr.dev` (`deploy-next.yml`, the `next` environment,
 no approval; the server marks the host noindex). The SECURITY table moves only
 with the stable release, and a stable version can only publish from `main`.
+
+**Work for the next major (v15 today) branches from `next`, not from
+`main`.** Open the PR with
+`gh pr create --base next`, since `gh` targets `main` by default, and resync
+after a merge with `git fetch --prune origin && git merge --ff-only origin/next`.
+**No PR CI and no nightly run on `next`**: `ci.yml` triggers on `main` only, and
+the nightly checks `main`. The only automatic signals are `deploy-next.yml`'s
+`build:showcase` after a push and `check:release` when an RC is cut, so a PR
+into `next` merges with nothing checked.
 
 **Whether a major ships a codemod is decided by one rule, and the rule is about
 the SHAPE of the break rather than its size: a codemod runs when the new form
@@ -1299,6 +1364,9 @@ minor of the current line, and its `@angular/compiler-cli` peer is that line.
 one by one). Angular **tooling** (`@angular/cli`, `@angular/build`,
 `@angular-devkit/*`, `@schematics/angular`) patches independently of the
 **framework** (`@angular/core` et al.) — bump only the train that moved.
+**`@angular/build` is held on the 22.3 prerelease on purpose**, because
+`@angular/build:library` ships there: move it to `^22.3.0` once that is stable,
+and do not align it with the framework train before then.
 Dependabot (grouped, checked daily) handles the PRs — one per group, and `groups` does NOT cross ecosystems, so the npm groups say nothing about GitHub Actions bumps (those have their own group, minor/patch only; a major action bump still arrives alone so it cannot be merged unread). **TypeScript is pinned on purpose** to
 the 6.0 line (a tilde range in `devDependencies`) — Angular 22's peer range is
 `typescript >=6.0 <6.1`, and TypeScript 7 is out. `.github/dependabot.yml`
@@ -1344,8 +1412,9 @@ single / multi / search / tag; `wr-date-picker` covers date / time / datetime;
 mode or input instead.** Orient with the grouped catalog at
 https://ngwr.dev/reference/components. Its groups are `COMPONENT_GROUPS` in
 `projects/showcase/app/_layout/sidebar/configs/components.config.ts`, and
-animations have their own in `animations.config.ts`. For a flat list, read
-`skills/ngwr/references/catalog.md` (generated) or run `ls projects/lib`.
+charts and bits have their own in `charts.config.ts` and `bits.config.ts`. For
+a flat list, read `skills/ngwr/references/catalog.md` (generated) or run
+`ls projects/lib projects/lib/{charts,bits}`.
 
 **Skeleton.** Mirror the nearest existing entry point (`projects/lib/alert/` is
 the cleanest match) — copy its `@Component` shape (`ViewEncapsulation.None`,
@@ -1517,11 +1586,12 @@ page is the header's own version switcher.
 was deliberate.** It measures the bounding box of fifteen load-bearing
 components in both themes and compares against `scripts/baselines/layout.json`;
 `--update` re-records it. Screenshot diffs were the original plan and lost on
-three counts: hundreds of PNGs across 214 routes is tens of megabytes of
-binaries; font rasterisation differs between a macOS working copy and the ubuntu
-runner, so a baseline recorded where the work happens never matches where it is
-checked; and an image diff shows a red blob where `36 → 40` in a JSON diff says
-what changed and can be approved by editing one number. It catches the
+three counts: hundreds of PNGs across every docs route (`docRoutes` in
+`#core/generated/quality`) is tens of megabytes of binaries; font rasterisation
+differs between a macOS working copy and the ubuntu runner, so a baseline
+recorded where the work happens never matches where it is checked; and an image
+diff shows a red blob where a change from 36 to 40 in a JSON diff says what
+changed and can be approved by editing one number. It catches the
 regression nothing else does — a token or density change silently resizing
 controls — and it explicitly does NOT catch colour, shadows or radii.
 
@@ -1549,20 +1619,20 @@ DECIDED trade — do not re-report it.** It was `--wr-color-outline` until v15 a
 resolves through `--wr-color-gray-4`: measured, its light side `gray-300`
 (`#d1d5db`) on white is **1.47:1** and its dark side `#243040` on `#0b1120` is
 **1.41:1**, against the 3:1 the criterion asks of anything that identifies a
-control. The token carries 107 declarations across 57
-entry points, and only **16** are control boundaries where 1.4.11 applies
+control. Most of the token's reads are not controls
+(`grep -rn 'var(--wr-border-base' projects/lib --include='*.scss'` lists
+them), and only **16** are control boundaries where 1.4.11 applies
 (`input`, `input-group`, `textarea`, `select`, `checkbox`, `radio`, the switch
 track, the slider rail, `button`, `cascader`, the tree trigger, `input-otp`,
 `color-picker`, `time-picker`, `rating`, the editor's frame); every other one is a card, a divider,
-a table rule or a panel edge, which the criterion does not reach. The
-declaration count is stated rather than derived, because a subtraction here
-would go stale on its own — it read `103` and `the other 88` while the real
-figure had fallen to 100.
+a table rule or a panel edge, which the criterion does not reach. No total is
+written here: it read 107, 103 and 100 in turn, and the grep had moved on each
+time.
 
 Two fixes were costed and both were rejected on how they look: darkening the one
-token to `#7e97b5` / `#4d608a` repaints all 107, and splitting out a
-`--wr-color-control-border` at 3:1 leaves control edges visibly darker than every
-line beside them. The maintainer chose to keep the current hairline.
+token to `#7e97b5` / `#4d608a` repaints every one of those reads, and splitting
+out a `--wr-color-control-border` at 3:1 leaves control edges visibly darker
+than every line beside them. The maintainer chose to keep the current hairline.
 
 Worth knowing if it is ever reopened: `#7e97b5` clears 3:1 on white but only
 reaches 2.60:1 on `#ebeff4`, the lightest surface the library paints, so the
@@ -1701,12 +1771,23 @@ control with no projected text needs an `ariaLabel` input routed through the
 i18n catalog; an `aria-label` on a component's host element does not reach the
 native control inside it.
 
-**Showcase page = the docs.** Every component ships a docs page — under
-`projects/showcase/app/reference/components/<name>/` for the main catalog (85
-dirs), or under `projects/showcase/app/bits/<name>/` for animation /
-visual-effect components (a separate top-level cluster with its own routing +
-sidebar). Wire it into the matching `*.routing.ts` and the `routes` map in
-`app/routing.ts`, and author it with the doc-page components from
+**Showcase page = the docs.** Every component ships a docs page, and a new
+one takes four steps, all under `projects/showcase/app/`:
+
+1. Create the page in `reference/components/<group>/<name>/`, `charts/<name>/`
+   or `bits/<group>/<name>/`. The group folder is the sidebar group (buttons,
+   data, display, feedback, form, layout, navigation and overlays for
+   components) and never part of the URL.
+2. Add its node to `ROUTES` in `_core/constants/routes.ts` (imported as
+   `#routes`): its own URL segment and its title, the one tree every route and
+   nav row reads.
+3. Add a `loadComponent` row to the `routing.ts` beside the page's folder,
+   e.g. `{ path: components.qrCode.path, loadComponent: () => import('./qr/qr') }`.
+4. Add a `wrLink(...)` row to the sidebar config in
+   `_layout/sidebar/configs/`: `COMPONENT_GROUPS` in `components.config.ts`,
+   `charts.config.ts` or `bits.config.ts`.
+
+Author it with the doc-page components from
 `#core/components`: `<ngwr-doc-page>`,
 `<ngwr-doc-section>`, `<ngwr-doc-code>` (code blocks), `<ngwr-doc-snippet>` (live
 demo), and `<ngwr-doc-api>` (API table). A component isn't done without it.
@@ -1747,14 +1828,15 @@ cannot supply one, because a renamed entry point looks new the day it moves.
 
 **That map is keyed by the ROUTE, and the route is not the page's directory.**
 Both readers look a page up by the URL its nav row carries, so a key taken from
-`dirname()` is written, never read, and green on both sides — and the repo has
-two pages where the two differ: `reference/components/qr/` serves
-`/reference/components/qrcode`, and `icons/svg-only/` is one template behind six
-galleries. `scripts/lib/page-routes.ts` answers what Angular actually serves
-each page directory at, by IMPORTING the routing tree (every `*.routing.ts`
-holds plain data, so `tsx` can load it and the array is the one the router
-uses); a template that no single route renders is REFUSED a version rather than
-keyed by walk order. The sidebar's marks are `<wr-sidebar>` word badges,
+`dirname()` is written, never read, and green on both sides. The two differ for
+every component page, whose group folder is not in the URL, and further for
+two: `reference/components/display/qr/` serves `/reference/components/qrcode`,
+and `icons/svg-only/` is one template behind six galleries.
+`scripts/lib/page-routes.ts` answers what Angular actually serves each page
+directory at, by IMPORTING the routing tree (every `routing.ts` holds plain
+data, so `tsx` can load it and the array is the one the router uses); a
+template that no single route renders is REFUSED a version rather than keyed by
+walk order. The sidebar's marks are `<wr-sidebar>` word badges,
 chosen in `_layout/sidebar/entries.ts` — `New` in the primary tone, `Optional`
 and `Soon` neutral — and `showcase/styles/_badge.scss` draws the catalog
 index's marks only.
@@ -1861,8 +1943,11 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
   `ngwr/date-adapter*` to `ngwr/date` and `ngwr/date/adapters/*`** (v15 removed
   the adapters it rewrites to), **v14 the six vocabulary
   renames, plus a report for the router / locale / `ofLabel` changes no codemod
-  should guess at**), plus **v13, which reports every host-`id` selector on
-  `<wr-checkbox>` / `<wr-radio>` / `<wr-switch>` and rewrites nothing** — all
+  should guess at**, whose date-locale warning still recommends
+  `provideWrDateAdapter({ locale: navigator.language })`, a function v15
+  removed: the v15 spelling is `provideWr(withDates({ locale }))`), plus
+  **v13, which reports every host-`id` selector on `<wr-checkbox>` /
+  `<wr-radio>` / `<wr-switch>` and rewrites nothing** — all
   registered in `schematics/migrations.json`. There is deliberately no
   `migration-v10`, `-v11` or `-v15`; see Versioning for why each is absent.
 
@@ -1981,11 +2066,11 @@ because it is guidance rather than a plan.
   rather than guessing at it").
 - `wr-calendar-heatmap` leaves four of its seven weekday rows blank on
   purpose — seven labels do not fit.
-- Every animation component honours `prefers-reduced-motion`; the one with no
+- Every bit honours `prefers-reduced-motion`; the one with no
   handling is `wr-spotlight-card`, where a gradient tracks the cursor and no
   content moves. (A first sweep reported eight, on a glob that dropped every
   component without an HTML file. The number was wrong before it was checked.)
-  **That sentence is scoped to the animations catalog and does not generalise** —
+  **That sentence is scoped to the bits catalog and does not generalise** —
   it was true and still left ten always-on chrome components unguarded, four of
   them animating infinitely, including the spinner and the skeleton that paint on
   every page. Those are covered by `theme/styles/_motion.scss`, one shared
