@@ -1,5 +1,29 @@
 # Changelog
 
+## [15.0.0-rc.1](https://github.com/thekhegay/ngwr/compare/v15.0.0-rc.0...v15.0.0-rc.1) (2026-10-22)
+
+### ⚠ BREAKING CHANGES
+
+* tslib is no longer a dependency, ngwr pulls in nothing at runtime
+
+### Features
+
+* **showcase:** dependencies after the api, and a stale chunk reloads the page ([1ac2c8c](https://github.com/thekhegay/ngwr/commit/1ac2c8cbeb60f82ce4fbe383b97f0838e5452616))
+* **showcase:** header items carry a subtitle or a badge, and page labels ease on hover ([83909de](https://github.com/thekhegay/ngwr/commit/83909de5297f7156f2f3177eed23978c4db94e9b))
+* **showcase:** home review — angular mark, glowing cta, opt-in section, code in tiles ([65f3ff2](https://github.com/thekhegay/ngwr/commit/65f3ff2a5cfae2220dfac8d4c39f26fc6bbd38fc))
+* **showcase:** see also leads with curated related pages, none left empty ([4cc2ef0](https://github.com/thekhegay/ngwr/commit/4cc2ef09ee27d0d98c785db292659b89073e458b))
+* **waves:** smooth curves through the points, and a canvas at the device pixel ratio ([50fd92c](https://github.com/thekhegay/ngwr/commit/50fd92cc49cbe1702921c1192ac1dbe12bac5ae9))
+
+### Bug Fixes
+
+* **quality:** zero runtime dependencies is the expected count now ([87da9a6](https://github.com/thekhegay/ngwr/commit/87da9a63e5bf7e93f49f77570f5945e5433d5287))
+* **select:** option-leading types import from ngwr/utils, which consumers can resolve ([0616200](https://github.com/thekhegay/ngwr/commit/06162009346bf8fd0e4cc9c4b1ab4c912f463f4f))
+* **showcase:** the next site's version switcher reads next ([9f5702a](https://github.com/thekhegay/ngwr/commit/9f5702aba39a35f0f7d9f75639e9188841696faf))
+
+### Build System
+
+* tslib is no longer a dependency, ngwr pulls in nothing at runtime ([8a4711b](https://github.com/thekhegay/ngwr/commit/8a4711bd75645367fcbffe6a228f5a1dfb0cb629))
+
 ## [15.0.0-rc.0](https://github.com/thekhegay/ngwr/compare/v14.12.1...v15.0.0-rc.0) (2026-10-21)
 
 ### ⚠ BREAKING CHANGES
