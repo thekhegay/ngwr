@@ -4,6 +4,7 @@ import { Component, DestroyRef, ElementRef, PLATFORM_ID, computed, inject, signa
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { ChevronDown, Search, Settings } from 'lucide';
+import { WrBadge } from 'ngwr/badge';
 import { WrBurger } from 'ngwr/burger';
 import { WrCommandPalette, type WrCommandItem } from 'ngwr/command-palette';
 import { WrDensity, type WrDensityValue } from 'ngwr/density';
@@ -11,16 +12,22 @@ import { WrDrawer } from 'ngwr/drawer';
 import { WrDropdown, WrDropdownMenu } from 'ngwr/dropdown';
 import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
+import type { WrSidebarBadge } from 'ngwr/sidebar';
 import { WrTheme, type WrThemeMode } from 'ngwr/theme';
 import { NGWR_VERSION_TOKEN } from 'ngwr/version';
 
 import { BRAND_ICONS } from '#core/icons';
 import { DocsSearch, SiteDirection } from '#core/services';
+import { isNewIn } from '#core/utils';
 import { ROUTES, wrPath } from '#routes';
 
 interface NavLink {
   readonly url: string;
   readonly label: string;
+  /** One short line under the label (`Animations`). */
+  readonly subtitle?: string;
+  /** A word under the label (`New`), in the sidebar's tones. */
+  readonly badge?: WrSidebarBadge;
 }
 
 interface ActionLink {
@@ -29,6 +36,9 @@ interface ActionLink {
   readonly modifier: string;
   readonly label: string;
 }
+
+/** The sidebar's own `New` mark. */
+const NEW: WrSidebarBadge = { text: 'New', tone: 'primary' };
 
 /**
  * Where each first-open suggestion goes. Kept beside the list rather than inside
@@ -79,6 +89,7 @@ function docVersionList(major: number, next: boolean): readonly DocVersion[] {
   imports: [
     RouterLink,
     RouterLinkActive,
+    WrBadge,
     WrBurger,
     WrCommandPalette,
     WrDrawer,
@@ -217,8 +228,13 @@ export class Header {
     { url: wrPath(ROUTES.guides), label: ROUTES.guides.title },
     { url: wrPath(ROUTES.reference), label: ROUTES.reference.title },
     { url: wrPath(ROUTES.icons), label: ROUTES.icons.title },
-    { url: wrPath(ROUTES.charts), label: ROUTES.charts.title },
-    { url: wrPath(ROUTES.bits), label: ROUTES.bits.title },
+    {
+      url: wrPath(ROUTES.charts),
+      label: ROUTES.charts.title,
+      // A section of its own since v15. The mark goes by itself at 15.1.
+      badge: isNewIn('15.0.0', this.version) ? NEW : undefined,
+    },
+    { url: wrPath(ROUTES.bits), label: ROUTES.bits.title, subtitle: 'Animations' },
   ];
   protected readonly actions: readonly ActionLink[] = [
     { url: 'https://github.com/thekhegay/ngwr', icon: 'github', modifier: 'github', label: 'GitHub' },

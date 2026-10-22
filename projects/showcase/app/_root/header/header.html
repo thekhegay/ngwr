@@ -20,8 +20,29 @@
 
   <nav class="ngwr-header__nav" aria-label="Primary">
     @for (link of nav; track $index) {
-      <a class="ngwr-header__nav-link" [routerLink]="link.url" routerLinkActive="ngwr-header__nav-link--active">
-        {{ link.label }}
+      <a
+        class="ngwr-header__nav-link"
+        [class.ngwr-header__nav-link--meta]="!!(link.badge || link.subtitle)"
+        [routerLink]="link.url"
+        routerLinkActive="ngwr-header__nav-link--active"
+      >
+        <span>{{ link.label }}</span>
+        @if (link.badge || link.subtitle) {
+          <span class="ngwr-header__meta">
+            @if (link.badge; as badge) {
+              <wr-badge
+                class="ngwr-header__badge"
+                size="sm"
+                [color]="null"
+                [attr.data-tone]="badge.tone ?? 'neutral'"
+                >{{ badge.text }}</wr-badge
+              >
+            }
+            @if (link.subtitle) {
+              <span class="ngwr-header__subtitle">{{ link.subtitle }}</span>
+            }
+          </span>
+        }
       </a>
     }
   </nav>
@@ -137,11 +158,28 @@
     @for (link of nav; track $index) {
       <a
         class="ngwr-header__sheet-link"
+        [class.ngwr-header__sheet-link--meta]="!!(link.badge || link.subtitle)"
         [routerLink]="link.url"
         routerLinkActive="ngwr-header__sheet-link--active"
         (click)="menuOpen.set(false)"
       >
-        {{ link.label }}
+        <span>{{ link.label }}</span>
+        @if (link.badge || link.subtitle) {
+          <span class="ngwr-header__meta">
+            @if (link.badge; as badge) {
+              <wr-badge
+                class="ngwr-header__badge"
+                size="sm"
+                [color]="null"
+                [attr.data-tone]="badge.tone ?? 'neutral'"
+                >{{ badge.text }}</wr-badge
+              >
+            }
+            @if (link.subtitle) {
+              <span class="ngwr-header__subtitle">{{ link.subtitle }}</span>
+            }
+          </span>
+        }
       </a>
     }
 
