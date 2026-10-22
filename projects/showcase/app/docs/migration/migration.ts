@@ -25,7 +25,10 @@ interface Change {
 export default class MigrationPageComponent {
   /** What `ng update ngwr` does for each major, newest first. */
   protected readonly majors: readonly Change[] = [
-    { before: 'v15', after: 'Nothing. Make the changes below by hand.' },
+    {
+      before: 'v15',
+      after: 'Rewrites paths, config calls, `-rgb` reads, renamed tokens and two values, lists files for the rest.',
+    },
     { before: 'v14', after: 'Rewrites six renames, lists files for the rest.' },
     { before: 'v13', after: 'Lists files with a host `id` selector, rewrites nothing.' },
     { before: 'v12', after: 'Rewrites the date import paths.' },
@@ -41,58 +44,109 @@ export default class MigrationPageComponent {
       after: '`migration-v7`, `-v8`, `-v9`: each one that failed, oldest first',
     },
     { before: '`ng update ngwr` hung on 14.5.0 or earlier', after: '`migration-v14`' },
+    {
+      before: 'You are on 15.0.0-rc.0 or rc.1, which shipped without a codemod',
+      after: '`migration-v15`. The next `ng update ngwr` runs it too.',
+    },
+  ];
+
+  /** What `migration-v15` does, before the tables say it per row. */
+  protected readonly v15Codemod: readonly Change[] = [
+    {
+      before: 'Rewrites',
+      after:
+        'Chart, bit, `ngwr/drag-drop` and `ngwr/icon/adapters/lucide` paths. Config calls into one `provideWr()`. `rgba(var(--…-rgb), a)` into `color-mix()`. Reads of the renamed tokens. `tone="dark"`, `tone="medium"`, `<wr-timeline-item color="medium">`.',
+    },
+    {
+      before: 'Lists files',
+      after:
+        "What needs your decision, by file and line: `@use 'ngwr'`, removed intents, `[data-theme]`, removed entry points and providers, the sortable list loop, validation copy.",
+    },
+    { before: 'Leaves alone', after: 'The visual changes in the last section.' },
   ];
 
   protected readonly v15Providers: readonly Change[] = [
-    { before: '`provideWrDensity(o)`', after: '`withDensity(o)` from `ngwr/density`' },
-    { before: '`provideWrToastConfig(o)`', after: '`withToast(o)` from `ngwr/toast`' },
-    { before: '`provideWrStorage(o)`', after: '`withStorage(o)` from `ngwr/storage`' },
-    { before: '`provideWrMeta(o)`', after: '`withMeta(o)` from `ngwr/meta`' },
-    { before: '`provideWrTheme(o)`', after: '`withTheme(o)` from `ngwr/theme`' },
-    { before: '`provideWrDateAdapter(o)`', after: '`withDates(o)` from `ngwr/date`. Delete a call with no options.' },
-    { before: '`provideWrOverlay()`', after: 'Delete. Isolated overlays are the default.' },
-    { before: '`WrDateAdapterOptions`, `ProvideWrStorageOptions`', after: '`WrDatesOptions`, `WrStorageOptions`' },
+    { before: '`provideWrDensity(o)`', after: '`withDensity(o)` from `ngwr/density`', update: 'Rewrites' },
+    { before: '`provideWrToastConfig(o)`', after: '`withToast(o)` from `ngwr/toast`', update: 'Rewrites' },
+    { before: '`provideWrStorage(o)`', after: '`withStorage(o)` from `ngwr/storage`', update: 'Rewrites' },
+    { before: '`provideWrMeta(o)`', after: '`withMeta(o)` from `ngwr/meta`', update: 'Rewrites' },
+    { before: '`provideWrTheme(o)`', after: '`withTheme(o)` from `ngwr/theme`', update: 'Rewrites' },
+    {
+      before: '`provideWrDateAdapter(o)`',
+      after: '`withDates(o)` from `ngwr/date`. Delete a call with no options.',
+      update: 'Rewrites',
+    },
+    { before: '`provideWrOverlay()`', after: 'Delete. Isolated overlays are the default.', update: 'Lists files' },
+    {
+      before: '`WrDateAdapterOptions`, `ProvideWrStorageOptions`',
+      after: '`WrDatesOptions`, `WrStorageOptions`',
+      update: 'Rewrites',
+    },
   ];
 
   protected readonly v15Paths: readonly Change[] = [
     {
       before: '`ngwr/bar-chart`, `calendar-heatmap`, `donut-chart`, `gauge`, `line-chart`, `meter-group`, `sparkline`',
       after: '`ngwr/charts/<name>`',
+      update: 'Rewrites',
     },
     {
       before:
         '`ngwr/aurora`, `blur-text`, `border-glow`, `circular-text`, `click-spark`, `confetti`, `decrypt-text`, `falling-text`, `fuzzy-text`, `glitch-text`, `gradient-text`, `marquee`, `rotating-text`, `shiny-text`, `splash-cursor`, `split-text`, `spotlight-card`, `star-border`, `tilt-card`, `typewriter`, `waves`',
       after: '`ngwr/bits/<name>`',
+      update: 'Rewrites',
     },
-    { before: '`ngwr/drag-drop`', after: '`ngwr/sortable-list`' },
-    { before: '`ngwr/icon/adapters/lucide`', after: '`ngwr/icon`' },
-    { before: "`@use 'ngwr'`", after: "`@use 'ngwr/theme'` first, then one `@use` per entry point you render" },
+    { before: '`ngwr/drag-drop`', after: '`ngwr/sortable-list`', update: 'Rewrites' },
+    { before: '`ngwr/icon/adapters/lucide`', after: '`ngwr/icon`', update: 'Rewrites' },
+    {
+      before: "`@use 'ngwr'`",
+      after: "`@use 'ngwr/theme'` first, then one `@use` per entry point you render",
+      update: 'Lists files',
+    },
   ];
 
   protected readonly v15Tokens: readonly Change[] = [
-    { before: '`--wr-color-light`, `--wr-color-outline`', after: '`--wr-border-base`' },
-    { before: '`--wr-color-dark`', after: '`--wr-color-on-surface`' },
-    { before: '`--wr-color-muted-text`, `--wr-color-medium`', after: '`--wr-color-on-surface-muted`' },
+    { before: '`--wr-color-light`, `--wr-color-outline`', after: '`--wr-border-base`', update: 'Rewrites reads' },
+    { before: '`--wr-color-dark`', after: '`--wr-color-on-surface`', update: 'Rewrites reads' },
+    {
+      before: '`--wr-color-muted-text`, `--wr-color-medium`',
+      after: '`--wr-color-on-surface-muted`',
+      update: 'Rewrites reads',
+    },
     {
       before: '`--wr-color-border`, `--wr-color-border-subtle`, `--wr-color-border-strong`',
       after: '`--wr-border-subtle`, or `--wr-border-base` for a firmer line',
+      update: 'Rewrites reads, to the subtle one',
     },
-    { before: '`--wr-color-white-contrast` (dark theme only)', after: '`--wr-color-on-surface`' },
+    {
+      before: '`--wr-color-white-contrast` (dark theme only)',
+      after: '`--wr-color-on-surface`',
+      update: 'Rewrites reads',
+    },
     {
       before: 'Every `-rgb` token, e.g. `rgba(var(--wr-color-primary-rgb), 0.2)`',
       after: '`color-mix(in srgb, var(--wr-color-primary) 20%, transparent)`',
+      update: 'Rewrites, lists what it cannot read',
     },
     {
       before: '`--wr-color-backdrop-rgb`',
       after: '`color-mix(in srgb, var(--wr-color-backdrop) 45%, transparent)`',
+      update: 'Rewrites',
     },
-    { before: '`--wr-calendar-accent-rgb`', after: '`--wr-calendar-accent`' },
-    { before: '`--wr-color-picker-rgb`', after: '`--wr-color-picker-color`' },
+    { before: '`--wr-calendar-accent-rgb`', after: '`--wr-calendar-accent`', update: 'Rewrites' },
+    { before: '`--wr-color-picker-rgb`', after: '`--wr-color-picker-color`', update: 'Rewrites' },
     {
-      before: '`color="secondary"`, `--wr-color-secondary-*`, and the same for `light`, `medium`, `dark`',
-      after: 'No replacement. Pick another intent or your own colour.',
+      before: 'The `-rgb` of a renamed token, e.g. `rgba(var(--wr-color-dark-rgb), 0.5)`',
+      after: '`color-mix(in srgb, var(--wr-color-on-surface) 50%, transparent)`',
+      update: 'Rewrites',
     },
-    { before: 'Those four keys in `$base-colors`', after: 'Delete them' },
+    {
+      before:
+        '`color="secondary"`, `--wr-color-secondary-*`, and the colour, shades and classes of `light`, `medium`, `dark`',
+      after: 'No replacement. Pick another intent or your own colour.',
+      update: 'Lists files',
+    },
+    { before: 'Those four keys in `$base-colors`', after: 'Delete them', update: 'Lists files' },
   ];
 
   protected readonly v15Scheme: readonly Change[] = [
@@ -100,68 +154,98 @@ export default class MigrationPageComponent {
       before:
         '`theme.dark-selector()`, `$theme-attribute`, the `attribute` option of `provideWrTheme()` and `wrThemePrePaintScript()`',
       after: 'Delete',
+      update: 'Lists files',
     },
-    { before: 'Reading `data-theme` in code', after: '`WrTheme.resolved()`' },
+    { before: 'Reading `data-theme` in code', after: '`WrTheme.resolved()`', update: 'Lists files' },
     {
       before: '`wrThemeTokens()`, `wrIntentTokens()`, `wrContrastFor()`',
       after: '`$base-colors` or `theme.rebrand()`, at build time. See [Theming](/guides/theming).',
+      update: 'Lists files',
     },
-    { before: '`--wr-star-border-stop`', after: '`background` on `.wr-star-border .wr-star-border__ray`' },
+    {
+      before: '`--wr-star-border-stop`',
+      after: '`background` on `.wr-star-border .wr-star-border__ray`',
+      update: 'Lists files',
+    },
   ];
 
   protected readonly v15Components: readonly Change[] = [
     {
       before: '`<wr-sortable-list>` with an `<ng-template>`',
       after: 'Your own `@for` with one `<wr-sortable-item>` per row. `trackBy` is gone.',
+      update: 'Rewrites the path, lists the loop',
     },
     {
       before: '`wrSquircle` from `ngwr/squircle`',
       after: '`shape="squircle"` on `wr-btn`, `wr-avatar`, `wr-badge`; the `theme.smooth-br()` mixin elsewhere',
+      update: 'Lists files',
     },
-    { before: '`<wr-action-sheet>`', after: '`<wr-drawer position="bottom" rounded>` with your own rows' },
+    {
+      before: '`<wr-action-sheet>`',
+      after: '`<wr-drawer position="bottom" rounded>` with your own rows',
+      update: 'Lists files',
+    },
     {
       before: '`<wr-drawer showHandle>`, `.wr-drawer__handle`, `__grabber`, `.wr-drawer__panel--handle`',
       after: 'Delete. Swipe-to-dismiss is gone.',
+      update: 'Lists files',
     },
     {
       before: '`responsive` on `wr-select`, `[wrDropdown]`, `[wrPopover]`, `wr-command-palette`, `WrDialog.open()`',
       after: 'Delete. For a sheet on phones, open a `<wr-drawer position="bottom">`.',
+      update: 'Lists files',
     },
     {
       before: '`WrPopoverHarness.isSheet()`, `WrCommandPaletteHarness.isPresentedAsSheet()`',
       after: 'Delete',
+      update: 'Lists files',
     },
     {
       before: '`<wr-editor format>`, `WrEditorFormat`',
       after: 'Delete. The value is a `WrEditorJson` tree, or `null` when empty.',
+      update: 'Lists files',
     },
-    { before: '`[wrTypography] tone="dark"`, `tone="medium"`', after: '`tone="base"`, `tone="muted"`' },
-    { before: '`.wr-typography--tone-dark`, `--tone-medium`', after: '`.wr-typography--tone-base`, `--tone-muted`' },
+    {
+      before: '`[wrTypography] tone="dark"`, `tone="medium"`',
+      after: '`tone="base"`, `tone="muted"`',
+      update: 'Rewrites',
+    },
+    {
+      before: '`.wr-typography--tone-dark`, `--tone-medium`',
+      after: '`.wr-typography--tone-base`, `--tone-muted`',
+      update: 'Rewrites',
+    },
     {
       before: '`<wr-timeline-item color="medium">`, `.wr-timeline-item--medium`',
       after: '`color="neutral"`, `.wr-timeline-item--neutral`',
+      update: 'Rewrites',
     },
     {
       before: "`WrSidebarItem` `badge: 'new'`, `badge: '12'`",
       after: "`badge: { text: 'New', tone: 'primary' }` for a word, `count: 12` for a number",
+      update: 'Lists files',
     },
     {
       before: '`WrSidebarGroup.children` holds `WrSidebarItem`s',
       after: "A child can be a group: check `'children' in child` before reading `url`, `disabled` or `activeOptions`",
+      update: 'No',
     },
     {
       before: '`<wr-sidebar>` draws `folder` and `caret-forward` icons by default',
       after: 'No icons by default. Bind `defaultGroupIcon` and `defaultItemIcon` to keep them.',
+      update: 'Lists files',
     },
     {
       before:
         '`.wr-sidebar__entry`, `__item`, `__group-toggle`, `__item-title`, `--active` and `--disabled` on the first two',
       after:
         '`.wr-sidebar__row`, `__title`, `.wr-sidebar__row--active`, `.wr-sidebar__row--disabled`; `.wr-sidebar__row--group` for `__group-toggle`',
+      update: 'Lists files',
     },
     {
       before: '`--wr-sidebar-padding`',
       after: 'Unchanged. It was the only sidebar hook v14 published; the others are new.',
+      update: 'Nothing to do',
     },
   ];
 
@@ -169,37 +253,51 @@ export default class MigrationPageComponent {
     {
       before: '`ngwr/config`: `provideWrConfig()`, `WR_CONFIG`, `useConfigValue()`',
       after: 'Bind the input where you want another value',
+      update: 'Lists files',
     },
     {
       before: '`ngwr/media`: `WrMedia`, `provideWrMedia()`, `WR_BREAKPOINTS`',
       after: '`BreakpointObserver` from `@angular/cdk/layout`',
+      update: 'Lists files',
     },
     {
       before: "`ngwr/markdown`, `@use 'ngwr/markdown'` and the `markdown.*` catalog keys",
       after: '`<wr-editor readonly [toolbar]="false">`',
+      update: 'Lists files',
     },
-    { before: '`ngwr/icon/adapters/feather`', after: "`svgIcon()` from `ngwr/icon`, with Feather's own SVG files" },
+    {
+      before: '`ngwr/icon/adapters/feather`',
+      after: "`svgIcon()` from `ngwr/icon`, with Feather's own SVG files",
+      update: 'Lists files',
+    },
     {
       before: "`provideWrResponsiveOverlays()`, `WR_RESPONSIVE_OVERLAYS`, `wrPresentAsSheet`, `@use 'ngwr/overlay'`",
       after: 'Delete',
+      update: 'Lists files',
     },
-    { before: '`WrVisualViewport`, `--wr-keyboard-inset`', after: '`window.visualViewport`' },
+    { before: '`WrVisualViewport`, `--wr-keyboard-inset`', after: '`window.visualViewport`', update: 'Lists files' },
   ];
 
   protected readonly v15Dates: readonly Change[] = [
     {
       before: '`ngwr/date/adapters/fns`, `ngwr/date/adapters/luxon`',
       after: 'The native adapter, or your own `WrDateAdapter<Date>` passed as `withDates({ adapter })`',
+      update: 'Lists files',
     },
     {
       before: '`date-fns`, `luxon` as optional peers',
       after: 'No longer peers. Keep them only if your own code uses them.',
+      update: 'No',
     },
-    { before: 'Your own `WrDateAdapter<Date>` subclass, undecorated', after: 'Add `@Service()`, or dev mode warns' },
-    { before: '`ng add ngwr --dateAdapter=…`', after: '`ng add ngwr`' },
-    { before: '`wrDate` with no provider, `shortDate`: `3/15/26`', after: '`3/15/2026`' },
-    { before: '`wrDate` with no provider, `time`: `2:30 PM`', after: '`02:30 PM`' },
-    { before: "`wrDate` with no provider, `'dd.MM.yyyy'`: falls back to `shortDate`", after: 'Honoured' },
+    {
+      before: 'Your own `WrDateAdapter<Date>` subclass, undecorated',
+      after: 'Add `@Service()`, or dev mode warns',
+      update: 'Lists files',
+    },
+    { before: '`ng add ngwr --dateAdapter=…`', after: '`ng add ngwr`', update: 'No' },
+    { before: '`wrDate` with no provider, `shortDate`: `3/15/26`', after: '`3/15/2026`', update: 'No' },
+    { before: '`wrDate` with no provider, `time`: `2:30 PM`', after: '`02:30 PM`', update: 'No' },
+    { before: "`wrDate` with no provider, `'dd.MM.yyyy'`: falls back to `shortDate`", after: 'Honoured', update: 'No' },
   ];
 
   protected readonly v14Rewrites: readonly Change[] = [

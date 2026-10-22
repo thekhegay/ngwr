@@ -5,8 +5,7 @@ TypeScript and stylesheets in place. Commit first, run the migration, then
 review with `git diff` — a handful of edge cases always need a manual
 touch-up. Not every major has one that rewrites: v10's and v11's breaking
 changes are purely visual and carry no codemod, as the v10 section below
-explains, v13's migration only reports, and v15 ships none — its section lists
-every change to make by hand.
+explains, and v13's migration only reports.
 
 ```bash
 # One command, from whatever major you are on. It installs the latest release,
@@ -15,7 +14,7 @@ ng update ngwr
 ```
 
 **Do not step through the majors.** From 8.x that one command runs every migration from v9 on; from
-6.x, every one from v7 on. v10, v11 and v15 ship none, so there is nothing to skip. Sections are
+6.x, every one from v7 on. v10 and v11 ship none, so there is nothing to skip. Sections are
 newest-first, and where a major has a codemod its section names it as a step that command runs —
 read every section between your version and the latest, because the codemods also REPORT what they
 cannot rewrite.
@@ -48,7 +47,7 @@ ng update ngwr --migrate-only --name=migration-v9   # the step the range skipped
 
 `--name` runs the migration shipped inside the release you installed, never the 9.x copy that crashed, and
 checks no version, so no range can leave it out. It rewrites only `<wr-checkbox>` bindings, which
-none of v12, v13 or v14 touches, so running it after them is safe.
+none of v12 to v15 touches, so running it after them is safe.
 
 A failed `ng update ngwr@7` or `@8` leaves the same hole for that major, and for each later one you
 also tried: run each skipped migration the same way, oldest first (`migration-v7`, `migration-v8`).
@@ -79,9 +78,32 @@ repository.
 
 ## v14 to v15
 
-**v15 ships no codemod.** `ng update ngwr` installs it and runs nothing for this step, so every
-change below is yours to make. Most of them fail silently — a selector that stops matching, a
-`var()` at a token nothing declares — so search for each one rather than waiting for the build.
+**`ng update ngwr` runs `migration-v15`.** It rewrites what means the same thing in its new place,
+and lists by file and line what needs a decision only you can make. It rewrites:
+
+- the import, `@use` and `/testing` paths of the seven charts and the 21 bits, of `ngwr/drag-drop`
+  and of `ngwr/icon/adapters/lucide`, in TypeScript, Sass and JSON;
+- `provideWrDensity()`, `provideWrToastConfig()`, `provideWrStorage()`, `provideWrMeta()`,
+  `provideWrDateAdapter()` and `provideWrTheme()` into one `provideWr()` with a feature each,
+  imports included, wherever the call is a plain entry of a `providers` array. A bare
+  `provideWrDateAdapter()` is deleted. `WrDateAdapterOptions` becomes `WrDatesOptions` and
+  `ProvideWrStorageOptions` becomes `WrStorageOptions`;
+- every `rgba(var(--wr-color-<name>-rgb), <alpha>)` it can read, into
+  `color-mix(in srgb, var(--wr-color-<name>) <alpha>%, transparent)`, a renamed neutral mixing
+  from its successor in the rename table below;
+- every read of a neutral token in the rename table below;
+- `[wrTypography]`'s `tone="dark"` and `tone="medium"`, `<wr-timeline-item color="medium">`, and
+  the classes they emit.
+
+It lists the rest, and changes nothing there: the `@use 'ngwr'` umbrella, a density setting with
+no density sheet, a removed intent used anywhere, `[data-theme]` and `theme.dark`, a `-rgb` read or
+a token declaration it could not rewrite, a provider call it could not move, and every removed
+entry point, provider and input below. Each section says which half an item falls in.
+
+The listed half mostly fails silently — a selector that stops matching, a `var()` at a token
+nothing declares — so go through the report rather than waiting for the build. Commit first, and
+review the rewrites with `git diff`. An app already on 15.0.0-rc.0 or rc.1, which shipped without
+the codemod, gets it on its next `ng update ngwr`; running it again changes nothing.
 
 **The Angular peers are `^22.0.0`**, where v14 accepted every later major (`>=22.0.0`). A newer
 Angular major joins the range in a release once ngwr has been tested on it.
@@ -98,16 +120,19 @@ follows the OS**, with no JavaScript. A page that is not ready for dark writes
   `WrTheme.set('light' | 'dark')` — `'auto'` hands it back to the OS — or write `color-scheme`
   yourself: on `<html>` for the page, on any element for its subtree. `WrTheme` in `'auto'` leaves
   a `color-scheme` you wrote on `<html>` alone; `set('light')` or `set('dark')` writes over it.
-  Code that read the attribute to learn the scheme reads `WrTheme.resolved()` instead.
+  Code that read the attribute to learn the scheme reads `WrTheme.resolved()` instead. The
+  codemod lists every file that names `data-theme`.
 - **`theme.dark`, `dark-selector()` and `$theme-attribute` are removed**, with no replacement
   helper. Write the dark value in the declaration itself: `color: light-dark(#0f172a, #e6ebf3)`.
-  `light-dark()` takes colours only.
+  `light-dark()` takes colours only. The codemod lists each file.
 - **Every `-rgb` token is removed**, theme and component alike. Replace
   `rgba(var(--wr-color-primary-rgb), 0.12)` with
   `color-mix(in srgb, var(--wr-color-primary) 12%, transparent)`. `--wr-color-backdrop-rgb` becomes
   the colour `--wr-color-backdrop`, `--wr-calendar-accent-rgb` goes in favour of
   `--wr-calendar-accent`, and `--wr-color-picker-rgb` is now `--wr-color-picker-color`, holding a
-  whole colour. A leftover read drops its whole declaration, with no error.
+  whole colour. A leftover read drops its whole declaration, with no error. The codemod rewrites
+  every `rgba(var(--…-rgb), <alpha>)` whose base token has a successor, and lists the rest: a
+  `secondary` read, an interpolated name, an alpha it cannot read.
 - **Three animation components changed a hook or a blend.** `--wr-star-border-stop` is removed:
   the ray's fade is fixed, at 10% then 16% in light and 10% in dark, so override the gradient on
   `.wr-star-border__ray` instead. `<wr-border-glow>`'s `--wr-border-glow-halo-blend`,
@@ -115,7 +140,7 @@ follows the OS**, with no JavaScript. A page that is not ready for dark writes
   `normal` and `0.25` in both schemes; set them to `plus-lighter`, `soft-light` and `1` on a dark
   page to restore the old additive look. `[wrTilt]`'s glare blends `normal` in both schemes too,
   where light used `multiply` and dark `overlay`, so a `--wr-tilt-glare-color` of your own now
-  paints at face value.
+  paints at face value. The codemod lists `--wr-star-border-stop`; the blends are yours to check.
 - **`provideWrTheme()` is removed.** `WrTheme` is root-provided, so delete the call. To change the
   storage key or the default mode, pass `withTheme()` to `provideWr()` (see
   [One `provideWr()` call](#one-providewr-call)); the `attribute` option is gone, from the config
@@ -125,15 +150,17 @@ follows the OS**, with no JavaScript. A page that is not ready for dark writes
   whose first screen injects nothing paints the OS scheme. On a prerendered page, ship
   `wrThemePrePaintScript()` with the same options as well. The script writes `color-scheme` on
   `<html>` for a stored `light` or `dark` choice, or for a non-`auto` `defaultMode` passed to it,
-  and nothing for `auto`.
+  and nothing for `auto`. The codemod moves `provideWrTheme()` into `provideWr()` as `withTheme()`,
+  and lists a call or a pre-paint script that passes `attribute`.
 - **`wrThemeTokens()`, `wrIntentTokens()` and `wrContrastFor()` are removed**, and runtime
   rebranding with them. Rebrand at compile time: `@use 'ngwr/theme' with ($base-colors: (…))`
   moves the light side, and `@include theme.rebrand($colors, $dark)` moves both, its second map
-  being the dark seeds.
+  being the dark seeds. The codemod lists each file.
 - **Code that reads a token in TypeScript gets the raw text.** `getPropertyValue('--wr-color-…')`
   returns `light-dark(…)` unresolved; read an element's computed `color` instead, and always do so
   before handing a colour to a canvas, which cannot draw `light-dark()`. `resolveCssColor()` from
-  `ngwr/utils` is that read: it takes an element, any colour expression and a fallback.
+  `ngwr/utils` is that read: it takes an element, any colour expression and a fallback. The codemod
+  lists each `getPropertyValue()` of a colour token.
 - **The browser floor is Chrome 123, Firefox 120 and Safari 17.5**, the first releases with
   `light-dark()`. Below them themed colours are lost outright rather than degraded.
 
@@ -155,17 +182,27 @@ neutral gray ramp read through role aliases that name the job — `--wr-color-su
 `--wr-border-strong` is new, and darker than any border v14 had. For a firmer line than
 `--wr-border-subtle`, use `--wr-border-base`.
 
-Their `-rgb` companions have no successor (see `color-mix` above), and neither do the shades and
-tints of a removed intent. A `color` naming a removed intent is a compile error under
+The codemod rewrites every READ of a name in the left column, in stylesheets, templates and
+TypeScript. It lists a DECLARATION of one instead of renaming it — `--wr-color-medium: #888`, a
+`[style.--wr-color-medium]` binding, `setProperty('--wr-color-medium', …)` or a style-object key:
+setting `--wr-color-medium` restyled a fill in v14, and the same value on
+`--wr-color-on-surface-muted` would restyle every muted text.
+
+Their `-rgb` companions follow the table into `color-mix()`: the codemod turns
+`rgba(var(--wr-color-dark-rgb), 0.5)` into
+`color-mix(in srgb, var(--wr-color-on-surface) 50%, transparent)`. The shades and tints of a
+removed intent have no successor. A `color` naming a removed intent is a compile error under
 `strictTemplates` and renders neutral without it; which intent it should become, if any, is your
 call — `<wr-btn color="dark">` and `<wr-btn>` are different buttons. A `.wr-*--secondary` (or
 `--light`, `--medium`, `--dark`) selector stops matching, and a `$base-colors` map still carrying
-one of the four keys stops the Sass build.
+one of the four keys stops the Sass build. The codemod lists every file with one of these: a removed
+`color`, a removed class, a `--wr-color-secondary*` token, a shade of a removed intent, a
+`$base-colors` key and a `WrColor` literal.
 
 Two values named after a removed intent moved to the name of what they paint, BEM class included:
 `[wrTypography]`'s `tone="dark"` is `tone="base"` and `tone="medium"` is `tone="muted"`
 (`.wr-typography--tone-base`, `--tone-muted`), and `<wr-timeline-item color="medium">` is
-`color="neutral"` (`.wr-timeline-item--neutral`).
+`color="neutral"` (`.wr-timeline-item--neutral`). The codemod rewrites both, classes included.
 
 ### Charts and bits moved, and the Sass umbrella is gone
 
@@ -175,21 +212,25 @@ Two values named after a removed intent moved to the name of what they paint, BE
   blur-text, border-glow, circular-text, click-spark, confetti, decrypt-text, falling-text,
   fuzzy-text, glitch-text, gradient-text, marquee, rotating-text, shiny-text, splash-cursor,
   split-text, spotlight-card, star-border, tilt-card, typewriter, waves). The `@use` path and
-  the `/testing` harness path move the same way, and every symbol keeps its name.
+  the `/testing` harness path move the same way, and every symbol keeps its name. The codemod
+  rewrites them.
 - **`@use 'ngwr'` no longer resolves.** Write `@use 'ngwr/theme'` first, then one `@use` per
   entry point you render, for example `@use 'ngwr/button';`. The page for each component shows
-  its own two lines under Installation.
+  its own two lines under Installation. The codemod lists the files; which entry points you render
+  is your list.
 - **The umbrella also carried the density scale.** If you use `withDensity()` or `[wrDensity]`,
   add `@use 'ngwr/density'`. No component loads it, so without that line the setting does nothing.
+  The codemod lists the files that use density when no stylesheet loads the sheet.
 - **`ngwr/reset`, `ngwr/animations` and `ngwr/typography-utilities` load the theme now.** Write them
   below a configured `@use 'ngwr/theme' with (…)`. Above it, the build fails with "This module was
-  already loaded".
+  already loaded". The codemod lists a sheet that sits above one.
 
 ### The sortable list
 
 It moved to an entry point of its own: `ngwr/drag-drop` is `ngwr/sortable-list`, in imports and
 in the `@use`, every symbol keeping its name. It no longer owns its loop — write your own and
-project one `<wr-sortable-item>` per row; `trackBy` went with the loop.
+project one `<wr-sortable-item>` per row; `trackBy` went with the loop. The codemod rewrites the
+path and lists every list that still holds an `<ng-template>` or a `trackBy`.
 
 ### The sidebar
 
@@ -207,6 +248,8 @@ project one `<wr-sortable-item>` per row; `trackBy` went with the loop.
   is `.wr-sidebar__row--group`; `.wr-sidebar__item-title` is `.wr-sidebar__title`.
 
 A string `badge` is a compile error. The lost default icons and the old class names are silent.
+The codemod lists all three: a string `badge` in a file that names `WrSidebar`, a `<wr-sidebar>`
+that binds neither default icon, and the old classes.
 `--wr-sidebar-padding`, the only sidebar hook v14 published, is unchanged.
 
 ### The icon adapters are gone
@@ -214,7 +257,8 @@ A string `badge` is a compile error. The lost default icons and the old class na
 `ngwr/icon/adapters/lucide` and `ngwr/icon/adapters/feather` are removed. `lucideIcons()`,
 `lucide()` and the `LucideIconNode` type moved into `ngwr/icon` under the same names, so for
 Lucide the import path is the whole change. Feather has no helper any more: register its own SVG
-files with `svgIcon()`, the way every other set is registered.
+files with `svgIcon()`, the way every other set is registered. The codemod rewrites the Lucide path
+and lists the Feather files.
 
 ```diff
 - import { lucideIcons } from 'ngwr/icon/adapters/lucide';
@@ -252,6 +296,7 @@ button, so deleting the attribute is usually the whole migration.
 A leftover import or `@use` fails the build and a bound `[showHandle]` is a compile error, but a
 bare `wrSquircle` attribute, a `<wr-action-sheet>` without `strictTemplates` and a
 `.wr-drawer__handle`, `.wr-drawer__grabber` or `.wr-drawer__panel--handle` selector are all silent.
+The codemod lists every file holding any of them, the silent ones included.
 
 ### ngwr ships no validation copy
 
@@ -280,6 +325,10 @@ The date picker's refusals have no English default either: `<wr-date-picker>` an
 and `dateFilter` in your catalog, with the example date as the `example` param. Without those keys
 a refusal still shows as a danger border and `aria-invalid`, with no sentence.
 
+The codemod lists `provideWrFormErrors()` and its types. While no catalog in the project has a
+`validation` namespace it also lists every `<wr-form-field>` without a `<wr-form-error>`, and while
+none has `validation.dateFormat`, every date picker.
+
 ### No app-wide component defaults
 
 `ngwr/config` is removed, with `provideWrConfig()`, `WR_CONFIG`, `useConfigValue()` and the
@@ -297,7 +346,7 @@ own.
 The import fails the build. Deleting the call is what is silent: every control it reached goes
 back to its own default — `md` and the standard radius — so bind each key the call set before you
 remove it. An `editor` or `markdown` key has nothing left to bind; the markdown section below
-says what replaces both.
+says what replaces both. The codemod lists each file.
 
 ### No breakpoint service
 
@@ -319,7 +368,7 @@ A named key has to become its width: `md` is `(min-width: 768px)`, and the rest 
 `$breakpoints` list in `ngwr/breakpoints`. A query string `matches()` accepted passes to
 `observe()` unchanged. Both answer `false` on the server, so a template that branched on one
 prerenders the same arm it did. `current()` has no equivalent: observe the widths you branch on
-and pick the largest that matches.
+and pick the largest that matches. The codemod lists each file.
 
 ### No responsive bottom sheets
 
@@ -346,7 +395,7 @@ app that wants a sheet there opens a `<wr-drawer position="bottom">` itself.
 The import, the `@use` and the harness calls fail the build, and so do a bound `[responsive]` and
 an inline `{ responsive: true }`. A bare `responsive` attribute is inert, and a rule on
 `.wr-overlay-sheet`, `.wr-overlay-backdrop` or `.wr-command-palette--sheet` matches nothing, so
-search for both.
+search for both. The codemod lists the files, bare attributes and selectors included.
 
 ### No date-fns or Luxon adapter
 
@@ -382,7 +431,8 @@ The imports fail the build. A token format written for date-fns does not: that a
 through `Intl` now, so its exact string can change as well. The Luxon adapter translated the native
 tokens but handed every other letter to Luxon, so a Luxon-only token (`EEEE`, `ccc`, `DDD`) now
 prints verbatim too, and `MMMM` beside a day token is declined where Luxon printed the standalone
-form.
+form. The codemod lists every file that names an adapter, and every `WrDateAdapter` subclass without
+`@Service()`.
 
 ### No markdown, and the editor holds JSON
 
@@ -411,7 +461,8 @@ become.
 The imports, the `@use` and a bound `[format]` fail the build. A static `format="…"` is inert,
 and an HTML or markdown string that reaches `value` untyped is refused like any value the editor
 cannot read: the editor stays empty and read-only with `wr-editor--refused`, and only dev mode
-says why. A form model whose editor field started as `''` starts as `null` now.
+says why. A form model whose editor field started as `''` starts as `null` now. The codemod lists
+every file that names `ngwr/markdown` or `WrEditorFormat`, and every `<wr-editor format>`.
 
 ### No overlay provider, and no keyboard inset
 
@@ -432,7 +483,8 @@ nothing in ngwr read any more. `WrPlatform` and `WrHaptics` are unchanged.
 ```
 
 The imports fail the build. A `var(--wr-keyboard-inset, 0px)` does not: it falls back to its
-default and stays there, so search your stylesheets for it.
+default and stays there, so search your stylesheets for it. The codemod lists `provideWrOverlay()`,
+whose deletion is the whole change, and every `WrVisualViewport` and `--wr-keyboard-inset`.
 
 ### Dates need no provider
 
@@ -459,7 +511,8 @@ renders differently. A `wrDate` pipe in an app that never provided an adapter us
 `Intl`'s `dateStyle` / `timeStyle` shorthands, and now formats through the native adapter, so
 `shortDate` prints `3/15/2026` where it printed `3/15/26` and `time` prints `02:30 PM` where it
 printed `2:30 PM` (the date-time keys change the same way), and a token string such as
-`'dd.MM.yyyy'` is honoured where it used to fall back to `shortDate`.
+`'dd.MM.yyyy'` is honoured where it used to fall back to `shortDate`. The codemod deletes a bare
+`provideWrDateAdapter()` and moves one with options into `provideWr()` as `withDates()`.
 
 ### One `provideWr()` call
 
@@ -508,6 +561,13 @@ works, but `withTheme()` sets it and boots the service in one call. Passing the 
 throws in dev mode. Two option types are renamed with their functions: `WrDateAdapterOptions` is
 `WrDatesOptions`, and `ProvideWrStorageOptions` is `WrStorageOptions`. `withDensity()` also needs
 `@use 'ngwr/density'` in your styles, which the umbrella used to carry.
+
+The codemod makes this move wherever each call is a plain entry of a `providers` (or
+`makeEnvironmentProviders`) array: one `provideWr()` per array, merged into one that is already
+there, with the imports fixed and both option types renamed. It lists a call it cannot move — kept
+in a variable, a spread or a ternary, imported under another name, already present as a feature,
+a second call of one kind in the same array (the same feature twice throws in dev mode), or
+passing the theme `attribute`.
 
 ### Looks different, nothing to rename
 

@@ -49,14 +49,25 @@
     <ng-container *ngTemplateOutlet="changes; context: { $implicit: recovery, head: ['If', 'Migration'] }" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="v14 to v15" description="Needs Angular 22 and Chrome 123, Firefox 120 or Safari 17.5." />
+  <ngwr-doc-section
+    title="v14 to v15"
+    description="Needs Angular 22 and Chrome 123, Firefox 120 or Safari 17.5. `ng update` runs `migration-v15`."
+  >
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Codemod, head: ['ng update', 'What'] }" />
+    <ul>
+      <li>Most of what it lists fails silently. Work through the report rather than waiting for the build.</li>
+      <li>Each table below says what the codemod does with each row.</li>
+    </ul>
+  </ngwr-doc-section>
 
   <ngwr-doc-section
     title="v14 to v15: providers"
     description="One `provideWr()` call from `ngwr`, one feature per setting, with the same options."
   >
     <ngwr-doc-code [code]="snippets.v15Providers" language="diff" />
-    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Providers, head: ['Before', 'After'] }" />
+    <ng-container
+      *ngTemplateOutlet="changes; context: { $implicit: v15Providers, head: ['Before', 'After', 'Codemod'] }"
+    />
     <ul>
       <li>
         Put <code>withDensity()</code>, <code>withToast()</code> and <code>withTheme()</code> in the app providers. A
@@ -65,6 +76,11 @@
       <li>
         <code>provideWrIcons()</code>, the i18n providers and <code>provideWrLoadingBarRouter()</code> are unchanged.
       </li>
+      <li>
+        The codemod moves a call only when it is a plain entry of a <code>providers</code> array. It lists one kept in a
+        variable, a spread or a ternary, a second call of one kind in the same array, and a
+        <code>provideWrTheme()</code> that passes <code>attribute</code>.
+      </li>
     </ul>
   </ngwr-doc-section>
 
@@ -72,7 +88,7 @@
     title="v14 to v15: imports and styles"
     description="Symbols keep their names; only import, `@use` and `/testing` paths move."
   >
-    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Paths, head: ['Before', 'After'] }" />
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Paths, head: ['Before', 'After', 'Codemod'] }" />
     <ul>
       <li>
         The umbrella also carried the density scale. With <code>withDensity()</code> or <code>[wrDensity]</code>, add
@@ -89,10 +105,14 @@
     title="v14 to v15: colour tokens"
     description="Neutral colours are role tokens now, such as `--wr-color-surface` and `--wr-border-base`."
   >
-    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Tokens, head: ['Before', 'After'] }" />
+    <ng-container
+      *ngTemplateOutlet="changes; context: { $implicit: v15Tokens, head: ['Before', 'After', 'Codemod'] }"
+    />
     <ul>
       <li>
-        A <code>var()</code> at a removed token drops its whole declaration, with no error. Search for every name above.
+        A <code>var()</code> at a removed token drops its whole declaration, with no error. The codemod rewrites the
+        reads, and lists a declaration, since which role it should set is your call. That includes a
+        <code>[style.--…]</code> binding, <code>setProperty()</code> and a style-object key.
       </li>
       <li>Without <code>strictTemplates</code>, a removed <code>color</code> value renders neutral, with no error.</li>
       <li><code>--wr-border-strong</code> is new, and darker than any border v14 had.</li>
@@ -104,7 +124,9 @@
     description="`[data-theme]` is gone: the theme follows the OS through `color-scheme` and `light-dark()`."
   >
     <ngwr-doc-code [code]="snippets.v15Scheme" language="diff" />
-    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Scheme, head: ['Before', 'After'] }" />
+    <ng-container
+      *ngTemplateOutlet="changes; context: { $implicit: v15Scheme, head: ['Before', 'After', 'Codemod'] }"
+    />
     <ul>
       <li>A leftover <code>[data-theme]</code> selector compiles and matches nothing.</li>
       <li>
@@ -135,7 +157,9 @@
 
   <ngwr-doc-section title="v14 to v15: components">
     <ngwr-doc-code [code]="snippets.v15Sortable" language="diff" />
-    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Components, head: ['Before', 'After'] }" />
+    <ng-container
+      *ngTemplateOutlet="changes; context: { $implicit: v15Components, head: ['Before', 'After', 'Codemod'] }"
+    />
     <ul>
       <li>
         A <code>&lt;wr-sortable-list&gt;</code> that still holds an <code>&lt;ng-template&gt;</code> renders nothing.
@@ -153,7 +177,9 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="v14 to v15: removed entry points">
-    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Removed, head: ['Removed', 'Use instead'] }" />
+    <ng-container
+      *ngTemplateOutlet="changes; context: { $implicit: v15Removed, head: ['Removed', 'Use instead', 'Codemod'] }"
+    />
     <ngwr-doc-code [code]="snippets.v15Removed" language="diff" />
     <ul>
       <li>
@@ -179,6 +205,11 @@
         Without your text a field shows no message; only dev mode warns. <code>&lt;wr-form-error key&gt;</code> still
         works.
       </li>
+      <li>
+        The codemod lists <code>provideWrFormErrors()</code>. While no catalog has a <code>validation</code> namespace,
+        it also lists every <code>&lt;wr-form-field&gt;</code> without a <code>&lt;wr-form-error&gt;</code>. While none
+        has <code>validation.dateFormat</code>, it lists every date picker.
+      </li>
     </ul>
   </ngwr-doc-section>
 
@@ -186,7 +217,7 @@
     title="v14 to v15: dates"
     description="The native adapter needs no provider and follows `LOCALE_ID`."
   >
-    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Dates, head: ['Before', 'After'] }" />
+    <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Dates, head: ['Before', 'After', 'Codemod'] }" />
     <ul>
       <li>
         Native format tokens are <code>yyyy yy MMMM MMM MM M dd d HH H hh h mm ss a</code>. Others, such as date-fns'
