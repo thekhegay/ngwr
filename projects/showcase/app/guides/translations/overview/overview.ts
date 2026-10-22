@@ -1,16 +1,40 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 
+import { WrCard } from 'ngwr/card';
+import { WrEmpty } from 'ngwr/empty';
+import { WrFileUpload } from 'ngwr/file-upload';
+import { WrFormField } from 'ngwr/form';
 import { WrI18n, WrTPipe } from 'ngwr/i18n';
+import { WrInput } from 'ngwr/input';
+import { WrPagination } from 'ngwr/pagination';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
+import { WrSelect } from 'ngwr/select';
 import { WrTypography } from 'ngwr/typography';
 
 import { DocPageComponent, DocSectionComponent, DocSeeAlsoComponent, type DocSeeAlsoLink } from '#core/components';
+
+/** Options that read the same in every language, so what changes is the select's own text. */
+const FORMATS = ['CSV', 'JSON', 'PDF', 'XLSX', 'XML'] as const;
 
 @Component({
   selector: 'ngwr-translate-overview-page',
   templateUrl: './overview.html',
   styleUrl: './overview.scss',
-  imports: [WrSegmented, WrTPipe, WrTypography, DocPageComponent, DocSectionComponent, DocSeeAlsoComponent],
+  imports: [
+    WrCard,
+    WrEmpty,
+    WrFileUpload,
+    WrFormField,
+    WrInput,
+    WrPagination,
+    WrSegmented,
+    WrSelect,
+    WrTPipe,
+    WrTypography,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSeeAlsoComponent,
+  ],
 })
 export default class TranslateOverviewPage {
   private readonly i18n = inject(WrI18n);
@@ -18,6 +42,10 @@ export default class TranslateOverviewPage {
   protected readonly localeOptions: readonly WrSegmentedOption<string>[] = this.i18n
     .available()
     .map(code => ({ value: code, label: code }));
+
+  protected readonly page = signal(1);
+  protected readonly formats = FORMATS;
+  protected readonly format = signal<string | null>(null);
 
   protected use(locale: string | null): void {
     if (locale) this.i18n.use(locale);

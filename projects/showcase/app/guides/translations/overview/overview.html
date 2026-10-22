@@ -5,19 +5,73 @@
   [labels]="['Service']"
 >
   <ngwr-doc-section title="At a glance">
-    <div class="ngwr-translate-overview__hero">
-      <p wrTypography variant="display">{{ 'common.save' | wrT }} . {{ 'common.cancel' | wrT }}</p>
-      <div class="ngwr-translate-overview__switcher">
-        <p id="ngwr-translate-overview-locale">Active locale:</p>
-        <wr-segmented
-          aria-labelledby="ngwr-translate-overview-locale"
-          size="sm"
-          [options]="localeOptions"
-          [value]="locale()"
-          (valueChange)="use($event)"
-        />
-      </div>
+    <div class="ngwr-translate-overview__switcher">
+      <span id="ngwr-translate-overview-locale">Switch the locale and every label below follows:</span>
+      <wr-segmented
+        aria-labelledby="ngwr-translate-overview-locale"
+        size="sm"
+        [options]="localeOptions"
+        [value]="locale()"
+        (valueChange)="use($event)"
+      />
     </div>
+
+    <ul class="ngwr-translate-overview__grid">
+      <li>
+        <wr-card compact>
+          <div class="ngwr-translate-overview__tile">
+            <code>wr-pagination</code>
+            <wr-pagination [total]="235" [(page)]="page" showTotal responsive />
+          </div>
+        </wr-card>
+      </li>
+      <li>
+        <wr-card compact>
+          <div class="ngwr-translate-overview__tile">
+            <code>wr-select</code>
+            <wr-select searchable [options]="formats" [(value)]="format" />
+          </div>
+        </wr-card>
+      </li>
+      <li>
+        <wr-card compact>
+          <div class="ngwr-translate-overview__tile">
+            <code>wr-form-field</code>
+            <wr-form-field [label]="'common.search' | wrT" optional>
+              <input wrInput type="search" />
+            </wr-form-field>
+          </div>
+        </wr-card>
+      </li>
+      <li>
+        <wr-card compact>
+          <div class="ngwr-translate-overview__tile">
+            <code>wr-file-upload</code>
+            <wr-file-upload />
+          </div>
+        </wr-card>
+      </li>
+      <li>
+        <wr-card compact>
+          <div class="ngwr-translate-overview__tile">
+            <code>wr-empty</code>
+            <wr-empty />
+          </div>
+        </wr-card>
+      </li>
+      <li>
+        <wr-card compact>
+          <div class="ngwr-translate-overview__tile">
+            <code>'app.hello' | wrT</code>
+            <p wrTypography variant="h4">{{ 'app.hello' | wrT: { name: 'Ada' } }}</p>
+          </div>
+        </wr-card>
+      </li>
+    </ul>
+
+    <p class="ngwr-translate-overview__note">
+      Dates and numbers follow <code>LOCALE_ID</code>, so this switch does not move them.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-see-also title="Sections" [links]="sections" />

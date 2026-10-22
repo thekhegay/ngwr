@@ -1,15 +1,59 @@
 .ngwr-translate-overview {
-  &__hero {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 1.5rem 0;
-  }
-
   &__switcher {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
+    gap: var(--wr-space-sm);
+    margin-bottom: var(--wr-space-lg);
+  }
+
+  // Three tiles a row on a desktop column, two on a tablet, one on a phone: six
+  // tiles divide evenly at every count, so no row is left half full.
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+    gap: var(--wr-space-md);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    // A grid item, so each card stretches to its row's height.
+    > li {
+      display: grid;
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  // The same tile as the typography overview's: the name as a chip on top, the
+  // demo under it, no header bar. The demos differ in height, so each one sits
+  // in the middle of the space its row leaves under the chip.
+  &__tile {
+    display: flex;
+    flex-direction: column;
+    gap: var(--wr-space-sm);
+    min-width: 0;
+    height: 100%;
+
+    > code {
+      align-self: flex-start;
+    }
+
+    > :last-child {
+      margin-block: auto;
+    }
+
+    // `wr-empty` claims its parent's whole height, which here would stack the
+    // chip's height on top of it and push it out of the card.
+    > wr-empty {
+      min-height: auto;
+    }
+  }
+
+  &__note {
+    margin: var(--wr-space-md) 0 0;
+    color: var(--wr-color-on-surface-muted);
+    font-size: var(--wr-text-sm);
   }
 }
