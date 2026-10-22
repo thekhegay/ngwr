@@ -7,7 +7,7 @@
 
 import { Directive, TemplateRef, inject } from '@angular/core';
 
-import type { SafeAny } from 'ngwr/utils/types';
+import type { SafeAny } from 'ngwr/utils';
 
 import type { WrOptionLeadingContext } from './types';
 
