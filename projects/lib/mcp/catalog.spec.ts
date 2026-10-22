@@ -137,6 +137,16 @@ describe('parseCatalog', () => {
     expect(entry.name).toBe('i18n/en');
   });
 
+  it('reads the root entry point, where provideWr() lives', () => {
+    const [entry] = parseCatalog(
+      ['## ngwr', "- import: `import { provideWr } from 'ngwr'`", '- exports: provideWr', '- One call.'].join('\n')
+    );
+
+    // Skipped as "not an entry point path" until v15 made it the one place
+    // app-wide configuration starts, so `provideWr` was unfindable.
+    expect(entry).toMatchObject({ path: 'ngwr', name: 'ngwr', exports: ['provideWr'], description: 'One call.' });
+  });
+
   it('takes the bullet with no `label:` prefix as the description', () => {
     const [entry] = parseCatalog(
       ['## ngwr/x', "- import: `import { X } from 'ngwr/x'`", '- Does a thing.', '- And keeps doing it.'].join('\n')
@@ -392,5 +402,72 @@ describe('Catalog', () => {
       expect(catalog.declarable('WrNotThere', 'ngwr/chip')).toBeNull();
       expect(catalog.declarable('WrChip', 'ngwr/no-such-entry')).toBeNull();
     });
+  });
+});
+
+describe('Catalog — v15 names', () => {
+  let root: string;
+
+  beforeAll(() => {
+    root = mkdtempSync(join(tmpdir(), 'ngwr-mcp-names-'));
+
+    writeFileSync(
+      join(root, 'llms-full.txt'),
+      [
+        '## ngwr',
+        "- import: `import { provideWr } from 'ngwr'`",
+        '- exports: provideWr',
+        '',
+        '## ngwr/bits/aurora',
+        "- import: `import { WrAurora } from 'ngwr/bits/aurora'`",
+        '- exports: WrAurora',
+        '',
+        '## ngwr/bits/aurora/testing',
+        "- import: `import { WrAuroraHarness } from 'ngwr/bits/aurora/testing'`",
+        '- exports: WrAuroraHarness',
+        '',
+        '## ngwr/loading-bar/router',
+        "- import: `import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router'`",
+        '- exports: provideWrLoadingBarRouter',
+        '',
+        '## ngwr/tabs/router',
+        "- import: `import { WrTabsRouting } from 'ngwr/tabs/router'`",
+        '- exports: WrTabsRouting',
+        '',
+      ].join('\n')
+    );
+    writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'ngwr', exports: { '.': {} } }));
+    mkdirSync(join(root, 'schematics', 'provider'), { recursive: true });
+    writeFileSync(
+      join(root, 'schematics', 'provider', 'schema.json'),
+      JSON.stringify({ properties: { name: { enum: ['icons', 'density', 42] } } })
+    );
+  });
+
+  afterAll(() => rmSync(root, { recursive: true, force: true }));
+
+  it('finds the root entry point by its name and by provideWr', () => {
+    const catalog = new Catalog(root);
+
+    expect(catalog.find('ngwr')).toMatchObject({ path: 'ngwr' });
+    expect(catalog.find('provideWr')).toMatchObject({ path: 'ngwr' });
+    // `@use 'ngwr'` does not resolve since v15: the root key has no `sass` condition.
+    expect(catalog.hasStyles('ngwr')).toBe(false);
+  });
+
+  it('lands a bare name from before v15 on the one nested entry point ending with it', () => {
+    const catalog = new Catalog(root);
+
+    // `aurora` was a whole path until v15; its harness is not what anyone means.
+    expect(catalog.find('aurora')).toMatchObject({ path: 'ngwr/bits/aurora' });
+    // Two entry points end in `/router`, so guessing either would be wrong half the time.
+    expect(catalog.find('router')).toBeNull();
+    // A partial path is not a bare name.
+    expect(catalog.find('x/aurora')).toBeNull();
+  });
+
+  it('reads the provider names the shipped schematic takes, strings only', () => {
+    expect(new Catalog(root).providerSchematics()).toEqual(['icons', 'density']);
+    expect(new Catalog(mkdtempSync(join(tmpdir(), 'ngwr-mcp-none-'))).providerSchematics()).toEqual([]);
   });
 });

@@ -5,7 +5,14 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { declaredClasses, extractClass, type ApiMember } from './api.js';
+import {
+  declaredClasses,
+  declaredFunctions,
+  extractClass,
+  extractFunction,
+  type ApiFunction,
+  type ApiMember,
+} from './api.js';
 import type { Catalog, CatalogEntry } from './catalog.js';
 import { REQUIRED_PROVIDERS } from './providers.js';
 
@@ -17,6 +24,9 @@ interface ToolSpec {
 }
 
 const DOCS = 'https://ngwr.dev';
+
+/** Said wherever a name is not found, since the likeliest reason is a name from an earlier major. */
+const MOVED = `A name from an earlier major may have moved or been removed: ${DOCS}/docs/migration.`;
 
 /**
  * The four tools, and why there are only four.
@@ -194,7 +204,7 @@ function search(catalog: Catalog, query: string, limit: number): string {
     .slice(0, Math.max(1, Math.min(limit || 10, 40)));
 
   if (scored.length === 0) {
-    return `Nothing in the ngwr catalog matches "${query}". The full list is ${DOCS}/llms.txt.`;
+    return `Nothing in the ngwr catalog matches "${query}". ${MOVED} The full list is ${DOCS}/llms-full.txt.`;
   }
 
   return scored
@@ -235,6 +245,9 @@ function component(catalog: Catalog, name: string): string {
 
   const declarations = catalog.types(entry.path);
   const classes = declarations ? declaredClasses(declarations).filter(symbol => entry.exports.includes(symbol)) : [];
+  const functions = declarations
+    ? declaredFunctions(declarations).filter(symbol => entry.exports.includes(symbol))
+    : [];
   const url = docsUrl(declarations, classes);
 
   return [
@@ -244,10 +257,12 @@ function component(catalog: Catalog, name: string): string {
     ...(entry.description ? [entry.description, ''] : []),
     entry.selectors.length > 0 ? `- selector: ${entry.selectors.join(', ')}` : null,
     `- import: ${entry.import}`,
-    // Only when there is one to load: 58 entry points ship no stylesheet.
+    // Only when there is one to load: about half the entry points ship none.
     catalog.hasStyles(entry.path) ? `- styles: @use '${entry.path}';` : null,
     `- exports: ${entry.exports.join(', ')}`,
     classes.length > 0 ? `- classes with an API: ${classes.join(', ')} (use get_ngwr_api)` : null,
+    // `provideWr()` and the `with*()` features: the configuration API is functions.
+    functions.length > 0 ? `- functions: ${functions.join(', ')} (use get_ngwr_api)` : null,
     // From the class's own `@see`, never guessed. Half the catalog — directives,
     // services, pipes, utils, every `*/testing` harness — has no page under
     // `/reference/components/`, and a link that 404s is worse than none.
@@ -279,6 +294,9 @@ function api(catalog: Catalog, symbol: string, kind: string): string {
 
   const found = extractClass(declarations, symbol);
   if (!found) {
+    const fn = extractFunction(declarations, symbol);
+    if (fn) return functionApi(fn, entry.path);
+
     return `${symbol} is not a class in ${entry.path}. It exports: ${entry.exports.join(', ')}.`;
   }
 
@@ -288,8 +306,8 @@ function api(catalog: Catalog, symbol: string, kind: string): string {
   return [
     `# ${found.name} — ${entry.path}`,
     '',
-    found.description,
-    '',
+    // A class with no summary answered with three blank lines.
+    ...(found.description ? [found.description, ''] : []),
     ...group(members, 'input'),
     ...group(members, 'model'),
     ...group(members, 'output'),
@@ -297,6 +315,26 @@ function api(catalog: Catalog, symbol: string, kind: string): string {
     ...group(members, 'property'),
     found.example ? `## Example\n${found.example}` : null,
     found.docs ? `Docs: ${found.docs}` : null,
+  ]
+    .filter(line => line !== null)
+    .join('\n');
+}
+
+/**
+ * A provider function or a feature: its doc and the signature a caller writes.
+ *
+ * `kind` does not apply — a function has no inputs or members to narrow to.
+ */
+function functionApi(fn: ApiFunction, path: string): string {
+  return [
+    `# ${fn.name} — ${path}`,
+    '',
+    ...(fn.description ? [fn.description, ''] : []),
+    '## signature',
+    fn.signature,
+    '',
+    fn.example ? `## Example\n${fn.example}` : null,
+    fn.docs ? `Docs: ${fn.docs}` : null,
   ]
     .filter(line => line !== null)
     .join('\n');
@@ -321,12 +359,20 @@ function group(members: readonly ApiMember[], kind: ApiMember['kind']): string[]
   ];
 }
 
+/**
+ * A symbol that goes in the app's `providers`, not in a component's `imports`:
+ * `provideWr()`, a `with*()` feature it carries, or a `provideWr*()` call.
+ */
+const CONFIG = /^(?:provide[A-Z]|with[A-Z])/;
+
 function setup(catalog: Catalog, symbols: readonly string[]): string {
   if (symbols.length === 0) return 'Name at least one symbol, e.g. ["WrSelect"].';
 
   const found = symbols.map(symbol => ({ symbol, entry: catalog.find(symbol) }));
   const missing = found.filter(hit => !hit.entry).map(hit => hit.symbol);
-  const resolved = found.filter((hit): hit is { symbol: string; entry: CatalogEntry } => hit.entry !== null);
+  const resolved = found.filter((hit): hit is Resolved => hit.entry !== null);
+  const wired = resolved.filter(hit => !CONFIG.test(hit.symbol));
+  const configured = resolved.filter(hit => CONFIG.test(hit.symbol));
 
   const providers = REQUIRED_PROVIDERS.filter(required => resolved.some(hit => required.test.test(hit.symbol)));
   // `ng g ngwr:use` refuses anything outside `schematics/use/symbol-map.json`
@@ -337,50 +383,103 @@ function setup(catalog: Catalog, symbols: readonly string[]): string {
   // type or a harness must never go into a component's `imports: []` anyway.
   const knows = catalog.symbolMap();
 
+  // One line per ENTRY POINT, not per symbol, and never the theme a second time.
+  // Sass refuses a second `@use` of one module, so `WrTabs` + `WrTab` printed a
+  // block that failed the build when pasted — and so did every sortable list,
+  // which always takes two symbols from one entry point. Only the entry points
+  // that ship a stylesheet: `@use 'ngwr/table/testing'` fails the build too.
+  const styled = [...new Set(resolved.map(hit => hit.entry.path))].filter(
+    path => path !== 'ngwr/theme' && catalog.hasStyles(path)
+  );
+
+  const sections: (readonly [string, readonly string[]])[] = [
+    ['Install', ['ng add ngwr', '(prompts for styles and density, and prints a bootstrap snippet)']],
+  ];
+
+  if (wired.length > 0) {
+    sections.push([
+      'Wire each symbol into the component that uses it',
+      [
+        ...wired.map(hit => {
+          // Two questions, and the schematic answers "no" to either one. It has to
+          // KNOW the symbol, and the symbol has to be declarable — `ng g ngwr:use`
+          // refuses a service or a token now rather than splicing it into an
+          // `imports: []` where it would not compile. `declarable()` reads the
+          // shipped `.d.ts`, so this needs no copy of that list.
+          const known = typeof knows[hit.symbol] === 'string';
+          const declarable = catalog.declarable(hit.symbol, hit.entry.path);
+
+          if (known && declarable !== false) {
+            return `ng g ngwr:use ${hit.symbol} --path src/app/some.component.ts   # ${hit.entry.path}`;
+          }
+
+          const why = known ? 'not a declarable — inject or call it' : 'ng g ngwr:use does not know this symbol';
+
+          return `import { ${hit.symbol} } from '${hit.entry.path}';   // by hand — ${why}`;
+        }),
+        '',
+        '`--path` is a NAMED option, not positional — passing it bare fails with `Unknown argument`.',
+      ],
+    ]);
+  }
+
+  sections.push([
+    'Styles',
+    [
+      // Required since v15, which has no umbrella sheet: a component whose line is
+      // missing renders unstyled, and nothing in the build or the console says so.
+      'In the global stylesheet, the theme first, then one line per entry point (without its line a component renders unstyled):',
+      "@use 'ngwr/theme';   // once, first: ng add already wrote it, and Sass refuses a second",
+      ...styled.map(path => `@use '${path}';`),
+    ],
+  ]);
+
+  const providerLines = [
+    ...configured.map(hit => configLine(catalog, hit)),
+    ...providers.map(required => `${required.provider}\n   why: ${required.why}`),
+  ];
+  if (providerLines.length > 0) sections.push(['Providers these need', providerLines]);
+
   return [
     '# Setting these up',
     '',
-    '## 1. Install',
-    'ng add ngwr',
-    '(prompts for styles and density, and prints a bootstrap snippet)',
-    '',
-    '## 2. Wire each symbol into the component that uses it',
-    ...resolved.map(hit => {
-      // Two questions, and the schematic answers "no" to either one. It has to
-      // KNOW the symbol, and the symbol has to be declarable — `ng g ngwr:use`
-      // refuses a service or a token now rather than splicing it into an
-      // `imports: []` where it would not compile. `declarable()` reads the
-      // shipped `.d.ts`, so this needs no copy of that list.
-      const known = typeof knows[hit.symbol] === 'string';
-      const declarable = catalog.declarable(hit.symbol, hit.entry.path);
-
-      if (known && declarable !== false) {
-        return `ng g ngwr:use ${hit.symbol} --path src/app/some.component.ts   # ${hit.entry.path}`;
-      }
-
-      const why = known ? 'not a declarable — inject or call it' : 'ng g ngwr:use does not know this symbol';
-
-      return `import { ${hit.symbol} } from '${hit.entry.path}';   // by hand — ${why}`;
-    }),
-    '',
-    '`--path` is a NAMED option, not positional — passing it bare fails with `Unknown argument`.',
-    '',
-    '## 3. Styles',
-    "@use 'ngwr/theme';   // the token layer, first — then per component:",
-    // Only the entry points that ship one. `component()` was fixed for this and
-    // `setup()` was missed — which is worse here, because this tool's entire
-    // output is commands to run, and `@use 'ngwr/table/testing'` fails the build.
-    ...resolved.filter(hit => catalog.hasStyles(hit.entry.path)).map(hit => `@use '${hit.entry.path}';`),
-    '',
-    ...(providers.length > 0
-      ? [
-          '## 4. Providers these need',
-          ...providers.map(required => `${required.provider}\n   why: ${required.why}`),
-          '',
-        ]
-      : []),
+    ...sections.flatMap(([title, lines], index) => [`## ${index + 1}. ${title}`, ...lines, '']),
     ...(missing.length > 0 ? [`Not in the catalog: ${missing.join(', ')}. Try search_ngwr.`] : []),
   ].join('\n');
+}
+
+interface Resolved {
+  readonly symbol: string;
+  readonly entry: CatalogEntry;
+}
+
+/**
+ * The line that puts a provider symbol in the app's `providers`.
+ *
+ * A `with*()` feature goes INSIDE `provideWr()` from the root entry point, and
+ * the old answer — a bare import, "by hand" — never said so. `ng g ngwr:provider`
+ * is offered when the installed schematic takes the name: its key is the
+ * symbol's suffix in kebab case, `withDensity` for `density` and
+ * `provideWrLoadingBarRouter` for `loading-bar-router`.
+ */
+function configLine(catalog: Catalog, hit: Resolved): string {
+  const { symbol } = hit;
+  const from = hit.entry.path;
+  const feature = symbol.startsWith('with');
+  const key = symbol
+    .replace(/^with|^provideWr/, '')
+    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+    .toLowerCase();
+
+  if (key && catalog.providerSchematics().includes(key)) {
+    const what = feature ? `${symbol}() inside provideWr() from 'ngwr'` : `${symbol}()`;
+    return `ng g ngwr:provider ${key}   # adds ${what} — ${from}`;
+  }
+
+  if (symbol === 'provideWr') return "provideWr(…)   // from 'ngwr' — every with*() feature goes inside this one call";
+  if (feature) return `provideWr(${symbol}(…))   // provideWr from 'ngwr', ${symbol} from '${from}'`;
+
+  return `${symbol}(…)   // from '${from}'`;
 }
 
 function notFound(catalog: Catalog, name: string): string {
@@ -392,7 +491,7 @@ function notFound(catalog: Catalog, name: string): string {
 
   return [
     `No ngwr entry point matches "${name}".`,
-    near.length > 0 ? `Close: ${near.join(', ')}.` : 'Use search_ngwr to find one.',
+    near.length > 0 ? `Close: ${near.join(', ')}.` : `Use search_ngwr to find one. ${MOVED}`,
   ].join(' ');
 }
 

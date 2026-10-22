@@ -308,8 +308,12 @@ describe('callTool — search_ngwr', () => {
   });
 
   it('says so, with somewhere to go next, when nothing matches', () => {
+    // The likeliest miss is a name an earlier major used — `markdown`, `media`,
+    // `drag-drop` — so the answer points at the migration guide, and at the
+    // full catalog rather than the short curated `llms.txt`.
     expect(callTool(catalog, 'search_ngwr', { query: 'kubernetes' })).toBe(
-      'Nothing in the ngwr catalog matches "kubernetes". The full list is https://ngwr.dev/llms.txt.'
+      'Nothing in the ngwr catalog matches "kubernetes". A name from an earlier major may have moved or been ' +
+        'removed: https://ngwr.dev/docs/migration. The full list is https://ngwr.dev/llms-full.txt.'
     );
   });
 });
@@ -372,7 +376,8 @@ describe('callTool — get_ngwr_component', () => {
       'No ngwr entry point matches "sel". Close: ngwr/select, ngwr/select/testing.'
     );
     expect(callTool(catalog, 'get_ngwr_component', { name: 'kubernetes' })).toBe(
-      'No ngwr entry point matches "kubernetes". Use search_ngwr to find one.'
+      'No ngwr entry point matches "kubernetes". Use search_ngwr to find one. A name from an earlier major ' +
+        'may have moved or been removed: https://ngwr.dev/docs/migration.'
     );
   });
 
@@ -474,7 +479,8 @@ describe('callTool — get_ngwr_api', () => {
 
   it('falls back to the not-found answer for an unknown symbol', () => {
     expect(callTool(catalog, 'get_ngwr_api', { symbol: 'WrKubernetes' })).toBe(
-      'No ngwr entry point matches "WrKubernetes". Use search_ngwr to find one.'
+      'No ngwr entry point matches "WrKubernetes". Use search_ngwr to find one. A name from an earlier major ' +
+        'may have moved or been removed: https://ngwr.dev/docs/migration.'
     );
   });
 });
@@ -497,7 +503,8 @@ describe('callTool — get_ngwr_setup', () => {
         '`--path` is a NAMED option, not positional — passing it bare fails with `Unknown argument`.',
         '',
         '## 3. Styles',
-        "@use 'ngwr/theme';   // the token layer, first — then per component:",
+        'In the global stylesheet, the theme first, then one line per entry point (without its line a component renders unstyled):',
+        "@use 'ngwr/theme';   // once, first: ng add already wrote it, and Sass refuses a second",
         "@use 'ngwr/badge';",
         '',
       ].join('\n')
@@ -575,6 +582,211 @@ describe('callTool — get_ngwr_setup', () => {
   it('asks for a symbol when given none', () => {
     expect(callTool(catalog, 'get_ngwr_setup', { symbols: [] })).toBe('Name at least one symbol, e.g. ["WrSelect"].');
     expect(callTool(catalog, 'get_ngwr_setup', {})).toBe('Name at least one symbol, e.g. ["WrSelect"].');
+  });
+});
+
+/**
+ * A second fixture, for what v15 changed: configuration through `provideWr()`
+ * from the ROOT entry point, charts and bits nested under `charts/` and `bits/`,
+ * two symbols from one entry point, and the `export declare class` shape that
+ * `@angular/build:library` writes. Separate from the first so the search counts
+ * and rankings pinned above keep meaning what they say.
+ */
+describe('callTool — v15 configuration and names', () => {
+  const V15_CATALOG = [
+    '# ngwr — full reference',
+    '',
+    '## ngwr',
+    "- import: `import { provideWr } from 'ngwr'`",
+    '- exports: provideWr',
+    '- App-wide configuration in one call.',
+    '',
+    '## ngwr/bits/aurora',
+    "- import: `import { WrAurora } from 'ngwr/bits/aurora'`",
+    '- selector: `wr-aurora`',
+    '- exports: WrAurora',
+    '',
+    '## ngwr/date',
+    "- import: `import { WrDateAdapter } from 'ngwr/date'`",
+    '- exports: WrDateAdapter, withDates',
+    '',
+    '## ngwr/density',
+    "- import: `import { WrDensity } from 'ngwr/density'`",
+    '- exports: WrDensity, withDensity',
+    '',
+    '## ngwr/loading-bar/router',
+    "- import: `import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router'`",
+    '- exports: provideWrLoadingBarRouter',
+    '',
+    '## ngwr/tabs',
+    "- import: `import { WrTabs } from 'ngwr/tabs'`",
+    '- selector: `wr-tabs`, `wr-tab`',
+    '- exports: WrTabs, WrTab',
+    '',
+    '## ngwr/tabs/router',
+    "- import: `import { WrTabsRouting } from 'ngwr/tabs/router'`",
+    '- exports: WrTabsRouting',
+    '',
+    '## ngwr/theme',
+    "- import: `import { WrTheme } from 'ngwr/theme'`",
+    '- exports: WrTheme, withTheme',
+    '',
+  ].join('\n');
+
+  // The shape the library build writes: `export declare`, with the doc above the
+  // `export`. Every fixture above uses a bare `declare class`, which is why the
+  // lost summaries went unnoticed.
+  const ROOT_TYPES = [
+    'import { EnvironmentProviders } from "@angular/core";',
+    '/**',
+    ' * App-wide ngwr configuration, in one call.',
+    ' *',
+    ' * @example',
+    ' * ```ts',
+    ' * provideWr(withDensity())',
+    ' * ```',
+    ' */',
+    'export declare function provideWr(...features: readonly WrFeature[]): EnvironmentProviders;',
+    '',
+  ].join('\n');
+
+  const TABS_TYPES = [
+    '/**',
+    ' * Tabbed navigation.',
+    ' *',
+    ' * @see https://ngwr.dev/reference/components/tabs',
+    ' */',
+    'export declare class WrTabs {',
+    '    /** The active tab. */',
+    '    readonly active: _angular_core.ModelSignal<number>;',
+    '    /** @internal */',
+    '    register(): void;',
+    '    static ɵfac: _angular_core.ɵɵFactoryDeclaration<WrTabs, never>;',
+    '    static ɵcmp: _angular_core.ɵɵComponentDeclaration<WrTabs, "wr-tabs", never, {}, {}, never, never, true, never>;',
+    '}',
+    '/** One tab. */',
+    'export declare class WrTab {',
+    '    static ɵfac: _angular_core.ɵɵFactoryDeclaration<WrTab, never>;',
+    '    static ɵcmp: _angular_core.ɵɵComponentDeclaration<WrTab, "wr-tab", never, {}, {}, never, never, true, never>;',
+    '}',
+    '',
+  ].join('\n');
+
+  let v15Root: string;
+  let v15: Catalog;
+
+  beforeAll(() => {
+    v15Root = mkdtempSync(join(tmpdir(), 'ngwr-mcp-v15-'));
+
+    writeFileSync(join(v15Root, 'llms-full.txt'), V15_CATALOG);
+    // The root key carries no `sass` condition since v15, and `ngwr/date` ships no sheet.
+    const exports = {
+      '.': { types: './types/ngwr.d.ts' },
+      './bits/aurora': { sass: './bits/aurora/styles/_index.scss' },
+      './date': { default: './fesm2022/ngwr-date.mjs' },
+      './density': { sass: './density/styles/_index.scss' },
+      './tabs': { sass: './tabs/styles/_index.scss' },
+      './theme': { sass: './theme/_index.scss' },
+    };
+    writeFileSync(join(v15Root, 'package.json'), JSON.stringify({ name: 'ngwr', exports }));
+    mkdirSync(join(v15Root, 'schematics', 'use'), { recursive: true });
+    writeFileSync(
+      join(v15Root, 'schematics', 'use', 'symbol-map.json'),
+      JSON.stringify({ WrAurora: 'ngwr/bits/aurora', WrTabs: 'ngwr/tabs', WrTab: 'ngwr/tabs', WrTheme: 'ngwr/theme' })
+    );
+    // The provider schematic's own schema, which says which names it takes.
+    mkdirSync(join(v15Root, 'schematics', 'provider'), { recursive: true });
+    writeFileSync(
+      join(v15Root, 'schematics', 'provider', 'schema.json'),
+      JSON.stringify({ properties: { name: { enum: ['icons', 'density', 'loading-bar-router'] } } })
+    );
+    mkdirSync(join(v15Root, 'types'), { recursive: true });
+    writeFileSync(join(v15Root, 'types', 'ngwr.d.ts'), ROOT_TYPES);
+    writeFileSync(join(v15Root, 'types', 'ngwr-tabs.d.ts'), TABS_TYPES);
+
+    v15 = new Catalog(v15Root);
+  });
+
+  afterAll(() => rmSync(v15Root, { recursive: true, force: true }));
+
+  const stylesOf = (answer: string): string[] => answer.split('\n').filter(line => line.startsWith('@use '));
+
+  it('prints one @use per entry point, however many of its symbols are named', () => {
+    // Sass refuses a second `@use` of one module, so two lines for `ngwr/tabs`
+    // made the pasted block fail the build.
+    expect(stylesOf(callTool(v15, 'get_ngwr_setup', { symbols: ['WrTabs', 'WrTab'] }))).toEqual([
+      "@use 'ngwr/theme';   // once, first: ng add already wrote it, and Sass refuses a second",
+      "@use 'ngwr/tabs';",
+    ]);
+  });
+
+  it('never prints the theme twice when a theme symbol is named', () => {
+    expect(stylesOf(callTool(v15, 'get_ngwr_setup', { symbols: ['WrTheme'] }))).toEqual([
+      "@use 'ngwr/theme';   // once, first: ng add already wrote it, and Sass refuses a second",
+    ]);
+  });
+
+  it('puts a feature inside provideWr(), through the schematic when it takes one', () => {
+    const answer = callTool(v15, 'get_ngwr_setup', {
+      symbols: ['withDensity', 'withDates', 'provideWrLoadingBarRouter'],
+    });
+
+    expect(answer).toContain(
+      "ng g ngwr:provider density   # adds withDensity() inside provideWr() from 'ngwr' — ngwr/density"
+    );
+    expect(answer).toContain("provideWr(withDates(…))   // provideWr from 'ngwr', withDates from 'ngwr/date'");
+    expect(answer).toContain(
+      'ng g ngwr:provider loading-bar-router   # adds provideWrLoadingBarRouter() — ngwr/loading-bar/router'
+    );
+    // A provider never goes in a component's `imports`, so there is nothing to wire.
+    expect(answer).not.toContain('Wire each symbol');
+    expect(answer).not.toContain('by hand');
+    expect(answer).toContain('## 3. Providers these need');
+  });
+
+  it('finds provideWr in the root entry point, by search and by name', () => {
+    expect(callTool(v15, 'search_ngwr', { query: 'provideWr' }).split('\n')[0]).toBe('## ngwr');
+    expect(callTool(v15, 'get_ngwr_setup', { symbols: ['provideWr'] })).toContain(
+      "provideWr(…)   // from 'ngwr' — every with*() feature goes inside this one call"
+    );
+    // The root ships no stylesheet, and `@use 'ngwr'` does not resolve.
+    const root = callTool(v15, 'get_ngwr_component', { name: 'ngwr' });
+    expect(root).not.toContain('- styles:');
+    expect(root).toContain('- functions: provideWr (use get_ngwr_api)');
+  });
+
+  it('answers a provider function with its doc and signature', () => {
+    expect(callTool(v15, 'get_ngwr_api', { symbol: 'provideWr' })).toBe(
+      [
+        '# provideWr — ngwr',
+        '',
+        'App-wide ngwr configuration, in one call.',
+        '',
+        '## signature',
+        'provideWr(...features: readonly WrFeature[]): EnvironmentProviders',
+        '',
+        '## Example\n```ts\nprovideWr(withDensity())\n```',
+      ].join('\n')
+    );
+  });
+
+  it('reads the doc above an exported class, and hides a one-line @internal', () => {
+    const api = callTool(v15, 'get_ngwr_api', { symbol: 'WrTabs' });
+
+    expect(api).toContain('Tabbed navigation.');
+    expect(api).toContain('Docs: https://ngwr.dev/reference/components/tabs');
+    expect(api).not.toContain('register');
+    expect(callTool(v15, 'get_ngwr_component', { name: 'tabs' })).toContain(
+      '- docs: https://ngwr.dev/reference/components/tabs'
+    );
+  });
+
+  it('resolves the bare name a nested entry point had before v15, and only when one matches', () => {
+    expect(callTool(v15, 'get_ngwr_component', { name: 'aurora' }).split('\n')[0]).toBe('# ngwr/bits/aurora');
+    // Two entry points end in `/router`, so neither is a guess worth making.
+    expect(callTool(v15, 'get_ngwr_component', { name: 'router' })).toBe(
+      'No ngwr entry point matches "router". Close: ngwr/loading-bar/router, ngwr/tabs/router.'
+    );
   });
 });
 
