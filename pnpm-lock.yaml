@@ -135,6 +135,9 @@ importers:
       lucide:
         specifier: ^1.59.0
         version: 1.59.0
+      ngtrue:
+        specifier: ^0.2.0
+        version: 0.2.0(@angular-devkit/schematics@22.2.3(chokidar@5.0.0))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(@angular/forms@22.2.3(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(@angular/platform-browser@22.2.3(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2)))(rxjs@7.8.2))(semver@7.8.5)(typescript@6.0.3)
       playwright:
         specifier: ^1.64.1
         version: 1.64.1
@@ -3488,6 +3491,27 @@ packages:
       typescript: '>=6.0 <6.1'
     peerDependenciesMeta:
       tailwindcss:
+        optional: true
+
+  ngtrue@0.2.0:
+    resolution: {integrity: sha512-ihuAVPTAIta2b2psXR1O2qdZf9Ze73L7Sj+GDjSqOVOb33FAItlWQ2tt+RTc5TA0wbpAVHX2IVQjTM5K3r+65Q==}
+    engines: {node: ^22.22.3 || ^24.15.0 || ^26.0.0}
+    peerDependencies:
+      '@angular-devkit/schematics': '>=22.0.0'
+      '@angular/core': '>=22.0.0'
+      '@angular/forms': '>=22.0.0'
+      semver: ^7.0.0
+      typescript: '>=5.4.0 <7.0.0'
+    peerDependenciesMeta:
+      '@angular-devkit/schematics':
+        optional: true
+      '@angular/core':
+        optional: true
+      '@angular/forms':
+        optional: true
+      semver:
+        optional: true
+      typescript:
         optional: true
 
   ngx-mask@22.2.5:
@@ -7436,6 +7460,14 @@ snapshots:
       - supports-color
       - vue-tsc
     optional: true
+
+  ngtrue@0.2.0(@angular-devkit/schematics@22.2.3(chokidar@5.0.0))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(@angular/forms@22.2.3(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(@angular/platform-browser@22.2.3(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2)))(rxjs@7.8.2))(semver@7.8.5)(typescript@6.0.3):
+    optionalDependencies:
+      '@angular-devkit/schematics': 22.2.3(chokidar@5.0.0)
+      '@angular/core': 22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2)
+      '@angular/forms': 22.2.3(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(@angular/platform-browser@22.2.3(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2)))(rxjs@7.8.2)
+      semver: 7.8.5
+      typescript: 6.0.3
 
   ngx-mask@22.2.5(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(@angular/forms@22.2.3(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(@angular/platform-browser@22.2.3(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2)))(rxjs@7.8.2)):
     dependencies:

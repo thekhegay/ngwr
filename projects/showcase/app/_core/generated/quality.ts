@@ -43,10 +43,10 @@ export const QUALITY = {
   directives: 38,
 
   /** `*.spec.ts` files under `projects/lib`, harness specs included. They sit beside the code they cover, and `tsconfig.lib.json` excludes them from the package. */
-  specFiles: 268,
+  specFiles: 269,
 
   /** Test cases those files DECLARE — `it(…)` / `test(…)` call sites, counted after comments and string bodies are stripped. */
-  testCases: 4946,
+  testCases: 4950,
 
   /** Whether `testCases` is a total or a floor. A parameterised form (`it.each`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page says "at least" rather than failing a documentation build over a legal spec. */
   testCasesAreExact: false,
@@ -82,6 +82,7 @@ export const QUALITY = {
     { name: "check:api-docs", command: "tsx scripts/gen/api-docs.ts --check" },
     { name: "check:css-vars", command: "tsx scripts/gen/css-vars.ts --check" },
     { name: "build:lib", command: "tsx scripts/build/lib.ts" },
+    { name: "check:package", command: "tsx scripts/check/package.ts" },
     { name: "build:showcase", command: "tsx scripts/build/showcase.ts" },
   ],
 

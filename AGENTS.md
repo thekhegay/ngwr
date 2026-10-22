@@ -128,8 +128,10 @@ Public types live in each entry point's
 too — the token file holds the `InjectionToken`, its contract lives beside every
 other type the entry point publishes. The folder was `interfaces/` until v15 and
 the name was a lie in most of them: what it holds is unions and aliases as often
-as it is an `interface`. Cross-cutting types live in `ngwr/utils/types`
-(e.g. `Maybe`, `SafeAny`).
+as it is an `interface`. Cross-cutting types (e.g. `Maybe`, `SafeAny`) live in
+`projects/lib/utils/types/` and are imported from `ngwr/utils` — never from
+`ngwr/utils/types`, which resolves inside the repo through the path alias and
+is not an entry point, so a consumer's compiler cannot follow it.
 
 ## Cross-cutting systems
 
@@ -653,9 +655,9 @@ spec on `wr-table` says nothing about tree rows unless it exercises them.
 vitest's `-t`, so `--filter dialog` silently runs the handful of tests whose
 NAMES contain "dialog" and reports green. To run one file, pass its path to the
 builder's `include`; to be sure of a change, run the whole suite — it is
-seconds. **`pnpm lint`, `pnpm test`, the two builds, `check:api-docs` and
-`check:css-vars` are the PR gates** (see Three tiers), and a green run still
-does not mean a component behaves — the suite is broad now but shallow in places (see above).
+seconds. **`pnpm lint`, `pnpm test`, the two builds, `check:api-docs`,
+`check:css-vars` and `check:package` are the PR gates** (see Three tiers), and
+a green run still does not mean a component behaves — the suite is broad now but shallow in places (see above).
 
 **Deferred DOM work needs `afterNextRender`, not `queueMicrotask`.** Under
 zoneless CD the scheduler runs change detection in a MACROTASK, so a microtask
@@ -860,7 +862,7 @@ are value-set identities, and no binding changes.
 
 | Tier    | Workflow                                     | Runs                                                                                              |
 | ------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| PR      | `ci.yml`, every PR and push to `main`        | `lint`, `test`, `check:api-docs`, `check:css-vars`, `build:lib`, `build:showcase`                 |
+| PR      | `ci.yml`, every PR and push to `main`        | `lint`, `test`, `check:api-docs`, `check:css-vars`, `build:lib`, `check:package`, `build:showcase` |
 | Nightly | `nightly.yml`, 20:00 UTC                     | `build:showcase` once, then `check:a11y`, `check:contrast`, `check:state-a11y`, `check:layout` and `check:rtl-layout` on its `dist/showcase`; `test` + `build:lib` on Node 22 and 24 |
 | Release | `release.yml`, before it cuts the release PR | `pnpm check:release`: the PR set plus the five site checks                                        |
 
@@ -875,6 +877,18 @@ Chromium needed; the Node 22 / 24 job has no local twin) — not to be confused 
 `pnpm lint` + `pnpm build:lib` before it ships. Commit subjects are checked by
 the commitlint `commit-msg` hook; PR titles are not, since a rebase merge
 never puts one in the history.
+
+**[ngtrue](https://ngtrue.khegay.dev) checks the controls and the package.** It
+is a dev dependency with two halves here. `form/signal-forms-conformance.spec.ts`
+runs `assertSignalFormsControl` from `ngtrue/testing` on every public Signal
+Forms control, a fresh fixture each, and fails when a control the source
+declares is missing from its table (the Forms grep, `internal/` left out).
+`pnpm check:package` (`scripts/check/package.ts`) runs the seven `ngtrue/node`
+packaging checks after `build:lib`: six read `dist/lib`, and
+`peerDependencyMismatches` reads `projects/lib`, since it scans imports. The
+acknowledgments sit in that script with their reason — the `./i18n/*.json` and
+`./schematics/*` wildcards, which no check can probe, and `WrSortableItem`'s
+`CdkDrag` — and one that stops matching fails the run like a finding.
 
 ## Conventions
 
