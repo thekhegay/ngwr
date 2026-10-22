@@ -85,8 +85,18 @@
     // No inline padding: `min-width` below is the hit area, and 8px a side left
     // the chevron 8px of a 24px box to draw in.
     padding: 0;
-    flex: 1 1 50%;
+    // Halves of whatever height the FIELD gives the column, and nothing of their
+    // own: a 50% basis of an auto-height column falls back to the content, so the
+    // two glyph boxes summed to a floor of their own (28px at `md`) and the group
+    // came out 30px under `sm` density, where the input and the select beside it
+    // are 26.4px. A zero basis contributes nothing, so the column is exactly as
+    // tall as the input's density-scaled padding makes the row.
+    flex: 1 1 0;
     min-height: 0;
+    // At `sm` density a half is shorter than the glyph's square box. The chevron
+    // is the middle quarter of that box and stays whole; the empty margin is
+    // clipped rather than laid over the other half's hit area.
+    overflow: hidden;
     min-width: 1.5rem;
     display: inline-flex;
     align-items: center;

@@ -250,7 +250,12 @@ export class WrInputOtp implements FormValueControl<string> {
       target.value = this.cells()[index] ?? '';
       return;
     }
-    const char = this.sanitiseChar(target.value.slice(-1));
+    // The character just typed is the one before the caret, not the last one in the
+    // box: typing into a filled box puts the new character beside the old, and where
+    // depends on the caret — WebKit put it in FRONT, so `slice(-1)` kept the old one.
+    const caret = target.selectionStart;
+    const typed = caret ? target.value.slice(caret - 1, caret) : target.value.slice(-1);
+    const char = this.sanitiseChar(typed);
     target.value = char;
     this.update(index, char);
     if (char) this.focusCell(index + 1);
@@ -323,6 +328,17 @@ export class WrInputOtp implements FormValueControl<string> {
     afterNextRender(() => this.focusCell(Math.min(trimmed.length, this.length() - 1)), {
       injector: this.injector,
     });
+  }
+
+  /**
+   * A click selects the box's character, the way Tab into it already does, so the
+   * next keystroke replaces it. Left with the caret beside it, `maxlength="1"` made
+   * the browser refuse the keystroke outright — the box kept its digit and nothing
+   * said why. On `click` rather than `focus`, because the browser places the caret
+   * at the pointer after focusing, which would undo a select made on focus.
+   */
+  protected onClick(event: MouseEvent): void {
+    (event.target as HTMLInputElement).select();
   }
 
   protected onBlur(): void {

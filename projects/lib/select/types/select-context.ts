@@ -56,6 +56,11 @@ export interface WrSelectContext {
    * of `<wr-select>` — or `null`. An option with a template of its own ignores it.
    */
   readonly optionLeading: Signal<TemplateRef<WrOptionLeadingContext> | null>;
+  /**
+   * Whether a multi select already holds `maxItems`: an option it does not hold
+   * cannot be added, and marks itself unavailable.
+   */
+  readonly atMaxItems: Signal<boolean>;
   /** Is the given option value currently selected? Handles both single and multi. */
   isSelected(value: unknown): boolean;
   /**

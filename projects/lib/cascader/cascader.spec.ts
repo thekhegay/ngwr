@@ -3,7 +3,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormField, form } from '@angular/forms/signals';
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrCascader } from './cascader';
 import type { WrCascaderOption } from './types';
@@ -236,6 +236,117 @@ describe('WrCascader', () => {
       press('ArrowDown', { altKey: true });
       await fixture.whenStable();
       expect(panel()).not.toBeNull();
+    });
+
+    it('closes and leaves from the trigger on Tab past the last stop', async () => {
+      // The pane sits at the end of `<body>`, so the browser's Tab out of the last
+      // option went to the top of the page with the panel still open. jsdom lays
+      // nothing out (every stop but the focused one would be dropped) and has no Tab
+      // of its own, so this asserts where focus stands when the browser's Tab runs.
+      vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
+      try {
+        await openAndSettle();
+        optionFor('Antarctica')!.focus();
+
+        const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+        document.activeElement!.dispatchEvent(event);
+        fixture.detectChanges();
+
+        expect(event.defaultPrevented).toBe(false);
+        expect(panel()).toBeNull();
+        expect(document.activeElement).toBe(trigger());
+      } finally {
+        vi.restoreAllMocks();
+      }
+    });
+
+    describe('the tree keys inside the panel', () => {
+      // Sent to whatever holds focus, never to an option picked by hand — or a
+      // panel that ignored the keys would pass by moving nothing.
+      const key = (k: string): KeyboardEvent => {
+        const event = new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true });
+        document.activeElement!.dispatchEvent(event);
+        fixture.detectChanges();
+        return event;
+      };
+      const focused = (): string | undefined => document.activeElement?.textContent?.trim();
+
+      it('moves within a column on Up / Down and to its ends on Home / End', async () => {
+        await openAndSettle();
+        expect(focused()).toBe('Europe');
+
+        expect(key('ArrowDown').defaultPrevented).toBe(true);
+        expect(focused()).toBe('Asia');
+        key('ArrowDown');
+        expect(focused()).toBe('Antarctica');
+        // A tree does not wrap.
+        key('ArrowDown');
+        expect(focused()).toBe('Antarctica');
+        key('Home');
+        expect(focused()).toBe('Europe');
+        key('ArrowUp');
+        expect(focused()).toBe('Europe');
+        key('End');
+        expect(focused()).toBe('Antarctica');
+      });
+
+      it('opens a branch and steps into it on ArrowRight, and back out on ArrowLeft', async () => {
+        await openAndSettle();
+
+        key('ArrowRight');
+        await fixture.whenStable();
+        expect(columns()).toHaveLength(2);
+        expect(focused()).toBe('Germany');
+        expect(optionFor('Europe')!.getAttribute('aria-expanded')).toBe('true');
+        // Navigation, not a choice.
+        expect(picked()).toEqual([]);
+
+        key('ArrowRight');
+        await fixture.whenStable();
+        expect(focused()).toBe('Berlin');
+
+        key('ArrowLeft');
+        expect(focused()).toBe('Germany');
+        key('ArrowLeft');
+        expect(focused()).toBe('Europe');
+        // From a root, the inline-start arrow closes the column it opened.
+        key('ArrowLeft');
+        expect(columns()).toHaveLength(1);
+      });
+
+      it('skips a disabled option and never steps into its children', async () => {
+        await openAndSettle();
+        key('ArrowDown');
+        key('ArrowRight');
+        await fixture.whenStable();
+
+        // Japan is the only child of Asia, and it is disabled.
+        expect(focused()).toBe('Asia');
+        optionFor('Asia')!.focus();
+        key('ArrowDown');
+        expect(focused()).toBe('Antarctica');
+      });
+
+      it('commits on Space without scrolling the page under the panel', async () => {
+        await openAndSettle();
+        key('End');
+
+        const event = key(' ');
+
+        expect(event.defaultPrevented).toBe(true);
+        expect(picked()).toEqual(['an']);
+      });
+
+      it('mirrors the inline arrows under RTL', async () => {
+        TestBed.inject(Directionality).valueSignal.set('rtl');
+        await openAndSettle();
+
+        key('ArrowLeft');
+        await fixture.whenStable();
+        expect(focused()).toBe('Germany');
+        key('ArrowRight');
+        expect(focused()).toBe('Europe');
+      });
     });
 
     it('leaves a key it does not own to the page', () => {

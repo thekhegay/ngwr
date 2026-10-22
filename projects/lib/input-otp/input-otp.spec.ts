@@ -96,6 +96,38 @@ describe('WrInputOtp', () => {
     expect(document.activeElement).toBe(boxes()[3]);
   });
 
+  it('selects a filled box that is clicked, so the next keystroke replaces it', () => {
+    fixture.componentInstance.code.set('123456');
+    fixture.detectChanges();
+    const third = boxes()[2];
+    third.focus();
+    third.setSelectionRange(1, 1);
+
+    // A click leaves the caret beside the character, and with `maxlength="1"` the
+    // browser then refused the keystroke outright — the box kept its old digit.
+    third.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect([third.selectionStart, third.selectionEnd]).toEqual([0, 1]);
+  });
+
+  it('takes the character just typed, wherever the caret put it in a filled box', () => {
+    fixture.componentInstance.code.set('123456');
+    fixture.detectChanges();
+    const third = boxes()[2];
+    third.focus();
+
+    // WebKit put the new character IN FRONT of the old one, and `slice(-1)` kept
+    // the old one — then walked focus on as if the edit had landed.
+    third.value = '93';
+    third.setSelectionRange(1, 1);
+    third.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(code()).toBe('129456');
+    expect(document.activeElement).toBe(boxes()[3]);
+  });
+
   it('does not walk past the last box', () => {
     for (let i = 0; i < 6; i++) typeInto(i, String(i + 1));
 

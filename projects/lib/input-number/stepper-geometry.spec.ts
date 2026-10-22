@@ -1,3 +1,6 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -49,5 +52,33 @@ describe('WrInputNumber stepper geometry, in the rendered DOM', () => {
       // The mark itself, so a change of glyph cannot pass as a change of size.
       expect(glyphs[0].querySelector('path')?.getAttribute('d')).toMatch(/^m(18 15-6-6-6 6|6 9 6 6 6-6)$/);
     }
+  });
+});
+
+/**
+ * What makes the field as tall as an input or a select beside it, held against the
+ * COMPILED sheet, since jsdom lays nothing out. Measured in Chromium against both
+ * neighbours: every size, square and pill, under all four density presets, to the
+ * hundredth of a pixel. `sass` is resolved through `@angular/build`, as
+ * `theme/sass-entry.spec.ts` does.
+ */
+describe('WrInputNumber stepper column height', () => {
+  it('gives the step buttons no height of their own, so the density-scaled input sets the row', () => {
+    const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
+      compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+    };
+    const css = sass.compileString(`@use 'input-number/styles';`, {
+      loadPaths: [join(process.cwd(), 'projects/lib')],
+      style: 'expanded',
+    }).css;
+    const step = /(?:^|\n)\.wr-input-number__step\s*\{([^}]*)\}/.exec(css)?.[1] ?? '';
+
+    // A 50% basis of an auto-height column falls back to the content, and the two glyph
+    // boxes summed to 28px: under `sm` density the group was 30px beside a 26.4px input
+    // and select, and an `sm` field 26px beside 22px at every density.
+    expect(step).toMatch(/flex: 1 1 0;/);
+    expect(step).toMatch(/min-height: 0;/);
+    // A half shorter than the glyph's box clips the empty margin, not the chevron.
+    expect(step).toMatch(/overflow: hidden;/);
   });
 });

@@ -37,6 +37,39 @@ function resolveSeparators(locale: string): { decimal: string; group: string } {
 }
 
 /**
+ * The ten digits `locale` writes, index 0 to 9 — empty when the system is
+ * algorithmic. ar-EG prints `١٬٢٣٤٫٥`, and `Number()` reads none of those digits,
+ * so an edit to the field's own display could never commit. A copy of the time
+ * panel's helper in `ngwr/date-picker`, kept a copy for the reason given there.
+ */
+function resolveNumerals(locale: string): readonly string[] {
+  try {
+    const formatter = new Intl.NumberFormat(locale, { useGrouping: false });
+    const digits: string[] = [];
+    for (let i = 0; i < 10; i++) {
+      const digit = formatter.format(i);
+      if ([...digit].length !== 1 || digits.includes(digit)) return [];
+      digits.push(digit);
+    }
+    return digits;
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Characters a user types for a separator the locale prints as something else:
+ * a keyboard sends a plain space where ru / uk / kk group with U+00A0 and fr with
+ * U+202F, and a plain apostrophe where de-CH groups with U+2019.
+ */
+function groupPattern(group: string): RegExp | null {
+  if (!group) return null;
+  if (/\s/.test(group)) return /\s/g;
+  if (/['\u2019]/.test(group)) return /['\u2019]/g;
+  return new RegExp(group.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+}
+
+/**
  * Numeric input with locale-aware formatting + ▲▼ stepper buttons.
  *
  * A signal-forms native control: it implements `FormValueControl<number | null>`,
@@ -174,6 +207,8 @@ export class WrInputNumber implements FormValueControl<number | null> {
 
   private readonly locale = inject(LOCALE_ID);
   private readonly separators = resolveSeparators(this.locale);
+  private readonly numerals = resolveNumerals(this.locale);
+  private readonly group = groupPattern(this.separators.group);
 
   /** Text currently in the input (may be partial / invalid mid-type). */
   protected readonly text = signal<string>('');
@@ -357,10 +392,20 @@ export class WrInputNumber implements FormValueControl<number | null> {
   private parse(raw: string): number | null {
     const trimmed = raw.trim();
     if (!trimmed) return null;
+    // The locale's own digits to ASCII, its minus sign (U+2212 in sv, fi, …) to a
+    // hyphen, and the bidi marks it puts around a negative number dropped — every one
+    // of them is in the text this field formats, and `Number()` reads none of them.
+    let normalised = [...trimmed]
+      .map(ch => {
+        const digit = this.numerals.indexOf(ch);
+        return digit < 0 ? ch : String(digit);
+      })
+      .join('')
+      .replace(/[\u200e\u200f\u061c]/g, '')
+      .replace(/\u2212/g, '-');
     // Strip group separators, normalise the decimal separator to `.`.
-    let normalised = trimmed;
-    if (this.separators.group) {
-      normalised = normalised.split(this.separators.group).join('');
+    if (this.group) {
+      normalised = normalised.replace(this.group, '');
     }
     if (this.separators.decimal !== '.') {
       normalised = normalised.split(this.separators.decimal).join('.');

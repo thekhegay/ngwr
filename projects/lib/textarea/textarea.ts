@@ -312,16 +312,24 @@ export class WrTextarea implements FormValueControl<string> {
     if (!this.autosize()) return;
     el.style.height = 'auto';
 
+    // `scrollHeight` is the content PLUS the vertical padding, and the height it is
+    // turned into has to be in the box the field is sized by. The cap was the rows
+    // alone, compared against that padded figure — so `maxRows="6"` on a field with
+    // 8px of padding a side stopped at 5.2 rows, the top one half cut off.
+    const cs = getComputedStyle(el);
+    const paddingY = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
+    const borderY = (parseFloat(cs.borderTopWidth) || 0) + (parseFloat(cs.borderBottomWidth) || 0);
+    const toHeight = (scroll: number): number =>
+      cs.boxSizing === 'border-box' ? scroll + borderY : Math.max(0, scroll - paddingY);
+
     const maxRows = this.maxRows();
     if (maxRows && maxRows > 0) {
-      const cs = getComputedStyle(el);
       const lineHeight = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2;
-      const cap = lineHeight * maxRows;
-      const next = Math.min(el.scrollHeight, cap);
-      el.style.height = `${next}px`;
+      const cap = lineHeight * maxRows + paddingY;
+      el.style.height = `${toHeight(Math.min(el.scrollHeight, cap))}px`;
       el.style.overflowY = el.scrollHeight > cap ? 'auto' : 'hidden';
     } else {
-      el.style.height = `${el.scrollHeight}px`;
+      el.style.height = `${toHeight(el.scrollHeight)}px`;
       el.style.overflowY = 'hidden';
     }
   }

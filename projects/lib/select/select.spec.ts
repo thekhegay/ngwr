@@ -36,7 +36,7 @@ class Host {
 @Component({
   imports: [WrSelect, WrOption],
   template: `
-    <wr-select mode="multi" placeholder="Pick sizes" ariaLabel="Sizes" [(value)]="sizes">
+    <wr-select mode="multi" placeholder="Pick sizes" ariaLabel="Sizes" [maxItems]="maxItems()" [(value)]="sizes">
       <wr-option value="sm">Small</wr-option>
       <wr-option value="md">Medium</wr-option>
       <wr-option value="lg">Large</wr-option>
@@ -45,6 +45,7 @@ class Host {
 })
 class MultiHost {
   readonly sizes = signal<unknown>([]);
+  readonly maxItems = signal(0);
 }
 
 @Component({
@@ -545,6 +546,26 @@ describe('WrSelect in multi mode', () => {
   });
 
   afterEach(() => fixture.destroy());
+
+  it('says which options it can no longer add once it holds maxItems', () => {
+    // They used to look and announce as choosable, then ignore the click or Enter
+    // with nothing on screen or in the accessibility tree to say why.
+    fixture.componentInstance.maxItems.set(2);
+    fixture.detectChanges();
+    open();
+    choose(0);
+    choose(1);
+
+    const unavailable = (el: HTMLElement): boolean =>
+      el.getAttribute('aria-disabled') === 'true' && el.classList.contains('wr-option--disabled');
+    expect(options().map(unavailable)).toEqual([false, false, true]);
+    choose(2);
+    expect(picked()).toEqual(['sm', 'md']);
+
+    // Removing one frees the rest again.
+    choose(0);
+    expect(options().map(unavailable)).toEqual([false, false, false]);
+  });
 
   it('announces that several options may be chosen', () => {
     open();

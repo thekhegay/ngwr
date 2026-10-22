@@ -397,6 +397,49 @@ describe('WrColorPicker', () => {
 
       expect(value().toLowerCase()).toBe('#ff880080');
     });
+
+    it('ignores a box emptied mid-retype rather than committing zero', () => {
+      // `Number('')` is 0, so clearing a box to retype it committed black — or, for
+      // the alpha box, a fully transparent colour.
+      tab('HSL');
+      const [, , l, a] = fields();
+      l.value = '';
+      l.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+      expect(value()).toBe('#ff8800');
+
+      a.value = '';
+      a.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+      expect(value()).toBe('#ff8800');
+    });
+
+    it('keeps hue and saturation through a lightness of zero', () => {
+      // HSL re-derived from RGB has no hue or saturation at black, so retyping L as
+      // `0` and then `60` turned an orange into grey for good.
+      tab('HSL');
+      const l = fields()[2];
+      for (const typed of ['0', '6', '60']) {
+        l.value = typed;
+        l.dispatchEvent(new Event('input'));
+        fixture.detectChanges();
+      }
+
+      expect(fields().map(f => f.value)).toEqual(['32', '100', '60', '100']);
+      expect(value().toLowerCase()).toBe('#ffa033ff');
+    });
+
+    it('keeps the hue through a saturation of zero', () => {
+      tab('HSL');
+      const s = fields()[1];
+      for (const typed of ['0', '1', '10']) {
+        s.value = typed;
+        s.dispatchEvent(new Event('input'));
+        fixture.detectChanges();
+      }
+
+      expect(fields().map(f => f.value)).toEqual(['32', '10', '50', '100']);
+    });
   });
 
   /**

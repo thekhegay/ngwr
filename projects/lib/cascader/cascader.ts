@@ -34,11 +34,31 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { toClassList, type WrClassInput } from 'ngwr/utils';
+import { getFocusableElements, toClassList, type WrClassInput } from 'ngwr/utils';
 
 import type { WrCascaderOption } from './types';
 
 let panelUid = 0;
+
+/**
+ * Whether a keydown is a Tab that takes focus out past either end of the open
+ * panel. The pane lives in the overlay container at the end of `<body>`, so the
+ * browser's own Tab out of its last stop went to `<body>` — the top of the page —
+ * with the panel left standing. The caller focuses the trigger synchronously and
+ * does NOT `preventDefault`, so the browser's Tab carries on from there to the
+ * trigger's real neighbour — the move `wr-dropdown` makes for its menu. The same
+ * check lives beside `wr-date-picker`, which cannot share it across entry points.
+ */
+function tabLeavesPane(pane: HTMLElement, event: KeyboardEvent): boolean {
+  if (event.key !== 'Tab' || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return false;
+  const active = pane.ownerDocument.activeElement;
+  if (!active || !pane.contains(active)) return false;
+  const all = getFocusableElements(pane);
+  const at = all.indexOf(active as HTMLElement);
+  if (at < 0) return false;
+  const beyond = event.shiftKey ? all.slice(0, at) : all.slice(at + 1);
+  return !beyond.some(el => el.tabIndex >= 0);
+}
 
 /**
  * Multi-level select — drills down through hierarchical categories
@@ -371,6 +391,74 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     }
   }
 
+  /**
+   * The tree keys the panel's roles promise, per the APG tree pattern: Up / Down
+   * within a column, Home / End to its ends, the inline-end arrow into a branch's
+   * children — opening the next column on the way — and the inline-start arrow back
+   * to the option the column belongs to, or, from a root, closing the column it
+   * opened. Enter and Space stay the commit. Every option is still its own tab stop
+   * (see the spec), so these add to Tab rather than replace it.
+   */
+  protected onOptionKeydown(colIndex: number, opt: WrCascaderOption<T>, event: KeyboardEvent): void {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    const current = event.currentTarget as HTMLElement;
+    const column = current.closest<HTMLElement>('[role="group"]');
+    if (!column) return;
+    const rtl = this.dir?.value === 'rtl';
+    const inward = rtl ? 'ArrowLeft' : 'ArrowRight';
+    const outward = rtl ? 'ArrowRight' : 'ArrowLeft';
+    const enabled = [...column.querySelectorAll<HTMLElement>('[role="treeitem"]')].filter(
+      o => o.getAttribute('aria-disabled') !== 'true'
+    );
+    const at = enabled.indexOf(current);
+
+    switch (event.key) {
+      case 'ArrowDown':
+        enabled[at + 1]?.focus();
+        break;
+      case 'ArrowUp':
+        if (at > 0) enabled[at - 1].focus();
+        break;
+      case 'Home':
+        enabled[0]?.focus();
+        break;
+      case 'End':
+        enabled[enabled.length - 1]?.focus();
+        break;
+      case inward: {
+        if (opt.disabled || !opt.children?.length || this.disabled() || this.readonly()) break;
+        this.activePath.set([...this.activePath().slice(0, colIndex), opt.value]);
+        // The column is not in the DOM until the render this write schedules.
+        afterNextRender(
+          () =>
+            this.overlayRef?.overlayElement
+              .querySelector<HTMLElement>(
+                `#${this.columnId(colIndex + 1)} [role="treeitem"]:not([aria-disabled="true"])`
+              )
+              ?.focus(),
+          { injector: this.injector }
+        );
+        break;
+      }
+      case outward: {
+        if (colIndex > 0) {
+          const parent = this.parentOptionId(colIndex);
+          if (parent) this.overlayRef?.overlayElement.querySelector<HTMLElement>(`#${parent}`)?.focus();
+        } else if (opt.children?.length && this.isActiveAt(colIndex, opt.value)) {
+          this.activePath.set([]);
+        }
+        break;
+      }
+      case ' ':
+        // The commit is `(keydown.space)`'s; the page scrolling a screen under the
+        // panel is the browser's, and it went with every Space on an option.
+        break;
+      default:
+        return;
+    }
+    event.preventDefault();
+  }
+
   protected clearSelection(event: Event): void {
     event.stopPropagation();
     if (this.disabled() || this.readonly()) return;
@@ -488,6 +576,11 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
       .subscribe(event => {
         if (event.key === 'Escape') {
           event.preventDefault();
+          this.open.set(false);
+          return;
+        }
+        if (this.overlayRef && tabLeavesPane(this.overlayRef.overlayElement, event)) {
+          this.host.nativeElement.querySelector<HTMLElement>('.wr-cascader__trigger')?.focus();
           this.open.set(false);
         }
       });

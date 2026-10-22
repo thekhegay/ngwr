@@ -519,8 +519,9 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   readonly panelClass = input<WrClassInput>(null);
 
   /**
-   * Cap on selected items (multi mode). `0` = unlimited. Once reached,
-   * additional clicks on unselected options are ignored. @default 0
+   * Cap on selected items (multi mode). `0` = unlimited. Once reached, the
+   * unselected options are marked unavailable — `aria-disabled` and the
+   * disabled look — and refuse a pick until one is removed. @default 0
    */
   readonly maxItems = input(0, {
     transform: (v: unknown): number => Math.max(0, Number(v) || 0),
@@ -1512,6 +1513,14 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     const cap = this.maxItems();
     return cap > 0 && this.asArray(this.value()).length >= cap;
   });
+
+  /**
+   * Whether a multi select already holds `maxItems`, so an option it does not
+   * hold cannot be added. The options read it to say so: they used to look and
+   * announce as choosable and then ignore the click or Enter in silence.
+   * @internal
+   */
+  readonly atMaxItems = computed(() => this.isMulti() && this.atCapacity());
 
   protected onTagInput(event: Event): void {
     if (this.isDisabled() || this.isReadonly()) return;

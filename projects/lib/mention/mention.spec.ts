@@ -245,6 +245,24 @@ describe('WrMention', () => {
       expect(activeOption()!.textContent.trim()).toBe(first);
     });
 
+    it('keeps the first option when the panel opens under a pointer that has not moved', () => {
+      // The browser fires `mouseenter` for an element that appears under a still
+      // pointer, and the panel opens under the caret — where a pointer resting in the
+      // field usually is. The option under it took the highlight, and Enter inserted
+      // that person instead of the first.
+      type('hey @');
+      const options = [...document.querySelectorAll<HTMLElement>('[role="option"]')];
+      options[3].dispatchEvent(new MouseEvent('mouseenter'));
+      options[3].dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+      fixture.detectChanges();
+      expect(activeOption()!.textContent.trim()).toBe('Ada Lovelace');
+
+      // A pointer that moves is pointing.
+      options[3].dispatchEvent(new MouseEvent('mousemove', { bubbles: true }));
+      fixture.detectChanges();
+      expect(activeOption()!.textContent.trim()).toBe('Linus Torvalds');
+    });
+
     it('commits on Enter and reports the trigger and query with the item', () => {
       type('hey @al');
       press('Enter');

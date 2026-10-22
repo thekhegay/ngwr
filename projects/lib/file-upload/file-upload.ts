@@ -8,9 +8,11 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import {
   Component,
-  type ElementRef,
+  ElementRef,
+  Injector,
   LOCALE_ID,
   ViewEncapsulation,
+  afterNextRender,
   computed,
   effect,
   inject,
@@ -181,6 +183,18 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
   protected readonly files = signal<readonly File[]>([]);
   protected readonly dragging = signal(false);
 
+  /**
+   * How many elements of the zone the drag is inside. The browser fires `dragleave`
+   * on the zone when the pointer moves onto its own label or icon, with `dragenter`
+   * on the child just before it, so "left the zone" read off a single event switched
+   * the highlight off over the zone's text and back on over its padding. Every enter
+   * counts up and every leave down; the drag has left when the count is back to 0.
+   */
+  private dragDepth = 0;
+
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
+
   protected readonly classes = computed(() => {
     const parts = ['wr-file-upload'];
     if (this.dragging()) parts.push('wr-file-upload--dragging');
@@ -296,6 +310,7 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
   protected onDragEnter(event: DragEvent): void {
     if (this.disabled() || this.readonly()) return;
     event.preventDefault();
+    this.dragDepth++;
     this.dragging.set(true);
   }
 
@@ -305,13 +320,15 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
     if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
   }
 
-  protected onDragLeave(event: DragEvent): void {
-    // Only clear when leaving the zone itself, not internal children.
-    if (event.currentTarget === event.target) this.dragging.set(false);
+  protected onDragLeave(): void {
+    // See `dragDepth`: a leave onto one of the zone's own children is not leaving.
+    this.dragDepth = Math.max(0, this.dragDepth - 1);
+    if (this.dragDepth === 0) this.dragging.set(false);
   }
 
   protected onDrop(event: DragEvent): void {
     event.preventDefault();
+    this.dragDepth = 0;
     this.dragging.set(false);
     if (this.disabled() || this.readonly()) return;
     const dropped = event.dataTransfer?.files ? Array.from(event.dataTransfer.files) : [];
@@ -320,9 +337,25 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
 
   protected removeAt(index: number): void {
     if (this.disabled() || this.readonly()) return;
+    // Read before the row goes: the button that holds focus is about to leave the
+    // document, and focus with it — to `<body>`, so the next Tab restarted at the top
+    // of the page. A middle row only kept it by accident, through `track $index`
+    // reusing the button for the file that moved up.
+    const focused = this.host.nativeElement.ownerDocument.activeElement;
+    const hadFocus = !!focused?.matches('.wr-file-upload__remove') && this.host.nativeElement.contains(focused);
     const next = this.files().filter((_, i) => i !== index);
     this.files.set(next);
     this.emit();
+    if (!hadFocus) return;
+    afterNextRender(
+      () => {
+        // The row that took this one's place, else the one before it, else the zone.
+        const buttons = this.host.nativeElement.querySelectorAll<HTMLElement>('.wr-file-upload__remove');
+        const target = buttons[Math.min(index, buttons.length - 1)] ?? this.zone().nativeElement;
+        target.focus();
+      },
+      { injector: this.injector }
+    );
   }
 
   // Internals

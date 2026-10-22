@@ -23,6 +23,7 @@ import { WrTextarea, type WrTextareaResize, type WrTextareaSize } from './textar
       [resize]="resize()"
       [readonly]="readonly()"
       [autosize]="autosize()"
+      [maxRows]="maxRows()"
       [disabled]="disabled()"
       (touch)="touched = touched + 1"
     />
@@ -38,6 +39,7 @@ class Host {
   readonly resize = signal<WrTextareaResize>('vertical');
   readonly readonly = signal(false);
   readonly autosize = signal(false);
+  readonly maxRows = signal<number | null>(null);
   readonly disabled = signal(false);
   touched = 0;
 }
@@ -206,6 +208,22 @@ describe('WrTextarea', () => {
     expect(native().style.height).toBe('');
     expect(native().style.overflowY).toBe('');
     expect(grip()).not.toBeNull();
+  });
+
+  it('counts the padding into the maxRows cap', async () => {
+    // jsdom lays nothing out, so the box is described by hand: 20px lines, 8px of
+    // padding a side, border-box, and content worth eight lines. The cap used to be
+    // `lineHeight * maxRows` against a `scrollHeight` that includes the padding, so
+    // six rows stopped at 120px — 5.2 rows on screen.
+    const el = native();
+    Object.assign(el.style, { lineHeight: '20px', paddingTop: '8px', paddingBottom: '8px', boxSizing: 'border-box' });
+    Object.defineProperty(el, 'scrollHeight', { configurable: true, get: () => 8 * 20 + 16 });
+    fixture.componentInstance.autosize.set(true);
+    fixture.componentInstance.maxRows.set(6);
+    await settle();
+
+    expect(el.style.height).toBe('136px');
+    expect(el.style.overflowY).toBe('auto');
   });
 
   it('does not fit a height for a frame that outlived its reason', async () => {

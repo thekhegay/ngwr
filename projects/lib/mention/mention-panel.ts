@@ -66,8 +66,19 @@ export class WrMentionPanel {
   /** Emitted when the user picks an item (click). */
   readonly picked = output<WrMentionItem>();
 
-  /** Emitted on mouseenter — used by the directive to track hover. */
+  /** Emitted when the pointer moves onto an option — used by the directive to track hover. */
   readonly hovered = output<number>();
+
+  /**
+   * On `mousemove`, not `mouseenter`. The panel opens under the caret, which is
+   * where a pointer resting in the field usually is, and the browser fires
+   * `mouseenter` for an element that appears under a still pointer — so the
+   * option under it took the highlight from the first one, and Enter inserted
+   * that person. Only a pointer that actually moves says the user is pointing.
+   */
+  protected onHover(index: number): void {
+    if (index !== this.activeIndex()) this.hovered.emit(index);
+  }
 
   protected onPick(item: WrMentionItem, event: MouseEvent): void {
     // mousedown semantics — keep focus on the input.

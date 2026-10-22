@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, LOCALE_ID, signal } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormField, form } from '@angular/forms/signals';
 
@@ -573,5 +573,73 @@ describe('WrInputNumber focusBoundControl', () => {
 
     expect(document.activeElement).toBe(input);
     expect(spy).toHaveBeenCalledWith({ preventScroll: true });
+  });
+});
+
+/**
+ * Typing the way a user in each locale types, one key at a time with a render between
+ * keys, and committing the text the field itself displays.
+ */
+describe('WrInputNumber reads the locale it formats in', () => {
+  @Component({
+    imports: [WrInputNumber],
+    template: `<wr-input-number [(value)]="amount" />`,
+  })
+  class LocaleHost {
+    readonly amount = signal<number | null>(null);
+  }
+
+  const mount = (locale: string): ReturnType<typeof TestBed.createComponent<LocaleHost>> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: LOCALE_ID, useValue: locale }] });
+    const fixture = TestBed.createComponent(LocaleHost);
+    fixture.detectChanges();
+    return fixture;
+  };
+  const field = (fixture: { nativeElement: HTMLElement }): HTMLInputElement =>
+    fixture.nativeElement.querySelector<HTMLInputElement>('input')!;
+
+  const typeKeys = (fixture: ReturnType<typeof mount>, text: string): void => {
+    const input = field(fixture);
+    input.dispatchEvent(new FocusEvent('focus'));
+    input.value = '';
+    for (const key of text) {
+      input.value += key;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      fixture.detectChanges();
+    }
+    input.dispatchEvent(new FocusEvent('blur'));
+    fixture.detectChanges();
+  };
+
+  it.each(['ru', 'uk', 'kk', 'fr'])('takes an ordinary space as the %s thousands separator', locale => {
+    // The locale groups with U+00A0 (ru, uk, kk) or U+202F (fr), and only that
+    // character was stripped — so the keyboard's own space made `1 2…` unreadable and
+    // the field kept the `1` typed before it.
+    const fixture = mount(locale);
+    typeKeys(fixture, '1 234,5');
+
+    expect(fixture.componentInstance.amount()).toBe(1234.5);
+  });
+
+  it('reads back the digits it displays in a locale with its own numerals', () => {
+    // ar-EG formats 1234.5 as `١٬٢٣٤٫٥`, and `Number()` reads none of those digits.
+    const fixture = mount('ar-EG');
+    typeKeys(fixture, '\u0661\u0662\u0663');
+    expect(fixture.componentInstance.amount()).toBe(123);
+
+    const shown = new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 20 }).format(-1234.5);
+    typeKeys(fixture, shown);
+    expect(fixture.componentInstance.amount()).toBe(-1234.5);
+  });
+
+  it('reads back a negative number written with the minus sign', () => {
+    // Swedish formats negatives with U+2212, not the hyphen a keyboard sends.
+    const fixture = mount('sv');
+    const shown = new Intl.NumberFormat('sv', { maximumFractionDigits: 20 }).format(-1234.5);
+    expect(shown).toContain('\u2212');
+
+    typeKeys(fixture, shown);
+    expect(fixture.componentInstance.amount()).toBe(-1234.5);
   });
 });

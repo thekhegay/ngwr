@@ -13,7 +13,7 @@
       [attr.id]="optionId($index)"
       [class.wr-mention-panel__option--active]="$index === activeIndex()"
       [attr.aria-selected]="$index === activeIndex()"
-      (mouseenter)="hovered.emit($index)"
+      (mousemove)="onHover($index)"
       (mousedown)="onPick(item, $event)"
     >
       {{ displayWith()(item) }}
