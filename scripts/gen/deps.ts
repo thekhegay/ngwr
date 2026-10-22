@@ -64,6 +64,20 @@ const KIND: readonly (readonly [string, string])[] = [
 
 const kindOf = (route: string): string | undefined => KIND.find(([prefix]) => route.startsWith(prefix))?.[1];
 
+/**
+ * The two clusters that document no entry point still say what a page is, so a
+ * See also card or a label reads the same for every route. Kept out of `KIND`,
+ * which also decides whose demos are read for relations and which pages can
+ * document an entry point.
+ */
+const SECTION_KIND: readonly (readonly [string, string])[] = [
+  ['docs/', 'Docs'],
+  ['icons/', 'Icons'],
+];
+
+const routeKindOf = (route: string): string | null =>
+  kindOf(route) ?? SECTION_KIND.find(([prefix]) => route.startsWith(prefix))?.[1] ?? null;
+
 interface Page {
   readonly route: string;
   readonly title: string;
@@ -180,10 +194,28 @@ function pageLabels(dir: string): string[] {
   return [];
 }
 
+/**
+ * The static `description="…"` on a page's `<ngwr-doc-page>`, as written (the
+ * `wrDocRich` forms included), or `null` — for a page with none, and for one
+ * that binds `[description]`, which only the running page can read.
+ */
+function pageDescription(dir: string): string | null {
+  for (const f of readdirSync(dir)) {
+    if (!f.endsWith('.html')) continue;
+    const [tag] = docPageTags(readFileSync(join(dir, f), 'utf8'));
+    if (tag === undefined) continue;
+    const description = tag?.get('description')?.trim();
+    if (!description) return null;
+    return description;
+  }
+  return null;
+}
+
 interface RoutePage {
   readonly title: string;
   readonly kind: string | null;
   readonly labels: readonly string[];
+  readonly description: string | null;
 }
 
 function serialize(
@@ -240,9 +272,21 @@ export const DEMO_RELATED: Readonly<Record<string, readonly string[]>> = {
 ${relatedBody}
 };
 
-/** Route → its title, its kind (from the route) and the labels its page declares. */
+/**
+ * Route → its title, its kind (from the route; \`Docs\` and \`Icons\` for the two
+ * clusters that document no entry point), the labels its page declares and its
+ * static \`description\` as written, \`null\` where the page binds one.
+ */
 export const DOC_ROUTES: Readonly<
-  Record<string, { readonly title: string; readonly kind: string | null; readonly labels: readonly string[] }>
+  Record<
+    string,
+    {
+      readonly title: string;
+      readonly kind: string | null;
+      readonly labels: readonly string[];
+      readonly description: string | null;
+    }
+  >
 > = {
 ${routeBody}
 };
@@ -263,7 +307,7 @@ async function main(): Promise<void> {
   const all = new Set(eps);
   const deps = libDeps(eps, optionalPeers);
 
-  // Route → its title, kind and labels, and the entry points its demos import.
+  // Route → its title, kind, labels and description, and the entry points its demos import.
   const singles = await requireSingleRoutePages();
   const importsByRoute = new Map<string, Set<string>>();
   const routePages = new Map<string, RoutePage>();
@@ -271,7 +315,14 @@ async function main(): Promise<void> {
     if (route.includes(':') || route === '') continue;
     const kind = kindOf(route);
     const title = pageTitle(abs);
-    if (title) routePages.set(route, { title, kind: kind ?? null, labels: pageLabels(abs) });
+    if (title) {
+      routePages.set(route, {
+        title,
+        kind: routeKindOf(route),
+        labels: pageLabels(abs),
+        description: pageDescription(abs),
+      });
+    }
     if (kind) importsByRoute.set(route, pageImports(abs, all));
   }
 

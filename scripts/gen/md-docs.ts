@@ -311,15 +311,15 @@ function render(document: Document, route: string): string | null {
     if (body) blocks(body, out);
   }
 
-  const seeAlso = Array.from(page.querySelectorAll('ngwr-doc-see-also .see-also__card'));
+  const seeAlso = Array.from(page.querySelectorAll('ngwr-doc-see-also .ngwr-link-card'));
   if (seeAlso.length > 0) {
     out.push('## See also');
     out.push(
       seeAlso
         .map(card => {
           const href = card.getAttribute('href') ?? '';
-          const name = text(card.querySelector('.see-also__name'));
-          const desc = text(card.querySelector('.see-also__desc'));
+          const name = text(card.querySelector('.ngwr-link-card__title'));
+          const desc = text(card.querySelector('.ngwr-link-card__desc'));
           return `- [${name}](${SITE}${href})${desc ? ` — ${desc}` : ''}`;
         })
         .join('\n')

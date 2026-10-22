@@ -72,7 +72,7 @@ interface Gate {
  * match 202 things matches none, reports "0", and the page states it.
  */
 function atLeast(n: number, floor: number, what: string): number {
-  if (n < floor) throw new Error(`${what}: found ${n}, expected at least ${floor} — the scan is broken, not the repo.`);
+  if (n < floor) throw new Error(`${what}: found ${n}, expected ${floor} or more — the scan is broken, not the repo.`);
   return n;
 }
 
@@ -108,7 +108,7 @@ const DELEGATES = /\bexpectCatalogContract\s*\(/;
 interface SpecFacts {
   readonly files: number;
   readonly cases: number;
-  /** Entry points (relative to `projects/lib`) that own at least one spec file. */
+  /** Entry points (relative to `projects/lib`) that own a spec file or more. */
   readonly entryPoints: ReadonlySet<string>;
   /** False when a call site was found that stands for an unknown number of cases, which makes `cases` a floor rather than a total. */
   readonly casesAreExact: boolean;
@@ -126,10 +126,11 @@ interface SpecFacts {
  * script runs inside `build:showcase`, and a parameterised spec is a perfectly
  * good spec — a contributor who writes one should not watch the documentation
  * site fail to build over how a statistic is counted. So the site prints the
- * file and line, clears `casesAreExact`, and the page reads "at least N" instead
- * of "N". The loop detector is positional and can misread an `it(…)` whose own
- * callback opens a `.map(` on the same line; that is a second reason it warns
- * rather than throws.
+ * file and line, clears `casesAreExact`, and the page prints the count as a
+ * floor, "N+" instead of "N" (`formatCount(n, { floor: true })`). The loop
+ * detector is positional and can misread an `it(…)` whose own callback opens a
+ * `.map(` on the same line; that is a second reason it warns rather than
+ * throws.
  *
  * One thing still throws: a spec file with no cases in it at all. That is not a
  * test-authoring choice, it is the signature of `stripTs` having eaten
@@ -204,7 +205,7 @@ function specFacts(entryPoints: readonly string[]): SpecFacts {
   }
 
   for (const note of approximations) {
-    console.warn(`gen:quality — ${note} \`testCases\` becomes a floor; the page will say "at least".`);
+    console.warn(`gen:quality — ${note} \`testCases\` becomes a floor; the page will print it as "N+".`);
   }
 
   return {
@@ -432,10 +433,10 @@ export const QUALITY = {
   /** Test cases those files DECLARE — \`it(…)\` / \`test(…)\` call sites, counted after comments and string bodies are stripped. */
   testCases: ${f.testCases},
 
-  /** Whether \`testCases\` is a total or a floor. A parameterised form (\`it.each\`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page says "at least" rather than failing a documentation build over a legal spec. */
+  /** Whether \`testCases\` is a total or a floor. A parameterised form (\`it.each\`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page prints the count as "N+" (\`formatCount(n, { floor: true })\`) rather than failing a documentation build over a legal spec. */
   testCasesAreExact: ${f.testCasesAreExact},
 
-  /** Entry points owning at least one spec file. Compare against \`entryPoints\`: the claim is coverage of the catalog, not of every branch in it. */
+  /** Entry points owning a spec file or more. Compare against \`entryPoints\`: the claim is coverage of the catalog, not of every branch in it. */
   entryPointsWithSpecs: ${f.entryPointsWithSpecs},
 
   /** Documentation pages the showcase's route tables declare — routes with a \`loadComponent\`, minus the layout shell (it has \`children\`) and the \`**\` 404, neither of which is a page. NOT the prerendered-route count either: \`app.routes.server.ts\` sends the raw-SVG icon galleries and the legacy redirects to the client. */
