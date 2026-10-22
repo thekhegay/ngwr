@@ -1,5 +1,33 @@
 # Changelog
 
+## [15.0.0-rc.2](https://github.com/thekhegay/ngwr/compare/v15.0.0-rc.1...v15.0.0-rc.2) (2026-10-22)
+
+### Features
+
+* **border-glow:** an endless loop, and any css colour for the glow ([4a31387](https://github.com/thekhegay/ngwr/commit/4a3138788f5f1588f497ea9f4614f976f8b10489))
+* **showcase:** a looping brand ring on the cta, dx card lines, two-column opt-in ([6e6ca0a](https://github.com/thekhegay/ngwr/commit/6e6ca0a56fe7978c56ce0e73214509fd7c26f2ff))
+* **showcase:** every page records its description and kind, see also reads them ([90d4a0b](https://github.com/thekhegay/ngwr/commit/90d4a0b811f458a32330944130f60378a486cbfc))
+
+### Bug Fixes
+
+* **dropdown:** tab from an open menu moves on from its trigger ([b25c05e](https://github.com/thekhegay/ngwr/commit/b25c05ee6f0b9062fd9ca345ce97f077f9b081c0))
+* focus rings appear at once, no transition on outline or box-shadow ([57b8350](https://github.com/thekhegay/ngwr/commit/57b8350ef50d341179ceb039901005eebb53cdf5))
+* **input:** the password toggle's focus ring follows the group's corners ([2a1b770](https://github.com/thekhegay/ngwr/commit/2a1b770726e53171a3e124f86d00d0828101271b))
+* **popover:** tab off a click panel closes it, no default ring on the pane, a viewport margin ([e666238](https://github.com/thekhegay/ngwr/commit/e6662384231a0ccf58855ff39cf31d1a13c51ed0))
+* **popover:** tab off the last stop disposes the pane before the browser moves on ([3177463](https://github.com/thekhegay/ngwr/commit/317746325c64a34d5c8a14b5d913242cfe3d44ac))
+* **showcase:** a quiet copy button on code blocks ([b0971da](https://github.com/thekhegay/ngwr/commit/b0971dabc747ac39e327a1319ff6c4e4ef545ef7))
+* **showcase:** bind the settings panel label, regenerate install and quality ([9db4913](https://github.com/thekhegay/ngwr/commit/9db4913c8014bb3c2c34333e34affbec0cc701a0))
+* **showcase:** cta ring turns on transform, no animated property or filter ([60294c0](https://github.com/thekhegay/ngwr/commit/60294c09cedb04b3c37c4aeeaf30f16a39a323f4))
+* **showcase:** header menus by keyboard, rings appear at once, demo fixes ([7ef4f14](https://github.com/thekhegay/ngwr/commit/7ef4f14eeefa955fbda0f71cc8d0d3c9936634eb))
+* **showcase:** the hero cta glow is wr-border-glow again, looping in brand colour ([f615c7a](https://github.com/thekhegay/ngwr/commit/f615c7a6cbe22f18201eca5a216f360e2890b7cb))
+* **theme:** the focus ring reaches tabs, tree, color-picker and seven more ([a1ce67c](https://github.com/thekhegay/ngwr/commit/a1ce67ca2753c81c95416c1e6613fc1978b015d9))
+* **theme:** the focus ring reaches the stepper header button and the table toggles ([1790cac](https://github.com/thekhegay/ngwr/commit/1790cac3362420534d3e4689935cdc1aa21c3bc3))
+* **waves:** no frames off screen, and a pixel budget for the canvas ([484cb6a](https://github.com/thekhegay/ngwr/commit/484cb6a14f20e8a8718d59d95df723f3ab433f06))
+
+### Reverts
+
+* **showcase:** header items are plain labels again ([5c1b31c](https://github.com/thekhegay/ngwr/commit/5c1b31c8de085b9ed57be2ab5e81b91f496280aa))
+
 ## [15.0.0-rc.1](https://github.com/thekhegay/ngwr/compare/v15.0.0-rc.0...v15.0.0-rc.1) (2026-10-22)
 
 ### ⚠ BREAKING CHANGES
