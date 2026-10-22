@@ -68,17 +68,18 @@ const TOOLS: readonly ToolSpec[] = [
   {
     name: 'get_ngwr_api',
     description:
-      'The public inputs, models, outputs and methods of one ngwr class, read out of the ' +
-      'declarations shipped in this package — so it is the published signature, not a copy of it. ' +
-      'Use instead of reading the .d.ts, which can be 60 KB for one component.',
+      'The public API of one ngwr symbol, read out of the declarations shipped in this package — ' +
+      'so it is the published signature, not a copy of it. A class answers with its inputs, models, ' +
+      'outputs and methods; a function (provideWr, a with*() feature, a provideWr*() call) with its ' +
+      'doc and signature. Use instead of reading the .d.ts, which can be 60 KB for one component.',
     inputSchema: {
       type: 'object',
       properties: {
-        symbol: { type: 'string', description: 'Class name, e.g. WrSelect.' },
+        symbol: { type: 'string', description: 'Class or function name, e.g. WrSelect or provideWr.' },
         kind: {
           type: 'string',
           enum: ['all', 'input', 'model', 'output', 'method', 'property'],
-          description: 'Narrow the surface. Defaults to all.',
+          description: 'Narrow a class to one kind of member. Defaults to all. A function ignores it.',
         },
       },
       required: ['symbol'],
@@ -297,7 +298,7 @@ function api(catalog: Catalog, symbol: string, kind: string): string {
     const fn = extractFunction(declarations, symbol);
     if (fn) return functionApi(fn, entry.path);
 
-    return `${symbol} is not a class in ${entry.path}. It exports: ${entry.exports.join(', ')}.`;
+    return `${symbol} is not a class or a function in ${entry.path}. It exports: ${entry.exports.join(', ')}.`;
   }
 
   const wanted = kind === 'all' ? null : kind;

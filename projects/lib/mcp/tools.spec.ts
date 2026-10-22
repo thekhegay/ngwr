@@ -248,6 +248,17 @@ describe('TOOLS', () => {
       expect(tool.description.length).toBeGreaterThan(40);
     }
   });
+
+  it('describes get_ngwr_api as answering functions as well as classes', () => {
+    // An agent picks a tool off this text alone. Described as class-only, it
+    // never asks about `provideWr()` or a `with*()` feature, which are the
+    // configuration API since v15 and which the tool answers.
+    const tool = TOOLS.find(candidate => candidate.name === 'get_ngwr_api')!;
+    const symbol = (tool.inputSchema as { properties: Record<string, { description: string }> }).properties['symbol'];
+
+    expect(tool.description).toContain('a function (provideWr, a with*() feature');
+    expect(symbol.description).toBe('Class or function name, e.g. WrSelect or provideWr.');
+  });
 });
 
 describe('callTool — search_ngwr', () => {
@@ -463,11 +474,12 @@ describe('callTool — get_ngwr_api', () => {
     expect(callTool(catalog, 'get_ngwr_api', { symbol: 'WrBadge' })).toContain('- `size`: WrBadgeSize');
   });
 
-  it('explains a symbol that is exported but is not a class', () => {
-    // Type aliases, tokens and provider functions all land here, and naming the
-    // entry point's exports is what turns the dead end into a next step.
+  it('explains a symbol that is exported but is neither a class nor a function', () => {
+    // Type aliases and tokens land here — a provider function answers with its
+    // signature since v15 — and naming the entry point's exports is what turns
+    // the dead end into a next step.
     expect(callTool(catalog, 'get_ngwr_api', { symbol: 'WrBadgeSize' })).toBe(
-      'WrBadgeSize is not a class in ngwr/badge. It exports: WrBadge, WrTag, WrBadgeSize.'
+      'WrBadgeSize is not a class or a function in ngwr/badge. It exports: WrBadge, WrTag, WrBadgeSize.'
     );
   });
 
