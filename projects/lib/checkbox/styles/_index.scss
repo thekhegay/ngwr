@@ -68,7 +68,10 @@
     border: 1px solid var(--wr-checkbox-border);
     border-radius: var(--wr-checkbox-radius);
     color: var(--wr-checkbox-mark);
-    transition: var(--wr-transition-base);
+    transition:
+      background var(--wr-transition-base),
+      border-color var(--wr-transition-base),
+      color var(--wr-transition-base);
   }
 
   &__mark,

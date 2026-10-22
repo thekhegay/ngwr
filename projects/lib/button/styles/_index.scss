@@ -68,7 +68,13 @@
   font-size: var(--wr-btn-font-size);
   font-weight: var(--wr-btn-font-weight);
   line-height: var(--wr-btn-line-height);
-  transition: var(--wr-transition-base);
+  // Named rather than `all`: the focus ring is an outline plus a box-shadow, and
+  // under `all` it eased in from a 3px outline in the text colour at offset 0.
+  transition:
+    color var(--wr-transition-base),
+    background var(--wr-transition-base),
+    border-color var(--wr-transition-base),
+    opacity var(--wr-transition-base);
 
   &:hover {
     --wr-btn-bg: var(--wr-color-hover);

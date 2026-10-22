@@ -56,9 +56,7 @@
     border-radius: 50%;
     padding: 0;
     cursor: grab;
-    transition:
-      transform var(--wr-transition-short),
-      box-shadow var(--wr-transition-base);
+    transition: transform var(--wr-transition-short);
 
     // Coarse pointers: invisible 44px tap area so the small thumb is grabbable.
     @include theme.touch-target($positioned: true);

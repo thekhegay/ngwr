@@ -26,7 +26,6 @@
   box-shadow: 0 0 0 3px var(--wr-textarea-ring);
   transition:
     border-color var(--wr-transition-base),
-    box-shadow var(--wr-transition-base),
     background var(--wr-transition-base);
 
   &--focused {

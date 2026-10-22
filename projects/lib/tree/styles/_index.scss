@@ -282,9 +282,7 @@
     line-height: var(--wr-tree-trigger-line-height);
     cursor: pointer;
     text-align: start;
-    transition:
-      border-color var(--wr-transition-base),
-      box-shadow var(--wr-transition-base);
+    transition: border-color var(--wr-transition-base);
 
     &:focus-visible {
       border-color: var(--wr-color-primary);

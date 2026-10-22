@@ -39,10 +39,11 @@
 
     cursor: grab;
     user-select: none;
-    // No transform transition here — the floating preview clones this
-    // class, and animating transform makes it chase the cursor 180ms
-    // behind. Sibling shuffle/settle transitions are scoped below.
-    transition: box-shadow 0.18s ease;
+    // No transition here at all. Not transform — the floating preview clones
+    // this class, and animating transform makes it chase the cursor 180ms
+    // behind; sibling shuffle/settle transitions are scoped below. Not
+    // box-shadow either — the only one a row has is the focus halo, which has
+    // to appear at once.
 
     &.cdk-drag-disabled {
       cursor: default;

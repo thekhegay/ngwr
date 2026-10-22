@@ -40,7 +40,6 @@
   line-height: var(--wr-input-line-height);
   transition:
     border-color var(--wr-transition-base),
-    box-shadow var(--wr-transition-base),
     background var(--wr-transition-base);
 
   &::placeholder {
@@ -116,7 +115,6 @@
   box-shadow: 0 0 0 3px var(--wr-input-group-ring);
   transition:
     border-color var(--wr-transition-base),
-    box-shadow var(--wr-transition-base),
     background var(--wr-transition-base);
 
   &:focus-within {
