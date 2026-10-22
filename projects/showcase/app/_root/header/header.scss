@@ -115,70 +115,6 @@
         --ngwr-header-nav-link-color: var(--wr-color-on-surface-muted);
         --ngwr-header-nav-link-bg: var(--wr-color-fill);
       }
-
-      // A badge or a subtitle goes on a second line, and the link stays as tall
-      // as the buttons beside it: 2px + 16px + 12px + 2px.
-      &--meta {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        padding-block: 0.125rem;
-      }
-    }
-  }
-
-  // The line under a nav label, in both navs: a badge, a subtitle, or both.
-  &__meta {
-    display: flex;
-    align-items: center;
-    gap: var(--wr-space-xs);
-    height: 0.75rem;
-  }
-
-  &__subtitle {
-    color: var(--wr-color-on-surface-muted);
-    font-size: 0.6875rem;
-    font-weight: var(--wr-font-weight-regular);
-    line-height: 0.75rem;
-    white-space: nowrap;
-  }
-
-  // The sidebar's word badge, drawn by `wr-badge`: 9px on the 12px line, a
-  // tint and its `-ink` for a tone, the neutral fill otherwise.
-  &__badge {
-    --wr-badge-min-height: 0.75rem;
-    --wr-badge-padding-y: 0;
-    --wr-badge-padding-x: var(--wr-space-xs);
-    --wr-badge-radius: 0.25rem;
-    --wr-badge-font-size: 0.5625rem;
-    --wr-badge-bg: var(--wr-color-fill);
-    --wr-badge-color: var(--wr-color-on-surface-muted);
-
-    transition: background-color var(--wr-transition-base);
-
-    &[data-tone='primary'] {
-      --wr-badge-bg: var(--wr-color-primary-soft);
-      --wr-badge-color: var(--wr-color-primary-ink);
-    }
-
-    &[data-tone='danger'] {
-      --wr-badge-bg: var(--wr-color-danger-soft);
-      --wr-badge-color: var(--wr-color-danger-ink);
-    }
-  }
-
-  // On a hovered or current link the line follows the link's own colour, and
-  // the badge sits on the surface so it does not melt into the link's fill.
-  &__nav-link:hover,
-  &__nav-link--active,
-  &__sheet-link:hover,
-  &__sheet-link--active {
-    .ngwr-header__subtitle {
-      color: inherit;
-    }
-
-    .ngwr-header__badge {
-      --wr-badge-bg: var(--wr-color-surface);
     }
   }
 
@@ -409,13 +345,6 @@
       &--active:hover {
         color: var(--wr-color-on-surface-muted);
         background: var(--wr-color-fill);
-      }
-
-      &--meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.125rem;
-        padding-block: 0.375rem;
       }
     }
 
