@@ -600,6 +600,10 @@ export class WrPopover {
    * The pane counts as the first stop (it precedes its content) and, when
    * nothing inside can take focus, as the last as well.
    *
+   * The pane is disposed right here, not by the `isOpen` effect: that runs after
+   * the browser's Tab, and a trigger that is the last stop before the overlay
+   * container would send that Tab straight back into the still-attached pane.
+   *
    * Stops are told by `tabIndex`, because `getFocusableElements` lists every
    * focusable element and a roving composite parks its other items at -1. What
    * that misreads — a native radio group, one stop that lists as several —
@@ -620,6 +624,7 @@ export class WrPopover {
       return;
     }
     this.host.nativeElement.focus();
+    this.closeOverlay();
     this.isOpen.set(false);
   };
 

@@ -848,6 +848,18 @@ describe('WrPopover keyboard round trip', () => {
     expect(outside('trigger').getAttribute('aria-expanded')).toBe('false');
   });
 
+  it('takes the pane out before the browser carries the Tab on', async () => {
+    await openFromKeyboard();
+    inside('last').focus();
+    // No `whenStable()` in between: the browser moves focus right after this
+    // dispatch, and a pane still attached then would catch a trigger that is the
+    // last stop before the overlay container.
+    inside('last').dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+
+    expect(pane()).toBeNull();
+    expect(document.activeElement).toBe(outside('trigger'));
+  });
+
   it('lands Shift+Tab off the first stop on the trigger itself, and closes', async () => {
     await openFromKeyboard();
     const event = await tab(inside('first'), true);
