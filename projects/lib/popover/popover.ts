@@ -659,6 +659,7 @@ export class WrPopover {
     const box = ref.hostElement;
     return (
       (box.parentElement?.contains(node) ?? false) &&
+      // eslint-disable-next-line no-bitwise -- compareDocumentPosition answers with a bitmask
       (box.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
     );
   }
