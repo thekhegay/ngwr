@@ -11,6 +11,22 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrPopconfirmHarness } from './wr-popconfirm-harness';
 
+/**
+ * A real window for the CDK to place panels in — jsdom reports `<html>`, the box
+ * it measures the viewport by, as 0×0, and the panel's viewport margin narrows
+ * that to a negative one where no side fits and every panel flips. The same stub
+ * `popconfirm.spec.ts` and `popover.spec.ts` carry.
+ */
+beforeEach(() => {
+  Object.defineProperty(document.documentElement, 'clientWidth', { configurable: true, value: 1024 });
+  Object.defineProperty(document.documentElement, 'clientHeight', { configurable: true, value: 768 });
+});
+
+afterEach(() => {
+  Reflect.deleteProperty(document.documentElement, 'clientWidth');
+  Reflect.deleteProperty(document.documentElement, 'clientHeight');
+});
+
 @Component({
   imports: [WrPopconfirm, WrButton],
   template: `

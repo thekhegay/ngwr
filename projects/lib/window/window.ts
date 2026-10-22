@@ -8,6 +8,7 @@
 import { type BooleanInput, coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import {
   Component,
+  DestroyRef,
   ViewEncapsulation,
   afterNextRender,
   computed,
@@ -316,6 +317,19 @@ export class WrWindow {
   readonly resized = output<{ readonly width: number; readonly height: number }>();
 
   private readonly manager = inject(WrWindowManager);
+  private readonly destroyRef = inject(DestroyRef);
+
+  /**
+   * The viewport, as a SIGNAL. The maximized geometry and the keep-in-viewport
+   * clamp used to read `window.innerWidth` / `innerHeight` directly, which no
+   * computed can depend on: a window maximized at 1440×900 stayed 1440×900 in a
+   * 1024×700 viewport with its close and maximize buttons off-screen, and a
+   * window dragged to the bottom-right corner was left entirely outside an
+   * 800×600 one — while `keepInViewport` promised to hold it "while it is
+   * dragged or the page is resized". Kept in step by a `resize` listener
+   * installed after the first render; on the server it holds the fallback size.
+   */
+  private readonly viewport = signal({ width: viewportWidth(), height: viewportHeight() });
 
   // Position / size signals are the source of truth at runtime.
   // Inputs (x/y/initialWidth/initialHeight) seed them in afterNextRender.
@@ -348,10 +362,10 @@ export class WrWindow {
   // x_/y_/width_/height_ and fill the viewport instead.
   readonly x = computed(() => (this.state() === 'maximized' ? 0 : this.x_()));
   readonly y = computed(() => (this.state() === 'maximized' ? 0 : this.y_()));
-  readonly width = computed(() => (this.state() === 'maximized' ? viewportWidth() : this.width_()));
+  readonly width = computed(() => (this.state() === 'maximized' ? this.viewport().width : this.width_()));
   readonly height = computed(() =>
     this.state() === 'maximized'
-      ? viewportHeight()
+      ? this.viewport().height
       : this.state() === 'minimized'
         ? this.minimizedHeight()
         : this.height_()
@@ -368,7 +382,13 @@ export class WrWindow {
   readonly snapTarget = signal<WrWindowSnapTarget | null>(null);
 
   constructor() {
-    afterNextRender(() => this.seedInitialGeometry());
+    afterNextRender(() => {
+      const measure = (): void => this.viewport.set({ width: viewportWidth(), height: viewportHeight() });
+      measure();
+      window.addEventListener('resize', measure);
+      this.destroyRef.onDestroy(() => window.removeEventListener('resize', measure));
+      this.seedInitialGeometry();
+    });
 
     // Re-clamp into viewport when window or viewport changes.
     effect(() => {
@@ -436,8 +456,9 @@ export class WrWindow {
   center(): void {
     const w = this.width_();
     const h = this.height_();
-    this.x_.set(Math.max(0, (viewportWidth() - w) / 2));
-    this.y_.set(Math.max(0, (viewportHeight() - h) / 2));
+    const { width: vw, height: vh } = this.viewport();
+    this.x_.set(Math.max(0, (vw - w) / 2));
+    this.y_.set(Math.max(0, (vh - h) / 2));
   }
 
   /** Bring this window to the top of the stack. */
@@ -502,8 +523,7 @@ export class WrWindow {
     const mode = this.snap();
     if (mode === 'none') return null;
     const HOT = 12;
-    const vw = viewportWidth();
-    const vh = viewportHeight();
+    const { width: vw, height: vh } = this.viewport();
     const nearLeft = clientX <= HOT;
     const nearRight = clientX >= vw - HOT;
     const nearTop = clientY <= HOT;
@@ -522,8 +542,7 @@ export class WrWindow {
 
   /** Move + resize the window into the requested snap region. */
   private applySnap(target: WrWindowSnapTarget): void {
-    const vw = viewportWidth();
-    const vh = viewportHeight();
+    const { width: vw, height: vh } = this.viewport();
     const halfW = Math.floor(vw / 2);
     const halfH = Math.floor(vh / 2);
     switch (target) {
@@ -651,29 +670,46 @@ export class WrWindow {
     const preset = sizePreset ? SIZE_PRESETS[sizePreset] : SIZE_PRESETS.md;
     const explicitW = this.initialWidth();
     const explicitH = this.initialHeight();
-    const w = clamp(explicitW ?? preset.width, this.minWidth(), this.maxWidth());
-    const h = clamp(explicitH ?? preset.height, this.minHeight(), this.maxHeight());
+    const keep = this.keepInViewport();
+    const { width: vw, height: vh } = this.viewport();
+    // A window OPENS on screen when it can. The preset is a desktop size — `md`
+    // is 480px — and a phone is 390: the window opened at x=50 with its right
+    // edge at 530, and the Windows chrome's three buttons off the glass. So the
+    // size is capped at the viewport (the minimum still wins, since it is the
+    // consumer's floor), and a CASCADE position is moved in until the whole box
+    // fits. A coordinate the consumer passed is theirs, held only to the same
+    // reach a drag is.
+    const fit = (size: number, room: number): number => (keep ? Math.min(size, room) : size);
+    const w = clamp(fit(explicitW ?? preset.width, vw), this.minWidth(), this.maxWidth());
+    const h = clamp(fit(explicitH ?? preset.height, vh), this.minHeight(), this.maxHeight());
     this.width_.set(w);
     this.height_.set(h);
 
     const xIn = this.initialX();
     const yIn = this.initialY();
+    let x: number;
+    let y: number;
     if (xIn != null && yIn != null) {
-      this.x_.set(xIn);
-      this.y_.set(yIn);
+      x = xIn;
+      y = yIn;
     } else {
       const cascade = this.manager.nextStartOffset();
-      this.x_.set(xIn ?? cascade.x);
-      this.y_.set(yIn ?? cascade.y);
+      x = xIn ?? cascade.x;
+      y = yIn ?? cascade.y;
     }
+    this.x_.set(keep && xIn == null ? clamp(x, 0, Math.max(0, vw - w)) : x);
+    this.y_.set(keep && yIn == null ? clamp(y, 0, Math.max(0, vh - h)) : y);
 
     this.clampToViewport();
   }
 
+  /**
+   * Keep enough of the window on screen to grab it again. Reads the viewport
+   * SIGNAL, so the constructor's effect re-runs it when the page is resized.
+   */
   private clampToViewport(): void {
     if (!this.keepInViewport()) return;
-    const vw = viewportWidth();
-    const vh = viewportHeight();
+    const { width: vw, height: vh } = this.viewport();
     const w = this.width_();
     this.x_.set(clamp(this.x_(), MIN_ON_VIEWPORT - w, vw - MIN_ON_VIEWPORT));
     this.y_.set(clamp(this.y_(), 0, vh - MIN_ON_VIEWPORT));

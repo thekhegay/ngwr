@@ -358,6 +358,62 @@ describe('WrCommandPalette', () => {
  * of the open effect, which never runs when the component goes away first — so a
  * live `ConfigurableFocusTrap` was left holding a detached panel.
  */
+/**
+ * A modal holds the page still behind it. The CDK block strategy refuses to
+ * engage on a page that does not scroll, and jsdom's `<html>` measures 0×0, so
+ * it is given a height to scroll through.
+ */
+describe('WrCommandPalette scroll lock', () => {
+  const blocked = (): boolean => document.documentElement.classList.contains('cdk-global-scrollblock');
+
+  beforeEach(() => {
+    Element.prototype.scrollIntoView = (): undefined => undefined;
+    Object.defineProperty(document.documentElement, 'scrollHeight', { configurable: true, value: 5000 });
+    TestBed.resetTestingModule();
+  });
+
+  afterEach(() => {
+    Reflect.deleteProperty(document.documentElement, 'scrollHeight');
+    delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView;
+  });
+
+  it('blocks page scroll while open, and lets it go on close', () => {
+    const fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    expect(blocked(), 'the page scrolled behind an open modal').toBe(true);
+
+    fixture.componentInstance.open.set(false);
+    fixture.detectChanges();
+    expect(blocked()).toBe(false);
+
+    fixture.destroy();
+  });
+
+  it('lets go before a picked command runs, so a dialog it opens can block the page itself', () => {
+    const fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    let blockedWhenRun: boolean | null = null;
+    fixture.componentInstance.items.set([{ id: 'go', label: 'Go', action: () => (blockedWhenRun = blocked()) }]);
+    fixture.detectChanges();
+
+    const input = (fixture.nativeElement as HTMLElement).querySelector('input')!;
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+
+    expect(blockedWhenRun).toBe(false);
+    fixture.destroy();
+  });
+
+  it('lets it go when destroyed while open', () => {
+    const fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    expect(blocked()).toBe(true);
+
+    fixture.destroy();
+    expect(blocked()).toBe(false);
+  });
+});
+
 describe('WrCommandPalette teardown', () => {
   it('destroys its focus trap when it is destroyed while open', async () => {
     const destroy = vi.fn();

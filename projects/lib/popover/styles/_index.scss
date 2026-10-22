@@ -116,6 +116,9 @@
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 50%;
+    // An inline `background`, which forced colors resets to `Canvas`, while the
+    // chart mark it names keeps its colour there — so the key keeps it too.
+    forced-color-adjust: none;
   }
 
   &__value {

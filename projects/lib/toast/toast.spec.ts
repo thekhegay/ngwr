@@ -233,6 +233,80 @@ describe('WrToast', () => {
       expect(items()).toHaveLength(0);
     });
 
+    it('pauses the countdown while focus is inside a toast, with no pointer anywhere', () => {
+      // A keyboard user who focused the Close button had the toast removed from
+      // under the focus once its time ran out, which dropped focus on `<body>`.
+      toast.show({ message: 'One', duration: 1000 });
+      tick();
+
+      vi.advanceTimersByTime(500);
+      const close = actions(items()[0])[0];
+      focusEvent(close, 'focusin');
+
+      vi.advanceTimersByTime(5000);
+      tick();
+      expect(items(), 'the toast expired under the focus').toHaveLength(1);
+
+      focusEvent(close, 'focusout');
+      vi.advanceTimersByTime(499);
+      tick();
+      expect(items()).toHaveLength(1);
+
+      vi.advanceTimersByTime(1);
+      tick();
+      expect(items()).toHaveLength(0);
+    });
+
+    it('holds every toast while the pointer is anywhere in the region', () => {
+      // Pausing only the toast under the pointer let the others expire around
+      // it, and the stack collapsed out from under a pointer that never moved.
+      toast.show({ message: 'One', duration: 1000 });
+      toast.show({ message: 'Two', duration: 1000 });
+      toast.show({ message: 'Three', duration: 1000 });
+      tick();
+
+      mouse(host()!, 'mouseenter');
+      vi.advanceTimersByTime(5000);
+      tick();
+      expect(messages()).toEqual(['One', 'Two', 'Three']);
+
+      mouse(host()!, 'mouseleave');
+      vi.advanceTimersByTime(1000);
+      tick();
+      expect(items()).toHaveLength(0);
+    });
+
+    it('does not restart a toast the region is still holding when the pointer leaves that toast', () => {
+      toast.show({ message: 'One', duration: 1000 });
+      toast.show({ message: 'Two', duration: 1000 });
+      tick();
+
+      mouse(host()!, 'mouseenter');
+      mouse(items()[0], 'mouseenter');
+      mouse(items()[0], 'mouseleave');
+      vi.advanceTimersByTime(5000);
+      tick();
+
+      expect(messages()).toEqual(['One', 'Two']);
+    });
+
+    it('starts the clock of a toast raised while the region is held only on release', () => {
+      toast.show({ message: 'One', duration: 0 });
+      tick();
+      mouse(host()!, 'mouseenter');
+
+      toast.show({ message: 'Two', duration: 1000 });
+      tick();
+      vi.advanceTimersByTime(5000);
+      tick();
+      expect(messages()).toEqual(['One', 'Two']);
+
+      mouse(host()!, 'mouseleave');
+      vi.advanceTimersByTime(1000);
+      tick();
+      expect(messages()).toEqual(['One']);
+    });
+
     it('dismisses through the returned ref, leaving the rest of the stack alone', () => {
       const first = toast.show({ message: 'One' });
       toast.show({ message: 'Two' });

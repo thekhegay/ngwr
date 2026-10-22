@@ -494,3 +494,92 @@ describe('WrWindow resize geometry', () => {
     expect(ref.width()).toBe(600);
   });
 });
+
+/**
+ * The viewport is a signal the window listens to, not a number it reads once.
+ * jsdom's window is 1024×768 and never resizes on its own, so the size is
+ * redefined and a `resize` dispatched, which is what a browser does.
+ */
+describe('WrWindow against the viewport', () => {
+  let manager: WrWindowManager;
+  const saved = {
+    width: Object.getOwnPropertyDescriptor(window, 'innerWidth'),
+    height: Object.getOwnPropertyDescriptor(window, 'innerHeight'),
+  };
+
+  const host = (): HTMLElement => document.querySelector<HTMLElement>('wr-window')!;
+  const box = (): string => [host().style.left, host().style.top, host().style.width, host().style.height].join(' ');
+
+  const viewport = (width: number, height: number): void => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: height });
+    window.dispatchEvent(new Event('resize'));
+    TestBed.tick();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    manager = TestBed.inject(WrWindowManager);
+  });
+
+  afterEach(() => {
+    manager.closeAll();
+    TestBed.resetTestingModule();
+    for (const [key, descriptor] of [
+      ['innerWidth', saved.width],
+      ['innerHeight', saved.height],
+    ] as const) {
+      if (descriptor) Object.defineProperty(window, key, descriptor);
+      else Reflect.deleteProperty(window, key);
+    }
+  });
+
+  it('keeps a maximized window filling the viewport after the page is resized', () => {
+    const ref = manager.open(Body, { title: 'T', os: 'windows', x: 100, y: 100, width: 480, height: 320 });
+    TestBed.tick();
+    ref.maximize();
+    TestBed.tick();
+    expect(box()).toBe('0px 0px 1024px 768px');
+
+    // It stayed 1024×768 in a smaller viewport, its close button off-screen.
+    viewport(800, 600);
+
+    expect(box()).toBe('0px 0px 800px 600px');
+    expect([ref.width(), ref.height()]).toEqual([800, 600]);
+  });
+
+  it('pulls a window back into reach when the viewport shrinks under it', () => {
+    const ref = manager.open(Body, { title: 'T', os: 'windows', x: 100, y: 100, width: 480, height: 320 });
+    TestBed.tick();
+    ref.moveTo(980, 700);
+    TestBed.tick();
+    expect(box()).toBe('980px 700px 480px 320px');
+
+    viewport(800, 600);
+
+    // The same 24px reach a drag is held to: entirely off-screen before.
+    expect(box()).toBe('776px 576px 480px 320px');
+  });
+
+  it('opens no wider than a phone, and wholly on it', () => {
+    viewport(390, 844);
+
+    manager.open(Body, { title: 'T', os: 'windows' });
+    TestBed.tick();
+
+    const left = parseFloat(host().style.left);
+    const width = parseFloat(host().style.width);
+    expect(width).toBeLessThanOrEqual(390);
+    expect(left).toBeGreaterThanOrEqual(0);
+    expect(left + width, 'the chrome buttons were off the glass').toBeLessThanOrEqual(390);
+  });
+
+  it('leaves the geometry alone when the window may leave the viewport', () => {
+    viewport(390, 844);
+
+    manager.open(Body, { title: 'T', os: 'windows', x: 50, y: 50, width: 480, height: 320, keepInViewport: false });
+    TestBed.tick();
+
+    expect(box()).toBe('50px 50px 480px 320px');
+  });
+});

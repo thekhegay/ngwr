@@ -1,5 +1,6 @@
 import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { type Direction, Directionality } from '@angular/cdk/bidi';
+import { Location } from '@angular/common';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -253,6 +254,35 @@ describe('WrTour', () => {
     expect(document.querySelectorAll('.wr-tour__spotlight').length).toBe(1);
   });
 
+  it('ends when the URL changes, taking the card and the cut-out with it', () => {
+    // Following a link mid-tour left the card on the next page pointing at an
+    // element the router had removed, the cut-out's shadow dimming everything.
+    tour.start(STEPS);
+    sync();
+    expect(popup()).not.toBeNull();
+
+    TestBed.inject(Location).go('/elsewhere');
+    sync();
+
+    expect(tour.active()).toBe(false);
+    expect(popup()).toBeNull();
+    expect(spotlight()).toBeNull();
+  });
+
+  it('stops watching the URL once the tour is over', async () => {
+    tour.start(STEPS);
+    sync();
+    tour.stop();
+    await Promise.resolve();
+
+    // A later tour is not ended by a navigation the first one heard about.
+    tour.start(STEPS);
+    sync();
+    const stop = vi.spyOn(tour, 'stop');
+    TestBed.inject(Location).go('/elsewhere');
+    expect(stop).toHaveBeenCalledTimes(1);
+  });
+
   it('does nothing when handed an empty list', () => {
     tour.start([]);
     sync();
@@ -365,6 +395,24 @@ describe('WrTour when the direction flips mid-step', () => {
     // Each move disposes the step's ref and builds the next, taking the first
     // card's follower with it — the second has to be given one of its own.
     expect([paneDir(), pane().getAttribute('style')?.includes('translateX(12px)')]).toEqual(['rtl', true]);
+  });
+
+  it('moves the cut-out with the target when the page mirrors', () => {
+    const target = document.querySelector<HTMLElement>('#one')!;
+    let left = 100;
+    target.getBoundingClientRect = (): DOMRect =>
+      ({ left, top: 50, width: 80, height: 20, right: left + 80, bottom: 70, x: left, y: 50 }) as DOMRect;
+    tour.start([step('#one')]);
+    fixture.detectChanges();
+    const spot = document.querySelector<HTMLElement>('.wr-tour__spotlight')!;
+    expect(spot.style.left).toBe('94px');
+
+    // The flip moves the target without a scroll or a resize, which were the
+    // only two things that re-measured the cut-out.
+    left = 600;
+    flipTo('rtl');
+
+    expect(spot.style.left).toBe('594px');
   });
 
   it('leaves nothing following a card that has been torn down', () => {

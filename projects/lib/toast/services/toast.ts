@@ -68,6 +68,9 @@ export class WrToast {
   /** Overflow waiting for a free slot — promoted FIFO as actives dismiss, so
    * nothing is ever silently dropped. */
   private queue: ActiveEntry[] = [];
+  /** The pointer or focus is inside the host: no countdown runs, a toast that
+   * arrives meanwhile included. See `WrToastHost.syncHold`. */
+  private held = false;
 
   /** Open a toast. Returns a handle you can `dismiss()` early. */
   show(options: WrToastOptions): WrToastRef {
@@ -147,7 +150,9 @@ export class WrToast {
   // Timer
 
   private startTimer(entry: ActiveEntry): void {
-    if (entry.remaining <= 0) return;
+    // Never a second timer for one entry: a toast's own pause and the host's
+    // hold both resume, and whichever comes second finds the clock running.
+    if (entry.remaining <= 0 || entry.timer || this.held) return;
     entry.startedAt = Date.now();
     entry.timer = setTimeout(() => this.dismiss(entry.id), entry.remaining);
   }
@@ -158,6 +163,14 @@ export class WrToast {
     entry.timer = undefined;
     if (entry.startedAt) {
       entry.remaining = Math.max(0, entry.remaining - (Date.now() - entry.startedAt));
+    }
+  }
+
+  private setHeld(held: boolean): void {
+    this.held = held;
+    for (const entry of this.active) {
+      if (held) this.pauseTimer(entry);
+      else this.startTimer(entry);
     }
   }
 
@@ -204,6 +217,7 @@ export class WrToast {
       const entry = this.active.find(t => t.id === id);
       if (entry) this.startTimer(entry);
     });
+    inst.holdChange.subscribe(held => this.setHeld(held));
 
     this.watchForNewerOverlays();
   }
@@ -288,6 +302,8 @@ export class WrToast {
   }
 
   private disposeHost(): void {
+    // The next host starts with nobody in it.
+    this.held = false;
     this.containerObserver?.disconnect();
     this.containerObserver = null;
     if (this.overlayRef) {

@@ -124,6 +124,8 @@ let popoverUid = 0;
     // focus event cannot say where the focus came from. `FocusMonitor` can — see
     // the constructor.
     '(keydown.escape)': 'onEscape()',
+    '(keydown.enter)': 'onActivateKey($event)',
+    '(keydown.space)': 'onActivateKey($event)',
   },
 })
 export class WrPopover {
@@ -146,7 +148,9 @@ export class WrPopover {
 
   /**
    * How the popover opens. Ignored in tooltip mode — a tooltip is always hover
-   * plus keyboard focus. @default 'click'
+   * plus keyboard focus. A `hover` popover still opens from the keyboard, with
+   * Enter or Space on the trigger, and then takes focus the way a click one
+   * does. @default 'click'
    */
   readonly trigger = input<'click' | 'hover'>('click');
 
@@ -214,6 +218,13 @@ export class WrPopover {
   /** Whether the HOST itself holds focus — not a descendant of it. */
   private hostFocused = false;
   private hoverCloseTimer: ReturnType<typeof setTimeout> | null = null;
+  /**
+   * Whether Enter or Space opened a `trigger="hover"` popover. The pointer owns
+   * a hover popover and must leave the caret alone; the keyboard has nothing
+   * else to reach the content with, so a keyboard open moves focus in, exactly
+   * as a click popover's open does.
+   */
+  private openedByKeyboard = false;
   private showTimer: ReturnType<typeof setTimeout> | null = null;
   private hideTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -355,6 +366,22 @@ export class WrPopover {
     this.scheduleHoverClose();
   }
 
+  /**
+   * Enter or Space on a `trigger="hover"` popover's trigger opens it, for the
+   * keyboard user the pointer-only trigger left out — the trigger announces a
+   * dialog popup with `aria-haspopup`, and hover is something a keyboard cannot
+   * do. `wr-dropdown` opens a hover menu from the keyboard the same way. A click
+   * popover needs none of this: its trigger's own click answers both keys.
+   *
+   * @internal
+   */
+  protected onActivateKey(event: Event): void {
+    if (this.isTooltip() || this.trigger() !== 'hover' || this.isOpen()) return;
+    event.preventDefault();
+    this.openedByKeyboard = true;
+    this.isOpen.set(true);
+  }
+
   /** @internal */
   protected onEscape(): void {
     if (!this.isTooltip()) return;
@@ -480,7 +507,7 @@ export class WrPopover {
       // "dialog" and trips axe's `aria-dialog-name`.
       pane.setAttribute('aria-label', this.resolvedAriaLabel());
 
-      if (this.trigger() === 'click') {
+      if (this.trigger() === 'click' || this.openedByKeyboard) {
         // Render the projected content before focus moves, the way
         // `wr-popconfirm` does — a reader announcing the dialog reads what is in
         // it, and on an empty pane that is nothing.
@@ -494,9 +521,9 @@ export class WrPopover {
         // reaches that first control anyway, since the pane precedes its own
         // content in document order.
         //
-        // Click-triggered only — a hover popover must not pull the caret out of
-        // what the user is typing in, and `scheduleHoverClose()` would then
-        // dispose the pane out from under the focused element.
+        // Click- or keyboard-opened only — a hover popover must not pull the
+        // caret out of what the user is typing in, and `scheduleHoverClose()`
+        // would then dispose the pane out from under the focused element.
         pane.tabIndex = -1;
         pane.focus();
         // And it has to LEAVE with the panel. Non-modal means Tab is not
@@ -562,6 +589,7 @@ export class WrPopover {
       this.overlayRef.overlayElement.removeEventListener('mouseleave', this.onOverlayLeave);
     }
     this.clearHoverClose();
+    this.openedByKeyboard = false;
     // Take the focus back before the pane goes, and only if it was in there.
     //
     // A popover is not a tooltip: it attaches a `TemplatePortal` under

@@ -31,8 +31,10 @@ import type { WrToastConfig, WrToastType } from './types';
     '[style.transition]': 'swiping() ? "none" : null',
     '[attr.role]': 'liveRole()',
     '[attr.aria-live]': 'liveLevel()',
-    '(mouseenter)': 'pauseRequested.emit()',
-    '(mouseleave)': 'resumeRequested.emit()',
+    '(mouseenter)': 'onPointer(true)',
+    '(mouseleave)': 'onPointer(false)',
+    '(focusin)': 'onFocusIn()',
+    '(focusout)': 'onFocusOut($event)',
     '(touchstart)': 'onSwipeStart($event)',
     '(touchmove)': 'onSwipeMove($event)',
     '(touchend)': 'onSwipeEnd()',
@@ -59,6 +61,43 @@ export class WrToastItem {
   readonly dismissed = output<void>();
   readonly pauseRequested = output<void>();
   readonly resumeRequested = output<void>();
+
+  /**
+   * The countdown holds while the pointer rests on the toast OR focus is inside
+   * it. Hover alone left a keyboard user's toast running: focus its Close button
+   * and it was removed from under the focus four seconds later, which dropped
+   * focus on `<body>` — WCAG 2.2.1 asks for a way to hold a time limit, and the
+   * pointer was the only one. Two flags, so leaving by one road while still in
+   * by the other does not resume it.
+   */
+  private hovered = false;
+  private focused = false;
+
+  /** @internal */
+  protected onPointer(over: boolean): void {
+    this.syncPause(() => (this.hovered = over));
+  }
+
+  /** @internal */
+  protected onFocusIn(): void {
+    this.syncPause(() => (this.focused = true));
+  }
+
+  /** @internal Focus moving between two buttons of this toast is not leaving it. */
+  protected onFocusOut(event: FocusEvent): void {
+    const next = event.relatedTarget as Node | null;
+    if (next && this.elRef.nativeElement.contains(next)) return;
+    this.syncPause(() => (this.focused = false));
+  }
+
+  private syncPause(change: () => void): void {
+    const wasHeld = this.hovered || this.focused;
+    change();
+    const held = this.hovered || this.focused;
+    if (held === wasHeld) return;
+    if (held) this.pauseRequested.emit();
+    else this.resumeRequested.emit();
+  }
 
   /** True for ~1.5s after a successful copy; flips the icon to a check. */
   protected readonly justCopied = signal(false);

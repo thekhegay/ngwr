@@ -1,3 +1,6 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, type ElementRef, signal, viewChildren } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -623,5 +626,28 @@ describe('useChartTooltip under dir="rtl"', () => {
 
     expect(pane().classList).toContain('wr-tooltip-overlay--top');
     expect(pane().getAttribute('style')).toContain('translateY(-8px)');
+  });
+});
+
+/**
+ * The chip's swatch is the key to a chart mark, painted by an inline `background`, which
+ * forced colors resets to `Canvas` — while the mark it names keeps its colour there (an
+ * SVG fill, or an HTML mark with `forced-color-adjust: none`). Held against the COMPILED
+ * sheet, since jsdom has no forced-colors mode; `sass` is resolved through
+ * `@angular/build`, as `charts/stylesheets.spec.ts` does.
+ */
+describe('chart tooltip swatch under forced colors', () => {
+  it('keeps its colour', () => {
+    const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as {
+      compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+    };
+    const css = sass.compileString(`@use 'popover/styles';`, {
+      loadPaths: [join(process.cwd(), 'projects/lib')],
+      style: 'expanded',
+    }).css;
+    const swatch = /(?:^|\n)\.wr-chart-tooltip__swatch\s*\{([^}]*)\}/.exec(css)?.[1] ?? '';
+
+    expect(swatch).toMatch(/border-radius: 50%/);
+    expect(swatch).toMatch(/forced-color-adjust:\s*none/);
   });
 });

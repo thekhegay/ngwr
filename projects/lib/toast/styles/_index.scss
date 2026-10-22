@@ -261,7 +261,12 @@ $toast-colors: (
     }
   }
 
-  &:hover &__progress {
+  // The bar holds exactly when the countdown does: while the pointer or focus is
+  // in the toast, or anywhere in the region — see `WrToastHost.syncHold`.
+  &:hover &__progress,
+  &:focus-within &__progress,
+  .wr-toast-host:hover &__progress,
+  .wr-toast-host:focus-within &__progress {
     animation-play-state: paused;
   }
 

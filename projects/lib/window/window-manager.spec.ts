@@ -314,6 +314,35 @@ describe('WrWindowManager', () => {
       expect(manager.windows().map(w => w.id)).toEqual(['a']);
     });
 
+    it('leaves a minimized window alone on Escape and closes the front one still on screen', () => {
+      const inbox = manager.open(Body, { id: 'inbox' });
+      const editor = manager.open(Body, { id: 'editor' });
+      TestBed.tick();
+      expect(editor.z()).toBeGreaterThan(inbox.z());
+
+      // The editor is in front by z, but `display: none` — closing it threw away
+      // a window the user could not see, along with its taskbar entry.
+      editor.minimize();
+      TestBed.tick();
+
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      TestBed.tick();
+
+      expect(manager.windows().map(w => w.id)).toEqual(['editor']);
+      expect(editor.state()).toBe('minimized');
+    });
+
+    it('puts one dialog role on a window, the named one', () => {
+      const ref = manager.open(Body, { title: 'Named' });
+      TestBed.tick();
+
+      const pane = ref._overlayRef.overlayElement;
+      const dialogs = [pane, ...pane.querySelectorAll('*')].filter(el => el.getAttribute('role') === 'dialog');
+      expect(dialogs).toHaveLength(1);
+      expect(dialogs[0].tagName.toLowerCase()).toBe('wr-window');
+      expect(dialogs[0].getAttribute('aria-labelledby')).toBeTruthy();
+    });
+
     it('steps the spawn offset so two windows do not sit exactly on top of each other', () => {
       const a = manager.nextStartOffset();
       const b = manager.nextStartOffset();

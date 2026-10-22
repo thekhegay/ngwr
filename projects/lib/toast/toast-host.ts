@@ -5,7 +5,17 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Component, DestroyRef, ViewEncapsulation, computed, inject, input, output, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  ViewEncapsulation,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
 
@@ -40,7 +50,7 @@ type ActiveToast = WrToastOptions & {
     '(mouseenter)': 'onMouseEnter()',
     '(mouseleave)': 'onMouseLeave()',
     '(focusin)': 'onFocusIn()',
-    '(focusout)': 'onFocusOut()',
+    '(focusout)': 'onFocusOut($event)',
   },
   imports: [WrToastItem],
 })
@@ -100,7 +110,10 @@ export class WrToastHost {
   private readonly focusWithin = signal(false);
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly elRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private collapseTimer: ReturnType<typeof setTimeout> | null = null;
+  /** The last value `holdChange` emitted. */
+  private held = false;
 
   constructor() {
     this.destroyRef.onDestroy(() => this.clearCollapseTimer());
@@ -124,8 +137,10 @@ export class WrToastHost {
     this.syncExpanded();
   }
 
-  /** @internal */
-  protected onFocusOut(): void {
+  /** @internal Focus moving between two buttons inside the host is not leaving it. */
+  protected onFocusOut(event: FocusEvent): void {
+    const next = event.relatedTarget as Node | null;
+    if (next && this.elRef.nativeElement.contains(next)) return;
     this.focusWithin.set(false);
     this.syncExpanded();
   }
@@ -134,6 +149,7 @@ export class WrToastHost {
    * collapse so a cursor briefly slipping off the host during a layout reflow
    * — or focus moving between two buttons inside it — doesn't cause a flicker. */
   private syncExpanded(): void {
+    this.syncHold();
     if (this.hovered() || this.focusWithin()) {
       this.clearCollapseTimer();
       this.expanded.set(true);
@@ -144,6 +160,23 @@ export class WrToastHost {
       this.collapseTimer = null;
       if (!this.hovered() && !this.focusWithin()) this.expanded.set(false);
     }, COLLAPSE_DELAY_MS);
+  }
+
+  /**
+   * Hold EVERY countdown while the reader is in the region, not only the toast
+   * under the pointer. Per-toast pausing let the others expire around the one
+   * being read: in an expanded stack the pointer rested on #2 while #1 and #3
+   * ran out, the stack collapsed, and #2 jumped 140px up from under a pointer
+   * that never moved — and a gutter between toasts, which keeps the stack
+   * expanded, paused nothing at all. Released at once on leaving, with no
+   * collapse delay, so the timers and the progress bars (paused by the same
+   * `:hover` / `:focus-within` in the stylesheet) agree.
+   */
+  private syncHold(): void {
+    const held = this.hovered() || this.focusWithin();
+    if (held === this.held) return;
+    this.held = held;
+    this.holdChange.emit(held);
   }
 
   private clearCollapseTimer(): void {
@@ -166,6 +199,8 @@ export class WrToastHost {
   readonly dismissed = output<number>();
   readonly pauseRequested = output<number>();
   readonly resumeRequested = output<number>();
+  /** @internal — `true` while the pointer or focus is inside the region. */
+  readonly holdChange = output<boolean>();
   readonly dismissAllRequested = output<void>();
 
   protected readonly classes = computed(() => {

@@ -96,9 +96,6 @@
   // identically for every pane, so relative stacking is unchanged).
   position: relative !important;
   min-width: var(--wr-dialog-min-width);
-  max-width: calc(100vw - 2rem);
-  max-height: calc(100vh - 2rem);
-  max-height: calc(100dvh - 2rem);
 
   background: var(--wr-dialog-bg);
   @include theme.smooth-br(var(--wr-dialog-radius));
@@ -108,6 +105,19 @@
   color: var(--wr-color-on-surface);
 
   animation: wr-dialog-enter 0.2s ease-out;
+
+  // The 1rem gutter is written against `.cdk-overlay-pane` as well, for the
+  // specificity. The CDK's structural sheet declares `max-width: 100%;
+  // max-height: 100%` on that one class and is injected at RUNTIME, after the
+  // app stylesheet, so at equal specificity it won: a 24rem dialog rendered
+  // 384px wide at x=3 on a 390px phone, and a large one filled the viewport edge
+  // to edge. Two classes beat it without `!important`, which would also beat the
+  // inline `max-width` the `maxWidth` option writes.
+  &.cdk-overlay-pane {
+    max-width: calc(100vw - 2rem);
+    max-height: calc(100vh - 2rem);
+    max-height: calc(100dvh - 2rem);
+  }
 
   // The component the service mounts sits BETWEEN this panel and the dialog's
   // own parts, and it is the panel's only flex item. Left a plain block it keeps

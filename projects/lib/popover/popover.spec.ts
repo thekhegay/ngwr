@@ -403,6 +403,43 @@ describe('WrPopover', () => {
       expect(popoverPane()).toBeNull();
     });
 
+    /**
+     * The trigger announces `aria-haspopup="dialog"` in every popover mode, and
+     * hover is something a keyboard cannot do — so a hover popover with no key
+     * of its own was content only a mouse could reach.
+     */
+    it.each(['Enter', ' '])('opens from the keyboard with %j, and takes focus like a click popover', key => {
+      trigger('hover').focus();
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      trigger('hover').dispatchEvent(event);
+      fixture.detectChanges();
+
+      const pane = popoverPane()!;
+      expect(pane, 'the keyboard could not open it').toBeTruthy();
+      expect(trigger('hover').getAttribute('aria-expanded')).toBe('true');
+      expect(document.activeElement, 'opened behind the tab order').toBe(pane);
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('leaves a keyboard-opened hover popover by Tab, back through the trigger', () => {
+      trigger('hover').focus();
+      press('Enter', trigger('hover'));
+      const action = document.querySelector<HTMLButtonElement>('.panel-action')!;
+      action.focus();
+
+      press('Tab', action);
+
+      expect(popoverPane()).toBeNull();
+      expect(document.activeElement).toBe(trigger('hover'));
+    });
+
+    it('does not open a click popover twice from Enter — its click does that', () => {
+      trigger('click').focus();
+      press('Enter', trigger('click'));
+
+      expect(popoverPane()).toBeNull();
+    });
+
     it('does not even schedule a close when the pointer leaves straight into the panel', () => {
       enter(trigger('hover'));
       // `relatedTarget` is where the pointer went. Landing inside the panel is

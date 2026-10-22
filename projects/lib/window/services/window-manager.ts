@@ -198,9 +198,9 @@ export class WrWindowManager {
     container.componentType = component;
     container.childInjector = childInjector;
 
-    if (this.isBrowser) {
-      overlayRef.overlayElement.setAttribute('role', 'dialog');
-    }
+    // No role on the pane: `<wr-window>` inside it is the named `role="dialog"`,
+    // and a second, unnamed one around it read as "dialog > dialog" and tripped
+    // axe's `aria-dialog-name` on every open window.
 
     if (config.closeOnEscape !== false) {
       overlayRef.keydownEvents().subscribe(event => {
@@ -243,13 +243,19 @@ export class WrWindowManager {
    * order. A tie (nothing has ever been focused, so no z has been handed out
    * yet) leaves every window willing, and the dispatcher's newest-first walk
    * settles it as before.
+   *
+   * A MINIMIZED window never owns a key it did not receive through focus, and
+   * never counts as being in front: it is `display: none`, so an Escape pressed
+   * on the page closed a window the user could not see — and threw away its
+   * taskbar entry with it — while the visible one stayed put.
    */
   private ownsKeyboard(ref: WrWindowRef<unknown, unknown>): boolean {
     const open = this._windows();
     const active = this.isBrowser ? document.activeElement : null;
     const focused = active ? open.find(w => w._overlayRef.overlayElement?.contains(active)) : undefined;
     if (focused) return focused === ref;
-    return open.every(w => w === ref || w.z() <= ref.z());
+    if (ref.state() === 'minimized') return false;
+    return open.every(w => w === ref || w.state() === 'minimized' || w.z() <= ref.z());
   }
 
   /** Close every programmatically-opened window. */
