@@ -11,8 +11,8 @@ function kebabToCamel(value: string): string {
 
 const SPEC: SvgSetSpec = {
   title: 'Radix Icons',
-  description:
-    'A 15px crisp-pixel set from the Radix UI team. 300+ icons, MIT. Note: the official npm package ships React components only; ngwr vendors the raw SVGs from the upstream repo. Click any tile to copy the import snippet.',
+  description: count =>
+    `A 15px crisp-pixel set from the Radix UI team. ${count} icons, MIT. Note: the official npm package ships React components only; ngwr vendors the raw SVGs from the upstream repo. Click any tile to copy the import snippet.`,
   homepage: 'https://www.radix-ui.com/icons',
   license: 'MIT',
   // No npm package ships raw SVGs — grab them from the github repo.

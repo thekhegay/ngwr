@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { WrDensity, type WrDensityValue } from 'ngwr/density';
+import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 
 import {
   DocCodeComponent,
@@ -23,6 +24,7 @@ interface Multiplier {
   templateUrl: './density.html',
   imports: [
     WrButton,
+    WrSegmented,
     DocCodeComponent,
     DocPageComponent,
     DocSectionComponent,
@@ -38,8 +40,13 @@ export default class TokensDensityPage {
 
   protected readonly densities: readonly WrDensityValue[] = ['sm', 'md', 'lg', 'touch'];
 
-  protected set(value: WrDensityValue): void {
-    this.density.set(value);
+  protected readonly densityOptions: readonly WrSegmentedOption<WrDensityValue>[] = this.densities.map(value => ({
+    value,
+    label: value,
+  }));
+
+  protected set(value: WrDensityValue | null): void {
+    if (value) this.density.set(value);
   }
 
   protected cycle(): void {

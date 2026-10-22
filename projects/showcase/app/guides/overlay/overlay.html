@@ -37,36 +37,38 @@
     title="Focus, on the way out"
     description="Every way of closing returns focus to the element that opened the overlay."
   >
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Closed by</th>
-          <th scope="col">Turn off with</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><wr-kbd size="sm">Escape</wr-kbd></td>
-          <td><code>closeOnEscape: false</code></td>
-        </tr>
-        <tr>
-          <td>The built-in ✕</td>
-          <td><code>closable: false</code></td>
-        </tr>
-        <tr>
-          <td>Backdrop click</td>
-          <td><code>closeOnBackdropClick: false</code></td>
-        </tr>
-        <tr>
-          <td>A route change</td>
-          <td><code>closeOnNavigation: false</code></td>
-        </tr>
-        <tr>
-          <td><code>[wrDialogClose]</code> / <code>ref.close(result)</code></td>
-          <td>—</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Closed by</th>
+            <th scope="col">Turn off with</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Escape</wr-kbd></th>
+            <td><code>closeOnEscape: false</code></td>
+          </tr>
+          <tr>
+            <th scope="row">The built-in ✕</th>
+            <td><code>closable: false</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Backdrop click</th>
+            <td><code>closeOnBackdropClick: false</code></td>
+          </tr>
+          <tr>
+            <th scope="row">A route change</th>
+            <td><code>closeOnNavigation: false</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>[wrDialogClose]</code> / <code>ref.close(result)</code></th>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <p>
       A dismissal resolves <code>awaitClose()</code> with <code>undefined</code>, like <code>close()</code>; close with
       a value to tell them apart.

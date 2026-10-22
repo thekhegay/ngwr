@@ -194,80 +194,36 @@
       opacity: 0.55;
     }
 
-    &:has(:focus-visible) {
-      outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
-      outline-offset: var(--wr-focus-ring-offset);
-    }
-
     @media (prefers-reduced-motion: reduce) {
       animation: none;
     }
   }
 
-  // Borderless on the page surface: the ring around it is the edge.
+  // Borderless on the page surface: the ring around it is the edge. The fill
+  // goes through `wr-btn`'s own `--wr-btn-bg`, so its `background` rule stays
+  // in charge and the focus ring is the library's. The hover and active
+  // values are the ones `.wr-btn--outlined` uses, restated because this rule
+  // ties that one on specificity and wins on order. Both are opaque ramp
+  // steps, so the conic ring never shows through the label.
   &__btn {
+    --wr-btn-bg: var(--wr-color-surface);
+
     border: 0;
-    background: var(--wr-color-surface);
 
-    &:focus-visible {
-      outline: none;
-      box-shadow: none;
+    &:hover {
+      --wr-btn-bg: var(--wr-color-hover);
+    }
+
+    &:active {
+      --wr-btn-bg: var(--wr-color-fill-strong);
     }
   }
 }
 
-/* Right: original showcase collage (preserved) */
-.ngwr-section {
-  padding: 5rem 0;
-
-  @include bp.media-down(md) {
-    padding: 3rem 0;
-  }
-
-  &__head {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    max-width: 48rem;
-    margin-bottom: 3rem;
-
-    &--why {
-      flex-direction: row;
-      align-items: flex-end;
-      gap: 4rem;
-      max-width: none;
-
-      @include bp.media-down(md) {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-      }
-    }
-  }
-
-  // Section chip + heading, as one unit. `wr-tag` is an inline-flex chip with
-  // no margin of its own and `wrTypography` zeroes the heading's, so wherever
-  // the pair sits in a plain wrapper the chip lands flush on the heading below
-  // it — which is what both `--why` heads were doing. Fixing it here rather
-  // than per instance: the DX column used to reach the same result by accident,
-  // through its own column `gap` plus a `wr-tag { align-self }` override, and
-  // two spellings of one idea is how the third head ends up tight again.
-  // `align-items` is what keeps the chip at its natural width.
-  &__lede {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-
-  &__head-aside {
-    max-width: 22rem;
-    margin-left: auto;
-    // Quieter than the heading column — supporting copy, not a lead.
-    color: var(--wr-color-on-surface-muted);
-    line-height: 1.6;
-  }
-}
+// The section frame, head, aside and footer are the global `.ngwr-section`
+// rules in `showcase/styles/_section.scss`: the opt-in section and the bento
+// render the same head from their own components, which this emulated sheet
+// cannot reach.
 
 /* DX section */
 .ngwr-dx {
@@ -299,58 +255,27 @@
   }
 }
 
-// Two quiet doors under the copy: the forms guide and the validators. A `wr-card`
-// inside a plain anchor, so the link stays the focusable element and the card
-// brings the border, the surface and the hover lift.
+// Two quiet doors under the copy: the forms guide and the validators. The list
+// is the site's `.ngwr-link-grid` and each door its `.ngwr-link-card`
+// (`showcase/styles/_cards.scss`), which own the columns, the box, the type, the
+// hover and the focus ring; this block only lays the icon, the text and the
+// arrow out in a row. The arrow's RTL flip is global too.
+//
+// The copy column is narrow, so the column minimum comes down from the shared
+// 16rem to 15rem: that keeps the pair side by side at 1280, where the column is
+// 505px wide and two 16rem tracks plus the gap would need 524px.
 .ngwr-dx-links {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  --ngwr-link-grid-min: 15rem;
+
   margin-top: 0.5rem;
-
-  @include bp.media-down(sm) {
-    grid-template-columns: 1fr;
-  }
-
-  &__link {
-    display: block;
-    border-radius: var(--wr-border-radius-base);
-
-    &:focus-visible {
-      outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
-      outline-offset: var(--wr-focus-ring-offset);
-    }
-  }
-
-  &__card {
-    --wr-card-padding-y: 0.625rem;
-    --wr-card-padding-x: 0.75rem;
-
-    height: 100%;
-  }
 
   &__row {
     display: flex;
     align-items: center;
     gap: 0.625rem;
-    font-size: 0.875rem;
-    font-weight: 500;
   }
 
-  &__icon {
-    display: inline-flex;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: var(--wr-border-radius-sm);
-    background: color-mix(in srgb, var(--wr-color-primary) 14%, transparent);
-    color: var(--wr-color-primary-ink);
-    --wr-icon-size: 1rem;
-  }
-
-  // Label over a one-line description. The row centres the icon and the arrow
+  // Label over its description. The row centres the icon and the arrow
   // against the pair.
   &__text {
     display: flex;
@@ -360,29 +285,12 @@
     min-width: 0;
   }
 
-  &__label {
-    color: var(--wr-color-on-surface);
-  }
-
-  &__description {
-    color: var(--wr-color-on-surface-muted);
-    font-size: 0.8125rem;
-    font-weight: var(--wr-font-weight-regular);
-    line-height: 1.45;
-  }
-
   &__arrow {
     --wr-icon-size: 1rem;
 
+    flex: 0 0 auto;
     color: var(--wr-color-on-surface-muted);
-    transition:
-      color var(--wr-transition-base),
-      transform var(--wr-transition-base);
-
-    // The arrow points along the reading direction, so it turns round in RTL.
-    &:dir(rtl) {
-      transform: scaleX(-1);
-    }
+    transition: color var(--wr-transition-base);
   }
 
   &__link:hover &__arrow {
@@ -436,37 +344,8 @@
   }
 }
 
-// Inline code inside the pitch copy. The showcase's global `code` rule only
-// fixes bidi isolation — nothing paints it — so this column rendered its API
-// names as bare monospace while every doc page sets them as chips. This is that
-// chip, declaration for declaration from `_core/components/doc-section` (the
-// `::ng-deep code` rule the `wrDocRich` descriptions get), so the site has one
-// inline-code treatment rather than a second one invented here.
-//
-// The one departure is the size: doc-section can hardcode `0.75rem` because its
-// descriptions are all one size, and this column runs a `lead` paragraph and a
-// 0.875rem checklist, where a fixed size reads as two different chips. `em`
-// keeps it proportional to whichever line it lands in.
-//
-// Contrast is measured against the CHIP now, not the page: `on-surface` on the
-// 35% `outline` tint, which is the same pair every doc-page chip is already
-// baselined at. The terms no longer need to lift off the muted copy around
-// them — the fill is what marks them.
-.ngwr-dx__copy code {
-  // An inline-block is an atomic inline and cannot break across lines at all,
-  // so a chip wider than the column would push the grid sideways. Cap it and
-  // let it break inside instead — the same trade doc-section documents.
-  display: inline-block;
-  max-width: 100%;
-  overflow-wrap: anywhere;
-  padding: 0.125rem 0.3125rem;
-  border-radius: var(--wr-border-radius-sm);
-  background: color-mix(in srgb, var(--wr-color-on-surface) 7%, transparent);
-  color: var(--wr-color-on-surface);
-  line-height: 1.25;
-  font-family: var(--wr-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 0.85em;
-}
+// Inline code on this page is the site's one chip, from `styles.scss`
+// (`:is(ngwr-doc-page, ngwr-home) :not(pre) > code`), so no rule here.
 
 /* Why grid */
 .ngwr-why-grid {
@@ -482,96 +361,37 @@
   }
 }
 
+// A spotlight card at its own padding and radius — the per-accent glow comes
+// from `[spotlightColor]` on each card, and the icon is the site's
+// `.ngwr-icon-chip`, toned by the tile's accent. The tile is not interactive,
+// so it has no hover border; it rests on the same shadow as every home tile.
 .ngwr-why {
-  // Spotlight-card shell, restyled to the original quiet tile look — the
-  // per-accent hover glow comes from `[spotlightColor]` on each card.
-  // (Nested so `&__icon` below still compiles to `.ngwr-why__icon`.)
-  &.wr-spotlight-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 1.5rem 1.25rem 1.625rem;
-    border-radius: 1rem;
-    transition: border-color var(--wr-transition-base);
-  }
-
-  &:hover {
-    border-color: color-mix(in srgb, var(--wr-color-primary) 40%, transparent);
-  }
-
-  &__icon {
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 0.5rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 0.5rem;
-    color: var(--wr-color-primary-ink);
-    background: color-mix(in srgb, var(--wr-color-primary) 18%, transparent);
-    --wr-icon-size: 1.125rem;
-
-    &[data-accent='success'] {
-      background: color-mix(in srgb, var(--wr-color-success) 18%, transparent);
-      color: var(--wr-color-success-ink);
-    }
-    &[data-accent='warning'] {
-      background: color-mix(in srgb, var(--wr-color-warning) 18%, transparent);
-      color: var(--wr-color-warning-ink);
-    }
-    &[data-accent='danger'] {
-      background: color-mix(in srgb, var(--wr-color-danger) 18%, transparent);
-      color: var(--wr-color-danger-ink);
-    }
-    // `info` paints its own token. It used to borrow primary's, which made the
-    // tile declaring `accent: 'info'` byte-identical to the primary one and
-    // meant the `info` intent was never reached on the page that shows it off.
-    &[data-accent='info'] {
-      background: color-mix(in srgb, var(--wr-color-info) 18%, transparent);
-      color: var(--wr-color-info-ink);
-    }
-    // The quiet tile. `secondary` until v15 deleted that intent, after which
-    // this rule was redirecting to the muted role under a name the theme no
-    // longer had — and carrying a hard-coded RGB fallback for a token that
-    // does exist, so the fallback could only ever mask a typo.
-    &[data-accent='neutral'] {
-      background: color-mix(in srgb, var(--wr-color-on-surface-muted) 18%, transparent);
-      color: var(--wr-color-on-surface-muted);
-    }
-    &[data-accent='primary'] {
-      background: color-mix(in srgb, var(--wr-color-primary) 18%, transparent);
-      color: var(--wr-color-primary-ink);
-    }
-  }
-}
-
-.ngwr-why-footer {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.75rem;
-  margin-top: 2.5rem;
+  flex-direction: column;
+  gap: var(--wr-space-sm);
+  box-shadow: var(--wr-shadow-xs);
+
+  &__text {
+    margin: 0;
+    color: var(--wr-color-on-surface-muted);
+  }
 }
 
 /* Motion gallery */
-.ngwr-motion {
-  &__heading {
-    display: block;
-  }
-}
-
+// Eight tiles: two columns, then four, so no row is left short. At 1200, the
+// narrowest four-column width, the longest stage line ("Split by character")
+// is 211px of a 221px stage. The section head above owns the spacing.
 .ngwr-motion-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.25rem;
-  margin-top: 2rem;
 
   @media (min-width: 48rem) {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  @media (min-width: 64rem) {
-    grid-template-columns: repeat(3, 1fr);
+  @include bp.media-up(xl) {
+    grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
   }
 }
@@ -582,6 +402,7 @@
   background: var(--wr-color-surface);
   border: 1px solid var(--wr-border-base);
   border-radius: var(--wr-border-radius-lg);
+  box-shadow: var(--wr-shadow-xs);
   overflow: hidden;
 
   &__stage {
@@ -607,18 +428,7 @@
     gap: 0.125rem;
     padding: 0.875rem 1.125rem;
     border-top: 1px solid var(--wr-border-base);
-
-    code {
-      font-family: var(--wr-font-family-mono, ui-monospace, monospace);
-      font-size: 0.6875rem;
-    }
   }
-}
-
-.ngwr-motion-footer {
-  margin-top: 2.5rem;
-  display: flex;
-  justify-content: center;
 }
 
 // The angle has to be a registered property for the gradient to animate.

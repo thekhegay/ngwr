@@ -19,7 +19,7 @@
       @for (step of scale; track step.token) {
         <div class="scale__row">
           <div class="scale__meta">
-            <code class="scale__token">{{ step.token }}</code>
+            <code>{{ step.token }}</code>
             <span class="scale__value">{{ step.value }} · {{ step.px }} · leading {{ step.leading }}</span>
           </div>
           <div class="scale__sample" [style.font-size]="`var(${step.token})`">Ag</div>
@@ -38,11 +38,11 @@
   >
     <div class="families">
       <div class="families__row">
-        <code class="families__token">--wr-font-family-base</code>
+        <code>--wr-font-family-base</code>
         <p class="families__sample families__sample--base">The quick brown fox jumps over the lazy dog — 0123456789</p>
       </div>
       <div class="families__row">
-        <code class="families__token">--wr-font-family-mono</code>
+        <code>--wr-font-family-mono</code>
         <p class="families__sample families__sample--mono">const x = 42; // the quick brown fox — 0123456789</p>
       </div>
     </div>

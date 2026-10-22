@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { WrButton } from 'ngwr/button';
+import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 import { WrTheme, type WrThemeMode } from 'ngwr/theme';
 
 import {
@@ -18,6 +19,7 @@ import {
   templateUrl: './theming.html',
   imports: [
     WrButton,
+    WrSegmented,
     RouterLink,
     DocPageComponent,
     DocSectionComponent,
@@ -32,10 +34,14 @@ export default class ThemingPage {
   protected readonly mode = this.theme.mode;
   protected readonly resolved = this.theme.resolved;
 
-  protected readonly modes: readonly WrThemeMode[] = ['light', 'dark', 'auto'];
+  protected readonly modeOptions: readonly WrSegmentedOption<WrThemeMode>[] = [
+    { value: 'light', label: 'light' },
+    { value: 'dark', label: 'dark' },
+    { value: 'auto', label: 'auto' },
+  ];
 
-  protected setMode(mode: WrThemeMode): void {
-    this.theme.set(mode);
+  protected setMode(mode: WrThemeMode | null): void {
+    if (mode) this.theme.set(mode);
   }
 
   protected readonly snippets = {

@@ -25,6 +25,9 @@ const ADD: Record<PackageManager, { add: string; dev: string }> = {
   selector: 'ngwr-doc-install',
   imports: [DocCodeComponent],
   template: `<ngwr-doc-code [files]="files()" [tab]="pm.current()" (tabChange)="pm.set($event)" />`,
+  // A block, so a doc-section gives it the same 1.5rem margin as any other
+  // block; an inline host took none.
+  styles: ':host { display: block; }',
 })
 export class DocInstallComponent {
   /** Space-separated package names. */

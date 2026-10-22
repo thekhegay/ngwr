@@ -35,7 +35,7 @@
     title="Reading a key from TypeScript"
     description="The `use…` and `read…` helpers need an injection context; `t()` and `translate()` work anywhere."
   >
-    <div style="overflow-x: auto">
+    <div class="ngwr-table">
       <table>
         <thead>
           <tr>
@@ -47,31 +47,31 @@
         </thead>
         <tbody>
           <tr>
-            <td><code>useI18nText(input, key, fallback)</code></td>
+            <th scope="row"><code>useI18nText(input, key, fallback)</code></th>
             <td><code>Signal&lt;string&gt;</code></td>
             <td>Injection context</td>
             <td>A string with an override input</td>
           </tr>
           <tr>
-            <td><code>readI18nText(key, fallback)</code></td>
+            <th scope="row"><code>readI18nText(key, fallback)</code></th>
             <td><code>Signal&lt;string&gt;</code></td>
             <td>Injection context</td>
             <td>A string with no override input</td>
           </tr>
           <tr>
-            <td><code>useI18nFormatter(key, fallback)</code></td>
+            <th scope="row"><code>useI18nFormatter(key, fallback)</code></th>
             <td><code>(params) =&gt; string</code></td>
             <td>Injection context</td>
             <td>A label with params per row</td>
           </tr>
           <tr>
-            <td><code>i18n.translate(key, params?)</code></td>
+            <th scope="row"><code>i18n.translate(key, params?)</code></th>
             <td><code>Signal&lt;string&gt;</code></td>
             <td>Anywhere</td>
             <td>A reactive string, created later</td>
           </tr>
           <tr>
-            <td><code>i18n.t(key, params?)</code></td>
+            <th scope="row"><code>i18n.t(key, params?)</code></th>
             <td><code>string</code></td>
             <td>Anywhere</td>
             <td>A one-off read, such as a toast</td>

@@ -15,11 +15,14 @@ function landingOf(route: string): string {
   return !DOC_ROUTES[route] && DOC_ROUTES[`${route}/overview`] ? `${route}/overview` : route;
 }
 
-/** A page the site serves: its route (no leading slash), its title, and its kind, `null` for a docs page. */
+/** A page the site serves: its route (no leading slash), its title, its kind and its description. */
 export interface DocPageRef {
   readonly route: string;
   readonly title: string;
+  /** `Component`, `Guide`, `Docs`, … — `null` only for a page outside every cluster. */
   readonly kind: string | null;
+  /** The page's own `description`, as written (with the `wrDocRich` forms), or `null` where the page binds one. */
+  readonly description: string | null;
 }
 
 /** The entry point a page documents, or `null`. */
@@ -41,15 +44,16 @@ export function docPageOf(
 
 /**
  * The page at a route, or `null` when the site serves none there. Read from `DOC_ROUTES`, which holds every page —
- * guides and docs pages included — where `DOC_PAGES` holds only the ones documenting an entry point.
+ * guides and docs pages included — where `DOC_PAGES` holds only the ones documenting an entry point. A section root
+ * answers with the `overview` it redirects to.
  */
 export function pageOfRoute(url: string): DocPageRef | null {
-  const route = pathOf(url);
+  const route = landingOf(pathOf(url));
   const page = DOC_ROUTES[route];
-  if (page) return { route, title: page.title, kind: page.kind };
+  if (page) return { route, title: page.title, kind: page.kind, description: page.description };
   const ep = ENTRY_BY_ROUTE.get(route);
   const doc = ep ? DOC_PAGES[ep] : undefined;
-  return doc ? { route, title: doc.title, kind: doc.kind } : null;
+  return doc ? { route, title: doc.title, kind: doc.kind, description: null } : null;
 }
 
 /**
@@ -66,10 +70,10 @@ export function relatedOf(url: string, taken: Iterable<string> = [], limit = Inf
   const out: DocPageRef[] = [];
   for (const candidate of [...(RELATED[route] ?? []), ...built, ...demoed]) {
     if (out.length >= limit) break;
-    if (!candidate || seen.has(candidate)) continue;
-    const page = pageOfRoute(candidate);
-    if (!page) continue;
-    seen.add(candidate);
+    // Checked on the page it lands on, so a section root and its `overview` are one page.
+    const page = candidate ? pageOfRoute(candidate) : null;
+    if (!page || seen.has(page.route)) continue;
+    seen.add(page.route);
     out.push(page);
   }
   return out;

@@ -4,6 +4,7 @@
 // of dark chip controls beneath.
 
 @use 'lib/styles/breakpoints' as bp;
+@use 'showcase/styles/mixins' as site;
 
 :host {
   display: block;
@@ -70,8 +71,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--wr-color-primary);
-    outline-offset: 2px;
+    @include site.focus-ring;
   }
 }
 
@@ -188,8 +188,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--wr-color-primary);
-      outline-offset: 2px;
+      @include site.focus-ring;
     }
   }
 

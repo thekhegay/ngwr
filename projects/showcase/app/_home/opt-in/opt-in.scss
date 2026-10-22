@@ -12,53 +12,15 @@
   }
 }
 
-// The head repeats the home page's `.ngwr-section__head--why` + `__lede` +
-// `__head-aside` geometry. Those rules live in `home.scss`, which is the home
-// component's own emulated stylesheet, so they cannot reach this template.
+// The section frame and head are the global `.ngwr-section` rules
+// (`showcase/styles/_section.scss`), the icon is `.ngwr-icon-chip`, inline
+// code is the site's one chip and the arrow's RTL flip is global too.
 
 :host {
   display: block;
 }
 
 .ngwr-optin {
-  padding: 5rem 0;
-
-  @include bp.media-down(md) {
-    padding: 3rem 0;
-  }
-
-  &__head {
-    display: flex;
-    align-items: flex-end;
-    gap: 4rem;
-    margin-bottom: 3rem;
-
-    @include bp.media-down(md) {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 1rem;
-    }
-  }
-
-  &__lede {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-
-  &__aside {
-    max-width: 22rem;
-    margin-block: 0;
-    margin-inline-start: auto;
-    color: var(--wr-color-on-surface-muted);
-    line-height: 1.6;
-
-    @include bp.media-down(md) {
-      margin-inline-start: 0;
-    }
-  }
-
   // One column, then two from `xl`: below 1200px half a row is narrower than
   // the samples' longest lines, and a code block that scrolls sideways is the
   // thing this layout must not produce.
@@ -80,12 +42,6 @@
   &__item {
     display: grid;
     min-width: 0;
-
-    @include bp.media-up(xl) {
-      &--wide {
-        grid-column: 1 / -1;
-      }
-    }
   }
 
   &__card {
@@ -116,18 +72,12 @@
   }
 
   // Copy beside code, where a card has the whole width to itself: every card
-  // between `lg` and `xl`, and the wide one in the two-column grid.
+  // between `lg` and `xl`, while the grid is one column.
   @include bp.media-up(lg) {
     @include bp.media-down(xl) {
       &__body {
         @include split;
       }
-    }
-  }
-
-  @include bp.media-up(xl) {
-    &__item--wide &__body {
-      @include split;
     }
   }
 
@@ -144,21 +94,6 @@
     gap: 0.625rem;
   }
 
-  // The same chip the "Why ngwr" tiles draw, at a smaller size.
-  &__icon {
-    --wr-icon-size: 1rem;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 0.5rem;
-    background: color-mix(in srgb, var(--wr-color-primary) 18%, transparent);
-    color: var(--wr-color-primary-ink);
-  }
-
   &__label {
     margin: 0;
     color: var(--wr-color-on-surface);
@@ -172,22 +107,6 @@
     color: var(--wr-color-on-surface-muted);
     font-size: 0.875rem;
     line-height: 1.6;
-
-    // `wrDocRich` writes these through `innerHTML`, so they carry no scoping
-    // attribute. The chip is the doc pages' own (`styles.scss`), which is
-    // scoped to `ngwr-doc-page` and so never reaches the home page.
-    ::ng-deep code {
-      display: inline-block;
-      max-width: 100%;
-      overflow-wrap: anywhere;
-      padding: 0.125rem 0.3125rem;
-      border-radius: var(--wr-border-radius-sm);
-      background: color-mix(in srgb, var(--wr-color-on-surface) 7%, transparent);
-      color: var(--wr-color-on-surface);
-      line-height: 1.25;
-      font-family: var(--wr-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-      font-size: 0.85em;
-    }
   }
 
   // `wr-card-footer`, so the links sit on the card's bottom edge whatever the
@@ -199,12 +118,6 @@
     gap: 0.5rem;
     padding-top: 0;
     border-top: 0;
-  }
-
-  // The icon is `wr-btn`'s own element. The arrow points along the reading
-  // direction, so it turns round in RTL.
-  &__link ::ng-deep .wr-btn__icon:dir(rtl) {
-    transform: scaleX(-1);
   }
 
   // Stretched to the row the body gives it, so the code wells in one row of

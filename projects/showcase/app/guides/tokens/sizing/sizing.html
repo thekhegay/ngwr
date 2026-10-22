@@ -37,73 +37,79 @@
     title="Control tokens"
     description="Height is the line-height, plus the vertical padding twice, plus a 1px border on each side."
   >
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Token</th>
-          <th scope="col">sm / md / lg</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (t of controlTokens; track t.name) {
+    <div class="ngwr-table">
+      <table>
+        <thead>
           <tr>
-            <td>
-              <code>{{ t.name }}</code>
-            </td>
-            <td>{{ t.value }}</td>
+            <th scope="col">Token</th>
+            <th scope="col">sm / md / lg</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (t of controlTokens; track t.name) {
+            <tr>
+              <th scope="row">
+                <code>{{ t.name }}</code>
+              </th>
+              <td>{{ t.value }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
     <ngwr-doc-code [code]="snippets.usage" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Spacing" description="One scale for padding, margin and gap.">
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Token</th>
-          <th scope="col">Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (t of spaceTokens; track t.name) {
+    <div class="ngwr-table">
+      <table>
+        <thead>
           <tr>
-            <td>
-              <code>{{ t.name }}</code>
-            </td>
-            <td>
-              <code>{{ t.value }}</code>
-            </td>
+            <th scope="col">Token</th>
+            <th scope="col">Value</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (t of spaceTokens; track t.name) {
+            <tr>
+              <th scope="row">
+                <code>{{ t.name }}</code>
+              </th>
+              <td>
+                <code>{{ t.value }}</code>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Radius" description="Panels and overlays use these; for a circle use `50%`.">
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Token</th>
-          <th scope="col">Value</th>
-          <th scope="col">Use</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (t of radiusTokens; track t.name) {
+    <div class="ngwr-table">
+      <table>
+        <thead>
           <tr>
-            <td>
-              <code>{{ t.name }}</code>
-            </td>
-            <td>
-              <code>{{ t.value }}</code>
-            </td>
-            <td>{{ t.use }}</td>
+            <th scope="col">Token</th>
+            <th scope="col">Value</th>
+            <th scope="col">Use</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (t of radiusTokens; track t.name) {
+            <tr>
+              <th scope="row">
+                <code>{{ t.name }}</code>
+              </th>
+              <td>
+                <code>{{ t.value }}</code>
+              </td>
+              <td>{{ t.use }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section

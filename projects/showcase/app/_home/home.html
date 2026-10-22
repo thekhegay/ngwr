@@ -42,7 +42,8 @@
           />
         </p>
 
-        <!-- One call to action: a transparent `wr-btn` inside a ring whose
+        <!-- One call to action: an outlined `wr-btn` on the page surface, with
+             the library's hover and focus ring, inside a ring whose
              brand-coloured arc circles it for ever; reduced motion stops the
              arc and keeps the tinted ring. -->
         <div class="ngwr-home-hero__cta">
@@ -56,7 +57,7 @@
               icon="arrow-forward"
               iconPosition="end"
             >
-              Get Started
+              Get started
             </a>
           </span>
         </div>
@@ -73,9 +74,9 @@
       <div class="ngwr-dx__copy">
         <div class="ngwr-section__lede">
           <wr-tag color="primary" outlined>Developer experience</wr-tag>
-          <p wrTypography variant="h1" class="ngwr-dx__heading">
+          <h2 wrTypography variant="h1">
             <wr-blur-text text="Signal Forms, with nothing in between." animateBy="words" [stepDuration]="0.45" />
-          </p>
+          </h2>
         </div>
         <p wrTypography variant="lead">
           A value control here is not a wrapper around a native element that reports back through an accessor. It
@@ -138,30 +139,24 @@
           </li>
         </ul>
 
-        <div class="ngwr-dx-links">
+        <ul class="ngwr-link-grid ngwr-dx-links">
           @for (link of dxLinks; track link.label) {
-            <a class="ngwr-dx-links__link" [routerLink]="link.url">
-              <wr-card class="ngwr-dx-links__card" hoverable compact>
+            <li>
+              <a class="ngwr-link-card ngwr-dx-links__link" [routerLink]="link.url">
                 <span class="ngwr-dx-links__row">
-                  <span class="ngwr-dx-links__icon"><wr-icon [name]="link.icon" /></span>
+                  <span class="ngwr-icon-chip ngwr-icon-chip--sm" data-tone="primary" aria-hidden="true">
+                    <wr-icon [name]="link.icon" />
+                  </span>
                   <span class="ngwr-dx-links__text">
-                    <span class="ngwr-dx-links__label">{{ link.label }}</span>
-                    <span class="ngwr-dx-links__description">
-                      @for (part of link.description.split('`'); track $index; let code = $odd) {
-                        @if (code) {
-                          <code>{{ part }}</code>
-                        } @else {
-                          {{ part }}
-                        }
-                      }
-                    </span>
+                    <span class="ngwr-link-card__title">{{ link.label }}</span>
+                    <span class="ngwr-link-card__desc" [innerHTML]="link.description | wrDocRich"></span>
                   </span>
                   <wr-icon class="ngwr-dx-links__arrow" name="arrow-forward" />
                 </span>
-              </wr-card>
-            </a>
+              </a>
+            </li>
           }
-        </div>
+        </ul>
       </div>
 
       <ngwr-doc-code class="ngwr-dx__code" [code]="snippet" language="angular-ts" />
@@ -174,14 +169,14 @@
   <!-- Why ngwr -->
   <section class="ngwr-section">
     <div class="container">
-      <div class="ngwr-section__head ngwr-section__head--why">
+      <div class="ngwr-section__head">
         <div class="ngwr-section__lede">
           <wr-tag color="primary" outlined>Why ngwr</wr-tag>
-          <p wrTypography variant="h1" class="ngwr-why__heading">
+          <h2 wrTypography variant="h1">
             <wr-blur-text text="Built on the new Angular. Not ported to it." animateBy="words" [stepDuration]="0.4" />
-          </p>
+          </h2>
         </div>
-        <p class="ngwr-section__head-aside">
+        <p class="ngwr-section__aside">
           Nothing here carries a compatibility layer from the NgModule era. The bookkeeping that is left — focus traps,
           virtual scroll, density tokens, error wiring — is handled inside the primitive.
         </p>
@@ -190,24 +185,16 @@
       <div class="ngwr-why-grid">
         @for (tile of whyTiles; track tile.title) {
           <wr-spotlight-card class="ngwr-why" [spotlightColor]="tile.spotlight" [radius]="70">
-            <div class="ngwr-why__icon" [attr.data-accent]="tile.accent">
+            <span class="ngwr-icon-chip" [attr.data-tone]="tile.accent" aria-hidden="true">
               <wr-icon [name]="tile.icon" />
-            </div>
-            <p wrTypography variant="h5">{{ tile.title }}</p>
-            <p>
-              @for (part of tile.description.split('`'); track $index; let code = $odd) {
-                @if (code) {
-                  <code>{{ part }}</code>
-                } @else {
-                  {{ part }}
-                }
-              }
-            </p>
+            </span>
+            <h3 wrTypography variant="h5">{{ tile.title }}</h3>
+            <p class="ngwr-why__text" [innerHTML]="tile.description | wrDocRich"></p>
           </wr-spotlight-card>
         }
       </div>
 
-      <div class="ngwr-why-footer">
+      <div class="ngwr-section__footer">
         <a
           wr-btn
           outlined
@@ -239,14 +226,14 @@
   @defer (hydrate on viewport) {
     <section class="ngwr-section">
       <div class="container">
-        <div class="ngwr-section__head ngwr-section__head--why">
+        <div class="ngwr-section__head">
           <div class="ngwr-section__lede">
             <wr-tag color="primary" outlined>Animations</wr-tag>
-            <p wrTypography variant="h1" class="ngwr-motion__heading">
+            <h2 wrTypography variant="h1">
               <wr-split-text text="Motion you can ship." splitType="chars" [delay]="40" [duration]="1.05" />
-            </p>
+            </h2>
           </div>
-          <p class="ngwr-section__head-aside">
+          <p class="ngwr-section__aside">
             Beyond the primitives — a kit of motion components for hero copy, hovers, and the bits of personality that
             set a real product apart.
           </p>
@@ -345,10 +332,8 @@
           </article>
         </div>
 
-        <div class="ngwr-motion-footer">
-          <a wr-btn outlined size="lg" [routerLink]="path(routes.bits)" icon="arrow-forward" iconPosition="end">
-            Browse bits
-          </a>
+        <div class="ngwr-section__footer">
+          <a wr-btn outlined [routerLink]="path(routes.bits)" icon="arrow-forward" iconPosition="end"> Browse bits </a>
         </div>
       </div>
     </section>

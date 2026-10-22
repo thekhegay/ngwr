@@ -1,27 +1,10 @@
 // Components bento — zardui-style 4-column grid of mini-UI tiles, each
 // linking to its component's docs page.
 
+// The section frame and the centred head are the global `.ngwr-section` rules
+// (`showcase/styles/_section.scss`), shared with every other home section.
 .ngwr-cbento {
   display: block;
-
-  &__section {
-    padding: 4rem 0 5rem;
-  }
-
-  &__head {
-    max-width: 48rem;
-    margin: 0 auto 2.5rem;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-
-    > wr-tag {
-      // Tag sits as a tight pill above the heading.
-      align-self: center;
-    }
-  }
 
   // Each sentence is one line from 48rem up (about 590px of text at the lead
   // size, inside the 720px container). Below that the break goes away, the
@@ -69,7 +52,7 @@
   &__tile {
     --ngwr-cbento-bg: var(--wr-color-surface);
     --ngwr-cbento-border: var(--wr-border-base);
-    --ngwr-cbento-shadow: 0 1px 2px color-mix(in srgb, var(--wr-color-backdrop) 4%, transparent);
+    --ngwr-cbento-shadow: var(--wr-shadow-xs);
 
     position: relative;
     display: flex;
@@ -229,22 +212,10 @@
     }
   }
 
-  // Code snippet tile
+  // Code snippet tile. The snippet is the standard `ngwr-doc-code` well, with
+  // its own background, type and copy button.
   &__code {
     gap: 0.5rem;
-
-    &-block {
-      margin: 0;
-      padding: 0.75rem;
-      background: color-mix(in srgb, var(--wr-color-on-surface) 4%, transparent);
-      border-radius: var(--wr-border-radius-base);
-      font-family: var(--wr-font-family-mono, ui-monospace, monospace);
-      font-size: 0.75rem;
-      line-height: 1.55;
-      color: var(--wr-color-on-surface);
-      overflow-x: auto;
-      white-space: pre;
-    }
   }
 
   &__link {

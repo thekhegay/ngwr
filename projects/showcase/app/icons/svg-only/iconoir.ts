@@ -11,7 +11,8 @@ function kebabToCamel(value: string): string {
 
 const SPEC: SvgSetSpec = {
   title: 'Iconoir',
-  description: 'A free 24px stroke set with 1300+ hand-crafted icons. Click any tile to copy the import snippet.',
+  description: count =>
+    `A free 24px stroke set with ${count} hand-crafted icons. Click any tile to copy the import snippet.`,
   homepage: 'https://iconoir.com',
   license: 'MIT',
   packages: 'iconoir',

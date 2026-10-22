@@ -43,26 +43,28 @@
       }
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Token</th>
-          <th scope="col">sm / md / lg / touch</th>
-          <th scope="col">Scales</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (t of multipliers; track t.name) {
+    <div class="ngwr-table">
+      <table>
+        <thead>
           <tr>
-            <td>
-              <code>{{ t.name }}</code>
-            </td>
-            <td>{{ t.values }}</td>
-            <td>{{ t.use }}</td>
+            <th scope="col">Token</th>
+            <th scope="col">sm / md / lg / touch</th>
+            <th scope="col">Scales</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (t of multipliers; track t.name) {
+            <tr>
+              <th scope="row">
+                <code>{{ t.name }}</code>
+              </th>
+              <td>{{ t.values }}</td>
+              <td>{{ t.use }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -72,9 +74,12 @@
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
-          @for (d of densities; track d) {
-            <button wr-btn type="button" [color]="current() === d ? 'primary' : null" (click)="set(d)">{{ d }}</button>
-          }
+          <wr-segmented
+            aria-label="Density"
+            [options]="densityOptions"
+            [value]="current()"
+            (valueChange)="set($event)"
+          />
           <button wr-btn type="button" (click)="cycle()">cycle()</button>
         </div>
         <p style="margin: 0">

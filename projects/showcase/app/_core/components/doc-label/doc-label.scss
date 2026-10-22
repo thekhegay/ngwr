@@ -1,3 +1,5 @@
+@use 'showcase/styles/mixins' as site;
+
 :host {
   display: inline-flex;
 }
@@ -74,6 +76,5 @@ a.doc-label:hover {
 }
 
 a.doc-label:focus-visible {
-  outline: 2px solid var(--wr-focus-ring-color);
-  outline-offset: 2px;
+  @include site.focus-ring;
 }

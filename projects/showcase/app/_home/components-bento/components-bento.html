@@ -1,8 +1,13 @@
-<section class="ngwr-cbento__section">
+<section class="ngwr-section">
   <div class="container">
-    <header class="ngwr-cbento__head">
+    <!--
+      No `ngwr-section__lede` around the chip and the heading: the centred head
+      is already a column with the lede's gap, and the lede pins its children to
+      the start edge, which put the chip off-centre above the heading.
+    -->
+    <header class="ngwr-section__head ngwr-section__head--center">
       <wr-tag color="primary" outlined>Components</wr-tag>
-      <p wrTypography variant="h1">Composed in context.</p>
+      <h2 wrTypography variant="h1">Composed in context.</h2>
       <!--
         Two sentences, one line each on desktop. The `<br>` sets the break;
         `&nbsp;` keeps a short word with the next one, so no line ends on
@@ -388,7 +393,7 @@
           <p wrTypography variant="caption" tone="muted">Drop-in component</p>
         </header>
         <div class="ngwr-cbento__tile-body ngwr-cbento__code">
-          <ngwr-doc-code class="ngwr-cbento__code-block" [code]="codeSnippet" language="angular-ts" />
+          <ngwr-doc-code [code]="codeSnippet" language="angular-ts" />
           <p wrTypography variant="caption" tone="muted">Each entry point compiles on its own.</p>
         </div>
       </article>

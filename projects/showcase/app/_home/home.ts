@@ -15,7 +15,6 @@ import { WrSpotlightCard } from 'ngwr/bits/spotlight-card';
 import { WrTypewriter } from 'ngwr/bits/typewriter';
 import { WrWaves } from 'ngwr/bits/waves';
 import { WrButton } from 'ngwr/button';
-import { WrCard } from 'ngwr/card';
 import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import type { WrColor } from 'ngwr/theme';
 import { WrTypography } from 'ngwr/typography';
@@ -25,16 +24,17 @@ import { Footer } from '../_layout/footer/footer';
 import { ComponentsBento } from './components-bento/components-bento';
 import { HomeOptInComponent } from './opt-in/opt-in';
 
-import { DocCodeComponent } from '#core/components';
+import { DocCodeComponent, DocRichPipe } from '#core/components';
 import { QUALITY } from '#core/generated/quality';
 import { BRAND_ICONS } from '#core/icons';
 import { MetaService } from '#core/services';
+import { formatCount } from '#core/utils';
 import { ROUTES, wrPath } from '#routes';
 
 interface WhyTile {
   readonly icon: string;
   readonly title: string;
-  /** Prose; a `backtick` run renders as inline code. */
+  /** Prose, rendered through `wrDocRich`: a `backtick` run is inline code. */
   readonly description: string;
   /**
    * `neutral` is the name v15 gave this job on `wr-timeline-item`, and the
@@ -53,7 +53,7 @@ interface WhyTile {
 interface DxLink {
   readonly icon: string;
   readonly label: string;
-  /** One short line under the label; a `backtick` run renders as inline code. */
+  /** The text under the label, rendered through `wrDocRich`: a `backtick` run is inline code. */
   readonly description: string;
   readonly url: string;
 }
@@ -66,7 +66,6 @@ interface DxLink {
     RouterLink,
     WrIcon,
     WrButton,
-    WrCard,
     WrTag,
     WrTypography,
     // Motion kit
@@ -84,6 +83,7 @@ interface DxLink {
     ComponentsBento,
     HomeOptInComponent,
     DocCodeComponent,
+    DocRichPipe,
     Footer,
   ],
   providers: [
@@ -113,9 +113,10 @@ export default class HomeComponent {
    * Counted by `pnpm gen:quality`, not typed here. The hero and the "Pay for
    * what you import" tile both stated 202 while the package published 204 — a
    * hand-written catalog size is stale one entry point after it is written, and
-   * this is the page most readers see first.
+   * this is the page most readers see first. Printed through `formatCount`, the
+   * one spelling every count on the site takes.
    */
-  protected readonly entryPoints = QUALITY.entryPoints;
+  protected readonly entryPoints = formatCount(QUALITY.entryPoints);
 
   /**
    * Sample sign-up card shown in the DX section — goes through Shiki.
@@ -181,11 +182,14 @@ export class SignupCard {
       url: wrPath(ROUTES.guides, ROUTES.guides.forms),
     },
     // Names from `WrValidators` itself. `required` and `email` are Angular's,
-    // not ngwr's, so they do not belong on this card.
+    // not ngwr's, so they do not belong on this card. Four names, because the
+    // two cards sit side by side and this one has to wrap to the same two lines
+    // as the forms card beside it: measured at 1440 and 1280, a fifth name
+    // (`matchFields`) takes it to three.
     {
       icon: 'badge-check',
       label: 'Validators',
-      description: '`iban`, `hexColor`, `url`, etc.',
+      description: '`iban`, `cardNumber`, `hexColor` and `url`',
       url: wrPath(ROUTES.reference, ROUTES.reference.validators),
     },
   ];
@@ -243,7 +247,7 @@ export class SignupCard {
     {
       icon: 'folder',
       title: 'Pay for what you import',
-      description: `${QUALITY.entryPoints} entry points, each one tree-shakable on its own. What you don't import never lands in your bundle — the SCSS opts in per component too.`,
+      description: `${this.entryPoints} entry points, each one tree-shakable on its own. What you don't import never lands in your bundle — the SCSS opts in per component too.`,
       accent: 'success',
       spotlight: 'color-mix(in srgb, var(--wr-color-success) 14%, transparent)',
     },

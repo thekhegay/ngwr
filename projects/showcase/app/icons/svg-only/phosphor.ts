@@ -11,8 +11,8 @@ function kebabToCamel(value: string): string {
 
 const SPEC: SvgSetSpec = {
   title: 'Phosphor',
-  description:
-    'A flexible 6-weight icon family. 1500+ regular icons shown here — pick a weight by swapping the folder. Click any tile to copy the import snippet.',
+  description: count =>
+    `A flexible 6-weight icon family. ${count} regular icons shown here — pick a weight by swapping the folder. Click any tile to copy the import snippet.`,
   homepage: 'https://phosphoricons.com',
   license: 'MIT',
   packages: '@phosphor-icons/core',

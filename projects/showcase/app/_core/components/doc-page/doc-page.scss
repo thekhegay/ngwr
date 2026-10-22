@@ -77,32 +77,19 @@
 }
 
 .description {
+  // Its inline code, written by wrDocRich through [innerHTML], is chipped by
+  // the global rule in `styles.scss` — the same chip as every other.
   margin: 0;
   color: var(--wr-color-on-surface-muted);
   font-size: var(--wr-text-base);
   font-weight: var(--wr-font-weight-regular);
   line-height: var(--wr-text-base-leading);
-
-  // Arrives via [innerHTML], so it carries no scoping attribute.
-  ::ng-deep code {
-    padding: 0.125rem 0.3125rem;
-    border-radius: var(--wr-border-radius-sm);
-    background: var(--wr-color-fill);
-    color: var(--wr-color-on-surface);
-    font-family: var(--wr-font-family-mono);
-    font-size: 0.875em;
-  }
 }
 
-.deps {
-  th {
-    width: 9rem;
-    text-align: start;
-    font-weight: var(--wr-font-weight-medium);
-    white-space: nowrap;
-  }
-
-  &__note {
-    color: var(--wr-color-on-surface-muted);
-  }
+// The box, the row header and the note are `.ngwr-table`'s. Only the label
+// column's width is this table's: one width on every page, so the values start
+// at the same x wherever a reader meets the block. Its labels wrap rather than
+// `nowrap`, which pushed the column to the longest label's 161px.
+.deps th {
+  width: 9rem;
 }

@@ -48,39 +48,45 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Gotchas">
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">What happens</th>
-          <th scope="col">What to do</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>A click outside an open select inside the dialog closes the select and the dialog.</td>
-          <td>Open a dialog that holds a form with <code>closeOnBackdropClick: false</code>.</td>
-        </tr>
-        <tr>
-          <td>No <code>z-index</code> puts your element above a dialog: overlays live in the top layer.</td>
-          <td>
-            Make that element a <code>popover</code> too, or provide <code>OVERLAY_DEFAULT_CONFIG</code> with
-            <code>{{ '{' }} usePopover: false {{ '}' }}</code
-            >.
-          </td>
-        </tr>
-        <tr>
-          <td>
-            An ngwr overlay inside a native <code>&lt;dialog&gt;</code> opened with <code>showModal()</code> ignores
-            clicks.
-          </td>
-          <td>Use <code>WrDialog</code> instead of the native dialog.</td>
-        </tr>
-        <tr>
-          <td>If the dialog's result removes its trigger, focus falls back to <code>&lt;body&gt;</code>.</td>
-          <td>Move focus yourself after <code>awaitClose()</code>.</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">What happens</th>
+            <th scope="col">What to do</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">A click outside an open select inside the dialog closes the select and the dialog.</th>
+            <td>Open a dialog that holds a form with <code>closeOnBackdropClick: false</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              No <code>z-index</code> puts your element above a dialog: overlays live in the top layer.
+            </th>
+            <td>
+              Make that element a <code>popover</code> too, or provide <code>OVERLAY_DEFAULT_CONFIG</code> with
+              <code>{{ '{' }} usePopover: false {{ '}' }}</code
+              >.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">
+              An ngwr overlay inside a native <code>&lt;dialog&gt;</code> opened with <code>showModal()</code> ignores
+              clicks.
+            </th>
+            <td>Use <code>WrDialog</code> instead of the native dialog.</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              If the dialog's result removes its trigger, focus falls back to <code>&lt;body&gt;</code>.
+            </th>
+            <td>Move focus yourself after <code>awaitClose()</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Service API">

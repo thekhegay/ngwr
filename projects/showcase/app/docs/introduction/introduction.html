@@ -7,7 +7,7 @@
     <ul class="intro-features wr-not-typeset">
       @for (feature of features; track feature.title) {
         <li class="intro-feature">
-          <span class="intro-feature__icon" [attr.data-tone]="feature.tone">
+          <span class="ngwr-icon-chip" [attr.data-tone]="feature.tone">
             <wr-icon [name]="feature.icon" />
           </span>
           <h3 class="intro-feature__title">
@@ -28,38 +28,40 @@
     description="Every entry point has a spec beside its code. The locale catalogs share one."
   >
     <wr-statistic-group class="wr-not-typeset" min="9rem" [columns]="3">
-      <wr-statistic label="Spec files" [value]="quality.specFiles" [animate]="false" />
-      <wr-statistic label="Test cases" [prefix]="casesPrefix" [value]="quality.testCases" [animate]="false" />
-      <wr-statistic label="Entry points" [value]="quality.entryPoints" [animate]="false" />
+      <wr-statistic label="Spec files" [value]="counts.specFiles" [animate]="false" />
+      <wr-statistic label="Test cases" [value]="counts.testCases" [animate]="false" />
+      <wr-statistic label="Entry points" [value]="counts.entryPoints" [animate]="false" />
     </wr-statistic-group>
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Tier</th>
-          <th scope="col">Runs</th>
-          <th scope="col">Checks</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (tier of tiers; track tier.name) {
+    <div class="ngwr-table">
+      <table>
+        <thead>
           <tr>
-            <th scope="row">{{ tier.name }}</th>
-            <td>{{ tier.when }}</td>
-            <td>
-              @if (tier.gates.length) {
-                <span class="intro-gates">
-                  @for (gate of tier.gates; track gate) {
-                    <code>{{ gate }}</code>
-                  }
-                </span>
-              } @else {
-                {{ tier.note }}
-              }
-            </td>
+            <th scope="col">Tier</th>
+            <th scope="col">Runs</th>
+            <th scope="col">Checks</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (tier of tiers; track tier.name) {
+            <tr>
+              <th scope="row">{{ tier.name }}</th>
+              <td>{{ tier.when }}</td>
+              <td>
+                @if (tier.gates.length) {
+                  <span class="intro-gates">
+                    @for (gate of tier.gates; track gate) {
+                      <code>{{ gate }}</code>
+                    }
+                  </span>
+                } @else {
+                  {{ tier.note }}
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
     <ul>
       <li>
         Coverage goes to
@@ -75,17 +77,6 @@
     </ul>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Next">
-    <ul>
-      @for (link of next; track link.url) {
-        <li>
-          <a [routerLink]="link.url">{{ link.title }}</a
-          >: {{ link.text }}
-        </li>
-      }
-    </ul>
-  </ngwr-doc-section>
-
   <div class="intro-support wr-not-typeset">
     <div class="intro-support__mark">
       <wr-icon name="ngwr" />
@@ -97,4 +88,6 @@
       Star on GitHub
     </a>
   </div>
+
+  <ngwr-doc-see-also [links]="next" />
 </ngwr-doc-page>

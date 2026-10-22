@@ -1,7 +1,7 @@
 <div class="ngwr-icon-grid">
   <div class="ngwr-icon-grid__search">
     <input wrInput type="search" placeholder="Search by name…" [(ngModel)]="query" autocomplete="off" />
-    <span class="ngwr-icon-grid__count">{{ filtered().length }} / {{ totalCount() }}</span>
+    <span class="ngwr-icon-grid__count">{{ filteredLabel() }} / {{ totalLabel() }}</span>
   </div>
 
   @if (visible().length === 0) {
@@ -22,7 +22,7 @@
     </div>
 
     @if (hiddenCount() > 0) {
-      <p class="ngwr-icon-grid__hidden">+{{ hiddenCount() }} more matches — narrow the search to see them.</p>
+      <p class="ngwr-icon-grid__hidden">+{{ hiddenLabel() }} more matches — narrow the search to see them.</p>
     }
   }
 </div>

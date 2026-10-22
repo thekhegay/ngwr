@@ -10,32 +10,34 @@
     <ngwr-doc-code [code]="snippets.claudeCode" language="bash" />
     <p>Or add this to the client's config file:</p>
     <ngwr-doc-code [code]="snippets.config" language="typescript" />
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Client</th>
-          <th scope="col">Config file</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Claude Code</td>
-          <td><code>.mcp.json</code> in the project root</td>
-        </tr>
-        <tr>
-          <td>Claude Desktop, macOS</td>
-          <td><code>~/Library/Application Support/Claude/claude_desktop_config.json</code></td>
-        </tr>
-        <tr>
-          <td>Claude Desktop, Windows</td>
-          <td><code>%APPDATA%\Claude\claude_desktop_config.json</code></td>
-        </tr>
-        <tr>
-          <td>Cursor</td>
-          <td><code>.cursor/mcp.json</code> in the project, or <code>~/.cursor/mcp.json</code></td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Client</th>
+            <th scope="col">Config file</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Claude Code</th>
+            <td><code>.mcp.json</code> in the project root</td>
+          </tr>
+          <tr>
+            <th scope="row">Claude Desktop, macOS</th>
+            <td><code>~/Library/Application Support/Claude/claude_desktop_config.json</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Claude Desktop, Windows</th>
+            <td><code>%APPDATA%\Claude\claude_desktop_config.json</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Cursor</th>
+            <td><code>.cursor/mcp.json</code> in the project, or <code>~/.cursor/mcp.json</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <p>Restart Claude Desktop after you edit its config.</p>
   </ngwr-doc-section>
 
@@ -48,40 +50,42 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Tools">
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Tool</th>
-          <th scope="col">Arguments</th>
-          <th scope="col">Returns</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>search_ngwr</code></td>
-          <td><code>query</code>, <code>limit</code> (10, at most 40)</td>
-          <td>Matching entry points with import line and selector. Start here.</td>
-        </tr>
-        <tr>
-          <td><code>get_ngwr_component</code></td>
-          <td><code>name</code>: entry point, symbol or selector</td>
-          <td>Selectors, exports, import line, <code>&#64;use</code> line and docs URLs</td>
-        </tr>
-        <tr>
-          <td><code>get_ngwr_api</code></td>
-          <td>
-            <code>symbol</code>, <code>kind</code> to narrow it (<code>input</code>, <code>output</code>,
-            <code>method</code>, …)
-          </td>
-          <td>Inputs, models, outputs and methods of one class</td>
-        </tr>
-        <tr>
-          <td><code>get_ngwr_setup</code></td>
-          <td><code>symbols</code>: an array of names</td>
-          <td>The install, <code>ng g ngwr:use</code>, <code>&#64;use</code> and provider lines, as text</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Tool</th>
+            <th scope="col">Arguments</th>
+            <th scope="col">Returns</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>search_ngwr</code></th>
+            <td><code>query</code>, <code>limit</code> (10, at most 40)</td>
+            <td>Matching entry points with import line and selector. Start here.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>get_ngwr_component</code></th>
+            <td><code>name</code>: entry point, symbol or selector</td>
+            <td>Selectors, exports, import line, <code>&#64;use</code> line and docs URLs</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>get_ngwr_api</code></th>
+            <td>
+              <code>symbol</code>, <code>kind</code> to narrow it (<code>input</code>, <code>output</code>,
+              <code>method</code>, …)
+            </td>
+            <td>Inputs, models, outputs and methods of one class</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>get_ngwr_setup</code></th>
+            <td><code>symbols</code>: an array of names</td>
+            <td>The install, <code>ng g ngwr:use</code>, <code>&#64;use</code> and provider lines, as text</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <p>It reads only its own package: no network, no writes, and it never runs the commands it returns.</p>
   </ngwr-doc-section>
 

@@ -10,24 +10,26 @@
   >
     <ngwr-doc-code [code]="snippets.containerQuery" language="angular-html" />
 
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Component</th>
-          <th scope="col">When narrow</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (row of reflows; track row.component) {
+    <div class="ngwr-table">
+      <table>
+        <thead>
           <tr>
-            <td>
-              <code>{{ row.component }}</code>
-            </td>
-            <td>{{ row.narrow }}</td>
+            <th scope="col">Component</th>
+            <th scope="col">When narrow</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (row of reflows; track row.component) {
+            <tr>
+              <th scope="row">
+                <code>{{ row.component }}</code>
+              </th>
+              <td>{{ row.narrow }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section

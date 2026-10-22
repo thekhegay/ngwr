@@ -8,6 +8,7 @@ import {
   FlaskConical,
   Heart,
   Languages,
+  Moon,
   Package,
   Palette,
   Server,
@@ -20,9 +21,16 @@ import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import { WrStatistic, WrStatisticGroup } from 'ngwr/statistic';
 import { WrTypography } from 'ngwr/typography';
 
-import { DocPageComponent, DocRichPipe, DocSectionComponent } from '#core/components';
+import {
+  DocPageComponent,
+  DocRichPipe,
+  DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
+} from '#core/components';
 import { QUALITY } from '#core/generated/quality';
 import { BRAND_ICONS } from '#core/icons';
+import { formatCount } from '#core/utils';
 import { ROUTES, wrPath } from '#routes';
 
 /** One "What you get" card. */
@@ -33,13 +41,6 @@ interface Feature {
   /** Rich text: `code` and [links](/path). */
   readonly text: string;
   readonly url?: string;
-}
-
-/** One row of the "Next" list. */
-interface NextLink {
-  readonly title: string;
-  readonly url: string;
-  readonly text: string;
 }
 
 /** One check tier: when it runs and what it runs. */
@@ -65,6 +66,7 @@ interface Tier {
     DocPageComponent,
     DocRichPipe,
     DocSectionComponent,
+    DocSeeAlsoComponent,
   ],
   providers: [
     provideWrIcons([
@@ -76,6 +78,7 @@ interface Tier {
         'clipboard-check': ClipboardCheck,
         'flask-conical': FlaskConical,
         languages: Languages,
+        moon: Moon,
         package: Package,
         palette: Palette,
         server: Server,
@@ -101,6 +104,7 @@ export default class IntroductionPage {
     ssr: wrPath(ROUTES.guides, ROUTES.guides.ssr),
     testing: wrPath(ROUTES.guides, ROUTES.guides.testing),
     keyboard: wrPath(ROUTES.guides, ROUTES.guides.keyboard),
+    theme: wrPath(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.theme),
     components: wrPath(ROUTES.reference, ROUTES.reference.components),
     charts: wrPath(ROUTES.charts),
     bits: wrPath(ROUTES.bits),
@@ -118,27 +122,27 @@ export default class IntroductionPage {
       icon: 'zap',
       tone: 'warning',
       title: 'Signals, zoneless',
-      text: 'Standalone components with `input()` and `model()`. No zone.js.',
+      text: 'Standalone, with `input()` and `model()`. No zone.js.',
     },
     {
       icon: 'package',
       tone: 'success',
       title: 'Tree-shakable',
-      text: 'One entry point per component. Import and `@use` only what you render.',
+      text: 'Per-component entry points. Ship only what you import.',
       url: this.paths.installation,
     },
     {
       icon: 'palette',
       tone: 'danger',
       title: 'CSS variables',
-      text: 'Restyle the app with tokens, or one component with its own hooks.',
+      text: 'Tokens restyle the app; hooks restyle one component.',
       url: this.paths.theming,
     },
     {
       icon: 'accessibility',
       tone: 'warning',
       title: 'Accessible',
-      text: 'WAI-ARIA patterns and full keyboard support, checked with axe in CI.',
+      text: 'WAI-ARIA patterns, full keyboard support, axe in CI.',
       url: this.paths.keyboard,
     },
     {
@@ -152,7 +156,7 @@ export default class IntroductionPage {
       icon: 'languages',
       tone: 'primary',
       title: 'Translations',
-      text: `${QUALITY.locales.length} catalogs ship. Import only the languages you use.`,
+      text: `${formatCount(QUALITY.locales.length)} catalogs ship. Import only the languages you use.`,
       url: this.paths.translations,
     },
     {
@@ -182,13 +186,24 @@ export default class IntroductionPage {
       title: 'AI tooling',
       text: `An [agent skill](${this.paths.skills}), [llms-full.txt](/llms-full.txt) and an [MCP server](${this.paths.mcp}).`,
     },
+    {
+      icon: 'moon',
+      tone: 'warning',
+      title: 'Dark mode',
+      text: 'Follows the OS in CSS alone, through `light-dark()`.',
+      url: this.paths.theme,
+    },
   ];
 
-  /** Counted by `pnpm gen:quality`, never typed here. */
-  protected readonly quality = QUALITY;
-
-  /** `testCases` is a floor when a spec uses `it.each` or a shared contract. */
-  protected readonly casesPrefix = QUALITY.testCasesAreExact ? '' : 'at least';
+  /**
+   * Counted by `pnpm gen:quality`, never typed here, and printed through `formatCount` — the site's one spelling
+   * of a count. `testCases` is a floor when a spec uses `it.each` or a shared contract, and then reads "4,950+".
+   */
+  protected readonly counts = {
+    specFiles: formatCount(QUALITY.specFiles),
+    testCases: formatCount(QUALITY.testCases, { floor: !QUALITY.testCasesAreExact }),
+    entryPoints: formatCount(QUALITY.entryPoints),
+  };
 
   protected readonly tiers: readonly Tier[] = [
     {
@@ -209,16 +224,18 @@ export default class IntroductionPage {
     },
   ];
 
-  protected readonly next: readonly NextLink[] = [
-    { title: 'Installation', url: this.paths.installation, text: 'add ngwr to an app.' },
-    { title: 'Configuration', url: this.paths.configuration, text: 'set app-wide options at bootstrap.' },
-    { title: 'Forms', url: this.paths.forms, text: 'bind controls to any Angular form and show their errors.' },
-    { title: 'Theming', url: this.paths.theming, text: 'light and dark, and your own palette.' },
-    { title: 'Design tokens', url: this.paths.tokens, text: 'colors, sizing, typography, density and motion.' },
-    { title: 'Components', url: this.paths.components, text: 'the full catalog.' },
-    { title: 'Charts', url: this.paths.charts, text: 'bar, line, donut and more.' },
-    { title: 'Bits', url: this.paths.bits, text: 'animated backgrounds, cards and text effects.' },
-    { title: 'Guides', url: this.paths.guides, text: 'SSR, overlays, keyboard, testing and more.' },
-    { title: 'Migration', url: this.paths.migration, text: 'upgrade from any earlier major.' },
+  /**
+   * The page's See also, first in the shell's grid. Eight at most, which is the grid's own cap: Charts and Bits are
+   * left to the "What you get" cards above, which link them with the same words.
+   */
+  protected readonly next: readonly DocSeeAlsoLink[] = [
+    { title: 'Installation', url: [this.paths.installation], description: 'Add ngwr to an app.' },
+    { title: 'Configuration', url: [this.paths.configuration], description: 'Set app-wide options at bootstrap.' },
+    { title: 'Forms', url: [this.paths.forms], description: 'Bind controls to any Angular form.' },
+    { title: 'Theming', url: [this.paths.theming], description: 'Light, dark and your own palette.' },
+    { title: 'Design tokens', url: [this.paths.tokens], description: 'Color, sizing, type, density, motion.' },
+    { title: 'Components', url: [this.paths.components], description: 'The full catalog.' },
+    { title: 'Guides', url: [this.paths.guides], description: 'SSR, overlays, keyboard, testing.' },
+    { title: 'Migration', url: [this.paths.migration], description: 'Upgrade from any earlier major.' },
   ];
 }

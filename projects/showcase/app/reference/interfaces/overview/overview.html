@@ -5,32 +5,34 @@
   [labels]="['Reference']"
 >
   <ngwr-doc-section title="Conventions">
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Rule</th>
-          <th scope="col">Example</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>An object shape is an <code>interface</code>, so you can <code>extends</code> it.</td>
-          <td><code>WrTableColumn</code></td>
-        </tr>
-        <tr>
-          <td>A union or an alias is a <code>type</code>.</td>
-          <td><code>WrColor</code>, <code>Maybe&lt;T&gt;</code></td>
-        </tr>
-        <tr>
-          <td>Import a type from the entry point that uses it.</td>
-          <td><code>ngwr/select</code> exports <code>WrSelectMode</code></td>
-        </tr>
-        <tr>
-          <td>Shared aliases live in <code>ngwr/utils</code>.</td>
-          <td><code>Maybe&lt;T&gt;</code>, <code>SafeAny</code>, <code>WrClassInput</code></td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Rule</th>
+            <th scope="col">Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">An object shape is an <code>interface</code>, so you can <code>extends</code> it.</th>
+            <td><code>WrTableColumn</code></td>
+          </tr>
+          <tr>
+            <th scope="row">A union or an alias is a <code>type</code>.</th>
+            <td><code>WrColor</code>, <code>Maybe&lt;T&gt;</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Import a type from the entry point that uses it.</th>
+            <td><code>ngwr/select</code> exports <code>WrSelectMode</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Shared aliases live in <code>ngwr/utils</code>.</th>
+            <td><code>Maybe&lt;T&gt;</code>, <code>SafeAny</code>, <code>WrClassInput</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Import">

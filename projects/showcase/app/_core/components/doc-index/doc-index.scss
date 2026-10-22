@@ -1,5 +1,6 @@
 @use 'showcase/styles/a11y';
 @use 'showcase/styles/badge';
+@use 'showcase/styles/mixins' as site;
 
 .index {
   list-style: none;
@@ -26,8 +27,7 @@
     }
 
     &:focus-visible {
-      outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
-      outline-offset: var(--wr-focus-ring-offset);
+      @include site.focus-ring;
     }
 
     &--disabled {

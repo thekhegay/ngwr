@@ -1,0 +1,17 @@
+// Site-wide Sass helpers for the showcase's own stylesheets. Declares NO rules,
+// so any sheet may load it — an emulated component's included — without
+// emitting anything: `@use 'showcase/styles/mixins' as site;`.
+
+// The library's keyboard focus ring, for a showcase element the library does
+// not style (a link card, a playground button, a header action).
+//
+// A copy of the mixin in `lib/theme/styles/_focus.scss` rather than a `@use` of
+// it, because that file also EMITS the ring's rules for forty-odd library
+// selectors: loading it from a component sheet would inline all of them into
+// that component's styles. Keep the three declarations equal to the library's,
+// so a retheme through `--wr-focus-ring-*` reaches these too.
+@mixin focus-ring {
+  outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+  outline-offset: var(--wr-focus-ring-offset);
+  box-shadow: 0 0 0 var(--wr-focus-ring-offset) var(--wr-focus-ring-halo);
+}

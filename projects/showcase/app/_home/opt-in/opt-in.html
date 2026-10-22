@@ -1,25 +1,27 @@
-<section class="ngwr-optin">
+<section class="ngwr-section">
   <div class="container">
-    <div class="ngwr-optin__head">
-      <div class="ngwr-optin__lede">
+    <div class="ngwr-section__head">
+      <div class="ngwr-section__lede">
         <wr-tag color="primary" outlined>Opt-in</wr-tag>
         <h2 wrTypography variant="h1">
           <wr-blur-text text="Nothing loads until you ask." animateBy="words" [stepDuration]="0.4" />
         </h2>
       </div>
-      <p class="ngwr-optin__aside">
+      <p class="ngwr-section__aside">
         A setting is a feature you pass, an add-on is an entry point you import, and what you skip never ships.
       </p>
     </div>
 
     <ul class="ngwr-optin__grid">
       @for (example of examples; track example.label) {
-        <li class="ngwr-optin__item" [class.ngwr-optin__item--wide]="example.wide">
+        <li class="ngwr-optin__item">
           <wr-card class="ngwr-optin__card">
             <div class="ngwr-optin__body">
               <div class="ngwr-optin__copy">
                 <div class="ngwr-optin__title">
-                  <span class="ngwr-optin__icon" aria-hidden="true"><wr-icon [name]="example.icon" /></span>
+                  <span class="ngwr-icon-chip ngwr-icon-chip--sm" data-tone="primary" aria-hidden="true">
+                    <wr-icon [name]="example.icon" />
+                  </span>
                   <h3 class="ngwr-optin__label">{{ example.label }}</h3>
                 </div>
                 <p class="ngwr-optin__caption" [innerHTML]="example.caption | wrDocRich"></p>
@@ -36,7 +38,6 @@
               @for (link of example.links; track link.label) {
                 <a
                   wr-btn
-                  class="ngwr-optin__link"
                   outlined
                   size="sm"
                   icon="arrow-forward"

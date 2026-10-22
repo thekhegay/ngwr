@@ -5,64 +5,18 @@
   border-top: 1px solid var(--wr-border-base);
 }
 
+// The grid and the cards are the site's link cards (`styles/_cards.scss`), and
+// the title is `wrTypography` h4 like every section heading; only the spacing
+// and the label's placement are this block's own.
 .see-also {
+  // `wrTypography` zeroes a heading's margin. The gap under it and the tracking
+  // are doc-section's, so the last heading on a page reads like the others.
   &__title {
     margin: 0 0 1rem;
-    color: var(--wr-color-on-surface);
-    font-size: 1.125rem;
-    font-weight: 600;
-    line-height: 1.5rem;
-    letter-spacing: -0.25px;
-  }
-
-  &__grid {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-    gap: 0.75rem;
-  }
-
-  &__card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    padding: 0.875rem 1rem;
-    border: 1px solid var(--wr-border-base);
-    border-radius: var(--wr-border-radius-base);
-    background: var(--wr-color-surface);
-    color: var(--wr-color-on-surface);
-    text-decoration: none;
-    transition:
-      border-color var(--wr-transition-base),
-      box-shadow var(--wr-transition-base);
-
-    &:hover {
-      border-color: var(--wr-color-primary);
-      box-shadow: 0 4px 12px color-mix(in srgb, var(--wr-color-primary) 8%, transparent);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--wr-color-primary);
-      outline-offset: 2px;
-    }
+    letter-spacing: -0.375px;
   }
 
   &__kind {
     align-self: flex-start;
-  }
-
-  &__name {
-    color: var(--wr-color-on-surface);
-    font-size: 1.0625rem;
-    font-weight: 600;
-    line-height: 1.5rem;
-  }
-
-  &__desc {
-    color: var(--wr-color-on-surface-muted);
-    font-size: 0.8125rem;
-    line-height: 1.4;
   }
 }

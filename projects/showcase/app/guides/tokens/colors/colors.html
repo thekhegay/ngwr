@@ -25,24 +25,26 @@
       }
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Token</th>
-          <th scope="col">Use</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (t of intentTokens; track t.name) {
+    <div class="ngwr-table">
+      <table>
+        <thead>
           <tr>
-            <td>
-              <code>{{ t.name }}</code>
-            </td>
-            <td>{{ t.use }}</td>
+            <th scope="col">Token</th>
+            <th scope="col">Use</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (t of intentTokens; track t.name) {
+            <tr>
+              <th scope="row">
+                <code>{{ t.name }}</code>
+              </th>
+              <td>{{ t.use }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
 
     <div style="display: flex; flex-direction: column; gap: 0.5rem">
       @for (intent of intents; track intent) {
@@ -62,24 +64,26 @@
     title="Neutrals"
     description="Use these for surfaces and text, not the fixed gray ramp: they follow dark mode, the ramp does not."
   >
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Token</th>
-          <th scope="col">Use</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (t of neutralTokens; track t.name) {
+    <div class="ngwr-table">
+      <table>
+        <thead>
           <tr>
-            <td>
-              <code>{{ t.name }}</code>
-            </td>
-            <td>{{ t.use }}</td>
+            <th scope="col">Token</th>
+            <th scope="col">Use</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (t of neutralTokens; track t.name) {
+            <tr>
+              <th scope="row">
+                <code>{{ t.name }}</code>
+              </th>
+              <td>{{ t.use }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
 
     <div class="ngwr-palette__swatches">
       @for (step of grayRamp; track step) {
@@ -103,26 +107,28 @@
     title="Focus ring"
     description="Text fields mark focus with their border instead, so these tokens do not reach them."
   >
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Token</th>
-          <th scope="col">Default</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (t of focusTokens; track t.name) {
+    <div class="ngwr-table">
+      <table>
+        <thead>
           <tr>
-            <td>
-              <code>{{ t.name }}</code>
-            </td>
-            <td>
-              <code>{{ t.value }}</code>
-            </td>
+            <th scope="col">Token</th>
+            <th scope="col">Default</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (t of focusTokens; track t.name) {
+            <tr>
+              <th scope="row">
+                <code>{{ t.name }}</code>
+              </th>
+              <td>
+                <code>{{ t.value }}</code>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
     <ngwr-doc-code [code]="snippets.focus" language="scss" />
   </ngwr-doc-section>
 

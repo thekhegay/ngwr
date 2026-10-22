@@ -43,57 +43,59 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Reactive forms gotchas" description="Each of these fails silently.">
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">What happens</th>
-          <th scope="col">What to do</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            <code>updateOn: 'blur'</code> or <code>'submit'</code> is ignored: the value and its errors update on every
-            edit.
-          </td>
-          <td>Debounce expensive checks in an async validator.</td>
-        </tr>
-        <tr>
-          <td>
-            A write with <code>{{ '{' }} emitEvent: false {{ '}' }}</code> does not repaint the control.
-          </td>
-          <td>Call <code>markForCheck()</code> after the write.</td>
-        </tr>
-        <tr>
-          <td><code>Validators.required</code> does not mark the field as required.</td>
-          <td>Add <code>required</code> to <code>&lt;wr-form-field&gt;</code>.</td>
-        </tr>
-        <tr>
-          <td>Reactive forms have no read-only state.</td>
-          <td>Bind <code>[readonly]</code> on the control.</td>
-        </tr>
-        <tr>
-          <td>
-            <code>&lt;wr-select&gt;</code> matches values with <code>===</code>, so a copied object shows the
-            placeholder.
-          </td>
-          <td>Bind a primitive key, such as <code>cat.id</code>.</td>
-        </tr>
-        <tr>
-          <td>
-            A value outside <code>[min]</code> / <code>[max]</code> stays in the model; the control never corrects it.
-          </td>
-          <td>Use <code>Validators.min</code> / <code>max</code> to flag it.</td>
-        </tr>
-        <tr>
-          <td>
-            <code>&lt;wr-slider&gt;</code> ignores <code>null</code>, so <code>reset()</code> leaves the thumb where it
-            was.
-          </td>
-          <td>Reset it to a number.</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">What happens</th>
+            <th scope="col">What to do</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">
+              <code>updateOn: 'blur'</code> or <code>'submit'</code> is ignored: the value and its errors update on
+              every edit.
+            </th>
+            <td>Debounce expensive checks in an async validator.</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              A write with <code>{{ '{' }} emitEvent: false {{ '}' }}</code> does not repaint the control.
+            </th>
+            <td>Call <code>markForCheck()</code> after the write.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>Validators.required</code> does not mark the field as required.</th>
+            <td>Add <code>required</code> to <code>&lt;wr-form-field&gt;</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">Reactive forms have no read-only state.</th>
+            <td>Bind <code>[readonly]</code> on the control.</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              <code>&lt;wr-select&gt;</code> matches values with <code>===</code>, so a copied object shows the
+              placeholder.
+            </th>
+            <td>Bind a primitive key, such as <code>cat.id</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              A value outside <code>[min]</code> / <code>[max]</code> stays in the model; the control never corrects it.
+            </th>
+            <td>Use <code>Validators.min</code> / <code>max</code> to flag it.</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              <code>&lt;wr-slider&gt;</code> ignores <code>null</code>, so <code>reset()</code> leaves the thumb where
+              it was.
+            </th>
+            <td>Reset it to a number.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section

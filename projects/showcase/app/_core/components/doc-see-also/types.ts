@@ -1,6 +1,16 @@
 /** What kind of doc page a `DocSeeAlsoLink` points at — drives the badge chip. */
 export type DocSeeAlsoKind =
-  'Component' | 'Service' | 'Directive' | 'Pipe' | 'Util' | 'Validator' | 'Guide' | 'Animation' | 'Type';
+  | 'Component'
+  | 'Service'
+  | 'Directive'
+  | 'Pipe'
+  | 'Util'
+  | 'Validator'
+  | 'Guide'
+  | 'Animation'
+  | 'Type'
+  | 'Docs'
+  | 'Icons';
 
 /** One row in the "See also" grid. */
 export interface DocSeeAlsoLink {
@@ -8,8 +18,8 @@ export interface DocSeeAlsoLink {
   readonly title: string;
   /** Router commands — passed to `[routerLink]`. */
   readonly url: readonly string[];
-  /** Kind chip shown above the title; none for a page that is no kind (a docs page). */
+  /** Kind chip shown above the title. Omitted, it is the linked page's own kind. */
   readonly kind?: DocSeeAlsoKind;
-  /** Short one-line blurb explaining why this is related. */
+  /** Short one-line blurb explaining why this is related. Omitted, it is the linked page's own description. */
   readonly description?: string;
 }

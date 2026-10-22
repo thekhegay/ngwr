@@ -4,26 +4,28 @@
   [keywords]="['migration', 'ng update', 'upgrade', 'breaking changes', 'codemod', 'schematics']"
 >
   <ng-template #changes let-rows let-head="head">
-    <table>
-      <thead>
-        <tr>
-          @for (h of head; track h) {
-            <th scope="col">{{ h }}</th>
-          }
-        </tr>
-      </thead>
-      <tbody>
-        @for (row of rows; track row.before) {
+    <div class="ngwr-table">
+      <table>
+        <thead>
           <tr>
-            <td [innerHTML]="row.before | wrDocRich"></td>
-            <td [innerHTML]="row.after | wrDocRich"></td>
-            @if (row.update) {
-              <td>{{ row.update }}</td>
+            @for (h of head; track h) {
+              <th scope="col">{{ h }}</th>
             }
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (row of rows; track row.before) {
+            <tr>
+              <td [innerHTML]="row.before | wrDocRich"></td>
+              <td [innerHTML]="row.after | wrDocRich"></td>
+              @if (row.update) {
+                <td>{{ row.update }}</td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </ng-template>
 
   <ngwr-doc-section title="Update" description="Commit first, then run one command from any major.">

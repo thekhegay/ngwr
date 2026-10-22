@@ -16,6 +16,8 @@ import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 import { WrInput } from 'ngwr/input';
 import { WrToast } from 'ngwr/toast';
 
+import { formatCount } from '#core/utils';
+
 /** Visible-tile cap. Typing narrows the list below this. */
 const VISIBLE_CAP = 240;
 
@@ -60,7 +62,12 @@ export class IconGridComponent {
 
   protected readonly hiddenCount = computed(() => Math.max(0, this.filtered().length - this.visible().length));
 
-  protected readonly totalCount = computed(() => this.icons().length);
+  /** The counter's two halves and the overflow line, grouped the way every count on the site is. */
+  protected readonly filteredLabel = computed(() => formatCount(this.filtered().length));
+
+  protected readonly totalLabel = computed(() => formatCount(this.icons().length));
+
+  protected readonly hiddenLabel = computed(() => formatCount(this.hiddenCount()));
 
   /**
    * One `SafeHtml` per entry, for the life of the page.

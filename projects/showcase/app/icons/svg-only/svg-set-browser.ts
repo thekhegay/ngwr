@@ -14,10 +14,15 @@ import { Component, ChangeDetectionStrategy, computed, input } from '@angular/co
 import { IconGridComponent, type IconEntry } from '../_grid/icon-grid';
 
 import { DocCodeComponent, DocInstallComponent, DocPageComponent, DocSectionComponent } from '#core/components';
+import { formatCount } from '#core/utils';
 
 export interface SvgSetSpec {
   readonly title: string;
-  readonly description: string;
+  /**
+   * The lede, given the set's size already formatted. The size is DERIVED from
+   * the catalog rather than written down, so it cannot drift from the grid.
+   */
+  readonly description: (count: string) => string;
   readonly homepage: string;
   readonly license: string;
   /** npm packages to install, shown as package-manager tabs. */
@@ -46,6 +51,9 @@ export class SvgSetBrowser {
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([name, svg]) => ({ name, svg }))
   );
+
+  /** How many icons the set ships — the same number the grid's counter prints. */
+  protected readonly count = computed(() => formatCount(Object.keys(this.data()).length));
 
   protected readonly snippet = computed(() => this.spec().snippetFor);
 

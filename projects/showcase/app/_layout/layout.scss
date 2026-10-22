@@ -1,4 +1,5 @@
 @use 'lib/styles/breakpoints' as bp;
+@use 'showcase/styles/mixins' as site;
 
 :host {
   // Fill the remaining vertical space inside the root flex column so
@@ -103,8 +104,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--wr-color-primary);
-      outline-offset: 2px;
+      @include site.focus-ring;
     }
   }
 }

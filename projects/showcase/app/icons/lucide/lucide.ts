@@ -6,6 +6,7 @@ import { lucide } from 'ngwr/icon';
 import { IconGridComponent, type IconEntry } from '../_grid/icon-grid';
 
 import { DocCodeComponent, DocInstallComponent, DocPageComponent, DocSectionComponent } from '#core/components';
+import { formatCount } from '#core/utils';
 
 let cached: readonly IconEntry[] | null = null;
 
@@ -67,7 +68,7 @@ export default class LucideBrowser {
    */
   protected readonly lede = computed(
     () =>
-      `A modern, community-maintained Feather fork. ${this.icons().length} 24px stroke icons. ` +
+      `A modern, community-maintained Feather fork. ${formatCount(this.icons().length)} 24px stroke icons. ` +
       `Click any tile to copy the import snippet.`
   );
 

@@ -1,3 +1,5 @@
+@use 'showcase/styles/mixins' as site;
+
 :host {
   --ngwr-doc-code-padding: 1rem;
   --ngwr-doc-code-radius: var(--wr-border-radius-base);
@@ -93,8 +95,10 @@
     border-bottom-color: var(--wr-color-primary);
   }
 
+  // Inset: the host clips its overflow, so a ring outside the tab is cut off
+  // along the top edge.
   &:focus-visible {
-    outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+    @include site.focus-ring;
     outline-offset: -2px;
   }
 }
@@ -132,6 +136,13 @@
   // rtl-ok: a code block is LTR by definition, not by reading order
   direction: ltr;
   text-align: left;
+
+  // The block scrolls by keyboard, so the `<pre>` (Shiki's and the fallback)
+  // is a tab stop. Inset for the same reason as the tabs: the host clips.
+  &:focus-visible {
+    @include site.focus-ring;
+    outline-offset: -2px;
+  }
 }
 
 // Shiki ships both `github-light-high-contrast` and `github-dark-high-contrast`
@@ -186,8 +197,7 @@
   }
 
   &:focus-visible {
-    outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
-    outline-offset: var(--wr-focus-ring-offset);
+    @include site.focus-ring;
   }
 }
 

@@ -10,7 +10,8 @@ function kebabToCamel(value: string): string {
 
 const SPEC: SvgSetSpec = {
   title: 'Feather',
-  description: 'The original minimal 24px stroke set. ~285 icons. Click any tile to copy the import snippet.',
+  description: count =>
+    `The original minimal 24px stroke set. ${count} icons. Click any tile to copy the import snippet.`,
   homepage: 'https://feathericons.com',
   license: 'MIT',
   packages: 'feather-icons',

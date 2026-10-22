@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { Palette, PenLine, Route, Shapes, SlidersHorizontal } from 'lucide';
+import { Languages, Palette, PenLine, Route, Shapes, SlidersHorizontal } from 'lucide';
 import { WrTag } from 'ngwr/badge';
 import { WrBlurText } from 'ngwr/bits/blur-text';
 import { WrButton } from 'ngwr/button';
@@ -10,7 +10,9 @@ import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import { WrTypography } from 'ngwr/typography';
 
 import { DocCodeComponent, DocInstallComponent, DocRichPipe } from '#core/components';
+import { QUALITY } from '#core/generated/quality';
 import type { ShikiLang } from '#core/shiki';
+import { formatCount } from '#core/utils';
 import { ROUTES, wrPath } from '#routes';
 
 interface OptInLink {
@@ -30,8 +32,6 @@ interface OptInExample {
   /** Render `code` as an install command, one tab per package manager. */
   readonly install?: boolean;
   readonly links: readonly OptInLink[];
-  /** Span both columns of the grid, with the copy beside the code. */
-  readonly wide?: boolean;
 }
 
 /**
@@ -40,9 +40,14 @@ interface OptInExample {
  * Every sample is held to the library rather than written from memory —
  * `provideWr()` is `projects/lib/provide-wr.ts`, each `withX()` lives in the
  * entry point it configures, the two router adapters are the nested
- * `ngwr/loading-bar/router` and `ngwr/tabs/router`, and the eight ProseMirror
+ * `ngwr/loading-bar/router` and `ngwr/tabs/router`, the eight ProseMirror
  * packages are the optional peers in `projects/lib/package.json`, in the order
- * the editor page installs them.
+ * the editor page installs them, and each catalog is its own
+ * `ngwr/i18n/<locale>` entry point, registered under the app's keys through
+ * `provideWrI18nBaseCatalogs()` from `ngwr/i18n`.
+ *
+ * Six cards in two columns, ordered so the code wells side by side in a row
+ * are of a similar height.
  */
 @Component({
   selector: 'ngwr-home-opt-in',
@@ -69,6 +74,7 @@ interface OptInExample {
         'pen-line': PenLine,
         shapes: Shapes,
         palette: Palette,
+        languages: Languages,
       })
     ),
   ],
@@ -84,11 +90,13 @@ import { withDensity } from 'ngwr/density';
 import { withTheme } from 'ngwr/theme';
 import { withToast } from 'ngwr/toast';
 
-provideWr(withDensity(), withToast({ duration: 6000 }), withTheme());`,
+provideWr(
+  withDensity(),
+  withToast({ duration: 6000 }),
+  withTheme(),
+);`,
       language: 'angular-ts',
       links: [{ label: 'Configuration', path: wrPath(ROUTES.docs, ROUTES.docs.configuration) }],
-      // The headline of the section, and the one call too long for half a row.
-      wide: true,
     },
     {
       icon: 'route',
@@ -136,6 +144,28 @@ import { WrTabsRouting } from 'ngwr/tabs/router';`,
           label: 'Editor',
           path: wrPath(ROUTES.reference, ROUTES.reference.components, ROUTES.reference.components.editor),
           fragment: 'peer-dependencies',
+        },
+      ],
+    },
+    {
+      icon: 'languages',
+      label: 'Languages',
+      caption: `${formatCount(QUALITY.locales.length)} catalogs ship, one entry point each. Import only the languages you use.`,
+      // `availableLocales` defaults to `[defaultLocale]`, so an app in one
+      // language names only that one.
+      code: `import {
+  provideWrI18n,
+  provideWrI18nBaseCatalogs,
+} from 'ngwr/i18n';
+import { wrDe } from 'ngwr/i18n/de';
+
+provideWrI18n({ defaultLocale: 'de' });
+provideWrI18nBaseCatalogs({ de: wrDe });`,
+      language: 'angular-ts',
+      links: [
+        {
+          label: 'Translations',
+          path: wrPath(ROUTES.guides, ROUTES.guides.translations, ROUTES.guides.translations.setup),
         },
       ],
     },

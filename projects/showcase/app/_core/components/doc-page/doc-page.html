@@ -56,33 +56,42 @@
 
   @if (deps(); as rows) {
     <ngwr-doc-section title="Dependencies">
-      <table class="deps">
-        <tbody>
-          @for (row of rows; track row.label) {
-            <tr>
-              <th scope="row">{{ row.label }}</th>
-              <td>
-                @for (item of row.items; track item.text; let last = $last) {
-                  @if (item.url) {
-                    <a [routerLink]="item.url">{{ item.text }}</a>
-                  } @else {
-                    <code>{{ item.text }}</code>
+      <div class="ngwr-table">
+        <table class="deps">
+          <tbody>
+            @for (row of rows; track row.label) {
+              <tr>
+                <th scope="row">{{ row.label }}</th>
+                <td>
+                  @for (item of row.items; track item.text; let last = $last) {
+                    @if (item.url) {
+                      <a [routerLink]="item.url">{{ item.text }}</a>
+                    } @else {
+                      <code>{{ item.text }}</code>
+                    }
+                    @if (item.note) {
+                      <span class="ngwr-table__note">({{ item.note }})</span>
+                    }
+                    @if (!last) {
+                      <span>, </span>
+                    }
                   }
-                  @if (item.note) {
-                    <span class="deps__note">({{ item.note }})</span>
-                  }
-                  @if (!last) {
-                    <span>, </span>
-                  }
-                }
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </ngwr-doc-section>
   }
 
+  <!--
+    LAST, whoever wrote it. A page that hand-picks its See also writes the block
+    itself, and the default slot above would put it before the CSS variables and
+    the Dependencies the shell adds; this slot keeps it where the shell's own
+    goes.
+  -->
+  <ng-content select="ngwr-doc-see-also" />
   @if (!ownSeeAlso()) {
     <ngwr-doc-see-also />
   }

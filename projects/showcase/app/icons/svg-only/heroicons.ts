@@ -11,8 +11,8 @@ function kebabToCamel(value: string): string {
 
 const SPEC: SvgSetSpec = {
   title: 'Heroicons',
-  description:
-    "The Tailwind team's set. 300+ icons here in 24px outline — solid + 20/16 variants live in sibling folders. Click any tile to copy the import snippet.",
+  description: count =>
+    `The Tailwind team's set. ${count} icons here in 24px outline — solid + 20/16 variants live in sibling folders. Click any tile to copy the import snippet.`,
   homepage: 'https://heroicons.com',
   license: 'MIT',
   packages: 'heroicons',

@@ -12,16 +12,5 @@
     </div>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Sections">
-    <ul class="ngwr-typography-overview__grid">
-      @for (card of cards; track card.title) {
-        <li>
-          <a class="ngwr-typography-overview__card" [routerLink]="card.url">
-            <p wrTypography variant="h4">{{ card.title }}</p>
-            <p>{{ card.body }}</p>
-          </a>
-        </li>
-      }
-    </ul>
-  </ngwr-doc-section>
+  <ngwr-doc-see-also title="Sections" [links]="sections" />
 </ngwr-doc-page>

@@ -18,28 +18,30 @@
   >
     <ngwr-doc-code [code]="snippets.filters" language="typescript" />
 
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Method</th>
-          <th scope="col">When nothing matches</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>getHarness()</code></td>
-          <td>Throws</td>
-        </tr>
-        <tr>
-          <td><code>getHarnessOrNull()</code></td>
-          <td>Returns <code>null</code></td>
-        </tr>
-        <tr>
-          <td><code>getAllHarnesses()</code></td>
-          <td>Returns <code>[]</code></td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Method</th>
+            <th scope="col">When nothing matches</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>getHarness()</code></th>
+            <td>Throws</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>getHarnessOrNull()</code></th>
+            <td>Returns <code>null</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>getAllHarnesses()</code></th>
+            <td>Returns <code>[]</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="A form, end to end">
@@ -52,26 +54,28 @@
   >
     <ngwr-doc-code [code]="snippets.overlay" language="typescript" />
 
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Loader</th>
-          <th scope="col">Use for</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>loader(fixture)</code></td>
-          <td>
-            Anything in your template. Overlays you open from it (select, dropdown, popover, …) find their own panel.
-          </td>
-        </tr>
-        <tr>
-          <td><code>documentRootLoader(fixture)</code></td>
-          <td>Dialog, toast, drawer, window and tour.</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Loader</th>
+            <th scope="col">Use for</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>loader(fixture)</code></th>
+            <td>
+              Anything in your template. Overlays you open from it (select, dropdown, popover, …) find their own panel.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><code>documentRootLoader(fixture)</code></th>
+            <td>Dialog, toast, drawer, window and tour.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <p>A harness looked up in the wrong loader fails with “failed to find element”.</p>
   </ngwr-doc-section>
@@ -316,7 +320,7 @@
     title="Accessible names for end-to-end tests"
     description="The names ngwr renders itself, for role and name locators."
   >
-    <div class="ngwr-keys">
+    <div class="ngwr-table">
       <table>
         <thead>
           <tr>
@@ -327,59 +331,59 @@
         </thead>
         <tbody>
           <tr>
-            <td>Pagination landmark</td>
+            <th scope="row">Pagination landmark</th>
             <td><code>Pagination</code></td>
             <td><code>[label]</code> · <code>pagination.label</code></td>
           </tr>
           <tr>
-            <td>Pagination page</td>
+            <th scope="row">Pagination page</th>
             <td><code>Go to page 3</code></td>
             <td><code>pagination.goToPage</code></td>
           </tr>
           <tr>
-            <td>Pagination previous / next</td>
+            <th scope="row">Pagination previous / next</th>
             <td><code>Previous page</code> · <code>Next page</code></td>
             <td>
               <code>[prevLabel]</code> / <code>[nextLabel]</code> · <code>pagination.prev</code> / <code>.next</code>
             </td>
           </tr>
           <tr>
-            <td>Pagination size changer</td>
+            <th scope="row">Pagination size changer</th>
             <td><code>Items per page</code></td>
             <td><code>pagination.itemsPerPage</code></td>
           </tr>
           <tr>
-            <td>Table sort button</td>
+            <th scope="row">Table sort button</th>
             <td><code>Sort Name</code> (the column title)</td>
             <td><code>[sortLabel]</code> · <code>table.sort</code></td>
           </tr>
           <tr>
-            <td>Table row / all checkboxes</td>
+            <th scope="row">Table row / all checkboxes</th>
             <td><code>Select row</code> · <code>Select all rows</code></td>
             <td><code>table.selectRow</code> / <code>.selectAll</code></td>
           </tr>
           <tr>
-            <td>Table loading overlay</td>
+            <th scope="row">Table loading overlay</th>
             <td><code>Loading…</code></td>
             <td><code>[loadingLabel]</code> · <code>table.loading</code></td>
           </tr>
           <tr>
-            <td>Dialog ✕</td>
+            <th scope="row">Dialog ✕</th>
             <td><code>Close dialog</code></td>
             <td><code>closeLabel</code> · <code>dialog.close</code></td>
           </tr>
           <tr>
-            <td>Drawer ✕</td>
+            <th scope="row">Drawer ✕</th>
             <td><code>Close drawer</code></td>
             <td><code>closeLabel</code> · <code>drawer.close</code></td>
           </tr>
           <tr>
-            <td>Select clear ✕</td>
+            <th scope="row">Select clear ✕</th>
             <td><code>Clear selection</code></td>
             <td><code>select.clearSelection</code></td>
           </tr>
           <tr>
-            <td>Select chip remove</td>
+            <th scope="row">Select chip remove</th>
             <td><code>Remove Berlin</code></td>
             <td><code>select.removeItem</code></td>
           </tr>

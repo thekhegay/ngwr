@@ -10,8 +10,8 @@
   >
     <div style="display: flex; flex-wrap: wrap; gap: 1.5rem">
       @for (e of easings; track e.name) {
-        <div style="display: flex; flex-direction: column; gap: 0.5rem">
-          <code style="font-size: var(--wr-text-xs); color: var(--wr-color-on-surface-muted)">{{ e.name }}</code>
+        <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem">
+          <code>{{ e.name }}</code>
           <div
             style="
               width: 9rem;
@@ -38,102 +38,110 @@
       }
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Token</th>
-          <th scope="col">Value</th>
-          <th scope="col">Use</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (t of easings; track t.name) {
+    <div class="ngwr-table">
+      <table>
+        <thead>
           <tr>
-            <td>
-              <code>{{ t.name }}</code>
-            </td>
-            <td>
-              <code>{{ t.value }}</code>
-            </td>
-            <td>{{ t.use }}</td>
+            <th scope="col">Token</th>
+            <th scope="col">Value</th>
+            <th scope="col">Use</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (t of easings; track t.name) {
+            <tr>
+              <th scope="row">
+                <code>{{ t.name }}</code>
+              </th>
+              <td>
+                <code>{{ t.value }}</code>
+              </td>
+              <td>{{ t.use }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Durations" description="The farther something moves, the longer it may take.">
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Token</th>
-          <th scope="col">Value</th>
-          <th scope="col">Use</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (t of durations; track t.name) {
+    <div class="ngwr-table">
+      <table>
+        <thead>
           <tr>
-            <td>
-              <code>{{ t.name }}</code>
-            </td>
-            <td>
-              <code>{{ t.value }}</code>
-            </td>
-            <td>{{ t.use }}</td>
+            <th scope="col">Token</th>
+            <th scope="col">Value</th>
+            <th scope="col">Use</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (t of durations; track t.name) {
+            <tr>
+              <th scope="row">
+                <code>{{ t.name }}</code>
+              </th>
+              <td>
+                <code>{{ t.value }}</code>
+              </td>
+              <td>{{ t.use }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Shorthands" description="A duration and an easing in one token. You name the property.">
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Token</th>
-          <th scope="col">Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (t of shorthands; track t.name) {
+    <div class="ngwr-table">
+      <table>
+        <thead>
           <tr>
-            <td>
-              <code>{{ t.name }}</code>
-            </td>
-            <td>
-              <code>{{ t.value }}</code>
-            </td>
+            <th scope="col">Token</th>
+            <th scope="col">Value</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (t of shorthands; track t.name) {
+            <tr>
+              <th scope="row">
+                <code>{{ t.name }}</code>
+              </th>
+              <td>
+                <code>{{ t.value }}</code>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Overlay timing"
     description="Dropdown, popover, tooltip, context menu and popconfirm read these; dialog, drawer and toast do not."
   >
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Token</th>
-          <th scope="col">Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (t of overlayTokens; track t.name) {
+    <div class="ngwr-table">
+      <table>
+        <thead>
           <tr>
-            <td>
-              <code>{{ t.name }}</code>
-            </td>
-            <td>
-              <code>{{ t.value }}</code>
-            </td>
+            <th scope="col">Token</th>
+            <th scope="col">Value</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (t of overlayTokens; track t.name) {
+            <tr>
+              <th scope="row">
+                <code>{{ t.name }}</code>
+              </th>
+              <td>
+                <code>{{ t.value }}</code>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Usage">

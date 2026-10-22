@@ -17,8 +17,8 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Shipped catalogs" description="One entry point per language.">
-    <div style="overflow-x: auto">
-      <table style="min-width: 32rem">
+    <div class="ngwr-table">
+      <table>
         <thead>
           <tr>
             <th scope="col">Import from</th>
@@ -29,14 +29,14 @@
         <tbody>
           @for (locale of shipped; track locale.code) {
             <tr>
-              <td>
+              <th scope="row">
                 <code>ngwr/i18n/{{ locale.code }}</code>
-              </td>
+              </th>
               <td>
                 <code>{{ locale.symbol }}</code>
               </td>
               <td>
-                {{ locale.native }} <span style="color: var(--wr-color-on-surface-muted)">— {{ locale.english }}</span>
+                {{ locale.native }} <span class="ngwr-table__note">— {{ locale.english }}</span>
               </td>
             </tr>
           }
@@ -47,35 +47,37 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Gotchas">
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Symptom</th>
-          <th scope="col">Fix</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>ngwr's labels stay in English once you add a loader</td>
-          <td><code>provideWrI18nBaseCatalogs(&#123; ru: wrRu &#125;)</code></td>
-        </tr>
-        <tr>
-          <td>Keys go missing after <code>&#123; ...wrRu, ...yours &#125;</code></td>
-          <td>Use base catalogs, not a spread</td>
-        </tr>
-        <tr>
-          <td><code>zh-HK</code> and <code>zh-Hant</code> show Simplified Chinese</td>
-          <td>Map them to <code>zh-TW</code></td>
-        </tr>
-        <tr>
-          <td><code>use('de')</code> does nothing</td>
-          <td>Add <code>'de'</code> to <code>availableLocales</code></td>
-        </tr>
-        <tr>
-          <td>A changed <code>defaultLocale</code> does not apply</td>
-          <td>The last locale is stored; set <code>storageKey: null</code> to stop that</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Symptom</th>
+            <th scope="col">Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">ngwr's labels stay in English once you add a loader</th>
+            <td><code>provideWrI18nBaseCatalogs(&#123; ru: wrRu &#125;)</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Keys go missing after <code>&#123; ...wrRu, ...yours &#125;</code></th>
+            <td>Use base catalogs, not a spread</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>zh-HK</code> and <code>zh-Hant</code> show Simplified Chinese</th>
+            <td>Map them to <code>zh-TW</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>use('de')</code> does nothing</th>
+            <td>Add <code>'de'</code> to <code>availableLocales</code></td>
+          </tr>
+          <tr>
+            <th scope="row">A changed <code>defaultLocale</code> does not apply</th>
+            <td>The last locale is stored; set <code>storageKey: null</code> to stop that</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 </ngwr-doc-page>

@@ -1,4 +1,9 @@
-<ngwr-doc-page [title]="spec().title" [description]="spec().description" [keywords]="keywords()" [labels]="labels()">
+<ngwr-doc-page
+  [title]="spec().title"
+  [description]="spec().description(count())"
+  [keywords]="keywords()"
+  [labels]="labels()"
+>
   <ngwr-doc-section title="Installation">
     @if (spec().packages; as packages) {
       <ngwr-doc-install [packages]="packages" />

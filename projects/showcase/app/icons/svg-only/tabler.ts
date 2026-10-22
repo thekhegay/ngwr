@@ -11,7 +11,7 @@ function kebabToCamel(value: string): string {
 
 const SPEC: SvgSetSpec = {
   title: 'Tabler',
-  description: 'A 24px stroke set with 5000+ outline icons. Click any tile to copy the import snippet.',
+  description: count => `A 24px stroke set with ${count} outline icons. Click any tile to copy the import snippet.`,
   homepage: 'https://tabler.io/icons',
   license: 'MIT',
   packages: '@tabler/icons',

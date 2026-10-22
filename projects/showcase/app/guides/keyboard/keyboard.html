@@ -52,26 +52,28 @@
   >
     <ngwr-doc-code [code]="snippets.keys" language="angular-ts" />
 
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Helper</th>
-          <th scope="col">Use</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (helper of helpers; track helper.name) {
+    <div class="ngwr-table">
+      <table>
+        <thead>
           <tr>
-            <td>
-              <a [routerLink]="helper.url"
-                ><code>{{ helper.name }}</code></a
-              >
-            </td>
-            <td>{{ helper.use }}</td>
+            <th scope="col">Helper</th>
+            <th scope="col">Use</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (helper of helpers; track helper.name) {
+            <tr>
+              <th scope="row">
+                <a [routerLink]="helper.url"
+                  ><code>{{ helper.name }}</code></a
+                >
+              </th>
+              <td>{{ helper.use }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="What the components handle" description="Built in, nothing to configure.">
@@ -80,7 +82,7 @@
       <li>Left and right arrows swap under <code>dir="rtl"</code>; Home and End do not.</li>
     </ul>
 
-    <div class="ngwr-keys">
+    <div class="ngwr-table ngwr-keys">
       <table>
         <thead>
           <tr>

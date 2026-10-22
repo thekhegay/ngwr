@@ -10,28 +10,30 @@
     <ngwr-doc-code [code]="snippets.clientRendered" language="bash" />
     <ngwr-doc-code [code]="snippets.styles" language="scss" />
 
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Directive</th>
-          <th scope="col">Value</th>
-          <th scope="col">Why</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (row of directives; track row.name) {
+    <div class="ngwr-table">
+      <table>
+        <thead>
           <tr>
-            <td>
-              <code>{{ row.name }}</code>
-            </td>
-            <td>
-              <code>{{ row.value }}</code>
-            </td>
-            <td>{{ row.why }}</td>
+            <th scope="col">Directive</th>
+            <th scope="col">Value</th>
+            <th scope="col">Why</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (row of directives; track row.name) {
+            <tr>
+              <th scope="row">
+                <code>{{ row.name }}</code>
+              </th>
+              <td>
+                <code>{{ row.value }}</code>
+              </td>
+              <td>{{ row.why }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
 
     <p>
       Some components also inject their CSS at runtime; <code>style-src 'self'</code> blocks that copy, which is

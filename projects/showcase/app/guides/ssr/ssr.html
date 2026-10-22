@@ -33,24 +33,26 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="What the server can answer">
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">API</th>
-          <th scope="col">On the server</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (row of answers; track row.api) {
+    <div class="ngwr-table">
+      <table>
+        <thead>
           <tr>
-            <td>
-              <code>{{ row.api }}</code>
-            </td>
-            <td>{{ row.server }}</td>
+            <th scope="col">API</th>
+            <th scope="col">On the server</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (row of answers; track row.api) {
+            <tr>
+              <th scope="row">
+                <code>{{ row.api }}</code>
+              </th>
+              <td>{{ row.server }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section

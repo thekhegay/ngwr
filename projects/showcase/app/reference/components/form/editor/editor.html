@@ -72,7 +72,7 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Keyboard" description="The toolbar is one tab stop; the arrow keys move between its tools.">
-    <div class="ngwr-keys">
+    <div class="ngwr-table ngwr-keys">
       <table>
         <caption>
           Focus is in the text. Mod is ⌘ on Apple keyboards and Ctrl elsewhere.
@@ -85,59 +85,59 @@
         </thead>
         <tbody>
           <tr>
-            <td>
+            <th scope="row">
               <wr-kbd size="sm">Mod + B</wr-kbd> · <wr-kbd size="sm">Mod + I</wr-kbd> ·
               <wr-kbd size="sm">Mod + U</wr-kbd>
-            </td>
+            </th>
             <td>Bold, italic, underline.</td>
           </tr>
           <tr>
-            <td><wr-kbd size="sm">Mod + Shift + S</wr-kbd> · <wr-kbd size="sm">Mod + E</wr-kbd></td>
+            <th scope="row"><wr-kbd size="sm">Mod + Shift + S</wr-kbd> · <wr-kbd size="sm">Mod + E</wr-kbd></th>
             <td>Strikethrough, inline code.</td>
           </tr>
           <tr>
-            <td><wr-kbd size="sm">Mod + Alt + 0</wr-kbd> … <wr-kbd size="sm">Mod + Alt + 3</wr-kbd></td>
+            <th scope="row"><wr-kbd size="sm">Mod + Alt + 0</wr-kbd> … <wr-kbd size="sm">Mod + Alt + 3</wr-kbd></th>
             <td>Paragraph, heading 1 to 3.</td>
           </tr>
           <tr>
-            <td><wr-kbd size="sm">Mod + Shift + 8</wr-kbd> · <wr-kbd size="sm">Mod + Shift + 7</wr-kbd></td>
+            <th scope="row"><wr-kbd size="sm">Mod + Shift + 8</wr-kbd> · <wr-kbd size="sm">Mod + Shift + 7</wr-kbd></th>
             <td>Bulleted list, numbered list.</td>
           </tr>
           <tr>
-            <td><wr-kbd size="sm">Mod + Shift + B</wr-kbd> · <wr-kbd size="sm">Mod + Alt + C</wr-kbd></td>
+            <th scope="row"><wr-kbd size="sm">Mod + Shift + B</wr-kbd> · <wr-kbd size="sm">Mod + Alt + C</wr-kbd></th>
             <td>Quote, code block.</td>
           </tr>
           <tr>
-            <td><wr-kbd size="sm">Mod + ]</wr-kbd> · <wr-kbd size="sm">Mod + [</wr-kbd></td>
+            <th scope="row"><wr-kbd size="sm">Mod + ]</wr-kbd> · <wr-kbd size="sm">Mod + [</wr-kbd></th>
             <td>Indent, outdent a list item.</td>
           </tr>
           <tr>
-            <td><wr-kbd size="sm">Mod + K</wr-kbd></td>
+            <th scope="row"><wr-kbd size="sm">Mod + K</wr-kbd></th>
             <td>Open the link panel.</td>
           </tr>
           <tr>
-            <td>
+            <th scope="row">
               <wr-kbd size="sm">Mod + Z</wr-kbd> · <wr-kbd size="sm">Mod + Shift + Z</wr-kbd> ·
               <wr-kbd size="sm">Ctrl + Y</wr-kbd>
-            </td>
+            </th>
             <td>Undo, redo. <code>Ctrl + Y</code> is not bound on Apple keyboards.</td>
           </tr>
           <tr>
-            <td><wr-kbd size="sm">Shift + Enter</wr-kbd></td>
+            <th scope="row"><wr-kbd size="sm">Shift + Enter</wr-kbd></th>
             <td>Line break.</td>
           </tr>
           <tr>
-            <td>
+            <th scope="row">
               <wr-kbd size="sm">Mod + Enter</wr-kbd> · <wr-kbd size="sm">ArrowDown</wr-kbd> ·
               <wr-kbd size="sm">ArrowUp</wr-kbd>
-            </td>
+            </th>
             <td>Leave a code block or a table onto a new paragraph.</td>
           </tr>
           <tr>
-            <td>
+            <th scope="row">
               <code>#</code>, <code>##</code>, <code>###</code>, <code>&gt;</code>, <code>-</code>, <code>1.</code> then
               <wr-kbd size="sm">Space</wr-kbd>; <code>```</code>
-            </td>
+            </th>
             <td>
               At the start of a line: heading, quote, list, code block. <wr-kbd size="sm">Backspace</wr-kbd> right after
               undoes it.
@@ -163,32 +163,36 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Gotchas">
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">What happens</th>
-          <th scope="col">What to do</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>With no name, every editor is announced as "Rich text".</td>
-          <td>Set <code>ariaLabel</code>, or put it in a <code>&lt;wr-form-field label&gt;</code>.</td>
-        </tr>
-        <tr>
-          <td><code>Tab</code> leaves the editor; it does not indent.</td>
-          <td>Indent list items with <code>Mod + ]</code> and <code>Mod + [</code>.</td>
-        </tr>
-        <tr>
-          <td>On Windows layouts with AltGr, the <code>Mod + Alt</code> chords type characters instead.</td>
-          <td>Set block types from the toolbar.</td>
-        </tr>
-        <tr>
-          <td>A CSP <code>trusted-types</code> allowlist breaks paste.</td>
-          <td>Add <code>ProseMirrorClipboard</code> to the allowlist.</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">What happens</th>
+            <th scope="col">What to do</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">With no name, every editor is announced as "Rich text".</th>
+            <td>Set <code>ariaLabel</code>, or put it in a <code>&lt;wr-form-field label&gt;</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>Tab</code> leaves the editor; it does not indent.</th>
+            <td>Indent list items with <code>Mod + ]</code> and <code>Mod + [</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              On Windows layouts with AltGr, the <code>Mod + Alt</code> chords type characters instead.
+            </th>
+            <td>Set block types from the toolbar.</td>
+          </tr>
+          <tr>
+            <th scope="row">A CSP <code>trusted-types</code> allowlist breaks paste.</th>
+            <td>Add <code>ProseMirrorClipboard</code> to the allowlist.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section

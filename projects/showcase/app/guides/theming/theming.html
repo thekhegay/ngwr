@@ -17,13 +17,12 @@
   >
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
-          @for (m of modes; track m) {
-            <button wr-btn type="button" [color]="mode() === m ? 'primary' : null" (click)="setMode(m)">
-              {{ m }}
-            </button>
-          }
-        </div>
+        <wr-segmented
+          aria-label="Theme mode"
+          [options]="modeOptions"
+          [value]="mode()"
+          (valueChange)="setMode($event)"
+        />
         <p style="margin: 0">
           mode: <code>{{ mode() }}</code> · resolved: <code>{{ resolved() }}</code>
         </p>
@@ -89,43 +88,45 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Gotchas">
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Symptom</th>
-          <th scope="col">Fix</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>withDensity()</code> and <code>[wrDensity]</code> change nothing</td>
-          <td>Add <code>&#64;use 'ngwr/density'</code>.</td>
-        </tr>
-        <tr>
-          <td>A rebranded subtree keeps the old hue on hover and soft fills</td>
-          <td>Use <code>theme.rebrand()</code>, not a hand-set <code>--wr-color-*</code>.</td>
-        </tr>
-        <tr>
-          <td>A <code>light-dark()</code> declaration is ignored</td>
-          <td>It takes colours only.</td>
-        </tr>
-        <tr>
-          <td>A global <code>.wr-card</code> rule has no effect</td>
-          <td>Card, list and a few others override it; set their <code>--wr-*</code> hook instead.</td>
-        </tr>
-        <tr>
-          <td>A <code>panelClass</code> rule does not match</td>
-          <td>
-            Put it in a global stylesheet. On select, dropdown and the pickers, target the panel inside:
-            <code>.my-class .wr-select-panel</code>.
-          </td>
-        </tr>
-        <tr>
-          <td>A selector breaks after an update</td>
-          <td>Key on <code>.wr-*</code> class names, not on element nesting.</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Symptom</th>
+            <th scope="col">Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>withDensity()</code> and <code>[wrDensity]</code> change nothing</th>
+            <td>Add <code>&#64;use 'ngwr/density'</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">A rebranded subtree keeps the old hue on hover and soft fills</th>
+            <td>Use <code>theme.rebrand()</code>, not a hand-set <code>--wr-color-*</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">A <code>light-dark()</code> declaration is ignored</th>
+            <td>It takes colours only.</td>
+          </tr>
+          <tr>
+            <th scope="row">A global <code>.wr-card</code> rule has no effect</th>
+            <td>Card, list and a few others override it; set their <code>--wr-*</code> hook instead.</td>
+          </tr>
+          <tr>
+            <th scope="row">A <code>panelClass</code> rule does not match</th>
+            <td>
+              Put it in a global stylesheet. On select, dropdown and the pickers, target the panel inside:
+              <code>.my-class .wr-select-panel</code>.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">A selector breaks after an update</th>
+            <td>Key on <code>.wr-*</code> class names, not on element nesting.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-see-also [links]="related" />

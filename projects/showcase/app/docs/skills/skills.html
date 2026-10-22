@@ -15,28 +15,30 @@
     title="Files"
     description="In `node_modules/ngwr/skills/ngwr/`, and online at [ngwr.dev/skills/ngwr/SKILL.md](https://ngwr.dev/skills/ngwr/SKILL.md)."
   >
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">File</th>
-          <th scope="col">What it holds</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>SKILL.md</code></td>
-          <td>Where to look things up, the rules agents get wrong, setup and testing</td>
-        </tr>
-        <tr>
-          <td><code>references/catalog.md</code></td>
-          <td>Every entry point with its import line and selectors</td>
-        </tr>
-        <tr>
-          <td><code>references/setup.md</code></td>
-          <td>Bootstrap, styles and the providers a component needs</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">File</th>
+            <th scope="col">What it holds</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>SKILL.md</code></th>
+            <td>Where to look things up, the rules agents get wrong, setup and testing</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>references/catalog.md</code></th>
+            <td>Every entry point with its import line and selectors</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>references/setup.md</code></th>
+            <td>Bootstrap, styles and the providers a component needs</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-see-also [links]="related" />

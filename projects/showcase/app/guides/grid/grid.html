@@ -8,26 +8,28 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Breakpoints">
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Name</th>
-          <th scope="col">Min width</th>
-          <th scope="col">Container max-width</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (bp of breakpoints; track bp.name) {
+    <div class="ngwr-table">
+      <table>
+        <thead>
           <tr>
-            <td>
-              <code>{{ bp.name }}</code>
-            </td>
-            <td>{{ bp.min }}</td>
-            <td>{{ bp.container }}</td>
+            <th scope="col">Name</th>
+            <th scope="col">Min width</th>
+            <th scope="col">Container max-width</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (bp of breakpoints; track bp.name) {
+            <tr>
+              <th scope="row">
+                <code>{{ bp.name }}</code>
+              </th>
+              <td>{{ bp.min }}</td>
+              <td>{{ bp.container }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section

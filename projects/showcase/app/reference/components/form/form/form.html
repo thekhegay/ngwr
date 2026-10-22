@@ -5,26 +5,28 @@
   [labels]="['Component']"
 >
   <ngwr-doc-section title="Which wrapper — item or field?">
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Wrapper</th>
-          <th scope="col">Use it when</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            <a routerLink="/reference/components/form-field"><code>&lt;wr-form-field&gt;</code></a>
-          </td>
-          <td>By default. It reads the control, shows its errors and wires the label.</td>
-        </tr>
-        <tr>
-          <td><code>&lt;wr-form-item&gt;</code></td>
-          <td>You want the layout only. You set <code>hasError</code> and write the error yourself.</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Wrapper</th>
+            <th scope="col">Use it when</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">
+              <a routerLink="/reference/components/form-field"><code>&lt;wr-form-field&gt;</code></a>
+            </th>
+            <td>By default. It reads the control, shows its errors and wires the label.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>&lt;wr-form-item&gt;</code></th>
+            <td>You want the layout only. You set <code>hasError</code> and write the error yourself.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Basic usage">

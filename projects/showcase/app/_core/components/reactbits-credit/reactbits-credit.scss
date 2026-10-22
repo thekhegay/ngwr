@@ -15,18 +15,9 @@
     font-weight: 700;
   }
 
+  // Its two links are `.ngwr-doc-link`, the site's one prose link: underlined
+  // at rest, so a reader can tell them from the sentence around them.
   &__text {
     flex: 1 1 auto;
-  }
-
-  &__author,
-  &__link {
-    color: var(--wr-color-primary-ink);
-    text-decoration: none;
-    font-weight: 600;
-
-    &:hover {
-      text-decoration: underline;
-    }
   }
 }

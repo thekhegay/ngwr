@@ -11,26 +11,8 @@
 }
 
 .description {
-  // Inline code from the wrDocRich pipe arrives via [innerHTML], so it
-  // never gets the scoping attribute — pierce the emulated encapsulation
-  // or the chips render as bare mono text.
-  ::ng-deep code {
-    display: inline-block;
-    // An inline-block is an atomic inline: it cannot break across lines at all,
-    // so a chip longer than the paragraph (`parseFloat(getComputedStyle(…))`)
-    // pushed the whole document sideways. `inline` would break but would lose
-    // the chip's vertical padding — cap it and let it break inside instead.
-    max-width: 100%;
-    overflow-wrap: anywhere;
-    padding: 0.125rem 0.3125rem;
-    border-radius: var(--wr-border-radius-sm);
-    background: color-mix(in srgb, var(--wr-color-on-surface) 7%, transparent);
-    color: var(--wr-color-on-surface);
-    line-height: 1.25;
-    font-family: var(--wr-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-    font-size: 0.75rem;
-  }
-
+  // Its inline code — written by wrDocRich through [innerHTML] — is chipped by
+  // the global rule in `styles.scss`, the site's only one.
   margin: 0.25rem 0 0;
   color: var(--wr-color-on-surface-muted);
   font-size: 1rem;
@@ -44,12 +26,20 @@
   display: flow-root;
 
   // Demos, code blocks, API tables, alerts — whatever prose does not style
-  // still needs room around it.
-  > ::ng-deep :not(p, ul, ol, h3, h4, blockquote, hr, table, pre, figure) {
+  // still needs room around it. Tables included: each sits in an
+  // `.ngwr-table` box, which takes the same margin as any other block.
+  > ::ng-deep :not(p, ul, ol, h3, h4, blockquote, hr, pre, figure) {
     margin-block: 1.5rem;
   }
 
   > ::ng-deep :first-child {
+    margin-top: 0;
+  }
+
+  // A list's first item keeps the typeset's own top margin, which collapses
+  // through the list and pushed a section that opens with a list 8px further
+  // from its header than one that opens with anything else.
+  > ::ng-deep :is(ul, ol):first-child > li:first-child {
     margin-top: 0;
   }
 
