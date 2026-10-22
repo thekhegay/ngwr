@@ -442,7 +442,17 @@ export class WrDropdown {
         if (ours) this.host.nativeElement.focus();
         break;
       case 'Tab':
-        // Let focus leave naturally; close the menu.
+        // Tab closes the menu and moves on, in either direction, from the
+        // TRIGGER. Left alone, the browser's Tab runs from the item, and the
+        // menu sits in the overlay container at the end of `<body>`: Tab went
+        // to the top of the page and Shift+Tab to the footer, and the close
+        // then found focus outside the pane and had nothing to hand back. So
+        // the trigger takes focus here, synchronously and with no
+        // `preventDefault`, and the browser's own Tab carries on from it to
+        // its real neighbour — by the time the close runs, focus is already
+        // past the pane and `closeOverlay` leaves it there. Not from a field
+        // outside the menu, for the reason Escape gives above.
+        if (ours) this.host.nativeElement.focus();
         this.isOpen.set(false);
         break;
       case 'ArrowDown':

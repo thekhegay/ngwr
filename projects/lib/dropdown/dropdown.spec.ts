@@ -264,10 +264,44 @@ describe('WrDropdown', () => {
     expect(document.activeElement).toBe(trigger());
   });
 
-  it('closes on Tab so focus can leave', () => {
-    click(trigger());
-    key(menu()!, 'Tab');
-    expect(menu()).toBeNull();
+  /**
+   * Tab closes the menu and moves on FROM THE TRIGGER.
+   *
+   * The menu lives in the overlay container at the end of `<body>`, so the
+   * browser's Tab, run from an item, went to the top of the page (Shift+Tab to
+   * the footer), and the close found focus outside the pane with nothing to hand
+   * back. The fix puts focus on the trigger at keydown time and leaves the event
+   * alone, so the browser's own Tab carries on from there.
+   *
+   * jsdom performs no sequential navigation, so this can only see the first half:
+   * the trigger focused synchronously, inside the keydown, with the default
+   * action intact. The browser's move is stood in for by focusing a neighbour by
+   * hand, which is enough to pin the other guard — the close that follows must
+   * not pull focus back. Where focus actually lands is a real-browser question.
+   */
+  it('hands Tab to the trigger so the browser moves on from there', async () => {
+    const next = document.createElement('button');
+    document.body.appendChild(next);
+
+    try {
+      trigger().focus();
+      trigger().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+      await fixture.whenStable();
+      expect(document.activeElement).toBe(items()[0]);
+
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+      items()[0].dispatchEvent(tab);
+      expect(tab.defaultPrevented, 'Tab was prevented').toBe(false);
+      expect(document.activeElement, 'focus was left inside the menu').toBe(trigger());
+
+      next.focus();
+      await fixture.whenStable();
+      expect(menu()).toBeNull();
+      expect(trigger().getAttribute('aria-expanded')).toBe('false');
+      expect(document.activeElement, 'the close pulled focus back').toBe(next);
+    } finally {
+      next.remove();
+    }
   });
 
   it('runs the whole menu-button round trip from the keyboard alone', async () => {
@@ -425,6 +459,15 @@ describe('WrDropdown', () => {
       key(elsewhere, 'Escape');
       expect(menu()).toBeNull();
       expect(document.activeElement, 'Escape stole the caret').toBe(elsewhere);
+
+      // Tab closes from out here too, and moves on from the field it was pressed
+      // in rather than from the trigger.
+      trigger().dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+      fixture.detectChanges();
+      expect(menu()).not.toBeNull();
+      expect(key(elsewhere, 'Tab').defaultPrevented).toBe(false);
+      expect(menu()).toBeNull();
+      expect(document.activeElement, 'Tab stole the caret').toBe(elsewhere);
     } finally {
       elsewhere.remove();
     }
