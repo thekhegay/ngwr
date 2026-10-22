@@ -28,7 +28,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
-import { KEYS, numAttr, toClassList, type WrClassInput } from 'ngwr/utils';
+import { KEYS, getFocusableElements, numAttr, toClassList, type WrClassInput } from 'ngwr/utils';
 
 import { WrCurrentKeystroke } from './internal/keystroke';
 import { WrPopoverTextPanel } from './internal/text-panel';
@@ -57,6 +57,17 @@ const NAVIGATION_KEYS = new Set<string>([
 ]);
 
 /**
+ * How close, in px, `withPush` may park a pane to the viewport edge — 8px, the
+ * `--wr-space-sm` step. Without it a 224px panel opened `bottom-end` from a
+ * phone's header landed at exactly `x = 0`, its border and corner on the glass.
+ *
+ * The CDK measures the right and bottom edges against the viewport width and
+ * height with the margin taken off BOTH sides, so a pane pushed back from one
+ * of those stops 16px short of it rather than 8 — measured, and left alone.
+ */
+const VIEWPORT_MARGIN = 8;
+
+/**
  * Anchored content panel. The same directive covers two shapes:
  *
  * - **Popover** (default, `mode="popover"`) — `[wrPopover]` takes a
@@ -70,7 +81,9 @@ const NAVIGATION_KEYS = new Set<string>([
  *   `aria-describedby` instead of `aria-haspopup` and is rendered into a small
  *   dark text panel.
  *
- * Built on CDK Overlay so it auto-flips, closes on outside-click and Escape.
+ * Built on CDK Overlay so it auto-flips, closes on outside-click and Escape. A
+ * click popover also closes when Tab leaves it, by way of the trigger, so focus
+ * moves on as if the panel were rendered beside it.
  *
  * @example
  * ```html
@@ -416,7 +429,8 @@ export class WrPopover {
       .position()
       .flexibleConnectedTo(this.host)
       .withPositions(wrMirrorOffsets(wrPopoverPositions(position, paneClass), this.isRtl()))
-      .withPush(true);
+      .withPush(true)
+      .withViewportMargin(VIEWPORT_MARGIN);
 
     // The `--<placement>` half is no longer set here: each fallback position
     // carries its own, so the pane names the placement it landed on instead of
@@ -485,6 +499,13 @@ export class WrPopover {
         // dispose the pane out from under the focused element.
         pane.tabIndex = -1;
         pane.focus();
+        // And it has to LEAVE with the panel. Non-modal means Tab is not
+        // trapped, not that it walks out and strands the dialog open behind it:
+        // the pane sits at the end of `<body>`, so Tab past its last control went
+        // to the browser chrome and Shift+Tab past its first to the foot of the
+        // page, each with `aria-expanded` still true. See `onPaneKeydown`.
+        pane.addEventListener('keydown', this.onPaneKeydown);
+        pane.addEventListener('focusout', this.onPaneFocusOut);
       }
     }
     this.overlayRef.overlayElement.id = this.panelId;
@@ -553,6 +574,10 @@ export class WrPopover {
     // for the caret.
     const pane = this.overlayRef.overlayElement;
     const focusWasInside = pane.contains(this.host.nativeElement.ownerDocument.activeElement);
+    // Before the dispose: Chromium fires `focusout` for a focused node as it is
+    // removed, and the pane is about to be.
+    pane.removeEventListener('keydown', this.onPaneKeydown);
+    pane.removeEventListener('focusout', this.onPaneFocusOut);
     this.overlayRef.dispose();
     this.overlayRef = null;
     // Disposing destroys the panel component; a retained ref would pin its view.
@@ -561,6 +586,76 @@ export class WrPopover {
       if (focusWasInside) this.host.nativeElement.focus();
       this.closed.emit();
     }
+  }
+
+  /**
+   * Tab off either end of a click popover takes focus back to the trigger and
+   * closes the panel — the disclosure pattern, for a non-modal popup whose DOM
+   * sits nowhere near its trigger.
+   *
+   * Forward, the trigger is focused WITHOUT `preventDefault`: the browser's own
+   * Tab then runs from there, so focus lands on whatever follows the trigger in
+   * the page, which is where a panel rendered in place would have let it go.
+   * Backward, the trigger itself is the destination, so the default is stopped.
+   * The pane counts as the first stop (it precedes its content) and, when
+   * nothing inside can take focus, as the last as well.
+   *
+   * Stops are told by `tabIndex`, because `getFocusableElements` lists every
+   * focusable element and a roving composite parks its other items at -1. What
+   * that misreads — a native radio group, one stop that lists as several —
+   * falls through to `onPaneFocusOut`, which still closes the panel; it just
+   * cannot choose where focus goes.
+   */
+  private readonly onPaneKeydown = (event: KeyboardEvent): void => {
+    const pane = this.overlayRef?.overlayElement;
+    // A control inside that spends Tab on itself (`wr-mention` accepting a
+    // suggestion) has said so by preventing it.
+    if (!pane || event.key !== KEYS.TAB || event.defaultPrevented) return;
+    const active = this.host.nativeElement.ownerDocument.activeElement;
+    const stops = getFocusableElements(pane).filter(el => el.tabIndex >= 0);
+    if (event.shiftKey) {
+      if (active !== pane && active !== stops[0]) return;
+      event.preventDefault();
+    } else if (active !== (stops.at(-1) ?? pane)) {
+      return;
+    }
+    this.host.nativeElement.focus();
+    this.isOpen.set(false);
+  };
+
+  /**
+   * Focus that leaves the panel by any other road closes it, and is left where
+   * it went — the close hands focus back only when it was still inside.
+   *
+   * A `null` destination is three different things, and only one of them is
+   * leaving: Tab walking off the end of the document. The window losing focus
+   * (switching tabs) and the focused control being removed from the panel
+   * report `null` too, and closing for either would shut a panel the user is
+   * still working in.
+   */
+  private readonly onPaneFocusOut = (event: FocusEvent): void => {
+    const next = event.relatedTarget as Node | null;
+    if (next ? this.holdsFocus(next) : this.keystroke.key !== KEYS.TAB) return;
+    this.isOpen.set(false);
+  };
+
+  /**
+   * Whether focus on `node` still belongs to this panel: inside the pane, on
+   * the trigger (a press there is about to toggle it, and closing first would
+   * have that click open it again), or in an overlay opened AFTER this one. A
+   * `wr-date-picker` or `wr-dropdown` inside the panel moves focus into a pane
+   * of its own, later in the same container, and closing under it would destroy
+   * the control that opened it — the same stacking `WrOutsideClick` honours.
+   */
+  private holdsFocus(node: Node): boolean {
+    const ref = this.overlayRef;
+    if (!ref) return false;
+    if (ref.overlayElement.contains(node) || this.host.nativeElement.contains(node)) return true;
+    const box = ref.hostElement;
+    return (
+      (box.parentElement?.contains(node) ?? false) &&
+      (box.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
+    );
   }
 
   private readonly onOverlayLeave = (event: MouseEvent): void => {

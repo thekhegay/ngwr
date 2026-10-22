@@ -27,6 +27,13 @@
   transform-origin: top left;
 }
 
+// A click popover focuses its pane on open, as `tabindex="-1"`: a programmatic
+// target Tab never reaches, so it reports no state and draws no ring. The UA's
+// square `auto` outline otherwise boxed the rounded panel and its arrow.
+.wr-popover-overlay:focus {
+  outline: none;
+}
+
 //
 // Tooltip mode — small dark text panel rendered inside the overlay.
 // (Folded in from the deprecated wr-tooltip entry-point; use

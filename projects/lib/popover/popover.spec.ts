@@ -67,6 +67,26 @@ class Host {
 @Component({ template: '<p>Filters</p>' })
 class DrawerPanel {}
 
+/**
+ * A real window for the CDK to place panels in, for every case in the file.
+ *
+ * jsdom reports `<html>` — the box the CDK measures the viewport by — as 0×0,
+ * and the directive's viewport margin narrows that to a NEGATIVE one. Nothing
+ * fits there, and the fallback is ranked on products of negative lengths, which
+ * sends a `left` panel to the right. A 1024×768 window gives the 0×0 pane room
+ * on every side, so the placement asked for is the one taken.
+ */
+beforeEach(() => {
+  Object.defineProperty(document.documentElement, 'clientWidth', { configurable: true, value: 1024 });
+  Object.defineProperty(document.documentElement, 'clientHeight', { configurable: true, value: 768 });
+});
+
+afterEach(() => {
+  // Own properties shadowing jsdom's prototype getters; deleting them restores those.
+  Reflect.deleteProperty(document.documentElement, 'clientWidth');
+  Reflect.deleteProperty(document.documentElement, 'clientHeight');
+});
+
 describe('WrPopover', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
@@ -743,6 +763,172 @@ describe('WrPopover', () => {
 
       expect(tooltipPane(), 'a child tabbing away closed a tooltip the pointer is still holding open').toBeTruthy();
     });
+  });
+});
+
+/**
+ * Tab out of a click popover, both ways, from the keyboard alone.
+ *
+ * The pane renders at the end of `<body>`, nowhere near its trigger, so the
+ * browser's own Tab walked out of it — Shift+Tab to the foot of the page, Tab
+ * off the document — and left the dialog open behind the user with
+ * `aria-expanded` still true. jsdom has no sequential navigation, so what is
+ * asserted is the directive's half: where it puts focus, and whether it leaves
+ * the move to the browser. The browser's half, forward Tab carrying on from the
+ * trigger to the control after it, was measured in Chromium on the docs
+ * header's Settings panel.
+ *
+ * No synchronous `detectChanges` after a keystroke: the close lands in a render
+ * zoneless CD schedules, and painting by hand would hide one never scheduled.
+ */
+describe('WrPopover keyboard round trip', () => {
+  @Component({
+    imports: [WrPopover],
+    template: `
+      <button type="button" class="trigger" [wrPopover]="panel">Settings</button>
+      <button type="button" class="after">After</button>
+
+      <ng-template #panel>
+        <button type="button" class="first">First</button>
+        <button type="button" class="last">Last</button>
+        <!-- Focusable, but parked out of the tab order the way a roving composite parks its other items. -->
+        <button type="button" class="parked" tabindex="-1">Parked</button>
+      </ng-template>
+    `,
+  })
+  class TabHost {}
+
+  let fixture: ReturnType<typeof TestBed.createComponent<TabHost>>;
+
+  const outside = (cls: 'trigger' | 'after'): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(`.${cls}`)!;
+  const pane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-popover-overlay');
+  const inside = (cls: 'first' | 'last'): HTMLElement => pane()!.querySelector<HTMLElement>(`.${cls}`)!;
+
+  /** Tab on `from`, focused first: a browser dispatches the keydown on whatever holds focus. */
+  const tab = async (from: HTMLElement, shiftKey = false): Promise<KeyboardEvent> => {
+    from.focus();
+    const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey, bubbles: true, cancelable: true });
+    from.dispatchEvent(event);
+    await fixture.whenStable();
+    return event;
+  };
+
+  /** Enter on a `<button>`: focus on it, then a click with no pointer behind it. */
+  const openFromKeyboard = async (): Promise<void> => {
+    outside('trigger').focus();
+    outside('trigger').click();
+    await fixture.whenStable();
+  };
+
+  beforeEach(() => {
+    // jsdom lays nothing out, so `getFocusableElements` would drop every control
+    // in the panel but the focused one as unrendered.
+    vi.spyOn(Element.prototype, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(TabHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it('hands Tab off the last stop to the trigger, leaves the move to the browser, and closes', async () => {
+    await openFromKeyboard();
+    expect(document.activeElement).toBe(pane());
+
+    // `.parked` follows it in the DOM and is not a stop.
+    const event = await tab(inside('last'));
+
+    expect(event.defaultPrevented, 'the browser would not carry on past the trigger').toBe(false);
+    expect(document.activeElement).toBe(outside('trigger'));
+    expect(pane()).toBeNull();
+    expect(outside('trigger').getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('lands Shift+Tab off the first stop on the trigger itself, and closes', async () => {
+    await openFromKeyboard();
+    const event = await tab(inside('first'), true);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(outside('trigger'));
+    expect(pane()).toBeNull();
+  });
+
+  it('treats the focused pane as the first stop', async () => {
+    await openFromKeyboard();
+    const event = await tab(pane()!, true);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(outside('trigger'));
+    expect(pane()).toBeNull();
+  });
+
+  it('leaves Tab between the panel’s own stops to the browser', async () => {
+    await openFromKeyboard();
+    const fromPane = await tab(pane()!);
+    const forward = await tab(inside('first'));
+    const back = await tab(inside('last'), true);
+
+    expect([fromPane, forward, back].map(e => e.defaultPrevented)).toEqual([false, false, false]);
+    expect(pane()).not.toBeNull();
+    expect(outside('trigger').getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('closes when focus leaves for the page some other way, and leaves it there', async () => {
+    await openFromKeyboard();
+    outside('after').focus();
+    await fixture.whenStable();
+
+    expect(pane()).toBeNull();
+    expect(document.activeElement, 'the close pulled focus back to the trigger').toBe(outside('after'));
+  });
+
+  it('stays open for focus on the trigger, and for an overlay stacked above it', async () => {
+    await openFromKeyboard();
+    // A press on the trigger focuses it before its click toggles the panel —
+    // closing here would have that click open it straight back.
+    outside('trigger').focus();
+    await fixture.whenStable();
+    expect(pane()).not.toBeNull();
+
+    // A `wr-date-picker` or `wr-dropdown` inside the panel moves focus into a
+    // pane of its own, later in the same container.
+    const later = document.createElement('button');
+    pane()!.parentElement!.parentElement!.appendChild(later);
+    try {
+      inside('first').focus();
+      later.focus();
+      await fixture.whenStable();
+      expect(pane()).not.toBeNull();
+    } finally {
+      later.remove();
+    }
+  });
+
+  /**
+   * Chromium reports no destination when the window loses focus and when the
+   * focused node is removed, and closing for either would shut a panel the user
+   * is still in. Tab walking off the end of the document reports none too, and
+   * that one is leaving — reached here through a stop the keydown check does
+   * not recognise as the last one.
+   */
+  it('reads a focusout to nowhere as leaving only during a Tab', async () => {
+    await openFromKeyboard();
+    const first = inside('first');
+    first.focus();
+
+    first.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }));
+    await fixture.whenStable();
+    expect(pane(), 'a window blur closed the panel').not.toBeNull();
+
+    // Same task as the keystroke, as the browser's own Tab would be.
+    first.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+    first.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }));
+    await fixture.whenStable();
+    expect(pane()).toBeNull();
   });
 });
 

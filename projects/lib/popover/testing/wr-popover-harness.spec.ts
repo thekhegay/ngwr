@@ -55,6 +55,22 @@ class BoundModeHost {
 }
 
 /**
+ * A real window for the CDK to place panels in. jsdom reports `<html>` as 0×0,
+ * the directive's viewport margin narrows that to a negative box nothing fits,
+ * and the CDK's fallback then sends a `top` panel to the bottom. See
+ * `popover.spec.ts`.
+ */
+beforeEach(() => {
+  Object.defineProperty(document.documentElement, 'clientWidth', { configurable: true, value: 1024 });
+  Object.defineProperty(document.documentElement, 'clientHeight', { configurable: true, value: 768 });
+});
+
+afterEach(() => {
+  Reflect.deleteProperty(document.documentElement, 'clientWidth');
+  Reflect.deleteProperty(document.documentElement, 'clientHeight');
+});
+
+/**
  * `[wrPopover]` renders into a CDK overlay, so nothing this spec asserts about a
  * panel is reachable from the fixture — which is exactly why the harness scopes
  * its panel queries by the id the trigger publishes. The container belongs to the
