@@ -12,7 +12,10 @@ import type { TemplateRef } from '@angular/core';
 import {
   Component,
   DOCUMENT,
+  ElementRef,
+  Injector,
   ViewEncapsulation,
+  afterNextRender,
   computed,
   contentChild,
   inject,
@@ -236,6 +239,8 @@ export class WrEventCalendar {
 
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
   private readonly document = inject(DOCUMENT);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
   private readonly dir = inject(Directionality, { optional: true });
   private readonly chipTpl = contentChild(WrCalendarEventTemplate);
 
@@ -524,21 +529,12 @@ export class WrEventCalendar {
   protected onChipPointerDown(event: PointerEvent, chipEvent: WrCalendarEvent, kind: 'move' | 'resize'): void {
     if (!this.canDrag(chipEvent) || event.button !== 0) return;
 
-    // Hide the chip from the hit test for exactly this measurement. The
-    // `--dragging` rule that does it for the rest of the gesture is bound to a
-    // signal that is not set yet, so `elementFromPoint` returned the chip itself
-    // and `closest()` climbed to the cell the chip STARTS in — never the cell
-    // under the pointer. A chip wide or tall enough to reach past its own cell
-    // then jumped by the grab offset instead of moving by the drag distance.
-    const chip = event.currentTarget as HTMLElement;
-    const pointerEvents = chip.style.pointerEvents;
-    chip.style.pointerEvents = 'none';
+    // The cell is found by geometry, not through the chip: `cellUnder` skips
+    // every chip in the hit-test stack, so neither this one nor a neighbour
+    // overlapping it can stand in for the cell under the pointer.
     const cell = this.cellUnder(event.clientX, event.clientY);
-    chip.style.pointerEvents = pointerEvents;
     if (!cell) return;
 
-    // The chip must stop swallowing hit-tests, or `elementFromPoint` reports
-    // the chip itself for the whole drag and the target never changes.
     try {
       (event.target as HTMLElement).setPointerCapture?.(event.pointerId);
     } catch {
@@ -642,6 +638,7 @@ export class WrEventCalendar {
       // start is a no-op rather than an inverted event.
       if (end.getTime() <= chipEvent.start.getTime()) return;
       this.eventChange.emit({ event: chipEvent, start: chipEvent.start, end, kind: 'resize' });
+      this.refocusChip(chipEvent.id);
       return;
     }
 
@@ -651,6 +648,32 @@ export class WrEventCalendar {
       end: this.shift(chipEvent.end, days, minutes),
       kind: 'move',
     });
+    this.refocusChip(chipEvent.id);
+  }
+
+  /**
+   * Put focus back on the chip a keyboard move re-rendered.
+   *
+   * A host that applies the change re-renders the event in another cell, under
+   * another track key, so the focused button is destroyed and focus falls to
+   * `<body>` — every `Alt` + arrow then had to start again from the top of the
+   * page. Only a LOST focus is taken back: a host that refused the change, or
+   * moved focus somewhere on purpose, is left alone. `afterNextRender`, never a
+   * microtask: zoneless change detection runs in a macrotask, so a microtask
+   * would look before the new chip exists.
+   */
+  private refocusChip(id: WrCalendarEvent['id']): void {
+    afterNextRender(
+      () => {
+        const active = this.document.activeElement;
+        if (active && active !== this.document.body && active.isConnected) return;
+        const chip = [...this.host.nativeElement.querySelectorAll<HTMLElement>('.wr-event-calendar__chip')].find(
+          el => el.dataset['eventId'] === String(id)
+        );
+        chip?.focus();
+      },
+      { injector: this.injector }
+    );
   }
 
   protected onGridKeyDown(event: KeyboardEvent): void {
@@ -881,15 +904,30 @@ export class WrEventCalendar {
     return { start, end: new Date(start.getTime() + Math.max(5, this.slotMinutes()) * 60_000), allDay: false };
   }
 
-  /** The `[data-cell]` under the pointer, or `null` outside the grid. */
+  /**
+   * The `[data-cell-date]` under the pointer, or `null` outside the grid.
+   *
+   * Walks the whole hit-test stack rather than climbing from the topmost
+   * element. A chip lives in the cell it STARTS in and reaches past it, so
+   * `elementFromPoint(…).closest()` over any chip — a neighbour covering the
+   * drop slot, a multi-day band covering the drop day — answered with that
+   * chip's start cell, and the event landed there instead of under the
+   * pointer. The stack lists the cell itself, below the chips; something that
+   * is not part of this calendar coming first means the pointer is over
+   * another layer, which is not a drop.
+   */
   private cellUnder(x: number, y: number): { date: Date; minutes: number } | null {
-    const el = this.document.elementFromPoint(x, y)?.closest<HTMLElement>('[data-cell-date]');
-    if (!el) return null;
-    // Epoch millis rather than a formatted date: `new Date('2026-08-08')` is
-    // parsed as UTC and lands on the previous day west of Greenwich.
-    const stamp = Number(el.dataset['cellDate']);
-    if (!Number.isFinite(stamp)) return null;
-    return { date: new Date(stamp), minutes: Number(el.dataset['cellMinutes'] ?? -1) };
+    const host = this.host.nativeElement;
+    for (const el of this.document.elementsFromPoint?.(x, y) ?? []) {
+      if (!host.contains(el)) return null;
+      if (!(el instanceof HTMLElement) || !el.matches('[data-cell-date]')) continue;
+      // Epoch millis rather than a formatted date: `new Date('2026-08-08')` is
+      // parsed as UTC and lands on the previous day west of Greenwich.
+      const stamp = Number(el.dataset['cellDate']);
+      if (!Number.isFinite(stamp)) return null;
+      return { date: new Date(stamp), minutes: Number(el.dataset['cellMinutes'] ?? -1) };
+    }
+    return null;
   }
 
   /** Value of a cell's `data-cell-date`. @internal */

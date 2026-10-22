@@ -123,6 +123,16 @@ describe('WrTableFilter', () => {
     expect(fixture.componentInstance.emitted()).toEqual([]);
   });
 
+  it('says which options are on, not only with the check it paints', () => {
+    open();
+    expect(options().map(o => o.getAttribute('aria-pressed'))).toEqual(['false', 'false']);
+
+    options()[0].click();
+    fixture.detectChanges();
+
+    expect(options().map(o => o.getAttribute('aria-pressed'))).toEqual(['true', 'false']);
+  });
+
   /**
    * jsdom runs no input method: the events below are hand-built with the flags a
    * real one sets, and the assertion is that the panel survived. A faithful test
@@ -219,5 +229,45 @@ describe('WrTableFilter panel copy', () => {
 
     expect(search().placeholder).toBe('Find a role');
     expect(reset()?.textContent?.trim()).toBe('Start over');
+  });
+});
+
+/**
+ * Two filters over ONE array — the same column definition handed to two tables.
+ * The objects are the state, so the two have to agree: each one memoised its
+ * count against its own version, and the one that was not clicked kept showing
+ * no badge over a panel with a ticked box.
+ */
+describe('WrTableFilter sharing its items with another filter', () => {
+  @Component({
+    imports: [WrTableFilter],
+    template: `
+      <wr-table-filter class="a" [items]="items" column="Role" />
+      <wr-table-filter class="b" [items]="items" column="Role" />
+    `,
+  })
+  class SharedHost {
+    readonly items: readonly WrTableFilterItem[] = [
+      { value: 'admin', title: 'Admin' },
+      { value: 'user', title: 'User' },
+    ];
+  }
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('counts a box ticked in the other one', async () => {
+    const fixture = TestBed.createComponent(SharedHost);
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+
+    el.querySelector<HTMLElement>('.a .wr-table-filter__trigger')!.click();
+    await fixture.whenStable();
+    document.querySelector<HTMLElement>('.wr-table-filter__item')!.click();
+    await fixture.whenStable();
+
+    expect(el.querySelector('.b .wr-table-filter__count')?.textContent?.trim()).toBe('1');
+    expect(el.querySelector('.b .wr-table-filter__trigger')?.getAttribute('aria-label')).toBe('Filter Role, 1');
+    fixture.destroy();
   });
 });

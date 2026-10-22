@@ -317,6 +317,61 @@ describe('WrTree keyboard cursor', () => {
     expect(press('ArrowDown').defaultPrevented).toBe(true);
     expect(press('ArrowUp').defaultPrevented).toBe(true);
   });
+
+  it('follows a collapsed ancestor rather than whichever row takes its index', async () => {
+    // The cursor was a bare index: collapsing `src` with the mouse while it sat
+    // on `main.ts` (index 2) handed the tab stop to whatever row index 2 now
+    // was, and the next arrow walked from there.
+    rowFor('main.ts').click();
+    await fixture.whenStable();
+    toggleIn(rowFor('src'));
+
+    expect(tabbable().map(r => r.textContent.trim())).toEqual(['src']);
+    press('ArrowDown');
+    await fixture.whenStable();
+    expect(document.activeElement).toBe(rowFor('README.md'));
+  });
+
+  it('stays on its row when a branch above it opens', async () => {
+    fixture.componentInstance.expanded.set([]);
+    fixture.detectChanges();
+    rowFor('README.md').click();
+    await fixture.whenStable();
+
+    toggleIn(rowFor('src'));
+
+    expect(tabbable().map(r => r.textContent.trim())).toEqual(['README.md']);
+  });
+});
+
+describe('WrTree names an inline tree', () => {
+  @Component({
+    imports: [WrTree],
+    template: `<wr-tree [nodes]="nodes" ariaLabel="Project files" />`,
+  })
+  class NamedHost {
+    readonly nodes = NODES;
+  }
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('puts ariaLabel on the role="tree" itself, which needs a name', () => {
+    const fixture = TestBed.createComponent(NamedHost);
+    fixture.detectChanges();
+    const tree = (fixture.nativeElement as HTMLElement).querySelector('[role="tree"]')!;
+
+    expect(tree.getAttribute('aria-label')).toBe('Project files');
+    fixture.destroy();
+  });
+
+  it('leaves an unnamed tree without an empty name', () => {
+    const fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    const tree = (fixture.nativeElement as HTMLElement).querySelector('[role="tree"]')!;
+
+    expect(tree.hasAttribute('aria-label')).toBe(false);
+    fixture.destroy();
+  });
 });
 
 describe('WrTree with defaultExpandAll', () => {
@@ -691,6 +746,41 @@ describe('WrTree in overlay mode', () => {
 
       expect(fixture.componentInstance.picked()).toBe('readme');
       expect(list()).toBeNull();
+    });
+
+    it('closes on Tab and lets focus carry on from the trigger', async () => {
+      // The pane sits at the end of <body>: a Tab from a row left the document
+      // and the panel stayed open over a combobox nobody was on.
+      await open();
+      const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+      document.activeElement!.dispatchEvent(tab);
+
+      // Synchronous, so the browser's own Tab runs from the trigger; and not
+      // prevented, so it does run.
+      expect(document.activeElement).toBe(trigger());
+      expect(tab.defaultPrevented).toBe(false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(list()).toBeNull();
+      expect(trigger().getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('opens from the closed trigger on ArrowDown, ArrowUp and Alt + ArrowDown', async () => {
+      for (const init of [{ key: 'ArrowDown' }, { key: 'ArrowUp' }, { key: 'ArrowDown', altKey: true }]) {
+        trigger().focus();
+        const event = new KeyboardEvent('keydown', { ...init, bubbles: true, cancelable: true });
+        trigger().dispatchEvent(event);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(event.defaultPrevented).toBe(true);
+        expect(trigger().getAttribute('aria-expanded')).toBe('true');
+        expect(list()).not.toBeNull();
+
+        document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+        fixture.detectChanges();
+        await fixture.whenStable();
+      }
     });
 
     it('gives focus back to the trigger when the panel closes', async () => {

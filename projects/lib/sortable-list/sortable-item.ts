@@ -52,7 +52,7 @@ import { WR_SORTABLE_LIST } from './tokens';
     '[class.wr-sortable-list__item--grabbed]': 'grabbed()',
     '[attr.tabindex]': 'list.disabled() ? null : 0',
     '[attr.aria-describedby]': 'list.disabled() ? null : list.keyHelpId',
-    '(keydown)': 'list.onRowKeydown($event, index())',
+    '(keydown)': 'onKeydown($event)',
     '(focusout)': 'list.onRowFocusout()',
   },
 })
@@ -69,20 +69,16 @@ export class WrSortableItem {
    * Position among the list's rows, which IS the index into `items()`: the
    * consumer's own loop renders them in that order.
    *
-   * It reads `items()` to have a producer at all. `indexOf` resolves by
-   * DOCUMENT ORDER over a plain array, so it touches no signal — and a
-   * `computed` whose body reads none runs once and is cached forever, since
-   * nothing can ever mark it dirty. Every row's index was therefore frozen at
-   * whatever it was during the first change detection, while the consumer's
-   * own `@for` kept moving the rows: a grabbed row reported a position it no
-   * longer held, and the keyboard move went to the wrong slot.
-   *
-   * `rowCount` is that producer: the list derives it from `items`, which it
-   * owns as a `model`, so every reorder, insertion and removal the consumer
-   * makes goes through it — exactly when a position can change.
+   * `indexOf` resolves by DOCUMENT ORDER over a plain array and touches no
+   * signal, so the `computed` needs a producer that changes whenever a position
+   * can. That producer is the `items` ARRAY, not its length: a reorder keeps the
+   * count, so a length-keyed index stayed on the slot the row had left, the
+   * highlight stayed behind with it, and a second pick-up of the same row moved
+   * its old neighbour instead. Host bindings run after the consumer's `@for`
+   * has moved the nodes, so the recomputation reads the new order.
    */
   protected readonly index = computed(() => {
-    this.list.rowCount();
+    this.list.items();
     return this.list.indexOf(this);
   });
 
@@ -100,5 +96,14 @@ export class WrSortableItem {
       this.drag.lockAxis = this.list.lockAxis() ?? null;
       this.drag.dragStartDelay = this.list.dragStartDelay();
     });
+  }
+
+  /**
+   * @internal Resolves the position at the moment of the key, off the DOM,
+   * rather than through the cached `index`: nothing has to have rendered
+   * between two presses for the answer to be right.
+   */
+  protected onKeydown(event: KeyboardEvent): void {
+    this.list.onRowKeydown(event, this.list.indexOf(this));
   }
 }

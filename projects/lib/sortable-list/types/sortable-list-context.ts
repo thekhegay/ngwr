@@ -33,15 +33,15 @@ export interface WrSortableListContext {
   readonly keyHelpId: string;
 
   /**
-   * How many rows the list is showing, as a signal.
+   * The list's items, read by a row only as the producer of its position.
    *
    * A row's `index` is resolved by DOCUMENT ORDER, which touches no signal —
-   * so the `computed` wrapping it had no producer and was cached for the life
-   * of the row. This is the producer: the list owns `items` as a `model`, so
-   * every reorder, insertion and removal goes through it, which is exactly
-   * when a position can change.
+   * so the `computed` wrapping it needs something that changes whenever a
+   * position can. The array does on every reorder, insertion and removal; its
+   * length does not on a reorder, which is how a row's index once stayed on
+   * the slot it had left.
    */
-  readonly rowCount: Signal<number>;
+  readonly items: Signal<readonly unknown[]>;
 
   /** Register a row on construction, in projection order. */
   register(item: { readonly host: ElementRef<HTMLElement> }): void;

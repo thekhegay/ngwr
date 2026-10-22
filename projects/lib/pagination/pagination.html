@@ -63,8 +63,11 @@
       }
     }
 
-    <!-- Compact pager — shown only in responsive mode on a narrow box (CSS). -->
-    <span class="wr-pagination__current" aria-hidden="true">{{ compactLabel() }}</span>
+    <!-- Compact pager — shown only in responsive mode on a narrow box (CSS). Not
+         `aria-hidden`: `display: none` already keeps whichever of the two is
+         hidden out of the accessibility tree, and on a narrow box this label is
+         the only position on screen. -->
+    <span class="wr-pagination__current">{{ compactLabel() }}</span>
 
     <wr-btn
       class="wr-pagination__nav-btn"

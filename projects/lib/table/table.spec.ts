@@ -9,7 +9,7 @@ import { Subject } from 'rxjs';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { noop } from 'ngwr/utils';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrTable } from './table';
 import { WrTableSort } from './table-sort';
@@ -1132,6 +1132,114 @@ describe('WrTable renders both header controls for a sortable, filterable column
     const th = headerFor('Id');
     expect(th.querySelector('.wr-table__sort-btn')).toBeNull();
     expect(th.querySelector('wr-table-filter')).toBeNull();
+  });
+});
+
+/**
+ * Tree rows refuse three modes rather than half-support them, and each refusal
+ * is invisible on screen — the other mode is simply not there. Dev mode names it.
+ */
+describe('WrTable tree rows with a refused mode', () => {
+  @Component({
+    imports: [WrTable],
+    template: `<wr-table
+      rowKey="id"
+      childrenKey="kids"
+      [groupBy]="groupBy()"
+      [virtualScroll]="virtual()"
+      [columns]="columns"
+      [items]="items"
+    />`,
+  })
+  class RefusedHost {
+    protected readonly columns: WrTableColumns = { name: { title: 'Name' } };
+    protected readonly items = [{ id: 1, name: 'Root', kids: [{ id: 2, name: 'Leaf' }] }];
+    readonly groupBy = signal<string | null>(null);
+    readonly virtual = signal(false);
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    TestBed.resetTestingModule();
+  });
+
+  it('warns once per refused pair, and not for a tree on its own', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(noop);
+    const fixture = TestBed.createComponent(RefusedHost);
+    fixture.detectChanges();
+    expect(warn).not.toHaveBeenCalled();
+
+    fixture.componentInstance.groupBy.set('name');
+    fixture.componentInstance.virtual.set(true);
+    fixture.detectChanges();
+    fixture.componentInstance.groupBy.set(null);
+    fixture.detectChanges();
+    fixture.componentInstance.groupBy.set('name');
+    fixture.detectChanges();
+
+    const messages = warn.mock.calls.map(call => String(call[0]));
+    expect(messages).toHaveLength(2);
+    expect(messages.some(m => m.includes('`groupBy`'))).toBe(true);
+    expect(messages.some(m => m.includes('`virtualScroll`'))).toBe(true);
+    fixture.destroy();
+  });
+});
+
+/**
+ * `sort` is an array whose FIRST entry is the primary key. Flipping a column's
+ * direction is not a new sort, so it keeps its place: re-clicking the primary
+ * column used to move it to the end, and the rows re-sorted by the secondary
+ * key while the header still said the primary was the one descending.
+ */
+describe('WrTable multi-column sort order', () => {
+  @Component({
+    imports: [WrTable],
+    template: `<wr-table [columns]="columns" [items]="items" [(sort)]="sort" />`,
+  })
+  class SortHost {
+    protected readonly items = [{ id: 1, name: 'Ada', role: 'admin' }];
+    protected readonly columns: WrTableColumns = {
+      name: { title: 'Name', sortable: true },
+      role: { title: 'Role', sortable: true },
+    };
+    readonly sort = signal<readonly { key: string; direction: WrTableSortDirection }[]>([]);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<SortHost>>;
+  const click = (title: string): void => {
+    const th = [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('th')].find(h =>
+      h.textContent.includes(title)
+    )!;
+    th.querySelector<HTMLElement>('.wr-table__sort-btn')!.click();
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(SortHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps a reversed column where it was in the order', () => {
+    click('Name');
+    click('Role');
+    click('Name');
+
+    expect(fixture.componentInstance.sort()).toEqual([
+      { key: 'name', direction: 'desc' },
+      { key: 'role', direction: 'asc' },
+    ]);
+  });
+
+  it('appends a newly sorted column and drops one cycled back to unsorted', () => {
+    click('Name');
+    click('Role');
+    click('Name');
+    click('Name');
+
+    expect(fixture.componentInstance.sort()).toEqual([{ key: 'role', direction: 'asc' }]);
   });
 });
 

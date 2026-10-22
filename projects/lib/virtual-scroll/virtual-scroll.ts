@@ -13,6 +13,7 @@ import {
   TemplateRef,
   type TrackByFunction,
   ViewEncapsulation,
+  afterRenderEffect,
   computed,
   contentChild,
   input,
@@ -109,6 +110,21 @@ export class WrVirtualScroll<T = unknown> {
 
   protected readonly resolvedMinBuffer = computed(() => this.buffers().min);
   protected readonly resolvedMaxBuffer = computed(() => this.buffers().max);
+
+  constructor() {
+    // The CDK measures the viewport once and then only on a WINDOW resize, so a
+    // change of `height` — the box this component draws itself — left the
+    // rendered window sized for the old box: grown, a blank band under the last
+    // row that no scrolling filled. Re-measured after the render that applied
+    // the new height, never on the first one, which the CDK measures itself.
+    let applied: string | null = null;
+    afterRenderEffect(() => {
+      const height = this.resolvedHeight();
+      const viewport = this.viewport();
+      if (applied !== null && applied !== height) viewport.checkViewportSize();
+      applied = height;
+    });
+  }
 
   /** Scroll a specific index into view. Mirrors the CDK API. */
   scrollToIndex(index: number, behavior: ScrollBehavior = 'auto'): void {

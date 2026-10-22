@@ -20,6 +20,7 @@ import {
   effect,
   inject,
   input,
+  isDevMode,
   model,
   output,
   signal,
@@ -374,9 +375,9 @@ export class WrTable {
    * without it renders byte-identically to today.
    *
    * Engages ONLY on the flat, fixed-height tier: it silently falls back to the
-   * full render whenever a variable-height layout is active — `groupBy`, a
-   * `[wrTableExpand]` template, `responsive` card mode, or a visible pager
-   * (`pageSize > 0` / `total`). While on, it forces fixed layout for
+   * full render whenever a variable-height layout is active — `groupBy`, tree
+   * rows (`childrenKey`), a `[wrTableExpand]` template, `responsive` card mode,
+   * or a visible pager (`pageSize > 0` / `total`). While on, it forces fixed layout for
    * stable column widths and assumes a uniform row height (see `rowHeight`).
    *
    * Intended as static config. Give columns an explicit `width` so the frozen
@@ -508,6 +509,27 @@ export class WrTable {
   }>({ left: new Map(), right: new Map(), leftEdge: null, rightEdge: null });
 
   constructor() {
+    // A refused pair says so. Tree rows lose to `groupBy` and win over detail
+    // rows and windowing, each a documented exclusion — and on screen each one
+    // is only a mode that silently is not there.
+    if (isDevMode()) {
+      const warned = new Set<string>();
+      effect(() => {
+        if (this.childrenKey() === null) return;
+        const refused = [
+          this.groupBy() !== null ? '`groupBy` (grouping wins and the hierarchy is ignored)' : null,
+          this.expandTpl() ? 'a `[wrTableExpand]` template (tree rows win and no detail row renders)' : null,
+          this.virtualScroll() ? '`virtualScroll` (tree rows win and the body renders in full)' : null,
+        ].filter((pair): pair is string => pair !== null);
+        for (const pair of refused) {
+          if (warned.has(pair)) continue;
+          warned.add(pair);
+          // eslint-disable-next-line no-console -- dev-mode validation
+          console.warn(`[NGWR] <wr-table>: \`childrenKey\` cannot be combined with ${pair}.`);
+        }
+      });
+    }
+
     // Re-measure whenever the columns or their rendered widths change. Tables
     // with no pinned column skip the observer entirely.
     effect(onCleanup => {
@@ -1342,8 +1364,14 @@ export class WrTable {
     const current = this.directionFor(key);
     const next: WrTableSortDirection = current === null ? 'asc' : current === 'asc' ? 'desc' : null;
 
-    const list = this.sort().filter(s => s.key !== key);
-    if (next !== null) list.push({ key, direction: next });
+    // A flip keeps the column's place in the order: the first entry is the
+    // primary key, and reversing it is not a new sort. A new column joins at
+    // the end; one cycled back to unsorted leaves.
+    const list = this.sort().slice();
+    const at = list.findIndex(s => s.key === key);
+    if (next === null) list.splice(at, 1);
+    else if (at === -1) list.push({ key, direction: next });
+    else list[at] = { key, direction: next };
     this.sort.set(list);
   }
 

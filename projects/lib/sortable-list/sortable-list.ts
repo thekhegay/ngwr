@@ -14,7 +14,6 @@ import {
   Injector,
   ViewEncapsulation,
   afterNextRender,
-  computed,
   inject,
   input,
   model,
@@ -145,15 +144,6 @@ export class WrSortableList<T = unknown> implements WrSortableListContext {
 
   /** Index of the row the keyboard is holding, or `null` when nothing is held. */
   readonly grabbedIndex = signal<number | null>(null);
-
-  /**
-   * The producer a row's position depends on — see `WrSortableListContext`.
-   *
-   * A count rather than the array, because what a row needs is something that
-   * changes whenever a position can: `items` is a `model`, so a reorder
-   * replaces it and the length is re-read either way.
-   */
-  readonly rowCount = computed(() => this.items().length);
 
   /** Live-region text. Written by the keyboard path only. */
   protected readonly announcement = signal('');

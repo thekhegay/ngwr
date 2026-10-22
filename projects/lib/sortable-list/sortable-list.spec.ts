@@ -199,6 +199,42 @@ describe('WrSortableList', () => {
       ]);
     });
 
+    it('follows a row the consumer loop moved without changing the length', async () => {
+      key(1, ' ');
+      key(1, 'ArrowDown');
+      await fixture.whenStable();
+      expect(labels()).toEqual(['One', 'Three', 'Two']);
+
+      // A reorder keeps the count, so a position derived from the length alone
+      // stays where the row was: the highlight sat on 'Three' while 'Two' moved.
+      const grabbed = (): string[] =>
+        items()
+          .filter(el => el.classList.contains('wr-sortable-list__item--grabbed'))
+          .map(el => el.textContent.trim());
+      expect(grabbed()).toEqual(['3. Two']);
+
+      key(2, ' ');
+      await fixture.whenStable();
+      fixture.componentInstance.events.length = 0;
+
+      // The same node, picked up again at its new slot.
+      key(2, ' ');
+      expect(status()).toBe('Grabbed. 3 of 3.');
+      key(2, 'ArrowUp');
+      await fixture.whenStable();
+      expect(labels()).toEqual(['One', 'Two', 'Three']);
+
+      key(1, ' ');
+      expect(fixture.componentInstance.events).toEqual([
+        {
+          items: fixture.componentInstance.items(),
+          previousIndex: 2,
+          currentIndex: 1,
+          item: { id: 2, label: 'Two' },
+        },
+      ]);
+    });
+
     it('stops at the ends of the list', async () => {
       key(0, ' ');
       key(0, 'ArrowUp');

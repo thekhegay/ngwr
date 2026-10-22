@@ -303,17 +303,18 @@ describe('WrPagination', () => {
       expect(strip()).toBe(before);
     });
 
-    it('keeps the compact pager out of the accessibility tree, in both modes', () => {
-      // The `3 / 10` label the narrow layout swaps in is always in the DOM — CSS
-      // decides which of the two is visible — so without `aria-hidden` a screen
-      // reader would read the position twice on every page, at every width.
+    it('leaves the compact pager to CSS, so the narrow layout still says where you are', () => {
+      // The `3 / 10` label is always in the DOM and CSS decides which of the two
+      // shows — and `display: none` is what keeps the hidden one out of the
+      // accessibility tree, at either width. An `aria-hidden` on top hid it in
+      // the one layout where it is the ONLY position on screen: the numbered
+      // cells carrying `aria-current` are the ones `display: none` there, and the
+      // narrow pager announced two arrows and nothing between them.
       const compact = (): HTMLElement => root().querySelector('.wr-pagination__current')!;
-      expect(compact().getAttribute('aria-hidden')).toBe('true');
-
       fixture.componentInstance.responsive.set(true);
       fixture.detectChanges();
 
-      expect(compact().getAttribute('aria-hidden')).toBe('true');
+      expect(compact().hasAttribute('aria-hidden')).toBe(false);
       expect(compact().textContent.trim()).toBe('1 / 10');
     });
   });

@@ -212,6 +212,28 @@ describe('WrTransfer', () => {
     expect(granted()).toEqual(['read', 'delete']);
   });
 
+  it('leaves rows the filter hides alone when the header box is used', () => {
+    // The header acts on what the pane SHOWS. It set the whole staging box, so
+    // unticking it under a filter unstaged a hidden row too, and ticking it
+    // dropped every hidden one.
+    fixture.componentInstance.searchable.set(true);
+    fixture.detectChanges();
+    check(0, 0);
+    check(0, 2);
+    search(0, 'delete');
+
+    headBox(0).click(); // all shown are staged, so this clears them
+    fixture.detectChanges();
+    search(0, '');
+    expect(rowBoxes(0).map(box => box.checked)).toEqual([true, false, false, false]);
+
+    search(0, 'delete');
+    headBox(0).click();
+    fixture.detectChanges();
+    search(0, '');
+    expect(rowBoxes(0).map(box => box.checked)).toEqual([true, false, true, false]);
+  });
+
   it('never lands the same value on the right twice', () => {
     // Staging survives an external write to `value`, so the staged row can already
     // be on the right by the time the move happens.

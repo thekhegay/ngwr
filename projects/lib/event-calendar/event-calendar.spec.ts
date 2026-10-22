@@ -67,6 +67,24 @@ class ReadOnlyHost {
   readonly changed = signal<WrCalendarEventChange | null>(null);
 }
 
+/** Applies every change the way the docs tell a host to, in the output handler. */
+@Component({
+  imports: [WrEventCalendar],
+  template: `
+    <wr-event-calendar editable view="day" [events]="events()" [date]="date" (eventChange)="apply($event)" />
+  `,
+})
+class ApplyingHost {
+  readonly events = signal(EVENTS);
+  readonly date = AT(14);
+
+  apply(change: WrCalendarEventChange): void {
+    this.events.update(list =>
+      list.map(e => (e.id === change.event.id ? { ...e, start: change.start, end: change.end } : e))
+    );
+  }
+}
+
 describe('WrEventCalendar', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
@@ -94,26 +112,23 @@ describe('WrEventCalendar', () => {
 
   describe('dragging a chip', () => {
     /**
-     * jsdom hit-tests nothing — `elementFromPoint` is null for every coordinate —
-     * so the hit test is stubbed, and stubbed HONESTLY: the stub returns whatever
-     * sits at the coordinate, and returns the CHIP when the chip is still
-     * hit-testable, which is precisely the behaviour that made the origin wrong.
+     * jsdom hit-tests nothing — `elementsFromPoint` is not even defined — so the
+     * hit test is stubbed, and stubbed HONESTLY: each coordinate answers with
+     * the stack a browser reports there, chips first and the cell under them
+     * after, minus anything whose inline `pointer-events` is `none`. Both
+     * spellings answer from the one table, so code that read the topmost element
+     * and climbed would see exactly what a browser shows it.
      */
-    const dragChip = (title: string, grabOver: HTMLElement, dropOver: HTMLElement): void => {
+    const dragChip = (title: string, grabOver: Element[], dropOver: Element[]): void => {
       const chip = chipFor(title)!;
-      const at = new Map<number, HTMLElement>([
+      const at = new Map<number, Element[]>([
         [10, grabOver],
         [20, dropOver],
       ]);
-      // jsdom does not implement `elementFromPoint` AT ALL — it is undefined here,
-      // not merely null-returning — so the property is installed and removed.
-      const original = Object.getOwnPropertyDescriptor(Document.prototype, 'elementFromPoint');
-      document.elementFromPoint = (x: number): Element | null => {
-        const cell = at.get(x) ?? null;
-        // While the chip can take a hit test, it is what the browser reports.
-        if (chip.style.pointerEvents !== 'none' && x === 10) return chip;
-        return cell;
-      };
+      const stack = (x: number): Element[] =>
+        (at.get(x) ?? []).filter(el => (el as HTMLElement).style.pointerEvents !== 'none').concat(root());
+      document.elementsFromPoint = (x: number): Element[] => stack(x);
+      document.elementFromPoint = (x: number): Element | null => stack(x)[0] ?? null;
 
       const down = new Event('pointerdown', { bubbles: true, cancelable: true });
       Object.assign(down, { clientX: 10, clientY: 0, button: 0, isPrimary: true, pointerId: 1 });
@@ -125,9 +140,14 @@ describe('WrEventCalendar', () => {
       chip.dispatchEvent(up);
       fixture.detectChanges();
 
-      if (original) Object.defineProperty(document, 'elementFromPoint', original);
-      else delete (document as Partial<Document>).elementFromPoint;
+      delete (document as Partial<Document>).elementsFromPoint;
+      delete (document as Partial<Document>).elementFromPoint;
     };
+
+    const slot = (day: number, minutes: number): HTMLElement =>
+      root().querySelector<HTMLElement>(
+        `[data-cell-date="${new Date(2026, 0, day).getTime()}"][data-cell-minutes="${minutes}"]`
+      )!;
 
     it('measures the grab from the cell under the pointer, not the chip own cell', () => {
       // A chip reaches past the cell it starts in (a band spans days with a
@@ -139,7 +159,7 @@ describe('WrEventCalendar', () => {
       const grab = dayCells[1];
       const drop = dayCells[2];
 
-      dragChip('Standup', grab, drop);
+      dragChip('Standup', [chipFor('Standup')!, grab], [drop]);
 
       const change = fixture.componentInstance.changed();
       expect(change).not.toBeNull();
@@ -149,6 +169,41 @@ describe('WrEventCalendar', () => {
 
       // One cell of travel, whatever the chip happened to start on.
       expect(moved).toBe(droppedOn - grabbedOn);
+    });
+
+    it('drops into the slot under the pointer when another chip covers it', () => {
+      // A chip lives in the cell it STARTS in and reaches down over the slots
+      // after it. Climbing from the topmost element found Review's own 14:00
+      // cell, so a drop on 14:30 landed half an hour early.
+      setView('day');
+      dragChip('Standup', [chipFor('Standup')!, slot(14, 540)], [chipFor('Review')!, slot(14, 870)]);
+
+      expect(fixture.componentInstance.changed()?.start).toEqual(AT(14, 14, 30));
+    });
+
+    it('drops onto the day under the pointer when a band covers it', () => {
+      // The month-view twin: a multi-day band painted over the drop day.
+      fixture.componentInstance.events.set([
+        ...EVENTS,
+        { id: 'trip', title: 'Trip', start: AT(11, 0), end: AT(17, 0), allDay: true },
+      ]);
+      fixture.detectChanges();
+      const day = (d: number): HTMLElement =>
+        root().querySelector<HTMLElement>(`[data-cell-date="${new Date(2026, 0, d).getTime()}"]`)!;
+
+      dragChip('Standup', [chipFor('Standup')!, day(14)], [chipFor('Trip')!, day(15)]);
+
+      expect(fixture.componentInstance.changed()?.start).toEqual(AT(15, 9));
+    });
+
+    it('is not a drop when something outside the calendar is on top', () => {
+      const cover = document.createElement('div');
+      document.body.append(cover);
+      setView('day');
+      dragChip('Standup', [chipFor('Standup')!, slot(14, 540)], [cover, slot(14, 870)]);
+      cover.remove();
+
+      expect(fixture.componentInstance.changed()).toBeNull();
     });
   });
 
@@ -404,6 +459,40 @@ describe('WrEventCalendar', () => {
       // Alt + arrow is the keyboard equivalent of the drag and emits the same
       // output, so a host that handles one handles both.
       expect(change?.start.getTime()).not.toBe(AT(14, 9).getTime());
+    });
+
+    it('keeps focus on the chip a host re-rendered, so the next Alt + arrow still moves it', async () => {
+      // The applied change re-renders the event in another cell under another
+      // track key, which destroys the focused button: focus fell to <body> and
+      // the second press went nowhere.
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
+      const applying = TestBed.createComponent(ApplyingHost);
+      applying.autoDetectChanges();
+      await applying.whenStable();
+      const el = applying.nativeElement as HTMLElement;
+      const standup = (): HTMLElement =>
+        [...el.querySelectorAll<HTMLElement>('.wr-event-calendar__chip')].find(c =>
+          (c.getAttribute('aria-label') ?? '').startsWith('Standup')
+        )!;
+      const press = async (shiftKey = false): Promise<void> => {
+        (document.activeElement as HTMLElement).dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'ArrowDown', altKey: true, shiftKey, bubbles: true, cancelable: true })
+        );
+        await applying.whenStable();
+      };
+
+      standup().focus();
+      await press();
+      expect(document.activeElement).toBe(standup());
+      await press();
+      expect(applying.componentInstance.events()[0].start).toEqual(AT(14, 10));
+
+      // The resize keeps the start, so its chip stays put — and keeps focus too.
+      await press(true);
+      expect(document.activeElement).toBe(standup());
+      expect(applying.componentInstance.events()[0].end).toEqual(AT(14, 11));
+      applying.destroy();
     });
 
     it('refuses to move anything in a read-only calendar', () => {

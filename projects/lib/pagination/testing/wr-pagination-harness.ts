@@ -52,9 +52,9 @@ import type { WrPaginationHarnessFilters } from './types';
  * none of it needs layout. Two things are therefore invisible in a unit test and
  * deliberately absent from this API — the responsive collapse, which is a container
  * query ({@link isResponsive} reports only that it is ALLOWED), and the compact
- * `‹ 3 / 10 ›` pager it swaps in, which is `aria-hidden` decoration duplicating
- * {@link getCurrentPage} and {@link getTotalPages} and which a real browser would
- * read as empty text while CSS keeps it hidden.
+ * `‹ 3 / 10 ›` pager it swaps in, which duplicates {@link getCurrentPage} and
+ * {@link getTotalPages} and which a real browser would read as empty text while
+ * CSS keeps it hidden.
  *
  * @example
  * ```ts
@@ -188,8 +188,8 @@ export class WrPaginationHarness extends ComponentHarness {
    * Taken from the LAST cell, which the window always pins to the final page (the
    * first is pinned the same way), so this survives the gap that usually precedes
    * it. Deliberately not read from the compact `3 / 10` pager: that span is
-   * `aria-hidden` and CSS-hidden outside responsive mode, so a browser-based
-   * harness environment would read it as empty.
+   * CSS-hidden outside responsive mode, so a browser-based harness environment
+   * would read it as empty.
    */
   async getTotalPages(): Promise<number> {
     const pages = await this.getPages();
