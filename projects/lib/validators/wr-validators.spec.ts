@@ -88,6 +88,20 @@ describe('WrValidators.url', () => {
   });
 
   /**
+   * `new URL('localhost:4200')` parses, with `localhost` as the scheme and the
+   * port as the path, so a host typed without a scheme passed "scheme required"
+   * and failed an https-only list as the WRONG scheme.
+   */
+  it('reads a host with a port as a host with no scheme', () => {
+    expect(url(control('localhost:4200'))).toEqual({ url: true });
+    expect(url(control('ngwr.dev:443/docs'))).toEqual({ url: true });
+    expect(WrValidators.url({ protocols: ['https'] })(control('localhost:4200'))).toEqual({ url: true });
+    // A one-label name is still a scheme: nothing in `tel:911` says otherwise.
+    expect(url(control('tel:911'))).toBeNull();
+    expect(url(control('http://localhost:4200'))).toBeNull();
+  });
+
+  /**
    * The lenient mode has its own parse, and therefore its own three ways to be
    * wrong — none of which the strict path exercises, because it never reaches
    * the retry at all.
@@ -117,6 +131,17 @@ describe('WrValidators.url', () => {
       const ftpOnly = WrValidators.url({ requireProtocol: false, protocols: ['ftp'] });
       expect(ftpOnly(control('ngwr.dev'))).toEqual({ url: { allowed: ['ftp'] } });
       expect(ftpOnly(control('ftp://ngwr.dev'))).toBeNull();
+    });
+
+    it('accepts a bare domain with a port, under an https-only list too', () => {
+      const httpsOnly = WrValidators.url({ requireProtocol: false, protocols: ['https'] });
+      expect(httpsOnly(control('ngwr.dev:8080'))).toBeNull();
+      expect(httpsOnly(control('localhost:4200/x'))).toBeNull();
+      // Still assumed https, so a list without it still refuses.
+      const ftpOnly = WrValidators.url({ requireProtocol: false, protocols: ['ftp'] });
+      expect(ftpOnly(control('ngwr.dev:21'))).toEqual({ url: { allowed: ['ftp'] } });
+      // And a port the retry cannot parse is not a URL at all.
+      expect(lenient(control('ngwr.dev:99999'))).toEqual({ url: true });
     });
 
     it('leaves an explicit scheme to the strict path', () => {
@@ -271,7 +296,9 @@ describe('WrValidators.oneOf', () => {
 
 describe('WrValidators.minDate / maxDate', () => {
   const min = WrValidators.minDate('2026-01-01');
-  const max = WrValidators.maxDate(new Date('2026-12-31'));
+  // A LOCAL date, as a picker emits one: `new Date('2026-12-31')` is UTC
+  // midnight, and against it the bound day's own midnight fails west of UTC.
+  const max = WrValidators.maxDate(new Date(2026, 11, 31));
 
   it('accepts a Date, a string and a timestamp', () => {
     expect(min(control(new Date('2026-06-01')))).toBeNull();
@@ -286,6 +313,30 @@ describe('WrValidators.minDate / maxDate', () => {
 
   it('reports the bound it was given, not a parsed copy', () => {
     expect(min(control('2025-12-31'))).toEqual({ minDate: { min: '2026-01-01' } });
+  });
+
+  /**
+   * A date picker emits LOCAL midnight for the day it shows, and a date-only
+   * bound used to parse as UTC midnight — so the bound day itself failed on one
+   * side of Greenwich: `min` east of it (Almaty, Berlin), `max` west of it (New
+   * York). The two halves together fail on any machine that is not on UTC.
+   */
+  it('accepts the bound day as a picker emits it, on either side of Greenwich', () => {
+    expect(min(control(new Date(2026, 0, 1)))).toBeNull();
+    expect(WrValidators.maxDate('2026-12-31')(control(new Date(2026, 11, 31)))).toBeNull();
+    expect(min(control(new Date(2025, 11, 31, 23, 59)))).toEqual({ minDate: { min: '2026-01-01' } });
+  });
+
+  it('agrees with a datetime-local value at the same midnight', () => {
+    // `<input type="datetime-local">` writes `2026-01-01T00:00`, which every
+    // engine reads as local time.
+    expect(min(control('2026-01-01T00:00'))).toBeNull();
+    expect(WrValidators.maxDate('2026-01-01')(control('2026-01-01T00:00'))).toBeNull();
+  });
+
+  it('leaves the engine to decide what is a date', () => {
+    // Only the zone moves; a month the engine refuses stays refused.
+    expect(min(control('2026-13-01'))).toEqual({ minDate: { min: '2026-01-01' } });
   });
 
   it('treats an unparsable value as out of bounds', () => {

@@ -86,6 +86,25 @@ describe('WrMeta', () => {
       expect(document.title).toBe('Pricing — ngwr');
     });
 
+    it.each([
+      ['{{ title }} · ngwr', 'Save $& and $1 · ngwr'],
+      ['%s — ngwr', 'Save $& and $1 — ngwr'],
+    ])('inserts a title carrying replacement patterns literally (%s)', (titleTemplate, expected) => {
+      setup({ titleTemplate }).set({ title: 'Save $& and $1' });
+
+      // A string replacement reads `$&` as the match and `$1` as a group, so the tab
+      // showed the template's own placeholder where the title said `$&`.
+      expect(document.title).toBe(expected);
+    });
+
+    it('leaves a %s inside the title alone under a {{ title }} template', () => {
+      setup({ titleTemplate: '{{ title }} · ngwr' }).set({ title: '100%s off' });
+
+      // A second pass for `%s` ran over the already-inserted title and put the title
+      // into itself.
+      expect(document.title).toBe('100%s off · ngwr');
+    });
+
     it('re-applies the template to every later title', () => {
       const meta = setup({ titleTemplate: '{{ title }} · ngwr' });
       meta.set({ title: 'Pricing' });

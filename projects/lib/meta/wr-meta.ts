@@ -204,10 +204,17 @@ export class WrMeta {
     if (next.title === this.applied.title && next.titleTemplate === this.applied.titleTemplate) return;
     if (next.title) {
       this.titleBeforeFirstWrite ??= this.title.getTitle();
-      // `{{ title }}` reads like Angular; `%s` stays for printf fans.
+      // `{{ title }}` reads like Angular; `%s` stays for printf fans. One pass over
+      // the TEMPLATE, with a function, so the title goes in literally: a string
+      // replacement expands `$&` / `$1` inside it, and a second pass would replace a
+      // `%s` the title itself carries.
+      const title = next.title;
+      let percent = 0;
       const formatted = next.titleTemplate
-        ? next.titleTemplate.replace(/\{\{\s*title\s*\}\}/g, next.title).replace('%s', next.title)
-        : next.title;
+        ? next.titleTemplate.replace(/\{\{\s*title\s*\}\}|%s/g, token =>
+            token !== '%s' || percent++ === 0 ? title : token
+          )
+        : title;
       this.title.setTitle(formatted);
     } else if (this.applied.title) {
       this.title.setTitle(this.titleBeforeFirstWrite ?? '');

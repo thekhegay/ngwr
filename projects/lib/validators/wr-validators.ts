@@ -25,6 +25,13 @@ function rawStringValue(control: AbstractControl): string {
   return '';
 }
 
+/**
+ * `localhost` or a dotted name, then a port: a host the user typed without a
+ * scheme, not a scheme of that name. A one-label name (`tel:911`) is left a
+ * scheme, since nothing in the text tells the two apart; so is `myhost:8080`.
+ */
+const HOST_WITH_PORT = /^(?:localhost|[a-z0-9-]+(?:\.[a-z0-9-]+)+):\d+(?:[/?#]|$)/i;
+
 /** Luhn checksum. Returns true when the digit string is a valid card number. */
 function luhn(digits: string): boolean {
   let sum = 0;
@@ -60,10 +67,27 @@ function mod97(iban: string): number {
   return remainder;
 }
 
+/** `2026`, `2026-01` and `2026-01-01`: the forms `new Date()` reads as UTC rather than local. */
+const ISO_DATE_ONLY = /^\d{4}(?:-\d{2}(?:-\d{2})?)?$/;
+
+/**
+ * A date-only string names a calendar day, so it is read as LOCAL midnight — the
+ * instant a date picker emits for that day. `new Date('2026-01-01')` is UTC
+ * midnight, which east of Greenwich is later than the picked day's midnight and
+ * west of it is the evening before, so `minDate('2026-01-01')` refused 1 January
+ * in Almaty and `maxDate('2026-12-31')` refused 31 December in New York. The
+ * engine still decides what is a valid date; only the zone moves. Angular's
+ * `DatePipe` makes the same exception.
+ */
 function toMs(value: unknown): number {
   if (value instanceof Date) return value.getTime();
-  if (typeof value === 'string' || typeof value === 'number') return new Date(value).getTime();
-  return Number.NaN;
+  if (typeof value === 'number') return new Date(value).getTime();
+  if (typeof value !== 'string') return Number.NaN;
+  const parsed = new Date(value);
+  if (!ISO_DATE_ONLY.test(value) || Number.isNaN(parsed.getTime())) return parsed.getTime();
+  const local = new Date(0);
+  local.setFullYear(parsed.getUTCFullYear(), parsed.getUTCMonth(), parsed.getUTCDate());
+  return local.setHours(0, 0, 0, 0);
 }
 
 /**
@@ -116,7 +140,9 @@ export const WrValidators = {
   /**
    * Valid URL. Accepts any scheme by default; pass `{ protocols: ['https'] }`
    * to restrict. A scheme is required by default; pass `{ requireProtocol: false }`
-   * to also accept bare domains (e.g. `ngwr.dev`), assuming `https`.
+   * to also accept bare domains (e.g. `ngwr.dev`), assuming `https`. `localhost`
+   * or a dotted name followed by a port (`ngwr.dev:8080`) is a bare domain, not a
+   * scheme called `ngwr.dev`.
    */
   url: (options: { readonly protocols?: readonly string[]; readonly requireProtocol?: boolean } = {}): ValidatorFn => {
     const allow = options.protocols?.map(p => p.replace(/:$/, '').toLowerCase());
@@ -124,34 +150,40 @@ export const WrValidators = {
     return (control: AbstractControl): ValidationErrors | null => {
       const v = stringValue(control);
       if (v === '') return null;
+      // Without a scheme `new URL()` always throws, so this is the input it
+      // cannot take — plus a host with a port. `localhost:4200` and
+      // `ngwr.dev:443/docs` PARSE, the name before the colon being a legal
+      // scheme and the port a legal path, and nobody typing one meant a scheme
+      // called `localhost`.
+      if (HOST_WITH_PORT.test(v) || !/^[a-z][a-z0-9+.-]*:/i.test(v)) {
+        if (requireProtocol) return { url: true };
+        // Bare domain support: when protocols aren't required, retry assuming
+        // `https://`.
+        let retried: URL;
+        try {
+          retried = new URL(`https://${v}`);
+        } catch {
+          return { url: true };
+        }
+        // Unreachable, and kept as a guard rather than deleted. `https` is a
+        // WHATWG "special" scheme, which may not have an empty host, so
+        // `new URL('https://' + v)` either threw above or produced one —
+        // there is no `v` that lands here (checked by brute force over
+        // two-character ASCII as well as by the spec). It stays because the
+        // line above is the only thing making that true, and a future retry
+        // through a non-special scheme would need it back.
+        if (retried.host === '') {
+          return { url: true };
+        }
+        if (allow && !allow.includes('https')) {
+          return { url: { allowed: allow } };
+        }
+        return null;
+      }
       let parsed: URL;
       try {
         parsed = new URL(v);
       } catch {
-        // Bare domain support: when protocols aren't required and the input has
-        // no scheme, retry assuming `https://`.
-        if (!requireProtocol && !/^[a-z][a-z0-9+.-]*:/i.test(v)) {
-          let retried: URL;
-          try {
-            retried = new URL(`https://${v}`);
-          } catch {
-            return { url: true };
-          }
-          // Unreachable, and kept as a guard rather than deleted. `https` is a
-          // WHATWG "special" scheme, which may not have an empty host, so
-          // `new URL('https://' + v)` either threw above or produced one —
-          // there is no `v` that lands here (checked by brute force over
-          // two-character ASCII as well as by the spec). It stays because the
-          // line above is the only thing making that true, and a future retry
-          // through a non-special scheme would need it back.
-          if (retried.host === '') {
-            return { url: true };
-          }
-          if (allow && !allow.includes('https')) {
-            return { url: { allowed: allow } };
-          }
-          return null;
-        }
         return { url: true };
       }
       const protocol = parsed.protocol.replace(/:$/, '').toLowerCase();
@@ -342,7 +374,10 @@ export const WrValidators = {
 
   // Date bounds
 
-  /** Value (Date | parseable) must be ≥ `min`. */
+  /**
+   * Value (Date | parseable) must be ≥ `min`. A date-only string (`'2026-01-01'`),
+   * as the bound or the value, is that day's LOCAL midnight.
+   */
   minDate: (min: Date | string | number): ValidatorFn => {
     const minMs = toMs(min);
     return (control: AbstractControl): ValidationErrors | null => {
@@ -354,7 +389,10 @@ export const WrValidators = {
     };
   },
 
-  /** Value (Date | parseable) must be ≤ `max`. */
+  /**
+   * Value (Date | parseable) must be ≤ `max`. A date-only string (`'2026-12-31'`),
+   * as the bound or the value, is that day's LOCAL midnight.
+   */
   maxDate: (max: Date | string | number): ValidatorFn => {
     const maxMs = toMs(max);
     return (control: AbstractControl): ValidationErrors | null => {
