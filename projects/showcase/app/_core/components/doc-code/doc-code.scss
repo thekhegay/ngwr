@@ -151,6 +151,7 @@
 
   position: absolute;
   top: 0.5rem;
+  // rtl-ok: the code under it is always LTR, so the button keeps to its right edge
   right: 0.5rem;
   display: inline-flex;
   align-items: center;
@@ -160,16 +161,12 @@
   padding: 0;
   border: 0;
   border-radius: var(--wr-border-radius-sm);
-  background: color-mix(in srgb, var(--wr-color-on-surface) 25%, transparent);
-  // The ink's own partner, NOT `--wr-color-white`. The scrim is 25% of the INK
-  // channel, so it composites toward the SURFACE — and `--wr-color-white` is
-  // the token for the opposite case, a label on a dark fill. Both flip with
-  // the theme in the same direction, so the pair stayed unreadable in both:
-  // 1.82:1 light and 2.16:1 dark, on an icon-only button that WCAG 1.4.11
-  // holds to 3:1, on every code block on the site. Reads 9.84 and 7.29 now.
-  // No gate could see it — the button is `opacity: 0` until the block is
-  // hovered, and `check:contrast` photographs a page at rest.
-  color: var(--wr-color-on-surface);
+  // Quiet at rest: the code surface itself, so it reads as no fill at all and
+  // still masks a code line scrolled under the corner. The muted icon is about
+  // 7.2:1 on that surface in both themes, over the 3:1 an icon needs (token
+  // arithmetic, not a painted measurement).
+  background: var(--ngwr-doc-code-bg);
+  color: var(--wr-color-on-surface-muted);
   cursor: pointer;
   opacity: 0;
   // Invisible has to mean intangible. The `<pre>` scrolls under this corner, so
@@ -179,10 +176,18 @@
   pointer-events: none;
   transition:
     background var(--wr-transition-base),
+    color var(--wr-transition-base),
     opacity var(--wr-transition-base);
 
-  &:hover {
-    background: color-mix(in srgb, var(--wr-color-primary) 37.5%, transparent);
+  &:hover,
+  &:focus-visible {
+    background: var(--wr-color-fill-strong);
+    color: var(--wr-color-on-surface);
+  }
+
+  &:focus-visible {
+    outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+    outline-offset: var(--wr-focus-ring-offset);
   }
 }
 
