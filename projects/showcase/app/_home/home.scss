@@ -1,4 +1,6 @@
 @use 'lib/styles/breakpoints' as bp;
+// The mixins alone: the file declares no rules, so no token layer comes along.
+@use 'lib/theme/styles/mixins' as theme;
 
 /*
    Landing page. Original two-column hero with the live showcase
@@ -155,14 +157,62 @@
     margin-top: 0.25rem;
   }
 
-  // The glow is a frame around the button, not a skin on it. `wr-border-glow`
-  // paints its lit edge on the outer 1px of its own box, under its content, so
-  // a button filling the box would cover the edge entirely. A 4px inset leaves
-  // a ring for it, and `[borderRadius]="11"` in the template is the large
-  // button's 7px radius plus that inset, so the ring runs parallel to the
-  // button's corners.
+  // The star border IS the button's edge, not a frame around it. Its light runs
+  // behind the inner panel, so the panel's border is a brand tint with the
+  // fill clipped to the padding box: the light shows through the border line
+  // itself, and the panel's opaque surface keeps it out of the label. The
+  // radius is the large button's plus that 1px border, so the edges run
+  // parallel. A soft halo in the same colour stays when reduced motion hides
+  // the light.
+  // The ring is the wrapper's 1.5px padding painted with a conic gradient whose
+  // start angle turns for ever: a faint brand tint all round, one bright arc
+  // circling it. `::after` repeats the arc blurred, as the glow.
   &__glow {
-    padding: 4px;
+    --ngwr-cta-ring: color-mix(in srgb, var(--wr-color-primary) 22%, transparent);
+
+    position: relative;
+    display: inline-flex;
+    padding: 1.5px;
+    background: conic-gradient(
+      from var(--ngwr-cta-angle),
+      var(--ngwr-cta-ring) 0 55%,
+      var(--wr-color-primary) 75%,
+      color-mix(in srgb, var(--wr-color-primary) 40%, white) 82%,
+      var(--ngwr-cta-ring) 92% 100%
+    );
+    animation: ngwr-cta-spin 4s linear infinite;
+    @include theme.smooth-br(calc(var(--wr-control-radius-lg) + 1.5px));
+
+    &::after {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      inset: 0;
+      background: inherit;
+      border-radius: inherit;
+      filter: blur(10px);
+      opacity: 0.55;
+    }
+
+    &:has(:focus-visible) {
+      outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+      outline-offset: var(--wr-focus-ring-offset);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
+
+  // Borderless on the page surface: the ring around it is the edge.
+  &__btn {
+    border: 0;
+    background: var(--wr-color-surface);
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: none;
+    }
   }
 }
 
@@ -300,10 +350,25 @@
     --wr-icon-size: 1rem;
   }
 
-  &__label {
+  // Label over a one-line description. The row centres the icon and the arrow
+  // against the pair.
+  &__text {
+    display: flex;
     flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.125rem;
     min-width: 0;
+  }
+
+  &__label {
     color: var(--wr-color-on-surface);
+  }
+
+  &__description {
+    color: var(--wr-color-on-surface-muted);
+    font-size: 0.8125rem;
+    font-weight: var(--wr-font-weight-regular);
+    line-height: 1.45;
   }
 
   &__arrow {
@@ -478,34 +543,6 @@
       color: var(--wr-color-primary-ink);
     }
   }
-
-  // The claim, shown. The auto block-start margin pins the sample to the
-  // bottom of the tile, so samples line up across a row whatever the length of
-  // the prose above them; the paragraph's own margin is the minimum gap. The
-  // fill is the inline-code chip's tint, so a tile sample and a chip in the DX
-  // copy read as the same material. Code is LTR in every locale, and
-  // `overflow-x` keeps a long line inside the tile rather than widening the
-  // grid.
-  &__code {
-    margin-block: auto 0;
-    margin-inline: 0;
-    padding: 0.625rem 0.75rem;
-    overflow-x: auto;
-    direction: ltr;
-    border-radius: var(--wr-border-radius-sm);
-    background: color-mix(in srgb, var(--wr-color-on-surface) 7%, transparent);
-    color: var(--wr-color-on-surface);
-    font-family: var(--wr-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-    font-size: 0.75rem;
-    line-height: 1.6;
-    white-space: pre;
-
-    // The UA sheet gives `code` its own `monospace`, and with it the smaller
-    // size browsers reserve for that generic family.
-    code {
-      font: inherit;
-    }
-  }
 }
 
 .ngwr-why-footer {
@@ -582,4 +619,17 @@
   margin-top: 2.5rem;
   display: flex;
   justify-content: center;
+}
+
+// The angle has to be a registered property for the gradient to animate.
+@property --ngwr-cta-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes ngwr-cta-spin {
+  to {
+    --ngwr-cta-angle: 360deg;
+  }
 }

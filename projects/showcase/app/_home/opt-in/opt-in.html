@@ -12,9 +12,9 @@
       </p>
     </div>
 
-    <ul class="ngwr-optin__list">
+    <ul class="ngwr-optin__grid">
       @for (example of examples; track example.label) {
-        <li>
+        <li class="ngwr-optin__item" [class.ngwr-optin__item--wide]="example.wide">
           <wr-card class="ngwr-optin__card">
             <div class="ngwr-optin__body">
               <div class="ngwr-optin__copy">
@@ -23,21 +23,31 @@
                   <h3 class="ngwr-optin__label">{{ example.label }}</h3>
                 </div>
                 <p class="ngwr-optin__caption" [innerHTML]="example.caption | wrDocRich"></p>
-                <div class="ngwr-optin__links">
-                  @for (link of example.links; track link.label) {
-                    <a class="ngwr-optin__link ngwr-doc-link" [routerLink]="link.path" [fragment]="link.fragment">
-                      {{ link.label }}
-                    </a>
-                  }
-                </div>
               </div>
 
               @if (example.install) {
-                <ngwr-doc-install class="ngwr-optin__code" [packages]="example.code" />
+                <ngwr-doc-install class="ngwr-optin__code ngwr-optin__code--install" [packages]="example.code" />
               } @else {
                 <ngwr-doc-code class="ngwr-optin__code" [code]="example.code" [language]="example.language" />
               }
             </div>
+
+            <wr-card-footer class="ngwr-optin__links">
+              @for (link of example.links; track link.label) {
+                <a
+                  wr-btn
+                  class="ngwr-optin__link"
+                  outlined
+                  size="sm"
+                  icon="arrow-forward"
+                  iconPosition="end"
+                  [routerLink]="link.path"
+                  [fragment]="link.fragment"
+                >
+                  {{ link.label }}
+                </a>
+              }
+            </wr-card-footer>
           </wr-card>
         </li>
       }

@@ -42,21 +42,15 @@
           />
         </p>
 
-        <!-- One call to action. The glow frames the button rather than replacing
-             it: the link is still a plain `wr-btn`, and `animated` plays the
-             perimeter sweep once on load, which reduced motion skips. -->
+        <!-- One call to action: a transparent `wr-btn` inside a ring whose
+             brand-coloured arc circles it for ever; reduced motion stops the
+             arc and keeps the tinted ring. -->
         <div class="ngwr-home-hero__cta">
-          <wr-border-glow
-            class="ngwr-home-hero__glow"
-            animated
-            [borderRadius]="11"
-            [glowRadius]="24"
-            [edgeSensitivity]="20"
-          >
+          <span class="ngwr-home-hero__glow">
             <a
               class="ngwr-home-hero__btn"
               wr-btn
-              color="primary"
+              outlined
               size="lg"
               [routerLink]="path(routes.docs)"
               icon="arrow-forward"
@@ -64,7 +58,7 @@
             >
               Get Started
             </a>
-          </wr-border-glow>
+          </span>
         </div>
       </div>
     </div>
@@ -150,7 +144,18 @@
               <wr-card class="ngwr-dx-links__card" hoverable compact>
                 <span class="ngwr-dx-links__row">
                   <span class="ngwr-dx-links__icon"><wr-icon [name]="link.icon" /></span>
-                  <span class="ngwr-dx-links__label">{{ link.label }}</span>
+                  <span class="ngwr-dx-links__text">
+                    <span class="ngwr-dx-links__label">{{ link.label }}</span>
+                    <span class="ngwr-dx-links__description">
+                      @for (part of link.description.split('`'); track $index; let code = $odd) {
+                        @if (code) {
+                          <code>{{ part }}</code>
+                        } @else {
+                          {{ part }}
+                        }
+                      }
+                    </span>
+                  </span>
                   <wr-icon class="ngwr-dx-links__arrow" name="arrow-forward" />
                 </span>
               </wr-card>
@@ -198,7 +203,6 @@
                 }
               }
             </p>
-            <pre class="ngwr-why__code"><code>{{ tile.code }}</code></pre>
           </wr-spotlight-card>
         }
       </div>

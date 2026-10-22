@@ -4,7 +4,8 @@ import { RouterLink } from '@angular/router';
 import { Palette, PenLine, Route, Shapes, SlidersHorizontal } from 'lucide';
 import { WrTag } from 'ngwr/badge';
 import { WrBlurText } from 'ngwr/bits/blur-text';
-import { WrCard } from 'ngwr/card';
+import { WrButton } from 'ngwr/button';
+import { WrCard, WrCardFooter } from 'ngwr/card';
 import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import { WrTypography } from 'ngwr/typography';
 
@@ -29,6 +30,8 @@ interface OptInExample {
   /** Render `code` as an install command, one tab per package manager. */
   readonly install?: boolean;
   readonly links: readonly OptInLink[];
+  /** Span both columns of the grid, with the copy beside the code. */
+  readonly wide?: boolean;
 }
 
 /**
@@ -48,7 +51,9 @@ interface OptInExample {
   imports: [
     RouterLink,
     WrBlurText,
+    WrButton,
     WrCard,
+    WrCardFooter,
     WrIcon,
     WrTag,
     WrTypography,
@@ -82,13 +87,19 @@ import { withToast } from 'ngwr/toast';
 provideWr(withDensity(), withToast({ duration: 6000 }), withTheme());`,
       language: 'angular-ts',
       links: [{ label: 'Configuration', path: wrPath(ROUTES.docs, ROUTES.docs.configuration) }],
+      // The headline of the section, and the one call too long for half a row.
+      wide: true,
     },
     {
       icon: 'route',
       label: 'Router',
       caption: 'An add-on, so the loading bar and the tabs work without `@angular/router`.',
+      // The first import is broken over three lines so the sample fits half a
+      // row of the grid without scrolling.
       code: `// The loading bar follows navigation
-import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router';
+import {
+  provideWrLoadingBarRouter,
+} from 'ngwr/loading-bar/router';
 
 // Tabs with routerLink, on <wr-tabs wrTabsRouting>
 import { WrTabsRouting } from 'ngwr/tabs/router';`,

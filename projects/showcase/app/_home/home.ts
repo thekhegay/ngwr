@@ -5,7 +5,6 @@ import { RouterLink } from '@angular/router';
 import { BadgeCheck, Folder, ListChecks, Moon, ShieldCheck, Terminal, TextCursorInput } from 'lucide';
 import { WrTag } from 'ngwr/badge';
 import { WrBlurText } from 'ngwr/bits/blur-text';
-import { WrBorderGlow } from 'ngwr/bits/border-glow';
 import { WrDecryptText } from 'ngwr/bits/decrypt-text';
 import { WrGlitchText } from 'ngwr/bits/glitch-text';
 import { WrGradientText } from 'ngwr/bits/gradient-text';
@@ -38,12 +37,6 @@ interface WhyTile {
   /** Prose; a `backtick` run renders as inline code. */
   readonly description: string;
   /**
-   * One or two lines that show the claim rather than restate it. Rendered in a
-   * `<pre>` through interpolation, so it is plain text: no highlighting, and
-   * the newline is the line break.
-   */
-  readonly code: string;
-  /**
    * `neutral` is the name v15 gave this job on `wr-timeline-item`, and the
    * reason it is spelled out rather than borrowed: `secondary` was one of the
    * four intents that release deleted, and the tile using it only looked fine
@@ -60,6 +53,8 @@ interface WhyTile {
 interface DxLink {
   readonly icon: string;
   readonly label: string;
+  /** One short line under the label; a `backtick` run renders as inline code. */
+  readonly description: string;
   readonly url: string;
 }
 
@@ -84,7 +79,6 @@ interface DxLink {
     WrTypewriter,
     WrGradientText,
     WrWaves,
-    WrBorderGlow,
     // Sections
     WrSpotlightCard,
     ComponentsBento,
@@ -180,8 +174,20 @@ export class SignupCard {
 
   /** The two doors under the DX copy: how the forms work, and what checks ship. */
   protected readonly dxLinks: readonly DxLink[] = [
-    { icon: 'form-input', label: 'Forms guide', url: wrPath(ROUTES.guides, ROUTES.guides.forms) },
-    { icon: 'badge-check', label: 'Validators', url: wrPath(ROUTES.reference, ROUTES.reference.validators) },
+    {
+      icon: 'form-input',
+      label: 'Forms guide',
+      description: 'Signal Forms, reactive forms, error messages',
+      url: wrPath(ROUTES.guides, ROUTES.guides.forms),
+    },
+    // Names from `WrValidators` itself. `required` and `email` are Angular's,
+    // not ngwr's, so they do not belong on this card.
+    {
+      icon: 'badge-check',
+      label: 'Validators',
+      description: '`iban`, `hexColor`, `url`, etc.',
+      url: wrPath(ROUTES.reference, ROUTES.reference.validators),
+    },
   ];
 
   /**
@@ -192,9 +198,8 @@ export class SignupCard {
    * that used to sit here was cut rather than demoted: the animation gallery
    * immediately below makes the same point with the components themselves.
    *
-   * The descriptions render through interpolation, so backticks land on the
-   * page as literal characters — keep the marked-up terms to the one or two
-   * that carry the tile.
+   * A backtick run in a description renders as inline code — keep the
+   * marked-up terms to the ones the prose actually names.
    *
    * "Twenty" is derived, not chosen; the derivation sits in the comment above
    * the DX checklist in `home.html`. A naive re-grep answers twenty-one.
@@ -205,7 +210,6 @@ export class SignupCard {
       title: 'Signal Forms, natively',
       description:
         "Twenty value controls implement a Signal Forms interface, so `[formField]` binds to the component's own value or checked model. No `ControlValueAccessor` anywhere in the library.",
-      code: '<input wrInput [formField]="form.email" />',
       accent: 'primary',
       spotlight: 'color-mix(in srgb, var(--wr-color-primary) 14%, transparent)',
     },
@@ -214,7 +218,6 @@ export class SignupCard {
       title: 'Zoneless by construction',
       description:
         'Not zoneless-compatible — zoneless in the source. Signal inputs, signal state, `afterNextRender()` for DOM work, and zero `@NgModule`s or `@Input()` decorators.',
-      code: "readonly size = input<WrButtonSize>('md');\nafterNextRender(() => this.measure());",
       accent: 'info',
       spotlight: 'color-mix(in srgb, var(--wr-color-primary) 14%, transparent)',
     },
@@ -223,7 +226,6 @@ export class SignupCard {
       title: 'A11y is gated, not claimed',
       description:
         'Three axe gates run against the built site, for structure, painted contrast and in-overlay states: every night main moves, and before every release. A serious violation is a red build.',
-      code: 'pnpm check:a11y\npnpm check:contrast\npnpm check:state-a11y',
       accent: 'danger',
       spotlight: 'color-mix(in srgb, var(--wr-color-danger) 14%, transparent)',
     },
@@ -235,7 +237,6 @@ export class SignupCard {
       // and alpha ramps, and `wr-window`'s macOS traffic lights.
       description:
         'Color, radius, spacing, and duration come from `--wr-*` custom properties — and a read of a token the theme never declares fails the lint run. Re-skin one component or all of them.',
-      code: '.wr-btn { --wr-btn-radius: 999px; }',
       accent: 'neutral',
       spotlight: 'color-mix(in srgb, var(--wr-color-on-surface-muted) 14%, transparent)',
     },
@@ -243,7 +244,6 @@ export class SignupCard {
       icon: 'folder',
       title: 'Pay for what you import',
       description: `${QUALITY.entryPoints} entry points, each one tree-shakable on its own. What you don't import never lands in your bundle — the SCSS opts in per component too.`,
-      code: "import { WrButton } from 'ngwr/button';\n@use 'ngwr/button';",
       accent: 'success',
       spotlight: 'color-mix(in srgb, var(--wr-color-success) 14%, transparent)',
     },
@@ -252,7 +252,6 @@ export class SignupCard {
       title: 'Dark mode is first-class',
       description:
         'Plain CSS `color-scheme`: it follows the OS with no JavaScript and flips at the root or on any subtree, because each token that differs between light and dark carries both sides in `light-dark()`.',
-      code: ':root { color-scheme: light dark; }\n.promo { color-scheme: dark; }',
       accent: 'warning',
       spotlight: 'color-mix(in srgb, var(--wr-color-warning) 16%, transparent)',
     },
