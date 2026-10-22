@@ -21,7 +21,8 @@ import { render } from './templates';
  */
 const PRESET_STYLES: Readonly<Record<PagePreset, readonly string[]>> = {
   form: ['form', 'input', 'button'],
-  table: ['table', 'pagination'],
+  // The pager is the table's own, and `ngwr/table` carries its styles.
+  table: ['table'],
   dashboard: ['card', 'statistic'],
 };
 

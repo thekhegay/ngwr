@@ -21,8 +21,7 @@
     },
     "name": {
       "type": "string",
-      "description": "Component dir name (e.g. `signup`). Defaults to the preset name.",
-      "$default": { "$source": "argv", "index": 1 }
+      "description": "Component dir name (e.g. `signup`). Defaults to the preset name. Named option, not positional."
     },
     "path": {
       "type": "string",

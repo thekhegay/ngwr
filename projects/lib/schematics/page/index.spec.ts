@@ -70,6 +70,51 @@ describe('ng g ngwr:page', () => {
     const { tree, logs } = await run('src/styles.css', before, { preset: 'table' });
 
     expect(tree.readText('/src/styles.css')).toBe(before);
-    expect(logs.join('\n')).toContain("  @use 'ngwr/theme';\n  @use 'ngwr/table';\n  @use 'ngwr/pagination';");
+    expect(logs.join('\n')).toContain("  @use 'ngwr/theme';\n  @use 'ngwr/table';");
+  });
+});
+
+/**
+ * What the generated pages DO, read off the files they write.
+ *
+ * Both presets below shipped a control that looked wired and was not. The table
+ * marked a column sortable and bound nothing to the sort, so a click flipped
+ * `aria-sort` to "descending" over rows still in their original order — wr-table
+ * writes the sort and never reorders `items` — and its separate `<wr-pagination>`
+ * paged nothing. The form posted empty required fields, and a field the user
+ * never left showed no error, because `<wr-form-field>` shows one only once the
+ * control is touched or dirty.
+ */
+describe('the generated pages', () => {
+  const files = async (preset: Schema['preset']): Promise<{ ts: string; html: string }> => {
+    const { tree } = await run('src/styles.scss', "@use 'ngwr/theme';\n", { preset });
+    const dir = `/src/app/pages/${preset}`;
+    return { ts: tree.readText(`${dir}/${preset}.ts`), html: tree.readText(`${dir}/${preset}.html`) };
+  };
+
+  it('the table applies the sort its sortable column writes', async () => {
+    const { ts, html } = await files('table');
+
+    expect(ts).toContain('sortable: true');
+    expect(html).toContain('[(sort)]="sort"');
+    expect(html).toContain('[items]="sortedRows()"');
+    expect(ts).toMatch(/sortedRows = computed\(\(\) => \{\n {4}const rules = this\.sort\(\)/);
+  });
+
+  it('the table pages the rows it shows, through its own pager', async () => {
+    const { ts, html } = await files('table');
+
+    expect(html).not.toContain('<wr-pagination');
+    expect(ts).not.toContain('WrPagination');
+    expect(html).toContain('[pageSize]="pageSize"');
+    expect(html).toContain('[(page)]="page"');
+  });
+
+  it('the form sends nothing while invalid, and shows every field its error', async () => {
+    const { ts, html } = await files('form');
+
+    expect(html).toContain('#form="ngForm" (ngSubmit)="onSubmit(form)"');
+    expect(ts).toMatch(/if \(form\.invalid\) \{\n\s*form\.control\.markAllAsTouched\(\);\n\s*return;\n\s*\}/);
+    expect(ts.indexOf('form.invalid')).toBeLessThan(ts.indexOf('fetch('));
   });
 });

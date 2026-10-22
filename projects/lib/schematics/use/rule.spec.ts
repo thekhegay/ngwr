@@ -233,6 +233,89 @@ describe('ng g ngwr:use', () => {
     );
   });
 
+  describe("edits the decorator's own imports, and nothing else that reads like it", () => {
+    /** Runs the rule over one file and hands back what it left there. */
+    function edit(source: string): { readonly source: string; readonly logs: readonly string[] } {
+      const tree = new HostTree();
+      tree.create('/src/app/page.ts', source);
+      const { logs } = run(tree, { symbol: 'WrButton', path: 'src/app/page.ts' });
+
+      return { source: tree.readText('/src/app/page.ts'), logs };
+    }
+
+    it('skips an `imports: [` in a comment above the decorator', () => {
+      const { source } = edit(
+        "import { Component } from '@angular/core';\n\n" +
+          '/** Register a component the usual way: `imports: [MyThing]`. */\n' +
+          "@Component({ selector: 'app-page', imports: [], template: '' })\n" +
+          'export class Page {}\n'
+      );
+
+      expect(source).toContain('`imports: [MyThing]`');
+      expect(source).toContain("@Component({ selector: 'app-page', imports: [WrButton], template: '' })");
+    });
+
+    it('skips an `imports: [` inside an inline template', () => {
+      const { source } = edit(
+        "import { Component } from '@angular/core';\n\n" +
+          "@Component({\n  selector: 'app-page',\n  template: `<pre>imports: [Foo]</pre>`,\n  imports: [],\n})\n" +
+          'export class Page {}\n'
+      );
+
+      expect(source).toContain('template: `<pre>imports: [Foo]</pre>`');
+      expect(source).toContain('  imports: [WrButton],\n');
+    });
+
+    it('adds the key to a decorator without one, not to the first array that reads like it', () => {
+      const { source } = edit(
+        "import { Component } from '@angular/core';\n\n" +
+          "const SNIPPET = 'imports: [Foo]';\n\n" +
+          "@Component({ selector: 'app-page', template: '' })\n" +
+          'export class Page {}\n'
+      );
+
+      expect(source).toContain("const SNIPPET = 'imports: [Foo]';");
+      expect(source).toContain("@Component({\n  imports: [WrButton], selector: 'app-page', template: '' })");
+    });
+
+    it('refuses an `imports` it cannot edit as text, rather than adding a second key', () => {
+      const before =
+        "import { Component } from '@angular/core';\nimport { FormsModule } from '@angular/forms';\n\n" +
+        'const SHARED = [FormsModule];\n\n' +
+        "@Component({ selector: 'app-page', imports: SHARED, template: '' })\n" +
+        'export class Page {}\n';
+      const { source, logs } = edit(before);
+
+      // Untouched, import line included: `imports: [WrButton], …, imports: SHARED`
+      // was TS1117, after a log line saying the symbol had been added.
+      expect(source).toBe(before);
+      expect(logs.join('\n')).toContain('its `imports` is not an array literal');
+      expect(logs.join('\n')).toContain("import { WrButton } from 'ngwr/button';");
+      expect(logs.some(line => line.startsWith('✓'))).toBe(false);
+    });
+
+    it('refuses a file declaring two components', () => {
+      const before =
+        "import { Component } from '@angular/core';\n\n" +
+        "@Component({ selector: 'app-one', template: '' })\nexport class One {}\n\n" +
+        "@Component({ selector: 'app-two', imports: [], template: '' })\nexport class Two {}\n";
+      const { source, logs } = edit(before);
+
+      expect(source).toBe(before);
+      expect(logs.join('\n')).toContain('it declares 2 components');
+    });
+
+    it('appends after the last entry, not after a trailing comment', () => {
+      const { source } = edit(
+        "import { Component } from '@angular/core';\n\n" +
+          "@Component({\n  selector: 'app-page',\n  imports: [\n    One,\n    Two // the last\n  ],\n  template: '',\n})\n" +
+          'export class Page {}\n'
+      );
+
+      expect(source).toContain('  imports: [\n    One,\n    Two, WrButton // the last\n  ],\n');
+    });
+  });
+
   it('lists exactly the public symbols the library declares as non-declarable', () => {
     const derived: Record<string, string> = {};
     for (const [symbol, subpath] of Object.entries(symbolMap())) {

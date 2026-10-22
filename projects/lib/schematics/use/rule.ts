@@ -113,10 +113,19 @@ function useRule(options: Schema, symbolMap: Record<string, string>, exports: Ex
     }
 
     const original = tree.readText(filePath);
-    let next = original;
 
-    next = addImport(next, symbol, subpath);
-    next = addToImportsArray(next, symbol);
+    // The array first, and nothing at all when it cannot be edited: an import
+    // line with no `imports` entry is a component that fails to build on an
+    // unknown element, after a log line saying it was added.
+    const edit = addToImportsArray(original, symbol);
+    if ('refused' in edit) {
+      context.logger.warn(`ngwr:use: left ${filePath} unchanged — ${edit.refused}.`);
+      context.logger.info(printManualSnippet(symbol, subpath));
+      logStyles(context, subpath, exports);
+      return tree;
+    }
+
+    const next = addImport(edit.source, symbol, subpath);
 
     if (next === original) {
       context.logger.info(`ngwr:use: ${filePath} already has ${symbol} — no changes.`);
@@ -186,36 +195,155 @@ function addImport(source: string, symbol: string, subpath: string): string {
   return `${newLine}${source}`;
 }
 
+/** The edited source, or why the decorator's `imports` cannot be edited as text. */
+type ArrayEdit = { readonly source: string } | { readonly refused: string };
+
 /**
- * Find `imports: [...]` inside a `@Component({...})` decorator (single or
- * multi-line) and splice the symbol in. Skips if the symbol is already
+ * Splice the symbol into the `imports` array of the file's `@Component({...})`,
+ * or add the key when the decorator has none. Skips if the symbol is already
  * listed.
+ *
+ * Everything is matched against {@link codeOnly}, never the raw text: a
+ * whole-file search for `imports: [` used to edit the first one it met — in a
+ * JSDoc example, in an inline template, in another object — and report success
+ * while the decorator kept its own array. The key is looked up among the
+ * decorator object's OWN properties, so a value it cannot edit as text
+ * (`imports: SHARED`, a shorthand `imports`) refuses instead of growing a second
+ * `imports` key beside it, and so does a file declaring more than one component,
+ * where which one renders the symbol is not something the text says.
  */
-function addToImportsArray(source: string, symbol: string): string {
-  // Match `imports: [ ... ]` allowing multi-line + trailing commas.
-  const arrayRe = /(\bimports\s*:\s*\[)([\s\S]*?)(\])/m;
-  const match = arrayRe.exec(source);
-  if (!match) {
-    // No imports array — try to insert one after the `@Component({`
-    // opening brace. Heuristic, not foolproof.
-    const componentRe = /@Component\s*\(\s*\{/;
-    const compMatch = componentRe.exec(source);
-    if (compMatch?.index === undefined) {
-      // No @Component decorator at all — leave the file alone, the user
-      // probably wants the import only.
-      return source;
-    }
-    const insertAt = compMatch.index + compMatch[0].length;
-    return `${source.slice(0, insertAt)}\n  imports: [${symbol}],${source.slice(insertAt)}`;
+function addToImportsArray(source: string, symbol: string): ArrayEdit {
+  const code = codeOnly(source);
+  const decorators = [...code.matchAll(/@Component\s*\(\s*\{/g)];
+  // No @Component decorator at all — leave the file alone, the user probably
+  // wants the import only.
+  if (decorators.length === 0) return { source };
+  if (decorators.length > 1) {
+    return { refused: `it declares ${decorators.length} components, and which one renders ${symbol} is yours to say` };
   }
 
-  const body = match[2];
-  if (new RegExp(`\\b${escapeRegExp(symbol)}\\b`).test(body)) return source;
+  const open = decorators[0].index + decorators[0][0].length - 1;
+  const close = closingBracket(code, open);
+  if (close < 0) return { refused: 'its @Component({ … }) never closes' };
 
-  const trimmed = body.replace(/\s+$/, '');
-  const sep = trimmed.length && !trimmed.endsWith(',') ? ', ' : trimmed.length ? ' ' : '';
-  const replaced = `${match[1]}${trimmed}${sep}${symbol}${match[3]}`;
-  return source.replace(match[0], replaced);
+  const key = ownProperty(code, open, close, 'imports');
+  if (key === null) {
+    return { source: `${source.slice(0, open + 1)}\n  imports: [${symbol}],${source.slice(open + 1)}` };
+  }
+
+  const colon = /^\s*:\s*/.exec(code.slice(key));
+  const start = colon ? key + colon[0].length : -1;
+  if (start < 0 || code[start] !== '[') {
+    return { refused: 'its `imports` is not an array literal' };
+  }
+
+  const end = closingBracket(code, start);
+  if (end < 0) return { refused: 'its `imports` array never closes' };
+  if (new RegExp(`\\b${escapeRegExp(symbol)}\\b`).test(code.slice(start + 1, end))) return { source };
+
+  // After the last CODE in the array, so a trailing `// comment` stays a comment
+  // rather than swallowing the symbol.
+  const at = start + 1 + code.slice(start + 1, end).trimEnd().length;
+  const sep = at === start + 1 ? '' : code[at - 1] === ',' ? ' ' : ', ';
+  return { source: `${source.slice(0, at)}${sep}${symbol}${source.slice(at)}` };
+}
+
+/**
+ * The source with every comment, string and template literal blanked to spaces
+ * (line breaks kept), so an index into it is an index into the source and no
+ * bracket or `imports` inside a literal is ever read as code. A regex literal
+ * is not recognised — none belongs in a component's decorator.
+ */
+function codeOnly(source: string): string {
+  const out = source.split('');
+  let i = 0;
+  while (i < source.length) {
+    const end = skipLiteral(source, i);
+    if (end === i) {
+      i++;
+      continue;
+    }
+    for (let k = i; k < end; k++) if (out[k] !== '\n') out[k] = ' ';
+    i = end;
+  }
+  return out.join('');
+}
+
+/** The index just past the comment or literal starting at `i`, or `i` when none starts there. */
+function skipLiteral(source: string, i: number): number {
+  const c = source[i];
+  if (c === '/' && source[i + 1] === '/') {
+    const end = source.indexOf('\n', i);
+    return end < 0 ? source.length : end;
+  }
+  if (c === '/' && source[i + 1] === '*') {
+    const end = source.indexOf('*/', i + 2);
+    return end < 0 ? source.length : end + 2;
+  }
+  if (c !== '"' && c !== "'" && c !== '`') return i;
+
+  let k = i + 1;
+  while (k < source.length) {
+    const ch = source[k];
+    if (ch === '\\') k += 2;
+    else if (ch === c) return k + 1;
+    else if (c === '`' && ch === '$' && source[k + 1] === '{') k = interpolationEnd(source, k + 2);
+    else if (c !== '`' && ch === '\n') return k;
+    else k++;
+  }
+  return source.length;
+}
+
+/** The index just past the `}` that closes a template literal's `${`, literals inside it skipped. */
+function interpolationEnd(source: string, i: number): number {
+  let depth = 0;
+  while (i < source.length) {
+    const end = skipLiteral(source, i);
+    if (end !== i) {
+      i = end;
+      continue;
+    }
+    if (source[i] === '{') depth++;
+    else if (source[i] === '}' && depth-- === 0) return i + 1;
+    i++;
+  }
+  return source.length;
+}
+
+/** The index of the bracket closing the one at `open`, in {@link codeOnly} text; -1 when it never closes. */
+function closingBracket(code: string, open: number): number {
+  const pairs: Readonly<Record<string, string>> = { '{': '}', '[': ']', '(': ')' };
+  const stack: string[] = [];
+  for (let i = open; i < code.length; i++) {
+    const c = code[i];
+    if (pairs[c]) stack.push(pairs[c]);
+    else if (c === '}' || c === ']' || c === ')') {
+      if (stack.pop() !== c) return -1;
+      if (stack.length === 0) return i;
+    }
+  }
+  return -1;
+}
+
+/**
+ * The index just past the name of the object's own `name` property — not one
+ * nested in a value — in {@link codeOnly} text, or `null` when it has none.
+ */
+function ownProperty(code: string, open: number, close: number, name: string): number | null {
+  const re = new RegExp(`[{,]\\s*${name}\\b`, 'y');
+  let depth = 0;
+  for (let i = open; i < close; i++) {
+    const c = code[i];
+    // The object's own brace, or a comma between its own properties.
+    if (i === open || (depth === 1 && c === ',')) {
+      re.lastIndex = i;
+      const match = re.exec(code);
+      if (match) return i + match[0].length;
+    }
+    if (c === '{' || c === '[' || c === '(') depth++;
+    else if (c === '}' || c === ']' || c === ')') depth--;
+  }
+  return null;
 }
 
 function escapeRegExp(value: string): string {
