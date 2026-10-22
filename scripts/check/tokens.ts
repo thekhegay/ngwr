@@ -39,8 +39,8 @@ const READ_EXTENSIONS: ReadonlySet<string> = new Set(['.scss', '.html', '.ts']);
  * mapping each deleted name to its successor, and its spec feeds it fixtures
  * holding every deleted name — including any it must REFUSE to rewrite, which
  * by construction can never resolve. Scanning those is asking a migration to
- * stop naming what it migrates. No shipped migration renames a token today
- * (v15 ships none), and the skip is what lets the next one.
+ * stop naming what it migrates. `migration-v15` renames the neutral tokens,
+ * and the skip is what lets it.
  *
  * `/docs/migration` is the consumer-facing half of exactly that. Its diff
  * snippets show the removed name on the `-` line and its successor on the `+`
