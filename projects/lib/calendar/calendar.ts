@@ -382,6 +382,9 @@ export class WrCalendar {
       this.setViewMode('month');
     } else if (this.viewMode() === 'month') {
       this.setViewMode('year');
+      // The label is disabled on the year page, and disabling the button that
+      // holds focus drops it to `<body>`. The page that opened takes it instead.
+      afterNextRender(() => this.focusActiveChip(), { injector: this.injector });
     }
   }
 

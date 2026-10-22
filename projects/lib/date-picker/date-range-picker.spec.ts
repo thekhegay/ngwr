@@ -8,7 +8,7 @@ import { provideWr } from 'ngwr';
 import { withDates } from 'ngwr/date';
 import { WrFormField } from 'ngwr/form';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDateRangePicker } from './date-range-picker';
 import type { WrDateRange } from './types';
@@ -207,6 +207,36 @@ describe('WrDateRangePicker', () => {
     expect(fixture.componentInstance.touched()).toBe(1);
   });
 
+  it('settles the range and emits touch when Tab leaves by way of the calendar button', () => {
+    // Tab from the end field lands on the trigger, which is inside the host, so the
+    // field's blur is not leaving — and the trigger had no blur of its own, so the
+    // leave never happened: the ends stayed inverted and a bound field was never
+    // touched, which is the only thing that shows a required range's error.
+    type(startField(), '20.01.2025');
+    type(endField(), '15.01.2025');
+    blurTo(endField(), trigger());
+    expect(fixture.componentInstance.touched()).toBe(0);
+
+    trigger().dispatchEvent(new FocusEvent('blur', { relatedTarget: null }));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.touched()).toBe(1);
+    expect([startField().value, endField().value]).toEqual(['15.01.2025', '20.01.2025']);
+    expect([iso(period()?.[0]), iso(period()?.[1])]).toEqual(['2025-1-15 0:0', '2025-1-20 0:0']);
+  });
+
+  it('does not count the hop from the calendar button back into a field as leaving', () => {
+    type(startField(), '20.01.2025');
+    type(endField(), '15.01.2025');
+    blurTo(endField(), trigger());
+
+    trigger().dispatchEvent(new FocusEvent('blur', { relatedTarget: endField() }));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.touched()).toBe(0);
+    expect([startField().value, endField().value]).toEqual(['20.01.2025', '15.01.2025']);
+  });
+
   it('does not mark a bound field dirty just for tabbing through an untouched pair', () => {
     // `normalise()` allocates a fresh tuple every call and `model()` compares by
     // reference, so an unconditional write would emit on every blur.
@@ -369,6 +399,30 @@ describe('WrDateRangePicker', () => {
       // would greenlight a seed that lands on an unselectable day.
       expect(document.activeElement).toBe(ring());
       expect((document.activeElement as HTMLButtonElement).disabled).toBe(false);
+    });
+
+    it('hands focus to the trigger and closes on Tab past the last stop, so Tab leaves from there', async () => {
+      // jsdom lays nothing out — without a box every stop but the focused one is
+      // dropped — and it has no Tab of its own, so this asserts the half the picker
+      // owns: where focus stands when the browser's Tab runs.
+      vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
+      try {
+        trigger().focus();
+        open();
+        await fixture.whenStable();
+        const days = [...document.querySelectorAll<HTMLElement>('.wr-calendar__day[tabindex="0"]')];
+        days[days.length - 1].focus();
+
+        const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+        document.activeElement!.dispatchEvent(event);
+        fixture.detectChanges();
+
+        expect(event.defaultPrevented).toBe(false);
+        expect(calendar()).toBeNull();
+        expect(document.activeElement).toBe(trigger());
+      } finally {
+        vi.restoreAllMocks();
+      }
     });
 
     it('leaves the caret alone when a field click opens it', async () => {

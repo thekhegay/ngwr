@@ -28,7 +28,7 @@
     [disabled]="effectiveDisabled()"
     [readonly]="readonly()"
     (input)="onHoursInput($event)"
-    (blur)="onBlur()"
+    (blur)="onBlur($event, hoursDisplay())"
   />
   <button
     type="button"
@@ -84,7 +84,7 @@
     [disabled]="effectiveDisabled()"
     [readonly]="readonly()"
     (input)="onMinutesInput($event)"
-    (blur)="onBlur()"
+    (blur)="onBlur($event, minutesDisplay())"
   />
   <button
     type="button"
@@ -141,7 +141,7 @@
       [disabled]="effectiveDisabled()"
       [readonly]="readonly()"
       (input)="onSecondsInput($event)"
-      (blur)="onBlur()"
+      (blur)="onBlur($event, secondsDisplay())"
     />
     <button
       type="button"

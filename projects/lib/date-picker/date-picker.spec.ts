@@ -599,6 +599,59 @@ describe('WrDatePicker', () => {
     expect(calendar()).toBeTruthy();
   });
 
+  it('keeps the field on the held date when a readonly calendar is clicked', () => {
+    // The write was refused at `commitValue`, but `commit` had already rewritten the
+    // field's text — so the field said 20.01.2025 while the model, and the form that
+    // submits it, still held the 15th.
+    fixture.componentInstance.readonly.set(true);
+    fixture.detectChanges();
+    const before = picked();
+    open();
+
+    day(20).click();
+    fixture.detectChanges();
+
+    expect(picked()).toBe(before);
+    expect(field().value).toBe('15.01.2025');
+  });
+
+  it('keeps a readonly datetime panel on the held date and time', () => {
+    fixture.componentInstance.readonly.set(true);
+    fixture.componentInstance.mode.set('datetime');
+    fixture.componentInstance.format.set('dd.MM.yyyy HH:mm');
+    fixture.detectChanges();
+    const before = picked();
+    open();
+
+    day(20).click();
+    fixture.detectChanges();
+
+    expect(picked()).toBe(before);
+    expect(field().value).toBe('15.01.2025 10:30');
+    // The grid inside the open panel must not announce the refused day as picked.
+    expect(day(20).getAttribute('aria-selected')).not.toBe('true');
+    expect(day(15).getAttribute('aria-selected')).toBe('true');
+    // The time half refuses the same way the field does: no stepper, no typing.
+    expect(stepper('Increment hours').disabled).toBe(true);
+    expect(timeInput('Hours').readOnly).toBe(true);
+  });
+
+  it('offers no way to step a readonly time', () => {
+    fixture.componentInstance.readonly.set(true);
+    fixture.componentInstance.mode.set('time');
+    fixture.componentInstance.format.set('HH:mm');
+    fixture.detectChanges();
+    const before = picked();
+    open();
+
+    expect(stepper('Increment hours').disabled).toBe(true);
+    expect(timeInput('Hours').readOnly).toBe(true);
+    clickThrough(stepper('Increment hours'));
+
+    expect(picked()).toBe(before);
+    expect(field().value).toBe('10:30');
+  });
+
   it('closes the open calendar when disabled arrives, and refuses the write', () => {
     open();
     expect(calendar()).toBeTruthy();
@@ -696,6 +749,76 @@ describe('WrDatePicker', () => {
       // seed that lands on an unselectable day.
       expect(document.activeElement).toBe(ring());
       expect((document.activeElement as HTMLButtonElement).disabled).toBe(false);
+    });
+
+    /**
+     * jsdom lays nothing out, so `getFocusableElements` would drop every stop but the
+     * focused one; and it has no Tab of its own, so what is asserted is the half the
+     * picker owns — where focus is handed before the browser's Tab runs from it.
+     */
+    describe('Tab out of the open panel', () => {
+      beforeEach(() => {
+        vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
+      });
+      afterEach(() => vi.restoreAllMocks());
+
+      const tab = (shiftKey = false): KeyboardEvent => {
+        const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey, bubbles: true, cancelable: true });
+        document.activeElement!.dispatchEvent(event);
+        fixture.detectChanges();
+        return event;
+      };
+
+      it('hands focus to the trigger and closes on Tab past the last stop', async () => {
+        trigger().focus();
+        open();
+        await fixture.whenStable();
+        expect(document.activeElement).toBe(ring());
+
+        // The day cell is the last stop. Left to itself the browser's Tab went from
+        // the overlay container at the end of `<body>` to the top of the page.
+        const event = tab();
+
+        expect(event.defaultPrevented).toBe(false);
+        expect(calendar()).toBeNull();
+        expect(document.activeElement).toBe(trigger());
+      });
+
+      it('lets Tab move between stops inside the panel', async () => {
+        trigger().focus();
+        open();
+        await fixture.whenStable();
+        document.querySelector<HTMLElement>('.wr-calendar__nav--prev')!.focus();
+
+        tab();
+
+        expect(calendar()).not.toBeNull();
+        expect(document.activeElement).toBe(document.querySelector('.wr-calendar__nav--prev'));
+      });
+
+      it('hands focus to the trigger on Shift+Tab before the first stop', async () => {
+        trigger().focus();
+        open();
+        await fixture.whenStable();
+        document.querySelector<HTMLElement>('.wr-calendar__nav--prev')!.focus();
+
+        tab(true);
+
+        expect(calendar()).toBeNull();
+        expect(document.activeElement).toBe(trigger());
+      });
+
+      it('leaves a Tab from the field alone while the panel is open beside it', async () => {
+        field().focus();
+        field().click();
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        tab();
+
+        expect(calendar()).not.toBeNull();
+        expect(document.activeElement).toBe(field());
+      });
     });
 
     it('leaves the caret alone when the panel is opened by clicking the field', async () => {

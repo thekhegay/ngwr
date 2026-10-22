@@ -172,6 +172,17 @@ describe('WrNativeDateAdapter', () => {
       expect(parsed).not.toBeNull();
       expect([parsed!.getMonth(), parsed!.getDate(), parsed!.getHours()]).toEqual([7, 11, 9]);
     });
+
+    it("reads '' inside a quoted run as a quote, the way DatePipe and LDML do", () => {
+      // The run used to end at the first quote, so the doubled one inside it was
+      // dropped: `o''clock` printed `oclock`.
+      expect(adapter.format(at(2026, 0, 5, 18), "h 'o''clock'")).toBe("6 o'clock");
+      expect(adapter.format(at(2026, 0, 5, 18), "'It''s' h")).toBe("It's 6");
+      expect(adapter.format(at(2026, 0, 5, 18), "h ''''")).toBe("6 '");
+
+      const parsed = adapter.parse("6 o'clock", "h 'o''clock'");
+      expect(parsed?.getHours()).toBe(6);
+    });
   });
 
   describe('token parsing', () => {

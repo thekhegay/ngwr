@@ -432,6 +432,21 @@ describe('WrCalendar month and year listbox keys', () => {
     expect(root().querySelectorAll('.wr-calendar__day[tabindex="0"]')).toHaveLength(1);
   });
 
+  it('keeps real focus in the calendar when the header opens the year page', async () => {
+    // The label is disabled on the year page, and a browser drops focus from a
+    // button that becomes disabled — so it has to land on the page that opened.
+    await climb(1);
+    const label = root().querySelector<HTMLButtonElement>('.wr-calendar__label')!;
+    label.focus();
+    label.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(label.disabled).toBe(true);
+    expect(document.activeElement?.className ?? '').toContain('wr-calendar__chip');
+    expect((document.activeElement as HTMLElement).textContent.trim()).toBe(ringed());
+  });
+
   it('keeps real focus in the calendar when a year is picked', async () => {
     await climb(2);
     chips()[1].click();

@@ -149,9 +149,15 @@ const INTL_OPTIONS: Readonly<Record<WrDateFormat, Intl.DateTimeFormatOptions>> =
  *
  * Without that, the one-letter tokens match letters inside literal text: `'yyyy [year]'`
  * came out as `2025 [yeamr]`, because the `a` in "year" was read as the meridiem token.
- * Quote literals the way `DatePipe` and LDML do — `'at'` — and `''` for a real quote.
+ * Quote literals the way `DatePipe` and LDML do — `'at'` — and `''` for a real quote,
+ * inside a run as well as outside one: `h 'o''clock'` is `6 o'clock`.
  */
-const PART_RE = /'([^']*)'|yyyy|yy|MMMM|MMM|MM|M|dd|d|HH|H|hh|h|mm|ss|a/g;
+const PART_RE = /'((?:[^']|'')*)'|yyyy|yy|MMMM|MMM|MM|M|dd|d|HH|H|hh|h|mm|ss|a/g;
+
+/** The text a quoted run stands for: `''` alone is one quote, and so is `''` inside a run. */
+function unquote(quoted: string): string {
+  return quoted === '' ? "'" : quoted.replaceAll("''", "'");
+}
 
 function pad(n: number, width = 2): string {
   return String(Math.abs(n)).padStart(width, '0');
@@ -659,7 +665,7 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
 
     return pattern.replace(PART_RE, (part, quoted?: string) => {
       // A quoted run is emitted as-is; `''` is how a single quote is written.
-      if (quoted !== undefined) return quoted === '' ? "'" : quoted;
+      if (quoted !== undefined) return unquote(quoted);
       const token = part;
       switch (token) {
         case 'yyyy':
@@ -710,7 +716,7 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
       if (quoted !== undefined) {
         // Literal text matches itself and captures nothing, so the token indices stay
         // aligned with the groups below.
-        return quoted === '' ? "'" : quoted;
+        return unquote(quoted);
       }
       tokens.push(part);
       // `a` is the one token whose text is locale-dependent, so its alternation is built

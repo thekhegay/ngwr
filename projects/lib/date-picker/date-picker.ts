@@ -44,6 +44,7 @@ import {
   useDateInputRefusals,
   useFormParseErrors,
 } from './internal/input-refusal';
+import { tabLeavesPane } from './internal/tab-out';
 import { WrTimePanel } from './internal/time-panel';
 import type { WrDateInputError } from './types';
 
@@ -504,6 +505,9 @@ export class WrDatePicker implements FormValueControl<Date | null> {
       ref.setInput('format', this.timeFormat());
       ref.setInput('showSeconds', this.showSeconds());
       ref.setInput('step', this.step());
+      // A readonly picker refuses the write wherever it comes from, so the panel's own
+      // steppers and boxes refuse it too rather than moving digits the model never takes.
+      ref.setInput('readonly', this.readonly());
     });
 
     // The datetime panel had no live sync at all: a date typed into the field
@@ -520,6 +524,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
       ref.setInput('timeFormat', this.timeFormat());
       ref.setInput('showSeconds', this.showSeconds());
       ref.setInput('step', this.step());
+      ref.setInput('readonly', this.readonly());
     });
   }
 
@@ -817,6 +822,13 @@ export class WrDatePicker implements FormValueControl<Date | null> {
           // the guarded restore and dragged the caret backwards out of whatever
           // they had moved on to. Same rule as `wr-date-range-picker`.
           this.closeOverlay();
+          return;
+        }
+        // Non-modal, so Tab leaves — from the trigger, to the trigger's own neighbour,
+        // rather than off the end of `<body>`. See `tabLeavesPane`.
+        if (this.overlayRef && tabLeavesPane(this.overlayRef.overlayElement, event)) {
+          this.triggerEl()?.nativeElement.focus();
+          this.closeOverlay();
         }
       });
   }
@@ -844,6 +856,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     ref.setInput('showSeconds', this.showSeconds());
     ref.setInput('step', this.step());
     ref.setInput('autoFocus', this.autoFocusPanel);
+    ref.setInput('readonly', this.readonly());
     ref.setInput('value', this.value() ?? this.adapter.today());
     this.timeRef.set(ref);
     ref.instance.value.subscribe((next: Date | null) => {
@@ -863,16 +876,23 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     ref.setInput('timeFormat', this.timeFormat());
     ref.setInput('showSeconds', this.showSeconds());
     ref.setInput('step', this.step());
+    ref.setInput('readonly', this.readonly());
     ref.setInput('autoFocus', this.autoFocusPanel);
     this.dateTimeRef.set(ref);
     ref.instance.changed.subscribe(next => {
       this.lastFromPanel = next;
       this.commit(next);
-      ref.setInput('value', next);
+      // What the model holds now, not what the panel asked for — the two differ when
+      // the write was refused.
+      ref.setInput('value', this.value());
     });
   }
 
   private commit(next: Date): void {
+    // Before the text, not after it: `commitValue` refuses the same write, and a field
+    // rewritten ahead of that refusal showed a date the model never took — the date a
+    // readonly calendar's day click named, while the form still submitted the old one.
+    if (this.readonly() || this.disabled()) return;
     this.text.set(this.adapter.format(next, this.resolvedFormat()));
     this.commitValue(next);
     this.refuse(null);

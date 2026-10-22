@@ -44,6 +44,7 @@ import {
   useFormParseErrors,
 } from './internal/input-refusal';
 import { WrDateRangeEndInput } from './internal/range-end-input';
+import { tabLeavesPane } from './internal/tab-out';
 import type { WrDateInputError, WrDateRange, WrDateRangeInputError } from './types';
 
 /** Which end of the range an edit applies to. */
@@ -458,6 +459,11 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     // end would mark a bound field touched mid-entry.
     const next = event.relatedTarget as Node | null;
     const leaving = !next || !this.host.nativeElement.contains(next);
+    // The calendar button is part of the pair too: Tab from the end field lands on it,
+    // which is not leaving, so leaving has to be noticed when focus goes on from HERE —
+    // or a keyboard user never settled the order and never touched a bound field. Its
+    // hop back into a field is neither a leave nor a blur of a field.
+    if (!leaving && event.target === this.triggerEl()?.nativeElement) return;
     if (leaving) this.touch.emit();
 
     // Typing leaves the ends in whatever order they were entered; settle it
@@ -763,6 +769,13 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
       .subscribe(event => {
         if (event.key === 'Escape') {
           event.preventDefault();
+          this.closeOverlay();
+          return;
+        }
+        // Non-modal, so Tab leaves — from the trigger, to the trigger's own neighbour,
+        // rather than off the end of `<body>`. See `tabLeavesPane`.
+        if (this.overlayRef && tabLeavesPane(this.overlayRef.overlayElement, event)) {
+          this.triggerEl()?.nativeElement.focus();
           this.closeOverlay();
         }
       });
