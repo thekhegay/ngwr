@@ -1,8 +1,15 @@
 @if (objectUrl(); as url) {
   <div class="wr-image-cropper__canvas">
+    <!--
+      `crossorigin` is what lets a URL on another origin be exported at all: an image
+      fetched without it taints the canvas `toCanvas` draws into, even when the server
+      sends CORS headers, and every export then throws a SecurityError. It is static
+      so it is in place before `src` starts the request.
+    -->
     <img
       #img
       class="wr-image-cropper__image"
+      crossorigin="anonymous"
       [src]="url"
       alt=""
       draggable="false"

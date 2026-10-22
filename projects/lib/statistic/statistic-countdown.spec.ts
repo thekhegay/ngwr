@@ -107,6 +107,33 @@ describe('WrStatisticCountdown', () => {
     expect(text()).toBe('00/0 0:5:7');
   });
 
+  it('carries the days into the hours when the format shows no days, as the default does not', async () => {
+    await mount();
+    fixture.componentInstance.target.set(NOW + 3 * DAY + HOUR);
+    fixture.detectChanges();
+
+    // Every unit used to be taken modulo the next one whatever the format held, so
+    // the default `HH:mm:ss` read 01:00:00 here, two whole days short of the truth.
+    expect(text()).toBe('73:00:00');
+  });
+
+  it('carries whatever the format leaves out into the largest unit it shows', async () => {
+    await mount();
+    fixture.componentInstance.target.set(NOW + 36 * HOUR + 3 * SECOND);
+    fixture.componentInstance.format.set('mm:ss');
+    fixture.detectChanges();
+    expect(text()).toBe('2160:03');
+
+    fixture.componentInstance.format.set('s');
+    fixture.detectChanges();
+    expect(text()).toBe('129603');
+
+    // With the days shown, the hours are what is left of the day again.
+    fixture.componentInstance.format.set('D days HH:mm:ss');
+    fixture.detectChanges();
+    expect(text()).toBe('1 days 12:00:03');
+  });
+
   it('renders milliseconds when asked', async () => {
     await mount();
     fixture.componentInstance.target.set(NOW + 1500);
@@ -118,13 +145,13 @@ describe('WrStatisticCountdown', () => {
 
   it('picks up a new tick period, and leaves only one interval running', async () => {
     await mount();
-    fixture.componentInstance.format.set('ss.SSS');
+    fixture.componentInstance.format.set('mm:ss.SSS');
     fixture.detectChanges();
-    expect(text()).toBe('00.000');
+    expect(text()).toBe('60:00.000');
 
     // Nothing moves inside a second while the period is the default 1000.
     advance(250);
-    expect(text()).toBe('00.000');
+    expect(text()).toBe('60:00.000');
 
     fixture.componentInstance.tickMs.set(100);
     fixture.detectChanges();
@@ -132,9 +159,9 @@ describe('WrStatisticCountdown', () => {
     advance(100);
 
     // 350 ms have passed, and only a 100 ms period can report them: read once
-    // at construction, `tickMs` was a plain value and this stayed at 00.000
+    // at construction, `tickMs` was a plain value and this stayed at 60:00.000
     // while the countdown went on counting, which is why nothing looked wrong.
-    expect(text()).toBe('59.650');
+    expect(text()).toBe('59:59.650');
 
     // And the period that was replaced is gone rather than ticking beside its
     // successor — `Date` is the source of truth, so a leaked interval paints

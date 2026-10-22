@@ -168,3 +168,55 @@ describe('WrQr with a payload past the QR capacity', () => {
     fixture.destroy();
   });
 });
+
+@Component({
+  imports: [WrQr],
+  template: `
+    <div style="--qr-ink: rgb(1, 2, 3); --qr-paper: light-dark(rgb(4, 5, 6), rgb(7, 8, 9))">
+      <wr-qr value="https://ngwr.dev" [color]="color()" [bgColor]="bgColor()" />
+    </div>
+  `,
+})
+class ColourHost {
+  readonly color = signal('var(--qr-ink)');
+  readonly bgColor = signal('var(--qr-paper)');
+}
+
+/**
+ * A 2D context reads no CSS. Handed `var()` or `light-dark()` as a `fillStyle` it
+ * keeps the previous fill, so a token colour drew every module in the background's
+ * colour, or the code as one solid square, and a phone read nothing. The recording
+ * context below keeps every `fillStyle` the generator painted with.
+ */
+describe('WrQr with a CSS colour expression', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it('paints the colours the cascade resolves, not the raw expressions', () => {
+    const fills = new Set<string>();
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(() => {
+      const ctx = {
+        fillStyle: '',
+        fillRect: (): void => {
+          fills.add(ctx.fillStyle);
+        },
+        drawImage: (): void => undefined,
+      };
+      return ctx as unknown as CanvasRenderingContext2D;
+    });
+
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(ColourHost);
+    fixture.detectChanges();
+
+    expect([...fills].sort()).toEqual(['rgb(1, 2, 3)', 'rgb(4, 5, 6)']);
+
+    // A literal still goes through untouched in meaning.
+    fills.clear();
+    fixture.componentInstance.color.set('#000000');
+    fixture.componentInstance.bgColor.set('#ffffff');
+    fixture.detectChanges();
+    expect([...fills].sort()).toEqual(['rgb(0, 0, 0)', 'rgb(255, 255, 255)']);
+
+    fixture.destroy();
+  });
+});

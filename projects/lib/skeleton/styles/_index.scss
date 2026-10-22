@@ -61,6 +61,14 @@
       }
     }
   }
+
+  // Forced colors paints every background `Canvas`, so the placeholder vanished
+  // and a loading page read as an empty one. `GrayText` keeps the block present
+  // and marks it as not-yet-content. After the intents, which it ties on
+  // specificity.
+  @media (forced-colors: active) {
+    background: GrayText;
+  }
 }
 
 @keyframes wr-skeleton-shimmer {

@@ -1,3 +1,6 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -120,5 +123,40 @@ describe('WrTag emits a modifier for every documented icon position', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('wr-tag')!.classList).toContain(
       `wr-tag--icon-${position}`
     );
+  });
+});
+
+/**
+ * What the stylesheet promises that jsdom cannot show — it has no cascade from a
+ * sheet and no forced-colors mode — held against the COMPILED CSS. That each rule
+ * then paints what it says was measured in Chromium with `forcedColors: 'active'`.
+ * `sass` is resolved through `@angular/build`, as `theme/sass-entry.spec.ts` does.
+ */
+describe('WrBadge hooks', () => {
+  interface Sass {
+    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+  }
+  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
+  const css = sass
+    .compileString("@use 'badge/styles';", { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
+    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  /** The declarations of the rule whose selector is exactly `selector`, in `source`. */
+  const rule = (source: string, selector: string): string =>
+    new RegExp(`(?:^|\\n)\\s*${selector.replace(/[.()>:]/g, m => `\\${m}`)}\\s*\\{([^}]*)\\}`).exec(source)?.[1] ?? '';
+
+  it('sets the documented hooks from an intent, so they still restyle a coloured badge', () => {
+    // `color` defaults to `primary`; an intent that wrote `background-color` and
+    // `color` itself left the hooks working only with `[color]="null"`.
+    const primary = rule(css, '.wr-badge--primary');
+    expect(primary).toMatch(/--wr-badge-bg:\s*var\(--wr-color-primary\)/);
+    expect(primary).toMatch(/--wr-badge-color:\s*var\(--wr-color-primary-contrast\)/);
+    expect(primary).toMatch(/--wr-badge-border:\s*var\(--wr-color-primary-soft-border\)/);
+    expect(primary).not.toMatch(/(?:^|;)\s*(?:background-color|color):/);
+  });
+
+  it('draws the outlined variant from the hooks too', () => {
+    expect(rule(css, '.wr-badge--outlined')).toMatch(/--wr-badge-bg:\s*transparent/);
+    expect(rule(css, '.wr-badge--outlined')).toMatch(/box-shadow:\s*inset 0 0 0 1px var\(--wr-badge-border\)/);
+    expect(rule(css, '.wr-badge--outlined.wr-badge--primary')).not.toMatch(/box-shadow|(?:^|;)\s*color:/);
   });
 });

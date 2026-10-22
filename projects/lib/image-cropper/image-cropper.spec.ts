@@ -1007,6 +1007,68 @@ describe('WrImageCropper', () => {
   });
 
   /**
+   * Exporting. The bytes are a browser's job and jsdom encodes nothing, so what is
+   * pinned here is the request mode a real browser needs to export at all, and what a
+   * developer is told when there is nothing to export or the encode fails.
+   */
+  describe('exporting', () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    it('requests the image with CORS, so a source on another origin can be exported', () => {
+      // Without it a cross-origin image taints the canvas even when the server sends
+      // CORS headers, and every `toBlob()` / `toDataUrl()` throws a SecurityError.
+      expect(img().getAttribute('crossorigin')).toBe('anonymous');
+    });
+
+    it('says there is no image to export, rather than failing inside Angular', async () => {
+      fixture.componentInstance.src.set(null);
+      fixture.detectChanges();
+
+      // A required view query used to throw NG0951 here.
+      expect(() => cropper().toDataUrl()).toThrow(/no loaded image to export \(status "empty"\)/);
+      await expect(cropper().toBlob()).rejects.toThrow(/no loaded image to export/);
+    });
+
+    it('says the same for a source that failed, rather than letting the canvas throw', async () => {
+      img().dispatchEvent(new Event('error'));
+      fixture.detectChanges();
+
+      expect(() => cropper().toDataUrl()).toThrow(/no loaded image to export \(status "failed"\)/);
+      await expect(cropper().toBlob()).rejects.toThrow(/no loaded image to export/);
+    });
+
+    it('tells the developer when the crop cannot be encoded, instead of swallowing it', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(
+        () => ({ drawImage: () => undefined }) as unknown as CanvasRenderingContext2D
+      );
+      const refused = new DOMException('Tainted canvases may not be exported.', 'SecurityError');
+      vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation(() => {
+        throw refused;
+      });
+      load();
+
+      window_()!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+      window_()!.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowRight', bubbles: true }));
+      await vi.waitFor(() => expect(warn).toHaveBeenCalled());
+
+      expect(warn.mock.calls[0]).toEqual([expect.stringContaining('(cropped) did not fire'), refused]);
+      expect(fixture.componentInstance.blobs).toEqual([]);
+    });
+
+    it('re-emits nothing, and warns about nothing, with no image', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      fixture.componentInstance.src.set(null);
+      fixture.detectChanges();
+
+      await cropper().refresh();
+
+      expect(warn).not.toHaveBeenCalled();
+      expect(fixture.componentInstance.blobs).toEqual([]);
+    });
+  });
+
+  /**
    * `[maxOutputSize]`. jsdom has no 2D context, so the canvas is given a recording one:
    * the assertions are the canvas's pixel SIZE and the `drawImage` call, which together
    * say whether the export is the same region drawn smaller — the contract — or a
@@ -1153,6 +1215,9 @@ describe('WrImageCropper forwards every documented output type', () => {
 
     TestBed.resetTestingModule();
     fixture = TestBed.createComponent(TypeHost);
+    fixture.detectChanges();
+    // jsdom never loads an image; an export needs one that has.
+    (fixture.nativeElement as HTMLElement).querySelector('img')!.dispatchEvent(new Event('load'));
     fixture.detectChanges();
   });
 

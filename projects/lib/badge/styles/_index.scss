@@ -105,10 +105,17 @@
   --wr-badge-color: var(--wr-color-on-surface);
   --wr-badge-border: var(--wr-border-base);
 
+  // An intent sets the three hooks rather than the properties they feed, the way
+  // `wr-tag` does, so the hooks the docs list still restyle a coloured badge —
+  // which is every badge by default, since `color` defaults to `primary`. Writing
+  // `background-color` and `color` here left `--wr-badge-bg` / `-color` / `-border`
+  // working only with `[color]="null"`.
   @each $name in theme.$colors {
     &--#{$name} {
-      background-color: var(--wr-color-#{$name});
-      color: var(--wr-color-#{$name}-contrast);
+      --wr-badge-bg: var(--wr-color-#{$name});
+      --wr-badge-color: var(--wr-color-#{$name}-contrast);
+      // Read only by the outlined ring below.
+      --wr-badge-border: var(--wr-color-#{$name}-soft-border);
     }
   }
 
@@ -125,17 +132,16 @@
   // draws the same ring from the same token; the tag keeps its 6% fill, because
   // a tag is a chip you can click and a badge is a label you cannot.
   &--outlined {
-    background-color: transparent;
-    // `--wr-badge-border` rather than `currentcolor` for the NEUTRAL case, for
-    // the reason the note above gives about the chromatic ones: a ring drawn in
-    // the text colour is a hairline at full label strength around text of
-    // exactly that strength. An intent overrides it in the loop below.
+    --wr-badge-bg: transparent;
+    // `--wr-badge-border` rather than `currentcolor`, for the reason the note
+    // above gives: a ring drawn in the text colour is a hairline at full label
+    // strength around text of exactly that strength. An intent sets the hook to
+    // its `-soft-border` in the loop above.
     box-shadow: inset 0 0 0 1px var(--wr-badge-border);
 
     @each $name in theme.$colors {
       &.wr-badge--#{$name} {
-        color: var(--wr-color-#{$name}-ink);
-        box-shadow: inset 0 0 0 1px var(--wr-color-#{$name}-soft-border);
+        --wr-badge-color: var(--wr-color-#{$name}-ink);
       }
     }
   }

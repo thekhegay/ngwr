@@ -1,3 +1,6 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -70,5 +73,37 @@ describe('WrTimeline', () => {
 
     // The dot is drawn by CSS on an empty span — nothing to announce.
     expect(items()[0].querySelector('.wr-timeline-item__dot')!.getAttribute('aria-hidden')).toBe('true');
+  });
+});
+
+/**
+ * What the stylesheet promises that jsdom cannot show — it has no cascade from a
+ * sheet and no forced-colors mode — held against the COMPILED CSS. That each rule
+ * then paints what it says was measured in Chromium with `forcedColors: 'active'`.
+ * `sass` is resolved through `@angular/build`, as `theme/sass-entry.spec.ts` does.
+ */
+describe('WrTimeline under forced colors', () => {
+  interface Sass {
+    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+  }
+  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
+  const css = sass
+    .compileString("@use 'timeline/styles';", { loadPaths: [join(process.cwd(), 'projects/lib')], style: 'expanded' })
+    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  /** The `@media (forced-colors: active)` blocks, joined. */
+  const forced = [...css.matchAll(/@media \(forced-colors: active\)\s*\{([\s\S]*?\})\s*\}/g)].map(m => m[1]).join('\n');
+  /** The declarations of the rule whose selector is exactly `selector`, in `source`. */
+  const rule = (source: string, selector: string): string =>
+    new RegExp(`(?:^|\\n)\\s*${selector.replace(/[.()>:]/g, m => `\\${m}`)}\\s*\\{([^}]*)\\}`).exec(source)?.[1] ?? '';
+
+  it('keeps every dot silhouette and the connector, outweighing the rules that paint them', () => {
+    // The intents paint the dot from `.wr-timeline-item--x .wr-timeline-item__dot`, so
+    // a bare `.wr-timeline-item__dot` would lose to them and the dot would vanish.
+    expect(rule(forced, '.wr-timeline-item .wr-timeline-item__dot')).toMatch(/background:\s*CanvasText/);
+    // The hollow ring is a box-shadow, which forced colors drops.
+    expect(rule(forced, '.wr-timeline-item--neutral .wr-timeline-item__dot')).toMatch(
+      /outline:\s*2px solid CanvasText/
+    );
+    expect(rule(forced, '.wr-timeline .wr-timeline-item::before')).toMatch(/background:\s*CanvasText/);
   });
 });

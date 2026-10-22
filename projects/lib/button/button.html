@@ -1,5 +1,10 @@
+<!--
+  `aria-hidden`: the spinner is a `role="status"` region named "Loading", and inside
+  the button it became the button's whole name while the label was hidden. The
+  button already says it is busy with `aria-busy`.
+-->
 @if (loading()) {
-  <wr-spinner class="wr-btn__spin" size="sm" />
+  <wr-spinner class="wr-btn__spin" size="sm" aria-hidden="true" />
 }
 
 @if (icon(); as name) {

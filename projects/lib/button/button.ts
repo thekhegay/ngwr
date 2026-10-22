@@ -8,8 +8,10 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   Component,
+  DestroyRef,
   ElementRef,
   Injector,
+  Renderer2,
   ViewEncapsulation,
   afterNextRender,
   computed,
@@ -61,8 +63,9 @@ import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types'
     '[class]': 'classes()',
     '[attr.disabled]': 'nativeDisabled()',
     '[attr.aria-busy]': 'loading() ? "true" : null',
-    // The three below apply ONLY to the `<wr-btn>` element form — see
-    // `isCustomHost`. A native `<button>` / `<a>` already has all of it.
+    // The role applies ONLY to the `<wr-btn>` element form — see `isCustomHost`.
+    // The tab stop and `aria-disabled` apply to it and to `<a wr-btn>`, where
+    // `disabled` is just as inert. A native `<button>` already has all of it.
     '[attr.role]': 'hostRole()',
     '[attr.tabindex]': 'hostTabIndex()',
     '[attr.aria-disabled]': 'hostAriaDisabled()',
@@ -155,17 +158,32 @@ export class WrButton {
    */
   private readonly isCustomHost = this.hostEl.nativeElement.tagName === 'WR-BTN';
 
+  /**
+   * Whether this instance is on an `<a>`. The `disabled` attribute means nothing
+   * there either: a disabled or loading `<a wr-btn href>` kept its tab stop, was
+   * announced as an enabled link and followed its `href` on Enter — only the mouse
+   * was stopped, by `pointer-events: none`.
+   */
+  private readonly isAnchorHost = this.hostEl.nativeElement.tagName === 'A';
+
   private readonly isOff = computed(() => this.disabled() || (this.loading() && this.disabledWhenLoading()));
 
   protected readonly nativeDisabled = computed<'' | null>(() => (this.isOff() ? '' : null));
 
   protected readonly hostRole = computed<'button' | null>(() => (this.isCustomHost ? 'button' : null));
 
-  /** Out of the tab order while off — `disabled` is inert on a custom element. */
-  protected readonly hostTabIndex = computed<'0' | null>(() => (this.isCustomHost && !this.isOff() ? '0' : null));
+  /**
+   * Out of the tab order while off — `disabled` is inert on a custom element and on
+   * an `<a>`. The element form drops its stop; a link has one of its own, which `-1`
+   * takes away.
+   */
+  protected readonly hostTabIndex = computed<'0' | '-1' | null>(() => {
+    if (this.isCustomHost) return this.isOff() ? null : '0';
+    return this.isAnchorHost && this.isOff() ? '-1' : null;
+  });
 
   protected readonly hostAriaDisabled = computed<'true' | null>(() =>
-    this.isCustomHost && this.isOff() ? 'true' : null
+    (this.isCustomHost || this.isAnchorHost) && this.isOff() ? 'true' : null
   );
 
   /**
@@ -178,6 +196,12 @@ export class WrButton {
    * `pointer-events: none`.
    */
   protected onHostKeydown(event: KeyboardEvent): void {
+    // A link activates on Enter, which out of the tab order it can still receive
+    // from a script or a screen reader's focus.
+    if (this.isAnchorHost && this.isOff() && event.key === 'Enter') {
+      event.preventDefault();
+      return;
+    }
     if (!this.isCustomHost) return;
     if (event.key !== 'Enter' && event.key !== ' ') return;
 
@@ -185,6 +209,22 @@ export class WrButton {
     if (this.isOff()) return;
     this.hostEl.nativeElement.click();
   }
+
+  /**
+   * A disabled `<a wr-btn>` activates nothing: no navigation, and no other click
+   * listener on it — the `(click)` of the template and a `routerLink` included,
+   * the same silence a disabled `<button>` keeps. The pointer never gets here past
+   * `pointer-events: none`; a screen reader's activation and `.click()` do.
+   *
+   * A CAPTURE listener, because a host listener is registered after the
+   * template's own `(click)` on the same element and could not stop it; at the
+   * target, capture listeners run first.
+   */
+  private readonly onAnchorClick = (event: MouseEvent): void => {
+    if (!this.isOff()) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  };
 
   private readonly injector = inject(Injector);
 
@@ -227,6 +267,11 @@ export class WrButton {
   }
 
   constructor() {
+    if (this.isAnchorHost) {
+      const stop = inject(Renderer2).listen(this.hostEl.nativeElement, 'click', this.onAnchorClick, { capture: true });
+      inject(DestroyRef).onDestroy(stop);
+    }
+
     effect(() => {
       if (this.isOff()) return;
       if (!this.hadFocus) return;

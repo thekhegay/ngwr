@@ -4,7 +4,14 @@
   display: block;
   position: relative;
   user-select: none;
-  touch-action: none;
+  // Only the axis the divider moves along is claimed. `none` took every gesture,
+  // so on a phone a vertical swipe over a full-width comparison moved the divider
+  // and the page could not be scrolled from there at all.
+  touch-action: pan-y;
+
+  &--vertical {
+    touch-action: pan-x;
+  }
 
   &__surface {
     position: relative;

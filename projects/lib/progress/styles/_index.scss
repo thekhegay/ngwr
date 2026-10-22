@@ -30,6 +30,18 @@
     transition: width var(--wr-transition-base);
   }
 
+  // Forced colors paints every background `Canvas`, the page itself, so the
+  // track and the bar both vanished and left a progressbar with nothing drawn.
+  // The track gets an edge and the bar the text colour, the two system colours
+  // that are always far apart.
+  @media (forced-colors: active) {
+    outline: 1px solid CanvasText;
+
+    &__bar {
+      background: CanvasText;
+    }
+  }
+
   @each $name in theme.$colors {
     &--#{$name} {
       --wr-progress-track: color-mix(in srgb, var(--wr-color-#{$name}) 20%, transparent);

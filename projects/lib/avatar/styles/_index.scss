@@ -152,6 +152,17 @@
   // a 96px one — and the colour and size written here never painted once.
   // Specificity, not order, so it holds for an app that `@use`s the two entry
   // points in either order.
+  // The failed image's name, kept for assistive technology when nothing else
+  // names the avatar. Taken out of the flex line so it moves nothing, and gone
+  // (from the tree too) when initials are projected, since they name it then.
+  &__alt {
+    position: absolute;
+  }
+
+  &__content:not(:empty) ~ &__alt {
+    display: none;
+  }
+
   &__spin.wr-spinner {
     position: absolute;
     // A loading indicator is a status GRAPHIC, which 1.4.11 holds to 3:1: the

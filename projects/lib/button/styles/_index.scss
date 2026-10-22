@@ -224,9 +224,15 @@
     flex-direction: row-reverse;
   }
 
-  // Loading — hide label/icon contents but keep their footprint
+  // Loading — hide label/icon contents but keep their footprint. The label by
+  // `opacity` rather than `visibility`: a `visibility: hidden` label leaves the
+  // accessibility tree, and the button was then named after its spinner, so every
+  // loading button on a page was called "Loading".
   &--loading {
-    .wr-btn__label,
+    .wr-btn__label {
+      opacity: 0;
+    }
+
     .wr-btn__icon {
       visibility: hidden;
     }
@@ -324,23 +330,27 @@
   }
 
   // Solid colored segments share border and background color, so adjacent
-  // buttons fuse into one slab — draw a subtle divider on the right edge of
-  // every non-last segment. Outlined/default variants keep their own visible
+  // buttons fuse into one slab — draw a subtle divider on the inline-end edge
+  // of every non-last segment. Outlined/default variants keep their own visible
   // borders. On hover/focus the segment raises its own border (z-index above
   // neighbours), which would otherwise double-paint that edge — so drop the
   // seam there and let the raised border own it cleanly.
   @each $name in theme.$colors {
     > .wr-btn--#{$name}:not(.wr-btn--outlined):not(:last-child) {
-      // `box-shadow` offsets are physical by spec — there is no logical form to
-      // convert to. The seam lands on the wrong edge under RTL; fixing it needs a
-      // `[dir]` rule or a real border, which is beyond a property-level rewrite.
+      // rtl-ok: `box-shadow` offsets are physical by spec, with no logical form,
+      // so the inline-end edge is spelled once per direction. `:dir()` reads the
+      // element's own direction, so no ancestor selector is involved.
       box-shadow: inset -1px 0 0 color-mix(in srgb, var(--wr-color-black) 20%, transparent);
 
+      &:dir(rtl) {
+        box-shadow: inset 1px 0 0 color-mix(in srgb, var(--wr-color-black) 20%, transparent);
+      }
+
+      // After the `:dir(rtl)` rule, which it ties on specificity.
       &:hover,
       &:focus-visible {
         box-shadow: none;
       }
-      // rtl-ok: box-shadow has no logical equivalent — see above
     }
   }
 }

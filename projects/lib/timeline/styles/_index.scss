@@ -188,4 +188,26 @@
       margin-top: var(--wr-timeline-item-body-margin-top);
     }
   }
+
+  // Forced colors paints every background `Canvas` and drops every shadow, so
+  // the dots and the connector vanished — and the dot's silhouette is the one
+  // channel that tells the intents apart without colour. Each takes the text
+  // colour instead, and the hollow `neutral` ring, a shadow, becomes an outline.
+  // Each selector carries the weight of the rule it overrides: the intents paint
+  // the dot from `&--x &__dot`, the connector comes from `.wr-timeline--x &`.
+  @media (forced-colors: active) {
+    & &__dot {
+      background: CanvasText;
+    }
+
+    &--neutral &__dot {
+      background: Canvas;
+      outline: 2px solid CanvasText;
+      outline-offset: -2px;
+    }
+
+    .wr-timeline &::before {
+      background: CanvasText;
+    }
+  }
 }

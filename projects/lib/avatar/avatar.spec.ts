@@ -1,3 +1,6 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -346,6 +349,65 @@ describe('WrAvatar projected fallback', () => {
     expect(loaded()).toBe(true);
     expect(content().hasAttribute('aria-hidden')).toBe(false);
     expect(announced()).toEqual(['ХР', 'Avatar']);
+  });
+
+  it('stays silent with alt="", the way an <img> marks itself decorative', async () => {
+    // `useI18nText` reads '' as unset, so the image used to be announced as "Avatar"
+    // beside a name already printed next to it.
+    fixture.componentInstance.alt.set('');
+    await setUrl('/me.png');
+
+    expect(img()!.getAttribute('alt')).toBe('');
+    expect(content().getAttribute('aria-hidden')).toBe('true');
+    expect(announced().filter(Boolean)).toEqual([]);
+  });
+
+  describe('after a failure', () => {
+    const alt = (): HTMLElement | null => host().querySelector<HTMLElement>('.wr-avatar__alt');
+    /** The stylesheet's rule that hides the failed image's name when initials are projected. */
+    const HIDDEN_BY_INITIALS = '.wr-avatar__content:not(:empty) ~ .wr-avatar__alt';
+
+    it('still names an avatar that has nothing projected', async () => {
+      // The broken <img> is removed so the fallback can show, and its alt went with
+      // it, leaving an empty box with no name at all.
+      fixture.componentInstance.initials.set(false);
+      await setUrl('/broken.png');
+      await fire('error');
+
+      expect(alt()!.getAttribute('role')).toBe('img');
+      expect(alt()!.getAttribute('aria-label')).toBe('Хегай Роман');
+      expect(alt()!.matches(HIDDEN_BY_INITIALS)).toBe(false);
+    });
+
+    it('leaves the naming to the initials when there are some', async () => {
+      await setUrl('/broken.png');
+      await fire('error');
+
+      expect(alt()!.matches(HIDDEN_BY_INITIALS)).toBe(true);
+      expect(announced()).toEqual(['ХР']);
+    });
+
+    it('hides that name with display: none, which takes it out of the tree too', () => {
+      interface Sass {
+        compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+      }
+      const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
+      const css = sass.compileString("@use 'avatar/styles';", {
+        loadPaths: [join(process.cwd(), 'projects/lib')],
+        style: 'expanded',
+      }).css;
+
+      expect(css).toMatch(/\.wr-avatar__content:not\(:empty\) ~ \.wr-avatar__alt \{\s*display: none;/);
+    });
+
+    it('says nothing for a decorative avatar', async () => {
+      fixture.componentInstance.initials.set(false);
+      fixture.componentInstance.alt.set('');
+      await setUrl('/broken.png');
+      await fire('error');
+
+      expect(alt()).toBeNull();
+    });
   });
 
   it('treats a blank alt as no name at all', async () => {
