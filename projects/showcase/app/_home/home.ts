@@ -25,7 +25,7 @@ import { Footer } from '../_layout/footer/footer';
 import { ComponentsBento } from './components-bento/components-bento';
 import { HomeOptInComponent } from './opt-in/opt-in';
 
-import { DocCodeComponent, DocRichPipe } from '#core/components';
+import { DocCodeComponent, DocNgtrueComponent, DocRichPipe } from '#core/components';
 import { QUALITY } from '#core/generated/quality';
 import { BRAND_ICONS } from '#core/icons';
 import { MetaService } from '#core/services';
@@ -85,6 +85,7 @@ interface DxLink {
     ComponentsBento,
     HomeOptInComponent,
     DocCodeComponent,
+    DocNgtrueComponent,
     DocRichPipe,
     Footer,
   ],

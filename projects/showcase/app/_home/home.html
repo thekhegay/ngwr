@@ -348,5 +348,23 @@
     </section>
   }
 
+  <!-- Companion: ngtrue, which checks ngwr's controls and package. Last, since it
+       is the one section about something other than ngwr. -->
+  <section class="ngwr-section">
+    <div class="container">
+      <div class="ngwr-section__head">
+        <div class="ngwr-section__lede">
+          <wr-tag color="primary" outlined>Companion</wr-tag>
+          <h2 wrTypography variant="h1">
+            <wr-blur-text text="The checks behind ngwr." animateBy="words" [stepDuration]="0.4" />
+          </h2>
+        </div>
+        <p class="ngwr-section__aside">ngwr's controls and package pass them. Yours can too.</p>
+      </div>
+
+      <ngwr-doc-ngtrue variant="feature" />
+    </div>
+  </section>
+
   <ngwr-footer contained />
 </main>

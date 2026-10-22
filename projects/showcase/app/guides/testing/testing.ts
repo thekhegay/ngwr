@@ -4,6 +4,7 @@ import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  DocNgtrueComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSeeAlsoComponent,
@@ -13,7 +14,14 @@ import {
 @Component({
   selector: 'ngwr-gs-testing-page',
   templateUrl: './testing.html',
-  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent, DocSeeAlsoComponent],
+  imports: [
+    DocPageComponent,
+    DocSectionComponent,
+    DocCodeComponent,
+    DocApiComponent,
+    DocNgtrueComponent,
+    DocSeeAlsoComponent,
+  ],
 })
 export default class TestingGuidePageComponent {
   protected readonly snippets = {

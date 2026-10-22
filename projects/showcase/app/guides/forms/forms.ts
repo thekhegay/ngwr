@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 
 import {
   DocCodeComponent,
+  DocNgtrueComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSeeAlsoComponent,
@@ -12,7 +13,7 @@ import {
 @Component({
   selector: 'ngwr-gs-forms-page',
   templateUrl: './forms.html',
-  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocSeeAlsoComponent],
+  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocNgtrueComponent, DocSeeAlsoComponent],
 })
 export default class FormsGuidePage {
   protected readonly snippets = {
