@@ -143,6 +143,14 @@ interface WavePoint {
  *
  * @see https://ngwr.dev/bits/waves
  */
+/**
+ * The most bitmap pixels the canvas is backed with. The field is redrawn every
+ * frame, so the backing store is a per-frame cost: a 1280-wide hero keeps the
+ * full 2x (about 2.3 MP), and a wider one steps down toward 1x instead of
+ * growing to a 3456-pixel-wide bitmap on a large retina window.
+ */
+const MAX_CANVAS_PIXELS = 2_500_000;
+
 @Component({
   selector: 'wr-waves',
   template: '<canvas #canvas class="wr-waves__canvas" aria-hidden="true"></canvas>',
@@ -275,14 +283,31 @@ export class WrWaves {
 
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('touchmove', onTouchMove, { passive: true });
-    this.rafId = requestAnimationFrame(t => this.tick(t));
+
+    const run = (): void => {
+      if (this.rafId === 0) this.rafId = requestAnimationFrame(t => this.tick(t));
+    };
+    const halt = (): void => {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = 0;
+    };
+    // Off screen the field stops asking for frames: it is decoration, and a
+    // canvas redrawn out of sight still costs the browser a frame every frame.
+    // Without an observer (jsdom) it simply runs.
+    const io =
+      typeof IntersectionObserver === 'undefined'
+        ? null
+        : new IntersectionObserver(entries => (entries[entries.length - 1].isIntersecting ? run() : halt()));
+    if (io) io.observe(this.host.nativeElement);
+    else run();
 
     this.destroyRef.onDestroy(() => {
       window.removeEventListener('resize', onResize);
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('touchmove', onTouchMove);
       ro.disconnect();
-      cancelAnimationFrame(this.rafId);
+      io?.disconnect();
+      halt();
     });
   }
 
@@ -294,7 +319,10 @@ export class WrWaves {
     // upscaled on a 2x screen, which smears every 1px line across two device
     // pixels and steps its curves. Capped at 2: the field repaints every frame,
     // and a 3x phone would push half as many pixels again for no visible gain.
-    const ratio = Math.min(Math.max(window.devicePixelRatio || 1, 1), 2);
+    // Capped again by `MAX_CANVAS_PIXELS`, never below 1.
+    const area = rect.width * rect.height;
+    const budget = area > 0 ? Math.sqrt(MAX_CANVAS_PIXELS / area) : 2;
+    const ratio = Math.max(1, Math.min(window.devicePixelRatio || 1, 2, budget));
     canvas.width = Math.round(rect.width * ratio);
     canvas.height = Math.round(rect.height * ratio);
     // Resizing the bitmap resets the context, transform included, so the scale

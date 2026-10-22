@@ -216,6 +216,73 @@ describe('WrWaves', () => {
     expect(waves()!.classList.contains('wr-waves--painted')).toBe(true);
   });
 
+  it('stops asking for frames while it is off screen, and picks up when it is back', async () => {
+    withContext();
+    let report: ((entries: { isIntersecting: boolean }[]) => void) | null = null;
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(callback: (entries: { isIntersecting: boolean }[]) => void) {
+          report = callback;
+        }
+        observe(): void {
+          /* the spec reports by hand */
+        }
+        disconnect(): void {
+          /* as above */
+        }
+      }
+    );
+    const cancel = vi.spyOn(window, 'cancelAnimationFrame');
+    await mount();
+
+    // Nothing is asked for until the observer says the field is in view.
+    expect(frames).toHaveLength(0);
+    report!([{ isIntersecting: true }]);
+    expect(frames).toHaveLength(1);
+    runFrame();
+    expect(painted).toBe(1);
+    expect(frames, 'each frame asks for the next while in view').toHaveLength(1);
+
+    report!([{ isIntersecting: false }]);
+    expect(cancel).toHaveBeenCalled();
+
+    // Back in view: one new frame, not a second loop beside a held one.
+    frames = [];
+    report!([{ isIntersecting: true }]);
+    report!([{ isIntersecting: true }]);
+    expect(frames).toHaveLength(1);
+  });
+
+  it('backs the canvas at 2x, and steps down on a box too large for the pixel budget', async () => {
+    withContext();
+    vi.stubGlobal('devicePixelRatio', 2);
+    const box = (width: number, height: number): void => {
+      vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
+        x: 0,
+        y: 0,
+        left: 0,
+        top: 0,
+        right: width,
+        bottom: height,
+        width,
+        height,
+        toJSON: () => ({}),
+      });
+    };
+
+    box(1280, 450);
+    await mount();
+    expect([canvas()!.width, canvas()!.height]).toEqual([2560, 900]);
+
+    // 3456 × 1120 at 2x would be 3.9 MP; the budget brings it to 2.5 MP.
+    fixture.destroy();
+    box(1728, 560);
+    await mount();
+    expect(canvas()!.width * canvas()!.height).toBeLessThanOrEqual(2_500_000 + 1728 + 560);
+    expect(canvas()!.width).toBeGreaterThan(1728);
+  });
+
   it('strokes with the line colour resolved, never with text a canvas cannot read', async () => {
     withContext();
     await mount();
