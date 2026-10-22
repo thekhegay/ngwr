@@ -227,6 +227,22 @@
     color: var(--wr-input-group-affix);
     cursor: pointer;
     transition: color var(--wr-transition-base);
+    // Flush to the group's end, so its end corners take the group's curve, less
+    // the border: the inset focus ring then follows the field instead of cutting
+    // a square corner inside it. The button is transparent, so nothing else
+    // paints the radius.
+    border-start-end-radius: calc(var(--wr-input-group-radius) - 1px);
+    border-end-end-radius: calc(var(--wr-input-group-radius) - 1px);
+
+    @supports (corner-shape: squircle) {
+      corner-shape: squircle;
+      border-start-end-radius: calc(var(--wr-input-group-radius) * 1.85 - 1px);
+      border-end-end-radius: calc(var(--wr-input-group-radius) * 1.85 - 1px);
+    }
+
+    .wr-input-group--rounded & {
+      corner-shape: round;
+    }
     // The eye is a bare `.wr-icon__svg`, which is `1em`, and a `<button>` does
     // not inherit its font-size — so it drew the browser's control font (about
     // 13.33px) with no reset and the surrounding text's size under `ngwr/reset`.
