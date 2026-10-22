@@ -18,6 +18,9 @@ const GRADIENT_VAR_SLOTS = ['one', 'two', 'three', 'four', 'five', 'six', 'seven
 /** `hsl(40deg 80% 80% / 65%)` — the alpha, which is the only part `glowIntensity` moves. */
 const GLOW_ALPHA = /\/\s*(-?[\d.]+)%\s*\)\s*$/;
 
+/** `color-mix(in srgb, var(--wr-color-primary) 65%, transparent)` — the same alpha, for a CSS colour. */
+const GLOW_MIX_ALPHA = /^color-mix\(in srgb,\s*.+\s+(-?[\d.]+)%\s*,\s*transparent\s*\)$/;
+
 /** `radial-gradient(at 80% 55%, #c084fc 0px, transparent 50%)` — the colour, not the position. */
 const RADIAL_GRADIENT_COLOR = /^radial-gradient\(\s*at\s+[^,]+,\s*(.+?)\s+0px\s*,/;
 
@@ -74,14 +77,17 @@ function parseInlineDeclarations(style: string): Map<string, string> {
  * `getSweepProgress()` / `waitForSweep()`: the mount sweep is a four-second chain of
  * `requestAnimationFrame` tweens, so awaiting it either hangs the spec or samples one
  * frame and reports a value that was never settled. {@link isSweeping} answers the one
- * durable fact — that the sweep started.
+ * durable fact — that the sweep started. Nor is there a `getLoopAngle()` or a wait for
+ * the loop: `[loop]` writes a new angle on every frame for as long as it is on, so the
+ * angle never settles and any sample is one frame of an endless animation.
+ * {@link isLooping} answers that it is on.
  *
  * @example
  * ```ts
  * const card = await loader.getHarness(WrBorderGlowHarness.with({ text: /Hover me/ }));
  *
  * expect(await card.getBorderRadius()).toBe(28);
- * expect(await card.getPointerAngle()).toBeNull();   // nothing has pointed at it yet
+ * expect(await card.getPointerAngle()).toBeNull();   // no pointer, sweep or loop has written one yet
  * ```
  *
  * @see https://ngwr.dev/guides/testing
@@ -95,7 +101,8 @@ export class WrBorderGlowHarness extends ComponentHarness {
       .addOption('text', options.text, (harness, text) =>
         HarnessPredicate.stringMatches(harness.getContentText(), text)
       )
-      .addOption('sweeping', options.sweeping, async (harness, sweeping) => (await harness.isSweeping()) === sweeping);
+      .addOption('sweeping', options.sweeping, async (harness, sweeping) => (await harness.isSweeping()) === sweeping)
+      .addOption('looping', options.looping, async (harness, looping) => (await harness.isLooping()) === looping);
   }
 
   private readonly edge = this.locatorFor('.wr-border-glow__edge');
@@ -144,11 +151,13 @@ export class WrBorderGlowHarness extends ComponentHarness {
   /**
    * The halo colour at full strength, or `null` when the theme decides.
    *
-   * Comes back as the `hsl(H deg S% L% / A%)` the component assembled from the bare
-   * `'H S L'` input, so this also pins that assembly. Be aware the parse is forgiving to
-   * a fault: anything that is not three bare numbers — a hex colour, `rgb(…)`, even
-   * `hsl(40deg 80% 80%)` with its units — silently becomes the default amber, so a
-   * plausible-looking value here does not mean the input was understood.
+   * Comes back as written, in one of two forms, so this also pins the assembly: the
+   * `hsl(H deg S% L% / A%)` built from bare `'H S L'` parts, or
+   * `color-mix(in srgb, <colour> 100%, transparent)` for any other value. Be aware the
+   * second form is a containment check and not a colour parser — `'banana'` is written
+   * just as faithfully as `'#3567ff'`, and the browser then drops every halo declaration
+   * that reads it — so a plausible-looking value here does not mean it paints. A value
+   * that could escape the `color-mix()` is never written, and reads `null`.
    */
   async getGlowColor(): Promise<string | null> {
     return this.readVar('--wr-border-glow-color');
@@ -164,20 +173,28 @@ export class WrBorderGlowHarness extends ComponentHarness {
    * clamp is one-sided — a negative intensity produces negative percentages, which a
    * browser drops as invalid declarations and the halo vanishes — so the numbers are
    * returned as written rather than corrected, which is how a spec can see it.
+   *
+   * Read from either form {@link getGlowColor} describes: the `/ A%` of an `hsl()`, or
+   * the colour's share in a `color-mix()`. All seven steps must be in the form the first
+   * one is — they are written together from one value, so a mix of the two is a ramp
+   * that broke half way.
    */
   async getGlowAlphaRamp(): Promise<number[] | null> {
     const declarations = await this.declarations();
-    if (!declarations.has('--wr-border-glow-color')) return null;
+    const first = declarations.get('--wr-border-glow-color');
+    if (first === undefined) return null;
+    const form = first.startsWith('color-mix(') ? GLOW_MIX_ALPHA : GLOW_ALPHA;
 
     return GLOW_VAR_SUFFIXES.map(suffix => {
       const name = `--wr-border-glow-color${suffix}`;
       const raw = declarations.get(name);
-      const alpha = raw === undefined ? null : GLOW_ALPHA.exec(raw);
+      const alpha = raw === undefined ? null : form.exec(raw);
       if (!alpha) {
         throw new Error(
           `WrBorderGlowHarness.getGlowAlphaRamp(): \`${name}\` reads "${raw ?? '(absent)'}". The seven halo steps ` +
-            'are written together from one glow colour, so a step that is missing or carries no ` / N%` alpha ' +
-            'means the ramp stopped being built — the halo would fade in bands the stylesheet cannot use.'
+            'are written together from one glow colour, so a step that is missing, carries no alpha, or is not ' +
+            `the same \`${form === GLOW_ALPHA ? 'hsl(… / N%)' : 'color-mix(in srgb, … N%, transparent)'}\` as the ` +
+            'first means the ramp stopped being built — the halo would fade in bands the stylesheet cannot use.'
         );
       }
       return Number.parseFloat(alpha[1]);
@@ -234,11 +251,13 @@ export class WrBorderGlowHarness extends ComponentHarness {
   }
 
   /**
-   * Where the cursor last sat, in degrees: `0` is straight up and the angle grows
-   * clockwise. `null` until something has pointed at the card.
+   * Where the lit cone points, in degrees: `0` is straight up and the angle grows
+   * clockwise. Three things write it — the pointer, from where it sits; the mount sweep;
+   * and `[loop]`, on every frame, or once at a resting 45 under reduced motion — so a
+   * looping card answers with no pointer at all. `null` means nothing has written it yet.
    *
    * `null` is a state of its own rather than a stand-in for zero — the stylesheet's own
-   * default applies until the first pointer arrives, and dead centre legitimately
+   * default applies until the first write, and a pointer at dead centre legitimately
    * reports `0`, so a harness that folded the two together could not tell an untouched
    * card from one being pointed at from the middle.
    */
@@ -248,11 +267,13 @@ export class WrBorderGlowHarness extends ComponentHarness {
   }
 
   /**
-   * How close the cursor is to the perimeter: `0` at dead centre, `100` at the edge.
-   * `null` until something has pointed at the card.
+   * How lit the edge is told to be: `0` at dead centre, `100` at the edge. The pointer
+   * writes it from where it sits, the mount sweep as it lights and fades, and `[loop]` holds it at
+   * 100 for as long as it is on, re-lighting it when a pointer leaves. `null` means
+   * nothing has written it yet.
    *
-   * On a diagonal the NEARER axis wins rather than the two averaging, so a cursor level
-   * with the bottom edge reads 100 wherever it is along it.
+   * For a pointer on a diagonal the NEARER axis wins rather than the two averaging, so a
+   * cursor level with the bottom edge reads 100 wherever it is along it.
    */
   async getEdgeProximity(): Promise<number | null> {
     const raw = await this.readVar('--wr-border-glow-edge-proximity');
@@ -302,6 +323,19 @@ export class WrBorderGlowHarness extends ComponentHarness {
    */
   async isSweeping(): Promise<boolean> {
     return (await this.host()).hasClass('wr-border-glow--sweeping');
+  }
+
+  /**
+   * Whether the endless loop holds the card.
+   *
+   * The class is added when `[loop]` turns on, under reduced motion too — there the edge
+   * stays lit and still, so the glow layers must stay visible — and removed when it turns
+   * off. Like {@link isSweeping}, it answers that the loop is ON, not where the cone is:
+   * the angle moves on every `requestAnimationFrame` and never settles, which is why the
+   * class JSDoc lists no wait for it.
+   */
+  async isLooping(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-border-glow--looping');
   }
 
   /** Whether the halo layer is in the markup — the element the whole outer glow paints on. */

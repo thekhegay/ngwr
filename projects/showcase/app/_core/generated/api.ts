@@ -111,9 +111,11 @@ export const API = {
     { name: "coneSpread", description: "Width of the lit cone as a percentage of the perimeter.", type: "number", default: "25" },
     { name: "edgeSensitivity", description: "How sharply the halo fades as the cursor leaves the edge. Lower = wider falloff.", type: "number", default: "30" },
     { name: "fillOpacity", description: "Strength of the interior bloom near edges (blend: `--wr-border-glow-fill-blend`).", type: "number", default: "0.5" },
-    { name: "glowColor", description: "Halo colour as `'H S L'` (HSL parts, no commas). When unset, the theme decides: a deep amber on light surfaces, pale amber on dark. Note `glowIntensity` only applies alongside an explicit `glowColor`.", type: "string | null", default: "null" },
+    { name: "glowColor", description: "Halo colour: any CSS colour (`'#3567ff'`, `'var(--wr-color-primary)'`), or the bare `'H S L'` parts (no commas) it has always taken. A value that could escape the `color-mix()` it is composed into is ignored. When unset, the theme decides: a deep amber on light surfaces, pale amber on dark. Note `glowIntensity` only applies alongside an explicit `glowColor`.", type: "string | null", default: "null" },
     { name: "colors", description: "Mesh-gradient palette for the colored border slice. When unset, the theme decides: deep tones on light, pastels on dark.", type: "readonly string[] | null", default: "null" },
     { name: "animated", description: "Play a one-shot perimeter sweep on mount, then fade out.", type: "boolean", default: "false" },
+    { name: "loop", description: "Circle the perimeter for ever at a constant pace, edge fully lit. The pointer still drives while it is over the card, and the loop picks up from where it left. Replaces the `animated` sweep; under reduced motion the edge stays lit and still.", type: "boolean", default: "false" },
+    { name: "speed", description: "Seconds per lap while `loop` is on.", type: "number", default: "6" },
   ],
   // <wr-breadcrumbs>
   WrBreadcrumbs: [

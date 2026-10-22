@@ -21,4 +21,6 @@ export interface WrBorderGlowHarnessFilters extends BaseHarnessFilters {
    * this is true for is explained.
    */
   readonly sweeping?: boolean;
+  /** Match only cards held by the endless loop (`true`) or only cards that are not (`false`). */
+  readonly looping?: boolean;
 }

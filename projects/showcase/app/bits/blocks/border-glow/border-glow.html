@@ -9,12 +9,14 @@
   <ngwr-doc-section title="Playground">
     <ngwr-doc-playground [code]="snippet()" [controls]="controls">
       <wr-border-glow
-        [glowColor]="glowColorHsl()"
+        [glowColor]="glowColor() || null"
         [borderRadius]="borderRadius()"
         [glowRadius]="glowRadius()"
         [coneSpread]="coneSpread()"
         [glowIntensity]="glowIntensity()"
         [animated]="animated()"
+        [loop]="loop()"
+        [speed]="speed()"
         style="min-width: 18rem"
       >
         <div style="padding: 1.5rem 1.75rem; color: var(--wr-color-on-surface)">

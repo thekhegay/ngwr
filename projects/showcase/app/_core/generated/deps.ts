@@ -226,7 +226,6 @@ export const DOC_PAGES: Readonly<Record<string, { readonly route: string; readon
 
 /** Route → entry points its demos use alongside the one it documents. */
 export const DEMO_RELATED: Readonly<Record<string, readonly string[]>> = {
-  "bits/border-glow": ["color-picker"],
   "bits/marquee": ["icon"],
   "reference/components/alert": ["icon"],
   "reference/components/avatar": ["badge","select"],

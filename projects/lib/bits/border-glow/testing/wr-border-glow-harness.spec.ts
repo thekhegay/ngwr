@@ -22,6 +22,7 @@ import { WrBorderGlowHarness } from './wr-border-glow-harness';
       [glowIntensity]="glowIntensity()"
       [colors]="colors()"
       [animated]="animated()"
+      [loop]="loop()"
     >
       <span>Hover me</span>
     </wr-border-glow>
@@ -38,6 +39,7 @@ class Host {
   readonly glowIntensity = signal(1);
   readonly colors = signal<readonly string[] | null>(null);
   readonly animated = signal(false);
+  readonly loop = signal(false);
 }
 
 @Component({
@@ -158,6 +160,37 @@ describe('WrBorderGlowHarness', () => {
     expect(await harness.getGlowAlphaRamp()).toEqual([100, 100, 100, 80, 60, 40, 20]);
   });
 
+  it('mixes any CSS colour toward transparent, and scales the same ramp', async () => {
+    fixture.componentInstance.glowColor.set('var(--wr-color-primary)');
+    await fixture.whenStable();
+
+    const harness = await glow();
+    expect(await harness.getGlowColor()).toBe('color-mix(in srgb, var(--wr-color-primary) 100%, transparent)');
+    expect(await harness.getGlowAlphaRamp()).toEqual([100, 60, 50, 40, 30, 20, 10]);
+
+    fixture.componentInstance.glowIntensity.set(0.5);
+    await fixture.whenStable();
+    expect(await harness.getGlowAlphaRamp()).toEqual([50, 30, 25, 20, 15, 10, 5]);
+  });
+
+  it('never writes a glow colour that would escape its color-mix()', async () => {
+    fixture.componentInstance.glowColor.set('red 1%, transparent), url("https://beacon.example/borderglow-glow"');
+    await fixture.whenStable();
+
+    const harness = await glow();
+    expect(await harness.getGlowColor()).toBeNull();
+    expect(await harness.getGlowAlphaRamp()).toBeNull();
+  });
+
+  it('refuses a ramp whose steps stopped agreeing on a form', async () => {
+    fixture.componentInstance.glowColor.set('var(--wr-color-primary)');
+    await fixture.whenStable();
+    const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-border-glow')!;
+    host.style.setProperty('--wr-border-glow-color-40', 'hsl(40deg 80% 80% / 40%)');
+
+    await expect((await glow()).getGlowAlphaRamp()).rejects.toThrow(/--wr-border-glow-color-40/);
+  });
+
   it('maps the palette across the seven slots', async () => {
     fixture.componentInstance.colors.set(['#c084fc', '#f472b6', '#38bdf8']);
     await fixture.whenStable();
@@ -256,6 +289,42 @@ describe('WrBorderGlowHarness', () => {
     const harness = await glow();
     expect(await harness.isSweeping()).toBe(false);
     expect(await harness.getPointerAngle()).toBeNull();
+  });
+
+  it('reports the loop, and narrows a query by it', async () => {
+    const harness = await glow();
+    expect(await harness.isLooping()).toBe(false);
+    expect(await loader.getHarnessOrNull(WrBorderGlowHarness.with({ looping: true }))).toBeNull();
+
+    fixture.componentInstance.loop.set(true);
+    await fixture.whenStable();
+    expect(await harness.isLooping()).toBe(true);
+    expect(await loader.getHarnessOrNull(WrBorderGlowHarness.with({ looping: true }))).not.toBeNull();
+
+    fixture.componentInstance.loop.set(false);
+    await fixture.whenStable();
+    expect(await harness.isLooping()).toBe(false);
+  });
+
+  it('loops instead of sweeping when it is asked for both', async () => {
+    fixture.componentInstance.animated.set(true);
+    fixture.componentInstance.loop.set(true);
+    await fixture.whenStable();
+
+    const harness = await glow();
+    expect(await harness.isLooping()).toBe(true);
+    expect(await harness.isSweeping()).toBe(false);
+  });
+
+  it('keeps the loop lit and still for someone who asked for less motion', async () => {
+    await mount([{ provide: WrPlatform, useValue: reducedMotion }]);
+    fixture.componentInstance.loop.set(true);
+    await fixture.whenStable();
+
+    const harness = await glow();
+    expect(await harness.isLooping()).toBe(true);
+    expect(await harness.getEdgeProximity()).toBe(100);
+    expect(await harness.getPointerAngle()).toBe(45);
   });
 
   it('keeps its decoration out of the accessibility tree', async () => {

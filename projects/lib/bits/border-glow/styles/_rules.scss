@@ -121,9 +121,9 @@
     z-index: -1;
   }
 
-  // Hide the glow layers when the cursor isn't engaged AND the one-shot
-  // sweep isn't running.
-  &:not(:hover):not(.wr-border-glow--sweeping) {
+  // Hide the glow layers when the cursor isn't engaged, the one-shot sweep
+  // isn't running and the card isn't looping.
+  &:not(:hover):not(.wr-border-glow--sweeping):not(.wr-border-glow--looping) {
     &::before,
     &::after,
     & > .wr-border-glow__edge {

@@ -6,7 +6,8 @@
  *
  * Port of the reactbits.dev BorderGlow effect — a cursor-tracked cone of
  * mesh-gradient light that follows the pointer along the card's perimeter,
- * with an outer halo and optional auto-sweep on mount.
+ * with an outer halo, an optional auto-sweep on mount and an optional endless
+ * loop.
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
@@ -18,17 +19,21 @@ import { isSafeCssValue, numAttr } from 'ngwr/utils';
 
 const RADIANS_TO_DEG = 180 / Math.PI;
 
-interface ParsedHsl {
-  readonly h: number;
-  readonly s: number;
-  readonly l: number;
-}
+/**
+ * Where a looping cone rests under reduced motion, and where it starts when
+ * nothing has written an angle yet — the stylesheet's own default.
+ */
+const REST_ANGLE = 45;
 
-function parseHsl(input: string): ParsedHsl {
-  const match = /([\d.]+)\s*([\d.]+)%?\s*([\d.]+)%?/.exec(input);
-  if (!match) return { h: 40, s: 80, l: 80 };
-  return { h: Number.parseFloat(match[1]), s: Number.parseFloat(match[2]), l: Number.parseFloat(match[3]) };
-}
+/**
+ * The most frame time one loop step may count, in ms. A hidden tab, a long task
+ * or a debugger stops frames without telling the loop, and the first frame back
+ * would otherwise jump the cone by the whole time away.
+ */
+const MAX_LOOP_STEP_MS = 100;
+
+/** `'40 80 80'`, `'268 100% 76%'`, `'40deg 80% 80%'` — the bare HSL parts `glowColor` has always taken. */
+const HSL_PARTS = /^\s*([\d.]+)(?:deg)?\s+([\d.]+)%?\s+([\d.]+)%?\s*$/;
 
 const GLOW_OPACITY_STEPS = [100, 60, 50, 40, 30, 20, 10] as const;
 const GLOW_VAR_SUFFIXES = ['', '-60', '-50', '-40', '-30', '-20', '-10'] as const;
@@ -47,13 +52,21 @@ const GRADIENT_COLOR_INDEX = [0, 1, 2, 0, 1, 2, 1] as const;
 
 const DEFAULT_COLORS: readonly string[] = ['#c084fc', '#f472b6', '#38bdf8'];
 
-function buildGlowVars(glowColor: string, intensity: number): Record<string, string> {
-  const { h, s, l } = parseHsl(glowColor);
-  const base = `${h}deg ${s}% ${l}%`;
+function buildGlowVars(glowColor: string, intensity: number): Record<string, string> | null {
+  const parts = HSL_PARTS.exec(glowColor);
+  // Anything else is a CSS colour, interpolated into a `color-mix()` — so it is
+  // held to the containment check `colors` and `backgroundColor` pass, and an
+  // unsafe value leaves the halo to the theme.
+  if (!parts && !isSafeCssValue(glowColor)) return null;
+  const base = parts
+    ? `${Number.parseFloat(parts[1])}deg ${Number.parseFloat(parts[2])}% ${Number.parseFloat(parts[3])}%`
+    : glowColor.trim();
   const out: Record<string, string> = {};
   for (let i = 0; i < GLOW_OPACITY_STEPS.length; i++) {
     const alpha = Math.min(GLOW_OPACITY_STEPS[i] * intensity, 100);
-    out[`--wr-border-glow-color${GLOW_VAR_SUFFIXES[i]}`] = `hsl(${base} / ${alpha}%)`;
+    out[`--wr-border-glow-color${GLOW_VAR_SUFFIXES[i]}`] = parts
+      ? `hsl(${base} / ${alpha}%)`
+      : `color-mix(in srgb, ${base} ${alpha}%, transparent)`;
   }
   return out;
 }
@@ -120,6 +133,8 @@ function animateValue(opts: AnimateOptions): () => void {
  *   strength via `[fillOpacity]`).
  * - Optional `[animated]` mode performs a one-shot sweep on mount, useful
  *   for drawing attention to a freshly-rendered card.
+ * - Optional `[loop]` mode circles the perimeter for ever, edge fully lit —
+ *   a frame for a call to action rather than a reaction to the cursor.
  *
  * @example
  * ```html
@@ -138,7 +153,9 @@ function animateValue(opts: AnimateOptions): () => void {
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-border-glow',
+    '(pointerenter)': 'onPointerEnter()',
     '(pointermove)': 'onPointerMove($event)',
+    '(pointerleave)': 'onPointerLeave()',
   },
 })
 export class WrBorderGlow {
@@ -172,9 +189,11 @@ export class WrBorderGlow {
   readonly fillOpacity = input(0.5, { transform: numAttr(0.5) });
 
   /**
-   * Halo colour as `'H S L'` (HSL parts, no commas). When unset, the theme
-   * decides: a deep amber on light surfaces, pale amber on dark. Note
-   * `glowIntensity` only applies alongside an explicit `glowColor`.
+   * Halo colour: any CSS colour (`'#3567ff'`, `'var(--wr-color-primary)'`), or
+   * the bare `'H S L'` parts (no commas) it has always taken. A value that
+   * could escape the `color-mix()` it is composed into is ignored. When unset,
+   * the theme decides: a deep amber on light surfaces, pale amber on dark.
+   * Note `glowIntensity` only applies alongside an explicit `glowColor`.
    */
   readonly glowColor = input<string | null>(null);
 
@@ -187,9 +206,25 @@ export class WrBorderGlow {
   /** Play a one-shot perimeter sweep on mount, then fade out. @default false */
   readonly animated = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Circle the perimeter for ever at a constant pace, edge fully lit. The
+   * pointer still drives while it is over the card, and the loop picks up from
+   * where it left. Replaces the `animated` sweep; under reduced motion the edge
+   * stays lit and still.
+   *
+   * @default false
+   */
+  readonly loop = input(false, { transform: coerceBooleanProperty });
+
+  /** Seconds per lap while `loop` is on. @default 6 */
+  readonly speed = input(6, { transform: numAttr(6) });
+
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly platform = inject(WrPlatform);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
+  /** Whether a pointer is over the card — the loop holds still while it drives. */
+  private pointerInside = false;
 
   /** Inline CSS variable bag — recomputed when colour / radius / sensitivity inputs change. */
   protected readonly cssVars = computed<Record<string, string>>(() => {
@@ -212,7 +247,8 @@ export class WrBorderGlow {
     const bg = this.backgroundColor();
     if (bg !== null && isSafeCssValue(bg)) vars['--wr-border-glow-bg'] = bg;
     const glow = this.glowColor();
-    if (glow !== null) Object.assign(vars, buildGlowVars(glow, this.glowIntensity()));
+    const glowVars = glow === null ? null : buildGlowVars(glow, this.glowIntensity());
+    if (glowVars !== null) Object.assign(vars, glowVars);
     return vars;
   });
 
@@ -228,11 +264,29 @@ export class WrBorderGlow {
 
     if (!this.isBrowser) return;
 
-    // Auto-sweep on mount — fires once when `animated` is true.
+    // Auto-sweep on mount — fires once when `animated` is true, unless `loop`
+    // replaces it.
     effect(onCleanup => {
-      if (!this.animated()) return;
+      if (!this.animated() || this.loop()) return;
       onCleanup(this.runAutoSweep());
     });
+
+    // Endless loop. Reduced motion is read here, so a change to the preference
+    // swaps the rotation for a still, lit edge and back.
+    effect(onCleanup => {
+      if (!this.loop()) return;
+      onCleanup(this.runLoop(this.platform.prefersReducedMotion()));
+    });
+  }
+
+  protected onPointerEnter(): void {
+    this.pointerInside = true;
+  }
+
+  /** Hands the cone back to the loop, re-lit, from wherever the pointer left it. */
+  protected onPointerLeave(): void {
+    this.pointerInside = false;
+    if (this.loop()) this.el.nativeElement.style.setProperty('--wr-border-glow-edge-proximity', '100');
   }
 
   /** Pointer-driven update of `--wr-border-glow-angle` + `--wr-border-glow-edge-proximity`. */
@@ -324,5 +378,75 @@ export class WrBorderGlow {
       cancelD();
       host.classList.remove('wr-border-glow--sweeping');
     };
+  }
+
+  /** Endless perimeter loop at a constant pace. Returns its canceller, like `runAutoSweep`. */
+  private runLoop(reducedMotion: boolean): () => void {
+    const host = this.el.nativeElement;
+    host.classList.add('wr-border-glow--looping');
+    host.style.setProperty('--wr-border-glow-edge-proximity', '100');
+
+    // Reduced motion: no rotation at all. The edge stays lit and still, so a
+    // card that uses it as a frame keeps one.
+    if (reducedMotion) {
+      host.style.setProperty('--wr-border-glow-angle', `${REST_ANGLE}deg`);
+      return () => host.classList.remove('wr-border-glow--looping');
+    }
+
+    let raf = 0;
+    let angle = REST_ANGLE;
+    // `null` until there is a frame to measure from: the first frame, and the
+    // first after the pointer leaves or the card scrolls back into view, pick up
+    // the painted angle instead of jumping by the time that passed.
+    let last: number | null = null;
+
+    const tick = (now: number): void => {
+      raf = requestAnimationFrame(tick);
+      if (this.pointerInside) {
+        last = null;
+        return;
+      }
+      if (last === null) {
+        angle = this.paintedAngle();
+      } else {
+        // By elapsed time rather than per frame, so the pace is the same at
+        // any refresh rate. `speed` is in seconds, the timestamps in ms.
+        const lap = this.speed() * 1000;
+        const step = Math.min(now - last, MAX_LOOP_STEP_MS);
+        if (lap > 0) angle = (angle + (360 * step) / lap) % 360;
+      }
+      last = now;
+      host.style.setProperty('--wr-border-glow-angle', `${angle.toFixed(3)}deg`);
+    };
+    const start = (): void => {
+      if (raf === 0) raf = requestAnimationFrame(tick);
+    };
+    const pause = (): void => {
+      cancelAnimationFrame(raf);
+      raf = 0;
+      last = null;
+    };
+
+    // Off screen the loop stops asking for frames. Without an observer (jsdom)
+    // it simply runs.
+    let observer: IntersectionObserver | null = null;
+    if (typeof IntersectionObserver === 'undefined') {
+      start();
+    } else {
+      observer = new IntersectionObserver(entries => (entries[entries.length - 1].isIntersecting ? start() : pause()));
+      observer.observe(host);
+    }
+
+    return () => {
+      observer?.disconnect();
+      pause();
+      host.classList.remove('wr-border-glow--looping');
+    };
+  }
+
+  /** The angle the host paints now — the pointer's, a sweep's or the loop's own. */
+  private paintedAngle(): number {
+    const angle = Number.parseFloat(this.el.nativeElement.style.getPropertyValue('--wr-border-glow-angle'));
+    return Number.isNaN(angle) ? REST_ANGLE : angle;
   }
 }

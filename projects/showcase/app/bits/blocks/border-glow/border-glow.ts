@@ -1,7 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
 import { WrBorderGlow } from 'ngwr/bits/border-glow';
-import { parseHex, rgbToHsl } from 'ngwr/color-picker';
 
 import {
   DocApiComponent,
@@ -27,32 +26,25 @@ import {
 })
 export default class BorderGlowPage {
   // Live demo state
-  /** Hex form drives the color picker; an `hslColor` computed feeds wr-border-glow. */
-  // Empty = theme-aware default; the picker writes a concrete colour.
-  protected readonly glowColorHex = signal('');
+  // Empty = theme-aware default; the picker writes a hex, which `glowColor` takes as is.
+  protected readonly glowColor = signal('');
   protected readonly borderRadius = signal(28);
   protected readonly glowRadius = signal(40);
   protected readonly coneSpread = signal(25);
   protected readonly glowIntensity = signal(1);
   protected readonly animated = signal(false);
-
-  /** Hex → "H S L" string in the format `wr-border-glow` expects. */
-  protected readonly glowColorHsl = computed<string | null>(() => {
-    if (!this.glowColorHex()) return null;
-    const rgb = parseHex(this.glowColorHex());
-    if (!rgb) return null;
-    const { h, s, l } = rgbToHsl(rgb);
-    return `${Math.round(h)} ${Math.round(s * 100)} ${Math.round(l * 100)}`;
-  });
+  protected readonly loop = signal(false);
+  protected readonly speed = signal(6);
 
   protected readonly snippet = computed(
     () =>
-      `<wr-border-glow${this.glowColorHsl() ? `\n  glowColor="${this.glowColorHsl()}"` : ''}
+      `<wr-border-glow${this.glowColor() ? `\n  glowColor="${this.glowColor()}"` : ''}
   [borderRadius]="${this.borderRadius()}"
   [glowRadius]="${this.glowRadius()}"
   [coneSpread]="${this.coneSpread()}"
   [glowIntensity]="${this.glowIntensity()}"
   [animated]="${this.animated()}"
+  [loop]="${this.loop()}"${this.loop() ? `\n  [speed]="${this.speed()}"` : ''}
 >
   …
 </wr-border-glow>`
@@ -64,7 +56,9 @@ export default class BorderGlowPage {
     { kind: 'slider', label: 'Cone Spread (%)', signal: this.coneSpread, min: 5, max: 60, step: 1, unit: '%' },
     { kind: 'slider', label: 'Glow Intensity', signal: this.glowIntensity, min: 0, max: 2, step: 0.1, precision: 1 },
     { kind: 'toggle', label: 'Animated', signal: this.animated },
-    { kind: 'color', label: 'Glow Color', signal: this.glowColorHex, alpha: false },
+    { kind: 'toggle', label: 'Loop', signal: this.loop },
+    { kind: 'slider', label: 'Speed (s)', signal: this.speed, min: 1, max: 12, step: 0.5, precision: 1, unit: 's' },
+    { kind: 'color', label: 'Glow Color', signal: this.glowColor, alpha: false },
   ];
 
   protected readonly api: readonly DocApiRow[] = [
@@ -107,7 +101,7 @@ export default class BorderGlowPage {
     },
     {
       name: 'glowColor',
-      description: 'Glow colour as `"H S L"`, no commas. Unset, it follows the theme.',
+      description: 'Glow colour: any CSS colour, or `"H S L"` parts. Unset, it follows the theme.',
       type: 'string | null',
       default: 'null',
     },
@@ -123,5 +117,12 @@ export default class BorderGlowPage {
       type: 'boolean',
       default: 'false',
     },
+    {
+      name: 'loop',
+      description: 'Circle the border for ever, edge lit. Replaces `animated`; still under reduced motion.',
+      type: 'boolean',
+      default: 'false',
+    },
+    { name: 'speed', description: 'Seconds per lap while `loop` is on.', type: 'number', default: '6' },
   ];
 }
