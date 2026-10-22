@@ -25,7 +25,7 @@
 
 export const QUALITY = {
   /** The published version, read from `projects/lib/package.json` — cross-checked against the `NGWR_VERSION` constant, which is a separate copy. */
-  version: "15.0.0-rc.1",
+  version: "15.0.0-rc.2",
 
   /** Secondary entry points — `ngwr/button`, `ngwr/select`, … Read from the `exports` map, which is what the library builder compiles, so `styles/` and `schematics/` are correctly absent. Excludes the primary `ngwr`. */
   entryPoints: 218,
