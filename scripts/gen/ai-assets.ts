@@ -62,11 +62,19 @@ const read = (path: string): string => (existsSync(path) ? readFileSync(path, 'u
 // --- entry points ----------------------------------------------------------
 
 /**
- * Every secondary entry point, `<name>/testing` included. The PRIMARY `ngwr` is
- * not one: its one export, `provideWr()`, is taught by the skill's setup
- * reference instead, beside the `with*()` features listed here per entry point.
+ * Every secondary entry point, `<name>/testing` included.
  */
 const ENTRIES = libEntryPoints();
+
+/**
+ * The PRIMARY entry point, `ngwr`, by the name `publicExports()` resolves it
+ * under. `libEntryPoints()` leaves it out, and the catalog used to as well, on
+ * the grounds that its one export, `provideWr()`, was taught by the skill's
+ * setup reference. The MCP server never reads that file: it reads this
+ * catalog, so `get_ngwr_setup` answered "Not in the catalog: provideWr" for the
+ * headline v15 API. It goes first, and it never has a selector.
+ */
+const ROOT = '';
 
 /**
  * The selectors an entry point gives a consumer to write.
@@ -115,7 +123,13 @@ function headlineExport(entry: string, exports: readonly PublicExport[]): string
   // compile is worse than no import line.
   const values = exports.filter(e => !e.isType).map(e => e.name);
 
+  const chosen = HEADLINES[entry];
+  if (chosen !== undefined && !values.includes(chosen)) {
+    throw new Error(`ngwr/${entry}: the headline \`${chosen}\` is not a value it exports. Fix HEADLINES.`);
+  }
+
   return (
+    chosen ??
     values.find(e => e === pascal) ??
     values.find(e => e.startsWith('Wr') && !/^WR_/.test(e)) ??
     values.find(e => /^(provide|use)Wr/.test(e)) ??
@@ -123,6 +137,21 @@ function headlineExport(entry: string, exports: readonly PublicExport[]): string
     exports[0]?.name
   );
 }
+
+/**
+ * Where the rules above pick the wrong symbol. Each is a value the entry point
+ * exports, and a key that stops being one fails the run.
+ *
+ * - `form` has no `WrForm`, so the first `Wr` value won: `WrFormItem`, while the
+ *   docs and every example present the entry point as `<wr-form-field>`.
+ * - `overlay` has no `WrOverlay`, so it offered `WrOutsideClick`, one of the
+ *   helpers `llms.txt` tells an agent not to build on. `WR_OVERLAY` is the one
+ *   the overlay guide hands a consumer.
+ */
+const HEADLINES: Readonly<Record<string, string>> = {
+  form: 'WrFormField',
+  overlay: 'WR_OVERLAY',
+};
 
 // --- doc-page descriptions -------------------------------------------------
 
@@ -137,10 +166,44 @@ function descriptionOf(entry: string): string {
   return (docPageTags(html)[0]?.get('description') ?? '').replace(/\s+/g, ' ').trim();
 }
 
+/**
+ * A description for the entry points no docs page is named after: the root,
+ * the four documented one symbol per page, and the ones documented inside
+ * another page. Without it they reached the catalog, and the MCP server's
+ * answers, as an import line and nothing else.
+ *
+ * Hand-written, so two rules hold it at run time: every key is an entry point,
+ * and none has a page description of its own. A page wins, and a key a new
+ * page would shadow fails the run instead of lingering as a second account.
+ */
+const UNPAGED: Readonly<Record<string, string>> = {
+  ngwr: 'Its one export is `provideWr()`, app-wide configuration in one call: `provideWr(withDensity(), withToast({ … }), …)`, each feature imported from the entry point it configures. No component is imported from here.',
+  'ngwr/date':
+    'The date adapter behind the calendar, the event calendar and every date picker. With no provider it is `WrNativeDateAdapter`, over `Date` and `Intl` in `LOCALE_ID`. `provideWr(withDates({ locale, adapter }))` pins a locale or passes your own `WrDateAdapter` subclass.',
+  'ngwr/directives':
+    'Attribute directives for markup you already have: `[wrAutofocus]`, `textarea[wrAutosize]`, `[wrClickOutside]` and `[wrCopyToClipboard]`.',
+  'ngwr/overlay':
+    "The container every ngwr panel renders into, kept apart from other CDK consumers with no provider. To open your own panel there, inject `WR_OVERLAY` rather than CDK's `Overlay`.",
+  'ngwr/pipes':
+    'Template formatting: `wrDate`, `wrNumber`, `wrBytes`, `wrPlural`, `wrRange`, `wrTruncate` and `wrMark` for search highlighting.',
+  'ngwr/utils':
+    'Small helpers: coercion (`numAttr`), DOM and keyboard guards, maths, ids, `debounce` / `throttle`, `resolveCssColor`, and the shared types `Maybe` and `SafeAny`.',
+  'ngwr/validators':
+    "`WrValidators`, form validators in the shape of Angular's `Validators`: card number, CVC, IBAN, hex colour, URL, matching fields, min / max date, one-of and no whitespace.",
+  'ngwr/version':
+    '`NGWR_VERSION`, the installed ngwr version as a string, and `NGWR_VERSION_TOKEN`, which provides it.',
+  'ngwr/loading-bar/router':
+    '`provideWrLoadingBarRouter()` makes `<wr-loading-bar>` follow router navigation. Opt-in, so an app that does not route never bundles `@angular/router`. Without it the bar never moves on navigation, and nothing warns.',
+  'ngwr/tabs/router':
+    '`WrTabsRouting`, the `wrTabsRouting` attribute on `<wr-tabs>` that lets a `<wr-tab routerLink>` follow the active route. A tab with a `routerLink` and no adapter throws.',
+};
+
 // --- render ----------------------------------------------------------------
 
 interface Entry {
   readonly name: string;
+  /** `ngwr/select`, or `ngwr` for the root. */
+  readonly path: string;
   readonly selectors: readonly string[];
   readonly exports: readonly string[];
   readonly headline: string | undefined;
@@ -148,19 +211,33 @@ interface Entry {
 }
 
 function collect(): Entry[] {
-  return ENTRIES.map(name => {
+  const entries = [ROOT, ...ENTRIES].map(name => {
     const exports = publicExports(name);
-    // Types cannot carry a decorator, and a selector is only real if the class
-    // behind it can be imported as a value.
-    const selectors = selectorsOf(name, new Set(exports.filter(e => !e.isType).map(e => e.name)));
+    const path = name ? `ngwr/${name}` : 'ngwr';
+    const description = descriptionOf(name);
+    if (description && UNPAGED[path]) {
+      throw new Error(`${path} has a docs page description now. Drop it from UNPAGED in scripts/gen/ai-assets.ts.`);
+    }
     return {
       name,
-      selectors,
+      path,
+      // Types cannot carry a decorator, and a selector is only real if the class
+      // behind it can be imported as a value. The root is not walked at all: its
+      // folder is the whole library, `schematics/` and `mcp/` included.
+      selectors: name ? selectorsOf(name, new Set(exports.filter(e => !e.isType).map(e => e.name))) : [],
       exports: exports.map(e => e.name),
       headline: headlineExport(name, exports),
-      description: descriptionOf(name),
+      description: description || UNPAGED[path] || '',
     };
   });
+
+  for (const path of Object.keys(UNPAGED)) {
+    if (!entries.some(entry => entry.path === path)) {
+      throw new Error(`${path} is not an entry point. Drop it from UNPAGED in scripts/gen/ai-assets.ts.`);
+    }
+  }
+
+  return entries;
 }
 
 function render(entries: readonly Entry[]): string {
@@ -175,8 +252,8 @@ function render(entries: readonly Entry[]): string {
 `;
 
   for (const entry of entries) {
-    full += `\n## ngwr/${entry.name}\n`;
-    full += `- import: \`import { ${entry.headline ?? '…'} } from 'ngwr/${entry.name}'\`\n`;
+    full += `\n## ${entry.path}\n`;
+    full += `- import: \`import { ${entry.headline ?? '…'} } from '${entry.path}'\`\n`;
     if (entry.selectors.length) full += `- selector: ${entry.selectors.map(s => `\`${s}\``).join(', ')}\n`;
     if (entry.exports.length) full += `- exports: ${entry.exports.join(', ')}\n`;
     if (entry.description) full += `- ${entry.description}\n`;
@@ -200,9 +277,7 @@ function main(): void {
   for (const entry of entries) {
     for (const selector of entry.selectors) {
       if (!SELECTOR_SHAPE.test(selector)) {
-        throw new Error(
-          `ngwr/${entry.name}: \`${selector}\` is not a component selector. Fix scripts/gen/ai-assets.ts.`
-        );
+        throw new Error(`${entry.path}: \`${selector}\` is not a component selector. Fix scripts/gen/ai-assets.ts.`);
       }
     }
   }

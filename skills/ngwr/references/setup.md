@@ -32,6 +32,8 @@ app.
 ```scss
 @use 'ngwr/theme';    // the token layer — first, and the only configurable load
 @use 'ngwr/button';   // then one line per component you render
+@use 'ngwr/density';  // only with withDensity() or [wrDensity]
+@use 'ngwr/dialog';   // a component a service opens — WrDialog here
 ```
 
 There is no `@use 'ngwr'` umbrella: compiling every component stylesheet for a
@@ -39,9 +41,31 @@ page that renders a handful was measured at 287 kB against 44 kB. Only a
 module's FIRST load can be configured, so the theme line goes above the
 components or `@use 'ngwr/theme' with ($base-colors: …)` fails the build.
 
+A component's sheet brings the sheets of what it renders inside, so
+`ngwr/table` alone styles its checkboxes and pager. What no template names
+needs a line of its own, and nothing warns without it:
+
+- `ngwr/density`, the only sheet that declares the `--wr-density-*`
+  multipliers. Without it `withDensity()` and `[wrDensity]` do nothing.
+- The sheet of a component a service opens: `ngwr/dialog` for `WrDialog`,
+  `ngwr/toast` for `WrToast`, `ngwr/drawer` for `WrDrawerManager`,
+  `ngwr/window` for `WrWindowManager`, `ngwr/tour` for `WrTour`.
+
 Resolved through the `sass` condition in the package's `exports` map. Entry
-points that ship no stylesheet (the `/testing` harnesses, `ngwr/utils`) have no
-`@use` target — importing one fails the build.
+points that ship no stylesheet (the root `ngwr`, the `/testing` harnesses,
+`ngwr/utils`) have no `@use` target — importing one fails the build.
+
+### Optional sheets
+
+No component needs these:
+
+- `@use 'ngwr/reset';` — a modern CSS reset.
+- `@use 'ngwr/grid';` — a 12-column grid and container.
+- `@use 'ngwr/typography-utilities';` — text utility classes.
+- `@use 'ngwr/breakpoints' as bp;` — `media-up` / `media-down` mixins for
+  your own SCSS.
+- `@use 'ngwr/animations';` — keyframes and animation classes. The animation
+  COMPONENTS are the `ngwr/bits/*` entry points.
 
 ## Light and dark
 
@@ -58,6 +82,9 @@ screen never injects it paints the OS scheme. Ship `wrThemePrePaintScript()`
 in `<head>` with the same values to apply the choice before first paint.
 Write your own dark values with `light-dark()` as well — there is no theme
 attribute to key a selector on.
+
+Browsers: Chrome 123, Firefox 120, Safari 17.5 or newer, since the theme
+tokens are `light-dark()` values.
 
 ## Providers with no default
 
@@ -96,7 +123,8 @@ bootstrapApplication(App, {
   `touch` grows those together. A control with fixed geometry (checkbox,
   switch, radio, slider, rating, segmented) does not move; its ≥44px target
   comes from the `touch-target` mixin under `@media (pointer: coarse)`
-  instead.
+  instead. It needs `@use 'ngwr/density'`: without that sheet the density is
+  written to `<html>` and nothing reads it.
 - `withDates({ locale: 'fr' })` from `ngwr/date` — pins the dates to another
   locale. The calendar, the date pickers and the event calendar need no
   provider: they run on the native adapter (`Date` and `Intl`) in

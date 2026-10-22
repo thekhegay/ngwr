@@ -31,6 +31,8 @@ import type { RequiredProvider } from '../../../projects/lib/mcp/providers';
 /** Just enough of `gen/ai-assets.ts`'s `Entry` to render the catalog. */
 interface SkillEntry {
   readonly name: string;
+  /** `ngwr/select`, or `ngwr` for the root entry point. */
+  readonly path: string;
   readonly selectors: readonly string[];
   readonly headline: string | undefined;
   readonly description: string;
@@ -50,16 +52,19 @@ const DOCS = 'https://ngwr.dev';
  * and the trigger rather than describing itself.
  */
 function skillMd(entries: readonly SkillEntry[], providers: readonly RequiredProvider[], angular: string): string {
-  const components = entries.filter(e => e.selectors.length > 0).length;
+  // The secondary entry points only, the figure the docs site prints: the root
+  // `ngwr` is in the catalog for `provideWr()`, and is not one of them.
+  const secondary = entries.filter(e => e.path !== 'ngwr');
+  const components = secondary.filter(e => e.selectors.length > 0).length;
 
   return `---
 name: ngwr
-description: Build Angular UIs with the ngwr component library (standalone, signals-first, zoneless). Use when adding, styling or debugging ngwr components — \`wr-*\` selectors, \`ngwr/*\` imports, \`provideWr*\` providers, \`--wr-*\` CSS custom properties — or when picking a component for an Angular app that already depends on ngwr.
+description: Build Angular UIs with the ngwr component library (standalone, signals-first, zoneless). Use when adding, styling or debugging ngwr components — \`wr-*\` selectors, \`ngwr/*\` imports, \`provideWr()\` and its \`with*()\` features, \`--wr-*\` CSS custom properties — or when picking a component for an Angular app that already depends on ngwr.
 ---
 
 # ngwr
 
-An Angular ${angular} UI library: ${entries.length} tree-shakable entry points, ${components} of them shipping a selector.
+An Angular ${angular} UI library: ${secondary.length} tree-shakable entry points, ${components} of them shipping a selector.
 Standalone, signals-first, zoneless, \`ViewEncapsulation.None\`. No runtime
 dependencies.
 
@@ -86,8 +91,20 @@ These are the ones that compile and then behave wrong, or that a reasonable
 guess gets backwards.
 
 - **Import from the entry point, never a barrel.**
-  \`import { WrSelect } from 'ngwr/select'\` — there is no \`ngwr\` root export for
-  components, and the subpath is what makes the library tree-shakable.
+  \`import { WrSelect } from 'ngwr/select'\` — the root \`ngwr\` exports only
+  \`provideWr()\`, and the subpath is what makes the library tree-shakable.
+  Charts and bits are nested: \`ngwr/charts/<name>\` (\`ngwr/charts/bar-chart\`)
+  and \`ngwr/bits/<name>\` (\`ngwr/bits/aurora\`).
+- **App-wide configuration is ONE call.**
+  \`provideWr(withDensity(), withToast({ … }), withTheme(), withDates(), withStorage(), withMeta())\`,
+  with \`provideWr\` from \`ngwr\` and each feature from the entry point it
+  configures (\`withDensity\` from \`ngwr/density\`, and so on). Every feature is
+  optional. There is no \`provideWrDensity()\`, \`provideWrToastConfig()\`,
+  \`provideWrConfig()\`, \`provideWrOverlay()\` or \`provideWrDateAdapter()\`:
+  overlays and dates need no provider, and a \`size\` or \`rounded\` default is
+  bound on the input.
+- **Code written for v14 or older needs changes no codemod makes.** v15 ships no
+  migration; ${DOCS}/docs/migration lists every change.
 - **The selector is not always the entry point name.** The button is
   \`wr-btn\`, not \`wr-button\`. Check \`references/catalog.md\` before writing a tag.
 - **Check for a MODE before reaching for another component.** The catalog is
@@ -114,14 +131,32 @@ guess gets backwards.
   host as a plain DOM attribute, every box in the group keeps the default
   identity \`null\`, and they all toggle together. No template error.
 - **Styles are opt-in, global, and per entry point.** \`@use 'ngwr/theme'\` first,
-  then \`@use 'ngwr/<name>'\` for each component. There is no \`@use 'ngwr'\`.
+  then \`@use 'ngwr/<name>'\` for each component a template renders. There is no
+  \`@use 'ngwr'\`. Two kinds of sheet need a line though no template names them, and
+  nothing warns without them: \`ngwr/density\` with \`withDensity()\` or
+  \`[wrDensity]\` (density silently does nothing), and the sheet of a component
+  a service opens — \`ngwr/dialog\` for \`WrDialog\`, \`ngwr/toast\` for
+  \`WrToast\`, \`ngwr/drawer\` for \`WrDrawerManager\`, \`ngwr/window\` for
+  \`WrWindowManager\`, \`ngwr/tour\` for \`WrTour\` (the panel renders unstyled).
   Components are \`ViewEncapsulation.None\`;
   their \`.wr-*\` BEM classes and \`--wr-*\` custom properties are PUBLIC API, so
   style against them rather than reaching into the DOM structure.
+- **Five intents, and no neutral one.** An intent \`color\` (\`WrColor\`) is
+  \`primary\`, \`success\`, \`warning\`, \`danger\` or \`info\`. There is no
+  \`secondary\`, \`light\`, \`medium\` or \`dark\`: without \`strictTemplates\` a
+  removed value renders neutral, and a \`var(--wr-color-medium)\` drops its
+  whole declaration, both with no error.
+  Neutrals are role tokens: \`--wr-color-surface\`, \`--wr-color-on-surface\`,
+  \`--wr-color-on-surface-muted\`, \`--wr-border-base\`.
 - **Theme through tokens, not overrides.** \`--wr-color-{intent}\` and its
   \`-contrast\` / \`-ink\` / \`-soft\` companions. \`-contrast\` is the label ON a
   filled intent; \`-ink\` is the intent used AS text. Using the bare intent as
   text fails WCAG AA on the soft tint in both themes.
+- **Dark mode is \`color-scheme\` plus \`light-dark()\`.** There is no
+  \`[data-theme]\`, so a \`[data-theme='dark']\` selector matches nothing: write
+  your own dark values as \`light-dark(<light>, <dark>)\`. There are no \`-rgb\`
+  tokens either: \`color-mix(in srgb, var(--wr-color-primary) 12%, transparent)\`,
+  never \`rgba(var(--wr-color-primary-rgb), 0.12)\`.
 - **Never hard-code user-facing text in a wrapper component.** Strings route
   through \`ngwr/i18n\`; every component takes overridable \`*Label\` inputs.
 - **Prefer the library over hand-rolling.** \`ngwr/utils\` (coercion, dom,
@@ -151,8 +186,9 @@ ${providers.map(p => `- \`${p.provider}\`\n  — ${p.why}\n  — needed by: ${de
 
 ## Testing
 
-Every control, overlay, chart and most animations ship a CDK harness at
-\`ngwr/<name>/testing\`. Use it instead of querying the DOM:
+Every control, overlay, chart and most bits ship a CDK harness at
+\`ngwr/<entry>/testing\` — \`ngwr/select/testing\`,
+\`ngwr/charts/bar-chart/testing\`. Use it instead of querying the DOM:
 
 \`\`\`ts
 const select = await loader.getHarness(WrSelectHarness);
@@ -160,8 +196,11 @@ await select.open();
 await select.selectOption({ text: 'Angular' });
 \`\`\`
 
-Overlay panels render into ngwr's overlay container, NOT the fixture — load
-those harnesses from \`TestbedHarnessEnvironment.documentRootLoader(fixture)\`.
+A harness whose component opens a panel reaches that panel itself, scoped by
+the id its trigger publishes, so it loads from the fixture like any other. Only
+what a SERVICE opens — \`WrDialog\`, \`WrToast\`, \`WrDrawerManager\` — renders
+outside the fixture: load those from
+\`TestbedHarnessEnvironment.documentRootLoader(fixture)\`.
 
 ## Reference files
 
@@ -196,7 +235,7 @@ function catalogMd(entries: readonly SkillEntry[]): string {
     '# ngwr entry points',
     '',
     'Generated from the library source. Import from the subpath — there is no',
-    'root barrel for components.',
+    'root barrel for components: the root `ngwr` exports only `provideWr()`.',
     '',
     '| Entry point | Import | Selector(s) |',
     '| --- | --- | --- |',
@@ -205,7 +244,7 @@ function catalogMd(entries: readonly SkillEntry[]): string {
   for (const entry of entries) {
     const symbol = entry.headline ?? '…';
     const selectors = entry.selectors.length > 0 ? entry.selectors.map(s => `\`${s}\``).join(' ') : '—';
-    lines.push(`| \`ngwr/${entry.name}\` | \`import { ${symbol} } from 'ngwr/${entry.name}'\` | ${selectors} |`);
+    lines.push(`| \`${entry.path}\` | \`import { ${symbol} } from '${entry.path}'\` | ${selectors} |`);
   }
 
   lines.push('', 'Descriptions and every public export per entry point:', '`llms-full.txt`, shipped in the same package.', '');
@@ -256,6 +295,8 @@ app.
 \`\`\`scss
 @use 'ngwr/theme';    // the token layer — first, and the only configurable load
 @use 'ngwr/button';   // then one line per component you render
+@use 'ngwr/density';  // only with withDensity() or [wrDensity]
+@use 'ngwr/dialog';   // a component a service opens — WrDialog here
 \`\`\`
 
 There is no \`@use 'ngwr'\` umbrella: compiling every component stylesheet for a
@@ -263,9 +304,31 @@ page that renders a handful was measured at 287 kB against 44 kB. Only a
 module's FIRST load can be configured, so the theme line goes above the
 components or \`@use 'ngwr/theme' with ($base-colors: …)\` fails the build.
 
+A component's sheet brings the sheets of what it renders inside, so
+\`ngwr/table\` alone styles its checkboxes and pager. What no template names
+needs a line of its own, and nothing warns without it:
+
+- \`ngwr/density\`, the only sheet that declares the \`--wr-density-*\`
+  multipliers. Without it \`withDensity()\` and \`[wrDensity]\` do nothing.
+- The sheet of a component a service opens: \`ngwr/dialog\` for \`WrDialog\`,
+  \`ngwr/toast\` for \`WrToast\`, \`ngwr/drawer\` for \`WrDrawerManager\`,
+  \`ngwr/window\` for \`WrWindowManager\`, \`ngwr/tour\` for \`WrTour\`.
+
 Resolved through the \`sass\` condition in the package's \`exports\` map. Entry
-points that ship no stylesheet (the \`/testing\` harnesses, \`ngwr/utils\`) have no
-\`@use\` target — importing one fails the build.
+points that ship no stylesheet (the root \`ngwr\`, the \`/testing\` harnesses,
+\`ngwr/utils\`) have no \`@use\` target — importing one fails the build.
+
+### Optional sheets
+
+No component needs these:
+
+- \`@use 'ngwr/reset';\` — a modern CSS reset.
+- \`@use 'ngwr/grid';\` — a 12-column grid and container.
+- \`@use 'ngwr/typography-utilities';\` — text utility classes.
+- \`@use 'ngwr/breakpoints' as bp;\` — \`media-up\` / \`media-down\` mixins for
+  your own SCSS.
+- \`@use 'ngwr/animations';\` — keyframes and animation classes. The animation
+  COMPONENTS are the \`ngwr/bits/*\` entry points.
 
 ## Light and dark
 
@@ -282,6 +345,9 @@ screen never injects it paints the OS scheme. Ship \`wrThemePrePaintScript()\`
 in \`<head>\` with the same values to apply the choice before first paint.
 Write your own dark values with \`light-dark()\` as well — there is no theme
 attribute to key a selector on.
+
+Browsers: Chrome 123, Firefox 120, Safari 17.5 or newer, since the theme
+tokens are \`light-dark()\` values.
 
 ## Providers with no default
 
@@ -309,7 +375,8 @@ bootstrapApplication(App, {
   \`touch\` grows those together. A control with fixed geometry (checkbox,
   switch, radio, slider, rating, segmented) does not move; its ≥44px target
   comes from the \`touch-target\` mixin under \`@media (pointer: coarse)\`
-  instead.
+  instead. It needs \`@use 'ngwr/density'\`: without that sheet the density is
+  written to \`<html>\` and nothing reads it.
 - \`withDates({ locale: 'fr' })\` from \`ngwr/date\` — pins the dates to another
   locale. The calendar, the date pickers and the event calendar need no
   provider: they run on the native adapter (\`Date\` and \`Intl\`) in

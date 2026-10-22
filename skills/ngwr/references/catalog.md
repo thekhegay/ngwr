@@ -1,10 +1,11 @@
 # ngwr entry points
 
 Generated from the library source. Import from the subpath — there is no
-root barrel for components.
+root barrel for components: the root `ngwr` exports only `provideWr()`.
 
 | Entry point | Import | Selector(s) |
 | --- | --- | --- |
+| `ngwr` | `import { provideWr } from 'ngwr'` | — |
 | `ngwr/affix` | `import { WrAffix } from 'ngwr/affix'` | `[wrAffix]` |
 | `ngwr/alert` | `import { WrAlert } from 'ngwr/alert'` | `wr-alert` |
 | `ngwr/anchor` | `import { WrAnchor } from 'ngwr/anchor'` | `wr-anchor` |
@@ -109,7 +110,7 @@ root barrel for components.
 | `ngwr/event-calendar/testing` | `import { WrEventCalendarChipHarness } from 'ngwr/event-calendar/testing'` | — |
 | `ngwr/file-upload` | `import { WrFileUpload } from 'ngwr/file-upload'` | `wr-file-upload` |
 | `ngwr/file-upload/testing` | `import { WrFileUploadHarness } from 'ngwr/file-upload/testing'` | — |
-| `ngwr/form` | `import { WrFormItem } from 'ngwr/form'` | `wr-form-error` `wr-form-field` `wr-form-item` |
+| `ngwr/form` | `import { WrFormField } from 'ngwr/form'` | `wr-form-error` `wr-form-field` `wr-form-item` |
 | `ngwr/form/testing` | `import { WrFormFieldHarness } from 'ngwr/form/testing'` | — |
 | `ngwr/graph` | `import { WrGraph } from 'ngwr/graph'` | `ng-template[wrGraphNode]` `wr-graph` |
 | `ngwr/graph/testing` | `import { WrGraphHarness } from 'ngwr/graph/testing'` | — |
@@ -158,7 +159,7 @@ root barrel for components.
 | `ngwr/mention` | `import { WrMention } from 'ngwr/mention'` | `wr-mention-panel` `[wrMention]` |
 | `ngwr/mention/testing` | `import { WrMentionHarness } from 'ngwr/mention/testing'` | — |
 | `ngwr/meta` | `import { WrMeta } from 'ngwr/meta'` | `[wrMeta]` |
-| `ngwr/overlay` | `import { WrOutsideClick } from 'ngwr/overlay'` | — |
+| `ngwr/overlay` | `import { WR_OVERLAY } from 'ngwr/overlay'` | — |
 | `ngwr/page-header` | `import { WrPageHeader } from 'ngwr/page-header'` | `wr-page-header` |
 | `ngwr/pagination` | `import { WrPagination } from 'ngwr/pagination'` | `wr-pagination` |
 | `ngwr/pagination/testing` | `import { WrPaginationHarness } from 'ngwr/pagination/testing'` | — |
