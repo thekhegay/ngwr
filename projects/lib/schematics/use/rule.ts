@@ -7,6 +7,8 @@
 
 import { type Rule, type SchematicContext, SchematicsException, type Tree } from '@angular-devkit/schematics';
 
+import { type Exports, shipsStyles } from '../utility/global-styles';
+
 import type { Schema } from './schema';
 
 /**
@@ -74,9 +76,12 @@ const NON_DECLARABLE: Readonly<Record<string, string>> = {
  * shape gets a clear warning + a copy-pasteable snippet.
  *
  * `symbolMap` is an argument rather than a module-level `require` so that this
- * file can be loaded from source — see the note in `./index`.
+ * file can be loaded from source — see the note in `./index`. So is `exports`,
+ * the package's `exports` map: when the entry point ships a stylesheet, the
+ * rule names the `@use` it also needs, because since v15 a component without
+ * one renders unstyled and nothing else says why.
  */
-function useRule(options: Schema, symbolMap: Record<string, string>): Rule {
+function useRule(options: Schema, symbolMap: Record<string, string>, exports: Exports | null = null): Rule {
   return (tree: Tree, context: SchematicContext) => {
     const symbol = options.symbol.trim();
     if (!symbol) throw new SchematicsException('ngwr:use: missing required `symbol`.');
@@ -99,6 +104,7 @@ function useRule(options: Schema, symbolMap: Record<string, string>): Rule {
     if (!filePath) {
       // No file passed: just print the import snippet and stop.
       context.logger.info(printManualSnippet(symbol, subpath));
+      logStyles(context, subpath, exports);
       return tree;
     }
 
@@ -119,8 +125,20 @@ function useRule(options: Schema, symbolMap: Record<string, string>): Rule {
 
     tree.overwrite(filePath, next);
     context.logger.info(`✓ Added ${symbol} (from ${subpath}) to ${filePath}.`);
+    logStyles(context, subpath, exports);
     return tree;
   };
+}
+
+/** The stylesheet line the entry point needs, when it ships one. */
+function logStyles(context: SchematicContext, subpath: string, exports: Exports | null): void {
+  const entry = subpath.replace(/^ngwr\//, '');
+  if (!exports || !shipsStyles(exports, entry)) return;
+
+  context.logger.info(
+    `  Styles: add \`@use '${subpath}';\` after \`@use 'ngwr/theme';\` in your global stylesheet, ` +
+      `or run \`ng g ngwr:component-style ${entry}\`.`
+  );
 }
 
 function resolveTargetFile(tree: Tree, candidate: string | undefined): string | null {

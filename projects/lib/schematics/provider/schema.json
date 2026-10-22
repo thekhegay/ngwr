@@ -6,7 +6,7 @@
   "properties": {
     "name": {
       "type": "string",
-      "enum": ["icons", "toast", "i18n", "density", "storage"],
+      "enum": ["icons", "toast", "i18n", "density", "storage", "theme", "loading-bar-router"],
       "description": "Provider to add.",
       "$default": {
         "$source": "argv",
@@ -35,6 +35,14 @@
           {
             "value": "storage",
             "label": "storage — withStorage() in provideWr(): swappable engine + TTL"
+          },
+          {
+            "value": "theme",
+            "label": "theme — withTheme() in provideWr(): a stored light / dark choice lands at boot"
+          },
+          {
+            "value": "loading-bar-router",
+            "label": "loading-bar-router — provideWrLoadingBarRouter(): the loading bar follows navigation"
           }
         ]
       }
@@ -42,7 +50,7 @@
     "path": {
       "type": "string",
       "format": "path",
-      "description": "Main entry file to patch. Defaults to the first match in `src/main.ts`."
+      "description": "File that holds the providers array. Defaults to the build target's entry file, or the module it imports that declares one — `src/app/app.config.ts` in an `ng new` app."
     },
     "project": {
       "type": "string",

@@ -19,12 +19,13 @@ import type { Schema } from './schema';
  *
  * The case that carries the file is the DEFAULT one. `ng new` takes plain CSS
  * unless you ask for something else, and this schematic used to write
- * `@import 'ngwr';` into that stylesheet. ngwr ships Sass sources and no
- * compiled CSS — every `exports` entry has a `sass` condition and nothing a
- * stylesheet can otherwise reach — so the import resolved through `default` to
- * `fesm2022/ngwr.mjs`, and esbuild stopped the next build with
- * `Cannot import ".../ngwr.mjs" into a CSS file`. Measured with esbuild against
- * the built package, not reasoned about.
+ * `@import 'ngwr';` into that stylesheet. The root entry point has no `sass`
+ * condition, so the import resolved through `default` to `fesm2022/ngwr.mjs`,
+ * and esbuild stopped the next build with `Cannot import ".../ngwr.mjs" into a
+ * CSS file`. A per-entry-point `@import 'ngwr/button'` does build from CSS,
+ * since Angular's bundler resolves the `sass` condition, but each one is a Sass
+ * compilation of its own that copies the theme and cannot configure it. So a
+ * CSS project gets the rename advice and no line.
  *
  * Driven over a `HostTree` directly rather than through `SchematicTestRunner`,
  * for the reason `provider/index.spec.ts` gives: the runner reads
@@ -95,8 +96,11 @@ describe('ng-add', () => {
 
     // The line it used to write here made the next `ng build` fail.
     expect(read('/src/styles.css')).toBe(before);
-    expect(said(logs, 'ships Sass sources and no compiled CSS')).toBe(true);
-    expect(said(logs, '@import')).toBe(false);
+    expect(said(logs, 'Rename the global stylesheet to .scss')).toBe(true);
+    // It names what an `@import` costs, and no longer sends a CSS project to
+    // `component-style`, which writes nothing into one.
+    expect(said(logs, 'each import is a Sass compilation of its own')).toBe(true);
+    expect(said(logs, 'keep CSS')).toBe(false);
   });
 
   it('treats less the same way — it cannot reach a Sass source either', async () => {
@@ -107,7 +111,7 @@ describe('ng-add', () => {
     );
 
     expect(read('/src/styles.less')).toBe(before);
-    expect(said(logs, 'ships Sass sources and no compiled CSS')).toBe(true);
+    expect(said(logs, 'Rename the global stylesheet to .scss')).toBe(true);
   });
 
   it('leaves a stylesheet that already pulls ngwr in alone', async () => {
@@ -149,7 +153,7 @@ describe('ng-add', () => {
       }
     );
 
-    const snippet = logs.find(line => line.includes('bootstrapApplication'))!;
+    const snippet = logs.find(line => line.includes('appConfig'))!;
     // A feature of the one `provideWr()` call since v15, which replaced
     // `provideWrDensity()` and its four siblings.
     expect(snippet).toContain("provideWr(withDensity({ defaultDensity: 'sm' }))");
@@ -177,10 +181,30 @@ describe('ng-add', () => {
     expect(snippet).toContain("import { provideWrIcons, lucideIcons } from 'ngwr/icon';");
   });
 
+  it('prints the app config shape `ng new` writes, not a bootstrap call', async () => {
+    const { logs } = await run({ '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': '' }, BASE);
+
+    const snippet = logs.find(line => line.includes('appConfig'))!;
+    expect(snippet).toContain('src/app/app.config.ts');
+    expect(snippet).toContain('export const appConfig: ApplicationConfig = {');
+    expect(snippet).not.toContain('bootstrapApplication(AppComponent');
+  });
+
+  it('says that every component needs its own stylesheet line after the theme', async () => {
+    const { logs } = await run({ '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': '' }, BASE);
+
+    // The half of a v15 install that fails silently: no umbrella sheet, so a
+    // component without its line renders unstyled and nothing says so.
+    const message = logs.find(line => line.includes('ngwr installed.'))!;
+    expect(message).toContain('Every component you render needs its own stylesheet line, after the theme.');
+    expect(message).toContain("  @use 'ngwr/theme';\n  @use 'ngwr/button';");
+    expect(message).toContain('ng g ngwr:component-style <entry point>');
+  });
+
   it('prints no provideWr() call when no answer gave it a feature', async () => {
     const { logs } = await run({ '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': '' }, BASE);
 
-    const snippet = logs.find(line => line.includes('bootstrapApplication'))!;
+    const snippet = logs.find(line => line.includes('appConfig'))!;
     // An empty `provideWr()` registers nothing, so the snippet would only teach
     // an import to paste for no effect. Matched as a providers LINE: the theme
     // advice below the snippet names `provideWr()` in prose.

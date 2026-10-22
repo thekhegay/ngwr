@@ -10,6 +10,8 @@ import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { addPackageJsonDependency, NodeDependencyType } from '@schematics/angular/utility/dependencies';
 import { getWorkspace } from '@schematics/angular/utility/workspace';
 
+import { NOT_SASS_ADVICE } from '../utility/global-styles';
+
 import type { Schema } from './schema';
 
 /**
@@ -38,28 +40,6 @@ const DENSITY_FEATURE: Record<NonNullable<Schema['density']>, string | null> = {
 };
 
 const STYLES_DIRECTIVE_SCSS = "@use 'ngwr/theme';";
-
-/**
- * What a project whose global stylesheet is plain CSS is told, instead of a
- * line that cannot work.
- *
- * ngwr ships Sass SOURCES and no compiled CSS: every `exports` entry in
- * `projects/lib/package.json` carries a `sass` condition and nothing else that
- * a stylesheet can reach. So `@import 'ngwr'` from a `.css` file resolves
- * through `default` to `fesm2022/ngwr.mjs` and esbuild — the bundler Angular 22
- * uses — stops the build with `Cannot import ".../ngwr.mjs" into a CSS file`.
- *
- * That mattered more than it sounds: `ng new` takes CSS unless you ask for
- * something else, so the default path was `ng add ngwr` followed by a build
- * that failed, naming a `.mjs` nobody had typed. Writing nothing and saying why
- * is the same choice the three branches below already make when they cannot
- * find a stylesheet to edit.
- */
-const CSS_PROJECT_ADVICE =
-  'ngwr ships Sass sources and no compiled CSS, so it cannot be reached from a plain CSS file. ' +
-  'Rename the global stylesheet to .scss (and update its path in angular.json), then add ' +
-  `\`${STYLES_DIRECTIVE_SCSS}\` to it — or keep CSS and pull in only what you use with ` +
-  '`ng g ngwr:component-style <name>`.';
 
 function ngAdd(options: Schema): Rule {
   return (tree: Tree, context: SchematicContext) => {
@@ -92,18 +72,18 @@ function installPeerDeps(options: Schema, context: SchematicContext): Rule {
 }
 
 /**
- * Appends `@use 'ngwr/theme';` to the project's first global stylesheet when
- * `styles === 'theme'`. Skipped entirely when `styles === 'none'`.
+ * Puts `@use 'ngwr/theme';` at the top of the project's first global stylesheet
+ * when `styles === 'theme'`. Skipped entirely when `styles === 'none'`.
  *
  * The theme layer and NOT the components, because v15 removed the `@use 'ngwr'`
- * umbrella: a sheet that compiled all 228 component stylesheets for a page
+ * umbrella: a sheet that compiled every component stylesheet for a page
  * rendering two of them was measured here at 287 kB against 44 kB. What a
  * project does want globally is the token layer — `:root` with both schemes in
  * it, the box-sizing reset — which every component sheet loads anyway, so
  * writing it first costs nothing and buys the one thing order matters for: this
  * is the line that can carry `with ($base-colors: ...)`, and only the first
- * load of a module can be configured. Components go in per component, through
- * `ng g ngwr:component-style <name>`.
+ * load of a module can be configured. Components go in per component, after it,
+ * through `ng g ngwr:component-style <name>` — the next-steps message says so.
  */
 function registerStyles(options: Schema): Rule {
   if ((options.styles ?? 'theme') === 'none') {
@@ -141,10 +121,14 @@ function registerStyles(options: Schema): Rule {
       return tree;
     }
 
-    // `.sass` is the indented syntax and takes `@use` like `.scss`; `.less` is
-    // the other one that cannot reach a Sass source.
+    // `ng new` takes CSS unless asked otherwise, so this is the default path.
+    // A CSS file CAN `@import 'ngwr/<name>'` — Angular's bundler resolves the
+    // `sass` condition — but each import is a compilation of its own, with the
+    // theme copied into it and no way to configure it. Writing nothing and saying
+    // why is the choice the branches above make when there is no stylesheet to
+    // edit. `.sass` is the indented syntax and takes `@use` like `.scss`.
     if (stylesPath.endsWith('.css') || stylesPath.endsWith('.less')) {
-      context.logger.warn(`ngwr: ${stylesPath} is not Sass. ${CSS_PROJECT_ADVICE}`);
+      context.logger.warn(`ngwr: ${stylesPath} is not Sass. ${NOT_SASS_ADVICE}`);
       return tree;
     }
 
@@ -169,9 +153,14 @@ function registerStyles(options: Schema): Rule {
 
 /**
  * Renders a tailored next-steps message — imports + provider list shaped
- * by the prompt answers. We deliberately don't AST-edit `main.ts`; a
+ * by the prompt answers. We deliberately don't AST-edit the app config; a
  * clear copy-pasteable snippet is more robust across project shapes
  * (standalone bootstrap, NgModule bootstrap, server entry, etc.).
+ *
+ * The snippet is the `appConfig` that `ng new` writes, in
+ * `src/app/app.config.ts`, which is where `ng g ngwr:provider` splices too.
+ * It also says what the install did not do: each component needs its own
+ * `@use` after the theme, and one without it renders unstyled with no error.
  */
 function printNextSteps(options: Schema, context: SchematicContext): Rule {
   return (tree: Tree) => {
@@ -202,15 +191,24 @@ function printNextSteps(options: Schema, context: SchematicContext): Rule {
     const message = `
 ngwr installed.
 
-Add the providers to your bootstrap (typically src/main.ts):
+Add the providers to your app config (src/app/app.config.ts in an \`ng new\` app):
 
 ${importBlock}
 
-  bootstrapApplication(AppComponent, {
+  export const appConfig: ApplicationConfig = {
     providers: [
 ${providerBlock}
     ],
-  });
+  };
+
+Every component you render needs its own stylesheet line, after the theme.
+Without it the component renders unstyled, and nothing says so:
+
+  @use 'ngwr/theme';
+  @use 'ngwr/button';
+  @use 'ngwr/charts/bar-chart';
+
+\`ng g ngwr:component-style <entry point>\` adds one in the right place.
 
 Light and dark follow the operating system with no provider. To let the user
 choose, inject WrTheme from 'ngwr/theme' and call set('light' | 'dark' | 'auto'),

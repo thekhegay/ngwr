@@ -18,7 +18,7 @@
         "none"
       ],
       "default": "theme",
-      "description": "How to wire ngwr styles. `theme` appends `@use 'ngwr/theme';` to the project's global stylesheet \u2014 the token layer, which is the line that can carry `with ($base-colors: ...)`. `none` skips. Component styles are opt-in either way, via `ng g ngwr:component-style <name>`: there is no umbrella entry point.",
+      "description": "How to wire ngwr styles. `theme` puts `@use 'ngwr/theme';` at the top of the project's global stylesheet \u2014 the token layer, which is the line that can carry `with ($base-colors: ...)`. `none` skips. Either way, every component you render needs its own `@use 'ngwr/<name>';` after the theme, via `ng g ngwr:component-style <name>`: there is no umbrella entry point.",
       "x-prompt": {
         "message": "How should ngwr styles be wired?",
         "type": "list",

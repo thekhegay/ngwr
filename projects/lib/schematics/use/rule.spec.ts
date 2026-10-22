@@ -51,6 +51,9 @@ interface Run {
   readonly logs: readonly string[];
 }
 
+/** The slice of the package's `exports` map these cases read: a button with a stylesheet. */
+const EXPORTS = { './button': { sass: './button/styles/_index.scss' }, './dialog': { default: './dialog.mjs' } };
+
 /** A context with nothing but the logger the rule writes to. */
 function run(tree: Tree, options: Schema): Run {
   const logs: string[] = [];
@@ -58,7 +61,7 @@ function run(tree: Tree, options: Schema): Run {
     logger: { info: (message: string) => logs.push(message), warn: (message: string) => logs.push(message) },
   } as unknown as SchematicContext;
 
-  const rule = useRule(options, SYMBOL_MAP) as (target: Tree, ctx: SchematicContext) => Tree;
+  const rule = useRule(options, SYMBOL_MAP, EXPORTS) as (target: Tree, ctx: SchematicContext) => Tree;
   rule(tree, context);
 
   return { tree, logs };
@@ -217,6 +220,17 @@ describe('ng g ngwr:use', () => {
     expect(source).toContain("import { WrButton } from 'ngwr/button';");
     expect(source).toContain('imports: [WrButton]');
     expect(logs).toContain('✓ Added WrButton (from ngwr/button) to /src/app/page.ts.');
+  });
+
+  it('names the stylesheet line the entry point also needs', () => {
+    const { logs } = run(component(), { symbol: 'WrButton', path: 'src/app/page.ts' });
+
+    // Since v15 there is no umbrella sheet: a component wired this way and with
+    // no line of its own renders unstyled, and nothing else says why.
+    expect(logs).toContain(
+      "  Styles: add `@use 'ngwr/button';` after `@use 'ngwr/theme';` in your global stylesheet, " +
+        'or run `ng g ngwr:component-style button`.'
+    );
   });
 
   it('lists exactly the public symbols the library declares as non-declarable', () => {

@@ -7,7 +7,7 @@
 
 /** Inputs accepted by `ng g ngwr:component-style`. Mirrors `schema.json`. */
 export interface Schema {
-  /** Subpath under `ngwr/`. */
+  /** The entry point's path under `ngwr/`, nested ones included: `button`, `charts/bar-chart`. */
   name: string;
 
   /** Target Angular project. */

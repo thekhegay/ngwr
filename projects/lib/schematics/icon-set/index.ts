@@ -151,14 +151,14 @@ ${entries}
 
 function printWiringHint(fileName: string, exportName: string): string {
   return `
-Next step — wire the set into bootstrap:
+Next step — register the set in your app config (src/app/app.config.ts in an \`ng new\` app):
 
   import { provideWrIcons } from 'ngwr/icon';
   import { ${exportName} } from './${fileName}';
 
-  bootstrapApplication(AppComponent, {
+  export const appConfig: ApplicationConfig = {
     providers: [provideWrIcons(${exportName})],
-  });
+  };
 `;
 }
 

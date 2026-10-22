@@ -19,6 +19,10 @@
  *     index.js                  component-style, page
  *     schema.json
  *   use/symbol-map.json       — generated from a public-api scan
+ *   utility/global-styles.js  — shared by component-style, page, use and
+ *                               ng-add; reads `../../package.json`, the ngwr
+ *                               manifest the folder ships in, for which entry
+ *                               points have a `sass` condition
  *   migrations/vN/            — one dir per `ng update` migration, whichever
  *                               majors `migrations.json` registers; `tsc -p`
  *                               compiles the whole tree, so a new one needs no

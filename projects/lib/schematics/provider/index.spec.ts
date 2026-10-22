@@ -148,6 +148,20 @@ describe('ng g ngwr:provider', () => {
     expect(logs).toContain('✓ Added provideWr(withDensity()) to src/main.ts.');
   });
 
+  it('adds withTheme() and the loading bar router adapter', async () => {
+    const files = { '/src/main.ts': SPLIT_MAIN, '/src/app/app.config.ts': APP_CONFIG };
+    const first = await run(workspace(files), { name: 'theme' });
+    const { tree } = await run(first.tree, { name: 'loading-bar-router' });
+
+    const config = tree.readText('/src/app/app.config.ts');
+    // A bare `withTheme()` is what makes a stored scheme land at boot, and the
+    // router adapter is what makes the bar move for navigation: without it the
+    // bar sits at 0% and nothing says why.
+    expect(config).toContain("import { withTheme } from 'ngwr/theme';");
+    expect(config).toContain("import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router';");
+    expect(config).toContain('provideWr(withTheme()), provideWrLoadingBarRouter()');
+  });
+
   it('adds a feature to the provideWr() call that is already there', async () => {
     const config = `import { ApplicationConfig } from '@angular/core';
 import { provideWr } from 'ngwr';
@@ -231,7 +245,7 @@ platformBrowserDynamic().bootstrapModule(AppModule);
     expect(logs.some(line => line.startsWith('✓ Added'))).toBe(false);
     expect(logs).toContain('ngwr:provider: no providers array in src/main.ts.');
     // The snippet is all the user gets, so it has to be printed instead.
-    expect(logs.join('\n')).toContain('bootstrapApplication(AppComponent, {');
+    expect(logs.join('\n')).toContain('export const appConfig: ApplicationConfig = {');
   });
 
   it('is a no-op the second time for a feature too', async () => {

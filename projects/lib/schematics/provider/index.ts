@@ -31,15 +31,15 @@ interface ProviderSpec {
 const PROVIDE_WR = 'provideWr';
 
 // Every entry here has to name a factory that `ngwr` actually exports, with a
-// call that type-checks. `ngwr/loading-bar` and `ngwr/cookie` used to be listed
-// too, but neither ships a provider — they expose the injectable services
-// `WrLoadingBar` / `WrCookie` and need no bootstrap wiring at all, so offering
-// to splice a provider for them only ever produced code that would not compile.
-// `ngwr/overlay` is absent since v15: its isolated container is the tokens'
-// default, with no call. And of the `provideWr()` features, `withTheme()`,
-// `withMeta()` and `withDates()` are not offered: each exists to carry a value
-// only the app knows — a scheme and its storage key, `<head>` defaults, a
-// locale or an adapter.
+// call that type-checks. `ngwr/cookie` ships no provider — `WrCookie` is an
+// injectable service and needs no bootstrap wiring. `ngwr/overlay` is absent
+// since v15: its isolated container is the tokens' default, with no call. The
+// loading bar's provider is the ROUTER half, from its own entry point: without
+// it the bar never moves for navigation, and nothing says so. Of the
+// `provideWr()` features, `withTheme()` is offered bare, which is what makes a
+// stored scheme land at boot; `withMeta()` and `withDates()` are not, since each
+// exists to carry a value only the app knows — `<head>` defaults, a locale or an
+// adapter.
 const PROVIDERS: Record<ProviderName, ProviderSpec> = {
   icons: {
     // `ngwr/icon` ships no icons — there are no bare icon exports. The glyphs
@@ -58,6 +58,12 @@ const PROVIDERS: Record<ProviderName, ProviderSpec> = {
   i18n: { subpath: 'ngwr/i18n', factory: 'provideWrI18n', call: 'provideWrI18n()' },
   density: { subpath: 'ngwr/density', factory: 'withDensity', call: 'withDensity()', feature: true },
   storage: { subpath: 'ngwr/storage', factory: 'withStorage', call: 'withStorage()', feature: true },
+  theme: { subpath: 'ngwr/theme', factory: 'withTheme', call: 'withTheme()', feature: true },
+  'loading-bar-router': {
+    subpath: 'ngwr/loading-bar/router',
+    factory: 'provideWrLoadingBarRouter',
+    call: 'provideWrLoadingBarRouter()',
+  },
 };
 
 function provider(options: Schema): Rule {
@@ -353,13 +359,13 @@ function printSnippet(spec: ProviderSpec): string {
     .join('\n');
 
   return `
-ngwr:provider — copy this into your bootstrap:
+ngwr:provider — copy this into your app config (src/app/app.config.ts in an \`ng new\` app):
 
 ${imports}
 
-  bootstrapApplication(AppComponent, {
+  export const appConfig: ApplicationConfig = {
     providers: [/* …, */ ${spec.feature ? `${PROVIDE_WR}(${spec.call})` : spec.call}],
-  });
+  };
 ${spec.feature ? `\n  Already calling ${PROVIDE_WR}()? Add ${spec.call} inside it instead.\n` : ''}`;
 }
 
