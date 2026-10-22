@@ -5,7 +5,10 @@ import { DocLabelComponent } from '../doc-label/doc-label';
 
 import type { DocSeeAlsoKind, DocSeeAlsoLink } from './types';
 
-import { docPageOf, relatedOf } from '#core/utils';
+import { relatedOf, routeKey } from '#core/utils';
+
+/** The most cards one grid shows, hand-picked ones included. */
+const MAX_LINKS = 8;
 
 /**
  * "See also" block — renders a grid of related-page cards at the bottom
@@ -38,16 +41,23 @@ export class DocSeeAlsoComponent {
 
   private readonly router = inject(Router);
 
-  /** The hand-picked links, then the pages this one is built on or demoed with. */
+  /**
+   * The hand-picked links, then the curated `RELATED` for this route, then the pages it is built on or demoed with —
+   * each route once, eight cards at most.
+   */
   protected readonly all = computed<readonly DocSeeAlsoLink[]>(() => {
-    const own = this.links();
-    const seen = new Set(own.map(l => l.url.join('/').replace(/^\/+/, '')));
-    const auto = relatedOf(this.router.url).flatMap(ep => {
-      const page = docPageOf(ep);
-      if (!page || seen.has(page.route)) return [];
-      seen.add(page.route);
-      return [{ title: page.title, url: [`/${page.route}`], kind: page.kind as DocSeeAlsoKind }];
+    const seen = new Set<string>();
+    const own = this.links().filter(link => {
+      const route = routeKey(link.url.join('/'));
+      if (seen.has(route)) return false;
+      seen.add(route);
+      return true;
     });
-    return [...own, ...auto];
+    const more = relatedOf(this.router.url, seen, MAX_LINKS - own.length).map(page => ({
+      title: page.title,
+      url: [`/${page.route}`],
+      ...(page.kind ? { kind: page.kind as DocSeeAlsoKind } : {}),
+    }));
+    return [...own, ...more].slice(0, MAX_LINKS);
   });
 }

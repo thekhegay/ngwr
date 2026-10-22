@@ -55,7 +55,7 @@ ng g ngwr:icon-set basic`,
     {
       kind: 'Guide',
       title: 'ng g ngwr:icon-set',
-      url: ['/start', 'schematics'],
+      url: ['/docs', 'installation'],
       description: 'The generator side — let the CLI write the barrel instead of hand-listing icons.',
     },
   ];
