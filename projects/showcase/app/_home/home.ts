@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { BadgeCheck, Folder, ListChecks, Moon, ShieldCheck, Terminal, TextCursorInput } from 'lucide';
 import { WrTag } from 'ngwr/badge';
 import { WrBlurText } from 'ngwr/bits/blur-text';
+import { WrBorderGlow } from 'ngwr/bits/border-glow';
 import { WrDecryptText } from 'ngwr/bits/decrypt-text';
 import { WrGlitchText } from 'ngwr/bits/glitch-text';
 import { WrGradientText } from 'ngwr/bits/gradient-text';
@@ -78,6 +79,7 @@ interface DxLink {
     WrTypewriter,
     WrGradientText,
     WrWaves,
+    WrBorderGlow,
     // Sections
     WrSpotlightCard,
     ComponentsBento,
@@ -105,6 +107,13 @@ export default class HomeComponent {
   protected readonly replayTick = signal(0);
 
   protected readonly routes = ROUTES;
+
+  /** The CTA glow's border mesh: the brand family, from theme tokens. */
+  protected readonly ctaGlowColors = [
+    'var(--wr-color-primary)',
+    'var(--wr-color-primary-light)',
+    'var(--wr-color-info)',
+  ];
 
   /** Absolute link from a node chain — the template cannot call a module function. */
   protected readonly path = wrPath;

@@ -42,12 +42,21 @@
           />
         </p>
 
-        <!-- One call to action: an outlined `wr-btn` on the page surface, with
-             the library's hover and focus ring, inside a ring whose
-             brand-coloured arc circles it for ever; reduced motion stops the
-             arc and keeps the tinted ring. -->
+        <!-- One call to action: a borderless `wr-btn` framed by `wr-border-glow`,
+             whose brand-coloured cone circles it for ever; reduced motion
+             keeps the edge lit and still. -->
         <div class="ngwr-home-hero__cta">
-          <span class="ngwr-home-hero__glow">
+          <wr-border-glow
+            class="ngwr-home-hero__glow"
+            loop
+            glowColor="var(--wr-color-primary)"
+            [colors]="ctaGlowColors"
+            [borderRadius]="8"
+            [glowRadius]="40"
+            [glowIntensity]="0.6"
+            [coneSpread]="15"
+            [speed]="4.5"
+          >
             <a
               class="ngwr-home-hero__btn"
               wr-btn
@@ -59,7 +68,7 @@
             >
               Get started
             </a>
-          </span>
+          </wr-border-glow>
         </div>
       </div>
     </div>

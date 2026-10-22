@@ -1,6 +1,4 @@
 @use 'lib/styles/breakpoints' as bp;
-// The mixins alone: the file declares no rules, so no token layer comes along.
-@use 'lib/theme/styles/mixins' as theme;
 
 /*
    Landing page. Original two-column hero with the live showcase
@@ -157,72 +155,21 @@
     margin-top: 0.25rem;
   }
 
-  // The star border IS the button's edge, not a frame around it. Its light runs
-  // behind the inner panel, so the panel's border is a brand tint with the
-  // fill clipped to the padding box: the light shows through the border line
-  // itself, and the panel's opaque surface keeps it out of the label. The
-  // radius is the large button's plus that 1px border, so the edges run
-  // parallel. A soft halo in the same colour stays when reduced motion hides
-  // the light.
-  // The ring is the wrapper's 1.5px padding. Behind the button, an oversized
-  // square carrying a conic gradient turns on `transform`, which every browser
-  // animates on the compositor, and the wrapper clips it to the ring. The glow
-  // is a plain shadow: no `filter`, no animated custom property.
+  // `wr-border-glow` lights the outer 1px of its own box, under the button, so
+  // a 1px inset uncovers exactly that ring and nothing else. Its resting
+  // outline takes the brand tint the cone travels along.
   &__glow {
-    position: relative;
-    display: inline-flex;
-    padding: 1.5px;
-    overflow: hidden;
-    isolation: isolate;
-    background: color-mix(in srgb, var(--wr-color-primary) 22%, transparent);
-    box-shadow: 0 0 1.25rem -0.25rem color-mix(in srgb, var(--wr-color-primary) 55%, transparent);
-    @include theme.smooth-br(calc(var(--wr-control-radius-lg) + 1.5px));
+    --wr-border-glow-outline: var(--wr-color-primary-soft-border);
 
-    // A square wider than the button's diagonal, so no corner of the ring is
-    // ever uncovered while it turns.
-    &::before {
-      content: '';
-      position: absolute;
-      z-index: -1;
-      // rtl-ok: centring a rotating square is symmetric, so the physical
-      // offset lands on the same centre in either direction.
-      top: 50%;
-      left: 50%;
-      width: 150%;
-      aspect-ratio: 1;
-      transform: translate(-50%, -50%);
-      background: conic-gradient(
-        transparent 0 55%,
-        var(--wr-color-primary) 75%,
-        color-mix(in srgb, var(--wr-color-primary) 40%, white) 82%,
-        transparent 92% 100%
-      );
-      animation: ngwr-cta-spin 4s linear infinite;
-    }
-
-    // The clip would cut the button's focus ring, so focus lifts it and hides
-    // the arc: the ring takes over while it shows.
-    &:has(:focus-visible) {
-      overflow: visible;
-
-      &::before {
-        visibility: hidden;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      &::before {
-        animation: none;
-      }
-    }
+    padding: 1px;
   }
 
-  // Borderless on the page surface: the ring around it is the edge. The fill
+  // Borderless on the page surface: the glow's edge is the frame. The fill
   // goes through `wr-btn`'s own `--wr-btn-bg`, so its `background` rule stays
   // in charge and the focus ring is the library's. The hover and active
   // values are the ones `.wr-btn--outlined` uses, restated because this rule
   // ties that one on specificity and wins on order. Both are opaque ramp
-  // steps, so the conic ring never shows through the label.
+  // steps, so the glow's inner bloom never shows through the label.
   &__btn {
     --wr-btn-bg: var(--wr-color-surface);
 
@@ -446,11 +393,5 @@
     gap: 0.125rem;
     padding: 0.875rem 1.125rem;
     border-top: 1px solid var(--wr-border-base);
-  }
-}
-
-@keyframes ngwr-cta-spin {
-  to {
-    transform: translate(-50%, -50%) rotate(1turn);
   }
 }
