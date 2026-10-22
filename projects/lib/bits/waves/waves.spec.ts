@@ -233,25 +233,40 @@ describe('WrWaves', () => {
         }
       }
     );
-    const cancel = vi.spyOn(window, 'cancelAnimationFrame');
+    // Frames by id, so a cancelled one is really withdrawn. Angular's scheduler
+    // asks for frames too, so the count to read is what was PAINTED.
+    const held = new Map<number, FrameRequestCallback>();
+    let lastId = 0;
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation(frame => {
+      held.set(++lastId, frame);
+      return lastId;
+    });
+    vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(id => {
+      held.delete(id);
+    });
+    const flush = (): void => {
+      const pending = [...held.values()];
+      held.clear();
+      for (const frame of pending) frame(16);
+    };
     await mount();
 
-    // Nothing is asked for until the observer says the field is in view.
-    expect(frames).toHaveLength(0);
+    flush();
+    expect(painted, 'nothing is drawn before the observer says the field is in view').toBe(0);
+
     report!([{ isIntersecting: true }]);
-    expect(frames).toHaveLength(1);
-    runFrame();
+    flush();
     expect(painted).toBe(1);
-    expect(frames, 'each frame asks for the next while in view').toHaveLength(1);
 
     report!([{ isIntersecting: false }]);
-    expect(cancel).toHaveBeenCalled();
+    flush();
+    expect(painted, 'off screen, the frame it had asked for is withdrawn').toBe(1);
 
-    // Back in view: one new frame, not a second loop beside a held one.
-    frames = [];
+    // Back in view twice over: one loop, not a second beside the first.
     report!([{ isIntersecting: true }]);
     report!([{ isIntersecting: true }]);
-    expect(frames).toHaveLength(1);
+    flush();
+    expect(painted).toBe(2);
   });
 
   it('backs the canvas at 2x, and steps down on a box too large for the pixel budget', async () => {
