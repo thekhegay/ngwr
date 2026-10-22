@@ -102,3 +102,9 @@
     }
   }
 }
+
+.intro-gates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wr-space-xs);
+}

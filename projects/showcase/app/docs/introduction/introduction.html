@@ -23,12 +23,66 @@
     </ul>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="How it is tested"
+    description="Every entry point has a spec beside its code. The locale catalogs share one."
+  >
+    <wr-statistic-group class="wr-not-typeset" min="9rem" [columns]="3">
+      <wr-statistic label="Spec files" [value]="quality.specFiles" [animate]="false" />
+      <wr-statistic label="Test cases" [prefix]="casesPrefix" [value]="quality.testCases" [animate]="false" />
+      <wr-statistic label="Entry points" [value]="quality.entryPoints" [animate]="false" />
+    </wr-statistic-group>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Tier</th>
+          <th scope="col">Runs</th>
+          <th scope="col">Checks</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (tier of tiers; track tier.name) {
+          <tr>
+            <th scope="row">{{ tier.name }}</th>
+            <td>{{ tier.when }}</td>
+            <td>
+              @if (tier.gates.length) {
+                <span class="intro-gates">
+                  @for (gate of tier.gates; track gate) {
+                    <code>{{ gate }}</code>
+                  }
+                </span>
+              } @else {
+                {{ tier.note }}
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <ul>
+      <li>
+        Coverage goes to
+        <a href="https://app.codecov.io/gh/thekhegay/ngwr" target="_blank" rel="noreferrer">Codecov</a> on every pull
+        request. It informs; it does not gate.
+      </li>
+      <li>
+        Packaging and Signal Forms conformance are checked with
+        <a href="https://ngtrue.khegay.dev" target="_blank" rel="noreferrer">ngtrue</a>: checks that keep an Angular
+        library true.
+      </li>
+      <li>Your own tests can use the same <a [routerLink]="paths.testing">CDK harnesses</a>.</li>
+    </ul>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Next">
     <ul>
-      <li><a [routerLink]="paths.installation">Installation</a>: add ngwr to an app.</li>
-      <li><a [routerLink]="paths.configuration">Configuration</a>: set app-wide options.</li>
-      <li><a [routerLink]="paths.guides">Guides</a>: theming, forms, SSR and more.</li>
-      <li><a [routerLink]="paths.components">Components</a>: the full catalog.</li>
+      @for (link of next; track link.url) {
+        <li>
+          <a [routerLink]="link.url">{{ link.title }}</a
+          >: {{ link.text }}
+        </li>
+      }
     </ul>
   </ngwr-doc-section>
 
