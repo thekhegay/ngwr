@@ -7,7 +7,7 @@
   <ngwr-doc-section title="Install" description="`ng add` installs the peers and adds the theme to your global styles.">
     <ngwr-doc-code [code]="snippets.ngAdd" language="bash" />
     <p>Or by hand:</p>
-    <ngwr-doc-install packages="ngwr @angular/cdk" />
+    <ngwr-doc-install [packages]="packages" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -41,6 +41,10 @@
         </tbody>
       </table>
     </div>
+    <p>
+      Write them below the theme line: <code>reset</code>, <code>animations</code> and
+      <code>typography-utilities</code> load the token layer too.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -60,7 +64,7 @@
 
   <ngwr-doc-section
     title="Configure"
-    description="Optional. One `provideWr()` call, one feature per setting. [Configuration](/docs/configuration)."
+    description="Optional. One `provideWr()` call, one feature per setting. `withDensity()` also needs `@use 'ngwr/density'`. [Configuration](/docs/configuration)."
   >
     <ngwr-doc-code [code]="snippets.configure" language="angular-ts" />
   </ngwr-doc-section>

@@ -2,6 +2,8 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { NGWR_PACKAGE } from '../package-spec';
+
 import { DocCodeComponent, DocPageComponent, DocRichPipe, DocSectionComponent } from '#core/components';
 
 /**
@@ -71,8 +73,11 @@ export default class MigrationPageComponent {
     { before: '`--wr-color-light`, `--wr-color-outline`', after: '`--wr-border-base`' },
     { before: '`--wr-color-dark`', after: '`--wr-color-on-surface`' },
     { before: '`--wr-color-muted-text`, `--wr-color-medium`', after: '`--wr-color-on-surface-muted`' },
-    { before: '`--wr-color-border`, `--wr-color-border-strong`', after: '`--wr-border-strong`' },
-    { before: '`--wr-color-border-subtle`', after: '`--wr-border-subtle`' },
+    {
+      before: '`--wr-color-border`, `--wr-color-border-subtle`, `--wr-color-border-strong`',
+      after: '`--wr-border-subtle`, or `--wr-border-base` for a firmer line',
+    },
+    { before: '`--wr-color-white-contrast` (dark theme only)', after: '`--wr-color-on-surface`' },
     {
       before: 'Every `-rgb` token, e.g. `rgba(var(--wr-color-primary-rgb), 0.2)`',
       after: '`color-mix(in srgb, var(--wr-color-primary) 20%, transparent)`',
@@ -114,7 +119,10 @@ export default class MigrationPageComponent {
       after: '`shape="squircle"` on `wr-btn`, `wr-avatar`, `wr-badge`; the `theme.smooth-br()` mixin elsewhere',
     },
     { before: '`<wr-action-sheet>`', after: '`<wr-drawer position="bottom" rounded>` with your own rows' },
-    { before: '`<wr-drawer showHandle>`', after: 'Delete. Swipe-to-dismiss is gone.' },
+    {
+      before: '`<wr-drawer showHandle>`, `.wr-drawer__handle`, `__grabber`, `.wr-drawer__panel--handle`',
+      after: 'Delete. Swipe-to-dismiss is gone.',
+    },
     {
       before: '`responsive` on `wr-select`, `[wrDropdown]`, `[wrPopover]`, `wr-command-palette`, `WrDialog.open()`',
       after: 'Delete. For a sheet on phones, open a `<wr-drawer position="bottom">`.',
@@ -123,7 +131,10 @@ export default class MigrationPageComponent {
       before: '`WrPopoverHarness.isSheet()`, `WrCommandPaletteHarness.isPresentedAsSheet()`',
       after: 'Delete',
     },
-    { before: '`<wr-editor format>`', after: 'Delete. The value is a `WrEditorJson` tree, or `null` when empty.' },
+    {
+      before: '`<wr-editor format>`, `WrEditorFormat`',
+      after: 'Delete. The value is a `WrEditorJson` tree, or `null` when empty.',
+    },
     { before: '`[wrTypography] tone="dark"`, `tone="medium"`', after: '`tone="base"`, `tone="muted"`' },
     { before: '`.wr-typography--tone-dark`, `--tone-medium`', after: '`.wr-typography--tone-base`, `--tone-muted`' },
     {
@@ -149,9 +160,8 @@ export default class MigrationPageComponent {
         '`.wr-sidebar__row`, `__title`, `.wr-sidebar__row--active`, `.wr-sidebar__row--disabled`; `.wr-sidebar__row--group` for `__group-toggle`',
     },
     {
-      before:
-        '`--wr-sidebar-entry-*`, `-item-*`, `-group-toggle-*`, `-title-*`, `-list-*`, `-inner-gap`, `-badge-padding-y`, `-badge-letter-spacing`',
-      after: '`--wr-sidebar-row-*`, `--wr-sidebar-gap`, `--wr-sidebar-guide*`, `--wr-sidebar-badge-*`',
+      before: '`--wr-sidebar-padding`',
+      after: 'Unchanged. It was the only sidebar hook v14 published; the others are new.',
     },
   ];
 
@@ -164,7 +174,10 @@ export default class MigrationPageComponent {
       before: '`ngwr/media`: `WrMedia`, `provideWrMedia()`, `WR_BREAKPOINTS`',
       after: '`BreakpointObserver` from `@angular/cdk/layout`',
     },
-    { before: "`ngwr/markdown` and `@use 'ngwr/markdown'`", after: '`<wr-editor readonly [toolbar]="false">`' },
+    {
+      before: "`ngwr/markdown`, `@use 'ngwr/markdown'` and the `markdown.*` catalog keys",
+      after: '`<wr-editor readonly [toolbar]="false">`',
+    },
     { before: '`ngwr/icon/adapters/feather`', after: "`svgIcon()` from `ngwr/icon`, with Feather's own SVG files" },
     {
       before: "`provideWrResponsiveOverlays()`, `WR_RESPONSIVE_OVERLAYS`, `wrPresentAsSheet`, `@use 'ngwr/overlay'`",
@@ -178,6 +191,11 @@ export default class MigrationPageComponent {
       before: '`ngwr/date/adapters/fns`, `ngwr/date/adapters/luxon`',
       after: 'The native adapter, or your own `WrDateAdapter<Date>` passed as `withDates({ adapter })`',
     },
+    {
+      before: '`date-fns`, `luxon` as optional peers',
+      after: 'No longer peers. Keep them only if your own code uses them.',
+    },
+    { before: 'Your own `WrDateAdapter<Date>` subclass, undecorated', after: 'Add `@Service()`, or dev mode warns' },
     { before: '`ng add ngwr --dateAdapter=…`', after: '`ng add ngwr`' },
     { before: '`wrDate` with no provider, `shortDate`: `3/15/26`', after: '`3/15/2026`' },
     { before: '`wrDate` with no provider, `time`: `2:30 PM`', after: '`02:30 PM`' },
@@ -264,9 +282,9 @@ export default class MigrationPageComponent {
   ];
 
   protected readonly snippets = {
-    update: `ng update ngwr`,
+    update: `ng update ${NGWR_PACKAGE}`,
 
-    recover: `ng update ngwr
+    recover: `ng update ${NGWR_PACKAGE}
 git commit -am "chore: update ngwr"
 ng update ngwr --migrate-only --name=migration-v14`,
 

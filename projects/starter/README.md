@@ -3,7 +3,7 @@
 A minimal Angular app with [ngwr](https://ngwr.dev), for trying components out.
 
 Open it in the browser, nothing to install:
-[StackBlitz](https://stackblitz.com/github/thekhegay/ngwr/tree/main/projects/starter?file=src/app/app.ts)
+[StackBlitz](https://stackblitz.com/github/thekhegay/ngwr/tree/next/projects/starter?file=src/app/app.ts)
 
 Or locally:
 

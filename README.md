@@ -9,7 +9,7 @@ Signals-first UI components for Angular.
 [![coverage](https://codecov.io/gh/thekhegay/ngwr/branch/main/graph/badge.svg)](https://codecov.io/gh/thekhegay/ngwr)
 [![license](https://img.shields.io/npm/l/ngwr)](https://github.com/thekhegay/ngwr/blob/main/LICENSE)
 
-[Documentation](https://ngwr.dev) · [Getting started](https://ngwr.dev/start/installation) · [Playground](https://ngwr.dev/start/playground) · [Why ngwr](https://ngwr.dev/start/comparison) · [Changelog](https://github.com/thekhegay/ngwr/blob/main/CHANGELOG.md)
+[Documentation](https://ngwr.dev) · [Getting started](https://ngwr.dev/docs/installation) · [Playground](https://stackblitz.com/github/thekhegay/ngwr/tree/main/projects/starter?file=src/app/app.ts) · [Changelog](https://github.com/thekhegay/ngwr/blob/main/CHANGELOG.md)
 
 ngwr's form controls implement `FormValueControl` and `FormCheckboxControl`
 from Signal Forms directly. `[formField]` binds to each component's own `value`
@@ -62,9 +62,10 @@ reactive forms bind too, with limits the
 - Angular CDK [test harnesses](https://ngwr.dev/guides/testing) for the form
   controls and overlays.
 
-Browse the [components](https://ngwr.dev/reference/components) and
-[animations](https://ngwr.dev/animations) with live demos. Directives, pipes,
-services and validators are in the [reference](https://ngwr.dev/reference).
+Browse the [components](https://ngwr.dev/reference/components),
+[charts](https://ngwr.dev/charts) and [bits](https://ngwr.dev/bits) (animations
+and visual effects) with live demos. Directives, pipes, services and validators
+are in the [reference](https://ngwr.dev/reference).
 
 ## Installation
 
@@ -85,8 +86,9 @@ npm install ngwr @angular/cdk
 yarn add ngwr @angular/cdk
 ```
 
-The optional packages (an icon set, ProseMirror for the editor) are listed in
-the [installation guide](https://ngwr.dev/start/installation).
+The optional packages are an icon set, shown in the
+[installation guide](https://ngwr.dev/docs/installation), and ProseMirror for
+the [editor](https://ngwr.dev/reference/components/editor).
 
 ## Styles
 
@@ -103,7 +105,8 @@ where `$base-colors` goes.
 @use 'ngwr/checkbox';
 ```
 
-Utilities are opt-in and come with nothing:
+Utilities are opt-in. Write them below `@use 'ngwr/theme'`, since some of them
+load the token layer too:
 
 ```scss
 @use 'ngwr/reset'; // box-sizing, body margin, sane defaults
@@ -132,6 +135,8 @@ providers: [
 ],
 ```
 
+`withDensity()` and the `[wrDensity]` directive also need
+`@use 'ngwr/density';` in your styles: no component loads the density scale.
 Icons and translations have calls of their own. The
 [configuration guide](https://ngwr.dev/docs/configuration) lists every feature.
 
@@ -142,9 +147,10 @@ ng update ngwr
 ```
 
 This installs the latest version and runs its migrations. The
-[migration guide](https://ngwr.dev/start/migration) describes the changes in
-each major. The Angular badge shows the lowest Angular version ngwr needs.
-[Versioning](https://ngwr.dev/start/versioning) explains the support policy.
+[migration guide](https://ngwr.dev/docs/migration) describes the changes in
+each major. The Angular badge shows the Angular versions ngwr supports, and
+[SECURITY.md](https://github.com/thekhegay/ngwr/blob/main/SECURITY.md) lists the
+majors that still get fixes.
 
 ## AI agents
 
@@ -159,8 +165,8 @@ and read component APIs. Add it to your client:
 }
 ```
 
-The [MCP guide](https://ngwr.dev/guides/mcp) covers each client. Agents without
-MCP can use the [agent skill](https://ngwr.dev/guides/agent-skill),
+The [MCP guide](https://ngwr.dev/docs/mcp-server) covers each client. Agents
+without MCP can use the [agent skill](https://ngwr.dev/docs/skills),
 [llms.txt](https://ngwr.dev/llms.txt), or any docs page as markdown by adding
 `.md` to its URL.
 

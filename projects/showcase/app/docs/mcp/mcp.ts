@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 
+import { NGWR_PACKAGE } from '../package-spec';
+
 import {
   DocCodeComponent,
   DocPageComponent,
@@ -15,13 +17,13 @@ import {
 })
 export default class McpPage {
   protected readonly snippets = {
-    claudeCode: `claude mcp add ngwr -- npx -y -p ngwr ngwr-mcp`,
+    claudeCode: `claude mcp add ngwr -- npx -y -p ${NGWR_PACKAGE} ngwr-mcp`,
 
     config: `{
   "mcpServers": {
     "ngwr": {
       "command": "npx",
-      "args": ["-y", "-p", "ngwr", "ngwr-mcp"]
+      "args": ["-y", "-p", "${NGWR_PACKAGE}", "ngwr-mcp"]
     }
   }
 }`,

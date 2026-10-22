@@ -81,7 +81,8 @@ Scope is the component or area in kebab-case: `feat(button)`, `fix(select)`,
 
 ## Pull requests
 
-1. Branch from `main`.
+1. Branch from `main`. A breaking change for the next major branches from
+   `next` instead.
 2. Make focused changes — one PR per concern.
 3. Run `pnpm lint && pnpm test && pnpm build:lib && pnpm build:showcase` before
    pushing — and check `pnpm lint`'s exit code rather than its output, for the
@@ -110,31 +111,33 @@ projects/lib/<name>/
 ├── public-api.ts
 ├── <name>.ts                  # encapsulation: None, signals-only
 ├── <name>.html
-├── styles/_index.scss
+├── styles/_index.scss         # @use 'ngwr/<name>'
 └── types/index.ts             # public types, re-exported from public-api.ts
 ```
 
+A component with a `styleUrl` splits its styles: the rules go in
+`styles/_rules.scss`, and `_index.scss` only loads the theme and forwards
+them. AGENTS.md says why.
+
 Then:
 
-1. Add the entry to the umbrella SCSS at `projects/lib/styles.scss`.
-2. Add a `sass` condition for it to the `exports` map in
-   `projects/lib/package.json`, pointing at `styles/_index.scss`, so
-   `@use 'ngwr/<name>'` resolves. `pnpm gen:exports` writes the TypeScript entries
-   itself.
-3. Add a docs page under
-   `projects/showcase/app/reference/components/<name>/` (`<name>.ts` +
-   `<name>.html`).
-4. Add the path constant to `projects/showcase/app/routing.ts` (the
-   `components` map).
-5. Add the lazy route to
-   `projects/showcase/app/reference/components/components.routing.ts`.
-6. Add the sidebar entry to
+1. Run `pnpm gen:exports`. It adds the entry point to the `exports` map in
+   `projects/lib/package.json`, with a `sass` condition when
+   `styles/_index.scss` exists, and adds it to the showcase's stylesheet.
+2. Add a docs page under
+   `projects/showcase/app/reference/components/<group>/<name>/` (`<name>.ts` +
+   `<name>.html`), in the group the sidebar shows it under.
+3. Add the route constant to `projects/showcase/app/_core/constants/routes.ts`
+   (the `components` map).
+4. Add the lazy route to
+   `projects/showcase/app/reference/components/<group>/routing.ts`.
+5. Add the sidebar entry to
    `projects/showcase/app/_layout/sidebar/configs/components.config.ts`.
-7. Add a `<name>.spec.ts` beside the component. Every component in the catalog
+6. Add a `<name>.spec.ts` beside the component. Every component in the catalog
    has one, and the specs assert the rendered DOM — roles, ARIA state and the
    `.wr-*` classes — rather than component internals. Copy `projects/lib/tabs/`
    for a plain component, or `projects/lib/select/` for one with an overlay.
-8. Declare the version it first ships in on the page's own
+7. Declare the version it first ships in on the page's own
    `<ngwr-doc-page since="14.5.0">` — the next release, not the current one, if
    yours has not shipped yet. The page prints "Added in v14.5" beside its title,
    and the sidebar's "new" mark is derived from that one attribute, so nothing
@@ -142,13 +145,16 @@ Then:
    current minor line and leaves by itself when the next one ships. A page that
    declares nothing shows nothing, which is right for everything that was
    already here.
-9. Run `pnpm gen:api-docs` and commit `projects/showcase/app/_core/generated/api.ts`
-   and `since.ts`. This is the one gate no build regenerates for you:
+8. Run `pnpm gen:api-docs` and commit `projects/showcase/app/_core/generated/api.ts`
+   and `since.ts`. No build regenerates these for you:
    `build:showcase` refreshes the selector, CSS-variable and quality data, but
    the API tables are generated on demand and `check:api-docs` compares both
    committed files against the source — the JSDoc for one, the pages' own
    `since` attributes for the other. Skip it and CI fails on a file you never
    touched.
+9. Run `pnpm gen:install` and commit `projects/showcase/app/_core/generated/install.ts`,
+   which draws the page's Installation section. `pnpm lint` fails on a stale
+   copy.
 
 ## Style guide
 
@@ -171,12 +177,13 @@ Then:
   `pnpm lint; echo $?` and trust the code, not the output.
 - **Three tiers of checks.** Every PR runs the steps in
   [`ci.yml`](./.github/workflows/ci.yml): `lint`, `test`, `check:api-docs`,
-  `check:css-vars`, `build:lib` and `build:showcase`. The site checks
-  (`check:a11y`, `check:contrast`, `check:state-a11y`, `check:layout`) run in
-  [`nightly.yml`](./.github/workflows/nightly.yml), only on a night `main`
-  moved, along with the suite and the library build on Node 24; a failure
-  opens a `Nightly failed` issue. The Release PR workflow runs everything
-  first. `pnpm check:nightly` and `pnpm check:release` run a tier locally.
+  `check:css-vars`, `build:lib`, `check:package` and `build:showcase`. The site
+  checks (`check:a11y`, `check:contrast`, `check:state-a11y`, `check:layout`,
+  `check:rtl-layout`) run in [`nightly.yml`](./.github/workflows/nightly.yml),
+  only on a night `main` moved, along with the suite and the library build on
+  Node 22 and 24; a failure opens a `Nightly failed` issue. The Release PR
+  workflow runs everything first. `pnpm check:nightly` and
+  `pnpm check:release` run a tier locally.
 
 ## Setting up your editor
 

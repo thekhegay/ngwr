@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { NGWR_PACKAGE } from '../package-spec';
+
 import { DocCodeComponent, DocInstallComponent, DocPageComponent, DocSectionComponent } from '#core/components';
 
 /** One major line: what it needs. Copied from each line's last release. */
@@ -30,6 +32,8 @@ interface SchematicRow {
   imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocInstallComponent, RouterLink],
 })
 export default class InstallationPageComponent {
+  protected readonly packages = `${NGWR_PACKAGE} @angular/cdk`;
+
   protected readonly compatibility: readonly CompatRow[] = [
     { ngwr: '15.x', angular: '22', cdk: '22', node: '22.22+, 24.15+, 26' },
     { ngwr: '14.x', angular: '22+', cdk: '22+', node: '22.22+, 24.15+, 26' },
@@ -39,6 +43,11 @@ export default class InstallationPageComponent {
   ];
 
   protected readonly optionalSheets: readonly OptionalSheet[] = [
+    {
+      use: "@use 'ngwr/density';",
+      what: 'The density scale. Needed for withDensity() and [wrDensity]',
+      link: '/guides/tokens/density',
+    },
     { use: "@use 'ngwr/reset';", what: 'A modern CSS reset' },
     { use: "@use 'ngwr/grid';", what: 'A 12-column grid and container', link: '/guides/grid' },
     {
@@ -51,18 +60,24 @@ export default class InstallationPageComponent {
   ];
 
   protected readonly schematics: readonly SchematicRow[] = [
-    { command: 'ng add ngwr', does: 'Installs peers, adds the theme to styles, prints the providers to paste' },
-    { command: 'ng add ngwr --styles=none --density=lg', does: 'The same without prompts' },
+    {
+      command: `ng add ${NGWR_PACKAGE}`,
+      does: 'Installs peers, adds the theme to styles, prints the providers to paste',
+    },
+    { command: `ng add ${NGWR_PACKAGE} --styles=theme --density=lg`, does: 'The same without prompts' },
     { command: 'ng g ngwr:use WrButton --path <file>', does: 'Adds the import and puts it in the component imports' },
     { command: 'ng g ngwr:provider <name>', does: 'Adds density, toast, storage, icons or i18n to bootstrap' },
-    { command: 'ng g ngwr:component-style <name>', does: "Appends @use 'ngwr/<name>' to global styles" },
+    {
+      command: 'ng g ngwr:component-style <name>',
+      does: "Adds @use 'ngwr/<name>' to global styles, below the theme line",
+    },
     { command: 'ng g ngwr:icon-set', does: 'Writes a tree-shaken icon barrel' },
     { command: 'ng g ngwr:page', does: 'Scaffolds a form, table or dashboard page' },
-    { command: 'ng update ngwr', does: 'Updates from any earlier major and runs its migrations' },
+    { command: `ng update ${NGWR_PACKAGE}`, does: 'Updates from any earlier major and runs its migrations' },
   ];
 
   protected readonly snippets = {
-    ngAdd: `ng add ngwr`,
+    ngAdd: `ng add ${NGWR_PACKAGE}`,
     styles: `@use 'ngwr/theme';
 @use 'ngwr/button';
 @use 'ngwr/select';`,

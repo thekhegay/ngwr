@@ -34,6 +34,10 @@
       <li>Pass features at bootstrap. Only <code>withDates()</code> also works in a route's <code>providers</code>.</li>
       <li>The same feature twice throws in dev mode.</li>
       <li>
+        <code>withDensity()</code> and <code>[wrDensity]</code> need <code>&#64;use 'ngwr/density'</code> in your global
+        styles. No component loads it, and without it the setting does nothing.
+      </li>
+      <li>
         On a prerendered page, also ship <a [routerLink]="themePath"><code>wrThemePrePaintScript()</code></a> with the
         same options as <code>withTheme()</code>.
       </li>

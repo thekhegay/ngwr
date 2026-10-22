@@ -71,9 +71,9 @@ ng update ngwr --migrate-only --name=migration-v14   # the step the hang skipped
 It rewrites the six v14 renames and prints the v14 report again. Running it on templates that are
 already migrated changes nothing.
 
-**The full guide lives at [ngwr.dev/start/migration](https://ngwr.dev/start/migration)**, with a
-runnable diff per change. This file carries the same breaks in short form, newest first, so the
-history is readable without leaving the repository.
+**The full guide lives at [ngwr.dev/docs/migration](https://ngwr.dev/docs/migration).** This file
+carries the same breaks in short form, newest first, so the history is readable without leaving the
+repository.
 
 ---
 
@@ -82,6 +82,9 @@ history is readable without leaving the repository.
 **v15 ships no codemod.** `ng update ngwr` installs it and runs nothing for this step, so every
 change below is yours to make. Most of them fail silently — a selector that stops matching, a
 `var()` at a token nothing declares — so search for each one rather than waiting for the build.
+
+**The Angular peers are `^22.0.0`**, where v14 accepted every later major (`>=22.0.0`). A newer
+Angular major joins the range in a release once ngwr has been tested on it.
 
 ### Dark mode follows `color-scheme`
 
@@ -95,6 +98,7 @@ follows the OS**, with no JavaScript. A page that is not ready for dark writes
   `WrTheme.set('light' | 'dark')` — `'auto'` hands it back to the OS — or write `color-scheme`
   yourself: on `<html>` for the page, on any element for its subtree. `WrTheme` in `'auto'` leaves
   a `color-scheme` you wrote on `<html>` alone; `set('light')` or `set('dark')` writes over it.
+  Code that read the attribute to learn the scheme reads `WrTheme.resolved()` instead.
 - **`theme.dark`, `dark-selector()` and `$theme-attribute` are removed**, with no replacement
   helper. Write the dark value in the declaration itself: `color: light-dark(#0f172a, #e6ebf3)`.
   `light-dark()` takes colours only.
@@ -140,13 +144,16 @@ neutral gray ramp read through role aliases that name the job — `--wr-color-su
 `-on-surface`, `-on-surface-muted`, `-hover`, `-fill`, `-fill-subtle`, `-fill-strong`,
 `-placeholder`, and the border family `--wr-border-subtle`, `-base`, `-strong`. Rename these:
 
-| v14                                             | v15                           |
-| ----------------------------------------------- | ----------------------------- |
-| `--wr-color-light`, `--wr-color-outline`        | `--wr-border-base`            |
-| `--wr-color-border`, `--wr-color-border-strong` | `--wr-border-strong`          |
-| `--wr-color-border-subtle`                      | `--wr-border-subtle`          |
-| `--wr-color-dark`                               | `--wr-color-on-surface`       |
-| `--wr-color-medium`, `--wr-color-muted-text`    | `--wr-color-on-surface-muted` |
+| v14                                                                         | v15                           |
+| --------------------------------------------------------------------------- | ----------------------------- |
+| `--wr-color-light`, `--wr-color-outline`                                    | `--wr-border-base`            |
+| `--wr-color-border`, `--wr-color-border-subtle`, `--wr-color-border-strong` | `--wr-border-subtle`          |
+| `--wr-color-dark`                                                           | `--wr-color-on-surface`       |
+| `--wr-color-white-contrast` (dark theme only)                               | `--wr-color-on-surface`       |
+| `--wr-color-medium`, `--wr-color-muted-text`                                | `--wr-color-on-surface-muted` |
+
+`--wr-border-strong` is new, and darker than any border v14 had. For a firmer line than
+`--wr-border-subtle`, use `--wr-border-base`.
 
 Their `-rgb` companions have no successor (see `color-mix` above), and neither do the shades and
 tints of a removed intent. A `color` naming a removed intent is a compile error under
@@ -172,12 +179,35 @@ Two values named after a removed intent moved to the name of what they paint, BE
 - **`@use 'ngwr'` no longer resolves.** Write `@use 'ngwr/theme'` first, then one `@use` per
   entry point you render, for example `@use 'ngwr/button';`. The page for each component shows
   its own two lines under Installation.
+- **The umbrella also carried the density scale.** If you use `withDensity()` or `[wrDensity]`,
+  add `@use 'ngwr/density'`. No component loads it, so without that line the setting does nothing.
+- **`ngwr/reset`, `ngwr/animations` and `ngwr/typography-utilities` load the theme now.** Write them
+  below a configured `@use 'ngwr/theme' with (…)`. Above it, the build fails with "This module was
+  already loaded".
 
 ### The sortable list
 
 It moved to an entry point of its own: `ngwr/drag-drop` is `ngwr/sortable-list`, in imports and
 in the `@use`, every symbol keeping its name. It no longer owns its loop — write your own and
 project one `<wr-sortable-item>` per row; `trackBy` went with the loop.
+
+### The sidebar
+
+`<wr-sidebar>` has a new look, and its items changed with it:
+
+- **`badge` is a `{ text, tone }` object**, where it was a string, and numbers go in the new
+  `count`: `badge: { text: 'New', tone: 'primary' }`, `count: 12`. `tone` is `neutral` (the
+  default), `primary` or `danger`.
+- **A group's `children` can hold groups.** Code that walks the tree checks `'children' in child`
+  before it reads `url`, `disabled` or `activeOptions`.
+- **No icons by default.** `defaultGroupIcon` and `defaultItemIcon` were `folder` and
+  `caret-forward`, and are `null` now. Bind them to keep the old icons.
+- **The row classes are renamed.** `.wr-sidebar__entry` and `.wr-sidebar__item` are
+  `.wr-sidebar__row`, with their `--active` and `--disabled` modifiers; `.wr-sidebar__group-toggle`
+  is `.wr-sidebar__row--group`; `.wr-sidebar__item-title` is `.wr-sidebar__title`.
+
+A string `badge` is a compile error. The lost default icons and the old class names are silent.
+`--wr-sidebar-padding`, the only sidebar hook v14 published, is unchanged.
 
 ### The icon adapters are gone
 
@@ -221,7 +251,7 @@ button, so deleting the attribute is usually the whole migration.
 
 A leftover import or `@use` fails the build and a bound `[showHandle]` is a compile error, but a
 bare `wrSquircle` attribute, a `<wr-action-sheet>` without `strictTemplates` and a
-`.wr-drawer__handle` selector are all silent.
+`.wr-drawer__handle`, `.wr-drawer__grabber` or `.wr-drawer__panel--handle` selector are all silent.
 
 ### ngwr ships no validation copy
 
@@ -476,7 +506,23 @@ so they belong in the application's providers, and in a lazy route they are neve
 `withDates()` also works in a route's `providers`. A `WR_THEME_CONFIG` you provide yourself still
 works, but `withTheme()` sets it and boots the service in one call. Passing the same feature twice
 throws in dev mode. Two option types are renamed with their functions: `WrDateAdapterOptions` is
-`WrDatesOptions`, and `ProvideWrStorageOptions` is `WrStorageOptions`.
+`WrDatesOptions`, and `ProvideWrStorageOptions` is `WrStorageOptions`. `withDensity()` also needs
+`@use 'ngwr/density'` in your styles, which the umbrella used to carry.
+
+### Looks different, nothing to rename
+
+Three visual changes with no API change behind them. Nothing errors and there is nothing to search
+for, so check the pages.
+
+- **The gray scale moved from Tailwind's slate to its gray.** Every `--wr-color-gray-*` value
+  changed, and with them the neutral surfaces, text and borders, which are less blue:
+  `--wr-color-gray-50` from `#f8fafc` to `#f9fafb`, `-500` from `#64748b` to `#6b7280`, `-900`
+  from `#0f172a` to `#111827`.
+- **Paddings, gaps and margins snapped to the `--wr-space-*` scale**, five steps from `0.25rem` to
+  `1.5rem`, so many components moved by a pixel or two. `wr-alert`'s padding went from
+  `0.625rem 0.875rem` to `0.75rem 1rem`.
+- **A `<wr-btn outlined>` with no `color` is transparent**, with a hover tint. It used to paint
+  the same as a plain button.
 
 ---
 

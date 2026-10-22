@@ -73,6 +73,16 @@
     description="Symbols keep their names; only import, `@use` and `/testing` paths move."
   >
     <ng-container *ngTemplateOutlet="changes; context: { $implicit: v15Paths, head: ['Before', 'After'] }" />
+    <ul>
+      <li>
+        The umbrella also carried the density scale. With <code>withDensity()</code> or <code>[wrDensity]</code>, add
+        <code>&#64;use 'ngwr/density'</code>, or the setting does nothing.
+      </li>
+      <li>
+        <code>ngwr/reset</code>, <code>ngwr/animations</code> and <code>ngwr/typography-utilities</code> load the theme
+        now. Write them below a configured <code>&#64;use 'ngwr/theme' with (…)</code>, or the build fails.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -85,6 +95,7 @@
         A <code>var()</code> at a removed token drops its whole declaration, with no error. Search for every name above.
       </li>
       <li>Without <code>strictTemplates</code>, a removed <code>color</code> value renders neutral, with no error.</li>
+      <li><code>--wr-border-strong</code> is new, and darker than any border v14 had.</li>
     </ul>
   </ngwr-doc-section>
 
@@ -114,6 +125,10 @@
         For the old dark <code>wr-border-glow</code>, set <code>--wr-border-glow-halo-blend: plus-lighter</code>,
         <code>--wr-border-glow-fill-blend: soft-light</code> and <code>--wr-border-glow-fill-scale: 1</code> on the dark
         section.
+      </li>
+      <li>
+        <code>[wrTilt]</code>'s glare blends <code>normal</code> in both schemes, so your own
+        <code>--wr-tilt-glare-color</code> paints at face value.
       </li>
     </ul>
   </ngwr-doc-section>
@@ -178,6 +193,27 @@
         <code>EEEE</code> or <code>PPP</code>, print as letters.
       </li>
       <li>Your own adapter: see <a routerLink="/docs/configuration">Configuration</a>.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v14 to v15: looks different"
+    description="No API change and nothing to search for. Check the pages."
+  >
+    <ul>
+      <li>
+        The gray scale moved from Tailwind's slate to its gray, so neutral surfaces, text and borders are less blue:
+        <code>--wr-color-gray-500</code> from <code>#64748b</code> to <code>#6b7280</code>,
+        <code>--wr-color-gray-900</code> from <code>#0f172a</code> to <code>#111827</code>.
+      </li>
+      <li>
+        Paddings, gaps and margins snapped to the <code>--wr-space-*</code> scale, so many components moved by a pixel
+        or two. <code>wr-alert</code>'s padding went from <code>0.625rem 0.875rem</code> to <code>0.75rem 1rem</code>.
+      </li>
+      <li>
+        <code>&lt;wr-btn outlined&gt;</code> with no <code>color</code> is transparent with a hover tint. It used to
+        look like a plain button.
+      </li>
     </ul>
   </ngwr-doc-section>
 
