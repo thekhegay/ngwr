@@ -61,7 +61,7 @@ export const QUALITY = {
   locales: ["ar", "cs", "de", "en", "es", "fr", "he", "hi", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "sv", "tr", "uk", "vi", "zh", "zh-TW"],
 
   /** Runtime dependencies of the published package, from `projects/lib/package.json`. Peer dependencies are the consumer's Angular; this is what npm installs on top of it. */
-  runtimeDependencies: ["tslib"],
+  runtimeDependencies: [],
 
   /** The `&&` chain inside `pnpm lint`. Worth listing separately because the first stage prints "All files pass linting." even when a later one fails, so the chain is the gate, not `ng lint`. */
   lintStages: [

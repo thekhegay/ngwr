@@ -527,7 +527,6 @@ async function main(): Promise<void> {
   atLeast(facts.lintStages.length, 2, 'lint stages');
   atLeast(facts.prGates.length, 3, 'PR gates');
   atLeast(facts.nightlyGates.length, 1, 'nightly gates');
-  atLeast(facts.runtimeDependencies.length, 1, 'runtime dependencies');
 
   emitGenerated({
     file: OUT_FILE,
