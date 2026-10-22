@@ -375,6 +375,7 @@ export const INSTALL = {
       { path: "ngwr/directives", symbols: ["WrClickOutside"], declarables: ["WrClickOutside"], styled: false },
   ],
   "reference/directives/copy-to-clipboard": [
+      { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
       { path: "ngwr/directives", symbols: ["WrCopyToClipboard"], declarables: ["WrCopyToClipboard"], styled: false },
   ],
   "reference/directives/typography": [

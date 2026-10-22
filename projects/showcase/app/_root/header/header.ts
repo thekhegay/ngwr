@@ -157,6 +157,12 @@ export class Header {
     this.searching.set(false);
   }
 
+  /**
+   * The settings panel's name. Bound rather than written as a static
+   * `ariaLabel="…"`, which would also land on the button as a stray
+   * `arialabel` attribute.
+   */
+  protected readonly settingsLabel = 'Settings';
   protected readonly theme = inject(WrTheme);
   protected readonly density = inject(WrDensity);
   protected readonly direction = inject(SiteDirection);
