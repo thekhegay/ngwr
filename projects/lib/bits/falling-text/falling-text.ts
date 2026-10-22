@@ -20,10 +20,12 @@ import {
   ElementRef,
   PLATFORM_ID,
   ViewEncapsulation,
-  afterNextRender,
+  afterRenderEffect,
   computed,
   inject,
   input,
+  signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 
@@ -122,7 +124,7 @@ function resolveCollision(a: Body, b: Body): void {
   templateUrl: './falling-text.html',
   styleUrl: './falling-text.scss',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-falling-text' },
+  host: { class: 'wr-falling-text', '[class.wr-falling-text--released]': 'released()' },
 })
 export class WrFallingText {
   /** Text to render. Words are separated by spaces. */
@@ -150,6 +152,13 @@ export class WrFallingText {
   private started = false;
   private teardownLoop: (() => void) | undefined;
 
+  /**
+   * Whether the words are in the simulator. Drives `--released`, which is what
+   * hands a word's touches to the drag: until then the block is ordinary text, and
+   * a swipe that starts on it scrolls the page.
+   */
+  protected readonly released = signal(false);
+
   protected readonly words = computed<readonly { text: string; highlighted: boolean }[]>(() => {
     const hl = this.highlightWords();
     return this.text()
@@ -161,40 +170,65 @@ export class WrFallingText {
   constructor() {
     if (!this.isBrowser) return;
 
-    afterNextRender(() => {
+    // Armed after the words have rendered, and re-armed whenever the trigger or
+    // the words change. Both used to be read once, at boot: a trigger switched
+    // afterwards was ignored, and a new text reused the absolutised spans by
+    // index — old positions, old widths, and any extra word left standing
+    // outside the simulation. A change now puts the words back into the text
+    // flow and arms the trigger it names from scratch.
+    afterRenderEffect(onCleanup => {
       const trigger = this.trigger();
-      if (trigger === 'auto') {
-        this.start();
-        return;
-      }
-      if (trigger === 'scroll') {
-        const io = new IntersectionObserver(
-          (entries, obs) => {
-            for (const e of entries) {
-              if (e.isIntersecting) {
-                obs.disconnect();
-                this.start();
-                break;
-              }
-            }
-          },
-          { threshold: 0.1 }
-        );
-        io.observe(this.host.nativeElement);
-        this.destroyRef.onDestroy(() => io.disconnect());
-        return;
-      }
-      // hover / click — wait for host event
-      const startOnce = (): void => {
-        if (this.started) return;
-        this.start();
-      };
-      const handler = trigger === 'hover' ? 'mouseenter' : 'click';
-      this.host.nativeElement.addEventListener(handler, startOnce, { once: true });
-      this.destroyRef.onDestroy(() => this.host.nativeElement.removeEventListener(handler, startOnce));
+      this.words();
+      const disarm = untracked(() => {
+        this.reset();
+        return this.arm(trigger);
+      });
+      onCleanup(() => disarm?.());
     });
 
     this.destroyRef.onDestroy(() => this.teardownLoop?.());
+  }
+
+  /** Wait for `trigger`; returns what stops waiting. */
+  private arm(trigger: WrFallingTextTrigger): (() => void) | undefined {
+    // Without an observer (jsdom) a scroll trigger counts as already in view.
+    if (trigger === 'auto' || (trigger === 'scroll' && typeof IntersectionObserver === 'undefined')) {
+      this.start();
+      return undefined;
+    }
+    const hostEl = this.host.nativeElement;
+    if (trigger === 'scroll') {
+      const io = new IntersectionObserver(
+        (entries, obs) => {
+          if (entries.some(e => e.isIntersecting)) {
+            obs.disconnect();
+            this.start();
+          }
+        },
+        { threshold: 0.1 }
+      );
+      io.observe(hostEl);
+      return () => io.disconnect();
+    }
+    // hover / click — wait for the host event.
+    const handler = trigger === 'hover' ? 'mouseenter' : 'click';
+    const startOnce = (): void => this.start();
+    hostEl.addEventListener(handler, startOnce, { once: true });
+    return () => hostEl.removeEventListener(handler, startOnce);
+  }
+
+  /** Stop the simulation and hand the words back to the text flow. */
+  private reset(): void {
+    this.teardownLoop?.();
+    this.teardownLoop = undefined;
+    if (!this.started) return;
+    this.started = false;
+    this.released.set(false);
+    for (const el of this.wordsRef().nativeElement.querySelectorAll<HTMLElement>('.wr-falling-text__word')) {
+      for (const property of ['position', 'left', 'top', 'transform', 'will-change', 'transform-origin']) {
+        el.style.removeProperty(property);
+      }
+    }
   }
 
   // Physics
@@ -209,8 +243,8 @@ export class WrFallingText {
     const hostEl = this.host.nativeElement;
     const wordsContainer = this.wordsRef().nativeElement;
     const containerRect = hostEl.getBoundingClientRect();
-    const width = containerRect.width;
-    const height = containerRect.height;
+    let width = containerRect.width;
+    let height = containerRect.height;
     if (width <= 0 || height <= 0) return;
 
     // Snapshot each word's position relative to the container, then absolutise.
@@ -247,6 +281,7 @@ export class WrFallingText {
       b.el.style.transformOrigin = `${b.w / 2}px ${b.h / 2}px`;
       this.commit(b);
     });
+    this.released.set(true);
 
     let raf = 0;
     let lastTs = 0;
@@ -360,8 +395,27 @@ export class WrFallingText {
     hostEl.addEventListener('pointerup', onPointerUp);
     hostEl.addEventListener('pointercancel', onPointerUp);
 
+    // The walls are the host's box, which a resized window or a rotated phone
+    // moves: measured once, a word at the old right wall sat clipped past the
+    // new one. The next frames push everything back inside.
+    const ro =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(() => {
+            const rect = hostEl.getBoundingClientRect();
+            if (rect.width <= 0 || rect.height <= 0) return;
+            width = rect.width;
+            height = rect.height;
+            if (!raf) {
+              lastTs = 0;
+              raf = requestAnimationFrame(tick);
+            }
+          });
+    ro?.observe(hostEl);
+
     this.teardownLoop = (): void => {
       cancelAnimationFrame(raf);
+      ro?.disconnect();
       hostEl.removeEventListener('pointerdown', onPointerDown);
       hostEl.removeEventListener('pointermove', onPointerMove);
       hostEl.removeEventListener('pointerup', onPointerUp);

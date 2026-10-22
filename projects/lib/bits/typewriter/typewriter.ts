@@ -134,6 +134,17 @@ export class WrTypewriter {
   });
 
   private readonly currentTextIndex = signal(0);
+
+  /**
+   * The sentence being typed, whole — the screen-reader copy. The typed fragment is
+   * `aria-hidden`, so a reader landing mid-word hears the phrase rather than
+   * `'desi'`, or nothing while it deletes. Read off the same clamped index the
+   * machine types, and never reversed: `reverseMode` is a visual effect.
+   */
+  protected readonly phrase = computed(() => {
+    const arr = this.textArray();
+    return arr.length === 0 ? '' : arr[Math.min(this.currentTextIndex(), arr.length - 1)];
+  });
   private readonly phase = signal<'idle' | 'typing' | 'deleting'>('idle');
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -230,16 +241,21 @@ export class WrTypewriter {
         this.scheduleNext(this.pauseDuration());
         return;
       }
-      // Continue deleting.
-      this.displayed.set(displayed.slice(0, -1));
+      // Continue deleting — one CODE POINT, as typing adds one; `slice(0, -1)`
+      // took half an emoji and left a lone surrogate on screen for a tick.
+      this.displayed.set([...displayed].slice(0, -1).join(''));
       this.scheduleNext(this.deletingSpeed());
       return;
     }
 
-    // Typing or idle.
-    if (displayed.length < target.length) {
+    // Typing or idle. Counted in CODE POINTS, like the reversal above: sliced by
+    // UTF-16 unit, an emoji arrived as a lone high surrogate — a broken glyph —
+    // for one tick before its second half.
+    const typed = [...displayed].length;
+    const glyphs = [...target];
+    if (typed < glyphs.length) {
       this.phase.set('typing');
-      this.displayed.set(target.slice(0, displayed.length + 1));
+      this.displayed.set(glyphs.slice(0, typed + 1).join(''));
       const delay = this.variableSpeed()
         ? Math.random() * (this.variableSpeed()!.max - this.variableSpeed()!.min) + this.variableSpeed()!.min
         : this.typingSpeed();

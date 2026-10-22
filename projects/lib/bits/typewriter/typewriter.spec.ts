@@ -158,6 +158,49 @@ describe('WrTypewriter', () => {
     expect([...typed()].length).toBe(3);
   });
 
+  it('types and deletes an emoji whole, never half a surrogate pair', async () => {
+    await mount();
+    fixture.componentInstance.text.set('a🚀b');
+    fixture.detectChanges();
+
+    const frames: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      advance(i === 0 ? 0 : 10);
+      frames.push(typed());
+    }
+    // Sliced by UTF-16 unit, the second frame was `'a\ud83d'` — a broken glyph.
+    expect(frames).toEqual(['a', 'a🚀', 'a🚀b']);
+
+    // The sentence completes at the next tick, and deletion starts a pause later.
+    advance(10 + 100);
+    expect(typed()).toBe('a🚀');
+    advance(10);
+    expect(typed()).toBe('a');
+  });
+
+  it('carries the whole sentence for a screen reader, with the typed fragment out of the tree', async () => {
+    await mount();
+    fixture.componentInstance.text.set(undefined);
+    fixture.componentInstance.texts.set(['design', 'build']);
+    fixture.detectChanges();
+    const readable = (): string => root().querySelector('.wr-typewriter__sr-only')!.textContent;
+
+    expect(root().querySelector('.wr-typewriter__content')!.getAttribute('aria-hidden')).toBe('true');
+    advance(0);
+    advance(30);
+    // Mid-word on screen, whole in the readable copy.
+    expect(typed()).toBe('desi');
+    expect(readable()).toBe('design');
+
+    // Through the pause and the deletion, still the sentence being shown…
+    advance(20 + 100 + 30);
+    expect(readable()).toBe('design');
+    // …and the next one once it starts.
+    advance(30 + 100 + 10);
+    expect(typed()).toBe('b');
+    expect(readable()).toBe('build');
+  });
+
   it('shows the whole sentence at once for someone who asked for less motion', async () => {
     await mount([{ provide: WrPlatform, useValue: reducedMotion }]);
     advance(1);

@@ -1,3 +1,6 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+
 import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -24,7 +27,7 @@ class Host {
 let frames: FrameRequestCallback[] = [];
 
 /** Host box the stub reports, and the size of each word inside it. */
-const HOST_W = 600;
+let HOST_W = 600;
 const HOST_H = 200;
 const WORD_W = 100;
 const WORD_H = 20;
@@ -112,10 +115,11 @@ describe('WrFallingText', () => {
   const transforms = (): string[] =>
     [...root().querySelectorAll<HTMLElement>('.wr-falling-text__word')].map(el => el.style.transform);
 
-  const mount = async (providers: unknown[] = []): Promise<void> => {
+  const mount = async (providers: unknown[] = [], setup?: (host: Host) => void): Promise<void> => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({ providers: providers as never[] });
     fixture = TestBed.createComponent(Host);
+    setup?.(fixture.componentInstance);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -123,13 +127,19 @@ describe('WrFallingText', () => {
 
   beforeEach(async () => {
     frames = [];
+    HOST_W = 600;
     await mount();
   });
 
   afterEach(() => {
     fixture.destroy();
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
+
+  const released = (): boolean => hostEl().classList.contains('wr-falling-text--released');
+  const positioned = (): string[] =>
+    [...root().querySelectorAll<HTMLElement>('.wr-falling-text__word')].map(el => el.style.position);
 
   it('renders one span per word, so the sentence is still readable', () => {
     expect(words()).toEqual(['gravity', 'pulls', 'every', 'word', 'down']);
@@ -240,10 +250,130 @@ describe('WrFallingText', () => {
     expect(transforms()[0]).not.toBe(settled);
   });
 
+  it('orders the words by their own text, not by the page direction', () => {
+    // Each word is an inline-block, which the bidi algorithm reads as a neutral:
+    // under the page's direction an English sentence read backwards on an RTL page.
+    expect(root().querySelector('.wr-falling-text__words')!.getAttribute('dir')).toBe('auto');
+  });
+
+  it('hands touches to the drag only once the words are released', async () => {
+    withLayout();
+    await mount([], host => host.trigger.set('click'));
+    expect(released()).toBe(false);
+
+    hostEl().dispatchEvent(new MouseEvent('click'));
+    fixture.detectChanges();
+    expect(released()).toBe(true);
+  });
+
+  it('never claims touches under reduced motion, where nothing can be dragged', async () => {
+    withLayout();
+    await mount([{ provide: WrPlatform, useValue: reducedMotion }]);
+    fixture.detectChanges();
+
+    expect(released()).toBe(false);
+    expect(positioned()).toEqual(['', '', '', '', '']);
+  });
+
+  it('applies a trigger switched after mount', async () => {
+    withLayout();
+    await mount([], host => host.trigger.set('hover'));
+    expect(released()).toBe(false);
+
+    // `auto` releases at once…
+    fixture.componentInstance.trigger.set('auto');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(released()).toBe(true);
+
+    // …and `click` puts the words back and waits for a click, not a hover.
+    fixture.componentInstance.trigger.set('click');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(released()).toBe(false);
+    expect(positioned()).toEqual(['', '', '', '', '']);
+
+    hostEl().dispatchEvent(new MouseEvent('mouseenter'));
+    expect(positioned()).toEqual(['', '', '', '', '']);
+    hostEl().dispatchEvent(new MouseEvent('click'));
+    expect(positioned()).toEqual(['absolute', 'absolute', 'absolute', 'absolute', 'absolute']);
+  });
+
+  it('lays a new text out afresh and simulates every word of it', async () => {
+    withLayout();
+    await mount();
+    runUntilParked();
+
+    fixture.componentInstance.text.set('one two three four five six seven');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Every span is released from its NEW typeset box — the sixth and seventh
+    // included, which used to stand outside the simulation.
+    expect(positioned().length).toBe(7);
+    expect(new Set(positioned())).toEqual(new Set(['absolute']));
+    expect(transforms()[5]).toBe('translate(550px, 10px) rotate(0rad)');
+  });
+
+  it('moves the walls with the host when it is resized', async () => {
+    let resized: (() => void) | null = null;
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(callback: () => void) {
+          resized = callback;
+        }
+        observe(): void {
+          // Driven by hand below.
+        }
+        disconnect(): void {
+          resized = null;
+        }
+      }
+    );
+    withLayout();
+    await mount();
+    runUntilParked();
+    expect(transforms()[4]).toBe(`translate(440px, ${HOST_H - WORD_H}px) rotate(0rad)`);
+
+    HOST_W = 300;
+    resized!();
+    runUntilParked();
+
+    // The right-most word is back inside the new right wall.
+    const x = Number(/translate\(([-\d.]+)px/.exec(transforms()[4])![1]);
+    expect(x + WORD_W).toBeLessThanOrEqual(300);
+  });
+
   it('accepts every trigger without throwing in a layout-less environment', () => {
     for (const trigger of ['auto', 'scroll', 'click', 'hover'] as const) {
       fixture.componentInstance.trigger.set(trigger);
       expect(() => fixture.detectChanges(), trigger).not.toThrow();
     }
+  });
+});
+
+/**
+ * Where the drag claims touches is a stylesheet decision, which jsdom has no cascade
+ * to show — so it is held against the compiled CSS. The scroll itself was measured
+ * in Chromium with a synthesized touch swipe on a phone-sized context.
+ */
+describe('WrFallingText touch handling', () => {
+  interface Sass {
+    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+  }
+  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
+  const css = sass
+    .compileString("@use 'bits/falling-text/styles';", {
+      loadPaths: [join(process.cwd(), 'projects/lib')],
+      style: 'expanded',
+    })
+    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const rule = (selector: string): string =>
+    new RegExp(`(?:^|\\n)\\s*${selector.replace(/[.()>:]/g, m => `\\${m}`)}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
+
+  it('leaves the host scrollable and claims only a released word', () => {
+    expect(rule('.wr-falling-text')).not.toMatch(/touch-action/);
+    expect(rule('.wr-falling-text--released .wr-falling-text__word')).toMatch(/touch-action:\s*none/);
   });
 });

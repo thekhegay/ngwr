@@ -29,6 +29,7 @@ import {
 } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
+import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
 import type { WrMarqueeNode, WrMarqueeItem } from './types';
@@ -131,7 +132,16 @@ export class WrMarquee {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly platform = inject(WrPlatform);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
+  /** Flips once the first render has been measured — the loop waits for it. */
+  private readonly ready = signal(false);
+  /** Whether the host is in the viewport; stays `true` without an observer. */
+  private readonly onScreen = signal(true);
+  /** Loop state, kept across a park so the strip resumes where it stopped. */
+  private offset = 0;
+  private velocity = 0;
 
   protected readonly seqWidth = signal(0);
   protected readonly copyCount = signal(MIN_COPIES);
@@ -160,7 +170,21 @@ export class WrMarquee {
       this.measure();
       this.watchResize();
       this.watchImageLoads();
-      this.startLoop();
+      this.watchVisibility();
+      this.ready.set(true);
+    });
+
+    // The loop runs only while there is something to see: never under
+    // `prefers-reduced-motion` (read live — the stylesheet pins the track at
+    // 0, so every frame would write a transform nobody sees), and not while
+    // the host is off screen.
+    effect(onCleanup => {
+      if (!this.ready() || !this.onScreen()) return;
+      if (this.platform.prefersReducedMotion()) {
+        this.trackEl().nativeElement.style.transform = '';
+        return;
+      }
+      onCleanup(this.startLoop());
     });
 
     // Re-measure on input changes that affect layout (items, gap, height).
@@ -230,12 +254,19 @@ export class WrMarquee {
     });
   }
 
-  private startLoop(): void {
+  private watchVisibility(): void {
+    // Without an observer (jsdom) the strip simply counts as visible.
+    if (typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(entries => this.onScreen.set(entries[entries.length - 1].isIntersecting));
+    io.observe(this.host.nativeElement);
+    this.destroyRef.onDestroy(() => io.disconnect());
+  }
+
+  /** Start the frame loop; returns what stops it. */
+  private startLoop(): () => void {
     const track = this.trackEl().nativeElement;
     let raf = 0;
     let lastTs: number | null = null;
-    let offset = 0;
-    let velocity = 0;
 
     const tick = (ts: number): void => {
       lastTs ??= ts;
@@ -244,18 +275,18 @@ export class WrMarquee {
 
       const target = this.isHovered() ? (this.effectiveHoverSpeed() ?? this.targetVelocity()) : this.targetVelocity();
       const ease = 1 - Math.exp(-dt / SMOOTH_TAU);
-      velocity += (target - velocity) * ease;
+      this.velocity += (target - this.velocity) * ease;
 
       const w = this.seqWidth();
       if (w > 0) {
-        offset = (((offset + velocity * dt) % w) + w) % w;
-        track.style.transform = `translate3d(${-offset}px, 0, 0)`;
+        this.offset = (((this.offset + this.velocity * dt) % w) + w) % w;
+        track.style.transform = `translate3d(${-this.offset}px, 0, 0)`;
       }
       raf = requestAnimationFrame(tick);
     };
 
     raf = requestAnimationFrame(tick);
-    this.destroyRef.onDestroy(() => cancelAnimationFrame(raf));
+    return () => cancelAnimationFrame(raf);
   }
 }
 

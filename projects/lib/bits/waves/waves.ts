@@ -26,6 +26,7 @@ import {
   inject,
   input,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 
@@ -225,6 +226,9 @@ export class WrWaves {
    */
   protected readonly painted = signal(false);
 
+  /** Flips once `boot()` has a context and a grid — the motion half waits for it. */
+  private readonly booted = signal(false);
+
   constructor() {
     if (!this.isBrowser) return;
 
@@ -238,13 +242,32 @@ export class WrWaves {
       this.setSize();
       this.setLines();
       // And paint it, when there is no frame loop to. Under
-      // `prefers-reduced-motion` `boot()` draws once and returns before
-      // `requestAnimationFrame`, so a later gap change cleared the canvas
+      // `prefers-reduced-motion` the grid is drawn once and no frame follows,
+      // so a later gap change cleared the canvas
       // (`setSize` writes `canvas.width`), rebuilt the grid and left it
       // undrawn — with `.wr-waves--painted` already on the host, so the
       // element stayed visible and empty. `onResize` ends the same way, for
       // the same reason.
       if (this.platform.prefersReducedMotion()) this.drawLines();
+    });
+
+    // Motion or a still grid, decided live: a preference switched while the page
+    // is open used to keep the field drifting until a reload, because `boot()`
+    // read it once.
+    effect(onCleanup => {
+      if (!this.booted()) return;
+      if (this.platform.prefersReducedMotion()) {
+        // One static, undisturbed grid — no drift, no loop, no pointer
+        // reactivity. Repainted when the line colour changes, since there is
+        // no next frame to pick it up.
+        this.lineColor();
+        untracked(() => {
+          this.setLines();
+          this.drawLines();
+        });
+        return;
+      }
+      onCleanup(this.zone.runOutsideAngular(() => this.animate()));
     });
   }
 
@@ -263,23 +286,20 @@ export class WrWaves {
       this.setLines();
       if (this.platform.prefersReducedMotion()) this.drawLines();
     };
-    const onMouseMove = (e: MouseEvent): void => this.updateMouse(e.clientX, e.clientY);
-    const onTouchMove = (e: TouchEvent): void => this.updateMouse(e.touches[0].clientX, e.touches[0].clientY);
-
     window.addEventListener('resize', onResize);
     const ro = new ResizeObserver(onResize);
     ro.observe(this.host.nativeElement);
+    this.destroyRef.onDestroy(() => {
+      window.removeEventListener('resize', onResize);
+      ro.disconnect();
+    });
+    this.booted.set(true);
+  }
 
-    // Reduced motion: one static, undisturbed grid — no drift, no loop,
-    // no pointer reactivity.
-    if (this.platform.prefersReducedMotion()) {
-      this.drawLines();
-      this.destroyRef.onDestroy(() => {
-        window.removeEventListener('resize', onResize);
-        ro.disconnect();
-      });
-      return;
-    }
+  /** Start the drift and the pointer reactivity; returns what stops both. */
+  private animate(): () => void {
+    const onMouseMove = (e: MouseEvent): void => this.updateMouse(e.clientX, e.clientY);
+    const onTouchMove = (e: TouchEvent): void => this.updateMouse(e.touches[0].clientX, e.touches[0].clientY);
 
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('touchmove', onTouchMove, { passive: true });
@@ -303,14 +323,12 @@ export class WrWaves {
     if (io) io.observe(this.host.nativeElement);
     else run();
 
-    this.destroyRef.onDestroy(() => {
-      window.removeEventListener('resize', onResize);
+    return () => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('touchmove', onTouchMove);
-      ro.disconnect();
       io?.disconnect();
       halt();
-    });
+    };
   }
 
   private setSize(): void {

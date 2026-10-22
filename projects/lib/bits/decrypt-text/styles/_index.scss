@@ -1,26 +1,15 @@
-.wr-decrypt-text {
-  display: inline-block;
-  white-space: pre-wrap;
-
-  &__sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    border: 0;
-  }
-
-  &__char {
-    display: inline;
-  }
-
-  // Hook for consumers to style the scrambled state distinctly (e.g. dim
-  // the scramble glyphs). Apply via `[encryptedClassName]`-style overrides
-  // by extending `.wr-decrypt-text__char--encrypted`.
-  &__char--encrypted {
-    /* default: no visual change; consumers override as needed */
-  }
-}
+// Public Sass entry for `@use 'ngwr/bits/decrypt-text'`.
+//
+// Pulls the whole theme so a standalone import still brings in every design
+// token these rules reference, then loads the rules themselves from `_rules`.
+//
+// The split is what keeps the token layer out of the JavaScript bundle.
+// `decrypt-text.scss` is the component's `styleUrl`, and a component stylesheet
+// is its OWN Sass compilation — `@use` only deduplicates within one. So while
+// the app's global stylesheet emits the theme once, forwarding it from here
+// would inline a second, byte-identical copy of `:root` and the box-sizing
+// reset into the compiled component styles, which the library build then embeds
+// in the FESM bundle as a string. `decrypt-text.scss` forwards `_rules` instead,
+// so it carries this component's own CSS and nothing else.
+@use '../../../theme/styles';
+@forward 'rules';

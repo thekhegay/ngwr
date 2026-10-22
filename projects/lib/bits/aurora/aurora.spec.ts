@@ -220,6 +220,66 @@ describe('WrAurora', () => {
     expect(stops).toEqual([1, 0, 0, 0, 0, 1, 0, 1, 0]);
   });
 
+  it('follows reduced motion switched on and off while the page is open', async () => {
+    const reduce = signal(false);
+    withContext();
+    await mount([{ provide: WrPlatform, useValue: { ...reducedMotion, prefersReducedMotion: reduce } }]);
+    const cancel = vi.spyOn(window, 'cancelAnimationFrame');
+    runFrame();
+
+    // Switched on: the loop is cancelled and the static frame repainted.
+    reduce.set(true);
+    await fixture.whenStable();
+    expect(cancel).toHaveBeenCalled();
+    const still = painted;
+    frames = [];
+    runFrame();
+    expect(painted).toBe(still);
+
+    // And off again: the loop resumes.
+    reduce.set(false);
+    await fixture.whenStable();
+    runFrame();
+    expect(painted).toBeGreaterThan(still);
+  });
+
+  it('parks the loop off screen and resumes it in view', async () => {
+    let report: ((entries: { isIntersecting: boolean }[]) => void) | null = null;
+    withContext();
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(callback: (entries: { isIntersecting: boolean }[]) => void) {
+          report = callback;
+        }
+        observe(): void {
+          // Driven by hand below.
+        }
+        disconnect(): void {
+          report = null;
+        }
+      }
+    );
+    await mount();
+    const cancel = vi.spyOn(window, 'cancelAnimationFrame');
+
+    report!([{ isIntersecting: false }]);
+    await fixture.whenStable();
+    expect(cancel).toHaveBeenCalled();
+    frames = [];
+    const parked = painted;
+    runFrame();
+    expect(painted).toBe(parked);
+
+    report!([{ isIntersecting: true }]);
+    await fixture.whenStable();
+    runFrame();
+    expect(painted).toBeGreaterThan(parked);
+
+    fixture.destroy();
+    expect(report).toBeNull();
+  });
+
   it('tears down the listener, the observer and the frame it installed', async () => {
     withContext();
     await mount();

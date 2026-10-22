@@ -69,7 +69,15 @@ function splitPieces(text: string, unit: WrBlurTextUnit): readonly Piece[] {
   templateUrl: './blur-text.html',
   styleUrl: './blur-text.scss',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-blur-text' },
+  host: {
+    class: 'wr-blur-text',
+    // The pieces are flex items, which the container's direction orders: the
+    // PAGE's, without this, so 'Welcome to ngwr' read 'ngwr to Welcome' on an
+    // RTL page (and Hebrew backwards on an LTR one). `auto` takes the direction
+    // from the text itself, the way plain text gets it. Static, so a consumer's
+    // own `dir` on the element still wins.
+    dir: 'auto',
+  },
 })
 export class WrBlurText {
   /** Text to animate. Required. */
@@ -221,7 +229,9 @@ export class WrBlurText {
           /* noop */
         }
         remaining -= 1;
-        if (remaining === 0) this.animationComplete.emit();
+        // The tween outlives the component: a piece removed mid-flight still
+        // finishes, and emitting then warns NG0953 into a destroyed output.
+        if (remaining === 0 && !this.destroyed) this.animationComplete.emit();
       };
     });
   }

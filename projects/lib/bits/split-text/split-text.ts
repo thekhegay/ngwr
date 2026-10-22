@@ -85,7 +85,16 @@ function motionToStyle(m: WrSplitTextMotion): { opacity: number; transform: stri
   templateUrl: './split-text.html',
   styleUrl: './split-text.scss',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-split-text', '[style.text-align]': 'textAlign()' },
+  host: {
+    class: 'wr-split-text',
+    // Each piece is an inline-block, and the bidi algorithm reads an atomic
+    // inline as a neutral: without this the PAGE's direction ordered them, so
+    // 'Hello' read 'olleH' on an RTL page (and Hebrew backwards on an LTR one).
+    // `auto` takes the direction from the text itself, the way plain text gets
+    // it. Static, so a consumer's own `dir` on the element still wins.
+    dir: 'auto',
+    '[style.text-align]': 'textAlign()',
+  },
 })
 export class WrSplitText {
   /** Text to animate. Required. */
@@ -246,7 +255,9 @@ export class WrSplitText {
           /* noop */
         }
         remaining -= 1;
-        if (remaining === 0) this.animationComplete.emit();
+        // The tween outlives the component: a piece removed mid-flight still
+        // finishes, and emitting then warns NG0953 into a destroyed output.
+        if (remaining === 0 && !this.destroyed) this.animationComplete.emit();
       };
     });
   }

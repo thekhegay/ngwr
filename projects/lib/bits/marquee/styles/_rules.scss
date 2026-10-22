@@ -15,6 +15,15 @@
   display: block;
   width: 100%;
   overflow: hidden;
+  // The loop is physical (see `&__item` below): the track starts at the left
+  // edge, its copies extend to the right, and `translate3d(-offset)` walks it
+  // left. Under an inherited RTL the host anchors the over-wide track at its
+  // RIGHT edge with the copies running left, and the same translate opened a
+  // blank gap of up to one sequence there every cycle. It has to be the host,
+  // not the track: which edge an over-wide block sticks to is decided by its
+  // containing block's direction. Each item restores the document's direction
+  // for its own content below.
+  direction: ltr;
 
   &--scale-hover {
     padding-top: calc(var(--wr-marquee-height) * 0.1);
@@ -50,6 +59,13 @@
     margin-right: var(--wr-marquee-gap);
     font-size: var(--wr-marquee-height);
     line-height: 1;
+
+    // `:dir()` reads the DOCUMENT's direction (the `dir` attribute), which the
+    // track's CSS `direction: ltr` does not change — so the text inside an item
+    // keeps the page's direction while the strip itself stays physical.
+    &:dir(rtl) {
+      direction: rtl;
+    }
   }
 
   &__item:last-child {

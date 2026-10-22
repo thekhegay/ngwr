@@ -1,4 +1,10 @@
-<span class="wr-typewriter__content">{{ displayed() }}</span>
+<!--
+  The readable sentence, once and whole: the typed fragment beside it is a moving
+  target. Deliberately NOT a live region — the APG's answer for self-advancing
+  content is silence, the same call `wr-rotating-text` makes.
+-->
+<span class="wr-typewriter__sr-only">{{ phrase() }}</span>
+<span class="wr-typewriter__content" aria-hidden="true">{{ displayed() }}</span>
 @if (cursorVisible()) {
   <span class="wr-typewriter__cursor" aria-hidden="true">{{ cursorCharacter() }}</span>
 }

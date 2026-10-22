@@ -12,6 +12,9 @@ import type { WrTypewriterHarnessFilters } from './types';
 /** The one text node the state machine writes into — the whole of its observable output. */
 const CONTENT = '.wr-typewriter__content';
 
+/** The whole sentence being typed, visually hidden — what a screen reader reads. */
+const SR_ONLY = '.wr-typewriter__sr-only';
+
 /** The caret. Not hidden when it is unwanted — removed from the document entirely. */
 const CURSOR = '.wr-typewriter__cursor';
 
@@ -42,12 +45,12 @@ async function rawText(element: TestElement): Promise<string> {
  * yourself before every read — awaiting a harness method flushes microtasks, never
  * timers, so an unadvanced read answers with the previous frame.
  *
- * **What is typed is also what is announced, and no second copy exists.** There is
- * deliberately no `getAccessibleText()` here: the component renders one plain text node
- * and nothing else, so a screen reader landing mid-word hears the fragment. (Its sibling
- * `wr-rotating-text` carries a visually-hidden copy of the whole phrase; this one does
- * not, and inventing a method that implied otherwise would report an accessible layer
- * that is not there.) The single a11y decision the component does make is the caret, and
+ * **What is typed is NOT what is announced.** The typed fragment is `aria-hidden`, and a
+ * visually-hidden copy carries the whole sentence the machine is working on — the shape
+ * `wr-rotating-text` has — so a screen reader landing mid-word hears `'design'`, not
+ * `'desi'`. {@link getText} reads the fragment and {@link getAccessibleText} the copy, and
+ * the two are different facts: the copy moves to the next sentence only when the
+ * fragment has been deleted back to empty. The caret is the other a11y decision, and
  * {@link isCursorDecorative} is how a spec holds it: without `aria-hidden` every phrase
  * is announced as `Hello pipe`, and nothing else in the DOM would change.
  *
@@ -146,6 +149,25 @@ export class WrTypewriterHarness extends ComponentHarness {
    */
   async getText(): Promise<string> {
     return rawText(await this.content());
+  }
+
+  /**
+   * The sentence a screen reader reads — whole, while {@link getText} is still a fragment.
+   *
+   * It names the entry of `[texts]` being typed or deleted, never the reversed string
+   * `reverseMode` draws, and it moves on when the next sentence starts. Throws when the
+   * copy is missing rather than answering with the fragment: that would report a healthy
+   * string for a component whose readable layer is gone.
+   */
+  async getAccessibleText(): Promise<string> {
+    const copy = await this.locatorForOptional(SR_ONLY)();
+    if (!copy) {
+      throw new Error(
+        `WrTypewriterHarness.getAccessibleText(): this <wr-typewriter> renders no ${SR_ONLY} span, ` +
+          'so a screen reader has nothing to read — the typed fragment is aria-hidden.'
+      );
+    }
+    return rawText(copy);
   }
 
   /**

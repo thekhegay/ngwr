@@ -77,6 +77,35 @@ describe('WrRotatingText', () => {
     vi.restoreAllMocks();
   });
 
+  it('keeps rotating after the list shrinks below the current index', async () => {
+    fixture.componentInstance.texts.set(['a', 'b', 'c', 'd', 'e']);
+    fixture.detectChanges();
+    await rotate(() => instance().jumpTo(4));
+    expect(readable()).toBe('e');
+
+    fixture.componentInstance.texts.set(['x', 'y']);
+    fixture.detectChanges();
+    expect(readable()).toBe('y');
+    fixture.componentInstance.seen.length = 0;
+
+    const shown: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      await rotate(() => instance().next());
+      shown.push(readable());
+    }
+
+    // From the last entry it wraps, as from any last entry — the index used to
+    // climb to 5, 6, 7 with the text standing still on 'y'.
+    expect(shown).toEqual(['x', 'y', 'x']);
+    expect(fixture.componentInstance.seen).toEqual([0, 1, 0]);
+  });
+
+  it('orders the animated characters by their own text, not by the page direction', () => {
+    // Each character is a flex item, ordered by the container's direction: under the
+    // page's, 'ship' read 'pihs' on an RTL page.
+    expect(root().querySelector('.wr-rotating-text__inner')!.getAttribute('dir')).toBe('auto');
+  });
+
   it('carries the current string as readable text, with the animation hidden', () => {
     expect(readable()).toBe('one');
     expect(root().querySelector('.wr-rotating-text__inner')!.getAttribute('aria-hidden')).toBe('true');

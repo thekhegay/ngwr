@@ -207,13 +207,14 @@ describe('WrSpotlightHarness', () => {
 
   afterEach(() => fixture.destroy());
 
-  it('seeds the reset coordinates before the bound ones exist', async () => {
-    // The template asks for `0%` / `10%`, and the constructor writes `50%` / `50%`:
-    // it runs before signal inputs are bound, so it reads the input DEFAULTS. Reading
-    // the written coordinate rather than echoing the input is what makes that visible.
+  it('rests at the bound reset coordinates before any pointer arrives', async () => {
+    // The template asks for `0%` / `10%`. Seeded in the constructor — before signal
+    // inputs are bound — this read the input DEFAULTS, `50%` / `50%`, until the first
+    // pointerleave. Reading the written coordinate rather than echoing the input is
+    // what makes the difference visible.
     const harness = await spotlight();
 
-    expect(await harness.getSpotlightPosition()).toEqual({ x: '50%', y: '50%' });
+    expect(await harness.getSpotlightPosition()).toEqual({ x: '0%', y: '10%' });
     expect(await harness.hasTrackedPointer()).toBe(true);
   });
 

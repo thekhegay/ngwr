@@ -1,9 +1,13 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+
 import { Component, type TemplateRef, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { WrPlatform } from 'ngwr/platform';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrMarquee } from './marquee';
 import type { WrMarqueeItem } from './types';
@@ -228,3 +232,146 @@ describe('WrMarquee under a localized catalog', () => {
  * the transform at all. It wants a browser; `check:state-a11y` drives the
  * component in one, and the visual half is a design review.
  */
+
+/**
+ * The loop itself is a frame callback over measured widths, so what is pinned is
+ * WHEN it moves the track: never under `prefers-reduced-motion` — where the
+ * stylesheet pins the track at 0 and every frame wrote a transform nobody saw —
+ * with that preference read live, and not while the strip is off screen. One
+ * sequence is measured at 300px so the loop has something to wrap at; the
+ * frames are held and run by hand, Angular's own scheduler frames among them.
+ */
+describe('WrMarquee frame loop', () => {
+  let frames: Map<number, FrameRequestCallback>;
+  let nextId: number;
+  let clock: number;
+  const reduced = signal(false);
+  let observed: ((entries: { isIntersecting: boolean }[]) => void) | null;
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const track = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector('.wr-marquee__track')!;
+  const mount = async (): Promise<void> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: WrPlatform, useValue: { isBrowser: true, prefersReducedMotion: reduced } }],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+  /** Run every held frame a few times, 100ms apart; `true` when the track moved. */
+  const moves = (): boolean => {
+    const before = track().style.transform;
+    for (let i = 0; i < 3; i++) {
+      const pending = [...frames.values()];
+      frames.clear();
+      clock += 100;
+      for (const frame of pending) frame(clock);
+    }
+    return track().style.transform !== before;
+  };
+
+  beforeEach(() => {
+    frames = new Map();
+    nextId = 0;
+    clock = 0;
+    observed = null;
+    reduced.set(false);
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation(frame => {
+      frames.set(++nextId, frame);
+      return nextId;
+    });
+    vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(id => void frames.delete(id));
+    const empty = { x: 0, y: 0, width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0 } as DOMRect;
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      return this.classList.contains('wr-marquee__list') ? { ...empty, width: 300 } : empty;
+    });
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('moves the track while motion is allowed', async () => {
+    await mount();
+    expect(moves()).toBe(true);
+    expect(moves()).toBe(true);
+  });
+
+  it('never moves it under reduced motion', async () => {
+    reduced.set(true);
+    await mount();
+    expect(moves()).toBe(false);
+    expect(track().style.transform).toBe('');
+  });
+
+  it('stops when reduced motion is switched on while the page is open', async () => {
+    await mount();
+    expect(moves()).toBe(true);
+
+    reduced.set(true);
+    await fixture.whenStable();
+
+    expect(track().style.transform).toBe('');
+    expect(moves()).toBe(false);
+
+    reduced.set(false);
+    await fixture.whenStable();
+    expect(moves()).toBe(true);
+  });
+
+  it('parks off screen and resumes in view', async () => {
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(callback: (entries: { isIntersecting: boolean }[]) => void) {
+          observed = callback;
+        }
+        observe(): void {
+          // The test drives the callback by hand.
+        }
+        disconnect(): void {
+          observed = null;
+        }
+      }
+    );
+    await mount();
+    expect(moves()).toBe(true);
+
+    observed!([{ isIntersecting: false }]);
+    await fixture.whenStable();
+    expect(moves()).toBe(false);
+
+    observed!([{ isIntersecting: true }]);
+    await fixture.whenStable();
+    expect(moves()).toBe(true);
+  });
+});
+
+/**
+ * Which edge the over-wide track sticks to is decided by the HOST's direction, so
+ * the physical loop holds the host to LTR and gives each item the page's
+ * direction back. jsdom has no cascade or layout, so this is held against the
+ * compiled CSS; the coverage itself was measured in Chromium under `dir="rtl"`.
+ */
+describe('WrMarquee under RTL', () => {
+  interface Sass {
+    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+  }
+  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
+  const css = sass
+    .compileString("@use 'bits/marquee/styles';", {
+      loadPaths: [join(process.cwd(), 'projects/lib')],
+      style: 'expanded',
+    })
+    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const rule = (selector: string): string =>
+    new RegExp(`(?:^|\\n)\\s*${selector.replace(/[.()>:]/g, m => `\\${m}`)}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
+
+  it('keeps the strip physical and the items in the page direction', () => {
+    expect(rule('.wr-marquee')).toMatch(/direction:\s*ltr/);
+    expect(rule('.wr-marquee__item:dir(rtl)')).toMatch(/direction:\s*rtl/);
+  });
+});

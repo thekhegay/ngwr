@@ -70,13 +70,13 @@ export class WrSpotlightHarness extends ComponentHarness {
    * own box while a pointer is over it, and whatever `[resetX]` / `[resetY]` say
    * otherwise, so a `px` appearing here means something else is writing these variables.
    *
-   * **Present from construction, before any pointer arrives.** The directive seeds the
-   * reset coordinates in its constructor, so the first read is `50%` / `50%` on a fresh
-   * host — do not mistake that for a pointer having been tracked. Worth knowing that the
-   * constructor runs before signal inputs are bound, so a bound (or even a static)
-   * `resetX` is NOT what appears here initially: it is honoured from the first
-   * {@link leave} onward, and the highlight jumps at that point. Reading the written
-   * coordinate rather than the input is what makes that visible at all.
+   * **Present from the first render, before any pointer arrives.** The directive writes
+   * the reset coordinates as soon as its inputs are bound, so the first read is whatever
+   * `[resetX]` / `[resetY]` say — `50%` / `50%` by default — on a fresh host; do not
+   * mistake that for a pointer having been tracked. It used to seed them in its
+   * constructor, before signal inputs are bound, so a custom rest point appeared only
+   * after the first {@link leave}. Reading the written coordinate rather than the input
+   * is what made that visible at all.
    *
    * Throws once the directive has been destroyed, rather than answering with the last
    * value it happened to leave behind — {@link hasTrackedPointer} is the question to ask
@@ -89,7 +89,7 @@ export class WrSpotlightHarness extends ComponentHarness {
     if (x === undefined || y === undefined) {
       throw new Error(
         'WrSpotlightHarness.getSpotlightPosition(): the host carries no `--wr-spotlight-x` / `--wr-spotlight-y`. ' +
-          'The directive writes both in its constructor and removes both on destroy, so this is a torn-down ' +
+          'The directive writes both on its first render and removes both on destroy, so this is a torn-down ' +
           'directive rather than one that has not started — ask hasTrackedPointer() when the host may be gone.'
       );
     }
@@ -130,8 +130,8 @@ export class WrSpotlightHarness extends ComponentHarness {
   /**
    * Take the pointer away.
    *
-   * Dispatches `pointerleave` — the directive's reset path, and the only place `[resetX]`
-   * / `[resetY]` are read after construction. Needs no box: the handler writes the reset
+   * Dispatches `pointerleave` — the directive's reset path, where `[resetX]` / `[resetY]`
+   * are written back over the pointer's position. Needs no box: the handler writes the reset
    * strings straight through without measuring anything, which is why this one does not
    * refuse the way {@link movePointerTo} does.
    *
@@ -148,8 +148,8 @@ export class WrSpotlightHarness extends ComponentHarness {
    * Whether the directive still owns the host's spotlight variables.
    *
    * **This is "the directive is alive", not "a pointer has moved over it".** It is `true`
-   * from the moment the directive constructs, because the constructor seeds the reset
-   * coordinates — there is no earlier state to catch. What it distinguishes is a live
+   * from the directive's first render, which writes the reset coordinates — there is no
+   * earlier state to catch. What it distinguishes is a live
    * directive from a torn-down one: destroy removes both declarations from the element,
    * and nothing else in the repo asserts that cleanup. A directive that stopped removing
    * them would leave a stale gradient position on an element the consumer went on using,

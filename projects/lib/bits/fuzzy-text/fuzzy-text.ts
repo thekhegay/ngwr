@@ -28,7 +28,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr } from 'ngwr/utils';
+import { numAttr, resolveCssColor } from 'ngwr/utils';
 
 import type { WrFuzzyTextDirection } from './types';
 
@@ -67,7 +67,7 @@ import type { WrFuzzyTextDirection } from './types';
   // which is CSSOM and outside CSP's reach.
   template:
     '<span class="wr-fuzzy-text__sr-only" [style]="srOnly">{{ text() }}</span>' +
-    '<canvas #canvas aria-hidden="true"></canvas>',
+    '<canvas #canvas aria-hidden="true" [style]="fit"></canvas>',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-fuzzy-text', '[style.color]': "'var(--wr-color-on-surface)'" },
 })
@@ -85,6 +85,14 @@ export class WrFuzzyText {
     'white-space': 'nowrap',
   };
 
+  /**
+   * The canvas is as wide as the text it draws, and text cannot wrap, so a long
+   * string or a narrow screen pushed it past its container and clipped it. Scaled
+   * down to fit instead, keeping its aspect ratio; the pointer maths below reads
+   * the drawn size back. Bound for the reason `srOnly` is.
+   */
+  protected readonly fit: Readonly<Record<string, string>> = { 'max-width': '100%', height: 'auto' };
+
   /** Text to render. */
   readonly text = input.required<string>();
 
@@ -97,10 +105,15 @@ export class WrFuzzyText {
   /** Font family. `'inherit'` reads the canvas's computed style. @default 'inherit' */
   readonly fontFamily = input('inherit');
 
-  /** Text colour. `'inherit'` reads the canvas's computed style. Ignored if `[gradient]` is set. @default 'inherit' */
+  /**
+   * Text colour, any CSS colour — `var()` and `light-dark()` included, resolved
+   * against the canvas. `'inherit'` follows the canvas's computed colour. Both are
+   * re-read while the text animates, so a colour-scheme change lands on the next
+   * frame. Ignored if `[gradient]` is set. @default 'inherit'
+   */
   readonly color = input('inherit');
 
-  /** Optional horizontal gradient stops. */
+  /** Optional horizontal gradient stops, each resolved the way `color` is. */
   readonly gradient = input<readonly string[] | null>(null);
 
   /** Enable hover / touch reactivity. @default true */
@@ -178,13 +191,10 @@ export class WrFuzzyText {
       this.glitchMode();
       this.glitchInterval();
       this.glitchDuration();
-      // Skip if we haven't booted yet.
-      if (!this.teardown) return;
-      this.teardown();
-      this.teardown = undefined;
-      queueMicrotask(() => {
-        void this.init();
-      });
+      // Read live: `init()` chooses between the still copy and the loop, so a
+      // preference switched while the page is open needs a fresh one.
+      this.platform.prefersReducedMotion();
+      this.restart();
     });
 
     this.destroyRef.onDestroy(() => {
@@ -195,6 +205,45 @@ export class WrFuzzyText {
 
   // Init / loop
 
+  /** Tear the running instance down and boot a fresh one. A no-op before the first boot. */
+  private restart(): void {
+    if (!this.teardown) return;
+    this.teardown();
+    this.teardown = undefined;
+    queueMicrotask(() => {
+      void this.init();
+    });
+  }
+
+  /**
+   * The fill, as computed colours: one entry for `color`, or one per gradient stop.
+   * A canvas reads neither a custom property nor `light-dark()` — `fillStyle` keeps
+   * its previous value and `addColorStop` throws — so each goes through the cascade
+   * first, falling back to the canvas's own computed colour.
+   */
+  private resolveFill(canvas: HTMLCanvasElement): string[] {
+    const inherited = window.getComputedStyle(canvas).color || '#fff';
+    const gradient = this.gradient();
+    if (gradient && gradient.length >= 2) return gradient.map(stop => resolveCssColor(canvas, stop, inherited));
+    const color = this.color();
+    return [color === 'inherit' ? inherited : resolveCssColor(canvas, color, inherited)];
+  }
+
+  /**
+   * CSS font size in pixels, resolved where the canvas would resolve it: inside the
+   * canvas, whose fallback content is never painted, so `em` and `%` follow the
+   * host's own font size.
+   */
+  private measureFontSize(fontSize: string | number, canvas: HTMLCanvasElement): number {
+    if (typeof fontSize === 'number') return fontSize;
+    const tmp = document.createElement('span');
+    tmp.style.fontSize = fontSize;
+    canvas.appendChild(tmp);
+    const px = Number.parseFloat(window.getComputedStyle(tmp).fontSize);
+    tmp.remove();
+    return px;
+  }
+
   private async init(): Promise<void> {
     const canvas = this.canvasRef().nativeElement;
     const ctx = canvas.getContext('2d');
@@ -202,9 +251,18 @@ export class WrFuzzyText {
 
     const fontFamily =
       this.fontFamily() === 'inherit' ? window.getComputedStyle(canvas).fontFamily || 'sans-serif' : this.fontFamily();
-    const color = this.color() === 'inherit' ? window.getComputedStyle(canvas).color || '#fff' : this.color();
     const fontSize = this.fontSize();
-    const fontSizeStr = typeof fontSize === 'number' ? `${fontSize}px` : fontSize;
+    // Numeric font size for buffer maths — and for the font string itself. The canvas
+    // was handed the raw CSS, and Chromium caches a parsed font by its string, so a
+    // `clamp(2rem, 10vw, 10rem)` kept the pixel size of the viewport it was first
+    // parsed at however often the canvas was rebuilt after a resize.
+    const numericFontSize = this.measureFontSize(fontSize, canvas);
+    const fontSizeStr =
+      typeof fontSize === 'number'
+        ? `${fontSize}px`
+        : Number.isFinite(numericFontSize)
+          ? `${numericFontSize}px`
+          : fontSize;
     const fontWeight = this.fontWeight();
     const fontString = `${fontWeight} ${fontSizeStr} ${fontFamily}`;
 
@@ -216,18 +274,6 @@ export class WrFuzzyText {
 
     // Destroyed while the fonts were loading — nothing below may start.
     if (this.destroyed) return;
-
-    // Numeric font size for buffer maths.
-    let numericFontSize: number;
-    if (typeof fontSize === 'number') {
-      numericFontSize = fontSize;
-    } else {
-      const tmp = document.createElement('span');
-      tmp.style.fontSize = fontSize;
-      document.body.appendChild(tmp);
-      numericFontSize = Number.parseFloat(window.getComputedStyle(tmp).fontSize);
-      document.body.removeChild(tmp);
-    }
 
     const text = this.text();
     const letterSpacing = this.letterSpacing();
@@ -262,27 +308,41 @@ export class WrFuzzyText {
     offscreen.height = tightHeight;
     const xOffset = extraWidthBuffer / 2;
 
-    offCtx.font = fontString;
-    offCtx.textBaseline = 'alphabetic';
-
-    const gradient = this.gradient();
-    if (gradient && gradient.length >= 2) {
-      const g = offCtx.createLinearGradient(0, 0, offscreenWidth, 0);
-      gradient.forEach((c, i) => g.addColorStop(i / (gradient.length - 1), c));
-      offCtx.fillStyle = g;
-    } else {
-      offCtx.fillStyle = color;
-    }
-
-    if (letterSpacing !== 0) {
-      let xPos = xOffset;
-      for (const ch of text) {
-        offCtx.fillText(ch, xPos, actualAscent);
-        xPos += offCtx.measureText(ch).width + letterSpacing;
+    // The text is baked into the offscreen canvas in the colours resolved now, and
+    // re-baked whenever they resolve differently (see `refill` in the loop).
+    const bake = (fills: readonly string[]): void => {
+      offCtx.font = fontString;
+      offCtx.textBaseline = 'alphabetic';
+      if (fills.length >= 2) {
+        const g = offCtx.createLinearGradient(0, 0, offscreenWidth, 0);
+        fills.forEach((c, i) => g.addColorStop(i / (fills.length - 1), c));
+        offCtx.fillStyle = g;
+      } else {
+        offCtx.fillStyle = fills[0];
       }
-    } else {
-      offCtx.fillText(text, xOffset - actualLeft, actualAscent);
-    }
+
+      if (letterSpacing !== 0) {
+        let xPos = xOffset;
+        for (const ch of text) {
+          offCtx.fillText(ch, xPos, actualAscent);
+          xPos += offCtx.measureText(ch).width + letterSpacing;
+        }
+      } else {
+        offCtx.fillText(text, xOffset - actualLeft, actualAscent);
+      }
+    };
+    let fillKey = '';
+    /** Re-resolve the fill; re-bake and report `true` when it changed. */
+    const refill = (): boolean => {
+      const fills = this.resolveFill(canvas);
+      const key = fills.join('|');
+      if (key === fillKey) return false;
+      if (fillKey) offCtx.clearRect(0, 0, offscreenWidth, tightHeight);
+      fillKey = key;
+      bake(fills);
+      return true;
+    };
+    refill();
 
     // Size the visible canvas, leaving room for the max horizontal fuzz.
     const horizontalMargin = fuzzRange + 20;
@@ -296,12 +356,21 @@ export class WrFuzzyText {
     const interactiveRight = interactiveLeft + textBoundingWidth;
     const interactiveBottom = interactiveTop + tightHeight;
 
+    // A viewport-relative size (the default is `clamp(2rem, 10vw, 10rem)`) is
+    // measured into the bitmap once, so a rotated phone or a resized window kept
+    // the old size until a reload. Re-measured on resize, and rebuilt only when
+    // the pixel size actually moved.
+    const onResize = (): void => {
+      if (!Object.is(this.measureFontSize(this.fontSize(), canvas), numericFontSize)) this.restart();
+    };
+    window.addEventListener('resize', onResize);
+
     // Reduced motion: paint the text once, clean — no fuzz loop, no
     // glitch bursts, no pointer reactivity. Teardown must still be set
     // so the re-init effect keeps redrawing on input changes.
     if (this.platform.prefersReducedMotion()) {
       ctx.drawImage(offscreen, 0, 0);
-      this.teardown = (): void => undefined;
+      this.teardown = (): void => window.removeEventListener('resize', onResize);
       return;
     }
 
@@ -336,6 +405,10 @@ export class WrFuzzyText {
         return;
       }
       lastFrame = ts;
+
+      // A colour scheme switched under a running loop lands here: the text is
+      // re-baked in whatever its colours now resolve to.
+      refill();
 
       ctx.clearRect(
         -fuzzRange - 20,
@@ -415,25 +488,53 @@ export class WrFuzzyText {
 
       rafId = requestAnimationFrame(run);
     };
-    rafId = requestAnimationFrame(run);
+
+    // Off screen the loop stops asking for frames, the way `wr-waves` does: it is
+    // decoration, and every frame out of sight still redrew one slice per row.
+    // Without an observer (jsdom) it simply runs.
+    const resume = (): void => {
+      if (rafId === 0) rafId = requestAnimationFrame(run);
+    };
+    const park = (): void => {
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+    };
+    const io =
+      typeof IntersectionObserver === 'undefined'
+        ? null
+        : new IntersectionObserver(entries => (entries[entries.length - 1].isIntersecting ? resume() : park()));
+    if (io) io.observe(canvas);
+    else resume();
 
     const isInsideText = (x: number, y: number): boolean =>
       x >= interactiveLeft && x <= interactiveRight && y >= interactiveTop && y <= interactiveBottom;
 
+    /**
+     * A client point in canvas pixels. The canvas may be drawn smaller than its
+     * bitmap (`fit`), so the offset is scaled back up; a box with no size (jsdom)
+     * is taken as unscaled.
+     */
+    const isOverText = (clientX: number, clientY: number): boolean => {
+      const rect = canvas.getBoundingClientRect();
+      const scale = rect.width > 0 ? canvas.width / rect.width : 1;
+      return isInsideText((clientX - rect.left) * scale, (clientY - rect.top) * scale);
+    };
+
     const onMouseMove = (e: MouseEvent): void => {
       if (!this.enableHover()) return;
-      const rect = canvas.getBoundingClientRect();
-      isHovering = isInsideText(e.clientX - rect.left, e.clientY - rect.top);
+      isHovering = isOverText(e.clientX, e.clientY);
     };
     const onMouseLeave = (): void => {
       isHovering = false;
     };
+    // Passive, and it never cancels: the text is decoration, and a swipe that
+    // starts on it has to scroll the page like a swipe anywhere else. It used to
+    // `preventDefault()`, which turned the whole canvas into a scroll dead zone on
+    // every touch screen.
     const onTouchMove = (e: TouchEvent): void => {
       if (!this.enableHover()) return;
-      e.preventDefault();
-      const rect = canvas.getBoundingClientRect();
       const t = e.touches[0];
-      isHovering = isInsideText(t.clientX - rect.left, t.clientY - rect.top);
+      isHovering = isOverText(t.clientX, t.clientY);
     };
     const onTouchEnd = (): void => {
       isHovering = false;
@@ -453,21 +554,21 @@ export class WrFuzzyText {
     // boot and never again: a `[clickEffect]` bound to a signal that starts `false` —
     // the default, so the ordinary case — stayed dead after it flipped true. Adding
     // them to that list would restart the rAF loop and the glitch timers just to
-    // toggle a listener, which is visible; the guards are not. `onTouchMove` calls
-    // `preventDefault()` only past its own guard, so a hover-disabled instance still
-    // swallows nothing.
+    // toggle a listener, which is visible; the guards are not.
     //
     // `onMouseLeave` / `onTouchEnd` stay ungated deliberately: they only ever CLEAR
     // toward the idle state, and gating them would strand `isHovering` on for good
     // when hover is switched off mid-hover.
     canvas.addEventListener('mousemove', onMouseMove);
     canvas.addEventListener('mouseleave', onMouseLeave);
-    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+    canvas.addEventListener('touchmove', onTouchMove, { passive: true });
     canvas.addEventListener('touchend', onTouchEnd);
     canvas.addEventListener('click', onClick);
 
     this.teardown = (): void => {
-      cancelAnimationFrame(rafId);
+      park();
+      io?.disconnect();
+      window.removeEventListener('resize', onResize);
       clearTimeout(glitchOnTimer);
       clearTimeout(glitchOffTimer);
       clearTimeout(clickTimer);

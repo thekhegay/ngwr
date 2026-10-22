@@ -96,6 +96,12 @@ describe('WrBlurText', () => {
     vi.restoreAllMocks();
   });
 
+  it('orders the pieces by their own text, not by the page direction', () => {
+    // The pieces are flex items, ordered by the container's direction: under the
+    // page's, 'Welcome to ngwr' read 'ngwr to Welcome' on an RTL page.
+    expect(root().querySelector('wr-blur-text')!.getAttribute('dir')).toBe('auto');
+  });
+
   it('carries the whole string once, with the pieces out of the tree', () => {
     expect(readable()).toBe('Hi there');
     for (const el of root().querySelectorAll('.wr-blur-text__piece')) {
@@ -188,5 +194,57 @@ describe('WrBlurText', () => {
     expect(readable()).toBe('Hi there');
     expect(pieces()).toEqual(['Hi', 'there']);
     expect(observed).toEqual([]);
+  });
+
+  /**
+   * jsdom has no Web Animations API, so `animate` is stubbed and each tween's
+   * `onfinish` is fired by hand — which is what reaches the ordering that matters:
+   * a tween still in flight when the component goes away. The second spec is here
+   * so the first cannot pass on a stub that never finishes anything.
+   */
+  describe('with motion', () => {
+    let animateBefore: PropertyDescriptor | undefined;
+    let tweens: Animation[];
+
+    const finishAll = (): void => {
+      for (const tween of tweens) tween.onfinish?.call(tween, new Event('finish') as AnimationPlaybackEvent);
+    };
+
+    beforeEach(async () => {
+      fixture.destroy();
+      tweens = [];
+      animateBefore = Object.getOwnPropertyDescriptor(Element.prototype, 'animate');
+      Element.prototype.animate = function () {
+        const tween = { cancel: () => undefined, onfinish: null } as unknown as Animation;
+        tweens.push(tween);
+        return tween;
+      };
+      await mount([
+        { provide: WrPlatform, useValue: { ...reducedMotion, prefersReducedMotion: signal(false).asReadonly() } },
+      ]);
+      await enterViewport();
+    });
+
+    afterEach(() => {
+      if (animateBefore) Object.defineProperty(Element.prototype, 'animate', animateBefore);
+      else delete (Element.prototype as Partial<Element>).animate;
+    });
+
+    it('reports completion once the last piece lands', () => {
+      expect(tweens.length).toBe(pieces().length);
+      expect(fixture.componentInstance.done).toBe(0);
+
+      finishAll();
+      expect(fixture.componentInstance.done).toBe(1);
+    });
+
+    it('stays silent when the last piece lands after it has been destroyed', () => {
+      // `console.warn`, which is the channel Angular reports NG0953 on.
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      fixture.destroy();
+
+      finishAll();
+      expect(warn.mock.calls.map(args => args.map(String).join(' ')).filter(m => m.includes('NG0953'))).toEqual([]);
+    });
   });
 });

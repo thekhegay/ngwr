@@ -155,6 +155,17 @@ describe('WrTypewriterHarness', () => {
     expect(await machine.getText()).toBe('Hell');
   });
 
+  it('reads the whole sentence a screen reader gets while the fragment is still growing', async () => {
+    fixture.componentInstance.reverseMode.set(true);
+    await fixture.whenStable();
+    const machine = await typewriter();
+
+    vi.advanceTimersByTime(10);
+    expect(await machine.getText()).toBe('ol');
+    // The entry being typed, whole and unreversed.
+    expect(await machine.getAccessibleText()).toBe('Hello');
+  });
+
   it('keeps a fragment ending in a space exactly as it stands', async () => {
     fixture.componentInstance.text.set('a b');
     await fixture.whenStable();

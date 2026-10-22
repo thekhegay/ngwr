@@ -40,6 +40,8 @@ let filled: number;
 let placed: { x: number; y: number }[];
 /** Frames the page asked for, held rather than fired. */
 let frames: FrameRequestCallback[];
+/** Every `fillStyle` a particle was painted with. */
+let fills: unknown[];
 
 /**
  * Frames are held, not fired. Whether one was SCHEDULED is the whole of what
@@ -68,6 +70,10 @@ const withContext = (): void => {
       filled++;
     },
   };
+  Object.defineProperty(ctx, 'fillStyle', {
+    get: () => fills[fills.length - 1] ?? '#000000',
+    set: (value: unknown) => fills.push(value),
+  });
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
     // `save`, `restore`, `rotate`, `fillStyle`, `globalAlpha`: each travels straight
     // into a no-op, and inventing a plausible answer would say nothing this stub
@@ -100,6 +106,7 @@ describe('WrConfetti', () => {
     filled = 0;
     placed = [];
     frames = [];
+    fills = [];
     confetti = setup();
   });
 
@@ -255,6 +262,21 @@ describe('WrConfetti', () => {
     // gets a canvas instead of inheriting a detached one.
     confetti.fire({ count: 1 });
     expect(canvases().length).toBe(1);
+  });
+
+  it('resolves a token colour before painting with it', () => {
+    // `fillStyle` reads neither `var()` nor `light-dark()` and keeps the previous
+    // colour, so a token palette painted black, or whatever the last particle had.
+    withContext();
+    document.documentElement.style.setProperty('--probe', 'rgb(1, 2, 3)');
+    try {
+      confetti.fire({ colors: ['var(--probe)'], count: 2 });
+      runFrame();
+    } finally {
+      document.documentElement.style.removeProperty('--probe');
+    }
+
+    expect(fills).toEqual(['rgb(1, 2, 3)', 'rgb(1, 2, 3)']);
   });
 
   it('takes an options object without complaining about the ones it is not given', () => {

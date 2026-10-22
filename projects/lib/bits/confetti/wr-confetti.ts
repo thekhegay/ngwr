@@ -9,6 +9,7 @@ import { DOCUMENT } from '@angular/common';
 import { DestroyRef, Service, inject } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
+import { resolveCssColor } from 'ngwr/utils';
 
 import type { WrConfettiOptions } from './types';
 
@@ -145,6 +146,12 @@ export class WrConfetti {
     if (!win) return;
     const cx = opts.origin.x * win.innerWidth;
     const cy = opts.origin.y * win.innerHeight;
+    // Resolved once per burst, against the canvas: `fillStyle` reads neither a
+    // `var()` token nor `light-dark()` and silently keeps the previous colour, so
+    // `colors: ['var(--wr-color-primary)']` painted whatever the last particle
+    // had. A colour that resolves to nothing falls back to the first default.
+    const canvas = this.canvas;
+    const palette = canvas ? opts.colors.map(color => resolveCssColor(canvas, color, DEFAULTS.colors[0])) : opts.colors;
     const halfSpread = (opts.spread / 2) * (Math.PI / 180);
     for (let i = 0; i < opts.count; i++) {
       // Launch direction: 90° = up (default), 0° = right — same convention
@@ -159,7 +166,7 @@ export class WrConfetti {
         vy: Math.sin(angle) * speed,
         rotation: Math.random() * Math.PI * 2,
         rotationSpeed: (Math.random() - 0.5) * 0.3,
-        color: opts.colors[Math.floor(Math.random() * opts.colors.length)],
+        color: palette[Math.floor(Math.random() * palette.length)],
         size: opts.size * (0.8 + Math.random() * 0.6),
         ttl: opts.ttl,
         gravity: opts.gravity,

@@ -14,10 +14,9 @@ export interface WrTypewriterHarnessFilters extends BaseHarnessFilters {
    * whole sentence once it settles, and the empty string before the first tick. A
    * string is an exact match, a RegExp is tested.
    *
-   * There is nothing steadier to match on: the component holds no copy of the phrase
-   * it is working towards, so a filter cannot address a typewriter by what it is
-   * going to say. Pin the clock first — `vi.useFakeTimers` and an explicit advance —
-   * or match a RegExp loose enough to survive whichever frame the query lands on.
+   * Pin the clock first — `vi.useFakeTimers` and an explicit advance — or match a
+   * RegExp loose enough to survive whichever frame the query lands on. The whole
+   * sentence is `WrTypewriterHarness.getAccessibleText()`, read once a harness is in hand.
    */
   readonly text?: string | RegExp;
   /**

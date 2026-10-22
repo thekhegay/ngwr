@@ -19,12 +19,13 @@ import {
   ElementRef,
   PLATFORM_ID,
   ViewEncapsulation,
-  afterNextRender,
+  afterRenderEffect,
   computed,
   effect,
   inject,
   input,
   signal,
+  untracked,
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
@@ -116,6 +117,17 @@ function removeRandomIndices(set: ReadonlySet<number>, count: number): Set<numbe
     '(mouseenter)': 'onMouseEnter()',
     '(mouseleave)': 'onMouseLeave()',
     '(click)': 'onClick()',
+    // `click` mode rests scrambled and only a click undoes it, so the host has to
+    // be a control a keyboard can reach and press — a button, operated the way a
+    // native one is: Enter on keydown, Space on keyup. The readable copy inside
+    // becomes its name. Not under reduced motion, where it rests plain and a
+    // press would do nothing.
+    '[attr.tabindex]': 'operable() ? 0 : null',
+    '[attr.role]': "operable() ? 'button' : null",
+    '[class.wr-decrypt-text--interactive]': 'operable()',
+    '(keydown.enter)': 'onKeyActivate($event)',
+    '(keydown.space)': 'onKeySpaceDown($event)',
+    '(keyup.space)': 'onKeyActivate($event)',
   },
 })
 export class WrDecryptText {
@@ -140,11 +152,23 @@ export class WrDecryptText {
   /** Pool of glyphs to scramble through (used when `useOriginalCharsOnly` is false). */
   readonly characters = input(DEFAULT_CHARS);
 
-  /** When to start the animation. @default 'hover' */
+  /**
+   * When to start the animation. `'click'` rests scrambled, so it makes the host a
+   * button — a tab stop that Enter or Space presses — except under reduced motion,
+   * where it rests plain. @default 'hover'
+   */
   readonly animateOn = input<WrDecryptTextAnimateOn>('hover');
 
   /** Click behaviour. `'once'` decrypts then stops; `'toggle'` flips state on each click. @default 'once' */
   readonly clickMode = input<WrDecryptTextClickMode>('once');
+
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly platform = inject(WrPlatform);
+
+  /** Whether the host is a pressable control: click mode, with motion allowed. */
+  protected readonly operable = computed(() => this.animateOn() === 'click' && !this.platform.prefersReducedMotion());
 
   private readonly displayText = signal('');
   private readonly revealedIndices = signal<ReadonlySet<number>>(new Set());
@@ -170,11 +194,6 @@ export class WrDecryptText {
   private iterationCount = 0;
   private intervalId: ReturnType<typeof setInterval> | undefined;
   private hasAnimatedOnce = false;
-
-  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-  private readonly platform = inject(WrPlatform);
 
   constructor() {
     if (!this.isBrowser) {
@@ -204,9 +223,14 @@ export class WrDecryptText {
       this.hasAnimatedOnce = false;
     });
 
-    afterNextRender(() => {
+    // Observed for as long as the mode asks for it — including a mode switched to
+    // `view` after boot, which used to arm nothing because the observer was set up
+    // once, for whatever mode the first render had.
+    afterRenderEffect(onCleanup => {
       const mode = this.animateOn();
-      if (mode === 'view' || mode === 'inViewHover') this.setupIntersectionObserver();
+      if (mode !== 'view' && mode !== 'inViewHover') return;
+      const io = untracked(() => this.observeView());
+      onCleanup(() => io?.disconnect());
     });
 
     this.destroyRef.onDestroy(() => this.stopInterval());
@@ -226,6 +250,17 @@ export class WrDecryptText {
     this.resetToPlain();
   }
 
+  protected onKeySpaceDown(event: Event): void {
+    // Space scrolls the page on keydown; the press itself lands on keyup.
+    if (this.operable()) event.preventDefault();
+  }
+
+  protected onKeyActivate(event: Event): void {
+    if (!this.operable()) return;
+    event.preventDefault();
+    this.onClick();
+  }
+
   protected onClick(): void {
     if (this.animateOn() !== 'click') return;
     if (this.clickMode() === 'once') {
@@ -243,7 +278,9 @@ export class WrDecryptText {
 
   // Internals
 
-  private setupIntersectionObserver(): void {
+  private observeView(): IntersectionObserver | null {
+    // Without an observer (jsdom) there is no viewport to enter.
+    if (typeof IntersectionObserver === 'undefined') return null;
     const io = new IntersectionObserver(
       (entries, obs) => {
         for (const e of entries) {
@@ -258,7 +295,7 @@ export class WrDecryptText {
       { threshold: 0.1, rootMargin: '0px' }
     );
     io.observe(this.host.nativeElement);
-    this.destroyRef.onDestroy(() => io.disconnect());
+    return io;
   }
 
   private triggerHoverDecrypt(): void {

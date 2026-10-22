@@ -100,6 +100,13 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
   let active = true;
   let rafId = 0;
 
+  // Every GL object this boot creates, so the teardown can free them. The
+  // context outlives the sim (an input change reboots on the same canvas),
+  // so anything left here is GPU memory nobody can reach again.
+  const shaders: WebGLShader[] = [];
+  const programs: WebGLProgram[] = [];
+  const buffers: WebGLBuffer[] = [];
+
   const pointer: Pointer = {
     texcoordX: 0,
     texcoordY: 0,
@@ -116,6 +123,7 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
   function compile(type: number, source: string, keywords?: readonly string[]): WebGLShader {
     const prefixed = keywords ? keywords.map(k => `#define ${k}\n`).join('') + source : source;
     const shader = gl.createShader(type)!;
+    shaders.push(shader);
     gl.shaderSource(shader, prefixed);
     gl.compileShader(shader);
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
@@ -127,6 +135,7 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
 
   function link(vertex: WebGLShader, fragment: WebGLShader): WebGLProgram {
     const program = gl.createProgram();
+    programs.push(program);
     gl.attachShader(program, vertex);
     gl.attachShader(program, fragment);
     gl.linkProgram(program);
@@ -482,9 +491,12 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
 
   // Fullscreen blit
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  const vertexBuffer = gl.createBuffer();
+  const indexBuffer = gl.createBuffer();
+  buffers.push(vertexBuffer, indexBuffer);
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, -1, 1, 1, 1, 1, -1]), gl.STATIC_DRAW);
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer());
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array([0, 1, 2, 0, 2, 3]), gl.STATIC_DRAW);
   gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(0);
@@ -537,6 +549,16 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
     };
   }
 
+  function disposeFBO(target: FBO): void {
+    gl.deleteTexture(target.texture);
+    gl.deleteFramebuffer(target.fbo);
+  }
+
+  function disposeDoubleFBO(target: DoubleFBO): void {
+    disposeFBO(target.read);
+    disposeFBO(target.write);
+  }
+
   function createDoubleFBO(
     w: number,
     h: number,
@@ -585,6 +607,7 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
     copyProgram.bind();
     gl.uniform1i(copyProgram.uniforms['uTexture'], target.attach(0));
     blit(newFBO);
+    disposeFBO(target);
     return newFBO;
   }
 
@@ -599,6 +622,7 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
   ): DoubleFBO {
     if (target.width === w && target.height === h) return target;
     target.read = resizeFBO(target.read, w, h, internalFormat, format, type, param);
+    disposeFBO(target.write);
     target.write = createFBO(w, h, internalFormat, format, type, param);
     target.width = w;
     target.height = h;
@@ -644,6 +668,10 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
       ? resizeDoubleFBO(velocity, simRes.width, simRes.height, rg.internalFormat, rg.format, texType, filtering)
       : createDoubleFBO(simRes.width, simRes.height, rg.internalFormat, rg.format, texType, filtering);
 
+    // Recreated on every resize rather than resized, so the previous ones go first.
+    if (divergence) disposeFBO(divergence);
+    if (curl) disposeFBO(curl);
+    if (pressure) disposeDoubleFBO(pressure);
     divergence = createFBO(simRes.width, simRes.height, r.internalFormat, r.format, texType, gl.NEAREST);
     curl = createFBO(simRes.width, simRes.height, r.internalFormat, r.format, texType, gl.NEAREST);
     pressure = createDoubleFBO(simRes.width, simRes.height, r.internalFormat, r.format, texType, gl.NEAREST);
@@ -657,7 +685,8 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
   // Frame loop
 
   function updateFrame(): void {
-    if (!active) return;
+    rafId = 0;
+    if (!active || !visible) return;
     const dt = calcDeltaTime();
     if (resizeCanvas()) initFramebuffers();
     updateColors(dt);
@@ -964,17 +993,43 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
   window.addEventListener('touchstart', onTouchStart, { passive: true });
   window.addEventListener('touchmove', onTouchMove, { passive: true });
 
+  // A contained canvas scrolled out of view stops asking for frames, the way
+  // `wr-waves` does: the solver runs every pass of the pipeline each frame, for
+  // nothing anyone can see. The fullscreen overlay is always in view. Without an
+  // observer (jsdom) it simply runs.
+  let visible = true;
+  const io =
+    typeof IntersectionObserver === 'undefined'
+      ? null
+      : new IntersectionObserver(entries => {
+          visible = entries[entries.length - 1].isIntersecting;
+          if (visible && active && rafId === 0) {
+            // The time away is not simulated: the first frame back steps from now.
+            lastUpdateTime = Date.now();
+            rafId = requestAnimationFrame(updateFrame);
+          }
+        });
+  io?.observe(canvas);
+
   updateFrame();
 
   return () => {
     active = false;
     cancelAnimationFrame(rafId);
+    io?.disconnect();
     window.removeEventListener('mousedown', onMouseDown);
     window.removeEventListener('mousemove', onMouseMove);
     window.removeEventListener('touchstart', onTouchStart);
     window.removeEventListener('touchmove', onTouchMove);
     // The context is NOT lost here on purpose — input changes reboot the
-    // sim on the same canvas, and a lost context can't be re-acquired.
+    // sim on the same canvas, and a lost context can't be re-acquired. So
+    // everything this boot allocated on it is freed by hand instead.
+    for (const target of [dye, velocity, pressure]) disposeDoubleFBO(target);
+    disposeFBO(divergence);
+    disposeFBO(curl);
+    for (const program of programs) gl.deleteProgram(program);
+    for (const shader of shaders) gl.deleteShader(shader);
+    for (const buffer of buffers) gl.deleteBuffer(buffer);
   };
 }
 
@@ -1053,7 +1108,12 @@ function supportRenderTextureFormat(gl: GL, internalFormat: number, format: numb
   const fbo = gl.createFramebuffer();
   gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
   gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
-  return gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE;
+  const complete = gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE;
+  // A probe, run on every boot: free it, or each reboot leaves one behind.
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.deleteFramebuffer(fbo);
+  gl.deleteTexture(texture);
+  return complete;
 }
 
 export { createFluidSimulation };

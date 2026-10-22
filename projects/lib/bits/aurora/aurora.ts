@@ -23,6 +23,7 @@ import {
   effect,
   inject,
   input,
+  signal,
   viewChild,
 } from '@angular/core';
 
@@ -143,6 +144,12 @@ void main() {
 const DEFAULT_STOPS = ['#5227ff', '#7cff67', '#5227ff'] as const;
 
 /**
+ * The theme's stop hooks, written out in full: `gen:css-vars` finds a read by
+ * its literal name, and a name built from a template string is invisible to it.
+ */
+const STOP_HOOKS = ['var(--wr-aurora-stop-1)', 'var(--wr-aurora-stop-2)', 'var(--wr-aurora-stop-3)'] as const;
+
+/**
  * A resolved colour as the shader's 0–1 channels, or `null` for a form it does
  * not read. Alpha is dropped: the uniform is a `vec3`, and the shader fades the
  * ribbon through its own alpha.
@@ -225,6 +232,11 @@ export class WrAurora {
   private uniforms: Record<string, WebGLUniformLocation | null> = {};
   private rafId = 0;
 
+  /** Flips once `boot()` has a context and a program — the loop waits for it. */
+  private readonly booted = signal(false);
+  /** Whether the host is in the viewport; stays `true` without an observer. */
+  private readonly onScreen = signal(true);
+
   constructor() {
     if (!this.isBrowser) return;
 
@@ -239,6 +251,21 @@ export class WrAurora {
       if (!this.gl) return;
       this.pushUniforms();
       if (this.platform.prefersReducedMotion()) this.draw(0);
+    });
+
+    // The frame loop runs only while there is something to see: never under
+    // `prefers-reduced-motion`, read live (the effect above paints the static
+    // frame when it switches on), and not while the host is off screen — a
+    // background redrawn out of sight still costs a frame every frame.
+    effect(onCleanup => {
+      if (!this.booted() || !this.onScreen() || this.platform.prefersReducedMotion()) return;
+      const loop = (t: number): void => {
+        this.rafId = requestAnimationFrame(loop);
+        this.pushUniforms();
+        this.draw(t * 0.01 * this.speed() * 0.1);
+      };
+      this.zone.runOutsideAngular(() => (this.rafId = requestAnimationFrame(loop)));
+      onCleanup(() => cancelAnimationFrame(this.rafId));
     });
   }
 
@@ -297,23 +324,23 @@ export class WrAurora {
     resize();
     this.pushUniforms();
 
-    if (this.platform.prefersReducedMotion()) {
-      // Static frame — the ribbons hold their t=0 shape.
-      this.draw(0);
-    } else {
-      const loop = (t: number): void => {
-        this.rafId = requestAnimationFrame(loop);
-        this.pushUniforms();
-        this.draw(t * 0.01 * this.speed() * 0.1);
-      };
-      this.rafId = requestAnimationFrame(loop);
-    }
+    // Static frame — the ribbons hold their t=0 shape. Painted under reduced
+    // motion, and as the first frame either way; the loop takes over from here.
+    this.draw(0);
+
+    // Without an observer (jsdom) the host simply counts as visible.
+    const io =
+      typeof IntersectionObserver === 'undefined'
+        ? null
+        : new IntersectionObserver(entries => this.onScreen.set(entries[entries.length - 1].isIntersecting));
+    io?.observe(this.host.nativeElement);
 
     this.destroyRef.onDestroy(() => {
-      cancelAnimationFrame(this.rafId);
       window.removeEventListener('resize', resize);
       ro.disconnect();
+      io?.disconnect();
     });
+    this.booted.set(true);
   }
 
   private pushUniforms(): void {
@@ -336,9 +363,7 @@ export class WrAurora {
     const explicit = this.colorStops();
     const fallback = DEFAULT_STOPS[index];
     const expression =
-      explicit === null
-        ? `var(--wr-aurora-stop-${index + 1})`
-        : (explicit[Math.min(index, explicit.length - 1)] ?? fallback);
+      explicit === null ? STOP_HOOKS[index] : (explicit[Math.min(index, explicit.length - 1)] ?? fallback);
     const canvas = this.canvasRef().nativeElement;
     const resolved = resolveCssColor(canvas, expression, fallback);
     // A colour authored in another space — `oklch()`, `lab()`, `display-p3` —

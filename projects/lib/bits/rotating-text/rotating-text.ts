@@ -162,7 +162,7 @@ export class WrRotatingText {
   next(): void {
     const arr = this.texts();
     if (arr.length === 0) return;
-    const cur = this.index();
+    const cur = this.clampIndex(arr.length);
     const last = arr.length - 1;
     const target = cur === last ? (this.loop() ? 0 : cur) : cur + 1;
     if (target !== cur) void this.transitionTo(target);
@@ -171,7 +171,7 @@ export class WrRotatingText {
   previous(): void {
     const arr = this.texts();
     if (arr.length === 0) return;
-    const cur = this.index();
+    const cur = this.clampIndex(arr.length);
     const last = arr.length - 1;
     const target = cur === 0 ? (this.loop() ? last : cur) : cur - 1;
     if (target !== cur) void this.transitionTo(target);
@@ -181,7 +181,7 @@ export class WrRotatingText {
     const arr = this.texts();
     if (arr.length === 0) return;
     const clamped = Math.max(0, Math.min(target, arr.length - 1));
-    if (clamped !== this.index()) void this.transitionTo(clamped);
+    if (clamped !== this.clampIndex(arr.length)) void this.transitionTo(clamped);
   }
 
   reset(): void {
@@ -189,6 +189,20 @@ export class WrRotatingText {
   }
 
   // Internals
+
+  /**
+   * The index, pulled back inside `texts` and written back. A list can shrink under
+   * a running index — a filtered or reloaded one — and `current` already shows the
+   * last entry then, but `next()` compared against the unclamped number: it never
+   * reached the last index again, so it climbed past it forever, emitting
+   * out-of-range indices while the text stood still. The write-back changes nothing
+   * on screen, so it does not animate.
+   */
+  private clampIndex(length: number): number {
+    const index = Math.min(this.index(), length - 1);
+    if (index !== this.index()) this.index.set(index);
+    return index;
+  }
 
   private restartTimer(): void {
     clearInterval(this.timerId);

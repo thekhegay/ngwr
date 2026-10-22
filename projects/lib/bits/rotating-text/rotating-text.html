@@ -6,8 +6,12 @@
 
 <span class="wr-rotating-text__sr-only">{{ current() }}</span>
 
-<!-- Animated visual content. -->
-<span class="wr-rotating-text__inner" aria-hidden="true">
+<!--
+  Animated visual content. `dir="auto"`: the characters are flex items, which the
+  container's direction orders, so without it the PAGE's direction did — 'ship'
+  read 'pihs' on an RTL page. `auto` takes it from the text, as plain text does.
+-->
+<span class="wr-rotating-text__inner" dir="auto" aria-hidden="true">
   @for (word of words(); track $index) {
     <span class="wr-rotating-text__word">
       @for (char of word.characters; track $index) {

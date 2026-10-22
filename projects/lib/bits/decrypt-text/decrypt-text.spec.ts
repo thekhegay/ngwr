@@ -282,6 +282,84 @@ describe('WrDecryptText', () => {
     expect(encryptedCount()).toBe(0);
   });
 
+  it('is a button a keyboard can reach and press in click mode', async () => {
+    // Click mode rests SCRAMBLED, and a click was the only way out: a sighted
+    // keyboard user never saw the real text at all.
+    await mount();
+    expect(host().hasAttribute('tabindex')).toBe(false);
+    expect(host().hasAttribute('role')).toBe(false);
+
+    fixture.componentInstance.animateOn.set('click');
+    fixture.detectChanges();
+    expect(host().getAttribute('tabindex')).toBe('0');
+    expect(host().getAttribute('role')).toBe('button');
+    expect(host().classList).toContain('wr-decrypt-text--interactive');
+    expect(encryptedCount()).toBe(5);
+
+    host().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+    advance(200);
+    expect(shown()).toBe('HELLO');
+  });
+
+  it('presses on Space released, and keeps Space from scrolling the page', async () => {
+    await mount();
+    fixture.componentInstance.animateOn.set('click');
+    fixture.componentInstance.clickMode.set('toggle');
+    fixture.detectChanges();
+
+    const down = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true });
+    host().dispatchEvent(down);
+    advance(200);
+    expect(down.defaultPrevented).toBe(true);
+    expect(encryptedCount()).toBe(5);
+
+    host().dispatchEvent(new KeyboardEvent('keyup', { key: ' ', bubbles: true, cancelable: true }));
+    advance(200);
+    expect(shown()).toBe('HELLO');
+  });
+
+  it('is no control at all under reduced motion, where click mode rests plain', async () => {
+    await mount([{ provide: WrPlatform, useValue: reducedMotion }]);
+    fixture.componentInstance.animateOn.set('click');
+    fixture.detectChanges();
+
+    expect(host().hasAttribute('tabindex')).toBe(false);
+    expect(host().hasAttribute('role')).toBe(false);
+  });
+
+  it('arms the view trigger when the mode switches to it after boot', async () => {
+    const observers: { callback: (entries: { isIntersecting: boolean }[]) => void; observed: Element[] }[] = [];
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        readonly record: (typeof observers)[number];
+        constructor(callback: (entries: { isIntersecting: boolean }[], observer: unknown) => void) {
+          this.record = { callback: entries => callback(entries, this), observed: [] };
+          observers.push(this.record);
+        }
+        observe(el: Element): void {
+          this.record.observed.push(el);
+        }
+        disconnect(): void {
+          this.record.observed = [];
+        }
+      }
+    );
+    await mount();
+    expect(observers.length).toBe(0);
+
+    fixture.componentInstance.animateOn.set('view');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(observers.length).toBe(1);
+    expect(observers[0].observed).toEqual([host()]);
+
+    observers[0].callback([{ isIntersecting: true }]);
+    advance(10);
+    expect(shown()).not.toBe('HELLO');
+    vi.unstubAllGlobals();
+  });
+
   it('prerenders the plain text on the server', async () => {
     await mount([{ provide: PLATFORM_ID, useValue: 'server' }]);
 

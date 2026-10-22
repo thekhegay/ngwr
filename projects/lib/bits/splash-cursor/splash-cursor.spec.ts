@@ -58,6 +58,12 @@ let frames: FrameRequestCallback[];
  * this one would record nothing.
  */
 let asked: MockInstance<HTMLCanvasElement['getContext']>;
+/**
+ * GL objects the sim created and has not deleted. The context outlives every boot —
+ * an input change reboots on the same canvas — so whatever is still in here after a
+ * teardown is GPU memory nothing can reach again.
+ */
+let alive: Set<object>;
 
 const ACTIVE_UNIFORMS = 0x8b86;
 const FRAMEBUFFER_COMPLETE = 0x8cd5;
@@ -89,6 +95,17 @@ const withContext = (): void => {
       drawn++;
     },
   };
+  // Creation hands out a fresh object, so a delete can be matched to what it frees.
+  for (const kind of ['Texture', 'Framebuffer', 'Program', 'Shader', 'Buffer']) {
+    gl[`create${kind}`] = () => {
+      const object = { kind };
+      alive.add(object);
+      return object;
+    };
+    gl[`delete${kind}`] = (object: object | null) => {
+      if (object) alive.delete(object);
+    };
+  }
   // Every other name is a no-op, memoised per key so that `gl.SOMETHING` is at least
   // equal to itself — a fresh value each read makes the sim's own constant
   // comparisons answer at random.
@@ -138,6 +155,7 @@ describe('WrSplashCursor', () => {
     thrown = [];
     drawn = 0;
     frames = [];
+    alive = new Set();
     asked.mockClear();
     listen = vi.spyOn(window, 'addEventListener');
     drop = vi.spyOn(window, 'removeEventListener');
@@ -214,6 +232,61 @@ describe('WrSplashCursor', () => {
     // and `onCleanup` is what stops the previous one from listening forever.
     expect(booted()).toBe(2);
     expect(stopped()).toBe(1);
+  });
+
+  it('frees every GL object a boot allocated, on reboot and on destroy', async () => {
+    withContext();
+    await mount();
+    const oneSim = alive.size;
+    expect(oneSim).toBeGreaterThan(0);
+
+    // A slider dragged across its track: each step is a reboot on the same context.
+    for (let i = 0; i < 5; i++) {
+      fixture.componentInstance.rainbow.update(on => !on);
+      fixture.detectChanges();
+      await fixture.whenStable();
+    }
+    expect(booted()).toBe(6);
+    expect(alive.size).toBe(oneSim);
+
+    fixture.destroy();
+    expect(alive.size).toBe(0);
+  });
+
+  it('parks a contained sim scrolled out of view, and resumes it in view', async () => {
+    let report: ((entries: { isIntersecting: boolean }[]) => void) | null = null;
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(callback: (entries: { isIntersecting: boolean }[]) => void) {
+          report = callback;
+        }
+        observe(): void {
+          // Driven by hand below.
+        }
+        disconnect(): void {
+          report = null;
+        }
+      }
+    );
+    withContext();
+    await mount();
+    runFrame();
+
+    report!([{ isIntersecting: false }]);
+    runFrame();
+    const parked = drawn;
+    runFrame();
+    expect(drawn).toBe(parked);
+    expect(frames).toEqual([]);
+
+    report!([{ isIntersecting: true }]);
+    runFrame();
+    expect(drawn).toBeGreaterThan(parked);
+
+    fixture.destroy();
+    expect(report).toBeNull();
+    vi.unstubAllGlobals();
   });
 
   it('takes its listeners and its loop with it when destroyed', async () => {

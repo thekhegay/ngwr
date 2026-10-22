@@ -8,9 +8,10 @@ import { WrWaves } from './waves';
 
 @Component({
   imports: [WrWaves],
-  template: `<wr-waves [friction]="friction()" [tension]="tension()" />`,
+  template: `<wr-waves [friction]="friction()" [tension]="tension()" [lineColor]="lineColor()" />`,
 })
 class Host {
+  readonly lineColor = signal<string | null>(null);
   readonly friction = signal(0.925);
   readonly tension = signal(0.005);
 }
@@ -338,6 +339,43 @@ describe('WrWaves', () => {
     expect(pathCalls.moveTo).toBeGreaterThan(0);
     expect(pathCalls.quadraticCurveTo).toBeGreaterThan(pathCalls.moveTo);
     expect(pathCalls.lineTo).toBe(pathCalls.moveTo);
+  });
+
+  it('follows reduced motion switched on and off while the page is open', async () => {
+    const reduce = signal(false);
+    withContext();
+    await mount([{ provide: WrPlatform, useValue: { ...reducedMotion, prefersReducedMotion: reduce } }]);
+    const remove = vi.spyOn(window, 'removeEventListener');
+    runFrame();
+    expect(painted).toBeGreaterThan(0);
+
+    // Switched on: the pointer listeners go, the loop stops, one still grid is drawn.
+    reduce.set(true);
+    await fixture.whenStable();
+    expect(remove).toHaveBeenCalledWith('mousemove', expect.any(Function));
+    const still = painted;
+    frames = [];
+    runFrame();
+    expect(painted).toBe(still);
+
+    // And off again: the field drifts once more.
+    reduce.set(false);
+    await fixture.whenStable();
+    runFrame();
+    expect(painted).toBeGreaterThan(still);
+  });
+
+  it('repaints the still grid when the line colour changes under reduced motion', async () => {
+    withContext();
+    await mount([{ provide: WrPlatform, useValue: reducedMotion }]);
+    expect(painted).toBe(1);
+
+    fixture.componentInstance.lineColor.set('rgb(9, 8, 7)');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(painted).toBe(2);
+    expect(strokes.at(-1)).toBe('rgb(9, 8, 7)');
   });
 
   it('tears down the listeners, the observer and the frame it installed', async () => {

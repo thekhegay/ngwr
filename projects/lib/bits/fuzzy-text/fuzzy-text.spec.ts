@@ -12,6 +12,7 @@ import type { WrFuzzyTextDirection } from './types';
   template: `<wr-fuzzy-text
     [text]="text()"
     [color]="color()"
+    [gradient]="gradient()"
     [direction]="direction()"
     [fuzzRange]="fuzzRange()"
     [enableHover]="enableHover()"
@@ -21,6 +22,7 @@ import type { WrFuzzyTextDirection } from './types';
 class Host {
   readonly text = signal('404');
   readonly color = signal('inherit');
+  readonly gradient = signal<readonly string[] | null>(null);
   readonly direction = signal<WrFuzzyTextDirection>('horizontal');
   readonly fuzzRange = signal(30);
   readonly enableHover = signal(true);
@@ -86,6 +88,10 @@ let frames: Map<number, FrameRequestCallback>;
 /** Frame ids the page cancelled. */
 let cancelled: number[];
 let nextFrameId: number;
+/** Every `fillStyle` the text was baked with, in order. */
+let fills: unknown[];
+/** Every colour handed to a gradient's `addColorStop`, in order. */
+let stops: string[];
 
 /**
  * Frames are held, not fired, and run by hand at a timestamp the test chooses: the
@@ -165,6 +171,7 @@ const withContext = (load?: () => Promise<unknown>): void => {
       // instead of reading back as whichever row it landed on.
       slices.push(Number(args[4] === 1 ? args[5] : args[6]));
     },
+    createLinearGradient: () => ({ addColorStop: (_offset: number, color: string) => stops.push(color) }),
     // jsdom has no text metrics. A fixed box makes every size the component derives
     // from it a known number: 100 wide and 50 tall gives 110 offscreen pixels across
     // and 50 rows down, which is what the per-frame slice counts are read against.
@@ -176,6 +183,10 @@ const withContext = (load?: () => Promise<unknown>): void => {
       actualBoundingBoxDescent: 10,
     }),
   };
+  Object.defineProperty(ctx, 'fillStyle', {
+    get: () => fills[fills.length - 1] ?? '#000000',
+    set: (value: unknown) => fills.push(value),
+  });
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
     new Proxy(ctx, { get: (target, key) => target[key as string] ?? ((): void => undefined) }) as never
   );
@@ -226,6 +237,8 @@ describe('WrFuzzyText', () => {
     frames = new Map();
     cancelled = [];
     nextFrameId = 0;
+    fills = [];
+    stops = [];
     withFonts();
     await mount();
   });
@@ -472,6 +485,162 @@ describe('WrFuzzyText', () => {
     // And it really stopped, rather than only having said so.
     runFrame(9000);
     expect(slices).toEqual([]);
+  });
+
+  it('resolves a token colour before painting with it, and follows it when it changes', async () => {
+    // A canvas reads neither `var()` nor `light-dark()`: `fillStyle` silently kept the
+    // previous colour. And the colour was read once, at boot, so a colour-scheme switch
+    // left dark text on a dark page until a reload.
+    withContext();
+    await mount([], host => {
+      (fixture.nativeElement as HTMLElement).style.setProperty('--probe', 'rgb(1, 2, 3)');
+      host.color.set('var(--probe)');
+    });
+    expect(fills).toEqual(['rgb(1, 2, 3)']);
+
+    runFrame(1000);
+    expect(fills).toEqual(['rgb(1, 2, 3)']);
+
+    (fixture.nativeElement as HTMLElement).style.setProperty('--probe', 'rgb(4, 5, 6)');
+    runFrame(2000);
+    expect(fills).toEqual(['rgb(1, 2, 3)', 'rgb(4, 5, 6)']);
+    // Still one loop, one slice per row — the re-bake did not restart anything.
+    expect(slices.length).toBe(100);
+  });
+
+  it('resolves every gradient stop, where a raw token made addColorStop throw', async () => {
+    withContext();
+    await mount([], host => {
+      (fixture.nativeElement as HTMLElement).style.setProperty('--probe', 'rgb(1, 2, 3)');
+      host.gradient.set(['var(--probe)', 'rgb(7, 8, 9)']);
+    });
+
+    expect(thrown).toEqual([]);
+    expect(stops).toEqual(['rgb(1, 2, 3)', 'rgb(7, 8, 9)']);
+  });
+
+  it('lets a swipe that starts on the text scroll the page', async () => {
+    withContext();
+    await mount();
+    const listen = vi.spyOn(canvas(), 'addEventListener');
+    fixture.componentInstance.fuzzRange.set(32);
+    fixture.detectChanges();
+    await flush();
+
+    // Registered passive, so the browser starts the scroll without waiting on it —
+    // and it never cancels, while it still reads the finger as a hover.
+    const touch = listen.mock.calls.find(call => call[0] === 'touchmove')!;
+    expect(touch[2]).toEqual({ passive: true });
+    const move = new Event('touchmove', { cancelable: true }) as TouchEvent;
+    Object.defineProperty(move, 'touches', { value: [{ clientX: 100, clientY: 25 }] });
+    slices = [];
+    canvas().dispatchEvent(move);
+    runFrame(1000);
+
+    expect(move.defaultPrevented).toBe(false);
+    expect([...new Set(slices)]).toEqual([8]);
+  });
+
+  it('reads the pointer against the size the canvas is drawn at, not its bitmap', async () => {
+    withContext();
+    await mount();
+    expect(canvas().style.maxWidth).toBe('100%');
+
+    // Drawn at half its bitmap width: client x=60 is bitmap x=120, inside the text.
+    const width = canvas().width;
+    vi.spyOn(canvas(), 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      width: width / 2,
+      height: canvas().height / 2,
+    } as DOMRect);
+    slices = [];
+    canvas().dispatchEvent(new MouseEvent('mousemove', { clientX: 60, clientY: 10 }));
+    runFrame(1000);
+
+    expect([...new Set(slices)]).toEqual([7]);
+  });
+
+  it('follows reduced motion switched on and off while the page is open', async () => {
+    const reduce = signal(false);
+    withContext();
+    await mount([{ provide: WrPlatform, useValue: { ...reducedMotion, prefersReducedMotion: reduce } }]);
+    runFrame(1000);
+    expect(slices.length).toBe(50);
+
+    reduce.set(true);
+    fixture.detectChanges();
+    await flush();
+    slices = [];
+    runFrame(2000);
+    expect(stills).toBe(1);
+    expect(slices).toEqual([]);
+
+    reduce.set(false);
+    fixture.detectChanges();
+    await flush();
+    runFrame(3000);
+    expect(slices.length).toBe(50);
+  });
+
+  it('parks the loop off screen and resumes it in view', async () => {
+    let report: ((entries: { isIntersecting: boolean }[]) => void) | null = null;
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(callback: (entries: { isIntersecting: boolean }[]) => void) {
+          report = callback;
+        }
+        observe(): void {
+          // Driven by hand below.
+        }
+        disconnect(): void {
+          report = null;
+        }
+      }
+    );
+    withContext();
+    await mount();
+    report!([{ isIntersecting: true }]);
+    runFrame(1000);
+    expect(slices.length).toBe(50);
+
+    report!([{ isIntersecting: false }]);
+    slices = [];
+    runFrame(2000);
+    expect(slices).toEqual([]);
+
+    report!([{ isIntersecting: true }]);
+    runFrame(3000);
+    expect(slices.length).toBe(50);
+
+    fixture.destroy();
+    expect(report).toBeNull();
+    vi.unstubAllGlobals();
+  });
+
+  it('rebuilds when a viewport-relative size resolves to a new pixel size', async () => {
+    let px = '50px';
+    const computed = window.getComputedStyle.bind(window);
+    vi.spyOn(window, 'getComputedStyle').mockImplementation((el, pseudo) => {
+      const style = computed(el, pseudo);
+      if (el.tagName !== 'SPAN' || el.className) return style;
+      return new Proxy(style, {
+        get: (target, key): unknown => (key === 'fontSize' ? px : Reflect.get(target, key, target)),
+      });
+    });
+    withContext();
+    await mount();
+    const loads = fontLoads;
+
+    window.dispatchEvent(new Event('resize'));
+    await flush();
+    expect(fontLoads).toBe(loads);
+
+    px = '30px';
+    window.dispatchEvent(new Event('resize'));
+    await flush();
+    expect(fontLoads).toBe(loads + 1);
   });
 
   it('renders the readable text on the server too', async () => {
