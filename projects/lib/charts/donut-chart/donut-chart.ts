@@ -52,7 +52,7 @@ const FALLBACK_COLORS = [
  * ]" centerLabel="Disk" centerValue="60%" />
  * ```
  *
- * @see https://ngwr.dev/reference/components/donut-chart
+ * @see https://ngwr.dev/charts/donut-chart
  */
 @Component({
   selector: 'wr-donut-chart',

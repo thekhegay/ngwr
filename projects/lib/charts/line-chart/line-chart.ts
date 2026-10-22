@@ -64,7 +64,7 @@ const FALLBACK_COLORS = [
  * />
  * ```
  *
- * @see https://ngwr.dev/reference/components/line-chart
+ * @see https://ngwr.dev/charts/line-chart
  */
 @Component({
   selector: 'wr-line-chart',

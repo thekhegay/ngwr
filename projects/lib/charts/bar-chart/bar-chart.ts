@@ -26,7 +26,7 @@ import type { WrBarChartDatum } from './types';
  * ]" />
  * ```
  *
- * @see https://ngwr.dev/reference/components/bar-chart
+ * @see https://ngwr.dev/charts/bar-chart
  */
 @Component({
   selector: 'wr-bar-chart',

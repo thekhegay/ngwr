@@ -61,7 +61,7 @@ function amount(raw: number): number {
  * <wr-calendar-heatmap [data]="data" [endDate]="today" [weeks]="26" color="#10b981" />
  * ```
  *
- * @see https://ngwr.dev/reference/components/calendar-heatmap
+ * @see https://ngwr.dev/charts/calendar-heatmap
  */
 @Component({
   selector: 'wr-calendar-heatmap',

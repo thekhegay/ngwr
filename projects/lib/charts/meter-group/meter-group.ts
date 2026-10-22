@@ -47,7 +47,7 @@ const FALLBACK_COLORS = [
  * />
  * ```
  *
- * @see https://ngwr.dev/reference/components/meter-group
+ * @see https://ngwr.dev/charts/meter-group
  */
 @Component({
   selector: 'wr-meter-group',

@@ -20,7 +20,7 @@ import { useChartTooltip } from 'ngwr/popover';
  * <wr-sparkline [data]="prices" [showArea]="true" color="var(--wr-color-success)" />
  * ```
  *
- * @see https://ngwr.dev/reference/components/sparkline
+ * @see https://ngwr.dev/charts/sparkline
  */
 @Component({
   selector: 'wr-sparkline',
