@@ -1,7 +1,7 @@
 <main class="ngwr-home">
   <!-- Hero -->
   <section class="ngwr-home-hero-wrap">
-    <wr-waves class="ngwr-home-hero-wrap__waves" [waveAmpX]="24" [waveAmpY]="12" [xGap]="14" [yGap]="36" />
+    <wr-waves class="ngwr-home-hero-wrap__waves" [waveAmpX]="24" [waveAmpY]="12" [xGap]="10" [yGap]="24" />
     <div class="container">
       <div class="ngwr-home-hero ngwr-home-hero--center">
         <h1 class="ngwr-home-hero__title">
@@ -20,7 +20,7 @@
 
         <!-- One line, no code spans. The specification that used to sit here moved
              down to the "Developer experience" section, which has the room to set
-             it properly; the fold is headline, glance line, calls to action.
+             it properly; the fold is headline, glance line, call to action.
 
              The line now carries the absence claim as a clause, which is what
              retired the "Not in the library: ___" rotator that used to sit under
@@ -42,36 +42,30 @@
           />
         </p>
 
+        <!-- One call to action. The glow frames the button rather than replacing
+             it: the link is still a plain `wr-btn`, and `animated` plays the
+             perimeter sweep once on load, which reduced motion skips. -->
         <div class="ngwr-home-hero__cta">
-          <a
-            class="ngwr-home-hero__btn"
-            wr-btn
-            color="primary"
-            size="lg"
-            [routerLink]="path(routes.docs)"
-            icon="arrow-forward"
-            iconPosition="end"
+          <wr-border-glow
+            class="ngwr-home-hero__glow"
+            animated
+            [borderRadius]="11"
+            [glowRadius]="24"
+            [edgeSensitivity]="20"
           >
-            Get Started
-          </a>
-          <a
-            class="ngwr-home-hero__btn"
-            wr-btn
-            outlined
-            size="lg"
-            href="https://stackblitz.com/github/thekhegay/ngwr/tree/main/projects/starter?file=src/app/app.ts"
-            target="_blank"
-            rel="noreferrer"
-            icon="play"
-          >
-            Try it in the browser
-          </a>
+            <a
+              class="ngwr-home-hero__btn"
+              wr-btn
+              color="primary"
+              size="lg"
+              [routerLink]="path(routes.docs)"
+              icon="arrow-forward"
+              iconPosition="end"
+            >
+              Get Started
+            </a>
+          </wr-border-glow>
         </div>
-
-        <a class="ngwr-home-hero__compare" [routerLink]="path(routes.docs, routes.docs.introduction)">
-          <span class="ngwr-home-hero__compare-label">What you get with ngwr</span>
-          <wr-icon name="arrow-forward" />
-        </a>
       </div>
     </div>
   </section>
@@ -149,11 +143,28 @@
             </span>
           </li>
         </ul>
+
+        <div class="ngwr-dx-links">
+          @for (link of dxLinks; track link.label) {
+            <a class="ngwr-dx-links__link" [routerLink]="link.url">
+              <wr-card class="ngwr-dx-links__card" hoverable compact>
+                <span class="ngwr-dx-links__row">
+                  <span class="ngwr-dx-links__icon"><wr-icon [name]="link.icon" /></span>
+                  <span class="ngwr-dx-links__label">{{ link.label }}</span>
+                  <wr-icon class="ngwr-dx-links__arrow" name="arrow-forward" />
+                </span>
+              </wr-card>
+            </a>
+          }
+        </div>
       </div>
 
       <ngwr-doc-code class="ngwr-dx__code" [code]="snippet" language="angular-ts" />
     </div>
   </section>
+
+  <!-- Opt-in -->
+  <ngwr-home-opt-in />
 
   <!-- Why ngwr -->
   <section class="ngwr-section">
@@ -178,9 +189,40 @@
               <wr-icon [name]="tile.icon" />
             </div>
             <p wrTypography variant="h5">{{ tile.title }}</p>
-            <p>{{ tile.description }}</p>
+            <p>
+              @for (part of tile.description.split('`'); track $index; let code = $odd) {
+                @if (code) {
+                  <code>{{ part }}</code>
+                } @else {
+                  {{ part }}
+                }
+              }
+            </p>
+            <pre class="ngwr-why__code"><code>{{ tile.code }}</code></pre>
           </wr-spotlight-card>
         }
+      </div>
+
+      <div class="ngwr-why-footer">
+        <a
+          wr-btn
+          outlined
+          [routerLink]="path(routes.docs, routes.docs.installation)"
+          [fragment]="compatibilityFragment"
+          icon="arrow-forward"
+          iconPosition="end"
+        >
+          Version compatibility
+        </a>
+        <a
+          wr-btn
+          outlined
+          [routerLink]="path(routes.docs, routes.docs.introduction)"
+          icon="arrow-forward"
+          iconPosition="end"
+        >
+          Read the introduction
+        </a>
       </div>
     </div>
   </section>
@@ -301,7 +343,7 @@
 
         <div class="ngwr-motion-footer">
           <a wr-btn outlined size="lg" [routerLink]="path(routes.bits)" icon="arrow-forward" iconPosition="end">
-            Browse the kit
+            Browse bits
           </a>
         </div>
       </div>

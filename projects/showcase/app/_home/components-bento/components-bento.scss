@@ -23,6 +23,19 @@
     }
   }
 
+  // Each sentence is one line from 48rem up (about 590px of text at the lead
+  // size, inside the 720px container). Below that the break goes away, the
+  // paragraph flows as one and `balance` evens its lines out.
+  &__lead {
+    text-wrap: balance;
+  }
+
+  &__lead-break {
+    @media (width < 48rem) {
+      display: none;
+    }
+  }
+
   // The grid itself
   // CSS multi-column gives us masonry / Pinterest-style packing: each
   // tile takes its natural content height and the next tile flows into

@@ -3,9 +3,16 @@
     <header class="ngwr-cbento__head">
       <wr-tag color="primary" outlined>Components</wr-tag>
       <p wrTypography variant="h1">Composed in context.</p>
-      <p wrTypography variant="lead">
-        Forms, navigation, data, feedback — each primitive stitched into a real scene. Type into the inputs, toggle the
-        switches, flip the theme: every tile is live state, not a screenshot.
+      <!--
+        Two sentences, one line each on desktop. The `<br>` sets the break;
+        `&nbsp;` keeps a short word with the next one, so no line ends on
+        "a" or "the" and the last line is never one word.
+      -->
+      <p wrTypography variant="lead" class="ngwr-cbento__lead">
+        Forms, data, navigation and&nbsp;feedback, side&nbsp;by&nbsp;side as&nbsp;in&nbsp;an&nbsp;app.<br
+          class="ngwr-cbento__lead-break"
+        />
+        Every tile is&nbsp;live: type in&nbsp;a&nbsp;field, flip a&nbsp;switch, change the&nbsp;theme.
       </p>
     </header>
 

@@ -18,7 +18,16 @@
 
   // Wave field sits behind the hero copy. The mask fades the lines out
   // toward the bottom so they hand off cleanly to the bento below.
+  //
+  // Paler than the component's default (12% in light, 14% white in dark): a
+  // 10px pitch draws 40% more lines than the old 14px, and the field is
+  // texture behind the headline, not something to read. One share
+  // serves both schemes because `on-surface` is itself a `light-dark()` pair.
+  // Set through the hook rather than `[lineColor]`, so the CSS stand-in grid
+  // the component paints before hydration takes the same colour.
   &__waves {
+    --wr-waves-line-color: color-mix(in srgb, var(--wr-color-on-surface) 8%, transparent);
+
     z-index: 0;
     mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
   }
@@ -77,15 +86,11 @@
     letter-spacing: -1px;
     margin: 0;
 
+    // The Angular logo. It paints its own gradient (see `#core/icons`), so no
+    // colour is set here: the red that used to sit on this rule was a stand-in
+    // for the old single-colour shield, and Angular's mark is no longer red.
     wr-icon {
       --wr-icon-size: 0.92em;
-      // The Angular logo, so the colour is ANGULAR's rather than ours: it used
-      // to read `secondary` (#e21a62) because that was the closest thing the
-      // palette had to Angular's red, and v15 removed it. `danger` is #dc3137,
-      // which is nearer the mark than the one it replaces. The bare intent and
-      // not `-ink`, because a logo is a GRAPHIC — WCAG asks 3:1 of one, not the
-      // 4.5:1 it asks of text.
-      color: var(--wr-color-danger);
       vertical-align: -0.125em;
     }
   }
@@ -142,58 +147,22 @@
     max-width: 100%;
   }
 
-  // Third door, quieter than the two buttons: a reader who is still deciding
-  // wants the comparison, and one who has decided should not be sent to it.
-  // Quieter, but still visibly a link — the showcase's global rule is
-  // `a { color: inherit; text-decoration: none }`, so an anchor that only sets
-  // a muted colour renders as body copy in exactly the colour of the paragraph
-  // above it. This is the house `.ngwr-doc-link` treatment (`styles.scss`) at
-  // the hero's smaller size: `-ink` because the token is text here, and a 40%
-  // underline that solidifies on hover.
-  &__compare {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    margin-top: 0.25rem;
-    // 14px text lands a ~21px box, under the 24px WCAG 2.2 target-size floor
-    // that `check:contrast` also gates on. The padding is what clears it.
-    padding: 0.3125rem 0.25rem;
-    font-size: 0.875rem;
-    color: var(--wr-color-primary-ink);
-
-    &:hover .ngwr-home-hero__compare-label {
-      text-decoration-color: var(--wr-color-primary);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--wr-color-primary);
-      outline-offset: 2px;
-      border-radius: var(--wr-border-radius-sm);
-    }
-
-    wr-icon {
-      --wr-icon-size: 0.875em;
-    }
-  }
-
-  // The rule lives on the label span rather than on the anchor: the anchor is
-  // an `inline-flex`, so an underline set there would have to propagate through
-  // an anonymous flex item and would run under the gap and the arrow as well as
-  // the words. Underlining the text itself is the same result with none of that
-  // riding on how a flex container propagates decorations.
-  &__compare-label {
-    text-decoration: underline;
-    text-decoration-color: color-mix(in srgb, var(--wr-color-primary) 40%, transparent);
-    text-underline-offset: 3px;
-    transition: text-decoration-color var(--wr-transition-base);
-  }
-
   &__cta {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.75rem;
     margin-top: 0.25rem;
+  }
+
+  // The glow is a frame around the button, not a skin on it. `wr-border-glow`
+  // paints its lit edge on the outer 1px of its own box, under its content, so
+  // a button filling the box would cover the edge entirely. A 4px inset leaves
+  // a ring for it, and `[borderRadius]="11"` in the template is the large
+  // button's 7px radius plus that inset, so the ring runs parallel to the
+  // button's corners.
+  &__glow {
+    padding: 4px;
   }
 }
 
@@ -277,6 +246,82 @@
     // wrapper styles and just let it take the full column width.
     display: block;
     width: 100%;
+  }
+}
+
+// Two quiet doors under the copy: the forms guide and the validators. A `wr-card`
+// inside a plain anchor, so the link stays the focusable element and the card
+// brings the border, the surface and the hover lift.
+.ngwr-dx-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+
+  @include bp.media-down(sm) {
+    grid-template-columns: 1fr;
+  }
+
+  &__link {
+    display: block;
+    border-radius: var(--wr-border-radius-base);
+
+    &:focus-visible {
+      outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+      outline-offset: var(--wr-focus-ring-offset);
+    }
+  }
+
+  &__card {
+    --wr-card-padding-y: 0.625rem;
+    --wr-card-padding-x: 0.75rem;
+
+    height: 100%;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  &__icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: var(--wr-border-radius-sm);
+    background: color-mix(in srgb, var(--wr-color-primary) 14%, transparent);
+    color: var(--wr-color-primary-ink);
+    --wr-icon-size: 1rem;
+  }
+
+  &__label {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: var(--wr-color-on-surface);
+  }
+
+  &__arrow {
+    --wr-icon-size: 1rem;
+
+    color: var(--wr-color-on-surface-muted);
+    transition:
+      color var(--wr-transition-base),
+      transform var(--wr-transition-base);
+
+    // The arrow points along the reading direction, so it turns round in RTL.
+    &:dir(rtl) {
+      transform: scaleX(-1);
+    }
+  }
+
+  &__link:hover &__arrow {
+    color: var(--wr-color-primary-ink);
   }
 }
 
@@ -433,6 +478,42 @@
       color: var(--wr-color-primary-ink);
     }
   }
+
+  // The claim, shown. The auto block-start margin pins the sample to the
+  // bottom of the tile, so samples line up across a row whatever the length of
+  // the prose above them; the paragraph's own margin is the minimum gap. The
+  // fill is the inline-code chip's tint, so a tile sample and a chip in the DX
+  // copy read as the same material. Code is LTR in every locale, and
+  // `overflow-x` keeps a long line inside the tile rather than widening the
+  // grid.
+  &__code {
+    margin-block: auto 0;
+    margin-inline: 0;
+    padding: 0.625rem 0.75rem;
+    overflow-x: auto;
+    direction: ltr;
+    border-radius: var(--wr-border-radius-sm);
+    background: color-mix(in srgb, var(--wr-color-on-surface) 7%, transparent);
+    color: var(--wr-color-on-surface);
+    font-family: var(--wr-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+    font-size: 0.75rem;
+    line-height: 1.6;
+    white-space: pre;
+
+    // The UA sheet gives `code` its own `monospace`, and with it the smaller
+    // size browsers reserve for that generic family.
+    code {
+      font: inherit;
+    }
+  }
+}
+
+.ngwr-why-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
 }
 
 /* Motion gallery */

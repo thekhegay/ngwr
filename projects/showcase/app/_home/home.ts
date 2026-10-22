@@ -2,9 +2,10 @@ import { isPlatformBrowser } from '@angular/common';
 import { Component, DestroyRef, PLATFORM_ID, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { Folder, ListChecks, Moon, Play, ShieldCheck, Terminal } from 'lucide';
+import { BadgeCheck, Folder, ListChecks, Moon, ShieldCheck, Terminal, TextCursorInput } from 'lucide';
 import { WrTag } from 'ngwr/badge';
 import { WrBlurText } from 'ngwr/bits/blur-text';
+import { WrBorderGlow } from 'ngwr/bits/border-glow';
 import { WrDecryptText } from 'ngwr/bits/decrypt-text';
 import { WrGlitchText } from 'ngwr/bits/glitch-text';
 import { WrGradientText } from 'ngwr/bits/gradient-text';
@@ -15,6 +16,7 @@ import { WrSpotlightCard } from 'ngwr/bits/spotlight-card';
 import { WrTypewriter } from 'ngwr/bits/typewriter';
 import { WrWaves } from 'ngwr/bits/waves';
 import { WrButton } from 'ngwr/button';
+import { WrCard } from 'ngwr/card';
 import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import type { WrColor } from 'ngwr/theme';
 import { WrTypography } from 'ngwr/typography';
@@ -22,6 +24,7 @@ import { WrTypography } from 'ngwr/typography';
 import { Footer } from '../_layout/footer/footer';
 
 import { ComponentsBento } from './components-bento/components-bento';
+import { HomeOptInComponent } from './opt-in/opt-in';
 
 import { DocCodeComponent } from '#core/components';
 import { QUALITY } from '#core/generated/quality';
@@ -32,7 +35,14 @@ import { ROUTES, wrPath } from '#routes';
 interface WhyTile {
   readonly icon: string;
   readonly title: string;
+  /** Prose; a `backtick` run renders as inline code. */
   readonly description: string;
+  /**
+   * One or two lines that show the claim rather than restate it. Rendered in a
+   * `<pre>` through interpolation, so it is plain text: no highlighting, and
+   * the newline is the line break.
+   */
+  readonly code: string;
   /**
    * `neutral` is the name v15 gave this job on `wr-timeline-item`, and the
    * reason it is spelled out rather than borrowed: `secondary` was one of the
@@ -46,6 +56,13 @@ interface WhyTile {
   readonly spotlight: string;
 }
 
+/** One quiet link card under the DX copy. */
+interface DxLink {
+  readonly icon: string;
+  readonly label: string;
+  readonly url: string;
+}
+
 @Component({
   selector: 'ngwr-home',
   templateUrl: './home.html',
@@ -54,6 +71,7 @@ interface WhyTile {
     RouterLink,
     WrIcon,
     WrButton,
+    WrCard,
     WrTag,
     WrTypography,
     // Motion kit
@@ -66,9 +84,11 @@ interface WhyTile {
     WrTypewriter,
     WrGradientText,
     WrWaves,
+    WrBorderGlow,
     // Sections
     WrSpotlightCard,
     ComponentsBento,
+    HomeOptInComponent,
     DocCodeComponent,
     Footer,
   ],
@@ -78,9 +98,10 @@ interface WhyTile {
       ...lucideIcons({
         folder: Folder,
         moon: Moon,
-        play: Play,
         terminal: Terminal,
         'form-check': ListChecks,
+        'form-input': TextCursorInput,
+        'badge-check': BadgeCheck,
         'shield-checkmark': ShieldCheck,
       }),
     ]),
@@ -149,6 +170,21 @@ export class SignupCard {
 }`;
 
   /**
+   * The Installation page's Compatibility section, as a fragment.
+   *
+   * Bound from a field rather than written as `fragment="compatibility"`: on a
+   * `wr-btn` anchor `check:attrs` reads a static attribute as a mistyped button
+   * input, while the template lint refuses a bound string literal.
+   */
+  protected readonly compatibilityFragment = 'compatibility';
+
+  /** The two doors under the DX copy: how the forms work, and what checks ship. */
+  protected readonly dxLinks: readonly DxLink[] = [
+    { icon: 'form-input', label: 'Forms guide', url: wrPath(ROUTES.guides, ROUTES.guides.forms) },
+    { icon: 'badge-check', label: 'Validators', url: wrPath(ROUTES.reference, ROUTES.reference.validators) },
+  ];
+
+  /**
    * "Why ngwr" tiles. The forms tile leads because it is the sharpest wedge
    * the library has — what the other Angular UI libraries do about Signal
    * Forms today is laid out, with counts, on `start/comparison`, and the tile
@@ -169,6 +205,7 @@ export class SignupCard {
       title: 'Signal Forms, natively',
       description:
         "Twenty value controls implement a Signal Forms interface, so `[formField]` binds to the component's own value or checked model. No `ControlValueAccessor` anywhere in the library.",
+      code: '<input wrInput [formField]="form.email" />',
       accent: 'primary',
       spotlight: 'color-mix(in srgb, var(--wr-color-primary) 14%, transparent)',
     },
@@ -177,6 +214,7 @@ export class SignupCard {
       title: 'Zoneless by construction',
       description:
         'Not zoneless-compatible — zoneless in the source. Signal inputs, signal state, `afterNextRender()` for DOM work, and zero `@NgModule`s or `@Input()` decorators.',
+      code: "readonly size = input<WrButtonSize>('md');\nafterNextRender(() => this.measure());",
       accent: 'info',
       spotlight: 'color-mix(in srgb, var(--wr-color-primary) 14%, transparent)',
     },
@@ -185,6 +223,7 @@ export class SignupCard {
       title: 'A11y is gated, not claimed',
       description:
         'Three axe gates run against the built site, for structure, painted contrast and in-overlay states: every night main moves, and before every release. A serious violation is a red build.',
+      code: 'pnpm check:a11y\npnpm check:contrast\npnpm check:state-a11y',
       accent: 'danger',
       spotlight: 'color-mix(in srgb, var(--wr-color-danger) 14%, transparent)',
     },
@@ -195,7 +234,8 @@ export class SignupCard {
       // absolute and could not be anything else — the colour picker's own hue
       // and alpha ramps, and `wr-window`'s macOS traffic lights.
       description:
-        'Color, radius, spacing, and duration come from `--wr-*` custom properties — and a token nothing paints with has to justify itself to the lint run. Re-skin one component or all of them.',
+        'Color, radius, spacing, and duration come from `--wr-*` custom properties — and a read of a token the theme never declares fails the lint run. Re-skin one component or all of them.',
+      code: '.wr-btn { --wr-btn-radius: 999px; }',
       accent: 'neutral',
       spotlight: 'color-mix(in srgb, var(--wr-color-on-surface-muted) 14%, transparent)',
     },
@@ -203,6 +243,7 @@ export class SignupCard {
       icon: 'folder',
       title: 'Pay for what you import',
       description: `${QUALITY.entryPoints} entry points, each one tree-shakable on its own. What you don't import never lands in your bundle — the SCSS opts in per component too.`,
+      code: "import { WrButton } from 'ngwr/button';\n@use 'ngwr/button';",
       accent: 'success',
       spotlight: 'color-mix(in srgb, var(--wr-color-success) 14%, transparent)',
     },
@@ -211,6 +252,7 @@ export class SignupCard {
       title: 'Dark mode is first-class',
       description:
         'Plain CSS `color-scheme`: it follows the OS with no JavaScript and flips at the root or on any subtree, because each token that differs between light and dark carries both sides in `light-dark()`.',
+      code: ':root { color-scheme: light dark; }\n.promo { color-scheme: dark; }',
       accent: 'warning',
       spotlight: 'color-mix(in srgb, var(--wr-color-warning) 16%, transparent)',
     },
