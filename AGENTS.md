@@ -450,8 +450,10 @@ one component folder. Reach for them instead of hand-rolling:
   of those. `trackBy` went with the loop. The entry point moved with the
   component in the same release — `ngwr/drag-drop` became
   `ngwr/sortable-list`, because drag and drop is a broader idea than one
-  sortable list and the name is wanted for it. v15 ships no codemod (see
-  Versioning), so the import path and the `@use` move by hand.
+  sortable list and the name is wanted for it. `migration-v15` moves the
+  import path and the `@use`, and reports a list still rendering its row
+  through an `<ng-template>` or passing `trackBy`, since the loop needs the
+  array name and a track key only the app knows.
 - **Virtual scrolling** — `wr-table`, `wr-tree` and `wr-select` (search mode)
   use hand-rolled spacer-row windowing and switch to `aria-activedescendant`
   while virtual. `ngwr/virtual-scroll` is a _separate_ public component wrapping
@@ -1281,7 +1283,7 @@ into `next` merges with nothing checked.
 the SHAPE of the break rather than its size: a codemod runs when the new form
 means what the old one meant in the same place — a name, a path — and is refused
 when repairing the break needs a value only the app knows.**
-`schematics/migrations/` holds **v7, v8, v9, v12, v13 and v14**, and every gap in
+`schematics/migrations/` holds **v7, v8, v9, v12, v13, v14 and v15**, and every gap in
 that sequence is a position rather than an oversight:
 
 - **v10 and v11 ship none, and must not.** v10's three breaks were all
@@ -1320,14 +1322,41 @@ that sequence is a position rather than an oversight:
   native attribute and rewriting one that was never ngwr's would silently
   rebind a character-width hint. The published v13 changelog cannot be edited;
   the docs that repeated it were corrected.
-- **v15 ships none, and the shape rule did not decide that.** A
-  `migration-v15` was written — it rewrote the neutral-token renames, the
-  sortable-list path and two value renames, and reported every removed intent —
-  and the maintainer deleted it on 2026-10-16 under the rule set on 2026-10-02:
-  ngwr has one consumer, so a removal is deleted outright, with no deprecation
-  and no codemod, and the migration guide describes every change instead. Do
-  not write a migration rule unless the maintainer asks for one; the shape rule
-  above still says what such a rule may rewrite if one is asked for.
+- **v15 ships `migration-v15`, because the maintainer asked for it on
+  2026-10-23.** A first one was written during v15 and deleted on 2026-10-16
+  under the one-consumer rule of 2026-10-02 (a removal is deleted outright,
+  with no deprecation and no codemod). The request reversed that for the
+  release: the migration guide, the codemod, the schematics and the showcase's
+  New / Updated / Removed marks ship together. It splits down the middle of the
+  rule like v14's. It REWRITES the twenty-eight chart and bit paths (from
+  `ngwr/<name>` to `ngwr/charts/<name>` or `ngwr/bits/<name>`), from
+  `ngwr/drag-drop` to `ngwr/sortable-list` and from
+  `ngwr/icon/adapters/lucide` to `ngwr/icon`, in TypeScript, Sass and JSON;
+  the five config calls and `provideWrTheme()` into one `provideWr()` with a
+  feature each, imports included, but only where each call is a plain entry of
+  a providers array, because there the feature keeps the injector, the order
+  and the options; every `rgba(var(--wr-…-rgb), a)` it can read into
+  `color-mix()`; the READS of the neutral tokens MIGRATION.md maps one to one;
+  and the two values named after a removed intent. It REPORTS the rest by file
+  and line, counted in the file as the rewrite left it: the umbrella, a removed
+  intent anywhere, `[data-theme]` and `theme.dark`, a token DECLARATION
+  (setting `--wr-color-medium` restyled a fill in v14, and the same value on
+  `--wr-color-on-surface-muted` would restyle text), a second provider call of
+  one kind in one array (the same feature twice throws in dev mode), every
+  removed entry point and provider, the sortable list's loop, the sidebar and
+  the validation copy. Three things about it are easy to break. A declaration
+  is any place a name is SET, not only `name:` — a `[style.--…]` binding,
+  `setProperty()`, Renderer2's `setStyle()`, a style-object key — and the first
+  version renamed all four as reads; the rename and the report share one list
+  of those positions so a skipped name is always listed. It is registered
+  as `15.0.0`, which `ng update` runs for an rc target and re-runs for an app
+  already on an rc (rc.0 and rc.1 shipped without it), so every rule has to
+  stay idempotent — the spec runs it twice. And it moves a provider or edits an
+  import only in CODE, read through a view with strings and comments blanked:
+  a docs snippet holds `providers: [...]` and `import` lines too, and the first
+  run over the v14 showcase edited a real import because of one. Do not write
+  a migration for a later major unless the maintainer asks for one; the shape
+  rule above says what such a rule may rewrite.
 - **v14 ships `migration-v14`, split down the middle of the rule**, and that
   split is the thing to copy. It REWRITES the six renames — on `<wr-alert>`
   from `closeable` to `closable`, on `<wr-table>` from `totalItems` to `total`,
@@ -1714,8 +1743,8 @@ NEUTRAL tones are named for the job rather than for a colour since v15 — `base
 and `muted`, which were `dark` and `medium` and always painted
 `--wr-color-on-surface` and `-on-surface-muted` rather than the intents they
 were named after. `wr-timeline-item`'s quiet dot moved the same way, from
-`medium` to `neutral`. v15 ships no codemod, so both move by hand; the
-migration guide lists them. **Five intents give four tones, and `info` is the one
+`medium` to `neutral`. `migration-v15` rewrites both, anchored on the directive
+and the element, with the classes they emit. **Five intents give four tones, and `info` is the one
 left out**: it is the same blue as `primary` to every reader, so as emphasis it
 would be a second name for one appearance — the same reason it is absent from
 the chart components' default series list. `wr-btn`
@@ -1818,10 +1847,13 @@ sidebar's mark is DERIVED from that** — `<ngwr-doc-page since="14.5.0">`, whic
 the page prints as "Added in v14.5" beside its title and `pnpm gen:api-docs`
 reads out of the template into `#core/generated/since` (a second output of that
 run, so `check:api-docs` fails on a stale map rather than a tenth gate doing it).
-`isNewLink()` in `#core/utils` marks a nav row whose declared version is on the
-current minor line or ahead of it, so a page written before its release is
-marked from the commit that adds it and every mark expires on its own when
-`release:prepare` moves `NGWR_VERSION`. Never type a version beside a nav row —
+The version is the SUBJECT's, as the `since` input's JSDoc says, not the page's:
+a new page about something that already shipped declares nothing.
+`releaseLabel()` drops a zero patch, and a major's `.0.0` with it, so `15.0.0`
+prints as "v15". `isNewLink()` in `#core/utils` marks a nav row whose declared
+version is on the current minor line or ahead of it, so a page written before
+its release is marked from the commit that adds it and every mark expires on its
+own when `release:prepare` moves `NGWR_VERSION`. Never type a version beside a nav row —
 one per item is what this deliberately is not. A page that declares nothing
 shows nothing: no `@since` exists in `projects/lib` to backfill from, and git
 cannot supply one, because a renamed entry point looks new the day it moves.
@@ -1837,9 +1869,32 @@ directory at, by IMPORTING the routing tree (every `routing.ts` holds plain
 data, so `tsx` can load it and the array is the one the router uses); a
 template that no single route renders is REFUSED a version rather than keyed by
 walk order. The sidebar's marks are `<wr-sidebar>` word badges,
-chosen in `_layout/sidebar/entries.ts` — `New` in the primary tone, `Optional`
-and `Soon` neutral — and `showcase/styles/_badge.scss` draws the catalog
-index's marks only.
+chosen in `_layout/sidebar/entries.ts` — `New` in the primary tone; `Updated`,
+`Removed`, `Optional` and `Soon` neutral, since the sidebar has no calmer intent
+than primary and the word carries the meaning. A row wears one badge, and a
+version mark wins over `Optional`. `showcase/styles/_badge.scss` draws the
+catalog index's marks only.
+
+**Two more marks ride the same scan: `updated` and `removed`.**
+`updated="15.0.0"` is the version the subject changed its PUBLIC API in — an
+input, an output, an export, a token, a hook, a harness method, or the entry
+point's own path, so the charts and bits nesting counts. The page prints
+"Updated in v15". A restyle or a fix is not an update. A change made to every
+component at once (the palette, the spacing scale, the new hooks) is marked on
+the token and theming pages, never on each component. `removed="15.0.0"` makes
+the page a tombstone: it prints "Removed in v15", strikes the title through, and
+its body is one `<ngwr-doc-removed was why instead>` plus a `RELATED` entry for
+the replacement. `pnpm gen:api-docs` writes all three maps into
+`#core/generated/since` (`SINCE`, `UPDATED`, `REMOVED`). `check:api-docs` fails
+on a stale map, a bound attribute, a version that is not `major.minor.patch`,
+`updated` beside `removed`, or either one no later than `since`. `linkMark()` in
+`#core/utils` gives a nav row ONE mark — `Removed`, then `New`, then `Updated` —
+on the sidebar and on the cluster index pages alike. `New` and `Updated` expire
+with the current minor line. `Removed` never expires: the row sorts after the
+live rows of its group, and stays out of the group's count and the label pages.
+A removed entry point gets a tombstone at its old URL, or in the group its kind
+lives in when it never had a page. A MOVED one keeps a redirect (`drag-drop`,
+`/animations/*`, the chart slugs), and its new page declares `updated`.
 
 **Claims the site prints.** v15 deleted the comparison, quality and playground
 pages: `/start/comparison`, `/start/quality` and `/start/playground` redirect to
@@ -1909,21 +1964,28 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
 
 - `ng add ngwr` — prompts for styles / density, installs peers, prints a
   tailored bootstrap snippet; a picked density arrives as
-  `provideWr(withDensity({ defaultDensity }))`.
+  `provideWr(withDensity({ defaultDensity }))` and writes `@use 'ngwr/density'`
+  after the theme line in a Sass stylesheet (a CSS or Less one gets the line in
+  the printed message instead).
 - `ng g ngwr:use WrFoo --path path/to/cmp.ts` — adds the import + splices it into
   the component's `@Component` imports. Only `symbol` is positional; `path` is a
   named option, so passing it bare fails with `Unknown argument`.
-- `ng g ngwr:provider <name>` — splices a provider into bootstrap: `density`,
-  `toast` and `storage` as features INSIDE the array's `provideWr(...)` (added,
-  with its import from `ngwr`, when there is none), `icons` and `i18n` as calls
-  of their own. `withTheme()`, `withMeta()` and `withDates()` are not offered:
-  each carries a value only the app knows.
+- `ng g ngwr:provider <name>` — splices a provider into the app config:
+  `density`, `toast`, `storage` and `theme` as features INSIDE the array's
+  `provideWr(...)` (added, with its import from `ngwr`, when there is none),
+  `icons`, `i18n` and `loading-bar-router` as calls of their own. `density`
+  also writes `@use 'ngwr/density'` into the global stylesheet, after the
+  theme, since the feature does nothing without that sheet. `withMeta()` and
+  `withDates()` are not offered: each carries a value only the app knows.
 - `ng g ngwr:icon-set` / `ngwr:component-style` / `ngwr:page` — icon barrel /
   per-component `@use` / starter pages.
 - `ng update ngwr@<latest major>` — ONE command from any earlier major. The CLI
   installs the target, then runs every migration in the TARGET's
   `migrations.json` whose version is above the installed one and at or below
-  the target, in order, so an 8.x app gets v9, v12, v13 and v14 in one pass.
+  the target, in order, so an 8.x app gets v9, v12, v13, v14 and v15 in one
+  pass. "At or below the target" is read with the target's prerelease
+  stripped (`executeMigrations` in the CLI's `utilities/migration.js`), which
+  is why `migration-v15` at `15.0.0` runs for an rc target too.
   **Never document stepping through the majors, and never a 7.x, 8.x or 9.x
   target.** Every release from 7.0.0 to 9.1.0 ships CommonJS schematics under a
   `"type": "module"` manifest with no nested `schematics/package.json`, so
@@ -1943,13 +2005,15 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
   `ngwr/date-adapter*` to `ngwr/date` and `ngwr/date/adapters/*`** (v15 removed
   the adapters it rewrites to), **v14 the six vocabulary
   renames, plus a report for the router / locale / `ofLabel` changes no codemod
-  should guess at**, whose date-locale warning still recommends
-  `provideWrDateAdapter({ locale: navigator.language })`, a function v15
-  removed: the v15 spelling is `provideWr(withDates({ locale }))`), plus
-  **v13, which reports every host-`id` selector on `<wr-checkbox>` /
+  should guess at**, whose date-locale warning names both spellings, the v15
+  `provideWr(withDates({ locale }))` and the v14 `provideWrDateAdapter({ locale })`),
+  **v15 the chart, bit, sortable-list and Lucide paths, the config calls into
+  one `provideWr()`, the `-rgb` reads into `color-mix()`, the neutral token
+  reads and two values, plus a report for everything that needs a decision**,
+  plus **v13, which reports every host-`id` selector on `<wr-checkbox>` /
   `<wr-radio>` / `<wr-switch>` and rewrites nothing** — all
   registered in `schematics/migrations.json`. There is deliberately no
-  `migration-v10`, `-v11` or `-v15`; see Versioning for why each is absent.
+  `migration-v10` or `-v11`; see Versioning for why each is absent.
 
 **A codemod pattern that steps over quoted values must use the quote-safe form,
 `(?:"[^"]*"|'[^']*'|[^>"'])*?`, and carry a timing spec.** The ambiguous
