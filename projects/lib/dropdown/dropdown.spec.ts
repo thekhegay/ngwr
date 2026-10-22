@@ -270,6 +270,40 @@ describe('WrDropdown', () => {
     expect(menu()).toBeNull();
   });
 
+  it('runs the whole menu-button round trip from the keyboard alone', async () => {
+    // No synchronous `detectChanges` anywhere in this one: under zoneless CD a
+    // keystroke schedules the render in a macrotask, and a `detectChanges` after
+    // the event paints the DOM before the deferred focus runs — which hides
+    // exactly the "focus stays on the trigger" defect this pins.
+    const press = async (el: EventTarget, name: string): Promise<KeyboardEvent> => {
+      const event = new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true });
+      el.dispatchEvent(event);
+      await fixture.whenStable();
+      return event;
+    };
+    const focused = (): string | undefined => document.activeElement?.textContent?.trim();
+
+    trigger().focus();
+    await press(trigger(), 'Enter');
+    expect(menu()).not.toBeNull();
+    expect(focused()).toBe('Copy');
+
+    // Both ends wrap, and the disabled row is never a stop.
+    expect((await press(document.activeElement!, 'ArrowUp')).defaultPrevented).toBe(true);
+    expect(focused()).toBe('Rename');
+    await press(document.activeElement!, 'ArrowDown');
+    expect(focused()).toBe('Copy');
+    await press(document.activeElement!, 'End');
+    expect(focused()).toBe('Rename');
+    await press(document.activeElement!, 'Home');
+    expect(focused()).toBe('Copy');
+
+    await press(document.activeElement!, 'Escape');
+    expect(menu()).toBeNull();
+    expect(document.activeElement).toBe(trigger());
+    expect(trigger().getAttribute('aria-expanded')).toBe('false');
+  });
+
   it('opens on hover when asked to', () => {
     fixture.componentInstance.how.set('hover');
     fixture.detectChanges();
