@@ -66,7 +66,10 @@ export default class InstallationPageComponent {
     },
     { command: `ng add ${NGWR_PACKAGE} --styles=theme --density=lg`, does: 'The same without prompts' },
     { command: 'ng g ngwr:use WrButton --path <file>', does: 'Adds the import and puts it in the component imports' },
-    { command: 'ng g ngwr:provider <name>', does: 'Adds density, toast, storage, icons or i18n to bootstrap' },
+    {
+      command: 'ng g ngwr:provider <name>',
+      does: 'Adds a provider to app.config.ts: density, toast, storage or theme inside provideWr(), icons, i18n or loading-bar-router as a call of its own',
+    },
     {
       command: 'ng g ngwr:component-style <name>',
       does: "Adds @use 'ngwr/<name>' to global styles, below the theme line",

@@ -15,9 +15,19 @@ import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 import { WrTheme, type WrThemeMode } from 'ngwr/theme';
 import { NGWR_VERSION_TOKEN } from 'ngwr/version';
 
+import { NGWR_PACKAGE } from '../../docs/package-spec';
+
 import { BRAND_ICONS } from '#core/icons';
 import { DocsSearch, SiteDirection } from '#core/services';
 import { ROUTES, wrPath } from '#routes';
+
+/**
+ * The branch the StackBlitz starter opens from: `next` while the site documents
+ * a prerelease, `main` once it is stable. Read off `NGWR_PACKAGE` rather than
+ * the version, so the install snippets and the playground switch on one rule —
+ * the npm dist-tag and the branch share the name `next`.
+ */
+const STARTER_BRANCH = NGWR_PACKAGE.endsWith('@next') ? 'next' : 'main';
 
 interface NavLink {
   readonly url: string;
@@ -246,7 +256,7 @@ export class Header {
     // Replaces the Playground page: the same thing, run where a reader can
     // actually edit it, instead of a tile on a docs site pretending to.
     {
-      url: 'https://stackblitz.com/github/thekhegay/ngwr/tree/main/projects/starter?file=src/app/app.ts',
+      url: `https://stackblitz.com/github/thekhegay/ngwr/tree/${STARTER_BRANCH}/projects/starter?file=src/app/app.ts`,
       icon: 'stackblitz',
       modifier: 'stackblitz',
       label: 'Playground on StackBlitz',
