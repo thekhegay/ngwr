@@ -25,7 +25,11 @@ jobs:
       url: https://next.ngwr.dev
 
     steps:
+      # The branch tip, not the pushed SHA: a push event delivered late would
+      # otherwise deploy an older build over a newer one.
       - uses: actions/checkout@v7
+        with:
+          ref: next
 
       - uses: pnpm/action-setup@v6
 
