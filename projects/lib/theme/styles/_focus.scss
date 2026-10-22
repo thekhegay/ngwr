@@ -41,10 +41,33 @@
   @include focus-ring;
 }
 
-// Table column-sort control — a bare `<button>` inside `.wr-table__th-inner`,
-// with no focus style of its own.
-.wr-table__sort-btn:focus-visible {
+// Table controls — every one a bare `<button>` with no focus style of its own:
+// the column sort and the filter funnel beside it in `.wr-table__th-inner`, the
+// row-expansion chevron, the group band's toggle and the tree row's toggle. Each
+// sits inside a cell's padding, which is wider than the ring's 4px reach, so the
+// ring stays OUTSET even where a fixed-layout cell clips its overflow.
+.wr-table__sort-btn:focus-visible,
+.wr-table-filter__trigger:focus-visible,
+.wr-table__expand-btn:focus-visible,
+.wr-table__group-toggle:focus-visible,
+.wr-table__tree-toggle:focus-visible {
   @include focus-ring;
+}
+
+// Virtualized table body — the scroller takes a tab stop of its own so the
+// keyboard can scroll it. The ring is MOVED to the table's frame, the way
+// `wr-lightbox` moves its trigger's: the scroller runs flush to the host's
+// border and the host is `overflow: hidden`, so an outset ring is clipped away,
+// and an inset one loses its top stroke under the sticky header, which paints
+// an opaque background over it. An element's outline is not clipped by its own
+// `overflow`, so the frame draws a whole ring. The scroller's own `outline: none`
+// only keeps the UA ring from leaking through in a second colour.
+.wr-table:has(> .wr-table__scroll:focus-visible) {
+  @include focus-ring;
+}
+
+.wr-table__scroll:focus-visible {
+  outline: none;
 }
 
 // Tabs — `.wr-tabs__strip` is `overflow-y: hidden` (to suppress a stray
@@ -132,8 +155,9 @@
   @include focus-ring;
 }
 
-// Stepper step headers
-.wr-stepper__header:focus-visible {
+// Stepper step headers — the BUTTON inside each `<li class="wr-stepper__header">`
+// is what takes focus; a ring keyed on the `<li>` never matched anything.
+.wr-stepper__header-button:focus-visible {
   @include focus-ring;
 }
 
