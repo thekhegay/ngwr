@@ -58,9 +58,7 @@
   background: var(--wr-color-surface);
   color: var(--wr-color-on-surface);
   cursor: pointer;
-  transition:
-    background 0.15s ease,
-    transform 0.15s ease;
+  @include site.transition(background-color transform);
 
   &:hover {
     background: var(--wr-color-hover);
@@ -181,7 +179,7 @@
     font: inherit;
     font-variant-numeric: tabular-nums;
     cursor: pointer;
-    transition: border-color 0.15s ease;
+    @include site.transition(border-color);
 
     &:hover {
       border-color: color-mix(in srgb, var(--wr-color-on-surface) 30%, transparent);

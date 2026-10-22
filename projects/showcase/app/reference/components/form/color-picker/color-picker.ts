@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { WrButton } from 'ngwr/button';
 import { WrColorPicker, WrColorPickerTrigger } from 'ngwr/color-picker';
 
 import {
@@ -17,6 +18,7 @@ import {
   templateUrl: './color-picker.html',
   imports: [
     FormsModule,
+    WrButton,
     WrColorPicker,
     WrColorPickerTrigger,
     DocPageComponent,

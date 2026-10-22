@@ -1,3 +1,5 @@
+@use 'showcase/styles/mixins' as site;
+
 // The demos: an editor, and under it what the model holds.
 
 .editor-demo {
@@ -29,5 +31,9 @@
     color: var(--wr-color-on-surface-muted);
     background: var(--wr-color-fill-subtle);
     border-radius: var(--wr-border-radius-base);
+
+    &:focus-visible {
+      @include site.focus-ring;
+    }
   }
 }

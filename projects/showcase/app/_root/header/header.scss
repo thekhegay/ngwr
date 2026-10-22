@@ -50,7 +50,7 @@
     border-radius: 0.375rem;
     background: var(--ngwr-header-logo-bg);
 
-    transition: var(--wr-transition-base);
+    @include site.transition(color background-color border-color);
 
     padding: 0.25rem;
 
@@ -103,7 +103,7 @@
       border-radius: 0.375rem;
       padding: 0.375rem 0.5rem;
 
-      transition: var(--wr-transition-base);
+      @include site.transition(color background-color border-color);
 
       &:hover {
         --ngwr-header-nav-link-color: var(--wr-color-primary-ink);
@@ -119,10 +119,15 @@
       // "you are here" marker instead of competing with the primary CTAs.
       // `routerLinkActive` toggles this class via partial-match (default),
       // so `/components/button` also lights up "Components" in the nav.
-      &--active,
-      &--active:hover {
+      &--active {
         --ngwr-header-nav-link-color: var(--wr-color-on-surface-muted);
         --ngwr-header-nav-link-bg: var(--wr-color-fill);
+      }
+
+      // Still a link (to the section's root), so it still answers the pointer.
+      &--active:hover {
+        --ngwr-header-nav-link-color: var(--wr-color-on-surface);
+        --ngwr-header-nav-link-bg: var(--wr-color-fill-strong);
       }
     }
   }
@@ -159,19 +164,21 @@
     color: var(--ngwr-header-action-icon-color);
     background: var(--ngwr-header-action-icon-bg);
 
-    transition: var(--wr-transition-base);
+    @include site.transition(color background-color border-color);
+
+    // The neutral hover every action without a brand colour takes — search,
+    // the version trigger, settings. The brand modifiers below override it on
+    // source order (same weight).
+    &:hover {
+      --ngwr-header-action-icon-color: var(--wr-color-on-surface);
+      --ngwr-header-action-icon-bg: var(--wr-color-hover);
+    }
 
     // Every action — the anchors (GitHub, npm, StackBlitz) as well as the
     // buttons — takes the library's ring, not the UA's 1px auto outline.
     &:focus-visible {
       @include site.focus-ring;
     }
-
-    // &:hover {
-    //  color: var(--wr-color-surface);
-    //  border-color: var(--ngwr-header-action-fg);
-    //  background: var(--ngwr-header-action-fg);
-    // }
 
     &--github {
       // GitHub brand black (#24292e) sits ~on the dark canvas (#0b1120), so
@@ -223,7 +230,7 @@
 
       --ngwr-header-action-icon-color: var(--wr-color-on-surface-muted);
 
-      &:hover,
+      // Held in the hover look while its panel is open.
       &[aria-expanded='true'] {
         --ngwr-header-action-icon-color: var(--wr-color-on-surface);
         --ngwr-header-action-icon-bg: var(--wr-color-hover);
@@ -249,38 +256,16 @@
     }
   }
 
-  &__versions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-    padding: 0.25rem;
-    min-width: 9rem;
+  // A `wr-dropdown-item`: padding, hover and the focus ring are the library's.
+  // Only the current deployment is marked.
+  &__version-item--active {
+    --wr-dropdown-item-color: var(--wr-color-primary-ink);
+
+    font-weight: 600;
   }
 
-  &__version-item {
-    display: block;
-    padding: 0.375rem 0.625rem;
-    border-radius: 0.375rem;
-    font-size: var(--wr-text-sm);
-    color: var(--wr-color-on-surface);
-    text-decoration: none;
-
-    &:hover {
-      background: var(--wr-color-hover);
-    }
-
-    &:focus-visible {
-      @include site.focus-ring;
-    }
-
-    &--active {
-      color: var(--wr-color-primary-ink);
-      font-weight: 600;
-    }
-  }
-
-  // Settings panel — stacked live controls rendered inside the dropdown
-  // overlay (theme · density · primary color).
+  // Settings panel — stacked live controls (theme · density · direction). It is
+  // the popover's panel: `wr-popover` draws the surface, border and shadow.
   &__settings {
     display: flex;
     flex-direction: column;
@@ -346,7 +331,7 @@
       border-radius: 0.375rem;
       padding: 0.625rem 0.75rem;
 
-      transition: var(--wr-transition-base);
+      @include site.transition(color background-color border-color);
 
       --wr-icon-size: 1rem;
 
@@ -359,10 +344,14 @@
         @include site.focus-ring;
       }
 
-      &--active,
-      &--active:hover {
+      &--active {
         color: var(--wr-color-on-surface-muted);
         background: var(--wr-color-fill);
+      }
+
+      &--active:hover {
+        color: var(--wr-color-on-surface);
+        background: var(--wr-color-fill-strong);
       }
     }
 

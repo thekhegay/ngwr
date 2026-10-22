@@ -14,6 +14,7 @@ import {
 @Component({
   selector: 'ngwr-affix-page',
   templateUrl: './affix.html',
+  styleUrl: './affix.scss',
   imports: [WrAffix, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class AffixPage {

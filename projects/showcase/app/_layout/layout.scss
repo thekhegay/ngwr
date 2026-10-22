@@ -96,7 +96,7 @@
     border-radius: 0.375rem;
     padding: 0.375rem 0.625rem;
 
-    transition: var(--wr-transition-base);
+    @include site.transition(color background-color);
 
     &:hover {
       color: var(--wr-color-primary-ink);

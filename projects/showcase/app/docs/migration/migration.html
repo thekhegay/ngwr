@@ -16,7 +16,7 @@
         <tbody>
           @for (row of rows; track row.before) {
             <tr>
-              <td [innerHTML]="row.before | wrDocRich"></td>
+              <th scope="row" [innerHTML]="row.before | wrDocRich"></th>
               <td [innerHTML]="row.after | wrDocRich"></td>
               @if (row.update) {
                 <td>{{ row.update }}</td>

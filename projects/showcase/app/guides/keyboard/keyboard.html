@@ -9,21 +9,7 @@
     description="Global by default, or `scoped` to the host; `mod` is ⌘ on macOS and Ctrl elsewhere."
   >
     <ngwr-doc-snippet [code]="snippets.declarative" language="angular-html">
-      <div
-        tabindex="0"
-        wrHotkey="escape"
-        [scoped]="true"
-        (wrHotkeyMatch)="hits.set(hits() + 1)"
-        style="
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
-          min-height: 5rem;
-          border-radius: var(--wr-border-radius-base);
-          box-shadow: inset 0 0 0 1px var(--wr-border-strong);
-        "
-      >
+      <div class="keyboard-demo" tabindex="0" wrHotkey="escape" [scoped]="true" (wrHotkeyMatch)="hits.set(hits() + 1)">
         <span>Focus me, then press</span>
         <wr-kbd>Esc</wr-kbd>
         <span>— caught {{ hits() }}×</span>

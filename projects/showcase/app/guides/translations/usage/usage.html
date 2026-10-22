@@ -7,24 +7,14 @@
   <ngwr-doc-section title="Locale switcher" description="Switch the locale to see the demos below update.">
     <ngwr-doc-snippet code="">
       <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap">
-        <p wrTypography tone="muted">Active locale:</p>
-        @for (l of available; track l) {
-          <button
-            type="button"
-            style="
-              padding: 0.25rem 0.625rem;
-              border: 1px solid var(--wr-border-base);
-              border-radius: var(--wr-border-radius-pill);
-              background: transparent;
-              cursor: pointer;
-            "
-            [style.background]="locale() === l ? 'var(--wr-color-primary)' : 'transparent'"
-            [style.color]="locale() === l ? 'var(--wr-color-primary-contrast)' : 'inherit'"
-            (click)="use(l)"
-          >
-            {{ l }}
-          </button>
-        }
+        <p id="usage-locale-label" wrTypography tone="muted">Active locale:</p>
+        <wr-segmented
+          aria-labelledby="usage-locale-label"
+          size="sm"
+          [options]="localeOptions"
+          [value]="locale()"
+          (valueChange)="use($event)"
+        />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

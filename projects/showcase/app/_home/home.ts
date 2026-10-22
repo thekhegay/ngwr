@@ -213,7 +213,7 @@ export class SignupCard {
       icon: 'form-check',
       title: 'Signal Forms, natively',
       description:
-        "Twenty value controls implement a Signal Forms interface, so `[formField]` binds to the component's own value or checked model. No `ControlValueAccessor` anywhere in the library.",
+        'Twenty value controls implement a Signal Forms interface, so `[formField]` binds to their own model. No `ControlValueAccessor` anywhere.',
       accent: 'primary',
       spotlight: 'color-mix(in srgb, var(--wr-color-primary) 14%, transparent)',
     },
@@ -221,7 +221,7 @@ export class SignupCard {
       icon: 'terminal',
       title: 'Zoneless by construction',
       description:
-        'Not zoneless-compatible — zoneless in the source. Signal inputs, signal state, `afterNextRender()` for DOM work, and zero `@NgModule`s or `@Input()` decorators.',
+        'Zoneless in the source, not just compatible: signal inputs and state, `afterNextRender()` for DOM work, and no `@NgModule` or `@Input()` at all.',
       accent: 'info',
       spotlight: 'color-mix(in srgb, var(--wr-color-primary) 14%, transparent)',
     },
@@ -229,7 +229,7 @@ export class SignupCard {
       icon: 'shield-checkmark',
       title: 'A11y is gated, not claimed',
       description:
-        'Three axe gates run against the built site, for structure, painted contrast and in-overlay states: every night main moves, and before every release. A serious violation is a red build.',
+        'Three axe gates check structure, painted contrast and open overlays nightly and before every release. A serious violation is a red build.',
       accent: 'danger',
       spotlight: 'color-mix(in srgb, var(--wr-color-danger) 14%, transparent)',
     },
@@ -240,7 +240,7 @@ export class SignupCard {
       // absolute and could not be anything else — the colour picker's own hue
       // and alpha ramps, and `wr-window`'s macOS traffic lights.
       description:
-        'Color, radius, spacing, and duration come from `--wr-*` custom properties — and a read of a token the theme never declares fails the lint run. Re-skin one component or all of them.',
+        'Color, radius, spacing and duration are `--wr-*` custom properties, and an undeclared color token fails lint. Re-skin one component or all.',
       accent: 'neutral',
       spotlight: 'color-mix(in srgb, var(--wr-color-on-surface-muted) 14%, transparent)',
     },
@@ -255,7 +255,7 @@ export class SignupCard {
       icon: 'moon',
       title: 'Dark mode is first-class',
       description:
-        'Plain CSS `color-scheme`: it follows the OS with no JavaScript and flips at the root or on any subtree, because each token that differs between light and dark carries both sides in `light-dark()`.',
+        'Plain CSS `color-scheme`: follows the OS without JavaScript and flips on any subtree, since every token that differs is a `light-dark()` pair.',
       accent: 'warning',
       spotlight: 'color-mix(in srgb, var(--wr-color-warning) 16%, transparent)',
     },

@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 
+import { WrButton } from 'ngwr/button';
 import { WrCopyToClipboard } from 'ngwr/directives';
 
 import {
@@ -17,6 +18,7 @@ import {
   selector: 'ngwr-copy-to-clipboard-page',
   templateUrl: './copy-to-clipboard.html',
   imports: [
+    WrButton,
     WrCopyToClipboard,
     DocPageComponent,
     DocSectionComponent,

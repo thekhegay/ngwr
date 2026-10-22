@@ -1,0 +1,19 @@
+@use 'showcase/styles/mixins' as site;
+
+// The scoped-hotkey demo: a box the reader focuses before pressing the key, so
+// it carries the site's focus ring rather than the browser's default outline.
+.keyboard-demo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 5rem;
+  // A border, not an inset shadow: the ring's halo is a `box-shadow` and would
+  // replace the frame for as long as the box has focus.
+  border: 1px solid var(--wr-border-strong);
+  border-radius: var(--wr-border-radius-base);
+
+  &:focus-visible {
+    @include site.focus-ring;
+  }
+}

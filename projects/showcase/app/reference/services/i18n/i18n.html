@@ -10,11 +10,13 @@
         <p style="margin: 0">
           <strong>Active locale:</strong> <code>{{ locale() }}</code>
         </p>
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
-          @for (lc of available; track lc) {
-            <button type="button" (click)="use(lc)">{{ lc }}</button>
-          }
-        </div>
+        <wr-segmented
+          aria-label="Locale"
+          size="sm"
+          [options]="localeOptions"
+          [value]="locale()"
+          (valueChange)="use($event)"
+        />
         <p style="margin: 0">
           <strong>Pipe:</strong> {{ 'app.title' | wrT }} — {{ 'app.hello' | wrT: { name: name() } }}
         </p>

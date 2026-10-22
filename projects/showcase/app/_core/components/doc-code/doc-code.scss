@@ -78,9 +78,7 @@
   letter-spacing: 0.03em;
   text-transform: uppercase;
   cursor: pointer;
-  transition:
-    border-color var(--wr-transition-base),
-    color var(--wr-transition-base);
+  @include site.transition(border-color color);
 
   &:hover {
     color: var(--wr-color-on-surface);
@@ -185,10 +183,7 @@
   // transparent-but-hit-testable square silently ate the tap: it copied the
   // block, flipped its own label to "Copied", and never became visible.
   pointer-events: none;
-  transition:
-    background var(--wr-transition-base),
-    color var(--wr-transition-base),
-    opacity var(--wr-transition-base);
+  @include site.transition(background-color color opacity);
 
   &:hover,
   &:focus-visible {
@@ -196,8 +191,11 @@
     color: var(--wr-color-on-surface);
   }
 
+  // Keyboard focus shows the button at once: a fade from 0 would fade its ring
+  // in with it. The hover reveal keeps the fade.
   &:focus-visible {
     @include site.focus-ring;
+    @include site.transition(background-color color);
   }
 }
 

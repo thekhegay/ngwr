@@ -15,17 +15,7 @@
           <button wr-btn size="sm" outlined type="button" (click)="scrollToTop()">Page top</button>
         </div>
         <!-- tabindex: a scrolling region must be reachable by keyboard. -->
-        <div
-          #scrollBox
-          tabindex="0"
-          style="
-            height: 18rem;
-            overflow-y: auto;
-            border: 1px solid var(--wr-border-base);
-            border-radius: 0.5rem;
-            padding: 1rem;
-          "
-        >
+        <div #scrollBox class="scroll-demo" tabindex="0">
           @for (section of sections; track section.id) {
             <div [id]="`scroll-demo-${section.id}`" style="min-height: 16rem">
               <p style="margin: 0 0 0.5rem; font-weight: 600">{{ section.title }}</p>

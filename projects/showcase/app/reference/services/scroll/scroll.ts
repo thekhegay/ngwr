@@ -16,6 +16,7 @@ import {
 @Component({
   selector: 'ngwr-svc-scroll-page',
   templateUrl: './scroll.html',
+  styleUrl: './scroll.scss',
   imports: [WrButton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class ScrollServicePageComponent {

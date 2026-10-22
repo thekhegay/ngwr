@@ -10,8 +10,11 @@
     gap: 0.5rem 1rem;
   }
 
-  &__name {
-    padding-top: 0.125rem;
+  // The intent name is the site's inline-code chip, so it carries no class of
+  // its own. A grid item stretches to its column; this one keeps to its text.
+  &__row > code {
+    justify-self: start;
+    margin-top: 0.125rem;
   }
 
   &__swatches {

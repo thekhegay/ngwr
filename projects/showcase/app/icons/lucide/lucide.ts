@@ -61,15 +61,17 @@ export default class LucideBrowser {
   protected readonly icons = computed<readonly IconEntry[]>(() => buildLucideEntries());
 
   /**
-   * The lede, with the set's size DERIVED rather than written down. It was a
-   * literal `~1700` until lucide 1.43 made that 22% short: a count a reader
+   * The catalog's line, with the set's size DERIVED rather than written down. It
+   * was a literal `~1700` until lucide 1.43 made that 22% short: a count a reader
    * uses to judge whether the set covers them is exactly the number that must
    * not be a claim someone has to remember to update.
+   *
+   * Here rather than in the page's lede, which is a static `description` because
+   * `gen:deps` reads it for every See also card that links this page — a bound
+   * one reads as `null`, and the cards beside it lose their descriptions too.
    */
-  protected readonly lede = computed(
-    () =>
-      `A modern, community-maintained Feather fork. ${formatCount(this.icons().length)} 24px stroke icons. ` +
-      `Click any tile to copy the import snippet.`
+  protected readonly catalogLine = computed(
+    () => `${formatCount(this.icons().length)} icons. Click any tile to copy the import snippet.`
   );
 
   protected readonly usage = `import { Plus, Trash2 } from 'lucide';

@@ -106,7 +106,7 @@
                 <wr-avatar shape="circle" [size]="16" [url]="personPhoto(id)" [alt]="personName(id)">{{
                   personInitials(id)
                 }}</wr-avatar>
-                <a href="#" (click)="$event.preventDefault()">{{ personName(id) }}</a>
+                <span>{{ personName(id) }}</span>
               </span>
             </wr-tag>
           }

@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 
 import { WrI18n, WrTDirective, WrTPipe } from 'ngwr/i18n';
+import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 
 import {
   DocApiComponent,
@@ -20,6 +21,7 @@ import { API } from '#core/generated/api';
   imports: [
     WrTPipe,
     WrTDirective,
+    WrSegmented,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -32,11 +34,13 @@ export default class I18nServicePage {
   private readonly i18n = inject(WrI18n);
 
   protected readonly locale = this.i18n.locale;
-  protected readonly available = this.i18n.available();
+  protected readonly localeOptions: readonly WrSegmentedOption<string>[] = this.i18n
+    .available()
+    .map(locale => ({ value: locale, label: locale }));
   protected readonly name = signal('Ada');
 
-  protected use(locale: string): void {
-    this.i18n.use(locale);
+  protected use(locale: string | null): void {
+    if (locale) this.i18n.use(locale);
   }
 
   protected readonly snippets = {

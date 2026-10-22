@@ -12,17 +12,7 @@
   <ngwr-doc-section title="Demo (scroll inside the box)">
     <ngwr-doc-snippet code="">
       <!-- tabindex: a scrolling region must be reachable by keyboard. -->
-      <div
-        tabindex="0"
-        style="
-          width: 100%;
-          height: 18rem;
-          overflow: auto;
-          border: 1px solid var(--wr-border-base);
-          border-radius: 0.5rem;
-          background: var(--wr-color-surface);
-        "
-      >
+      <div class="affix-demo" tabindex="0">
         <div style="height: 4rem"></div>
         <div
           wrAffix

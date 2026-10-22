@@ -8,7 +8,7 @@
     <div class="ngwr-palette">
       @for (intent of intents; track intent) {
         <div class="ngwr-palette__row">
-          <code class="ngwr-palette__name">{{ intent }}</code>
+          <code>{{ intent }}</code>
           <div class="ngwr-palette__swatches">
             @for (shade of shades; track shade.suffix) {
               <div class="ngwr-palette__swatch">

@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Lucide"
-  [description]="lede()"
+  description="A modern, community-maintained Feather fork of 24px stroke icons."
   [keywords]="['icons', 'lucide']"
   [labels]="['lucideIcons()', 'ISC']"
 >
@@ -15,7 +15,7 @@
     <ngwr-doc-code [code]="usage" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Browse the catalog">
+  <ngwr-doc-section title="Browse the catalog" [description]="catalogLine()">
     <ngwr-icon-grid [icons]="icons()" [snippetFor]="snippetFor" />
   </ngwr-doc-section>
 </ngwr-doc-page>

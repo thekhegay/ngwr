@@ -51,10 +51,7 @@
     align-items: center;
     gap: 0.5rem;
     text-align: center;
-    transition:
-      border-color 0.12s ease,
-      background 0.12s ease,
-      transform 0.06s ease;
+    @include site.transition(border-color background-color transform, var(--wr-transition-short));
 
     &:hover {
       border-color: var(--wr-color-primary);

@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 
+import { WrButton } from 'ngwr/button';
 import { WrStorage } from 'ngwr/storage';
 
 import {
@@ -17,6 +18,7 @@ import {
   selector: 'ngwr-svc-storage-page',
   templateUrl: './storage.html',
   imports: [
+    WrButton,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,

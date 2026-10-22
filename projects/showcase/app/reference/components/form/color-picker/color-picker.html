@@ -54,28 +54,14 @@
   >
     <ngwr-doc-code [code]="snippets.trigger" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <button
-        type="button"
-        wrColorPickerTrigger
-        [(value)]="triggered"
-        [swatches]="palette"
-        style="
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.5rem 0.75rem;
-          background: var(--wr-color-surface);
-          border: 1px solid var(--wr-border-base);
-          border-radius: 0.5rem;
-          font: inherit;
-          cursor: pointer;
-        "
-      >
+      <button wr-btn type="button" wrColorPickerTrigger [(value)]="triggered" [swatches]="palette">
         <span
           style="
             display: inline-block;
-            width: 1.25rem;
-            height: 1.25rem;
+            width: 1rem;
+            height: 1rem;
+            margin-inline-end: 0.5rem;
+            vertical-align: middle;
             border-radius: 0.25rem;
             border: 1px solid color-mix(in srgb, var(--wr-color-on-surface) 12%, transparent);
           "

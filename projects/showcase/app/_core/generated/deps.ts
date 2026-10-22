@@ -333,7 +333,7 @@ export const DOC_ROUTES: Readonly<
   "guides/typography/overview": {"title":"Typography","kind":"Guide","labels":["Section"],"description":"Style any text with one directive, `[wrTypography]`."},
   "guides/typography/paragraphs": {"title":"Paragraphs","kind":"Guide","labels":["Directive"],"description":"Style running text, from lead paragraphs to captions."},
   "guides/typography/styles": {"title":"Styles","kind":"Guide","labels":[],"description":"Pick a text style and see the tokens behind it."},
-  "icons/lucide": {"title":"Lucide","kind":"Icons","labels":["lucideIcons()","ISC"],"description":null},
+  "icons/lucide": {"title":"Lucide","kind":"Icons","labels":["lucideIcons()","ISC"],"description":"A modern, community-maintained Feather fork of 24px stroke icons."},
   "icons/overview": {"title":"Icons","kind":"Icons","labels":["Reference"],"description":"ngwr ships a registry-based icon system. Bring any icon set you like — install the upstream package separately, then wire icons via `provideWrIcons()`. The library bundles no upstream icons of its own."},
   "reference/components/alert": {"title":"Alert","kind":"Component","labels":["Component"],"description":"An inline status message."},
   "reference/components/anchor": {"title":"Anchor","kind":"Component","labels":[],"description":"In-page links that highlight the section in view."},

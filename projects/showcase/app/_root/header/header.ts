@@ -1,5 +1,5 @@
 import { type Direction } from '@angular/cdk/bidi';
-import { isPlatformBrowser } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { Component, DestroyRef, ElementRef, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -8,8 +8,9 @@ import { WrBurger } from 'ngwr/burger';
 import { WrCommandPalette, type WrCommandItem } from 'ngwr/command-palette';
 import { WrDensity, type WrDensityValue } from 'ngwr/density';
 import { WrDrawer } from 'ngwr/drawer';
-import { WrDropdown, WrDropdownMenu } from 'ngwr/dropdown';
+import { WrDropdown, WrDropdownItem, WrDropdownMenu } from 'ngwr/dropdown';
 import { lucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
+import { WrPopover } from 'ngwr/popover';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 import { WrTheme, type WrThemeMode } from 'ngwr/theme';
 import { NGWR_VERSION_TOKEN } from 'ngwr/version';
@@ -84,7 +85,9 @@ function docVersionList(major: number, next: boolean): readonly DocVersion[] {
     WrDrawer,
     WrIcon,
     WrDropdown,
+    WrDropdownItem,
     WrDropdownMenu,
+    WrPopover,
     WrSegmented,
   ],
   providers: [
@@ -179,6 +182,17 @@ export class Header {
    * major, `latest` is the major below it.
    */
   protected readonly docVersions = docVersionList(Number(this.major.slice(1)), this.next);
+
+  private readonly document = inject(DOCUMENT);
+
+  /**
+   * A full-page load, because each version is its own deployment. A menu item is
+   * not an anchor, so the navigation is the click's — which is also what Enter
+   * and Space on the item fire.
+   */
+  protected openVersion(url: string): void {
+    this.document.location.assign(url);
+  }
 
   /** Theme segmented — user choice (`auto` resolves via `prefers-color-scheme`). */
   protected readonly themeOptions: readonly WrSegmentedOption<WrThemeMode>[] = [

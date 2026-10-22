@@ -1,0 +1,15 @@
+@use 'showcase/styles/mixins' as site;
+
+// The box the demo scrolls. It is focusable, so it takes the site's ring.
+.affix-demo {
+  width: 100%;
+  height: 18rem;
+  overflow: auto;
+  border: 1px solid var(--wr-border-base);
+  border-radius: 0.5rem;
+  background: var(--wr-color-surface);
+
+  &:focus-visible {
+    @include site.focus-ring;
+  }
+}

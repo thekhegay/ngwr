@@ -2,6 +2,8 @@
 // so any sheet may load it — an emulated component's included — without
 // emitting anything: `@use 'showcase/styles/mixins' as site;`.
 
+@use 'sass:list';
+
 // The library's keyboard focus ring, for a showcase element the library does
 // not style (a link card, a playground button, a header action).
 //
@@ -14,4 +16,30 @@
   outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
   outline-offset: var(--wr-focus-ring-offset);
   box-shadow: 0 0 0 var(--wr-focus-ring-offset) var(--wr-focus-ring-halo);
+}
+
+// A transition for an element that can take the focus ring: the properties it
+// animates, named, on a duration/ease token.
+//
+// Never `all` — and a bare `transition: var(--wr-transition-base)` IS `all`,
+// since the token carries a duration and an easing but no property. Never the
+// ring's own `outline` or `box-shadow` either. The ring has to appear at once:
+// under `all` it grows out of the browser's default outline in the text colour,
+// and under `box-shadow` its halo fades in.
+//
+//   @include site.transition(color background-color);
+//   @include site.transition(border-color transform, var(--wr-transition-short));
+@mixin transition($properties, $timing: var(--wr-transition-base)) {
+  $ring: (all, outline, outline-color, outline-offset, outline-width, box-shadow);
+  $parts: ();
+
+  @each $property in $properties {
+    @if list.index($ring, $property) {
+      @error "site.transition(#{$property}): the focus ring is an outline plus a box-shadow halo, so animating `#{$property}` fades it in. Name the properties the hover changes instead.";
+    }
+
+    $parts: list.append($parts, $property $timing, $separator: comma);
+  }
+
+  transition: $parts;
 }

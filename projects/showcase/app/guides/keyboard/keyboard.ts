@@ -41,6 +41,7 @@ interface KeyHelper {
 @Component({
   selector: 'ngwr-gs-keyboard-page',
   templateUrl: './keyboard.html',
+  styleUrl: './keyboard.scss',
   imports: [
     RouterLink,
     WrKbd,

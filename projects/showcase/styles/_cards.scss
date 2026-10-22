@@ -44,9 +44,8 @@
   color: var(--wr-color-on-surface);
   font-weight: var(--wr-font-weight-regular);
   text-decoration: none;
-  transition:
-    border-color var(--wr-transition-base),
-    box-shadow var(--wr-transition-base);
+  // The hover shadow snaps rather than fades: `box-shadow` is the focus halo too.
+  @include site.transition(border-color);
 
   &:hover {
     border-color: var(--wr-color-primary);

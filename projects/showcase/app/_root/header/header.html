@@ -47,28 +47,39 @@
       <wr-icon name="chevron-down" />
     </button>
 
+    <!-- Real `wr-dropdown-item`s, so the menu's own keyboard model reaches them:
+         a keyboard open focuses the first, the arrows rove. Plain anchors were
+         invisible to it, and Tab closed the menu before anyone got in. -->
     <wr-dropdown-menu #versionMenu>
-      <div class="ngwr-header__versions" role="presentation">
-        @for (v of docVersions; track v.url) {
-          <a class="ngwr-header__version-item" [class.ngwr-header__version-item--active]="v.active" [href]="v.url">
-            {{ v.label }}
-          </a>
-        }
-      </div>
+      @for (v of docVersions; track v.url) {
+        <wr-dropdown-item
+          class="ngwr-header__version-item"
+          [class.ngwr-header__version-item--active]="v.active"
+          [attr.aria-current]="v.active ? 'page' : null"
+          (click)="openVersion(v.url)"
+        >
+          {{ v.label }}
+        </wr-dropdown-item>
+      }
     </wr-dropdown-menu>
 
+    <!-- A popover, not a dropdown: the panel holds three radio groups, which are
+         not menu items, and a menu closes on Tab — so nobody could reach the
+         second group. A popover is a non-modal dialog that takes focus on open
+         and lets Tab move through its controls. -->
     <button
       type="button"
       class="ngwr-header__action ngwr-header__action--settings"
-      [wrDropdown]="settingsMenu"
+      [wrPopover]="settingsPanel"
       position="bottom-end"
+      [ariaLabel]="'Settings'"
       aria-label="Settings"
     >
       <wr-icon name="settings" />
     </button>
 
-    <wr-dropdown-menu #settingsMenu>
-      <div class="ngwr-header__settings" role="presentation">
+    <ng-template #settingsPanel>
+      <div class="ngwr-header__settings">
         <div class="ngwr-header__settings-group">
           <span class="ngwr-header__settings-label" id="ngwr-settings-theme">Theme</span>
           <wr-segmented
@@ -102,7 +113,7 @@
           />
         </div>
       </div>
-    </wr-dropdown-menu>
+    </ng-template>
 
     @for (action of actions; track action.url) {
       <a

@@ -96,16 +96,15 @@ export default class IntroductionPage {
     migration: wrPath(ROUTES.docs, ROUTES.docs.migration),
     skills: wrPath(ROUTES.docs, ROUTES.docs.skills),
     mcp: wrPath(ROUTES.docs, ROUTES.docs.mcp),
-    guides: wrPath(ROUTES.guides),
     forms: wrPath(ROUTES.guides, ROUTES.guides.forms),
     theming: wrPath(ROUTES.guides, ROUTES.guides.theming),
-    tokens: wrPath(ROUTES.guides, ROUTES.guides.tokens),
+    colors: wrPath(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.colors),
+    overlay: wrPath(ROUTES.guides, ROUTES.guides.overlay),
     translations: wrPath(ROUTES.guides, ROUTES.guides.translations),
     ssr: wrPath(ROUTES.guides, ROUTES.guides.ssr),
     testing: wrPath(ROUTES.guides, ROUTES.guides.testing),
     keyboard: wrPath(ROUTES.guides, ROUTES.guides.keyboard),
     theme: wrPath(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.theme),
-    components: wrPath(ROUTES.reference, ROUTES.reference.components),
     charts: wrPath(ROUTES.charts),
     bits: wrPath(ROUTES.bits),
   };
@@ -227,15 +226,19 @@ export default class IntroductionPage {
   /**
    * The page's See also, first in the shell's grid. Eight at most, which is the grid's own cap: Charts and Bits are
    * left to the "What you get" cards above, which link them with the same words.
+   *
+   * Every card is a page, never a section root: `/guides` or `/reference/components` has no page of its own, only a
+   * redirect to its first child, so it has no kind label to give — and one card without one drops the labels from
+   * the whole grid.
    */
   protected readonly next: readonly DocSeeAlsoLink[] = [
     { title: 'Installation', url: [this.paths.installation], description: 'Add ngwr to an app.' },
     { title: 'Configuration', url: [this.paths.configuration], description: 'Set app-wide options at bootstrap.' },
     { title: 'Forms', url: [this.paths.forms], description: 'Bind controls to any Angular form.' },
     { title: 'Theming', url: [this.paths.theming], description: 'Light, dark and your own palette.' },
-    { title: 'Design tokens', url: [this.paths.tokens], description: 'Color, sizing, type, density, motion.' },
-    { title: 'Components', url: [this.paths.components], description: 'The full catalog.' },
-    { title: 'Guides', url: [this.paths.guides], description: 'SSR, overlays, keyboard, testing.' },
+    { title: 'Colors', url: [this.paths.colors], description: 'Which color token to use where.' },
+    { title: 'Overlay', url: [this.paths.overlay], description: 'Floating panels and where focus goes.' },
+    { title: 'Server-side rendering', url: [this.paths.ssr], description: 'Prerender and hydrate cleanly.' },
     { title: 'Migration', url: [this.paths.migration], description: 'Upgrade from any earlier major.' },
   ];
 }

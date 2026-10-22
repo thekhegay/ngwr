@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 
 import { WrI18n, WrTDirective, WrTPipe } from 'ngwr/i18n';
+import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 import { WrTypography } from 'ngwr/typography';
 
 import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
@@ -11,6 +12,7 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComp
   imports: [
     WrTPipe,
     WrTDirective,
+    WrSegmented,
     WrTypography,
     DocPageComponent,
     DocSectionComponent,
@@ -21,10 +23,12 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComp
 export default class TranslateUsagePage {
   private readonly i18n = inject(WrI18n);
   protected readonly locale = this.i18n.locale;
-  protected readonly available = this.i18n.available();
+  protected readonly localeOptions: readonly WrSegmentedOption<string>[] = this.i18n
+    .available()
+    .map(locale => ({ value: locale, label: locale }));
 
-  protected use(locale: string): void {
-    this.i18n.use(locale);
+  protected use(locale: string | null): void {
+    if (locale) this.i18n.use(locale);
   }
 
   protected readonly snippets = {

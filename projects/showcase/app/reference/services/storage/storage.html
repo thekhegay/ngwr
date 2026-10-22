@@ -20,10 +20,10 @@
           <code>{{ note() ?? '— empty —' }}</code>
         </p>
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
-          <button type="button" (click)="bump()">Bump visits (persists across tabs)</button>
-          <button type="button" (click)="stash()">Stash note (10s TTL)</button>
-          <button type="button" (click)="refresh()">Refresh note</button>
-          <button type="button" (click)="reset()">Reset both</button>
+          <button wr-btn type="button" (click)="bump()">Bump visits (persists across tabs)</button>
+          <button wr-btn type="button" (click)="stash()">Stash note (10s TTL)</button>
+          <button wr-btn type="button" (click)="refresh()">Refresh note</button>
+          <button wr-btn type="button" (click)="reset()">Reset both</button>
         </div>
         <p style="margin: 0; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
           Open this page in two tabs and click <em>Bump visits</em> in one — the other updates via the
