@@ -164,38 +164,56 @@
   // radius is the large button's plus that 1px border, so the edges run
   // parallel. A soft halo in the same colour stays when reduced motion hides
   // the light.
-  // The ring is the wrapper's 1.5px padding painted with a conic gradient whose
-  // start angle turns for ever: a faint brand tint all round, one bright arc
-  // circling it. `::after` repeats the arc blurred, as the glow.
+  // The ring is the wrapper's 1.5px padding. Behind the button, an oversized
+  // square carrying a conic gradient turns on `transform`, which every browser
+  // animates on the compositor, and the wrapper clips it to the ring. The glow
+  // is a plain shadow: no `filter`, no animated custom property.
   &__glow {
-    --ngwr-cta-ring: color-mix(in srgb, var(--wr-color-primary) 22%, transparent);
-
     position: relative;
     display: inline-flex;
     padding: 1.5px;
-    background: conic-gradient(
-      from var(--ngwr-cta-angle),
-      var(--ngwr-cta-ring) 0 55%,
-      var(--wr-color-primary) 75%,
-      color-mix(in srgb, var(--wr-color-primary) 40%, white) 82%,
-      var(--ngwr-cta-ring) 92% 100%
-    );
-    animation: ngwr-cta-spin 4s linear infinite;
+    overflow: hidden;
+    isolation: isolate;
+    background: color-mix(in srgb, var(--wr-color-primary) 22%, transparent);
+    box-shadow: 0 0 1.25rem -0.25rem color-mix(in srgb, var(--wr-color-primary) 55%, transparent);
     @include theme.smooth-br(calc(var(--wr-control-radius-lg) + 1.5px));
 
-    &::after {
+    // A square wider than the button's diagonal, so no corner of the ring is
+    // ever uncovered while it turns.
+    &::before {
       content: '';
       position: absolute;
       z-index: -1;
-      inset: 0;
-      background: inherit;
-      border-radius: inherit;
-      filter: blur(10px);
-      opacity: 0.55;
+      // rtl-ok: centring a rotating square is symmetric, so the physical
+      // offset lands on the same centre in either direction.
+      top: 50%;
+      left: 50%;
+      width: 150%;
+      aspect-ratio: 1;
+      transform: translate(-50%, -50%);
+      background: conic-gradient(
+        transparent 0 55%,
+        var(--wr-color-primary) 75%,
+        color-mix(in srgb, var(--wr-color-primary) 40%, white) 82%,
+        transparent 92% 100%
+      );
+      animation: ngwr-cta-spin 4s linear infinite;
+    }
+
+    // The clip would cut the button's focus ring, so focus lifts it and hides
+    // the arc: the ring takes over while it shows.
+    &:has(:focus-visible) {
+      overflow: visible;
+
+      &::before {
+        visibility: hidden;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      animation: none;
+      &::before {
+        animation: none;
+      }
     }
   }
 
@@ -431,15 +449,8 @@
   }
 }
 
-// The angle has to be a registered property for the gradient to animate.
-@property --ngwr-cta-angle {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
-}
-
 @keyframes ngwr-cta-spin {
   to {
-    --ngwr-cta-angle: 360deg;
+    transform: translate(-50%, -50%) rotate(1turn);
   }
 }
