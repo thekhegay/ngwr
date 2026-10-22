@@ -1104,7 +1104,7 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
-      name: 'Typewriter / decrypt: getText() / hasCursor() / getCursorBlinkDuration() / getRevealedIndices() / getEncryptedCount() / isFullyRevealed() / hover() / click()',
+      name: 'Typewriter / decrypt: getText() / getAccessibleText() / hasCursor() / getCursorBlinkDuration() / getRevealedIndices() / getEncryptedCount() / isFullyRevealed() / hover() / click()',
       description: '`WrTypewriterHarness`, `WrDecryptTextHarness`.',
       type: 'Promise<…>',
     },

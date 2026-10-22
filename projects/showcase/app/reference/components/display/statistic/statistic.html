@@ -57,7 +57,7 @@
 
   <ngwr-doc-section
     title="Countdown"
-    description="`<wr-statistic-countdown>` counts down to `target`; `format` takes `D`, `H`, `m`, `s` (doubled to pad) and `SSS`."
+    description="`<wr-statistic-countdown>` counts down to `target`; `format` takes `D`, `H`, `m`, `s` (doubled to pad) and `SSS`. A unit the format leaves out is carried into the largest one it shows, so `HH:mm:ss` reads `73:00:00` three days out."
   >
     <ngwr-doc-code [code]="countdownSnippet" language="angular-ts" />
     <ngwr-doc-snippet code="">

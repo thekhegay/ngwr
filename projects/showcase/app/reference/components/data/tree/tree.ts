@@ -81,6 +81,7 @@ export default class TreePageComponent {
 
   protected readonly snippets = {
     single: `<wr-tree
+  ariaLabel="Project files"
   [nodes]="folders"
   [(selected)]="picked"
   [(expanded)]="open"
@@ -88,6 +89,7 @@ export default class TreePageComponent {
 />`,
 
     multi: `<wr-tree
+  ariaLabel="Project files"
   [nodes]="folders"
   [(selected)]="picked"
   selectionMode="multi"
@@ -112,6 +114,7 @@ export default class TreePageComponent {
 />`,
 
     virtual: `<wr-tree
+  ariaLabel="Generated folders"
   [nodes]="bigTree"
   [(expanded)]="expanded"
   [(selected)]="picked"

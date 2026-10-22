@@ -138,7 +138,7 @@
     justify-content: flex-end;
 
     gap: calc(var(--wr-grid-gutter) / 3);
-    margin-left: auto;
+    margin-inline-start: auto;
   }
 
   &__action {
@@ -301,8 +301,8 @@
     }
   }
 
-  // Close toggle row, pinned to the top-right of the drawer panel so it
-  // lands roughly where the header burger was.
+  // Close toggle row, pinned to the outer top corner of the drawer panel (the
+  // top-right in LTR) so it lands roughly where the header burger was.
   &__sheet-top {
     display: flex;
     justify-content: flex-end;

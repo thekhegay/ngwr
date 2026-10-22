@@ -7,7 +7,9 @@
   <ngwr-doc-section title="Odometer" description="Digits roll on every change of `value`.">
     <ngwr-doc-code [code]="snippets.odometer" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div style="display: flex; align-items: center; gap: 2rem; font-size: 3rem; font-weight: 600">
+      <div
+        style="display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 2rem; font-size: 3rem; font-weight: 600"
+      >
         <wr-counter [value]="oilGauge()" mode="odometer" />
         <wr-btn (click)="randomize()">Randomize</wr-btn>
       </div>
@@ -17,7 +19,9 @@
   <ngwr-doc-section title="Tween" description='`mode="tween"` eases from the old value to the new one.'>
     <ngwr-doc-code [code]="snippets.tween" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div style="display: flex; align-items: center; gap: 2rem; font-size: 3rem; font-weight: 600">
+      <div
+        style="display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 2rem; font-size: 3rem; font-weight: 600"
+      >
         <wr-counter [value]="stocks()" mode="tween" [decimals]="2" prefix="$" />
         <wr-btn (click)="randomize()">Randomize</wr-btn>
       </div>
@@ -27,7 +31,9 @@
   <ngwr-doc-section title="Padded integer" description="`minIntegerDigits` pads the number with leading zeros.">
     <ngwr-doc-code [code]="snippets.minDigits" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div style="display: flex; align-items: center; gap: 2rem; font-size: 3rem; font-weight: 600">
+      <div
+        style="display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 2rem; font-size: 3rem; font-weight: 600"
+      >
         <wr-counter [value]="progress()" [minIntegerDigits]="6" mode="odometer" />
         <wr-btn (click)="stepProgress()">Step</wr-btn>
       </div>
@@ -40,7 +46,9 @@
   >
     <ngwr-doc-code [code]="snippets.countUp" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div style="display: flex; align-items: center; gap: 2rem; font-size: 3rem; font-weight: 600">
+      <div
+        style="display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 2rem; font-size: 3rem; font-weight: 600"
+      >
         <wr-count-up [to]="1000" easing="spring" [duration]="2" trigger="visible" />
       </div>
     </ngwr-doc-snippet>
@@ -49,7 +57,9 @@
   <ngwr-doc-section title="Count down" description='`direction="down"` counts from `to` to `from`.'>
     <ngwr-doc-code [code]="snippets.countDown" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div style="display: flex; align-items: center; gap: 2rem; font-size: 3rem; font-weight: 600">
+      <div
+        style="display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 2rem; font-size: 3rem; font-weight: 600"
+      >
         <wr-count-up [from]="0" [to]="60" direction="down" />
       </div>
     </ngwr-doc-snippet>

@@ -78,13 +78,14 @@ export default class FuzzyTextPage {
     },
     {
       name: 'color',
-      description: 'Text colour. Ignored if `[gradient]` is set.',
+      description:
+        'Text colour, any CSS colour — a `var()` token or `light-dark()` included. Followed live while the text animates. Ignored if `[gradient]` is set.',
       type: 'string',
       default: "'inherit'",
     },
     {
       name: 'gradient',
-      description: 'Optional horizontal gradient stops (2+ colours).',
+      description: 'Optional horizontal gradient stops (2+ colours), each resolved the way `color` is.',
       type: 'readonly string[] | null',
       default: 'null',
     },

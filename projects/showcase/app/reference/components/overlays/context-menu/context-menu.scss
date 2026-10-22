@@ -1,5 +1,9 @@
 // Demo styles for the context-menu showcase page only.
+@use 'showcase/styles/mixins' as site;
 
+// A tab stop, so the keyboard path the page documents (Shift+F10, the Menu key)
+// can be tried: a context menu hangs on a focusable element, and these regions
+// were plain divs that 80 Tab presses never reached.
 .ngwr-cm-demo {
   display: flex;
   align-items: center;
@@ -9,6 +13,15 @@
   border: 1px dashed var(--wr-border-base);
   border-radius: 0.5rem;
   color: var(--wr-color-on-surface-muted);
+  @include site.transition(border-color);
+
+  &:hover {
+    border-color: var(--wr-border-strong);
+  }
+
+  &:focus-visible {
+    @include site.focus-ring;
+  }
 }
 
 // Custom-template demo: header row inside the menu panel.

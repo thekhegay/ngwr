@@ -102,7 +102,8 @@ export default class DecryptTextPage {
     { name: 'characters', description: 'Pool of glyphs to scramble through.', type: 'string', default: "'ABC…!@#$…'" },
     {
       name: 'animateOn',
-      description: 'When to start the animation.',
+      description:
+        "When to start the animation. `'click'` rests scrambled and makes the text a button: Tab reaches it, Enter or Space decrypts it.",
       type: "'hover' | 'click' | 'view' | 'inViewHover'",
       default: "'hover'",
     },

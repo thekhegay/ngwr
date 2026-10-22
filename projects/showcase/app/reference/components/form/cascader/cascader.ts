@@ -3,6 +3,7 @@ import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrCascader, type WrCascaderOption } from 'ngwr/cascader';
+import { WrKbd } from 'ngwr/keyboard';
 
 import {
   type DocApiRow,
@@ -21,6 +22,7 @@ import { API } from '#core/generated/api';
     FormsModule,
     JsonPipe,
     WrCascader,
+    WrKbd,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,

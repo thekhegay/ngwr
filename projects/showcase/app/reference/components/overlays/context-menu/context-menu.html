@@ -12,7 +12,7 @@
   <ngwr-doc-section title="Basic" description="Right-click the area below.">
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div [wrContextMenu]="basicMenu" class="ngwr-cm-demo">Right-click here</div>
+      <div [wrContextMenu]="basicMenu" class="ngwr-cm-demo" tabindex="0">Right-click here</div>
 
       <wr-context-menu #basicMenu>
         <wr-context-menu-item icon="copy" (click)="pick('copy')">Copy</wr-context-menu-item>
@@ -25,7 +25,7 @@
   <ngwr-doc-section title="Dividers" description="Put `<wr-context-menu-divider />` between items to group them.">
     <ngwr-doc-code [code]="snippets.divider" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div [wrContextMenu]="dividerMenu" class="ngwr-cm-demo">Right-click for grouped actions</div>
+      <div [wrContextMenu]="dividerMenu" class="ngwr-cm-demo" tabindex="0">Right-click for grouped actions</div>
 
       <wr-context-menu #dividerMenu>
         <wr-context-menu-item icon="copy" (click)="pick('copy')">Copy</wr-context-menu-item>
@@ -43,7 +43,7 @@
   >
     <ngwr-doc-code [code]="snippets.submenu" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div [wrContextMenu]="rootMenu" class="ngwr-cm-demo">Right-click for nested options</div>
+      <div [wrContextMenu]="rootMenu" class="ngwr-cm-demo" tabindex="0">Right-click for nested options</div>
 
       <wr-context-menu #rootMenu>
         <wr-context-menu-item icon="copy" (click)="pick('copy')">Copy</wr-context-menu-item>
@@ -75,7 +75,7 @@
   >
     <ngwr-doc-code [code]="snippets.custom" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div [wrContextMenu]="customMenu" class="ngwr-cm-demo">Right-click for a richer menu</div>
+      <div [wrContextMenu]="customMenu" class="ngwr-cm-demo" tabindex="0">Right-click for a richer menu</div>
 
       <wr-context-menu #customMenu>
         <div class="ngwr-cm-header">

@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1245 hook(s) across 90 page(s). A property is here only when the
+ * 1248 hook(s) across 91 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 24 declaration(s) are one component setting
@@ -37,6 +37,14 @@ export interface DocCssVars {
  * cast it needs can only name a route this file still carries.
  */
 export const CSS_VARS = {
+  "bits/aurora": {
+    subpath: "ngwr/bits/aurora",
+    vars: [
+      { name: "--wr-aurora-stop-1", default: "light-dark(#6366f1, #5227ff)", scope: ".wr-aurora" },
+      { name: "--wr-aurora-stop-2", default: "light-dark(#10b981, #7cff67)", scope: ".wr-aurora" },
+      { name: "--wr-aurora-stop-3", default: "light-dark(#6366f1, #5227ff)", scope: ".wr-aurora" },
+    ],
+  },
   "bits/border-glow": {
     subpath: "ngwr/bits/border-glow",
     vars: [
@@ -285,9 +293,9 @@ export const CSS_VARS = {
   "reference/components/badge": {
     subpath: "ngwr/badge",
     vars: [
-      { name: "--wr-badge-bg", default: "var(--wr-color-fill)", scope: ".wr-badge" },
-      { name: "--wr-badge-border", default: "var(--wr-border-base)", scope: ".wr-badge" },
-      { name: "--wr-badge-color", default: "var(--wr-color-on-surface)", scope: ".wr-badge" },
+      { name: "--wr-badge-bg", default: "var(--wr-color-fill)", scope: ".wr-badge", overrides: 2 },
+      { name: "--wr-badge-border", default: "var(--wr-border-base)", scope: ".wr-badge", overrides: 1 },
+      { name: "--wr-badge-color", default: "var(--wr-color-on-surface)", scope: ".wr-badge", overrides: 2 },
       { name: "--wr-badge-font-size", default: "var(--wr-text-xs)", scope: ".wr-badge", overrides: 2 },
       { name: "--wr-badge-font-weight", default: "600", scope: ".wr-badge" },
       { name: "--wr-badge-min-height", default: "1.5rem", scope: ".wr-badge", overrides: 2 },

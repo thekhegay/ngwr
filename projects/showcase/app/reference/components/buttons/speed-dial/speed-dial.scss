@@ -32,4 +32,28 @@
   &__stage--down {
     min-height: 28rem;
   }
+
+  // A sideways fan is a row hanging off ONE side of the trigger, so centring the
+  // trigger alone pushed the far action off a phone — 27px past the right edge,
+  // with the whole page scrolling sideways, or 27px past the left. The dial
+  // carries the fan's reach as a margin on the side it opens toward, and the
+  // stage centres trigger and fan as one box. The reach is the third action's
+  // outer edge: action `i` starts `i` × (action + gap) past the trigger. Physical,
+  // because `left` and `right` name sides of the screen in both directions.
+  &__stage--left wr-speed-dial,
+  &__stage--right wr-speed-dial {
+    --ngwr-dial-reach: calc(
+      3 * (var(--wr-speed-dial-action-size) + var(--wr-speed-dial-gap)) + var(--wr-speed-dial-action-size)
+    );
+  }
+
+  &__stage--right wr-speed-dial {
+    // rtl-ok: the fan direction is physical, so the side it reserves is too.
+    margin-right: var(--ngwr-dial-reach);
+  }
+
+  &__stage--left wr-speed-dial {
+    // rtl-ok: the fan direction is physical, so the side it reserves is too.
+    margin-left: var(--ngwr-dial-reach);
+  }
 }

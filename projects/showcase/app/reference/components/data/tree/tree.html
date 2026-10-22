@@ -10,7 +10,7 @@
   >
     <ngwr-doc-code [code]="snippets.single" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-tree [nodes]="folders" [(selected)]="singleSelected" [(expanded)]="expanded" />
+      <wr-tree ariaLabel="Project files" [nodes]="folders" [(selected)]="singleSelected" [(expanded)]="expanded" />
       <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)">
         Selected: {{ singleSelected().join(', ') || '(none)' }}
       </small>
@@ -23,7 +23,7 @@
   >
     <ngwr-doc-code [code]="snippets.multi" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-tree [nodes]="folders" [(selected)]="multiSelected" selectionMode="multi" />
+      <wr-tree ariaLabel="Project files" [nodes]="folders" [(selected)]="multiSelected" selectionMode="multi" />
       <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)">
         Selected: {{ multiSelected().join(', ') || '(none)' }}
       </small>
@@ -82,6 +82,7 @@
     <ngwr-doc-code [code]="snippets.virtual" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-tree
+        ariaLabel="Generated folders"
         [nodes]="bigTree"
         [(expanded)]="bigExpanded"
         [(selected)]="bigPick"

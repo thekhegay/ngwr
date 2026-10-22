@@ -44,7 +44,7 @@
 
   <ngwr-doc-section
     title="Load errors"
-    description="An unreadable source fires `(loadError)` and sets `status()` to `'failed'`; the cropper shows no message, so show your own."
+    description="An unreadable source fires `(loadError)` and sets `status()` to `'failed'`; the cropper shows no message, so show your own. A URL on another origin needs CORS headers, or it fails the same way."
   >
     <ngwr-doc-code [code]="snippets.loadError" language="angular-html" />
     <ngwr-doc-code [code]="snippets.loadErrorTs" language="angular-ts" />

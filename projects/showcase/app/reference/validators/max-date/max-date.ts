@@ -49,7 +49,7 @@ const end = new FormControl('', [
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'signature',
-      description: 'Call it with a `Date`, an ISO string or epoch ms.',
+      description: 'Call it with a `Date`, an ISO string or epoch ms. A date-only string is local midnight.',
       type: '(max: Date | string | number) => ValidatorFn',
       default: '—',
     },

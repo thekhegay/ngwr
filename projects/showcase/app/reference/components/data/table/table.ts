@@ -259,7 +259,8 @@ export default class TablePageComponent {
     { region: 'APAC', rep: 'Emi', deals: 11, revenue: 40100 },
   ];
   protected readonly salesColumns: WrTableColumns = {
-    region: { title: 'Region', summary: () => 'Subtotal' },
+    // One function feeds the group rows and the grand total: tell them apart by the rows.
+    region: { title: 'Region', summary: rows => (new Set(rows.map(r => r['region'])).size > 1 ? 'Total' : 'Subtotal') },
     rep: { title: 'Rep' },
     deals: { title: 'Deals', summary: 'sum' },
     revenue: { title: 'Revenue', summary: 'sum' },
@@ -391,7 +392,8 @@ effect(() => {
   [items]="rows"
 />`,
     groupSummary: `const columns: WrTableColumns = {
-  region:  { title: 'Region', summary: () => 'Subtotal' },
+  // One function feeds the group rows and the grand total: tell them apart by the rows.
+  region:  { title: 'Region', summary: rows => (new Set(rows.map(r => r['region'])).size > 1 ? 'Total' : 'Subtotal') },
   rep:     { title: 'Rep' },
   deals:   { title: 'Deals',   summary: 'sum' },
   revenue: { title: 'Revenue', summary: 'sum' },

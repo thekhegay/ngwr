@@ -40,7 +40,7 @@ export default class ContextMenuPageComponent {
   }
 
   protected readonly snippets = {
-    basic: `<div [wrContextMenu]="menu">Right-click me</div>
+    basic: `<div [wrContextMenu]="menu" tabindex="0">Right-click me</div>
 
 <wr-context-menu #menu>
   <wr-context-menu-item icon="copy" (click)="copy()">Copy</wr-context-menu-item>
@@ -58,7 +58,7 @@ export default class ContextMenuPageComponent {
   <wr-context-menu-item icon="trash" (click)="remove()">Delete</wr-context-menu-item>
 </wr-context-menu>`,
 
-    submenu: `<div [wrContextMenu]="rootMenu">Right-click me</div>
+    submenu: `<div [wrContextMenu]="rootMenu" tabindex="0">Right-click me</div>
 
 <wr-context-menu #rootMenu>
   <wr-context-menu-item icon="copy" (click)="copy()">Copy</wr-context-menu-item>
@@ -98,7 +98,7 @@ export default class ContextMenuPageComponent {
     <span class="my-kbd">⌘V</span>
   </wr-context-menu-item>
 </wr-context-menu>`,
-    exportAs: `<div [wrContextMenu]="menu" #area="wrContextMenuTrigger">Right-click me</div>
+    exportAs: `<div [wrContextMenu]="menu" tabindex="0" #area="wrContextMenuTrigger">Right-click me</div>
 <wr-context-menu #menu>
   <wr-context-menu-item>Copy</wr-context-menu-item>
 </wr-context-menu>
