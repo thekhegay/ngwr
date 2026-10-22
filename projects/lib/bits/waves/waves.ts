@@ -293,7 +293,9 @@ export class WrWaves {
     };
     // Off screen the field stops asking for frames: it is decoration, and a
     // canvas redrawn out of sight still costs the browser a frame every frame.
-    // Without an observer (jsdom) it simply runs.
+    // Firefox on a wide retina window showed it: scrolled back up, the page
+    // above the fold stayed blank for seconds until this loop and the pixel
+    // budget below went in. Without an observer (jsdom) it simply runs.
     const io =
       typeof IntersectionObserver === 'undefined'
         ? null
