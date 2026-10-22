@@ -114,11 +114,11 @@ describe('the published manifest', () => {
   const manifest = JSON.parse(readFileSync(join(LIB, 'package.json'), 'utf8')) as {
     peerDependencies: Record<string, string>;
     peerDependenciesMeta?: Record<string, { optional?: boolean }>;
-    dependencies: Record<string, string>;
+    dependencies?: Record<string, string>;
   };
 
   it('declares every package the shipped sources import', () => {
-    const declared = new Set([...Object.keys(manifest.peerDependencies), ...Object.keys(manifest.dependencies)]);
+    const declared = new Set([...Object.keys(manifest.peerDependencies), ...Object.keys(manifest.dependencies ?? {})]);
     const undeclared = [...importedPackages()]
       .filter(([name]) => !declared.has(name))
       .map(([name, files]) => `${name} (e.g. ${files[0]})`);
@@ -126,10 +126,11 @@ describe('the published manifest', () => {
     expect(undeclared).toEqual([]);
   });
 
-  it('keeps `tslib` the only runtime dependency', () => {
+  it('pulls in no runtime dependency', () => {
     // The peer list can grow; `dependencies` is what an install actually pulls in,
-    // and the library's promise is that it pulls in nothing but tslib.
-    expect(Object.keys(manifest.dependencies)).toEqual(['tslib']);
+    // and the library pulls in nothing. tslib went in v15: the ES2022 output
+    // imports none of its helpers, and the builds inline any they would need.
+    expect(manifest.dependencies).toBeUndefined();
   });
 
   it('marks a peer optional only when whole entry points, not the core, need it', () => {

@@ -53,8 +53,8 @@ reactive forms bind too, with limits the
 
 - Standalone, signal-based components that work zoneless and render on the
   server.
-- One import path per component (`ngwr/button`, `ngwr/select`). The only
-  runtime dependency is `tslib`.
+- One import path per component (`ngwr/button`, `ngwr/select`). No runtime
+  dependencies.
 - [Theming](https://ngwr.dev/guides/theming) through `--wr-*` CSS custom
   properties, with light and dark modes that follow `color-scheme`.
 - Keyboard and screen reader support based on the WAI-ARIA patterns.

@@ -899,9 +899,10 @@ tokens — rather than hand-rolling raw markup/logic or pulling an external
 library where an internal tool exists. The catalog is large (over two hundred
 entry points; the exact count is `entryPoints` in `#core/generated/quality`):
 check before writing a bare `<input type="file">`, a date / number / truncate
-helper, a coercion, an id generator, and so on. New external runtime
-dependencies need a strong justification — the only runtime dependency today is
-`tslib`.
+helper, a coercion, an id generator, and so on. ngwr has no runtime
+dependency at all — `tslib` went in v15, since the ES2022 output imports none of
+its helpers — and a new one needs a strong justification; `check:package` fails
+on a shipped import the manifest does not declare.
 
 **Framework.** Angular 22, **standalone**, **signals-first**, **zoneless**
 (`provideZonelessChangeDetection`). Don't write `standalone: true` (the Angular

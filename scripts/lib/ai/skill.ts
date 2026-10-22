@@ -60,8 +60,8 @@ description: Build Angular UIs with the ngwr component library (standalone, sign
 # ngwr
 
 An Angular ${angular} UI library: ${entries.length} tree-shakable entry points, ${components} of them shipping a selector.
-Standalone, signals-first, zoneless, \`ViewEncapsulation.None\`. One runtime
-dependency (\`tslib\`).
+Standalone, signals-first, zoneless, \`ViewEncapsulation.None\`. No runtime
+dependencies.
 
 ## Get the facts, do not guess
 

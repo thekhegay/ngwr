@@ -80,7 +80,7 @@ const HIDDEN = new Set(['private', 'protected', 'static']);
  * `protected` declarations into prose.
  *
  * `typescript` would parse this properly and is not an option: this ships inside a
- * package whose only runtime dependency is `tslib`. A scanner over the build's
+ * package with no runtime dependency. A scanner over the build's
  * OUTPUT — a generated, regular subset of the language — is the middle path, and
  * it is small enough to reason about.
  */

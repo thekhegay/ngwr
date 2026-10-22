@@ -2,7 +2,7 @@
 
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
 > Over two hundred secondary entry points, built on `@angular/cdk` primitives.
-> The only runtime dependency is `tslib`. Docs and live demos: https://ngwr.dev
+> No runtime dependencies. Docs and live demos: https://ngwr.dev
 > Source: https://github.com/thekhegay/ngwr
 
 This file orients AI agents and LLMs that consume ngwr. For exact, current
