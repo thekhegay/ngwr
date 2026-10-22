@@ -52,6 +52,8 @@ let strokes: string[];
 let frames: FrameRequestCallback[];
 /** `disconnect()` calls on the resize observer. */
 let disconnects: number;
+/** Path calls, by name: `moveTo` opens a line, `lineTo` and `quadraticCurveTo` extend it. */
+let pathCalls: Record<'moveTo' | 'lineTo' | 'quadraticCurveTo', number>;
 
 /**
  * Enough of a 2D context for `boot()` to reach its last line, and nothing more.
@@ -70,6 +72,15 @@ const withContext = (): void => {
     },
     stroke: () => {
       strokes.push(String(ctx['strokeStyle']));
+    },
+    moveTo: () => {
+      pathCalls.moveTo++;
+    },
+    lineTo: () => {
+      pathCalls.lineTo++;
+    },
+    quadraticCurveTo: () => {
+      pathCalls.quadraticCurveTo++;
     },
   };
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
@@ -130,6 +141,7 @@ describe('WrWaves', () => {
     strokes = [];
     disconnects = 0;
     frames = [];
+    pathCalls = { moveTo: 0, lineTo: 0, quadraticCurveTo: 0 };
     await mount();
   });
 
@@ -216,6 +228,34 @@ describe('WrWaves', () => {
     runFrame();
 
     expect(strokes).toEqual(['rgb(1, 2, 3)']);
+  });
+
+  it('bends each line through curves rather than joining its points with straight segments', async () => {
+    withContext();
+    // jsdom lays nothing out, and a 0×0 box leaves two points per line — no
+    // interior to bend. A box tall enough for several points per line is what
+    // makes the difference between a curve and a polyline visible.
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      x: 0,
+      y: 0,
+      left: 0,
+      top: 0,
+      right: 100,
+      bottom: 240,
+      width: 100,
+      height: 240,
+      toJSON: () => ({}),
+    });
+    await mount();
+
+    runFrame();
+
+    // Every interior point is a curve's control; the only straight piece is
+    // the half-segment that closes each line. As a polyline, `lineTo` ran once
+    // per point and no curve was drawn at all.
+    expect(pathCalls.moveTo).toBeGreaterThan(0);
+    expect(pathCalls.quadraticCurveTo).toBeGreaterThan(pathCalls.moveTo);
+    expect(pathCalls.lineTo).toBe(pathCalls.moveTo);
   });
 
   it('tears down the listeners, the observer and the frame it installed', async () => {

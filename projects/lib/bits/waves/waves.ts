@@ -9,7 +9,8 @@
  *
  * A grid of vertical lines drawn on a 2D canvas. Each point drifts on
  * perlin noise and is pushed around by the pointer with a spring
- * (tension + friction) pulling it back to rest.
+ * (tension + friction) pulling it back to rest. Each line is drawn as
+ * quadratic curves through the points' midpoints, not as straight segments.
  */
 
 import { isPlatformBrowser } from '@angular/common';
@@ -289,8 +290,16 @@ export class WrWaves {
     const rect = this.host.nativeElement.getBoundingClientRect();
     this.bounding = { width: rect.width, height: rect.height, left: rect.left, top: rect.top };
     const canvas = this.canvasRef().nativeElement;
-    canvas.width = rect.width;
-    canvas.height = rect.height;
+    // Backed at the screen's pixel ratio. A bitmap the size of the CSS box is
+    // upscaled on a 2x screen, which smears every 1px line across two device
+    // pixels and steps its curves. Capped at 2: the field repaints every frame,
+    // and a 3x phone would push half as many pixels again for no visible gain.
+    const ratio = Math.min(Math.max(window.devicePixelRatio || 1, 1), 2);
+    canvas.width = Math.round(rect.width * ratio);
+    canvas.height = Math.round(rect.height * ratio);
+    // Resizing the bitmap resets the context, transform included, so the scale
+    // goes on afterwards. Every coordinate below stays in CSS pixels.
+    this.ctx?.setTransform(ratio, 0, 0, ratio, 0, 0);
   }
 
   private setLines(): void {
@@ -398,15 +407,22 @@ export class WrWaves {
     ctx.beginPath();
     ctx.strokeStyle = this.resolveLineColor();
     for (const points of this.lines) {
-      let p1 = this.moved(points[0], false);
-      ctx.moveTo(p1.x, p1.y);
-      points.forEach((p, idx) => {
-        const isLast = idx === points.length - 1;
-        p1 = this.moved(p, !isLast);
-        const p2 = this.moved(points[idx + 1] ?? points[points.length - 1], !isLast);
-        ctx.lineTo(p1.x, p1.y);
-        if (isLast) ctx.moveTo(p2.x, p2.y);
-      });
+      // Both ends stay where the grid put them, as they did when each line was
+      // a polyline; only the interior follows the pointer.
+      const last = points.length - 1;
+      const path = points.map((p, idx) => this.moved(p, idx > 0 && idx < last));
+      // A curve through the MIDPOINTS, with each grid point as its control.
+      // Joining the points themselves with `lineTo` put a corner at every one,
+      // and at the default 32px pitch they read as a jagged line. Consecutive
+      // curves share a tangent at the midpoint between them, so the line bends
+      // without a kink anywhere and still passes near every point.
+      ctx.moveTo(path[0].x, path[0].y);
+      for (let i = 1; i < last; i++) {
+        const p = path[i];
+        const next = path[i + 1];
+        ctx.quadraticCurveTo(p.x, p.y, (p.x + next.x) / 2, (p.y + next.y) / 2);
+      }
+      ctx.lineTo(path[last].x, path[last].y);
     }
     ctx.stroke();
   }
