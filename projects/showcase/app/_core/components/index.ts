@@ -19,6 +19,7 @@ export type {
   DocToggleControl,
 } from './doc-playground/types';
 export { DocSeeAlsoComponent } from './doc-see-also/doc-see-also';
+export { DocRemovedComponent } from './doc-removed/doc-removed';
 export { DocNgtrueComponent } from './doc-ngtrue/doc-ngtrue';
 export type { DocNgtrueVariant } from './doc-ngtrue/types';
 export type { DocIndexData, DocIndexSection } from './doc-index/types';

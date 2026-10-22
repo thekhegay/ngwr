@@ -31,7 +31,10 @@ export default [
   ...OVERLAYS_ROUTES,
 
   // Slugs that were published and then renamed or folded. Every one was a page
-  // at some point, so every one keeps resolving.
+  // at some point, so every one keeps resolving. A slug whose entry point v15
+  // REMOVED is not here: `action-sheet`, `markdown` and `squircle` are pages
+  // again, tombstones that say what replaced them, where a redirect would land
+  // on a page that never mentions the thing the reader came for.
   { path: 'drag-drop', redirectTo: components.sortableList.path },
   { path: components.typography.path, redirectTo: '/guides/typography/overview' },
   { path: 'tag', redirectTo: components.badge.path },
@@ -43,6 +46,4 @@ export default [
   { path: 'bottom-sheet', redirectTo: components.drawer.path },
   { path: 'time-picker', redirectTo: components.datePicker.path },
   { path: 'date-time-picker', redirectTo: components.datePicker.path },
-  { path: 'action-sheet', redirectTo: components.drawer.path },
-  { path: 'squircle', redirectTo: components.button.path },
 ] satisfies Routes;

@@ -1,0 +1,12 @@
+<ngwr-doc-page
+  title="Theme builder"
+  removed="15.0.0"
+  description="A live palette editor. v15 removed it with the runtime palette: rebrand at compile time."
+  [keywords]="['theme builder', 'wrThemeTokens', 'rebrand', 'palette', 'removed']"
+>
+  <ngwr-doc-removed
+    was="A page that repainted the site from one seed per intent and exported the tokens, built on `wrThemeTokens()`."
+    why="v15 removed `wrThemeTokens()` and runtime rebranding with it. The dark tokens are tuned by hand, so no formula reproduces them."
+    instead="`@use 'ngwr/theme' with ($base-colors: (…))` for the light side, or `@include theme.rebrand($colors, $dark)` for both. See [Theming](/guides/theming)."
+  />
+</ngwr-doc-page>

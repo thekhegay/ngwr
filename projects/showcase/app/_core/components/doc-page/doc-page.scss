@@ -70,6 +70,24 @@
     color: var(--wr-color-on-surface-muted);
     font-variant-numeric: tabular-nums;
   }
+
+  // The fact a tombstone page is about, so it is filled rather than outlined —
+  // and neutral, because a removal is history, not an error.
+  wr-badge.since--removed {
+    background: var(--wr-color-fill-strong);
+    box-shadow: none;
+    color: var(--wr-color-on-surface);
+  }
+}
+
+// A tombstone page (`removed` on the page). The title is struck through and
+// muted: the chip above says the same in words, which is what a screen reader
+// hears, since a line-through is not announced.
+:host(.removed) .title {
+  color: var(--wr-color-on-surface-muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--wr-border-strong);
+  text-decoration-thickness: 0.0625em;
 }
 
 .title {

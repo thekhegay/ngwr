@@ -58,6 +58,9 @@ export const ROUTES = {
     iconoir: { path: 'iconoir', title: 'Iconoir' },
     radix: { path: 'radix', title: 'Radix' },
     bootstrap: { path: 'bootstrap', title: 'Bootstrap' },
+    // Tombstones: v15 removed both entry points (`removed` on each page).
+    lucideAdapter: { path: 'adapters/lucide', title: 'Lucide adapter' },
+    featherAdapter: { path: 'adapters/feather', title: 'Feather adapter' },
   },
   docs: {
     path: 'docs',
@@ -92,6 +95,8 @@ export const ROUTES = {
     ssr: { path: 'ssr', title: 'Server-side rendering' },
     testing: { path: 'testing', title: 'Testing' },
     csp: { path: 'csp', title: 'Content Security Policy' },
+    // A tombstone: v15 removed the registry format and its presets.
+    registry: { path: 'registry', title: 'Registry' },
     tokens: {
       path: 'tokens',
       title: 'Design tokens',
@@ -100,6 +105,8 @@ export const ROUTES = {
       typography: { path: 'typography', title: 'Typography' },
       density: { path: 'density', title: 'Density' },
       motion: { path: 'motion', title: 'Motion' },
+      // A tombstone: v15 removed the runtime palette it was built on.
+      builder: { path: 'builder', title: 'Theme builder' },
     },
     color: { path: 'color', title: 'Colour' },
     typography: {
@@ -216,6 +223,10 @@ export const ROUTES = {
       virtualScroll: { path: 'virtual-scroll', title: 'Virtual Scroll' },
       sortableList: { path: 'sortable-list', title: 'Sortable List' },
       window: { path: 'window', title: 'Window' },
+      // Tombstones: v15 removed these entry points (`removed` on each page).
+      actionSheet: { path: 'action-sheet', title: 'Action Sheet' },
+      markdown: { path: 'markdown', title: 'Markdown' },
+      squircle: { path: 'squircle', title: 'Squircle' },
     },
     directives: {
       path: 'directives',
@@ -256,6 +267,11 @@ export const ROUTES = {
       cookie: { path: 'cookie', title: 'WrCookie' },
       loadingBar: { path: 'loading-bar', title: 'WrLoadingBar' },
       tour: { path: 'tour', title: 'WrTour' },
+      // Tombstones: v15 removed these entry points (`removed` on each page).
+      config: { path: 'config', title: 'WrConfig' },
+      dateFnsAdapter: { path: 'date-fns-adapter', title: 'WrDateFnsAdapter' },
+      luxonAdapter: { path: 'luxon-adapter', title: 'WrLuxonAdapter' },
+      media: { path: 'media', title: 'WrMedia' },
     },
     utils: {
       path: 'utils',

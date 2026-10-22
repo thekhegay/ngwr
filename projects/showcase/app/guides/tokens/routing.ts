@@ -12,6 +12,6 @@ export default [
   { path: t.density.path, loadComponent: () => import('./density/density') },
   { path: t.motion.path, loadComponent: () => import('./motion/motion') },
   // The theme builder exported a runtime palette from `wrThemeTokens()`, which
-  // v15 removed: a palette is chosen at build time through `$base-colors` now.
-  { path: 'builder', redirectTo: t.colors.path },
+  // v15 removed. Its page is a tombstone that points at the compile-time rebrand.
+  { path: t.builder.path, loadComponent: () => import('./builder/builder') },
 ] satisfies Routes;

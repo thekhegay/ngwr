@@ -1,4 +1,4 @@
-import { routeKey } from './since';
+import { removedOf, routeKey } from './since';
 
 import { DOC_ROUTES } from '#core/generated/deps';
 
@@ -53,13 +53,18 @@ export interface DocLabelledPage {
   readonly kind: string | null;
 }
 
-/** Every label in use, by slug, with the pages that carry it. */
+/**
+ * Every label in use, by slug, with the pages that carry it. A tombstone page
+ * (`removed` on its `<ngwr-doc-page>`) is left out: a label page lists what a
+ * reader can use, and a removed component is not one of them.
+ */
 export function labelIndex(): ReadonlyMap<
   string,
   { readonly label: string; readonly pages: readonly DocLabelledPage[] }
 > {
   const index = new Map<string, { label: string; pages: DocLabelledPage[] }>();
   for (const [route, page] of Object.entries(DOC_ROUTES)) {
+    if (removedOf(route) !== null) continue;
     for (const label of pageLabels(route)) {
       const slug = labelSlug(label);
       const entry = index.get(slug) ?? { label, pages: [] };

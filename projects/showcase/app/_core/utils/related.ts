@@ -102,6 +102,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'guides/theming',
     'guides/tokens/motion',
   ],
+  'guides/registry': ['guides/theming', 'guides/tokens/colors'],
   'guides/ssr': [
     'reference/services/theme',
     'reference/services/platform',
@@ -119,6 +120,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'guides/overlay',
     'guides/tokens/density',
   ],
+  'guides/tokens/builder': ['guides/theming', 'guides/tokens/colors'],
   'guides/tokens/colors': [
     'guides/theming',
     'reference/interfaces/theme',
@@ -226,9 +228,12 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'guides/tokens/sizing',
   ],
 
+  'icons/adapters/feather': ['icons/overview', 'reference/components/icon'],
+  'icons/adapters/lucide': ['icons/lucide', 'reference/components/icon'],
   'icons/lucide': ['icons/overview', 'reference/components/icon'],
   'icons/overview': ['reference/components/icon', 'icons/lucide'],
 
+  'reference/components/action-sheet': ['reference/components/drawer', 'guides/mobile'],
   'reference/components/alert': ['reference/components/toast', 'reference/components/result'],
   'reference/components/anchor': [
     'reference/directives/affix',
@@ -443,6 +448,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/descriptions',
     'reference/components/pagination',
   ],
+  'reference/components/markdown': ['reference/components/editor'],
   'reference/components/mention': [
     'reference/components/textarea',
     'reference/components/select',
@@ -541,6 +547,11 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/services/loading-bar',
   ],
   'reference/components/splitter': ['reference/components/layout', 'reference/components/compare'],
+  'reference/components/squircle': [
+    'reference/components/button',
+    'reference/components/avatar',
+    'reference/components/badge',
+  ],
   'reference/components/statistic': [
     'charts/sparkline',
     'reference/components/card',
@@ -710,7 +721,13 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   ],
 
   'reference/services/clipboard': ['reference/directives/copy-to-clipboard', 'reference/components/toast'],
+  'reference/services/config': ['docs/configuration'],
   'reference/services/cookie': ['reference/services/storage', 'guides/ssr'],
+  'reference/services/date-fns-adapter': [
+    'docs/configuration',
+    'reference/components/date-picker',
+    'reference/components/calendar',
+  ],
   'reference/services/density': [
     'guides/tokens/density',
     'docs/configuration',
@@ -739,6 +756,12 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/skeleton',
     'docs/configuration',
   ],
+  'reference/services/luxon-adapter': [
+    'docs/configuration',
+    'reference/components/date-picker',
+    'reference/components/calendar',
+  ],
+  'reference/services/media': ['guides/mobile', 'guides/grid'],
   'reference/services/meta': ['guides/ssr', 'docs/configuration', 'reference/services/i18n'],
   'reference/services/platform': [
     'guides/ssr',

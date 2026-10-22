@@ -86,6 +86,9 @@ export const routing: Routes = [
       { path: 'reference/components/line-chart', redirectTo: '/charts/line-chart' },
       { path: 'reference/components/meter-group', redirectTo: '/charts/meter-group' },
       { path: 'reference/components/sparkline', redirectTo: '/charts/sparkline' },
+      // v15 renamed the animations cluster to bits, every slug kept.
+      { path: 'animations/:page', redirectTo: ({ params }) => `/bits/${params['page']}` },
+      { path: 'animations', redirectTo: '/bits' },
 
       // Legacy URLs. The docs were reorganised into start / guides / reference;
       // these keep every previously-published path resolving. Cheap to carry —

@@ -1,0 +1,13 @@
+<ngwr-doc-page
+  title="WrMedia"
+  removed="15.0.0"
+  description="Viewport queries as signals. v15 removed it: use the CDK's `BreakpointObserver`."
+  [keywords]="['WrMedia', 'ngwr/media', 'breakpoint', 'removed']"
+  [labels]="['Service']"
+>
+  <ngwr-doc-removed
+    was="`WrMedia` from `ngwr/media`, with `provideWrMedia()` and `WR_BREAKPOINTS`: named breakpoints as signals."
+    why="Nothing in the library read it, and the CDK already ships the same query."
+    instead="`BreakpointObserver` from `@angular/cdk/layout`, through `toSignal()`. A name becomes its width: `md` is `(min-width: 768px)`. The mixins in `@use 'ngwr/breakpoints'` are unchanged. See [Mobile &amp; responsive](/guides/mobile)."
+  />
+</ngwr-doc-page>

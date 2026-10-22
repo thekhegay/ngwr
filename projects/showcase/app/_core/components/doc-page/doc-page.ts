@@ -103,7 +103,7 @@ interface DepsRow {
   // `title` is an input, and a static attribute that feeds an input is still written
   // onto the host, where the browser shows it as a native tooltip over the whole
   // page or section.
-  host: { '[attr.title]': 'null' },
+  host: { '[attr.title]': 'null', '[class.removed]': '!!removed()' },
 })
 export class DocPageComponent {
   /**
@@ -165,6 +165,41 @@ export class DocPageComponent {
   readonly since = input<string | null>(null);
 
   /**
+   * The library version this page's subject last changed its PUBLIC API in —
+   * an input, an output, an export, a token, or the entry point's own path —
+   * `'15.0.0'`. Prints "Updated in v15" beside the title, and the nav marks the
+   * row `Updated` while that version is on the current release line, the same
+   * expiring rule as {@link since}. A restyle or a bug fix is not an update; a
+   * change a consumer has to act on is.
+   *
+   * A plain attribute, read by `pnpm gen:api-docs` into `#core/generated/since`
+   * for the same reason as `since`. Never beside `removed`, and never a version
+   * no later than `since`: the generator refuses both.
+   *
+   * @example
+   * ```html
+   * <ngwr-doc-page title="Bar Chart" updated="15.0.0"> … </ngwr-doc-page>
+   * ```
+   */
+  readonly updated = input<string | null>(null);
+
+  /**
+   * The library version that DELETED this page's subject — `'15.0.0'`. The page
+   * is a tombstone: it says what the thing was, why it went and what to use
+   * instead, so a published link and an old import still land somewhere that
+   * answers. Prints "Removed in v15", styles the header as a tombstone, and the
+   * nav marks the row `Removed` for as long as the page exists, sorted after the
+   * live rows of its group — the mark does not expire, since the page has no
+   * other reason to be in the nav.
+   *
+   * @example
+   * ```html
+   * <ngwr-doc-page title="Markdown" removed="15.0.0"> … </ngwr-doc-page>
+   * ```
+   */
+  readonly removed = input<string | null>(null);
+
+  /**
    * Override the auto-derived category. Pass `null` to use the URL-derived
    * value (default behaviour). The derived value comes from the cluster
    * segment, mapped via {@link CATEGORY_BY_SEGMENT}.
@@ -188,6 +223,18 @@ export class DocPageComponent {
   protected readonly addedIn = computed(() => {
     const version = this.since();
     return version ? `Added in ${releaseLabel(version)}` : null;
+  });
+
+  /** "Updated in v15", or `null`. The same chip as {@link addedIn}, for the same reasons. */
+  protected readonly updatedIn = computed(() => {
+    const version = this.updated();
+    return version ? `Updated in ${releaseLabel(version)}` : null;
+  });
+
+  /** "Removed in v15", or `null`. Its own chip tone, since it is the fact the whole page is about. */
+  protected readonly removedIn = computed(() => {
+    const version = this.removed();
+    return version ? `Removed in ${releaseLabel(version)}` : null;
   });
 
   /**

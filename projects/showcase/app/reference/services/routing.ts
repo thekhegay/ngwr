@@ -20,4 +20,9 @@ export default [
   { path: services.clipboard.path, loadComponent: () => import('./clipboard/clipboard') },
   { path: services.cookie.path, loadComponent: () => import('./cookie/cookie') },
   { path: services.loadingBar.path, loadComponent: () => import('./loading-bar/loading-bar') },
+  // Tombstones for entry points v15 removed. Each says what replaced it.
+  { path: services.config.path, loadComponent: () => import('./config/config') },
+  { path: services.dateFnsAdapter.path, loadComponent: () => import('./date-fns-adapter/date-fns-adapter') },
+  { path: services.luxonAdapter.path, loadComponent: () => import('./luxon-adapter/luxon-adapter') },
+  { path: services.media.path, loadComponent: () => import('./media/media') },
 ] satisfies Routes;

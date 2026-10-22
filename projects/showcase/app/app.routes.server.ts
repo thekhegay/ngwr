@@ -56,6 +56,8 @@ export const serverRoutes: ServerRoute[] = [
   // `/start/*` is the pre-v15 prefix for what is now `/docs`; parameterised,
   // so it is client-rendered like every other redirect rule.
   { path: 'start/**', renderMode: RenderMode.Client },
+  // `/animations/*` is the pre-v15 name of `/bits`, parameterised the same way.
+  { path: 'animations/**', renderMode: RenderMode.Client },
   // The pre-v7 `docs/*` redirects, named one sub-prefix at a time rather than
   // as `docs/**`: `/docs` is a REAL cluster since v15, and a blanket rule here
   // would stop every page in it prerendering.

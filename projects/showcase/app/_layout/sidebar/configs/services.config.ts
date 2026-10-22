@@ -17,5 +17,10 @@ export const SERVICES_GROUP: SidebarGroup = {
     wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.storage),
     wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.theme),
     wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.tour),
+    // Tombstones: `removed` on the page marks the row and sorts it last.
+    wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.config),
+    wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.dateFnsAdapter),
+    wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.luxonAdapter),
+    wrLink(ROUTES.reference, ROUTES.reference.services, ROUTES.reference.services.media),
   ],
 };

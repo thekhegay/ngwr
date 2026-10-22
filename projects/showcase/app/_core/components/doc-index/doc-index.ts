@@ -6,7 +6,7 @@ import { DocSectionComponent } from '../doc-section/doc-section';
 
 import type { DocIndexData, DocIndexSection } from './types';
 
-import { isNewLink } from '#core/utils';
+import { type DocLinkMark, linkMark } from '#core/utils';
 import type { SidebarLink } from '#types';
 
 /**
@@ -50,12 +50,12 @@ export default class DocIndexComponent {
   protected readonly sections: readonly DocIndexSection[] = this.build();
 
   /**
-   * The sidebar's "new" mark, on the page that lists the same links — one rule
-   * (`isNewLink()`) rather than a second copy of it, so the catalog and the nav
-   * can never disagree about what arrived in this release.
+   * The sidebar's mark — `new`, `updated` or `removed` — on the page that lists
+   * the same links: one rule (`linkMark()`) rather than a second copy of it, so
+   * the catalog and the nav can never disagree about what this release changed.
    */
-  protected isNew(link: SidebarLink): boolean {
-    return isNewLink(link.url);
+  protected mark(link: SidebarLink): DocLinkMark | null {
+    return link.disabled ? null : linkMark(link.url);
   }
 
   private build(): readonly DocIndexSection[] {
@@ -80,16 +80,23 @@ export default class DocIndexComponent {
     // sidebar is built entirely out of that shape.
     const loose: SidebarLink[] = [];
 
+    // Tombstones after the live rows, in the order the sidebar puts them — the
+    // catalog lists what ships first, and what a release removed after it.
+    const liveFirst = (links: readonly SidebarLink[]): readonly SidebarLink[] => [
+      ...links.filter(link => this.mark(link) !== 'removed'),
+      ...links.filter(link => this.mark(link) === 'removed'),
+    ];
+
     for (const group of this.page.groups) {
       if (group.children) {
-        const links = group.children.filter(link => under(link.url));
+        const links = liveFirst(group.children.filter(link => under(link.url)));
         if (links.length > 0) sections.push({ title: group.title, links });
       } else if (under(group.url)) {
         loose.push({ title: group.title, url: group.url });
       }
     }
 
-    if (loose.length > 0) sections.push({ title: 'Other', links: loose });
+    if (loose.length > 0) sections.push({ title: 'Other', links: liveFirst(loose) });
 
     // A cluster whose single group repeats the page's own name — "Validators"
     // under "Validators" — reads as a stutter, so name that one section for

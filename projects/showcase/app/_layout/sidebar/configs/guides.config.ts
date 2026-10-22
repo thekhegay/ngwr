@@ -25,6 +25,8 @@ export const GUIDES_SIDEBAR: readonly SidebarGroup[] = [
       wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.typography),
       wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.density),
       wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.motion),
+      // A tombstone: `removed` on the page marks the row and sorts it last.
+      wrLink(ROUTES.guides, ROUTES.guides.tokens, ROUTES.guides.tokens.builder),
     ],
   },
   {
@@ -65,4 +67,6 @@ export const GUIDES_SIDEBAR: readonly SidebarGroup[] = [
   wrLink(ROUTES.guides, ROUTES.guides.ssr),
   wrLink(ROUTES.guides, ROUTES.guides.testing),
   wrLink(ROUTES.guides, ROUTES.guides.csp),
+  // A tombstone: `removed` on the page marks the row and sorts it last.
+  wrLink(ROUTES.guides, ROUTES.guides.registry),
 ];

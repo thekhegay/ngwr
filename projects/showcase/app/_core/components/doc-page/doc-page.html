@@ -1,5 +1,5 @@
 <header class="header">
-  @if (shownLabels().length || addedIn() || optional()) {
+  @if (shownLabels().length || addedIn() || updatedIn() || removedIn() || optional()) {
     <div class="labels">
       @for (label of shownLabels(); track label) {
         <ngwr-doc-label [label]="label" />
@@ -13,6 +13,12 @@
       -->
       @if (addedIn(); as added) {
         <wr-badge class="since" size="sm" shape="pill">{{ added }}</wr-badge>
+      }
+      @if (updatedIn(); as updated) {
+        <wr-badge class="since" size="sm" shape="pill">{{ updated }}</wr-badge>
+      }
+      @if (removedIn(); as removed) {
+        <wr-badge class="since since--removed" size="sm" shape="pill">{{ removed }}</wr-badge>
       }
       @if (optional()) {
         <wr-badge class="since" size="sm" shape="pill">Optional</wr-badge>

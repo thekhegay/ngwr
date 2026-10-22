@@ -147,8 +147,8 @@
  * `unreadMembers()`.
  *
  * **A second, much smaller artifact is written from the same walk:
- * `generated/since.ts`, the version each page declares it first shipped in**
- * (see `scanSince()`). It is here rather than in a generator of its own for one
+ * `generated/since.ts`, the version marks each page declares — first shipped
+ * in, public API changed in, removed in** (see `scanMarks()`). It is here rather than in a generator of its own for one
  * reason, and it is the same reason `staleGenerated()` is here: this run already
  * opens every showcase page, and `--check` already re-derives what it writes and
  * diffs it against the committed copy. A map keyed off pages that nothing
@@ -1572,8 +1572,7 @@ function check(api: Map<string, ApiEntry>, docs: WrDocPages): Findings {
   // compared less than it has before" while the comparison counters sit exactly
   // where they always have sends a reader looking for a loss that did not
   // happen, and the only fix they can find is to edit the number.
-  for (const rel of noTable)
-    problems.push(`${rel}  references DocApiRow, but no row array could be read from it`);
+  for (const rel of noTable) problems.push(`${rel}  references DocApiRow, but no row array could be read from it`);
   for (const row of unnamedRows) problems.push(`${row}  is a row object with no readable name:`);
   for (const row of unreadableSourceTypes)
     problems.push(`${row}  the library's own type could not be read, so the page's cannot be checked`);
@@ -1590,7 +1589,9 @@ function check(api: Map<string, ApiEntry>, docs: WrDocPages): Findings {
       );
 
   for (const key of unrecorded(expressionDefaults, EXPRESSION_DEFAULTS))
-    problems.push(`${key}: the source's default is an expression, so nothing can be compared — record it or give it a value`);
+    problems.push(
+      `${key}: the source's default is an expression, so nothing can be compared — record it or give it a value`
+    );
   for (const key of unrecorded(selectorRows, SELECTOR_ROWS))
     problems.push(`${key}: typed \`directive\`, so the page documents the attribute where the source types its value`);
 
@@ -1600,7 +1601,8 @@ function check(api: Map<string, ApiEntry>, docs: WrDocPages): Findings {
     notes.push(`EXPRESSION_DEFAULTS no longer needs ${key}`);
   for (const key of spent(selectorRows, SELECTOR_ROWS)) notes.push(`SELECTOR_ROWS no longer needs ${key}`);
   for (const entry of UNDOCUMENTED_ENTRIES.keys())
-    if (documentedEntries.has(entry)) notes.push(`UNDOCUMENTED_ENTRIES no longer needs ${entry} — a page documents it now`);
+    if (documentedEntries.has(entry))
+      notes.push(`UNDOCUMENTED_ENTRIES no longer needs ${entry} — a page documents it now`);
 
   console.log(
     `\n  read ${pageCount} page(s) documenting an API, ${rowCount} hand-written row(s) on them;\n` +
@@ -1691,20 +1693,51 @@ function staleGenerated(api: Map<string, ApiEntry>): { readonly lines: string[];
   return { lines, shrank };
 }
 
-/** A version a page may declare. `major.minor.patch`, nothing else — see `scanSince()`. */
-const SINCE_VERSION = /^\d+\.\d+\.\d+$/;
+/** A version a page may declare. `major.minor.patch`, nothing else — see `scanMarks()`. */
+const MARK_VERSION = /^\d+\.\d+\.\d+$/;
 
-interface SinceScan {
-  /** Route (`reference/components/graph`) → the version its page declares. */
-  readonly versions: Map<string, string>;
+/**
+ * The three version marks a page may declare on its own `<ngwr-doc-page>`, each
+ * a plain attribute holding one version:
+ *
+ *   - `since` — the version the page's subject FIRST SHIPPED IN. The nav marks it
+ *     `New` while that version is on the current release line.
+ *   - `updated` — the version the subject's PUBLIC API changed in, a move of its
+ *     entry point included. Marked `Updated` on the same expiring rule.
+ *   - `removed` — the version that deleted the subject. The page is a tombstone,
+ *     kept so a published link still says what happened, and it is marked
+ *     `Removed` for as long as it exists: there is nothing for that mark to
+ *     expire into.
+ *
+ * One scan, one generated file, one staleness check for all three, because the
+ * reason for each is the same and so is the failure: a mark the page states and
+ * the nav never shows.
+ */
+const MARKS = ['since', 'updated', 'removed'] as const;
+type WrMark = (typeof MARKS)[number];
+
+/** The export each mark is written under in `generated/since.ts`. */
+const MARK_EXPORT: Readonly<Record<WrMark, string>> = { since: 'SINCE', updated: 'UPDATED', removed: 'REMOVED' };
+
+interface MarkScan {
+  /** Mark → route (`reference/components/graph`) → the version its page declares. */
+  readonly marks: Readonly<Record<WrMark, Map<string, string>>>;
   /** Declarations that could not be read. Never dropped — a hole here is a mark that silently never appears. */
   readonly problems: string[];
   /** Templates rendering `<ngwr-doc-page>` at all, printed so the silent majority is visible. */
   readonly pages: number;
 }
 
+/** `-1`, `0` or `1` for two `major.minor.patch` strings that have already passed {@link MARK_VERSION}. */
+function compareVersions(a: string, b: string): number {
+  const [x, y] = [a, b].map(v => v.split('.').map(Number));
+  for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] < y[i] ? -1 : 1;
+  return 0;
+}
+
 /**
- * The version each docs page declares it FIRST SHIPPED IN, keyed by route.
+ * The versions each docs page declares — first shipped, API changed, removed —
+ * keyed by route.
  *
  * **The page is the source of the fact, and that is the whole design.** Nothing
  * in `projects/lib` carries `@since` — there is no history to backfill from, and
@@ -1714,8 +1747,8 @@ interface SinceScan {
  * than a gap for someone to close with a guess.
  *
  * Read from the TEMPLATE rather than from a second list somebody maintains
- * beside it: the sidebar's "new" mark and the line the page itself prints then
- * come from one string, and there is no way to update one and forget the other.
+ * beside it: the sidebar's mark and the line the page itself prints then come
+ * from one string, and there is no way to update one and forget the other.
  *
  * **The key is the ROUTE, and the route is resolved from the router rather than
  * from `dirname()`.** Both readers — the sidebar and the cluster index pages —
@@ -1728,15 +1761,20 @@ interface SinceScan {
  * about a key nothing reads. {@link buildPageRoutes} answers what Angular
  * actually serves each page directory at.
  *
- * Four things are refused rather than skipped, because each one is a mark that
- * would quietly never appear:
+ * Refused rather than skipped, because each one is a mark that would quietly
+ * never appear or would say something false:
  *
- *   - **A bound `[since]`.** A text scan cannot resolve an expression, and a
- *     page whose version lives in TypeScript would print its line and be absent
- *     from every nav.
+ *   - **A bound `[since]`, `[updated]` or `[removed]`.** A text scan cannot
+ *     resolve an expression, and a page whose version lives in TypeScript would
+ *     print its line and be absent from every nav.
  *   - **A version that is not `major.minor.patch`.** `'14.5'` and `'v14.5.0'`
  *     read as versions and match no release line, so the mark never lights up
  *     and nothing says why.
+ *   - **`updated` beside `removed`.** A removed subject has no API left to
+ *     change, and the nav shows one mark per row.
+ *   - **`updated` or `removed` no later than `since`.** A subject cannot change
+ *     or go in the release that added it; the mark would claim a history the
+ *     page's own other line contradicts.
  *   - **A template no single route renders.** `icons/svg-only/` is one template
  *     behind six galleries; one declared version cannot mean six pages, and
  *     picking one of them by walk order is the silent half of that.
@@ -1747,8 +1785,8 @@ interface SinceScan {
  * `<ngwr-doc-page>` and renders it for every cluster index, so its templates are
  * the component rather than a page, and their directories are not routes.
  */
-function scanSince(pageRoutes: WrPageRoutes): SinceScan {
-  const versions = new Map<string, string>();
+function scanMarks(pageRoutes: WrPageRoutes): MarkScan {
+  const marks: Record<WrMark, Map<string, string>> = { since: new Map(), updated: new Map(), removed: new Map() };
   // A route map that could not be built is not a smaller route map: every page
   // would then look unroutable, so the cause is reported once and the scan below
   // reports nothing it cannot stand behind.
@@ -1770,22 +1808,49 @@ function scanSince(pageRoutes: WrPageRoutes): SinceScan {
     for (const tag of docPageTags(html)) {
       pages++;
       if (tag === null) {
-        problems.push(`${rel}  <ngwr-doc-page> has no closing \`>\`, so its \`since\` cannot be read`);
-        continue;
-      }
-      if (tag.has('[since]')) {
-        problems.push(`${rel}  declares \`[since]\` as a binding — write it as a plain \`since="14.5.0"\` attribute`);
+        problems.push(`${rel}  <ngwr-doc-page> has no closing \`>\`, so its version marks cannot be read`);
         continue;
       }
 
-      const declared = tag.get('since');
-      if (declared === undefined) continue;
-      const version = declared.trim();
-
-      if (!SINCE_VERSION.test(version)) {
-        problems.push(`${rel}  declares since="${version}", which is not a \`major.minor.patch\` version`);
+      const bound = MARKS.filter(mark => tag.has(`[${mark}]`));
+      if (bound.length > 0) {
+        for (const mark of bound) {
+          problems.push(
+            `${rel}  declares \`[${mark}]\` as a binding — write it as a plain \`${mark}="15.0.0"\` attribute`
+          );
+        }
         continue;
       }
+
+      const declared = new Map<WrMark, string>();
+      let readable = true;
+      for (const mark of MARKS) {
+        const raw = tag.get(mark);
+        if (raw === undefined) continue;
+        const version = raw.trim();
+        if (!MARK_VERSION.test(version)) {
+          problems.push(`${rel}  declares ${mark}="${version}", which is not a \`major.minor.patch\` version`);
+          readable = false;
+          continue;
+        }
+        declared.set(mark, version);
+      }
+      if (!readable || declared.size === 0) continue;
+
+      const since = declared.get('since');
+      const updated = declared.get('updated');
+      const removed = declared.get('removed');
+      if (updated !== undefined && removed !== undefined) {
+        problems.push(`${rel}  declares both \`updated\` and \`removed\` — a removed page has no API left to update`);
+        continue;
+      }
+      const later = (mark: 'updated' | 'removed', version: string | undefined): boolean => {
+        if (version === undefined || since === undefined || compareVersions(version, since) > 0) return true;
+        problems.push(`${rel}  declares ${mark}="${version}", which is not later than its since="${since}"`);
+        return false;
+      };
+      if (!later('updated', updated) || !later('removed', removed)) continue;
+
       if (served.length === 0) {
         problems.push(`${rel}  declares a version, but no route renders a component out of its directory`);
         continue;
@@ -1802,36 +1867,44 @@ function scanSince(pageRoutes: WrPageRoutes): SinceScan {
         problems.push(`${rel}  declares a version, but its route is the site root, which no nav lists`);
         continue;
       }
-      const already = versions.get(route);
-      if (already !== undefined && already !== version) {
-        problems.push(`${route}  is declared as both ${already} and ${version} — one route, one version`);
-        continue;
+      for (const [mark, version] of declared) {
+        const already = marks[mark].get(route);
+        if (already !== undefined && already !== version) {
+          problems.push(`${route}  is declared ${mark} as both ${already} and ${version} — one route, one version`);
+          continue;
+        }
+        marks[mark].set(route, version);
       }
-      versions.set(route, version);
     }
   }
 
-  return { versions, problems, pages };
+  return { marks, problems, pages };
 }
 
-function serializeSince(versions: ReadonlyMap<string, string>): string {
-  const body = [...versions]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([route, version]) => `  ${JSON.stringify(route)}: ${JSON.stringify(version)},`)
-    .join('\n');
+function serializeMarks(marks: MarkScan['marks']): string {
+  const block = (mark: WrMark): string =>
+    [...marks[mark]]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([route, version]) => `  ${JSON.stringify(route)}: ${JSON.stringify(version)},`)
+      .join('\n');
+  const body = (mark: WrMark): string => {
+    const rows = block(mark);
+    return rows === '' ? '{}' : `{\n${rows}\n}`;
+  };
 
   return `${generatedHeader(`/**
  * GENERATED by \`pnpm gen:api-docs\` from the pages themselves — do not edit.
  *
- * The version each docs page declares it FIRST SHIPPED IN, keyed by route. The
- * source is the \`since\` attribute on that page's own \`<ngwr-doc-page>\`; add one
- * there and re-run. A route absent from this map declares nothing and shows
- * nothing, which is most of them.
+ * The version marks each docs page declares on its own \`<ngwr-doc-page>\`, keyed
+ * by route: \`since\` (first shipped in), \`updated\` (public API changed in) and
+ * \`removed\` (deleted in). Add the attribute there and re-run. A route absent
+ * from a map declares nothing for it and shows nothing, which is most of them.
  *
- * Read by \`#core/utils\`'s \`isNewLink()\`, which marks a nav entry whose declared
- * version is on the CURRENT release line — so the mark is derived from this one
- * string rather than typed a second time beside the link, and it expires by
- * itself when \`NGWR_VERSION\` moves on.
+ * Read by \`#core/utils\`'s \`linkMark()\`, which gives a nav entry \`New\` or
+ * \`Updated\` while the declared version is on the CURRENT release line, and
+ * \`Removed\` for as long as the page exists — so a mark is derived from one
+ * string rather than typed a second time beside the link, and the first two
+ * expire by themselves when \`NGWR_VERSION\` moves on.
  */`)}
 
 /**
@@ -1839,10 +1912,19 @@ function serializeSince(versions: ReadonlyMap<string, string>): string {
  * keys stay literal, so the union of declared routes is available to anyone who
  * wants it. The runtime lookups widen it back — see \`_core/utils/since.ts\`.
  */
-export const SINCE = {
-${body}
-} satisfies Record<string, string>;
+export const ${MARK_EXPORT.since} = ${body('since')} satisfies Record<string, string>;
+
+/** The version each page's subject last changed its public API in, a moved entry point included. */
+export const ${MARK_EXPORT.updated} = ${body('updated')} satisfies Record<string, string>;
+
+/** The version that removed each page's subject. The page is a tombstone, and its mark never expires. */
+export const ${MARK_EXPORT.removed} = ${body('removed')} satisfies Record<string, string>;
 `;
+}
+
+/** `12 since, 3 updated, 0 removed` — the run's own count, so nobody has to restate it. */
+function markCounts(marks: MarkScan['marks']): string {
+  return MARKS.map(mark => `${marks[mark].size} ${mark}`).join(', ');
 }
 
 /**
@@ -1853,11 +1935,11 @@ ${body}
  * failure mode here is the quietest kind — a page states a version, the nav
  * never marks it, and every gate is green.
  */
-function staleSince(versions: ReadonlyMap<string, string>): string[] {
+function staleMarks(marks: MarkScan['marks']): string[] {
   const out = relative(ROOT_PATH, SINCE_FILE);
   if (!existsSync(SINCE_FILE)) return [`${out} is missing — run \`pnpm gen:api-docs\``];
 
-  const fresh = serializeSince(versions);
+  const fresh = serializeMarks(marks);
   const committed = readFileSync(SINCE_FILE, 'utf8');
   if (committed === fresh) return [];
 
@@ -1870,7 +1952,9 @@ function staleSince(versions: ReadonlyMap<string, string>): string[] {
 async function main(): Promise<void> {
   const api = extractApi();
   const pageRoutes = await buildPageRoutes();
-  const mode = parseFlags('gen:api-docs [--check]', { check: { type: 'boolean', default: false } }).check ? 'check' : 'write';
+  const mode = parseFlags('gen:api-docs [--check]', { check: { type: 'boolean', default: false } }).check
+    ? 'check'
+    : 'write';
 
   if (mode === 'check') {
     console.log(`Comparing documented API tables against ${api.size} extracted classes\n`);
@@ -1893,7 +1977,8 @@ async function main(): Promise<void> {
     const unread = unreadMembers(read);
     if (unread.length > 0) {
       console.log('');
-      for (const m of unread) console.log(`  ${m.key}  is a public ${m.kind}() in ${m.file} that the extractor cannot read`);
+      for (const m of unread)
+        console.log(`  ${m.key}  is a public ${m.kind}() in ${m.file} that the extractor cannot read`);
     }
 
     const stale = staleGenerated(api);
@@ -1902,27 +1987,25 @@ async function main(): Promise<void> {
       for (const line of stale.lines.slice(1)) console.log(`  ${line}`);
     }
 
-    // The `since` map, from the same walk. A declaration that could not be read
-    // suppresses the staleness report the way the census suppresses it above:
-    // the file cannot be regenerated correctly until the page is fixed, and two
-    // failures about one cause send a reader to the wrong end of it.
-    const since = scanSince(pageRoutes);
-    const sinceStale = since.problems.length === 0 ? staleSince(since.versions) : [];
-    console.log(
-      `\n  ${since.pages} page(s) render <ngwr-doc-page>, ${since.versions.size} of them declaring a \`since\` version.`
-    );
-    if (sinceStale.length > 0) {
-      console.log(`\n  ${sinceStale[0]}`);
-      for (const line of sinceStale.slice(1)) console.log(`  ${line}`);
+    // The version marks, from the same walk. A declaration that could not be
+    // read suppresses the staleness report the way the census suppresses it
+    // above: the file cannot be regenerated correctly until the page is fixed,
+    // and two failures about one cause send a reader to the wrong end of it.
+    const marks = scanMarks(pageRoutes);
+    const marksStale = marks.problems.length === 0 ? staleMarks(marks.marks) : [];
+    console.log(`\n  ${marks.pages} page(s) render <ngwr-doc-page>, declaring ${markCounts(marks.marks)}.`);
+    if (marksStale.length > 0) {
+      console.log(`\n  ${marksStale[0]}`);
+      for (const line of marksStale.slice(1)) console.log(`  ${line}`);
     }
     // Kept OUT of `problems`, which is the API comparison's list: its banner
     // tells the reader to record an exception in UNDOCUMENTED_ENTRIES /
     // EXPRESSION_DEFAULTS / SELECTOR_ROWS, and not one of those three has a slot
-    // a `since` declaration could go in. A correct diagnosis followed by
-    // impossible instructions is worse than no instructions.
-    if (since.problems.length > 0) {
+    // a version mark could go in. A correct diagnosis followed by impossible
+    // instructions is worse than no instructions.
+    if (marks.problems.length > 0) {
       console.log('');
-      for (const line of since.problems) console.log(`  ${line}`);
+      for (const line of marks.problems) console.log(`  ${line}`);
     }
     if (problems.length > 0) {
       console.log('');
@@ -1935,8 +2018,8 @@ async function main(): Promise<void> {
       mismatched > 0 ||
       unread.length > 0 ||
       stale.lines.length > 0 ||
-      sinceStale.length > 0 ||
-      since.problems.length > 0 ||
+      marksStale.length > 0 ||
+      marks.problems.length > 0 ||
       problems.length > 0
     ) {
       if (mismatched > 0) {
@@ -1969,7 +2052,9 @@ async function main(): Promise<void> {
         );
       }
       if (stale.lines.length > 0 && unread.length === 0 && !stale.shrank) {
-        console.error(`\n✘ ${out} is out of date with \`projects/lib\`. Run \`pnpm gen:api-docs\` and commit the result.`);
+        console.error(
+          `\n✘ ${out} is out of date with \`projects/lib\`. Run \`pnpm gen:api-docs\` and commit the result.`
+        );
       }
       if (stale.shrank && unread.length === 0) {
         console.error(
@@ -1978,19 +2063,19 @@ async function main(): Promise<void> {
             ` Run \`pnpm gen:api-docs\` and commit the result.`
         );
       }
-      if (sinceStale.length > 0) {
+      if (marksStale.length > 0) {
         console.error(
-          `\n✘ ${relative(ROOT_PATH, SINCE_FILE)} no longer matches the \`since\` attributes on the pages.` +
-            ` Run \`pnpm gen:api-docs\` and commit the result — until then a page states a version the nav` +
-            ` cannot mark, which nothing else would report.`
+          `\n✘ ${relative(ROOT_PATH, SINCE_FILE)} no longer matches the \`since\` / \`updated\` / \`removed\`` +
+            ` attributes on the pages. Run \`pnpm gen:api-docs\` and commit the result — until then a page states` +
+            ` a version the nav cannot mark, which nothing else would report.`
         );
       }
-      if (since.problems.length > 0) {
+      if (marks.problems.length > 0) {
         console.error(
-          `\n✘ ${since.problems.length} \`since\` declaration(s) above cannot be turned into a nav mark, and each` +
-            ` line names the template it is on. Write the version as a plain \`since="14.5.0"\` attribute on a page` +
-            ` that ONE route renders — there is no allowlist for this, because a version nothing can key to a` +
-            ` route is a page that states one and a nav that never says so.`
+          `\n✘ ${marks.problems.length} version mark(s) above cannot be turned into a nav mark, and each line names` +
+            ` the template it is on. Write the version as a plain \`since\`, \`updated\` or \`removed\` attribute` +
+            ` (\`updated="15.0.0"\`) on a page that ONE route renders — there is no allowlist for this, because a` +
+            ` version nothing can key to a route is a page that states one and a nav that never says so.`
         );
       }
       if (problems.length > 0) {
@@ -2020,20 +2105,20 @@ async function main(): Promise<void> {
   // read is a page whose mark never appears, and the file would then compare
   // equal to itself on the next check — the exact shape of hole the header above
   // is about.
-  const since = scanSince(pageRoutes);
-  if (since.problems.length > 0) {
-    for (const line of since.problems) console.error(`  ${line}`);
+  const marks = scanMarks(pageRoutes);
+  if (marks.problems.length > 0) {
+    for (const line of marks.problems) console.error(`  ${line}`);
     console.error(
-      `\n✘ ${since.problems.length} \`since\` declaration(s) could not be read, so` +
+      `\n✘ ${marks.problems.length} version mark(s) could not be read, so` +
         ` ${relative(ROOT_PATH, SINCE_FILE)} was NOT written — it would have been written short.`
     );
     process.exit(1);
   }
   emitGenerated({
     file: SINCE_FILE,
-    content: serializeSince(since.versions),
+    content: serializeMarks(marks.marks),
     command: 'gen:api-docs',
-    written: `${since.versions.size} of ${since.pages} page(s) declare a version`,
+    written: `${marks.pages} page(s), declaring ${markCounts(marks.marks)}`,
   });
 }
 
