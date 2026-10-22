@@ -29,10 +29,10 @@ import { WrTabHarness } from './wr-tab-harness';
  *   renders exactly one panel: the selected tab's.
  * - **Router** — one `routerLink` on any child switches the whole strip over. The
  *   tabs become `<a role="tab">`s whose `aria-selected` follows the resolved route
- *   (the same `routerActive()` that paints `--active`), the strip renders NO
- *   panel, and it stops being one tab stop — every enabled tab is a Tab stop of its
- *   own. The arrow keys still move focus, but they select nothing: the route does
- *   that.
+ *   (the same `routerActive()` that paints `--active`) and the strip renders NO
+ *   panel. It is still ONE tab stop — on the tab the route selects, or the first
+ *   enabled tab when no route matches — and Space activates a tab as Enter does.
+ *   The arrow keys move focus, but they select nothing: the route does that.
  *
  * So {@link getSelectedLabel} and {@link getFocusedLabel} are two different
  * questions, and {@link getTabStopLabels} is a third. They coincide in content mode
@@ -221,10 +221,11 @@ export class WrTabsHarness extends ComponentHarness {
   /**
    * The labels of every tab a Tab press can land on, in render order.
    *
-   * A LIST rather than one label, because the count is the mode: a content strip
-   * roves a single `tabindex="0"` and answers with exactly one label — the selected
-   * tab — while a router strip makes every enabled tab its own stop and answers with
-   * all of them. Either way a disabled tab is never in here.
+   * A LIST rather than one label, because the count is what breaks: both modes
+   * rove a single `tabindex="0"` and answer with exactly one label — the selected
+   * tab, or in router mode the first enabled one while no route matches — and a
+   * router strip used to answer with every enabled tab. Either way a disabled tab is
+   * never in here.
    */
   async getTabStopLabels(): Promise<string[]> {
     const labels: string[] = [];
@@ -238,9 +239,10 @@ export class WrTabsHarness extends ComponentHarness {
    * Whether the strip is a single tab stop — the roving-`tabindex` pattern the APG
    * asks a `tablist` for.
    *
-   * True for a content strip, false for a router one, which puts every enabled tab
-   * in the page tab order. A strip whose every tab is disabled has no stop at all
-   * and answers `true`: nothing to rove, and Tab skips it.
+   * True for both modes; false means more than one tab is in the page tab order,
+   * which is what a router strip did before it roved too. A strip whose every tab
+   * is disabled has no stop at all and answers `true`: nothing to rove, and Tab
+   * skips it.
    */
   async isRoving(): Promise<boolean> {
     return (await this.getTabStopLabels()).length <= 1;

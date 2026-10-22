@@ -79,6 +79,7 @@ export const wrCs: WrI18nCatalog = {
   },
   stepper: {
     optional: 'nepovinné',
+    completed: 'dokončeno',
   },
   transfer: {
     source: 'Dostupné',

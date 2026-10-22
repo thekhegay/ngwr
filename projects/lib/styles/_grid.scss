@@ -65,9 +65,15 @@ $gutter: var(--wr-grid-gutter);
 
 // Grid
 
+// `minmax(0, 1fr)`, not `1fr`: a bare `1fr` track has an `auto` minimum, so a
+// column could not shrink below its content's min-content width. Twelve `.col-1`
+// cells holding a short label each overflowed a 704px row by 96px on desktop and
+// a phone row by 474px, and one wide child in a `.col-6` pushed its twin aside.
+// Equal columns that fit the container are what a 12-column grid promises;
+// content wider than its column overflows its own cell instead.
 .grid {
   display: grid;
-  grid-template-columns: repeat($columns, 1fr);
+  grid-template-columns: repeat($columns, minmax(0, 1fr));
   gap: #{$gutter};
 }
 

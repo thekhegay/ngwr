@@ -79,6 +79,7 @@ export const wrNl: WrI18nCatalog = {
   },
   stepper: {
     optional: 'optioneel',
+    completed: 'voltooid',
   },
   transfer: {
     source: 'Beschikbaar',

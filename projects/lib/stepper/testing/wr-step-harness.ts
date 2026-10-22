@@ -75,7 +75,7 @@ export class WrStepHarness extends ComponentHarness {
    */
   async getLabel(): Promise<string> {
     const label = await this.locatorFor('.wr-stepper__label')();
-    return wrStepperHarnessText(await label.text({ exclude: '.wr-stepper__optional, .wr-stepper__description' }));
+    return wrStepperHarnessText(await label.text({ exclude: '.wr-stepper__optional, .wr-stepper__description, .wr-stepper__sr-only' }));
   }
 
   /** The secondary line under the label, or `null` when the step defines none. */

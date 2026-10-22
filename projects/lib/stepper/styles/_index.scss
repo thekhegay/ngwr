@@ -223,6 +223,20 @@ $header-padding-block: 0.25rem;
     color: var(--wr-color-primary-ink);
   }
 
+  // Read, not shown: the "completed" state the check mark draws, in the header
+  // button's name. Out of flow, so the label's column gap does not count it.
+  &__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   // `__description` is listed FIRST on purpose: `gen:css-vars` attributes a
   // hook to the head of the selector list, and `__optional` re-declares
   // `-letter-spacing` ten lines below — heading the list with it documented a

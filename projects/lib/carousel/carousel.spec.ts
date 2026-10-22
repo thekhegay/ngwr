@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -74,12 +77,12 @@ describe('WrCarousel', () => {
 
   /**
    * jsdom implements neither `TouchEvent` nor layout, so a touch is a plain event
-   * carrying the one field the component reads, and the viewport's width — which
+   * carrying the two fields the component reads, and the viewport's width — which
    * sets the 20% swipe threshold — is declared.
    */
-  const touch = (type: string, clientX?: number): Event => {
+  const touch = (type: string, clientX?: number, clientY = 0): Event => {
     const event = new Event(type, { bubbles: true, cancelable: true });
-    Object.assign(event, { touches: clientX === undefined ? [] : [{ clientX }] });
+    Object.assign(event, { touches: clientX === undefined ? [] : [{ clientX, clientY }] });
     return event;
   };
 
@@ -102,6 +105,25 @@ describe('WrCarousel', () => {
     click(next());
     expect(active()).toBe(1);
     expect(track().style.transform).toBe('translateX(-100%)');
+  });
+
+  it('disables the arrow that has nowhere to go, only without looping', () => {
+    // Looping, both arrows always lead somewhere.
+    expect(prev().disabled).toBe(false);
+    expect(next().disabled).toBe(false);
+
+    fixture.componentInstance.loop.set(false);
+    fixture.detectChanges();
+    // An enabled arrow at the end it points past was a control that did nothing,
+    // still focusable and still announced as a button.
+    expect(prev().disabled).toBe(true);
+    expect(next().disabled).toBe(false);
+
+    click(next());
+    click(next());
+    expect(active()).toBe(2);
+    expect(prev().disabled).toBe(false);
+    expect(next().disabled).toBe(true);
   });
 
   it('wraps at both ends while looping, and stops without it', () => {
@@ -245,6 +267,26 @@ describe('WrCarousel', () => {
 
       swipe(20);
       expect(active()).toBe(0);
+    });
+
+    it('leaves the slide alone when the touch is a page scroll', () => {
+      // 240px up with 90px of sideways drift is someone scrolling the page past
+      // the carousel. The track used to follow the drift and, past 20% of the
+      // width, change the slide under the scroll — in either direction.
+      for (const dir of ['ltr', 'rtl'] as const) {
+        mount('browser', dir);
+        const el = viewport();
+        Object.defineProperty(el, 'offsetWidth', { value: 300, configurable: true });
+
+        el.dispatchEvent(touch('touchstart', 200, 400));
+        for (let i = 1; i <= 12; i++) el.dispatchEvent(touch('touchmove', 200 - 7.5 * i, 400 - 20 * i));
+        fixture.detectChanges();
+        expect(track().style.transform, dir).toBe('translateX(0%)');
+
+        el.dispatchEvent(touch('touchend'));
+        fixture.detectChanges();
+        expect(active(), dir).toBe(0);
+      }
     });
 
     it('drags the track WITH the finger in both directions — the offset is not mirrored', () => {
@@ -465,5 +507,21 @@ describe('WrCarousel under a localized catalog', () => {
     expect(el.querySelector('wr-carousel-slide')!.getAttribute('aria-roledescription')).toBe('слайд');
 
     fixture.destroy();
+  });
+});
+
+/**
+ * A SOURCE assertion, because jsdom evaluates no media query and applies no
+ * stylesheet: what it can hold is that the track's slide is switched off under
+ * `prefers-reduced-motion`, inside the track's own rule. Autoplay moved a
+ * full-width panel across the screen every four seconds with the preference on.
+ */
+describe('WrCarousel stylesheet', () => {
+  it('switches slides in place under prefers-reduced-motion', () => {
+    const scss = readFileSync(join(process.cwd(), 'projects/lib/carousel/styles/_index.scss'), 'utf8');
+    const track = /&__track \{([\s\S]*?)\n {2}\}/.exec(scss)?.[1] ?? '';
+
+    expect(track).toMatch(/transition: transform/);
+    expect(track).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*transition: none;/);
   });
 });

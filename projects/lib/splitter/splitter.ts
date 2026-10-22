@@ -10,7 +10,7 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { Component, ElementRef, ViewEncapsulation, computed, effect, inject, input, model } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
-import { clamp } from 'ngwr/utils';
+import { clamp, round } from 'ngwr/utils';
 
 /**
  * Resizable two-pane splitter. Project two pieces of content via
@@ -122,7 +122,10 @@ export class WrSplitter {
         : // The vertical split is laid out on the BLOCK axis, which `dir` does not
           // touch — measured from the top in both directions.
           ((event.clientY - rect.top) / rect.height) * 100;
-    this.position.set(clamp(raw, this.minPosition(), this.maxPosition()));
+    // To a tenth of a percent — about a pixel on a full-width split. The raw
+    // quotient reached `aria-valuenow` and `[(position)]` as `29.99999822054938`,
+    // read out digit by digit and handed to the host to persist.
+    this.position.set(clamp(round(raw, 1), this.minPosition(), this.maxPosition()));
   }
 
   protected onPointerUp(event: PointerEvent): void {
@@ -134,6 +137,10 @@ export class WrSplitter {
   protected onKeydown(event: KeyboardEvent): void {
     if (this.disabled()) return;
     const step = event.shiftKey ? 10 : 1;
+    // An arrow step lands on a whole number, so the keys after a drag do not
+    // carry the drag's fraction along (`30.4` stepped to `31.4`, `32.4`, …).
+    // Home and End below are the bounds themselves, whatever they are.
+    const position = round(this.position());
     let next: number | null = null;
     if (this.orientation() === 'horizontal') {
       // Arrows follow the VISUAL axis (WAI-ARIA APG). Under `dir="rtl"` the start pane
@@ -141,12 +148,12 @@ export class WrSplitter {
       // ArrowRight has to shrink the position rather than grow it — otherwise the
       // divider walks away from the key the user is pressing.
       const inline = this.isRtl() ? -step : step;
-      if (event.key === 'ArrowLeft') next = this.position() - inline;
-      else if (event.key === 'ArrowRight') next = this.position() + inline;
+      if (event.key === 'ArrowLeft') next = position - inline;
+      else if (event.key === 'ArrowRight') next = position + inline;
     } else {
       // Block axis: unaffected by `dir`.
-      if (event.key === 'ArrowUp') next = this.position() - step;
-      else if (event.key === 'ArrowDown') next = this.position() + step;
+      if (event.key === 'ArrowUp') next = position - step;
+      else if (event.key === 'ArrowDown') next = position + step;
     }
     // Home/End are semantic — first/last, not left/right — so they never mirror.
     if (event.key === 'Home') next = this.minPosition();

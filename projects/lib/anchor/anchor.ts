@@ -98,9 +98,33 @@ export class WrAnchor {
   private readonly zone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
 
+  /**
+   * The entry a click asked for, and the scroll position that click sends the
+   * page to. A target near the end of the page can never reach the cursor line —
+   * the page runs out of scroll first — so the spy took the highlight straight
+   * back from the entry just clicked and handed it to the one above. While the
+   * page is still travelling toward that position, or parked on it, the clicked
+   * entry stays lit; the first scroll AWAY from it is the reader's own, and the
+   * spy takes over again.
+   */
+  private pinned: { readonly id: string; readonly y: number } | null = null;
+  private lastY = 0;
+
   constructor() {
     if (!this.platform.isBrowser) return;
     const handler = (): void => {
+      const y = window.scrollY;
+      const pin = this.pinned;
+      if (pin) {
+        const distance = Math.abs(pin.y - y);
+        if (distance <= 1 || distance < Math.abs(pin.y - this.lastY)) {
+          this.lastY = y;
+          if (pin.id !== this.activeId()) this.zone.run(() => this.activeId.set(pin.id));
+          return;
+        }
+        this.pinned = null;
+      }
+      this.lastY = y;
       const cursor = this.offset() + this.hitArea();
       let active: string | null = null;
       for (const id of this.flatIds()) {
@@ -123,6 +147,15 @@ export class WrAnchor {
 
   protected onClick(id: string, event: MouseEvent): void {
     event.preventDefault();
+    const target = document.getElementById(id);
+    if (target) {
+      // Where `WrScroll` sends the page, clamped the way the browser clamps it.
+      const root = document.documentElement;
+      const max = Math.max(0, root.scrollHeight - root.clientHeight);
+      const y = target.getBoundingClientRect().top + window.scrollY - this.offset();
+      this.pinned = { id, y: Math.min(max, Math.max(0, y)) };
+      this.lastY = window.scrollY;
+    }
     this.scroll.to(`#${id}`, { offset: this.offset() });
     this.activeId.set(id);
   }

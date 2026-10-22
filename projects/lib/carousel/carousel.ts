@@ -30,6 +30,12 @@ import { WR_CAROUSEL } from './tokens';
 import type { WrCarouselContext } from './types';
 
 /**
+ * How far a touch travels before the carousel decides whether it is a swipe or a
+ * scroll — the usual touch slop, so a finger's first wobble decides nothing.
+ */
+const SWIPE_SLOP = 10;
+
+/**
  * Slide carousel. Project `<wr-carousel-slide>` children — the carousel
  * snaps between them with prev/next buttons and optional dots / autoplay.
  *
@@ -131,6 +137,15 @@ export class WrCarousel implements WrCarouselContext {
 
   protected readonly slides = contentChildren(WrCarouselSlide);
   protected readonly count = computed(() => this.slides().length);
+
+  /**
+   * Whether an arrow has nowhere to go: only without `loop`, at the matching end.
+   * The arrows used to stay enabled there and do nothing — announced, focusable
+   * and clickable controls with no effect. Native `disabled`, the way
+   * `wr-pagination` stops its own previous / next at the ends.
+   */
+  protected readonly atStart = computed(() => !this.loop() && this.active() <= 0);
+  protected readonly atEnd = computed(() => !this.loop() && this.active() >= this.count() - 1);
 
   /**
    * Where a slide sits in projection order — {@link WrCarouselContext}.
@@ -258,11 +273,22 @@ export class WrCarousel implements WrCarouselContext {
   // in RTL) pulls the next slide into view.
 
   private swipeStartX = 0;
+  private swipeStartY = 0;
+
+  /**
+   * Which way the finger is going, decided once it has moved {@link SWIPE_SLOP}
+   * px: `'x'` is a swipe, `'y'` a page scroll that happened to start on a slide.
+   * Without the lock every vertical scroll that drifted sideways dragged the
+   * track along and, past 20% of the width, changed the slide under it.
+   */
+  private swipeAxis: 'x' | 'y' | null = null;
 
   protected onSwipeStart(event: TouchEvent): void {
     const touch = event.touches[0];
     if (!touch) return;
     this.swipeStartX = touch.clientX;
+    this.swipeStartY = touch.clientY;
+    this.swipeAxis = null;
     this.dragging.set(true); // holds autoplay on its own — `paused` reads it
   }
 
@@ -270,13 +296,20 @@ export class WrCarousel implements WrCarouselContext {
     if (!this.dragging()) return;
     const touch = event.touches[0];
     if (!touch) return;
-    this.dragX.set(touch.clientX - this.swipeStartX);
+    const dx = touch.clientX - this.swipeStartX;
+    const dy = touch.clientY - this.swipeStartY;
+    if (this.swipeAxis === null) {
+      if (Math.abs(dx) < SWIPE_SLOP && Math.abs(dy) < SWIPE_SLOP) return;
+      this.swipeAxis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+    }
+    if (this.swipeAxis === 'x') this.dragX.set(dx);
   }
 
   protected onSwipeEnd(event: TouchEvent, viewport: HTMLElement): void {
     if (!this.dragging()) return;
     this.dragging.set(false);
-    const dx = this.dragX();
+    const dx = this.swipeAxis === 'x' ? this.dragX() : 0;
+    this.swipeAxis = null;
     this.dragX.set(0);
     const threshold = (viewport.offsetWidth || 0) * 0.2;
     // `dx` is a physical delta. The next slide sits to the physical RIGHT in LTR

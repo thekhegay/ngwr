@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -154,5 +157,27 @@ describe('WrLoadingBar', () => {
         setInterval.mockRestore();
       }
     });
+  });
+});
+
+/**
+ * A SOURCE assertion: jsdom runs no transition, and the defect lived entirely in
+ * two of them. Going idle drops `progress()` to 0 in the frame the track starts
+ * its 0.2s fade, and the fill's own 0.15s width transition then ran a full-width
+ * bar backwards across the screen while it was still mostly opaque — on every
+ * client-side navigation of the docs site.
+ */
+describe('WrLoadingBar stylesheet', () => {
+  it('lets an idle bar fade where it is, resetting its width after the fade', () => {
+    const scss = readFileSync(join(process.cwd(), 'projects/lib/loading-bar/styles/_rules.scss'), 'utf8');
+    const fade = /&__track \{[^}]*?transition: opacity ([\d.]+)s/.exec(scss)?.[1];
+    const idle =
+      /&:not\(\.wr-loading-bar--active\) \.wr-loading-bar__fill \{\s*transition: width 0s linear ([\d.]+)s;/.exec(
+        scss
+      )?.[1];
+
+    expect(fade).toBeDefined();
+    // The width waits out the whole fade, so it never moves while it can be seen.
+    expect(idle).toBe(fade);
   });
 });

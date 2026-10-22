@@ -79,6 +79,7 @@ export const wrAr: WrI18nCatalog = {
   },
   stepper: {
     optional: 'اختياري',
+    completed: 'مكتملة',
   },
   transfer: {
     source: 'المتاح',

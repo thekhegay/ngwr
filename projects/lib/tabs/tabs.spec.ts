@@ -544,6 +544,99 @@ describe('WrTabs selection in router mode', () => {
     expect(headers()[0].getAttribute('aria-selected')).toBe('true');
     expect(headers()[1].getAttribute('aria-selected')).toBe('false');
   });
+
+  it('keeps one tab stop, on the tab the route selects', async () => {
+    // Every router tab used to carry `tabindex="0"`, so Tab walked the whole strip
+    // before it left — the roving stop content mode keeps was missing here. With
+    // no tab matching the URL the first one holds it, or the strip is unreachable.
+    const stops = (): string[] =>
+      headers()
+        .filter(h => h.getAttribute('tabindex') === '0')
+        .map(h => h.textContent.trim());
+
+    expect(stops()).toEqual(['One']);
+
+    await navigate('/two');
+    expect(stops()).toEqual(['Two']);
+  });
+
+  it('activates the focused tab with Space, not only with Enter', async () => {
+    // The anchor answers Enter as any link does; Space on a bare link scrolls the
+    // page. `role="tab"` promises both keys.
+    const space = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true });
+    headers()[1].dispatchEvent(space);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(space.defaultPrevented).toBe(true);
+    expect(router.url).toBe('/two');
+    expect(headers()[1].getAttribute('aria-selected')).toBe('true');
+  });
+});
+
+@Component({
+  imports: [WrTabs, WrTab],
+  template: `
+    <wr-tabs [(active)]="active">
+      @for (key of keys(); track key) {
+        <wr-tab [key]="key" [title]="key">Content {{ key }}</wr-tab>
+      }
+    </wr-tabs>
+  `,
+})
+class DynamicHost {
+  readonly keys = signal(['a', 'b', 'c']);
+  readonly active = signal<string | null>('c');
+}
+
+describe('WrTabs when the tab list changes under it', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<DynamicHost>>;
+
+  const selected = (): string | undefined =>
+    [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('[role="tab"]')]
+      .find(t => t.getAttribute('aria-selected') === 'true')
+      ?.textContent?.trim();
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(DynamicHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('writes the tab it falls back to into the binding when the active one is removed', async () => {
+    expect(selected()).toBe('c');
+
+    fixture.componentInstance.keys.set(['a', 'b']);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // The strip fell back to `a` and the binding kept `c`: a host saving the
+    // selection saved a key that no tab had.
+    expect(selected()).toBe('a');
+    expect(fixture.componentInstance.active()).toBe('a');
+
+    // And a tab added later under the old key does not take the selection back.
+    fixture.componentInstance.keys.set(['a', 'b', 'c']);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(selected()).toBe('a');
+  });
+
+  it('seeds a key bound in a loop, not the generated default it starts on', async () => {
+    // The first passes see each `[key]` still on its `randomId()` default, so the
+    // seed used to write `wr-tab-…` into the binding and never look again.
+    fixture.destroy();
+    fixture = TestBed.createComponent(DynamicHost);
+    fixture.componentInstance.active.set(null);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance.active()).toBe('a');
+    expect(selected()).toBe('a');
+  });
 });
 
 /**

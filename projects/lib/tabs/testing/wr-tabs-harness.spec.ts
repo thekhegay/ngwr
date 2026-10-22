@@ -413,9 +413,9 @@ describe('WrTabsHarness', () => {
 /**
  * Router mode, which answers "which tab is active" with three different tabs.
  *
- * The selection comes from the resolved route, the tab order holds EVERY enabled tab
- * rather than one, and the arrow keys move focus without selecting anything. A spec
- * that asserts the selection and means the focus passes straight through that.
+ * The selection comes from the resolved route, the one tab stop follows it, and the
+ * arrow keys move focus without selecting anything. A spec that asserts the
+ * selection and means the focus passes straight through that.
  */
 describe('WrTabsHarness — a router strip', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<RouterHost>>;
@@ -483,14 +483,18 @@ describe('WrTabsHarness — a router strip', () => {
     await expect(tabs.getPanelText()).rejects.toThrow(/controls no panel/);
   });
 
-  it('stops being one tab stop — every enabled link is its own', async () => {
+  it('stays one tab stop, on the routed tab or the first enabled one', async () => {
     const tabs = await loader.getHarness(WrTabsHarness);
 
-    // The difference that matters: a content strip roves ONE tabindex="0", a router
-    // strip puts each link in the page tab order and leaves the disabled one out.
-    expect(await tabs.isRoving()).toBe(false);
-    expect(await tabs.getTabStopLabels()).toEqual(['Overview', 'Details']);
+    // A router strip used to put each link in the page tab order, so Tab walked the
+    // whole strip before it left. It roves ONE tabindex="0" now, as a content strip
+    // does, and the disabled link is never it.
+    expect(await tabs.isRoving()).toBe(true);
+    expect(await tabs.getTabStopLabels()).toEqual(['Overview']);
     expect(await (await tabs.getTabs({ label: 'Locked' }))[0].isDisabled()).toBe(true);
+
+    await navigate('/details');
+    expect(await tabs.getTabStopLabels()).toEqual(['Details']);
   });
 
   it('walks focus with the arrow keys without moving the selection', async () => {

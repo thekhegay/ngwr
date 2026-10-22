@@ -121,6 +121,9 @@ export const wrEn: WrI18nCatalog = {
     // Rendered as a badge beside the step's own label, so it reads as part of the
     // header rather than as a sentence — lowercase on purpose.
     optional: 'optional',
+    // Visually hidden after a completed step's label, so the state the check mark
+    // draws is announced too. Lowercase for the same reason.
+    completed: 'completed',
   },
   transfer: {
     source: 'Available',

@@ -194,6 +194,33 @@ describe('WrAnchor', () => {
     expect(activeIds()).toEqual(['basic']);
   });
 
+  it('keeps a clicked entry lit where the page runs out of scroll short of its target', () => {
+    // jsdom has no scrollable height, so a click here always lands at the end of
+    // the page — exactly where it broke: the last target stops below the cursor
+    // line, and the spy handed the highlight straight back to the entry above it.
+    const scrollTo = (y: number): void => {
+      Object.defineProperty(window, 'scrollY', { value: y, configurable: true, writable: true });
+    };
+    try {
+      placeTargets({ intro: -400, usage: -200, basic: 20, advanced: 300 });
+      expect(activeIds()).toEqual(['basic']);
+
+      linkFor('advanced').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+      // The scroll that ends the trip, with the target still below the line.
+      placeTargets({ intro: -400, usage: -200, basic: 20, advanced: 300 });
+      expect(activeIds()).toEqual(['advanced']);
+
+      // Scrolling away from where the click went is the reader's own doing, and
+      // the spy takes over again.
+      scrollTo(240);
+      placeTargets({ intro: -160, usage: 40, basic: 260, advanced: 540 });
+      expect(activeIds()).toEqual(['usage']);
+    } finally {
+      scrollTo(0);
+    }
+  });
+
   it('drops its listener when it goes away', () => {
     const remove = vi.spyOn(window, 'removeEventListener');
     fixture.destroy();

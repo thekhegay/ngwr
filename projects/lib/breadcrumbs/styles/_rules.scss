@@ -48,9 +48,12 @@
     align-items: center;
     gap: var(--wr-breadcrumbs-gap);
 
-    // Separator before every item except the first.
+    // Separator before every item except the first. The empty alternative text
+    // after the `/` keeps it out of the accessibility tree: generated content is
+    // read like any other text, so the trail was announced "Home, slash,
+    // Components, slash, …" and the current crumb as "slash Current page".
     &:not(:first-child)::before {
-      content: var(--wr-breadcrumbs-separator);
+      content: var(--wr-breadcrumbs-separator) / '';
       color: var(--wr-breadcrumbs-separator-color);
       user-select: none;
     }

@@ -87,6 +87,14 @@ export class WrStepper implements WrStepperContext {
    */
   protected readonly optionalLabel = useI18nText(NO_OVERRIDE, 'stepper.optional', 'optional');
 
+  /**
+   * The check mark that replaces a completed step's number is `aria-hidden`, so
+   * the state it draws reached nobody who cannot see it. This word goes into the
+   * header button's name instead, visually hidden. Catalog-only, for the reason
+   * `optionalLabel` is.
+   */
+  protected readonly completedLabel = useI18nText(NO_OVERRIDE, 'stepper.completed', 'completed');
+
   protected readonly classes = computed(() => {
     const parts = ['wr-stepper', `wr-stepper--${this.orientation()}`];
     if (this.linear()) parts.push('wr-stepper--linear');

@@ -79,6 +79,7 @@ export const wrFr: WrI18nCatalog = {
   },
   stepper: {
     optional: 'facultatif',
+    completed: 'terminé',
   },
   transfer: {
     source: 'Disponibles',

@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
+import { provideRouter, Router, RouterOutlet } from '@angular/router';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrJa } from 'ngwr/i18n/ja';
@@ -813,6 +813,66 @@ describe('WrSidebar under a localized catalog', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('.wr-sidebar__title')!.textContent).toBe('入力、');
     expect(el.querySelector('.wr-sidebar__badge')!.textContent).toBe('新規、');
+
+    fixture.destroy();
+  });
+});
+
+/** A sidebar declared by a routed page, with links relative to that page's route. */
+@Component({
+  imports: [WrSidebar, RouterOutlet],
+  template: `<wr-sidebar [entries]="entries" /><router-outlet />`,
+})
+class AdminShell {
+  readonly entries: readonly WrSidebarEntry[] = [
+    {
+      title: 'Admin',
+      children: [
+        { title: 'Settings', url: ['settings'] },
+        { title: 'Users', url: ['users'] },
+      ],
+    },
+  ];
+}
+
+@Component({ imports: [RouterOutlet], template: '<router-outlet />' })
+class RoutedRoot {}
+
+describe('WrSidebar with links relative to the declaring route', () => {
+  it('expands the group above the current page, not only the current row', async () => {
+    // `url` is documented as router commands for `[routerLink]`, and a relative one
+    // resolves against the route that declares the sidebar. The current row did —
+    // `aria-current` came off `createUrlTree(…, { relativeTo })` — while
+    // `autoExpand` joined the raw segments into `/settings`, so on
+    // `/admin/settings` the group holding the current page stayed shut.
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([
+          {
+            path: 'admin',
+            component: AdminShell,
+            children: [
+              { path: 'settings', component: Page },
+              { path: 'users', component: Page },
+            ],
+          },
+        ]),
+      ],
+    });
+    const fixture = TestBed.createComponent(RoutedRoot);
+    await TestBed.inject(Router).navigateByUrl('/admin/settings');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    const settings = [...el.querySelectorAll<HTMLAnchorElement>('a.wr-sidebar__row')].find(a =>
+      a.textContent?.includes('Settings')
+    )!;
+    expect(settings.getAttribute('href')).toBe('/admin/settings');
+    expect(settings.getAttribute('aria-current')).toBe('page');
+    expect(el.querySelector('button[aria-controls]')!.getAttribute('aria-expanded')).toBe('true');
 
     fixture.destroy();
   });

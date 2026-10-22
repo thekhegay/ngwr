@@ -79,6 +79,7 @@ export const wrZh: WrI18nCatalog = {
   },
   stepper: {
     optional: '可选',
+    completed: '已完成',
   },
   transfer: {
     source: '待选',

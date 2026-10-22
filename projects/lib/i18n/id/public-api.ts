@@ -79,6 +79,7 @@ export const wrId: WrI18nCatalog = {
   },
   stepper: {
     optional: 'opsional',
+    completed: 'selesai',
   },
   transfer: {
     source: 'Tersedia',

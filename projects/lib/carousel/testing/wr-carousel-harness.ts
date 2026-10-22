@@ -273,7 +273,8 @@ export class WrCarouselHarness extends ComponentHarness {
    * "Next" is the next SLIDE, not the next thing on the right: the buttons keep
    * their semantics under `dir="rtl"` and only the travel under them turns around.
    * At the last slide this wraps to the first one, unless `[loop]` is off — in
-   * which case it legitimately does nothing, so nothing is asserted about the move.
+   * which case the arrow is `disabled` and nothing moves, so nothing is asserted
+   * about the move.
    */
   async next(): Promise<void> {
     return (await this.nav('next', 'next')).click();

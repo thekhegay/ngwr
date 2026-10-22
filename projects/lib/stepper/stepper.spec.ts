@@ -42,6 +42,17 @@ class Host {
 })
 class OptionalHost {}
 
+@Component({
+  imports: [WrStepper, WrStep],
+  template: `
+    <wr-stepper [active]="1">
+      <wr-step label="Профиль">Body</wr-step>
+      <wr-step label="Адрес">Body</wr-step>
+    </wr-stepper>
+  `,
+})
+class CompletedHost {}
+
 /**
  * Two things carry the meaning here: `aria-current="step"` on exactly one
  * header, and `linear` actually holding the user back. A linear stepper that
@@ -229,6 +240,23 @@ describe('WrStepper', () => {
     ).toBe(true);
   });
 
+  it('says a step is completed in its header, not only with the tick', () => {
+    // The tick is `aria-hidden`, so the word is what reaches a screen reader — and
+    // it sits inside the button, where it becomes part of the step's name.
+    const done = (): string[] =>
+      headers().map(h => h.querySelector('.wr-stepper__sr-only')?.textContent?.trim() ?? '-');
+    expect(done()).toEqual(['-', '-', '-']);
+
+    fixture.componentInstance.active.set(2);
+    fixture.detectChanges();
+    expect(done()).toEqual(['completed', 'completed', '-']);
+
+    // An explicit `[completed]` wins over the position, both ways.
+    fixture.componentInstance.addressDone.set(false);
+    fixture.detectChanges();
+    expect(done()).toEqual(['completed', '-', '-']);
+  });
+
   it('opts into the narrow reflow without changing what it IS', () => {
     // `responsive` adds a modifier the stylesheet's `@container` rule keys on, and
     // that rule is scoped to steppers that are not already vertical. So the two
@@ -284,5 +312,36 @@ describe('WrStepper optional badge', () => {
     fixture.detectChanges();
 
     expect(badge(fixture)).toBe('optional');
+  });
+});
+
+/** The same shape as the optional badge: one catalog word, no `*Label` input. */
+describe('WrStepper completed state', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  const word = (fixture: { nativeElement: unknown }): string =>
+    (fixture.nativeElement as HTMLElement).querySelector('.wr-stepper__sr-only')?.textContent?.trim() ?? '';
+
+  it('comes from the catalog, not from the template', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+      ],
+    });
+    const fixture = TestBed.createComponent(CompletedHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(/\p{Script=Cyrillic}/u.test(word(fixture)), `"${word(fixture)}" is still English`).toBe(true);
+  });
+
+  it('falls back to English when nothing is registered', () => {
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(CompletedHost);
+    fixture.detectChanges();
+
+    expect(word(fixture)).toBe('completed');
   });
 });

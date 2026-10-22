@@ -181,8 +181,14 @@ export class WrAffix {
               // `null` is the document scroller, which is what the browser
               // uses for a host with no scrolling ancestor.
               root,
-              // Trigger when the sentinel's top crosses the offset line.
-              rootMargin: `-${offset}px 0px 0px 0px`,
+              // Trigger when the sentinel's top crosses the offset line. NEGATED
+              // rather than prefixed with a minus: a negative offset is valid sticky
+              // CSS (the host pins partly above the edge), and the prefix turned
+              // `-10` into `--10px`, which the constructor refuses with a
+              // SyntaxError — so the state never flipped at all. Negated, a
+              // negative offset GROWS the root above its edge, which is where the
+              // host pins.
+              rootMargin: `${-offset}px 0px 0px 0px`,
               threshold: [0],
             }
           );

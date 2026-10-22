@@ -79,6 +79,7 @@ export const wrKo: WrI18nCatalog = {
   },
   stepper: {
     optional: '선택 사항',
+    completed: '완료',
   },
   transfer: {
     source: '사용 가능',

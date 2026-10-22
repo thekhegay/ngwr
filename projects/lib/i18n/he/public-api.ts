@@ -82,6 +82,7 @@ export const wrHe: WrI18nCatalog = {
   },
   stepper: {
     optional: 'רשות',
+    completed: 'הושלם',
   },
   transfer: {
     source: 'זמינים',

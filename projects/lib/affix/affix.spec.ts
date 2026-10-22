@@ -202,10 +202,21 @@ describe('WrAffix', () => {
     // so the sentinel counts as gone exactly when the host reaches it. A dropped minus
     // sign grows the root instead and the state flips a whole offset too late; a margin
     // on another edge moves the line sideways.
-    expect(observers[0].options?.rootMargin).toBe('-0px 0px 0px 0px');
+    expect(observers[0].options?.rootMargin).toBe('0px 0px 0px 0px');
 
     await mount(64);
     expect(observers[0].options?.rootMargin).toBe('-64px 0px 0px 0px');
+  });
+
+  it('takes a negative offset, which grows the root above its edge instead', async () => {
+    // A negative sticky `top` is valid CSS — the host pins partly above the edge —
+    // and the margin used to be built as `-${offset}px`, which made `-10` into
+    // `--10px`. A real `IntersectionObserver` refuses that with a SyntaxError, so
+    // the state class and `(wrAffixChange)` never fired at all.
+    await mount(-10);
+
+    expect(affixed().style.top).toBe('-10px');
+    expect(observers[0].options?.rootMargin).toBe('10px 0px 0px 0px');
   });
 
   it('measures against the element the host sticks to, not the viewport', async () => {
@@ -243,7 +254,7 @@ describe('WrAffix', () => {
     // animates its offset would otherwise pin at the new line and keep flipping state
     // at the old one — visible only while scrolling, which is why nothing caught it.
     expect(observers).toHaveLength(1);
-    expect(observers[0].options?.rootMargin).toBe('-0px 0px 0px 0px');
+    expect(observers[0].options?.rootMargin).toBe('0px 0px 0px 0px');
 
     fixture.componentInstance.offset.set(64);
     fixture.detectChanges();

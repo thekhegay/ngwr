@@ -100,17 +100,6 @@ function linkOf(entry: WrSidebarEntry): readonly (string | number)[] | null {
 let sidebarUid = 0;
 
 /**
- * A `routerLink` segment array as an absolute path.
- *
- * The documented form carries the leading slash on the FIRST segment
- * (`['/settings', 'profile']`), and prefixing another one produced
- * `//settings/profile`, a path no URL ever equals. Both forms normalise here.
- */
-function routePath(segments: readonly (string | number)[]): string {
-  return `/${segments.join('/')}`.replace(/\/{2,}/g, '/');
-}
-
-/**
  * Whether `url` is `route` or something below it. A bare `startsWith` matched a
  * SIBLING whose path merely began the same way, so visiting `/table` expanded the
  * group that owns `/tabs`.
@@ -472,6 +461,17 @@ export class WrSidebar {
     return value as SidebarNode;
   }
 
+  /**
+   * A `routerLink` command array as the absolute path it navigates to — resolved
+   * against the declaring route, the way `[routerLink]` and `activeKeys` resolve
+   * it. Joining the segments by hand read a RELATIVE link (`['settings']`) as
+   * `/settings`, so on `/admin/settings` the row lit up as the current page while
+   * `autoExpand` left the group above it closed.
+   */
+  private resolve(link: readonly (string | number)[]): string {
+    return this.router.serializeUrl(this.router.createUrlTree([...link], { relativeTo: this.route }));
+  }
+
   /** Every group whose subtree links to `url` or above it, by path prefix. */
   private groupsAbove(url: string, entries: readonly WrSidebarEntry[]): string[] {
     const out: string[] = [];
@@ -480,7 +480,7 @@ export class WrSidebar {
       for (const entry of list) {
         const key = parent ? `${parent}${KEY_SEPARATOR}${entry.title}` : entry.title;
         const link = linkOf(entry);
-        let self = link !== null && matchesRoute(url, routePath(link));
+        let self = link !== null && matchesRoute(url, this.resolve(link));
         if (isGroup(entry) && visit(entry.children, key)) {
           out.push(key);
           self = true;

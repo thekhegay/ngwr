@@ -79,6 +79,7 @@ export const wrHi: WrI18nCatalog = {
   },
   stepper: {
     optional: 'वैकल्पिक',
+    completed: 'पूर्ण',
   },
   transfer: {
     source: 'उपलब्ध',

@@ -79,6 +79,7 @@ export const wrRu: WrI18nCatalog = {
   },
   stepper: {
     optional: 'необязательно',
+    completed: 'завершено',
   },
   transfer: {
     source: 'Доступно',

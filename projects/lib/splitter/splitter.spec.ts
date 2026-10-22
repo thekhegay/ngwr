@@ -148,6 +148,31 @@ describe('WrSplitter', () => {
     expect(divider().getAttribute('aria-orientation')).toBe('horizontal');
   });
 
+  it('lands a drag on a tenth of a percent, so the value it announces is readable', () => {
+    // The raw quotient of a pointer position reached `aria-valuenow` and the
+    // two-way binding as `29.99999822054938` — read out by a screen reader digit
+    // by digit and handed to a host persisting the layout.
+    measureHost();
+    pointerDown();
+    pointerMove(59.9999964);
+
+    expect(position()).toBe(30);
+    expect(divider().getAttribute('aria-valuenow')).toBe('30');
+
+    pointerMove(123.456);
+    expect(position()).toBe(61.7);
+  });
+
+  it('steps the arrows onto whole numbers after a fractional position', () => {
+    fixture.componentInstance.split.set(30.4);
+    fixture.detectChanges();
+
+    press('ArrowRight');
+    expect(position()).toBe(31);
+    press('ArrowLeft', { shiftKey: true });
+    expect(position()).toBe(21);
+  });
+
   it('takes a bigger step with shift', () => {
     press('ArrowRight', { shiftKey: true });
     expect(position()).toBe(60);
