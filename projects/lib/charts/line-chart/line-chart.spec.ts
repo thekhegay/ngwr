@@ -50,7 +50,9 @@ describe('WrLineChart', () => {
   const legendLabels = (): string[] =>
     [...root().querySelectorAll('.wr-line-chart__legend-item')].map(el => el.textContent.trim());
   const allPaths = (): string[] => [...root().querySelectorAll('path')].map(el => el.getAttribute('d') ?? '');
-  const dots = (): SVGCircleElement[] => [...root().querySelectorAll<SVGCircleElement>('circle.wr-line-chart__dot')];
+  const dots = (): SVGPathElement[] => [...root().querySelectorAll<SVGPathElement>('path.wr-line-chart__dot')];
+  /** A dot's x in viewBox units — it is a zero-length line drawn at its point. */
+  const cx = (dot: Element): number => Number(/^M (\S+) /.exec(dot.getAttribute('d') ?? '')?.[1]);
   /** What each x label hands the stylesheet, as a percentage of the chart's width. */
   /** The y-axis labels, top to bottom, as rendered. */
   const ticks = (): string[] =>
@@ -92,7 +94,7 @@ describe('WrLineChart', () => {
     // from is this number and the layer its `cqw` resolves against.
     svg().getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
     const tooltipAt = (clientX: number): HTMLElement => {
-      svg().dispatchEvent(new MouseEvent('pointermove', { clientX }));
+      svg().dispatchEvent(new MouseEvent('mousemove', { clientX }));
       fixture.detectChanges();
       return root().querySelector<HTMLElement>('.wr-line-chart__tooltip')!;
     };
@@ -167,6 +169,18 @@ describe('WrLineChart', () => {
         [0.2, 0.9],
         ['1', '0.75', '0.5', '0.25', '0'],
       ],
+      // The thousands took one fraction digit whatever the step — the defect the small-value
+      // ladder had already shed. A step of 250 printed 1250 as `1.3k` beside `1k`, and a
+      // step of 25 printed -1000 and -1025 as `-1k` twice; that one is too fine for the
+      // abbreviation to be any shorter, so it prints in full.
+      [
+        [400, 1000],
+        ['1.25k', '1k', '750', '500', '250', '0'],
+      ],
+      [
+        [-1050, -950],
+        ['-925', '-950', '-975', '-1000', '-1025', '-1050'],
+      ],
     ] as const) {
       fixture.componentInstance.series.set([{ label: 'S', data: [...data] }]);
       fixture.detectChanges();
@@ -229,7 +243,7 @@ describe('WrLineChart', () => {
     // Tuesday has no reading, so no geometry is drawn at its x — and the run before it is
     // closed rather than joined to the run after.
     expect(d).not.toContain('218.67');
-    expect(dots().map(dot => Math.round(Number(dot.getAttribute('cx'))))).toEqual([36, 401, 584]);
+    expect(dots().map(dot => Math.round(cx(dot)))).toEqual([36, 401, 584]);
   });
 
   it('centres each x label on the point it names', () => {
@@ -238,7 +252,7 @@ describe('WrLineChart', () => {
     // landed on its dot; the outer ones sat up to half a column away. They are positioned in
     // the SVG's own percentage space now, the same space the tooltip already used.
     // Both series share the same x's, so the distinct dot positions are the slots.
-    const dotXs = [...new Set(dots().map(dot => Number(dot.getAttribute('cx'))))].sort((a, b) => a - b);
+    const dotXs = [...new Set(dots().map(cx))].sort((a, b) => a - b);
     const labelXs = xLabelPositions();
 
     expect(labelXs.length).toBe(dotXs.length);
@@ -316,7 +330,7 @@ describe('WrLineChart', () => {
     svg().getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
     const readout = (): Element | null => root().querySelector('.wr-line-chart__tooltip');
     const move = (): void => {
-      svg().dispatchEvent(new MouseEvent('pointermove', { clientX: 310 }));
+      svg().dispatchEvent(new MouseEvent('mousemove', { clientX: 310 }));
       fixture.detectChanges();
     };
 
@@ -332,6 +346,58 @@ describe('WrLineChart', () => {
     move();
     expect(readout()).toBeNull();
     expect(root().querySelector('.wr-line-chart__crosshair')).toBeNull();
+  });
+
+  it('draws each dot as a round cap that does not stretch with the drawing', () => {
+    // The drawing stretches to any box with `preserveAspectRatio="none"`, and a `<circle>`
+    // stretched with it: a 3 × 5px oval on a phone, 9 × 5px at 1920px. A zero-length line
+    // with a round cap and a non-scaling stroke is a circle in screen pixels at any size —
+    // which is measured in a browser; what jsdom holds is that every dot is drawn that way.
+    expect(root().querySelector('circle')).toBeNull();
+    expect(dots().length).toBeGreaterThan(0);
+    for (const dot of dots()) {
+      expect(dot.getAttribute('d')).toMatch(/^M \S+ \S+ h 0$/);
+      expect(dot.getAttribute('stroke-linecap')).toBe('round');
+      expect(dot.getAttribute('vector-effect')).toBe('non-scaling-stroke');
+    }
+  });
+
+  it('opens the readout on the mouse event a tap fires', () => {
+    // A tap fires `pointerdown`, `pointerup` and `pointerleave` and no `pointermove`, then
+    // the compatibility `mouseenter` / `mousemove` / `click`. The readout listened for
+    // `pointermove` alone, so a phone never saw a value.
+    svg().getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
+    svg().dispatchEvent(new PointerEvent('pointerleave'));
+    svg().dispatchEvent(new MouseEvent('mousemove', { clientX: 310 }));
+    fixture.detectChanges();
+
+    expect(root().querySelector('.wr-line-chart__tooltip-label')!.textContent.trim()).toBe('Tue');
+  });
+
+  it('closes the readout on Escape without the pointer moving, and keeps it closed on that point', () => {
+    // WCAG 1.4.13: hover content dismissible without moving the pointer, as every other
+    // chart's tooltip is. Every `mousemove` re-reports the point, so it stays shut until the
+    // pointer reaches another one.
+    svg().getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
+    const move = (clientX: number): void => {
+      svg().dispatchEvent(new MouseEvent('mousemove', { clientX }));
+      fixture.detectChanges();
+    };
+    const readout = (): Element | null => root().querySelector('.wr-line-chart__tooltip');
+
+    move(310);
+    expect(readout()).not.toBeNull();
+
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    fixture.detectChanges();
+    expect(readout()).toBeNull();
+    expect(root().querySelector('.wr-line-chart__crosshair')).toBeNull();
+
+    move(312);
+    expect(readout()).toBeNull();
+
+    move(590);
+    expect(root().querySelector('.wr-line-chart__tooltip-label')!.textContent.trim()).toBe('Wed');
   });
 
   it('keeps the svg stretchable', () => {

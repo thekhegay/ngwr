@@ -2,7 +2,7 @@
 
 .wr-sparkline {
   display: inline-block;
-  // The hover marker is placed in percentages of this box, which is the drawing's.
+  // The hover marker is placed from this box's padding edge, measured off the drawing.
   position: relative;
   line-height: 0;
 
@@ -24,5 +24,8 @@
     // rtl-ok: SVG coordinates, see above
     transform: translate(-50%, -50%);
     pointer-events: none;
+    // An inline `background`, which forced colors resets to `Canvas`, while the
+    // line it sits on keeps its SVG stroke.
+    forced-color-adjust: none;
   }
 }

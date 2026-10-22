@@ -80,8 +80,9 @@ describe('WrGauge', () => {
     // semicircle runs from x = 5.5 to x = 94.5 along y = 50.
     fixture.componentInstance.value.set(0);
     fixture.detectChanges();
-    // At zero the bar is a degenerate arc: it ends where it starts.
-    expect(bar().getAttribute('d')).toBe('M 5.5 50 A 44.5 44.5 0 0 1 5.50 50.00');
+    // At zero there is no bar at all. It used to be a zero-length arc, and with a round
+    // cap that paints a dot a stroke wide beside the `0`, which reads as a small reading.
+    expect(bar().hasAttribute('d')).toBe(false);
 
     fixture.componentInstance.value.set(100);
     fixture.detectChanges();
@@ -109,10 +110,13 @@ describe('WrGauge', () => {
   it('reads a value that is not a number as the bottom of the range', () => {
     // `value` was the only numeric input with no coercion, so a NaN reached the path
     // `d` as the literal text `NaN` — invalid path geometry, and the arc disappears.
+    // A range that starts below zero, so the coerced `0` still draws a bar to check:
+    // at the bottom of the range there is no bar and no `d` at all.
+    fixture.componentInstance.min.set(-100);
     fixture.componentInstance.value.set(Number.NaN);
     fixture.detectChanges();
 
-    expect(bar().getAttribute('d')).not.toContain('NaN');
+    expect(bar().getAttribute('d')).toBe('M 5.5 50 A 44.5 44.5 0 0 1 50.00 5.50');
     expect(meter().getAttribute('aria-valuenow')).toBe('0');
   });
 

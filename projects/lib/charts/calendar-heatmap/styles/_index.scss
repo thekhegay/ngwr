@@ -90,6 +90,10 @@
     // border-radius tokens (5px+) would read as near-circles at this size.
     border-radius: 2px;
     transition: transform var(--wr-transition-base);
+    // An inline `background`, which forced colors resets to `Canvas`: the whole
+    // year vanished and left the month and weekday labels. The SVG charts keep
+    // their fills there, so the squares do too.
+    forced-color-adjust: none;
 
     &:hover {
       transform: scale(1.4);

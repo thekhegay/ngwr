@@ -27,8 +27,8 @@ class Host {
 }
 
 /**
- * Bar heights are percentages written as inline styles, which jsdom reports
- * verbatim — so the scale is checkable without layout. The interesting half of
+ * A bar's share of the plot is written inline as its `flex-grow`, which jsdom
+ * reports verbatim — so the scale is checkable without layout. The interesting half of
  * this component is what the scale does when the data is not what it promised.
  */
 describe('WrBarChart', () => {
@@ -37,7 +37,7 @@ describe('WrBarChart', () => {
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
   const columns = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-bar-chart__column')];
   const bars = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-bar-chart__bar')];
-  const heights = (): string[] => bars().map(bar => bar.style.height);
+  const shares = (): string[] => bars().map(bar => bar.style.flexGrow);
   const names = (): (string | null)[] => columns().map(column => column.getAttribute('aria-label'));
   const labels = (): string[] => [...root().querySelectorAll('.wr-bar-chart__label')].map(el => el.textContent.trim());
   const values = (): string[] => [...root().querySelectorAll('.wr-bar-chart__value')].map(el => el.textContent.trim());
@@ -58,14 +58,23 @@ describe('WrBarChart', () => {
   });
 
   it('scales every bar against the largest value', () => {
-    expect(heights()).toEqual(['50%', '100%', '25%']);
+    expect(shares()).toEqual(['0.5', '1', '0.25']);
+  });
+
+  it('scales the bar against what the column has left under its value, not the whole column', () => {
+    // A `height` percentage resolved against the whole column, value label included,
+    // so the tallest bars overflowed it and flex-shrink squashed them alone: 24 drew at
+    // 183px beside 12 at 99.5px, and 22 at the same height as 24. A grow factor below 1
+    // takes that share of the space left after the value. The pixels are measured in a
+    // browser; what jsdom can hold is that no height percentage is written any more.
+    for (const bar of bars()) expect(bar.style.height).toBe('');
   });
 
   it('scales against an explicit max instead', () => {
     fixture.componentInstance.max.set(40);
     fixture.detectChanges();
 
-    expect(heights()).toEqual(['25%', '50%', '12.5%']);
+    expect(shares()).toEqual(['0.25', '0.5', '0.125']);
   });
 
   it('pairs the label with the value in each bar name', () => {
@@ -75,6 +84,12 @@ describe('WrBarChart', () => {
     // accessible tree at all.
     expect(names()).toEqual(['Mon: 10', 'Tue: 20', 'Wed: 5']);
     for (const column of columns()) expect(column.getAttribute('role')).toBe('img');
+    // And no `img` above them: it is children-presentational, so a conforming user agent
+    // drops every name inside one — WebKit does, which is why the donut moved its own.
+    const plot = root().querySelector<HTMLElement>('.wr-bar-chart__plot')!;
+    expect(plot.getAttribute('role')).toBe('group');
+    expect(plot.getAttribute('aria-label')).toBe('Bar chart');
+    for (const column of columns()) expect(column.parentElement!.closest('[role="img"]')).toBeNull();
     expect(root().querySelector('.wr-bar-chart__labels')!.getAttribute('aria-hidden')).toBe('true');
   });
 
@@ -96,7 +111,7 @@ describe('WrBarChart', () => {
     ]);
     fixture.detectChanges();
 
-    expect(heights()).toEqual(['50%', '100%', '0%']);
+    expect(shares()).toEqual(['0.5', '1', '0']);
     expect(values()).toEqual(['10', '20', '0']);
     expect(root().textContent).not.toContain('NaN');
   });
@@ -108,7 +123,7 @@ describe('WrBarChart', () => {
     ]);
     fixture.detectChanges();
 
-    expect(heights()).toEqual(['100%', '0%']);
+    expect(shares()).toEqual(['1', '0']);
     expect(values()).toEqual(['10', '-4']);
   });
 
@@ -119,7 +134,7 @@ describe('WrBarChart', () => {
     ]);
     fixture.detectChanges();
 
-    expect(heights()).toEqual(['0%', '0%']);
+    expect(shares()).toEqual(['0', '0']);
   });
 
   it('renders nothing at all for an empty data set', () => {

@@ -213,6 +213,30 @@ describe('WrCalendarHeatmap', () => {
     expect(cells().length).toBeGreaterThan(0);
     for (const cell of cells()) expect(cell.getAttribute('title')).toMatch(/: 0$/);
   });
+
+  it('formats no title on a pass that changed nothing, with the tooltip off', () => {
+    // Each `mousemove` over the grid marks the view for check, and with the tooltip off
+    // every square's title used to be formatted again on every pass — with a NEW
+    // `Intl.DateTimeFormat` and `Intl.NumberFormat` each time, 740 a move on a year.
+    fixture.componentInstance.tooltip.set(false);
+    fixture.componentInstance.weeks.set(53);
+    fixture.detectChanges();
+    const titles = cells().map(cell => cell.getAttribute('title'));
+    expect(titles.every(title => title?.includes(': '))).toBe(true);
+
+    const dates = vi.spyOn(Intl, 'DateTimeFormat');
+    const numbers = vi.spyOn(Intl, 'NumberFormat');
+    try {
+      for (const cell of cells().slice(0, 5)) hover(cell);
+
+      expect(dates).not.toHaveBeenCalled();
+      expect(numbers).not.toHaveBeenCalled();
+      expect(cells().map(cell => cell.getAttribute('title'))).toEqual(titles);
+    } finally {
+      dates.mockRestore();
+      numbers.mockRestore();
+    }
+  });
 });
 
 describe('WrCalendarHeatmap under a localized catalog', () => {

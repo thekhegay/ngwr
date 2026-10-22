@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChild } from '@angular/core';
+import { Component, ElementRef, ViewEncapsulation, computed, inject, input, viewChild } from '@angular/core';
 
 import { useChartTooltip } from 'ngwr/popover';
 
@@ -72,6 +72,7 @@ export class WrSparkline {
    */
   readonly tooltip = input(true, { transform: coerceBooleanProperty });
 
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly svg = viewChild<ElementRef<SVGSVGElement>>('svg');
   private readonly marker = viewChild<ElementRef<HTMLElement>>('marker');
 
@@ -133,9 +134,10 @@ export class WrSparkline {
     return `${start} ${line} ${close}`;
   });
 
-  protected readonly tipPoint = computed(() => {
-    const pts = this.points();
-    return pts.length > 0 ? pts[pts.length - 1] : null;
+  /** A zero-length line at the last point, which a round cap paints as the tip dot. */
+  protected readonly tipPath = computed(() => {
+    const last = this.points().at(-1);
+    return last ? `M ${last.x.toFixed(2)} ${last.y.toFixed(2)} h 0` : null;
   });
 
   protected readonly viewBox = `0 0 ${this.vbW} ${this.vbH}`;
@@ -170,14 +172,31 @@ export class WrSparkline {
   );
 
   /**
-   * The marker's place, as percentages of the box the drawing stretches to. An
-   * element rather than a `<circle>`: the drawing stretches to any box with
-   * `preserveAspectRatio="none"`, which would squash a circle into an ellipse.
+   * The marker's place in pixels from the host's padding edge, measured off the
+   * DRAWING's box. An element rather than a `<circle>`: the drawing stretches to
+   * any box with `preserveAspectRatio="none"`, which would squash a circle into an
+   * ellipse.
+   *
+   * Not percentages of the host, which is what it was: the host is only the
+   * drawing's size until something stretches it — `width: 100%` on the element,
+   * `display: block`, a column flex parent — while the drawing keeps its `width`.
+   * Measured in Chromium, WebKit and Firefox on a 327px host round the default
+   * 128px drawing, the marker for a point at 115px landed at 292px, out in empty
+   * space with the chip above it. Read when a point is hovered, so the boxes are
+   * laid out; `tip.active()` is never set on the server.
    */
   protected readonly markerAt = computed(() => {
     const index = this.tip.active();
     const point = index === null ? undefined : this.points()[index];
-    return point ? { x: (point.x / this.vbW) * 100, y: (point.y / this.vbH) * 100 } : null;
+    const svg = this.svg()?.nativeElement;
+    if (!point || !svg) return null;
+    const host = this.host.nativeElement;
+    const outer = host.getBoundingClientRect();
+    const box = svg.getBoundingClientRect();
+    return {
+      x: box.left - outer.left - host.clientLeft + (point.x / this.vbW) * box.width,
+      y: box.top - outer.top - host.clientTop + (point.y / this.vbH) * box.height,
+    };
   });
 
   protected onPointerMove(event: MouseEvent): void {

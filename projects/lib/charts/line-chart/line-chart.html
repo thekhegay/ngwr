@@ -34,8 +34,8 @@
     class="wr-line-chart__svg"
     [attr.viewBox]="viewBox()"
     preserveAspectRatio="none"
-    (pointermove)="onPointerMove($event)"
-    (pointerleave)="onPointerLeave()"
+    (mousemove)="onPointerMove($event)"
+    (mouseleave)="onPointerLeave()"
   >
     @if (showGrid()) {
       @for (tick of yTicks(); track tick.value) {
@@ -78,14 +78,19 @@
       @if (showDots()) {
         @for (v of s.data; track $index; let i = $index) {
           <!-- A hole in the data gets no dot: the index still belongs to it, so the
-               points after it stay on their own x. -->
+               points after it stay on their own x. A dot is a zero-length line with a
+               round cap and a non-scaling stroke, which stays a 6px circle however the
+               drawing stretches; a `<circle>` scaled with it, into a 3 × 5px oval on a
+               phone and a 9 × 5px one at 1920px. -->
           @if (v !== null) {
-            <circle
+            <path
               class="wr-line-chart__dot"
-              [attr.cx]="pointX(i)"
-              [attr.cy]="pointY(v)"
-              r="3"
-              [attr.fill]="s.color"
+              [attr.d]="dotPath(pointX(i), pointY(v))"
+              fill="none"
+              [attr.stroke]="s.color"
+              stroke-width="6"
+              stroke-linecap="round"
+              vector-effect="non-scaling-stroke"
             />
           }
         }
@@ -104,14 +109,24 @@
         stroke-dasharray="3 3"
         vector-effect="non-scaling-stroke"
       />
+      <!-- A ring of the series' colour round a white centre, drawn the way a dot is
+           and for the same reason. -->
       @for (p of hoverPoints(); track p.label) {
-        <circle
-          [attr.cx]="p.x"
-          [attr.cy]="p.y"
-          r="5"
-          fill="var(--wr-color-white)"
+        <path
+          [attr.d]="dotPath(p.x, p.y)"
+          fill="none"
           [attr.stroke]="p.color"
-          stroke-width="2"
+          stroke-width="12"
+          stroke-linecap="round"
+          vector-effect="non-scaling-stroke"
+        />
+        <path
+          [attr.d]="dotPath(p.x, p.y)"
+          fill="none"
+          stroke="var(--wr-color-white)"
+          stroke-width="8"
+          stroke-linecap="round"
+          vector-effect="non-scaling-stroke"
         />
       }
     }

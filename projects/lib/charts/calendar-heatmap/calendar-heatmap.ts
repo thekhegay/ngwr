@@ -104,10 +104,27 @@ export class WrCalendarHeatmap {
    */
   protected cellTitle(cell: { readonly date: Date; readonly value: number }): string {
     return this.cellText({
-      date: new Intl.DateTimeFormat(this.locale, { dateStyle: 'medium' }).format(cell.date),
-      count: new Intl.NumberFormat(this.locale).format(cell.value),
+      date: this.dateFormat().format(cell.date),
+      count: this.countFormat().format(cell.value),
     });
   }
+
+  /**
+   * The two formatters, built once. They were built per call, and with `tooltip` off
+   * the template asks for every square's title on every pass — so each `mousemove`
+   * over the grid, which still marks the view for check, built 740 of them: 44,400
+   * for 60 moves, measured in dev mode at 907–931ms against 348–358ms with the
+   * tooltip on.
+   */
+  private readonly dateFormat = computed(() => new Intl.DateTimeFormat(this.locale, { dateStyle: 'medium' }));
+  private readonly countFormat = computed(() => new Intl.NumberFormat(this.locale));
+
+  /**
+   * Every square's `title`, and only while the tooltip is off — the tooltip carries the
+   * same sentence, and the browser would open a second copy a moment later. Worked out
+   * when the days or the catalog change, not on every pass of the template.
+   */
+  protected readonly titles = computed(() => (this.tooltip() ? null : this.cells().map(cell => this.cellTitle(cell))));
 
   /** Last day to render. @default today */
   readonly endDate = input<string | Date | null>(null);

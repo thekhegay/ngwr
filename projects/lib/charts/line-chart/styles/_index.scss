@@ -37,6 +37,9 @@
     height: 0.125rem;
     overflow: visible;
     flex: 0 0 auto;
+    // The tooltip's swatch is an inline `background`, which forced colors resets
+    // to `Canvas`, while the line it names keeps its SVG stroke.
+    forced-color-adjust: none;
   }
 
   &__plot {
@@ -57,7 +60,7 @@
   // stretches to. On the plot itself the containment would take the SVG out of the
   // chart's intrinsic width — measured in Chromium, a `width: max-content` chart went
   // from 480px to 0 — while this layer is out of flow and contributes nothing either
-  // way. Never hittable: it covers the plot, and taking the `pointermove` would close
+  // way. Never hittable: it covers the plot, and taking the `mousemove` would close
   // the tooltip it holds.
   &__tooltip-layer {
     position: absolute;

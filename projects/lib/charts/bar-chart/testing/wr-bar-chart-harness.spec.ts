@@ -96,7 +96,7 @@ describe('WrBarChartHarness', () => {
     const bar = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-bar-chart__bar')!;
     bar.removeAttribute('style');
 
-    await expect(harness.getBars()).rejects.toThrow(/no inline height percentage/);
+    await expect(harness.getBars()).rejects.toThrow(/no inline share/);
   });
 
   it('reads the plot height the component wrote', async () => {

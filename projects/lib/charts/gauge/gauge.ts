@@ -116,6 +116,9 @@ export class WrGauge {
   });
 
   protected readonly valuePath = computed(() => {
+    // Nothing to draw at zero. A zero-length arc is not nothing: its round cap paints a
+    // dot a stroke wide at the start of the track, so 0 read as a small reading.
+    if (this.ratio() === 0) return null;
     const r = this.radius();
     const angle = Math.PI * (1 - this.ratio());
     const ex = this.cx + r * Math.cos(angle);

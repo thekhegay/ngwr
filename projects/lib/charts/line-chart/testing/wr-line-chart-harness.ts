@@ -19,7 +19,7 @@ import type { WrLineChartHarnessFilters, WrLineChartTooltipRow } from './types';
  * are what breaks when the data wiring does.
  *
  * **The tooltip cannot be opened from a spec, and the reason is worth knowing.** It
- * follows a `pointermove` over the plot, and the component turns the cursor's x into
+ * follows a `mousemove` over the plot, and the component turns the cursor's x into
  * an index by measuring the plot's box — which jsdom reports as 0×0, so every
  * synthetic move resolves to the same index or to none at all. There is deliberately
  * no `hoverAt()`; {@link getTooltipRows} reads the tooltip when something else has

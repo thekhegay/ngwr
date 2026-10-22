@@ -103,7 +103,11 @@ export class WrBarChart {
         label: d.label,
         value,
         color: d.color ?? this.color(),
-        heightPercent: (Math.max(0, value) / this.resolvedMax()) * 100,
+        /**
+         * The bar's share of the plot, from 0 to 1, written as its `flex-grow` — see
+         * the stylesheet for why a grow factor and not a `height` percentage.
+         */
+        share: Math.min(1, Math.max(0, value) / this.resolvedMax()),
         /**
          * The bar's accessible name. The label and the value sit in separate
          * rows, so a screen reader read every number and then every label with

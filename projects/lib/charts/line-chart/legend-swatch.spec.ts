@@ -137,7 +137,7 @@ describe('wr-line-chart: which rules size each drawing', () => {
     // Hovered, so the tooltip's swatches exist too. jsdom lays nothing out, so the plot's
     // box is stubbed to read a clientX as a viewBox x.
     plot().getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
-    plot().dispatchEvent(new MouseEvent('pointermove', { clientX: 300 }));
+    plot().dispatchEvent(new MouseEvent('mousemove', { clientX: 300 }));
     fixture.detectChanges();
   });
 

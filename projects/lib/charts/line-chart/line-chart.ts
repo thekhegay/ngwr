@@ -6,7 +6,18 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ElementRef, LOCALE_ID, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import {
+  Component,
+  ElementRef,
+  LOCALE_ID,
+  ViewEncapsulation,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { round } from 'ngwr/utils';
@@ -29,6 +40,12 @@ function niceStep(raw: number): number {
   const normalised = raw / magnitude;
   const nice = normalised <= 1 ? 1 : normalised <= 2 ? 2 : normalised <= 2.5 ? 2.5 : normalised <= 5 ? 5 : 10;
   return nice * magnitude;
+}
+
+/** The fewest fraction digits that write `value` exactly, up to six. */
+function fractionDigits(value: number): number {
+  for (let d = 0; d <= 6; d++) if (Math.abs(value * 10 ** d - Math.round(value * 10 ** d)) < 1e-9) return d;
+  return 6;
 }
 
 /**
@@ -125,6 +142,32 @@ export class WrLineChart {
 
   /** The hovered index while the readout is on, so turning `tooltip` off mid-hover clears it. */
   protected readonly activeIndex = computed(() => (this.tooltip() ? this.hoveredIndex() : null));
+
+  /**
+   * The index Escape dismissed. It stays shut while the pointer stays on that point —
+   * WCAG 1.4.13 asks for dismissal WITHOUT moving the pointer, and every `mousemove`
+   * re-reports the point, so a plain close would reopen on the next pixel. The rule
+   * the shared chart tooltip follows for the other charts.
+   */
+  private dismissed: number | null = null;
+
+  constructor() {
+    // Escape closes the readout wherever focus is, the way it closes every other
+    // chart's: nothing in the readout can take focus, so a key handler on the chart
+    // would never hear it. Listened for only while the readout is up, which is never
+    // on the server.
+    const document = inject(DOCUMENT);
+    effect(onCleanup => {
+      if (this.activeIndex() === null) return;
+      const onKeydown = (event: KeyboardEvent): void => {
+        if (event.key !== 'Escape') return;
+        this.dismissed = this.hoveredIndex();
+        this.hoveredIndex.set(null);
+      };
+      document.addEventListener('keydown', onKeydown);
+      onCleanup(() => document.removeEventListener('keydown', onKeydown));
+    });
+  }
 
   /**
    * A dash pattern per series, so the lines are told apart by SHAPE and not
@@ -310,7 +353,14 @@ export class WrLineChart {
     return this.xLabels()[i] ?? String(i);
   });
 
-  protected onPointerMove(event: PointerEvent): void {
+  /**
+   * The point under the pointer. A MOUSE event, as the sparkline's is: a tap fires
+   * `pointerdown`, `pointerup` and `pointerleave` and no `pointermove`, then the
+   * compatibility `mousemove`, so a `pointermove` listener never opened the readout on
+   * a phone and the `pointerleave` closed whatever it had. Every other chart opens on
+   * the compatibility events a tap fires.
+   */
+  protected onPointerMove(event: MouseEvent): void {
     if (!this.tooltip()) return;
     const svg = (event.currentTarget as SVGElement).getBoundingClientRect();
     const ratio = (event.clientX - svg.left) / svg.width;
@@ -318,11 +368,19 @@ export class WrLineChart {
     const count = this.pointCount();
     if (count === 0) return;
     const i = Math.round(((vbX - this.padding.left) / this.plotWidth()) * (count - 1));
-    if (i >= 0 && i < count) this.hoveredIndex.set(i);
+    if (i < 0 || i >= count || i === this.dismissed) return;
+    this.dismissed = null;
+    this.hoveredIndex.set(i);
   }
 
   protected onPointerLeave(): void {
+    this.dismissed = null;
     this.hoveredIndex.set(null);
+  }
+
+  /** A zero-length line at a point, which a round cap paints as a dot. */
+  protected dotPath(x: number, y: number): string {
+    return `M ${x.toFixed(2)} ${y.toFixed(2)} h 0`;
   }
 
   /**
@@ -348,10 +406,19 @@ export class WrLineChart {
    * evenly spaced. An axis whose own labels disagree about their spacing is
    * worse than a crowded one.
    */
-  private readonly tickDigits = computed(() => {
-    const { step } = this.bounds();
-    for (let d = 0; d <= 6; d++) if (Math.abs(step * 10 ** d - Math.round(step * 10 ** d)) < 1e-9) return d;
-    return 6;
+  private readonly tickDigits = computed(() => fractionDigits(this.bounds().step));
+
+  /**
+   * The same, for a tick written in thousands — `null` when the step is too fine for
+   * the abbreviation to be shorter than the number, which then prints in full.
+   *
+   * It was a hard `1` whatever the step, the defect `tickDigits` fixed for small
+   * values: a step of 25 printed -1000 and -1025 as `-1k` twice, and a step of 250
+   * printed 1250 as `1.3k` beside `1k`, so the axis said its gaps were uneven.
+   */
+  private readonly thousandsDigits = computed(() => {
+    const digits = fractionDigits(this.bounds().step / 1000);
+    return digits <= 2 ? digits : null;
   });
 
   protected formatTick(v: number): string {
@@ -365,7 +432,8 @@ export class WrLineChart {
         maximumFractionDigits: fraction,
       }).format(n);
 
-    if (Math.abs(v) >= 1000) return this.thousandsText({ value: digits(v / 1000, v % 1000 === 0 ? 0 : 1) });
+    const thousands = this.thousandsDigits();
+    if (Math.abs(v) >= 1000 && thousands !== null) return this.thousandsText({ value: digits(v / 1000, thousands) });
     return digits(v, this.tickDigits());
   }
 

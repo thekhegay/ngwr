@@ -35,19 +35,41 @@
     --wr-bar-chart-value-font-size: var(--wr-text-xs);
     --wr-bar-chart-value-line-height: var(--wr-leading-none);
 
+    flex: none;
+    // Bounded by its column and ellipsised, as the label under it is. With no bound,
+    // forty five-digit values at 1280px overlapped their neighbours into one smear and
+    // the outermost hung past the chart. The tooltip and the column's name carry the
+    // whole number.
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: var(--wr-bar-chart-value-font-size);
     color: var(--wr-color-on-surface-muted);
     font-variant-numeric: tabular-nums;
     line-height: var(--wr-bar-chart-value-line-height);
   }
 
+  // The component writes the bar's share of the plot as its `flex-grow`, from 0
+  // to 1. Factors that sum to less than 1 hand out only that fraction of the free
+  // space, so the bar gets exactly its share of what the column has left after
+  // the value above it, and the value rides on the bar's top. It was a `height`
+  // percentage of the WHOLE column, so the tallest bars plus their value
+  // overflowed it and flex-shrink took the difference out of them alone:
+  // measured in Chromium, WebKit and Firefox, 24 drew at 183px beside 12 at
+  // 99.5px, and 22 at 182.4px — the same height as 24.
   &__bar {
     --wr-bar-chart-bar-radius: var(--wr-border-radius-sm);
 
+    flex: 0 0 0;
     width: 100%;
     border-radius: var(--wr-bar-chart-bar-radius) var(--wr-bar-chart-bar-radius) 0 0;
-    transition: height var(--wr-duration-slow) var(--wr-ease-out);
+    transition: flex-grow var(--wr-duration-slow) var(--wr-ease-out);
     min-height: 1px;
+    // The bar is an inline `background`, which forced colors resets to `Canvas`:
+    // every bar vanished into the page and left its value floating over the
+    // baseline. The SVG charts keep their fills there, so the HTML marks do too.
+    forced-color-adjust: none;
   }
 
   &__labels {

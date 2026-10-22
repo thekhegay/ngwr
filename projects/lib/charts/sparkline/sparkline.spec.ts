@@ -30,7 +30,7 @@ describe('WrSparkline', () => {
   const svg = (): SVGSVGElement => root().querySelector<SVGSVGElement>('svg')!;
   const line = (): SVGPathElement | null => root().querySelector<SVGPathElement>('.wr-sparkline__line');
   const area = (): SVGPathElement | null => root().querySelector<SVGPathElement>('.wr-sparkline__area');
-  const tip = (): SVGCircleElement | null => root().querySelector<SVGCircleElement>('.wr-sparkline__tip');
+  const tip = (): SVGPathElement | null => root().querySelector<SVGPathElement>('.wr-sparkline__tip');
   const ys = (): number[] =>
     (
       line()!
@@ -111,8 +111,15 @@ describe('WrSparkline', () => {
   });
 
   it('marks the last point with a tip, and drops it on request', () => {
-    expect(tip()!.getAttribute('cx')).toBe('98');
-    expect(tip()!.getAttribute('cy')).toBe('2');
+    // A zero-length line with a round cap and a non-scaling stroke: a `<circle>` in a
+    // drawing that stretches with `preserveAspectRatio="none"` stretched with it, into a
+    // 21 × 5px pill on a 686 × 64px sparkline. That it now paints round is measured in a
+    // browser; what jsdom holds is how it is drawn.
+    expect(tip()!.tagName).toBe('path');
+    expect(tip()!.getAttribute('d')).toBe('M 98.00 2.00 h 0');
+    expect(tip()!.getAttribute('stroke-linecap')).toBe('round');
+    expect(tip()!.getAttribute('vector-effect')).toBe('non-scaling-stroke');
+    expect(tip()!.getAttribute('stroke-width')).toBe('4.5');
 
     fixture.componentInstance.showTip.set(false);
     fixture.detectChanges();
@@ -186,9 +193,26 @@ describe('WrSparkline tooltip', () => {
     expect(part('value')!.textContent.trim()).toBe('9');
     expect(part('swatch')!.style.background).toBe('rgb(18, 52, 86)');
     // x = 50 of 100, and 9 is the minimum, so it sits on the floor of the plot: y = 38 of 40.
-    expect(marker()!.style.left).toBe('50%');
-    expect(marker()!.style.top).toBe('95%');
+    expect(marker()!.style.left).toBe('50px');
+    expect(marker()!.style.top).toBe('38px');
     expect(marker()!.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('places the marker on the drawing, not across a host stretched past it', () => {
+    // `style="width: 100%"` on the element stretches the host while the drawing keeps
+    // its `width` — here a 327px host with the 128px drawing 20px in from its start.
+    // Percentages of the host put the marker for the last point at 98% of 327px.
+    const host = root().querySelector<HTMLElement>('wr-sparkline')!;
+    host.getBoundingClientRect = () => new DOMRect(100, 50, 327, 32);
+    svg().getBoundingClientRect = () => new DOMRect(120, 50, 128, 32);
+
+    svg().dispatchEvent(new MouseEvent('mousemove', { clientX: 245 }));
+    fixture.detectChanges();
+
+    // The last point is at x = 98 and y = 2 of the 100 × 40 drawing.
+    expect(part('value')!.textContent.trim()).toBe('21');
+    expect(marker()!.style.left).toBe(`${20 + 0.98 * 128}px`);
+    expect(marker()!.style.top).toBe(`${0.05 * 32}px`);
   });
 
   it('snaps to the ends rather than running off them', () => {

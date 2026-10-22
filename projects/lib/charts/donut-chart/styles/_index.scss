@@ -89,6 +89,9 @@
     width: 0.625rem;
     height: 0.625rem;
     border-radius: 50%;
+    // The key to the slices, whose SVG fills forced colors keeps — so an inline
+    // `background` reset to `Canvas` left the legend pointing at nothing.
+    forced-color-adjust: none;
   }
 
   &__legend-label {

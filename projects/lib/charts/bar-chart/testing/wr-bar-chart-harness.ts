@@ -9,22 +9,22 @@ import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 import type { WrBarChartBar, WrBarChartHarnessFilters } from './types';
 
-/** The `height: <n>%` the component writes onto a bar, out of its inline `style`. */
-const BAR_HEIGHT = /(?:^|;)\s*height\s*:\s*([\d.]+)%/;
+/** The `flex-grow: <share>` the component writes onto a bar, out of its inline `style`. */
+const BAR_SHARE = /(?:^|;)\s*flex-grow\s*:\s*([\d.]+)/;
 
 /**
  * Test harness for `<wr-bar-chart>`.
  *
- * **The bars are read as PERCENTAGES, not as pixels.** Each column's height is
- * written inline as a share of the chart's maximum, which is the one number that
+ * **The bars are read as PERCENTAGES, not as pixels.** Each bar's share of the
+ * chart's maximum is written inline, as its `flex-grow` from 0 to 1 and reported
+ * here times 100, which is the one number that
  * survives a test with no layout — and it is also the component's whole job, since
  * the maximum is either given or derived from the data. That share is read off the
  * `style` ATTRIBUTE rather than through `getCssValue()`, and the difference is not
- * cosmetic: `getCssValue()` is `getComputedStyle()`, which hands the declared `60%`
- * straight back in jsdom and resolves it to used pixels in a real browser — so the
- * same harness answered `100` here and `200` under Selenium or a browser runner,
- * with no error to say which one you got. The stylesheet's own `min-height: 1px`
- * is a second way that read lies, turning an empty bar into `1`.
+ * cosmetic: `getCssValue()` is `getComputedStyle()`, which answered a used height
+ * in pixels in a real browser and the declared value in jsdom, with no error to say
+ * which one you got — and with no inline share at all it falls back to the
+ * stylesheet's `0`, which reads as an empty bar.
  *
  * **The visible label row is decoration.** Every column carries `role="img"` with
  * the label AND the value in its name, and the printed labels underneath are
@@ -80,15 +80,16 @@ export class WrBarChartHarness extends ComponentHarness {
 
   /** Parse one bar's declared share. See the class note on why this is not `getCssValue()`. */
   private static heightPercentOf(style: string | null): number {
-    const match = BAR_HEIGHT.exec(style ?? '');
+    const match = BAR_SHARE.exec(style ?? '');
     if (!match) {
       throw new Error(
-        `WrBarChartHarness.getBars(): a bar carries no inline height percentage (style: "${style ?? ''}"). ` +
+        `WrBarChartHarness.getBars(): a bar carries no inline share (style: "${style ?? ''}"). ` +
           'The component writes one for every bar, an empty one included, so its absence is the bug — ' +
           'reporting 0 would read as a bar with nothing in it.'
       );
     }
-    return Number.parseFloat(match[1]);
+    // Rounded, so a share of 0.07 reads as 7 rather than 7.000000000000001.
+    return Number((Number.parseFloat(match[1]) * 100).toFixed(6));
   }
 
   /** The labels printed under the columns, in order. */

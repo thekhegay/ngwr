@@ -15,16 +15,29 @@
     border-radius: var(--wr-border-radius-pill);
     overflow: hidden;
     background: var(--wr-color-fill-strong);
+
+    // Forced colors paints the track `Canvas`, the page itself, so the part of
+    // the scale nothing fills needs an edge to be read against.
+    @media (forced-colors: active) {
+      outline: 1px solid CanvasText;
+    }
   }
 
   &__slice {
     display: block;
     height: 100%;
     transition: width var(--wr-transition-base);
-
-    & + & {
-      margin-inline-start: var(--wr-space-xs);
-    }
+    // An inline `background`, which forced colors resets to `Canvas` — the bar
+    // vanished and left only the legend. The SVG charts keep their fills there.
+    forced-color-adjust: none;
+    // The gap between two slices is an outline in the track's colour, half of it laid
+    // over each side of the boundary. It was a margin, added ON TOP of widths that are
+    // already shares of the bar: a 50/100 meter of five slices filled 55% of it, and a
+    // zero slice still added its margin, leaving a double gap. An outline takes no room,
+    // so every boundary sits at its exact share; it is painted after every slice, so it
+    // covers the next one rather than hiding under it, as a spread shadow would; and a
+    // zero slice's outline is the one gap where its two neighbours meet.
+    outline: calc(var(--wr-space-xs) / 2) solid var(--wr-color-fill-strong);
   }
 
   &__legend {
@@ -49,6 +62,8 @@
     height: 0.625rem;
     border-radius: 50%;
     flex: 0 0 auto;
+    // The key to the slices' colours, so it keeps them where the slices do.
+    forced-color-adjust: none;
   }
 
   &__legend-label {

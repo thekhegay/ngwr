@@ -25,8 +25,19 @@
       vector-effect="non-scaling-stroke"
     />
   }
-  @if (showTip() && tipPoint(); as last) {
-    <circle class="wr-sparkline__tip" [attr.cx]="last.x" [attr.cy]="last.y" r="1.5" [attr.fill]="color()" />
+  <!-- A zero-length line with a round cap and a non-scaling stroke, which stays a
+       circle however the drawing stretches; a `<circle>` stretched with it, into a
+       21 × 5px pill on the docs' full-width demo. Three times the line's width. -->
+  @if (showTip() && tipPath(); as d) {
+    <path
+      class="wr-sparkline__tip"
+      [attr.d]="d"
+      fill="none"
+      [attr.stroke]="color()"
+      [attr.stroke-width]="strokeWidth() * 3"
+      stroke-linecap="round"
+      vector-effect="non-scaling-stroke"
+    />
   }
 </svg>
 @if (markerAt(); as at) {
@@ -34,8 +45,8 @@
     #marker
     class="wr-sparkline__marker"
     aria-hidden="true"
-    [style.left.%]="at.x"
-    [style.top.%]="at.y"
+    [style.left.px]="at.x"
+    [style.top.px]="at.y"
     [style.background]="color()"
   ></span>
 }
