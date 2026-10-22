@@ -42,7 +42,7 @@
         "lg"
       ],
       "default": "none",
-      "description": "Default density wired via `provideWr(withDensity())`. `none` uses lib defaults (md).",
+      "description": "Default density wired via `provideWr(withDensity())`, plus `@use 'ngwr/density';` after the theme in the global stylesheet: no component loads that sheet, and without it the density does nothing. `none` uses lib defaults (md).",
       "x-prompt": {
         "message": "Pick a default density",
         "type": "list",

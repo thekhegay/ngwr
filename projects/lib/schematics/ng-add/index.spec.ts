@@ -213,3 +213,89 @@ describe('ng-add', () => {
     expect(snippet).toContain('provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 }))');
   });
 });
+
+/**
+ * A density pick prints `provideWr(withDensity(...))`, and that feature writes
+ * `data-wr-density` on `<html>` for a sheet only `ngwr/density` ships. No
+ * component sheet loads it, so writing the theme alone left the pick doing
+ * nothing, with nothing to say so.
+ */
+describe('ng-add — the density sheet', () => {
+  const DENSE: Schema = { ...BASE, density: 'sm' };
+
+  it('writes the density line after the theme when a density is picked', async () => {
+    const { read, logs } = await run(
+      { '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': 'body { margin: 0; }\n' },
+      DENSE
+    );
+
+    expect(read('/src/styles.scss')).toBe("@use 'ngwr/theme';\n@use 'ngwr/density';\nbody { margin: 0; }\n");
+    expect(said(logs, "added `@use 'ngwr/density';`")).toBe(true);
+  });
+
+  it('writes no density line when none is picked', async () => {
+    const { read } = await run(
+      { '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': '' },
+      { ...BASE, density: 'none' }
+    );
+
+    expect(read('/src/styles.scss')).not.toContain('ngwr/density');
+  });
+
+  it('adds it below a theme line that is already there, configured or not', async () => {
+    const before = "@use 'ngwr/theme' with (\n  $base-colors: (primary: #3567ff)\n);\n@use 'ngwr/button';\n";
+    const { read } = await run({ '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': before }, DENSE);
+
+    // The theme stays the first load, untouched, and the density line goes
+    // after every `@use` already there.
+    expect(read('/src/styles.scss')).toBe(`${before}@use 'ngwr/density';\n`);
+  });
+
+  it('leaves a stylesheet that already loads both alone', async () => {
+    const before = "@use 'ngwr/theme';\n@use 'ngwr/density';\nbody { margin: 0; }\n";
+    const { read, logs } = await run(
+      { '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': before },
+      DENSE
+    );
+
+    expect(read('/src/styles.scss')).toBe(before);
+    expect(said(logs, 'already imports ngwr/density')).toBe(true);
+  });
+
+  it('names the density line in what it tells a css project', async () => {
+    const before = 'body { margin: 0; }\n';
+    const { read, logs } = await run(
+      { '/angular.json': workspace('src/styles.css'), '/src/styles.css': before },
+      DENSE
+    );
+
+    expect(read('/src/styles.css')).toBe(before);
+    expect(said(logs, "The density you picked also needs `@use 'ngwr/density';` after the theme.")).toBe(true);
+  });
+
+  it('names both lines when there is no stylesheet to write into', async () => {
+    const { logs } = await run({ '/angular.json': workspace(null) }, DENSE);
+
+    expect(said(logs, "add `@use 'ngwr/theme';` and `@use 'ngwr/density';` after it manually")).toBe(true);
+  });
+
+  it('writes nothing when styles are opted out, and the message still names the line', async () => {
+    const before = 'body { margin: 0; }\n';
+    const { read, logs } = await run(
+      { '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': before },
+      { ...DENSE, styles: 'none' }
+    );
+
+    expect(read('/src/styles.scss')).toBe(before);
+    const message = logs.find(line => line.includes('ngwr installed.'))!;
+    expect(message).toContain("  @use 'ngwr/theme';\n  @use 'ngwr/density';\n  @use 'ngwr/button';");
+    expect(message).toContain("withDensity() also needs `@use 'ngwr/density';`, after the theme.");
+  });
+
+  it('leaves the density line out of the message when no density is picked', async () => {
+    const { logs } = await run({ '/angular.json': workspace('src/styles.scss'), '/src/styles.scss': '' }, BASE);
+
+    const message = logs.find(line => line.includes('ngwr installed.'))!;
+    expect(message).not.toContain('ngwr/density');
+  });
+});

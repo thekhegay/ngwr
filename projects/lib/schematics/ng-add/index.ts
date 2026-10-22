@@ -10,7 +10,7 @@ import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { addPackageJsonDependency, NodeDependencyType } from '@schematics/angular/utility/dependencies';
 import { getWorkspace } from '@schematics/angular/utility/workspace';
 
-import { NOT_SASS_ADVICE } from '../utility/global-styles';
+import { NOT_SASS_ADVICE, addStyleUse } from '../utility/global-styles';
 
 import type { Schema } from './schema';
 
@@ -40,6 +40,18 @@ const DENSITY_FEATURE: Record<NonNullable<Schema['density']>, string | null> = {
 };
 
 const STYLES_DIRECTIVE_SCSS = "@use 'ngwr/theme';";
+
+/**
+ * The density sheet, which `withDensity()` and `[wrDensity]` need and nothing
+ * loads for them: no component sheet `@use`s it, so without this line the
+ * `data-wr-density` attribute lands on `<html>` and no multiplier changes.
+ */
+const DENSITY_DIRECTIVE_SCSS = "@use 'ngwr/density';";
+
+/** Whether the answers configure density, which is what makes the density sheet load-bearing. */
+function wantsDensity(options: Schema): boolean {
+  return DENSITY_FEATURE[options.density ?? 'none'] !== null;
+}
 
 function ngAdd(options: Schema): Rule {
   return (tree: Tree, context: SchematicContext) => {
@@ -73,7 +85,8 @@ function installPeerDeps(options: Schema, context: SchematicContext): Rule {
 
 /**
  * Puts `@use 'ngwr/theme';` at the top of the project's first global stylesheet
- * when `styles === 'theme'`. Skipped entirely when `styles === 'none'`.
+ * when `styles === 'theme'`, and `@use 'ngwr/density';` after it when a density
+ * was picked. Skipped entirely when `styles === 'none'`.
  *
  * The theme layer and NOT the components, because v15 removed the `@use 'ngwr'`
  * umbrella: a sheet that compiled every component stylesheet for a page
@@ -84,6 +97,12 @@ function installPeerDeps(options: Schema, context: SchematicContext): Rule {
  * is the line that can carry `with ($base-colors: ...)`, and only the first
  * load of a module can be configured. Components go in per component, after it,
  * through `ng g ngwr:component-style <name>` — the next-steps message says so.
+ *
+ * The density line is the one exception, and only when a density was picked:
+ * the snippet this schematic prints carries `withDensity()`, which writes an
+ * attribute on `<html>` that only the density sheet reads. Printing the
+ * provider and leaving the sheet out made the pick do nothing, silently. It
+ * goes after the last top-level `@use`, so the theme line stays the first load.
  */
 function registerStyles(options: Schema): Rule {
   if ((options.styles ?? 'theme') === 'none') {
@@ -104,6 +123,11 @@ function registerStyles(options: Schema): Rule {
       return tree;
     }
 
+    const density = wantsDensity(options);
+    const manual = density
+      ? `\`${STYLES_DIRECTIVE_SCSS}\` and \`${DENSITY_DIRECTIVE_SCSS}\` after it`
+      : `\`${STYLES_DIRECTIVE_SCSS}\``;
+
     const build = project.targets.get('build');
     const buildOptions = (build?.options ?? {}) as { readonly styles?: readonly (string | { input: string })[] };
     const styles = buildOptions.styles ?? [];
@@ -111,13 +135,13 @@ function registerStyles(options: Schema): Rule {
 
     if (!stylesPath) {
       context.logger.warn(
-        `ngwr: no global stylesheet found for project "${project.root || '<root>'}" — add \`${STYLES_DIRECTIVE_SCSS}\` manually.`
+        `ngwr: no global stylesheet found for project "${project.root || '<root>'}" — add ${manual} manually.`
       );
       return tree;
     }
 
     if (!tree.exists(stylesPath)) {
-      context.logger.warn(`ngwr: styles file ${stylesPath} not found — add \`${STYLES_DIRECTIVE_SCSS}\` manually.`);
+      context.logger.warn(`ngwr: styles file ${stylesPath} not found — add ${manual} manually.`);
       return tree;
     }
 
@@ -128,25 +152,41 @@ function registerStyles(options: Schema): Rule {
     // why is the choice the branches above make when there is no stylesheet to
     // edit. `.sass` is the indented syntax and takes `@use` like `.scss`.
     if (stylesPath.endsWith('.css') || stylesPath.endsWith('.less')) {
-      context.logger.warn(`ngwr: ${stylesPath} is not Sass. ${NOT_SASS_ADVICE}`);
+      const densityAdvice = density
+        ? ` The density you picked also needs \`${DENSITY_DIRECTIVE_SCSS}\` after the theme.`
+        : '';
+      context.logger.warn(`ngwr: ${stylesPath} is not Sass. ${NOT_SASS_ADVICE}${densityAdvice}`);
       return tree;
     }
 
     const directive = STYLES_DIRECTIVE_SCSS;
     const existing = tree.readText(stylesPath);
+    let next = existing;
 
     // Matched on the subpath rather than on the whole line, so a stylesheet
     // that already configures the layer — `@use 'ngwr/theme' with (...)` — is
     // left alone instead of getting a second, unconfigured load above it,
     // which Sass refuses outright.
     if (existing.includes("'ngwr/theme'") || existing.includes('"ngwr/theme"')) {
-      context.logger.info(`ngwr: ${stylesPath} already imports ngwr — skipping.`);
-      return tree;
+      context.logger.info(`ngwr: ${stylesPath} already imports ngwr/theme — leaving it as it is.`);
+    } else {
+      const body = existing.length && !existing.endsWith('\n') ? `${existing}\n` : existing;
+      next = `${directive}\n${body}`;
+      context.logger.info(`ngwr: added \`${directive}\` to ${stylesPath}.`);
     }
 
-    const next = existing.length && !existing.endsWith('\n') ? `${existing}\n` : existing;
-    tree.overwrite(stylesPath, `${directive}\n${next}`);
-    context.logger.info(`ngwr: added \`${directive}\` to ${stylesPath}.`);
+    // The theme is loaded by now, so this adds the density line alone, after
+    // the last top-level `@use` — and nothing when the sheet already loads it.
+    if (density) {
+      const edit = addStyleUse(next, 'density', stylesPath.endsWith('.sass'));
+      next = edit.source;
+      if (edit.added.length === 0) {
+        context.logger.info(`ngwr: ${stylesPath} already imports ngwr/density — leaving it as it is.`);
+      }
+      for (const line of edit.added) context.logger.info(`ngwr: added \`${line}\` to ${stylesPath}.`);
+    }
+
+    if (next !== existing) tree.overwrite(stylesPath, next);
     return tree;
   };
 }
@@ -188,6 +228,14 @@ function printNextSteps(options: Schema, context: SchematicContext): Rule {
     const importBlock = imports.join('\n');
     const providerBlock = providers.map(p => `      ${p},`).join('\n');
 
+    // `withDensity()` in the snippet reads nothing without the density sheet,
+    // so the sheet joins the example right after the theme, and says why.
+    const densityLine = densityFeature ? `  ${DENSITY_DIRECTIVE_SCSS}\n` : '';
+    const densityNote = densityFeature
+      ? `\nwithDensity() also needs \`${DENSITY_DIRECTIVE_SCSS}\`, after the theme. No component loads it,\n` +
+        'and without it the density you picked does nothing.\n'
+      : '';
+
     const message = `
 ngwr installed.
 
@@ -205,11 +253,11 @@ Every component you render needs its own stylesheet line, after the theme.
 Without it the component renders unstyled, and nothing says so:
 
   @use 'ngwr/theme';
-  @use 'ngwr/button';
+${densityLine}  @use 'ngwr/button';
   @use 'ngwr/charts/bar-chart';
 
 \`ng g ngwr:component-style <entry point>\` adds one in the right place.
-
+${densityNote}
 Light and dark follow the operating system with no provider. To let the user
 choose, inject WrTheme from 'ngwr/theme' and call set('light' | 'dark' | 'auto'),
 and pass withTheme() from 'ngwr/theme' to provideWr() from 'ngwr' so a stored

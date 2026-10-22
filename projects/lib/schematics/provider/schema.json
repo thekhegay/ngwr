@@ -30,7 +30,7 @@
           },
           {
             "value": "density",
-            "label": "density — withDensity() in provideWr(): sm / md / lg scale"
+            "label": "density — withDensity() in provideWr(), plus @use 'ngwr/density' in the global styles: sm / md / lg / touch scale"
           },
           {
             "value": "storage",

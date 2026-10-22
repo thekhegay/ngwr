@@ -27,19 +27,24 @@ import type { Schema } from './schema';
  * dialog and select panel rendering nowhere.
  */
 
-const ANGULAR_JSON = JSON.stringify({
-  version: 1,
-  projects: {
-    app: {
-      projectType: 'application',
-      root: '',
-      sourceRoot: 'src',
-      architect: {
-        build: { builder: '@angular/build:application', options: { browser: 'src/main.ts' } },
+/** `angular.json` for one app, with `stylesPath` as its global stylesheet when given. */
+const angularJson = (stylesPath?: string): string =>
+  JSON.stringify({
+    version: 1,
+    projects: {
+      app: {
+        projectType: 'application',
+        root: '',
+        sourceRoot: 'src',
+        architect: {
+          build: {
+            builder: '@angular/build:application',
+            options: { browser: 'src/main.ts', ...(stylesPath ? { styles: [stylesPath] } : {}) },
+          },
+        },
       },
     },
-  },
-});
+  });
 
 /** `ng new` since v17: two lines and a config module. */
 const SPLIT_MAIN = `import { bootstrapApplication } from '@angular/platform-browser';
@@ -88,10 +93,14 @@ async function run(tree: Tree, options: Schema): Promise<Run> {
   return { tree, logs };
 }
 
-/** A workspace laid out like `ng new`, minus the files this rule never reads. */
-function workspace(files: Readonly<Record<string, string>>): Tree {
+/**
+ * A workspace laid out like `ng new`, minus the files this rule never reads.
+ * `stylesPath` wires a global stylesheet into `angular.json`; its content, if
+ * any, is one of `files`.
+ */
+function workspace(files: Readonly<Record<string, string>>, stylesPath?: string): Tree {
   const tree = new HostTree();
-  tree.create('/angular.json', ANGULAR_JSON);
+  tree.create('/angular.json', angularJson(stylesPath));
   for (const [path, content] of Object.entries(files)) tree.create(path, content);
 
   return tree;
@@ -268,5 +277,105 @@ platformBrowserDynamic().bootstrapModule(AppModule);
 
     expect(tree.readText('/src/app/app.config.ts')).toBe(patched);
     expect(logs).toContain('ngwr:provider: src/app/app.config.ts already has provideWrI18n — no changes.');
+  });
+});
+
+/**
+ * `withDensity()` writes `data-wr-density` on `<html>`, and the multipliers that
+ * attribute selects live in `ngwr/density`'s own sheet, which no component sheet
+ * loads. So the provider alone changes nothing on screen, and nothing says so:
+ * `ng g ngwr:provider density` adds the sheet line too.
+ */
+describe('ng g ngwr:provider density — the stylesheet half', () => {
+  const app = { '/src/main.ts': SPLIT_MAIN, '/src/app/app.config.ts': APP_CONFIG };
+
+  it('adds the density line after the theme line', async () => {
+    const { tree, logs } = await run(
+      workspace({ ...app, '/src/styles.scss': "@use 'ngwr/theme';\nbody { margin: 0; }\n" }, 'src/styles.scss'),
+      { name: 'density' }
+    );
+
+    expect(tree.readText('/src/styles.scss')).toBe("@use 'ngwr/theme';\n@use 'ngwr/density';\nbody { margin: 0; }\n");
+    expect(tree.readText('/src/app/app.config.ts')).toContain('provideWr(withDensity())');
+    expect(logs).toContain("✓ Added `@use 'ngwr/density';` to src/styles.scss.");
+  });
+
+  it('puts the theme first when the stylesheet has none', async () => {
+    const { tree } = await run(workspace({ ...app, '/src/styles.scss': 'body { margin: 0; }\n' }, 'src/styles.scss'), {
+      name: 'density',
+    });
+
+    // The theme is the first load v15 requires, and the only one that can take
+    // `with (...)`, so it goes in above the density line rather than after it.
+    expect(tree.readText('/src/styles.scss')).toBe("@use 'ngwr/theme';\n@use 'ngwr/density';\nbody { margin: 0; }\n");
+  });
+
+  it('goes after the last @use, below a configured theme that spans lines', async () => {
+    const before = [
+      "@use 'ngwr/theme' with (",
+      '  $base-colors: (primary: #3567ff)',
+      ');',
+      "@use 'ngwr/button';",
+      '',
+      'body { margin: 0; }',
+      '',
+    ].join('\n');
+    const { tree } = await run(workspace({ ...app, '/src/styles.scss': before }, 'src/styles.scss'), {
+      name: 'density',
+    });
+
+    expect(tree.readText('/src/styles.scss')).toBe(
+      before.replace("@use 'ngwr/button';\n", "@use 'ngwr/button';\n@use 'ngwr/density';\n")
+    );
+  });
+
+  it('is a no-op the second time, for the stylesheet as well', async () => {
+    const files = { ...app, '/src/styles.scss': "@use 'ngwr/theme';\n" };
+    const first = await run(workspace(files, 'src/styles.scss'), { name: 'density' });
+    const styles = first.tree.readText('/src/styles.scss');
+
+    const { tree, logs } = await run(first.tree, { name: 'density' });
+
+    expect(tree.readText('/src/styles.scss')).toBe(styles);
+    expect(styles.match(/ngwr\/density/g)).toHaveLength(1);
+    expect(logs).toContain('ngwr:provider: src/styles.scss already imports ngwr/density — no changes.');
+  });
+
+  it('still adds the line when the call has to be pasted by hand', async () => {
+    // No providers array anywhere: the snippet is printed, and once it is pasted
+    // the provider needs the sheet exactly as much.
+    const { tree, logs } = await run(
+      workspace({ '/src/main.ts': 'export {};\n', '/src/styles.scss': "@use 'ngwr/theme';\n" }, 'src/styles.scss'),
+      { name: 'density' }
+    );
+
+    expect(tree.readText('/src/styles.scss')).toBe("@use 'ngwr/theme';\n@use 'ngwr/density';\n");
+    expect(logs.join('\n')).toContain('providers: [/* …, */ provideWr(withDensity())]');
+  });
+
+  it('writes nothing into a css stylesheet, and names the line it needs', async () => {
+    const before = 'body { margin: 0; }\n';
+    const { tree, logs } = await run(workspace({ ...app, '/src/styles.css': before }, 'src/styles.css'), {
+      name: 'density',
+    });
+
+    expect(tree.readText('/src/styles.css')).toBe(before);
+    expect(logs.some(line => line.includes('src/styles.css is not Sass.'))).toBe(true);
+    expect(logs.some(line => line.includes("withDensity() also needs `@use 'ngwr/density';`"))).toBe(true);
+  });
+
+  it('says what to add when no global stylesheet is wired', async () => {
+    const { logs } = await run(workspace(app), { name: 'density' });
+
+    expect(logs.some(line => line.includes("Add `@use 'ngwr/density';` after `@use 'ngwr/theme';`"))).toBe(true);
+  });
+
+  it('leaves the stylesheet alone for a provider that needs no sheet', async () => {
+    const before = "@use 'ngwr/theme';\n";
+    const { tree } = await run(workspace({ ...app, '/src/styles.scss': before }, 'src/styles.scss'), {
+      name: 'toast',
+    });
+
+    expect(tree.readText('/src/styles.scss')).toBe(before);
   });
 });

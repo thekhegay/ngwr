@@ -8,6 +8,8 @@
 import { type Rule, type SchematicContext, SchematicsException, type Tree } from '@angular-devkit/schematics';
 import { getWorkspace } from '@schematics/angular/utility/workspace';
 
+import { NOT_SASS_ADVICE, addStyleUse, globalStylesheet, isSass } from '../utility/global-styles';
+
 import type { ProviderName, Schema } from './schema';
 
 interface ProviderSpec {
@@ -25,6 +27,13 @@ interface ProviderSpec {
    * there is what keeps app-wide configuration in one place.
    */
   readonly feature?: boolean;
+  /**
+   * An entry point whose stylesheet the provider is inert without, added to the
+   * global stylesheet after the theme. Only `density` has one: `withDensity()`
+   * writes `data-wr-density` on `<html>`, and the multipliers that attribute
+   * selects live in `ngwr/density`'s sheet, which no component sheet loads.
+   */
+  readonly stylesheet?: string;
 }
 
 /** The root entry point's single call that carries every feature. */
@@ -56,7 +65,13 @@ const PROVIDERS: Record<ProviderName, ProviderSpec> = {
   // `withToast` takes a required config object, so the call cannot be bare.
   toast: { subpath: 'ngwr/toast', factory: 'withToast', call: 'withToast({})', feature: true },
   i18n: { subpath: 'ngwr/i18n', factory: 'provideWrI18n', call: 'provideWrI18n()' },
-  density: { subpath: 'ngwr/density', factory: 'withDensity', call: 'withDensity()', feature: true },
+  density: {
+    subpath: 'ngwr/density',
+    factory: 'withDensity',
+    call: 'withDensity()',
+    feature: true,
+    stylesheet: 'density',
+  },
   storage: { subpath: 'ngwr/storage', factory: 'withStorage', call: 'withStorage()', feature: true },
   theme: { subpath: 'ngwr/theme', factory: 'withTheme', call: 'withTheme()', feature: true },
   'loading-bar-router': {
@@ -71,50 +86,102 @@ function provider(options: Schema): Rule {
     const spec = PROVIDERS[options.name];
     if (!spec) throw new SchematicsException(`ngwr:provider: unknown provider "${options.name}".`);
 
-    const filePath = await resolveTargetFile(tree, options);
-    if (!filePath) {
-      context.logger.info(printSnippet(spec));
-      return tree;
-    }
-
-    const original = tree.readText(filePath);
-    // Splice FIRST, and bail before touching the file if there is nowhere to
-    // splice into. The imports used to go in ahead of this, so by the time the
-    // splice found no array the buffer already differed from the original and
-    // the `next === original` guard below could not catch it: the file was
-    // overwritten with an unused import and reported as `✓ Added <call>`. On a
-    // stock app that made `ng g ngwr:provider` print success and leave the
-    // providers exactly as they were.
-    const spliced = spec.feature ? ensureFeature(original, spec.call) : ensureProviderCall(original, spec.call);
-    if (spliced === null) {
-      context.logger.info(`ngwr:provider: no providers array in ${filePath}.`);
-      context.logger.info(printSnippet(spec));
-      return tree;
-    }
-
-    let next = spliced.source;
-
-    // `provideWr` first, so a fresh pair lands in the order a reader expects:
-    // the call, then the feature it carries.
-    if (spec.feature) next = ensureImport(next, PROVIDE_WR, 'ngwr');
-    next = ensureImport(next, spec.factory, spec.subpath);
-    // Drive the extra imports off `extras` rather than special-casing a provider
-    // name here: the two used to drift apart, and the hard-coded branch was
-    // emitting icon names that `ngwr/icon` has never exported.
-    for (const [symbols, subpath] of spec.extras ?? []) {
-      next = ensureImport(next, symbols, subpath);
-    }
-
-    if (next === original) {
-      context.logger.info(`ngwr:provider: ${filePath} already has ${spec.factory} — no changes.`);
-      return tree;
-    }
-
-    tree.overwrite(filePath, next);
-    const where = spliced.into ? `${spliced.into} in ${filePath}` : filePath;
-    context.logger.info(`✓ Added ${spliced.added} to ${where}.`);
+    await spliceProvider(tree, context, options, spec);
+    // Whether or not the call could be spliced: a printed snippet is pasted by
+    // hand, and the stylesheet line is needed just the same once it is.
+    if (spec.stylesheet) await addStylesheet(tree, context, options, spec.stylesheet, spec.factory);
     return tree;
   };
+}
+
+/** Puts the provider's call into the providers array, or prints the snippet when there is nowhere to put it. */
+async function spliceProvider(
+  tree: Tree,
+  context: SchematicContext,
+  options: Schema,
+  spec: ProviderSpec
+): Promise<void> {
+  const filePath = await resolveTargetFile(tree, options);
+  if (!filePath) {
+    context.logger.info(printSnippet(spec));
+    return;
+  }
+
+  const original = tree.readText(filePath);
+  // Splice FIRST, and bail before touching the file if there is nowhere to
+  // splice into. The imports used to go in ahead of this, so by the time the
+  // splice found no array the buffer already differed from the original and
+  // the `next === original` guard below could not catch it: the file was
+  // overwritten with an unused import and reported as `✓ Added <call>`. On a
+  // stock app that made `ng g ngwr:provider` print success and leave the
+  // providers exactly as they were.
+  const spliced = spec.feature ? ensureFeature(original, spec.call) : ensureProviderCall(original, spec.call);
+  if (spliced === null) {
+    context.logger.info(`ngwr:provider: no providers array in ${filePath}.`);
+    context.logger.info(printSnippet(spec));
+    return;
+  }
+
+  let next = spliced.source;
+
+  // `provideWr` first, so a fresh pair lands in the order a reader expects:
+  // the call, then the feature it carries.
+  if (spec.feature) next = ensureImport(next, PROVIDE_WR, 'ngwr');
+  next = ensureImport(next, spec.factory, spec.subpath);
+  // Drive the extra imports off `extras` rather than special-casing a provider
+  // name here: the two used to drift apart, and the hard-coded branch was
+  // emitting icon names that `ngwr/icon` has never exported.
+  for (const [symbols, subpath] of spec.extras ?? []) {
+    next = ensureImport(next, symbols, subpath);
+  }
+
+  if (next === original) {
+    context.logger.info(`ngwr:provider: ${filePath} already has ${spec.factory} — no changes.`);
+    return;
+  }
+
+  tree.overwrite(filePath, next);
+  const where = spliced.into ? `${spliced.into} in ${filePath}` : filePath;
+  context.logger.info(`✓ Added ${spliced.added} to ${where}.`);
+}
+
+/**
+ * `@use 'ngwr/<stylesheet>';` in the project's first global stylesheet, after
+ * the theme — which goes in first when the sheet has none, since v15 requires
+ * the theme to be the first load. Idempotent: a sheet that already loads the
+ * entry point, configured or not, is left as it was.
+ */
+async function addStylesheet(
+  tree: Tree,
+  context: SchematicContext,
+  options: Schema,
+  subpath: string,
+  factory: string
+): Promise<void> {
+  const line = `@use 'ngwr/${subpath}';`;
+
+  const path = await globalStylesheet(tree, options.project);
+  if (!path) {
+    context.logger.warn(
+      `ngwr:provider: no global stylesheet wired in angular.json. Add \`${line}\` after \`@use 'ngwr/theme';\` ` +
+        `yourself. Without it ${factory}() does nothing.`
+    );
+    return;
+  }
+
+  if (!isSass(path)) {
+    context.logger.warn(`ngwr:provider: ${path} is not Sass. ${NOT_SASS_ADVICE} ${factory}() also needs \`${line}\`.`);
+    return;
+  }
+
+  const edit = addStyleUse(tree.readText(path), subpath, path.endsWith('.sass'));
+  if (edit.added.length === 0) {
+    context.logger.info(`ngwr:provider: ${path} already imports ngwr/${subpath} — no changes.`);
+    return;
+  }
+
+  tree.overwrite(path, edit.source);
+  for (const added of edit.added) context.logger.info(`✓ Added \`${added}\` to ${path}.`);
 }
 
 /** Where the providers array of a `bootstrapApplication` call or an `ApplicationConfig` opens. */

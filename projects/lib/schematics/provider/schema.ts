@@ -12,7 +12,9 @@
  * v15: the schematic adds `withToast()` / `withDensity()` / `withStorage()` /
  * `withTheme()` inside the `provideWr(...)` already in `providers`, or adds
  * `provideWr(withX())` when there is none. `icons`, `i18n` and
- * `loading-bar-router` stay calls of their own.
+ * `loading-bar-router` stay calls of their own. `density` also adds
+ * `@use 'ngwr/density';` to the global stylesheet, after the theme: no
+ * component sheet loads it, and without it `withDensity()` does nothing.
  *
  * `cookie` is deliberately absent: `WrCookie` is an injectable service with no
  * provider function, so there is nothing to add to `providers`. `overlay` is
