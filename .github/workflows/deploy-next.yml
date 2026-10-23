@@ -1,6 +1,6 @@
 name: Deploy next docs
 
-# The next major's docs at next.ngwr.dev, rebuilt on every push to `next`. The
+# The next release's docs at next.ngwr.dev, rebuilt on every push to `next`. The
 # server answers that host with `X-Robots-Tag: noindex`, and the `next`
 # environment admits this branch only.
 on:
@@ -52,16 +52,17 @@ jobs:
       # It names ngwr.dev URLs, and nothing here should be indexed anyway.
       - run: rm -f dist/showcase/sitemap.xml
 
-      - name: Flag the site as the next major
+      - name: Flag the site as the next release
         run: |
           cat > "$RUNNER_TEMP/mark-next.mjs" <<'SCRIPT'
           import { readFileSync, writeFileSync } from 'node:fs';
 
           const { version } = JSON.parse(readFileSync('projects/lib/package.json', 'utf8'));
-          // A candidate names its own major; a stable version on next means the
-          // major after it is under way.
-          const [major, prerelease] = [Number(version.split('.')[0]), version.includes('-')];
-          const nextMajor = prerelease ? major : major + 1;
+          // next carries the release after main's, a minor or a major. A
+          // candidate names it (15.1.0-rc.0 is v15.1, 16.0.0-rc.0 is v16); a
+          // stable version means no candidate yet, so no number is printed.
+          const [base, prerelease] = version.split('-');
+          const label = prerelease ? `, <b>v${base.replace(/(\.0)+$/, '')}</b>` : '';
           const banner = `<style>
           .wr-next-banner{position:sticky;bottom:0;z-index:999;display:flex;flex-wrap:wrap;
           gap:.25rem .75rem;align-items:center;justify-content:center;padding:.75rem 1rem;
@@ -71,7 +72,7 @@ jobs:
           .wr-next-banner a{color:#eef2ff;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
           </style>
           <div class="wr-next-banner" role="note">
-          <span>You are reading the docs for the next major, <b>v${nextMajor}</b>, still in development (<code>ngwr@next</code>).</span>
+          <span>You are reading the docs for the next release${label}, still in development (<code>ngwr@next</code>).</span>
           <a href="https://ngwr.dev/">Go to the stable docs</a>
           </div>`;
 
