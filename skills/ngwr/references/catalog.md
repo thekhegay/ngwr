@@ -66,6 +66,8 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/charts/bar-chart/testing` | `import { WrBarChartHarness } from 'ngwr/charts/bar-chart/testing'` | — |
 | `ngwr/charts/calendar-heatmap` | `import { WrCalendarHeatmap } from 'ngwr/charts/calendar-heatmap'` | `wr-calendar-heatmap` |
 | `ngwr/charts/calendar-heatmap/testing` | `import { WrCalendarHeatmapHarness } from 'ngwr/charts/calendar-heatmap/testing'` | — |
+| `ngwr/charts/chart-legend` | `import { WrChartLegend } from 'ngwr/charts/chart-legend'` | `ul[wr-chart-legend]` |
+| `ngwr/charts/chart-legend/testing` | `import { WrChartLegendHarness } from 'ngwr/charts/chart-legend/testing'` | — |
 | `ngwr/charts/donut-chart` | `import { WrDonutChart } from 'ngwr/charts/donut-chart'` | `wr-donut-chart` |
 | `ngwr/charts/donut-chart/testing` | `import { WrDonutChartHarness } from 'ngwr/charts/donut-chart/testing'` | — |
 | `ngwr/charts/gauge` | `import { WrGauge } from 'ngwr/charts/gauge'` | `wr-gauge` |
@@ -74,6 +76,10 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/charts/line-chart/testing` | `import { WrLineChartHarness } from 'ngwr/charts/line-chart/testing'` | — |
 | `ngwr/charts/meter-group` | `import { WrMeterGroup } from 'ngwr/charts/meter-group'` | `wr-meter-group` |
 | `ngwr/charts/meter-group/testing` | `import { WrMeterGroupHarness } from 'ngwr/charts/meter-group/testing'` | — |
+| `ngwr/charts/radar-chart` | `import { WrRadarChart } from 'ngwr/charts/radar-chart'` | `wr-radar-chart` |
+| `ngwr/charts/radar-chart/testing` | `import { WrRadarChartHarness } from 'ngwr/charts/radar-chart/testing'` | — |
+| `ngwr/charts/scatter-chart` | `import { WrScatterChart } from 'ngwr/charts/scatter-chart'` | `wr-scatter-chart` |
+| `ngwr/charts/scatter-chart/testing` | `import { WrScatterChartHarness } from 'ngwr/charts/scatter-chart/testing'` | — |
 | `ngwr/charts/sparkline` | `import { WrSparkline } from 'ngwr/charts/sparkline'` | `wr-sparkline` |
 | `ngwr/charts/sparkline/testing` | `import { WrSparklineHarness } from 'ngwr/charts/sparkline/testing'` | — |
 | `ngwr/checkbox` | `import { WrCheckbox } from 'ngwr/checkbox'` | `wr-checkbox-group` `wr-checkbox` |

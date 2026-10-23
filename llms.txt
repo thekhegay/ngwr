@@ -343,11 +343,19 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   default card or an `ng-template wrGraphNode`), `wr-virtual-scroll`,
   `wr-sortable-list` (drag-to-reorder, one `<wr-sortable-item>` per row from
   your own loop, with `[wrDragHandle]` — all in ngwr/sortable-list).
-- **Charts** — `wr-line-chart`, `wr-bar-chart`, `wr-donut-chart`,
-  `wr-sparkline`, `wr-gauge`, `wr-calendar-heatmap`, `wr-meter-group`, each its
+- **Charts** — `wr-line-chart` (`showArea` and `stacked` make it an area
+  chart), `wr-bar-chart`, `wr-donut-chart`, `wr-scatter-chart` (numeric x and
+  y, a `size` per point for bubbles), `wr-radar-chart`, `wr-sparkline`,
+  `wr-gauge`, `wr-calendar-heatmap`, `wr-meter-group`, each its
   own entry point at `ngwr/charts/<name>` (`ngwr/charts/bar-chart`), documented
   under https://ngwr.dev/charts/, themed through the `--wr-*` tokens and each
-  with a hover tooltip. Every chart writes its numbers with `Intl.NumberFormat`
+  with a hover tooltip. `ul[wr-chart-legend]` (ngwr/charts/chart-legend) is the
+  legend the line, donut, meter-group, scatter and radar charts draw, and a key
+  of its own beside several charts; `toggleableLegend` on those charts makes
+  each row a `<button aria-pressed>` over a `hiddenSeries` (`hiddenSegments` on
+  donut and meter group) model. Line, scatter and radar take an opt-in
+  `dataTable` that renders the figures as a visually hidden table for screen
+  readers. Every chart writes its numbers with `Intl.NumberFormat`
   in `LOCALE_ID` (line-chart ticks and bar-chart labels compact from a thousand
   up, `5K`, unless the full numbers are shorter; tooltips never), and takes
   `valueFormat: (value: number) => string` for any other format.

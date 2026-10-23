@@ -18,7 +18,9 @@ A pnpm + Angular CLI monorepo with three projects:
   restate it and went stale with every new component. Count from that map, not
   from the directory tree: `styles/` and
   `schematics/` are not entry points, and the nested ones are the charts and
-  bits (`ngwr/charts/<name>`, `ngwr/bits/<name>`), the twenty-two
+  bits (`ngwr/charts/<name>`, `ngwr/bits/<name>`) — among the charts the public
+  legend `ngwr/charts/chart-legend` and `ngwr/charts/core`, whose exports are all
+  `@internal` (see Shared code below) — the twenty-two
   `ngwr/i18n/<locale>`, the two opt-in router adapters
   `ngwr/loading-bar/router` and `ngwr/tabs/router` that v14 added, and the CDK
   test harnesses (`testingEntryPoints` in the same file), which cover the form
@@ -425,7 +427,16 @@ one component folder. Reach for them instead of hand-rolling:
   `numAttr` for input transforms; plus `dom`, `guards`, `id`, `keyboard`,
   `css-size`, `css-value`, `fn`, `math`, `log`), `ngwr/pipes` (`wrDate`, `wrBytes`,
   `wrTruncate`, `wrNumber`, `wrMark`, `wrPlural`, `wrRange`), and
-  `ngwr/validators` (`WrValidators`).
+  `ngwr/validators` (`WrValidators`). A chart builds on `ngwr/charts/core` —
+  the palette, dashes and markers, `useChartNumbers`, `chartAxis` and the
+  visually hidden `WrChartTable` behind the opt-in `dataTable` input on line,
+  scatter and radar — every export `@internal`, so it stays out of
+  `llms-full.txt` and the skill catalog; a chart that renders the table
+  positions its host. Its legend is `ul[wr-chart-legend]`
+  (`ngwr/charts/chart-legend`), whose opt-in `toggleable` rows are
+  `<button aria-pressed>` over a `hiddenSeries` model the chart feeds to its
+  axis, tooltip and table; the chart provides `WR_CHART_LEGEND_BLOCK` in
+  `viewProviders`, since the legend reads it with `host: true`.
 - **Scheduling** (`ngwr/event-calendar`) — `wr-event-calendar` is month / week /
   day in one component. `events` is an input it never mutates: a drag emits
   `eventChange` and the host applies it, so an unhandled output is a cancelled
