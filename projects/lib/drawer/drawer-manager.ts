@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
+import { ConfigurableFocusTrapFactory, FocusTrapFactory } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
@@ -16,6 +16,7 @@ import { WrI18n } from 'ngwr/i18n';
 import { WR_OVERLAY, wrAppendOverlayClose, wrFollowDirection } from 'ngwr/overlay';
 import { toClassList } from 'ngwr/utils';
 
+import { drawerHasFocus, focusIsLost } from './drawer-focus';
 import { WrDrawerRef } from './drawer-ref';
 import { WR_DRAWER_DATA, WR_DRAWER_REF } from './tokens';
 import type { WrDrawerOptions, WrDrawerPosition } from './types';
@@ -58,6 +59,7 @@ export class WrDrawerManager {
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly parentInjector = inject(EnvironmentInjector);
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
+  private readonly plainFocusTrapFactory = inject(FocusTrapFactory);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly i18n = inject(WrI18n);
   private readonly location = inject(Location);
@@ -96,17 +98,25 @@ export class WrDrawerManager {
     else positionStrategy.centerVertically();
 
     const cap = options.maxHeight ?? null;
+    // No backdrop means NON-MODAL, the same rule as `<wr-drawer>`: no trap, no
+    // `aria-modal`, no scroll block, and Escape only from inside the panel —
+    // or from `<body>`, where a click on the panel's own text leaves focus.
+    const modal = options.hasBackdrop !== false;
+    // Assigned on the next statement; the predicate only runs from a keydown.
+    let ref: OverlayRef | null = null;
 
     const overlayRef: OverlayRef = this.overlay.create({
       positionStrategy,
-      scrollStrategy: this.scrollStrategies.block(),
-      hasBackdrop: options.hasBackdrop !== false,
+      scrollStrategy: modal ? this.scrollStrategies.block() : this.scrollStrategies.noop(),
+      eventPredicate: modal ? undefined : () => drawerHasFocus(ref) || focusIsLost(),
+      hasBackdrop: modal,
       backdropClass: BACKDROP_CLASS,
       panelClass: panelClasses,
       width: isHorizontal ? (options.width ?? DEFAULT_WIDTH) : '100vw',
       height: isHorizontal ? undefined : (options.height ?? DEFAULT_HEIGHT),
       maxHeight: isHorizontal ? undefined : (cap ?? undefined),
     });
+    ref = overlayRef;
 
     // Same pair, same reason as `<wr-drawer>`: `position` is physical, the CDK
     // writes `dir` on the flex host that `justify-content` places the panel in,
@@ -117,6 +127,7 @@ export class WrDrawerManager {
     wrFollowDirection(overlayRef, this.dir, this.parentInjector);
 
     const drawerRef = new WrDrawerRef<C, R>(overlayRef);
+    drawerRef.modal = modal;
 
     if (this.isBrowser) {
       const active = document.activeElement;
@@ -163,7 +174,7 @@ export class WrDrawerManager {
     if (this.isBrowser) {
       const host = overlayRef.overlayElement;
       host.setAttribute('role', 'dialog');
-      host.setAttribute('aria-modal', 'true');
+      if (modal) host.setAttribute('aria-modal', 'true');
       // Built-in dismiss, same contract as WrDialog's `closable`.
       if (options.closable !== false) {
         host.classList.add('wr-drawer__panel--closable');
@@ -192,8 +203,10 @@ export class WrDrawerManager {
       // it is torn down with it. `detachments()` fires on dispose, which is the
       // one path every dismissal goes through.
       overlayRef.detachments().subscribe(() => labelSync.destroy());
-      // Trap focus inside the drawer and move initial focus in.
-      const trap = this.focusTrapFactory.create(host);
+      // Trap focus inside the drawer and move initial focus in. A non-modal
+      // drawer only gets the second half: a trap with no anchors and no inert
+      // strategy moves focus in and leaves Tab free to walk out to the page.
+      const trap = modal ? this.focusTrapFactory.create(host) : this.plainFocusTrapFactory.create(host, true);
       drawerRef.focusTrap = trap;
       void trap.focusInitialElementWhenReady();
     }

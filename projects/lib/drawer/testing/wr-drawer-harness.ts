@@ -225,7 +225,11 @@ export class WrDrawerHarness extends ContentContainerComponentHarness {
     await backdrop.click();
   }
 
-  /** Whether focus is currently inside the drawer, where the trap should hold it. */
+  /**
+   * Whether focus is currently inside the drawer — where the trap holds it on a
+   * modal drawer. A drawer without a backdrop is non-modal and lets focus leave,
+   * so there this reads only where focus is now.
+   */
   async isFocusTrapped(): Promise<boolean> {
     return (await this.host()).matchesSelector(':focus-within');
   }

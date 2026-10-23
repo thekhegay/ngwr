@@ -28,6 +28,31 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Without a backdrop"
+    description="Since v15 a drawer with `hasBackdrop` off is non-modal: the page stays clickable, scrollable and reachable with Tab."
+  >
+    <ngwr-doc-code [code]="snippets.nonModal" language="angular-html" />
+
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="panelOpen.set(!panelOpen())">{{ panelOpen() ? 'Close panel' : 'Open panel' }}</wr-btn>
+    </ngwr-doc-snippet>
+
+    <p>
+      Focus still moves into the panel on open. Escape closes it unless you have moved on to the page, and closing
+      returns focus to the opener unless you have moved on likewise.
+    </p>
+
+    <wr-drawer [(open)]="panelOpen" [hasBackdrop]="false" width="18rem">
+      <h2 wrDrawerTitle>Details</h2>
+      <div wrDrawerContent>
+        <p style="margin: 0; color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          The page behind stays usable.
+        </p>
+      </div>
+    </wr-drawer>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Opening a drawer from code"
     description="`WrDrawerManager.open()` opens any component as a drawer and returns its close result. The content injects `WR_DRAWER_DATA` and `WrDrawerRef`."
   >

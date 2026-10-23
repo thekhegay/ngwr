@@ -2,7 +2,7 @@ import { Dir, type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDrawerFooter, WrDrawerTitle } from './directives';
 import { WrDrawer } from './drawer';
@@ -299,6 +299,160 @@ describe('WrDrawer', () => {
       escape();
       expect(fixture.componentInstance.open()).toBe(false);
     });
+  });
+});
+
+/**
+ * `hasBackdrop: false` is a NON-MODAL side panel. Nothing covers the page, so
+ * nothing may trap the reader either: the page stays reachable by Tab and
+ * pointer and keeps scrolling, an Escape pressed on the page belongs to the
+ * page, and closing never drags focus back off something the reader moved to.
+ * What a modal does on the way in and out still holds for focus that is INSIDE
+ * the panel.
+ *
+ * jsdom lays nothing out, so the CDK's `InteractivityChecker` reads every
+ * element as invisible and initial focus would never move: elements are handed
+ * a box, which is a test-environment shim and not a claim about the component.
+ */
+describe('WrDrawer without a backdrop', () => {
+  @Component({
+    imports: [WrDrawer],
+    template: `
+      <button type="button" class="opener" (click)="open.set(true)">Open</button>
+      <input class="page-field" />
+      <wr-drawer [(open)]="open" [hasBackdrop]="hasBackdrop()" [closable]="false">
+        <button type="button" class="inside">Inside</button>
+      </wr-drawer>
+    `,
+  })
+  class PanelHost {
+    readonly open = signal(false);
+    readonly hasBackdrop = signal(false);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<PanelHost>>;
+
+  const panel = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-drawer-overlay');
+  const q = (selector: string): HTMLElement => document.querySelector<HTMLElement>(selector)!;
+  const escapeFrom = (el: Element): void => {
+    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  const openFrom = async (opener: HTMLElement): Promise<void> => {
+    opener.focus();
+    fixture.componentInstance.open.set(true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([
+      new DOMRect(0, 0, 120, 32),
+    ] as unknown as DOMRectList);
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(PanelHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it('stays a dialog, without claiming to be modal', async () => {
+    await openFrom(q('.opener'));
+
+    expect(panel()!.getAttribute('role')).toBe('dialog');
+    expect(panel()!.hasAttribute('aria-modal')).toBe(false);
+    expect(document.querySelector('.cdk-overlay-backdrop')).toBeNull();
+  });
+
+  it('still moves focus into the panel on open', async () => {
+    await openFrom(q('.opener'));
+
+    expect(document.activeElement).toBe(q('.inside'));
+  });
+
+  it('lets focus leave for the page, and leaves it there', async () => {
+    await openFrom(q('.opener'));
+
+    // No trap anchors to wrap Tab around, and no inert strategy pulling focus
+    // back in — a modal trap re-focuses the panel a task after focus leaves it.
+    expect(document.querySelectorAll('.cdk-focus-trap-anchor')).toHaveLength(0);
+    q('.page-field').focus();
+    await new Promise(resolve => setTimeout(resolve));
+
+    expect(document.activeElement).toBe(q('.page-field'));
+  });
+
+  it('leaves the page scrolling', async () => {
+    // The CDK's block strategy only engages on a page that can scroll at all.
+    vi.spyOn(document.documentElement, 'scrollHeight', 'get').mockReturnValue(5000);
+    await openFrom(q('.opener'));
+
+    expect(document.documentElement.classList).not.toContain('cdk-global-scrollblock');
+  });
+
+  it('closes on Escape while focus is inside it', async () => {
+    await openFrom(q('.opener'));
+
+    escapeFrom(q('.inside'));
+
+    expect(fixture.componentInstance.open()).toBe(false);
+  });
+
+  it('leaves an Escape pressed on the page to the page', async () => {
+    await openFrom(q('.opener'));
+    q('.page-field').focus();
+
+    escapeFrom(q('.page-field'));
+
+    expect(fixture.componentInstance.open()).toBe(true);
+  });
+
+  it('still closes on Escape after a click on its text drops focus to the body', async () => {
+    await openFrom(q('.opener'));
+    // A click on non-focusable content inside the panel focuses nothing, so
+    // the browser parks focus on `<body>` — the commonest way of being inside.
+    q('.inside').blur();
+    expect(document.activeElement).toBe(document.body);
+
+    escapeFrom(document.body);
+
+    expect(fixture.componentInstance.open()).toBe(false);
+  });
+
+  it('returns focus to the opener when it closes from inside', async () => {
+    await openFrom(q('.opener'));
+
+    escapeFrom(q('.inside'));
+
+    expect(document.activeElement).toBe(q('.opener'));
+  });
+
+  it('does not take focus back from a page field the reader moved to', async () => {
+    await openFrom(q('.opener'));
+    q('.page-field').focus();
+
+    fixture.componentInstance.open.set(false);
+    fixture.detectChanges();
+
+    expect(document.activeElement).toBe(q('.page-field'));
+  });
+
+  it('is modal again with a backdrop', async () => {
+    vi.spyOn(document.documentElement, 'scrollHeight', 'get').mockReturnValue(5000);
+    // The block strategy restores the scroll position on close; jsdom has no `scroll()`.
+    vi.spyOn(window, 'scroll').mockImplementation(() => undefined);
+    fixture.componentInstance.hasBackdrop.set(true);
+    await openFrom(q('.opener'));
+
+    expect(panel()!.getAttribute('aria-modal')).toBe('true');
+    expect(document.documentElement.classList).toContain('cdk-global-scrollblock');
+    q('.page-field').focus();
+    await new Promise(resolve => setTimeout(resolve));
+    expect(document.activeElement).toBe(q('.inside'));
   });
 });
 

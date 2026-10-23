@@ -37,6 +37,7 @@ export default class DrawerPageComponent {
   private readonly drawers = inject(WrDrawerManager);
 
   protected readonly open = signal(false);
+  protected readonly panelOpen = signal(false);
   protected readonly position = signal<'left' | 'right' | 'top' | 'bottom'>('right');
   protected readonly lastResult = signal<string>('—');
 
@@ -57,6 +58,10 @@ export default class DrawerPageComponent {
     <wr-btn wrDrawerClose>Close</wr-btn>
     <wr-btn color="primary" wrDrawerClose>Save</wr-btn>
   </div>
+</wr-drawer>`,
+    nonModal: `<wr-drawer [(open)]="open" [hasBackdrop]="false" width="18rem">
+  <h2 wrDrawerTitle>Details</h2>
+  <div wrDrawerContent>…</div>
 </wr-drawer>`,
     service: `import { WrDrawerManager } from 'ngwr/drawer';
 
@@ -105,7 +110,12 @@ export class ChatComponent {
     },
     { name: 'width', description: 'Width when position is left/right.', type: 'string', default: "'20rem'" },
     { name: 'height', description: 'Height when position is top/bottom.', type: 'string', default: "'16rem'" },
-    { name: 'hasBackdrop', description: 'Show the dimming backdrop.', type: 'boolean', default: 'true' },
+    {
+      name: 'hasBackdrop',
+      description: 'Show the dimming backdrop and make the drawer modal. `false` gives a non-modal panel.',
+      type: 'boolean',
+      default: 'true',
+    },
     { name: 'closeOnBackdropClick', description: 'Close when backdrop is clicked.', type: 'boolean', default: 'true' },
     { name: 'closeOnEscape', description: 'Close on Escape.', type: 'boolean', default: 'true' },
     {
@@ -155,7 +165,12 @@ export class ChatComponent {
       type: 'boolean',
       default: 'false',
     },
-    { name: 'hasBackdrop', description: 'Show the dimming backdrop.', type: 'boolean', default: 'true' },
+    {
+      name: 'hasBackdrop',
+      description: 'Show the dimming backdrop and make the drawer modal. `false` gives a non-modal panel.',
+      type: 'boolean',
+      default: 'true',
+    },
     { name: 'closeOnBackdropClick', description: 'Close when backdrop is clicked.', type: 'boolean', default: 'true' },
     { name: 'closeOnEscape', description: 'Close on Escape.', type: 'boolean', default: 'true' },
     {

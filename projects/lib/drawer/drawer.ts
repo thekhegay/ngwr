@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
+import { ConfigurableFocusTrapFactory, type FocusTrap, FocusTrapFactory } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef } from '@angular/cdk/overlay';
@@ -35,6 +35,7 @@ import { WR_OVERLAY, wrFollowDirection } from 'ngwr/overlay';
 import { toClassList, type WrClassInput } from 'ngwr/utils';
 
 import { WrDrawerTitle } from './directives/drawer-title';
+import { drawerHasFocus, focusIsLost } from './drawer-focus';
 import type { WrDrawerPosition } from './types';
 
 /**
@@ -99,7 +100,18 @@ export class WrDrawer {
    */
   readonly safeArea = input(false, { transform: coerceBooleanProperty });
 
-  /** Show the dimming backdrop. @default true */
+  /**
+   * Show the dimming backdrop, and with it make the drawer MODAL: focus is
+   * trapped inside, the panel is announced with `aria-modal="true"`, and the
+   * page behind it does not scroll.
+   *
+   * `false` makes it a NON-MODAL side panel (since v15). The page stays
+   * clickable, scrollable and reachable with Tab; the panel keeps
+   * `role="dialog"` without `aria-modal`. Focus still moves into it on open,
+   * Escape closes it unless focus has moved on to the page, and on close
+   * focus goes back to the opener unless the reader has moved on likewise.
+   * Read when the drawer opens. @default true
+   */
   readonly hasBackdrop = input(true, { transform: coerceBooleanProperty });
 
   /** Close when the backdrop is clicked. @default true */
@@ -159,6 +171,7 @@ export class WrDrawer {
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
+  private readonly plainFocusTrapFactory = inject(FocusTrapFactory);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   /**
    * The reading direction the open drawer has to keep up with, resolved off the
@@ -181,8 +194,10 @@ export class WrDrawer {
   private readonly dir = inject(EnvironmentInjector).get(Directionality, null);
 
   private overlayRef: OverlayRef | null = null;
-  private focusTrap: ConfigurableFocusTrap | null = null;
+  private focusTrap: FocusTrap | null = null;
   private previouslyFocused: HTMLElement | null = null;
+  /** Whether the open panel is modal — `hasBackdrop` as it was when it opened. */
+  private modal = true;
 
   constructor() {
     effect(() => {
@@ -232,13 +247,25 @@ export class WrDrawer {
     else positionStrategy.centerVertically();
 
     const cap = this.maxHeight();
+    const modal = this.hasBackdrop();
+    this.modal = modal;
 
     this.overlayRef = this.overlay.create({
       positionStrategy,
-      hasBackdrop: this.hasBackdrop(),
+      hasBackdrop: modal,
       backdropClass: 'wr-drawer-backdrop',
       panelClass: ['wr-drawer-overlay', `wr-drawer-overlay--${pos}`],
-      scrollStrategy: this.overlay.scrollStrategies.block(),
+      // A non-modal panel leaves the page scrolling under it: nothing covers
+      // the page, so a blocked scroll would only freeze what the reader can
+      // still see and click.
+      scrollStrategy: modal ? this.overlay.scrollStrategies.block() : this.overlay.scrollStrategies.noop(),
+      // The CDK hands Escape to the topmost overlay wherever focus is. That is
+      // right for a modal, where focus cannot be anywhere else, and wrong for a
+      // panel beside a live page: an Escape meant for a field on the page
+      // closed the drawer. Declined, the key walks on to the next overlay.
+      // Focus on `<body>` still counts: a click on the panel's own text
+      // focuses nothing, so that is where a reader inside it usually is.
+      eventPredicate: modal ? undefined : () => drawerHasFocus(this.overlayRef) || focusIsLost(),
       width: isHorizontal ? this.width() : '100vw',
       height: isHorizontal ? undefined : this.height(),
       maxHeight: isHorizontal ? undefined : (cap ?? undefined),
@@ -263,8 +290,11 @@ export class WrDrawer {
       this.previouslyFocused = active instanceof HTMLElement ? active : null;
       const host = this.overlayRef.overlayElement;
       host.setAttribute('role', 'dialog');
-      host.setAttribute('aria-modal', 'true');
-      this.focusTrap = this.focusTrapFactory.create(host);
+      if (modal) host.setAttribute('aria-modal', 'true');
+      // Non-modal: a trap with no anchors and no inert strategy, which only
+      // moves focus in — `cdkFocusInitial` honoured the same way — and then
+      // lets Tab carry on out into the page.
+      this.focusTrap = modal ? this.focusTrapFactory.create(host) : this.plainFocusTrapFactory.create(host, true);
       void this.focusTrap.focusInitialElementWhenReady();
     }
 
@@ -294,9 +324,11 @@ export class WrDrawer {
     this.focusTrap = null;
     const restore = this.previouslyFocused;
     this.previouslyFocused = null;
+    // Read before disposal, which takes the focused element out of the page.
+    const returnFocus = this.modal || drawerHasFocus(this.overlayRef) || focusIsLost();
     this.overlayRef.dispose();
     this.overlayRef = null;
-    if (restore && typeof restore.focus === 'function') {
+    if (returnFocus && restore && typeof restore.focus === 'function') {
       restore.focus();
     }
   }

@@ -30,7 +30,18 @@ export interface WrDrawerOptions<D = unknown> {
   readonly rounded?: boolean;
   /** Pad the trailing edge with `env(safe-area-inset-*)`. @default false */
   readonly safeArea?: boolean;
-  /** Show the dimming backdrop. @default true */
+  /**
+   * Show the dimming backdrop, and with it make the drawer MODAL: focus is
+   * trapped inside, the panel is announced with `aria-modal="true"`, and the
+   * page behind it does not scroll.
+   *
+   * `false` makes it a NON-MODAL side panel (since v15): no trap, no
+   * `aria-modal`, the page stays clickable and scrollable. Focus still moves
+   * into the panel on open, Escape closes it unless focus has moved on to the
+   * page, and on close focus goes back to the opener unless the reader has
+   * moved on likewise.
+   * @default true
+   */
   readonly hasBackdrop?: boolean;
   /** When `true`, clicks on the backdrop close the drawer. @default true */
   readonly closeOnBackdropClick?: boolean;
