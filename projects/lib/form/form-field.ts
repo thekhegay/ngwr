@@ -157,7 +157,9 @@ export class WrFormError {
  * - Auto-binds `label[for]` to the projected control via a generated id
  *   (or use the form-control's `[id]` if you set one).
  * - Reads the projected control's `NgControl` to surface validation
- *   errors only when the control has been touched / submitted.
+ *   errors only once the control is touched or dirty. A submit shows them
+ *   only by marking the controls touched, as `markAllAsTouched()` and Signal
+ *   Forms' `submit()` do.
  * - Optional `[required]` / `[optional]` markers next to the label.
  *
  * **ngwr ships no error texts.** Each error shows the first copy that exists for
