@@ -1,6 +1,7 @@
 import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { chartColor } from 'ngwr/charts/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrSparkline } from './sparkline';
@@ -124,6 +125,14 @@ describe('WrSparkline', () => {
     fixture.componentInstance.showTip.set(false);
     fixture.detectChanges();
     expect(tip()).toBeNull();
+  });
+
+  it("draws in the shared palette's first colour unless told otherwise", () => {
+    // The colour a multi-series chart gives its first series, so a sparkline beside one
+    // matches it. The input keeps the literal default the docs print; this holds the two
+    // together.
+    expect(line()!.getAttribute('stroke')).toBe(chartColor(0));
+    expect(tip()!.getAttribute('stroke')).toBe(chartColor(0));
   });
 
   it('is decorative until the consumer gives it a name', () => {

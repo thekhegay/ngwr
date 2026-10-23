@@ -1,6 +1,7 @@
 import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { chartColor } from 'ngwr/charts/core';
 import { WR_DATE_LOCALE } from 'ngwr/date';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
@@ -159,6 +160,11 @@ describe('WrCalendarHeatmap', () => {
     expect(weekdayLabels()[1]).not.toBe('Mon');
     expect(weekdayLabels()[1].length).toBeGreaterThan(0);
     expect(monthLabels().some(label => /[а-яА-Я]/.test(label))).toBe(true);
+  });
+
+  it("paints an active day in the shared palette's first colour unless told otherwise", () => {
+    // The input keeps the literal default the docs print; this holds it to the palette.
+    expect(cellFor('2025-08-12')!.style.background).toBe(chartColor(0));
   });
 
   it('keeps one non-finite day from flattening the whole map', () => {

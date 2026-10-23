@@ -6,17 +6,9 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import {
-  Component,
-  type ElementRef,
-  LOCALE_ID,
-  ViewEncapsulation,
-  computed,
-  inject,
-  input,
-  viewChild,
-} from '@angular/core';
+import { Component, type ElementRef, ViewEncapsulation, computed, inject, input, viewChild } from '@angular/core';
 
+import { useChartNumbers } from 'ngwr/charts/core';
 import { WR_DATE_LOCALE } from 'ngwr/date';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
@@ -113,7 +105,7 @@ export class WrCalendarHeatmap {
    * `{{date}}: {{count}}` everywhere, so nothing reorders today and every locale can.
    */
   protected cellTitle(cell: { readonly date: Date; readonly value: number }): string {
-    return this.cellText({ date: this.dateFormat().format(cell.date), count: this.formatValue(cell.value) });
+    return this.cellText({ date: this.dateFormat().format(cell.date), count: this.numbers.value(cell.value) });
   }
 
   /**
@@ -166,16 +158,8 @@ export class WrCalendarHeatmap {
    */
   readonly valueFormat = input<((value: number) => string) | null>(null);
 
-  private readonly numberLocale = inject(LOCALE_ID);
-  private readonly numbers = new Intl.NumberFormat(this.numberLocale);
-  /** Below one, by significant digits, which keep 0.0004 from rounding to `0`. */
-  private readonly smallNumbers = new Intl.NumberFormat(this.numberLocale, { maximumSignificantDigits: 3 });
-
-  private formatValue(value: number): string {
-    const custom = this.valueFormat();
-    if (custom) return custom(value);
-    return (value !== 0 && Math.abs(value) < 1 ? this.smallNumbers : this.numbers).format(value);
-  }
+  /** A day's count as the tooltip and the `title` write it, in `LOCALE_ID` — the whole figure. */
+  private readonly numbers = useChartNumbers(this.valueFormat);
 
   private readonly daysEl = viewChild<ElementRef<HTMLElement>>('days');
 

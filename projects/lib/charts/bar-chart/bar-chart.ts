@@ -6,17 +6,9 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import {
-  Component,
-  type ElementRef,
-  LOCALE_ID,
-  ViewEncapsulation,
-  computed,
-  inject,
-  input,
-  viewChildren,
-} from '@angular/core';
+import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChildren } from '@angular/core';
 
+import { useChartNumbers } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 
@@ -89,29 +81,14 @@ export class WrBarChart {
    */
   readonly valueFormat = input<((value: number) => string) | null>(null);
 
-  private readonly locale = inject(LOCALE_ID);
-  private readonly numbers = new Intl.NumberFormat(this.locale);
-  /** Below one, by significant digits, which keep 0.0004 from rounding to `0`. */
-  private readonly smallNumbers = new Intl.NumberFormat(this.locale, { maximumSignificantDigits: 3 });
-  private readonly compactNumbers = new Intl.NumberFormat(this.locale, { notation: 'compact' });
-
-  /** A value as the tooltip and the accessible name write it. */
-  private formatValue(value: number): string {
-    const custom = this.valueFormat();
-    if (custom) return custom(value);
-    return (value !== 0 && Math.abs(value) < 1 ? this.smallNumbers : this.numbers).format(value);
-  }
-
   /**
-   * A value as the label above its bar writes it: compact from a thousand up, where a
-   * column is too narrow for `1,234,567`, and exactly as the tooltip writes it below —
+   * The chart's number writers: `value` for the tooltip and each bar's accessible
+   * name, the whole figure; `label` above the bar, compact from a thousand up, where a
+   * column is too narrow for `1,234,567`, and exactly as `value` writes it below —
    * compact rounding would print 12.5 as `13`, and below a thousand there is nothing to
    * abbreviate.
    */
-  private formatLabel(value: number): string {
-    if (this.valueFormat() || Math.abs(value) < 1000) return this.formatValue(value);
-    return this.compactNumbers.format(value);
-  }
+  private readonly numbers = useChartNumbers(this.valueFormat);
 
   private readonly barEls = viewChildren<ElementRef<HTMLElement>>('barEl');
 
@@ -139,12 +116,12 @@ export class WrBarChart {
   protected readonly bars = computed(() =>
     this.data().map(d => {
       const value = WrBarChart.value(d.value);
-      const text = this.formatValue(value);
+      const text = this.numbers.value(value);
       return {
         label: d.label,
         value,
         /** The label printed above the bar. */
-        display: this.formatLabel(value),
+        display: this.numbers.label(value),
         /** The whole figure, for the tooltip. */
         text,
         color: d.color ?? this.color(),

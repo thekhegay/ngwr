@@ -6,17 +6,9 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import {
-  Component,
-  type ElementRef,
-  LOCALE_ID,
-  ViewEncapsulation,
-  computed,
-  inject,
-  input,
-  viewChild,
-} from '@angular/core';
+import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChild } from '@angular/core';
 
+import { useChartNumbers } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 import { clamp } from 'ngwr/utils';
@@ -103,10 +95,8 @@ export class WrGauge {
    */
   readonly valueFormat = input<((value: number) => string) | null>(null);
 
-  private readonly locale = inject(LOCALE_ID);
-  private readonly numbers = new Intl.NumberFormat(this.locale);
-  /** Below one, by significant digits, which keep 0.0004 from rounding to `0`. */
-  private readonly smallNumbers = new Intl.NumberFormat(this.locale, { maximumSignificantDigits: 3 });
+  /** The reading as the centre, the tooltip and `aria-valuetext` write it — the whole figure. */
+  private readonly numbers = useChartNumbers(this.valueFormat);
 
   private readonly surface = viewChild<ElementRef<HTMLElement>>('surface');
 
@@ -126,12 +116,7 @@ export class WrGauge {
   protected readonly displayValue = computed(() => clamp(this.value(), this.min(), this.max()));
 
   /** The reading as the centre prints it, without the suffix. */
-  protected readonly displayText = computed(() => {
-    const value = this.displayValue();
-    const custom = this.valueFormat();
-    if (custom) return custom(value);
-    return (value !== 0 && Math.abs(value) < 1 ? this.smallNumbers : this.numbers).format(value);
-  });
+  protected readonly displayText = computed(() => this.numbers.value(this.displayValue()));
 
   protected readonly ratio = computed(() => {
     const range = this.max() - this.min();
