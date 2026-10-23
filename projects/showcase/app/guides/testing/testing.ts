@@ -1144,6 +1144,11 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
+      name: 'Line: hasArea() / getAreaCount() / isStacked() / hasDataTable() / getTableColumns() / getTableRows()',
+      description: 'Area mode and the hidden data table. The table reads throw while `dataTable` is off.',
+      type: 'Promise<…>',
+    },
+    {
       name: 'Line: hasTooltip() / getTooltipLabel() / getTooltipRows()',
       description: 'Reads the tooltip. There is no `hoverAt()`.',
       type: 'Promise<…>',
@@ -1171,6 +1176,22 @@ export class MyWidgetHarness extends ComponentHarness {
     {
       name: 'Heatmap: getCellCount() / getCells() / getValueFor(iso) / getWeekdayLabels() / getMonthLabels() / hasLabels()',
       description: '`WrCalendarHeatmapHarness`.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Scatter: getPoints() / getPointCount() / getXTicks() / getYTicks() / getAxisTitles() / getTableColumns() / getTableRows()',
+      description: '`WrScatterChartHarness`. Points are read from the markers; there is no hover method.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Radar: getAxisLabels() / getRingLabels() / getPolygons() / getPolygonCount() / getAreaCount() / getDotCount() / getSize()',
+      description: "`WrRadarChartHarness`. `getPolygons()` gives each outline's colour, dash and whether it closes.",
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Legend: getItems() / getLabels() / getItemCount() / getHidden() / isToggleable() / toggle(index) / getAccessibleName()',
+      description:
+        '`WrChartLegendHarness`, standalone or from `getLegendHarness()` on the line, donut, meter group, scatter and radar harnesses.',
       type: 'Promise<…>',
     },
   ];

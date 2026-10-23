@@ -38,6 +38,14 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
 
   'charts/bar-chart': ['charts/line-chart', 'charts/donut-chart', 'charts/meter-group', 'charts/sparkline'],
   'charts/calendar-heatmap': ['charts/line-chart', 'charts/bar-chart', 'reference/components/calendar'],
+  'charts/chart-legend': [
+    'charts/line-chart',
+    'charts/donut-chart',
+    'charts/meter-group',
+    'charts/scatter-chart',
+    'charts/radar-chart',
+    'charts/sparkline',
+  ],
   'charts/donut-chart': ['charts/meter-group', 'charts/bar-chart', 'charts/gauge', 'guides/tokens/colors'],
   'charts/gauge': [
     'reference/components/knob',
@@ -45,13 +53,21 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/statistic',
     'charts/donut-chart',
   ],
-  'charts/line-chart': ['charts/sparkline', 'charts/bar-chart', 'charts/calendar-heatmap', 'guides/tokens/colors'],
+  'charts/line-chart': [
+    'charts/sparkline',
+    'charts/bar-chart',
+    'charts/scatter-chart',
+    'charts/calendar-heatmap',
+    'guides/tokens/colors',
+  ],
   'charts/meter-group': [
     'charts/donut-chart',
     'reference/components/progress',
     'charts/bar-chart',
     'guides/tokens/colors',
   ],
+  'charts/radar-chart': ['charts/line-chart', 'charts/bar-chart', 'charts/donut-chart', 'guides/tokens/colors'],
+  'charts/scatter-chart': ['charts/line-chart', 'charts/bar-chart', 'charts/radar-chart', 'guides/tokens/colors'],
   'charts/sparkline': ['reference/components/statistic', 'charts/line-chart', 'charts/bar-chart'],
 
   'docs/configuration': [

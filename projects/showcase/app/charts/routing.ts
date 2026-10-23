@@ -9,9 +9,12 @@ export default [
   { path: '', pathMatch: 'full', redirectTo: charts.barChart.path },
   { path: charts.barChart.path, loadComponent: () => import('./bar-chart/bar-chart') },
   { path: charts.calendarHeatmap.path, loadComponent: () => import('./calendar-heatmap/calendar-heatmap') },
+  { path: charts.chartLegend.path, loadComponent: () => import('./chart-legend/chart-legend') },
   { path: charts.donutChart.path, loadComponent: () => import('./donut-chart/donut-chart') },
   { path: charts.gauge.path, loadComponent: () => import('./gauge/gauge') },
   { path: charts.lineChart.path, loadComponent: () => import('./line-chart/line-chart') },
   { path: charts.meterGroup.path, loadComponent: () => import('./meter-group/meter-group') },
+  { path: charts.radarChart.path, loadComponent: () => import('./radar-chart/radar-chart') },
+  { path: charts.scatterChart.path, loadComponent: () => import('./scatter-chart/scatter-chart') },
   { path: charts.sparkline.path, loadComponent: () => import('./sparkline/sparkline') },
 ] satisfies Routes;

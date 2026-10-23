@@ -98,6 +98,17 @@ export default class TypesCatalogPage {
         { name: 'WrDonutSegment', description: 'One slice of the ring.', url: ['/charts', 'donut-chart'] },
         { name: 'WrHeatmapDatum', description: 'One contribution cell.', url: ['/charts', 'calendar-heatmap'] },
         { name: 'WrMeterSegment', description: 'One meter-group segment.', url: ['/charts', 'meter-group'] },
+        { name: 'WrScatterSeries', description: 'One series of points.', url: ['/charts', 'scatter-chart'] },
+        { name: 'WrScatterPoint', description: 'One point, with an optional size.', url: ['/charts', 'scatter-chart'] },
+        {
+          name: 'WrScatterAxis',
+          description: 'Which axis a number is formatted for.',
+          url: ['/charts', 'scatter-chart'],
+        },
+        { name: 'WrRadarSeries', description: 'One polygon across the axes.', url: ['/charts', 'radar-chart'] },
+        { name: 'WrChartLegendItem', description: 'One legend row.', url: ['/charts', 'chart-legend'] },
+        { name: 'WrChartLegendToggle', description: 'What a toggled row emits.', url: ['/charts', 'chart-legend'] },
+        { name: 'WrChartMarker', description: 'A point marker shape.', url: ['/charts', 'chart-legend'] },
       ],
     },
     {

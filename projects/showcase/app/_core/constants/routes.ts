@@ -77,10 +77,13 @@ export const ROUTES = {
     title: 'Charts',
     barChart: { path: 'bar-chart', title: 'Bar Chart' },
     calendarHeatmap: { path: 'calendar-heatmap', title: 'Calendar Heatmap' },
+    chartLegend: { path: 'chart-legend', title: 'Chart Legend' },
     donutChart: { path: 'donut-chart', title: 'Donut Chart' },
     gauge: { path: 'gauge', title: 'Gauge' },
     lineChart: { path: 'line-chart', title: 'Line Chart' },
     meterGroup: { path: 'meter-group', title: 'Meter Group' },
+    radarChart: { path: 'radar-chart', title: 'Radar Chart' },
+    scatterChart: { path: 'scatter-chart', title: 'Scatter Chart' },
     sparkline: { path: 'sparkline', title: 'Sparkline' },
   },
   guides: {

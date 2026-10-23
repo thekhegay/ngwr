@@ -181,7 +181,15 @@ describe('the surfaces that draw it', () => {
       .filter(row => isNewLink(row.url, '14.4.0'))
       .map(row => row.title);
 
-    expect(marked).toEqual(['Graph', 'Editor', 'resolveCssColor', 'toClassList']);
+    expect(marked).toEqual([
+      'Chart Legend',
+      'Radar Chart',
+      'Scatter Chart',
+      'Graph',
+      'Editor',
+      'resolveCssColor',
+      'toClassList',
+    ]);
   });
 
   // Both shapes a sidebar row comes in: a child row inside a group, and a
