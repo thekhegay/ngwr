@@ -19,8 +19,13 @@ import {
 })
 export default class AffixPage {
   protected readonly affixed = signal(false);
+  protected readonly gridAffixed = signal(false);
 
   protected readonly snippets = {
+    grid: `<div style="display: grid; grid-template-columns: 12rem 1fr; gap: 1rem">
+  <aside wrAffix [wrAffixOffsetTop]="16" style="align-self: start">…</aside>
+  <main>…</main>
+</div>`,
     usage: `<header wrAffix [wrAffixOffsetTop]="0" (wrAffixChange)="onAffix($event)">
   …
 </header>`,

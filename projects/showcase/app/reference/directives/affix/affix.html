@@ -38,6 +38,28 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="In a grid or flex parent"
+    description="The sentinel leaves the flow there, so it adds no gap and takes no grid cell. The parent gets the `wr-affix__container` class, which makes it `position: relative` while an affix is in it, so its absolutely positioned children anchor to it. A position you give the parent yourself wins. Give the host `align-self: start`: a stretched item fills its row and has no room to stick."
+  >
+    <ngwr-doc-code [code]="snippets.grid" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="affix-demo" tabindex="0">
+        <div class="affix-demo__grid">
+          <p class="affix-demo__intro">The sidebar sticks once this row has scrolled away.</p>
+          <div wrAffix class="affix-demo__aside" (wrAffixChange)="gridAffixed.set($event)">
+            Sidebar — affixed: {{ gridAffixed() }}
+          </div>
+          <div>
+            @for (i of [].constructor(30); track $index) {
+              <div class="affix-demo__row">Content row #{{ $index + 1 }}</div>
+            }
+          </div>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

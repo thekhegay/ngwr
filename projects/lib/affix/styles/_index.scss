@@ -1,6 +1,6 @@
-// Almost nothing — the directive does the work inline. This layer owns one
-// declaration, the stacking order below, and otherwise only exposes the class
-// hook a consumer styles the "stuck" state with.
+// Almost nothing — the directive does the work inline. This layer owns the
+// stacking order below and the containing block of a flex or grid parent, and
+// otherwise only exposes the class hook a consumer styles the "stuck" state with.
 //
 // The directive sets `position: sticky; top: <offset>px` on the host and
 // toggles `wr-affix--active` via an IntersectionObserver sentinel.
@@ -12,4 +12,13 @@
   // restack. `position: sticky` and `top` are set inline by the directive, and
   // the active modifier is the consumer's to style.
   z-index: 10;
+}
+
+// A flex or grid parent holds the sentinel out of the flow, absolutely
+// positioned, and has to be its containing block or the sentinel stops
+// scrolling with a nested scroller's content. Zero specificity on purpose: any
+// position the author gives the parent wins, a media query included, and a
+// positioned parent is a containing block all the same.
+:where(.wr-affix__container) {
+  position: relative;
 }
