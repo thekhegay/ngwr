@@ -152,7 +152,9 @@ The rest are calls of their own, added from their entry points as needed:
   `WrDateAdapter` resolves to the native adapter (`Date` + `Intl`, locale from
   `LOCALE_ID`). `provideWr(withDates({ locale }))` (`ngwr/date`) pins another
   locale; for another date library, extend `WrDateAdapter` and pass the class as
-  `withDates({ adapter })`.
+  `withDates({ adapter })`. Its `format` and `parse` handle every `WrDateFormat`
+  key, including the `12h`, `24h` and `Seconds` variants of `time` and
+  `shortDateTime` (`time24h`, `shortDateTime12hSeconds`) that v15 added.
 
 Injected rather than provided: `WrTour` (`ngwr/tour`) runs a guided onboarding
 tour — `tour.start([{ target: '[data-tour="save"]', content: '…' }])` spotlights
@@ -345,7 +347,10 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-sparkline`, `wr-gauge`, `wr-calendar-heatmap`, `wr-meter-group`, each its
   own entry point at `ngwr/charts/<name>` (`ngwr/charts/bar-chart`), documented
   under https://ngwr.dev/charts/, themed through the `--wr-*` tokens and each
-  with a hover tooltip.
+  with a hover tooltip. Every chart writes its numbers with `Intl.NumberFormat`
+  in `LOCALE_ID` (line-chart ticks and bar-chart labels compact from a thousand
+  up, `5K`, unless the full numbers are shorter; tooltips never), and takes
+  `valueFormat: (value: number) => string` for any other format.
 - **Feedback** — `wr-alert`, `wr-result`, `wr-empty`, `wr-skeleton`,
   `wr-spinner`, `wr-progress`, `wr-loading-bar`.
 - **Layout / Display** — `wr-layout` (with header / sider / content / footer),
@@ -360,12 +365,14 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-back-top`, `[wrAffix]`, `wr-dropdown-menu` (with its `[wrDropdown]`
   trigger — both in ngwr/dropdown).
 - **Overlays** — `wr-drawer` (or `WrDrawerManager.open()` to open a component as
-  a drawer from code), `[wrPopover]` (directive; has a
+  a drawer from code; with `hasBackdrop` off it is a non-modal side panel, with
+  no focus trap and no `aria-modal`), `[wrPopover]` (directive; has a
   `tooltip` mode), `wr-command-palette`, `wr-context-menu`, `wr-popconfirm`.
   (Dialog and toast are service-opened — inject `WrDialog` / `WrToast`.
   Content inside a service-opened dialog or drawer can `inject(WrDialogRef)` /
   `inject(WrDrawerRef)` to close itself. Windows are service-opened too: there
-  is no `<wr-window>`, `WrWindowManager.open()` (ngwr/window) opens one, and
+  is no `<wr-window>`, `WrWindowManager.open()` (ngwr/window) opens one and
+  moves focus into it (`autoFocus: false` for a background window), and
   `<wr-window-taskbar>` lists the minimized ones.)
 - **Bits** — the animation and visual-effect components: text effects, cursor
   effects, backgrounds and blocks, each its own entry point at
@@ -427,7 +434,10 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `rgba(var(--wr-color-primary-rgb), 0.12)`. A canvas cannot draw a
   `light-dark()` value, and `getPropertyValue()` returns it unresolved, so read
   a colour for canvas from an element's computed `color` —
-  `resolveCssColor()` (`ngwr/utils`) does exactly that. Two contrast tokens
+  `resolveCssColor()` (`ngwr/utils`) does exactly that — and redraw a still
+  frame from `watchColorScheme(scheme => …)` (`ngwr/utils`, in an injection
+  context or with `{ injector }`), which calls back with `'light'` or `'dark'`
+  when the page's scheme changes. Two contrast tokens
   per intent, easy to confuse:
   `--wr-color-<intent>-contrast` is the label ON a filled intent;
   `--wr-color-<intent>-ink` is the intent used AS text on a surface or its own
@@ -450,8 +460,9 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   nothing on the server when it follows the OS, since that is CSS; a visitor
   who CHOSE light or dark has that choice in `localStorage`, which a server
   cannot read, so `wrThemePrePaintScript()` (`ngwr/theme`) is the blocking
-  `<head>` reader that applies it before first paint:
-  https://ngwr.dev/guides/ssr
+  `<head>` reader that applies it before first paint, and
+  `wrDensityPrePaintScript()` (`ngwr/density`) does the same for a stored
+  density: https://ngwr.dev/guides/ssr
 - **Mobile** — a `responsive` input reflows layout components (`wr-table`,
   `wr-toolbar`, `wr-stepper`, …; no overlay has one since v15), a `touch`
   density preset enlarges controls, and `WrHaptics` (ngwr/platform) fires

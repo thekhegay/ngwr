@@ -62,7 +62,7 @@ export default class MigrationPageComponent {
       after:
         "What needs your decision, by file and line: `@use 'ngwr'`, removed intents, `[data-theme]`, removed entry points and providers, the sortable list loop, validation copy.",
     },
-    { before: 'Leaves alone', after: 'The visual changes in the last section.' },
+    { before: 'Leaves alone', after: 'The behaviour and visual changes in the last two sections.' },
   ];
 
   protected readonly v15Providers: readonly Change[] = [
@@ -294,10 +294,66 @@ export default class MigrationPageComponent {
       after: 'Add `@Service()`, or dev mode warns',
       update: 'Lists files',
     },
+    {
+      before: 'Your own adapter handles six named formats',
+      after:
+        'Ten more `WrDateFormat` keys: the `12h`, `24h` and `Seconds` variants of `time` and `shortDateTime`, e.g. `time24hSeconds`. The date picker asks for them from `timeFormat` and `showSeconds`.',
+      update: 'No',
+    },
     { before: '`ng add ngwr --dateAdapter=…`', after: '`ng add ngwr`', update: 'No' },
     { before: '`wrDate` with no provider, `shortDate`: `3/15/26`', after: '`3/15/2026`', update: 'No' },
     { before: '`wrDate` with no provider, `time`: `2:30 PM`', after: '`02:30 PM`', update: 'No' },
     { before: "`wrDate` with no provider, `'dd.MM.yyyy'`: falls back to `shortDate`", after: 'Honoured', update: 'No' },
+  ];
+
+  /** Behaviour that changed under the same API: focus, names, number formats, layout. */
+  protected readonly v15Behaviour: readonly Change[] = [
+    {
+      before: '`aria-sort` on every sorted `wr-table` column',
+      after:
+        'Only on the primary sort column. The others say `none` and show their rank as a number. Tests read `getSortIndicator()` and `getSortOrder()` from `ngwr/table/testing`.',
+      update: 'No',
+    },
+    {
+      before: 'Table row and group controls named by `aria-label`',
+      after:
+        '`aria-labelledby`: an action word plus the row\'s first cell (the tree column in a tree) or the group\'s label, e.g. "Select row Ada". `selectRowLabel`, `expandRowLabel`, `toggleRowLabel`, `selectGroupLabel` and `toggleGroupLabel` set only the action word.',
+      update: 'No',
+    },
+    {
+      before: 'Tab moves from option to option in the `<wr-cascader>` panel',
+      after:
+        'The arrows or a typed letter move, as in a tree, and Tab leaves the panel. `getTabIndex()` from `ngwr/cascader/testing` is `0` for one option only.',
+      update: 'No',
+    },
+    {
+      before: '`WrWindowManager.open()` leaves focus where it was',
+      after:
+        'Moves focus into the window and gives it back on close. Pass `autoFocus: false` for a window that opens in the background.',
+      update: 'No',
+    },
+    {
+      before: 'A drawer with `hasBackdrop` off is modal',
+      after: 'Non-modal: no focus trap, no `aria-modal`, and the page keeps scrolling.',
+      update: 'No',
+    },
+    {
+      before: 'Chart numbers: English `5k`, the `lineChart.thousands` catalog key',
+      after:
+        '`Intl` in `LOCALE_ID`. Line-chart ticks and bar-chart labels are compact from a thousand up (`5K`, a bar of `12500` reads `13K`) unless the full numbers are shorter; tooltips never are. Drop the key from your catalogs. For another format, pass `valueFormat`, which every chart takes.',
+      update: 'No',
+    },
+    {
+      before: '`fill` on `.wr-line-chart__tick`, an SVG `<text>`',
+      after: 'HTML beside the plot. Restyle it with `color` or the `--wr-line-chart-tick-*` hooks.',
+      update: 'No',
+    },
+    {
+      before: 'A `static` flex or grid parent of a `wrAffix`',
+      after:
+        '`position: relative` while an affix is in it, through `.wr-affix__container`. Its absolute children anchor to it and its `z-index` applies. A position you give it wins.',
+      update: 'No',
+    },
   ];
 
   protected readonly v14Rewrites: readonly Change[] = [

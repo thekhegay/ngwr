@@ -85,6 +85,9 @@ back to the OS. The service applies a remembered choice, or a non-`auto`
 `provideWr(withTheme())` injects it at boot; without that, a page whose first
 screen never injects it paints the OS scheme. Ship `wrThemePrePaintScript()`
 in `<head>` with the same values to apply the choice before first paint.
+A canvas cannot draw a `light-dark()` value: resolve its colours with
+`resolveCssColor()` and redraw a still frame from `watchColorScheme()`, both
+in `ngwr/utils`.
 Write your own dark values with `light-dark()` as well — there is no theme
 attribute to key a selector on.
 
@@ -129,12 +132,16 @@ bootstrapApplication(App, {
   switch, radio, slider, rating, segmented) does not move; its ≥44px target
   comes from the `touch-target` mixin under `@media (pointer: coarse)`
   instead. It needs `@use 'ngwr/density'`: without that sheet the density is
-  written to `<html>` and nothing reads it.
+  written to `<html>` and nothing reads it. On a prerendered page, ship
+  `wrDensityPrePaintScript()` in `<head>` with the same values, as for the
+  theme, so a stored density applies before first paint.
 - `withDates({ locale: 'fr' })` from `ngwr/date` — pins the dates to another
   locale. The calendar, the date pickers and the event calendar need no
   provider: they run on the native adapter (`Date` and `Intl`) in
   `LOCALE_ID`. Another date library: subclass `WrDateAdapter`, decorate it
-  with `@Service()` and pass it as `{ adapter: MyDateAdapter }`. The one
+  with `@Service()` and pass it as `{ adapter: MyDateAdapter }`. Its
+  `format` and `parse` handle every `WrDateFormat` key, the `12h`, `24h`
+  and `Seconds` variants of `time` and `shortDateTime` included. The one
   feature that also works in a route's `providers`, for that subtree.
 - `withTheme({ defaultMode: 'dark' })` from `ngwr/theme` — the default
   scheme and its storage key, and `WrTheme` created at boot.

@@ -228,6 +228,22 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="v14 to v15: behaviour"
+    description="Nothing here fails to compile, and `migration-v15` neither rewrites nor lists these."
+  >
+    <ng-container
+      *ngTemplateOutlet="changes; context: { $implicit: v15Behaviour, head: ['Before', 'After', 'Codemod'] }"
+    />
+    <ul>
+      <li>A test that found a table control by its old shared name, or tabbed through a cascader, needs the change.</li>
+      <li>
+        A drawer that has to stay modal keeps its backdrop. If the dimming was what you turned off, hide it:
+        <code>.wr-drawer-backdrop &#123; background: none; backdrop-filter: none; &#125;</code>.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="v14 to v15: looks different"
     description="No API change and nothing to search for. Check the pages."
   >

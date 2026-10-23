@@ -98,7 +98,9 @@ and lists by file and line what needs a decision only you can make. It rewrites:
 It lists the rest, and changes nothing there: the `@use 'ngwr'` umbrella, a density setting with
 no density sheet, a removed intent used anywhere, `[data-theme]` and `theme.dark`, a `-rgb` read or
 a token declaration it could not rewrite, a provider call it could not move, and every removed
-entry point, provider and input below. Each section says which half an item falls in.
+entry point, provider and input below. Each section says which half an item falls in. The
+behaviour changes, from table sort to `wrAffix`, are in neither: the codemod does not rewrite or
+list them.
 
 The listed half mostly fails silently — a selector that stops matching, a `var()` at a token
 nothing declares — so go through the report rather than waiting for the build. Commit first, and
@@ -494,7 +496,10 @@ whose deletion is the whole change, and every `WrVisualViewport` and `--wr-keybo
 carries the two things it still added: `{ locale }` pins the dates to another locale, and
 `{ adapter }` swaps in a `WrDateAdapter<Date>` subclass of your own. `ng add` no longer asks about a date adapter and takes no `--dateAdapter` flag. A
 subclass of your own now wants `@Service()`: undecorated, it inherits the base's injectable
-definition, and Angular warns about that in dev mode.
+definition, and Angular warns about that in dev mode. Its `format` and `parse` also have to handle
+ten new `WrDateFormat` keys, the `12h`, `24h` and `Seconds` variants of `time` and `shortDateTime`
+(`time24hSeconds`, …), which the date picker now asks for from `timeFormat` and `showSeconds`.
+The codemod does not check for them.
 
 ```diff
 - provideWrDateAdapter(), // a bare call is the default now: delete it, and its import
@@ -568,6 +573,49 @@ there, with the imports fixed and both option types renamed. It lists a call it 
 in a variable, a spread or a ternary, imported under another name, already present as a feature,
 a second call of one kind in the same array (the same feature twice throws in dev mode), or
 passing the theme `attribute`.
+
+### Table sort and control names
+
+- **Only the primary sort column announces `aria-sort`.** The other sorted columns say `none` and
+  show their rank as a number. A test that read a secondary key's direction reads
+  `getSortIndicator()` and `getSortOrder()` from `ngwr/table/testing` instead.
+- **Row and group controls are named through `aria-labelledby`**: an action word plus the row's
+  first cell (the tree column in a tree) or the group's label, so a row checkbox reads "Select row
+  Ada". They carry no `aria-label`, and `selectRowLabel`, `expandRowLabel`, `toggleRowLabel`,
+  `selectGroupLabel` and `toggleGroupLabel` now set only the action word. A test that found a
+  control by its old shared name finds it by the new one.
+
+### The cascader panel has one tab stop
+
+- **Tab leaves the open `<wr-cascader>` panel from any option**, and the arrow keys (or a typed
+  letter) move between options, as in a tree. A test that tabbed from option to option presses the
+  arrows instead; `getTabIndex()` from `ngwr/cascader/testing` answers `0` for one option only.
+
+### Windows take focus, and a drawer without a backdrop is not modal
+
+- **`WrWindowManager.open()` moves focus into the window** and gives it back on close. A window
+  that opens in the background, a log or a monitor, passes `autoFocus: false`.
+- **A drawer with `hasBackdrop` off is non-modal**: no focus trap, no `aria-modal`, and the page
+  keeps scrolling. A drawer that has to stay modal keeps its backdrop, made invisible with
+  `.wr-drawer-backdrop { background: none; backdrop-filter: none; }` if the dimming was what you
+  turned off.
+
+### Chart numbers
+
+- **Charts write numbers with `Intl` in `LOCALE_ID`, and abbreviate the way it does.** Line-chart
+  ticks and bar-chart labels from a thousand up are compact (unless the full numbers are shorter;
+  tooltips never are), so English `5k` reads `5K` and a bar labelled `12500` reads `13K`, and the
+  `lineChart.thousands` catalog key is gone: drop it from your catalogs. For any other format, pass
+  the new `valueFormat` input, which every chart takes.
+- **Line-chart tick labels are HTML beside the plot**, no longer SVG `<text>` inside it, so `fill`
+  on `.wr-line-chart__tick` does nothing: restyle it with `color` or the `--wr-line-chart-tick-*`
+  hooks.
+
+### `wrAffix` in a flex or grid parent
+
+- **A `static` flex or grid parent of a `wrAffix` becomes `position: relative`** while an affix is
+  in it, through the `wr-affix__container` class. Its absolutely positioned children now anchor to
+  it, and a `z-index` on it starts to apply. A position you give the parent wins.
 
 ### Looks different, nothing to rename
 

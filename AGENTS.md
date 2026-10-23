@@ -393,7 +393,10 @@ one component folder. Reach for them instead of hand-rolling:
   `WrNativeDateAdapter` is the only implementation ngwr ships. **v15 deleted
   `ngwr/date/adapters/{fns,luxon}`** and the `date-fns` / `luxon` optional
   peers with them: an app on another date library extends `WrDateAdapter` and
-  passes the class as `withDates({ adapter })`. The entry points
+  passes the class as `withDates({ adapter })`. Its `format` and `parse` have to
+  handle every `WrDateFormat` key, the `12h` / `24h` / `Seconds` variants of
+  `time` and `shortDateTime` included, which v15 added and the date picker asks
+  for from `timeFormat` and `showSeconds`. The entry points
   were `ngwr/date-adapter{,-fns,-luxon}` until v12: flat and hyphenated while
   `ngwr/icon` already nested its implementations (v15 folded those back into
   `ngwr/icon`), so the catalog spelled one idea two ways. `migration-v12`
@@ -459,8 +462,9 @@ one component folder. Reach for them instead of hand-rolling:
   while virtual. `ngwr/virtual-scroll` is a _separate_ public component wrapping
   `cdk-virtual-scroll-viewport`; the three above deliberately don't use it (the
   CDK viewport can't host `<tr>` / role-owned list children). Cascader is
-  deferred (no container-owned arrow-nav model); mention is excluded (capped at
-  `maxResults` ≈ 8).
+  deferred: its roving tab stop moves REAL focus between options rather than
+  through `aria-activedescendant`, so a windowed column would unrender the
+  focused element. Mention is excluded (capped at `maxResults` ≈ 8).
 - **`ngwr/markdown` is gone (v15).** `<wr-markdown>`, its hand-rolled parser
   and serializer and `provideWrMarkdownHighlighter()` went together: rendering
   untrusted input and keeping a parser correct are surface ngwr does not need,

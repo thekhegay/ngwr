@@ -53,7 +53,8 @@ guess gets backwards.
 - **Check for a MODE before reaching for another component.** The catalog is
   deliberately consolidated: `wr-select` covers single / multi / search / tag,
   `wr-date-picker` covers date / time / datetime, `wr-popover` has a tooltip
-  mode, `wr-drawer` doubles as a bottom sheet, `wr-table` owns pinning,
+  mode, `wr-drawer` doubles as a bottom sheet (and, with `hasBackdrop` off,
+  a non-modal side panel), `wr-table` owns pinning,
   resizing, grouping, tree rows, CSV export and virtual scroll.
 - **There is no `ControlValueAccessor`.** Value components implement Signal
   Forms' `FormValueControl` / `FormCheckboxControl`. Bind
