@@ -1114,7 +1114,7 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
-      name: 'Surfaces: getWords() / getHighlightedWords() / release() / getCopyCount() / getAnnouncedCopyCount() / getItems() / isSingleRay() / getSpeedSeconds()',
+      name: 'Surfaces: getWords() / getHighlightedWords() / release() / getCopyCount() / getAnnouncedCopyCount() / getItems() / isScrollable() / isSingleRay() / getSpeedSeconds()',
       description: '`WrFallingTextHarness`, `WrMarqueeHarness`, `WrStarBorderHarness`.',
       type: 'Promise<…>',
     },
@@ -1425,8 +1425,14 @@ export class MyWidgetHarness extends ComponentHarness {
     },
     {
       name: 'sortByColumn(title) / getSortDirection(title)',
-      description: 'One sort step. The table does not reorder `items`; your app does.',
+      description:
+        "One sort step. The table does not reorder `items`; your app does. `getSortDirection()` reads `aria-sort`: only the primary column announces a direction, and every other sortable column, a secondary key included, answers `'none'`.",
       type: 'Promise<void> | Promise<…>',
+    },
+    {
+      name: 'getSortIndicator(title) / getSortOrder(title)',
+      description: 'The drawn direction and the 1-based place in the sort, for every sorted column.',
+      type: "Promise<'ascending' | 'descending' | null> | Promise<number | null>",
     },
     {
       name: 'getRows(filters?) / getCellTexts()',
@@ -1475,7 +1481,7 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
-      name: 'Header cell: isSortable() / sort() / getSortDirection() / isFilterable()',
+      name: 'Header cell: isSortable() / sort() / getSortDirection() / getSortIndicator() / getSortOrder() / isFilterable()',
       description: '`WrTableHeaderCellHarness`. `isFilterable()` needs non-empty `filterItems`.',
       type: 'Promise<…>',
     },

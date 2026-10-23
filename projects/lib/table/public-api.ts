@@ -18,4 +18,5 @@ export type {
   WrTableSortState,
   WrTableSortDirection,
   WrTableSummary,
+  WrTableSummaryContext,
 } from './types';

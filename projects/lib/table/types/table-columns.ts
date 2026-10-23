@@ -8,13 +8,21 @@
 import type { WrClassInput } from 'ngwr/utils';
 
 import type { WrTableFilterItem } from './table-filter-item';
+import type { WrTableSummaryContext } from './table-summary-context';
 
 /**
  * A column's footer aggregate — a built-in over its numeric values, or a
- * function given all rows that returns the value to display.
+ * function given the rows that returns the value to display. The function's
+ * second argument says whether it is computing the grand total or a group's
+ * subtotal; see {@link WrTableSummaryContext}.
  */
 export type WrTableSummary =
-  'sum' | 'avg' | 'count' | 'min' | 'max' | ((rows: readonly Record<string, unknown>[]) => unknown);
+  | 'sum'
+  | 'avg'
+  | 'count'
+  | 'min'
+  | 'max'
+  | ((rows: readonly Record<string, unknown>[], context: WrTableSummaryContext) => unknown);
 
 /** A single column definition. */
 export interface WrTableColumn {

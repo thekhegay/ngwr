@@ -46,10 +46,47 @@ export class WrTableHeaderCellHarness extends ComponentHarness {
    * `null` is not "unsorted": a sortable column with no direction announces
    * `'none'`, and only a plain column omits the attribute entirely. Claiming
    * sortability a column does not have is the bug that distinction prevents.
+   *
+   * Only the PRIMARY sort key announces a direction (ARIA puts `aria-sort` on one
+   * header at a time), so a secondary key of a multi-column sort answers
+   * `'none'` here while its arrow says otherwise. Read that one through
+   * {@link getSortIndicator} and {@link getSortOrder}.
    */
   async getSortDirection(): Promise<'ascending' | 'descending' | 'none' | null> {
     const sort = await (await this.host()).getAttribute('aria-sort');
     return sort as 'ascending' | 'descending' | 'none' | null;
+  }
+
+  /**
+   * The direction the header's indicator DRAWS — `'ascending'`, `'descending'`,
+   * or `null` while the column is not sorted (or does not sort at all).
+   *
+   * The drawn half of the sort state, and the only half a secondary key has:
+   * read from the indicator's own `--asc` / `--desc` modifier, so it answers for
+   * every sorted column, where {@link getSortDirection} answers for the primary
+   * one alone.
+   */
+  async getSortIndicator(): Promise<'ascending' | 'descending' | null> {
+    const indicator = await this.locatorForOptional('wr-table-sort')();
+    if (!indicator) return null;
+    if (await indicator.hasClass('wr-table-sort--asc')) return 'ascending';
+    if (await indicator.hasClass('wr-table-sort--desc')) return 'descending';
+    return null;
+  }
+
+  /**
+   * This column's 1-based place in the sort, or `null` when it does not sort by
+   * anything right now.
+   *
+   * Read from the number drawn after the indicator while several columns sort.
+   * A lone sorted column draws no number — a "1" would say nothing its arrow does
+   * not — so it answers `1` from its indicator alone, and that is the one case
+   * this method infers rather than reads.
+   */
+  async getSortOrder(): Promise<number | null> {
+    const badge = await this.locatorForOptional('.wr-table__sort-order')();
+    if (badge) return Number.parseInt(await badge.text(), 10);
+    return (await this.getSortIndicator()) === null ? null : 1;
   }
 
   /** Whether the column offers sorting at all. */

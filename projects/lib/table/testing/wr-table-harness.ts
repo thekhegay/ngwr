@@ -106,9 +106,26 @@ export class WrTableHarness extends ComponentHarness {
     return Promise.all(headers.map(header => header.getText()));
   }
 
-  /** The direction a column announces via `aria-sort`, or `null` when it does not sort. */
+  /**
+   * The direction a column announces via `aria-sort`, or `null` when it does not
+   * sort. Only the primary key of a multi-column sort announces one; see
+   * {@link getSortIndicator} for the rest.
+   */
   async getSortDirection(columnTitle: string): Promise<'ascending' | 'descending' | 'none' | null> {
     return (await this.headerCellFor(columnTitle)).getSortDirection();
+  }
+
+  /**
+   * The direction a column's indicator draws, for every sorted column — a
+   * secondary key included — or `null` when the column is not sorted.
+   */
+  async getSortIndicator(columnTitle: string): Promise<'ascending' | 'descending' | null> {
+    return (await this.headerCellFor(columnTitle)).getSortIndicator();
+  }
+
+  /** A column's 1-based place in the sort (`1` is the primary key), or `null` when it is not sorted. */
+  async getSortOrder(columnTitle: string): Promise<number | null> {
+    return (await this.headerCellFor(columnTitle)).getSortOrder();
   }
 
   /**

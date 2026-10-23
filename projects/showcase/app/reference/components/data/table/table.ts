@@ -259,8 +259,8 @@ export default class TablePageComponent {
     { region: 'APAC', rep: 'Emi', deals: 11, revenue: 40100 },
   ];
   protected readonly salesColumns: WrTableColumns = {
-    // One function feeds the group rows and the grand total: tell them apart by the rows.
-    region: { title: 'Region', summary: rows => (new Set(rows.map(r => r['region'])).size > 1 ? 'Total' : 'Subtotal') },
+    // One function feeds the group rows and the grand total; the context says which.
+    region: { title: 'Region', summary: (_rows, { scope }) => (scope === 'group' ? 'Subtotal' : 'Total') },
     rep: { title: 'Rep' },
     deals: { title: 'Deals', summary: 'sum' },
     revenue: { title: 'Revenue', summary: 'sum' },
@@ -392,8 +392,8 @@ effect(() => {
   [items]="rows"
 />`,
     groupSummary: `const columns: WrTableColumns = {
-  // One function feeds the group rows and the grand total: tell them apart by the rows.
-  region:  { title: 'Region', summary: rows => (new Set(rows.map(r => r['region'])).size > 1 ? 'Total' : 'Subtotal') },
+  // One function feeds the group rows and the grand total; the context says which.
+  region:  { title: 'Region', summary: (rows, { scope }) => (scope === 'group' ? 'Subtotal' : 'Total') },
   rep:     { title: 'Rep' },
   deals:   { title: 'Deals',   summary: 'sum' },
   revenue: { title: 'Revenue', summary: 'sum' },
@@ -551,7 +551,15 @@ interface WrTableGroupContext {
   collapsed: boolean;
   index: number;
   toggle: () => void;
-}`;
+}
+
+type WrTableSummary =
+  | 'sum' | 'avg' | 'count' | 'min' | 'max'
+  | ((rows: readonly Record<string, unknown>[], context: WrTableSummaryContext) => unknown);
+
+type WrTableSummaryContext =
+  | { scope: 'total'; group: null }
+  | { scope: 'group'; group: WrTableGroupContext };`;
 
   protected readonly typeRows: readonly DocApiRow[] = [
     {
@@ -584,7 +592,7 @@ interface WrTableGroupContext {
     { name: 'width', description: 'Initial column width in px (overridden by a drag).', type: 'number', sub: true },
     {
       name: 'summary',
-      description: "Footer aggregate — 'sum' / 'avg' / 'count' / 'min' / 'max', or (rows) => value.",
+      description: "Footer aggregate — 'sum' / 'avg' / 'count' / 'min' / 'max', or (rows, context) => value.",
       type: 'WrTableSummary',
       sub: true,
     },
@@ -648,6 +656,23 @@ interface WrTableGroupContext {
     { name: 'collapsed', description: 'Whether the group is currently collapsed.', type: 'boolean', sub: true },
     { name: 'index', description: '0-based index of the group on the current page.', type: 'number', sub: true },
     { name: 'toggle', description: 'Collapse / expand this group.', type: '() => void', sub: true },
+    {
+      name: 'WrTableSummaryContext',
+      description: "A summary function's second argument: which footer row it computes. Since v15.",
+      type: "{ scope: 'total'; group: null } | { scope: 'group'; group: WrTableGroupContext }",
+    },
+    {
+      name: 'scope',
+      description: "'total' for the footer row, 'group' for a subtotal under a group.",
+      type: "'total' | 'group'",
+      sub: true,
+    },
+    {
+      name: 'group',
+      description: 'The group being subtotalled; null for the total.',
+      type: 'WrTableGroupContext | null',
+      sub: true,
+    },
   ];
 
   // --- Tree mode ------------------------------------------------------------

@@ -133,6 +133,19 @@ export class WrCheckbox implements FormCheckboxControl {
   readonly ariaLabel = input<string | null>(null);
 
   /**
+   * Ids of the elements that name this checkbox, space-separated, for a box
+   * whose name is already on screen somewhere else — a table row's label cell,
+   * say, joined to an action word. Lands on the inner `<input>` as
+   * `aria-labelledby`, which wins over `ariaLabel` and over projected text.
+   *
+   * The ids have to resolve in the same document; one that matches nothing is
+   * skipped, and with none left the box falls back to `ariaLabel`.
+   *
+   * @default null
+   */
+  readonly ariaLabelledby = input<string | null>(null);
+
+  /**
    * Checked state — the form value. Bound by `[formField]`, two-way via
    * `[(checked)]`, or `[(ngModel)]`. Ignored inside a `<wr-checkbox-group>`,
    * where the group's array is the source of truth.

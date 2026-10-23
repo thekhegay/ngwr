@@ -33,7 +33,7 @@ import { WrCheckbox } from 'ngwr/checkbox';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrPagination } from 'ngwr/pagination';
 import { WrSpinner } from 'ngwr/spinner';
-import { toClassList } from 'ngwr/utils';
+import { KEYS, toClassList } from 'ngwr/utils';
 
 import { WrTableCell } from './table-cell';
 import { WrTableExpand } from './table-expand';
@@ -54,6 +54,7 @@ import type {
   WrTableSortState,
   WrTableSortDirection,
   WrTableSummary,
+  WrTableSummaryContext,
 } from './types';
 
 /** Sentinel value for the single synthetic bucket used when grouping is off. */
@@ -78,6 +79,16 @@ type RenderRow =
       readonly setsize: number;
     }
   | { readonly kind: 'group-foot'; readonly id: string; readonly summaries: ReadonlyMap<string, unknown> };
+
+/**
+ * Instance counter for the ids the row controls are named through. Counted, not
+ * `randomId()`, so the prerendered `aria-labelledby` is the one the browser
+ * renders again — the same reason `wr-tabs` and `wr-mention` count.
+ */
+let tableUid = 0;
+
+/** The grand-total context every `<tfoot>` summary is computed with. */
+const WR_TABLE_TOTAL_SCOPE: WrTableSummaryContext = { scope: 'total', group: null };
 
 /** A flat row descriptor with the tree fields at their flat-table defaults. */
 function flatRow(row: Record<string, unknown>, id: string, posinset: number, setsize: number): RenderRow {
@@ -119,6 +130,10 @@ function flatRow(row: Record<string, unknown>, id: string, posinset: number, set
     // said so: the veil marked itself, not the table it covers. Same pairing as
     // `wr-card` — mark busy, don't block (the veil is `pointer-events: none`).
     '[attr.aria-busy]': 'loading() ? true : null',
+    // The treegrid's row keyboard, delegated: one listener pair for the whole
+    // table rather than one per row, and both return at once outside tree mode.
+    '(keydown)': 'onTreeKeydown($event)',
+    '(focusin)': 'onTreeFocusin($event)',
   },
   imports: [NgTemplateOutlet, CdkDropList, CdkDrag, WrCheckbox, WrPagination, WrSpinner, WrTableSort, WrTableFilter],
 })
@@ -263,7 +278,11 @@ export class WrTable {
    */
   readonly treeColumn = input<string | null>(null);
 
-  /** Accessible name of a parent row's expand toggle. Falls back to `table.toggleRow`. */
+  /**
+   * The action word that names a parent row's expand toggle. The row's own label
+   * cell is joined to it, so the toggle reads "Toggle child rows Engineering"
+   * rather than one name shared by every row. Falls back to `table.toggleRow`.
+   */
   readonly toggleRowLabel = input<string | null>(null);
 
   /**
@@ -279,7 +298,9 @@ export class WrTable {
    * current page. No-op unless at least one column defines a `summary`. The grand
    * `<tfoot>` is unaffected and still aggregates the whole client dataset — with
    * client-side pagination the two describe different scopes, so pair grouping
-   * with `pageSize = 0` when you need them to reconcile. @default false
+   * with `pageSize = 0` when you need them to reconcile. A summary FUNCTION tells
+   * the two apart by its second argument, `{ scope: 'group' | 'total' }` — see
+   * `WrTableSummaryContext`. @default false
    */
   readonly groupSummary = input(false, { transform: coerceBooleanProperty });
 
@@ -298,16 +319,30 @@ export class WrTable {
   /** Accessible name of the select-all checkbox. Falls back to `table.selectAll`. */
   readonly selectAllLabel = input<string | null>(null);
 
-  /** Accessible name of a row's select checkbox. Falls back to `table.selectRow`. */
+  /**
+   * The action word that names a row's select checkbox. The row's label cell is
+   * joined to it through `aria-labelledby` — "Select row Ada" — since one name
+   * repeated down every row tells a screen reader nothing about which row a box
+   * belongs to. Falls back to `table.selectRow`.
+   */
   readonly selectRowLabel = input<string | null>(null);
 
-  /** Accessible name of a row's expand toggle. Falls back to `table.expandRow`. */
+  /**
+   * The action word that names a row's detail toggle, joined to the row's label
+   * cell like `selectRowLabel`. Falls back to `table.expandRow`.
+   */
   readonly expandRowLabel = input<string | null>(null);
 
-  /** Accessible name of a group band's select checkbox. Falls back to `table.selectGroup`. */
+  /**
+   * The action word that names a group band's select checkbox. The group's label
+   * is joined to it — "Select group EMEA". Falls back to `table.selectGroup`.
+   */
   readonly selectGroupLabel = input<string | null>(null);
 
-  /** Accessible name of a group band's collapse toggle. Falls back to `table.toggleGroup`. */
+  /**
+   * The action word that names a group band's collapse toggle, joined to the
+   * group's label like `selectGroupLabel`. Falls back to `table.toggleGroup`.
+   */
   readonly toggleGroupLabel = input<string | null>(null);
 
   /** Accessible name of the loading overlay. Falls back to `table.loading`. */
@@ -341,6 +376,74 @@ export class WrTable {
   protected readonly resolvedToggleRowLabel = useI18nText(this.toggleRowLabel, 'table.toggleRow', 'Toggle child rows');
   protected readonly resolvedSelectGroupLabel = useI18nText(this.selectGroupLabel, 'table.selectGroup', 'Select group');
   protected readonly resolvedToggleGroupLabel = useI18nText(this.toggleGroupLabel, 'table.toggleGroup', 'Toggle group');
+
+  // --- Control names ----------------------------------------------------------
+  //
+  // Every row control used to share one generic name: ten checkboxes called
+  // "Select row" and ten chevrons called "Toggle child rows", so a screen reader
+  // moving down the selection column heard the same word ten times and never the
+  // row. Each control now points `aria-labelledby` at TWO ids — an action word,
+  // rendered once per table as hidden text, and the row's own label cell — which
+  // is the one ARIA mechanism that joins two elements into a name.
+
+  /** Prefix of every id this table renders. Counted, so SSR and the client agree. */
+  private readonly uid = `wr-table-${tableUid++}`;
+
+  /** Id of the hidden action word one kind of row control is named with. */
+  protected actionId(action: 'select-row' | 'expand-row' | 'toggle-row' | 'select-group' | 'toggle-group'): string {
+    return `${this.uid}-${action}`;
+  }
+
+  /**
+   * Id of a row's label cell, from the row descriptor's id — which is its place
+   * in the flattened body (`r3`, `g1r0`, `r0-r2`), deterministic per render.
+   */
+  protected rowLabelId(rowId: string): string {
+    return `${this.uid}-${rowId}-label`;
+  }
+
+  /** Id of a group band's label — the visible one, or a hidden copy beside a custom header. */
+  protected groupLabelId(groupId: string): string {
+    return `${this.uid}-${groupId}-label`;
+  }
+
+  /** Id of a group band's row-count badge, which the built-in toggle's name ends with. */
+  protected groupCountId(groupId: string): string {
+    return `${this.uid}-${groupId}-count`;
+  }
+
+  /**
+   * The column whose cell names its row: the tree column in tree mode — the one
+   * carrying the hierarchy, and the first rendered column unless `treeColumn`
+   * says otherwise — and the first rendered column everywhere else.
+   *
+   * Keyed rather than positional, like `treeColumn`, so it follows a
+   * `columnOrder` drag.
+   */
+  protected readonly labelColumnKey = computed<string | null>(
+    () => this.treeColumnKey() ?? this.displayColumns()[0]?.key ?? null
+  );
+
+  /**
+   * `aria-labelledby` of the built-in group toggle: the action word, the group's
+   * label, and its row count while the badge shows — the count the toggle's own
+   * text used to carry, which `aria-labelledby` would otherwise replace.
+   */
+  protected groupToggleLabelledby(groupId: string): string {
+    const parts = [this.actionId('toggle-group'), this.groupLabelId(groupId)];
+    if (this.showGroupCount()) parts.push(this.groupCountId(groupId));
+    return parts.join(' ');
+  }
+
+  /** `aria-labelledby` of a row control: its action word, then the row's label cell. */
+  protected rowControlLabelledby(action: 'select-row' | 'expand-row' | 'toggle-row', rowId: string): string {
+    return `${this.actionId(action)} ${this.rowLabelId(rowId)}`;
+  }
+
+  /** `aria-labelledby` of a group band's checkbox, or of the toggle beside a custom header. */
+  protected groupControlLabelledby(action: 'select-group' | 'toggle-group', groupId: string): string {
+    return `${this.actionId(action)} ${this.groupLabelId(groupId)}`;
+  }
 
   /** Fires whenever a column's filter selection changes. */
   readonly filterChange = output<WrTableFilterChange>();
@@ -1061,6 +1164,164 @@ export class WrTable {
     this.expanded.set([]);
   }
 
+  // --- Treegrid keyboard (row focus) -----------------------------------------
+  //
+  // The APG treegrid's row-focus model: the ROWS are the items. One row holds the
+  // tab stop (roving `tabindex`), the arrows move between visible rows and open or
+  // close branches, and the controls inside a row — its checkbox, its toggle, a
+  // cell template's buttons — keep their own tab stops, so Tab walks from the row
+  // into them. A `treegrid` promises this; announcing the role without it left a
+  // keyboard user on a structure only the mouse could travel.
+  //
+  // A flat table has none of it on purpose: it announces the native `table` role,
+  // which promises no keyboard model of its own.
+
+  /** Every body `<tr>` holding data, in DOM order — 1:1 with {@link treeRows} in tree mode. */
+  private readonly rowEls = viewChildren<ElementRef<HTMLTableRowElement>>('rowEl');
+
+  /**
+   * The row the keyboard last stood on, by `rowKey` — so the tab stop stays on
+   * the same row through a sort or a refetch, where a position would not.
+   * Wrapped, because a row's key may itself be `null` or `undefined`.
+   */
+  private readonly activeRow = signal<{ readonly key: unknown } | null>(null);
+
+  /** The rendered tree rows, in the order the arrows travel. Empty outside tree mode. */
+  private readonly treeRows = computed<readonly Extract<RenderRow, { kind: 'row' }>[]>(() =>
+    this.treeMode()
+      ? this.renderRows().filter((entry): entry is Extract<RenderRow, { kind: 'row' }> => entry.kind === 'row')
+      : []
+  );
+
+  /**
+   * Id of the row holding the tab stop: the active row while it is on screen,
+   * else the first row. Collapsing a branch around the active row, or a refetch
+   * that drops it, must not leave the grid with no tab stop at all — that is a
+   * widget the keyboard can no longer enter.
+   */
+  protected readonly tabStopRowId = computed<string | null>(() => {
+    const rows = this.treeRows();
+    const active = this.activeRow();
+    if (active) {
+      const hit = rows.find(entry => this.rowKeyOf(entry.row) === active.key);
+      if (hit) return hit.id;
+    }
+    return rows[0]?.id ?? null;
+  });
+
+  /**
+   * Focus entering a row from anywhere — a click, Tab into one of its controls —
+   * makes that row the tab stop, so Shift+Tab out of a row's checkbox lands on
+   * its own row rather than skipping past it to the previous row's controls.
+   */
+  protected onTreeFocusin(event: FocusEvent): void {
+    if (!this.treeMode()) return;
+    const target = event.target as Node | null;
+    const index = this.rowEls().findIndex(el => target !== null && el.nativeElement.contains(target));
+    const entry = this.treeRows()[index];
+    if (entry) this.activeRow.set({ key: this.rowKeyOf(entry.row) });
+  }
+
+  /**
+   * The row-focus keys. Acts only when the ROW itself has focus: an arrow pressed
+   * inside a cell's own control — a text field, a select — belongs to that
+   * control, and stealing it would break the control.
+   */
+  protected onTreeKeydown(event: KeyboardEvent): void {
+    if (!this.treeMode() || event.altKey || event.metaKey || event.shiftKey) return;
+    const rows = this.treeRows();
+    const els = this.rowEls();
+    // The two lists disagree only between a branch opening or closing and the
+    // render that draws it — a few milliseconds in which a position in one is not
+    // the same row in the other. A key that lands there waits for the next one
+    // rather than moving to the wrong row.
+    if (els.length !== rows.length) return;
+    const index = els.findIndex(el => el.nativeElement === event.target);
+    const entry = rows[index];
+    if (!entry) return;
+
+    const key = this.inlineKey(event.key);
+    // Ctrl is only meaningful with Home / End (the APG's "first row" chord);
+    // with anything else it is someone else's shortcut.
+    if (event.ctrlKey && key !== KEYS.HOME && key !== KEYS.END) return;
+
+    switch (key) {
+      case KEYS.ARROW_DOWN:
+        this.focusTreeRow(Math.min(index + 1, rows.length - 1));
+        break;
+      case KEYS.ARROW_UP:
+        this.focusTreeRow(Math.max(index - 1, 0));
+        break;
+      case KEYS.HOME:
+        this.focusTreeRow(0);
+        break;
+      case KEYS.END:
+        this.focusTreeRow(rows.length - 1);
+        break;
+      case KEYS.ARROW_RIGHT:
+        // Closed: open it, and stay. Open: step down into the first child, which
+        // the depth-first flatten always puts on the very next row.
+        if (!entry.parent) break;
+        if (!entry.open) this.toggleTreeRow(entry.row);
+        else if (rows[index + 1]?.depth === entry.depth + 1) this.focusTreeRow(index + 1);
+        break;
+      case KEYS.ARROW_LEFT:
+        // Open: close it, and stay. Closed or a leaf: climb to the parent, which
+        // is the nearest row above that sits one level up.
+        if (entry.open) {
+          this.toggleTreeRow(entry.row);
+          break;
+        }
+        for (let i = index - 1; i >= 0; i--) {
+          if (rows[i].depth === entry.depth - 1) {
+            this.focusTreeRow(i);
+            break;
+          }
+        }
+        break;
+      case KEYS.ENTER:
+      case KEYS.SPACE:
+        // Selection is the row's own action when the table offers one. Without
+        // it the keys do nothing, rather than guessing at a default.
+        if (!this.rowSelection()) return;
+        this.toggleRow(entry.row, !this.isRowSelected(entry.row));
+        break;
+      default:
+        return;
+    }
+    event.preventDefault();
+  }
+
+  /**
+   * The APG gives ArrowRight the job of opening a branch and ArrowLeft of closing
+   * it, because the children indent rightward. Under `dir="rtl"` they indent
+   * leftward and the two swap, the way `wr-tree` swaps them.
+   */
+  private inlineKey(key: string): string {
+    if (!this.isRtl()) return key;
+    if (key === KEYS.ARROW_RIGHT) return KEYS.ARROW_LEFT;
+    if (key === KEYS.ARROW_LEFT) return KEYS.ARROW_RIGHT;
+    return key;
+  }
+
+  /**
+   * Move the tab stop to a tree row, and focus it in the same keystroke.
+   *
+   * Synchronous on purpose, and safe to be: every row these keys pick — a
+   * sibling, the first child of an OPEN row, the parent — is already rendered,
+   * and a `tabindex="-1"` row takes focus from script. The render that follows
+   * only moves the `tabindex="0"`. Deferring the focus to `afterNextRender`
+   * cost one change-detection pass per key — about 25ms on the docs page in a
+   * dev build — and a held arrow key outran it, each repeat acting on the row
+   * focus had not yet left.
+   */
+  private focusTreeRow(index: number): void {
+    const entry = this.treeRows()[index];
+    if (!entry) return;
+    this.activeRow.set({ key: this.rowKeyOf(entry.row) });
+    this.rowEls()[index]?.nativeElement.focus();
+  }
+
   /** Leading control columns — selection + expand. */
   protected readonly leadingCols = computed<number>(() => (this.rowSelection() ? 1 : 0) + (this.expandable() ? 1 : 0));
 
@@ -1099,7 +1360,7 @@ export class WrTable {
     const rows = this.datasetRows();
     const map = new Map<string, unknown>();
     for (const [key, col] of Object.entries(this.columns())) {
-      if (col.summary !== undefined) map.set(key, this.computeSummary(col.summary, rows, key));
+      if (col.summary !== undefined) map.set(key, this.computeSummary(col.summary, rows, key, WR_TABLE_TOTAL_SCOPE));
     }
     return map;
   });
@@ -1181,7 +1442,10 @@ export class WrTable {
       bucket.rows.forEach((row, ri) => out.push(flatRow(row, `g${gi}r${ri}`, ri + 1, bucket.rows.length)));
       if (summaryCols.length) {
         const summaries = new Map<string, unknown>();
-        for (const [key, col] of summaryCols) summaries.set(key, this.computeSummary(col.summary!, bucket.rows, key));
+        const context: WrTableSummaryContext = { scope: 'group', group };
+        for (const [key, col] of summaryCols) {
+          summaries.set(key, this.computeSummary(col.summary!, bucket.rows, key, context));
+        }
         out.push({ kind: 'group-foot', id: `g${gi}f`, summaries });
       }
     });
@@ -1315,8 +1579,15 @@ export class WrTable {
     return this.datasetRows().filter(row => keys.has(this.rowKeyOf(row)));
   }
 
-  private computeSummary(kind: WrTableSummary, rows: readonly Record<string, unknown>[], key: string): unknown {
-    if (typeof kind === 'function') return kind(rows);
+  private computeSummary(
+    kind: WrTableSummary,
+    rows: readonly Record<string, unknown>[],
+    key: string,
+    context: WrTableSummaryContext
+  ): unknown {
+    // The context is the only thing that tells a subtotal from the grand total:
+    // with one group on screen both are handed the same rows.
+    if (typeof kind === 'function') return kind(rows, context);
     // Drop empty/nullish cells first — `Number('')`/`Number(null)` are 0 and
     // would otherwise skew the aggregate.
     const values = rows.map(row => row[key]).filter(v => v != null && v !== '');
@@ -1349,15 +1620,42 @@ export class WrTable {
     return this.sort().find(s => s.key === key)?.direction ?? null;
   }
 
+  /** The keys that actually sort, in application order — an entry with no direction does not. */
+  private readonly activeSortKeys = computed<readonly string[]>(() =>
+    this.sort()
+      .filter(s => s.direction)
+      .map(s => s.key)
+  );
+
   /**
    * `aria-sort` for a column header, per the WAI-ARIA table pattern. Only a
    * sortable column gets the attribute at all: on a plain column it would claim
    * the header is sortable when it is not.
+   *
+   * Only the PRIMARY key announces a direction. ARIA asks for `aria-sort` on one
+   * header at a time, and a screen reader that hears "ascending" on two columns
+   * has no way to learn which one orders the rows — the secondary key only
+   * breaks ties inside the first. So every other sortable column, a secondary
+   * key included, says `none`, and its place in the order is drawn instead (see
+   * {@link sortOrderFor}).
    */
   protected ariaSortFor(key: string, sortable: boolean | undefined): 'ascending' | 'descending' | 'none' | null {
     if (!sortable) return null;
+    if (this.activeSortKeys()[0] !== key) return 'none';
     const dir = this.directionFor(key);
     return dir === 'asc' ? 'ascending' : dir === 'desc' ? 'descending' : 'none';
+  }
+
+  /**
+   * A sorted column's 1-based place in a MULTI-column sort, drawn beside its
+   * indicator — `null` while one column or none sorts, where a lone "1" would
+   * say nothing the arrow does not.
+   */
+  protected sortOrderFor(key: string): number | null {
+    const keys = this.activeSortKeys();
+    if (keys.length < 2) return null;
+    const at = keys.indexOf(key);
+    return at < 0 ? null : at + 1;
   }
 
   protected cycleSort(key: string): void {

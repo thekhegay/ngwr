@@ -817,3 +817,85 @@ describe('WrTableHarness — two tables on one page', () => {
     expect(await files.getCellTexts()).toEqual([['src'], ['README.md']]);
   });
 });
+
+@Component({
+  imports: [WrTable],
+  template: `<wr-table [columns]="columns" [items]="items" [(sort)]="sort" />`,
+})
+class MultiSortHost {
+  readonly columns: WrTableColumns = {
+    name: { title: 'Name', sortable: true },
+    role: { title: 'Role', sortable: true },
+    score: { title: 'Score' },
+  };
+  readonly items = ROWS;
+  readonly sort = signal<readonly WrTableSortState[]>([]);
+}
+
+/**
+ * `aria-sort` goes on ONE header — the primary key's — so the harness method that
+ * reads it answers `'none'` for a secondary key whose arrow plainly says
+ * "descending". A spec asserting a multi-column sort through `aria-sort` alone
+ * would read that as a broken table. These two read the drawn half instead.
+ */
+describe('WrTableHarness — a multi-column sort', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<MultiSortHost>>;
+  let loader: ReturnType<typeof TestbedHarnessEnvironment.loader>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(MultiSortHost);
+    fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('announces the primary key alone, and reads every key from what the header draws', async () => {
+    const table = await loader.getHarness(WrTableHarness);
+
+    await table.sortByColumn('Name');
+    await table.sortByColumn('Role');
+    await table.sortByColumn('Role');
+    expect(fixture.componentInstance.sort()).toEqual([
+      { key: 'name', direction: 'asc' },
+      { key: 'role', direction: 'desc' },
+    ]);
+
+    expect(await table.getSortDirection('Name')).toBe('ascending');
+    expect(await table.getSortDirection('Role')).toBe('none');
+
+    expect(await table.getSortIndicator('Name')).toBe('ascending');
+    expect(await table.getSortIndicator('Role')).toBe('descending');
+    expect(await table.getSortOrder('Name')).toBe(1);
+    expect(await table.getSortOrder('Role')).toBe(2);
+  });
+
+  it('answers 1 for a lone sorted column and null for the rest', async () => {
+    const table = await loader.getHarness(WrTableHarness);
+
+    await table.sortByColumn('Role');
+
+    expect(await table.getSortOrder('Role')).toBe(1);
+    expect(await table.getSortOrder('Name')).toBeNull();
+    // A plain column has no indicator to read at all.
+    expect(await table.getSortIndicator('Score')).toBeNull();
+    expect(await table.getSortOrder('Score')).toBeNull();
+  });
+
+  it('promotes the secondary key once the primary one is cleared', async () => {
+    fixture.componentInstance.sort.set([
+      { key: 'name', direction: 'asc' },
+      { key: 'role', direction: 'desc' },
+    ]);
+    fixture.detectChanges();
+    const table = await loader.getHarness(WrTableHarness);
+
+    await table.sortByColumn('Name'); // asc → desc
+    await table.sortByColumn('Name'); // desc → off
+
+    expect(await table.getSortDirection('Role')).toBe('descending');
+    expect(await table.getSortOrder('Role')).toBe(1);
+    expect(await table.getSortDirection('Name')).toBe('none');
+  });
+});

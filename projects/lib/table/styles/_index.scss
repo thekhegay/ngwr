@@ -48,6 +48,9 @@
   // one cue that a column is pinned all but disappeared.
   --wr-table-pin-shadow-ink: light-dark(rgb(0 0 0 / 18%), rgb(0 0 0 / 45%));
   --wr-table-resize-handle-bg: var(--wr-border-base);
+  // A column's place in a multi-column sort, drawn after its indicator.
+  --wr-table-sort-order-font-size: var(--wr-table-head-font-size);
+  --wr-table-sort-order-font-weight: var(--wr-font-weight-semibold);
   --wr-table-tree-lead-margin-end: var(--wr-space-xs);
   --wr-table-tree-toggle-radius: var(--wr-border-radius-sm);
   --wr-table-expand-btn-padding: var(--wr-space-xs);
@@ -185,7 +188,6 @@
 
   // NOTE: `.cdk-drag-animating` is NOT here. CDK puts it on the preview clone,
   // which lives in `<body>` — see the rule at the end of this file.
-
 
   // --- Tree rows ------------------------------------------------------------
   // Depth lives on the `<tr>` as `--wr-table-depth` and is spent inside the tree
@@ -490,11 +492,61 @@
     @include theme.touch-target($size: 24px);
   }
 
+  // The number a sorted column carries while more than one column sorts. It is
+  // the only place a secondary key's rank exists: `aria-sort` goes on the primary
+  // header alone. Text in the header's own muted ink, measured in Chromium on the
+  // header fill at 6.87:1 in light (`#4b5563` on `#f3f4f6`) and 7.07:1 in dark
+  // (`#9ea6b2` on `#131a2b`).
+  //
+  // A flex item of `__th-inner`, so the row's own gap spaces it from the arrow,
+  // and it sits outside the sort button on purpose (see table.html). A 1em line
+  // keeps it no taller than the 12px glyph beside it, so the header row does not
+  // grow when a second column starts sorting.
+  &__sort-order {
+    flex: 0 0 auto;
+    font-size: var(--wr-table-sort-order-font-size);
+    font-weight: var(--wr-table-sort-order-font-weight);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
   &__tr {
     transition: background var(--wr-transition-base);
 
     &:hover {
       background: var(--wr-table-row-hover);
+    }
+
+    // A tree row holds the treegrid's roving tab stop (the APG's row focus), so
+    // it needs the ring every other focusable part of the table has. Inset: the
+    // host is `overflow: hidden`, and the first and last rows run flush to its
+    // border, where an outset ring is clipped away.
+    &:focus-visible {
+      @include theme.focus-ring;
+      outline-offset: -2px;
+    }
+
+    // A pinned cell is sticky, stacked above the row and opaque, so it paints
+    // over the row's outline. It draws its own stretch of the ring instead:
+    // the block edges always, an inline edge only where it ends the row. A
+    // border rather than a shadow, since `forced-colors` drops shadows.
+    &:focus-visible .wr-table__td--pin-left::after,
+    &:focus-visible .wr-table__td--pin-right::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-block: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+      pointer-events: none;
+    }
+
+    &:focus-visible .wr-table__td--pin-left:first-child::after,
+    &:focus-visible .wr-table__td--pin-right:first-child::after {
+      border-inline-start: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+    }
+
+    &:focus-visible .wr-table__td--pin-left:last-child::after,
+    &:focus-visible .wr-table__td--pin-right:last-child::after {
+      border-inline-end: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
     }
 
     &:last-child .wr-table__td {
@@ -784,6 +836,13 @@
     box-shadow: none;
     background-color: transparent;
     background-image: none;
+  }
+
+  // An unfrozen cell no longer covers the row's ring, so it draws no stretch of
+  // its own (and, being static, would anchor one to the wrong box).
+  .wr-table--responsive .wr-table__tr:focus-visible .wr-table__td--pin-left::after,
+  .wr-table--responsive .wr-table__tr:focus-visible .wr-table__td--pin-right::after {
+    content: none;
   }
 
   // Fixed-layout truncation is meaningless in cards — let values wrap again.

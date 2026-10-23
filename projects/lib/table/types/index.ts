@@ -9,3 +9,4 @@ export type { WrTableCellContext } from './table-cell-context';
 export type { WrTableCsvOptions } from './table-csv-options';
 export type { WrTableExpandContext } from './table-expand-context';
 export type { WrTableGroupContext } from './table-group-context';
+export type { WrTableSummaryContext } from './table-summary-context';

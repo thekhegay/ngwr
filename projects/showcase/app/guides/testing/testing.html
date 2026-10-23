@@ -359,9 +359,36 @@
             <td><code>[sortLabel]</code> · <code>table.sort</code></td>
           </tr>
           <tr>
-            <th scope="row">Table row / all checkboxes</th>
-            <td><code>Select row</code> · <code>Select all rows</code></td>
-            <td><code>table.selectRow</code> / <code>.selectAll</code></td>
+            <th scope="row">Table row checkbox</th>
+            <td>
+              <code>Select row Ada</code>: since v15 the action word, then the row's label cell (the first column, or
+              the tree column in tree mode)
+            </td>
+            <td><code>[selectRowLabel]</code> · <code>table.selectRow</code>, the action word only</td>
+          </tr>
+          <tr>
+            <th scope="row">Table select-all checkbox</th>
+            <td><code>Select all rows</code></td>
+            <td><code>[selectAllLabel]</code> · <code>table.selectAll</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Table detail / tree toggle</th>
+            <td><code>Toggle row details Ada</code> · <code>Toggle child rows Engineering</code></td>
+            <td>
+              <code>[expandRowLabel]</code> · <code>table.expandRow</code> / <code>[toggleRowLabel]</code> ·
+              <code>table.toggleRow</code>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Table group checkbox / toggle</th>
+            <td>
+              <code>Select group admin</code> · <code>Toggle group admin 2</code>: the group's label, then its row count
+              while the badge shows
+            </td>
+            <td>
+              <code>[selectGroupLabel]</code> · <code>table.selectGroup</code> / <code>[toggleGroupLabel]</code> ·
+              <code>table.toggleGroup</code>
+            </td>
           </tr>
           <tr>
             <th scope="row">Table loading overlay</th>

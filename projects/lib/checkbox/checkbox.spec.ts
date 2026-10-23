@@ -15,6 +15,7 @@ import { WrCheckboxGroup } from './checkbox-group';
       [disabled]="disabled()"
       [indeterminate]="indeterminate()"
       [ariaLabel]="ariaLabel()"
+      [ariaLabelledby]="ariaLabelledby()"
       (touch)="touched.set(touched() + 1)"
     >
       Accept terms
@@ -26,6 +27,7 @@ class Host {
   readonly disabled = signal(false);
   readonly indeterminate = signal(false);
   readonly ariaLabel = signal<string | null>(null);
+  readonly ariaLabelledby = signal<string | null>(null);
   readonly touched = signal(0);
 }
 
@@ -190,6 +192,20 @@ describe('WrCheckbox', () => {
 
     // An `aria-label` on the host would not reach the native control inside it.
     expect(input().getAttribute('aria-label')).toBe('Select row 3');
+  });
+
+  it('points the native input at the elements that name it', () => {
+    expect(input().hasAttribute('aria-labelledby')).toBe(false);
+
+    fixture.componentInstance.ariaLabelledby.set('action-word row-label');
+    fixture.detectChanges();
+
+    // Two ids, verbatim: a table names a row's box by an action word AND the
+    // row's own label cell, and only `aria-labelledby` can join two elements.
+    // On the host it would name a `<wr-checkbox>` no screen reader announces.
+    expect(input().getAttribute('aria-labelledby')).toBe('action-word row-label');
+    const host = (fixture.nativeElement as HTMLElement).querySelector('wr-checkbox')!;
+    expect(host.hasAttribute('aria-labelledby')).toBe(false);
   });
 
   it('emits touch on blur so a bound field can mark itself touched', () => {

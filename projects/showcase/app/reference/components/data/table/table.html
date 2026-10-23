@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="Table"
+  updated="15.0.0"
   description="Rows of data with sorting, filtering, paging and custom cells."
   [keywords]="['table', 'wr-table']"
   [labels]="['Component', 'Directive']"
@@ -56,8 +57,13 @@
     <ul>
       <li><code>sort</code> is an array, one entry per sorted column; the first entry is the primary key.</li>
       <li>
-        Only the sort button sorts, not the whole header. In tests, read the state from the header's
-        <code>aria-sort</code>.
+        Only the primary column announces <code>aria-sort</code>. With several sorted columns, each shows its place in
+        the order as a number. Since v15.
+      </li>
+      <li>
+        Only the sort button sorts, not the whole header. In tests, <code>getSortDirection()</code> reads
+        <code>aria-sort</code>; <code>getSortIndicator()</code> and <code>getSortOrder()</code> read every sorted
+        column.
       </li>
       <li>Sorting does not reset <code>page</code>. Reset it in your sort handler if you want.</li>
     </ul>
@@ -164,6 +170,13 @@
         </div>
       </div>
     </ngwr-doc-snippet>
+    <ul>
+      <li>
+        Each row's checkbox is named by an action word and the row's first cell: "Select row Roman". The same goes for
+        the expand and tree toggles, and the group controls take the group's label. Since v15.
+      </li>
+      <li><code>selectRowLabel</code> and the other <code>*Label</code> inputs set the action word.</li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -186,7 +199,7 @@
 
   <ngwr-doc-section
     title="Summary row"
-    description="A column's `summary` adds a footer row: `'sum'`, `'avg'`, `'count'`, `'min'`, `'max'`, or a function of the rows."
+    description="A column's `summary` adds a footer row: `'sum'`, `'avg'`, `'count'`, `'min'`, `'max'`, or a function of the rows and a context."
   >
     <ngwr-doc-code [code]="snippets.summary" language="angular-ts" />
     <ngwr-doc-snippet code="">
@@ -210,7 +223,7 @@
 
   <ngwr-doc-section
     title="Group subtotals"
-    description="`groupSummary` adds a subtotal row under each group. Set `pageSize` to 0 with it, since the footer totals every row."
+    description="`groupSummary` adds a subtotal row under each group. A summary function's second argument says which row it computes: `scope` is `'group'` or `'total'`. Set `pageSize` to 0 with it, since the footer totals every row."
   >
     <ngwr-doc-code [code]="snippets.groupSummary" language="angular-ts" />
     <ngwr-doc-snippet code="">
@@ -319,6 +332,11 @@
       </div>
     </ngwr-doc-snippet>
     <ul>
+      <li>
+        The rows take the keyboard: Tab reaches one row, Up and Down move, Right opens a row or steps into it, Left
+        closes it or climbs to the parent, Home and End jump. Enter and Space select the row when
+        <code>rowSelection</code> is set. Tab moves on into the row's own controls. Since v15.
+      </li>
       <li><code>pageSize</code> pages the roots. Select all selects only the rows on screen.</li>
       <li>
         Tree rows do not combine with <code>groupBy</code>, <code>[wrTableExpand]</code> or <code>virtualScroll</code>.
