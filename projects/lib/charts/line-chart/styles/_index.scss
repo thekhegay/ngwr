@@ -1,5 +1,12 @@
 @use '../../../theme/styles' as theme;
 
+// Styles for the entry points this component's own markup renders. The legend is a
+// `ul[wr-chart-legend]`, so `@use 'ngwr/charts/line-chart'` alone draws it styled.
+@use '../../chart-legend/styles' as chart-legend-styles; // WrChartLegend
+// With `dataTable`, the figures render as a `<wr-chart-table>` beside the plot, which
+// its own sheet clips out of sight.
+@use '../../core/styles' as core-styles; // WrChartTable
+
 .wr-line-chart {
   --wr-line-chart-font-family: var(--wr-font-family-base);
   // The room round the drawing inside the plot, which the dots and the hover ring
@@ -8,6 +15,9 @@
   // and the tooltip the inline one to meet the points.
   --wr-line-chart-plot-inset-x: var(--wr-space-md);
   --wr-line-chart-plot-inset-y: var(--wr-space-sm);
+  // How much of its series' colour a `showArea` fill takes: faint enough that the
+  // gridlines and every other series' line read through where fills overlap.
+  --wr-line-chart-area-opacity: 0.15;
 
   // Where a point is, for the x labels and the tooltip. Both sit in a box as wide as the
   // plot — the drawing plus its inline padding — and are handed the point's x as a
@@ -22,8 +32,22 @@
   $room-end: calc($inset + (100cqw - 2 * $inset) * (100 - $x) / 100);
 
   display: block;
+  // The containing block of the `dataTable` copy, which is out of flow and sits beside
+  // the plot rather than inside it. With a static host that box resolved against the
+  // nearest positioned ancestor outside the chart, often the page, and inside an
+  // unpositioned scroller the 1px box kept its place in the scrolled content: measured
+  // in Chromium, a chart 2000px down a 300px scroller grew the page from 600px to
+  // 2241px of blank scroll. No z-index, so no stacking context; the tooltip already
+  // resolves against the plot.
+  position: relative;
   font-family: var(--wr-line-chart-font-family);
   color: var(--wr-color-on-surface);
+
+  // A stacked chart's bands meet without overlapping, so each fill can carry twice the
+  // colour and still hide nothing.
+  &--stacked {
+    --wr-line-chart-area-opacity: 0.3;
+  }
 
   &__legend {
     --wr-line-chart-legend-margin-bottom: var(--wr-space-md);
@@ -41,11 +65,17 @@
   &__legend-item {
     --wr-line-chart-legend-item-gap: var(--wr-space-sm);
     --wr-line-chart-legend-item-font-size: var(--wr-text-xs);
+    // A toggleable row's button lays out the key and the name itself, from the shared
+    // legend's own hook, so that hook follows this one.
+    --wr-chart-legend-item-gap: var(--wr-line-chart-legend-item-gap);
 
     display: inline-flex;
     align-items: center;
     gap: var(--wr-line-chart-legend-item-gap);
     font-size: var(--wr-line-chart-legend-item-font-size);
+    // The chart's own colour, as before the shared legend, which paints its rows
+    // `--wr-chart-legend-color`.
+    color: inherit;
   }
 
   // A short line rather than a dot, because it now carries the series' dash
@@ -113,6 +143,13 @@
     grid-row: 1;
     position: relative;
     padding: var(--wr-line-chart-plot-inset-y) var(--wr-line-chart-plot-inset-x);
+  }
+
+  // The colour is the series', an attribute of the path; only its share is the hook's.
+  // A fill keeps it under forced colors, as the lines keep their strokes, and it stays
+  // under every line, so a reader who cannot tell the fills apart still has the dashes.
+  &__area {
+    fill-opacity: var(--wr-line-chart-area-opacity);
   }
 
   // The plot's drawing by its class, never a bare `svg`: the legend swatch is an
