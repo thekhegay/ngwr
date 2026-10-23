@@ -30,7 +30,7 @@ import { err } from '../lib/log/err';
 import { info } from '../lib/log/info';
 import { out } from '../lib/log/out';
 import { parseReleaseType } from '../lib/parse-release-type';
-import { breakingSince, truncatedBreakingNotes } from '../lib/version/breaking-since';
+import { breakingSince, featuresSince, truncatedBreakingNotes } from '../lib/version/breaking-since';
 import { nextVersion } from '../lib/version/next';
 import { lastReleaseTag } from '../lib/version/previous-tag';
 import { readCurrentVersion } from '../lib/version/read-current';
@@ -87,7 +87,8 @@ async function main(): Promise<void> {
     err('  Check the generated section and fix it in the release PR.');
   }
 
-  const next = nextVersion(current, type, breaking.length > 0);
+  const features = since ? featuresSince(since) : [];
+  const next = nextVersion(current, type, { breaking: breaking.length > 0, features: features.length > 0 });
 
   if (!next) {
     err(`Cannot compute next version from ${current} with bump=${type}`);

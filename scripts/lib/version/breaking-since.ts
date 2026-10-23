@@ -17,6 +17,17 @@ import { lastReleaseTag } from './previous-tag';
  * a version that is not an `x.0.0` contradicts its own notes — which is exactly
  * the state v12.2.0 shipped in, and the reason this file exists.
  */
+/**
+ * Subjects of the library features since `ref`, which make an RC a candidate
+ * for the next minor. A `showcase` scope changes ngwr.dev rather than the
+ * package, so it does not count.
+ */
+export function featuresSince(ref: string): string[] {
+  return commitsSince(ref)
+    .map(c => c.message.split('\n')[0] ?? '')
+    .filter(subject => /^feat(\((?!showcase)[^)]*\))?:/.test(subject));
+}
+
 export function breakingSince(ref: string): string[] {
   return commitsSince(ref)
     .map(c => c.message)
