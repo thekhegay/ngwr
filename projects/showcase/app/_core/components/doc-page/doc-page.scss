@@ -71,12 +71,10 @@
     font-variant-numeric: tabular-nums;
   }
 
-  // The fact a tombstone page is about, so it is filled rather than outlined —
-  // and neutral, because a removal is history, not an error.
+  // The fact a tombstone page is about: the badge's own filled danger, so the
+  // page says at a glance that the thing it documents is gone.
   wr-badge.since--removed {
-    background: var(--wr-color-fill-strong);
-    box-shadow: none;
-    color: var(--wr-color-on-surface);
+    font-variant-numeric: tabular-nums;
   }
 }
 

@@ -18,7 +18,7 @@
         <wr-badge class="since" size="sm" shape="pill">{{ updated }}</wr-badge>
       }
       @if (removedIn(); as removed) {
-        <wr-badge class="since since--removed" size="sm" shape="pill">{{ removed }}</wr-badge>
+        <wr-badge class="since--removed" color="danger" size="sm" shape="pill">{{ removed }}</wr-badge>
       }
       @if (optional()) {
         <wr-badge class="since" size="sm" shape="pill">Optional</wr-badge>
