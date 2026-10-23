@@ -13,15 +13,19 @@
          having fewer slices than it has. A gap is a shape, and it survives
          greyscale, printing and a monochrome display. -->
     @for (slice of slices(); track $index) {
-      <path
-        [attr.d]="slice.path"
-        [attr.fill]="slice.color"
-        stroke="var(--wr-color-surface)"
-        stroke-width="1"
-        stroke-linejoin="round"
-        (mouseenter)="tip.enter($index)"
-        (mouseleave)="tip.leave($event)"
-      />
+      <!-- A hidden slice draws nothing at all; the index stays the slice's own, which is
+           what the tooltip looks it up by. -->
+      @if (!slice.hidden) {
+        <path
+          [attr.d]="slice.path"
+          [attr.fill]="slice.color"
+          stroke="var(--wr-color-surface)"
+          stroke-width="1"
+          stroke-linejoin="round"
+          (mouseenter)="tip.enter($index)"
+          (mouseleave)="tip.leave($event)"
+        />
+      }
     }
   </svg>
   @if (centerValue() || centerLabel()) {
@@ -37,13 +41,13 @@
 </div>
 
 @if (showLegend() && slices().length > 0) {
-  <ul class="wr-donut-chart__legend">
-    @for (slice of slices(); track $index) {
-      <li class="wr-donut-chart__legend-item">
-        <span class="wr-donut-chart__swatch" [style.background]="slice.color"></span>
-        <span class="wr-donut-chart__legend-label">{{ slice.label }}</span>
-        <span class="wr-donut-chart__legend-value">{{ slice.text }}</span>
-      </li>
-    }
-  </ul>
+  <!-- The key is `aria-hidden`: the row's text is its name, and the dot carries no word
+       of its own. -->
+  <ul
+    wr-chart-legend
+    class="wr-donut-chart__legend"
+    [items]="legendItems()"
+    [toggleable]="toggleableLegend()"
+    [(hiddenSeries)]="hiddenSegments"
+  ></ul>
 }

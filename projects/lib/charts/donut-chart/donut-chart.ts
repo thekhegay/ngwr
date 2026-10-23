@@ -6,17 +6,10 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import {
-  Component,
-  type ElementRef,
-  LOCALE_ID,
-  ViewEncapsulation,
-  computed,
-  inject,
-  input,
-  viewChild,
-} from '@angular/core';
+import { Component, type ElementRef, ViewEncapsulation, computed, input, model, viewChild } from '@angular/core';
 
+import { WR_CHART_LEGEND_BLOCK, WrChartLegend, type WrChartLegendItem } from 'ngwr/charts/chart-legend';
+import { chartColor, useChartNumbers } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 
@@ -32,24 +25,6 @@ function weight(value: number): number {
 }
 
 /**
- * Default series colours, in order.
- *
- * Four intents and the neutral role, and `info` is deliberately absent: it is the
- * same blue as `primary` to every reader (1.061:1 apart in light, 1.004:1 in
- * dark, and the same hue), so two adjacent series would be one series with a
- * seam. The neutral closes the list because it is the one tone here that no
- * intent is near — it used to be the `medium` intent, which v15 removed, and the
- * role resolves to the same step of the gray ramp.
- */
-const FALLBACK_COLORS = [
-  'var(--wr-color-primary)',
-  'var(--wr-color-success)',
-  'var(--wr-color-warning)',
-  'var(--wr-color-danger)',
-  'var(--wr-color-on-surface-muted)',
-];
-
-/**
  * Donut chart. Set `thickness` to 0 for a solid pie. Optional center
  * text via inputs.
  *
@@ -61,6 +36,9 @@ const FALLBACK_COLORS = [
  * ]" centerLabel="Disk" centerValue="60%" />
  * ```
  *
+ * The legend is a `ul[wr-chart-legend]` (`ngwr/charts/chart-legend`), and with
+ * `toggleableLegend` its rows show and hide their slices through `hiddenSegments`.
+ *
  * @see https://ngwr.dev/charts/donut-chart
  */
 @Component({
@@ -68,6 +46,11 @@ const FALLBACK_COLORS = [
   templateUrl: './donut-chart.html',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-donut-chart' },
+  imports: [WrChartLegend],
+  // The legend's rows keep the classes this chart drew before it drew them through
+  // `WrChartLegend`: `.wr-donut-chart__legend-item`, `__swatch`, `__legend-label` and
+  // `__legend-value`.
+  viewProviders: [{ provide: WR_CHART_LEGEND_BLOCK, useValue: 'wr-donut-chart' }],
 })
 export class WrDonutChart {
   /**
@@ -96,6 +79,31 @@ export class WrDonutChart {
   /** Show the legend under the chart. @default true */
   readonly showLegend = input(true, { transform: coerceBooleanProperty });
 
+  /**
+   * Make each legend row a toggle button that shows and hides its slice, through
+   * `hiddenSegments`. A row is a `<button aria-pressed>`, pressed while its slice is
+   * shown, so the legend becomes one tab stop per slice. @default false
+   */
+  readonly toggleableLegend = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * The positions in `segments` of the slices that are hidden. Positions rather than
+   * labels, since two slices may share a label. A toggleable legend writes it, and a
+   * host may bind it with or without one: `[(hiddenSegments)]`.
+   *
+   * A hidden slice is left out of the ring, and the slices still shown RE-NORMALISE:
+   * they share the whole ring between them, each at its share of their own total. A
+   * donut reads as the parts of the whole it draws, so leaving the hidden slice's arc
+   * as a gap would show a whole that no longer adds up, and turning a slice off is how
+   * a reader asks "of the rest, how much is each?". The tooltip cannot open on a slice
+   * that is not drawn. The legend keeps the hidden slice's row, struck through and with
+   * its own value, so it can be shown again; the row says "hidden" to a screen reader as
+   * well, through `aria-pressed` on a toggle and a visually hidden word otherwise. The
+   * centre text is printed as given, so a host that writes a total there works it out
+   * from this list. A position past the end of `segments` is kept and ignored.
+   */
+  readonly hiddenSegments = model<readonly number[]>([]);
+
   /** Bold value text in the center. */
   readonly centerValue = input<string>('');
 
@@ -115,16 +123,10 @@ export class WrDonutChart {
    */
   readonly valueFormat = input<((value: number) => string) | null>(null);
 
-  private readonly locale = inject(LOCALE_ID);
-  private readonly numbers = new Intl.NumberFormat(this.locale);
-  /** Below one, by significant digits, which keep 0.0004 from rounding to `0`. */
-  private readonly smallNumbers = new Intl.NumberFormat(this.locale, { maximumSignificantDigits: 3 });
+  /** Each value as the legend and the tooltip print it: exact, in `LOCALE_ID` unless `valueFormat` is given. */
+  private readonly numbers = useChartNumbers(this.valueFormat);
 
-  private formatValue(value: number): string {
-    const custom = this.valueFormat();
-    if (custom) return custom(value);
-    return (value !== 0 && Math.abs(value) < 1 ? this.smallNumbers : this.numbers).format(value);
-  }
+  private readonly hidden = computed(() => new Set(this.hiddenSegments()));
 
   private readonly svg = viewChild<ElementRef<SVGSVGElement>>('svg');
 
@@ -138,8 +140,10 @@ export class WrDonutChart {
     return this.outerR * (1 - thickness / 100);
   });
 
+  /** The sum the ring is divided by: the slices still shown (see `hiddenSegments`). */
   protected readonly total = computed(() => {
-    const sum = this.segments().reduce((acc, s) => acc + weight(s.value), 0);
+    const hidden = this.hidden();
+    const sum = this.segments().reduce((acc, s, i) => acc + (hidden.has(i) ? 0 : weight(s.value)), 0);
     return sum > 0 ? sum : 1;
   });
 
@@ -153,24 +157,35 @@ export class WrDonutChart {
    */
   protected readonly slices = computed(() => {
     const total = this.total();
+    const hidden = this.hidden();
     const origin = -Math.PI / 2;
     let cumulative = 0;
     return this.segments().map((s, i) => {
       const value = weight(s.value);
+      const isHidden = hidden.has(i);
+      // A hidden slice takes no turn of the ring, so the next slice starts where the last
+      // shown one ended.
+      const share = isHidden ? 0 : value;
       const startAngle = origin + (cumulative / total) * Math.PI * 2;
-      cumulative += value;
+      cumulative += share;
       const endAngle = origin + (cumulative / total) * Math.PI * 2;
       return {
         label: s.label,
         value,
-        text: this.formatValue(value),
-        color: s.color ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length],
-        path: this.arcPath(startAngle, endAngle),
-        percent: (value / total) * 100,
+        text: this.numbers.value(value),
+        color: s.color ?? chartColor(i),
+        hidden: isHidden,
+        path: isHidden ? '' : this.arcPath(startAngle, endAngle),
+        percent: (share / total) * 100,
         midAngle: (startAngle + endAngle) / 2,
       };
     });
   });
+
+  /** The legend's rows: every slice, hidden ones included, each with its value. */
+  protected readonly legendItems = computed<readonly WrChartLegendItem[]>(() =>
+    this.slices().map(({ label, color, text }) => ({ label, color, value: text }))
+  );
 
   /**
    * One tooltip for the whole chart, pointing at the hovered slice: at the middle of

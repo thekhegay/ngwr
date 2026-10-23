@@ -7,6 +7,8 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
+import { WrChartLegendHarness } from 'ngwr/charts/chart-legend/testing';
+
 import type { WrMeterGroupHarnessFilters, WrMeterGroupSlice } from './types';
 
 /** The `width: <n>%` the component writes onto a band, out of its inline `style`. */
@@ -71,7 +73,7 @@ export class WrMeterGroupHarness extends ComponentHarness {
     return Number(await (await this.bar()).getAttribute('aria-valuemax'));
   }
 
-  /** The bands, in order, with the share of the bar each takes. */
+  /** The bands, in order, with the share of the bar each takes. A hidden segment draws no band. */
   async getSlices(): Promise<WrMeterGroupSlice[]> {
     const slices = await this.locatorForAll('.wr-meter-group__slice')();
 
@@ -104,7 +106,25 @@ export class WrMeterGroupHarness extends ComponentHarness {
     return (await this.locatorForOptional('.wr-meter-group__legend')()) !== null;
   }
 
-  /** The legend's labels, in order. */
+  /**
+   * The legend as a {@link WrChartLegendHarness}: each row's key and its hidden state
+   * and, with `toggleableLegend`, the toggles that show and hide a segment.
+   *
+   * Throws when the group draws no legend (`showLegend` off, or no segments) rather
+   * than answering with an empty one: {@link hasLegend} is the question for that.
+   */
+  async getLegendHarness(): Promise<WrChartLegendHarness> {
+    const legend = await this.locatorForOptional(WrChartLegendHarness)();
+    if (!legend) {
+      throw new Error(
+        'WrMeterGroupHarness.getLegendHarness(): the group draws no legend — `showLegend` is off or there are no ' +
+          'segments. Ask hasLegend() first.'
+      );
+    }
+    return legend;
+  }
+
+  /** The legend's labels, in order — hidden segments included, since their rows stay. */
   async getLegendLabels(): Promise<string[]> {
     const labels = await this.locatorForAll('.wr-meter-group__legend-label')();
     return Promise.all(labels.map(label => label.text()));

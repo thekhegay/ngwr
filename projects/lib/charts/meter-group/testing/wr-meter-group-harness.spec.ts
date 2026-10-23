@@ -16,7 +16,14 @@ const SEGMENTS: readonly WrMeterSegment[] = [
 @Component({
   imports: [WrMeterGroup],
   template: `
-    <wr-meter-group [segments]="segments()" [max]="max()" [showLegend]="showLegend()" [showValues]="showValues()" />
+    <wr-meter-group
+      [segments]="segments()"
+      [max]="max()"
+      [showLegend]="showLegend()"
+      [showValues]="showValues()"
+      [toggleableLegend]="toggleable()"
+      [(hiddenSegments)]="hidden"
+    />
   `,
 })
 class Host {
@@ -24,6 +31,8 @@ class Host {
   readonly max = signal(0);
   readonly showLegend = signal(true);
   readonly showValues = signal(true);
+  readonly toggleable = signal(false);
+  readonly hidden = signal<readonly number[]>([]);
 }
 
 /**
@@ -105,6 +114,33 @@ describe('WrMeterGroupHarness', () => {
     expect([await harness.hasLegend(), await harness.getLegendLabels()]).toEqual([false, []]);
     // The bar keeps its own name and value either way.
     expect(await harness.getValue()).toBe(100);
+  });
+
+  it('hands back its legend, and hides a segment through it', async () => {
+    fixture.componentInstance.toggleable.set(true);
+    await fixture.whenStable();
+
+    const harness = await meter();
+    const legend = await harness.getLegendHarness();
+    expect(await legend.getLabels()).toEqual(['Apps', 'Photos', 'Free']);
+
+    await legend.toggle(2);
+
+    expect(await legend.getHidden()).toEqual([2]);
+    expect(fixture.componentInstance.hidden()).toEqual([2]);
+    expect(await harness.getSlices()).toEqual([
+      { label: 'Apps', percent: 37.5 },
+      { label: 'Photos', percent: 62.5 },
+    ]);
+    expect([await harness.getValue(), await harness.getMax()]).toEqual([80, 80]);
+    expect(await harness.getLegendLabels()).toEqual(['Apps', 'Photos', 'Free']);
+  });
+
+  it('refuses to hand back a legend the group does not draw', async () => {
+    fixture.componentInstance.showLegend.set(false);
+    await fixture.whenStable();
+
+    await expect((await meter()).getLegendHarness()).rejects.toThrow(/draws no legend/);
   });
 
   it('matches on the name and on a band label', async () => {

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrDonutChart, type WrDonutSegment } from 'ngwr/charts/donut-chart';
 
@@ -30,11 +30,22 @@ export default class DonutChartPageComponent {
     { label: 'Free', value: 15 },
   ];
 
+  protected readonly sources: readonly WrDonutSegment[] = [
+    { label: 'Direct', value: 4812 },
+    { label: 'Search', value: 3206 },
+    { label: 'Social', value: 1157 },
+    { label: 'Referral', value: 644 },
+  ];
+
+  protected readonly hiddenSegments = signal<readonly number[]>([]);
+
   protected readonly snippets = {
     basic: `<wr-donut-chart [segments]="segments" centerLabel="Disk" centerValue="60%" />`,
     solid: `<wr-donut-chart [segments]="segments" thickness="0" />`,
     tooltip: `<wr-donut-chart [segments]="segments" />
 <wr-donut-chart [segments]="segments" [tooltip]="false" />`,
+    toggle: `<wr-donut-chart [segments]="segments" toggleableLegend [(hiddenSegments)]="hidden" />`,
+    toggleTs: `hidden = signal<readonly number[]>([]);`,
   };
 
   protected readonly typeSnippet = `interface WrDonutSegment {
@@ -64,6 +75,19 @@ export default class DonutChartPageComponent {
       default: '30',
     },
     { name: 'showLegend', description: 'Show the legend under the chart.', type: 'boolean', default: 'true' },
+    {
+      name: 'toggleableLegend',
+      description: 'Make each legend row a toggle button that shows and hides its slice.',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'hiddenSegments',
+      description:
+        'Positions in `segments` of the hidden slices. Two-way. The slices still shown fill the ring; the legend keeps the hidden rows.',
+      type: 'readonly number[]',
+      default: '[]',
+    },
     { name: 'centerValue', description: 'Bold value text in the center.', type: 'string', default: "''" },
     { name: 'centerLabel', description: 'Smaller label under the center value.', type: 'string', default: "''" },
     {

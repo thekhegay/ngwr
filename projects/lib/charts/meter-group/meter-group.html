@@ -7,9 +7,10 @@
   [attr.aria-valuenow]="totalValue()"
   [attr.aria-valuetext]="totalText()"
 >
-  @for (slice of slices(); track $index) {
-    <!-- `data-label` is what the harness reads a band's label from; the `title` it
-         used to read is only written while the tooltip is off. -->
+  <!-- Only the shown segments draw a band; each keeps its segment's own position, which
+       is what the tooltip looks it up by. `data-label` is what the harness reads a band's
+       label from; the `title` it used to read is only written while the tooltip is off. -->
+  @for (slice of bands(); track slice.index) {
     <span
       #slice
       class="wr-meter-group__slice"
@@ -17,22 +18,18 @@
       [attr.data-label]="slice.label"
       [style.width.%]="slice.percent"
       [style.background]="slice.color"
-      (mouseenter)="tip.enter($index)"
+      (mouseenter)="tip.enter(slice.index)"
       (mouseleave)="tip.leave($event)"
     ></span>
   }
 </div>
 
 @if (showLegend() && slices().length > 0) {
-  <ul class="wr-meter-group__legend">
-    @for (slice of slices(); track $index) {
-      <li class="wr-meter-group__legend-item">
-        <span class="wr-meter-group__swatch" aria-hidden="true" [style.background]="slice.color"></span>
-        <span class="wr-meter-group__legend-label">{{ slice.label }}</span>
-        @if (showValues()) {
-          <span class="wr-meter-group__legend-value">{{ slice.text }}</span>
-        }
-      </li>
-    }
-  </ul>
+  <ul
+    wr-chart-legend
+    class="wr-meter-group__legend"
+    [items]="legendItems()"
+    [toggleable]="toggleableLegend()"
+    [(hiddenSeries)]="hiddenSegments"
+  ></ul>
 }

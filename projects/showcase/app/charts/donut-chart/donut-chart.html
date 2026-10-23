@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Donut Chart"
-  updated="15.0.0"
+  updated="15.1.0"
   description="Parts of a whole as a ring or a pie."
   [keywords]="['donut-chart', 'pie', 'wr-donut-chart']"
   [labels]="['Component']"
@@ -33,6 +33,16 @@
           <wr-donut-chart [segments]="segments" [tooltip]="false" style="width: 100%" />
         </div>
       </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Toggle slices"
+    description="`toggleableLegend` makes each legend row a button. The slices still shown fill the ring between them."
+  >
+    <ngwr-doc-code [code]="snippets.toggle" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.toggleTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-donut-chart [segments]="sources" toggleableLegend [(hiddenSegments)]="hiddenSegments" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
   <ngwr-doc-section title="API">

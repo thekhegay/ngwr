@@ -1,6 +1,10 @@
 @use '../../../theme/styles' as theme;
 @use '../../../popover/styles'; // the `.wr-tooltip` chip the hover tooltip renders into
 
+// Styles for the entry points this component's own markup renders. The legend is a
+// `ul[wr-chart-legend]`, so `@use 'ngwr/charts/donut-chart'` alone draws it styled.
+@use '../../chart-legend/styles' as chart-legend-styles; // WrChartLegend
+
 .wr-donut-chart {
   --wr-donut-chart-gap: var(--wr-space-lg);
   --wr-donut-chart-font-family: var(--wr-font-family-base);
@@ -78,11 +82,17 @@
   &__legend-item {
     --wr-donut-chart-legend-item-gap: var(--wr-space-sm);
     --wr-donut-chart-legend-item-font-size: var(--wr-text-xs);
+    // A toggleable row's button lays out the key, the name and the value itself, from the
+    // shared legend's own hook, so that hook follows this one.
+    --wr-chart-legend-item-gap: var(--wr-donut-chart-legend-item-gap);
 
     display: inline-flex;
     align-items: center;
     gap: var(--wr-donut-chart-legend-item-gap);
     font-size: var(--wr-donut-chart-legend-item-font-size);
+    // The chart's own colour, as before the shared legend, which paints its rows
+    // `--wr-chart-legend-color`.
+    color: inherit;
   }
 
   &__swatch {

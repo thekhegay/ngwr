@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrMeterGroup } from 'ngwr/charts/meter-group';
 
@@ -41,6 +41,12 @@ export default class MeterGroupPageComponent {
 />`;
 
   protected readonly tooltipSnippet = `<wr-meter-group [segments]="diskUsage" [tooltip]="false" />`;
+
+  protected readonly hiddenSegments = signal<readonly number[]>([]);
+
+  protected readonly toggleSnippet = `<wr-meter-group [segments]="diskUsage" toggleableLegend [(hiddenSegments)]="hidden" />`;
+
+  protected readonly toggleTsSnippet = `hidden = signal<readonly number[]>([]);`;
 
   protected readonly api = API.WrMeterGroup;
 
