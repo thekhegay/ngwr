@@ -89,6 +89,7 @@ export const API = {
     { name: "height", description: "Pixel height of the chart area.", type: "number", default: "200" },
     { name: "max", description: "Explicit max value. `0` = auto.", type: "number", default: "0" },
     { name: "tooltip", description: "Show a tooltip with the bar's label and value on hover. Pointer only — the column's accessible name already carries both.", type: "boolean", default: "true" },
+    { name: "valueFormat", description: "Writes every number the chart shows: the labels above the bars, the tooltip and each bar's accessible name. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact labels from a thousand up (`1.2K`, `3.4M`).", type: "((value: number) => string) | null", default: "null" },
   ],
   // <wr-blur-text>
   WrBlurText: [
@@ -175,6 +176,7 @@ export const API = {
     { name: "emptyColor", description: "Background colour for zero-value days.", type: "string", default: "color-mix(in srgb, var(--wr-border-base) 50%, transparent)" },
     { name: "showLabels", description: "Show the weekday + month labels around the grid.", type: "boolean", default: "true" },
     { name: "tooltip", description: "Show a tooltip with the day and its count on hover. It is the sentence the square's `title` carried, so the `title` is written only while this is off — or the browser would open a second copy a moment later.", type: "boolean", default: "true" },
+    { name: "valueFormat", description: "Writes each day's count in the tooltip and the `title`. `null` uses `Intl.NumberFormat` in `LOCALE_ID`.", type: "((value: number) => string) | null", default: "null" },
   ],
   // <wr-card>
   WrCard: [
@@ -193,7 +195,7 @@ export const API = {
     { name: "active", description: "Active slide index. Two-way bindable.", type: "number", default: "0" },
     { name: "showArrows", description: "Show prev / next arrow buttons.", type: "boolean", default: "true" },
     { name: "showDots", description: "Show dot indicators below the slides.", type: "boolean", default: "true" },
-    { name: "autoplay", description: "Auto-advance slides.", type: "boolean", default: "false" },
+    { name: "autoplay", description: "Auto-advance slides. Held while the pointer or keyboard focus is inside the carousel and during a swipe, and does not run at all while the reader prefers reduced motion — followed live, so turning the setting on mid-session stops the slides and turning it off starts them.", type: "boolean", default: "false" },
     { name: "intervalMs", description: "Autoplay interval (ms).", type: "number", default: "4000" },
     { name: "loop", description: "Wrap around at the ends.", type: "boolean", default: "true" },
   ],
@@ -222,6 +224,7 @@ export const API = {
     { name: "id", description: "Stable id used to associate the native input with its label. Lands on the inner `<input>`; the host never keeps it.", type: "string", default: "Randomly generated" },
     { name: "checkboxValue", description: "This checkbox's identity when inside a `<wr-checkbox-group>` — the value added to / removed from the group's array. Ignored in standalone mode. (Named `checkboxValue`, not `value`, because `FormCheckboxControl` reserves `value`.)", type: "unknown", default: "null" },
     { name: "ariaLabel", description: "Accessible name for a checkbox used WITHOUT projected text — a selection cell in a table, say. The wrapping `<label>` names the control whenever content is projected; with none, the native input has no name, and an `aria-label` put on the host lands on a `<wr-checkbox>` element that no screen reader ever announces.", type: "string | null", default: "null" },
+    { name: "ariaLabelledby", description: "Ids of the elements that name this checkbox, space-separated, for a box whose name is already on screen somewhere else — a table row's label cell, say, joined to an action word. Lands on the inner `<input>` as `aria-labelledby`, which wins over `ariaLabel` and over projected text. The ids have to resolve in the same document; one that matches nothing is skipped, and with none left the box falls back to `ariaLabel`.", type: "string | null", default: "null" },
     { name: "checked", description: "Checked state — the form value. Bound by `[formField]`, two-way via `[(checked)]`, or `[(ngModel)]`. Ignored inside a `<wr-checkbox-group>`, where the group's array is the source of truth.", type: "boolean", default: "false" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
     { name: "disabled", description: "Disable the checkbox. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
@@ -365,13 +368,13 @@ export const API = {
   // <wr-date-picker>
   WrDatePicker: [
     { name: "mode", description: "Picker behavior — see class doc.", type: "'date' | 'time' | 'datetime'", default: "'date'" },
-    { name: "format", description: "Format used for both display and parsing. When `null` (default), the format is derived from `mode` (`shortDate` / `time` / `shortDateTime`). Pass a named key or raw token string to override.", type: "WrDateFormat | string | null", default: "null" },
+    { name: "format", description: "Format used for both display and parsing. When `null` (default), the format is derived from `mode` (`shortDate` / `time` / `shortDateTime`), with the hour cycle of `timeFormat` and the seconds of `showSeconds` (`time24hSeconds`, …). Pass a named key or raw token string to override.", type: "WrDateFormat | string | null", default: "null" },
     { name: "placeholder", description: "Placeholder shown when the input is empty.", type: "string", default: "''" },
     { name: "min", description: "Min selectable date (forwarded to the calendar). Ignored in `time` mode.", type: "Date | undefined", default: "undefined" },
     { name: "max", description: "Max selectable date (forwarded to the calendar). Ignored in `time` mode.", type: "Date | undefined", default: "undefined" },
     { name: "dateFilter", description: "Predicate to disable specific dates (forwarded to the calendar). Ignored in `time` mode.", type: "((date: Date) => boolean) | null", default: "null" },
-    { name: "timeFormat", description: "Time-panel 12 / 24-hour format. Applies in `time` + `datetime` modes.", type: "'auto' | '12h' | '24h'", default: "'auto'" },
-    { name: "showSeconds", description: "Render the seconds column. Applies in `time` + `datetime` modes.", type: "boolean", default: "false" },
+    { name: "timeFormat", description: "12 / 24-hour clock, in the time panel and in the field, unless `format` is set. `'auto'` follows the locale. Applies in `time` + `datetime` modes.", type: "'auto' | '12h' | '24h'", default: "'auto'" },
+    { name: "showSeconds", description: "Show seconds, in the time panel and in the field, unless `format` is set. Applies in `time` + `datetime` modes.", type: "boolean", default: "false" },
     { name: "step", description: "Minute / second step for the time panel.", type: "number", default: "1" },
     { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Read-only — input not typeable, but the trigger icon still opens the overlay.", type: "boolean", default: "false" },
@@ -384,15 +387,15 @@ export const API = {
   // <wr-date-range-picker>
   WrDateRangePicker: [
     { name: "mode", description: "Picker behavior — see class doc.", type: "'date' | 'datetime'", default: "'date'" },
-    { name: "format", description: "Format used for both display and parsing, on both ends. When `null` (default), it is derived from `mode` (`shortDate` / `shortDateTime`). Pass a named key or raw token string to override.", type: "WrDateFormat | string | null", default: "null" },
+    { name: "format", description: "Format used for both display and parsing, on both ends. When `null` (default), it is derived from `mode` (`shortDate` / `shortDateTime`), with the hour cycle of `timeFormat` and the seconds of `showSeconds` (`shortDateTime24hSeconds`, …). Pass a named key or raw token string to override.", type: "WrDateFormat | string | null", default: "null" },
     { name: "startPlaceholder", description: "Placeholder for the start input.", type: "string", default: "''" },
     { name: "endPlaceholder", description: "Placeholder for the end input.", type: "string", default: "''" },
     { name: "separator", description: "Glyph rendered between the two inputs.", type: "string", default: "'–'" },
     { name: "minDate", description: "Min selectable date, applied to both ends.", type: "Date | null", default: "null" },
     { name: "maxDate", description: "Max selectable date, applied to both ends.", type: "Date | null", default: "null" },
     { name: "dateFilter", description: "Predicate to disable specific dates (forwarded to the calendar).", type: "((date: Date) => boolean) | null", default: "null" },
-    { name: "timeFormat", description: "Time-panel 12 / 24-hour format. Applies in `datetime` mode.", type: "'auto' | '12h' | '24h'", default: "'auto'" },
-    { name: "showSeconds", description: "Render the seconds column. Applies in `datetime` mode.", type: "boolean", default: "false" },
+    { name: "timeFormat", description: "12 / 24-hour clock, in the time panels and in both fields, unless `format` is set. `'auto'` follows the locale. Applies in `datetime` mode.", type: "'auto' | '12h' | '24h'", default: "'auto'" },
+    { name: "showSeconds", description: "Show seconds, in the time panels and in both fields, unless `format` is set. Applies in `datetime` mode.", type: "boolean", default: "false" },
     { name: "step", description: "Minute / second step for the time panels.", type: "number", default: "1" },
     { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Read-only — neither the inputs nor the calendar can change the value. Deliberately stricter than `wr-date-picker`, which still opens its popup while read-only: with two fields feeding one calendar there is no reading of \"untypeable\" that leaves the grid free to rewrite both ends. The doc used to promise the trigger still opened; the code has always refused, and refusing is the behaviour worth keeping.", type: "boolean", default: "false" },
@@ -453,6 +456,7 @@ export const API = {
     { name: "centerValue", description: "Bold value text in the center.", type: "string", default: "''" },
     { name: "centerLabel", description: "Smaller label under the value.", type: "string", default: "''" },
     { name: "tooltip", description: "Show a tooltip with the slice's label and value on hover. Pointer only — the legend prints the same numbers, and with `showLegend` off `ariaLabel` is where to say them.", type: "boolean", default: "true" },
+    { name: "valueFormat", description: "Writes every value in the legend and the tooltip. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. The centre text is printed as given.", type: "((value: number) => string) | null", default: "null" },
   ],
   // <wr-drawer>
   WrDrawer: [
@@ -463,7 +467,7 @@ export const API = {
     { name: "maxHeight", description: "Upper cap on height (top/bottom positions). Useful for bottom sheets that should grow with content up to a viewport-relative max. Any CSS length.", type: "string | null", default: "null (no cap)" },
     { name: "rounded", description: "Round the leading corners — the edge facing the viewport interior. Common bottom-sheet styling.", type: "boolean", default: "false" },
     { name: "safeArea", description: "Pad the trailing edge with `env(safe-area-inset-*)` so content doesn't sit under the iOS home indicator.", type: "boolean", default: "false" },
-    { name: "hasBackdrop", description: "Show the dimming backdrop.", type: "boolean", default: "true" },
+    { name: "hasBackdrop", description: "Show the dimming backdrop, and with it make the drawer MODAL: focus is trapped inside, the panel is announced with `aria-modal=\"true\"`, and the page behind it does not scroll. `false` makes it a NON-MODAL side panel (since v15). The page stays clickable, scrollable and reachable with Tab; the panel keeps `role=\"dialog\"` without `aria-modal`. Focus still moves into it on open, Escape closes it unless focus has moved on to the page, and on close focus goes back to the opener unless the reader has moved on likewise. Read when the drawer opens.", type: "boolean", default: "true" },
     { name: "closeOnBackdropClick", description: "Close when the backdrop is clicked.", type: "boolean", default: "true" },
     { name: "closeOnEscape", description: "Close on Escape.", type: "boolean", default: "true" },
     { name: "closable", description: "Show a dismiss (×) button in the panel's top-right corner. Set `false` when the projected content supplies its own close affordance.", type: "boolean", default: "true" },
@@ -576,7 +580,7 @@ export const API = {
     { name: "fontSize", description: "Font size as CSS length (`'4rem'`, `'72px'`, …) or px number.", type: "string | number", default: "'clamp(2rem, 10vw, 10rem)'" },
     { name: "fontWeight", description: "Font weight.", type: "number | string", default: "900" },
     { name: "fontFamily", description: "Font family. `'inherit'` reads the canvas's computed style.", type: "string", default: "'inherit'" },
-    { name: "color", description: "Text colour, any CSS colour — `var()` and `light-dark()` included, resolved against the canvas. `'inherit'` follows the canvas's computed colour. Both are re-read while the text animates, so a colour-scheme change lands on the next frame. Ignored if `[gradient]` is set.", type: "string", default: "'inherit'" },
+    { name: "color", description: "Text colour, any CSS colour — `var()` and `light-dark()` included, resolved against the canvas. `'inherit'` follows the canvas's computed colour. Both are re-read while the text animates, so a colour-scheme change lands on the next frame, and the still copy drawn under reduced motion is redrawn when the page's scheme switches. Ignored if `[gradient]` is set.", type: "string", default: "'inherit'" },
     { name: "gradient", description: "Optional horizontal gradient stops, each resolved the way `color` is.", type: "readonly string[] | null", default: "null" },
     { name: "enableHover", description: "Enable hover / touch reactivity.", type: "boolean", default: "true" },
     { name: "baseIntensity", description: "Base intensity (0..1) when idle.", type: "number", default: "0.18" },
@@ -604,6 +608,7 @@ export const API = {
     { name: "showValue", description: "Show the value text in the center.", type: "boolean", default: "true" },
     { name: "suffix", description: "Unit printed immediately after the number — `%`, `/10`, ` GB`. It goes into the accessible text too, so the gauge is announced the way it reads.", type: "string", default: "''" },
     { name: "tooltip", description: "Show a tooltip with the reading on hover, named by `ariaLabel` when one is given. Pointer only — the meter announces the same reading.", type: "boolean", default: "true" },
+    { name: "valueFormat", description: "Writes the reading in the centre, the tooltip and `aria-valuetext`, before `suffix`. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. `aria-valuenow` stays a number.", type: "((value: number) => string) | null", default: "null" },
   ],
   // <wr-glitch-text>
   WrGlitchText: [
@@ -742,6 +747,7 @@ export const API = {
   WrLineChart: [
     { name: "series", description: "One entry per line. A series with no `color` takes the next entry from the chart's fallback palette, so several lines are distinguishable unconfigured.", type: "readonly WrLineSeries[]", default: "[]" },
     { name: "ariaLabel", description: "Accessible name of the chart. The legend carries the series NAMES only — the numbers are nowhere in text — so without this the plot is nothing at all to a screen reader. Falls back to `lineChart.label`.", type: "string | null", default: "null" },
+    { name: "valueFormat", description: "Writes every number the chart shows: the y-axis ticks and the tooltip values. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact ticks (`1.2K`, `3.4M`) unless the full numbers are shorter.", type: "((value: number) => string) | null", default: "null" },
     { name: "xLabels", description: "Labels for the X axis (one per data point).", type: "readonly string[]", default: "[]" },
     { name: "height", description: "Chart pixel height.", type: "number", default: "240" },
     { name: "showGrid", description: "Show gridlines + axis ticks.", type: "boolean", default: "true" },
@@ -803,6 +809,7 @@ export const API = {
     { name: "showLegend", description: "Show the labelled legend under the bar.", type: "boolean", default: "true" },
     { name: "showValues", description: "Show each segment's value in the legend, next to its label.", type: "boolean", default: "true" },
     { name: "tooltip", description: "Show a tooltip with the segment's label and value on hover. It replaces the band's `title`, which is written only while this is off — or the browser would open a second copy a moment later.", type: "boolean", default: "true" },
+    { name: "valueFormat", description: "Writes every value in the legend and the tooltip, and the total the bar announces as `aria-valuetext`. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. `aria-valuenow` stays a number.", type: "((value: number) => string) | null", default: "null" },
   ],
   // <wr-option>
   WrOption: [
@@ -1067,6 +1074,7 @@ export const API = {
     { name: "width", description: "CSS width.", type: "string", default: "'8rem'" },
     { name: "height", description: "CSS height.", type: "string", default: "'2rem'" },
     { name: "tooltip", description: "Show a tooltip with the value of the point nearest the pointer, marking that point, and named by `ariaLabel` when one is given. Pointer only.", type: "boolean", default: "true" },
+    { name: "valueFormat", description: "Writes the value in the tooltip. `null` uses `Intl.NumberFormat` in `LOCALE_ID`.", type: "((value: number) => string) | null", default: "null" },
   ],
   // <wr-speed-dial>
   WrSpeedDial: [
@@ -1216,18 +1224,18 @@ export const API = {
     { name: "groupBy", description: "Group rows under collapsible band headers — a row property name, or a function returning the group value. `null` (default) renders the table exactly as before. Grouping runs AFTER pagination: it buckets the rows on the current page in first-appearance order (it never re-sorts your data — same contract as `[(sort)]`), so a group straddling a page boundary shows a band on both pages, and per-group counts / subtotals are page-scoped. Sort `items` by the same key upstream to keep groups whole, or pair with `pageSize = 0`. Group values are compared by identity (`Map`/`Set`, SameValueZero) — return a primitive, exactly as for `rowKey`. Objects / `Date`s bucket by reference.", type: "string | ((row: Record<string, unknown>) => unknown) | null", default: "null" },
     { name: "childrenKey", description: "Render the rows as a hierarchy: names the property (or computes the array) holding each row's children. `items` then means the ROOTS, and the forest is flattened depth-first into the same `<tbody>` — child rows are ordinary `<tr>`s going through the same cell loop, so column pin / resize / drag-reorder and `[wrTableCell]` templates keep working at every depth. Open state reuses the `expanded` model and row identity reuses `rowKey`, so a tree needs no second key space. Everything collapsed is the default. **Mutually exclusive with `groupBy`** — a forest has no flat list to bucket, so grouping wins and the hierarchy is ignored while it is set. Also mutually exclusive with `[wrTableExpand]` detail rows: both own the row's disclosure affordance. `pageSize` pages the ROOTS; a root brings its open descendants with it. The function form RETURNS `WrTableRow`s, matching `[items]`: a return is covariant, so an array of `interface`-typed children satisfies it. Declared as records it did not, and a forest that bound to `[items]` could not hand its children back out. The PARAMETER stays `Record<string, unknown>` — that side is contravariant, and widening it would reject the callbacks that compile today while leaving `row['reports']` unindexable. See {@link WrTableRow}.", type: "string | ((row: Record<string, unknown>) => readonly WrTableRow[] | null | undefined) | null", default: "null" },
     { name: "treeColumn", description: "Which column carries the indent and the expand toggle. Keyed, not positional, so it survives a `columnOrder` drag. Defaults to whichever column renders first.", type: "string | null", default: "null" },
-    { name: "toggleRowLabel", description: "Accessible name of a parent row's expand toggle. Falls back to `table.toggleRow`.", type: "string | null", default: "null" },
+    { name: "toggleRowLabel", description: "The action word that names a parent row's expand toggle. The row's own label cell is joined to it, so the toggle reads \"Toggle child rows Engineering\" rather than one name shared by every row. Falls back to `table.toggleRow`.", type: "string | null", default: "null" },
     { name: "collapsedGroups", description: "Two-way bindable collapsed group values (the values `groupBy` returns). Keyed by value, so a collapsed group stays collapsed across page changes and re-sorts. Empty (the default) shows every group expanded.", type: "readonly unknown[]", default: "[]" },
-    { name: "groupSummary", description: "Render an aggregate row under each group using the same `column.summary` definitions as the grand footer, computed over that group's rows on the current page. No-op unless at least one column defines a `summary`. The grand `<tfoot>` is unaffected and still aggregates the whole client dataset — with client-side pagination the two describe different scopes, so pair grouping with `pageSize = 0` when you need them to reconcile.", type: "boolean", default: "false" },
+    { name: "groupSummary", description: "Render an aggregate row under each group using the same `column.summary` definitions as the grand footer, computed over that group's rows on the current page. No-op unless at least one column defines a `summary`. The grand `<tfoot>` is unaffected and still aggregates the whole client dataset — with client-side pagination the two describe different scopes, so pair grouping with `pageSize = 0` when you need them to reconcile. A summary FUNCTION tells the two apart by its second argument, `{ scope: 'group' | 'total' }` — see `WrTableSummaryContext`.", type: "boolean", default: "false" },
     { name: "showGroupCount", description: "Show the page-scoped row-count badge in each group band.", type: "boolean", default: "true" },
     { name: "sort", description: "Two-way bindable sort array. Order in array = application order.", type: "readonly WrTableSortState[]", default: "[]" },
     { name: "emptyLabel", description: "Text shown when there are no rows. Falls back to `table.empty`.", type: "string | null", default: "null" },
     { name: "sortLabel", description: "Accessible name of a column's sort button. Falls back to `table.sort`.", type: "string | null", default: "null" },
     { name: "selectAllLabel", description: "Accessible name of the select-all checkbox. Falls back to `table.selectAll`.", type: "string | null", default: "null" },
-    { name: "selectRowLabel", description: "Accessible name of a row's select checkbox. Falls back to `table.selectRow`.", type: "string | null", default: "null" },
-    { name: "expandRowLabel", description: "Accessible name of a row's expand toggle. Falls back to `table.expandRow`.", type: "string | null", default: "null" },
-    { name: "selectGroupLabel", description: "Accessible name of a group band's select checkbox. Falls back to `table.selectGroup`.", type: "string | null", default: "null" },
-    { name: "toggleGroupLabel", description: "Accessible name of a group band's collapse toggle. Falls back to `table.toggleGroup`.", type: "string | null", default: "null" },
+    { name: "selectRowLabel", description: "The action word that names a row's select checkbox. The row's label cell is joined to it through `aria-labelledby` — \"Select row Ada\" — since one name repeated down every row tells a screen reader nothing about which row a box belongs to. Falls back to `table.selectRow`.", type: "string | null", default: "null" },
+    { name: "expandRowLabel", description: "The action word that names a row's detail toggle, joined to the row's label cell like `selectRowLabel`. Falls back to `table.expandRow`.", type: "string | null", default: "null" },
+    { name: "selectGroupLabel", description: "The action word that names a group band's select checkbox. The group's label is joined to it — \"Select group EMEA\". Falls back to `table.selectGroup`.", type: "string | null", default: "null" },
+    { name: "toggleGroupLabel", description: "The action word that names a group band's collapse toggle, joined to the group's label like `selectGroupLabel`. Falls back to `table.toggleGroup`.", type: "string | null", default: "null" },
     { name: "loadingLabel", description: "Accessible name of the loading overlay. Falls back to `table.loading`.", type: "string | null", default: "null" },
     { name: "(filterChange)", description: "Fires whenever a column's filter selection changes.", type: "WrTableFilterChange" },
     { name: "pageSize", description: "Rows per page. Set to `0` (default) to disable client-side pagination and render every row at once.", type: "number", default: "0" },
@@ -1430,6 +1438,7 @@ export const API = {
     { name: "(closed)", description: "Fires when the window closes — from the header button or from `close()`.", type: "void" },
     { name: "(moved)", description: "Fires ONCE when a header drag ends — on `pointerup` or `pointercancel` — with the window's final position. Not per pointer move: a consumer persisting the position wants the landing, not the path. Programmatic moves (`moveTo`, `center`, the initial cascade) are silent: the caller already knows where it put the window, and echoing those back would double-count.", type: "{ readonly x: number; readonly y: number }" },
     { name: "(resized)", description: "Fires once when an edge drag ends, and once when a snap target is applied.", type: "{ readonly width: number; readonly height: number }" },
+    { name: "(minimizedWithFocus)", description: "Fires when the window is minimized while focus is inside it. A minimized window is `display: none`, so the focus it held is gone, and the container hands it to the window's taskbar tab.", type: "void" },
   ],
   // <wr-window-taskbar>
   WrWindowTaskbar: [

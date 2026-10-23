@@ -414,7 +414,7 @@ export const INSTALL = {
       { path: "ngwr/cookie", symbols: ["WrCookie"], declarables: [], styled: false },
   ],
   "reference/services/density": [
-      { path: "ngwr/density", symbols: ["WrDensity", "WrDensityDirective"], declarables: ["WrDensityDirective"], styled: true },
+      { path: "ngwr/density", symbols: ["WrDensity", "WrDensityDirective", "wrDensityPrePaintScript"], declarables: ["WrDensityDirective"], styled: true },
   ],
   "reference/services/hotkey": [
       { path: "ngwr/hotkey", symbols: ["WrHotkey"], declarables: [], styled: false },

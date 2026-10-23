@@ -44,10 +44,10 @@ export const DEPS: Readonly<Record<string, DocDeps>> = {
   "charts/sparkline": {"uses":["popover"],"usedBy":[],"peers":[],"addons":[]},
   "checkbox": {"uses":["form","icon"],"usedBy":["schema-form","table","transfer"],"peers":[],"addons":[]},
   "color-picker": {"uses":["form","overlay","segmented"],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["overlay","portal"],"optional":false}],"addons":[]},
-  "command-palette": {"uses":["hotkey","icon"],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["a11y"],"optional":false}],"addons":[]},
+  "command-palette": {"uses":["hotkey","icon","overlay"],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["a11y","overlay"],"optional":false}],"addons":[]},
   "context-menu": {"uses":["icon","overlay"],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["overlay","portal"],"optional":false}],"addons":[]},
   "counter": {"uses":[],"usedBy":["statistic"],"peers":[],"addons":[]},
-  "date": {"uses":[],"usedBy":["calendar","charts/calendar-heatmap","date-picker","event-calendar","pipes"],"peers":[],"addons":[]},
+  "date": {"uses":[],"usedBy":["calendar","charts/calendar-heatmap","date-picker","event-calendar","pipes","validators"],"peers":[],"addons":[]},
   "date-picker": {"uses":["calendar","date","form","input","overlay"],"usedBy":["schema-form"],"peers":[{"pkg":"@angular/cdk","parts":["overlay","portal"],"optional":false}],"addons":[]},
   "density": {"uses":["storage"],"usedBy":[],"peers":[],"addons":[]},
   "dialog": {"uses":["overlay"],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["a11y","overlay","portal","scrolling"],"optional":false}],"addons":[]},
@@ -69,7 +69,7 @@ export const DEPS: Readonly<Record<string, DocDeps>> = {
   "loading-bar": {"uses":[],"usedBy":[],"peers":[],"addons":[{"path":"loading-bar/router","peers":["@angular/router"]}]},
   "loading-bar/router": {"uses":["loading-bar"],"usedBy":[],"peers":[{"pkg":"@angular/router","parts":[],"optional":true}],"addons":[]},
   "mention": {"uses":["overlay"],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["overlay","portal"],"optional":false}],"addons":[]},
-  "overlay": {"uses":[],"usedBy":["cascader","color-picker","context-menu","date-picker","dialog","drawer","dropdown","lightbox","mention","popconfirm","popover","select","toast","tour","tree","window"],"peers":[{"pkg":"@angular/cdk","parts":["overlay"],"optional":false}],"addons":[]},
+  "overlay": {"uses":[],"usedBy":["cascader","color-picker","command-palette","context-menu","date-picker","dialog","drawer","dropdown","lightbox","mention","popconfirm","popover","select","toast","tour","tree","window"],"peers":[{"pkg":"@angular/cdk","parts":["overlay"],"optional":false}],"addons":[]},
   "pagination": {"uses":["button","select"],"usedBy":["table"],"peers":[],"addons":[]},
   "pipes": {"uses":["date"],"usedBy":[],"peers":[],"addons":[]},
   "popconfirm": {"uses":["button","overlay"],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["overlay","portal"],"optional":false}],"addons":[]},
@@ -98,8 +98,9 @@ export const DEPS: Readonly<Record<string, DocDeps>> = {
   "tour": {"uses":["button","overlay"],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["a11y","overlay","portal"],"optional":false}],"addons":[]},
   "transfer": {"uses":["button","checkbox","form","input"],"usedBy":[],"peers":[],"addons":[]},
   "tree": {"uses":["form","overlay"],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["overlay","portal"],"optional":false}],"addons":[]},
+  "validators": {"uses":["date"],"usedBy":[],"peers":[],"addons":[]},
   "virtual-scroll": {"uses":[],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["scrolling"],"optional":false}],"addons":[]},
-  "window": {"uses":["overlay","storage"],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["portal"],"optional":false}],"addons":[]},
+  "window": {"uses":["overlay","storage"],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["a11y","portal"],"optional":false}],"addons":[]},
 };
 
 /** Entry point → the page documenting it. */

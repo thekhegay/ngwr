@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1248 hook(s) across 91 page(s). A property is here only when the
+ * 1256 hook(s) across 91 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 24 declaration(s) are one component setting
@@ -229,6 +229,12 @@ export const CSS_VARS = {
       { name: "--wr-line-chart-legend-item-gap", default: "var(--wr-space-sm)", scope: ".wr-line-chart__legend-item" },
       { name: "--wr-line-chart-legend-margin-bottom", default: "var(--wr-space-md)", scope: ".wr-line-chart__legend" },
       { name: "--wr-line-chart-legend-row-gap", default: "var(--wr-space-sm)", scope: ".wr-line-chart__legend" },
+      { name: "--wr-line-chart-plot-inset-x", default: "var(--wr-space-md)", scope: ".wr-line-chart" },
+      { name: "--wr-line-chart-plot-inset-y", default: "var(--wr-space-sm)", scope: ".wr-line-chart" },
+      { name: "--wr-line-chart-tick-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-line-chart__y-axis" },
+      { name: "--wr-line-chart-tick-font-size", default: "var(--wr-text-xs)", scope: ".wr-line-chart__y-axis" },
+      { name: "--wr-line-chart-tick-gap", default: "var(--wr-space-xs)", scope: ".wr-line-chart__y-axis" },
+      { name: "--wr-line-chart-tick-line-height", default: "var(--wr-text-xs-leading)", scope: ".wr-line-chart__y-axis" },
       { name: "--wr-line-chart-tooltip-border", default: "var(--wr-border-base)", scope: ".wr-line-chart__tooltip" },
       { name: "--wr-line-chart-tooltip-font-size", default: "var(--wr-text-xs)", scope: ".wr-line-chart__tooltip" },
       { name: "--wr-line-chart-tooltip-label-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-line-chart__tooltip-label" },
@@ -1448,6 +1454,8 @@ export const CSS_VARS = {
       { name: "--wr-table-radius", default: "var(--wr-border-radius-base)", scope: ".wr-table" },
       { name: "--wr-table-resize-handle-bg", default: "var(--wr-border-base)", scope: ".wr-table" },
       { name: "--wr-table-row-hover", default: "var(--wr-color-fill-subtle)", scope: ".wr-table" },
+      { name: "--wr-table-sort-order-font-size", default: "var(--wr-table-head-font-size)", scope: ".wr-table" },
+      { name: "--wr-table-sort-order-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-table" },
       { name: "--wr-table-tree-lead-margin-end", default: "var(--wr-space-xs)", scope: ".wr-table", overrides: 1 },
       { name: "--wr-table-tree-toggle-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-table" },
     ],
