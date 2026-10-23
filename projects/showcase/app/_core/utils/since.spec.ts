@@ -305,7 +305,7 @@ describe('the surfaces that draw it', () => {
       /@if \(updatedIn\(\); as updated\) \{ <wr-badge class="since"[^>]*>\{\{ updated \}\}<\/wr-badge>/
     );
     expect(html).toMatch(
-      /@if \(removedIn\(\); as removed\) \{ <wr-badge class="since since--removed"[^>]*>\{\{ removed \}\}<\/wr-badge>/
+      /@if \(removedIn\(\); as removed\) \{ <wr-badge class="since--removed" color="danger"[^>]*>\{\{ removed \}\}<\/wr-badge>/
     );
     expect(html).toMatch(/<h1 [^>]*class="title">\{\{ title\(\) \}\}<\/h1>/);
   });
