@@ -291,7 +291,9 @@ const CASES: readonly Case[] = [
   },
   { kind: 'input-number', control: 'WrInputNumber', values: [3, 7] },
   { kind: 'input-otp', control: 'WrInputOtp', values: ['123456', '654321'] },
-  { kind: 'knob', control: 'WrKnob', values: [25, 75] },
+  // 150 is past the default max of 100: a control that clamps into the model
+  // would hand the form back a different value than it was given.
+  { kind: 'knob', control: 'WrKnob', values: [150, 20] },
   { kind: 'radio-group', control: 'WrRadioGroup', values: ['a', 'b'] },
   { kind: 'rating', control: 'WrRating', values: [2, 4] },
   { kind: 'segmented', control: 'WrSegmented', values: ['day', 'week'] },

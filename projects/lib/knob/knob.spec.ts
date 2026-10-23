@@ -182,23 +182,33 @@ describe('WrKnob', () => {
     expect(text()).toBe('42');
   });
 
-  it('pulls an out-of-range write back into the range', async () => {
-    // `[formField]` and `[(value)]` both write straight into the model, so the
-    // clamp cannot live in the interaction handlers alone.
+  it('shows an out-of-range write at the end of the range and leaves the model alone', async () => {
+    // Writing the clamp back would change a form's value and mark the field
+    // dirty before anyone touched it, so only the display is held to the range.
     fixture.componentInstance.volume.set(500);
     await fixture.whenStable();
-    expect(value()).toBe(100);
+    expect(value()).toBe(500);
+    expect(surface().getAttribute('aria-valuenow')).toBe('100');
+    expect(text()).toBe('100');
 
     fixture.componentInstance.volume.set(-7);
     await fixture.whenStable();
-    expect(value()).toBe(0);
+    expect(value()).toBe(-7);
+    expect(surface().getAttribute('aria-valuenow')).toBe('0');
+  });
+
+  it('steps from the value it shows when the model is out of range', async () => {
+    fixture.componentInstance.volume.set(500);
+    await fixture.whenStable();
+    press('ArrowDown');
+    expect(value()).toBe(99);
   });
 
   it('respects a narrowed range', async () => {
     fixture.componentInstance.min.set(10);
     fixture.componentInstance.max.set(20);
     await fixture.whenStable();
-    expect(value()).toBe(10);
+    expect(surface().getAttribute('aria-valuenow')).toBe('10');
     expect(surface().getAttribute('aria-valuemin')).toBe('10');
 
     press('End');
