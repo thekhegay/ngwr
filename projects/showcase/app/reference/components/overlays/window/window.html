@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="Window"
+  updated="15.0.0"
   description="Draggable, resizable windows that you open from code with `WrWindowManager`."
   [keywords]="['window', 'floating', 'panel', 'wr-window']"
   [labels]="['Service', 'a11y']"
@@ -90,6 +91,17 @@
       <wr-btn outlined (click)="restoreLayout()">Restore layout</wr-btn>
       <wr-btn outlined (click)="closeAll()">Close all</wr-btn>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Focus"
+    description="Since v15 focus follows the window: into it on open, to its taskbar tab on minimize, back in from the tab, and back to the opener on close."
+  >
+    <ngwr-doc-code [code]="snippets.focus" language="angular-ts" />
+    <p>
+      Opening focuses <code>cdkFocusInitial</code>, else the first control in the body, else the window. Windows that
+      <code>restoreLayout()</code> reopens keep focus where it is unless the opener passes <code>autoFocus: true</code>.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section

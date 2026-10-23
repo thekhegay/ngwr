@@ -5,10 +5,12 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { FocusTrapFactory } from '@angular/cdk/a11y';
 import { type BooleanInput, coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import {
   Component,
   DestroyRef,
+  ElementRef,
   ViewEncapsulation,
   afterNextRender,
   computed,
@@ -124,6 +126,11 @@ function viewportHeight(): number {
     // See `WrAlert`: a static `title=` feeds the input AND lands on the host.
     '[attr.title]': 'null',
     role: 'dialog',
+    // Focusable by script, never by Tab: it is where focus lands when the
+    // window opens with no control in its body, and it is what a click on the
+    // window's own surface focuses, so the window the user is in is the one
+    // `WrWindowManager` hands Escape to.
+    tabindex: '-1',
     '[class]': 'classes()',
     '[style.left.px]': 'x()',
     '[style.top.px]': 'y()',
@@ -316,8 +323,19 @@ export class WrWindow {
   /** Fires once when an edge drag ends, and once when a snap target is applied. */
   readonly resized = output<{ readonly width: number; readonly height: number }>();
 
+  /**
+   * Fires when the window is minimized while focus is inside it. A minimized
+   * window is `display: none`, so the focus it held is gone, and the container
+   * hands it to the window's taskbar tab.
+   *
+   * @internal
+   */
+  readonly minimizedWithFocus = output<void>();
+
   private readonly manager = inject(WrWindowManager);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly elRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly focusTraps = inject(FocusTrapFactory);
 
   /**
    * The viewport, as a SIGNAL. The maximized geometry and the keep-in-viewport
@@ -414,7 +432,12 @@ export class WrWindow {
   }
 
   minimize(): void {
-    this.state.set(this.state() === 'minimized' ? 'normal' : 'minimized');
+    const minimizing = this.state() !== 'minimized';
+    // Read before the state flips: once the class lands, nothing inside has
+    // a box and the browser has already dropped focus on `<body>`.
+    const hadFocus = minimizing && this.hasFocus();
+    this.state.set(minimizing ? 'minimized' : 'normal');
+    if (hadFocus) this.minimizedWithFocus.emit();
   }
 
   maximize(): void {
@@ -464,6 +487,35 @@ export class WrWindow {
   /** Bring this window to the top of the stack. */
   focus(): void {
     this.z.set(this.manager.bringToFront());
+  }
+
+  /**
+   * Move focus into the window: to `[cdkFocusInitial]` or the first control in
+   * its body — the CDK's rule, the one `WrDialog` and `WrDrawer` follow — else
+   * to the window itself. The chrome buttons are not candidates: landing on
+   * Close, the first of them on macOS, is the one place a window must not open
+   * onto. Called after a render, by the container.
+   *
+   * @internal
+   */
+  focusInitial(): void {
+    const host = this.elRef.nativeElement;
+    if (!host.isConnected || this.state() === 'minimized') return;
+    const body = host.querySelector<HTMLElement>('.wr-window__body');
+    if (body) {
+      // `deferAnchors`: no anchors go into the page, and nothing is trapped.
+      const finder = this.focusTraps.create(body, true);
+      const moved = finder.focusInitialElement({ preventScroll: true });
+      finder.destroy();
+      if (moved) return;
+    }
+    host.focus({ preventScroll: true });
+  }
+
+  /** Whether focus is inside the window. @internal */
+  hasFocus(): boolean {
+    const host = this.elRef.nativeElement;
+    return host.contains(host.ownerDocument.activeElement);
   }
 
   // Host handlers

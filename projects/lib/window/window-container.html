@@ -22,6 +22,7 @@
   [showMaximize]="config.showMaximize ?? null"
   [showClose]="config.showClose ?? true"
   (closed)="ref.close()"
+  (minimizedWithFocus)="onMinimizedWithFocus()"
   #window
 >
   <ng-container #content />

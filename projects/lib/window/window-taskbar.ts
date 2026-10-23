@@ -5,7 +5,18 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  type ElementRef,
+  ViewEncapsulation,
+  computed,
+  inject,
+  input,
+  signal,
+  viewChildren,
+} from '@angular/core';
 
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 
@@ -26,6 +37,10 @@ const NO_OVERRIDE = signal<string | null>(null).asReadonly();
  * `WrWindowManager.open()` has handed out that's currently
  * `minimized`. Clicking a tab restores the window; clicking the close
  * glyph dismisses it without restoring.
+ *
+ * Focus follows the window in and out of the rail: minimizing a window
+ * that holds focus puts focus on its tab here, and restoring it from the
+ * tab moves focus into the window.
  *
  * Windows opted out via `config.taskbar = false` never show up here.
  *
@@ -63,6 +78,21 @@ export class WrWindowTaskbar {
 
   protected readonly classes = computed(() => `wr-window-taskbar wr-window-taskbar--${this.position()}`);
 
+  /** One row per entry of `items()`, in the same order. */
+  private readonly tabs = viewChildren<ElementRef<HTMLElement>>('tab');
+
+  constructor() {
+    // So a window minimized with focus inside can hand it to its tab here, and
+    // a window closed from its tab knows the focus there was its own.
+    const unregister = this.manager._registerTaskbar({
+      tabFor: ref => {
+        const index = this.items().indexOf(ref);
+        return index < 0 ? null : (this.tabs()[index]?.nativeElement ?? null);
+      },
+    });
+    inject(DestroyRef).onDestroy(unregister);
+  }
+
   /** A window with no title still needs a name in the rail. */
   protected tabTitle(ref: WrWindowRef<unknown, unknown>): string {
     return ref.title() || this.untitled();
@@ -71,6 +101,10 @@ export class WrWindowTaskbar {
   protected restore(ref: WrWindowRef<unknown, unknown>): void {
     ref.restore();
     ref.focus();
+    // The tab this was pressed on is about to leave the rail, which would drop
+    // focus on `<body>`: it goes into the window instead, by the same rule as
+    // opening one.
+    ref._doFocusInitial?.();
   }
 
   protected close(ref: WrWindowRef<unknown, unknown>, event: Event): void {

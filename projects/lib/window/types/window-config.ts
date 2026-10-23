@@ -68,6 +68,20 @@ export interface WrWindowConfig<D = unknown> {
   readonly resizable?: boolean;
   readonly keepInViewport?: boolean;
   readonly closeOnEscape?: boolean;
+  /**
+   * Move focus into the window when it opens (since v15): to the element
+   * marked `cdkFocusInitial`, else the first control in its body, else the
+   * window itself. Closing it sends focus back to where it was when `open()`
+   * was called, if that element is still on the page.
+   *
+   * `false` leaves focus where it is — for a window opened in the background,
+   * or one that opens without a user asking for it. Windows that
+   * `restoreLayout()` re-opens default to `false`, so putting a workspace back
+   * does not walk focus through every window in it; pass `true` from the
+   * opener callback to override.
+   * @default true
+   */
+  readonly autoFocus?: boolean;
   /** Snap-on-drag mode. @default 'none' */
   readonly snap?: WrWindowSnap;
 

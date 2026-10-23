@@ -22,6 +22,7 @@ import {
 
 import { WrStorage } from 'ngwr/storage';
 
+import { WrWindowManager } from './services/window-manager';
 import { storageKey } from './storage-key';
 import type { WrWindowConfig } from './types';
 import { WrWindow } from './window';
@@ -61,8 +62,11 @@ export class WrWindowContainer<C> {
   componentType!: ComponentType<C>;
   /** Custom injector with `WR_WINDOW_REF` / `WR_WINDOW_DATA` populated. */
   childInjector!: Injector;
+  /** Set by the manager: move focus into the window once it has rendered. */
+  autoFocus = true;
 
   private readonly hostInjector = inject(Injector);
+  private readonly manager = inject(WrWindowManager);
   private readonly storage = inject(WrStorage);
   private readonly destroyRef = inject(DestroyRef);
   private persistTimer: ReturnType<typeof setTimeout> | null = null;
@@ -94,6 +98,13 @@ export class WrWindowContainer<C> {
     this.ref._doResizeTo = (width, height) => w.resizeTo(width, height);
     this.ref._doCenter = () => w.center();
     this.ref._doSetTitle = title => this.ref._title.set(title);
+    // After a render, not now: the consumer's component was created a line
+    // above and has not drawn its template yet, and a window coming back from
+    // the taskbar is still `display: none` until its class updates.
+    this.ref._doFocusInitial = () => afterNextRender(() => w.focusInitial(), { injector: this.hostInjector });
+    // A ref outlives its window; a render hook must not be registered on an
+    // injector that is gone.
+    this.destroyRef.onDestroy(() => (this.ref._doFocusInitial = null));
 
     // 3. Sync the live geometry/state into the ref's signals so
     //    consumers can read them reactively without poking at <wr-window>.
@@ -146,6 +157,17 @@ export class WrWindowContainer<C> {
       if (pending === 'minimized') this.ref.minimize();
       else if (pending === 'maximized') this.ref.maximize();
     }
+
+    // 7. Focus — never into a window that opened straight into the taskbar.
+    if (this.autoFocus && w.state() !== 'minimized') this.ref._doFocusInitial();
+  }
+
+  /** The window was minimized while it held focus: hand focus to its taskbar tab. */
+  protected onMinimizedWithFocus(): void {
+    // After the render that lists the window in the taskbar.
+    afterNextRender(() => this.manager._focusAfterMinimize(this.ref as WrWindowRef<unknown, unknown>), {
+      injector: this.hostInjector,
+    });
   }
 
   /** Apply persisted geometry on top of config defaults, before the user sees the window. */

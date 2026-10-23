@@ -277,8 +277,10 @@ describe('WrWindowManager', () => {
     });
 
     it('closes the window in FRONT on Escape, not whichever opened last', () => {
-      const a = manager.open(Body, { id: 'a' });
-      const b = manager.open(Body, { id: 'b' });
+      // Focus outside every window is the case under test, so neither takes it
+      // on open: the window holding focus owns the key, which the next case pins.
+      const a = manager.open(Body, { id: 'a', autoFocus: false });
+      const b = manager.open(Body, { id: 'b', autoFocus: false });
       TestBed.tick();
 
       // The user brings A forward. Attach order does not follow — `focus()`

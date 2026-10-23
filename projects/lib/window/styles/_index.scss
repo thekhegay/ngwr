@@ -62,10 +62,27 @@
     display: none;
   }
 
+  // The window itself takes focus (`tabindex="-1"`) when its body has no
+  // control to open onto, so it carries the shared ring rather than the UA's.
+  // Outset: `overflow: clip` clips content, never the element's own outline.
+  // The halo and the drop shadow are both a `box-shadow`, so the second
+  // declaration keeps the two rather than trading the shadow for the halo.
+  &:focus-visible {
+    @include theme.focus-ring;
+    box-shadow:
+      0 0 0 var(--wr-focus-ring-offset) var(--wr-focus-ring-halo),
+      var(--wr-shadow-modal);
+  }
+
   // Squares the host AND the two bars that now round their own corners
   // (see `&__chrome` / `&__status-bar`) — one variable instead of three rules.
   &--maximized {
     --wr-window-radius: 0px;
+
+    // Flush with the viewport, where an outset ring would land off-screen.
+    &:focus-visible {
+      outline-offset: calc(var(--wr-focus-ring-width) * -1);
+    }
   }
 
   // Compact title bar — useful for utility / docked panels where every
