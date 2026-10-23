@@ -50,6 +50,7 @@ const REFUSAL_COPY = [
       [maxDate]="maxDate()"
       [dateFilter]="dateFilter()"
       [timeFormat]="timeFormat()"
+      [showSeconds]="showSeconds()"
       [disabled]="disabled()"
       [readonly]="readonly()"
       (touch)="touched.set(touched() + 1)"
@@ -64,6 +65,7 @@ class Host {
   readonly maxDate = signal<Date | null>(null);
   readonly dateFilter = signal<((date: Date) => boolean) | null>(null);
   readonly timeFormat = signal<'auto' | '12h' | '24h'>('24h');
+  readonly showSeconds = signal(false);
   readonly disabled = signal(false);
   readonly readonly = signal(false);
   readonly touched = signal(0);
@@ -138,6 +140,24 @@ describe('WrDateRangePicker', () => {
     fixture.detectChanges();
 
     expect([startField().value, endField().value]).toEqual(['15.01.2025', '20.01.2025']);
+  });
+
+  it('writes the clock its panels draw when no [format] is given, on both ends', () => {
+    // It printed `shortDateTime` whatever `timeFormat` and `showSeconds` said, so
+    // the seconds a user set were gone on the next retype of either end.
+    fixture.componentInstance.format.set(null);
+    fixture.componentInstance.mode.set('datetime');
+    fixture.componentInstance.period.set([new Date(2026, 2, 15, 9, 5, 7), new Date(2026, 2, 20, 18, 45, 30)]);
+    fixture.detectChanges();
+    expect([startField().value, endField().value]).toEqual(['3/15/2026, 09:05', '3/20/2026, 18:45']);
+
+    // Moved at runtime, so the texts re-render rather than wait for the next value.
+    fixture.componentInstance.showSeconds.set(true);
+    fixture.detectChanges();
+    expect([startField().value, endField().value]).toEqual(['3/15/2026, 09:05:07', '3/20/2026, 18:45:30']);
+
+    type(endField(), '3/20/2026, 18:45:31');
+    expect(period()![1]!.getSeconds()).toBe(31);
   });
 
   it('leaves the other input empty while the range is half-picked', () => {

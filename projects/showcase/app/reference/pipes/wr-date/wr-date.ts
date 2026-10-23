@@ -41,6 +41,19 @@ export default class WrDatePipePage {
     'mediumDateTime',
   ] as const;
 
+  protected readonly clockKeys = [
+    'time12h',
+    'time24h',
+    'timeSeconds',
+    'time12hSeconds',
+    'time24hSeconds',
+    'shortDateTime12h',
+    'shortDateTime24h',
+    'shortDateTimeSeconds',
+    'shortDateTime12hSeconds',
+    'shortDateTime24hSeconds',
+  ] as const;
+
   protected readonly format = signal<string>('mediumDateTime');
 
   protected readonly playgroundSnippet = computed(() => `{{ now | wrDate: '${this.format()}' }}`);
@@ -57,6 +70,8 @@ export default class WrDatePipePage {
         'time',
         'shortDateTime',
         'mediumDateTime',
+        'time24hSeconds',
+        'shortDateTime12h',
         'dd.MM.yyyy',
         // Only tokens the native adapter knows; an unknown one prints as is.
         'd MMMM yyyy',
@@ -69,6 +84,9 @@ export default class WrDatePipePage {
 {{ now | wrDate: 'mediumDate' }}      <!-- Jun 12, 2026        -->
 {{ now | wrDate: 'time' }}            <!-- 10:51 AM            -->
 {{ now | wrDate: 'mediumDateTime' }}  <!-- Jun 12, 2026, 10:51 AM -->`,
+    clock: `{{ now | wrDate: 'time24h' }}               <!-- 10:51     -->
+{{ now | wrDate: 'time12hSeconds' }}        <!-- 10:51:07 AM -->
+{{ now | wrDate: 'shortDateTimeSeconds' }}  <!-- 6/12/2026, 10:51:07 AM -->`,
     tokens: `{{ now | wrDate: 'dd.MM.yyyy' }}  <!-- 12.06.2026   -->
 {{ now | wrDate: 'd MMMM yyyy' }} <!-- 12 June 2026 -->`,
   };

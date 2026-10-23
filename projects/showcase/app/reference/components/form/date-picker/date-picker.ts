@@ -176,7 +176,8 @@ export class MyComponent {
     },
     {
       name: 'format',
-      description: 'Format for both ends. Defaults to `shortDate` or `shortDateTime`, by `mode`.',
+      description:
+        'Format for both ends. Defaults to `shortDate`, or `shortDateTime` with the clock of `timeFormat` and `showSeconds`.',
       type: 'WrDateFormat | string | null',
       default: 'null',
     },
@@ -203,13 +204,13 @@ export class MyComponent {
     },
     {
       name: 'timeFormat',
-      description: 'Time-panel 12 / 24-hour format. Applies in `datetime` mode.',
+      description: '12 / 24-hour clock, in the time panels and both fields. Applies in `datetime` mode.',
       type: "'auto' | '12h' | '24h'",
       default: "'auto'",
     },
     {
       name: 'showSeconds',
-      description: 'Render the seconds column on both time panels.',
+      description: 'Show seconds on both time panels and in both fields.',
       type: 'boolean',
       default: 'false',
     },

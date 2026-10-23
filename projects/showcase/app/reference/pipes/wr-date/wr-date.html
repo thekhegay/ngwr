@@ -30,6 +30,30 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Seconds and hour cycle"
+    description="`time` and `shortDateTime` take a `12h` or `24h` suffix to pin the clock, then `Seconds` to add seconds. New in v15."
+  >
+    <ngwr-doc-code [code]="snippets.clock" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <!-- Keep the <tbody>: without it hydration fails (NG0501). -->
+      <div class="ngwr-table">
+        <table>
+          <tbody>
+            @for (key of clockKeys; track key) {
+              <tr>
+                <th scope="row">
+                  <code>{{ key }}</code>
+                </th>
+                <td>{{ now() | wrDate: key }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Token strings"
     description="Tokens: `yyyy yy MMMM MMM MM M dd d HH H hh h mm ss a`, plus 'quoted' text. There is no weekday token."
   >

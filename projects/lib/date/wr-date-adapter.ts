@@ -10,15 +10,6 @@ import { Injectable, Service, forwardRef, inject } from '@angular/core';
 import { WR_DATE_LOCALE } from './tokens';
 import type { WrDateFormat } from './types';
 
-const NAMED_KEYS = new Set<WrDateFormat>([
-  'shortDate',
-  'mediumDate',
-  'longDate',
-  'time',
-  'shortDateTime',
-  'mediumDateTime',
-]);
-
 /**
  * Bidi control marks ICU embeds in a right-to-left date pattern — ar-SA writes its
  * separator as U+200F followed by a slash. No keyboard produces one, so both the
@@ -52,12 +43,28 @@ function literalToRegex(literal: string): string {
   return text.split(/\s+/).map(escapeRegex).join('\\s*');
 }
 
-/** Longest first, so `March` is never consumed as `Mar` with `ch` left over. */
+/**
+ * Longest first, so `March` is never consumed as `Mar` with `ch` left over.
+ *
+ * Whitespace inside a name is loosened the way {@link literalToRegex} loosens it in a
+ * literal: es and ca write the day period as `p. m.`, and V8 puts U+0020 there in
+ * `format()` while `formatToParts()` — which this alternation is built from — keeps
+ * U+202F, so an exact name could not read the string the same formatter printed.
+ */
 function alternation(names: readonly string[]): string {
   return [...new Set(names)]
     .sort((a, b) => b.length - a.length)
-    .map(name => escapeRegex(stripBidi(name)))
+    .map(name => stripBidi(name).split(/\s+/u).map(escapeRegex).join('\\s*'))
     .join('|');
+}
+
+/**
+ * The comparison key for a captured name: case, bidi marks and whitespace dropped, so
+ * `p.m.`, `p. m.` and `p.` U+202F `m.` are one day period — the same leniency the regex
+ * from {@link alternation} granted when it matched.
+ */
+function nameKey(name: string): string {
+  return stripBidi(name).replace(/\s+/gu, '').toLowerCase();
 }
 
 /**
@@ -134,14 +141,39 @@ interface DateParts {
   isPm?: boolean;
 }
 
+const SHORT_DATE: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'numeric', day: 'numeric' };
+const CLOCK: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
+const SECONDS: Intl.DateTimeFormatOptions = { second: '2-digit' };
+/**
+ * `hourCycle` rather than `hour12`. `hour12: false` leaves the engine to choose
+ * between `h23` and `h24`, and some resolved it to `h24`, writing midnight as
+ * `24:00`; `hour12` also overrides `hourCycle` when both are set. So the pinned
+ * variants name exactly the cycle they mean.
+ */
+const H12: Intl.DateTimeFormatOptions = { hourCycle: 'h12' };
+const H23: Intl.DateTimeFormatOptions = { hourCycle: 'h23' };
+
 const INTL_OPTIONS: Readonly<Record<WrDateFormat, Intl.DateTimeFormatOptions>> = {
-  shortDate: { year: 'numeric', month: 'numeric', day: 'numeric' },
+  shortDate: SHORT_DATE,
   mediumDate: { year: 'numeric', month: 'short', day: 'numeric' },
   longDate: { year: 'numeric', month: 'long', day: 'numeric' },
-  time: { hour: '2-digit', minute: '2-digit' },
-  shortDateTime: { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' },
+  time: CLOCK,
+  time12h: { ...CLOCK, ...H12 },
+  time24h: { ...CLOCK, ...H23 },
+  timeSeconds: { ...CLOCK, ...SECONDS },
+  time12hSeconds: { ...CLOCK, ...SECONDS, ...H12 },
+  time24hSeconds: { ...CLOCK, ...SECONDS, ...H23 },
+  shortDateTime: { ...SHORT_DATE, ...CLOCK },
+  shortDateTime12h: { ...SHORT_DATE, ...CLOCK, ...H12 },
+  shortDateTime24h: { ...SHORT_DATE, ...CLOCK, ...H23 },
+  shortDateTimeSeconds: { ...SHORT_DATE, ...CLOCK, ...SECONDS },
+  shortDateTime12hSeconds: { ...SHORT_DATE, ...CLOCK, ...SECONDS, ...H12 },
+  shortDateTime24hSeconds: { ...SHORT_DATE, ...CLOCK, ...SECONDS, ...H23 },
   mediumDateTime: { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' },
 };
+
+/** Every named key, read off the table so the two cannot disagree. */
+const NAMED_KEYS: ReadonlySet<string> = new Set(Object.keys(INTL_OPTIONS));
 
 /** Recognised tokens, longest first so `MMMM` matches before `MMM`. */
 /**
@@ -165,7 +197,7 @@ function pad(n: number, width = 2): string {
 
 /** Whether `value` is one of the shared named format keys. */
 function isNamedFormat(value: string): value is WrDateFormat {
-  return NAMED_KEYS.has(value as WrDateFormat);
+  return NAMED_KEYS.has(value);
 }
 
 /**
@@ -288,6 +320,13 @@ export abstract class WrDateAdapter<TDate = Date> {
   /**
    * Format a date. Accepts either a named {@link WrDateFormat} key (which the
    * adapter resolves locale-aware) or a raw format string (`'dd.MM.yyyy'`).
+   *
+   * **Every named key is part of the contract**, the time variants included:
+   * `time12h` / `time24h` pin the hour cycle, `timeSeconds` adds seconds, and the
+   * same suffixes apply to `shortDateTime` (see {@link WrDateFormat}). The date
+   * picker asks for them from its `timeFormat` and `showSeconds` inputs, so an
+   * adapter that treats one as a raw pattern prints its letters into the field.
+   * v15 added them; an adapter written for v14 has to handle them.
    *
    * Supported tokens for raw strings: `yyyy`, `yy`, `MMMM`, `MMM`, `MM`, `M`,
    * `dd`, `d`, `HH`, `H`, `hh`, `h`, `mm`, `ss`, `a` (the locale's day-period
@@ -749,10 +788,8 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
         case 'MMM':
         case 'MMMM': {
           const sets = token === 'MMM' ? monthShort : monthLong;
-          const wanted = raw.toLowerCase();
-          const found = sets
-            .map(names => names.findIndex(name => name.toLowerCase() === wanted))
-            .find(index => index >= 0);
+          const wanted = nameKey(raw);
+          const found = sets.map(names => names.findIndex(name => nameKey(name) === wanted)).find(index => index >= 0);
           if (found === undefined) return null;
           parts.month = found;
           break;
@@ -776,8 +813,8 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
           parts.seconds = n;
           break;
         case 'a': {
-          const marker = raw.toLowerCase();
-          parts.isPm = marker === 'pm' || marker === this.dayPeriods()[1].toLowerCase();
+          const marker = nameKey(raw);
+          parts.isPm = marker === 'pm' || marker === nameKey(this.dayPeriods()[1]);
           break;
         }
       }
@@ -915,8 +952,8 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
       const field = parser.fields[i];
       const captured = match[i + 1] ?? '';
       if (field.kind === 'monthName' || field.kind === 'dayPeriod') {
-        const wanted = stripBidi(captured).toLowerCase();
-        const index = (field.names ?? []).findIndex(name => stripBidi(name).toLowerCase() === wanted);
+        const wanted = nameKey(captured);
+        const index = (field.names ?? []).findIndex(name => nameKey(name) === wanted);
         if (index < 0) return null;
         if (field.kind === 'monthName') parts.month = index;
         else parts.isPm = index === 1;

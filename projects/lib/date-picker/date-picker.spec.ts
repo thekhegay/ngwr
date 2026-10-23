@@ -59,6 +59,7 @@ const REFUSAL_COPY: (Provider | EnvironmentProviders)[] = [
       [max]="max()"
       [dateFilter]="dateFilter()"
       [timeFormat]="timeFormat()"
+      [showSeconds]="showSeconds()"
       [panelAriaLabel]="panelAriaLabel()"
       [disabled]="disabled()"
       [readonly]="readonly()"
@@ -74,6 +75,7 @@ class Host {
   readonly max = signal<Date | undefined>(undefined);
   readonly dateFilter = signal<((date: Date) => boolean) | null>(null);
   readonly timeFormat = signal<'auto' | '12h' | '24h'>('24h');
+  readonly showSeconds = signal(false);
   readonly panelAriaLabel = signal<string | null>(null);
   readonly disabled = signal(false);
   readonly readonly = signal(false);
@@ -1054,6 +1056,8 @@ describe('WrDatePicker retyping its own value', () => {
     const fixture = TestBed.createComponent(Host);
     // `null` is the case that broke: the picker then derives a NAMED format from the mode.
     fixture.componentInstance.format.set(null);
+    // The locale's own clock: `timeFormat` and `showSeconds` have cases of their own below.
+    fixture.componentInstance.timeFormat.set('auto');
     fixture.componentInstance.mode.set(mode);
     fixture.componentInstance.picked.set(value);
     fixture.detectChanges();
@@ -1113,6 +1117,80 @@ describe('WrDatePicker retyping its own value', () => {
     expect(input.getAttribute('aria-invalid')).toBe('true');
     const reason = (fixture.nativeElement as HTMLElement).querySelector('[role="status"]')!.textContent.trim();
     expect(reason).toBe(`Expected format: 31.12.${new Date().getFullYear()}`);
+    fixture.destroy();
+  });
+
+  /**
+   * With no `[format]`, the field writes the clock the time panel draws. It used to
+   * print `time` / `shortDateTime` whatever the panel showed, so a picker with
+   * `showSeconds` dropped the seconds on every retype — the parse read none and
+   * committed `:00` — and `timeFormat="24h"` printed `02:30 PM` in en-US.
+   */
+  it('shows the seconds when showSeconds asks for them, and keeps them when retyped', () => {
+    for (const mode of ['time', 'datetime'] as const) {
+      const fixture = mount('en-GB', mode, new Date(2026, 2, 15, 14, 30, 5));
+      fixture.componentInstance.showSeconds.set(true);
+      fixture.detectChanges();
+      const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input.wr-input')!;
+      const printed = input.value;
+      expect(printed, mode).toBe(mode === 'time' ? '14:30:05' : '15/03/2026, 14:30:05');
+
+      retype(fixture, printed);
+
+      expect(input.value, mode).toBe(printed);
+      const picked = fixture.componentInstance.picked()!;
+      expect([picked.getHours(), picked.getMinutes(), picked.getSeconds()], mode).toEqual([14, 30, 5]);
+      fixture.destroy();
+    }
+  });
+
+  it('writes the hour cycle timeFormat names, and reads it back', () => {
+    // ICU puts a NARROW NO-BREAK SPACE before the day period; compared as a plain one.
+    const plain = (text: string): string => text.replace(/\u202f/g, ' ');
+    const cases = [
+      { locale: 'en-US', mode: 'time', cycle: '24h', shown: '14:30' },
+      { locale: 'de-DE', mode: 'time', cycle: '12h', shown: '02:30 PM' },
+      { locale: 'en-US', mode: 'datetime', cycle: '24h', shown: '3/15/2026, 14:30' },
+    ] as const;
+    for (const { locale, mode, cycle, shown } of cases) {
+      const fixture = mount(locale, mode, new Date(2026, 2, 15, 14, 30));
+      fixture.componentInstance.timeFormat.set(cycle);
+      fixture.detectChanges();
+      const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input.wr-input')!;
+      expect(plain(input.value), `${locale} ${cycle}`).toBe(shown);
+
+      retype(fixture, input.value);
+
+      expect(fixture.componentInstance.picked()!.getHours(), `${locale} ${cycle}`).toBe(14);
+      fixture.destroy();
+    }
+  });
+
+  it('re-renders the field when showSeconds or timeFormat moves', () => {
+    const fixture = mount('en-GB', 'time', new Date(2026, 2, 15, 14, 30, 5));
+    const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input.wr-input')!;
+    expect(input.value).toBe('14:30');
+
+    fixture.componentInstance.showSeconds.set(true);
+    fixture.detectChanges();
+    expect(input.value).toBe('14:30:05');
+
+    fixture.componentInstance.timeFormat.set('12h');
+    fixture.detectChanges();
+    expect(input.value.replace(/\u202f/g, ' ')).toBe('02:30:05 pm');
+    fixture.destroy();
+  });
+
+  it('leaves an explicit [format] alone, whatever showSeconds and timeFormat say', () => {
+    const fixture = mount('en-GB', 'time', new Date(2026, 2, 15, 14, 30, 5));
+    fixture.componentInstance.format.set('HH:mm');
+    fixture.componentInstance.showSeconds.set(true);
+    fixture.componentInstance.timeFormat.set('12h');
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input.wr-input')!.value).toBe(
+      '14:30'
+    );
     fixture.destroy();
   });
 

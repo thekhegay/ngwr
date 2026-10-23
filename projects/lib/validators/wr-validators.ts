@@ -8,6 +8,8 @@
 import { isDevMode } from '@angular/core';
 import { type AbstractControl, type ValidationErrors, type ValidatorFn } from '@angular/forms';
 
+import { toLocalDate } from 'ngwr/date';
+
 function stringValue(control: AbstractControl): string {
   const v: unknown = control.value;
   if (v == null) return '';
@@ -67,27 +69,15 @@ function mod97(iban: string): number {
   return remainder;
 }
 
-/** `2026`, `2026-01` and `2026-01-01`: the forms `new Date()` reads as UTC rather than local. */
-const ISO_DATE_ONLY = /^\d{4}(?:-\d{2}(?:-\d{2})?)?$/;
-
 /**
- * A date-only string names a calendar day, so it is read as LOCAL midnight — the
- * instant a date picker emits for that day. `new Date('2026-01-01')` is UTC
- * midnight, which east of Greenwich is later than the picked day's midnight and
- * west of it is the evening before, so `minDate('2026-01-01')` refused 1 January
- * in Almaty and `maxDate('2026-12-31')` refused 31 December in New York. The
- * engine still decides what is a valid date; only the zone moves. Angular's
- * `DatePipe` makes the same exception.
+ * A bound or a value as milliseconds. A date-only string (`'2026-01-01'`) is that
+ * day's LOCAL midnight — see `toLocalDate` — so `minDate('2026-01-01')` accepts the
+ * 1 January a date picker emits, in every zone.
  */
 function toMs(value: unknown): number {
   if (value instanceof Date) return value.getTime();
-  if (typeof value === 'number') return new Date(value).getTime();
-  if (typeof value !== 'string') return Number.NaN;
-  const parsed = new Date(value);
-  if (!ISO_DATE_ONLY.test(value) || Number.isNaN(parsed.getTime())) return parsed.getTime();
-  const local = new Date(0);
-  local.setFullYear(parsed.getUTCFullYear(), parsed.getUTCMonth(), parsed.getUTCDate());
-  return local.setHours(0, 0, 0, 0);
+  if (typeof value !== 'string' && typeof value !== 'number') return Number.NaN;
+  return toLocalDate(value).getTime();
 }
 
 /**

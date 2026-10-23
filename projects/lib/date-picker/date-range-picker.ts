@@ -36,6 +36,7 @@ import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { toClassList, type WrClassInput } from 'ngwr/utils';
 
+import { clockFormat } from './internal/clock-format';
 import { WrDateRangePanel } from './internal/date-range-panel';
 import {
   WR_DATE_INPUT_FIELD_VIEW_PROVIDER,
@@ -114,8 +115,10 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
 
   /**
    * Format used for both display and parsing, on both ends. When `null`
-   * (default), it is derived from `mode` (`shortDate` / `shortDateTime`). Pass
-   * a named key or raw token string to override.
+   * (default), it is derived from `mode` (`shortDate` / `shortDateTime`), with
+   * the hour cycle of `timeFormat` and the seconds of `showSeconds`
+   * (`shortDateTime24hSeconds`, …). Pass a named key or raw token string to
+   * override.
    */
   readonly format = input<WrDateFormat | (string & {}) | null>(null);
 
@@ -140,10 +143,17 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   /** Predicate to disable specific dates (forwarded to the calendar). */
   readonly dateFilter = input<((date: Date) => boolean) | null>(null);
 
-  /** Time-panel 12 / 24-hour format. Applies in `datetime` mode. @default 'auto' */
+  /**
+   * 12 / 24-hour clock, in the time panels and in both fields, unless `format`
+   * is set. `'auto'` follows the locale. Applies in `datetime` mode.
+   * @default 'auto'
+   */
   readonly timeFormat = input<'auto' | '12h' | '24h'>('auto');
 
-  /** Render the seconds column. Applies in `datetime` mode. @default false */
+  /**
+   * Show seconds, in the time panels and in both fields, unless `format` is set.
+   * Applies in `datetime` mode. @default false
+   */
   readonly showSeconds = input(false, { transform: coerceBooleanProperty });
 
   /** Minute / second step for the time panels. @default 1 */
@@ -214,9 +224,12 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   private autoFocusPanel = false;
 
   /** Resolved format — falls back to a mode-appropriate default. */
-  protected readonly resolvedFormat = computed<string>(() =>
-    this.format() ? String(this.format()) : this.mode() === 'datetime' ? 'shortDateTime' : 'shortDate'
-  );
+  protected readonly resolvedFormat = computed<string>(() => {
+    const explicit = this.format();
+    if (explicit) return String(explicit);
+    if (this.mode() !== 'datetime') return 'shortDate';
+    return clockFormat('shortDateTime', this.timeFormat(), this.showSeconds());
+  });
 
   protected readonly isDateTime = computed(() => this.mode() === 'datetime');
 
@@ -378,6 +391,9 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
    * the echo of our own edits and never reformat text mid-type. */
   private lastValue: WrDateRange | null = null;
 
+  /** The format the texts were last written in — `null` until the first run. */
+  private lastFormat: string | null = null;
+
   constructor() {
     this.destroyRef.onDestroy(() => {
       this.dispose();
@@ -389,16 +405,21 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     this.inputField.describe(computed(() => this.shownErrors()[0]));
 
     // Mirror external writes to `value` into the two display texts — and drop the
-    // refusals, whose text that write has just replaced.
+    // refusals, whose text that write has just replaced. The FORMAT is tracked too:
+    // `timeFormat` and `showSeconds` choose it, and a field left in the old one would
+    // then be parsed against the new one and refused.
     effect(() => {
       const v = this.value();
+      const fmt = this.resolvedFormat();
       untracked(() => {
+        const formatMoved = this.lastFormat !== null && fmt !== this.lastFormat;
+        this.lastFormat = fmt;
         // An equal range in a DIFFERENT tuple came from outside — `commitRange` hands the
         // model the very tuple it remembered. It leaves text being typed alone, but it
         // does replace text the picker refused.
         const outside = v !== this.lastValue;
         const [refusedStart, refusedEnd] = this.refusals();
-        if (this.sameRange(v, this.lastValue) && !(outside && (refusedStart || refusedEnd))) return;
+        if (!formatMoved && this.sameRange(v, this.lastValue) && !(outside && (refusedStart || refusedEnd))) return;
         this.lastValue = v;
         this.startText.set(this.display(v?.[0] ?? null));
         this.endText.set(this.display(v?.[1] ?? null));

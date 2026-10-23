@@ -82,6 +82,7 @@ import { WrDateAdapter, withDates, type WrDateFormat } from 'ngwr/date';
 export class AppDateAdapter extends WrDateAdapter<Date> {
   today(): Date { /* … */ }
   createDate(year: number, month: number, day: number): Date { /* month is 0-based */ }
+  // Every WrDateFormat key, the 12h / 24h / Seconds variants of time and shortDateTime included.
   format(date: Date, format: WrDateFormat | (string & {})): string { /* … */ }
   // Must read back what format() printed. Return null to refuse the input.
   parse(value: string, format: WrDateFormat | (string & {})): Date | null { /* … */ }

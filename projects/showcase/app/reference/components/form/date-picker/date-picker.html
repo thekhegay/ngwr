@@ -72,14 +72,20 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Time — 24-hour" description='`timeFormat="24h"` forces the 24-hour layout.'>
+  <ngwr-doc-section
+    title="Time — 24-hour"
+    description='`timeFormat="24h"` forces the 24-hour clock, in the panel and in the field.'
+  >
     <ngwr-doc-code [code]="snippets.time24" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-date-picker mode="time" timeFormat="24h" [(value)]="time24" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Time — seconds + step" description="`step` applies to minutes and seconds.">
+  <ngwr-doc-section
+    title="Time — seconds + step"
+    description="`showSeconds` adds seconds to the panel and the field. `step` applies to minutes and seconds."
+  >
     <ngwr-doc-code [code]="snippets.timeSeconds" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-date-picker mode="time" timeFormat="24h" [showSeconds]="true" [step]="5" [(value)]="timeSeconds" />

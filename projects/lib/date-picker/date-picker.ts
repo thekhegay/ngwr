@@ -37,6 +37,7 @@ import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
 import { toClassList, type WrClassInput } from 'ngwr/utils';
 
+import { clockFormat } from './internal/clock-format';
 import { WrDateTimePanel } from './internal/date-time-panel';
 import {
   WR_DATE_INPUT_FIELD_VIEW_PROVIDER,
@@ -80,7 +81,9 @@ const SILENCE_MS = 100;
  * token strings (`'dd.MM.yyyy'`, `'HH:mm'`). When `format` is left at the
  * default (`null`), the picker derives the right named key from `mode`:
  * `'date'` gives `'shortDate'`, `'time'` gives `'time'`, `'datetime'` gives
- * `'shortDateTime'`.
+ * `'shortDateTime'` — with the suffixes {@link timeFormat} and
+ * {@link showSeconds} ask for, so the field writes the clock the panel draws:
+ * `timeFormat="24h"` with `showSeconds` gives `'time24hSeconds'`.
  *
  * @example
  * ```html
@@ -114,8 +117,9 @@ export class WrDatePicker implements FormValueControl<Date | null> {
 
   /**
    * Format used for both display and parsing. When `null` (default), the
-   * format is derived from `mode` (`shortDate` / `time` / `shortDateTime`).
-   * Pass a named key or raw token string to override.
+   * format is derived from `mode` (`shortDate` / `time` / `shortDateTime`),
+   * with the hour cycle of `timeFormat` and the seconds of `showSeconds`
+   * (`time24hSeconds`, …). Pass a named key or raw token string to override.
    */
   readonly format = input<WrDateFormat | (string & {}) | null>(null);
 
@@ -135,10 +139,17 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   /** Predicate to disable specific dates (forwarded to the calendar). Ignored in `time` mode. */
   readonly dateFilter = input<((date: Date) => boolean) | null>(null);
 
-  /** Time-panel 12 / 24-hour format. Applies in `time` + `datetime` modes. @default 'auto' */
+  /**
+   * 12 / 24-hour clock, in the time panel and in the field, unless `format` is
+   * set. `'auto'` follows the locale. Applies in `time` + `datetime` modes.
+   * @default 'auto'
+   */
   readonly timeFormat = input<'auto' | '12h' | '24h'>('auto');
 
-  /** Render the seconds column. Applies in `time` + `datetime` modes. @default false */
+  /**
+   * Show seconds, in the time panel and in the field, unless `format` is set.
+   * Applies in `time` + `datetime` modes. @default false
+   */
   readonly showSeconds = input(false, { transform: coerceBooleanProperty });
 
   /** Minute / second step for the time panel. @default 1 */
@@ -194,17 +205,18 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   /** Whether the panel this open cycle should take focus. */
   private autoFocusPanel = false;
 
-  /** Resolved format — falls back to a mode-appropriate default. */
+  /**
+   * Resolved format — falls back to a mode-appropriate default. Only named keys:
+   * `shortTime` was once returned here, is not a member of WrDateFormat, and so
+   * fell through to being read as a raw token pattern. One backed by date-fns
+   * threw on the unescaped letters; the native adapter degraded silently.
+   */
   protected readonly resolvedFormat = computed<string>(() => {
     const explicit = this.format();
     if (explicit) return explicit;
     const m = this.mode();
-    if (m === 'datetime') return 'shortDateTime';
-    // `time`, not `shortTime` — the latter is not a member of WrDateFormat, so
-    // adapters fell through to treating it as a raw token pattern. One backed by
-    // date-fns threw on the unescaped letters; the native adapter degraded silently.
-    if (m === 'time') return 'time';
-    return 'shortDate';
+    if (m === 'date') return 'shortDate';
+    return clockFormat(m === 'datetime' ? 'shortDateTime' : 'time', this.timeFormat(), this.showSeconds());
   });
 
   protected readonly isTime = computed(() => this.mode() === 'time');
