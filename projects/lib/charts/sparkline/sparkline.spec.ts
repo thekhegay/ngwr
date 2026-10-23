@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -335,5 +335,53 @@ describe('WrSparkline tooltip', () => {
 
     expect(chip()).toBeNull();
     expect(marker()).toBeNull();
+  });
+});
+
+@Component({
+  imports: [WrSparkline],
+  template: `<wr-sparkline [data]="data" [valueFormat]="valueFormat()" />`,
+})
+class FormatHost {
+  readonly data = [1234.5, 0.0004];
+  readonly valueFormat = signal<((value: number) => string) | null>(null);
+}
+
+/** How the tooltip writes a value: `Intl` in Angular's `LOCALE_ID` unless `valueFormat` says otherwise. */
+describe('WrSparkline number format', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<FormatHost>>;
+
+  const tooltipValue = (clientX: number): string => {
+    const svg = (fixture.nativeElement as HTMLElement).querySelector<SVGSVGElement>('svg')!;
+    svg.getBoundingClientRect = () => new DOMRect(0, 0, 100, 40);
+    svg.dispatchEvent(new MouseEvent('mousemove', { clientX }));
+    fixture.detectChanges();
+    return document.querySelector('.wr-chart-tooltip__value')!.textContent.trim();
+  };
+  const create = (locale?: string): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: locale ? [{ provide: LOCALE_ID, useValue: locale }] : [] });
+    fixture = TestBed.createComponent(FormatHost);
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('groups the figure, and keeps a tiny one from reading as zero', () => {
+    create();
+    expect(tooltipValue(0)).toBe('1,234.5');
+    expect(tooltipValue(100)).toBe('0.0004');
+  });
+
+  it("follows LOCALE_ID's own convention by default", () => {
+    create('de');
+    expect(tooltipValue(0)).toBe('1.234,5');
+  });
+
+  it('writes the value through `valueFormat` when one is given, over the locale', () => {
+    create('de');
+    fixture.componentInstance.valueFormat.set(value => `€${value.toFixed(2)}`);
+    fixture.detectChanges();
+    expect(tooltipValue(0)).toBe('€1234.50');
   });
 });

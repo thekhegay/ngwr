@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -216,5 +216,66 @@ describe('WrGauge tooltip', () => {
     hover();
 
     expect(chip()).toBeNull();
+  });
+});
+
+@Component({
+  imports: [WrGauge],
+  template: `<wr-gauge [value]="value" [max]="10000" suffix=" pts" [valueFormat]="valueFormat()" />`,
+})
+class FormatHost {
+  readonly value = 1234.5;
+  readonly valueFormat = signal<((value: number) => string) | null>(null);
+}
+
+/**
+ * How the reading is written: `Intl` in Angular's `LOCALE_ID` unless `valueFormat` says
+ * otherwise, in the centre, the tooltip and `aria-valuetext` alike — while
+ * `aria-valuenow` stays a number, which is all the role allows there.
+ */
+describe('WrGauge number format', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<FormatHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const meter = (): HTMLElement => root().querySelector<HTMLElement>('[role="meter"]')!;
+  const text = (): string => root().querySelector('.wr-gauge__text')!.textContent.trim();
+  const tooltipValue = (): string => {
+    meter().dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+    return document.querySelector('.wr-chart-tooltip__value')!.textContent.trim();
+  };
+  const create = (locale?: string): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: locale ? [{ provide: LOCALE_ID, useValue: locale }] : [] });
+    fixture = TestBed.createComponent(FormatHost);
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('groups the reading in English by default', () => {
+    create();
+    expect(text()).toBe('1,234.5 pts');
+    expect(meter().getAttribute('aria-valuetext')).toBe('1,234.5 pts');
+  });
+
+  it("follows LOCALE_ID's own convention by default", () => {
+    create('de');
+    expect(text()).toBe('1.234,5 pts');
+    expect(meter().getAttribute('aria-valuetext')).toBe('1.234,5 pts');
+    expect(meter().getAttribute('aria-valuenow')).toBe('1234.5');
+    expect(tooltipValue()).toBe('1.234,5 pts');
+  });
+
+  it('writes the reading through `valueFormat` when one is given, over the locale', () => {
+    create('de');
+    fixture.componentInstance.valueFormat.set(value => value.toFixed(0));
+    fixture.detectChanges();
+
+    // The suffix still follows it.
+    expect(text()).toBe('1235 pts');
+    expect(meter().getAttribute('aria-valuetext')).toBe('1235 pts');
+    expect(meter().getAttribute('aria-valuenow')).toBe('1234.5');
+    expect(tooltipValue()).toBe('1235 pts');
   });
 });

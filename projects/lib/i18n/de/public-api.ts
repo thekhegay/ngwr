@@ -238,7 +238,6 @@ export const wrDe: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Liniendiagramm',
-    thousands: '{{value}} Tsd.',
   },
   donutChart: {
     label: 'Ringdiagramm',

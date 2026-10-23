@@ -230,7 +230,6 @@ export const wrHi: WrI18nCatalog = {
   },
   lineChart: {
     label: 'लाइन चार्ट',
-    thousands: '{{value}} हज़ार',
   },
   donutChart: {
     label: 'डोनट चार्ट',

@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ElementRef, ViewEncapsulation, computed, inject, input, viewChild } from '@angular/core';
+import { Component, ElementRef, LOCALE_ID, ViewEncapsulation, computed, inject, input, viewChild } from '@angular/core';
 
 import { useChartTooltip } from 'ngwr/popover';
 
@@ -71,6 +71,22 @@ export class WrSparkline {
    * point, and named by `ariaLabel` when one is given. Pointer only. @default true
    */
   readonly tooltip = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * Writes the value in the tooltip. `null` uses `Intl.NumberFormat` in `LOCALE_ID`.
+   */
+  readonly valueFormat = input<((value: number) => string) | null>(null);
+
+  private readonly locale = inject(LOCALE_ID);
+  private readonly numbers = new Intl.NumberFormat(this.locale);
+  /** Below one, by significant digits, which keep 0.0004 from rounding to `0`. */
+  private readonly smallNumbers = new Intl.NumberFormat(this.locale, { maximumSignificantDigits: 3 });
+
+  private formatValue(value: number): string {
+    const custom = this.valueFormat();
+    if (custom) return custom(value);
+    return (value !== 0 && Math.abs(value) < 1 ? this.smallNumbers : this.numbers).format(value);
+  }
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly svg = viewChild<ElementRef<SVGSVGElement>>('svg');
@@ -158,7 +174,7 @@ export class WrSparkline {
       const marker = this.marker()?.nativeElement;
       if (value === undefined || !marker) return null;
       return {
-        datum: { label: this.ariaLabel() ?? undefined, value: String(value), color: this.color() },
+        datum: { label: this.ariaLabel() ?? undefined, value: this.formatValue(value), color: this.color() },
         anchor: marker,
       };
     },

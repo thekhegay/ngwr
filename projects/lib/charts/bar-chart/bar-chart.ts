@@ -6,7 +6,16 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChildren } from '@angular/core';
+import {
+  Component,
+  type ElementRef,
+  LOCALE_ID,
+  ViewEncapsulation,
+  computed,
+  inject,
+  input,
+  viewChildren,
+} from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
@@ -73,6 +82,37 @@ export class WrBarChart {
    */
   readonly tooltip = input(true, { transform: coerceBooleanProperty });
 
+  /**
+   * Writes every number the chart shows: the labels above the bars, the tooltip and
+   * each bar's accessible name. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with
+   * compact labels from a thousand up (`1.2K`, `3.4M`).
+   */
+  readonly valueFormat = input<((value: number) => string) | null>(null);
+
+  private readonly locale = inject(LOCALE_ID);
+  private readonly numbers = new Intl.NumberFormat(this.locale);
+  /** Below one, by significant digits, which keep 0.0004 from rounding to `0`. */
+  private readonly smallNumbers = new Intl.NumberFormat(this.locale, { maximumSignificantDigits: 3 });
+  private readonly compactNumbers = new Intl.NumberFormat(this.locale, { notation: 'compact' });
+
+  /** A value as the tooltip and the accessible name write it. */
+  private formatValue(value: number): string {
+    const custom = this.valueFormat();
+    if (custom) return custom(value);
+    return (value !== 0 && Math.abs(value) < 1 ? this.smallNumbers : this.numbers).format(value);
+  }
+
+  /**
+   * A value as the label above its bar writes it: compact from a thousand up, where a
+   * column is too narrow for `1,234,567`, and exactly as the tooltip writes it below —
+   * compact rounding would print 12.5 as `13`, and below a thousand there is nothing to
+   * abbreviate.
+   */
+  private formatLabel(value: number): string {
+    if (this.valueFormat() || Math.abs(value) < 1000) return this.formatValue(value);
+    return this.compactNumbers.format(value);
+  }
+
   private readonly barEls = viewChildren<ElementRef<HTMLElement>>('barEl');
 
   /**
@@ -99,9 +139,14 @@ export class WrBarChart {
   protected readonly bars = computed(() =>
     this.data().map(d => {
       const value = WrBarChart.value(d.value);
+      const text = this.formatValue(value);
       return {
         label: d.label,
         value,
+        /** The label printed above the bar. */
+        display: this.formatLabel(value),
+        /** The whole figure, for the tooltip. */
+        text,
         color: d.color ?? this.color(),
         /**
          * The bar's share of the plot, from 0 to 1, written as its `flex-grow` — see
@@ -114,14 +159,14 @@ export class WrBarChart {
          * nothing tying the two together — and with `showValues` off the
          * numbers were not in the accessible tree at all.
          */
-        name: `${d.label}: ${value}`,
+        name: `${d.label}: ${text}`,
       };
     })
   );
 
   /**
-   * One tooltip for the whole chart, with the value exactly as it is printed above
-   * the bar. It points at the top edge of the BAR — above it, below it when there is
+   * One tooltip for the whole chart, with the whole figure — the label above the bar
+   * may be compact, and the tooltip is where a reader goes for the exact one. It points at the top edge of the BAR — above it, below it when there is
    * no room — rather than at the column, which is the full height of the plot and
    * would put the chip above every bar alike. A bar with nothing to draw (zero, a
    * negative value) keeps its 1px floor on the baseline, so its chip points there.
@@ -133,7 +178,7 @@ export class WrBarChart {
     const bar = this.bars()[index];
     const anchor = this.barEls()[index]?.nativeElement;
     if (!bar || !anchor) return null;
-    return { datum: { label: bar.label, value: String(bar.value), color: bar.color }, anchor };
+    return { datum: { label: bar.label, value: bar.text, color: bar.color }, anchor };
   });
 }
 

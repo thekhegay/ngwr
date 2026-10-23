@@ -235,7 +235,6 @@ export const wrKo: WrI18nCatalog = {
   },
   lineChart: {
     label: '선 차트',
-    thousands: '{{value}}천',
   },
   donutChart: {
     label: '도넛 차트',

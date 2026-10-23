@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
@@ -245,5 +245,68 @@ describe('WrMeterGroup tooltip', () => {
 
     expect(chip()).toBeNull();
     expect(slices().map(slice => slice.getAttribute('title'))).toEqual(['Used', 'Reserved']);
+  });
+});
+
+@Component({
+  imports: [WrMeterGroup],
+  template: `<wr-meter-group [segments]="segments" [valueFormat]="valueFormat()" />`,
+})
+class FormatHost {
+  readonly segments: readonly WrMeterSegment[] = [
+    { label: 'Used', value: 1234.5 },
+    { label: 'Free', value: 765.5 },
+  ];
+  readonly valueFormat = signal<((value: number) => string) | null>(null);
+}
+
+/** How a number is written: `Intl` in Angular's `LOCALE_ID` unless `valueFormat` says otherwise. */
+describe('WrMeterGroup number format', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<FormatHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const bar = (): HTMLElement => root().querySelector<HTMLElement>('[role="progressbar"]')!;
+  const legendValues = (): string[] =>
+    [...root().querySelectorAll('.wr-meter-group__legend-value')].map(el => el.textContent.trim());
+  const tooltipValue = (index: number): string => {
+    root().querySelectorAll('.wr-meter-group__slice')[index].dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+    return document.querySelector('.wr-chart-tooltip__value')!.textContent.trim();
+  };
+  const create = (locale?: string): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: locale ? [{ provide: LOCALE_ID, useValue: locale }] : [] });
+    fixture = TestBed.createComponent(FormatHost);
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('groups the figures in English by default', () => {
+    create();
+    expect(legendValues()).toEqual(['1,234.5', '765.5']);
+  });
+
+  it("follows LOCALE_ID's own convention by default", () => {
+    create('de');
+    expect(legendValues()).toEqual(['1.234,5', '765,5']);
+    expect(tooltipValue(0)).toBe('1.234,5');
+    // The bar's own value stays a number; what it announces is the total as the legend
+    // writes its figures.
+    expect(bar().getAttribute('aria-valuenow')).toBe('2000');
+    expect(bar().getAttribute('aria-valuetext')).toBe('2.000');
+  });
+
+  it('writes every number through `valueFormat` when one is given, over the locale', () => {
+    create('de');
+    fixture.componentInstance.valueFormat.set(value => `${value} GB`);
+    fixture.detectChanges();
+
+    expect(legendValues()).toEqual(['1234.5 GB', '765.5 GB']);
+    expect(tooltipValue(1)).toBe('765.5 GB');
+    // A screen reader hears the unit the legend prints rather than a bare percentage —
+    // the gauge routes the same input into `aria-valuetext` the same way.
+    expect(bar().getAttribute('aria-valuetext')).toBe('2000 GB');
+    expect(bar().getAttribute('aria-valuenow')).toBe('2000');
   });
 });

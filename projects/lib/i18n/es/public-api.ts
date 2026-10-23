@@ -230,7 +230,6 @@ export const wrEs: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Gráfico de líneas',
-    thousands: '{{value}} k',
   },
   donutChart: {
     label: 'Gráfico de anillo',

@@ -6,7 +6,16 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChild } from '@angular/core';
+import {
+  Component,
+  type ElementRef,
+  LOCALE_ID,
+  ViewEncapsulation,
+  computed,
+  inject,
+  input,
+  viewChild,
+} from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
@@ -100,6 +109,23 @@ export class WrDonutChart {
    */
   readonly tooltip = input(true, { transform: coerceBooleanProperty });
 
+  /**
+   * Writes every value in the legend and the tooltip. `null` uses `Intl.NumberFormat`
+   * in `LOCALE_ID`. The centre text is printed as given.
+   */
+  readonly valueFormat = input<((value: number) => string) | null>(null);
+
+  private readonly locale = inject(LOCALE_ID);
+  private readonly numbers = new Intl.NumberFormat(this.locale);
+  /** Below one, by significant digits, which keep 0.0004 from rounding to `0`. */
+  private readonly smallNumbers = new Intl.NumberFormat(this.locale, { maximumSignificantDigits: 3 });
+
+  private formatValue(value: number): string {
+    const custom = this.valueFormat();
+    if (custom) return custom(value);
+    return (value !== 0 && Math.abs(value) < 1 ? this.smallNumbers : this.numbers).format(value);
+  }
+
   private readonly svg = viewChild<ElementRef<SVGSVGElement>>('svg');
 
   // Drawn in a 100×100 viewBox.
@@ -117,18 +143,27 @@ export class WrDonutChart {
     return sum > 0 ? sum : 1;
   });
 
-  /** Resolved slices ready for the template — each carries its arc path. */
+  /**
+   * Resolved slices ready for the template — each carries its arc path.
+   *
+   * Angles are in the drawing's own frame, where 0 is three o'clock and a positive
+   * angle turns clockwise, because y runs downwards. The ring starts a quarter turn
+   * back from there, at twelve o'clock, which is where the input's JSDoc always said
+   * it started and where a reader looks for the first slice; it used to start at three.
+   */
   protected readonly slices = computed(() => {
     const total = this.total();
+    const origin = -Math.PI / 2;
     let cumulative = 0;
     return this.segments().map((s, i) => {
       const value = weight(s.value);
-      const startAngle = (cumulative / total) * Math.PI * 2;
+      const startAngle = origin + (cumulative / total) * Math.PI * 2;
       cumulative += value;
-      const endAngle = (cumulative / total) * Math.PI * 2;
+      const endAngle = origin + (cumulative / total) * Math.PI * 2;
       return {
         label: s.label,
         value,
+        text: this.formatValue(value),
         color: s.color ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length],
         path: this.arcPath(startAngle, endAngle),
         percent: (value / total) * 100,
@@ -160,7 +195,7 @@ export class WrDonutChart {
     const sin = Math.sin(slice.midAngle);
     const side = Math.abs(cos) > Math.abs(sin) ? (cos > 0 ? 'right' : 'left') : sin > 0 ? 'bottom' : 'top';
     return {
-      datum: { label: slice.label, value: String(slice.value), color: slice.color },
+      datum: { label: slice.label, value: slice.text, color: slice.color },
       anchor: {
         x: box.left + ((50 + this.outerR * cos) / 100) * box.width,
         y: box.top + ((50 + this.outerR * sin) / 100) * box.height,

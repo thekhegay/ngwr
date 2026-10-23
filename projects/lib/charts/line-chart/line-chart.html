@@ -25,154 +25,151 @@
   </ul>
 }
 
-<div class="wr-line-chart__plot" role="img" [attr.aria-label]="resolvedAriaLabel()" [style.height.px]="height()">
-  <!-- Named, where it was the only unnamed element in the component. The legend
-       swatch is an `<svg>` too now, so `querySelector('svg')` no longer means
-       "the chart" — and a plot that nothing can address by name is one a
-       consumer's stylesheet and a spec both have to reach by position. -->
-  <svg
-    class="wr-line-chart__svg"
-    [attr.viewBox]="viewBox()"
-    preserveAspectRatio="none"
+<!-- Two columns: the y-axis labels at inline start, the drawing beside them, and the
+     x labels under the drawing only, so their percentages are the drawing's. -->
+<div class="wr-line-chart__body">
+  @if (showGrid()) {
+    <!-- The tick labels are HTML beside the drawing rather than `<text>` inside it: the
+         drawing stretches with `preserveAspectRatio="none"` and its type stretched with
+         it. In flow, so the column is exactly as wide as the longest label; each one
+         hands the stylesheet the y of its own gridline, as the x labels hand it their x.
+         Hidden, as they were inside the plot's `img`: the plot's name is what is
+         announced. -->
+    <div class="wr-line-chart__y-axis" aria-hidden="true">
+      @for (tick of yAxis(); track $index) {
+        <span class="wr-line-chart__tick" [style.--wr-line-chart-y]="tick.y">{{ tick.label }}</span>
+      }
+    </div>
+  }
+
+  <div
+    class="wr-line-chart__plot"
+    role="img"
+    [attr.aria-label]="resolvedAriaLabel()"
+    [style.height.px]="height()"
     (mousemove)="onPointerMove($event)"
     (mouseleave)="onPointerLeave()"
   >
-    @if (showGrid()) {
-      @for (tick of yTicks(); track tick.value) {
-        <line
-          class="wr-line-chart__grid-line"
-          [attr.x1]="padding.left"
-          [attr.x2]="vbW - padding.right"
-          [attr.y1]="tick.y"
-          [attr.y2]="tick.y"
-          stroke="color-mix(in srgb, var(--wr-border-base) 70%, transparent)"
-          stroke-width="1"
+    <!-- Named, where it was the only unnamed element in the component. The legend
+         swatch is an `<svg>` too now, so `querySelector('svg')` no longer means
+         "the chart" — and a plot that nothing can address by name is one a
+         consumer's stylesheet and a spec both have to reach by position. -->
+    <svg #svg class="wr-line-chart__svg" [attr.viewBox]="viewBox()" preserveAspectRatio="none">
+      @if (showGrid()) {
+        @for (tick of yTicks(); track tick.value) {
+          <line
+            class="wr-line-chart__grid-line"
+            x1="0"
+            [attr.x2]="vbW"
+            [attr.y1]="tick.y"
+            [attr.y2]="tick.y"
+            stroke="color-mix(in srgb, var(--wr-border-base) 70%, transparent)"
+            stroke-width="1"
+            vector-effect="non-scaling-stroke"
+          />
+        }
+      }
+
+      @for (s of resolvedSeries(); track s.label) {
+        <path
+          class="wr-line-chart__line"
+          [attr.d]="pathFor(s)"
+          fill="none"
+          [attr.stroke]="s.color"
+          [attr.stroke-dasharray]="s.dash || null"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
           vector-effect="non-scaling-stroke"
         />
-        <text
-          class="wr-line-chart__tick"
-          [attr.x]="padding.left - 6"
-          [attr.y]="tick.y + 4"
-          text-anchor="end"
-          fill="var(--wr-color-on-surface-muted)"
-          font-size="10"
-          font-family="var(--wr-font-family-base)"
-        >
-          {{ formatTick(tick.value) }}
-        </text>
-      }
-    }
-
-    @for (s of resolvedSeries(); track s.label) {
-      <path
-        class="wr-line-chart__line"
-        [attr.d]="pathFor(s)"
-        fill="none"
-        [attr.stroke]="s.color"
-        [attr.stroke-dasharray]="s.dash || null"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        vector-effect="non-scaling-stroke"
-      />
-      @if (showDots()) {
-        @for (v of s.data; track $index; let i = $index) {
-          <!-- A hole in the data gets no dot: the index still belongs to it, so the
-               points after it stay on their own x. A dot is a zero-length line with a
-               round cap and a non-scaling stroke, which stays a 6px circle however the
-               drawing stretches; a `<circle>` scaled with it, into a 3 × 5px oval on a
-               phone and a 9 × 5px one at 1920px. -->
-          @if (v !== null) {
-            <path
-              class="wr-line-chart__dot"
-              [attr.d]="dotPath(pointX(i), pointY(v))"
-              fill="none"
-              [attr.stroke]="s.color"
-              stroke-width="6"
-              stroke-linecap="round"
-              vector-effect="non-scaling-stroke"
-            />
+        @if (showDots()) {
+          @for (v of s.data; track $index; let i = $index) {
+            <!-- A hole in the data gets no dot: the index still belongs to it, so the
+                 points after it stay on their own x. A dot is a zero-length line with a
+                 round cap and a non-scaling stroke, which stays a 6px circle however the
+                 drawing stretches; a `<circle>` scaled with it, into a 3 × 5px oval on a
+                 phone and a 9 × 5px one at 1920px. -->
+            @if (v !== null) {
+              <path
+                class="wr-line-chart__dot"
+                [attr.d]="dotPath(pointX(i), pointY(v))"
+                fill="none"
+                [attr.stroke]="s.color"
+                stroke-width="6"
+                stroke-linecap="round"
+                vector-effect="non-scaling-stroke"
+              />
+            }
           }
         }
       }
-    }
+
+      @if (hovered !== null && hoverPoints().length > 0) {
+        <line
+          class="wr-line-chart__crosshair"
+          [attr.x1]="pointX(hovered)"
+          [attr.x2]="pointX(hovered)"
+          y1="0"
+          [attr.y2]="vbH"
+          stroke="var(--wr-color-on-surface-muted)"
+          stroke-width="1"
+          stroke-dasharray="3 3"
+          vector-effect="non-scaling-stroke"
+        />
+        <!-- A ring of the series' colour round a white centre, drawn the way a dot is
+             and for the same reason. -->
+        @for (p of hoverPoints(); track p.label) {
+          <path
+            [attr.d]="dotPath(p.x, p.y)"
+            fill="none"
+            [attr.stroke]="p.color"
+            stroke-width="12"
+            stroke-linecap="round"
+            vector-effect="non-scaling-stroke"
+          />
+          <path
+            [attr.d]="dotPath(p.x, p.y)"
+            fill="none"
+            stroke="var(--wr-color-white)"
+            stroke-width="8"
+            stroke-linecap="round"
+            vector-effect="non-scaling-stroke"
+          />
+        }
+      }
+    </svg>
 
     @if (hovered !== null && hoverPoints().length > 0) {
-      <line
-        class="wr-line-chart__crosshair"
-        [attr.x1]="pointX(hovered)"
-        [attr.x2]="pointX(hovered)"
-        [attr.y1]="padding.top"
-        [attr.y2]="vbH - padding.bottom"
-        stroke="var(--wr-color-on-surface-muted)"
-        stroke-width="1"
-        stroke-dasharray="3 3"
-        vector-effect="non-scaling-stroke"
-      />
-      <!-- A ring of the series' colour round a white centre, drawn the way a dot is
-           and for the same reason. -->
-      @for (p of hoverPoints(); track p.label) {
-        <path
-          [attr.d]="dotPath(p.x, p.y)"
-          fill="none"
-          [attr.stroke]="p.color"
-          stroke-width="12"
-          stroke-linecap="round"
-          vector-effect="non-scaling-stroke"
-        />
-        <path
-          [attr.d]="dotPath(p.x, p.y)"
-          fill="none"
-          stroke="var(--wr-color-white)"
-          stroke-width="8"
-          stroke-linecap="round"
-          vector-effect="non-scaling-stroke"
-        />
-      }
-    }
-  </svg>
-
-  @if (hovered !== null && hoverPoints().length > 0) {
-    <!-- The layer spans the plot and is what the tooltip's `cqw` measures. It is out of
-         flow, so the containment it turns on costs the plot's own sizing nothing. The
-         tooltip takes the same `--wr-line-chart-x` the x labels take, and the same clamp:
-         centred on its point, never past either end. -->
-    <div class="wr-line-chart__tooltip-layer">
-      <div
-        class="wr-line-chart__tooltip"
-        [style.left.%]="xPercent(hovered)"
-        [style.--wr-line-chart-x]="xPercent(hovered)"
-        [style.top.px]="padding.top"
-      >
-        <div class="wr-line-chart__tooltip-label">{{ hoverLabel() }}</div>
-        @for (p of hoverPoints(); track p.label) {
-          <div class="wr-line-chart__tooltip-row">
-            <span class="wr-line-chart__swatch" [style.background]="p.color"></span>
-            <span class="wr-line-chart__tooltip-name">{{ p.label }}</span>
-            <span class="wr-line-chart__tooltip-value">{{ p.value }}</span>
-          </div>
-        }
+      <!-- The layer covers the plot and is what the tooltip's `cqw` measures. It is out of flow, so the containment it turns on
+           costs the plot's own sizing nothing. The tooltip takes the same
+           `--wr-line-chart-x` the x labels take, and the same clamp: centred on its
+           point, never past either end. -->
+      <div class="wr-line-chart__tooltip-layer">
+        <div class="wr-line-chart__tooltip" [style.--wr-line-chart-x]="xPercent(hovered)">
+          <div class="wr-line-chart__tooltip-label">{{ hoverLabel() }}</div>
+          @for (p of hoverPoints(); track p.label) {
+            <div class="wr-line-chart__tooltip-row">
+              <span class="wr-line-chart__swatch" [style.background]="p.color"></span>
+              <span class="wr-line-chart__tooltip-name">{{ p.label }}</span>
+              <span class="wr-line-chart__tooltip-value">{{ p.text }}</span>
+            </div>
+          }
+        </div>
       </div>
+    }
+  </div>
+
+  @if (xLabels().length > 0) {
+    <!-- The strip is as wide as the plot, and hands the stylesheet the distance between
+         two points; each label hands it the x of the point it names. Both are percentages
+         of the drawing's width, so they track the drawing at any size: the stylesheet
+         centres a label on its point and ellipsises it past its slot. Laying the labels
+         out as equal centred flex slots instead is bar-chart geometry: only the middle
+         label landed on its dot, and the outer ones sat up to half a column away. -->
+    <div class="wr-line-chart__x-labels" [style.--wr-line-chart-x-slot]="xSlot()">
+      @for (label of xLabels(); track $index) {
+        <span class="wr-line-chart__x-label" [style.--wr-line-chart-x]="xPercent($index)">{{ label }}</span>
+      }
     </div>
   }
 </div>
-
-@if (xLabels().length > 0) {
-  <div class="wr-line-chart__x-labels">
-    @for (label of xLabels(); track $index) {
-      <!-- Each label hands the stylesheet two numbers, both percentages of the host's
-           width — the space the stretching SVG is in, so they track the drawing at any
-           size. The x of the point it names, which the stylesheet centres it on; and the
-           widest it may be before it reaches a neighbour or the end of the strip, past
-           which the stylesheet ellipsises it. Laying the labels out as equal centred flex
-           slots instead is bar-chart geometry: only the middle label landed on its dot,
-           and the outer ones sat up to half a column away. -->
-      <span
-        class="wr-line-chart__x-label"
-        [style.--wr-line-chart-x]="xPercent($index)"
-        [style.--wr-line-chart-x-max]="xMaxPercent($index)"
-        >{{ label }}</span
-      >
-    }
-  </div>
-}

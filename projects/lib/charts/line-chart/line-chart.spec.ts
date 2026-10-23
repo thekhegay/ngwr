@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
@@ -22,6 +22,7 @@ const SERIES: readonly WrLineSeries[] = [
       [showLegend]="showLegend()"
       [showGrid]="showGrid()"
       [tooltip]="tooltip()"
+      [valueFormat]="valueFormat()"
     />
   `,
 })
@@ -31,10 +32,11 @@ class Host {
   readonly showLegend = signal(true);
   readonly showGrid = signal(true);
   readonly tooltip = signal(true);
+  readonly valueFormat = signal<((value: number) => string) | null>(null);
 }
 
 /**
- * The chart is a fixed 600×300 viewBox with a known padding, so every coordinate is exact
+ * The chart is a fixed 600×300 viewBox drawn edge to edge, so every coordinate is exact
  * and no layout is needed to check it. What the legend shows is only the series NAMES —
  * unlike the donut, the numbers are not in text anywhere — so the plot's own name is the
  * whole of what a screen reader gets.
@@ -53,11 +55,16 @@ describe('WrLineChart', () => {
   const dots = (): SVGPathElement[] => [...root().querySelectorAll<SVGPathElement>('path.wr-line-chart__dot')];
   /** A dot's x in viewBox units — it is a zero-length line drawn at its point. */
   const cx = (dot: Element): number => Number(/^M (\S+) /.exec(dot.getAttribute('d') ?? '')?.[1]);
-  /** What each x label hands the stylesheet, as a percentage of the chart's width. */
   /** The y-axis labels, top to bottom, as rendered. */
   const ticks = (): string[] =>
     [...root().querySelectorAll<HTMLElement>('.wr-line-chart__tick')].map(el => el.textContent?.trim() ?? '');
+  /** What each y label hands the stylesheet: its gridline's y, as a percentage of the drawing's height. */
+  const tickYs = (): number[] =>
+    [...root().querySelectorAll<HTMLElement>('.wr-line-chart__tick')].map(el =>
+      Number.parseFloat(el.style.getPropertyValue('--wr-line-chart-y'))
+    );
 
+  /** What each x label hands the stylesheet, as a percentage of the chart's width. */
   const xLabelProps = (name: string): number[] =>
     [...root().querySelectorAll<HTMLElement>('.wr-line-chart__x-label')].map(el =>
       Number.parseFloat(el.style.getPropertyValue(name))
@@ -94,17 +101,17 @@ describe('WrLineChart', () => {
     // from is this number and the layer its `cqw` resolves against.
     svg().getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
     const tooltipAt = (clientX: number): HTMLElement => {
-      svg().dispatchEvent(new MouseEvent('mousemove', { clientX }));
+      svg().dispatchEvent(new MouseEvent('mousemove', { clientX, bubbles: true }));
       fixture.detectChanges();
       return root().querySelector<HTMLElement>('.wr-line-chart__tooltip')!;
     };
     const tooltipX = (clientX: number): number =>
       Number.parseFloat(tooltipAt(clientX).style.getPropertyValue('--wr-line-chart-x'));
 
-    // The padding is 36 left and 16 right of a 600 viewBox: the first point is at 6%, the
-    // last at 97.33%, and the tooltip carries the same number as the x label under it.
-    expect(tooltipX(0)).toBeCloseTo(6, 5);
-    expect(tooltipX(600)).toBeCloseTo((584 / 600) * 100, 5);
+    // The drawing runs edge to edge of the 600 viewBox: the first point is at 0%, the last
+    // at 100%, and the tooltip carries the same number as the x label under it.
+    expect(tooltipX(0)).toBeCloseTo(0, 5);
+    expect(tooltipX(600)).toBeCloseTo(100, 5);
     expect(tooltipX(600)).toBeCloseTo(xLabelProps('--wr-line-chart-x')[2], 5);
 
     // The query container is a layer of its own spanning the plot, not the plot: on the
@@ -127,12 +134,13 @@ describe('WrLineChart', () => {
     expect(root().querySelector('.wr-line-chart__legend')).toBeNull();
   });
 
-  it('spans the plot from the left padding to the right edge', () => {
-    // 600 wide with 36 left and 16 right padding: the first point sits at 36 and the last
-    // at 584, whatever the values are.
+  it('spans the drawing from edge to edge', () => {
+    // The 36 viewBox units kept at the left for the tick labels are gone with the labels:
+    // the first point sits at 0 and the last at 600, whatever the values are, and the
+    // room round the dots is CSS padding on the plot.
     const d = lines()[0].getAttribute('d')!;
-    expect(d.startsWith('M 36.00 ')).toBe(true);
-    expect(d).toContain('L 584.00 ');
+    expect(d.startsWith('M 0.00 ')).toBe(true);
+    expect(d).toContain('L 600.00 ');
   });
 
   it('draws nothing for an empty series list', () => {
@@ -163,7 +171,7 @@ describe('WrLineChart', () => {
       ],
       [
         [100, 8400],
-        ['10k', '7.5k', '5k', '2.5k', '0'],
+        ['10K', '7.5K', '5K', '2.5K', '0'],
       ],
       [
         [0.2, 0.9],
@@ -172,14 +180,14 @@ describe('WrLineChart', () => {
       // The thousands took one fraction digit whatever the step — the defect the small-value
       // ladder had already shed. A step of 250 printed 1250 as `1.3k` beside `1k`, and a
       // step of 25 printed -1000 and -1025 as `-1k` twice; that one is too fine for the
-      // abbreviation to be any shorter, so it prints in full.
+      // abbreviation to be any shorter, so the whole axis prints in full.
       [
         [400, 1000],
-        ['1.25k', '1k', '750', '500', '250', '0'],
+        ['1.25K', '1K', '750', '500', '250', '0'],
       ],
       [
         [-1050, -950],
-        ['-925', '-950', '-975', '-1000', '-1025', '-1050'],
+        ['-925', '-950', '-975', '-1,000', '-1,025', '-1,050'],
       ],
     ] as const) {
       fixture.componentInstance.series.set([{ label: 'S', data: [...data] }]);
@@ -187,7 +195,7 @@ describe('WrLineChart', () => {
       expect(ticks(), String(data)).toEqual([...expected]);
       // The top tick is at or above the peak, which is what replaced the old
       // 10% pad: a line that ends exactly on the frame reads as clipped.
-      expect(Number.parseFloat(ticks()[0].replace('k', 'e3'))).toBeGreaterThan(data[1]);
+      expect(Number.parseFloat(ticks()[0].replace('K', 'e3'))).toBeGreaterThan(data[1]);
     }
   });
 
@@ -235,15 +243,15 @@ describe('WrLineChart', () => {
     fixture.componentInstance.xLabels.set(['Mon', 'Tue', 'Wed', 'Thu']);
     fixture.detectChanges();
 
-    // Four slots across the 600-wide viewBox: 36 / 218.67 / 401.33 / 584.
+    // Four slots across the 600-wide viewBox: 0 / 200 / 400 / 600.
     const d = lines()[0].getAttribute('d')!;
-    expect(d.startsWith('M 36.00 ')).toBe(true);
-    expect(d).toContain('M 401.33 ');
-    expect(d).toContain('L 584.00 ');
+    expect(d.startsWith('M 0.00 ')).toBe(true);
+    expect(d).toContain('M 400.00 ');
+    expect(d).toContain('L 600.00 ');
     // Tuesday has no reading, so no geometry is drawn at its x — and the run before it is
     // closed rather than joined to the run after.
-    expect(d).not.toContain('218.67');
-    expect(dots().map(dot => Math.round(cx(dot)))).toEqual([36, 401, 584]);
+    expect(d).not.toContain('200.00');
+    expect(dots().map(dot => Math.round(cx(dot)))).toEqual([0, 400, 600]);
   });
 
   it('centres each x label on the point it names', () => {
@@ -259,21 +267,22 @@ describe('WrLineChart', () => {
     for (const [i, x] of labelXs.entries()) expect(x).toBeCloseTo(dotXs[i], 6);
   });
 
-  it('bounds each x label to its slot, cut back at the ends of the strip', () => {
+  it('hands the strip the room each x label has', () => {
     // Centring a label on its point says nothing about how WIDE it may be, and for a
     // while nothing else did either: on a 600px-wide chart four pairs of twelve month
     // names printed over each other and December hung 13px outside the box. jsdom has no
-    // layout, so what a spec can hold is the width the stylesheet is handed, and the
-    // Chromium measurement lives in the stylesheet. Three points across the 600-wide
-    // viewBox are 45.67% of the width apart, so the middle label may have that whole
-    // slot; the outer two are cut back to the room between their point and the strip's
-    // end — 6% + half a slot on the left, 2.67% + half a slot on the right.
-    const widths = xLabelProps('--wr-line-chart-x-max');
+    // layout, so what a spec can hold is the number the stylesheet is handed, and the
+    // Chromium measurement lives in the stylesheet: three points across the drawing are
+    // 50% of its width apart, and that is each label's slot.
+    const strip = root().querySelector<HTMLElement>('.wr-line-chart__x-labels')!;
+    expect(Number.parseFloat(strip.style.getPropertyValue('--wr-line-chart-x-slot'))).toBeCloseTo(50, 6);
 
-    expect(widths.length).toBe(3);
-    expect(widths[0]).toBeCloseTo(28.833, 3);
-    expect(widths[1]).toBeCloseTo(45.667, 3);
-    expect(widths[2]).toBeCloseTo(25.5, 3);
+    // A lone label has the whole strip.
+    fixture.componentInstance.series.set([{ label: 'Visits', data: [1] }]);
+    fixture.componentInstance.xLabels.set(['Mon']);
+    fixture.detectChanges();
+    expect(Number.parseFloat(strip.style.getPropertyValue('--wr-line-chart-x-slot'))).toBe(100);
+    expect(xLabelProps('--wr-line-chart-x')).toEqual([50]);
   });
 
   it('keeps every label inside the chart and out of the next one, however dense the axis', () => {
@@ -282,20 +291,31 @@ describe('WrLineChart', () => {
     fixture.componentInstance.xLabels.set(months);
     fixture.detectChanges();
 
-    // The stylesheet centres a label on its point and nudges it back in when it would
-    // cross an end of the strip. Nothing here is laid out, so that rule is replayed over
-    // the numbers the component publishes, and what it checks is the two properties the
-    // width bound exists to give: no box leaves the strip, and none reaches into the next
-    // label's slot.
-    const widths = xLabelProps('--wr-line-chart-x-max');
-    const boxes = xLabelProps('--wr-line-chart-x').map((x, i) => {
-      const left = Math.max(0, Math.min(x - widths[i] / 2, 100 - widths[i]));
-      return { left, right: left + widths[i] };
+    // The stylesheet places a label on its point, bounds it to its slot cut back at the
+    // ends, and nudges it back in when it would cross an end of the strip. Nothing here is
+    // laid out, so those rules are replayed over the numbers the component publishes, on a
+    // strip 600px wide whose padding is 12px a side, with every label as wide as it may
+    // be. What it checks is the two properties the bound exists to give: no box leaves the
+    // strip, and none reaches into the next label's slot.
+    const width = 600;
+    const inset = 12;
+    const drawing = width - 2 * inset;
+    const strip = root().querySelector<HTMLElement>('.wr-line-chart__x-labels')!;
+    const slot = Number.parseFloat(strip.style.getPropertyValue('--wr-line-chart-x-slot'));
+    const boxes = xLabelProps('--wr-line-chart-x').map(x => {
+      const point = inset + (drawing * x) / 100;
+      const max = Math.min(
+        (drawing * slot) / 100,
+        inset + (drawing * (x + slot / 2)) / 100,
+        inset + (drawing * (100 - x + slot / 2)) / 100
+      );
+      const left = Math.max(0, Math.min(point - max / 2, width - max));
+      return { left, right: left + max };
     });
 
     for (const [i, box] of boxes.entries()) {
       expect(box.left).toBeGreaterThanOrEqual(0);
-      expect(box.right).toBeLessThanOrEqual(100.000001);
+      expect(box.right).toBeLessThanOrEqual(width + 0.000001);
       if (i > 0) expect(box.left).toBeGreaterThanOrEqual(boxes[i - 1].right - 0.000001);
     }
   });
@@ -309,9 +329,9 @@ describe('WrLineChart', () => {
 
     const labelXs = xLabelPositions();
     expect(labelXs.length).toBe(6);
-    // Still the padding edges of the same 600-wide viewBox: 36 and 584.
-    expect(labelXs[0]).toBeCloseTo(36, 6);
-    expect(labelXs.at(-1)).toBeCloseTo(584, 6);
+    // Still the two edges of the same 600-wide viewBox.
+    expect(labelXs[0]).toBeCloseTo(0, 6);
+    expect(labelXs.at(-1)).toBeCloseTo(600, 6);
     // The series stops where its data does — four dots across six slots.
     expect(dots().length).toBe(4);
   });
@@ -322,6 +342,122 @@ describe('WrLineChart', () => {
     fixture.componentInstance.showGrid.set(false);
     fixture.detectChanges();
     expect(root().querySelectorAll('.wr-line-chart__grid-line').length).toBe(0);
+    // The labels go with their lines, gutter and all, so the drawing takes the width.
+    expect(root().querySelector('.wr-line-chart__y-axis')).toBeNull();
+  });
+
+  it('writes the y labels as text beside the drawing, never inside it', () => {
+    // `<text>` in a drawing stretched with `preserveAspectRatio="none"` stretches with it,
+    // and the 36 viewBox units kept for it clipped a long label. The labels are HTML in a
+    // column of their own, which sizes to the longest one — measured in a browser.
+    const axis = root().querySelector<HTMLElement>('.wr-line-chart__y-axis')!;
+    expect(svg().querySelector('text')).toBeNull();
+    expect(ticks()).toEqual(['40', '30', '20', '10', '0']);
+    expect([...axis.children].every(el => el.classList.contains('wr-line-chart__tick'))).toBe(true);
+
+    // At inline start: first in the body, which is a grid, and a grid puts its first
+    // column on the right under RTL. The plot follows it; the x labels sit under the plot.
+    const body = axis.parentElement!;
+    expect(body.classList).toContain('wr-line-chart__body');
+    expect([...body.children].map(el => el.classList[0])).toEqual([
+      'wr-line-chart__y-axis',
+      'wr-line-chart__plot',
+      'wr-line-chart__x-labels',
+    ]);
+
+    // Hidden, as they were inside the plot's `img`: what is announced is the plot's name.
+    expect(axis.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('hands each y label the height of its own gridline', () => {
+    // Placed from its own tick, not spread over the column by `space-between`: once six
+    // 16px labels no longer fitted an 80px plot, the column overflowed, grew the row past
+    // the plot, and every label below the first slid off its line — 16px by the last one,
+    // with the x labels pushed 20px down, measured in Chromium. The stylesheet turns the
+    // percentage into a length inside the plot's padding; jsdom has no layout, so the
+    // spec pins the numbers the template hands it.
+    const gridYs = (): number[] =>
+      [...root().querySelectorAll('.wr-line-chart__grid-line')].map(
+        line => (Number(line.getAttribute('y1')) / 300) * 100
+      );
+    expect(gridYs()).toEqual([0, 25, 50, 75, 100]);
+    expect(tickYs()).toEqual(gridYs());
+
+    // A peak on a step lifts the top tick one step, which makes six labels.
+    fixture.componentInstance.series.set([{ label: 'S', data: [0, 1] }]);
+    fixture.detectChanges();
+    expect(ticks()).toEqual(['1.25', '1', '0.75', '0.5', '0.25', '0']);
+    expect(tickYs()).toEqual([0, 20, 40, 60, 80, 100]);
+    expect(tickYs()).toEqual(gridYs());
+  });
+
+  it('abbreviates large ticks the way the locale does, and keeps tiny ones exact', () => {
+    for (const [data, expected] of [
+      [
+        [0, 3_400_000],
+        ['4M', '3M', '2M', '1M', '0'],
+      ],
+      [
+        [0, 1_200_000_000],
+        ['1.5B', '1B', '500M', '0'],
+      ],
+      // Significant digits down to the step's last one, so no tick is rounded into its
+      // neighbour and none grows digits the step does not have.
+      [
+        [0.0001, 0.0009],
+        ['0.001', '0.00075', '0.0005', '0.00025', '0'],
+      ],
+    ] as const) {
+      fixture.componentInstance.series.set([{ label: 'S', data: [...data] }]);
+      fixture.detectChanges();
+      expect(ticks(), String(data)).toEqual([...expected]);
+    }
+  });
+
+  it('writes a tiny reading in the tooltip by its significant digits, not as zero', () => {
+    // `Intl.NumberFormat` stops at three fraction digits by default, which writes 0.0004
+    // as `0` — a reading the data never took.
+    svg().getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
+    fixture.componentInstance.series.set([{ label: 'Rate', data: [0.0004, 0.0012, 1234.5] }]);
+    fixture.detectChanges();
+    const valueAt = (clientX: number): string => {
+      svg().dispatchEvent(new MouseEvent('mousemove', { clientX, bubbles: true }));
+      fixture.detectChanges();
+      return root().querySelector('.wr-line-chart__tooltip-value')!.textContent.trim();
+    };
+
+    expect(valueAt(0)).toBe('0.0004');
+    expect(valueAt(300)).toBe('0.0012');
+    // Grouped, and never compact: the tooltip is where the exact figure is read.
+    expect(valueAt(600)).toBe('1,234.5');
+  });
+
+  it('formats every number through `valueFormat` when one is given', () => {
+    svg().getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
+    fixture.componentInstance.valueFormat.set(value => `${value} ms`);
+    fixture.detectChanges();
+
+    expect(ticks()).toEqual(['40 ms', '30 ms', '20 ms', '10 ms', '0 ms']);
+    svg().dispatchEvent(new MouseEvent('mousemove', { clientX: 300, bubbles: true }));
+    fixture.detectChanges();
+    expect([...root().querySelectorAll('.wr-line-chart__tooltip-value')].map(el => el.textContent.trim())).toEqual([
+      '20 ms',
+      '2 ms',
+    ]);
+  });
+
+  it('opens the readout over the padding beside an end dot, on the end point', () => {
+    // The drawing runs edge to edge, so the end dots overhang it into the plot's padding.
+    // The plot hears the pointer there, and the nearest point is the end one.
+    svg().getBoundingClientRect = () => new DOMRect(8, 0, 600, 300);
+    const plot = root().querySelector<HTMLElement>('.wr-line-chart__plot')!;
+    plot.dispatchEvent(new MouseEvent('mousemove', { clientX: 2, bubbles: true }));
+    fixture.detectChanges();
+    expect(root().querySelector('.wr-line-chart__tooltip-label')!.textContent.trim()).toBe('Mon');
+
+    plot.dispatchEvent(new MouseEvent('mousemove', { clientX: 614, bubbles: true }));
+    fixture.detectChanges();
+    expect(root().querySelector('.wr-line-chart__tooltip-label')!.textContent.trim()).toBe('Wed');
   });
 
   it('reads out the x under the pointer, and drops the whole readout with `tooltip` off', () => {
@@ -330,7 +466,7 @@ describe('WrLineChart', () => {
     svg().getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
     const readout = (): Element | null => root().querySelector('.wr-line-chart__tooltip');
     const move = (): void => {
-      svg().dispatchEvent(new MouseEvent('mousemove', { clientX: 310 }));
+      svg().dispatchEvent(new MouseEvent('mousemove', { clientX: 310, bubbles: true }));
       fixture.detectChanges();
     };
 
@@ -368,7 +504,7 @@ describe('WrLineChart', () => {
     // `pointermove` alone, so a phone never saw a value.
     svg().getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
     svg().dispatchEvent(new PointerEvent('pointerleave'));
-    svg().dispatchEvent(new MouseEvent('mousemove', { clientX: 310 }));
+    svg().dispatchEvent(new MouseEvent('mousemove', { clientX: 310, bubbles: true }));
     fixture.detectChanges();
 
     expect(root().querySelector('.wr-line-chart__tooltip-label')!.textContent.trim()).toBe('Tue');
@@ -380,7 +516,7 @@ describe('WrLineChart', () => {
     // pointer reaches another one.
     svg().getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
     const move = (clientX: number): void => {
-      svg().dispatchEvent(new MouseEvent('mousemove', { clientX }));
+      svg().dispatchEvent(new MouseEvent('mousemove', { clientX, bubbles: true }));
       fixture.detectChanges();
     };
     const readout = (): Element | null => root().querySelector('.wr-line-chart__tooltip');
@@ -403,6 +539,47 @@ describe('WrLineChart', () => {
   it('keeps the svg stretchable', () => {
     expect(svg().getAttribute('preserveAspectRatio')).toBe('none');
     expect(svg().getAttribute('viewBox')).toBe('0 0 600 300');
+  });
+});
+
+describe('WrLineChart in another locale', () => {
+  it("writes its numbers in LOCALE_ID's own convention", () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: LOCALE_ID, useValue: 'de' }] });
+    const fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.series.set([{ label: 'Umsatz', data: [1234.5, 3_400_000, 2_000_000] }]);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+
+    // German abbreviates millions as `Mio.`, after a no-break space.
+    const ticks = [...root.querySelectorAll('.wr-line-chart__tick')].map(el => el.textContent.trim());
+    expect(ticks).toEqual(['4\u00a0Mio.', '3\u00a0Mio.', '2\u00a0Mio.', '1\u00a0Mio.', '0']);
+
+    const svg = root.querySelector<SVGSVGElement>('.wr-line-chart__svg')!;
+    svg.getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
+    svg.dispatchEvent(new MouseEvent('mousemove', { clientX: 0, bubbles: true }));
+    fixture.detectChanges();
+    expect(root.querySelector('.wr-line-chart__tooltip-value')!.textContent.trim()).toBe('1.234,5');
+
+    fixture.destroy();
+  });
+
+  it('lets `valueFormat` win over the locale', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: LOCALE_ID, useValue: 'de' }] });
+    const fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.series.set([{ label: 'Umsatz', data: [1234.5] }]);
+    fixture.componentInstance.valueFormat.set(value => value.toFixed(2));
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+
+    const svg = root.querySelector<SVGSVGElement>('.wr-line-chart__svg')!;
+    svg.getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
+    svg.dispatchEvent(new MouseEvent('mousemove', { clientX: 0, bubbles: true }));
+    fixture.detectChanges();
+    expect(root.querySelector('.wr-line-chart__tooltip-value')!.textContent.trim()).toBe('1234.50');
+
+    fixture.destroy();
   });
 });
 

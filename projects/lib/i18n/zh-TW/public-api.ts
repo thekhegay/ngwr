@@ -233,7 +233,6 @@ export const wrZhTw: WrI18nCatalog = {
   },
   lineChart: {
     label: '折線圖',
-    thousands: '{{value}}千',
   },
   donutChart: {
     label: '環圈圖',

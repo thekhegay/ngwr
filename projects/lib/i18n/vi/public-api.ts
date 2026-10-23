@@ -239,7 +239,6 @@ export const wrVi: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Biểu đồ đường',
-    thousands: '{{value}} N',
   },
   donutChart: {
     label: 'Biểu đồ vành khuyên',

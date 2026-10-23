@@ -313,11 +313,6 @@ export const wrEn: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Line chart',
-    // The Y-axis tick abbreviation. `k` is a Latin convention — ru writes
-    // `тыс.` — and the axis had it hardcoded, so it was the one number on the
-    // chart no locale could reach. The digits go through `Intl.NumberFormat`,
-    // so the catalog owns the suffix and whether a space sits before it.
-    thousands: '{{value}}k',
   },
   donutChart: {
     label: 'Donut chart',

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -307,5 +307,75 @@ describe('WrBarChart tooltip anchor', () => {
     hover(columns()[2]);
     expect(768 - Number.parseFloat(style().bottom)).toBeCloseTo(299, 3);
     expect(Number.parseFloat(style().left) + Number.parseFloat(style().width) / 2).toBeCloseTo(245, 3);
+  });
+});
+
+@Component({
+  imports: [WrBarChart],
+  template: `<wr-bar-chart [data]="data()" [valueFormat]="valueFormat()" />`,
+})
+class FormatHost {
+  readonly data = signal<readonly WrBarChartDatum[]>([
+    { label: 'Mon', value: 12.5 },
+    { label: 'Tue', value: 1234.5 },
+    { label: 'Wed', value: 3_400_000 },
+  ]);
+  readonly valueFormat = signal<((value: number) => string) | null>(null);
+}
+
+/**
+ * How a number is written: `Intl` in Angular's `LOCALE_ID` unless `valueFormat` says
+ * otherwise, compact above the bars from a thousand up, and the whole figure in the
+ * tooltip and the accessible name.
+ */
+describe('WrBarChart number format', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<FormatHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const values = (): string[] => [...root().querySelectorAll('.wr-bar-chart__value')].map(el => el.textContent.trim());
+  const columns = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-bar-chart__column')];
+  const names = (): (string | null)[] => columns().map(column => column.getAttribute('aria-label'));
+  const tooltipValue = (index: number): string => {
+    columns()[index].dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+    return document.querySelector('.wr-chart-tooltip__value')!.textContent.trim();
+  };
+
+  const create = (locale?: string): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: locale ? [{ provide: LOCALE_ID, useValue: locale }] : [] });
+    fixture = TestBed.createComponent(FormatHost);
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('abbreviates the labels above the bars from a thousand up, and nothing else', () => {
+    create();
+
+    // Below a thousand there is nothing to abbreviate, and compact rounding would print
+    // 12.5 as `13`.
+    expect(values()).toEqual(['12.5', '1.2K', '3.4M']);
+    expect(names()).toEqual(['Mon: 12.5', 'Tue: 1,234.5', 'Wed: 3,400,000']);
+    expect(tooltipValue(1)).toBe('1,234.5');
+  });
+
+  it("follows LOCALE_ID's own convention by default", () => {
+    create('de');
+
+    // German abbreviates no thousands, and writes millions as `Mio.`.
+    expect(values()).toEqual(['12,5', '1235', '3,4\u00a0Mio.']);
+    expect(names()).toEqual(['Mon: 12,5', 'Tue: 1.234,5', 'Wed: 3.400.000']);
+    expect(tooltipValue(1)).toBe('1.234,5');
+  });
+
+  it('writes every number through `valueFormat` when one is given, over the locale', () => {
+    create('de');
+    fixture.componentInstance.valueFormat.set(value => `$${value.toFixed(2)}`);
+    fixture.detectChanges();
+
+    expect(values()).toEqual(['$12.50', '$1234.50', '$3400000.00']);
+    expect(names()).toEqual(['Mon: $12.50', 'Tue: $1234.50', 'Wed: $3400000.00']);
+    expect(tooltipValue(2)).toBe('$3400000.00');
   });
 });

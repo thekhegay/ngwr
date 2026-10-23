@@ -239,12 +239,6 @@ export const wrAr: WrI18nCatalog = {
   },
   lineChart: {
     label: 'مخطط خطي',
-    // The one counted string that cannot dodge the noun — it IS the noun. Arabic
-    // wants «آلاف» from three to ten and «ألف» from eleven up, and one axis
-    // carries ticks from both ranges. «ألف» invariant is what Arabic analytics
-    // UIs print, and it is the correct form for the large ticks that are the
-    // reason to abbreviate at all.
-    thousands: '{{value}} ألف',
   },
   donutChart: {
     label: 'مخطط دائري مجوف',
@@ -332,8 +326,6 @@ export const wrAr: WrI18nCatalog = {
   // the noun is dropped: the overflow chips in `select`, `tree` and
   // `eventCalendar` read «+{{count}} أخرى», the invariable feminine-singular
   // form a non-human plural takes, leaving nothing for the count to inflect.
-  // `lineChart.thousands` is the one string that can do neither, and the note
-  // there says why.
   marquee: {
     label: 'شريط متحرك',
     link: 'رابط',

@@ -230,7 +230,6 @@ export const wrCs: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Spojnicový graf',
-    thousands: '{{value}} tis.',
   },
   donutChart: {
     label: 'Prstencový graf',

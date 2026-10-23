@@ -243,7 +243,6 @@ export const wrUk: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Лінійний графік',
-    thousands: '{{value}} тис.',
   },
   donutChart: {
     label: 'Кільцева діаграма',

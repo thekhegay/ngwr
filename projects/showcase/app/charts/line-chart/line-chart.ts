@@ -25,10 +25,31 @@ export default class LineChartPageComponent {
 
   protected readonly xLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+  protected readonly revenue: readonly WrLineSeries[] = [
+    { label: 'Revenue', data: [182_000, 240_500, 315_000, 298_250, 412_000, 1_050_000, 1_240_000] },
+  ];
+
+  private readonly usdFormat = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  });
+
+  protected readonly usd = (value: number): string => this.usdFormat.format(value);
+
   protected readonly snippets = {
     basic: `<wr-line-chart [series]="series" [xLabels]="labels" />`,
     tooltip: `<wr-line-chart [series]="series" [xLabels]="labels" />
 <wr-line-chart [series]="series" [xLabels]="labels" [tooltip]="false" />`,
+    format: `<wr-line-chart [series]="revenue" [xLabels]="labels" />
+<wr-line-chart [series]="revenue" [xLabels]="labels" [valueFormat]="usd" />`,
+    formatTs: `const usdFormat = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  maximumFractionDigits: 0,
+});
+
+usd = (value: number): string => usdFormat.format(value);`,
   };
 
   protected readonly typeSnippet = `interface WrLineSeries {

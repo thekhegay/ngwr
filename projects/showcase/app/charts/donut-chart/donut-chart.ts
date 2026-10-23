@@ -72,6 +72,12 @@ export default class DonutChartPageComponent {
       type: 'boolean',
       default: 'true',
     },
+    {
+      name: 'valueFormat',
+      description: 'Writes each value in the legend and the tooltip. `null` uses `Intl.NumberFormat` in `LOCALE_ID`.',
+      type: '((value: number) => string) | null',
+      default: 'null',
+    },
   ];
 
   protected readonly typeRows: readonly DocApiRow[] = [

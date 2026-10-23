@@ -5,6 +5,7 @@
   [attr.aria-valuemin]="0"
   [attr.aria-valuemax]="resolvedMax()"
   [attr.aria-valuenow]="totalValue()"
+  [attr.aria-valuetext]="totalText()"
 >
   @for (slice of slices(); track $index) {
     <!-- `data-label` is what the harness reads a band's label from; the `title` it
@@ -29,7 +30,7 @@
         <span class="wr-meter-group__swatch" aria-hidden="true" [style.background]="slice.color"></span>
         <span class="wr-meter-group__legend-label">{{ slice.label }}</span>
         @if (showValues()) {
-          <span class="wr-meter-group__legend-value">{{ slice.value }}</span>
+          <span class="wr-meter-group__legend-value">{{ slice.text }}</span>
         }
       </li>
     }

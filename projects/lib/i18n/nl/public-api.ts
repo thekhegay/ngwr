@@ -235,7 +235,6 @@ export const wrNl: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Lijndiagram',
-    thousands: '{{value}}k',
   },
   donutChart: {
     label: 'Ringdiagram',

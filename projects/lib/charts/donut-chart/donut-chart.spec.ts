@@ -1,5 +1,5 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, signal } from '@angular/core';
+import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
@@ -104,6 +104,18 @@ describe('WrDonutChart', () => {
     expect(paths()[1].getAttribute('fill')).toBe('#123456');
     expect(paths()[0].getAttribute('fill')).toBe('var(--wr-color-primary)');
     expect(paths()[2].getAttribute('fill')).toBe('var(--wr-color-warning)');
+  });
+
+  it("starts the first slice at twelve o'clock and runs clockwise", () => {
+    // The JSDoc always said twelve o'clock, and the arcs started at three: angle 0 is the
+    // positive x axis. The first slice is 30% of the ring, so it runs from the top of the
+    // outer edge, clockwise, to 18° past three o'clock — right of centre and below it — and
+    // its inner edge closes back at the top of the hole.
+    const first = paths()[0].getAttribute('d')!;
+    expect(first.startsWith('M 50.00 0.00 A 50 50 0 0 1 97.55 65.45 ')).toBe(true);
+    expect(first).toContain('A 35 35 0 0 0 50.00 15.00 Z');
+    // And the next slice starts exactly where it ended.
+    expect(paths()[1].getAttribute('d')!.startsWith('M 97.55 65.45 ')).toBe(true);
   });
 
   it('lists every segment in the legend with its own value', () => {
@@ -267,17 +279,17 @@ describe('WrDonutChart tooltip', () => {
 });
 
 /**
- * One slice facing each way, and a sliver. Clockwise from three o'clock in hundredths of
- * a turn: East 0–12.5 (middle 22.5°), South 12.5–37.5 (90°), West 37.5–74.5 (201.6°),
- * the sliver 74.5–75.5 (exactly 270°, twelve o'clock) and North-east 75.5–100 (315.9°,
- * just on the side of three o'clock).
+ * One slice facing each way, and a sliver. Clockwise from twelve o'clock, where the ring
+ * starts, in hundredths of a turn: the sliver 0–1 (middle 1.8°, just past twelve),
+ * North-east 1–25.5 (47.7°, just on the side of three o'clock), East 25.5–37.5 (113.4°),
+ * South 37.5–62.5 (180°) and West 62.5–100 (292.5°).
  */
 const COMPASS: readonly WrDonutSegment[] = [
-  { label: 'East', value: 12.5 },
-  { label: 'South', value: 25 },
-  { label: 'West', value: 37 },
   { label: 'Sliver', value: 1 },
   { label: 'North-east', value: 24.5 },
+  { label: 'East', value: 12 },
+  { label: 'South', value: 25 },
+  { label: 'West', value: 37.5 },
 ];
 
 @Component({
@@ -320,10 +332,10 @@ describe('WrDonutChart tooltip anchor', () => {
     paths()[COMPASS.findIndex(s => s.label === label)].dispatchEvent(new MouseEvent('mouseenter'));
     fixture.detectChanges();
   };
-  /** The arc's outer edge at `degrees`, clockwise from three o'clock. */
+  /** The arc's outer edge at `degrees`, clockwise from twelve o'clock. */
   const arc = (degrees: number): { x: number; y: number } => ({
-    x: 200 + 100 * Math.cos((degrees * Math.PI) / 180),
-    y: 200 + 100 * Math.sin((degrees * Math.PI) / 180),
+    x: 200 + 100 * Math.sin((degrees * Math.PI) / 180),
+    y: 200 - 100 * Math.cos((degrees * Math.PI) / 180),
   });
 
   /**
@@ -359,8 +371,8 @@ describe('WrDonutChart tooltip anchor', () => {
 
     expect(pane().classList).toContain('wr-tooltip-overlay--bottom');
     // Below the point: the box starts at its y, centred on its x.
-    expect(box().top).toBeCloseTo(arc(90).y, 3);
-    expect(box().left + box().width / 2).toBeCloseTo(arc(90).x, 3);
+    expect(box().top).toBeCloseTo(arc(180).y, 3);
+    expect(box().left + box().width / 2).toBeCloseTo(arc(180).x, 3);
   });
 
   it("points a slice at three o'clock from the right, and one at nine from the left", () => {
@@ -368,25 +380,25 @@ describe('WrDonutChart tooltip anchor', () => {
     hover('East');
     expect(pane().classList).toContain('wr-tooltip-overlay--right');
     // To the right of the point: the box starts at its x, centred on its y.
-    expect(box().left).toBeCloseTo(arc(22.5).x, 3);
-    expect(box().top + box().height / 2).toBeCloseTo(arc(22.5).y, 3);
+    expect(box().left).toBeCloseTo(arc(113.4).x, 3);
+    expect(box().top + box().height / 2).toBeCloseTo(arc(113.4).y, 3);
 
     hover('West');
     expect(pane().classList).toContain('wr-tooltip-overlay--left');
     // To the left of it: the box ENDS at its x.
-    expect(1024 - box().right).toBeCloseTo(arc(201.6).x, 3);
-    expect(box().top + box().height / 2).toBeCloseTo(arc(201.6).y, 3);
+    expect(1024 - box().right).toBeCloseTo(arc(292.5).x, 3);
+    expect(box().top + box().height / 2).toBeCloseTo(arc(292.5).y, 3);
   });
 
   it("points a sliver at its own middle, not at a neighbour's", () => {
     create();
     hover('Sliver');
 
-    // Twelve o'clock exactly, between a slice pointed at from the left and one from the
+    // Just past twelve o'clock, between a slice pointed at from the left and one from the
     // right: from above, at the top of the ring.
     expect(pane().classList).toContain('wr-tooltip-overlay--top');
-    expect(768 - box().bottom).toBeCloseTo(arc(270).y, 3);
-    expect(box().left + box().width / 2).toBeCloseTo(arc(270).x, 3);
+    expect(768 - box().bottom).toBeCloseTo(arc(1.8).y, 3);
+    expect(box().left + box().width / 2).toBeCloseTo(arc(1.8).x, 3);
 
     hover('North-east');
     expect(pane().classList).toContain('wr-tooltip-overlay--right');
@@ -398,7 +410,8 @@ describe('WrDonutChart tooltip anchor', () => {
     hover('Sliver');
 
     expect(pane().classList).toContain('wr-tooltip-overlay--bottom');
-    expect(box().top).toBeCloseTo(0, 3);
+    // The drawing sits 100px higher than in the other cases, and so does the point.
+    expect(box().top).toBeCloseTo(arc(1.8).y - 100, 3);
   });
 
   it('keeps a slice at three o\'clock pointed from the right under dir="rtl"', () => {
@@ -409,6 +422,61 @@ describe('WrDonutChart tooltip anchor', () => {
     // The drawing does not mirror, so neither does the side: the logical name is the one
     // the arrow keys on under RTL, and the box still starts at the point's x.
     expect(pane().classList).toContain('wr-tooltip-overlay--left');
-    expect(box().left).toBeCloseTo(arc(22.5).x, 3);
+    expect(box().left).toBeCloseTo(arc(113.4).x, 3);
+  });
+});
+
+@Component({
+  imports: [WrDonutChart],
+  template: `<wr-donut-chart [segments]="segments" [valueFormat]="valueFormat()" />`,
+})
+class FormatHost {
+  readonly segments: readonly WrDonutSegment[] = [
+    { label: 'Used', value: 1234.5 },
+    { label: 'Free', value: 0.0004 },
+  ];
+  readonly valueFormat = signal<((value: number) => string) | null>(null);
+}
+
+/** How a number is written: `Intl` in Angular's `LOCALE_ID` unless `valueFormat` says otherwise. */
+describe('WrDonutChart number format', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<FormatHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const legendValues = (): string[] =>
+    [...root().querySelectorAll('.wr-donut-chart__legend-value')].map(el => el.textContent.trim());
+  const tooltipValue = (index: number): string => {
+    root().querySelectorAll('.wr-donut-chart__surface path')[index].dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+    return document.querySelector('.wr-chart-tooltip__value')!.textContent.trim();
+  };
+  const create = (locale?: string): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: locale ? [{ provide: LOCALE_ID, useValue: locale }] : [] });
+    fixture = TestBed.createComponent(FormatHost);
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('groups the figure, and keeps a tiny one from reading as zero', () => {
+    create();
+    expect(legendValues()).toEqual(['1,234.5', '0.0004']);
+    expect(tooltipValue(0)).toBe('1,234.5');
+  });
+
+  it("follows LOCALE_ID's own convention by default", () => {
+    create('de');
+    expect(legendValues()).toEqual(['1.234,5', '0,0004']);
+    expect(tooltipValue(0)).toBe('1.234,5');
+  });
+
+  it('writes every number through `valueFormat` when one is given, over the locale', () => {
+    create('de');
+    fixture.componentInstance.valueFormat.set(value => `${value} GB`);
+    fixture.detectChanges();
+
+    expect(legendValues()).toEqual(['1234.5 GB', '0.0004 GB']);
+    expect(tooltipValue(1)).toBe('0.0004 GB');
   });
 });

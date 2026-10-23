@@ -234,7 +234,6 @@ export const wrJa: WrI18nCatalog = {
   },
   lineChart: {
     label: '折れ線グラフ',
-    thousands: '{{value}}千',
   },
   donutChart: {
     label: 'ドーナツグラフ',

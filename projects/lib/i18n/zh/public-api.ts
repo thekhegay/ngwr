@@ -228,7 +228,6 @@ export const wrZh: WrI18nCatalog = {
   },
   lineChart: {
     label: '折线图',
-    thousands: '{{value}}千',
   },
   donutChart: {
     label: '环形图',

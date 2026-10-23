@@ -234,7 +234,6 @@ export const wrPt: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Gráfico de linhas',
-    thousands: '{{value}} mil',
   },
   donutChart: {
     label: 'Gráfico de anel',

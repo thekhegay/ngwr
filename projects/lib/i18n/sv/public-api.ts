@@ -230,7 +230,6 @@ export const wrSv: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Linjediagram',
-    thousands: '{{value}} tn',
   },
   donutChart: {
     label: 'Ringdiagram',

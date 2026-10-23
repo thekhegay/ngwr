@@ -6,7 +6,16 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, type ElementRef, ViewEncapsulation, computed, input, viewChildren } from '@angular/core';
+import {
+  Component,
+  type ElementRef,
+  LOCALE_ID,
+  ViewEncapsulation,
+  computed,
+  inject,
+  input,
+  viewChildren,
+} from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
@@ -83,6 +92,24 @@ export class WrMeterGroup {
    */
   readonly tooltip = input(true, { transform: coerceBooleanProperty });
 
+  /**
+   * Writes every value in the legend and the tooltip, and the total the bar announces
+   * as `aria-valuetext`. `null` uses `Intl.NumberFormat` in `LOCALE_ID`.
+   * `aria-valuenow` stays a number.
+   */
+  readonly valueFormat = input<((value: number) => string) | null>(null);
+
+  private readonly locale = inject(LOCALE_ID);
+  private readonly numbers = new Intl.NumberFormat(this.locale);
+  /** Below one, by significant digits, which keep 0.0004 from rounding to `0`. */
+  private readonly smallNumbers = new Intl.NumberFormat(this.locale, { maximumSignificantDigits: 3 });
+
+  private formatValue(value: number): string {
+    const custom = this.valueFormat();
+    if (custom) return custom(value);
+    return (value !== 0 && Math.abs(value) < 1 ? this.smallNumbers : this.numbers).format(value);
+  }
+
   private readonly sliceEls = viewChildren<ElementRef<HTMLElement>>('slice');
 
   /**
@@ -116,12 +143,19 @@ export class WrMeterGroup {
     )
   );
 
+  /**
+   * The total as the bar announces it — `aria-valuetext`, written the way the legend
+   * writes each figure — so a `valueFormat` that adds a unit reaches a screen reader
+   * too, rather than a bare percentage of `aria-valuemax`. The gauge does the same.
+   */
+  protected readonly totalText = computed(() => this.formatValue(this.totalValue()));
+
   protected readonly slices = computed(() =>
     this.segments().map((segment, i) => ({
       label: segment.label,
       // The legend keeps a negative value visible — it is data the caller gave
       // us — but not a non-finite one, which reads as the literal text `NaN`.
-      value: Number.isFinite(segment.value) ? segment.value : 0,
+      text: this.formatValue(Number.isFinite(segment.value) ? segment.value : 0),
       color: segment.color ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length],
       percent: (WrMeterGroup.amount(segment.value) / this.resolvedMax()) * 100,
     }))
@@ -135,6 +169,6 @@ export class WrMeterGroup {
     const slice = this.slices()[index];
     const el = this.sliceEls()[index]?.nativeElement;
     if (!slice || !el) return null;
-    return { datum: { label: slice.label, value: String(slice.value), color: slice.color }, anchor: el };
+    return { datum: { label: slice.label, value: slice.text, color: slice.color }, anchor: el };
   });
 }

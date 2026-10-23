@@ -236,7 +236,6 @@ export const wrFr: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Graphique en courbes',
-    thousands: '{{value}} k',
   },
   donutChart: {
     label: 'Graphique en anneau',

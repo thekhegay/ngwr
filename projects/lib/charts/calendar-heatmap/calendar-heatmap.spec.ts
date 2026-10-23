@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WR_DATE_LOCALE } from 'ngwr/date';
@@ -301,10 +301,11 @@ describe('WrCalendarHeatmap tooltip', () => {
   it('says what the square used to say in its title — the day and the count, in the locale', () => {
     move(cellFor('2025-08-11'));
 
-    // Built from the same two formatters the component uses, for the locale this block
-    // pins, so it holds wherever the suite runs.
+    // Built from the same two formatters the component uses — the date in the date
+    // locale this block pins, the count in the default `LOCALE_ID` — so it holds
+    // wherever the suite runs.
     const day = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium' }).format(new Date(2025, 7, 11));
-    const count = new Intl.NumberFormat('en-GB').format(1234);
+    const count = new Intl.NumberFormat('en-US').format(1234);
     expect(chip()!.querySelector('.wr-chart-tooltip__value')!.textContent.trim()).toBe(`${day}: ${count}`);
     // A sentence already, so no separate label and no swatch.
     expect(chip()!.querySelector('.wr-chart-tooltip__label')).toBeNull();
@@ -413,5 +414,59 @@ describe('WrCalendarHeatmap tooltip', () => {
       expect(pane().classList).toContain('wr-tooltip-overlay--bottom');
       expect(box().top).toBeCloseTo(15, 3);
     });
+  });
+});
+
+/**
+ * How a day's count is written: `Intl` in Angular's `LOCALE_ID` unless `valueFormat`
+ * says otherwise. The date keeps the date locale, so the two are pinned apart here to
+ * show which half follows which.
+ */
+describe('WrCalendarHeatmap number format', () => {
+  @Component({
+    imports: [WrCalendarHeatmap],
+    template: `
+      <wr-calendar-heatmap
+        [data]="data"
+        endDate="2025-08-16"
+        [weeks]="4"
+        [tooltip]="false"
+        [valueFormat]="valueFormat()"
+      />
+    `,
+  })
+  class FormatHost {
+    readonly data: readonly WrHeatmapDatum[] = [{ date: '2025-08-11', value: 1234.5 }];
+    readonly valueFormat = signal<((value: number) => string) | null>(null);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<FormatHost>>;
+
+  const title = (): string | null =>
+    (fixture.nativeElement as HTMLElement).querySelector('[data-date="2025-08-11"]')!.getAttribute('title');
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: LOCALE_ID, useValue: 'de' },
+        { provide: WR_DATE_LOCALE, useValue: 'en-GB' },
+      ],
+    });
+    fixture = TestBed.createComponent(FormatHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it("writes the count in LOCALE_ID's own convention by default", () => {
+    const day = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium' }).format(new Date(2025, 7, 11));
+    expect(title()).toBe(`${day}: 1.234,5`);
+  });
+
+  it('writes the count through `valueFormat` when one is given, over the locale', () => {
+    fixture.componentInstance.valueFormat.set(value => `${Math.round(value)} commits`);
+    fixture.detectChanges();
+    expect(title()).toMatch(/: 1235 commits$/);
   });
 });

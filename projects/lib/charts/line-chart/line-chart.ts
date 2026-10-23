@@ -9,7 +9,7 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { DOCUMENT } from '@angular/common';
 import {
   Component,
-  ElementRef,
+  type ElementRef,
   LOCALE_ID,
   ViewEncapsulation,
   computed,
@@ -17,10 +17,11 @@ import {
   inject,
   input,
   signal,
+  viewChild,
 } from '@angular/core';
 
-import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { round } from 'ngwr/utils';
+import { useI18nText } from 'ngwr/i18n';
+import { clamp, round } from 'ngwr/utils';
 
 import type { WrLineSeries } from './types';
 
@@ -46,6 +47,29 @@ function niceStep(raw: number): number {
 function fractionDigits(value: number): number {
   for (let d = 0; d <= 6; d++) if (Math.abs(value * 10 ** d - Math.round(value * 10 ** d)) < 1e-9) return d;
   return 6;
+}
+
+/** The power of ten of `value`'s leading digit: 2 for 750, -2 for 0.025. */
+function magnitude(value: number): number {
+  const abs = Math.abs(value);
+  let m = Math.floor(Math.log10(abs));
+  // `log10` is a float: guard the exact powers of ten from landing one off.
+  if (10 ** (m + 1) <= abs) m++;
+  if (10 ** m > abs) m--;
+  return m;
+}
+
+/**
+ * The power of ten of `step`'s LAST significant digit: 1 for 250, -1 for 2.5. Every tick
+ * is a whole multiple of the step, so no tick has a digit below it, and a tick written to
+ * that digit is written exactly.
+ */
+function lastDigit(step: number): number {
+  for (let e = magnitude(step); e > -21; e--) {
+    const scaled = step / 10 ** e;
+    if (Math.abs(scaled - Math.round(scaled)) < 1e-6) return e;
+  }
+  return -21;
 }
 
 /**
@@ -105,8 +129,20 @@ export class WrLineChart {
 
   protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'lineChart.label', 'Line chart');
 
+  /**
+   * Writes every number the chart shows: the y-axis ticks and the tooltip values.
+   * `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact ticks (`1.2K`, `3.4M`)
+   * unless the full numbers are shorter.
+   */
+  readonly valueFormat = input<((value: number) => string) | null>(null);
+
   private readonly locale = inject(LOCALE_ID);
-  private readonly thousandsText = useI18nFormatter('lineChart.thousands', '{{value}}k');
+  private readonly numbers = new Intl.NumberFormat(this.locale);
+  /**
+   * Below one, by significant digits rather than the default three fraction digits,
+   * which round a reading of 0.0004 to `0`.
+   */
+  private readonly smallNumbers = new Intl.NumberFormat(this.locale, { maximumSignificantDigits: 3 });
 
   /** Labels for the X axis (one per data point). */
   readonly xLabels = input<readonly string[]>([]);
@@ -130,12 +166,18 @@ export class WrLineChart {
    */
   readonly tooltip = input(true, { transform: coerceBooleanProperty });
 
-  // Drawn in a 600×300 viewBox with reserved space for axis labels.
+  /**
+   * Drawn edge to edge in a 600×300 viewBox that stretches to the plot. Nothing in it is
+   * text: the tick labels used to be `<text>` in here, and with
+   * `preserveAspectRatio="none"` a glyph stretches with the drawing, while the 36 units
+   * kept for them at the left were a different width in pixels at every size. They are
+   * HTML beside the drawing now, in a gutter as wide as its longest label, and the space
+   * round the lines is CSS padding on the plot.
+   */
   protected readonly vbW = 600;
   protected readonly vbH = 300;
-  protected readonly padding = { top: 16, right: 16, bottom: 28, left: 36 } as const;
 
-  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly svg = viewChild.required<ElementRef<SVGSVGElement>>('svg');
 
   /** Hovered point index (across all series) — null when no hover. */
   protected readonly hoveredIndex = signal<number | null>(null);
@@ -253,13 +295,10 @@ export class WrLineChart {
     const count = Math.round((max - min) / step);
     for (let i = 0; i <= count; i++) {
       const value = round(max - i * step, 6);
-      out.push({ value, y: this.padding.top + ((max - value) / (max - min)) * this.plotHeight() });
+      out.push({ value, y: ((max - value) / (max - min)) * this.vbH });
     }
     return out;
   });
-
-  protected readonly plotWidth = (): number => this.vbW - this.padding.left - this.padding.right;
-  protected readonly plotHeight = (): number => this.vbH - this.padding.top - this.padding.bottom;
 
   /**
    * The SVG path for a series — one subpath per unbroken run, so a hole in the data
@@ -269,8 +308,6 @@ export class WrLineChart {
     const { min, max } = this.bounds();
     const count = this.pointCount();
     if (count <= 1) return '';
-    const pw = this.plotWidth();
-    const ph = this.plotHeight();
 
     const commands: string[] = [];
     let run = 0;
@@ -288,8 +325,8 @@ export class WrLineChart {
         closeRun();
         return;
       }
-      const x = this.padding.left + (i / (count - 1)) * pw;
-      const y = this.padding.top + ((max - v) / (max - min)) * ph;
+      const x = (i / (count - 1)) * this.vbW;
+      const y = ((max - v) / (max - min)) * this.vbH;
       last = `${x.toFixed(2)} ${y.toFixed(2)}`;
       commands.push(`${run === 0 ? 'M' : 'L'} ${last}`);
       run++;
@@ -299,41 +336,39 @@ export class WrLineChart {
     return commands.join(' ');
   }
 
+  /** A point's x in the viewBox — a lone point in the middle, as the sparkline draws one. */
   protected pointX(index: number): number {
     const count = this.pointCount();
-    if (count <= 1) return this.padding.left;
-    return this.padding.left + (index / (count - 1)) * this.plotWidth();
+    if (count <= 1) return this.vbW / 2;
+    return (index / (count - 1)) * this.vbW;
   }
 
   protected pointY(value: number): number {
     const { min, max } = this.bounds();
-    return this.padding.top + ((max - value) / (max - min)) * this.plotHeight();
+    return ((max - value) / (max - min)) * this.vbH;
   }
 
   /**
-   * A point's x as a percentage of the host's width. The x-label strip and the SVG share
-   * that width — the drawing stretches to it — so this is the same space the tooltip and
-   * the labels are placed in, at any size.
+   * A point's x as a percentage of the drawing's width, which the SVG stretches to. The
+   * x labels and the tooltip are placed with it, in a box as wide as the plot: the
+   * stylesheet adds the plot's inline padding, so they land on the point at any size.
    */
   protected xPercent(index: number): number {
     return (this.pointX(index) / this.vbW) * 100;
   }
 
   /**
-   * How wide an x label may be, as a percentage of the host's width: its own slot — half
-   * the distance to a neighbour on each side — cut back to what is left between its point
-   * and the end of the strip. Centring a label on its point says nothing about its WIDTH,
-   * and with no bound at all twelve month names printed over each other and the last one
-   * hung outside the chart. Past this the stylesheet ellipsises.
+   * How far apart two neighbouring points are, as a percentage of the drawing's width —
+   * the room each x label has, half on either side of its point. The stylesheet bounds a
+   * label to it, cut back at the ends of the strip, and ellipsises past that. Centring a
+   * label on its point says nothing about its WIDTH, and with no bound at all twelve
+   * month names printed over each other and the last one hung outside the chart.
    */
-  protected xMaxPercent(index: number): number {
+  protected readonly xSlot = computed(() => {
     const count = this.pointCount();
     // A single label has no neighbour to collide with and the whole strip to sit in.
-    if (count <= 1) return 100;
-    const slot = (this.plotWidth() / (count - 1) / this.vbW) * 100;
-    const x = this.xPercent(index);
-    return Math.min(slot, x + slot / 2, 100 - x + slot / 2);
-  }
+    return count <= 1 ? 100 : 100 / (count - 1);
+  });
 
   protected readonly hoverPoints = computed(() => {
     const i = this.activeIndex();
@@ -343,7 +378,8 @@ export class WrLineChart {
       // is no reading at this x, so the series contributes neither a marker nor a row.
       const value = s.data[i];
       if (value === undefined || value === null) return [];
-      return [{ label: s.label, value, color: s.color, x: this.pointX(i), y: this.pointY(value) }];
+      const text = this.formatValue(value);
+      return [{ label: s.label, value, text, color: s.color, x: this.pointX(i), y: this.pointY(value) }];
     });
   });
 
@@ -359,16 +395,20 @@ export class WrLineChart {
    * compatibility `mousemove`, so a `pointermove` listener never opened the readout on
    * a phone and the `pointerleave` closed whatever it had. Every other chart opens on
    * the compatibility events a tap fires.
+   *
+   * Heard on the whole plot and measured against the drawing inside it. The drawing
+   * runs edge to edge, so the first and last dots overhang it into the plot's padding;
+   * listening on the drawing alone closed the readout on the outer half of either dot.
+   * Over the padding the nearest point is the end one, so the index is clamped.
    */
   protected onPointerMove(event: MouseEvent): void {
     if (!this.tooltip()) return;
-    const svg = (event.currentTarget as SVGElement).getBoundingClientRect();
-    const ratio = (event.clientX - svg.left) / svg.width;
-    const vbX = ratio * this.vbW;
     const count = this.pointCount();
-    if (count === 0) return;
-    const i = Math.round(((vbX - this.padding.left) / this.plotWidth()) * (count - 1));
-    if (i < 0 || i >= count || i === this.dismissed) return;
+    const box = this.svg().nativeElement.getBoundingClientRect();
+    if (count === 0 || box.width <= 0) return;
+    const ratio = (event.clientX - box.left) / box.width;
+    const i = count === 1 ? 0 : clamp(Math.round(ratio * (count - 1)), 0, count - 1);
+    if (i === this.dismissed) return;
     this.dismissed = null;
     this.hoveredIndex.set(i);
   }
@@ -384,63 +424,71 @@ export class WrLineChart {
   }
 
   /**
-   * A Y-axis tick, in the reader's own language.
-   *
-   * Two halves and both were English. The `k` was a hardcoded Latin
-   * abbreviation — `тыс.` in Russian — so it goes through the catalog like every
-   * other word the library paints. The digits went through `toFixed`, which
-   * always writes a full stop, so a German axis read `1.5` where the rest of the
-   * page read `1,5`; they go through `Intl` now, the way `wrNumber`, `wrDate`
-   * and `wrPlural` already did.
-   *
-   * Grouping is OFF deliberately: a tick is a short axis label, and `5,000k`
-   * would be both wider and a change to what every existing chart draws.
+   * A reading as the tooltip writes it: `valueFormat` when one is given, else
+   * `Intl.NumberFormat` in `LOCALE_ID` — never compact, since the tooltip is where a
+   * reader goes for the exact figure the axis rounds.
    */
-  /**
-   * How many fraction digits a tick needs, taken from the STEP rather than from
-   * the value.
-   *
-   * It was a hard `1`, which is right for the common case and wrong below it: a
-   * series inside 0..1 steps by 0.25 and the labels came out `1 / 0.8 / 0.5 /
-   * 0.3 / 0` — four gaps printed as 0.2, 0.3, 0.2, 0.3 on an axis that is
-   * evenly spaced. An axis whose own labels disagree about their spacing is
-   * worse than a crowded one.
-   */
-  private readonly tickDigits = computed(() => fractionDigits(this.bounds().step));
-
-  /**
-   * The same, for a tick written in thousands — `null` when the step is too fine for
-   * the abbreviation to be shorter than the number, which then prints in full.
-   *
-   * It was a hard `1` whatever the step, the defect `tickDigits` fixed for small
-   * values: a step of 25 printed -1000 and -1025 as `-1k` twice, and a step of 250
-   * printed 1250 as `1.3k` beside `1k`, so the axis said its gaps were uneven.
-   */
-  private readonly thousandsDigits = computed(() => {
-    const digits = fractionDigits(this.bounds().step / 1000);
-    return digits <= 2 ? digits : null;
-  });
-
-  protected formatTick(v: number): string {
-    // A CEILING rather than a fixed count, so trailing zeros are dropped: a
-    // 0.25 step wants two digits on 0.25 and none on 1, and `1.00` beside
-    // `0.25` reads as spurious precision.
-    const digits = (n: number, fraction: number): string =>
-      new Intl.NumberFormat(this.locale, {
-        useGrouping: false,
-        minimumFractionDigits: 0,
-        maximumFractionDigits: fraction,
-      }).format(n);
-
-    const thousands = this.thousandsDigits();
-    if (Math.abs(v) >= 1000 && thousands !== null) return this.thousandsText({ value: digits(v / 1000, thousands) });
-    return digits(v, this.tickDigits());
+  private formatValue(value: number): string {
+    const custom = this.valueFormat();
+    if (custom) return custom(value);
+    return (value !== 0 && Math.abs(value) < 1 ? this.smallNumbers : this.numbers).format(value);
   }
 
-  protected readonly viewBox = computed(() => `0 0 ${this.vbW} ${this.vbH}`);
+  /**
+   * The y-axis labels, top to bottom, in the reader's own language — and decided for
+   * the AXIS, not one tick at a time.
+   *
+   * Compact, through `Intl` (`1.2K`, `3.4M`, `4 Mio.`, `5 тыс.`): the abbreviation used
+   * to be a `k` from the catalog beside digits from `Intl`, which no locale's own
+   * convention matched past the thousands, and `Intl` knows each one's units — German
+   * abbreviates no thousands at all, Japanese counts in ten-thousands.
+   *
+   * Each tick gets exactly the significant digits the STEP needs: down to the step's last
+   * digit, and no further. A fixed count cannot be right at every magnitude — one
+   * fraction digit printed 1250 beside 1000 as `1.3k` and `1k` on an axis stepping by
+   * 250, and -1000 and -1025 as `-1k` twice on one stepping by 25. A hard `1` below the
+   * thousands printed a 0.25 step as 0.2, 0.3, 0.2, 0.3.
+   *
+   * And when abbreviating would make the labels LONGER — a fine step on large numbers,
+   * where `-1.025K` is wider than `-1,025` — the whole axis is written in full instead, so
+   * no axis mixes `-1K` with `-1,025`. Grouping is the locale's.
+   */
+  protected readonly tickLabels = computed<readonly string[]>(() => {
+    const ticks = this.yTicks();
+    const custom = this.valueFormat();
+    if (custom) return ticks.map(tick => custom(tick.value));
 
-  // Convenience accessor so the host can be referenced from the template.
-  protected readonly hostEl = this.host.nativeElement;
+    const { step } = this.bounds();
+    const last = lastDigit(step);
+    // A CEILING rather than a fixed count, so trailing zeros are dropped: a 0.25 step
+    // wants two digits on 0.25 and none on 1, and `1.00` beside `0.25` reads as spurious
+    // precision.
+    const full = new Intl.NumberFormat(this.locale, { maximumFractionDigits: fractionDigits(step) });
+    const plain = ticks.map(tick => full.format(tick.value));
+    const compact = ticks.map(({ value }) =>
+      value === 0
+        ? full.format(0)
+        : new Intl.NumberFormat(this.locale, {
+            notation: 'compact',
+            maximumSignificantDigits: clamp(magnitude(value) - last + 1, 1, 21),
+          }).format(value)
+    );
+    const longest = (labels: readonly string[]): number => Math.max(...labels.map(label => label.length));
+    return longest(compact) <= longest(plain) ? compact : plain;
+  });
+
+  /**
+   * Each y label beside the y of its gridline, as a percentage of the drawing's height.
+   * The stylesheet places a label from that number inside the plot's block padding, the
+   * way the x labels are placed from `xPercent`, so a label meets its line at any height
+   * whatever the labels around it measure.
+   */
+  protected readonly yAxis = computed(() => {
+    const labels = this.tickLabels();
+    return this.yTicks().map((tick, i) => ({ label: labels[i], y: (tick.y / this.vbH) * 100 }));
+  });
+
+  protected readonly viewBox = computed(() => `0 0 ${this.vbW} ${this.vbH}`);
 }
 
 export type { WrLineSeries } from './types';

@@ -6,7 +6,16 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, type ElementRef, ViewEncapsulation, computed, inject, input, viewChild } from '@angular/core';
+import {
+  Component,
+  type ElementRef,
+  LOCALE_ID,
+  ViewEncapsulation,
+  computed,
+  inject,
+  input,
+  viewChild,
+} from '@angular/core';
 
 import { WR_DATE_LOCALE } from 'ngwr/date';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
@@ -97,27 +106,24 @@ export class WrCalendarHeatmap {
    * digits (`ar-SA` does not even use these ones), and the separator and order
    * were frozen into a shape a translator could not reach.
    *
-   * Both halves go through `Intl` on the SAME locale the rest of the component
-   * resolves — `WR_DATE_LOCALE`, which since v14 follows Angular's `LOCALE_ID`.
-   * The key ships as `{{date}}: {{count}}` everywhere, so nothing reorders today
-   * and every locale can.
+   * Both halves go through `Intl`: the date in `WR_DATE_LOCALE`, which the weekday
+   * and month labels use too and which follows Angular's `LOCALE_ID` unless
+   * `withDates()` pins it, and the count in `LOCALE_ID` itself — or through
+   * `valueFormat` — as every chart writes its numbers. The key ships as
+   * `{{date}}: {{count}}` everywhere, so nothing reorders today and every locale can.
    */
   protected cellTitle(cell: { readonly date: Date; readonly value: number }): string {
-    return this.cellText({
-      date: this.dateFormat().format(cell.date),
-      count: this.countFormat().format(cell.value),
-    });
+    return this.cellText({ date: this.dateFormat().format(cell.date), count: this.formatValue(cell.value) });
   }
 
   /**
-   * The two formatters, built once. They were built per call, and with `tooltip` off
+   * The formatters, built once. They were built per call, and with `tooltip` off
    * the template asks for every square's title on every pass — so each `mousemove`
    * over the grid, which still marks the view for check, built 740 of them: 44,400
    * for 60 moves, measured in dev mode at 907–931ms against 348–358ms with the
    * tooltip on.
    */
   private readonly dateFormat = computed(() => new Intl.DateTimeFormat(this.locale, { dateStyle: 'medium' }));
-  private readonly countFormat = computed(() => new Intl.NumberFormat(this.locale));
 
   /**
    * Every square's `title`, and only while the tooltip is off — the tooltip carries the
@@ -153,6 +159,23 @@ export class WrCalendarHeatmap {
    * or the browser would open a second copy a moment later. @default true
    */
   readonly tooltip = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * Writes each day's count in the tooltip and the `title`. `null` uses
+   * `Intl.NumberFormat` in `LOCALE_ID`.
+   */
+  readonly valueFormat = input<((value: number) => string) | null>(null);
+
+  private readonly numberLocale = inject(LOCALE_ID);
+  private readonly numbers = new Intl.NumberFormat(this.numberLocale);
+  /** Below one, by significant digits, which keep 0.0004 from rounding to `0`. */
+  private readonly smallNumbers = new Intl.NumberFormat(this.numberLocale, { maximumSignificantDigits: 3 });
+
+  private formatValue(value: number): string {
+    const custom = this.valueFormat();
+    if (custom) return custom(value);
+    return (value !== 0 && Math.abs(value) < 1 ? this.smallNumbers : this.numbers).format(value);
+  }
 
   private readonly daysEl = viewChild<ElementRef<HTMLElement>>('days');
 

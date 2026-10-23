@@ -235,7 +235,6 @@ export const wrRu: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Линейный график',
-    thousands: '{{value}} тыс.',
   },
   donutChart: {
     label: 'Круговая диаграмма',

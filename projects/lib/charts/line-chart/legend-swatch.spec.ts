@@ -135,9 +135,10 @@ describe('wr-line-chart: which rules size each drawing', () => {
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     // Hovered, so the tooltip's swatches exist too. jsdom lays nothing out, so the plot's
-    // box is stubbed to read a clientX as a viewBox x.
+    // box is stubbed to read a clientX as a viewBox x. Bubbling, since it is the plot
+    // round the drawing that listens.
     plot().getBoundingClientRect = () => new DOMRect(0, 0, 600, 300);
-    plot().dispatchEvent(new MouseEvent('mousemove', { clientX: 300 }));
+    plot().dispatchEvent(new MouseEvent('mousemove', { clientX: 300, bubbles: true }));
     fixture.detectChanges();
   });
 

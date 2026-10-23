@@ -245,7 +245,6 @@ export const wrPl: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Wykres liniowy',
-    thousands: '{{value}} tys.',
   },
   donutChart: {
     label: 'Wykres pierścieniowy',
