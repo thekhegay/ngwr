@@ -1,0 +1,106 @@
+<ngwr-doc-page
+  title="Radar Chart"
+  since="15.1.0"
+  description="Several series compared across the same axes, each a polygon on a polar grid."
+  [keywords]="['radar-chart', 'spider-chart', 'web-chart', 'wr-radar-chart']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="One value per axis per series. The first axis points up and the rest follow clockwise."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-radar-chart [axes]="axes" [series]="models" [max]="100" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Scale"
+    description="With no `max` the scale runs from zero to a readable step above the data. A fixed `max` gets rings on a readable step that divides it: a rating out of 5 has one per point."
+  >
+    <ngwr-doc-code [code]="snippets.scale" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; width: 100%">
+        <wr-radar-chart [axes]="axes" [series]="models" [size]="220" />
+        <wr-radar-chart [axes]="skills" [series]="ratings" [max]="5" [size]="220" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Missing values"
+    description="A value that is not a finite number breaks the outline at its axis. The series is drawn open and not filled, so no reading is invented."
+  >
+    <ngwr-doc-code [code]="snippets.gaps" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.gapsTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-radar-chart [axes]="axes" [series]="survey" [max]="100" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Toggle series"
+    description="`toggleableLegend` makes each legend row a button. A hidden series leaves the drawing, the tooltip and the data table."
+  >
+    <ngwr-doc-code [code]="snippets.toggle" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.toggleTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-radar-chart [axes]="axes" [series]="teams" [max]="100" toggleableLegend [(hiddenSeries)]="hiddenSeries" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Data table"
+    description="`dataTable` adds a table only screen readers reach: a row per axis, a column per series shown. Nothing changes on screen."
+  >
+    <ngwr-doc-code [code]="snippets.dataTable" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-radar-chart [axes]="axes" [series]="models" [max]="100" ariaLabel="Two models compared" dataTable />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Drawing</th>
+            <td>One <code>role="img"</code>, named by <code>ariaLabel</code>. The polygons announce nothing.</td>
+          </tr>
+          <tr>
+            <th scope="row">Numbers</th>
+            <td>In the tooltip, which is pointer only, and in the table <code>dataTable</code> adds.</td>
+          </tr>
+          <tr>
+            <th scope="row">Series</th>
+            <td>Each has its own dash as well as its colour, so outlines differ without hue.</td>
+          </tr>
+          <tr>
+            <th scope="row">Axis names</th>
+            <td>Real text. A long name is cut with an ellipsis; the tooltip and the table carry it whole.</td>
+          </tr>
+          <tr>
+            <th scope="row">Keyboard</th>
+            <td>No tab stop, unless <code>toggleableLegend</code> makes the legend rows buttons.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
+    <ngwr-doc-api [rows]="typeRows" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
