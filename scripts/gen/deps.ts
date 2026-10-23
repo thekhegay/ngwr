@@ -26,8 +26,12 @@ import { LIB_PATH as LIB } from '../lib/paths/lib';
 
 const OUT_FILE = join(GENERATED_DIR, 'deps.ts');
 
-/** Plumbing every component touches; listing it would say nothing. */
-const INFRA = new Set(['utils', 'utils/types', 'i18n', 'platform', 'theme']);
+/**
+ * Plumbing every component touches; listing it would say nothing. `charts/core` is the
+ * charts' shared palette, number writers and axis: every export is `@internal`, so a
+ * "Built on" row naming it would point readers at an entry point they must not import.
+ */
+const INFRA = new Set(['utils', 'utils/types', 'i18n', 'platform', 'theme', 'charts/core']);
 
 /** Imported by demos to draw the page itself, not related to what it documents. */
 const SCAFFOLDING = new Set([

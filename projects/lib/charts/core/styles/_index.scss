@@ -1,0 +1,30 @@
+// Public Sass entry for the charts' shared parts. Nothing an app imports draws from
+// here directly: a chart that renders `<wr-chart-table>` loads this sheet from its
+// own `_index.scss`, the way every component loads the styles of what it renders.
+//
+// No theme load, and on purpose: these rules read no token, and an entry point that
+// cannot leave a `var(--wr-*)` unresolved has no reason to drag the token layer in.
+
+// A chart's data table, read in full by assistive technology and drawn nowhere.
+//
+// The clip pattern on the HOST rather than on the `<table>`: a table grows to fit its
+// cells whatever its width says, and `overflow` does not clip a table box in every
+// engine, so clipping the table itself can leave it painting. The host is an ordinary
+// box that collapses to 1px, sits out of flow — so it takes no room beside the chart
+// and adds no scroll — and clips everything inside it.
+//
+// Not `display: none`, `visibility: hidden` or `hidden`, each of which removes it
+// from the accessibility tree too, and not `clip-path` alone, which leaves the box
+// its full size for the layout and the scroll width.
+.wr-chart-table {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

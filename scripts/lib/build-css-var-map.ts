@@ -109,7 +109,10 @@ function resolveSelector(parent: string, own: string): string {
  */
 function isBaseSelector(selector: string): boolean {
   if (selector === ':root' || selector === 'html' || selector === ':host') return true;
-  return !/--|:|\[/.test(selector);
+  // `:where(.wr-chart-legend)` is the block itself at zero specificity — declared that
+  // way so a chart that draws the legend re-points its hooks from any selector — not a
+  // state of it, so the wrapper is looked through before the test.
+  return !/--|:|\[/.test(selector.replace(/:where\(([^()]*)\)/g, '$1'));
 }
 
 /**

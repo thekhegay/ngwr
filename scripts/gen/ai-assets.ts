@@ -62,9 +62,47 @@ const read = (path: string): string => (existsSync(path) ? readFileSync(path, 'u
 // --- entry points ----------------------------------------------------------
 
 /**
- * Every secondary entry point, `<name>/testing` included.
+ * Entry points that publish nothing an app imports, left out of both catalogs.
+ *
+ * `ngwr/charts/core` holds the helpers the charts share — the palette, the number
+ * writers, the axis, the data table — in an entry point of its own so that no chart
+ * imports another. Every export is `@internal`: listing it would hand an agent an
+ * import line for helpers with no stability promise. The tag is held at run time,
+ * export by export, so a public symbol added there fails the run instead of vanishing
+ * from the catalog.
  */
-const ENTRIES = libEntryPoints();
+const INTERNAL_ENTRIES: ReadonlySet<string> = new Set(['charts/core']);
+
+/**
+ * Throws unless every export of `entry` is declared under a JSDoc carrying `@internal`.
+ *
+ * A class may carry a decorator between its JSDoc and `export class` — the data table
+ * is a `@Component` — so one decorator call is stepped over. Its arguments may hold
+ * no comment end and no `export`, which keeps the step from running on into the next
+ * declaration.
+ */
+function assertAllInternal(entry: string): void {
+  const sources = entryFiles(entry).map(file => read(file));
+  for (const { name } of publicExports(entry)) {
+    const declaration = new RegExp(
+      String.raw`/\*\*((?:(?!\*/)[\s\S])*)\*/\s*(?:@[A-Za-z]\w*\((?:(?!\*/|\bexport\s)[\s\S])*\)\s*)?export\s+(?:declare\s+)?(?:abstract\s+)?(?:const|let|function|class|type|interface|enum)\s+${name}\b|/\*\*((?:(?!\*/)[\s\S])*)\*/\s*(?:type|interface)\s+${name}\b`
+    );
+    const doc = sources.map(source => declaration.exec(source)).find(Boolean);
+    if (!doc || !/@internal\b/.test(doc[1] ?? doc[2] ?? '')) {
+      throw new Error(
+        `ngwr/${entry} is kept out of the catalog as internal, but \`${name}\` is not marked \`@internal\`. ` +
+          'Mark it, or move it to an entry point the catalog lists.'
+      );
+    }
+  }
+}
+
+for (const entry of INTERNAL_ENTRIES) assertAllInternal(entry);
+
+/**
+ * Every secondary entry point, `<name>/testing` included, the internal ones left out.
+ */
+const ENTRIES = libEntryPoints().filter(entry => !INTERNAL_ENTRIES.has(entry));
 
 /**
  * The PRIMARY entry point, `ngwr`, by the name `publicExports()` resolves it

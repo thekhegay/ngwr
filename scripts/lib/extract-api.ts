@@ -415,8 +415,14 @@ function startsMember(body: string, at: number): boolean {
  * generated data — so keying on the tag would silently empty that page. Tagging
  * the mention panel for consistency with its sibling is worth doing on its own
  * merits; it will not delete this set.
+ *
+ * **`WrChartTable` is the same case from another direction.** It is exported because
+ * `ngwr/charts/core` is how a chart in another entry point reaches it, and every export
+ * of that entry point is `@internal`. A chart's `dataTable` input is what a consumer
+ * writes, and the chart's page documents that; the table's own `data` is filled by the
+ * chart and has no page to be held to.
  */
-const EXPORTED_BUT_INTERNAL: ReadonlySet<string> = new Set(['WrMentionPanel', 'WrPopconfirmPanel']);
+const EXPORTED_BUT_INTERNAL: ReadonlySet<string> = new Set(['WrChartTable', 'WrMentionPanel', 'WrPopconfirmPanel']);
 
 /** Every documented component / directive in the library, keyed by class name. */
 export function extractApi(): Map<string, ApiEntry> {
