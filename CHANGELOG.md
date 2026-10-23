@@ -1,5 +1,51 @@
 # Changelog
 
+## [15.0.0-rc.3](https://github.com/thekhegay/ngwr/compare/v15.0.0-rc.2...v15.0.0-rc.3) (2026-10-23)
+
+### ⚠ BREAKING CHANGES
+
+* **date:** 12h, 24h and seconds time formats, the pickers pick them from their inputs
+* **drawer:** a drawer without a backdrop is non-modal
+* **cascader:** one roving tab stop and type-ahead in the panel
+* **table:** treegrid row keys, aria-sort on the primary key, row-named controls, summary scope
+* **charts:** value format, locale numbers, html line-chart ticks, donut from twelve
+
+### Features
+
+* **bits:** canvases follow the scheme, no replay after hydration, marquee scrolls, token confetti ([a0d0234](https://github.com/thekhegay/ngwr/commit/a0d0234dd163ba925b1b8f5a18363057701bf380))
+* **cascader:** one roving tab stop and type-ahead in the panel ([c350466](https://github.com/thekhegay/ngwr/commit/c35046684833bc9a93fc0015af66fdd13a316a8e))
+* **charts:** value format, locale numbers, html line-chart ticks, donut from twelve ([53d9997](https://github.com/thekhegay/ngwr/commit/53d9997010deedf0800b0d04ccc7ab53e45cacc8))
+* **date:** 12h, 24h and seconds time formats, the pickers pick them from their inputs ([3e26690](https://github.com/thekhegay/ngwr/commit/3e26690f25f35ebfadeebdfc68194e77ae33dfce))
+* **density:** a pre-paint script, so a stored density does not jump after boot ([8a1b39f](https://github.com/thekhegay/ngwr/commit/8a1b39fb135c5716bd76d81b45e5c4afd464a0a7))
+* **drawer:** a drawer without a backdrop is non-modal ([cba7d32](https://github.com/thekhegay/ngwr/commit/cba7d322d34ab846361f63bd1905515cef6d9e19))
+* **schematics:** migration-v15 rewrites paths, config calls, rgb reads and token reads ([cfe97cc](https://github.com/thekhegay/ngwr/commit/cfe97cc135badb4f8aa0e5fa58a342b8096f8cff))
+* **showcase:** an ngtrue block on the home page and the testing and forms guides ([b9923a3](https://github.com/thekhegay/ngwr/commit/b9923a3d9c0f6b9ba833f502eeed5c469a56f416))
+* **showcase:** new, updated and removed marks, and a page for every v15 removal ([8c17e0b](https://github.com/thekhegay/ngwr/commit/8c17e0b707149d2c07d1516782aea5f14384b126))
+* **showcase:** translations overview translates live tiles, typography overview shows the scale ([2c93c58](https://github.com/thekhegay/ngwr/commit/2c93c5813b43cbc21247abfa13052344c1f02c9f))
+* **table:** treegrid row keys, aria-sort on the primary key, row-named controls, summary scope ([7859a6d](https://github.com/thekhegay/ngwr/commit/7859a6de039465d7aa538961b4e06cc2027c1e27))
+* **toast:** closing a toast moves focus to the next one, else back where it was ([df3c801](https://github.com/thekhegay/ngwr/commit/df3c801c305da68362cc81646f80be45e77003ed))
+* **window:** focus moves in on open, to the tab on minimize, back on restore ([cd54221](https://github.com/thekhegay/ngwr/commit/cd54221573dc34f443172bd69509c8ed8117ff44))
+
+### Bug Fixes
+
+* **affix:** an out-of-flow sentinel in flex and grid parents ([d96ac4c](https://github.com/thekhegay/ngwr/commit/d96ac4c76e47b3974292765384333d3f3e65ab27))
+* **bits:** rtl text, off-screen loops, reduced motion, splash-cursor leak, typewriter copy ([9784cc3](https://github.com/thekhegay/ngwr/commit/9784cc3f8be43a2fdd415d4f122baf73e0ec8d5d))
+* **carousel:** autoplay pauses under reduced motion ([ff7e848](https://github.com/thekhegay/ngwr/commit/ff7e848d58b7b498f2d0da9581a442c79f72d28e))
+* **charts:** forced colors, sparkline marker, bar labels, line ticks and tooltip, gauge, meter ([29b7f68](https://github.com/thekhegay/ngwr/commit/29b7f689ec0cf4cd81c23dc989e4138e0a7b80a6))
+* **data:** sortable-list, event-calendar drops, table sort, tree keys, transfer, virtual-scroll ([0c513a7](https://github.com/thekhegay/ngwr/commit/0c513a78e096c111a21857208ef08787bb136344))
+* **date-picker:** readonly refuses a day click, tab leaves and sorts a range, 12h typing ([4b37298](https://github.com/thekhegay/ngwr/commit/4b37298a08a25f363c5a199f7a3d3e0566149e64))
+* **display:** cropper, qr, statistic, button links, compare, avatar, badge, alert, counter ([fcd80aa](https://github.com/thekhegay/ngwr/commit/fcd80aaccb630280852e739933596a0cf4a64141))
+* **forms:** color-picker empty boxes, cascader keys, input-number spaces, otp, mention, upload ([31fdfbd](https://github.com/thekhegay/ngwr/commit/31fdfbd09b24c8a60a2187f5a75fff0bc03f4bba))
+* **mcp:** class docs from the new builder output, the root entry, one use line per entry ([cfae7e9](https://github.com/thekhegay/ngwr/commit/cfae7e9718bde86ae3d5a4ad7609a5b527354dce))
+* **mcp:** get_ngwr_api describes the functions it answers ([1aef602](https://github.com/thekhegay/ngwr/commit/1aef60220a53978f988ce5b0a5e8ee6cc550174f))
+* **navigation:** affix, tabs, sidebar, carousel, loading-bar, anchor, splitter, stepper, grid ([8b64f55](https://github.com/thekhegay/ngwr/commit/8b64f555293cb451b5411b2c73a2179578e498ca))
+* **overlays:** popconfirm, hover popover, toast pause, window focus, tour, palette lock ([43df666](https://github.com/thekhegay/ngwr/commit/43df666b57c7bac3ce34c669332c8e35c77f5bee))
+* **schematics:** ng add and provider write the density sheet with the density feature ([e0b2f4d](https://github.com/thekhegay/ngwr/commit/e0b2f4d5d9d69813312278c06c9d9918666b75ed))
+* **schematics:** page preset arguments, use edits the right imports, presets wired ([6a01833](https://github.com/thekhegay/ngwr/commit/6a01833570dda711c0175e2dd10454223a1db315))
+* **schematics:** v15 setup in ng add, provider, use, component-style and page ([1921328](https://github.com/thekhegay/ngwr/commit/19213283a0c23d9bb7645776d8daa9ef8b0a2516))
+* **showcase:** demo fixes from the bug hunt, header rtl, lucide install section, testing guide ([3642c81](https://github.com/thekhegay/ngwr/commit/3642c817dceca9082455367abd907e0ea411653a))
+* validator boundary days, date-only dates, grapheme truncation, literal meta titles ([99d8cdd](https://github.com/thekhegay/ngwr/commit/99d8cdde97f341b1d0024402fde95e9016d0da9c))
+
 ## [15.0.0-rc.2](https://github.com/thekhegay/ngwr/compare/v15.0.0-rc.1...v15.0.0-rc.2) (2026-10-22)
 
 ### Features
