@@ -911,12 +911,14 @@ is a dev dependency with two halves here. `form/signal-forms-conformance.spec.ts
 runs `assertSignalFormsControl` from `ngtrue/testing` on every public Signal
 Forms control, a fresh fixture each, and fails when a control the source
 declares is missing from its table (the Forms grep, `internal/` left out).
-`pnpm check:package` (`scripts/check/package.ts`) runs the seven `ngtrue/node`
-packaging checks after `build:lib`: six read `dist/lib`, and
-`peerDependencyMismatches` reads `projects/lib`, since it scans imports. The
-acknowledgments sit in that script with their reason — the `./i18n/*.json` and
-`./schematics/*` wildcards, which no check can probe, and `WrSortableItem`'s
-`CdkDrag` — and one that stops matching fails the run like a finding.
+`pnpm check:package` (`scripts/check/package.ts`) runs the eight `ngtrue/node`
+packaging checks after `build:lib`: seven read `dist/lib`, and
+`peerDependencyMismatches` reads `projects/lib`, since it scans imports.
+`unloadableEntryPoints` imports every entry point unlinked, as a server would,
+so a top-level browser global or an import cycle fails it. The exceptions sit in
+each check's own `ignore`, with the reason beside it — the `./i18n/*.json` and
+`./schematics/*` wildcards, which no check can probe — and ngtrue reports an
+entry that excuses nothing, so the list cannot outlive what it was written for.
 
 ## Conventions
 

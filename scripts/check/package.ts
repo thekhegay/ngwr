@@ -26,6 +26,7 @@ import {
   globalAttributeInputs,
   peerDependencyMismatches,
   unexportedTypes,
+  unloadableEntryPoints,
   unloadableSchematics,
   unresolvableTypes,
   unresolvedExports,
@@ -36,28 +37,23 @@ import { info } from '../lib/log/info';
 import { DIST_LIB_PATH, requireBuiltLib } from '../lib/paths/dist-lib';
 import { LIB_PATH } from '../lib/paths/lib';
 
+/**
+ * A check's exceptions go in its own `ignore`, with the reason beside it; ngtrue
+ * reports an entry that excuses nothing, so the list cannot outlive what it was
+ * written for.
+ */
 interface Check {
   readonly name: string;
   readonly run: () => readonly string[] | Promise<readonly string[]>;
-  /**
-   * Findings that are notices rather than defects, by the start of the
-   * sentence, for a check with no `ignore` of its own. One that matches nothing
-   * fails the run, so the list cannot outlive what it excuses.
-   */
-  readonly acknowledged?: readonly string[];
 }
 
 const CHECKS: readonly Check[] = [
   { name: 'unresolvedExports', run: () => unresolvedExports({ packageDir: DIST_LIB_PATH }) },
   {
     name: 'unresolvableTypes',
-    run: () => unresolvableTypes({ packageDir: DIST_LIB_PATH }),
     // Two wildcards the check does not probe: the locale catalogs as JSON and
     // the CLI's schematics. Neither carries types for an app to resolve.
-    acknowledged: [
-      'exports["./i18n/*.json"] is a wildcard and was not probed',
-      'exports["./schematics/*"] is a wildcard and was not probed',
-    ],
+    run: () => unresolvableTypes({ packageDir: DIST_LIB_PATH, ignore: ['./i18n/*.json', './schematics/*'] }),
   },
   {
     name: 'unexportedTypes',
@@ -75,14 +71,15 @@ const CHECKS: readonly Check[] = [
         exclude: ['schematics', 'mcp'],
       }),
   },
-  { name: 'unloadableSchematics', run: () => unloadableSchematics({ packageDir: DIST_LIB_PATH }) },
   {
-    name: 'globalAttributeInputs',
-    // `WrSortableItem` composes CDK's `CdkDrag` and exposes none of its inputs,
-    // and `CdkDrag` has no host directives of its own, so no static attribute
-    // reaches an input this check cannot read.
-    run: () => globalAttributeInputs({ packageDir: DIST_LIB_PATH, ignore: ['WrSortableItem'] }),
+    name: 'unloadableEntryPoints',
+    // Every entry point imported unlinked, as a server would. The schematics are
+    // a pattern the check cannot import literally, and the CLI loads them, not an
+    // app; `unloadableSchematics` covers them.
+    run: () => unloadableEntryPoints({ packageDir: DIST_LIB_PATH, ignore: ['./schematics/*'] }),
   },
+  { name: 'unloadableSchematics', run: () => unloadableSchematics({ packageDir: DIST_LIB_PATH }) },
+  { name: 'globalAttributeInputs', run: () => globalAttributeInputs({ packageDir: DIST_LIB_PATH }) },
   { name: 'angularPeerFloorsTooLow', run: () => angularPeerFloorsTooLow({ packageDir: DIST_LIB_PATH }) },
 ];
 
@@ -91,14 +88,7 @@ async function main(): Promise<void> {
 
   let findings = 0;
   for (const check of CHECKS) {
-    const acknowledged = check.acknowledged ?? [];
-    const reported = await check.run();
-    const problems = [
-      ...reported.filter(problem => !acknowledged.some(start => problem.startsWith(start))),
-      ...acknowledged
-        .filter(start => !reported.some(problem => problem.startsWith(start)))
-        .map(start => `acknowledged notice no longer reported, drop it from this script: ${start}`),
-    ];
+    const problems = await check.run();
     if (problems.length === 0) {
       info(`✓ ${check.name}`);
       continue;

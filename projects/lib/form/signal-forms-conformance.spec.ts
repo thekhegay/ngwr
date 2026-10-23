@@ -31,11 +31,12 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 /**
  * Every public Signal Forms control, held to ngtrue's conformance suite.
  *
- * `assertSignalFormsControl` checks nine rules and fails naming the one that
+ * `assertSignalFormsControl` checks ten rules and fails naming the one that
  * broke: a `value` or `checked` model and only one, no value accessor, a
- * `touch` output, `disabled` and `readonly` inputs, a value that crosses the
- * binding both ways, a `touch` that marks the field touched, and a
- * `focusBoundControl()` that lands focus inside the control.
+ * `touch` output, `disabled` and `readonly` inputs, a form-side write that
+ * leaves the field pristine, a value that crosses the binding both ways, a
+ * `touch` that marks the field touched, and a `focusBoundControl()` that lands
+ * focus inside the control.
  *
  * One host renders one control at a time, picked by `kind`, so each case gets a
  * fresh fixture with a single `[formField]` — the suite spends its fixture.
