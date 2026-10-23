@@ -18,7 +18,14 @@ permissions:
 jobs:
   deploy:
     name: Build & deploy next.ngwr.dev
-    if: github.ref == 'refs/heads/next'
+    # A stable release commit reaches next only when next syncs with main after
+    # the release, which changes nothing next.ngwr.dev shows; ngwr.dev is that
+    # release's site. A dispatch always runs.
+    if: >-
+      github.ref == 'refs/heads/next' &&
+      (github.event_name == 'workflow_dispatch' ||
+      !(startsWith(github.event.head_commit.message, 'chore(release): v') &&
+      !contains(github.event.head_commit.message, '-rc.')))
     runs-on: ubuntu-latest
     environment:
       name: next
@@ -51,6 +58,10 @@ jobs:
           import { readFileSync, writeFileSync } from 'node:fs';
 
           const { version } = JSON.parse(readFileSync('projects/lib/package.json', 'utf8'));
+          // A candidate names its own major; a stable version on next means the
+          // major after it is under way.
+          const [major, prerelease] = [Number(version.split('.')[0]), version.includes('-')];
+          const nextMajor = prerelease ? major : major + 1;
           const banner = `<style>
           .wr-next-banner{position:sticky;bottom:0;z-index:999;display:flex;flex-wrap:wrap;
           gap:.25rem .75rem;align-items:center;justify-content:center;padding:.75rem 1rem;
@@ -60,7 +71,7 @@ jobs:
           .wr-next-banner a{color:#eef2ff;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
           </style>
           <div class="wr-next-banner" role="note">
-          <span>You are reading the docs for the next major, <b>v${version.split('.')[0]}</b>, still in development (<code>ngwr@next</code>).</span>
+          <span>You are reading the docs for the next major, <b>v${nextMajor}</b>, still in development (<code>ngwr@next</code>).</span>
           <a href="https://ngwr.dev/">Go to the stable docs</a>
           </div>`;
 
