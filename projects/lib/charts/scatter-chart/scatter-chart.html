@@ -1,0 +1,125 @@
+@let active = activePoint();
+@if (showLegend() && resolvedSeries().length > 0) {
+  <!-- Every row keys its series by the series' own marker shape, the channel that tells
+       the points apart where the colours do not. Rows are tracked by position, so two
+       series that share a label are two rows. -->
+  <ul
+    wr-chart-legend
+    class="wr-scatter-chart__legend"
+    [items]="legendItems()"
+    [toggleable]="toggleableLegend()"
+    [(hiddenSeries)]="hiddenSeries"
+  ></ul>
+}
+
+<!-- Two columns: the y tick labels at inline start and the drawing beside them, with the
+     y axis' name above and the x tick labels and the x axis' name under the drawing
+     only, so their percentages are the drawing's. -->
+<div class="wr-scatter-chart__body">
+  @if (yLabel()) {
+    <div class="wr-scatter-chart__y-title">{{ yLabel() }}</div>
+  }
+
+  @if (showGrid()) {
+    <!-- HTML beside the drawing rather than `<text>` inside it, in flow, so the column is
+         exactly as wide as the longest label; each one hands the stylesheet the y of its
+         own gridline. Hidden, as the drawing is one image: its name is what is announced,
+         and the values are the data table's. -->
+    <div class="wr-scatter-chart__y-axis" aria-hidden="true">
+      @for (tick of yTicks(); track $index) {
+        <span class="wr-scatter-chart__y-tick" [style.--wr-scatter-chart-y]="tick.top">{{ tick.label }}</span>
+      }
+    </div>
+  }
+
+  <div
+    class="wr-scatter-chart__plot"
+    role="img"
+    [attr.aria-label]="resolvedAriaLabel()"
+    [style.height.px]="height()"
+    (mousemove)="onPointerMove($event)"
+    (mouseleave)="tip.leave($event)"
+  >
+    <!-- No viewBox: every position is a PERCENTAGE of the drawing, so nothing stretches.
+         A viewBox with `preserveAspectRatio="none"` would squash each marker with the
+         drawing, a circle into an oval and a square into a bar, and a scatter's marker is
+         its series' only channel besides colour. -->
+    <!-- Hidden as well as presentational: `img` already makes it so, but every point is
+         an `<svg>` of its own, and a tree that holds a node per point for thousands of
+         them is work for nothing. -->
+    <svg #svg class="wr-scatter-chart__svg" aria-hidden="true">
+      @if (showGrid()) {
+        @for (tick of yTicks(); track $index) {
+          <line
+            class="wr-scatter-chart__grid-line"
+            x1="0"
+            x2="100%"
+            [attr.y1]="`${tick.top}%`"
+            [attr.y2]="`${tick.top}%`"
+          />
+        }
+        @for (tick of xTicks(); track $index) {
+          <line
+            class="wr-scatter-chart__grid-line wr-scatter-chart__grid-line--x"
+            [attr.x1]="`${tick.left}%`"
+            [attr.x2]="`${tick.left}%`"
+            y1="0"
+            y2="100%"
+          />
+        }
+      }
+
+      @for (p of points(); track p.key) {
+        <!-- A nested `<svg>` placed by percentage, its marker drawn about its origin in
+             px: an SVG's `x` and `y` take a percentage where a `transform` does not, so
+             the marker sits on its point at any size and keeps its own. Its viewport is
+             the drawing's whole box, painted nowhere, and `overflow` lets the marker
+             reach outside it. -->
+        <svg
+          class="wr-scatter-chart__point"
+          [attr.x]="`${p.left}%`"
+          [attr.y]="`${p.top}%`"
+          overflow="visible"
+          [attr.data-series]="p.series"
+          [attr.data-x]="p.x"
+          [attr.data-y]="p.y"
+          [attr.data-size]="p.size"
+          [attr.data-radius]="p.r"
+          [attr.data-marker]="p.marker"
+        >
+          <path class="wr-scatter-chart__marker" [attr.d]="p.d" [attr.fill]="p.color" />
+        </svg>
+      }
+
+      @if (active) {
+        <!-- A ring of the point's own shape just outside it, so the reading is marked by
+             outline as well as by the tooltip's arrow. -->
+        <svg class="wr-scatter-chart__halo" [attr.x]="`${active.left}%`" [attr.y]="`${active.top}%`" overflow="visible">
+          <path [attr.d]="haloPath()" fill="none" [attr.stroke]="active.color" />
+        </svg>
+      }
+    </svg>
+  </div>
+
+  @if (showGrid()) {
+    <!-- The strip is as wide as the plot, and hands the stylesheet the distance between
+         two ticks; each label hands it the x of its gridline, as a percentage of the
+         drawing's width. -->
+    <div class="wr-scatter-chart__x-axis" aria-hidden="true" [style.--wr-scatter-chart-x-slot]="xSlot()">
+      @for (tick of xTicks(); track $index) {
+        <span class="wr-scatter-chart__x-tick" [style.--wr-scatter-chart-x]="tick.left">{{ tick.label }}</span>
+      }
+    </div>
+  }
+
+  @if (xLabel()) {
+    <div class="wr-scatter-chart__x-title">{{ xLabel() }}</div>
+  }
+</div>
+
+@if (dataTable()) {
+  <!-- The figures for a screen reader, beside the plot's `img` and never inside it:
+       `img` makes everything it holds presentational. Clipped to nothing by its own
+       stylesheet, so it takes no room and draws nothing. -->
+  <wr-chart-table [data]="tableData()" />
+}
