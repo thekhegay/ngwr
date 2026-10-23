@@ -34,6 +34,13 @@ jobs:
             tag="v$version"
             is_rc=$([[ "$version" == *-rc.* ]] && echo true || echo false)
             if [[ "$is_rc" == false && "$GITHUB_REF_NAME" != main ]]; then
+              # Syncing next with main after a stable release lands the release
+              # commit here too; its tag already exists, so there is nothing to do.
+              if git ls-remote --exit-code --tags origin "refs/tags/$tag" > /dev/null; then
+                echo "$tag is already released; $GITHUB_REF_NAME only synced with main."
+                echo "is_release=false" >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
               echo "::error::$version is a stable version on $GITHUB_REF_NAME; only main publishes stable releases."
               exit 1
             fi
