@@ -108,6 +108,9 @@ export const INSTALL = {
   "charts/calendar-heatmap": [
       { path: "ngwr/charts/calendar-heatmap", symbols: ["WrCalendarHeatmap"], declarables: ["WrCalendarHeatmap"], styled: true },
   ],
+  "charts/chart-legend": [
+      { path: "ngwr/charts/chart-legend", symbols: ["WrChartLegend"], declarables: ["WrChartLegend"], styled: true },
+  ],
   "charts/donut-chart": [
       { path: "ngwr/charts/donut-chart", symbols: ["WrDonutChart"], declarables: ["WrDonutChart"], styled: true },
   ],
@@ -119,6 +122,12 @@ export const INSTALL = {
   ],
   "charts/meter-group": [
       { path: "ngwr/charts/meter-group", symbols: ["WrMeterGroup"], declarables: ["WrMeterGroup"], styled: true },
+  ],
+  "charts/radar-chart": [
+      { path: "ngwr/charts/radar-chart", symbols: ["WrRadarChart"], declarables: ["WrRadarChart"], styled: true },
+  ],
+  "charts/scatter-chart": [
+      { path: "ngwr/charts/scatter-chart", symbols: ["WrScatterChart"], declarables: ["WrScatterChart"], styled: true },
   ],
   "charts/sparkline": [
       { path: "ngwr/charts/sparkline", symbols: ["WrSparkline"], declarables: ["WrSparkline"], styled: true },

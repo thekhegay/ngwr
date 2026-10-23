@@ -316,6 +316,17 @@
     "./charts/calendar-heatmap/testing": {
       "default": "./charts/calendar-heatmap/testing/public-api.ts"
     },
+    "./charts/chart-legend": {
+      "sass": "./charts/chart-legend/styles/_index.scss",
+      "default": "./charts/chart-legend/public-api.ts"
+    },
+    "./charts/chart-legend/testing": {
+      "default": "./charts/chart-legend/testing/public-api.ts"
+    },
+    "./charts/core": {
+      "sass": "./charts/core/styles/_index.scss",
+      "default": "./charts/core/public-api.ts"
+    },
     "./charts/donut-chart": {
       "sass": "./charts/donut-chart/styles/_index.scss",
       "default": "./charts/donut-chart/public-api.ts"
@@ -343,6 +354,20 @@
     },
     "./charts/meter-group/testing": {
       "default": "./charts/meter-group/testing/public-api.ts"
+    },
+    "./charts/radar-chart": {
+      "sass": "./charts/radar-chart/styles/_index.scss",
+      "default": "./charts/radar-chart/public-api.ts"
+    },
+    "./charts/radar-chart/testing": {
+      "default": "./charts/radar-chart/testing/public-api.ts"
+    },
+    "./charts/scatter-chart": {
+      "sass": "./charts/scatter-chart/styles/_index.scss",
+      "default": "./charts/scatter-chart/public-api.ts"
+    },
+    "./charts/scatter-chart/testing": {
+      "default": "./charts/scatter-chart/testing/public-api.ts"
     },
     "./charts/sparkline": {
       "sass": "./charts/sparkline/styles/_index.scss",

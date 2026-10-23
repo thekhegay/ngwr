@@ -14,8 +14,8 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 176 of 186 declarations are mapped: 0 carry no selector and
- * 10 are internal classes no entry point publishes. A deliberate subset,
+ * 180 of 191 declarations are mapped: 0 carry no selector and
+ * 11 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
 
@@ -59,6 +59,7 @@ export const SELECTORS = {
     "wr-carousel": { symbol: "WrCarousel", path: "ngwr/carousel" },
     "wr-carousel-slide": { symbol: "WrCarouselSlide", path: "ngwr/carousel" },
     "wr-cascader": { symbol: "WrCascader", path: "ngwr/cascader" },
+    "wr-chart-table": { symbol: "WrChartTable", path: "ngwr/charts/core" },
     "wr-checkbox": { symbol: "WrCheckbox", path: "ngwr/checkbox" },
     "wr-checkbox-group": { symbol: "WrCheckboxGroup", path: "ngwr/checkbox" },
     "wr-circular-text": { symbol: "WrCircularText", path: "ngwr/bits/circular-text" },
@@ -125,6 +126,7 @@ export const SELECTORS = {
     "wr-progress": { symbol: "WrProgress", path: "ngwr/progress" },
     "wr-pull-to-refresh": { symbol: "WrPullToRefresh", path: "ngwr/pull-to-refresh" },
     "wr-qr": { symbol: "WrQr", path: "ngwr/qr" },
+    "wr-radar-chart": { symbol: "WrRadarChart", path: "ngwr/charts/radar-chart" },
     "wr-radio": { symbol: "WrRadio", path: "ngwr/radio" },
     "wr-radio-group": { symbol: "WrRadioGroup", path: "ngwr/radio" },
     "wr-rating": { symbol: "WrRating", path: "ngwr/rating" },
@@ -133,6 +135,7 @@ export const SELECTORS = {
     "wr-result-404": { symbol: "WrResult404", path: "ngwr/result" },
     "wr-result-500": { symbol: "WrResult500", path: "ngwr/result" },
     "wr-rotating-text": { symbol: "WrRotatingText", path: "ngwr/bits/rotating-text" },
+    "wr-scatter-chart": { symbol: "WrScatterChart", path: "ngwr/charts/scatter-chart" },
     "wr-schema-form": { symbol: "WrSchemaForm", path: "ngwr/schema-form" },
     "wr-segmented": { symbol: "WrSegmented", path: "ngwr/segmented" },
     "wr-select": { symbol: "WrSelect", path: "ngwr/select" },
@@ -178,6 +181,7 @@ export const SELECTORS = {
   /** Attribute selectors, without the square brackets: `wrInput`. */
   attributes: {
     "wr-btn": { symbol: "WrButton", path: "ngwr/button" },
+    "wr-chart-legend": { symbol: "WrChartLegend", path: "ngwr/charts/chart-legend" },
     "wr-star-border": { symbol: "WrStarBorder", path: "ngwr/bits/star-border" },
     "wrAffix": { symbol: "WrAffix", path: "ngwr/affix" },
     "wrAutofocus": { symbol: "WrAutofocus", path: "ngwr/directives" },
@@ -263,10 +267,14 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/cascader",
   "ngwr/charts/bar-chart",
   "ngwr/charts/calendar-heatmap",
+  "ngwr/charts/chart-legend",
+  "ngwr/charts/core",
   "ngwr/charts/donut-chart",
   "ngwr/charts/gauge",
   "ngwr/charts/line-chart",
   "ngwr/charts/meter-group",
+  "ngwr/charts/radar-chart",
+  "ngwr/charts/scatter-chart",
   "ngwr/charts/sparkline",
   "ngwr/checkbox",
   "ngwr/collapse",

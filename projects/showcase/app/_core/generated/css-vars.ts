@@ -13,10 +13,10 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1256 hook(s) across 91 page(s). A property is here only when the
+ * 1321 hook(s) across 95 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
- * declares it also owns it: 24 declaration(s) are one component setting
+ * declares it also owns it: 27 declaration(s) are one component setting
  * another's hook (`--wr-icon-size` inside its own `<wr-icon>`) and belong on
  * the owner's page, not on the setter's.
  */
@@ -191,6 +191,26 @@ export const CSS_VARS = {
       { name: "--wr-calendar-heatmap-weekday-line-height", default: "var(--wr-leading-none)", scope: ".wr-calendar-heatmap" },
     ],
   },
+  "charts/chart-legend": {
+    subpath: "ngwr/charts/chart-legend",
+    vars: [
+      { name: "--wr-chart-legend-color", default: "var(--wr-color-on-surface)", scope: ":where(.wr-chart-legend)" },
+      { name: "--wr-chart-legend-dot-size", default: "0.625rem", scope: ":where(.wr-chart-legend)" },
+      { name: "--wr-chart-legend-font-size", default: "var(--wr-text-xs)", scope: ":where(.wr-chart-legend)" },
+      { name: "--wr-chart-legend-gap-x", default: "var(--wr-space-lg)", scope: ":where(.wr-chart-legend)" },
+      { name: "--wr-chart-legend-gap-y", default: "var(--wr-space-sm)", scope: ":where(.wr-chart-legend)" },
+      { name: "--wr-chart-legend-hidden-color", default: "var(--wr-color-on-surface-muted)", scope: ":where(.wr-chart-legend)" },
+      { name: "--wr-chart-legend-hidden-swatch-opacity", default: "0.35", scope: ":where(.wr-chart-legend)" },
+      { name: "--wr-chart-legend-item-gap", default: "var(--wr-space-sm)", scope: ":where(.wr-chart-legend)" },
+      { name: "--wr-chart-legend-label-font-weight", default: "inherit", scope: ":where(.wr-chart-legend)" },
+      { name: "--wr-chart-legend-marker-size", default: "0.75rem", scope: ":where(.wr-chart-legend)" },
+      { name: "--wr-chart-legend-toggle-hover-bg", default: "var(--wr-color-hover)", scope: ":where(.wr-chart-legend)" },
+      { name: "--wr-chart-legend-toggle-min-height", default: "1.5rem", scope: ":where(.wr-chart-legend)" },
+      { name: "--wr-chart-legend-toggle-padding-x", default: "var(--wr-space-xs)", scope: ":where(.wr-chart-legend)" },
+      { name: "--wr-chart-legend-toggle-radius", default: "var(--wr-border-radius-sm)", scope: ":where(.wr-chart-legend)" },
+      { name: "--wr-chart-legend-value-color", default: "var(--wr-color-on-surface-muted)", scope: ":where(.wr-chart-legend)" },
+    ],
+  },
   "charts/donut-chart": {
     subpath: "ngwr/charts/donut-chart",
     vars: [
@@ -223,6 +243,7 @@ export const CSS_VARS = {
   "charts/line-chart": {
     subpath: "ngwr/charts/line-chart",
     vars: [
+      { name: "--wr-line-chart-area-opacity", default: "0.15", scope: ".wr-line-chart", overrides: 1 },
       { name: "--wr-line-chart-font-family", default: "var(--wr-font-family-base)", scope: ".wr-line-chart" },
       { name: "--wr-line-chart-legend-column-gap", default: "var(--wr-space-lg)", scope: ".wr-line-chart__legend" },
       { name: "--wr-line-chart-legend-item-font-size", default: "var(--wr-text-xs)", scope: ".wr-line-chart__legend-item" },
@@ -246,6 +267,67 @@ export const CSS_VARS = {
       { name: "--wr-line-chart-tooltip-value-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-line-chart__tooltip-value" },
       { name: "--wr-line-chart-x-labels-font-size", default: "var(--wr-text-xs)", scope: ".wr-line-chart__x-labels" },
       { name: "--wr-line-chart-x-labels-margin-top", default: "var(--wr-space-xs)", scope: ".wr-line-chart__x-labels" },
+    ],
+  },
+  "charts/meter-group": {
+    subpath: "ngwr/charts/meter-group",
+    vars: [
+      { name: "--wr-meter-group-legend-gap-x", default: "var(--wr-space-lg)", scope: ".wr-meter-group__legend" },
+      { name: "--wr-meter-group-legend-gap-y", default: "var(--wr-space-sm)", scope: ".wr-meter-group__legend" },
+      { name: "--wr-meter-group-legend-item-font-size", default: "var(--wr-text-xs)", scope: ".wr-meter-group__legend-item" },
+      { name: "--wr-meter-group-legend-item-gap", default: "var(--wr-space-sm)", scope: ".wr-meter-group__legend-item" },
+      { name: "--wr-meter-group-legend-label-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-meter-group__legend-label" },
+    ],
+  },
+  "charts/radar-chart": {
+    subpath: "ngwr/charts/radar-chart",
+    vars: [
+      { name: "--wr-radar-chart-color", default: "var(--wr-color-on-surface)", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-crosshair-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-dot-size", default: "6px", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-fill-opacity", default: "0.15", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-font-family", default: "var(--wr-font-family-base)", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-gap", default: "var(--wr-space-lg)", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-grid-color", default: "color-mix(in srgb, var(--wr-border-base) 70%, transparent)", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-grid-width", default: "1px", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-gutter-x", default: "5rem", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-gutter-y", default: "calc(var(--wr-radar-chart-label-line-height) + var(--wr-radar-chart-label-gap))", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-hover-center", default: "var(--wr-color-surface)", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-label-color", default: "var(--wr-color-on-surface)", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-label-font-size", default: "var(--wr-text-xs)", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-label-gap", default: "var(--wr-space-sm)", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-label-line-height", default: "var(--wr-text-xs-leading)", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-label-max-width", default: "10rem", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-line-width", default: "2px", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-ring-label-bg", default: "color-mix(in srgb, var(--wr-color-surface) 80%, transparent)", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-ring-label-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-ring-label-offset", default: "var(--wr-space-xs)", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-ring-label-padding-x", default: "var(--wr-space-xs)", scope: ".wr-radar-chart" },
+      { name: "--wr-radar-chart-ring-label-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-radar-chart" },
+    ],
+  },
+  "charts/scatter-chart": {
+    subpath: "ngwr/charts/scatter-chart",
+    vars: [
+      { name: "--wr-scatter-chart-bubble-opacity", default: "0.7", scope: ".wr-scatter-chart" },
+      { name: "--wr-scatter-chart-color", default: "var(--wr-color-on-surface)", scope: ".wr-scatter-chart" },
+      { name: "--wr-scatter-chart-font-family", default: "var(--wr-font-family-base)", scope: ".wr-scatter-chart" },
+      { name: "--wr-scatter-chart-grid-color", default: "color-mix(in srgb, var(--wr-border-base) 70%, transparent)", scope: ".wr-scatter-chart", overrides: 1 },
+      { name: "--wr-scatter-chart-halo-width", default: "2px", scope: ".wr-scatter-chart" },
+      { name: "--wr-scatter-chart-legend-margin-bottom", default: "var(--wr-space-md)", scope: ".wr-scatter-chart" },
+      { name: "--wr-scatter-chart-plot-inset-x", default: "var(--wr-space-md)", scope: ".wr-scatter-chart" },
+      { name: "--wr-scatter-chart-plot-inset-y", default: "var(--wr-space-sm)", scope: ".wr-scatter-chart" },
+      { name: "--wr-scatter-chart-point-opacity", default: "1", scope: ".wr-scatter-chart", overrides: 1 },
+      { name: "--wr-scatter-chart-point-ring", default: "var(--wr-color-surface)", scope: ".wr-scatter-chart", overrides: 1 },
+      { name: "--wr-scatter-chart-point-ring-width", default: "1px", scope: ".wr-scatter-chart" },
+      { name: "--wr-scatter-chart-tick-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-scatter-chart" },
+      { name: "--wr-scatter-chart-tick-font-size", default: "var(--wr-text-xs)", scope: ".wr-scatter-chart" },
+      { name: "--wr-scatter-chart-tick-gap", default: "var(--wr-space-xs)", scope: ".wr-scatter-chart" },
+      { name: "--wr-scatter-chart-tick-line-height", default: "var(--wr-text-xs-leading)", scope: ".wr-scatter-chart" },
+      { name: "--wr-scatter-chart-title-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-scatter-chart" },
+      { name: "--wr-scatter-chart-title-font-size", default: "var(--wr-text-xs)", scope: ".wr-scatter-chart" },
+      { name: "--wr-scatter-chart-title-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-scatter-chart" },
+      { name: "--wr-scatter-chart-title-gap", default: "var(--wr-space-xs)", scope: ".wr-scatter-chart" },
     ],
   },
   "reference/components/alert": {
@@ -1095,6 +1177,9 @@ export const CSS_VARS = {
     subpath: "ngwr/popover",
     vars: [
       { name: "--wr-chart-tooltip-gap", default: "var(--wr-space-sm)", scope: ".wr-chart-tooltip" },
+      { name: "--wr-chart-tooltip-head-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-chart-tooltip__head" },
+      { name: "--wr-chart-tooltip-row-gap", default: "var(--wr-space-xs)", scope: ".wr-chart-tooltip" },
+      { name: "--wr-chart-tooltip-row-value-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-chart-tooltip__row-value" },
       { name: "--wr-chart-tooltip-value-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-chart-tooltip__value" },
       { name: "--wr-popover-border", default: "var(--wr-border-base)", scope: ".wr-popover-overlay > *" },
       { name: "--wr-popover-font-family", default: "var(--wr-font-family-base)", scope: ".wr-popover-overlay > *" },
