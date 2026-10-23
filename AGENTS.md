@@ -1242,7 +1242,7 @@ carries every step back to v6. **The newest section is the one a consumer
 follows** (`ng update ngwr`) — the guide is ordered newest-first for that reason.
 
 **Versioning.** **v15 is the current major line, on `main` and npm's
-`latest`;** `next` carries the major after it once that work starts. `projects/lib/package.json`,
+`latest`;** `next` carries the release after it, a minor or a major. `projects/lib/package.json`,
 the `NGWR_VERSION` constant, the `SECURITY.md` support table and
 `CHANGELOG.md` are written by `release:prepare`, so read the version from there
 rather than from this file, and never hand-edit any of the four. A FIFTH copy
@@ -1267,15 +1267,30 @@ written when the release PR is cut, so a feat or fix merged into main
 afterwards would ship in the tag with no line anywhere, and the job refuses
 until the Release PR workflow is run again with the same bump.
 
-**The next major lives on the `next` branch.** Its release candidates are cut
-by running the same workflow there with `bump: rc`: with breaking commits since
-the last stable tag it computes `15.0.0-rc.0` (then `-rc.1`, …), opens the
-release PR against `next` and stages npm under the `next` dist-tag. Every push
-to `next` redeploys `next.ngwr.dev` (`deploy-next.yml`, the `next` environment,
-no approval; the server marks the host noindex). The SECURITY table moves only
-with the stable release, and a stable version can only publish from `main`.
+**The next release lives on the `next` branch, and it is a minor as often as
+a major.** Its release candidates are cut by running the same workflow there
+with `bump: rc`, which reads the commits since the last stable tag: breaking
+ones give `16.0.0-rc.0`, library features (a `feat` not scoped `showcase`) give
+`15.1.0-rc.0`, anything else `15.0.1-rc.0`, and a later run counts the rc up.
+It opens the release PR against `next` and stages npm under the `next`
+dist-tag. Every push to `next` redeploys `next.ngwr.dev` (`deploy-next.yml`,
+the `next` environment, no approval; the server marks the host noindex), and
+its banner names the candidate, or no number before the first one. The SECURITY
+table moves only with a stable major, and a stable version can only publish
+from `main`.
 
-**Work for the next major branches from `next`, not from `main`.** Open the PR with
+**Shipping next as a stable release, and the two sites stay apart.** Merge
+`next` into `main` through a branch cut from it (`git switch -c ship-15.1
+origin/next`, then `gh pr create --base main`), never with `next` itself as the
+head: the repository deletes a merged head branch, and merging #974 deleted
+`next`. Then run the Release PR workflow on `main` with `minor` or `major`.
+After the release, bring `next` up to `main`. A stable release commit that
+reaches `next` that way neither redeploys next.ngwr.dev nor fails `Publish`
+(its tag already exists), and an rc on `next` never touches production:
+ngwr.dev deploys only on a stable release commit on `main`, and only a stable
+major archives the one it supersedes.
+
+**Work for the next release branches from `next`, not from `main`.** Open the PR with
 `gh pr create --base next`, since `gh` targets `main` by default, and resync
 after a merge with `git fetch --prune origin && git merge --ff-only origin/next`.
 **No PR CI and no nightly run on `next`**: `ci.yml` triggers on `main` only, and
