@@ -230,9 +230,23 @@ export const wrEs: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Gráfico de líneas',
+    areaLabel: 'Gráfico de áreas',
   },
   donutChart: {
     label: 'Gráfico de anillo',
+  },
+  chartLegend: {
+    toggleLabel: 'Mostrar u ocultar series',
+    hidden: 'oculto',
+  },
+  scatterChart: {
+    label: 'Gráfico de dispersión',
+    x: 'X',
+    y: 'Y',
+    size: 'Tamaño',
+  },
+  radarChart: {
+    label: 'Gráfico radial',
   },
   compare: {
     label: 'Divisor de comparación',

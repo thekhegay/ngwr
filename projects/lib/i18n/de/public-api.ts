@@ -238,9 +238,23 @@ export const wrDe: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Liniendiagramm',
+    areaLabel: 'Flächendiagramm',
   },
   donutChart: {
     label: 'Ringdiagramm',
+  },
+  chartLegend: {
+    toggleLabel: 'Sichtbarkeit der Datenreihen umschalten',
+    hidden: 'ausgeblendet',
+  },
+  scatterChart: {
+    label: 'Streudiagramm',
+    x: 'X',
+    y: 'Y',
+    size: 'Größe',
+  },
+  radarChart: {
+    label: 'Netzdiagramm',
   },
   compare: {
     label: 'Vergleichsregler',

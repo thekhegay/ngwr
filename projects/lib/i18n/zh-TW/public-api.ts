@@ -233,9 +233,23 @@ export const wrZhTw: WrI18nCatalog = {
   },
   lineChart: {
     label: '折線圖',
+    areaLabel: '區域圖',
   },
   donutChart: {
     label: '環圈圖',
+  },
+  chartLegend: {
+    toggleLabel: '切換數列顯示',
+    hidden: '已隱藏',
+  },
+  scatterChart: {
+    label: '散佈圖',
+    x: 'X',
+    y: 'Y',
+    size: '大小',
+  },
+  radarChart: {
+    label: '雷達圖',
   },
   compare: {
     label: '比較分隔線',

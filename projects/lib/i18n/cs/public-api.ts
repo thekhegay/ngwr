@@ -230,9 +230,23 @@ export const wrCs: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Spojnicový graf',
+    areaLabel: 'Plošný graf',
   },
   donutChart: {
     label: 'Prstencový graf',
+  },
+  chartLegend: {
+    toggleLabel: 'Přepnout viditelnost řad',
+    hidden: 'skryto',
+  },
+  scatterChart: {
+    label: 'Bodový graf',
+    x: 'X',
+    y: 'Y',
+    size: 'Velikost',
+  },
+  radarChart: {
+    label: 'Paprskový graf',
   },
   compare: {
     label: 'Oddělovač porovnání',

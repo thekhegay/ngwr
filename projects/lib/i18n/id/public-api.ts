@@ -230,9 +230,23 @@ export const wrId: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Diagram garis',
+    areaLabel: 'Diagram area',
   },
   donutChart: {
     label: 'Diagram donat',
+  },
+  chartLegend: {
+    toggleLabel: 'Tampilkan atau sembunyikan seri',
+    hidden: 'tersembunyi',
+  },
+  scatterChart: {
+    label: 'Diagram sebar',
+    x: 'X',
+    y: 'Y',
+    size: 'Ukuran',
+  },
+  radarChart: {
+    label: 'Diagram radar',
   },
   compare: {
     label: 'Pembatas perbandingan',

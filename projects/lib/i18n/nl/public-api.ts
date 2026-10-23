@@ -235,9 +235,23 @@ export const wrNl: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Lijndiagram',
+    areaLabel: 'Vlakdiagram',
   },
   donutChart: {
     label: 'Ringdiagram',
+  },
+  chartLegend: {
+    toggleLabel: 'Zichtbaarheid van reeksen wisselen',
+    hidden: 'verborgen',
+  },
+  scatterChart: {
+    label: 'Spreidingsdiagram',
+    x: 'X',
+    y: 'Y',
+    size: 'Grootte',
+  },
+  radarChart: {
+    label: 'Radardiagram',
   },
   compare: {
     label: 'Scheidingslijn voor vergelijking',

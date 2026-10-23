@@ -235,9 +235,23 @@ export const wrKo: WrI18nCatalog = {
   },
   lineChart: {
     label: '선 차트',
+    areaLabel: '영역 차트',
   },
   donutChart: {
     label: '도넛 차트',
+  },
+  chartLegend: {
+    toggleLabel: '계열 표시 전환',
+    hidden: '숨김',
+  },
+  scatterChart: {
+    label: '분산형 차트',
+    x: 'X',
+    y: 'Y',
+    size: '크기',
+  },
+  radarChart: {
+    label: '방사형 차트',
   },
   compare: {
     label: '비교 구분선',

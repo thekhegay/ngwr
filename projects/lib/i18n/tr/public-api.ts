@@ -240,9 +240,23 @@ export const wrTr: WrI18nCatalog = {
     // Belirtisiz ad tamlaması: Türkçede tamlanan ad iyelik eki alır — “çizgi
     // grafiği”, “halka grafiği”, tıpkı yukarıdaki “takvim ısı haritası” gibi.
     label: 'Çizgi grafiği',
+    areaLabel: 'Alan grafiği',
   },
   donutChart: {
     label: 'Halka grafiği',
+  },
+  chartLegend: {
+    toggleLabel: 'Serilerin görünürlüğünü değiştir',
+    hidden: 'gizli',
+  },
+  scatterChart: {
+    label: 'Dağılım grafiği',
+    x: 'X',
+    y: 'Y',
+    size: 'Boyut',
+  },
+  radarChart: {
+    label: 'Radar grafiği',
   },
   compare: {
     label: 'Karşılaştırma ayırıcısı',

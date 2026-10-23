@@ -245,9 +245,23 @@ export const wrPl: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Wykres liniowy',
+    areaLabel: 'Wykres warstwowy',
   },
   donutChart: {
     label: 'Wykres pierścieniowy',
+  },
+  chartLegend: {
+    toggleLabel: 'Przełącz widoczność serii',
+    hidden: 'ukryto',
+  },
+  scatterChart: {
+    label: 'Wykres punktowy',
+    x: 'X',
+    y: 'Y',
+    size: 'Rozmiar',
+  },
+  radarChart: {
+    label: 'Wykres radarowy',
   },
   compare: {
     label: 'Suwak porównania',

@@ -243,9 +243,23 @@ export const wrUk: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Лінійний графік',
+    areaLabel: 'Діаграма з областями',
   },
   donutChart: {
     label: 'Кільцева діаграма',
+  },
+  chartLegend: {
+    toggleLabel: 'Показати або приховати ряди',
+    hidden: 'приховано',
+  },
+  scatterChart: {
+    label: 'Точкова діаграма',
+    x: 'X',
+    y: 'Y',
+    size: 'Розмір',
+  },
+  radarChart: {
+    label: 'Пелюсткова діаграма',
   },
   compare: {
     label: 'Роздільник порівняння',

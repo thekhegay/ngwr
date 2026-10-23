@@ -239,9 +239,23 @@ export const wrVi: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Biểu đồ đường',
+    areaLabel: 'Biểu đồ vùng',
   },
   donutChart: {
     label: 'Biểu đồ vành khuyên',
+  },
+  chartLegend: {
+    toggleLabel: 'Bật/tắt hiển thị chuỗi dữ liệu',
+    hidden: 'đã ẩn',
+  },
+  scatterChart: {
+    label: 'Biểu đồ phân tán',
+    x: 'X',
+    y: 'Y',
+    size: 'Kích thước',
+  },
+  radarChart: {
+    label: 'Biểu đồ radar',
   },
   compare: {
     label: 'Thanh trượt so sánh',

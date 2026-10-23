@@ -243,9 +243,23 @@ export const wrHe: WrI18nCatalog = {
   },
   lineChart: {
     label: 'תרשים קווים',
+    areaLabel: 'תרשים שטח',
   },
   donutChart: {
     label: 'תרשים טבעת',
+  },
+  chartLegend: {
+    toggleLabel: 'הצגה או הסתרה של סדרות',
+    hidden: 'מוסתר',
+  },
+  scatterChart: {
+    label: 'תרשים פיזור',
+    x: 'X',
+    y: 'Y',
+    size: 'גודל',
+  },
+  radarChart: {
+    label: 'תרשים רדאר',
   },
   compare: {
     label: 'מפריד ההשוואה',

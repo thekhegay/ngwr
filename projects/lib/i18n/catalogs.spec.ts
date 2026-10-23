@@ -40,7 +40,7 @@ import type { WrI18nCatalog } from './i18n-config';
  * A row carries what only that locale knows: the script its prose is written
  * in (non-Latin only) and the keys whose value is correctly the same as
  * English. `COMMON` is what every locale shares: key caps, colour-channel
- * letters, format names and bare ratios.
+ * letters, axis letters, format names and bare ratios.
  */
 const COMMON = [
   'commandPalette.escHint',
@@ -60,6 +60,8 @@ const COMMON = [
   'transfer.count',
   'fileUpload.size',
   'editor.keyAlt',
+  'scatterChart.x',
+  'scatterChart.y',
 ];
 
 interface Row {

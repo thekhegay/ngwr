@@ -235,9 +235,23 @@ export const wrRu: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Линейный график',
+    areaLabel: 'Диаграмма с областями',
   },
   donutChart: {
     label: 'Круговая диаграмма',
+  },
+  chartLegend: {
+    toggleLabel: 'Показать или скрыть ряды',
+    hidden: 'скрыто',
+  },
+  scatterChart: {
+    label: 'Точечная диаграмма',
+    x: 'X',
+    y: 'Y',
+    size: 'Размер',
+  },
+  radarChart: {
+    label: 'Лепестковая диаграмма',
   },
   compare: {
     label: 'Разделитель сравнения',

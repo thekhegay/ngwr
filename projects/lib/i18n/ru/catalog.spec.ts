@@ -13,8 +13,8 @@ import { expectCatalogContract } from '../catalog-contract';
 /**
  * The values that are correctly identical to English: initialisms and key caps
  * Russian spells the same way, single-letter colour channels (`R` `G` `B`, `H`
- * `S` `L` — the same letters in a Russian colour picker), and a bare numeric
- * ratio with no words in it.
+ * `S` `L` — the same letters in a Russian colour picker), the scatter chart's axis
+ * letters (`X` `Y`, as in «ось X»), and a bare numeric ratio with no words in it.
  *
  * The editor's modifier key caps (`Ctrl` `Shift` `Alt`) are what a Russian
  * keyboard prints.
@@ -37,6 +37,8 @@ const SHARED_WITH_ENGLISH = new Set([
   'editor.keyCtrl',
   'editor.keyShift',
   'editor.keyAlt',
+  'scatterChart.x',
+  'scatterChart.y',
 ]);
 
 describe('wrRu', () => {

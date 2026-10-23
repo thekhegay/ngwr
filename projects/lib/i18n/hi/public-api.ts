@@ -230,9 +230,23 @@ export const wrHi: WrI18nCatalog = {
   },
   lineChart: {
     label: 'लाइन चार्ट',
+    areaLabel: 'एरिया चार्ट',
   },
   donutChart: {
     label: 'डोनट चार्ट',
+  },
+  chartLegend: {
+    toggleLabel: 'सीरीज़ दिखाएँ या छिपाएँ',
+    hidden: 'छिपा हुआ',
+  },
+  scatterChart: {
+    label: 'स्कैटर चार्ट',
+    x: 'X',
+    y: 'Y',
+    size: 'आकार',
+  },
+  radarChart: {
+    label: 'रडार चार्ट',
   },
   compare: {
     label: 'तुलना विभाजक',

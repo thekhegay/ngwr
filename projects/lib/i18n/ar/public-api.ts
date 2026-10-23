@@ -239,9 +239,23 @@ export const wrAr: WrI18nCatalog = {
   },
   lineChart: {
     label: 'مخطط خطي',
+    areaLabel: 'مخطط مساحي',
   },
   donutChart: {
     label: 'مخطط دائري مجوف',
+  },
+  chartLegend: {
+    toggleLabel: 'إظهار السلاسل أو إخفاؤها',
+    hidden: 'مخفية',
+  },
+  scatterChart: {
+    label: 'مخطط التشتت',
+    x: 'X',
+    y: 'Y',
+    size: 'الحجم',
+  },
+  radarChart: {
+    label: 'مخطط راداري',
   },
   compare: {
     label: 'فاصل المقارنة',

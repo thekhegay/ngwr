@@ -228,9 +228,23 @@ export const wrZh: WrI18nCatalog = {
   },
   lineChart: {
     label: '折线图',
+    areaLabel: '面积图',
   },
   donutChart: {
     label: '环形图',
+  },
+  chartLegend: {
+    toggleLabel: '切换系列显示',
+    hidden: '已隐藏',
+  },
+  scatterChart: {
+    label: '散点图',
+    x: 'X',
+    y: 'Y',
+    size: '大小',
+  },
+  radarChart: {
+    label: '雷达图',
   },
   compare: {
     label: '对比分隔条',

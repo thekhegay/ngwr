@@ -313,9 +313,27 @@ export const wrEn: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Line chart',
+    areaLabel: 'Area chart',
   },
   donutChart: {
     label: 'Donut chart',
+  },
+  // The legend every chart draws, and the one apps place themselves. `toggleLabel`
+  // names the list when its rows are buttons; `hidden` is a lowercase status word,
+  // the way `stepper.completed` is one, read after a hidden row's name.
+  chartLegend: {
+    toggleLabel: 'Toggle series visibility',
+    hidden: 'hidden',
+  },
+  // `x` and `y` are the axes' names, the letters every locale writes them with.
+  scatterChart: {
+    label: 'Scatter chart',
+    x: 'X',
+    y: 'Y',
+    size: 'Size',
+  },
+  radarChart: {
+    label: 'Radar chart',
   },
   compare: {
     label: 'Comparison divider',

@@ -235,9 +235,23 @@ export const wrIt: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Grafico a linee',
+    areaLabel: 'Grafico ad area',
   },
   donutChart: {
     label: 'Grafico ad anello',
+  },
+  chartLegend: {
+    toggleLabel: 'Mostra o nascondi le serie',
+    hidden: 'nascosto',
+  },
+  scatterChart: {
+    label: 'Grafico a dispersione',
+    x: 'X',
+    y: 'Y',
+    size: 'Dimensione',
+  },
+  radarChart: {
+    label: 'Grafico radar',
   },
   compare: {
     label: 'Divisore di confronto',

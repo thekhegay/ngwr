@@ -236,9 +236,23 @@ export const wrFr: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Graphique en courbes',
+    areaLabel: 'Graphique en aires',
   },
   donutChart: {
     label: 'Graphique en anneau',
+  },
+  chartLegend: {
+    toggleLabel: 'Afficher ou masquer les séries',
+    hidden: 'masqué',
+  },
+  scatterChart: {
+    label: 'Nuage de points',
+    x: 'X',
+    y: 'Y',
+    size: 'Taille',
+  },
+  radarChart: {
+    label: 'Graphique en radar',
   },
   compare: {
     label: 'Séparateur de comparaison',

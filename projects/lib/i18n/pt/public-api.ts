@@ -234,9 +234,23 @@ export const wrPt: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Gráfico de linhas',
+    areaLabel: 'Gráfico de área',
   },
   donutChart: {
     label: 'Gráfico de anel',
+  },
+  chartLegend: {
+    toggleLabel: 'Mostrar ou ocultar séries',
+    hidden: 'oculto',
+  },
+  scatterChart: {
+    label: 'Gráfico de dispersão',
+    x: 'X',
+    y: 'Y',
+    size: 'Tamanho',
+  },
+  radarChart: {
+    label: 'Gráfico de radar',
   },
   compare: {
     label: 'Divisor de comparação',

@@ -234,9 +234,23 @@ export const wrJa: WrI18nCatalog = {
   },
   lineChart: {
     label: '折れ線グラフ',
+    areaLabel: '面グラフ',
   },
   donutChart: {
     label: 'ドーナツグラフ',
+  },
+  chartLegend: {
+    toggleLabel: '系列の表示を切り替え',
+    hidden: '非表示',
+  },
+  scatterChart: {
+    label: '散布図',
+    x: 'X',
+    y: 'Y',
+    size: 'サイズ',
+  },
+  radarChart: {
+    label: 'レーダーチャート',
   },
   compare: {
     label: '比較スライダー',

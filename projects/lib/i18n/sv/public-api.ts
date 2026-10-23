@@ -230,9 +230,23 @@ export const wrSv: WrI18nCatalog = {
   },
   lineChart: {
     label: 'Linjediagram',
+    areaLabel: 'Ytdiagram',
   },
   donutChart: {
     label: 'Ringdiagram',
+  },
+  chartLegend: {
+    toggleLabel: 'Växla synlighet för serier',
+    hidden: 'dold',
+  },
+  scatterChart: {
+    label: 'Punktdiagram',
+    x: 'X',
+    y: 'Y',
+    size: 'Storlek',
+  },
+  radarChart: {
+    label: 'Polärdiagram',
   },
   compare: {
     label: 'Skiljelinje för jämförelse',
