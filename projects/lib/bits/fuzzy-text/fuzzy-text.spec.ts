@@ -300,6 +300,36 @@ describe('WrFuzzyText', () => {
     expect(readable()!.textContent).toBe('404');
   });
 
+  it('redraws the still copy in the new colours when the scheme switches', async () => {
+    withContext();
+    await mount([{ provide: WrPlatform, useValue: reducedMotion }], host => {
+      (fixture.nativeElement as HTMLElement).style.setProperty('--probe', 'rgb(1, 2, 3)');
+      host.color.set('var(--probe)');
+    });
+    expect([stills, fills]).toEqual([1, ['rgb(1, 2, 3)']]);
+
+    // jsdom resolves every `light-dark()` to its light half, so the switch is
+    // staged on the colour itself: the new value is in place BEFORE the scheme
+    // moves, and only the scheme switch may bring it to the canvas.
+    (fixture.nativeElement as HTMLElement).style.setProperty('--probe', 'rgb(4, 5, 6)');
+    runFrame(1000);
+    expect(stills, 'a still copy schedules nothing on its own').toBe(1);
+
+    const html = document.documentElement;
+    try {
+      html.style.colorScheme = 'dark';
+      await flush();
+      expect([stills, fills]).toEqual([2, ['rgb(1, 2, 3)', 'rgb(4, 5, 6)']]);
+
+      // A switch that resolves to the same colours draws nothing.
+      html.style.colorScheme = 'light';
+      await flush();
+      expect(stills).toBe(2);
+    } finally {
+      html.style.removeProperty('color-scheme');
+    }
+  });
+
   it('slides one slice per row of the text, frame after frame', async () => {
     withContext();
     await mount();

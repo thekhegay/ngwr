@@ -20,6 +20,7 @@ import {
   PLATFORM_ID,
   ViewEncapsulation,
   afterNextRender,
+  afterRenderEffect,
   computed,
   effect,
   inject,
@@ -43,10 +44,25 @@ function isNode(item: WrMarqueeItem): item is WrMarqueeNode {
 }
 
 /**
+ * What takes a tab stop of its own inside an item. Not `getFocusableElements()`,
+ * which drops anything without a layout box: whether the strip already has a
+ * stop is a question about its markup, and it is asked of the one copy left.
+ */
+const FOCUSABLE =
+  'a[href], area[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), ' +
+  'select:not([disabled]), textarea:not([disabled]), iframe, [contenteditable]:not([contenteditable="false"]), ' +
+  '[tabindex]:not([tabindex="-1"])';
+
+/**
  * Endless horizontal marquee. Auto-duplicates the items list until it
  * covers the container width, then animates the track with a smooth
  * rAF-driven scroll. Optional edge fades, scale-on-hover, and pause /
  * variable-speed hover behaviour.
+ *
+ * Under `prefers-reduced-motion` the strip stops moving and becomes a plain
+ * horizontal scroller instead: one copy of the items, no edge fades, and a tab
+ * stop on the region itself when no item takes one, so every item stays in
+ * reach of a pointer and of the keyboard.
  *
  * @example
  * ```html
@@ -76,8 +92,10 @@ function isNode(item: WrMarqueeItem): item is WrMarqueeNode {
     '[style.--wr-marquee-gap.px]': 'gap()',
     '[style.--wr-marquee-height.px]': 'itemHeight()',
     '[style.--wr-marquee-fade-color]': 'fadeOutColor() || null',
+    '[class.wr-marquee--static]': 'isStatic()',
     '[attr.role]': '"region"',
     '[attr.aria-label]': 'resolvedAriaLabel()',
+    '[attr.tabindex]': 'scrollerTabIndex()',
   },
 })
 export class WrMarquee {
@@ -147,7 +165,28 @@ export class WrMarquee {
   protected readonly copyCount = signal(MIN_COPIES);
   protected readonly isHovered = signal(false);
 
-  protected readonly copyIndices = computed(() => Array.from({ length: this.copyCount() }, (_, i) => i));
+  /**
+   * Reduced motion, read live. The loop stops, and a frozen strip would leave
+   * every item past the edge out of reach — so the host scrolls instead
+   * (`.wr-marquee--static`), and the duplicate copies, which exist only to hide
+   * the seam of a loop, are not rendered.
+   */
+  protected readonly isStatic = this.platform.prefersReducedMotion;
+
+  protected readonly copyIndices = computed(() =>
+    this.isStatic() ? [0] : Array.from({ length: this.copyCount() }, (_, i) => i)
+  );
+
+  /** Whether an item already takes a tab stop, which the keyboard can scroll the strip to. */
+  private readonly hasFocusableItem = signal(false);
+
+  /**
+   * The static strip is a scroll container, and one the keyboard cannot reach
+   * cannot be scrolled from it. A focused link scrolls itself into view, so the
+   * region takes a stop of its own only when no item has one. It carries the
+   * region's name.
+   */
+  protected readonly scrollerTabIndex = computed(() => (this.isStatic() && !this.hasFocusableItem() ? 0 : null));
 
   /** Resolved hover speed: `hoverSpeed` overrides, else 0 when `pauseOnHover`, else live. */
   private readonly effectiveHoverSpeed = computed<number | undefined>(() => {
@@ -184,7 +223,20 @@ export class WrMarquee {
         this.trackEl().nativeElement.style.transform = '';
         return;
       }
+      // The static strip is a scroller, and an `overflow: hidden` host keeps
+      // whatever offset it was left at: the loop would start shifted, with the
+      // edge fades (placed inside the scrolled box) sitting mid-strip.
+      this.host.nativeElement.scrollLeft = 0;
       onCleanup(this.startLoop());
+    });
+
+    // Asked of the rendered copy rather than of `items`: a template node can
+    // hold a button of its own, and only the DOM knows.
+    afterRenderEffect(() => {
+      this.items();
+      this.isStatic();
+      const first = this.trackEl().nativeElement.querySelector('.wr-marquee__list');
+      this.hasFocusableItem.set(first?.querySelector(FOCUSABLE) != null);
     });
 
     // Re-measure on input changes that affect layout (items, gap, height).

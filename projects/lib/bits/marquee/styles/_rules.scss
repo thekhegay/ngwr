@@ -153,6 +153,39 @@
     );
   }
 
+  // Reduced motion. The loop is off and the component renders one copy, so a
+  // frozen `overflow: hidden` strip would put every item past the edge out of
+  // reach; the host scrolls instead. It is the named region, and it takes a tab
+  // stop of its own when no item has one (the component decides), so the
+  // keyboard can scroll it. Set from the live preference rather than from the
+  // media query below, because the copies that query cannot remove are what
+  // would scroll into view.
+  &--static {
+    overflow-x: auto;
+    // Not `visible`: next to an `auto` axis it computes to `auto`, and the
+    // scale-on-hover padding is sized to keep a scaled item inside the box.
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+
+    // The ring is written from the shared `--wr-focus-ring-*` tokens, the way
+    // `theme.focus-ring` writes it (see `wr-decrypt-text`), and drawn INSIDE the
+    // box: the strip is full width, so an outset ring is cut off by whatever
+    // clips the page around it.
+    &:focus-visible {
+      outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+      outline-offset: calc(var(--wr-focus-ring-width) * -1);
+      box-shadow: inset 0 0 0 calc(var(--wr-focus-ring-width) + var(--wr-focus-ring-offset)) var(--wr-focus-ring-halo);
+    }
+  }
+
+  // The fades hide a seam that a still strip does not have, and on a scroller
+  // they would sit over the first and last items for good — absolutely placed
+  // inside the scroll container, they scroll away with the content.
+  &--static::before,
+  &--static::after {
+    display: none;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .wr-marquee__track {
       transform: translate3d(0, 0, 0) !important;

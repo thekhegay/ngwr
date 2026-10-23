@@ -85,7 +85,7 @@ onWin(): void {
     {
       name: 'WrConfetti.fire(opts?)',
       description:
-        'Fires a confetti burst. Options: `count`, `spread`, `angle` (90 = up, 0 = right), `velocity`, `gravity`, `drag`, `origin`, `colors`, `size`, `ttl`.',
+        'Fires a confetti burst. Options: `count`, `spread`, `angle` (90 = up, 0 = right), `velocity`, `gravity`, `drag`, `origin`, `colors` (any CSS colour or token; the theme intents by default, read at fire time so dark mode recolours), `size`, `ttl`.',
       type: 'service method',
       default: '—',
     },

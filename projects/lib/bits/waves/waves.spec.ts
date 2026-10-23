@@ -202,6 +202,27 @@ describe('WrWaves', () => {
     expect(painted).toBe(1);
   });
 
+  it('redraws the still grid in the new colour when the scheme switches', async () => {
+    withContext();
+    await mount([{ provide: WrPlatform, useValue: reducedMotion }]);
+    // jsdom resolves every `light-dark()` to its light half, so the switch is
+    // staged on the hook itself: the new value is in place BEFORE the scheme
+    // moves, and only the scheme switch may bring it to the canvas.
+    waves()!.style.setProperty('--wr-waves-line-color', 'rgb(255, 0, 0)');
+    runFrame();
+    expect(painted, 'a still grid schedules nothing on its own').toBe(1);
+
+    document.documentElement.style.colorScheme = 'dark';
+    try {
+      await new Promise(resolve => setTimeout(resolve));
+
+      expect(painted).toBe(2);
+      expect(strokes.at(-1)).toBe('rgb(255, 0, 0)');
+    } finally {
+      document.documentElement.style.removeProperty('color-scheme');
+    }
+  });
+
   it('keeps painting frame after frame when motion is allowed', async () => {
     withContext();
     await mount();

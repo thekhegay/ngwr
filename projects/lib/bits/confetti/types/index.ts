@@ -26,7 +26,10 @@ export interface WrConfettiOptions {
   readonly origin?: { readonly x: number; readonly y: number };
   /**
    * Color palette — any CSS colour each, a `var()` token or a `light-dark()` pair
-   * included, resolved when the burst is fired. @default ngwr brand colors
+   * included, resolved when the burst is fired. The default reads the theme's
+   * intent tokens (`primary`, `success-light`, `warning`, `danger`,
+   * `danger-light`, `info`), so it follows the colour scheme.
+   * @default theme intent tokens
    */
   readonly colors?: readonly string[];
   /** Particle frame size in px. @default 8 */

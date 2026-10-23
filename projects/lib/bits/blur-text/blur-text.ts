@@ -51,6 +51,10 @@ function splitPieces(text: string, unit: WrBlurTextUnit): readonly Piece[] {
  * piece in from a blurred / offset state through a brief mid-step into
  * the steady state. Triggers when the host enters the viewport.
  *
+ * Text that was server-rendered and is being hydrated is already on screen, so
+ * it is left as it is: the entrance plays for a host created on the client and
+ * whenever the text changes.
+ *
  * @example
  * ```html
  * <wr-blur-text
@@ -117,6 +121,13 @@ export class WrBlurText {
   private hasAnimated = false;
 
   /**
+   * Whether the entrance is skipped because the text is already on screen: the
+   * component booted over server-rendered markup, which hydration reuses as it
+   * stands. Cleared by the first change to the text, which animates as usual.
+   */
+  private skipEntrance = false;
+
+  /**
    * The ONE observer, replaced rather than stacked.
    *
    * `startObserver()` used to `new IntersectionObserver(…)` and register its own
@@ -144,10 +155,25 @@ export class WrBlurText {
       this.destroyed = true;
       this.observer?.disconnect();
     });
+
+    // Hydration reuses the server's DOM, so a prerendered host reaches its
+    // constructor already holding the readable copy and the pieces, painted at
+    // rest. Blurring them out to play the entrance again is a flash of text the
+    // visitor was already reading. A host created on the client (a navigation,
+    // an `@if`) is empty here, because its template renders after the
+    // constructor, and animates as it always did. Read from the DOM: Angular
+    // exposes no public hydration flag, and what matters is whether the text is
+    // already on screen.
+    this.skipEntrance = this.host.nativeElement.querySelector(':scope > .wr-blur-text__sr-only') !== null;
+
     afterNextRender(() => this.startObserver());
+    // The first run is the initial text, which the skip above still applies to.
+    let initial = true;
     effect(() => {
       this.text();
       this.animateBy();
+      if (!initial) this.skipEntrance = false;
+      initial = false;
       this.hasAnimated = false;
       queueMicrotask(() => this.startObserver());
     });
@@ -177,9 +203,10 @@ export class WrBlurText {
     if (this.hasAnimated) return;
     this.hasAnimated = true;
 
-    // Reduced motion: pieces already render clear and in place — skip
-    // the blur tween and report completion right away.
-    if (this.platform.prefersReducedMotion()) {
+    // Reduced motion, or text that hydration found already on screen: the
+    // pieces render clear and in place — skip the blur tween and report
+    // completion right away.
+    if (this.platform.prefersReducedMotion() || this.skipEntrance) {
       this.animationComplete.emit();
       return;
     }

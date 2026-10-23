@@ -5,6 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { WrMarquee, type WrMarqueeItem } from 'ngwr/bits/marquee';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
+import { WrPlatform } from 'ngwr/platform';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrMarqueeHarness } from './wr-marquee-harness';
@@ -93,6 +94,26 @@ describe('WrMarqueeHarness', () => {
 
     // The copy count is decided by measurement, so it sits at the floor of 2 here.
     expect(await harness.getCopyCount()).toBeGreaterThanOrEqual(2);
+    expect(await harness.getAnnouncedCopyCount()).toBe(1);
+  });
+
+  it('reads a running loop as not scrollable', async () => {
+    expect(await (await marquee()).isScrollable()).toBe(false);
+  });
+
+  it('reads the reduced-motion strip as a scroller with one copy', async () => {
+    fixture.destroy();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: WrPlatform, useValue: { isBrowser: true, prefersReducedMotion: signal(true) } }],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
+    const harness = await marquee();
+
+    expect(await harness.isScrollable()).toBe(true);
+    expect(await harness.getCopyCount()).toBe(1);
     expect(await harness.getAnnouncedCopyCount()).toBe(1);
   });
 

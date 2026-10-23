@@ -1,5 +1,14 @@
-import { Component, PLATFORM_ID, signal } from '@angular/core';
+import {
+  type ApplicationRef,
+  Component,
+  PLATFORM_ID,
+  provideZonelessChangeDetection,
+  signal,
+  ɵsetDocument,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { type BootstrapContext, bootstrapApplication, provideClientHydration } from '@angular/platform-browser';
+import { ɵENABLE_DOM_EMULATION, provideServerRendering, renderApplication } from '@angular/platform-server';
 
 // Through the ENTRY POINT, deliberately: the two unions used to be file-local
 // aliases called `Unit` / `Direction`, so the `.d.ts` and the generated API table
@@ -246,5 +255,144 @@ describe('WrBlurText', () => {
       finishAll();
       expect(warn.mock.calls.map(args => args.map(String).join(' ')).filter(m => m.includes('NG0953'))).toEqual([]);
     });
+  });
+});
+
+@Component({
+  selector: 'wr-test-ssr-blur-root',
+  imports: [WrBlurText],
+  template: `<wr-blur-text [text]="text()" (animationComplete)="done = done + 1" />`,
+})
+class SsrRoot {
+  readonly text = signal('Hi there');
+  done = 0;
+}
+
+/**
+ * The hydration half of `split-text.spec.ts`, where the reasoning lives: the root
+ * is rendered for real with `@angular/platform-server` and hydrated in jsdom with
+ * `provideClientHydration()`, and what is read is whether a blur tween started.
+ */
+describe('WrBlurText over server-rendered markup', () => {
+  let tweens: number;
+  let observers: { fire: () => void; connected: boolean }[];
+  let app: ApplicationRef | null;
+  let animateBefore: PropertyDescriptor | undefined;
+
+  const pieces = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('.wr-blur-text__piece')];
+
+  /**
+   * Renders on a document of its own, with platform-server's DOM emulation off.
+   * The builder runs vitest non-isolated, so every spec file in this worker shares
+   * one global scope, and the emulation replaces `Event`, `Node` and the rest with
+   * domino's for every file that runs after this one — a harness dispatching a
+   * jsdom event then fails three files away. The server platform also points
+   * core's document reference at the one it rendered on, which is handed back.
+   */
+  const serverRender = async (): Promise<string> => {
+    const doc = document.implementation.createHTMLDocument('');
+    doc.body.innerHTML = '<wr-test-ssr-blur-root></wr-test-ssr-blur-root>';
+    try {
+      const html = await renderApplication(
+        (context: BootstrapContext) =>
+          bootstrapApplication(
+            SsrRoot,
+            { providers: [provideServerRendering(), provideZonelessChangeDetection(), provideClientHydration()] },
+            context
+          ),
+        { document: doc, platformProviders: [{ provide: ɵENABLE_DOM_EMULATION, useValue: false }] }
+      );
+      return /<body>([\s\S]*)<\/body>/.exec(html)![1];
+    } finally {
+      ɵsetDocument(document);
+    }
+  };
+
+  /** Bootstraps over `body`, or over whatever the page already holds when it is `null`. */
+  const boot = async (body: string | null, hydrate: boolean): Promise<SsrRoot> => {
+    if (body !== null) document.body.innerHTML = body;
+    app = await bootstrapApplication(SsrRoot, {
+      providers: [provideZonelessChangeDetection(), ...(hydrate ? [provideClientHydration()] : [])],
+    });
+    await app.whenStable();
+    return app.components[0].instance as SsrRoot;
+  };
+
+  const enterViewport = async (): Promise<void> => {
+    await new Promise(resolve => setTimeout(resolve));
+    for (const observer of observers.filter(o => o.connected)) observer.fire();
+    await app!.whenStable();
+  };
+
+  beforeEach(() => {
+    tweens = 0;
+    observers = [];
+    app = null;
+    const records = observers;
+    class StubObserver {
+      private readonly record = { fire: (): void => undefined, connected: false };
+      constructor(cb: IntersectionObserverCallback) {
+        this.record.fire = () =>
+          cb([{ isIntersecting: true } as IntersectionObserverEntry], this as unknown as IntersectionObserver);
+        records.push(this.record);
+      }
+      observe(): void {
+        this.record.connected = true;
+      }
+      disconnect(): void {
+        this.record.connected = false;
+      }
+    }
+    vi.stubGlobal('IntersectionObserver', StubObserver);
+    animateBefore = Object.getOwnPropertyDescriptor(Element.prototype, 'animate');
+    Element.prototype.animate = function () {
+      tweens++;
+      return { cancel: () => undefined, onfinish: null } as unknown as Animation;
+    };
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(console, 'info').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    app?.destroy();
+    document.body.innerHTML = '';
+    if (animateBefore) Object.defineProperty(Element.prototype, 'animate', animateBefore);
+    else delete (Element.prototype as Partial<Element>).animate;
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('leaves hydrated text where the server painted it', async () => {
+    document.body.innerHTML = await serverRender();
+    const painted = pieces()[0];
+    const root = await boot(null, true);
+    expect(pieces()[0]).toBe(painted);
+
+    await enterViewport();
+
+    expect(tweens).toBe(0);
+    expect(pieces().map(piece => piece.style.filter)).toEqual(pieces().map(() => ''));
+    expect(root.done).toBe(1);
+  });
+
+  it('animates a host created on the client', async () => {
+    await boot('<wr-test-ssr-blur-root></wr-test-ssr-blur-root>', false);
+
+    await enterViewport();
+
+    expect(tweens).toBe(pieces().length);
+    expect(tweens).toBeGreaterThan(0);
+  });
+
+  it('animates hydrated text once the text changes', async () => {
+    const root = await boot(await serverRender(), true);
+    await enterViewport();
+    expect(tweens).toBe(0);
+
+    root.text.set('Hello again world');
+    await app!.whenStable();
+    await enterViewport();
+
+    expect(tweens).toBe(3);
   });
 });

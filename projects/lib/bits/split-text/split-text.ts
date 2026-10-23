@@ -65,6 +65,10 @@ function motionToStyle(m: WrSplitTextMotion): { opacity: number; transform: stri
  * staggers each piece in from a `from` motion state to a `to` motion
  * state when the host scrolls into view. Whitespace is preserved.
  *
+ * Text that was server-rendered and is being hydrated is already on screen, so
+ * it is left as it is: the entrance plays for a host created on the client and
+ * whenever the text changes.
+ *
  * @example
  * ```html
  * <wr-split-text
@@ -141,6 +145,13 @@ export class WrSplitText {
   private hasAnimated = false;
 
   /**
+   * Whether the entrance is skipped because the text is already on screen: the
+   * component booted over server-rendered markup, which hydration reuses as it
+   * stands. Cleared by the first change to the text, which animates as usual.
+   */
+  private skipEntrance = false;
+
+  /**
    * The ONE observer, replaced rather than stacked.
    *
    * `startObserver()` used to `new IntersectionObserver(…)` and register its own
@@ -170,12 +181,26 @@ export class WrSplitText {
       this.observer?.disconnect();
     });
 
+    // Hydration reuses the server's DOM, so a prerendered host reaches its
+    // constructor already holding the readable copy and the pieces, painted at
+    // rest — the visitor may have been reading them for seconds. Blanking them to
+    // play the entrance again is a flash of text already read. A host created on
+    // the client (a navigation, an `@if`) is empty here, because its template
+    // renders after the constructor, and animates as it always did. Read from the
+    // DOM rather than from a hydration flag: Angular exposes none publicly, and
+    // what matters is whether the text is already on screen.
+    this.skipEntrance = this.host.nativeElement.querySelector(':scope > .wr-split-text__sr-only') !== null;
+
     afterNextRender(() => this.startObserver());
 
-    // Re-run animation if `text` (and therefore the split pieces) changes.
+    // Re-run animation if `text` (and therefore the split pieces) changes. The
+    // first run is the initial text, which the skip above still applies to.
+    let initial = true;
     effect(() => {
       this.text();
       this.splitType();
+      if (!initial) this.skipEntrance = false;
+      initial = false;
       this.hasAnimated = false;
       queueMicrotask(() => this.startObserver());
     });
@@ -212,9 +237,10 @@ export class WrSplitText {
     if (this.hasAnimated) return;
     this.hasAnimated = true;
 
-    // Reduced motion: pieces already render at their natural (final)
-    // state — skip the tween and report completion right away.
-    if (this.platform.prefersReducedMotion()) {
+    // Reduced motion, or text that hydration found already on screen: the
+    // pieces render at their natural (final) state — skip the tween and report
+    // completion right away.
+    if (this.platform.prefersReducedMotion() || this.skipEntrance) {
       this.animationComplete.emit();
       return;
     }

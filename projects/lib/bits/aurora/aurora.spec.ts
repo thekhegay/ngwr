@@ -220,6 +220,29 @@ describe('WrAurora', () => {
     expect(stops).toEqual([1, 0, 0, 0, 0, 1, 0, 1, 0]);
   });
 
+  it('repaints the still frame in the new colours when the scheme switches', async () => {
+    withContext();
+    await mount([{ provide: WrPlatform, useValue: reducedMotion }]);
+    const aurora = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-aurora')!;
+    // jsdom resolves every `light-dark()` to its light half, so the switch is
+    // staged on the hook itself: the new value is in place BEFORE the scheme
+    // moves, and only the scheme switch may bring it to the canvas.
+    aurora.style.setProperty('--wr-aurora-stop-1', '#ff0000');
+    const before = painted;
+    runFrame();
+    expect(painted, 'a still frame schedules nothing on its own').toBe(before);
+
+    document.documentElement.style.colorScheme = 'dark';
+    try {
+      await new Promise(resolve => setTimeout(resolve));
+
+      expect(painted).toBe(before + 1);
+      expect(stops.slice(0, 3)).toEqual([1, 0, 0]);
+    } finally {
+      document.documentElement.style.removeProperty('color-scheme');
+    }
+  });
+
   it('follows reduced motion switched on and off while the page is open', async () => {
     const reduce = signal(false);
     withContext();

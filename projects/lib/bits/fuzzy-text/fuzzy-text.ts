@@ -28,7 +28,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, resolveCssColor } from 'ngwr/utils';
+import { numAttr, resolveCssColor, watchColorScheme } from 'ngwr/utils';
 
 import type { WrFuzzyTextDirection } from './types';
 
@@ -109,7 +109,8 @@ export class WrFuzzyText {
    * Text colour, any CSS colour — `var()` and `light-dark()` included, resolved
    * against the canvas. `'inherit'` follows the canvas's computed colour. Both are
    * re-read while the text animates, so a colour-scheme change lands on the next
-   * frame. Ignored if `[gradient]` is set. @default 'inherit'
+   * frame, and the still copy drawn under reduced motion is redrawn when the
+   * page's scheme switches. Ignored if `[gradient]` is set. @default 'inherit'
    */
   readonly color = input('inherit');
 
@@ -161,6 +162,12 @@ export class WrFuzzyText {
   private teardown: (() => void) | undefined;
 
   /**
+   * Re-bakes and redraws the still copy, set only while one is on the canvas.
+   * The fuzz loop needs none: every frame it draws re-resolves the fill.
+   */
+  private repaint: (() => void) | undefined;
+
+  /**
    * `init()` suspends on font loading, so the component can be destroyed while
    * it is awaiting. At that moment `teardown` is still undefined, so the
    * destroy hook has nothing to call — and everything the rest of `init()`
@@ -196,6 +203,10 @@ export class WrFuzzyText {
       this.platform.prefersReducedMotion();
       this.restart();
     });
+
+    // The still copy keeps the colours it was baked in, so a colour-scheme
+    // switch under reduced motion has to ask for it again.
+    watchColorScheme(() => this.repaint?.());
 
     this.destroyRef.onDestroy(() => {
       this.destroyed = true;
@@ -370,7 +381,21 @@ export class WrFuzzyText {
     // so the re-init effect keeps redrawing on input changes.
     if (this.platform.prefersReducedMotion()) {
       ctx.drawImage(offscreen, 0, 0);
-      this.teardown = (): void => window.removeEventListener('resize', onResize);
+      // A scheme switch re-bakes the text in whatever its colours now resolve
+      // to and draws it again; a switch that leaves them alone draws nothing.
+      // Cleared in device space, the way the loop's second pass clears.
+      this.repaint = (): void => {
+        if (!refill()) return;
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
+        ctx.drawImage(offscreen, 0, 0);
+      };
+      this.teardown = (): void => {
+        this.repaint = undefined;
+        window.removeEventListener('resize', onResize);
+      };
       return;
     }
 

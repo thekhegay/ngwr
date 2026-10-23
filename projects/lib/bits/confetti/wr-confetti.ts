@@ -13,6 +13,26 @@ import { resolveCssColor } from 'ngwr/utils';
 
 import type { WrConfettiOptions } from './types';
 
+/**
+ * The default palette, as theme tokens resolved when a burst is fired — so a
+ * dark page gets the dark intents. Each slot is the token nearest the hex it
+ * replaced (`#f51c6a` had no token of its own and became `danger-light`, the
+ * green `#00a400` became `success-light`), plus `info` for the fifth intent.
+ * The hex survives as each token's CSS fallback, which is what a page that
+ * never loaded `ngwr/theme` paints.
+ */
+const DEFAULT_COLORS: readonly string[] = [
+  'var(--wr-color-primary, #3969e2)',
+  'var(--wr-color-danger-light, #f51c6a)',
+  'var(--wr-color-success-light, #00a400)',
+  'var(--wr-color-warning, #ffba00)',
+  'var(--wr-color-danger, #fa383e)',
+  'var(--wr-color-info, #3472d9)',
+];
+
+/** What a colour that resolves to nothing at all is painted with. */
+const FALLBACK_COLOR = '#3969e2';
+
 const DEFAULTS: Required<WrConfettiOptions> = {
   count: 80,
   spread: 60,
@@ -21,7 +41,7 @@ const DEFAULTS: Required<WrConfettiOptions> = {
   gravity: 0.35,
   drag: 0.92,
   origin: { x: 0.5, y: 1 },
-  colors: ['#3969e2', '#f51c6a', '#00a400', '#ffba00', '#fa383e'],
+  colors: DEFAULT_COLORS,
   size: 8,
   ttl: 180,
 };
@@ -149,9 +169,11 @@ export class WrConfetti {
     // Resolved once per burst, against the canvas: `fillStyle` reads neither a
     // `var()` token nor `light-dark()` and silently keeps the previous colour, so
     // `colors: ['var(--wr-color-primary)']` painted whatever the last particle
-    // had. A colour that resolves to nothing falls back to the first default.
+    // had. Per burst is also what makes the default palette follow the colour
+    // scheme: a burst fired after a switch resolves the tokens afresh. A colour
+    // that resolves to nothing falls back to the primary blue.
     const canvas = this.canvas;
-    const palette = canvas ? opts.colors.map(color => resolveCssColor(canvas, color, DEFAULTS.colors[0])) : opts.colors;
+    const palette = canvas ? opts.colors.map(color => resolveCssColor(canvas, color, FALLBACK_COLOR)) : opts.colors;
     const halfSpread = (opts.spread / 2) * (Math.PI / 180);
     for (let i = 0; i < opts.count; i++) {
       // Launch direction: 90° = up (default), 0° = right — same convention

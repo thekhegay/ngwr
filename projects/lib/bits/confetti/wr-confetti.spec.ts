@@ -279,6 +279,38 @@ describe('WrConfetti', () => {
     expect(fills).toEqual(['rgb(1, 2, 3)', 'rgb(1, 2, 3)']);
   });
 
+  it('paints the default palette from the theme tokens, read when each burst is fired', () => {
+    // A hex palette painted the same colours in both schemes. Read as tokens per
+    // burst, a burst fired after a scheme switch takes the dark intents. jsdom
+    // resolves `light-dark()` to its light half, so the switch is staged on the
+    // token itself; the first slot is the primary intent.
+    withContext();
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const root = document.documentElement.style;
+    try {
+      root.setProperty('--wr-color-primary', 'rgb(1, 2, 3)');
+      confetti.fire({ count: 1 });
+      runFrame();
+      root.setProperty('--wr-color-primary', 'rgb(4, 5, 6)');
+      confetti.fire({ count: 1 });
+      runFrame();
+    } finally {
+      root.removeProperty('--wr-color-primary');
+    }
+
+    expect(fills).toEqual(['rgb(1, 2, 3)', 'rgb(1, 2, 3)', 'rgb(4, 5, 6)']);
+  });
+
+  it('falls back to the old hex where the theme was never loaded', () => {
+    withContext();
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+
+    confetti.fire({ count: 1 });
+    runFrame();
+
+    expect(fills).toEqual(['rgb(57, 105, 226)']);
+  });
+
   it('takes an options object without complaining about the ones it is not given', () => {
     withContext();
     confetti.fire({ count: 5, origin: { x: 0.25, y: 0.5 }, colors: ['#fff'] });

@@ -21,7 +21,8 @@ export { resolveCssSize } from './css-size';
 export type { ResolveCssSizeOptions, ResolvedCssSize } from './css-size';
 
 // DOM
-export { getRootFontSize, getFocusableElements, resolveCssColor, trapFocus } from './dom';
+export { getRootFontSize, getFocusableElements, resolveCssColor, trapFocus, watchColorScheme } from './dom';
+export type { WatchColorSchemeOptions, WrColorScheme } from './dom';
 
 // ID
 export { randomId } from './id';

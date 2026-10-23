@@ -31,7 +31,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, resolveCssColor } from 'ngwr/utils';
+import { numAttr, resolveCssColor, watchColorScheme } from 'ngwr/utils';
 
 // Perlin noise (Stefan Gustavson's reference permutation)
 /* eslint-disable no-bitwise -- permutation-table hashing is inherently bitwise */
@@ -249,6 +249,13 @@ export class WrWaves {
       // element stayed visible and empty. `onResize` ends the same way, for
       // the same reason.
       if (this.platform.prefersReducedMotion()) this.drawLines();
+    });
+
+    // The still grid keeps the line colour it was drawn with, so a scheme switch
+    // under reduced motion re-resolves it and draws the grid again. The loop
+    // needs no help: every frame it draws resolves the colour afresh.
+    watchColorScheme(() => {
+      if (this.booted() && this.platform.prefersReducedMotion()) this.drawLines();
     });
 
     // Motion or a still grid, decided live: a preference switched while the page

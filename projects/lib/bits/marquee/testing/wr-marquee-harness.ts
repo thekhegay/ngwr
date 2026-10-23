@@ -44,10 +44,11 @@ function inlineStyle(style: string | null, property: string): string | null {
  * browser it is one frame of a loop that is already stale by the time an assertion reads
  * it. `[speed]` and `[direction]` reach the DOM in no form. Neither does the hover state:
  * pausing flips a private signal with no class, attribute or property behind it, so a
- * `hover()` here would fire events that provably change nothing readable. And the
- * reduced-motion freeze is a CSS `!important` rule with no counterpart in TypeScript,
- * which means the DOM is identical either way — see `getGap` for what a harness can
- * honestly read off a stylesheet-driven component, and why it reads it where it does.
+ * `hover()` here would fire events that provably change nothing readable. Reduced
+ * motion is the one motion state with markup behind it — the strip turns into a
+ * scroller with a single copy — and {@link isScrollable} reads it; see `getGap` for
+ * what a harness can honestly read off a stylesheet-driven component, and why it
+ * reads it where it does.
  *
  * @example
  * ```ts
@@ -101,10 +102,24 @@ export class WrMarqueeHarness extends ComponentHarness {
    * The seamless loop is built by repeating the whole list until it covers the container,
    * so the count is decided by measurement — which means it stays at the floor of 2 in a
    * test with no layout, whatever the container would really be. Assert `>= 2`; the
-   * growth needs a browser.
+   * growth needs a browser. Under reduced motion there is no loop to hide a seam in, and
+   * the count is exactly 1.
    */
   async getCopyCount(): Promise<number> {
     return (await this.copies()).length;
+  }
+
+  /**
+   * Whether the strip is a still scroller rather than a running loop — what it becomes
+   * under `prefers-reduced-motion`, read off the `.wr-marquee--static` modifier the
+   * component sets from the live preference.
+   *
+   * The class is what the stylesheet scrolls on, so this answers differently for a strip
+   * that froze with its items out of reach; whether it actually SCROLLS is layout, which
+   * a unit test does not have.
+   */
+  async isScrollable(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-marquee--static');
   }
 
   /**

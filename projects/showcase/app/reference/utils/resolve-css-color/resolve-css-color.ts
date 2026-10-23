@@ -48,12 +48,28 @@ resolveCssColor(canvas, 'color-mix(in srgb, var(--wr-color-primary) 20%, transpa
 resolveCssColor(canvas, 'var(--not-set-anywhere)', '#0f172a');
 // '#0f172a' — the fallback`;
 
+  protected readonly schemeSnippet = `import { afterNextRender } from '@angular/core';
+import { resolveCssColor, watchColorScheme } from 'ngwr/utils';
+
+constructor() {
+  afterNextRender(() => this.draw());
+  // A canvas keeps the pixels it was given: draw again when the scheme switches.
+  watchColorScheme(() => this.draw());
+}`;
+
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'resolveCssColor(context, expression, fallback)',
       description:
         'Resolves `expression` against `context` to `rgb()`, `rgba()` or, for a mix, `color(srgb …)`. Returns `fallback` when it does not parse or names a custom property that is not set.',
       type: '(context: Element, expression: string, fallback: string) => string',
+      default: '—',
+    },
+    {
+      name: 'watchColorScheme(callback, options?)',
+      description:
+        "Calls `callback` when the scheme `<html>` resolves to changes: `WrTheme`'s inline `color-scheme`, a class or attribute on `<html>`, or the OS preference under `light dark`. Stops on destroy; returns a stop function. Does nothing on the server.",
+      type: '(callback: (scheme: WrColorScheme) => void, options?: { injector?: Injector }) => () => void',
       default: '—',
     },
   ];

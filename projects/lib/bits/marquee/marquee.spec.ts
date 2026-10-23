@@ -351,24 +351,135 @@ describe('WrMarquee frame loop', () => {
 });
 
 /**
+ * Under reduced motion the loop stops, and a frozen `overflow: hidden` strip used
+ * to leave every item past the edge out of reach for good. It becomes a scroller
+ * instead: one copy (the duplicates hide the seam of a loop that is not running),
+ * the `--static` modifier the stylesheet scrolls on, and a tab stop on the region
+ * when no item has one — a scroll container the keyboard cannot reach cannot be
+ * scrolled from it. The scrolling itself is CSS and is measured in a browser; what
+ * is pinned here is the markup it rests on, followed live.
+ */
+describe('WrMarquee under reduced motion', () => {
+  const reduced = signal(true);
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-marquee')!;
+  const lists = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-marquee__list')];
+
+  const mount = async (items: readonly WrMarqueeItem[] = ITEMS): Promise<void> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: WrPlatform, useValue: { isBrowser: true, prefersReducedMotion: reduced } }],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.items.set(items);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+
+  beforeEach(() => reduced.set(true));
+  afterEach(() => fixture.destroy());
+
+  it('renders one copy, in the accessible tree and out of none', async () => {
+    await mount();
+
+    expect(lists().length).toBe(1);
+    expect(lists()[0].getAttribute('aria-hidden')).toBe('false');
+    expect(lists()[0].hasAttribute('inert')).toBe(false);
+    expect(host().classList.contains('wr-marquee--static')).toBe(true);
+  });
+
+  it('gives the region a tab stop when no item takes one', async () => {
+    await mount([
+      { src: '/a.png', alt: 'Acme' },
+      { src: '/b.png', alt: 'Beta' },
+    ]);
+
+    // Named already — it is the region — so the stop announces the strip.
+    expect(host().getAttribute('tabindex')).toBe('0');
+    expect(host().getAttribute('aria-label')).toBe('Marquee');
+  });
+
+  it('leaves the stops to the items when they have them', async () => {
+    await mount();
+
+    expect(lists()[0].querySelectorAll('a[href]').length).toBeGreaterThan(0);
+    expect(host().hasAttribute('tabindex')).toBe(false);
+  });
+
+  it('follows the preference switched while the page is open', async () => {
+    await mount([{ src: '/a.png', alt: 'Acme' }]);
+
+    reduced.set(false);
+    await fixture.whenStable();
+    expect(lists().length).toBeGreaterThanOrEqual(2);
+    expect(host().classList.contains('wr-marquee--static')).toBe(false);
+    expect(host().hasAttribute('tabindex')).toBe(false);
+
+    reduced.set(true);
+    await fixture.whenStable();
+    expect(lists().length).toBe(1);
+    expect(host().getAttribute('tabindex')).toBe('0');
+  });
+
+  // An `overflow: hidden` host keeps a scroll offset, so a strip scrolled while
+  // static would start its loop shifted, its edge fades placed mid-strip.
+  it('scrolls back to the start when the loop resumes', async () => {
+    await mount([{ src: '/a.png', alt: 'Acme' }]);
+    host().scrollLeft = 200;
+
+    reduced.set(false);
+    await fixture.whenStable();
+
+    expect(host().classList.contains('wr-marquee--static')).toBe(false);
+    expect(host().scrollLeft).toBe(0);
+  });
+});
+
+interface Sass {
+  compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
+}
+
+/** The compiled stylesheet, comments stripped — jsdom has no cascade, so CSS is read as text. */
+const compiledCss = (): string => {
+  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
+  return sass
+    .compileString("@use 'bits/marquee/styles';", {
+      loadPaths: [join(process.cwd(), 'projects/lib')],
+      style: 'expanded',
+    })
+    .css.replace(/\/\*[\s\S]*?\*\//g, '');
+};
+
+/** The declarations of the first rule whose selector is exactly `selector`. */
+const ruleIn = (css: string, selector: string): string =>
+  new RegExp(`(?:^|\\n)\\s*${selector.replace(/[.()>:]/g, m => `\\${m}`)}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
+
+/**
+ * The static strip's half that lives in the stylesheet: the host scrolls, and the
+ * edge fades — absolutely placed inside what is now the scroll container — are
+ * dropped rather than left to scroll away or to veil the first and last items.
+ * Measured in Chromium with reduced motion emulated; held here against the CSS.
+ */
+describe('WrMarquee static stylesheet', () => {
+  const css = compiledCss();
+
+  it('scrolls the static strip and drops the fades that would cover its ends', () => {
+    expect(ruleIn(css, '.wr-marquee--static')).toMatch(/overflow-x:\s*auto/);
+    expect(css).toMatch(/\.wr-marquee--static::before,\s*\.wr-marquee--static::after\s*\{\s*display:\s*none/);
+  });
+});
+
+/**
  * Which edge the over-wide track sticks to is decided by the HOST's direction, so
  * the physical loop holds the host to LTR and gives each item the page's
  * direction back. jsdom has no cascade or layout, so this is held against the
  * compiled CSS; the coverage itself was measured in Chromium under `dir="rtl"`.
  */
 describe('WrMarquee under RTL', () => {
-  interface Sass {
-    compileString(source: string, options: { loadPaths: string[]; style: 'expanded' }): { css: string };
-  }
-  const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
-  const css = sass
-    .compileString("@use 'bits/marquee/styles';", {
-      loadPaths: [join(process.cwd(), 'projects/lib')],
-      style: 'expanded',
-    })
-    .css.replace(/\/\*[\s\S]*?\*\//g, '');
-  const rule = (selector: string): string =>
-    new RegExp(`(?:^|\\n)\\s*${selector.replace(/[.()>:]/g, m => `\\${m}`)}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
+  const css = compiledCss();
+  const rule = (selector: string): string => ruleIn(css, selector);
 
   it('keeps the strip physical and the items in the page direction', () => {
     expect(rule('.wr-marquee')).toMatch(/direction:\s*ltr/);

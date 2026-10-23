@@ -1,5 +1,14 @@
-import { Component, PLATFORM_ID, signal } from '@angular/core';
+import {
+  type ApplicationRef,
+  Component,
+  PLATFORM_ID,
+  provideZonelessChangeDetection,
+  signal,
+  ɵsetDocument,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { type BootstrapContext, bootstrapApplication, provideClientHydration } from '@angular/platform-browser';
+import { ɵENABLE_DOM_EMULATION, provideServerRendering, renderApplication } from '@angular/platform-server';
 
 import { WrPlatform } from 'ngwr/platform';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -300,5 +309,155 @@ describe('WrSplitText', () => {
       finishAll();
       expect(warn.mock.calls.map(args => args.map(String).join(' ')).filter(m => m.includes('NG0953'))).toEqual([]);
     });
+  });
+});
+
+@Component({
+  selector: 'wr-test-ssr-split-root',
+  imports: [WrSplitText],
+  template: `<wr-split-text [text]="text()" (animationComplete)="done = done + 1" />`,
+})
+class SsrRoot {
+  readonly text = signal('Hi there');
+  done = 0;
+}
+
+/**
+ * A prerendered page shows the text at rest long before the bundle boots, and
+ * hydration keeps those very nodes. Playing the entrance there blanks text the
+ * visitor has been reading and fades it back in. So this renders the root for
+ * real with `@angular/platform-server`, hands the HTML to jsdom, and hydrates
+ * it with `provideClientHydration()` — the path a prerendered page takes, with
+ * no stand-in for Angular's own hydration — then reads whether a tween started.
+ *
+ * The other two cases are the half that must keep animating: a host Angular
+ * creates on the client, and hydrated text whose `text` changes later.
+ */
+describe('WrSplitText over server-rendered markup', () => {
+  let tweens: number;
+  let observers: { fire: () => void; connected: boolean }[];
+  let app: ApplicationRef | null;
+  let animateBefore: PropertyDescriptor | undefined;
+
+  const pieces = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('.wr-split-text__piece')];
+
+  /**
+   * Renders on a document of its own, with platform-server's DOM emulation off.
+   * The builder runs vitest non-isolated, so every spec file in this worker shares
+   * one global scope, and the emulation replaces `Event`, `Node` and the rest with
+   * domino's for every file that runs after this one — a harness dispatching a
+   * jsdom event then fails three files away. The server platform also points
+   * core's document reference at the one it rendered on, which is handed back.
+   */
+  const serverRender = async (): Promise<string> => {
+    const doc = document.implementation.createHTMLDocument('');
+    doc.body.innerHTML = '<wr-test-ssr-split-root></wr-test-ssr-split-root>';
+    try {
+      const html = await renderApplication(
+        (context: BootstrapContext) =>
+          bootstrapApplication(
+            SsrRoot,
+            { providers: [provideServerRendering(), provideZonelessChangeDetection(), provideClientHydration()] },
+            context
+          ),
+        { document: doc, platformProviders: [{ provide: ɵENABLE_DOM_EMULATION, useValue: false }] }
+      );
+      return /<body>([\s\S]*)<\/body>/.exec(html)![1];
+    } finally {
+      ɵsetDocument(document);
+    }
+  };
+
+  /** Bootstraps over `body`, or over whatever the page already holds when it is `null`. */
+  const boot = async (body: string | null, hydrate: boolean): Promise<SsrRoot> => {
+    if (body !== null) document.body.innerHTML = body;
+    app = await bootstrapApplication(SsrRoot, {
+      providers: [provideZonelessChangeDetection(), ...(hydrate ? [provideClientHydration()] : [])],
+    });
+    await app.whenStable();
+    return app.components[0].instance as SsrRoot;
+  };
+
+  /** Scroll it into view: every observer still connected reports an intersection. */
+  const enterViewport = async (): Promise<void> => {
+    // The observer is built in a fonts-ready continuation, a microtask past render.
+    await new Promise(resolve => setTimeout(resolve));
+    for (const observer of observers.filter(o => o.connected)) observer.fire();
+    await app!.whenStable();
+  };
+
+  beforeEach(() => {
+    tweens = 0;
+    observers = [];
+    app = null;
+    const records = observers;
+    class StubObserver {
+      private readonly record = { fire: (): void => undefined, connected: false };
+      constructor(cb: IntersectionObserverCallback) {
+        this.record.fire = () =>
+          cb([{ isIntersecting: true } as IntersectionObserverEntry], this as unknown as IntersectionObserver);
+        records.push(this.record);
+      }
+      observe(): void {
+        this.record.connected = true;
+      }
+      disconnect(): void {
+        this.record.connected = false;
+      }
+    }
+    vi.stubGlobal('IntersectionObserver', StubObserver);
+    animateBefore = Object.getOwnPropertyDescriptor(Element.prototype, 'animate');
+    Element.prototype.animate = function () {
+      tweens++;
+      return { cancel: () => undefined, onfinish: null } as unknown as Animation;
+    };
+    // Development-mode and hydration-stats lines, printed by every bootstrap.
+    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    vi.spyOn(console, 'info').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    app?.destroy();
+    document.body.innerHTML = '';
+    if (animateBefore) Object.defineProperty(Element.prototype, 'animate', animateBefore);
+    else delete (Element.prototype as Partial<Element>).animate;
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('leaves hydrated text where the server painted it', async () => {
+    document.body.innerHTML = await serverRender();
+    const painted = pieces()[0];
+    const root = await boot(null, true);
+    // Hydration, not a re-render: the server's nodes are the ones on the page.
+    expect(pieces()[0]).toBe(painted);
+
+    await enterViewport();
+
+    expect(tweens).toBe(0);
+    expect(pieces().map(piece => piece.style.opacity)).toEqual(pieces().map(() => ''));
+    // Completion is still reported, as it is under reduced motion.
+    expect(root.done).toBe(1);
+  });
+
+  it('animates a host created on the client', async () => {
+    await boot('<wr-test-ssr-split-root></wr-test-ssr-split-root>', false);
+
+    await enterViewport();
+
+    expect(tweens).toBe(pieces().length);
+    expect(tweens).toBeGreaterThan(0);
+  });
+
+  it('animates hydrated text once the text changes', async () => {
+    const root = await boot(await serverRender(), true);
+    await enterViewport();
+    expect(tweens).toBe(0);
+
+    root.text.set('Hello');
+    await app!.whenStable();
+    await enterViewport();
+
+    expect(tweens).toBe(5);
   });
 });

@@ -28,7 +28,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr, resolveCssColor } from 'ngwr/utils';
+import { numAttr, resolveCssColor, watchColorScheme } from 'ngwr/utils';
 
 const VERT = `#version 300 es
 in vec2 position;
@@ -183,7 +183,8 @@ function toRgb01(color: string): [number, number, number] | null {
  * WebGL2 simplex-noise shader, ramped across three colour stops. Fills
  * its nearest positioned ancestor; renders nothing without WebGL2.
  *
- * Under `prefers-reduced-motion` a single static frame is drawn.
+ * Under `prefers-reduced-motion` a single static frame is drawn, and drawn
+ * again in the new colours when the page's colour scheme switches.
  *
  * @example
  * ```html
@@ -251,6 +252,15 @@ export class WrAurora {
       if (!this.gl) return;
       this.pushUniforms();
       if (this.platform.prefersReducedMotion()) this.draw(0);
+    });
+
+    // A still frame keeps the colours it was drawn with, so a scheme switch
+    // under reduced motion re-resolves the stops and paints it again. The loop
+    // needs no help: it re-resolves on every frame it draws.
+    watchColorScheme(() => {
+      if (!this.gl || !this.platform.prefersReducedMotion()) return;
+      this.pushUniforms();
+      this.draw(0);
     });
 
     // The frame loop runs only while there is something to see: never under
