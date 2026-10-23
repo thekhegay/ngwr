@@ -25,7 +25,7 @@
 
 export const QUALITY = {
   /** The published version, read from `projects/lib/package.json` — cross-checked against the `NGWR_VERSION` constant, which is a separate copy. */
-  version: "15.0.0-rc.3",
+  version: "15.0.0",
 
   /** Secondary entry points — `ngwr/button`, `ngwr/select`, … Read from the `exports` map, which is what the library builder compiles, so `styles/` and `schematics/` are correctly absent. Excludes the primary `ngwr`. */
   entryPoints: 218,
@@ -46,7 +46,7 @@ export const QUALITY = {
   specFiles: 281,
 
   /** Test cases those files DECLARE — `it(…)` / `test(…)` call sites, counted after comments and string bodies are stripped. */
-  testCases: 5453,
+  testCases: 5454,
 
   /** Whether `testCases` is a total or a floor. A parameterised form (`it.each`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page prints the count as "N+" (`formatCount(n, { floor: true })`) rather than failing a documentation build over a legal spec. */
   testCasesAreExact: false,
