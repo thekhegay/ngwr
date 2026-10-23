@@ -199,6 +199,14 @@
   @include focus-ring;
 }
 
+// Chart legend rows — with `toggleable` each row is a `<button aria-pressed>`, in
+// a standalone `ul[wr-chart-legend]` and in the legend every chart draws with one.
+// Safe as an OUTSET ring: neither the legend nor the charts that render it set
+// `overflow` on anything around the rows.
+.wr-chart-legend__toggle:focus-visible {
+  @include focus-ring;
+}
+
 // Pull to refresh — the host is the scroller, and a list of plain rows leaves
 // it the only thing a keyboard user can focus to scroll. An element's own
 // `overflow` does not clip its outline, so the ring stays OUTSET.
