@@ -14,14 +14,21 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 
 import { ConventionalChangelog } from 'conventional-changelog';
+import semver from 'semver';
 
 import { CHANGELOG_PATH } from '../paths/changelog';
 import { LIB_PKG_PATH } from '../paths/lib-pkg';
 
 export async function regenerateChangelog(): Promise<void> {
+  const { version } = JSON.parse(readFileSync(LIB_PKG_PATH, 'utf8')) as { version: string };
+  // A stable release after release candidates describes everything since the
+  // last stable one: counted from the newest rc tag, the 15.0.0 section would
+  // hold only what landed after the last candidate. A candidate still counts
+  // from the tag before it, rc tags included.
   const generator = new ConventionalChangelog()
     .readPackage(LIB_PKG_PATH)
     .readRepository()
+    .tags({ skipUnstable: semver.prerelease(version) === null })
     .loadPreset('conventionalcommits');
 
   let section = '';
