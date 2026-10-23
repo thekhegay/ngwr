@@ -76,6 +76,14 @@
     <ngwr-doc-code [code]="snippets.provider" language="angular-ts" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="SSR: no jump after boot"
+    description="Put this script in `<head>`, next to the theme one, so a stored density applies before the first paint. New in v15."
+  >
+    <ngwr-doc-code [code]="prePaint" language="html" />
+    <ngwr-doc-code [code]="snippets.prePaintCustom" language="typescript" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

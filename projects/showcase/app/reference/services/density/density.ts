@@ -3,7 +3,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
-import { WrDensity, WrDensityDirective, type WrDensityValue } from 'ngwr/density';
+import { WrDensity, WrDensityDirective, type WrDensityValue, wrDensityPrePaintScript } from 'ngwr/density';
 import { WrInput } from 'ngwr/input';
 import { WrSelect, WrOption } from 'ngwr/select';
 
@@ -49,6 +49,9 @@ export default class DensityServicePage {
     this.density.set(value);
   }
 
+  /** Generated rather than typed out, so the page cannot print a recipe the library does not run. */
+  protected readonly prePaint = `<script>${wrDensityPrePaintScript()}</script>`;
+
   protected readonly snippets = {
     usage: `private readonly density = inject(WrDensity);
 
@@ -62,6 +65,10 @@ providers: [provideWr(withDensity({ defaultDensity: 'sm' }))],`,
     directive: `<aside wrDensity="sm">
   <wr-list ...></wr-list>
 </aside>`,
+    prePaintCustom: `import { wrDensityPrePaintScript } from 'ngwr/density';
+
+// Pass the values you gave withDensity() and withStorage():
+wrDensityPrePaintScript({ defaultDensity: 'sm', storageKey: 'app-density', storagePrefix: 'myapp:' });`,
     tokens: `[data-wr-density='sm'] {
   --wr-density-y: 0.5;
   --wr-density-x: 0.8;
@@ -93,6 +100,13 @@ providers: [provideWr(withDensity({ defaultDensity: 'sm' }))],`,
       name: '[wrDensity]',
       description: 'Give one subtree its own density.',
       type: 'Directive',
+      default: '—',
+    },
+    {
+      name: 'wrDensityPrePaintScript(options?)',
+      description:
+        'Source of the script that applies a stored density before the first paint. Takes the `withDensity()` and `withStorage()` values.',
+      type: '(options?: WrDensityPrePaintOptions) => string',
       default: '—',
     },
     {

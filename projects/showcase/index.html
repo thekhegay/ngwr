@@ -70,6 +70,39 @@
       })();
     </script>
 
+    <!--
+      Pre-paint density, for the same reason as the theme: `WrDensity` writes
+      `data-wr-density` from an effect, so a reader who picked `touch` or `sm`
+      watched every control resize once the bundle booted. Mirrors
+      `wrDensityPrePaintScript()` from `ngwr/density` for this site's config
+      (key `wr-density`, empty prefix, JSON envelope, default `md`), and
+      `density/pre-paint.spec.ts` runs both against the same stored values.
+    -->
+    <script>
+      (function () {
+        var density = null;
+        try {
+          var raw = localStorage.getItem('wr-density');
+          if (raw !== null) {
+            try {
+              var parsed = JSON.parse(raw);
+              if (parsed !== null && typeof parsed === 'object' && 'v' in parsed) {
+                if (parsed.e === undefined || parsed.e >= Date.now()) density = parsed.v;
+              } else {
+                density = parsed;
+              }
+            } catch (e) {
+              density = raw;
+            }
+          }
+        } catch (e) {
+          /* storage blocked — the default below */
+        }
+        if (density !== 'sm' && density !== 'md' && density !== 'lg' && density !== 'touch') density = 'md';
+        document.documentElement.setAttribute('data-wr-density', density);
+      })();
+    </script>
+
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />

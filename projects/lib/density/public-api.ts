@@ -7,3 +7,4 @@ export {
   type WrDensityValue,
   type WrDensityConfig,
 } from './density-config';
+export { wrDensityPrePaintScript, type WrDensityPrePaintOptions } from './pre-paint';
