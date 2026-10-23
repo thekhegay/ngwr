@@ -88,6 +88,17 @@
   // API, and the arrow is the pane's business rather than the chip's.
 }
 
+// A swatch in a chart's chip: the heading's and each row's alike.
+@mixin _swatch {
+  flex: 0 0 auto;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  // An inline `background`, which forced colors resets to `Canvas`, while the
+  // chart mark it names keeps its colour there — so the key keeps it too.
+  forced-color-adjust: none;
+}
+
 // The chip a chart's hover tooltip renders into (`useChartTooltip()`, used by
 // every chart but `wr-line-chart`, which draws its own). It carries `.wr-tooltip`
 // as well, so everything above is its look and the arrow below is its arrow; this
@@ -99,6 +110,7 @@
 // be the one thing that did not follow.
 .wr-chart-tooltip {
   --wr-chart-tooltip-gap: var(--wr-space-sm);
+  --wr-chart-tooltip-row-gap: var(--wr-space-xs);
 
   display: inline-flex;
   // Its own text's width, up to the tooltip's `max-width`, whatever room the pane has
@@ -112,13 +124,7 @@
   gap: var(--wr-chart-tooltip-gap);
 
   &__swatch {
-    flex: 0 0 auto;
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    // An inline `background`, which forced colors resets to `Canvas`, while the
-    // chart mark it names keeps its colour there — so the key keeps it too.
-    forced-color-adjust: none;
+    @include _swatch;
   }
 
   &__value {
@@ -132,6 +138,62 @@
     &:only-child {
       font-weight: inherit;
     }
+  }
+
+  // Several values about one section — every series at a radar's axis, a scatter
+  // point's x, y and size: the heading on the first line, a row per value under it.
+  // A column whose lines all take the chip's width, so each row's value lands on the
+  // inline end and the numbers line up, as they do in `wr-line-chart`'s own tooltip.
+  &--rows {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--wr-chart-tooltip-row-gap);
+  }
+
+  // The heading over the rows is their title, so it takes the weight a lone label
+  // does not: the rows' labels stay regular, and the heading reads as what they are of.
+  &__head {
+    --wr-chart-tooltip-head-font-weight: var(--wr-font-weight-semibold);
+
+    display: flex;
+    align-items: center;
+    gap: var(--wr-chart-tooltip-gap);
+    font-weight: var(--wr-chart-tooltip-head-font-weight);
+
+    // A radar's axis name is truncated on the plot, so the heading is where the
+    // whole name has to fit: it wraps inside the chip's `max-width`, as a row's
+    // label does, instead of running past its border. Scoped to the heading, so
+    // the single-line chip keeps the layout every chart drew before.
+    > .wr-chart-tooltip__label {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: var(--wr-chart-tooltip-gap);
+  }
+
+  &__row-swatch {
+    @include _swatch;
+  }
+
+  // Takes the room the value leaves, and wraps inside it once the chip reaches the
+  // tooltip's `max-width`, rather than pushing the value out of the chip.
+  &__row-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  &__row-value {
+    --wr-chart-tooltip-row-value-font-weight: var(--wr-font-weight-semibold);
+
+    flex: none;
+    font-weight: var(--wr-chart-tooltip-row-value-font-weight);
+    font-variant-numeric: tabular-nums;
   }
 }
 
